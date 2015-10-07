@@ -22,19 +22,24 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Greenshot.Interop {
+namespace Greenshot.Interop
+{
 	// This is used for Windows 8 to see if the App Launcher is active
 	// See http://msdn.microsoft.com/en-us/library/windows/desktop/jj554119%28v=vs.85%29.aspx
 	[ComImport, Guid("2246EA2D-CAEA-4444-A3C4-6DE827E44313"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-	public interface IAppVisibility {
+	public interface IAppVisibility
+	{
 		MONITOR_APP_VISIBILITY GetAppVisibilityOnMonitor(IntPtr hMonitor);
-		bool IsLauncherVisible {
+
+		bool IsLauncherVisible
+		{
 			get;
 		}
 	}
 
-	public enum MONITOR_APP_VISIBILITY {
-		MAV_UNKNOWN = 0,		// The mode for the monitor is unknown
+	public enum MONITOR_APP_VISIBILITY
+	{
+		MAV_UNKNOWN = 0, // The mode for the monitor is unknown
 		MAV_NO_APP_VISIBLE = 1,
 		MAV_APP_VISIBLE = 2
 	}

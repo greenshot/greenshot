@@ -36,98 +36,122 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace GreenshotEditorPlugin.Drawing {
+namespace GreenshotEditorPlugin.Drawing
+{
 	/// <summary>
 	/// Dispatches most of a DrawableContainer's public properties and methods to a list of DrawableContainers.
 	/// </summary>
 	[Serializable]
-	public class DrawableContainerList : List<IDrawableContainer> {
-		private static readonly ComponentResourceManager editorFormResources = new ComponentResourceManager(typeof(ImageEditorForm));
+	public class DrawableContainerList : List<IDrawableContainer>
+	{
+		private static readonly ComponentResourceManager editorFormResources = new ComponentResourceManager(typeof (ImageEditorForm));
 		private static readonly IEditorLanguage Language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 
-		public Guid ParentID {
+		public Guid ParentID
+		{
 			get;
 			private set;
 		}
 
-		public DrawableContainerList() {
+		public DrawableContainerList()
+		{
 		}
 
-		public DrawableContainerList(Guid parentID) {
+		public DrawableContainerList(Guid parentID)
+		{
 			ParentID = parentID;
 		}
-		
-		public EditStatus Status {
-			get { 
-				return this[Count-1].Status; 
+
+		public EditStatus Status
+		{
+			get
+			{
+				return this[Count - 1].Status;
 			}
-			set {
-				foreach (var dc in this) {
+			set
+			{
+				foreach (var dc in this)
+				{
 					dc.Status = value;
 				}
 			}
 		}
-		
-		public List<IDrawableContainer> AsIDrawableContainerList() {
+
+		public List<IDrawableContainer> AsIDrawableContainerList()
+		{
 			List<IDrawableContainer> interfaceList = new List<IDrawableContainer>();
-			foreach(IDrawableContainer container in this) {
+			foreach (IDrawableContainer container in this)
+			{
 				interfaceList.Add(container);
 			}
 			return interfaceList;
 		}
-		
+
 		/// <summary>
 		/// Gets or sets the selection status of the elements.
 		/// If several elements are in the list, true is only returned when all elements are selected.
 		/// </summary>
-		public bool Selected {
-			get { 
+		public bool Selected
+		{
+			get
+			{
 				bool ret = true;
-				foreach(var dc in this) {
+				foreach (var dc in this)
+				{
 					ret &= dc.Selected;
 				}
 				return ret;
 			}
-			set { 
-				foreach(var dc in this) {
+			set
+			{
+				foreach (var dc in this)
+				{
 					dc.Selected = value;
 				}
 			}
 		}
-		
+
 		/// <summary>
 		/// Gets or sets the parent control of the elements in the list.
 		/// If there are several elements, the parent control of the last added is returned.
 		/// </summary>
-		public ISurface Parent {
-			get {
-				if (Count > 0) {
-					return this[Count-1].Parent;
+		public ISurface Parent
+		{
+			get
+			{
+				if (Count > 0)
+				{
+					return this[Count - 1].Parent;
 				}
 				return null;
 			}
-			set {
+			set
+			{
 				ParentID = value.ID;
-				foreach(var drawableContainer in this) {
+				foreach (var drawableContainer in this)
+				{
 					var dc = (DrawableContainer) drawableContainer;
 					dc.Parent = value;
 				}
 			}
 		}
-		
+
 		/// <summary>
 		/// Make a following bounds change on this containerlist undoable!
 		/// </summary>
 		/// <param name="allowMerge">true means allow the moves to be merged</param>
-		public void MakeBoundsChangeUndoable(bool allowMerge) {
+		public void MakeBoundsChangeUndoable(bool allowMerge)
+		{
 			List<IDrawableContainer> movingList = new List<IDrawableContainer>();
 			Surface surface = null;
-			foreach(var drawableContainer in this) {
+			foreach (var drawableContainer in this)
+			{
 				var dc = (DrawableContainer) drawableContainer;
 				movingList.Add(dc);
 				surface = dc._parent;
 			}
-			if (movingList.Count > 0 && surface != null) {
+			if (movingList.Count > 0 && surface != null)
+			{
 				surface.MakeUndoable(new DrawableContainerBoundsChangeMemento(movingList), allowMerge);
 			}
 		}
@@ -135,18 +159,21 @@ namespace GreenshotEditorPlugin.Drawing {
 		/// <summary>
 		/// Apply matrix to all elements
 		/// </summary>
-		public void Transform(Matrix matrix) {
+		public void Transform(Matrix matrix)
+		{
 			// Track modifications
 			bool modified = false;
 			Invalidate();
-			foreach (var dc in this) {
+			foreach (var dc in this)
+			{
 				dc.Transform(matrix);
 				modified = true;
 			}
 			// Invalidate after
 			Invalidate();
 			// If we moved something, tell the surface it's modified!
-			if (modified) {
+			if (modified)
+			{
 				Parent.Modified = true;
 			}
 		}
@@ -156,13 +183,15 @@ namespace GreenshotEditorPlugin.Drawing {
 		/// </summary>
 		/// <param name="dx">pixels to move horizontally</param>
 		/// <param name="dy">pixels to move vertically</param>
-		public void MoveBy(int dx, int dy) {
+		public void MoveBy(int dx, int dy)
+		{
 			// Track modifications
 			bool modified = false;
 
 			// Invalidate before moving, otherwise the old locations aren't refreshed
 			Invalidate();
-			foreach(var dc in this) {
+			foreach (var dc in this)
+			{
 				dc.Left += dx;
 				dc.Top += dy;
 				modified = true;
@@ -171,65 +200,77 @@ namespace GreenshotEditorPlugin.Drawing {
 			Invalidate();
 
 			// If we moved something, tell the surface it's modified!
-			if (modified) {
+			if (modified)
+			{
 				Parent.Modified = true;
 			}
 		}
-		
+
 		/// <summary>
 		/// Hides the grippers of all elements in the list.
 		/// </summary>
-		public void HideGrippers() {
-			foreach(var dc in this) {
+		public void HideGrippers()
+		{
+			foreach (var dc in this)
+			{
 				dc.HideGrippers();
 				dc.Invalidate();
 			}
 		}
-		
+
 		/// <summary>
 		/// Shows the grippers of all elements in the list.
 		/// </summary>
-		public void ShowGrippers() {
-			foreach(var dc in this) {
+		public void ShowGrippers()
+		{
+			foreach (var dc in this)
+			{
 				dc.ShowGrippers();
 				dc.Invalidate();
 			}
 		}
-		
+
 		/// <summary>
 		/// Indicates whether on of the elements is clickable at the given location
 		/// </summary>
 		/// <param name="x">x coordinate to be checked</param>
 		/// <param name="y">y coordinate to be checked</param>
 		/// <returns>true if one of the elements in the list is clickable at the given location, false otherwise</returns>
-		public bool ClickableAt(int x, int y) {
+		public bool ClickableAt(int x, int y)
+		{
 			bool ret = false;
-			foreach(var dc in this) {
+			foreach (var dc in this)
+			{
 				ret |= dc.ClickableAt(x, y);
 			}
 			return ret;
 		}
-		
+
 		/// <summary>
 		/// retrieves the topmost element being clickable at the given location
 		/// </summary>
 		/// <param name="x">x coordinate to be checked</param>
 		/// <param name="y">y coordinate to be checked</param>
 		/// <returns>the topmost element from the list being clickable at the given location, null if there is no clickable element</returns>
-		public IDrawableContainer ClickableElementAt(int x, int y) {
-			for (int i=Count-1; i>=0; i--) {
-				if (this[i].ClickableAt(x,y)) {
+		public IDrawableContainer ClickableElementAt(int x, int y)
+		{
+			for (int i = Count - 1; i >= 0; i--)
+			{
+				if (this[i].ClickableAt(x, y))
+				{
 					return this[i];
 				}
 			}
 			return null;
 		}
-		
+
 		/// <summary>
 		/// Dispatches OnDoubleClick to all elements in the list.
 		/// </summary>
-		public void OnDoubleClick() {
-			foreach(var drawableContainer in this) {
+		public void OnDoubleClick()
+		{
+			foreach (var drawableContainer in this)
+			{
 				var dc = (DrawableContainer) drawableContainer;
 				dc.OnDoubleClick();
 			}
@@ -240,9 +281,12 @@ namespace GreenshotEditorPlugin.Drawing {
 		/// </summary>
 		/// <param name="clipRectangle"></param>
 		/// <returns>true if an filter intersects</returns>
-		public bool HasIntersectingFilters(Rectangle clipRectangle) {
-			foreach(var dc in this) {
-				if (dc.DrawingBounds.IntersectsWith(clipRectangle) && dc.hasFilters && dc.Status == EditStatus.IDLE) {
+		public bool HasIntersectingFilters(Rectangle clipRectangle)
+		{
+			foreach (var dc in this)
+			{
+				if (dc.DrawingBounds.IntersectsWith(clipRectangle) && dc.hasFilters && dc.Status == EditStatus.IDLE)
+				{
 					return true;
 				}
 			}
@@ -254,9 +298,12 @@ namespace GreenshotEditorPlugin.Drawing {
 		/// </summary>
 		/// <param name="clipRectangle"></param>
 		/// <returns></returns>
-		public bool IntersectsWith(Rectangle clipRectangle) {
-			foreach(var dc in this) {
-				if (dc.DrawingBounds.IntersectsWith(clipRectangle)) {
+		public bool IntersectsWith(Rectangle clipRectangle)
+		{
+			foreach (var dc in this)
+			{
+				if (dc.DrawingBounds.IntersectsWith(clipRectangle))
+				{
 					return true;
 				}
 			}
@@ -270,66 +317,83 @@ namespace GreenshotEditorPlugin.Drawing {
 		/// <param name="bitmap">Bitmap to draw</param>
 		/// <param name="renderMode">the rendermode in which the element is to be drawn</param>
 		/// <param name="clipRectangle"></param>
-		public void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode, Rectangle clipRectangle) {
-			foreach(var drawableContainer in this) {
+		public void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode, Rectangle clipRectangle)
+		{
+			foreach (var drawableContainer in this)
+			{
 				var dc = (DrawableContainer) drawableContainer;
-				if (dc.DrawingBounds.IntersectsWith(clipRectangle)) {
+				if (dc.DrawingBounds.IntersectsWith(clipRectangle))
+				{
 					dc.DrawContent(g, bitmap, renderMode, clipRectangle);
 				}
 			}
 		}
-		
+
 		/// <summary>
 		/// Invalidate the bounds of all the DC's in this list
 		/// </summary>
-		public void Invalidate() {
-			foreach(var dc in this) {
+		public void Invalidate()
+		{
+			foreach (var dc in this)
+			{
 				dc.Invalidate();
 			}
 		}
+
 		/// <summary>
 		/// Indicates whether the given list of elements can be pulled up, 
 		/// i.e. whether there is at least one unselected element higher in hierarchy
 		/// </summary>
 		/// <param name="elements">list of elements to pull up</param>
 		/// <returns>true if the elements could be pulled up</returns>
-		public bool CanPullUp(DrawableContainerList elements) {
-			if (elements.Count == 0 || elements.Count == Count) {
+		public bool CanPullUp(DrawableContainerList elements)
+		{
+			if (elements.Count == 0 || elements.Count == Count)
+			{
 				return false;
 			}
-			foreach(var element in elements) {
-				if (IndexOf(element) < Count - elements.Count) {
+			foreach (var element in elements)
+			{
+				if (IndexOf(element) < Count - elements.Count)
+				{
 					return true;
 				}
 			}
 			return false;
 		}
-		
+
 		/// <summary>
 		/// Pulls one or several elements up one level in hierarchy (z-index).
 		/// </summary>
 		/// <param name="elements">list of elements to pull up</param>
-		public void PullElementsUp(DrawableContainerList elements) {
-			for(int i=Count-1; i>=0; i--) {
+		public void PullElementsUp(DrawableContainerList elements)
+		{
+			for (int i = Count - 1; i >= 0; i--)
+			{
 				var dc = this[i];
-				if (!elements.Contains(dc)) {
+				if (!elements.Contains(dc))
+				{
 					continue;
 				}
-				if (Count > (i+1) && !elements.Contains(this[i+1])) {
-					SwapElements(i,i+1);
+				if (Count > (i + 1) && !elements.Contains(this[i + 1]))
+				{
+					SwapElements(i, i + 1);
 				}
 			}
 		}
-		
+
 		/// <summary>
 		/// Pulls one or several elements up to the topmost level(s) in hierarchy (z-index).
 		/// </summary>
 		/// <param name="elements">of elements to pull to top</param>
-		public void PullElementsToTop(DrawableContainerList elements) {
+		public void PullElementsToTop(DrawableContainerList elements)
+		{
 			var dcs = ToArray();
-			for(int i=0; i<dcs.Length; i++) {
+			for (int i = 0; i < dcs.Length; i++)
+			{
 				var dc = dcs[i];
-				if (!elements.Contains(dc)) {
+				if (!elements.Contains(dc))
+				{
 					continue;
 				}
 				Remove(dc);
@@ -337,50 +401,61 @@ namespace GreenshotEditorPlugin.Drawing {
 				Parent.Modified = true;
 			}
 		}
-		
+
 		/// <summary>
 		/// Indicates whether the given list of elements can be pushed down, 
 		/// i.e. whether there is at least one unselected element lower in hierarchy
 		/// </summary>
 		/// <param name="elements">list of elements to push down</param>
 		/// <returns>true if the elements could be pushed down</returns>
-		public bool CanPushDown(DrawableContainerList elements) {
-			if (elements.Count == 0 || elements.Count == Count) {
+		public bool CanPushDown(DrawableContainerList elements)
+		{
+			if (elements.Count == 0 || elements.Count == Count)
+			{
 				return false;
 			}
-			foreach(var element in elements) {
-				if (IndexOf(element) >= elements.Count) {
+			foreach (var element in elements)
+			{
+				if (IndexOf(element) >= elements.Count)
+				{
 					return true;
 				}
 			}
 			return false;
 		}
-		
+
 		/// <summary>
 		/// Pushes one or several elements down one level in hierarchy (z-index).
 		/// </summary>
 		/// <param name="elements">list of elements to push down</param>
-		public void PushElementsDown(DrawableContainerList elements) {
-			for(int i=0; i<Count; i++) {
+		public void PushElementsDown(DrawableContainerList elements)
+		{
+			for (int i = 0; i < Count; i++)
+			{
 				var dc = this[i];
-				if (!elements.Contains(dc)) {
+				if (!elements.Contains(dc))
+				{
 					continue;
 				}
-				if((i>0) && !elements.Contains(this[i-1])) {
-					SwapElements(i,i-1);
+				if ((i > 0) && !elements.Contains(this[i - 1]))
+				{
+					SwapElements(i, i - 1);
 				}
 			}
 		}
-		
+
 		/// <summary>
 		/// Pushes one or several elements down to the bottommost level(s) in hierarchy (z-index).
 		/// </summary>
 		/// <param name="elements">of elements to push to bottom</param>
-		public void PushElementsToBottom(DrawableContainerList elements) {
+		public void PushElementsToBottom(DrawableContainerList elements)
+		{
 			var dcs = ToArray();
-			for(int i=dcs.Length-1; i>=0; i--) {
+			for (int i = dcs.Length - 1; i >= 0; i--)
+			{
 				var dc = dcs[i];
-				if (!elements.Contains(dc)) {
+				if (!elements.Contains(dc))
+				{
 					continue;
 				}
 				Remove(dc);
@@ -388,15 +463,17 @@ namespace GreenshotEditorPlugin.Drawing {
 				Parent.Modified = true;
 			}
 		}
-		
+
 		/// <summary>
 		/// swaps two elements in hierarchy (z-index), 
 		/// checks both indices to be in range
 		/// </summary>
 		/// <param name="index1">index of the 1st element</param>
 		/// <param name="index2">index of the 2nd element</param>
-		private void SwapElements(int index1, int index2) {
-			if (index1 < 0 || index1 >= Count || index2 < 0 || index2 >= Count || index1 == index2) {
+		private void SwapElements(int index1, int index2)
+		{
+			if (index1 < 0 || index1 >= Count || index2 < 0 || index2 >= Count || index1 == index2)
+			{
 				return;
 			}
 			var dc = this[index1];
@@ -410,37 +487,44 @@ namespace GreenshotEditorPlugin.Drawing {
 		/// </summary>
 		/// <param name="menu"></param>
 		/// <param name="surface"></param>
-		public virtual void AddContextMenuItems(ContextMenuStrip menu, Surface surface) {
+		public virtual void AddContextMenuItems(ContextMenuStrip menu, Surface surface)
+		{
 			bool push = surface.Elements.CanPushDown(this);
 			bool pull = surface.Elements.CanPullUp(this);
 
 			ToolStripMenuItem item;
 
 			// Pull "up"
-			if (pull) {
+			if (pull)
+			{
 				item = new ToolStripMenuItem(Language.EditorUptotop);
-				item.Click += delegate {
+				item.Click += delegate
+				{
 					surface.Elements.PullElementsToTop(this);
 					surface.Elements.Invalidate();
 				};
 				menu.Items.Add(item);
 				item = new ToolStripMenuItem(Language.EditorUponelevel);
-				item.Click += delegate {
+				item.Click += delegate
+				{
 					surface.Elements.PullElementsUp(this);
 					surface.Elements.Invalidate();
 				};
 				menu.Items.Add(item);
 			}
 			// Push "down"
-			if (push) {
+			if (push)
+			{
 				item = new ToolStripMenuItem(Language.EditorDowntobottom);
-				item.Click += delegate {
+				item.Click += delegate
+				{
 					surface.Elements.PushElementsToBottom(this);
 					surface.Elements.Invalidate();
 				};
 				menu.Items.Add(item);
 				item = new ToolStripMenuItem(Language.EditorDownonelevel);
-				item.Click += delegate {
+				item.Click += delegate
+				{
 					surface.Elements.PushElementsDown(this);
 					surface.Elements.Invalidate();
 				};
@@ -449,7 +533,8 @@ namespace GreenshotEditorPlugin.Drawing {
 
 			// Duplicate
 			item = new ToolStripMenuItem(Language.EditorDuplicate);
-			item.Click += delegate {
+			item.Click += delegate
+			{
 				DrawableContainerList dcs = this.Clone();
 				dcs.Parent = surface;
 				dcs.MoveBy(10, 10);
@@ -461,23 +546,27 @@ namespace GreenshotEditorPlugin.Drawing {
 
 			// Copy
 			item = new ToolStripMenuItem(Language.EditorCopytoclipboard);
-			item.Image = ((Image)(editorFormResources.GetObject("copyToolStripMenuItem.Image")));
-			item.Click += delegate {
-				ClipboardHelper.SetClipboardData(typeof(DrawableContainerList), this);
+			item.Image = ((Image) (editorFormResources.GetObject("copyToolStripMenuItem.Image")));
+			item.Click += delegate
+			{
+				ClipboardHelper.SetClipboardData(typeof (DrawableContainerList), this);
 			};
 			menu.Items.Add(item);
 
 			// Cut
 			item = new ToolStripMenuItem(Language.EditorCuttoclipboard);
-			item.Image = ((Image)(editorFormResources.GetObject("btnCut.Image")));
-			item.Click += delegate {
-				ClipboardHelper.SetClipboardData(typeof(DrawableContainerList), this);
+			item.Image = ((Image) (editorFormResources.GetObject("btnCut.Image")));
+			item.Click += delegate
+			{
+				ClipboardHelper.SetClipboardData(typeof (DrawableContainerList), this);
 				List<DrawableContainer> containersToDelete = new List<DrawableContainer>();
-				foreach (var drawableContainer in this) {
+				foreach (var drawableContainer in this)
+				{
 					var container = (DrawableContainer) drawableContainer;
 					containersToDelete.Add(container);
 				}
-				foreach (var container in containersToDelete) {
+				foreach (var container in containersToDelete)
+				{
 					surface.RemoveElement(container, true);
 				}
 			};
@@ -485,14 +574,17 @@ namespace GreenshotEditorPlugin.Drawing {
 
 			// Delete
 			item = new ToolStripMenuItem(Language.EditorDeleteelement);
-			item.Image = ((Image)(editorFormResources.GetObject("removeObjectToolStripMenuItem.Image")));
-			item.Click += delegate {
+			item.Image = ((Image) (editorFormResources.GetObject("removeObjectToolStripMenuItem.Image")));
+			item.Click += delegate
+			{
 				List<DrawableContainer> containersToDelete = new List<DrawableContainer>();
-				foreach(var drawableContainer in this) {
+				foreach (var drawableContainer in this)
+				{
 					var container = (DrawableContainer) drawableContainer;
 					containersToDelete.Add(container);
 				}
-				foreach (DrawableContainer container in containersToDelete) {
+				foreach (DrawableContainer container in containersToDelete)
+				{
 					surface.RemoveElement(container, true);
 				}
 			};
@@ -500,19 +592,25 @@ namespace GreenshotEditorPlugin.Drawing {
 
 			// Reset
 			bool canReset = false;
-			foreach (var drawableContainer in this) {
+			foreach (var drawableContainer in this)
+			{
 				var container = (DrawableContainer) drawableContainer;
-				if (container.HasDefaultSize) {
+				if (container.HasDefaultSize)
+				{
 					canReset = true;
 				}
 			}
-			if (canReset) {
+			if (canReset)
+			{
 				item = new ToolStripMenuItem(Language.EditorResetsize);
 				//item.Image = ((System.Drawing.Image)(editorFormResources.GetObject("removeObjectToolStripMenuItem.Image")));
-				item.Click += delegate {
-					foreach (var drawableContainer in this) {
+				item.Click += delegate
+				{
+					foreach (var drawableContainer in this)
+					{
 						var container = (DrawableContainer) drawableContainer;
-						if (!container.HasDefaultSize) {
+						if (!container.HasDefaultSize)
+						{
 							continue;
 						}
 						Size defaultSize = container.DefaultSize;
@@ -527,20 +625,26 @@ namespace GreenshotEditorPlugin.Drawing {
 			}
 		}
 
-		public virtual async Task ShowContextMenuAsync(MouseEventArgs e, Surface surface, CancellationToken token = default(CancellationToken)) {
+		public virtual async Task ShowContextMenuAsync(MouseEventArgs e, Surface surface, CancellationToken token = default(CancellationToken))
+		{
 			bool hasMenu = false;
-			foreach (var drawableContainer in this) {
+			foreach (var drawableContainer in this)
+			{
 				var container = (DrawableContainer) drawableContainer;
-				if (!container.HasContextMenu) {
+				if (!container.HasContextMenu)
+				{
 					continue;
 				}
 				hasMenu = true;
 				break;
 			}
-			if (hasMenu) {
-				using (var menu = new ContextMenuStrip()) {
+			if (hasMenu)
+			{
+				using (var menu = new ContextMenuStrip())
+				{
 					AddContextMenuItems(menu, surface);
-					if (menu.Items.Count > 0) {
+					if (menu.Items.Count > 0)
+					{
 						menu.Show(surface, e.Location);
 						await menu.WaitForClosedAsync(token);
 					}

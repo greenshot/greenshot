@@ -1,21 +1,26 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Lietuvių" ietf="lt-LT" version="1.0.0" languagegroup="3">
+
+<language>
 	<resources prefix="Core">
 		<resource name="about_bugs">Apie klaidas praneškite</resource>
 		<resource name="about_donations">Jei jums patiko Greenshot, galite mus paremti:</resource>
 		<resource name="about_host">Greenshot talpinamas sourceforge.net</resource>
 		<resource name="about_icons">IIkonų rinkinys Fugue, аutorius Yusuke Kamiyamane, licencija Creative Commons Attribution 3.0</resource>
-		<resource name="about_license">Visos teisės saugomos (C) 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot pateikiama BE JOKIŲ GARANTIJŲ. Greenshot — laisvai platinama PĮ su GPL licencija ir jūs galite laisvai ją platinti, laikydamasi licencinės sutarties:</resource>
+		<resource name="about_license">
+			Visos teisės saugomos (C) 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
+			Greenshot pateikiama BE JOKIŲ GARANTIJŲ. Greenshot — laisvai platinama PĮ su GPL licencija ir jūs galite laisvai ją platinti, laikydamasi licencinės sutarties:
+		</resource>
 		<resource name="about_title">Apie Greenshot</resource>
 		<resource name="application_title">Greenshot — revoliucinis įrankis ekrano nuotraukoms daryti</resource>
 		<resource name="bugreport_cancel">Uždaryti</resource>
-		<resource name="bugreport_info">Nenumatyta klaida.
+		<resource name="bugreport_info">
+			Nenumatyta klaida.
 
-Gera žinia: jūs galite padėti ištaisyti programą, jei atsiųsite ataskaitą apie klaidą.
-Nurodytu adresu sukurkite klaidos ataskaitą ir nukopijuokite klaidos tekstą į aprašymą. Galite pridėti bet kokią informaciją, kuri galėtų padėti atkatoti klaidos įvykio aplinkybes. Be to, būtume labai dėkingi, jei patikrintumėte ar panašios klaidos jau neužregistravo kas nors kitas (galite pasinaudoti paieška tinklapyje).
+			Gera žinia: jūs galite padėti ištaisyti programą, jei atsiųsite ataskaitą apie klaidą.
+			Nurodytu adresu sukurkite klaidos ataskaitą ir nukopijuokite klaidos tekstą į aprašymą. Galite pridėti bet kokią informaciją, kuri galėtų padėti atkatoti klaidos įvykio aplinkybes. Be to, būtume labai dėkingi, jei patikrintumėte ar panašios klaidos jau neužregistravo kas nors kitas (galite pasinaudoti paieška tinklapyje).
 
-Dėkojame už pagalbą :)</resource>
+			Dėkojame už pagalbą :)
+		</resource>
 		<resource name="bugreport_title">Klaida</resource>
 		<resource name="clipboard_error">Netikėta klaida įrašant į apsikeitimo podelį.</resource>
 		<resource name="clipboard_inuse">Nepavyko įrašyti duomenų į apsikeitimo podelį, kuris užblokuotas proceso {0}.</resource>
@@ -111,8 +116,10 @@ Dėkojame už pagalbą :)</resource>
 		<resource name="editor_uptotop">Į priekį</resource>
 		<resource name="error">Klaida</resource>
 		<resource name="error_multipleinstances">Greenshot jau paleistas.</resource>
-		<resource name="error_nowriteaccess">Neįmanoma išsaugoti failo į {0}.
-Patikrinkite ar turite tam teises.</resource>
+		<resource name="error_nowriteaccess">
+			Neįmanoma išsaugoti failo į {0}.
+			Patikrinkite ar turite tam teises.
+		</resource>
 		<resource name="error_openfile">Nepavyko atidaryti failo "{0}".</resource>
 		<resource name="error_openlink">Nepavyko atidaryti nuorodos.</resource>
 		<resource name="error_save">Nepavyko išsaugoti nuotraukos. Prašome nurodyti kitą vietą.</resource>
@@ -149,20 +156,22 @@ Patikrinkite ar turite tam teises.</resource>
 		<resource name="settings_jpegquality">Кokybė</resource>
 		<resource name="settings_jpegsettings">JPEG parametrai</resource>
 		<resource name="settings_language">Kalba (Language)</resource>
-		<resource name="settings_message_filenamepattern">Numatyti simboliai:
+		<resource name="settings_message_filenamepattern">
+			Numatyti simboliai:
 
-${YYYY}	 metai, 4 skaičiai
-${MM}	 menuo, 2 skaičiai
-${DD}	 diena, 2 skaičiai
-${hh}	 valanda, 2 skaičiai
-${mm}	 minutės, 2 skaičiai
-${ss}	 sekundės, 2 skaičiai
-${NUM}	 eilės numeris, 6 skaičiai
-${title}	 lango pavadinimas
+			${YYYY}	 metai, 4 skaičiai
+			${MM}	 menuo, 2 skaičiai
+			${DD}	 diena, 2 skaičiai
+			${hh}	 valanda, 2 skaičiai
+			${mm}	 minutės, 2 skaičiai
+			${ss}	 sekundės, 2 skaičiai
+			${NUM}	 eilės numeris, 6 skaičiai
+			${title}	 lango pavadinimas
 
-Greenshot gali pavadinti pagal šabloną ne tik failus, bet ir katalogus, jei pavadinime naudojamas atvirkščias pasviręs brūkšnys "\"
+			Greenshot gali pavadinti pagal šabloną ne tik failus, bet ir katalogus, jei pavadinime naudojamas atvirkščias pasviręs brūkšnys "\"
 
-Pvz, šablonas ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} rodo, kad šios dienos datos kataloge "2011-04-27", nuotrauka bus pavadinta "16-40-23" (plius nuotraukos plėtinys, nurodytas nustatymuose)</resource>
+			Pvz, šablonas ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} rodo, kad šios dienos datos kataloge "2011-04-27", nuotrauka bus pavadinta "16-40-23" (plius nuotraukos plėtinys, nurodytas nustatymuose)
+		</resource>
 		<resource name="settings_output">Nuotraukos</resource>
 		<resource name="settings_playsound">Fotoaparato garsas</resource>
 		<resource name="settings_preferredfilesettings">Išsaugojimo į failą parametrai</resource>
@@ -176,15 +185,19 @@ Pvz, šablonas ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} rodo, kad šios dienos dato
 		<resource name="settings_tooltip_filenamepattern">Nuotraukų vardų generavimo šablonas išsaugant nuotraukas</resource>
 		<resource name="settings_tooltip_language">Programos kalba (programą reikės startuoti iš naujo)</resource>
 		<resource name="settings_tooltip_primaryimageformat">Numatytas formatas</resource>
-		<resource name="settings_tooltip_registerhotkeys">Mygtukas Print (PrintScreen), derinys Ctrl-Print, Alt-Print
-bus perimti Greenshot programos, kai ji yra paleista.</resource>
+		<resource name="settings_tooltip_registerhotkeys">
+			Mygtukas Print (PrintScreen), derinys Ctrl-Print, Alt-Print
+			bus perimti Greenshot programos, kai ji yra paleista.
+		</resource>
 		<resource name="settings_tooltip_storagelocation">Numatytas nuotraukų saugojimo katalogas (jei nenurodyta - į darbastalį)</resource>
 		<resource name="settings_visualization">Fotoefektai</resource>
 		<resource name="settings_waittime">Išlaikymas prieš fotografuojant (ms)</resource>
 		<resource name="tooltip_firststart">Spauskite dešiniu pelės klavišu arba spauskite "PrintScreen".</resource>
 		<resource name="warning">Dėmesio</resource>
-		<resource name="warning_hotkeys">Ne visi numatyti mygtukai priskirti. Tikėtina, kad jie priskirti kitai programai.
-Kad mygtuką Print (PrintScreen) ir jo derinius naudotų Greenshot, reikia uždaryti kitas programas,
-kurios naudoja šiuos mygtukus. Arba galima naudoti komandas iš Greenshot programos kontekstinio meniu.</resource>
+		<resource name="warning_hotkeys">
+			Ne visi numatyti mygtukai priskirti. Tikėtina, kad jie priskirti kitai programai.
+			Kad mygtuką Print (PrintScreen) ir jo derinius naudotų Greenshot, reikia uždaryti kitas programas,
+			kurios naudoja šiuos mygtukus. Arba galima naudoti komandas iš Greenshot programos kontekstinio meniu.
+		</resource>
 	</resources>
 </language>

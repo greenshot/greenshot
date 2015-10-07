@@ -35,17 +35,20 @@ namespace GreenshotJiraPlugin
 	/// <summary>
 	/// Jira API, using Dapplo.HttpExtensions
 	/// </summary>
-	public class JiraApi : IDisposable {
+	public class JiraApi : IDisposable
+	{
 		private static readonly INetworkConfiguration NetworkConfig = IniConfig.Current.Get<INetworkConfiguration>();
 		private const string RestPath = "rest/api/2";
 		private readonly HttpClient _client;
 
-		public string JiraVersion {
+		public string JiraVersion
+		{
 			get;
 			set;
 		}
 
-		public string ServerTitle {
+		public string ServerTitle
+		{
 			get;
 			set;
 		}
@@ -60,7 +63,8 @@ namespace GreenshotJiraPlugin
 		/// Create the JiraAPI object, here the HttpClient is configured
 		/// </summary>
 		/// <param name="baseUri">Base URL</param>
-		public JiraApi(Uri baseUri) {
+		public JiraApi(Uri baseUri)
+		{
 			JiraBaseUri = baseUri;
 			_client = HttpClientFactory.CreateHttpClient(NetworkConfig);
 			_client.AddDefaultRequestHeader("X-Atlassian-Token", "nocheck");
@@ -71,15 +75,18 @@ namespace GreenshotJiraPlugin
 		/// </summary>
 		/// <param name="user">username</param>
 		/// <param name="password">password</param>
-		public void SetBasicAuthentication(string user, string password) {
+		public void SetBasicAuthentication(string user, string password)
+		{
 			_client.SetBasicAuthorization(user, password);
 		}
 
 		#region Dispose
+
 		/// <summary>
 		/// Dispose
 		/// </summary>
-		public void Dispose() {
+		public void Dispose()
+		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
@@ -88,15 +95,19 @@ namespace GreenshotJiraPlugin
 		/// Dispose all managed resources
 		/// </summary>
 		/// <param name="disposing">when true is passed all managed resources are disposed.</param>
-		protected virtual void Dispose(bool disposing) {
-			if (disposing) {
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
 				// free managed resources
-				if (_client != null) {
+				if (_client != null)
+				{
 					_client.Dispose();
 				}
 			}
 			// free native resources if there are any.
 		}
+
 		#endregion
 
 		/// <summary>
@@ -106,7 +117,8 @@ namespace GreenshotJiraPlugin
 		/// <param name="issue"></param>
 		/// <param name="token"></param>
 		/// <returns>dynamic</returns>
-		public async Task<dynamic> Issue(string issue, CancellationToken token = default(CancellationToken)) {
+		public async Task<dynamic> Issue(string issue, CancellationToken token = default(CancellationToken))
+		{
 			var issueUri = JiraBaseUri.AppendSegments(RestPath, "issue", issue);
 			return await _client.GetAsJsonAsync(issueUri, true, token).ConfigureAwait(false);
 		}
@@ -116,7 +128,8 @@ namespace GreenshotJiraPlugin
 		/// See: https://docs.atlassian.com/jira/REST/latest/#d2e3828
 		/// </summary>
 		/// <returns>dynamic with ServerInfo</returns>
-		public async Task<dynamic> ServerInfo(CancellationToken token = default(CancellationToken)) {
+		public async Task<dynamic> ServerInfo(CancellationToken token = default(CancellationToken))
+		{
 			var serverInfoUri = JiraBaseUri.AppendSegments(RestPath, "serverInfo");
 			return await _client.GetAsJsonAsync(serverInfoUri, true, token).ConfigureAwait(false);
 		}
@@ -128,8 +141,14 @@ namespace GreenshotJiraPlugin
 		/// <param name="username"></param>
 		/// <param name="token"></param>
 		/// <returns>dynamic with user information</returns>
-		public async Task<dynamic> User(string username, CancellationToken token = default(CancellationToken)) {
-			var userUri = JiraBaseUri.AppendSegments(RestPath, "user").ExtendQuery(new Dictionary<string, object> { { "username", username }});
+		public async Task<dynamic> User(string username, CancellationToken token = default(CancellationToken))
+		{
+			var userUri = JiraBaseUri.AppendSegments(RestPath, "user").ExtendQuery(new Dictionary<string, object>
+			{
+				{
+					"username", username
+				}
+			});
 			return await _client.GetAsJsonAsync(userUri, true, token).ConfigureAwait(false);
 		}
 
@@ -138,7 +157,8 @@ namespace GreenshotJiraPlugin
 		/// See: https://docs.atlassian.com/jira/REST/latest/#d2e4253
 		/// </summary>
 		/// <returns>dynamic with user information</returns>
-		public async Task<dynamic> Myself(CancellationToken token = default(CancellationToken)) {
+		public async Task<dynamic> Myself(CancellationToken token = default(CancellationToken))
+		{
 			var myselfUri = JiraBaseUri.AppendSegments(RestPath, "myself");
 			return await _client.GetAsJsonAsync(myselfUri, true, token).ConfigureAwait(false);
 		}
@@ -148,7 +168,8 @@ namespace GreenshotJiraPlugin
 		/// See: https://docs.atlassian.com/jira/REST/latest/#d2e2779
 		/// </summary>
 		/// <returns>dynamic array</returns>
-		public async Task<dynamic> Projects(CancellationToken token = default(CancellationToken)) {
+		public async Task<dynamic> Projects(CancellationToken token = default(CancellationToken))
+		{
 			var projectUri = JiraBaseUri.AppendSegments(RestPath, "project");
 			return await _client.GetAsJsonAsync(projectUri, true, token).ConfigureAwait(false);
 		}
@@ -161,9 +182,11 @@ namespace GreenshotJiraPlugin
 		/// <param name="content">HttpContent, Make sure your HttpContent has a mime type...</param>
 		/// <param name="token"></param>
 		/// <returns>HttpResponseMessage</returns>
-		public async Task<HttpResponseMessage> Attach(string issueKey, HttpContent content, CancellationToken token = default(CancellationToken)) {
+		public async Task<HttpResponseMessage> Attach(string issueKey, HttpContent content, CancellationToken token = default(CancellationToken))
+		{
 			var attachUri = JiraBaseUri.AppendSegments(RestPath, "issue", issueKey, "attachments");
-            using (var responseMessage = await _client.PostAsync(attachUri, content, token).ConfigureAwait(false)) {
+			using (var responseMessage = await _client.PostAsync(attachUri, content, token).ConfigureAwait(false))
+			{
 				await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
 				return responseMessage;
 			}
@@ -174,7 +197,8 @@ namespace GreenshotJiraPlugin
 		/// See: https://docs.atlassian.com/jira/REST/latest/#d2e1388
 		/// </summary>
 		/// <returns>dynamic (JsonArray)</returns>
-		public async Task<dynamic> Filters(CancellationToken token = default(CancellationToken)) {
+		public async Task<dynamic> Filters(CancellationToken token = default(CancellationToken))
+		{
 			var filterFavouriteUri = JiraBaseUri.AppendSegments(RestPath, "filter", "favourite");
 			return await _client.GetAsJsonAsync(filterFavouriteUri, true, token).ConfigureAwait(false);
 		}
@@ -184,8 +208,14 @@ namespace GreenshotJiraPlugin
 		/// See: https://docs.atlassian.com/jira/REST/latest/#d2e2713
 		/// </summary>
 		/// <returns>dynamic</returns>
-		public async Task<dynamic> Search(string jql, CancellationToken token = default(CancellationToken)) {
-			var searchUri = JiraBaseUri.AppendSegments(RestPath, "search", "favourite").ExtendQuery(new Dictionary<string, object> { { "jql", WebUtility.UrlEncode(jql) } });
+		public async Task<dynamic> Search(string jql, CancellationToken token = default(CancellationToken))
+		{
+			var searchUri = JiraBaseUri.AppendSegments(RestPath, "search", "favourite").ExtendQuery(new Dictionary<string, object>
+			{
+				{
+					"jql", WebUtility.UrlEncode(jql)
+				}
+			});
 			return await _client.GetAsJsonAsync(searchUri, true, token).ConfigureAwait(false);
 		}
 
@@ -195,7 +225,8 @@ namespace GreenshotJiraPlugin
 		/// <param name="user">dyamic object from User or Myself method</param>
 		/// <param name="token"></param>
 		/// <returns>Stream</returns>
-		public async Task<Stream> Avatar(dynamic user, CancellationToken token = default(CancellationToken)) {
+		public async Task<Stream> Avatar(dynamic user, CancellationToken token = default(CancellationToken))
+		{
 			var avatarUrl = new Uri(user.avatarUrls["48x48"]);
 			return await avatarUrl.GetAsMemoryStreamAsync(true, token);
 		}

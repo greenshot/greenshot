@@ -1,23 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <language>
 	<resources prefix="Core">
 		<resource name="about_bugs">Lefft was falsch, meldst di hier</resource>
 		<resource name="about_donations">Wenn der Greenshot gfälld, kannsd uns gern a weng helfn:</resource>
 		<resource name="about_host">Greenshot is a bei sourceforge, und zwa dordn:</resource>
 		<resource name="about_icons">Dei Fuztl-Bildla sin vom Yusuke Kamiyamane's Fugue icon set (Griäidif Gommens Äddribuschn 3.0 Laisns)</resource>
-		<resource name="about_license">Kobbireid (C) 2007-2012 Domas Braun, Jens Glingen, Robin Grohm
-A Garandie gibds für Greenshot ned, des kannst vergessn. Greenshot is umsonsd und wennsd mogst, kannsd es a rumreichn.
-Mehr Infos zur GNU Dschännerel Bablig Laisns:</resource>
+		<resource name="about_license">
+			Kobbireid (C) 2007-2012 Domas Braun, Jens Glingen, Robin Grohm
+			A Garandie gibds für Greenshot ned, des kannst vergessn. Greenshot is umsonsd und wennsd mogst, kannsd es a rumreichn.
+			Mehr Infos zur GNU Dschännerel Bablig Laisns:
+		</resource>
 		<resource name="about_title">Was issn Greenshot???</resource>
 		<resource name="application_title">Greenshot - des subber Sgrienschod-Duhl</resource>
 		<resource name="bugreport_cancel">Legg mich</resource>
-		<resource name="bugreport_info">Des doud mer etz leid, da hammer wohl an Fehler.
-Wenns mogst, kannsd uns gern a weng helfn, den Fehler zer findn, wennsd uns an Brichd schiggst.
-Undn steht a Interned-Adressn, do gehst etz hin und maxd an neun Brichd.
-Dann schreibst no nei, wassd widder für an Scheiß gmachd hasd, gobiersd des Dexdfeld in die Bschreibung nei und saggsd halt noch, wassd so gmachd hast,
-damid mers selber brobiern könna.
-Wennsd etz der Gschichd noch die Grone aufsedzn mogst, schausd vorher amal, ob vor dir scho anner so bläid war. Dodafär gibds däi Suchn.
-Dangschee, wassd scho :)</resource>
+		<resource name="bugreport_info">
+			Des doud mer etz leid, da hammer wohl an Fehler.
+			Wenns mogst, kannsd uns gern a weng helfn, den Fehler zer findn, wennsd uns an Brichd schiggst.
+			Undn steht a Interned-Adressn, do gehst etz hin und maxd an neun Brichd.
+			Dann schreibst no nei, wassd widder für an Scheiß gmachd hasd, gobiersd des Dexdfeld in die Bschreibung nei und saggsd halt noch, wassd so gmachd hast,
+			damid mers selber brobiern könna.
+			Wennsd etz der Gschichd noch die Grone aufsedzn mogst, schausd vorher amal, ob vor dir scho anner so bläid war. Dodafär gibds däi Suchn.
+			Dangschee, wassd scho :)
+		</resource>
 		<resource name="bugreport_title">Scheiße, Fehler</resource>
 		<resource name="CANCEL">Legg mich</resource>
 		<resource name="clipboard_error">Scheiße, etz hat des mid der Zwischnablach ned glabbd.</resource>
@@ -153,8 +158,10 @@ Dangschee, wassd scho :)</resource>
 		<resource name="EmailFormat.OUTLOOK_TXT">Audlugg mit Dexd</resource>
 		<resource name="error">Scheißdregg</resource>
 		<resource name="error_multipleinstances">Greenshot läffd scho.</resource>
-		<resource name="error_nowriteaccess">Es schbeichern hat ned glabbd: {0}
-Schau hald amal, obsd da übbahabds hi schreim däffsd oder duhs woannersch hi.</resource>
+		<resource name="error_nowriteaccess">
+			Es schbeichern hat ned glabbd: {0}
+			Schau hald amal, obsd da übbahabds hi schreim däffsd oder duhs woannersch hi.
+		</resource>
 		<resource name="error_openfile">Däi Dadei gäid ned aff: "{0}"</resource>
 		<resource name="error_openlink">Der Ling gäid ned aff: '{0}'</resource>
 		<resource name="error_save">Dees woa nix. Schbeichers bidde woannersch hi.</resource>
@@ -213,24 +220,26 @@ Schau hald amal, obsd da übbahabds hi schreim däffsd oder duhs woannersch hi.<
 		<resource name="settings_iecapture">Inderned Eggsblorer abmoln</resource>
 		<resource name="settings_jpegquality">JPEG-Gwalidäd</resource>
 		<resource name="settings_language">Schbrache</resource>
-		<resource name="settings_message_filenamepattern">Däi Bladzhalder gibds:
-${YYYY} Jahr, 4-schdellich
-${MM} Monad, 2-schdellich
-${DD} Daach, 2-schdellich
-${hh} Schdunde, 2-schdellich
-${mm} Minude, 2-schdellich
-${ss} Sekunde, 2-schdellich
-${NUM} ingremendiernde Zahl, 6-schdellich
-${title} Fensderdiddl
-${user} Windous-Benudzername
-${domain} Windous-Domäne
-${hostname} Kombjudername
+		<resource name="settings_message_filenamepattern">
+			Däi Bladzhalder gibds:
+			${YYYY} Jahr, 4-schdellich
+			${MM} Monad, 2-schdellich
+			${DD} Daach, 2-schdellich
+			${hh} Schdunde, 2-schdellich
+			${mm} Minude, 2-schdellich
+			${ss} Sekunde, 2-schdellich
+			${NUM} ingremendiernde Zahl, 6-schdellich
+			${title} Fensderdiddl
+			${user} Windous-Benudzername
+			${domain} Windous-Domäne
+			${hostname} Kombjudername
 
-Greenshot kann a Ordner selber ohleeng. 
-Wennsd Ordner vom Dadeinamen drennen willsd, nimssd an Beggsläsch \ 
-So hald: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} 
-Da gibds dann an Ordner fürn agduelln Dooch im Schdandard-Schbeicherord und däi Foddos landn dann da drin und heißn wäi die Uhrzeid.
-z.B. C:\Users\MaxMusdermann\Desgdob\2012-08-13\12-58-32.png</resource>
+			Greenshot kann a Ordner selber ohleeng.
+			Wennsd Ordner vom Dadeinamen drennen willsd, nimssd an Beggsläsch \
+			So hald: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+			Da gibds dann an Ordner fürn agduelln Dooch im Schdandard-Schbeicherord und däi Foddos landn dann da drin und heißn wäi die Uhrzeid.
+			z.B. C:\Users\MaxMusdermann\Desgdob\2012-08-13\12-58-32.png
+		</resource>
 		<resource name="settings_network">Nedswerch und Abdäids</resource>
 		<resource name="settings_output">Ausgabe</resource>
 		<resource name="settings_playsound">Kameradoon abschbieln</resource>
@@ -264,11 +273,13 @@ z.B. C:\Users\MaxMusdermann\Desgdob\2012-08-13\12-58-32.png</resource>
 		<resource name="update_found">Was hasdn du für an aldn Scheiß?! Magsd des neue Greenshot {0} ham?</resource>
 		<resource name="wait_ie_capture">Etz watzd an Momend! Des dauerd a weng...</resource>
 		<resource name="warning">Hinweis</resource>
-		<resource name="warning_hotkeys">Die globale Dasdnkombi "{0}" konnd ned agdivierd wern. 
-Warscheinli hoggd irgend so a andrer Debb draff. 
-Endweder ändersd die Dasdnkombi für Greenshot, oder du bisd a Mann und findsd die Sau!
+		<resource name="warning_hotkeys">
+			Die globale Dasdnkombi "{0}" konnd ned agdivierd wern.
+			Warscheinli hoggd irgend so a andrer Debb draff.
+			Endweder ändersd die Dasdnkombi für Greenshot, oder du bisd a Mann und findsd die Sau!
 
-Wennsd mogsd, kannsd nadürlich a einfach es Gondexdmenü nehmen (des grüne G rechds undn).</resource>
+			Wennsd mogsd, kannsd nadürlich a einfach es Gondexdmenü nehmen (des grüne G rechds undn).
+		</resource>
 		<resource name="WindowCaptureMode.Aero">Selber a Farm aussuchn</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Dransbarens erhaldn</resource>
 		<resource name="WindowCaptureMode.Auto">Audomadisch</resource>

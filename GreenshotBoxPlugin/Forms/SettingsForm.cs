@@ -21,14 +21,17 @@
 
 using GreenshotBoxPlugin.Forms;
 
-namespace GreenshotBoxPlugin {
+namespace GreenshotBoxPlugin
+{
 	/// <summary>
 	/// Description of PasswordRequestForm.
 	/// </summary>
-	public partial class SettingsForm : BoxForm {
-		string boxTicket = string.Empty;
+	public partial class SettingsForm : BoxForm
+	{
+		private string boxTicket = string.Empty;
 
-		public SettingsForm(IBoxConfiguration config) {
+		public SettingsForm(IBoxConfiguration config)
+		{
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//

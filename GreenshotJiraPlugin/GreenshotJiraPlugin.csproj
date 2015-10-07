@@ -60,8 +60,9 @@
       <HintPath>..\packages\Dapplo.HttpExtensions.0.1.16.0\lib\net451\Dapplo.HttpExtensions.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="log4net">
-      <HintPath>..\Greenshot\Lib\log4net.dll</HintPath>
+    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="PresentationCore" />
@@ -116,6 +117,20 @@
       <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
       <Name>GreenshotPlugin</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Languages\language_jiraplugin-cs-CZ.xml" />
+    <Resource Include="Languages\language_jiraplugin-id-ID.xml" />
+    <Resource Include="Languages\language_jiraplugin-it-IT.xml" />
+    <Resource Include="Languages\language_jiraplugin-ko-KR.xml" />
+    <Resource Include="Languages\language_jiraplugin-lv-LV.xml" />
+    <Resource Include="Languages\language_jiraplugin-pl-PL.xml" />
+    <Resource Include="Languages\language_jiraplugin-pt-PT.xml" />
+    <Resource Include="Languages\language_jiraplugin-ru-RU.xml" />
+    <Resource Include="Languages\language_jiraplugin-sr-Cyrl-RS.xml" />
+    <Resource Include="Languages\language_jiraplugin-sv-SE.xml" />
+    <Resource Include="Languages\language_jiraplugin-uk-UA.xml" />
+    <Resource Include="Languages\language_jiraplugin-zh-TW.xml" />
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"

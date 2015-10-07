@@ -40,7 +40,7 @@ namespace GreenshotExternalCommandPlugin
 	/// </summary>
 	public class ExternalCommandPlugin : IGreenshotPlugin
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExternalCommandPlugin));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ExternalCommandPlugin));
 		private const string MSPAINT = "MS Paint";
 		private const string PAINTDOTNET = "Paint.NET";
 		private static ICoreConfiguration coreConfig;
@@ -111,6 +111,7 @@ namespace GreenshotExternalCommandPlugin
 			}
 			return true;
 		}
+
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
@@ -258,7 +259,6 @@ namespace GreenshotExternalCommandPlugin
 				catch
 				{
 				}
-
 			}
 		}
 	}

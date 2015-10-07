@@ -21,13 +21,19 @@
 
 using System.Windows.Forms;
 
-namespace GreenshotPlugin.Controls {
-    /// <summary>
-    /// FormWithoutActivation is exactly like a normal form, but doesn't activate (steal focus)
-    /// </summary>
-    public class FormWithoutActivation : Form {
-        protected override bool ShowWithoutActivation {
-            get { return true; }
-        }
-    }
+namespace GreenshotPlugin.Controls
+{
+	/// <summary>
+	/// FormWithoutActivation is exactly like a normal form, but doesn't activate (steal focus)
+	/// </summary>
+	public class FormWithoutActivation : Form
+	{
+		protected override bool ShowWithoutActivation
+		{
+			get
+			{
+				return true;
+			}
+		}
+	}
 }

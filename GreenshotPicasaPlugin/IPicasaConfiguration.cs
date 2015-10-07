@@ -30,54 +30,53 @@ namespace GreenshotPicasaPlugin
 	/// Description of PicasaConfiguration.
 	/// </summary>
 	[IniSection("Picasa"), Description("Greenshot Picasa Plugin configuration")]
-	public interface IPicasaConfiguration : IIniSection<IPicasaConfiguration> {
+	public interface IPicasaConfiguration : IIniSection<IPicasaConfiguration>
+	{
 		[Description("What file type to use for uploading"), DefaultValue(OutputFormat.png)]
-		OutputFormat UploadFormat {
+		OutputFormat UploadFormat
+		{
 			get;
 			set;
 		}
 
 		[Description("JPEG file save quality in %."), DefaultValue(80)]
-		int UploadJpegQuality {
+		int UploadJpegQuality
+		{
 			get;
 			set;
 		}
 
 		[Description("After upload send Picasa link to clipboard."), DefaultValue(true)]
-		bool AfterUploadLinkToClipBoard {
+		bool AfterUploadLinkToClipBoard
+		{
 			get;
 			set;
 		}
 
 		[Description("Is the filename passed on to Picasa"), DefaultValue(false)]
-		bool AddFilename {
+		bool AddFilename
+		{
 			get;
 			set;
 		}
 
 		[Description("The picasa user to upload to"), DefaultValue("default")]
-		string UploadUser {
+		string UploadUser
+		{
 			get;
 			set;
 		}
 
 		[Description("The picasa album to upload to"), DefaultValue("default")]
-		string UploadAlbum {
+		string UploadAlbum
+		{
 			get;
 			set;
 		}
 
-		[Description("Picasa authorization refresh Token"), TypeConverter(typeof(StringEncryptionTypeConverter))]
-		string RefreshToken {
-			get;
-			set;
-		}
-
-		/// <summary>
-		/// Not stored
-		/// </summary>
-		[IniPropertyBehavior(Read = false, Write = false)]
-		string AccessToken {
+		[Description("Picasa authorization refresh Token"), TypeConverter(typeof (StringEncryptionTypeConverter))]
+		string RefreshToken
+		{
 			get;
 			set;
 		}
@@ -86,7 +85,18 @@ namespace GreenshotPicasaPlugin
 		/// Not stored
 		/// </summary>
 		[IniPropertyBehavior(Read = false, Write = false)]
-		DateTimeOffset AccessTokenExpires {
+		string AccessToken
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Not stored
+		/// </summary>
+		[IniPropertyBehavior(Read = false, Write = false)]
+		DateTimeOffset AccessTokenExpires
+		{
 			get;
 			set;
 		}

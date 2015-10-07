@@ -27,19 +27,22 @@ using Greenshot.Plugin;
 using log4net;
 using System.Linq;
 
-namespace GreenshotPlugin.Core {
+namespace GreenshotPlugin.Core
+{
 	/// <summary>
 	/// Description of InterfaceUtils.
 	/// </summary>
-	public static class InterfaceUtils {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(InterfaceUtils));
+	public static class InterfaceUtils
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (InterfaceUtils));
 
-		public static IEnumerable<Type> GetSubclassesOf(Type implementingType, bool excludeSystemTypes) {
+		public static IEnumerable<Type> GetSubclassesOf(Type implementingType, bool excludeSystemTypes)
+		{
 			var subClasses = from assembly in AppDomain.CurrentDomain.GetAssemblies()
-				   where !assembly.FullName.StartsWith("System") && !assembly.FullName.StartsWith("mscorlib") && !assembly.FullName.StartsWith("Microsoft")
-				   from type in assembly.GetTypes()
-				   where type.IsClass && !type.IsAbstract && implementingType.IsAssignableFrom(type)
-				   select type;
+				where !assembly.FullName.StartsWith("System") && !assembly.FullName.StartsWith("mscorlib") && !assembly.FullName.StartsWith("Microsoft")
+				from type in assembly.GetTypes()
+				where type.IsClass && !type.IsAbstract && implementingType.IsAssignableFrom(type)
+				select type;
 			return subClasses;
 		}
 	}

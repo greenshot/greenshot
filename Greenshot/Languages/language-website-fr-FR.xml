@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="French" ietf="fr-FR" version="1.0.0" languagegroup="1">
+
+<language>
 	<resources>
 		<resource name="home_downloads">Téléchargement</resource>
 		<resource name="home_headline">Greenshot - Un outil de capture d’écran gratuit pour une productivité optimale</resource>

@@ -22,41 +22,51 @@
 using System.ComponentModel;
 using Dapplo.Config.Language;
 
-namespace GreenshotDropboxPlugin {
+namespace GreenshotDropboxPlugin
+{
 	[Language("Dropbox")]
-	public interface IDropboxLanguage : ILanguage, INotifyPropertyChanged {
+	public interface IDropboxLanguage : ILanguage, INotifyPropertyChanged
+	{
 		string UploadMenuItem
 		{
 			get;
 		}
-        string SettingsTitle
+
+		string SettingsTitle
 		{
 			get;
 		}
+
 		string LabelUploadFormat
 		{
 			get;
 		}
+
 		string UploadSuccess
 		{
 			get;
 		}
+
 		string UploadFailure
 		{
 			get;
 		}
+
 		string CommunicationWait
 		{
 			get;
 		}
+
 		string Configure
 		{
 			get;
 		}
+
 		string LabelAfterUpload
 		{
 			get;
 		}
+
 		string LabelAfterUploadLinkToClipBoard
 		{
 			get;

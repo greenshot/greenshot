@@ -1,23 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <language>
 	<resources prefix="Core">
 		<resource name="about_bugs">Hataları şu adrese bildirebilirsiniz:</resource>
 		<resource name="about_donations">Greenshot'ı sevdiyseniz, bizi destekleyin:</resource>
 		<resource name="about_host">Greenshot sourceforge.net üzerinde şu adreste barındırılmaktadır:</resource>
 		<resource name="about_icons">Simgeler Yusuke Kamiyamane'nin Fugue simge setidir (Creative Commons Attribution 3.0 lisansı)</resource>
-		<resource name="about_license">Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot HİÇ BİR GARANTİ vermez. Serbest bir yazılımdır ve belirli koşullar altında dağıtmakta serbestsiniz. GNU 
-Genel Kamu Lisanslı hakkında daha fazla bilgi için:</resource>
+		<resource name="about_license">
+			Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+			Greenshot HİÇ BİR GARANTİ vermez. Serbest bir yazılımdır ve belirli koşullar altında dağıtmakta serbestsiniz. GNU
+			Genel Kamu Lisanslı hakkında daha fazla bilgi için:
+		</resource>
 		<resource name="about_title">Greenshot Hakkında</resource>
 		<resource name="application_title">Greenshot - devrimsel ekran yakalama aracı</resource>
 		<resource name="bugreport_cancel">Kapat</resource>
-		<resource name="bugreport_info">Beklenmeyen bir hata oldu.
+		<resource name="bugreport_info">
+			Beklenmeyen bir hata oldu.
 
-İyi haber: bu hatayı bize bildirerek düzeltmemizi sağlayabilirsiniz..
-Lütfen aşağıdaki web adresine gidin, yeni bir hata bildirimi oluşturup içeriğini açıklama bölümündeki yazı alanına yapıştırın.
+			İyi haber: bu hatayı bize bildirerek düzeltmemizi sağlayabilirsiniz..
+			Lütfen aşağıdaki web adresine gidin, yeni bir hata bildirimi oluşturup içeriğini açıklama bölümündeki yazı alanına yapıştırın.
 
-Anlamlı bir açıklama ve sorunun yeniden oluşması için işe yarayacağını düşündüğünüz bilgileri de ekleyin.
-Ayrıca bu hata için bir izleyici kaydının açılmış olup olmadığını da deneteleyebilirseniz minnettar kalırız. bunu hızlıca yapabilmek için aramayı kullanabilirsiniz. Teşekkürler :)</resource>
+			Anlamlı bir açıklama ve sorunun yeniden oluşması için işe yarayacağını düşündüğünüz bilgileri de ekleyin.
+			Ayrıca bu hata için bir izleyici kaydının açılmış olup olmadığını da deneteleyebilirseniz minnettar kalırız. bunu hızlıca yapabilmek için aramayı kullanabilirsiniz. Teşekkürler :)
+		</resource>
 		<resource name="bugreport_title">Hata</resource>
 		<resource name="CANCEL">İptal</resource>
 		<resource name="clipboard_error">Panoya yazılırken beklenmedik bir hata oluştu.</resource>
@@ -143,8 +148,10 @@ Ayrıca bu hata için bir izleyici kaydının açılmış olup olmadığını da
 		<resource name="EmailFormat.OUTLOOK_TXT">Yazı ile Outlook</resource>
 		<resource name="error">Hata</resource>
 		<resource name="error_multipleinstances">Greenshot zaten çalışıyor.</resource>
-		<resource name="error_nowriteaccess">Dosya şuraya kaydedilemiyor {0}.
-Seçili kayıt yolunun yazılabilir olduğundan emin olun.</resource>
+		<resource name="error_nowriteaccess">
+			Dosya şuraya kaydedilemiyor {0}.
+			Seçili kayıt yolunun yazılabilir olduğundan emin olun.
+		</resource>
 		<resource name="error_openfile">"{0}" dosyası açılamadı.</resource>
 		<resource name="error_openlink">Bağlantı açılamadı.</resource>
 		<resource name="error_save">Ekran görüntüsü kaydedilemedi, lütfen uygun bir yer seçin.</resource>
@@ -205,21 +212,23 @@ Seçili kayıt yolunun yazılabilir olduğundan emin olun.</resource>
 		<resource name="settings_jpegquality">JPEG kalitesi</resource>
 		<resource name="settings_jpegsettings">JPEG Ayarları</resource>
 		<resource name="settings_language">Dil</resource>
-		<resource name="settings_message_filenamepattern">Şu ifadeler kullanıldığında aşağıdaki tanımlar yazılır:
-${YYYY} yıl, 4 hane
-${MM} ay, 2 hane
-${DD} gün, 2 hane
-${hh} saat, 2 hane
-${mm} dakika, 2 hane
-${ss} saniye, 2 hane
-${NUM} artan sayı, 6 hane
-${title} Pencere başlığı
-${user} Windows kullanıcısı
-${domain} Windows etki alanı
-${hostname} Bilgisayar adı
+		<resource name="settings_message_filenamepattern">
+			Şu ifadeler kullanıldığında aşağıdaki tanımlar yazılır:
+			${YYYY} yıl, 4 hane
+			${MM} ay, 2 hane
+			${DD} gün, 2 hane
+			${hh} saat, 2 hane
+			${mm} dakika, 2 hane
+			${ss} saniye, 2 hane
+			${NUM} artan sayı, 6 hane
+			${title} Pencere başlığı
+			${user} Windows kullanıcısı
+			${domain} Windows etki alanı
+			${hostname} Bilgisayar adı
 
-Klasör ve dosya adı arasında (\) karakterini kullanarak Greenshot'un istediğiniz klasörleri oluşturmasını sağlayabilirsiniz.
-Örneğin: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} biçimi, varsayılan kayıt klasörünüzün altına içinde bulunulan gün şeklinde bir klasör açar (2010-06-29 gibi), ekran görüntüsü dosyasının adı o anki zamana göre verilir (11-58-32 gibi) ve sonuna ayarlarda tanımlanmış uzantı varsa eklenir.</resource>
+			Klasör ve dosya adı arasında (\) karakterini kullanarak Greenshot'un istediğiniz klasörleri oluşturmasını sağlayabilirsiniz.
+			Örneğin: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} biçimi, varsayılan kayıt klasörünüzün altına içinde bulunulan gün şeklinde bir klasör açar (2010-06-29 gibi), ekran görüntüsü dosyasının adı o anki zamana göre verilir (11-58-32 gibi) ve sonuna ayarlarda tanımlanmış uzantı varsa eklenir.
+		</resource>
 		<resource name="settings_network">Ağ ve ayarlar</resource>
 		<resource name="settings_output">Çıkış</resource>
 		<resource name="settings_playsound">Kamera sesi</resource>
@@ -249,9 +258,11 @@ Klasör ve dosya adı arasında (\) karakterini kullanarak Greenshot'un istediğ
 		<resource name="update_found">Greenshot'ın daha yeni bir versiyonu mevcut! Greenshot {0} indirmek ister misiniz?</resource>
 		<resource name="wait_ie_capture">Internet Explorer'daki sayfa yakalanırken lütfen bekleyin...</resource>
 		<resource name="warning">Dikkat</resource>
-		<resource name="warning_hotkeys">Bir veya bir kaç kısayol tuşu kaydedilemedi. Bu nedenle Greenshot kısayollarını kullanamayabilirsiniz. 
-Bu sorun muhtemelen aynı kısa yolları kullanan başka bir programın çalışmasından kaynaklanıyor
-Kısayolları kullanmak için söz konusu yazılımı kapatın. Kısayollar yerine tüm Greenshot özelliklerini sistem tepsisi simgesine sağ tıklayarak da kullanabilirsiniz.</resource>
+		<resource name="warning_hotkeys">
+			Bir veya bir kaç kısayol tuşu kaydedilemedi. Bu nedenle Greenshot kısayollarını kullanamayabilirsiniz.
+			Bu sorun muhtemelen aynı kısa yolları kullanan başka bir programın çalışmasından kaynaklanıyor
+			Kısayolları kullanmak için söz konusu yazılımı kapatın. Kısayollar yerine tüm Greenshot özelliklerini sistem tepsisi simgesine sağ tıklayarak da kullanabilirsiniz.
+		</resource>
 		<resource name="WindowCaptureMode.Aero">Özel renk kullan</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Saydamlığı koru</resource>
 		<resource name="WindowCaptureMode.Auto">Otomatik</resource>

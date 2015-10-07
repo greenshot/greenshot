@@ -22,12 +22,14 @@
 using System.ServiceModel;
 using System.Threading.Tasks;
 
-namespace GreenshotPlugin.Interfaces {
+namespace GreenshotPlugin.Interfaces
+{
 	/// <summary>
 	/// This interface specifies the interface to Greenshot 1.3+, and is used by Greenshot itself but can also be used from the PowerShell
 	/// </summary>
 	[ServiceContract]
-	public interface IGreenshotContract {
+	public interface IGreenshotContract
+	{
 		/// <summary>
 		/// Exit Greenshot
 		/// </summary>

@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Español" ietf="en-ES" version="1.0.2" languagegroup="1">
+
+<language>
 	<resources>
 		<resource name="home_downloads">Descargas</resource>
 		<resource name="home_headline">Greenshot - herramienta libre de captura de pantalla, optimizada para una mayor productividad</resource>

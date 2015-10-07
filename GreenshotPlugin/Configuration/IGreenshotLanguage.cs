@@ -666,5 +666,5 @@ namespace GreenshotPlugin.Configuration
 		{
 			get;
 		}
-    }
+	}
 }

@@ -1,23 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <language>
 	<resources prefix="Core">
 		<resource name="about_bugs">Kérük a hibákat az alábbi helyen jelezzék</resource>
 		<resource name="about_donations">Ha szereted Greenshot -ot, akkor támogass minket:</resource>
 		<resource name="about_host">Greenshot kiszolgálója a sourceforge.net</resource>
 		<resource name="about_icons">Az ikonokat Yusuke Kamiyamane's Fugue készítette (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Szerzői jog (C) 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
-SEMMIFÉLE GARANCIA sincs a Greenshot -hoz. Ez egy ingyenes program, és hálásak vagyunk, hogy terjeszted bizonyos feltételekkel.
-Részletek a GNU Fő Nyílvános Engedélyről:</resource>
+		<resource name="about_license">
+			Szerzői jog (C) 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
+			SEMMIFÉLE GARANCIA sincs a Greenshot -hoz. Ez egy ingyenes program, és hálásak vagyunk, hogy terjeszted bizonyos feltételekkel.
+			Részletek a GNU Fő Nyílvános Engedélyről:
+		</resource>
 		<resource name="about_title">Greenshot névjegye</resource>
 		<resource name="application_title">Greenshot - Egy forradalmian új képernyőkép készítő program</resource>
 		<resource name="bugreport_cancel">Bezárni</resource>
-		<resource name="bugreport_info">Elnézést, váratlan hiba történt!
+		<resource name="bugreport_info">
+			Elnézést, váratlan hiba történt!
 
-A jó hír: ha jelzi felénk a hibát segítűnk megoldani.
-Kérjük látogassa meg az alábbi URL-t, hozzon létre egy új hibabejegyzés és másolja be a hibaüzenetet.
+			A jó hír: ha jelzi felénk a hibát segítűnk megoldani.
+			Kérjük látogassa meg az alábbi URL-t, hozzon létre egy új hibabejegyzés és másolja be a hibaüzenetet.
 
-Kérjük adjon összefoglaló leírást és csatoljon minden olyan információt, ami a segítségünkre lehet.
-Örülnénk, ha ellenőrizné, hogy a hibát jelentette e már valaki. (Ha használja a keresőt, gyorsabban megtalálhatja) Köszönjük :)</resource>
+			Kérjük adjon összefoglaló leírást és csatoljon minden olyan információt, ami a segítségünkre lehet.
+			Örülnénk, ha ellenőrizné, hogy a hibát jelentette e már valaki. (Ha használja a keresőt, gyorsabban megtalálhatja) Köszönjük :)
+		</resource>
 		<resource name="bugreport_title">Hiba</resource>
 		<resource name="clipboard_error">Váratlan hiba történt a vágólapra másoláskor.</resource>
 		<resource name="clipboard_inuse">Greenshot nem tudott a vágólapra másolni {0} hozzáférés megtagadva.</resource>
@@ -113,8 +118,10 @@ Kérjük adjon összefoglaló leírást és csatoljon minden olyan információt
 		<resource name="editor_uptotop">Előre hozás</resource>
 		<resource name="error">Hiba</resource>
 		<resource name="error_multipleinstances">A Greenshot egy példánya már fut.</resource>
-		<resource name="error_nowriteaccess">Nem lehet menteni a fájlt {0}.
-Kérjük ellenőrizze a mentési hely hozzáférhetőségét.</resource>
+		<resource name="error_nowriteaccess">
+			Nem lehet menteni a fájlt {0}.
+			Kérjük ellenőrizze a mentési hely hozzáférhetőségét.
+		</resource>
 		<resource name="error_openfile">A fájlt "{0}" nem sikerült megnyitni.</resource>
 		<resource name="error_openlink">Nem sikerült megnyitni a helyet.</resource>
 		<resource name="error_save">Nem lehet menteni a képernyőképet, keressen megfelelő helyet.</resource>
@@ -151,22 +158,24 @@ Kérjük ellenőrizze a mentési hely hozzáférhetőségét.</resource>
 		<resource name="settings_jpegquality">JPEG minőség</resource>
 		<resource name="settings_jpegsettings">JPEG beállítások</resource>
 		<resource name="settings_language">Nyelv</resource>
-		<resource name="settings_message_filenamepattern">A következő minták válthatják fel az automatikus meghatározást:
-${YYYY} év, 4 karakter
-${MM} hónap, 2 karakter
-${DD} nap, 2 karakter
-${hh} óra, 2 karakter
-${mm} perc, 2 karakter
-${ss} másodperc, 2 karakter
-${NUM} növekvő szám, 6 karakter
-${title} Az ablak neve
-${user} Windows felhasználó
-${domain} Windows tartomány
-${hostname} Számítógép név
+		<resource name="settings_message_filenamepattern">
+			A következő minták válthatják fel az automatikus meghatározást:
+			${YYYY} év, 4 karakter
+			${MM} hónap, 2 karakter
+			${DD} nap, 2 karakter
+			${hh} óra, 2 karakter
+			${mm} perc, 2 karakter
+			${ss} másodperc, 2 karakter
+			${NUM} növekvő szám, 6 karakter
+			${title} Az ablak neve
+			${user} Windows felhasználó
+			${domain} Windows tartomány
+			${hostname} Számítógép név
 
-Könyvtárak lehet létrehozni a Greenshot -tal, a visszaper jeletet (\) használja a mappák és fájlnevek elválasztásánál.
-Például: a minta ${YYYY}-${MM}-${DD}_${hh}-${mm}-${ss}
-fájl mentése az aktuális dátummal és időponttal, a megadott tárolási helyre, pl.: 2008-06-29_14-34-21, ezzel a mentési meghatározással a képernyőkép mindig az aktuális dátummal, idővel lesz elmentve.</resource>
+			Könyvtárak lehet létrehozni a Greenshot -tal, a visszaper jeletet (\) használja a mappák és fájlnevek elválasztásánál.
+			Például: a minta ${YYYY}-${MM}-${DD}_${hh}-${mm}-${ss}
+			fájl mentése az aktuális dátummal és időponttal, a megadott tárolási helyre, pl.: 2008-06-29_14-34-21, ezzel a mentési meghatározással a képernyőkép mindig az aktuális dátummal, idővel lesz elmentve.
+		</resource>
 		<resource name="settings_output">Mentés</resource>
 		<resource name="settings_playsound">Fényképező zárhang</resource>
 		<resource name="settings_preferredfilesettings">Kimeneti fájl beállítása</resource>
@@ -186,8 +195,10 @@ fájl mentése az aktuális dátummal és időponttal, a megadott tárolási hel
 		<resource name="settings_waittime">Ezredmásodpercet várjon kijelölés előtt</resource>
 		<resource name="tooltip_firststart">Jobb klikk ide vagy nyomja meg a PrinScrn gombot.</resource>
 		<resource name="warning">Figyelem</resource>
-		<resource name="warning_hotkeys">Egy vagy több gyors billentyű nincs regisztrálva. Ezért lehet az, hogy nem lehet használni.
-Ez a hiba akkor fordulhat elő, ha egy másik program használja.
-Kapcsolja ki a szotvert és használja PrintScrn billentyűt. Egyszerűen használhatja a Greenshot -ot a tálca ikon helyi menüjéből.</resource>
+		<resource name="warning_hotkeys">
+			Egy vagy több gyors billentyű nincs regisztrálva. Ezért lehet az, hogy nem lehet használni.
+			Ez a hiba akkor fordulhat elő, ha egy másik program használja.
+			Kapcsolja ki a szotvert és használja PrintScrn billentyűt. Egyszerűen használhatja a Greenshot -ot a tálca ikon helyi menüjéből.
+		</resource>
 	</resources>
 </language>

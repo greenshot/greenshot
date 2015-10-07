@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -25,16 +26,19 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using GreenshotPlugin.Controls;
 
-namespace Greenshot.Controls {
+namespace Greenshot.Controls
+{
 	/// <summary>
 	/// Description of ColorButton.
 	/// </summary>
-	public class ColorButton : Button, IGreenshotLanguageBindable {
+	public class ColorButton : Button, IGreenshotLanguageBindable
+	{
 		public event PropertyChangedEventHandler PropertyChanged;
 		private Color selectedColor = Color.White;
 
 		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the translation.")]
-		public string LanguageKey {
+		public string LanguageKey
+		{
 			get;
 			set;
 		}
@@ -46,25 +50,36 @@ namespace Greenshot.Controls {
 			set;
 		}
 
-		public ColorButton() {
+		public ColorButton()
+		{
 			Click += ColorButtonClick;
 		}
 
-		public Color SelectedColor {
-			get {return selectedColor;}
-			set {
+		public Color SelectedColor
+		{
+			get
+			{
+				return selectedColor;
+			}
+			set
+			{
 				selectedColor = value;
 
 				Brush brush;
-				if(value != Color.Transparent) {
+				if (value != Color.Transparent)
+				{
 					brush = new SolidBrush(value);
-				} else {
+				}
+				else
+				{
 					brush = new HatchBrush(HatchStyle.Percent50, Color.White, Color.Gray);
 				}
 
-				if (Image != null) {
-					using (Graphics graphics = Graphics.FromImage(Image)) {
-						graphics.FillRectangle(brush, new Rectangle(4,17,16,3));
+				if (Image != null)
+				{
+					using (Graphics graphics = Graphics.FromImage(Image))
+					{
+						graphics.FillRectangle(brush, new Rectangle(4, 17, 16, 3));
 					}
 				}
 
@@ -74,15 +89,19 @@ namespace Greenshot.Controls {
 			}
 		}
 
-		void ColorButtonClick(object sender, EventArgs e) {
+		private void ColorButtonClick(object sender, EventArgs e)
+		{
 			var colorDialog = GreenshotPlugin.Controls.ColorDialog.GetInstance();
 			colorDialog.Color = SelectedColor;
 			// Using the parent to make sure the dialog doesn't show on another window
 			colorDialog.ShowDialog(Parent.Parent);
-			if (colorDialog.DialogResult != DialogResult.Cancel) {
-				if (!colorDialog.Color.Equals(SelectedColor)) {
+			if (colorDialog.DialogResult != DialogResult.Cancel)
+			{
+				if (!colorDialog.Color.Equals(SelectedColor))
+				{
 					SelectedColor = colorDialog.Color;
-					if(PropertyChanged != null) {
+					if (PropertyChanged != null)
+					{
 						PropertyChanged(this, new PropertyChangedEventArgs("SelectedColor"));
 					}
 				}

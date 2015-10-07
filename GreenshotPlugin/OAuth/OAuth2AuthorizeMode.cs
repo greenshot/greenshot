@@ -19,15 +19,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotPlugin.OAuth {
+namespace GreenshotPlugin.OAuth
+{
 	/// <summary>
 	/// Specify the autorize mode that is used to get the token from the cloud service.
 	/// </summary>
-	public enum OAuth2AuthorizeMode {
-		Unknown,		// Will give an exception, caller needs to specify another value
-		LocalServer,	// Will specify a redirect URL to http://localhost:port/authorize, while having a HttpListener
-		MonitorTitle,	// Not implemented yet: Will monitor for title changes
-		Pin,			// Not implemented yet: Will ask the user to enter the shown PIN
+	public enum OAuth2AuthorizeMode
+	{
+		Unknown, // Will give an exception, caller needs to specify another value
+		LocalServer, // Will specify a redirect URL to http://localhost:port/authorize, while having a HttpListener
+		MonitorTitle, // Not implemented yet: Will monitor for title changes
+		Pin, // Not implemented yet: Will ask the user to enter the shown PIN
 		EmbeddedBrowser // Will open into an embedded _browser (OAuthLoginForm), and catch the redirect
 	}
 }

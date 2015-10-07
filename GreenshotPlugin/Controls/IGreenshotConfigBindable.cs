@@ -19,12 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotPlugin.Controls {
-	public interface IGreenshotConfigBindable {
+namespace GreenshotPlugin.Controls
+{
+	public interface IGreenshotConfigBindable
+	{
 		/// <summary>
 		/// The class where the property-value is stored
 		/// </summary>
-		string SectionName {
+		string SectionName
+		{
 			get;
 			set;
 		}
@@ -32,7 +35,8 @@ namespace GreenshotPlugin.Controls {
 		/// <summary>
 		/// Path to the property value which will be mapped with this control
 		/// </summary>
-		string PropertyName {
+		string PropertyName
+		{
 			get;
 			set;
 		}

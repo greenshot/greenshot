@@ -43,7 +43,7 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public static class ClipboardHelper
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(ClipboardHelper));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (ClipboardHelper));
 		private static readonly Object clipboardLockObject = new Object();
 		private static readonly ICoreConfiguration config = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
@@ -114,20 +114,22 @@ EndSelection:<<<<<<<4
 					int pid;
 					User32.GetWindowThreadProcessId(hWnd, out pid);
 					using (Process me = Process.GetCurrentProcess())
-					using (Process ownerProcess = Process.GetProcessById(pid))
 					{
-						// Exclude myself
-						if (ownerProcess != null && me.Id != ownerProcess.Id)
+						using (Process ownerProcess = Process.GetProcessById(pid))
 						{
-							// Get Process Name
-							owner = ownerProcess.ProcessName;
-							// Try to get the starting Process Filename, this might fail.
-							try
+							// Exclude myself
+							if (ownerProcess != null && me.Id != ownerProcess.Id)
 							{
-								owner = ownerProcess.Modules[0].FileName;
-							}
-							catch (Exception)
-							{
+								// Get Process Name
+								owner = ownerProcess.ProcessName;
+								// Try to get the starting Process Filename, this might fail.
+								try
+								{
+									owner = ownerProcess.Modules[0].FileName;
+								}
+								catch (Exception)
+								{
+								}
 							}
 						}
 					}
@@ -204,7 +206,8 @@ EndSelection:<<<<<<<4
 				{
 					try
 					{
-						return (IDataObject)PluginUtils.Host.MainMenu.Invoke(new Func<IDataObject>(() => {
+						return (IDataObject) PluginUtils.Host.MainMenu.Invoke(new Func<IDataObject>(() =>
+						{
 							return InternalGetDataObject();
 						}), null);
 					}
@@ -284,14 +287,7 @@ EndSelection:<<<<<<<4
 		{
 			if (dataObject != null)
 			{
-				if (dataObject.GetDataPresent(DataFormats.Bitmap)
-					|| dataObject.GetDataPresent(DataFormats.Dib)
-					|| dataObject.GetDataPresent(DataFormats.Tiff)
-					|| dataObject.GetDataPresent(DataFormats.EnhancedMetafile)
-					|| dataObject.GetDataPresent(FORMAT_PNG)
-					|| dataObject.GetDataPresent(FORMAT_17)
-					|| dataObject.GetDataPresent(FORMAT_JPG)
-					|| dataObject.GetDataPresent(FORMAT_GIF))
+				if (dataObject.GetDataPresent(DataFormats.Bitmap) || dataObject.GetDataPresent(DataFormats.Dib) || dataObject.GetDataPresent(DataFormats.Tiff) || dataObject.GetDataPresent(DataFormats.EnhancedMetafile) || dataObject.GetDataPresent(FORMAT_PNG) || dataObject.GetDataPresent(FORMAT_17) || dataObject.GetDataPresent(FORMAT_JPG) || dataObject.GetDataPresent(FORMAT_GIF))
 				{
 					return true;
 				}
@@ -408,11 +404,17 @@ EndSelection:<<<<<<<4
 				{
 					// Outlook ??
 					LOG.Info("Most likely the current clipboard contents come from Outlook, as this has a problem with PNG and others we place the DIB format to the front...");
-					retrieveFormats = new string[] { DataFormats.Dib, FORMAT_BITMAP, FORMAT_FILECONTENTS, FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JFIF, DataFormats.Tiff, FORMAT_GIF };
+					retrieveFormats = new string[]
+					{
+						DataFormats.Dib, FORMAT_BITMAP, FORMAT_FILECONTENTS, FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JFIF, DataFormats.Tiff, FORMAT_GIF
+					};
 				}
 				else
 				{
-					retrieveFormats = new string[] { FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_17, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JFIF, DataFormats.Tiff, DataFormats.Dib, FORMAT_BITMAP, FORMAT_FILECONTENTS, FORMAT_GIF };
+					retrieveFormats = new string[]
+					{
+						FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_17, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JFIF, DataFormats.Tiff, DataFormats.Dib, FORMAT_BITMAP, FORMAT_FILECONTENTS, FORMAT_GIF
+					};
 				}
 				foreach (string currentFormat in retrieveFormats)
 				{
@@ -467,16 +469,16 @@ EndSelection:<<<<<<<4
 							if (!infoHeader.IsDibV5)
 							{
 								LOG.InfoFormat("Using special DIB <v5 format reader with biCompression {0}", infoHeader.biCompression);
-								int fileHeaderSize = Marshal.SizeOf(typeof(BITMAPFILEHEADER));
+								int fileHeaderSize = Marshal.SizeOf(typeof (BITMAPFILEHEADER));
 								uint infoHeaderSize = infoHeader.biSize;
-								int fileSize = (int)(fileHeaderSize + infoHeader.biSize + infoHeader.biSizeImage);
+								int fileSize = (int) (fileHeaderSize + infoHeader.biSize + infoHeader.biSizeImage);
 
 								BITMAPFILEHEADER fileHeader = new BITMAPFILEHEADER();
 								fileHeader.bfType = BITMAPFILEHEADER.BM;
 								fileHeader.bfSize = fileSize;
 								fileHeader.bfReserved1 = 0;
 								fileHeader.bfReserved2 = 0;
-								fileHeader.bfOffBits = (int)(fileHeaderSize + infoHeaderSize + infoHeader.biClrUsed * 4);
+								fileHeader.bfOffBits = (int) (fileHeaderSize + infoHeaderSize + infoHeader.biClrUsed*4);
 
 								byte[] fileHeaderBytes = BinaryStructHelper.ToByteArray<BITMAPFILEHEADER>(fileHeader);
 
@@ -503,9 +505,7 @@ EndSelection:<<<<<<<4
 								{
 									GCHandle handle = GCHandle.Alloc(dibBuffer, GCHandleType.Pinned);
 									gcHandle = GCHandle.ToIntPtr(handle);
-									return new Bitmap(infoHeader.biWidth, infoHeader.biHeight, -(int)(infoHeader.biSizeImage / infoHeader.biHeight),
-										infoHeader.biBitCount == 32 ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb,
-										new IntPtr(handle.AddrOfPinnedObject().ToInt32() + infoHeader.OffsetToPixels + (infoHeader.biHeight - 1) * (int)(infoHeader.biSizeImage / infoHeader.biHeight)));
+									return new Bitmap(infoHeader.biWidth, infoHeader.biHeight, -(int) (infoHeader.biSizeImage/infoHeader.biHeight), infoHeader.biBitCount == 32 ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb, new IntPtr(handle.AddrOfPinnedObject().ToInt32() + infoHeader.OffsetToPixels + (infoHeader.biHeight - 1)*(int) (infoHeader.biSizeImage/infoHeader.biHeight)));
 								}
 								catch (Exception ex)
 								{
@@ -567,7 +567,7 @@ EndSelection:<<<<<<<4
 		{
 			if (ContainsText(dataObject))
 			{
-				return (String)dataObject.GetData(DataFormats.Text);
+				return (String) dataObject.GetData(DataFormats.Text);
 			}
 			return null;
 		}
@@ -615,7 +615,7 @@ EndSelection:<<<<<<<4
 			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${width}", surface.Image.Width.ToString());
 			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${height}", surface.Image.Height.ToString());
 			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${format}", "png");
-			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${data}", Convert.ToBase64String(pngStream.GetBuffer(), 0, (int)pngStream.Length));
+			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${data}", Convert.ToBase64String(pngStream.GetBuffer(), 0, (int) pngStream.Length));
 			StringBuilder sb = new StringBuilder();
 			sb.Append(utf8EncodedHTMLString);
 			sb.Replace("<<<<<<<1", (utf8EncodedHTMLString.IndexOf("<HTML>") + "<HTML>".Length).ToString("D8"));
@@ -635,6 +635,7 @@ EndSelection:<<<<<<<4
 		/// For this problem the user should not use the direct paste (=Dib), but select Bitmap
 		/// </summary>
 		private const int BITMAPFILEHEADER_LENGTH = 14;
+
 		public static void SetClipboardData(ISurface surface)
 		{
 			DataObject dataObject = new DataObject();
@@ -683,7 +684,7 @@ EndSelection:<<<<<<<4
 
 							dibStream = new MemoryStream();
 							// Copy the source, but skip the "BITMAPFILEHEADER" which has a size of 14
-							dibStream.Write(tmpBmpStream.GetBuffer(), BITMAPFILEHEADER_LENGTH, (int)tmpBmpStream.Length - BITMAPFILEHEADER_LENGTH);
+							dibStream.Write(tmpBmpStream.GetBuffer(), BITMAPFILEHEADER_LENGTH, (int) tmpBmpStream.Length - BITMAPFILEHEADER_LENGTH);
 						}
 
 						// Set the DIB to the clipboard DataObject
@@ -723,7 +724,7 @@ EndSelection:<<<<<<<4
 						dibV5Stream.Write(colorMaskBytes, 0, colorMaskBytes.Length);
 
 						// Create the raw bytes for the pixels only
-						byte[] bitmapBytes = BitmapToByteArray((Bitmap)imageToSave);
+						byte[] bitmapBytes = BitmapToByteArray((Bitmap) imageToSave);
 						// Write to the stream
 						dibV5Stream.Write(bitmapBytes, 0, bitmapBytes.Length);
 
@@ -819,15 +820,15 @@ EndSelection:<<<<<<<4
 			BitmapData bmpData = bitmap.LockBits(rect, ImageLockMode.ReadOnly, bitmap.PixelFormat);
 
 			int absStride = Math.Abs(bmpData.Stride);
-			int bytes = absStride * bitmap.Height;
+			int bytes = absStride*bitmap.Height;
 			long ptr = bmpData.Scan0.ToInt32();
 			// Declare an array to hold the bytes of the bitmap.
 			byte[] rgbValues = new byte[bytes];
 
 			for (int i = 0; i < bitmap.Height; i++)
 			{
-				IntPtr pointer = new IntPtr(ptr + (bmpData.Stride * i));
-				Marshal.Copy(pointer, rgbValues, absStride * (bitmap.Height - i - 1), absStride);
+				IntPtr pointer = new IntPtr(ptr + (bmpData.Stride*i));
+				Marshal.Copy(pointer, rgbValues, absStride*(bitmap.Height - i - 1), absStride);
 			}
 
 			// Unlock the bits.
@@ -889,7 +890,10 @@ EndSelection:<<<<<<<4
 		/// <returns>true if one the format is found</returns>
 		public static bool ContainsFormat(string format)
 		{
-			return ContainsFormat(GetDataObject(), new string[] { format });
+			return ContainsFormat(GetDataObject(), new string[]
+			{
+				format
+			});
 		}
 
 		/// <summary>
@@ -899,7 +903,10 @@ EndSelection:<<<<<<<4
 		/// <returns>true if one the format is found</returns>
 		public static bool ContainsFormat(IDataObject dataObject, string format)
 		{
-			return ContainsFormat(dataObject, new string[] { format });
+			return ContainsFormat(dataObject, new string[]
+			{
+				format
+			});
 		}
 
 		/// <summary>
@@ -971,7 +978,7 @@ EndSelection:<<<<<<<4
 		public static List<string> GetImageFilenames(IDataObject dataObject)
 		{
 			List<string> filenames = new List<string>();
-			string[] dropFileNames = (string[])dataObject.GetData(DataFormats.FileDrop);
+			string[] dropFileNames = (string[]) dataObject.GetData(DataFormats.FileDrop);
 			try
 			{
 				if (dropFileNames != null && dropFileNames.Length > 0)

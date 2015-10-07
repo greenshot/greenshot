@@ -1,23 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <language>
 	<resources prefix="Core">
 		<resource name="about_bugs">:אנא דווח באגים בכתובת</resource>
 		<resource name="about_donations">:אם את\ה נהנה\ית משימוש בתוכנה, את\ה מוזמן לתרום לנו</resource>
 		<resource name="about_host">Greenshot is hosted by sourceforge.net at</resource>
 		<resource name="about_icons">Icons from Yusuke Kamiyamane's Fugue icon set (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
-Details about the GNU General Public License:</resource>
+		<resource name="about_license">
+			Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+			Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
+			Details about the GNU General Public License:
+		</resource>
 		<resource name="about_title">Greenshot אודות התוכנה</resource>
 		<resource name="application_title">Greenshot - התוכנה המהפכנית ללכידת מסך</resource>
 		<resource name="bugreport_cancel">סגור</resource>
-		<resource name="bugreport_info">סליחה, שגיאה בלתי צפויה אירעה
+		<resource name="bugreport_info">
+			סליחה, שגיאה בלתי צפויה אירעה
 
-.החדשות הטובות הן: את\ה יכול\ה לעזור לנו לפתור אותה באמצעות דיווח באגים
-.אנא בקר\י בכתובת שמלטמה, צור\י דוח באגים והדבק אותו בעמוד שנפתח
+			.החדשות הטובות הן: את\ה יכול\ה לעזור לנו לפתור אותה באמצעות דיווח באגים
+			.אנא בקר\י בכתובת שמלטמה, צור\י דוח באגים והדבק אותו בעמוד שנפתח
 
-.נא להוסיף תקציר של התקלה וכל מידע שנראה חיוני לזיהוי התקלה
- תודה רבה :)</resource>
+			.נא להוסיף תקציר של התקלה וכל מידע שנראה חיוני לזיהוי התקלה
+			תודה רבה :)
+		</resource>
 		<resource name="bugreport_title">שגיאה</resource>
 		<resource name="clipboard_error">שגיאה לא-צפויה קרתה בכתיבה אל לוח העריכה</resource>
 		<resource name="clipboard_inuse">התוכנה לא יכלה לכתוב אל הלוח מאחר והתוכנה {0} חסמה את הגישה</resource>
@@ -113,8 +118,10 @@ Details about the GNU General Public License:</resource>
 		<resource name="editor_uptotop">עד למעלה</resource>
 		<resource name="error">שגיאה</resource>
 		<resource name="error_multipleinstances">עותק אחד של התוכנה כבר פתוח</resource>
-		<resource name="error_nowriteaccess">לא ניתן לשמור קובץ אל {0}.
-. נא לבדוק את הרשאות הכתיבה אל הנתיב שצוין</resource>
+		<resource name="error_nowriteaccess">
+			לא ניתן לשמור קובץ אל {0}.
+			. נא לבדוק את הרשאות הכתיבה אל הנתיב שצוין
+		</resource>
 		<resource name="error_openfile">הקובץ "{0}" לא ניתן לפתיחה.</resource>
 		<resource name="error_openlink">לא ניתן לפתוח קישור</resource>
 		<resource name="error_save">לא ניתן לשמור לכידה, אנא בחר מיקום מתאים</resource>
@@ -151,29 +158,31 @@ Details about the GNU General Public License:</resource>
 		<resource name="settings_jpegquality">JPEG איכות</resource>
 		<resource name="settings_jpegsettings">JPEG הגדרות</resource>
 		<resource name="settings_language">שפה</resource>
-		<resource name="settings_message_filenamepattern">:המשתנים הבאים יוחלפו אוטומטית בתבנית שתוגדר להלן
-${YYYY}  ספרות 4 ,שנה
-${MM}  ספרות 2 , חודש
-${DD}  ספרות 2 ,יום
-${hh}  ספרות 2 ,שעה
-${mm}  ספרות 2 ,דקות
-${ss}  ספרות 2 ,שניות
-${NUM}  ספרות 6 , מספר עולה
-${title}  כותרת החלון
-${user}  שם המשתמש במחשב
-${domain}  שם הדומיין של המחשב 
-${hostname}  שם המחשב
+		<resource name="settings_message_filenamepattern">
+			:המשתנים הבאים יוחלפו אוטומטית בתבנית שתוגדר להלן
+			${YYYY}  ספרות 4 ,שנה
+			${MM}  ספרות 2 , חודש
+			${DD}  ספרות 2 ,יום
+			${hh}  ספרות 2 ,שעה
+			${mm}  ספרות 2 ,דקות
+			${ss}  ספרות 2 ,שניות
+			${NUM}  ספרות 6 , מספר עולה
+			${title}  כותרת החלון
+			${user}  שם המשתמש במחשב
+			${domain}  שם הדומיין של המחשב
+			${hostname}  שם המחשב
 
-.ניתן לאפשר לתוכנה ליצור תיקיות באופן דינמי
-.יש להוסיף סמל אלכסון אחורי (\) כדי להפריד בין תיקיות לשם-קובץ 
- 
- ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}  :לדוגמה 
- 
-,התבנית תייצר תיקייה עם תאריך היום בתיקיית השמירה שהוגדרה
-,למשל 2008-06-29
-,ושם הקובץ של לכידת המסך יהיה לפי השעה של השמירה
-,למשל 11-58-32
-.ובסוף סיומת הקובץ לפי הפורמט שהוגדר</resource>
+			.ניתן לאפשר לתוכנה ליצור תיקיות באופן דינמי
+			.יש להוסיף סמל אלכסון אחורי (\) כדי להפריד בין תיקיות לשם-קובץ
+
+			${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}  :לדוגמה
+
+			,התבנית תייצר תיקייה עם תאריך היום בתיקיית השמירה שהוגדרה
+			,למשל 2008-06-29
+			,ושם הקובץ של לכידת המסך יהיה לפי השעה של השמירה
+			,למשל 11-58-32
+			.ובסוף סיומת הקובץ לפי הפורמט שהוגדר
+		</resource>
 		<resource name="settings_output">פלט</resource>
 		<resource name="settings_playsound">השמעת צליל של מצלמה</resource>
 		<resource name="settings_preferredfilesettings">הגדרות מועדפות לפלט קובץ</resource>
@@ -193,8 +202,10 @@ ${hostname}  שם המחשב
 		<resource name="settings_waittime">מספר מילי-שניות לפני לכידה</resource>
 		<resource name="tooltip_firststart">קליק ימני כאן או לחץ על כפתור הדפסה במקלדת</resource>
 		<resource name="warning">אזהרה</resource>
-		<resource name="warning_hotkeys">.אחד או מספר מקשים חמים לא הופעלו. לכן, ייתכן שחלקם לא יפעלו עם התוכנה 
-.כנראה שתוכנה אחרת משתמשת במקשים הללו. אנאסגור תוכנות אחרות המשתמשות במקשי ההדפסה
-.ניתן להשתמש בתפריט התוכנה שבצלמית בפינת הסמלים כדי לבצע פעולות</resource>
+		<resource name="warning_hotkeys">
+			.אחד או מספר מקשים חמים לא הופעלו. לכן, ייתכן שחלקם לא יפעלו עם התוכנה
+			.כנראה שתוכנה אחרת משתמשת במקשים הללו. אנאסגור תוכנות אחרות המשתמשות במקשי ההדפסה
+			.ניתן להשתמש בתפריט התוכנה שבצלמית בפינת הסמלים כדי לבצע פעולות
+		</resource>
 	</resources>
 </language>

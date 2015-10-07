@@ -25,43 +25,55 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GreenshotJiraPlugin {
-	public class JiraDetails : IComparable<JiraDetails> {
-		public JiraDetails() {
+namespace GreenshotJiraPlugin
+{
+	public class JiraDetails : IComparable<JiraDetails>
+	{
+		public JiraDetails()
+		{
 			FirstSeenAt = SeenAt = DateTimeOffset.Now;
 		}
 
-		public string ProjectKey {
-			get;
-			set;
-		}
-		public string Id {
+		public string ProjectKey
+		{
 			get;
 			set;
 		}
 
-		public string JiraKey {
-			get {
+		public string Id
+		{
+			get;
+			set;
+		}
+
+		public string JiraKey
+		{
+			get
+			{
 				return ProjectKey + "-" + Id;
 			}
 		}
 
-		public string Title {
+		public string Title
+		{
 			get;
 			set;
 		}
 
-		public DateTimeOffset FirstSeenAt {
+		public DateTimeOffset FirstSeenAt
+		{
 			get;
 			private set;
 		}
 
-		public DateTimeOffset SeenAt {
+		public DateTimeOffset SeenAt
+		{
 			get;
 			set;
 		}
 
-		public int CompareTo(JiraDetails other) {
+		public int CompareTo(JiraDetails other)
+		{
 			return SeenAt.CompareTo(other.SeenAt);
 		}
 	}

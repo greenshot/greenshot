@@ -1,34 +1,34 @@
 ﻿<UserControl x:Class="GreenshotPlugin.Controls.AnimatedGreenshotLogo"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:GreenshotPlugin.Controls"
-             Background="#FF3D3D3D">
-    <Viewbox HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
-        <Canvas Width="430" Height="520" ClipToBounds="True">
-            <Rectangle xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Width="520" Height="520" Fill="#FF3D3D3D"/>
-            <Ellipse Width="60" Height="60" Canvas.Left="364" Canvas.Top="195" Fill="#FF8AFF00" Name="L1C1"/>
-            <Ellipse Width="60" Height="60" Canvas.Left="296" Canvas.Top="169" Fill="#FF8AFF00" Name="L1C2"/>
-            <Ellipse Width="60" Height="60" Canvas.Left="228" Canvas.Top="143" Fill="#FF8AFF00" Name="L1C3"/>
-            <Ellipse Width="60" Height="60" Canvas.Left="159" Canvas.Top="117" Fill="#FF8AFF00" Name="L1C4"/>
-            <Ellipse Width="60" Height="60" Canvas.Left="090" Canvas.Top="090" Fill="#FF8AFF00" Name="L1C5"/>
-            <Ellipse Width="60" Height="60" Canvas.Left="065" Canvas.Top="159" Fill="#FF8AFF00" Name="L2C1"/>
-            <Ellipse Width="60" Height="60" Canvas.Left="-04" Canvas.Top="133" Fill="#FF8AFF00" Name="L2C2"/>
-            <Ellipse Width="60" Height="60" Canvas.Left="039" Canvas.Top="227" Fill="#FF8AFF00" Name="L3C1"/>
-            <Ellipse Width="60" Height="60" Canvas.Left="-30" Canvas.Top="201" Fill="#FF8AFF00" Name="L3C2"/>
-            <Ellipse Width="60" Height="60" Canvas.Left="013" Canvas.Top="295" Fill="#FF8AFF00" Name="L4C1"/>
-            <Ellipse Width="60" Height="60" Canvas.Left="-56" Canvas.Top="271" Fill="#FF8AFF00" Name="L4C2"/>
-            <Ellipse Width="60" Height="60" Canvas.Left="-13" Canvas.Top="364" Fill="#FF8AFF00" Name="L5C1"/>
-            <Ellipse Width="60" Height="60" Canvas.Left="-40" Canvas.Top="432" Fill="#FF8AFF00" Name="L6C1"/>
-            <Ellipse Width="60" Height="60" Canvas.Left="029" Canvas.Top="458" Fill="#FF8AFF00" Name="L6C2"/>
-            <Ellipse Width="60" Height="60" Canvas.Left="098" Canvas.Top="483" Fill="#FF8AFF00" Name="L6C3"/>
-            <Ellipse Width="60" Height="60" Canvas.Left="167" Canvas.Top="510" Fill="#FF8AFF00" Name="L6C4"/>
-            <Ellipse Width="60" Height="60" Canvas.Left="328" Canvas.Top="494" Fill="#FF8AFF00" Name="L7C1"/>
-            <Ellipse Width="60" Height="60" Canvas.Left="260" Canvas.Top="468" Fill="#FF8AFF00" Name="L7C2"/>
-            <Ellipse Width="60" Height="60" Canvas.Left="354" Canvas.Top="426" Fill="#FF8AFF00" Name="L8C1"/>
-            <Ellipse Width="60" Height="60" Canvas.Left="286" Canvas.Top="399" Fill="#FF8AFF00" Name="L8C2"/>
-            <Ellipse Width="60" Height="60" Canvas.Left="218" Canvas.Top="373" Fill="#FF8AFF00" Name="L8C3"/>
-        </Canvas>
-    </Viewbox>
+			xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			xmlns:local="clr-namespace:GreenshotPlugin.Controls"
+			Background="#FF3D3D3D">
+	<Viewbox HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
+		<Canvas Width="430" Height="520" ClipToBounds="True">
+			<Rectangle xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Width="520" Height="520" Fill="#FF3D3D3D" />
+			<Ellipse Width="60" Height="60" Canvas.Left="364" Canvas.Top="195" Fill="#FF8AFF00" Name="L1C1" />
+			<Ellipse Width="60" Height="60" Canvas.Left="296" Canvas.Top="169" Fill="#FF8AFF00" Name="L1C2" />
+			<Ellipse Width="60" Height="60" Canvas.Left="228" Canvas.Top="143" Fill="#FF8AFF00" Name="L1C3" />
+			<Ellipse Width="60" Height="60" Canvas.Left="159" Canvas.Top="117" Fill="#FF8AFF00" Name="L1C4" />
+			<Ellipse Width="60" Height="60" Canvas.Left="090" Canvas.Top="090" Fill="#FF8AFF00" Name="L1C5" />
+			<Ellipse Width="60" Height="60" Canvas.Left="065" Canvas.Top="159" Fill="#FF8AFF00" Name="L2C1" />
+			<Ellipse Width="60" Height="60" Canvas.Left="-04" Canvas.Top="133" Fill="#FF8AFF00" Name="L2C2" />
+			<Ellipse Width="60" Height="60" Canvas.Left="039" Canvas.Top="227" Fill="#FF8AFF00" Name="L3C1" />
+			<Ellipse Width="60" Height="60" Canvas.Left="-30" Canvas.Top="201" Fill="#FF8AFF00" Name="L3C2" />
+			<Ellipse Width="60" Height="60" Canvas.Left="013" Canvas.Top="295" Fill="#FF8AFF00" Name="L4C1" />
+			<Ellipse Width="60" Height="60" Canvas.Left="-56" Canvas.Top="271" Fill="#FF8AFF00" Name="L4C2" />
+			<Ellipse Width="60" Height="60" Canvas.Left="-13" Canvas.Top="364" Fill="#FF8AFF00" Name="L5C1" />
+			<Ellipse Width="60" Height="60" Canvas.Left="-40" Canvas.Top="432" Fill="#FF8AFF00" Name="L6C1" />
+			<Ellipse Width="60" Height="60" Canvas.Left="029" Canvas.Top="458" Fill="#FF8AFF00" Name="L6C2" />
+			<Ellipse Width="60" Height="60" Canvas.Left="098" Canvas.Top="483" Fill="#FF8AFF00" Name="L6C3" />
+			<Ellipse Width="60" Height="60" Canvas.Left="167" Canvas.Top="510" Fill="#FF8AFF00" Name="L6C4" />
+			<Ellipse Width="60" Height="60" Canvas.Left="328" Canvas.Top="494" Fill="#FF8AFF00" Name="L7C1" />
+			<Ellipse Width="60" Height="60" Canvas.Left="260" Canvas.Top="468" Fill="#FF8AFF00" Name="L7C2" />
+			<Ellipse Width="60" Height="60" Canvas.Left="354" Canvas.Top="426" Fill="#FF8AFF00" Name="L8C1" />
+			<Ellipse Width="60" Height="60" Canvas.Left="286" Canvas.Top="399" Fill="#FF8AFF00" Name="L8C2" />
+			<Ellipse Width="60" Height="60" Canvas.Left="218" Canvas.Top="373" Fill="#FF8AFF00" Name="L8C3" />
+		</Canvas>
+	</Viewbox>
 </UserControl>

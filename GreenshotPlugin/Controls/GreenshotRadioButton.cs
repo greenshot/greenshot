@@ -22,13 +22,16 @@
 using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace GreenshotPlugin.Controls {
+namespace GreenshotPlugin.Controls
+{
 	/// <summary>
 	/// Description of GreenshotCheckbox.
 	/// </summary>
-	public class GreenshotRadioButton : RadioButton, IGreenshotLanguageBindable, IGreenshotConfigBindable {
+	public class GreenshotRadioButton : RadioButton, IGreenshotLanguageBindable, IGreenshotConfigBindable
+	{
 		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
-		public string LanguageKey {
+		public string LanguageKey
+		{
 			get;
 			set;
 		}
@@ -41,7 +44,8 @@ namespace GreenshotPlugin.Controls {
 		} = "Core";
 
 		[Category("Greenshot"), DefaultValue(null), Description("Specifies the property name to map the configuration.")]
-		public string PropertyName {
+		public string PropertyName
+		{
 			get;
 			set;
 		}

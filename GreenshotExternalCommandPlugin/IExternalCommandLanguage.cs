@@ -25,10 +25,11 @@ using System.ComponentModel;
 namespace ExternalCommand
 {
 	[Language("ExternalCommand")]
-	public interface IExternalCommandLanguage : ILanguage, INotifyPropertyChanged {
+	public interface IExternalCommandLanguage : ILanguage, INotifyPropertyChanged
+	{
 		string ContextmenuConfigure
 		{
 			get;
 		}
-    }
+	}
 }

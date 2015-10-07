@@ -18,25 +18,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
 
-namespace GreenshotJiraPlugin {
+namespace GreenshotJiraPlugin
+{
 	/// <summary>
 	/// Description of PasswordRequestForm.
 	/// </summary>
-	public partial class SettingsForm : JiraFormBase {
-		public string Url {
-			get {
+	public partial class SettingsForm : JiraFormBase
+	{
+		public string Url
+		{
+			get
+			{
 				return textBoxUrl.Text;
 			}
-			set {
+			set
+			{
 				textBoxUrl.Text = value;
 			}
 		}
 
-		public SettingsForm(IJiraConfiguration config) :base () {
+		public SettingsForm(IJiraConfiguration config) : base()
+		{
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//

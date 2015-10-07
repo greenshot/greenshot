@@ -30,32 +30,39 @@ namespace GreenshotDropboxPlugin
 	/// Description of ImgurConfiguration.
 	/// </summary>
 	[IniSection("Dropbox"), Description("Greenshot Dropbox Plugin configuration")]
-	public interface IDropboxConfiguration : IIniSection<IDropboxConfiguration> {
+	public interface IDropboxConfiguration : IIniSection<IDropboxConfiguration>
+	{
 		[Description("What file type to use for uploading"), DefaultValue(OutputFormat.png)]
-		OutputFormat UploadFormat {
+		OutputFormat UploadFormat
+		{
 			get;
 			set;
 		}
 
 		[Description("JPEG file save quality in %."), DefaultValue(80)]
-		int UploadJpegQuality {
+		int UploadJpegQuality
+		{
 			get;
 			set;
 		}
 
 		[Description("After upload send Dropbox link to clipboard."), DefaultValue(true)]
-		bool AfterUploadLinkToClipBoard {
+		bool AfterUploadLinkToClipBoard
+		{
 			get;
 			set;
 		}
 
-		[Description("The Dropbox token"), TypeConverter(typeof(StringEncryptionTypeConverter))]
-		string DropboxToken {
+		[Description("The Dropbox token"), TypeConverter(typeof (StringEncryptionTypeConverter))]
+		string DropboxToken
+		{
 			get;
 			set;
 		}
-		[Description("The Dropbox token secret"), TypeConverter(typeof(StringEncryptionTypeConverter))]
-		string DropboxTokenSecret {
+
+		[Description("The Dropbox token secret"), TypeConverter(typeof (StringEncryptionTypeConverter))]
+		string DropboxTokenSecret
+		{
 			get;
 			set;
 		}
@@ -79,6 +86,5 @@ namespace GreenshotDropboxPlugin
 			get;
 			set;
 		}
-
 	}
 }

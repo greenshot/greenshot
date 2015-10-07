@@ -1,23 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <language>
 	<resources prefix="Core">
 		<resource name="about_bugs">Please report bugs to</resource>
 		<resource name="about_donations">If you like Greenshot, you are welcome to support us:</resource>
 		<resource name="about_host">Greenshot is hosted by sourceforge.net at</resource>
 		<resource name="about_icons">Icons from Yusuke Kamiyamane's Fugue icon set (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
-Details about the GNU General Public License:</resource>
+		<resource name="about_license">
+			Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+			Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
+			Details about the GNU General Public License:
+		</resource>
 		<resource name="about_title">About Greenshot</resource>
 		<resource name="application_title">Greenshot - the revolutionary screenshot utility</resource>
 		<resource name="bugreport_cancel">Close</resource>
-		<resource name="bugreport_info">Sorry, an unexpected error occured.
+		<resource name="bugreport_info">
+			Sorry, an unexpected error occured.
 
-The good news is: you can help us getting rid of it by filing a bug report.
-Please visit the URL below, create a new bug report and paste the contents from the text area into the description.
+			The good news is: you can help us getting rid of it by filing a bug report.
+			Please visit the URL below, create a new bug report and paste the contents from the text area into the description.
 
-Please add a meaningful summary and enclose any information you consider to be helpful for reproducing the issue.
-Also, we would highly appreciate if you checked whether a tracker item already exists for this bug. (You can use the search to find those quickly.) Thank you :)</resource>
+			Please add a meaningful summary and enclose any information you consider to be helpful for reproducing the issue.
+			Also, we would highly appreciate if you checked whether a tracker item already exists for this bug. (You can use the search to find those quickly.) Thank you :)
+		</resource>
 		<resource name="bugreport_title">Error</resource>
 		<resource name="CANCEL">Cancel</resource>
 		<resource name="clipboard_error">An unexpected error occured while writing to the clipboard.</resource>
@@ -159,12 +164,14 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook with text</resource>
 		<resource name="error">Error</resource>
 		<resource name="error_multipleinstances">An instance of Greenshot is already running.</resource>
-		<resource name="error_nowriteaccess">Cannot save file to {0}.
-Please check write accessibility of the selected storage location.</resource>
+		<resource name="error_nowriteaccess">
+			Cannot save file to {0}.
+			Please check write accessibility of the selected storage location.
+		</resource>
 		<resource name="error_openfile">The file "{0}" could not be opened.</resource>
 		<resource name="error_openlink">Could not open link '{0}'.</resource>
 		<resource name="error_save">Could not save screenshot, please find a suitable location.</resource>
-    <resource name="error_save_invalid_chars">The generated filename or directory name is not valid. Please fix the filename pattern and then try again.</resource>
+		<resource name="error_save_invalid_chars">The generated filename or directory name is not valid. Please fix the filename pattern and then try again.</resource>
 		<resource name="expertsettings">Expert</resource>
 		<resource name="expertsettings_autoreducecolors">Create an 8-bit image if the colors are less than 256 while having a &gt; 8 bits image</resource>
 		<resource name="expertsettings_checkunstableupdates">Check for unstable updates</resource>
@@ -188,14 +195,14 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="printoptions_allowenlarge">Enlarge printout to fit paper size</resource>
 		<resource name="printoptions_allowrotate">Rotate printout to page orientation</resource>
 		<resource name="printoptions_allowshrink">Shrink printout to fit paper size</resource>
-    <resource name="printoptions_colors">Color settings</resource>
-    <resource name="printoptions_dontaskagain">Save options as default and do not ask again</resource>
+		<resource name="printoptions_colors">Color settings</resource>
+		<resource name="printoptions_dontaskagain">Save options as default and do not ask again</resource>
 		<resource name="printoptions_inverted">Print with inverted colors</resource>
-    <resource name="printoptions_layout">Page layout settings</resource>
-    <resource name="printoptions_printcolor">Full color print</resource>
-    <resource name="printoptions_printgrayscale">Force grayscale printing</resource>
-    <resource name="printoptions_printmonochrome">Force black/white printing</resource>
-    <resource name="printoptions_timestamp">Print date / time at bottom of page</resource>
+		<resource name="printoptions_layout">Page layout settings</resource>
+		<resource name="printoptions_printcolor">Full color print</resource>
+		<resource name="printoptions_printgrayscale">Force grayscale printing</resource>
+		<resource name="printoptions_printmonochrome">Force black/white printing</resource>
+		<resource name="printoptions_timestamp">Print date / time at bottom of page</resource>
 		<resource name="printoptions_title">Greenshot print options</resource>
 		<resource name="qualitydialog_dontaskagain">Save as default quality and do not ask again</resource>
 		<resource name="qualitydialog_title">Greenshot quality</resource>
@@ -224,23 +231,25 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="settings_iecapture">Internet Explorer capture</resource>
 		<resource name="settings_jpegquality">JPEG quality</resource>
 		<resource name="settings_language">Language</resource>
-		<resource name="settings_message_filenamepattern">The following placeholders will be replaced automatically in the pattern defined:
-${YYYY} year, 4 digits
-${MM} month, 2 digits
-${DD} day, 2 digits
-${hh} hour, 2 digits
-${mm} minute, 2 digits
-${ss} second, 2 digits
-${NUM} incrementing number, 6 digits
-${title} Window title
-${user} Windows user
-${domain} Windows domain
-${hostname} PC name
+		<resource name="settings_message_filenamepattern">
+			The following placeholders will be replaced automatically in the pattern defined:
+			${YYYY} year, 4 digits
+			${MM} month, 2 digits
+			${DD} day, 2 digits
+			${hh} hour, 2 digits
+			${mm} minute, 2 digits
+			${ss} second, 2 digits
+			${NUM} incrementing number, 6 digits
+			${title} Window title
+			${user} Windows user
+			${domain} Windows domain
+			${hostname} PC name
 
-You can also have Greenshot create directories dynamically, simply use the backslash symbol (\) to separate folders and filename.
-Example: the pattern ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-will generate a folder for the current day in your default storage location, e.g. 2008-06-29, the contained screenshot file's name will be based on the current
-time, e.g. 11_58_32 (plus extension defined in the settings)</resource>
+			You can also have Greenshot create directories dynamically, simply use the backslash symbol (\) to separate folders and filename.
+			Example: the pattern ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+			will generate a folder for the current day in your default storage location, e.g. 2008-06-29, the contained screenshot file's name will be based on the current
+			time, e.g. 11_58_32 (plus extension defined in the settings)
+		</resource>
 		<resource name="settings_network">Network and updates</resource>
 		<resource name="settings_output">Output</resource>
 		<resource name="settings_playsound">Play camera sound</resource>
@@ -275,41 +284,43 @@ time, e.g. 11_58_32 (plus extension defined in the settings)</resource>
 		<resource name="update_found">A newer version of Greenshot is available! Do you want to download Greenshot {0}?</resource>
 		<resource name="wait_ie_capture">Please wait while the page in Internet Explorer is captured...</resource>
 		<resource name="warning">Warning</resource>
-		<resource name="warning_hotkeys">The hotkey(s) "{0}" could not be registered. This problem is probably caused by another tool claiming usage of the same hotkey(s)! You could either change your hotkey settings or deactivate/change the software making use of the hotkey(s).
+		<resource name="warning_hotkeys">
+			The hotkey(s) "{0}" could not be registered. This problem is probably caused by another tool claiming usage of the same hotkey(s)! You could either change your hotkey settings or deactivate/change the software making use of the hotkey(s).
 
-All Greenshot features still work directly from the tray icon context menu without hotkeys.</resource>
+			All Greenshot features still work directly from the tray icon context menu without hotkeys.
+		</resource>
 		<resource name="WindowCaptureMode.Aero">Use custom color</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Preserve transparency</resource>
 		<resource name="WindowCaptureMode.Auto">Automatically</resource>
 		<resource name="WindowCaptureMode.GDI">Use default color</resource>
 		<resource name="WindowCaptureMode.Screen">As displayed</resource>
 
-    <!-- 1.2 -->
-    <resource name="editor_dropshadow_darkness">Shadow darkness</resource>
-    <resource name="editor_dropshadow_offset">Shadow offset</resource>
-    <resource name="editor_dropshadow_settings">Dropshadow settings</resource>
-    <resource name="editor_dropshadow_thickness">Shadow thickness</resource>
+		<!-- 1.2 -->
+		<resource name="editor_dropshadow_darkness">Shadow darkness</resource>
+		<resource name="editor_dropshadow_offset">Shadow offset</resource>
+		<resource name="editor_dropshadow_settings">Dropshadow settings</resource>
+		<resource name="editor_dropshadow_thickness">Shadow thickness</resource>
 
-    <resource name="editor_tornedge_horizontaltoothrange">Horizontal tooth range</resource>
-    <resource name="editor_tornedge_settings">Torn edges settings</resource>
-    <resource name="editor_tornedge_toothsize">Tooth size</resource>
-    <resource name="editor_tornedge_verticaltoothrange">Vertical tooth range</resource>
-    <resource name="editor_tornedge_all">Tear all sides</resource>
-    <resource name="editor_tornedge_left">Left side</resource>
-    <resource name="editor_tornedge_right">Right side</resource>
-    <resource name="editor_tornedge_top">Top side</resource>
-    <resource name="editor_tornedge_bottom">Bottom side</resource>
-    <resource name="editor_tornedge_shadow">Generate shadow</resource>
-    
-    <resource name="editor_counter">Add counter (I)</resource>
-    <resource name="editor_speechbubble">Add speechbubble (S)</resource>
+		<resource name="editor_tornedge_horizontaltoothrange">Horizontal tooth range</resource>
+		<resource name="editor_tornedge_settings">Torn edges settings</resource>
+		<resource name="editor_tornedge_toothsize">Tooth size</resource>
+		<resource name="editor_tornedge_verticaltoothrange">Vertical tooth range</resource>
+		<resource name="editor_tornedge_all">Tear all sides</resource>
+		<resource name="editor_tornedge_left">Left side</resource>
+		<resource name="editor_tornedge_right">Right side</resource>
+		<resource name="editor_tornedge_top">Top side</resource>
+		<resource name="editor_tornedge_bottom">Bottom side</resource>
+		<resource name="editor_tornedge_shadow">Generate shadow</resource>
 
-    <resource name="editor_resize">Resize</resource>
-    <resource name="editor_resize_settings">Resize settings</resource>
-    <resource name="editor_resize_aspectratio">Maintain aspect ratio</resource>
-    <resource name="editor_resize_width">Width</resource>
-    <resource name="editor_resize_height">Height</resource>
-	<resource name="settings_iconsize">Icon size</resource>
-	<resource name="editor_counter_startvalue">Count start</resource>    
-  </resources>
+		<resource name="editor_counter">Add counter (I)</resource>
+		<resource name="editor_speechbubble">Add speechbubble (S)</resource>
+
+		<resource name="editor_resize">Resize</resource>
+		<resource name="editor_resize_settings">Resize settings</resource>
+		<resource name="editor_resize_aspectratio">Maintain aspect ratio</resource>
+		<resource name="editor_resize_width">Width</resource>
+		<resource name="editor_resize_height">Height</resource>
+		<resource name="settings_iconsize">Icon size</resource>
+		<resource name="editor_counter_startvalue">Count start</resource>
+	</resources>
 </language>

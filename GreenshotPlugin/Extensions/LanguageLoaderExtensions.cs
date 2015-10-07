@@ -39,7 +39,6 @@ namespace GreenshotPlugin.Extensions
 				else
 				{
 					languageModule = "Core";
-
 				}
 			}
 			return LanguageLoader.Current[languageModule][languageKey];
@@ -60,13 +59,13 @@ namespace GreenshotPlugin.Extensions
 			if (string.IsNullOrEmpty(languageModule))
 			{
 				languageModule = "Core";
-            }
+			}
 			var translation = LanguageLoader.Current[languageModule][languageKey];
 			if (string.IsNullOrEmpty(translation))
 			{
 				return languageKeyObject.ToString();
-            }
-            return translation;
+			}
+			return translation;
 		}
 	}
 }

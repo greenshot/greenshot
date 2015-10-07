@@ -18,52 +18,64 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
 
+using System;
 using Greenshot.Plugin;
 
-namespace GreenshotPlugin.Core {
+namespace GreenshotPlugin.Core
+{
 	/// <summary>
 	/// Description of AbstractProcessor.
 	/// </summary>
-	public abstract class AbstractProcessor : IProcessor {
-		
-		public virtual int CompareTo(object obj) {
+	public abstract class AbstractProcessor : IProcessor
+	{
+		public virtual int CompareTo(object obj)
+		{
 			IProcessor other = obj as IProcessor;
-			if (other == null) {
+			if (other == null)
+			{
 				return 1;
 			}
-			if (Priority == other.Priority) {
+			if (Priority == other.Priority)
+			{
 				return Description.CompareTo(other.Description);
 			}
 			return Priority - other.Priority;
 		}
 
-		public abstract string Designation {
+		public abstract string Designation
+		{
 			get;
 		}
 
-		public abstract string Description {
+		public abstract string Description
+		{
 			get;
 		}
 
-		public virtual int Priority {
-			get {
+		public virtual int Priority
+		{
+			get
+			{
 				return 10;
 			}
 		}
 
-		public void Dispose() {
+		public void Dispose()
+		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing) {
+		protected virtual void Dispose(bool disposing)
+		{
 			//if (disposing) {}
 		}
 
-		public virtual bool isActive {
-			get {
+		public virtual bool isActive
+		{
+			get
+			{
 				return true;
 			}
 		}

@@ -22,41 +22,51 @@
 using System.ComponentModel;
 using Dapplo.Config.Language;
 
-namespace GreenshotPhotobucketPlugin {
+namespace GreenshotPhotobucketPlugin
+{
 	[Language("Photobucket")]
-	public interface IPhotobucketLanguage : ILanguage, INotifyPropertyChanged {
+	public interface IPhotobucketLanguage : ILanguage, INotifyPropertyChanged
+	{
 		string UploadMenuItem
 		{
 			get;
 		}
-        string SettingsTitle
+
+		string SettingsTitle
 		{
 			get;
 		}
+
 		string LabelUploadFormat
 		{
 			get;
 		}
+
 		string LabelClear
 		{
 			get;
 		}
+
 		string UploadSuccess
 		{
 			get;
 		}
+
 		string UploadFailure
 		{
 			get;
 		}
+
 		string CommunicationWait
 		{
 			get;
 		}
+
 		string UsePageLink
 		{
 			get;
 		}
+
 		string Configure
 		{
 			get;

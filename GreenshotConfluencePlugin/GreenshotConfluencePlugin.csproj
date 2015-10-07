@@ -46,9 +46,9 @@
       <HintPath>..\packages\Dapplo.HttpExtensions.0.1.16.0\lib\net451\Dapplo.HttpExtensions.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="log4net">
-      <HintPath>..\Greenshot\Lib\log4net.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="PresentationCore" />
@@ -144,6 +144,22 @@
       <Name>GreenshotPlugin</Name>
       <Private>False</Private>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Languages\language_confluenceplugin-cs-CZ.xml" />
+    <Content Include="Languages\language_confluenceplugin-fr-FR.xml" />
+    <Content Include="Languages\language_confluenceplugin-id-ID.xml" />
+    <Content Include="Languages\language_confluenceplugin-it-IT.xml" />
+    <Content Include="Languages\language_confluenceplugin-ko-KR.xml" />
+    <Content Include="Languages\language_confluenceplugin-lv-LV.xml" />
+    <Content Include="Languages\language_confluenceplugin-pl-PL.xml" />
+    <Content Include="Languages\language_confluenceplugin-pt-PT.xml" />
+    <Content Include="Languages\language_confluenceplugin-ru-RU.xml" />
+    <Content Include="Languages\language_confluenceplugin-sr-Cyrl-RS.xml" />
+    <Content Include="Languages\language_confluenceplugin-sv-SE.xml" />
+    <Content Include="Languages\language_confluenceplugin-uk-UA.xml" />
+    <Content Include="Languages\language_confluenceplugin-zh-CN.xml" />
+    <Content Include="Languages\language_confluenceplugin-zh-TW.xml" />
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"

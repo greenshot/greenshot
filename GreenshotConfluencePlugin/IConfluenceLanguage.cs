@@ -21,45 +21,56 @@
 
 using Dapplo.Config.Language;
 
-namespace GreenshotConfluencePlugin {
+namespace GreenshotConfluencePlugin
+{
 	[Language("Confluence")]
-	public interface IConfluenceLanguage : ILanguage {
+	public interface IConfluenceLanguage : ILanguage
+	{
 		string LoginError
 		{
 			get;
 		}
+
 		string LoginTitle
 		{
 			get;
 		}
+
 		string LabelUrl
 		{
 			get;
 		}
+
 		string LabelUploadFormat
 		{
 			get;
 		}
+
 		string Ok
 		{
 			get;
 		}
+
 		string Cancel
 		{
 			get;
 		}
+
 		string UploadMenuItem
 		{
 			get;
 		}
+
 		string UploadSuccess
 		{
 			get;
 		}
+
 		string UploadFailure
 		{
 			get;
 		}
+
 		string CommunicationWait
 		{
 			get;

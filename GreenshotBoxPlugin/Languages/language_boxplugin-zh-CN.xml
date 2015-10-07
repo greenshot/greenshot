@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="简体中文" ietf="zh-CN" version="1.0.3" languagegroup="a">
+
+<language>
 	<resources prefix="Box">
 		<resource name="communication_wait">正在连接Box。请稍后...</resource>
 		<resource name="Configure">配置Box</resource>

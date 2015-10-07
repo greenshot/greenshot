@@ -22,86 +22,106 @@
 using Dapplo.Config.Language;
 using System.ComponentModel;
 
-namespace GreenshotJiraPlugin {
+namespace GreenshotJiraPlugin
+{
 	[Language("Jira")]
-    public interface IJiraLanguage : ILanguage, INotifyPropertyChanged
+	public interface IJiraLanguage : ILanguage, INotifyPropertyChanged
 	{
 		string UploadMenuItem
 		{
 			get;
 		}
-        string ColumnAssignee
+
+		string ColumnAssignee
 		{
 			get;
 		}
+
 		string ColumnCreated
 		{
 			get;
 		}
+
 		string ColumnId
 		{
 			get;
 		}
+
 		string ColumnReporter
 		{
 			get;
 		}
+
 		string ColumnSummary
 		{
 			get;
 		}
+
 		string LabelComment
 		{
 			get;
 		}
+
 		string LabelFilename
 		{
 			get;
 		}
+
 		string LabelJira
 		{
 			get;
 		}
+
 		string LabelJirafilter
 		{
 			get;
 		}
+
 		string LoginError
 		{
 			get;
 		}
+
 		string LoginTitle
 		{
 			get;
 		}
+
 		string SettingsTitle
 		{
 			get;
 		}
+
 		string LabelUrl
 		{
 			get;
 		}
+
 		string LabelUploadFormat
 		{
 			get;
 		}
+
 		string Ok
 		{
 			get;
 		}
+
 		string Cancel
 		{
 			get;
 		}
+
 		string UploadSuccess
 		{
 			get;
 		}
+
 		string UploadFailure
 		{
 			get;
 		}
+
 		string CommunicationWait
 		{
 			get;

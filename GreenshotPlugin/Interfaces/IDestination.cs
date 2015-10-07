@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -25,13 +26,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Greenshot.Plugin {
-	public class ExportInformation {
-		public string DestinationDesignation {
+namespace Greenshot.Plugin
+{
+	public class ExportInformation
+	{
+		public string DestinationDesignation
+		{
 			get;
 			set;
 		}
-		public string DestinationDescription {
+
+		public string DestinationDescription
+		{
 			get;
 			set;
 		}
@@ -39,22 +45,26 @@ namespace Greenshot.Plugin {
 		/// <summary>
 		/// Set to true to specify if the export worked.
 		/// </summary>
-		public bool ExportMade {
+		public bool ExportMade
+		{
 			get;
 			set;
 		}
 
-		public Uri ExportedToUri {
+		public Uri ExportedToUri
+		{
 			get;
 			set;
 		}
 
-		public string ErrorMessage {
+		public string ErrorMessage
+		{
 			get;
 			set;
 		}
 
-		public string Filepath {
+		public string Filepath
+		{
 			get;
 			set;
 		}
@@ -63,39 +73,45 @@ namespace Greenshot.Plugin {
 	/// <summary>
 	/// Description of IDestination.
 	/// </summary>
-	public interface IDestination : IDisposable, IComparable {
+	public interface IDestination : IDisposable, IComparable
+	{
 		/// <summary>
 		/// Simple "designation" like "File", "Editor" etc, used to store the configuration
 		/// </summary>
-		string Designation {
+		string Designation
+		{
 			get;
 		}
 
 		/// <summary>
 		/// Description which will be shown in the settings form, destination picker etc
 		/// </summary>
-		string Description {
+		string Description
+		{
 			get;
 		}
 
 		/// <summary>
 		/// Priority, used for sorting
 		/// </summary>
-		int Priority {
+		int Priority
+		{
 			get;
 		}
 
 		/// <summary>
 		/// Gets an icon for the destination
 		/// </summary>
-		Image DisplayIcon {
+		Image DisplayIcon
+		{
 			get;
 		}
 
 		/// <summary>
 		/// Returns if the destination is active
 		/// </summary>
-		bool IsActive {
+		bool IsActive
+		{
 			get;
 		}
 
@@ -110,10 +126,11 @@ namespace Greenshot.Plugin {
 		/// <summary>
 		/// Gets the ShortcutKeys for the Editor
 		/// </summary>
-		Keys EditorShortcutKeys {
+		Keys EditorShortcutKeys
+		{
 			get;
 		}
-		
+
 		/// <summary>
 		/// Gets the dynamic destinations
 		/// </summary>
@@ -122,7 +139,8 @@ namespace Greenshot.Plugin {
 		/// <summary>
 		/// Returns true if this destination can be dynamic
 		/// </summary>
-		bool IsDynamic {
+		bool IsDynamic
+		{
 			get;
 		}
 

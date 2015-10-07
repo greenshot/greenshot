@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Svenska" ietf="sv-SE" version="1.0.0" languagegroup="1">
+
+<language>
 	<resources>
 		<resource name="home_downloads">Ladda ner</resource>
 		<resource name="home_headline">Greenshot - ett gratis verktyg för skärmdumpar optimerat för produktivitet</resource>

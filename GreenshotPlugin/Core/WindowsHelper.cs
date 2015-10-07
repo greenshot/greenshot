@@ -39,14 +39,18 @@ using System.Windows.Forms;
 
 namespace GreenshotPlugin.Core
 {
+
 	#region EnumWindows
+
 	/// <summary>
 	/// EnumWindows wrapper for .NET
 	/// </summary>
 	public class WindowsEnumerator
 	{
 		#region Member Variables
+
 		private IList<WindowDetails> _items;
+
 		#endregion
 
 		/// <summary>
@@ -124,6 +128,7 @@ namespace GreenshotPlugin.Core
 		}
 
 		#region EnumWindows callback
+
 		/// <summary>
 		/// The enum Windows callback.
 		/// </summary>
@@ -161,16 +166,21 @@ namespace GreenshotPlugin.Core
 		}
 
 		#region Constructor, Dispose
+
 		public WindowsEnumerator()
 		{
 			// nothing to do
 		}
+
 		#endregion
 	}
+
 	#endregion EnumWindows
 
 	/// <summary>
+
 	#region WindowDetails
+
 	/// <summary>
 	/// Code for handling with "windows"
 	/// Main code is taken from vbAccelerator, location:
@@ -183,7 +193,7 @@ namespace GreenshotPlugin.Core
 		private const string METRO_APPLAUNCHER_CLASS = "ImmersiveLauncher";
 		private const string METRO_GUTTER_CLASS = "ImmersiveGutter";
 
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(WindowDetails));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (WindowDetails));
 		private static readonly ICoreConfiguration Conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly List<IntPtr> _ignoreHandles = new List<IntPtr>();
 		private static readonly List<string> _excludeProcessesFromFreeze = new List<string>();
@@ -197,10 +207,12 @@ namespace GreenshotPlugin.Core
 				if (Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 2)
 				{
 					Type appVisibilityType = Type.GetTypeFromCLSID(new Guid("7E5FE3D9-985F-4908-91F9-EE19F9FD1514"));
-					_appVisibility = DisposableCom.Create((IAppVisibility)Activator.CreateInstance(appVisibilityType));
+					_appVisibility = DisposableCom.Create((IAppVisibility) Activator.CreateInstance(appVisibilityType));
 				}
 			}
-			catch { }
+			catch
+			{
+			}
 		}
 
 		public static void AddProcessToExcludeFromFreeze(string processname)
@@ -308,6 +320,7 @@ namespace GreenshotPlugin.Core
 		{
 			_frozen = true;
 		}
+
 		public void UnfreezeDetails()
 		{
 			_frozen = false;
@@ -381,34 +394,34 @@ namespace GreenshotPlugin.Core
 			IntPtr ICON_BIG = new IntPtr(1);
 			IntPtr ICON_SMALL2 = new IntPtr(2);
 
-			IntPtr iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_BIG, IntPtr.Zero);
+			IntPtr iconHandle = User32.SendMessage(hwnd, (int) WindowsMessages.WM_GETICON, ICON_BIG, IntPtr.Zero);
 			if (CoreConfigurationChecker.UseLargeIcons(Conf.IconSize))
 			{
-				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_BIG, IntPtr.Zero);
+				iconHandle = User32.SendMessage(hwnd, (int) WindowsMessages.WM_GETICON, ICON_BIG, IntPtr.Zero);
 				if (iconHandle == IntPtr.Zero)
 				{
-					iconHandle = User32.GetClassLongWrapper(hwnd, (int)ClassLongIndex.GCL_HICON);
+					iconHandle = User32.GetClassLongWrapper(hwnd, (int) ClassLongIndex.GCL_HICON);
 				}
 			}
 			else
 			{
-				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_SMALL2, IntPtr.Zero);
+				iconHandle = User32.SendMessage(hwnd, (int) WindowsMessages.WM_GETICON, ICON_SMALL2, IntPtr.Zero);
 			}
 			if (iconHandle == IntPtr.Zero)
 			{
-				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_SMALL, IntPtr.Zero);
+				iconHandle = User32.SendMessage(hwnd, (int) WindowsMessages.WM_GETICON, ICON_SMALL, IntPtr.Zero);
 			}
 			if (iconHandle == IntPtr.Zero)
 			{
-				iconHandle = User32.GetClassLongWrapper(hwnd, (int)ClassLongIndex.GCL_HICONSM);
+				iconHandle = User32.GetClassLongWrapper(hwnd, (int) ClassLongIndex.GCL_HICONSM);
 			}
 			if (iconHandle == IntPtr.Zero)
 			{
-				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_BIG, IntPtr.Zero);
+				iconHandle = User32.SendMessage(hwnd, (int) WindowsMessages.WM_GETICON, ICON_BIG, IntPtr.Zero);
 			}
 			if (iconHandle == IntPtr.Zero)
 			{
-				iconHandle = User32.GetClassLongWrapper(hwnd, (int)ClassLongIndex.GCL_HICON);
+				iconHandle = User32.GetClassLongWrapper(hwnd, (int) ClassLongIndex.GCL_HICON);
 			}
 
 			if (iconHandle == IntPtr.Zero)
@@ -535,6 +548,7 @@ namespace GreenshotPlugin.Core
 				}
 			}
 		}
+
 		/// <summary>
 		/// Get the parent of the current window
 		/// </summary>
@@ -712,6 +726,7 @@ namespace GreenshotPlugin.Core
 		}
 
 		private string _text = null;
+
 		/// <summary>
 		/// Gets the window's title (caption)
 		/// </summary>
@@ -734,6 +749,7 @@ namespace GreenshotPlugin.Core
 		}
 
 		private string _className = null;
+
 		/// <summary>
 		/// Gets the window's class name.
 		/// Some information on classes can be found here: https://msdn.microsoft.com/en-us/library/windows/desktop/ms633574%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
@@ -767,11 +783,11 @@ namespace GreenshotPlugin.Core
 			{
 				if (value)
 				{
-					User32.SendMessage(_hWnd, (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_MINIMIZE, IntPtr.Zero);
+					User32.SendMessage(_hWnd, (int) WindowsMessages.WM_SYSCOMMAND, (IntPtr) User32.SC_MINIMIZE, IntPtr.Zero);
 				}
 				else
 				{
-					User32.SendMessage(_hWnd, (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_RESTORE, IntPtr.Zero);
+					User32.SendMessage(_hWnd, (int) WindowsMessages.WM_SYSCOMMAND, (IntPtr) User32.SC_RESTORE, IntPtr.Zero);
 				}
 			}
 		}
@@ -807,11 +823,11 @@ namespace GreenshotPlugin.Core
 			{
 				if (value)
 				{
-					User32.SendMessage(_hWnd, (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_MAXIMIZE, IntPtr.Zero);
+					User32.SendMessage(_hWnd, (int) WindowsMessages.WM_SYSCOMMAND, (IntPtr) User32.SC_MAXIMIZE, IntPtr.Zero);
 				}
 				else
 				{
-					User32.SendMessage(_hWnd, (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_MINIMIZE, IntPtr.Zero);
+					User32.SendMessage(_hWnd, (int) WindowsMessages.WM_SYSCOMMAND, (IntPtr) User32.SC_MINIMIZE, IntPtr.Zero);
 				}
 			}
 		}
@@ -930,7 +946,8 @@ namespace GreenshotPlugin.Core
 
 		private Rectangle _previousWindowRectangle = Rectangle.Empty;
 		private long _lastWindowRectangleRetrieveTime = 0;
-		private const long CACHE_TIME = TimeSpan.TicksPerSecond * 2;
+		private const long CACHE_TIME = TimeSpan.TicksPerSecond*2;
+
 		/// <summary>
 		/// Gets the bounding rectangle of the window
 		/// </summary>
@@ -960,7 +977,7 @@ namespace GreenshotPlugin.Core
 						{
 							Size size = Size.Empty;
 							GetBorderSize(out size);
-							windowRect = new Rectangle(windowRect.X + size.Width, windowRect.Y + size.Height, windowRect.Width - (2 * size.Width), windowRect.Height - (2 * size.Height));
+							windowRect = new Rectangle(windowRect.X + size.Width, windowRect.Y + size.Height, windowRect.Width - (2*size.Width), windowRect.Height - (2*size.Height));
 						}
 						_lastWindowRectangleRetrieveTime = now;
 						// Try to return something valid, by getting returning the previous size if the window doesn't have a Rectangle anymore
@@ -1035,7 +1052,7 @@ namespace GreenshotPlugin.Core
 		{
 			if (Iconic)
 			{
-				User32.SendMessage(_hWnd, (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_RESTORE, IntPtr.Zero);
+				User32.SendMessage(_hWnd, (int) WindowsMessages.WM_SYSCOMMAND, (IntPtr) User32.SC_RESTORE, IntPtr.Zero);
 			}
 			User32.BringWindowToTop(_hWnd);
 			User32.SetForegroundWindow(_hWnd);
@@ -1053,11 +1070,11 @@ namespace GreenshotPlugin.Core
 		{
 			get
 			{
-				return (WindowStyleFlags)User32.GetWindowLongWrapper(_hWnd, (int)WindowLongIndex.GWL_STYLE);
+				return (WindowStyleFlags) User32.GetWindowLongWrapper(_hWnd, (int) WindowLongIndex.GWL_STYLE);
 			}
 			set
 			{
-				User32.SetWindowLongWrapper(_hWnd, (int)WindowLongIndex.GWL_STYLE, new IntPtr((long)value));
+				User32.SetWindowLongWrapper(_hWnd, (int) WindowLongIndex.GWL_STYLE, new IntPtr((long) value));
 			}
 		}
 
@@ -1085,11 +1102,11 @@ namespace GreenshotPlugin.Core
 		{
 			get
 			{
-				return (ExtendedWindowStyleFlags)User32.GetWindowLongWrapper(_hWnd, (int)WindowLongIndex.GWL_EXSTYLE);
+				return (ExtendedWindowStyleFlags) User32.GetWindowLongWrapper(_hWnd, (int) WindowLongIndex.GWL_EXSTYLE);
 			}
 			set
 			{
-				User32.SetWindowLongWrapper(_hWnd, (int)WindowLongIndex.GWL_EXSTYLE, new IntPtr((uint)value));
+				User32.SetWindowLongWrapper(_hWnd, (int) WindowLongIndex.GWL_EXSTYLE, new IntPtr((uint) value));
 			}
 		}
 
@@ -1194,8 +1211,8 @@ namespace GreenshotPlugin.Core
 					captureRectangle.X += borderSize.Width;
 					captureRectangle.Y += borderSize.Height;
 					// and subtracting the border from the size (2 times, as we move right/down for the capture without resizing)
-					captureRectangle.Width -= 2 * borderSize.Width;
-					captureRectangle.Height -= 2 * borderSize.Height;
+					captureRectangle.Width -= 2*borderSize.Width;
+					captureRectangle.Height -= 2*borderSize.Height;
 				}
 				else if (autoMode)
 				{
@@ -1216,7 +1233,7 @@ namespace GreenshotPlugin.Core
 
 				// Prepare the displaying of the Thumbnail
 				DWM_THUMBNAIL_PROPERTIES props = new DWM_THUMBNAIL_PROPERTIES();
-				props.Opacity = (byte)255;
+				props.Opacity = (byte) 255;
 				props.Visible = true;
 				props.Destination = new RECT(0, 0, sourceSize.width, sourceSize.height);
 				DWM.DwmUpdateThumbnailProperties(thumbnailHandle, ref props);
@@ -1366,7 +1383,7 @@ namespace GreenshotPlugin.Core
 			// assume own location
 			formLocation = windowRectangle.Location;
 			var primaryDisplay = DisplayInfo.AllDisplays().Where(x => x.IsPrimary).First();
-            using (Region workingArea = new Region(primaryDisplay.Bounds))
+			using (Region workingArea = new Region(primaryDisplay.Bounds))
 			{
 				// Create a region with the screens working area
 				foreach (var display in DisplayInfo.AllDisplays())
@@ -1445,7 +1462,7 @@ namespace GreenshotPlugin.Core
 								Color c0 = blackBuffer.GetColorAt(x, y);
 								Color c1 = whiteBuffer.GetColorAt(x, y);
 								// Calculate alpha as double in range 0-1
-								double alpha = (c0.R - c1.R + 255) / 255d;
+								double alpha = (c0.R - c1.R + 255)/255d;
 								if (alpha == 1)
 								{
 									// Alpha == 1 means no change!
@@ -1459,11 +1476,11 @@ namespace GreenshotPlugin.Core
 								else
 								{
 									// Calculate original color
-									byte originalAlpha = (byte)Math.Min(255, alpha * 255);
+									byte originalAlpha = (byte) Math.Min(255, alpha*255);
 									//LOG.DebugFormat("Alpha {0} & c0 {1} & c1 {2}", alpha, c0, c1);
-									byte originalRed = (byte)Math.Min(255, c0.R / alpha);
-									byte originalGreen = (byte)Math.Min(255, c0.G / alpha);
-									byte originalBlue = (byte)Math.Min(255, c0.B / alpha);
+									byte originalRed = (byte) Math.Min(255, c0.R/alpha);
+									byte originalGreen = (byte) Math.Min(255, c0.G/alpha);
+									byte originalBlue = (byte) Math.Min(255, c0.B/alpha);
 									Color originalColor = Color.FromArgb(originalAlpha, originalRed, originalGreen, originalBlue);
 									//Color originalColor = Color.FromArgb(originalAlpha, originalRed, c0.G, c0.B);
 									targetBuffer.SetColorAt(x, y, originalColor);
@@ -1484,7 +1501,7 @@ namespace GreenshotPlugin.Core
 		private bool GetExtendedFrameBounds(out Rectangle rectangle)
 		{
 			RECT rect;
-			int result = DWM.DwmGetWindowAttribute(Handle, (int)DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS, out rect, Marshal.SizeOf(typeof(RECT)));
+			int result = DWM.DwmGetWindowAttribute(Handle, (int) DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS, out rect, Marshal.SizeOf(typeof (RECT)));
 			if (result >= 0)
 			{
 				rectangle = rect.ToRectangle();
@@ -1548,7 +1565,7 @@ namespace GreenshotPlugin.Core
 			bool result = User32.GetWindowInfo(Handle, ref windowInfo);
 			if (result)
 			{
-				size = new Size((int)windowInfo.cxWindowBorders, (int)windowInfo.cyWindowBorders);
+				size = new Size((int) windowInfo.cxWindowBorders, (int) windowInfo.cyWindowBorders);
 			}
 			else
 			{
@@ -1639,7 +1656,7 @@ namespace GreenshotPlugin.Core
 
 				foreach (ProcessThread pT in proc.Threads)
 				{
-					IntPtr pOpenThread = Kernel32.OpenThread(ThreadAccess.SUSPEND_RESUME, false, (uint)pT.Id);
+					IntPtr pOpenThread = Kernel32.OpenThread(ThreadAccess.SUSPEND_RESUME, false, (uint) pT.Id);
 
 					if (pOpenThread == IntPtr.Zero)
 					{
@@ -1675,7 +1692,7 @@ namespace GreenshotPlugin.Core
 
 				foreach (ProcessThread pT in proc.Threads)
 				{
-					IntPtr pOpenThread = Kernel32.OpenThread(ThreadAccess.SUSPEND_RESUME, false, (uint)pT.Id);
+					IntPtr pOpenThread = Kernel32.OpenThread(ThreadAccess.SUSPEND_RESUME, false, (uint) pT.Id);
 
 					if (pOpenThread == IntPtr.Zero)
 					{
@@ -1742,7 +1759,7 @@ namespace GreenshotPlugin.Core
 				LOG.Debug("Correcting for maximalization");
 				Size borderSize;
 				GetBorderSize(out borderSize);
-				Rectangle borderRectangle = new Rectangle(borderSize.Width, borderSize.Height, windowRect.Width - (2 * borderSize.Width), windowRect.Height - (2 * borderSize.Height));
+				Rectangle borderRectangle = new Rectangle(borderSize.Width, borderSize.Height, windowRect.Width - (2*borderSize.Width), windowRect.Height - (2*borderSize.Height));
 				ImageHelper.Crop(ref returnImage, ref borderRectangle);
 			}
 			return returnImage;
@@ -1890,7 +1907,10 @@ namespace GreenshotPlugin.Core
 					continue;
 				}
 				// Ignore some classes
-				var ignoreClasses = new List<string>(new[] { "Progman", "XLMAIN", "Button", "Dwm" }); //"MS-SDIa"
+				var ignoreClasses = new List<string>(new[]
+				{
+					"Progman", "XLMAIN", "Button", "Dwm"
+				}); //"MS-SDIa"
 				if (ignoreClasses.Contains(window.ClassName))
 				{
 					continue;
@@ -1948,7 +1968,8 @@ namespace GreenshotPlugin.Core
 					}
 				}
 				nextHandle = User32.FindWindowEx(IntPtr.Zero, nextHandle, METRO_WINDOWS_CLASS, null);
-			};
+			}
+			;
 
 			return metroApps;
 		}
@@ -1970,7 +1991,10 @@ namespace GreenshotPlugin.Core
 					continue;
 				}
 				// Ignore some classes
-				var ignoreClasses = new List<string>(new[] { "Progman", "XLMAIN", "Button", "Dwm" }); //"MS-SDIa"
+				var ignoreClasses = new List<string>(new[]
+				{
+					"Progman", "XLMAIN", "Button", "Dwm"
+				}); //"MS-SDIa"
 				if (ignoreClasses.Contains(window.ClassName))
 				{
 					continue;
@@ -2134,9 +2158,11 @@ namespace GreenshotPlugin.Core
 		/// Used for logging
 		/// </summary>
 		/// <returns></returns>
-		public override string ToString() {
+		public override string ToString()
+		{
 			return string.Format("{0} - {1} '{2}', {3}", ClassName, Process.ProcessName, Text, WindowRectangle);
 		}
 	}
+
 	#endregion
 }

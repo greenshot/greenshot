@@ -24,21 +24,26 @@ using System;
 using System.IO;
 using System.Reflection;
 
-namespace GreenshotPlugin.Core {
-
+namespace GreenshotPlugin.Core
+{
 	/// <summary>
 	/// This class contains all logic to help with Portable App issues
 	/// </summary>
-	public static class PortableHelper {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(PortableHelper));
+	public static class PortableHelper
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (PortableHelper));
 		private static bool _portable = false;
 		private static bool _portableCheckMade = false;
 		private static string _applicationStartupPath;
 
-		static PortableHelper() {
-			try {
+		static PortableHelper()
+		{
+			try
+			{
 				_applicationStartupPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-			} catch (Exception exception) {
+			}
+			catch (Exception exception)
+			{
 				LOG.WarnFormat("Problem retrieving the AssemblyLocation: {0} (Designer mode?)", exception.Message);
 				_applicationStartupPath = @".";
 			}
@@ -47,19 +52,23 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Tell us if we are in portable mode
 		/// </summary>
-		public static bool IsPortable {
-			get {
-				if (!_portableCheckMade) {
+		public static bool IsPortable
+		{
+			get
+			{
+				if (!_portableCheckMade)
+				{
 					string pafPath = Path.Combine(_applicationStartupPath, @"App\Greenshot");
-					if (!_portable) {
+					if (!_portable)
+					{
 						LOG.Info("Checking for portable mode.");
 						_portableCheckMade = true;
-						if (Directory.Exists(pafPath)) {
+						if (Directory.Exists(pafPath))
+						{
 							_portable = true;
 							LOG.Info("Portable mode active!");
 						}
 					}
-					
 				}
 				return _portable;
 			}
@@ -68,16 +77,23 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Get the location of the ini file for when we are in Portable mode
 		/// </summary>
-		public static string PortableIniFileLocation {
-			get {
-				if (_portable) {
+		public static string PortableIniFileLocation
+		{
+			get
+			{
+				if (_portable)
+				{
 					string pafConfigPath = Path.Combine(_applicationStartupPath, @"Data\Settings");
-					try {
-						if (!Directory.Exists(pafConfigPath)) {
+					try
+					{
+						if (!Directory.Exists(pafConfigPath))
+						{
 							Directory.CreateDirectory(pafConfigPath);
 						}
 						return Path.Combine(pafConfigPath, "greenshot.ini");
-					} catch (Exception e) {
+					}
+					catch (Exception e)
+					{
 						LOG.WarnFormat("Portable mode NOT possible, couldn't create directory '{0}'! Reason: {1}", pafConfigPath, e.Message);
 					}
 				}

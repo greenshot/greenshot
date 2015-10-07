@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Italiano" ietf="it-IT" version="1.0.2" languagegroup="1">
+
+<language>
 	<resources>
 		<resource name="home_downloads">Download</resource>
 		<resource name="home_headline">Greenshot - strumento di cattura gratis ottimizzato per la produttività</resource>

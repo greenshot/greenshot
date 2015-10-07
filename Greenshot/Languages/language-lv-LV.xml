@@ -1,23 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!-- Translated by Kārlis Kalviškis (eko@lanet.lv) 2014.12.17. -->
-<language description="Latviski" ietf="lv-LV" version="0.1.0" languagegroup="1">
+
+<language>
 	<resources prefix="Core">
 		<resource name="about_bugs">Kļūdu ziņojumus sūtiet uz</resource>
 		<resource name="about_donations">Ja Tev patīk „Greenshot”, Tu vari mūs atbalstīt:</resource>
 		<resource name="about_host">„Greenshot” atrodams sourceforge.net adresē</resource>
 		<resource name="about_icons">Ikonas veidojis Yusuke Kamiyamane's Fugue (Radošās kopienas Atsaucoties 3.0 licence)</resource>
-		<resource name="about_license">Autortiesības (C): 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
-Ņemot vērā, ka „Greenshot” tiek licencēta bez maksas, šai programmai NAV NEKĀDU GARANTIJU. Tu vari to izplatīt un lietot ievērojot GNU Vispārīgo Publisko licenci:</resource>
+		<resource name="about_license">
+			Autortiesības (C): 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+			Ņemot vērā, ka „Greenshot” tiek licencēta bez maksas, šai programmai NAV NEKĀDU GARANTIJU. Tu vari to izplatīt un lietot ievērojot GNU Vispārīgo Publisko licenci:
+		</resource>
 		<resource name="about_title">Par „Greenshot”</resource>
+		<resource name="about_translation">Translated by Kārlis Kalviškis (eko@lanet.lv) 2014.12.17.</resource>
 		<resource name="application_title">„Greenshot” - mūsdienīga ekrānattēla ieguves programmatūra</resource>
 		<resource name="bugreport_cancel">Aizvērt</resource>
-		<resource name="bugreport_info">Atvaino, radās neparedzēta kļūda.
+		<resource name="bugreport_info">
+			Atvaino, radās neparedzēta kļūda.
 
-Labās ziņas: Tu vari palīdzēt tikt ar to galā aizpildot kļūdu ziņojuma veidlapu.
-Dodies uz zemāk norādīto adresi, izveido jaunu kļūdu ziņojumu un iekopē tā aprakstā teksta lauka saturu.
+			Labās ziņas: Tu vari palīdzēt tikt ar to galā aizpildot kļūdu ziņojuma veidlapu.
+			Dodies uz zemāk norādīto adresi, izveido jaunu kļūdu ziņojumu un iekopē tā aprakstā teksta lauka saturu.
 
-Lūgums pievienot saprotamu apkopojumu. Pievieno jebkuru informāciju, kura, Tavuprāt, varētu noderēt kļūdas atkārtošanai.
-Mēs būtu Tev pateicīgi, ja Tu vispirms pārbaudītu, vai kāds cits jau nav ziņojis par doto kļūdu. Atrašanai vari izmantot meklēšanas iepējas. Paldies :)</resource>
+			Lūgums pievienot saprotamu apkopojumu. Pievieno jebkuru informāciju, kura, Tavuprāt, varētu noderēt kļūdas atkārtošanai.
+			Mēs būtu Tev pateicīgi, ja Tu vispirms pārbaudītu, vai kāds cits jau nav ziņojis par doto kļūdu. Atrašanai vari izmantot meklēšanas iepējas. Paldies :)
+		</resource>
 		<resource name="bugreport_title">Kļūda</resource>
 		<resource name="CANCEL">Atsaukt</resource>
 		<resource name="clipboard_error">Rakstot starpliktuvē radās neparedzēta kļūda.</resource>
@@ -159,8 +164,10 @@ Mēs būtu Tev pateicīgi, ja Tu vispirms pārbaudītu, vai kāds cits jau nav z
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook ar tekstu</resource>
 		<resource name="error">Kļūda</resource>
 		<resource name="error_multipleinstances">„Greenshot” jau darbojas.</resource>
-		<resource name="error_nowriteaccess">Failu {0} nevar saglabāt.
-Pārbaudi dotajā vietā savas piekļuves tiesības.</resource>
+		<resource name="error_nowriteaccess">
+			Failu {0} nevar saglabāt.
+			Pārbaudi dotajā vietā savas piekļuves tiesības.
+		</resource>
 		<resource name="error_openfile">Failu "{0}" nevar atvērt.</resource>
 		<resource name="error_openlink">Nevar atvērt norādi '{0}'.</resource>
 		<resource name="error_save">Ekrānattēlu nevar saglabāt, izvēlies citu vietu.</resource>
@@ -187,14 +194,14 @@ Pārbaudi dotajā vietā savas piekļuves tiesības.</resource>
 		<resource name="printoptions_allowenlarge">Palielināt izdruku atbilstoši lapai</resource>
 		<resource name="printoptions_allowrotate">Sagriezt izdruku atbilstoši lapai</resource>
 		<resource name="printoptions_allowshrink">Samazināt izdruku atbilstoši lapai</resource>
-    <resource name="printoptions_colors">Krāsu iestatījumi</resource>
-    <resource name="printoptions_dontaskagain">Saglabāt iestatījumus kā piedāvājumu un vairāk nejautāt</resource>
+		<resource name="printoptions_colors">Krāsu iestatījumi</resource>
+		<resource name="printoptions_dontaskagain">Saglabāt iestatījumus kā piedāvājumu un vairāk nejautāt</resource>
 		<resource name="printoptions_inverted">Izdrukāt kā negatīvu</resource>
-    <resource name="printoptions_layout">Izdrukas izkārtojums</resource>
-    <resource name="printoptions_printcolor">Pilnkrāsas izdruka</resource>
-    <resource name="printoptions_printgrayscale">Izdrukāt pelēkos toņos</resource>
-    <resource name="printoptions_printmonochrome">Izdrukāt kā melnbaltu</resource>
-    <resource name="printoptions_timestamp">Lapas apakšpusē izdrukāt datumu un laiku</resource>
+		<resource name="printoptions_layout">Izdrukas izkārtojums</resource>
+		<resource name="printoptions_printcolor">Pilnkrāsas izdruka</resource>
+		<resource name="printoptions_printgrayscale">Izdrukāt pelēkos toņos</resource>
+		<resource name="printoptions_printmonochrome">Izdrukāt kā melnbaltu</resource>
+		<resource name="printoptions_timestamp">Lapas apakšpusē izdrukāt datumu un laiku</resource>
 		<resource name="printoptions_title">„Greenshot” izdrukas iestatījumi</resource>
 		<resource name="qualitydialog_dontaskagain">Saglabāt kā piedāvāto kvalitāti un vairāk nejautāt</resource>
 		<resource name="qualitydialog_title">„Greenshot” kvalitāte</resource>
@@ -223,24 +230,26 @@ Pārbaudi dotajā vietā savas piekļuves tiesības.</resource>
 		<resource name="settings_iecapture">Tvert „Internet Explorer”</resource>
 		<resource name="settings_jpegquality">JPEG kvalitāte</resource>
 		<resource name="settings_language">Valoda (Language)</resource>
-		<resource name="settings_message_filenamepattern">Ir pieejami sekojoši aizstājējvārdi:
-${YYYY} gads, 4 cipari
-${MM} mēnesis, 2 cipari
-${DD} datums, 2 ciari
-${hh} stundas, 2 cipari
-${mm} minūtes, 2 cipari
-${ss} sekunes, 2 cipari
-${NUM} skaitītājs, 6 cipari
-${title} Loga virsraksts
-${user} Lietotājvārds
-${domain} Windows domēns
-${hostname} Datora vārds
+		<resource name="settings_message_filenamepattern">
+			Ir pieejami sekojoši aizstājējvārdi:
+			${YYYY} gads, 4 cipari
+			${MM} mēnesis, 2 cipari
+			${DD} datums, 2 ciari
+			${hh} stundas, 2 cipari
+			${mm} minūtes, 2 cipari
+			${ss} sekunes, 2 cipari
+			${NUM} skaitītājs, 6 cipari
+			${title} Loga virsraksts
+			${user} Lietotājvārds
+			${domain} Windows domēns
+			${hostname} Datora vārds
 
-Ir iespejams izveidot arī direktorijas. Direktoriju un faila vārdu atdalīšnai lieto otrādo slīpsvītru (\).
-Piemērs: paraugs ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-izveidos direktoriju nosaucot to šīsdienas datuma vārdā, piemēram, 2014-12-19.
-Tur tiks glabāti ekrānattēlu faili, kuru nosaukumu veidos patreizējais laiks,
-piemēram, 06_16_31 ar paplašinājumu, kas noteikts iestatījumos (Attēla veids).</resource>
+			Ir iespejams izveidot arī direktorijas. Direktoriju un faila vārdu atdalīšnai lieto otrādo slīpsvītru (\).
+			Piemērs: paraugs ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+			izveidos direktoriju nosaucot to šīsdienas datuma vārdā, piemēram, 2014-12-19.
+			Tur tiks glabāti ekrānattēlu faili, kuru nosaukumu veidos patreizējais laiks,
+			piemēram, 06_16_31 ar paplašinājumu, kas noteikts iestatījumos (Attēla veids).
+		</resource>
 		<resource name="settings_network">Tīkls un atjauninājumi</resource>
 		<resource name="settings_output">Saglabāšana</resource>
 		<resource name="settings_playsound">Atskaņot troksni</resource>
@@ -275,41 +284,43 @@ piemēram, 06_16_31 ar paplašinājumu, kas noteikts iestatījumos (Attēla veid
 		<resource name="update_found">Ir pieejama jaunāka „Greenshot” versija! Vai vēlies lejuplādēt „Greenshot” {0}?</resource>
 		<resource name="wait_ie_capture">Uzgaidiet līdz tiek iegūta visa Internet Explorer lapa...</resource>
 		<resource name="warning">Brīdinājums</resource>
-		<resource name="warning_hotkeys">Neizdevās pievienot karsto taustiņu "{0}". Iespējams, ka kāda cita lietotne to jau izmanto! Vai nu izmanto citu karsto taustiņu, vai arī nomai tā lietojumu citur.
+		<resource name="warning_hotkeys">
+			Neizdevās pievienot karsto taustiņu "{0}". Iespējams, ka kāda cita lietotne to jau izmanto! Vai nu izmanto citu karsto taustiņu, vai arī nomai tā lietojumu citur.
 
-Arī bez karstiem taustiņiem visas darbības iespējams veikt izmantojot „Greenshot” ikonjoslas izvēlni.</resource>
+			Arī bez karstiem taustiņiem visas darbības iespējams veikt izmantojot „Greenshot” ikonjoslas izvēlni.
+		</resource>
 		<resource name="WindowCaptureMode.Aero">Izmantot pielāgotu krāsu</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Saglabāt caurspīdīgumu</resource>
 		<resource name="WindowCaptureMode.Auto">Automātiski</resource>
 		<resource name="WindowCaptureMode.GDI">Lietot piedāvāto krāsu</resource>
 		<resource name="WindowCaptureMode.Screen">Kā redzams</resource>
 
-    <!-- 1.2 -->
-    <resource name="editor_dropshadow_darkness">Ēnas tumšums</resource>
-    <resource name="editor_dropshadow_offset">Ēnas nobīde</resource>
-    <resource name="editor_dropshadow_settings">Ēnas iestatījumi</resource>
-    <resource name="editor_dropshadow_thickness">Ēnas platums</resource>
+		<!-- 1.2 -->
+		<resource name="editor_dropshadow_darkness">Ēnas tumšums</resource>
+		<resource name="editor_dropshadow_offset">Ēnas nobīde</resource>
+		<resource name="editor_dropshadow_settings">Ēnas iestatījumi</resource>
+		<resource name="editor_dropshadow_thickness">Ēnas platums</resource>
 
-    <resource name="editor_tornedge_horizontaltoothrange">Guleniskais plēsuma platums</resource>
-    <resource name="editor_tornedge_settings">Malu noplēšanas iestatījumi</resource>
-    <resource name="editor_tornedge_toothsize">Plēsuma platums</resource>
-    <resource name="editor_tornedge_verticaltoothrange">Stateniskais plāesuma platums</resource>
-    <resource name="editor_tornedge_all">Noplēst visas malas</resource>
-    <resource name="editor_tornedge_left">Kreisā puse</resource>
-    <resource name="editor_tornedge_right">Labā puse</resource>
-    <resource name="editor_tornedge_top">Augšpuse</resource>
-    <resource name="editor_tornedge_bottom">Apakšpuse</resource>
-    <resource name="editor_tornedge_shadow">Veidot ēnu</resource>
-    
-    <resource name="editor_counter">Pievienot skaitli (I)</resource>
-    <resource name="editor_speechbubble">Pievienot teksta norādi (S)</resource>
+		<resource name="editor_tornedge_horizontaltoothrange">Guleniskais plēsuma platums</resource>
+		<resource name="editor_tornedge_settings">Malu noplēšanas iestatījumi</resource>
+		<resource name="editor_tornedge_toothsize">Plēsuma platums</resource>
+		<resource name="editor_tornedge_verticaltoothrange">Stateniskais plāesuma platums</resource>
+		<resource name="editor_tornedge_all">Noplēst visas malas</resource>
+		<resource name="editor_tornedge_left">Kreisā puse</resource>
+		<resource name="editor_tornedge_right">Labā puse</resource>
+		<resource name="editor_tornedge_top">Augšpuse</resource>
+		<resource name="editor_tornedge_bottom">Apakšpuse</resource>
+		<resource name="editor_tornedge_shadow">Veidot ēnu</resource>
 
-    <resource name="editor_resize">Mainīt izmēru</resource>
-    <resource name="editor_resize_settings">Izmēra maiņas iestatījumi</resource>
-    <resource name="editor_resize_aspectratio">Saglabāt izmēru attiecības</resource>
-    <resource name="editor_resize_width">Platums</resource>
-    <resource name="editor_resize_height">Augstums</resource>
-	<resource name="settings_iconsize">Ikonas izmērs</resource>
-    
-  </resources>
+		<resource name="editor_counter">Pievienot skaitli (I)</resource>
+		<resource name="editor_speechbubble">Pievienot teksta norādi (S)</resource>
+
+		<resource name="editor_resize">Mainīt izmēru</resource>
+		<resource name="editor_resize_settings">Izmēra maiņas iestatījumi</resource>
+		<resource name="editor_resize_aspectratio">Saglabāt izmēru attiecības</resource>
+		<resource name="editor_resize_width">Platums</resource>
+		<resource name="editor_resize_height">Augstums</resource>
+		<resource name="settings_iconsize">Ikonas izmērs</resource>
+
+	</resources>
 </language>

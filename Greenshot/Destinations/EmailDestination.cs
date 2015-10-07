@@ -22,7 +22,6 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-
 using Greenshot.Helpers;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
@@ -33,12 +32,14 @@ using System.Threading;
 using Dapplo.Config.Language;
 using GreenshotPlugin.Configuration;
 
-namespace Greenshot.Destinations {
+namespace Greenshot.Destinations
+{
 	/// <summary>
 	/// Description of EmailDestination.
 	/// </summary>
-	public class EmailDestination : AbstractDestination {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(EmailDestination));
+	public class EmailDestination : AbstractDestination
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (EmailDestination));
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		private static readonly Image mailIcon = GreenshotResources.GetImage("Email.Image");
@@ -46,48 +47,63 @@ namespace Greenshot.Destinations {
 		private static string mapiClient = null;
 		public const string DESIGNATION = "EMail";
 
-		static EmailDestination() {
+		static EmailDestination()
+		{
 			// Logic to decide what email implementation we use
-			if (EmailConfigHelper.HasMAPI()) {
+			if (EmailConfigHelper.HasMAPI())
+			{
 				_isActiveFlag = true;
 				mapiClient = EmailConfigHelper.GetMapiClient();
-				if (!string.IsNullOrEmpty(mapiClient)) {
+				if (!string.IsNullOrEmpty(mapiClient))
+				{
 					// Active as we have a mapi client, can be disabled later
 					_isActiveFlag = true;
 				}
 			}
 		}
 
-		public override string Designation {
-			get {
+		public override string Designation
+		{
+			get
+			{
 				return DESIGNATION;
 			}
 		}
 
-		public override string Description {
-			get {
+		public override string Description
+		{
+			get
+			{
 				// Make sure there is some kind of "mail" name
-				if (mapiClient == null) {
+				if (mapiClient == null)
+				{
 					mapiClient = language.EditorEmail;
 				}
 				return mapiClient;
 			}
 		}
 
-		public override int Priority {
-			get {
+		public override int Priority
+		{
+			get
+			{
 				return 3;
 			}
 		}
 
-		public override bool IsActive {
-			get {
-				if (_isActiveFlag) {
+		public override bool IsActive
+		{
+			get
+			{
+				if (_isActiveFlag)
+				{
 					// Disable if the office plugin is installed and the client is outlook
 					// TODO: Change this! It always creates an exception, as the plugin has not been loaded the type is not there :(
 					Type outlookdestination = Type.GetType("GreenshotOfficePlugin.OutlookDestination,GreenshotOfficePlugin");
-					if (outlookdestination != null) {
-						if (mapiClient == null || mapiClient.ToLower().Contains("microsoft outlook")) {
+					if (outlookdestination != null)
+					{
+						if (mapiClient == null || mapiClient.ToLower().Contains("microsoft outlook"))
+						{
 							_isActiveFlag = false;
 						}
 					}
@@ -96,25 +112,31 @@ namespace Greenshot.Destinations {
 			}
 		}
 
-		public override Keys EditorShortcutKeys {
-			get {
+		public override Keys EditorShortcutKeys
+		{
+			get
+			{
 				return Keys.Control | Keys.E;
 			}
 		}
 
-		public override Image DisplayIcon {
-			get {
+		public override Image DisplayIcon
+		{
+			get
+			{
 				return mailIcon;
 			}
 		}
-		
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			var exportInformation = new ExportInformation {
-				DestinationDesignation = Designation,
-				DestinationDescription = Description
+
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		{
+			var exportInformation = new ExportInformation
+			{
+				DestinationDesignation = Designation, DestinationDescription = Description
 			};
 			// There is not much that can work async for the MapiMailMessage
-			await Task.Factory.StartNew(() => {
+			await Task.Factory.StartNew(() =>
+			{
 				MapiMailMessage.SendImage(surface, captureDetails);
 			}, token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
 

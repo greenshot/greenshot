@@ -27,36 +27,50 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Greenshot.Helpers {
-	public class Arguments {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(GreenshotServer));
+namespace Greenshot.Helpers
+{
+	public class Arguments
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (GreenshotServer));
 
-		public IList<string> FilesToOpen {
+		public IList<string> FilesToOpen
+		{
 			get;
 			set;
 		}
 
-		public bool IsExit {
+		public bool IsExit
+		{
 			get;
 			set;
 		}
-		public bool IsHelp {
+
+		public bool IsHelp
+		{
 			get;
 			set;
 		}
-		public bool IsReload {
+
+		public bool IsReload
+		{
 			get;
 			set;
 		}
-		public bool IsNoRun {
+
+		public bool IsNoRun
+		{
 			get;
 			set;
 		}
-		public string Language {
+
+		public string Language
+		{
 			get;
 			set;
 		}
-		public string IniDirectory {
+
+		public string IniDirectory
+		{
 			get;
 			set;
 		}
@@ -64,11 +78,13 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Show the help to the user
 		/// </summary>
-		private void ShowHelp() {
+		private void ShowHelp()
+		{
 			// Try to attach to the console
 			bool attachedToConsole = Kernel32.AttachConsole(Kernel32.ATTACHCONSOLE_ATTACHPARENTPROCESS);
 			// If attach didn't work, open a console
-			if (!attachedToConsole) {
+			if (!attachedToConsole)
+			{
 				Kernel32.AllocConsole();
 			}
 			var helpOutput = new StringBuilder();
@@ -101,56 +117,67 @@ namespace Greenshot.Helpers {
 			Console.WriteLine(helpOutput.ToString());
 
 			// If attach didn't work, wait for key otherwise the console will close to quickly
-			if (!attachedToConsole) {
+			if (!attachedToConsole)
+			{
 				Console.ReadKey();
 			}
 		}
 
-		public Arguments(string[] args) {
+		public Arguments(string[] args)
+		{
 			FilesToOpen = new List<string>();
 
-			if (args.Length > 0 && LOG.IsDebugEnabled) {
+			if (args.Length > 0 && LOG.IsDebugEnabled)
+			{
 				StringBuilder argumentString = new StringBuilder();
-				for (int argumentNr = 0; argumentNr < args.Length; argumentNr++) {
+				for (int argumentNr = 0; argumentNr < args.Length; argumentNr++)
+				{
 					argumentString.Append("[").Append(args[argumentNr]).Append("] ");
 				}
 				LOG.Debug("Greenshot arguments: " + argumentString);
 			}
 
-			for (int argumentNr = 0; argumentNr < args.Length; argumentNr++) {
+			for (int argumentNr = 0; argumentNr < args.Length; argumentNr++)
+			{
 				string argument = args[argumentNr];
 				// Help
-				if (argument.ToLower().Equals("/help") || argument.ToLower().Equals("/h") || argument.ToLower().Equals("/?")) {
+				if (argument.ToLower().Equals("/help") || argument.ToLower().Equals("/h") || argument.ToLower().Equals("/?"))
+				{
 					ShowHelp();
 					IsHelp = true;
 					return;
 				}
 
-				if (argument.ToLower().Equals("/exit")) {
+				if (argument.ToLower().Equals("/exit"))
+				{
 					IsExit = true;
 					continue;
 				}
 
 				// Reload the configuration
-				if (argument.ToLower().Equals("/reload")) {
+				if (argument.ToLower().Equals("/reload"))
+				{
 					IsReload = true;
 					continue;
 				}
 
 				// Stop running
-				if (argument.ToLower().Equals("/norun")) {
+				if (argument.ToLower().Equals("/norun"))
+				{
 					IsNoRun = true;
 					continue;
 				}
 
 				// Language
-				if (argument.ToLower().Equals("/language")) {
+				if (argument.ToLower().Equals("/language"))
+				{
 					Language = args[++argumentNr];
 					continue;
 				}
 
 				// Setting the INI-directory
-				if (argument.ToLower().Equals("/inidirectory")) {
+				if (argument.ToLower().Equals("/inidirectory"))
+				{
 					IniDirectory = args[++argumentNr];
 					continue;
 				}

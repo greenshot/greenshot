@@ -32,11 +32,11 @@ using System.Threading.Tasks;
 
 namespace GreenshotPlugin.OAuth
 {
-
 	/// <summary>
 	/// Code to simplify OAuth 2
 	/// </summary>
-	public static class OAuth2Helper {
+	public static class OAuth2Helper
+	{
 		private static readonly INetworkConfiguration NetworkConfig = IniConfig.Current.Get<INetworkConfiguration>();
 		private const string REFRESH_TOKEN = "refresh_token";
 		private const string ACCESS_TOKEN = "access_token";
@@ -53,7 +53,8 @@ namespace GreenshotPlugin.OAuth
 		/// </summary>
 		/// <param name="settings">OAuth2Settings to update with the information that was retrieved</param>
 		/// <param name="token"></param>
-		private static async Task GenerateRefreshTokenAsync(OAuth2Settings settings, CancellationToken token = default(CancellationToken)) {
+		private static async Task GenerateRefreshTokenAsync(OAuth2Settings settings, CancellationToken token = default(CancellationToken))
+		{
 			IDictionary<string, string> data = new Dictionary<string, string>();
 			// Use the returned code to get a refresh code
 			data.Add(CODE, settings.Code);
@@ -61,32 +62,36 @@ namespace GreenshotPlugin.OAuth
 			data.Add(REDIRECT_URI, settings.RedirectUrl);
 			data.Add(CLIENT_SECRET, settings.ClientSecret);
 			data.Add(GRANT_TYPE, AUTHORIZATION_CODE);
-			foreach (var key in settings.AdditionalAttributes.Keys) {
+			foreach (var key in settings.AdditionalAttributes.Keys)
+			{
 				data.Add(key, settings.AdditionalAttributes[key]);
 			}
 
 			dynamic refreshTokenResult;
-			using (var responseMessage = await settings.TokenUrl.PostFormUrlEncodedAsync(data, token)) {
+			using (var responseMessage = await settings.TokenUrl.PostFormUrlEncodedAsync(data, token))
+			{
 				refreshTokenResult = await responseMessage.GetAsJsonAsync(token: token);
 			}
 			if (refreshTokenResult.ContainsKey("error"))
 			{
-				if (refreshTokenResult.ContainsKey("error_description")) {
+				if (refreshTokenResult.ContainsKey("error_description"))
+				{
 					throw new Exception(string.Format("{0} - {1}", refreshTokenResult.error, refreshTokenResult.error_description));
-                }
-				throw new Exception((string)refreshTokenResult.error);
-            }
+				}
+				throw new Exception((string) refreshTokenResult.error);
+			}
 			// gives as described here: https://developers.google.com/identity/protocols/OAuth2InstalledApp
 			//  "access_token":"1/fFAGRNJru1FTz70BzhT3Zg",
 			//	"expires_in":3920,
 			//	"token_type":"Bearer",
 			//	"refresh_token":"1/xEoDL4iW3cxlI7yDbSRFYNG01kVKM2C-259HOF2aQbI"
 			settings.AccessToken = refreshTokenResult.access_token;
-            settings.RefreshToken = refreshTokenResult.refresh_token;
+			settings.RefreshToken = refreshTokenResult.refresh_token;
 
-			if (refreshTokenResult.ContainsKey("expires_in")) {
+			if (refreshTokenResult.ContainsKey("expires_in"))
+			{
 				double expiresIn = refreshTokenResult.expires_in;
-                settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds(expiresIn);
+				settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds(expiresIn);
 			}
 			settings.Code = null;
 		}
@@ -97,49 +102,60 @@ namespace GreenshotPlugin.OAuth
 		/// </summary>
 		/// <param name="settings"></param>
 		/// <param name="token"></param>
-		private static async Task GenerateAccessTokenAsync(OAuth2Settings settings, CancellationToken token = default(CancellationToken)) {
+		private static async Task GenerateAccessTokenAsync(OAuth2Settings settings, CancellationToken token = default(CancellationToken))
+		{
 			IDictionary<string, string> data = new Dictionary<string, string>();
 			data.Add(REFRESH_TOKEN, settings.RefreshToken);
 			data.Add(CLIENT_ID, settings.ClientId);
 			data.Add(CLIENT_SECRET, settings.ClientSecret);
 			data.Add(GRANT_TYPE, REFRESH_TOKEN);
-			foreach (string key in settings.AdditionalAttributes.Keys) {
+			foreach (string key in settings.AdditionalAttributes.Keys)
+			{
 				data.Add(key, settings.AdditionalAttributes[key]);
 			}
 
 			dynamic accessTokenResult;
-			using (var responseMessage = await settings.TokenUrl.PostFormUrlEncodedAsync(data, token)) {
+			using (var responseMessage = await settings.TokenUrl.PostFormUrlEncodedAsync(data, token))
+			{
 				accessTokenResult = await responseMessage.GetAsJsonAsync(token: token);
 			}
 
-			if (accessTokenResult.ContainsKey("error")) {
+			if (accessTokenResult.ContainsKey("error"))
+			{
 				var error = accessTokenResult.error;
-				if ("invalid_grant" == error) {
+				if ("invalid_grant" == error)
+				{
 					// Refresh token has also expired, we need a new one!
 					settings.RefreshToken = null;
 					settings.AccessToken = null;
 					settings.AccessTokenExpires = DateTimeOffset.MinValue;
 					settings.Code = null;
-				} else
+				}
+				else
 				{
-					if (accessTokenResult.ContainsKey("error_description")) {
+					if (accessTokenResult.ContainsKey("error_description"))
+					{
 						throw new Exception(string.Format("{0} - {1}", error, accessTokenResult.error_description));
 					}
 					throw new Exception(error);
 				}
-			} else {
+			}
+			else
+			{
 				// gives as described here: https://developers.google.com/identity/protocols/OAuth2InstalledApp
 				//  "access_token":"1/fFAGRNJru1FTz70BzhT3Zg",
 				//	"expires_in":3920,
 				//	"token_type":"Bearer"
 				settings.AccessToken = accessTokenResult.access_token;
-				if (accessTokenResult.ContainsKey("refresh_token")) {
+				if (accessTokenResult.ContainsKey("refresh_token"))
+				{
 					// Refresh the refresh token :)
 					settings.RefreshToken = accessTokenResult.refresh_token;
-                }
-				if (accessTokenResult.ContainsKey("expires_in")) {
+				}
+				if (accessTokenResult.ContainsKey("expires_in"))
+				{
 					double expiresIn = accessTokenResult.expires_in;
-                    settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds(expiresIn);
+					settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds(expiresIn);
 				}
 			}
 		}
@@ -150,9 +166,11 @@ namespace GreenshotPlugin.OAuth
 		/// <param name="settings">OAuth2Settings</param>
 		/// <param name="token">CancellationToken</param>
 		/// <returns>false if it was canceled, true if it worked, exception if not</returns>
-		private static async Task<bool> AuthenticateAsync(OAuth2Settings settings, CancellationToken token = default(CancellationToken)) {
+		private static async Task<bool> AuthenticateAsync(OAuth2Settings settings, CancellationToken token = default(CancellationToken))
+		{
 			bool completed;
-			switch (settings.AuthorizeMode) {
+			switch (settings.AuthorizeMode)
+			{
 				case OAuth2AuthorizeMode.LocalServer:
 					completed = await AuthenticateViaLocalServerAsync(settings, token).ConfigureAwait(false);
 					break;
@@ -172,18 +190,23 @@ namespace GreenshotPlugin.OAuth
 		/// <param name="settings">OAuth2Settings with the Auth / Token url etc</param>
 		/// <param name="token"></param>
 		/// <returns>true if completed, false if canceled</returns>
-		private static async Task<bool> AuthenticateViaEmbeddedBrowserAsync(OAuth2Settings settings, CancellationToken token = default(CancellationToken)) {
-			if (string.IsNullOrEmpty(settings.CloudServiceName)) {
+		private static async Task<bool> AuthenticateViaEmbeddedBrowserAsync(OAuth2Settings settings, CancellationToken token = default(CancellationToken))
+		{
+			if (string.IsNullOrEmpty(settings.CloudServiceName))
+			{
 				throw new ArgumentNullException("CloudServiceName");
 			}
-			if (settings.BrowserSize == Size.Empty) {
+			if (settings.BrowserSize == Size.Empty)
+			{
 				throw new ArgumentNullException("BrowserSize");
 			}
 			OAuthLoginForm loginForm = new OAuthLoginForm(string.Format("Authorize {0}", settings.CloudServiceName), settings.BrowserSize, settings.FormattedAuthUrl, settings.RedirectUrl);
 			loginForm.ShowDialog();
-			if (loginForm.IsOk) {
+			if (loginForm.IsOk)
+			{
 				string code;
-				if (loginForm.CallbackParameters.TryGetValue(CODE, out code) && !string.IsNullOrEmpty(code)) {
+				if (loginForm.CallbackParameters.TryGetValue(CODE, out code) && !string.IsNullOrEmpty(code))
+				{
 					settings.Code = code;
 					await GenerateRefreshTokenAsync(settings, token);
 					return true;
@@ -199,25 +222,31 @@ namespace GreenshotPlugin.OAuth
 		/// <param name="settings">OAuth2Settings with the Auth / Token url etc</param>
 		/// <param name="token"></param>
 		/// <returns>true if completed</returns>
-		private static async Task<bool> AuthenticateViaLocalServerAsync(OAuth2Settings settings, CancellationToken token = default(CancellationToken)) {
+		private static async Task<bool> AuthenticateViaLocalServerAsync(OAuth2Settings settings, CancellationToken token = default(CancellationToken))
+		{
 			IDictionary<string, string> result;
-			using (var codeReceiver = new LocalServerCodeReceiver()) {
+			using (var codeReceiver = new LocalServerCodeReceiver())
+			{
 				result = await codeReceiver.ReceiveCodeAsync(settings, token);
 			}
 
 			string code;
-			if (result.TryGetValue(CODE, out code) && !string.IsNullOrEmpty(code)) {
+			if (result.TryGetValue(CODE, out code) && !string.IsNullOrEmpty(code))
+			{
 				settings.Code = code;
 				await GenerateRefreshTokenAsync(settings, token);
 				return true;
 			}
 			string error;
-			if (result.TryGetValue("error", out error)) {
+			if (result.TryGetValue("error", out error))
+			{
 				string errorDescription;
-				if (result.TryGetValue("error_description", out errorDescription)) {
+				if (result.TryGetValue("error_description", out errorDescription))
+				{
 					throw new Exception(errorDescription);
 				}
-				if ("access_denied" == error) {
+				if ("access_denied" == error)
+				{
 					throw new UnauthorizedAccessException("Access denied");
 				}
 				throw new Exception(error);
@@ -230,24 +259,31 @@ namespace GreenshotPlugin.OAuth
 		/// </summary>
 		/// <param name="settings">OAuth2Settings</param>
 		/// <param name="token"></param>
-		private static async Task CheckAndAuthenticateOrRefreshAsync(OAuth2Settings settings, CancellationToken token = default(CancellationToken)) {
+		private static async Task CheckAndAuthenticateOrRefreshAsync(OAuth2Settings settings, CancellationToken token = default(CancellationToken))
+		{
 			// Get Refresh / Access token
-			if (string.IsNullOrEmpty(settings.RefreshToken)) {
-				if (!await AuthenticateAsync(settings, token).ConfigureAwait(false)) {
+			if (string.IsNullOrEmpty(settings.RefreshToken))
+			{
+				if (!await AuthenticateAsync(settings, token).ConfigureAwait(false))
+				{
 					throw new Exception("Authentication cancelled");
 				}
 			}
-			if (settings.IsAccessTokenExpired) {
+			if (settings.IsAccessTokenExpired)
+			{
 				await GenerateAccessTokenAsync(settings, token).ConfigureAwait(false);
 				// Get Refresh / Access token
-				if (string.IsNullOrEmpty(settings.RefreshToken)) {
-					if (!await AuthenticateAsync(settings, token).ConfigureAwait(false)) {
+				if (string.IsNullOrEmpty(settings.RefreshToken))
+				{
+					if (!await AuthenticateAsync(settings, token).ConfigureAwait(false))
+					{
 						throw new Exception("Authentication cancelled");
 					}
 					await GenerateAccessTokenAsync(settings, token).ConfigureAwait(false);
 				}
 			}
-			if (settings.IsAccessTokenExpired) {
+			if (settings.IsAccessTokenExpired)
+			{
 				throw new Exception("Authentication failed");
 			}
 		}
@@ -259,11 +295,13 @@ namespace GreenshotPlugin.OAuth
 		/// <param name="settings">OAuth2Settings</param>
 		/// <param name="token"></param>
 		/// <returns>HttpClient</returns>
-		public static async Task<HttpClient> CreateOAuth2HttpClientAsync(OAuth2Settings settings, CancellationToken token = default(CancellationToken)) {
+		public static async Task<HttpClient> CreateOAuth2HttpClientAsync(OAuth2Settings settings, CancellationToken token = default(CancellationToken))
+		{
 			await CheckAndAuthenticateOrRefreshAsync(settings, token).ConfigureAwait(false);
 
 			var httpClient = HttpClientFactory.CreateHttpClient(NetworkConfig);
-			if (!string.IsNullOrEmpty(settings.AccessToken)) {
+			if (!string.IsNullOrEmpty(settings.AccessToken))
+			{
 				httpClient.SetBearer(settings.AccessToken);
 			}
 			return httpClient;

@@ -18,38 +18,45 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 
-namespace Greenshot.Plugin {
+namespace Greenshot.Plugin
+{
 	/// <summary>
 	/// Description of IProcessor.
 	/// </summary>
-	public interface IProcessor : IDisposable, IComparable {
+	public interface IProcessor : IDisposable, IComparable
+	{
 		/// <summary>
 		/// Simple "designation" like "FixTitle"
 		/// </summary>
-		string Designation {
+		string Designation
+		{
 			get;
 		}
 
 		/// <summary>
 		/// Description which will be shown in the settings form, destination picker etc
 		/// </summary>
-		string Description {
+		string Description
+		{
 			get;
 		}
 
 		/// <summary>
 		/// Priority, used for sorting
 		/// </summary>
-		int Priority {
+		int Priority
+		{
 			get;
 		}
 
 		/// <summary>
 		/// Returns if the destination is active
 		/// </summary>
-		bool isActive {
+		bool isActive
+		{
 			get;
 		}
 

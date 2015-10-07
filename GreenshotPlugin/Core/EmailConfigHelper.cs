@@ -18,38 +18,53 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System.IO;
 using Microsoft.Win32;
 
-namespace GreenshotPlugin.Core {
+namespace GreenshotPlugin.Core
+{
 	/// <summary>
 	/// Description of EmailConfigHelper.
 	/// </summary>
-	public static class EmailConfigHelper {
+	public static class EmailConfigHelper
+	{
 		private const string MAPI_CLIENT_KEY = @"SOFTWARE\Clients\Mail";
 		private const string MAPI_LOCATION_KEY = @"SOFTWARE\Microsoft\Windows Messaging Subsystem";
 		private const string MAPI_KEY = @"MAPI";
 
-		public static string GetMapiClient() {
-			using (RegistryKey key = Registry.CurrentUser.OpenSubKey(MAPI_CLIENT_KEY, false)) {
-				if (key != null) {
-					return (string)key.GetValue("");
-				} 
+		public static string GetMapiClient()
+		{
+			using (RegistryKey key = Registry.CurrentUser.OpenSubKey(MAPI_CLIENT_KEY, false))
+			{
+				if (key != null)
+				{
+					return (string) key.GetValue("");
+				}
 			}
-			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(MAPI_CLIENT_KEY, false)) {
-				if (key != null) {
-					return (string)key.GetValue("");
-				} else {
+			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(MAPI_CLIENT_KEY, false))
+			{
+				if (key != null)
+				{
+					return (string) key.GetValue("");
+				}
+				else
+				{
 					return null;
 				}
 			}
 		}
 
-		public static bool HasMAPI() {
-			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(MAPI_LOCATION_KEY, false)) {
-				if (key != null) {
+		public static bool HasMAPI()
+		{
+			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(MAPI_LOCATION_KEY, false))
+			{
+				if (key != null)
+				{
 					return "1".Equals(key.GetValue(MAPI_KEY, "0"));
-				} else {
+				}
+				else
+				{
 					return false;
 				}
 			}

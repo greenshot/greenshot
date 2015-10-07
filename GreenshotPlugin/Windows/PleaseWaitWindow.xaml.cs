@@ -52,14 +52,19 @@ namespace GreenshotPlugin.Windows
 			}
 		}
 
-		public Brush Color {
-			get {
+		public Brush Color
+		{
+			get
+			{
 				return _color;
 			}
-			set {
-				if (_color != value) {
+			set
+			{
+				if (_color != value)
+				{
 					_color = value;
-					if (PropertyChanged != null) {
+					if (PropertyChanged != null)
+					{
 						PropertyChanged(this, new PropertyChangedEventArgs("Color"));
 					}
 				}
@@ -137,7 +142,8 @@ namespace GreenshotPlugin.Windows
 			T result = default(T);
 			using (var pleaseWaitWindow = new PleaseWaitWindow())
 			{
-				if (token == default(CancellationToken)) {
+				if (token == default(CancellationToken))
+				{
 					token = pleaseWaitWindow.Token;
 				}
 				ElementHost.EnableModelessKeyboardInterop(pleaseWaitWindow);
@@ -145,13 +151,18 @@ namespace GreenshotPlugin.Windows
 				pleaseWaitWindow.Text = text;
 				pleaseWaitWindow.IsIndeterminate = isIndeterminate;
 				pleaseWaitWindow.Show();
-				try {
+				try
+				{
 					result = await asyncFunction(pleaseWaitWindow, token).ConfigureAwait(false);
-				} catch (Exception ex) {
+				}
+				catch (Exception ex)
+				{
 					pleaseWaitWindow.Text = ex.Message;
 					pleaseWaitWindow.Color = Brushes.Red;
 					throw;
-				} finally {
+				}
+				finally
+				{
 					var task = pleaseWaitWindow.Dispatcher.BeginInvoke(new Action(() => pleaseWaitWindow.Close()));
 				}
 			}
@@ -163,11 +174,12 @@ namespace GreenshotPlugin.Windows
 			DataContext = this;
 			InitializeComponent();
 			Icon = GreenshotResources.GetGreenshotIcon().ToBitmapSource();
-			Loaded += (sender, eArgs) => {
+			Loaded += (sender, eArgs) =>
+			{
 				WindowStartupLocation = WindowStartupLocation.Manual;
 				var cursor = User32.GetCursorLocation();
-				Left = cursor.X - (Width / 2);
-				Top = cursor.Y - (Height / 2);
+				Left = cursor.X - (Width/2);
+				Top = cursor.Y - (Height/2);
 			};
 		}
 
@@ -187,6 +199,7 @@ namespace GreenshotPlugin.Windows
 		}
 
 		#region IDisposable Support
+
 		private bool disposedValue = false; // To detect redundant calls
 
 		protected virtual void Dispose(bool disposing)
@@ -208,6 +221,7 @@ namespace GreenshotPlugin.Windows
 			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
 			Dispose(true);
 		}
+
 		#endregion
 	}
 }

@@ -1,23 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <language>
 	<resources prefix="Core">
 		<resource name="about_bugs">Palun saatke veateated</resource>
 		<resource name="about_donations">Greenshoti kasutamismugavust ja arendust saate toetada siin:</resource>
 		<resource name="about_host">Greenshot asub portaalis sourceforge.net</resource>
 		<resource name="about_icons">Yusuke Kamiyamane on ikoonide tegija Fugue ikooni paketist (Creative Commons Attribution 3.0 litsents)</resource>
-		<resource name="about_license">Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot ei paku GARANTIID. See on vabaravaline programm ja Te võite seda levitava vabalt teatud tingimuste alusel.
-Lisainfo GNU Põhilise Avaliku Litsentsi kohta:</resource>
+		<resource name="about_license">
+			Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+			Greenshot ei paku GARANTIID. See on vabaravaline programm ja Te võite seda levitava vabalt teatud tingimuste alusel.
+			Lisainfo GNU Põhilise Avaliku Litsentsi kohta:
+		</resource>
 		<resource name="about_title">Info Greenshoti kohta</resource>
 		<resource name="application_title">Greenshot - revolutsiooniline kuvatõmmise tööriist</resource>
 		<resource name="bugreport_cancel">Sulge</resource>
-		<resource name="bugreport_info">Vabandust aga ilmnes tundmatu viga.
+		<resource name="bugreport_info">
+			Vabandust aga ilmnes tundmatu viga.
 
-Hea uudis on: saate meil aidata seda eemaldada saates meile veateate.
-Uue veateate  teavitamiseks, palun külastage kõrvalolevat URLi ja tekstialalt asetage sisu kirjeldusse. 
+			Hea uudis on: saate meil aidata seda eemaldada saates meile veateate.
+			Uue veateate  teavitamiseks, palun külastage kõrvalolevat URLi ja tekstialalt asetage sisu kirjeldusse.
 
-Vea paremaks parandamiseks lisage palun arusaadav kokkuvõte veast ja lisage ka pisidetailid.
-Me oleksime väga tänulik, kui te enne kontrolliksite, ega sellest veast pole juba teavitatud. (Postituse kiiresti leidmiseks kasutage otsingut.) Aitäh :)</resource>
+			Vea paremaks parandamiseks lisage palun arusaadav kokkuvõte veast ja lisage ka pisidetailid.
+			Me oleksime väga tänulik, kui te enne kontrolliksite, ega sellest veast pole juba teavitatud. (Postituse kiiresti leidmiseks kasutage otsingut.) Aitäh :)
+		</resource>
 		<resource name="bugreport_title">Viga</resource>
 		<resource name="CANCEL">Loobu</resource>
 		<resource name="clipboard_error">Lõikelauale kirjutamisel ilmnes ootamatu viga.</resource>
@@ -167,8 +172,10 @@ Me oleksime väga tänulik, kui te enne kontrolliksite, ega sellest veast pole j
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook koos tekstiga</resource>
 		<resource name="error">Viga</resource>
 		<resource name="error_multipleinstances">Greenshot on juba käivitatud.</resource>
-		<resource name="error_nowriteaccess">Faili ei suudetud salvestada {0}.
-Palun kontrollige valitud hoiuala kirjutamisõigust.</resource>
+		<resource name="error_nowriteaccess">
+			Faili ei suudetud salvestada {0}.
+			Palun kontrollige valitud hoiuala kirjutamisõigust.
+		</resource>
 		<resource name="error_openfile">"{0}" ei suudetud avada.</resource>
 		<resource name="error_openlink">Ei suudetud avada '{0}'.</resource>
 		<resource name="error_save">Ei suudetud salvestada kuvatõmmist, palun valige sobivam asukoht.</resource>
@@ -231,23 +238,25 @@ Palun kontrollige valitud hoiuala kirjutamisõigust.</resource>
 		<resource name="settings_iecapture">Internet Exploreri haaramine</resource>
 		<resource name="settings_jpegquality">JPEG kvaliteet</resource>
 		<resource name="settings_language">Keel</resource>
-		<resource name="settings_message_filenamepattern">See kohatäitja täidetakse automaatselt defineeritud mustris:
-${YYYY} aasta, 4 numbrit
-${MM} kuu, 2 numbrit
-${DD} päev, 2 numbrit
-${hh} tund, 2 numbrit
-${mm} minut, 2 numbrit
-${ss} sekund, 2 numbrit
-${NUM} suurenev number, 6 numbrit
-${title} Akna pealkiri
-${user} Windowsi kasutaja
-${domain} Windowsi domeen
-${hostname} Arvuti nimi
+		<resource name="settings_message_filenamepattern">
+			See kohatäitja täidetakse automaatselt defineeritud mustris:
+			${YYYY} aasta, 4 numbrit
+			${MM} kuu, 2 numbrit
+			${DD} päev, 2 numbrit
+			${hh} tund, 2 numbrit
+			${mm} minut, 2 numbrit
+			${ss} sekund, 2 numbrit
+			${NUM} suurenev number, 6 numbrit
+			${title} Akna pealkiri
+			${user} Windowsi kasutaja
+			${domain} Windowsi domeen
+			${hostname} Arvuti nimi
 
-Greenshotiga on võimalik asukohti salvestada dünaamiliselt, selleks kasutage kaldkriipsu (\), et kaustad ja faili nimi oleks eraldatud.
-Näiteks: Kohatäitja ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-loob praeguse päeva jaoks kausta Teie sihtkausta, nt 2008-06-29, kuvatõmmise faili nimi on tuletatud praegusest
-kellaajast, nt 11_58_32 (lisaks seadetes määratud laiend)</resource>
+			Greenshotiga on võimalik asukohti salvestada dünaamiliselt, selleks kasutage kaldkriipsu (\), et kaustad ja faili nimi oleks eraldatud.
+			Näiteks: Kohatäitja ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+			loob praeguse päeva jaoks kausta Teie sihtkausta, nt 2008-06-29, kuvatõmmise faili nimi on tuletatud praegusest
+			kellaajast, nt 11_58_32 (lisaks seadetes määratud laiend)
+		</resource>
 		<resource name="settings_network">Võrk ja uuendused</resource>
 		<resource name="settings_output">Väljund</resource>
 		<resource name="settings_playsound">Esitage kaamera heli</resource>
@@ -282,9 +291,11 @@ kellaajast, nt 11_58_32 (lisaks seadetes määratud laiend)</resource>
 		<resource name="update_found">reenshoti uuem versioon on saadaval! Kas te soovite alla laadida Greenshot {0}?</resource>
 		<resource name="wait_ie_capture">Palun oodake, kui pilti Internet Exploreris tehakse...</resource>
 		<resource name="warning">Hoiatus</resource>
-		<resource name="warning_hotkeys">Kiirklahv(e) "{0}" ei suudetud registreerida. Teine tööriist väidab kasutavat sama(u) kiirklahvi(e)! Muutke või deaktiviseerige kiirklahv(id).
+		<resource name="warning_hotkeys">
+			Kiirklahv(e) "{0}" ei suudetud registreerida. Teine tööriist väidab kasutavat sama(u) kiirklahvi(e)! Muutke või deaktiviseerige kiirklahv(id).
 
-Kõik Greenshoti lisad töötavad süsteemisalvest ilma kiirklahvide olemasoluta.</resource>
+			Kõik Greenshoti lisad töötavad süsteemisalvest ilma kiirklahvide olemasoluta.
+		</resource>
 		<resource name="WindowCaptureMode.Aero">Kasutage kohandatud värvi</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Säilitage läbipaistvus</resource>
 		<resource name="WindowCaptureMode.Auto">Automaatselt</resource>

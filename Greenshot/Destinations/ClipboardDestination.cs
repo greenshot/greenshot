@@ -22,7 +22,6 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Dapplo.Config.Ini;
@@ -32,41 +31,54 @@ using System.Threading;
 using Dapplo.Config.Language;
 using GreenshotPlugin.Configuration;
 
-namespace Greenshot.Destinations {
+namespace Greenshot.Destinations
+{
 	/// <summary>
 	/// Description of ClipboardDestination.
 	/// </summary>
-	public class ClipboardDestination : AbstractDestination {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(ClipboardDestination));
+	public class ClipboardDestination : AbstractDestination
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (ClipboardDestination));
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		public const string DESIGNATION = "Clipboard";
 
-		public override string Designation {
-			get {
+		public override string Designation
+		{
+			get
+			{
 				return DESIGNATION;
 			}
 		}
 
-		public override string Description {
-			get {
+		public override string Description
+		{
+			get
+			{
 				return language.SettingsDestinationClipboard;
 			}
 		}
-		public override int Priority {
-			get {
+
+		public override int Priority
+		{
+			get
+			{
 				return 2;
 			}
 		}
-		
-		public override Keys EditorShortcutKeys {
-			get {
+
+		public override Keys EditorShortcutKeys
+		{
+			get
+			{
 				return Keys.Control | Keys.Shift | Keys.C;
 			}
 		}
 
-		public override Image DisplayIcon {
-			get {
+		public override Image DisplayIcon
+		{
+			get
+			{
 				return GreenshotResources.GetImage("Clipboard.Image");
 			}
 		}
@@ -79,18 +91,23 @@ namespace Greenshot.Destinations {
 		/// <param name="captureDetails"></param>
 		/// <param name="token"></param>
 		/// <returns></returns>
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			var exportInformation = new ExportInformation {
-				DestinationDesignation = Designation,
-				DestinationDescription = Description
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		{
+			var exportInformation = new ExportInformation
+			{
+				DestinationDesignation = Designation, DestinationDescription = Description
 			};
-			try {
+			try
+			{
 				// There is not much that can work async for the Clipboard
-				await Task.Factory.StartNew(() => {
+				await Task.Factory.StartNew(() =>
+				{
 					ClipboardHelper.SetClipboardData(surface);
 				}, token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
 				exportInformation.ExportMade = true;
-			} catch (Exception) {
+			}
+			catch (Exception)
+			{
 				exportInformation.ErrorMessage = language.EditorClipboardfailed;
 			}
 

@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Polski" ietf="pl-PL" version="1.1.4" languagegroup="2">
+
+<language>
 	<resources prefix="Imgur">
 		<resource name="anonymous_access">Używaj jako niezalogowany</resource>
 		<resource name="CANCEL">Anuluj</resource>

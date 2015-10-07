@@ -37,20 +37,23 @@ namespace GreenshotPlugin.Core
 	/// <summary>
 	/// Description of PluginUtils.
 	/// </summary>
-	public static class PluginUtils {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(PluginUtils));
+	public static class PluginUtils
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (PluginUtils));
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private const string PATH_KEY = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
 		private static IDictionary<string, Image> exeIconCache = new Dictionary<string, Image>();
 
-		static PluginUtils() {
+		static PluginUtils()
+		{
 			conf.PropertyChanged += OnIconSizeChanged;
 		}
 
 		/// <summary>
 		/// Simple global property to get the Greenshot host
 		/// </summary>
-		public static IGreenshotHost Host {
+		public static IGreenshotHost Host
+		{
 			get;
 			set;
 		}
@@ -60,21 +63,26 @@ namespace GreenshotPlugin.Core
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private static void OnIconSizeChanged(object sender, PropertyChangedEventArgs e) {
-			if (e.PropertyName == "IconSize") {
+		private static void OnIconSizeChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if (e.PropertyName == "IconSize")
+			{
 				List<Image> cachedImages = new List<Image>();
-				lock (exeIconCache) {
-					foreach (string key in exeIconCache.Keys) {
+				lock (exeIconCache)
+				{
+					foreach (string key in exeIconCache.Keys)
+					{
 						cachedImages.Add(exeIconCache[key]);
 					}
 					exeIconCache.Clear();
 				}
-				foreach (Image cachedImage in cachedImages) {
-					if (cachedImage != null) {
+				foreach (Image cachedImage in cachedImages)
+				{
+					if (cachedImage != null)
+					{
 						cachedImage.Dispose();
 					}
 				}
-
 			}
 		}
 
@@ -83,40 +91,53 @@ namespace GreenshotPlugin.Core
 		/// </summary>
 		/// <param name="exeName">e.g. cmd.exe</param>
 		/// <returns>Path to file</returns>
-		public static string GetExePath(string exeName) {
-			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(PATH_KEY + exeName, false)) {
-				if (key != null) {
+		public static string GetExePath(string exeName)
+		{
+			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(PATH_KEY + exeName, false))
+			{
+				if (key != null)
+				{
 					// "" is the default key, which should point to the requested location
-					return (string)key.GetValue("");
+					return (string) key.GetValue("");
 				}
 			}
-			foreach (string pathEntry in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(';')) {
-				try {
+			foreach (string pathEntry in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(';'))
+			{
+				try
+				{
 					string path = pathEntry.Trim();
-					if (!String.IsNullOrEmpty(path) && File.Exists(path = Path.Combine(path, exeName))) {
+					if (!String.IsNullOrEmpty(path) && File.Exists(path = Path.Combine(path, exeName)))
+					{
 						return Path.GetFullPath(path);
 					}
-				} catch (Exception) {
+				}
+				catch (Exception)
+				{
 					LOG.WarnFormat("Problem with path entry '{0}'.", pathEntry);
 				}
 			}
 			return null;
 		}
-		
+
 		/// <summary>
 		/// Get icon for executable, from the cache
 		/// </summary>
 		/// <param name="path">path to the exe or dll</param>
 		/// <param name="index">index of the icon</param>
 		/// <returns>Bitmap with the icon or null if something happended</returns>
-		public static Image GetCachedExeIcon(string path, int index) {
+		public static Image GetCachedExeIcon(string path, int index)
+		{
 			string cacheKey = string.Format("{0}:{1}", path, index);
 			Image returnValue;
-			if (!exeIconCache.TryGetValue(cacheKey, out returnValue)) {
-				lock (exeIconCache) {
-					if (!exeIconCache.TryGetValue(cacheKey, out returnValue)) {
+			if (!exeIconCache.TryGetValue(cacheKey, out returnValue))
+			{
+				lock (exeIconCache)
+				{
+					if (!exeIconCache.TryGetValue(cacheKey, out returnValue))
+					{
 						returnValue = GetExeIcon(path, index);
-						if (returnValue != null) {
+						if (returnValue != null)
+						{
 							exeIconCache.Add(cacheKey, returnValue);
 						}
 					}
@@ -131,22 +152,31 @@ namespace GreenshotPlugin.Core
 		/// <param name="path">path to the exe or dll</param>
 		/// <param name="index">index of the icon</param>
 		/// <returns>Bitmap with the icon or null if something happended</returns>
-		private static Bitmap GetExeIcon(string path, int index) {
-			if (!File.Exists(path)) {
+		private static Bitmap GetExeIcon(string path, int index)
+		{
+			if (!File.Exists(path))
+			{
 				return null;
 			}
-			try {
-				using (Icon appIcon = ImageHelper.ExtractAssociatedIcon(path, index, CoreConfigurationChecker.UseLargeIcons(conf.IconSize))) {
-					if (appIcon != null) {
+			try
+			{
+				using (Icon appIcon = ImageHelper.ExtractAssociatedIcon(path, index, CoreConfigurationChecker.UseLargeIcons(conf.IconSize)))
+				{
+					if (appIcon != null)
+					{
 						return appIcon.ToBitmap();
 					}
 				}
-				using (Icon appIcon = Shell32.GetFileIcon(path, CoreConfigurationChecker.UseLargeIcons(conf.IconSize) ? Shell32.IconSize.Large : Shell32.IconSize.Small, false)) {
-					if (appIcon != null) {
+				using (Icon appIcon = Shell32.GetFileIcon(path, CoreConfigurationChecker.UseLargeIcons(conf.IconSize) ? Shell32.IconSize.Large : Shell32.IconSize.Small, false))
+				{
+					if (appIcon != null)
+					{
 						return appIcon.ToBitmap();
 					}
 				}
-			} catch (Exception exIcon) {
+			}
+			catch (Exception exIcon)
+			{
 				LOG.Error("error retrieving icon: ", exIcon);
 			}
 			return null;
@@ -160,12 +190,14 @@ namespace GreenshotPlugin.Core
 		/// <param name="tag">The TAG value</param>
 		/// <param name="shortcutKeys">Keys which can be used as shortcut</param>
 		/// <param name="handler">The onclick handler</param>
-		public static void AddToFileMenu(IImageEditor imageEditor, Image image, string text, object tag, Keys? shortcutKeys, EventHandler handler) {
+		public static void AddToFileMenu(IImageEditor imageEditor, Image image, string text, object tag, Keys? shortcutKeys, EventHandler handler)
+		{
 			ToolStripMenuItem item = new ToolStripMenuItem();
 			item.Image = image;
 			item.Text = text;
 			item.Tag = tag;
-			if (shortcutKeys.HasValue) {
+			if (shortcutKeys.HasValue)
+			{
 				item.ShortcutKeys = shortcutKeys.Value;
 			}
 			item.Click += handler;
@@ -177,61 +209,77 @@ namespace GreenshotPlugin.Core
 		/// </summary>
 		/// <param name="imageEditor"></param>
 		/// <param name="item"></param>
-		public static void AddToFileMenu(IImageEditor imageEditor, ToolStripMenuItem item) {
+		public static void AddToFileMenu(IImageEditor imageEditor, ToolStripMenuItem item)
+		{
 			ToolStripMenuItem toolStripMenuItem = imageEditor.GetFileMenuItem();
 			bool added = false;
-			for(int i = 0; i< toolStripMenuItem.DropDownItems.Count; i++) {
-				if (toolStripMenuItem.DropDownItems[i].GetType() == typeof(ToolStripSeparator)) {
+			for (int i = 0; i < toolStripMenuItem.DropDownItems.Count; i++)
+			{
+				if (toolStripMenuItem.DropDownItems[i].GetType() == typeof (ToolStripSeparator))
+				{
 					toolStripMenuItem.DropDownItems.Insert(i, item);
 					added = true;
 					break;
 				}
 			}
-			if (!added) {
+			if (!added)
+			{
 				toolStripMenuItem.DropDownItems.Add(item);
 			}
 		}
-		
+
 		/// <summary>
 		/// Helper method to add a MenuItem to the Plugin MenuItem of an ImageEditor
 		/// </summary>
 		/// <param name="imageEditor"></param>
 		/// <param name="item"></param>
-		public static void AddToPluginMenu(IImageEditor imageEditor, ToolStripMenuItem item) {
+		public static void AddToPluginMenu(IImageEditor imageEditor, ToolStripMenuItem item)
+		{
 			ToolStripMenuItem toolStripMenuItem = imageEditor.GetPluginMenuItem();
 			bool added = false;
-			for(int i = 0; i< toolStripMenuItem.DropDownItems.Count; i++) {
-				if (toolStripMenuItem.DropDownItems[i].GetType() == typeof(ToolStripSeparator)) {
+			for (int i = 0; i < toolStripMenuItem.DropDownItems.Count; i++)
+			{
+				if (toolStripMenuItem.DropDownItems[i].GetType() == typeof (ToolStripSeparator))
+				{
 					toolStripMenuItem.DropDownItems.Insert(i, item);
 					added = true;
 					break;
 				}
 			}
-			if (!added) {
+			if (!added)
+			{
 				toolStripMenuItem.DropDownItems.Add(item);
 			}
 		}
+
 		/// <summary>
 		/// Helper method to add a plugin MenuItem to the Greenshot context menu
 		/// </summary>
 		/// <param name="imageEditor"></param>
 		/// <param name="item"></param>
-		public static void AddToContextMenu(IGreenshotHost host, ToolStripMenuItem item) {
+		public static void AddToContextMenu(IGreenshotHost host, ToolStripMenuItem item)
+		{
 			// Here we can hang ourselves to the main context menu!
 			ContextMenuStrip contextMenu = host.MainMenu;
 			bool addedItem = false;
 
-			lock (contextMenu) {
+			lock (contextMenu)
+			{
 				// Try to find a separator, so we insert ourselves after it 
-				for (int i = 0; i < contextMenu.Items.Count; i++) {
-					if (contextMenu.Items[i].GetType() == typeof(ToolStripSeparator)) {
+				for (int i = 0; i < contextMenu.Items.Count; i++)
+				{
+					if (contextMenu.Items[i].GetType() == typeof (ToolStripSeparator))
+					{
 						// Check if we need to add a new separator, which is done if the first found has a Tag with the value "PluginsAreAddedBefore"
-						if ("PluginsAreAddedBefore".Equals(contextMenu.Items[i].Tag)) {
+						if ("PluginsAreAddedBefore".Equals(contextMenu.Items[i].Tag))
+						{
 							ToolStripSeparator separator = new ToolStripSeparator();
 							separator.Tag = "PluginsAreAddedAfter";
 							separator.Size = new Size(305, 6);
 							contextMenu.Items.Insert(i, separator);
-						} else if (!"PluginsAreAddedAfter".Equals(contextMenu.Items[i].Tag)) {
+						}
+						else if (!"PluginsAreAddedAfter".Equals(contextMenu.Items[i].Tag))
+						{
 							continue;
 						}
 						contextMenu.Items.Insert(i + 1, item);
@@ -240,7 +288,8 @@ namespace GreenshotPlugin.Core
 					}
 				}
 				// If we didn't insert the item, we just add it...
-				if (!addedItem) {
+				if (!addedItem)
+				{
 					contextMenu.Items.Add(item);
 				}
 			}

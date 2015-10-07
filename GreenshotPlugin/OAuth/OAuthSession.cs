@@ -43,30 +43,30 @@ namespace GreenshotPlugin.OAuth
 	/// </summary>
 	public class OAuthSession
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(OAuthSession));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (OAuthSession));
 		private static readonly INetworkConfiguration NetworkConfig = IniConfig.Current.Get<INetworkConfiguration>();
-		protected const string OAUTH_VERSION = "1.0";
-		protected const string OAUTH_PARAMETER_PREFIX = "oauth_";
+		private const string OauthVersion = "1.0";
+		private const string OauthParameterPrefix = "oauth_";
 
 		//
 		// List of know and used oauth parameters' names
 		//		
-		protected const string OAUTH_CONSUMER_KEY_KEY = "oauth_consumer_key";
-		protected const string OAUTH_CALLBACK_KEY = "oauth_callback";
-		protected const string OAUTH_VERSION_KEY = "oauth_version";
-		protected const string OAUTH_SIGNATURE_METHOD_KEY = "oauth_signature_method";
-		protected const string OAUTH_TIMESTAMP_KEY = "oauth_timestamp";
-		protected const string OAUTH_NONCE_KEY = "oauth_nonce";
-		protected const string OAUTH_TOKEN_KEY = "oauth_token";
-		protected const string OAUTH_VERIFIER_KEY = "oauth_verifier";
-		protected const string OAUTH_TOKEN_SECRET_KEY = "oauth_token_secret";
-		protected const string OAUTH_SIGNATURE_KEY = "oauth_signature";
+		private const string OauthConsumerKeyKey = "oauth_consumer_key";
+		private const string OauthCallbackKey = "oauth_callback";
+		private const string OauthVersionKey = "oauth_version";
+		private const string OauthSignatureMethodKey = "oauth_signature_method";
+		private const string OauthTimestampKey = "oauth_timestamp";
+		private const string OauthNonceKey = "oauth_nonce";
+		private const string OauthTokenKey = "oauth_token";
+		private const string OauthVerifierKey = "oauth_verifier";
+		private const string OauthTokenSecretKey = "oauth_token_secret";
+		private const string OauthSignatureKey = "oauth_signature";
 
-		protected const string HMACSHA1SignatureType = "HMAC-SHA1";
-		protected const string PlainTextSignatureType = "PLAINTEXT";
-		protected const string RSASHA1SignatureType = "RSA-SHA1";
+		private const string HmacSha1SignatureType = "HMAC-SHA1";
+		private const string PlainTextSignatureType = "PLAINTEXT";
+		private const string RsaSha1SignatureType = "RSA-SHA1";
 
-		protected static Random random = new Random();
+		private static readonly Random RandomForNonce = new Random();
 
 		private IDictionary<string, string> _accessTokenResponseParameters;
 		private IDictionary<string, string> _requestTokenResponseParameters;
@@ -92,12 +92,14 @@ namespace GreenshotPlugin.OAuth
 				return _requestTokenResponseParameters;
 			}
 		}
+
 		private readonly string _consumerKey;
 		private readonly string _consumerSecret;
 
 		// default _browser size
 
 		#region PublicProperties
+
 		public HttpMethod RequestTokenMethod
 		{
 			get;
@@ -109,6 +111,7 @@ namespace GreenshotPlugin.OAuth
 			get;
 			set;
 		}
+
 		public Uri RequestTokenUrl
 		{
 			get;
@@ -267,7 +270,7 @@ namespace GreenshotPlugin.OAuth
 		public static string GenerateNonce()
 		{
 			// Just a simple implementation of a random number between 123400 and 9999999
-			return random.Next(123400, 9999999).ToString();
+			return RandomForNonce.Next(123400, 9999999).ToString();
 		}
 
 		/// <summary>
@@ -285,10 +288,10 @@ namespace GreenshotPlugin.OAuth
 				LOG.DebugFormat("Request token response: {0}", response);
 				_requestTokenResponseParameters = uriBuilder.Uri.QueryToDictionary();
 				string value;
-				if (_requestTokenResponseParameters.TryGetValue(OAUTH_TOKEN_KEY, out value))
+				if (_requestTokenResponseParameters.TryGetValue(OauthTokenKey, out value))
 				{
 					Token = value;
-					TokenSecret = _requestTokenResponseParameters[OAUTH_TOKEN_SECRET_KEY];
+					TokenSecret = _requestTokenResponseParameters[OauthTokenSecretKey];
 				}
 			}
 		}
@@ -311,12 +314,12 @@ namespace GreenshotPlugin.OAuth
 				if (oAuthLoginForm.CallbackParameters != null)
 				{
 					string tokenValue;
-					if (oAuthLoginForm.CallbackParameters.TryGetValue(OAUTH_TOKEN_KEY, out tokenValue))
+					if (oAuthLoginForm.CallbackParameters.TryGetValue(OauthTokenKey, out tokenValue))
 					{
 						Token = tokenValue;
 					}
 					string verifierValue;
-					if (oAuthLoginForm.CallbackParameters.TryGetValue(OAUTH_VERIFIER_KEY, out verifierValue))
+					if (oAuthLoginForm.CallbackParameters.TryGetValue(OauthVerifierKey, out verifierValue))
 					{
 						Verifier = verifierValue;
 					}
@@ -353,12 +356,12 @@ namespace GreenshotPlugin.OAuth
 				uriBuilder.Query = Uri.UnescapeDataString(response.Replace("+", " "));
 				_accessTokenResponseParameters = uriBuilder.Uri.QueryToDictionary();
 				string tokenValue;
-				if (_accessTokenResponseParameters.TryGetValue(OAUTH_TOKEN_KEY, out tokenValue) && tokenValue != null)
+				if (_accessTokenResponseParameters.TryGetValue(OauthTokenKey, out tokenValue) && tokenValue != null)
 				{
 					Token = tokenValue;
 				}
 				string secretValue;
-				if (_accessTokenResponseParameters.TryGetValue(OAUTH_TOKEN_SECRET_KEY, out secretValue) && secretValue != null)
+				if (_accessTokenResponseParameters.TryGetValue(OauthTokenSecretKey, out secretValue) && secretValue != null)
 				{
 					TokenSecret = secretValue;
 				}
@@ -373,12 +376,17 @@ namespace GreenshotPlugin.OAuth
 		/// <typeparam name="T"></typeparam>
 		/// <param name="func"></param>
 		/// <returns>Task</returns>
-		private static Task<T> StartStaTask<T>(Func<T> func) {
+		private static Task<T> StartStaTask<T>(Func<T> func)
+		{
 			var tcs = new TaskCompletionSource<T>();
-			Thread thread = new Thread(() => {
-				try {
+			Thread thread = new Thread(() =>
+			{
+				try
+				{
 					tcs.SetResult(func());
-				} catch (Exception e) {
+				}
+				catch (Exception e)
+				{
 					tcs.SetException(e);
 				}
 			});
@@ -433,7 +441,7 @@ namespace GreenshotPlugin.OAuth
 		{
 			get
 			{
-				return new Uri(AuthorizeUrl + "?" + OAUTH_TOKEN_KEY + "=" + Token + "&" + OAUTH_CALLBACK_KEY + "=" + Uri.EscapeDataString(CallbackUrl));
+				return new Uri(AuthorizeUrl + "?" + OauthTokenKey + "=" + Token + "&" + OauthCallbackKey + "=" + Uri.EscapeDataString(CallbackUrl));
 			}
 		}
 
@@ -499,7 +507,7 @@ namespace GreenshotPlugin.OAuth
 							var keysToDelete = new List<string>();
 							foreach (string parameterKey in parametersToSign.Keys)
 							{
-								if (parameterKey.StartsWith(OAUTH_PARAMETER_PREFIX))
+								if (parameterKey.StartsWith(OauthParameterPrefix))
 								{
 									keysToDelete.Add(parameterKey);
 								}
@@ -544,33 +552,33 @@ namespace GreenshotPlugin.OAuth
 			signatureBase.Append(Uri.EscapeDataString(requestUri.Normalize().ToString())).Append("&");
 
 			// Add normalized parameters
-			parameters.Add(OAUTH_VERSION_KEY, OAUTH_VERSION);
-			parameters.Add(OAUTH_NONCE_KEY, GenerateNonce());
-			parameters.Add(OAUTH_TIMESTAMP_KEY, GenerateTimeStamp());
+			parameters.Add(OauthVersionKey, OauthVersion);
+			parameters.Add(OauthNonceKey, GenerateNonce());
+			parameters.Add(OauthTimestampKey, GenerateTimeStamp());
 			switch (SignatureType)
 			{
 				case OAuthSignatureTypes.RSASHA1:
-					parameters.Add(OAUTH_SIGNATURE_METHOD_KEY, RSASHA1SignatureType);
+					parameters.Add(OauthSignatureMethodKey, RsaSha1SignatureType);
 					break;
 				case OAuthSignatureTypes.PLAINTEXT:
-					parameters.Add(OAUTH_SIGNATURE_METHOD_KEY, PlainTextSignatureType);
+					parameters.Add(OauthSignatureMethodKey, PlainTextSignatureType);
 					break;
 				default:
-					parameters.Add(OAUTH_SIGNATURE_METHOD_KEY, HMACSHA1SignatureType);
+					parameters.Add(OauthSignatureMethodKey, HmacSha1SignatureType);
 					break;
 			}
-			parameters.Add(OAUTH_CONSUMER_KEY_KEY, _consumerKey);
+			parameters.Add(OauthConsumerKeyKey, _consumerKey);
 			if (CallbackUrl != null && RequestTokenUrl != null && requestUri.Equals(RequestTokenUrl))
 			{
-				parameters.Add(OAUTH_CALLBACK_KEY, CallbackUrl);
+				parameters.Add(OauthCallbackKey, CallbackUrl);
 			}
 			if (!string.IsNullOrEmpty(Verifier))
 			{
-				parameters.Add(OAUTH_VERIFIER_KEY, Verifier);
+				parameters.Add(OauthVerifierKey, Verifier);
 			}
 			if (!string.IsNullOrEmpty(Token))
 			{
-				parameters.Add(OAUTH_TOKEN_KEY, Token);
+				parameters.Add(OauthTokenKey, Token);
 			}
 			signatureBase.Append(Uri.EscapeDataString(GenerateNormalizedParametersString(parameters)));
 			LOG.DebugFormat("Signature base: {0}", signatureBase);
@@ -582,10 +590,10 @@ namespace GreenshotPlugin.OAuth
 					// Read the .P12 file to read Private/Public key Certificate
 					string certFilePath = _consumerKey; // The .P12 certificate file path Example: "C:/mycertificate/MCOpenAPI.p12
 					string password = _consumerSecret; // password to read certificate .p12 file
-													   // Read the Certification from .P12 file.
+					// Read the Certification from .P12 file.
 					var cert = new X509Certificate2(certFilePath, password);
 					// Retrieve the Private key from Certificate.
-					var rsaCrypt = (RSACryptoServiceProvider)cert.PrivateKey;
+					var rsaCrypt = (RSACryptoServiceProvider) cert.PrivateKey;
 					// Create a RSA-SHA1 Hash object
 					using (var shaHashObject = new SHA1Managed())
 					{
@@ -599,18 +607,18 @@ namespace GreenshotPlugin.OAuth
 						// Convert to Base64 string
 						string base64String = Convert.ToBase64String(rsaSignature);
 						// Return the Encoded UTF8 string
-						parameters.Add(OAUTH_SIGNATURE_KEY, Uri.EscapeDataString(base64String));
+						parameters.Add(OauthSignatureKey, Uri.EscapeDataString(base64String));
 					}
 					break;
 				case OAuthSignatureTypes.PLAINTEXT:
-					parameters.Add(OAUTH_SIGNATURE_KEY, key);
+					parameters.Add(OauthSignatureKey, key);
 					break;
 				default:
 					// Generate Signature and add it to the parameters
 					var hmacsha1 = new HMACSHA1();
 					hmacsha1.Key = Encoding.UTF8.GetBytes(key);
 					string signature = ComputeHash(hmacsha1, signatureBase.ToString());
-					parameters.Add(OAUTH_SIGNATURE_KEY, signature);
+					parameters.Add(OauthSignatureKey, signature);
 					break;
 			}
 		}
@@ -638,7 +646,7 @@ namespace GreenshotPlugin.OAuth
 			requestParameters = new SortedDictionary<string, object>();
 			foreach (string parameterKey in parameters.Keys)
 			{
-				if (parameterKey.StartsWith(OAUTH_PARAMETER_PREFIX))
+				if (parameterKey.StartsWith(OauthParameterPrefix))
 				{
 					authHeader.AppendFormat(CultureInfo.InvariantCulture, "{0}=\"{1}\", ", parameterKey, Uri.EscapeDataString(string.Format("{0}", parameters[parameterKey])));
 				}

@@ -22,41 +22,44 @@
 using Dapplo.Config.Language;
 using GreenshotConfluencePlugin;
 
-namespace TranslationByMarkupExtension {
-    /// <summary>
-    /// 
-    /// </summary>
-    public class LanguageXMLTranslationProvider : ITranslationProvider
-    {
-	    private readonly IConfluenceLanguage _language = LanguageLoader.Current.Get<IConfluenceLanguage>();
-        #region Construction
+namespace TranslationByMarkupExtension
+{
+	/// <summary>
+	/// 
+	/// </summary>
+	public class LanguageXMLTranslationProvider : ITranslationProvider
+	{
+		private readonly IConfluenceLanguage _language = LanguageLoader.Current.Get<IConfluenceLanguage>();
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ResxTranslationProvider"/> class.
-        /// </summary>
-        public LanguageXMLTranslationProvider() {
-        }
+		#region Construction
 
-        #endregion
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ResxTranslationProvider"/> class.
+		/// </summary>
+		public LanguageXMLTranslationProvider()
+		{
+		}
 
-        #region ITranslationProvider Members
+		#endregion
 
-        /// <summary>
-        /// See <see cref="ITranslationProvider.Translate" />
-        /// </summary>
-        public object Translate(string key)
-        {
-	        return _language[key];
-        }
+		#region ITranslationProvider Members
 
-        #endregion
+		/// <summary>
+		/// See <see cref="ITranslationProvider.Translate" />
+		/// </summary>
+		public object Translate(string key)
+		{
+			return _language[key];
+		}
 
-        #region ITranslationProvider Members
+		#endregion
 
-        /// <summary>
-        /// See <see cref="ITranslationProvider.AvailableLanguages" />
-        /// </summary>
-        /*public IEnumerable<CultureInfo> Languages {
+		#region ITranslationProvider Members
+
+		/// <summary>
+		/// See <see cref="ITranslationProvider.AvailableLanguages" />
+		/// </summary>
+		/*public IEnumerable<CultureInfo> Languages {
             get {
 				foreach (LanguageFile supportedLanguage in Language.SupportedLanguages) {
             		yield return new CultureInfo(supportedLanguage.Ietf);
@@ -64,6 +67,6 @@ namespace TranslationByMarkupExtension {
             }
         }*/
 
-        #endregion
-    }
+		#endregion
+	}
 }

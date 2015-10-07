@@ -1,23 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Português do Brasil" ietf="pt-BR" version="1.0.0" languagegroup="1">
+
+<language>
 	<resources prefix="Core">
 		<resource name="about_bugs">Por favor envie erros para</resource>
 		<resource name="about_donations">Se você gostou do Greenshot, por favor contribua:</resource>
 		<resource name="about_host">O Greenshot está armazenado no sourceforge.net em</resource>
 		<resource name="about_icons">Ícones de Yusuke Kamiyamane (Biblioteca Fugue, licença "Creative Commons Attribution 3.0")</resource>
-		<resource name="about_license">Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
-O Greenshot não tem NENHUMA GARANTIA. Este software gratuito pode ser redistribuido sob algumas condições.
-Detalhes sobre a licença GNU:</resource>
+		<resource name="about_license">
+			Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+			O Greenshot não tem NENHUMA GARANTIA. Este software gratuito pode ser redistribuido sob algumas condições.
+			Detalhes sobre a licença GNU:
+		</resource>
 		<resource name="about_title">Sobre o Greenshot</resource>
 		<resource name="application_title">Greenshot - O revolucionário Utilitário de Captura de Tela</resource>
 		<resource name="bugreport_cancel">Fechar</resource>
-		<resource name="bugreport_info">Desculpe, ocorreu um erro inesperado.
+		<resource name="bugreport_info">
+			Desculpe, ocorreu um erro inesperado.
 
-A boa notícia é: você pode nos ajudar a corrigir o problema nos enviando uma descrição do erro.
-Por favor visite a URL abaixo, crie um novo reporte de erro e cole o conteúdo da área de texto na descrição do erro.
+			A boa notícia é: você pode nos ajudar a corrigir o problema nos enviando uma descrição do erro.
+			Por favor visite a URL abaixo, crie um novo reporte de erro e cole o conteúdo da área de texto na descrição do erro.
 
-Por favor adicione um resumo significativo do erro, além de qualquer informação que considere útil para a reprodução o problema.
-Também apreciaremos muito se você puder verificar se já não existe um reporte de erro para este problema. (Você pode usar a opção de busca para encontrar rapidamente.) Obrigado :)</resource>
+			Por favor adicione um resumo significativo do erro, além de qualquer informação que considere útil para a reprodução o problema.
+			Também apreciaremos muito se você puder verificar se já não existe um reporte de erro para este problema. (Você pode usar a opção de busca para encontrar rapidamente.) Obrigado :)
+		</resource>
 		<resource name="bugreport_title">Erro</resource>
 		<resource name="clipboard_error">Um erro inesperado ocorreu ao tentar escrever na área de transferência.</resource>
 		<resource name="clipboard_inuse">O Greenshot não conseguiu escrever na área de transferência porque o processo {0} bloqueou o acesso.</resource>
@@ -113,8 +118,10 @@ Também apreciaremos muito se você puder verificar se já não existe um report
 		<resource name="editor_uptotop">Trazer para frente</resource>
 		<resource name="error">Erro</resource>
 		<resource name="error_multipleinstances">Uma instância do Greenshot já está sendo executada.</resource>
-		<resource name="error_nowriteaccess">Não foi possível salvar o arquivo em {0}.
-Por favor verifique o caminho selecionado para o armazenamento.</resource>
+		<resource name="error_nowriteaccess">
+			Não foi possível salvar o arquivo em {0}.
+			Por favor verifique o caminho selecionado para o armazenamento.
+		</resource>
 		<resource name="error_openfile">O arquivo "{0}" não põde ser aberto.</resource>
 		<resource name="error_openlink">O link '{0}' não pode ser aberto.</resource>
 		<resource name="error_save">A tela capturada não pôde ser salva, por favor encontre um local adequado.</resource>
@@ -151,23 +158,25 @@ Por favor verifique o caminho selecionado para o armazenamento.</resource>
 		<resource name="settings_jpegquality">Qualidade do JPEG</resource>
 		<resource name="settings_jpegsettings">Configurações para JPEG</resource>
 		<resource name="settings_language">Idioma</resource>
-		<resource name="settings_message_filenamepattern">Os seguientes marcadores de posição serão substituídos automaticamente pelo formato definido:
-${YYYY} ano, 4 dígitos
-${MM} mês, 2 dígitos
-${DD} dia, 2 dígitos
-${hh} hora, 2 dígitos
-${mm} minuto, 2 dígitos
-${ss} segundo, 2 dígitos
-${NUM} número incremental, 6 dígitos
-${title} Título da janela
-${user} Usuário do Windows
-${domain} Domínio de Windows
-${hostname} Nome do Computador
+		<resource name="settings_message_filenamepattern">
+			Os seguientes marcadores de posição serão substituídos automaticamente pelo formato definido:
+			${YYYY} ano, 4 dígitos
+			${MM} mês, 2 dígitos
+			${DD} dia, 2 dígitos
+			${hh} hora, 2 dígitos
+			${mm} minuto, 2 dígitos
+			${ss} segundo, 2 dígitos
+			${NUM} número incremental, 6 dígitos
+			${title} Título da janela
+			${user} Usuário do Windows
+			${domain} Domínio de Windows
+			${hostname} Nome do Computador
 
-Você também pode fazer o Greenshot criar diretórios dinamicamente, simplesmente usando o símbolo de barra invertida (\) para separar diretórios e nome de arquivo.
-Exemplo: o formato ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-irá gerar um diretório para o dia atual dentro do caminho de armazenamento padrão, exemplo: 2008-06-29, os nomes das telas capturadas serão baseados na
-hora atual, ejemplo: 11_58_32 (mais a extensão definida nas configurações de preferência)</resource>
+			Você também pode fazer o Greenshot criar diretórios dinamicamente, simplesmente usando o símbolo de barra invertida (\) para separar diretórios e nome de arquivo.
+			Exemplo: o formato ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+			irá gerar um diretório para o dia atual dentro do caminho de armazenamento padrão, exemplo: 2008-06-29, os nomes das telas capturadas serão baseados na
+			hora atual, ejemplo: 11_58_32 (mais a extensão definida nas configurações de preferência)
+		</resource>
 		<resource name="settings_output">Captura</resource>
 		<resource name="settings_playsound">Reproduzir o som de uma câmera</resource>
 		<resource name="settings_preferredfilesettings">Configurações Padrão para os Arquivos de Captura</resource>
@@ -187,8 +196,10 @@ hora atual, ejemplo: 11_58_32 (mais a extensão definida nas configurações de 
 		<resource name="settings_waittime">Milisegundos à esperar antes de iniciar a captura</resource>
 		<resource name="tooltip_firststart">Botão direito aqui ou pressionar a tecla Print.</resource>
 		<resource name="warning">Atenção</resource>
-		<resource name="warning_hotkeys">Uma ou mais teclas de atalho não puderam ser configuradas. Por isso pode não ser possível utilizar as teclas de atalho do Greenshot.
-Este problema é geralmente causado por outro aplicativo solicitando acesso a estas teclas de atalho.
-Por favor desative o outro programa que está utilizando a tecla Print ou utilize as funções do Greenshot via o menu de contexto do ícone no System Tray.</resource>
+		<resource name="warning_hotkeys">
+			Uma ou mais teclas de atalho não puderam ser configuradas. Por isso pode não ser possível utilizar as teclas de atalho do Greenshot.
+			Este problema é geralmente causado por outro aplicativo solicitando acesso a estas teclas de atalho.
+			Por favor desative o outro programa que está utilizando a tecla Print ou utilize as funções do Greenshot via o menu de contexto do ícone no System Tray.
+		</resource>
 	</resources>
 </language>

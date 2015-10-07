@@ -27,7 +27,8 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace GreenshotEditorPlugin.Forms {
+namespace GreenshotEditorPlugin.Forms
+{
 	/// <summary>
 	/// A form to set the resize settings
 	/// </summary>
@@ -39,7 +40,8 @@ namespace GreenshotEditorPlugin.Forms {
 		private readonly string _valuePercent;
 		private double _newWidth, _newHeight;
 
-		public ResizeSettingsForm(ResizeEffect effect) {
+		public ResizeSettingsForm(ResizeEffect effect)
+		{
 			_effect = effect;
 			InitializeComponent();
 			string valuePixel = Language.EditorResizePixel;
@@ -50,7 +52,7 @@ namespace GreenshotEditorPlugin.Forms {
 			combobox_height.Items.Add(valuePixel);
 			combobox_height.Items.Add(_valuePercent);
 			combobox_height.SelectedItem = valuePixel;
-			
+
 			textbox_width.Text = effect.Width.ToString();
 			textbox_height.Text = effect.Height.ToString();
 			_newWidth = effect.Width;
@@ -61,101 +63,138 @@ namespace GreenshotEditorPlugin.Forms {
 			checkbox_aspectratio.Checked = effect.MaintainAspectRatio;
 		}
 
-		private void buttonOK_Click(object sender, EventArgs e) {
-			if (_newWidth != _effect.Width || _newHeight != _effect.Height) {
-				_effect.Width = (int)_newWidth;
-				_effect.Height = (int)_newHeight;
+		private void buttonOK_Click(object sender, EventArgs e)
+		{
+			if (_newWidth != _effect.Width || _newHeight != _effect.Height)
+			{
+				_effect.Width = (int) _newWidth;
+				_effect.Height = (int) _newHeight;
 				_effect.MaintainAspectRatio = checkbox_aspectratio.Checked;
 				DialogResult = DialogResult.OK;
 			}
 		}
 
-		private bool validate(object sender) {
+		private bool validate(object sender)
+		{
 			TextBox textbox = sender as TextBox;
-			if (textbox != null) {
+			if (textbox != null)
+			{
 				double numberEntered;
-				if (!double.TryParse(textbox.Text, out numberEntered)) {
+				if (!double.TryParse(textbox.Text, out numberEntered))
+				{
 					textbox.BackColor = Color.Red;
 					return false;
-				} else {
+				}
+				else
+				{
 					textbox.BackColor = Color.White;
 				}
 			}
 			return true;
 		}
 
-		private void DisplayWidth() {
+		private void DisplayWidth()
+		{
 			double displayValue;
-			if (_valuePercent.Equals(combobox_width.SelectedItem)) {
-				displayValue = (_newWidth / _effect.Width) * 100d;
-			} else {
+			if (_valuePercent.Equals(combobox_width.SelectedItem))
+			{
+				displayValue = (_newWidth/_effect.Width)*100d;
+			}
+			else
+			{
 				displayValue = _newWidth;
 			}
-			textbox_width.Text = ((int)displayValue).ToString();
+			textbox_width.Text = ((int) displayValue).ToString();
 		}
 
-		private void DisplayHeight() {
+		private void DisplayHeight()
+		{
 			double displayValue;
-			if (_valuePercent.Equals(combobox_height.SelectedItem)) {
-				displayValue = (_newHeight / _effect.Height) * 100d;
-			} else {
+			if (_valuePercent.Equals(combobox_height.SelectedItem))
+			{
+				displayValue = (_newHeight/_effect.Height)*100d;
+			}
+			else
+			{
 				displayValue = _newHeight;
 			}
-			textbox_height.Text = ((int)displayValue).ToString();
+			textbox_height.Text = ((int) displayValue).ToString();
 		}
 
-		private void textbox_KeyUp(object sender, KeyEventArgs e) {
-			if (!validate(sender)) {
+		private void textbox_KeyUp(object sender, KeyEventArgs e)
+		{
+			if (!validate(sender))
+			{
 				return;
 			}
 			TextBox textbox = sender as TextBox;
-			if (textbox == null || textbox.Text.Length == 0) {
+			if (textbox == null || textbox.Text.Length == 0)
+			{
 				return;
 			}
 			bool isWidth = textbox == textbox_width;
-			if (!checkbox_aspectratio.Checked) {
-				if (isWidth) {
+			if (!checkbox_aspectratio.Checked)
+			{
+				if (isWidth)
+				{
 					_newWidth = double.Parse(textbox_width.Text);
-				} else {
+				}
+				else
+				{
 					_newHeight = double.Parse(textbox_height.Text);
 				}
 				return;
 			}
 			bool isPercent;
-			if (isWidth) {
+			if (isWidth)
+			{
 				isPercent = _valuePercent.Equals(combobox_width.SelectedItem);
-			} else {
+			}
+			else
+			{
 				isPercent = _valuePercent.Equals(combobox_height.SelectedItem);
 			}
 			double percent;
-			if (isWidth) {
-				if (isPercent) {
+			if (isWidth)
+			{
+				if (isPercent)
+				{
 					percent = double.Parse(textbox_width.Text);
-					_newWidth  = (_effect.Width / 100d) * percent;
-				} else {
-					_newWidth = double.Parse(textbox_width.Text);
-					percent = (double.Parse(textbox_width.Text) / _effect.Width) * 100d;
+					_newWidth = (_effect.Width/100d)*percent;
 				}
-				if (checkbox_aspectratio.Checked) {
-					_newHeight = (_effect.Height / 100d) * percent;
+				else
+				{
+					_newWidth = double.Parse(textbox_width.Text);
+					percent = (double.Parse(textbox_width.Text)/_effect.Width)*100d;
+				}
+				if (checkbox_aspectratio.Checked)
+				{
+					_newHeight = (_effect.Height/100d)*percent;
 					DisplayHeight();
 				}
-			} else {
-				if (isPercent) {
+			}
+			else
+			{
+				if (isPercent)
+				{
 					percent = double.Parse(textbox_height.Text);
-					_newHeight = (_effect.Height / 100d) * percent;
-				} else {
-					_newHeight = double.Parse(textbox_height.Text);
-					percent = (double.Parse(textbox_height.Text) / _effect.Height) * 100d;
+					_newHeight = (_effect.Height/100d)*percent;
 				}
-				if (checkbox_aspectratio.Checked) {
-					_newWidth = (_effect.Width / 100d) * percent;
+				else
+				{
+					_newHeight = double.Parse(textbox_height.Text);
+					percent = (double.Parse(textbox_height.Text)/_effect.Height)*100d;
+				}
+				if (checkbox_aspectratio.Checked)
+				{
+					_newWidth = (_effect.Width/100d)*percent;
 					DisplayWidth();
 				}
 			}
 		}
 
-		private void textbox_Validating(object sender, CancelEventArgs e) {
+		private void textbox_Validating(object sender, CancelEventArgs e)
+		{
 			validate(sender);
 		}
 
@@ -164,11 +203,14 @@ namespace GreenshotEditorPlugin.Forms {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void combobox_SelectedIndexChanged(object sender, EventArgs e) {
-			if (validate(textbox_width)) {
+		private void combobox_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			if (validate(textbox_width))
+			{
 				DisplayWidth();
 			}
-			if (validate(textbox_height)) {
+			if (validate(textbox_height))
+			{
 				DisplayHeight();
 			}
 		}

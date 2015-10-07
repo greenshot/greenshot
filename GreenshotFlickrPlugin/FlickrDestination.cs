@@ -35,50 +35,64 @@ using Dapplo.Config.Language;
 
 namespace GreenshotFlickrPlugin
 {
-	public class FlickrDestination : AbstractDestination {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(FlickrDestination));
+	public class FlickrDestination : AbstractDestination
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (FlickrDestination));
 		private static IFlickrConfiguration _config = IniConfig.Current.Get<IFlickrConfiguration>();
 		private static IFlickrLanguage language = LanguageLoader.Current.Get<IFlickrLanguage>();
 
-		public override string Designation {
-			get {
+		public override string Designation
+		{
+			get
+			{
 				return "Flickr";
 			}
 		}
 
-		public override string Description {
-			get {
+		public override string Description
+		{
+			get
+			{
 				return language.UploadMenuItem;
 			}
 		}
 
-		public override Image DisplayIcon {
-			get {
-				ComponentResourceManager resources = new ComponentResourceManager(typeof(FlickrPlugin));
-				return (Image)resources.GetObject("flickr");
+		public override Image DisplayIcon
+		{
+			get
+			{
+				ComponentResourceManager resources = new ComponentResourceManager(typeof (FlickrPlugin));
+				return (Image) resources.GetObject("flickr");
 			}
 		}
 
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			var exportInformation = new ExportInformation {
-				DestinationDesignation = Designation,
-				DestinationDescription = Description
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		{
+			var exportInformation = new ExportInformation
+			{
+				DestinationDesignation = Designation, DestinationDescription = Description
 			};
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
-			try {
-				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, language.CommunicationWait, async (progress, pleaseWaitToken) => {
+			try
+			{
+				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, language.CommunicationWait, async (progress, pleaseWaitToken) =>
+				{
 					string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
 					return await FlickrUtils.UploadToFlickrAsync(surface, outputSettings, captureDetails.Title, filename, progress, token);
 				}, token);
 
-				if (url != null) {
+				if (url != null)
+				{
 					exportInformation.ExportMade = true;
 					exportInformation.ExportedToUri = new Uri(url);
-					if (_config.AfterUploadLinkToClipBoard) {
+					if (_config.AfterUploadLinkToClipBoard)
+					{
 						ClipboardHelper.SetClipboardData(url);
 					}
 				}
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				LOG.Error("Error uploading.", e);
 				MessageBox.Show(language.UploadFailure + " " + e.Message);
 			}

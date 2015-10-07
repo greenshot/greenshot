@@ -22,7 +22,6 @@
 using System.ComponentModel;
 using System.Collections.Generic;
 using System.Drawing;
-
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Dapplo.Config.Ini;
@@ -34,12 +33,14 @@ using System;
 using System.Windows;
 using Dapplo.Config.Language;
 
-namespace GreenshotPhotobucketPlugin  {
+namespace GreenshotPhotobucketPlugin
+{
 	/// <summary>
 	/// Description of PhotobucketDestination.
 	/// </summary>
-	public class PhotobucketDestination : AbstractDestination {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PhotobucketDestination));
+	public class PhotobucketDestination : AbstractDestination
+	{
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (PhotobucketDestination));
 		private static readonly IPhotobucketConfiguration Config = IniConfig.Current.Get<IPhotobucketConfiguration>();
 		private static readonly IPhotobucketLanguage Language = LanguageLoader.Current.Get<IPhotobucketLanguage>();
 		private readonly string _albumPath;
@@ -52,45 +53,58 @@ namespace GreenshotPhotobucketPlugin  {
 		/// Create a Photobucket destination, which also has the path to the album in it
 		/// </summary>
 		/// <param name="albumPath">path to the album, null for default</param>
-		public PhotobucketDestination(string albumPath) {
+		public PhotobucketDestination(string albumPath)
+		{
 			_albumPath = albumPath;
 		}
-		
-		public override string Designation {
-			get {
+
+		public override string Designation
+		{
+			get
+			{
 				return "Photobucket";
 			}
 		}
 
-		public override string Description {
-			get {
-				if (_albumPath != null) {
+		public override string Description
+		{
+			get
+			{
+				if (_albumPath != null)
+				{
 					return _albumPath;
 				}
 				return Language.UploadMenuItem;
 			}
 		}
 
-		public override Image DisplayIcon {
-			get {
-				var resources = new ComponentResourceManager(typeof(PhotobucketPlugin));
-				return (Image)resources.GetObject("Photobucket");
+		public override Image DisplayIcon
+		{
+			get
+			{
+				var resources = new ComponentResourceManager(typeof (PhotobucketPlugin));
+				return (Image) resources.GetObject("Photobucket");
 			}
 		}
-		
-		public override bool IsDynamic {
-			get {
+
+		public override bool IsDynamic
+		{
+			get
+			{
 				return true;
 			}
 		}
 
-		public override IEnumerable<IDestination> DynamicDestinations() {
+		public override IEnumerable<IDestination> DynamicDestinations()
+		{
 			var albums = Task.Run(async () => await PhotobucketUtils.RetrievePhotobucketAlbums()).GetAwaiter().GetResult();
 
-			if (albums == null || albums.Count == 0) {
+			if (albums == null || albums.Count == 0)
+			{
 				yield break;
 			}
-			foreach (string album in albums) {
+			foreach (string album in albums)
+			{
 				yield return new PhotobucketDestination(album);
 			}
 		}
@@ -103,14 +117,17 @@ namespace GreenshotPhotobucketPlugin  {
 		/// <param name="captureDetails"></param>
 		/// <param name="token"></param>
 		/// <returns></returns>
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			var exportInformation = new ExportInformation {
-				DestinationDesignation = Designation,
-				DestinationDescription = Description
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		{
+			var exportInformation = new ExportInformation
+			{
+				DestinationDesignation = Designation, DestinationDescription = Description
 			};
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(Config.UploadFormat, Config.UploadJpegQuality, false);
-			try {
-				var photobucketInfo = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.CommunicationWait, async (progress, pleaseWaitToken) => {
+			try
+			{
+				var photobucketInfo = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.CommunicationWait, async (progress, pleaseWaitToken) =>
+				{
 					string filename = Path.GetFileName(FilenameHelper.GetFilename(Config.UploadFormat, captureDetails));
 					return await PhotobucketUtils.UploadToPhotobucket(surface, outputSettings, _albumPath, captureDetails.Title, filename, progress);
 				}, token);
@@ -118,20 +135,27 @@ namespace GreenshotPhotobucketPlugin  {
 				// This causes an exeption if the upload failed :)
 				LOG.DebugFormat("Uploaded to Photobucket page: " + photobucketInfo.Page);
 				string uploadUrl = null;
-				try {
+				try
+				{
 					uploadUrl = Config.UsePageLink ? photobucketInfo.Page : photobucketInfo.Original;
-				} catch (Exception ex) {
+				}
+				catch (Exception ex)
+				{
 					LOG.Error("Can't write to clipboard: ", ex);
 				}
 
-				if (uploadUrl != null) {
+				if (uploadUrl != null)
+				{
 					exportInformation.ExportMade = true;
 					exportInformation.ExportedToUri = new Uri(uploadUrl);
-					if (Config.AfterUploadLinkToClipBoard) {
+					if (Config.AfterUploadLinkToClipBoard)
+					{
 						ClipboardHelper.SetClipboardData(uploadUrl);
 					}
 				}
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				LOG.Error("Error uploading.", e);
 				MessageBox.Show(Language.UploadFailure + " " + e.Message);
 			}

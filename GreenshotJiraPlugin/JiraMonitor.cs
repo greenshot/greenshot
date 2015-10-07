@@ -28,13 +28,15 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GreenshotJiraPlugin {
+namespace GreenshotJiraPlugin
+{
 	/// <summary>
 	/// This class will monitor all _jira activity by registering for title changes
 	/// It keeps a list of the last "accessed" jiras, and makes it easy to upload to one.
 	/// </summary>
-	public class JiraMonitor : IDisposable {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(JiraMonitor));
+	public class JiraMonitor : IDisposable
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (JiraMonitor));
 		private readonly Regex _jiraKeyPattern = new Regex(@"[A-Z][A-Z0-9]+\-[0-9]+");
 		private readonly TitleChangeMonitor _monitor;
 		private readonly IList<JiraApi> _jiraInstances = new List<JiraApi>();
@@ -42,17 +44,20 @@ namespace GreenshotJiraPlugin {
 		private readonly int _maxEntries;
 		private IDictionary<string, JiraDetails> _recentJiras = new Dictionary<string, JiraDetails>();
 
-		public JiraMonitor(int maxEntries = 40) {
+		public JiraMonitor(int maxEntries = 40)
+		{
 			_maxEntries = maxEntries;
 			_monitor = new TitleChangeMonitor();
 			_monitor.TitleChangeEvent += monitor_TitleChangeEvent;
 		}
 
 		#region Dispose
+
 		/// <summary>
 		/// Dispose
 		/// </summary>
-		public void Dispose() {
+		public void Dispose()
+		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
@@ -61,17 +66,21 @@ namespace GreenshotJiraPlugin {
 		/// Dispose all managed resources
 		/// </summary>
 		/// <param name="disposing">when true is passed all managed resources are disposed.</param>
-		protected virtual void Dispose(bool disposing) {
-			if (disposing) {
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
 				// free managed resources
 				_monitor.TitleChangeEvent -= monitor_TitleChangeEvent;
 				_monitor.Dispose();
-				foreach (var jiraInstance in _jiraInstances) {
+				foreach (var jiraInstance in _jiraInstances)
+				{
 					jiraInstance.Dispose();
 				}
 			}
 			// free native resources if there are any.
 		}
+
 		#endregion
 
 		/// <summary>
@@ -79,26 +88,31 @@ namespace GreenshotJiraPlugin {
 		/// </summary>
 		/// <param name="jiraDetails"></param>
 		/// <returns>JiraAPI</returns>
-		public JiraApi GetJiraApiForKey(JiraDetails jiraDetails) {
+		public JiraApi GetJiraApiForKey(JiraDetails jiraDetails)
+		{
 			return _projectJiraApiMap[jiraDetails.ProjectKey];
 		}
 
 		/// <summary>
 		/// Get the "list" of recently seen Jiras
 		/// </summary>
-		public IEnumerable<JiraDetails> RecentJiras {
-			get {
+		public IEnumerable<JiraDetails> RecentJiras
+		{
+			get
+			{
 				return (from jiraDetails in _recentJiras.Values
-						orderby jiraDetails.SeenAt descending
-						select jiraDetails);
+					orderby jiraDetails.SeenAt descending
+					select jiraDetails);
 			}
 		}
 
 		/// <summary>
 		/// Check if this monitor has active instances
 		/// </summary>
-		public bool HasJiraInstances {
-			get {
+		public bool HasJiraInstances
+		{
+			get
+			{
 				return _jiraInstances.Count > 0;
 			}
 		}
@@ -111,7 +125,8 @@ namespace GreenshotJiraPlugin {
 		/// <param name="username"></param>
 		/// <param name="password"></param>
 		/// <param name="token"></param>
-		public async Task AddJiraInstance(Uri uri, string username, string password, CancellationToken token = default(CancellationToken)) {
+		public async Task AddJiraInstance(Uri uri, string username, string password, CancellationToken token = default(CancellationToken))
+		{
 			var jiraInstance = new JiraApi(uri);
 			jiraInstance.SetBasicAuthentication(username, password);
 			var serverInfo = await jiraInstance.ServerInfo(token).ConfigureAwait(false);
@@ -119,8 +134,10 @@ namespace GreenshotJiraPlugin {
 			jiraInstance.JiraVersion = serverInfo.version;
 
 			_jiraInstances.Add(jiraInstance);
-			foreach (var project in await jiraInstance.Projects(token).ConfigureAwait(false)) {
-				if (!_projectJiraApiMap.ContainsKey(project.key)) {
+			foreach (var project in await jiraInstance.Projects(token).ConfigureAwait(false))
+			{
+				if (!_projectJiraApiMap.ContainsKey(project.key))
+				{
 					_projectJiraApiMap.Add(project.key, jiraInstance);
 				}
 			}
@@ -131,14 +148,19 @@ namespace GreenshotJiraPlugin {
 		/// </summary>
 		/// <param name="jiraDetails">Contains the jira key to retrieve the title (XYZ-1234)</param>
 		/// <returns>title for the _jira key</returns>
-		private async Task GetTitle(JiraDetails jiraDetails) {
-			try {
+		private async Task GetTitle(JiraDetails jiraDetails)
+		{
+			try
+			{
 				JiraApi jiraApi;
-				if (_projectJiraApiMap.TryGetValue(jiraDetails.ProjectKey, out jiraApi)) {
+				if (_projectJiraApiMap.TryGetValue(jiraDetails.ProjectKey, out jiraApi))
+				{
 					var issue = await jiraApi.Issue(jiraDetails.JiraKey).ConfigureAwait(false);
 					jiraDetails.Title = issue.fields.summary;
 				}
-			} catch (Exception ex) {
+			}
+			catch (Exception ex)
+			{
 				LOG.WarnFormat("Couldn't retrieve JIRA title: {0}", ex.Message);
 			}
 		}
@@ -150,7 +172,8 @@ namespace GreenshotJiraPlugin {
 		/// <param name="windowTitle"></param>
 		/// <param name="jiraKey"></param>
 		/// <returns>a clean windows title</returns>
-		private string CleanWindowTitle(JiraApi jiraApi, string jiraKey, string windowTitle) {
+		private string CleanWindowTitle(JiraApi jiraApi, string jiraKey, string windowTitle)
+		{
 			var title = windowTitle.Replace(jiraApi.ServerTitle, "");
 			// Remove for emails:
 			title = title.Replace("[JIRA]", "");
@@ -166,13 +189,16 @@ namespace GreenshotJiraPlugin {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="eventArgs"></param>
-		private void monitor_TitleChangeEvent(object sender, TitleChangeEventArgs eventArgs) {
+		private void monitor_TitleChangeEvent(object sender, TitleChangeEventArgs eventArgs)
+		{
 			string windowTitle = eventArgs.Title;
-			if (string.IsNullOrEmpty(windowTitle)) {
+			if (string.IsNullOrEmpty(windowTitle))
+			{
 				return;
 			}
 			var jiraKeyMatch = _jiraKeyPattern.Match(windowTitle);
-			if (jiraKeyMatch.Success) {
+			if (jiraKeyMatch.Success)
+			{
 				// Found a possible JIRA title
 				var jiraKey = jiraKeyMatch.Value;
 				var jiraKeyParts = jiraKey.Split('-');
@@ -181,36 +207,39 @@ namespace GreenshotJiraPlugin {
 
 				JiraApi jiraApi;
 				// Check if we have a JIRA instance with a project for this key
-				if (_projectJiraApiMap.TryGetValue(projectKey, out jiraApi)) {
+				if (_projectJiraApiMap.TryGetValue(projectKey, out jiraApi))
+				{
 					LOG.InfoFormat("Matched {0} to {1}, loading details and placing it in the recent JIRAs list.", jiraKey, jiraApi.ServerTitle);
 					// We have found a project for this _jira key, so it must be a valid & known JIRA
 					JiraDetails currentJiraDetails;
-					if (_recentJiras.TryGetValue(jiraKey, out currentJiraDetails)) {
+					if (_recentJiras.TryGetValue(jiraKey, out currentJiraDetails))
+					{
 						// update 
 						currentJiraDetails.SeenAt = DateTimeOffset.Now;
 						// Nothing else to do
 						return;
 					}
 					// We detected an unknown JIRA, so add it to our list
-					currentJiraDetails = new JiraDetails() {
-						Id = jiraId,
-						ProjectKey = projectKey,
-						Title = CleanWindowTitle(jiraApi, jiraKey, windowTitle) // Try to make it as clean as possible, although we retrieve the issue title later
+					currentJiraDetails = new JiraDetails()
+					{
+						Id = jiraId, ProjectKey = projectKey, Title = CleanWindowTitle(jiraApi, jiraKey, windowTitle) // Try to make it as clean as possible, although we retrieve the issue title later
 					};
 					_recentJiras.Add(currentJiraDetails.JiraKey, currentJiraDetails);
 
 					// Make sure we don't collect _jira's until the memory is full
-					if (_recentJiras.Count > _maxEntries) {
+					if (_recentJiras.Count > _maxEntries)
+					{
 						// Add it to the list of recent Jiras
 						IList<JiraDetails> clonedList = new List<JiraDetails>(_recentJiras.Values);
 						_recentJiras = (from jiraDetails in clonedList
-										orderby jiraDetails.SeenAt descending
-										select jiraDetails).Take(_maxEntries).ToDictionary(jd => jd.JiraKey, jd => jd);
-
+							orderby jiraDetails.SeenAt descending
+							select jiraDetails).Take(_maxEntries).ToDictionary(jd => jd.JiraKey, jd => jd);
 					}
 					// Now we can get the title from JIRA itself
 					var updateTitleTask = GetTitle(currentJiraDetails);
-				} else {
+				}
+				else
+				{
 					LOG.InfoFormat("Couldn't match possible JIRA key {0} to projects in a configured JIRA instance, ignoring", projectKey);
 				}
 			}

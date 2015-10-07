@@ -25,12 +25,14 @@ using System.Drawing;
 using System.Windows.Forms;
 using GreenshotPlugin.UnmanagedHelpers;
 
-namespace GreenshotPlugin.Controls {
+namespace GreenshotPlugin.Controls
+{
 	/// <summary>
 	/// This code was supplied by Hi-Coder as a patch for Greenshot
 	/// Needed some modifications to be stable.
 	/// </summary>
-	public class Pipette : Label, IMessageFilter, IDisposable {
+	public class Pipette : Label, IMessageFilter, IDisposable
+	{
 		private MovableShowColorForm movableShowColorForm;
 		private bool dragging;
 		private Cursor _cursor;
@@ -39,12 +41,13 @@ namespace GreenshotPlugin.Controls {
 
 		public event EventHandler<PipetteUsedArgs> PipetteUsed;
 
-		public Pipette() {
+		public Pipette()
+		{
 			BorderStyle = BorderStyle.FixedSingle;
 			dragging = false;
-			_image = (Bitmap)new ComponentResourceManager(typeof(ColorDialog)).GetObject("pipette.Image");
+			_image = (Bitmap) new ComponentResourceManager(typeof (ColorDialog)).GetObject("pipette.Image");
 			Image = _image;
-			_cursor = CreateCursor((Bitmap)_image, 1, 14);
+			_cursor = CreateCursor((Bitmap) _image, 1, 14);
 			movableShowColorForm = new MovableShowColorForm();
 			Application.AddMessageFilter(this);
 		}
@@ -56,8 +59,10 @@ namespace GreenshotPlugin.Controls {
 		/// <param name="hotspotX">Hotspot X coordinate</param>
 		/// <param name="hotspotY">Hotspot Y coordinate</param>
 		/// <returns>Cursor</returns>
-		private static Cursor CreateCursor(Bitmap bitmap, int hotspotX, int hotspotY) {
-			using (SafeIconHandle iconHandle = new SafeIconHandle( bitmap.GetHicon())) {
+		private static Cursor CreateCursor(Bitmap bitmap, int hotspotX, int hotspotY)
+		{
+			using (SafeIconHandle iconHandle = new SafeIconHandle(bitmap.GetHicon()))
+			{
 				IntPtr icon;
 				IconInfo iconInfo = new IconInfo();
 				User32.GetIconInfo(iconHandle, out iconInfo);
@@ -72,7 +77,8 @@ namespace GreenshotPlugin.Controls {
 		/// <summary>
 		/// The bulk of the clean-up code is implemented in Dispose(bool)
 		/// </summary>
-		public new void Dispose() {
+		public new void Dispose()
+		{
 			Dispose(true);
 		}
 
@@ -80,12 +86,16 @@ namespace GreenshotPlugin.Controls {
 		/// This Dispose is called from the Dispose and the Destructor.
 		/// </summary>
 		/// <param name="disposing">When disposing==true all non-managed resources should be freed too!</param>
-		protected override void Dispose(bool disposing) {
-			if (disposing) {
-				if (_cursor != null) {
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				if (_cursor != null)
+				{
 					_cursor.Dispose();
 				}
-				if (movableShowColorForm != null) {
+				if (movableShowColorForm != null)
+				{
 					movableShowColorForm.Dispose();
 				}
 			}
@@ -98,8 +108,10 @@ namespace GreenshotPlugin.Controls {
 		/// Handle the mouse down on the Pipette "label", we take the capture and move the zoomer to the current location
 		/// </summary>
 		/// <param name="e">MouseEventArgs</param>
-		protected override void OnMouseDown(MouseEventArgs e) {
-			if (e.Button == MouseButtons.Left) {
+		protected override void OnMouseDown(MouseEventArgs e)
+		{
+			if (e.Button == MouseButtons.Left)
+			{
 				User32.SetCapture(Handle);
 				movableShowColorForm.MoveTo(PointToScreen(new Point(e.X, e.Y)));
 			}
@@ -110,8 +122,10 @@ namespace GreenshotPlugin.Controls {
 		/// Handle the mouse up on the Pipette "label", we release the capture and fire the PipetteUsed event
 		/// </summary>
 		/// <param name="e">MouseEventArgs</param>
-		protected override void OnMouseUp(MouseEventArgs e) {
-			if (e.Button == MouseButtons.Left) {
+		protected override void OnMouseUp(MouseEventArgs e)
+		{
+			if (e.Button == MouseButtons.Left)
+			{
 				//Release Capture should consume MouseUp when canceled with the escape key 
 				User32.ReleaseCapture();
 				PipetteUsed(this, new PipetteUsedArgs(movableShowColorForm.color));
@@ -123,8 +137,10 @@ namespace GreenshotPlugin.Controls {
 		/// Handle the mouse Move event, we move the ColorUnderCursor to the current location.
 		/// </summary>
 		/// <param name="e">MouseEventArgs</param>
-		protected override void OnMouseMove(MouseEventArgs e) {
-			if (dragging) {
+		protected override void OnMouseMove(MouseEventArgs e)
+		{
+			if (dragging)
+			{
 				//display the form on the right side of the cursor by default;
 				Point zp = PointToScreen(new Point(e.X, e.Y));
 				movableShowColorForm.MoveTo(zp);
@@ -136,14 +152,18 @@ namespace GreenshotPlugin.Controls {
 		/// Handle the MouseCaptureChanged event
 		/// </summary>
 		/// <param name="e"></param>
-		protected override void OnMouseCaptureChanged(EventArgs e) {
-			if (Capture) {
+		protected override void OnMouseCaptureChanged(EventArgs e)
+		{
+			if (Capture)
+			{
 				dragging = true;
 				Image = null;
 				Cursor c = _cursor;
 				Cursor = c;
 				movableShowColorForm.Visible = true;
-			} else {
+			}
+			else
+			{
 				dragging = false;
 				Image = _image;
 				Cursor = Cursors.Arrow;
@@ -155,10 +175,14 @@ namespace GreenshotPlugin.Controls {
 
 		#region IMessageFilter Members
 
-		public bool PreFilterMessage(ref Message m) {
-			if (dragging) {
-				if (m.Msg == (int)WindowsMessages.WM_CHAR) {
-					if ((int)m.WParam == VK_ESC) {
+		public bool PreFilterMessage(ref Message m)
+		{
+			if (dragging)
+			{
+				if (m.Msg == (int) WindowsMessages.WM_CHAR)
+				{
+					if ((int) m.WParam == VK_ESC)
+					{
 						User32.ReleaseCapture();
 					}
 				}
@@ -169,10 +193,12 @@ namespace GreenshotPlugin.Controls {
 		#endregion
 	}
 
-	public class PipetteUsedArgs : EventArgs {
+	public class PipetteUsedArgs : EventArgs
+	{
 		public Color color;
 
-		public PipetteUsedArgs(Color c) {
+		public PipetteUsedArgs(Color c)
+		{
 			color = c;
 		}
 	}

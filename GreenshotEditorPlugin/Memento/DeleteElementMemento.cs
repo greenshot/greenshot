@@ -71,6 +71,7 @@ namespace GreenshotEditorPlugin.Memento
 		}
 
 		#region IDisposable Support
+
 		private bool _disposedValue = false; // To detect redundant calls
 
 		protected virtual void Dispose(bool disposing)
@@ -96,6 +97,7 @@ namespace GreenshotEditorPlugin.Memento
 			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
 			Dispose(true);
 		}
+
 		#endregion
 	}
 }

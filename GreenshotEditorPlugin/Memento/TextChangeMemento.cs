@@ -22,29 +22,37 @@
 using System;
 using Greenshot.Plugin.Drawing;
 
-namespace GreenshotEditorPlugin.Memento {
+namespace GreenshotEditorPlugin.Memento
+{
 	/// <summary>
 	/// The TextChangeMemento makes it possible to undo-redo an IDrawableContainer move
 	/// </summary>
-	public class TextChangeMemento : IMemento  {
+	public class TextChangeMemento : IMemento
+	{
 		private ITextContainer _textContainer;
 		private readonly string _oldText;
-		
-		public TextChangeMemento(ITextContainer textContainer) {
+
+		public TextChangeMemento(ITextContainer textContainer)
+		{
 			_textContainer = textContainer;
 			_oldText = textContainer.Text;
 		}
 
-		public string ActionDescription {
-			get {
+		public string ActionDescription
+		{
+			get
+			{
 				return "";
 			}
 		}
 
-		public bool Merge(IMemento otherMemento) {
+		public bool Merge(IMemento otherMemento)
+		{
 			var other = otherMemento as TextChangeMemento;
-			if (other != null) {
-				if (other._textContainer.Equals(_textContainer)) {
+			if (other != null)
+			{
+				if (other._textContainer.Equals(_textContainer))
+				{
 					// Match, do not store anything as the initial state is what we want.
 					return true;
 				}
@@ -52,7 +60,8 @@ namespace GreenshotEditorPlugin.Memento {
 			return false;
 		}
 
-		public IMemento Restore() {
+		public IMemento Restore()
+		{
 			// Before
 			_textContainer.Invalidate();
 			var oldState = new TextChangeMemento(_textContainer);
@@ -63,6 +72,7 @@ namespace GreenshotEditorPlugin.Memento {
 		}
 
 		#region IDisposable Support
+
 		private bool _disposedValue = false; // To detect redundant calls
 
 		protected virtual void Dispose(bool disposing)
@@ -85,6 +95,7 @@ namespace GreenshotEditorPlugin.Memento {
 			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
 			Dispose(true);
 		}
+
 		#endregion
 	}
 }

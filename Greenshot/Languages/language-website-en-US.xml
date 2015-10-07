@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="English" ietf="en-US" version="1.0.0" languagegroup="1">
+
+<language>
 	<resources>
 		<resource name="home_downloads">Downloads</resource>
 		<resource name="home_headline">Greenshot - a free screenshot tool optimized for productivity</resource>

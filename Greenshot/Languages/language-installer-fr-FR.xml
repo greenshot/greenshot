@@ -1,4 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <language description="French" ietf="fr-FR" version="1.0.1" languagegroup="1">
 	<resources>
 		<resource name="confluence">Greffon Confluence</resource>

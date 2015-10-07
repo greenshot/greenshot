@@ -21,41 +21,51 @@
 using Dapplo.Config.Language;
 using System.ComponentModel;
 
-namespace GreenshotPicasaPlugin {
+namespace GreenshotPicasaPlugin
+{
 	[Language("Picasa")]
 	public interface IPicasaLanguage : ILanguage, INotifyPropertyChanged
 	{
-		string UploadMenuItem {
+		string UploadMenuItem
+		{
 			get;
 		}
+
 		string SettingsTitle
 		{
 			get;
 		}
+
 		string LabelUploadFormat
 		{
 			get;
 		}
+
 		string UploadSuccess
 		{
 			get;
 		}
+
 		string UploadFailure
 		{
 			get;
 		}
+
 		string CommunicationWait
 		{
 			get;
 		}
+
 		string Configure
 		{
 			get;
 		}
+
 		string LabelAfterUpload
 		{
 			get;
 		}
+
 		string LabelAfterUploadLinkToClipBoard
 		{
 			get;

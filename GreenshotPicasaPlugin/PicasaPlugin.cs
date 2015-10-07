@@ -30,40 +30,49 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace GreenshotPicasaPlugin {
+namespace GreenshotPicasaPlugin
+{
 	/// <summary>
 	/// This is the Picasa base code
 	/// </summary>
-	public class PicasaPlugin : IGreenshotPlugin {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PicasaPlugin));
+	public class PicasaPlugin : IGreenshotPlugin
+	{
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (PicasaPlugin));
 		private static IPicasaConfiguration config;
 		private static IPicasaLanguage language;
 		private ComponentResourceManager resources;
 		private ToolStripMenuItem itemPlugInRoot;
 
-		public void Dispose() {
+		public void Dispose()
+		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing) {
-			if (disposing) {
-				if (itemPlugInRoot != null) {
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				if (itemPlugInRoot != null)
+				{
 					itemPlugInRoot.Dispose();
 					itemPlugInRoot = null;
 				}
 			}
 		}
 
-		public PicasaPlugin() {
+		public PicasaPlugin()
+		{
 		}
 
-		public IEnumerable<IDestination> Destinations() {
+		public IEnumerable<IDestination> Destinations()
+		{
 			yield return new PicasaDestination();
 		}
 
 
-		public IEnumerable<IProcessor> Processors() {
+		public IEnumerable<IProcessor> Processors()
+		{
 			yield break;
 		}
 
@@ -73,29 +82,33 @@ namespace GreenshotPicasaPlugin {
 		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
 		/// <param name="pluginAttribute">My own attributes</param>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken()) {
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken())
+		{
 			// Register / get the picasa configuration
 			config = await IniConfig.Current.RegisterAndGetAsync<IPicasaConfiguration>();
 			language = await LanguageLoader.Current.RegisterAndGetAsync<IPicasaLanguage>();
-			resources = new ComponentResourceManager(typeof(PicasaPlugin));
+			resources = new ComponentResourceManager(typeof (PicasaPlugin));
 
 			itemPlugInRoot = new ToolStripMenuItem();
 			itemPlugInRoot.Text = language.Configure;
 			itemPlugInRoot.Tag = pluginHost;
-			itemPlugInRoot.Image = (Image)resources.GetObject("Picasa");
+			itemPlugInRoot.Image = (Image) resources.GetObject("Picasa");
 			itemPlugInRoot.Click += ConfigMenuClick;
 			PluginUtils.AddToContextMenu(pluginHost, itemPlugInRoot);
 			language.PropertyChanged += OnLanguageChanged;
 			return true;
 		}
 
-		public void OnLanguageChanged(object sender, EventArgs e) {
-			if (itemPlugInRoot != null) {
+		public void OnLanguageChanged(object sender, EventArgs e)
+		{
+			if (itemPlugInRoot != null)
+			{
 				itemPlugInRoot.Text = language.Configure;
 			}
 		}
 
-		public void Shutdown() {
+		public void Shutdown()
+		{
 			LOG.Debug("Picasa Plugin shutdown.");
 			language.PropertyChanged -= OnLanguageChanged;
 			//host.OnImageEditorOpen -= new OnImageEditorOpenHandler(ImageEditorOpened);
@@ -104,7 +117,8 @@ namespace GreenshotPicasaPlugin {
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
-		public void Configure() {
+		public void Configure()
+		{
 			ShowConfigDialog();
 		}
 
@@ -113,7 +127,8 @@ namespace GreenshotPicasaPlugin {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		public void Closing(object sender, FormClosingEventArgs e) {
+		public void Closing(object sender, FormClosingEventArgs e)
+		{
 			LOG.Debug("Application closing, de-registering Picasa Plugin!");
 			Shutdown();
 		}
@@ -123,17 +138,19 @@ namespace GreenshotPicasaPlugin {
 		/// A form for token
 		/// </summary>
 		/// <returns>bool true if OK was pressed, false if cancel</returns>
-		public bool ShowConfigDialog() {
+		public bool ShowConfigDialog()
+		{
 			DialogResult result = new SettingsForm().ShowDialog();
-			if (result == DialogResult.OK) {
+			if (result == DialogResult.OK)
+			{
 				return true;
 			}
 			return false;
 		}
 
-		public void ConfigMenuClick(object sender, EventArgs eventArgs) {
+		public void ConfigMenuClick(object sender, EventArgs eventArgs)
+		{
 			ShowConfigDialog();
 		}
-
 	}
 }

@@ -24,19 +24,24 @@ using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Core;
 
-namespace GreenshotEditorPlugin.Forms {
-	public partial class TornEdgeSettingsForm : BaseForm {
+namespace GreenshotEditorPlugin.Forms
+{
+	public partial class TornEdgeSettingsForm : BaseForm
+	{
 		private TornEdgeEffect effect;
-		public TornEdgeSettingsForm(TornEdgeEffect effect) {
+
+		public TornEdgeSettingsForm(TornEdgeEffect effect)
+		{
 			this.effect = effect;
 			InitializeComponent();
 			ShowSettings();
 		}
 
-		private void ShowSettings() {
+		private void ShowSettings()
+		{
 			shadowCheckbox.Checked = effect.GenerateShadow;
 			// Fix to prevent BUG-1753
-			shadowDarkness.Value = Math.Max(shadowDarkness.Minimum, Math.Min(shadowDarkness.Maximum, (int)(effect.Darkness * shadowDarkness.Maximum)));
+			shadowDarkness.Value = Math.Max(shadowDarkness.Minimum, Math.Min(shadowDarkness.Maximum, (int) (effect.Darkness*shadowDarkness.Maximum)));
 			offsetX.Value = effect.ShadowOffset.X;
 			offsetY.Value = effect.ShadowOffset.Y;
 			toothsize.Value = effect.ToothHeight;
@@ -48,61 +53,69 @@ namespace GreenshotEditorPlugin.Forms {
 			left.Checked = effect.Edges[3];
 		}
 
-		private void ButtonOK_Click(object sender, EventArgs e) {
-			effect.Darkness = (float)shadowDarkness.Value / (float)40;
-			effect.ShadowOffset = new Point((int)offsetX.Value, (int)offsetY.Value);
-			effect.ShadowSize = (int)thickness.Value;
-			effect.ToothHeight = (int)toothsize.Value;
-			effect.VerticalToothRange = (int)verticaltoothrange.Value;
-			effect.HorizontalToothRange = (int)horizontaltoothrange.Value;
-			effect.Edges = new bool[] { top.Checked, right.Checked, bottom.Checked, left.Checked };
+		private void ButtonOK_Click(object sender, EventArgs e)
+		{
+			effect.Darkness = (float) shadowDarkness.Value/(float) 40;
+			effect.ShadowOffset = new Point((int) offsetX.Value, (int) offsetY.Value);
+			effect.ShadowSize = (int) thickness.Value;
+			effect.ToothHeight = (int) toothsize.Value;
+			effect.VerticalToothRange = (int) verticaltoothrange.Value;
+			effect.HorizontalToothRange = (int) horizontaltoothrange.Value;
+			effect.Edges = new bool[]
+			{
+				top.Checked, right.Checked, bottom.Checked, left.Checked
+			};
 			effect.GenerateShadow = shadowCheckbox.Checked;
 			DialogResult = DialogResult.OK;
 		}
 
-		private void ButtonReset_Click(object sender, EventArgs e) {
+		private void ButtonReset_Click(object sender, EventArgs e)
+		{
 			effect.Reset();
 			ShowSettings();
 		}
 
-		private void ShadowCheckbox_CheckedChanged(object sender, EventArgs e) {
+		private void ShadowCheckbox_CheckedChanged(object sender, EventArgs e)
+		{
 			thickness.Enabled = shadowCheckbox.Checked;
 			offsetX.Enabled = shadowCheckbox.Checked;
 			offsetY.Enabled = shadowCheckbox.Checked;
 			shadowDarkness.Enabled = shadowCheckbox.Checked;
 		}
 
-	    
 
-	    private void all_CheckedChanged(object sender, EventArgs e) {
-	        AnySideChangeChecked(top, all.Checked);
-            AnySideChangeChecked(right, all.Checked);
-	        AnySideChangeChecked(bottom, all.Checked);
-	        AnySideChangeChecked(left, all.Checked);
-        }
+		private void all_CheckedChanged(object sender, EventArgs e)
+		{
+			AnySideChangeChecked(top, all.Checked);
+			AnySideChangeChecked(right, all.Checked);
+			AnySideChangeChecked(bottom, all.Checked);
+			AnySideChangeChecked(left, all.Checked);
+		}
 
-        private void AnySideCheckedChanged(object sender, EventArgs e) {
-            all.CheckedChanged -= all_CheckedChanged;
-            all.Checked = top.Checked && right.Checked && bottom.Checked && left.Checked;
-            all.CheckedChanged += all_CheckedChanged;
-        }
+		private void AnySideCheckedChanged(object sender, EventArgs e)
+		{
+			all.CheckedChanged -= all_CheckedChanged;
+			all.Checked = top.Checked && right.Checked && bottom.Checked && left.Checked;
+			all.CheckedChanged += all_CheckedChanged;
+		}
 
-	    /// <summary>
-	    /// changes the Checked property of top/right/bottom/left checkboxes without triggering AnySideCheckedChange
-	    /// </summary>
-	    /// <param name="cb">Checkbox to change Checked</param>
-	    /// <param name="status">true to check</param>
-        private void AnySideChangeChecked(CheckBox cb, bool status) {
-	        if (status != cb.Checked) {
-	            cb.CheckedChanged -= AnySideCheckedChanged;
-	            cb.Checked = status;
-                cb.CheckedChanged += AnySideCheckedChanged;
-	        }
-	    }
+		/// <summary>
+		/// changes the Checked property of top/right/bottom/left checkboxes without triggering AnySideCheckedChange
+		/// </summary>
+		/// <param name="cb">Checkbox to change Checked</param>
+		/// <param name="status">true to check</param>
+		private void AnySideChangeChecked(CheckBox cb, bool status)
+		{
+			if (status != cb.Checked)
+			{
+				cb.CheckedChanged -= AnySideCheckedChanged;
+				cb.Checked = status;
+				cb.CheckedChanged += AnySideCheckedChanged;
+			}
+		}
 
-        private void TornEdgeSettingsForm_Load(object sender, EventArgs e)
-        {
-
-        }
+		private void TornEdgeSettingsForm_Load(object sender, EventArgs e)
+		{
+		}
 	}
 }

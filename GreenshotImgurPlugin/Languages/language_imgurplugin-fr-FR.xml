@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Français" ietf="fr-FR" version="1.0.0" languagegroup="">
+
+<language>
 	<resources prefix="Imgur">
 		<resource name="CANCEL">Annuler</resource>
 		<resource name="clear_question">Êtes-vous sûr(e) de vouloir supprimer l'historique local de Imgur ?</resource>

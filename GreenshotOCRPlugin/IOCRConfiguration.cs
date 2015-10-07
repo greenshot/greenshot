@@ -22,12 +22,14 @@
 using Dapplo.Config.Ini;
 using System.ComponentModel;
 
-namespace GreenshotOCR {
+namespace GreenshotOCR
+{
 	/// <summary>
 	/// Description of CoreConfiguration.
 	/// </summary>
 	[IniSection("OCR"), Description("Greenshot OCR Plugin configuration")]
-	public interface IOCRConfiguration : IIniSection<IOCRConfiguration> {
+	public interface IOCRConfiguration : IIniSection<IOCRConfiguration>
+	{
 		[Description("Language for OCR"), DefaultValue("ENGLISH")]
 		string Language
 		{

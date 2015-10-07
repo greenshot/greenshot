@@ -27,41 +27,51 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace GreenshotPlugin.Controls {
+namespace GreenshotPlugin.Controls
+{
 	/// <summary>
 	/// This form allows us to show a Thumbnail preview of a window near the context menu when selecting a window to capture.
 	/// Didn't make it completely "generic" yet, but at least most logic is in here so we don't have it in the mainform.
 	/// </summary>
-	public class ThumbnailForm : FormWithoutActivation {
+	public class ThumbnailForm : FormWithoutActivation
+	{
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 
 		private IntPtr thumbnailHandle = IntPtr.Zero;
 		private Rectangle parentMenuBounds = Rectangle.Empty;
 
-		public ThumbnailForm() {
+		public ThumbnailForm()
+		{
 			ShowInTaskbar = false;
 			FormBorderStyle = FormBorderStyle.None;
 			TopMost = false;
 			Enabled = false;
-			if (conf.WindowCaptureMode == WindowCaptureMode.Auto || conf.WindowCaptureMode == WindowCaptureMode.Aero) {
+			if (conf.WindowCaptureMode == WindowCaptureMode.Auto || conf.WindowCaptureMode == WindowCaptureMode.Aero)
+			{
 				BackColor = Color.FromArgb(255, conf.DWMBackgroundColor.R, conf.DWMBackgroundColor.G, conf.DWMBackgroundColor.B);
-			} else {
+			}
+			else
+			{
 				BackColor = Color.White;
 			}
 
 			// cleanup at close
-			FormClosing += delegate {
+			FormClosing += delegate
+			{
 				UnregisterThumbnail();
 			};
 		}
 
-		public new void Hide() {
+		public new void Hide()
+		{
 			UnregisterThumbnail();
 			base.Hide();
 		}
 
-		private void UnregisterThumbnail() {
-			if (thumbnailHandle != IntPtr.Zero) {
+		private void UnregisterThumbnail()
+		{
+			if (thumbnailHandle != IntPtr.Zero)
+			{
 				DWM.DwmUnregisterThumbnail(thumbnailHandle);
 				thumbnailHandle = IntPtr.Zero;
 			}
@@ -72,31 +82,33 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		/// <param name="window">WindowDetails</param>
 		/// <param name="parentControl">Control</param>
-		public void ShowThumbnail(WindowDetails window, Control parentControl) {
+		public void ShowThumbnail(WindowDetails window, Control parentControl)
+		{
 			UnregisterThumbnail();
 
 			DWM.DwmRegisterThumbnail(Handle, window.Handle, out thumbnailHandle);
-			if (thumbnailHandle != IntPtr.Zero) {
+			if (thumbnailHandle != IntPtr.Zero)
+			{
 				SIZE sourceSize;
 				int hresult = DWM.DwmQueryThumbnailSourceSize(thumbnailHandle, out sourceSize);
-                if (hresult != 0 || sourceSize.IsEmpty())
+				if (hresult != 0 || sourceSize.IsEmpty())
 				{
 					UnregisterThumbnail();
 					return;
 				}
 
 				int thumbnailHeight = 200;
-				int thumbnailWidth = (int)(thumbnailHeight * ((float)sourceSize.width / (float)sourceSize.height));
+				int thumbnailWidth = (int) (thumbnailHeight*((float) sourceSize.width/(float) sourceSize.height));
 				if (parentControl != null && thumbnailWidth > parentControl.Width)
 				{
 					thumbnailWidth = parentControl.Width;
-					thumbnailHeight = (int)(thumbnailWidth * ((float)sourceSize.height / (float)sourceSize.width));
+					thumbnailHeight = (int) (thumbnailWidth*((float) sourceSize.height/(float) sourceSize.width));
 				}
 				Width = thumbnailWidth;
 				Height = thumbnailHeight;
 				// Prepare the displaying of the Thumbnail
 				DWM_THUMBNAIL_PROPERTIES props = new DWM_THUMBNAIL_PROPERTIES();
-				props.Opacity = (byte)255;
+				props.Opacity = (byte) 255;
 				props.Visible = true;
 				props.SourceClientAreaOnly = false;
 				props.Destination = new RECT(0, 0, thumbnailWidth, thumbnailHeight);
@@ -118,12 +130,16 @@ namespace GreenshotPlugin.Controls {
 			}
 		}
 
-		public void AlignToControl(Control alignTo) {
+		public void AlignToControl(Control alignTo)
+		{
 			Rectangle screenBounds = WindowCapture.GetScreenBounds();
-			if (screenBounds.Contains(alignTo.Left, alignTo.Top - Height)) {
-				Location = new Point(alignTo.Left + (alignTo.Width / 2) - (Width / 2), alignTo.Top - Height);
-			} else {
-				Location = new Point(alignTo.Left + (alignTo.Width / 2) - (Width / 2), alignTo.Bottom);
+			if (screenBounds.Contains(alignTo.Left, alignTo.Top - Height))
+			{
+				Location = new Point(alignTo.Left + (alignTo.Width/2) - (Width/2), alignTo.Top - Height);
+			}
+			else
+			{
+				Location = new Point(alignTo.Left + (alignTo.Width/2) - (Width/2), alignTo.Bottom);
 			}
 		}
 	}

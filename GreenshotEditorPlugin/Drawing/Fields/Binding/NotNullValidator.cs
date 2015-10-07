@@ -19,22 +19,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotEditorPlugin.Drawing.Fields.Binding {
+namespace GreenshotEditorPlugin.Drawing.Fields.Binding
+{
 	/// <summary>
 	/// Validates a value not to be null.
 	/// </summary>
-	public class NotNullValidator : IBindingValidator {
+	public class NotNullValidator : IBindingValidator
+	{
 		private static NotNullValidator uniqueInstance;
-		
-		private NotNullValidator() {
+
+		private NotNullValidator()
+		{
 		}
-		
-		public bool validate(object o) {
+
+		public bool validate(object o)
+		{
 			return o != null;
 		}
-		
-		public static NotNullValidator GetInstance() {
-			if(uniqueInstance == null) uniqueInstance = new NotNullValidator();
+
+		public static NotNullValidator GetInstance()
+		{
+			if (uniqueInstance == null)
+			{
+				uniqueInstance = new NotNullValidator();
+			}
 			return uniqueInstance;
 		}
 	}

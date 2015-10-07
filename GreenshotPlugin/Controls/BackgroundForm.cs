@@ -27,21 +27,25 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
 using GreenshotPlugin.UnmanagedHelpers;
 
-namespace GreenshotPlugin.Controls {
+namespace GreenshotPlugin.Controls
+{
 	/// <summary>
 	/// Description of PleaseWaitForm.
 	/// </summary>
-	public partial class BackgroundForm : Form {
+	public partial class BackgroundForm : Form
+	{
 		private volatile bool shouldClose = false;
-				
-		private void BackgroundShowDialog() {
+
+		private void BackgroundShowDialog()
+		{
 			ShowDialog();
 		}
 
-		public static BackgroundForm ShowAndWait(string title, string text) {
+		public static BackgroundForm ShowAndWait(string title, string text)
+		{
 			BackgroundForm backgroundForm = new BackgroundForm(title, text);
 			// Show form in background thread
-			Thread backgroundTask = new Thread (new ThreadStart(backgroundForm.BackgroundShowDialog));
+			Thread backgroundTask = new Thread(new ThreadStart(backgroundForm.BackgroundShowDialog));
 			backgroundForm.Name = "Background form";
 			backgroundTask.IsBackground = true;
 			backgroundTask.SetApartmentState(ApartmentState.STA);
@@ -49,7 +53,8 @@ namespace GreenshotPlugin.Controls {
 			return backgroundForm;
 		}
 
-		public BackgroundForm(string title, string text){
+		public BackgroundForm(string title, string text)
+		{
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
@@ -61,44 +66,55 @@ namespace GreenshotPlugin.Controls {
 			FormClosing += PreventFormClose;
 			timer_checkforclose.Start();
 		}
-		
+
 		// Can be used instead of ShowDialog
-		public new void Show() {
+		public new void Show()
+		{
 			base.Show();
 			bool positioned = false;
-			foreach(var display in DisplayInfo.AllDisplays()) {
-				if (display.Bounds.Contains(Cursor.Position)) {
+			foreach (var display in DisplayInfo.AllDisplays())
+			{
+				if (display.Bounds.Contains(Cursor.Position))
+				{
 					positioned = true;
-					Location = new Point(display.Bounds.X + (display.Bounds.Width / 2) - (Width / 2), display.Bounds.Y + (display.Bounds.Height / 2) - (Height / 2));
+					Location = new Point(display.Bounds.X + (display.Bounds.Width/2) - (Width/2), display.Bounds.Y + (display.Bounds.Height/2) - (Height/2));
 					break;
 				}
 			}
-			if (!positioned) {
-				Location = new Point(Cursor.Position.X - Width / 2, Cursor.Position.Y - Height / 2);
+			if (!positioned)
+			{
+				Location = new Point(Cursor.Position.X - Width/2, Cursor.Position.Y - Height/2);
 			}
 		}
 
-		private void PreventFormClose(object sender, FormClosingEventArgs e) {
-			if(!shouldClose) {
+		private void PreventFormClose(object sender, FormClosingEventArgs e)
+		{
+			if (!shouldClose)
+			{
 				e.Cancel = true;
 			}
 		}
 
-		private void Timer_checkforcloseTick(object sender, EventArgs e) {
-			if (shouldClose) {
+		private void Timer_checkforcloseTick(object sender, EventArgs e)
+		{
+			if (shouldClose)
+			{
 				timer_checkforclose.Stop();
-				if (Visible) {
+				if (Visible)
+				{
 					this.AsyncInvoke(() => Close());
 				}
 			}
 		}
-		
-		public void CloseDialog() {
+
+		public void CloseDialog()
+		{
 			shouldClose = true;
 			Application.DoEvents();
 		}
-		
-		void BackgroundFormFormClosing(object sender, FormClosingEventArgs e) {
+
+		private void BackgroundFormFormClosing(object sender, FormClosingEventArgs e)
+		{
 			timer_checkforclose.Stop();
 		}
 	}

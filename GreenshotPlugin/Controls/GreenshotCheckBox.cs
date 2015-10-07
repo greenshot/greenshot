@@ -22,13 +22,16 @@
 using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace GreenshotPlugin.Controls {
+namespace GreenshotPlugin.Controls
+{
 	/// <summary>
 	/// Description of GreenshotCheckbox.
 	/// </summary>
-	public class GreenshotCheckBox : CheckBox, IGreenshotLanguageBindable, IGreenshotConfigBindable {
+	public class GreenshotCheckBox : CheckBox, IGreenshotLanguageBindable, IGreenshotConfigBindable
+	{
 		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
-		public string LanguageKey {
+		public string LanguageKey
+		{
 			get;
 			set;
 		}
@@ -41,13 +44,15 @@ namespace GreenshotPlugin.Controls {
 		}
 
 		[Category("Greenshot"), DefaultValue("Core"), Description("Specifies the Ini-Section to map this control with.")]
-		public string SectionName {
+		public string SectionName
+		{
 			get;
 			set;
 		} = "Core";
 
 		[Category("Greenshot"), DefaultValue(null), Description("Specifies the property name to map the configuration.")]
-		public string PropertyName {
+		public string PropertyName
+		{
 			get;
 			set;
 		}

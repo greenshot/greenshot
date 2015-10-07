@@ -22,13 +22,17 @@
 using System;
 using System.Threading.Tasks;
 
-namespace GreenshotImgurPlugin {
+namespace GreenshotImgurPlugin
+{
 	/// <summary>
 	/// Description of PasswordRequestForm.
 	/// </summary>
-	public partial class SettingsForm : ImgurForm {
+	public partial class SettingsForm : ImgurForm
+	{
 		private readonly IImgurConfiguration _config;
-		public SettingsForm(IImgurConfiguration config) : base() {
+
+		public SettingsForm(IImgurConfiguration config) : base()
+		{
 			_config = config;
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
@@ -38,8 +42,9 @@ namespace GreenshotImgurPlugin {
 			AcceptButton = buttonOK;
 			historyButton.Enabled = config.TrackHistory;
 		}
-		
-		void ButtonHistoryClick(object sender, EventArgs e) {
+
+		private void ButtonHistoryClick(object sender, EventArgs e)
+		{
 			ImgurHistory.ShowHistory();
 		}
 	}

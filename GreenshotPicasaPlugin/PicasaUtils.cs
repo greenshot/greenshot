@@ -30,13 +30,15 @@ using System.Threading.Tasks;
 using System.Xml;
 using Dapplo.HttpExtensions;
 
-namespace GreenshotPicasaPlugin {
+namespace GreenshotPicasaPlugin
+{
 	/// <summary>
 	/// Description of PicasaUtils.
 	/// </summary>
-	public static class PicasaUtils {
+	public static class PicasaUtils
+	{
 		private const string PicasaScope = "https://picasaweb.google.com/data/";
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PicasaUtils));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (PicasaUtils));
 		private static readonly IPicasaConfiguration _config = IniConfig.Current.Get<IPicasaConfiguration>();
 		private const string AuthUrl = "https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={ClientId}&redirect_uri={RedirectUrl}&state={State}&scope=" + PicasaScope;
 		private static readonly Uri TokenUrl = new Uri("https://www.googleapis.com/oauth2/v3/token");
@@ -50,7 +52,8 @@ namespace GreenshotPicasaPlugin {
 		/// <param name="progress"></param>
 		/// <param name="token"></param>
 		/// <returns>url</returns>
-		public static async Task<string> UploadToPicasa(ISurface surfaceToUpload, ICaptureDetails captureDetails, IProgress<int> progress, CancellationToken token = default(CancellationToken)) {
+		public static async Task<string> UploadToPicasa(ISurface surfaceToUpload, ICaptureDetails captureDetails, IProgress<int> progress, CancellationToken token = default(CancellationToken))
+		{
 			string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
 			var outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality);
 			// Fill the OAuth2Settings
@@ -67,18 +70,24 @@ namespace GreenshotPicasaPlugin {
 			settings.AccessToken = _config.AccessToken;
 			settings.AccessTokenExpires = _config.AccessTokenExpires;
 
-			try {
+			try
+			{
 				string response;
 				var uploadUri = new Uri(string.Format(UploadUrl, _config.UploadUser, _config.UploadAlbum));
-				using (var httpClient = await OAuth2Helper.CreateOAuth2HttpClientAsync(settings, token)) {
-					if (_config.AddFilename) {
+				using (var httpClient = await OAuth2Helper.CreateOAuth2HttpClientAsync(settings, token))
+				{
+					if (_config.AddFilename)
+					{
 						httpClient.AddDefaultRequestHeader("Slug", Uri.EscapeDataString(filename));
 					}
-					using (var stream = new MemoryStream()) {
+					using (var stream = new MemoryStream())
+					{
 						ImageOutput.SaveToStream(surfaceToUpload, stream, outputSettings);
 						stream.Position = 0;
-						using (var uploadStream = new ProgressStream(stream, progress)) {
-							using (var content = new StreamContent(uploadStream)) {
+						using (var uploadStream = new ProgressStream(stream, progress))
+						{
+							using (var content = new StreamContent(uploadStream))
+							{
 								content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
 								var responseMessage = await httpClient.PostAsync(uploadUri, content, token).ConfigureAwait(false);
 								response = await responseMessage.GetAsStringAsync(token: token).ConfigureAwait(false);
@@ -88,7 +97,9 @@ namespace GreenshotPicasaPlugin {
 				}
 
 				return ParseResponse(response);
-			} finally {
+			}
+			finally
+			{
 				// Copy the settings back to the config, so they are stored.
 				_config.RefreshToken = settings.RefreshToken;
 				_config.AccessToken = settings.AccessToken;
@@ -101,29 +112,38 @@ namespace GreenshotPicasaPlugin {
 		/// </summary>
 		/// <param name="response"></param>
 		/// <returns></returns>
-		public static string ParseResponse(string response) {
-			if (response == null) {
+		public static string ParseResponse(string response)
+		{
+			if (response == null)
+			{
 				return null;
 			}
-			try {
+			try
+			{
 				var doc = new XmlDocument();
 				doc.LoadXml(response);
 				var nodes = doc.GetElementsByTagName("link", "*");
-				if (nodes.Count > 0) {
+				if (nodes.Count > 0)
+				{
 					string url = null;
-					foreach (XmlNode node in nodes) {
-						if (node.Attributes != null) {
+					foreach (XmlNode node in nodes)
+					{
+						if (node.Attributes != null)
+						{
 							url = node.Attributes["href"].Value;
 							string rel = node.Attributes["rel"].Value;
 							// Pictures with rel="http://schemas.google.com/photos/2007#canonical" are the direct link
-							if (rel != null && rel.EndsWith("canonical")) {
+							if (rel != null && rel.EndsWith("canonical"))
+							{
 								break;
 							}
 						}
 					}
 					return url;
 				}
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				LOG.ErrorFormat("Could not parse Picasa response due to error {0}, response was: {1}", e.Message, response);
 			}
 			return null;

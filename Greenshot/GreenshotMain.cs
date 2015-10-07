@@ -27,25 +27,31 @@ using System.Linq;
 using Greenshot.Forms;
 
 #pragma warning disable 0618
-namespace Greenshot {
+
+namespace Greenshot
+{
 	/// <summary>
 	/// Description of Main.
 	/// </summary>
-	public class GreenshotMain {
-		static GreenshotMain() {
+	public class GreenshotMain
+	{
+		static GreenshotMain()
+		{
 			AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 		}
 
-		static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args) {
+		private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+		{
 			string _shortAssemblyName = args.Name.Split(',')[0];
 			var foundAssembly = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
-					where _shortAssemblyName == assembly.FullName.Split(',')[0]
-					select assembly).FirstOrDefault();
+				where _shortAssemblyName == assembly.FullName.Split(',')[0]
+				select assembly).FirstOrDefault();
 			return foundAssembly;
 		}
 
 		[STAThread]
-		public static void Main(string[] args) {
+		public static void Main(string[] args)
+		{
 			MainForm.Start(args);
 		}
 	}

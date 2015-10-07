@@ -21,12 +21,15 @@
 
 using GreenshotPlugin.Controls;
 
-namespace GreenshotOCR {
+namespace GreenshotOCR
+{
 	/// <summary>
 	/// This class is needed for design-time resolving of the language files
 	/// </summary>
-	public class OCRForm : GreenshotForm {
-		public OCRForm() : base() {
+	public class OCRForm : GreenshotForm
+	{
+		public OCRForm() : base()
+		{
 		}
 	}
 }

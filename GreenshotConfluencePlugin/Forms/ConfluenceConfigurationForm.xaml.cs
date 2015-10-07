@@ -22,19 +22,23 @@
 using Dapplo.Config.Ini;
 using System.Windows;
 
-namespace GreenshotConfluencePlugin {
+namespace GreenshotConfluencePlugin
+{
 	/// <summary>
 	/// Interaction logic for ConfluenceConfigurationForm.xaml
 	/// </summary>
-	public partial class ConfluenceConfigurationForm : Window {
+	public partial class ConfluenceConfigurationForm : Window
+	{
 		private static IConfluenceConfiguration config = IniConfig.Current.Get<IConfluenceConfiguration>();
-		
-		public ConfluenceConfigurationForm() {
+
+		public ConfluenceConfigurationForm()
+		{
 			this.DataContext = config;
 			InitializeComponent();
 		}
-		
-		void Button_OK_Click(object sender, RoutedEventArgs e) {
+
+		private void Button_OK_Click(object sender, RoutedEventArgs e)
+		{
 			DialogResult = true;
 		}
 	}

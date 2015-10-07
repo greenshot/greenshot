@@ -26,33 +26,42 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Reflection;
 using System.Windows.Data;
-
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
 using Dapplo.Config.Language;
 
-namespace GreenshotConfluencePlugin {
-	public class EnumDisplayer : IValueConverter {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(EnumDisplayer));
+namespace GreenshotConfluencePlugin
+{
+	public class EnumDisplayer : IValueConverter
+	{
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (EnumDisplayer));
 
 		private Type _type;
 		private IDictionary _displayValues;
 		private IDictionary _reverseValues;
-		
-		public EnumDisplayer() {
+
+		public EnumDisplayer()
+		{
 		}
-	
-		public EnumDisplayer(Type type) {
+
+		public EnumDisplayer(Type type)
+		{
 			Type = type;
 		}
-	
+
 		/// <summary>
 		/// Specify the Type of the enum
 		/// </summary>
-		public Type Type {
-			get { return _type; }
-			set {
-				if (!value.IsEnum) {
+		public Type Type
+		{
+			get
+			{
+				return _type;
+			}
+			set
+			{
+				if (!value.IsEnum)
+				{
 					throw new ArgumentException("parameter is not an Enumerated type", "value");
 				}
 				_type = value;
@@ -68,47 +77,58 @@ namespace GreenshotConfluencePlugin {
 			set;
 		} = "Core";
 
-		public ReadOnlyCollection<string> DisplayNames {
-			get {
-				_reverseValues = (IDictionary) Activator.CreateInstance(typeof(Dictionary<,>).GetGenericTypeDefinition().MakeGenericType(typeof(string),_type));
-				
-				_displayValues = (IDictionary)Activator.CreateInstance(typeof(Dictionary<,>).GetGenericTypeDefinition().MakeGenericType(_type, typeof(string)));
-				
+		public ReadOnlyCollection<string> DisplayNames
+		{
+			get
+			{
+				_reverseValues = (IDictionary) Activator.CreateInstance(typeof (Dictionary<,>).GetGenericTypeDefinition().MakeGenericType(typeof (string), _type));
+
+				_displayValues = (IDictionary) Activator.CreateInstance(typeof (Dictionary<,>).GetGenericTypeDefinition().MakeGenericType(_type, typeof (string)));
+
 				var fields = _type.GetFields(BindingFlags.Public | BindingFlags.Static);
-				foreach (var field in fields) {
-					DisplayKeyAttribute[] displayKeyAttributes = (DisplayKeyAttribute[])field.GetCustomAttributes(typeof(DisplayKeyAttribute), false);
-				
+				foreach (var field in fields)
+				{
+					DisplayKeyAttribute[] displayKeyAttributes = (DisplayKeyAttribute[]) field.GetCustomAttributes(typeof (DisplayKeyAttribute), false);
+
 					string displayKey = GetDisplayKeyValue(displayKeyAttributes);
 					object enumValue = field.GetValue(null);
-					
+
 					string displayString = LanguageLoader.Current.Translate(displayKey, LanguageModule);
-					if (string.IsNullOrEmpty(displayKey)) {
+					if (string.IsNullOrEmpty(displayKey))
+					{
 						displayString = displayKey;
-					} else {
+					}
+					else
+					{
 						displayString = enumValue.ToString();
 					}
-				
-					if (displayString != null) {
+
+					if (displayString != null)
+					{
 						_displayValues.Add(enumValue, displayString);
 						_reverseValues.Add(displayString, enumValue);
 					}
 				}
-				return new List<string>((IEnumerable<string>)_displayValues.Values).AsReadOnly();
+				return new List<string>((IEnumerable<string>) _displayValues.Values).AsReadOnly();
 			}
 		}
-		
-		private string GetDisplayKeyValue(DisplayKeyAttribute[] displayKeyAttributes) {
-			if (displayKeyAttributes == null || displayKeyAttributes.Length == 0) {
+
+		private string GetDisplayKeyValue(DisplayKeyAttribute[] displayKeyAttributes)
+		{
+			if (displayKeyAttributes == null || displayKeyAttributes.Length == 0)
+			{
 				return null;
 			}
 			return displayKeyAttributes[0].Value;
 		}
-		
-		object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+
+		object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
+		{
 			return _displayValues[value];
 		}
-		
-		object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+
+		object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+		{
 			return _reverseValues[value];
 		}
 	}

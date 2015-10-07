@@ -25,18 +25,23 @@ using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
 using System;
 
-namespace GreenshotPlugin.Controls {
+namespace GreenshotPlugin.Controls
+{
 	/// <summary>
 	/// Description of JpegQualityDialog.
 	/// </summary>
-	public partial class QualityDialog : GreenshotForm {
+	public partial class QualityDialog : GreenshotForm
+	{
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
-		public SurfaceOutputSettings Settings {
+
+		public SurfaceOutputSettings Settings
+		{
 			get;
 			set;
 		}
 
-		public QualityDialog(SurfaceOutputSettings outputSettings) {
+		public QualityDialog(SurfaceOutputSettings outputSettings)
+		{
 			Settings = outputSettings;
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
@@ -50,18 +55,21 @@ namespace GreenshotPlugin.Controls {
 			textBoxJpegQuality.Text = Settings.JPGQuality.ToString();
 			ToFront = true;
 		}
-		
-		void Button_okClick(object sender, EventArgs e) {
+
+		private void Button_okClick(object sender, EventArgs e)
+		{
 			Settings.JPGQuality = trackBarJpegQuality.Value;
 			Settings.ReduceColors = checkBox_reduceColors.Checked;
-			if (checkbox_dontaskagain.Checked) {
+			if (checkbox_dontaskagain.Checked)
+			{
 				conf.OutputFileJpegQuality = Settings.JPGQuality;
 				conf.OutputFilePromptQuality = false;
 				conf.OutputFileReduceColors = Settings.ReduceColors;
 			}
 		}
-		
-		void TrackBarJpegQualityScroll(object sender, EventArgs e) {
+
+		private void TrackBarJpegQualityScroll(object sender, EventArgs e)
+		{
 			textBoxJpegQuality.Text = trackBarJpegQuality.Value.ToString();
 		}
 	}

@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Italiano" ietf="it-IT" version="1.1.4" languagegroup="2">
+
+<language>
 	<resources prefix="ExternalCommand">
 		<resource name="contextmenu_configure">Configurazione comandi esterni</resource>
 		<resource name="label_argument">Parametri</resource>

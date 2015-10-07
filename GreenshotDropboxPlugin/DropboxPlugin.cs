@@ -36,8 +36,9 @@ namespace GreenshotDropboxPlugin
 	/// <summary>
 	/// This is the Dropbox base code
 	/// </summary>
-	public class DropboxPlugin : IGreenshotPlugin {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(DropboxPlugin));
+	public class DropboxPlugin : IGreenshotPlugin
+	{
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (DropboxPlugin));
 		private static IDropboxConfiguration _config;
 		private static IDropboxLanguage _language;
 		public static PluginAttribute Attributes;
@@ -45,26 +46,32 @@ namespace GreenshotDropboxPlugin
 		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _itemPlugInConfig;
 
-		public void Dispose() {
+		public void Dispose()
+		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing) {
-			if (disposing) {
-				if (_itemPlugInConfig != null) {
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				if (_itemPlugInConfig != null)
+				{
 					_itemPlugInConfig.Dispose();
 					_itemPlugInConfig = null;
 				}
 			}
 		}
 
-		public IEnumerable<IDestination> Destinations() {
+		public IEnumerable<IDestination> Destinations()
+		{
 			yield return new DropboxDestination(this);
 		}
 
 
-		public IEnumerable<IProcessor> Processors() {
+		public IEnumerable<IProcessor> Processors()
+		{
 			yield break;
 		}
 
@@ -74,7 +81,8 @@ namespace GreenshotDropboxPlugin
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="myAttribute">My own attributes</param>
 		/// <param name="token"></param>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken()) {
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken())
+		{
 			// Register / get the dropbox configuration
 			_config = await IniConfig.Current.RegisterAndGetAsync<IDropboxConfiguration>(token);
 			_language = await LanguageLoader.Current.RegisterAndGetAsync<IDropboxLanguage>(token);
@@ -82,13 +90,13 @@ namespace GreenshotDropboxPlugin
 			Attributes = myAttribute;
 
 			// Register configuration (don't need the configuration itself)
-			_resources = new ComponentResourceManager(typeof(DropboxPlugin));
+			_resources = new ComponentResourceManager(typeof (DropboxPlugin));
 
 			_itemPlugInConfig = new ToolStripMenuItem();
 			_itemPlugInConfig.Text = _language.Configure;
 			_itemPlugInConfig.Tag = pluginHost;
 			_itemPlugInConfig.Click += ConfigMenuClick;
-			_itemPlugInConfig.Image = (Image)_resources.GetObject("Dropbox");
+			_itemPlugInConfig.Image = (Image) _resources.GetObject("Dropbox");
 
 			PluginUtils.AddToContextMenu(pluginHost, _itemPlugInConfig);
 			_language.PropertyChanged += (sender, args) =>
@@ -101,14 +109,16 @@ namespace GreenshotDropboxPlugin
 			return true;
 		}
 
-		public void Shutdown() {
+		public void Shutdown()
+		{
 			LOG.Debug("Dropbox Plugin shutdown.");
 		}
 
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
-		public void Configure() {
+		public void Configure()
+		{
 			ShowConfigDialog();
 		}
 
@@ -117,9 +127,11 @@ namespace GreenshotDropboxPlugin
 		/// A form for token
 		/// </summary>
 		/// <returns>bool true if OK was pressed, false if cancel</returns>
-		private bool ShowConfigDialog() {
+		private bool ShowConfigDialog()
+		{
 			DialogResult result = new SettingsForm().ShowDialog();
-			if (result == DialogResult.OK) {
+			if (result == DialogResult.OK)
+			{
 				return true;
 			}
 			return false;
@@ -130,12 +142,14 @@ namespace GreenshotDropboxPlugin
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		public void Closing(object sender, FormClosingEventArgs e) {
+		public void Closing(object sender, FormClosingEventArgs e)
+		{
 			LOG.Debug("Application closing, de-registering Dropbox Plugin!");
 			Shutdown();
 		}
 
-		public void ConfigMenuClick(object sender, EventArgs eventArgs) {
+		public void ConfigMenuClick(object sender, EventArgs eventArgs)
+		{
 			ShowConfigDialog();
 		}
 	}

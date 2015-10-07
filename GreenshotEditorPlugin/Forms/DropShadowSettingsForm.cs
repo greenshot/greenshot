@@ -30,7 +30,8 @@ namespace GreenshotEditorPlugin.Forms
 	{
 		private DropShadowEffect effect;
 
-		public DropShadowSettingsForm(DropShadowEffect effect) {
+		public DropShadowSettingsForm(DropShadowEffect effect)
+		{
 			this.effect = effect;
 			InitializeComponent();
 			ShowSettings();
@@ -39,21 +40,24 @@ namespace GreenshotEditorPlugin.Forms
 		/// <summary>
 		/// Apply the settings from the effect to the view
 		/// </summary>
-		private void ShowSettings() {
-			trackBar1.Value = (int)(effect.Darkness * 40);
+		private void ShowSettings()
+		{
+			trackBar1.Value = (int) (effect.Darkness*40);
 			offsetX.Value = effect.ShadowOffset.X;
 			offsetY.Value = effect.ShadowOffset.Y;
 			thickness.Value = effect.ShadowSize;
 		}
 
-		private void ButtonOK_Click(object sender, EventArgs e) {
-			effect.Darkness = (float)trackBar1.Value / (float)40;
-			effect.ShadowOffset = new Point((int)offsetX.Value, (int)offsetY.Value);
-			effect.ShadowSize = (int)thickness.Value;
+		private void ButtonOK_Click(object sender, EventArgs e)
+		{
+			effect.Darkness = (float) trackBar1.Value/(float) 40;
+			effect.ShadowOffset = new Point((int) offsetX.Value, (int) offsetY.Value);
+			effect.ShadowSize = (int) thickness.Value;
 			DialogResult = DialogResult.OK;
 		}
 
-		private void ButtonReset_Click(object sender, EventArgs e) {
+		private void ButtonReset_Click(object sender, EventArgs e)
+		{
 			effect.Reset();
 			ShowSettings();
 		}

@@ -26,6 +26,7 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
+
 [assembly: AssemblyTitle("GreenshotOCR")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
@@ -35,13 +36,16 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 // The PluginAttribute describes the "entryType" and if the plugin is configurable
+
 [assembly: PluginAttribute("GreenshotOCR.OcrPlugin", true)]
 
 // This sets the default COM visibility of types in the assembly to invisible.
 // If you need to expose a type to COM, use [ComVisible(true)] on that type.
+
 [assembly: ComVisible(false)]
 
 // The assembly version, replaced by build scripts
+
 [assembly: AssemblyVersion("1.3.0.0")]
 [assembly: AssemblyInformationalVersion("1.3.0.0")]
 [assembly: AssemblyFileVersion("1.3.0.0")]

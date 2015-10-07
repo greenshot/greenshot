@@ -38,10 +38,11 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public static class HelpFileLoader
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(HelpFileLoader));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (HelpFileLoader));
 
 		private static readonly Uri ExtHelpUrl = new Uri(@"http://getgreenshot.org/help/");
 		private static readonly string HelpfilePattern = "help-{0}.html";
+
 		/// <summary>
 		/// Start a process with the help, this can either be an online link, or a local file
 		/// </summary>

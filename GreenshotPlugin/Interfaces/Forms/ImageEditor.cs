@@ -22,15 +22,18 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Greenshot.Plugin {
+namespace Greenshot.Plugin
+{
 	/// <summary>
 	/// The IImageEditor is the Interface that the Greenshot ImageEditor has to implement
 	/// </summary>
-	public interface IImageEditor {
+	public interface IImageEditor
+	{
 		/// <summary>
 		/// Return the IWin32Window, this way Plugins have access to the HWND handles wich can be used with Win32 API calls.
 		/// </summary>
-		IWin32Window WindowHandle {
+		IWin32Window WindowHandle
+		{
 			get;
 		}
 
@@ -45,15 +48,17 @@ namespace Greenshot.Plugin {
 		/// </summary>
 		/// <returns>ToolStripMenuItem</returns>
 		ToolStripMenuItem GetFileMenuItem();
-		
+
 		/// <summary>
 		/// Make the ICaptureDetails from the current Surface in the EditorForm available.
 		/// </summary>
-		ICaptureDetails CaptureDetails {
+		ICaptureDetails CaptureDetails
+		{
 			get;
 		}
 
-		ISurface Surface {
+		ISurface Surface
+		{
 			get;
 			set;
 		}

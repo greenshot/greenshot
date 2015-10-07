@@ -27,21 +27,25 @@ namespace GreenshotPlugin.Configuration
 	/// <summary>
 	/// This interface represents all the generic plugin/extension settings
 	/// </summary>
-	public interface IExtensionConfiguration {
+	public interface IExtensionConfiguration
+	{
 		[Description("Comma separated list of Plugins which are allowed. If something in the list, than every plugin not in the list will not be loaded!")]
-		IList<string> IncludePlugins {
+		IList<string> IncludePlugins
+		{
 			get;
 			set;
 		}
 
 		[Description("Comma separated list of Plugins which are NOT allowed.")]
-		IList<string> ExcludePlugins {
+		IList<string> ExcludePlugins
+		{
 			get;
 			set;
 		}
 
 		[Description("Comma separated list of destinations which should be disabled.")]
-		IList<string> ExcludeDestinations {
+		IList<string> ExcludeDestinations
+		{
 			get;
 			set;
 		}

@@ -18,13 +18,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-
 using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Core;
 using log4net;
@@ -36,7 +36,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public static class EnvironmentInfo
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(EnvironmentInfo));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (EnvironmentInfo));
 		private static bool? isWindows = null;
 
 		public static bool IsWindows
@@ -80,7 +80,6 @@ namespace Greenshot.Helpers
 			if (IsNet45OrNewer())
 			{
 				environment.Append("+");
-
 			}
 			if (newline)
 			{
@@ -152,7 +151,9 @@ namespace Greenshot.Helpers
 		public static string ExceptionToString(Exception ex)
 		{
 			if (ex == null)
+			{
 				return "null\r\n";
+			}
 
 			StringBuilder report = new StringBuilder();
 
@@ -216,40 +217,44 @@ namespace Greenshot.Helpers
 	/// Provides detailed information about the host operating system.
 	/// Code is available at: http://www.csharp411.com/determine-windows-version-and-edition-with-c/
 	/// </summary>
-	static public class OSInfo
+	public static class OSInfo
 	{
 		#region BITS
+
 		/// <summary>
 		/// Determines if the current application is 32 or 64-bit.
 		/// </summary>
-		static public int Bits
+		public static int Bits
 		{
 			get
 			{
-				return IntPtr.Size * 8;
+				return IntPtr.Size*8;
 			}
 		}
+
 		#endregion BITS
 
 		#region EDITION
-		static private string s_Edition;
+
+		private static string s_Edition;
+
 		/// <summary>
 		/// Gets the edition of the operating system running on this computer.
 		/// </summary>
-		static public string Edition
+		public static string Edition
 		{
 			get
 			{
 				if (s_Edition != null)
 				{
-					return s_Edition;  //***** RETURN *****//
+					return s_Edition; //***** RETURN *****//
 				}
 
 				string edition = String.Empty;
 
 				OperatingSystem osVersion = Environment.OSVersion;
 				OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX();
-				osVersionInfo.dwOSVersionInfoSize = Marshal.SizeOf(typeof(OSVERSIONINFOEX));
+				osVersionInfo.dwOSVersionInfoSize = Marshal.SizeOf(typeof (OSVERSIONINFOEX));
 
 				if (GetVersionEx(ref osVersionInfo))
 				{
@@ -259,6 +264,7 @@ namespace Greenshot.Helpers
 					short suiteMask = osVersionInfo.wSuiteMask;
 
 					#region VERSION 4
+
 					if (majorVersion == 4)
 					{
 						if (productType == VER_NT_WORKSTATION)
@@ -280,9 +286,10 @@ namespace Greenshot.Helpers
 							}
 						}
 					}
-					#endregion VERSION 4
+						#endregion VERSION 4
 
-					#region VERSION 5
+						#region VERSION 5
+
 					else if (majorVersion == 5)
 					{
 						if (productType == VER_NT_WORKSTATION)
@@ -343,9 +350,10 @@ namespace Greenshot.Helpers
 							}
 						}
 					}
-					#endregion VERSION 5
+						#endregion VERSION 5
 
-					#region VERSION 6
+						#region VERSION 6
+
 					else if (majorVersion == 6)
 					{
 						int ed;
@@ -467,6 +475,7 @@ namespace Greenshot.Helpers
 							}
 						}
 					}
+
 					#endregion VERSION 6
 				}
 
@@ -474,27 +483,30 @@ namespace Greenshot.Helpers
 				return edition;
 			}
 		}
+
 		#endregion EDITION
 
 		#region NAME
-		static private string s_Name;
+
+		private static string s_Name;
+
 		/// <summary>
 		/// Gets the name of the operating system running on this computer.
 		/// </summary>
-		static public string Name
+		public static string Name
 		{
 			get
 			{
 				if (s_Name != null)
 				{
-					return s_Name;  //***** RETURN *****//
+					return s_Name; //***** RETURN *****//
 				}
 
 				string name = "unknown";
 
 				OperatingSystem osVersion = Environment.OSVersion;
 				OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX();
-				osVersionInfo.dwOSVersionInfoSize = Marshal.SizeOf(typeof(OSVERSIONINFOEX));
+				osVersionInfo.dwOSVersionInfoSize = Marshal.SizeOf(typeof (OSVERSIONINFOEX));
 
 				if (GetVersionEx(ref osVersionInfo))
 				{
@@ -585,7 +597,7 @@ namespace Greenshot.Helpers
 												case 0x0400:
 													name = "Windows Server 2003 Web Edition";
 													break;
-												case unchecked((short)0x8000):
+												case unchecked((short) 0x8000):
 													name = "Windows Home Server";
 													break;
 												default:
@@ -632,7 +644,7 @@ namespace Greenshot.Helpers
 									name = "Windows 10";
 									break;
 							}
-						break;
+							break;
 					}
 				}
 
@@ -640,27 +652,31 @@ namespace Greenshot.Helpers
 				return name;
 			}
 		}
+
 		#endregion NAME
 
 		#region PINVOKE
+
 		#region GET
+
 		#region PRODUCT INFO
+
 		[DllImport("Kernel32.dll")]
-		internal static extern bool GetProductInfo(
-			int osMajorVersion,
-			int osMinorVersion,
-			int spMajorVersion,
-			int spMinorVersion,
-			out int edition);
+		internal static extern bool GetProductInfo(int osMajorVersion, int osMinorVersion, int spMajorVersion, int spMinorVersion, out int edition);
+
 		#endregion PRODUCT INFO
 
 		#region VERSION
+
 		[DllImport("kernel32.dll")]
 		private static extern bool GetVersionEx(ref OSVERSIONINFOEX osVersionInfo);
+
 		#endregion VERSION
+
 		#endregion GET
 
 		#region OSVERSIONINFOEX
+
 		[StructLayout(LayoutKind.Sequential)]
 		private struct OSVERSIONINFOEX
 		{
@@ -669,17 +685,21 @@ namespace Greenshot.Helpers
 			public int dwMinorVersion;
 			public int dwBuildNumber;
 			public int dwPlatformId;
+
 			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
 			public string szCSDVersion;
+
 			public short wServicePackMajor;
 			public short wServicePackMinor;
 			public short wSuiteMask;
 			public byte wProductType;
 			public byte wReserved;
 		}
+
 		#endregion OSVERSIONINFOEX
 
 		#region PRODUCT
+
 		private const int PRODUCT_UNDEFINED = 0x00000000;
 		private const int PRODUCT_ULTIMATE = 0x00000001;
 		private const int PRODUCT_HOME_BASIC = 0x00000002;
@@ -719,9 +739,11 @@ namespace Greenshot.Helpers
 		private const int PRODUCT_STANDARD_SERVER_CORE_V = 0x00000028;
 		private const int PRODUCT_ENTERPRISE_SERVER_CORE_V = 0x00000029;
 		private const int PRODUCT_HYPERV = 0x0000002A;
+
 		#endregion PRODUCT
 
 		#region VERSIONS
+
 		private const int VER_NT_WORKSTATION = 1;
 		private const int VER_NT_DOMAIN_CONTROLLER = 2;
 		private const int VER_NT_SERVER = 3;
@@ -732,21 +754,24 @@ namespace Greenshot.Helpers
 		private const int VER_SUITE_SINGLEUSERTS = 256;
 		private const int VER_SUITE_PERSONAL = 512;
 		private const int VER_SUITE_BLADE = 1024;
+
 		#endregion VERSIONS
+
 		#endregion PINVOKE
 
 		#region SERVICE PACK
+
 		/// <summary>
 		/// Gets the service pack information of the operating system running on this computer.
 		/// </summary>
-		static public string ServicePack
+		public static string ServicePack
 		{
 			get
 			{
 				string servicePack = String.Empty;
 				OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX();
 
-				osVersionInfo.dwOSVersionInfoSize = Marshal.SizeOf(typeof(OSVERSIONINFOEX));
+				osVersionInfo.dwOSVersionInfoSize = Marshal.SizeOf(typeof (OSVERSIONINFOEX));
 
 				if (GetVersionEx(ref osVersionInfo))
 				{
@@ -756,10 +781,13 @@ namespace Greenshot.Helpers
 				return servicePack;
 			}
 		}
+
 		#endregion SERVICE PACK
 
 		#region VERSION
+
 		#region BUILD
+
 		/// <summary>
 		/// Gets the build version number of the operating system running on this computer.
 		/// </summary>
@@ -770,74 +798,88 @@ namespace Greenshot.Helpers
 				return Environment.OSVersion.Version.Build;
 			}
 		}
+
 		#endregion BUILD
 
 		#region FULL
+
 		#region STRING
+
 		/// <summary>
 		/// Gets the full version string of the operating system running on this computer.
 		/// </summary>
-		static public string VersionString
+		public static string VersionString
 		{
 			get
 			{
 				return string.Format("{0}.{1} build {3} revision {2:X}", Environment.OSVersion.Version.Major, Environment.OSVersion.Version.Minor, Environment.OSVersion.Version.Revision, Environment.OSVersion.Version.Build);
 			}
 		}
+
 		#endregion STRING
 
 		#region VERSION
+
 		/// <summary>
 		/// Gets the full version of the operating system running on this computer.
 		/// </summary>
-		static public Version Version
+		public static Version Version
 		{
 			get
 			{
 				return Environment.OSVersion.Version;
 			}
 		}
+
 		#endregion VERSION
+
 		#endregion FULL
 
 		#region MAJOR
+
 		/// <summary>
 		/// Gets the major version number of the operating system running on this computer.
 		/// </summary>
-		static public int MajorVersion
+		public static int MajorVersion
 		{
 			get
 			{
 				return Environment.OSVersion.Version.Major;
 			}
 		}
+
 		#endregion MAJOR
 
 		#region MINOR
+
 		/// <summary>
 		/// Gets the minor version number of the operating system running on this computer.
 		/// </summary>
-		static public int MinorVersion
+		public static int MinorVersion
 		{
 			get
 			{
 				return Environment.OSVersion.Version.Minor;
 			}
 		}
+
 		#endregion MINOR
 
 		#region REVISION
+
 		/// <summary>
 		/// Gets the revision version number of the operating system running on this computer.
 		/// </summary>
-		static public int RevisionVersion
+		public static int RevisionVersion
 		{
 			get
 			{
 				return Environment.OSVersion.Version.Revision;
 			}
 		}
+
 		#endregion REVISION
+
 		#endregion VERSION
 	}
 }

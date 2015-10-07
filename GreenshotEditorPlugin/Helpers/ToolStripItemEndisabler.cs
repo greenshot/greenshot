@@ -22,72 +22,95 @@
 using System;
 using System.Windows.Forms;
 
-namespace GreenshotEditorPlugin.Helpers {
+namespace GreenshotEditorPlugin.Helpers
+{
 	/// <summary>
 	/// Enables or disables toolstrip items, taking care of the hierarchy.
 	/// (parent) OwnerItems are ENabled with ToolStripItems, 
 	/// (child) DropDownItems are ENabled and DISabled with ToolStripItems.
 	/// </summary>
-	public static class ToolStripItemEndisabler {
+	public static class ToolStripItemEndisabler
+	{
 		[Flags]
-		enum PropagationMode {NONE=0, CHILDREN=1, ANCESTORS=2};
-		
+		private enum PropagationMode
+		{
+			NONE = 0,
+			CHILDREN = 1,
+			ANCESTORS = 2
+		};
+
 		/// <summary>
 		/// Enables all of a ToolStrip's children (recursively),
 		/// but not the ToolStrip itself
 		/// </summary>
-		public static void Enable(ToolStrip ts) {
+		public static void Enable(ToolStrip ts)
+		{
 			Endisable(ts, true, PropagationMode.CHILDREN);
 		}
-		
+
 		/// <summary>
 		/// Disables all of a ToolStrip's children (recursively),
 		/// but not the ToolStrip itself
 		/// </summary>
-		public static void Disable(ToolStrip ts) {
+		public static void Disable(ToolStrip ts)
+		{
 			Endisable(ts, false, PropagationMode.CHILDREN);
 		}
-		
+
 		/// <summary>
 		/// Enables the ToolStripItem, including children (ToolStripDropDownItem) 
 		/// and ancestor (OwnerItem)
 		/// </summary>
-		public static void Enable(ToolStripItem tsi) {
+		public static void Enable(ToolStripItem tsi)
+		{
 			Endisable(tsi, true, PropagationMode.CHILDREN | PropagationMode.ANCESTORS);
 		}
-		
+
 		/// <summary>
 		/// Disables the ToolStripItem, including children (ToolStripDropDownItem), 
 		/// but NOT the ancestor (OwnerItem)
 		/// </summary>
-		public static void Disable(ToolStripItem tsi) {
+		public static void Disable(ToolStripItem tsi)
+		{
 			Endisable(tsi, false, PropagationMode.CHILDREN);
 		}
-		
-		private static void Endisable(ToolStrip ts, bool enable, PropagationMode mode){
-			if((mode & PropagationMode.CHILDREN) == PropagationMode.CHILDREN) {
-				foreach(ToolStripItem tsi in ts.Items) {
+
+		private static void Endisable(ToolStrip ts, bool enable, PropagationMode mode)
+		{
+			if ((mode & PropagationMode.CHILDREN) == PropagationMode.CHILDREN)
+			{
+				foreach (ToolStripItem tsi in ts.Items)
+				{
 					Endisable(tsi, enable, PropagationMode.CHILDREN);
 				}
 			}
 		}
-		
-		private static void Endisable(ToolStripItem tsi, bool enable, PropagationMode mode){
-			if(tsi is ToolStripDropDownItem) {
+
+		private static void Endisable(ToolStripItem tsi, bool enable, PropagationMode mode)
+		{
+			if (tsi is ToolStripDropDownItem)
+			{
 				Endisable(tsi as ToolStripDropDownItem, enable, mode);
-			} else {
+			}
+			else
+			{
 				tsi.Enabled = enable;
 			}
-			if((mode & PropagationMode.ANCESTORS) == PropagationMode.ANCESTORS) {
-				if(tsi.OwnerItem != null) Endisable(tsi.OwnerItem, enable, PropagationMode.ANCESTORS);
+			if ((mode & PropagationMode.ANCESTORS) == PropagationMode.ANCESTORS)
+			{
+				if (tsi.OwnerItem != null)
+				{
+					Endisable(tsi.OwnerItem, enable, PropagationMode.ANCESTORS);
+				}
 			}
-			
 		}
-		
-		private static void Endisable(ToolStripDropDownItem tsddi, bool enable, PropagationMode mode) {
-			
-			if((mode & PropagationMode.CHILDREN) == PropagationMode.CHILDREN) {
-				foreach(ToolStripItem tsi in tsddi.DropDownItems) {
+
+		private static void Endisable(ToolStripDropDownItem tsddi, bool enable, PropagationMode mode)
+		{
+			if ((mode & PropagationMode.CHILDREN) == PropagationMode.CHILDREN)
+			{
+				foreach (ToolStripItem tsi in tsddi.DropDownItems)
+				{
 					Endisable(tsi, enable, PropagationMode.CHILDREN);
 				}
 			}

@@ -1,24 +1,29 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
+
 <language>
 	<resources prefix="Core">
 		<resource name="about_bugs">Var vänlig att rapportera in fel till</resource>
 		<resource name="about_donations">Om du gillar Greenshot, så är du välkommen att stödja oss:</resource>
 		<resource name="about_host">Greenshots hemsida tillhandahålls av sourceforge.net på</resource>
 		<resource name="about_icons">Ikoner från "Yusuke Kamiyamane's Fugue icon set" (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot lämnar ABSOLUT INGA GARANTIER. Detta är ett gratisprogram, och du får vidaredistribuera programmet under vissa villkor.
-Detaljer om "GNU General Public License":</resource>
+		<resource name="about_license">
+			Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+			Greenshot lämnar ABSOLUT INGA GARANTIER. Detta är ett gratisprogram, och du får vidaredistribuera programmet under vissa villkor.
+			Detaljer om "GNU General Public License":
+		</resource>
 		<resource name="about_title">Om Greenshot</resource>
 		<resource name="about_translation">Svensk översättning av Torsten Augustsson</resource>
 		<resource name="application_title">Greenshot - Det  revolutionära skärmdumpsverktyget</resource>
 		<resource name="bugreport_cancel">Stäng</resource>
-		<resource name="bugreport_info">Ojsan, ett oväntat fel uppstod.
+		<resource name="bugreport_info">
+			Ojsan, ett oväntat fel uppstod.
 
-Den goda nyheten är att du kan hjälpa oss lösa problemet genom att rapportera det till oss.
-Var vänlig besök länken nedan, och skapa en ny felrapport (bug report). Klistra in felmeddelandets innehåll i beskrivningen.
+			Den goda nyheten är att du kan hjälpa oss lösa problemet genom att rapportera det till oss.
+			Var vänlig besök länken nedan, och skapa en ny felrapport (bug report). Klistra in felmeddelandets innehåll i beskrivningen.
 
-Lägg till en meningsfull sammanfattning och ta med information du tror kan vara till hjälp för att kunna återskapa felet.
-Innan du skickar uppskattar vi verkligen om du kontrollerar om felet redan blivit rapporterat. (Använd sökfunktionen för att snabbt hitta dem.) Tack! :)</resource>
+			Lägg till en meningsfull sammanfattning och ta med information du tror kan vara till hjälp för att kunna återskapa felet.
+			Innan du skickar uppskattar vi verkligen om du kontrollerar om felet redan blivit rapporterat. (Använd sökfunktionen för att snabbt hitta dem.) Tack! :)
+		</resource>
 		<resource name="bugreport_title">Fel</resource>
 		<resource name="CANCEL">Avbryt</resource>
 		<resource name="clipboard_error">Ett oväntat fel uppstod då bilden skrevs till urklipp.</resource>
@@ -160,8 +165,10 @@ Innan du skickar uppskattar vi verkligen om du kontrollerar om felet redan blivi
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook med text</resource>
 		<resource name="error">Fel</resource>
 		<resource name="error_multipleinstances">En instans av Greenshot körs redan.</resource>
-		<resource name="error_nowriteaccess">Kan inte spara filen till {0}.
-Kontrollera skrivrättigheterna för den valda mappen.</resource>
+		<resource name="error_nowriteaccess">
+			Kan inte spara filen till {0}.
+			Kontrollera skrivrättigheterna för den valda mappen.
+		</resource>
 		<resource name="error_openfile">Filen "{0}" kunde inte öppnas.</resource>
 		<resource name="error_openlink">Kunde inte öppna länken '{0}'.</resource>
 		<resource name="error_save">Kunde inte spara skärmdumpen. Välj en lämplig mapp att spara i.</resource>
@@ -224,23 +231,25 @@ Kontrollera skrivrättigheterna för den valda mappen.</resource>
 		<resource name="settings_iecapture">Skärmdump av Internet Explorer</resource>
 		<resource name="settings_jpegquality">JPEG-kvalitet</resource>
 		<resource name="settings_language">Språk</resource>
-		<resource name="settings_message_filenamepattern">Följande platshållare byts ut automatiskt enligt det definierade mönstret:
-${YYYY} år, 4 siffror
-${MM} månader, 2 siffror
-${DD} dagar, 2 siffror
-${hh} timmar, 2 siffror
-${mm} minut, 2 siffror
-${ss} sekunder, 2 siffror
-${NUM} ökande nummer, 6 siffror
-${title} Fönstrets titel
-${user} Användarnamn
-${domain} Windows domän
-${hostname} Datorns namn
+		<resource name="settings_message_filenamepattern">
+			Följande platshållare byts ut automatiskt enligt det definierade mönstret:
+			${YYYY} år, 4 siffror
+			${MM} månader, 2 siffror
+			${DD} dagar, 2 siffror
+			${hh} timmar, 2 siffror
+			${mm} minut, 2 siffror
+			${ss} sekunder, 2 siffror
+			${NUM} ökande nummer, 6 siffror
+			${title} Fönstrets titel
+			${user} Användarnamn
+			${domain} Windows domän
+			${hostname} Datorns namn
 
-Du kan också göra så att Greenshot skapar mappar dynamiskt. Använd helt enkelt backslash (\) för att separera mapp-/filnamn.
-Exempel: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-Mönstret kommer att skapa en mapp med dagens datum på ditt förvalda ställe, t.e.x. 2008-06-29, och bildens filnamn blir den aktuella tiden, e.x. 11_58_32.xxx
-där "xxx" är det filformat du angett.</resource>
+			Du kan också göra så att Greenshot skapar mappar dynamiskt. Använd helt enkelt backslash (\) för att separera mapp-/filnamn.
+			Exempel: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+			Mönstret kommer att skapa en mapp med dagens datum på ditt förvalda ställe, t.e.x. 2008-06-29, och bildens filnamn blir den aktuella tiden, e.x. 11_58_32.xxx
+			där "xxx" är det filformat du angett.
+		</resource>
 		<resource name="settings_network">Nätverk och uppdateringar</resource>
 		<resource name="settings_output">Utdata</resource>
 		<resource name="settings_playsound">Spela upp kameraljud</resource>
@@ -275,39 +284,41 @@ där "xxx" är det filformat du angett.</resource>
 		<resource name="update_found">En nyare version av Greenshot finns tillgänglig! Vill du ladda ner Greenshot {0}?</resource>
 		<resource name="wait_ie_capture">Vänta medan skärmdump av Internet Exporer skapas...</resource>
 		<resource name="warning">Varning</resource>
-		<resource name="warning_hotkeys">Kortkommandot "{0}" kunde inte registrerar. Problemet är troligen orsakat av att ett annat program/verktyg har lagt beslag på samma kortkommando(n)! Du kan antingen ändra dina inställningar för kortkommandon eller avaktivera/ändra programvaran som använder samma kortkommando(n).
+		<resource name="warning_hotkeys">
+			Kortkommandot "{0}" kunde inte registrerar. Problemet är troligen orsakat av att ett annat program/verktyg har lagt beslag på samma kortkommando(n)! Du kan antingen ändra dina inställningar för kortkommandon eller avaktivera/ändra programvaran som använder samma kortkommando(n).
 
-Alla Greenshots funktioner fungerar fortfarande från snabbmenyn i aktivitetsfältsikonen utan kortkommandon.</resource>
+			Alla Greenshots funktioner fungerar fortfarande från snabbmenyn i aktivitetsfältsikonen utan kortkommandon.
+		</resource>
 		<resource name="WindowCaptureMode.Aero">Använd anspassad färg</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Bevara genomskinlighet</resource>
 		<resource name="WindowCaptureMode.Auto">Automatiskt</resource>
 		<resource name="WindowCaptureMode.GDI">Använd standardfärg</resource>
 		<resource name="WindowCaptureMode.Screen">Som visat</resource>
 
-    <!-- 1.2 -->
-	<resource name="editor_dropshadow_darkness">Skuggmörkhet</resource>
-	<resource name="editor_dropshadow_offset">Skuggoffset</resource>
-	<resource name="editor_dropshadow_settings">Skugginställningar</resource>
-	<resource name="editor_dropshadow_thickness">Skuggtjocklek</resource>
+		<!-- 1.2 -->
+		<resource name="editor_dropshadow_darkness">Skuggmörkhet</resource>
+		<resource name="editor_dropshadow_offset">Skuggoffset</resource>
+		<resource name="editor_dropshadow_settings">Skugginställningar</resource>
+		<resource name="editor_dropshadow_thickness">Skuggtjocklek</resource>
 
-	<resource name="editor_tornedge_horizontaltoothrange">Horisontell tandspann</resource>
-	<resource name="editor_tornedge_settings">Riven kantinställningar</resource>
-	<resource name="editor_tornedge_toothsize">Tandstorlek</resource>
-	<resource name="editor_tornedge_verticaltoothrange">Vertikalt tandspann</resource>
-	<resource name="editor_tornedge_left">Riv vänster sida</resource>
-	<resource name="editor_tornedge_right">Riv höger sida</resource>
-	<resource name="editor_tornedge_top">Riv övre sida</resource>
-	<resource name="editor_tornedge_bottom">Riv nedre sida</resource>
-	<resource name="editor_tornedge_shadow">Generera skugga</resource>
+		<resource name="editor_tornedge_horizontaltoothrange">Horisontell tandspann</resource>
+		<resource name="editor_tornedge_settings">Riven kantinställningar</resource>
+		<resource name="editor_tornedge_toothsize">Tandstorlek</resource>
+		<resource name="editor_tornedge_verticaltoothrange">Vertikalt tandspann</resource>
+		<resource name="editor_tornedge_left">Riv vänster sida</resource>
+		<resource name="editor_tornedge_right">Riv höger sida</resource>
+		<resource name="editor_tornedge_top">Riv övre sida</resource>
+		<resource name="editor_tornedge_bottom">Riv nedre sida</resource>
+		<resource name="editor_tornedge_shadow">Generera skugga</resource>
 
-	<resource name="editor_counter">Lägg till räknare</resource>
-	<resource name="editor_speechbubble">Lägg till pratbubbla</resource>
+		<resource name="editor_counter">Lägg till räknare</resource>
+		<resource name="editor_speechbubble">Lägg till pratbubbla</resource>
 
-    <resource name="editor_resize">Anpassa storlek</resource>
-    <resource name="editor_resize_settings">Storleksinställningar</resource>
-    <resource name="editor_resize_aspectratio">Behåll bildförhållande</resource>
-    <resource name="editor_resize_width">Bredd</resource>
-    <resource name="editor_resize_height">Höjd</resource>
-	
+		<resource name="editor_resize">Anpassa storlek</resource>
+		<resource name="editor_resize_settings">Storleksinställningar</resource>
+		<resource name="editor_resize_aspectratio">Behåll bildförhållande</resource>
+		<resource name="editor_resize_width">Bredd</resource>
+		<resource name="editor_resize_height">Höjd</resource>
+
 	</resources>
 </language>

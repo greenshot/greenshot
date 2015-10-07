@@ -1,4 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
+
 <configuration>
 	<!-- See http://logging.apache.org/log4net/release/sdk/log4net.Layout.PatternLayout.html -->
 	<log4net>
@@ -6,8 +7,8 @@
 			<file type="log4net.Util.PatternString">
 				<converter>
 					<name value="folder" />
-    				<type value="GreenshotPlugin.Core.SpecialFolderPatternConverter" />
-  				</converter>
+					<type value="GreenshotPlugin.Core.SpecialFolderPatternConverter" />
+				</converter>
 				<conversionPattern value="%folder{LocalApplicationData}\Greenshot\Greenshot.log" />
 			</file>
 			<encoding value="utf-8" />

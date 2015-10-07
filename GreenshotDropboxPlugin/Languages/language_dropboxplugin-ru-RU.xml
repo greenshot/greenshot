@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Русский" ietf="ru-RU" version="1.1.0.2515" languagegroup="5">
+
+<language>
 	<resources prefix="Dropbox">
 		<resource name="communication_wait">Обмен информацией с Dropbox. Подождите...</resource>
 		<resource name="Configure">Настройка Dropbox</resource>

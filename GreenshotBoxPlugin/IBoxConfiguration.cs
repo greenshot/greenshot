@@ -31,48 +31,46 @@ namespace GreenshotBoxPlugin
 	/// Description of ImgurConfiguration.
 	/// </summary>
 	[IniSection("Box"), Description("Greenshot Box Plugin configuration")]
-	public interface IBoxConfiguration : IIniSection<IBoxConfiguration> {
+	public interface IBoxConfiguration : IIniSection<IBoxConfiguration>
+	{
 		[Description("What file type to use for uploading"), DefaultValue(OutputFormat.png)]
-		OutputFormat UploadFormat {
+		OutputFormat UploadFormat
+		{
 			get;
 			set;
 		}
 
 		[Description("JPEG file save quality in %."), DefaultValue(80)]
-		int UploadJpegQuality {
+		int UploadJpegQuality
+		{
 			get;
 			set;
 		}
 
 		[Description("After upload send Box link to clipboard."), DefaultValue(true)]
-		bool AfterUploadLinkToClipBoard {
+		bool AfterUploadLinkToClipBoard
+		{
 			get;
 			set;
 		}
 
 		[Description("Use the shared link, instead of the private, on the clipboard"), DefaultValue(true)]
-		bool UseSharedLink {
+		bool UseSharedLink
+		{
 			get;
 			set;
 		}
 
 		[Description("Folder ID to upload to, only change if you know what you are doing!"), DefaultValue("0")]
-		string FolderId {
+		string FolderId
+		{
 			get;
 			set;
 		}
 
-		[Description("Box authorization refresh Token"), TypeConverter(typeof(StringEncryptionTypeConverter))]
-		string RefreshToken {
-			get;
-			set;
-		}
-
-		/// <summary>
-		/// Not stored
-		/// </summary>
-		[IniPropertyBehavior(Read = false, Write = false)]
-		string AccessToken {
+		[Description("Box authorization refresh Token"), TypeConverter(typeof (StringEncryptionTypeConverter))]
+		string RefreshToken
+		{
 			get;
 			set;
 		}
@@ -81,7 +79,18 @@ namespace GreenshotBoxPlugin
 		/// Not stored
 		/// </summary>
 		[IniPropertyBehavior(Read = false, Write = false)]
-		DateTimeOffset AccessTokenExpires {
+		string AccessToken
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Not stored
+		/// </summary>
+		[IniPropertyBehavior(Read = false, Write = false)]
+		DateTimeOffset AccessTokenExpires
+		{
 			get;
 			set;
 		}

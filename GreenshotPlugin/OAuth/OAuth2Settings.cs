@@ -24,12 +24,15 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 
-namespace GreenshotPlugin.OAuth {
+namespace GreenshotPlugin.OAuth
+{
 	/// <summary>
 	/// Settings for the OAuth 2 protocol
 	/// </summary>
-	public class OAuth2Settings {
-		public OAuth2Settings() {
+	public class OAuth2Settings
+	{
+		public OAuth2Settings()
+		{
 			AdditionalAttributes = new Dictionary<string, string>();
 			// Create a default state
 			State = Guid.NewGuid().ToString();
@@ -37,7 +40,8 @@ namespace GreenshotPlugin.OAuth {
 			RedirectUrl = "http://getgreenshot.org";
 		}
 
-		public OAuth2AuthorizeMode AuthorizeMode {
+		public OAuth2AuthorizeMode AuthorizeMode
+		{
 			get;
 			set;
 		}
@@ -45,7 +49,8 @@ namespace GreenshotPlugin.OAuth {
 		/// <summary>
 		/// Specify the name of the cloud service, so it can be used in window titles, logs etc
 		/// </summary>
-		public string CloudServiceName {
+		public string CloudServiceName
+		{
 			get;
 			set;
 		}
@@ -53,7 +58,8 @@ namespace GreenshotPlugin.OAuth {
 		/// <summary>
 		/// Specify the size of the embedded Browser, if using this
 		/// </summary>
-		public Size BrowserSize {
+		public Size BrowserSize
+		{
 			get;
 			set;
 		}
@@ -61,7 +67,8 @@ namespace GreenshotPlugin.OAuth {
 		/// <summary>
 		/// The OAuth 2 client id
 		/// </summary>
-		public string ClientId {
+		public string ClientId
+		{
 			get;
 			set;
 		}
@@ -69,7 +76,8 @@ namespace GreenshotPlugin.OAuth {
 		/// <summary>
 		/// The OAuth 2 client secret
 		/// </summary>
-		public string ClientSecret {
+		public string ClientSecret
+		{
 			get;
 			set;
 		}
@@ -79,7 +87,8 @@ namespace GreenshotPlugin.OAuth {
 		/// e.g. a correlation ID
 		/// Default this is filled with a new Guid
 		/// </summary>
-		public string State {
+		public string State
+		{
 			get;
 			set;
 		}
@@ -87,7 +96,8 @@ namespace GreenshotPlugin.OAuth {
 		/// <summary>
 		/// The autorization URL where the values of this class can be "injected"
 		/// </summary>
-		public string AuthUrlPattern {
+		public string AuthUrlPattern
+		{
 			get;
 			set;
 		}
@@ -95,8 +105,10 @@ namespace GreenshotPlugin.OAuth {
 		/// <summary>
 		/// Get formatted Auth url (this will call a FormatWith(this) on the AuthUrlPattern
 		/// </summary>
-		public Uri FormattedAuthUrl {
-			get {
+		public Uri FormattedAuthUrl
+		{
+			get
+			{
 				return new Uri(AuthUrlPattern.FormatWith(this));
 			}
 		}
@@ -104,7 +116,8 @@ namespace GreenshotPlugin.OAuth {
 		/// <summary>
 		/// The URL to get a Token
 		/// </summary>
-		public Uri TokenUrl {
+		public Uri TokenUrl
+		{
 			get;
 			set;
 		}
@@ -113,7 +126,8 @@ namespace GreenshotPlugin.OAuth {
 		/// This is the redirect URL, in some implementations this is automatically set (LocalServerCodeReceiver)
 		/// In some implementations this could be e.g. urn:ietf:wg:oauth:2.0:oob or urn:ietf:wg:oauth:2.0:oob:auto
 		/// </summary>
-		public string RedirectUrl {
+		public string RedirectUrl
+		{
 			get;
 			set;
 		}
@@ -121,7 +135,8 @@ namespace GreenshotPlugin.OAuth {
 		/// <summary>
 		/// Bearer token for accessing OAuth 2 services
 		/// </summary>
-		public string AccessToken {
+		public string AccessToken
+		{
 			get;
 			set;
 		}
@@ -129,7 +144,8 @@ namespace GreenshotPlugin.OAuth {
 		/// <summary>
 		/// Expire time for the AccessToken, this this time (-60 seconds) is passed a new AccessToken needs to be generated with the RefreshToken
 		/// </summary>
-		public DateTimeOffset AccessTokenExpires {
+		public DateTimeOffset AccessTokenExpires
+		{
 			get;
 			set;
 		}
@@ -138,14 +154,18 @@ namespace GreenshotPlugin.OAuth {
 		/// Return true if the access token is expired.
 		/// Important "side-effect": if true is returned the AccessToken will be set to null!
 		/// </summary>
-		public bool IsAccessTokenExpired {
-			get {
+		public bool IsAccessTokenExpired
+		{
+			get
+			{
 				bool expired = true;
-				if (!string.IsNullOrEmpty(AccessToken) && AccessTokenExpires != null) {
+				if (!string.IsNullOrEmpty(AccessToken) && AccessTokenExpires != null)
+				{
 					expired = DateTimeOffset.Now.AddSeconds(60) > AccessTokenExpires;
 				}
 				// Make sure the token is not usable
-				if (expired) {
+				if (expired)
+				{
 					AccessToken = null;
 				}
 				return expired;
@@ -155,7 +175,8 @@ namespace GreenshotPlugin.OAuth {
 		/// <summary>
 		/// Token used to get a new Access Token
 		/// </summary>
-		public string RefreshToken {
+		public string RefreshToken
+		{
 			get;
 			set;
 		}
@@ -163,7 +184,8 @@ namespace GreenshotPlugin.OAuth {
 		/// <summary>
 		/// Put anything in here which is needed for the OAuth 2 implementation of this specific service but isn't generic, e.g. for Google there is a "scope"
 		/// </summary>
-		public IDictionary<string, string> AdditionalAttributes {
+		public IDictionary<string, string> AdditionalAttributes
+		{
 			get;
 			set;
 		}
@@ -172,7 +194,8 @@ namespace GreenshotPlugin.OAuth {
 		/// This contains the code returned from the authorization, but only shortly after it was received.
 		/// It will be cleared as soon as it was used.
 		/// </summary>
-		public string Code {
+		public string Code
+		{
 			get;
 			set;
 		}

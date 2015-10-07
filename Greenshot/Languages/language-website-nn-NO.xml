@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Norwegian Nynorsk" ietf="nn-NO" version="1.0.2" languagegroup="1">
+
+<language>
 	<resources>
 		<resource name="home_downloads">Nedlastingar</resource>
 		<resource name="home_headline">Greenshot - ein gratis skjermknipsar som effektiviserer kvardagen</resource>

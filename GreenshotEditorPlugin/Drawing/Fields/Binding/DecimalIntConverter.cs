@@ -18,30 +18,39 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 
-namespace GreenshotEditorPlugin.Drawing.Fields.Binding {
+namespace GreenshotEditorPlugin.Drawing.Fields.Binding
+{
 	/// <summary>
 	/// Converts decimal to int and vice versa.
 	/// </summary>
 	public class DecimalIntConverter : AbstractBindingConverter<int, decimal>
 	{
 		private static DecimalIntConverter uniqueInstance;
-		
-		private DecimalIntConverter() {}
-		
-		protected override decimal convert(int o) {
+
+		private DecimalIntConverter()
+		{
+		}
+
+		protected override decimal convert(int o)
+		{
 			return Convert.ToDecimal(o);
 		}
-		
-		protected override int convert(decimal o) {
+
+		protected override int convert(decimal o)
+		{
 			return Convert.ToInt16(o);
 		}
-		
-		public static DecimalIntConverter GetInstance() {
-			if(uniqueInstance == null) uniqueInstance = new DecimalIntConverter();
+
+		public static DecimalIntConverter GetInstance()
+		{
+			if (uniqueInstance == null)
+			{
+				uniqueInstance = new DecimalIntConverter();
+			}
 			return uniqueInstance;
 		}
-		
 	}
 }

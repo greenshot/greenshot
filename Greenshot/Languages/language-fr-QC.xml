@@ -1,21 +1,26 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <language>
-	<resource prefix="Core">
+	<resources prefix="Core">
 		<resource name="about_bugs">Veuillez rapporter les bogues à</resource>
 		<resource name="about_donations">Si vous aimez Greenshot, vous pouvez nous soutenir :</resource>
 		<resource name="about_host">Greenshot est hébergé par sourceforge.net à</resource>
 		<resource name="about_icons">Icônes provenant du lot d'icônes Fugue de Kamiyamane Yuusuke (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright © 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot vous est fourni SANS AUCUNE GARANTIE. C'est un logiciel gratuit que vous êtes libres de redistribuer sous certaines conditions.
-Détails de la GNU General Public License :</resource>
+		<resource name="about_license">
+			Copyright © 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
+			Greenshot vous est fourni SANS AUCUNE GARANTIE. C'est un logiciel gratuit que vous êtes libres de redistribuer sous certaines conditions.
+			Détails de la GNU General Public License :
+		</resource>
 		<resource name="about_title">A propos de Greenshot</resource>
 		<resource name="application_title">Greenshot - l'utilitaire révolutionnaire de capture d'écran</resource>
 		<resource name="bugreport_cancel">Fermer</resource>
-		<resource name="bugreport_info">Désolé, une erreur inattendue s'est produite.
-La bonne nouvelle est la suivante : vous pouvez nous aider à nous en débarrasser en remplissant un rapport de bogue.
-Veuillez visiter l'URL ci-dessous, créer un nouveau rapport de bogue et coller le contenu de cette zone de texte.
-Veuillez y ajouter un résumé compréhensible des informations que vous jugez utiles à la reproduction du problème.
-De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si un rapport concernant ce problème existe déjà. (Vous pouvez utiliser l'outil de recherche pour les trouver rapidement.) Merci :)</resource>
+		<resource name="bugreport_info">
+			Désolé, une erreur inattendue s'est produite.
+			La bonne nouvelle est la suivante : vous pouvez nous aider à nous en débarrasser en remplissant un rapport de bogue.
+			Veuillez visiter l'URL ci-dessous, créer un nouveau rapport de bogue et coller le contenu de cette zone de texte.
+			Veuillez y ajouter un résumé compréhensible des informations que vous jugez utiles à la reproduction du problème.
+			De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si un rapport concernant ce problème existe déjà. (Vous pouvez utiliser l'outil de recherche pour les trouver rapidement.) Merci :)
+		</resource>
 		<resource name="bugreport_title">Erreur</resource>
 		<resource name="CANCEL">Annuler</resource>
 		<resource name="clipboard_error">Une erreur inattendue a eu lieu lors de l'écriture vers le presse-papier.</resource>
@@ -142,8 +147,10 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook avec du text</resource>
 		<resource name="error">Erreur</resource>
 		<resource name="error_multipleinstances">Une instance de Greenshot est déjà en cours d'exécution.</resource>
-		<resource name="error_nowriteaccess">Impossible de sauvegarder le fichier dans {0}.
-Veuillez vérifier que vous avez l'autorisation d'écrire dans le répertoire de stockage.</resource>
+		<resource name="error_nowriteaccess">
+			Impossible de sauvegarder le fichier dans {0}.
+			Veuillez vérifier que vous avez l'autorisation d'écrire dans le répertoire de stockage.
+		</resource>
 		<resource name="error_openfile">Le fichier "{0}" n'a pu être ouvert.</resource>
 		<resource name="error_openlink">Impossible d'ouvrir le lien '{0}'.</resource>
 		<resource name="error_save">Impossible de sauvegarder la capture d'écran, veuillez sélectionner un répertoire valide.</resource>
@@ -209,18 +216,20 @@ Veuillez vérifier que vous avez l'autorisation d'écrire dans le répertoire de
 		<resource name="settings_jpegquality">Qualité JPEG</resource>
 		<resource name="settings_jpegsettings">Paramètres JPEG</resource>
 		<resource name="settings_language">Langue</resource>
-		<resource name="settings_message_filenamepattern">Les variables suivantes seront automatiquement remplacées dans votre motif :
-${YYYY} Année sur 4 chiffres
-${MM} mois sur 2 chiffres
-${DD} jour sur 2 chiffres
-${hh} heure sur 2 chiffres
-${mm} minutes sur 2 chiffres
-${ss} secondes sur 2 chiffres
-${NUM} Incrément sur 6 chiffres
-${title} Titre de la fenêtre
-${user} Nom d'utilisateur Windows
-${domain} Domaine Windows
-${hostname} Nom d'hôte du PC</resource>
+		<resource name="settings_message_filenamepattern">
+			Les variables suivantes seront automatiquement remplacées dans votre motif :
+			${YYYY} Année sur 4 chiffres
+			${MM} mois sur 2 chiffres
+			${DD} jour sur 2 chiffres
+			${hh} heure sur 2 chiffres
+			${mm} minutes sur 2 chiffres
+			${ss} secondes sur 2 chiffres
+			${NUM} Incrément sur 6 chiffres
+			${title} Titre de la fenêtre
+			${user} Nom d'utilisateur Windows
+			${domain} Domaine Windows
+			${hostname} Nom d'hôte du PC
+		</resource>
 		<resource name="settings_network">Mises à jour réseau</resource>
 		<resource name="settings_output">Sortie</resource>
 		<resource name="settings_playsound">Jouer un son d'appareil photo</resource>
@@ -250,9 +259,11 @@ ${hostname} Nom d'hôte du PC</resource>
 		<resource name="update_found">Une nouvelle version de Greenshot est disponible! Voulez-vous télécharger Greenshot {0}?</resource>
 		<resource name="wait_ie_capture">Veuillez patienter pendant que la page dans Internet Explorer est capturée...</resource>
 		<resource name="warning">Avertissement</resource>
-		<resource name="warning_hotkeys">Un ou plusieurs raccourcis clavier n'ont pu êtres enregistrés. Il n'est donc pas possible d'utiliser les raccourcis clavier de Greenshot.
-Ce problème est probablement dû à un autre outil qui utilise les mêmes raccourcis clavier.
-Veuillez désactiver ce(s) logiciel(s) utilisant le bouton Impr.écran. Vous pouvez également utiliser Greenshot au moyen de son menu contextuel.</resource>
+		<resource name="warning_hotkeys">
+			Un ou plusieurs raccourcis clavier n'ont pu êtres enregistrés. Il n'est donc pas possible d'utiliser les raccourcis clavier de Greenshot.
+			Ce problème est probablement dû à un autre outil qui utilise les mêmes raccourcis clavier.
+			Veuillez désactiver ce(s) logiciel(s) utilisant le bouton Impr.écran. Vous pouvez également utiliser Greenshot au moyen de son menu contextuel.
+		</resource>
 		<resource name="WindowCaptureMode.Aero">Utiliser les couleurs personnalisées</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Conserver la transparence</resource>
 		<resource name="WindowCaptureMode.Auto">Automatiquement</resource>

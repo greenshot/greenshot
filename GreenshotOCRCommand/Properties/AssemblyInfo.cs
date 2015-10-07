@@ -25,6 +25,7 @@ using System.Runtime.InteropServices;
 // Allgemeine Informationen über eine Assembly werden über die folgenden 
 // Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,
 // die mit einer Assembly verknüpft sind.
+
 [assembly: AssemblyTitle("GreenshotOCRCommand")]
 [assembly: AssemblyDescription("A small executable to OCR a bitmap")]
 [assembly: AssemblyConfiguration("")]
@@ -37,12 +38,15 @@ using System.Runtime.InteropServices;
 // Durch Festlegen von ComVisible auf "false" werden die Typen in dieser Assembly unsichtbar 
 // für COM-Komponenten. Wenn Sie auf einen Typ in dieser Assembly von 
 // COM zugreifen müssen, legen Sie das ComVisible-Attribut für diesen Typ auf "true" fest.
+
 [assembly: ComVisible(false)]
 
 // Die folgende GUID bestimmt die ID der Typbibliothek, wenn dieses Projekt für COM verfügbar gemacht wird
+
 [assembly: Guid("d7668e7e-3018-4d27-9aa0-21b1afade1b8")]
 
 // The assembly version, replaced by build scripts
+
 [assembly: AssemblyVersion("1.3.0.0")]
 [assembly: AssemblyInformationalVersion("1.3.0.0")]
 [assembly: AssemblyFileVersion("1.3.0.0")]

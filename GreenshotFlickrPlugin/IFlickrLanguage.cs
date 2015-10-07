@@ -22,49 +22,61 @@
 using System.ComponentModel;
 using Dapplo.Config.Language;
 
-namespace GreenshotFlickrPlugin {
+namespace GreenshotFlickrPlugin
+{
 	[Language("flickr")]
-	public interface IFlickrLanguage : ILanguage, INotifyPropertyChanged {
+	public interface IFlickrLanguage : ILanguage, INotifyPropertyChanged
+	{
 		string UploadMenuItem
 		{
 			get;
 		}
-        string SettingsTitle
+
+		string SettingsTitle
 		{
 			get;
 		}
+
 		string LabelUploadFormat
 		{
 			get;
 		}
+
 		string UploadSuccess
 		{
 			get;
 		}
+
 		string UploadFailure
 		{
 			get;
 		}
+
 		string CommunicationWait
 		{
 			get;
 		}
+
 		string Configure
 		{
 			get;
 		}
+
 		string LabelHiddenFromSearch
 		{
 			get;
 		}
+
 		string LabelSafetyLevel
 		{
 			get;
 		}
+
 		string LabelAfterUpload
 		{
 			get;
 		}
+
 		string LabelAfterUploadLinkToClipBoard
 		{
 			get;

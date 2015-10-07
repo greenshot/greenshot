@@ -23,7 +23,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.Windows.Forms;
-
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Greenshot.Helpers;
@@ -40,54 +39,71 @@ namespace Greenshot.Destinations
 	/// <summary>
 	/// Description of PrinterDestination.
 	/// </summary>
-	public class PrinterDestination : AbstractDestination {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(PrinterDestination));
+	public class PrinterDestination : AbstractDestination
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (PrinterDestination));
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		public const string DESIGNATION = "Printer";
 		private readonly string _printerName;
 
-		public PrinterDestination() {
+		public PrinterDestination()
+		{
 		}
 
-		public PrinterDestination(string printerName) {
+		public PrinterDestination(string printerName)
+		{
 			_printerName = printerName;
 		}
-		public override string Designation {
-			get {
+
+		public override string Designation
+		{
+			get
+			{
 				return DESIGNATION;
 			}
 		}
 
-		public override string Description {
-			get {
-				if (_printerName != null) {
+		public override string Description
+		{
+			get
+			{
+				if (_printerName != null)
+				{
 					return language.SettingsDestinationPrinter + " - " + _printerName;
 				}
 				return language.SettingsDestinationPrinter;
 			}
 		}
 
-		public override int Priority {
-			get {
+		public override int Priority
+		{
+			get
+			{
 				return 2;
 			}
 		}
 
-		public override Keys EditorShortcutKeys {
-			get {
+		public override Keys EditorShortcutKeys
+		{
+			get
+			{
 				return Keys.Control | Keys.P;
 			}
 		}
 
-		public override Image DisplayIcon {
-			get {
+		public override Image DisplayIcon
+		{
+			get
+			{
 				return GreenshotResources.GetImage("Printer.Image");
 			}
 		}
 
-		public override bool IsDynamic {
-			get {
+		public override bool IsDynamic
+		{
+			get
+			{
 				return true;
 			}
 		}
@@ -96,24 +112,30 @@ namespace Greenshot.Destinations
 		/// Create destinations for all the installed printers
 		/// </summary>
 		/// <returns>IEnumerable<IDestination></returns>
-		public override IEnumerable<IDestination> DynamicDestinations() {
+		public override IEnumerable<IDestination> DynamicDestinations()
+		{
 			PrinterSettings settings = new PrinterSettings();
 			string defaultPrinter = settings.PrinterName;
 			List<string> printers = new List<string>();
 
-			foreach (string printer in PrinterSettings.InstalledPrinters) {
+			foreach (string printer in PrinterSettings.InstalledPrinters)
+			{
 				printers.Add(printer);
 			}
-			printers.Sort(delegate(string p1, string p2) {
-				if(defaultPrinter.Equals(p1)) {
+			printers.Sort(delegate(string p1, string p2)
+			{
+				if (defaultPrinter.Equals(p1))
+				{
 					return -1;
 				}
-				if(defaultPrinter.Equals(p2)) {
+				if (defaultPrinter.Equals(p2))
+				{
 					return 1;
 				}
 				return p1.CompareTo(p2);
 			});
-			foreach(string printer in printers) {
+			foreach (string printer in printers)
+			{
 				yield return new PrinterDestination(printer);
 			}
 		}
@@ -125,34 +147,47 @@ namespace Greenshot.Destinations
 		/// <param name="surface"></param>
 		/// <param name="captureDetails"></param>
 		/// <returns>ExportInformation</returns>
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			var exportInformation = new ExportInformation {
-				DestinationDesignation = Designation,
-				DestinationDescription = Description
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		{
+			var exportInformation = new ExportInformation
+			{
+				DestinationDesignation = Designation, DestinationDescription = Description
 			};
-			try {
-				await Task.Factory.StartNew(() => {
+			try
+			{
+				await Task.Factory.StartNew(() =>
+				{
 					PrinterSettings printerSettings = null;
-					if (!string.IsNullOrEmpty(_printerName)) {
-						using (var printHelper = new PrintHelper(surface, captureDetails)) {
+					if (!string.IsNullOrEmpty(_printerName))
+					{
+						using (var printHelper = new PrintHelper(surface, captureDetails))
+						{
 							printerSettings = printHelper.PrintTo(_printerName);
 						}
-					} else if (!manuallyInitiated) {
+					}
+					else if (!manuallyInitiated)
+					{
 						var settings = new PrinterSettings();
-						using (var printHelper = new PrintHelper(surface, captureDetails)) {
+						using (var printHelper = new PrintHelper(surface, captureDetails))
+						{
 							printerSettings = printHelper.PrintTo(settings.PrinterName);
 						}
-					} else {
-						using (var printHelper = new PrintHelper(surface, captureDetails)) {
+					}
+					else
+					{
+						using (var printHelper = new PrintHelper(surface, captureDetails))
+						{
 							printerSettings = printHelper.PrintWithDialog();
 						}
 					}
-					if (printerSettings != null) {
+					if (printerSettings != null)
+					{
 						exportInformation.ExportMade = true;
 					}
 				}, token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
-
-			} catch (Exception ex) {
+			}
+			catch (Exception ex)
+			{
 				exportInformation.ErrorMessage = ex.Message;
 			}
 

@@ -21,16 +21,22 @@
 
 using System;
 
-namespace GreenshotPlugin.Core {
-	public class EventDelay {
+namespace GreenshotPlugin.Core
+{
+	public class EventDelay
+	{
 		private long lastCheck = 0;
 		private long waitTime;
-		public EventDelay(long ticks) {
+
+		public EventDelay(long ticks)
+		{
 			this.waitTime = ticks;
 		}
 
-		public bool Check() {
-			lock (this) {
+		public bool Check()
+		{
+			lock (this)
+			{
 				long now = DateTime.Now.Ticks;
 				bool isPassed = now - lastCheck > waitTime;
 				lastCheck = now;

@@ -38,60 +38,81 @@ namespace Greenshot.Helpers
 	/// Create to fix the sometimes wrongly played sample, especially after first start from IDE
 	/// See: http://www.codeproject.com/KB/audio-video/soundplayerbug.aspx?msg=2487569
 	/// </summary>
-	public static class SoundHelper {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(SoundHelper));
-        private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+	public static class SoundHelper
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (SoundHelper));
+		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static GCHandle? gcHandle = null;
-	    private static byte[] soundBuffer = null;
-		
-		public static void Initialize() {
-			if (gcHandle == null) {
-				try {
-					ResourceManager resources = new ResourceManager("Greenshot.Sounds", Assembly.GetExecutingAssembly());
-					soundBuffer = (byte[])resources.GetObject("camera");
+		private static byte[] soundBuffer = null;
 
-					if (conf.NotificationSound != null && conf.NotificationSound.EndsWith(".wav")) {
-						try {
-							if (File.Exists(conf.NotificationSound)) {
+		public static void Initialize()
+		{
+			if (gcHandle == null)
+			{
+				try
+				{
+					ResourceManager resources = new ResourceManager("Greenshot.Sounds", Assembly.GetExecutingAssembly());
+					soundBuffer = (byte[]) resources.GetObject("camera");
+
+					if (conf.NotificationSound != null && conf.NotificationSound.EndsWith(".wav"))
+					{
+						try
+						{
+							if (File.Exists(conf.NotificationSound))
+							{
 								soundBuffer = File.ReadAllBytes(conf.NotificationSound);
 							}
-						} catch (Exception ex) {
+						}
+						catch (Exception ex)
+						{
 							LOG.WarnFormat("couldn't load {0}: {1}", conf.NotificationSound, ex.Message);
 						}
 					}
 					// Pin sound so it can't be moved by the Garbage Collector, this was the cause for the bad sound
 					gcHandle = GCHandle.Alloc(soundBuffer, GCHandleType.Pinned);
-				} catch (Exception e) {
+				}
+				catch (Exception e)
+				{
 					LOG.Error("Error initializing.", e);
 				}
 			}
 		}
-		
+
 		/// <summary>
 		/// Play the sound async (is wrapeed)
 		/// </summary>
 		/// <returns></returns>
-		public static async Task Play(CancellationToken token = default(CancellationToken)) {
-            if (soundBuffer != null) {
-                SoundFlags flags = SoundFlags.SND_ASYNC | SoundFlags.SND_MEMORY | SoundFlags.SND_NOWAIT | SoundFlags.SND_NOSTOP;
-                try {
-					await Task.Run(() => WinMM.PlaySound(gcHandle.Value.AddrOfPinnedObject(), (UIntPtr)0, (uint)flags), token).ConfigureAwait(false);
-                } catch (Exception e) {
-                    LOG.Error("Error in play.", e);
-                }
-            }
-	    }
+		public static async Task Play(CancellationToken token = default(CancellationToken))
+		{
+			if (soundBuffer != null)
+			{
+				SoundFlags flags = SoundFlags.SND_ASYNC | SoundFlags.SND_MEMORY | SoundFlags.SND_NOWAIT | SoundFlags.SND_NOSTOP;
+				try
+				{
+					await Task.Run(() => WinMM.PlaySound(gcHandle.Value.AddrOfPinnedObject(), (UIntPtr) 0, (uint) flags), token).ConfigureAwait(false);
+				}
+				catch (Exception e)
+				{
+					LOG.Error("Error in play.", e);
+				}
+			}
+		}
 
-	    public static void Deinitialize() {
-	    	try {
-				if (gcHandle != null) {
-					WinMM.PlaySound((byte[])null, (UIntPtr)0, (uint)0);
+		public static void Deinitialize()
+		{
+			try
+			{
+				if (gcHandle != null)
+				{
+					WinMM.PlaySound((byte[]) null, (UIntPtr) 0, (uint) 0);
 					gcHandle.Value.Free();
 					gcHandle = null;
 				}
-	    	} catch (Exception e) {
-	    		LOG.Error("Error in deinitialize.", e);
-	    	}
-	    }
+			}
+			catch (Exception e)
+			{
+				LOG.Error("Error in deinitialize.", e);
+			}
+		}
 	}
 }

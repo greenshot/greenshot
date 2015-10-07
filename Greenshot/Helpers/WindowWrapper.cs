@@ -18,19 +18,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Windows.Forms;
 
-namespace Greenshot.Helpers {
-	public class WindowWrapper : IWin32Window {
-		public WindowWrapper(IntPtr handle) {
+namespace Greenshot.Helpers
+{
+	public class WindowWrapper : IWin32Window
+	{
+		public WindowWrapper(IntPtr handle)
+		{
 			_hwnd = handle;
 		}
-	
-		public IntPtr Handle {
-			get { return _hwnd; }
+
+		public IntPtr Handle
+		{
+			get
+			{
+				return _hwnd;
+			}
 		}
-	
+
 		private IntPtr _hwnd;
 	}
 }

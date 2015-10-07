@@ -35,10 +35,11 @@ namespace GreenshotEditorPlugin.Drawing.Fields
 	[Serializable]
 	public abstract class AbstractFieldHolder : IFieldHolder
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(AbstractFieldHolder));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (AbstractFieldHolder));
 		private static IEditorConfiguration editorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
 
 		protected IDictionary<FieldTypes, FieldAttribute> fieldAttributes = new Dictionary<FieldTypes, FieldAttribute>();
+
 		/// <summary>
 		/// Store the field attributes for this element
 		/// </summary>
@@ -53,13 +54,15 @@ namespace GreenshotEditorPlugin.Drawing.Fields
 		/// <summary>
 		/// Get the flag of this element
 		/// </summary>
-		public ElementFlag Flag {
+		public ElementFlag Flag
+		{
 			get;
 			private set;
 		}
 
 		[NonSerialized]
 		private PropertyChangedEventHandler propertyChanged;
+
 		public event PropertyChangedEventHandler PropertyChanged
 		{
 			add
@@ -133,10 +136,11 @@ namespace GreenshotEditorPlugin.Drawing.Fields
 			if (editorConfiguration.LastUsedFieldValues.ContainsKey(key))
 			{
 				string cachedValue = editorConfiguration.LastUsedFieldValues[key];
-				if (converter.CanConvertFrom(typeof(string))) {
+				if (converter.CanConvertFrom(typeof (string)))
+				{
 					defaultValue = converter.ConvertFromInvariantString(cachedValue);
 				}
-            }
+			}
 			else
 			{
 				editorConfiguration.LastUsedFieldValues.Add(key, converter.ConvertToInvariantString(defaultValue));
@@ -155,7 +159,7 @@ namespace GreenshotEditorPlugin.Drawing.Fields
 			{
 				var converter = TypeDescriptor.GetConverter(fieldAttribute.PropertyType);
 				editorConfiguration.LastUsedFieldValues[key] = converter.ConvertToInvariantString(fieldAttribute.GetValue(this));
-            }
+			}
 		}
 
 		/// <summary>

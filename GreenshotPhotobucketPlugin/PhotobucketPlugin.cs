@@ -36,8 +36,9 @@ namespace GreenshotPhotobucketPlugin
 	/// <summary>
 	/// This is the GreenshotPhotobucketPlugin base code
 	/// </summary>
-	public class PhotobucketPlugin : IGreenshotPlugin {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PhotobucketPlugin));
+	public class PhotobucketPlugin : IGreenshotPlugin
+	{
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (PhotobucketPlugin));
 		private static IPhotobucketConfiguration _config;
 		private static IPhotobucketLanguage _language;
 
@@ -46,25 +47,31 @@ namespace GreenshotPhotobucketPlugin
 		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _itemPlugInConfig;
 
-		public void Dispose() {
+		public void Dispose()
+		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing) {
-			if (disposing) {
-				if (_itemPlugInConfig != null) {
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				if (_itemPlugInConfig != null)
+				{
 					_itemPlugInConfig.Dispose();
 					_itemPlugInConfig = null;
 				}
 			}
 		}
 
-		public IEnumerable<IDestination> Destinations() {
+		public IEnumerable<IDestination> Destinations()
+		{
 			yield return new PhotobucketDestination();
 		}
 
-		public IEnumerable<IProcessor> Processors() {
+		public IEnumerable<IProcessor> Processors()
+		{
 			yield break;
 		}
 
@@ -75,34 +82,39 @@ namespace GreenshotPhotobucketPlugin
 		/// <param name="myAttribute">My own attributes</param>
 		/// <param name="token"></param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken()) {
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken())
+		{
 			_host = pluginHost;
 			Attributes = myAttribute;
 
 			// Register / get the photobucket configuration
 			_config = await IniConfig.Current.RegisterAndGetAsync<IPhotobucketConfiguration>(token);
 			_language = await LanguageLoader.Current.RegisterAndGetAsync<IPhotobucketLanguage>(token);
-			_resources = new ComponentResourceManager(typeof(PhotobucketPlugin));
-			
+			_resources = new ComponentResourceManager(typeof (PhotobucketPlugin));
+
 			_itemPlugInConfig = new ToolStripMenuItem(_language.Configure);
 			_itemPlugInConfig.Tag = _host;
-			_itemPlugInConfig.Click += delegate {
+			_itemPlugInConfig.Click += delegate
+			{
 				ShowConfigDialog();
 			};
-			_itemPlugInConfig.Image = (Image)_resources.GetObject("Photobucket");
+			_itemPlugInConfig.Image = (Image) _resources.GetObject("Photobucket");
 
 			PluginUtils.AddToContextMenu(_host, _itemPlugInConfig);
 			_language.PropertyChanged += OnLanguageChanged;
 			return true;
 		}
 
-		public void OnLanguageChanged(object sender, EventArgs e) {
-			if (_itemPlugInConfig != null) {
+		public void OnLanguageChanged(object sender, EventArgs e)
+		{
+			if (_itemPlugInConfig != null)
+			{
 				_itemPlugInConfig.Text = _language.Configure;
 			}
 		}
 
-		public void Shutdown() {
+		public void Shutdown()
+		{
 			LOG.Debug("Photobucket Plugin shutdown.");
 			_language.PropertyChanged -= OnLanguageChanged;
 		}
@@ -110,7 +122,8 @@ namespace GreenshotPhotobucketPlugin
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
-		public void Configure() {
+		public void Configure()
+		{
 			ShowConfigDialog();
 		}
 
@@ -130,7 +143,8 @@ namespace GreenshotPhotobucketPlugin
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		public void Closing(object sender, FormClosingEventArgs e) {
+		public void Closing(object sender, FormClosingEventArgs e)
+		{
 			LOG.Debug("Application closing, de-registering Photobucket Plugin!");
 			Shutdown();
 		}

@@ -1,4 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <language description="Nederlands" ietf="nl-NL" version="1.0.0" languagegroup="1">
 	<resources>
 		<resource name="optimize">Prestaties verbeteren, kan even duren.</resource>

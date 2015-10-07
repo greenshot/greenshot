@@ -1,34 +1,36 @@
-<?xml version="1.0" encoding="utf-8"?>
-<language description="Deutsch" ietf="de-DE" version="1.0.0">
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<language>
 	<resources prefix="Dropbox">
 		<resource name="label_AfterUploadLinkToClipBoard">
-		 Link in der Zwischenablage
+			Link in der Zwischenablage
 		</resource>
 		<resource name="label_AfterUploadOpenHistory">
-		 Historie öffnen		</resource>
+			Historie öffnen
+		</resource>
 		<resource name="label_AfterUpload">
-		Anschliessend
+			Anschliessend
 		</resource>
 		<resource name="Configure">
 			Dropbox Einstellungen
 		</resource>
 		<resource name="upload_menu_item">
-		Zu Dropbox hochladen
-	</resource>
-	<resource name="settings_title">
-		Dropbox Einstellungen
-	</resource>
+			Zu Dropbox hochladen
+		</resource>
+		<resource name="settings_title">
+			Dropbox Einstellungen
+		</resource>
 		<resource name="upload_success">
-		Image erfolgreich zu Dropbox hochgeladen!
-	</resource>
+			Image erfolgreich zu Dropbox hochgeladen!
+		</resource>
 		<resource name="upload_failure">
-		Beim Hochladen ist ein Fehler aufgetreten :
-	</resource>
+			Beim Hochladen ist ein Fehler aufgetreten :
+		</resource>
 		<resource name="label_upload_format">
-    Grafikformat
-	</resource>
+			Grafikformat
+		</resource>
 		<resource name="communication_wait">
-		Übermittle Daten zu Dropbox. Bitte warten...
-	</resource>
-  </resources>
+			Übermittle Daten zu Dropbox. Bitte warten...
+		</resource>
+	</resources>
 </language>

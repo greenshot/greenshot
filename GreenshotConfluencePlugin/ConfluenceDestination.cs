@@ -24,7 +24,6 @@ using Greenshot.Plugin;
 using GreenshotConfluencePlugin.Model;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
-
 using GreenshotPlugin.Windows;
 using System;
 using System.Collections.Generic;
@@ -44,116 +43,152 @@ namespace GreenshotConfluencePlugin
 	/// <summary>
 	/// Description of ConfluenceDestination.
 	/// </summary>
-	public class ConfluenceDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceDestination));
+	public class ConfluenceDestination : AbstractDestination
+	{
+		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ConfluenceDestination));
 		private static readonly IConfluenceConfiguration config = IniConfig.Current.Get<IConfluenceConfiguration>();
 		private static readonly IConfluenceLanguage _language = LanguageLoader.Current.Get<IConfluenceLanguage>();
 		private static Image confluenceIcon = null;
 		private Content _content;
-		public static bool IsInitialized {
+
+		public static bool IsInitialized
+		{
 			get;
 			private set;
 		}
 
-		static ConfluenceDestination() {
+		static ConfluenceDestination()
+		{
 			IsInitialized = false;
-			try {
+			try
+			{
 				Uri confluenceIconUri = new Uri("/GreenshotConfluencePlugin;component/Images/Confluence.ico", UriKind.Relative);
-				using (Stream iconStream = Application.GetResourceStream(confluenceIconUri).Stream) {
-					using (Image tmpImage = Image.FromStream(iconStream)) {
+				using (Stream iconStream = Application.GetResourceStream(confluenceIconUri).Stream)
+				{
+					using (Image tmpImage = Image.FromStream(iconStream))
+					{
 						confluenceIcon = ImageHelper.Clone(tmpImage);
 					}
 				}
 				IsInitialized = true;
-			} catch (Exception ex) {
+			}
+			catch (Exception ex)
+			{
 				LOG.ErrorFormat("Problem in the confluence static initializer: {0}", ex.Message);
 			}
 		}
-		
-		public ConfluenceDestination() {
+
+		public ConfluenceDestination()
+		{
 		}
 
-		public ConfluenceDestination(Content content) {
+		public ConfluenceDestination(Content content)
+		{
 			_content = content;
 		}
-		
-		public override string Designation {
-			get {
+
+		public override string Designation
+		{
+			get
+			{
 				return "Confluence";
 			}
 		}
 
-		public override string Description {
-			get {
-				if (_content == null) {
+		public override string Description
+		{
+			get
+			{
+				if (_content == null)
+				{
 					return _language.UploadMenuItem;
-				} else {
+				}
+				else
+				{
 					return _language.UploadMenuItem + ": \"" + _content.Title + "\"";
 				}
 			}
 		}
 
-		public override bool IsDynamic {
-			get {
+		public override bool IsDynamic
+		{
+			get
+			{
 				return true;
 			}
 		}
-		
-		public override bool IsActive {
-			get {
+
+		public override bool IsActive
+		{
+			get
+			{
 				return base.IsActive && !string.IsNullOrEmpty(config.RestUrl);
 			}
 		}
 
-		public override Image DisplayIcon {
-			get {
+		public override Image DisplayIcon
+		{
+			get
+			{
 				return confluenceIcon;
 			}
 		}
-		
-		public override IEnumerable<IDestination> DynamicDestinations() {
+
+		public override IEnumerable<IDestination> DynamicDestinations()
+		{
 			// TODO: Fix async, this should not be called from synchronous code but should run as a task which adds to the context menu
 			IList<Content> currentPages = Task.Run(async () => await ConfluenceUtils.GetCurrentPages()).GetAwaiter().GetResult();
-			if (currentPages == null || currentPages.Count == 0) {
+			if (currentPages == null || currentPages.Count == 0)
+			{
 				yield break;
 			}
-			foreach (var currentPage in currentPages) {
+			foreach (var currentPage in currentPages)
+			{
 				yield return new ConfluenceDestination(currentPage);
 			}
 		}
 
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surfaceToUpload, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			var exportInformation = new ExportInformation {
-				DestinationDesignation = Designation,
-				DestinationDescription = Description
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surfaceToUpload, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		{
+			var exportInformation = new ExportInformation
+			{
+				DestinationDesignation = Designation, DestinationDescription = Description
 			};
 			string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(config.FilenamePattern, config.UploadFormat, captureDetails));
 			var outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
-			if (_content == null) {
-
+			if (_content == null)
+			{
 				ConfluenceUpload confluenceUpload = new ConfluenceUpload(filename);
 				Nullable<bool> dialogResult = await confluenceUpload.ShowDialogAsync(token);
-				if (dialogResult.HasValue && dialogResult.Value) {
+				if (dialogResult.HasValue && dialogResult.Value)
+				{
 					_content = confluenceUpload.SelectedPage;
 					filename = confluenceUpload.Filename;
 				}
 			}
 
 			string extension = "." + config.UploadFormat;
-			if (filename != null && !filename.ToLower().EndsWith(extension)) {
+			if (filename != null && !filename.ToLower().EndsWith(extension))
+			{
 				filename = filename + extension;
 			}
-			if (_content != null) {
-				try {
+			if (_content != null)
+			{
+				try
+				{
 					var confluenceApi = ConfluencePlugin.ConfluenceAPI;
 					// Run upload in the background
-					await PleaseWaitWindow.CreateAndShowAsync(Description, _language.CommunicationWait, async (progress, pleaseWaitToken) => {
+					await PleaseWaitWindow.CreateAndShowAsync(Description, _language.CommunicationWait, async (progress, pleaseWaitToken) =>
+					{
 						var multipartFormDataContent = new MultipartFormDataContent();
-						using (var stream = new MemoryStream()) {
+						using (var stream = new MemoryStream())
+						{
 							ImageOutput.SaveToStream(surfaceToUpload, stream, outputSettings);
 							stream.Position = 0;
-							using (var uploadStream = new ProgressStream(stream, progress)) {
-								using (var streamContent = new StreamContent(uploadStream)) {
+							using (var uploadStream = new ProgressStream(stream, progress))
+							{
+								using (var streamContent = new StreamContent(uploadStream))
+								{
 									streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
 									multipartFormDataContent.Add(streamContent, "file", filename);
 									return await confluenceApi.AttachToContentAsync(_content.Id, multipartFormDataContent, pleaseWaitToken);
@@ -164,13 +199,21 @@ namespace GreenshotConfluencePlugin
 
 					LOG.Debug("Uploaded to Confluence.");
 					exportInformation.ExportMade = true;
-					var exportedUri = confluenceApi.ConfluenceBaseUri.AppendSegments("pages", "viewpage.action").ExtendQuery(new Dictionary<string, object> { { "pageId", _content.Id } });
+					var exportedUri = confluenceApi.ConfluenceBaseUri.AppendSegments("pages", "viewpage.action").ExtendQuery(new Dictionary<string, object>
+					{
+						{
+							"pageId", _content.Id
+						}
+					});
 					exportInformation.ExportedToUri = exportedUri;
-					if (config.CopyWikiMarkupForImageToClipboard) {
+					if (config.CopyWikiMarkupForImageToClipboard)
+					{
 						ClipboardHelper.SetClipboardData("!" + filename + "!");
 					}
-					if (config.OpenPageAfterUpload) {
-						try {
+					if (config.OpenPageAfterUpload)
+					{
+						try
+						{
 							Process.Start(exportInformation.ExportedToUri.AbsoluteUri);
 						}
 						catch
@@ -178,10 +221,14 @@ namespace GreenshotConfluencePlugin
 							// ignored
 						}
 					}
-				} catch (TaskCanceledException tcEx) {
+				}
+				catch (TaskCanceledException tcEx)
+				{
 					exportInformation.ErrorMessage = tcEx.Message;
 					LOG.Info(tcEx.Message);
-				} catch (Exception e) {
+				}
+				catch (Exception e)
+				{
 					exportInformation.ErrorMessage = e.Message;
 					LOG.Warn(e);
 					MessageBox.Show(_language.UploadFailure + " " + e.Message, Designation, MessageBoxButton.OK, MessageBoxImage.Error);
@@ -190,6 +237,5 @@ namespace GreenshotConfluencePlugin
 			ProcessExport(exportInformation, surfaceToUpload);
 			return exportInformation;
 		}
-
 	}
 }

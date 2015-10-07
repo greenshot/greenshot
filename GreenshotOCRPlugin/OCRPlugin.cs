@@ -29,8 +29,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace GreenshotOCR {
-	internal enum ModiLanguage {
+namespace GreenshotOCR
+{
+	internal enum ModiLanguage
+	{
 // ReSharper disable InconsistentNaming
 		CHINESE_SIMPLIFIED = 2052,
 		CHINESE_TRADITIONAL = 1028,
@@ -60,31 +62,39 @@ namespace GreenshotOCR {
 	/// <summary>
 	/// OCR Plugin Greenshot
 	/// </summary>
-	public class OcrPlugin : IGreenshotPlugin {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OcrPlugin));
+	public class OcrPlugin : IGreenshotPlugin
+	{
+		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (OcrPlugin));
 		private string _ocrCommand;
 		private static IOCRConfiguration _config;
 		private PluginAttribute _myAttributes;
 		private System.Windows.Forms.ToolStripMenuItem _ocrMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 
-		public void Dispose() {
+		public void Dispose()
+		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing) {
-			if (disposing) {
-				if (_ocrMenuItem != null) {
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				if (_ocrMenuItem != null)
+				{
 					_ocrMenuItem.Dispose();
 					_ocrMenuItem = null;
 				}
 			}
 		}
 
-		public IEnumerable<IDestination> Destinations() {
+		public IEnumerable<IDestination> Destinations()
+		{
 			yield return new OCRDestination(_ocrCommand);
 		}
-		public IEnumerable<IProcessor> Processors() {
+
+		public IEnumerable<IProcessor> Processors()
+		{
 			yield break;
 		}
 
@@ -94,7 +104,8 @@ namespace GreenshotOCR {
 		/// <param name="greenshotHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="myAttribute">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken()) {
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken())
+		{
 			LOG.Debug("Initialize called of " + myAttribute.Name);
 
 			_myAttributes = myAttribute;
@@ -106,37 +117,43 @@ namespace GreenshotOCR {
 				_ocrCommand = Path.Combine(dllPath, "greenshotocrcommand.exe");
 			}
 
-			if (!HasModi()) {
+			if (!HasModi())
+			{
 				LOG.Warn("No MODI found!");
 				return false;
 			}
 			// Register / get the ocr configuration
 			_config = await IniConfig.Current.RegisterAndGetAsync<IOCRConfiguration>(token);
-			
-			if (_config.Language != null) {
-				_config.Language = _config.Language.Replace("miLANG_","").Replace("_"," ");
+
+			if (_config.Language != null)
+			{
+				_config.Language = _config.Language.Replace("miLANG_", "").Replace("_", " ");
 			}
 			return true;
 		}
-		
+
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Shutdown
 		/// </summary>
-		public void Shutdown() {
+		public void Shutdown()
+		{
 			LOG.DebugFormat("Shutdown of {0}", _myAttributes.Name);
 		}
-		
+
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
-		public void Configure() {
-			if (!HasModi()) {
+		public void Configure()
+		{
+			if (!HasModi())
+			{
 				MessageBox.Show("Greenshot OCR", "Sorry, is seems that Microsoft Office Document Imaging (MODI) is not installed, therefor the OCR Plugin cannot work.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 				return;
 			}
-			var settingsForm = new SettingsForm(Enum.GetNames(typeof(ModiLanguage)), _config);
+			var settingsForm = new SettingsForm(Enum.GetNames(typeof (ModiLanguage)), _config);
 			DialogResult result = settingsForm.ShowDialog();
-			if (result == DialogResult.OK) {
+			if (result == DialogResult.OK)
+			{
 				// "Re"set hotkeys
 			}
 		}
@@ -145,9 +162,12 @@ namespace GreenshotOCR {
 		/// Check if MODI is installed and available
 		/// </summary>
 		/// <returns></returns>
-		private bool HasModi() {
-			try {
-				using (var process = Process.Start(_ocrCommand, "-c")) {
+		private bool HasModi()
+		{
+			try
+			{
+				using (var process = Process.Start(_ocrCommand, "-c"))
+				{
 					if (process != null)
 					{
 						// TODO: Can change to async...
@@ -155,7 +175,9 @@ namespace GreenshotOCR {
 						return process.ExitCode == 0;
 					}
 				}
-			} catch(Exception e) {
+			}
+			catch (Exception e)
+			{
 				LOG.DebugFormat("Error trying to initiate MODI: {0}", e.Message);
 			}
 			LOG.InfoFormat("No Microsoft Office Document Imaging (MODI) found, disabling OCR");

@@ -27,7 +27,6 @@ using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
 using GreenshotPlugin.UnmanagedHelpers;
-
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -61,14 +60,14 @@ namespace Greenshot.Forms
 
 		public static void Start(string[] args)
 		{
-
 			// Set the Thread name, is better than "1"
 			Thread.CurrentThread.Name = Application.ProductName;
 
 			// Read arguments
 			var arguments = new Arguments(args);
 			// Don't continue if the Help was requested
-			if (arguments.IsHelp) {
+			if (arguments.IsHelp)
+			{
 				return;
 			}
 
@@ -78,11 +77,13 @@ namespace Greenshot.Forms
 			// Setting the INI-directory
 			string iniDirectory = null;
 			// Specified the ini directory directly
-			if (!String.IsNullOrWhiteSpace(arguments.IniDirectory)) {
+			if (!String.IsNullOrWhiteSpace(arguments.IniDirectory))
+			{
 				iniDirectory = arguments.IniDirectory;
 			}
 			// Portable mode
-			if (PortableHelper.IsPortable) {
+			if (PortableHelper.IsPortable)
+			{
 				iniDirectory = PortableHelper.PortableIniFileLocation;
 			}
 
@@ -96,13 +97,14 @@ namespace Greenshot.Forms
 			// Init Log4NET
 			LogFileLocation = LogHelper.InitializeLog4NET();
 			// Get logger
-			LOG = LogManager.GetLogger(typeof(MainForm));
+			LOG = LogManager.GetLogger(typeof (MainForm));
 
 			// Read configuration & languages
 			var languageLoader = new LanguageLoader("Greenshot");
 			languageLoader.CorrectMissingTranslations();
 
-			Task.Run(async () => {
+			Task.Run(async () =>
+			{
 				language = await LanguageLoader.Current.RegisterAndGetAsync<IGreenshotLanguage>();
 				coreConfiguration = await iniConfig.RegisterAndGetAsync<ICoreConfiguration>();
 				await iniConfig.RegisterAndGetAsync<INetworkConfiguration>();
@@ -115,18 +117,22 @@ namespace Greenshot.Forms
 			{
 				// Fix for Bug 2495900, Multi-user Environment
 				// check whether there's an local instance running already
-				if (!LockAppMutex()) {
+				if (!LockAppMutex())
+				{
 					// Other instance is running, call a Greenshot client or exit etc
-					
-					if (arguments.FilesToOpen.Count > 0) {
+
+					if (arguments.FilesToOpen.Count > 0)
+					{
 						GreenshotClient.OpenFiles(arguments.FilesToOpen);
 					}
 
-					if (arguments.IsExit) {
+					if (arguments.IsExit)
+					{
 						GreenshotClient.Exit();
 					}
 
-					if (arguments.IsReload) {
+					if (arguments.IsReload)
+					{
 						GreenshotClient.ReloadConfig();
 					}
 
@@ -135,7 +141,8 @@ namespace Greenshot.Forms
 					return;
 				}
 
-				if (!String.IsNullOrWhiteSpace(arguments.Language)) {
+				if (!String.IsNullOrWhiteSpace(arguments.Language))
+				{
 					// Set language
 					coreConfiguration.Language = arguments.Language;
 				}
@@ -170,33 +177,43 @@ namespace Greenshot.Forms
 		/// <summary>
 		/// Helper method to show the other running instances
 		/// </summary>
-		private static void ShowOtherInstances() {
+		private static void ShowOtherInstances()
+		{
 			var instanceInfo = new StringBuilder();
 			bool matchedThisProcess = false;
 			int index = 1;
 			int currentProcessId;
-			using (var currentProcess = Process.GetCurrentProcess()) {
+			using (var currentProcess = Process.GetCurrentProcess())
+			{
 				currentProcessId = currentProcess.Id;
 			}
-			foreach (var greenshotProcess in Process.GetProcessesByName("greenshot")) {
-				try {
+			foreach (var greenshotProcess in Process.GetProcessesByName("greenshot"))
+			{
+				try
+				{
 					instanceInfo.Append(index++ + ": ").AppendLine(Kernel32.GetProcessPath(greenshotProcess.Id));
-					if (currentProcessId == greenshotProcess.Id) {
+					if (currentProcessId == greenshotProcess.Id)
+					{
 						matchedThisProcess = true;
 					}
-				} catch (Exception ex) {
+				}
+				catch (Exception ex)
+				{
 					LOG.Debug(ex);
 				}
 				greenshotProcess.Dispose();
 			}
-			if (!matchedThisProcess) {
-				using (Process currentProcess = Process.GetCurrentProcess()) {
+			if (!matchedThisProcess)
+			{
+				using (Process currentProcess = Process.GetCurrentProcess())
+				{
 					instanceInfo.Append(index + ": ").AppendLine(Kernel32.GetProcessPath(currentProcess.Id));
 				}
 			}
 
 			// A dirty fix to make sure the messagebox is visible as a Greenshot window on the taskbar
-			using (var dummyForm = new Form()) {
+			using (var dummyForm = new Form())
+			{
 				dummyForm.Icon = GreenshotResources.GetGreenshotIcon();
 				dummyForm.ShowInTaskbar = true;
 				dummyForm.FormBorderStyle = FormBorderStyle.None;
@@ -213,10 +230,12 @@ namespace Greenshot.Forms
 		/// This tries to get the AppMutex, which takes care of having multiple Greenshot instances running
 		/// </summary>
 		/// <returns>true if it worked, false if another instance is already running</returns>
-		private static bool LockAppMutex() {
+		private static bool LockAppMutex()
+		{
 			bool lockSuccess = true;
 			// check whether there's an local instance running already, but use local so this works in a multi-user environment
-			try {
+			try
+			{
 				// Added Mutex Security, hopefully this prevents the UnauthorizedAccessException more gracefully
 				// See an example in Bug #3131534
 				SecurityIdentifier sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
@@ -229,21 +248,28 @@ namespace Greenshot.Forms
 				// 1) Create Mutex
 				_applicationMutex = new Mutex(false, MutexId, out created, mutexsecurity);
 				// 2) Get the right to it, this returns false if it's already locked
-				if (!_applicationMutex.WaitOne(0, false)) {
+				if (!_applicationMutex.WaitOne(0, false))
+				{
 					LOG.Debug("Greenshot seems already to be running!");
 					lockSuccess = false;
 					// Clean up
 					_applicationMutex.Close();
 					_applicationMutex = null;
 				}
-			} catch (AbandonedMutexException e) {
+			}
+			catch (AbandonedMutexException e)
+			{
 				// Another Greenshot instance didn't cleanup correctly!
 				// we can ignore the exception, it happend on the "waitone" but still the mutex belongs to us
 				LOG.Warn("Greenshot didn't cleanup correctly!", e);
-			} catch (UnauthorizedAccessException e) {
+			}
+			catch (UnauthorizedAccessException e)
+			{
 				LOG.Warn("Greenshot is most likely already running for a different user in the same session, can't create mutex due to error: ", e);
 				lockSuccess = false;
-			} catch (Exception ex) {
+			}
+			catch (Exception ex)
+			{
 				LOG.Warn("Problem obtaining the Mutex, assuming it was already taken!", ex);
 				lockSuccess = false;
 			}
@@ -270,6 +296,7 @@ namespace Greenshot.Forms
 		}
 
 		private static MainForm _instance;
+
 		public static MainForm Instance
 		{
 			get
@@ -367,14 +394,18 @@ namespace Greenshot.Forms
 			notifyIcon.Visible = !coreConfiguration.HideTrayicon;
 
 			// Check if it's the first time launch?
-			if (coreConfiguration.IsFirstLaunch) {
+			if (coreConfiguration.IsFirstLaunch)
+			{
 				coreConfiguration.IsFirstLaunch = false;
 				LOG.Info("FirstLaunch: Created new configuration, showing balloon.");
-				try {
+				try
+				{
 					notifyIcon.BalloonTipClicked += BalloonTipClicked;
 					notifyIcon.BalloonTipClosed += BalloonTipClosed;
 					notifyIcon.ShowBalloonTip(2000, "Greenshot", string.Format(language.TooltipFirststart, HotkeyControl.GetLocalizedHotkeyStringFromString(coreConfiguration.RegionHotkey)), ToolTipIcon.Info);
-				} catch (Exception ex) {
+				}
+				catch (Exception ex)
+				{
 					LOG.Warn("Exception while showing first launch: ", ex);
 				}
 			}
@@ -390,7 +421,8 @@ namespace Greenshot.Forms
 			// Checking for updates etc in the background
 			_backgroundWorkerTimer = new System.Threading.Timer(async (_) => await BackgroundWorkerTimerTick().ConfigureAwait(false), null, TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(5));
 
-			Load += async (sender, eventArguments) => {
+			Load += async (sender, eventArguments) =>
+			{
 				server = new GreenshotServer();
 				await server.StartAsync();
 				// Use the client to connect to myself, maybe a bit overdone but it saves code
@@ -431,10 +463,14 @@ namespace Greenshot.Forms
 		/// </summary>
 		public ContextMenuStrip MainMenu
 		{
-			get { return contextMenu; }
+			get
+			{
+				return contextMenu;
+			}
 		}
 
 		#region hotkeys
+
 		protected override void WndProc(ref Message m)
 		{
 			if (HotkeyControl.HandleMessages(ref m))
@@ -565,7 +601,8 @@ namespace Greenshot.Forms
 				}
 			}
 
-			if (!success && !ignoreFailedRegistration) {
+			if (!success && !ignoreFailedRegistration)
+			{
 				success = HandleFailedHotkeyRegistration(failedKeys.ToString());
 			}
 			return success || ignoreFailedRegistration;
@@ -597,12 +634,14 @@ namespace Greenshot.Forms
 			}
 			return success;
 		}
+
 		#endregion
 
 		/// <summary>
 		/// Helper method to reload the configuration
 		/// </summary>
-		public async Task ReloadConfig() {
+		public async Task ReloadConfig()
+		{
 			await iniConfig.ReloadAsync();
 			// Even update language when needed
 			UpdateUi();
@@ -625,24 +664,26 @@ namespace Greenshot.Forms
 			contextmenu_captureie.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(coreConfiguration.IEHotkey);
 		}
 
-
 		#region mainform events
-		void MainFormFormClosing(object sender, FormClosingEventArgs e)
+
+		private void MainFormFormClosing(object sender, FormClosingEventArgs e)
 		{
 			LOG.DebugFormat("Mainform closing, reason: {0}", e.CloseReason);
 			_instance = null;
 			Exit();
 		}
 
-		void MainFormActivated(object sender, EventArgs e)
+		private void MainFormActivated(object sender, EventArgs e)
 		{
 			Hide();
 			ShowInTaskbar = false;
 		}
+
 		#endregion
 
 		#region key handlers
-		void CaptureRegion(CancellationToken token = default(CancellationToken))
+
+		private void CaptureRegion(CancellationToken token = default(CancellationToken))
 		{
 			TaskScheduler scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 			var task = Task.Factory.StartNew(async () =>
@@ -651,7 +692,7 @@ namespace Greenshot.Forms
 			}, token, TaskCreationOptions.None, scheduler);
 		}
 
-		void CaptureFile(CancellationToken token = default(CancellationToken))
+		private void CaptureFile(CancellationToken token = default(CancellationToken))
 		{
 			var openFileDialog = new OpenFileDialog();
 			openFileDialog.Filter = "Image files (*.greenshot, *.png, *.jpg, *.gif, *.bmp, *.ico, *.tiff, *.wmf)|*.greenshot; *.png; *.jpg; *.jpeg; *.gif; *.bmp; *.ico; *.tiff; *.tif; *.wmf";
@@ -668,7 +709,7 @@ namespace Greenshot.Forms
 			}
 		}
 
-		void CaptureFullScreen(CancellationToken token = default(CancellationToken))
+		private void CaptureFullScreen(CancellationToken token = default(CancellationToken))
 		{
 			TaskScheduler scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 			var task = Task.Factory.StartNew(async () =>
@@ -677,7 +718,7 @@ namespace Greenshot.Forms
 			}, token, TaskCreationOptions.None, scheduler);
 		}
 
-		void CaptureLastRegion(CancellationToken token = default(CancellationToken))
+		private void CaptureLastRegion(CancellationToken token = default(CancellationToken))
 		{
 			TaskScheduler scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 			var task = Task.Factory.StartNew(async () =>
@@ -686,7 +727,7 @@ namespace Greenshot.Forms
 			}, token, TaskCreationOptions.None, scheduler);
 		}
 
-		void CaptureIE(CancellationToken token = default(CancellationToken))
+		private void CaptureIE(CancellationToken token = default(CancellationToken))
 		{
 			if (coreConfiguration.IECapture)
 			{
@@ -698,7 +739,7 @@ namespace Greenshot.Forms
 			}
 		}
 
-		void CaptureWindow(CancellationToken token = default(CancellationToken))
+		private void CaptureWindow(CancellationToken token = default(CancellationToken))
 		{
 			TaskScheduler scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 			var task = Task.Factory.StartNew(async () =>
@@ -713,16 +754,17 @@ namespace Greenshot.Forms
 				}
 			}, token, TaskCreationOptions.None, scheduler);
 		}
+
 		#endregion
 
-
 		#region contextmenu
-		void ContextMenuOpened(object sender, EventArgs e)
+
+		private void ContextMenuOpened(object sender, EventArgs e)
 		{
 			contextmenu_captureclipboard.Enabled = ClipboardHelper.ContainsImage();
 		}
 
-		void ContextMenuOpening(object sender, CancelEventArgs e)
+		private void ContextMenuOpening(object sender, CancelEventArgs e)
 		{
 			contextmenu_capturelastregion.Enabled = coreConfiguration.LastCapturedRegion != Rectangle.Empty;
 
@@ -762,13 +804,14 @@ namespace Greenshot.Forms
 			var now = DateTime.Now;
 			if ((now.Month == 12 && now.Day > 19 && now.Day < 27) || // christmas
 				(now.Month == 3 && now.Day > 13 && now.Day < 21))
-			{ // birthday
-				var resources = new ComponentResourceManager(typeof(MainForm));
-				contextmenu_donate.Image = (Image)resources.GetObject("contextmenu_present.Image");
+			{
+				// birthday
+				var resources = new ComponentResourceManager(typeof (MainForm));
+				contextmenu_donate.Image = (Image) resources.GetObject("contextmenu_present.Image");
 			}
 		}
 
-		void ContextMenuClosing(object sender, EventArgs e)
+		private void ContextMenuClosing(object sender, EventArgs e)
 		{
 			contextmenu_captureiefromlist.DropDownItems.Clear();
 			contextmenu_capturewindowfromlist.DropDownItems.Clear();
@@ -778,7 +821,7 @@ namespace Greenshot.Forms
 		/// <summary>
 		/// Build a selectable list of IE tabs when we enter the menu item
 		/// </summary>
-		void CaptureIeMenuDropDownOpening(object sender, EventArgs e)
+		private void CaptureIeMenuDropDownOpening(object sender, EventArgs e)
 		{
 			if (!coreConfiguration.IECapture)
 			{
@@ -841,7 +884,7 @@ namespace Greenshot.Forms
 		/// <param name="e"></param>
 		private void MultiScreenDropDownOpening(object sender, EventArgs e)
 		{
-			var captureScreenMenuItem = (ToolStripMenuItem)sender;
+			var captureScreenMenuItem = (ToolStripMenuItem) sender;
 			captureScreenMenuItem.DropDownItems.Clear();
 			if (DisplayInfo.AllDisplays().Count <= 1)
 			{
@@ -858,7 +901,7 @@ namespace Greenshot.Forms
 			captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
 			foreach (var display in DisplayInfo.AllDisplays())
 			{
-				var screenToCapture = display;	// Capture loop variable
+				var screenToCapture = display; // Capture loop variable
 				string deviceAlignment = "";
 				if (display.Bounds.Top == allScreensBounds.Top && display.Bounds.Bottom != allScreensBounds.Bottom)
 				{
@@ -892,7 +935,7 @@ namespace Greenshot.Forms
 		/// <param name="e"></param>
 		private void MultiScreenDropDownClosing(object sender, EventArgs e)
 		{
-			ToolStripMenuItem captureScreenMenuItem = (ToolStripMenuItem)sender;
+			ToolStripMenuItem captureScreenMenuItem = (ToolStripMenuItem) sender;
 			captureScreenMenuItem.DropDownItems.Clear();
 		}
 
@@ -904,7 +947,7 @@ namespace Greenshot.Forms
 			// The Capture window context menu item used to go to the following code:
 			// captureForm.MakeCapture(CaptureMode.Window, false);
 			// Now we check which windows are there to capture
-			ToolStripMenuItem captureWindowFromListMenuItem = (ToolStripMenuItem)sender;
+			ToolStripMenuItem captureWindowFromListMenuItem = (ToolStripMenuItem) sender;
 			AddCaptureWindowMenuItems(captureWindowFromListMenuItem, Contextmenu_capturewindowfromlist_Click);
 		}
 
@@ -952,7 +995,6 @@ namespace Greenshot.Forms
 
 			foreach (var window in WindowDetails.GetTopLevelWindows())
 			{
-
 				string title = window.Text;
 				if (title == null)
 				{
@@ -975,44 +1017,44 @@ namespace Greenshot.Forms
 			}
 		}
 
-		void CaptureAreaToolStripMenuItemClick(object sender, EventArgs e)
+		private void CaptureAreaToolStripMenuItemClick(object sender, EventArgs e)
 		{
 			this.AsyncInvoke(async () => await CaptureHelper.CaptureRegionAsync(false));
 		}
 
-		async void CaptureClipboardToolStripMenuItemClick(object sender, EventArgs e)
+		private async void CaptureClipboardToolStripMenuItemClick(object sender, EventArgs e)
 		{
 			await CaptureHelper.CaptureClipboardAsync();
 		}
 
-		void OpenFileToolStripMenuItemClick(object sender, EventArgs e)
+		private void OpenFileToolStripMenuItemClick(object sender, EventArgs e)
 		{
 			this.AsyncInvoke(() => CaptureFile());
 		}
 
-		void CaptureFullScreenToolStripMenuItemClick(object sender, EventArgs e)
+		private void CaptureFullScreenToolStripMenuItemClick(object sender, EventArgs e)
 		{
 			this.AsyncInvoke(async () => await CaptureHelper.CaptureFullscreenAsync(false, coreConfiguration.ScreenCaptureMode));
 		}
 
-		void Contextmenu_capturelastregionClick(object sender, EventArgs e)
+		private void Contextmenu_capturelastregionClick(object sender, EventArgs e)
 		{
 			this.AsyncInvoke(async () => await CaptureHelper.CaptureLastRegionAsync(false));
 		}
 
-		void Contextmenu_capturewindow_Click(object sender, EventArgs e)
+		private void Contextmenu_capturewindow_Click(object sender, EventArgs e)
 		{
 			this.AsyncInvoke(async () => await CaptureHelper.CaptureWindowInteractiveAsync(false));
 		}
 
-		void Contextmenu_capturewindowfromlist_Click(object sender, EventArgs e)
+		private void Contextmenu_capturewindowfromlist_Click(object sender, EventArgs e)
 		{
-			var clickedItem = (ToolStripMenuItem)sender;
-			this.AsyncInvoke(async () => 
+			var clickedItem = (ToolStripMenuItem) sender;
+			this.AsyncInvoke(async () =>
 			{
 				try
 				{
-					var windowToCapture = (WindowDetails)clickedItem.Tag;
+					var windowToCapture = (WindowDetails) clickedItem.Tag;
 					await CaptureHelper.CaptureWindowAsync(windowToCapture);
 				}
 				catch (Exception exception)
@@ -1022,20 +1064,20 @@ namespace Greenshot.Forms
 			});
 		}
 
-		void Contextmenu_captureie_Click(object sender, EventArgs e)
+		private void Contextmenu_captureie_Click(object sender, EventArgs e)
 		{
 			CaptureIE();
 		}
 
-		void Contextmenu_captureiefromlist_Click(object sender, EventArgs e)
+		private void Contextmenu_captureiefromlist_Click(object sender, EventArgs e)
 		{
 			if (!coreConfiguration.IECapture)
 			{
 				LOG.InfoFormat("IE Capture is disabled.");
 				return;
 			}
-			var clickedItem = (ToolStripMenuItem)sender;
-			var tabData = (KeyValuePair<WindowDetails, int>)clickedItem.Tag;
+			var clickedItem = (ToolStripMenuItem) sender;
+			var tabData = (KeyValuePair<WindowDetails, int>) clickedItem.Tag;
 			BeginInvoke(new Action(async () =>
 			{
 				var ieWindowToCapture = tabData.Key;
@@ -1067,7 +1109,7 @@ namespace Greenshot.Forms
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void Contextmenu_donateClick(object sender, EventArgs e)
+		private void Contextmenu_donateClick(object sender, EventArgs e)
 		{
 			this.AsyncInvoke(() => Process.Start("http://getgreenshot.org/support/"));
 		}
@@ -1077,7 +1119,7 @@ namespace Greenshot.Forms
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void Contextmenu_settingsClick(object sender, EventArgs e)
+		private void Contextmenu_settingsClick(object sender, EventArgs e)
 		{
 			this.AsyncInvoke(() => ShowSetting());
 		}
@@ -1115,7 +1157,7 @@ namespace Greenshot.Forms
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void Contextmenu_aboutClick(object sender, EventArgs e)
+		private void Contextmenu_aboutClick(object sender, EventArgs e)
 		{
 			ShowAbout();
 		}
@@ -1133,7 +1175,7 @@ namespace Greenshot.Forms
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void Contextmenu_helpClick(object sender, EventArgs e)
+		private void Contextmenu_helpClick(object sender, EventArgs e)
 		{
 			var ignoreTask = HelpFileLoader.LoadHelpAsync();
 		}
@@ -1143,7 +1185,7 @@ namespace Greenshot.Forms
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void Contextmenu_exitClick(object sender, EventArgs e)
+		private void Contextmenu_exitClick(object sender, EventArgs e)
 		{
 			Exit();
 		}
@@ -1201,12 +1243,12 @@ namespace Greenshot.Forms
 				// Capture Modes
 				selectList = new ToolStripMenuSelectList("capturemodes", false);
 				selectList.Text = language.SettingsWindowCaptureMode;
-				string enumTypeName = typeof(WindowCaptureMode).Name;
-				foreach (WindowCaptureMode captureMode in Enum.GetValues(typeof(WindowCaptureMode)))
+				string enumTypeName = typeof (WindowCaptureMode).Name;
+				foreach (WindowCaptureMode captureMode in Enum.GetValues(typeof (WindowCaptureMode)))
 				{
 					var languageKey = string.Format("{0}.{1}", enumTypeName, captureMode);
 					var translation = language[languageKey];
-                    selectList.AddItem(translation, captureMode, coreConfiguration.WindowCaptureMode == captureMode);
+					selectList.AddItem(translation, captureMode, coreConfiguration.WindowCaptureMode == captureMode);
 				}
 				selectList.CheckedChanged += QuickSettingCaptureModeChanged;
 				contextmenu_quicksettings.DropDownItems.Add(selectList);
@@ -1216,16 +1258,16 @@ namespace Greenshot.Forms
 			selectList = new ToolStripMenuSelectList("printoptions", true);
 			selectList.Text = language.SettingsPrintoptions;
 
-			var outputPrintValues =
-				from iniValue in coreConfiguration.GetIniValues()
+			var outputPrintValues = from iniValue in coreConfiguration.GetIniValues()
 				where !coreConfiguration.IsWriteProtected(iniValue.PropertyName) && iniValue.PropertyName.StartsWith("OutputPrint")
 				select iniValue;
 
 			foreach (var iniValue in outputPrintValues)
 			{
 				var languageKey = coreConfiguration.GetTagValue(iniValue.IniPropertyName, ConfigTags.LanguageKey) as string;
-				if (languageKey != null) {
-					selectList.AddItem(language[languageKey], iniValue, (bool)iniValue.Value);
+				if (languageKey != null)
+				{
+					selectList.AddItem(language[languageKey], iniValue, (bool) iniValue.Value);
 				}
 			}
 			if (selectList.DropDownItems.Count > 0)
@@ -1239,19 +1281,25 @@ namespace Greenshot.Forms
 			selectList.Text = language.SettingsVisualization;
 
 			IniValue currentIniValue;
-			if (coreConfiguration.TryGetIniValue(x => x.PlayCameraSound, out currentIniValue)) {
-				if (!coreConfiguration.IsWriteProtected(x => x.PlayCameraSound)) {
+			if (coreConfiguration.TryGetIniValue(x => x.PlayCameraSound, out currentIniValue))
+			{
+				if (!coreConfiguration.IsWriteProtected(x => x.PlayCameraSound))
+				{
 					var languageKey = coreConfiguration.GetTagValue(x => x.PlayCameraSound, ConfigTags.LanguageKey) as string;
-					if (languageKey != null) {
-						selectList.AddItem(language[languageKey], currentIniValue, (bool)currentIniValue.Value);
+					if (languageKey != null)
+					{
+						selectList.AddItem(language[languageKey], currentIniValue, (bool) currentIniValue.Value);
 					}
 				}
 			}
-			if (coreConfiguration.TryGetIniValue(x => x.ShowTrayNotification, out currentIniValue)) {
-				if (!coreConfiguration.IsWriteProtected(x => x.ShowTrayNotification)) {
+			if (coreConfiguration.TryGetIniValue(x => x.ShowTrayNotification, out currentIniValue))
+			{
+				if (!coreConfiguration.IsWriteProtected(x => x.ShowTrayNotification))
+				{
 					var languageKey = coreConfiguration.GetTagValue(x => x.ShowTrayNotification, ConfigTags.LanguageKey) as string;
-					if (languageKey != null) {
-						selectList.AddItem(language[languageKey], currentIniValue, (bool)currentIniValue.Value);
+					if (languageKey != null)
+					{
+						selectList.AddItem(language[languageKey], currentIniValue, (bool) currentIniValue.Value);
 					}
 				}
 			}
@@ -1262,19 +1310,19 @@ namespace Greenshot.Forms
 			}
 		}
 
-		void QuickSettingCaptureModeChanged(object sender, EventArgs e)
+		private void QuickSettingCaptureModeChanged(object sender, EventArgs e)
 		{
-			ToolStripMenuSelectListItem item = ((ItemCheckedChangedEventArgs)e).Item;
-			WindowCaptureMode windowsCaptureMode = (WindowCaptureMode)item.Data;
+			ToolStripMenuSelectListItem item = ((ItemCheckedChangedEventArgs) e).Item;
+			WindowCaptureMode windowsCaptureMode = (WindowCaptureMode) item.Data;
 			if (item.Checked)
 			{
 				coreConfiguration.WindowCaptureMode = windowsCaptureMode;
 			}
 		}
 
-		void QuickSettingBoolItemChanged(object sender, EventArgs e)
+		private void QuickSettingBoolItemChanged(object sender, EventArgs e)
 		{
-			ToolStripMenuSelectListItem item = ((ItemCheckedChangedEventArgs)e).Item;
+			ToolStripMenuSelectListItem item = ((ItemCheckedChangedEventArgs) e).Item;
 			IniValue iniValue = item.Data as IniValue;
 			if (iniValue != null)
 			{
@@ -1282,10 +1330,10 @@ namespace Greenshot.Forms
 			}
 		}
 
-		void QuickSettingDestinationChanged(object sender, EventArgs e)
+		private void QuickSettingDestinationChanged(object sender, EventArgs e)
 		{
-			ToolStripMenuSelectListItem item = ((ItemCheckedChangedEventArgs)e).Item;
-			IDestination selectedDestination = (IDestination)item.Data;
+			ToolStripMenuSelectListItem item = ((ItemCheckedChangedEventArgs) e).Item;
+			IDestination selectedDestination = (IDestination) item.Data;
 			if (item.Checked)
 			{
 				if (selectedDestination.Designation.Equals(BuildInDestinationEnum.Picker.ToString()))
@@ -1321,6 +1369,7 @@ namespace Greenshot.Forms
 			// Rebuild the quick settings menu with the new settings.
 			InitializeQuickSettingsMenu();
 		}
+
 		#endregion
 
 		private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -1418,7 +1467,9 @@ namespace Greenshot.Forms
 					{
 						try
 						{
-							using (Process.Start(path)) { }
+							using (Process.Start(path))
+							{
+							}
 						}
 						catch (Exception ex)
 						{
@@ -1438,8 +1489,9 @@ namespace Greenshot.Forms
 					ShowSetting();
 					break;
 				case ClickActions.SHOW_CONTEXT_MENU:
-					this.AsyncInvoke(() => {
-						MethodInfo oMethodInfo = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
+					this.AsyncInvoke(() =>
+					{
+						MethodInfo oMethodInfo = typeof (NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
 						oMethodInfo.Invoke(notifyIcon, null);
 					});
 					break;
@@ -1516,17 +1568,17 @@ namespace Greenshot.Forms
 				}
 			}
 
-            foreach (var formLV in formsToClose)
+			foreach (var formLV in formsToClose)
 			{
-				var form = formLV;	// Capture the loop variable for the lambda
+				var form = formLV; // Capture the loop variable for the lambda
 				LOG.InfoFormat("Closing form: {0}", form.Name);
 				this.AsyncInvoke(() => form.Close());
 			}
-            // Make sure any "save" actions are shown and handled!
-            Application.DoEvents();
+			// Make sure any "save" actions are shown and handled!
+			Application.DoEvents();
 
-            // Make sure hotkeys are disabled
-            try
+			// Make sure hotkeys are disabled
+			try
 			{
 				HotkeyControl.UnregisterHotkeys();
 			}
@@ -1594,11 +1646,14 @@ namespace Greenshot.Forms
 		/// <summary>
 		/// Do work in the background
 		/// </summary>
-		private async Task BackgroundWorkerTimerTick() {
-			if (coreConfiguration.MinimizeWorkingSetSize) {
+		private async Task BackgroundWorkerTimerTick()
+		{
+			if (coreConfiguration.MinimizeWorkingSetSize)
+			{
 				PsAPI.EmptyWorkingSet();
 			}
-			if (await UpdateHelper.IsUpdateCheckNeeded().ConfigureAwait(false)) {
+			if (await UpdateHelper.IsUpdateCheckNeeded().ConfigureAwait(false))
+			{
 				LOG.Debug("BackgroundWorkerTimerTick checking for update");
 				await UpdateHelper.CheckAndAskForUpdate().ConfigureAwait(false);
 			}

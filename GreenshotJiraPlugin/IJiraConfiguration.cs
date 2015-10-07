@@ -30,21 +30,25 @@ namespace GreenshotJiraPlugin
 	/// Description of JiraConfiguration.
 	/// </summary>
 	[IniSection("Jira"), Description("Greenshot Jira Plugin configuration")]
-	public interface IJiraConfiguration : IIniSection<IJiraConfiguration> {
-        [Description("Rest Url to Jira system"), DefaultValue("https://jira")]
-		string RestUrl {
+	public interface IJiraConfiguration : IIniSection<IJiraConfiguration>
+	{
+		[Description("Rest Url to Jira system"), DefaultValue("https://jira")]
+		string RestUrl
+		{
 			get;
 			set;
 		}
 
 		[Description("Username for Jira system")]
-		string Username {
+		string Username
+		{
 			get;
 			set;
 		}
 
-		[Description("Password for Jira system"), TypeConverter(typeof(StringEncryptionTypeConverter))]
-		string Password {
+		[Description("Password for Jira system"), TypeConverter(typeof (StringEncryptionTypeConverter))]
+		string Password
+		{
 			get;
 			set;
 		}
@@ -64,13 +68,15 @@ namespace GreenshotJiraPlugin
 		}
 
 		[Description("Reduce color amount of the uploaded image to 256"), DefaultValue(false)]
-		bool UploadReduceColors {
+		bool UploadReduceColors
+		{
 			get;
 			set;
 		}
 
 		[Description("Pattern for the filename that is used for uploading to JIRA"), DefaultValue("${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}-${title:s0,10}")]
-		string FilenamePattern {
+		string FilenamePattern
+		{
 			get;
 			set;
 		}

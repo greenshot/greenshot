@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using Greenshot.Plugin;
 using System;
 using System.Drawing;
@@ -25,79 +26,98 @@ using System.Windows.Forms;
 
 namespace GreenshotEditorPlugin.Drawing.Fields.Binding
 {
-    /// <summary>
-    /// Converting horizontal alignment to its StringAlignment representation and vice versa.
-    /// Beware: there's currently no RTL support.
-    /// </summary>
-    public class HorizontalAlignmentConverter : AbstractBindingConverter<HorizontalAlignment, StringAlignment>
-    {
+	/// <summary>
+	/// Converting horizontal alignment to its StringAlignment representation and vice versa.
+	/// Beware: there's currently no RTL support.
+	/// </summary>
+	public class HorizontalAlignmentConverter : AbstractBindingConverter<HorizontalAlignment, StringAlignment>
+	{
+		private static HorizontalAlignmentConverter uniqueInstance;
 
-        private static HorizontalAlignmentConverter uniqueInstance;
+		protected override HorizontalAlignment convert(StringAlignment stringAlignment)
+		{
+			switch (stringAlignment)
+			{
+				case StringAlignment.Near:
+					return HorizontalAlignment.Left;
+				case StringAlignment.Center:
+					return HorizontalAlignment.Center;
+				case StringAlignment.Far:
+					return HorizontalAlignment.Right;
+				default:
+					throw new NotImplementedException("Cannot handle: " + stringAlignment);
+			}
+		}
 
-        protected override HorizontalAlignment convert(StringAlignment stringAlignment)
-        {
-            switch (stringAlignment)
-            {
-                case StringAlignment.Near: return HorizontalAlignment.Left;
-                case StringAlignment.Center: return HorizontalAlignment.Center;
-                case StringAlignment.Far: return HorizontalAlignment.Right;
-                default: throw new NotImplementedException("Cannot handle: " + stringAlignment);
-            }
-        }
+		protected override StringAlignment convert(HorizontalAlignment horizontalAligment)
+		{
+			switch (horizontalAligment)
+			{
+				case HorizontalAlignment.Left:
+					return StringAlignment.Near;
+				case HorizontalAlignment.Center:
+					return StringAlignment.Center;
+				case HorizontalAlignment.Right:
+					return StringAlignment.Far;
+				default:
+					throw new NotImplementedException("Cannot handle: " + horizontalAligment);
+			}
+		}
 
-        protected override StringAlignment convert(HorizontalAlignment horizontalAligment)
-        {
-            switch (horizontalAligment)
-            {
-                case HorizontalAlignment.Left: return StringAlignment.Near;
-                case HorizontalAlignment.Center: return StringAlignment.Center;
-                case HorizontalAlignment.Right: return StringAlignment.Far;
-                default: throw new NotImplementedException("Cannot handle: " + horizontalAligment);
-            }
-        }
+		public static HorizontalAlignmentConverter GetInstance()
+		{
+			if (uniqueInstance == null)
+			{
+				uniqueInstance = new HorizontalAlignmentConverter();
+			}
+			return uniqueInstance;
+		}
+	}
 
-        public static HorizontalAlignmentConverter GetInstance()
-        {
-            if (uniqueInstance == null) uniqueInstance = new HorizontalAlignmentConverter();
-            return uniqueInstance;
-        }
-    }
+	/// <summary>
+	/// Converting vertical alignment to its StringAlignment representation and vice versa.
+	/// </summary>
+	public class VerticalAlignmentConverter : AbstractBindingConverter<VerticalAlignment, StringAlignment>
+	{
+		private static VerticalAlignmentConverter uniqueInstance;
 
-    /// <summary>
-    /// Converting vertical alignment to its StringAlignment representation and vice versa.
-    /// </summary>
-    public class VerticalAlignmentConverter : AbstractBindingConverter<VerticalAlignment, StringAlignment>
-    {
+		protected override VerticalAlignment convert(StringAlignment stringAlignment)
+		{
+			switch (stringAlignment)
+			{
+				case StringAlignment.Near:
+					return VerticalAlignment.TOP;
+				case StringAlignment.Center:
+					return VerticalAlignment.CENTER;
+				case StringAlignment.Far:
+					return VerticalAlignment.BOTTOM;
+				default:
+					throw new NotImplementedException("Cannot handle: " + stringAlignment);
+			}
+		}
 
-        private static VerticalAlignmentConverter uniqueInstance;
+		protected override StringAlignment convert(VerticalAlignment verticalAligment)
+		{
+			switch (verticalAligment)
+			{
+				case VerticalAlignment.TOP:
+					return StringAlignment.Near;
+				case VerticalAlignment.CENTER:
+					return StringAlignment.Center;
+				case VerticalAlignment.BOTTOM:
+					return StringAlignment.Far;
+				default:
+					throw new NotImplementedException("Cannot handle: " + verticalAligment);
+			}
+		}
 
-        protected override VerticalAlignment convert(StringAlignment stringAlignment)
-        {
-            switch (stringAlignment)
-            {
-                case StringAlignment.Near: return VerticalAlignment.TOP;
-                case StringAlignment.Center: return VerticalAlignment.CENTER;
-                case StringAlignment.Far: return VerticalAlignment.BOTTOM;
-                default: throw new NotImplementedException("Cannot handle: " + stringAlignment);
-            }
-        }
-
-        protected override StringAlignment convert(VerticalAlignment verticalAligment)
-        {
-            switch (verticalAligment)
-            {
-                case VerticalAlignment.TOP: return StringAlignment.Near;
-                case VerticalAlignment.CENTER: return StringAlignment.Center;
-                case VerticalAlignment.BOTTOM: return StringAlignment.Far;
-                default: throw new NotImplementedException("Cannot handle: " + verticalAligment);
-            }
-        }
-
-        public static VerticalAlignmentConverter GetInstance()
-        {
-            if (uniqueInstance == null) uniqueInstance = new VerticalAlignmentConverter();
-            return uniqueInstance;
-        }
-    }
-
+		public static VerticalAlignmentConverter GetInstance()
+		{
+			if (uniqueInstance == null)
+			{
+				uniqueInstance = new VerticalAlignmentConverter();
+			}
+			return uniqueInstance;
+		}
+	}
 }

@@ -1,22 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <language>
 	<resources prefix="Core">
 		<resource name="about_bugs">رجاء بلغ عن الاخطاء الى</resource>
 		<resource name="about_donations">اذا اعجبك البرنامج انت مدعو لدعمنا:</resource>
 		<resource name="about_host">جرين شوت استضيف بواسطة sourceforge.net في</resource>
 		<resource name="about_icons">الايقونات بواسطة مجموعة ايقونات يوسوكي كامياماني (تحت رخصة المشاع الإبداعي الاصدار 3.0)</resource>
-		<resource name="about_license">حقوق النشر © 2007 - 2012 توماس براون, جينس كلنجين, روبين كروم
-جرين شوت لا يأتي مع أية ضمان. هذا برنامج حر, مرحبا بك لتعيد توزيعه تحت شروط معينة.
-تفاصيل حول رخصة جنو العمومية:</resource>
+		<resource name="about_license">
+			حقوق النشر © 2007 - 2012 توماس براون, جينس كلنجين, روبين كروم
+			جرين شوت لا يأتي مع أية ضمان. هذا برنامج حر, مرحبا بك لتعيد توزيعه تحت شروط معينة.
+			تفاصيل حول رخصة جنو العمومية:
+		</resource>
 		<resource name="about_title">حول جرين شوت</resource>
 		<resource name="application_title">جرين شوت - الاداة الثورية في تصوير الشاشة</resource>
 		<resource name="bugreport_cancel">إغلاق</resource>
-		<resource name="bugreport_info">عذرا, حدث خطأ غير متوقع.
-		الخبر الجيد: انت تستطيع التخلص من هذا عن طريق تعبئة تقرير الاخطاء.
-		رجاء قم بزيارة الرابط اسفل, انشئ تقرير اخطاء جديد والصق النص من المربع الى الوصف.
+		<resource name="bugreport_info">
+			عذرا, حدث خطأ غير متوقع.
+			الخبر الجيد: انت تستطيع التخلص من هذا عن طريق تعبئة تقرير الاخطاء.
+			رجاء قم بزيارة الرابط اسفل, انشئ تقرير اخطاء جديد والصق النص من المربع الى الوصف.
 
-		رجاء قم باضافة تلخيص ذو معنى وارفق اية معلومات تعتبرها مفيدة في اكتشاف الخطأ
-		أيضا, سوف نقدر وبشدة اذا قمت بفحص ما إذا ما قد تم البلاغ عن الخطأ من قبل. شكرا :)</resource>
+			رجاء قم باضافة تلخيص ذو معنى وارفق اية معلومات تعتبرها مفيدة في اكتشاف الخطأ
+			أيضا, سوف نقدر وبشدة اذا قمت بفحص ما إذا ما قد تم البلاغ عن الخطأ من قبل. شكرا :)
+		</resource>
 		<resource name="bugreport_title">خطأ</resource>
 		<resource name="clipboard_error">خطأ غير متوقع حدث عند المحاولة للكتابة على الذاكرة.</resource>
 		<resource name="clipboard_inuse">جرين شوت لم يستطع الحفظ في الذاكرة, العملية {0} حجبت الوصول.</resource>
@@ -112,8 +117,10 @@
 		<resource name="editor_uptotop">إلى الأعلى</resource>
 		<resource name="error">خطأ</resource>
 		<resource name="error_multipleinstances">برنامج جرين شوت يعمل حاليا</resource>
-		<resource name="error_nowriteaccess">لايمكن حفظ الصورة في {0}.
-رجاء تاكد من القدرة على حفظ الملف في هذا المكان.</resource>
+		<resource name="error_nowriteaccess">
+			لايمكن حفظ الصورة في {0}.
+			رجاء تاكد من القدرة على حفظ الملف في هذا المكان.
+		</resource>
 		<resource name="error_openfile">الملف "{0}" لا يمكن فتحه.</resource>
 		<resource name="error_openlink">لا يمكن فتح الوصلة.</resource>
 		<resource name="error_save">لا يمكن حفظ اللقطة, جد مكان مناسب للحفظ.</resource>
@@ -150,23 +157,25 @@
 		<resource name="settings_jpegquality">JPEG جودة</resource>
 		<resource name="settings_jpegsettings">JPEG اعدادات</resource>
 		<resource name="settings_language">اللغة</resource>
-		<resource name="settings_message_filenamepattern">سوف يتم استبدال الرموز التالية تلقائيا في النمط المعرف:
+		<resource name="settings_message_filenamepattern">
+			سوف يتم استبدال الرموز التالية تلقائيا في النمط المعرف:
 
-${YYYY} السنة, 4 منازل
-${MM} الشهر, منزلتان
-${DD} اليوم, منزلتان
-${hh} الساعة, منزلتان
-${mm} الدقيقة, منزلتان
-${ss} الثواني, منزلتان
-${NUM} incrementing number, 6 منازل
-${title} عنوان النافذة
-${user} مستخدم الوندوز
-${domain} نطاق وندوز
-${hostname} اسم الحاسوب
+			${YYYY} السنة, 4 منازل
+			${MM} الشهر, منزلتان
+			${DD} اليوم, منزلتان
+			${hh} الساعة, منزلتان
+			${mm} الدقيقة, منزلتان
+			${ss} الثواني, منزلتان
+			${NUM} incrementing number, 6 منازل
+			${title} عنوان النافذة
+			${user} مستخدم الوندوز
+			${domain} نطاق وندوز
+			${hostname} اسم الحاسوب
 
-بامكانك ايضا جعل جرين شوت ينشئ مجلدات بصورة ديناميكية, ببساطة استخدم رمز (/) لفصل المجلدات واسماء الملفات.
-مثال: النمط ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-سيولد مجلدا لليوم الحالي في مكان الحفظ الافتراضي, مثلا 28-09-2011, اسم ملف لقطة الشاشة سيكون على اساس الوقت الحالي, مثلا 14_13_15 (مع امتداد الحفظ)</resource>
+			بامكانك ايضا جعل جرين شوت ينشئ مجلدات بصورة ديناميكية, ببساطة استخدم رمز (/) لفصل المجلدات واسماء الملفات.
+			مثال: النمط ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+			سيولد مجلدا لليوم الحالي في مكان الحفظ الافتراضي, مثلا 28-09-2011, اسم ملف لقطة الشاشة سيكون على اساس الوقت الحالي, مثلا 14_13_15 (مع امتداد الحفظ)
+		</resource>
 		<resource name="settings_output">النتائج</resource>
 		<resource name="settings_playsound">تشغيل صوت عند الالتقاط</resource>
 		<resource name="settings_preferredfilesettings">اعدادات المفضلة لملف النتائج</resource>
@@ -186,8 +195,10 @@ ${hostname} اسم الحاسوب
 		<resource name="settings_waittime">وقت الانتظار بالجزء من الثانية قبل الإلتقاط</resource>
 		<resource name="tooltip_firststart">انقر الزر  الايمن هنا أو اضغط مفتاح الطباعة.</resource>
 		<resource name="warning">تحذير</resource>
-		<resource name="warning_hotkeys">لا يمكن تسجيل اختصار واحد او اكثر. لذلك, قد لا يكون بالامكان استخدام اختصارات جرين شوت.
-هذه المشكلة على الاغلب سببها برنامج اخر يدعي استخدام نفس الاختصارات.
-رجاء قم بالغاء البرنامج الذي يقوم باستخدام مفتاح الطباعة. يمكنك ايضا استخدام كل ميزات جرين شوت من الايقونة على شريط المهام.</resource>
+		<resource name="warning_hotkeys">
+			لا يمكن تسجيل اختصار واحد او اكثر. لذلك, قد لا يكون بالامكان استخدام اختصارات جرين شوت.
+			هذه المشكلة على الاغلب سببها برنامج اخر يدعي استخدام نفس الاختصارات.
+			رجاء قم بالغاء البرنامج الذي يقوم باستخدام مفتاح الطباعة. يمكنك ايضا استخدام كل ميزات جرين شوت من الايقونة على شريط المهام.
+		</resource>
 	</resources>
 </language>

@@ -23,9 +23,12 @@ using System;
 using System.Diagnostics;
 using System.Windows.Forms;
 
-namespace Greenshot.Forms {
-	public partial class BugReportForm : BaseForm {
-		private BugReportForm() {
+namespace Greenshot.Forms
+{
+	public partial class BugReportForm : BaseForm
+	{
+		private BugReportForm()
+		{
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
@@ -33,19 +36,25 @@ namespace Greenshot.Forms {
 			ToFront = true;
 		}
 
-		public BugReportForm(string bugText) : this() {
+		public BugReportForm(string bugText) : this()
+		{
 			textBoxDescription.Text = bugText;
 		}
-		
-		void LinkLblBugsLinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-			openLink((LinkLabel)sender);
+
+		private void LinkLblBugsLinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		{
+			openLink((LinkLabel) sender);
 		}
 
-		private void openLink(LinkLabel link) {
-			try {
+		private void openLink(LinkLabel link)
+		{
+			try
+			{
 				link.LinkVisited = true;
 				Process.Start(link.Text);
-			} catch (Exception) {
+			}
+			catch (Exception)
+			{
 				MessageBox.Show(string.Format(language.ErrorOpenlink, link.Text), language.Error);
 			}
 		}

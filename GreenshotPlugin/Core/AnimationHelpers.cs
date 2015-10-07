@@ -18,58 +18,69 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Drawing;
 using System.Collections.Generic;
 using log4net;
 
-namespace GreenshotPlugin.Core {
-
+namespace GreenshotPlugin.Core
+{
 	/// <summary>
 	/// Helper interface for passing base type
 	/// </summary>
-	public interface IAnimator {
+	public interface IAnimator
+	{
 		/// <summary>
 		/// Is there a next frame?
 		/// </summary>
-		bool hasNext {
+		bool hasNext
+		{
 			get;
 		}
+
 		/// <summary>
 		/// The amount of frames
 		/// </summary>
-		int Frames {
+		int Frames
+		{
 			get;
 		}
 
 		/// <summary>
 		/// Current frame number
 		/// </summary>
-		int CurrentFrameNr {
+		int CurrentFrameNr
+		{
 			get;
 		}
 	}
-	
+
 	/// <summary>
 	/// This class is used to store a animation leg
 	/// </summary>
-	internal class AnimationLeg<T> {
-		public T Destination {
+	internal class AnimationLeg<T>
+	{
+		public T Destination
+		{
 			get;
 			set;
 		}
-		
-		public int Frames {
+
+		public int Frames
+		{
 			get;
 			set;
 		}
-		
-		public EasingType EasingType {
+
+		public EasingType EasingType
+		{
 			get;
 			set;
 		}
-		
-		public EasingMode EasingMode {
+
+		public EasingMode EasingMode
+		{
 			get;
 			set;
 		}
@@ -79,7 +90,8 @@ namespace GreenshotPlugin.Core {
 	/// Base class for the animation logic, this only implements Properties and a constructor
 	/// </summary>
 	/// <typeparam name="T">Type for the animation, like Point/Rectangle/Size</typeparam>
-	public abstract class AnimatorBase<T> : IAnimator {
+	public abstract class AnimatorBase<T> : IAnimator
+	{
 		protected T first;
 		protected T last;
 		protected T current;
@@ -95,7 +107,8 @@ namespace GreenshotPlugin.Core {
 		/// <param name="frames"></param>
 		/// <param name="easingType"></param>
 		/// <param name="easingMode"></param>
-		public AnimatorBase(T first, T last, int frames, EasingType easingType, EasingMode easingMode) {
+		public AnimatorBase(T first, T last, int frames, EasingType easingType, EasingMode easingMode)
+		{
 			this.first = first;
 			this.last = last;
 			this.frames = frames;
@@ -107,57 +120,78 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// The amount of frames
 		/// </summary>
-		public int Frames {
-			get { return frames; }
+		public int Frames
+		{
+			get
+			{
+				return frames;
+			}
 		}
 
 		/// <summary>
 		/// Current frame number
 		/// </summary>
-		public int CurrentFrameNr {
-			get { return currentFrameNr; }
+		public int CurrentFrameNr
+		{
+			get
+			{
+				return currentFrameNr;
+			}
 		}
 
 		/// <summary>
 		/// First animation value
 		/// </summary>
-		public T First {
-			get { return first; }
+		public T First
+		{
+			get
+			{
+				return first;
+			}
 		}
-		
+
 		/// <summary>
 		/// Last animation value, of this "leg"
 		/// </summary>
-		public T Last {
-			get { return last; }
+		public T Last
+		{
+			get
+			{
+				return last;
+			}
 		}
 
 		/// <summary>
 		/// Final animation value, this is including the legs
 		/// </summary>
-		public T Final {
-			get {
-				if (queue.Count == 0) {
+		public T Final
+		{
+			get
+			{
+				if (queue.Count == 0)
+				{
 					return last;
 				}
 				return queue.ToArray()[queue.Count - 1].Destination;
 			}
 		}
-		
+
 		/// <summary>
 		/// This restarts the current animation and changes the last frame
 		/// </summary>
 		/// <param name="newDestination"></param>
-		public void ChangeDestination(T newDestination) {
+		public void ChangeDestination(T newDestination)
+		{
 			ChangeDestination(newDestination, frames);
 		}
-		
+
 		/// <summary>
 		/// This restarts the current animation and changes the last frame
 		/// </summary>
 		/// <param name="newDestination"></param>
 		/// <param name="frames"></param>
-		public void ChangeDestination(T newDestination, int frames) {
+		public void ChangeDestination(T newDestination, int frames)
+		{
 			queue.Clear();
 			first = current;
 			currentFrameNr = 0;
@@ -170,7 +204,8 @@ namespace GreenshotPlugin.Core {
 		/// All values will stay the same
 		/// </summary>
 		/// <param name="queuedDestination"></param>
-		public void QueueDestinationLeg(T queuedDestination) {
+		public void QueueDestinationLeg(T queuedDestination)
+		{
 			QueueDestinationLeg(queuedDestination, Frames, EasingType, EasingMode);
 		}
 
@@ -179,7 +214,8 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="queuedDestination"></param>
 		/// <param name="frames"></param>
-		public void QueueDestinationLeg(T queuedDestination, int frames) {
+		public void QueueDestinationLeg(T queuedDestination, int frames)
+		{
 			QueueDestinationLeg(queuedDestination, frames, EasingType, EasingMode);
 		}
 
@@ -189,7 +225,8 @@ namespace GreenshotPlugin.Core {
 		/// <param name="queuedDestination"></param>
 		/// <param name="frames"></param>
 		/// <param name="easingType">EasingType</param>
-		public void QueueDestinationLeg(T queuedDestination, int frames, EasingType easingType) {
+		public void QueueDestinationLeg(T queuedDestination, int frames, EasingType easingType)
+		{
 			QueueDestinationLeg(queuedDestination, frames, easingType, EasingMode);
 		}
 
@@ -200,7 +237,8 @@ namespace GreenshotPlugin.Core {
 		/// <param name="frames"></param>
 		/// <param name="easingType"></param>
 		/// <param name="easingMode"></param>
-		public void QueueDestinationLeg(T queuedDestination, int frames, EasingType easingType, EasingMode easingMode) {
+		public void QueueDestinationLeg(T queuedDestination, int frames, EasingType easingType, EasingMode easingMode)
+		{
 			AnimationLeg<T> leg = new AnimationLeg<T>();
 			leg.Destination = queuedDestination;
 			leg.Frames = frames;
@@ -212,15 +250,17 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// The EasingType to use for the animation
 		/// </summary>
-		public EasingType EasingType {
+		public EasingType EasingType
+		{
 			get;
 			set;
 		}
-		
+
 		/// <summary>
 		/// The EasingMode to use for the animation
 		/// </summary>
-		public EasingMode EasingMode {
+		public EasingMode EasingMode
+		{
 			get;
 			set;
 		}
@@ -228,16 +268,19 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Get the easing value, which is from 0-1 and depends on the frame
 		/// </summary>
-		protected double EasingValue {
-			get {
-				switch (EasingMode) {
+		protected double EasingValue
+		{
+			get
+			{
+				switch (EasingMode)
+				{
 					case EasingMode.EaseOut:
-						return Easing.EaseOut((double)currentFrameNr / (double)frames, EasingType);
+						return Easing.EaseOut((double) currentFrameNr/(double) frames, EasingType);
 					case EasingMode.EaseInOut:
-						return Easing.EaseInOut((double)currentFrameNr / (double)frames, EasingType);
+						return Easing.EaseInOut((double) currentFrameNr/(double) frames, EasingType);
 					case EasingMode.EaseIn:
 					default:
-						return Easing.EaseIn((double)currentFrameNr / (double)frames, EasingType);
+						return Easing.EaseIn((double) currentFrameNr/(double) frames, EasingType);
 				}
 			}
 		}
@@ -245,22 +288,28 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Get the current (previous) frame object
 		/// </summary>
-		public virtual T Current {
-			get {
+		public virtual T Current
+		{
+			get
+			{
 				return current;
 			}
 		}
-		
+
 		/// <summary>
 		/// Returns if there are any frame left, and if this is the case than the frame is increased.
 		/// </summary>
-		public virtual bool NextFrame {
-			get {
-				if (currentFrameNr < frames) {
+		public virtual bool NextFrame
+		{
+			get
+			{
+				if (currentFrameNr < frames)
+				{
 					currentFrameNr++;
 					return true;
 				}
-				if (queue.Count > 0) {
+				if (queue.Count > 0)
+				{
 					first = current;
 					currentFrameNr = 0;
 					AnimationLeg<T> nextLeg = queue.Dequeue();
@@ -273,13 +322,16 @@ namespace GreenshotPlugin.Core {
 				return false;
 			}
 		}
-		
+
 		/// <summary>
 		/// Are there more frames to animate?
 		/// </summary>
-		public virtual bool hasNext {
-			get {
-				if (currentFrameNr < frames) {
+		public virtual bool hasNext
+		{
+			get
+			{
+				if (currentFrameNr < frames)
+				{
 					return true;
 				}
 				return queue.Count > 0;
@@ -296,36 +348,40 @@ namespace GreenshotPlugin.Core {
 	/// <summary>
 	/// Implementation of the RectangleAnimator
 	/// </summary>
-	public class RectangleAnimator : AnimatorBase<Rectangle> {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(RectangleAnimator));
+	public class RectangleAnimator : AnimatorBase<Rectangle>
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (RectangleAnimator));
 
-		public RectangleAnimator(Rectangle first, Rectangle last, int frames)
-			: base(first, last, frames, EasingType.Linear, EasingMode.EaseIn) {
-		}
-		public RectangleAnimator(Rectangle first, Rectangle last, int frames, EasingType easingType)
-			: base(first, last, frames, easingType, EasingMode.EaseIn) {
+		public RectangleAnimator(Rectangle first, Rectangle last, int frames) : base(first, last, frames, EasingType.Linear, EasingMode.EaseIn)
+		{
 		}
 
-		public RectangleAnimator(Rectangle first, Rectangle last, int frames, EasingType easingType, EasingMode easingMode)
-			: base(first, last, frames, easingType, easingMode) {
+		public RectangleAnimator(Rectangle first, Rectangle last, int frames, EasingType easingType) : base(first, last, frames, easingType, EasingMode.EaseIn)
+		{
+		}
+
+		public RectangleAnimator(Rectangle first, Rectangle last, int frames, EasingType easingType, EasingMode easingMode) : base(first, last, frames, easingType, easingMode)
+		{
 		}
 
 		/// <summary>
 		/// Calculate the next frame object
 		/// </summary>
 		/// <returns>Rectangle</returns>
-		public override Rectangle Next() {
-			if (NextFrame) {
+		public override Rectangle Next()
+		{
+			if (NextFrame)
+			{
 				double easingValue = EasingValue;
 				double dx = last.X - first.X;
 				double dy = last.Y - first.Y;
 
-				int x = first.X + (int)(easingValue * dx);
-				int y = first.Y + (int)(easingValue * dy);
+				int x = first.X + (int) (easingValue*dx);
+				int y = first.Y + (int) (easingValue*dy);
 				double dw = last.Width - first.Width;
 				double dh = last.Height - first.Height;
-				int width = first.Width + (int)(easingValue * dw);
-				int height = first.Height + (int)(easingValue * dh);
+				int width = first.Width + (int) (easingValue*dw);
+				int height = first.Height + (int) (easingValue*dh);
 				current = new Rectangle(x, y, width, height);
 			}
 			return current;
@@ -335,34 +391,40 @@ namespace GreenshotPlugin.Core {
 	/// <summary>
 	/// Implementation of the ColorAnimator
 	/// </summary>
-	public class ColorAnimator : AnimatorBase<Color> {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(ColorAnimator));
-		public ColorAnimator(Color first, Color last, int frames)
-			: base(first, last, frames, EasingType.Linear, EasingMode.EaseIn) {
+	public class ColorAnimator : AnimatorBase<Color>
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (ColorAnimator));
+
+		public ColorAnimator(Color first, Color last, int frames) : base(first, last, frames, EasingType.Linear, EasingMode.EaseIn)
+		{
 		}
-		public ColorAnimator(Color first, Color last, int frames, EasingType easingType)
-			: base(first, last, frames, easingType, EasingMode.EaseIn) {
+
+		public ColorAnimator(Color first, Color last, int frames, EasingType easingType) : base(first, last, frames, easingType, EasingMode.EaseIn)
+		{
 		}
-		public ColorAnimator(Color first, Color last, int frames, EasingType easingType, EasingMode easingMode)
-			: base(first, last, frames, easingType, easingMode) {
+
+		public ColorAnimator(Color first, Color last, int frames, EasingType easingType, EasingMode easingMode) : base(first, last, frames, easingType, easingMode)
+		{
 		}
 
 		/// <summary>
 		/// Calculate the next frame values
 		/// </summary>
 		/// <returns>Color</returns>
-		public override Color Next() {
-			if (NextFrame) {
+		public override Color Next()
+		{
+			if (NextFrame)
+			{
 				double easingValue = EasingValue;
 				double da = last.A - first.A;
 				double dr = last.R - first.R;
 				double dg = last.G - first.G;
 				double db = last.B - first.B;
-				int a = first.A + (int)(easingValue * da);
-				int r = first.R + (int)(easingValue * dr);
-				int g = first.G + (int)(easingValue * dg);
-				int b = first.B + (int)(easingValue * db);
-				current = Color.FromArgb(a,r,g,b);
+				int a = first.A + (int) (easingValue*da);
+				int r = first.R + (int) (easingValue*dr);
+				int g = first.G + (int) (easingValue*dg);
+				int b = first.B + (int) (easingValue*db);
+				current = Color.FromArgb(a, r, g, b);
 			}
 			return current;
 		}
@@ -371,17 +433,21 @@ namespace GreenshotPlugin.Core {
 	/// <summary>
 	/// Easing logic, to make the animations more "fluent"
 	/// </summary>
-	public static class Easing {
+	public static class Easing
+	{
 		// Adapted from http://www.robertpenner.com/easing/penner_chapter7_tweening.pdf
 
-		public static double Ease(double linearStep, double acceleration, EasingType type) {
-			double easedStep = acceleration > 0 ? EaseIn(linearStep, type) : acceleration < 0 ? EaseOut(linearStep, type) : (double)linearStep;
+		public static double Ease(double linearStep, double acceleration, EasingType type)
+		{
+			double easedStep = acceleration > 0 ? EaseIn(linearStep, type) : acceleration < 0 ? EaseOut(linearStep, type) : (double) linearStep;
 			// Lerp:
-			return ((easedStep - linearStep) * Math.Abs(acceleration) + linearStep);
+			return ((easedStep - linearStep)*Math.Abs(acceleration) + linearStep);
 		}
 
-		public static double EaseIn(double linearStep, EasingType type) {
-			switch (type) {
+		public static double EaseIn(double linearStep, EasingType type)
+		{
+			switch (type)
+			{
 				case EasingType.Step:
 					return linearStep < 0.5 ? 0 : 1;
 				case EasingType.Linear:
@@ -400,8 +466,10 @@ namespace GreenshotPlugin.Core {
 			throw new NotImplementedException();
 		}
 
-		public static double EaseOut(double linearStep, EasingType type) {
-			switch (type) {
+		public static double EaseOut(double linearStep, EasingType type)
+		{
+			switch (type)
+			{
 				case EasingType.Step:
 					return linearStep < 0.5 ? 0 : 1;
 				case EasingType.Linear:
@@ -420,12 +488,15 @@ namespace GreenshotPlugin.Core {
 			throw new NotImplementedException();
 		}
 
-		public static double EaseInOut(double linearStep, EasingType easeInType, EasingType easeOutType) {
+		public static double EaseInOut(double linearStep, EasingType easeInType, EasingType easeOutType)
+		{
 			return linearStep < 0.5 ? EaseInOut(linearStep, easeInType) : EaseInOut(linearStep, easeOutType);
 		}
 
-		public static double EaseInOut(double linearStep, EasingType type) {
-			switch (type) {
+		public static double EaseInOut(double linearStep, EasingType type)
+		{
+			switch (type)
+			{
 				case EasingType.Step:
 					return linearStep < 0.5 ? 0 : 1;
 				case EasingType.Linear:
@@ -444,33 +515,46 @@ namespace GreenshotPlugin.Core {
 			throw new NotImplementedException();
 		}
 
-		static class Sine {
-			public static double EaseIn(double s) {
-				return Math.Sin(s * (Math.PI / 2) - (Math.PI / 2)) + 1;
+		private static class Sine
+		{
+			public static double EaseIn(double s)
+			{
+				return Math.Sin(s*(Math.PI/2) - (Math.PI/2)) + 1;
 			}
-			public static double EaseOut(double s) {
-				return Math.Sin(s * (Math.PI / 2));
+
+			public static double EaseOut(double s)
+			{
+				return Math.Sin(s*(Math.PI/2));
 			}
-			public static double EaseInOut(double s) {
-				return Math.Sin(s * Math.PI - (Math.PI / 2) + 1) / 2;
+
+			public static double EaseInOut(double s)
+			{
+				return Math.Sin(s*Math.PI - (Math.PI/2) + 1)/2;
 			}
 		}
 
-		static class Power {
-			public static double EaseIn(double s, int power) {
+		private static class Power
+		{
+			public static double EaseIn(double s, int power)
+			{
 				return Math.Pow(s, power);
 			}
-			public static double EaseOut(double s, int power) {
-				var sign = power % 2 == 0 ? -1 : 1;
-				return sign * (Math.Pow(s - 1, power) + sign);
+
+			public static double EaseOut(double s, int power)
+			{
+				var sign = power%2 == 0 ? -1 : 1;
+				return sign*(Math.Pow(s - 1, power) + sign);
 			}
-			public static double EaseInOut(double s, int power) {
+
+			public static double EaseInOut(double s, int power)
+			{
 				s *= 2;
-				if (s < 1) {
-					return EaseIn(s, power) / 2;
+				if (s < 1)
+				{
+					return EaseIn(s, power)/2;
 				}
-				var sign = power % 2 == 0 ? -1 : 1;
-				return (sign / 2.0 * (Math.Pow(s - 2, power) + sign * 2));
+				var sign = power%2 == 0 ? -1 : 1;
+				return (sign/2.0*(Math.Pow(s - 2, power) + sign*2));
 			}
 		}
 	}
@@ -478,7 +562,8 @@ namespace GreenshotPlugin.Core {
 	/// <summary>
 	/// This defines the way the animation works
 	/// </summary>
-	public enum EasingType {
+	public enum EasingType
+	{
 		Step,
 		Linear,
 		Sine,
@@ -488,7 +573,8 @@ namespace GreenshotPlugin.Core {
 		Quintic
 	}
 
-	public enum EasingMode {
+	public enum EasingMode
+	{
 		EaseIn,
 		EaseOut,
 		EaseInOut

@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Українська" ietf="uk-UA" version="1.0.0" languagegroup="5">
+
+<language>
 	<resources>
 		<resource name="home_downloads">Завантаження</resource>
 		<resource name="home_headline">Greenshot — безкоштовний інструмент для створення знімків екрану, оптимізований для покращення продуктивності</resource>

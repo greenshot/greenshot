@@ -21,30 +21,33 @@
 
 using System;
 
-namespace GreenshotEditorPlugin.Memento {
+namespace GreenshotEditorPlugin.Memento
+{
 	/// <summary>
 	/// Description of IMemento.
 	/// </summary>
-	public interface IMemento : IDisposable {
-	    /// <summary>
-	    /// Restores target to the state memorized by this memento.
+	public interface IMemento : IDisposable
+	{
+		/// <summary>
+		/// Restores target to the state memorized by this memento.
 		/// </summary>
 		/// <returns>
 		/// A memento of the state before restoring
 		/// </returns>
 		IMemento Restore();
-		
+
 		/// <summary>
 		/// Try to merge the current memento with another, preventing loads of items on the stack
 		/// </summary>
 		/// <param name="other">The memento to try to merge with</param>
 		/// <returns></returns>
 		bool Merge(IMemento other);
-		
+
 		/// <summary>
 		/// Returns the language key for the action which is performed
 		/// </summary>
-		string ActionDescription {
+		string ActionDescription
+		{
 			get;
 		}
 	}

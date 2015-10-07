@@ -28,56 +28,79 @@ using System.Drawing;
 
 namespace GreenshotEditorPlugin.Drawing.Filters
 {
-    [Serializable] 
-	public class PixelizationFilter : AbstractFilter {
+	[Serializable]
+	public class PixelizationFilter : AbstractFilter
+	{
 		protected int _pixelSize = 5;
+
 		[Field(FieldTypes.PIXEL_SIZE)]
-		public int PixelSize {
-			get {
+		public int PixelSize
+		{
+			get
+			{
 				return _pixelSize;
 			}
-			set {
-                _pixelSize = value;
+			set
+			{
+				_pixelSize = value;
 				OnFieldPropertyChanged(FieldTypes.PIXEL_SIZE);
 			}
-		}		
-		public PixelizationFilter(DrawableContainer parent) : base(parent) {
 		}
-		
-		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
+
+		public PixelizationFilter(DrawableContainer parent) : base(parent)
+		{
+		}
+
+		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode)
+		{
 			Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
-            var pixelSize = _pixelSize;
-            if (pixelSize <= 1 || rect.Width == 0 || rect.Height == 0) {
+			var pixelSize = _pixelSize;
+			if (pixelSize <= 1 || rect.Width == 0 || rect.Height == 0)
+			{
 				// Nothing to do
 				return;
 			}
-			if (rect.Width < pixelSize) {
+			if (rect.Width < pixelSize)
+			{
 				pixelSize = rect.Width;
 			}
-			if (rect.Height < pixelSize) {
+			if (rect.Height < pixelSize)
+			{
 				pixelSize = rect.Height;
 			}
-			using (IFastBitmap dest = FastBitmap.CreateCloneOf(applyBitmap, rect)) {
-				using (IFastBitmap src = FastBitmap.Create(applyBitmap, rect)) {
+			using (IFastBitmap dest = FastBitmap.CreateCloneOf(applyBitmap, rect))
+			{
+				using (IFastBitmap src = FastBitmap.Create(applyBitmap, rect))
+				{
 					List<Color> colors = new List<Color>();
-					int halbPixelSize = pixelSize / 2;
-					for (int y = src.Top - halbPixelSize; y < src.Bottom + halbPixelSize; y = y + pixelSize) {
-						for (int x = src.Left - halbPixelSize; x <= src.Right + halbPixelSize; x = x + pixelSize) {
+					int halbPixelSize = pixelSize/2;
+					for (int y = src.Top - halbPixelSize; y < src.Bottom + halbPixelSize; y = y + pixelSize)
+					{
+						for (int x = src.Left - halbPixelSize; x <= src.Right + halbPixelSize; x = x + pixelSize)
+						{
 							colors.Clear();
-							for (int yy = y; yy < y + pixelSize; yy++) {
-								if (yy >= src.Top && yy < src.Bottom) {
-									for (int xx = x; xx < x + pixelSize; xx++) {
-										if (xx >= src.Left && xx < src.Right) {
+							for (int yy = y; yy < y + pixelSize; yy++)
+							{
+								if (yy >= src.Top && yy < src.Bottom)
+								{
+									for (int xx = x; xx < x + pixelSize; xx++)
+									{
+										if (xx >= src.Left && xx < src.Right)
+										{
 											colors.Add(src.GetColorAt(xx, yy));
 										}
 									}
 								}
 							}
 							Color currentAvgColor = ColorHelper.Mix(colors);
-							for (int yy = y; yy <= y + pixelSize; yy++) {
-								if (yy >= src.Top && yy < src.Bottom) {
-									for (int xx = x; xx <= x + pixelSize; xx++) {
-										if (xx >= src.Left && xx < src.Right) {
+							for (int yy = y; yy <= y + pixelSize; yy++)
+							{
+								if (yy >= src.Top && yy < src.Bottom)
+								{
+									for (int xx = x; xx <= x + pixelSize; xx++)
+									{
+										if (xx >= src.Left && xx < src.Right)
+										{
 											dest.SetColorAt(xx, yy, currentAvgColor);
 										}
 									}

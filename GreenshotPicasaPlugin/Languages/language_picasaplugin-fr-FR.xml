@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Français" ietf="fr-FR" version="1.0.0" languagegroup="">
+
+<language>
 	<resources prefix="Picasa">
 		<resource name="communication_wait">Communication en cours avec Picasa. Veuillez patientez...</resource>
 		<resource name="Configure">Configurer Picasa</resource>

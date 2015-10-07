@@ -28,28 +28,35 @@ using System.Linq;
 using System.Web;
 using System.Windows.Forms;
 
-namespace GreenshotPlugin.Controls {
+namespace GreenshotPlugin.Controls
+{
 	/// <summary>
 	/// The OAuthLoginForm is used to allow the user to authorize Greenshot with an "Oauth" application
 	/// </summary>
-	public partial class OAuthLoginForm : Form {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(OAuthLoginForm));
+	public partial class OAuthLoginForm : Form
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (OAuthLoginForm));
 		private readonly string _callbackUrl;
 		private IDictionary<string, string> _callbackParameters = null;
-		
-		public IDictionary<string, string> CallbackParameters {
-			get {
+
+		public IDictionary<string, string> CallbackParameters
+		{
+			get
+			{
 				return _callbackParameters;
 			}
 		}
-		
-		public bool IsOk {
-			get {
+
+		public bool IsOk
+		{
+			get
+			{
 				return DialogResult == DialogResult.OK;
 			}
 		}
 
-		public OAuthLoginForm(string browserTitle, Size size, Uri authorizationLink, string callbackUrl) {
+		public OAuthLoginForm(string browserTitle, Size size, Uri authorizationLink, string callbackUrl)
+		{
 			_callbackUrl = callbackUrl;
 			InitializeComponent();
 			ClientSize = size;
@@ -69,30 +76,37 @@ namespace GreenshotPlugin.Controls {
 		/// Make sure the form is visible
 		/// </summary>
 		/// <param name="e">EventArgs</param>
-		protected override void OnShown(EventArgs e) {
+		protected override void OnShown(EventArgs e)
+		{
 			base.OnShown(e);
 			WindowDetails.ToForeground(Handle);
 		}
 
-		private void Browser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
+		private void Browser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+		{
 			LOG.DebugFormat("document completed with url: {0}", _browser.Url);
 			CheckUrl();
 		}
 
-		private void Browser_Navigating(object sender, WebBrowserNavigatingEventArgs e) {
+		private void Browser_Navigating(object sender, WebBrowserNavigatingEventArgs e)
+		{
 			LOG.DebugFormat("Navigating to url: {0}", _browser.Url);
 			_addressTextBox.Text = e.Url.ToString();
 		}
 
-		private void Browser_Navigated(object sender, WebBrowserNavigatedEventArgs e) {
+		private void Browser_Navigated(object sender, WebBrowserNavigatedEventArgs e)
+		{
 			LOG.DebugFormat("Navigated to url: {0}", _browser.Url);
 			CheckUrl();
 		}
 
-		private void CheckUrl() {
-			if (_browser.Url.AbsoluteUri.StartsWith(_callbackUrl)) {
+		private void CheckUrl()
+		{
+			if (_browser.Url.AbsoluteUri.StartsWith(_callbackUrl))
+			{
 				string queryParams = _browser.Url.Query;
-				if (queryParams.Length > 0) {
+				if (queryParams.Length > 0)
+				{
 					//Store the Token and Token Secret
 					var nvc = HttpUtility.ParseQueryString(Uri.UnescapeDataString(queryParams.Replace("+", " ")));
 					_callbackParameters = nvc.AllKeys.ToDictionary(k => k, k => nvc[k]);
@@ -101,9 +115,10 @@ namespace GreenshotPlugin.Controls {
 			}
 		}
 
-		private void AddressTextBox_KeyPress(object sender, KeyPressEventArgs e) {
+		private void AddressTextBox_KeyPress(object sender, KeyPressEventArgs e)
+		{
 			//Cancel the key press so the user can't enter a new url
-			e.Handled = true; 
+			e.Handled = true;
 		}
 	}
 }

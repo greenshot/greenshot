@@ -27,7 +27,8 @@ using System.Runtime.Serialization;
 
 namespace GreenshotFlickrPlugin
 {
-	public enum SafetyLevel {
+	public enum SafetyLevel
+	{
 		Safe = 1,
 		Moderate = 2,
 		Restricted = 3
@@ -37,69 +38,81 @@ namespace GreenshotFlickrPlugin
 	/// Description of FlickrConfiguration.
 	/// </summary>
 	[IniSection("Flickr"), Description("Greenshot Flickr Plugin configuration")]
-	public interface IFlickrConfiguration : IIniSection<IFlickrConfiguration> {
+	public interface IFlickrConfiguration : IIniSection<IFlickrConfiguration>
+	{
 		[DataMember(Name = "flickrIsPublic"), Description("IsPublic."), DefaultValue(true)]
-		bool IsPublic {
+		bool IsPublic
+		{
 			get;
 			set;
 		}
 
 		[DataMember(Name = "flickrIsFamily"), Description("IsFamily."), DefaultValue(true)]
-		bool IsFamily {
+		bool IsFamily
+		{
 			get;
 			set;
 		}
 
 		[DataMember(Name = "flickrIsFriend"), Description("IsFriend."), DefaultValue(true)]
-		bool IsFriend {
+		bool IsFriend
+		{
 			get;
 			set;
 		}
 
 		[Description("Safety level"), DefaultValue(SafetyLevel.Safe)]
-		SafetyLevel SafetyLevel {
+		SafetyLevel SafetyLevel
+		{
 			get;
 			set;
 		}
 
 		[Description("Hidden from search"), DefaultValue(false)]
-		bool HiddenFromSearch {
+		bool HiddenFromSearch
+		{
 			get;
 			set;
 		}
 
 		[Description("What file type to use for uploading"), DefaultValue(OutputFormat.png)]
-		OutputFormat UploadFormat {
+		OutputFormat UploadFormat
+		{
 			get;
 			set;
 		}
 
 		[Description("JPEG file save quality in %."), DefaultValue(80)]
-		int UploadJpegQuality {
+		int UploadJpegQuality
+		{
 			get;
 			set;
 		}
 
 		[Description("After upload send flickr link to clipboard."), DefaultValue(true)]
-		bool AfterUploadLinkToClipBoard {
+		bool AfterUploadLinkToClipBoard
+		{
 			get;
 			set;
 		}
 
 		[Description("Use pagelink instead of direct link on the clipboard"), DefaultValue(false)]
-		bool UsePageLink {
-			get;
-			set;
-		}
-		
-		[Description("The Flickr token"), TypeConverter(typeof(StringEncryptionTypeConverter))]
-		string FlickrToken {
+		bool UsePageLink
+		{
 			get;
 			set;
 		}
 
-		[Description("The Flickr token secret"), TypeConverter(typeof(StringEncryptionTypeConverter))]
-		string FlickrTokenSecret {
+		[Description("The Flickr token"), TypeConverter(typeof (StringEncryptionTypeConverter))]
+		string FlickrToken
+		{
+			get;
+			set;
+		}
+
+		[Description("The Flickr token secret"), TypeConverter(typeof (StringEncryptionTypeConverter))]
+		string FlickrTokenSecret
+		{
 			get;
 			set;
 		}
@@ -123,6 +136,5 @@ namespace GreenshotFlickrPlugin
 			get;
 			set;
 		}
-
 	}
 }

@@ -26,105 +26,129 @@ using System.Drawing.Drawing2D;
 
 namespace GreenshotEditorPlugin.Drawing
 {
-    /// <summary>
-    /// Description of LineContainer.
-    /// </summary>
-    [Serializable()]
-	public class ArrowContainer : LineContainer {
+	/// <summary>
+	/// Description of LineContainer.
+	/// </summary>
+	[Serializable()]
+	public class ArrowContainer : LineContainer
+	{
 		private static readonly AdjustableArrowCap ARROW_CAP = new AdjustableArrowCap(4, 6);
 
-		ArrowHeadCombination arrowHeads = ArrowHeadCombination.END_POINT;
+		private ArrowHeadCombination arrowHeads = ArrowHeadCombination.END_POINT;
+
 		[Field(FieldTypes.ARROWHEADS)]
-		public ArrowHeadCombination ArrowHeads {
-			get {
+		public ArrowHeadCombination ArrowHeads
+		{
+			get
+			{
 				return arrowHeads;
 			}
-			set {
+			set
+			{
 				arrowHeads = value;
 				OnFieldPropertyChanged(FieldTypes.ARROWHEADS);
 			}
 		}
 
-		public ArrowContainer(Surface parent) : base(parent) {
+		public ArrowContainer(Surface parent) : base(parent)
+		{
 		}
 
-		public override void Draw(Graphics graphics, RenderMode rm) {
-			if (LineThickness > 0 ) {
+		public override void Draw(Graphics graphics, RenderMode rm)
+		{
+			if (LineThickness > 0)
+			{
 				graphics.SmoothingMode = SmoothingMode.HighQuality;
 				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 				graphics.CompositingQuality = CompositingQuality.HighQuality;
 				graphics.PixelOffsetMode = PixelOffsetMode.None;
-				if (LineThickness > 0) {
-					if (Shadow) {
+				if (LineThickness > 0)
+				{
+					if (Shadow)
+					{
 						//draw _shadow first
 						int basealpha = 100;
 						int alpha = basealpha;
 						int steps = 5;
 						int currentStep = 1;
-						while (currentStep <= steps) {
-							using (Pen shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), LineThickness)) {
+						while (currentStep <= steps)
+						{
+							using (Pen shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), LineThickness))
+							{
 								SetArrowHeads(arrowHeads, shadowCapPen);
 
-								graphics.DrawLine(shadowCapPen,
-									Left + currentStep,
-									Top + currentStep,
-									Left + currentStep + Width,
-									Top + currentStep + Height);
+								graphics.DrawLine(shadowCapPen, Left + currentStep, Top + currentStep, Left + currentStep + Width, Top + currentStep + Height);
 
 								currentStep++;
-								alpha = alpha - (basealpha / steps);
+								alpha = alpha - (basealpha/steps);
 							}
 						}
-
 					}
-					using (Pen pen = new Pen(LineColor, LineThickness)) {
+					using (Pen pen = new Pen(LineColor, LineThickness))
+					{
 						SetArrowHeads(arrowHeads, pen);
 						graphics.DrawLine(pen, Left, Top, Left + Width, Top + Height);
 					}
 				}
 			}
 		}
-		
-		private void SetArrowHeads(ArrowHeadCombination heads, Pen pen) {
-			if ( heads == ArrowHeadCombination.BOTH || heads == ArrowHeadCombination.START_POINT ) {
+
+		private void SetArrowHeads(ArrowHeadCombination heads, Pen pen)
+		{
+			if (heads == ArrowHeadCombination.BOTH || heads == ArrowHeadCombination.START_POINT)
+			{
 				pen.CustomStartCap = ARROW_CAP;
 			}
-			if ( heads == ArrowHeadCombination.BOTH || heads == ArrowHeadCombination.END_POINT ) {
+			if (heads == ArrowHeadCombination.BOTH || heads == ArrowHeadCombination.END_POINT)
+			{
 				pen.CustomEndCap = ARROW_CAP;
 			}
 		}
-		
-		public override Rectangle DrawingBounds {
-			get {
-				if (LineThickness > 0) {
-					using (Pen pen = new Pen(Color.White)) {
+
+		public override Rectangle DrawingBounds
+		{
+			get
+			{
+				if (LineThickness > 0)
+				{
+					using (Pen pen = new Pen(Color.White))
+					{
 						pen.Width = LineThickness;
 						SetArrowHeads(arrowHeads, pen);
-						using (GraphicsPath path = new GraphicsPath()) {
+						using (GraphicsPath path = new GraphicsPath())
+						{
 							path.AddLine(Left, Top, Left + Width, Top + Height);
 							Rectangle drawingBounds = Rectangle.Round(path.GetBounds(new Matrix(), pen));
 							drawingBounds.Inflate(2, 2);
 							return drawingBounds;
 						}
 					}
-				} else {
+				}
+				else
+				{
 					return Rectangle.Empty;
 				}
 			}
 		}
-		
-		public override bool ClickableAt(int x, int y) {
+
+		public override bool ClickableAt(int x, int y)
+		{
 			int lineWidth = LineThickness + 10;
-			if (LineThickness > 0) {
-				using (Pen pen = new Pen(Color.White)) {
+			if (LineThickness > 0)
+			{
+				using (Pen pen = new Pen(Color.White))
+				{
 					pen.Width = lineWidth;
 					SetArrowHeads(arrowHeads, pen);
-					using (GraphicsPath path = new GraphicsPath()) {
+					using (GraphicsPath path = new GraphicsPath())
+					{
 						path.AddLine(Left, Top, Left + Width, Top + Height);
 						return path.IsOutlineVisible(x, y, pen);
 					}
 				}
-			} else {
+			}
+			else
+			{
 				return false;
 			}
 		}

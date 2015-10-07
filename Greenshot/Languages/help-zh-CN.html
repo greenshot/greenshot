@@ -1,390 +1,482 @@
-﻿
-<html>
-	<head><meta http-equiv="Content-Type" content="text/xhtml; charset=UTF-8"/>
-		<title>Greenshot帮助</title>
-		
-		<style>
-		* {
-			font-family: Tahoma, Arial, Sans-serif;
+﻿<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/xhtml; charset=UTF-8"/>
+	<title>Greenshot帮助</title>
+
+	<style>
+		* { font-family: Tahoma, Arial, Sans-serif; }
+
+		h1 { font-size: 16px; }
+
+		h2 {
+			font-size: 14px;
+			color: #009900;
+			margin-top: 24px;
 		}
-		h1 {font-size:16px;}
-		h2 {font-size:14px;color:#009900;margin-top:24px;}
-		h3 {font-size:12px;margin-top:18px;}
-		small {font-size:10px;}
-		p, li {font-size:12px;line-height:1.5em}
-		a:link, a:hover, a:visited, a:active {color:#009900;}
-		kbd {background-color:#dddddd;border:1px solid #bbbbbb;padding:0 2px;border-radius:2px;}
-		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px;}
-		em {padding-right:0.2em;}
-		</style>
-	</head>
-	<body>
-	<h1>Greenshot帮助</h1>
-	<!-- 
-	Note to translator: uncomment entry below to have your effort honored 
-	-->
-	<small>版本 1.0 简体中文翻译：uralhan</small>
-	
-	<h2>内容</h2>
+
+		h3 {
+			font-size: 12px;
+			margin-top: 18px;
+		}
+
+		small { font-size: 10px; }
+
+		p, li {
+			font-size: 12px;
+			line-height: 1.5em
+		}
+
+		a:link, a:hover, a:visited, a:active { color: #009900; }
+
+		kbd {
+			background-color: #dddddd;
+			border: 1px solid #bbbbbb;
+			padding: 0 2px;
+			border-radius: 2px;
+		}
+
+		p.hint {
+			background-color: #ffffdd;
+			border: 1px solid #ddddbb;
+			padding: 5px;
+		}
+
+		em { padding-right: 0.2em; }
+	</style>
+</head>
+<body>
+<h1>Greenshot帮助</h1>
+<!--
+Note to translator: uncomment entry below to have your effort honored
+-->
+<small>版本 1.0 简体中文翻译：uralhan</small>
+
+<h2>内容</h2>
+<ol>
+	<li>
+		<a href="#screenshot">创建一个抓图</a>
+	</li>
 	<ol>
-		<li><a href="#screenshot">创建一个抓图</a></li>
-		<ol>
-			<li><a href="#capture-region">抓取屏幕的一部分</a></li>
-			<li><a href="#capture-last-region">抓取上次选择的区域</a></li>
-			<li><a href="#capture-window">抓取窗口</a></li>
-			<li><a href="#capture-fullscreen">抓取全屏</a></li>
-			<li><a href="#capture-ie">抓取Internet Explorer浏览器</a></li>
-		</ol>
-	
-		<li><a href="#editor">使用图片编辑器</a></li>
-		<ol>
-			<li><a href="#editor-shapes">绘制形状</a></li>
-			<li><a href="#editor-text">添加文字</a></li>
-			<li><a href="#editor-highlight">高亮显示</a></li>
-			<li><a href="#editor-obfuscate">模糊效果</a></li>
-			<li><a href="#editor-effects">添加特效</a></li>
-			<li><a href="#editor-crop">裁剪抓图</a></li>
-			<li><a href="#editor-adding-graphics">添加图形到抓图</a></li>
-			<li><a href="#editor-reuse-elements">重复使用物件</a></li>
-			<li><a href="#editor-export">导出抓图</a></li>
-		</ol>
-		<li><a href="#settings">设置对话框</a></li>
-		<ol>
-			<li><a href="#settings-general">常规设置</a></li>
-			<li><a href="#settings-capture">抓图设置</a></li>
-			<li><a href="#settings-output">输出设置</a></li>
-			<li><a href="#settings-destination">保存设置</a></li>
-			<li><a href="#settings-printer">打印机设置</a></li>
-			<li><a href="#settings-expert">专家设置</a></li>
-		</ol>
-		<li><a href="#help">您愿意帮助我们吗？</a></li>
-		<ol>
-			<li><a href="#help-donate">考虑一下捐助</a></li>
-			<li><a href="#help-spread">广而告之</a></li>
-			<li><a href="#help-translate">提交一个翻译</a></li>
-		</ol>
-	</ol>
-	
-	<a name="screenshot"></a>
-	<h2>创建一个抓图</h2>
-	<p>
-		你可以使用键盘上的<kbd>Print</kbd>按键或者右键点击Greenshot的系统托盘图标来创建一个抓图。<br>
-		在创建抓图时还可以设置一些选项：
-	</p>
-	
-	<a name="capture-region"></a>
-	<h3>抓取屏幕的一部分<kbd>Print</kbd></h3>
-	<p>
-		抓取部分屏幕模式允许你选择需要抓取屏幕的某个部分。<br>
-		开始抓取部分屏幕以后，你将看到屏幕上的鼠标变成了一个十字准星。
-		在你想抓取的区域的一角按住鼠标，拖动鼠标画出一个矩形框。
-		当你想要抓取的区域被矩形框包含以后，松开鼠标。
-	</p>
-	<p class="hint">
-		你可以使用<kbd>Space</kbd>按键（空格键）在抓取部分屏幕和
-		<a href="#capture-window">抓取窗口</a>模式之间进行切换。
-	</p>
-	<p class="hint">
-		如果你想抓取更精确的区域，一种简单的方式是你可以先抓取一个较大的区域，然后使用Greenshot的图片编辑工具在初始的抓图上进行<a href="#editor-crop">裁剪</a>。
-	</p>
-	
-	<a name="capture-last-region"></a>
-	<h3>抓取上次选择的区域 <kbd>Shift</kbd> + <kbd>Print</kbd></h3>
-	<p>
-		如果你刚刚使用了<a href="#capture-region">抓取屏幕的一部分</a>或者<a href="#capture-window">抓取窗口</a>操作，
-		则你可以使用这个功能再次抓取刚才抓过的区域。
-	</p>
-	
-	<a name="capture-window"></a>
-	<h3>抓取窗口 <kbd>Alt</kbd> + <kbd>Print</kbd></h3>
-	<p>
-		创建一个抓图来抓取当前正在活动的程序窗口。
-	</p>
-	<p class="hint">
-		对于 Windows 7 或者 Vista 系统，请使用窗口抓取模式设置来控制Greenshot如何对待窗口边框的半透明效果（Aero效果），例如，使用一个自定义的颜色替代透明效果。
-	</p>
-	<p class="hint">
-		<a href="#settings">设置对话框</a>里提供了一个选项，可以允许你不仅仅只能抓取正在活动的程序窗口，还可以用交互式抓图来选择你想要抓的程序的窗口。如果此选项被选中，你可以通过点击来选中一个程序窗口（类似<a href="#capture-region">抓取屏幕的一部分</a>那样，Greenshot会高亮显示会被抓取的区域）。<br>
-		如果你此时还希望仅抓取一个子窗口（例如，一个浏览器的菜单（不包含工具条等）或者是使用了框架结构的web页面的一个独立框架），则移动鼠标到该窗口上，并按下<kbd>PageDown</kbd>按键，然后你就可以选择该程序窗口的子元素，并进行抓图。
-	</p>
-	<p class="hint">
-		抓取下拉菜单与此不同：使用“抓取窗口”方式会导致上下文菜单消失，
-		并且显然使用Greenshot的菜单来抓图也会导致同样情况发生。
-		如果你想抓取程序下拉菜单，你必须使用鼠标右键选中任一东西，
-		并且使用部分抓取模式即点<kbd>Print</kbd>按键，然后点空格键<kbd>Space</kbd>按键。
-	</p>
-	
-	<a name="capture-fullscreen"></a>
-	<h3>抓取全屏 <kbd>Control</kbd> + <kbd>Print</kbd></h3>
-	<p>
-		创建一个全屏幕抓图。
-	</p>
-
-	<a name="capture-ie"></a>
-	<h3>抓取Internet Explorer浏览器 <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>Print</kbd></h3>
-	<p>
-		可以便捷的创建一个对使用IE浏览器打开的网页的抓图。
-		使用Greenshot的菜单选中Internet Explorer标签来抓取，或者使用快捷键
-		<kbd>Crtl</kbd> + <kbd>Shift</kbd> + <kbd>Print</kbd>来抓去活动的网页。.
-	</p>
-	
-	<a name="editor"></a>
-	<h2>使用图片编辑器</h2>
-	<p>
-		Greenshot内置了一个易用的图片编辑器，提供了一些方便的特色功能，如在抓图上添加注释或者形状。甚至可以对抓图的某个部分进行高亮显示或是模糊化处理。
-	</p>
-	<p class="hint">
-		Greenshot的图片编辑器不仅仅可以在抓图时使用。你同样也可以用它打开一个来自文件或者剪贴板的图片。右键点击系统托盘中的Greenshot图标，依次可以选择<em>从文件载入图片</em>或者<em>从剪切板载入图片</em>。
-	</p>
-	<p class="hint">
-		默认情况下，每次抓取一个图像以后都会打开图片编辑器。如果你不想使用图片编辑器，你可以在<a href="#settings">设置对话框</a>中关闭此动作。
-	</p>
-	
-	
-	<a name="editor-shapes"></a>
-	<h3>绘制形状</h3>
-	<p>
-		在图片编辑器的工具条的左边或者<em>物件</em>菜单里选择一个形状绘制工具。
-		每一个形状工具都会有一个快捷键。<br>
-		可以使用的形状有：矩形<kbd>R</kbd>，椭圆<kbd>E</kbd>，直线<kbd>L</kbd>以及箭头<kbd>A</kbd>。<br>
-		点击，然后按住鼠标按钮拖动来定义形状的位置和尺寸，完成后松开鼠标即可。
-	</p>
-	<p>
-		选中工具栏的选择工具<kbd>ESC</kbd>以后，你可以对已存在的形状进行移动或者调整尺寸的操作。<br>
-		每一个物件类型都有可以自定义的特殊选项（例如，直线粗细，直线颜色，填充颜色）。
-		你可以选中并改变已经存在的物件的选项，但是要注意下一个同类物件的选项将遵循这个改变。
-	</p>
-	<p class="hint">
-		你可以同时选择多个物件进行编辑。按下<kbd>Shift</kbd>按键然后点击选中多个物件。
-	</p>
-	<p class="hint">
-		如果你想绘制等边形状（例如：强制转换一个矩形成正方形），可以在绘制时按住<kbd>Shift</kbd>。
-		如果你绘制直线或者箭头，可以按住<kbd>Shift</kbd>来保持角度不变。
-		你也可以在调整任何物件尺寸时按住<kbd>Shift</kbd>以保持原有比例不变。
-	</p>
-	<p class="hint">
-		在绘制或者缩放时，你可以按住<kbd>Ctrl</kbd>来定住物件的几何中心
-		例如：将物件的方向对调。 （当你想在你的抓图周边绘制一个椭圆这会很方便。）
-	</p>
-	
-	<a name="editor-text"></a>
-	<h3>添加文字</h3>
-	<p>
-		文字工具<kbd>T</kbd>的使用方法类似于<a href="#editor-shapes">绘制形状</a>工具。只要绘制一个你所需要大小的文字框，然后在其中输入文字。<br>
-		双击一个已经存在的文字框可以编辑里面的文字。
-	</p>
-	
-	<a name="editor-highlight"></a>
-	<h3>高亮显示</h3>
-	<p>
-		选中高亮显示<kbd>H</kbd>工具，你可以定义一个区域高亮显示，类似绘制一个<a href="#editor-shapes">形状</a>。<br>
-		高亮显示操作还有一些选项可以在顶部工具栏的最左边进行设置：
-	</p>
-	<ul>
-		<li><em>高亮文字</em>：将一个区域使用选定的颜色进行高亮显示，就像在文件的文字中使用荧光笔标注。</li>
-		<li><em>高亮区域</em>：选中区域以外的全部图像都会变暗并且模糊<a href="#hint-blur">*</a>化。</li>
-		<li><em>灰阶</em>：选中区域以外的全部图像都会被变成灰阶图像。</li>
-		<li><em>放大</em>：选中区域会被放大显示。</li>
-	</ul>
-	
-	<a name="editor-obfuscate"></a>
-	<h3>模糊效果</h3>
-	<p>
-		对抓图的一些部分进行模糊处理可以防止其它人看到你不希望他们看到的一些信息，例如，图片中的银行账号数据，人名，密码或者脸部。<br>
-		模糊工具<kbd>O</kbd>的使用方法类似于<a href="#editor-highlight">高亮显示</a>工具。<br>
-		可以使用的模糊效果选项有：
-	</p>
-	<ul>
-		<li><em>马赛克效果</em>：扩大选中区域的像素尺寸。</li>
-		<li><em>模糊效果</em><a href="#hint-blur">*</a>：使选中区域变得模糊不清。</li>
-	</ul>
-	<a name="hint-blur"></a>
-	<p class="hint">
-		* 由于依赖于你的电脑的性能，使用一个模糊效果可能会降低Greenshot图片编辑器的运行速度。
-		如果你感觉图片编辑器进行模糊处理时突然变得非常慢，试试减少工具栏中<em>预览质量</em>的数值，或者
-		降低<em>模糊半径</em>的数值。<br>
-		如果模糊处理的性能一直都很糟糕，你可能需要考虑使用马赛克效果来代替这一操作。
-	</p>
-	<a name="editor-effects"></a>
-	<h3>添加特效</h3>
-	<p>
-		您可以为您的抓图添加不同的特效。你可能希望添加一个边框，阴影效果，或者边缘撕裂效果，
-		例如：在一个文档中明显的区分你的图片和其它内容。
-		灰度和反色特效主要在打印时使用，例如使用墨粉或墨水打印色彩艳丽或者黑色的图像。
-	</p>
-	
-	<a name="editor-crop"></a>
-	<h3>裁剪抓图</h3>
-	<p>
-		如果你只需要已抓取图像的某一部分，可以使用这个工具<kbd>C</kbd>
-		来裁剪你需要的区域。<br>
-		选中裁剪工具以后，在抓图上你所希望保留的区域绘制一个矩形。你可以调整选择区域的尺寸大小，就像对其它物件操作一样。<br>
-		当你满意选择的区域以后，使用工具栏上的确认按钮或者按下<kbd>Enter</kbd>按键。如果你想取消裁剪，可以点击取消按钮或者按下<kbd>ESC</kbd>按键。
-	</p>
-	<p class="hint">
-		<em>自动裁剪</em>：如果你需要裁减一个纯色背景的边框，
-		只需要在<em>编辑</em>菜单中选中<em>自动裁剪</em>，然后Greenshot将会自动选择需要裁减的区域。
-	</p>
-	
-	<a name="editor-rotate"></a>
-	<p class="hint">
-		使用旋转工具可以将抓图按照顺时针或逆时针方向旋转。
-	</p>
-
-	<a name="editor-adding-graphics"></a>
-	<h3>添加图形到抓图</h3>
-	<p>
-		您可以方便的拖拽一个图像文件到编辑器窗口中，来为你的抓图添加图形或图像。
-		你也可以使用<em>编辑</em>菜单里的<em>插入窗口</em>来将其它窗口里的抓图插入当前窗口。
-		然后会出现一个包含全部窗口的列表，你可以选择一个插入。
-	</p>
-	
-	<a name="editor-reuse-elements"></a>
-	<h3>重复使用物件</h3>
-	<p>
-		如果你发现你会在大多数抓图中经常使用相同或者相似的物件（例如，一个包含浏览器类型和版本的文字框，或者在一些抓图中经常会模糊化同样的物件），你可以重复使用这些物件。<br>
-		在<em>物件</em>菜单里选择<em>保存物件到文件</em>，可以将当前设定的物件保存下来以便在经后重复使用。
-		<em>从文件载入物件</em>可以在其它抓图中使用已经保存的物件。
-	</p>
-	
-	<a name="editor-export"></a>
-	<h3>导出抓图</h3>
-	<p>
-		在完成抓图编辑之后，你可以将结果导出到任何你需要的地方。
-		你可以在<em>文件</em>菜单，顶部工具栏里找到全部的导出选项或者使用快捷键来操作：
-	</p>
-	<ul>
-		<li><em>保存</em> <kbd>Control</kbd> + <kbd>S</kbd>：保存图片到文件（如果这个图片之前已经被保存，否则会显示<em>另存为...</em>对话框）。</li>
-		<li><em>另存为...</em> <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>：可以让你选择要保存为文件的路径，文件名，和图像格式。</li>
-		<li><em>复制图片到剪切板</em> <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd>：复制一个图片的拷贝到剪贴板，这样就可以在其它程序中粘贴。</li>
-		<li><em>打印...</em> <kbd>Control</kbd> + <kbd>P</kbd>：将图片进行打印。</li>
-		<li><em>编辑E-Mail</em> <kbd>Control</kbd> + <kbd>E</kbd>： 打开你默认的电子邮件客户端创建一条新信息，并将抓图作为邮件附件</li>
-	</ul>
-	<p class="hint">
-		在编辑器中保存一个图片以后，在编辑器窗口的底部状态栏里点击右键，可以复制图片文件的保存路径到剪贴板，或者也可以直接在Windows资源管理器中打开所保存到的文件夹。
-	</p>
-	
-	
-	<a name="settings"></a>
-	<h2>设置对话框</h2>
-	
-	<a name="settings-general"></a>
-	<h3>常规设置</h3>
-	<ul>
-		<li><em>语言</em>：你希望使用的语言。<br>
-			你可以在<a target="_blank" href="http://getgreenshot.org/downloads/">这里</a>下载Greenshot额外的语言文件。</li>
-		<li><em>注册快捷键</em>：如果选中，则Greenshot将可以使用<kbd>Print</kbd>按键来抓图。</li>
-		<li><em>开机时自动启动Greenshot</em>：当系统启动的时启动Greenshot程序。</li>
-		<li><em>抓屏时闪光</em>：抓图时发出闪光（闪光灯提示）。</li>
-		<li><em>抓屏时播放声音</em>：抓图时发出声音（快门声提示）。</li>
-		<li><em>抓取鼠标箭头</em>：如果选中，则鼠标箭头也会被抓取下来。
-		鼠标箭头在图片编辑器中将会被作为一个独立的物件，所以你可以稍后再移动或者删除它。</li>
-		<li><em>采用交互式抓图</em>：（抓取窗口模式）代替抓取正在活动窗口的方法，交互式抓取模式可以允许你选择需要抓取的程序的窗口。而且可以用来选择抓取程序的子窗口，请查看<a href="#capture-window">抓取窗口</a>。</li>
-	</ul>
-
-	<a name="settings-capture"></a>
-	<h3>抓取设置</h3>
-	<ul>
-		<li><em>捕获鼠标箭头</em>：如果选中，鼠标箭头也将被抓去到。在编辑器中鼠标箭头会作为一个单独的物件对待，所以你可以移动或者稍后去除它。</li>
-		<li><em>播放相机快门声</em>：抓图时能听到快门声音</li>
-		<li><em>抓取等待时间（毫秒）</em>：添加一个自定义的抓图延迟时间。</li>
-		<li><em>使用交互方式抓取模式</em>：替代立刻抓取当前活动窗口模式，交互式模式会允许你选择需要抓取的窗口。同样此模式支持抓取子窗口，
-		请查看<a href="#capture-window">抓取窗口</a>了解。</li>
 		<li>
-			<em>Aero效果抓取（仅支持Windows Vista/7）</em>：如果你在Windows Vista或者Windows 7上使用Greenshot，并且开启了窗口aero样式，你可以在使用窗口抓取模式时选择窗口边框的透明度，
-			使用此设置可以避免抓取到透明边框背景后的元素。
-			<ul>
-				<li><em>自动</em>：让Greenshot决定抓取的透明度。</li>
-				<li><em>实际显示</em>：边框透明度将依据实际的屏幕显示效果。</li>
-				<li><em>使用默认色彩</em>：使用默认的纯色替代透明部分。</li>
-				<li><em>使用自定义色彩</em>： 使用自定义的颜色替代透明部分P。</li>
-				<li><em>保持透明度</em>：抓取的边框将保持原有透明度，背景里可能会显示非抓取目标。
-					（注意：透明区域在编辑器中使用了格子图案显示。在你保存抓图时不会将其导出。
-					请牢记：一定要使用PNG格式来保存图片才有完整的透明效果。）</li>
-			</ul>
+			<a href="#capture-region">抓取屏幕的一部分</a>
 		</li>
-		<li><em>Internet Explorer抓取</em>：便捷的抓取Internet Explorer浏览器打开的网页。</li>
-		<li><em>编辑器窗口适应抓图尺寸</em>：如果选中，编辑器窗口将自动适应抓图的尺寸大小。</li>
+		<li>
+			<a href="#capture-last-region">抓取上次选择的区域</a>
+		</li>
+		<li>
+			<a href="#capture-window">抓取窗口</a>
+		</li>
+		<li>
+			<a href="#capture-fullscreen">抓取全屏</a>
+		</li>
+		<li>
+			<a href="#capture-ie">抓取Internet Explorer浏览器</a>
+		</li>
+	</ol>
 
-	</ul>
-	
-	<a name="settings-output"></a>
-	<h3>输出设置</h3>
-	<ul>
-		<li><em>抓图后的动作</em>：允许你选择一个抓取操作完成以后所进行的动作。</li>
-		<li><em>输出格式设定</em>：默认直接存储时或者使用保存（使用另存为对话框）操作时建议的文件名称和文件路径。
-		点击<em>?</em>号按钮来学习和了解更多可以在文件名格式中使用的符号。</li>
-		<li><em>JPEG 图像质量</em>：保存为JPEG文件时候所使用的图像质量。</li>
-	</ul>
-	
-	<a name="settings-destination"></a>
-	<h3>保存设置</h3>
-	<p>
-		默认情况下，Greenshot会在你创建一个抓图后让你选择要保存到的位置，会显示一个菜单让你选择不同的位置。
-		如果你不想或者希望能立刻切换保存位置，
-		你可以直接在这里配置Greenshot将图片导出到一个或多个不同的位置，而不用显示位置选择窗口。<br/>
-		注意：使用<a href="#editor-export">编辑器窗口导出时，能够显示出的位置选项取决于您安装的Greenshot插件。</a>
-	</p>
-	
-	<a name="settings-printer"></a>
-	<h3>打印机设置</h3>
-	<ul>
-		<li><em>缩小图片以适应纸张大小</em>：如果图像大小超出了纸张的大小，则缩小图片的尺寸来适应纸张的尺寸。</li>
-		<li><em>放大图片以适应纸张大小</em>：如果图像大小远小于纸张的大小，则尽可能的放大图片来适应纸张的尺寸。</li>
-		<li><em>旋转图片</em>：将图片旋转90度然后打印。</li>
-		<li><em>反色打印</em>：将图片颜色反色打印，用处例如：打印一个黑底白字的抓图（使用墨粉/墨水打印）。</li>
-		<li><em>强制灰度打印</em>：将图片色彩转换为灰度图像然后打印。</li>
-	</ul>
+	<li>
+		<a href="#editor">使用图片编辑器</a>
+	</li>
+	<ol>
+		<li>
+			<a href="#editor-shapes">绘制形状</a>
+		</li>
+		<li>
+			<a href="#editor-text">添加文字</a>
+		</li>
+		<li>
+			<a href="#editor-highlight">高亮显示</a>
+		</li>
+		<li>
+			<a href="#editor-obfuscate">模糊效果</a>
+		</li>
+		<li>
+			<a href="#editor-effects">添加特效</a>
+		</li>
+		<li>
+			<a href="#editor-crop">裁剪抓图</a>
+		</li>
+		<li>
+			<a href="#editor-adding-graphics">添加图形到抓图</a>
+		</li>
+		<li>
+			<a href="#editor-reuse-elements">重复使用物件</a>
+		</li>
+		<li>
+			<a href="#editor-export">导出抓图</a>
+		</li>
+	</ol>
+	<li>
+		<a href="#settings">设置对话框</a>
+	</li>
+	<ol>
+		<li>
+			<a href="#settings-general">常规设置</a>
+		</li>
+		<li>
+			<a href="#settings-capture">抓图设置</a>
+		</li>
+		<li>
+			<a href="#settings-output">输出设置</a>
+		</li>
+		<li>
+			<a href="#settings-destination">保存设置</a>
+		</li>
+		<li>
+			<a href="#settings-printer">打印机设置</a>
+		</li>
+		<li>
+			<a href="#settings-expert">专家设置</a>
+		</li>
+	</ol>
+	<li>
+		<a href="#help">您愿意帮助我们吗？</a>
+	</li>
+	<ol>
+		<li>
+			<a href="#help-donate">考虑一下捐助</a>
+		</li>
+		<li>
+			<a href="#help-spread">广而告之</a>
+		</li>
+		<li>
+			<a href="#help-translate">提交一个翻译</a>
+		</li>
+	</ol>
+</ol>
 
-	<a name="settings-plugins"></a>
-	<h3>插件设置</h3>
-	<p>
-		显示已安装的Greenshot插件列表。选中一个并且点击<em>配置</em>按钮来对插件进行配置。
-	</p>
-	
-	<a name="settings-expert"></a>
-	<h3>专家设置</h3>
-	<p>
-		强烈建议：如果您不知道自己在做什么，请最好不要作任何修改，因为这些设置可能导致意想不到的结果。
-	</p>
-	
-	
-	<a name="help"></a>
-	<h2>您愿意帮助我们吗？</h2>
-	
-	<p>
-		目前，我们在开发方面还不需要帮助。不过，还有一些其它的方式来帮助和支持Greenshot及其开发小组。<br>
-		十分感谢 :)
-	</p>
-	
-	<a name="help-donate"></a>
-	<h3>考虑一下捐助</h3>
-	<p>
-		我们把大部分工作都放在了Greenshot中并花费时间来提供这样一个不错的免费开源的软件。如果你感觉它帮助你提高了效率，或者节省了你（或者你的公司）的时间和金钱，或者你仅仅是喜欢Greenshot和开源软件精神：请考虑一下用捐助的方式来赞助我们。<br>
-		请查看我们的主页了解如何赞助Greenshot开发小组：<br>
-		<a target="_blank" href="http://getgreenshot.org/support/">http://getgreenshot.org/support/</a>
-	</p>
-	
-	<a name="help-spread"></a>
-	<h3>广而告之</h3>
-	<p>
-		如果你喜欢Greenshot，请告诉其他人比如你的朋友和同学以及你的跟随者，有个好的开源的抓图/截图工具叫Greenshot。
-		:)<br>
-		在软件门户网站投票支持Greenshot或者在你的博客或网站添加一个Greenshot的主页的链接。
-	</p>
-	
-	<a name="help-translate"></a>
-	<h3>提交一个翻译</h3>
-	<p>
-		Greenshot还没有支持你所使用的语言？如果你觉得自己适合来为此软件制作一个翻译，不用客气来做吧。
-		如果你已经在开源社区sourceforge.net注册，你可以在我们的<a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">translations tracker</a>提交你的翻译。<br>
-		但是请先确认在我们的<a target="_blank" href="http://getgreenshot.org/downloads/">下载页面</a>里还没有你使用的语言的翻译存在，同样请查看一下我们的<a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">translations tracker</a>，是否已经有了正在进行中的翻译或者至少已经开始讨论。<br>
-		请注意我们只会在我们的下载页提供一个通过sourceforge.net提交的翻译，因为我们没有能力去阅读所有的语言，所以这样可以让其他用户能够联系到你，并帮助你在下一个新版本的Greenshot的翻译中提出改进意见。
-	</p>
-	
-	
-	
-	</body>
+<a id="screenshot"></a>
+<h2>创建一个抓图</h2>
+<p>
+	你可以使用键盘上的<kbd>Print</kbd>按键或者右键点击Greenshot的系统托盘图标来创建一个抓图。<br>
+	在创建抓图时还可以设置一些选项：
+</p>
+
+<a id="capture-region"></a>
+<h3>抓取屏幕的一部分<kbd>Print</kbd>
+</h3>
+<p>
+	抓取部分屏幕模式允许你选择需要抓取屏幕的某个部分。<br>
+	开始抓取部分屏幕以后，你将看到屏幕上的鼠标变成了一个十字准星。
+	在你想抓取的区域的一角按住鼠标，拖动鼠标画出一个矩形框。
+	当你想要抓取的区域被矩形框包含以后，松开鼠标。
+</p>
+<p class="hint">
+	你可以使用<kbd>Space</kbd>按键（空格键）在抓取部分屏幕和
+	<a href="#capture-window">抓取窗口</a>模式之间进行切换。
+</p>
+<p class="hint">
+	如果你想抓取更精确的区域，一种简单的方式是你可以先抓取一个较大的区域，然后使用Greenshot的图片编辑工具在初始的抓图上进行<a href="#editor-crop">裁剪</a>。
+</p>
+
+<a id="capture-last-region"></a>
+<h3>抓取上次选择的区域 <kbd>Shift</kbd> + <kbd>Print</kbd>
+</h3>
+<p>
+	如果你刚刚使用了<a href="#capture-region">抓取屏幕的一部分</a>或者<a href="#capture-window">抓取窗口</a>操作，
+	则你可以使用这个功能再次抓取刚才抓过的区域。
+</p>
+
+<a id="capture-window"></a>
+<h3>抓取窗口 <kbd>Alt</kbd> + <kbd>Print</kbd>
+</h3>
+<p>
+	创建一个抓图来抓取当前正在活动的程序窗口。
+</p>
+<p class="hint">
+	对于 Windows 7 或者 Vista 系统，请使用窗口抓取模式设置来控制Greenshot如何对待窗口边框的半透明效果（Aero效果），例如，使用一个自定义的颜色替代透明效果。
+</p>
+<p class="hint">
+	<a href="#settings">设置对话框</a>里提供了一个选项，可以允许你不仅仅只能抓取正在活动的程序窗口，还可以用交互式抓图来选择你想要抓的程序的窗口。如果此选项被选中，你可以通过点击来选中一个程序窗口（类似<a href="#capture-region">抓取屏幕的一部分</a>那样，Greenshot会高亮显示会被抓取的区域）。<br>
+	如果你此时还希望仅抓取一个子窗口（例如，一个浏览器的菜单（不包含工具条等）或者是使用了框架结构的web页面的一个独立框架），则移动鼠标到该窗口上，并按下<kbd>PageDown</kbd>按键，然后你就可以选择该程序窗口的子元素，并进行抓图。
+</p>
+<p class="hint">
+	抓取下拉菜单与此不同：使用“抓取窗口”方式会导致上下文菜单消失，
+	并且显然使用Greenshot的菜单来抓图也会导致同样情况发生。
+	如果你想抓取程序下拉菜单，你必须使用鼠标右键选中任一东西，
+	并且使用部分抓取模式即点<kbd>Print</kbd>按键，然后点空格键<kbd>Space</kbd>按键。
+</p>
+
+<a id="capture-fullscreen"></a>
+<h3>抓取全屏 <kbd>Control</kbd> + <kbd>Print</kbd>
+</h3>
+<p>
+	创建一个全屏幕抓图。
+</p>
+
+<a id="capture-ie"></a>
+<h3>抓取Internet Explorer浏览器 <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>Print</kbd>
+</h3>
+<p>
+	可以便捷的创建一个对使用IE浏览器打开的网页的抓图。
+	使用Greenshot的菜单选中Internet Explorer标签来抓取，或者使用快捷键
+	<kbd>Crtl</kbd> + <kbd>Shift</kbd> + <kbd>Print</kbd>来抓去活动的网页。.
+</p>
+
+<a id="editor"></a>
+<h2>使用图片编辑器</h2>
+<p>
+	Greenshot内置了一个易用的图片编辑器，提供了一些方便的特色功能，如在抓图上添加注释或者形状。甚至可以对抓图的某个部分进行高亮显示或是模糊化处理。
+</p>
+<p class="hint">
+	Greenshot的图片编辑器不仅仅可以在抓图时使用。你同样也可以用它打开一个来自文件或者剪贴板的图片。右键点击系统托盘中的Greenshot图标，依次可以选择<em>从文件载入图片</em>或者<em>从剪切板载入图片</em>。
+</p>
+<p class="hint">
+	默认情况下，每次抓取一个图像以后都会打开图片编辑器。如果你不想使用图片编辑器，你可以在<a href="#settings">设置对话框</a>中关闭此动作。
+</p>
+
+
+<a id="editor-shapes"></a>
+<h3>绘制形状</h3>
+<p>
+	在图片编辑器的工具条的左边或者<em>物件</em>菜单里选择一个形状绘制工具。
+	每一个形状工具都会有一个快捷键。<br>
+	可以使用的形状有：矩形<kbd>R</kbd>，椭圆<kbd>E</kbd>，直线<kbd>L</kbd>以及箭头<kbd>A</kbd>。<br>
+	点击，然后按住鼠标按钮拖动来定义形状的位置和尺寸，完成后松开鼠标即可。
+</p>
+<p>
+	选中工具栏的选择工具<kbd>ESC</kbd>以后，你可以对已存在的形状进行移动或者调整尺寸的操作。<br>
+	每一个物件类型都有可以自定义的特殊选项（例如，直线粗细，直线颜色，填充颜色）。
+	你可以选中并改变已经存在的物件的选项，但是要注意下一个同类物件的选项将遵循这个改变。
+</p>
+<p class="hint">
+	你可以同时选择多个物件进行编辑。按下<kbd>Shift</kbd>按键然后点击选中多个物件。
+</p>
+<p class="hint">
+	如果你想绘制等边形状（例如：强制转换一个矩形成正方形），可以在绘制时按住<kbd>Shift</kbd>。
+	如果你绘制直线或者箭头，可以按住<kbd>Shift</kbd>来保持角度不变。
+	你也可以在调整任何物件尺寸时按住<kbd>Shift</kbd>以保持原有比例不变。
+</p>
+<p class="hint">
+	在绘制或者缩放时，你可以按住<kbd>Ctrl</kbd>来定住物件的几何中心
+	例如：将物件的方向对调。 （当你想在你的抓图周边绘制一个椭圆这会很方便。）
+</p>
+
+<a id="editor-text"></a>
+<h3>添加文字</h3>
+<p>
+	文字工具<kbd>T</kbd>的使用方法类似于<a href="#editor-shapes">绘制形状</a>工具。只要绘制一个你所需要大小的文字框，然后在其中输入文字。<br>
+	双击一个已经存在的文字框可以编辑里面的文字。
+</p>
+
+<a id="editor-highlight"></a>
+<h3>高亮显示</h3>
+<p>
+	选中高亮显示<kbd>H</kbd>工具，你可以定义一个区域高亮显示，类似绘制一个<a href="#editor-shapes">形状</a>。<br>
+	高亮显示操作还有一些选项可以在顶部工具栏的最左边进行设置：
+</p>
+<ul>
+	<li><em>高亮文字</em>：将一个区域使用选定的颜色进行高亮显示，就像在文件的文字中使用荧光笔标注。</li>
+	<li><em>高亮区域</em>：选中区域以外的全部图像都会变暗并且模糊<a href="#hint-blur">*</a>化。</li>
+	<li><em>灰阶</em>：选中区域以外的全部图像都会被变成灰阶图像。</li>
+	<li><em>放大</em>：选中区域会被放大显示。</li>
+</ul>
+
+<a id="editor-obfuscate"></a>
+<h3>模糊效果</h3>
+<p>
+	对抓图的一些部分进行模糊处理可以防止其它人看到你不希望他们看到的一些信息，例如，图片中的银行账号数据，人名，密码或者脸部。<br>
+	模糊工具<kbd>O</kbd>的使用方法类似于<a href="#editor-highlight">高亮显示</a>工具。<br>
+	可以使用的模糊效果选项有：
+</p>
+<ul>
+	<li><em>马赛克效果</em>：扩大选中区域的像素尺寸。</li>
+	<li><em>模糊效果</em><a href="#hint-blur">*</a>：使选中区域变得模糊不清。</li>
+</ul>
+<a id="hint-blur"></a>
+<p class="hint">
+	* 由于依赖于你的电脑的性能，使用一个模糊效果可能会降低Greenshot图片编辑器的运行速度。
+	如果你感觉图片编辑器进行模糊处理时突然变得非常慢，试试减少工具栏中<em>预览质量</em>的数值，或者
+	降低<em>模糊半径</em>的数值。<br>
+	如果模糊处理的性能一直都很糟糕，你可能需要考虑使用马赛克效果来代替这一操作。
+</p>
+<a id="editor-effects"></a>
+<h3>添加特效</h3>
+<p>
+	您可以为您的抓图添加不同的特效。你可能希望添加一个边框，阴影效果，或者边缘撕裂效果，
+	例如：在一个文档中明显的区分你的图片和其它内容。
+	灰度和反色特效主要在打印时使用，例如使用墨粉或墨水打印色彩艳丽或者黑色的图像。
+</p>
+
+<a id="editor-crop"></a>
+<h3>裁剪抓图</h3>
+<p>
+	如果你只需要已抓取图像的某一部分，可以使用这个工具<kbd>C</kbd>
+	来裁剪你需要的区域。<br>
+	选中裁剪工具以后，在抓图上你所希望保留的区域绘制一个矩形。你可以调整选择区域的尺寸大小，就像对其它物件操作一样。<br>
+	当你满意选择的区域以后，使用工具栏上的确认按钮或者按下<kbd>Enter</kbd>按键。如果你想取消裁剪，可以点击取消按钮或者按下<kbd>ESC</kbd>按键。
+</p>
+<p class="hint">
+	<em>自动裁剪</em>：如果你需要裁减一个纯色背景的边框，
+	只需要在<em>编辑</em>菜单中选中<em>自动裁剪</em>，然后Greenshot将会自动选择需要裁减的区域。
+</p>
+
+<a id="editor-rotate"></a>
+<p class="hint">
+	使用旋转工具可以将抓图按照顺时针或逆时针方向旋转。
+</p>
+
+<a id="editor-adding-graphics"></a>
+<h3>添加图形到抓图</h3>
+<p>
+	您可以方便的拖拽一个图像文件到编辑器窗口中，来为你的抓图添加图形或图像。
+	你也可以使用<em>编辑</em>菜单里的<em>插入窗口</em>来将其它窗口里的抓图插入当前窗口。
+	然后会出现一个包含全部窗口的列表，你可以选择一个插入。
+</p>
+
+<a id="editor-reuse-elements"></a>
+<h3>重复使用物件</h3>
+<p>
+	如果你发现你会在大多数抓图中经常使用相同或者相似的物件（例如，一个包含浏览器类型和版本的文字框，或者在一些抓图中经常会模糊化同样的物件），你可以重复使用这些物件。<br>
+	在<em>物件</em>菜单里选择<em>保存物件到文件</em>，可以将当前设定的物件保存下来以便在经后重复使用。
+	<em>从文件载入物件</em>可以在其它抓图中使用已经保存的物件。
+</p>
+
+<a id="editor-export"></a>
+<h3>导出抓图</h3>
+<p>
+	在完成抓图编辑之后，你可以将结果导出到任何你需要的地方。
+	你可以在<em>文件</em>菜单，顶部工具栏里找到全部的导出选项或者使用快捷键来操作：
+</p>
+<ul>
+	<li><em>保存</em> <kbd>Control</kbd> + <kbd>S</kbd>：保存图片到文件（如果这个图片之前已经被保存，否则会显示<em>另存为...</em>对话框）。</li>
+	<li><em>另存为...</em> <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>：可以让你选择要保存为文件的路径，文件名，和图像格式。</li>
+	<li><em>复制图片到剪切板</em> <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd>：复制一个图片的拷贝到剪贴板，这样就可以在其它程序中粘贴。</li>
+	<li><em>打印...</em> <kbd>Control</kbd> + <kbd>P</kbd>：将图片进行打印。</li>
+	<li><em>编辑E-Mail</em> <kbd>Control</kbd> + <kbd>E</kbd>： 打开你默认的电子邮件客户端创建一条新信息，并将抓图作为邮件附件</li>
+</ul>
+<p class="hint">
+	在编辑器中保存一个图片以后，在编辑器窗口的底部状态栏里点击右键，可以复制图片文件的保存路径到剪贴板，或者也可以直接在Windows资源管理器中打开所保存到的文件夹。
+</p>
+
+
+<a id="settings"></a>
+<h2>设置对话框</h2>
+
+<a id="settings-general"></a>
+<h3>常规设置</h3>
+<ul>
+	<li>
+		<em>语言</em>：你希望使用的语言。<br>
+		你可以在<a target="_blank" href="http://getgreenshot.org/downloads/">这里</a>下载Greenshot额外的语言文件。
+	</li>
+	<li><em>注册快捷键</em>：如果选中，则Greenshot将可以使用<kbd>Print</kbd>按键来抓图。</li>
+	<li><em>开机时自动启动Greenshot</em>：当系统启动的时启动Greenshot程序。</li>
+	<li><em>抓屏时闪光</em>：抓图时发出闪光（闪光灯提示）。</li>
+	<li><em>抓屏时播放声音</em>：抓图时发出声音（快门声提示）。</li>
+	<li>
+		<em>抓取鼠标箭头</em>：如果选中，则鼠标箭头也会被抓取下来。
+		鼠标箭头在图片编辑器中将会被作为一个独立的物件，所以你可以稍后再移动或者删除它。
+	</li>
+	<li><em>采用交互式抓图</em>：（抓取窗口模式）代替抓取正在活动窗口的方法，交互式抓取模式可以允许你选择需要抓取的程序的窗口。而且可以用来选择抓取程序的子窗口，请查看<a href="#capture-window">抓取窗口</a>。</li>
+</ul>
+
+<a id="settings-capture"></a>
+<h3>抓取设置</h3>
+<ul>
+	<li><em>捕获鼠标箭头</em>：如果选中，鼠标箭头也将被抓去到。在编辑器中鼠标箭头会作为一个单独的物件对待，所以你可以移动或者稍后去除它。</li>
+	<li><em>播放相机快门声</em>：抓图时能听到快门声音</li>
+	<li><em>抓取等待时间（毫秒）</em>：添加一个自定义的抓图延迟时间。</li>
+	<li>
+		<em>使用交互方式抓取模式</em>：替代立刻抓取当前活动窗口模式，交互式模式会允许你选择需要抓取的窗口。同样此模式支持抓取子窗口，
+		请查看<a href="#capture-window">抓取窗口</a>了解。
+	</li>
+	<li>
+		<em>Aero效果抓取（仅支持Windows Vista/7）</em>：如果你在Windows Vista或者Windows 7上使用Greenshot，并且开启了窗口aero样式，你可以在使用窗口抓取模式时选择窗口边框的透明度，
+		使用此设置可以避免抓取到透明边框背景后的元素。
+		<ul>
+			<li><em>自动</em>：让Greenshot决定抓取的透明度。</li>
+			<li><em>实际显示</em>：边框透明度将依据实际的屏幕显示效果。</li>
+			<li><em>使用默认色彩</em>：使用默认的纯色替代透明部分。</li>
+			<li><em>使用自定义色彩</em>： 使用自定义的颜色替代透明部分P。</li>
+			<li>
+				<em>保持透明度</em>：抓取的边框将保持原有透明度，背景里可能会显示非抓取目标。
+				（注意：透明区域在编辑器中使用了格子图案显示。在你保存抓图时不会将其导出。
+				请牢记：一定要使用PNG格式来保存图片才有完整的透明效果。）
+			</li>
+		</ul>
+	</li>
+	<li><em>Internet Explorer抓取</em>：便捷的抓取Internet Explorer浏览器打开的网页。</li>
+	<li><em>编辑器窗口适应抓图尺寸</em>：如果选中，编辑器窗口将自动适应抓图的尺寸大小。</li>
+
+</ul>
+
+<a id="settings-output"></a>
+<h3>输出设置</h3>
+<ul>
+	<li><em>抓图后的动作</em>：允许你选择一个抓取操作完成以后所进行的动作。</li>
+	<li>
+		<em>输出格式设定</em>：默认直接存储时或者使用保存（使用另存为对话框）操作时建议的文件名称和文件路径。
+		点击<em>?</em>号按钮来学习和了解更多可以在文件名格式中使用的符号。
+	</li>
+	<li><em>JPEG 图像质量</em>：保存为JPEG文件时候所使用的图像质量。</li>
+</ul>
+
+<a id="settings-destination"></a>
+<h3>保存设置</h3>
+<p>
+	默认情况下，Greenshot会在你创建一个抓图后让你选择要保存到的位置，会显示一个菜单让你选择不同的位置。
+	如果你不想或者希望能立刻切换保存位置，
+	你可以直接在这里配置Greenshot将图片导出到一个或多个不同的位置，而不用显示位置选择窗口。<br/>
+	注意：使用<a href="#editor-export">编辑器窗口导出时，能够显示出的位置选项取决于您安装的Greenshot插件。</a>
+</p>
+
+<a id="settings-printer"></a>
+<h3>打印机设置</h3>
+<ul>
+	<li><em>缩小图片以适应纸张大小</em>：如果图像大小超出了纸张的大小，则缩小图片的尺寸来适应纸张的尺寸。</li>
+	<li><em>放大图片以适应纸张大小</em>：如果图像大小远小于纸张的大小，则尽可能的放大图片来适应纸张的尺寸。</li>
+	<li><em>旋转图片</em>：将图片旋转90度然后打印。</li>
+	<li><em>反色打印</em>：将图片颜色反色打印，用处例如：打印一个黑底白字的抓图（使用墨粉/墨水打印）。</li>
+	<li><em>强制灰度打印</em>：将图片色彩转换为灰度图像然后打印。</li>
+</ul>
+
+<a id="settings-plugins"></a>
+<h3>插件设置</h3>
+<p>
+	显示已安装的Greenshot插件列表。选中一个并且点击<em>配置</em>按钮来对插件进行配置。
+</p>
+
+<a id="settings-expert"></a>
+<h3>专家设置</h3>
+<p>
+	强烈建议：如果您不知道自己在做什么，请最好不要作任何修改，因为这些设置可能导致意想不到的结果。
+</p>
+
+
+<a id="help"></a>
+<h2>您愿意帮助我们吗？</h2>
+
+<p>
+	目前，我们在开发方面还不需要帮助。不过，还有一些其它的方式来帮助和支持Greenshot及其开发小组。<br>
+	十分感谢 :)
+</p>
+
+<a id="help-donate"></a>
+<h3>考虑一下捐助</h3>
+<p>
+	我们把大部分工作都放在了Greenshot中并花费时间来提供这样一个不错的免费开源的软件。如果你感觉它帮助你提高了效率，或者节省了你（或者你的公司）的时间和金钱，或者你仅仅是喜欢Greenshot和开源软件精神：请考虑一下用捐助的方式来赞助我们。<br>
+	请查看我们的主页了解如何赞助Greenshot开发小组：<br>
+	<a target="_blank" href="http://getgreenshot.org/support/">http://getgreenshot.org/support/</a>
+</p>
+
+<a id="help-spread"></a>
+<h3>广而告之</h3>
+<p>
+	如果你喜欢Greenshot，请告诉其他人比如你的朋友和同学以及你的跟随者，有个好的开源的抓图/截图工具叫Greenshot。
+	:)<br>
+	在软件门户网站投票支持Greenshot或者在你的博客或网站添加一个Greenshot的主页的链接。
+</p>
+
+<a id="help-translate"></a>
+<h3>提交一个翻译</h3>
+<p>
+	Greenshot还没有支持你所使用的语言？如果你觉得自己适合来为此软件制作一个翻译，不用客气来做吧。
+	如果你已经在开源社区sourceforge.net注册，你可以在我们的<a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">translations tracker</a>提交你的翻译。<br>
+	但是请先确认在我们的<a target="_blank" href="http://getgreenshot.org/downloads/">下载页面</a>里还没有你使用的语言的翻译存在，同样请查看一下我们的<a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">translations tracker</a>，是否已经有了正在进行中的翻译或者至少已经开始讨论。<br>
+	请注意我们只会在我们的下载页提供一个通过sourceforge.net提交的翻译，因为我们没有能力去阅读所有的语言，所以这样可以让其他用户能够联系到你，并帮助你在下一个新版本的Greenshot的翻译中提出改进意见。
+</p>
+
+
+</body>
 </html>
-
- 	  	 

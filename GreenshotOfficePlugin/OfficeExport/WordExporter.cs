@@ -29,8 +29,9 @@ using Word = Microsoft.Office.Interop.Word;
 
 namespace GreenshotOfficePlugin.OfficeExport
 {
-	public class WordExporter {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordExporter));
+	public class WordExporter
+	{
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (WordExporter));
 		private static Version _wordVersion;
 		private static readonly IOfficeConfiguration Config = IniConfig.Current.Get<IOfficeConfiguration>();
 
@@ -38,8 +39,9 @@ namespace GreenshotOfficePlugin.OfficeExport
 		/// Check if the used version is higher than Office 2003
 		/// </summary>
 		/// <returns></returns>
-		private static bool IsAfter2003() {
-			return _wordVersion.Major > (int)OfficeVersion.OFFICE_2003;
+		private static bool IsAfter2003()
+		{
+			return _wordVersion.Major > (int) OfficeVersion.OFFICE_2003;
 		}
 
 		/// <summary>
@@ -48,16 +50,24 @@ namespace GreenshotOfficePlugin.OfficeExport
 		/// <param name="wordCaption"></param>
 		/// <param name="tmpFile"></param>
 		/// <returns></returns>
-		public static bool InsertIntoExistingDocument(string wordCaption, string tmpFile) {
-			using (var wordApplication = GetWordApplication()) {
-				if (wordApplication == null) {
+		public static bool InsertIntoExistingDocument(string wordCaption, string tmpFile)
+		{
+			using (var wordApplication = GetWordApplication())
+			{
+				if (wordApplication == null)
+				{
 					return false;
 				}
-				using (var documents = DisposableCom.Create(wordApplication.ComObject.Documents)) {
-					for (int i = 1; i <= documents.ComObject.Count; i++) {
-						using (var wordDocument =  DisposableCom.Create((Word._Document)documents.ComObject[i])) {
-							using (var activeWindow = DisposableCom.Create(wordDocument.ComObject.ActiveWindow)) {
-								if (activeWindow.ComObject.Caption.StartsWith(wordCaption)) {
+				using (var documents = DisposableCom.Create(wordApplication.ComObject.Documents))
+				{
+					for (int i = 1; i <= documents.ComObject.Count; i++)
+					{
+						using (var wordDocument = DisposableCom.Create((Word._Document) documents.ComObject[i]))
+						{
+							using (var activeWindow = DisposableCom.Create(wordDocument.ComObject.ActiveWindow))
+							{
+								if (activeWindow.ComObject.Caption.StartsWith(wordCaption))
+								{
 									return InsertIntoExistingDocument(wordApplication, wordDocument, tmpFile, null, null);
 								}
 							}
@@ -77,60 +87,88 @@ namespace GreenshotOfficePlugin.OfficeExport
 		/// <param name="address"></param>
 		/// <param name="tooltip">tooltip of the image</param>
 		/// <returns></returns>
-		internal static bool InsertIntoExistingDocument(IDisposableCom<Word.Application> wordApplication, IDisposableCom<Word._Document> wordDocument, string tmpFile, string address, string tooltip) {
+		internal static bool InsertIntoExistingDocument(IDisposableCom<Word.Application> wordApplication, IDisposableCom<Word._Document> wordDocument, string tmpFile, string address, string tooltip)
+		{
 			// Bug #1517: image will be inserted into that document, where the focus was last. It will not inserted into the chosen one.
 			// Solution: Make sure the selected document is active, otherwise the insert will be made in a different document!
-			try {
+			try
+			{
 				wordDocument.ComObject.Activate();
 // ReSharper disable once EmptyGeneralCatchClause
-			} catch {
 			}
-			using (var selection = DisposableCom.Create(wordApplication.ComObject.Selection)) {
-				if (selection == null) {
+			catch
+			{
+			}
+			using (var selection = DisposableCom.Create(wordApplication.ComObject.Selection))
+			{
+				if (selection == null)
+				{
 					LOG.InfoFormat("No selection to insert {0} into found.", tmpFile);
 					return false;
 				}
 				// Add Picture
-				using (var shape = AddPictureToSelection(selection, tmpFile)) {
-					if (!string.IsNullOrEmpty(address)) {
+				using (var shape = AddPictureToSelection(selection, tmpFile))
+				{
+					if (!string.IsNullOrEmpty(address))
+					{
 						object screentip = Type.Missing;
-						if (!string.IsNullOrEmpty(tooltip)) {
+						if (!string.IsNullOrEmpty(tooltip))
+						{
 							screentip = tooltip;
 						}
-						try {
-							using (var hyperlinks = DisposableCom.Create(wordDocument.ComObject.Hyperlinks)) {
+						try
+						{
+							using (var hyperlinks = DisposableCom.Create(wordDocument.ComObject.Hyperlinks))
+							{
 								hyperlinks.ComObject.Add(shape, screentip, Type.Missing, screentip, Type.Missing, Type.Missing);
 							}
-						} catch (Exception e) {
+						}
+						catch (Exception e)
+						{
 							LOG.WarnFormat("Couldn't add hyperlink for image: {0}", e.Message);
 						}
 					}
 				}
-				try {
-					using (var activeWindow = DisposableCom.Create(wordDocument.ComObject.ActiveWindow)) {
+				try
+				{
+					using (var activeWindow = DisposableCom.Create(wordDocument.ComObject.ActiveWindow))
+					{
 						activeWindow.ComObject.Activate();
-						using (var activePane = DisposableCom.Create(activeWindow.ComObject.ActivePane)) {
-							using (var view = DisposableCom.Create(activePane.ComObject.View)) {
+						using (var activePane = DisposableCom.Create(activeWindow.ComObject.ActivePane))
+						{
+							using (var view = DisposableCom.Create(activePane.ComObject.View))
+							{
 								view.ComObject.Zoom.Percentage = 100;
 							}
 						}
 					}
-				} catch (Exception e) {
-					if (e.InnerException != null) {
+				}
+				catch (Exception e)
+				{
+					if (e.InnerException != null)
+					{
 						LOG.WarnFormat("Couldn't set zoom to 100, error: {0}", e.InnerException.Message);
-					} else {
+					}
+					else
+					{
 						LOG.WarnFormat("Couldn't set zoom to 100, error: {0}", e.Message);
 					}
 				}
-				try {
+				try
+				{
 					wordApplication.ComObject.Activate();
 // ReSharper disable once EmptyGeneralCatchClause
-				} catch {
 				}
-				try {
+				catch
+				{
+				}
+				try
+				{
 					wordDocument.ComObject.Activate();
 // ReSharper disable once EmptyGeneralCatchClause
-				} catch {
+				}
+				catch
+				{
 				}
 				return true;
 			}
@@ -142,11 +180,14 @@ namespace GreenshotOfficePlugin.OfficeExport
 		/// <param name="selection"></param>
 		/// <param name="tmpFile"></param>
 		/// <returns></returns>
-		private static IDisposableCom<Word.InlineShape> AddPictureToSelection(IDisposableCom<Word.Selection> selection, string tmpFile) {
-			using (var shapes = DisposableCom.Create(selection.ComObject.InlineShapes)) {
+		private static IDisposableCom<Word.InlineShape> AddPictureToSelection(IDisposableCom<Word.Selection> selection, string tmpFile)
+		{
+			using (var shapes = DisposableCom.Create(selection.ComObject.InlineShapes))
+			{
 				var shape = DisposableCom.Create(shapes.ComObject.AddPicture(tmpFile, false, true, Type.Missing));
 				// Lock aspect ratio
-				if (Config.WordLockAspectRatio) {
+				if (Config.WordLockAspectRatio)
+				{
 					shape.ComObject.LockAspectRatio = MsoTriState.msoTrue;
 				}
 				selection.ComObject.InsertAfter("\r\n");
@@ -155,9 +196,12 @@ namespace GreenshotOfficePlugin.OfficeExport
 			}
 		}
 
-		public static void InsertIntoNewDocument(string tmpFile, string address, string tooltip) {
-			using (var wordApplication = GetOrCreateWordApplication()) {
-				if (wordApplication == null) {
+		public static void InsertIntoNewDocument(string tmpFile, string address, string tooltip)
+		{
+			using (var wordApplication = GetOrCreateWordApplication())
+			{
+				if (wordApplication == null)
+				{
 					return;
 				}
 				wordApplication.ComObject.Visible = true;
@@ -167,39 +211,57 @@ namespace GreenshotOfficePlugin.OfficeExport
 				object newTemplate = false;
 				object documentType = 0;
 				object documentVisible = true;
-				using (var documents = DisposableCom.Create(wordApplication.ComObject.Documents)) {
-					using (var wordDocument = DisposableCom.Create(documents.ComObject.Add(ref template, ref newTemplate, ref documentType, ref documentVisible))) {
-						using (var selection = DisposableCom.Create(wordApplication.ComObject.Selection)) {
+				using (var documents = DisposableCom.Create(wordApplication.ComObject.Documents))
+				{
+					using (var wordDocument = DisposableCom.Create(documents.ComObject.Add(ref template, ref newTemplate, ref documentType, ref documentVisible)))
+					{
+						using (var selection = DisposableCom.Create(wordApplication.ComObject.Selection))
+						{
 							// Add Picture
-							using (var shape = AddPictureToSelection(selection, tmpFile)) {
-								if (!string.IsNullOrEmpty(address)) {
+							using (var shape = AddPictureToSelection(selection, tmpFile))
+							{
+								if (!string.IsNullOrEmpty(address))
+								{
 									object screentip = Type.Missing;
-									if (!string.IsNullOrEmpty(tooltip)) {
+									if (!string.IsNullOrEmpty(tooltip))
+									{
 										screentip = tooltip;
 									}
-									try {
-										using (var hyperlinks = DisposableCom.Create(wordDocument.ComObject.Hyperlinks)) {
-											using (DisposableCom.Create(hyperlinks.ComObject.Add(shape, screentip, Type.Missing, screentip, Type.Missing, Type.Missing))) {
+									try
+									{
+										using (var hyperlinks = DisposableCom.Create(wordDocument.ComObject.Hyperlinks))
+										{
+											using (DisposableCom.Create(hyperlinks.ComObject.Add(shape, screentip, Type.Missing, screentip, Type.Missing, Type.Missing)))
+											{
 												// Do nothing
 											}
 										}
-									} catch (Exception e) {
+									}
+									catch (Exception e)
+									{
 										LOG.WarnFormat("Couldn't add hyperlink for image: {0}", e.Message);
 									}
 								}
 							}
 						}
-						try {
+						try
+						{
 							wordDocument.ComObject.Activate();
 // ReSharper disable once EmptyGeneralCatchClause
-						} catch {
 						}
-						try {
-							using (var activeWindow = DisposableCom.Create(wordDocument.ComObject.ActiveWindow)) {
+						catch
+						{
+						}
+						try
+						{
+							using (var activeWindow = DisposableCom.Create(wordDocument.ComObject.ActiveWindow))
+							{
 								activeWindow.ComObject.Activate();
 							}
 // ReSharper disable once EmptyGeneralCatchClause
-						} catch {
+						}
+						catch
+						{
 						}
 					}
 				}
@@ -210,23 +272,33 @@ namespace GreenshotOfficePlugin.OfficeExport
 		/// Get the captions of all the open word documents
 		/// </summary>
 		/// <returns></returns>
-		public static IEnumerable<string> GetWordDocuments() {
-			using (var wordApplication = GetWordApplication()) {
-				if (wordApplication == null) {
+		public static IEnumerable<string> GetWordDocuments()
+		{
+			using (var wordApplication = GetWordApplication())
+			{
+				if (wordApplication == null)
+				{
 					yield break;
 				}
-				using (var documents = DisposableCom.Create(wordApplication.ComObject.Documents)) {
-					for (int i = 1; i <= documents.ComObject.Count; i++) {
-						using (var document =  DisposableCom.Create(documents.ComObject[i])) {
-							if (document.ComObject.ReadOnly) {
+				using (var documents = DisposableCom.Create(wordApplication.ComObject.Documents))
+				{
+					for (int i = 1; i <= documents.ComObject.Count; i++)
+					{
+						using (var document = DisposableCom.Create(documents.ComObject[i]))
+						{
+							if (document.ComObject.ReadOnly)
+							{
 								continue;
 							}
-							if (IsAfter2003()) {
-								if (document.ComObject.Final) {
+							if (IsAfter2003())
+							{
+								if (document.ComObject.Final)
+								{
 									continue;
 								}
 							}
-							using (var activeWindow = DisposableCom.Create(document.ComObject.ActiveWindow)) {
+							using (var activeWindow = DisposableCom.Create(document.ComObject.ActiveWindow))
+							{
 								yield return activeWindow.ComObject.Caption;
 							}
 						}
@@ -239,15 +311,20 @@ namespace GreenshotOfficePlugin.OfficeExport
 		/// Call this to get the running Word application, returns null if there isn't any.
 		/// </summary>
 		/// <returns>ComDisposable for Word.Application or null</returns>
-		private static IDisposableCom<Word.Application> GetWordApplication() {
+		private static IDisposableCom<Word.Application> GetWordApplication()
+		{
 			IDisposableCom<Word.Application> wordApplication;
-			try {
-				wordApplication = DisposableCom.Create((Word.Application)Marshal.GetActiveObject("Word.Application"));
-			} catch (Exception) {
+			try
+			{
+				wordApplication = DisposableCom.Create((Word.Application) Marshal.GetActiveObject("Word.Application"));
+			}
+			catch (Exception)
+			{
 				// Ignore, probably no word running
 				return null;
 			}
-			if (wordApplication != null && wordApplication.ComObject != null) {
+			if (wordApplication != null && wordApplication.ComObject != null)
+			{
 				InitializeVariables(wordApplication);
 			}
 			return wordApplication;
@@ -257,9 +334,11 @@ namespace GreenshotOfficePlugin.OfficeExport
 		/// Call this to get the running Word application, or create a new instance
 		/// </summary>
 		/// <returns>ComDisposable for Word.Application</returns>
-		private static IDisposableCom<Word.Application> GetOrCreateWordApplication() {
+		private static IDisposableCom<Word.Application> GetOrCreateWordApplication()
+		{
 			IDisposableCom<Word.Application> wordApplication = GetWordApplication();
-			if (wordApplication == null) {
+			if (wordApplication == null)
+			{
 				wordApplication = DisposableCom.Create(new Word.Application());
 			}
 			InitializeVariables(wordApplication);
@@ -270,13 +349,16 @@ namespace GreenshotOfficePlugin.OfficeExport
 		/// Initialize static word variables like version
 		/// </summary>
 		/// <param name="wordApplication"></param>
-		private static void InitializeVariables(IDisposableCom<Word.Application> wordApplication) {
-			if (wordApplication == null || wordApplication.ComObject == null || _wordVersion != null) {
+		private static void InitializeVariables(IDisposableCom<Word.Application> wordApplication)
+		{
+			if (wordApplication == null || wordApplication.ComObject == null || _wordVersion != null)
+			{
 				return;
 			}
-			if (!Version.TryParse(wordApplication.ComObject.Version, out _wordVersion)) {
+			if (!Version.TryParse(wordApplication.ComObject.Version, out _wordVersion))
+			{
 				LOG.Warn("Assuming Word version 1997.");
-				_wordVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
+				_wordVersion = new Version((int) OfficeVersion.OFFICE_97, 0, 0, 0);
 			}
 		}
 	}

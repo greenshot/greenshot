@@ -30,13 +30,13 @@ namespace GreenshotPlugin.Extensions
 			Type underlyingType = Enum.GetUnderlyingType(value.GetType());
 			try
 			{
-				if (underlyingType == typeof(int))
+				if (underlyingType == typeof (int))
 				{
-					return (((int)(object)type & (int)(object)value) == (int)(object)value);
+					return (((int) (object) type & (int) (object) value) == (int) (object) value);
 				}
-				else if (underlyingType == typeof(uint))
+				else if (underlyingType == typeof (uint))
 				{
-					return (((uint)(object)type & (uint)(object)value) == (uint)(object)value);
+					return (((uint) (object) type & (uint) (object) value) == (uint) (object) value);
 				}
 			}
 			catch
@@ -50,13 +50,13 @@ namespace GreenshotPlugin.Extensions
 			Type underlyingType = Enum.GetUnderlyingType(value.GetType());
 			try
 			{
-				if (underlyingType == typeof(int))
+				if (underlyingType == typeof (int))
 				{
-					return (int)(object)type == (int)(object)value;
+					return (int) (object) type == (int) (object) value;
 				}
-				else if (underlyingType == typeof(uint))
+				else if (underlyingType == typeof (uint))
 				{
-					return (uint)(object)type == (uint)(object)value;
+					return (uint) (object) type == (uint) (object) value;
 				}
 			}
 			catch
@@ -76,20 +76,20 @@ namespace GreenshotPlugin.Extensions
 			Type underlyingType = Enum.GetUnderlyingType(value.GetType());
 			try
 			{
-				if (underlyingType == typeof(int))
+				if (underlyingType == typeof (int))
 				{
-					return (T)(object)(((int)(object)type | (int)(object)value));
+					return (T) (object) (((int) (object) type | (int) (object) value));
 				}
-				else if (underlyingType == typeof(uint))
+				else if (underlyingType == typeof (uint))
 				{
-					return (T)(object)(((uint)(object)type | (uint)(object)value));
+					return (T) (object) (((uint) (object) type | (uint) (object) value));
 				}
 			}
 			catch (Exception ex)
 			{
-				throw new ArgumentException(string.Format("Could not append value '{0}' to enumerated type '{1}'.", value, typeof(T).Name), ex);
+				throw new ArgumentException(string.Format("Could not append value '{0}' to enumerated type '{1}'.", value, typeof (T).Name), ex);
 			}
-			throw new ArgumentException(string.Format("Could not append value '{0}' to enumerated type '{1}'.", value, typeof(T).Name));
+			throw new ArgumentException(string.Format("Could not append value '{0}' to enumerated type '{1}'.", value, typeof (T).Name));
 		}
 
 		/// <summary>
@@ -103,20 +103,20 @@ namespace GreenshotPlugin.Extensions
 			Type underlyingType = Enum.GetUnderlyingType(value.GetType());
 			try
 			{
-				if (underlyingType == typeof(int))
+				if (underlyingType == typeof (int))
 				{
-					return (T)(object)(((int)(object)type & ~(int)(object)value));
+					return (T) (object) (((int) (object) type & ~(int) (object) value));
 				}
-				else if (underlyingType == typeof(uint))
+				else if (underlyingType == typeof (uint))
 				{
-					return (T)(object)(((uint)(object)type & ~(uint)(object)value));
+					return (T) (object) (((uint) (object) type & ~(uint) (object) value));
 				}
 			}
 			catch (Exception ex)
 			{
-				throw new ArgumentException(string.Format("Could not remove value '{0}' from enumerated type '{1}'.", value, typeof(T).Name), ex);
+				throw new ArgumentException(string.Format("Could not remove value '{0}' from enumerated type '{1}'.", value, typeof (T).Name), ex);
 			}
-			throw new ArgumentException(string.Format("Could not remove value '{0}' from enumerated type '{1}'.", value, typeof(T).Name));
+			throw new ArgumentException(string.Format("Could not remove value '{0}' from enumerated type '{1}'.", value, typeof (T).Name));
 		}
 	}
 }

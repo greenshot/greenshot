@@ -31,14 +31,18 @@ using System.Drawing.Imaging;
 using System.Globalization;
 using System.Text;
 
-namespace Greenshot.Core {
+namespace Greenshot.Core
+{
 	/// <summary>
 	/// Interface to describe an effect
 	/// </summary>
-	public interface IEffect {
-		string Name {
+	public interface IEffect
+	{
+		string Name
+		{
 			get;
 		}
+
 		/// <summary>
 		/// Apply this IEffect to the supplied sourceImage.
 		/// In the process of applying the supplied matrix will be modified to represent the changes.
@@ -57,36 +61,49 @@ namespace Greenshot.Core {
 	/// <summary>
 	/// DropShadowEffect
 	/// </summary>
-	[TypeConverter(typeof(EffectConverter))]
-	public class DropShadowEffect : IEffect {
-		public DropShadowEffect() {
+	[TypeConverter(typeof (EffectConverter))]
+	public class DropShadowEffect : IEffect
+	{
+		public DropShadowEffect()
+		{
 			Reset();
 		}
-		public virtual string Name {
-			get {
+
+		public virtual string Name
+		{
+			get
+			{
 				return LanguageLoader.Current.Get<IGreenshotLanguage>()["editor_image_shadow"];
 			}
 		}
-		public float Darkness {
-			get;
-			set;
-		}
-		public int ShadowSize {
-			get;
-			set;
-		}
-		public Point ShadowOffset {
+
+		public float Darkness
+		{
 			get;
 			set;
 		}
 
-		public void Reset() {
+		public int ShadowSize
+		{
+			get;
+			set;
+		}
+
+		public Point ShadowOffset
+		{
+			get;
+			set;
+		}
+
+		public void Reset()
+		{
 			Darkness = 0.6f;
 			ShadowSize = 7;
 			ShadowOffset = new Point(-1, -1);
 		}
 
-		public virtual Image Apply(Image sourceImage, Matrix matrix) {
+		public virtual Image Apply(Image sourceImage, Matrix matrix)
+		{
 			return ImageHelper.CreateShadow(sourceImage, Darkness, ShadowSize, ShadowOffset, matrix, PixelFormat.Format32bppArgb);
 		}
 	}
@@ -94,50 +111,73 @@ namespace Greenshot.Core {
 	/// <summary>
 	/// TornEdgeEffect extends on DropShadowEffect
 	/// </summary>
-	[TypeConverter(typeof(EffectConverter))]
-	public class TornEdgeEffect : DropShadowEffect {
-		public TornEdgeEffect() : base() {
+	[TypeConverter(typeof (EffectConverter))]
+	public class TornEdgeEffect : DropShadowEffect
+	{
+		public TornEdgeEffect() : base()
+		{
 			Reset();
 		}
-		public override string Name {
-			get {
+
+		public override string Name
+		{
+			get
+			{
 				return LanguageLoader.Current.Get<IGreenshotLanguage>().EditorTornEdge;
 			}
 		}
-		public int ToothHeight {
-			get;
-			set;
-		}
-		public int HorizontalToothRange {
-			get;
-			set;
-		}
-		public int VerticalToothRange {
-			get;
-			set;
-		}
-		public bool[] Edges {
-			get;
-			set;
-		}
-		public bool GenerateShadow {
+
+		public int ToothHeight
+		{
 			get;
 			set;
 		}
 
-		public new void Reset() {
+		public int HorizontalToothRange
+		{
+			get;
+			set;
+		}
+
+		public int VerticalToothRange
+		{
+			get;
+			set;
+		}
+
+		public bool[] Edges
+		{
+			get;
+			set;
+		}
+
+		public bool GenerateShadow
+		{
+			get;
+			set;
+		}
+
+		public new void Reset()
+		{
 			base.Reset();
 			ShadowSize = 7;
 			ToothHeight = 12;
 			HorizontalToothRange = 20;
 			VerticalToothRange = 20;
-			Edges = new bool[] { true, true, true, true };
+			Edges = new bool[]
+			{
+				true, true, true, true
+			};
 			GenerateShadow = true;
 		}
-		public override Image Apply(Image sourceImage, Matrix matrix) {
+
+		public override Image Apply(Image sourceImage, Matrix matrix)
+		{
 			Image tmpTornImage = ImageHelper.CreateTornEdge(sourceImage, ToothHeight, HorizontalToothRange, VerticalToothRange, Edges);
-			if (GenerateShadow) {
-				using (tmpTornImage) {
+			if (GenerateShadow)
+			{
+				using (tmpTornImage)
+				{
 					return ImageHelper.CreateShadow(tmpTornImage, Darkness, ShadowSize, ShadowOffset, matrix, PixelFormat.Format32bppArgb);
 				}
 			}
@@ -148,16 +188,23 @@ namespace Greenshot.Core {
 	/// <summary>
 	/// GrayscaleEffect
 	/// </summary>
-	public class GrayscaleEffect : IEffect {
-		public string Name {
-			get {
+	public class GrayscaleEffect : IEffect
+	{
+		public string Name
+		{
+			get
+			{
 				return LanguageLoader.Current.Get<IGreenshotLanguage>().EditorGrayscale;
 			}
 		}
-		public Image Apply(Image sourceImage, Matrix matrix) {
+
+		public Image Apply(Image sourceImage, Matrix matrix)
+		{
 			return ImageHelper.CreateGrayscale(sourceImage);
 		}
-		public void Reset() {
+
+		public void Reset()
+		{
 			// No settings to reset
 		}
 	}
@@ -165,21 +212,31 @@ namespace Greenshot.Core {
 	/// <summary>
 	/// MonochromeEffect
 	/// </summary>
-	public class MonochromeEffect : IEffect {
-        private byte threshold;
-        /// <param name="threshold">Threshold for monochrome filter (0 - 255), lower value means less black</param>
-        public MonochromeEffect(byte threshold) {
-            this.threshold = threshold;
-        }
-		public string Name {
-			get {
+	public class MonochromeEffect : IEffect
+	{
+		private byte threshold;
+
+		/// <param name="threshold">Threshold for monochrome filter (0 - 255), lower value means less black</param>
+		public MonochromeEffect(byte threshold)
+		{
+			this.threshold = threshold;
+		}
+
+		public string Name
+		{
+			get
+			{
 				return "Effect";
 			}
 		}
-		public void Reset() {
+
+		public void Reset()
+		{
 			// TODO: Modify the threshold to have a default, which is reset here
 		}
-		public Image Apply(Image sourceImage, Matrix matrix) {
+
+		public Image Apply(Image sourceImage, Matrix matrix)
+		{
 			return ImageHelper.CreateMonochrome(sourceImage, threshold);
 		}
 	}
@@ -187,33 +244,48 @@ namespace Greenshot.Core {
 	/// <summary>
 	/// AdjustEffect
 	/// </summary>
-	public class AdjustEffect : IEffect {
-		public AdjustEffect() {
+	public class AdjustEffect : IEffect
+	{
+		public AdjustEffect()
+		{
 			Reset();
 		}
-		public string Name {
-			get {
+
+		public string Name
+		{
+			get
+			{
 				return "Effect";
 			}
 		}
-		public float Contrast {
+
+		public float Contrast
+		{
 			get;
 			set;
 		}
-		public float Brightness {
+
+		public float Brightness
+		{
 			get;
 			set;
 		}
-		public float Gamma {
+
+		public float Gamma
+		{
 			get;
 			set;
 		}
-		public void Reset() {
+
+		public void Reset()
+		{
 			Contrast = 1f;
 			Brightness = 1f;
 			Gamma = 1f;
 		}
-		public Image Apply(Image sourceImage, Matrix matrix) {
+
+		public Image Apply(Image sourceImage, Matrix matrix)
+		{
 			return ImageHelper.Adjust(sourceImage, Brightness, Contrast, Gamma);
 		}
 	}
@@ -221,30 +293,47 @@ namespace Greenshot.Core {
 	/// <summary>
 	/// ReduceColorsEffect
 	/// </summary>
-	public class ReduceColorsEffect : IEffect {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(ReduceColorsEffect));
-		public ReduceColorsEffect() {
+	public class ReduceColorsEffect : IEffect
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (ReduceColorsEffect));
+
+		public ReduceColorsEffect()
+		{
 			Reset();
 		}
-		public string Name {
-			get {
+
+		public string Name
+		{
+			get
+			{
 				return "Effect";
 			}
 		}
-		public int Colors {
+
+		public int Colors
+		{
 			get;
 			set;
 		}
-		public void Reset() {
+
+		public void Reset()
+		{
 			Colors = 256;
 		}
-		public Image Apply(Image sourceImage, Matrix matrix) {
-			using (WuQuantizer quantizer = new WuQuantizer((Bitmap)sourceImage)) {
+
+		public Image Apply(Image sourceImage, Matrix matrix)
+		{
+			using (WuQuantizer quantizer = new WuQuantizer((Bitmap) sourceImage))
+			{
 				int colorCount = quantizer.GetColorCount();
-				if (colorCount > Colors) {
-					try {
+				if (colorCount > Colors)
+				{
+					try
+					{
 						return quantizer.GetQuantizedImage(Colors);
-					} catch (Exception e) {
+					}
+					catch (Exception e)
+					{
 						LOG.Warn("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
 					}
 				}
@@ -256,16 +345,23 @@ namespace Greenshot.Core {
 	/// <summary>
 	/// InvertEffect
 	/// </summary>
-	public class InvertEffect : IEffect {
-		public Image Apply(Image sourceImage, Matrix matrix) {
+	public class InvertEffect : IEffect
+	{
+		public Image Apply(Image sourceImage, Matrix matrix)
+		{
 			return ImageHelper.CreateNegative(sourceImage);
 		}
-		public string Name {
-			get {
+
+		public string Name
+		{
+			get
+			{
 				return "Effect";
 			}
 		}
-		public void Reset() {
+
+		public void Reset()
+		{
 			// No settings to reset
 		}
 	}
@@ -273,28 +369,41 @@ namespace Greenshot.Core {
 	/// <summary>
 	/// BorderEffect
 	/// </summary>
-	public class BorderEffect : IEffect {
-		public BorderEffect() {
+	public class BorderEffect : IEffect
+	{
+		public BorderEffect()
+		{
 			Reset();
 		}
-		public string Name {
-			get {
+
+		public string Name
+		{
+			get
+			{
 				return LanguageLoader.Current.Get<IGreenshotLanguage>().EditorBorder;
 			}
 		}
-		public Color Color {
+
+		public Color Color
+		{
 			get;
 			set;
 		}
-		public int Width {
+
+		public int Width
+		{
 			get;
 			set;
 		}
-		public void Reset() {
+
+		public void Reset()
+		{
 			Width = 2;
 			Color = Color.Black;
 		}
-		public Image Apply(Image sourceImage, Matrix matrix) {
+
+		public Image Apply(Image sourceImage, Matrix matrix)
+		{
 			return ImageHelper.CreateBorder(sourceImage, Width, Color, sourceImage.PixelFormat, matrix);
 		}
 	}
@@ -302,37 +411,56 @@ namespace Greenshot.Core {
 	/// <summary>
 	/// RotateEffect
 	/// </summary>
-	public class RotateEffect : IEffect {
-		public RotateEffect(int angle) {
+	public class RotateEffect : IEffect
+	{
+		public RotateEffect(int angle)
+		{
 			Angle = angle;
 		}
-		public string Name {
-			get {
-				if (Angle == 90) {
+
+		public string Name
+		{
+			get
+			{
+				if (Angle == 90)
+				{
 					return LanguageLoader.Current.Get<IGreenshotLanguage>()["editor_rotatecw"];
-				} else {
+				}
+				else
+				{
 					return LanguageLoader.Current.Get<IGreenshotLanguage>()["editor_rotateccw"];
 				}
 			}
 		}
-		public int Angle {
+
+		public int Angle
+		{
 			get;
 			set;
 		}
-		public void Reset() {
+
+		public void Reset()
+		{
 			// Angle doesn't have a default value
 		}
-		public Image Apply(Image sourceImage, Matrix matrix) {
+
+		public Image Apply(Image sourceImage, Matrix matrix)
+		{
 			RotateFlipType flipType;
-			if (Angle == 90) {
+			if (Angle == 90)
+			{
 				matrix.Rotate(90, MatrixOrder.Append);
 				matrix.Translate(sourceImage.Height, 0, MatrixOrder.Append);
 				flipType = RotateFlipType.Rotate90FlipNone;
-			} else if (Angle == -90 || Angle == 270) {
+			}
+			else if (Angle == -90 || Angle == 270)
+			{
 				flipType = RotateFlipType.Rotate270FlipNone;
 				matrix.Rotate(-90, MatrixOrder.Append);
 				matrix.Translate(0, sourceImage.Width, MatrixOrder.Append);
-			} else {
+			}
+			else
+			{
 				throw new NotSupportedException("Currently only an angle of 90 or -90 (270) is supported.");
 			}
 			return ImageHelper.RotateFlip(sourceImage, flipType);
@@ -342,33 +470,48 @@ namespace Greenshot.Core {
 	/// <summary>
 	/// ResizeEffect
 	/// </summary>
-	public class ResizeEffect : IEffect {
-		public ResizeEffect(int width, int height, bool maintainAspectRatio) {
+	public class ResizeEffect : IEffect
+	{
+		public ResizeEffect(int width, int height, bool maintainAspectRatio)
+		{
 			Width = width;
 			Height = height;
 			MaintainAspectRatio = maintainAspectRatio;
 		}
-		public string Name {
-			get {
+
+		public string Name
+		{
+			get
+			{
 				return LanguageLoader.Current.Get<IGreenshotLanguage>()["editor_resize"];
 			}
 		}
-		public int Width {
+
+		public int Width
+		{
 			get;
 			set;
 		}
-		public int Height {
+
+		public int Height
+		{
 			get;
 			set;
 		}
-		public bool MaintainAspectRatio {
+
+		public bool MaintainAspectRatio
+		{
 			get;
 			set;
 		}
-		public void Reset() {
+
+		public void Reset()
+		{
 			// values don't have a default value
 		}
-		public Image Apply(Image sourceImage, Matrix matrix) {
+
+		public Image Apply(Image sourceImage, Matrix matrix)
+		{
 			return ImageHelper.ResizeImage(sourceImage, MaintainAspectRatio, Width, Height, matrix);
 		}
 	}
@@ -376,87 +519,117 @@ namespace Greenshot.Core {
 	/// <summary>
 	/// ResizeCanvasEffect
 	/// </summary>
-	public class ResizeCanvasEffect : IEffect {
-		public ResizeCanvasEffect(int left, int right, int top, int bottom) {
+	public class ResizeCanvasEffect : IEffect
+	{
+		public ResizeCanvasEffect(int left, int right, int top, int bottom)
+		{
 			Left = left;
 			Right = right;
 			Top = top;
 			Bottom = bottom;
-			BackgroundColor = Color.Empty;	// Uses the default background color depending on the format
+			BackgroundColor = Color.Empty; // Uses the default background color depending on the format
 		}
-		public string Name {
-			get {
+
+		public string Name
+		{
+			get
+			{
 				return "Effect";
 			}
 		}
 
-		public int Left {
+		public int Left
+		{
 			get;
 			set;
 		}
-		public int Right {
+
+		public int Right
+		{
 			get;
 			set;
 		}
-		public int Top {
+
+		public int Top
+		{
 			get;
 			set;
 		}
-		public int Bottom {
+
+		public int Bottom
+		{
 			get;
 			set;
 		}
-		public Color BackgroundColor {
+
+		public Color BackgroundColor
+		{
 			get;
 			set;
 		}
-		public void Reset() {
+
+		public void Reset()
+		{
 			// values don't have a default value
 		}
-		public Image Apply(Image sourceImage, Matrix matrix) {
+
+		public Image Apply(Image sourceImage, Matrix matrix)
+		{
 			return ImageHelper.ResizeCanvas(sourceImage, BackgroundColor, Left, Right, Top, Bottom, matrix);
 		}
 	}
 
-	public class EffectConverter : TypeConverter {
+	public class EffectConverter : TypeConverter
+	{
 		// Fix to prevent BUG-1753
 		private NumberFormatInfo numberFormatInfo = new NumberFormatInfo();
 
-		public EffectConverter() : base() {
+		public EffectConverter() : base()
+		{
 			numberFormatInfo.NumberDecimalSeparator = ".";
 			numberFormatInfo.NumberGroupSeparator = ",";
 		}
 
-		public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
-			if (sourceType == typeof(string)) {
+		public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+		{
+			if (sourceType == typeof (string))
+			{
 				return true;
 			}
 			return base.CanConvertFrom(context, sourceType);
 		}
 
-		public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
-			if (destinationType == typeof(string)) {
+		public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+		{
+			if (destinationType == typeof (string))
+			{
 				return true;
 			}
-			if (destinationType == typeof(DropShadowEffect)) {
+			if (destinationType == typeof (DropShadowEffect))
+			{
 				return true;
 			}
-			if (destinationType == typeof(TornEdgeEffect)) {
+			if (destinationType == typeof (TornEdgeEffect))
+			{
 				return true;
 			}
 			return base.CanConvertTo(context, destinationType);
 		}
 
-		public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType) {
+		public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType)
+		{
 			// to string
-			if (destinationType == typeof(string)) {
+			if (destinationType == typeof (string))
+			{
 				StringBuilder sb = new StringBuilder();
-				if (value.GetType() == typeof(DropShadowEffect)) {
+				if (value.GetType() == typeof (DropShadowEffect))
+				{
 					DropShadowEffect effect = value as DropShadowEffect;
 					RetrieveDropShadowEffectValues(effect, sb);
 					return sb.ToString();
 				}
-				if (value.GetType() == typeof(TornEdgeEffect)) {
+				if (value.GetType() == typeof (TornEdgeEffect))
+				{
 					TornEdgeEffect effect = value as TornEdgeEffect;
 					RetrieveDropShadowEffectValues(effect, sb);
 					sb.Append("|");
@@ -465,14 +638,17 @@ namespace Greenshot.Core {
 				}
 			}
 			// from string
-			if (value.GetType() == typeof(string)) {
+			if (value.GetType() == typeof (string))
+			{
 				string settings = value as string;
-				if (destinationType == typeof(DropShadowEffect)) {
+				if (destinationType == typeof (DropShadowEffect))
+				{
 					DropShadowEffect effect = new DropShadowEffect();
 					ApplyDropShadowEffectValues(settings, effect);
 					return effect;
 				}
-				if (destinationType == typeof(TornEdgeEffect)) {
+				if (destinationType == typeof (TornEdgeEffect))
+				{
 					TornEdgeEffect effect = new TornEdgeEffect();
 					ApplyDropShadowEffectValues(settings, effect);
 					ApplyTornEdgeEffectValues(settings, effect);
@@ -482,35 +658,46 @@ namespace Greenshot.Core {
 			return base.ConvertTo(context, culture, value, destinationType);
 		}
 
-		public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value) {
-			if (value != null && value.GetType() == typeof(string)) {
+		public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value)
+		{
+			if (value != null && value.GetType() == typeof (string))
+			{
 				string settings = value as string;
-				if (settings.Contains("ToothHeight")) {
-					return ConvertTo(context, culture, value, typeof(TornEdgeEffect));
-				} else {
-					return ConvertTo(context, culture, value, typeof(DropShadowEffect));
+				if (settings.Contains("ToothHeight"))
+				{
+					return ConvertTo(context, culture, value, typeof (TornEdgeEffect));
+				}
+				else
+				{
+					return ConvertTo(context, culture, value, typeof (DropShadowEffect));
 				}
 			}
 			return base.ConvertFrom(context, culture, value);
 		}
 
-		private void ApplyDropShadowEffectValues(string valuesString, DropShadowEffect effect) {
+		private void ApplyDropShadowEffectValues(string valuesString, DropShadowEffect effect)
+		{
 			string[] values = valuesString.Split('|');
-			foreach(string nameValuePair in values) {
+			foreach (string nameValuePair in values)
+			{
 				string[] pair = nameValuePair.Split(':');
-				switch (pair[0]) {
-					case "Darkness" :
+				switch (pair[0])
+				{
+					case "Darkness":
 						float darkness;
 						// Fix to prevent BUG-1753
-						if (pair[1] != null && float.TryParse(pair[1], NumberStyles.Float, numberFormatInfo, out darkness)) {
-							if (darkness <= 1.0) {
+						if (pair[1] != null && float.TryParse(pair[1], NumberStyles.Float, numberFormatInfo, out darkness))
+						{
+							if (darkness <= 1.0)
+							{
 								effect.Darkness = darkness;
 							}
 						}
 						break;
 					case "ShadowSize":
 						int shadowSize;
-						if (int.TryParse(pair[1], out shadowSize)) {
+						if (int.TryParse(pair[1], out shadowSize))
+						{
 							effect.ShadowSize = shadowSize;
 						}
 						break;
@@ -519,10 +706,12 @@ namespace Greenshot.Core {
 						int shadowOffsetX;
 						int shadowOffsetY;
 						string[] coordinates = pair[1].Split(',');
-						if (int.TryParse(coordinates[0], out shadowOffsetX)) {
+						if (int.TryParse(coordinates[0], out shadowOffsetX))
+						{
 							shadowOffset.X = shadowOffsetX;
 						}
-						if (int.TryParse(coordinates[1], out shadowOffsetY)) {
+						if (int.TryParse(coordinates[1], out shadowOffsetY))
+						{
 							shadowOffset.Y = shadowOffsetY;
 						}
 						effect.ShadowOffset = shadowOffset;
@@ -531,48 +720,59 @@ namespace Greenshot.Core {
 			}
 		}
 
-		private void ApplyTornEdgeEffectValues(string valuesString, TornEdgeEffect effect) {
+		private void ApplyTornEdgeEffectValues(string valuesString, TornEdgeEffect effect)
+		{
 			string[] values = valuesString.Split('|');
-			foreach (string nameValuePair in values) {
+			foreach (string nameValuePair in values)
+			{
 				string[] pair = nameValuePair.Split(':');
-				switch (pair[0]) {
+				switch (pair[0])
+				{
 					case "GenerateShadow":
 						bool generateShadow;
-						if (bool.TryParse(pair[1], out generateShadow)) {
+						if (bool.TryParse(pair[1], out generateShadow))
+						{
 							effect.GenerateShadow = generateShadow;
 						}
 						break;
 					case "ToothHeight":
 						int toothHeight;
-						if (int.TryParse(pair[1], out toothHeight)) {
+						if (int.TryParse(pair[1], out toothHeight))
+						{
 							effect.ToothHeight = toothHeight;
 						}
 						break;
 					case "HorizontalToothRange":
 						int horizontalToothRange;
-						if (int.TryParse(pair[1], out horizontalToothRange)) {
+						if (int.TryParse(pair[1], out horizontalToothRange))
+						{
 							effect.HorizontalToothRange = horizontalToothRange;
 						}
 						break;
 					case "VerticalToothRange":
 						int verticalToothRange;
-						if (int.TryParse(pair[1], out verticalToothRange)) {
+						if (int.TryParse(pair[1], out verticalToothRange))
+						{
 							effect.VerticalToothRange = verticalToothRange;
 						}
 						break;
 					case "Edges":
 						string[] edges = pair[1].Split(',');
 						bool edge;
-						if (bool.TryParse(edges[0], out edge)) {
+						if (bool.TryParse(edges[0], out edge))
+						{
 							effect.Edges[0] = edge;
 						}
-						if (bool.TryParse(edges[1], out edge)) {
+						if (bool.TryParse(edges[1], out edge))
+						{
 							effect.Edges[1] = edge;
 						}
-						if (bool.TryParse(edges[2], out edge)) {
+						if (bool.TryParse(edges[2], out edge))
+						{
 							effect.Edges[2] = edge;
 						}
-						if (bool.TryParse(edges[3], out edge)) {
+						if (bool.TryParse(edges[3], out edge))
+						{
 							effect.Edges[3] = edge;
 						}
 						break;
@@ -580,11 +780,14 @@ namespace Greenshot.Core {
 			}
 		}
 
-		private void RetrieveDropShadowEffectValues(DropShadowEffect effect, StringBuilder sb) {
+		private void RetrieveDropShadowEffectValues(DropShadowEffect effect, StringBuilder sb)
+		{
 			// Fix to prevent BUG-1753 is to use the numberFormatInfo
 			sb.AppendFormat("Darkness:{0}|ShadowSize:{1}|ShadowOffset:{2},{3}", effect.Darkness.ToString("F2", numberFormatInfo), effect.ShadowSize, effect.ShadowOffset.X, effect.ShadowOffset.Y);
 		}
-		private void RetrieveTornEdgeEffectValues(TornEdgeEffect effect, StringBuilder sb) {
+
+		private void RetrieveTornEdgeEffectValues(TornEdgeEffect effect, StringBuilder sb)
+		{
 			sb.AppendFormat("GenerateShadow:{0}|ToothHeight:{1}|HorizontalToothRange:{2}|VerticalToothRange:{3}|Edges:{4},{5},{6},{7}", effect.GenerateShadow, effect.ToothHeight, effect.HorizontalToothRange, effect.VerticalToothRange, effect.Edges[0], effect.Edges[1], effect.Edges[2], effect.Edges[3]);
 		}
 	}

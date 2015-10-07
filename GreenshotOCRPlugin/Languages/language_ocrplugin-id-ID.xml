@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Bahasa Indonesia" ietf="id-ID" version="1.0.0.0" languagegroup="">
+
+<language>
 	<resources prefix="OCR">
 		<resource name="language">Bahasa untuk OCR</resource>
 		<resource name="orient_image">Orientasikan gambar</resource>

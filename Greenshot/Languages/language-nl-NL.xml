@@ -1,23 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Nederlands" ietf="nl-NL" version="1.0.2" languagegroup="1">
+
+<language>
 	<resources prefix="Core">
 		<resource name="about_bugs">Meld problemen bij</resource>
 		<resource name="about_donations">Als U Greenshot goed vindt kunt U ons ondersteunen:</resource>
 		<resource name="about_host">Greenshot word gehost door sourceforge.net op</resource>
 		<resource name="about_icons">Iconen van de icon set van Yusuke Kamiyamane's Fugue (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot komt zonder enige garantie! Dit is gratis software, en U kunt het distribueren onder bepaalde voorwaarden.
-Details over de GNU General Public License:</resource>
+		<resource name="about_license">
+			Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+			Greenshot komt zonder enige garantie! Dit is gratis software, en U kunt het distribueren onder bepaalde voorwaarden.
+			Details over de GNU General Public License:
+		</resource>
 		<resource name="about_title">Over Greenshot</resource>
 		<resource name="about_translation">Nederlandse vertaling door Jurjen Ladenius en Thomas Smid</resource>
 		<resource name="application_title">Greenshot - de revolutionaire screenshot utility</resource>
 		<resource name="bugreport_cancel">Sluiten</resource>
-		<resource name="bugreport_info">Sorry, er is een onverwachte fout opgetreden.
-Het goede nieuws is dat U ons kan helpen om dit probleem op te lossen!
-Bezoek de onderstaande URL, maak een "bug report" aan en plak de inhoud van de volgende text in de probleembeschrijving.
-Het helpt nog meer als U beschrijft hoe het probleem tot stand is gekomen en ook gegevens over uw systeem geeft.
-We stellen het zeer op prijs als u eerst kijkt of dit probleem misschien al gemeld is! 
-Gebruik de zoekfunctie om bekende foutmeldingen snel te vinden. Hartelijk bedankt! ;-)</resource>
+		<resource name="bugreport_info">
+			Sorry, er is een onverwachte fout opgetreden.
+			Het goede nieuws is dat U ons kan helpen om dit probleem op te lossen!
+			Bezoek de onderstaande URL, maak een "bug report" aan en plak de inhoud van de volgende text in de probleembeschrijving.
+			Het helpt nog meer als U beschrijft hoe het probleem tot stand is gekomen en ook gegevens over uw systeem geeft.
+			We stellen het zeer op prijs als u eerst kijkt of dit probleem misschien al gemeld is!
+			Gebruik de zoekfunctie om bekende foutmeldingen snel te vinden. Hartelijk bedankt! ;-)
+		</resource>
 		<resource name="bugreport_title">Fout</resource>
 		<resource name="CANCEL">Annuleren</resource>
 		<resource name="clipboard_error">Tijdens het kopiëren naar het klembord is een onverwachte fout opgetreden.</resource>
@@ -144,8 +149,10 @@ Gebruik de zoekfunctie om bekende foutmeldingen snel te vinden. Hartelijk bedank
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook met tekst</resource>
 		<resource name="error">Fout</resource>
 		<resource name="error_multipleinstances">Greenshot is al gestart.</resource>
-		<resource name="error_nowriteaccess">Kan bestand niet opslaan naar {0}.
-Controleer AUB de schrijf permissies voor de locatie.</resource>
+		<resource name="error_nowriteaccess">
+			Kan bestand niet opslaan naar {0}.
+			Controleer AUB de schrijf permissies voor de locatie.
+		</resource>
 		<resource name="error_openfile">Het bestand "{0}" kan niet gelezen worden.</resource>
 		<resource name="error_openlink">Kan link '{0}' niet openen.</resource>
 		<resource name="error_save">Kan screenshot niet opslaan, kies AUB een nieuwe locatie.</resource>
@@ -202,22 +209,24 @@ Controleer AUB de schrijf permissies voor de locatie.</resource>
 		<resource name="settings_iecapture">Internet Explorer vastleggen</resource>
 		<resource name="settings_jpegquality">JPEG kwaliteit</resource>
 		<resource name="settings_language">Taal</resource>
-		<resource name="settings_message_filenamepattern">De volgende variabelen worden automatisch vervangen in het ingestelde patroon:
-${YYYY} jaar, 4 cijfers
-${MM} maand, 2 cijfers
-${DD} dag, 2 cijfers
-${hh} uur, 2 cijfers
-${mm} minuut, 2 cijfers
-${ss} seconde, 2 cijfers
-${NUM} oplopend nummer, 6 cijfers
-${title} venster titel
-${user} Windows gebruikersnaam
-${domain} Windows domein
-${hostname} PC naam
-U kunt ook Greenshot automatisch directories laten aanmaken door eenvoudig een backslash symbool (\) te gebruiken.
-Voorbeeld: Het patroon ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-genereert een directorie voor de huidige dag in uw standaard opslag lokatie, b.v. 2008-06-29, de naam van het bestand heeft dan de tijd
-, b.v. 11-58-32 (plus de extensie zoals in de voorkeursinstellingen staat)</resource>
+		<resource name="settings_message_filenamepattern">
+			De volgende variabelen worden automatisch vervangen in het ingestelde patroon:
+			${YYYY} jaar, 4 cijfers
+			${MM} maand, 2 cijfers
+			${DD} dag, 2 cijfers
+			${hh} uur, 2 cijfers
+			${mm} minuut, 2 cijfers
+			${ss} seconde, 2 cijfers
+			${NUM} oplopend nummer, 6 cijfers
+			${title} venster titel
+			${user} Windows gebruikersnaam
+			${domain} Windows domein
+			${hostname} PC naam
+			U kunt ook Greenshot automatisch directories laten aanmaken door eenvoudig een backslash symbool (\) te gebruiken.
+			Voorbeeld: Het patroon ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+			genereert een directorie voor de huidige dag in uw standaard opslag lokatie, b.v. 2008-06-29, de naam van het bestand heeft dan de tijd
+			, b.v. 11-58-32 (plus de extensie zoals in de voorkeursinstellingen staat)
+		</resource>
 		<resource name="settings_network">Netwerk en bijwerken</resource>
 		<resource name="settings_output">Uitvoer</resource>
 		<resource name="settings_playsound">Speel camera geluid</resource>
@@ -248,9 +257,11 @@ genereert een directorie voor de huidige dag in uw standaard opslag lokatie, b.v
 		<resource name="update_found">Er is een nieuwere versie van Greenshot beschikbaar! Wilt U Greenshot {0} downloaden?</resource>
 		<resource name="wait_ie_capture">Wacht terwijl de Internet Explorer pagina wordt vastgelegd...</resource>
 		<resource name="warning">Waarschuwing</resource>
-		<resource name="warning_hotkeys">De hotkeys "{0}" kunnen niet geregistreerd worden. Dit probleem komt waarschijnlijk doordat een andere applicatie deze hotkeys al gebruikt. U kunt de hotkeys instellingen van Greenshot veranderen of de andere applicatie stoppen/veranderen.
+		<resource name="warning_hotkeys">
+			De hotkeys "{0}" kunnen niet geregistreerd worden. Dit probleem komt waarschijnlijk doordat een andere applicatie deze hotkeys al gebruikt. U kunt de hotkeys instellingen van Greenshot veranderen of de andere applicatie stoppen/veranderen.
 
-Alle Greenshot functies werken ook over het context menu.</resource>
+			Alle Greenshot functies werken ook over het context menu.
+		</resource>
 		<resource name="WindowCaptureMode.Aero">Eigen kleur</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Met doorzichtigheid</resource>
 		<resource name="WindowCaptureMode.Auto">Automatisch</resource>

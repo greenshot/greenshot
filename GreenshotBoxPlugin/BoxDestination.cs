@@ -35,57 +35,75 @@ using GreenshotPlugin.Configuration;
 
 namespace GreenshotBoxPlugin
 {
-	public class BoxDestination : AbstractDestination {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(BoxDestination));
+	public class BoxDestination : AbstractDestination
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (BoxDestination));
 		private static readonly IBoxConfiguration _config = IniConfig.Current.Get<IBoxConfiguration>();
 		private static readonly IBoxLanguage language = LanguageLoader.Current.Get<IBoxLanguage>();
 
 		private readonly BoxPlugin _plugin;
-		public BoxDestination(BoxPlugin plugin) {
+
+		public BoxDestination(BoxPlugin plugin)
+		{
 			_plugin = plugin;
 		}
 
-		public override string Designation {
-			get {
+		public override string Designation
+		{
+			get
+			{
 				return "Box";
 			}
 		}
 
-		public override string Description {
-			get {
+		public override string Description
+		{
+			get
+			{
 				return language.UploadMenuItem;
 			}
 		}
 
-		public override Image DisplayIcon {
-			get {
-				ComponentResourceManager resources = new ComponentResourceManager(typeof(BoxPlugin));
-				return (Image)resources.GetObject("Box");
+		public override Image DisplayIcon
+		{
+			get
+			{
+				ComponentResourceManager resources = new ComponentResourceManager(typeof (BoxPlugin));
+				return (Image) resources.GetObject("Box");
 			}
 		}
 
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			var exportInformation = new ExportInformation {
-				DestinationDesignation = Designation,
-				DestinationDescription = Description
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		{
+			var exportInformation = new ExportInformation
+			{
+				DestinationDesignation = Designation, DestinationDescription = Description
 			};
-			try {
-				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, language.CommunicationWait, async (progress, pleaseWaitToken) => {
+			try
+			{
+				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, language.CommunicationWait, async (progress, pleaseWaitToken) =>
+				{
 					return await BoxUtils.UploadToBoxAsync(surface, captureDetails, progress, token);
 				}, token);
 
-				if (url != null) {
+				if (url != null)
+				{
 					exportInformation.ExportedToUri = new Uri(url);
-					if (_config.AfterUploadLinkToClipBoard) {
+					if (_config.AfterUploadLinkToClipBoard)
+					{
 						ClipboardHelper.SetClipboardData(url);
 					}
 				}
 
 				exportInformation.ExportMade = true;
-			} catch (TaskCanceledException tcEx) {
+			}
+			catch (TaskCanceledException tcEx)
+			{
 				exportInformation.ErrorMessage = tcEx.Message;
 				LOG.Info(tcEx.Message);
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				exportInformation.ErrorMessage = e.Message;
 				LOG.Warn(e);
 				MessageBox.Show(language.UploadFailure + " " + e.Message, Designation, MessageBoxButton.OK, MessageBoxImage.Error);

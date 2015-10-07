@@ -18,16 +18,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 
-namespace GreenshotOCR {
+namespace GreenshotOCR
+{
 	/// <summary>
 	/// Description of SettingsForm.
 	/// </summary>
-	public partial class SettingsForm : OCRForm {
+	public partial class SettingsForm : OCRForm
+	{
 		private IOCRConfiguration config;
 
-		public SettingsForm(string [] languages, IOCRConfiguration config) {
+		public SettingsForm(string[] languages, IOCRConfiguration config)
+		{
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
@@ -35,28 +39,33 @@ namespace GreenshotOCR {
 			InitializeComponent();
 			AcceptButton = buttonOK;
 			CancelButton = buttonCancel;
-			
+
 			comboBox_languages.Items.Clear();
-			int index=0;
+			int index = 0;
 
 			// Preventing Tracker #3234560, although this should not happen...
 			string languageFromConfig = "ENGLISH";
-			if (config.Language != null) {
+			if (config.Language != null)
+			{
 				languageFromConfig = config.Language;
 			}
-			foreach(string availableLanguage in languages) {
+			foreach (string availableLanguage in languages)
+			{
 				string displayLanguage = availableLanguage.Substring(0, 1).ToUpper() + availableLanguage.Substring(1).ToLower();
 				comboBox_languages.Items.Add(displayLanguage);
-				if (availableLanguage.Equals(languageFromConfig, StringComparison.CurrentCultureIgnoreCase)) {
+				if (availableLanguage.Equals(languageFromConfig, StringComparison.CurrentCultureIgnoreCase))
+				{
 					comboBox_languages.SelectedIndex = index;
 				}
 				index++;
 			}
 		}
-		
-		void ButtonOKClick(object sender, EventArgs e) {
+
+		private void ButtonOKClick(object sender, EventArgs e)
+		{
 			string selectedString = (string) comboBox_languages.SelectedItem;
-			if (selectedString != null) {
+			if (selectedString != null)
+			{
 				config.Language = selectedString.ToUpper();
 			}
 		}

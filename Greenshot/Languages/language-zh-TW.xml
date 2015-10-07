@@ -1,23 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="正體中文" ietf="zh-TW" version="1.1.4" languagegroup="9">
+
+<language>
 	<resources prefix="Core">
 		<resource name="about_bugs">請回報錯誤到以下網址</resource>
 		<resource name="about_donations">如果您喜歡 Greenshot，歡迎您支持我們:</resource>
 		<resource name="about_host">Greenshot 的主機在 sourceforge.net 網址是</resource>
 		<resource name="about_icons">圖片來源: Yusuke Kamiyamane's Fugue 圖示集 (Creative Commons Attribution 3.0 授權)</resource>
-		<resource name="about_license">Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot 不對這個程式做任何擔保。 這個程式是自由軟體，您可以在 GNU General Public License 下任意散佈本軟體。
-關於GNU General Public License 詳細資料:</resource>
+		<resource name="about_license">
+			Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+			Greenshot 不對這個程式做任何擔保。 這個程式是自由軟體，您可以在 GNU General Public License 下任意散佈本軟體。
+			關於GNU General Public License 詳細資料:
+		</resource>
 		<resource name="about_title">關於 Greenshot</resource>
 		<resource name="application_title">Greenshot - 革命性的螢幕截圖工具</resource>
 		<resource name="bugreport_cancel">關閉</resource>
-		<resource name="bugreport_info">很抱歉，發生未預期錯誤。
+		<resource name="bugreport_info">
+			很抱歉，發生未預期錯誤。
 
-您可以藉由填寫錯誤回報來協助我們修正錯誤。
-請訪問以下的連結，新增一個錯誤報告並將下方文字方塊中的資訊貼到報告的內容中，並請稍微敘述錯誤發生時的情況。
+			您可以藉由填寫錯誤回報來協助我們修正錯誤。
+			請訪問以下的連結，新增一個錯誤報告並將下方文字方塊中的資訊貼到報告的內容中，並請稍微敘述錯誤發生時的情況。
 
-另外，我們強烈建議您在站內搜尋一下是否已經有人回報此錯誤。
-感謝您 :)</resource>
+			另外，我們強烈建議您在站內搜尋一下是否已經有人回報此錯誤。
+			感謝您 :)
+		</resource>
 		<resource name="bugreport_title">錯誤</resource>
 		<resource name="CANCEL">取消</resource>
 		<resource name="clipboard_error">寫入到剪貼簿時發生未預期的錯誤。</resource>
@@ -167,8 +172,10 @@ Greenshot 不對這個程式做任何擔保。 這個程式是自由軟體，您
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook 使用文字</resource>
 		<resource name="error">錯誤</resource>
 		<resource name="error_multipleinstances">Greenshot 已經在執行。</resource>
-		<resource name="error_nowriteaccess">無法儲存檔案到 {0}。
-請檢查選取的存放位置可以寫入。</resource>
+		<resource name="error_nowriteaccess">
+			無法儲存檔案到 {0}。
+			請檢查選取的存放位置可以寫入。
+		</resource>
 		<resource name="error_openfile">無法開啟檔案「{0}」。</resource>
 		<resource name="error_openlink">無法開啟連結「{0}」。</resource>
 		<resource name="error_save">無法儲存螢幕擷圖，請尋找適合的位置。</resource>
@@ -231,22 +238,24 @@ Greenshot 不對這個程式做任何擔保。 這個程式是自由軟體，您
 		<resource name="settings_iecapture">Internet Explorer 擷取</resource>
 		<resource name="settings_jpegquality">JPEG 品質</resource>
 		<resource name="settings_language">語言</resource>
-		<resource name="settings_message_filenamepattern">在樣式定義中以下預留位置將自動取代:
-${YYYY}  年，4 位數字
-${MM}  月，2 位數字
-${DD}  日，2 位數字
-${hh}  時，2 位數字
-${mm}  分，2 位數字
-${ss}  秒，2 位數字
-${NUM}  自動編號，6 位數字
-${title}   視窗標題
-${user}   Windows 使用者名稱
-${domain}   Windows 網域名稱
-${hostname}   電腦名稱
+		<resource name="settings_message_filenamepattern">
+			在樣式定義中以下預留位置將自動取代:
+			${YYYY}  年，4 位數字
+			${MM}  月，2 位數字
+			${DD}  日，2 位數字
+			${hh}  時，2 位數字
+			${mm}  分，2 位數字
+			${ss}  秒，2 位數字
+			${NUM}  自動編號，6 位數字
+			${title}   視窗標題
+			${user}   Windows 使用者名稱
+			${domain}   Windows 網域名稱
+			${hostname}   電腦名稱
 
-您也可以讓 Greenshot 動態建立資料夾，只要使用右斜線 ( \ ) 分隔資料夾和檔案名稱。
-例如: 樣式   ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-將在預設存放位置產生目前日期的資料夾，例如: 2013-05-01，包含螢幕截圖的檔案名稱將根據目前時間，例如: 11_58_32 (再加上設定中定義的附檔名)</resource>
+			您也可以讓 Greenshot 動態建立資料夾，只要使用右斜線 ( \ ) 分隔資料夾和檔案名稱。
+			例如: 樣式   ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+			將在預設存放位置產生目前日期的資料夾，例如: 2013-05-01，包含螢幕截圖的檔案名稱將根據目前時間，例如: 11_58_32 (再加上設定中定義的附檔名)
+		</resource>
 		<resource name="settings_network">網路和更新</resource>
 		<resource name="settings_output">輸出</resource>
 		<resource name="settings_playsound">播放快門聲</resource>
@@ -281,9 +290,11 @@ ${hostname}   電腦名稱
 		<resource name="update_found">Greenshot 的新版本可以使用! 您要下載 Greenshot {0} 嗎?</resource>
 		<resource name="wait_ie_capture">擷取 Internet Explorer 中頁面時請稍候...</resource>
 		<resource name="warning">警告</resource>
-		<resource name="warning_hotkeys">無法註冊熱鍵「{0}」。 這個問題可能是另一個工具要求使用相同的熱鍵。 您可以變更熱鍵設定或停用/變更軟體使用熱鍵。
+		<resource name="warning_hotkeys">
+			無法註冊熱鍵「{0}」。 這個問題可能是另一個工具要求使用相同的熱鍵。 您可以變更熱鍵設定或停用/變更軟體使用熱鍵。
 
-Greenshot 所有功能仍然可以直接從通知區圖示的內容功能表動作而不需熱鍵。</resource>
+			Greenshot 所有功能仍然可以直接從通知區圖示的內容功能表動作而不需熱鍵。
+		</resource>
 		<resource name="WindowCaptureMode.Aero">使用自訂色彩</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">保持透明度</resource>
 		<resource name="WindowCaptureMode.Auto">自動</resource>

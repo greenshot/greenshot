@@ -28,64 +28,83 @@ using System.Drawing.Drawing2D;
 
 namespace GreenshotEditorPlugin.Drawing
 {
-    /// <summary>
-    /// Represents a rectangular shape on the Surface
-    /// </summary>
-    [Serializable] 
-	public class RectangleContainer : DrawableContainer {
+	/// <summary>
+	/// Represents a rectangular shape on the Surface
+	/// </summary>
+	[Serializable]
+	public class RectangleContainer : DrawableContainer
+	{
 		protected int _lineThickness = 2;
+
 		[Field(FieldTypes.LINE_THICKNESS)]
-		public int LineThickness {
-			get {
+		public int LineThickness
+		{
+			get
+			{
 				return _lineThickness;
 			}
-			set {
+			set
+			{
 				_lineThickness = value;
 				OnFieldPropertyChanged(FieldTypes.LINE_THICKNESS);
 			}
 		}
 
 		protected Color _lineColor = Color.Red;
+
 		[Field(FieldTypes.LINE_COLOR)]
-		public Color LineColor {
-			get {
+		public Color LineColor
+		{
+			get
+			{
 				return _lineColor;
 			}
-			set {
+			set
+			{
 				_lineColor = value;
 				OnFieldPropertyChanged(FieldTypes.LINE_COLOR);
 			}
 		}
 
 		protected Color _fillColor = Color.Transparent;
+
 		[Field(FieldTypes.FILL_COLOR)]
-		public Color FillColor {
-			get {
+		public Color FillColor
+		{
+			get
+			{
 				return _fillColor;
 			}
-			set {
+			set
+			{
 				_fillColor = value;
 				OnFieldPropertyChanged(FieldTypes.FILL_COLOR);
 			}
 		}
 
 		protected bool _shadow = true;
+
 		[Field(FieldTypes.SHADOW)]
-		public bool Shadow {
-			get {
+		public bool Shadow
+		{
+			get
+			{
 				return _shadow;
 			}
-			set {
+			set
+			{
 				_shadow = value;
 				OnFieldPropertyChanged(FieldTypes.SHADOW);
 			}
 		}
 
-		public RectangleContainer(Surface parent) : base(parent) {
+		public RectangleContainer(Surface parent) : base(parent)
+		{
 		}
-		
-		
-		public override void Draw(Graphics graphics, RenderMode rm) {
+
+
+		public override void Draw(Graphics graphics, RenderMode rm)
+		{
 			Rectangle rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
 
 			DrawRectangle(rect, graphics, rm, _lineThickness, _lineColor, _fillColor, _shadow);
@@ -101,67 +120,77 @@ namespace GreenshotEditorPlugin.Drawing
 		/// <param name="lineColor"></param>
 		/// <param name="fillColor"></param>
 		/// <param name="shadow"></param>
-		public static void DrawRectangle(Rectangle rect, Graphics graphics, RenderMode rm, int lineThickness, Color lineColor, Color fillColor, bool shadow) {
+		public static void DrawRectangle(Rectangle rect, Graphics graphics, RenderMode rm, int lineThickness, Color lineColor, Color fillColor, bool shadow)
+		{
 			graphics.SmoothingMode = SmoothingMode.HighQuality;
 			graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 			graphics.CompositingQuality = CompositingQuality.HighQuality;
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
 
 			bool lineVisible = (lineThickness > 0 && ColorHelper.IsVisible(lineColor));
-			if (shadow && (lineVisible || ColorHelper.IsVisible(fillColor))) {
+			if (shadow && (lineVisible || ColorHelper.IsVisible(fillColor)))
+			{
 				//draw shadow first
 				int basealpha = 100;
 				int alpha = basealpha;
 				int steps = 5;
 				int currentStep = lineVisible ? 1 : 0;
-				while (currentStep <= steps) {
-					using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100))) {
+				while (currentStep <= steps)
+				{
+					using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100)))
+					{
 						shadowPen.Width = lineVisible ? lineThickness : 1;
-						Rectangle shadowRect = new Rectangle(
-							rect.Left + currentStep,
-							rect.Top + currentStep,
-							rect.Width,
-							rect.Height).MakeGuiRectangle();
+						Rectangle shadowRect = new Rectangle(rect.Left + currentStep, rect.Top + currentStep, rect.Width, rect.Height).MakeGuiRectangle();
 						graphics.DrawRectangle(shadowPen, shadowRect);
 						currentStep++;
-						alpha = alpha - (basealpha / steps);
+						alpha = alpha - (basealpha/steps);
 					}
 				}
 			}
 
 
-			if (ColorHelper.IsVisible(fillColor)) {
-				using (Brush brush = new SolidBrush(fillColor)) {
+			if (ColorHelper.IsVisible(fillColor))
+			{
+				using (Brush brush = new SolidBrush(fillColor))
+				{
 					graphics.FillRectangle(brush, rect);
 				}
 			}
 
 			graphics.SmoothingMode = SmoothingMode.HighSpeed;
-			if (lineVisible) {
-				using (Pen pen = new Pen(lineColor, lineThickness)) {
+			if (lineVisible)
+			{
+				using (Pen pen = new Pen(lineColor, lineThickness))
+				{
 					graphics.DrawRectangle(pen, rect);
 				}
 			}
-
 		}
-		public override bool ClickableAt(int x, int y) {
+
+		public override bool ClickableAt(int x, int y)
+		{
 			Rectangle rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
 			return RectangleClickableAt(rect, _lineThickness, _fillColor, x, y);
 		}
 
-		public static bool RectangleClickableAt(Rectangle rect, int lineThickness, Color fillColor, int x, int y) {
-
+		public static bool RectangleClickableAt(Rectangle rect, int lineThickness, Color fillColor, int x, int y)
+		{
 			// If we clicked inside the rectangle and it's visible we are clickable at.
-			if (!Color.Transparent.Equals(fillColor)) {
-				if (rect.Contains(x, y)) {
+			if (!Color.Transparent.Equals(fillColor))
+			{
+				if (rect.Contains(x, y))
+				{
 					return true;
 				}
 			}
 
 			// check the rest of the lines
-			if (lineThickness > 0) {
-				using (Pen pen = new Pen(Color.White, lineThickness)) {
-					using (GraphicsPath path = new GraphicsPath()) {
+			if (lineThickness > 0)
+			{
+				using (Pen pen = new Pen(Color.White, lineThickness))
+				{
+					using (GraphicsPath path = new GraphicsPath())
+					{
 						path.AddRectangle(rect);
 						return path.IsOutlineVisible(x, y, pen);
 					}

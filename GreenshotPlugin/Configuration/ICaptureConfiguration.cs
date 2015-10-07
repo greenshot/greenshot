@@ -25,125 +25,165 @@ using System.Drawing;
 
 namespace GreenshotPlugin.Configuration
 {
-
 	/// <summary>
 	/// All available window capture modes
 	/// </summary>
-	public enum WindowCaptureMode {
-		Screen, GDI, Aero, AeroTransparent, Auto
+	public enum WindowCaptureMode
+	{
+		Screen,
+		GDI,
+		Aero,
+		AeroTransparent,
+		Auto
 	}
+
 	/// <summary>
 	/// The capture mode for Greenshot
 	/// </summary>
-	public enum CaptureMode { None, Region, FullScreen, ActiveWindow, Window, LastRegion, Clipboard, File, IE, Import }; //, Video };
-	public enum ScreenCaptureMode { Auto, FullScreen, Fixed };
+	public enum CaptureMode
+	{
+		None,
+		Region,
+		FullScreen,
+		ActiveWindow,
+		Window,
+		LastRegion,
+		Clipboard,
+		File,
+		IE,
+		Import
+	}; //, Video };
+
+	public enum ScreenCaptureMode
+	{
+		Auto,
+		FullScreen,
+		Fixed
+	};
 
 	/// <summary>
 	/// This interface represents all the capture settings
 	/// </summary>
-	public interface ICaptureConfiguration {
+	public interface ICaptureConfiguration
+	{
 		[Description("Should the mouse be captured?"), DefaultValue(true)]
-		bool CaptureMousepointer {
+		bool CaptureMousepointer
+		{
 			get;
 			set;
 		}
 
 		[Description("Use interactive window selection to capture? (false=Capture active window)"), DefaultValue(false)]
-		bool CaptureWindowsInteractive {
+		bool CaptureWindowsInteractive
+		{
 			get;
 			set;
 		}
 
 		[Description("Capture delay in millseconds."), DefaultValue(100)]
-		int CaptureDelay {
+		int CaptureDelay
+		{
 			get;
 			set;
 		}
 
 		[Description("The capture mode used to capture a screen. (Auto, FullScreen, Fixed)"), DefaultValue(ScreenCaptureMode.Auto)]
-		ScreenCaptureMode ScreenCaptureMode {
+		ScreenCaptureMode ScreenCaptureMode
+		{
 			get;
 			set;
 		}
 
 		[Description("The screen number to capture when using ScreenCaptureMode Fixed."), DefaultValue(1)]
-		int ScreenToCapture {
+		int ScreenToCapture
+		{
 			get;
 			set;
 		}
 
 		[Description("The capture mode used to capture a Window (Screen, GDI, Aero, AeroTransparent, Auto)."), DefaultValue(WindowCaptureMode.Auto)]
-		WindowCaptureMode WindowCaptureMode {
+		WindowCaptureMode WindowCaptureMode
+		{
 			get;
 			set;
 		}
 
 		[Description("Enable/disable capture all children, very slow but will make it possible to use this information in the editor."), DefaultValue(false)]
-		bool WindowCaptureAllChildLocations {
+		bool WindowCaptureAllChildLocations
+		{
 			get;
 			set;
 		}
 
 		[Description("The background color for a DWM window capture.")]
-		Color DWMBackgroundColor {
+		Color DWMBackgroundColor
+		{
 			get;
 			set;
 		}
 
 		[Description("Enable/disable IE capture"), DefaultValue(true)]
-		bool IECapture {
+		bool IECapture
+		{
 			get;
 			set;
 		}
 
 		[Description("Enable/disable IE field capture, very slow but will make it possible to annotate the fields of a capture in the editor."), DefaultValue(false)]
-		bool IEFieldCapture {
+		bool IEFieldCapture
+		{
 			get;
 			set;
 		}
 
 		[Description("The capture mode used to capture IE (Screen, GDI)."), DefaultValue(WindowCaptureMode.Screen)]
-		WindowCaptureMode IECaptureMode {
+		WindowCaptureMode IECaptureMode
+		{
 			get;
 			set;
 		}
 
 		[Description("Comma separated list of Window-Classes which need to be checked for a IE instance!"), DefaultValue("AfxFrameOrView70,IMWindowClass")]
-		IList<string> WindowClassesToCheckForIE {
+		IList<string> WindowClassesToCheckForIE
+		{
 			get;
 			set;
 		}
 
 
 		[Description("List of productnames for which GDI capturing is skipped (using fallback)."), DefaultValue("IntelliJ IDEA")]
-		IList<string> NoGDICaptureForProduct {
+		IList<string> NoGDICaptureForProduct
+		{
 			get;
 			set;
 		}
 
 		[Description("List of productnames for which DWM capturing is skipped (using fallback)."), DefaultValue("Citrix ICA Client")]
-		IList<string> NoDWMCaptureForProduct {
+		IList<string> NoDWMCaptureForProduct
+		{
 			get;
 			set;
 		}
 
 		[Description("Remove the corners from a window capture"), DefaultValue(true)]
-		bool WindowCaptureRemoveCorners {
+		bool WindowCaptureRemoveCorners
+		{
 			get;
 			set;
 		}
 
 		[Description("The cutshape which is used to remove the window corners, is mirrorred for all corners"), DefaultValue("5,3,2,1,1")]
-		IList<int> WindowCornerCutShape {
+		IList<int> WindowCornerCutShape
+		{
 			get;
 			set;
 		}
 
 		[Description("The last used region, for reuse in the capture last region")]
-		Rectangle LastCapturedRegion {
+		Rectangle LastCapturedRegion
+		{
 			get;
 			set;
 		}
-
 	}
 }

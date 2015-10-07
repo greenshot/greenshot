@@ -27,47 +27,62 @@ namespace GreenshotImgurPlugin
 	/// <summary>
 	/// Description of ImageInfo.
 	/// </summary>
-	public class ImageInfo : IDisposable {
-		public string Id {
+	public class ImageInfo : IDisposable
+	{
+		public string Id
+		{
 			get;
 			set;
 		}
 
-		public string DeleteHash {
+		public string DeleteHash
+		{
 			get;
 			set;
 		}
 
-		public string Title {
+		public string Title
+		{
 			get;
 			set;
 		}
 
-		public DateTimeOffset Timestamp {
+		public DateTimeOffset Timestamp
+		{
 			get;
 			set;
 		}
 
-		public Uri Original {
+		public Uri Original
+		{
 			get;
 			set;
 		}
 
-		public Uri Page {
+		public Uri Page
+		{
 			get;
 			set;
 		}
 
-		public Uri SmallSquare {
+		public Uri SmallSquare
+		{
 			get;
 			set;
 		}
 
 		private Image image;
-		public Image Image {
-			get {return image;}
-			set {
-				if (image != null) {
+
+		public Image Image
+		{
+			get
+			{
+				return image;
+			}
+			set
+			{
+				if (image != null)
+				{
 					image.Dispose();
 				}
 				image = value;
@@ -78,7 +93,8 @@ namespace GreenshotImgurPlugin
 		/// The public accessible Dispose
 		/// Will call the GarbageCollector to SuppressFinalize, preventing being cleaned twice
 		/// </summary>
-		public void Dispose() {
+		public void Dispose()
+		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
@@ -88,9 +104,12 @@ namespace GreenshotImgurPlugin
 		/// When disposing==true all non-managed resources should be freed too!
 		/// </summary>
 		/// <param name="disposing"></param>
-		protected virtual void Dispose(bool disposing) {
-			if (disposing) {
-				if (image != null) {
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				if (image != null)
+				{
 					image.Dispose();
 				}
 			}

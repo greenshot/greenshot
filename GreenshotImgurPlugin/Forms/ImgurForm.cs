@@ -22,14 +22,17 @@
 using Dapplo.Config.Language;
 using GreenshotPlugin.Controls;
 
-namespace GreenshotImgurPlugin {
+namespace GreenshotImgurPlugin
+{
 	/// <summary>
 	/// This class is needed for design-time resolving of the language files
 	/// </summary>
-	public class ImgurForm : GreenshotForm {
+	public class ImgurForm : GreenshotForm
+	{
 		protected static readonly IImgurLanguage imgurLanguage = LanguageLoader.Current.Get<IImgurLanguage>();
 
-		public ImgurForm() : base() {
+		public ImgurForm() : base()
+		{
 		}
 	}
 }

@@ -25,17 +25,22 @@ using GreenshotPlugin.Core;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Greenshot.Controls {
+namespace Greenshot.Controls
+{
 	/// <summary>
 	/// ToolStripProfessionalRenderer which draws the Check correctly when the icons are larger
 	/// </summary>
-	public class ContextMenuToolStripProfessionalRenderer : ToolStripProfessionalRenderer {
+	public class ContextMenuToolStripProfessionalRenderer : ToolStripProfessionalRenderer
+	{
 		private static readonly ICoreConfiguration coreConfiguration = IniConfig.Current.Get<ICoreConfiguration>();
 		private static Image scaledCheckbox;
 
-		protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs e) {
-			if (scaledCheckbox == null || scaledCheckbox.Size != coreConfiguration.IconSize) {
-				if (scaledCheckbox != null) {
+		protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs e)
+		{
+			if (scaledCheckbox == null || scaledCheckbox.Size != coreConfiguration.IconSize)
+			{
+				if (scaledCheckbox != null)
+				{
 					scaledCheckbox.Dispose();
 				}
 				scaledCheckbox = ImageHelper.ResizeImage(e.Image, true, coreConfiguration.IconSize.Width, coreConfiguration.IconSize.Height, null);

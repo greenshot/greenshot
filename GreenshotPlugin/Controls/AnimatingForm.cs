@@ -26,12 +26,14 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Timers;
 
-namespace GreenshotPlugin.Controls {
+namespace GreenshotPlugin.Controls
+{
 	/// <summary>
 	/// Extend this Form to have the possibility for animations on your form
 	/// </summary>
-	public class AnimatingForm : GreenshotForm {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(AnimatingForm));
+	public class AnimatingForm : GreenshotForm
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (AnimatingForm));
 		private const int DEFAULT_VREFRESH = 60;
 		private int vRefresh = 0;
 		private System.Timers.Timer timer = null;
@@ -39,7 +41,8 @@ namespace GreenshotPlugin.Controls {
 		/// <summary>
 		/// This flag specifies if any animation is used
 		/// </summary>
-		protected bool EnableAnimation {
+		protected bool EnableAnimation
+		{
 			get;
 			set;
 		}
@@ -47,17 +50,22 @@ namespace GreenshotPlugin.Controls {
 		/// <summary>
 		/// Vertical Refresh Rate
 		/// </summary>
-		protected int VRefresh {
-			get {
-				if (vRefresh == 0) {
+		protected int VRefresh
+		{
+			get
+			{
+				if (vRefresh == 0)
+				{
 					// get te hDC of the desktop to get the VREFRESH
-					using (var desktopHandle = SafeWindowDCHandle.fromDesktop()) {
+					using (var desktopHandle = SafeWindowDCHandle.fromDesktop())
+					{
 						vRefresh = GDI32.GetDeviceCaps(desktopHandle, DeviceCaps.VREFRESH);
 					}
 				}
 				// A vertical refresh rate value of 0 or 1 represents the display hardware's default refresh rate.
 				// As there is currently no know way to get the default, we guess it.
-				if (vRefresh <= 1) {
+				if (vRefresh <= 1)
+				{
 					vRefresh = DEFAULT_VREFRESH;
 				}
 				return vRefresh;
@@ -67,8 +75,10 @@ namespace GreenshotPlugin.Controls {
 		/// <summary>
 		/// Check if we are in a Terminal Server session OR need to optimize for RDP / remote desktop connections
 		/// </summary>
-		protected bool isTerminalServerSession {
-			get {
+		protected bool isTerminalServerSession
+		{
+			get
+			{
 				return coreConfiguration.OptimizeForRDP || System.Windows.Forms.SystemInformation.TerminalServerSession;
 			}
 		}
@@ -78,22 +88,27 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		/// <param name="milliseconds"></param>
 		/// <returns>Number of frames, 1 if in Terminal Server Session</returns>
-		protected int FramesForMillis(int milliseconds) {
+		protected int FramesForMillis(int milliseconds)
+		{
 			// If we are in a Terminal Server Session we return 1
-			if (isTerminalServerSession) {
+			if (isTerminalServerSession)
+			{
 				return 1;
 			}
-			return milliseconds / VRefresh;
+			return milliseconds/VRefresh;
 		}
 
 		/// <summary>
 		/// Initialize the animation
 		/// </summary>
-		protected AnimatingForm() {
-			Load += delegate {
-				if (EnableAnimation) {
+		protected AnimatingForm()
+		{
+			Load += delegate
+			{
+				if (EnableAnimation)
+				{
 					timer = new System.Timers.Timer();
-					timer.Interval = 1000 / VRefresh;
+					timer.Interval = 1000/VRefresh;
 					timer.Elapsed += timer_Tick;
 					timer.SynchronizingObject = this;
 					timer.Start();
@@ -101,8 +116,10 @@ namespace GreenshotPlugin.Controls {
 			};
 
 			// Unregister at close
-			FormClosing += delegate {
-				if (timer != null) {
+			FormClosing += delegate
+			{
+				if (timer != null)
+				{
 					timer.Stop();
 					timer.Dispose();
 				}
@@ -113,10 +130,14 @@ namespace GreenshotPlugin.Controls {
 		/// The tick handler initiates the animation.
 		/// </summary>
 		/// <param name="sender"></param>
-		async void timer_Tick(object sender, ElapsedEventArgs e) {
-			try {
+		private async void timer_Tick(object sender, ElapsedEventArgs e)
+		{
+			try
+			{
 				await Animate();
-			} catch (Exception ex) {
+			}
+			catch (Exception ex)
+			{
 				LOG.Warn("An exception occured while animating:", ex);
 			}
 		}
@@ -124,7 +145,8 @@ namespace GreenshotPlugin.Controls {
 		/// <summary>
 		/// This method will be called every frame, so implement your animation/redraw logic here.
 		/// </summary>
-		protected virtual Task Animate(CancellationToken token = default(CancellationToken)) {
+		protected virtual Task Animate(CancellationToken token = default(CancellationToken))
+		{
 			throw new NotImplementedException();
 		}
 	}

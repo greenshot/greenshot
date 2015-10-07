@@ -1,23 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <language>
 	<resources prefix="Core">
 		<resource name="about_bugs">Про помилки повідомляйте на</resource>
 		<resource name="about_donations">Якщо Вам подобається Greenshot, то можете підтримати нас:</resource>
 		<resource name="about_host">Greenshot is розташовується на sourceforge.net</resource>
 		<resource name="about_icons">Набір іконок Fugue від Yusuke Kamiyamane (ліцензія Creative Commons Attribution 3.0)</resource>
-		<resource name="about_license">Авторство © 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. Це вільне програмне забезпечення, Ви можете розповсюджувати його за певних умов.
-Подробиці Загальної Публічної Ліцензії GNU:</resource>
+		<resource name="about_license">
+			Авторство © 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+			Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. Це вільне програмне забезпечення, Ви можете розповсюджувати його за певних умов.
+			Подробиці Загальної Публічної Ліцензії GNU:
+		</resource>
 		<resource name="about_title">Про Greenshot</resource>
 		<resource name="application_title">Greenshot – революційна утиліта для отримання знімків екрану</resource>
 		<resource name="bugreport_cancel">Закрити</resource>
-		<resource name="bugreport_info">Вибачте, виникла непередбачувана помилка.
+		<resource name="bugreport_info">
+			Вибачте, виникла непередбачувана помилка.
 
-Гарна новина: Ви можете допомогти нам виправити програму, надіславши звіт про помилку.
-Будь ласка, створіть за посиланням новий звіт про помилку та скопіюйте вміст текстової області в опис.
+			Гарна новина: Ви можете допомогти нам виправити програму, надіславши звіт про помилку.
+			Будь ласка, створіть за посиланням новий звіт про помилку та скопіюйте вміст текстової області в опис.
 
-Будь ласка, додайте короткий опис та будь-яку іншу інформацію, що допоможе нам відтворити помилку.
-Також ми будемо вдячні Вам за перевірку наявності цієї помилки на нашому трекері. (Радимо використовувати пошук.) Дякуємо Вам :)</resource>
+			Будь ласка, додайте короткий опис та будь-яку іншу інформацію, що допоможе нам відтворити помилку.
+			Також ми будемо вдячні Вам за перевірку наявності цієї помилки на нашому трекері. (Радимо використовувати пошук.) Дякуємо Вам :)
+		</resource>
 		<resource name="bugreport_title">Помилка</resource>
 		<resource name="CANCEL">Скасувати</resource>
 		<resource name="clipboard_error">При записі в буфер обміну відбулась несподівана помилка.</resource>
@@ -159,8 +164,10 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook з текстом</resource>
 		<resource name="error">Помилка</resource>
 		<resource name="error_multipleinstances">Вже запущено примірник Greenshot.</resource>
-		<resource name="error_nowriteaccess">Неможливо зберегти файл в {0}.
-Будь ласка, перевірте доступність вибраної теки.</resource>
+		<resource name="error_nowriteaccess">
+			Неможливо зберегти файл в {0}.
+			Будь ласка, перевірте доступність вибраної теки.
+		</resource>
 		<resource name="error_openfile">Неможливо відкрити файл „{0}“.</resource>
 		<resource name="error_openlink">Неможливо відкрити посилання „{0}“.</resource>
 		<resource name="error_save">Неможливо зберегти знімок. Будь ласка, знайдіть відповідне місце.</resource>
@@ -187,14 +194,14 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="printoptions_allowenlarge">Збільшити до розмірів сторінки</resource>
 		<resource name="printoptions_allowrotate">Повернути відповідно до орієнтації сторінки</resource>
 		<resource name="printoptions_allowshrink">Зменшити до розмірів сторінки</resource>
-    <resource name="printoptions_colors">Параметри кольору</resource>
-    <resource name="printoptions_dontaskagain">Зберегти ці параметри і не запитувати знову</resource>
+		<resource name="printoptions_colors">Параметри кольору</resource>
+		<resource name="printoptions_dontaskagain">Зберегти ці параметри і не запитувати знову</resource>
 		<resource name="printoptions_inverted">Друк з інвертованими кольорами</resource>
-    <resource name="printoptions_layout">Параметри макета сторінки</resource>
-    <resource name="printoptions_printcolor">Повноколірний друк</resource>
-    <resource name="printoptions_printgrayscale">Примусовий друк у відтінках сірого</resource>
-    <resource name="printoptions_printmonochrome">Примусовий чорно-білий друк</resource>
-    <resource name="printoptions_timestamp">Друкувати дату та час внизу сторінки</resource>
+		<resource name="printoptions_layout">Параметри макета сторінки</resource>
+		<resource name="printoptions_printcolor">Повноколірний друк</resource>
+		<resource name="printoptions_printgrayscale">Примусовий друк у відтінках сірого</resource>
+		<resource name="printoptions_printmonochrome">Примусовий чорно-білий друк</resource>
+		<resource name="printoptions_timestamp">Друкувати дату та час внизу сторінки</resource>
 		<resource name="printoptions_title">Параметри друку Greenshot</resource>
 		<resource name="qualitydialog_dontaskagain">Зберегти як стандартну якість і не запитувати знову</resource>
 		<resource name="qualitydialog_title">Якість Greenshot</resource>
@@ -223,22 +230,24 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="settings_iecapture">Захоплення Internet Explorer</resource>
 		<resource name="settings_jpegquality">Якість JPEG</resource>
 		<resource name="settings_language">Мова</resource>
-		<resource name="settings_message_filenamepattern">Наступні заповнювачі будуть автоматично замінені у визначеному шаблоні:
-${YYYY} рік, 4 цифри
-${MM} місяць, 2 цифри
-${DD} день, 2 цифри
-${hh} години, 2 цифри
-${mm} хвилини, 2 цифри
-${ss} секунди, 2 цифри
-${NUM} номер, що збільшується, 6 цифр
-${title} заголовок вікна
-${user} ім’я користувача Windows
-${domain} домен Windows
-${hostname} назва комп’ютера
+		<resource name="settings_message_filenamepattern">
+			Наступні заповнювачі будуть автоматично замінені у визначеному шаблоні:
+			${YYYY} рік, 4 цифри
+			${MM} місяць, 2 цифри
+			${DD} день, 2 цифри
+			${hh} години, 2 цифри
+			${mm} хвилини, 2 цифри
+			${ss} секунди, 2 цифри
+			${NUM} номер, що збільшується, 6 цифр
+			${title} заголовок вікна
+			${user} ім’я користувача Windows
+			${domain} домен Windows
+			${hostname} назва комп’ютера
 
-Ви також можете примусити Greenshot створювати динамічні каталоги, просто використовуючи символ похилої риски (\) як роздільник між теками та назвою файла.
-Наприклад, шаблон ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-створюватиме у стандартній теці теку для поточного дня (наприклад, 2012-01-27), в якій будуть знімки з назвою файла, що базуватиметься на поточному часі (наприклад, 11_58_32) (плюс зазначене у параметрах розширення).</resource>
+			Ви також можете примусити Greenshot створювати динамічні каталоги, просто використовуючи символ похилої риски (\) як роздільник між теками та назвою файла.
+			Наприклад, шаблон ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+			створюватиме у стандартній теці теку для поточного дня (наприклад, 2012-01-27), в якій будуть знімки з назвою файла, що базуватиметься на поточному часі (наприклад, 11_58_32) (плюс зазначене у параметрах розширення).
+		</resource>
 		<resource name="settings_network">Мережа та оновлення</resource>
 		<resource name="settings_output">Виведення</resource>
 		<resource name="settings_playsound">Відтворити звук камери</resource>
@@ -273,41 +282,43 @@ ${hostname} назва комп’ютера
 		<resource name="update_found">Доступна новіша версія Greenshot! Чи хочете Ви завантажити Greenshot {0}?</resource>
 		<resource name="wait_ie_capture">Будь ласка, зачекайте поки захоплюється сторінка в Internet Explorer...</resource>
 		<resource name="warning">Попередження</resource>
-		<resource name="warning_hotkeys">Неможливо зареєструвати гарячі клавіші „{0}“. Можливо, вони вже використовуються іншою програмою! Ви можете змінити гарячі клавіші або вимкнути/змінити програму, що використовує такі ж комбінації клавіш.
+		<resource name="warning_hotkeys">
+			Неможливо зареєструвати гарячі клавіші „{0}“. Можливо, вони вже використовуються іншою програмою! Ви можете змінити гарячі клавіші або вимкнути/змінити програму, що використовує такі ж комбінації клавіш.
 
-Всі функції Greenshot досі працюють безпосередньо з контекстного меню іконки у лотку без застосування гарячих клавіш.</resource>
+			Всі функції Greenshot досі працюють безпосередньо з контекстного меню іконки у лотку без застосування гарячих клавіш.
+		</resource>
 		<resource name="WindowCaptureMode.Aero">Використовувати користувацький колір</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Зберігати прозорість</resource>
 		<resource name="WindowCaptureMode.Auto">Автоматично</resource>
 		<resource name="WindowCaptureMode.GDI">Використовувати стандартний колір</resource>
 		<resource name="WindowCaptureMode.Screen">Як відображається</resource>
 
-    <!-- 1.2 -->
-    <resource name="editor_dropshadow_darkness">Тьмяність тіні</resource>
-    <resource name="editor_dropshadow_offset">Зсув тіні</resource>
-    <resource name="editor_dropshadow_settings">Параметри тіні</resource>
-    <resource name="editor_dropshadow_thickness">Товщина тіні</resource>
+		<!-- 1.2 -->
+		<resource name="editor_dropshadow_darkness">Тьмяність тіні</resource>
+		<resource name="editor_dropshadow_offset">Зсув тіні</resource>
+		<resource name="editor_dropshadow_settings">Параметри тіні</resource>
+		<resource name="editor_dropshadow_thickness">Товщина тіні</resource>
 
-    <resource name="editor_tornedge_horizontaltoothrange">Горизонтальна частота зубців</resource>
-    <resource name="editor_tornedge_settings">Параметри розірваного краю</resource>
-    <resource name="editor_tornedge_toothsize">Розмір зубця</resource>
-    <resource name="editor_tornedge_verticaltoothrange">Вертикальна частота зубців</resource>
-    <resource name="editor_tornedge_all">Надірвати всі краї</resource>
-    <resource name="editor_tornedge_left">Лівий край</resource>
-    <resource name="editor_tornedge_right">Правий край</resource>
-    <resource name="editor_tornedge_top">Верхній край</resource>
-    <resource name="editor_tornedge_bottom">Нижній край</resource>
-    <resource name="editor_tornedge_shadow">Створити тінь</resource>
-    
-    <resource name="editor_counter">Додати лічильник (Ш)</resource>
-    <resource name="editor_speechbubble">Додати словесну бульбашку (І)</resource>
+		<resource name="editor_tornedge_horizontaltoothrange">Горизонтальна частота зубців</resource>
+		<resource name="editor_tornedge_settings">Параметри розірваного краю</resource>
+		<resource name="editor_tornedge_toothsize">Розмір зубця</resource>
+		<resource name="editor_tornedge_verticaltoothrange">Вертикальна частота зубців</resource>
+		<resource name="editor_tornedge_all">Надірвати всі краї</resource>
+		<resource name="editor_tornedge_left">Лівий край</resource>
+		<resource name="editor_tornedge_right">Правий край</resource>
+		<resource name="editor_tornedge_top">Верхній край</resource>
+		<resource name="editor_tornedge_bottom">Нижній край</resource>
+		<resource name="editor_tornedge_shadow">Створити тінь</resource>
 
-    <resource name="editor_resize">Змінити розмір</resource>
-    <resource name="editor_resize_settings">Параметри зміни розміру</resource>
-    <resource name="editor_resize_aspectratio">Зберігати пропорції</resource>
-    <resource name="editor_resize_width">Ширина</resource>
-    <resource name="editor_resize_height">Висота</resource>
-	<resource name="settings_iconsize">Розмір іконки</resource>
-    
-  </resources>
+		<resource name="editor_counter">Додати лічильник (Ш)</resource>
+		<resource name="editor_speechbubble">Додати словесну бульбашку (І)</resource>
+
+		<resource name="editor_resize">Змінити розмір</resource>
+		<resource name="editor_resize_settings">Параметри зміни розміру</resource>
+		<resource name="editor_resize_aspectratio">Зберігати пропорції</resource>
+		<resource name="editor_resize_width">Ширина</resource>
+		<resource name="editor_resize_height">Висота</resource>
+		<resource name="settings_iconsize">Розмір іконки</resource>
+
+	</resources>
 </language>

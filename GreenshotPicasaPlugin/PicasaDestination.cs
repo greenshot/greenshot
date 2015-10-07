@@ -30,28 +30,36 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace GreenshotPicasaPlugin {
-	public class PicasaDestination : AbstractDestination {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PicasaDestination));
+namespace GreenshotPicasaPlugin
+{
+	public class PicasaDestination : AbstractDestination
+	{
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (PicasaDestination));
 		private static readonly IPicasaConfiguration _config = IniConfig.Current.Get<IPicasaConfiguration>();
 		private static readonly IPicasaLanguage language = LanguageLoader.Current.Get<IPicasaLanguage>();
 
-		public override string Designation {
-			get {
+		public override string Designation
+		{
+			get
+			{
 				return "Picasa";
 			}
 		}
 
-		public override string Description {
-			get {
+		public override string Description
+		{
+			get
+			{
 				return language.UploadMenuItem;
 			}
 		}
 
-		public override Image DisplayIcon {
-			get {
-				var resources = new ComponentResourceManager(typeof(PicasaPlugin));
-				return (Image)resources.GetObject("Picasa");
+		public override Image DisplayIcon
+		{
+			get
+			{
+				var resources = new ComponentResourceManager(typeof (PicasaPlugin));
+				return (Image) resources.GetObject("Picasa");
 			}
 		}
 
@@ -63,25 +71,33 @@ namespace GreenshotPicasaPlugin {
 		/// <param name="captureDetails"></param>
 		/// <param name="token"></param>
 		/// <returns></returns>
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			var exportInformation = new ExportInformation {
-				DestinationDesignation = Designation,
-				DestinationDescription = Description
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		{
+			var exportInformation = new ExportInformation
+			{
+				DestinationDesignation = Designation, DestinationDescription = Description
 			};
 
-			try {
-				var uploadURL = await PleaseWaitWindow.CreateAndShowAsync(Designation, language.CommunicationWait, async (progress, pleaseWaitToken) => {
+			try
+			{
+				var uploadURL = await PleaseWaitWindow.CreateAndShowAsync(Designation, language.CommunicationWait, async (progress, pleaseWaitToken) =>
+				{
 					return await PicasaUtils.UploadToPicasa(surface, captureDetails, progress, token).ConfigureAwait(false);
 				}, token);
 
-				if (!string.IsNullOrEmpty(uploadURL)) {
+				if (!string.IsNullOrEmpty(uploadURL))
+				{
 					exportInformation.ExportMade = true;
 					exportInformation.ExportedToUri = new Uri(uploadURL);
 				}
-			} catch (TaskCanceledException tcEx) {
+			}
+			catch (TaskCanceledException tcEx)
+			{
 				exportInformation.ErrorMessage = tcEx.Message;
 				LOG.Info(tcEx.Message);
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				exportInformation.ErrorMessage = e.Message;
 				LOG.Warn(e);
 				MessageBox.Show(language.UploadFailure + " " + e.Message, Designation, MessageBoxButton.OK, MessageBoxImage.Error);

@@ -22,15 +22,19 @@
 using System;
 using System.Text.RegularExpressions;
 
-namespace GreenshotConfluencePlugin.Model {
-	public class Content {
+namespace GreenshotConfluencePlugin.Model
+{
+	public class Content
+	{
 		private static readonly Regex SpaceKeyRegEx = new Regex(@".*/(?<spacekey>[0-9a-zA-Z]+)$", RegexOptions.Compiled);
+
 		/// <summary>
 		/// Create a Content object from the result of the Content-Rest API call
 		/// </summary>
 		/// <param name="contentJson"></param>
 		/// <returns>Filled Content instance</returns>
-		public static Content CreateFromContent(dynamic contentJson) {
+		public static Content CreateFromContent(dynamic contentJson)
+		{
 			return new Content().FillFromContent(contentJson);
 		}
 
@@ -39,31 +43,42 @@ namespace GreenshotConfluencePlugin.Model {
 		/// </summary>
 		/// <param name="contentJson">dynamic with Json</param>
 		/// <returns>Content (this)</returns>
-		public Content FillFromContent(dynamic contentJson) {
+		public Content FillFromContent(dynamic contentJson)
+		{
 			Id = Convert.ToInt64(contentJson.id);
 			ContentType = contentJson.type;
 			Title = contentJson.title;
-			if (contentJson.ContainsKey("space")) {
+			if (contentJson.ContainsKey("space"))
+			{
 				SpaceKey = contentJson.space.key;
-			} else if (contentJson.ContainsKey("_expandable")) {
-				SpaceKey = SpaceKeyRegEx.Match((string)contentJson._expandable.space).Groups["spacekey"].Value;
+			}
+			else if (contentJson.ContainsKey("_expandable"))
+			{
+				SpaceKey = SpaceKeyRegEx.Match((string) contentJson._expandable.space).Groups["spacekey"].Value;
 			}
 			return this;
 		}
 
-		public string ContentType {
+		public string ContentType
+		{
 			get;
 			set;
 		}
-		public long Id {
+
+		public long Id
+		{
 			get;
 			set;
 		}
-		public string Title {
+
+		public string Title
+		{
 			get;
 			set;
 		}
-		public string SpaceKey {
+
+		public string SpaceKey
+		{
 			get;
 			set;
 		}

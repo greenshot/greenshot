@@ -25,18 +25,25 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace GreenshotConfluencePlugin {
+namespace GreenshotConfluencePlugin
+{
 	/// <summary>
 	/// Interaction logic for ConfluenceUpload.xaml
 	/// </summary>
-	public partial class ConfluenceUpload : Window {
+	public partial class ConfluenceUpload : Window
+	{
 		private Page pickerPage = null;
-		public Page PickerPage {
-			get {
-				if (pickerPage == null) {
+
+		public Page PickerPage
+		{
+			get
+			{
+				if (pickerPage == null)
+				{
 					// TODO: Do not run async code from synchronous code
 					var pages = Task.Run(async () => await ConfluenceUtils.GetCurrentPages()).Result;
-					if (pages != null && pages.Count > 0) {
+					if (pages != null && pages.Count > 0)
+					{
 						pickerPage = new ConfluencePagePicker(this, pages);
 					}
 				}
@@ -45,9 +52,13 @@ namespace GreenshotConfluencePlugin {
 		}
 
 		private Page browsePage = null;
-		public Page BrowsePage {
-			get {
-				if (browsePage == null) {
+
+		public Page BrowsePage
+		{
+			get
+			{
+				if (browsePage == null)
+				{
 					browsePage = new ConfluenceTreePicker(this);
 				}
 				return browsePage;
@@ -55,40 +66,53 @@ namespace GreenshotConfluencePlugin {
 		}
 
 		private Content selectedPage = null;
-		public Content SelectedPage {
-			get {
+
+		public Content SelectedPage
+		{
+			get
+			{
 				return selectedPage;
 			}
-			set {
+			set
+			{
 				selectedPage = value;
-				if (selectedPage != null) {
+				if (selectedPage != null)
+				{
 					Upload.IsEnabled = true;
-				} else {
+				}
+				else
+				{
 					Upload.IsEnabled = false;
 				}
 				isOpenPageSelected = false;
 			}
 		}
 
-		public bool isOpenPageSelected {
-			get;
-			set;
-		}
-		public string Filename {
+		public bool isOpenPageSelected
+		{
 			get;
 			set;
 		}
 
-		public ConfluenceUpload(string filename) {
+		public string Filename
+		{
+			get;
+			set;
+		}
+
+		public ConfluenceUpload(string filename)
+		{
 			Filename = filename;
 			InitializeComponent();
 			DataContext = this;
-			if (PickerPage == null) {
+			if (PickerPage == null)
+			{
 				BrowseTab.IsSelected = true;
 			}
 		}
-		
-		void Upload_Click(object sender, RoutedEventArgs e) {
+
+		private void Upload_Click(object sender, RoutedEventArgs e)
+		{
 			DialogResult = true;
 		}
 	}

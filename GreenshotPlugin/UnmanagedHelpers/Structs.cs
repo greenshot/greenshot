@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
@@ -29,24 +30,28 @@ namespace GreenshotPlugin.UnmanagedHelpers
 	{
 		public int width;
 		public int height;
+
 		public SIZE(Size size) : this(size.Width, size.Height)
 		{
-
 		}
+
 		public SIZE(int width, int height)
 		{
 			this.width = width;
 			this.height = height;
 		}
+
 		public Size ToSize()
 		{
 			return new Size(width, height);
 		}
+
 		public bool IsEmpty()
 		{
-			return width * height == 0;
+			return width*height == 0;
 		}
 	}
+
 	[StructLayout(LayoutKind.Sequential), Serializable()]
 	public struct POINT
 	{
@@ -58,6 +63,7 @@ namespace GreenshotPlugin.UnmanagedHelpers
 			X = x;
 			Y = y;
 		}
+
 		public POINT(Point point)
 		{
 			X = point.X;
@@ -79,7 +85,7 @@ namespace GreenshotPlugin.UnmanagedHelpers
 			return new Point(X, Y);
 		}
 
-		override public string ToString()
+		public override string ToString()
 		{
 			return X + "," + Y;
 		}
@@ -93,14 +99,14 @@ namespace GreenshotPlugin.UnmanagedHelpers
 		private int _Right;
 		private int _Bottom;
 
-		public RECT(RECT rectangle)
-			: this(rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Bottom)
+		public RECT(RECT rectangle) : this(rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Bottom)
 		{
 		}
-		public RECT(Rectangle rectangle)
-			: this(rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Bottom)
+
+		public RECT(Rectangle rectangle) : this(rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Bottom)
 		{
 		}
+
 		public RECT(int Left, int Top, int Right, int Bottom)
 		{
 			_Left = Left;
@@ -120,6 +126,7 @@ namespace GreenshotPlugin.UnmanagedHelpers
 				_Left = value;
 			}
 		}
+
 		public int Y
 		{
 			get
@@ -131,6 +138,7 @@ namespace GreenshotPlugin.UnmanagedHelpers
 				_Top = value;
 			}
 		}
+
 		public int Left
 		{
 			get
@@ -142,6 +150,7 @@ namespace GreenshotPlugin.UnmanagedHelpers
 				_Left = value;
 			}
 		}
+
 		public int Top
 		{
 			get
@@ -153,6 +162,7 @@ namespace GreenshotPlugin.UnmanagedHelpers
 				_Top = value;
 			}
 		}
+
 		public int Right
 		{
 			get
@@ -164,6 +174,7 @@ namespace GreenshotPlugin.UnmanagedHelpers
 				_Right = value;
 			}
 		}
+
 		public int Bottom
 		{
 			get
@@ -175,6 +186,7 @@ namespace GreenshotPlugin.UnmanagedHelpers
 				_Bottom = value;
 			}
 		}
+
 		public int Height
 		{
 			get
@@ -186,6 +198,7 @@ namespace GreenshotPlugin.UnmanagedHelpers
 				_Bottom = value - _Top;
 			}
 		}
+
 		public int Width
 		{
 			get
@@ -197,6 +210,7 @@ namespace GreenshotPlugin.UnmanagedHelpers
 				_Right = value + _Left;
 			}
 		}
+
 		public Point Location
 		{
 			get
@@ -209,6 +223,7 @@ namespace GreenshotPlugin.UnmanagedHelpers
 				_Top = value.Y;
 			}
 		}
+
 		public Size Size
 		{
 			get
@@ -226,14 +241,17 @@ namespace GreenshotPlugin.UnmanagedHelpers
 		{
 			return new Rectangle(Rectangle.Left, Rectangle.Top, Rectangle.Width, Rectangle.Height);
 		}
+
 		public static implicit operator RECT(Rectangle Rectangle)
 		{
 			return new RECT(Rectangle.Left, Rectangle.Top, Rectangle.Right, Rectangle.Bottom);
 		}
+
 		public static bool operator ==(RECT Rectangle1, RECT Rectangle2)
 		{
 			return Rectangle1.Equals(Rectangle2);
 		}
+
 		public static bool operator !=(RECT Rectangle1, RECT Rectangle2)
 		{
 			return !Rectangle1.Equals(Rectangle2);
@@ -258,15 +276,16 @@ namespace GreenshotPlugin.UnmanagedHelpers
 		{
 			return new Rectangle(Left, Top, Width, Height);
 		}
+
 		public override bool Equals(object Object)
 		{
 			if (Object is RECT)
 			{
-				return Equals((RECT)Object);
+				return Equals((RECT) Object);
 			}
 			else if (Object is Rectangle)
 			{
-				return Equals(new RECT((Rectangle)Object));
+				return Equals(new RECT((Rectangle) Object));
 			}
 
 			return false;
@@ -399,7 +418,7 @@ namespace GreenshotPlugin.UnmanagedHelpers
 		// Allows automatic initialization of "cbSize" with "new WINDOWINFO(null/true/false)".
 		public WindowInfo(Boolean? filler) : this()
 		{
-			cbSize = (UInt32)(Marshal.SizeOf(typeof(WindowInfo)));
+			cbSize = (UInt32) (Marshal.SizeOf(typeof (WindowInfo)));
 		}
 	}
 
@@ -498,16 +517,19 @@ namespace GreenshotPlugin.UnmanagedHelpers
 	{
 		// size of a device name string
 		private const int CCHDEVICENAME = 32;
+
 		/// <summary>
 		/// The size, in bytes, of the structure. Set this member to sizeof(MONITORINFOEX) (72) before calling the GetMonitorInfo function.
 		/// Doing so lets the function determine the type of structure you are passing to it.
 		/// </summary>
 		public int Size;
+
 		/// <summary>
 		/// A RECT structure that specifies the display monitor rectangle, expressed in virtual-screen coordinates.
 		/// Note that if the monitor is not the primary display monitor, some of the rectangle's coordinates may be negative values.
 		/// </summary>
 		public RECT Monitor;
+
 		/// <summary>
 		/// A RECT structure that specifies the work area rectangle of the display monitor that can be used by applications,
 		/// expressed in virtual-screen coordinates. Windows uses this rectangle to maximize an application on the monitor.
@@ -515,6 +537,7 @@ namespace GreenshotPlugin.UnmanagedHelpers
 		/// Note that if the monitor is not the primary display monitor, some of the rectangle's coordinates may be negative values.
 		/// </summary>
 		public RECT WorkArea;
+
 		/// <summary>
 		/// The attributes of the display monitor.
 		///
@@ -522,12 +545,14 @@ namespace GreenshotPlugin.UnmanagedHelpers
 		///   1 : MONITORINFOF_PRIMARY
 		/// </summary>
 		public uint Flags;
+
 		/// <summary>
 		/// A string that specifies the device name of the monitor being used. Most applications have no use for a display monitor name,
 		/// and so can save some bytes by using a MONITORINFO structure.
 		/// </summary>
 		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = CCHDEVICENAME)]
 		public string DeviceName;
+
 		public void Init()
 		{
 			Size = Marshal.SizeOf(this);
@@ -543,11 +568,13 @@ namespace GreenshotPlugin.UnmanagedHelpers
 		/// Doing so lets the function determine the type of structure you are passing to it.
 		/// </summary>
 		public int Size;
+
 		/// <summary>
 		/// A RECT structure that specifies the display monitor rectangle, expressed in virtual-screen coordinates.
 		/// Note that if the monitor is not the primary display monitor, some of the rectangle's coordinates may be negative values.
 		/// </summary>
 		public RECT Monitor;
+
 		/// <summary>
 		/// A RECT structure that specifies the work area rectangle of the display monitor that can be used by applications,
 		/// expressed in virtual-screen coordinates. Windows uses this rectangle to maximize an application on the monitor.
@@ -555,6 +582,7 @@ namespace GreenshotPlugin.UnmanagedHelpers
 		/// Note that if the monitor is not the primary display monitor, some of the rectangle's coordinates may be negative values.
 		/// </summary>
 		public RECT WorkArea;
+
 		/// <summary>
 		/// The attributes of the display monitor.
 		///
@@ -562,6 +590,7 @@ namespace GreenshotPlugin.UnmanagedHelpers
 		///   1 : MONITORINFOF_PRIMARY
 		/// </summary>
 		public uint Flags;
+
 		public void Init()
 		{
 			this.Size = 40;

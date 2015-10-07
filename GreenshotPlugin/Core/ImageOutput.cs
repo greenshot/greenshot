@@ -38,16 +38,18 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using Encoder = System.Drawing.Imaging.Encoder;
 
-namespace GreenshotPlugin.Core {
+namespace GreenshotPlugin.Core
+{
 	/// <summary>
 	/// Description of ImageOutput.
 	/// </summary>
-	public static class ImageOutput {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(ImageOutput));
+	public static class ImageOutput
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (ImageOutput));
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		private static readonly int PROPERTY_TAG_SOFTWARE_USED = 0x0131;
-		private static Cache<string, string> tmpFileCache = new Cache<string, string>(10 * 60 * 60, RemoveExpiredTmpFile);
+		private static Cache<string, string> tmpFileCache = new Cache<string, string>(10*60*60, RemoveExpiredTmpFile);
 
 		/// <summary>
 		/// Creates a PropertyItem (Metadata) to store with the image.
@@ -57,11 +59,15 @@ namespace GreenshotPlugin.Core {
 		/// <param name="id">ID</param>
 		/// <param name="text">Text</param>
 		/// <returns></returns>
-		private static PropertyItem CreatePropertyItem(int id, string text) {
+		private static PropertyItem CreatePropertyItem(int id, string text)
+		{
 			PropertyItem propertyItem = null;
-			try {
-				ConstructorInfo ci = typeof(PropertyItem).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public, null, new Type[] { }, null);
-				propertyItem = (PropertyItem)ci.Invoke(null);
+			try
+			{
+				ConstructorInfo ci = typeof (PropertyItem).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public, null, new Type[]
+				{
+				}, null);
+				propertyItem = (PropertyItem) ci.Invoke(null);
 				// Make sure it's of type string
 				propertyItem.Type = 2;
 				// Set the ID
@@ -72,24 +78,30 @@ namespace GreenshotPlugin.Core {
 				byteString[byteString.Length - 1] = 0;
 				propertyItem.Value = byteString;
 				propertyItem.Len = text.Length + 1;
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				LOG.WarnFormat("Error creating a PropertyItem: {0}", e.Message);
 			}
 			return propertyItem;
 		}
+
 		#region save
+
 		/// <summary>
 		/// Saves ISurface to stream with specified output settings
 		/// </summary>
 		/// <param name="surface">ISurface to save</param>
 		/// <param name="stream">Stream to save to</param>
 		/// <param name="outputSettings">SurfaceOutputSettings</param>
-		public static void SaveToStream(ISurface surface, Stream stream, SurfaceOutputSettings outputSettings) {
+		public static void SaveToStream(ISurface surface, Stream stream, SurfaceOutputSettings outputSettings)
+		{
 			Image imageToSave;
 			bool disposeImage = CreateImageFromSurface(surface, outputSettings, out imageToSave);
 			SaveToStream(imageToSave, surface, stream, outputSettings);
 			// cleanup if needed
-			if (disposeImage && imageToSave != null) {
+			if (disposeImage && imageToSave != null)
+			{
 				imageToSave.Dispose();
 			}
 		}
@@ -103,16 +115,20 @@ namespace GreenshotPlugin.Core {
 		/// <param name="surface">surface for the elements, needed if the greenshot format is used</param>
 		/// <param name="stream">Stream to save to</param>
 		/// <param name="outputSettings">SurfaceOutputSettings</param>
-		public static void SaveToStream(Image imageToSave, ISurface surface, Stream stream, SurfaceOutputSettings outputSettings) {
+		public static void SaveToStream(Image imageToSave, ISurface surface, Stream stream, SurfaceOutputSettings outputSettings)
+		{
 			ImageFormat imageFormat;
 			bool useMemoryStream = false;
 			MemoryStream memoryStream = null;
-			if (outputSettings.Format == OutputFormat.greenshot && surface == null) {
+			if (outputSettings.Format == OutputFormat.greenshot && surface == null)
+			{
 				throw new ArgumentException("Surface needs to be se when using OutputFormat.Greenshot");
 			}
 
-			try {
-				switch (outputSettings.Format) {
+			try
+			{
+				switch (outputSettings.Format)
+				{
 					case OutputFormat.bmp:
 						imageFormat = ImageFormat.Bmp;
 						break;
@@ -131,35 +147,43 @@ namespace GreenshotPlugin.Core {
 				}
 				// Problem with non-seekable streams most likely doesn't happen with Windows 7 (OS Version 6.1 and later)
 				// http://stackoverflow.com/questions/8349260/generic-gdi-error-on-one-machine-but-not-the-other
-				if (!stream.CanSeek) {
+				if (!stream.CanSeek)
+				{
 					useMemoryStream = true;
 					LOG.Warn("Using memorystream prevent an issue with saving to a non seekable stream.");
 				}
-				
+
 				LOG.DebugFormat("Saving image to stream with Format {0} and PixelFormat {1}", imageFormat, imageToSave.PixelFormat);
 
 				// Check if we want to use a memory stream, to prevent a issue which happens with Windows before "7".
 				// The save is made to the targetStream, this is directed to either the MemoryStream or the original
 				Stream targetStream = stream;
-				if (useMemoryStream) {
+				if (useMemoryStream)
+				{
 					memoryStream = new MemoryStream();
 					targetStream = memoryStream;
 				}
 
-				if (Equals(imageFormat, ImageFormat.Jpeg)) {
+				if (Equals(imageFormat, ImageFormat.Jpeg))
+				{
 					bool foundEncoder = false;
-					foreach (ImageCodecInfo imageCodec in ImageCodecInfo.GetImageEncoders()) {
-						if (imageCodec.FormatID == imageFormat.Guid) {
+					foreach (ImageCodecInfo imageCodec in ImageCodecInfo.GetImageEncoders())
+					{
+						if (imageCodec.FormatID == imageFormat.Guid)
+						{
 							EncoderParameters parameters = new EncoderParameters(1);
 							parameters.Param[0] = new EncoderParameter(Encoder.Quality, outputSettings.JPGQuality);
 							// Removing transparency if it's not supported in the output
-							if (Image.IsAlphaPixelFormat(imageToSave.PixelFormat)) {
+							if (Image.IsAlphaPixelFormat(imageToSave.PixelFormat))
+							{
 								Image nonAlphaImage = ImageHelper.Clone(imageToSave, PixelFormat.Format24bppRgb);
 								AddTag(nonAlphaImage);
 								nonAlphaImage.Save(targetStream, imageCodec, parameters);
 								nonAlphaImage.Dispose();
 								nonAlphaImage = null;
-							} else {
+							}
+							else
+							{
 								AddTag(imageToSave);
 								imageToSave.Save(targetStream, imageCodec, parameters);
 							}
@@ -167,41 +191,52 @@ namespace GreenshotPlugin.Core {
 							break;
 						}
 					}
-					if (!foundEncoder) {
+					if (!foundEncoder)
+					{
 						throw new ApplicationException("No JPG encoder found, this should not happen.");
 					}
-				} else {
+				}
+				else
+				{
 					bool needsDispose = false;
 					// Removing transparency if it's not supported in the output
-					if (!Equals(imageFormat, ImageFormat.Png) && Image.IsAlphaPixelFormat(imageToSave.PixelFormat)) {
+					if (!Equals(imageFormat, ImageFormat.Png) && Image.IsAlphaPixelFormat(imageToSave.PixelFormat))
+					{
 						imageToSave = ImageHelper.Clone(imageToSave, PixelFormat.Format24bppRgb);
 						needsDispose = true;
 					}
 					AddTag(imageToSave);
 					// Added for OptiPNG
 					bool processed = false;
-					if (Equals(imageFormat, ImageFormat.Png) && !string.IsNullOrEmpty(conf.OptimizePNGCommand)) {
+					if (Equals(imageFormat, ImageFormat.Png) && !string.IsNullOrEmpty(conf.OptimizePNGCommand))
+					{
 						processed = ProcessPNGImageExternally(imageToSave, targetStream);
 					}
-					if (!processed) {
+					if (!processed)
+					{
 						imageToSave.Save(targetStream, imageFormat);
 					}
-					if (needsDispose) {
+					if (needsDispose)
+					{
 						imageToSave.Dispose();
 						imageToSave = null;
 					}
 				}
 
 				// If we used a memory stream, we need to stream the memory stream to the original stream.
-				if (useMemoryStream) {
+				if (useMemoryStream)
+				{
 					memoryStream.WriteTo(stream);
 				}
 
 				// Output the surface elements, size and marker to the stream
-				if (outputSettings.Format == OutputFormat.greenshot) {
-					using (MemoryStream tmpStream = new MemoryStream()) {
+				if (outputSettings.Format == OutputFormat.greenshot)
+				{
+					using (MemoryStream tmpStream = new MemoryStream())
+					{
 						long bytesWritten = surface.SaveElementsToStream(tmpStream);
-						using (BinaryWriter writer = new BinaryWriter(tmpStream, Encoding.UTF8, true)) {
+						using (BinaryWriter writer = new BinaryWriter(tmpStream, Encoding.UTF8, true))
+						{
 							writer.Write(bytesWritten);
 							Version v = Assembly.GetExecutingAssembly().GetName().Version;
 							byte[] marker = Encoding.ASCII.GetBytes(String.Format("Greenshot{0:00}.{1:00}", v.Major, v.Minor));
@@ -210,8 +245,11 @@ namespace GreenshotPlugin.Core {
 						}
 					}
 				}
-			} finally {
-				if (memoryStream != null) {
+			}
+			finally
+			{
+				if (memoryStream != null)
+				{
 					memoryStream.Dispose();
 				}
 			}
@@ -223,24 +261,31 @@ namespace GreenshotPlugin.Core {
 		/// <param name="imageToProcess">Image to pass to the external process</param>
 		/// <param name="targetStream">stream to write the processed image to</param>
 		/// <returns></returns>
-		private static bool ProcessPNGImageExternally(Image imageToProcess, Stream targetStream) {
-			if (string.IsNullOrEmpty(conf.OptimizePNGCommand)) {
+		private static bool ProcessPNGImageExternally(Image imageToProcess, Stream targetStream)
+		{
+			if (string.IsNullOrEmpty(conf.OptimizePNGCommand))
+			{
 				return false;
 			}
-			if (!File.Exists(conf.OptimizePNGCommand)) {
+			if (!File.Exists(conf.OptimizePNGCommand))
+			{
 				LOG.WarnFormat("Can't find 'OptimizePNGCommand' {0}", conf.OptimizePNGCommand);
 				return false;
 			}
-			string tmpFileName = Path.Combine(Path.GetTempPath(),Path.GetRandomFileName() + ".png");
-			try {
-				using (FileStream tmpStream = File.Create(tmpFileName)) {
+			string tmpFileName = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName() + ".png");
+			try
+			{
+				using (FileStream tmpStream = File.Create(tmpFileName))
+				{
 					LOG.DebugFormat("Writing png to tmp file: {0}", tmpFileName);
 					imageToProcess.Save(tmpStream, ImageFormat.Png);
-					if (LOG.IsDebugEnabled) {
+					if (LOG.IsDebugEnabled)
+					{
 						LOG.DebugFormat("File size before processing {0}", new FileInfo(tmpFileName).Length);
 					}
 				}
-				if (LOG.IsDebugEnabled) {
+				if (LOG.IsDebugEnabled)
+				{
 					LOG.DebugFormat("Starting : {0}", conf.OptimizePNGCommand);
 				}
 
@@ -250,11 +295,15 @@ namespace GreenshotPlugin.Core {
 				processStartInfo.RedirectStandardOutput = true;
 				processStartInfo.RedirectStandardError = true;
 				processStartInfo.UseShellExecute = false;
-				using (Process process = Process.Start(processStartInfo)) {
-					if (process != null) {
+				using (Process process = Process.Start(processStartInfo))
+				{
+					if (process != null)
+					{
 						process.WaitForExit();
-						if (process.ExitCode == 0) {
-							if (LOG.IsDebugEnabled) {
+						if (process.ExitCode == 0)
+						{
+							if (LOG.IsDebugEnabled)
+							{
 								LOG.DebugFormat("File size after processing {0}", new FileInfo(tmpFileName).Length);
 								LOG.DebugFormat("Reading back tmp file: {0}", tmpFileName);
 							}
@@ -267,10 +316,15 @@ namespace GreenshotPlugin.Core {
 						LOG.ErrorFormat("Error: {0}", process.StandardError.ReadToEnd());
 					}
 				}
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				LOG.Error("Error while processing PNG image: ", e);
-			} finally {
-				if (File.Exists(tmpFileName)) {
+			}
+			finally
+			{
+				if (File.Exists(tmpFileName))
+				{
 					LOG.DebugFormat("Cleaning up tmp file: {0}", tmpFileName);
 					File.Delete(tmpFileName);
 				}
@@ -285,31 +339,40 @@ namespace GreenshotPlugin.Core {
 		/// <param name="outputSettings"></param>
 		/// <param name="imageToSave"></param>
 		/// <returns>true if the image must be disposed</returns>
-		public static bool CreateImageFromSurface(ISurface surface, SurfaceOutputSettings outputSettings, out Image imageToSave) {
+		public static bool CreateImageFromSurface(ISurface surface, SurfaceOutputSettings outputSettings, out Image imageToSave)
+		{
 			bool disposeImage = false;
 
 			// TODO: Check no elements
-			if (outputSettings.Format == OutputFormat.greenshot || outputSettings.SaveBackgroundOnly) {
+			if (outputSettings.Format == OutputFormat.greenshot || outputSettings.SaveBackgroundOnly)
+			{
 				// We save the image of the surface, this should not be disposed
 				imageToSave = surface.Image;
-			} else {
+			}
+			else
+			{
 				// We create the export image of the surface to save
 				imageToSave = surface.GetImageForExport();
 				disposeImage = true;
 			}
 
 			// The following block of modifications should be skipped when saving the greenshot format, no effects or otherwise!
-			if (outputSettings.Format == OutputFormat.greenshot) {
+			if (outputSettings.Format == OutputFormat.greenshot)
+			{
 				return disposeImage;
 			}
 			Image tmpImage;
-			if (outputSettings.Effects != null && outputSettings.Effects.Count > 0) {
+			if (outputSettings.Effects != null && outputSettings.Effects.Count > 0)
+			{
 				// apply effects, if there are any
-				using (Matrix matrix = new Matrix()) {
+				using (Matrix matrix = new Matrix())
+				{
 					tmpImage = ImageHelper.ApplyEffects(imageToSave, outputSettings.Effects, matrix);
 				}
-				if (tmpImage != null) {
-					if (disposeImage) {
+				if (tmpImage != null)
+				{
+					if (disposeImage)
+					{
 						imageToSave.Dispose();
 					}
 					imageToSave = tmpImage;
@@ -318,47 +381,62 @@ namespace GreenshotPlugin.Core {
 			}
 
 			// check for color reduction, forced or automatically, only when the DisableReduceColors is false 
-			if (outputSettings.DisableReduceColors || (!conf.OutputFileAutoReduceColors && !outputSettings.ReduceColors)) {
+			if (outputSettings.DisableReduceColors || (!conf.OutputFileAutoReduceColors && !outputSettings.ReduceColors))
+			{
 				return disposeImage;
 			}
 			bool isAlpha = Image.IsAlphaPixelFormat(imageToSave.PixelFormat);
-			if (outputSettings.ReduceColors || (!isAlpha && conf.OutputFileAutoReduceColors)) {
-				using (var quantizer = new WuQuantizer((Bitmap)imageToSave)) {
+			if (outputSettings.ReduceColors || (!isAlpha && conf.OutputFileAutoReduceColors))
+			{
+				using (var quantizer = new WuQuantizer((Bitmap) imageToSave))
+				{
 					int colorCount = quantizer.GetColorCount();
 					LOG.InfoFormat("Image with format {0} has {1} colors", imageToSave.PixelFormat, colorCount);
-					if (!outputSettings.ReduceColors && colorCount >= 256) {
+					if (!outputSettings.ReduceColors && colorCount >= 256)
+					{
 						return disposeImage;
 					}
-					try {
+					try
+					{
 						LOG.Info("Reducing colors on bitmap to 256.");
 						tmpImage = quantizer.GetQuantizedImage(conf.OutputFileReduceColorsTo);
-						if (disposeImage) {
+						if (disposeImage)
+						{
 							imageToSave.Dispose();
 						}
 						imageToSave = tmpImage;
 						// Make sure the "new" image is disposed
 						disposeImage = true;
-					} catch (Exception e) {
+					}
+					catch (Exception e)
+					{
 						LOG.Warn("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
 					}
 				}
-			} else if (isAlpha && !outputSettings.ReduceColors) {
+			}
+			else if (isAlpha && !outputSettings.ReduceColors)
+			{
 				LOG.Info("Skipping 'optional' color reduction as the image has alpha");
 			}
 			return disposeImage;
 		}
-		
+
 		/// <summary>
 		/// Add the greenshot property!
 		/// </summary>
 		/// <param name="imageToSave"></param>
-		private static void AddTag(Image imageToSave) {
+		private static void AddTag(Image imageToSave)
+		{
 			// Create meta-data
 			PropertyItem softwareUsedPropertyItem = CreatePropertyItem(PROPERTY_TAG_SOFTWARE_USED, "Greenshot");
-			if (softwareUsedPropertyItem != null) {
-				try {
+			if (softwareUsedPropertyItem != null)
+			{
+				try
+				{
 					imageToSave.SetPropertyItem(softwareUsedPropertyItem);
-				} catch (Exception) {
+				}
+				catch (Exception)
+				{
 					LOG.WarnFormat("Couldn't set property {0}", softwareUsedPropertyItem.Id);
 				}
 			}
@@ -370,20 +448,24 @@ namespace GreenshotPlugin.Core {
 		/// <param name="fullPath"></param>
 		/// <param name="returnSurface"></param>
 		/// <returns></returns>
-		public static ISurface LoadGreenshotSurface(string fullPath, ISurface returnSurface) {
-			if (string.IsNullOrEmpty(fullPath)) {
+		public static ISurface LoadGreenshotSurface(string fullPath, ISurface returnSurface)
+		{
+			if (string.IsNullOrEmpty(fullPath))
+			{
 				return null;
 			}
 			Image fileImage;
 			LOG.InfoFormat("Loading image from file {0}", fullPath);
 			// Fixed lock problem Bug #3431881
-			using (Stream surfaceFileStream = File.OpenRead(fullPath)) {
+			using (Stream surfaceFileStream = File.OpenRead(fullPath))
+			{
 				// And fixed problem that the bitmap stream is disposed... by Cloning the image
 				// This also ensures the bitmap is correctly created
 
 				// We create a copy of the bitmap, so everything else can be disposed
 				surfaceFileStream.Position = 0;
-				using (Image tmpImage = Image.FromStream(surfaceFileStream, true, true)) {
+				using (Image tmpImage = Image.FromStream(surfaceFileStream, true, true))
+				{
 					LOG.DebugFormat("Loaded {0} with Size {1}x{2} and PixelFormat {3}", fullPath, tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
 					fileImage = ImageHelper.Clone(tmpImage);
 				}
@@ -391,22 +473,26 @@ namespace GreenshotPlugin.Core {
 				const int markerSize = 14;
 				surfaceFileStream.Seek(-markerSize, SeekOrigin.End);
 				string greenshotMarker;
-				using (StreamReader streamReader = new StreamReader(surfaceFileStream)) {
+				using (StreamReader streamReader = new StreamReader(surfaceFileStream))
+				{
 					greenshotMarker = streamReader.ReadToEnd();
-					if (!greenshotMarker.StartsWith("Greenshot")) {
+					if (!greenshotMarker.StartsWith("Greenshot"))
+					{
 						throw new ArgumentException(string.Format("{0} is not a Greenshot file!", fullPath));
 					}
 					LOG.InfoFormat("Greenshot file format: {0}", greenshotMarker);
 					const int filesizeLocation = 8 + markerSize;
 					surfaceFileStream.Seek(-filesizeLocation, SeekOrigin.End);
-					using (BinaryReader reader = new BinaryReader(surfaceFileStream)) {
+					using (BinaryReader reader = new BinaryReader(surfaceFileStream))
+					{
 						long bytesWritten = reader.ReadInt64();
 						surfaceFileStream.Seek(-(bytesWritten + filesizeLocation), SeekOrigin.End);
 						returnSurface.LoadElementsFromStream(surfaceFileStream);
 					}
 				}
 			}
-			if (fileImage != null) {
+			if (fileImage != null)
+			{
 				returnSurface.Image = fileImage;
 				LOG.InfoFormat("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", fullPath, fileImage.Width, fileImage.Height, fileImage.PixelFormat, fileImage.HorizontalResolution, fileImage.VerticalResolution);
 			}
@@ -422,11 +508,13 @@ namespace GreenshotPlugin.Core {
 		/// <param name="outputSettings"></param>
 		/// <param name="copyPathToClipboard"></param>
 		/// <returns>Full save path</returns>
-		public static string Save(ISurface surface, string fullPath, bool allowOverwrite, SurfaceOutputSettings outputSettings) {
+		public static string Save(ISurface surface, string fullPath, bool allowOverwrite, SurfaceOutputSettings outputSettings)
+		{
 			fullPath = CheckFullPath(fullPath, allowOverwrite);
 			LOG.DebugFormat("Saving surface to {0}", fullPath);
 			// Create the stream and call SaveToStream
-			using (var stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write)) {
+			using (var stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
+			{
 				SaveToStream(surface, stream, outputSettings);
 			}
 
@@ -469,17 +557,22 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="fullPath">filename (can be a complete path)</param>
 		/// <returns>OutputFormat</returns>
-		public static OutputFormat FormatForFilename(string fullPath) {
+		public static OutputFormat FormatForFilename(string fullPath)
+		{
 			// Fix for bug 2912959
 			string extension = fullPath.Substring(fullPath.LastIndexOf(".") + 1);
 			OutputFormat format = OutputFormat.png;
-			try {
-				format = (OutputFormat)Enum.Parse(typeof(OutputFormat), extension.ToLower());
-			} catch (ArgumentException ae) {
+			try
+			{
+				format = (OutputFormat) Enum.Parse(typeof (OutputFormat), extension.ToLower());
+			}
+			catch (ArgumentException ae)
+			{
 				LOG.Warn("Couldn't parse extension: " + extension, ae);
 			}
 			return format;
 		}
+
 		#endregion
 
 		#region save-as
@@ -490,30 +583,39 @@ namespace GreenshotPlugin.Core {
 		/// <param name="surface"></param>
 		/// <param name="captureDetails"></param>
 		/// <returns>Path to filename</returns>
-		public static string SaveWithDialog(ISurface surface, ICaptureDetails captureDetails) {
+		public static string SaveWithDialog(ISurface surface, ICaptureDetails captureDetails)
+		{
 			string returnValue = null;
-			using (var saveImageFileDialog = new SaveImageFileDialog(captureDetails)) {
+			using (var saveImageFileDialog = new SaveImageFileDialog(captureDetails))
+			{
 				var dialogResult = saveImageFileDialog.ShowDialog();
-				if (dialogResult.Equals(System.Windows.Forms.DialogResult.OK)) {
-					try {
+				if (dialogResult.Equals(System.Windows.Forms.DialogResult.OK))
+				{
+					try
+					{
 						string fileNameWithExtension = saveImageFileDialog.FileNameWithExtension;
 						var outputSettings = new SurfaceOutputSettings(FormatForFilename(fileNameWithExtension));
-						if (conf.OutputFilePromptQuality) {
+						if (conf.OutputFilePromptQuality)
+						{
 							var qualityDialog = new QualityDialog(outputSettings);
 							qualityDialog.ShowDialog();
 						}
 						// TODO: For now we always overwrite, should be changed
 						returnValue = Save(surface, fileNameWithExtension, true, outputSettings);
-						if (conf.OutputFileCopyPathToClipboard) {
+						if (conf.OutputFileCopyPathToClipboard)
+						{
 							ClipboardHelper.SetClipboardData(returnValue);
 						}
-					} catch (ExternalException) {
+					}
+					catch (ExternalException)
+					{
 						MessageBox.Show(string.Format(language.ErrorNowriteaccess, saveImageFileDialog.FileName).Replace(@"\\", @"\"), language.Error);
 					}
 				}
 			}
 			return returnValue;
 		}
+
 		#endregion
 
 		/// <summary>
@@ -524,9 +626,11 @@ namespace GreenshotPlugin.Core {
 		/// <param name="captureDetails"></param>
 		/// <param name="outputSettings"></param>
 		/// <returns>Path to image file</returns>
-		public static string SaveNamedTmpFile(ISurface surface, ICaptureDetails captureDetails, SurfaceOutputSettings outputSettings) {
+		public static string SaveNamedTmpFile(ISurface surface, ICaptureDetails captureDetails, SurfaceOutputSettings outputSettings)
+		{
 			string pattern = conf.OutputFileFilenamePattern;
-			if (pattern == null || string.IsNullOrEmpty(pattern.Trim())) {
+			if (pattern == null || string.IsNullOrEmpty(pattern.Trim()))
+			{
 				pattern = "greenshot ${capturetime}";
 			}
 			string filename = FilenameHelper.GetFilenameFromPattern(pattern, outputSettings.Format, captureDetails);
@@ -540,10 +644,13 @@ namespace GreenshotPlugin.Core {
 
 			// Catching any exception to prevent that the user can't write in the directory.
 			// This is done for e.g. bugs #2974608, #2963943, #2816163, #2795317, #2789218
-			try {
+			try
+			{
 				tmpFile = Save(surface, tmpFile, true, outputSettings);
 				tmpFileCache.Add(tmpFile, tmpFile);
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				// Show the problem
 				MessageBox.Show(e.Message, "Error");
 				// when save failed we present a SaveWithDialog
@@ -558,15 +665,20 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="tmpfile"></param>
 		/// <returns>true if it worked</returns>
-		public static bool DeleteNamedTmpFile(string tmpfile) {
+		public static bool DeleteNamedTmpFile(string tmpfile)
+		{
 			LOG.Debug("Deleting TMP File: " + tmpfile);
-			try {
-				if (File.Exists(tmpfile)) {
+			try
+			{
+				if (File.Exists(tmpfile))
+				{
 					File.Delete(tmpfile);
 					tmpFileCache.Remove(tmpfile);
 				}
 				return true;
-			} catch (Exception ex) {
+			}
+			catch (Exception ex)
+			{
 				LOG.Warn("Error deleting tmp file: ", ex);
 			}
 			return false;
@@ -579,20 +691,25 @@ namespace GreenshotPlugin.Core {
 		/// <param name="outputSettings"></param>
 		/// <param name="destinationPath"></param>
 		/// <returns></returns>
-		public static string SaveToTmpFile(ISurface surface, SurfaceOutputSettings outputSettings, string destinationPath) {
+		public static string SaveToTmpFile(ISurface surface, SurfaceOutputSettings outputSettings, string destinationPath)
+		{
 			string tmpFile = Path.GetRandomFileName() + "." + outputSettings.Format.ToString();
 			// Prevent problems with "other characters", which could cause problems
 			tmpFile = Regex.Replace(tmpFile, @"[^\d\w\.]", "");
-			if (destinationPath == null) {
+			if (destinationPath == null)
+			{
 				destinationPath = Path.GetTempPath();
 			}
 			string tmpFullPath = Path.Combine(destinationPath, tmpFile);
 			LOG.Debug("Creating TMP File : " + tmpFullPath);
 
-			try {
+			try
+			{
 				tmpFullPath = Save(surface, tmpFullPath, true, outputSettings);
 				tmpFileCache.Add(tmpFullPath, tmpFullPath);
-			} catch (Exception) {
+			}
+			catch (Exception)
+			{
 				return null;
 			}
 			return tmpFullPath;
@@ -601,9 +718,12 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Cleanup all created tmpfiles
 		/// </summary>	
-		public static void RemoveTmpFiles() {
-			foreach (string tmpFile in tmpFileCache.Elements) {
-				if (File.Exists(tmpFile)) {
+		public static void RemoveTmpFiles()
+		{
+			foreach (string tmpFile in tmpFileCache.Elements)
+			{
+				if (File.Exists(tmpFile))
+				{
 					LOG.DebugFormat("Removing old temp file {0}", tmpFile);
 					File.Delete(tmpFile);
 				}
@@ -616,9 +736,11 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="filekey"></param>
 		/// <param name="filename"></param>
-		private static void RemoveExpiredTmpFile(string filekey, object filename) {
+		private static void RemoveExpiredTmpFile(string filekey, object filename)
+		{
 			string path = filename as string;
-			if (path != null && File.Exists(path)) {
+			if (path != null && File.Exists(path))
+			{
 				LOG.DebugFormat("Removing expired file {0}", path);
 				File.Delete(path);
 			}

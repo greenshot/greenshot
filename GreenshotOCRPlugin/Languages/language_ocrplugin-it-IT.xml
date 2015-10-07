@@ -1,14 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Italiano" ietf="it-IT" version="1.0.0">
-  <resources prefix="OCR">
-	<resource name="language">
-		Lingua OCR
-	</resource>
-	<resource name="orient_image">
-		Orienta
-	</resource>
-	<resource name="straighten_image">
-		Raddrizza
-	</resource>
-  </resources>
+
+<language>
+	<resources prefix="OCR">
+		<resource name="language">
+			Lingua OCR
+		</resource>
+		<resource name="orient_image">
+			Orienta
+		</resource>
+		<resource name="straighten_image">
+			Raddrizza
+		</resource>
+	</resources>
 </language>

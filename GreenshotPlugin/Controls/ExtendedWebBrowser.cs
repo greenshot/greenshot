@@ -18,33 +18,43 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Windows.Forms;
 using GreenshotInterop.Interop;
 
-namespace GreenshotPlugin.Controls {
-	public class ExtendedWebBrowser : WebBrowser {
-		protected class ExtendedWebBrowserSite : WebBrowserSite, IOleCommandTarget {
-			const int OLECMDID_SHOWSCRIPTERROR = 40;
-			const int OLECMDID_SHOWMESSAGE = 41;
+namespace GreenshotPlugin.Controls
+{
+	public class ExtendedWebBrowser : WebBrowser
+	{
+		protected class ExtendedWebBrowserSite : WebBrowserSite, IOleCommandTarget
+		{
+			private const int OLECMDID_SHOWSCRIPTERROR = 40;
+			private const int OLECMDID_SHOWMESSAGE = 41;
 
-			static Guid CGID_DocHostCommandHandler = new Guid("F38BC242-B950-11D1-8918-00C04FC2C836");
+			private static Guid CGID_DocHostCommandHandler = new Guid("F38BC242-B950-11D1-8918-00C04FC2C836");
 
-			const int S_OK = 0;
-			const int OLECMDERR_E_NOTSUPPORTED = (-2147221248);
-			const int OLECMDERR_E_UNKNOWNGROUP = (-2147221244);
+			private const int S_OK = 0;
+			private const int OLECMDERR_E_NOTSUPPORTED = (-2147221248);
+			private const int OLECMDERR_E_UNKNOWNGROUP = (-2147221244);
 
-			public ExtendedWebBrowserSite(WebBrowser wb) : base(wb) {
+			public ExtendedWebBrowserSite(WebBrowser wb) : base(wb)
+			{
 			}
 
 			#region IOleCommandTarget Members
-			public int QueryStatus(Guid pguidCmdGroup, int cCmds, IntPtr prgCmds, IntPtr pCmdText) {
+
+			public int QueryStatus(Guid pguidCmdGroup, int cCmds, IntPtr prgCmds, IntPtr pCmdText)
+			{
 				return OLECMDERR_E_NOTSUPPORTED;
 			}
 
-			public int Exec(Guid pguidCmdGroup, int nCmdID, int nCmdexecopt, IntPtr pvaIn, IntPtr pvaOut) {
-				if (pguidCmdGroup == CGID_DocHostCommandHandler) {
-					if (nCmdID == OLECMDID_SHOWSCRIPTERROR) {
+			public int Exec(Guid pguidCmdGroup, int nCmdID, int nCmdexecopt, IntPtr pvaIn, IntPtr pvaOut)
+			{
+				if (pguidCmdGroup == CGID_DocHostCommandHandler)
+				{
+					if (nCmdID == OLECMDID_SHOWSCRIPTERROR)
+					{
 						// do not need to alter pvaOut as the docs says, enough to return S_OK here
 						return S_OK;
 					}
@@ -56,11 +66,13 @@ namespace GreenshotPlugin.Controls {
 			#endregion
 		}
 
-		protected override WebBrowserSiteBase CreateWebBrowserSiteBase() {
+		protected override WebBrowserSiteBase CreateWebBrowserSiteBase()
+		{
 			return new ExtendedWebBrowserSite(this);
 		}
 
-		public ExtendedWebBrowser() {
+		public ExtendedWebBrowser()
+		{
 		}
 	}
 }

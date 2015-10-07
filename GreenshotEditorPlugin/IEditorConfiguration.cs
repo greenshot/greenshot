@@ -27,94 +27,110 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.Serialization;
 
-namespace GreenshotEditorPlugin {
+namespace GreenshotEditorPlugin
+{
 	/// <summary>
 	/// Description of CoreConfiguration.
 	/// </summary>
 	[IniSection("Editor"), Description("Greenshot editor configuration")]
-	public interface IEditorConfiguration : IIniSection<IEditorConfiguration>, INotifyPropertyChanged {
+	public interface IEditorConfiguration : IIniSection<IEditorConfiguration>, INotifyPropertyChanged
+	{
 		[Description("Last used colors")]
-		IList<Color> RecentColors {
+		IList<Color> RecentColors
+		{
 			get;
 			set;
 		}
 
 		[DataMember(Name = "LastUsedFieldValues"), Description("Field values, make sure the last used settings are re-used")]
-		IDictionary<string, string> LastUsedFieldValues {
+		IDictionary<string, string> LastUsedFieldValues
+		{
 			get;
 			set;
 		}
 
 		[Description("Match the editor window size to the capture"), DefaultValue(true)]
-		bool MatchSizeToCapture {
+		bool MatchSizeToCapture
+		{
 			get;
 			set;
 		}
 
 		[Description("Placement flags")]
-		WindowPlacementFlags WindowPlacementFlags {
+		WindowPlacementFlags WindowPlacementFlags
+		{
 			get;
 			set;
 		}
 
 		[Description("Show command"), DefaultValue(ShowWindowCommand.Normal)]
-		ShowWindowCommand ShowWindowCommand {
+		ShowWindowCommand ShowWindowCommand
+		{
 			get;
 			set;
 		}
 
 		[Description("Position of minimized window"), DefaultValue("-1,-1")]
-		Point WindowMinPosition {
+		Point WindowMinPosition
+		{
 			get;
 			set;
 		}
 
 		[Description("Position of maximized window"), DefaultValue("-1,-1")]
-		Point WindowMaxPosition {
+		Point WindowMaxPosition
+		{
 			get;
 			set;
 		}
 
 		[Description("Position of normal window"), DefaultValue("100,100,400,400")]
-		Rectangle WindowNormalPosition {
+		Rectangle WindowNormalPosition
+		{
 			get;
 			set;
 		}
 
 		[Description("Reuse already open editor"), DefaultValue(false)]
-		bool ReuseEditor {
+		bool ReuseEditor
+		{
 			get;
 			set;
 		}
 
 		[Description("The smaller this number, the less smoothing is used. Decrease for detailed drawing, e.g. when using a pen. Increase for smoother lines. e.g. when you want to draw a smooth line."), DefaultValue(3)]
-		int FreehandSensitivity {
+		int FreehandSensitivity
+		{
 			get;
 			set;
 		}
 
 		[Description("Suppressed the 'do you want to save' dialog when closing the editor."), DefaultValue(false)]
-		bool SuppressSaveDialogAtClose {
+		bool SuppressSaveDialogAtClose
+		{
 			get;
 			set;
 		}
 
 
-		[Description("Settings for the drop shadow effect."), TypeConverter(typeof(EffectConverter))]
-		DropShadowEffect DropShadowEffectSettings {
+		[Description("Settings for the drop shadow effect."), TypeConverter(typeof (EffectConverter))]
+		DropShadowEffect DropShadowEffectSettings
+		{
 			get;
 			set;
 		}
 
 
-		[Description("Settings for the torn edge effect."), TypeConverter(typeof(EffectConverter))]
-		TornEdgeEffect TornEdgeEffectSettings {
+		[Description("Settings for the torn edge effect."), TypeConverter(typeof (EffectConverter))]
+		TornEdgeEffect TornEdgeEffectSettings
+		{
 			get;
 			set;
 		}
 
 		[Description("Sets how to compare the colors for the autocrop detection, the higher the more is 'selected'. Possible values are from 0 to 255, where everything above ~150 doesn't make much sense!"), DefaultValue("10")]
-		int AutoCropDifference {
+		int AutoCropDifference
+		{
 			get;
 			set;
 		}

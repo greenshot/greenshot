@@ -27,22 +27,27 @@ using System.Drawing.Drawing2D;
 
 namespace GreenshotEditorPlugin.Drawing.Filters
 {
-    [Serializable] 
-	public class HighlightFilter : AbstractFilter {
-
+	[Serializable]
+	public class HighlightFilter : AbstractFilter
+	{
 		protected Color _fillColor = Color.Yellow;
+
 		[Field(FieldTypes.FILL_COLOR)]
-		public Color FillColor {
-			get {
+		public Color FillColor
+		{
+			get
+			{
 				return _fillColor;
 			}
-			set {
+			set
+			{
 				_fillColor = value;
 				OnFieldPropertyChanged(FieldTypes.FILL_COLOR);
 			}
 		}
 
-		public HighlightFilter(DrawableContainer parent) : base(parent) {
+		public HighlightFilter(DrawableContainer parent) : base(parent)
+		{
 		}
 
 		/// <summary>
@@ -52,21 +57,27 @@ namespace GreenshotEditorPlugin.Drawing.Filters
 		/// <param name="applyBitmap"></param>
 		/// <param name="rect"></param>
 		/// <param name="renderMode"></param>
-		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
+		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode)
+		{
 			Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
 
-			if (applyRect.Width == 0 || applyRect.Height == 0) {
+			if (applyRect.Width == 0 || applyRect.Height == 0)
+			{
 				// nothing to do
 				return;
 			}
 			GraphicsState state = graphics.Save();
-			if (Invert) {
+			if (Invert)
+			{
 				graphics.SetClip(applyRect);
 				graphics.ExcludeClip(rect);
 			}
-			using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect)) {
-				for (int y = fastBitmap.Top; y < fastBitmap.Bottom; y++) {
-					for (int x = fastBitmap.Left; x < fastBitmap.Right; x++) {
+			using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect))
+			{
+				for (int y = fastBitmap.Top; y < fastBitmap.Bottom; y++)
+				{
+					for (int x = fastBitmap.Left; x < fastBitmap.Right; x++)
+					{
 						Color color = fastBitmap.GetColorAt(x, y);
 						color = Color.FromArgb(color.A, Math.Min(_fillColor.R, color.R), Math.Min(_fillColor.G, color.G), Math.Min(_fillColor.B, color.B));
 						fastBitmap.SetColorAt(x, y, color);

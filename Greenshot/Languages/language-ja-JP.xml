@@ -1,22 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="日本語" ietf="ja-JP" version="1.0.0" languagegroup="7">
+
+<language>
 	<resources prefix="Core">
 		<resource name="about_bugs">バグ等の報告先 :</resource>
 		<resource name="about_donations">Greenshot がお気に召したなら、是非支援をお願いします :</resource>
 		<resource name="about_host">Greenshot は sourceforge.net によって運営されています :</resource>
 		<resource name="about_icons">上山根 祐輔氏の Fugue Icons を使用しています (Creative Commons Attribution 3.0 license) :</resource>
-		<resource name="about_license">Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot には一切の保障がありません。GNU General Public License に定められた条件下で再配布をおこなうことができます。:</resource>
+		<resource name="about_license">
+			Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+			Greenshot には一切の保障がありません。GNU General Public License に定められた条件下で再配布をおこなうことができます。:
+		</resource>
 		<resource name="about_title">Greenshot について</resource>
 		<resource name="application_title">Greenshot - the revolutionary screenshot utility</resource>
 		<resource name="bugreport_cancel">閉じる</resource>
-		<resource name="bugreport_info">予期しないエラーが発生しました。
+		<resource name="bugreport_info">
+			予期しないエラーが発生しました。
 
-我々にバグの報告をおこなってバグ修正に貢献していただけませんか。
-次の URL にアクセスし、そこでバグ レポートを作成して、テキスト エリアの内容を説明として貼り付けてください。
+			我々にバグの報告をおこなってバグ修正に貢献していただけませんか。
+			次の URL にアクセスし、そこでバグ レポートを作成して、テキスト エリアの内容を説明として貼り付けてください。
 
-どのような状況で発生したのか、またバグを修正するのに役立つと思われる情報を、できる限りつけ加えてください。
-すでに同じようなバグが報告されているかどうか、確認した上で報告してくださると、我々はさらに助かります（検索機能を使用すれば簡単におこなえます）。 ありがとうございました :)</resource>
+			どのような状況で発生したのか、またバグを修正するのに役立つと思われる情報を、できる限りつけ加えてください。
+			すでに同じようなバグが報告されているかどうか、確認した上で報告してくださると、我々はさらに助かります（検索機能を使用すれば簡単におこなえます）。 ありがとうございました :)
+		</resource>
 		<resource name="bugreport_title">エラー</resource>
 		<resource name="CANCEL">キャンセル</resource>
 		<resource name="clipboard_error">クリップボードへの書き込み中に予期しないエラーが発生しました。</resource>
@@ -178,8 +183,10 @@ Greenshot には一切の保障がありません。GNU General Public License �
 		<resource name="EmailFormat.OUTLOOK_TXT">text形式でOutlook</resource>
 		<resource name="error">エラー</resource>
 		<resource name="error_multipleinstances">Greenshot の他のインスタンスがすでに実行されています。</resource>
-		<resource name="error_nowriteaccess">ファイルを "{0}" に保存できません。
-選択した保存場所への書き込みアクセス権限をチェックしてください。</resource>
+		<resource name="error_nowriteaccess">
+			ファイルを "{0}" に保存できません。
+			選択した保存場所への書き込みアクセス権限をチェックしてください。
+		</resource>
 		<resource name="error_openfile">ファイル "{0}" が開けません。</resource>
 		<resource name="error_openlink">リンク '{0}' が開けません。</resource>
 		<resource name="error_save">スクリーンショットを保存できません。適切な場所を指定し直してください。</resource>
@@ -246,27 +253,29 @@ Greenshot には一切の保障がありません。GNU General Public License �
 		<resource name="settings_jpegquality">JPEG の品質</resource>
 		<resource name="settings_jpegsettings">JPEG の設定</resource>
 		<resource name="settings_language">表示言語</resource>
-		<resource name="settings_message_filenamepattern">ファイルの名称に次のパターンを用いると、自動的に置き換えられます。
-		
-${YYYY} 年, 4 桁表示
-${MM} 月, 2 桁表示
-${DD} 日, 2 桁表示
-${hh} 時, 2 桁表示
-${mm} 分, 2 桁表示
-${ss} 秒, 2 桁表示
-${NUM} 連番, 6 桁表示
-${title} ウィンドウ タイトル
-${user} Windows ユーザー名
-${domain} Windows ドメイン
-${hostname} PC の名称
+		<resource name="settings_message_filenamepattern">
+			ファイルの名称に次のパターンを用いると、自動的に置き換えられます。
 
-このパターンを使用してファイルの保存時に動的なディレクトリを作成することもできます。
-フォルダとファイル名の区切りにはバックスラッシュ (\) を使用します。
+			${YYYY} 年, 4 桁表示
+			${MM} 月, 2 桁表示
+			${DD} 日, 2 桁表示
+			${hh} 時, 2 桁表示
+			${mm} 分, 2 桁表示
+			${ss} 秒, 2 桁表示
+			${NUM} 連番, 6 桁表示
+			${title} ウィンドウ タイトル
+			${user} Windows ユーザー名
+			${domain} Windows ドメイン
+			${hostname} PC の名称
 
-例 :  ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-保存先フォルダへ、現在の日付  [例: 2008-06-29] を名称とするサブフォルダを作成し、
-その中へ現在の時刻 [例: 11-58-32] を名称とする画像ファイルを保存することができます。
-ファイル名には定義済みの画像フォーマットの拡張子が付加されます。</resource>
+			このパターンを使用してファイルの保存時に動的なディレクトリを作成することもできます。
+			フォルダとファイル名の区切りにはバックスラッシュ (\) を使用します。
+
+			例 :  ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+			保存先フォルダへ、現在の日付  [例: 2008-06-29] を名称とするサブフォルダを作成し、
+			その中へ現在の時刻 [例: 11-58-32] を名称とする画像ファイルを保存することができます。
+			ファイル名には定義済みの画像フォーマットの拡張子が付加されます。
+		</resource>
 		<resource name="settings_network">ネットワークとアップデート</resource>
 		<resource name="settings_output">出力</resource>
 		<resource name="settings_playsound">シャッター音を再生</resource>
@@ -301,9 +310,11 @@ ${hostname} PC の名称
 		<resource name="update_found">最新のバージョンのGreenshotがご利用になれます。Greenshot {0} をダウンロードしますか?</resource>
 		<resource name="wait_ie_capture">Internet Explorerのキャプチャーが終了するまでお待ちください...</resource>
 		<resource name="warning">警告</resource>
-		<resource name="warning_hotkeys">ホットキー"{0}"が登録できませんでした。他のソフトウェアが同じホットキーをすでに使用している可能性があります。
-別のホットキーを設定するか、現在このホットキーを使用しているソフトウェアを無効化/変更してください。
-なお、タスクトレイにあるGreenshot アイコンを右クリックすることで、すべての操作を行うことができます。</resource>
+		<resource name="warning_hotkeys">
+			ホットキー"{0}"が登録できませんでした。他のソフトウェアが同じホットキーをすでに使用している可能性があります。
+			別のホットキーを設定するか、現在このホットキーを使用しているソフトウェアを無効化/変更してください。
+			なお、タスクトレイにあるGreenshot アイコンを右クリックすることで、すべての操作を行うことができます。
+		</resource>
 		<resource name="WindowCaptureMode.Aero">カスタムカラーを使用する</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">透明度を保存する</resource>
 		<resource name="WindowCaptureMode.Auto">自動</resource>

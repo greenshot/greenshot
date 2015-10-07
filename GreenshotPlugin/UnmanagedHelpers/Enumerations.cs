@@ -18,48 +18,51 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 
-namespace GreenshotPlugin.UnmanagedHelpers {
+namespace GreenshotPlugin.UnmanagedHelpers
+{
 	/// <summary>
 	/// Window Style Flags
 	/// </summary>
 	[Flags]
-    public enum WindowStyleFlags : long {
+	public enum WindowStyleFlags : long
+	{
 		//WS_OVERLAPPED       = 0x00000000,
-		WS_POPUP            = 0x80000000,
-		WS_CHILD            = 0x40000000,
-		WS_MINIMIZE         = 0x20000000,
-		WS_VISIBLE          = 0x10000000,
-		WS_DISABLED         = 0x08000000,
-		WS_CLIPSIBLINGS     = 0x04000000,
-		WS_CLIPCHILDREN     = 0x02000000,
-		WS_MAXIMIZE         = 0x01000000,
-		WS_BORDER           = 0x00800000,
-		WS_DLGFRAME         = 0x00400000,
-		WS_VSCROLL          = 0x00200000,
-		WS_HSCROLL          = 0x00100000,
-		WS_SYSMENU          = 0x00080000,
-		WS_THICKFRAME       = 0x00040000,
-		WS_GROUP            = 0x00020000,
-		WS_TABSTOP          = 0x00010000,
+		WS_POPUP = 0x80000000,
+		WS_CHILD = 0x40000000,
+		WS_MINIMIZE = 0x20000000,
+		WS_VISIBLE = 0x10000000,
+		WS_DISABLED = 0x08000000,
+		WS_CLIPSIBLINGS = 0x04000000,
+		WS_CLIPCHILDREN = 0x02000000,
+		WS_MAXIMIZE = 0x01000000,
+		WS_BORDER = 0x00800000,
+		WS_DLGFRAME = 0x00400000,
+		WS_VSCROLL = 0x00200000,
+		WS_HSCROLL = 0x00100000,
+		WS_SYSMENU = 0x00080000,
+		WS_THICKFRAME = 0x00040000,
+		WS_GROUP = 0x00020000,
+		WS_TABSTOP = 0x00010000,
 
-		WS_UNK8000			= 0x00008000,
-		WS_UNK4000			= 0x00004000,
-		WS_UNK2000          = 0x00002000,
-		WS_UNK1000          = 0x00001000,
-		WS_UNK800			= 0x00000800,
-		WS_UNK400			= 0x00000400,
-		WS_UNK200           = 0x00000200,
-		WS_UNK100           = 0x00000100,
-		WS_UNK80			= 0x00000080,
-		WS_UNK40			= 0x00000040,
-		WS_UNK20			= 0x00000020,
-		WS_UNK10			= 0x00000010,
-		WS_UNK8				= 0x00000008,
-		WS_UNK4				= 0x00000004,
-		WS_UNK2				= 0x00000002,
-		WS_UNK1				= 0x00000001,
+		WS_UNK8000 = 0x00008000,
+		WS_UNK4000 = 0x00004000,
+		WS_UNK2000 = 0x00002000,
+		WS_UNK1000 = 0x00001000,
+		WS_UNK800 = 0x00000800,
+		WS_UNK400 = 0x00000400,
+		WS_UNK200 = 0x00000200,
+		WS_UNK100 = 0x00000100,
+		WS_UNK80 = 0x00000080,
+		WS_UNK40 = 0x00000040,
+		WS_UNK20 = 0x00000020,
+		WS_UNK10 = 0x00000010,
+		WS_UNK8 = 0x00000008,
+		WS_UNK4 = 0x00000004,
+		WS_UNK2 = 0x00000002,
+		WS_UNK1 = 0x00000001,
 
 		//WS_MINIMIZEBOX      = 0x00020000,
 		//WS_MAXIMIZEBOX      = 0x00010000,
@@ -76,45 +79,47 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	}
 
 	[Flags]
-    public enum ExtendedWindowStyleFlags : uint {
-		WS_EX_DLGMODALFRAME    = 0x00000001,
-		WS_EX_NOPARENTNOTIFY   = 0x00000004,
-		WS_EX_TOPMOST      = 0x00000008,
-		WS_EX_ACCEPTFILES      = 0x00000010,
-		WS_EX_TRANSPARENT      = 0x00000020,
+	public enum ExtendedWindowStyleFlags : uint
+	{
+		WS_EX_DLGMODALFRAME = 0x00000001,
+		WS_EX_NOPARENTNOTIFY = 0x00000004,
+		WS_EX_TOPMOST = 0x00000008,
+		WS_EX_ACCEPTFILES = 0x00000010,
+		WS_EX_TRANSPARENT = 0x00000020,
 
 		//#if(WINVER >= 0x0400)
-		WS_EX_MDICHILD     = 0x00000040,
-		WS_EX_TOOLWINDOW       = 0x00000080,
-		WS_EX_WINDOWEDGE       = 0x00000100,
-		WS_EX_CLIENTEDGE       = 0x00000200,
-		WS_EX_CONTEXTHELP      = 0x00000400,
+		WS_EX_MDICHILD = 0x00000040,
+		WS_EX_TOOLWINDOW = 0x00000080,
+		WS_EX_WINDOWEDGE = 0x00000100,
+		WS_EX_CLIENTEDGE = 0x00000200,
+		WS_EX_CONTEXTHELP = 0x00000400,
 
-		WS_EX_RIGHT        = 0x00001000,
-		WS_EX_LEFT         = 0x00000000,
-		WS_EX_RTLREADING       = 0x00002000,
-		WS_EX_LTRREADING       = 0x00000000,
-		WS_EX_LEFTSCROLLBAR    = 0x00004000,
-		WS_EX_RIGHTSCROLLBAR   = 0x00000000,
+		WS_EX_RIGHT = 0x00001000,
+		WS_EX_LEFT = 0x00000000,
+		WS_EX_RTLREADING = 0x00002000,
+		WS_EX_LTRREADING = 0x00000000,
+		WS_EX_LEFTSCROLLBAR = 0x00004000,
+		WS_EX_RIGHTSCROLLBAR = 0x00000000,
 
-		WS_EX_CONTROLPARENT    = 0x00010000,
-		WS_EX_STATICEDGE       = 0x00020000,
-		WS_EX_APPWINDOW    = 0x00040000,
+		WS_EX_CONTROLPARENT = 0x00010000,
+		WS_EX_STATICEDGE = 0x00020000,
+		WS_EX_APPWINDOW = 0x00040000,
 
 		//WS_EX_OVERLAPPEDWINDOW = (WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE),
 		//WS_EX_PALETTEWINDOW    = (WS_EX_WINDOWEDGE | WS_EX_TOOLWINDOW | WS_EX_TOPMOST),
 		// TODO: Check what the following is, this was needed to exclude Windows 10 entries that didn't make sense
-		WS_EX_WINDOWS10 =   0x00200000,
+		WS_EX_WINDOWS10 = 0x00200000,
 
-		WS_EX_LAYERED      = 0x00080000,
-		WS_EX_NOINHERITLAYOUT  = 0x00100000, // Disable inheritence of mirroring by children
-		WS_EX_LAYOUTRTL    = 0x00400000, // Right to left mirroring
-		WS_EX_COMPOSITED       = 0x02000000,
-		WS_EX_NOACTIVATE       = 0x08000000
-    }
+		WS_EX_LAYERED = 0x00080000,
+		WS_EX_NOINHERITLAYOUT = 0x00100000, // Disable inheritence of mirroring by children
+		WS_EX_LAYOUTRTL = 0x00400000, // Right to left mirroring
+		WS_EX_COMPOSITED = 0x02000000,
+		WS_EX_NOACTIVATE = 0x08000000
+	}
 
 	[Flags]
-	public enum WindowPlacementFlags : uint {
+	public enum WindowPlacementFlags : uint
+	{
 		// The coordinates of the minimized window may be specified.
 		// This flag must be specified if the coordinates are set in the ptMinPosition member.
 		WPF_SETMINPOSITION = 0x0001,
@@ -125,11 +130,13 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		WPF_RESTORETOMAXIMIZED = 0x0002
 	}
 
-	public enum ShowWindowCommand : uint {
+	public enum ShowWindowCommand : uint
+	{
 		/// <summary>
 		/// Hides the window and activates another window.
 		/// </summary>
 		Hide = 0,
+
 		/// <summary>
 		/// Activates and displays a window. If the window is minimized or
 		/// maximized, the system restores it to its original size and position.
@@ -137,57 +144,68 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// for the first time.
 		/// </summary>
 		Normal = 1,
+
 		/// <summary>
 		/// Activates the window and displays it as a minimized window.
 		/// </summary>
 		ShowMinimized = 2,
+
 		/// <summary>
 		/// Maximizes the specified window.
 		/// </summary>
 		Maximize = 3, // is this the right value?
+
 		/// <summary>
 		/// Activates the window and displays it as a maximized window.
 		/// </summary>      
 		ShowMaximized = 3,
+
 		/// <summary>
 		/// Displays a window in its most recent size and position. This value
 		/// is similar to <see cref="Win32.ShowWindowCommand.Normal"/>, except
 		/// the window is not actived.
 		/// </summary>
 		ShowNoActivate = 4,
+
 		/// <summary>
 		/// Activates the window and displays it in its current size and position.
 		/// </summary>
 		Show = 5,
+
 		/// <summary>
 		/// Minimizes the specified window and activates the next top-level
 		/// window in the Z order.
 		/// </summary>
 		Minimize = 6,
+
 		/// <summary>
 		/// Displays the window as a minimized window. This value is similar to
 		/// <see cref="Win32.ShowWindowCommand.ShowMinimized"/>, except the
 		/// window is not activated.
 		/// </summary>
 		ShowMinNoActive = 7,
+
 		/// <summary>
 		/// Displays the window in its current size and position. This value is
 		/// similar to <see cref="Win32.ShowWindowCommand.Show"/>, except the
 		/// window is not activated.
 		/// </summary>
 		ShowNA = 8,
+
 		/// <summary>
 		/// Activates and displays the window. If the window is minimized or
 		/// maximized, the system restores it to its original size and position.
 		/// An application should specify this flag when restoring a minimized window.
 		/// </summary>
 		Restore = 9,
+
 		/// <summary>
 		/// Sets the show state based on the SW_* value specified in the
 		/// STARTUPINFO structure passed to the CreateProcess function by the
 		/// program that started the application.
 		/// </summary>
 		ShowDefault = 10,
+
 		/// <summary>
 		///  <b>Windows 2000/XP:</b> Minimizes a window, even if the thread
 		/// that owns the window is not responding. This flag should only be
@@ -196,39 +214,41 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		ForceMinimize = 11
 	}
 
-	public enum SYSCOLOR : int {
-        SCROLLBAR = 0,
-        BACKGROUND = 1,
-        DESKTOP = 1,
-        ACTIVECAPTION = 2,
-        INACTIVECAPTION = 3,
-        MENU = 4,
-        WINDOW = 5,
-        WINDOWFRAME = 6,
-        MENUTEXT = 7,
-        WINDOWTEXT = 8,
-        CAPTIONTEXT = 9,
-        ACTIVEBORDER = 10,
-        INACTIVEBORDER = 11,
-        APPWORKSPACE = 12,
-        HIGHLIGHT = 13,
-        HIGHLIGHTTEXT = 14,
-        BTNFACE = 15,
-        THREEDFACE = 15,
-        BTNSHADOW = 16,
-        THREEDSHADOW = 16,
-        GRAYTEXT = 17,
-        BTNTEXT = 18,
-        INACTIVECAPTIONTEXT = 19,
-        BTNHIGHLIGHT = 20,
-        TREEDHIGHLIGHT = 20,
-        THREEDHILIGHT = 20,
-        BTNHILIGHT = 20,
-        THREEDDKSHADOW = 21,
-        THREEDLIGHT = 22,
-        INFOTEXT = 23,
-        INFOBK = 24
-    }
+	public enum SYSCOLOR : int
+	{
+		SCROLLBAR = 0,
+		BACKGROUND = 1,
+		DESKTOP = 1,
+		ACTIVECAPTION = 2,
+		INACTIVECAPTION = 3,
+		MENU = 4,
+		WINDOW = 5,
+		WINDOWFRAME = 6,
+		MENUTEXT = 7,
+		WINDOWTEXT = 8,
+		CAPTIONTEXT = 9,
+		ACTIVEBORDER = 10,
+		INACTIVEBORDER = 11,
+		APPWORKSPACE = 12,
+		HIGHLIGHT = 13,
+		HIGHLIGHTTEXT = 14,
+		BTNFACE = 15,
+		THREEDFACE = 15,
+		BTNSHADOW = 16,
+		THREEDSHADOW = 16,
+		GRAYTEXT = 17,
+		BTNTEXT = 18,
+		INACTIVECAPTIONTEXT = 19,
+		BTNHIGHLIGHT = 20,
+		TREEDHIGHLIGHT = 20,
+		THREEDHILIGHT = 20,
+		BTNHILIGHT = 20,
+		THREEDDKSHADOW = 21,
+		THREEDLIGHT = 22,
+		INFOTEXT = 23,
+		INFOBK = 24
+	}
+
 	/// <summary>
 	/// Flags used with the Windows API (User32.dll):GetSystemMetrics(SystemMetric smIndex)
 	///  
@@ -236,386 +256,481 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// ai_productions@verizon.net or osirisgothra@hotmail.com
 	/// Obtained on pinvoke.net, please contribute your code to support the wiki!
 	/// </summary>
-	public enum SystemMetric : int {
+	public enum SystemMetric : int
+	{
 		/// <summary>
 		///  Width of the screen of the primary display monitor, in pixels. This is the same values obtained by calling GetDeviceCaps as follows: GetDeviceCaps( hdcPrimaryMonitor, HORZRES).
 		/// </summary>
-		SM_CXSCREEN=0,
+		SM_CXSCREEN = 0,
+
 		/// <summary>
 		/// Height of the screen of the primary display monitor, in pixels. This is the same values obtained by calling GetDeviceCaps as follows: GetDeviceCaps( hdcPrimaryMonitor, VERTRES).
 		/// </summary>
-		SM_CYSCREEN=1,
+		SM_CYSCREEN = 1,
+
 		/// <summary>
 		/// Width of a horizontal scroll bar, in pixels.
 		/// </summary>
-		SM_CYVSCROLL=2,
+		SM_CYVSCROLL = 2,
+
 		/// <summary>
 		/// Height of a horizontal scroll bar, in pixels.
 		/// </summary>
-		SM_CXVSCROLL=3,
+		SM_CXVSCROLL = 3,
+
 		/// <summary>
 		/// Height of a caption area, in pixels.
 		/// </summary>
-		SM_CYCAPTION=4,
+		SM_CYCAPTION = 4,
+
 		/// <summary>
 		/// Width of a window border, in pixels. This is equivalent to the SM_CXEDGE value for windows with the 3-D look.
 		/// </summary>
-		SM_CXBORDER=5,
+		SM_CXBORDER = 5,
+
 		/// <summary>
 		/// Height of a window border, in pixels. This is equivalent to the SM_CYEDGE value for windows with the 3-D look.
 		/// </summary>
-		SM_CYBORDER=6,
+		SM_CYBORDER = 6,
+
 		/// <summary>
 		/// Thickness of the frame around the perimeter of a window that has a caption but is not sizable, in pixels. SM_CXFIXEDFRAME is the height of the horizontal border and SM_CYFIXEDFRAME is the width of the vertical border.
 		/// </summary>
-		SM_CXDLGFRAME=7,
+		SM_CXDLGFRAME = 7,
+
 		/// <summary>
 		/// Thickness of the frame around the perimeter of a window that has a caption but is not sizable, in pixels. SM_CXFIXEDFRAME is the height of the horizontal border and SM_CYFIXEDFRAME is the width of the vertical border.
 		/// </summary>
-		SM_CYDLGFRAME=8,
+		SM_CYDLGFRAME = 8,
+
 		/// <summary>
 		/// Height of the thumb box in a vertical scroll bar, in pixels
 		/// </summary>
-		SM_CYVTHUMB=9,
+		SM_CYVTHUMB = 9,
+
 		/// <summary>
 		/// Width of the thumb box in a horizontal scroll bar, in pixels.
 		/// </summary>
-		SM_CXHTHUMB=10,
+		SM_CXHTHUMB = 10,
+
 		/// <summary>
 		/// Default width of an icon, in pixels. The LoadIcon function can load only icons with the dimensions specified by SM_CXICON and SM_CYICON
 		/// </summary>
-		SM_CXICON=11,
+		SM_CXICON = 11,
+
 		/// <summary>
 		/// Default height of an icon, in pixels. The LoadIcon function can load only icons with the dimensions SM_CXICON and SM_CYICON.
 		/// </summary>
-		SM_CYICON=12,
+		SM_CYICON = 12,
+
 		/// <summary>
 		/// Width of a cursor, in pixels. The system cannot create cursors of other sizes.
 		/// </summary>
-		SM_CXCURSOR=13,
+		SM_CXCURSOR = 13,
+
 		/// <summary>
 		/// Height of a cursor, in pixels. The system cannot create cursors of other sizes.
 		/// </summary>
-		SM_CYCURSOR=14,
+		SM_CYCURSOR = 14,
+
 		/// <summary>
 		/// Height of a single-line menu bar, in pixels.
 		/// </summary>
-		SM_CYMENU=15,
+		SM_CYMENU = 15,
+
 		/// <summary>
 		/// Width of the client area for a full-screen window on the primary display monitor, in pixels. To get the coordinates of the portion of the screen not obscured by the system taskbar or by application desktop toolbars, call the SystemParametersInfo function with the SPI_GETWORKAREA value.
 		/// </summary>
-		SM_CXFULLSCREEN=16,
+		SM_CXFULLSCREEN = 16,
+
 		/// <summary>
 		/// Height of the client area for a full-screen window on the primary display monitor, in pixels. To get the coordinates of the portion of the screen not obscured by the system taskbar or by application desktop toolbars, call the SystemParametersInfo function with the SPI_GETWORKAREA value.
 		/// </summary>
-		SM_CYFULLSCREEN=17,
+		SM_CYFULLSCREEN = 17,
+
 		/// <summary>
 		/// For double byte character set versions of the system, this is the height of the Kanji window at the bottom of the screen, in pixels
 		/// </summary>
-		SM_CYKANJIWINDOW=18,
+		SM_CYKANJIWINDOW = 18,
+
 		/// <summary>
 		/// Nonzero if a mouse with a wheel is installed; zero otherwise
 		/// </summary>
-		SM_MOUSEWHEELPRESENT=75,
+		SM_MOUSEWHEELPRESENT = 75,
+
 		/// <summary>
 		/// Height of the arrow bitmap on a vertical scroll bar, in pixels.
 		/// </summary>
-		SM_CYHSCROLL=20,
+		SM_CYHSCROLL = 20,
+
 		/// <summary>
 		/// Width of the arrow bitmap on a horizontal scroll bar, in pixels.
 		/// </summary>
-		SM_CXHSCROLL=21,
+		SM_CXHSCROLL = 21,
+
 		/// <summary>
 		/// Nonzero if the debug version of User.exe is installed; zero otherwise.
 		/// </summary>
-		SM_DEBUG=22,
+		SM_DEBUG = 22,
+
 		/// <summary>
 		/// Nonzero if the left and right mouse buttons are reversed; zero otherwise.
 		/// </summary>
-		SM_SWAPBUTTON=23,
+		SM_SWAPBUTTON = 23,
+
 		/// <summary>
 		/// Reserved for future use
 		/// </summary>
-		SM_RESERVED1=24,
+		SM_RESERVED1 = 24,
+
 		/// <summary>
 		/// Reserved for future use
 		/// </summary>
-		SM_RESERVED2=25,
+		SM_RESERVED2 = 25,
+
 		/// <summary>
 		/// Reserved for future use
 		/// </summary>
-		SM_RESERVED3=26,
+		SM_RESERVED3 = 26,
+
 		/// <summary>
 		/// Reserved for future use
 		/// </summary>
-		SM_RESERVED4=27,
+		SM_RESERVED4 = 27,
+
 		/// <summary>
 		/// Minimum width of a window, in pixels.
 		/// </summary>
-		SM_CXMIN=28,
+		SM_CXMIN = 28,
+
 		/// <summary>
 		/// Minimum height of a window, in pixels.
 		/// </summary>
-		SM_CYMIN=29,
+		SM_CYMIN = 29,
+
 		/// <summary>
 		/// Width of a button in a window's caption or title bar, in pixels.
 		/// </summary>
-		SM_CXSIZE=30,
+		SM_CXSIZE = 30,
+
 		/// <summary>
 		/// Height of a button in a window's caption or title bar, in pixels.
 		/// </summary>
-		SM_CYSIZE=31,
+		SM_CYSIZE = 31,
+
 		/// <summary>
 		/// Thickness of the sizing border around the perimeter of a window that can be resized, in pixels. SM_CXSIZEFRAME is the width of the horizontal border, and SM_CYSIZEFRAME is the height of the vertical border.
 		/// </summary>
-		SM_CXFRAME=32,
+		SM_CXFRAME = 32,
+
 		/// <summary>
 		/// Thickness of the sizing border around the perimeter of a window that can be resized, in pixels. SM_CXSIZEFRAME is the width of the horizontal border, and SM_CYSIZEFRAME is the height of the vertical border.
 		/// </summary>
-		SM_CYFRAME=33,
+		SM_CYFRAME = 33,
+
 		/// <summary>
 		/// Minimum tracking width of a window, in pixels. The user cannot drag the window frame to a size smaller than these dimensions. A window can override this value by processing the WM_GETMINMAXINFO message.
 		/// </summary>
-		SM_CXMINTRACK=34,
+		SM_CXMINTRACK = 34,
+
 		/// <summary>
 		/// Minimum tracking height of a window, in pixels. The user cannot drag the window frame to a size smaller than these dimensions. A window can override this value by processing the WM_GETMINMAXINFO message
 		/// </summary>
-		SM_CYMINTRACK=35,
+		SM_CYMINTRACK = 35,
+
 		/// <summary>
 		/// Width of the rectangle around the location of a first click in a double-click sequence, in pixels. The second click must occur within the rectangle defined by SM_CXDOUBLECLK and SM_CYDOUBLECLK for the system to consider the two clicks a double-click
 		/// </summary>
-		SM_CXDOUBLECLK=36,
+		SM_CXDOUBLECLK = 36,
+
 		/// <summary>
 		/// Height of the rectangle around the location of a first click in a double-click sequence, in pixels. The second click must occur within the rectangle defined by SM_CXDOUBLECLK and SM_CYDOUBLECLK for the system to consider the two clicks a double-click. (The two clicks must also occur within a specified time.)
 		/// </summary>
-		SM_CYDOUBLECLK=37,
+		SM_CYDOUBLECLK = 37,
+
 		/// <summary>
 		/// Width of a grid cell for items in large icon view, in pixels. Each item fits into a rectangle of size SM_CXICONSPACING by SM_CYICONSPACING when arranged. This value is always greater than or equal to SM_CXICON
 		/// </summary>
-		SM_CXICONSPACING=38,
+		SM_CXICONSPACING = 38,
+
 		/// <summary>
 		/// Height of a grid cell for items in large icon view, in pixels. Each item fits into a rectangle of size SM_CXICONSPACING by SM_CYICONSPACING when arranged. This value is always greater than or equal to SM_CYICON.
 		/// </summary>
-		SM_CYICONSPACING=39,
+		SM_CYICONSPACING = 39,
+
 		/// <summary>
 		/// Nonzero if drop-down menus are right-aligned with the corresponding menu-bar item; zero if the menus are left-aligned.
 		/// </summary>
-		SM_MENUDROPALIGNMENT=40,
+		SM_MENUDROPALIGNMENT = 40,
+
 		/// <summary>
 		/// Nonzero if the Microsoft Windows for Pen computing extensions are installed; zero otherwise.
 		/// </summary>
-		SM_PENWINDOWS=41,
+		SM_PENWINDOWS = 41,
+
 		/// <summary>
 		/// Nonzero if User32.dll supports DBCS; zero otherwise. (WinMe/95/98): Unicode
 		/// </summary>
-		SM_DBCSENABLED=42,
+		SM_DBCSENABLED = 42,
+
 		/// <summary>
 		/// Number of buttons on mouse, or zero if no mouse is installed.
 		/// </summary>
-		SM_CMOUSEBUTTONS=43,
+		SM_CMOUSEBUTTONS = 43,
+
 		/// <summary>
 		/// Identical Values Changed After Windows NT 4.0  
 		/// </summary>
-		SM_CXFIXEDFRAME=SM_CXDLGFRAME,
+		SM_CXFIXEDFRAME = SM_CXDLGFRAME,
+
 		/// <summary>
 		/// Identical Values Changed After Windows NT 4.0
 		/// </summary>
-		SM_CYFIXEDFRAME=SM_CYDLGFRAME,
+		SM_CYFIXEDFRAME = SM_CYDLGFRAME,
+
 		/// <summary>
 		/// Identical Values Changed After Windows NT 4.0
 		/// </summary>
-		SM_CXSIZEFRAME=SM_CXFRAME,
+		SM_CXSIZEFRAME = SM_CXFRAME,
+
 		/// <summary>
 		/// Identical Values Changed After Windows NT 4.0
 		/// </summary>
-		SM_CYSIZEFRAME=SM_CYFRAME,
+		SM_CYSIZEFRAME = SM_CYFRAME,
+
 		/// <summary>
 		/// Nonzero if security is present; zero otherwise.
 		/// </summary>
-		SM_SECURE=44,
+		SM_SECURE = 44,
+
 		/// <summary>
 		/// Width of a 3-D border, in pixels. This is the 3-D counterpart of SM_CXBORDER
 		/// </summary>
-		SM_CXEDGE=45,
+		SM_CXEDGE = 45,
+
 		/// <summary>
 		/// Height of a 3-D border, in pixels. This is the 3-D counterpart of SM_CYBORDER
 		/// </summary>
-		SM_CYEDGE=46,
+		SM_CYEDGE = 46,
+
 		/// <summary>
 		/// Width of a grid cell for a minimized window, in pixels. Each minimized window fits into a rectangle this size when arranged. This value is always greater than or equal to SM_CXMINIMIZED.
 		/// </summary>
-		SM_CXMINSPACING=47,
+		SM_CXMINSPACING = 47,
+
 		/// <summary>
 		/// Height of a grid cell for a minimized window, in pixels. Each minimized window fits into a rectangle this size when arranged. This value is always greater than or equal to SM_CYMINIMIZED.
 		/// </summary>
-		SM_CYMINSPACING=48,
+		SM_CYMINSPACING = 48,
+
 		/// <summary>
 		/// Recommended width of a small icon, in pixels. Small icons typically appear in window captions and in small icon view
 		/// </summary>
-		SM_CXSMICON=49,
+		SM_CXSMICON = 49,
+
 		/// <summary>
 		/// Recommended height of a small icon, in pixels. Small icons typically appear in window captions and in small icon view.
 		/// </summary>
-		SM_CYSMICON=50,
+		SM_CYSMICON = 50,
+
 		/// <summary>
 		/// Height of a small caption, in pixels
 		/// </summary>
-		SM_CYSMCAPTION=51,
+		SM_CYSMCAPTION = 51,
+
 		/// <summary>
 		/// Width of small caption buttons, in pixels.
 		/// </summary>
-		SM_CXSMSIZE=52,
+		SM_CXSMSIZE = 52,
+
 		/// <summary>
 		/// Height of small caption buttons, in pixels.
 		/// </summary>
-		SM_CYSMSIZE=53,
+		SM_CYSMSIZE = 53,
+
 		/// <summary>
 		/// Width of menu bar buttons, such as the child window close button used in the multiple document interface, in pixels.
 		/// </summary>
-		SM_CXMENUSIZE=54,
+		SM_CXMENUSIZE = 54,
+
 		/// <summary>
 		/// Height of menu bar buttons, such as the child window close button used in the multiple document interface, in pixels.
 		/// </summary>
-		SM_CYMENUSIZE=55,
+		SM_CYMENUSIZE = 55,
+
 		/// <summary>
 		/// Flags specifying how the system arranged minimized windows
 		/// </summary>
-		SM_ARRANGE=56,
+		SM_ARRANGE = 56,
+
 		/// <summary>
 		/// Width of a minimized window, in pixels.
 		/// </summary>
-		SM_CXMINIMIZED=57,
+		SM_CXMINIMIZED = 57,
+
 		/// <summary>
 		/// Height of a minimized window, in pixels.
 		/// </summary>
-		SM_CYMINIMIZED=58,
+		SM_CYMINIMIZED = 58,
+
 		/// <summary>
 		/// Default maximum width of a window that has a caption and sizing borders, in pixels. This metric refers to the entire desktop. The user cannot drag the window frame to a size larger than these dimensions. A window can override this value by processing the WM_GETMINMAXINFO message.
 		/// </summary>
-		SM_CXMAXTRACK=59,
+		SM_CXMAXTRACK = 59,
+
 		/// <summary>
 		/// Default maximum height of a window that has a caption and sizing borders, in pixels. This metric refers to the entire desktop. The user cannot drag the window frame to a size larger than these dimensions. A window can override this value by processing the WM_GETMINMAXINFO message.
 		/// </summary>
-		SM_CYMAXTRACK=60,
+		SM_CYMAXTRACK = 60,
+
 		/// <summary>
 		/// Default width, in pixels, of a maximized top-level window on the primary display monitor.
 		/// </summary>
-		SM_CXMAXIMIZED=61,
+		SM_CXMAXIMIZED = 61,
+
 		/// <summary>
 		/// Default height, in pixels, of a maximized top-level window on the primary display monitor.
 		/// </summary>
-		SM_CYMAXIMIZED=62,
+		SM_CYMAXIMIZED = 62,
+
 		/// <summary>
 		/// Least significant bit is set if a network is present; otherwise, it is cleared. The other bits are reserved for future use
 		/// </summary>
-		SM_NETWORK=63,
+		SM_NETWORK = 63,
+
 		/// <summary>
 		/// Value that specifies how the system was started: 0-normal, 1-failsafe, 2-failsafe /w net
 		/// </summary>
-		SM_CLEANBOOT=67,
+		SM_CLEANBOOT = 67,
+
 		/// <summary>
 		/// Width of a rectangle centered on a drag point to allow for limited movement of the mouse pointer before a drag operation begins, in pixels.
 		/// </summary>
-		SM_CXDRAG=68,
+		SM_CXDRAG = 68,
+
 		/// <summary>
 		/// Height of a rectangle centered on a drag point to allow for limited movement of the mouse pointer before a drag operation begins. This value is in pixels. It allows the user to click and release the mouse button easily without unintentionally starting a drag operation.
 		/// </summary>
-		SM_CYDRAG=69,
+		SM_CYDRAG = 69,
+
 		/// <summary>
 		/// Nonzero if the user requires an application to present information visually in situations where it would otherwise present the information only in audible form; zero otherwise.
 		/// </summary>
-		SM_SHOWSOUNDS=70,
+		SM_SHOWSOUNDS = 70,
+
 		/// <summary>
 		/// Width of the default menu check-mark bitmap, in pixels.
 		/// </summary>
-		SM_CXMENUCHECK=71,
+		SM_CXMENUCHECK = 71,
+
 		/// <summary>
 		/// Height of the default menu check-mark bitmap, in pixels.
 		/// </summary>
-		SM_CYMENUCHECK=72,
+		SM_CYMENUCHECK = 72,
+
 		/// <summary>
 		/// Nonzero if the computer has a low-end (slow) processor; zero otherwise
 		/// </summary>
-		SM_SLOWMACHINE=73,
+		SM_SLOWMACHINE = 73,
+
 		/// <summary>
 		/// Nonzero if the system is enabled for Hebrew and Arabic languages, zero if not.
 		/// </summary>
-		SM_MIDEASTENABLED=74,
+		SM_MIDEASTENABLED = 74,
+
 		/// <summary>
 		/// Nonzero if a mouse is installed; zero otherwise. This value is rarely zero, because of support for virtual mice and because some systems detect the presence of the port instead of the presence of a mouse.
 		/// </summary>
-		SM_MOUSEPRESENT=19,
+		SM_MOUSEPRESENT = 19,
+
 		/// <summary>
 		/// Windows 2000 (v5.0+) Coordinate of the top of the virtual screen
 		/// </summary>
-		SM_XVIRTUALSCREEN=76,
+		SM_XVIRTUALSCREEN = 76,
+
 		/// <summary>
 		/// Windows 2000 (v5.0+) Coordinate of the left of the virtual screen
 		/// </summary>
-		SM_YVIRTUALSCREEN=77,
+		SM_YVIRTUALSCREEN = 77,
+
 		/// <summary>
 		/// Windows 2000 (v5.0+) Width of the virtual screen
 		/// </summary>
-		SM_CXVIRTUALSCREEN=78,
+		SM_CXVIRTUALSCREEN = 78,
+
 		/// <summary>
 		/// Windows 2000 (v5.0+) Height of the virtual screen
 		/// </summary>
-		SM_CYVIRTUALSCREEN=79,
+		SM_CYVIRTUALSCREEN = 79,
+
 		/// <summary>
 		/// Number of display monitors on the desktop
 		/// </summary>
-		SM_CMONITORS=80,
+		SM_CMONITORS = 80,
+
 		/// <summary>
 		/// Windows XP (v5.1+) Nonzero if all the display monitors have the same color format, zero otherwise. Note that two displays can have the same bit depth, but different color formats. For example, the red, green, and blue pixels can be encoded with different numbers of bits, or those bits can be located in different places in a pixel's color value.
 		/// </summary>
-		SM_SAMEDISPLAYFORMAT=81,
+		SM_SAMEDISPLAYFORMAT = 81,
+
 		/// <summary>
 		/// Windows XP (v5.1+) Nonzero if Input Method Manager/Input Method Editor features are enabled; zero otherwise
 		/// </summary>
-		SM_IMMENABLED=82,
+		SM_IMMENABLED = 82,
+
 		/// <summary>
 		/// Windows XP (v5.1+) Width of the left and right edges of the focus rectangle drawn by DrawFocusRect. This value is in pixels.
 		/// </summary>
-		SM_CXFOCUSBORDER=83,
+		SM_CXFOCUSBORDER = 83,
+
 		/// <summary>
 		/// Windows XP (v5.1+) Height of the top and bottom edges of the focus rectangle drawn by DrawFocusRect. This value is in pixels.
 		/// </summary>
-		SM_CYFOCUSBORDER=84,
+		SM_CYFOCUSBORDER = 84,
+
 		/// <summary>
 		/// Nonzero if the current operating system is the Windows XP Tablet PC edition, zero if not.
 		/// </summary>
-		SM_TABLETPC=86,
+		SM_TABLETPC = 86,
+
 		/// <summary>
 		/// Nonzero if the current operating system is the Windows XP, Media Center Edition, zero if not.
 		/// </summary>
-		SM_MEDIACENTER=87,
+		SM_MEDIACENTER = 87,
+
 		/// <summary>
 		/// Metrics Other
 		/// </summary>
-		SM_CMETRICS_OTHER=76,
+		SM_CMETRICS_OTHER = 76,
+
 		/// <summary>
 		/// Metrics Windows 2000
 		/// </summary>
-		SM_CMETRICS_2000=83,
+		SM_CMETRICS_2000 = 83,
+
 		/// <summary>
 		/// Metrics Windows NT
 		/// </summary>
-		SM_CMETRICS_NT=88,
+		SM_CMETRICS_NT = 88,
+
 		/// <summary>
 		/// Windows XP (v5.1+) This system metric is used in a Terminal Services environment. If the calling process is associated with a Terminal Services client session, the return value is nonzero. If the calling process is associated with the Terminal Server console session, the return value is zero. The console session is not necessarily the physical console - see WTSGetActiveConsoleSessionId for more information.
 		/// </summary>
-		SM_REMOTESESSION=0x1000,
+		SM_REMOTESESSION = 0x1000,
+
 		/// <summary>
 		/// Windows XP (v5.1+) Nonzero if the current session is shutting down; zero otherwise
 		/// </summary>
-		SM_SHUTTINGDOWN=0x2000,
+		SM_SHUTTINGDOWN = 0x2000,
+
 		/// <summary>
 		/// Windows XP (v5.1+) This system metric is used in a Terminal Services environment. Its value is nonzero if the current session is remotely controlled; zero otherwise
 		/// </summary>
-		SM_REMOTECONTROL=0x2001
+		SM_REMOTECONTROL = 0x2001
 	}
-	
-	public enum RegionResult {
+
+	public enum RegionResult
+	{
 		REGION_ERROR = 0,
 		REGION_NULLREGION = 1,
 		REGION_SIMPLEREGION = 2,
@@ -623,7 +738,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	}
 
 	// See http://msdn.microsoft.com/en-us/library/aa969530(v=vs.85).aspx
-	public enum DWMWINDOWATTRIBUTE {
+	public enum DWMWINDOWATTRIBUTE
+	{
 		DWMWA_NCRENDERING_ENABLED = 1,
 		DWMWA_NCRENDERING_POLICY,
 		DWMWA_TRANSITIONS_FORCEDISABLED,
@@ -633,16 +749,17 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		DWMWA_FORCE_ICONIC_REPRESENTATION,
 		DWMWA_FLIP3D_POLICY,
 		DWMWA_EXTENDED_FRAME_BOUNDS, // This is the one we need for retrieving the Window size since Windows Vista
-        DWMWA_HAS_ICONIC_BITMAP,        // Since Windows 7
-        DWMWA_DISALLOW_PEEK,            // Since Windows 7
-        DWMWA_EXCLUDED_FROM_PEEK,       // Since Windows 7
-        DWMWA_CLOAK,                    // Since Windows 8
-        DWMWA_CLOAKED,                  // Since Windows 8
-        DWMWA_FREEZE_REPRESENTATION,    // Since Windows 8
+		DWMWA_HAS_ICONIC_BITMAP, // Since Windows 7
+		DWMWA_DISALLOW_PEEK, // Since Windows 7
+		DWMWA_EXCLUDED_FROM_PEEK, // Since Windows 7
+		DWMWA_CLOAK, // Since Windows 8
+		DWMWA_CLOAKED, // Since Windows 8
+		DWMWA_FREEZE_REPRESENTATION, // Since Windows 8
 		DWMWA_LAST
 	}
-	
-	public enum GetWindowCommand : uint {
+
+	public enum GetWindowCommand : uint
+	{
 		GW_HWNDFIRST = 0,
 		GW_HWNDLAST = 1,
 		GW_HWNDNEXT = 2,
@@ -651,15 +768,17 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		GW_CHILD = 5,
 		GW_ENABLEDPOPUP = 6
 	}
-	
+
 	[Flags]
-	public enum DWM_BB {
+	public enum DWM_BB
+	{
 		Enable = 1,
 		BlurRegion = 2,
 		TransitionMaximized = 4
 	}
 
-	public enum ClassLongIndex : int {
+	public enum ClassLongIndex : int
+	{
 		GCL_CBCLSEXTRA = -20, // the size, in bytes, of the extra memory associated with the class. Setting this value does not change the number of extra bytes already allocated.
 		GCL_CBWNDEXTRA = -18, // the size, in bytes, of the extra window memory associated with each window in the class. Setting this value does not change the number of extra bytes already allocated. For information on how to access this memory, see SetWindowLong.
 		GCL_HBRBACKGROUND = -10, // a handle to the background brush associated with the class.
@@ -672,7 +791,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		GCL_WNDPROC = -24, // the address of the window procedure, or a handle representing the address of the window procedure. You must use the CallWindowProc function to call the window procedure. 
 	}
 
-	public enum WindowsMessages : int {
+	public enum WindowsMessages : int
+	{
 		WM_NULL = 0x0000,
 		WM_CREATE = 0x0001,
 		WM_DESTROY = 0x0002,
@@ -881,44 +1001,49 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		WM_APP = 0x8000,
 		WM_RASDIALEVENT = 0xCCCD
 	}
-	
+
 	// Get/Set WindowLong Enum See: http://msdn.microsoft.com/en-us/library/ms633591.aspx
-	public enum WindowLongIndex : int {
-		GWL_EXSTYLE = -20,	// Sets a new extended window style.
-		GWL_HINSTANCE = -6,	// Sets a new application instance handle.
-		GWL_ID = -12,	// Sets a new identifier of the child window. The window cannot be a top-level window.
-		GWL_STYLE = -16,	// Sets a new window style.
-		GWL_USERDATA = -21,	// Sets the user data associated with the window. This data is intended for use by the application that created the window. Its value is initially zero.
+	public enum WindowLongIndex : int
+	{
+		GWL_EXSTYLE = -20, // Sets a new extended window style.
+		GWL_HINSTANCE = -6, // Sets a new application instance handle.
+		GWL_ID = -12, // Sets a new identifier of the child window. The window cannot be a top-level window.
+		GWL_STYLE = -16, // Sets a new window style.
+		GWL_USERDATA = -21, // Sets the user data associated with the window. This data is intended for use by the application that created the window. Its value is initially zero.
 		GWL_WNDPROC = -4 // Sets a new address for the window procedure. You cannot change this attribute if the window does not belong to the same process as the calling thread.
 	}
-	
+
 	// See: http://msdn.microsoft.com/en-us/library/ms633545.aspx
 	[Flags]
-	public enum WindowPos : int {
-		SWP_ASYNCWINDOWPOS = 0x4000,	// If the calling thread and the thread that owns the window are attached to different input queues, the system posts the request to the thread that owns the window. This prevents the calling thread from blocking its execution while other threads process the request.
-		SWP_DEFERERASE =  0x2000,	// Prevents generation of the WM_SYNCPAINT message.
-		SWP_DRAWFRAME = 0x0020,	 // Draws a frame (defined in the window's class description) around the window.
+	public enum WindowPos : int
+	{
+		SWP_ASYNCWINDOWPOS = 0x4000, // If the calling thread and the thread that owns the window are attached to different input queues, the system posts the request to the thread that owns the window. This prevents the calling thread from blocking its execution while other threads process the request.
+		SWP_DEFERERASE = 0x2000, // Prevents generation of the WM_SYNCPAINT message.
+		SWP_DRAWFRAME = 0x0020, // Draws a frame (defined in the window's class description) around the window.
 		SWP_FRAMECHANGED = 0x0020, //Applies new frame styles set using the SetWindowLong function. Sends a WM_NCCALCSIZE message to the window, even if the window's size is not being changed. If this flag is not specified, WM_NCCALCSIZE is sent only when the window's size is being changed.
-		SWP_HIDEWINDOW = 0x0080,	// Hides the window.
-		SWP_NOACTIVATE = 0x0010,	// Does not activate the window. If this flag is not set, the window is activated and moved to the top of either the topmost or non-topmost group (depending on the setting of the hWndInsertAfter parameter).
-		SWP_NOCOPYBITS = 0x0100,	// Discards the entire contents of the client area. If this flag is not specified, the valid contents of the client area are saved and copied back into the client area after the window is sized or repositioned.
-		SWP_NOMOVE = 0x0002,	//Retains the current position (ignores X and Y parameters).
-		SWP_NOOWNERZORDER = 0x0200,	//Does not change the owner window's position in the Z order.
-		SWP_NOREDRAW = 0x0008,	//Does not redraw changes. If this flag is set, no repainting of any kind occurs. This applies to the client area, the nonclient area (including the title bar and scroll bars), and any part of the parent window uncovered as a result of the window being moved. When this flag is set, the application must explicitly invalidate or redraw any parts of the window and parent window that need redrawing.
-		SWP_NOREPOSITION = 0x0200,	// Same as the SWP_NOOWNERZORDER flag.
-		SWP_NOSENDCHANGING = 0x0400,	//Prevents the window from receiving the WM_WINDOWPOSCHANGING message.
-		SWP_NOSIZE = 0x0001,	// Retains the current size (ignores the cx and cy parameters).
-		SWP_NOZORDER = 0x0004,	// Retains the current Z order (ignores the hWndInsertAfter parameter).
-		SWP_SHOWWINDOW = 0x0040	//Displays the window.
+		SWP_HIDEWINDOW = 0x0080, // Hides the window.
+		SWP_NOACTIVATE = 0x0010, // Does not activate the window. If this flag is not set, the window is activated and moved to the top of either the topmost or non-topmost group (depending on the setting of the hWndInsertAfter parameter).
+		SWP_NOCOPYBITS = 0x0100, // Discards the entire contents of the client area. If this flag is not specified, the valid contents of the client area are saved and copied back into the client area after the window is sized or repositioned.
+		SWP_NOMOVE = 0x0002, //Retains the current position (ignores X and Y parameters).
+		SWP_NOOWNERZORDER = 0x0200, //Does not change the owner window's position in the Z order.
+		SWP_NOREDRAW = 0x0008, //Does not redraw changes. If this flag is set, no repainting of any kind occurs. This applies to the client area, the nonclient area (including the title bar and scroll bars), and any part of the parent window uncovered as a result of the window being moved. When this flag is set, the application must explicitly invalidate or redraw any parts of the window and parent window that need redrawing.
+		SWP_NOREPOSITION = 0x0200, // Same as the SWP_NOOWNERZORDER flag.
+		SWP_NOSENDCHANGING = 0x0400, //Prevents the window from receiving the WM_WINDOWPOSCHANGING message.
+		SWP_NOSIZE = 0x0001, // Retains the current size (ignores the cx and cy parameters).
+		SWP_NOZORDER = 0x0004, // Retains the current Z order (ignores the hWndInsertAfter parameter).
+		SWP_SHOWWINDOW = 0x0040 //Displays the window.
 	}
 
-	public enum ScrollBarDirection : int {
+	public enum ScrollBarDirection : int
+	{
 		SB_HORZ = 0,
 		SB_VERT = 1,
 		SB_CTL = 2,
 		SB_BOTH = 3
 	}
-	public enum ScrollbarCommand : int {
+
+	public enum ScrollbarCommand : int
+	{
 		SB_LINEUP = 0, // Scrolls one line up.
 		SB_LINEDOWN = 1, // Scrolls one line down.
 		SB_PAGEUP = 2, // Scrolls one page up.
@@ -930,7 +1055,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		SB_ENDSCROLL = 8 // Ends scroll.
 	}
 
-	public enum ScrollInfoMask {
+	public enum ScrollInfoMask
+	{
 		SIF_RANGE = 0x1,
 		SIF_PAGE = 0x2,
 		SIF_POS = 0x4,
@@ -938,20 +1064,22 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		SIF_TRACKPOS = 0x10,
 		SIF_ALL = SIF_RANGE + SIF_PAGE + SIF_POS + SIF_TRACKPOS
 	}
-	
+
 	/// <summary>
 	/// See: http://www.pinvoke.net/default.aspx/Enums/SendMessageTimeoutFlags.html
 	/// </summary>
 	[Flags]
-	public enum SendMessageTimeoutFlags : uint {
-		SMTO_NORMAL				= 0x0,
-		SMTO_BLOCK				= 0x1,
-		SMTO_ABORTIFHUNG		= 0x2,
-		SMTO_NOTIMEOUTIFNOTHUNG	= 0x8
+	public enum SendMessageTimeoutFlags : uint
+	{
+		SMTO_NORMAL = 0x0,
+		SMTO_BLOCK = 0x1,
+		SMTO_ABORTIFHUNG = 0x2,
+		SMTO_NOTIMEOUTIFNOTHUNG = 0x8
 	}
 
 	[Flags]
-	public enum ProcessAccessFlags : uint {
+	public enum ProcessAccessFlags : uint
+	{
 		All = 0x001F0FFF,
 		Terminate = 0x00000001,
 		CreateThread = 0x00000002,
@@ -964,196 +1092,233 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		Synchronize = 0x00100000
 	}
 
-    /// <summary>
-    /// See: http://msdn.microsoft.com/en-us/library/aa909766.aspx
-    /// </summary>
-    [Flags]
-    public enum SoundFlags : int {
-        SND_SYNC = 0x0000,			// play synchronously (default)
-        SND_ASYNC = 0x0001,			// play asynchronously
-        SND_NODEFAULT = 0x0002,		// silence (!default) if sound not found
-        SND_MEMORY = 0x0004,		// pszSound points to a memory file
-        SND_LOOP = 0x0008,			// loop the sound until next sndPlaySound
-        SND_NOSTOP = 0x0010,		// don't stop any currently playing sound
-        SND_NOWAIT = 0x00002000,	// don't wait if the driver is busy
-        SND_ALIAS = 0x00010000,		// name is a registry alias
-        SND_ALIAS_ID = 0x00110000,	// alias is a predefined id
-        SND_FILENAME = 0x00020000,	// name is file name
-    }
-    
+	/// <summary>
+	/// See: http://msdn.microsoft.com/en-us/library/aa909766.aspx
+	/// </summary>
+	[Flags]
+	public enum SoundFlags : int
+	{
+		SND_SYNC = 0x0000, // play synchronously (default)
+		SND_ASYNC = 0x0001, // play asynchronously
+		SND_NODEFAULT = 0x0002, // silence (!default) if sound not found
+		SND_MEMORY = 0x0004, // pszSound points to a memory file
+		SND_LOOP = 0x0008, // loop the sound until next sndPlaySound
+		SND_NOSTOP = 0x0010, // don't stop any currently playing sound
+		SND_NOWAIT = 0x00002000, // don't wait if the driver is busy
+		SND_ALIAS = 0x00010000, // name is a registry alias
+		SND_ALIAS_ID = 0x00110000, // alias is a predefined id
+		SND_FILENAME = 0x00020000, // name is file name
+	}
+
 	/// <summary>
 	/// Used by GDI32.GetDeviceCaps
 	/// See: http://msdn.microsoft.com/en-us/library/windows/desktop/dd144877%28v=vs.85%29.aspx
 	/// </summary>
-	public enum DeviceCaps {
-        /// <summary>
-        /// Device driver version
-        /// </summary>
-        DRIVERVERSION = 0,
-        /// <summary>
-        /// Device classification
-        /// </summary>
-        TECHNOLOGY = 2,
-        /// <summary>
-        /// Horizontal size in millimeters
-        /// </summary>
-        HORZSIZE = 4,
-        /// <summary>
-        /// Vertical size in millimeters
-        /// </summary>
-        VERTSIZE = 6,
-        /// <summary>
-        /// Horizontal width in pixels
-        /// </summary>
-        HORZRES = 8,
-        /// <summary>
-        /// Vertical height in pixels
-        /// </summary>
-        VERTRES = 10,
-        /// <summary>
-        /// Number of bits per pixel
-        /// </summary>
-        BITSPIXEL = 12,
-        /// <summary>
-        /// Number of planes
-        /// </summary>
-        PLANES = 14,
-        /// <summary>
-        /// Number of brushes the device has
-        /// </summary>
-        NUMBRUSHES = 16,
-        /// <summary>
-        /// Number of pens the device has
-        /// </summary>
-        NUMPENS = 18,
-        /// <summary>
-        /// Number of markers the device has
-        /// </summary>
-        NUMMARKERS = 20,
-        /// <summary>
-        /// Number of fonts the device has
-        /// </summary>
-        NUMFONTS = 22,
-        /// <summary>
-        /// Number of colors the device supports
-        /// </summary>
-        NUMCOLORS = 24,
-        /// <summary>
-        /// Size required for device descriptor
-        /// </summary>
-        PDEVICESIZE = 26,
-        /// <summary>
-        /// Curve capabilities
-        /// </summary>
-        CURVECAPS = 28,
-        /// <summary>
-        /// Line capabilities
-        /// </summary>
-        LINECAPS = 30,
-        /// <summary>
-        /// Polygonal capabilities
-        /// </summary>
-        POLYGONALCAPS = 32,
-        /// <summary>
-        /// Text capabilities
-        /// </summary>
-        TEXTCAPS = 34,
-        /// <summary>
-        /// Clipping capabilities
-        /// </summary>
-        CLIPCAPS = 36,
-        /// <summary>
-        /// Bitblt capabilities
-        /// </summary>
-        RASTERCAPS = 38,
-        /// <summary>
-        /// Length of the X leg
-        /// </summary>
-        ASPECTX = 40,
-        /// <summary>
-        /// Length of the Y leg
-        /// </summary>
-        ASPECTY = 42,
-        /// <summary>
-        /// Length of the hypotenuse
-        /// </summary>
-        ASPECTXY = 44,
-        /// <summary>
-        /// Shading and Blending caps
-        /// </summary>
-        SHADEBLENDCAPS = 45,
+	public enum DeviceCaps
+	{
+		/// <summary>
+		/// Device driver version
+		/// </summary>
+		DRIVERVERSION = 0,
 
-        /// <summary>
-        /// Logical pixels inch in X
-        /// </summary>
-        LOGPIXELSX = 88,
-        /// <summary>
-        /// Logical pixels inch in Y
-        /// </summary>
-        LOGPIXELSY = 90,
+		/// <summary>
+		/// Device classification
+		/// </summary>
+		TECHNOLOGY = 2,
 
-        /// <summary>
-        /// Number of entries in physical palette
-        /// </summary>
-        SIZEPALETTE = 104,
-        /// <summary>
-        /// Number of reserved entries in palette
-        /// </summary>
-        NUMRESERVED = 106,
-        /// <summary>
-        /// Actual color resolution
-        /// </summary>
-        COLORRES = 108,
+		/// <summary>
+		/// Horizontal size in millimeters
+		/// </summary>
+		HORZSIZE = 4,
 
-        // Printing related DeviceCaps. These replace the appropriate Escapes
-        /// <summary>
-        /// Physical Width in device units
-        /// </summary>
-        PHYSICALWIDTH = 110,
-        /// <summary>
-        /// Physical Height in device units
-        /// </summary>
-        PHYSICALHEIGHT = 111,
-        /// <summary>
-        /// Physical Printable Area x margin
-        /// </summary>
-        PHYSICALOFFSETX = 112,
-        /// <summary>
-        /// Physical Printable Area y margin
-        /// </summary>
-        PHYSICALOFFSETY = 113,
-        /// <summary>
-        /// Scaling factor x
-        /// </summary>
-        SCALINGFACTORX = 114,
-        /// <summary>
-        /// Scaling factor y
-        /// </summary>
-        SCALINGFACTORY = 115,
+		/// <summary>
+		/// Vertical size in millimeters
+		/// </summary>
+		VERTSIZE = 6,
 
-        /// <summary>
-        /// Current vertical refresh rate of the display device (for displays only) in Hz
-        /// </summary>
-        VREFRESH = 116,
-        /// <summary>
-        /// Horizontal width of entire desktop in pixels
-        /// </summary>
-        DESKTOPVERTRES = 117,
-        /// <summary>
-        /// Vertical height of entire desktop in pixels
-        /// </summary>
-        DESKTOPHORZRES = 118,
-        /// <summary>
-        /// Preferred blt alignment
-        /// </summary>
-        BLTALIGNMENT = 119
-    }
+		/// <summary>
+		/// Horizontal width in pixels
+		/// </summary>
+		HORZRES = 8,
+
+		/// <summary>
+		/// Vertical height in pixels
+		/// </summary>
+		VERTRES = 10,
+
+		/// <summary>
+		/// Number of bits per pixel
+		/// </summary>
+		BITSPIXEL = 12,
+
+		/// <summary>
+		/// Number of planes
+		/// </summary>
+		PLANES = 14,
+
+		/// <summary>
+		/// Number of brushes the device has
+		/// </summary>
+		NUMBRUSHES = 16,
+
+		/// <summary>
+		/// Number of pens the device has
+		/// </summary>
+		NUMPENS = 18,
+
+		/// <summary>
+		/// Number of markers the device has
+		/// </summary>
+		NUMMARKERS = 20,
+
+		/// <summary>
+		/// Number of fonts the device has
+		/// </summary>
+		NUMFONTS = 22,
+
+		/// <summary>
+		/// Number of colors the device supports
+		/// </summary>
+		NUMCOLORS = 24,
+
+		/// <summary>
+		/// Size required for device descriptor
+		/// </summary>
+		PDEVICESIZE = 26,
+
+		/// <summary>
+		/// Curve capabilities
+		/// </summary>
+		CURVECAPS = 28,
+
+		/// <summary>
+		/// Line capabilities
+		/// </summary>
+		LINECAPS = 30,
+
+		/// <summary>
+		/// Polygonal capabilities
+		/// </summary>
+		POLYGONALCAPS = 32,
+
+		/// <summary>
+		/// Text capabilities
+		/// </summary>
+		TEXTCAPS = 34,
+
+		/// <summary>
+		/// Clipping capabilities
+		/// </summary>
+		CLIPCAPS = 36,
+
+		/// <summary>
+		/// Bitblt capabilities
+		/// </summary>
+		RASTERCAPS = 38,
+
+		/// <summary>
+		/// Length of the X leg
+		/// </summary>
+		ASPECTX = 40,
+
+		/// <summary>
+		/// Length of the Y leg
+		/// </summary>
+		ASPECTY = 42,
+
+		/// <summary>
+		/// Length of the hypotenuse
+		/// </summary>
+		ASPECTXY = 44,
+
+		/// <summary>
+		/// Shading and Blending caps
+		/// </summary>
+		SHADEBLENDCAPS = 45,
+
+		/// <summary>
+		/// Logical pixels inch in X
+		/// </summary>
+		LOGPIXELSX = 88,
+
+		/// <summary>
+		/// Logical pixels inch in Y
+		/// </summary>
+		LOGPIXELSY = 90,
+
+		/// <summary>
+		/// Number of entries in physical palette
+		/// </summary>
+		SIZEPALETTE = 104,
+
+		/// <summary>
+		/// Number of reserved entries in palette
+		/// </summary>
+		NUMRESERVED = 106,
+
+		/// <summary>
+		/// Actual color resolution
+		/// </summary>
+		COLORRES = 108,
+
+		// Printing related DeviceCaps. These replace the appropriate Escapes
+		/// <summary>
+		/// Physical Width in device units
+		/// </summary>
+		PHYSICALWIDTH = 110,
+
+		/// <summary>
+		/// Physical Height in device units
+		/// </summary>
+		PHYSICALHEIGHT = 111,
+
+		/// <summary>
+		/// Physical Printable Area x margin
+		/// </summary>
+		PHYSICALOFFSETX = 112,
+
+		/// <summary>
+		/// Physical Printable Area y margin
+		/// </summary>
+		PHYSICALOFFSETY = 113,
+
+		/// <summary>
+		/// Scaling factor x
+		/// </summary>
+		SCALINGFACTORX = 114,
+
+		/// <summary>
+		/// Scaling factor y
+		/// </summary>
+		SCALINGFACTORY = 115,
+
+		/// <summary>
+		/// Current vertical refresh rate of the display device (for displays only) in Hz
+		/// </summary>
+		VREFRESH = 116,
+
+		/// <summary>
+		/// Horizontal width of entire desktop in pixels
+		/// </summary>
+		DESKTOPVERTRES = 117,
+
+		/// <summary>
+		/// Vertical height of entire desktop in pixels
+		/// </summary>
+		DESKTOPHORZRES = 118,
+
+		/// <summary>
+		/// Preferred blt alignment
+		/// </summary>
+		BLTALIGNMENT = 119
+	}
 
 	/// <summary>
 	/// Used for User32.SetWinEventHook
 	/// See: http://msdn.microsoft.com/en-us/library/windows/desktop/dd373640%28v=vs.85%29.aspx
 	/// </summary>
-	public enum WinEventHookFlags : int {
+	public enum WinEventHookFlags : int
+	{
 		WINEVENT_SKIPOWNTHREAD = 1,
 		WINEVENT_SKIPOWNPROCESS = 2,
 		WINEVENT_OUTOFCONTEXT = 0,
@@ -1164,7 +1329,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// Used for User32.SetWinEventHook
 	/// See MSDN: http://msdn.microsoft.com/en-us/library/windows/desktop/dd318066%28v=vs.85%29.aspx
 	/// </summary>
-	public enum WinEvent : uint {
+	public enum WinEvent : uint
+	{
 		EVENT_OBJECT_ACCELERATORCHANGE = 32786,
 		EVENT_OBJECT_CREATE = 32768,
 		EVENT_OBJECT_DESTROY = 32769,
@@ -1213,7 +1379,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// Used for User32.SetWinEventHook
 	/// See: http://msdn.microsoft.com/en-us/library/windows/desktop/dd373606%28v=vs.85%29.aspx#OBJID_WINDOW
 	/// </summary>
-	public enum EventObjects : int {
+	public enum EventObjects : int
+	{
 		OBJID_ALERT = -10,
 		OBJID_CARET = -8,
 		OBJID_CLIENT = -4,
@@ -1229,7 +1396,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	}
 
 	[Flags]
-	public enum DesktopAccessRight : uint {
+	public enum DesktopAccessRight : uint
+	{
 		DESKTOP_READOBJECTS = 0x00000001,
 		DESKTOP_CREATEWINDOW = 0x00000002,
 		DESKTOP_CREATEMENU = 0x00000004,
@@ -1240,8 +1408,6 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		DESKTOP_WRITEOBJECTS = 0x00000080,
 		DESKTOP_SWITCHDESKTOP = 0x00000100,
 
-		GENERIC_ALL = (DESKTOP_READOBJECTS | DESKTOP_CREATEWINDOW | DESKTOP_CREATEMENU |
-			DESKTOP_HOOKCONTROL | DESKTOP_JOURNALRECORD | DESKTOP_JOURNALPLAYBACK |
-			DESKTOP_ENUMERATE | DESKTOP_WRITEOBJECTS | DESKTOP_SWITCHDESKTOP)
+		GENERIC_ALL = (DESKTOP_READOBJECTS | DESKTOP_CREATEWINDOW | DESKTOP_CREATEMENU | DESKTOP_HOOKCONTROL | DESKTOP_JOURNALRECORD | DESKTOP_JOURNALPLAYBACK | DESKTOP_ENUMERATE | DESKTOP_WRITEOBJECTS | DESKTOP_SWITCHDESKTOP)
 	};
 }

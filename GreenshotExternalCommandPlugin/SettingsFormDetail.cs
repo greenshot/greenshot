@@ -30,117 +30,141 @@ namespace GreenshotExternalCommandPlugin
 	/// <summary>
 	/// Description of SettingsFormDetail.
 	/// </summary>
-	public partial class SettingsFormDetail : ExternalCommandForm {
+	public partial class SettingsFormDetail : ExternalCommandForm
+	{
 		private string commando;
 		private int commandIndex;
 
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SettingsFormDetail));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (SettingsFormDetail));
 		private static IExternalCommandConfiguration config = IniConfig.Current.Get<IExternalCommandConfiguration>();
 
-		public SettingsFormDetail(string commando) {
+		public SettingsFormDetail(string commando)
+		{
 			InitializeComponent();
 			AcceptButton = buttonOk;
 			CancelButton = buttonCancel;
 			this.commando = commando;
 
-			if(commando != null) {
+			if (commando != null)
+			{
 				textBox_name.Text = commando;
 				textBox_commandline.Text = config.Commandline[commando];
 				textBox_arguments.Text = config.Argument[commando];
 				commandIndex = config.Commands.IndexOf(commando);
-			} else {
+			}
+			else
+			{
 				textBox_arguments.Text = "\"{0}\"";
 			}
 			OKButtonState();
 		}
 
-		void ButtonOkClick(object sender, EventArgs e) {
+		private void ButtonOkClick(object sender, EventArgs e)
+		{
 			string commandName = textBox_name.Text;
 			string commandLine = textBox_commandline.Text;
 			string arguments = textBox_arguments.Text;
-			if(commando != null) {
+			if (commando != null)
+			{
 				config.Commands[commandIndex] = commandName;
 				config.Commandline.Remove(commando);
 				config.Commandline.Add(commandName, commandLine);
 				config.Argument.Remove(commando);
 				config.Argument.Add(commandName, arguments);
-			} else {
+			}
+			else
+			{
 				config.Commands.Add(commandName);
 				config.Commandline.Add(commandName, commandLine);
 				config.Argument.Add(commandName, arguments);
 			}
 		}
 
-		void Button3Click(object sender, EventArgs e) {
+		private void Button3Click(object sender, EventArgs e)
+		{
 			OpenFileDialog openFileDialog = new OpenFileDialog();
 			openFileDialog.Filter = "Executables (*.exe, *.bat, *.com)|*.exe; *.bat; *.com|All files (*)|*";
 			openFileDialog.FilterIndex = 1;
 			openFileDialog.CheckFileExists = true;
 			openFileDialog.Multiselect = false;
 			string initialPath = null;
-			try {
+			try
+			{
 				initialPath = Path.GetDirectoryName(textBox_commandline.Text);
-			} catch { }
-			if(initialPath != null && Directory.Exists(initialPath)) {
+			}
+			catch
+			{
+			}
+			if (initialPath != null && Directory.Exists(initialPath))
+			{
 				openFileDialog.InitialDirectory = initialPath;
-			} else {
+			}
+			else
+			{
 				initialPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
 				openFileDialog.InitialDirectory = initialPath;
 			}
 			LOG.DebugFormat("Starting OpenFileDialog at {0}", initialPath);
-			if(openFileDialog.ShowDialog() == DialogResult.OK) {
+			if (openFileDialog.ShowDialog() == DialogResult.OK)
+			{
 				textBox_commandline.Text = openFileDialog.FileName;
 			}
 		}
 
-		private void OKButtonState() {
+		private void OKButtonState()
+		{
 			// Assume OK
 			buttonOk.Enabled = true;
 			textBox_name.BackColor = Color.White;
 			textBox_commandline.BackColor = Color.White;
-            textBox_arguments.BackColor = Color.White;
+			textBox_arguments.BackColor = Color.White;
 			// Is there a text in the name field
-			if(string.IsNullOrEmpty(textBox_name.Text)) {
+			if (string.IsNullOrEmpty(textBox_name.Text))
+			{
 				buttonOk.Enabled = false;
 			}
 			// Check if commandname is unique
-			if(commando == null && !string.IsNullOrEmpty(textBox_name.Text) && config.Commands.Contains(textBox_name.Text)) {
+			if (commando == null && !string.IsNullOrEmpty(textBox_name.Text) && config.Commands.Contains(textBox_name.Text))
+			{
 				buttonOk.Enabled = false;
 				textBox_name.BackColor = Color.Red;
 			}
 			// Is there a text in the commandline field
-			if(string.IsNullOrEmpty(textBox_commandline.Text)) {
+			if (string.IsNullOrEmpty(textBox_commandline.Text))
+			{
 				buttonOk.Enabled = false;
 			}
 			// Is the command available?
-			if(!string.IsNullOrEmpty(textBox_commandline.Text) && !File.Exists(textBox_commandline.Text)) {
+			if (!string.IsNullOrEmpty(textBox_commandline.Text) && !File.Exists(textBox_commandline.Text))
+			{
 				buttonOk.Enabled = false;
 				textBox_commandline.BackColor = Color.Red;
 			}
-            // Are the arguments in a valid format? 
-            try
-            {
-                ExternalCommandDestination.FormatArguments(textBox_arguments.Text, string.Empty);
-            }
-            catch
-            {
-                buttonOk.Enabled = false;
-                textBox_arguments.BackColor = Color.Red;
-            }  
+			// Are the arguments in a valid format? 
+			try
+			{
+				ExternalCommandDestination.FormatArguments(textBox_arguments.Text, string.Empty);
+			}
+			catch
+			{
+				buttonOk.Enabled = false;
+				textBox_arguments.BackColor = Color.Red;
+			}
 		}
 
-		private void textBox_name_TextChanged(object sender, EventArgs e) {
+		private void textBox_name_TextChanged(object sender, EventArgs e)
+		{
 			OKButtonState();
 		}
 
-		private void textBox_commandline_TextChanged(object sender, EventArgs e) {
+		private void textBox_commandline_TextChanged(object sender, EventArgs e)
+		{
 			OKButtonState();
 		}
 
-        private void textBox_arguments_TextChanged(object sender, EventArgs e)
-        {
-            OKButtonState();
-        }
-
+		private void textBox_arguments_TextChanged(object sender, EventArgs e)
+		{
+			OKButtonState();
+		}
 	}
 }

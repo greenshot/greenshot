@@ -38,20 +38,20 @@ namespace GreenshotPlugin.Extensions
 			switch (alignment)
 			{
 				case ContentAlignment.TopCenter:
-					newRect.X = (targetRect.Width - currentRect.Width) / 2;
+					newRect.X = (targetRect.Width - currentRect.Width)/2;
 					break;
 				case ContentAlignment.TopRight:
 					newRect.X = (targetRect.Width - currentRect.Width);
 					break;
 				case ContentAlignment.MiddleLeft:
-					newRect.Y = (targetRect.Height - currentRect.Height) / 2;
+					newRect.Y = (targetRect.Height - currentRect.Height)/2;
 					break;
 				case ContentAlignment.MiddleCenter:
-					newRect.Y = (targetRect.Height - currentRect.Height) / 2;
-					newRect.X = (targetRect.Width - currentRect.Width) / 2;
+					newRect.Y = (targetRect.Height - currentRect.Height)/2;
+					newRect.X = (targetRect.Width - currentRect.Width)/2;
 					break;
 				case ContentAlignment.MiddleRight:
-					newRect.Y = (targetRect.Height - currentRect.Height) / 2;
+					newRect.Y = (targetRect.Height - currentRect.Height)/2;
 					newRect.X = (targetRect.Width - currentRect.Width);
 					break;
 				case ContentAlignment.BottomLeft:
@@ -59,7 +59,7 @@ namespace GreenshotPlugin.Extensions
 					break;
 				case ContentAlignment.BottomCenter:
 					newRect.Y = (targetRect.Height - currentRect.Height);
-					newRect.X = (targetRect.Width - currentRect.Width) / 2;
+					newRect.X = (targetRect.Width - currentRect.Width)/2;
 					break;
 				case ContentAlignment.BottomRight:
 					newRect.Y = (targetRect.Height - currentRect.Height);
@@ -104,6 +104,5 @@ namespace GreenshotPlugin.Extensions
 			}
 			return rect;
 		}
-
 	}
 }

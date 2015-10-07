@@ -64,6 +64,7 @@ namespace GreenshotEditorPlugin.Drawing
 
 		// Used to store the number of this label, so when deserializing it can be placed back to the StepLabels list in the right location
 		private int _number;
+
 		public int Number
 		{
 			get
@@ -85,7 +86,7 @@ namespace GreenshotEditorPlugin.Drawing
 		{
 			if (Parent != null)
 			{
-				Number = ((Surface)Parent).CountStepLabels(this);
+				Number = ((Surface) Parent).CountStepLabels(this);
 			}
 		}
 
@@ -109,12 +110,12 @@ namespace GreenshotEditorPlugin.Drawing
 		{
 			if (Parent != null)
 			{
-				((Surface)Parent).RemoveStepLabel(this);
+				((Surface) Parent).RemoveStepLabel(this);
 			}
 			base.SwitchParent(newParent);
 			if (newParent != null)
 			{
-				((Surface)Parent).AddStepLabel(this);
+				((Surface) Parent).AddStepLabel(this);
 			}
 		}
 
@@ -144,10 +145,11 @@ namespace GreenshotEditorPlugin.Drawing
 		/// </summary>
 		public override bool HandleMouseDown(int mouseX, int mouseY)
 		{
-			return base.HandleMouseDown(mouseX - (Width / 2), mouseY - (Height / 2));
+			return base.HandleMouseDown(mouseX - (Width/2), mouseY - (Height/2));
 		}
 
 		private Color _lineColor = Color.White;
+
 		[Field(FieldTypes.LINE_COLOR)]
 		public Color LineColor
 		{
@@ -163,6 +165,7 @@ namespace GreenshotEditorPlugin.Drawing
 		}
 
 		private Color _fillColor = Color.DarkRed;
+
 		[Field(FieldTypes.FILL_COLOR)]
 		public Color FillColor
 		{
@@ -187,7 +190,7 @@ namespace GreenshotEditorPlugin.Drawing
 			{
 				return;
 			}
-			((Surface)Parent).RemoveStepLabel(this);
+			((Surface) Parent).RemoveStepLabel(this);
 			if (_stringFormat != null)
 			{
 				_stringFormat.Dispose();
@@ -198,8 +201,8 @@ namespace GreenshotEditorPlugin.Drawing
 		public override bool HandleMouseMove(int x, int y)
 		{
 			Invalidate();
-			Left = x - (Width / 2);
-			Top = y - (Height / 2);
+			Left = x - (Width/2);
+			Top = y - (Height/2);
 			Invalidate();
 			return true;
 		}
@@ -220,7 +223,7 @@ namespace GreenshotEditorPlugin.Drawing
 
 			int widthAfter = rect.Width;
 			int heightAfter = rect.Height;
-			float factor = (((float)widthAfter / widthBefore) + ((float)heightAfter / heightBefore)) / 2;
+			float factor = (((float) widthAfter/widthBefore) + ((float) heightAfter/heightBefore))/2;
 
 			fontSize *= factor;
 		}
@@ -237,7 +240,7 @@ namespace GreenshotEditorPlugin.Drawing
 			graphics.CompositingQuality = CompositingQuality.HighQuality;
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
 			graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-			string text = ((Surface)Parent).CountStepLabels(this).ToString();
+			string text = ((Surface) Parent).CountStepLabels(this).ToString();
 			Rectangle rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
 			if (_drawAsRectangle)
 			{

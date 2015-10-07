@@ -49,15 +49,10 @@ namespace GreenshotPlugin.Controls
 		{
 			// Create glimmer "Color-Cycle" animation
 
-			var dots = new Ellipse[]{
-				L1C1,L1C2, L1C3, L1C4, L1C5,
-				L2C1, L2C2,
-				L3C1,L3C2,
-				L4C1, L4C2,
-				L5C1,
-				L6C1, L6C2, L6C3, L6C4,
-				L7C1, L7C2,
-				L8C1, L8C2, L8C3};
+			var dots = new Ellipse[]
+			{
+				L1C1, L1C2, L1C3, L1C4, L1C5, L2C1, L2C2, L3C1, L3C2, L4C1, L4C2, L5C1, L6C1, L6C2, L6C3, L6C4, L7C1, L7C2, L8C1, L8C2, L8C3
+			};
 
 			int delayOffset = 15;
 			int initialDelay = 5000;

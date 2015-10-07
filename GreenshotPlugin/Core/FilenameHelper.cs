@@ -30,9 +30,11 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
-namespace GreenshotPlugin.Core {
-	public static class FilenameHelper {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(FilenameHelper));
+namespace GreenshotPlugin.Core
+{
+	public static class FilenameHelper
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (FilenameHelper));
 		// Specify the regular expression for the filename formatting:
 		// Starting with ${
 		// than the varname, which ends with a : or }
@@ -51,7 +53,8 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="fullpath">string with the full path to a file</param>
 		/// <returns>string with the full path to a file, without invalid characters</returns>
-		public static string MakeFQFilenameSafe(string fullPath) {
+		public static string MakeFQFilenameSafe(string fullPath)
+		{
 			string path = MakePathSafe(Path.GetDirectoryName(fullPath));
 			string filename = MakeFilenameSafe(Path.GetFileName(fullPath));
 			// Make the fullpath again and return
@@ -63,10 +66,13 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="fullpath">string with the full path to a file</param>
 		/// <returns>string with the full path to a file, without invalid characters</returns>
-		public static string MakeFilenameSafe(string filename) {
+		public static string MakeFilenameSafe(string filename)
+		{
 			// Make the filename save!
-			if (filename != null) {
-				foreach (char disallowed in Path.GetInvalidFileNameChars()) {
+			if (filename != null)
+			{
+				foreach (char disallowed in Path.GetInvalidFileNameChars())
+				{
 					filename = filename.Replace(disallowed.ToString(), UNSAFE_REPLACEMENT);
 				}
 			}
@@ -78,29 +84,36 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="fullpath">string with the full path to a file</param>
 		/// <returns>string with the full path to a file, without invalid characters</returns>
-		public static string MakePathSafe(string path) {
+		public static string MakePathSafe(string path)
+		{
 			// Make the path save!
-			if (path != null) {
-				foreach (char disallowed in Path.GetInvalidPathChars()) {
+			if (path != null)
+			{
+				foreach (char disallowed in Path.GetInvalidPathChars())
+				{
 					path = path.Replace(disallowed.ToString(), UNSAFE_REPLACEMENT);
 				}
 			}
 			return path;
 		}
 
-		public static string GetFilenameWithoutExtensionFromPattern(string pattern) {
+		public static string GetFilenameWithoutExtensionFromPattern(string pattern)
+		{
 			return GetFilenameWithoutExtensionFromPattern(pattern, null);
 		}
 
-		public static string GetFilenameWithoutExtensionFromPattern(string pattern, ICaptureDetails captureDetails) {
+		public static string GetFilenameWithoutExtensionFromPattern(string pattern, ICaptureDetails captureDetails)
+		{
 			return FillPattern(pattern, captureDetails, true);
 		}
 
-		public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat) {
+		public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat)
+		{
 			return GetFilenameFromPattern(pattern, imageFormat, null);
 		}
 
-		public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat, ICaptureDetails captureDetails) {
+		public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat, ICaptureDetails captureDetails)
+		{
 			return FillPattern(pattern, captureDetails, true) + "." + imageFormat.ToString().ToLower();
 		}
 
@@ -110,14 +123,16 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="format">A string with the format</param>
 		/// <returns>The filename which should be used to save the image</returns>
-		public static string GetFilename(OutputFormat format, ICaptureDetails captureDetails) {
+		public static string GetFilename(OutputFormat format, ICaptureDetails captureDetails)
+		{
 			string pattern = conf.OutputFileFilenamePattern;
-			if (pattern == null || string.IsNullOrEmpty(pattern.Trim())) {
+			if (pattern == null || string.IsNullOrEmpty(pattern.Trim()))
+			{
 				pattern = "greenshot ${capturetime}";
 			}
 			return GetFilenameFromPattern(pattern, format, captureDetails);
 		}
-		
+
 
 		/// <summary>
 		/// This method will be called by the regexp.replace as a MatchEvaluator delegate!
@@ -128,10 +143,14 @@ namespace GreenshotPlugin.Core {
 		/// <param name="userVars">Variables from the user</param>
 		/// <param name="machineVars">Variables from the machine</param>
 		/// <returns>string with the match replacement</returns>
-		private static string MatchVarEvaluator(Match match, ICaptureDetails captureDetails, IDictionary processVars, IDictionary userVars, IDictionary machineVars, bool filenameSafeMode) {
-			try {
+		private static string MatchVarEvaluator(Match match, ICaptureDetails captureDetails, IDictionary processVars, IDictionary userVars, IDictionary machineVars, bool filenameSafeMode)
+		{
+			try
+			{
 				return MatchVarEvaluatorInternal(match, captureDetails, processVars, userVars, machineVars, filenameSafeMode);
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				LOG.Error("Error in MatchVarEvaluatorInternal", e);
 			}
 			return "";
@@ -143,7 +162,8 @@ namespace GreenshotPlugin.Core {
 		/// <param name="match">What are we matching?</param>
 		/// <param name="captureDetails">The detail, can be null</param>
 		/// <returns></returns>
-		private static string MatchVarEvaluatorInternal(Match match, ICaptureDetails captureDetails, IDictionary processVars, IDictionary userVars, IDictionary machineVars, bool filenameSafeMode) {
+		private static string MatchVarEvaluatorInternal(Match match, ICaptureDetails captureDetails, IDictionary processVars, IDictionary userVars, IDictionary machineVars, bool filenameSafeMode)
+		{
 			// some defaults
 			int padWidth = 0;
 			int startIndex = 0;
@@ -155,26 +175,41 @@ namespace GreenshotPlugin.Core {
 			string variable = match.Groups["variable"].Value;
 			string parameters = match.Groups["parameters"].Value;
 
-			if (parameters != null && parameters.Length > 0) {
+			if (parameters != null && parameters.Length > 0)
+			{
 				string[] parms = SPLIT_REGEXP.Split(parameters);
-				foreach (string parameter in parms) {
-					switch (parameter.Substring(0, 1)) {
+				foreach (string parameter in parms)
+				{
+					switch (parameter.Substring(0, 1))
+					{
 						// Padding p<width>[,pad-character]
 						case "p":
-							string[] padParams = parameter.Substring(1).Split(new char[] { ',' });
-							try {
+							string[] padParams = parameter.Substring(1).Split(new char[]
+							{
+								','
+							});
+							try
+							{
 								padWidth = int.Parse(padParams[0]);
-							} catch {
-							};
-							if (padParams.Length > 1) {
+							}
+							catch
+							{
+							}
+							;
+							if (padParams.Length > 1)
+							{
 								padChar = padParams[1][0];
 							}
 							break;
 						// replace
 						// r<old string>,<new string>
 						case "r":
-							string[] replaceParameters = parameter.Substring(1).Split(new char[] { ',' });
-							if (replaceParameters != null && replaceParameters.Length == 2) {
+							string[] replaceParameters = parameter.Substring(1).Split(new char[]
+							{
+								','
+							});
+							if (replaceParameters != null && replaceParameters.Length == 2)
+							{
 								replacements.Add(replaceParameters[0], replaceParameters[1]);
 							}
 							break;
@@ -182,10 +217,12 @@ namespace GreenshotPlugin.Core {
 						// Format can be anything that is used in C# date formatting
 						case "d":
 							dateFormat = parameter.Substring(1);
-							if (dateFormat.StartsWith("\"")) {
+							if (dateFormat.StartsWith("\""))
+							{
 								dateFormat = dateFormat.Substring(1);
 							}
-							if (dateFormat.EndsWith("\"")) {
+							if (dateFormat.EndsWith("\""))
+							{
 								dateFormat = dateFormat.Substring(0, dateFormat.Length - 1);
 							}
 							break;
@@ -193,18 +230,29 @@ namespace GreenshotPlugin.Core {
 						// s<start>[,length]
 						case "s":
 							string range = parameter.Substring(1);
-							string[] rangelist = range.Split(new char[] { ',' });
-							if (rangelist.Length > 0) {
-								try {
+							string[] rangelist = range.Split(new char[]
+							{
+								','
+							});
+							if (rangelist.Length > 0)
+							{
+								try
+								{
 									startIndex = int.Parse(rangelist[0]);
-								} catch {
+								}
+								catch
+								{
 									// Ignore
 								}
 							}
-							if (rangelist.Length > 1) {
-								try {
+							if (rangelist.Length > 1)
+							{
+								try
+								{
 									endIndex = int.Parse(rangelist[1]);
-								} catch {
+								}
+								catch
+								{
 									// Ignore
 								}
 							}
@@ -212,27 +260,40 @@ namespace GreenshotPlugin.Core {
 					}
 				}
 			}
-			if (processVars != null && processVars.Contains(variable)) {
-				replaceValue = (string)processVars[variable];
-				if (filenameSafeMode) {
+			if (processVars != null && processVars.Contains(variable))
+			{
+				replaceValue = (string) processVars[variable];
+				if (filenameSafeMode)
+				{
 					replaceValue = MakeFilenameSafe(replaceValue);
 				}
-			} else if (userVars != null && userVars.Contains(variable)) {
-				replaceValue = (string)userVars[variable];
-				if (filenameSafeMode) {
+			}
+			else if (userVars != null && userVars.Contains(variable))
+			{
+				replaceValue = (string) userVars[variable];
+				if (filenameSafeMode)
+				{
 					replaceValue = MakeFilenameSafe(replaceValue);
 				}
-			} else if (machineVars != null && machineVars.Contains(variable)) {
-				replaceValue = (string)machineVars[variable];
-				if (filenameSafeMode) {
+			}
+			else if (machineVars != null && machineVars.Contains(variable))
+			{
+				replaceValue = (string) machineVars[variable];
+				if (filenameSafeMode)
+				{
 					replaceValue = MakeFilenameSafe(replaceValue);
 				}
-			} else if (captureDetails != null && captureDetails.MetaData != null && captureDetails.MetaData.ContainsKey(variable)) {
+			}
+			else if (captureDetails != null && captureDetails.MetaData != null && captureDetails.MetaData.ContainsKey(variable))
+			{
 				replaceValue = captureDetails.MetaData[variable];
-				if (filenameSafeMode) {
+				if (filenameSafeMode)
+				{
 					replaceValue = MakeFilenameSafe(replaceValue);
 				}
-			} else {
+			}
+			else
+			{
 				// Handle other variables
 				// Default use "now" for the capture take´n
 				DateTime capturetime = DateTime.Now;
@@ -240,16 +301,20 @@ namespace GreenshotPlugin.Core {
 				string title = Application.ProductName;
 
 				// Check if we have capture details
-				if (captureDetails != null) {
+				if (captureDetails != null)
+				{
 					capturetime = captureDetails.DateTime;
-					if (captureDetails.Title != null) {
+					if (captureDetails.Title != null)
+					{
 						title = captureDetails.Title;
-						if (title.Length > MAX_TITLE_LENGTH) {
+						if (title.Length > MAX_TITLE_LENGTH)
+						{
 							title = title.Substring(0, MAX_TITLE_LENGTH);
 						}
 					}
 				}
-				switch (variable) {
+				switch (variable)
+				{
 					case "domain":
 						replaceValue = Environment.UserDomainName;
 						break;
@@ -260,7 +325,8 @@ namespace GreenshotPlugin.Core {
 						replaceValue = Environment.MachineName;
 						break;
 					case "YYYY":
-						if (padWidth == 0) {
+						if (padWidth == 0)
+						{
 							padWidth = -4;
 							padChar = '0';
 						}
@@ -268,34 +334,39 @@ namespace GreenshotPlugin.Core {
 						break;
 					case "MM":
 						replaceValue = capturetime.Month.ToString();
-						if (padWidth == 0) {
+						if (padWidth == 0)
+						{
 							padWidth = -2;
 							padChar = '0';
 						}
 						break;
 					case "DD":
 						replaceValue = capturetime.Day.ToString();
-						if (padWidth == 0) {
+						if (padWidth == 0)
+						{
 							padWidth = -2;
 							padChar = '0';
 						}
 						break;
 					case "hh":
-						if (padWidth == 0) {
+						if (padWidth == 0)
+						{
 							padWidth = -2;
 							padChar = '0';
 						}
 						replaceValue = capturetime.Hour.ToString();
 						break;
 					case "mm":
-						if (padWidth == 0) {
+						if (padWidth == 0)
+						{
 							padWidth = -2;
 							padChar = '0';
 						}
 						replaceValue = capturetime.Minute.ToString();
 						break;
 					case "ss":
-						if (padWidth == 0) {
+						if (padWidth == 0)
+						{
 							padWidth = -2;
 							padChar = '0';
 						}
@@ -303,20 +374,23 @@ namespace GreenshotPlugin.Core {
 						break;
 					case "now":
 						replaceValue = DateTime.Now.ToString(dateFormat);
-						if (filenameSafeMode) {
+						if (filenameSafeMode)
+						{
 							replaceValue = MakeFilenameSafe(replaceValue);
 						}
 						break;
 					case "capturetime":
 						replaceValue = capturetime.ToString(dateFormat);
-						if (filenameSafeMode) {
+						if (filenameSafeMode)
+						{
 							replaceValue = MakeFilenameSafe(replaceValue);
 						}
 						break;
 					case "NUM":
 						conf.OutputFileIncrementingNumber++;
 						replaceValue = conf.OutputFileIncrementingNumber.ToString();
-						if (padWidth == 0) {
+						if (padWidth == 0)
+						{
 							padWidth = -6;
 							padChar = '0';
 						}
@@ -324,7 +398,8 @@ namespace GreenshotPlugin.Core {
 						break;
 					case "title":
 						replaceValue = title;
-						if (filenameSafeMode) {
+						if (filenameSafeMode)
+						{
 							replaceValue = MakeFilenameSafe(replaceValue);
 						}
 						break;
@@ -352,38 +427,55 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 			// do padding
-			if (padWidth > 0) {
+			if (padWidth > 0)
+			{
 				replaceValue = replaceValue.PadRight(padWidth, padChar);
-			} else if (padWidth < 0) {
+			}
+			else if (padWidth < 0)
+			{
 				replaceValue = replaceValue.PadLeft(-padWidth, padChar);
 			}
 
 			// do substring
-			if (replaceValue != null && startIndex != 0 || endIndex != 0) {
-				if (startIndex < 0) {
+			if (replaceValue != null && startIndex != 0 || endIndex != 0)
+			{
+				if (startIndex < 0)
+				{
 					startIndex = replaceValue.Length + startIndex;
 				}
-				if (endIndex < 0) {
+				if (endIndex < 0)
+				{
 					endIndex = replaceValue.Length + endIndex;
 				}
-				if (endIndex != 0 && replaceValue.Length >= (startIndex + endIndex)) {
-					try {
+				if (endIndex != 0 && replaceValue.Length >= (startIndex + endIndex))
+				{
+					try
+					{
 						replaceValue = replaceValue.Substring(startIndex, endIndex);
-					} catch {
+					}
+					catch
+					{
 						// Ignore
 					}
-				} else {
-					try {
+				}
+				else
+				{
+					try
+					{
 						replaceValue = replaceValue.Substring(startIndex);
-					} catch {
+					}
+					catch
+					{
 						// Ignore
 					}
 				}
 			}
 
 			// new for feature #697
-			if (replacements.Count > 0) {
-				foreach (string oldValue in replacements.Keys) {
+			if (replacements.Count > 0)
+			{
+				foreach (string oldValue in replacements.Keys)
+				{
 					replaceValue = replaceValue.Replace(oldValue, replacements[oldValue]);
 				}
 			}
@@ -396,33 +488,42 @@ namespace GreenshotPlugin.Core {
 		/// <param name="pattern">String with pattern ${var}</param>
 		/// <param name="filenameSafeMode">true to make sure everything is filenamesafe</param>
 		/// <returns>Filled string</returns>
-		public static string FillVariables(string pattern, bool filenameSafeMode) {
+		public static string FillVariables(string pattern, bool filenameSafeMode)
+		{
 			IDictionary processVars = null;
 			IDictionary userVars = null;
 			IDictionary machineVars = null;
-			try {
+			try
+			{
 				processVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Process);
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				LOG.Error("Error retrieving EnvironmentVariableTarget.Process", e);
 			}
 
-			try {
+			try
+			{
 				userVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				LOG.Error("Error retrieving EnvironmentVariableTarget.User", e);
 			}
 
-			try {
+			try
+			{
 				machineVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Machine);
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				LOG.Error("Error retrieving EnvironmentVariableTarget.Machine", e);
 			}
 
-			return VAR_REGEXP.Replace(pattern,
-				new MatchEvaluator(delegate(Match m) {
+			return VAR_REGEXP.Replace(pattern, new MatchEvaluator(delegate(Match m)
+			{
 				return MatchVarEvaluator(m, null, processVars, userVars, machineVars, filenameSafeMode);
-			})
-			);
+			}));
 		}
 
 		/// <summary>
@@ -432,37 +533,50 @@ namespace GreenshotPlugin.Core {
 		/// <param name="captureDetails">CaptureDetails, can be null</param>
 		/// <param name="filenameSafeMode">Should the result be made "filename" safe?</param>
 		/// <returns>Filled pattern</returns>
-		public static string FillPattern(string pattern, ICaptureDetails captureDetails, bool filenameSafeMode) {
+		public static string FillPattern(string pattern, ICaptureDetails captureDetails, bool filenameSafeMode)
+		{
 			IDictionary processVars = null;
 			IDictionary userVars = null;
 			IDictionary machineVars = null;
-			try {
+			try
+			{
 				processVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Process);
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				LOG.Error("Error retrieving EnvironmentVariableTarget.Process", e);
 			}
 
-			try {
+			try
+			{
 				userVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				LOG.Error("Error retrieving EnvironmentVariableTarget.User", e);
 			}
 
-			try {
+			try
+			{
 				machineVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Machine);
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				LOG.Error("Error retrieving EnvironmentVariableTarget.Machine", e);
 			}
 
-			try {
-				return VAR_REGEXP.Replace(pattern,
-					new MatchEvaluator(delegate(Match m) {
+			try
+			{
+				return VAR_REGEXP.Replace(pattern, new MatchEvaluator(delegate(Match m)
+				{
 					return MatchVarEvaluator(m, captureDetails, processVars, userVars, machineVars, filenameSafeMode);
-				})
-				);
-			} catch (Exception e) {
+				}));
+			}
+			catch (Exception e)
+			{
 				// adding additional data for bug tracking
-				if (captureDetails != null) { 
+				if (captureDetails != null)
+				{
 					e.Data.Add("title", captureDetails.Title);
 				}
 				e.Data.Add("pattern", pattern);
@@ -475,10 +589,13 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="directoryName">directory name (not path!)</param>
 		/// <returns>true if directory name is valid</returns>
-		public static bool IsDirectoryNameValid(string directoryName) {
+		public static bool IsDirectoryNameValid(string directoryName)
+		{
 			var forbiddenChars = Path.GetInvalidPathChars();
-			foreach (var forbiddenChar in forbiddenChars) {
-				if (directoryName == null || directoryName.Contains(forbiddenChar.ToString())) {
+			foreach (var forbiddenChar in forbiddenChars)
+			{
+				if (directoryName == null || directoryName.Contains(forbiddenChar.ToString()))
+				{
 					return false;
 				}
 			}
@@ -490,10 +607,13 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="filename">name of the file</param>
 		/// <returns>true if filename is valid</returns>
-		public static bool IsFilenameValid(string filename) {
+		public static bool IsFilenameValid(string filename)
+		{
 			var forbiddenChars = Path.GetInvalidFileNameChars();
-			foreach (var forbiddenChar in forbiddenChars) {
-				if (filename == null || filename.Contains(forbiddenChar.ToString())) {
+			foreach (var forbiddenChar in forbiddenChars)
+			{
+				if (filename == null || filename.Contains(forbiddenChar.ToString()))
+				{
 					return false;
 				}
 			}

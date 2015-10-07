@@ -37,44 +37,56 @@ using log4net;
 
 namespace GreenshotDropboxPlugin
 {
-	class DropboxDestination : AbstractDestination {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(DropboxDestination));
+	internal class DropboxDestination : AbstractDestination
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (DropboxDestination));
 		private static readonly IDropboxConfiguration _config = IniConfig.Current.Get<IDropboxConfiguration>();
 		private static readonly IDropboxLanguage _language = LanguageLoader.Current.Get<IDropboxLanguage>();
 
 		private DropboxPlugin plugin = null;
-		public DropboxDestination(DropboxPlugin plugin) {
+
+		public DropboxDestination(DropboxPlugin plugin)
+		{
 			this.plugin = plugin;
 		}
-		
-		public override string Designation {
-			get {
+
+		public override string Designation
+		{
+			get
+			{
 				return "Dropbox";
 			}
 		}
 
-		public override string Description {
-			get {
+		public override string Description
+		{
+			get
+			{
 				return _language.UploadMenuItem;
 			}
 		}
 
-		public override Image DisplayIcon {
-			get {
-				ComponentResourceManager resources = new ComponentResourceManager(typeof(DropboxPlugin));
-				return (Image)resources.GetObject("Dropbox");
+		public override Image DisplayIcon
+		{
+			get
+			{
+				ComponentResourceManager resources = new ComponentResourceManager(typeof (DropboxPlugin));
+				return (Image) resources.GetObject("Dropbox");
 			}
 		}
 
 
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			var exportInformation = new ExportInformation {
-				DestinationDesignation = Designation,
-				DestinationDescription = Description
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		{
+			var exportInformation = new ExportInformation
+			{
+				DestinationDesignation = Designation, DestinationDescription = Description
 			};
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
-			try {
-				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, _language.CommunicationWait, async (progress, pleaseWaitToken) => {
+			try
+			{
+				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, _language.CommunicationWait, async (progress, pleaseWaitToken) =>
+				{
 					string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
 					using (var stream = new MemoryStream())
 					{
@@ -89,17 +101,20 @@ namespace GreenshotDropboxPlugin
 							}
 						}
 					}
-
 				}, token);
 
-				if (url != null) {
+				if (url != null)
+				{
 					exportInformation.ExportMade = true;
 					exportInformation.ExportedToUri = new Uri(url);
-					if (_config.AfterUploadLinkToClipBoard) {
+					if (_config.AfterUploadLinkToClipBoard)
+					{
 						ClipboardHelper.SetClipboardData(url);
 					}
 				}
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				LOG.Error("Error uploading.", e);
 				MessageBox.Show(_language.UploadFailure + " " + e.Message);
 			}

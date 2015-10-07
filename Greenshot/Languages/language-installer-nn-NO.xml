@@ -1,4 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <language description="Norwegian Nynorsk" ietf="nn-NO" version="1.0.2" languagegroup="1">
 	<resources>
 		<resource name="confluence">Confluence-tillegg</resource>

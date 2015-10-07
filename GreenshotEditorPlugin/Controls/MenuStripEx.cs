@@ -18,18 +18,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Windows.Forms;
 
-namespace GreenshotEditorPlugin.Controls {
+namespace GreenshotEditorPlugin.Controls
+{
 	/// <summary>
 	/// This is an extension of the default MenuStrip and allows us to click it even when the form doesn't have focus.
 	/// See: http://blogs.msdn.com/b/rickbrew/archive/2006/01/09/511003.aspx
 	/// </summary>
-	public class MenuStripEx : MenuStrip {
+	public class MenuStripEx : MenuStrip
+	{
 		private const int WM_MOUSEACTIVATE = 0x21;
 
-		enum NativeConstants : uint {
+		private enum NativeConstants : uint
+		{
 			MA_ACTIVATE = 1,
 			MA_ACTIVATEANDEAT = 2,
 			MA_NOACTIVATE = 3,
@@ -37,26 +41,32 @@ namespace GreenshotEditorPlugin.Controls {
 		}
 
 		private bool clickThrough = false;
+
 		/// <summary>
 		/// Gets or sets whether the ToolStripEx honors item clicks when its containing form does not have input focus.
 		/// </summary>
 		/// <remarks>
 		/// Default value is false, which is the same behavior provided by the base ToolStrip class.
 		/// </remarks>
-		public bool ClickThrough {
-			get {
+		public bool ClickThrough
+		{
+			get
+			{
 				return clickThrough;
 			}
 
-			set {
+			set
+			{
 				clickThrough = value;
 			}
 		}
 
-		protected override void WndProc(ref Message m) {
+		protected override void WndProc(ref Message m)
+		{
 			base.WndProc(ref m);
-			if (clickThrough && m.Msg == WM_MOUSEACTIVATE && m.Result == (IntPtr)NativeConstants.MA_ACTIVATEANDEAT) {
-				m.Result = (IntPtr)NativeConstants.MA_ACTIVATE;
+			if (clickThrough && m.Msg == WM_MOUSEACTIVATE && m.Result == (IntPtr) NativeConstants.MA_ACTIVATEANDEAT)
+			{
+				m.Result = (IntPtr) NativeConstants.MA_ACTIVATE;
 			}
 		}
 	}

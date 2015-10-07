@@ -21,37 +21,51 @@
 
 using System;
 
-namespace TranslationByMarkupExtension {
-    public class TranslationManager {
-        private static TranslationManager _translationManager;
+namespace TranslationByMarkupExtension
+{
+	public class TranslationManager
+	{
+		private static TranslationManager _translationManager;
 
-        public event EventHandler LanguageChanged;
+		public event EventHandler LanguageChanged;
 
-        public static TranslationManager Instance {
-            get {
-				if (_translationManager == null) {
+		public static TranslationManager Instance
+		{
+			get
+			{
+				if (_translationManager == null)
+				{
 					_translationManager = new TranslationManager();
 				}
-                return _translationManager;
-            }
-        }
+				return _translationManager;
+			}
+		}
 
-        public ITranslationProvider TranslationProvider { get; set; }
+		public ITranslationProvider TranslationProvider
+		{
+			get;
+			set;
+		}
 
-        private void OnLanguageChanged() {
-            if (LanguageChanged != null) {
-                LanguageChanged(this, EventArgs.Empty);
-            }
-        }
+		private void OnLanguageChanged()
+		{
+			if (LanguageChanged != null)
+			{
+				LanguageChanged(this, EventArgs.Empty);
+			}
+		}
 
-        public object Translate(string key) {
-            if( TranslationProvider != null) {
-                object translatedValue = TranslationProvider.Translate(key);
-                if( translatedValue != null) {
-                    return translatedValue;
-                }
-            }
-            return string.Format("!{0}!", key);
-        }
-    }
+		public object Translate(string key)
+		{
+			if (TranslationProvider != null)
+			{
+				object translatedValue = TranslationProvider.Translate(key);
+				if (translatedValue != null)
+				{
+					return translatedValue;
+				}
+			}
+			return string.Format("!{0}!", key);
+		}
+	}
 }

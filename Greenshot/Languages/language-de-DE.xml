@@ -1,23 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <language>
 	<resources prefix="Core">
 		<resource name="about_bugs">Bitte melden Sie Fehler unter</resource>
 		<resource name="about_donations">Wenn Sie Greenshot mögen, können Sie uns gerne unterstützen:</resource>
 		<resource name="about_host">Greenshot wird von sourceforge.net gehostet unter</resource>
 		<resource name="about_icons">Icons aus Yusuke Kamiyamane's Fugue icon set (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
-Für Greenshot besteht KEINERLEI GARANTIE. Greenshot ist freie Software, die Sie unter bestimmten Bedingungen weitergeben dürfen.
-Detaillierte Informationen zur GNU General Public License:</resource>
+		<resource name="about_license">
+			Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+			Für Greenshot besteht KEINERLEI GARANTIE. Greenshot ist freie Software, die Sie unter bestimmten Bedingungen weitergeben dürfen.
+			Detaillierte Informationen zur GNU General Public License:
+		</resource>
 		<resource name="about_title">Über Greenshot</resource>
 		<resource name="application_title">Greenshot - das revolutionäre Screenshot-Tool</resource>
 		<resource name="bugreport_cancel">Schließen</resource>
-		<resource name="bugreport_info">Tut uns leid, ein unerwarteter Fehler ist aufgetreten.
-Die gute Nachricht ist: Sie können uns helfen, ihn zu beseitigen, indem Sie uns einen Fehlerbericht zukommen lassen.
-Besuchen Sie die unten stehende URL und erstellen Sie einen neuen Fehlerbericht.
-Bitte geben Sie eine aussgekräftige Zusammenfassung an, fügen Sie den Inhalt des Textfelds in die Beschreibung ein, und ergänzen Sie diese mit zusätzlichen
-Informationen, die für das Nachvollziehen des Fehlers hilfreich sein könnten.
-Wir wären sehr dankbar, wenn Sie vorher prüfen würden, ob dieser Fehler schon gemeldet wurde - nutzen Sie einfach die Suche, um bestehende Fehlerberichte
-schnell zu finden. Vielen Dank :)</resource>
+		<resource name="bugreport_info">
+			Tut uns leid, ein unerwarteter Fehler ist aufgetreten.
+			Die gute Nachricht ist: Sie können uns helfen, ihn zu beseitigen, indem Sie uns einen Fehlerbericht zukommen lassen.
+			Besuchen Sie die unten stehende URL und erstellen Sie einen neuen Fehlerbericht.
+			Bitte geben Sie eine aussgekräftige Zusammenfassung an, fügen Sie den Inhalt des Textfelds in die Beschreibung ein, und ergänzen Sie diese mit zusätzlichen
+			Informationen, die für das Nachvollziehen des Fehlers hilfreich sein könnten.
+			Wir wären sehr dankbar, wenn Sie vorher prüfen würden, ob dieser Fehler schon gemeldet wurde - nutzen Sie einfach die Suche, um bestehende Fehlerberichte
+			schnell zu finden. Vielen Dank :)
+		</resource>
 		<resource name="bugreport_title">Fehler</resource>
 		<resource name="CANCEL">Abbrechen</resource>
 		<resource name="clipboard_error">Ein unerwarteter Fehler beim Schreiben in die Zwischenablage ist aufgetreten.</resource>
@@ -159,12 +164,14 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook mit Text</resource>
 		<resource name="error">Fehler</resource>
 		<resource name="error_multipleinstances">Greenshot läuft bereits.</resource>
-		<resource name="error_nowriteaccess">Konnte Datei nicht nach {0} speichern.
-Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicherort.</resource>
+		<resource name="error_nowriteaccess">
+			Konnte Datei nicht nach {0} speichern.
+			Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicherort.
+		</resource>
 		<resource name="error_openfile">Die Datei "{0}" konnte nicht geöffnet werden.</resource>
 		<resource name="error_openlink">Konnte Link '{0}' nicht öffnen.</resource>
 		<resource name="error_save">Screenshot konnte nicht gespeichert werden, bitte wählen Sie einen anderen Speicherort.</resource>
-    <resource name="error_save_invalid_chars">Der generierte Datei- oder Verzeichnisname ist nicht gültig. Bitte korrigieren Sie das Dateiname-Muster und versuchen Sie es erneut.</resource>
+		<resource name="error_save_invalid_chars">Der generierte Datei- oder Verzeichnisname ist nicht gültig. Bitte korrigieren Sie das Dateiname-Muster und versuchen Sie es erneut.</resource>
 		<resource name="expertsettings">Experten</resource>
 		<resource name="expertsettings_autoreducecolors">8-Bit-Bilder erstellen bei weniger als 256 Farben</resource>
 		<resource name="expertsettings_checkunstableupdates">Auch instabile Updates anbieten</resource>
@@ -224,24 +231,26 @@ Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicher
 		<resource name="settings_iecapture">Internet Explorer abfotografieren</resource>
 		<resource name="settings_jpegquality">JPEG-Qualität</resource>
 		<resource name="settings_language">Sprache</resource>
-		<resource name="settings_message_filenamepattern">Die folgenden Platzhalter werden im festgelegten Muster automatisch ersetzt:
-${YYYY} Jahr, 4-stellig
-${MM} Monat, 2-stellig
-${DD} Tag, 2-stellig
-${hh} Stunde, 2-stellig
-${mm} Minute, 2-stellig
-${ss} Sekunde, 2-stellig
-${NUM} inkrementierende Zahl, 6-stellig
-${title} Fenstertitel
-${user} Windows-Benutzername
-${domain} Windows-Domäne
-${hostname} Computername
+		<resource name="settings_message_filenamepattern">
+			Die folgenden Platzhalter werden im festgelegten Muster automatisch ersetzt:
+			${YYYY} Jahr, 4-stellig
+			${MM} Monat, 2-stellig
+			${DD} Tag, 2-stellig
+			${hh} Stunde, 2-stellig
+			${mm} Minute, 2-stellig
+			${ss} Sekunde, 2-stellig
+			${NUM} inkrementierende Zahl, 6-stellig
+			${title} Fenstertitel
+			${user} Windows-Benutzername
+			${domain} Windows-Domäne
+			${hostname} Computername
 
-Greenshot kann auch Verzeichnisse dynamisch erstellen. 
-Verwenden Sie das Backslash-Symbol \ um Verzeichnisse vom Dateinamen zu trennen.
-Zum Beispiel: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} 
-Dieses Muster legt ein Verzeichnis für den aktuellen Tag im Standard-Speicherort an und speichert die Bilddateien im Uhrzeit-Format, mit der vorgegebenen Dateiendung ab.
-z.B. C:\Users\MaxMustermann\Desktop\2012-08-13\12-58-32.png</resource>
+			Greenshot kann auch Verzeichnisse dynamisch erstellen.
+			Verwenden Sie das Backslash-Symbol \ um Verzeichnisse vom Dateinamen zu trennen.
+			Zum Beispiel: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+			Dieses Muster legt ein Verzeichnis für den aktuellen Tag im Standard-Speicherort an und speichert die Bilddateien im Uhrzeit-Format, mit der vorgegebenen Dateiendung ab.
+			z.B. C:\Users\MaxMustermann\Desktop\2012-08-13\12-58-32.png
+		</resource>
 		<resource name="settings_network">Netzwerk und Aktualisierungen</resource>
 		<resource name="settings_output">Ausgabe</resource>
 		<resource name="settings_playsound">Kameraton abspielen</resource>
@@ -264,8 +273,10 @@ z.B. C:\Users\MaxMustermann\Desktop\2012-08-13\12-58-32.png</resource>
 		<resource name="settings_tooltip_filenamepattern">Muster, das beim Speichern von Screenshots zum Generieren von Dateinamen verwendet wird</resource>
 		<resource name="settings_tooltip_language">Sprache der Benutzeroberfläche</resource>
 		<resource name="settings_tooltip_primaryimageformat">Standard-Bildformat</resource>
-		<resource name="settings_tooltip_registerhotkeys">Legt fest, ob beim Programmstart die Tastenkombinationen Drucken, Strg + Drucken, Alt + Drucken beim Betriebssystem zur globalen
-Verwendung durch Greenshot reserviert werden, bis das Programm geschlossen wird.</resource>
+		<resource name="settings_tooltip_registerhotkeys">
+			Legt fest, ob beim Programmstart die Tastenkombinationen Drucken, Strg + Drucken, Alt + Drucken beim Betriebssystem zur globalen
+			Verwendung durch Greenshot reserviert werden, bis das Programm geschlossen wird.
+		</resource>
 		<resource name="settings_tooltip_storagelocation">Standardpfad für Bildschirmausdrucke. Leer lassen für Desktop.</resource>
 		<resource name="settings_usedefaultproxy">Standard-Proxyserver des Betriebssystems verwenden</resource>
 		<resource name="settings_visualization">Effekte</resource>
@@ -277,11 +288,13 @@ Verwendung durch Greenshot reserviert werden, bis das Programm geschlossen wird.
 		<resource name="update_found">Eine neuere Greenshot Version steht zur Verfügung. Wollen Sie Greenshot {0} herunterladen?</resource>
 		<resource name="wait_ie_capture">Bitte warten Sie, während die Seite im Internet Explorer abfotografiert wird...</resource>
 		<resource name="warning">Hinweis</resource>
-		<resource name="warning_hotkeys">Die globale Tastenkombination "{0}" konnte nicht aktiviert werden.
-Vermutlich wurde dieselbe Tastenkombination bereits von einem anderen Programm reserviert. 
-Sie können die Tastenkombinationen für Greenshot ändern, oder das Programm, das die Tastenkombination verwendet, deaktivieren.
+		<resource name="warning_hotkeys">
+			Die globale Tastenkombination "{0}" konnte nicht aktiviert werden.
+			Vermutlich wurde dieselbe Tastenkombination bereits von einem anderen Programm reserviert.
+			Sie können die Tastenkombinationen für Greenshot ändern, oder das Programm, das die Tastenkombination verwendet, deaktivieren.
 
-Sie können aber auch alle Greenshot-Funktionen über das Kontextmenü des Greenshot-Icons im Infobereich verwenden.</resource>
+			Sie können aber auch alle Greenshot-Funktionen über das Kontextmenü des Greenshot-Icons im Infobereich verwenden.
+		</resource>
 		<resource name="WindowCaptureMode.Aero">Benutzerdefinierte Farbe verwenden</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Transparenz erhalten</resource>
 		<resource name="WindowCaptureMode.Auto">Automatisch</resource>

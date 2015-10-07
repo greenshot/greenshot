@@ -21,7 +21,6 @@
 
 using System.Drawing;
 using System.Windows.Forms;
-
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Dapplo.Config.Ini;
@@ -31,54 +30,68 @@ using System.Threading.Tasks;
 using Dapplo.Config.Language;
 using GreenshotPlugin.Configuration;
 
-namespace Greenshot.Destinations {
+namespace Greenshot.Destinations
+{
 	/// <summary>
 	/// Description of FileWithDialog.
 	/// </summary>
-	public class FileWithDialogDestination : AbstractDestination {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(FileWithDialogDestination));
+	public class FileWithDialogDestination : AbstractDestination
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (FileWithDialogDestination));
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 
-		public override string Designation {
-			get {
+		public override string Designation
+		{
+			get
+			{
 				return BuildInDestinationEnum.FileDialog.ToString();
 			}
 		}
 
-		public override string Description {
-			get {
+		public override string Description
+		{
+			get
+			{
 				return language.SettingsDestinationFileas;
 			}
 		}
 
-		public override int Priority {
-			get {
+		public override int Priority
+		{
+			get
+			{
 				return 0;
 			}
 		}
-		
-		public override Keys EditorShortcutKeys {
-			get {
+
+		public override Keys EditorShortcutKeys
+		{
+			get
+			{
 				return Keys.Control | Keys.Shift | Keys.S;
 			}
 		}
 
-		public override Image DisplayIcon {
-			get {
+		public override Image DisplayIcon
+		{
+			get
+			{
 				return GreenshotResources.GetImage("Save.Image");
 			}
 		}
 
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			var exportInformation = new ExportInformation {
-				DestinationDesignation = Designation,
-				DestinationDescription = Description
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		{
+			var exportInformation = new ExportInformation
+			{
+				DestinationDesignation = Designation, DestinationDescription = Description
 			};
 			string savedTo = await Task.Factory.StartNew(() => ImageOutput.SaveWithDialog(surface, captureDetails), token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
 
 			// Bug #2918756 don't overwrite path if SaveWithDialog returns null!
-			if (savedTo != null) {
+			if (savedTo != null)
+			{
 				exportInformation.ExportMade = true;
 				exportInformation.Filepath = savedTo;
 				captureDetails.Filename = savedTo;

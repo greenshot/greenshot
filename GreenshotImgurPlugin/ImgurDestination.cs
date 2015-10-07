@@ -37,32 +37,40 @@ namespace GreenshotImgurPlugin
 	/// <summary>
 	/// Implementation of the Imgur destination.
 	/// </summary>
-	public class ImgurDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurDestination));
+	public class ImgurDestination : AbstractDestination
+	{
+		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ImgurDestination));
 		private static readonly IImgurConfiguration config = IniConfig.Current.Get<IImgurConfiguration>();
 		private static readonly IImgurLanguage imgurLanguage = LanguageLoader.Current.Get<IImgurLanguage>();
 		private ImgurPlugin _plugin = null;
 
-		public ImgurDestination(ImgurPlugin plugin) {
+		public ImgurDestination(ImgurPlugin plugin)
+		{
 			this._plugin = plugin;
 		}
-		
-		public override string Designation {
-			get {
+
+		public override string Designation
+		{
+			get
+			{
 				return "Imgur";
 			}
 		}
 
-		public override string Description {
-			get {
+		public override string Description
+		{
+			get
+			{
 				return imgurLanguage.UploadMenuItem;
 			}
 		}
 
-		public override Image DisplayIcon {
-			get {
-				ComponentResourceManager resources = new ComponentResourceManager(typeof(ImgurPlugin));
-				return (Image)resources.GetObject("Imgur");
+		public override Image DisplayIcon
+		{
+			get
+			{
+				ComponentResourceManager resources = new ComponentResourceManager(typeof (ImgurPlugin));
+				return (Image) resources.GetObject("Imgur");
 			}
 		}
 
@@ -74,40 +82,56 @@ namespace GreenshotImgurPlugin
 		/// <param name="captureDetails"></param>
 		/// <param name="token">CancellationToken</param>
 		/// <returns>Task with ExportInformation</returns>
-		public async override Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			var exportInformation = new ExportInformation {
-				DestinationDesignation = Designation,
-				DestinationDescription = Description
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		{
+			var exportInformation = new ExportInformation
+			{
+				DestinationDesignation = Designation, DestinationDescription = Description
 			};
 			var outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
-			try {
+			try
+			{
 				string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(config.FilenamePattern, config.UploadFormat, captureDetails));
-				var imgurInfo = await PleaseWaitWindow.CreateAndShowAsync(Designation, imgurLanguage.CommunicationWait, async (progress, pleaseWaitToken) => {
+				var imgurInfo = await PleaseWaitWindow.CreateAndShowAsync(Designation, imgurLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
+				{
 					return await ImgurUtils.UploadToImgurAsync(surface, outputSettings, captureDetails.Title, filename, progress, pleaseWaitToken);
 				}, token);
 
-				if (imgurInfo != null) {
+				if (imgurInfo != null)
+				{
 					exportInformation.ExportMade = true;
 
-					if (config.UsePageLink) {
-						if (imgurInfo.Page != null) {
+					if (config.UsePageLink)
+					{
+						if (imgurInfo.Page != null)
+						{
 							exportInformation.ExportedToUri = new Uri(imgurInfo.Page.AbsoluteUri);
 						}
-					} else if (imgurInfo.Original != null) {
+					}
+					else if (imgurInfo.Original != null)
+					{
 						exportInformation.ExportedToUri = new Uri(imgurInfo.Original.AbsoluteUri);
 					}
-					try {
-						if (config.CopyUrlToClipboard && exportInformation.ExportedToUri != null) {
+					try
+					{
+						if (config.CopyUrlToClipboard && exportInformation.ExportedToUri != null)
+						{
 							ClipboardHelper.SetClipboardData(exportInformation.ExportedToUri);
 						}
-					} catch (Exception ex) {
+					}
+					catch (Exception ex)
+					{
 						LOG.Error("Can't write to clipboard: ", ex);
 					}
 				}
-			} catch (TaskCanceledException tcEx) {
+			}
+			catch (TaskCanceledException tcEx)
+			{
 				exportInformation.ErrorMessage = tcEx.Message;
 				LOG.Info(tcEx.Message);
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				exportInformation.ErrorMessage = e.Message;
 				LOG.Warn(e);
 				MessageBox.Show(imgurLanguage.UploadFailure + " " + e.Message, Designation, MessageBoxButton.OK, MessageBoxImage.Error);

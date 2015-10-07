@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Czech" ietf="cs-CZ" version="1.1.0.2411" languagegroup="">
+
+<language>
 	<resources prefix="Photobucket">
 		<resource name="CANCEL">Zrušit</resource>
 		<resource name="communication_wait">Komunikace s Photobucket. Prosím čekejte ...</resource>

@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.UnmanagedHelpers;
@@ -27,36 +28,50 @@ using System.Drawing.Drawing2D;
 
 namespace GreenshotEditorPlugin.Drawing.Filters
 {
-    [Serializable] 
-	public class BlurFilter : AbstractFilter {
+	[Serializable]
+	public class BlurFilter : AbstractFilter
+	{
 		private int _blurRadius = 3;
+
 		[Field(FieldTypes.BLUR_RADIUS)]
-		public int BlurRadius {
-			get {
+		public int BlurRadius
+		{
+			get
+			{
 				return _blurRadius;
 			}
-			set {
+			set
+			{
 				_blurRadius = value;
 				OnFieldPropertyChanged(FieldTypes.BLUR_RADIUS);
 			}
 		}
-		public BlurFilter(DrawableContainer parent) : base(parent) {
+
+		public BlurFilter(DrawableContainer parent) : base(parent)
+		{
 		}
 
-		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
+		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode)
+		{
 			Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
-			if (applyRect.Width == 0 || applyRect.Height == 0) {
+			if (applyRect.Width == 0 || applyRect.Height == 0)
+			{
 				return;
 			}
 			var state = graphics.Save();
-			if (Invert) {
+			if (Invert)
+			{
 				graphics.SetClip(applyRect);
 				graphics.ExcludeClip(rect);
 			}
-			if (GDIplus.IsBlurPossible(_blurRadius)) {
+			if (GDIplus.IsBlurPossible(_blurRadius))
+			{
 				GDIplus.DrawWithBlur(graphics, applyBitmap, applyRect, null, null, _blurRadius, false);
-			} else {
-				using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect)) {
+			}
+			else
+			{
+				using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect))
+				{
 					ImageHelper.ApplyBoxBlur(fastBitmap, _blurRadius);
 					fastBitmap.DrawTo(graphics, applyRect);
 				}

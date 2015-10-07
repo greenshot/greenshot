@@ -19,16 +19,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotEditorPlugin.Drawing.Fields.Binding {
-	
+namespace GreenshotEditorPlugin.Drawing.Fields.Binding
+{
 	/// <summary>
 	/// Interface for a bidirectional validator, for use with BidirectionalBinding.
 	/// Useful if you do not want to synchronize values which would be illegal on
 	/// one of the bound objects (e.g. null value on some form components)
 	/// see NotNullValidator
 	/// </summary>
-	public interface IBindingValidator {
+	public interface IBindingValidator
+	{
 		bool validate(object o);
 	}
-	
 }

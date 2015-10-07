@@ -22,70 +22,83 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace GreenshotPlugin.Configuration {
-	public interface IMiscConfiguration {
+namespace GreenshotPlugin.Configuration
+{
+	public interface IMiscConfiguration
+	{
 		[Description("Optimize memory footprint, but with a performance penalty!"), DefaultValue(false)]
-		bool MinimizeWorkingSetSize {
+		bool MinimizeWorkingSetSize
+		{
 			get;
 			set;
 		}
 
 		[Description("Also check for unstable version updates"), DefaultValue(false)]
-		bool CheckForUnstable {
+		bool CheckForUnstable
+		{
 			get;
 			set;
 		}
 
 		[Description("The fixes that are active.")]
-		IList<string> ActiveTitleFixes {
+		IList<string> ActiveTitleFixes
+		{
 			get;
 			set;
 		}
 
 		[Description("The regular expressions to match the title with.")]
-		IDictionary<string, string> TitleFixMatcher {
+		IDictionary<string, string> TitleFixMatcher
+		{
 			get;
 			set;
 		}
 
 		[Description("The replacements for the matchers.")]
-		IDictionary<string, string> TitleFixReplacer {
+		IDictionary<string, string> TitleFixReplacer
+		{
 			get;
 			set;
 		}
 
 		[Description("Enable a special DIB clipboard reader"), DefaultValue(true)]
-		bool EnableSpecialDIBClipboardReader {
+		bool EnableSpecialDIBClipboardReader
+		{
 			get;
 			set;
 		}
 
 		[Description("The 'to' field for the email destination (settings for Outlook can be found under the Office section)"), DefaultValue("")]
-		string MailApiTo {
+		string MailApiTo
+		{
 			get;
 			set;
 		}
 
 		[Description("The 'CC' field for the email destination (settings for Outlook can be found under the Office section)"), DefaultValue("")]
-		string MailApiCC {
+		string MailApiCC
+		{
 			get;
 			set;
 		}
 
 		[Description("The 'BCC' field for the email destination (settings for Outlook can be found under the Office section)"), DefaultValue("")]
-		string MailApiBCC {
+		string MailApiBCC
+		{
 			get;
 			set;
 		}
 
 		[Description("Version of Greenshot which created this .ini")]
-		string LastSaveWithVersion {
+		string LastSaveWithVersion
+		{
 			get;
 			set;
 		}
 
 		[Description("When reading images from files or clipboard, use the EXIF information to correct the orientation"), DefaultValue(true)]
-		bool ProcessEXIFOrientation {
+		bool ProcessEXIFOrientation
+		{
 			get;
 			set;
 		}

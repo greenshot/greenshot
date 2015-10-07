@@ -27,17 +27,24 @@ using GreenshotPlugin.Core;
 
 namespace GreenshotExternalCommandPlugin
 {
-	public static class IconCache {
+	public static class IconCache
+	{
 		private static IExternalCommandConfiguration config = IniConfig.Current.Get<IExternalCommandConfiguration>();
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(IconCache));
+		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (IconCache));
 
-		public static Image IconForCommand(string commandName) {
+		public static Image IconForCommand(string commandName)
+		{
 			Image icon = null;
-			if (commandName != null) {
-				if (config.Commandline.ContainsKey(commandName) && File.Exists(config.Commandline[commandName])) {
-					try {
+			if (commandName != null)
+			{
+				if (config.Commandline.ContainsKey(commandName) && File.Exists(config.Commandline[commandName]))
+				{
+					try
+					{
 						icon = PluginUtils.GetCachedExeIcon(config.Commandline[commandName], 0);
-					} catch (Exception ex) {
+					}
+					catch (Exception ex)
+					{
 						LOG.Warn("Problem loading icon for " + config.Commandline[commandName], ex);
 					}
 				}

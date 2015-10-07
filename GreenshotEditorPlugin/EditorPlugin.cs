@@ -35,7 +35,7 @@ namespace GreenshotEditorPlugin
 	/// </summary>
 	public class EditorPlugin : IGreenshotPlugin
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(EditorPlugin));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (EditorPlugin));
 		private PluginAttribute _myAttributes;
 
 		public void Dispose()
@@ -75,7 +75,7 @@ namespace GreenshotEditorPlugin
 			// Make sure the defaults are set
 			await iniConfig.RegisterAndGetAsync<IEditorConfiguration>(token);
 			//await LanguageLoader.Current.RegisterAndGetAsync<IEditorLanguage>(token);
-            _myAttributes = myAttribute;
+			_myAttributes = myAttribute;
 			return true;
 		}
 

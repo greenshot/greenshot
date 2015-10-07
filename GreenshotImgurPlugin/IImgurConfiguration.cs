@@ -32,94 +32,110 @@ namespace GreenshotImgurPlugin
 	/// Description of ImgurConfiguration.
 	/// </summary>
 	[IniSection("Imgur"), Description("Greenshot Imgur Plugin configuration")]
-	public interface IImgurConfiguration : IIniSection<IImgurConfiguration> {
+	public interface IImgurConfiguration : IIniSection<IImgurConfiguration>
+	{
 		[Description("Url to Imgur API."), DefaultValue("https://api.imgur.com/3")]
-		string ApiUrl {
+		string ApiUrl
+		{
 			get;
 			set;
 		}
 
 		[Description("What file type to use for uploading"), DefaultValue(OutputFormat.png)]
-		OutputFormat UploadFormat {
+		OutputFormat UploadFormat
+		{
 			get;
 			set;
 		}
 
 		[Description("JPEG file save quality in %."), DefaultValue(80)]
-		int UploadJpegQuality {
+		int UploadJpegQuality
+		{
 			get;
 			set;
 		}
 
 		[Description("Reduce color amount of the uploaded image to 256"), DefaultValue(false)]
-		bool UploadReduceColors {
+		bool UploadReduceColors
+		{
 			get;
 			set;
 		}
 
 		[Description("Copy the URL to the clipboard"), DefaultValue(true)]
-		bool CopyUrlToClipboard {
+		bool CopyUrlToClipboard
+		{
 			get;
 			set;
 		}
 
 		[Description("Use pagelink instead of direct link (in clipboard and notification)"), DefaultValue(false)]
-		bool UsePageLink {
+		bool UsePageLink
+		{
 			get;
 			set;
 		}
 
 		[Description("Use anonymous access to Imgur"), DefaultValue(true)]
-		bool AnonymousAccess {
+		bool AnonymousAccess
+		{
 			get;
 			set;
 		}
 
 		[Description("Track the upload history"), DefaultValue(true)]
-		bool TrackHistory {
+		bool TrackHistory
+		{
 			get;
 			set;
 		}
 
-		[Description("The Imgur token"), TypeConverter(typeof(StringEncryptionTypeConverter))]
-		string ImgurToken {
+		[Description("The Imgur token"), TypeConverter(typeof (StringEncryptionTypeConverter))]
+		string ImgurToken
+		{
 			get;
 			set;
 		}
 
-		[Description("The Imgur token secret"), TypeConverter(typeof(StringEncryptionTypeConverter))]
-		string ImgurTokenSecret {
+		[Description("The Imgur token secret"), TypeConverter(typeof (StringEncryptionTypeConverter))]
+		string ImgurTokenSecret
+		{
 			get;
 			set;
 		}
 
 		[Description("Is the title passed on to Imgur"), DefaultValue(false)]
-		bool AddTitle {
+		bool AddTitle
+		{
 			get;
 			set;
 		}
 
 		[Description("Is the filename passed on to Imgur"), DefaultValue(false)]
-		bool AddFilename {
+		bool AddFilename
+		{
 			get;
 			set;
 		}
 
 		[Description("Filename for the Imgur upload"), DefaultValue("${capturetime:d\"yyyyMMdd-HHmm\"}")]
-		string FilenamePattern {
+		string FilenamePattern
+		{
 			get;
 			set;
 		}
 
 		[Description("Imgur upload history (ImgurUploadHistory.hash=deleteHash)")]
-		IDictionary<string, string> ImgurUploadHistory {
+		IDictionary<string, string> ImgurUploadHistory
+		{
 			get;
 			set;
 		}
 
 
-		[Description("Imgur authorization refresh Token"), TypeConverter(typeof(StringEncryptionTypeConverter))]
-		string RefreshToken {
+		[Description("Imgur authorization refresh Token"), TypeConverter(typeof (StringEncryptionTypeConverter))]
+		string RefreshToken
+		{
 			get;
 			set;
 		}
@@ -130,7 +146,8 @@ namespace GreenshotImgurPlugin
 		/// AccessToken, not stored
 		/// </summary>
 		[IniPropertyBehavior(Read = false, Write = false)]
-		string AccessToken {
+		string AccessToken
+		{
 			get;
 			set;
 		}
@@ -139,7 +156,8 @@ namespace GreenshotImgurPlugin
 		/// AccessTokenExpires, not stored
 		/// </summary>
 		[IniPropertyBehavior(Read = false, Write = false)]
-		DateTimeOffset AccessTokenExpires {
+		DateTimeOffset AccessTokenExpires
+		{
 			get;
 			set;
 		}
@@ -168,7 +186,8 @@ namespace GreenshotImgurPlugin
 		/// runtimeImgurHistory, not stored
 		/// </summary>
 		[IniPropertyBehavior(Read = false, Write = false)]
-		IDictionary<string, ImageInfo> RuntimeImgurHistory {
+		IDictionary<string, ImageInfo> RuntimeImgurHistory
+		{
 			get;
 			set;
 		}
@@ -177,7 +196,8 @@ namespace GreenshotImgurPlugin
 		/// Available credits
 		/// </summary>
 		[IniPropertyBehavior(Read = false, Write = false)]
-		int Credits {
+		int Credits
+		{
 			get;
 			set;
 		}

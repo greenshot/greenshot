@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Français" ietf="fr-FR" version="1.0.0" languagegroup="">
+
+<language>
 	<resources prefix="Jira">
 		<resource name="CANCEL">Annuler</resource>
 		<resource name="column_assignee">Bénéficiaire</resource>

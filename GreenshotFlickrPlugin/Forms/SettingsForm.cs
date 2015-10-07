@@ -21,14 +21,17 @@
 
 using GreenshotFlickrPlugin.Forms;
 
-namespace GreenshotFlickrPlugin {
+namespace GreenshotFlickrPlugin
+{
 	/// <summary>
 	/// Description of PasswordRequestForm.
 	/// </summary>
-	public partial class SettingsForm : FlickrForm {
+	public partial class SettingsForm : FlickrForm
+	{
 		private string flickrFrob = string.Empty;
 
-		public SettingsForm(IFlickrConfiguration config) {
+		public SettingsForm(IFlickrConfiguration config)
+		{
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
@@ -36,6 +39,5 @@ namespace GreenshotFlickrPlugin {
 			CancelButton = buttonCancel;
 			AcceptButton = buttonOK;
 		}
-			
 	}
 }

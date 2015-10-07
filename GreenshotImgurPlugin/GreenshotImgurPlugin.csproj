@@ -44,8 +44,9 @@
       <HintPath>..\packages\Dapplo.HttpExtensions.0.1.16.0\lib\net451\Dapplo.HttpExtensions.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="log4net">
-      <HintPath>..\Greenshot\Lib\log4net.dll</HintPath>
+    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="PresentationCore" />
@@ -104,6 +105,21 @@
       <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
       <Name>GreenshotPlugin</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Languages\language_imgurplugin-cs-CZ.xml" />
+    <Content Include="Languages\language_imgurplugin-id-ID.xml" />
+    <Content Include="Languages\language_imgurplugin-it-IT.xml" />
+    <Content Include="Languages\language_imgurplugin-ko-KR.xml" />
+    <Content Include="Languages\language_imgurplugin-lv-LV.xml" />
+    <Content Include="Languages\language_imgurplugin-pl-PL.xml" />
+    <Content Include="Languages\language_imgurplugin-pt-PT.xml" />
+    <Content Include="Languages\language_imgurplugin-ru-RU.xml" />
+    <Content Include="Languages\language_imgurplugin-sk-SK.xml" />
+    <Content Include="Languages\language_imgurplugin-sr-Cyrl-RS.xml" />
+    <Content Include="Languages\language_imgurplugin-sv-SE.xml" />
+    <Content Include="Languages\language_imgurplugin-uk-UA.xml" />
+    <Content Include="Languages\language_imgurplugin-zh-TW.xml" />
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>

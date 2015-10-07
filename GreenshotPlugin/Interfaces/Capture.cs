@@ -20,126 +20,151 @@
  */
 
 using GreenshotPlugin.Configuration;
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Greenshot.Plugin {
+namespace Greenshot.Plugin
+{
 	/// <summary>
 	/// Details for the capture, like the window title and date/time etc.
 	/// </summary>
-	public interface ICaptureDetails {
-		string Filename {
+	public interface ICaptureDetails
+	{
+		string Filename
+		{
 			get;
 			set;
 		}
-		string Title {
+
+		string Title
+		{
 			get;
 			set;
 		}
-		
-		DateTime DateTime {
+
+		DateTime DateTime
+		{
 			get;
 			set;
 		}
-		
-		List<IDestination> CaptureDestinations {
+
+		List<IDestination> CaptureDestinations
+		{
 			get;
 			set;
 		}
-		
-		Dictionary<string, string> MetaData {
+
+		Dictionary<string, string> MetaData
+		{
 			get;
 		}
-		
+
 		/// <summary>
 		/// Helper method to prevent complex code which needs to check every key
 		/// </summary>
 		/// <param name="key">The key for the meta-data</param>
 		/// <param name="value">The value for the meta-data</param>
 		void AddMetaData(string key, string value);
-		
+
 		void ClearDestinations();
 		void RemoveDestination(IDestination captureDestination);
 		void AddDestination(IDestination captureDestination);
 		bool HasDestination(string designation);
-				
-		CaptureMode CaptureMode {
+
+		CaptureMode CaptureMode
+		{
 			get;
 			set;
 		}
-		
-		float DpiX {
+
+		float DpiX
+		{
 			get;
 			set;
 		}
-		float DpiY {
+
+		float DpiY
+		{
 			get;
 			set;
 		}
 	}
 
-	public interface ICaptureElement {
-		List<ICaptureElement> Children {
+	public interface ICaptureElement
+	{
+		List<ICaptureElement> Children
+		{
 			get;
 			set;
 		}
-		Rectangle Bounds {
+
+		Rectangle Bounds
+		{
 			get;
 			set;
 		}
-		string Name {
+
+		string Name
+		{
 			get;
 			set;
 		}
 	}
-	
+
 	/// <summary>
 	/// The interface to the Capture object, so Plugins can use it.
 	/// </summary>
-	public interface ICapture : IDisposable {
+	public interface ICapture : IDisposable
+	{
 		// The Capture Details
-		ICaptureDetails CaptureDetails {
+		ICaptureDetails CaptureDetails
+		{
 			get;
 			set;
 		}
 
 		// The captured Image
-		Image Image {
+		Image Image
+		{
 			get;
 			set;
 		}
 
 		void NullImage();
-		
-		Rectangle ScreenBounds {
+
+		Rectangle ScreenBounds
+		{
 			get;
 			set;
 		}
-		
-		Cursor Cursor {
+
+		Cursor Cursor
+		{
 			get;
 			set;
 		}
-		
+
 		// Boolean to specify if the cursor is available
-		bool CursorVisible {
+		bool CursorVisible
+		{
 			get;
 			set;
 		}
-		
-		Point CursorLocation {
+
+		Point CursorLocation
+		{
 			get;
 			set;
 		}
-		
-		Point Location {
+
+		Point Location
+		{
 			get;
 			set;
 		}
-		
+
 		/// <summary>
 		/// Crops the capture to the specified rectangle (with Bitmap coordinates!)
 		/// </summary>
@@ -160,7 +185,7 @@ namespace Greenshot.Plugin {
 		///// <param name="x">x coordinates to move the elements</param>
 		///// <param name="y">y coordinates to move the elements</param>
 		//void MoveElements(int x, int y);
-		
+
 		///// <summary>
 		///// Add a new element to the capture
 		///// </summary>
@@ -175,5 +200,4 @@ namespace Greenshot.Plugin {
 		//    set;
 		//}
 	}
-
 }

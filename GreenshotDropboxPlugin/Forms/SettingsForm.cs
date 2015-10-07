@@ -27,11 +27,13 @@ namespace GreenshotDropboxPlugin
 	/// <summary>
 	/// Description of PasswordRequestForm.
 	/// </summary>
-	public partial class SettingsForm : DropboxForm {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SettingsForm));
+	public partial class SettingsForm : DropboxForm
+	{
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (SettingsForm));
 		private static readonly IDropboxConfiguration config = IniConfig.Current.Get<IDropboxConfiguration>();
 
-		public SettingsForm() {
+		public SettingsForm()
+		{
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
@@ -39,6 +41,5 @@ namespace GreenshotDropboxPlugin
 			AcceptButton = buttonOK;
 			CancelButton = buttonCancel;
 		}
-
 	}
 }

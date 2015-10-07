@@ -35,28 +35,34 @@ namespace GreenshotConfluencePlugin
 	/// <summary>
 	/// This is the ConfluencePlugin base code
 	/// </summary>
-	public class ConfluencePlugin : IGreenshotPlugin {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluencePlugin));
+	public class ConfluencePlugin : IGreenshotPlugin
+	{
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ConfluencePlugin));
 		private static IConfluenceConfiguration _config;
 		private static IConfluenceLanguage _language;
 		private static ConfluenceApi _confluenceApi;
 
-		public void Dispose() {
+		public void Dispose()
+		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing) {
+		protected virtual void Dispose(bool disposing)
+		{
 			//if (disposing) {}
 		}
 
-		public IEnumerable<IDestination> Destinations() {
-			if (ConfluenceDestination.IsInitialized) {
+		public IEnumerable<IDestination> Destinations()
+		{
+			if (ConfluenceDestination.IsInitialized)
+			{
 				yield return new ConfluenceDestination();
 			}
 		}
 
-		public IEnumerable<IProcessor> Processors() {
+		public IEnumerable<IProcessor> Processors()
+		{
 			yield break;
 		}
 
@@ -65,7 +71,8 @@ namespace GreenshotConfluencePlugin
 		/// </summary>
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="myAttribute">My own attributes</param>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken()) {
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken())
+		{
 			// Register / get the confluence configuration
 			_config = await IniConfig.Current.RegisterAndGetAsync<IConfluenceConfiguration>(token);
 			_language = await LanguageLoader.Current.RegisterAndGetAsync<IConfluenceLanguage>(token);
@@ -73,7 +80,9 @@ namespace GreenshotConfluencePlugin
 			{
 				TranslationManager.Instance.TranslationProvider = new LanguageXMLTranslationProvider();
 				//resources = new ComponentResourceManager(typeof(ConfluencePlugin));
-			} catch (Exception ex) {
+			}
+			catch (Exception ex)
+			{
 				LOG.ErrorFormat("Problem in ConfluencePlugin.Initialize: {0}", ex.Message);
 				return false;
 			}
@@ -87,45 +96,60 @@ namespace GreenshotConfluencePlugin
 			return true;
 		}
 
-		public void Shutdown() {
+		public void Shutdown()
+		{
 			LOG.Debug("Confluence Plugin shutdown.");
-			if (_confluenceApi != null) {
+			if (_confluenceApi != null)
+			{
 				_confluenceApi.Dispose();
 				_confluenceApi = null;
 			}
 		}
 
-		public static ConfluenceApi ConfluenceAPI {
-			get {
+		public static ConfluenceApi ConfluenceAPI
+		{
+			get
+			{
 				return _confluenceApi;
 			}
 		}
 
-		public async static Task<ConfluenceApi> GetConfluenceAPI() {
+		public static async Task<ConfluenceApi> GetConfluenceAPI()
+		{
 			ConfluenceApi confluenceApi = null;
-			if (!string.IsNullOrEmpty(_config.RestUrl)) {
-				try {
+			if (!string.IsNullOrEmpty(_config.RestUrl))
+			{
+				try
+				{
 					// Get the system name, so the user knows where to login to
 					CredentialsDialog dialog = new CredentialsDialog(_config.RestUrl);
 					dialog.Name = null;
-					while (dialog.Show(dialog.Name) == DialogResult.OK) {
+					while (dialog.Show(dialog.Name) == DialogResult.OK)
+					{
 						confluenceApi = new ConfluenceApi(new Uri(_config.RestUrl));
 						confluenceApi.SetBasicAuthentication(dialog.Name, dialog.Password);
-						try {
+						try
+						{
 							// Try loading content for id 0, should be null (or something) but not give an exception
 							await confluenceApi.GetContentAsync(1).ConfigureAwait(false);
 							LOG.DebugFormat("Confluence access for User {0} worked", dialog.Name);
-							if (dialog.SaveChecked) {
+							if (dialog.SaveChecked)
+							{
 								dialog.Confirm(true);
 							}
 							return confluenceApi;
-						} catch {
+						}
+						catch
+						{
 							LOG.DebugFormat("Confluence access for User {0} didn't work, probably a wrong password.", dialog.Name);
 							confluenceApi.Dispose();
 							confluenceApi = null;
-							try {
+							try
+							{
 								dialog.Confirm(false);
-							} catch (ApplicationException e) {
+							}
+							catch (ApplicationException e)
+							{
 								// exception handling ...
 								LOG.Error("Problem using the credentials dialog", e);
 							}
@@ -135,31 +159,37 @@ namespace GreenshotConfluencePlugin
 							dialog.AlwaysDisplay = true;
 						}
 					}
-				} catch (ApplicationException e) {
+				}
+				catch (ApplicationException e)
+				{
 					// exception handling ...
 					LOG.Error("Problem using the credentials dialog", e);
 				}
 			}
 			return confluenceApi;
-
 		}
 
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
-		public void Configure() {
-			var oldConfig = new {
+		public void Configure()
+		{
+			var oldConfig = new
+			{
 				Url = _config.RestUrl
 			};
 
 			ConfluenceConfigurationForm configForm = new ConfluenceConfigurationForm();
 			string url = _config.RestUrl;
 			Nullable<bool> dialogResult = configForm.ShowDialog();
-			if (dialogResult.HasValue && dialogResult.Value) {
-				var newConfig = new {
+			if (dialogResult.HasValue && dialogResult.Value)
+			{
+				var newConfig = new
+				{
 					Url = _config.RestUrl
 				};
-				if (!newConfig.Equals(oldConfig)) {
+				if (!newConfig.Equals(oldConfig))
+				{
 					_confluenceApi.Dispose();
 					_confluenceApi = null;
 				}

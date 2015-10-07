@@ -18,64 +18,110 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 
-namespace GreenshotEditorPlugin.Controls {
-
+namespace GreenshotEditorPlugin.Controls
+{
 	[ToolStripItemDesignerAvailability(ToolStripItemDesignerAvailability.ToolStrip | ToolStripItemDesignerAvailability.StatusStrip)]
 	public class ToolStripNumericUpDown : ToolStripControlHost, INotifyPropertyChanged
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
-		
+
 		public ToolStripNumericUpDown() : base(new NumericUpDown())
 		{
 		}
-		
+
 		public NumericUpDown NumericUpDown
 		{
-			get {return Control as NumericUpDown;}
+			get
+			{
+				return Control as NumericUpDown;
+			}
 		}
-		
+
 		public decimal Value
-        {
-            get { return NumericUpDown.Value; }
-            set { NumericUpDown.Value = value;}
-        }
-		public decimal Minimum {
-			get { return NumericUpDown.Minimum; }
-			set { NumericUpDown.Minimum = value; }
+		{
+			get
+			{
+				return NumericUpDown.Value;
+			}
+			set
+			{
+				NumericUpDown.Value = value;
+			}
 		}
-		
-		public decimal Maximum {
-			get { return NumericUpDown.Maximum; }
-			set { NumericUpDown.Maximum = value; }
+
+		public decimal Minimum
+		{
+			get
+			{
+				return NumericUpDown.Minimum;
+			}
+			set
+			{
+				NumericUpDown.Minimum = value;
+			}
 		}
-		
-		public decimal Increment {
-			get { return NumericUpDown.Increment; }
-			set { NumericUpDown.Increment = value; }
+
+		public decimal Maximum
+		{
+			get
+			{
+				return NumericUpDown.Maximum;
+			}
+			set
+			{
+				NumericUpDown.Maximum = value;
+			}
 		}
-		
-		public int DecimalPlaces {
-			get { return NumericUpDown.DecimalPlaces; }
-			set { NumericUpDown.DecimalPlaces = value; }
+
+		public decimal Increment
+		{
+			get
+			{
+				return NumericUpDown.Increment;
+			}
+			set
+			{
+				NumericUpDown.Increment = value;
+			}
 		}
-				
-		
-		protected override void OnSubscribeControlEvents(Control control) {
+
+		public int DecimalPlaces
+		{
+			get
+			{
+				return NumericUpDown.DecimalPlaces;
+			}
+			set
+			{
+				NumericUpDown.DecimalPlaces = value;
+			}
+		}
+
+
+		protected override void OnSubscribeControlEvents(Control control)
+		{
 			base.OnSubscribeControlEvents(control);
 			NumericUpDown.ValueChanged += _valueChanged;
 		}
-		protected override void OnUnsubscribeControlEvents(Control control) {
+
+		protected override void OnUnsubscribeControlEvents(Control control)
+		{
 			base.OnUnsubscribeControlEvents(control);
 			NumericUpDown.ValueChanged -= _valueChanged;
 		}
-		
-		private void _valueChanged(object sender, EventArgs e) {
-			if(PropertyChanged != null) PropertyChanged(this, new PropertyChangedEventArgs("Value"));
+
+		private void _valueChanged(object sender, EventArgs e)
+		{
+			if (PropertyChanged != null)
+			{
+				PropertyChanged(this, new PropertyChangedEventArgs("Value"));
+			}
 		}
 	}
 }

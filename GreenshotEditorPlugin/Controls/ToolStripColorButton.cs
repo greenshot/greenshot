@@ -26,12 +26,15 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using GreenshotPlugin.Controls;
 
-namespace GreenshotEditorPlugin.Controls {
-	public class ToolStripColorButton : ToolStripButton, INotifyPropertyChanged, IGreenshotLanguageBindable {
+namespace GreenshotEditorPlugin.Controls
+{
+	public class ToolStripColorButton : ToolStripButton, INotifyPropertyChanged, IGreenshotLanguageBindable
+	{
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
-		public string LanguageKey {
+		public string LanguageKey
+		{
 			get;
 			set;
 		}
@@ -44,26 +47,37 @@ namespace GreenshotEditorPlugin.Controls {
 		}
 
 		private Color selectedColor = Color.Transparent;
-		
-		public ToolStripColorButton() {
-			Click+= ColorButtonClick;
+
+		public ToolStripColorButton()
+		{
+			Click += ColorButtonClick;
 		}
 
-		public Color SelectedColor {
-			get {return selectedColor;}
-			set {
+		public Color SelectedColor
+		{
+			get
+			{
+				return selectedColor;
+			}
+			set
+			{
 				selectedColor = value;
 
 				Brush brush;
-				if(value != Color.Transparent) {
+				if (value != Color.Transparent)
+				{
 					brush = new SolidBrush(value);
-				} else {
+				}
+				else
+				{
 					brush = new HatchBrush(HatchStyle.Percent50, Color.White, Color.Gray);
 				}
 
-				if (Image != null) {
-					using (Graphics graphics = Graphics.FromImage(Image)) {
-						graphics.FillRectangle(brush, new Rectangle(0,13,16,3));
+				if (Image != null)
+				{
+					using (Graphics graphics = Graphics.FromImage(Image))
+					{
+						graphics.FillRectangle(brush, new Rectangle(0, 13, 16, 3));
 					}
 				}
 
@@ -73,15 +87,19 @@ namespace GreenshotEditorPlugin.Controls {
 			}
 		}
 
-		void ColorButtonClick(object sender, EventArgs e) {
+		private void ColorButtonClick(object sender, EventArgs e)
+		{
 			var colorDialog = GreenshotPlugin.Controls.ColorDialog.GetInstance();
 			colorDialog.Color = SelectedColor;
 			// Using the parent to make sure the dialog doesn't show on another window
 			colorDialog.ShowDialog(Parent.Parent);
-			if (colorDialog.DialogResult != DialogResult.Cancel) {
-				if (!colorDialog.Color.Equals(SelectedColor)) {
+			if (colorDialog.DialogResult != DialogResult.Cancel)
+			{
+				if (!colorDialog.Color.Equals(SelectedColor))
+				{
 					SelectedColor = colorDialog.Color;
-					if (PropertyChanged != null) {
+					if (PropertyChanged != null)
+					{
 						PropertyChanged(this, new PropertyChangedEventArgs("SelectedColor"));
 					}
 				}

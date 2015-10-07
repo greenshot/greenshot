@@ -1,23 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="한국어" ietf="ko-KR" version="1.0.4" languagegroup="8">
+
+<language>
 	<resources prefix="Core">
 		<resource name="about_bugs">버그는 아래 URL로 전달바랍니다.</resource>
 		<resource name="about_donations">Greenshot이 좋다면 아래 URL로 방문하셔서 지원할 수 있습니다.</resource>
 		<resource name="about_host">Greenshot은 sourceforge.net 관리하에 아래 링크에서 호스팅되고 있습니다</resource>
 		<resource name="about_icons">아이콘은 Yusuke Kamiyamane's Fugue icon set으로부터 제공받은 것입니다. (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright (C) 2007-2010 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
-Details about the GNU General Public License:</resource>
+		<resource name="about_license">
+			Copyright (C) 2007-2010 Thomas Braun, Jens Klingen, Robin Krom
+			Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
+			Details about the GNU General Public License:
+		</resource>
 		<resource name="about_title">Greenshot 프로그램 소개...</resource>
 		<resource name="application_title">Greenshot - 좋은 이미지 캡처 프로그램</resource>
 		<resource name="bugreport_cancel">닫기</resource>
-		<resource name="bugreport_info">미안합니다. 예상치 못한 오류가 발생하였습니다.
+		<resource name="bugreport_info">
+			미안합니다. 예상치 못한 오류가 발생하였습니다.
 
-The good news is: you can help us getting rid of it by filing a bug report.
-Please visit the URL below, create a new bug report and paste the contents from the text area into the description.
+			The good news is: you can help us getting rid of it by filing a bug report.
+			Please visit the URL below, create a new bug report and paste the contents from the text area into the description.
 
-Please add a meaningful summary and enclose any information you consider to be helpful for reproducing the issue.
-Also, we would highly appreciate if you checked whether a tracker item already exists for this bug. (You can use the search to find those quickly.) Thank you :)</resource>
+			Please add a meaningful summary and enclose any information you consider to be helpful for reproducing the issue.
+			Also, we would highly appreciate if you checked whether a tracker item already exists for this bug. (You can use the search to find those quickly.) Thank you :)
+		</resource>
 		<resource name="bugreport_title">오류</resource>
 		<resource name="CANCEL">취소</resource>
 		<resource name="clipboard_error">클립보드에 쓰는 동안 예상치 못한 오류가 발생하였습니다.</resource>
@@ -159,8 +164,10 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="EmailFormat.OUTLOOK_TXT">문자열 아웃룩</resource>
 		<resource name="error">오류</resource>
 		<resource name="error_multipleinstances">Greenshot가 이미 실행 중입니다.</resource>
-		<resource name="error_nowriteaccess">{0}파일로 저장할 수 없습니다.
-                                              선택된 저장 위치에 쓸 수 있는지 체크하시오.</resource>
+		<resource name="error_nowriteaccess">
+			{0}파일로 저장할 수 없습니다.
+			선택된 저장 위치에 쓸 수 있는지 체크하시오.
+		</resource>
 		<resource name="error_openfile">파일 "{0}" 을 열 수 없습니다.</resource>
 		<resource name="error_openlink">링크 '{0}'을 열 수 없습니다.</resource>
 		<resource name="error_save">저장할 수 없습니다. 적당한 위치를 선택하세요.</resource>
@@ -187,14 +194,14 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="printoptions_allowenlarge">출력물을 페이지 크기에 맞게 확대</resource>
 		<resource name="printoptions_allowrotate">출력물을 페이지 방향으로 회전</resource>
 		<resource name="printoptions_allowshrink">출력물을 페이지 크기에 맞게 축소</resource>
-    <resource name="printoptions_colors">색상 설정</resource>
-    <resource name="printoptions_dontaskagain">기본설정으로 설정 저장하고 다시 묻지 않습니다</resource>
+		<resource name="printoptions_colors">색상 설정</resource>
+		<resource name="printoptions_dontaskagain">기본설정으로 설정 저장하고 다시 묻지 않습니다</resource>
 		<resource name="printoptions_inverted">반전 색상으로 인쇄</resource>
-    <resource name="printoptions_layout">페이지 윤곽 설정</resource>
-    <resource name="printoptions_printcolor">전체 색상 인쇄</resource>
-    <resource name="printoptions_printgrayscale">그레이스케일 인쇄</resource>
-    <resource name="printoptions_printmonochrome">흑백 인쇄</resource>
-    <resource name="printoptions_timestamp">페이지 하단에 날짜/시간 인쇄</resource>
+		<resource name="printoptions_layout">페이지 윤곽 설정</resource>
+		<resource name="printoptions_printcolor">전체 색상 인쇄</resource>
+		<resource name="printoptions_printgrayscale">그레이스케일 인쇄</resource>
+		<resource name="printoptions_printmonochrome">흑백 인쇄</resource>
+		<resource name="printoptions_timestamp">페이지 하단에 날짜/시간 인쇄</resource>
 		<resource name="printoptions_title">Greenshot 인쇄 설정</resource>
 		<resource name="qualitydialog_dontaskagain">기본설정 품질로 저장하고 다시 묻지 않음</resource>
 		<resource name="qualitydialog_title">Greenshot 품질</resource>
@@ -223,22 +230,24 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="settings_iecapture">인터넷 익스플로어 캡처</resource>
 		<resource name="settings_jpegquality">JPEG 품질</resource>
 		<resource name="settings_language">언어</resource>
-		<resource name="settings_message_filenamepattern">자동으로 아래 정의된 설정값으로 치환될 것입니다:
-${YYYY} 년, 4자리
-${MM} 월, 2자리
-${DD} 일, 2자리
-${hh} 시, 2자리
-${mm} 분, 2자리
-${ss} 초, 2자리
-${NUM} 증가 숫자, 6자리
-${title} 작업창 제목
-${user} 작업창 사용자
-${domain} 작업창 도메인
-${hostname} PC명
+		<resource name="settings_message_filenamepattern">
+			자동으로 아래 정의된 설정값으로 치환될 것입니다:
+			${YYYY} 년, 4자리
+			${MM} 월, 2자리
+			${DD} 일, 2자리
+			${hh} 시, 2자리
+			${mm} 분, 2자리
+			${ss} 초, 2자리
+			${NUM} 증가 숫자, 6자리
+			${title} 작업창 제목
+			${user} 작업창 사용자
+			${domain} 작업창 도메인
+			${hostname} PC명
 
-동적으로 폴더를 생성할 수 있습니다, 폴더 및 파일명을 구분하기 위하여 백슬래(\)를 사용하시오.
-예: 파일명 유형 ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-   기본 저장 위치에 년-월-일 폴더를 생성한 후 즉 2008-06-29폴더명에 현재 시간 파일명(13-40-27)으로 저장됩니다.</resource>
+			동적으로 폴더를 생성할 수 있습니다, 폴더 및 파일명을 구분하기 위하여 백슬래(\)를 사용하시오.
+			예: 파일명 유형 ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+			기본 저장 위치에 년-월-일 폴더를 생성한 후 즉 2008-06-29폴더명에 현재 시간 파일명(13-40-27)으로 저장됩니다.
+		</resource>
 		<resource name="settings_network">네트워크와 업데이트</resource>
 		<resource name="settings_output">출력 파일 설정</resource>
 		<resource name="settings_playsound">소리 재생</resource>
@@ -273,41 +282,43 @@ ${hostname} PC명
 		<resource name="update_found">Greenshot 새 버전을 이용할 수 있습니다. Greenshot {0}를 다운로드하겠습니까?</resource>
 		<resource name="wait_ie_capture">익스플로어 페이지를 캡처하는 동안 기다리세요...</resource>
 		<resource name="warning">경고</resource>
-		<resource name="warning_hotkeys">단축키 "{0}를 등록할 수 없습니다. 아마 다른 어플이 동일한 단축키를 사용 중인 것 같습니다! 단축키 설정을 변경하거나 다른 어플의 단축키를 비활성화하거나 변경하세요.
+		<resource name="warning_hotkeys">
+			단축키 "{0}를 등록할 수 없습니다. 아마 다른 어플이 동일한 단축키를 사용 중인 것 같습니다! 단축키 설정을 변경하거나 다른 어플의 단축키를 비활성화하거나 변경하세요.
 
-전체 Greenshot은 단축키없이 트레이 아이콘 메뉴에서 직접 작동합니다.</resource>
+			전체 Greenshot은 단축키없이 트레이 아이콘 메뉴에서 직접 작동합니다.
+		</resource>
 		<resource name="WindowCaptureMode.Aero">사용자 색상 사용</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">투명도 유지</resource>
 		<resource name="WindowCaptureMode.Auto">자동</resource>
 		<resource name="WindowCaptureMode.GDI">기본 색상 사용</resource>
 		<resource name="WindowCaptureMode.Screen">시간 지연</resource>
 
-    <!-- 1.2 -->
-    <resource name="editor_dropshadow_darkness">음영 정도</resource>
-    <resource name="editor_dropshadow_offset">음영 오프셋</resource>
-    <resource name="editor_dropshadow_settings">음영 설정</resource>
-    <resource name="editor_dropshadow_thickness">음영 두께</resource>
-	
-    <resource name="editor_tornedge_horizontaltoothrange">수평 범위</resource>
-    <resource name="editor_tornedge_settings">경계 자르기 설정</resource>
-    <resource name="editor_tornedge_toothsize">자르기 크기</resource>
-    <resource name="editor_tornedge_verticaltoothrange">수직 범위</resource>
-    <resource name="editor_tornedge_all">전체 선택</resource>
-    <resource name="editor_tornedge_left">왼쪽</resource>
-    <resource name="editor_tornedge_right">오른쪽</resource>
-    <resource name="editor_tornedge_top">상단</resource>
-    <resource name="editor_tornedge_bottom">하단</resource>
-    <resource name="editor_tornedge_shadow">음영 넣기</resource>
-	
-    <resource name="editor_counter">카운터 더하기 (I)</resource>
-    <resource name="editor_speechbubble">설명선 더하기(S)</resource>
-	
-    <resource name="editor_resize">크기조정</resource>
-    <resource name="editor_resize_settings">크기조정 설정</resource>
-    <resource name="editor_resize_aspectratio">종횡비 유지</resource>
-    <resource name="editor_resize_width">너비</resource>
-    <resource name="editor_resize_height">높이</resource>
-	<resource name="settings_iconsize">아이콘 크기</resource>
-    
-  </resources>
+		<!-- 1.2 -->
+		<resource name="editor_dropshadow_darkness">음영 정도</resource>
+		<resource name="editor_dropshadow_offset">음영 오프셋</resource>
+		<resource name="editor_dropshadow_settings">음영 설정</resource>
+		<resource name="editor_dropshadow_thickness">음영 두께</resource>
+
+		<resource name="editor_tornedge_horizontaltoothrange">수평 범위</resource>
+		<resource name="editor_tornedge_settings">경계 자르기 설정</resource>
+		<resource name="editor_tornedge_toothsize">자르기 크기</resource>
+		<resource name="editor_tornedge_verticaltoothrange">수직 범위</resource>
+		<resource name="editor_tornedge_all">전체 선택</resource>
+		<resource name="editor_tornedge_left">왼쪽</resource>
+		<resource name="editor_tornedge_right">오른쪽</resource>
+		<resource name="editor_tornedge_top">상단</resource>
+		<resource name="editor_tornedge_bottom">하단</resource>
+		<resource name="editor_tornedge_shadow">음영 넣기</resource>
+
+		<resource name="editor_counter">카운터 더하기 (I)</resource>
+		<resource name="editor_speechbubble">설명선 더하기(S)</resource>
+
+		<resource name="editor_resize">크기조정</resource>
+		<resource name="editor_resize_settings">크기조정 설정</resource>
+		<resource name="editor_resize_aspectratio">종횡비 유지</resource>
+		<resource name="editor_resize_width">너비</resource>
+		<resource name="editor_resize_height">높이</resource>
+		<resource name="settings_iconsize">아이콘 크기</resource>
+
+	</resources>
 </language>

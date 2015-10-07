@@ -1,4 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
+
 <language description="Finnish" ietf="fi-FI" version="1.0.0" languagegroup="1">
 	<resources>
 		<resource name="startup">Käynnistä {#ExeName} Windowsin käynnistyessä</resource>

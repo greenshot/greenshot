@@ -1,4 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <language description="Српски" ietf="sr-RS" version="1.0.0" languagegroup="1">
 	<resources>
 		<resource name="confluence">Прикључак за Конфлуенс</resource>

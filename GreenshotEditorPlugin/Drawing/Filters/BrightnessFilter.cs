@@ -28,22 +28,27 @@ using System.Drawing.Imaging;
 
 namespace GreenshotEditorPlugin.Drawing.Filters
 {
-    [Serializable] 
-	public class BrightnessFilter : AbstractFilter {
-
+	[Serializable]
+	public class BrightnessFilter : AbstractFilter
+	{
 		protected double _brightness = 0.9f;
+
 		[Field(FieldTypes.BRIGHTNESS)]
-		public double Brightness {
-			get {
+		public double Brightness
+		{
+			get
+			{
 				return _brightness;
 			}
-			set {
+			set
+			{
 				_brightness = value;
 				OnFieldPropertyChanged(FieldTypes.BRIGHTNESS);
 			}
 		}
 
-		public BrightnessFilter(DrawableContainer parent) : base(parent) {
+		public BrightnessFilter(DrawableContainer parent) : base(parent)
+		{
 		}
 
 		/// <summary>
@@ -53,20 +58,24 @@ namespace GreenshotEditorPlugin.Drawing.Filters
 		/// <param name="applyBitmap"></param>
 		/// <param name="rect"></param>
 		/// <param name="renderMode"></param>
-		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
+		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode)
+		{
 			Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
 
-			if (applyRect.Width == 0 || applyRect.Height == 0) {
+			if (applyRect.Width == 0 || applyRect.Height == 0)
+			{
 				// nothing to do
 				return;
 			}
 
-			GraphicsState state =  graphics.Save();
-			if (Invert) {
+			GraphicsState state = graphics.Save();
+			if (Invert)
+			{
 				graphics.SetClip(applyRect);
 				graphics.ExcludeClip(rect);
 			}
-			using (ImageAttributes ia = ImageHelper.CreateAdjustAttributes((float)_brightness, 1f, 1f)) {
+			using (ImageAttributes ia = ImageHelper.CreateAdjustAttributes((float) _brightness, 1f, 1f))
+			{
 				graphics.DrawImage(applyBitmap, applyRect, applyRect.X, applyRect.Y, applyRect.Width, applyRect.Height, GraphicsUnit.Pixel, ia);
 			}
 			graphics.Restore(state);

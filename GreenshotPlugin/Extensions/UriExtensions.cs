@@ -34,7 +34,7 @@ namespace GreenshotPlugin.Extensions
 {
 	public static class UriExtensions
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(UriExtensions));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (UriExtensions));
 
 		/// <summary>
 		/// Download the uri to Bitmap
@@ -49,25 +49,27 @@ namespace GreenshotPlugin.Extensions
 				Exception initialException;
 				string content;
 				using (var response = await uri.GetAsync(token: token))
-				using (var stream = await response.GetAsMemoryStreamAsync(token: token))
 				{
-					try
+					using (var stream = await response.GetAsMemoryStreamAsync(token: token))
 					{
-						using (Image image = Image.FromStream(stream))
+						try
 						{
-							return ImageHelper.Clone(image, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+							using (Image image = Image.FromStream(stream))
+							{
+								return ImageHelper.Clone(image, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+							}
 						}
-					}
-					catch (Exception ex)
-					{
-						// This might be okay, maybe it was just a search result
-						initialException = ex;
-					}
-					stream.Seek(0, SeekOrigin.Begin);
-					// If we arrive here, the image loading didn't work, try to see if the response has a http(s) URL to an image and just take this instead.
-					using (var streamReader = new StreamReader(stream, Encoding.UTF8, true))
-					{
-						content = await streamReader.ReadLineAsync();
+						catch (Exception ex)
+						{
+							// This might be okay, maybe it was just a search result
+							initialException = ex;
+						}
+						stream.Seek(0, SeekOrigin.Begin);
+						// If we arrive here, the image loading didn't work, try to see if the response has a http(s) URL to an image and just take this instead.
+						using (var streamReader = new StreamReader(stream, Encoding.UTF8, true))
+						{
+							content = await streamReader.ReadLineAsync();
+						}
 					}
 				}
 				var imageUrlRegex = new Regex(@"(http|https)://.*(\.png|\.gif|\.jpg|\.tiff|\.jpeg|\.bmp)");
@@ -76,11 +78,13 @@ namespace GreenshotPlugin.Extensions
 				{
 					Uri contentUri = new Uri(match.Value);
 					using (var response = await contentUri.GetAsync(token: token))
-					using (var stream = await response.GetAsMemoryStreamAsync(token: token))
 					{
-						using (Image image = Image.FromStream(stream))
+						using (var stream = await response.GetAsMemoryStreamAsync(token: token))
 						{
-							return ImageHelper.Clone(image, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+							using (Image image = Image.FromStream(stream))
+							{
+								return ImageHelper.Clone(image, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+							}
 						}
 					}
 				}
@@ -93,6 +97,5 @@ namespace GreenshotPlugin.Extensions
 			}
 			return null;
 		}
-
 	}
 }

@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="正體中文" ietf="zh-TW" version="1.0.0" languagegroup="9">
+
+<language>
 	<resources prefix="ExternalCommand">
 		<resource name="contextmenu_configure">組態外部命令</resource>
 		<resource name="label_argument">引數</resource>

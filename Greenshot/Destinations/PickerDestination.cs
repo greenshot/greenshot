@@ -29,33 +29,41 @@ using System.Threading;
 using Dapplo.Config.Language;
 using GreenshotPlugin.Configuration;
 
-namespace Greenshot.Destinations {
+namespace Greenshot.Destinations
+{
 	/// <summary>
 	/// The PickerDestination shows a context menu with all possible destinations, so the user can "pick" one
 	/// </summary>
-	public class PickerDestination : AbstractDestination {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(PickerDestination));
+	public class PickerDestination : AbstractDestination
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (PickerDestination));
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 
-		public override string Designation {
-			get {
+		public override string Designation
+		{
+			get
+			{
 				return BuildInDestinationEnum.Picker.ToString();
 			}
 		}
 
-		public override string Description {
-			get {
+		public override string Description
+		{
+			get
+			{
 				return language.SettingsDestinationPicker;
 			}
 		}
 
-		public override int Priority {
-			get {
+		public override int Priority
+		{
+			get
+			{
 				return 1;
 			}
 		}
-		
+
 
 		/// <summary>
 		/// Export the capture with the destination picker
@@ -64,13 +72,17 @@ namespace Greenshot.Destinations {
 		/// <param name="surface">Surface to export</param>
 		/// <param name="captureDetails">Details of the capture</param>
 		/// <returns>true if export was made</returns>
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		{
 			IList<IDestination> destinations = new List<IDestination>();
-			foreach(IDestination destination in DestinationHelper.GetAllDestinations()) {
-				if ("Picker".Equals(destination.Designation)) {
+			foreach (IDestination destination in DestinationHelper.GetAllDestinations())
+			{
+				if ("Picker".Equals(destination.Designation))
+				{
 					continue;
 				}
-				if (!destination.IsActive) {
+				if (!destination.IsActive)
+				{
 					continue;
 				}
 				destinations.Add(destination);

@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
@@ -26,13 +27,15 @@ using System.Reflection;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 
-namespace GreenshotPlugin.UnmanagedHelpers {
+namespace GreenshotPlugin.UnmanagedHelpers
+{
 	/// <summary>
 	/// Contains members that specify the nature of a Gaussian blur.
 	/// </summary>
 	/// <remarks>Cannot be pinned with GCHandle due to bool value.</remarks>
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]
-	internal struct BlurParams {
+	internal struct BlurParams
+	{
 		/// <summary>
 		/// Real number that specifies the blur radius (the radius of the Gaussian convolution kernel) in 
 		/// pixels. The radius must be in the range 0 through 255. As the radius increases, the resulting 
@@ -51,7 +54,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// <summary>
 	/// GDI Plus unit description.
 	/// </summary>
-	public enum GpUnit {
+	public enum GpUnit
+	{
 		/// <summary>
 		/// World coordinate (non-physical unit).
 		/// </summary>
@@ -91,42 +95,50 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// <summary>
 	/// GDIplus Helpers
 	/// </summary>
-	public static class GDIplus {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(GDIplus));
+	public static class GDIplus
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (GDIplus));
 
 		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true)]
 		private static extern int GdipBitmapApplyEffect(IntPtr bitmap, IntPtr effect, ref RECT rectOfInterest, bool useAuxData, IntPtr auxData, int auxDataSize);
 
 		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true)]
 		private static extern int GdipDrawImageFX(IntPtr graphics, IntPtr bitmap, ref RECTF source, IntPtr matrix, IntPtr effect, IntPtr imageAttributes, GpUnit srcUnit);
+
 		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true)]
 		private static extern int GdipSetEffectParameters(IntPtr effect, IntPtr parameters, uint size);
+
 		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true)]
 		private static extern int GdipCreateEffect(Guid guid, out IntPtr effect);
+
 		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true)]
 		private static extern int GdipDeleteEffect(IntPtr effect);
+
 		private static Guid BlurEffectGuid = new Guid("{633C80A4-1843-482B-9EF2-BE2834C5FDD4}");
 
 		// Constant "FieldInfo" for getting the nativeImage from the Bitmap
-		private static readonly FieldInfo FIELD_INFO_NATIVE_IMAGE = typeof(Bitmap).GetField("nativeImage", BindingFlags.GetField | BindingFlags.Instance | BindingFlags.NonPublic);
+		private static readonly FieldInfo FIELD_INFO_NATIVE_IMAGE = typeof (Bitmap).GetField("nativeImage", BindingFlags.GetField | BindingFlags.Instance | BindingFlags.NonPublic);
 		// Constant "FieldInfo" for getting the NativeGraphics from the Graphics
-		private static readonly FieldInfo FIELD_INFO_NATIVE_GRAPHICS = typeof(Graphics).GetField("nativeGraphics", BindingFlags.GetField | BindingFlags.Instance | BindingFlags.NonPublic);
+		private static readonly FieldInfo FIELD_INFO_NATIVE_GRAPHICS = typeof (Graphics).GetField("nativeGraphics", BindingFlags.GetField | BindingFlags.Instance | BindingFlags.NonPublic);
 		// Constant "FieldInfo" for getting the nativeMatrix from the Matrix
-		private static readonly FieldInfo FIELD_INFO_NATIVE_MATRIX = typeof(Matrix).GetField("nativeMatrix", BindingFlags.GetField | BindingFlags.Instance | BindingFlags.NonPublic);
+		private static readonly FieldInfo FIELD_INFO_NATIVE_MATRIX = typeof (Matrix).GetField("nativeMatrix", BindingFlags.GetField | BindingFlags.Instance | BindingFlags.NonPublic);
 		// Constant "FieldInfo" for getting the nativeImageAttributes from the ImageAttributes
-		private static readonly FieldInfo FIELD_INFO_NATIVE_IMAGEATTRIBUTES = typeof(ImageAttributes).GetField("nativeImageAttributes", BindingFlags.GetField | BindingFlags.Instance | BindingFlags.NonPublic);
+		private static readonly FieldInfo FIELD_INFO_NATIVE_IMAGEATTRIBUTES = typeof (ImageAttributes).GetField("nativeImageAttributes", BindingFlags.GetField | BindingFlags.Instance | BindingFlags.NonPublic);
 
 		private static bool isBlurEnabled = Environment.OSVersion.Version.Major >= 6;
+
 		/// <summary>
 		/// Get the nativeImage field from the bitmap
 		/// </summary>
 		/// <param name="bitmap"></param>
 		/// <returns>IntPtr</returns>
-		private static IntPtr GetNativeImage(Bitmap bitmap) {
-			if (bitmap == null) {
+		private static IntPtr GetNativeImage(Bitmap bitmap)
+		{
+			if (bitmap == null)
+			{
 				return IntPtr.Zero;
 			}
-			return (IntPtr)FIELD_INFO_NATIVE_IMAGE.GetValue(bitmap);
+			return (IntPtr) FIELD_INFO_NATIVE_IMAGE.GetValue(bitmap);
 		}
 
 		/// <summary>
@@ -134,11 +146,13 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// </summary>
 		/// <param name="graphics"></param>
 		/// <returns>IntPtr</returns>
-		private static IntPtr GetNativeGraphics(Graphics graphics) {
-			if (graphics == null) {
+		private static IntPtr GetNativeGraphics(Graphics graphics)
+		{
+			if (graphics == null)
+			{
 				return IntPtr.Zero;
 			}
-			return (IntPtr)FIELD_INFO_NATIVE_GRAPHICS.GetValue(graphics);
+			return (IntPtr) FIELD_INFO_NATIVE_GRAPHICS.GetValue(graphics);
 		}
 
 		/// <summary>
@@ -146,11 +160,13 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// </summary>
 		/// <param name="matrix"></param>
 		/// <returns>IntPtr</returns>
-		private static IntPtr GetNativeMatrix(Matrix matrix) {
-			if (matrix == null) {
+		private static IntPtr GetNativeMatrix(Matrix matrix)
+		{
+			if (matrix == null)
+			{
 				return IntPtr.Zero;
 			}
-			return (IntPtr)FIELD_INFO_NATIVE_MATRIX.GetValue(matrix);
+			return (IntPtr) FIELD_INFO_NATIVE_MATRIX.GetValue(matrix);
 		}
 
 		/// <summary>
@@ -158,11 +174,13 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// </summary>
 		/// <param name="imageAttributes"></param>
 		/// <returns>IntPtr</returns>
-		private static IntPtr GetNativeImageAttributes(ImageAttributes imageAttributes) {
-			if (imageAttributes == null) {
+		private static IntPtr GetNativeImageAttributes(ImageAttributes imageAttributes)
+		{
+			if (imageAttributes == null)
+			{
 				return IntPtr.Zero;
 			}
-			return (IntPtr)FIELD_INFO_NATIVE_IMAGEATTRIBUTES.GetValue(imageAttributes);
+			return (IntPtr) FIELD_INFO_NATIVE_IMAGEATTRIBUTES.GetValue(imageAttributes);
 		}
 
 		/// <summary>
@@ -171,10 +189,14 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// </summary>
 		/// <param name="radius"></param>
 		/// <returns></returns>
-		public static bool IsBlurPossible(int radius) {
-			if (!isBlurEnabled) {
+		public static bool IsBlurPossible(int radius)
+		{
+			if (!isBlurEnabled)
+			{
 				return false;
-			} else if (Environment.OSVersion.Version.Minor >= 2 && radius < 20) {
+			}
+			else if (Environment.OSVersion.Version.Minor >= 2 && radius < 20)
+			{
 				return false;
 			}
 			return true;
@@ -188,14 +210,17 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// <param name="radius">0-255</param>
 		/// <param name="expandEdges">bool true if the edges are expanded with the radius</param>
 		/// <returns>false if there is no GDI+ available or an exception occured</returns>
-		public static bool ApplyBlur(Bitmap destinationBitmap, Rectangle area, int radius, bool expandEdges) {
-			if (!IsBlurPossible(radius)) {
+		public static bool ApplyBlur(Bitmap destinationBitmap, Rectangle area, int radius, bool expandEdges)
+		{
+			if (!IsBlurPossible(radius))
+			{
 				return false;
 			}
 			IntPtr hBlurParams = IntPtr.Zero;
 			IntPtr hEffect = IntPtr.Zero;
 
-			try {
+			try
+			{
 				// Create a BlurParams struct and set the values
 				BlurParams blurParams = new BlurParams();
 				blurParams.Radius = radius;
@@ -210,7 +235,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 				int status = GdipCreateEffect(BlurEffectGuid, out hEffect);
 
 				// Set the blurParams to the effect
-				GdipSetEffectParameters(hEffect, hBlurParams, (uint)Marshal.SizeOf(blurParams));
+				GdipSetEffectParameters(hEffect, hBlurParams, (uint) Marshal.SizeOf(blurParams));
 
 				// Somewhere it said we can use destinationBitmap.GetHbitmap(), this doesn't work!!
 				// Get the private nativeImage property from the Bitmap
@@ -223,21 +248,30 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 
 				// Everything worked, return true
 				return true;
-			} catch (Exception ex) {
+			}
+			catch (Exception ex)
+			{
 				isBlurEnabled = false;
 				LOG.Error("Problem using GdipBitmapApplyEffect: ", ex);
 				return false;
-			} finally {
-				try {
-					if (hEffect != IntPtr.Zero) {
+			}
+			finally
+			{
+				try
+				{
+					if (hEffect != IntPtr.Zero)
+					{
 						// Delete the effect
 						GdipDeleteEffect(hEffect);
 					}
-					if (hBlurParams != IntPtr.Zero) {
+					if (hBlurParams != IntPtr.Zero)
+					{
 						// Free the memory
 						Marshal.FreeHGlobal(hBlurParams);
 					}
-				} catch (Exception ex) {
+				}
+				catch (Exception ex)
+				{
 					isBlurEnabled = false;
 					LOG.Error("Problem cleaning up ApplyBlur: ", ex);
 				}
@@ -248,15 +282,18 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// Draw the image on the graphics with GDI+ blur effect 
 		/// </summary>
 		/// <returns>false if there is no GDI+ available or an exception occured</returns>
-		public static bool DrawWithBlur(Graphics graphics, Bitmap image, Rectangle source, Matrix transform, ImageAttributes imageAttributes, int radius, bool expandEdges) {
-			if (!IsBlurPossible(radius)) {
+		public static bool DrawWithBlur(Graphics graphics, Bitmap image, Rectangle source, Matrix transform, ImageAttributes imageAttributes, int radius, bool expandEdges)
+		{
+			if (!IsBlurPossible(radius))
+			{
 				return false;
 			}
 
 			IntPtr hBlurParams = IntPtr.Zero;
 			IntPtr hEffect = IntPtr.Zero;
 
-			try {
+			try
+			{
 				// Create a BlurParams struct and set the values
 				BlurParams blurParams = new BlurParams();
 				blurParams.Radius = radius;
@@ -272,7 +309,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 				int status = GdipCreateEffect(BlurEffectGuid, out hEffect);
 
 				// Set the blurParams to the effect
-				GdipSetEffectParameters(hEffect, hBlurParams, (uint)Marshal.SizeOf(blurParams));
+				GdipSetEffectParameters(hEffect, hBlurParams, (uint) Marshal.SizeOf(blurParams));
 
 				// Somewhere it said we can use destinationBitmap.GetHbitmap(), this doesn't work!!
 				// Get the private nativeImage property from the Bitmap
@@ -288,26 +325,34 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 
 				// Everything worked, return true
 				return true;
-			} catch (Exception ex) {
+			}
+			catch (Exception ex)
+			{
 				isBlurEnabled = false;
 				LOG.Error("Problem using GdipDrawImageFX: ", ex);
 				return false;
-			} finally {
-				try {
-					if (hEffect != IntPtr.Zero) {
+			}
+			finally
+			{
+				try
+				{
+					if (hEffect != IntPtr.Zero)
+					{
 						// Delete the effect
 						GdipDeleteEffect(hEffect);
 					}
-					if (hBlurParams != IntPtr.Zero) {
+					if (hBlurParams != IntPtr.Zero)
+					{
 						// Free the memory
 						Marshal.FreeHGlobal(hBlurParams);
 					}
-				} catch (Exception ex) {
+				}
+				catch (Exception ex)
+				{
 					isBlurEnabled = false;
 					LOG.Error("Problem cleaning up DrawWithBlur: ", ex);
 				}
 			}
 		}
-
 	}
 }

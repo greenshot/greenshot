@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Српски" ietf="sr-RS" version="1.0.5" languagegroup="">
+
+<language>
 	<resources prefix="Dropbox">
 		<resource name="communication_wait">Комуницирам с Дропбоксом. Сачекајте…</resource>
 		<resource name="Configure">Поставке Дропбокса</resource>

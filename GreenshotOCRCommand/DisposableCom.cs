@@ -22,13 +22,16 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace GreenshotOCRCommand {
+namespace GreenshotOCRCommand
+{
 	/// <summary>
 	/// A simple com wrapper which helps with "using"
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public interface IDisposableCom<T> : IDisposable {
-		T ComObject {
+	public interface IDisposableCom<T> : IDisposable
+	{
+		T ComObject
+		{
 			get;
 			set;
 		}
@@ -37,15 +40,18 @@ namespace GreenshotOCRCommand {
 	/// <summary>
 	/// A factory for IDisposableCom
 	/// </summary>
-	public static class DisposableCom {
+	public static class DisposableCom
+	{
 		/// <summary>
 		/// Create a ComDisposable for the supplied type object
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <param name="obj"></param>
 		/// <returns></returns>
-		public static IDisposableCom<T> Create<T>(T obj) {
-			if (!Equals(obj, default(T))) {
+		public static IDisposableCom<T> Create<T>(T obj)
+		{
+			if (!Equals(obj, default(T)))
+			{
 				return new DisposableComImplementation<T>(obj);
 			}
 			return null;
@@ -56,12 +62,15 @@ namespace GreenshotOCRCommand {
 	/// Implementation of the IDisposableCom, this is internal to prevent other code to use it directly
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	internal class DisposableComImplementation<T> : IDisposableCom<T> {
-		public DisposableComImplementation(T obj) {
+	internal class DisposableComImplementation<T> : IDisposableCom<T>
+	{
+		public DisposableComImplementation(T obj)
+		{
 			ComObject = obj;
 		}
 
-		public T ComObject {
+		public T ComObject
+		{
 			get;
 			set;
 		}
@@ -69,7 +78,8 @@ namespace GreenshotOCRCommand {
 		/// <summary>
 		/// Cleans up the COM object.
 		/// </summary>
-		public void Dispose() {
+		public void Dispose()
+		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
@@ -78,12 +88,15 @@ namespace GreenshotOCRCommand {
 		/// Release the COM reference
 		/// </summary>
 		/// <param name="disposing"><see langword="true"/> if this was called from the<see cref="IDisposable"/> interface.</param>
-		private void Dispose(bool disposing) {
-			if (disposing) {
+		private void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
 				// Do not catch an exception from this.
 				// You may want to remove these guards depending on
 				// what you think the semantics should be.
-				if (!Equals(ComObject, default(T)) && Marshal.IsComObject(ComObject)) {
+				if (!Equals(ComObject, default(T)) && Marshal.IsComObject(ComObject))
+				{
 					Marshal.ReleaseComObject(ComObject);
 				}
 				ComObject = default(T);

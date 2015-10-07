@@ -19,11 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotPlugin.OAuth {
+namespace GreenshotPlugin.OAuth
+{
 	/// <summary>
 	/// Provides a predefined set of algorithms that are supported officially by the OAuth 1.x protocol
 	/// </summary>
-	public enum OAuthSignatureTypes {
+	public enum OAuthSignatureTypes
+	{
 		HMACSHA1,
 		PLAINTEXT,
 		RSASHA1

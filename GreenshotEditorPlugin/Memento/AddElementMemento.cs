@@ -22,30 +22,37 @@
 using Greenshot.Plugin.Drawing;
 using Greenshot.Plugin;
 
-namespace GreenshotEditorPlugin.Memento {
+namespace GreenshotEditorPlugin.Memento
+{
 	/// <summary>
 	/// The AddElementMemento makes it possible to undo adding an element
 	/// </summary>
-	public class AddElementMemento : IMemento  {
+	public class AddElementMemento : IMemento
+	{
 		private IDrawableContainer _drawableContainer;
 		private ISurface _surface;
-		
-		public AddElementMemento(ISurface surface, IDrawableContainer drawableContainer) {
+
+		public AddElementMemento(ISurface surface, IDrawableContainer drawableContainer)
+		{
 			_surface = surface;
 			_drawableContainer = drawableContainer;
 		}
 
-		public string ActionDescription {
-			get {
+		public string ActionDescription
+		{
+			get
+			{
 				return "";
 			}
 		}
 
-		public bool Merge(IMemento otherMemento) {
+		public bool Merge(IMemento otherMemento)
+		{
 			return false;
 		}
 
-		public IMemento Restore() {
+		public IMemento Restore()
+		{
 			// Before
 			_drawableContainer.Invalidate();
 			// Store the selected state, as it's overwritten by the RemoveElement
@@ -61,6 +68,7 @@ namespace GreenshotEditorPlugin.Memento {
 		}
 
 		#region IDisposable Support
+
 		private bool _disposedValue = false; // To detect redundant calls
 
 		protected virtual void Dispose(bool disposing)
@@ -84,6 +92,7 @@ namespace GreenshotEditorPlugin.Memento {
 			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
 			Dispose(true);
 		}
+
 		#endregion
 	}
 }

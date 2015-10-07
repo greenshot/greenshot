@@ -38,7 +38,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 	/// </summary>
 	public class OneNoteExporter
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OneNoteExporter));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (OneNoteExporter));
 		private const string XMLImageContent = "<one:Image format=\"png\"><one:Size width=\"{1}.0\" height=\"{2}.0\" isSetByUser=\"true\" /><one:Data>{0}</one:Data></one:Image>";
 		private const string XMLOutline = "<?xml version=\"1.0\"?><one:Page xmlns:one=\"{2}\" ID=\"{1}\"><one:Title><one:OE><one:T><![CDATA[{3}]]></one:T></one:OE></one:Title>{0}</one:Page>";
 		private const string OnenoteNamespace2010 = "http://schemas.microsoft.com/office/onenote/2010/onenote";
@@ -100,7 +100,10 @@ namespace GreenshotOfficePlugin.OfficeExport
 				ImageOutput.SaveToStream(surfaceToUpload, pngStream, pngOutputSettings);
 				string base64String = Convert.ToBase64String(pngStream.GetBuffer());
 				string imageXmlStr = string.Format(XMLImageContent, base64String, surfaceToUpload.Image.Width, surfaceToUpload.Image.Height);
-				string pageChangesXml = string.Format(XMLOutline, new object[] { imageXmlStr, page.Id, OnenoteNamespace2010, page.Name });
+				string pageChangesXml = string.Format(XMLOutline, new object[]
+				{
+					imageXmlStr, page.Id, OnenoteNamespace2010, page.Name
+				});
 				LOG.InfoFormat("Sending XML: {0}", pageChangesXml);
 				oneNoteApplication.ComObject.UpdatePageContent(pageChangesXml, DateTime.MinValue, OneNote.XMLSchema.xs2010, false);
 				try
@@ -178,7 +181,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 			IDisposableCom<OneNote.Application> oneNoteApplication;
 			try
 			{
-				oneNoteApplication = DisposableCom.Create((OneNote.Application)Marshal.GetActiveObject("OneNote.Application"));
+				oneNoteApplication = DisposableCom.Create((OneNote.Application) Marshal.GetActiveObject("OneNote.Application"));
 			}
 			catch
 			{
@@ -287,7 +290,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 			}
 			catch (COMException cEx)
 			{
-				if (cEx.ErrorCode == unchecked((int)0x8002801D))
+				if (cEx.ErrorCode == unchecked((int) 0x8002801D))
 				{
 					LOG.Warn("Wrong registry keys, to solve this remove the OneNote key as described here: http://microsoftmercenary.com/wp/outlook-excel-interop-calls-breaking-solved/");
 				}
@@ -297,7 +300,8 @@ namespace GreenshotOfficePlugin.OfficeExport
 			{
 				LOG.Warn("Problem retrieving onenote destinations, ignoring: ", ex);
 			}
-			pages.Sort((page1, page2) => {
+			pages.Sort((page1, page2) =>
+			{
 				if (page1.IsCurrentlyViewed || page2.IsCurrentlyViewed)
 				{
 					return page2.IsCurrentlyViewed.CompareTo(page1.IsCurrentlyViewed);
@@ -313,10 +317,30 @@ namespace GreenshotOfficePlugin.OfficeExport
 	/// </summary>
 	public class OneNotePage
 	{
-		public OneNoteSection Parent { get; set; }
-		public string Name { get; set; }
-		public string Id { get; set; }
-		public bool IsCurrentlyViewed { get; set; }
+		public OneNoteSection Parent
+		{
+			get;
+			set;
+		}
+
+		public string Name
+		{
+			get;
+			set;
+		}
+
+		public string Id
+		{
+			get;
+			set;
+		}
+
+		public bool IsCurrentlyViewed
+		{
+			get;
+			set;
+		}
+
 		public string DisplayName
 		{
 			get
@@ -336,9 +360,23 @@ namespace GreenshotOfficePlugin.OfficeExport
 	/// </summary>
 	public class OneNoteSection
 	{
-		public OneNoteNotebook Parent { get; set; }
-		public string Name { get; set; }
-		public string Id { get; set; }
+		public OneNoteNotebook Parent
+		{
+			get;
+			set;
+		}
+
+		public string Name
+		{
+			get;
+			set;
+		}
+
+		public string Id
+		{
+			get;
+			set;
+		}
 	}
 
 	/// <summary>
@@ -346,7 +384,16 @@ namespace GreenshotOfficePlugin.OfficeExport
 	/// </summary>
 	public class OneNoteNotebook
 	{
-		public string Name { get; set; }
-		public string Id { get; set; }
+		public string Name
+		{
+			get;
+			set;
+		}
+
+		public string Id
+		{
+			get;
+			set;
+		}
 	}
 }

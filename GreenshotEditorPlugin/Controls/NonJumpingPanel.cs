@@ -26,9 +26,12 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace GreenshotEditorPlugin.Controls {
-	public class NonJumpingPanel : Panel {
-		protected override Point ScrollToControl(Control activeControl) {
+namespace GreenshotEditorPlugin.Controls
+{
+	public class NonJumpingPanel : Panel
+	{
+		protected override Point ScrollToControl(Control activeControl)
+		{
 			// Returning the current location prevents the panel from
 			// scrolling to the active control when the panel loses and regains focus
 			return DisplayRectangle.Location;

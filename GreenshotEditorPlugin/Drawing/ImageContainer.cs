@@ -30,20 +30,25 @@ using System.IO;
 
 namespace GreenshotEditorPlugin.Drawing
 {
-    /// <summary>
-    /// Description of BitmapContainer.
-    /// </summary>
-    [Serializable] 
-	public class ImageContainer : DrawableContainer, IImageContainer {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(ImageContainer));
+	/// <summary>
+	/// Description of BitmapContainer.
+	/// </summary>
+	[Serializable]
+	public class ImageContainer : DrawableContainer, IImageContainer
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (ImageContainer));
 
 		protected bool _shadow = true;
+
 		[Field(FieldTypes.SHADOW)]
-		public bool Shadow {
-			get {
+		public bool Shadow
+		{
+			get
+			{
 				return _shadow;
 			}
-			set {
+			set
+			{
 				_shadow = value;
 				OnFieldPropertyChanged(FieldTypes.SHADOW);
 				ChangeShadowField();
@@ -66,48 +71,63 @@ namespace GreenshotEditorPlugin.Drawing
 		[NonSerialized]
 		private Point _shadowOffset = new Point(-1, -1);
 
-		public ImageContainer(Surface parent, string filename) : this(parent) {
+		public ImageContainer(Surface parent, string filename) : this(parent)
+		{
 			Load(filename);
 		}
 
-		public ImageContainer(Surface parent) : base(parent) {
+		public ImageContainer(Surface parent) : base(parent)
+		{
 		}
 
-		public void ChangeShadowField() {
-			if (_shadow) {
+		public void ChangeShadowField()
+		{
+			if (_shadow)
+			{
 				CheckShadow(_shadow);
 				Width = _shadowBitmap.Width;
 				Height = _shadowBitmap.Height;
 				Left = Left - _shadowOffset.X;
 				Top = Top - _shadowOffset.Y;
-			} else if (_image != null) {
+			}
+			else if (_image != null)
+			{
 				Width = _image.Width;
 				Height = _image.Height;
-				if (_shadowBitmap != null) {
+				if (_shadowBitmap != null)
+				{
 					Left = Left + _shadowOffset.X;
 					Top = Top + _shadowOffset.Y;
 				}
 			}
 		}
 
-		public Image Image {
-			set {
+		public Image Image
+		{
+			set
+			{
 				// Remove all current bitmaps
 				DisposeImage();
 				DisposeShadow();
 				_image = ImageHelper.Clone(value);
 				CheckShadow(_shadow);
-				if (!_shadow) {
+				if (!_shadow)
+				{
 					Width = _image.Width;
 					Height = _image.Height;
-				} else if (_shadowBitmap != null) {
+				}
+				else if (_shadowBitmap != null)
+				{
 					Width = _shadowBitmap.Width;
 					Height = _shadowBitmap.Height;
 					Left = Left - _shadowOffset.X;
 					Top = Top - _shadowOffset.Y;
 				}
 			}
-			get { return _image; }
+			get
+			{
+				return _image;
+			}
 		}
 
 		/// <summary>
@@ -116,22 +136,29 @@ namespace GreenshotEditorPlugin.Drawing
 		/// When disposing==true all non-managed resources should be freed too!
 		/// </summary>
 		/// <param name="disposing"></param>
-		protected override void Dispose(bool disposing) {
-			if (disposing) {
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
 				DisposeImage();
 				DisposeShadow();
 			}
 			base.Dispose(disposing);
 		}
 
-		private void DisposeImage() {
-			if (_image != null) {
+		private void DisposeImage()
+		{
+			if (_image != null)
+			{
 				_image.Dispose();
 			}
 			_image = null;
 		}
-		private void DisposeShadow() {
-			if (_shadowBitmap != null) {
+
+		private void DisposeShadow()
+		{
+			if (_shadowBitmap != null)
+			{
 				_shadowBitmap.Dispose();
 			}
 			_shadowBitmap = null;
@@ -141,14 +168,18 @@ namespace GreenshotEditorPlugin.Drawing
 		/// Make sure the content is also transformed.
 		/// </summary>
 		/// <param name="matrix"></param>
-		public override void Transform(Matrix matrix) {
+		public override void Transform(Matrix matrix)
+		{
 			int rotateAngle = CalculateAngle(matrix);
 			// we currently assume only one transformation has been made.
-			if (rotateAngle != 0) {
+			if (rotateAngle != 0)
+			{
 				LOG.DebugFormat("Rotating element with {0} degrees.", rotateAngle);
 				DisposeShadow();
-				using (var tmpMatrix = new Matrix()) {
-					using (Image tmpImage = _image) {
+				using (var tmpMatrix = new Matrix())
+				{
+					using (Image tmpImage = _image)
+					{
 						_image = ImageHelper.ApplyEffect(_image, new RotateEffect(rotateAngle), tmpMatrix);
 					}
 				}
@@ -160,11 +191,14 @@ namespace GreenshotEditorPlugin.Drawing
 		/// 
 		/// </summary>
 		/// <param name="filename"></param>
-		public void Load(string filename) {
-			if (File.Exists(filename)) {
+		public void Load(string filename)
+		{
+			if (File.Exists(filename))
+			{
 				// Always make sure ImageHelper.LoadBitmap results are disposed some time,
 				// as we close the bitmap internally, we need to do it afterwards
-				using (Image tmpImage = ImageHelper.LoadImage(filename)) {
+				using (Image tmpImage = ImageHelper.LoadImage(filename))
+				{
 					Image = tmpImage;
 				}
 				LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
@@ -176,9 +210,12 @@ namespace GreenshotEditorPlugin.Drawing
 		/// This checks if a _shadow is already generated
 		/// </summary>
 		/// <param name="_shadow"></param>
-		private void CheckShadow(bool shadow) {
-			if (shadow && _shadowBitmap == null) {
-				using (var matrix = new Matrix()) {
+		private void CheckShadow(bool shadow)
+		{
+			if (shadow && _shadowBitmap == null)
+			{
+				using (var matrix = new Matrix())
+				{
 					_shadowBitmap = ImageHelper.ApplyEffect(_image, new DropShadowEffect(), matrix);
 				}
 			}
@@ -189,32 +226,41 @@ namespace GreenshotEditorPlugin.Drawing
 		/// </summary>
 		/// <param name="graphics"></param>
 		/// <param name="rm"></param>
-		public override void Draw(Graphics graphics, RenderMode rm) {
-			if (_image != null) {
+		public override void Draw(Graphics graphics, RenderMode rm)
+		{
+			if (_image != null)
+			{
 				GraphicsState state = graphics.Save();
 				graphics.SmoothingMode = SmoothingMode.HighQuality;
 				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 				graphics.CompositingQuality = CompositingQuality.HighQuality;
 				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
-				if (_shadow) {
+				if (_shadow)
+				{
 					CheckShadow(_shadow);
 					graphics.DrawImage(_shadowBitmap, Bounds);
-				} else {
+				}
+				else
+				{
 					graphics.DrawImage(_image, Bounds);
 				}
 				graphics.Restore(state);
 			}
 		}
 
-		public override bool HasDefaultSize {
-			get {
+		public override bool HasDefaultSize
+		{
+			get
+			{
 				return true;
 			}
 		}
 
-		public override Size DefaultSize {
-			get {
+		public override Size DefaultSize
+		{
+			get
+			{
 				return _image.Size;
 			}
 		}

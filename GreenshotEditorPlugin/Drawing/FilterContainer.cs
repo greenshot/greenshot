@@ -27,61 +27,87 @@ using System.Drawing.Drawing2D;
 using GreenshotEditorPlugin.Helpers;
 using GreenshotEditorPlugin.Drawing.Filters;
 
-namespace GreenshotEditorPlugin.Drawing {
+namespace GreenshotEditorPlugin.Drawing
+{
 	/// <summary>
 	/// empty container for filter-only elements
 	/// </summary>
-	[Serializable] 
-	public abstract class FilterContainer : DrawableContainer {
-		public enum PreparedFilter {BLUR, PIXELIZE, TEXT_HIGHTLIGHT, AREA_HIGHLIGHT, GRAYSCALE, MAGNIFICATION};
+	[Serializable]
+	public abstract class FilterContainer : DrawableContainer
+	{
+		public enum PreparedFilter
+		{
+			BLUR,
+			PIXELIZE,
+			TEXT_HIGHTLIGHT,
+			AREA_HIGHLIGHT,
+			GRAYSCALE,
+			MAGNIFICATION
+		};
 
 		private int _lineThickness;
+
 		[Field(FieldTypes.LINE_THICKNESS)]
-		public int LineThickness {
-			get {
+		public int LineThickness
+		{
+			get
+			{
 				return _lineThickness;
 			}
-			set {
+			set
+			{
 				_lineThickness = value;
 				OnFieldPropertyChanged(FieldTypes.LINE_THICKNESS);
 			}
 		}
 
 		private Color _lineColor = Color.Red;
+
 		[Field(FieldTypes.LINE_COLOR)]
-		public Color LineColor {
-			get {
+		public Color LineColor
+		{
+			get
+			{
 				return _lineColor;
 			}
-			set {
+			set
+			{
 				_lineColor = value;
 				OnFieldPropertyChanged(FieldTypes.LINE_COLOR);
 			}
 		}
 
 		private bool _shadow;
+
 		[Field(FieldTypes.SHADOW)]
-		public bool Shadow {
-			get {
+		public bool Shadow
+		{
+			get
+			{
 				return _shadow;
 			}
-			set {
+			set
+			{
 				_shadow = value;
 				OnFieldPropertyChanged(FieldTypes.SHADOW);
 			}
 		}
 
-		public abstract PreparedFilter Filter {
+		public abstract PreparedFilter Filter
+		{
 			get;
 			set;
 		}
 
-		public FilterContainer(Surface parent) : base(parent) {
+		public FilterContainer(Surface parent) : base(parent)
+		{
 		}
 
-		protected void ConfigurePreparedFilters() {
+		protected void ConfigurePreparedFilters()
+		{
 			Filters.Clear();
-			switch (Filter) {
+			switch (Filter)
+			{
 				case PreparedFilter.BLUR:
 					Add(new BlurFilter(this));
 					break;
@@ -110,36 +136,44 @@ namespace GreenshotEditorPlugin.Drawing {
 			}
 		}
 
-		public override void Draw(Graphics graphics, RenderMode rm) {
+		public override void Draw(Graphics graphics, RenderMode rm)
+		{
 			bool lineVisible = (_lineThickness > 0 && ColorHelper.IsVisible(_lineColor));
 			var state = graphics.Save();
-            if (lineVisible) {
+			if (lineVisible)
+			{
 				graphics.SmoothingMode = SmoothingMode.HighSpeed;
 				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 				graphics.CompositingQuality = CompositingQuality.HighQuality;
 				graphics.PixelOffsetMode = PixelOffsetMode.None;
 				//draw _shadow first
-				if (_shadow) {
+				if (_shadow)
+				{
 					int basealpha = 100;
 					int alpha = basealpha;
 					int steps = 5;
 					int currentStep = lineVisible ? 1 : 0;
-					while (currentStep <= steps) {
-						using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), _lineThickness)) {
+					while (currentStep <= steps)
+					{
+						using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), _lineThickness))
+						{
 							Rectangle shadowRect = new Rectangle(Left + currentStep, Top + currentStep, Width, Height).MakeGuiRectangle();
 							graphics.DrawRectangle(shadowPen, shadowRect);
 							currentStep++;
-							alpha = alpha - (basealpha / steps);
+							alpha = alpha - (basealpha/steps);
 						}
 					}
 				}
 				Rectangle rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
-				if (_lineThickness > 0) {
-					using (Pen pen = new Pen(_lineColor, _lineThickness)) {
+				if (_lineThickness > 0)
+				{
+					using (Pen pen = new Pen(_lineColor, _lineThickness))
+					{
 						graphics.DrawRectangle(pen, rect);
 					}
 				}
-				graphics.Restore(state);			}
+				graphics.Restore(state);
+			}
 		}
 	}
 }

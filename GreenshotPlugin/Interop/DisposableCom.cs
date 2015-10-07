@@ -22,13 +22,16 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace GreenshotPlugin.Interop {
+namespace GreenshotPlugin.Interop
+{
 	/// <summary>
 	/// A simple com wrapper which helps with "using"
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public interface IDisposableCom<T> : IDisposable {
-		T ComObject {
+	public interface IDisposableCom<T> : IDisposable
+	{
+		T ComObject
+		{
 			get;
 			set;
 		}
@@ -37,14 +40,16 @@ namespace GreenshotPlugin.Interop {
 	/// <summary>
 	/// A factory for IDisposableCom
 	/// </summary>
-	public static class DisposableCom {
+	public static class DisposableCom
+	{
 		/// <summary>
 		/// Create a ComDisposable for the supplied type object
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <param name="obj"></param>
 		/// <returns></returns>
-		public static IDisposableCom<T> Create<T>(T obj) {
+		public static IDisposableCom<T> Create<T>(T obj)
+		{
 			if (!Equals(obj, default(T)))
 			{
 				return new DisposableComImplementation<T>(obj);
@@ -57,12 +62,15 @@ namespace GreenshotPlugin.Interop {
 	/// Implementation of the IDisposableCom, this is internal to prevent other code to use it directly
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	internal class DisposableComImplementation<T> : IDisposableCom<T> {
-		public DisposableComImplementation(T obj) {
+	internal class DisposableComImplementation<T> : IDisposableCom<T>
+	{
+		public DisposableComImplementation(T obj)
+		{
 			ComObject = obj;
 		}
 
-		public T ComObject {
+		public T ComObject
+		{
 			get;
 			set;
 		}
@@ -70,7 +78,8 @@ namespace GreenshotPlugin.Interop {
 		/// <summary>
 		/// Cleans up the COM object.
 		/// </summary>
-		public void Dispose() {
+		public void Dispose()
+		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
@@ -79,7 +88,8 @@ namespace GreenshotPlugin.Interop {
 		/// Release the COM reference
 		/// </summary>
 		/// <param name="disposing"><see langword="true"/> if this was called from the<see cref="IDisposable"/> interface.</param>
-		private void Dispose(bool disposing) {
+		private void Dispose(bool disposing)
+		{
 			if (disposing)
 			{
 				// Do not catch an exception from this.

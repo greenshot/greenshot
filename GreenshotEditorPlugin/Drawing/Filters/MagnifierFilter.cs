@@ -27,33 +27,41 @@ using System.Drawing.Drawing2D;
 
 namespace GreenshotEditorPlugin.Drawing.Filters
 {
-    [Serializable] 
-	public class MagnifierFilter : AbstractFilter {
-
+	[Serializable]
+	public class MagnifierFilter : AbstractFilter
+	{
 		protected int _magnificationFactor = 2;
+
 		[Field(FieldTypes.MAGNIFICATION_FACTOR)]
-		public int MagnificationFactor {
-			get {
+		public int MagnificationFactor
+		{
+			get
+			{
 				return _magnificationFactor;
 			}
-			set {
+			set
+			{
 				_magnificationFactor = value;
 				OnFieldPropertyChanged(FieldTypes.MAGNIFICATION_FACTOR);
 			}
 		}
 
-		public MagnifierFilter(DrawableContainer parent) : base(parent) {
+		public MagnifierFilter(DrawableContainer parent) : base(parent)
+		{
 		}
 
-		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
+		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode)
+		{
 			Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
 
-			if (applyRect.Width == 0 || applyRect.Height == 0) {
+			if (applyRect.Width == 0 || applyRect.Height == 0)
+			{
 				// nothing to do
 				return;
 			}
-			GraphicsState state =  graphics.Save();
-			if (Invert) {
+			GraphicsState state = graphics.Save();
+			if (Invert)
+			{
 				graphics.SetClip(applyRect);
 				graphics.ExcludeClip(rect);
 			}
@@ -61,11 +69,11 @@ namespace GreenshotEditorPlugin.Drawing.Filters
 			graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 			graphics.CompositingQuality = CompositingQuality.HighQuality;
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
-			int halfWidth = rect.Width / 2;
-			int halfHeight = rect.Height / 2;
-			int newWidth = rect.Width / _magnificationFactor;
-			int newHeight = rect.Height / _magnificationFactor;
-			Rectangle source = new Rectangle(rect.X + halfWidth - (newWidth / 2), rect.Y + halfHeight - (newHeight / 2), newWidth, newHeight);
+			int halfWidth = rect.Width/2;
+			int halfHeight = rect.Height/2;
+			int newWidth = rect.Width/_magnificationFactor;
+			int newHeight = rect.Height/_magnificationFactor;
+			Rectangle source = new Rectangle(rect.X + halfWidth - (newWidth/2), rect.Y + halfHeight - (newHeight/2), newWidth, newHeight);
 			graphics.DrawImage(applyBitmap, rect, source, GraphicsUnit.Pixel);
 			graphics.Restore(state);
 		}

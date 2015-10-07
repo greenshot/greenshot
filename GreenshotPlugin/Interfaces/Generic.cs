@@ -18,10 +18,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-
 using Greenshot.Plugin.Drawing;
 using System.IO;
 using System.Collections.Generic;
@@ -30,54 +30,76 @@ using System.Drawing.Drawing2D;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Greenshot.Plugin {
+namespace Greenshot.Plugin
+{
 	/// <summary>
 	/// Alignment Enums for possitioning
 	/// </summary>
 	//public enum HorizontalAlignment {LEFT, CENTER, RIGHT};
-	public enum VerticalAlignment {TOP, CENTER, BOTTOM};
+	public enum VerticalAlignment
+	{
+		TOP,
+		CENTER,
+		BOTTOM
+	};
 
-	public enum SurfaceMessageTyp {
+	public enum SurfaceMessageTyp
+	{
 		FileSaved,
 		Error,
 		Info,
 		UploadedUri
 	}
 
-	public class SurfaceMessageEventArgs : EventArgs {
-		public SurfaceMessageTyp MessageType {
+	public class SurfaceMessageEventArgs : EventArgs
+	{
+		public SurfaceMessageTyp MessageType
+		{
 			get;
 			set;
 		}
-		public string Message {
+
+		public string Message
+		{
 			get;
 			set;
 		}
-		public ISurface Surface {
+
+		public ISurface Surface
+		{
 			get;
 			set;
 		}
 	}
 
-	public class SurfaceElementEventArgs : EventArgs {
-		public IList<IDrawableContainer> Elements {
+	public class SurfaceElementEventArgs : EventArgs
+	{
+		public IList<IDrawableContainer> Elements
+		{
 			get;
 			set;
 		}
 	}
 
-	public class SurfaceDrawingModeEventArgs : EventArgs {
-		public DrawingModes DrawingMode {
+	public class SurfaceDrawingModeEventArgs : EventArgs
+	{
+		public DrawingModes DrawingMode
+		{
 			get;
 			set;
 		}
 	}
-	
+
 	public delegate void SurfaceSizeChangeEventHandler(object sender, EventArgs e);
+
 	public delegate void SurfaceMessageEventHandler(object sender, SurfaceMessageEventArgs e);
+
 	public delegate void SurfaceElementEventHandler(object sender, SurfaceElementEventArgs e);
+
 	public delegate void SurfaceDrawingModeEventHandler(object sender, SurfaceDrawingModeEventArgs e);
-	public enum DrawingModes {
+
+	public enum DrawingModes
+	{
 		None,
 		Rect,
 		Ellipse,
@@ -96,7 +118,8 @@ namespace Greenshot.Plugin {
 	/// <summary>
 	/// The interface to the Surface object, so Plugins can use it.
 	/// </summary>
-	public interface ISurface : IDisposable {
+	public interface ISurface : IDisposable
+	{
 		event SurfaceSizeChangeEventHandler SurfaceSizeChanged;
 		event SurfaceMessageEventHandler SurfaceMessage;
 		event SurfaceDrawingModeEventHandler DrawingModeChanged;
@@ -105,7 +128,8 @@ namespace Greenshot.Plugin {
 		/// <summary>
 		/// Unique ID of the Surface
 		/// </summary>
-		Guid ID {
+		Guid ID
+		{
 			get;
 			set;
 		}
@@ -119,11 +143,12 @@ namespace Greenshot.Plugin {
 		/// The setter will clone the passed bitmap and dispose it when the Surface is disposed
 		/// This means that the supplied image needs to be disposed by the calling code (if needed!)
 		/// </summary>
-		Image Image {
+		Image Image
+		{
 			get;
 			set;
 		}
-		
+
 		/// <summary>
 		/// Get the current Image from the Editor for Exporting (save/upload etc)
 		/// Don't forget to call image.Dispose() when finished!!!
@@ -165,9 +190,11 @@ namespace Greenshot.Plugin {
 		long SaveElementsToStream(Stream stream);
 		void LoadElementsFromStream(Stream stream);
 
-		bool HasSelectedElements {
+		bool HasSelectedElements
+		{
 			get;
 		}
+
 		void RemoveSelectedElements();
 		void CutSelectedElements();
 		void CopySelectedElements();
@@ -176,37 +203,48 @@ namespace Greenshot.Plugin {
 		void DeselectElement(IDrawableContainer container);
 		void DeselectAllElements();
 		void SelectElement(IDrawableContainer container);
+
 		/// <summary>
 		/// Is the supplied container "on" the surface?
 		/// </summary>
 		/// <param name="container"></param>
 		/// <returns>This returns false if the container is deleted but still in the undo stack</returns>
 		bool IsOnSurface(IDrawableContainer container);
+
 		void Invalidate(Rectangle rectangleToInvalidate);
 		void Invalidate();
-		bool Modified {
+
+		bool Modified
+		{
 			get;
 			set;
 		}
-		string LastSaveFullPath {
+
+		string LastSaveFullPath
+		{
 			get;
 			set;
 		}
-		Uri UploadUri {
+
+		Uri UploadUri
+		{
 			get;
 			set;
 		}
+
 		void AddElement(IDrawableContainer elementToAdd, bool makeUndoable);
 		void RemoveElement(IDrawableContainer elementToRemove, bool makeUndoable);
 		void SendMessageEvent(object source, SurfaceMessageTyp messageType, string message);
 		Task ApplyBitmapEffectAsync(IEffect effect, CancellationToken token = default(CancellationToken));
 		void RemoveCursor();
 
-        bool HasCursor {
+		bool HasCursor
+		{
 			get;
 		}
 
-		ICaptureDetails CaptureDetails {
+		ICaptureDetails CaptureDetails
+		{
 			get;
 			set;
 		}

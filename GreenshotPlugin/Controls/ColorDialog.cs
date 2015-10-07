@@ -33,7 +33,8 @@ namespace GreenshotPlugin.Controls
 	/// <summary>
 	/// Description of ColorDialog.
 	/// </summary>
-	public partial class ColorDialog : GreenshotForm {
+	public partial class ColorDialog : GreenshotForm
+	{
 		private static ColorDialog uniqueInstance;
 
 		/// <summary>
@@ -45,7 +46,8 @@ namespace GreenshotPlugin.Controls
 			set;
 		}
 
-		private ColorDialog() {
+		private ColorDialog()
+		{
 			SuspendLayout();
 			InitializeComponent();
 			CreateColorPalette(5, 5, 15, 15);
@@ -54,8 +56,10 @@ namespace GreenshotPlugin.Controls
 			UpdateRecentColorsButtonRow();
 		}
 
-		public static ColorDialog GetInstance() {
-			if (uniqueInstance == null) {
+		public static ColorDialog GetInstance()
+		{
+			if (uniqueInstance == null)
+			{
 				uniqueInstance = new ColorDialog();
 			}
 			return uniqueInstance;
@@ -66,55 +70,71 @@ namespace GreenshotPlugin.Controls
 		private readonly ToolTip _toolTip = new ToolTip();
 		private bool _updateInProgress = false;
 
-		public Color Color {
-			get { return colorPanel.BackColor; }
-			set { PreviewColor(value, this); }
+		public Color Color
+		{
+			get
+			{
+				return colorPanel.BackColor;
+			}
+			set
+			{
+				PreviewColor(value, this);
+			}
 		}
 
 		#region user interface generation
-		private void CreateColorPalette(int x, int y, int w, int h) {
+
+		private void CreateColorPalette(int x, int y, int w, int h)
+		{
 			CreateColorButtonColumn(255, 0, 0, x, y, w, h, 11);
 			x += w;
-			CreateColorButtonColumn(255, 255 / 2, 0, x, y, w, h, 11);
+			CreateColorButtonColumn(255, 255/2, 0, x, y, w, h, 11);
 			x += w;
 			CreateColorButtonColumn(255, 255, 0, x, y, w, h, 11);
 			x += w;
-			CreateColorButtonColumn(255 / 2, 255, 0, x, y, w, h, 11);
+			CreateColorButtonColumn(255/2, 255, 0, x, y, w, h, 11);
 			x += w;
 			CreateColorButtonColumn(0, 255, 0, x, y, w, h, 11);
 			x += w;
-			CreateColorButtonColumn(0, 255, 255 / 2, x, y, w, h, 11);
+			CreateColorButtonColumn(0, 255, 255/2, x, y, w, h, 11);
 			x += w;
 			CreateColorButtonColumn(0, 255, 255, x, y, w, h, 11);
 			x += w;
-			CreateColorButtonColumn(0, 255 / 2, 255, x, y, w, h, 11);
+			CreateColorButtonColumn(0, 255/2, 255, x, y, w, h, 11);
 			x += w;
 			CreateColorButtonColumn(0, 0, 255, x, y, w, h, 11);
 			x += w;
-			CreateColorButtonColumn(255 / 2, 0, 255, x, y, w, h, 11);
+			CreateColorButtonColumn(255/2, 0, 255, x, y, w, h, 11);
 			x += w;
 			CreateColorButtonColumn(255, 0, 255, x, y, w, h, 11);
 			x += w;
-			CreateColorButtonColumn(255, 0, 255 / 2, x, y, w, h, 11);
+			CreateColorButtonColumn(255, 0, 255/2, x, y, w, h, 11);
 			x += w + 5;
-			CreateColorButtonColumn(255 / 2, 255 / 2, 255 / 2, x, y, w, h, 11);
+			CreateColorButtonColumn(255/2, 255/2, 255/2, x, y, w, h, 11);
 
 			Controls.AddRange(_colorButtons.ToArray());
 		}
 
-		private void CreateColorButtonColumn(int red, int green, int blue, int x, int y, int w, int h, int shades) {
-			int shadedColorsNum = (shades - 1) / 2;
-			for (int i = 0; i <= shadedColorsNum; i++) {
-				_colorButtons.Add(CreateColorButton(red * i / shadedColorsNum, green * i / shadedColorsNum, blue * i / shadedColorsNum, x, y + i * h, w, h));
-				if (i > 0) _colorButtons.Add(CreateColorButton(red + (255 - red) * i / shadedColorsNum, green + (255 - green) * i / shadedColorsNum, blue + (255 - blue) * i / shadedColorsNum, x, y + (i + shadedColorsNum) * h, w, h));
+		private void CreateColorButtonColumn(int red, int green, int blue, int x, int y, int w, int h, int shades)
+		{
+			int shadedColorsNum = (shades - 1)/2;
+			for (int i = 0; i <= shadedColorsNum; i++)
+			{
+				_colorButtons.Add(CreateColorButton(red*i/shadedColorsNum, green*i/shadedColorsNum, blue*i/shadedColorsNum, x, y + i*h, w, h));
+				if (i > 0)
+				{
+					_colorButtons.Add(CreateColorButton(red + (255 - red)*i/shadedColorsNum, green + (255 - green)*i/shadedColorsNum, blue + (255 - blue)*i/shadedColorsNum, x, y + (i + shadedColorsNum)*h, w, h));
+				}
 			}
 		}
 
-		private Button CreateColorButton(int red, int green, int blue, int x, int y, int w, int h) {
+		private Button CreateColorButton(int red, int green, int blue, int x, int y, int w, int h)
+		{
 			return CreateColorButton(Color.FromArgb(255, red, green, blue), x, y, w, h);
 		}
 
-		private Button CreateColorButton(Color color, int x, int y, int w, int h) {
+		private Button CreateColorButton(Color color, int x, int y, int w, int h)
+		{
 			Button b = new Button();
 			b.BackColor = color;
 			b.FlatAppearance.BorderSize = 0;
@@ -127,8 +147,10 @@ namespace GreenshotPlugin.Controls
 			return b;
 		}
 
-		private void CreateLastUsedColorButtonRow(int x, int y, int w, int h) {
-			for (int i = 0; i < 12; i++) {
+		private void CreateLastUsedColorButtonRow(int x, int y, int w, int h)
+		{
+			for (int i = 0; i < 12; i++)
+			{
 				Button b = CreateColorButton(Color.Transparent, x, y, w, h);
 				b.Enabled = false;
 				_recentColorButtons.Add(b);
@@ -136,10 +158,13 @@ namespace GreenshotPlugin.Controls
 			}
 			Controls.AddRange(_recentColorButtons.ToArray());
 		}
+
 		#endregion
 
 		#region update user interface
-		private void UpdateRecentColorsButtonRow() {
+
+		private void UpdateRecentColorsButtonRow()
+		{
 			if (RecentColors != null)
 			{
 				for (int i = 0; i < RecentColors.Count && i < 12; i++)
@@ -150,13 +175,16 @@ namespace GreenshotPlugin.Controls
 			}
 		}
 
-		private void PreviewColor(Color colorToPreview, Control trigger) {
+		private void PreviewColor(Color colorToPreview, Control trigger)
+		{
 			_updateInProgress = true;
 			colorPanel.BackColor = colorToPreview;
-			if (trigger != textBoxHtmlColor) {
+			if (trigger != textBoxHtmlColor)
+			{
 				textBoxHtmlColor.Text = ColorTranslator.ToHtml(colorToPreview);
 			}
-			if (trigger != textBoxRed && trigger != textBoxGreen && trigger != textBoxBlue && trigger != textBoxAlpha) {
+			if (trigger != textBoxRed && trigger != textBoxGreen && trigger != textBoxBlue && trigger != textBoxAlpha)
+			{
 				textBoxRed.Text = colorToPreview.R.ToString();
 				textBoxGreen.Text = colorToPreview.G.ToString();
 				textBoxBlue.Text = colorToPreview.B.ToString();
@@ -165,7 +193,8 @@ namespace GreenshotPlugin.Controls
 			_updateInProgress = false;
 		}
 
-		private void AddToRecentColors(Color c) {
+		private void AddToRecentColors(Color c)
+		{
 			if (RecentColors != null)
 			{
 				RecentColors.Remove(c);
@@ -177,25 +206,35 @@ namespace GreenshotPlugin.Controls
 				UpdateRecentColorsButtonRow();
 			}
 		}
+
 		#endregion
 
 		#region textbox event handlers
-		void TextBoxHexadecimalTextChanged(object sender, EventArgs e) {
-			if (_updateInProgress) {
+
+		private void TextBoxHexadecimalTextChanged(object sender, EventArgs e)
+		{
+			if (_updateInProgress)
+			{
 				return;
 			}
-			TextBox textBox = (TextBox)sender;
+			TextBox textBox = (TextBox) sender;
 			string text = textBox.Text.Replace("#", "");
 			int i = 0;
 			Color c;
-			if (Int32.TryParse(text, NumberStyles.AllowHexSpecifier, Thread.CurrentThread.CurrentCulture, out i)) {
+			if (Int32.TryParse(text, NumberStyles.AllowHexSpecifier, Thread.CurrentThread.CurrentCulture, out i))
+			{
 				c = Color.FromArgb(i);
-			} else {
+			}
+			else
+			{
 				KnownColor knownColor;
-				try {
-					knownColor = (KnownColor)Enum.Parse(typeof(KnownColor), text, true);
+				try
+				{
+					knownColor = (KnownColor) Enum.Parse(typeof (KnownColor), text, true);
 					c = Color.FromKnownColor(knownColor);
-				} catch (Exception) {
+				}
+				catch (Exception)
+				{
 					return;
 				}
 			}
@@ -203,53 +242,74 @@ namespace GreenshotPlugin.Controls
 			PreviewColor(opaqueColor, textBox);
 		}
 
-		void TextBoxRGBTextChanged(object sender, EventArgs e) {
-			if (_updateInProgress) {
+		private void TextBoxRGBTextChanged(object sender, EventArgs e)
+		{
+			if (_updateInProgress)
+			{
 				return;
 			}
-			TextBox textBox = (TextBox)sender;
+			TextBox textBox = (TextBox) sender;
 			PreviewColor(Color.FromArgb(GetColorPartIntFromString(textBoxAlpha.Text), GetColorPartIntFromString(textBoxRed.Text), GetColorPartIntFromString(textBoxGreen.Text), GetColorPartIntFromString(textBoxBlue.Text)), textBox);
 		}
 
-		void TextBoxGotFocus(object sender, EventArgs e) {
+		private void TextBoxGotFocus(object sender, EventArgs e)
+		{
 			textBoxHtmlColor.SelectAll();
 		}
 
-		void TextBoxKeyDown(object sender, KeyEventArgs e) {
-			if (e.KeyCode == Keys.Return || e.KeyCode == Keys.Enter) {
+		private void TextBoxKeyDown(object sender, KeyEventArgs e)
+		{
+			if (e.KeyCode == Keys.Return || e.KeyCode == Keys.Enter)
+			{
 				AddToRecentColors(colorPanel.BackColor);
 			}
 		}
+
 		#endregion
 
 		#region button event handlers
-		void ColorButtonClick(object sender, EventArgs e) {
-			Button b = (Button)sender;
+
+		private void ColorButtonClick(object sender, EventArgs e)
+		{
+			Button b = (Button) sender;
 			PreviewColor(b.BackColor, b);
 		}
 
-		void BtnTransparentClick(object sender, EventArgs e) {
+		private void BtnTransparentClick(object sender, EventArgs e)
+		{
 			ColorButtonClick(sender, e);
 		}
-		void BtnApplyClick(object sender, EventArgs e) {
+
+		private void BtnApplyClick(object sender, EventArgs e)
+		{
 			DialogResult = DialogResult.OK;
 			Hide();
 			AddToRecentColors(colorPanel.BackColor);
 		}
+
 		#endregion
 
 		#region helper functions
-		private int GetColorPartIntFromString(string s) {
+
+		private int GetColorPartIntFromString(string s)
+		{
 			int ret = 0;
 			Int32.TryParse(s, out ret);
-			if (ret < 0) ret = 0;
-			else if (ret > 255) ret = 255;
+			if (ret < 0)
+			{
+				ret = 0;
+			}
+			else if (ret > 255)
+			{
+				ret = 255;
+			}
 			return ret;
 		}
 
 		#endregion
 
-		private void PipetteUsed(object sender, PipetteUsedArgs e) {
+		private void PipetteUsed(object sender, PipetteUsedArgs e)
+		{
 			Color = e.color;
 		}
 	}

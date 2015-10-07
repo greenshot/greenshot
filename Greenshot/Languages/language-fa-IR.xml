@@ -1,24 +1,29 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <language>
 	<resources prefix="Core">
 		<resource name="about_bugs">:لطفا مشکلات این نرم افزار را به این آدرس گزارش دهید</resource>
 		<resource name="about_donations">:اگر از گرین شات خوشتان آماده و علاقه مند به پشتیبانی هستید</resource>
 		<resource name="about_host">:جایگاه بارگذاری گرین شات در سورس فورج.نت</resource>
 		<resource name="about_icons">(Creative Commons Attribution 3.0 license)  آیکنها ازمجموعه آیکنهای  یوسوکه کامیامانه</resource>
-		<resource name="about_license">توماس براون، جنز کلینگن، رابین کروم                  (C) حق پخش ۲۰۰۷  ـ   ۲۰۱۰   
-         .گرین شات گارانتی ندارد. این یک نرم افزار رایگان میباشد و میتوان آنرا در برخی شرایط دوباره پخش نمود   
-                                :اطلاعات بیشتر در مورد استفاده و پخش</resource>
+		<resource name="about_license">
+			توماس براون، جنز کلینگن، رابین کروم                  (C) حق پخش ۲۰۰۷  ـ   ۲۰۱۰
+			.گرین شات گارانتی ندارد. این یک نرم افزار رایگان میباشد و میتوان آنرا در برخی شرایط دوباره پخش نمود
+			:اطلاعات بیشتر در مورد استفاده و پخش
+		</resource>
 		<resource name="about_title">درباره گریین شات</resource>
 		<resource name="application_title">گرین شات ـ ابزار نمونه برداری از تصویر</resource>
 		<resource name="bugreport_cancel">بستن</resource>
-		<resource name="bugreport_info">مشکل
+		<resource name="bugreport_info">
+			مشکل
 
-               خبر خوب این است که  : شما می توانید با پر کردن یک گزارش اشکال، در حل آن اشکال به ما کمک کنید    
+			خبر خوب این است که  : شما می توانید با پر کردن یک گزارش اشکال، در حل آن اشکال به ما کمک کنید
 
- زیر، ایجاد یک گزارش اشکال جدید و چسباندن مطالب از منطقه متن را به شرح.لطفا URL
+			زیر، ایجاد یک گزارش اشکال جدید و چسباندن مطالب از منطقه متن را به شرح.لطفا URL
 
-لطفا خلاصه ای معنادار و در جوف قرار دادن هر گونه اطلاعات شما در نظر می شود مفید برای بازتولید مسئله.
-همچنین، ما بسیار خواهد بود اگر شما بررسی اینکه آیا یک آیتم ردگیر در حال حاضر برای این اشکال وجود دارد قدردانی. (شما می توانید به جستجو برای پیدا کردن کسانی که به سرعت استفاده کنید) با تشکر از شما :)</resource>
+			لطفا خلاصه ای معنادار و در جوف قرار دادن هر گونه اطلاعات شما در نظر می شود مفید برای بازتولید مسئله.
+			همچنین، ما بسیار خواهد بود اگر شما بررسی اینکه آیا یک آیتم ردگیر در حال حاضر برای این اشکال وجود دارد قدردانی. (شما می توانید به جستجو برای پیدا کردن کسانی که به سرعت استفاده کنید) با تشکر از شما :)
+		</resource>
 		<resource name="bugreport_title">اشتباه</resource>
 		<resource name="clipboard_error">.مشکل ذخیره سازی در حافظه موقت</resource>
 		<resource name="clipboard_inuse">.بدلیل مسدود شدن دسترسی توسط روند   {0} ، ذخیره سازی در حافظه موقت امکانپذیر نمی باشد</resource>
@@ -31,9 +36,11 @@
 		<resource name="colorpicker_red">قرمز</resource>
 		<resource name="colorpicker_title">نمونه بردار رنگ</resource>
 		<resource name="colorpicker_transparent">پشت نما</resource>
-		<resource name="config_unauthorizedaccess_write">ذخیره تنظیمات گریین شاتامکان پذیر نمی باشد. لطفا مجوز دسترسی به    '{0}'   را بررسی نمایید
-		
-Could not save Greenshot's configuration file. Please check access permissions for '{0}'.</resource>
+		<resource name="config_unauthorizedaccess_write">
+			ذخیره تنظیمات گریین شاتامکان پذیر نمی باشد. لطفا مجوز دسترسی به    '{0}'   را بررسی نمایید
+
+			Could not save Greenshot's configuration file. Please check access permissions for '{0}'.
+		</resource>
 		<resource name="contextmenu_about">درباره گرین شات</resource>
 		<resource name="contextmenu_capturearea">نمونه برداری از یک  ناحیه</resource>
 		<resource name="contextmenu_captureclipboard">بازکردن تصویراز حافظه موقت</resource>
@@ -65,26 +72,42 @@ Could not save Greenshot's configuration file. Please check access permissions f
 		<resource name="editor_copyimagetoclipboard">ذخیره سازی در حافظه موقت</resource>
 		<resource name="editor_copypathtoclipboard">ذخیره مسیر در حافظه موقت</resource>
 		<resource name="editor_copytoclipboard">رونویس</resource>
-		<resource name="editor_crop">چیدن		
-(C دکمه)</resource>
-		<resource name="editor_cursortool">انتخابگر 
-(ESC دکمه)</resource>
+		<resource name="editor_crop">
+			چیدن
+			(C دکمه)
+		</resource>
+		<resource name="editor_cursortool">
+			انتخابگر
+			(ESC دکمه)
+		</resource>
 		<resource name="editor_cuttoclipboard">برش</resource>
 		<resource name="editor_deleteelement">پاک کردن</resource>
 		<resource name="editor_downonelevel">یک سطح پایین</resource>
 		<resource name="editor_downtobottom">به پایین ترین سطح</resource>
-		<resource name="editor_drawarrow">کشیدن پیکان 
-(A دکمه)</resource>
-		<resource name="editor_drawellipse">کشیدن دایره یا بیضی
-(E دکمه)</resource>
-		<resource name="editor_drawhighlighter">برجسته 
-(H  دکمه)</resource>
-		<resource name="editor_drawline">کشیدن خط
-(L دکمه)</resource>
-		<resource name="editor_drawrectangle">کشیدن مربع یا مستطیل
-(R دکمه)</resource>
-		<resource name="editor_drawtextbox">اضافه کردن نوشته
-(T دکمه)</resource>
+		<resource name="editor_drawarrow">
+			کشیدن پیکان
+			(A دکمه)
+		</resource>
+		<resource name="editor_drawellipse">
+			کشیدن دایره یا بیضی
+			(E دکمه)
+		</resource>
+		<resource name="editor_drawhighlighter">
+			برجسته
+			(H  دکمه)
+		</resource>
+		<resource name="editor_drawline">
+			کشیدن خط
+			(L دکمه)
+		</resource>
+		<resource name="editor_drawrectangle">
+			کشیدن مربع یا مستطیل
+			(R دکمه)
+		</resource>
+		<resource name="editor_drawtextbox">
+			اضافه کردن نوشته
+			(T دکمه)
+		</resource>
 		<resource name="editor_duplicate">رونویسی از بخش انتخاب شده</resource>
 		<resource name="editor_edit">ویرایش</resource>
 		<resource name="editor_email">ایمیل</resource>
@@ -100,8 +123,10 @@ Could not save Greenshot's configuration file. Please check access permissions f
 		<resource name="editor_italic">یک وری</resource>
 		<resource name="editor_load_objects">بازخوانی شیی ازفایل</resource>
 		<resource name="editor_magnification_factor">بزرگنمایی</resource>
-		<resource name="editor_obfuscate">مبهم 
-(O دکمه)</resource>
+		<resource name="editor_obfuscate">
+			مبهم
+			(O دکمه)
+		</resource>
 		<resource name="editor_obfuscate_blur">محو کردن</resource>
 		<resource name="editor_obfuscate_mode">حالت مبهم</resource>
 		<resource name="editor_obfuscate_pixelize">شطرنجی</resource>
@@ -125,8 +150,10 @@ Could not save Greenshot's configuration file. Please check access permissions f
 		<resource name="editor_uptotop">به بالاترین سطح</resource>
 		<resource name="error">اشتباه</resource>
 		<resource name="error_multipleinstances">.گرین شات قبلا اجرا شده است</resource>
-		<resource name="error_nowriteaccess">.ذخیره سازی در  {0} امکانپذیر نمیباشد
-                .امکان ذخیره سازی را بررسی نمایید</resource>
+		<resource name="error_nowriteaccess">
+			.ذخیره سازی در  {0} امکانپذیر نمیباشد
+			.امکان ذخیره سازی را بررسی نمایید
+		</resource>
 		<resource name="error_openfile">بازکردن پوشه  "{0}"  امکان پذیر نمی باشد</resource>
 		<resource name="error_openlink">.آدرس‌ پیدا نشد</resource>
 		<resource name="error_save">.ذخیره سازی امکانپذیرنمی باشد، لطفا محل مناسبی رابرگزینید</resource>
@@ -163,21 +190,23 @@ Could not save Greenshot's configuration file. Please check access permissions f
 		<resource name="settings_jpegquality">JPEG کیفیت</resource>
 		<resource name="settings_jpegsettings">JPEG تنظیمات</resource>
 		<resource name="settings_language">زبان</resource>
-		<resource name="settings_message_filenamepattern">نمایندههای زیر به صورت خودکار در الگوی تعریف شده جایگزین خواهد شد 
-%YYYY% year, 4 digits
-%MM% month, 2 digits
-%DD% day, 2 digits
-%hh% hour, 2 digits
-%mm% minute, 2 digits
-%ss% second, 2 digits
-%NUM% incrementing number, 6 digits
-%title% Window title
-%user% Windows user
-%domain% Windows domain
-%hostname% PC name
+		<resource name="settings_message_filenamepattern">
+			نمایندههای زیر به صورت خودکار در الگوی تعریف شده جایگزین خواهد شد
+			%YYYY% year, 4 digits
+			%MM% month, 2 digits
+			%DD% day, 2 digits
+			%hh% hour, 2 digits
+			%mm% minute, 2 digits
+			%ss% second, 2 digits
+			%NUM% incrementing number, 6 digits
+			%title% Window title
+			%user% Windows user
+			%domain% Windows domain
+			%hostname% PC name
 
-شما همچنین می توانید از گرین شات برای ایجاد خودکاردایرکتوری استفاده نمایید ازو یا نماد بک اسلش (\) استفاده نمایید تا پرونده وپوشه ایجاد شوند
- %title%_%YYYY%-%MM%-%DD%_%hh%-%mm%-%ss%  :به عنوان مثال</resource>
+			شما همچنین می توانید از گرین شات برای ایجاد خودکاردایرکتوری استفاده نمایید ازو یا نماد بک اسلش (\) استفاده نمایید تا پرونده وپوشه ایجاد شوند
+			%title%_%YYYY%-%MM%-%DD%_%hh%-%mm%-%ss%  :به عنوان مثال
+		</resource>
 		<resource name="settings_output">خروجی</resource>
 		<resource name="settings_playsound">پخش صدای عکس گرفتن</resource>
 		<resource name="settings_preferredfilesettings">تنظیمات مورد پسند پوشه خروجی</resource>
@@ -195,8 +224,10 @@ Could not save Greenshot's configuration file. Please check access permissions f
 		<resource name="settings_tooltip_storagelocation">(محل ذخیره سازی نمونه ها ( برای ذخیره سازی در دسکتاپ,  خالی بگذارید</resource>
 		<resource name="settings_visualization">جلوه های ویژه</resource>
 		<resource name="settings_waittime">مکث (میلی ثانیه) تا نمونه برداری</resource>
-		<resource name="tooltip_firststart">را فشار دهید Print	اینجا کلیک راست کنید یا دکمه	
-Right-click here or press the Print-key.</resource>
+		<resource name="tooltip_firststart">
+			را فشار دهید Print	اینجا کلیک راست کنید یا دکمه
+			Right-click here or press the Print-key.
+		</resource>
 		<resource name="warning">هشدار</resource>
 		<resource name="warning_hotkeys">.ثبت و استفاده از یک یا چند تا از میانبرها امکان پذیر نمی باشد. ممکن است نرم افزار دیگری از میانبرها استفاده می کند</resource>
 	</resources>

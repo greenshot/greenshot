@@ -34,7 +34,7 @@ namespace GreenshotOfficePlugin
 	/// </summary>
 	public class OfficePlugin : IGreenshotPlugin
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OfficePlugin));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (OfficePlugin));
 
 		public IEnumerable<IDestination> Destinations()
 		{
@@ -123,6 +123,7 @@ namespace GreenshotOfficePlugin
 		}
 
 		#region IDisposable Support
+
 		private bool disposedValue = false; // To detect redundant calls
 
 		protected virtual void Dispose(bool disposing)
@@ -144,6 +145,7 @@ namespace GreenshotOfficePlugin
 			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
 			Dispose(true);
 		}
+
 		#endregion
 	}
 }

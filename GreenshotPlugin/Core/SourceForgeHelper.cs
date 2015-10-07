@@ -28,8 +28,10 @@ using System.Threading.Tasks;
 using System.Xml;
 using Dapplo.HttpExtensions;
 
-namespace GreenshotPlugin.Core {
-	public class SourceforgeFile {
+namespace GreenshotPlugin.Core
+{
+	public class SourceforgeFile
+	{
 		public string File
 		{
 			get;
@@ -57,50 +59,70 @@ namespace GreenshotPlugin.Core {
 		}
 
 		private string _language;
-		public string Language {
-			get {return _language;}
-			set {_language = value;}
+
+		public string Language
+		{
+			get
+			{
+				return _language;
+			}
+			set
+			{
+				_language = value;
+			}
 		}
 
-		public bool IsExe {
-			get {
-				if (File != null) {
+		public bool IsExe
+		{
+			get
+			{
+				if (File != null)
+				{
 					return File.ToLower().EndsWith(".exe");
 				}
 				return false;
 			}
 		}
 
-		public bool IsUnstable {
-			get {
-				if (File != null) {
+		public bool IsUnstable
+		{
+			get
+			{
+				if (File != null)
+				{
 					return File.ToLower().Contains("unstable");
 				}
 				return false;
 			}
 		}
 
-		public bool IsReleaseCandidate {
-			get {
-				if (File != null) {
+		public bool IsReleaseCandidate
+		{
+			get
+			{
+				if (File != null)
+				{
 					return Regex.IsMatch(File.ToLower(), "rc[0-9]+");
 				}
 				return false;
 			}
 		}
 
-		public SourceforgeFile(string file, DateTimeOffset pubdate, string link, string directLink) {
+		public SourceforgeFile(string file, DateTimeOffset pubdate, string link, string directLink)
+		{
 			File = file;
 			Pubdate = pubdate;
 			Link = link;
 			DirectLink = directLink;
 		}
 	}
+
 	/// <summary>
 	/// Description of SourceForgeHelper.
 	/// </summary>
-	public class SourceForgeHelper {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(SourceForgeHelper));
+	public class SourceForgeHelper
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (SourceForgeHelper));
 		private static readonly Uri Rssfeed = new Uri("http://getgreenshot.org/project-feed/");
 
 		/// <summary>
@@ -108,7 +130,8 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="updateTime">DateTime</param>
 		/// <returns>true if the feed is newer</returns>
-		public static async Task<bool> IsRssModifiedAfter(DateTimeOffset updateTime) {
+		public static async Task<bool> IsRssModifiedAfter(DateTimeOffset updateTime)
+		{
 			DateTimeOffset lastModified = await Rssfeed.LastModifiedAsync().ConfigureAwait(false);
 			return updateTime.CompareTo(lastModified) < 0;
 		}
@@ -117,14 +140,17 @@ namespace GreenshotPlugin.Core {
 		/// Read the Greenshot RSS feed, so we can use this information to check for updates
 		/// </summary>
 		/// <returns>Dictionary&lt;string, Dictionary&lt;string, RssFile&gt;&gt; with files and their RssFile "description"</returns>
-		public static async Task<IDictionary<string, IDictionary<string, SourceforgeFile>>> ReadRss() {
+		public static async Task<IDictionary<string, IDictionary<string, SourceforgeFile>>> ReadRss()
+		{
 			var rssFiles = new Dictionary<string, IDictionary<string, SourceforgeFile>>();
 			var rssContent = await Rssfeed.GetAsync().ConfigureAwait(false);
-			if (rssContent == null) {
+			if (rssContent == null)
+			{
 				return rssFiles;
 			}
 			var stream = await rssContent.GetAsMemoryStreamAsync(false).ConfigureAwait(false);
-			if (stream == null) {
+			if (stream == null)
+			{
 				return rssFiles;
 			}
 			using (XmlReader reader = XmlReader.Create(stream))
@@ -135,12 +161,15 @@ namespace GreenshotPlugin.Core {
 				{
 					return rssFiles;
 				}
-				foreach (var item in feed.Items) {
+				foreach (var item in feed.Items)
+				{
 					var sfLink = item.Links[0].Uri.ToString();
 					var pubdate = item.PublishDate;
-					try {
+					try
+					{
 						Match match = Regex.Match(Uri.UnescapeDataString(sfLink), @"^http.*sourceforge.*\/projects\/([^\/]+)\/files\/([^\/]+)\/([^\/]+)\/(.+)\/download$");
-						if (match.Success) {
+						if (match.Success)
+						{
 							string project = match.Groups[1].Value;
 							string subdir = match.Groups[2].Value;
 							string type = match.Groups[3].Value;
@@ -149,43 +178,56 @@ namespace GreenshotPlugin.Core {
 							string mirror = "kent";
 							string directLink = Uri.EscapeUriString("http://" + mirror + ".dl.sourceforge.net/project/" + project + "/" + subdir + "/" + type + "/" + file);
 							IDictionary<string, SourceforgeFile> filesForType;
-							if (rssFiles.ContainsKey(type)) {
+							if (rssFiles.ContainsKey(type))
+							{
 								filesForType = rssFiles[type];
-							} else {
+							}
+							else
+							{
 								filesForType = new Dictionary<string, SourceforgeFile>();
 								rssFiles.Add(type, filesForType);
 							}
 							SourceforgeFile rssFile = new SourceforgeFile(file, pubdate, sfLink, directLink);
-							if (file.EndsWith(".exe") || file.EndsWith(".zip")) {
+							if (file.EndsWith(".exe") || file.EndsWith(".zip"))
+							{
 								string version = Regex.Replace(file, @".*[a-zA-Z_]\-", "");
 								version = version.Replace(@"\-[a-zA-Z]+.*", "");
 								version = Regex.Replace(version, @"\.exe$", "");
 								version = Regex.Replace(version, @"\.zip$", "");
 								version = Regex.Replace(version, @"RC[0-9]+", "");
-								if (version.Trim().Length > 0) {
+								if (version.Trim().Length > 0)
+								{
 									version = version.Replace('-', '.');
 									version = version.Replace(',', '.');
 									version = Regex.Replace(version, @"^[a-zA-Z_]*\.", "");
 									version = Regex.Replace(version, @"\.[a-zA-Z_]*$", "");
 
 									Version fileVersion;
-									if (!Version.TryParse(version, out fileVersion)) {
+									if (!Version.TryParse(version, out fileVersion))
+									{
 										LOG.DebugFormat("Found invalid version {0} in file {1}", version, file);
 									}
 									rssFile.Version = fileVersion;
 								}
-							} else if (type.Equals("Translations")) {
+							}
+							else if (type.Equals("Translations"))
+							{
 								string culture = Regex.Replace(file, @"[a-zA-Z]+-(..-..)\.(xml|html)", "$1");
-								try {
+								try
+								{
 									//CultureInfo cultureInfo = new CultureInfo(culture);
-									rssFile.Language = culture;//cultureInfo.NativeName;
-								} catch (Exception) {
+									rssFile.Language = culture; //cultureInfo.NativeName;
+								}
+								catch (Exception)
+								{
 									LOG.WarnFormat("Can't read the native name of the culture {0}", culture);
 								}
 							}
 							filesForType.Add(file, rssFile);
 						}
-					} catch (Exception ex) {
+					}
+					catch (Exception ex)
+					{
 						LOG.WarnFormat("Couldn't read RSS entry for: {0}", item.Title);
 						LOG.Warn("Reason: ", ex);
 					}

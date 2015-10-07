@@ -19,11 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotPlugin.Controls {
+namespace GreenshotPlugin.Controls
+{
 	/// <summary>
 	/// This interface describes the designer fields that need to be implemented for Greenshot controls
 	/// </summary>
-	public interface IGreenshotLanguageBindable {
+	public interface IGreenshotLanguageBindable
+	{
 		/// <summary>
 		/// Language module from which the translation is picked
 		/// </summary>
@@ -36,7 +38,8 @@ namespace GreenshotPlugin.Controls {
 		/// <summary>
 		/// Language key to use to fill the Text value with
 		/// </summary>
-		string LanguageKey {
+		string LanguageKey
+		{
 			get;
 			set;
 		}

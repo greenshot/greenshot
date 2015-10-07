@@ -22,35 +22,44 @@
 using GreenshotConfluencePlugin.Model;
 using System.Collections.Generic;
 
-namespace GreenshotConfluencePlugin {
+namespace GreenshotConfluencePlugin
+{
 	/// <summary>
 	/// Interaction logic for ConfluencePagePicker.xaml
 	/// </summary>
-	public partial class ConfluencePagePicker : System.Windows.Controls.Page {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluencePagePicker));
+	public partial class ConfluencePagePicker : System.Windows.Controls.Page
+	{
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ConfluencePagePicker));
 		private ConfluenceUpload confluenceUpload = null;
 
-		public ConfluencePagePicker(ConfluenceUpload confluenceUpload, IList<Content> pagesToPick) {
+		public ConfluencePagePicker(ConfluenceUpload confluenceUpload, IList<Content> pagesToPick)
+		{
 			this.confluenceUpload = confluenceUpload;
 			this.DataContext = pagesToPick;
 			InitializeComponent();
 		}
-		
-		void PageListView_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
+
+		private void PageListView_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+		{
 			SelectionChanged();
 		}
-		
-		void SelectionChanged() {
-			if (PageListView.HasItems && PageListView.SelectedItems.Count > 0) {
-				confluenceUpload.SelectedPage = (Content)PageListView.SelectedItem;
+
+		private void SelectionChanged()
+		{
+			if (PageListView.HasItems && PageListView.SelectedItems.Count > 0)
+			{
+				confluenceUpload.SelectedPage = (Content) PageListView.SelectedItem;
 				// Make sure the uploader knows we selected an already opened page
 				confluenceUpload.isOpenPageSelected = true;
-			} else {
+			}
+			else
+			{
 				confluenceUpload.SelectedPage = null;
 			}
 		}
-		
-		void Page_Loaded(object sender, System.Windows.RoutedEventArgs e) {
+
+		private void Page_Loaded(object sender, System.Windows.RoutedEventArgs e)
+		{
 			SelectionChanged();
 		}
 	}

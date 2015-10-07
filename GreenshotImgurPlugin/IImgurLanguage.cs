@@ -22,69 +22,86 @@
 using Dapplo.Config.Language;
 using System.ComponentModel;
 
-namespace GreenshotImgurPlugin {
+namespace GreenshotImgurPlugin
+{
 	[Language("Imgur")]
-	public interface IImgurLanguage : ILanguage, INotifyPropertyChanged {
+	public interface IImgurLanguage : ILanguage, INotifyPropertyChanged
+	{
 		string UploadMenuItem
 		{
 			get;
 		}
+
 		string SettingsTitle
 		{
 			get;
 		}
+
 		string LabelUrl
 		{
 			get;
 		}
+
 		string LabelUploadFormat
 		{
 			get;
 		}
+
 		string LabelClear
 		{
 			get;
 		}
+
 		string Ok
 		{
 			get;
 		}
+
 		string Cancel
 		{
 			get;
 		}
+
 		string UploadSuccess
 		{
 			get;
 		}
+
 		string UploadFailure
 		{
 			get;
 		}
+
 		string CommunicationWait
 		{
 			get;
 		}
+
 		string DeleteQuestion
 		{
 			get;
 		}
+
 		string ClearQuestion
 		{
 			get;
 		}
+
 		string DeleteTitle
 		{
 			get;
 		}
+
 		string UsePageLink
 		{
 			get;
 		}
+
 		string History
 		{
 			get;
 		}
+
 		string Configure
 		{
 			get;

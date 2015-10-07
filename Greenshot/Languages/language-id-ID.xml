@@ -1,23 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <language>
 	<resources prefix="Core">
 		<resource name="about_bugs">Harap laporkan kesalahan ke</resource>
 		<resource name="about_donations">Jika anda menyukai Greenshot, anda dipersilahkan untuk mendukung kami:</resource>
 		<resource name="about_host">Greenshot dikelola oleh sourceforge.net di</resource>
 		<resource name="about_icons">Ikon dari Yusuke Kamiyamane Fugue ikon set (lisensi Creative Commons Attribution 3.0)</resource>
-		<resource name="about_license">Hak Cipta milik Thomas Braun, Jens Klingen, Robin Krom 2007-2015
-Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
-Details about the GNU General Public License:</resource>
+		<resource name="about_license">
+			Hak Cipta milik Thomas Braun, Jens Klingen, Robin Krom 2007-2015
+			Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
+			Details about the GNU General Public License:
+		</resource>
 		<resource name="about_title">Tentang Greenshot</resource>
 		<resource name="application_title">Greenshot - utilitas penangkap layar yang revolusioner</resource>
 		<resource name="bugreport_cancel">Tutup</resource>
-		<resource name="bugreport_info">Maaf, kesalahan yang tak terduga terjadi.
+		<resource name="bugreport_info">
+			Maaf, kesalahan yang tak terduga terjadi.
 
-Kabar baiknya: anda dapat membantu kami memperbaikinya dengan mengisi laporan kesalahan.
-Harap kunjungi laman berikut, buat laporan kesalahan baru dan letakkan konten dari area teks ke wadah deskripsi.
+			Kabar baiknya: anda dapat membantu kami memperbaikinya dengan mengisi laporan kesalahan.
+			Harap kunjungi laman berikut, buat laporan kesalahan baru dan letakkan konten dari area teks ke wadah deskripsi.
 
-Harap tambah penjelasan yang berarti dan sertakan informasi lain yang penting untuk kami tiru kesalahannya.
-Juga, kami sangat terbantu apabila anda mengecek laporan lain yang sama dengan kepunyaan anda. (Anda dapat menggunakan pencarian untuk mencari dengan cepat.) Terima kasih :)</resource>
+			Harap tambah penjelasan yang berarti dan sertakan informasi lain yang penting untuk kami tiru kesalahannya.
+			Juga, kami sangat terbantu apabila anda mengecek laporan lain yang sama dengan kepunyaan anda. (Anda dapat menggunakan pencarian untuk mencari dengan cepat.) Terima kasih :)
+		</resource>
 		<resource name="bugreport_title">Kesalahan</resource>
 		<resource name="CANCEL">Batal</resource>
 		<resource name="clipboard_error">Sebuah kesalahan terjadi ketika sedang menulis di papan klip.</resource>
@@ -180,8 +185,10 @@ Juga, kami sangat terbantu apabila anda mengecek laporan lain yang sama dengan k
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook dengan teks</resource>
 		<resource name="error">Kesalahan</resource>
 		<resource name="error_multipleinstances">Sesuatu dari Greenshot telah dijalankan.</resource>
-		<resource name="error_nowriteaccess">Tidak dapat berkas {0}.
-Harap cek aksesibilitas menuis pada lokasi penyimpanan yang dipilih.</resource>
+		<resource name="error_nowriteaccess">
+			Tidak dapat berkas {0}.
+			Harap cek aksesibilitas menuis pada lokasi penyimpanan yang dipilih.
+		</resource>
 		<resource name="error_openfile">Berkas "{0}" tidak dapat dibuka.</resource>
 		<resource name="error_openlink">Tidak dapat membuka link '{0}'.</resource>
 		<resource name="error_save">Tidak dapat menyimpan tangkapan, dimohon cari lokasi yang sesuai.</resource>
@@ -245,23 +252,25 @@ Harap cek aksesibilitas menuis pada lokasi penyimpanan yang dipilih.</resource>
 		<resource name="settings_iecapture">Tangkap Internet Explorer</resource>
 		<resource name="settings_jpegquality">Kualitas JPEG</resource>
 		<resource name="settings_language">Bahasa</resource>
-		<resource name="settings_message_filenamepattern">Pedoman berikut akan ditimpa otomatis dalam pola yang ditetapkan:
-${YYYY} tahun, 4 digit
-${MM} bulan, 2 digit
-${DD} hari, 2 digit
-${hh} jam, 2 digit
-${mm} menit, 2 digit
-${ss} detik, 2 digit
-${NUM} angka tambahan, 6 digit
-${title} judul jendela
-${user} pengguna Windows
-${domain} domain Windows
-${hostname} nama PC
+		<resource name="settings_message_filenamepattern">
+			Pedoman berikut akan ditimpa otomatis dalam pola yang ditetapkan:
+			${YYYY} tahun, 4 digit
+			${MM} bulan, 2 digit
+			${DD} hari, 2 digit
+			${hh} jam, 2 digit
+			${mm} menit, 2 digit
+			${ss} detik, 2 digit
+			${NUM} angka tambahan, 6 digit
+			${title} judul jendela
+			${user} pengguna Windows
+			${domain} domain Windows
+			${hostname} nama PC
 
-Anda juga dapat membuat direktori Greenshot secara dinamis, cukup gunakan simbol garis miring {\} untuk memisahkan folder dan nama berkas
-Contoh: pola ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-akan menbuat folder untuk hari terbaru di lokasi penyimpan default, cont. 2008-06-29, nama berkas didasarkan pada waktu terbaru
-cont, 11_58_32 (ditambah ekstensi yang ditetapkan pada pengaturan)</resource>
+			Anda juga dapat membuat direktori Greenshot secara dinamis, cukup gunakan simbol garis miring {\} untuk memisahkan folder dan nama berkas
+			Contoh: pola ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+			akan menbuat folder untuk hari terbaru di lokasi penyimpan default, cont. 2008-06-29, nama berkas didasarkan pada waktu terbaru
+			cont, 11_58_32 (ditambah ekstensi yang ditetapkan pada pengaturan)
+		</resource>
 		<resource name="settings_network">Jaringan dan pembaruan</resource>
 		<resource name="settings_output">Output</resource>
 		<resource name="settings_playsound">Mainkan suara kamera</resource>
@@ -296,9 +305,11 @@ cont, 11_58_32 (ditambah ekstensi yang ditetapkan pada pengaturan)</resource>
 		<resource name="update_found">Versi baru Greenshot telah tersedia! Apakah anda ingin mengunduh Greenshot {0}?</resource>
 		<resource name="wait_ie_capture">Harap tunggu ketika halaman Internet Explorer sedang ditangkap</resource>
 		<resource name="warning">Peringatan</resource>
-		<resource name="warning_hotkeys">hotkey {0} tak dapat terdaftar, kemungkinan akibat alat lain telah mengklaim penggunaan hotkey, anda dapat mengganti hotkey yang lain atau menonaktifkannya.
+		<resource name="warning_hotkeys">
+			hotkey {0} tak dapat terdaftar, kemungkinan akibat alat lain telah mengklaim penggunaan hotkey, anda dapat mengganti hotkey yang lain atau menonaktifkannya.
 
- Semua fitur Greenshot masih bekerja dengan baik dari ikon tray menu konteks tanpa hotkey.</resource>
+			Semua fitur Greenshot masih bekerja dengan baik dari ikon tray menu konteks tanpa hotkey.
+		</resource>
 		<resource name="WindowCaptureMode.Aero">Gunakan warna kesukaan</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Pertahankan kebeningan</resource>
 		<resource name="WindowCaptureMode.Auto">Otomatis</resource>

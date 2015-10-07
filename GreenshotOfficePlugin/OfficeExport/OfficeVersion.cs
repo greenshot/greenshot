@@ -19,8 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotOfficePlugin.OfficeExport {
-	public enum OfficeVersion : int {
+namespace GreenshotOfficePlugin.OfficeExport
+{
+	public enum OfficeVersion : int
+	{
 		OFFICE_97 = 8,
 		OFFICE_2000 = 9,
 		OFFICE_2002 = 10,

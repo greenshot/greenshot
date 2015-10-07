@@ -44,9 +44,9 @@
       <HintPath>..\packages\Dapplo.HttpExtensions.0.1.16.0\lib\net451\Dapplo.HttpExtensions.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="log4net">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Greenshot\lib\log4net.dll</HintPath>
+    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="PresentationCore" />
@@ -81,7 +81,17 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Languages\language_picasaplugin-cs-CZ.xml" />
+    <Content Include="Languages\language_picasaplugin-de-DE.xml" />
     <Content Include="Languages\language_picasaplugin-en-US.xml" />
+    <Content Include="Languages\language_picasaplugin-id-ID.xml" />
+    <Content Include="Languages\language_picasaplugin-ko-KR.xml" />
+    <Content Include="Languages\language_picasaplugin-lv-LV.xml" />
+    <Content Include="Languages\language_picasaplugin-pl-PL.xml" />
+    <Content Include="Languages\language_picasaplugin-pt-PT.xml" />
+    <Content Include="Languages\language_picasaplugin-sr-Cyrl-RS.xml" />
+    <Content Include="Languages\language_picasaplugin-sv-SE.xml" />
+    <Content Include="Languages\language_picasaplugin-zh-TW.xml" />
     <Content Include="Picasa.png" />
   </ItemGroup>
   <ItemGroup>

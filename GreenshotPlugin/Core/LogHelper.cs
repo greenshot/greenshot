@@ -29,68 +29,96 @@ using System.IO;
 using System.Reflection;
 using System.Windows;
 
-namespace GreenshotPlugin.Core {
+namespace GreenshotPlugin.Core
+{
 	/// <summary>
 	/// Description of LogHelper.
 	/// </summary>
-	public class LogHelper {
+	public class LogHelper
+	{
 		private const string LOG4NET_FILE = "log4net.xml";
 		private const string LOG4NET_PORTABLE_FILE = "log4net-portable.xml";
 		private static bool isLog4NetConfigured = false;
 		private const string INIT_MESSAGE = "Greenshot initialization of log system failed";
-		public static bool IsInitialized {
-			get {
+
+		public static bool IsInitialized
+		{
+			get
+			{
 				return isLog4NetConfigured;
 			}
 		}
 
 		// Initialize Log4J
-		public static string InitializeLog4NET() {
+		public static string InitializeLog4NET()
+		{
 			// Setup log4j, currently the file is called log4net.xml
 			var startupPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
 			string pafLog4NetFilename = Path.Combine(startupPath, @"App\Greenshot\" + LOG4NET_PORTABLE_FILE);
 			string log4netFilename = Path.Combine(startupPath, LOG4NET_FILE);
-			
-			if (File.Exists(log4netFilename)) {
-				try {
-					XmlConfigurator.Configure(new FileInfo(log4netFilename)); 
+
+			if (File.Exists(log4netFilename))
+			{
+				try
+				{
+					XmlConfigurator.Configure(new FileInfo(log4netFilename));
 					isLog4NetConfigured = true;
-				} catch (Exception ex) {
+				}
+				catch (Exception ex)
+				{
 					MessageBox.Show(ex.Message, INIT_MESSAGE, MessageBoxButton.OK, MessageBoxImage.Warning);
 				}
-			} else if (File.Exists(pafLog4NetFilename)) {
-				try {
-					XmlConfigurator.Configure(new FileInfo(pafLog4NetFilename)); 
+			}
+			else if (File.Exists(pafLog4NetFilename))
+			{
+				try
+				{
+					XmlConfigurator.Configure(new FileInfo(pafLog4NetFilename));
 					isLog4NetConfigured = true;
-				} catch (Exception ex) {
+				}
+				catch (Exception ex)
+				{
 					MessageBox.Show(ex.Message, INIT_MESSAGE, MessageBoxButton.OK, MessageBoxImage.Warning);
 				}
 			}
 
-			if (!isLog4NetConfigured) {
-				try {
-					Assembly assembly = typeof(LogHelper).Assembly;
-					using (Stream stream = assembly.GetManifestResourceStream("GreenshotPlugin.log4net-embedded.xml")) {
+			if (!isLog4NetConfigured)
+			{
+				try
+				{
+					Assembly assembly = typeof (LogHelper).Assembly;
+					using (Stream stream = assembly.GetManifestResourceStream("GreenshotPlugin.log4net-embedded.xml"))
+					{
 						XmlConfigurator.Configure(stream);
 						isLog4NetConfigured = true;
 					}
-				} catch (Exception ex){
+				}
+				catch (Exception ex)
+				{
 					MessageBox.Show(ex.Message, INIT_MESSAGE, MessageBoxButton.OK, MessageBoxImage.Warning);
 				}
 			}
 
-			if (isLog4NetConfigured) {
+			if (isLog4NetConfigured)
+			{
 				// Get the logfile name
-				try {
-					if (((Hierarchy)LogManager.GetRepository()).Root.Appenders.Count > 0) {
-						foreach (IAppender appender in ((Hierarchy)LogManager.GetRepository()).Root.Appenders) {
-							if (appender is FileAppender) {
-								return ((FileAppender)appender).File;
+				try
+				{
+					if (((Hierarchy) LogManager.GetRepository()).Root.Appenders.Count > 0)
+					{
+						foreach (IAppender appender in ((Hierarchy) LogManager.GetRepository()).Root.Appenders)
+						{
+							if (appender is FileAppender)
+							{
+								return ((FileAppender) appender).File;
 							}
 						}
 					}
-				} catch {}
+				}
+				catch
+				{
+				}
 			}
 			return null;
 		}
@@ -99,9 +127,11 @@ namespace GreenshotPlugin.Core {
 	/// <summary>
 	/// A simple helper class to support the logging to the AppData location
 	/// </summary>
-	public class SpecialFolderPatternConverter : PatternConverter {
-		override protected void Convert(TextWriter writer, object state) {
-			Environment.SpecialFolder specialFolder = (Environment.SpecialFolder)Enum.Parse(typeof(Environment.SpecialFolder), base.Option, true);
+	public class SpecialFolderPatternConverter : PatternConverter
+	{
+		protected override void Convert(TextWriter writer, object state)
+		{
+			Environment.SpecialFolder specialFolder = (Environment.SpecialFolder) Enum.Parse(typeof (Environment.SpecialFolder), base.Option, true);
 			writer.Write(Environment.GetFolderPath(specialFolder));
 		}
 	}

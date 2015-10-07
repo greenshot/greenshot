@@ -19,12 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotPhotobucketPlugin {
+namespace GreenshotPhotobucketPlugin
+{
 	/// <summary>
 	/// Description of PasswordRequestForm.
 	/// </summary>
-	public partial class SettingsForm : PhotobucketForm {
-		public SettingsForm(IPhotobucketConfiguration config) : base() {
+	public partial class SettingsForm : PhotobucketForm
+	{
+		public SettingsForm(IPhotobucketConfiguration config) : base()
+		{
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//

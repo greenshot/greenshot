@@ -18,13 +18,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace GreenshotPlugin.UnmanagedHelpers {
+namespace GreenshotPlugin.UnmanagedHelpers
+{
 	[Flags]
-	public enum ThreadAccess : int {
+	public enum ThreadAccess : int
+	{
 		TERMINATE = (0x0001),
 		SUSPEND_RESUME = (0x0002),
 		GET_CONTEXT = (0x0008),
@@ -35,34 +38,43 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		IMPERSONATE = (0x0100),
 		DIRECT_IMPERSONATION = (0x0200)
 	}
+
 	/// <summary>
 	/// Description of Kernel32.
 	/// </summary>
-	public class Kernel32 {
-		public const uint ATTACHCONSOLE_ATTACHPARENTPROCESS = 0x0ffffffff;  // default value if not specifing a process ID
-		
+	public class Kernel32
+	{
+		public const uint ATTACHCONSOLE_ATTACHPARENTPROCESS = 0x0ffffffff; // default value if not specifing a process ID
+
 		[DllImport("kernel32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool AttachConsole(uint dwProcessId);
-		
+
 		[DllImport("kernel32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool AllocConsole();
 
 		[DllImport("kernel32", SetLastError = true)]
 		public static extern IntPtr OpenThread(ThreadAccess dwDesiredAccess, bool bInheritHandle, uint dwThreadId);
+
 		[DllImport("kernel32", SetLastError = true)]
 		public static extern uint SuspendThread(IntPtr hThread);
+
 		[DllImport("kernel32", SetLastError = true)]
 		public static extern int ResumeThread(IntPtr hThread);
+
 		[DllImport("kernel32", SetLastError = true)]
 		public static extern IntPtr OpenProcess(ProcessAccessFlags dwDesiredAccess, bool bInheritHandle, int dwProcessId);
+
 		[DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern bool QueryFullProcessImageName(IntPtr hProcess, uint dwFlags, StringBuilder lpExeName, ref uint lpdwSize);
+
 		[DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern uint QueryDosDevice(string lpDeviceName, StringBuilder lpTargetPath, uint uuchMax);
+
 		[DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern IntPtr GetModuleHandle(string lpModuleName);
+
 		[DllImport("kernel32", SetLastError = true)]
 		public static extern bool CloseHandle(IntPtr hObject);
 
@@ -71,43 +83,58 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// </summary>
 		/// <param name="processid"></param>
 		/// <returns></returns>
-		public static string GetProcessPath(int processid) {
+		public static string GetProcessPath(int processid)
+		{
 			StringBuilder _PathBuffer = new StringBuilder(512);
 			// Try the GetModuleFileName method first since it's the fastest. 
 			// May return ACCESS_DENIED (due to VM_READ flag) if the process is not owned by the current user.
 			// Will fail if we are compiled as x86 and we're trying to open a 64 bit process...not allowed.
 			IntPtr hprocess = OpenProcess(ProcessAccessFlags.QueryInformation | ProcessAccessFlags.VMRead, false, processid);
-			if (hprocess != IntPtr.Zero) {
-				try {
-					if (PsAPI.GetModuleFileNameEx(hprocess, IntPtr.Zero, _PathBuffer, (uint)_PathBuffer.Capacity) > 0) {
+			if (hprocess != IntPtr.Zero)
+			{
+				try
+				{
+					if (PsAPI.GetModuleFileNameEx(hprocess, IntPtr.Zero, _PathBuffer, (uint) _PathBuffer.Capacity) > 0)
+					{
 						return _PathBuffer.ToString();
 					}
-				} finally {
+				}
+				finally
+				{
 					CloseHandle(hprocess);
 				}
 			}
 
 			hprocess = OpenProcess(ProcessAccessFlags.QueryInformation, false, processid);
-			if (hprocess != IntPtr.Zero) {
-				try {
+			if (hprocess != IntPtr.Zero)
+			{
+				try
+				{
 					// Try this method for Vista or higher operating systems
-					uint size = (uint)_PathBuffer.Capacity;
-					if ((Environment.OSVersion.Version.Major >= 6) && (QueryFullProcessImageName(hprocess, 0, _PathBuffer, ref size) && (size > 0))) {
+					uint size = (uint) _PathBuffer.Capacity;
+					if ((Environment.OSVersion.Version.Major >= 6) && (QueryFullProcessImageName(hprocess, 0, _PathBuffer, ref size) && (size > 0)))
+					{
 						return _PathBuffer.ToString();
 					}
 
 					// Try the GetProcessImageFileName method
-					if (PsAPI.GetProcessImageFileName(hprocess, _PathBuffer, (uint)_PathBuffer.Capacity) > 0) {
+					if (PsAPI.GetProcessImageFileName(hprocess, _PathBuffer, (uint) _PathBuffer.Capacity) > 0)
+					{
 						string dospath = _PathBuffer.ToString();
-						foreach (string drive in Environment.GetLogicalDrives()) {
-							if (QueryDosDevice(drive.TrimEnd('\\'), _PathBuffer, (uint)_PathBuffer.Capacity) > 0) {
-								if (dospath.StartsWith(_PathBuffer.ToString())) {
+						foreach (string drive in Environment.GetLogicalDrives())
+						{
+							if (QueryDosDevice(drive.TrimEnd('\\'), _PathBuffer, (uint) _PathBuffer.Capacity) > 0)
+							{
+								if (dospath.StartsWith(_PathBuffer.ToString()))
+								{
 									return drive + dospath.Remove(0, _PathBuffer.Length);
 								}
 							}
 						}
 					}
-				} finally {
+				}
+				finally
+				{
 					CloseHandle(hprocess);
 				}
 			}

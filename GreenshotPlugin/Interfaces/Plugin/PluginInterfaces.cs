@@ -18,11 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-
 using GreenshotPlugin.Core;
 using Greenshot.Core;
 using System.Threading.Tasks;
@@ -30,44 +30,59 @@ using System.Threading;
 using Dapplo.Config.Ini;
 using GreenshotPlugin.Configuration;
 
-namespace Greenshot.Plugin {
+namespace Greenshot.Plugin
+{
 	[Serializable]
 	[AttributeUsage(AttributeTargets.Assembly, Inherited = false, AllowMultiple = false)]
-	sealed public class PluginAttribute : Attribute, IComparable {
-		public string Name {
-			get;
-			set;
-		}
-		public string CreatedBy {
-			get;
-			set;
-		}
-		public string Version {
-			get;
-			set;
-		}
-		public string EntryType {
-			get;
-			private set;
-		}
-		public bool Configurable {
-			get;
-			private set;
-		}
-		
-		public string DllFile {
+	public sealed class PluginAttribute : Attribute, IComparable
+	{
+		public string Name
+		{
 			get;
 			set;
 		}
 
-		public PluginAttribute(string entryType, bool configurable) {
+		public string CreatedBy
+		{
+			get;
+			set;
+		}
+
+		public string Version
+		{
+			get;
+			set;
+		}
+
+		public string EntryType
+		{
+			get;
+			private set;
+		}
+
+		public bool Configurable
+		{
+			get;
+			private set;
+		}
+
+		public string DllFile
+		{
+			get;
+			set;
+		}
+
+		public PluginAttribute(string entryType, bool configurable)
+		{
 			EntryType = entryType;
 			Configurable = configurable;
 		}
-		
-		public int CompareTo(object obj) {
+
+		public int CompareTo(object obj)
+		{
 			PluginAttribute other = obj as PluginAttribute;
-			if (other != null) {
+			if (other != null)
+			{
 				return Name.CompareTo(other.Name);
 			}
 			throw new ArgumentException("object is not a PluginAttribute");
@@ -77,82 +92,102 @@ namespace Greenshot.Plugin {
 	// Delegates for hooking up events.
 	public delegate void HotKeyHandler(CancellationToken token);
 
-	public class SurfaceOutputSettings {
+	public class SurfaceOutputSettings
+	{
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private bool reduceColors;
 		private bool disableReduceColors;
 		private List<IEffect> effects = new List<IEffect>();
 
-		public SurfaceOutputSettings() {
+		public SurfaceOutputSettings()
+		{
 			disableReduceColors = false;
 			Format = conf.OutputFileFormat;
 			JPGQuality = conf.OutputFileJpegQuality;
 			ReduceColors = conf.OutputFileReduceColors;
 		}
 
-		public SurfaceOutputSettings(OutputFormat format) : this() {
+		public SurfaceOutputSettings(OutputFormat format) : this()
+		{
 			Format = format;
 		}
 
-		public SurfaceOutputSettings(OutputFormat format, int quality) : this(format) {
+		public SurfaceOutputSettings(OutputFormat format, int quality) : this(format)
+		{
 			JPGQuality = quality;
 		}
 
-		public SurfaceOutputSettings(OutputFormat format, int quality, bool reduceColors) : this(format, quality) {
+		public SurfaceOutputSettings(OutputFormat format, int quality, bool reduceColors) : this(format, quality)
+		{
 			ReduceColors = reduceColors;
 		}
 
-		public SurfaceOutputSettings PreventGreenshotFormat() {
-			if (Format == OutputFormat.greenshot) {
+		public SurfaceOutputSettings PreventGreenshotFormat()
+		{
+			if (Format == OutputFormat.greenshot)
+			{
 				Format = OutputFormat.png;
 			}
 			return this;
 		}
 
-		public OutputFormat Format {
+		public OutputFormat Format
+		{
 			get;
 			set;
 		}
 
-		public int JPGQuality {
+		public int JPGQuality
+		{
 			get;
 			set;
 		}
 
-		public bool SaveBackgroundOnly {
+		public bool SaveBackgroundOnly
+		{
 			get;
 			set;
 		}
 
-		public List<IEffect> Effects {
-			get {
+		public List<IEffect> Effects
+		{
+			get
+			{
 				return effects;
 			}
 		}
 
-		public bool ReduceColors {
-				get {
-					// Fix for Bug #3468436, force quantizing when output format is gif as this has only 256 colors!
-					if (OutputFormat.gif.Equals(Format)) {
-						return true;
-					}
-					return reduceColors;
+		public bool ReduceColors
+		{
+			get
+			{
+				// Fix for Bug #3468436, force quantizing when output format is gif as this has only 256 colors!
+				if (OutputFormat.gif.Equals(Format))
+				{
+					return true;
 				}
-				set {
-					reduceColors = value;
-				}
+				return reduceColors;
+			}
+			set
+			{
+				reduceColors = value;
+			}
 		}
 
 		/// <summary>
 		/// Disable the reduce colors option, this overrules the enabling
 		/// </summary>
-		public bool DisableReduceColors {
-			get {
+		public bool DisableReduceColors
+		{
+			get
+			{
 				return disableReduceColors;
 			}
-			set {
+			set
+			{
 				// Quantizing os needed when output format is gif as this has only 256 colors!
-				if (!OutputFormat.gif.Equals(Format)) {
+				if (!OutputFormat.gif.Equals(Format))
+				{
 					disableReduceColors = value;
 				}
 			}
@@ -163,31 +198,37 @@ namespace Greenshot.Plugin {
 	/// This interface is the GreenshotPluginHost, that which "Hosts" the plugin.
 	/// For Greenshot this is implmented in the PluginHelper
 	/// </summary>
-	public interface IGreenshotHost {
-		ContextMenuStrip MainMenu {
+	public interface IGreenshotHost
+	{
+		ContextMenuStrip MainMenu
+		{
 			get;
 		}
 
 		// This is a reference to the MainForm, can be used for Invoking on the UI thread.
-		Form GreenshotForm {
+		Form GreenshotForm
+		{
 			get;
 		}
-		
-		NotifyIcon NotifyIcon {
+
+		NotifyIcon NotifyIcon
+		{
 			get;
 		}
+
 		/// <summary>
 		/// Create a Thumbnail
 		/// </summary>
 		/// <param name="image">Image of which we need a Thumbnail</param>
 		/// <returns>Image with Thumbnail</returns>
 		Image GetThumbnail(Image image, int width, int height);
-		
+
 		/// <summary>
 		/// List of available plugins with their PluginAttributes
 		/// This can be usefull for a plugin manager plugin...
 		/// </summary>
-		IDictionary<PluginAttribute, IGreenshotPlugin> Plugins {
+		IDictionary<PluginAttribute, IGreenshotPlugin> Plugins
+		{
 			get;
 		}
 
@@ -225,10 +266,11 @@ namespace Greenshot.Plugin {
 		/// <summary>
 		/// Show the settings
 		/// </summary>
-        void ShowSettings();
+		void ShowSettings();
 	}
 
-	public interface IGreenshotPlugin : IDisposable {
+	public interface IGreenshotPlugin : IDisposable
+	{
 		/// <summary>
 		/// Is called after the plugin is instanciated, the Plugin should keep a copy of the host and myAttribute.
 		/// </summary>
@@ -246,7 +288,7 @@ namespace Greenshot.Plugin {
 		/// Open the Configuration Form, will/should not be called before handshaking is done
 		/// </summary>
 		void Configure();
-		
+
 		/// <summary>
 		/// Return IDestination's, if the plugin wants to
 		/// </summary>

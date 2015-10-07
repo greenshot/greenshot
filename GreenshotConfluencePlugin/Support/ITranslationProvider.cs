@@ -19,13 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace TranslationByMarkupExtension {
-    public interface ITranslationProvider {
-        /// <summary>
-        /// Translates the specified key.
-        /// </summary>
-        /// <param name="key">The key.</param>
-        /// <returns></returns>
-        object Translate(string key);
-    }
+namespace TranslationByMarkupExtension
+{
+	public interface ITranslationProvider
+	{
+		/// <summary>
+		/// Translates the specified key.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <returns></returns>
+		object Translate(string key);
+	}
 }

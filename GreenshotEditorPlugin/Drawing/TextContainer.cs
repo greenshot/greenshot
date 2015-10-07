@@ -33,19 +33,23 @@ using System.Windows.Forms;
 
 namespace GreenshotEditorPlugin.Drawing
 {
-    /// <summary>
-    /// Represents a textbox (extends RectangleContainer for border/background support
-    /// </summary>
-    [Serializable] 
-	public class TextContainer : RectangleContainer, ITextContainer {
+	/// <summary>
+	/// Represents a textbox (extends RectangleContainer for border/background support
+	/// </summary>
+	[Serializable]
+	public class TextContainer : RectangleContainer, ITextContainer
+	{
 		// If makeUndoable is true the next text-change will make the change undoable.
 		// This is set to true AFTER the first change is made, as there is already a "add element" on the undo stack
 		private bool _makeUndoable;
 
 		[NonSerialized]
 		private Font _font;
-		public Font Font {
-			get {
+
+		public Font Font
+		{
+			get
+			{
 				return _font;
 			}
 		}
@@ -57,133 +61,178 @@ namespace GreenshotEditorPlugin.Drawing
 		/// The StringFormat object is not serializable!!
 		/// </summary>
 		[NonSerialized]
-		StringFormat _stringFormat = new StringFormat();
-		public StringFormat StringFormat {
-			get {
+		private StringFormat _stringFormat = new StringFormat();
+
+		public StringFormat StringFormat
+		{
+			get
+			{
 				return _stringFormat;
 			}
 		}
-		
+
 		private string _text;
 		// there is a binding on the following property!
-		public string Text {
-			get { return _text; }
-			set { 
+		public string Text
+		{
+			get
+			{
+				return _text;
+			}
+			set
+			{
 				ChangeText(value, true);
 			}
 		}
-		
-		public void ChangeText(string newText, bool allowUndoable) {
-			if ((_text == null && newText != null)  || !_text.Equals(newText)) {
-				if (_makeUndoable && allowUndoable) {
+
+		public void ChangeText(string newText, bool allowUndoable)
+		{
+			if ((_text == null && newText != null) || !_text.Equals(newText))
+			{
+				if (_makeUndoable && allowUndoable)
+				{
 					_makeUndoable = false;
 					_parent.MakeUndoable(new TextChangeMemento(this), false);
 				}
-				_text = newText; 
-				OnPropertyChanged("Text"); 
+				_text = newText;
+				OnPropertyChanged("Text");
 			}
 		}
 
 		protected bool _italic = false;
+
 		[Field(FieldTypes.FONT_ITALIC)]
-		public bool Italic {
-			get {
+		public bool Italic
+		{
+			get
+			{
 				return _italic;
 			}
-			set {
+			set
+			{
 				_italic = value;
 				OnFieldPropertyChanged(FieldTypes.FONT_ITALIC);
 			}
 		}
 
 		protected bool _bold = false;
+
 		[Field(FieldTypes.FONT_BOLD)]
-		public bool Bold {
-			get {
+		public bool Bold
+		{
+			get
+			{
 				return _bold;
 			}
-			set {
+			set
+			{
 				_bold = value;
 				OnFieldPropertyChanged(FieldTypes.FONT_BOLD);
 			}
 		}
 
 		protected float _fontSize = 11f;
+
 		[Field(FieldTypes.FONT_SIZE)]
-		public float FontSize {
-			get {
+		public float FontSize
+		{
+			get
+			{
 				return _fontSize;
 			}
-			set {
+			set
+			{
 				_fontSize = value;
 				OnFieldPropertyChanged(FieldTypes.FONT_SIZE);
 			}
 		}
+
 		protected string _fontFamily = FontFamily.GenericSansSerif.Name;
+
 		[Field(FieldTypes.FONT_FAMILY)]
-		public string Family {
-			get {
+		public string Family
+		{
+			get
+			{
 				return _fontFamily;
 			}
-			set {
+			set
+			{
 				_fontFamily = value;
 				OnFieldPropertyChanged(FieldTypes.FONT_FAMILY);
 			}
 		}
 
 		private HorizontalAlignment _horizontalAlignment = HorizontalAlignment.Center;
+
 		[Field(FieldTypes.TEXT_HORIZONTAL_ALIGNMENT)]
-		public HorizontalAlignment HorizontalAlignment {
-			get {
+		public HorizontalAlignment HorizontalAlignment
+		{
+			get
+			{
 				return _horizontalAlignment;
 			}
-			set {
+			set
+			{
 				_horizontalAlignment = value;
 				OnFieldPropertyChanged(FieldTypes.TEXT_HORIZONTAL_ALIGNMENT);
 			}
 		}
 
 		private VerticalAlignment _verticalAlignment = VerticalAlignment.CENTER;
+
 		[Field(FieldTypes.TEXT_VERTICAL_ALIGNMENT)]
-		public VerticalAlignment VerticalAlignment {
-			get {
+		public VerticalAlignment VerticalAlignment
+		{
+			get
+			{
 				return _verticalAlignment;
 			}
-			set {
+			set
+			{
 				_verticalAlignment = value;
 				OnFieldPropertyChanged(FieldTypes.TEXT_VERTICAL_ALIGNMENT);
 			}
 		}
-		
-		public TextContainer(Surface parent) : base(parent) {
-			Init();
-		}
-		
-		[OnDeserialized]
-		private void OnDeserialized(StreamingContext context) {
+
+		public TextContainer(Surface parent) : base(parent)
+		{
 			Init();
 		}
 
-		protected override void Dispose(bool disposing) {
-			if (disposing) {
-				if (_font != null) {
+		[OnDeserialized]
+		private void OnDeserialized(StreamingContext context)
+		{
+			Init();
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				if (_font != null)
+				{
 					_font.Dispose();
 					_font = null;
 				}
-				if (_stringFormat != null) {
+				if (_stringFormat != null)
+				{
 					_stringFormat.Dispose();
 					_stringFormat = null;
 				}
-				if (_textBox != null) {
+				if (_textBox != null)
+				{
 					_textBox.Dispose();
 					_textBox = null;
 				}
 			}
 			base.Dispose(disposing);
 		}
-		
-		private void Init() {
-			_stringFormat = new StringFormat {
+
+		private void Init()
+		{
+			_stringFormat = new StringFormat
+			{
 				Trimming = StringTrimming.EllipsisWord
 			};
 			CreateTextBox();
@@ -192,46 +241,60 @@ namespace GreenshotEditorPlugin.Drawing
 			PropertyChanged += TextContainer_PropertyChanged;
 		}
 
-		public override void Invalidate() {
+		public override void Invalidate()
+		{
 			base.Invalidate();
-			if (_textBox != null && _textBox.Visible) {
+			if (_textBox != null && _textBox.Visible)
+			{
 				_textBox.Invalidate();
 			}
 		}
 
-		public void FitToText() {
+		public void FitToText()
+		{
 			Size textSize = TextRenderer.MeasureText(_text, _font);
 			Width = textSize.Width + _lineThickness;
 			Height = textSize.Height + _lineThickness;
 		}
 
-		void TextContainer_PropertyChanged(object sender, PropertyChangedEventArgs e) {
-			if (_textBox.Visible) {
+		private void TextContainer_PropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if (_textBox.Visible)
+			{
 				_textBox.Invalidate();
 			}
 
 			UpdateTextBoxPosition();
 			UpdateTextBoxFormat();
-			if (e.PropertyName.Equals("Selected")) {
-				if (!Selected && _textBox.Visible) {
+			if (e.PropertyName.Equals("Selected"))
+			{
+				if (!Selected && _textBox.Visible)
+				{
 					HideTextBox();
-				} else if (Selected && Status == EditStatus.DRAWING) {
+				}
+				else if (Selected && Status == EditStatus.DRAWING)
+				{
 					ShowTextBox();
-				} else if (Selected && Status == EditStatus.IDLE && _textBox.Visible) {
+				}
+				else if (Selected && Status == EditStatus.IDLE && _textBox.Visible)
+				{
 					// Fix (workaround) for BUG-1698
 					_parent.KeysLocked = true;
 				}
 			}
-			if (_textBox.Visible) {
+			if (_textBox.Visible)
+			{
 				_textBox.Invalidate();
 			}
 		}
-		
-		public override void OnDoubleClick() {
+
+		public override void OnDoubleClick()
+		{
 			ShowTextBox();
 		}
-		
-		private void CreateTextBox() {
+
+		private void CreateTextBox()
+		{
 			_textBox = new TextBox();
 
 			_textBox.ImeMode = ImeMode.On;
@@ -245,7 +308,8 @@ namespace GreenshotEditorPlugin.Drawing
 			_textBox.Visible = false;
 		}
 
-		private void ShowTextBox() {
+		private void ShowTextBox()
+		{
 			_parent.KeysLocked = true;
 			_parent.Controls.Add(_textBox);
 			EnsureTextBoxContrast();
@@ -256,16 +320,21 @@ namespace GreenshotEditorPlugin.Drawing
 		/// <summary>
 		/// Makes textbox background dark if text color is very bright
 		/// </summary>
-		private void EnsureTextBoxContrast() {
-            Color lc = _lineColor;
-			if (lc.R > 203 && lc.G > 203 && lc.B > 203) {
+		private void EnsureTextBoxContrast()
+		{
+			Color lc = _lineColor;
+			if (lc.R > 203 && lc.G > 203 && lc.B > 203)
+			{
 				_textBox.BackColor = Color.FromArgb(51, 51, 51);
-			} else {
+			}
+			else
+			{
 				_textBox.BackColor = Color.White;
 			}
 		}
-		
-		private void HideTextBox() {
+
+		private void HideTextBox()
+		{
 			_parent.Focus();
 			_textBox.Hide();
 			_parent.KeysLocked = false;
@@ -276,50 +345,63 @@ namespace GreenshotEditorPlugin.Drawing
 		/// Make sure the size of the font is scaled
 		/// </summary>
 		/// <param name="matrix"></param>
-		public override void Transform(Matrix matrix) {
+		public override void Transform(Matrix matrix)
+		{
 			Rectangle rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
-			int pixelsBefore = rect.Width * rect.Height;
+			int pixelsBefore = rect.Width*rect.Height;
 
 			// Transform this container
 			base.Transform(matrix);
 			rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
 
-			int pixelsAfter = rect.Width * rect.Height;
-			float factor = pixelsAfter / (float)pixelsBefore;
+			int pixelsAfter = rect.Width*rect.Height;
+			float factor = pixelsAfter/(float) pixelsBefore;
 
-			_fontSize = _fontSize * factor;
+			_fontSize = _fontSize*factor;
 			UpdateFormat();
 		}
 
 		/// <summary>
 		/// Generate the Font-Formal so we can draw correctly
 		/// </summary>
-		protected void UpdateFormat() {
-			try {
+		protected void UpdateFormat()
+		{
+			try
+			{
 				FontStyle fs = FontStyle.Regular;
-					
+
 				bool hasStyle = false;
-				using(FontFamily fam = new FontFamily(_fontFamily)) {
+				using (FontFamily fam = new FontFamily(_fontFamily))
+				{
 					bool boldAvailable = fam.IsStyleAvailable(FontStyle.Bold);
-					if (_bold && boldAvailable) {
+					if (_bold && boldAvailable)
+					{
 						fs |= FontStyle.Bold;
 						hasStyle = true;
 					}
 
 					bool italicAvailable = fam.IsStyleAvailable(FontStyle.Italic);
-						if (_italic && italicAvailable) {
+					if (_italic && italicAvailable)
+					{
 						fs |= FontStyle.Italic;
 						hasStyle = true;
 					}
 
-					if (!hasStyle) {
+					if (!hasStyle)
+					{
 						bool regularAvailable = fam.IsStyleAvailable(FontStyle.Regular);
-						if (regularAvailable) {
+						if (regularAvailable)
+						{
 							fs = FontStyle.Regular;
-						} else {
-							if (boldAvailable) {
+						}
+						else
+						{
+							if (boldAvailable)
+							{
 								fs = FontStyle.Bold;
-								} else if (italicAvailable) {
+							}
+							else if (italicAvailable)
+							{
 								fs = FontStyle.Italic;
 							}
 						}
@@ -327,54 +409,64 @@ namespace GreenshotEditorPlugin.Drawing
 					_font = new Font(fam, _fontSize, fs, GraphicsUnit.Pixel);
 					_textBox.Font = _font;
 				}
-			} catch (Exception ex) {
+			}
+			catch (Exception ex)
+			{
 				ex.Data.Add("fontFamily", _fontFamily);
 				ex.Data.Add("fontBold", _bold);
 				ex.Data.Add("fontItalic", _italic);
 				ex.Data.Add("fontSize", _fontSize);
 				throw;
 			}
-			
+
 			UpdateAlignment();
 		}
 
-		private void UpdateAlignment() {
-			_stringFormat.Alignment = (StringAlignment)_horizontalAlignment;
-			_stringFormat.LineAlignment = (StringAlignment)_verticalAlignment;
+		private void UpdateAlignment()
+		{
+			_stringFormat.Alignment = (StringAlignment) _horizontalAlignment;
+			_stringFormat.LineAlignment = (StringAlignment) _verticalAlignment;
 		}
 
 		/// <summary>
 		/// This will create the textbox exactly to the inner size of the element
 		/// is a bit of a hack, but for now it seems to work...
 		/// </summary>
-		private void UpdateTextBoxPosition() {
-			int lineWidth = (int)Math.Floor(_lineThickness / 2d);
-			int correction = (_lineThickness + 1) % 2;
-			if (_lineThickness <= 1) {
+		private void UpdateTextBoxPosition()
+		{
+			int lineWidth = (int) Math.Floor(_lineThickness/2d);
+			int correction = (_lineThickness + 1)%2;
+			if (_lineThickness <= 1)
+			{
 				lineWidth = 1;
 				correction = -1;
 			}
 			Rectangle absRectangle = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
 			_textBox.Left = absRectangle.Left + lineWidth;
 			_textBox.Top = absRectangle.Top + lineWidth;
-			if (_lineThickness <= 1) {
+			if (_lineThickness <= 1)
+			{
 				lineWidth = 0;
 			}
-			_textBox.Width = absRectangle.Width - (2 * lineWidth) + correction;
-			_textBox.Height = absRectangle.Height - (2 * lineWidth) + correction;
+			_textBox.Width = absRectangle.Width - (2*lineWidth) + correction;
+			_textBox.Height = absRectangle.Height - (2*lineWidth) + correction;
 		}
 
-		public override void ApplyBounds(RectangleF newBounds) {
+		public override void ApplyBounds(RectangleF newBounds)
+		{
 			base.ApplyBounds(newBounds);
 			UpdateTextBoxPosition();
 		}
 
-		private void UpdateTextBoxFormat() {
-			if (_textBox == null) {
+		private void UpdateTextBoxFormat()
+		{
+			if (_textBox == null)
+			{
 				return;
 			}
-			StringAlignment alignment = (StringAlignment)_horizontalAlignment;
-			switch (alignment) {
+			StringAlignment alignment = (StringAlignment) _horizontalAlignment;
+			switch (alignment)
+			{
 				case StringAlignment.Near:
 					_textBox.TextAlign = HorizontalAlignment.Left;
 					break;
@@ -388,22 +480,26 @@ namespace GreenshotEditorPlugin.Drawing
 
 			_textBox.ForeColor = _lineColor;
 		}
-		
-		void textBox_KeyDown(object sender, KeyEventArgs e) {
+
+		private void textBox_KeyDown(object sender, KeyEventArgs e)
+		{
 			// ESC and Enter/Return (w/o Shift) hide text editor
-			if(e.KeyCode == Keys.Escape || ((e.KeyCode == Keys.Return || e.KeyCode == Keys.Enter) &&  e.Modifiers == Keys.None)) {
+			if (e.KeyCode == Keys.Escape || ((e.KeyCode == Keys.Return || e.KeyCode == Keys.Enter) && e.Modifiers == Keys.None))
+			{
 				HideTextBox();
 				e.SuppressKeyPress = true;
 			}
 		}
 
-		void textBox_LostFocus(object sender, EventArgs e) {
+		private void textBox_LostFocus(object sender, EventArgs e)
+		{
 			// next change will be made undoable
 			_makeUndoable = true;
 			HideTextBox();
 		}
-	
-		public override void Draw(Graphics graphics, RenderMode rm) {
+
+		public override void Draw(Graphics graphics, RenderMode rm)
+		{
 			base.Draw(graphics, rm);
 
 			graphics.SmoothingMode = SmoothingMode.HighQuality;
@@ -413,11 +509,13 @@ namespace GreenshotEditorPlugin.Drawing
 			graphics.TextRenderingHint = TextRenderingHint.SystemDefault;
 
 			Rectangle rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
-			if (Selected && rm == RenderMode.EDIT) {
+			if (Selected && rm == RenderMode.EDIT)
+			{
 				DrawSelectionBorder(graphics, rect);
 			}
 
-			if (string.IsNullOrEmpty(_text)) {
+			if (string.IsNullOrEmpty(_text))
+			{
 				return;
 			}
 
@@ -437,41 +535,52 @@ namespace GreenshotEditorPlugin.Drawing
 		/// <param name="stringFormat"></param>
 		/// <param name="text"></param>
 		/// <param name="font"></param>
-		public static void DrawText(Graphics graphics, Rectangle drawingRectange, int lineThickness, Color fontColor, bool drawShadow, StringFormat stringFormat, string text, Font font) {
-			int textOffset = (lineThickness > 0) ? (int)Math.Ceiling(lineThickness / 2d) : 0;
+		public static void DrawText(Graphics graphics, Rectangle drawingRectange, int lineThickness, Color fontColor, bool drawShadow, StringFormat stringFormat, string text, Font font)
+		{
+			int textOffset = (lineThickness > 0) ? (int) Math.Ceiling(lineThickness/2d) : 0;
 			// draw shadow before anything else
-			if (drawShadow) {
+			if (drawShadow)
+			{
 				int basealpha = 100;
 				int alpha = basealpha;
 				int steps = 5;
 				int currentStep = 1;
-				while (currentStep <= steps) {
+				while (currentStep <= steps)
+				{
 					int offset = currentStep;
 					Rectangle shadowRect = new Rectangle(drawingRectange.Left + offset, drawingRectange.Top + offset, drawingRectange.Width, drawingRectange.Height).MakeGuiRectangle();
-					if (lineThickness > 0) {
+					if (lineThickness > 0)
+					{
 						shadowRect.Inflate(-textOffset, -textOffset);
 					}
-					using (Brush fontBrush = new SolidBrush(Color.FromArgb(alpha, 100, 100, 100))) {
+					using (Brush fontBrush = new SolidBrush(Color.FromArgb(alpha, 100, 100, 100)))
+					{
 						graphics.DrawString(text, font, fontBrush, shadowRect, stringFormat);
 						currentStep++;
-						alpha = alpha - basealpha / steps;
+						alpha = alpha - basealpha/steps;
 					}
 				}
 			}
 
-			if (lineThickness > 0) {
+			if (lineThickness > 0)
+			{
 				drawingRectange.Inflate(-textOffset, -textOffset);
 			}
-			using (Brush fontBrush = new SolidBrush(fontColor)) {
-				if (stringFormat != null) {
+			using (Brush fontBrush = new SolidBrush(fontColor))
+			{
+				if (stringFormat != null)
+				{
 					graphics.DrawString(text, font, fontBrush, drawingRectange, stringFormat);
-				} else {
+				}
+				else
+				{
 					graphics.DrawString(text, font, fontBrush, drawingRectange);
 				}
 			}
 		}
 
-		public override bool ClickableAt(int x, int y) {
+		public override bool ClickableAt(int x, int y)
+		{
 			Rectangle r = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
 			r.Inflate(5, 5);
 			return r.Contains(x, y);

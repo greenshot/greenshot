@@ -31,7 +31,8 @@ using System.Security;
 using System.Security.Permissions;
 using log4net;
 
-namespace GreenshotPlugin.UnmanagedHelpers {
+namespace GreenshotPlugin.UnmanagedHelpers
+{
 	/// <summary>
 	/// Used with EnumWindows or EnumChildWindows
 	/// </summary>
@@ -43,8 +44,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// <summary>
 	/// User32 Wrappers
 	/// </summary>
-	public static class User32 {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(User32));
+	public static class User32
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (User32));
 		private static bool _CanCallGetPhysicalCursorPos = true;
 		public const int SC_RESTORE = 0xF120;
 		public const int SC_CLOSE = 0xF060;
@@ -53,7 +55,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 
 		public const int PW_DEFAULT = 0x00;
 		public const int PW_CLIENTONLY = 0x01;
-		
+
 		// For MonitorFromWindow
 		public const int MONITOR_DEFAULTTONULL = 0;
 		public const int MONITOR_DEFAULTTOPRIMARY = 1;
@@ -61,92 +63,130 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public const Int32 CURSOR_SHOWING = 0x00000001;
 
 		#region DllImports
+
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
-		public extern static bool IsWindowVisible(IntPtr hWnd);
+		public static extern bool IsWindowVisible(IntPtr hWnd);
+
 		[DllImport("user32", SetLastError = true)]
 		public static extern int GetWindowThreadProcessId(IntPtr hWnd, out int processId);
+
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr GetParent(IntPtr hWnd);
+
 		[DllImport("user32", SetLastError = true)]
 		public static extern int SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
+
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr GetWindow(IntPtr hWnd, GetWindowCommand uCmd);
+
 		[DllImport("user32", SetLastError = true)]
 		public static extern int ShowWindow(IntPtr hWnd, ShowWindowCommand nCmdShow);
+
 		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
-		public extern static int GetWindowText(IntPtr hWnd, StringBuilder lpString, int cch);
+		public static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int cch);
+
 		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
-		public extern static int GetWindowTextLength(IntPtr hWnd);
+		public static extern int GetWindowTextLength(IntPtr hWnd);
+
 		[DllImport("user32", SetLastError = true)]
 		public static extern uint GetSysColor(int nIndex);
+
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool BringWindowToTop(IntPtr hWnd);
+
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr GetForegroundWindow();
+
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr GetDesktopWindow();
+
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool SetForegroundWindow(IntPtr hWnd);
+
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool GetWindowPlacement(IntPtr hWnd, ref WindowPlacement lpwndpl);
+
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool SetWindowPlacement(IntPtr hWnd, [In] ref WindowPlacement lpwndpl);
+
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
-		public extern static bool IsIconic(IntPtr hWnd);
+		public static extern bool IsIconic(IntPtr hWnd);
+
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
-		public extern static bool IsZoomed(IntPtr hwnd);
+		public static extern bool IsZoomed(IntPtr hwnd);
+
 		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
-		public extern static int GetClassName (IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
+		public static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
+
 		[DllImport("user32", SetLastError = true)]
 		public static extern uint GetClassLong(IntPtr hWnd, int nIndex);
+
 		[DllImport("user32", SetLastError = true, EntryPoint = "GetClassLongPtr")]
 		public static extern IntPtr GetClassLongPtr(IntPtr hWnd, int nIndex);
+
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool PrintWindow(IntPtr hwnd, IntPtr hDC, uint nFlags);
-		[DllImport("user32", SetLastError=true)]
-		public extern static IntPtr SendMessage(IntPtr hWnd, uint wMsg, IntPtr wParam, IntPtr lParam);
+
 		[DllImport("user32", SetLastError = true)]
-		public extern static IntPtr SendMessage(IntPtr hWnd, uint wMsg, IntPtr wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
+		public static extern IntPtr SendMessage(IntPtr hWnd, uint wMsg, IntPtr wParam, IntPtr lParam);
+
+		[DllImport("user32", SetLastError = true)]
+		public static extern IntPtr SendMessage(IntPtr hWnd, uint wMsg, IntPtr wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
+
 		[DllImport("user32", SetLastError = true, EntryPoint = "GetWindowLong")]
-		public extern static int GetWindowLong(IntPtr hwnd, int index);
+		public static extern int GetWindowLong(IntPtr hwnd, int index);
+
 		[DllImport("user32", SetLastError = true, EntryPoint = "GetWindowLongPtr")]
-		public extern static IntPtr GetWindowLongPtr(IntPtr hwnd, int nIndex);
+		public static extern IntPtr GetWindowLongPtr(IntPtr hwnd, int nIndex);
+
 		[DllImport("user32", SetLastError = true)]
 		public static extern int SetWindowLong(IntPtr hWnd, int index, int styleFlags);
+
 		[DllImport("user32", SetLastError = true, EntryPoint = "SetWindowLongPtr")]
 		public static extern IntPtr SetWindowLongPtr(IntPtr hWnd, int index, IntPtr styleFlags);
+
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint dwFlags);
+
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr MonitorFromRect([In] ref RECT lprc, uint dwFlags);
+
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool GetWindowInfo(IntPtr hwnd, ref WindowInfo pwi);
+
 		[DllImport("user32", SetLastError = true)]
-		public extern static int EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+		public static extern int EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+
 		[DllImport("user32", SetLastError = true)]
-		public extern static int EnumChildWindows(IntPtr hWndParent, EnumWindowsProc lpEnumFunc, IntPtr lParam);
+		public static extern int EnumChildWindows(IntPtr hWndParent, EnumWindowsProc lpEnumFunc, IntPtr lParam);
+
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool GetScrollInfo(IntPtr hwnd, int fnBar, ref SCROLLINFO lpsi);
+
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool ShowScrollBar(IntPtr hwnd, ScrollBarDirection scrollBar, bool show);
+
 		[DllImport("user32", SetLastError = true)]
 		public static extern int SetScrollPos(IntPtr hWnd, Orientation nBar, int nPos, bool bRedraw);
+
 		[DllImport("user32", SetLastError = true)]
 		public static extern RegionResult GetWindowRgn(IntPtr hWnd, SafeHandle hRgn);
+
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, WindowPos uFlags);
+
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr GetTopWindow(IntPtr hWnd);
 
@@ -158,20 +198,24 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr GetClipboardOwner();
+
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr SetClipboardViewer(IntPtr hWndNewViewer);
+
 		[DllImport("user32", SetLastError = true)]
 		public static extern bool ChangeClipboardChain(IntPtr hWndRemove, IntPtr hWndNewNext);
 
 		// Added for WinEventHook logic, Greenshot 1.2
 		[DllImport("user32", SetLastError = true)]
 		public static extern bool UnhookWinEvent(IntPtr hWinEventHook);
+
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr SetWinEventHook(WinEvent eventMin, WinEvent eventMax, IntPtr hmodWinEventProc, WinEventDelegate lpfnWinEventProc, int idProcess, int idThread, WinEventHookFlags dwFlags);
 
 		// Added for finding Metro apps, Greenshot 1.1
 		[DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+
 		[DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern IntPtr FindWindowEx(IntPtr hwndParent, IntPtr hwndChildAfter, string lpszClass, string lpszWindow);
 
@@ -184,14 +228,19 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		///
 		[DllImport("user32", SetLastError = true)]
 		public static extern uint GetGuiResources(IntPtr hProcess, uint uiFlags);
+
 		[DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern uint RegisterWindowMessage(string lpString);
+
 		[DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern IntPtr SendMessageTimeout(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam, SendMessageTimeoutFlags fuFlags, uint uTimeout, out UIntPtr lpdwResult);
+
 		[DllImport("user32", SetLastError = true)]
 		private static extern bool GetPhysicalCursorPos(out POINT cursorLocation);
-		[DllImport("user32", SetLastError=true)]
+
+		[DllImport("user32", SetLastError = true)]
 		public static extern int MapWindowPoints(IntPtr hwndFrom, IntPtr hwndTo, ref POINT lpPoints, [MarshalAs(UnmanagedType.U4)] int cPoints);
+
 		[DllImport("user32", SetLastError = true)]
 		public static extern int GetSystemMetrics(SystemMetric index);
 
@@ -202,34 +251,45 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// <returns></returns>
 		[DllImport("user32", SetLastError = true)]
 		public static extern SafeIconHandle CopyIcon(IntPtr hIcon);
+
 		[DllImport("user32", SetLastError = true)]
 		public static extern bool DestroyIcon(IntPtr hIcon);
+
 		[DllImport("user32", SetLastError = true)]
 		public static extern bool GetCursorInfo(out CursorInfo cursorInfo);
+
 		[DllImport("user32", SetLastError = true)]
 		public static extern bool GetIconInfo(SafeIconHandle iconHandle, out IconInfo iconInfo);
+
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr SetCapture(IntPtr hWnd);
+
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool ReleaseCapture();
+
 		[DllImport("user32", SetLastError = true)]
 		public static extern IntPtr CreateIconIndirect(ref IconInfo icon);
 
 		[DllImport("user32", SetLastError = true)]
 		internal static extern IntPtr OpenInputDesktop(uint dwFlags, bool fInherit, DesktopAccessRight dwDesiredAccess);
+
 		[DllImport("user32", SetLastError = true)]
 		internal static extern bool SetThreadDesktop(IntPtr hDesktop);
+
 		[DllImport("user32", SetLastError = true)]
 		internal static extern bool CloseDesktop(IntPtr hDesktop);
 
 		#region Screen.AllScreens replacement
+
 		public delegate bool MonitorEnumDelegate(IntPtr hMonitor, IntPtr hdcMonitor, ref RECT lprcMonitor, IntPtr dwData);
 
 		[DllImport("user32", SetLastError = true)]
 		public static extern bool EnumDisplayMonitors(IntPtr hdc, IntPtr lprcClip, MonitorEnumDelegate lpfnEnum, IntPtr dwData);
+
 		[DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern bool GetMonitorInfo(IntPtr hMonitor, ref MonitorInfoEx lpmi);
+
 		#endregion
 
 		#endregion
@@ -239,17 +299,25 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// </summary>
 		/// <returns>Point with cursor location, relative to the origin of the monitor setup
 		/// (i.e. negative coordinates arepossible in multiscreen setups)</returns>
-		public static Point GetCursorLocation() {
-			if (Environment.OSVersion.Version.Major >= 6 && _CanCallGetPhysicalCursorPos) {
+		public static Point GetCursorLocation()
+		{
+			if (Environment.OSVersion.Version.Major >= 6 && _CanCallGetPhysicalCursorPos)
+			{
 				POINT cursorLocation;
-				try {
-					if (GetPhysicalCursorPos(out cursorLocation)) {
+				try
+				{
+					if (GetPhysicalCursorPos(out cursorLocation))
+					{
 						return new Point(cursorLocation.X, cursorLocation.Y);
-					} else {
+					}
+					else
+					{
 						Win32Error error = Win32.GetLastErrorCode();
 						LOG.ErrorFormat("Error retrieving PhysicalCursorPos : {0}", Win32.GetMessage(error));
 					}
-				} catch (Exception ex) {
+				}
+				catch (Exception ex)
+				{
 					LOG.Error("Exception retrieving PhysicalCursorPos, no longer calling this. Cause :", ex);
 					_CanCallGetPhysicalCursorPos = false;
 				}
@@ -263,10 +331,14 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// <param name="hWnd">IntPtr</param>
 		/// <param name="nIndex">int</param>
 		/// <returns>IntPtr</returns>
-		public static IntPtr GetClassLongWrapper(IntPtr hWnd, int nIndex) {
-			if (IntPtr.Size > 4) {
+		public static IntPtr GetClassLongWrapper(IntPtr hWnd, int nIndex)
+		{
+			if (IntPtr.Size > 4)
+			{
 				return GetClassLongPtr(hWnd, nIndex);
-			}  else {
+			}
+			else
+			{
 				return new IntPtr(GetClassLong(hWnd, nIndex));
 			}
 		}
@@ -277,10 +349,14 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// <param name="hwnd"></param>
 		/// <param name="nIndex"></param>
 		/// <returns></returns>
-		public static long GetWindowLongWrapper(IntPtr hwnd, int nIndex) {
-			if (IntPtr.Size == 8) {
+		public static long GetWindowLongWrapper(IntPtr hwnd, int nIndex)
+		{
+			if (IntPtr.Size == 8)
+			{
 				return GetWindowLongPtr(hwnd, nIndex).ToInt64();
-			} else {
+			}
+			else
+			{
 				return GetWindowLong(hwnd, nIndex);
 			}
 		}
@@ -291,22 +367,30 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// <param name="hwnd"></param>
 		/// <param name="nIndex"></param>
 		/// <param name="styleFlags"></param>
-		public static void SetWindowLongWrapper(IntPtr hwnd, int nIndex, IntPtr styleFlags) {
-			if (IntPtr.Size == 8) {
+		public static void SetWindowLongWrapper(IntPtr hwnd, int nIndex, IntPtr styleFlags)
+		{
+			if (IntPtr.Size == 8)
+			{
 				SetWindowLongPtr(hwnd, nIndex, styleFlags);
-			} else {
+			}
+			else
+			{
 				SetWindowLong(hwnd, nIndex, styleFlags.ToInt32());
 			}
 		}
 
-		public static uint GetGuiResourcesGDICount() {
-			using (Process currentProcess = Process.GetCurrentProcess()) {
+		public static uint GetGuiResourcesGDICount()
+		{
+			using (Process currentProcess = Process.GetCurrentProcess())
+			{
 				return GetGuiResources(currentProcess.Handle, 0);
 			}
 		}
 
-		public static uint GetGuiResourcesUserCount() {
-			using (Process currentProcess = Process.GetCurrentProcess()) {
+		public static uint GetGuiResourcesUserCount()
+		{
+			using (Process currentProcess = Process.GetCurrentProcess())
+			{
 				return GetGuiResources(currentProcess.Handle, 1);
 			}
 		}
@@ -316,7 +400,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// </summary>
 		/// <param name="method">string with current method</param>
 		/// <returns>Exception</returns>
-		public static Exception CreateWin32Exception(string method) {
+		public static Exception CreateWin32Exception(string method)
+		{
 			Win32Exception exceptionToThrow = new Win32Exception();
 			exceptionToThrow.Data.Add("Method", method);
 			return exceptionToThrow;
@@ -338,27 +423,36 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// <summary>
 	/// A SafeHandle class implementation for the current input desktop
 	/// </summary>
-	public class SafeCurrentInputDesktopHandle : SafeHandleZeroOrMinusOneIsInvalid {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(SafeCurrentInputDesktopHandle));
+	public class SafeCurrentInputDesktopHandle : SafeHandleZeroOrMinusOneIsInvalid
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (SafeCurrentInputDesktopHandle));
 
-		public SafeCurrentInputDesktopHandle() : base(true) {
+		public SafeCurrentInputDesktopHandle() : base(true)
+		{
 			IntPtr hDesktop = User32.OpenInputDesktop(0, true, DesktopAccessRight.GENERIC_ALL);
-			if (hDesktop != IntPtr.Zero) {
+			if (hDesktop != IntPtr.Zero)
+			{
 				SetHandle(hDesktop);
-				if (User32.SetThreadDesktop(hDesktop)) {
+				if (User32.SetThreadDesktop(hDesktop))
+				{
 					LOG.DebugFormat("Switched to desktop {0}", hDesktop);
-				} else {
+				}
+				else
+				{
 					LOG.WarnFormat("Couldn't switch to desktop {0}", hDesktop);
 					LOG.Error(User32.CreateWin32Exception("SetThreadDesktop"));
 				}
-			} else {
+			}
+			else
+			{
 				LOG.Warn("Couldn't get current desktop.");
 				LOG.Error(User32.CreateWin32Exception("OpenInputDesktop"));
 			}
 		}
 
 		[SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
-		protected override bool ReleaseHandle() {
+		protected override bool ReleaseHandle()
+		{
 			return User32.CloseDesktop(handle);
 		}
 	}
@@ -366,16 +460,20 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// <summary>
 	/// A SafeHandle class implementation for the hIcon
 	/// </summary>
-	public class SafeIconHandle : SafeHandleZeroOrMinusOneIsInvalid {
-		private SafeIconHandle() : base(true) {
+	public class SafeIconHandle : SafeHandleZeroOrMinusOneIsInvalid
+	{
+		private SafeIconHandle() : base(true)
+		{
 		}
 
-		public SafeIconHandle(IntPtr hIcon) : base(true) {
+		public SafeIconHandle(IntPtr hIcon) : base(true)
+		{
 			SetHandle(hIcon);
 		}
 
 		[SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
-		protected override bool ReleaseHandle() {
+		protected override bool ReleaseHandle()
+		{
 			return User32.DestroyIcon(handle);
 		}
 	}
@@ -383,30 +481,37 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// <summary>
 	/// A WindowDC SafeHandle implementation
 	/// </summary>
-	public class SafeWindowDCHandle : SafeHandleZeroOrMinusOneIsInvalid {
+	public class SafeWindowDCHandle : SafeHandleZeroOrMinusOneIsInvalid
+	{
 		[DllImport("user32", SetLastError = true)]
 		private static extern IntPtr GetWindowDC(IntPtr hWnd);
+
 		[DllImport("user32", SetLastError = true)]
 		private static extern bool ReleaseDC(IntPtr hWnd, IntPtr hDC);
 
 		private IntPtr hWnd;
+
 		[SecurityCritical]
-		private SafeWindowDCHandle() : base(true) {
+		private SafeWindowDCHandle() : base(true)
+		{
 		}
 
 		[SecurityCritical]
-		public SafeWindowDCHandle(IntPtr hWnd, IntPtr preexistingHandle) : base(true) {
+		public SafeWindowDCHandle(IntPtr hWnd, IntPtr preexistingHandle) : base(true)
+		{
 			this.hWnd = hWnd;
 			SetHandle(preexistingHandle);
 		}
 
-		[SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode=true)]
-		protected override bool ReleaseHandle() {
+		[SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
+		protected override bool ReleaseHandle()
+		{
 			bool returnValue = ReleaseDC(hWnd, handle);
 			return returnValue;
 		}
 
-		public static SafeWindowDCHandle fromDesktop() {
+		public static SafeWindowDCHandle fromDesktop()
+		{
 			IntPtr hWndDesktop = User32.GetDesktopWindow();
 			IntPtr hDCDesktop = GetWindowDC(hWndDesktop);
 			return new SafeWindowDCHandle(hWndDesktop, hDCDesktop);

@@ -29,11 +29,14 @@ namespace GreenshotEditorPlugin.Drawing
 	/// Description of CropContainer.
 	/// </summary>
 	[Flag(ElementFlag.CONFIRMABLE)]
-	public class CropContainer : DrawableContainer {
-        public CropContainer(Surface parent) : base(parent) {
+	public class CropContainer : DrawableContainer
+	{
+		public CropContainer(Surface parent) : base(parent)
+		{
 		}
 
-        public override void Invalidate() {
+		public override void Invalidate()
+		{
 			_parent.Invalidate();
 		}
 
@@ -41,19 +44,23 @@ namespace GreenshotEditorPlugin.Drawing
 		/// We need to override the DrawingBound, return a rectangle in the size of the image, to make sure this element is always draw
 		/// (we create a transparent brown over the complete picture)
 		/// </summary>
-		public override Rectangle DrawingBounds {
-			get {
-				return new Rectangle(0,0,_parent.Width, _parent.Height);
+		public override Rectangle DrawingBounds
+		{
+			get
+			{
+				return new Rectangle(0, 0, _parent.Width, _parent.Height);
 			}
 		}
 
-		public override void Draw(Graphics g, RenderMode rm) {
-			using (Brush cropBrush = new SolidBrush(Color.FromArgb(100, 150, 150, 100))) {
+		public override void Draw(Graphics g, RenderMode rm)
+		{
+			using (Brush cropBrush = new SolidBrush(Color.FromArgb(100, 150, 150, 100)))
+			{
 				Rectangle cropRectangle = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
 				Rectangle selectionRect = new Rectangle(cropRectangle.Left - 1, cropRectangle.Top - 1, cropRectangle.Width + 1, cropRectangle.Height + 1);
 
 				DrawSelectionBorder(g, selectionRect);
-				
+
 				// top
 				g.FillRectangle(cropBrush, new Rectangle(0, 0, _parent.Width, cropRectangle.Top));
 				// left
@@ -64,9 +71,11 @@ namespace GreenshotEditorPlugin.Drawing
 				g.FillRectangle(cropBrush, new Rectangle(0, cropRectangle.Top + cropRectangle.Height, _parent.Width, _parent.Height - (cropRectangle.Top + cropRectangle.Height)));
 			}
 		}
-		
-		public override bool HasContextMenu {
-			get {
+
+		public override bool HasContextMenu
+		{
+			get
+			{
 				// No context menu for the CropContainer
 				return false;
 			}

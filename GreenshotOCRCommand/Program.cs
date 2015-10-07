@@ -28,6 +28,7 @@ namespace GreenshotOCRCommand
 	public class Program
 	{
 		private const string Usage = "<-c> | <path to image.bmp> [language] [orientimage] [straightenImage]";
+
 		public static int Main(string[] args)
 		{
 			// to test
@@ -43,7 +44,7 @@ namespace GreenshotOCRCommand
 			{
 				try
 				{
-					language = (MiLANGUAGES)Enum.Parse(typeof(MiLANGUAGES), "miLANG_" + args[1].ToUpperInvariant().Replace("miLANG_", ""));
+					language = (MiLANGUAGES) Enum.Parse(typeof (MiLANGUAGES), "miLANG_" + args[1].ToUpperInvariant().Replace("miLANG_", ""));
 				}
 // ReSharper disable once EmptyGeneralCatchClause
 				catch
@@ -78,7 +79,7 @@ namespace GreenshotOCRCommand
 						}
 						document.ComObject.Create(filename);
 						document.ComObject.OCR(language, orientimage, straightenImage);
-						using (var image = DisposableCom.Create((IImage)document.ComObject.Images[0]))
+						using (var image = DisposableCom.Create((IImage) document.ComObject.Images[0]))
 						{
 							using (var layout = DisposableCom.Create(image.ComObject.Layout))
 							{

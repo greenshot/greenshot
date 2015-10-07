@@ -29,71 +29,95 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GreenshotOfficePlugin {
+namespace GreenshotOfficePlugin
+{
 	/// <summary>
 	/// Description of PowerpointDestination.
 	/// </summary>
-	public class PowerpointDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PowerpointDestination));
+	public class PowerpointDestination : AbstractDestination
+	{
+		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (PowerpointDestination));
 		private const int ICON_APPLICATION = 0;
 		private const int ICON_PRESENTATION = 1;
 
 		private static string exePath = null;
 		private string presentationName = null;
-		
-		static PowerpointDestination() {
+
+		static PowerpointDestination()
+		{
 			exePath = PluginUtils.GetExePath("POWERPNT.EXE");
-			if (exePath != null && File.Exists(exePath)) {
+			if (exePath != null && File.Exists(exePath))
+			{
 				WindowDetails.AddProcessToExcludeFromFreeze("powerpnt");
-			} else {
+			}
+			else
+			{
 				exePath = null;
 			}
 		}
 
-		public PowerpointDestination() {
+		public PowerpointDestination()
+		{
 		}
 
-		public PowerpointDestination(string presentationName) {
+		public PowerpointDestination(string presentationName)
+		{
 			this.presentationName = presentationName;
 		}
 
-		public override string Designation {
-			get {
+		public override string Designation
+		{
+			get
+			{
 				return "Powerpoint";
 			}
 		}
 
-		public override string Description {
-			get {
-				if (presentationName == null) {
+		public override string Description
+		{
+			get
+			{
+				if (presentationName == null)
+				{
 					return "Microsoft Powerpoint";
-				} else {
+				}
+				else
+				{
 					return presentationName;
 				}
 			}
 		}
 
-		public override int Priority {
-			get {
+		public override int Priority
+		{
+			get
+			{
 				return 4;
 			}
 		}
-		
-		public override bool IsDynamic {
-			get {
+
+		public override bool IsDynamic
+		{
+			get
+			{
 				return true;
 			}
 		}
 
-		public override bool IsActive {
-			get {
+		public override bool IsActive
+		{
+			get
+			{
 				return base.IsActive && exePath != null;
 			}
 		}
 
-		public override Image DisplayIcon {
-			get {
-				if (!string.IsNullOrEmpty(presentationName)) {
+		public override Image DisplayIcon
+		{
+			get
+			{
+				if (!string.IsNullOrEmpty(presentationName))
+				{
 					return PluginUtils.GetCachedExeIcon(exePath, ICON_PRESENTATION);
 				}
 
@@ -101,41 +125,54 @@ namespace GreenshotOfficePlugin {
 			}
 		}
 
-		public override IEnumerable<IDestination> DynamicDestinations() {
-			foreach (string presentationName in PowerpointExporter.GetPowerpointPresentations()) {
+		public override IEnumerable<IDestination> DynamicDestinations()
+		{
+			foreach (string presentationName in PowerpointExporter.GetPowerpointPresentations())
+			{
 				yield return new PowerpointDestination(presentationName);
 			}
 		}
 
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			var exportInformation = new ExportInformation {
-				DestinationDesignation = Designation,
-				DestinationDescription = Description
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		{
+			var exportInformation = new ExportInformation
+			{
+				DestinationDesignation = Designation, DestinationDescription = Description
 			};
 			string tmpFile = captureDetails.Filename;
 			Size imageSize = Size.Empty;
-			if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$")) {
+			if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
+			{
 				tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
 				imageSize = surface.Image.Size;
 			}
-			if (presentationName != null) {
+			if (presentationName != null)
+			{
 				exportInformation.ExportMade = PowerpointExporter.ExportToPresentation(presentationName, tmpFile, imageSize, captureDetails.Title);
-			} else {
-				if (!manuallyInitiated) {
+			}
+			else
+			{
+				if (!manuallyInitiated)
+				{
 					bool initialValue = false;
 					IList<IDestination> destinations = new List<IDestination>();
-					foreach (var presentation in PowerpointExporter.GetPowerpointPresentations()) {
-						if (!initialValue) {
+					foreach (var presentation in PowerpointExporter.GetPowerpointPresentations())
+					{
+						if (!initialValue)
+						{
 							destinations.Add(new PowerpointDestination());
 							initialValue = true;
 						}
 						destinations.Add(new PowerpointDestination(presentation));
 					}
-					if (destinations.Count > 0) {
+					if (destinations.Count > 0)
+					{
 						// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
 						return await ShowPickerMenuAsync(false, surface, captureDetails, destinations, token).ConfigureAwait(false);
 					}
-				} else if (!exportInformation.ExportMade) {
+				}
+				else if (!exportInformation.ExportMade)
+				{
 					exportInformation.ExportMade = PowerpointExporter.InsertIntoNewPresentation(tmpFile, imageSize, captureDetails.Title);
 				}
 			}

@@ -24,17 +24,21 @@ using System;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace GreenshotPlugin.Core {
-
+namespace GreenshotPlugin.Core
+{
 	/// <summary>
 	/// Event arguments for the TitleChangeEvent
 	/// </summary>
-	public class TitleChangeEventArgs : EventArgs {
-		public IntPtr HWnd {
+	public class TitleChangeEventArgs : EventArgs
+	{
+		public IntPtr HWnd
+		{
 			get;
 			set;
 		}
-		public string Title {
+
+		public string Title
+		{
 			get;
 			set;
 		}
@@ -49,7 +53,8 @@ namespace GreenshotPlugin.Core {
 	/// <summary>
 	/// Monitor all title changes
 	/// </summary>
-	public class TitleChangeMonitor : IDisposable {
+	public class TitleChangeMonitor : IDisposable
+	{
 		private const uint EVENT_OBJECT_NAMECHANGE = 0x800C;
 
 		private WinEventDelegate _winEventHandler;
@@ -58,8 +63,10 @@ namespace GreenshotPlugin.Core {
 
 		public event TitleChangeEventDelegate TitleChangeEvent;
 
-		public TitleChangeMonitor() {
-			if (_winEventHandler == null) {
+		public TitleChangeMonitor()
+		{
+			if (_winEventHandler == null)
+			{
 				_winEventHandler = WinEventHandler;
 				_gcHandle = GCHandle.Alloc(_winEventHandler);
 			}
@@ -76,14 +83,21 @@ namespace GreenshotPlugin.Core {
 		/// <param name="idChild"></param>
 		/// <param name="dwEventThread"></param>
 		/// <param name="dwmsEventTime"></param>
-		private void WinEventHandler(IntPtr hWinEventHook, WinEvent eventType, IntPtr hWnd, EventObjects idObject, int idChild, uint dwEventThread, uint dwmsEventTime) {
-			if (hWnd == IntPtr.Zero || idObject != EventObjects.OBJID_WINDOW) {
+		private void WinEventHandler(IntPtr hWinEventHook, WinEvent eventType, IntPtr hWnd, EventObjects idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
+		{
+			if (hWnd == IntPtr.Zero || idObject != EventObjects.OBJID_WINDOW)
+			{
 				return;
 			}
-			if (eventType == WinEvent.EVENT_OBJECT_NAMECHANGE) {
+			if (eventType == WinEvent.EVENT_OBJECT_NAMECHANGE)
+			{
 				var newTitle = GetText(hWnd);
-				if (TitleChangeEvent != null) {
-					TitleChangeEvent(this, new TitleChangeEventArgs { HWnd = hWnd, Title = newTitle });
+				if (TitleChangeEvent != null)
+				{
+					TitleChangeEvent(this, new TitleChangeEventArgs
+					{
+						HWnd = hWnd, Title = newTitle
+					});
 				}
 			}
 		}
@@ -93,16 +107,19 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="hWnd">IntPtr for the window</param>
 		/// <returns>string</returns>
-		private static string GetText(IntPtr hWnd) {
+		private static string GetText(IntPtr hWnd)
+		{
 			var title = new StringBuilder(260, 260);
 			int length = User32.GetWindowText(hWnd, title, title.Capacity);
-			if (length == 0) {
+			if (length == 0)
+			{
 				return null;
 			}
 			return title.ToString();
 		}
 
 		#region IDisposable Support
+
 		private bool disposedValue = false; // To detect redundant calls
 
 		protected virtual void Dispose(bool disposing)
@@ -127,7 +144,8 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		~TitleChangeMonitor() {
+		~TitleChangeMonitor()
+		{
 			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
 			Dispose(false);
 		}
@@ -139,7 +157,7 @@ namespace GreenshotPlugin.Core {
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
-		#endregion
 
+		#endregion
 	}
 }

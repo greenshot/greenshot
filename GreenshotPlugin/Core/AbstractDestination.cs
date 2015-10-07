@@ -39,7 +39,7 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public abstract class AbstractDestination : IDestination
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(AbstractDestination));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (AbstractDestination));
 		private static readonly ICoreConfiguration configuration = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 
@@ -55,7 +55,8 @@ namespace GreenshotPlugin.Core
 				if (Description != null)
 				{
 					return Description.CompareTo(other.Description);
-				} else
+				}
+				else
 				{
 					return -1;
 				}
@@ -109,9 +110,12 @@ namespace GreenshotPlugin.Core
 		/// <param name="destinationClickHandler"></param>
 		/// <param name="token"></param>
 		/// <returns>Task</returns>
-		public virtual async Task AddDynamicDestinations(ToolStripMenuItem baseItem, EventHandler destinationClickHandler, CancellationToken token = default(CancellationToken)) {
-			await Task.Factory.StartNew(() => {
-				foreach (var destination in DynamicDestinations()) {
+		public virtual async Task AddDynamicDestinations(ToolStripMenuItem baseItem, EventHandler destinationClickHandler, CancellationToken token = default(CancellationToken))
+		{
+			await Task.Factory.StartNew(() =>
+			{
+				foreach (var destination in DynamicDestinations())
+				{
 					var menuItem = CreateFor(destination);
 					menuItem.Click += destinationClickHandler;
 					baseItem.DropDownItems.Add(menuItem);
@@ -196,9 +200,9 @@ namespace GreenshotPlugin.Core
 		public async Task<ExportInformation> ShowPickerMenuAsync(bool addDynamics, ISurface surface, ICaptureDetails captureDetails, IEnumerable<IDestination> destinations, CancellationToken token = default(CancellationToken))
 		{
 			// Generate an empty ExportInformation object, for when nothing was selected.
-			var exportInformation = new ExportInformation {
-				DestinationDesignation = Designation,
-				DestinationDescription = Description
+			var exportInformation = new ExportInformation
+			{
+				DestinationDesignation = Designation, DestinationDescription = Description
 			};
 			string usedDestination = null;
 			var canExitSemaphore = new SemaphoreSlim(0, 1);
@@ -216,7 +220,8 @@ namespace GreenshotPlugin.Core
 					menu.ImageScalingSize = configuration.IconSize;
 
 					// In some cases the closing event needs to be ignored.
-					menu.Closing += (source, eventArgs) => {
+					menu.Closing += (source, eventArgs) =>
+					{
 						LOG.DebugFormat("Menu closing event with reason {0}", eventArgs.CloseReason);
 						switch (eventArgs.CloseReason)
 						{
@@ -236,7 +241,8 @@ namespace GreenshotPlugin.Core
 
 					// Make sure that the menu has focus if the mouse is over it.
 					// This makes is possible that dropdown menus will still open on mouseenter
-					menu.MouseEnter += (source, eventArgs) => {
+					menu.MouseEnter += (source, eventArgs) =>
+					{
 						if (!menu.ContainsFocus)
 						{
 							menu.Focus();
@@ -247,32 +253,40 @@ namespace GreenshotPlugin.Core
 					foreach (var destination in destinations)
 					{
 						// Fix foreach loop variable for the delegate
-						var item = destination.CreateMenuItem(addDynamics, async (sender, e) => {
+						var item = destination.CreateMenuItem(addDynamics, async (sender, e) =>
+						{
 							var toolStripMenuItem = sender as ToolStripMenuItem;
 							if (toolStripMenuItem == null)
 							{
 								return;
 							}
-							var clickedDestination = (IDestination)toolStripMenuItem.Tag;
+							var clickedDestination = (IDestination) toolStripMenuItem.Tag;
 
 							// try to export
-							try {
-								if (clickedDestination == null) {
+							try
+							{
+								if (clickedDestination == null)
+								{
 									return;
 								}
 								menu.Close();
 
 								LOG.DebugFormat("Destination {0} was clicked", clickedDestination.Description);
 								exportInformation = await clickedDestination.ExportCaptureAsync(true, surface, captureDetails);
-								if (exportInformation != null && exportInformation.ExportMade) {
+								if (exportInformation != null && exportInformation.ExportMade)
+								{
 									LOG.InfoFormat("Export to {0} success, closing menu", exportInformation.DestinationDescription);
 									usedDestination = clickedDestination.Designation;
 									exit = true;
-								} else {
+								}
+								else
+								{
 									// Export didn't work, but as we didn't set exit=true the menu will be shown again.
 									LOG.Info("Export cancelled or failed, showing menu again");
 								}
-							} finally {
+							}
+							finally
+							{
 								canExitSemaphore.Release();
 							}
 						});
@@ -283,16 +297,17 @@ namespace GreenshotPlugin.Core
 						}
 					}
 					// Add separator, enabled = false so we can't click it.
-					menu.Items.Add(new ToolStripSeparator {
+					menu.Items.Add(new ToolStripSeparator
+					{
 						Enabled = false
 					});
 					//  Add Close item
 					var closeItem = new ToolStripMenuItem
 					{
-						Text = language.EditorClose,
-						Image = GreenshotResources.GetImage("Close.Image")
+						Text = language.EditorClose, Image = GreenshotResources.GetImage("Close.Image")
 					};
-					closeItem.Click += (source, eventArgs) => {
+					closeItem.Click += (source, eventArgs) =>
+					{
 						LOG.Debug("Close clicked");
 						exit = true;
 						canExitSemaphore.Release();
@@ -307,7 +322,8 @@ namespace GreenshotPlugin.Core
 					// Await the can exit semaphore
 					await canExitSemaphore.WaitAsync(token);
 				}
-			} while (!exit);
+			}
+			while (!exit);
 
 			// Dispose as the close is clicked, but only if we didn't export to the editor.
 			if (!"Editor".Equals(usedDestination))
@@ -332,9 +348,12 @@ namespace GreenshotPlugin.Core
 
 			if (IsDynamic && addDynamics)
 			{
-				Task.Factory.StartNew(async () => {
-					await AddDynamicDestinations(basisMenuItem, destinationClickHandler).ContinueWith((t) => {
-						if (t.Exception != null) {
+				Task.Factory.StartNew(async () =>
+				{
+					await AddDynamicDestinations(basisMenuItem, destinationClickHandler).ContinueWith((t) =>
+					{
+						if (t.Exception != null)
+						{
 							LOG.ErrorFormat("Skipping {0}, due to the following error: {1}", Description, t.Exception.Message);
 						}
 						basisMenuItem.Invalidate();
@@ -349,15 +368,16 @@ namespace GreenshotPlugin.Core
 		/// </summary>
 		/// <param name="destination"></param>
 		/// <returns>ToolStripMenuItem</returns>
-		protected ToolStripMenuItem CreateFor(IDestination destination) {
-			return new ToolStripMenuItem {
-				Text = destination.Description,
-				Tag = destination,
-				Image = destination.DisplayIcon
+		protected ToolStripMenuItem CreateFor(IDestination destination)
+		{
+			return new ToolStripMenuItem
+			{
+				Text = destination.Description, Tag = destination, Image = destination.DisplayIcon
 			};
 		}
 
 		#region IDisposable Support
+
 		private bool disposedValue = false; // To detect redundant calls
 
 		protected virtual void Dispose(bool disposing)
@@ -378,6 +398,7 @@ namespace GreenshotPlugin.Core
 			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
 			Dispose(true);
 		}
+
 		#endregion
 	}
 }

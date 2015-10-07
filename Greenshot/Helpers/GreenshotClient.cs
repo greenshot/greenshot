@@ -24,43 +24,53 @@ using GreenshotPlugin.Interfaces;
 using System.Collections.Generic;
 using System.ServiceModel;
 
-namespace Greenshot.Helpers {
-
+namespace Greenshot.Helpers
+{
 	/// <summary>
 	/// A simple helper to talk to an already running Greenshot 1.3+ instance
 	/// </summary>
-	public class GreenshotClient {
-		private static ChannelFactory<IGreenshotContract> ChannelFactory {
-			get {
+	public class GreenshotClient
+	{
+		private static ChannelFactory<IGreenshotContract> ChannelFactory
+		{
+			get
+			{
 				return new ChannelFactory<IGreenshotContract>(new NetNamedPipeBinding(), new EndpointAddress(GreenshotServer.EndPoint));
 			}
 		}
 
-		public static void OpenFiles(IList<string> filesToOpen) {
-			if (filesToOpen == null || filesToOpen.Count == 0) {
+		public static void OpenFiles(IList<string> filesToOpen)
+		{
+			if (filesToOpen == null || filesToOpen.Count == 0)
+			{
 				return;
 			}
-			using (var factory = ChannelFactory) {
+			using (var factory = ChannelFactory)
+			{
 				var client = factory.CreateChannel();
-				foreach (string filename in filesToOpen) {
+				foreach (string filename in filesToOpen)
+				{
 					client.OpenFile(filename);
 				}
 			}
 		}
 
-		public static void Exit() {
-			using (var factory = ChannelFactory) {
+		public static void Exit()
+		{
+			using (var factory = ChannelFactory)
+			{
 				var client = factory.CreateChannel();
 				client.Exit();
 			}
 		}
 
-		public static void ReloadConfig() {
-			using (var factory = ChannelFactory) {
+		public static void ReloadConfig()
+		{
+			using (var factory = ChannelFactory)
+			{
 				var client = factory.CreateChannel();
 				client.ReloadConfig();
 			}
 		}
 	}
-
 }

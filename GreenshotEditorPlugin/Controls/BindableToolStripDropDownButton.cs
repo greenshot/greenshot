@@ -18,22 +18,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System.ComponentModel;
 using System.Windows.Forms;
 using GreenshotPlugin.Controls;
 
-namespace GreenshotEditorPlugin.Controls {
+namespace GreenshotEditorPlugin.Controls
+{
 	/// <summary>
 	/// A simple ToolStripDropDownButton implementing INotifyPropertyChanged for data binding.
 	/// Also, when a DropDownItem is selected, the DropDownButton adopts its Tag and Image.
 	/// The selected tag can be accessed via SelectedTag property.
 	/// </summary>
-	public class BindableToolStripDropDownButton : ToolStripDropDownButton, INotifyPropertyChanged, IGreenshotLanguageBindable {
-		
+	public class BindableToolStripDropDownButton : ToolStripDropDownButton, INotifyPropertyChanged, IGreenshotLanguageBindable
+	{
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
-		public string LanguageKey {
+		public string LanguageKey
+		{
 			get;
 			set;
 		}
@@ -45,35 +48,59 @@ namespace GreenshotEditorPlugin.Controls {
 			set;
 		}
 
-		public BindableToolStripDropDownButton() {
+		public BindableToolStripDropDownButton()
+		{
 		}
-		
-		public object SelectedTag {
-			get { if(Tag==null && DropDownItems.Count>0) Tag=DropDownItems[0].Tag; return Tag; }
-			set { AdoptFromTag(value); }
+
+		public object SelectedTag
+		{
+			get
+			{
+				if (Tag == null && DropDownItems.Count > 0)
+				{
+					Tag = DropDownItems[0].Tag;
+				}
+				return Tag;
+			}
+			set
+			{
+				AdoptFromTag(value);
+			}
 		}
-		
-		protected override void OnDropDownItemClicked(ToolStripItemClickedEventArgs e) {
+
+		protected override void OnDropDownItemClicked(ToolStripItemClickedEventArgs e)
+		{
 			ToolStripItem clickedItem = e.ClickedItem;
-			if(Tag == null || !Tag.Equals(clickedItem.Tag)) {
-				Tag = clickedItem.Tag;   
+			if (Tag == null || !Tag.Equals(clickedItem.Tag))
+			{
+				Tag = clickedItem.Tag;
 				Image = clickedItem.Image;
-				if(PropertyChanged != null) PropertyChanged(this, new PropertyChangedEventArgs("SelectedTag"));
+				if (PropertyChanged != null)
+				{
+					PropertyChanged(this, new PropertyChangedEventArgs("SelectedTag"));
+				}
 			}
 			base.OnDropDownItemClicked(e);
 		}
-		
-		private void AdoptFromTag(object tag) {
-			if(Tag == null || !Tag.Equals(tag)) {
-				Tag = tag;   
-				foreach(ToolStripItem item in DropDownItems) {
-					if(item.Tag != null && item.Tag.Equals(tag)) {
-					   	Image = item.Image;
-					   	break;
+
+		private void AdoptFromTag(object tag)
+		{
+			if (Tag == null || !Tag.Equals(tag))
+			{
+				Tag = tag;
+				foreach (ToolStripItem item in DropDownItems)
+				{
+					if (item.Tag != null && item.Tag.Equals(tag))
+					{
+						Image = item.Image;
+						break;
 					}
 				}
 				Tag = tag;
-				if(PropertyChanged != null) PropertyChanged(this, new PropertyChangedEventArgs("SelectedTag"));
+				if (PropertyChanged != null)
+				{
+					PropertyChanged(this, new PropertyChangedEventArgs("SelectedTag"));
+				}
 			}
 		}
 	}

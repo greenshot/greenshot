@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Linq;
 using System.Threading;
@@ -26,16 +27,19 @@ using Dapplo.Config.Language;
 using GreenshotPlugin.Core;
 using log4net;
 
-namespace Greenshot.Forms {
+namespace Greenshot.Forms
+{
 	/// <summary>
 	/// Description of LanguageDialog.
 	/// </summary>
-	public partial class LanguageDialog : Form {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(LanguageDialog));
+	public partial class LanguageDialog : Form
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (LanguageDialog));
 		private static LanguageDialog _uniqueInstance;
 		private bool _properOkPressed;
 
-		private LanguageDialog() {
+		private LanguageDialog()
+		{
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
@@ -44,19 +48,25 @@ namespace Greenshot.Forms {
 			Load += FormLoad;
 			FormClosing += PreventFormClose;
 		}
-		
-		private void PreventFormClose(object sender, FormClosingEventArgs e) {
+
+		private void PreventFormClose(object sender, FormClosingEventArgs e)
+		{
 			if (!_properOkPressed)
 			{
 				e.Cancel = true;
 			}
 		}
 
-		public string SelectedLanguage {
-			get { return comboBoxLanguage.SelectedValue.ToString(); }
+		public string SelectedLanguage
+		{
+			get
+			{
+				return comboBoxLanguage.SelectedValue.ToString();
+			}
 		}
 
-		protected async void FormLoad(object sender, EventArgs e) {
+		protected async void FormLoad(object sender, EventArgs e)
+		{
 			// Initialize the Language ComboBox
 			comboBoxLanguage.DisplayMember = "Value";
 			comboBoxLanguage.ValueMember = "Key";
@@ -65,10 +75,13 @@ namespace Greenshot.Forms {
 			// See: http://www.codeproject.com/KB/database/scomlistcontrolbinding.aspx?fid=111644
 			comboBoxLanguage.DataSource = LanguageLoader.Current.AvailableLanguages.ToList();
 
-			if (LanguageLoader.Current.CurrentLanguage != null) {
+			if (LanguageLoader.Current.CurrentLanguage != null)
+			{
 				LOG.DebugFormat("Selecting {0}", LanguageLoader.Current.CurrentLanguage);
 				comboBoxLanguage.SelectedValue = LanguageLoader.Current.CurrentLanguage;
-			} else {
+			}
+			else
+			{
 				comboBoxLanguage.SelectedValue = Thread.CurrentThread.CurrentUICulture.Name;
 			}
 
@@ -77,22 +90,25 @@ namespace Greenshot.Forms {
 			if (LanguageLoader.Current.AvailableLanguages.Count == 1)
 			{
 				var key = LanguageLoader.Current.AvailableLanguages.Keys.First();
-                comboBoxLanguage.SelectedValue = key;
+				comboBoxLanguage.SelectedValue = key;
 				await LanguageLoader.Current.ChangeLanguage(key);
 				_properOkPressed = true;
 				Close();
 			}
 		}
 
-		async void BtnOKClick(object sender, EventArgs e) {
+		private async void BtnOKClick(object sender, EventArgs e)
+		{
 			_properOkPressed = true;
 			// Fix for Bug #3431100 
 			await LanguageLoader.Current.ChangeLanguage(SelectedLanguage);
 			Close();
 		}
-		
-		public static LanguageDialog GetInstance() {
-			if(_uniqueInstance == null) {
+
+		public static LanguageDialog GetInstance()
+		{
+			if (_uniqueInstance == null)
+			{
 				_uniqueInstance = new LanguageDialog();
 			}
 			return _uniqueInstance;

@@ -30,64 +30,75 @@ namespace GreenshotPhotobucketPlugin
 	/// Description of IPhotobucketConfiguration.
 	/// </summary>
 	[IniSection("Photobucket"), Description("Greenshot Photobucket Plugin configuration")]
-	public interface IPhotobucketConfiguration : IIniSection<IPhotobucketConfiguration> {
+	public interface IPhotobucketConfiguration : IIniSection<IPhotobucketConfiguration>
+	{
 		[Description("What file type to use for uploading"), DefaultValue(OutputFormat.png)]
-		OutputFormat UploadFormat {
+		OutputFormat UploadFormat
+		{
 			get;
 			set;
 		}
 
 		[Description("JPEG file save quality in %."), DefaultValue(80)]
-		int UploadJpegQuality {
+		int UploadJpegQuality
+		{
 			get;
 			set;
 		}
 
 		[Description("Reduce color amount of the uploaded image to 256"), DefaultValue(false)]
-		bool UploadReduceColors {
+		bool UploadReduceColors
+		{
 			get;
 			set;
 		}
 
 		[Description("Use pagelink instead of direct link on the clipboard"), DefaultValue(false)]
-		bool UsePageLink {
+		bool UsePageLink
+		{
 			get;
 			set;
 		}
 
 		[Description("Place upload link on the clipboard"), DefaultValue(true)]
-		bool AfterUploadLinkToClipBoard {
+		bool AfterUploadLinkToClipBoard
+		{
 			get;
 			set;
 		}
 
 		[Description("The Photobucket token"), TypeConverter(typeof (StringEncryptionTypeConverter))]
-		string Token {
+		string Token
+		{
 			get;
 			set;
 		}
 
 		[Description("The Photobucket token secret"), TypeConverter(typeof (StringEncryptionTypeConverter))]
-		string TokenSecret {
+		string TokenSecret
+		{
 			get;
 			set;
 		}
 
 		[Description("The Photobucket api subdomain"), TypeConverter(typeof (StringEncryptionTypeConverter))]
-		string SubDomain {
+		string SubDomain
+		{
 			get;
 			set;
 		}
 
 		[Description("The Photobucket api username")]
-		string Username {
+		string Username
+		{
 			get;
 			set;
 		}
 
 
 		[IniPropertyBehavior(Read = false, Write = false)]
-		int Credits {
+		int Credits
+		{
 			get;
 			set;
 		}
@@ -111,6 +122,5 @@ namespace GreenshotPhotobucketPlugin
 			get;
 			set;
 		}
-
 	}
 }

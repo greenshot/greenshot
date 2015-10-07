@@ -1,23 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <language>
 	<resources prefix="Core">
 		<resource name="about_bugs">Napake prosimo javite na</resource>
 		<resource name="about_donations">Če vam je Greenshot všeč nas prosim podprite:</resource>
 		<resource name="about_host">Greenshot gostuje pri sourceforge.net</resource>
 		<resource name="about_icons">Ikone: Yusuke Kamiyamane's Fugue icon set (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Avtorske pravice (C) 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot absolutno ne ponuja NOBENE GARANCIJE. Program je brezplačen in ga lahko distribuirate pod določenimi pogoji.
-Licenčne podrobnosti GNU General Public License:</resource>
+		<resource name="about_license">
+			Avtorske pravice (C) 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
+			Greenshot absolutno ne ponuja NOBENE GARANCIJE. Program je brezplačen in ga lahko distribuirate pod določenimi pogoji.
+			Licenčne podrobnosti GNU General Public License:
+		</resource>
 		<resource name="about_title">O Greenshot-u</resource>
 		<resource name="application_title">Greenshot - revolucija zajema zaslonskih slik</resource>
 		<resource name="bugreport_cancel">Zapri</resource>
-		<resource name="bugreport_info">Oprostite, program je izvedel nepričakovano napako.
+		<resource name="bugreport_info">
+			Oprostite, program je izvedel nepričakovano napako.
 
-Dobra novica je, da nam lahko pomagate pri odpravi te napake.
-Prosimo obiščite spodnji URL, prijavite napako (create bug) in prilepite vsebino opisa napake.
+			Dobra novica je, da nam lahko pomagate pri odpravi te napake.
+			Prosimo obiščite spodnji URL, prijavite napako (create bug) in prilepite vsebino opisa napake.
 
-Prosimo dopišite še razumljiv opis kako ste prišli do težave, da jo bomo lahko ponovili.
-Pred objavo preverite tudi ali je napaka že prijavlja s strani kakšnega drugega uporabnika. Hvala :)</resource>
+			Prosimo dopišite še razumljiv opis kako ste prišli do težave, da jo bomo lahko ponovili.
+			Pred objavo preverite tudi ali je napaka že prijavlja s strani kakšnega drugega uporabnika. Hvala :)
+		</resource>
 		<resource name="bugreport_title">Napaka</resource>
 		<resource name="CANCEL">Prekliči</resource>
 		<resource name="clipboard_error">Prišlo je do nepričakovane napake pri dostopu do odložišča.</resource>
@@ -143,8 +148,10 @@ Pred objavo preverite tudi ali je napaka že prijavlja s strani kakšnega drugeg
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook kot text</resource>
 		<resource name="error">Napaka</resource>
 		<resource name="error_multipleinstances">Greenshot že teče!</resource>
-		<resource name="error_nowriteaccess">Ne morem shraniti v  {0}.
-Prosim preverite pravice pisanja v ta direktorij.</resource>
+		<resource name="error_nowriteaccess">
+			Ne morem shraniti v  {0}.
+			Prosim preverite pravice pisanja v ta direktorij.
+		</resource>
 		<resource name="error_openfile">Datoteka "{0}" ne more biti odprta.</resource>
 		<resource name="error_openlink">Ne morem odpreti povezave '{0}'.</resource>
 		<resource name="error_save">Ne morem shranitit zajema slike, prosim najdite primerno lokacijo.</resource>
@@ -235,9 +242,11 @@ Prosim preverite pravice pisanja v ta direktorij.</resource>
 		<resource name="update_found">Na voljo je nova verzija Greenshot-a! Ali želite prenesti Greenshot {0}?</resource>
 		<resource name="wait_ie_capture">Prosimo počakajte - zajema se Internet Explorer...</resource>
 		<resource name="warning">Opozorilo</resource>
-		<resource name="warning_hotkeys">Bližnjica "{0}" ne more biti registrirana. Težava je verjetno v tem, da nek drug program uporablja isto bližnjico ! Nastavite si drugo bližnjično tipko ali deaktivirajte bližnjice za ta program.
+		<resource name="warning_hotkeys">
+			Bližnjica "{0}" ne more biti registrirana. Težava je verjetno v tem, da nek drug program uporablja isto bližnjico ! Nastavite si drugo bližnjično tipko ali deaktivirajte bližnjice za ta program.
 
-Vse funkcije Greenshota še vedno delujejo preko ikone za hitri zagon.</resource>
+			Vse funkcije Greenshota še vedno delujejo preko ikone za hitri zagon.
+		</resource>
 		<resource name="WindowCaptureMode.Aero">Uporabi lastne barve</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Ohrani prosojnost</resource>
 		<resource name="WindowCaptureMode.Auto">Samodejno</resource>

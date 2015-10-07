@@ -22,10 +22,13 @@
 using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace GreenshotPlugin.Controls {
-	public class GreenshotToolStripButton : ToolStripButton, IGreenshotLanguageBindable {
+namespace GreenshotPlugin.Controls
+{
+	public class GreenshotToolStripButton : ToolStripButton, IGreenshotLanguageBindable
+	{
 		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
-		public string LanguageKey {
+		public string LanguageKey
+		{
 			get;
 			set;
 		}

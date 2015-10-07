@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Xml;
 
@@ -26,8 +27,9 @@ namespace GreenshotPhotobucketPlugin
 	/// <summary>
 	/// Description of PhotobucketInfo.
 	/// </summary>
-	public class PhotobucketInfo {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PhotobucketInfo));
+	public class PhotobucketInfo
+	{
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (PhotobucketInfo));
 
 		public string Original
 		{
@@ -52,14 +54,16 @@ namespace GreenshotPhotobucketPlugin
 		/// </summary>
 		/// <param name="response">XML</param>
 		/// <returns>PhotobucketInfo object</returns>
-		public static PhotobucketInfo FromUploadResponse(string response) {
+		public static PhotobucketInfo FromUploadResponse(string response)
+		{
 			LOG.Debug(response);
 			var photobucketInfo = new PhotobucketInfo();
-			try {
+			try
+			{
 				var doc = new XmlDocument();
 				doc.LoadXml(response);
 				var nodes = doc.GetElementsByTagName("url");
-				if(nodes.Count > 0)
+				if (nodes.Count > 0)
 				{
 					var xmlNode = nodes.Item(0);
 					if (xmlNode != null)
@@ -68,7 +72,7 @@ namespace GreenshotPhotobucketPlugin
 					}
 				}
 				nodes = doc.GetElementsByTagName("browseurl");
-				if(nodes.Count > 0)
+				if (nodes.Count > 0)
 				{
 					var xmlNode = nodes.Item(0);
 					if (xmlNode != null)
@@ -77,7 +81,7 @@ namespace GreenshotPhotobucketPlugin
 					}
 				}
 				nodes = doc.GetElementsByTagName("thumb");
-				if(nodes.Count > 0)
+				if (nodes.Count > 0)
 				{
 					var xmlNode = nodes.Item(0);
 					if (xmlNode != null)
@@ -85,7 +89,9 @@ namespace GreenshotPhotobucketPlugin
 						photobucketInfo.Thumbnail = xmlNode.InnerText;
 					}
 				}
-			} catch(Exception e) {
+			}
+			catch (Exception e)
+			{
 				LOG.ErrorFormat("Could not parse Photobucket response due to error {0}, response was: {1}", e.Message, response);
 			}
 			return photobucketInfo;

@@ -18,35 +18,42 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-
 using Greenshot.Plugin.Drawing;
 using System.Drawing.Drawing2D;
 using log4net;
 
-namespace GreenshotEditorPlugin.Drawing {
+namespace GreenshotEditorPlugin.Drawing
+{
 	/// <summary>
 	/// Description of CursorContainer.
 	/// </summary>
-	[Serializable] 
-	public class CursorContainer : DrawableContainer, ICursorContainer {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(CursorContainer));
+	[Serializable]
+	public class CursorContainer : DrawableContainer, ICursorContainer
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (CursorContainer));
 
 		private Cursor _cursor;
 
-		public CursorContainer(Surface parent) : base(parent) {
+		public CursorContainer(Surface parent) : base(parent)
+		{
 		}
 
-		public CursorContainer(Surface parent, string filename) : base(parent) {
+		public CursorContainer(Surface parent, string filename) : base(parent)
+		{
 			Load(filename);
 		}
 
-		public Cursor Cursor {
-			set {
-				if (_cursor != null) {
+		public Cursor Cursor
+		{
+			set
+			{
+				if (_cursor != null)
+				{
 					_cursor.Dispose();
 				}
 				// Clone cursor (is this correct??)
@@ -54,7 +61,10 @@ namespace GreenshotEditorPlugin.Drawing {
 				Width = value.Size.Width;
 				Height = value.Size.Height;
 			}
-			get { return _cursor; }
+			get
+			{
+				return _cursor;
+			}
 		}
 
 		/// <summary>
@@ -62,9 +72,12 @@ namespace GreenshotEditorPlugin.Drawing {
 		/// When disposing==true all non-managed resources should be freed too!
 		/// </summary>
 		/// <param name="disposing"></param>
-		protected override void Dispose(bool disposing) {
-			if (disposing) {
-				if (_cursor != null) {
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				if (_cursor != null)
+				{
 					_cursor.Dispose();
 				}
 			}
@@ -72,18 +85,23 @@ namespace GreenshotEditorPlugin.Drawing {
 			base.Dispose(disposing);
 		}
 
-		public void Load(string filename) {
-			if (!File.Exists(filename)) {
+		public void Load(string filename)
+		{
+			if (!File.Exists(filename))
+			{
 				return;
 			}
-			using (Cursor fileCursor = new Cursor(filename)) {
+			using (Cursor fileCursor = new Cursor(filename))
+			{
 				Cursor = fileCursor;
 				LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
 			}
 		}
 
-		public override void Draw(Graphics graphics, RenderMode rm) {
-			if (_cursor == null) {
+		public override void Draw(Graphics graphics, RenderMode rm)
+		{
+			if (_cursor == null)
+			{
 				return;
 			}
 			graphics.SmoothingMode = SmoothingMode.HighQuality;
@@ -93,8 +111,10 @@ namespace GreenshotEditorPlugin.Drawing {
 			_cursor.DrawStretched(graphics, Bounds);
 		}
 
-		public override Size DefaultSize {
-			get {
+		public override Size DefaultSize
+		{
+			get
+			{
 				return _cursor.Size;
 			}
 		}

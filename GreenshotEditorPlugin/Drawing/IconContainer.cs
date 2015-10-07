@@ -26,42 +26,56 @@ using Greenshot.Plugin.Drawing;
 using System.Drawing.Drawing2D;
 using log4net;
 
-namespace GreenshotEditorPlugin.Drawing {
+namespace GreenshotEditorPlugin.Drawing
+{
 	/// <summary>
 	/// Description of IconContainer.
 	/// </summary>
-	[Serializable] 
-	public class IconContainer : DrawableContainer, IIconContainer {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(IconContainer));
+	[Serializable]
+	public class IconContainer : DrawableContainer, IIconContainer
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (IconContainer));
 
 		private Icon _icon;
 
-		public IconContainer(Surface parent) : base(parent) {
+		public IconContainer(Surface parent) : base(parent)
+		{
 		}
 
-		public IconContainer(Surface parent, string filename) : base(parent) {
+		public IconContainer(Surface parent, string filename) : base(parent)
+		{
 			Load(filename);
 		}
 
-		public Icon Icon {
-			set {
-				if (_icon != null) {
+		public Icon Icon
+		{
+			set
+			{
+				if (_icon != null)
+				{
 					_icon.Dispose();
 				}
-				_icon = (Icon)value.Clone();
+				_icon = (Icon) value.Clone();
 				Width = value.Width;
 				Height = value.Height;
 			}
-			get { return _icon; }
+			get
+			{
+				return _icon;
+			}
 		}
 
 		/**
 		 * This Dispose is called from the Dispose and the Destructor.
 		 * When disposing==true all non-managed resources should be freed too!
 		 */
-		protected override void Dispose(bool disposing) {
-			if (disposing) {
-				if (_icon != null) {
+
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				if (_icon != null)
+				{
 					_icon.Dispose();
 				}
 			}
@@ -69,17 +83,22 @@ namespace GreenshotEditorPlugin.Drawing {
 			base.Dispose(disposing);
 		}
 
-		public void Load(string filename) {
-			if (File.Exists(filename)) {
-				using (Icon fileIcon = new Icon(filename)) {
+		public void Load(string filename)
+		{
+			if (File.Exists(filename))
+			{
+				using (Icon fileIcon = new Icon(filename))
+				{
 					Icon = fileIcon;
 					LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
 				}
 			}
 		}
-		
-		public override void Draw(Graphics graphics, RenderMode rm) {
-			if (_icon != null) {
+
+		public override void Draw(Graphics graphics, RenderMode rm)
+		{
+			if (_icon != null)
+			{
 				GraphicsState state = graphics.Save();
 				graphics.SmoothingMode = SmoothingMode.HighQuality;
 				graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
@@ -90,14 +109,18 @@ namespace GreenshotEditorPlugin.Drawing {
 			}
 		}
 
-		public override bool HasDefaultSize {
-			get {
+		public override bool HasDefaultSize
+		{
+			get
+			{
 				return true;
 			}
 		}
 
-		public override Size DefaultSize {
-			get {
+		public override Size DefaultSize
+		{
+			get
+			{
 				return _icon.Size;
 			}
 		}

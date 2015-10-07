@@ -28,12 +28,11 @@ namespace GreenshotPlugin.Extensions
 	{
 		public static SizeF Scale(this SizeF currentSize, SizeF targetSize, bool crop)
 		{
-			float wFactor = targetSize.Width / currentSize.Width;
-			float hFactor = targetSize.Height / currentSize.Height;
+			float wFactor = targetSize.Width/currentSize.Width;
+			float hFactor = targetSize.Height/currentSize.Height;
 
 			float factor = crop ? Math.Max(wFactor, hFactor) : Math.Min(wFactor, hFactor);
-			return new SizeF(currentSize.Width * factor, currentSize.Height * factor);
+			return new SizeF(currentSize.Width*factor, currentSize.Height*factor);
 		}
-
 	}
 }

@@ -23,7 +23,6 @@ using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using Greenshot.Plugin;
 using GreenshotPlugin.Extensions;
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -36,8 +35,9 @@ namespace GreenshotJiraPlugin
 	/// <summary>
 	/// This is the JiraPlugin base code
 	/// </summary>
-	public class JiraPlugin : IGreenshotPlugin {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraPlugin));
+	public class JiraPlugin : IGreenshotPlugin
+	{
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (JiraPlugin));
 		private PluginAttribute jiraPluginAttributes;
 		private IGreenshotHost _host;
 		private IJiraConfiguration config = null;
@@ -48,17 +48,21 @@ namespace GreenshotJiraPlugin
 		/// <summary>
 		/// Get the JiraMonitor
 		/// </summary>
-		public JiraMonitor JiraMonitor {
-			get {
+		public JiraMonitor JiraMonitor
+		{
+			get
+			{
 				return _jiraMonitor;
 			}
 		}
 
-		public IEnumerable<IDestination> Destinations() {
+		public IEnumerable<IDestination> Destinations()
+		{
 			yield return new JiraDestination(this);
 		}
 
-		public IEnumerable<IProcessor> Processors() {
+		public IEnumerable<IProcessor> Processors()
+		{
 			yield break;
 		}
 
@@ -70,14 +74,15 @@ namespace GreenshotJiraPlugin
 		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
 		/// <param name="pluginAttribute">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken()) {
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken())
+		{
 			// Register / get the jira configuration
 			config = await IniConfig.Current.RegisterAndGetAsync<IJiraConfiguration>();
 			language = await LanguageLoader.Current.RegisterAndGetAsync<IJiraLanguage>();
 			_host = pluginHost;
 			jiraPluginAttributes = myAttribute;
 
-			resources = new ComponentResourceManager(typeof(JiraPlugin));
+			resources = new ComponentResourceManager(typeof (JiraPlugin));
 
 			// Make sure the InitializeMonitor is called after the message loop is initialized!
 			_host.GreenshotForm.AsyncInvoke(() => InitializeMonitor());
@@ -98,14 +103,16 @@ namespace GreenshotJiraPlugin
 			}
 		}
 
-		public void Shutdown() {
+		public void Shutdown()
+		{
 			LOG.Debug("Jira Plugin shutdown.");
 		}
 
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
-		public void Configure() {
+		public void Configure()
+		{
 			if (ShowConfigDialog())
 			{
 				InitializeMonitor();
@@ -120,9 +127,7 @@ namespace GreenshotJiraPlugin
 		{
 			var before = new
 			{
-				RestUrl = config.RestUrl,
-				Password = config.Password,
-				Username = config.Username
+				RestUrl = config.RestUrl, Password = config.Password, Username = config.Username
 			};
 
 			var settingsForm = new SettingsForm(config);
@@ -131,9 +136,7 @@ namespace GreenshotJiraPlugin
 			{
 				var after = new
 				{
-					RestUrl = config.RestUrl,
-					Password = config.Password,
-					Username = config.Username
+					RestUrl = config.RestUrl, Password = config.Password, Username = config.Username
 				};
 				return !before.Equals(after);
 			}
@@ -156,18 +159,19 @@ namespace GreenshotJiraPlugin
 		}
 
 
-
 		/// <summary>
 		/// This will be called when Greenshot is shutting down
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		public void Closing(object sender, FormClosingEventArgs e) {
+		public void Closing(object sender, FormClosingEventArgs e)
+		{
 			LOG.Debug("Application closing, calling logout of jira!");
 			Shutdown();
 		}
 
 		#region IDisposable Support
+
 		private bool disposedValue = false; // To detect redundant calls
 
 		protected virtual void Dispose(bool disposing)
@@ -201,7 +205,7 @@ namespace GreenshotJiraPlugin
 			// TODO: uncomment the following line if the finalizer is overridden above.
 			// GC.SuppressFinalize(this);
 		}
-		#endregion
 
+		#endregion
 	}
 }

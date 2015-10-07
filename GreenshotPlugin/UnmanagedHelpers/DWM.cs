@@ -18,16 +18,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
 using System.Drawing;
 
-namespace GreenshotPlugin.UnmanagedHelpers {
-
+namespace GreenshotPlugin.UnmanagedHelpers
+{
 	// See: http://msdn.microsoft.com/en-us/library/aa969502(v=vs.85).aspx
 	[StructLayout(LayoutKind.Sequential)]
-	public struct DWM_THUMBNAIL_PROPERTIES {
+	public struct DWM_THUMBNAIL_PROPERTIES
+	{
 		// A bitwise combination of DWM thumbnail constant values that indicates which members of this structure are set.
 		public int dwFlags;
 		// The area in the destination window where the thumbnail will be rendered.
@@ -40,36 +42,52 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public bool fVisible;
 		// TRUE to use only the thumbnail source's client area; otherwise, FALSE. The default is FALSE.
 		public bool fSourceClientAreaOnly;
-		public RECT Destination {
-			set {
+
+		public RECT Destination
+		{
+			set
+			{
 				dwFlags |= DWM_TNP_RECTDESTINATION;
 				rcDestination = value;
 			}
 		}
-		public RECT Source {
-			set {
+
+		public RECT Source
+		{
+			set
+			{
 				dwFlags |= DWM_TNP_RECTSOURCE;
 				rcSource = value;
 			}
 		}
-		public byte Opacity {
-			set {
+
+		public byte Opacity
+		{
+			set
+			{
 				dwFlags |= DWM_TNP_OPACITY;
 				opacity = value;
 			}
 		}
-		public bool Visible {
-			set {
+
+		public bool Visible
+		{
+			set
+			{
 				dwFlags |= DWM_TNP_VISIBLE;
 				fVisible = value;
 			}
 		}
-		public bool SourceClientAreaOnly {
-			set {
+
+		public bool SourceClientAreaOnly
+		{
+			set
+			{
 				dwFlags |= DWM_TNP_SOURCECLIENTAREAONLY;
 				fSourceClientAreaOnly = value;
 			}
 		}
+
 		// A value for the rcDestination member has been specified.
 		public const int DWM_TNP_RECTDESTINATION = 0x00000001;
 		// A value for the rcSource member has been specified.
@@ -81,45 +99,57 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		// A value for the fSourceClientAreaOnly member has been specified.
 		public const int DWM_TNP_SOURCECLIENTAREAONLY = 0x00000010;
 	}
-	
+
 	[StructLayout(LayoutKind.Sequential)]
-	public struct DWM_BLURBEHIND {
+	public struct DWM_BLURBEHIND
+	{
 		public DWM_BB dwFlags;
 		public bool fEnable;
 		public IntPtr hRgnBlur;
 		public bool fTransitionOnMaximized;
 	}
+
 	/// <summary>
 	/// Description of DWM.
 	/// </summary>
-	public class DWM {
+	public class DWM
+	{
 		public static readonly uint DWM_EC_DISABLECOMPOSITION = 0;
 		public static readonly uint DWM_EC_ENABLECOMPOSITION = 1;
 
 		// DWM
 		[DllImport("dwmapi", SetLastError = true)]
 		public static extern int DwmRegisterThumbnail(IntPtr dest, IntPtr src, out IntPtr thumb);
+
 		[DllImport("dwmapi", SetLastError = true)]
 		public static extern int DwmUnregisterThumbnail(IntPtr thumb);
+
 		[DllImport("dwmapi", SetLastError = true)]
 		public static extern int DwmQueryThumbnailSourceSize(IntPtr thumb, out SIZE size);
+
 		[DllImport("dwmapi", SetLastError = true)]
 		public static extern int DwmUpdateThumbnailProperties(IntPtr hThumb, ref DWM_THUMBNAIL_PROPERTIES props);
 
 		// Deprecated as of Windows 8 Release Preview
 		[DllImport("dwmapi", SetLastError = true)]
 		public static extern int DwmIsCompositionEnabled(out bool enabled);
+
 		[DllImport("dwmapi", SetLastError = true)]
 		public static extern int DwmGetWindowAttribute(IntPtr hwnd, int dwAttribute, out RECT lpRect, int size);
-		[DllImport("dwmapi", SetLastError = true)] 
+
+		[DllImport("dwmapi", SetLastError = true)]
 		public static extern int DwmEnableBlurBehindWindow(IntPtr hwnd, ref DWM_BLURBEHIND blurBehind);
+
 		[DllImport("dwmapi", SetLastError = true)]
 		public static extern uint DwmEnableComposition(uint uCompositionAction);
 
-		public static void EnableComposition() {
+		public static void EnableComposition()
+		{
 			DwmEnableComposition(DWM_EC_ENABLECOMPOSITION);
 		}
-		public static void DisableComposition() {
+
+		public static void DisableComposition()
+		{
 			DwmEnableComposition(DWM_EC_DISABLECOMPOSITION);
 		}
 
@@ -130,14 +160,17 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// Helper method for an easy DWM check
 		/// </summary>
 		/// <returns>bool true if DWM is available AND active</returns>
-		public static bool isDWMEnabled() {
+		public static bool isDWMEnabled()
+		{
 			// According to: http://technet.microsoft.com/en-us/subscriptions/aa969538%28v=vs.85%29.aspx
 			// And: http://msdn.microsoft.com/en-us/library/windows/desktop/aa969510%28v=vs.85%29.aspx
 			// DMW is always enabled on Windows 8! So return true and save a check! ;-)
-			if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor == 2) {
+			if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor == 2)
+			{
 				return true;
 			}
-			if (Environment.OSVersion.Version.Major >= 6) {
+			if (Environment.OSVersion.Version.Major >= 6)
+			{
 				bool dwmEnabled;
 				DwmIsCompositionEnabled(out dwmEnabled);
 				return dwmEnabled;
@@ -145,13 +178,18 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			return false;
 		}
 
-		public static Color ColorizationColor {
-			get {
-				using (RegistryKey key = Registry.CurrentUser.OpenSubKey(COLORIZATION_COLOR_KEY, false)) {
-					if (key != null) {
+		public static Color ColorizationColor
+		{
+			get
+			{
+				using (RegistryKey key = Registry.CurrentUser.OpenSubKey(COLORIZATION_COLOR_KEY, false))
+				{
+					if (key != null)
+					{
 						object dwordValue = key.GetValue("ColorizationColor");
-						if (dwordValue != null) {
-							return Color.FromArgb((Int32)dwordValue);
+						if (dwordValue != null)
+						{
+							return Color.FromArgb((Int32) dwordValue);
 						}
 					}
 				}

@@ -30,12 +30,13 @@ namespace GreenshotPlugin.Core
 	/// The need for this is documented here: http://stackoverflow.com/a/32021586
 	/// Unfortunately there is an error in the code example, should use HWnd instead of LParam for the handle.
 	/// </summary>
-	public class WmInputLangChangeRequestFilter: IMessageFilter
+	public class WmInputLangChangeRequestFilter : IMessageFilter
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(WmInputLangChangeRequestFilter));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (WmInputLangChangeRequestFilter));
+
 		public bool PreFilterMessage(ref Message m)
 		{
-			if (m.Msg == (int)WindowsMessages.WM_INPUTLANGCHANGEREQUEST || m.Msg == (int)WindowsMessages.WM_INPUTLANGCHANGE)
+			if (m.Msg == (int) WindowsMessages.WM_INPUTLANGCHANGEREQUEST || m.Msg == (int) WindowsMessages.WM_INPUTLANGCHANGE)
 			{
 				return m.LParam.ToInt64() > 0x7FFFFFFF;
 			}

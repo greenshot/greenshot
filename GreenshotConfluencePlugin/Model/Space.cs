@@ -22,18 +22,22 @@
 using System;
 using System.Text.RegularExpressions;
 
-namespace GreenshotConfluencePlugin.Model {
+namespace GreenshotConfluencePlugin.Model
+{
 	/// <summary>
 	/// Simple container for the Space
 	/// </summary>
-	public class Space {
+	public class Space
+	{
 		private static readonly Regex ContentIdRegEx = new Regex(@".*/(?<contentid>[0-9]+)$", RegexOptions.Compiled);
+
 		/// <summary>
 		/// Create a Space object from the result of the Space-Rest API call
 		/// </summary>
 		/// <param name="spaceJson"></param>
 		/// <returns>Filled Space instance</returns>
-		public static Space CreateFrom(dynamic spaceJson) {
+		public static Space CreateFrom(dynamic spaceJson)
+		{
 			return new Space().FillFrom(spaceJson);
 		}
 
@@ -42,32 +46,43 @@ namespace GreenshotConfluencePlugin.Model {
 		/// </summary>
 		/// <param name="spaceJson">dynamic with Json</param>
 		/// <returns>Space (this)</returns>
-		public Space FillFrom(dynamic spaceJson) {
+		public Space FillFrom(dynamic spaceJson)
+		{
 			SpaceId = Convert.ToInt64(spaceJson.id);
 			SpaceKey = spaceJson.key;
 			Name = spaceJson.name;
-			ContentId = long.Parse(ContentIdRegEx.Match((string)spaceJson._expandable.homepage).Groups["contentid"].Value);
+			ContentId = long.Parse(ContentIdRegEx.Match((string) spaceJson._expandable.homepage).Groups["contentid"].Value);
 			return this;
 		}
 
-		public long SpaceId {
+		public long SpaceId
+		{
 			get;
 			set;
 		}
-		public string SpaceKey {
+
+		public string SpaceKey
+		{
 			get;
 			set;
 		}
-		public string Name {
+
+		public string Name
+		{
 			get;
 			set;
 		}
-		public long ContentId {
+
+		public long ContentId
+		{
 			get;
 			set;
 		}
-		public bool IsPersonal {
-			get {
+
+		public bool IsPersonal
+		{
+			get
+			{
 				return SpaceKey.StartsWith("~");
 			}
 		}

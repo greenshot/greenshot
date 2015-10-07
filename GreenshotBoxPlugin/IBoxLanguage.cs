@@ -31,34 +31,42 @@ namespace GreenshotBoxPlugin
 		{
 			get;
 		}
+
 		string SettingsTitle
 		{
 			get;
 		}
+
 		string LabelUploadFormat
 		{
 			get;
 		}
+
 		string UploadSuccess
 		{
 			get;
 		}
+
 		string UploadFailure
 		{
 			get;
 		}
+
 		string CommunicationWait
 		{
 			get;
 		}
+
 		string Configure
 		{
 			get;
 		}
+
 		string LabelAfterUpload
 		{
 			get;
 		}
+
 		string LabelAfterUploadLinkToClipBoard
 		{
 			get;

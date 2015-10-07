@@ -41,7 +41,7 @@ namespace Greenshot.Windows
 	/// </summary>
 	public partial class AboutWindow : Window
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(AboutWindow));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (AboutWindow));
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		private static readonly object lockObject = new Object();
 		private static AboutWindow _aboutWindow;
@@ -71,7 +71,7 @@ namespace Greenshot.Windows
 			SetTranslations();
 		}
 
-		void SetTranslations(object sender = null, PropertyChangedEventArgs args = null)
+		private void SetTranslations(object sender = null, PropertyChangedEventArgs args = null)
 		{
 			Title = language.AboutTitle;
 			AboutBugs.Text = language.AboutBugs;
@@ -82,7 +82,6 @@ namespace Greenshot.Windows
 			{
 				AboutTranslation.Text = language.AboutTranslation;
 			}
-
 		}
 
 		/// <summary>
@@ -90,7 +89,7 @@ namespace Greenshot.Windows
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void Window_Closing(object sender, CancelEventArgs e)
+		private void Window_Closing(object sender, CancelEventArgs e)
 		{
 			_aboutWindow = null;
 			language.PropertyChanged -= SetTranslations;
@@ -150,7 +149,8 @@ namespace Greenshot.Windows
 			}
 		}
 
-		private void Close_Click(object sender, RoutedEventArgs e) {
+		private void Close_Click(object sender, RoutedEventArgs e)
+		{
 			Close();
 		}
 	}

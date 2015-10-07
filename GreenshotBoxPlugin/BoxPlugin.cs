@@ -38,7 +38,7 @@ namespace GreenshotBoxPlugin
 	/// </summary>
 	public class BoxPlugin : IGreenshotPlugin
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BoxPlugin));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (BoxPlugin));
 		private static IBoxConfiguration _config;
 		private static IBoxLanguage _language;
 		private ComponentResourceManager _resources;
@@ -79,16 +79,16 @@ namespace GreenshotBoxPlugin
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="myAttribute">My own attributes</param>
 		/// <param name="token"></param>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken()) {
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken())
+		{
 			// Register / get the box configuration
 			_config = await IniConfig.Current.RegisterAndGetAsync<IBoxConfiguration>(token);
 			_language = await LanguageLoader.Current.RegisterAndGetAsync<IBoxLanguage>(token);
-			_resources = new ComponentResourceManager(typeof(BoxPlugin));
+			_resources = new ComponentResourceManager(typeof (BoxPlugin));
 
 			_itemPlugInConfig = new ToolStripMenuItem
 			{
-				Image = (Image)_resources.GetObject("Box"),
-				Text = _language.Configure
+				Image = (Image) _resources.GetObject("Box"), Text = _language.Configure
 			};
 			_itemPlugInConfig.Click += ConfigMenuClick;
 
@@ -137,9 +137,11 @@ namespace GreenshotBoxPlugin
 		/// A form for token
 		/// </summary>
 		/// <returns>bool true if OK was pressed, false if cancel</returns>
-		private bool ShowConfigDialog() {
+		private bool ShowConfigDialog()
+		{
 			DialogResult result = new SettingsForm(_config).ShowDialog();
-			if (result == DialogResult.OK) {
+			if (result == DialogResult.OK)
+			{
 				return true;
 			}
 			return false;

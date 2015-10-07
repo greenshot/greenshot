@@ -48,44 +48,63 @@ namespace GreenshotEditorPlugin.Forms
 	/// <summary>
 	/// Description of ImageEditorForm.
 	/// </summary>
-	public partial class ImageEditorForm : BaseForm, IImageEditor {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(ImageEditorForm));
+	public partial class ImageEditorForm : BaseForm, IImageEditor
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (ImageEditorForm));
 		private static readonly IEditorConfiguration editorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
 		private static readonly IEditorLanguage editorLanguage = LanguageLoader.Current.Get<IGreenshotLanguage>();
-		private static readonly List<string> ignoreDestinations = new List<string>() { BuildInDestinationEnum.Picker.ToString(), BuildInDestinationEnum.Editor.ToString() };
+
+		private static readonly List<string> ignoreDestinations = new List<string>()
+		{
+			BuildInDestinationEnum.Picker.ToString(), BuildInDestinationEnum.Editor.ToString()
+		};
+
 		private static readonly List<IImageEditor> editorList = new List<IImageEditor>();
 
 		private Surface _surface;
 		private GreenshotToolStripButton[] _toolbarButtons;
-		
-		private static readonly string[] SupportedClipboardFormats = {typeof(string).FullName, "Text", typeof(DrawableContainerList).FullName};
 
-        private readonly List<BidirectionalBinding> _bindings = new List<BidirectionalBinding>();
-        private bool _originalBoldCheckState;
+		private static readonly string[] SupportedClipboardFormats =
+		{
+			typeof (string).FullName, "Text", typeof (DrawableContainerList).FullName
+		};
+
+		private readonly List<BidirectionalBinding> _bindings = new List<BidirectionalBinding>();
+		private bool _originalBoldCheckState;
 		private bool _originalItalicCheckState;
-		
+
 		// whether part of the editor controls are disabled depending on selected item(s)
 		private bool _controlsDisabledDueToConfirmable;
 
 		/// <summary>
 		/// An Implementation for the IImageEditor, this way Plugins have access to the HWND handles wich can be used with Win32 API calls.
 		/// </summary>
-		public IWin32Window WindowHandle {
-			get { return this; }
+		public IWin32Window WindowHandle
+		{
+			get
+			{
+				return this;
+			}
 		}
 
-		public static List<IImageEditor> Editors {
-			get {
-				try {
+		public static List<IImageEditor> Editors
+		{
+			get
+			{
+				try
+				{
 					editorList.Sort((e1, e2) => String.Compare(e1.Surface.CaptureDetails.Title, e2.Surface.CaptureDetails.Title, StringComparison.Ordinal));
-				} catch(Exception ex) {
+				}
+				catch (Exception ex)
+				{
 					LOG.Warn("Sorting of editors failed.", ex);
 				}
 				return editorList;
 			}
 		}
 
-		public ImageEditorForm(ISurface iSurface, bool outputMade) {
+		public ImageEditorForm(ISurface iSurface, bool outputMade)
+		{
 			editorList.Add(this);
 
 			//
@@ -94,22 +113,31 @@ namespace GreenshotEditorPlugin.Forms
 			ManualLanguageApply = true;
 			InitializeComponent();
 
-			Load += (sender, eventArgs) => {
+			Load += (sender, eventArgs) =>
+			{
 				// Create export buttons via dispatcher
-				this.AsyncInvoke(() => {
-					foreach (IDestination destination in DestinationHelper.GetAllDestinations()) {
-						if (destination.Priority <= 2) {
+				this.AsyncInvoke(() =>
+				{
+					foreach (IDestination destination in DestinationHelper.GetAllDestinations())
+					{
+						if (destination.Priority <= 2)
+						{
 							continue;
 						}
-						if (!destination.IsActive) {
+						if (!destination.IsActive)
+						{
 							continue;
 						}
-						if (destination.DisplayIcon == null) {
+						if (destination.DisplayIcon == null)
+						{
 							continue;
 						}
-						try {
+						try
+						{
 							AddDestinationButton(destination);
-						} catch (Exception addingException) {
+						}
+						catch (Exception addingException)
+						{
 							LOG.WarnFormat("Problem adding destination {0}", destination.Designation);
 							LOG.Warn("Exception: ", addingException);
 						}
@@ -147,7 +175,8 @@ namespace GreenshotEditorPlugin.Forms
 		/// Helper for getting the editor placement
 		/// </summary>
 		/// <returns>WindowPlacement</returns>
-		private static WindowPlacement GetEditorPlacement() {
+		private static WindowPlacement GetEditorPlacement()
+		{
 			WindowPlacement placement = WindowPlacement.Default;
 			placement.NormalPosition = new RECT(editorConfiguration.WindowNormalPosition);
 			placement.MaxPosition = new POINT(editorConfiguration.WindowMaxPosition);
@@ -160,7 +189,8 @@ namespace GreenshotEditorPlugin.Forms
 		/// <summary>
 		/// Helper for setting the editor placement
 		/// </summary>
-		public static void SetEditorPlacement(WindowPlacement placement) {
+		public static void SetEditorPlacement(WindowPlacement placement)
+		{
 			editorConfiguration.WindowNormalPosition = placement.NormalPosition.ToRectangle();
 			editorConfiguration.WindowMaxPosition = placement.MaxPosition.ToPoint();
 			editorConfiguration.WindowMinPosition = placement.MinPosition.ToPoint();
@@ -171,8 +201,10 @@ namespace GreenshotEditorPlugin.Forms
 		/// <summary>
 		/// Remove the current surface
 		/// </summary>
-		private void RemoveSurface() {
-			if (_surface != null) {
+		private void RemoveSurface()
+		{
+			if (_surface != null)
+			{
 				surfacePanel.Controls.Remove(_surface as Control);
 				_surface.Dispose();
 				_surface = null;
@@ -183,8 +215,10 @@ namespace GreenshotEditorPlugin.Forms
 		/// Change the surface
 		/// </summary>
 		/// <param name="newSurface"></param>
-		private void SetSurface(ISurface newSurface) {
-			if (Surface != null && Surface.Modified) {
+		private void SetSurface(ISurface newSurface)
+		{
+			if (Surface != null && Surface.Modified)
+			{
 				throw new ApplicationException("Surface modified");
 			}
 
@@ -201,7 +235,8 @@ namespace GreenshotEditorPlugin.Forms
 			var backgroundForTransparency = GreenshotResources.GetImage("Checkerboard.Image");
 			_surface.TransparencyBackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
 
-			_surface.MovingElementChanged += delegate {
+			_surface.MovingElementChanged += delegate
+			{
 				RefreshEditorControls();
 			};
 			_surface.DrawingModeChanged += surface_DrawingModeChanged;
@@ -212,13 +247,15 @@ namespace GreenshotEditorPlugin.Forms
 			BindFieldControls();
 			RefreshEditorControls();
 			// Fix title
-			if (_surface.CaptureDetails != null && _surface.CaptureDetails.Title != null) {
+			if (_surface.CaptureDetails != null && _surface.CaptureDetails.Title != null)
+			{
 				Text = _surface.CaptureDetails.Title + " - " + editorLanguage.EditorTitle;
 			}
 			WindowDetails.ToForeground(Handle);
 		}
 
-		private void UpdateUI() {
+		private void UpdateUI()
+		{
 			// Disable access to the settings, for feature #3521446
 			preferencesToolStripMenuItem.Visible = !coreConfiguration.DisableSettings;
 			toolStripSeparator12.Visible = !coreConfiguration.DisableSettings;
@@ -234,15 +271,18 @@ namespace GreenshotEditorPlugin.Forms
 			surfacePanel.Height = 10;
 
 			fontFamilyComboBox.PropertyChanged += FontPropertyChanged;
-			
+
 			obfuscateModeButton.DropDownItemClicked += FilterPresetDropDownItemClicked;
 			highlightModeButton.DropDownItemClicked += FilterPresetDropDownItemClicked;
 
-			_toolbarButtons = new[] { btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble };
+			_toolbarButtons = new[]
+			{
+				btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble
+			};
 			//toolbarDropDownButtons = new ToolStripDropDownButton[]{btnBlur, btnPixeliate, btnTextHighlighter, btnAreaHighlighter, btnMagnifier};
 
 			pluginToolStripMenuItem.Visible = pluginToolStripMenuItem.DropDownItems.Count > 0;
-			
+
 			// Workaround: for the MouseWheel event which doesn't get to the panel
 			MouseWheel += PanelMouseWheel;
 
@@ -255,13 +295,17 @@ namespace GreenshotEditorPlugin.Forms
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void PropertiesToolStrip_Paint(object sender, PaintEventArgs e) {
-			using (Pen cbBorderPen = new Pen(SystemColors.ActiveBorder)) {
+		private void PropertiesToolStrip_Paint(object sender, PaintEventArgs e)
+		{
+			using (Pen cbBorderPen = new Pen(SystemColors.ActiveBorder))
+			{
 				// Loop over all items in the propertiesToolStrip
-				foreach (ToolStripItem item in propertiesToolStrip.Items) {
+				foreach (ToolStripItem item in propertiesToolStrip.Items)
+				{
 					ToolStripComboBox cb = item as ToolStripComboBox;
 					// Only ToolStripComboBox that are visible
-					if (cb == null || !cb.Visible) {
+					if (cb == null || !cb.Visible)
+					{
 						continue;
 					}
 					// Calculate the rectangle
@@ -273,9 +317,11 @@ namespace GreenshotEditorPlugin.Forms
 			}
 		}
 
-		private void AddDestinationButton(IDestination toolstripDestination) {
+		private void AddDestinationButton(IDestination toolstripDestination)
+		{
 			var destinationButton = new ToolStripSplitButton();
-			if (toolstripDestination.IsDynamic) {
+			if (toolstripDestination.IsDynamic)
+			{
 				//ToolStripDropDownButton destinationButton = new ToolStripDropDownButton();
 				destinationButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
 				destinationButton.Size = new Size(23, 22);
@@ -285,12 +331,14 @@ namespace GreenshotEditorPlugin.Forms
 				var defaultItem = new ToolStripMenuItem(toolstripDestination.Description);
 				defaultItem.Tag = toolstripDestination;
 				defaultItem.Image = toolstripDestination.DisplayIcon;
-				defaultItem.Click += async (sender, e) => {
+				defaultItem.Click += async (sender, e) =>
+				{
 					await toolstripDestination.ExportCaptureAsync(true, _surface, _surface.CaptureDetails).ConfigureAwait(false);
 				};
-				
+
 				// The ButtonClick, this is for the icon, gets the current default item
-				destinationButton.ButtonClick += async (sender, e) => {
+				destinationButton.ButtonClick += async (sender, e) =>
+				{
 					await toolstripDestination.ExportCaptureAsync(true, _surface, _surface.CaptureDetails).ConfigureAwait(false);
 				};
 
@@ -302,61 +350,75 @@ namespace GreenshotEditorPlugin.Forms
 
 					List<IDestination> subDestinations = new List<IDestination>();
 					subDestinations.AddRange(toolstripDestination.DynamicDestinations());
-					if (subDestinations.Count > 0) {
+					if (subDestinations.Count > 0)
+					{
 						subDestinations.Sort();
-						foreach(IDestination subDestination in subDestinations) {
+						foreach (IDestination subDestination in subDestinations)
+						{
 							IDestination closureFixedDestination = subDestination;
 							ToolStripMenuItem destinationMenuItem = new ToolStripMenuItem(closureFixedDestination.Description);
 							destinationMenuItem.Tag = closureFixedDestination;
 							destinationMenuItem.Image = closureFixedDestination.DisplayIcon;
-							destinationMenuItem.Click += async (sender2, e2) => {
+							destinationMenuItem.Click += async (sender2, e2) =>
+							{
 								await closureFixedDestination.ExportCaptureAsync(true, _surface, _surface.CaptureDetails).ConfigureAwait(false);
 							};
 							destinationButton.DropDownItems.Add(destinationMenuItem);
 						}
 					}
 				};
-			} else {
+			}
+			else
+			{
 				destinationButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
 				destinationButton.Size = new Size(23, 22);
 				destinationButton.Text = toolstripDestination.Description;
 				destinationButton.Image = toolstripDestination.DisplayIcon;
-				destinationButton.Click += async (sender2, e2) => {
+				destinationButton.Click += async (sender2, e2) =>
+				{
 					await toolstripDestination.ExportCaptureAsync(true, _surface, _surface.CaptureDetails).ConfigureAwait(false);
 				};
 			}
 			destinationsToolStrip.Items.Insert(destinationsToolStrip.Items.IndexOf(toolStripSeparator16), destinationButton);
 		}
-		
+
 		/// <summary>
 		/// According to some information I found, the clear doesn't work correctly when the shortcutkeys are set?
 		/// This helper method takes care of this.
 		/// </summary>
 		/// <param name="items"></param>
-		private void ClearItems(ToolStripItemCollection items) {
-			foreach(var item in items) {
+		private void ClearItems(ToolStripItemCollection items)
+		{
+			foreach (var item in items)
+			{
 				ToolStripMenuItem menuItem = item as ToolStripMenuItem;
-				if (menuItem != null && menuItem.ShortcutKeys != Keys.None) {
+				if (menuItem != null && menuItem.ShortcutKeys != Keys.None)
+				{
 					menuItem.ShortcutKeys = Keys.None;
 				}
 			}
 			items.Clear();
 		}
 
-		void FileMenuDropDownOpening(object sender, EventArgs eventArgs) {
+		private void FileMenuDropDownOpening(object sender, EventArgs eventArgs)
+		{
 			ClearItems(fileStripMenuItem.DropDownItems);
 
 			// Add the destinations
-			foreach(IDestination destination in DestinationHelper.GetAllDestinations()) {
-				if (ignoreDestinations.Contains(destination.Designation)) {
+			foreach (IDestination destination in DestinationHelper.GetAllDestinations())
+			{
+				if (ignoreDestinations.Contains(destination.Designation))
+				{
 					continue;
 				}
-				if (!destination.IsActive) {
+				if (!destination.IsActive)
+				{
 					continue;
 				}
 
 				ToolStripMenuItem item = destination.CreateMenuItem(true, DestinationToolStripMenuItemClickAsync);
-				if (item != null) {
+				if (item != null)
+				{
 					fileStripMenuItem.DropDownItems.Add(item);
 					item.ShortcutKeys = destination.EditorShortcutKeys;
 				}
@@ -367,19 +429,28 @@ namespace GreenshotEditorPlugin.Forms
 		}
 
 		private delegate void SurfaceMessageReceivedThreadSafeDelegate(object sender, SurfaceMessageEventArgs eventArgs);
+
 		/// <summary>
 		/// This is the SufraceMessageEvent receiver which display a message in the status bar if the
 		/// surface is exported. It also updates the title to represent the filename, if there is one.
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="eventArgs"></param>
-		private void SurfaceMessageReceived(object sender, SurfaceMessageEventArgs eventArgs) {
-			if (InvokeRequired) {
-				Invoke(new SurfaceMessageReceivedThreadSafeDelegate(SurfaceMessageReceived), new object[] { sender, eventArgs });
-			} else {
+		private void SurfaceMessageReceived(object sender, SurfaceMessageEventArgs eventArgs)
+		{
+			if (InvokeRequired)
+			{
+				Invoke(new SurfaceMessageReceivedThreadSafeDelegate(SurfaceMessageReceived), new object[]
+				{
+					sender, eventArgs
+				});
+			}
+			else
+			{
 				string dateTime = DateTime.Now.ToLongTimeString();
 				// TODO: Fix that we only open files, like in the tooltip
-				switch (eventArgs.MessageType) {
+				switch (eventArgs.MessageType)
+				{
 					case SurfaceMessageTyp.FileSaved:
 						// Put the event message on the status label and attach the context menu
 						UpdateStatusLabel(dateTime + " - " + eventArgs.Message, fileSavedStatusContextMenu);
@@ -399,8 +470,10 @@ namespace GreenshotEditorPlugin.Forms
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void SurfaceSizeChanged(object sender, EventArgs e) {
-			if (editorConfiguration.MatchSizeToCapture) {
+		private void SurfaceSizeChanged(object sender, EventArgs e)
+		{
+			if (editorConfiguration.MatchSizeToCapture)
+			{
 				// Set editor's initial size to the size of the surface plus the size of the chrome
 				Size imageSize = Surface.Image.Size;
 				Size currentFormSize = Size;
@@ -415,31 +488,39 @@ namespace GreenshotEditorPlugin.Forms
 			ImageEditorFormResize(sender, new EventArgs());
 		}
 
-		public ISurface Surface {
-			get {
+		public ISurface Surface
+		{
+			get
+			{
 				return _surface;
 			}
-			set {
+			set
+			{
 				SetSurface(value);
 			}
 		}
 
-		public void SetImagePath(string fullpath) {
+		public void SetImagePath(string fullpath)
+		{
 			// Check if the editor supports the format
-			if (fullpath != null && (fullpath.EndsWith(".ico") || fullpath.EndsWith(".wmf"))) {
+			if (fullpath != null && (fullpath.EndsWith(".ico") || fullpath.EndsWith(".wmf")))
+			{
 				fullpath = null;
 			}
 			_surface.LastSaveFullPath = fullpath;
 
-			if (fullpath == null) {
+			if (fullpath == null)
+			{
 				return;
 			}
 			UpdateStatusLabel(string.Format(editorLanguage.EditorImagesaved, fullpath), fileSavedStatusContextMenu);
 			Text = Path.GetFileName(fullpath) + " - " + editorLanguage.EditorTitle;
 		}
-		
-		void surface_DrawingModeChanged(object source, SurfaceDrawingModeEventArgs eventArgs) {
-			switch (eventArgs.DrawingMode) {
+
+		private void surface_DrawingModeChanged(object source, SurfaceDrawingModeEventArgs eventArgs)
+		{
+			switch (eventArgs.DrawingMode)
+			{
 				case DrawingModes.None:
 					SetButtonChecked(btnCursor);
 					break;
@@ -480,282 +561,359 @@ namespace GreenshotEditorPlugin.Forms
 		}
 
 		#region plugin interfaces
-		
-		public ICaptureDetails CaptureDetails {
-			get { return _surface.CaptureDetails; }
+
+		public ICaptureDetails CaptureDetails
+		{
+			get
+			{
+				return _surface.CaptureDetails;
+			}
 		}
-		
-		public ToolStripMenuItem GetPluginMenuItem() {
+
+		public ToolStripMenuItem GetPluginMenuItem()
+		{
 			return pluginToolStripMenuItem;
 		}
 
-		public ToolStripMenuItem GetFileMenuItem() {
+		public ToolStripMenuItem GetFileMenuItem()
+		{
 			return fileStripMenuItem;
 		}
+
 		#endregion
-		
+
 		#region filesystem options
 
-		async Task SaveAsync() {
+		private async Task SaveAsync()
+		{
 			string destinationDesignation = BuildInDestinationEnum.FileNoDialog.ToString();
-			if (_surface.LastSaveFullPath == null) {
+			if (_surface.LastSaveFullPath == null)
+			{
 				destinationDesignation = BuildInDestinationEnum.FileDialog.ToString();
 			}
 			await DestinationHelper.ExportCaptureAsync(true, destinationDesignation, _surface, _surface.CaptureDetails);
 		}
-		async void BtnSaveClickAsync(object sender, EventArgs e) {
+
+		private async void BtnSaveClickAsync(object sender, EventArgs e)
+		{
 			await SaveAsync();
 		}
-		
-		async void BtnClipboardClick(object sender, EventArgs e) {
+
+		private async void BtnClipboardClick(object sender, EventArgs e)
+		{
 			await DestinationHelper.ExportCaptureAsync(true, BuildInDestinationEnum.Clipboard.ToString(), _surface, _surface.CaptureDetails);
 		}
 
-		void BtnPrintClick(object sender, EventArgs e) {
+		private void BtnPrintClick(object sender, EventArgs e)
+		{
 			// The BeginInvoke is a solution for the printdialog not having focus
-			this.AsyncInvoke(async () => {
+			this.AsyncInvoke(async () =>
+			{
 				await DestinationHelper.ExportCaptureAsync(true, BuildInDestinationEnum.Printer.ToString(), _surface, _surface.CaptureDetails);
 			});
 		}
 
-		void CloseToolStripMenuItemClick(object sender, EventArgs e) {
+		private void CloseToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			Close();
 		}
+
 		#endregion
-		
+
 		#region drawing options
-		void BtnEllipseClick(object sender, EventArgs e) {
+
+		private void BtnEllipseClick(object sender, EventArgs e)
+		{
 			_surface.DrawingMode = DrawingModes.Ellipse;
 			RefreshFieldControls();
 		}
-		
-		void BtnCursorClick(object sender, EventArgs e) {
+
+		private void BtnCursorClick(object sender, EventArgs e)
+		{
 			_surface.DrawingMode = DrawingModes.None;
 			RefreshFieldControls();
 		}
-		
-		void BtnRectClick(object sender, EventArgs e) {
+
+		private void BtnRectClick(object sender, EventArgs e)
+		{
 			_surface.DrawingMode = DrawingModes.Rect;
 			RefreshFieldControls();
 		}
-		
-		void BtnTextClick(object sender, EventArgs e) {
+
+		private void BtnTextClick(object sender, EventArgs e)
+		{
 			_surface.DrawingMode = DrawingModes.Text;
 			RefreshFieldControls();
 		}
 
-		void BtnSpeechBubbleClick(object sender, EventArgs e) {
+		private void BtnSpeechBubbleClick(object sender, EventArgs e)
+		{
 			_surface.DrawingMode = DrawingModes.SpeechBubble;
 			RefreshFieldControls();
 		}
-		void BtnStepLabelClick(object sender, EventArgs e) {
+
+		private void BtnStepLabelClick(object sender, EventArgs e)
+		{
 			_surface.DrawingMode = DrawingModes.StepLabel;
 			RefreshFieldControls();
 		}
-	
-		void BtnLineClick(object sender, EventArgs e) {
+
+		private void BtnLineClick(object sender, EventArgs e)
+		{
 			_surface.DrawingMode = DrawingModes.Line;
 			RefreshFieldControls();
 		}
-		
-		void BtnArrowClick(object sender, EventArgs e) {
+
+		private void BtnArrowClick(object sender, EventArgs e)
+		{
 			_surface.DrawingMode = DrawingModes.Arrow;
 			RefreshFieldControls();
 		}
-		
-		void BtnCropClick(object sender, EventArgs e) {
+
+		private void BtnCropClick(object sender, EventArgs e)
+		{
 			_surface.DrawingMode = DrawingModes.Crop;
 			RefreshFieldControls();
 		}
-		
-		void BtnHighlightClick(object sender, EventArgs e) {
+
+		private void BtnHighlightClick(object sender, EventArgs e)
+		{
 			_surface.DrawingMode = DrawingModes.Highlight;
 			RefreshFieldControls();
 		}
-		
-		void BtnObfuscateClick(object sender, EventArgs e) {
+
+		private void BtnObfuscateClick(object sender, EventArgs e)
+		{
 			_surface.DrawingMode = DrawingModes.Obfuscate;
 			RefreshFieldControls();
 		}
 
-		void BtnFreehandClick(object sender, EventArgs e) {
+		private void BtnFreehandClick(object sender, EventArgs e)
+		{
 			_surface.DrawingMode = DrawingModes.Path;
 			RefreshFieldControls();
 		}
-		
-		void SetButtonChecked(ToolStripButton btn) {
+
+		private void SetButtonChecked(ToolStripButton btn)
+		{
 			UncheckAllToolButtons();
 			btn.Checked = true;
 		}
-		
-		private void UncheckAllToolButtons() {
-			if (_toolbarButtons != null) {
-				foreach (ToolStripButton butt in _toolbarButtons) {
+
+		private void UncheckAllToolButtons()
+		{
+			if (_toolbarButtons != null)
+			{
+				foreach (ToolStripButton butt in _toolbarButtons)
+				{
 					butt.Checked = false;
 				}
 			}
 		}
-		
-		void AddRectangleToolStripMenuItemClick(object sender, EventArgs e) {
+
+		private void AddRectangleToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			BtnRectClick(sender, e);
 		}
 
-		void DrawFreehandToolStripMenuItemClick(object sender, EventArgs e) {
+		private void DrawFreehandToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			BtnFreehandClick(sender, e);
 		}
-		
-		void AddEllipseToolStripMenuItemClick(object sender, EventArgs e) {
+
+		private void AddEllipseToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			BtnEllipseClick(sender, e);
 		}
-		
-		void AddTextBoxToolStripMenuItemClick(object sender, EventArgs e) {
+
+		private void AddTextBoxToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			BtnTextClick(sender, e);
 		}
-		
-		void AddSpeechBubbleToolStripMenuItemClick(object sender, EventArgs e) {
+
+		private void AddSpeechBubbleToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			BtnSpeechBubbleClick(sender, e);
 		}
-		
-		void AddCounterToolStripMenuItemClick(object sender, EventArgs e) {
+
+		private void AddCounterToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			BtnStepLabelClick(sender, e);
 		}
-		
-		void DrawLineToolStripMenuItemClick(object sender, EventArgs e) {
+
+		private void DrawLineToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			BtnLineClick(sender, e);
 		}
-		
-		void DrawArrowToolStripMenuItemClick(object sender, EventArgs e) {
+
+		private void DrawArrowToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			BtnArrowClick(sender, e);
 		}
-		
-		void RemoveObjectToolStripMenuItemClick(object sender, EventArgs e) {
+
+		private void RemoveObjectToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			_surface.RemoveSelectedElements();
 		}
 
-		void BtnDeleteClick(object sender, EventArgs e) {
+		private void BtnDeleteClick(object sender, EventArgs e)
+		{
 			RemoveObjectToolStripMenuItemClick(sender, e);
 		}
+
 		#endregion
-		
+
 		#region copy&paste options
-		void CutToolStripMenuItemClick(object sender, EventArgs e) {
+
+		private void CutToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			_surface.CutSelectedElements();
 			UpdateClipboardSurfaceDependencies();
 		}
 
-		void BtnCutClick(object sender, EventArgs e) {
+		private void BtnCutClick(object sender, EventArgs e)
+		{
 			CutToolStripMenuItemClick(sender, e);
 		}
-		
-		void CopyToolStripMenuItemClick(object sender, EventArgs e) {
+
+		private void CopyToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			_surface.CopySelectedElements();
 			UpdateClipboardSurfaceDependencies();
 		}
 
-		void BtnCopyClick(object sender, EventArgs e) {
+		private void BtnCopyClick(object sender, EventArgs e)
+		{
 			CopyToolStripMenuItemClick(sender, e);
 		}
-		
-		void PasteToolStripMenuItemClick(object sender, EventArgs e) {
+
+		private void PasteToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			_surface.PasteElementFromClipboard();
 			UpdateClipboardSurfaceDependencies();
 		}
 
-		void BtnPasteClick(object sender, EventArgs e) {
+		private void BtnPasteClick(object sender, EventArgs e)
+		{
 			PasteToolStripMenuItemClick(sender, e);
 		}
 
-		void UndoToolStripMenuItemClick(object sender, EventArgs e) {
+		private void UndoToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			_surface.Undo();
 			UpdateUndoRedoSurfaceDependencies();
 		}
 
-		void BtnUndoClick(object sender, EventArgs e) {
+		private void BtnUndoClick(object sender, EventArgs e)
+		{
 			UndoToolStripMenuItemClick(sender, e);
 		}
 
-		void RedoToolStripMenuItemClick(object sender, EventArgs e) {
+		private void RedoToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			_surface.Redo();
 			UpdateUndoRedoSurfaceDependencies();
 		}
 
-		void BtnRedoClick(object sender, EventArgs e) {
+		private void BtnRedoClick(object sender, EventArgs e)
+		{
 			RedoToolStripMenuItemClick(sender, e);
 		}
 
-		void DuplicateToolStripMenuItemClick(object sender, EventArgs e) {
+		private void DuplicateToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			_surface.DuplicateSelectedElements();
 			UpdateClipboardSurfaceDependencies();
 		}
+
 		#endregion
-		
+
 		#region element properties
-		void UpOneLevelToolStripMenuItemClick(object sender, EventArgs e) {
+
+		private void UpOneLevelToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			_surface.PullElementsUp();
 		}
-		
-		void DownOneLevelToolStripMenuItemClick(object sender, EventArgs e) {
+
+		private void DownOneLevelToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			_surface.PushElementsDown();
 		}
-		
-		void UpToTopToolStripMenuItemClick(object sender, EventArgs e) {
+
+		private void UpToTopToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			_surface.PullElementsToTop();
 		}
-		
-		void DownToBottomToolStripMenuItemClick(object sender, EventArgs e) {
+
+		private void DownToBottomToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			_surface.PushElementsToBottom();
 		}
-		
-		
+
 		#endregion
-		
+
 		#region help
-		async void HelpToolStripMenuItem1Click(object sender, EventArgs e) {
+
+		private async void HelpToolStripMenuItem1Click(object sender, EventArgs e)
+		{
 			await HelpFileLoader.LoadHelpAsync();
 		}
 
-		void AboutToolStripMenuItemClick(object sender, EventArgs e) {
+		private void AboutToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			PluginUtils.Host.ShowAbout();
 		}
 
-		void PreferencesToolStripMenuItemClick(object sender, EventArgs e) {
+		private void PreferencesToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			PluginUtils.Host.ShowSettings();
 		}
 
-		void BtnSettingsClick(object sender, EventArgs e) {
+		private void BtnSettingsClick(object sender, EventArgs e)
+		{
 			PreferencesToolStripMenuItemClick(sender, e);
 		}
 
-		void BtnHelpClick(object sender, EventArgs e) {
+		private void BtnHelpClick(object sender, EventArgs e)
+		{
 			HelpToolStripMenuItem1Click(sender, e);
 		}
+
 		#endregion
-		
+
 		#region image editor event handlers
-		void ImageEditorFormActivated(object sender, EventArgs e) {
+
+		private void ImageEditorFormActivated(object sender, EventArgs e)
+		{
 			UpdateClipboardSurfaceDependencies();
 			UpdateUndoRedoSurfaceDependencies();
 		}
 
-		async void ImageEditorFormFormClosingAsync(object sender, FormClosingEventArgs e) {
-			if (_surface.Modified && !editorConfiguration.SuppressSaveDialogAtClose) {
+		private async void ImageEditorFormFormClosingAsync(object sender, FormClosingEventArgs e)
+		{
+			if (_surface.Modified && !editorConfiguration.SuppressSaveDialogAtClose)
+			{
 				// Make sure the editor is visible
 				WindowDetails.ToForeground(Handle);
 
 				MessageBoxButtons buttons = MessageBoxButtons.YesNoCancel;
 				// Dissallow "CANCEL" if the application needs to shutdown
-				if (e.CloseReason == CloseReason.ApplicationExitCall || e.CloseReason == CloseReason.WindowsShutDown || e.CloseReason == CloseReason.TaskManagerClosing) {
+				if (e.CloseReason == CloseReason.ApplicationExitCall || e.CloseReason == CloseReason.WindowsShutDown || e.CloseReason == CloseReason.TaskManagerClosing)
+				{
 					buttons = MessageBoxButtons.YesNo;
 				}
 				DialogResult result = MessageBox.Show(editorLanguage.EditorCloseOnSave, editorLanguage.EditorCloseOnSaveTitle, buttons, MessageBoxIcon.Question);
-				if (result.Equals(DialogResult.Cancel)) {
+				if (result.Equals(DialogResult.Cancel))
+				{
 					e.Cancel = true;
 					return;
 				}
-				if (result.Equals(DialogResult.Yes)) {
+				if (result.Equals(DialogResult.Yes))
+				{
 					await SaveAsync();
 					// Check if the save was made, if not it was cancelled so we cancel the closing
-					if (_surface.Modified) {
+					if (_surface.Modified)
+					{
 						e.Cancel = true;
 						return;
 					}
@@ -763,24 +921,28 @@ namespace GreenshotEditorPlugin.Forms
 			}
 			// persist our geometry string.
 			SetEditorPlacement(new WindowDetails(Handle).WindowPlacement);
-		
+
 			// remove from the editor list
 			editorList.Remove(this);
 
 			_surface.Dispose();
 
 			GC.Collect();
-			if (coreConfiguration.MinimizeWorkingSetSize) {
+			if (coreConfiguration.MinimizeWorkingSetSize)
+			{
 				PsAPI.EmptyWorkingSet();
 			}
 		}
 
-		async Task ImageEditorFormKeyDownAsync(object sender, KeyEventArgs e, CancellationToken token = default(CancellationToken)) {
+		private async Task ImageEditorFormKeyDownAsync(object sender, KeyEventArgs e, CancellationToken token = default(CancellationToken))
+		{
 			// LOG.Debug("Got key event "+e.KeyCode + ", " + e.Modifiers);
 			// avoid conflict with other shortcuts and
 			// make sure there's no selected element claiming input focus
-			if(e.Modifiers.Equals(Keys.None) && !_surface.KeysLocked) {
-				switch(e.KeyCode) {
+			if (e.Modifiers.Equals(Keys.None) && !_surface.KeysLocked)
+			{
+				switch (e.KeyCode)
+				{
 					case Keys.Escape:
 						BtnCursorClick(sender, e);
 						break;
@@ -818,36 +980,39 @@ namespace GreenshotEditorPlugin.Forms
 						BtnCropClick(sender, e);
 						break;
 				}
-			} else if (e.Modifiers.Equals(Keys.Control)) {
-				switch (e.KeyCode) {
+			}
+			else if (e.Modifiers.Equals(Keys.Control))
+			{
+				switch (e.KeyCode)
+				{
 					case Keys.Z:
 						UndoToolStripMenuItemClick(sender, e);
 						break;
 					case Keys.Y:
 						RedoToolStripMenuItemClick(sender, e);
 						break;
-					case Keys.Q:	// Dropshadow Ctrl + Q
+					case Keys.Q: // Dropshadow Ctrl + Q
 						await AddDropshadowToolStripMenuItemClickAsync(token);
 						break;
-					case Keys.B:	// Border Ctrl + B
+					case Keys.B: // Border Ctrl + B
 						await AddBorderToolStripMenuItemClickAsync(token);
 						break;
-					case Keys.T:	// Torn edge Ctrl + T
+					case Keys.T: // Torn edge Ctrl + T
 						await TornEdgesToolStripMenuItemClickAsync(token);
 						break;
-					case Keys.I:	// Invert Ctrl + I
+					case Keys.I: // Invert Ctrl + I
 						await InvertToolStripMenuItemClickAsync(token);
 						break;
-					case Keys.G:	// Grayscale Ctrl + G
+					case Keys.G: // Grayscale Ctrl + G
 						await GrayscaleToolStripMenuItemClickAsync(token);
 						break;
-					case Keys.Delete:	// Grayscale Ctrl + Delete
+					case Keys.Delete: // Grayscale Ctrl + Delete
 						ClearToolStripMenuItemClick(sender, e);
 						break;
-					case Keys.Oemcomma:	// Rotate CCW Ctrl + ,
+					case Keys.Oemcomma: // Rotate CCW Ctrl + ,
 						await RotateCcwToolstripButtonClickAsync(token);
 						break;
-					case Keys.OemPeriod:	// Rotate CW Ctrl + .
+					case Keys.OemPeriod: // Rotate CW Ctrl + .
 						await RotateCwToolstripButtonClickAsync(token);
 						break;
 				}
@@ -859,37 +1024,47 @@ namespace GreenshotEditorPlugin.Forms
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void PanelMouseWheel(object sender, MouseEventArgs e) {
+		private void PanelMouseWheel(object sender, MouseEventArgs e)
+		{
 			surfacePanel.Focus();
 		}
+
 		#endregion
-		
+
 		#region key handling
-		protected override bool ProcessKeyPreview(ref Message msg) {
+
+		protected override bool ProcessKeyPreview(ref Message msg)
+		{
 			// disable default key handling if surface has requested a lock
-			if (!_surface.KeysLocked) {
+			if (!_surface.KeysLocked)
+			{
 				return base.ProcessKeyPreview(ref msg);
 			}
 			return false;
 		}
 
-		protected override bool ProcessCmdKey(ref Message msg, Keys keys) {
+		protected override bool ProcessCmdKey(ref Message msg, Keys keys)
+		{
 			// disable default key handling if surface has requested a lock
-			if (!_surface.KeysLocked) {
-
+			if (!_surface.KeysLocked)
+			{
 				// Go through the destinations to check the EditorShortcut Keys
 				// this way the menu entries don't need to be enabled.
 				// This also fixes bugs #3526974 & #3527020
-				foreach (IDestination destinationLV in DestinationHelper.GetAllDestinations()) {
-					var destination = destinationLV;	// Capture the loop variable
-					if (ignoreDestinations.Contains(destination.Designation)) {
+				foreach (IDestination destinationLV in DestinationHelper.GetAllDestinations())
+				{
+					var destination = destinationLV; // Capture the loop variable
+					if (ignoreDestinations.Contains(destination.Designation))
+					{
 						continue;
 					}
-					if (!destination.IsActive) {
+					if (!destination.IsActive)
+					{
 						continue;
 					}
 
-					if (destination.EditorShortcutKeys == keys) {
+					if (destination.EditorShortcutKeys == keys)
+					{
 						this.AsyncInvoke(async () =>
 						{
 							await destination.ExportCaptureAsync(true, _surface, _surface.CaptureDetails).ConfigureAwait(false);
@@ -897,18 +1072,22 @@ namespace GreenshotEditorPlugin.Forms
 						return true;
 					}
 				}
-				if (!_surface.ProcessCmdKey(keys)) {
+				if (!_surface.ProcessCmdKey(keys))
+				{
 					return base.ProcessCmdKey(ref msg, keys);
 				}
 			}
 			return false;
 		}
+
 		#endregion
-		
+
 		#region helpers
-		
-		private void UpdateUndoRedoSurfaceDependencies() {
-			if (_surface == null) {
+
+		private void UpdateUndoRedoSurfaceDependencies()
+		{
+			if (_surface == null)
+			{
 				return;
 			}
 			bool canUndo = _surface.CanUndo;
@@ -926,14 +1105,16 @@ namespace GreenshotEditorPlugin.Forms
 			redoToolStripMenuItem.Text = redoText;
 		}
 
-		private void UpdateClipboardSurfaceDependencies() {
-			if (_surface == null) {
+		private void UpdateClipboardSurfaceDependencies()
+		{
+			if (_surface == null)
+			{
 				return;
 			}
 			// check dependencies for the Surface
 			bool hasItems = _surface.HasSelectedElements;
 			bool actionAllowedForSelection = hasItems && !_controlsDisabledDueToConfirmable;
-			
+
 			// buttons
 			btnCut.Enabled = actionAllowedForSelection;
 			btnCopy.Enabled = actionAllowedForSelection;
@@ -952,114 +1133,138 @@ namespace GreenshotEditorPlugin.Forms
 		}
 
 		#endregion
-		
+
 		#region status label handling
-		private void UpdateStatusLabel(string text, ContextMenuStrip contextMenu) {
+
+		private void UpdateStatusLabel(string text, ContextMenuStrip contextMenu)
+		{
 			statusLabel.Text = text;
 			statusStrip1.ContextMenuStrip = contextMenu;
 		}
-		
-		private void UpdateStatusLabel(string text) {
+
+		private void UpdateStatusLabel(string text)
+		{
 			UpdateStatusLabel(text, null);
 		}
-		private void ClearStatusLabel() {
+
+		private void ClearStatusLabel()
+		{
 			UpdateStatusLabel(null, null);
 		}
-		
-		void StatusLabelClicked(object sender, MouseEventArgs e) {
-			var statusStrip = (StatusStrip)((ToolStripStatusLabel)sender).Owner;
-			if(statusStrip.ContextMenuStrip != null) {
+
+		private void StatusLabelClicked(object sender, MouseEventArgs e)
+		{
+			var statusStrip = (StatusStrip) ((ToolStripStatusLabel) sender).Owner;
+			if (statusStrip.ContextMenuStrip != null)
+			{
 				statusStrip.ContextMenuStrip.Show(statusStrip, e.X, e.Y);
 			}
 		}
-		
-		void CopyPathMenuItemClick(object sender, EventArgs e) {
+
+		private void CopyPathMenuItemClick(object sender, EventArgs e)
+		{
 			ClipboardHelper.SetClipboardData(_surface.LastSaveFullPath);
 		}
-		
-		void OpenDirectoryMenuItemClick(object sender, EventArgs e) {
+
+		private void OpenDirectoryMenuItemClick(object sender, EventArgs e)
+		{
 			var psi = new ProcessStartInfo("explorer")
 			{
 				Arguments = Path.GetDirectoryName(_surface.LastSaveFullPath), UseShellExecute = false
 			};
-			using (var p = new Process()) {
+			using (var p = new Process())
+			{
 				p.StartInfo = psi;
 				p.Start();
 			}
 		}
+
 		#endregion
-		
-		private void BindFieldControls() {
-            _bindings.Add(new BidirectionalBinding(btnFillColor, "SelectedColor", _surface, FieldTypes.FILL_COLOR, NotNullValidator.GetInstance()));
-            _bindings.Add(new BidirectionalBinding(btnLineColor, "SelectedColor", _surface, FieldTypes.LINE_COLOR, NotNullValidator.GetInstance()));
-            _bindings.Add(new BidirectionalBinding(lineThicknessUpDown, "Value", _surface, FieldTypes.LINE_THICKNESS, DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance()));
-            _bindings.Add(new BidirectionalBinding(counterUpDown, "Value", _surface, FieldTypes.COUNTER_START, DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance()));
-            _bindings.Add(new BidirectionalBinding(blurRadiusUpDown, "Value", _surface, FieldTypes.BLUR_RADIUS, DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance()));
-            _bindings.Add(new BidirectionalBinding(magnificationFactorUpDown, "Value", _surface, FieldTypes.MAGNIFICATION_FACTOR, DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance()));
-            _bindings.Add(new BidirectionalBinding(pixelSizeUpDown, "Value", _surface, FieldTypes.PIXEL_SIZE, DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance()));
-            _bindings.Add(new BidirectionalBinding(brightnessUpDown, "Value", _surface, FieldTypes.BRIGHTNESS, DecimalDoublePercentageConverter.GetInstance(), NotNullValidator.GetInstance()));
-            _bindings.Add(new BidirectionalBinding(fontFamilyComboBox, "Text", _surface, FieldTypes.FONT_FAMILY, NotNullValidator.GetInstance()));
-            _bindings.Add(new BidirectionalBinding(fontSizeUpDown, "Value", _surface, FieldTypes.FONT_SIZE, DecimalFloatConverter.GetInstance(), NotNullValidator.GetInstance()));
-            _bindings.Add(new BidirectionalBinding(fontBoldButton, "Checked", _surface, FieldTypes.FONT_BOLD, NotNullValidator.GetInstance()));
-            _bindings.Add(new BidirectionalBinding(fontItalicButton, "Checked", _surface, FieldTypes.FONT_ITALIC, NotNullValidator.GetInstance()));
+
+		private void BindFieldControls()
+		{
+			_bindings.Add(new BidirectionalBinding(btnFillColor, "SelectedColor", _surface, FieldTypes.FILL_COLOR, NotNullValidator.GetInstance()));
+			_bindings.Add(new BidirectionalBinding(btnLineColor, "SelectedColor", _surface, FieldTypes.LINE_COLOR, NotNullValidator.GetInstance()));
+			_bindings.Add(new BidirectionalBinding(lineThicknessUpDown, "Value", _surface, FieldTypes.LINE_THICKNESS, DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance()));
+			_bindings.Add(new BidirectionalBinding(counterUpDown, "Value", _surface, FieldTypes.COUNTER_START, DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance()));
+			_bindings.Add(new BidirectionalBinding(blurRadiusUpDown, "Value", _surface, FieldTypes.BLUR_RADIUS, DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance()));
+			_bindings.Add(new BidirectionalBinding(magnificationFactorUpDown, "Value", _surface, FieldTypes.MAGNIFICATION_FACTOR, DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance()));
+			_bindings.Add(new BidirectionalBinding(pixelSizeUpDown, "Value", _surface, FieldTypes.PIXEL_SIZE, DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance()));
+			_bindings.Add(new BidirectionalBinding(brightnessUpDown, "Value", _surface, FieldTypes.BRIGHTNESS, DecimalDoublePercentageConverter.GetInstance(), NotNullValidator.GetInstance()));
+			_bindings.Add(new BidirectionalBinding(fontFamilyComboBox, "Text", _surface, FieldTypes.FONT_FAMILY, NotNullValidator.GetInstance()));
+			_bindings.Add(new BidirectionalBinding(fontSizeUpDown, "Value", _surface, FieldTypes.FONT_SIZE, DecimalFloatConverter.GetInstance(), NotNullValidator.GetInstance()));
+			_bindings.Add(new BidirectionalBinding(fontBoldButton, "Checked", _surface, FieldTypes.FONT_BOLD, NotNullValidator.GetInstance()));
+			_bindings.Add(new BidirectionalBinding(fontItalicButton, "Checked", _surface, FieldTypes.FONT_ITALIC, NotNullValidator.GetInstance()));
 			_bindings.Add(new BidirectionalBinding(textHorizontalAlignmentButton, "SelectedTag", _surface, FieldTypes.TEXT_HORIZONTAL_ALIGNMENT, HorizontalAlignmentConverter.GetInstance(), NotNullValidator.GetInstance()));
 			_bindings.Add(new BidirectionalBinding(textVerticalAlignmentButton, "SelectedTag", _surface, FieldTypes.TEXT_VERTICAL_ALIGNMENT, VerticalAlignmentConverter.GetInstance(), NotNullValidator.GetInstance()));
-            _bindings.Add(new BidirectionalBinding(shadowButton, "Checked", _surface, FieldTypes.SHADOW, NotNullValidator.GetInstance()));
-            _bindings.Add(new BidirectionalBinding(obfuscateModeButton, "SelectedTag", _surface, FieldTypes.PREPARED_FILTER_OBFUSCATE));
-            _bindings.Add(new BidirectionalBinding(highlightModeButton, "SelectedTag", _surface, FieldTypes.PREPARED_FILTER_HIGHLIGHT));
+			_bindings.Add(new BidirectionalBinding(shadowButton, "Checked", _surface, FieldTypes.SHADOW, NotNullValidator.GetInstance()));
+			_bindings.Add(new BidirectionalBinding(obfuscateModeButton, "SelectedTag", _surface, FieldTypes.PREPARED_FILTER_OBFUSCATE));
+			_bindings.Add(new BidirectionalBinding(highlightModeButton, "SelectedTag", _surface, FieldTypes.PREPARED_FILTER_HIGHLIGHT));
 		}
-		
+
 		/// <summary>
 		/// shows/hides field controls (2nd toolbar on top) depending on fields of selected elements
 		/// </summary>
-		private void RefreshFieldControls() {
+		private void RefreshFieldControls()
+		{
 			propertiesToolStrip.SuspendLayout();
-			if(_surface.HasSelectedElements || _surface.DrawingMode != DrawingModes.None) {
-                // Update bindings
-                foreach (var binding in _bindings)
-                {
-                    binding.Refresh();
-                }
+			if (_surface.HasSelectedElements || _surface.DrawingMode != DrawingModes.None)
+			{
+				// Update bindings
+				foreach (var binding in _bindings)
+				{
+					binding.Refresh();
+				}
 				lineThicknessLabel.Visible = lineThicknessUpDown.Visible;
 				blurRadiusLabel.Visible = blurRadiusUpDown.Visible;
 				magnificationFactorLabel.Visible = magnificationFactorUpDown.Visible;
 				pixelSizeLabel.Visible = pixelSizeUpDown.Visible;
 				brightnessLabel.Visible = brightnessUpDown.Visible;
 				arrowHeadsLabel.Visible = arrowHeadsDropDownButton.Visible;
-                fontSizeLabel.Visible = fontSizeUpDown.Visible;
-                btnConfirm.Visible = btnCancel.Visible = _surface.IsElementWithFlagSelected(ElementFlag.CONFIRMABLE);
-                counterLabel.Visible = counterUpDown.Visible = _surface.IsElementWithFlagSelected(ElementFlag.COUNTER);
-			} else {
+				fontSizeLabel.Visible = fontSizeUpDown.Visible;
+				btnConfirm.Visible = btnCancel.Visible = _surface.IsElementWithFlagSelected(ElementFlag.CONFIRMABLE);
+				counterLabel.Visible = counterUpDown.Visible = _surface.IsElementWithFlagSelected(ElementFlag.COUNTER);
+			}
+			else
+			{
 				HideToolstripItems();
 			}
 			propertiesToolStrip.ResumeLayout();
 		}
-		
-		private void HideToolstripItems() {
-			foreach(ToolStripItem toolStripItem in propertiesToolStrip.Items) {
+
+		private void HideToolstripItems()
+		{
+			foreach (ToolStripItem toolStripItem in propertiesToolStrip.Items)
+			{
 				toolStripItem.Visible = false;
 			}
 		}
-		
+
 		/// <summary>
 		/// refreshes all editor controls depending on selected elements and their fields
 		/// </summary>
-		private void RefreshEditorControls() {
+		private void RefreshEditorControls()
+		{
 			int stepLabels = _surface.CountStepLabels(null);
-		    Image icon;
-			if (stepLabels <= 20) {
-			    icon = ((Image)(resources.GetObject(string.Format("btnStepLabel{0:00}.Image", stepLabels))));
-			} else {
-			    icon = ((Image)(resources.GetObject("btnStepLabel20+.Image")));
+			Image icon;
+			if (stepLabels <= 20)
+			{
+				icon = ((Image) (resources.GetObject(string.Format("btnStepLabel{0:00}.Image", stepLabels))));
 			}
-            btnStepLabel.Image = icon;
-            addCounterToolStripMenuItem.Image = icon;
+			else
+			{
+				icon = ((Image) (resources.GetObject("btnStepLabel20+.Image")));
+			}
+			btnStepLabel.Image = icon;
+			addCounterToolStripMenuItem.Image = icon;
 
 			// if a confirmable element is selected, we must disable most of the controls
 			// since we demand confirmation or cancel for confirmable element
-			if (_surface.IsElementWithFlagSelected(ElementFlag.CONFIRMABLE)) {
+			if (_surface.IsElementWithFlagSelected(ElementFlag.CONFIRMABLE))
+			{
 				// disable most controls
-				if(!_controlsDisabledDueToConfirmable) {
+				if (!_controlsDisabledDueToConfirmable)
+				{
 					ToolStripItemEndisabler.Disable(menuStrip1);
 					ToolStripItemEndisabler.Disable(destinationsToolStrip);
 					ToolStripItemEndisabler.Disable(toolsToolStrip);
@@ -1069,198 +1274,248 @@ namespace GreenshotEditorPlugin.Forms
 					ToolStripItemEndisabler.Enable(preferencesToolStripMenuItem);
 					_controlsDisabledDueToConfirmable = true;
 				}
-			} else if(_controlsDisabledDueToConfirmable) {
+			}
+			else if (_controlsDisabledDueToConfirmable)
+			{
 				// re-enable disabled controls, confirmable element has either been confirmed or cancelled
 				ToolStripItemEndisabler.Enable(menuStrip1);
 				ToolStripItemEndisabler.Enable(destinationsToolStrip);
 				ToolStripItemEndisabler.Enable(toolsToolStrip);
 				_controlsDisabledDueToConfirmable = false;
 			}
-			
+
 			// en/disable controls depending on whether an element is selected at all
 			UpdateClipboardSurfaceDependencies();
 			UpdateUndoRedoSurfaceDependencies();
-			
+
 			// en/disablearrage controls depending on hierarchy of selected elements
 			bool actionAllowedForSelection = _surface.HasSelectedElements && !_controlsDisabledDueToConfirmable;
 			bool push = actionAllowedForSelection && _surface.CanPushSelectionDown();
 			bool pull = actionAllowedForSelection && _surface.CanPullSelectionUp();
 			arrangeToolStripMenuItem.Enabled = (push || pull);
-			if (arrangeToolStripMenuItem.Enabled) {
+			if (arrangeToolStripMenuItem.Enabled)
+			{
 				upToTopToolStripMenuItem.Enabled = pull;
 				upOneLevelToolStripMenuItem.Enabled = pull;
 				downToBottomToolStripMenuItem.Enabled = push;
 				downOneLevelToolStripMenuItem.Enabled = push;
 			}
-			
+
 			// finally show/hide field controls depending on the fields of selected elements
 			RefreshFieldControls();
 		}
-		
-		void ArrowHeadsToolStripMenuItemClick(object sender, EventArgs e) {
-			_surface.ChangeFields(FieldTypes.ARROWHEADS, (ArrowHeadCombination)((ToolStripMenuItem)sender).Tag);
+
+		private void ArrowHeadsToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			_surface.ChangeFields(FieldTypes.ARROWHEADS, (ArrowHeadCombination) ((ToolStripMenuItem) sender).Tag);
 		}
-		
-		void EditToolStripMenuItemClick(object sender, EventArgs e) {
+
+		private void EditToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			UpdateClipboardSurfaceDependencies();
 			UpdateUndoRedoSurfaceDependencies();
 		}
 
-		void FontPropertyChanged(object sender, EventArgs e) {
+		private void FontPropertyChanged(object sender, EventArgs e)
+		{
 			// in case we forced another FontStyle before, reset it first.
 			fontBoldButton.Checked = _originalBoldCheckState;
 			fontItalicButton.Checked = _originalItalicCheckState;
-			
-            FontFamily fam = fontFamilyComboBox.FontFamily;
-           
-            bool boldAvailable = fam.IsStyleAvailable(FontStyle.Bold);
-            if(!boldAvailable) {
-            	_originalBoldCheckState = fontBoldButton.Checked;
-            	fontBoldButton.Checked = false;
-            }
-            fontBoldButton.Enabled = boldAvailable;
-           
-            bool italicAvailable = fam.IsStyleAvailable(FontStyle.Italic);
-            if(!italicAvailable) fontItalicButton.Checked = false;
-            fontItalicButton.Enabled = italicAvailable;
-           
-            bool regularAvailable = fam.IsStyleAvailable(FontStyle.Regular);
-            if(!regularAvailable) {
-                if(boldAvailable) {
-                    fontBoldButton.Checked = true;
-                } else if(italicAvailable) {
-                    fontItalicButton.Checked = true;
-                }
-            }
+
+			FontFamily fam = fontFamilyComboBox.FontFamily;
+
+			bool boldAvailable = fam.IsStyleAvailable(FontStyle.Bold);
+			if (!boldAvailable)
+			{
+				_originalBoldCheckState = fontBoldButton.Checked;
+				fontBoldButton.Checked = false;
+			}
+			fontBoldButton.Enabled = boldAvailable;
+
+			bool italicAvailable = fam.IsStyleAvailable(FontStyle.Italic);
+			if (!italicAvailable)
+			{
+				fontItalicButton.Checked = false;
+			}
+			fontItalicButton.Enabled = italicAvailable;
+
+			bool regularAvailable = fam.IsStyleAvailable(FontStyle.Regular);
+			if (!regularAvailable)
+			{
+				if (boldAvailable)
+				{
+					fontBoldButton.Checked = true;
+				}
+				else if (italicAvailable)
+				{
+					fontItalicButton.Checked = true;
+				}
+			}
 		}
-	
-		void FontBoldButtonClick(object sender, EventArgs e) {
+
+		private void FontBoldButtonClick(object sender, EventArgs e)
+		{
 			_originalBoldCheckState = fontBoldButton.Checked;
 		}
 
-		void FontItalicButtonClick(object sender, EventArgs e) {
+		private void FontItalicButtonClick(object sender, EventArgs e)
+		{
 			_originalItalicCheckState = fontItalicButton.Checked;
 		}
-		
-		void ToolBarFocusableElementGotFocus(object sender, EventArgs e) {
+
+		private void ToolBarFocusableElementGotFocus(object sender, EventArgs e)
+		{
 			_surface.KeysLocked = true;
 		}
-		void ToolBarFocusableElementLostFocus(object sender, EventArgs e) {
+
+		private void ToolBarFocusableElementLostFocus(object sender, EventArgs e)
+		{
 			_surface.KeysLocked = false;
 		}
-		
-		void SaveElementsToolStripMenuItemClick(object sender, EventArgs e) {
+
+		private void SaveElementsToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			SaveFileDialog saveFileDialog = new SaveFileDialog();
 			saveFileDialog.Filter = "Greenshot templates (*.gst)|*.gst";
 			saveFileDialog.FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(coreConfiguration.OutputFileFilenamePattern, _surface.CaptureDetails);
 			DialogResult dialogResult = saveFileDialog.ShowDialog();
-			if(dialogResult.Equals(DialogResult.OK)) {
-				using (Stream streamWrite = File.OpenWrite(saveFileDialog.FileName)) {
+			if (dialogResult.Equals(DialogResult.OK))
+			{
+				using (Stream streamWrite = File.OpenWrite(saveFileDialog.FileName))
+				{
 					_surface.SaveElementsToStream(streamWrite);
 				}
 			}
 		}
-		
-		void LoadElementsToolStripMenuItemClick(object sender, EventArgs e) {
+
+		private void LoadElementsToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			OpenFileDialog openFileDialog = new OpenFileDialog();
 			openFileDialog.Filter = "Greenshot templates (*.gst)|*.gst";
-			if (openFileDialog.ShowDialog() == DialogResult.OK) {
-				using (Stream streamRead = File.OpenRead(openFileDialog.FileName)) {
+			if (openFileDialog.ShowDialog() == DialogResult.OK)
+			{
+				using (Stream streamRead = File.OpenRead(openFileDialog.FileName))
+				{
 					_surface.LoadElementsFromStream(streamRead);
 				}
 				_surface.Refresh();
 			}
 		}
 
-		async void DestinationToolStripMenuItemClickAsync(object sender, EventArgs e) {
+		private async void DestinationToolStripMenuItemClickAsync(object sender, EventArgs e)
+		{
 			IDestination clickedDestination = null;
-			if (sender is Control) {
+			if (sender is Control)
+			{
 				Control clickedControl = sender as Control;
-				if (clickedControl.ContextMenuStrip != null) {
+				if (clickedControl.ContextMenuStrip != null)
+				{
 					clickedControl.ContextMenuStrip.Show(Cursor.Position);
 					return;
 				}
-				clickedDestination = (IDestination)clickedControl.Tag;
-			} else if (sender is ToolStripMenuItem) {
-				ToolStripMenuItem clickedMenuItem = sender as ToolStripMenuItem;
-				clickedDestination = (IDestination)clickedMenuItem.Tag;
+				clickedDestination = (IDestination) clickedControl.Tag;
 			}
-			if (clickedDestination != null) {
+			else if (sender is ToolStripMenuItem)
+			{
+				ToolStripMenuItem clickedMenuItem = sender as ToolStripMenuItem;
+				clickedDestination = (IDestination) clickedMenuItem.Tag;
+			}
+			if (clickedDestination != null)
+			{
 				ExportInformation exportInformation = await clickedDestination.ExportCaptureAsync(true, _surface, _surface.CaptureDetails);
-				if (exportInformation != null && exportInformation.ExportMade) {
+				if (exportInformation != null && exportInformation.ExportMade)
+				{
 					_surface.Modified = false;
 				}
 			}
 		}
-		
-		protected void FilterPresetDropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
+
+		protected void FilterPresetDropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+		{
 			RefreshFieldControls();
 			Invalidate(true);
 		}
-		
-		void SelectAllToolStripMenuItemClick(object sender, EventArgs e) {
+
+		private void SelectAllToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			_surface.SelectAllElements();
 		}
 
-		
-		void BtnConfirmClick(object sender, EventArgs e) {
+
+		private void BtnConfirmClick(object sender, EventArgs e)
+		{
 			_surface.ConfirmSelectedConfirmableElements(true);
 			RefreshFieldControls();
 		}
-		
-		void BtnCancelClick(object sender, EventArgs e) {
+
+		private void BtnCancelClick(object sender, EventArgs e)
+		{
 			_surface.ConfirmSelectedConfirmableElements(false);
 			RefreshFieldControls();
 		}
-		
-		void Insert_window_toolstripmenuitemMouseEnter(object sender, EventArgs e) {
-			ToolStripMenuItem captureWindowMenuItem = (ToolStripMenuItem)sender;
+
+		private void Insert_window_toolstripmenuitemMouseEnter(object sender, EventArgs e)
+		{
+			ToolStripMenuItem captureWindowMenuItem = (ToolStripMenuItem) sender;
 			// TODO:
 			//MainForm.Instance.AddCaptureWindowMenuItems(captureWindowMenuItem, Contextmenu_window_Click);	
 		}
 
-		void Contextmenu_window_Click(object sender, EventArgs e) {
-			ToolStripMenuItem clickedItem = (ToolStripMenuItem)sender;
-			try {
-				WindowDetails windowToCapture = (WindowDetails)clickedItem.Tag;
+		private void Contextmenu_window_Click(object sender, EventArgs e)
+		{
+			ToolStripMenuItem clickedItem = (ToolStripMenuItem) sender;
+			try
+			{
+				WindowDetails windowToCapture = (WindowDetails) clickedItem.Tag;
 				ICapture capture = new Capture();
-				using (Graphics graphics = Graphics.FromHwnd(Handle)) {
+				using (Graphics graphics = Graphics.FromHwnd(Handle))
+				{
 					capture.CaptureDetails.DpiX = graphics.DpiY;
 					capture.CaptureDetails.DpiY = graphics.DpiY;
 				}
 				windowToCapture = windowToCapture.WindowToCapture();
-				if (windowToCapture != null) {
+				if (windowToCapture != null)
+				{
 					// TODO:
 					//capture = CaptureHelper.CaptureWindow(windowToCapture, capture, coreConfiguration.WindowCaptureMode);
-					if (capture != null && capture.CaptureDetails != null && capture.Image != null) {
-						((Bitmap)capture.Image).SetResolution(capture.CaptureDetails.DpiX, capture.CaptureDetails.DpiY);
-						_surface.AddImageContainer((Bitmap)capture.Image, 100, 100);
+					if (capture != null && capture.CaptureDetails != null && capture.Image != null)
+					{
+						((Bitmap) capture.Image).SetResolution(capture.CaptureDetails.DpiX, capture.CaptureDetails.DpiY);
+						_surface.AddImageContainer((Bitmap) capture.Image, 100, 100);
 					}
 					Activate();
 					WindowDetails.ToForeground(Handle);
 				}
 
-				if (capture!= null) {
+				if (capture != null)
+				{
 					capture.Dispose();
 				}
-			} catch (Exception exception) {
+			}
+			catch (Exception exception)
+			{
 				LOG.Error(exception);
 			}
 		}
 
-		private void AutoCropToolStripMenuItemClick(object sender, EventArgs e) {
-			if (editorConfiguration.AutoCropDifference < 0) {
+		private void AutoCropToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			if (editorConfiguration.AutoCropDifference < 0)
+			{
 				editorConfiguration.AutoCropDifference = 0;
 			}
-			if (editorConfiguration.AutoCropDifference > 255) {
+			if (editorConfiguration.AutoCropDifference > 255)
+			{
 				editorConfiguration.AutoCropDifference = 255;
 			}
-			if (_surface.AutoCrop(editorConfiguration.AutoCropDifference)) {
+			if (_surface.AutoCrop(editorConfiguration.AutoCropDifference))
+			{
 				RefreshFieldControls();
 			}
 		}
 
-		private async Task AddBorderToolStripMenuItemClickAsync(CancellationToken token = default(CancellationToken)) {
+		private async Task AddBorderToolStripMenuItemClickAsync(CancellationToken token = default(CancellationToken))
+		{
 			await _surface.ApplyBitmapEffectAsync(new BorderEffect(), token);
 			UpdateUndoRedoSurfaceDependencies();
 		}
@@ -1268,10 +1523,12 @@ namespace GreenshotEditorPlugin.Forms
 		/// <summary>
 		/// This is used when the dropshadow button is used
 		/// </summary>
-		private async Task AddDropshadowToolStripMenuItemClickAsync(CancellationToken token = default(CancellationToken)) {
+		private async Task AddDropshadowToolStripMenuItemClickAsync(CancellationToken token = default(CancellationToken))
+		{
 			var dropShadowEffect = editorConfiguration.DropShadowEffectSettings;
 			var result = new DropShadowSettingsForm(dropShadowEffect).ShowDialog(this);
-			if (result == DialogResult.OK) {
+			if (result == DialogResult.OK)
+			{
 				await _surface.ApplyBitmapEffectAsync(dropShadowEffect, token);
 				UpdateUndoRedoSurfaceDependencies();
 			}
@@ -1280,10 +1537,12 @@ namespace GreenshotEditorPlugin.Forms
 		/// <summary>
 		/// Open the resize settings from, and resize if ok was pressed
 		/// </summary>
-		private async Task BtnResizeClickAsync(CancellationToken token = default(CancellationToken)) {
+		private async Task BtnResizeClickAsync(CancellationToken token = default(CancellationToken))
+		{
 			var resizeEffect = new ResizeEffect(_surface.Image.Width, _surface.Image.Height, true);
 			var result = new ResizeSettingsForm(resizeEffect).ShowDialog(this);
-			if (result == DialogResult.OK) {
+			if (result == DialogResult.OK)
+			{
 				await _surface.ApplyBitmapEffectAsync(resizeEffect, token);
 				UpdateUndoRedoSurfaceDependencies();
 			}
@@ -1293,64 +1552,82 @@ namespace GreenshotEditorPlugin.Forms
 		/// Call the torn edge effect
 		/// </summary>
 		/// <param name="token"></param>
-		private async Task TornEdgesToolStripMenuItemClickAsync(CancellationToken token = default(CancellationToken)) {
+		private async Task TornEdgesToolStripMenuItemClickAsync(CancellationToken token = default(CancellationToken))
+		{
 			var tornEdgeEffect = editorConfiguration.TornEdgeEffectSettings;
 			var result = new TornEdgeSettingsForm(tornEdgeEffect).ShowDialog(this);
-			if (result == DialogResult.OK) {
+			if (result == DialogResult.OK)
+			{
 				await _surface.ApplyBitmapEffectAsync(tornEdgeEffect, token);
 				UpdateUndoRedoSurfaceDependencies();
 			}
 		}
 
-		private async Task GrayscaleToolStripMenuItemClickAsync(CancellationToken token = default(CancellationToken)) {
+		private async Task GrayscaleToolStripMenuItemClickAsync(CancellationToken token = default(CancellationToken))
+		{
 			await _surface.ApplyBitmapEffectAsync(new GrayscaleEffect(), token);
 			UpdateUndoRedoSurfaceDependencies();
 		}
 
-		void ClearToolStripMenuItemClick(object sender, EventArgs e) {
+		private void ClearToolStripMenuItemClick(object sender, EventArgs e)
+		{
 			_surface.Clear(Color.Transparent);
 			UpdateUndoRedoSurfaceDependencies();
 		}
 
-		private async Task RotateCwToolstripButtonClickAsync(CancellationToken token = default(CancellationToken)) {
+		private async Task RotateCwToolstripButtonClickAsync(CancellationToken token = default(CancellationToken))
+		{
 			await _surface.ApplyBitmapEffectAsync(new RotateEffect(90), token);
 			UpdateUndoRedoSurfaceDependencies();
 		}
 
-		private async Task RotateCcwToolstripButtonClickAsync(CancellationToken token = default(CancellationToken)) {
+		private async Task RotateCcwToolstripButtonClickAsync(CancellationToken token = default(CancellationToken))
+		{
 			await _surface.ApplyBitmapEffectAsync(new RotateEffect(270), token);
 			UpdateUndoRedoSurfaceDependencies();
 		}
 
-		private async Task InvertToolStripMenuItemClickAsync(CancellationToken token = default(CancellationToken)) {
+		private async Task InvertToolStripMenuItemClickAsync(CancellationToken token = default(CancellationToken))
+		{
 			await _surface.ApplyBitmapEffectAsync(new InvertEffect(), token);
 			UpdateUndoRedoSurfaceDependencies();
 		}
 
-		private void ImageEditorFormResize(object sender, EventArgs e) {
-			if (Surface == null || Surface.Image == null || surfacePanel == null) {
+		private void ImageEditorFormResize(object sender, EventArgs e)
+		{
+			if (Surface == null || Surface.Image == null || surfacePanel == null)
+			{
 				return;
 			}
 			Size imageSize = Surface.Image.Size;
 			Size currentClientSize = surfacePanel.ClientSize;
 			var canvas = Surface as Control;
-			Panel panel = (Panel)canvas.Parent;
-			if (panel == null) {
+			Panel panel = (Panel) canvas.Parent;
+			if (panel == null)
+			{
 				return;
 			}
 			int offsetX = -panel.HorizontalScroll.Value;
 			int offsetY = -panel.VerticalScroll.Value;
-			if (canvas != null) {
-				if (currentClientSize.Width > imageSize.Width) {
-					canvas.Left = offsetX + ((currentClientSize.Width - imageSize.Width) / 2);
-				} else {
+			if (canvas != null)
+			{
+				if (currentClientSize.Width > imageSize.Width)
+				{
+					canvas.Left = offsetX + ((currentClientSize.Width - imageSize.Width)/2);
+				}
+				else
+				{
 					canvas.Left = offsetX + 0;
 				}
 			}
-			if (canvas != null) {
-				if (currentClientSize.Height > imageSize.Height) {
-					canvas.Top = offsetY + ((currentClientSize.Height - imageSize.Height) / 2);
-				} else {
+			if (canvas != null)
+			{
+				if (currentClientSize.Height > imageSize.Height)
+				{
+					canvas.Top = offsetY + ((currentClientSize.Height - imageSize.Height)/2);
+				}
+				else
+				{
 					canvas.Top = offsetY + 0;
 				}
 			}

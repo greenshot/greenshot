@@ -27,28 +27,33 @@ namespace Greenshot.Forms
 	/// <summary>
 	/// Description of PrintOptionsDialog.
 	/// </summary>
-	public partial class PrintOptionsDialog : BaseForm {
-		public PrintOptionsDialog() {
+	public partial class PrintOptionsDialog : BaseForm
+	{
+		public PrintOptionsDialog()
+		{
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
 			checkbox_dontaskagain.Checked = false;
 		}
-		
-		
-		void Button_okClick(object sender, EventArgs e) {
+
+
+		private void Button_okClick(object sender, EventArgs e)
+		{
 			// update config
 			coreConfiguration.OutputPrintPromptOptions = !checkbox_dontaskagain.Checked;
 			// TODO: Save?? IniConfig.Save();
 			DialogResult = DialogResult.OK;
 		}
 
-        protected override void OnFieldsFilled() {
-            // the color radio button is not actually bound to a setting, but checked when monochrome/grayscale are not checked
-            if(!radioBtnGrayScale.Checked && !radioBtnMonochrome.Checked) {
-                radioBtnColorPrint.Checked = true;
-            }
-        }
+		protected override void OnFieldsFilled()
+		{
+			// the color radio button is not actually bound to a setting, but checked when monochrome/grayscale are not checked
+			if (!radioBtnGrayScale.Checked && !radioBtnMonochrome.Checked)
+			{
+				radioBtnColorPrint.Checked = true;
+			}
+		}
 	}
 }

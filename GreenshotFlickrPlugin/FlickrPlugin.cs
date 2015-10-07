@@ -37,36 +37,43 @@ namespace GreenshotFlickrPlugin
 	/// <summary>
 	/// This is the Flickr base code
 	/// </summary>
-	public class FlickrPlugin : IGreenshotPlugin {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(FlickrPlugin));
+	public class FlickrPlugin : IGreenshotPlugin
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (FlickrPlugin));
 		private static IFlickrConfiguration _config;
 		private static IFlickrLanguage _language;
 		private IGreenshotHost _host;
 		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _itemPlugInConfig;
 
-		public void Dispose() {
+		public void Dispose()
+		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing) {
-			if (!disposing) {
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposing)
+			{
 				return;
 			}
-			if (_itemPlugInConfig == null) {
+			if (_itemPlugInConfig == null)
+			{
 				return;
 			}
 			_itemPlugInConfig.Dispose();
 			_itemPlugInConfig = null;
 		}
 
-		public IEnumerable<IDestination> Destinations() {
+		public IEnumerable<IDestination> Destinations()
+		{
 			yield return new FlickrDestination();
 		}
 
 
-		public IEnumerable<IProcessor> Processors() {
+		public IEnumerable<IProcessor> Processors()
+		{
 			yield break;
 		}
 
@@ -75,18 +82,19 @@ namespace GreenshotFlickrPlugin
 		/// </summary>
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="pluginAttribute">My own attributes</param>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttribute, CancellationToken token = new CancellationToken()) {
+		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttribute, CancellationToken token = new CancellationToken())
+		{
 			// Register / get the flickr configuration
 			_config = await IniConfig.Current.RegisterAndGetAsync<IFlickrConfiguration>(token);
 			_language = await LanguageLoader.Current.RegisterAndGetAsync<IFlickrLanguage>(token);
 			_host = pluginHost;
 
-			_resources = new ComponentResourceManager(typeof(FlickrPlugin));
+			_resources = new ComponentResourceManager(typeof (FlickrPlugin));
 
 			_itemPlugInConfig = new ToolStripMenuItem();
 			_itemPlugInConfig.Text = _language.Configure;
 			_itemPlugInConfig.Tag = _host;
-			_itemPlugInConfig.Image = (Image)_resources.GetObject("flickr");
+			_itemPlugInConfig.Image = (Image) _resources.GetObject("flickr");
 			_itemPlugInConfig.Click += ConfigMenuClick;
 
 			PluginUtils.AddToContextMenu(_host, _itemPlugInConfig);
@@ -94,20 +102,24 @@ namespace GreenshotFlickrPlugin
 			return true;
 		}
 
-		public void OnLanguageChanged(object sender, EventArgs e) {
-			if (_itemPlugInConfig != null) {
+		public void OnLanguageChanged(object sender, EventArgs e)
+		{
+			if (_itemPlugInConfig != null)
+			{
 				_itemPlugInConfig.Text = _language.Configure;
 			}
 		}
 
-		public void Shutdown() {
+		public void Shutdown()
+		{
 			LOG.Debug("Flickr Plugin shutdown.");
 		}
 
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
-		public void Configure() {
+		public void Configure()
+		{
 			ShowConfigDialog();
 		}
 
@@ -116,12 +128,14 @@ namespace GreenshotFlickrPlugin
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		public void Closing(object sender, FormClosingEventArgs e) {
+		public void Closing(object sender, FormClosingEventArgs e)
+		{
 			LOG.Debug("Application closing, de-registering Flickr Plugin!");
 			Shutdown();
 		}
-	
-		public void ConfigMenuClick(object sender, EventArgs eventArgs) {
+
+		public void ConfigMenuClick(object sender, EventArgs eventArgs)
+		{
 			ShowConfigDialog();
 		}
 
@@ -138,6 +152,5 @@ namespace GreenshotFlickrPlugin
 			}
 			return false;
 		}
-
 	}
 }

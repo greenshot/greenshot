@@ -38,8 +38,9 @@ namespace GreenshotPhotobucketPlugin
 	/// <summary>
 	/// Description of PhotobucketUtils.
 	/// </summary>
-	public static class PhotobucketUtils {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PhotobucketUtils));
+	public static class PhotobucketUtils
+	{
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (PhotobucketUtils));
 		private static readonly IPhotobucketConfiguration Config = IniConfig.Current.Get<IPhotobucketConfiguration>();
 		private static List<string> _albumsCache;
 
@@ -48,30 +49,37 @@ namespace GreenshotPhotobucketPlugin
 		/// For more details on the available parameters, see: http://api.Photobucket.com/resources_anon
 		/// </summary>
 		/// <returns>PhotobucketResponse</returns>
-		public static async Task<PhotobucketInfo> UploadToPhotobucket(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string albumPath, string title, string filename, IProgress<int> progress = null) {
+		public static async Task<PhotobucketInfo> UploadToPhotobucket(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string albumPath, string title, string filename, IProgress<int> progress = null)
+		{
 			string responseString;
 
 			var uploadUri = new Uri("http://api.photobucket.com/album/!/upload");
 			var oAuth = await CreateSession(true);
-			if (oAuth == null) {
+			if (oAuth == null)
+			{
 				return null;
 			}
 			var signedParameters = new Dictionary<string, object>();
 			// add username if the albumpath is for the user
 			// see "Alternative Identifier Specifications" here: https://pic.photobucket.com/dev_help/WebHelpPublic/Content/Getting%20Started/Conventions.htm#ObjectIdentifiers
-			if (string.IsNullOrEmpty(albumPath) && oAuth.AccessTokenResponseParameters != null && oAuth.AccessTokenResponseParameters.ContainsKey("username")) {
+			if (string.IsNullOrEmpty(albumPath) && oAuth.AccessTokenResponseParameters != null && oAuth.AccessTokenResponseParameters.ContainsKey("username"))
+			{
 				signedParameters.Add("id", oAuth.AccessTokenResponseParameters["username"]);
-			} else {
+			}
+			else
+			{
 				signedParameters.Add("id", albumPath);
 			}
 			// add type
 			signedParameters.Add("type", "image");
 			// add title
-			if (title != null) {
+			if (title != null)
+			{
 				signedParameters.Add("title", title);
 			}
 			// add filename
-			if (filename != null) {
+			if (filename != null)
+			{
 				signedParameters.Add("filename", filename);
 			}
 			var unsignedParameters = new Dictionary<string, object>();
@@ -86,9 +94,9 @@ namespace GreenshotPhotobucketPlugin
 					using (var streamContent = new StreamContent(uploadStream))
 					{
 						streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
-						streamContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data") {
-							Name = "\"uploadfile\"",
-							FileName = "\"" + filename + "\"",
+						streamContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+						{
+							Name = "\"uploadfile\"", FileName = "\"" + filename + "\"",
 						};
 						unsignedParameters.Add("uploadfile", streamContent);
 
@@ -118,7 +126,8 @@ namespace GreenshotPhotobucketPlugin
 				}
 			}
 
-			if (responseString == null) {
+			if (responseString == null)
+			{
 				return null;
 			}
 			LOG.Info(responseString);
@@ -126,12 +135,13 @@ namespace GreenshotPhotobucketPlugin
 			LOG.Debug("Upload to Photobucket was finished");
 			return photobucketInfo;
 		}
-		
+
 		/// <summary>
 		/// Helper method to create an OAuth session object for contacting the Photobucket API
 		/// </summary>
 		/// <returns>OAuthSession</returns>
-		private static async Task<OAuthSession> CreateSession(bool autoLogin) {
+		private static async Task<OAuthSession> CreateSession(bool autoLogin)
+		{
 			OAuthSession oAuth = new OAuthSession(Config.ClientId, Config.ClientSecret);
 			oAuth.AutoLogin = autoLogin;
 			oAuth.CheckVerifier = false;
@@ -145,23 +155,30 @@ namespace GreenshotPhotobucketPlugin
 			oAuth.AccessTokenMethod = HttpMethod.Post;
 
 			oAuth.LoginTitle = "Photobucket authorization";
-			if (string.IsNullOrEmpty(Config.SubDomain) || string.IsNullOrEmpty(Config.Token) || string.IsNullOrEmpty(Config.Username)) {
-				if (!autoLogin) {
+			if (string.IsNullOrEmpty(Config.SubDomain) || string.IsNullOrEmpty(Config.Token) || string.IsNullOrEmpty(Config.Username))
+			{
+				if (!autoLogin)
+				{
 					return null;
 				}
-				if (!await oAuth.AuthorizeAsync()) {
+				if (!await oAuth.AuthorizeAsync())
+				{
 					return null;
 				}
-				if (!string.IsNullOrEmpty(oAuth.Token)) {
+				if (!string.IsNullOrEmpty(oAuth.Token))
+				{
 					Config.Token = oAuth.Token;
 				}
-				if (!string.IsNullOrEmpty(oAuth.TokenSecret)) {
+				if (!string.IsNullOrEmpty(oAuth.TokenSecret))
+				{
 					Config.TokenSecret = oAuth.TokenSecret;
 				}
-				if (oAuth.AccessTokenResponseParameters != null && oAuth.AccessTokenResponseParameters["subdomain"] != null) {
+				if (oAuth.AccessTokenResponseParameters != null && oAuth.AccessTokenResponseParameters["subdomain"] != null)
+				{
 					Config.SubDomain = oAuth.AccessTokenResponseParameters["subdomain"];
 				}
-				if (oAuth.AccessTokenResponseParameters != null && oAuth.AccessTokenResponseParameters["username"] != null) {
+				if (oAuth.AccessTokenResponseParameters != null && oAuth.AccessTokenResponseParameters["username"] != null)
+				{
 					Config.Username = oAuth.AccessTokenResponseParameters["username"];
 				}
 			}
@@ -174,36 +191,48 @@ namespace GreenshotPhotobucketPlugin
 		/// Get list of photobucket albums
 		/// </summary>
 		/// <returns>List of strings</returns>
-		public static async Task<List<string>> RetrievePhotobucketAlbums() {
-			if (_albumsCache != null) {
+		public static async Task<List<string>> RetrievePhotobucketAlbums()
+		{
+			if (_albumsCache != null)
+			{
 				return _albumsCache;
 			}
 			string responseString;
 
 			var oAuth = await CreateSession(false);
-			if (oAuth == null) {
+			if (oAuth == null)
+			{
 				return null;
 			}
 			var signedParameters = new Dictionary<string, object>();
-			try {
+			try
+			{
 				var signUri = new Uri(string.Format("http://api.photobucket.com/album/{0}", Config.Username));
 				var requestUri = new Uri(string.Format("http://api.photobucket.com/album/{0}".Replace("api.photobucket.com", Config.SubDomain), Config.Username));
 				responseString = await oAuth.MakeOAuthRequest(HttpMethod.Get, signUri, requestUri, null, signedParameters);
-			} catch (Exception ex) {
+			}
+			catch (Exception ex)
+			{
 				LOG.Error("Error uploading to Photobucket.", ex);
 				throw;
-			} finally {
-				if (!string.IsNullOrEmpty(oAuth.Token)) {
+			}
+			finally
+			{
+				if (!string.IsNullOrEmpty(oAuth.Token))
+				{
 					Config.Token = oAuth.Token;
 				}
-				if (!string.IsNullOrEmpty(oAuth.TokenSecret)) {
+				if (!string.IsNullOrEmpty(oAuth.TokenSecret))
+				{
 					Config.TokenSecret = oAuth.TokenSecret;
 				}
 			}
-			if (responseString == null) {
+			if (responseString == null)
+			{
 				return null;
 			}
-			try {
+			try
+			{
 				var doc = new XmlDocument();
 				doc.LoadXml(responseString);
 				var albums = new List<string>();
@@ -215,35 +244,42 @@ namespace GreenshotPhotobucketPlugin
 				LOG.DebugFormat("Albums: {0}", string.Join(",", albums.ToArray()));
 				_albumsCache = albums;
 				return albums;
-			} catch(Exception e) {
+			}
+			catch (Exception e)
+			{
 				LOG.Error("Error while Reading albums: ", e);
 			}
 
 			LOG.Debug("Upload to Photobucket was finished");
 			return null;
 		}
-		
+
 		/// <summary>
 		/// Parse the album nodes recursively
 		/// </summary>
 		/// <param name="albums"></param>
 		/// <param name="path"></param>
 		/// <param name="nodes"></param>
-		private static void RecurseAlbums(List<string>albums, string path, IEnumerable nodes) {
-			foreach(XmlNode node in nodes) {
-				if (node.Name != "album") {
+		private static void RecurseAlbums(List<string> albums, string path, IEnumerable nodes)
+		{
+			foreach (XmlNode node in nodes)
+			{
+				if (node.Name != "album")
+				{
 					continue;
 				}
 				if (node.Attributes != null)
 				{
 					string currentAlbum = node.Attributes["name"].Value;
 					string currentPath = currentAlbum;
-					if (!string.IsNullOrEmpty(path)) {
+					if (!string.IsNullOrEmpty(path))
+					{
 						currentPath = string.Format("{0}/{1}", path, currentAlbum);
 					}
-				
+
 					albums.Add(currentPath);
-					if (node.Attributes["subalbum_count"] != null && node.Attributes["subalbum_count"].Value != "0") {
+					if (node.Attributes["subalbum_count"] != null && node.Attributes["subalbum_count"].Value != "0")
+					{
 						RecurseAlbums(albums, currentPath, node.ChildNodes);
 					}
 				}

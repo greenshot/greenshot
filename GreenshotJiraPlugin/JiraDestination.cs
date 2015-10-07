@@ -42,90 +42,119 @@ namespace GreenshotJiraPlugin
 	/// <summary>
 	/// Jira destination.
 	/// </summary>
-	public class JiraDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraDestination));
+	public class JiraDestination : AbstractDestination
+	{
+		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (JiraDestination));
 		private static readonly IJiraConfiguration config = IniConfig.Current.Get<IJiraConfiguration>();
 		private static readonly IJiraLanguage language = LanguageLoader.Current.Get<IJiraLanguage>();
 		private readonly JiraPlugin _jiraPlugin;
 		private readonly JiraDetails _jira;
 
-		public JiraDestination(JiraPlugin jiraPlugin) {
+		public JiraDestination(JiraPlugin jiraPlugin)
+		{
 			_jiraPlugin = jiraPlugin;
 		}
 
-		public JiraDestination(JiraPlugin jiraPlugin, JiraDetails jira) {
+		public JiraDestination(JiraPlugin jiraPlugin, JiraDetails jira)
+		{
 			_jiraPlugin = jiraPlugin;
 			_jira = jira;
 		}
 
-		public override string Designation {
-			get {
+		public override string Designation
+		{
+			get
+			{
 				return "Jira";
 			}
 		}
 
-		private string FormatUpload(JiraDetails jira) {
+		private string FormatUpload(JiraDetails jira)
+		{
 			return string.Format("{0} - {1}", jira.JiraKey, jira.Title.Substring(0, Math.Min(40, jira.Title.Length)));
 		}
 
-		public override string Description {
-			get {
-				if (_jira == null) {
+		public override string Description
+		{
+			get
+			{
+				if (_jira == null)
+				{
 					return language.UploadMenuItem;
-				} else {
+				}
+				else
+				{
 					return FormatUpload(_jira);
 				}
 			}
 		}
 
-		public override bool IsActive {
-			get {
+		public override bool IsActive
+		{
+			get
+			{
 				return base.IsActive && _jiraPlugin.JiraMonitor != null && _jiraPlugin.JiraMonitor.HasJiraInstances;
 			}
 		}
 
-		public override bool IsDynamic {
-			get {
+		public override bool IsDynamic
+		{
+			get
+			{
 				return true;
 			}
 		}
-		public override Image DisplayIcon {
-			get {
-				var resources = new ComponentResourceManager(typeof(JiraPlugin));
-				return (Image)resources.GetObject("Jira");
+
+		public override Image DisplayIcon
+		{
+			get
+			{
+				var resources = new ComponentResourceManager(typeof (JiraPlugin));
+				return (Image) resources.GetObject("Jira");
 			}
 		}
 
-		public override IEnumerable<IDestination> DynamicDestinations() {
-			if (IsActive) {
+		public override IEnumerable<IDestination> DynamicDestinations()
+		{
+			if (IsActive)
+			{
 				// Show only the last 10 JIRAs
-				foreach (var jiraIssue in _jiraPlugin.JiraMonitor.RecentJiras.Take(10)) {
+				foreach (var jiraIssue in _jiraPlugin.JiraMonitor.RecentJiras.Take(10))
+				{
 					yield return new JiraDestination(_jiraPlugin, jiraIssue);
 				}
 			}
 		}
 
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surfaceToUpload, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
-			var exportInformation = new ExportInformation {
-				DestinationDesignation = Designation,
-				DestinationDescription = Description
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surfaceToUpload, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		{
+			var exportInformation = new ExportInformation
+			{
+				DestinationDesignation = Designation, DestinationDescription = Description
 			};
 			string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(config.FilenamePattern, config.UploadFormat, captureDetails));
 			var outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
-			if (_jira != null) {
-				try {
+			if (_jira != null)
+			{
+				try
+				{
 					var jiraApi = _jiraPlugin.JiraMonitor.GetJiraApiForKey(_jira);
 					// Run upload in the background
-					await PleaseWaitWindow.CreateAndShowAsync(Description, language.CommunicationWait, async (progress, pleaseWaitToken) => {
+					await PleaseWaitWindow.CreateAndShowAsync(Description, language.CommunicationWait, async (progress, pleaseWaitToken) =>
+					{
 						var multipartFormDataContent = new MultipartFormDataContent();
-						using (var stream = new MemoryStream()) {
+						using (var stream = new MemoryStream())
+						{
 							ImageOutput.SaveToStream(surfaceToUpload, stream, outputSettings);
 							stream.Position = 0;
-							using (var uploadStream = new ProgressStream(stream, progress)) {
-								using (var streamContent = new StreamContent(uploadStream)) {
+							using (var uploadStream = new ProgressStream(stream, progress))
+							{
+								using (var streamContent = new StreamContent(uploadStream))
+								{
 									streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
 									multipartFormDataContent.Add(streamContent, "file", filename);
-									using (var reponseMessage = await jiraApi.Attach(_jira.JiraKey, multipartFormDataContent, pleaseWaitToken)) {
+									using (var reponseMessage = await jiraApi.Attach(_jira.JiraKey, multipartFormDataContent, pleaseWaitToken))
+									{
 										return reponseMessage.GetAsStringAsync(token: token);
 									}
 								}
@@ -136,10 +165,14 @@ namespace GreenshotJiraPlugin
 					LOG.Debug("Uploaded to Jira.");
 					exportInformation.ExportMade = true;
 					exportInformation.ExportedToUri = jiraApi.JiraBaseUri.AppendSegments("browse", _jira.JiraKey);
-				} catch (TaskCanceledException tcEx) {
+				}
+				catch (TaskCanceledException tcEx)
+				{
 					exportInformation.ErrorMessage = tcEx.Message;
 					LOG.Info(tcEx.Message);
-				} catch (Exception e) {
+				}
+				catch (Exception e)
+				{
 					exportInformation.ErrorMessage = e.Message;
 					LOG.Warn(e);
 					MessageBox.Show(language.UploadFailure + " " + e.Message, Designation, MessageBoxButton.OK, MessageBoxImage.Error);

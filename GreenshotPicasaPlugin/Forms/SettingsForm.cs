@@ -18,13 +18,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotPicasaPlugin {
+namespace GreenshotPicasaPlugin
+{
 	/// <summary>
 	/// Description of PasswordRequestForm.
 	/// </summary>
-	public partial class SettingsForm : PicasaForm {
-
-		public SettingsForm() : base() {
+	public partial class SettingsForm : PicasaForm
+	{
+		public SettingsForm() : base()
+		{
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
@@ -32,6 +34,5 @@ namespace GreenshotPicasaPlugin {
 			CancelButton = buttonCancel;
 			AcceptButton = buttonOK;
 		}
-
 	}
 }

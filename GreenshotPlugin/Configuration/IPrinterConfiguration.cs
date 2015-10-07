@@ -27,69 +27,81 @@ namespace GreenshotPlugin.Configuration
 	/// <summary>
 	/// This interface represents all the printer settings
 	/// </summary>
-	public interface IPrinterConfiguration {
+	public interface IPrinterConfiguration
+	{
 		[Description("Ask for print options when printing?"), DefaultValue(true), Tag(ConfigTags.LanguageKey, "settings_alwaysshowprintoptionsdialog")]
-		bool OutputPrintPromptOptions {
+		bool OutputPrintPromptOptions
+		{
 			get;
 			set;
 		}
 
 		[Description("Allow rotating the picture for fitting on paper?"), DefaultValue(false), Tag(ConfigTags.LanguageKey, "printoptions_allowrotate")]
-		bool OutputPrintAllowRotate {
+		bool OutputPrintAllowRotate
+		{
 			get;
 			set;
 		}
 
 		[Description("Allow growing the picture for fitting on paper?"), DefaultValue(false), Tag(ConfigTags.LanguageKey, "printoptions_allowenlarge")]
-		bool OutputPrintAllowEnlarge {
+		bool OutputPrintAllowEnlarge
+		{
 			get;
 			set;
 		}
 
 		[Description("Allow shrinking the picture for fitting on paper?"), DefaultValue(true), Tag(ConfigTags.LanguageKey, "printoptions_allowshrink")]
-		bool OutputPrintAllowShrink {
+		bool OutputPrintAllowShrink
+		{
 			get;
 			set;
 		}
 
 		[Description("Center image when printing?"), DefaultValue(true), Tag(ConfigTags.LanguageKey, "printoptions_allowcenter")]
-		bool OutputPrintCenter {
+		bool OutputPrintCenter
+		{
 			get;
 			set;
 		}
 
 		[Description("Print image inverted (use e.g. for console captures)"), DefaultValue(false), Tag(ConfigTags.LanguageKey, "printoptions_inverted")]
-		bool OutputPrintInverted {
+		bool OutputPrintInverted
+		{
 			get;
 			set;
 		}
 
 		[Description("Force grayscale printing"), DefaultValue(false), Tag(ConfigTags.LanguageKey, "printoptions_printgrayscale")]
-		bool OutputPrintGrayscale {
+		bool OutputPrintGrayscale
+		{
 			get;
 			set;
 		}
 
 		[Description("Force monorchrome printing"), DefaultValue(false), Tag(ConfigTags.LanguageKey, "printoptions_printmonochrome")]
-		bool OutputPrintMonochrome {
+		bool OutputPrintMonochrome
+		{
 			get;
 			set;
 		}
 
 		[Description("Threshold for monochrome filter (0 - 255), lower value means less black"), DefaultValue(127)]
-		byte OutputPrintMonochromeThreshold {
+		byte OutputPrintMonochromeThreshold
+		{
 			get;
 			set;
 		}
 
 		[Description("Print footer on print?"), DefaultValue(true), Tag(ConfigTags.LanguageKey, "printoptions_timestamp")]
-		bool OutputPrintFooter {
+		bool OutputPrintFooter
+		{
 			get;
 			set;
 		}
 
 		[Description("Footer pattern"), DefaultValue("${capturetime:d\"D\"} ${capturetime:d\"T\"} - ${title}")]
-		string OutputPrintFooterPattern {
+		string OutputPrintFooterPattern
+		{
 			get;
 			set;
 		}

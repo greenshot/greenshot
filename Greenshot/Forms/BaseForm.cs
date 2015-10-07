@@ -21,10 +21,12 @@
 
 using GreenshotPlugin.Controls;
 
-namespace Greenshot {
+namespace Greenshot
+{
 	/// <summary>
 	/// This class is only here to help in the Designer mode, so it's clear where the language files are
 	/// </summary>
-	public class BaseForm : GreenshotForm {
+	public class BaseForm : GreenshotForm
+	{
 	}
 }

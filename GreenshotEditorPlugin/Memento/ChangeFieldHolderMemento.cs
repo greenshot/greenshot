@@ -24,69 +24,69 @@ using System;
 
 namespace GreenshotEditorPlugin.Memento
 {
-    /// <summary>
-    /// The ChangeFieldHolderMemento makes it possible to undo-redo an IDrawableContainer move
-    /// </summary>
-    public class ChangeFieldHolderMemento : IMemento
-    {
-        private IFieldHolder fieldHolder;
-        private readonly FieldAttribute fieldAttribute;
-        private readonly object oldValue;
+	/// <summary>
+	/// The ChangeFieldHolderMemento makes it possible to undo-redo an IDrawableContainer move
+	/// </summary>
+	public class ChangeFieldHolderMemento : IMemento
+	{
+		private IFieldHolder fieldHolder;
+		private readonly FieldAttribute fieldAttribute;
+		private readonly object oldValue;
 
-        public ChangeFieldHolderMemento(IFieldHolder fieldHolder, FieldAttribute fieldAttribute)
-        {
-            this.fieldHolder = fieldHolder;
-            this.fieldAttribute = fieldAttribute;
-            oldValue = fieldAttribute.GetValue(fieldHolder);
-        }
+		public ChangeFieldHolderMemento(IFieldHolder fieldHolder, FieldAttribute fieldAttribute)
+		{
+			this.fieldHolder = fieldHolder;
+			this.fieldAttribute = fieldAttribute;
+			oldValue = fieldAttribute.GetValue(fieldHolder);
+		}
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
 
-        protected virtual void Dispose(bool disposing)
-        {
-            //if (disposing) { }
-            fieldHolder = null;
-        }
+		protected virtual void Dispose(bool disposing)
+		{
+			//if (disposing) { }
+			fieldHolder = null;
+		}
 
-        public string ActionDescription
-        {
-            get
-            {
-                return "";
-            }
-        }
+		public string ActionDescription
+		{
+			get
+			{
+				return "";
+			}
+		}
 
-        public bool Merge(IMemento otherMemento)
-        {
-            ChangeFieldHolderMemento other = otherMemento as ChangeFieldHolderMemento;
-            if (other != null)
-            {
-                // Check if it's the same IFieldHolder
-                if (other.fieldHolder.Equals(fieldHolder))
-                {
-                    // Check if it'S the same field
-                    if (other.fieldAttribute.Equals(fieldAttribute))
-                    {
-                        // Match, do not store anything as the initial state is what we want.
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
+		public bool Merge(IMemento otherMemento)
+		{
+			ChangeFieldHolderMemento other = otherMemento as ChangeFieldHolderMemento;
+			if (other != null)
+			{
+				// Check if it's the same IFieldHolder
+				if (other.fieldHolder.Equals(fieldHolder))
+				{
+					// Check if it'S the same field
+					if (other.fieldAttribute.Equals(fieldAttribute))
+					{
+						// Match, do not store anything as the initial state is what we want.
+						return true;
+					}
+				}
+			}
+			return false;
+		}
 
-        public IMemento Restore()
-        {
-            // Before
-            fieldHolder.Invalidate();
-            ChangeFieldHolderMemento oldState = new ChangeFieldHolderMemento(fieldHolder, fieldAttribute);
-            // invalidation will be triggered by the SetValue
-            fieldAttribute.SetValue(fieldHolder, oldValue);
-            return oldState;
-        }
-    }
+		public IMemento Restore()
+		{
+			// Before
+			fieldHolder.Invalidate();
+			ChangeFieldHolderMemento oldState = new ChangeFieldHolderMemento(fieldHolder, fieldAttribute);
+			// invalidation will be triggered by the SetValue
+			fieldAttribute.SetValue(fieldHolder, oldValue);
+			return oldState;
+		}
+	}
 }

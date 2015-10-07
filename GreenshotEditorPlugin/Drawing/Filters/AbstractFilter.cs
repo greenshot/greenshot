@@ -18,10 +18,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.ComponentModel;
 using System.Drawing;
-
 using GreenshotEditorPlugin.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
 
@@ -30,49 +30,53 @@ using Greenshot.Plugin.Drawing;
 /// Subclasses should fulfill INotifyPropertyChanged contract, i.e. call
 /// OnPropertyChanged whenever a public property has been changed.
 /// </summary>
-namespace GreenshotEditorPlugin.Drawing.Filters {
+
+namespace GreenshotEditorPlugin.Drawing.Filters
+{
 	[Serializable]
-    public abstract class AbstractFilter : AbstractFieldHolder, IFilter
-    {
-        private bool invert;
-        public bool Invert
-        {
-            get
-            {
-                return invert;
-            }
-            set
-            {
-                invert = value;
-                OnPropertyChanged("Invert");
-            }
-        }
+	public abstract class AbstractFilter : AbstractFieldHolder, IFilter
+	{
+		private bool invert;
 
-        [NonSerialized]
-        protected IDrawableContainer parent;
-        public IDrawableContainer Parent
-        {
-            get
-            {
-                return parent;
-            }
-            set
-            {
-                parent = value;
-            }
-        }
+		public bool Invert
+		{
+			get
+			{
+				return invert;
+			}
+			set
+			{
+				invert = value;
+				OnPropertyChanged("Invert");
+			}
+		}
 
-        public AbstractFilter(DrawableContainer parent) : base()
-        {
-            this.parent = parent;
-            InitFieldAttributes();
-        }
+		[NonSerialized]
+		protected IDrawableContainer parent;
 
-        public abstract void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode);
+		public IDrawableContainer Parent
+		{
+			get
+			{
+				return parent;
+			}
+			set
+			{
+				parent = value;
+			}
+		}
 
-        public override void Invalidate()
-        {
-            parent.Invalidate();
-        }
-    }
+		public AbstractFilter(DrawableContainer parent) : base()
+		{
+			this.parent = parent;
+			InitFieldAttributes();
+		}
+
+		public abstract void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode);
+
+		public override void Invalidate()
+		{
+			parent.Invalidate();
+		}
+	}
 }

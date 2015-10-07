@@ -1,4 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
+
 <configuration>
 	<!-- This file can be used to make Greenshot log in the application directory -->
 	<!-- See http://logging.apache.org/log4net/release/sdk/log4net.Layout.PatternLayout.html -->

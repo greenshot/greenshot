@@ -25,19 +25,23 @@ using System.Runtime.Serialization;
 
 namespace GreenshotEditorPlugin.Drawing
 {
-    /// <summary>
-    /// Description of ObfuscateContainer.
-    /// </summary>
-    [Serializable] 
-	public class ObfuscateContainer : FilterContainer {
-
+	/// <summary>
+	/// Description of ObfuscateContainer.
+	/// </summary>
+	[Serializable]
+	public class ObfuscateContainer : FilterContainer
+	{
 		private PreparedFilter _preparedFilter = PreparedFilter.PIXELIZE;
+
 		[Field(FieldTypes.PREPARED_FILTER_OBFUSCATE)]
-		public override PreparedFilter Filter {
-			get {
+		public override PreparedFilter Filter
+		{
+			get
+			{
 				return _preparedFilter;
 			}
-			set {
+			set
+			{
 				_preparedFilter = value;
 				OnFieldPropertyChanged(FieldTypes.PREPARED_FILTER_OBFUSCATE);
 				// Before we had to register to events to know if the value was changed
@@ -45,11 +49,13 @@ namespace GreenshotEditorPlugin.Drawing
 			}
 		}
 
-		public ObfuscateContainer(Surface parent) : base(parent) {
+		public ObfuscateContainer(Surface parent) : base(parent)
+		{
 		}
-		
+
 		[OnDeserialized]
-		private void OnDeserialized(StreamingContext context) {
+		private void OnDeserialized(StreamingContext context)
+		{
 			ConfigurePreparedFilters();
 		}
 	}

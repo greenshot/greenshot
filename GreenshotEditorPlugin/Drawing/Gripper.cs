@@ -22,36 +22,40 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace GreenshotEditorPlugin.Drawing {
+namespace GreenshotEditorPlugin.Drawing
+{
 	/// <summary>
 	/// Grippers are the dragable edges of our containers
 	/// </summary>
-	public class Gripper : Label {
+	public class Gripper : Label
+	{
 		/// <summary>
 		/// Constants for anchor/gripper position:
 		/// 0 1 2
 		/// 7   3
 		/// 6 5 4
 		/// </summary>
-		public const int POSITION_TOP_LEFT      = 0;
-		public const int POSITION_TOP_CENTER    = 1;
-		public const int POSITION_TOP_RIGHT     = 2;
-		public const int POSITION_MIDDLE_RIGHT  = 3;
-		public const int POSITION_BOTTOM_RIGHT  = 4;
+		public const int POSITION_TOP_LEFT = 0;
+
+		public const int POSITION_TOP_CENTER = 1;
+		public const int POSITION_TOP_RIGHT = 2;
+		public const int POSITION_MIDDLE_RIGHT = 3;
+		public const int POSITION_BOTTOM_RIGHT = 4;
 		public const int POSITION_BOTTOM_CENTER = 5;
-		public const int POSITION_BOTTOM_LEFT   = 6;
-		public const int POSITION_MIDDLE_LEFT   = 7;
-		
-		public int Position {
+		public const int POSITION_BOTTOM_LEFT = 6;
+		public const int POSITION_MIDDLE_LEFT = 7;
+
+		public int Position
+		{
 			get;
 			set;
 		}
 
-		public Gripper() {
+		public Gripper()
+		{
 			Width = 5;
 			Height = 5;
 			BackColor = Color.Black;
-			
 		}
 	}
 }

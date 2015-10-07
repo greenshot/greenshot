@@ -33,30 +33,40 @@ namespace GreenshotPlugin.Core
 	/// <summary>
 	/// Description of DestinationHelper.
 	/// </summary>
-	public static class DestinationHelper {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(DestinationHelper));
+	public static class DestinationHelper
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (DestinationHelper));
 		private static Dictionary<string, IDestination> RegisteredDestinations = new Dictionary<string, IDestination>();
 		private static readonly ICoreConfiguration coreConfig = IniConfig.Current.Get<ICoreConfiguration>();
 
 		/// Initialize the destinations		
-		static DestinationHelper() {
-			foreach(Type destinationType in InterfaceUtils.GetSubclassesOf(typeof(IDestination),true)) {
+		static DestinationHelper()
+		{
+			foreach (Type destinationType in InterfaceUtils.GetSubclassesOf(typeof (IDestination), true))
+			{
 				// Only take our own
-				if (!"Greenshot.Destinations".Equals(destinationType.Namespace)) {
+				if (!"Greenshot.Destinations".Equals(destinationType.Namespace))
+				{
 					continue;
 				}
 				IDestination destination;
-				try {
-					destination = (IDestination)Activator.CreateInstance(destinationType);
-				} catch (Exception e) {
+				try
+				{
+					destination = (IDestination) Activator.CreateInstance(destinationType);
+				}
+				catch (Exception e)
+				{
 					LOG.ErrorFormat("Can't create instance of {0}", destinationType);
 					LOG.Error(e);
 					continue;
 				}
-				if (destination.IsActive) {
+				if (destination.IsActive)
+				{
 					LOG.DebugFormat("Found destination {0} with designation {1}", destinationType.Name, destination.Designation);
 					RegisterDestination(destination);
-				} else {
+				}
+				else
+				{
 					LOG.DebugFormat("Ignoring destination {0} with designation {1}", destinationType.Name, destination.Designation);
 				}
 			}
@@ -66,8 +76,10 @@ namespace GreenshotPlugin.Core
 		/// Register your destination here, if it doesn't come from a plugin and needs to be available
 		/// </summary>
 		/// <param name="destination"></param>
-		public static void RegisterDestination(IDestination destination) {
-			if (coreConfig.ExcludeDestinations == null || !coreConfig.ExcludeDestinations.Contains(destination.Designation)) {
+		public static void RegisterDestination(IDestination destination)
+		{
+			if (coreConfig.ExcludeDestinations == null || !coreConfig.ExcludeDestinations.Contains(destination.Designation))
+			{
 				// don't test the key, an exception should happen wenn it's not unique
 				RegisteredDestinations.Add(destination.Designation, destination);
 			}
@@ -77,17 +89,24 @@ namespace GreenshotPlugin.Core
 		/// Method to get all the destinations from the plugins
 		/// </summary>
 		/// <returns>List<IDestination></returns>
-		private static List<IDestination> GetPluginDestinations() {
+		private static List<IDestination> GetPluginDestinations()
+		{
 			List<IDestination> destinations = new List<IDestination>();
-			foreach (PluginAttribute pluginAttribute in PluginUtils.Host.Plugins.Keys) {
+			foreach (PluginAttribute pluginAttribute in PluginUtils.Host.Plugins.Keys)
+			{
 				IGreenshotPlugin plugin = PluginUtils.Host.Plugins[pluginAttribute];
-				try {
-					foreach (IDestination destination in plugin.Destinations()) {
-						if (coreConfig.ExcludeDestinations == null || !coreConfig.ExcludeDestinations.Contains(destination.Designation)) {
+				try
+				{
+					foreach (IDestination destination in plugin.Destinations())
+					{
+						if (coreConfig.ExcludeDestinations == null || !coreConfig.ExcludeDestinations.Contains(destination.Designation))
+						{
 							destinations.Add(destination);
 						}
 					}
-				} catch (Exception ex) {
+				}
+				catch (Exception ex)
+				{
 					LOG.ErrorFormat("Couldn't get destinations from the plugin {0}", pluginAttribute.Name);
 					LOG.Error(ex);
 				}
@@ -100,7 +119,8 @@ namespace GreenshotPlugin.Core
 		/// Get a list of all destinations, registered or supplied by a plugin
 		/// </summary>
 		/// <returns></returns>
-		public static List<IDestination> GetAllDestinations() {
+		public static List<IDestination> GetAllDestinations()
+		{
 			List<IDestination> destinations = new List<IDestination>();
 			destinations.AddRange(RegisteredDestinations.Values);
 			destinations.AddRange(GetPluginDestinations());
@@ -113,15 +133,20 @@ namespace GreenshotPlugin.Core
 		/// </summary>
 		/// <param name="designation">Designation of the destination</param>
 		/// <returns>IDestination or null</returns>
-		public static IDestination GetDestination(string designation) {
-			if (designation == null) {
+		public static IDestination GetDestination(string designation)
+		{
+			if (designation == null)
+			{
 				return null;
 			}
-			if (RegisteredDestinations.ContainsKey(designation)) {
+			if (RegisteredDestinations.ContainsKey(designation))
+			{
 				return RegisteredDestinations[designation];
 			}
-			foreach (IDestination destination in GetPluginDestinations()) {
-				if (designation.Equals(destination.Designation)) {
+			foreach (IDestination destination in GetPluginDestinations())
+			{
+				if (designation.Equals(destination.Designation))
+				{
 					return destination;
 				}
 			}
@@ -134,9 +159,11 @@ namespace GreenshotPlugin.Core
 		/// <param name="designation"></param>
 		/// <param name="surface"></param>
 		/// <param name="captureDetails"></param>
-		public static async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken)) {
+		public static async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		{
 			IDestination destination = GetDestination(designation);
-			if (destination != null && destination.IsActive) {
+			if (destination != null && destination.IsActive)
+			{
 				return await destination.ExportCaptureAsync(manuallyInitiated, surface, captureDetails, token).ConfigureAwait(false);
 			}
 			return null;
