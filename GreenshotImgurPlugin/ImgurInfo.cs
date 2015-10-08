@@ -143,8 +143,13 @@ namespace GreenshotImgurPlugin
 			try {
 				XmlDocument doc = new XmlDocument();
 				doc.LoadXml(response);
-				XmlNodeList nodes = doc.GetElementsByTagName("hash");
+				XmlNodeList nodes = doc.GetElementsByTagName("id");
 				if(nodes.Count > 0) {
+					imgurInfo.Hash = nodes.Item(0).InnerText;
+				}
+				nodes = doc.GetElementsByTagName("hash");
+				if (nodes.Count > 0)
+				{
 					imgurInfo.Hash = nodes.Item(0).InnerText;
 				}
 				nodes = doc.GetElementsByTagName("deletehash");

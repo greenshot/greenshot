@@ -21,6 +21,7 @@
 
 using GreenshotPlugin.UnmanagedHelpers;
 using System.Windows.Forms;
+using log4net;
 
 namespace GreenshotPlugin.Core
 {
@@ -31,11 +32,15 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public class WmInputLangChangeRequestFilter : IMessageFilter
 	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(WmInputLangChangeRequestFilter));
+
 		public bool PreFilterMessage(ref Message m)
 		{
-			if (m.Msg == (int)WindowsMessages.WM_INPUTLANGCHANGEREQUEST || m.Msg == (int)WindowsMessages.WM_INPUTLANGCHANGE)
+			WindowsMessages message = (WindowsMessages)m.Msg;
+			if (message == WindowsMessages.WM_INPUTLANGCHANGEREQUEST || message == WindowsMessages.WM_INPUTLANGCHANGE)
 			{
-				return m.LParam.ToInt64() > 0x7FFFFFFF;
+				LOG.WarnFormat("Filtering: {0}, {1:X} - {2:X} - {3:X}", message, m.LParam.ToInt64(), m.WParam.ToInt64(), m.HWnd.ToInt64());
+				return (m.LParam.ToInt64() | 0xFFFFFFFF) != 0;
 			}
 			return false;
 		}

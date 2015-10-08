@@ -29,39 +29,39 @@ using log4net;
 
 namespace GreenshotPlugin.Core {
 	public class SourceforgeFile {
-		private string file;
+		private readonly string _file;
 		public string File {
-			get {return file;}
+			get {return _file;}
 		}
-		private DateTime pubdate;
+		private readonly DateTime _pubdate;
 		public DateTime Pubdate {
-			get {return pubdate;}
+			get {return _pubdate;}
 		}
-		private string link;
+		private readonly string _link;
 		public string Link {
-			get {return link;}
+			get {return _link;}
 		}
-		private string directLink;
+		private readonly string _directLink;
 		public string DirectLink {
-			get {return directLink;}
+			get {return _directLink;}
 		}
-		private Version version;
+		private Version _version;
 		public Version Version {
-			get {return version;}
+			get {return _version;}
 			set {
-				version = value;
+				_version = value;
 			}
 		}
-		private string language;
+		private string _language;
 		public string Language {
-			get {return language;}
-			set {language = value;}
+			get {return _language;}
+			set {_language = value;}
 		}
 
 		public bool isExe {
 			get {
-				if (file != null) {
-					return file.ToLower().EndsWith(".exe");
+				if (_file != null) {
+					return _file.ToLower().EndsWith(".exe");
 				}
 				return false;
 			}
@@ -69,8 +69,8 @@ namespace GreenshotPlugin.Core {
 
 		public bool isUnstable {
 			get {
-				if (file != null) {
-					return file.ToLower().Contains("unstable");
+				if (_file != null) {
+					return _file.ToLower().Contains("unstable");
 				}
 				return false;
 			}
@@ -78,18 +78,18 @@ namespace GreenshotPlugin.Core {
 
 		public bool isReleaseCandidate {
 			get {
-				if (file != null) {
-					return Regex.IsMatch(file.ToLower(), "rc[0-9]+");
+				if (_file != null) {
+					return Regex.IsMatch(_file.ToLower(), "rc[0-9]+");
 				}
 				return false;
 			}
 		}
 
 		public SourceforgeFile(string file, string pubdate, string link, string directLink) {
-			this.file = file;
-			this.pubdate = DateTime.Parse(pubdate);
-			this.link = link;
-			this.directLink = directLink;
+			this._file = file;
+			DateTime.TryParse(pubdate, out _pubdate);
+			this._link = link;
+			this._directLink = directLink;
 		}
 	}
 	/// <summary>

@@ -11,7 +11,8 @@ All details to our tickets can be found here: https://greenshot.atlassian.net
 
 Bugs Resolved:
 * BUG-1809: OverflowException when changing the windows input language
-* BUG-1835: Imgur uploads were cancelled due to a timeout which was set too small
+* BUG-1835: Imgur: uploads were cancelled due to a timeout which was set too small
+* BUG-1833: Imgur: API-Key issues when using anonymous uploads
 
 
 1.2.6.7-359dcf3 RELEASE

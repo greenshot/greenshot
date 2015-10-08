@@ -167,6 +167,11 @@ namespace GreenshotImgurPlugin {
 			}
 		}
 
+		private void FinishedButtonClick(object sender, EventArgs e)
+		{
+			this.Hide();
+		}
+
 		private void OpenButtonClick(object sender, EventArgs e) {
 			if (listview_imgur_uploads.SelectedItems != null && listview_imgur_uploads.SelectedItems.Count > 0) {
 				for (int i = 0; i < listview_imgur_uploads.SelectedItems.Count; i++) {
