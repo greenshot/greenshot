@@ -37,6 +37,7 @@ exclude: ['README.md', 'Gemfile.lock', 'Gemfile', 'CNAME', 'LICENSE', '*.sh']
 
 gems:
   - jemoji
+  - jekyll-feed
   - jekyll-sitemap
   - jekyll-redirect-from
 
