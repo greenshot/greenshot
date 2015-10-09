@@ -14,7 +14,7 @@ permalink: /faq/
 		{% for faq in sorted_faqs %}
 			<div class="panel panel-primary">
 				<div class="panel-heading btn btn-block" data-toggle="collapse" data-target="#faq_body_{{ forloop.index }}">
-					<h2 class="panel-title">{{ faq.title }}<span class="glyphicon glyphicon-chevron-down pull-right"/></h2>
+					<h2 class="panel-title"><a href="{{faq.url}}" >{{ faq.title }}<span class="glyphicon glyphicon-chevron-down pull-right"/></a></h2>
 				</div>
 				<div id="faq_body_{{ forloop.index }}" class="panel-collapse collapse">
 					<div class="panel-body ">
