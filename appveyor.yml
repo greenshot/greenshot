@@ -1,9 +1,11 @@
-version: 1.3.0.{build}
+version: 1.2.6.{build}
 branches:
   only:
-  - master
+  - 1.2
+skip_tags: true
 configuration: Release
 platform: Any CPU
+clone_depth: 1
 assembly_info:
   patch: true
   file: '**\AssemblyInfo.*'
@@ -11,32 +13,40 @@ assembly_info:
   assembly_file_version: '{version}'
   assembly_informational_version: '{version}-$(build_type)-$(APPVEYOR_REPO_COMMIT)'
 environment:
-  credentials_box_client_id: key
-  credentials_box_client_secret: secret
-  credentials_dropbox_consumer_key: key
-  credentials_dropbox_consumer_secret: secret
-  credentials_flickr_consumer_key: key
-  credentials_flickr_consumer_secret: secret
-  credentials_imgur_consumer_key: key
-  credentials_imgur_consumer_secret: secret
-  credentials_photobucket_consumer_key: key
-  credentials_photobucket_consumer_secret: secret
-  credentials_picasa_consumer_key: key
-  credentials_picasa_consumer_secret: secret
-  sourceforge_host: frs.sourceforge.net
-  sourceforge_user: user
-  sourceforge_password: password
-  sourceforge_hostkey: ssh-rsa 2048 b0:a8:eb:30:ce:1a:0e:6a:4d:7a:6b:3a:0a:c6:27:60
-  sourceforge_targetpath: /home/frs/project/greenshot/Greenshot/Greenshot 1.3/
+  credentials_box_client_id:
+    secure: 8MKxTOowo2fat6cNXGbFfvn6typiEtmCKsrptrWiEFUEoKlT1DUn40iGNcIELRA1
+  credentials_box_client_secret:
+    secure: hJhzDVJuGd/WMnoSXhosvOM/1PGcYlKbtQjA6xyrmnmZcqCTMzqIdA6JXlo/V2Br
+  credentials_dropbox_consumer_key:
+    secure: Da/6KY1cu9CUM3iOqSpcUw==
+  credentials_dropbox_consumer_secret:
+    secure: KkyKyUY+buT/MZagXDP4cw==
+  credentials_flickr_consumer_key:
+    secure: fY8s0OkOMYwCjSZoL/6yZcP8xeT6J2EJLjbUMI5lAW42S5QT2U2B41KrmeP2NpnQ
+  credentials_flickr_consumer_secret:
+    secure: 9TthlljPHXWPkDDeG3uiFVJ9YJwHZOV0ZsojaIBBuvw=
+  credentials_imgur_consumer_key:
+    secure: z8S4QZ3/InPe3dgCf0CNyS0VGKuRyjjP8WMAq+AkK5OZJxZcbIxwobjgelE5CWYL
+  credentials_imgur_consumer_secret:
+    secure: ovfXJRorkkKUzbMXuZ4m0U6KF4icngmS+nzSljXJGSKfhI+GNXbMNa//mKYfTCXI
+  credentials_photobucket_consumer_key:
+    secure: oo9GD1Y8dkrli6hMfnnYsw==
+  credentials_photobucket_consumer_secret:
+    secure: GiNPoe9klM/YkoHIA/YHqOYrIaYwSFK7Ph9m8jT9uPP1l6+Hd5K8dVMw5DNa50oG
+  credentials_picasa_consumer_key:
+    secure: bjKXhFZkDqaq98XBrz5oQKQfT8CLpuv2ZAiBIwkzloaAPUs97b5yx6h/xFaE4NLS
+  credentials_picasa_consumer_secret:
+    secure: yNptTpmJWypbu9alOQtetxU66drr2FKxoPflNgRJdag=
   build_type: UNSTABLE
-  rsakey: key
+  rsakey:
+    secure: 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
 before_build:
-- ps: iex (new-object Net.WebClient).DownloadString("https://bitbucket.org/greenshot/greenshot/raw/master/prebuild.ps1")
+- ps: iex (new-object Net.WebClient).DownloadString("https://bitbucket.org/greenshot/greenshot/raw/1.2/prebuild.ps1")
 build:
   project: greenshot\greenshot.sln
   verbosity: normal
 after_build:
-- ps: iex (new-object Net.WebClient).DownloadString("https://bitbucket.org/greenshot/greenshot/raw/master/build.ps1")
+- ps: iex (new-object Net.WebClient).DownloadString("https://bitbucket.org/greenshot/greenshot/raw/1.2/build.ps1")
 test: off
 artifacts:
 - path: Greenshot\releases\Greenshot*INSTALLER*.exe
@@ -49,12 +59,26 @@ artifacts:
   name: Readme
 - path: Greenshot\releases\Greenshot-DEBUGSYMBOLS*.zip
   name: DEBUGSYMBOLS
-deploy_script:
-- ps: iex (new-object Net.WebClient).DownloadString("https://bitbucket.org/greenshot/greenshot/raw/master/deploy.ps1")
+deploy:
+- provider: GitHub
+  tag: Greenshot-$(build_type)-$(APPVEYOR_BUILD_VERSION)
+  description: 
+  auth_token:
+    secure: 4sYcNGg7byBFtR7EkJHS8d3H3qP0u0LodlJWCV7g/4jEyv3vvVxqzh19zZ6Zgrf1
+  prerelease: true
+  on:
+    build_type: UNSTABLE
+- provider: GitHub
+  tag: Greenshot-$(build_type)-$(APPVEYOR_BUILD_VERSION)
+  auth_token:
+    secure: 4sYcNGg7byBFtR7EkJHS8d3H3qP0u0LodlJWCV7g/4jEyv3vvVxqzh19zZ6Zgrf1
+  on:
+    build_type: RELEASE
 notifications:
 - provider: Email
   to:
   - robin@getgreenshot.org
-  on_build_success: false
-  on_build_failure: false
-  on_build_status_changed: true
+  - jens@getgreenshot.org
+  on_build_success: true
+  on_build_failure: true
+  on_build_status_changed: false
