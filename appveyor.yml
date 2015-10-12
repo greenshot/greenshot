@@ -5,7 +5,7 @@ branches:
 skip_tags: true
 configuration: Release
 platform: Any CPU
-clone_depth: 1
+shallow_clone: true
 assembly_info:
   patch: true
   file: '**\AssemblyInfo.*'

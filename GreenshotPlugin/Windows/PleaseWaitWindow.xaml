@@ -3,7 +3,7 @@
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         WindowStyle="None" Background="#FF3D3D3D" ShowInTaskbar="True" SizeToContent="WidthAndHeight"
-        ResizeMode="NoResize" WindowStartupLocation="CenterScreen" ShowInTaskbar="True">
+        ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome ResizeBorderThickness="0" CaptionHeight="20" NonClientFrameEdges="None" GlassFrameThickness="-1" CornerRadius="0" />
     </shell:WindowChrome.WindowChrome>
