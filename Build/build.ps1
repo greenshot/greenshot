@@ -41,6 +41,13 @@ $detailversion=$version + '-' + $gitcommit + " " + $buildType
 $release=(([version]$version).build) % 2 -eq 1
 $fileversion=$version + "-" + $buildType
 
+$destbase = "$(get-location)\AssemblyDir"
+if (!Test-Path  ("$destbase")) {
+	New-Item -ItemType directory -Path "$destbase" | Out-Null
+}
+$sourcebase = "$(get-location)\Greenshot\bin\Release"
+$builddir = "$(get-location)\Build"
+
 Write-Host "Building Greenshot $detailversion"
 
 # Create a MD5 string for the supplied filename
@@ -75,17 +82,19 @@ Function FillTemplates {
 # Create the MD5 checksum file
 Function MD5Checksums {
 	echo "MD5 Checksums:"
-	$currentMD5 = MD5("$(get-location)\Greenshot\bin\Release\Greenshot.exe")
-	echo "Greenshot.exe : $currentMD5"
-	$currentMD5 = MD5("$(get-location)\Greenshot\bin\Release\GreenshotPlugin.dll")
-	echo "GreenshotPlugin.dll : $currentMD5"
+	@("$sourcebase\Greenshot.exe",
+		"$sourcebase\GreenshotPlugin.dll",
+		"$sourcebase\log4net.dll",
+		"$sourcebase\Dapplo.Config.dll",
+		"$sourcebase\Dapplo.HttpExtensions.dll") | foreach {
+			$filename = [System.IO.Path]::GetFileName($_)
+			$currentMD5 = MD5($_)
+			echo "$filename : $currentMD5"
+		}
 }
 
 # This function creates the paf.exe
 Function PackagePortable {
-	$sourcebase = "$(get-location)\Greenshot\bin\Release"
-	$destbase = "$(get-location)\Greenshot\releases"
-
 	# Only remove the paf we are going to create, to prevent adding but keeping the history
 	if (Test-Path  ("$destbase\GreenshotPortable-$version.paf.exe")) {
 		Remove-Item "$destbase\GreenshotPortable-$version.paf.exe" -Confirm:$false
@@ -118,16 +127,16 @@ Function PackagePortable {
 		"$sourcebase\Dapplo.Config.dll",
 		"$sourcebase\Dapplo.HttpExtensions.dll",
 		"$sourcebase\log4net.xml",
-		"$destbase\additional_files\*.txt" ) | foreach { Copy-Item $_ "$destbase\portabletmp\App\Greenshot\" }
+		"$builddir\additional_files\*.txt" ) | foreach { Copy-Item $_ "$destbase\portabletmp\App\Greenshot\" }
 
 	Copy-Item -Path "$(get-location)\Greenshot\Languages\help-en-US.html" -Destination "$destbase\portabletmp\help.html"
 
 	Copy-Item -Path "$sourcebase\Greenshot.exe" -Destination "$destbase\portabletmp"
 
-	Copy-Item -Path "$destbase\appinfo.ini" -Destination "$destbase\portabletmp\App\AppInfo\appinfo.ini"
+	Copy-Item -Path "$builddir\appinfo.ini" -Destination "$destbase\portabletmp\App\AppInfo\appinfo.ini"
 		
-	$portableOutput = "$(get-location)\portable"
-	$portableInstaller = "$(get-location)\greenshot\tools\PortableApps.comInstaller\PortableApps.comInstaller.exe"
+	$portableOutput = "$destbase\portable"
+	$portableInstaller = "$builddir\tools\PortableApps.comInstaller\PortableApps.comInstaller.exe"
 	$arguments = @("$destbase\portabletmp")
 	Write-Host "Starting $portableInstaller $arguments"
 	$portableResult = Start-Process -wait -PassThru "$portableInstaller" -ArgumentList $arguments -NoNewWindow -RedirectStandardOutput "$portableOutput.log" -RedirectStandardError "$portableOutput.error"
@@ -145,8 +154,6 @@ Function PackagePortable {
 
 # This function creates the .zip
 Function PackageZip {
-	$sourcebase = "$(get-location)\Greenshot\bin\Release"
-	$destbase = "$(get-location)\Greenshot\releases"
 	$destzip = "$destbase\NO-INSTALLER"
 
 	# Only remove the zip we are going to create, to prevent adding but keeping the history
@@ -186,10 +193,10 @@ Function PackageZip {
 		"$sourcebase\Dapplo.HttpExtensions.dll",
 		"$sourcebase\log4net.dll",
 		"$sourcebase\log4net.xml",
-		"$destbase\additional_files\*.txt" ) | foreach { Copy-Item $_ "$destzip\" }
+		"$builddir\additional_files\*.txt" ) | foreach { Copy-Item $_ "$destzip\" }
 
-	$zipOutput = "$(get-location)\zip"
-	$zip7 = "$(get-location)\greenshot\tools\7zip\7za.exe"
+	$zipOutput = "$destbase\zip"
+	$zip7 = "$builddir\tools\7zip\7za.exe"
 	$arguments = @('a', '-mx9', '-tzip', '-r', "$destbase\Greenshot-NO-INSTALLER-$fileversion.zip", "$destzip\*")
 	Write-Host "Starting $zip7 $arguments"
 	$zipResult = Start-Process -wait -PassThru "$zip7" -ArgumentList $arguments -NoNewWindow -RedirectStandardOutput "$zipOutput.log" -RedirectStandardError "$zipOutput.error"
@@ -207,8 +214,6 @@ Function PackageZip {
 
 # This function creates the debug symbols .zip
 Function PackageDbgSymbolsZip {
-	$sourcebase = "$(get-location)\Greenshot\bin\Release"
-	$destbase = "$(get-location)\Greenshot\releases"
 	$destdbgzip = "$destbase\DEBUGSYMBOLS"
 
 	# Only remove the zip we are going to create, to prevent adding but keeping the history
@@ -230,8 +235,8 @@ Function PackageDbgSymbolsZip {
 	
 	@( "$sourcebase\*.pdb") | foreach { Copy-Item $_ "$destdbgzip\" }
 
-	$zipOutput = "$(get-location)\dbgzip"
-	$zip7 = "$(get-location)\greenshot\tools\7zip\7za.exe"
+	$zipOutput = "$destbase\dbgzip"
+	$zip7 = "$builddir\tools\7zip\7za.exe"
 	$arguments = @('a', '-mx9', '-tzip', '-r', "$destbase\Greenshot-DEBUGSYMBOLS-$fileversion.zip", "$destdbgzip\*")
 	Write-Host "Starting $zip7 $arguments"
 	$zipResult = Start-Process -wait -PassThru "$zip7" -ArgumentList $arguments -NoNewWindow -RedirectStandardOutput "$zipOutput.log" -RedirectStandardError "$zipOutput.error"
@@ -249,9 +254,9 @@ Function PackageDbgSymbolsZip {
 
 # This function creates the installer
 Function PackageInstaller {
-	$setupOutput = "$(get-location)\setup"
-	$innoSetup = "$(get-location)\greenshot\tools\innosetup\ISCC.exe"
-	$innoSetupFile = "$(get-location)\greenshot\releases\innosetup\setup.iss"
+	$setupOutput = "$destbase\setup"
+	$innoSetup = "$builddir\tools\innosetup\ISCC.exe"
+	$innoSetupFile = "$builddir\innosetup\setup.iss"
 	Write-Host "Starting $innoSetup $innoSetupFile"
 	$setupResult = Start-Process -wait -PassThru "$innoSetup" -ArgumentList "$innoSetupFile" -NoNewWindow -RedirectStandardOutput "$setupOutput.log" -RedirectStandardError "$setupOutput.error"
 	Write-Host "Log output:"
@@ -264,36 +269,10 @@ Function PackageInstaller {
 	return
 }
 
-# This function tags the current 
-Function TagCode {
-	Write-Host "Add remote via git, so SSH key works"
-	git remote add tagoriginbitbucket git@bitbucket.org:greenshot/greenshot.git
-	git remote add tagorigingithub git@github.com:greenshot/greenshot.git
-	Write-Host "Setting id_rsa with the content from environment rsakey so we can push a tag"
-	# Write the RSA key contents from the AppVeyor rsakey UI ENV variable to the private key file
-	$key = $env:rsakey
-	$fileContent = "-----BEGIN RSA PRIVATE KEY-----" + "`n" 
-	for ($i = 0; $i -lt $key.Length / 64; $i++) {
-		$min = [math]::min(64, $key.Length - ($i * 64));
-		$fileContent += $key.substring($i*64, $min) + "`n";
-	} 
-	$fileContent += "-----END RSA PRIVATE KEY-----" + "`n" 
-	Set-Content c:\users\appveyor\.ssh\id_rsa $fileContent
-	git config --global user.email "getgreenshot@gmail.com"
-	git config --global user.name "Greenshot-AppVeyor"
-	Write-Host "Tagging repo with $fileversion"
-	git tag -a $fileversion -m 'Build from AppVeyor'
-	Write-Host "Pushing tag $fileversion to remote"
-	git push tagoriginbitbucket $fileversion
-	git push tagorigingithub $fileversion
-	return
-}
-
 FillTemplates
 
 echo "Generating MD5"
-
-MD5Checksums | Set-Content "$(get-location)\Greenshot\bin\Release\checksum.MD5" -encoding UTF8
+MD5Checksums | Set-Content "$sourcebase\checksum.MD5" -encoding UTF8
 
 echo "Generating Installer"
 PackageInstaller
@@ -306,6 +285,3 @@ PackagePortable
 
 echo "Generating Debug Symbols ZIP"
 PackageDbgSymbolsZip
-
-#echo "build successful, tagging with $fileversion"
-#TagCode

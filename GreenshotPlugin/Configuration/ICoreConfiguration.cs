@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 

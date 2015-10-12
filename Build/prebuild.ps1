@@ -29,17 +29,24 @@ Function FillEnvirommentInConfig {
 		$template = Get-Content $_.FullName
 		# Create an empty array, this will contain the replaced lines
 		$newtext = @()
+		$processed = false
 		foreach ($line in $template) {
 			get-childitem -path env:credentials_* | foreach {
 				$varname=$_.Name
 				$varvalue=$_.Value
-				$line = $line -replace "\@$varname\@", $varvalue
+				if($line -match "\@$varname\@"){
+					$line = $line -replace "\@$varname\@", $varvalue
+					$processed = true
+				}
 			}
 			$newtext += $line
 		}
-		# Write the new information to the file
-		Write-Host "Updating $_"
-		$newtext | Set-Content $_.FullName -encoding UTF8
+		
+		if ($processed) {
+			# Write the new information to the file
+			Write-Host "Updating $_"
+			$newtext | Set-Content $_.FullName -encoding UTF8
+		}
 	}
 }
 
