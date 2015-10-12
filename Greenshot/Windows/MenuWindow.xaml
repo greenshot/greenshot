@@ -1,0 +1,49 @@
+﻿<Window x:Class="Greenshot.Windows.MenuWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Height="Auto" Topmost="True" SizeToContent="WidthAndHeight" Background="#FF3D3D3D"
+        WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome ResizeBorderThickness="0" CaptionHeight="20" NonClientFrameEdges="None" GlassFrameThickness="-1" CornerRadius="0"/>
+    </shell:WindowChrome.WindowChrome>
+    <Window.Resources>
+        <Style x:Key="DynamicMenuItemStyle" TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Header" Value="{Binding Text}"/>
+            <Setter Property="Command" Value="{Binding Command}" />
+            <Setter Property="CommandParameter" Value="{Binding}" />
+            <Setter Property="Background" Value="#FF3D3D3D" />
+            <Setter Property="InputGestureText" Value="{Binding Shortcut}" />
+            <Setter Property="Icon" Value="{Binding Icon}" />
+            <Setter Property="ItemsSource" Value="{Binding Children}" />
+            <Setter Property="ItemContainerStyle" Value="{DynamicResource DynamicMenuItemStyle}" />
+            <Style.Triggers>
+                <Trigger Property="IsHighlighted" Value="True">
+                    <Setter Property="IsSubmenuOpen" Value="True"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="False">
+                    <Setter Property="IsSubmenuOpen" Value="False"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    <StackPanel>
+        <Border BorderBrush="Black" BorderThickness="1" Height="23" Background="White">
+            <DockPanel LastChildFill="True">
+                <Button DockPanel.Dock="Right" Margin="3,-3,3,3" shell:WindowChrome.IsHitTestVisibleInChrome="True" Content="X" Click="Close_Click" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" />
+                <Label DockPanel.Dock="Left" Content="Greenshot Export" Margin="0,-6,0,0" Foreground="#FF747474" FontFamily="Segoe UI Light" />
+            </DockPanel>
+        </Border>
+        <ListView ItemsSource="{Binding Children}" HorizontalContentAlignment="Stretch">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <MenuItem Style="{DynamicResource DynamicMenuItemStyle}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListView>
+    </StackPanel>
+</Window>
+
