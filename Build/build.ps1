@@ -42,7 +42,7 @@ $release=(([version]$version).build) % 2 -eq 1
 $fileversion=$version + "-" + $buildType
 
 $destbase = "$(get-location)\AssemblyDir"
-if (!Test-Path  ("$destbase")) {
+if (!(Test-Path("$destbase"))) {
 	New-Item -ItemType directory -Path "$destbase" | Out-Null
 }
 $sourcebase = "$(get-location)\Greenshot\bin\Release"
@@ -103,7 +103,7 @@ Function PackagePortable {
 	if (Test-Path  ("$destbase\portabletmp")) {
 		Remove-Item "$destbase\portabletmp" -recurse -Confirm:$false
 	}
-	Copy-Item -Path "$destbase\portable" -Destination "$destbase\portabletmp" -Recurse
+	Copy-Item -Path "$builddir\portable" -Destination "$destbase\portabletmp" -Recurse
 
 	$INCLUDE=@("*.gsp", "*.dll", "*.exe", "*.config")
 	Get-ChildItem -Path "$sourcebase\Plugins\" -Recurse -Include $INCLUDE | foreach {

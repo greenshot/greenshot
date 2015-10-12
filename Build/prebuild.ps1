@@ -26,17 +26,18 @@
 Function FillEnvirommentInConfig {
 	Write-Host "Filling I*Configuration files with Environment variable values`n`n"
 	Get-ChildItem . -recurse I*Configuration.cs | foreach {
+		Write-Host "Scanning $_"
 		$template = Get-Content $_.FullName
 		# Create an empty array, this will contain the replaced lines
 		$newtext = @()
-		$processed = false
+		$processed = $false
 		foreach ($line in $template) {
 			get-childitem -path env:credentials_* | foreach {
 				$varname=$_.Name
 				$varvalue=$_.Value
-				if($line -match "\@$varname\@"){
+				if ($line -match "\@$varname\@"){
 					$line = $line -replace "\@$varname\@", $varvalue
-					$processed = true
+					$processed = $true
 				}
 			}
 			$newtext += $line
