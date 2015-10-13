@@ -23,7 +23,7 @@ using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using Greenshot.Plugin;
 using GreenshotPlugin.Configuration;
-using GreenshotPlugin.UnmanagedHelpers;
+using Dapplo.Windows.Native;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -35,6 +35,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Windows.Structs;
+using Dapplo.Windows.Enums;
 
 namespace GreenshotPlugin.Core
 {

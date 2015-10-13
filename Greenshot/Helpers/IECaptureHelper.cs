@@ -27,7 +27,7 @@ using System.Runtime.InteropServices;
 using Greenshot.Helpers.IEInterop;
 using Greenshot.Interop;
 using Greenshot.Plugin;
-using GreenshotPlugin.UnmanagedHelpers;
+using Dapplo.Windows.Native;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using log4net;
@@ -36,6 +36,7 @@ using System.Threading;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using GreenshotPlugin.Configuration;
+using Dapplo.Windows.Enums;
 
 namespace Greenshot.Helpers
 {

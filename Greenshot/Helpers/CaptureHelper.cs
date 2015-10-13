@@ -24,7 +24,7 @@ using Greenshot.Forms;
 using Greenshot.Plugin;
 using GreenshotEditorPlugin.Drawing;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.UnmanagedHelpers;
+using Dapplo.Windows.Native;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -37,6 +37,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Config.Language;
 using GreenshotPlugin.Configuration;
+using Dapplo.Windows.App;
 
 namespace Greenshot.Helpers
 {
@@ -376,21 +377,21 @@ namespace Greenshot.Helpers
 					switch (_screenCaptureMode)
 					{
 						case ScreenCaptureMode.Auto:
-							Point mouseLocation = User32.GetCursorLocation();
-							foreach (var display in DisplayInfo.AllDisplays())
+							var mouseLocation = User32.GetCursorLocation();
+							foreach (var display in User32.AllDisplays())
 							{
 								if (display.Bounds.Contains(mouseLocation))
 								{
-									_capture = WindowCapture.CaptureRectangle(_capture, display.Bounds);
+									_capture = WindowCapture.CaptureRectangle(_capture, display.BoundsRectangle);
 									captureTaken = true;
 									break;
 								}
 							}
 							break;
 						case ScreenCaptureMode.Fixed:
-							if (conf.ScreenToCapture > 0 && conf.ScreenToCapture <= DisplayInfo.AllDisplays().Count)
+							if (conf.ScreenToCapture > 0 && conf.ScreenToCapture <= User32.AllDisplays().Count)
 							{
-								_capture = WindowCapture.CaptureRectangle(_capture, DisplayInfo.AllDisplays()[conf.ScreenToCapture].Bounds);
+								_capture = WindowCapture.CaptureRectangle(_capture, User32.AllDisplays()[conf.ScreenToCapture].BoundsRectangle);
 								captureTaken = true;
 							}
 							break;
@@ -565,7 +566,7 @@ namespace Greenshot.Helpers
 			{
 				// Force children retrieval, sometimes windows close on losing focus and this is solved by caching
 				int goLevelDeep = conf.WindowCaptureAllChildLocations ? 20 : 3;
-				var visibleWindows = from window in WindowDetails.GetMetroApps().Concat(WindowDetails.GetAllWindows())
+                var visibleWindows = from window in WindowDetails.GetMetroApps().Concat(WindowDetails.GetAllWindows())
 					where window.Visible && (window.WindowRectangle.Width != 0 && window.WindowRectangle.Height != 0)
 					select window;
 
@@ -890,7 +891,7 @@ namespace Greenshot.Helpers
 			Rectangle windowRectangle = windowToCapture.WindowRectangle;
 
 			// When Vista & DWM (Aero) enabled
-			bool dwmEnabled = DWM.isDWMEnabled();
+			bool dwmEnabled = Dwm.IsDwmEnabled;
 			// get process name to be able to exclude certain processes from certain capture modes
 			using (Process process = windowToCapture.Process)
 			{

@@ -25,7 +25,7 @@ using System.Threading;
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
-using GreenshotPlugin.UnmanagedHelpers;
+using Dapplo.Windows.Native;
 
 namespace GreenshotPlugin.Controls
 {
@@ -72,12 +72,12 @@ namespace GreenshotPlugin.Controls
 		{
 			base.Show();
 			bool positioned = false;
-			foreach (var display in DisplayInfo.AllDisplays())
+			foreach (var display in User32.AllDisplays())
 			{
-				if (display.Bounds.Contains(Cursor.Position))
+				if (display.BoundsRectangle.Contains(Cursor.Position))
 				{
 					positioned = true;
-					Location = new Point(display.Bounds.X + (display.Bounds.Width/2) - (Width/2), display.Bounds.Y + (display.Bounds.Height/2) - (Height/2));
+					Location = new Point(display.BoundsRectangle.X + (display.BoundsRectangle.Width/2) - (Width/2), display.BoundsRectangle.Y + (display.BoundsRectangle.Height/2) - (Height/2));
 					break;
 				}
 			}

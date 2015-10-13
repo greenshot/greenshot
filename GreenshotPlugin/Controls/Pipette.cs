@@ -23,7 +23,10 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using GreenshotPlugin.UnmanagedHelpers;
+using Dapplo.Windows.Native;
+using Dapplo.Windows.SafeHandles;
+using Dapplo.Windows.Structs;
+using Dapplo.Windows.Enums;
 
 namespace GreenshotPlugin.Controls
 {

@@ -20,13 +20,14 @@
  */
 
 using Dapplo.Config.Ini;
+using Dapplo.Windows.Desktop;
+using Dapplo.Windows.Native;
 using Greenshot.Helpers;
 using Greenshot.Plugin;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
-using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -431,9 +432,10 @@ namespace Greenshot.Forms
 		/// </summary>
 		/// <param name="currentMouse"></param>
 		/// <returns></returns>
-		private Point FixMouseCoordinates(Point currentMouse)
+		private Point FixMouseCoordinates(System.Windows.Point currentMousePoint)
 		{
-			if (_fixMode == FixMode.Initiated)
+			var currentMouse = new Point((int)currentMousePoint.X, (int)currentMousePoint.Y);
+            if (_fixMode == FixMode.Initiated)
 			{
 				if (_previousMousePos.X != currentMouse.X)
 				{

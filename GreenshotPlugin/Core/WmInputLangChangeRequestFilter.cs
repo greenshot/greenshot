@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.UnmanagedHelpers;
+using Dapplo.Windows.Enums;
 using log4net;
 using System.Windows.Forms;
 

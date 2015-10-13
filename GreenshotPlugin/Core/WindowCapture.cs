@@ -22,7 +22,7 @@
 using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Configuration;
-using GreenshotPlugin.UnmanagedHelpers;
+using Dapplo.Windows.Native;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -31,6 +31,10 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using Dapplo.Windows.Structs;
+using Dapplo.Windows.SafeHandles;
+using Dapplo.Windows.Desktop;
+using Dapplo.Windows.Enums;
 
 namespace GreenshotPlugin.Core
 {
@@ -564,12 +568,12 @@ namespace GreenshotPlugin.Core
 		public static Rectangle GetScreenBounds()
 		{
 			int left = 0, top = 0, bottom = 0, right = 0;
-			foreach (var display in DisplayInfo.AllDisplays())
+			foreach (var display in User32.AllDisplays())
 			{
-				left = Math.Min(left, display.Bounds.X);
-				top = Math.Min(top, display.Bounds.Y);
-				int screenAbsRight = display.Bounds.X + display.Bounds.Width;
-				int screenAbsBottom = display.Bounds.Y + display.Bounds.Height;
+				left = Math.Min(left, display.BoundsRectangle.X);
+				top = Math.Min(top, display.BoundsRectangle.Y);
+				int screenAbsRight = display.BoundsRectangle.X + display.BoundsRectangle.Width;
+				int screenAbsBottom = display.BoundsRectangle.Y + display.BoundsRectangle.Height;
 				right = Math.Max(right, screenAbsRight);
 				bottom = Math.Max(bottom, screenAbsBottom);
 			}
@@ -585,7 +589,8 @@ namespace GreenshotPlugin.Core
 		/// </returns>
 		public static Point GetCursorLocationRelativeToScreenBounds()
 		{
-			return GetLocationRelativeToScreenBounds(User32.GetCursorLocation());
+			var cursorLocation = User32.GetCursorLocation();
+            return GetLocationRelativeToScreenBounds(new Point((int)cursorLocation.X, (int)cursorLocation.Y));
 		}
 
 		/// <summary>
@@ -615,19 +620,19 @@ namespace GreenshotPlugin.Core
 				capture = new Capture();
 			}
 			int x, y;
-			CursorInfo cursorInfo = new CursorInfo();
+			CURSORINFO cursorInfo = new CURSORINFO();
 			cursorInfo.cbSize = Marshal.SizeOf(cursorInfo);
 			if (User32.GetCursorInfo(out cursorInfo))
 			{
-				if (cursorInfo.flags == User32.CURSOR_SHOWING)
+				if ((cursorInfo.flags & CursorInfoFlags.CURSOR_SHOWING) == CursorInfoFlags.CURSOR_SHOWING)
 				{
 					using (Cursor cursor = new Cursor(cursorInfo.hCursor))
 					{
 						capture.Cursor = cursor;
-						Point cursorLocation = User32.GetCursorLocation();
+						var cursorLocation = User32.GetCursorLocation();
 						// Allign cursor location to Bitmap coordinates (instead of Screen coordinates)
-						x = cursorLocation.X - cursor.HotSpot.X - capture.ScreenBounds.X;
-						y = cursorLocation.Y - cursor.HotSpot.Y - capture.ScreenBounds.Y;
+						x = (int)cursorLocation.X - cursor.HotSpot.X - capture.ScreenBounds.X;
+						y = (int)cursorLocation.Y - cursor.HotSpot.Y - capture.ScreenBounds.Y;
 						// Set the location
 						capture.CursorLocation = new Point(x, y);
 					}
@@ -808,7 +813,7 @@ namespace GreenshotPlugin.Core
 				}
 
 				// create a device context we can copy to
-				using (SafeCompatibleDCHandle safeCompatibleDCHandle = GDI32.CreateCompatibleDC(desktopDCHandle))
+				using (SafeCompatibleDCHandle safeCompatibleDCHandle = Gdi32.CreateCompatibleDC(desktopDCHandle))
 				{
 					// Check if the device context is there, if not throw an error with as much info as possible!
 					if (safeCompatibleDCHandle.IsInvalid)
@@ -826,7 +831,7 @@ namespace GreenshotPlugin.Core
 
 					// create a bitmap we can copy it to, using GetDeviceCaps to get the width/height
 					IntPtr bits0; // not used for our purposes. It returns a pointer to the raw bits that make up the bitmap.
-					using (SafeDibSectionHandle safeDibSectionHandle = GDI32.CreateDIBSection(desktopDCHandle, ref bmi, BITMAPINFOHEADER.DIB_RGB_COLORS, out bits0, IntPtr.Zero, 0))
+					using (SafeDibSectionHandle safeDibSectionHandle = Gdi32.CreateDIBSection(desktopDCHandle, ref bmi, BITMAPINFOHEADER.DIB_RGB_COLORS, out bits0, IntPtr.Zero, 0))
 					{
 						if (safeDibSectionHandle.IsInvalid)
 						{
@@ -842,7 +847,7 @@ namespace GreenshotPlugin.Core
 						using (safeCompatibleDCHandle.SelectObject(safeDibSectionHandle))
 						{
 							// bitblt over (make copy)
-							GDI32.BitBlt(safeCompatibleDCHandle, 0, 0, captureBounds.Width, captureBounds.Height, desktopDCHandle, captureBounds.X, captureBounds.Y, CopyPixelOperation.SourceCopy | CopyPixelOperation.CaptureBlt);
+							Gdi32.BitBlt(safeCompatibleDCHandle, 0, 0, captureBounds.Width, captureBounds.Height, desktopDCHandle, captureBounds.X, captureBounds.Y, CopyPixelOperation.SourceCopy | CopyPixelOperation.CaptureBlt);
 						}
 
 						// get a .NET image object for it
@@ -855,9 +860,9 @@ namespace GreenshotPlugin.Core
 							{
 								// Collect all screens inside this capture
 								var screensInsideCapture = new List<DisplayInfo>();
-								foreach (var display in DisplayInfo.AllDisplays())
+								foreach (var display in User32.AllDisplays())
 								{
-									if (display.Bounds.IntersectsWith(captureBounds))
+									if (display.BoundsRectangle.IntersectsWith(captureBounds))
 									{
 										screensInsideCapture.Add(display);
 									}
@@ -869,7 +874,7 @@ namespace GreenshotPlugin.Core
 									// Exclude every visible part
 									foreach (var display in screensInsideCapture)
 									{
-										captureRegion.Exclude(display.Bounds);
+										captureRegion.Exclude(display.BoundsRectangle);
 									}
 									// If the region is not empty, we have "offscreenContent"
 									using (Graphics screenGraphics = Graphics.FromHwnd(User32.GetDesktopWindow()))
@@ -888,9 +893,9 @@ namespace GreenshotPlugin.Core
 										using (Graphics graphics = Graphics.FromImage(returnBitmap))
 										{
 											// For all screens copy the content to the new bitmap
-											foreach (var display in DisplayInfo.AllDisplays())
+											foreach (var display in User32.AllDisplays())
 											{
-												Rectangle screenBounds = display.Bounds;
+												Rectangle screenBounds = display.BoundsRectangle;
 												// Make sure the bounds are offsetted to the capture bounds
 												screenBounds.Offset(-captureBounds.X, -captureBounds.Y);
 												graphics.DrawImage(tmpBitmap, screenBounds, screenBounds.X, screenBounds.Y, screenBounds.Width, screenBounds.Height, GraphicsUnit.Pixel);

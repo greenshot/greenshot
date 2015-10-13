@@ -20,8 +20,9 @@
  */
 
 using Dapplo.Config.Ini;
+using Dapplo.Windows.Enums;
+using Dapplo.Windows.Native;
 using GreenshotPlugin.Configuration;
-using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using System;
 using System.IO;
@@ -89,7 +90,7 @@ namespace Greenshot.Helpers
 				SoundFlags flags = SoundFlags.SND_ASYNC | SoundFlags.SND_MEMORY | SoundFlags.SND_NOWAIT | SoundFlags.SND_NOSTOP;
 				try
 				{
-					await Task.Run(() => WinMM.PlaySound(gcHandle.Value.AddrOfPinnedObject(), (UIntPtr) 0, (uint) flags), token).ConfigureAwait(false);
+					await Task.Run(() => WinMM.PlaySound(gcHandle.Value.AddrOfPinnedObject(), (UIntPtr) 0, flags), token).ConfigureAwait(false);
 				}
 				catch (Exception e)
 				{

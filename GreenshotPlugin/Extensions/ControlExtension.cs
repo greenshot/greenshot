@@ -20,7 +20,7 @@
  */
 
 using GreenshotPlugin.Core;
-using GreenshotPlugin.UnmanagedHelpers;
+using Dapplo.Windows.Native;
 using log4net;
 using System;
 using System.Drawing;

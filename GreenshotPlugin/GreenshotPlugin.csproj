@@ -64,6 +64,10 @@
       <HintPath>..\packages\Dapplo.HttpExtensions.0.1.16.0\lib\net451\Dapplo.HttpExtensions.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Dapplo.Windows, Version=0.1.13.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.0.1.13.0\lib\net451\Dapplo.Windows.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
       <Private>True</Private>
@@ -113,6 +117,7 @@
     <Compile Include="Controls\Pipette.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Core\AsyncCommand.cs" />
     <Compile Include="Core\BuildInDestinationEnum.cs" />
     <Compile Include="Core\CaptureHandler.cs" />
     <Compile Include="Core\DestinationHelper.cs" />
@@ -131,7 +136,6 @@
     <Compile Include="Extensions\LanguageLoaderExtensions.cs" />
     <Compile Include="Extensions\ProcessExtensions.cs" />
     <Compile Include="Core\ProgressStream.cs" />
-    <Compile Include="Core\TitleChangeMonitor.cs" />
     <Compile Include="Extensions\RectangleExtensions.cs" />
     <Compile Include="Extensions\SizeExtentions.cs" />
     <Compile Include="Extensions\UriExtensions.cs" />
@@ -140,7 +144,6 @@
     <Compile Include="IEInterop\IWebBrowser2.cs" />
     <Compile Include="Interfaces\IGreenshotContract.cs" />
     <Compile Include="Interop\DisposableCom.cs" />
-    <Compile Include="Interop\IAppVisibility.cs" />
     <Compile Include="Interop\IUnknown.cs" />
     <Compile Include="Interop\IDispatch.cs" />
     <Compile Include="Interop\IOleWindow.cs" />
@@ -257,18 +260,6 @@
     <Compile Include="OAuth\OAuthSession.cs" />
     <Compile Include="OAuth\OAuthSignatureTypes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UnmanagedHelpers\DisplayInfo.cs" />
-    <Compile Include="UnmanagedHelpers\DWM.cs" />
-    <Compile Include="UnmanagedHelpers\Enumerations.cs" />
-    <Compile Include="UnmanagedHelpers\GDI32.cs" />
-    <Compile Include="UnmanagedHelpers\GDIplus.cs" />
-    <Compile Include="UnmanagedHelpers\Kernel32.cs" />
-    <Compile Include="UnmanagedHelpers\PsAPI.cs" />
-    <Compile Include="UnmanagedHelpers\Shell32.cs" />
-    <Compile Include="UnmanagedHelpers\Structs.cs" />
-    <Compile Include="UnmanagedHelpers\User32.cs" />
-    <Compile Include="UnmanagedHelpers\Win32Errors.cs" />
-    <Compile Include="UnmanagedHelpers\WinMM.cs" />
     <Compile Include="Windows\PleaseWaitWindow.xaml.cs">
       <DependentUpon>PleaseWaitWindow.xaml</DependentUpon>
     </Compile>
@@ -291,4 +282,5 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
 </Project>

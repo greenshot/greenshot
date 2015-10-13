@@ -24,7 +24,7 @@ using Greenshot.Interop;
 using Greenshot.Plugin;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Interop;
-using GreenshotPlugin.UnmanagedHelpers;
+using Dapplo.Windows.Native;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -36,6 +36,11 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Dapplo.Windows.App;
+using Dapplo.Windows.Enums;
+using Dapplo.Windows.Structs;
+using Dapplo.Windows.SafeHandles;
+using Dapplo.Windows.Desktop;
 
 namespace GreenshotPlugin.Core
 {
@@ -197,23 +202,6 @@ namespace GreenshotPlugin.Core
 		private static readonly ICoreConfiguration Conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly List<IntPtr> _ignoreHandles = new List<IntPtr>();
 		private static readonly List<string> _excludeProcessesFromFreeze = new List<string>();
-		private static readonly IDisposableCom<IAppVisibility> _appVisibility;
-
-		static WindowDetails()
-		{
-			try
-			{
-				// Only try to instantiate when Windows 8 or later.
-				if (Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 2)
-				{
-					Type appVisibilityType = Type.GetTypeFromCLSID(new Guid("7E5FE3D9-985F-4908-91F9-EE19F9FD1514"));
-					_appVisibility = DisposableCom.Create((IAppVisibility) Activator.CreateInstance(appVisibilityType));
-				}
-			}
-			catch
-			{
-			}
-		}
 
 		public static void AddProcessToExcludeFromFreeze(string processname)
 		{
@@ -783,11 +771,11 @@ namespace GreenshotPlugin.Core
 			{
 				if (value)
 				{
-					User32.SendMessage(_hWnd, (int) WindowsMessages.WM_SYSCOMMAND, (IntPtr) User32.SC_MINIMIZE, IntPtr.Zero);
+					User32.SendMessage(_hWnd, WindowsMessages.WM_SYSCOMMAND, SysCommands.SC_MINIMIZE, IntPtr.Zero);
 				}
 				else
 				{
-					User32.SendMessage(_hWnd, (int) WindowsMessages.WM_SYSCOMMAND, (IntPtr) User32.SC_RESTORE, IntPtr.Zero);
+					User32.SendMessage(_hWnd, WindowsMessages.WM_SYSCOMMAND, SysCommands.SC_RESTORE, IntPtr.Zero);
 				}
 			}
 		}
@@ -804,9 +792,9 @@ namespace GreenshotPlugin.Core
 					if (Visible)
 					{
 						Rectangle windowRectangle = WindowRectangle;
-						foreach (var display in DisplayInfo.AllDisplays())
+						foreach (var display in User32.AllDisplays())
 						{
-							if (display.Bounds.Contains(windowRectangle))
+							if (display.BoundsRectangle.Contains(windowRectangle))
 							{
 								if (windowRectangle.Equals(display.Bounds))
 								{
@@ -823,11 +811,11 @@ namespace GreenshotPlugin.Core
 			{
 				if (value)
 				{
-					User32.SendMessage(_hWnd, (int) WindowsMessages.WM_SYSCOMMAND, (IntPtr) User32.SC_MAXIMIZE, IntPtr.Zero);
+					User32.SendMessage(_hWnd, WindowsMessages.WM_SYSCOMMAND, SysCommands.SC_MAXIMIZE, IntPtr.Zero);
 				}
 				else
 				{
-					User32.SendMessage(_hWnd, (int) WindowsMessages.WM_SYSCOMMAND, (IntPtr) User32.SC_MINIMIZE, IntPtr.Zero);
+					User32.SendMessage(_hWnd, WindowsMessages.WM_SYSCOMMAND, SysCommands.SC_MINIMIZE, IntPtr.Zero);
 				}
 			}
 		}
@@ -850,28 +838,15 @@ namespace GreenshotPlugin.Core
 				if (IsApp)
 				{
 					Rectangle windowRectangle = WindowRectangle;
-					foreach (var display in DisplayInfo.AllDisplays())
+					foreach (var display in User32.AllDisplays())
 					{
-						if (display.Bounds.Contains(windowRectangle))
+						if (display.BoundsRectangle.Contains(windowRectangle))
 						{
 							if (windowRectangle.Equals(display.Bounds))
 							{
 								// Fullscreen, it's "visible" when AppVisibilityOnMonitor says yes
 								// Although it might be the other App, this is not "very" important
-								RECT rect = new RECT(display.Bounds);
-								IntPtr monitor = User32.MonitorFromRect(ref rect, User32.MONITOR_DEFAULTTONULL);
-								if (monitor != IntPtr.Zero)
-								{
-									if (_appVisibility != null)
-									{
-										MONITOR_APP_VISIBILITY monitorAppVisibility = _appVisibility.ComObject.GetAppVisibilityOnMonitor(monitor);
-										//LOG.DebugFormat("App {0} visible: {1} on {2}", Text, monitorAppVisibility, screen.Bounds);
-										if (monitorAppVisibility == MONITOR_APP_VISIBILITY.MAV_APP_VISIBLE)
-										{
-											return true;
-										}
-									}
-								}
+								return AppQuery.AppVisible(display.Bounds);
 							}
 							else
 							{
@@ -889,7 +864,7 @@ namespace GreenshotPlugin.Core
 				}
 				if (IsAppLauncher)
 				{
-					return IsAppLauncherVisible;
+					return AppQuery.IsLauncherVisible;
 				}
 				return User32.IsWindowVisible(_hWnd);
 			}
@@ -962,7 +937,7 @@ namespace GreenshotPlugin.Core
 					if (_previousWindowRectangle.IsEmpty || now - _lastWindowRectangleRetrieveTime > CACHE_TIME)
 					{
 						Rectangle windowRect = Rectangle.Empty;
-						if (DWM.isDWMEnabled())
+						if (Dwm.IsDwmEnabled)
 						{
 							GetExtendedFrameBounds(out windowRect);
 						}
@@ -1052,7 +1027,7 @@ namespace GreenshotPlugin.Core
 		{
 			if (Iconic)
 			{
-				User32.SendMessage(_hWnd, (int) WindowsMessages.WM_SYSCOMMAND, (IntPtr) User32.SC_RESTORE, IntPtr.Zero);
+				User32.SendMessage(_hWnd, WindowsMessages.WM_SYSCOMMAND, SysCommands.SC_RESTORE, IntPtr.Zero);
 			}
 			User32.BringWindowToTop(_hWnd);
 			User32.SetForegroundWindow(_hWnd);
@@ -1070,11 +1045,11 @@ namespace GreenshotPlugin.Core
 		{
 			get
 			{
-				return (WindowStyleFlags) User32.GetWindowLongWrapper(_hWnd, (int) WindowLongIndex.GWL_STYLE);
+				return (WindowStyleFlags) User32.GetWindowLongWrapper(_hWnd, WindowLongIndex.GWL_STYLE);
 			}
 			set
 			{
-				User32.SetWindowLongWrapper(_hWnd, (int) WindowLongIndex.GWL_STYLE, new IntPtr((long) value));
+				User32.SetWindowLongWrapper(_hWnd, WindowLongIndex.GWL_STYLE, new IntPtr((long) value));
 			}
 		}
 
@@ -1102,11 +1077,11 @@ namespace GreenshotPlugin.Core
 		{
 			get
 			{
-				return (ExtendedWindowStyleFlags) User32.GetWindowLongWrapper(_hWnd, (int) WindowLongIndex.GWL_EXSTYLE);
+				return (ExtendedWindowStyleFlags) User32.GetWindowLongWrapper(_hWnd, WindowLongIndex.GWL_EXSTYLE);
 			}
 			set
 			{
-				User32.SetWindowLongWrapper(_hWnd, (int) WindowLongIndex.GWL_EXSTYLE, new IntPtr((uint) value));
+				User32.SetWindowLongWrapper(_hWnd, WindowLongIndex.GWL_EXSTYLE, new IntPtr((uint) value));
 			}
 		}
 
@@ -1172,11 +1147,11 @@ namespace GreenshotPlugin.Core
 				tempForm.TopMost = true;
 
 				// Register the Thumbnail
-				DWM.DwmRegisterThumbnail(tempForm.Handle, Handle, out thumbnailHandle);
+				Dwm.DwmRegisterThumbnail(tempForm.Handle, Handle, out thumbnailHandle);
 
 				// Get the original size
 				SIZE sourceSize;
-				DWM.DwmQueryThumbnailSourceSize(thumbnailHandle, out sourceSize);
+				Dwm.DwmQueryThumbnailSourceSize(thumbnailHandle, out sourceSize);
 
 				if (sourceSize.width <= 0 || sourceSize.height <= 0)
 				{
@@ -1201,7 +1176,7 @@ namespace GreenshotPlugin.Core
 				}
 
 				tempForm.Location = formLocation;
-				tempForm.Size = sourceSize.ToSize();
+				tempForm.Size = sourceSize.ToSystemDrawingSize();
 
 				// Prepare rectangle to capture from the screen.
 				Rectangle captureRectangle = new Rectangle(formLocation.X, formLocation.Y, sourceSize.width, sourceSize.height);
@@ -1236,7 +1211,7 @@ namespace GreenshotPlugin.Core
 				props.Opacity = (byte) 255;
 				props.Visible = true;
 				props.Destination = new RECT(0, 0, sourceSize.width, sourceSize.height);
-				DWM.DwmUpdateThumbnailProperties(thumbnailHandle, ref props);
+				Dwm.DwmUpdateThumbnailProperties(thumbnailHandle, ref props);
 				tempForm.Show();
 				tempFormShown = true;
 
@@ -1303,10 +1278,9 @@ namespace GreenshotPlugin.Core
 						}
 						else
 						{
-							Color colorizationColor = DWM.ColorizationColor;
+							var colorizationColor = Dwm.ColorizationColor;
 							// Modify by losing the transparency and increasing the intensity (as if the background color is white)
-							colorizationColor = Color.FromArgb(255, (colorizationColor.R + 255) >> 1, (colorizationColor.G + 255) >> 1, (colorizationColor.B + 255) >> 1);
-							tempForm.BackColor = colorizationColor;
+							tempForm.BackColor = Color.FromArgb(255, (colorizationColor.R + 255) >> 1, (colorizationColor.G + 255) >> 1, (colorizationColor.B + 255) >> 1);
 						}
 						// Make sure everything is visible
 						tempForm.Refresh();
@@ -1357,7 +1331,7 @@ namespace GreenshotPlugin.Core
 				if (thumbnailHandle != IntPtr.Zero)
 				{
 					// Unregister (cleanup), as we are finished we don't need the form or the thumbnail anymore
-					DWM.DwmUnregisterThumbnail(thumbnailHandle);
+					Dwm.DwmUnregisterThumbnail(thumbnailHandle);
 				}
 				if (tempForm != null)
 				{
@@ -1382,15 +1356,15 @@ namespace GreenshotPlugin.Core
 			Rectangle windowRectangle = WindowRectangle;
 			// assume own location
 			formLocation = windowRectangle.Location;
-			var primaryDisplay = DisplayInfo.AllDisplays().Where(x => x.IsPrimary).First();
-			using (Region workingArea = new Region(primaryDisplay.Bounds))
+			var primaryDisplay = User32.AllDisplays().Where(x => x.IsPrimary).First();
+			using (Region workingArea = new Region(primaryDisplay.BoundsRectangle))
 			{
 				// Create a region with the screens working area
-				foreach (var display in DisplayInfo.AllDisplays())
+				foreach (var display in User32.AllDisplays())
 				{
 					if (!display.IsPrimary)
 					{
-						workingArea.Union(display.Bounds);
+						workingArea.Union(display.BoundsRectangle);
 					}
 				}
 
@@ -1398,12 +1372,12 @@ namespace GreenshotPlugin.Core
 				if (!workingArea.AreRectangleCornersVisisble(windowRectangle))
 				{
 					// If none found we find the biggest screen
-					foreach (var display in DisplayInfo.AllDisplays())
+					foreach (var display in User32.AllDisplays())
 					{
-						Rectangle newWindowRectangle = new Rectangle(display.WorkingArea.Location, windowRectangle.Size);
+						Rectangle newWindowRectangle = new Rectangle(display.WorkingAreaRectangle.Location, windowRectangle.Size);
 						if (workingArea.AreRectangleCornersVisisble(newWindowRectangle))
 						{
-							formLocation = display.Bounds.Location;
+							formLocation = display.BoundsRectangle.Location;
 							doesCaptureFit = true;
 							break;
 						}
@@ -1501,7 +1475,7 @@ namespace GreenshotPlugin.Core
 		private bool GetExtendedFrameBounds(out Rectangle rectangle)
 		{
 			RECT rect;
-			int result = DWM.DwmGetWindowAttribute(Handle, (int) DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS, out rect, Marshal.SizeOf(typeof (RECT)));
+			int result = Dwm.DwmGetWindowAttribute(Handle, (int) DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS, out rect, Marshal.SizeOf(typeof (RECT)));
 			if (result >= 0)
 			{
 				rectangle = rect.ToRectangle();
@@ -1518,7 +1492,7 @@ namespace GreenshotPlugin.Core
 		/// <returns>bool true if it worked</returns>		
 		private bool GetClientRect(out Rectangle rectangle)
 		{
-			WindowInfo windowInfo = new WindowInfo();
+			WINDOWINFO windowInfo = new WINDOWINFO();
 			// Get the Window Info for this window
 			bool result = User32.GetWindowInfo(Handle, ref windowInfo);
 			if (result)
@@ -1539,7 +1513,7 @@ namespace GreenshotPlugin.Core
 		/// <returns>bool true if it worked</returns>		
 		private bool GetWindowRect(out Rectangle rectangle)
 		{
-			WindowInfo windowInfo = new WindowInfo();
+			WINDOWINFO windowInfo = new WINDOWINFO();
 			// Get the Window Info for this window
 			bool result = User32.GetWindowInfo(Handle, ref windowInfo);
 			if (result)
@@ -1560,7 +1534,7 @@ namespace GreenshotPlugin.Core
 		/// <returns>bool true if it worked</returns>	
 		private bool GetBorderSize(out Size size)
 		{
-			WindowInfo windowInfo = new WindowInfo();
+			WINDOWINFO windowInfo = new WINDOWINFO();
 			// Get the Window Info for this window
 			bool result = User32.GetWindowInfo(Handle, ref windowInfo);
 			if (result)
@@ -1596,7 +1570,7 @@ namespace GreenshotPlugin.Core
 		public Region GetRegion(out RegionResult regionResult)
 		{
 			regionResult = RegionResult.REGION_NULLREGION;
-			using (SafeRegionHandle region = GDI32.CreateRectRgn(0, 0, 0, 0))
+			using (SafeRegionHandle region = Gdi32.CreateRectRgn(0, 0, 0, 0))
 			{
 				if (!region.IsInvalid)
 				{
@@ -1931,48 +1905,12 @@ namespace GreenshotPlugin.Core
 		/// Get the WindowDetails for all Metro Apps
 		/// These are all Windows with Classname "Windows.UI.Core.CoreWindow"
 		/// </summary>
-		/// <returns>List of WindowDetails with visible metro apps</returns>
-		public static IList<WindowDetails> GetMetroApps()
+		/// <returns>IEnumerable of WindowDetails with visible metro apps</returns>
+		public static IEnumerable<WindowDetails> GetMetroApps()
 		{
-			var metroApps = new List<WindowDetails>();
-			// if the appVisibility != null we have Windows 8.
-			if (_appVisibility == null)
-			{
-				return metroApps;
-			}
-			//string[] wcs = {"ImmersiveGutter", "Snapped Desktop", "ImmersiveBackgroundWindow","ImmersiveLauncher","Windows.UI.Core.CoreWindow","ApplicationManager_ImmersiveShellWindow","SearchPane","MetroGhostWindow","EdgeUiInputWndClass", "NativeHWNDHost", "Shell_CharmWindow"};
-			//List<WindowDetails> specials = new List<WindowDetails>();
-			//foreach(string wc in wcs) {
-			//	IntPtr wcHandle = User32.FindWindow(null, null);
-			//	while (wcHandle != IntPtr.Zero) {
-			//		WindowDetails special = new WindowDetails(wcHandle);
-			//		if (special.WindowRectangle.Left >= 1920 && special.WindowRectangle.Size != Size.Empty) {
-			//			specials.Add(special);
-			//			LOG.DebugFormat("Found special {0} : {1} at {2} visible: {3} {4} {5}", special.ClassName, special.Text, special.WindowRectangle, special.Visible, special.ExtendedWindowStyle, special.WindowStyle);
-			//		}
-			//		wcHandle = User32.FindWindowEx(IntPtr.Zero, wcHandle, null, null);
-			//	};
-			//}
-			var nextHandle = User32.FindWindow(METRO_WINDOWS_CLASS, null);
-			while (nextHandle != IntPtr.Zero)
-			{
-				var metroApp = new WindowDetails(nextHandle);
-				metroApps.Add(metroApp);
-				// Check if we have a gutter!
-				if (metroApp.Visible && !metroApp.Maximised)
-				{
-					IntPtr gutterHandle = User32.FindWindow(METRO_GUTTER_CLASS, null);
-					if (gutterHandle != IntPtr.Zero)
-					{
-						metroApps.Add(new WindowDetails(gutterHandle));
-					}
-				}
-				nextHandle = User32.FindWindowEx(IntPtr.Zero, nextHandle, METRO_WINDOWS_CLASS, null);
-			}
-			;
-
-			return metroApps;
-		}
+			return from handle in AppQuery.WindowsStoreApps
+				   select new WindowDetails(handle);
+        }
 
 		/// <summary>
 		/// Get all the top level windows
@@ -2098,33 +2036,12 @@ namespace GreenshotPlugin.Core
 		/// <returns></returns>
 		public static WindowDetails GetAppLauncher()
 		{
-			// Only if Windows 8 (or higher)
-			if (_appVisibility == null)
-			{
-				return null;
-			}
-			IntPtr appLauncher = User32.FindWindow(METRO_APPLAUNCHER_CLASS, null);
-			if (appLauncher != IntPtr.Zero)
+			IntPtr appLauncher = AppQuery.AppLauncher;
+            if (appLauncher != IntPtr.Zero)
 			{
 				return new WindowDetails(appLauncher);
 			}
 			return null;
-		}
-
-		/// <summary>
-		/// Return true if the metro-app-launcher is visible
-		/// </summary>
-		/// <returns></returns>
-		public static bool IsAppLauncherVisible
-		{
-			get
-			{
-				if (_appVisibility != null)
-				{
-					return _appVisibility.ComObject.IsLauncherVisible;
-				}
-				return false;
-			}
 		}
 
 		/// <summary>

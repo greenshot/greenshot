@@ -20,7 +20,7 @@
  */
 
 using GreenshotPlugin.Core;
-using GreenshotPlugin.UnmanagedHelpers;
+using Dapplo.Windows.Native;
 using System;
 using System.ComponentModel;
 using System.Threading;

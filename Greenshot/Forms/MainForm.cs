@@ -26,7 +26,7 @@ using Greenshot.Windows;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
-using GreenshotPlugin.UnmanagedHelpers;
+using Dapplo.Windows.Native;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -791,7 +791,7 @@ namespace Greenshot.Forms
 			contextmenu_capturefullscreen.Click -= CaptureFullScreenToolStripMenuItemClick;
 			contextmenu_capturefullscreen.DropDownOpening -= MultiScreenDropDownOpening;
 			contextmenu_capturefullscreen.DropDownClosed -= MultiScreenDropDownClosing;
-			if (DisplayInfo.AllDisplays().Count > 1)
+			if (User32.AllDisplays().Count > 1)
 			{
 				contextmenu_capturefullscreen.DropDownOpening += MultiScreenDropDownOpening;
 				contextmenu_capturefullscreen.DropDownClosed += MultiScreenDropDownClosing;
@@ -886,7 +886,7 @@ namespace Greenshot.Forms
 		{
 			var captureScreenMenuItem = (ToolStripMenuItem) sender;
 			captureScreenMenuItem.DropDownItems.Clear();
-			if (DisplayInfo.AllDisplays().Count <= 1)
+			if (User32.AllDisplays().Count <= 1)
 			{
 				return;
 			}
@@ -899,7 +899,7 @@ namespace Greenshot.Forms
 				this.AsyncInvoke(async () => await CaptureHelper.CaptureFullscreenAsync(false, ScreenCaptureMode.FullScreen));
 			};
 			captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
-			foreach (var display in DisplayInfo.AllDisplays())
+			foreach (var display in User32.AllDisplays())
 			{
 				var screenToCapture = display; // Capture loop variable
 				string deviceAlignment = "";
@@ -922,7 +922,7 @@ namespace Greenshot.Forms
 				captureScreenItem = new ToolStripMenuItem(deviceAlignment);
 				captureScreenItem.Click += (item, eventArgs) =>
 				{
-					this.AsyncInvoke(async () => await CaptureHelper.CaptureRegionAsync(false, screenToCapture.Bounds));
+					this.AsyncInvoke(async () => await CaptureHelper.CaptureRegionAsync(false, screenToCapture.BoundsRectangle));
 				};
 				captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
 			}
@@ -991,7 +991,7 @@ namespace Greenshot.Forms
 		{
 			menuItem.DropDownItems.Clear();
 			// check if thumbnailPreview is enabled and DWM is enabled
-			bool thumbnailPreview = coreConfiguration.ThumnailPreview && DWM.isDWMEnabled();
+			bool thumbnailPreview = coreConfiguration.ThumnailPreview && Dwm.IsDwmEnabled;
 
 			foreach (var window in WindowDetails.GetTopLevelWindows())
 			{

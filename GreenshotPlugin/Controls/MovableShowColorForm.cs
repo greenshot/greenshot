@@ -19,10 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Windows.Native;
+using Dapplo.Windows.SafeHandles;
 using System;
-using System.Windows.Forms;
 using System.Drawing;
-using GreenshotPlugin.UnmanagedHelpers;
+using System.Windows.Forms;
 
 namespace GreenshotPlugin.Controls
 {
@@ -66,10 +67,10 @@ namespace GreenshotPlugin.Controls
 			zoomerLocation.X += cursorSize.Width + 5 - hotspot.X;
 			zoomerLocation.Y += cursorSize.Height + 5 - hotspot.Y;
 
-			foreach (var display in DisplayInfo.AllDisplays())
+			foreach (var display in User32.AllDisplays())
 			{
-				Rectangle screenRectangle = display.Bounds;
-				if (display.Bounds.Contains(screenCoordinates))
+				Rectangle screenRectangle = display.BoundsRectangle;
+				if (screenRectangle.Contains(screenCoordinates))
 				{
 					if (zoomerLocation.X < screenRectangle.X)
 					{
@@ -106,7 +107,7 @@ namespace GreenshotPlugin.Controls
 			{
 				try
 				{
-					uint pixel = GDI32.GetPixel(screenDC, screenCoordinates.X, screenCoordinates.Y);
+					uint pixel = Gdi32.GetPixel(screenDC, screenCoordinates.X, screenCoordinates.Y);
 					Color color = Color.FromArgb(255, (int) (pixel & 0xFF), (int) (pixel & 0xFF00) >> 8, (int) (pixel & 0xFF0000) >> 16);
 					return color;
 				}

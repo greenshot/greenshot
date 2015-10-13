@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Core;
+using Dapplo.Windows;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -38,7 +38,7 @@ namespace GreenshotJiraPlugin
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof (JiraMonitor));
 		private readonly Regex _jiraKeyPattern = new Regex(@"[A-Z][A-Z0-9]+\-[0-9]+");
-		private readonly TitleChangeMonitor _monitor;
+		private readonly WindowsTitleMonitor _monitor;
 		private readonly IList<JiraApi> _jiraInstances = new List<JiraApi>();
 		private readonly IDictionary<string, JiraApi> _projectJiraApiMap = new Dictionary<string, JiraApi>();
 		private readonly int _maxEntries;
@@ -47,7 +47,7 @@ namespace GreenshotJiraPlugin
 		public JiraMonitor(int maxEntries = 40)
 		{
 			_maxEntries = maxEntries;
-			_monitor = new TitleChangeMonitor();
+			_monitor = new WindowsTitleMonitor();
 			_monitor.TitleChangeEvent += monitor_TitleChangeEvent;
 		}
 
@@ -189,7 +189,7 @@ namespace GreenshotJiraPlugin
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="eventArgs"></param>
-		private void monitor_TitleChangeEvent(object sender, TitleChangeEventArgs eventArgs)
+		private void monitor_TitleChangeEvent(TitleChangeEventArgs eventArgs)
 		{
 			string windowTitle = eventArgs.Title;
 			if (string.IsNullOrEmpty(windowTitle))

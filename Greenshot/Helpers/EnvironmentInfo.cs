@@ -25,7 +25,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-using GreenshotPlugin.UnmanagedHelpers;
+using Dapplo.Windows.Native;
 using GreenshotPlugin.Core;
 using log4net;
 

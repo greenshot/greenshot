@@ -31,7 +31,7 @@ using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
-using GreenshotPlugin.UnmanagedHelpers;
+using Dapplo.Windows.Native;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -42,6 +42,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Windows.Structs;
 
 namespace GreenshotEditorPlugin.Forms
 {
@@ -192,8 +193,8 @@ namespace GreenshotEditorPlugin.Forms
 		public static void SetEditorPlacement(WindowPlacement placement)
 		{
 			editorConfiguration.WindowNormalPosition = placement.NormalPosition.ToRectangle();
-			editorConfiguration.WindowMaxPosition = placement.MaxPosition.ToPoint();
-			editorConfiguration.WindowMinPosition = placement.MinPosition.ToPoint();
+			editorConfiguration.WindowMaxPosition = placement.MaxPosition.ToSystemDrawingPoint();
+			editorConfiguration.WindowMinPosition = placement.MinPosition.ToSystemDrawingPoint();
 			editorConfiguration.ShowWindowCommand = placement.ShowCmd;
 			editorConfiguration.WindowPlacementFlags = placement.Flags;
 		}

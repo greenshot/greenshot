@@ -22,10 +22,12 @@
 using Dapplo.Config.Ini;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.UnmanagedHelpers;
+using Dapplo.Windows.Native;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Dapplo.Windows.Structs;
+using Dapplo.Windows.Enums;
 
 namespace GreenshotPlugin.Controls
 {
@@ -72,7 +74,7 @@ namespace GreenshotPlugin.Controls
 		{
 			if (thumbnailHandle != IntPtr.Zero)
 			{
-				DWM.DwmUnregisterThumbnail(thumbnailHandle);
+				Dwm.DwmUnregisterThumbnail(thumbnailHandle);
 				thumbnailHandle = IntPtr.Zero;
 			}
 		}
@@ -86,11 +88,11 @@ namespace GreenshotPlugin.Controls
 		{
 			UnregisterThumbnail();
 
-			DWM.DwmRegisterThumbnail(Handle, window.Handle, out thumbnailHandle);
+			Dwm.DwmRegisterThumbnail(Handle, window.Handle, out thumbnailHandle);
 			if (thumbnailHandle != IntPtr.Zero)
 			{
 				SIZE sourceSize;
-				int hresult = DWM.DwmQueryThumbnailSourceSize(thumbnailHandle, out sourceSize);
+				int hresult = Dwm.DwmQueryThumbnailSourceSize(thumbnailHandle, out sourceSize);
 				if (hresult != 0 || sourceSize.IsEmpty())
 				{
 					UnregisterThumbnail();
@@ -112,7 +114,7 @@ namespace GreenshotPlugin.Controls
 				props.Visible = true;
 				props.SourceClientAreaOnly = false;
 				props.Destination = new RECT(0, 0, thumbnailWidth, thumbnailHeight);
-				DWM.DwmUpdateThumbnailProperties(thumbnailHandle, ref props);
+				Dwm.DwmUpdateThumbnailProperties(thumbnailHandle, ref props);
 				if (parentControl != null)
 				{
 					AlignToControl(parentControl);
