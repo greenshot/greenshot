@@ -26,6 +26,7 @@ using GreenshotPlugin.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.Composition;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -35,6 +36,7 @@ namespace GreenshotJiraPlugin
 	/// <summary>
 	/// This is the JiraPlugin base code
 	/// </summary>
+	[Export(typeof(IGreenshotPlugin))]
 	public class JiraPlugin : IGreenshotPlugin
 	{
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (JiraPlugin));

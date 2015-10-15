@@ -19,24 +19,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Addons;
 using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapplo.Config.Language;
-using GreenshotPlugin.Configuration;
 
 namespace GreenshotEditorPlugin
 {
 	/// <summary>
 	/// The editor as the plugin
 	/// </summary>
-	public class EditorPlugin : IGreenshotPlugin
+	[Plugin]
+	[StartupAction]
+	public class EditorPlugin : IGreenshotPlugin, IStartupAction
 	{
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (EditorPlugin));
-		private PluginAttribute _myAttributes;
 
 		public void Dispose()
 		{
@@ -67,28 +67,13 @@ namespace GreenshotEditorPlugin
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="myAttribute">My own attributes</param>
 		/// <param name="token"></param>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken())
+		public async Task StartAsync(CancellationToken token = new CancellationToken())
 		{
-			LOG.DebugFormat("Initialize called of {0}", myAttribute.Name);
 			var iniConfig = IniConfig.Current;
 
 			// Make sure the defaults are set
 			await iniConfig.RegisterAndGetAsync<IEditorConfiguration>(token);
 			//await LanguageLoader.Current.RegisterAndGetAsync<IEditorLanguage>(token);
-			_myAttributes = myAttribute;
-			return true;
-		}
-
-		public void Shutdown()
-		{
-			LOG.Debug("Shutdown of " + _myAttributes.Name);
-		}
-
-		/// <summary>
-		/// Implementation of the IPlugin.Configure
-		/// </summary>
-		public void Configure()
-		{
 		}
 	}
 }

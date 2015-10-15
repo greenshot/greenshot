@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Addons.Implementation;
 using Dapplo.Config.Ini;
 using Greenshot.Forms;
 using Greenshot.Plugin;
@@ -48,11 +49,12 @@ namespace Greenshot.Helpers
 		private static readonly ILog LOG = LogManager.GetLogger(typeof (PluginHelper));
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 
-		private static string pluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
-		private static string applicationPath = Path.GetDirectoryName(Application.ExecutablePath);
+		private static readonly string pluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
+		private static readonly string applicationPath = Path.GetDirectoryName(Application.ExecutablePath);
 		private static string pafPath = Path.Combine(Application.StartupPath, @"App\Greenshot");
 		private static IDictionary<PluginAttribute, IGreenshotPlugin> plugins = new ConcurrentDictionary<PluginAttribute, IGreenshotPlugin>();
 		private static readonly PluginHelper instance = new PluginHelper();
+		private readonly StartupShutdownBootstrapper _startupShutdownBootstrapper = new StartupShutdownBootstrapper();
 
 		public static PluginHelper Instance
 		{
@@ -289,158 +291,21 @@ namespace Greenshot.Helpers
 		/// </summary>
 		public async Task LoadPluginsAsync(CancellationToken token = default(CancellationToken))
 		{
-			IList<string> pluginFiles = new List<string>();
-
+			
 			if (PortableHelper.IsPortable)
 			{
-				FindPluginsOnPath(pluginFiles, pafPath);
+				_startupShutdownBootstrapper.Add(pafPath, "*.gsp");
 			}
 			else
 			{
-				FindPluginsOnPath(pluginFiles, pluginPath);
-				FindPluginsOnPath(pluginFiles, applicationPath);
+				_startupShutdownBootstrapper.Add(pluginPath, "*.gsp");
+				_startupShutdownBootstrapper.Add(applicationPath, "*.gsp");
 			}
+			// Make the IGreenshotHost available for the plugins
+			_startupShutdownBootstrapper.Export<IGreenshotHost>(this);
+			_startupShutdownBootstrapper.Run();
 
-			IDictionary<string, PluginAttribute> tmpAttributes = new Dictionary<string, PluginAttribute>();
-			IDictionary<string, Assembly> tmpAssemblies = new Dictionary<string, Assembly>();
-			// Loop over the list of available files and get the Plugin Attributes
-			foreach (string pluginFile in pluginFiles)
-			{
-				//LOG.DebugFormat("Checking the following file for plugins: {0}", pluginFile);
-				try
-				{
-					Assembly assembly = Assembly.LoadFrom(pluginFile);
-					PluginAttribute[] pluginAttributes = assembly.GetCustomAttributes(typeof (PluginAttribute), false) as PluginAttribute[];
-					if (pluginAttributes.Length > 0)
-					{
-						PluginAttribute pluginAttribute = pluginAttributes[0];
-
-						if (string.IsNullOrEmpty(pluginAttribute.Name))
-						{
-							AssemblyProductAttribute[] assemblyProductAttributes = assembly.GetCustomAttributes(typeof (AssemblyProductAttribute), false) as AssemblyProductAttribute[];
-							if (assemblyProductAttributes.Length > 0)
-							{
-								pluginAttribute.Name = assemblyProductAttributes[0].Product;
-							}
-							else
-							{
-								continue;
-							}
-						}
-						if (string.IsNullOrEmpty(pluginAttribute.CreatedBy))
-						{
-							AssemblyCompanyAttribute[] assemblyCompanyAttributes = assembly.GetCustomAttributes(typeof (AssemblyCompanyAttribute), false) as AssemblyCompanyAttribute[];
-							if (assemblyCompanyAttributes.Length > 0)
-							{
-								pluginAttribute.CreatedBy = assemblyCompanyAttributes[0].Company;
-							}
-							else
-							{
-								continue;
-							}
-						}
-						pluginAttribute.Version = assembly.GetName().Version.ToString();
-						pluginAttribute.DllFile = pluginFile;
-
-						// check if this plugin is already available
-						PluginAttribute checkPluginAttribute = null;
-						if (tmpAttributes.ContainsKey(pluginAttribute.Name))
-						{
-							checkPluginAttribute = tmpAttributes[pluginAttribute.Name];
-						}
-
-						if (checkPluginAttribute != null)
-						{
-							LOG.WarnFormat("Duplicate plugin {0} found", pluginAttribute.Name);
-							if (isNewer(pluginAttribute.Version, checkPluginAttribute.Version))
-							{
-								// Found is newer
-								tmpAttributes[pluginAttribute.Name] = pluginAttribute;
-								tmpAssemblies[pluginAttribute.Name] = assembly;
-								LOG.InfoFormat("Loading the newer plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
-							}
-							else
-							{
-								LOG.InfoFormat("Skipping (as the duplicate is newer or same version) the plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
-							}
-							continue;
-						}
-						if (conf.ExcludePlugins != null && conf.ExcludePlugins.Contains(pluginAttribute.Name))
-						{
-							LOG.WarnFormat("Exclude list: {0}", String.Join(",", conf.ExcludePlugins));
-							LOG.WarnFormat("Skipping the excluded plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
-							continue;
-						}
-						if (conf.IncludePlugins != null && conf.IncludePlugins.Count > 0 && !conf.IncludePlugins.Contains(pluginAttribute.Name))
-						{
-							// Whitelist is set
-							LOG.WarnFormat("Include list (excludes all others): {0}", String.Join(",", conf.IncludePlugins));
-							LOG.WarnFormat("Skipping the not included plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
-							continue;
-						}
-						LOG.InfoFormat("Loading the plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
-						tmpAttributes[pluginAttribute.Name] = pluginAttribute;
-						tmpAssemblies[pluginAttribute.Name] = assembly;
-					}
-					else
-					{
-						LOG.ErrorFormat("Can't find the needed Plugin Attribute ({0}) in the assembly of the file \"{1}\", skipping this file.", typeof (PluginAttribute), pluginFile);
-					}
-				}
-				catch (Exception e)
-				{
-					LOG.Warn("Can't load file: " + pluginFile, e);
-				}
-			}
-			var initializeTasks = new List<Task<bool>>();
-			foreach (string pluginName in tmpAttributes.Keys)
-			{
-				try
-				{
-					PluginAttribute pluginAttribute = tmpAttributes[pluginName];
-					Assembly assembly = tmpAssemblies[pluginName];
-					Type entryType = assembly.GetType(pluginAttribute.EntryType);
-					if (entryType == null)
-					{
-						LOG.ErrorFormat("Can't find the in the PluginAttribute referenced type {0} in \"{1}\"", pluginAttribute.EntryType, pluginAttribute.DllFile);
-						continue;
-					}
-					var initializeTask = Task.Run(async () =>
-					{
-						try
-						{
-							var plugin = (IGreenshotPlugin) Activator.CreateInstance(entryType);
-							if (plugin != null)
-							{
-								if (await plugin.InitializeAsync(this, pluginAttribute, token))
-								{
-									plugins.Add(pluginAttribute, plugin);
-									return true;
-								}
-								else
-								{
-									LOG.InfoFormat("Plugin {0} not initialized!", pluginAttribute.Name);
-								}
-							}
-							else
-							{
-								LOG.ErrorFormat("Can't create an instance of the in the PluginAttribute referenced type {0} from \"{1}\"", pluginAttribute.EntryType, pluginAttribute.DllFile);
-							}
-						}
-						catch (Exception e)
-						{
-							LOG.Error("Can't load Plugin: " + pluginAttribute.Name, e);
-						}
-						return false;
-					});
-					initializeTasks.Add(initializeTask);
-				}
-				catch (Exception e)
-				{
-					LOG.Error("Can't load Plugin: " + pluginName, e);
-				}
-			}
-			await Task.WhenAll(initializeTasks);
+			await _startupShutdownBootstrapper.StartupAsync(token);
 		}
 
 		#endregion

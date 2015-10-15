@@ -31,12 +31,14 @@ using Dapplo.Config.Ini;
 using System.Threading.Tasks;
 using System.Threading;
 using Dapplo.Config.Language;
+using System.ComponentModel.Composition;
 
 namespace GreenshotFlickrPlugin
 {
 	/// <summary>
 	/// This is the Flickr base code
 	/// </summary>
+	[Export(typeof(IGreenshotPlugin))]
 	public class FlickrPlugin : IGreenshotPlugin
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof (FlickrPlugin));

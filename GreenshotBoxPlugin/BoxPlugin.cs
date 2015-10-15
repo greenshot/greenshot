@@ -30,12 +30,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Config.Language;
+using System.ComponentModel.Composition;
 
 namespace GreenshotBoxPlugin
 {
 	/// <summary>
 	/// This is the Box base code
 	/// </summary>
+	[Export(typeof(IGreenshotPlugin))]
 	public class BoxPlugin : IGreenshotPlugin
 	{
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (BoxPlugin));

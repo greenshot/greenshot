@@ -23,6 +23,7 @@ using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -31,37 +32,10 @@ using System.Windows.Forms;
 
 namespace GreenshotOCR
 {
-	internal enum ModiLanguage
-	{
-// ReSharper disable InconsistentNaming
-		CHINESE_SIMPLIFIED = 2052,
-		CHINESE_TRADITIONAL = 1028,
-		CZECH = 5,
-		DANISH = 6,
-		DUTCH = 19,
-		ENGLISH = 9,
-		FINNISH = 11,
-		FRENCH = 12,
-		GERMAN = 7,
-		GREEK = 8,
-		HUNGARIAN = 14,
-		ITALIAN = 16,
-		JAPANESE = 17,
-		KOREAN = 18,
-		NORWEGIAN = 20,
-		POLISH = 21,
-		PORTUGUESE = 22,
-		RUSSIAN = 25,
-		SPANISH = 10,
-		SWEDISH = 29,
-		TURKISH = 31,
-		SYSDEFAULT = 2048
-// ReSharper restore InconsistentNaming
-	}
-
 	/// <summary>
 	/// OCR Plugin Greenshot
 	/// </summary>
+	[Export(typeof(IGreenshotPlugin))]
 	public class OcrPlugin : IGreenshotPlugin
 	{
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (OcrPlugin));

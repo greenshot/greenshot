@@ -21,7 +21,6 @@
 
 using Dapplo.Config.Extension;
 using Dapplo.Config.Ini;
-using Dapplo.HttpExtensions;
 using GreenshotPlugin.Core;
 using log4net;
 using System;
@@ -45,13 +44,6 @@ namespace GreenshotPlugin.Configuration
 		HTMLDATAURL,
 		BITMAP,
 		DIBV5
-	}
-
-	public enum BuildStates
-	{
-		UNSTABLE,
-		RELEASE_CANDIDATE,
-		RELEASE
 	}
 
 	/// <summary>
@@ -85,46 +77,13 @@ namespace GreenshotPlugin.Configuration
 	/// </summary>
 	[IniSection("Core"), Description("Greenshot core configuration")]
 	public interface ICoreConfiguration :
-		// More configurations
-		IOutputConfiguration, IPrinterConfiguration, IExtensionConfiguration, IUIConfiguration, ICaptureConfiguration, IMiscConfiguration,
+		// Importing other configuration interfaces, so the file doesn't get to big
+		IOutputConfiguration, IPrinterConfiguration, IExtensionConfiguration,
+		IUIConfiguration, ICaptureConfiguration, IMiscConfiguration,
+		IUpdateConfiguration, IHotkeyConfiguration,
 		// Ini-Framework
 		IIniSection<ICoreConfiguration>, INotifyPropertyChanged, ITagging<ICoreConfiguration>
 	{
-		[Description("Hotkey for starting the region capture"), DefaultValue("PrintScreen")]
-		string RegionHotkey
-		{
-			get;
-			set;
-		}
-
-		[Description("Hotkey for starting the window capture"), DefaultValue("Alt + PrintScreen")]
-		string WindowHotkey
-		{
-			get;
-			set;
-		}
-
-		[Description("Hotkey for starting the fullscreen capture"), DefaultValue("Ctrl + PrintScreen")]
-		string FullscreenHotkey
-		{
-			get;
-			set;
-		}
-
-		[Description("Hotkey for starting the last region capture"), DefaultValue("Shift + PrintScreen")]
-		string LastregionHotkey
-		{
-			get;
-			set;
-		}
-
-		[Description("Hotkey for starting the IE capture"), DefaultValue("Shift + Ctrl + PrintScreen")]
-		string IEHotkey
-		{
-			get;
-			set;
-		}
-
 		[Description("Which destinations? Possible options (more might be added by plugins) are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail, Picker"), DefaultValue("Picker")]
 		IList<string> OutputDestinations
 		{
@@ -181,29 +140,6 @@ namespace GreenshotPlugin.Configuration
 			set;
 		}
 
-		[Description("How many days between every update check? (0=no checks)"), DefaultValue(7)]
-		int UpdateCheckInterval
-		{
-			get;
-			set;
-		}
-
-		[Description("Last update check")]
-		DateTimeOffset LastUpdateCheck
-		{
-			get;
-			set;
-		}
-
-		/// <summary>
-		/// FEATURE-709 / FEATURE-419: Add the possibility to ignore the hotkeys
-		/// </summary>
-		[Description("Ignore the hotkey if currently one of the specified processes is active")]
-		IList<string> IgnoreHotkeyProcessList
-		{
-			get;
-			set;
-		}
 	}
 
 	/// <summary>

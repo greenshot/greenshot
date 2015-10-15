@@ -26,6 +26,7 @@ using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,6 +37,7 @@ namespace GreenshotImgurPlugin
 	/// <summary>
 	/// This is the ImgurPlugin code
 	/// </summary>
+	[Export(typeof(IGreenshotPlugin))]
 	public class ImgurPlugin : IGreenshotPlugin
 	{
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ImgurPlugin));

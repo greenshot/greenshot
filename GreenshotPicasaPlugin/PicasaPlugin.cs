@@ -18,6 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Addons;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using Greenshot.Plugin;
@@ -25,6 +26,7 @@ using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,7 +37,9 @@ namespace GreenshotPicasaPlugin
 	/// <summary>
 	/// This is the Picasa base code
 	/// </summary>
-	public class PicasaPlugin : IGreenshotPlugin
+	[Plugin(Configurable=true)]
+	[StartupAction]
+	public class PicasaPlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (PicasaPlugin));
 		private static IPicasaConfiguration config;
@@ -61,6 +65,13 @@ namespace GreenshotPicasaPlugin
 			}
 		}
 
+		[Import]
+		public IGreenshotHost PluginHost
+		{
+			get;
+			set;
+		}
+
 		public PicasaPlugin()
 		{
 		}
@@ -82,7 +93,7 @@ namespace GreenshotPicasaPlugin
 		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
 		/// <param name="pluginAttribute">My own attributes</param>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken())
+		public async Task StartAsync(CancellationToken token = new CancellationToken())
 		{
 			// Register / get the picasa configuration
 			config = await IniConfig.Current.RegisterAndGetAsync<IPicasaConfiguration>();
@@ -91,12 +102,11 @@ namespace GreenshotPicasaPlugin
 
 			itemPlugInRoot = new ToolStripMenuItem();
 			itemPlugInRoot.Text = language.Configure;
-			itemPlugInRoot.Tag = pluginHost;
+			itemPlugInRoot.Tag = PluginHost;
 			itemPlugInRoot.Image = (Image) resources.GetObject("Picasa");
 			itemPlugInRoot.Click += ConfigMenuClick;
-			PluginUtils.AddToContextMenu(pluginHost, itemPlugInRoot);
+			PluginUtils.AddToContextMenu(PluginHost, itemPlugInRoot);
 			language.PropertyChanged += OnLanguageChanged;
-			return true;
 		}
 
 		public void OnLanguageChanged(object sender, EventArgs e)
@@ -107,11 +117,12 @@ namespace GreenshotPicasaPlugin
 			}
 		}
 
-		public void Shutdown()
+		public Task ShutdownAsync(CancellationToken token = default(CancellationToken))
 		{
 			LOG.Debug("Picasa Plugin shutdown.");
 			language.PropertyChanged -= OnLanguageChanged;
 			//host.OnImageEditorOpen -= new OnImageEditorOpenHandler(ImageEditorOpened);
+			return Task.FromResult(true);
 		}
 
 		/// <summary>
@@ -122,23 +133,12 @@ namespace GreenshotPicasaPlugin
 			ShowConfigDialog();
 		}
 
-		/// <summary>
-		/// This will be called when Greenshot is shutting down
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		public void Closing(object sender, FormClosingEventArgs e)
-		{
-			LOG.Debug("Application closing, de-registering Picasa Plugin!");
-			Shutdown();
-		}
-
 
 		/// <summary>
 		/// A form for token
 		/// </summary>
 		/// <returns>bool true if OK was pressed, false if cancel</returns>
-		public bool ShowConfigDialog()
+		private bool ShowConfigDialog()
 		{
 			DialogResult result = new SettingsForm().ShowDialog();
 			if (result == DialogResult.OK)
@@ -148,7 +148,7 @@ namespace GreenshotPicasaPlugin
 			return false;
 		}
 
-		public void ConfigMenuClick(object sender, EventArgs eventArgs)
+		private void ConfigMenuClick(object sender, EventArgs eventArgs)
 		{
 			ShowConfigDialog();
 		}

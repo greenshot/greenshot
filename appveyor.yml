@@ -37,7 +37,7 @@ environment:
     secure: bjKXhFZkDqaq98XBrz5oQKQfT8CLpuv2ZAiBIwkzloaAPUs97b5yx6h/xFaE4NLS
   credentials_picasa_consumer_secret:
     secure: yNptTpmJWypbu9alOQtetxU66drr2FKxoPflNgRJdag=
-  build_type: UNSTABLE
+  build_type: ALPHA
 before_build:
   - nuget restore
   - ps: Build/prebuild.ps1
@@ -66,7 +66,15 @@ deploy:
     secure: h0R+O/UoDM5Fy9XBfpRWLxFdR4a6CS+hDxr/MUeiRSviAmUsSlvsGSyOG6KiAVrL
   prerelease: true
   on:
-    build_type: UNSTABLE
+    build_type: RELEASE_CANDIDATE
+- provider: GitHub
+  tag: Greenshot-$(build_type)-$(APPVEYOR_BUILD_VERSION)
+  description: 
+  auth_token:
+    secure: h0R+O/UoDM5Fy9XBfpRWLxFdR4a6CS+hDxr/MUeiRSviAmUsSlvsGSyOG6KiAVrL
+  prerelease: true
+  on:
+    build_type: BETA
 - provider: GitHub
   tag: Greenshot-$(build_type)-$(APPVEYOR_BUILD_VERSION)
   auth_token:
@@ -78,6 +86,7 @@ notifications:
   to:
   - robin@getgreenshot.org
   - jens@getgreenshot.org
+  - thomas@getgreenshot.org
   on_build_success: true
   on_build_failure: true
   on_build_status_changed: true

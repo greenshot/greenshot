@@ -72,7 +72,7 @@ namespace Greenshot.Helpers
 		/// Play the sound async (is wrapeed)
 		/// </summary>
 		/// <returns></returns>
-		public static async Task Play(CancellationToken token = default(CancellationToken))
+		public static void Play(CancellationToken token = default(CancellationToken))
 		{
 			if (soundPlayer != null)
 			{

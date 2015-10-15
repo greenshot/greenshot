@@ -21,8 +21,8 @@
 
 using Dapplo.Config.Ini;
 using Greenshot.Plugin;
-using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -32,6 +32,7 @@ namespace GreenshotOfficePlugin
 	/// <summary>
 	/// This is the OfficePlugin base code
 	/// </summary>
+	[Export(typeof(IGreenshotPlugin))]
 	public class OfficePlugin : IGreenshotPlugin
 	{
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (OfficePlugin));

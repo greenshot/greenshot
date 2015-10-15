@@ -19,22 +19,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Addons;
+using Dapplo.Config.Ini;
+using Greenshot.Core;
+using GreenshotPlugin.Configuration;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Drawing;
-using System.Windows.Forms;
-using GreenshotPlugin.Core;
-using Greenshot.Core;
-using System.Threading.Tasks;
 using System.Threading;
-using Dapplo.Config.Ini;
-using GreenshotPlugin.Configuration;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Greenshot.Plugin
 {
 	[Serializable]
-	[AttributeUsage(AttributeTargets.Assembly, Inherited = false, AllowMultiple = false)]
-	public sealed class PluginAttribute : Attribute, IComparable
+	[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+	public sealed class PluginAttribute : ExportAttribute, IComparable
 	{
 		public string Name
 		{
@@ -54,17 +55,11 @@ namespace Greenshot.Plugin
 			set;
 		}
 
-		public string EntryType
-		{
-			get;
-			private set;
-		}
-
 		public bool Configurable
 		{
 			get;
-			private set;
-		}
+			set;
+		} = false;
 
 		public string DllFile
 		{
@@ -72,10 +67,8 @@ namespace Greenshot.Plugin
 			set;
 		}
 
-		public PluginAttribute(string entryType, bool configurable)
+		public PluginAttribute() : base(typeof(IGreenshotPlugin))
 		{
-			EntryType = entryType;
-			Configurable = configurable;
 		}
 
 		public int CompareTo(object obj)
@@ -269,26 +262,16 @@ namespace Greenshot.Plugin
 		void ShowSettings();
 	}
 
-	public interface IGreenshotPlugin : IDisposable
+	public interface IConfigurablePlugin : IGreenshotPlugin
 	{
-		/// <summary>
-		/// Is called after the plugin is instanciated, the Plugin should keep a copy of the host and myAttribute.
-		/// </summary>
-		/// <param name="host">The IPluginHost that will be hosting the plugin</param>
-		/// <param name="myAttribute">The PluginAttribute for the actual plugin</param>
-		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		Task<bool> InitializeAsync(IGreenshotHost host, PluginAttribute myAttribute, CancellationToken token = new CancellationToken());
-
-		/// <summary>
-		/// Unload of the plugin
-		/// </summary>
-		void Shutdown();
-
 		/// <summary>
 		/// Open the Configuration Form, will/should not be called before handshaking is done
 		/// </summary>
 		void Configure();
+	}
 
+	public interface IGreenshotPlugin : IDisposable
+	{
 		/// <summary>
 		/// Return IDestination's, if the plugin wants to
 		/// </summary>

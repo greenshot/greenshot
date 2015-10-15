@@ -29,12 +29,14 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Config.Language;
 using TranslationByMarkupExtension;
+using System.ComponentModel.Composition;
 
 namespace GreenshotConfluencePlugin
 {
 	/// <summary>
 	/// This is the ConfluencePlugin base code
 	/// </summary>
+	[Export(typeof(IGreenshotPlugin))]
 	public class ConfluencePlugin : IGreenshotPlugin
 	{
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ConfluencePlugin));

@@ -33,13 +33,6 @@ namespace GreenshotPlugin.Configuration
 			set;
 		}
 
-		[Description("Also check for unstable version updates"), DefaultValue(false)]
-		bool CheckForUnstable
-		{
-			get;
-			set;
-		}
-
 		[Description("The fixes that are active.")]
 		IList<string> ActiveTitleFixes
 		{

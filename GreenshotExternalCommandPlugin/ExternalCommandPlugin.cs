@@ -32,12 +32,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ExternalCommand;
+using System.ComponentModel.Composition;
 
 namespace GreenshotExternalCommandPlugin
 {
 	/// <summary>
 	/// An Plugin to run commands after an image was written
 	/// </summary>
+	[Export(typeof(IGreenshotPlugin))]
 	public class ExternalCommandPlugin : IGreenshotPlugin
 	{
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ExternalCommandPlugin));

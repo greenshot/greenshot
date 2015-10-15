@@ -143,29 +143,6 @@ namespace Greenshot.Helpers
 			}
 		}
 
-		/// <summary>
-		/// Specifies what THIS build is
-		/// </summary>
-		private static BuildStates BuildState
-		{
-			get
-			{
-				string informationalVersion = Application.ProductVersion;
-				if (informationalVersion != null)
-				{
-					if (informationalVersion.ToLowerInvariant().Contains("-rc"))
-					{
-						return BuildStates.RELEASE_CANDIDATE;
-					}
-					if (informationalVersion.ToLowerInvariant().Contains("-unstable"))
-					{
-						return BuildStates.UNSTABLE;
-					}
-				}
-				return BuildStates.RELEASE;
-			}
-		}
-
 		private static async Task ProcessRSSInfoAsync(Version currentVersion)
 		{
 			// Reset latest Greenshot
@@ -202,7 +179,7 @@ namespace Greenshot.Helpers
 						if (rssFile.IsUnstable)
 						{
 							// Skip if we shouldn't check unstables
-							if ((BuildState == BuildStates.RELEASE) && !conf.CheckForUnstable)
+							if ((conf.BuildState == BuildStates.RELEASE) && !conf.CheckForUnstable)
 							{
 								continue;
 							}
@@ -212,7 +189,7 @@ namespace Greenshot.Helpers
 						// the current version is a release AND check unstable is turned off.
 						if (rssFile.IsReleaseCandidate)
 						{
-							if (BuildState == BuildStates.RELEASE && !conf.CheckForUnstable)
+							if (conf.BuildState == BuildStates.RELEASE && !conf.CheckForUnstable)
 							{
 								continue;
 							}

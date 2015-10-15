@@ -239,12 +239,13 @@ namespace Greenshot.Helpers
 			}
 		}
 
-		private async Task DoCaptureFeedbackAsync(CancellationToken token = default(CancellationToken))
+		private Task DoCaptureFeedbackAsync(CancellationToken token = default(CancellationToken))
 		{
 			if (conf.PlayCameraSound)
 			{
-				await SoundHelper.Play(token);
+				SoundHelper.Play(token);
 			}
+			return Task.FromResult(true);
 		}
 
 		/// <summary>
