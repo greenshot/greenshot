@@ -31,20 +31,29 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Config.Language;
 using System.ComponentModel.Composition;
+using Dapplo.Addons;
 
 namespace GreenshotBoxPlugin
 {
 	/// <summary>
 	/// This is the Box base code
 	/// </summary>
-	[Export(typeof(IGreenshotPlugin))]
-	public class BoxPlugin : IGreenshotPlugin
+	[Plugin(Configurable = true)]
+	[StartupAction]
+	public class BoxPlugin : IGreenshotPlugin, IStartupAction
 	{
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (BoxPlugin));
 		private static IBoxConfiguration _config;
 		private static IBoxLanguage _language;
 		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _itemPlugInConfig;
+
+		[Import]
+		public IGreenshotHost GreenshotHost
+		{
+			get;
+			set;
+		}
 
 		public void Dispose()
 		{
@@ -76,12 +85,10 @@ namespace GreenshotBoxPlugin
 		}
 
 		/// <summary>
-		/// Implementation of the IGreenshotPlugin.Initialize
+		/// Initialize
 		/// </summary>
-		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="myAttribute">My own attributes</param>
 		/// <param name="token"></param>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken())
+		public async Task StartAsync(CancellationToken token = new CancellationToken())
 		{
 			// Register / get the box configuration
 			_config = await IniConfig.Current.RegisterAndGetAsync<IBoxConfiguration>(token);
@@ -92,9 +99,9 @@ namespace GreenshotBoxPlugin
 			{
 				Image = (Image) _resources.GetObject("Box"), Text = _language.Configure
 			};
-			_itemPlugInConfig.Click += ConfigMenuClick;
+			_itemPlugInConfig.Click += (sender, eventArgs) => Configure();
 
-			PluginUtils.AddToContextMenu(pluginHost, _itemPlugInConfig);
+			PluginUtils.AddToContextMenu(GreenshotHost, _itemPlugInConfig);
 			_language.PropertyChanged += (sender, args) =>
 			{
 				if (_itemPlugInConfig != null)
@@ -102,12 +109,6 @@ namespace GreenshotBoxPlugin
 					_itemPlugInConfig.Text = _language.Configure;
 				}
 			};
-			return true;
-		}
-
-		public void Shutdown()
-		{
-			LOG.Debug("Box Plugin shutdown.");
 		}
 
 		/// <summary>
@@ -115,38 +116,7 @@ namespace GreenshotBoxPlugin
 		/// </summary>
 		public void Configure()
 		{
-			ShowConfigDialog();
-		}
-
-		/// <summary>
-		/// This will be called when Greenshot is shutting down
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		public void Closing(object sender, FormClosingEventArgs e)
-		{
-			LOG.Debug("Application closing, de-registering Box Plugin!");
-			Shutdown();
-		}
-
-		public void ConfigMenuClick(object sender, EventArgs eventArgs)
-		{
-			ShowConfigDialog();
-		}
-
-
-		/// <summary>
-		/// A form for token
-		/// </summary>
-		/// <returns>bool true if OK was pressed, false if cancel</returns>
-		private bool ShowConfigDialog()
-		{
-			DialogResult result = new SettingsForm(_config).ShowDialog();
-			if (result == DialogResult.OK)
-			{
-				return true;
-			}
-			return false;
+			new SettingsForm(_config).ShowDialog();
 		}
 	}
 }

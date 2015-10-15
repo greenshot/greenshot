@@ -1600,7 +1600,7 @@ namespace Greenshot.Forms
 			// Inform all registed plugins
 			try
 			{
-				PluginHelper.Instance.Shutdown();
+				PluginHelper.Instance.ShutdownAsync();
 			}
 			catch (Exception e)
 			{

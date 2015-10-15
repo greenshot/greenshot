@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Plugin;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
@@ -35,9 +34,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyright("Copyright (C) 2007-2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-// The PluginAttribute describes the "entryType" and if the plugin is configurable
-
-[assembly: PluginAttribute("GreenshotExternalCommandPlugin.ExternalCommandPlugin", true)]
 
 // This sets the default COM visibility of types in the assembly to invisible.
 // If you need to expose a type to COM, use [ComVisible(true)] on that type.

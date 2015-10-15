@@ -26,27 +26,33 @@ using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using log4net;
 using Dapplo.Config.Ini;
 using System.Threading.Tasks;
 using System.Threading;
 using Dapplo.Config.Language;
 using System.ComponentModel.Composition;
+using Dapplo.Addons;
 
 namespace GreenshotFlickrPlugin
 {
 	/// <summary>
 	/// This is the Flickr base code
 	/// </summary>
-	[Export(typeof(IGreenshotPlugin))]
-	public class FlickrPlugin : IGreenshotPlugin
+	[Plugin(Configurable = true)]
+	[StartupAction, ShutdownAction]
+	public class FlickrPlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (FlickrPlugin));
 		private static IFlickrConfiguration _config;
 		private static IFlickrLanguage _language;
-		private IGreenshotHost _host;
 		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _itemPlugInConfig;
+
+		[Import]
+		public IGreenshotHost GreenshotHost
+		{
+			get;
+			set;
+		}
 
 		public void Dispose()
 		{
@@ -80,31 +86,28 @@ namespace GreenshotFlickrPlugin
 		}
 
 		/// <summary>
-		/// Implementation of the IGreenshotPlugin.Initialize
+		/// Initialize
 		/// </summary>
-		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="pluginAttribute">My own attributes</param>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute pluginAttribute, CancellationToken token = new CancellationToken())
+		/// <param name="token"></param>
+		public async Task StartAsync(CancellationToken token = new CancellationToken())
 		{
 			// Register / get the flickr configuration
 			_config = await IniConfig.Current.RegisterAndGetAsync<IFlickrConfiguration>(token);
 			_language = await LanguageLoader.Current.RegisterAndGetAsync<IFlickrLanguage>(token);
-			_host = pluginHost;
 
 			_resources = new ComponentResourceManager(typeof (FlickrPlugin));
 
-			_itemPlugInConfig = new ToolStripMenuItem();
-			_itemPlugInConfig.Text = _language.Configure;
-			_itemPlugInConfig.Tag = _host;
-			_itemPlugInConfig.Image = (Image) _resources.GetObject("flickr");
-			_itemPlugInConfig.Click += ConfigMenuClick;
+			_itemPlugInConfig = new ToolStripMenuItem
+			{
+				Text = _language.Configure, Tag = GreenshotHost, Image = (Image) _resources.GetObject("flickr")
+			};
+			_itemPlugInConfig.Click += (sender, eventArgs) => Configure();
 
-			PluginUtils.AddToContextMenu(_host, _itemPlugInConfig);
+			PluginUtils.AddToContextMenu(GreenshotHost, _itemPlugInConfig);
 			_language.PropertyChanged += OnLanguageChanged;
-			return true;
 		}
 
-		public void OnLanguageChanged(object sender, EventArgs e)
+		private void OnLanguageChanged(object sender, EventArgs e)
 		{
 			if (_itemPlugInConfig != null)
 			{
@@ -112,47 +115,18 @@ namespace GreenshotFlickrPlugin
 			}
 		}
 
-		public void Shutdown()
-		{
-			LOG.Debug("Flickr Plugin shutdown.");
-		}
-
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
 		public void Configure()
 		{
-			ShowConfigDialog();
+			new SettingsForm(_config).ShowDialog();
 		}
 
-		/// <summary>
-		/// This will be called when Greenshot is shutting down
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		public void Closing(object sender, FormClosingEventArgs e)
+		public Task ShutdownAsync(CancellationToken token = new CancellationToken())
 		{
-			LOG.Debug("Application closing, de-registering Flickr Plugin!");
-			Shutdown();
-		}
-
-		public void ConfigMenuClick(object sender, EventArgs eventArgs)
-		{
-			ShowConfigDialog();
-		}
-
-		/// <summary>
-		/// A form for token
-		/// </summary>
-		/// <returns>bool true if OK was pressed, false if cancel</returns>
-		private bool ShowConfigDialog()
-		{
-			DialogResult result = new SettingsForm(_config).ShowDialog();
-			if (result == DialogResult.OK)
-			{
-				return true;
-			}
-			return false;
+			_language.PropertyChanged -= OnLanguageChanged;
+			return Task.FromResult(true);
 		}
 	}
 }

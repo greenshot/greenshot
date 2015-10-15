@@ -210,13 +210,6 @@ namespace Greenshot.Plugin
 		}
 
 		/// <summary>
-		/// Create a Thumbnail
-		/// </summary>
-		/// <param name="image">Image of which we need a Thumbnail</param>
-		/// <returns>Image with Thumbnail</returns>
-		Image GetThumbnail(Image image, int width, int height);
-
-		/// <summary>
 		/// List of available plugins with their PluginAttributes
 		/// This can be usefull for a plugin manager plugin...
 		/// </summary>

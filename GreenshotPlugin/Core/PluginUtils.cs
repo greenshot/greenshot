@@ -40,13 +40,12 @@ namespace GreenshotPlugin.Core
 	public static class PluginUtils
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof (PluginUtils));
-		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
-		private const string PATH_KEY = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
-		private static IDictionary<string, Image> exeIconCache = new Dictionary<string, Image>();
+		private static readonly ICoreConfiguration Conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly IDictionary<string, Image> ExeIconCache = new Dictionary<string, Image>();
 
 		static PluginUtils()
 		{
-			conf.PropertyChanged += OnIconSizeChanged;
+			Conf.PropertyChanged += OnIconSizeChanged;
 		}
 
 		/// <summary>
@@ -68,13 +67,13 @@ namespace GreenshotPlugin.Core
 			if (e.PropertyName == "IconSize")
 			{
 				List<Image> cachedImages = new List<Image>();
-				lock (exeIconCache)
+				lock (ExeIconCache)
 				{
-					foreach (string key in exeIconCache.Keys)
+					foreach (string key in ExeIconCache.Keys)
 					{
-						cachedImages.Add(exeIconCache[key]);
+						cachedImages.Add(ExeIconCache[key]);
 					}
-					exeIconCache.Clear();
+					ExeIconCache.Clear();
 				}
 				foreach (Image cachedImage in cachedImages)
 				{
@@ -93,7 +92,7 @@ namespace GreenshotPlugin.Core
 		/// <returns>Path to file</returns>
 		public static string GetExePath(string exeName)
 		{
-			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(PATH_KEY + exeName, false))
+			using (var key = Registry.LocalMachine.OpenSubKey($@"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\{exeName}", false))
 			{
 				if (key != null)
 				{
@@ -129,17 +128,14 @@ namespace GreenshotPlugin.Core
 		{
 			string cacheKey = string.Format("{0}:{1}", path, index);
 			Image returnValue;
-			if (!exeIconCache.TryGetValue(cacheKey, out returnValue))
+			lock (ExeIconCache)
 			{
-				lock (exeIconCache)
+				if (!ExeIconCache.TryGetValue(cacheKey, out returnValue))
 				{
-					if (!exeIconCache.TryGetValue(cacheKey, out returnValue))
+					returnValue = GetExeIcon(path, index);
+					if (returnValue != null)
 					{
-						returnValue = GetExeIcon(path, index);
-						if (returnValue != null)
-						{
-							exeIconCache.Add(cacheKey, returnValue);
-						}
+						ExeIconCache.Add(cacheKey, returnValue);
 					}
 				}
 			}
@@ -160,14 +156,14 @@ namespace GreenshotPlugin.Core
 			}
 			try
 			{
-				using (Icon appIcon = ImageHelper.ExtractAssociatedIcon(path, index, CoreConfigurationChecker.UseLargeIcons(conf.IconSize)))
+				using (Icon appIcon = ImageHelper.ExtractAssociatedIcon(path, index, CoreConfigurationChecker.UseLargeIcons(Conf.IconSize)))
 				{
 					if (appIcon != null)
 					{
 						return appIcon.ToBitmap();
 					}
 				}
-				using (Icon appIcon = Shell32.GetFileIcon(path, CoreConfigurationChecker.UseLargeIcons(conf.IconSize) ? Shell32.IconSize.Large : Shell32.IconSize.Small, false))
+				using (Icon appIcon = Shell32.GetFileIcon(path, CoreConfigurationChecker.UseLargeIcons(Conf.IconSize) ? Shell32.IconSize.Large : Shell32.IconSize.Small, false))
 				{
 					if (appIcon != null)
 					{
@@ -185,6 +181,7 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		/// Helper method to add a MenuItem to the File MenuItem of an ImageEditor
 		/// </summary>
+		/// <param name="imageEditor"></param>
 		/// <param name="image">Image to display in the menu</param>
 		/// <param name="text">Text to display in the menu</param>
 		/// <param name="tag">The TAG value</param>
@@ -192,10 +189,10 @@ namespace GreenshotPlugin.Core
 		/// <param name="handler">The onclick handler</param>
 		public static void AddToFileMenu(IImageEditor imageEditor, Image image, string text, object tag, Keys? shortcutKeys, EventHandler handler)
 		{
-			ToolStripMenuItem item = new ToolStripMenuItem();
-			item.Image = image;
-			item.Text = text;
-			item.Tag = tag;
+			var item = new ToolStripMenuItem
+			{
+				Image = image, Text = text, Tag = tag
+			};
 			if (shortcutKeys.HasValue)
 			{
 				item.ShortcutKeys = shortcutKeys.Value;
@@ -255,7 +252,7 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		/// Helper method to add a plugin MenuItem to the Greenshot context menu
 		/// </summary>
-		/// <param name="imageEditor"></param>
+		/// <param name="host"></param>
 		/// <param name="item"></param>
 		public static void AddToContextMenu(IGreenshotHost host, ToolStripMenuItem item)
 		{

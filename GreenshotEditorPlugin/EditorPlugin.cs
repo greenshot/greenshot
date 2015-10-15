@@ -36,8 +36,6 @@ namespace GreenshotEditorPlugin
 	[StartupAction]
 	public class EditorPlugin : IGreenshotPlugin, IStartupAction
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (EditorPlugin));
-
 		public void Dispose()
 		{
 			Dispose(true);
@@ -62,10 +60,8 @@ namespace GreenshotEditorPlugin
 		}
 
 		/// <summary>
-		/// Implementation of the IGreenshotPlugin.Initialize
+		/// Initialize
 		/// </summary>
-		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="myAttribute">My own attributes</param>
 		/// <param name="token"></param>
 		public async Task StartAsync(CancellationToken token = new CancellationToken())
 		{

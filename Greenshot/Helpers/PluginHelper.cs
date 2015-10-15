@@ -20,13 +20,11 @@
  */
 
 using Dapplo.Addons.Implementation;
-using Dapplo.Config.Ini;
 using Greenshot.Forms;
 using Greenshot.Plugin;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
-using log4net;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -46,23 +44,12 @@ namespace Greenshot.Helpers
 	[Serializable]
 	public class PluginHelper : IGreenshotHost
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (PluginHelper));
-		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
-
-		private static readonly string pluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
-		private static readonly string applicationPath = Path.GetDirectoryName(Application.ExecutablePath);
-		private static string pafPath = Path.Combine(Application.StartupPath, @"App\Greenshot");
-		private static IDictionary<PluginAttribute, IGreenshotPlugin> plugins = new ConcurrentDictionary<PluginAttribute, IGreenshotPlugin>();
-		private static readonly PluginHelper instance = new PluginHelper();
 		private readonly StartupShutdownBootstrapper _startupShutdownBootstrapper = new StartupShutdownBootstrapper();
 
 		public static PluginHelper Instance
 		{
-			get
-			{
-				return instance;
-			}
-		}
+			get;
+		} = new PluginHelper();
 
 		private PluginHelper()
 		{
@@ -100,14 +87,9 @@ namespace Greenshot.Helpers
 			return (plugins != null && plugins.Count > 0);
 		}
 
-		public void Shutdown()
+		public async Task ShutdownAsync(CancellationToken token = default(CancellationToken))
 		{
-			foreach (IGreenshotPlugin plugin in plugins.Values)
-			{
-				plugin.Shutdown();
-				plugin.Dispose();
-			}
-			plugins.Clear();
+			await _startupShutdownBootstrapper.ShutdownAsync(token);
 		}
 
 		// Add plugins to the Listview
@@ -124,7 +106,7 @@ namespace Greenshot.Helpers
 			}
 		}
 
-		public bool isSelectedItemConfigurable(ListView listview)
+		public bool IsSelectedItemConfigurable(ListView listview)
 		{
 			if (listview.SelectedItems.Count > 0)
 			{
@@ -151,25 +133,6 @@ namespace Greenshot.Helpers
 		}
 
 		#region Implementation of IGreenshotPluginHost
-
-		/// <summary>
-		/// Create a Thumbnail
-		/// </summary>
-		/// <param name="image">Image of which we need a Thumbnail</param>
-		/// <returns>Image with Thumbnail</returns>
-		public Image GetThumbnail(Image image, int width, int height)
-		{
-			return image.GetThumbnailImage(width, height, ThumbnailCallback, IntPtr.Zero);
-		}
-
-		///  <summary>
-		/// Required for GetThumbnail, but not used
-		/// </summary>
-		/// <returns>true</returns>
-		private bool ThumbnailCallback()
-		{
-			return true;
-		}
 
 		public ContextMenuStrip MainMenu
 		{
@@ -200,7 +163,7 @@ namespace Greenshot.Helpers
 		/// <summary>
 		/// Use the supplied image, and handle it as if it's captured.
 		/// </summary>
-		/// <param name="imageToImport">Image to handle</param>
+		/// <param name="captureToImport">Capture to handle</param>
 		public void ImportCapture(ICapture captureToImport)
 		{
 			MainForm.Instance.AsyncInvoke(async () =>
@@ -215,10 +178,13 @@ namespace Greenshot.Helpers
 		/// <returns></returns>
 		public ICapture GetCapture(Image imageToCapture)
 		{
-			Capture capture = new Capture(imageToCapture);
-			capture.CaptureDetails = new CaptureDetails();
-			capture.CaptureDetails.CaptureMode = CaptureMode.Import;
-			capture.CaptureDetails.Title = "Imported";
+			var capture = new Capture(imageToCapture)
+			{
+				CaptureDetails = new CaptureDetails
+				{
+					CaptureMode = CaptureMode.Import, Title = "Imported"
+				}
+			};
 			return capture;
 		}
 
@@ -228,62 +194,7 @@ namespace Greenshot.Helpers
 
 		public PluginAttribute FindPlugin(string name)
 		{
-			foreach (PluginAttribute pluginAttribute in plugins.Keys)
-			{
-				if (name.Equals(pluginAttribute.Name))
-				{
-					return pluginAttribute;
-				}
-			}
-			return null;
-		}
-
-		private bool isNewer(string version1, string version2)
-		{
-			string[] version1Parts = version1.Split('.');
-			string[] version2Parts = version2.Split('.');
-			int parts = Math.Min(version1Parts.Length, version2Parts.Length);
-			for (int i = 0; i < parts; i++)
-			{
-				int v1 = Convert.ToInt32(version1Parts[i]);
-				int v2 = Convert.ToInt32(version2Parts[i]);
-				if (v1 > v2)
-				{
-					return true;
-				}
-				if (v1 < v2)
-				{
-					return false;
-				}
-			}
-			return false;
-		}
-
-		/// <summary>
-		/// Private helper to find the plugins in the path
-		/// </summary>
-		/// <param name="pluginFiles"></param>
-		/// <param name="path"></param>
-		private void FindPluginsOnPath(IList<string> pluginFiles, String path)
-		{
-			if (Directory.Exists(path))
-			{
-				try
-				{
-					foreach (string pluginFile in Directory.EnumerateFiles(path, "*.gsp", SearchOption.AllDirectories))
-					{
-						pluginFiles.Add(pluginFile);
-					}
-				}
-				catch (UnauthorizedAccessException)
-				{
-					return;
-				}
-				catch (Exception ex)
-				{
-					LOG.Error("Error loading plugin: ", ex);
-				}
-			}
+			return plugins.Keys.FirstOrDefault(pluginAttribute => name.Equals(pluginAttribute.Name));
 		}
 
 		/// <summary>
@@ -294,11 +205,15 @@ namespace Greenshot.Helpers
 			
 			if (PortableHelper.IsPortable)
 			{
+				var pafPath = Path.Combine(Application.StartupPath, @"App\Greenshot");
 				_startupShutdownBootstrapper.Add(pafPath, "*.gsp");
 			}
 			else
 			{
-				_startupShutdownBootstrapper.Add(pluginPath, "*.gsp");
+				var pluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
+                _startupShutdownBootstrapper.Add(pluginPath, "*.gsp");
+
+				var applicationPath  = Path.GetDirectoryName(Application.ExecutablePath);
 				_startupShutdownBootstrapper.Add(applicationPath, "*.gsp");
 			}
 			// Make the IGreenshotHost available for the plugins

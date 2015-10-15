@@ -25,27 +25,30 @@ using Greenshot.Plugin;
 using GreenshotPlugin.Extensions;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Addons;
 
 namespace GreenshotJiraPlugin
 {
 	/// <summary>
 	/// This is the JiraPlugin base code
 	/// </summary>
-	[Export(typeof(IGreenshotPlugin))]
-	public class JiraPlugin : IGreenshotPlugin
+	[Plugin(Configurable = true)]
+	[StartupAction]
+	public class JiraPlugin : IConfigurablePlugin, IStartupAction
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (JiraPlugin));
-		private PluginAttribute jiraPluginAttributes;
-		private IGreenshotHost _host;
-		private IJiraConfiguration config = null;
-		private IJiraLanguage language = null;
-		private ComponentResourceManager resources;
+		private IJiraConfiguration _config;
 		private JiraMonitor _jiraMonitor;
+
+		[Import]
+		public IGreenshotHost GreenshotHost
+		{
+			get;
+			set;
+		}
 
 		/// <summary>
 		/// Get the JiraMonitor
@@ -68,46 +71,29 @@ namespace GreenshotJiraPlugin
 			yield break;
 		}
 
-
 		/// <summary>
-		/// Implementation of the IGreenshotPlugin.Initialize
+		/// Initialize
 		/// </summary>
-		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
-		/// <param name="pluginAttribute">My own attributes</param>
-		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken())
+		/// <param name="token"></param>
+		public async Task StartAsync(CancellationToken token = new CancellationToken())
 		{
 			// Register / get the jira configuration
-			config = await IniConfig.Current.RegisterAndGetAsync<IJiraConfiguration>();
-			language = await LanguageLoader.Current.RegisterAndGetAsync<IJiraLanguage>();
-			_host = pluginHost;
-			jiraPluginAttributes = myAttribute;
-
-			resources = new ComponentResourceManager(typeof (JiraPlugin));
+			_config = await IniConfig.Current.RegisterAndGetAsync<IJiraConfiguration>(token);
+			await LanguageLoader.Current.RegisterAndGetAsync<IJiraLanguage>(token);
 
 			// Make sure the InitializeMonitor is called after the message loop is initialized!
-			_host.GreenshotForm.AsyncInvoke(() => InitializeMonitor());
-			return true;
+			GreenshotHost.GreenshotForm.AsyncInvoke(InitializeMonitor);
 		}
 
-		public void InitializeMonitor()
+		private void InitializeMonitor()
 		{
-			if (_jiraMonitor != null)
-			{
-				_jiraMonitor.Dispose();
-			}
-			if (!string.IsNullOrEmpty(config.Password))
+			_jiraMonitor?.Dispose();
+			if (!string.IsNullOrEmpty(_config.Password))
 			{
 				_jiraMonitor = new JiraMonitor();
 				// Async call, will continue in the background!
-				var backgroundTask = _jiraMonitor.AddJiraInstance(new Uri(config.RestUrl), config.Username, config.Password).ConfigureAwait(false);
+				var backgroundTask = _jiraMonitor.AddJiraInstance(new Uri(_config.RestUrl), _config.Username, _config.Password).ConfigureAwait(false);
 			}
-		}
-
-		public void Shutdown()
-		{
-			LOG.Debug("Jira Plugin shutdown.");
 		}
 
 		/// <summary>
@@ -125,60 +111,33 @@ namespace GreenshotJiraPlugin
 		/// A form for username/password
 		/// </summary>
 		/// <returns>bool true if OK was pressed, false if cancel</returns>
-		public bool ShowConfigDialog()
+		private bool ShowConfigDialog()
 		{
 			var before = new
 			{
-				RestUrl = config.RestUrl, Password = config.Password, Username = config.Username
+				_config.RestUrl, _config.Password, _config.Username
 			};
 
-			var settingsForm = new SettingsForm(config);
+			var settingsForm = new SettingsForm(_config);
 			DialogResult result = settingsForm.ShowDialog();
 			if (result == DialogResult.OK)
 			{
 				var after = new
 				{
-					RestUrl = config.RestUrl, Password = config.Password, Username = config.Username
+					_config.RestUrl, _config.Password, _config.Username
 				};
 				return !before.Equals(after);
 			}
 			return false;
 		}
 
-		/// <summary>
-		/// Supply values we can't put as defaults
-		/// </summary>
-		/// <param name="property">The property to return a default for</param>
-		/// <returns>object with the default value for the supplied property</returns>
-		public object GetDefault(string property)
-		{
-			switch (property)
-			{
-				case "Username":
-					return Environment.UserName;
-			}
-			return null;
-		}
-
-
-		/// <summary>
-		/// This will be called when Greenshot is shutting down
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		public void Closing(object sender, FormClosingEventArgs e)
-		{
-			LOG.Debug("Application closing, calling logout of jira!");
-			Shutdown();
-		}
-
 		#region IDisposable Support
 
-		private bool disposedValue = false; // To detect redundant calls
+		private bool _disposedValue = false; // To detect redundant calls
 
 		protected virtual void Dispose(bool disposing)
 		{
-			if (!disposedValue)
+			if (!_disposedValue)
 			{
 				if (disposing)
 				{
@@ -189,7 +148,7 @@ namespace GreenshotJiraPlugin
 					}
 				}
 
-				disposedValue = true;
+				_disposedValue = true;
 			}
 		}
 

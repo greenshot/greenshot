@@ -31,22 +31,29 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Config.Language;
 using System.ComponentModel.Composition;
+using Dapplo.Addons;
 
 namespace GreenshotDropboxPlugin
 {
 	/// <summary>
-	/// This is the Dropbox base code
+	/// This is the Dropbox Plugin
 	/// </summary>
-	[Export(typeof(IGreenshotPlugin))]
-	public class DropboxPlugin : IGreenshotPlugin
+	[Plugin]
+	[StartupAction]
+	public class DropboxPlugin : IGreenshotPlugin, IStartupAction
 	{
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (DropboxPlugin));
-		private static IDropboxConfiguration _config;
 		private static IDropboxLanguage _language;
 		public static PluginAttribute Attributes;
-		private IGreenshotHost _host;
 		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _itemPlugInConfig;
+
+		[Import]
+		public IGreenshotHost GreenshotHost
+		{
+			get;
+			set;
+		}
 
 		public void Dispose()
 		{
@@ -78,29 +85,25 @@ namespace GreenshotDropboxPlugin
 		}
 
 		/// <summary>
-		/// Implementation of the IGreenshotPlugin.Initialize
+		/// Initialize
 		/// </summary>
-		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="myAttribute">My own attributes</param>
 		/// <param name="token"></param>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken())
+		public async Task StartAsync(CancellationToken token = new CancellationToken())
 		{
 			// Register / get the dropbox configuration
-			_config = await IniConfig.Current.RegisterAndGetAsync<IDropboxConfiguration>(token);
+			await IniConfig.Current.RegisterAndGetAsync<IDropboxConfiguration>(token);
 			_language = await LanguageLoader.Current.RegisterAndGetAsync<IDropboxLanguage>(token);
-			_host = pluginHost;
-			Attributes = myAttribute;
-
 			// Register configuration (don't need the configuration itself)
 			_resources = new ComponentResourceManager(typeof (DropboxPlugin));
 
-			_itemPlugInConfig = new ToolStripMenuItem();
-			_itemPlugInConfig.Text = _language.Configure;
-			_itemPlugInConfig.Tag = pluginHost;
-			_itemPlugInConfig.Click += ConfigMenuClick;
+			_itemPlugInConfig = new ToolStripMenuItem
+			{
+				Text = _language.Configure, Tag = GreenshotHost
+			};
+			_itemPlugInConfig.Click += (sender, eventArgs) => Configure();
 			_itemPlugInConfig.Image = (Image) _resources.GetObject("Dropbox");
 
-			PluginUtils.AddToContextMenu(pluginHost, _itemPlugInConfig);
+			PluginUtils.AddToContextMenu(GreenshotHost, _itemPlugInConfig);
 			_language.PropertyChanged += (sender, args) =>
 			{
 				if (_itemPlugInConfig != null)
@@ -108,7 +111,6 @@ namespace GreenshotDropboxPlugin
 					_itemPlugInConfig.Text = _language.Configure;
 				}
 			};
-			return true;
 		}
 
 		public void Shutdown()
@@ -121,38 +123,7 @@ namespace GreenshotDropboxPlugin
 		/// </summary>
 		public void Configure()
 		{
-			ShowConfigDialog();
-		}
-
-
-		/// <summary>
-		/// A form for token
-		/// </summary>
-		/// <returns>bool true if OK was pressed, false if cancel</returns>
-		private bool ShowConfigDialog()
-		{
-			DialogResult result = new SettingsForm().ShowDialog();
-			if (result == DialogResult.OK)
-			{
-				return true;
-			}
-			return false;
-		}
-
-		/// <summary>
-		/// This will be called when Greenshot is shutting down
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		public void Closing(object sender, FormClosingEventArgs e)
-		{
-			LOG.Debug("Application closing, de-registering Dropbox Plugin!");
-			Shutdown();
-		}
-
-		public void ConfigMenuClick(object sender, EventArgs eventArgs)
-		{
-			ShowConfigDialog();
+			new SettingsForm().ShowDialog();
 		}
 	}
 }

@@ -25,29 +25,36 @@ using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Config.Language;
-using System.ComponentModel.Composition;
+using Dapplo.Addons;
 
 namespace GreenshotPhotobucketPlugin
 {
 	/// <summary>
 	/// This is the GreenshotPhotobucketPlugin base code
 	/// </summary>
-	[Export(typeof(IGreenshotPlugin))]
-	public class PhotobucketPlugin : IGreenshotPlugin
+	[Plugin(Configurable = true)]
+	[StartupAction]
+    public class PhotobucketPlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (PhotobucketPlugin));
 		private static IPhotobucketConfiguration _config;
 		private static IPhotobucketLanguage _language;
 
-		public static PluginAttribute Attributes;
-		private IGreenshotHost _host;
 		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _itemPlugInConfig;
+
+		[Import]
+		public IGreenshotHost GreenshotHost
+		{
+			get;
+			set;
+		}
 
 		public void Dispose()
 		{
@@ -78,33 +85,26 @@ namespace GreenshotPhotobucketPlugin
 		}
 
 		/// <summary>
-		/// Implementation of the IGreenshotPlugin.Initialize
+		/// Initialize
 		/// </summary>
-		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="myAttribute">My own attributes</param>
 		/// <param name="token"></param>
-		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken())
+		public async Task StartAsync(CancellationToken token = new CancellationToken())
 		{
-			_host = pluginHost;
-			Attributes = myAttribute;
-
 			// Register / get the photobucket configuration
 			_config = await IniConfig.Current.RegisterAndGetAsync<IPhotobucketConfiguration>(token);
 			_language = await LanguageLoader.Current.RegisterAndGetAsync<IPhotobucketLanguage>(token);
 			_resources = new ComponentResourceManager(typeof (PhotobucketPlugin));
 
-			_itemPlugInConfig = new ToolStripMenuItem(_language.Configure);
-			_itemPlugInConfig.Tag = _host;
-			_itemPlugInConfig.Click += delegate
+
+			_itemPlugInConfig = new ToolStripMenuItem(_language.Configure)
 			{
-				ShowConfigDialog();
+				Tag = GreenshotHost
 			};
+			_itemPlugInConfig.Click += (sender, eventArgs) => Configure();
 			_itemPlugInConfig.Image = (Image) _resources.GetObject("Photobucket");
 
-			PluginUtils.AddToContextMenu(_host, _itemPlugInConfig);
+			PluginUtils.AddToContextMenu(GreenshotHost, _itemPlugInConfig);
 			_language.PropertyChanged += OnLanguageChanged;
-			return true;
 		}
 
 		public void OnLanguageChanged(object sender, EventArgs e)
@@ -115,40 +115,20 @@ namespace GreenshotPhotobucketPlugin
 			}
 		}
 
-		public void Shutdown()
-		{
-			LOG.Debug("Photobucket Plugin shutdown.");
-			_language.PropertyChanged -= OnLanguageChanged;
-		}
-
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
 		public void Configure()
 		{
-			ShowConfigDialog();
-		}
-
-
-		/// <summary>
-		/// A form for username/password
-		/// </summary>
-		/// <returns>bool true if OK was pressed, false if cancel</returns>
-		private void ShowConfigDialog()
-		{
 			var settingsForm = new SettingsForm(_config);
 			settingsForm.ShowDialog();
 		}
 
-		/// <summary>
-		/// This will be called when Greenshot is shutting down
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		public void Closing(object sender, FormClosingEventArgs e)
+
+		public Task ShutdownAsync(CancellationToken token = new CancellationToken())
 		{
-			LOG.Debug("Application closing, de-registering Photobucket Plugin!");
-			Shutdown();
+			_language.PropertyChanged -= OnLanguageChanged;
+			return Task.FromResult(true);
 		}
 	}
 }

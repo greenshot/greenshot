@@ -22,21 +22,19 @@
 using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using Dapplo.Addons;
 
 namespace GreenshotOfficePlugin
 {
 	/// <summary>
 	/// This is the OfficePlugin base code
 	/// </summary>
-	[Export(typeof(IGreenshotPlugin))]
-	public class OfficePlugin : IGreenshotPlugin
+	[Plugin(Configurable = false)]
+	[StartupAction]
+    public class OfficePlugin : IGreenshotPlugin, IStartupAction
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (OfficePlugin));
-
 		public IEnumerable<IDestination> Destinations()
 		{
 			var destinations = new List<IDestination>();
@@ -87,40 +85,13 @@ namespace GreenshotOfficePlugin
 		}
 
 		/// <summary>
-		/// Implementation of the IGreenshotPlugin.Initialize
+		/// Initialize
 		/// </summary>
-		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
-		/// <param name="pluginAttribute">My own attributes</param>
-		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken())
+		/// <param name="token"></param>
+		public async Task StartAsync(CancellationToken token = new CancellationToken())
 		{
 			// Register the office configuration
-			await IniConfig.Current.RegisterAndGetAsync<IOfficeConfiguration>();
-			return true;
-		}
-
-		public void Shutdown()
-		{
-			LOG.Debug("Office Plugin shutdown.");
-		}
-
-		/// <summary>
-		/// Implementation of the IPlugin.Configure
-		/// </summary>
-		public void Configure()
-		{
-		}
-
-		/// <summary>
-		/// This will be called when Greenshot is shutting down
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		public void Closing(object sender, FormClosingEventArgs e)
-		{
-			LOG.Debug("Application closing, de-registering Office Plugin!");
-			Shutdown();
+			await IniConfig.Current.RegisterAndGetAsync<IOfficeConfiguration>(token);
 		}
 
 		#region IDisposable Support

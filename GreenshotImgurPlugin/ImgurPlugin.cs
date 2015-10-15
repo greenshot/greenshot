@@ -31,22 +31,21 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Addons;
 
 namespace GreenshotImgurPlugin
 {
 	/// <summary>
 	/// This is the ImgurPlugin code
 	/// </summary>
-	[Export(typeof(IGreenshotPlugin))]
-	public class ImgurPlugin : IGreenshotPlugin
+	[Plugin(Configurable = true)]
+	[StartupAction, ShutdownAction]
+	public class ImgurPlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ImgurPlugin));
-		private static IImgurConfiguration config;
-		private static IImgurLanguage language;
-		public static PluginAttribute Attributes;
-		private IGreenshotHost _host;
+		private static IImgurConfiguration _config;
+		private static IImgurLanguage _language;
 		private ComponentResourceManager _resources;
-		private ToolStripMenuItem _historyMenuItem = null;
+		private ToolStripMenuItem _historyMenuItem;
 		private ToolStripMenuItem _itemPlugInConfig;
 
 		public void Dispose()
@@ -56,19 +55,28 @@ namespace GreenshotImgurPlugin
 
 		protected void Dispose(bool disposing)
 		{
-			if (disposing)
+			if (!disposing)
 			{
-				if (_historyMenuItem != null)
-				{
-					_historyMenuItem.Dispose();
-					_historyMenuItem = null;
-				}
-				if (_itemPlugInConfig != null)
-				{
-					_itemPlugInConfig.Dispose();
-					_itemPlugInConfig = null;
-				}
+				return;
 			}
+			if (_historyMenuItem != null)
+			{
+				_historyMenuItem.Dispose();
+				_historyMenuItem = null;
+			}
+			if (_itemPlugInConfig == null)
+			{
+				return;
+			}
+			_itemPlugInConfig.Dispose();
+			_itemPlugInConfig = null;
+		}
+
+		[Import]
+		public IGreenshotHost GreenshotHost
+		{
+			get;
+			set;
 		}
 
 		public IEnumerable<IDestination> Destinations()
@@ -82,29 +90,25 @@ namespace GreenshotImgurPlugin
 		}
 
 		/// <summary>
-		/// Implementation of the IGreenshotPlugin.Initialize
+		/// Initialize
 		/// </summary>
-		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
-		/// <param name="pluginAttribute">My own attributes</param>
-		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken())
+		/// <param name="token"></param>
+		public async Task StartAsync(CancellationToken token = new CancellationToken())
 		{
 			// Register / get the imgur configuration
-			config = await IniConfig.Current.RegisterAndGetAsync<IImgurConfiguration>();
-			language = await LanguageLoader.Current.RegisterAndGetAsync<IImgurLanguage>();
-
-			_host = pluginHost;
-			Attributes = myAttribute;
+			_config = await IniConfig.Current.RegisterAndGetAsync<IImgurConfiguration>(token);
+			_language = await LanguageLoader.Current.RegisterAndGetAsync<IImgurLanguage>(token);
 
 			_resources = new ComponentResourceManager(typeof (ImgurPlugin));
 
-			var itemPlugInRoot = new ToolStripMenuItem("Imgur");
-			itemPlugInRoot.Image = (Image) _resources.GetObject("Imgur");
+			var itemPlugInRoot = new ToolStripMenuItem("Imgur")
+			{
+				Image = (Image) _resources.GetObject("Imgur")
+			};
 
 			_historyMenuItem = new ToolStripMenuItem
 			{
-				Text = language.History, Tag = _host, Enabled = config.TrackHistory
+				Text = _language.History, Tag = GreenshotHost, Enabled = _config.TrackHistory
 			};
 			_historyMenuItem.Click += (sender, e) =>
 			{
@@ -112,32 +116,33 @@ namespace GreenshotImgurPlugin
 			};
 			itemPlugInRoot.DropDownItems.Add(_historyMenuItem);
 
-			_itemPlugInConfig = new ToolStripMenuItem(language.Configure);
-			_itemPlugInConfig.Tag = _host;
+			_itemPlugInConfig = new ToolStripMenuItem
+			{
+				Text = _language.Configure, Tag = GreenshotHost
+			};
 			_itemPlugInConfig.Click += (sender, e) => ShowConfigDialog();
 			itemPlugInRoot.DropDownItems.Add(_itemPlugInConfig);
 
-			PluginUtils.AddToContextMenu(_host, itemPlugInRoot);
-			language.PropertyChanged += OnLanguageChanged;
-			return true;
+			PluginUtils.AddToContextMenu(GreenshotHost, itemPlugInRoot);
+			_language.PropertyChanged += OnLanguageChanged;
 		}
 
-		public void OnLanguageChanged(object sender, EventArgs e)
+		private void OnLanguageChanged(object sender, EventArgs e)
 		{
 			if (_itemPlugInConfig != null)
 			{
-				_itemPlugInConfig.Text = language.Configure;
+				_itemPlugInConfig.Text = _language.Configure;
 			}
 			if (_historyMenuItem != null)
 			{
-				_historyMenuItem.Text = language.History;
+				_historyMenuItem.Text = _language.History;
 			}
 		}
 
-		public void Shutdown()
+		public Task ShutdownAsync(CancellationToken token = new CancellationToken())
 		{
-			LOG.Debug("Imgur Plugin shutdown.");
-			language.PropertyChanged -= OnLanguageChanged;
+			_language.PropertyChanged -= OnLanguageChanged;
+			return Task.FromResult(true);
 		}
 
 		/// <summary>
@@ -146,20 +151,8 @@ namespace GreenshotImgurPlugin
 		public void Configure()
 		{
 			ShowConfigDialog();
-			_historyMenuItem.Enabled = config.TrackHistory;
+			_historyMenuItem.Enabled = _config.TrackHistory;
 		}
-
-		/// <summary>
-		/// This will be called when Greenshot is shutting down
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		public void Closing(object sender, FormClosingEventArgs e)
-		{
-			LOG.Debug("Application closing, de-registering Imgur Plugin!");
-			Shutdown();
-		}
-
 
 		/// <summary>
 		/// A form for username/password
@@ -167,7 +160,7 @@ namespace GreenshotImgurPlugin
 		/// <returns>bool true if OK was pressed, false if cancel</returns>
 		private bool ShowConfigDialog()
 		{
-			var settingsForm = new SettingsForm(config);
+			var settingsForm = new SettingsForm(_config);
 			var result = settingsForm.ShowDialog();
 			if (result == DialogResult.OK)
 			{

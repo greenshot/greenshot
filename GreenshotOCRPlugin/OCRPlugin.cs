@@ -23,26 +23,26 @@ using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Addons;
 
 namespace GreenshotOCR
 {
 	/// <summary>
 	/// OCR Plugin Greenshot
 	/// </summary>
-	[Export(typeof(IGreenshotPlugin))]
-	public class OcrPlugin : IGreenshotPlugin
+	[Plugin(Configurable = true)]
+	[StartupAction]
+    public class OcrPlugin : IConfigurablePlugin, IStartupAction
 	{
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (OcrPlugin));
-		private string _ocrCommand;
+		private static readonly string OcrCommand = Path.Combine(".", "greenshotocrcommand.exe");
 		private static IOCRConfiguration _config;
-		private PluginAttribute _myAttributes;
-		private System.Windows.Forms.ToolStripMenuItem _ocrMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+		private ToolStripMenuItem _ocrMenuItem = new ToolStripMenuItem();
 
 		public void Dispose()
 		{
@@ -64,7 +64,7 @@ namespace GreenshotOCR
 
 		public IEnumerable<IDestination> Destinations()
 		{
-			yield return new OCRDestination(_ocrCommand);
+			yield return new OCRDestination(OcrCommand);
 		}
 
 		public IEnumerable<IProcessor> Processors()
@@ -73,28 +73,15 @@ namespace GreenshotOCR
 		}
 
 		/// <summary>
-		/// Implementation of the IGreenshotPlugin.Initialize
+		/// Initialize
 		/// </summary>
-		/// <param name="greenshotHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="myAttribute">My own attributes</param>
-		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken())
+		/// <param name="token"></param>
+		public async Task StartAsync(CancellationToken token = new CancellationToken())
 		{
-			LOG.Debug("Initialize called of " + myAttribute.Name);
-
-			_myAttributes = myAttribute;
-
-			var dllPath = Path.GetDirectoryName(myAttribute.DllFile);
-
-			if (dllPath != null)
-			{
-				_ocrCommand = Path.Combine(dllPath, "greenshotocrcommand.exe");
-			}
-
 			if (!HasModi())
 			{
 				LOG.Warn("No MODI found!");
-				return false;
+				return;
 			}
 			// Register / get the ocr configuration
 			_config = await IniConfig.Current.RegisterAndGetAsync<IOCRConfiguration>(token);
@@ -103,15 +90,6 @@ namespace GreenshotOCR
 			{
 				_config.Language = _config.Language.Replace("miLANG_", "").Replace("_", " ");
 			}
-			return true;
-		}
-
-		/// <summary>
-		/// Implementation of the IGreenshotPlugin.Shutdown
-		/// </summary>
-		public void Shutdown()
-		{
-			LOG.DebugFormat("Shutdown of {0}", _myAttributes.Name);
 		}
 
 		/// <summary>
@@ -140,7 +118,7 @@ namespace GreenshotOCR
 		{
 			try
 			{
-				using (var process = Process.Start(_ocrCommand, "-c"))
+				using (var process = Process.Start(OcrCommand, "-c"))
 				{
 					if (process != null)
 					{

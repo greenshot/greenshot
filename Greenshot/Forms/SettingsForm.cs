@@ -621,7 +621,7 @@ namespace Greenshot
 
 		private void Listview_pluginsSelectedIndexChanged(object sender, EventArgs e)
 		{
-			button_pluginconfigure.Enabled = PluginHelper.Instance.isSelectedItemConfigurable(listview_plugins);
+			button_pluginconfigure.Enabled = PluginHelper.Instance.IsSelectedItemConfigurable(listview_plugins);
 		}
 
 		private void Button_pluginconfigureClick(object sender, EventArgs e)

@@ -29,19 +29,19 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Config.Language;
 using TranslationByMarkupExtension;
-using System.ComponentModel.Composition;
+using Dapplo.Addons;
 
 namespace GreenshotConfluencePlugin
 {
 	/// <summary>
 	/// This is the ConfluencePlugin base code
 	/// </summary>
-	[Export(typeof(IGreenshotPlugin))]
-	public class ConfluencePlugin : IGreenshotPlugin
+	[Plugin(Configurable = true)]
+	[StartupAction, ShutdownAction]
+	public class ConfluencePlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ConfluencePlugin));
 		private static IConfluenceConfiguration _config;
-		private static IConfluenceLanguage _language;
 		private static ConfluenceApi _confluenceApi;
 
 		public void Dispose()
@@ -69,15 +69,14 @@ namespace GreenshotConfluencePlugin
 		}
 
 		/// <summary>
-		/// Implementation of the IGreenshotPlugin.Initialize
+		/// Initialize
 		/// </summary>
-		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="myAttribute">My own attributes</param>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken())
+		/// <param name="token"></param>
+		public async Task StartAsync(CancellationToken token = new CancellationToken())
 		{
 			// Register / get the confluence configuration
 			_config = await IniConfig.Current.RegisterAndGetAsync<IConfluenceConfiguration>(token);
-			_language = await LanguageLoader.Current.RegisterAndGetAsync<IConfluenceLanguage>(token);
+			await LanguageLoader.Current.RegisterAndGetAsync<IConfluenceLanguage>(token);
 			try
 			{
 				TranslationManager.Instance.TranslationProvider = new LanguageXMLTranslationProvider();
@@ -86,7 +85,7 @@ namespace GreenshotConfluencePlugin
 			catch (Exception ex)
 			{
 				LOG.ErrorFormat("Problem in ConfluencePlugin.Initialize: {0}", ex.Message);
-				return false;
+				return;
 			}
 			_confluenceApi = await GetConfluenceAPI();
 			if (_confluenceApi != null)
@@ -95,10 +94,9 @@ namespace GreenshotConfluencePlugin
 				// Store the task, so the compiler doesn't complain but do not wait so the task runs in the background
 				var ignoreTask = _confluenceApi.LoadSpacesAsync(token: token).ContinueWith((_) => LOG.Info("Finished loading spaces"), token).ConfigureAwait(false);
 			}
-			return true;
 		}
 
-		public void Shutdown()
+		public Task ShutdownAsync(CancellationToken token = new CancellationToken())
 		{
 			LOG.Debug("Confluence Plugin shutdown.");
 			if (_confluenceApi != null)
@@ -106,6 +104,7 @@ namespace GreenshotConfluencePlugin
 				_confluenceApi.Dispose();
 				_confluenceApi = null;
 			}
+			return Task.FromResult(true);
 		}
 
 		public static ConfluenceApi ConfluenceAPI
@@ -119,54 +118,57 @@ namespace GreenshotConfluencePlugin
 		public static async Task<ConfluenceApi> GetConfluenceAPI()
 		{
 			ConfluenceApi confluenceApi = null;
-			if (!string.IsNullOrEmpty(_config.RestUrl))
+			if (string.IsNullOrEmpty(_config.RestUrl))
 			{
-				try
+				return confluenceApi;
+			}
+			try
+			{
+				// Get the system name, so the user knows where to login to
+				var dialog = new CredentialsDialog(_config.RestUrl)
 				{
-					// Get the system name, so the user knows where to login to
-					CredentialsDialog dialog = new CredentialsDialog(_config.RestUrl);
-					dialog.Name = null;
-					while (dialog.Show(dialog.Name) == DialogResult.OK)
+					Name = null
+				};
+				while (dialog.Show(dialog.Name) == DialogResult.OK)
+				{
+					confluenceApi = new ConfluenceApi(new Uri(_config.RestUrl));
+					confluenceApi.SetBasicAuthentication(dialog.Name, dialog.Password);
+					try
 					{
-						confluenceApi = new ConfluenceApi(new Uri(_config.RestUrl));
-						confluenceApi.SetBasicAuthentication(dialog.Name, dialog.Password);
+						// Try loading content for id 0, should be null (or something) but not give an exception
+						await confluenceApi.GetContentAsync(1).ConfigureAwait(false);
+						LOG.DebugFormat("Confluence access for User {0} worked", dialog.Name);
+						if (dialog.SaveChecked)
+						{
+							dialog.Confirm(true);
+						}
+						return confluenceApi;
+					}
+					catch
+					{
+						LOG.DebugFormat("Confluence access for User {0} didn't work, probably a wrong password.", dialog.Name);
+						confluenceApi.Dispose();
+						confluenceApi = null;
 						try
 						{
-							// Try loading content for id 0, should be null (or something) but not give an exception
-							await confluenceApi.GetContentAsync(1).ConfigureAwait(false);
-							LOG.DebugFormat("Confluence access for User {0} worked", dialog.Name);
-							if (dialog.SaveChecked)
-							{
-								dialog.Confirm(true);
-							}
-							return confluenceApi;
+							dialog.Confirm(false);
 						}
-						catch
+						catch (ApplicationException e)
 						{
-							LOG.DebugFormat("Confluence access for User {0} didn't work, probably a wrong password.", dialog.Name);
-							confluenceApi.Dispose();
-							confluenceApi = null;
-							try
-							{
-								dialog.Confirm(false);
-							}
-							catch (ApplicationException e)
-							{
-								// exception handling ...
-								LOG.Error("Problem using the credentials dialog", e);
-							}
-							// For every windows version after XP show an incorrect password baloon
-							dialog.IncorrectPassword = true;
-							// Make sure the dialog is display, the password was false!
-							dialog.AlwaysDisplay = true;
+							// exception handling ...
+							LOG.Error("Problem using the credentials dialog", e);
 						}
+						// For every windows version after XP show an incorrect password baloon
+						dialog.IncorrectPassword = true;
+						// Make sure the dialog is display, the password was false!
+						dialog.AlwaysDisplay = true;
 					}
 				}
-				catch (ApplicationException e)
-				{
-					// exception handling ...
-					LOG.Error("Problem using the credentials dialog", e);
-				}
+			}
+			catch (ApplicationException e)
+			{
+				// exception handling ...
+				LOG.Error("Problem using the credentials dialog", e);
 			}
 			return confluenceApi;
 		}

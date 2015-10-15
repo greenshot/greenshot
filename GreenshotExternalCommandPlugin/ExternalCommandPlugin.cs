@@ -33,23 +33,31 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ExternalCommand;
 using System.ComponentModel.Composition;
+using Dapplo.Addons;
 
 namespace GreenshotExternalCommandPlugin
 {
 	/// <summary>
 	/// An Plugin to run commands after an image was written
 	/// </summary>
-	[Export(typeof(IGreenshotPlugin))]
-	public class ExternalCommandPlugin : IGreenshotPlugin
+	[Plugin(Configurable = true)]
+	[StartupAction]
+	public class ExternalCommandPlugin : IConfigurablePlugin, IStartupAction
 	{
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ExternalCommandPlugin));
 		private const string MSPAINT = "MS Paint";
 		private const string PAINTDOTNET = "Paint.NET";
-		private static ICoreConfiguration coreConfig;
-		private static IExternalCommandLanguage language;
-		private static IExternalCommandConfiguration config;
-		private PluginAttribute _myAttributes;
+		private static ICoreConfiguration _coreConfig;
+		private static IExternalCommandLanguage _language;
+		private static IExternalCommandConfiguration _config;
 		private ToolStripMenuItem _itemPlugInRoot;
+
+		[Import]
+		public IGreenshotHost GreenshotHost
+		{
+			get;
+			set;
+		}
 
 		public void Dispose()
 		{
@@ -71,7 +79,7 @@ namespace GreenshotExternalCommandPlugin
 
 		public IEnumerable<IDestination> Destinations()
 		{
-			foreach (string command in config.Commands)
+			foreach (string command in _config.Commands)
 			{
 				yield return new ExternalCommandDestination(command);
 			}
@@ -87,54 +95,52 @@ namespace GreenshotExternalCommandPlugin
 		/// </summary>
 		/// <param name="command"></param>
 		/// <returns>false if the command is not correctly configured</returns>
-		private bool isCommandValid(string command)
+		private bool IsCommandValid(string command)
 		{
-			if (!config.RunInbackground.ContainsKey(command))
+			if (!_config.RunInbackground.ContainsKey(command))
 			{
 				LOG.WarnFormat("Found missing runInbackground for {0}", command);
 				// Fix it
-				config.RunInbackground.Add(command, true);
+				_config.RunInbackground.Add(command, true);
 			}
-			if (!config.Argument.ContainsKey(command))
+			if (!_config.Argument.ContainsKey(command))
 			{
 				LOG.WarnFormat("Found missing argument for {0}", command);
 				// Fix it
-				config.Argument.Add(command, "{0}");
+				_config.Argument.Add(command, "{0}");
 			}
-			if (!config.Commandline.ContainsKey(command))
+			if (!_config.Commandline.ContainsKey(command))
 			{
 				LOG.WarnFormat("Found missing commandline for {0}", command);
 				return false;
 			}
-			if (!File.Exists(config.Commandline[command]))
+			if (!File.Exists(_config.Commandline[command]))
 			{
-				LOG.WarnFormat("Found 'invalid' commandline {0} for command {1}", config.Commandline[command], command);
+				LOG.WarnFormat("Found 'invalid' commandline {0} for command {1}", _config.Commandline[command], command);
 				return false;
 			}
 			return true;
 		}
 
 		/// <summary>
-		/// Implementation of the IGreenshotPlugin.Initialize
+		/// Initialize
 		/// </summary>
-		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="myAttribute">My own attributes</param>
-		public async Task<bool> InitializeAsync(IGreenshotHost pluginHost, PluginAttribute myAttribute, CancellationToken token = new CancellationToken())
+		/// <param name="token"></param>
+		public async Task StartAsync(CancellationToken token = new CancellationToken())
 		{
-			LOG.DebugFormat("Initialize called of {0}", myAttribute.Name);
 			var iniConfig = IniConfig.Current;
 
 			// Make sure the defaults are set
-			iniConfig.AfterLoad<IExternalCommandConfiguration>((conf) => AfterLoad(conf));
-			coreConfig = iniConfig.Get<ICoreConfiguration>();
-			config = await iniConfig.RegisterAndGetAsync<IExternalCommandConfiguration>(token);
-			language = await LanguageLoader.Current.RegisterAndGetAsync<IExternalCommandLanguage>(token);
+			iniConfig.AfterLoad<IExternalCommandConfiguration>(AfterLoad);
+			_coreConfig = iniConfig.Get<ICoreConfiguration>();
+			_config = await iniConfig.RegisterAndGetAsync<IExternalCommandConfiguration>(token);
+			_language = await LanguageLoader.Current.RegisterAndGetAsync<IExternalCommandLanguage>(token);
 
 			IList<string> commandsToDelete = new List<string>();
 			// Check configuration
-			foreach (string command in config.Commands)
+			foreach (string command in _config.Commands)
 			{
-				if (!isCommandValid(command))
+				if (!IsCommandValid(command))
 				{
 					commandsToDelete.Add(command);
 				}
@@ -143,25 +149,21 @@ namespace GreenshotExternalCommandPlugin
 			// cleanup
 			foreach (string command in commandsToDelete)
 			{
-				config.RunInbackground.Remove(command);
-				config.Commandline.Remove(command);
-				config.Argument.Remove(command);
-				config.Commands.Remove(command);
+				_config.RunInbackground.Remove(command);
+				_config.Commandline.Remove(command);
+				_config.Argument.Remove(command);
+				_config.Commands.Remove(command);
 			}
 
-			_myAttributes = myAttribute;
-
-
 			_itemPlugInRoot = new ToolStripMenuItem();
-			_itemPlugInRoot.Tag = pluginHost;
+			_itemPlugInRoot.Tag = GreenshotHost;
 			OnIconSizeChanged(this, new PropertyChangedEventArgs("IconSize"));
 			OnLanguageChanged(this, null);
-			_itemPlugInRoot.Click += ConfigMenuClick;
+			_itemPlugInRoot.Click += (sender, eventArgs) => Configure();
 
-			PluginUtils.AddToContextMenu(pluginHost, _itemPlugInRoot);
-			language.PropertyChanged += OnLanguageChanged;
-			coreConfig.PropertyChanged += OnIconSizeChanged;
-			return true;
+			PluginUtils.AddToContextMenu(GreenshotHost, _itemPlugInRoot);
+			_language.PropertyChanged += OnLanguageChanged;
+			_coreConfig.PropertyChanged += OnIconSizeChanged;
 		}
 
 		/// <summary>
@@ -192,18 +194,8 @@ namespace GreenshotExternalCommandPlugin
 		{
 			if (_itemPlugInRoot != null)
 			{
-				_itemPlugInRoot.Text = language.ContextmenuConfigure;
+				_itemPlugInRoot.Text = _language.ContextmenuConfigure;
 			}
-		}
-
-		public void Shutdown()
-		{
-			LOG.Debug("Shutdown of " + _myAttributes.Name);
-		}
-
-		private void ConfigMenuClick(object sender, EventArgs eventArgs)
-		{
-			Configure();
 		}
 
 		/// <summary>
@@ -211,27 +203,22 @@ namespace GreenshotExternalCommandPlugin
 		/// </summary>
 		public void Configure()
 		{
-			LOG.Debug("Configure called");
 			new SettingsForm().ShowDialog();
 		}
 
 		/// <summary>
-		/// Supply values we can't put as defaults
+		/// Fix the properties
 		/// </summary>
-		/// <param name="property">The property to return a default for</param>
-		/// <returns>object with the default value for the supplied property</returns>
-		public void AfterLoad(IExternalCommandConfiguration config)
+		private void AfterLoad(IExternalCommandConfiguration config)
 		{
 			if (!config.DefaultsAdded)
 			{
 				config.DefaultsAdded = true;
 
-				string paintDotNetPath;
-				bool hasPaintDotNet = false;
 				try
 				{
-					paintDotNetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"Paint.NET\PaintDotNet.exe");
-					hasPaintDotNet = !string.IsNullOrEmpty(paintDotNetPath) && File.Exists(paintDotNetPath);
+					var paintDotNetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"Paint.NET\PaintDotNet.exe");
+					var hasPaintDotNet = !string.IsNullOrEmpty(paintDotNetPath) && File.Exists(paintDotNetPath);
 					if (hasPaintDotNet && !config.Commands.Contains(PAINTDOTNET))
 					{
 						config.Commands.Add(PAINTDOTNET);
@@ -244,12 +231,10 @@ namespace GreenshotExternalCommandPlugin
 				{
 				}
 
-				string paintPath;
-				bool hasPaint = false;
 				try
 				{
-					paintPath = PluginUtils.GetExePath("pbrush.exe");
-					hasPaint = !string.IsNullOrEmpty(paintPath) && File.Exists(paintPath);
+					var paintPath = PluginUtils.GetExePath("pbrush.exe");
+					var hasPaint = !string.IsNullOrEmpty(paintPath) && File.Exists(paintPath);
 					if (hasPaint && !config.Commands.Contains(MSPAINT))
 					{
 						config.Commands.Add(MSPAINT);
