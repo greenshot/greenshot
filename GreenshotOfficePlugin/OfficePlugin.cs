@@ -31,7 +31,7 @@ namespace GreenshotOfficePlugin
 	/// <summary>
 	/// This is the OfficePlugin base code
 	/// </summary>
-	[Plugin(Configurable = false)]
+	[Plugin("Office", Configurable = false)]
 	[StartupAction]
     public class OfficePlugin : IGreenshotPlugin, IStartupAction
 	{

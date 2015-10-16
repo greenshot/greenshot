@@ -56,12 +56,12 @@
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="CustomMarshalers" />
-    <Reference Include="Dapplo.Addons, Version=0.1.7.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Addons.0.1.7.0\lib\net45\Dapplo.Addons.dll</HintPath>
+    <Reference Include="Dapplo.Addons, Version=0.1.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Addons.0.1.9.0\lib\net45\Dapplo.Addons.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Config, Version=0.1.92.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Config.0.1.92.0\lib\net45\Dapplo.Config.dll</HintPath>
+    <Reference Include="Dapplo.Config, Version=0.1.93.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Config.0.1.93.0\lib\net45\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.HttpExtensions, Version=0.1.17.0, Culture=neutral, processorArchitecture=MSIL">
@@ -150,6 +150,12 @@
     <Compile Include="Core\StreamDelegate.cs" />
     <Compile Include="IEInterop\IWebBrowser2.cs" />
     <Compile Include="Interfaces\IGreenshotContract.cs" />
+    <Compile Include="Interfaces\Plugin\IGreenshotPluginMetadata.cs" />
+    <Compile Include="Interfaces\Plugin\PluginAttribute.cs" />
+    <Compile Include="Interfaces\Plugin\IGreenshotHost.cs" />
+    <Compile Include="Interfaces\Plugin\IConfigurablePlugin.cs" />
+    <Compile Include="Interfaces\Plugin\IGreenshotPlugin.cs" />
+    <Compile Include="Interfaces\Plugin\SurfaceOutputSettings.cs" />
     <Compile Include="Interop\DisposableCom.cs" />
     <Compile Include="Interop\IUnknown.cs" />
     <Compile Include="Interop\IDispatch.cs" />
@@ -259,7 +265,6 @@
     <Compile Include="Interfaces\Generic.cs" />
     <Compile Include="Interfaces\IDestination.cs" />
     <Compile Include="Interfaces\IProcessor.cs" />
-    <Compile Include="Interfaces\Plugin\PluginInterfaces.cs" />
     <Compile Include="OAuth\LocalServerCodeReceiver.cs" />
     <Compile Include="OAuth\OAuth2AuthorizeMode.cs" />
     <Compile Include="OAuth\OAuth2Helper.cs" />

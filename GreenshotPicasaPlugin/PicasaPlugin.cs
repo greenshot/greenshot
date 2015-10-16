@@ -37,7 +37,7 @@ namespace GreenshotPicasaPlugin
 	/// <summary>
 	/// This is the Picasa base code
 	/// </summary>
-	[Plugin(Configurable=true)]
+	[Plugin("Picasa", Configurable=true)]
 	[StartupAction]
 	public class PicasaPlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{

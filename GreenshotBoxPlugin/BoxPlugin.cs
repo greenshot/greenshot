@@ -38,7 +38,7 @@ namespace GreenshotBoxPlugin
 	/// <summary>
 	/// This is the Box base code
 	/// </summary>
-	[Plugin(Configurable = true)]
+	[Plugin("Box", Configurable = true)]
 	[StartupAction]
 	public class BoxPlugin : IGreenshotPlugin, IStartupAction
 	{

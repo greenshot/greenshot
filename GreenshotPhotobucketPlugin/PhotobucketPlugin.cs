@@ -38,7 +38,7 @@ namespace GreenshotPhotobucketPlugin
 	/// <summary>
 	/// This is the GreenshotPhotobucketPlugin base code
 	/// </summary>
-	[Plugin(Configurable = true)]
+	[Plugin("Photobucket", Configurable = true)]
 	[StartupAction]
     public class PhotobucketPlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{

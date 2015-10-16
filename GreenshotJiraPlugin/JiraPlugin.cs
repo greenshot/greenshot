@@ -36,7 +36,7 @@ namespace GreenshotJiraPlugin
 	/// <summary>
 	/// This is the JiraPlugin base code
 	/// </summary>
-	[Plugin(Configurable = true)]
+	[Plugin("Jira", Configurable = true)]
 	[StartupAction]
 	public class JiraPlugin : IConfigurablePlugin, IStartupAction
 	{

@@ -1258,7 +1258,7 @@ namespace Greenshot.Forms
 			selectList = new ToolStripMenuSelectList("printoptions", true);
 			selectList.Text = language.SettingsPrintoptions;
 
-			var outputPrintValues = from iniValue in coreConfiguration.GetIniValues()
+			var outputPrintValues = from iniValue in coreConfiguration.GetIniValues().Values
 				where !coreConfiguration.IsWriteProtected(iniValue.PropertyName) && iniValue.PropertyName.StartsWith("OutputPrint")
 				select iniValue;
 
@@ -1600,7 +1600,11 @@ namespace Greenshot.Forms
 			// Inform all registed plugins
 			try
 			{
-				PluginHelper.Instance.ShutdownAsync();
+				Task.Run(async () =>
+				{
+					await PluginHelper.Instance.ShutdownAsync();
+				}).Wait();
+				
 			}
 			catch (Exception e)
 			{

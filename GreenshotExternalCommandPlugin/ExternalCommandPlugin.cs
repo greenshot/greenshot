@@ -40,7 +40,7 @@ namespace GreenshotExternalCommandPlugin
 	/// <summary>
 	/// An Plugin to run commands after an image was written
 	/// </summary>
-	[Plugin(Configurable = true)]
+	[Plugin("External command", Configurable = true)]
 	[StartupAction]
 	public class ExternalCommandPlugin : IConfigurablePlugin, IStartupAction
 	{

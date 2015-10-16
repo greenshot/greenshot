@@ -35,7 +35,7 @@ namespace GreenshotOCR
 	/// <summary>
 	/// OCR Plugin Greenshot
 	/// </summary>
-	[Plugin(Configurable = true)]
+	[Plugin("OCR", Configurable = true)]
 	[StartupAction]
     public class OcrPlugin : IConfigurablePlugin, IStartupAction
 	{
@@ -64,7 +64,10 @@ namespace GreenshotOCR
 
 		public IEnumerable<IDestination> Destinations()
 		{
-			yield return new OCRDestination(OcrCommand);
+			if (HasModi())
+			{
+				yield return new OCRDestination(OcrCommand);
+			}
 		}
 
 		public IEnumerable<IProcessor> Processors()
@@ -78,14 +81,13 @@ namespace GreenshotOCR
 		/// <param name="token"></param>
 		public async Task StartAsync(CancellationToken token = new CancellationToken())
 		{
+			// Register / get the ocr configuration
+			_config = await IniConfig.Current.RegisterAndGetAsync<IOCRConfiguration>(token);
 			if (!HasModi())
 			{
 				LOG.Warn("No MODI found!");
 				return;
 			}
-			// Register / get the ocr configuration
-			_config = await IniConfig.Current.RegisterAndGetAsync<IOCRConfiguration>(token);
-
 			if (_config.Language != null)
 			{
 				_config.Language = _config.Language.Replace("miLANG_", "").Replace("_", " ");

@@ -19,53 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using System;
-using System.ComponentModel;
 
-namespace GreenshotPlugin.Configuration
+namespace Greenshot.Plugin
 {
-	public enum BuildStates
+	public interface IConfigurablePlugin : IGreenshotPlugin
 	{
-		ALPHA,
-		BETA,
-		RELEASE_CANDIDATE,
-		RELEASE
-	}
-
-	/// <summary>
-	/// Configuration used for the update check
-	/// </summary>
-	public interface IUpdateConfiguration
-	{
-
-		[Description("How many days between every update check? (0=no checks)"), DefaultValue(7)]
-		int UpdateCheckInterval
-		{
-			get;
-			set;
-		}
-
-		[Description("Last update check")]
-		DateTimeOffset LastUpdateCheck
-		{
-			get;
-			set;
-		}
-
-		[Description("What kind of build is this, injected to the DefaultValue during the build."), IniPropertyBehavior(Read = false, Write = false), DefaultValue("@build_type@")]
-		BuildStates BuildState
-		{
-			get;
-			set;
-		}
-
-
-		[Description("Also check for unstable version updates"), DefaultValue(false)]
-		bool CheckForUnstable
-		{
-			get;
-			set;
-		}
+		/// <summary>
+		/// Open the Configuration Form, will/should not be called before handshaking is done
+		/// </summary>
+		void Configure();
 	}
 }

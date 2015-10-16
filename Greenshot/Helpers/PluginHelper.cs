@@ -28,6 +28,7 @@ using GreenshotPlugin.Extensions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -84,7 +85,9 @@ namespace Greenshot.Helpers
 
 		public bool HasPlugins()
 		{
-			return (plugins != null && plugins.Count > 0);
+			var plugins = Plugins;
+
+			return (plugins != null && plugins.Count() > 0);
 		}
 
 		public async Task ShutdownAsync(CancellationToken token = default(CancellationToken))
@@ -95,13 +98,16 @@ namespace Greenshot.Helpers
 		// Add plugins to the Listview
 		public void FillListview(ListView listview)
 		{
-			foreach (PluginAttribute pluginAttribute in plugins.Keys.OrderBy(x => x.Name))
+			var plugins = _startupShutdownBootstrapper.GetExports<IGreenshotPlugin, IGreenshotPluginMetadata>();
+			foreach (var plugin in plugins.OrderBy(x => x.Metadata.Name))
 			{
-				ListViewItem item = new ListViewItem(pluginAttribute.Name);
-				item.SubItems.Add(pluginAttribute.Version);
-				item.SubItems.Add(pluginAttribute.CreatedBy);
-				item.SubItems.Add(pluginAttribute.DllFile);
-				item.Tag = pluginAttribute;
+				var assembly = plugin.Value.GetType().Assembly;
+				var version = FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion;
+				ListViewItem item = new ListViewItem(plugin.Metadata.Name);
+				item.SubItems.Add(version);
+				item.SubItems.Add(plugin.Metadata.CreatedBy);
+				item.SubItems.Add(assembly.Location);
+				item.Tag = plugin.Value;
 				listview.Items.Add(item);
 			}
 		}
@@ -110,11 +116,8 @@ namespace Greenshot.Helpers
 		{
 			if (listview.SelectedItems.Count > 0)
 			{
-				PluginAttribute pluginAttribute = (PluginAttribute) listview.SelectedItems[0].Tag;
-				if (pluginAttribute != null)
-				{
-					return pluginAttribute.Configurable;
-				}
+				IConfigurablePlugin plugin = listview.SelectedItems[0].Tag as IConfigurablePlugin;
+				return plugin != null;
 			}
 			return false;
 		}
@@ -123,10 +126,9 @@ namespace Greenshot.Helpers
 		{
 			if (listview.SelectedItems.Count > 0)
 			{
-				PluginAttribute pluginAttribute = (PluginAttribute) listview.SelectedItems[0].Tag;
-				if (pluginAttribute != null)
+				IConfigurablePlugin plugin = listview.SelectedItems[0].Tag as IConfigurablePlugin;
+				if (plugin != null)
 				{
-					IGreenshotPlugin plugin = plugins[pluginAttribute];
 					plugin.Configure();
 				}
 			}
@@ -142,11 +144,11 @@ namespace Greenshot.Helpers
 			}
 		}
 
-		public IDictionary<PluginAttribute, IGreenshotPlugin> Plugins
+		public IEnumerable<Lazy<IGreenshotPlugin, IGreenshotPluginMetadata>> Plugins
 		{
 			get
 			{
-				return plugins;
+				return _startupShutdownBootstrapper.GetExports<IGreenshotPlugin, IGreenshotPluginMetadata>();
 			}
 		}
 
@@ -192,11 +194,6 @@ namespace Greenshot.Helpers
 
 		#region Plugin loading
 
-		public PluginAttribute FindPlugin(string name)
-		{
-			return plugins.Keys.FirstOrDefault(pluginAttribute => name.Equals(pluginAttribute.Name));
-		}
-
 		/// <summary>
 		/// Load the plugins
 		/// </summary>
@@ -216,8 +213,11 @@ namespace Greenshot.Helpers
 				var applicationPath  = Path.GetDirectoryName(Application.ExecutablePath);
 				_startupShutdownBootstrapper.Add(applicationPath, "*.gsp");
 			}
+			// Initialize the bootstrapper, so we can export
+			_startupShutdownBootstrapper.Initialize();
 			// Make the IGreenshotHost available for the plugins
 			_startupShutdownBootstrapper.Export<IGreenshotHost>(this);
+			// Run!
 			_startupShutdownBootstrapper.Run();
 
 			await _startupShutdownBootstrapper.StartupAsync(token);

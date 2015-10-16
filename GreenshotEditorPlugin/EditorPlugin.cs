@@ -32,7 +32,7 @@ namespace GreenshotEditorPlugin
 	/// <summary>
 	/// The editor as the plugin
 	/// </summary>
-	[Plugin]
+	[Plugin("Editor")]
 	[StartupAction]
 	public class EditorPlugin : IGreenshotPlugin, IStartupAction
 	{

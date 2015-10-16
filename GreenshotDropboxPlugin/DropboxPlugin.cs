@@ -38,7 +38,7 @@ namespace GreenshotDropboxPlugin
 	/// <summary>
 	/// This is the Dropbox Plugin
 	/// </summary>
-	[Plugin]
+	[Plugin("Dropbox")]
 	[StartupAction]
 	public class DropboxPlugin : IGreenshotPlugin, IStartupAction
 	{

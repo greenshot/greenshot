@@ -88,9 +88,9 @@ namespace Greenshot.Helpers
 		private static List<IProcessor> GetPluginsProcessors()
 		{
 			List<IProcessor> processors = new List<IProcessor>();
-			foreach (PluginAttribute pluginAttribute in PluginHelper.Instance.Plugins.Keys)
+			foreach (var pluginInfo in PluginUtils.Host.Plugins)
 			{
-				IGreenshotPlugin plugin = PluginHelper.Instance.Plugins[pluginAttribute];
+				IGreenshotPlugin plugin = pluginInfo.Value;
 				try
 				{
 					var procs = plugin.Processors();
@@ -101,7 +101,7 @@ namespace Greenshot.Helpers
 				}
 				catch (Exception ex)
 				{
-					LOG.ErrorFormat("Couldn't get processors from the plugin {0}", pluginAttribute.Name);
+					LOG.ErrorFormat("Couldn't get processors from the plugin {0}", pluginInfo.Metadata.Name);
 					LOG.Error(ex);
 				}
 			}

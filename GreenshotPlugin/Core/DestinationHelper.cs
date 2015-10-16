@@ -92,10 +92,10 @@ namespace GreenshotPlugin.Core
 		private static List<IDestination> GetPluginDestinations()
 		{
 			List<IDestination> destinations = new List<IDestination>();
-			foreach (PluginAttribute pluginAttribute in PluginUtils.Host.Plugins.Keys)
+			foreach (var pluginInfo in PluginUtils.Host.Plugins)
 			{
-				IGreenshotPlugin plugin = PluginUtils.Host.Plugins[pluginAttribute];
-				try
+				IGreenshotPlugin plugin = pluginInfo.Value;
+                try
 				{
 					foreach (IDestination destination in plugin.Destinations())
 					{
@@ -107,7 +107,7 @@ namespace GreenshotPlugin.Core
 				}
 				catch (Exception ex)
 				{
-					LOG.ErrorFormat("Couldn't get destinations from the plugin {0}", pluginAttribute.Name);
+					LOG.ErrorFormat("Couldn't get destinations from the plugin {0}", pluginInfo.Metadata.Name);
 					LOG.Error(ex);
 				}
 			}

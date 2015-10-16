@@ -38,7 +38,7 @@ namespace GreenshotImgurPlugin
 	/// <summary>
 	/// This is the ImgurPlugin code
 	/// </summary>
-	[Plugin(Configurable = true)]
+	[Plugin("Imgur", Configurable = true)]
 	[StartupAction, ShutdownAction]
 	public class ImgurPlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{

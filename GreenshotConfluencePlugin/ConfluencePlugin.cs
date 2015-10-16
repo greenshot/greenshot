@@ -36,7 +36,7 @@ namespace GreenshotConfluencePlugin
 	/// <summary>
 	/// This is the ConfluencePlugin base code
 	/// </summary>
-	[Plugin(Configurable = true)]
+	[Plugin("Confluence", Configurable = true)]
 	[StartupAction, ShutdownAction]
 	public class ConfluencePlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{
