@@ -26,13 +26,11 @@ using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -103,11 +101,14 @@ namespace Greenshot.Helpers
 			{
 				var assembly = plugin.Value.GetType().Assembly;
 				var version = FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion;
-				ListViewItem item = new ListViewItem(plugin.Metadata.Name);
+				var item = new ListViewItem
+				{
+					Text = plugin.Metadata.Name,
+					Tag = plugin.Value
+				};
 				item.SubItems.Add(version);
 				item.SubItems.Add(plugin.Metadata.CreatedBy);
 				item.SubItems.Add(assembly.Location);
-				item.Tag = plugin.Value;
 				listview.Items.Add(item);
 			}
 		}

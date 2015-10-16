@@ -19,14 +19,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Addons.Implementation;
 using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
+using Dapplo.Config.Support;
+using Dapplo.Windows.Native;
 using Greenshot.Helpers;
 using Greenshot.Plugin;
 using Greenshot.Windows;
+using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
-using Dapplo.Windows.Native;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -42,8 +46,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Dapplo.Config.Language;
-using GreenshotPlugin.Configuration;
 using Timer = System.Timers.Timer;
 
 namespace Greenshot.Forms
@@ -99,14 +101,13 @@ namespace Greenshot.Forms
 			// Get logger
 			LOG = LogManager.GetLogger(typeof (MainForm));
 
-			// Read configuration & languages
-			var languageLoader = new LanguageLoader("Greenshot");
-			languageLoader.CorrectMissingTranslations();
-
 			Task.Run(async () =>
 			{
-				language = await LanguageLoader.Current.RegisterAndGetAsync<IGreenshotLanguage>();
 				coreConfiguration = await iniConfig.RegisterAndGetAsync<ICoreConfiguration>();
+				// Read configuration & languages
+				var languageLoader = new LanguageLoader("Greenshot", coreConfiguration.Language ?? "en-US");
+				languageLoader.CorrectMissingTranslations();
+				language = await LanguageLoader.Current.RegisterAndGetAsync<IGreenshotLanguage>();
 				await iniConfig.RegisterAndGetAsync<INetworkConfiguration>();
 			}).Wait();
 
@@ -222,7 +223,7 @@ namespace Greenshot.Forms
 				dummyForm.Show();
 				// Make sure the language files are loaded, so we can show the error message "Greenshot is already running" in the right language.
 
-				MessageBox.Show(dummyForm, language.ErrorMultipleinstances + "\r\n" + instanceInfo, language.Error, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+				MessageBox.Show(dummyForm, language.TranslationOrDefault(t => t.ErrorMultipleinstances) + "\r\n" + instanceInfo, language.TranslationOrDefault(t => t.Error), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 			}
 		}
 
@@ -314,6 +315,7 @@ namespace Greenshot.Forms
 		// Timer for the double click test
 		private readonly Timer _doubleClickTimer = new Timer();
 		private GreenshotServer server;
+		private StartupShutdownBootstrapper _startupShutdownBootstrapper;
 
 		/// <summary>
 		/// Instance of the NotifyIcon, needed to open balloon-tips
@@ -355,6 +357,29 @@ namespace Greenshot.Forms
 			new ToolTip();
 
 			UpdateUi();
+
+
+			if (PortableHelper.IsPortable)
+			{
+				var pafPath = Path.Combine(Application.StartupPath, @"App\Greenshot");
+				_startupShutdownBootstrapper.Add(pafPath, "*.gsp");
+			}
+			else
+			{
+				var pluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
+				_startupShutdownBootstrapper.Add(pluginPath, "*.gsp");
+
+				var applicationPath = Path.GetDirectoryName(Application.ExecutablePath);
+				_startupShutdownBootstrapper.Add(applicationPath, "*.gsp");
+			}
+			// Initialize the bootstrapper, so we can export
+			_startupShutdownBootstrapper.Initialize();
+			// Make the IGreenshotHost available for the plugins
+			_startupShutdownBootstrapper.Export<IGreenshotHost>(this);
+			// Run!
+			_startupShutdownBootstrapper.Run();
+
+			await _startupShutdownBootstrapper.StartupAsync(token);
 
 			// Load all the plugins
 			Task.Run(async () => await PluginHelper.Instance.LoadPluginsAsync()).Wait();

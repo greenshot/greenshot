@@ -237,11 +237,13 @@ namespace GreenshotPlugin.Configuration
 			get;
 		}
 
-		string Error
+		[DefaultValue("Error")]
+        string Error
 		{
 			get;
 		}
 
+		[DefaultValue("An instance of Greenshot is already running.")]
 		string ErrorMultipleinstances
 		{
 			get;
@@ -257,6 +259,7 @@ namespace GreenshotPlugin.Configuration
 			get;
 		}
 
+		[DefaultValue("Could not open link '{0}'.")]
 		string ErrorOpenlink
 		{
 			get;

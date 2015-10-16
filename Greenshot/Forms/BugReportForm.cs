@@ -22,6 +22,8 @@
 using System;
 using System.Diagnostics;
 using System.Windows.Forms;
+using Dapplo.Config.Support;
+using GreenshotPlugin.Configuration;
 
 namespace Greenshot.Forms
 {
@@ -55,7 +57,7 @@ namespace Greenshot.Forms
 			}
 			catch (Exception)
 			{
-				MessageBox.Show(string.Format(language.ErrorOpenlink, link.Text), language.Error);
+				MessageBox.Show(string.Format(language.TranslationOrDefault(t => t.ErrorOpenlink), link.Text), language.TranslationOrDefault(t => t.Error));
 			}
 		}
 	}
