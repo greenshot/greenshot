@@ -19,8 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using Dapplo.Config.Language;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
@@ -42,11 +40,23 @@ namespace GreenshotImgurPlugin
 	[StartupAction, ShutdownAction]
 	public class ImgurPlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{
-		private static IImgurConfiguration _config;
-		private static IImgurLanguage _language;
 		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _historyMenuItem;
 		private ToolStripMenuItem _itemPlugInConfig;
+
+		[Import]
+		public IImgurConfiguration ImgurConfiguration
+		{
+			get;
+			set;
+		}
+
+		[Import]
+		public IImgurLanguage ImgurLanguage
+		{
+			get;
+			set;
+		}
 
 		public void Dispose()
 		{
@@ -93,11 +103,8 @@ namespace GreenshotImgurPlugin
 		/// Initialize
 		/// </summary>
 		/// <param name="token"></param>
-		public async Task StartAsync(CancellationToken token = new CancellationToken())
+		public Task StartAsync(CancellationToken token = new CancellationToken())
 		{
-			// Register / get the imgur configuration
-			_config = await IniConfig.Current.RegisterAndGetAsync<IImgurConfiguration>(token);
-			_language = await LanguageLoader.Current.RegisterAndGetAsync<IImgurLanguage>(token);
 
 			_resources = new ComponentResourceManager(typeof (ImgurPlugin));
 
@@ -108,7 +115,7 @@ namespace GreenshotImgurPlugin
 
 			_historyMenuItem = new ToolStripMenuItem
 			{
-				Text = _language.History, Tag = GreenshotHost, Enabled = _config.TrackHistory
+				Text = ImgurLanguage.History, Tag = GreenshotHost, Enabled = ImgurConfiguration.TrackHistory
 			};
 			_historyMenuItem.Click += (sender, e) =>
 			{
@@ -118,30 +125,32 @@ namespace GreenshotImgurPlugin
 
 			_itemPlugInConfig = new ToolStripMenuItem
 			{
-				Text = _language.Configure, Tag = GreenshotHost
+				Text = ImgurLanguage.Configure, Tag = GreenshotHost
 			};
 			_itemPlugInConfig.Click += (sender, e) => ShowConfigDialog();
 			itemPlugInRoot.DropDownItems.Add(_itemPlugInConfig);
 
 			PluginUtils.AddToContextMenu(GreenshotHost, itemPlugInRoot);
-			_language.PropertyChanged += OnLanguageChanged;
+			ImgurLanguage.PropertyChanged += OnLanguageChanged;
+
+			return Task.FromResult(true);
 		}
 
 		private void OnLanguageChanged(object sender, EventArgs e)
 		{
 			if (_itemPlugInConfig != null)
 			{
-				_itemPlugInConfig.Text = _language.Configure;
+				_itemPlugInConfig.Text = ImgurLanguage.Configure;
 			}
 			if (_historyMenuItem != null)
 			{
-				_historyMenuItem.Text = _language.History;
+				_historyMenuItem.Text = ImgurLanguage.History;
 			}
 		}
 
 		public Task ShutdownAsync(CancellationToken token = new CancellationToken())
 		{
-			_language.PropertyChanged -= OnLanguageChanged;
+			ImgurLanguage.PropertyChanged -= OnLanguageChanged;
 			return Task.FromResult(true);
 		}
 
@@ -151,7 +160,7 @@ namespace GreenshotImgurPlugin
 		public void Configure()
 		{
 			ShowConfigDialog();
-			_historyMenuItem.Enabled = _config.TrackHistory;
+			_historyMenuItem.Enabled = ImgurConfiguration.TrackHistory;
 		}
 
 		/// <summary>
@@ -160,7 +169,7 @@ namespace GreenshotImgurPlugin
 		/// <returns>bool true if OK was pressed, false if cancel</returns>
 		private bool ShowConfigDialog()
 		{
-			var settingsForm = new SettingsForm(_config);
+			var settingsForm = new SettingsForm(ImgurConfiguration);
 			var result = settingsForm.ShowDialog();
 			if (result == DialogResult.OK)
 			{

@@ -19,10 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -40,9 +40,15 @@ namespace GreenshotOCR
     public class OcrPlugin : IConfigurablePlugin, IStartupAction
 	{
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (OcrPlugin));
-		private static readonly string OcrCommand = Path.Combine(".", "greenshotocrcommand.exe");
-		private static IOCRConfiguration _config;
+		private static readonly string OcrCommand = Path.Combine(Path.GetDirectoryName(typeof(OcrPlugin).Assembly.Location), "greenshotocrcommand.exe");
 		private ToolStripMenuItem _ocrMenuItem = new ToolStripMenuItem();
+
+		[Import]
+		public IOCRConfiguration OCRConfiguration
+		{
+			get;
+			set;
+		}
 
 		public void Dispose()
 		{
@@ -79,19 +85,18 @@ namespace GreenshotOCR
 		/// Initialize
 		/// </summary>
 		/// <param name="token"></param>
-		public async Task StartAsync(CancellationToken token = new CancellationToken())
+		public Task StartAsync(CancellationToken token = new CancellationToken())
 		{
-			// Register / get the ocr configuration
-			_config = await IniConfig.Current.RegisterAndGetAsync<IOCRConfiguration>(token);
 			if (!HasModi())
 			{
 				LOG.Warn("No MODI found!");
-				return;
 			}
-			if (_config.Language != null)
+			else if (OCRConfiguration.Language != null)
 			{
-				_config.Language = _config.Language.Replace("miLANG_", "").Replace("_", " ");
+				OCRConfiguration.Language = OCRConfiguration.Language.Replace("miLANG_", "").Replace("_", " ");
 			}
+			
+			return Task.FromResult(true);
 		}
 
 		/// <summary>
@@ -104,7 +109,7 @@ namespace GreenshotOCR
 				MessageBox.Show("Greenshot OCR", "Sorry, is seems that Microsoft Office Document Imaging (MODI) is not installed, therefor the OCR Plugin cannot work.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 				return;
 			}
-			var settingsForm = new SettingsForm(Enum.GetNames(typeof (ModiLanguage)), _config);
+			var settingsForm = new SettingsForm(Enum.GetNames(typeof (ModiLanguage)), OCRConfiguration);
 			DialogResult result = settingsForm.ShowDialog();
 			if (result == DialogResult.OK)
 			{

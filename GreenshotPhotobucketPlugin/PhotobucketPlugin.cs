@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
@@ -30,7 +29,6 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Dapplo.Config.Language;
 using Dapplo.Addons;
 
 namespace GreenshotPhotobucketPlugin
@@ -42,15 +40,25 @@ namespace GreenshotPhotobucketPlugin
 	[StartupAction]
     public class PhotobucketPlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (PhotobucketPlugin));
-		private static IPhotobucketConfiguration _config;
-		private static IPhotobucketLanguage _language;
-
 		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _itemPlugInConfig;
 
 		[Import]
 		public IGreenshotHost GreenshotHost
+		{
+			get;
+			set;
+		}
+
+		[Import]
+		public IPhotobucketConfiguration PhotobucketConfiguration
+		{
+			get;
+			set;
+		}
+
+		[Import]
+		public IPhotobucketLanguage PhotobucketLanguage
 		{
 			get;
 			set;
@@ -88,15 +96,12 @@ namespace GreenshotPhotobucketPlugin
 		/// Initialize
 		/// </summary>
 		/// <param name="token"></param>
-		public async Task StartAsync(CancellationToken token = new CancellationToken())
+		public Task StartAsync(CancellationToken token = new CancellationToken())
 		{
-			// Register / get the photobucket configuration
-			_config = await IniConfig.Current.RegisterAndGetAsync<IPhotobucketConfiguration>(token);
-			_language = await LanguageLoader.Current.RegisterAndGetAsync<IPhotobucketLanguage>(token);
 			_resources = new ComponentResourceManager(typeof (PhotobucketPlugin));
 
 
-			_itemPlugInConfig = new ToolStripMenuItem(_language.Configure)
+			_itemPlugInConfig = new ToolStripMenuItem(PhotobucketLanguage.Configure)
 			{
 				Tag = GreenshotHost
 			};
@@ -104,14 +109,15 @@ namespace GreenshotPhotobucketPlugin
 			_itemPlugInConfig.Image = (Image) _resources.GetObject("Photobucket");
 
 			PluginUtils.AddToContextMenu(GreenshotHost, _itemPlugInConfig);
-			_language.PropertyChanged += OnLanguageChanged;
+			PhotobucketLanguage.PropertyChanged += OnPhotobucketLanguageChanged;
+			return Task.FromResult(true);
 		}
 
-		public void OnLanguageChanged(object sender, EventArgs e)
+		public void OnPhotobucketLanguageChanged(object sender, EventArgs e)
 		{
 			if (_itemPlugInConfig != null)
 			{
-				_itemPlugInConfig.Text = _language.Configure;
+				_itemPlugInConfig.Text = PhotobucketLanguage.Configure;
 			}
 		}
 
@@ -120,14 +126,13 @@ namespace GreenshotPhotobucketPlugin
 		/// </summary>
 		public void Configure()
 		{
-			var settingsForm = new SettingsForm(_config);
+			var settingsForm = new SettingsForm(PhotobucketConfiguration);
 			settingsForm.ShowDialog();
 		}
 
-
 		public Task ShutdownAsync(CancellationToken token = new CancellationToken())
 		{
-			_language.PropertyChanged -= OnLanguageChanged;
+			PhotobucketLanguage.PropertyChanged -= OnPhotobucketLanguageChanged;
 			return Task.FromResult(true);
 		}
 	}

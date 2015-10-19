@@ -19,12 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Dapplo.Addons;
+using System.ComponentModel.Composition;
 
 namespace GreenshotOfficePlugin
 {
@@ -32,9 +29,16 @@ namespace GreenshotOfficePlugin
 	/// This is the OfficePlugin base code
 	/// </summary>
 	[Plugin("Office", Configurable = false)]
-	[StartupAction]
-    public class OfficePlugin : IGreenshotPlugin, IStartupAction
+    public class OfficePlugin : IGreenshotPlugin
 	{
+		[Import]
+		public IOfficeConfiguration OfficeConfiguration
+		{
+			get;
+			set;
+		}
+
+
 		public IEnumerable<IDestination> Destinations()
 		{
 			var destinations = new List<IDestination>();
@@ -82,16 +86,6 @@ namespace GreenshotOfficePlugin
 		public IEnumerable<IProcessor> Processors()
 		{
 			yield break;
-		}
-
-		/// <summary>
-		/// Initialize
-		/// </summary>
-		/// <param name="token"></param>
-		public async Task StartAsync(CancellationToken token = new CancellationToken())
-		{
-			// Register the office configuration
-			await IniConfig.Current.RegisterAndGetAsync<IOfficeConfiguration>(token);
 		}
 
 		#region IDisposable Support

@@ -19,15 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Dapplo.Config.Language;
 using TranslationByMarkupExtension;
 using Dapplo.Addons;
 
@@ -41,8 +40,21 @@ namespace GreenshotConfluencePlugin
 	public class ConfluencePlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ConfluencePlugin));
-		private static IConfluenceConfiguration _config;
 		private static ConfluenceApi _confluenceApi;
+
+		[Import]
+		public IConfluenceConfiguration ConfluenceConfiguration
+		{
+			get;
+			set;
+		}
+
+		[Import]
+		public IConfluenceLanguage ConfluenceLanguage
+		{
+			get;
+			set;
+		}
 
 		public void Dispose()
 		{
@@ -75,8 +87,6 @@ namespace GreenshotConfluencePlugin
 		public async Task StartAsync(CancellationToken token = new CancellationToken())
 		{
 			// Register / get the confluence configuration
-			_config = await IniConfig.Current.RegisterAndGetAsync<IConfluenceConfiguration>(token);
-			await LanguageLoader.Current.RegisterAndGetAsync<IConfluenceLanguage>(token);
 			try
 			{
 				TranslationManager.Instance.TranslationProvider = new LanguageXMLTranslationProvider();
@@ -87,7 +97,7 @@ namespace GreenshotConfluencePlugin
 				LOG.ErrorFormat("Problem in ConfluencePlugin.Initialize: {0}", ex.Message);
 				return;
 			}
-			_confluenceApi = await GetConfluenceAPI();
+			_confluenceApi = await GetConfluenceApi();
 			if (_confluenceApi != null)
 			{
 				LOG.Info("Loading spaces");
@@ -115,23 +125,23 @@ namespace GreenshotConfluencePlugin
 			}
 		}
 
-		public static async Task<ConfluenceApi> GetConfluenceAPI()
+		public async Task<ConfluenceApi> GetConfluenceApi()
 		{
 			ConfluenceApi confluenceApi = null;
-			if (string.IsNullOrEmpty(_config.RestUrl))
+			if (string.IsNullOrEmpty(ConfluenceConfiguration.RestUrl))
 			{
-				return confluenceApi;
+				return null;
 			}
 			try
 			{
 				// Get the system name, so the user knows where to login to
-				var dialog = new CredentialsDialog(_config.RestUrl)
+				var dialog = new CredentialsDialog(ConfluenceConfiguration.RestUrl)
 				{
 					Name = null
 				};
 				while (dialog.Show(dialog.Name) == DialogResult.OK)
 				{
-					confluenceApi = new ConfluenceApi(new Uri(_config.RestUrl));
+					confluenceApi = new ConfluenceApi(new Uri(ConfluenceConfiguration.RestUrl));
 					confluenceApi.SetBasicAuthentication(dialog.Name, dialog.Password);
 					try
 					{
@@ -180,23 +190,23 @@ namespace GreenshotConfluencePlugin
 		{
 			var oldConfig = new
 			{
-				Url = _config.RestUrl
+				Url = ConfluenceConfiguration.RestUrl
 			};
 
 			ConfluenceConfigurationForm configForm = new ConfluenceConfigurationForm();
-			string url = _config.RestUrl;
-			Nullable<bool> dialogResult = configForm.ShowDialog();
-			if (dialogResult.HasValue && dialogResult.Value)
+			var dialogResult = configForm.ShowDialog();
+			if (!dialogResult.HasValue || !dialogResult.Value)
 			{
-				var newConfig = new
-				{
-					Url = _config.RestUrl
-				};
-				if (!newConfig.Equals(oldConfig))
-				{
-					_confluenceApi.Dispose();
-					_confluenceApi = null;
-				}
+				return;
+			}
+			var newConfig = new
+			{
+				Url = ConfluenceConfiguration.RestUrl
+			};
+			if (!newConfig.Equals(oldConfig))
+			{
+				_confluenceApi.Dispose();
+				_confluenceApi = null;
 			}
 		}
 	}

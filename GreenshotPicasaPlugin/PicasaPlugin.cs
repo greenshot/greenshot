@@ -19,8 +19,6 @@
  */
 
 using Dapplo.Addons;
-using Dapplo.Config.Ini;
-using Dapplo.Config.Language;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
@@ -42,10 +40,22 @@ namespace GreenshotPicasaPlugin
 	public class PicasaPlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (PicasaPlugin));
-		private static IPicasaConfiguration config;
-		private static IPicasaLanguage language;
-		private ComponentResourceManager resources;
-		private ToolStripMenuItem itemPlugInRoot;
+		private ComponentResourceManager _resources;
+		private ToolStripMenuItem _itemPlugInRoot;
+
+		[Import]
+		public IPicasaConfiguration PicasaConfiguration
+		{
+			get;
+			set;
+		}
+
+		[Import]
+		public IPicasaLanguage PicasaLanguage
+		{
+			get;
+			set;
+		}
 
 		public void Dispose()
 		{
@@ -57,10 +67,10 @@ namespace GreenshotPicasaPlugin
 		{
 			if (disposing)
 			{
-				if (itemPlugInRoot != null)
+				if (_itemPlugInRoot != null)
 				{
-					itemPlugInRoot.Dispose();
-					itemPlugInRoot = null;
+					_itemPlugInRoot.Dispose();
+					_itemPlugInRoot = null;
 				}
 			}
 		}
@@ -70,10 +80,6 @@ namespace GreenshotPicasaPlugin
 		{
 			get;
 			set;
-		}
-
-		public PicasaPlugin()
-		{
 		}
 
 		public IEnumerable<IDestination> Destinations()
@@ -88,39 +94,35 @@ namespace GreenshotPicasaPlugin
 		}
 
 		/// <summary>
-		/// Implementation of the IGreenshotPlugin.Initialize
+		/// Implementation of the StartAsync
 		/// </summary>
-		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
-		/// <param name="pluginAttribute">My own attributes</param>
-		public async Task StartAsync(CancellationToken token = new CancellationToken())
+		public Task StartAsync(CancellationToken token = new CancellationToken())
 		{
 			// Register / get the picasa configuration
-			config = await IniConfig.Current.RegisterAndGetAsync<IPicasaConfiguration>();
-			language = await LanguageLoader.Current.RegisterAndGetAsync<IPicasaLanguage>();
-			resources = new ComponentResourceManager(typeof (PicasaPlugin));
+			_resources = new ComponentResourceManager(typeof (PicasaPlugin));
 
-			itemPlugInRoot = new ToolStripMenuItem();
-			itemPlugInRoot.Text = language.Configure;
-			itemPlugInRoot.Tag = PluginHost;
-			itemPlugInRoot.Image = (Image) resources.GetObject("Picasa");
-			itemPlugInRoot.Click += ConfigMenuClick;
-			PluginUtils.AddToContextMenu(PluginHost, itemPlugInRoot);
-			language.PropertyChanged += OnLanguageChanged;
+			_itemPlugInRoot = new ToolStripMenuItem
+			{
+				Text = PicasaLanguage.Configure, Tag = PluginHost, Image = (Image) _resources.GetObject("Picasa")
+			};
+			_itemPlugInRoot.Click += ConfigMenuClick;
+			PluginUtils.AddToContextMenu(PluginHost, _itemPlugInRoot);
+			PicasaLanguage.PropertyChanged += OnPicasaLanguageChanged;
+			return Task.FromResult(true);
 		}
 
-		public void OnLanguageChanged(object sender, EventArgs e)
+		public void OnPicasaLanguageChanged(object sender, EventArgs e)
 		{
-			if (itemPlugInRoot != null)
+			if (_itemPlugInRoot != null)
 			{
-				itemPlugInRoot.Text = language.Configure;
+				_itemPlugInRoot.Text = PicasaLanguage.Configure;
 			}
 		}
 
 		public Task ShutdownAsync(CancellationToken token = default(CancellationToken))
 		{
 			LOG.Debug("Picasa Plugin shutdown.");
-			language.PropertyChanged -= OnLanguageChanged;
+			PicasaLanguage.PropertyChanged -= OnPicasaLanguageChanged;
 			//host.OnImageEditorOpen -= new OnImageEditorOpenHandler(ImageEditorOpened);
 			return Task.FromResult(true);
 		}
@@ -132,7 +134,6 @@ namespace GreenshotPicasaPlugin
 		{
 			ShowConfigDialog();
 		}
-
 
 		/// <summary>
 		/// A form for token

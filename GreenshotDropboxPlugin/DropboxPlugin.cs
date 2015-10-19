@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
@@ -29,7 +28,6 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Dapplo.Config.Language;
 using System.ComponentModel.Composition;
 using Dapplo.Addons;
 
@@ -42,14 +40,26 @@ namespace GreenshotDropboxPlugin
 	[StartupAction]
 	public class DropboxPlugin : IGreenshotPlugin, IStartupAction
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (DropboxPlugin));
-		private static IDropboxLanguage _language;
 		public static PluginAttribute Attributes;
 		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _itemPlugInConfig;
 
 		[Import]
 		public IGreenshotHost GreenshotHost
+		{
+			get;
+			set;
+		}
+
+		[Import]
+		public IDropboxConfiguration DropboxConfiguration
+		{
+			get;
+			set;
+		}
+
+		[Import]
+		public IDropboxLanguage DropboxLanguage
 		{
 			get;
 			set;
@@ -88,34 +98,27 @@ namespace GreenshotDropboxPlugin
 		/// Initialize
 		/// </summary>
 		/// <param name="token"></param>
-		public async Task StartAsync(CancellationToken token = new CancellationToken())
+		public Task StartAsync(CancellationToken token = new CancellationToken())
 		{
-			// Register / get the dropbox configuration
-			await IniConfig.Current.RegisterAndGetAsync<IDropboxConfiguration>(token);
-			_language = await LanguageLoader.Current.RegisterAndGetAsync<IDropboxLanguage>(token);
 			// Register configuration (don't need the configuration itself)
 			_resources = new ComponentResourceManager(typeof (DropboxPlugin));
 
 			_itemPlugInConfig = new ToolStripMenuItem
 			{
-				Text = _language.Configure, Tag = GreenshotHost
+				Text = DropboxLanguage.Configure, Tag = GreenshotHost
 			};
 			_itemPlugInConfig.Click += (sender, eventArgs) => Configure();
 			_itemPlugInConfig.Image = (Image) _resources.GetObject("Dropbox");
 
 			PluginUtils.AddToContextMenu(GreenshotHost, _itemPlugInConfig);
-			_language.PropertyChanged += (sender, args) =>
+			DropboxLanguage.PropertyChanged += (sender, args) =>
 			{
 				if (_itemPlugInConfig != null)
 				{
-					_itemPlugInConfig.Text = _language.Configure;
+					_itemPlugInConfig.Text = DropboxLanguage.Configure;
 				}
 			};
-		}
-
-		public void Shutdown()
-		{
-			LOG.Debug("Dropbox Plugin shutdown.");
+			return Task.FromResult(true);
 		}
 
 		/// <summary>

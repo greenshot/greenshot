@@ -19,8 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using Dapplo.Config.Language;
 using Greenshot.Plugin;
 using GreenshotPlugin.Extensions;
 using System;
@@ -40,11 +38,24 @@ namespace GreenshotJiraPlugin
 	[StartupAction]
 	public class JiraPlugin : IConfigurablePlugin, IStartupAction
 	{
-		private IJiraConfiguration _config;
 		private JiraMonitor _jiraMonitor;
 
 		[Import]
 		public IGreenshotHost GreenshotHost
+		{
+			get;
+			set;
+		}
+
+		[Import]
+		public IJiraConfiguration JiraConfiguration
+		{
+			get;
+			set;
+		}
+
+		[Import]
+		public IJiraLanguage JiraLanguage
 		{
 			get;
 			set;
@@ -75,24 +86,21 @@ namespace GreenshotJiraPlugin
 		/// Initialize
 		/// </summary>
 		/// <param name="token"></param>
-		public async Task StartAsync(CancellationToken token = new CancellationToken())
+		public Task StartAsync(CancellationToken token = new CancellationToken())
 		{
-			// Register / get the jira configuration
-			_config = await IniConfig.Current.RegisterAndGetAsync<IJiraConfiguration>(token);
-			await LanguageLoader.Current.RegisterAndGetAsync<IJiraLanguage>(token);
-
 			// Make sure the InitializeMonitor is called after the message loop is initialized!
 			GreenshotHost.GreenshotForm.AsyncInvoke(InitializeMonitor);
+			return Task.FromResult(true);
 		}
 
 		private void InitializeMonitor()
 		{
 			_jiraMonitor?.Dispose();
-			if (!string.IsNullOrEmpty(_config.Password))
+			if (!string.IsNullOrEmpty(JiraConfiguration.Password))
 			{
 				_jiraMonitor = new JiraMonitor();
 				// Async call, will continue in the background!
-				var backgroundTask = _jiraMonitor.AddJiraInstance(new Uri(_config.RestUrl), _config.Username, _config.Password).ConfigureAwait(false);
+				var backgroundTask = _jiraMonitor.AddJiraInstance(new Uri(JiraConfiguration.RestUrl), JiraConfiguration.Username, JiraConfiguration.Password).ConfigureAwait(false);
 			}
 		}
 
@@ -115,16 +123,16 @@ namespace GreenshotJiraPlugin
 		{
 			var before = new
 			{
-				_config.RestUrl, _config.Password, _config.Username
+				JiraConfiguration.RestUrl, JiraConfiguration.Password, JiraConfiguration.Username
 			};
 
-			var settingsForm = new SettingsForm(_config);
+			var settingsForm = new SettingsForm(JiraConfiguration);
 			DialogResult result = settingsForm.ShowDialog();
 			if (result == DialogResult.OK)
 			{
 				var after = new
 				{
-					_config.RestUrl, _config.Password, _config.Username
+					JiraConfiguration.RestUrl, JiraConfiguration.Password, JiraConfiguration.Username
 				};
 				return !before.Equals(after);
 			}

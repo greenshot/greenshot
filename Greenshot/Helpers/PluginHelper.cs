@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Addons.Implementation;
 using Greenshot.Forms;
 using Greenshot.Plugin;
 using GreenshotPlugin.Configuration;
@@ -27,12 +26,10 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Greenshot.Helpers
@@ -40,20 +37,27 @@ namespace Greenshot.Helpers
 	/// <summary>
 	/// The PluginHelper takes care of all plugin related functionality
 	/// </summary>
-	[Serializable]
+	[Export(typeof(IGreenshotHost))]
 	public class PluginHelper : IGreenshotHost
 	{
-		private readonly StartupShutdownBootstrapper _startupShutdownBootstrapper = new StartupShutdownBootstrapper();
-
 		public static PluginHelper Instance
 		{
+			set;
 			get;
-		} = new PluginHelper();
+		}
 
-		private PluginHelper()
+		public PluginHelper()
 		{
 			PluginUtils.Host = this;
+			Instance = this;
 		}
+
+		[Import]
+		public IEnumerable<Lazy<IGreenshotPlugin, IGreenshotPluginMetadata>> Plugins
+		{
+			get;
+			set;
+		} 
 
 		public Form GreenshotForm
 		{
@@ -85,19 +89,13 @@ namespace Greenshot.Helpers
 		{
 			var plugins = Plugins;
 
-			return (plugins != null && plugins.Count() > 0);
-		}
-
-		public async Task ShutdownAsync(CancellationToken token = default(CancellationToken))
-		{
-			await _startupShutdownBootstrapper.ShutdownAsync(token);
+			return (plugins != null && plugins.Any());
 		}
 
 		// Add plugins to the Listview
 		public void FillListview(ListView listview)
 		{
-			var plugins = _startupShutdownBootstrapper.GetExports<IGreenshotPlugin, IGreenshotPluginMetadata>();
-			foreach (var plugin in plugins.OrderBy(x => x.Metadata.Name))
+			foreach (var plugin in Plugins.OrderBy(x => x.Metadata.Name))
 			{
 				var assembly = plugin.Value.GetType().Assembly;
 				var version = FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion;
@@ -127,7 +125,7 @@ namespace Greenshot.Helpers
 		{
 			if (listview.SelectedItems.Count > 0)
 			{
-				IConfigurablePlugin plugin = listview.SelectedItems[0].Tag as IConfigurablePlugin;
+				var plugin = listview.SelectedItems[0].Tag as IConfigurablePlugin;
 				if (plugin != null)
 				{
 					plugin.Configure();
@@ -142,14 +140,6 @@ namespace Greenshot.Helpers
 			get
 			{
 				return MainForm.Instance.MainMenu;
-			}
-		}
-
-		public IEnumerable<Lazy<IGreenshotPlugin, IGreenshotPluginMetadata>> Plugins
-		{
-			get
-			{
-				return _startupShutdownBootstrapper.GetExports<IGreenshotPlugin, IGreenshotPluginMetadata>();
 			}
 		}
 
@@ -189,39 +179,6 @@ namespace Greenshot.Helpers
 				}
 			};
 			return capture;
-		}
-
-		#endregion
-
-		#region Plugin loading
-
-		/// <summary>
-		/// Load the plugins
-		/// </summary>
-		public async Task LoadPluginsAsync(CancellationToken token = default(CancellationToken))
-		{
-			
-			if (PortableHelper.IsPortable)
-			{
-				var pafPath = Path.Combine(Application.StartupPath, @"App\Greenshot");
-				_startupShutdownBootstrapper.Add(pafPath, "*.gsp");
-			}
-			else
-			{
-				var pluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
-                _startupShutdownBootstrapper.Add(pluginPath, "*.gsp");
-
-				var applicationPath  = Path.GetDirectoryName(Application.ExecutablePath);
-				_startupShutdownBootstrapper.Add(applicationPath, "*.gsp");
-			}
-			// Initialize the bootstrapper, so we can export
-			_startupShutdownBootstrapper.Initialize();
-			// Make the IGreenshotHost available for the plugins
-			_startupShutdownBootstrapper.Export<IGreenshotHost>(this);
-			// Run!
-			_startupShutdownBootstrapper.Run();
-
-			await _startupShutdownBootstrapper.StartupAsync(token);
 		}
 
 		#endregion

@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
@@ -29,7 +28,6 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Dapplo.Config.Language;
 using System.ComponentModel.Composition;
 using Dapplo.Addons;
 
@@ -42,9 +40,6 @@ namespace GreenshotBoxPlugin
 	[StartupAction]
 	public class BoxPlugin : IGreenshotPlugin, IStartupAction
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (BoxPlugin));
-		private static IBoxConfiguration _config;
-		private static IBoxLanguage _language;
 		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _itemPlugInConfig;
 
@@ -54,6 +49,21 @@ namespace GreenshotBoxPlugin
 			get;
 			set;
 		}
+
+		[Import]
+		public IBoxConfiguration BoxConfiguration
+		{
+			get;
+			set;
+		}
+
+		[Import]
+		public IBoxLanguage BoxLanguage
+		{
+			get;
+			set;
+		}
+
 
 		public void Dispose()
 		{
@@ -88,27 +98,26 @@ namespace GreenshotBoxPlugin
 		/// Initialize
 		/// </summary>
 		/// <param name="token"></param>
-		public async Task StartAsync(CancellationToken token = new CancellationToken())
+		public Task StartAsync(CancellationToken token = new CancellationToken())
 		{
 			// Register / get the box configuration
-			_config = await IniConfig.Current.RegisterAndGetAsync<IBoxConfiguration>(token);
-			_language = await LanguageLoader.Current.RegisterAndGetAsync<IBoxLanguage>(token);
 			_resources = new ComponentResourceManager(typeof (BoxPlugin));
 
 			_itemPlugInConfig = new ToolStripMenuItem
 			{
-				Image = (Image) _resources.GetObject("Box"), Text = _language.Configure
+				Image = (Image) _resources.GetObject("Box"), Text = BoxLanguage.Configure
 			};
 			_itemPlugInConfig.Click += (sender, eventArgs) => Configure();
 
 			PluginUtils.AddToContextMenu(GreenshotHost, _itemPlugInConfig);
-			_language.PropertyChanged += (sender, args) =>
+			BoxLanguage.PropertyChanged += (sender, args) =>
 			{
 				if (_itemPlugInConfig != null)
 				{
-					_itemPlugInConfig.Text = _language.Configure;
+					_itemPlugInConfig.Text = BoxLanguage.Configure;
 				}
 			};
+			return Task.FromResult(true);
 		}
 
 		/// <summary>
@@ -116,7 +125,7 @@ namespace GreenshotBoxPlugin
 		/// </summary>
 		public void Configure()
 		{
-			new SettingsForm(_config).ShowDialog();
+			new SettingsForm(BoxConfiguration).ShowDialog();
 		}
 	}
 }

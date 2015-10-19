@@ -26,10 +26,8 @@ using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using Dapplo.Config.Ini;
 using System.Threading.Tasks;
 using System.Threading;
-using Dapplo.Config.Language;
 using System.ComponentModel.Composition;
 using Dapplo.Addons;
 
@@ -42,13 +40,25 @@ namespace GreenshotFlickrPlugin
 	[StartupAction, ShutdownAction]
 	public class FlickrPlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{
-		private static IFlickrConfiguration _config;
-		private static IFlickrLanguage _language;
 		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _itemPlugInConfig;
 
 		[Import]
 		public IGreenshotHost GreenshotHost
+		{
+			get;
+			set;
+		}
+
+		[Import]
+		public IFlickrConfiguration FlickrConfiguration
+		{
+			get;
+			set;
+		}
+
+		[Import]
+		public IFlickrLanguage FlickrLanguage
 		{
 			get;
 			set;
@@ -79,7 +89,6 @@ namespace GreenshotFlickrPlugin
 			yield return new FlickrDestination();
 		}
 
-
 		public IEnumerable<IProcessor> Processors()
 		{
 			yield break;
@@ -89,29 +98,26 @@ namespace GreenshotFlickrPlugin
 		/// Initialize
 		/// </summary>
 		/// <param name="token"></param>
-		public async Task StartAsync(CancellationToken token = new CancellationToken())
+		public Task StartAsync(CancellationToken token = new CancellationToken())
 		{
-			// Register / get the flickr configuration
-			_config = await IniConfig.Current.RegisterAndGetAsync<IFlickrConfiguration>(token);
-			_language = await LanguageLoader.Current.RegisterAndGetAsync<IFlickrLanguage>(token);
-
 			_resources = new ComponentResourceManager(typeof (FlickrPlugin));
 
 			_itemPlugInConfig = new ToolStripMenuItem
 			{
-				Text = _language.Configure, Tag = GreenshotHost, Image = (Image) _resources.GetObject("flickr")
+				Text = FlickrLanguage.Configure, Tag = GreenshotHost, Image = (Image) _resources.GetObject("flickr")
 			};
 			_itemPlugInConfig.Click += (sender, eventArgs) => Configure();
 
 			PluginUtils.AddToContextMenu(GreenshotHost, _itemPlugInConfig);
-			_language.PropertyChanged += OnLanguageChanged;
+			FlickrLanguage.PropertyChanged += OnFlickrLanguageChanged;
+			return Task.FromResult(true);
 		}
 
-		private void OnLanguageChanged(object sender, EventArgs e)
+		private void OnFlickrLanguageChanged(object sender, EventArgs e)
 		{
 			if (_itemPlugInConfig != null)
 			{
-				_itemPlugInConfig.Text = _language.Configure;
+				_itemPlugInConfig.Text = FlickrLanguage.Configure;
 			}
 		}
 
@@ -120,12 +126,12 @@ namespace GreenshotFlickrPlugin
 		/// </summary>
 		public void Configure()
 		{
-			new SettingsForm(_config).ShowDialog();
+			new SettingsForm(FlickrConfiguration).ShowDialog();
 		}
 
 		public Task ShutdownAsync(CancellationToken token = new CancellationToken())
 		{
-			_language.PropertyChanged -= OnLanguageChanged;
+			FlickrLanguage.PropertyChanged -= OnFlickrLanguageChanged;
 			return Task.FromResult(true);
 		}
 	}

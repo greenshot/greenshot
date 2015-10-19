@@ -24,6 +24,7 @@ using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -33,9 +34,16 @@ namespace GreenshotEditorPlugin
 	/// The editor as the plugin
 	/// </summary>
 	[Plugin("Editor")]
-	[StartupAction]
-	public class EditorPlugin : IGreenshotPlugin, IStartupAction
+	public class EditorPlugin : IGreenshotPlugin
 	{
+
+		[Import]
+		public IEditorConfiguration EditorConfiguration
+		{
+			get;
+			set;
+		}
+
 		public void Dispose()
 		{
 			Dispose(true);
@@ -57,19 +65,6 @@ namespace GreenshotEditorPlugin
 		public IEnumerable<IProcessor> Processors()
 		{
 			yield break;
-		}
-
-		/// <summary>
-		/// Initialize
-		/// </summary>
-		/// <param name="token"></param>
-		public async Task StartAsync(CancellationToken token = new CancellationToken())
-		{
-			var iniConfig = IniConfig.Current;
-
-			// Make sure the defaults are set
-			await iniConfig.RegisterAndGetAsync<IEditorConfiguration>(token);
-			//await LanguageLoader.Current.RegisterAndGetAsync<IEditorLanguage>(token);
 		}
 	}
 }

@@ -56,9 +56,12 @@ namespace Greenshot.Forms
 	public partial class MainForm : BaseForm
 	{
 		private static ILog LOG;
+		private const string ApplicationName = "Greenshot";
 		private const string MutexId = @"Local\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08";
 		private static Mutex _applicationMutex;
 		public static string LogFileLocation = null;
+		private static readonly ApplicationBootstrapper ApplicationBootstrapper = new ApplicationBootstrapper(ApplicationName);
+
 
 		public static void Start(string[] args)
 		{
@@ -92,7 +95,7 @@ namespace Greenshot.Forms
 			// Initialize the string encryption, TODO: Move "credentials" to build server / yaml
 			Dapplo.Config.Converters.StringEncryptionTypeConverter.RgbIv = "dlgjowejgogkklwj";
 			Dapplo.Config.Converters.StringEncryptionTypeConverter.RgbKey = "lsjvkwhvwujkagfauguwcsjgu2wueuff";
-			iniConfig = new IniConfig("Greenshot", "greenshot", iniDirectory);
+			iniConfig = new IniConfig(ApplicationName, ApplicationName, iniDirectory);
 			// Register method to fix some values
 			iniConfig.AfterLoad<ICoreConfiguration>((coreConfig) => CoreConfigurationChecker.AfterLoad(coreConfig));
 
@@ -104,8 +107,10 @@ namespace Greenshot.Forms
 			Task.Run(async () =>
 			{
 				coreConfiguration = await iniConfig.RegisterAndGetAsync<ICoreConfiguration>();
+				var languageLoader = new LanguageLoader(ApplicationName, coreConfiguration.Language ?? "en-US");
+				ApplicationBootstrapper.LanguageLoader = languageLoader;
+				ApplicationBootstrapper.IniConfig = iniConfig;
 				// Read configuration & languages
-				var languageLoader = new LanguageLoader("Greenshot", coreConfiguration.Language ?? "en-US");
 				languageLoader.CorrectMissingTranslations();
 				language = await LanguageLoader.Current.RegisterAndGetAsync<IGreenshotLanguage>();
 				await iniConfig.RegisterAndGetAsync<INetworkConfiguration>();
@@ -251,7 +256,7 @@ namespace Greenshot.Forms
 				// 2) Get the right to it, this returns false if it's already locked
 				if (!_applicationMutex.WaitOne(0, false))
 				{
-					LOG.Debug("Greenshot seems already to be running!");
+					LOG.Debug($"{ApplicationName} seems already to be running!");
 					lockSuccess = false;
 					// Clean up
 					_applicationMutex.Close();
@@ -262,11 +267,11 @@ namespace Greenshot.Forms
 			{
 				// Another Greenshot instance didn't cleanup correctly!
 				// we can ignore the exception, it happend on the "waitone" but still the mutex belongs to us
-				LOG.Warn("Greenshot didn't cleanup correctly!", e);
+				LOG.Warn($"{ApplicationName} didn't cleanup correctly!", e);
 			}
 			catch (UnauthorizedAccessException e)
 			{
-				LOG.Warn("Greenshot is most likely already running for a different user in the same session, can't create mutex due to error: ", e);
+				LOG.Warn($"{ApplicationName} is most likely already running for a different user in the same session, can't create mutex due to error: ", e);
 				lockSuccess = false;
 			}
 			catch (Exception ex)
@@ -315,7 +320,6 @@ namespace Greenshot.Forms
 		// Timer for the double click test
 		private readonly Timer _doubleClickTimer = new Timer();
 		private GreenshotServer server;
-		private StartupShutdownBootstrapper _startupShutdownBootstrapper;
 
 		/// <summary>
 		/// Instance of the NotifyIcon, needed to open balloon-tips
@@ -358,31 +362,31 @@ namespace Greenshot.Forms
 
 			UpdateUi();
 
-
-			if (PortableHelper.IsPortable)
+            if (PortableHelper.IsPortable)
 			{
-				var pafPath = Path.Combine(Application.StartupPath, @"App\Greenshot");
-				_startupShutdownBootstrapper.Add(pafPath, "*.gsp");
+				var pafPath = Path.Combine(Application.StartupPath, $@"App\{ApplicationName}");
+				ApplicationBootstrapper.Add(pafPath, "*.gsp");
 			}
 			else
 			{
 				var pluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
-				_startupShutdownBootstrapper.Add(pluginPath, "*.gsp");
+				ApplicationBootstrapper.Add(pluginPath, "*.gsp");
 
 				var applicationPath = Path.GetDirectoryName(Application.ExecutablePath);
-				_startupShutdownBootstrapper.Add(applicationPath, "*.gsp");
+				ApplicationBootstrapper.Add(applicationPath, "*.gsp");
 			}
 			// Initialize the bootstrapper, so we can export
-			_startupShutdownBootstrapper.Initialize();
-			// Make the IGreenshotHost available for the plugins
-			_startupShutdownBootstrapper.Export<IGreenshotHost>(this);
+			ApplicationBootstrapper.Initialize();
 			// Run!
-			_startupShutdownBootstrapper.Run();
+			ApplicationBootstrapper.Run();
 
-			await _startupShutdownBootstrapper.StartupAsync(token);
-
+			// TODO: Fix the lookup returning nothing
+			var pih = ApplicationBootstrapper.GetExport<IGreenshotHost>();
 			// Load all the plugins
-			Task.Run(async () => await PluginHelper.Instance.LoadPluginsAsync()).Wait();
+			Task.Run(async () =>
+			{
+				await ApplicationBootstrapper.StartupAsync();
+			}).Wait();
 
 			// Check destinations, remove all that don't exist
 			foreach (string destination in coreConfiguration.OutputDestinations.ToArray())
@@ -427,7 +431,7 @@ namespace Greenshot.Forms
 				{
 					notifyIcon.BalloonTipClicked += BalloonTipClicked;
 					notifyIcon.BalloonTipClosed += BalloonTipClosed;
-					notifyIcon.ShowBalloonTip(2000, "Greenshot", string.Format(language.TooltipFirststart, HotkeyControl.GetLocalizedHotkeyStringFromString(coreConfiguration.RegionHotkey)), ToolTipIcon.Info);
+					notifyIcon.ShowBalloonTip(2000, ApplicationName, string.Format(language.TooltipFirststart, HotkeyControl.GetLocalizedHotkeyStringFromString(coreConfiguration.RegionHotkey)), ToolTipIcon.Info);
 				}
 				catch (Exception ex)
 				{
@@ -1627,7 +1631,7 @@ namespace Greenshot.Forms
 			{
 				Task.Run(async () =>
 				{
-					await PluginHelper.Instance.ShutdownAsync();
+					await ApplicationBootstrapper.ShutdownAsync();
 				}).Wait();
 				
 			}
