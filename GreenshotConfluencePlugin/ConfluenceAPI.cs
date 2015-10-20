@@ -121,16 +121,6 @@ namespace GreenshotConfluencePlugin
 
 		#endregion
 
-		private Uri Format(params object[] segments)
-		{
-			var sb = new StringBuilder(string.Format("{0}{1}", ConfluenceBaseUri.AbsoluteUri, RestPath));
-			foreach (var segment in segments)
-			{
-				sb.AppendFormat("/{0}", segment);
-			}
-			return new Uri(sb.ToString());
-		}
-
 		/// <summary>
 		/// Load the spaces into the Model
 		/// </summary>
@@ -145,7 +135,7 @@ namespace GreenshotConfluencePlugin
 			int loaded = 0;
 			do
 			{
-				var spacesUri = Format("space").ExtendQuery(new Dictionary<string, object>
+				var spacesUri = ConfluenceBaseUri.AppendSegments("space").ExtendQuery(new Dictionary<string, object>
 				{
 					{
 						"start", start
@@ -191,7 +181,7 @@ namespace GreenshotConfluencePlugin
 			{
 				return resultContent;
 			}
-			using (var responseMessage = await _client.GetAsync(Format("content", id), token).ConfigureAwait(false))
+			using (var responseMessage = await _client.GetAsync(ConfluenceBaseUri.AppendSegments("content", id), token).ConfigureAwait(false))
 			{
 				if (responseMessage.StatusCode == HttpStatusCode.NotFound)
 				{
@@ -218,7 +208,7 @@ namespace GreenshotConfluencePlugin
 		public async Task<IList<Content>> GetChildrenAsync(long contentId, bool useCache = true, CancellationToken token = default(CancellationToken))
 		{
 			IList<Content> children = new List<Content>();
-			Uri childUri = Format("content", contentId, "child").ExtendQuery(new Dictionary<string, object>
+			Uri childUri = ConfluenceBaseUri.AppendSegments("content", contentId, "child").ExtendQuery(new Dictionary<string, object>
 			{
 				{
 					"expand", "page"
@@ -249,7 +239,7 @@ namespace GreenshotConfluencePlugin
 		/// <returns>list of content</returns>
 		public async Task<dynamic> SearchAsync(string cql, CancellationToken token = default(CancellationToken))
 		{
-			Uri searchdUri = Format("content", "search").ExtendQuery(new Dictionary<string, string>
+			Uri searchdUri = ConfluenceBaseUri.AppendSegments("content", "search").ExtendQuery(new Dictionary<string, string>
 			{
 				{
 					"cql", cql
@@ -282,7 +272,7 @@ namespace GreenshotConfluencePlugin
 			bool finished;
 			do
 			{
-				Uri searchUri = Format("content").ExtendQuery(new Dictionary<string, object>
+				Uri searchUri = ConfluenceBaseUri.AppendSegments("content").ExtendQuery(new Dictionary<string, object>
 				{
 					{
 						"start", start
@@ -335,7 +325,7 @@ namespace GreenshotConfluencePlugin
 		/// <returns>attachment id</returns>
 		public async Task<string> AttachToContentAsync(long id, HttpContent content, CancellationToken token = default(CancellationToken))
 		{
-			using (var responseMessage = await _client.PostAsync(Format("content", id, "child", "attachment"), content, token).ConfigureAwait(false))
+			using (var responseMessage = await _client.PostAsync(ConfluenceBaseUri.AppendSegments("content", id, "child", "attachment"), content, token).ConfigureAwait(false))
 			{
 				await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
 				var jsonResponse = await responseMessage.GetAsJsonAsync(token: token).ConfigureAwait(false);

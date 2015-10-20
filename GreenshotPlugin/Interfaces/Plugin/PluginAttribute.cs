@@ -26,7 +26,7 @@ namespace Greenshot.Plugin
 {
 	[MetadataAttribute]
 	[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
-	public sealed class PluginAttribute : ExportAttribute, IGreenshotPluginMetadata
+	public sealed class PluginAttribute : InheritedExportAttribute, IGreenshotPluginMetadata
 	{
 		public string Name
 		{

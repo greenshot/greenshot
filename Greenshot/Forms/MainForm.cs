@@ -147,7 +147,7 @@ namespace Greenshot.Forms
 					return;
 				}
 
-				if (!String.IsNullOrWhiteSpace(arguments.Language))
+				if (!string.IsNullOrWhiteSpace(arguments.Language))
 				{
 					// Set language
 					coreConfiguration.Language = arguments.Language;
@@ -375,13 +375,13 @@ namespace Greenshot.Forms
 				var applicationPath = Path.GetDirectoryName(Application.ExecutablePath);
 				ApplicationBootstrapper.Add(applicationPath, "*.gsp");
 			}
+			// The GreenshotPlugin assembly needs to be added manually!
+			ApplicationBootstrapper.Add(typeof(ICoreConfiguration).Assembly);
 			// Initialize the bootstrapper, so we can export
 			ApplicationBootstrapper.Initialize();
 			// Run!
 			ApplicationBootstrapper.Run();
 
-			// TODO: Fix the lookup returning nothing
-			var pih = ApplicationBootstrapper.GetExport<IGreenshotHost>();
 			// Load all the plugins
 			Task.Run(async () =>
 			{
