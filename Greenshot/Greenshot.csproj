@@ -82,12 +82,12 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Controls\ContextMenuToolStripProfessionalRenderer.cs" />
-    <Compile Include="Destinations\ClipboardDestination.cs" />
-    <Compile Include="Destinations\EmailDestination.cs" />
-    <Compile Include="Destinations\FileDestination.cs" />
-    <Compile Include="Destinations\FileWithDialogDestination.cs" />
-    <Compile Include="Destinations\PickerDestination.cs" />
-    <Compile Include="Destinations\PrinterDestination.cs" />
+    <Compile Include="Destinations\ClipboardLegacyDestination.cs" />
+    <Compile Include="Destinations\EmailLegacyDestination.cs" />
+    <Compile Include="Destinations\FileLegacyDestination.cs" />
+    <Compile Include="Destinations\FileWithDialogLegacyDestination.cs" />
+    <Compile Include="Destinations\PickerLegacyDestination.cs" />
+    <Compile Include="Destinations\PrinterLegacyDestination.cs" />
     <Compile Include="Forms\BaseForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -132,15 +132,14 @@
     </Compile>
     <Compile Include="Helpers\PluginHelper.cs" />
     <Compile Include="Helpers\RoundedRectangle.cs" />
-    <Compile Include="Model\DynamicMenuItem.cs" />
     <Compile Include="Windows\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\FlashlightWindow.xaml.cs">
       <DependentUpon>FlashlightWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\MenuWindow.xaml.cs">
-      <DependentUpon>MenuWindow.xaml</DependentUpon>
+    <Compile Include="Windows\ExportWindow.xaml.cs">
+      <DependentUpon>ExportWindow.xaml</DependentUpon>
     </Compile>
     <None Include="App.config" />
     <Compile Include="GlobalSuppressions.cs" />
@@ -201,7 +200,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\MenuWindow.xaml">
+    <Page Include="Windows\ExportWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

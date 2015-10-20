@@ -23,38 +23,36 @@ using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Windows;
+using log4net;
 using System;
 using System.ComponentModel;
 using System.Drawing;
-using System.IO;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using Dapplo.Config.Language;
-using log4net;
+using GreenshotPlugin.Configuration;
 
-namespace GreenshotDropboxPlugin
+namespace GreenshotBoxPlugin
 {
-	internal class DropboxDestination : AbstractDestination
+	public class BoxLegacyDestination : AbstractLegacyDestination
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (DropboxDestination));
-		private static readonly IDropboxConfiguration _config = IniConfig.Current.Get<IDropboxConfiguration>();
-		private static readonly IDropboxLanguage _language = LanguageLoader.Current.Get<IDropboxLanguage>();
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (BoxLegacyDestination));
+		private static readonly IBoxConfiguration _config = IniConfig.Current.Get<IBoxConfiguration>();
+		private static readonly IBoxLanguage language = LanguageLoader.Current.Get<IBoxLanguage>();
 
-		private DropboxPlugin plugin = null;
+		private readonly BoxPlugin _plugin;
 
-		public DropboxDestination(DropboxPlugin plugin)
+		public BoxLegacyDestination(BoxPlugin plugin)
 		{
-			this.plugin = plugin;
+			_plugin = plugin;
 		}
 
 		public override string Designation
 		{
 			get
 			{
-				return "Dropbox";
+				return "Box";
 			}
 		}
 
@@ -62,7 +60,7 @@ namespace GreenshotDropboxPlugin
 		{
 			get
 			{
-				return _language.UploadMenuItem;
+				return language.UploadMenuItem;
 			}
 		}
 
@@ -70,11 +68,10 @@ namespace GreenshotDropboxPlugin
 		{
 			get
 			{
-				ComponentResourceManager resources = new ComponentResourceManager(typeof (DropboxPlugin));
-				return (Image) resources.GetObject("Dropbox");
+				ComponentResourceManager resources = new ComponentResourceManager(typeof (BoxPlugin));
+				return (Image) resources.GetObject("Box");
 			}
 		}
-
 
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
 		{
@@ -82,41 +79,34 @@ namespace GreenshotDropboxPlugin
 			{
 				DestinationDesignation = Designation, DestinationDescription = Description
 			};
-			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
 			try
 			{
-				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, _language.CommunicationWait, async (progress, pleaseWaitToken) =>
+				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, language.CommunicationWait, async (progress, pleaseWaitToken) =>
 				{
-					string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
-					using (var stream = new MemoryStream())
-					{
-						ImageOutput.SaveToStream(surface, stream, outputSettings);
-						stream.Position = 0;
-						using (var uploadStream = new ProgressStream(stream, progress))
-						{
-							using (var streamContent = new StreamContent(uploadStream))
-							{
-								streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
-								return await DropboxUtils.UploadToDropbox(streamContent, filename);
-							}
-						}
-					}
+					return await BoxUtils.UploadToBoxAsync(surface, captureDetails, progress, token);
 				}, token);
 
 				if (url != null)
 				{
-					exportInformation.ExportMade = true;
 					exportInformation.ExportedToUri = new Uri(url);
 					if (_config.AfterUploadLinkToClipBoard)
 					{
 						ClipboardHelper.SetClipboardData(url);
 					}
 				}
+
+				exportInformation.ExportMade = true;
+			}
+			catch (TaskCanceledException tcEx)
+			{
+				exportInformation.ErrorMessage = tcEx.Message;
+				LOG.Info(tcEx.Message);
 			}
 			catch (Exception e)
 			{
-				LOG.Error("Error uploading.", e);
-				MessageBox.Show(_language.UploadFailure + " " + e.Message);
+				exportInformation.ErrorMessage = e.Message;
+				LOG.Warn(e);
+				MessageBox.Show(language.UploadFailure + " " + e.Message, Designation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

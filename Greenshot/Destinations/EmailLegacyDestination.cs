@@ -37,9 +37,9 @@ namespace Greenshot.Destinations
 	/// <summary>
 	/// Description of EmailDestination.
 	/// </summary>
-	public class EmailDestination : AbstractDestination
+	public class EmailLegacyDestination : AbstractLegacyDestination
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (EmailDestination));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (EmailLegacyDestination));
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		private static readonly Image mailIcon = GreenshotResources.GetImage("Email.Image");
@@ -47,7 +47,7 @@ namespace Greenshot.Destinations
 		private static string mapiClient = null;
 		public const string DESIGNATION = "EMail";
 
-		static EmailDestination()
+		static EmailLegacyDestination()
 		{
 			// Logic to decide what email implementation we use
 			if (EmailConfigHelper.HasMAPI())

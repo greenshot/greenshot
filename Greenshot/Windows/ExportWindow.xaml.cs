@@ -19,24 +19,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Model;
 using System.Collections.ObjectModel;
 using System.Windows;
+using GreenshotPlugin.Interfaces;
 
 namespace Greenshot.Windows
 {
 	/// <summary>
-	/// Interaction logic for MenuWindow.xaml
+	/// Interaction logic for ExportWindow.xaml
 	/// </summary>
-	public partial class MenuWindow : Window
+	public partial class ExportWindow : Window
 	{
-		public ObservableCollection<DynamicMenuItem> Children
+		public ObservableCollection<IDestination> Children
 		{
 			get;
 			set;
-		} = new ObservableCollection<DynamicMenuItem>();
+		} = new ObservableCollection<IDestination>();
 
-		public MenuWindow()
+		public ExportWindow()
 		{
 			InitializeComponent();
 			DataContext = this;

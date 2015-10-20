@@ -56,7 +56,7 @@
   <ItemGroup>
     <Compile Include="IOCRConfiguration.cs" />
     <Compile Include="ModiLanguage.cs" />
-    <Compile Include="OCRDestination.cs" />
+    <Compile Include="OcrLegacyDestination.cs" />
     <Compile Include="OCRForm.cs">
       <SubType>Form</SubType>
     </Compile>

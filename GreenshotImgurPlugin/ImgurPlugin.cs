@@ -89,9 +89,9 @@ namespace GreenshotImgurPlugin
 			set;
 		}
 
-		public IEnumerable<IDestination> Destinations()
+		public IEnumerable<ILegacyDestination> Destinations()
 		{
-			yield return new ImgurDestination(this);
+			yield return new ImgurLegacyDestination(this);
 		}
 
 		public IEnumerable<IProcessor> Processors()

@@ -102,9 +102,9 @@ namespace GreenshotPlugin.Core
 			set;
 		}
 
-		private List<IDestination> _captureDestinations = new List<IDestination>();
+		private List<ILegacyDestination> _captureDestinations = new List<ILegacyDestination>();
 
-		public List<IDestination> CaptureDestinations
+		public List<ILegacyDestination> CaptureDestinations
 		{
 			get
 			{
@@ -121,7 +121,7 @@ namespace GreenshotPlugin.Core
 			_captureDestinations.Clear();
 		}
 
-		public void RemoveDestination(IDestination destination)
+		public void RemoveDestination(ILegacyDestination destination)
 		{
 			if (_captureDestinations.Contains(destination))
 			{
@@ -129,7 +129,7 @@ namespace GreenshotPlugin.Core
 			}
 		}
 
-		public void AddDestination(IDestination captureDestination)
+		public void AddDestination(ILegacyDestination captureDestination)
 		{
 			if (!_captureDestinations.Contains(captureDestination))
 			{
@@ -139,7 +139,7 @@ namespace GreenshotPlugin.Core
 
 		public bool HasDestination(string designation)
 		{
-			foreach (IDestination destination in _captureDestinations)
+			foreach (ILegacyDestination destination in _captureDestinations)
 			{
 				if (designation.Equals(destination.Designation))
 				{

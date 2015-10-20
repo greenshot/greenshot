@@ -339,7 +339,7 @@ namespace Greenshot
 		{
 			foreach (ListViewItem item in listview_destinations.Items)
 			{
-				IDestination destinationFromTag = item.Tag as IDestination;
+				ILegacyDestination destinationFromTag = item.Tag as ILegacyDestination;
 				if (destinationFromTag != null)
 				{
 					item.Text = destinationFromTag.Description;
@@ -372,7 +372,7 @@ namespace Greenshot
 			ImageList imageList = new ImageList();
 			listview_destinations.SmallImageList = imageList;
 			int imageNr = -1;
-			foreach (IDestination currentDestination in DestinationHelper.GetAllDestinations())
+			foreach (ILegacyDestination currentDestination in DestinationHelper.GetAllDestinations())
 			{
 				Image destinationImage = currentDestination.DisplayIcon;
 				if (destinationImage != null)
@@ -524,7 +524,7 @@ namespace Greenshot
 			{
 				ListViewItem item = listview_destinations.Items[index];
 
-				IDestination destinationFromTag = item.Tag as IDestination;
+				ILegacyDestination destinationFromTag = item.Tag as ILegacyDestination;
 				if (item.Checked && destinationFromTag != null)
 				{
 					destinations.Add(destinationFromTag.Designation);
@@ -679,8 +679,8 @@ namespace Greenshot
 			foreach (int index in listview_destinations.CheckedIndices)
 			{
 				ListViewItem item = listview_destinations.Items[index];
-				IDestination destinationFromTag = item.Tag as IDestination;
-				if (destinationFromTag != null && destinationFromTag.Designation.Equals(ClipboardDestination.DESIGNATION))
+				ILegacyDestination destinationFromTag = item.Tag as ILegacyDestination;
+				if (destinationFromTag != null && destinationFromTag.Designation.Equals(ClipboardLegacyDestination.DESIGNATION))
 				{
 					clipboardDestinationChecked = true;
 					break;
@@ -779,8 +779,8 @@ namespace Greenshot
 			ListViewItem l1 = (ListViewItem) x;
 			ListViewItem l2 = (ListViewItem) y;
 
-			IDestination firstDestination = l1.Tag as IDestination;
-			IDestination secondDestination = l2.Tag as IDestination;
+			ILegacyDestination firstDestination = l1.Tag as ILegacyDestination;
+			ILegacyDestination secondDestination = l2.Tag as ILegacyDestination;
 
 			if (secondDestination == null)
 			{

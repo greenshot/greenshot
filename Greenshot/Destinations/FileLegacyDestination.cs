@@ -38,9 +38,9 @@ namespace Greenshot.Destinations
 	/// <summary>
 	/// Description of FileSaveAsDestination.
 	/// </summary>
-	public class FileDestination : AbstractDestination
+	public class FileLegacyDestination : AbstractLegacyDestination
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (FileDestination));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (FileLegacyDestination));
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 

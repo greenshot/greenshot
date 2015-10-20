@@ -42,20 +42,20 @@ namespace GreenshotJiraPlugin
 	/// <summary>
 	/// Jira destination.
 	/// </summary>
-	public class JiraDestination : AbstractDestination
+	public class JiraLegacyDestination : AbstractLegacyDestination
 	{
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (JiraDestination));
+		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (JiraLegacyDestination));
 		private static readonly IJiraConfiguration config = IniConfig.Current.Get<IJiraConfiguration>();
 		private static readonly IJiraLanguage language = LanguageLoader.Current.Get<IJiraLanguage>();
 		private readonly JiraPlugin _jiraPlugin;
 		private readonly JiraDetails _jira;
 
-		public JiraDestination(JiraPlugin jiraPlugin)
+		public JiraLegacyDestination(JiraPlugin jiraPlugin)
 		{
 			_jiraPlugin = jiraPlugin;
 		}
 
-		public JiraDestination(JiraPlugin jiraPlugin, JiraDetails jira)
+		public JiraLegacyDestination(JiraPlugin jiraPlugin, JiraDetails jira)
 		{
 			_jiraPlugin = jiraPlugin;
 			_jira = jira;
@@ -114,14 +114,14 @@ namespace GreenshotJiraPlugin
 			}
 		}
 
-		public override IEnumerable<IDestination> DynamicDestinations()
+		public override IEnumerable<ILegacyDestination> DynamicDestinations()
 		{
 			if (IsActive)
 			{
 				// Show only the last 10 JIRAs
 				foreach (var jiraIssue in _jiraPlugin.JiraMonitor.RecentJiras.Take(10))
 				{
-					yield return new JiraDestination(_jiraPlugin, jiraIssue);
+					yield return new JiraLegacyDestination(_jiraPlugin, jiraIssue);
 				}
 			}
 		}

@@ -43,9 +43,9 @@ namespace GreenshotConfluencePlugin
 	/// <summary>
 	/// Description of ConfluenceDestination.
 	/// </summary>
-	public class ConfluenceDestination : AbstractDestination
+	public class ConfluenceLegacyDestination : AbstractLegacyDestination
 	{
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ConfluenceDestination));
+		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ConfluenceLegacyDestination));
 		private static readonly IConfluenceConfiguration config = IniConfig.Current.Get<IConfluenceConfiguration>();
 		private static readonly IConfluenceLanguage _language = LanguageLoader.Current.Get<IConfluenceLanguage>();
 		private static Image confluenceIcon = null;
@@ -57,7 +57,7 @@ namespace GreenshotConfluencePlugin
 			private set;
 		}
 
-		static ConfluenceDestination()
+		static ConfluenceLegacyDestination()
 		{
 			IsInitialized = false;
 			try
@@ -78,11 +78,11 @@ namespace GreenshotConfluencePlugin
 			}
 		}
 
-		public ConfluenceDestination()
+		public ConfluenceLegacyDestination()
 		{
 		}
 
-		public ConfluenceDestination(Content content)
+		public ConfluenceLegacyDestination(Content content)
 		{
 			_content = content;
 		}
@@ -134,7 +134,7 @@ namespace GreenshotConfluencePlugin
 			}
 		}
 
-		public override IEnumerable<IDestination> DynamicDestinations()
+		public override IEnumerable<ILegacyDestination> DynamicDestinations()
 		{
 			// TODO: Fix async, this should not be called from synchronous code but should run as a task which adds to the context menu
 			IList<Content> currentPages = Task.Run(async () => await ConfluenceUtils.GetCurrentPages()).GetAwaiter().GetResult();
@@ -144,7 +144,7 @@ namespace GreenshotConfluencePlugin
 			}
 			foreach (var currentPage in currentPages)
 			{
-				yield return new ConfluenceDestination(currentPage);
+				yield return new ConfluenceLegacyDestination(currentPage);
 			}
 		}
 

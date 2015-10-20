@@ -37,9 +37,9 @@ namespace GreenshotOCR
 	/// <summary>
 	/// Description of OCRDestination.
 	/// </summary>
-	public class OCRDestination : AbstractDestination
+	public class OcrLegacyDestination : AbstractLegacyDestination
 	{
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (OCRDestination));
+		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (OcrLegacyDestination));
 		private static IOCRConfiguration _config = IniConfig.Current.Get<IOCRConfiguration>();
 		private const int MIN_WIDTH = 130;
 		private const int MIN_HEIGHT = 130;
@@ -74,7 +74,7 @@ namespace GreenshotOCR
 			}
 		}
 
-		public OCRDestination(string ocrCommand)
+		public OcrLegacyDestination(string ocrCommand)
 		{
 			_ocrCommand = ocrCommand;
 		}

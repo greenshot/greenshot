@@ -143,12 +143,12 @@ namespace Greenshot.Helpers
 			}
 		}
 
-		public IDestination GetDestination(string designation)
+		public ILegacyDestination GetDestination(string designation)
 		{
 			return DestinationHelper.GetDestination(designation);
 		}
 
-		public List<IDestination> GetAllDestinations()
+		public List<ILegacyDestination> GetAllDestinations()
 		{
 			return DestinationHelper.GetAllDestinations();
 		}

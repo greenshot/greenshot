@@ -39,34 +39,26 @@ namespace GreenshotOfficePlugin
 		}
 
 
-		public IEnumerable<IDestination> Destinations()
+		public IEnumerable<ILegacyDestination> Destinations()
 		{
-			var destinations = new List<IDestination>();
+			var destinations = new List<ILegacyDestination>();
 			try
 			{
-				destinations.Add(new ExcelDestination());
+				destinations.Add(new ExcelLegacyDestination());
 			}
 			catch
 			{
 			}
 			try
 			{
-				destinations.Add(new PowerpointDestination());
+				destinations.Add(new PowerpointLegacyDestination());
 			}
 			catch
 			{
 			}
 			try
 			{
-				destinations.Add(new WordDestination());
-			}
-			catch
-			{
-			}
-
-			try
-			{
-				destinations.Add(new OutlookDestination());
+				destinations.Add(new WordLegacyDestination());
 			}
 			catch
 			{
@@ -74,7 +66,15 @@ namespace GreenshotOfficePlugin
 
 			try
 			{
-				destinations.Add(new OneNoteDestination());
+				destinations.Add(new OutlookLegacyDestination());
+			}
+			catch
+			{
+			}
+
+			try
+			{
+				destinations.Add(new OneNoteLegacyDestination());
 			}
 			catch
 			{

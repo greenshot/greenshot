@@ -83,9 +83,9 @@ namespace GreenshotBoxPlugin
 			}
 		}
 
-		public IEnumerable<IDestination> Destinations()
+		public IEnumerable<ILegacyDestination> Destinations()
 		{
-			yield return new BoxDestination(this);
+			yield return new BoxLegacyDestination(this);
 		}
 
 

@@ -76,7 +76,7 @@
     </Compile>
     <Compile Include="IPicasaLanguage.cs" />
     <Compile Include="IPicasaConfiguration.cs" />
-    <Compile Include="PicasaDestination.cs" />
+    <Compile Include="PicasaLegacyDestination.cs" />
     <Compile Include="PicasaPlugin.cs" />
     <Compile Include="PicasaUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

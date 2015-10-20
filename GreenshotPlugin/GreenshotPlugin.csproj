@@ -149,6 +149,9 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Core\StreamDelegate.cs" />
     <Compile Include="IEInterop\IWebBrowser2.cs" />
+    <Compile Include="Interfaces\AbstractDestination.cs" />
+    <Compile Include="Interfaces\ExportInformation.cs" />
+    <Compile Include="Interfaces\IDestination.cs" />
     <Compile Include="Interfaces\IGreenshotContract.cs" />
     <Compile Include="Interfaces\Plugin\IGreenshotPluginMetadata.cs" />
     <Compile Include="Interfaces\Plugin\PluginAttribute.cs" />
@@ -232,7 +235,7 @@
     <Compile Include="Controls\ThumbnailForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Core\AbstractDestination.cs" />
+    <Compile Include="Core\AbstractLegacyDestination.cs" />
     <Compile Include="Core\AbstractProcessor.cs" />
     <Compile Include="Core\AccessibleHelper.cs" />
     <Compile Include="Core\AnimationHelpers.cs" />
@@ -263,7 +266,7 @@
     <Compile Include="Interfaces\Drawing\Container.cs" />
     <Compile Include="Interfaces\Forms\ImageEditor.cs" />
     <Compile Include="Interfaces\Generic.cs" />
-    <Compile Include="Interfaces\IDestination.cs" />
+    <Compile Include="Interfaces\ILegacyDestination.cs" />
     <Compile Include="Interfaces\IProcessor.cs" />
     <Compile Include="OAuth\LocalServerCodeReceiver.cs" />
     <Compile Include="OAuth\OAuth2AuthorizeMode.cs" />

@@ -107,7 +107,7 @@ namespace Greenshot.Helpers
 			}
 		}
 
-		public static async Task CaptureRegionAsync(bool captureMouse, IDestination destination, CancellationToken token = default(CancellationToken))
+		public static async Task CaptureRegionAsync(bool captureMouse, ILegacyDestination destination, CancellationToken token = default(CancellationToken))
 		{
 			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse, destination))
 			{
@@ -182,7 +182,7 @@ namespace Greenshot.Helpers
 			}
 		}
 
-		public static async Task CaptureFileAsync(string filename, IDestination destination, CancellationToken token = default(CancellationToken))
+		public static async Task CaptureFileAsync(string filename, ILegacyDestination destination, CancellationToken token = default(CancellationToken))
 		{
 			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.File))
 			{
@@ -199,7 +199,7 @@ namespace Greenshot.Helpers
 			}
 		}
 
-		public CaptureHelper AddDestination(IDestination destination)
+		public CaptureHelper AddDestination(ILegacyDestination destination)
 		{
 			_capture.CaptureDetails.AddDestination(destination);
 			return this;
@@ -222,7 +222,7 @@ namespace Greenshot.Helpers
 			_screenCaptureMode = screenCaptureMode;
 		}
 
-		public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor, IDestination destination) : this(captureMode, captureMouseCursor)
+		public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor, ILegacyDestination destination) : this(captureMode, captureMouseCursor)
 		{
 			_capture.CaptureDetails.AddDestination(destination);
 		}
@@ -588,7 +588,7 @@ namespace Greenshot.Helpers
 		{
 			foreach (string destinationDesignation in conf.OutputDestinations)
 			{
-				IDestination destination = DestinationHelper.GetDestination(destinationDesignation);
+				ILegacyDestination destination = DestinationHelper.GetDestination(destinationDesignation);
 				if (destination != null)
 				{
 					_capture.CaptureDetails.AddDestination(destination);

@@ -1362,7 +1362,7 @@ namespace Greenshot.Forms
 		private void QuickSettingDestinationChanged(object sender, EventArgs e)
 		{
 			ToolStripMenuSelectListItem item = ((ItemCheckedChangedEventArgs) e).Item;
-			IDestination selectedDestination = (IDestination) item.Data;
+			ILegacyDestination selectedDestination = (ILegacyDestination) item.Data;
 			if (item.Checked)
 			{
 				if (selectedDestination.Designation.Equals(BuildInDestinationEnum.Picker.ToString()))

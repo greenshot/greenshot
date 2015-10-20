@@ -66,7 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IDropboxConfiguration.cs" />
-    <Compile Include="DropboxDestination.cs" />
+    <Compile Include="DropboxLegacyDestination.cs" />
     <Compile Include="DropboxPlugin.cs" />
     <Compile Include="DropboxUtils.cs" />
     <Compile Include="Forms\DropboxForm.cs">

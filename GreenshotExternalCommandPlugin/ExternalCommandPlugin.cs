@@ -93,11 +93,11 @@ namespace GreenshotExternalCommandPlugin
 			}
 		}
 
-		public IEnumerable<IDestination> Destinations()
+		public IEnumerable<ILegacyDestination> Destinations()
 		{
 			foreach (string command in ExternalCommandConfiguration.Commands)
 			{
-				yield return new ExternalCommandDestination(command);
+				yield return new ExternalCommandLegacyDestination(command);
 			}
 		}
 

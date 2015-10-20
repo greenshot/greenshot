@@ -37,14 +37,14 @@ namespace GreenshotExternalCommandPlugin
 	/// <summary>
 	/// Description of OCRDestination.
 	/// </summary>
-	public class ExternalCommandDestination : AbstractDestination
+	public class ExternalCommandLegacyDestination : AbstractLegacyDestination
 	{
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ExternalCommandDestination));
+		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ExternalCommandLegacyDestination));
 		private static Regex URI_REGEXP = new Regex(@"(file|ftp|gopher|https?|ldap|mailto|net\.pipe|net\.tcp|news|nntp|telnet|uuid):((((?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)");
 		private static IExternalCommandConfiguration config = IniConfig.Current.Get<IExternalCommandConfiguration>();
 		private string presetCommand;
 
-		public ExternalCommandDestination(string commando)
+		public ExternalCommandLegacyDestination(string commando)
 		{
 			this.presetCommand = commando;
 		}
@@ -65,7 +65,7 @@ namespace GreenshotExternalCommandPlugin
 			}
 		}
 
-		public override IEnumerable<IDestination> DynamicDestinations()
+		public override IEnumerable<ILegacyDestination> DynamicDestinations()
 		{
 			yield break;
 		}

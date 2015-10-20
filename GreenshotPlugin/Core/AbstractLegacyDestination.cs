@@ -35,17 +35,17 @@ using Dapplo.Config.Language;
 namespace GreenshotPlugin.Core
 {
 	/// <summary>
-	/// Description of AbstractDestination.
+	/// Description of AbstractLegacyDestination.
 	/// </summary>
-	public abstract class AbstractDestination : IDestination
+	public abstract class AbstractLegacyDestination : ILegacyDestination
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (AbstractDestination));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (AbstractLegacyDestination));
 		private static readonly ICoreConfiguration configuration = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 
 		public virtual int CompareTo(object obj)
 		{
-			var other = obj as IDestination;
+			var other = obj as ILegacyDestination;
 			if (other == null)
 			{
 				return 1;
@@ -98,7 +98,7 @@ namespace GreenshotPlugin.Core
 			}
 		}
 
-		public virtual IEnumerable<IDestination> DynamicDestinations()
+		public virtual IEnumerable<ILegacyDestination> DynamicDestinations()
 		{
 			yield break;
 		}
@@ -197,7 +197,7 @@ namespace GreenshotPlugin.Core
 		/// <param name="captureDetails">Details for the surface</param>
 		/// <param name="destinations">The list of destinations to show</param>
 		/// <returns></returns>
-		public async Task<ExportInformation> ShowPickerMenuAsync(bool addDynamics, ISurface surface, ICaptureDetails captureDetails, IEnumerable<IDestination> destinations, CancellationToken token = default(CancellationToken))
+		public async Task<ExportInformation> ShowPickerMenuAsync(bool addDynamics, ISurface surface, ICaptureDetails captureDetails, IEnumerable<ILegacyDestination> destinations, CancellationToken token = default(CancellationToken))
 		{
 			// Generate an empty ExportInformation object, for when nothing was selected.
 			var exportInformation = new ExportInformation
@@ -260,7 +260,7 @@ namespace GreenshotPlugin.Core
 							{
 								return;
 							}
-							var clickedDestination = (IDestination) toolStripMenuItem.Tag;
+							var clickedDestination = (ILegacyDestination) toolStripMenuItem.Tag;
 
 							// try to export
 							try
@@ -368,7 +368,7 @@ namespace GreenshotPlugin.Core
 		/// </summary>
 		/// <param name="destination"></param>
 		/// <returns>ToolStripMenuItem</returns>
-		protected ToolStripMenuItem CreateFor(IDestination destination)
+		protected ToolStripMenuItem CreateFor(ILegacyDestination destination)
 		{
 			return new ToolStripMenuItem
 			{

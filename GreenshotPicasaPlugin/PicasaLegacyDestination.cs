@@ -32,9 +32,9 @@ using System.Windows;
 
 namespace GreenshotPicasaPlugin
 {
-	public class PicasaDestination : AbstractDestination
+	public class PicasaLegacyDestination : AbstractLegacyDestination
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (PicasaDestination));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (PicasaLegacyDestination));
 		private static readonly IPicasaConfiguration _config = IniConfig.Current.Get<IPicasaConfiguration>();
 		private static readonly IPicasaLanguage language = LanguageLoader.Current.Get<IPicasaLanguage>();
 

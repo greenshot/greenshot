@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
@@ -19,18 +19,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace Greenshot.Model
+namespace GreenshotPlugin.Interfaces
 {
-	/// <summary>
-	/// Item for a menu, with sub items
-	/// </summary>
-	public class DynamicMenuItem : INotifyPropertyChanged
+	public abstract class AbstractDestination : IDestination
 	{
 		private string _text;
 		private string _shortcut;
@@ -132,10 +130,11 @@ namespace Greenshot.Model
 			}
 		}
 
-		public ObservableCollection<DynamicMenuItem> Children
+		public ObservableCollection<IDestination> Children
 		{
 			get;
 			set;
-		} = new ObservableCollection<DynamicMenuItem>();
+		} = new ObservableCollection<IDestination>();
+
 	}
 }

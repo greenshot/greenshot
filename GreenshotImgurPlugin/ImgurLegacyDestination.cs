@@ -37,14 +37,14 @@ namespace GreenshotImgurPlugin
 	/// <summary>
 	/// Implementation of the Imgur destination.
 	/// </summary>
-	public class ImgurDestination : AbstractDestination
+	public class ImgurLegacyDestination : AbstractLegacyDestination
 	{
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ImgurDestination));
+		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ImgurLegacyDestination));
 		private static readonly IImgurConfiguration config = IniConfig.Current.Get<IImgurConfiguration>();
 		private static readonly IImgurLanguage imgurLanguage = LanguageLoader.Current.Get<IImgurLanguage>();
 		private ImgurPlugin _plugin = null;
 
-		public ImgurDestination(ImgurPlugin plugin)
+		public ImgurLegacyDestination(ImgurPlugin plugin)
 		{
 			this._plugin = plugin;
 		}

@@ -82,9 +82,9 @@ namespace GreenshotPhotobucketPlugin
 			}
 		}
 
-		public IEnumerable<IDestination> Destinations()
+		public IEnumerable<ILegacyDestination> Destinations()
 		{
-			yield return new PhotobucketDestination();
+			yield return new PhotobucketLegacyDestination();
 		}
 
 		public IEnumerable<IProcessor> Processors()

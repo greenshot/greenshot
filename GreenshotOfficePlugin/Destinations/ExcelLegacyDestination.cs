@@ -36,15 +36,15 @@ namespace GreenshotOfficePlugin
 	/// <summary>
 	/// ExcelDestination
 	/// </summary>
-	public class ExcelDestination : AbstractDestination
+	public class ExcelLegacyDestination : AbstractLegacyDestination
 	{
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ExcelDestination));
+		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ExcelLegacyDestination));
 		private const int ICON_APPLICATION = 0;
 		private const int ICON_WORKBOOK = 1;
 		private static string exePath = null;
 		private string _workbookName = null;
 
-		static ExcelDestination()
+		static ExcelLegacyDestination()
 		{
 			exePath = PluginUtils.GetExePath("EXCEL.EXE");
 			if (exePath != null && File.Exists(exePath))
@@ -57,11 +57,11 @@ namespace GreenshotOfficePlugin
 			}
 		}
 
-		public ExcelDestination()
+		public ExcelLegacyDestination()
 		{
 		}
 
-		public ExcelDestination(string workbookName)
+		public ExcelLegacyDestination(string workbookName)
 		{
 			_workbookName = workbookName;
 		}
@@ -125,11 +125,11 @@ namespace GreenshotOfficePlugin
 			}
 		}
 
-		public override IEnumerable<IDestination> DynamicDestinations()
+		public override IEnumerable<ILegacyDestination> DynamicDestinations()
 		{
 			return from workbookname in ExcelExporter.GetWorkbooks()
 				orderby workbookname
-				select new ExcelDestination(workbookname);
+				select new ExcelLegacyDestination(workbookname);
 		}
 
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))

@@ -20,56 +20,56 @@
  */
 
 using Greenshot.Plugin;
-using GreenshotOfficePlugin.OfficeExport;
 using GreenshotPlugin.Core;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
-using System.Threading;
+using System.Linq;
+using GreenshotOfficePlugin.OfficeExport;
 using System.Threading.Tasks;
+using System.Threading;
+using Dapplo.Config.Language;
+using GreenshotPlugin.Configuration;
 
 namespace GreenshotOfficePlugin
 {
 	/// <summary>
-	/// Description of PowerpointDestination.
+	/// Description of EmailDestination.
 	/// </summary>
-	public class PowerpointDestination : AbstractDestination
+	public class WordLegacyDestination : AbstractLegacyDestination
 	{
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (PowerpointDestination));
+		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (WordLegacyDestination));
+		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		private const int ICON_APPLICATION = 0;
-		private const int ICON_PRESENTATION = 1;
+		private const int ICON_DOCUMENT = 1;
+		private static readonly string exePath;
+		private readonly string _documentCaption;
 
-		private static string exePath = null;
-		private string presentationName = null;
-
-		static PowerpointDestination()
+		static WordLegacyDestination()
 		{
-			exePath = PluginUtils.GetExePath("POWERPNT.EXE");
-			if (exePath != null && File.Exists(exePath))
-			{
-				WindowDetails.AddProcessToExcludeFromFreeze("powerpnt");
-			}
-			else
+			exePath = PluginUtils.GetExePath("WINWORD.EXE");
+			if (exePath != null && !File.Exists(exePath))
 			{
 				exePath = null;
 			}
 		}
 
-		public PowerpointDestination()
+		public WordLegacyDestination()
 		{
 		}
 
-		public PowerpointDestination(string presentationName)
+		public WordLegacyDestination(string wordCaption)
 		{
-			this.presentationName = presentationName;
+			_documentCaption = wordCaption;
 		}
 
 		public override string Designation
 		{
 			get
 			{
-				return "Powerpoint";
+				return "Word";
 			}
 		}
 
@@ -77,13 +77,13 @@ namespace GreenshotOfficePlugin
 		{
 			get
 			{
-				if (presentationName == null)
+				if (_documentCaption == null)
 				{
-					return "Microsoft Powerpoint";
+					return "Microsoft Word";
 				}
 				else
 				{
-					return presentationName;
+					return _documentCaption;
 				}
 			}
 		}
@@ -116,21 +116,19 @@ namespace GreenshotOfficePlugin
 		{
 			get
 			{
-				if (!string.IsNullOrEmpty(presentationName))
+				if (!string.IsNullOrEmpty(_documentCaption))
 				{
-					return PluginUtils.GetCachedExeIcon(exePath, ICON_PRESENTATION);
+					return PluginUtils.GetCachedExeIcon(exePath, ICON_DOCUMENT);
 				}
-
 				return PluginUtils.GetCachedExeIcon(exePath, ICON_APPLICATION);
 			}
 		}
 
-		public override IEnumerable<IDestination> DynamicDestinations()
+		public override IEnumerable<ILegacyDestination> DynamicDestinations()
 		{
-			foreach (string presentationName in PowerpointExporter.GetPowerpointPresentations())
-			{
-				yield return new PowerpointDestination(presentationName);
-			}
+			return from caption in WordExporter.GetWordDocuments()
+				orderby caption
+				select new WordLegacyDestination(caption);
 		}
 
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
@@ -140,40 +138,75 @@ namespace GreenshotOfficePlugin
 				DestinationDesignation = Designation, DestinationDescription = Description
 			};
 			string tmpFile = captureDetails.Filename;
-			Size imageSize = Size.Empty;
 			if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
 			{
 				tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
-				imageSize = surface.Image.Size;
 			}
-			if (presentationName != null)
+			if (_documentCaption != null)
 			{
-				exportInformation.ExportMade = PowerpointExporter.ExportToPresentation(presentationName, tmpFile, imageSize, captureDetails.Title);
+				try
+				{
+					WordExporter.InsertIntoExistingDocument(_documentCaption, tmpFile);
+					exportInformation.ExportMade = true;
+				}
+				catch (Exception)
+				{
+					try
+					{
+						WordExporter.InsertIntoExistingDocument(_documentCaption, tmpFile);
+						exportInformation.ExportMade = true;
+					}
+					catch (Exception ex)
+					{
+						LOG.Error(ex);
+						// TODO: Change to general logic in ProcessExport
+						surface.SendMessageEvent(this, SurfaceMessageTyp.Error, string.Format(language.DestinationExportFailed, Description));
+					}
+				}
 			}
 			else
 			{
 				if (!manuallyInitiated)
 				{
+					var wordDestinations = from caption in WordExporter.GetWordDocuments()
+						orderby caption
+						select new WordLegacyDestination(caption);
 					bool initialValue = false;
-					IList<IDestination> destinations = new List<IDestination>();
-					foreach (var presentation in PowerpointExporter.GetPowerpointPresentations())
+					List<ILegacyDestination> destinations = new List<ILegacyDestination>();
+					foreach (var wordDestination in wordDestinations)
 					{
 						if (!initialValue)
 						{
-							destinations.Add(new PowerpointDestination());
 							initialValue = true;
+							destinations.Add(new WordLegacyDestination());
 						}
-						destinations.Add(new PowerpointDestination(presentation));
+						destinations.Add(wordDestination);
 					}
+
 					if (destinations.Count > 0)
 					{
 						// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
 						return await ShowPickerMenuAsync(false, surface, captureDetails, destinations, token).ConfigureAwait(false);
 					}
 				}
-				else if (!exportInformation.ExportMade)
+				try
 				{
-					exportInformation.ExportMade = PowerpointExporter.InsertIntoNewPresentation(tmpFile, imageSize, captureDetails.Title);
+					WordExporter.InsertIntoNewDocument(tmpFile, null, null);
+					exportInformation.ExportMade = true;
+				}
+				catch (Exception)
+				{
+					// Retry once, just in case
+					try
+					{
+						WordExporter.InsertIntoNewDocument(tmpFile, null, null);
+						exportInformation.ExportMade = true;
+					}
+					catch (Exception ex)
+					{
+						LOG.Error(ex);
+						exportInformation.ErrorMessage = string.Format(language.DestinationExportFailed, Description);
+					}
 				}
 			}
 			ProcessExport(exportInformation, surface);

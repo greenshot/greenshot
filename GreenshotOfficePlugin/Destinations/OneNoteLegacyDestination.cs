@@ -31,15 +31,15 @@ using System.Threading.Tasks;
 
 namespace GreenshotOfficePlugin
 {
-	public class OneNoteDestination : AbstractDestination
+	public class OneNoteLegacyDestination : AbstractLegacyDestination
 	{
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (WordDestination));
+		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (WordLegacyDestination));
 		private const int ICON_APPLICATION = 0;
 		public const string DESIGNATION = "OneNote";
 		private static string exePath = null;
 		private OneNotePage page = null;
 
-		static OneNoteDestination()
+		static OneNoteLegacyDestination()
 		{
 			exePath = PluginUtils.GetExePath("ONENOTE.EXE");
 			if (exePath != null && File.Exists(exePath))
@@ -52,11 +52,11 @@ namespace GreenshotOfficePlugin
 			}
 		}
 
-		public OneNoteDestination()
+		public OneNoteLegacyDestination()
 		{
 		}
 
-		public OneNoteDestination(OneNotePage page)
+		public OneNoteLegacyDestination(OneNotePage page)
 		{
 			this.page = page;
 		}
@@ -116,11 +116,11 @@ namespace GreenshotOfficePlugin
 			}
 		}
 
-		public override IEnumerable<IDestination> DynamicDestinations()
+		public override IEnumerable<ILegacyDestination> DynamicDestinations()
 		{
 			foreach (var page in OneNoteExporter.GetPages())
 			{
-				yield return new OneNoteDestination(page);
+				yield return new OneNoteLegacyDestination(page);
 			}
 		}
 

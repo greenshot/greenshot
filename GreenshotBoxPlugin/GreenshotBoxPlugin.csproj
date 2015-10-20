@@ -67,8 +67,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IBoxConfiguration.cs" />
     <Compile Include="BoxDestination.cs" />
+    <Compile Include="IBoxConfiguration.cs" />
+    <Compile Include="BoxLegacyDestination.cs" />
     <Compile Include="BoxPlugin.cs" />
     <Compile Include="BoxUtils.cs" />
     <Compile Include="Forms\BoxForm.cs">

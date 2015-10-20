@@ -39,19 +39,19 @@ namespace Greenshot.Destinations
 	/// <summary>
 	/// Description of PrinterDestination.
 	/// </summary>
-	public class PrinterDestination : AbstractDestination
+	public class PrinterLegacyDestination : AbstractLegacyDestination
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (PrinterDestination));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (PrinterLegacyDestination));
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		public const string DESIGNATION = "Printer";
 		private readonly string _printerName;
 
-		public PrinterDestination()
+		public PrinterLegacyDestination()
 		{
 		}
 
-		public PrinterDestination(string printerName)
+		public PrinterLegacyDestination(string printerName)
 		{
 			_printerName = printerName;
 		}
@@ -112,7 +112,7 @@ namespace Greenshot.Destinations
 		/// Create destinations for all the installed printers
 		/// </summary>
 		/// <returns>IEnumerable<IDestination></returns>
-		public override IEnumerable<IDestination> DynamicDestinations()
+		public override IEnumerable<ILegacyDestination> DynamicDestinations()
 		{
 			PrinterSettings settings = new PrinterSettings();
 			string defaultPrinter = settings.PrinterName;
@@ -136,7 +136,7 @@ namespace Greenshot.Destinations
 			});
 			foreach (string printer in printers)
 			{
-				yield return new PrinterDestination(printer);
+				yield return new PrinterLegacyDestination(printer);
 			}
 		}
 

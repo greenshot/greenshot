@@ -84,9 +84,9 @@ namespace GreenshotFlickrPlugin
 			_itemPlugInConfig = null;
 		}
 
-		public IEnumerable<IDestination> Destinations()
+		public IEnumerable<ILegacyDestination> Destinations()
 		{
-			yield return new FlickrDestination();
+			yield return new FlickrLegacyDestination();
 		}
 
 		public IEnumerable<IProcessor> Processors()

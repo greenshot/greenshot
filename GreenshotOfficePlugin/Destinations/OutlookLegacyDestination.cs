@@ -38,9 +38,9 @@ namespace GreenshotOfficePlugin
 	/// <summary>
 	/// Description of OutlookDestination.
 	/// </summary>
-	public class OutlookDestination : AbstractDestination
+	public class OutlookLegacyDestination : AbstractLegacyDestination
 	{
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (OutlookDestination));
+		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (OutlookLegacyDestination));
 		private const int ICON_APPLICATION = 0;
 		private const int ICON_MEETING = 2;
 		private const string OUTLOOK_PATH_KEY = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\OUTLOOK.EXE";
@@ -54,7 +54,7 @@ namespace GreenshotOfficePlugin
 		private string outlookInspectorCaption;
 		private Outlook.OlObjectClass outlookInspectorType;
 
-		static OutlookDestination()
+		static OutlookLegacyDestination()
 		{
 			if (HasOutlook())
 			{
@@ -75,12 +75,12 @@ namespace GreenshotOfficePlugin
 			}
 		}
 
-		public OutlookDestination()
+		public OutlookLegacyDestination()
 		{
 			// Destination new message
 		}
 
-		public OutlookDestination(string outlookInspectorCaption, Outlook.OlObjectClass outlookInspectorType)
+		public OutlookLegacyDestination(string outlookInspectorCaption, Outlook.OlObjectClass outlookInspectorType)
 		{
 			this.outlookInspectorCaption = outlookInspectorCaption;
 			this.outlookInspectorType = outlookInspectorType;
@@ -164,14 +164,14 @@ namespace GreenshotOfficePlugin
 			}
 		}
 
-		public override IEnumerable<IDestination> DynamicDestinations()
+		public override IEnumerable<ILegacyDestination> DynamicDestinations()
 		{
 			IDictionary<string, Outlook.OlObjectClass> inspectorCaptions = OutlookExporter.RetrievePossibleTargets();
 			if (inspectorCaptions != null)
 			{
 				foreach (string inspectorCaption in inspectorCaptions.Keys)
 				{
-					yield return new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption]);
+					yield return new OutlookLegacyDestination(inspectorCaption, inspectorCaptions[inspectorCaption]);
 				}
 			}
 		}
@@ -228,11 +228,11 @@ namespace GreenshotOfficePlugin
 				IDictionary<string, Outlook.OlObjectClass> inspectorCaptions = OutlookExporter.RetrievePossibleTargets();
 				if (!manuallyInitiated && inspectorCaptions != null && inspectorCaptions.Count > 0)
 				{
-					List<IDestination> destinations = new List<IDestination>();
-					destinations.Add(new OutlookDestination());
+					List<ILegacyDestination> destinations = new List<ILegacyDestination>();
+					destinations.Add(new OutlookLegacyDestination());
 					foreach (string inspectorCaption in inspectorCaptions.Keys)
 					{
-						destinations.Add(new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption]));
+						destinations.Add(new OutlookLegacyDestination(inspectorCaption, inspectorCaptions[inspectorCaption]));
 					}
 					// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
 					return await ShowPickerMenuAsync(false, surface, captureDetails, destinations, token).ConfigureAwait(false);

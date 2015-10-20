@@ -19,69 +19,52 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Windows;
 using log4net;
 using System;
-using System.ComponentModel;
-using System.Drawing;
+using System.ComponentModel.Composition;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using Dapplo.Config.Language;
-using GreenshotPlugin.Configuration;
+using GreenshotPlugin.Interfaces;
 
 namespace GreenshotBoxPlugin
 {
 	public class BoxDestination : AbstractDestination
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (BoxDestination));
-		private static readonly IBoxConfiguration _config = IniConfig.Current.Get<IBoxConfiguration>();
-		private static readonly IBoxLanguage language = LanguageLoader.Current.Get<IBoxLanguage>();
+		private const string Designation = "Box";
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (BoxLegacyDestination));
 
-		private readonly BoxPlugin _plugin;
-
-		public BoxDestination(BoxPlugin plugin)
+		[Import]
+		public IBoxConfiguration BoxConfiguration
 		{
-			_plugin = plugin;
+			get;
+			set;
 		}
 
-		public override string Designation
+		[Import]
+		public IBoxLanguage BoxLanguage
 		{
-			get
-			{
-				return "Box";
-			}
+			get;
+			set;
 		}
 
-		public override string Description
+		public BoxDestination()
 		{
-			get
-			{
-				return language.UploadMenuItem;
-			}
+			Command = new AsyncCommand(async o => await Task.Delay(1), o => true, true);
 		}
 
-		public override Image DisplayIcon
-		{
-			get
-			{
-				ComponentResourceManager resources = new ComponentResourceManager(typeof (BoxPlugin));
-				return (Image) resources.GetObject("Box");
-			}
-		}
-
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		private async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
 		{
 			var exportInformation = new ExportInformation
 			{
-				DestinationDesignation = Designation, DestinationDescription = Description
+				DestinationDesignation = Designation, DestinationDescription = BoxLanguage.UploadMenuItem
 			};
 			try
 			{
-				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, language.CommunicationWait, async (progress, pleaseWaitToken) =>
+				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, BoxLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
 				{
 					return await BoxUtils.UploadToBoxAsync(surface, captureDetails, progress, token);
 				}, token);
@@ -89,7 +72,7 @@ namespace GreenshotBoxPlugin
 				if (url != null)
 				{
 					exportInformation.ExportedToUri = new Uri(url);
-					if (_config.AfterUploadLinkToClipBoard)
+					if (BoxConfiguration.AfterUploadLinkToClipBoard)
 					{
 						ClipboardHelper.SetClipboardData(url);
 					}
@@ -106,9 +89,9 @@ namespace GreenshotBoxPlugin
 			{
 				exportInformation.ErrorMessage = e.Message;
 				LOG.Warn(e);
-				MessageBox.Show(language.UploadFailure + " " + e.Message, Designation, MessageBoxButton.OK, MessageBoxImage.Error);
+				MessageBox.Show(BoxLanguage.UploadFailure + " " + e.Message, Designation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
-			ProcessExport(exportInformation, surface);
+			//ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
 	}

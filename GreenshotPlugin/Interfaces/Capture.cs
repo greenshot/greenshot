@@ -50,7 +50,7 @@ namespace Greenshot.Plugin
 			set;
 		}
 
-		List<IDestination> CaptureDestinations
+		List<ILegacyDestination> CaptureDestinations
 		{
 			get;
 			set;
@@ -69,8 +69,8 @@ namespace Greenshot.Plugin
 		void AddMetaData(string key, string value);
 
 		void ClearDestinations();
-		void RemoveDestination(IDestination captureDestination);
-		void AddDestination(IDestination captureDestination);
+		void RemoveDestination(ILegacyDestination captureDestination);
+		void AddDestination(ILegacyDestination captureDestination);
 		bool HasDestination(string designation);
 
 		CaptureMode CaptureMode

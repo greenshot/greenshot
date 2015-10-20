@@ -19,24 +19,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Collections.Generic;
+using System.Drawing;
+using System.Windows.Forms;
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Dapplo.Config.Ini;
 using log4net;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 using Dapplo.Config.Language;
 using GreenshotPlugin.Configuration;
 
 namespace Greenshot.Destinations
 {
 	/// <summary>
-	/// The PickerDestination shows a context menu with all possible destinations, so the user can "pick" one
+	/// Description of FileWithDialog.
 	/// </summary>
-	public class PickerDestination : AbstractDestination
+	public class FileWithDialogLegacyDestination : AbstractLegacyDestination
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (PickerDestination));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (FileWithDialogLegacyDestination));
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 
@@ -44,7 +45,7 @@ namespace Greenshot.Destinations
 		{
 			get
 			{
-				return BuildInDestinationEnum.Picker.ToString();
+				return BuildInDestinationEnum.FileDialog.ToString();
 			}
 		}
 
@@ -52,7 +53,7 @@ namespace Greenshot.Destinations
 		{
 			get
 			{
-				return language.SettingsDestinationPicker;
+				return language.SettingsDestinationFileas;
 			}
 		}
 
@@ -60,36 +61,44 @@ namespace Greenshot.Destinations
 		{
 			get
 			{
-				return 1;
+				return 0;
 			}
 		}
 
+		public override Keys EditorShortcutKeys
+		{
+			get
+			{
+				return Keys.Control | Keys.Shift | Keys.S;
+			}
+		}
 
-		/// <summary>
-		/// Export the capture with the destination picker
-		/// </summary>
-		/// <param name="manuallyInitiated">Did the user select this destination?</param>
-		/// <param name="surface">Surface to export</param>
-		/// <param name="captureDetails">Details of the capture</param>
-		/// <returns>true if export was made</returns>
+		public override Image DisplayIcon
+		{
+			get
+			{
+				return GreenshotResources.GetImage("Save.Image");
+			}
+		}
+
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
 		{
-			IList<IDestination> destinations = new List<IDestination>();
-			foreach (IDestination destination in DestinationHelper.GetAllDestinations())
+			var exportInformation = new ExportInformation
 			{
-				if ("Picker".Equals(destination.Designation))
-				{
-					continue;
-				}
-				if (!destination.IsActive)
-				{
-					continue;
-				}
-				destinations.Add(destination);
-			}
+				DestinationDesignation = Designation, DestinationDescription = Description
+			};
+			string savedTo = await Task.Factory.StartNew(() => ImageOutput.SaveWithDialog(surface, captureDetails), token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
 
-			// No Processing, this is done in the selected destination (if anything was selected)
-			return await ShowPickerMenuAsync(true, surface, captureDetails, destinations, token);
+			// Bug #2918756 don't overwrite path if SaveWithDialog returns null!
+			if (savedTo != null)
+			{
+				exportInformation.ExportMade = true;
+				exportInformation.Filepath = savedTo;
+				captureDetails.Filename = savedTo;
+				conf.OutputFileAsFullpath = savedTo;
+			}
+			ProcessExport(exportInformation, surface);
+			return exportInformation;
 		}
 	}
 }

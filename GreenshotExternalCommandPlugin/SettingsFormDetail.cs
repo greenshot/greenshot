@@ -143,7 +143,7 @@ namespace GreenshotExternalCommandPlugin
 			// Are the arguments in a valid format? 
 			try
 			{
-				ExternalCommandDestination.FormatArguments(textBox_arguments.Text, string.Empty);
+				ExternalCommandLegacyDestination.FormatArguments(textBox_arguments.Text, string.Empty);
 			}
 			catch
 			{

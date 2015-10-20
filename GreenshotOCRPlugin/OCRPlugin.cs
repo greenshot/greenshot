@@ -68,11 +68,11 @@ namespace GreenshotOCR
 			}
 		}
 
-		public IEnumerable<IDestination> Destinations()
+		public IEnumerable<ILegacyDestination> Destinations()
 		{
 			if (HasModi())
 			{
-				yield return new OCRDestination(OcrCommand);
+				yield return new OcrLegacyDestination(OcrCommand);
 			}
 		}
 

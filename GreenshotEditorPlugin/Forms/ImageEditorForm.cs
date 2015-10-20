@@ -119,7 +119,7 @@ namespace GreenshotEditorPlugin.Forms
 				// Create export buttons via dispatcher
 				this.AsyncInvoke(() =>
 				{
-					foreach (IDestination destination in DestinationHelper.GetAllDestinations())
+					foreach (ILegacyDestination destination in DestinationHelper.GetAllDestinations())
 					{
 						if (destination.Priority <= 2)
 						{
@@ -318,7 +318,7 @@ namespace GreenshotEditorPlugin.Forms
 			}
 		}
 
-		private void AddDestinationButton(IDestination toolstripDestination)
+		private void AddDestinationButton(ILegacyDestination toolstripDestination)
 		{
 			var destinationButton = new ToolStripSplitButton();
 			if (toolstripDestination.IsDynamic)
@@ -349,14 +349,14 @@ namespace GreenshotEditorPlugin.Forms
 					ClearItems(destinationButton.DropDownItems);
 					destinationButton.DropDownItems.Add(defaultItem);
 
-					List<IDestination> subDestinations = new List<IDestination>();
+					List<ILegacyDestination> subDestinations = new List<ILegacyDestination>();
 					subDestinations.AddRange(toolstripDestination.DynamicDestinations());
 					if (subDestinations.Count > 0)
 					{
 						subDestinations.Sort();
-						foreach (IDestination subDestination in subDestinations)
+						foreach (ILegacyDestination subDestination in subDestinations)
 						{
-							IDestination closureFixedDestination = subDestination;
+							ILegacyDestination closureFixedDestination = subDestination;
 							ToolStripMenuItem destinationMenuItem = new ToolStripMenuItem(closureFixedDestination.Description);
 							destinationMenuItem.Tag = closureFixedDestination;
 							destinationMenuItem.Image = closureFixedDestination.DisplayIcon;
@@ -406,7 +406,7 @@ namespace GreenshotEditorPlugin.Forms
 			ClearItems(fileStripMenuItem.DropDownItems);
 
 			// Add the destinations
-			foreach (IDestination destination in DestinationHelper.GetAllDestinations())
+			foreach (ILegacyDestination destination in DestinationHelper.GetAllDestinations())
 			{
 				if (ignoreDestinations.Contains(destination.Designation))
 				{
@@ -1052,7 +1052,7 @@ namespace GreenshotEditorPlugin.Forms
 				// Go through the destinations to check the EditorShortcut Keys
 				// this way the menu entries don't need to be enabled.
 				// This also fixes bugs #3526974 & #3527020
-				foreach (IDestination destinationLV in DestinationHelper.GetAllDestinations())
+				foreach (ILegacyDestination destinationLV in DestinationHelper.GetAllDestinations())
 				{
 					var destination = destinationLV; // Capture the loop variable
 					if (ignoreDestinations.Contains(destination.Designation))
@@ -1405,7 +1405,7 @@ namespace GreenshotEditorPlugin.Forms
 
 		private async void DestinationToolStripMenuItemClickAsync(object sender, EventArgs e)
 		{
-			IDestination clickedDestination = null;
+			ILegacyDestination clickedDestination = null;
 			if (sender is Control)
 			{
 				Control clickedControl = sender as Control;
@@ -1414,12 +1414,12 @@ namespace GreenshotEditorPlugin.Forms
 					clickedControl.ContextMenuStrip.Show(Cursor.Position);
 					return;
 				}
-				clickedDestination = (IDestination) clickedControl.Tag;
+				clickedDestination = (ILegacyDestination) clickedControl.Tag;
 			}
 			else if (sender is ToolStripMenuItem)
 			{
 				ToolStripMenuItem clickedMenuItem = sender as ToolStripMenuItem;
-				clickedDestination = (IDestination) clickedMenuItem.Tag;
+				clickedDestination = (ILegacyDestination) clickedMenuItem.Tag;
 			}
 			if (clickedDestination != null)
 			{

@@ -72,9 +72,9 @@ namespace GreenshotJiraPlugin
 			}
 		}
 
-		public IEnumerable<IDestination> Destinations()
+		public IEnumerable<ILegacyDestination> Destinations()
 		{
-			yield return new JiraDestination(this);
+			yield return new JiraLegacyDestination(this);
 		}
 
 		public IEnumerable<IProcessor> Processors()

@@ -36,9 +36,9 @@ namespace Greenshot.Destinations
 	/// <summary>
 	/// Description of ClipboardDestination.
 	/// </summary>
-	public class ClipboardDestination : AbstractDestination
+	public class ClipboardLegacyDestination : AbstractLegacyDestination
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (ClipboardDestination));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (ClipboardLegacyDestination));
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		public const string DESIGNATION = "Clipboard";

@@ -62,13 +62,13 @@ namespace Greenshot.Plugin
 		/// </summary>
 		/// <param name="destination"></param>
 		/// <returns>IDestination</returns>
-		IDestination GetDestination(string designation);
+		ILegacyDestination GetDestination(string designation);
 
 		/// <summary>
 		/// Get a list of all available destinations
 		/// </summary>
 		/// <returns>List<IDestination></returns>
-		List<IDestination> GetAllDestinations();
+		List<ILegacyDestination> GetAllDestinations();
 
 		/// <summary>
 		/// Use the supplied capture, and handle it as if it's captured.

@@ -38,19 +38,19 @@ namespace GreenshotEditorPlugin
 	/// <summary>
 	/// Description of EditorDestination.
 	/// </summary>
-	public class EditorDestination : AbstractDestination
+	public class EditorLegacyDestination : AbstractLegacyDestination
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (EditorDestination));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (EditorLegacyDestination));
 		private static IEditorConfiguration editorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
 		private static readonly IEditorLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		private IImageEditor editor = null;
 		private static Image greenshotIcon = GreenshotResources.GetGreenshotIcon().ToBitmap();
 
-		public EditorDestination()
+		public EditorLegacyDestination()
 		{
 		}
 
-		public EditorDestination(IImageEditor editor)
+		public EditorLegacyDestination(IImageEditor editor)
 		{
 			this.editor = editor;
 		}
@@ -99,11 +99,11 @@ namespace GreenshotEditorPlugin
 			}
 		}
 
-		public override IEnumerable<IDestination> DynamicDestinations()
+		public override IEnumerable<ILegacyDestination> DynamicDestinations()
 		{
 			foreach (IImageEditor editor in ImageEditorForm.Editors)
 			{
-				yield return new EditorDestination(editor);
+				yield return new EditorLegacyDestination(editor);
 			}
 		}
 

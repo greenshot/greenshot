@@ -61,7 +61,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExternalCommandDestination.cs" />
+    <Compile Include="ExternalCommandLegacyDestination.cs" />
     <Compile Include="ExternalCommandForm.cs">
       <SubType>Form</SubType>
     </Compile>

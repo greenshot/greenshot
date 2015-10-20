@@ -83,9 +83,9 @@ namespace GreenshotDropboxPlugin
 			}
 		}
 
-		public IEnumerable<IDestination> Destinations()
+		public IEnumerable<ILegacyDestination> Destinations()
 		{
-			yield return new DropboxDestination(this);
+			yield return new DropboxLegacyDestination(this);
 		}
 
 

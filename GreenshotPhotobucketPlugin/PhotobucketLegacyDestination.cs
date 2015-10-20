@@ -38,14 +38,14 @@ namespace GreenshotPhotobucketPlugin
 	/// <summary>
 	/// Description of PhotobucketDestination.
 	/// </summary>
-	public class PhotobucketDestination : AbstractDestination
+	public class PhotobucketLegacyDestination : AbstractLegacyDestination
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (PhotobucketDestination));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (PhotobucketLegacyDestination));
 		private static readonly IPhotobucketConfiguration Config = IniConfig.Current.Get<IPhotobucketConfiguration>();
 		private static readonly IPhotobucketLanguage Language = LanguageLoader.Current.Get<IPhotobucketLanguage>();
 		private readonly string _albumPath;
 
-		public PhotobucketDestination()
+		public PhotobucketLegacyDestination()
 		{
 		}
 
@@ -53,7 +53,7 @@ namespace GreenshotPhotobucketPlugin
 		/// Create a Photobucket destination, which also has the path to the album in it
 		/// </summary>
 		/// <param name="albumPath">path to the album, null for default</param>
-		public PhotobucketDestination(string albumPath)
+		public PhotobucketLegacyDestination(string albumPath)
 		{
 			_albumPath = albumPath;
 		}
@@ -95,7 +95,7 @@ namespace GreenshotPhotobucketPlugin
 			}
 		}
 
-		public override IEnumerable<IDestination> DynamicDestinations()
+		public override IEnumerable<ILegacyDestination> DynamicDestinations()
 		{
 			var albums = Task.Run(async () => await PhotobucketUtils.RetrievePhotobucketAlbums()).GetAwaiter().GetResult();
 
@@ -105,7 +105,7 @@ namespace GreenshotPhotobucketPlugin
 			}
 			foreach (string album in albums)
 			{
-				yield return new PhotobucketDestination(album);
+				yield return new PhotobucketLegacyDestination(album);
 			}
 		}
 

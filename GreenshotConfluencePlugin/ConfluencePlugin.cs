@@ -67,11 +67,11 @@ namespace GreenshotConfluencePlugin
 			//if (disposing) {}
 		}
 
-		public IEnumerable<IDestination> Destinations()
+		public IEnumerable<ILegacyDestination> Destinations()
 		{
-			if (ConfluenceDestination.IsInitialized)
+			if (ConfluenceLegacyDestination.IsInitialized)
 			{
-				yield return new ConfluenceDestination();
+				yield return new ConfluenceLegacyDestination();
 			}
 		}
 

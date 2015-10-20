@@ -57,9 +57,9 @@ namespace GreenshotEditorPlugin
 			}
 		}
 
-		public IEnumerable<IDestination> Destinations()
+		public IEnumerable<ILegacyDestination> Destinations()
 		{
-			yield return new EditorDestination();
+			yield return new EditorLegacyDestination();
 		}
 
 		public IEnumerable<IProcessor> Processors()

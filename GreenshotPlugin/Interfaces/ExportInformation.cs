@@ -20,20 +20,48 @@
  */
 
 using System;
-using System.Collections.Generic;
 
 namespace Greenshot.Plugin
 {
-	public interface IGreenshotPlugin : IDisposable
+	public class ExportInformation
 	{
-		/// <summary>
-		/// Return IDestination's, if the plugin wants to
-		/// </summary>
-		IEnumerable<ILegacyDestination> Destinations();
+		public string DestinationDesignation
+		{
+			get;
+			set;
+		}
+
+		public string DestinationDescription
+		{
+			get;
+			set;
+		}
 
 		/// <summary>
-		/// Return IProcessor's, if the plugin wants to
+		/// Set to true to specify if the export worked.
 		/// </summary>
-		IEnumerable<IProcessor> Processors();
+		public bool ExportMade
+		{
+			get;
+			set;
+		}
+
+		public Uri ExportedToUri
+		{
+			get;
+			set;
+		}
+
+		public string ErrorMessage
+		{
+			get;
+			set;
+		}
+
+		public string Filepath
+		{
+			get;
+			set;
+		}
 	}
 }

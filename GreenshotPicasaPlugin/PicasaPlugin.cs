@@ -82,9 +82,9 @@ namespace GreenshotPicasaPlugin
 			set;
 		}
 
-		public IEnumerable<IDestination> Destinations()
+		public IEnumerable<ILegacyDestination> Destinations()
 		{
-			yield return new PicasaDestination();
+			yield return new PicasaLegacyDestination();
 		}
 
 

@@ -73,7 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IConfluenceConfiguration.cs" />
-    <Compile Include="ConfluenceDestination.cs" />
+    <Compile Include="ConfluenceLegacyDestination.cs" />
     <Compile Include="ConfluencePlugin.cs" />
     <Compile Include="ConfluenceUtils.cs" />
     <Compile Include="EnumDisplayer.cs" />

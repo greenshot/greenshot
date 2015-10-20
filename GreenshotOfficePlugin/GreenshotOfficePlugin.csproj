@@ -108,11 +108,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Destinations\OutlookDestination.cs" />
-    <Compile Include="Destinations\ExcelDestination.cs" />
-    <Compile Include="Destinations\OneNoteDestination.cs" />
-    <Compile Include="Destinations\PowerpointDestination.cs" />
-    <Compile Include="Destinations\WordDestination.cs" />
+    <Compile Include="Destinations\OutlookLegacyDestination.cs" />
+    <Compile Include="Destinations\ExcelLegacyDestination.cs" />
+    <Compile Include="Destinations\OneNoteLegacyDestination.cs" />
+    <Compile Include="Destinations\PowerpointLegacyDestination.cs" />
+    <Compile Include="Destinations\WordLegacyDestination.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="IOfficeConfiguration.cs" />
     <Compile Include="OfficeExport\OfficeVersion.cs" />

@@ -163,7 +163,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Drawing\TextContainer.cs" />
-    <Compile Include="EditorDestination.cs" />
+    <Compile Include="EditorLegacyDestination.cs" />
     <Compile Include="Forms\BaseForm.cs">
       <SubType>Form</SubType>
     </Compile>

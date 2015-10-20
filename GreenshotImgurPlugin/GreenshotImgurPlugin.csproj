@@ -80,7 +80,7 @@
     <Compile Include="Forms\SettingsForm.Designer.cs">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="ImgurDestination.cs" />
+    <Compile Include="ImgurLegacyDestination.cs" />
     <Compile Include="ImgurInfo.cs" />
     <Compile Include="ImgurPlugin.cs" />
     <Compile Include="IImgurConfiguration.cs" />

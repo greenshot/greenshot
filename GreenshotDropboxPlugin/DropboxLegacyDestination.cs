@@ -19,33 +19,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.ComponentModel;
-using System.Drawing;
+using Dapplo.Config.Ini;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using log4net;
-using System.IO;
+using GreenshotPlugin.Windows;
 using System;
-using System.Windows;
+using System.ComponentModel;
+using System.Drawing;
+using System.IO;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using GreenshotPlugin.Windows;
-using Dapplo.Config.Ini;
+using System.Windows;
 using Dapplo.Config.Language;
+using log4net;
 
-namespace GreenshotFlickrPlugin
+namespace GreenshotDropboxPlugin
 {
-	public class FlickrDestination : AbstractDestination
+	internal class DropboxLegacyDestination : AbstractLegacyDestination
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (FlickrDestination));
-		private static IFlickrConfiguration _config = IniConfig.Current.Get<IFlickrConfiguration>();
-		private static IFlickrLanguage language = LanguageLoader.Current.Get<IFlickrLanguage>();
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (DropboxLegacyDestination));
+		private static readonly IDropboxConfiguration _config = IniConfig.Current.Get<IDropboxConfiguration>();
+		private static readonly IDropboxLanguage _language = LanguageLoader.Current.Get<IDropboxLanguage>();
+
+		private DropboxPlugin plugin = null;
+
+		public DropboxLegacyDestination(DropboxPlugin plugin)
+		{
+			this.plugin = plugin;
+		}
 
 		public override string Designation
 		{
 			get
 			{
-				return "Flickr";
+				return "Dropbox";
 			}
 		}
 
@@ -53,7 +62,7 @@ namespace GreenshotFlickrPlugin
 		{
 			get
 			{
-				return language.UploadMenuItem;
+				return _language.UploadMenuItem;
 			}
 		}
 
@@ -61,10 +70,11 @@ namespace GreenshotFlickrPlugin
 		{
 			get
 			{
-				ComponentResourceManager resources = new ComponentResourceManager(typeof (FlickrPlugin));
-				return (Image) resources.GetObject("flickr");
+				ComponentResourceManager resources = new ComponentResourceManager(typeof (DropboxPlugin));
+				return (Image) resources.GetObject("Dropbox");
 			}
 		}
+
 
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
 		{
@@ -75,10 +85,22 @@ namespace GreenshotFlickrPlugin
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
 			try
 			{
-				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, language.CommunicationWait, async (progress, pleaseWaitToken) =>
+				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, _language.CommunicationWait, async (progress, pleaseWaitToken) =>
 				{
 					string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
-					return await FlickrUtils.UploadToFlickrAsync(surface, outputSettings, captureDetails.Title, filename, progress, token);
+					using (var stream = new MemoryStream())
+					{
+						ImageOutput.SaveToStream(surface, stream, outputSettings);
+						stream.Position = 0;
+						using (var uploadStream = new ProgressStream(stream, progress))
+						{
+							using (var streamContent = new StreamContent(uploadStream))
+							{
+								streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
+								return await DropboxUtils.UploadToDropbox(streamContent, filename);
+							}
+						}
+					}
 				}, token);
 
 				if (url != null)
@@ -94,7 +116,7 @@ namespace GreenshotFlickrPlugin
 			catch (Exception e)
 			{
 				LOG.Error("Error uploading.", e);
-				MessageBox.Show(language.UploadFailure + " " + e.Message);
+				MessageBox.Show(_language.UploadFailure + " " + e.Message);
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;
