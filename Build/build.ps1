@@ -85,6 +85,7 @@ Function MD5Checksums {
 	@("$sourcebase\Greenshot.exe",
 		"$sourcebase\GreenshotPlugin.dll",
 		"$sourcebase\log4net.dll",
+		"$sourcebase\Dapplo.Addons.dll",
 		"$sourcebase\Dapplo.Config.dll",
 		"$sourcebase\Dapplo.Windows.dll",
 		"$sourcebase\Dapplo.HttpExtensions.dll") | foreach {
@@ -125,6 +126,7 @@ Function PackagePortable {
 		"$sourcebase\Greenshot.exe.config",
 		"$sourcebase\GreenshotPlugin.dll",
 		"$sourcebase\log4net.dll",
+		"$sourcebase\Dapplo.Addons.dll",
 		"$sourcebase\Dapplo.Config.dll",
 		"$sourcebase\Dapplo.Windows.dll",
 		"$sourcebase\Dapplo.HttpExtensions.dll",
@@ -191,6 +193,7 @@ Function PackageZip {
 		"$sourcebase\Greenshot.exe",
 		"$sourcebase\Greenshot.exe.config",
 		"$sourcebase\GreenshotPlugin.dll",
+		"$sourcebase\Dapplo.Addons.dll",
 		"$sourcebase\Dapplo.Config.dll",
 		"$sourcebase\Dapplo.Windows.dll",
 		"$sourcebase\Dapplo.HttpExtensions.dll",
