@@ -19,17 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Language;
-using Greenshot.Destinations;
-using Greenshot.Forms;
-using Greenshot.Helpers;
-using Greenshot.Plugin;
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Extensions;
-using Dapplo.Windows.Native;
-using log4net;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -39,8 +28,18 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Dapplo.Config.Language;
+using Dapplo.Windows.Native;
+using Greenshot.Destinations;
+using Greenshot.Helpers;
+using Greenshot.Plugin;
+using GreenshotPlugin.Configuration;
+using GreenshotPlugin.Controls;
+using GreenshotPlugin.Core;
+using GreenshotPlugin.Extensions;
+using log4net;
 
-namespace Greenshot
+namespace Greenshot.Forms
 {
 	/// <summary>
 	/// Description of SettingsForm.
@@ -87,7 +86,7 @@ namespace Greenshot
 			lastregion_hotkeyControl.Leave += LeaveHotkeyControl;
 
 			DisplayPluginTab();
-			UpdateUI();
+			UpdateUi();
 			ExpertSettingsEnableState(false);
 			DisplaySettings();
 			CheckSettings();
@@ -132,10 +131,10 @@ namespace Greenshot
 		/// <param name="comboBox">ComboBox to populate</param>
 		/// <param name="availableValues">Enum to populate with</param>
 		/// <param name="selectedValue"></param>
-		private void PopulateComboBox<ET>(ComboBox comboBox, ET[] availableValues, ET selectedValue) where ET : struct
+		private void PopulateComboBox<T>(ComboBox comboBox, IEnumerable<T> availableValues, T selectedValue) where T : struct
 		{
 			comboBox.Items.Clear();
-			foreach (ET enumValue in availableValues)
+			foreach (var enumValue in availableValues)
 			{
 				string translation = language[enumValue.GetType().Name + "." + enumValue];
 				comboBox.Items.Add(translation);
@@ -149,13 +148,13 @@ namespace Greenshot
 		/// </summary>
 		/// <param name="comboBox">Combobox to get the value from</param>
 		/// <returns>The generics value of the combobox</returns>
-		private ET GetSelected<ET>(ComboBox comboBox)
+		private static T GetSelected<T>(ComboBox comboBox)
 		{
-			string enumTypeName = typeof (ET).Name;
+			string enumTypeName = typeof (T).Name;
 			string selectedValue = comboBox.SelectedItem as string;
-			ET[] availableValues = (ET[]) Enum.GetValues(typeof (ET));
-			ET returnValue = availableValues[0];
-			foreach (ET enumValue in availableValues)
+			var availableValues = (T[]) Enum.GetValues(typeof (T));
+			var returnValue = availableValues[0];
+			foreach (var enumValue in availableValues)
 			{
 				string translation = language[enumTypeName + "." + enumValue];
 				if (translation.Equals(selectedValue))
@@ -235,7 +234,7 @@ namespace Greenshot
 		/// <summary>
 		/// Update the UI to reflect the language and other text settings
 		/// </summary>
-		private void UpdateUI()
+		private void UpdateUi()
 		{
 			if (coreConfiguration.HideExpertSettings)
 			{
@@ -640,7 +639,7 @@ namespace Greenshot
 				await LanguageLoader.Current.ChangeLanguage((string) combobox_language.SelectedValue);
 			}
 			// Reflect language changes to the settings form
-			UpdateUI();
+			UpdateUi();
 
 			// Reflect Language changes form
 			ApplyLanguage();

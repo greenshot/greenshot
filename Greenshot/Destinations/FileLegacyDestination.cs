@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Windows;
 using Dapplo.Config.Language;
+using Greenshot.Forms;
 using GreenshotPlugin.Configuration;
 
 namespace Greenshot.Destinations

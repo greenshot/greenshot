@@ -31,7 +31,6 @@ namespace GreenshotExternalCommandPlugin
 	/// </summary>
 	public partial class SettingsForm : ExternalCommandForm
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (SettingsForm));
 		private static IExternalCommandConfiguration config = IniConfig.Current.Get<IExternalCommandConfiguration>();
 
 		public SettingsForm()
@@ -47,8 +46,7 @@ namespace GreenshotExternalCommandPlugin
 
 		private void ButtonOkClick(object sender, EventArgs e)
 		{
-			// TODO: Save?
-			//IniConfig.Save();
+			// TODO: Commit all inisections
 		}
 
 		private void ButtonAddClick(object sender, EventArgs e)
@@ -82,7 +80,7 @@ namespace GreenshotExternalCommandPlugin
 				int imageNr = 0;
 				foreach (string commando in config.Commands)
 				{
-					ListViewItem item = null;
+					ListViewItem item;
 					Image iconForExe = IconCache.IconForCommand(commando);
 					if (iconForExe != null)
 					{
@@ -142,13 +140,9 @@ namespace GreenshotExternalCommandPlugin
 				return (0);
 			}
 
-			ListViewItem l1 = (ListViewItem) x;
-			ListViewItem l2 = (ListViewItem) y;
-			if (l2 == null)
-			{
-				return 1;
-			}
-			return l1.Text.CompareTo(l2.Text);
+			var l1 = (ListViewItem) x;
+			var l2 = (ListViewItem) y;
+			return string.Compare(l1.Text, l2.Text, StringComparison.Ordinal);
 		}
 	}
 }

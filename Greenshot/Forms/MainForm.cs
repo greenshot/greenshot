@@ -82,7 +82,7 @@ namespace Greenshot.Forms
 			// Setting the INI-directory
 			string iniDirectory = null;
 			// Specified the ini directory directly
-			if (!String.IsNullOrWhiteSpace(arguments.IniDirectory))
+			if (!string.IsNullOrWhiteSpace(arguments.IniDirectory))
 			{
 				iniDirectory = arguments.IniDirectory;
 			}
@@ -97,7 +97,7 @@ namespace Greenshot.Forms
 			Dapplo.Config.Converters.StringEncryptionTypeConverter.RgbKey = "lsjvkwhvwujkagfauguwcsjgu2wueuff";
 			iniConfig = new IniConfig(ApplicationName, ApplicationName, iniDirectory);
 			// Register method to fix some values
-			iniConfig.AfterLoad<ICoreConfiguration>((coreConfig) => CoreConfigurationChecker.AfterLoad(coreConfig));
+			iniConfig.AfterLoad<ICoreConfiguration>(CoreConfigurationChecker.AfterLoad);
 
 			// Init Log4NET
 			LogFileLocation = LogHelper.InitializeLog4NET();
@@ -165,7 +165,6 @@ namespace Greenshot.Forms
 					LanguageDialog languageDialog = LanguageDialog.GetInstance();
 					languageDialog.ShowDialog();
 					coreConfiguration.Language = languageDialog.SelectedLanguage;
-					Task.Run(async () => await iniConfig.WriteAsync()).Wait();
 				}
 
 				// Should fix BUG-1633
@@ -193,7 +192,7 @@ namespace Greenshot.Forms
 			{
 				currentProcessId = currentProcess.Id;
 			}
-			foreach (var greenshotProcess in Process.GetProcessesByName("greenshot"))
+			foreach (var greenshotProcess in Process.GetProcessesByName(ApplicationName))
 			{
 				try
 				{
@@ -244,8 +243,8 @@ namespace Greenshot.Forms
 			{
 				// Added Mutex Security, hopefully this prevents the UnauthorizedAccessException more gracefully
 				// See an example in Bug #3131534
-				SecurityIdentifier sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
-				MutexSecurity mutexsecurity = new MutexSecurity();
+				var sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
+				var mutexsecurity = new MutexSecurity();
 				mutexsecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.FullControl, AccessControlType.Allow));
 				mutexsecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.ChangePermissions, AccessControlType.Deny));
 				mutexsecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.Delete, AccessControlType.Deny));
@@ -448,7 +447,7 @@ namespace Greenshot.Forms
 				PsAPI.EmptyWorkingSet();
 			}
 			// Checking for updates etc in the background
-			_backgroundWorkerTimer = new System.Threading.Timer(async (_) => await BackgroundWorkerTimerTick().ConfigureAwait(false), null, TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(5));
+			_backgroundWorkerTimer = new System.Threading.Timer(async _ => await BackgroundWorkerTimerTick().ConfigureAwait(false), null, TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(5));
 
 			Load += async (sender, eventArguments) =>
 			{
@@ -723,8 +722,10 @@ namespace Greenshot.Forms
 
 		private void CaptureFile(CancellationToken token = default(CancellationToken))
 		{
-			var openFileDialog = new OpenFileDialog();
-			openFileDialog.Filter = "Image files (*.greenshot, *.png, *.jpg, *.gif, *.bmp, *.ico, *.tiff, *.wmf)|*.greenshot; *.png; *.jpg; *.jpeg; *.gif; *.bmp; *.ico; *.tiff; *.tif; *.wmf";
+			var openFileDialog = new OpenFileDialog
+			{
+				Filter = "Image files (*.greenshot, *.png, *.jpg, *.gif, *.bmp, *.ico, *.tiff, *.wmf)|*.greenshot; *.png; *.jpg; *.jpeg; *.gif; *.bmp; *.ico; *.tiff; *.tif; *.wmf"
+			};
 			if (openFileDialog.ShowDialog() == DialogResult.OK)
 			{
 				if (File.Exists(openFileDialog.FileName))

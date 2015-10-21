@@ -98,7 +98,6 @@ namespace GreenshotFlickrPlugin
 				{
 					config.FlickrTokenSecret = oAuth.TokenSecret;
 				}
-				// TODO: IniConfig.Save();
 			}
 			try
 			{

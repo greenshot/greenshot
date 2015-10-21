@@ -40,10 +40,10 @@ namespace GreenshotOCR
 	public class OcrLegacyDestination : AbstractLegacyDestination
 	{
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (OcrLegacyDestination));
-		private static IOCRConfiguration _config = IniConfig.Current.Get<IOCRConfiguration>();
-		private const int MIN_WIDTH = 130;
-		private const int MIN_HEIGHT = 130;
-		private string _ocrCommand;
+		private static IOcrConfiguration _config = IniConfig.Current.Get<IOcrConfiguration>();
+		private const int MinWidth = 130;
+		private const int MinHeight = 130;
+		private readonly string _ocrCommand;
 
 		public override string Designation
 		{
@@ -94,6 +94,7 @@ namespace GreenshotOCR
 		/// We do the OCR here!
 		/// </summary>
 		/// <param name="surface">Has the Image</param>
+		/// <param name="token"></param>
 		private async Task<string> DoOcrAsync(ISurface surface, CancellationToken token = default(CancellationToken))
 		{
 			var outputSettings = new SurfaceOutputSettings(OutputFormat.bmp, 0, true);
@@ -104,14 +105,14 @@ namespace GreenshotOCR
 			outputSettings.Effects.Add(new GrayscaleEffect());
 
 			// Also we need to check the size, resize if needed to 130x130 this is the minimum
-			if (surface.Image.Width < MIN_WIDTH || surface.Image.Height < MIN_HEIGHT)
+			if (surface.Image.Width < MinWidth || surface.Image.Height < MinHeight)
 			{
-				int addedWidth = MIN_WIDTH - surface.Image.Width;
+				int addedWidth = MinWidth - surface.Image.Width;
 				if (addedWidth < 0)
 				{
 					addedWidth = 0;
 				}
-				int addedHeight = MIN_HEIGHT - surface.Image.Height;
+				int addedHeight = MinHeight - surface.Image.Height;
 				if (addedHeight < 0)
 				{
 					addedHeight = 0;

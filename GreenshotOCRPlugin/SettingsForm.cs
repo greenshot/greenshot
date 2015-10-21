@@ -26,11 +26,11 @@ namespace GreenshotOCR
 	/// <summary>
 	/// Description of SettingsForm.
 	/// </summary>
-	public partial class SettingsForm : OCRForm
+	public partial class SettingsForm : OcrForm
 	{
-		private IOCRConfiguration config;
+		private IOcrConfiguration config;
 
-		public SettingsForm(string[] languages, IOCRConfiguration config)
+		public SettingsForm(string[] languages, IOcrConfiguration config)
 		{
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
@@ -61,7 +61,7 @@ namespace GreenshotOCR
 			}
 		}
 
-		private void ButtonOKClick(object sender, EventArgs e)
+		private void ButtonOkClick(object sender, EventArgs e)
 		{
 			string selectedString = (string) comboBox_languages.SelectedItem;
 			if (selectedString != null)

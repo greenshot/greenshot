@@ -43,8 +43,8 @@ namespace GreenshotExternalCommandPlugin
 	public class ExternalCommandPlugin : IConfigurablePlugin, IStartupAction
 	{
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ExternalCommandPlugin));
-		private const string MSPAINT = "MS Paint";
-		private const string PAINTDOTNET = "Paint.NET";
+		private const string MsPaint = "MS Paint";
+		private const string PaintDotNet = "Paint.NET";
 		private ToolStripMenuItem _itemPlugInRoot;
 
 		[Import]
@@ -232,32 +232,34 @@ namespace GreenshotExternalCommandPlugin
 				{
 					var paintDotNetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"Paint.NET\PaintDotNet.exe");
 					var hasPaintDotNet = !string.IsNullOrEmpty(paintDotNetPath) && File.Exists(paintDotNetPath);
-					if (hasPaintDotNet && !config.Commands.Contains(PAINTDOTNET))
+					if (hasPaintDotNet && !config.Commands.Contains(PaintDotNet))
 					{
-						config.Commands.Add(PAINTDOTNET);
-						config.Commandline.Add(PAINTDOTNET, paintDotNetPath);
-						config.Argument.Add(PAINTDOTNET, "\"{0}\"");
-						config.RunInbackground.Add(PAINTDOTNET, true);
+						config.Commands.Add(PaintDotNet);
+						config.Commandline.Add(PaintDotNet, paintDotNetPath);
+						config.Argument.Add(PaintDotNet, "\"{0}\"");
+						config.RunInbackground.Add(PaintDotNet, true);
 					}
 				}
 				catch
 				{
+					// ignored
 				}
 
 				try
 				{
 					var paintPath = PluginUtils.GetExePath("pbrush.exe");
 					var hasPaint = !string.IsNullOrEmpty(paintPath) && File.Exists(paintPath);
-					if (hasPaint && !config.Commands.Contains(MSPAINT))
+					if (hasPaint && !config.Commands.Contains(MsPaint))
 					{
-						config.Commands.Add(MSPAINT);
-						config.Commandline.Add(MSPAINT, paintPath);
-						config.Argument.Add(MSPAINT, "\"{0}\"");
-						config.RunInbackground.Add(MSPAINT, true);
+						config.Commands.Add(MsPaint);
+						config.Commandline.Add(MsPaint, paintPath);
+						config.Argument.Add(MsPaint, "\"{0}\"");
+						config.RunInbackground.Add(MsPaint, true);
 					}
 				}
 				catch
 				{
+					// ignored
 				}
 			}
 		}

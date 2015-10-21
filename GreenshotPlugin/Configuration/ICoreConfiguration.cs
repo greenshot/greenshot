@@ -323,20 +323,6 @@ namespace GreenshotPlugin.Configuration
 				coreConfiguration.OutputFileAutoReduceColors = false;
 			}
 
-			// Enable OneNote if upgrading from 1.1
-			if (coreConfiguration.ExcludeDestinations != null && coreConfiguration.ExcludeDestinations.Contains("OneNote"))
-			{
-				if (coreConfiguration.LastSaveWithVersion != null && coreConfiguration.LastSaveWithVersion.StartsWith("1.1"))
-				{
-					coreConfiguration.ExcludeDestinations.Remove("OneNote");
-				}
-				else
-				{
-					// TODO: Remove with the release
-					coreConfiguration.ExcludeDestinations.Remove("OneNote");
-				}
-			}
-
 			if (coreConfiguration.OutputDestinations == null)
 			{
 				coreConfiguration.OutputDestinations = new List<string>();

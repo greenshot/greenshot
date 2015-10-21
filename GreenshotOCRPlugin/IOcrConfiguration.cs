@@ -19,17 +19,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Controls;
+using Dapplo.Config.Ini;
+using System.ComponentModel;
 
 namespace GreenshotOCR
 {
 	/// <summary>
-	/// This class is needed for design-time resolving of the language files
+	/// Description of CoreConfiguration.
 	/// </summary>
-	public class OCRForm : GreenshotForm
+	[IniSection("OCR"), Description("Greenshot OCR Plugin configuration")]
+	public interface IOcrConfiguration : IIniSection<IOcrConfiguration>
 	{
-		public OCRForm() : base()
+		[Description("Language for OCR"), DefaultValue("ENGLISH")]
+		string Language
 		{
+			get;
+			set;
+		}
+
+		[Description("Orient image?"), DefaultValue(true)]
+		bool Orientimage
+		{
+			get;
+			set;
+		}
+
+		[Description("Straighten image?"), DefaultValue(true)]
+		bool StraightenImage
+		{
+			get;
+			set;
 		}
 	}
 }

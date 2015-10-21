@@ -135,7 +135,6 @@ namespace GreenshotBoxPlugin
 				Config.RefreshToken = settings.RefreshToken;
 				Config.AccessToken = settings.AccessToken;
 				Config.AccessTokenExpires = settings.AccessTokenExpires;
-				// TODO: Save? IniConfig.Save();
 			}
 		}
 	}

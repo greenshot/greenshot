@@ -29,6 +29,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Addons;
+using GreenshotPlugin.Extensions;
 
 namespace GreenshotOCR
 {
@@ -44,7 +45,7 @@ namespace GreenshotOCR
 		private ToolStripMenuItem _ocrMenuItem = new ToolStripMenuItem();
 
 		[Import]
-		public IOCRConfiguration OCRConfiguration
+		public IOcrConfiguration OcrConfiguration
 		{
 			get;
 			set;
@@ -91,9 +92,9 @@ namespace GreenshotOCR
 			{
 				LOG.Warn("No MODI found!");
 			}
-			else if (OCRConfiguration.Language != null)
+			else if (OcrConfiguration.Language != null)
 			{
-				OCRConfiguration.Language = OCRConfiguration.Language.Replace("miLANG_", "").Replace("_", " ");
+				OcrConfiguration.Language = OcrConfiguration.Language.Replace("miLANG_", "").Replace("_", " ");
 			}
 			
 			return Task.FromResult(true);
@@ -109,7 +110,7 @@ namespace GreenshotOCR
 				MessageBox.Show("Greenshot OCR", "Sorry, is seems that Microsoft Office Document Imaging (MODI) is not installed, therefor the OCR Plugin cannot work.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 				return;
 			}
-			var settingsForm = new SettingsForm(Enum.GetNames(typeof (ModiLanguage)), OCRConfiguration);
+			var settingsForm = new SettingsForm(Enum.GetNames(typeof (ModiLanguage)), OcrConfiguration);
 			DialogResult result = settingsForm.ShowDialog();
 			if (result == DialogResult.OK)
 			{
@@ -129,8 +130,7 @@ namespace GreenshotOCR
 				{
 					if (process != null)
 					{
-						// TODO: Can change to async...
-						process.WaitForExit();
+						Task.Run(async () => await process.WaitForExitAsync()).Wait();
 						return process.ExitCode == 0;
 					}
 				}

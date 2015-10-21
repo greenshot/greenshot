@@ -107,7 +107,7 @@ namespace GreenshotOCR
 			this.buttonOK.Size = new System.Drawing.Size(104, 23);
 			this.buttonOK.TabIndex = 4;
 			this.buttonOK.UseVisualStyleBackColor = true;
-			this.buttonOK.Click += new System.EventHandler(this.ButtonOKClick);
+			this.buttonOK.Click += new System.EventHandler(this.ButtonOkClick);
 			// 
 			// buttonCancel
 			// 

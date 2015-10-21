@@ -43,7 +43,6 @@ namespace Greenshot.Forms
 		{
 			// update config
 			coreConfiguration.OutputPrintPromptOptions = !checkbox_dontaskagain.Checked;
-			// TODO: Save?? IniConfig.Save();
 			DialogResult = DialogResult.OK;
 		}
 
