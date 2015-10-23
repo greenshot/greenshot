@@ -28,21 +28,38 @@ namespace GreenshotPlugin.Core
 	/// <summary>
 	/// This IMessageFilter filters out all WM_INPUTLANGCHANGEREQUEST messages which go to a handle which is >32 bits.
 	/// The need for this is documented here: http://stackoverflow.com/a/32021586
-	/// Unfortunately there is an error in the code example, should use HWnd instead of LParam for the handle.
 	/// </summary>
 	public class WmInputLangChangeRequestFilter : IMessageFilter
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(WmInputLangChangeRequestFilter));
 
+		/// <summary>
+		/// This will do some filtering
+		/// </summary>
+		/// <param name="m">Message</param>
+		/// <returns>true if the message should be filtered</returns>
 		public bool PreFilterMessage(ref Message m)
+		{
+			return PreFilterMessageExternal(ref m);
+        }
+
+		/// <summary>
+		/// Also used in the MainForm WndProc
+		/// </summary>
+		/// <param name="m">Message</param>
+		/// <returns>true if the message should be filtered</returns>
+		public static bool PreFilterMessageExternal(ref Message m)
 		{
 			WindowsMessages message = (WindowsMessages)m.Msg;
 			if (message == WindowsMessages.WM_INPUTLANGCHANGEREQUEST || message == WindowsMessages.WM_INPUTLANGCHANGE)
 			{
 				LOG.WarnFormat("Filtering: {0}, {1:X} - {2:X} - {3:X}", message, m.LParam.ToInt64(), m.WParam.ToInt64(), m.HWnd.ToInt64());
-				return (m.LParam.ToInt64() | 0xFFFFFFFF) != 0;
+				// For now we always return true
+				return true;
+				// But it could look something like this:
+				//return (m.LParam.ToInt64() | 0x7FFFFFFF) != 0;
 			}
 			return false;
 		}
-	}
+    }
 }

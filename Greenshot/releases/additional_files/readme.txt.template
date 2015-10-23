@@ -13,6 +13,7 @@ Bugs Resolved:
 * BUG-1809: OverflowException when changing the windows input language
 * BUG-1835: Imgur: uploads were cancelled due to a timeout which was set too small
 * BUG-1833: Imgur: API-Key issues when using anonymous uploads
+* Github Pull 1: Fixed error calling external command. Thanks to viper3400
 
 
 1.2.6.7-359dcf3 RELEASE

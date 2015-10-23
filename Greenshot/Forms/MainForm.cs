@@ -510,13 +510,19 @@ namespace Greenshot {
 			get {return contextMenu;}
 		}
 
-		#region hotkeys
 		protected override void WndProc(ref Message m) {
 			if (HotkeyControl.HandleMessages(ref m)) {
 				return;
 			}
-			base.WndProc(ref m);
+			// BUG-1809 prevention, filter the InputLangChange messages
+			if (WmInputLangChangeRequestFilter.PreFilterMessageExternal(ref m))
+			{
+				return;
+			}
+            base.WndProc(ref m);
 		}
+
+		#region hotkeys
 
 		/// <summary>
 		/// Helper method to cleanly register a hotkey
@@ -1225,14 +1231,27 @@ namespace Greenshot {
 		private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e) {
 			Exception exceptionToLog = e.ExceptionObject as Exception;
 			string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
-			LOG.Error(EnvironmentInfo.ExceptionToString(exceptionToLog));
+			LOG.Error("Exception caught in the UnhandledException handler.");
+			LOG.Error(exceptionText);
+			if (exceptionText != null && exceptionText.Contains("InputLanguageChangedEventArgs"))
+            {
+				// Ignore for BUG-1809
+				return;
+			}
 			new BugReportForm(exceptionText).ShowDialog();
 		}
 		
 		private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e) {
 			Exception exceptionToLog = e.Exception;
 			string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
-			LOG.Error(EnvironmentInfo.ExceptionToString(exceptionToLog));
+			LOG.Error("Exception caught in the ThreadException handler.");
+            LOG.Error(exceptionText);
+			if (exceptionText != null && exceptionText.Contains("InputLanguageChangedEventArgs"))
+			{
+				// Ignore for BUG-1809
+				return;
+			}
+
 			new BugReportForm(exceptionText).ShowDialog();
 		}
 
