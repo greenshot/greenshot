@@ -121,7 +121,7 @@ namespace ExternalCommand {
 						if (config.OutputToClipboard) {
 							ClipboardHelper.SetClipboardData(output);
 						}
-						if (uriMatches != null && uriMatches.Count >= 0) {
+						if (uriMatches != null && uriMatches.Count > 0) {
 							exportInformation.Uri = uriMatches[0].Groups[1].Value;
 							LOG.InfoFormat("Got URI : {0} ", exportInformation.Uri);
 							if (config.UriToClipboard) {
@@ -134,10 +134,10 @@ namespace ExternalCommand {
 					exportInformation.ExportMade = false;
 					exportInformation.ErrorMessage = error;
 				}
-			} catch (Exception ex) {
-				LOG.WarnFormat("Error calling external command: {0} ", exportInformation.ErrorMessage);
+			} catch (Exception ex) {				
 				exportInformation.ExportMade = false;
 				exportInformation.ErrorMessage = ex.Message;
+                LOG.WarnFormat("Error calling external command: {0} ", exportInformation.ErrorMessage);
 			}
 		}
 
