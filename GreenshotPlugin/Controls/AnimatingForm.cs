@@ -81,7 +81,7 @@ namespace GreenshotPlugin.Controls
 		{
 			get
 			{
-				return coreConfiguration.OptimizeForRDP || System.Windows.Forms.SystemInformation.TerminalServerSession;
+				return coreConfiguration.OptimizeForRdp || System.Windows.Forms.SystemInformation.TerminalServerSession;
 			}
 		}
 

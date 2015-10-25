@@ -19,8 +19,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Extension;
 using System.ComponentModel;
+using Dapplo.Config.Proxy;
 
 namespace GreenshotPlugin.Configuration
 {

@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Extension;
 using Dapplo.Config.Ini;
 using GreenshotPlugin.Core;
 using log4net;
@@ -30,6 +29,7 @@ using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
+using Dapplo.Config.Proxy;
 
 namespace GreenshotPlugin.Configuration
 {
@@ -44,23 +44,6 @@ namespace GreenshotPlugin.Configuration
 		HTMLDATAURL,
 		BITMAP,
 		DIBV5
-	}
-
-	/// <summary>
-	/// Specify what click actions there are, and Greenshot can respond to.
-	/// Used in the double/left/right-click actions
-	/// </summary>
-	public enum ClickActions
-	{
-		DO_NOTHING,
-		OPEN_LAST_IN_EXPLORER,
-		OPEN_LAST_IN_EDITOR,
-		OPEN_SETTINGS,
-		SHOW_CONTEXT_MENU,
-		CAPTURE_REGION,
-		CAPTURE_SCREEN,
-		CAPTURE_WINDOW,
-		CAPTURE_LAST_REGION
 	}
 
 	/// <summary>
@@ -79,7 +62,7 @@ namespace GreenshotPlugin.Configuration
 	public interface ICoreConfiguration :
 		// Importing other configuration interfaces, so the file doesn't get to big
 		IOutputConfiguration, IPrinterConfiguration, IExtensionConfiguration,
-		IUIConfiguration, ICaptureConfiguration, IMiscConfiguration,
+		IUiConfiguration, ICaptureConfiguration, IMiscConfiguration,
 		IUpdateConfiguration, IHotkeyConfiguration,
 		// Ini-Framework
 		IIniSection<ICoreConfiguration>, INotifyPropertyChanged, ITagging<ICoreConfiguration>

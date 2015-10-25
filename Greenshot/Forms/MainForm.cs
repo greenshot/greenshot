@@ -1430,7 +1430,7 @@ namespace Greenshot.Forms
 				return;
 			}
 			// The right button will automatically be handled with the context menu, here we only check the left.
-			if (coreConfiguration.DoubleClickAction == ClickActions.DO_NOTHING)
+			if (coreConfiguration.DoubleClickAction == ClickActions.DoNothing)
 			{
 				// As there isn't a double-click we can start the Left click
 				await NotifyIconClickAsync(coreConfiguration.LeftClickAction);
@@ -1474,7 +1474,7 @@ namespace Greenshot.Forms
 		{
 			switch (clickAction)
 			{
-				case ClickActions.OPEN_LAST_IN_EXPLORER:
+				case ClickActions.OpenLastInExplorer:
 					string path = null;
 					if (!string.IsNullOrEmpty(coreConfiguration.OutputFileAsFullpath))
 					{
@@ -1509,32 +1509,32 @@ namespace Greenshot.Forms
 						}
 					}
 					break;
-				case ClickActions.OPEN_LAST_IN_EDITOR:
+				case ClickActions.OpenLastInEditor:
 					if (File.Exists(coreConfiguration.OutputFileAsFullpath))
 					{
 						await CaptureHelper.CaptureFileAsync(coreConfiguration.OutputFileAsFullpath, DestinationHelper.GetDestination(BuildInDestinationEnum.Editor.ToString()), token);
 					}
 					break;
-				case ClickActions.OPEN_SETTINGS:
+				case ClickActions.OpenSettings:
 					ShowSetting();
 					break;
-				case ClickActions.SHOW_CONTEXT_MENU:
+				case ClickActions.ShowContextMenu:
 					this.AsyncInvoke(() =>
 					{
 						MethodInfo oMethodInfo = typeof (NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
 						oMethodInfo.Invoke(notifyIcon, null);
 					});
 					break;
-				case ClickActions.CAPTURE_REGION:
+				case ClickActions.CaptureRegion:
 					CaptureRegion(token);
 					break;
-				case ClickActions.CAPTURE_SCREEN:
+				case ClickActions.CaptureScreen:
 					CaptureFullScreen(token);
 					break;
-				case ClickActions.CAPTURE_WINDOW:
+				case ClickActions.CaptureWindow:
 					CaptureWindow(token);
 					break;
-				case ClickActions.CAPTURE_LAST_REGION:
+				case ClickActions.CaptureLastRegion:
 					CaptureLastRegion(token);
 					break;
 			}

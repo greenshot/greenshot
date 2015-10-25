@@ -19,10 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Extension;
 using Dapplo.Config.Ini;
 using Dapplo.HttpExtensions;
 using System.ComponentModel;
+using Dapplo.Config.Proxy;
 
 namespace GreenshotPlugin.Configuration
 {

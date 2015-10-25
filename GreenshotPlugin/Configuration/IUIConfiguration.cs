@@ -19,17 +19,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Extension;
-using GreenshotPlugin.Configuration;
 using System.ComponentModel;
 using System.Drawing;
+using Dapplo.Config.Proxy;
 
 namespace GreenshotPlugin.Configuration
 {
+
+	/// <summary>
+	/// Specify what click actions there are, and Greenshot can respond to.
+	/// Used in the double/left/right-click actions
+	/// </summary>
+	public enum ClickActions
+	{
+		DoNothing,
+		OpenLastInExplorer,
+		OpenLastInEditor,
+		OpenSettings,
+		ShowContextMenu,
+		CaptureRegion,
+		CaptureScreen,
+		CaptureWindow,
+		CaptureLastRegion
+	}
+
 	/// <summary>
 	/// This interface represents all the UI settings
 	/// </summary>
-	public interface IUIConfiguration
+	public interface IUiConfiguration
 	{
 		[Description("The language in IETF format (e.g. en-US)")]
 		string Language
@@ -103,20 +120,20 @@ namespace GreenshotPlugin.Configuration
 		}
 
 		[Description("Make some optimizations for usage with remote desktop"), DefaultValue(false)]
-		bool OptimizeForRDP
+		bool OptimizeForRdp
 		{
 			get;
 			set;
 		}
 
-		[Description("Specify what action is made if the tray icon is left clicked, if a double-click action is specified this action is initiated after a delay (configurable via the windows double-click speed)"), DefaultValue(ClickActions.SHOW_CONTEXT_MENU)]
+		[Description("Specify what action is made if the tray icon is left clicked, if a double-click action is specified this action is initiated after a delay (configurable via the windows double-click speed)"), DefaultValue(ClickActions.ShowContextMenu)]
 		ClickActions LeftClickAction
 		{
 			get;
 			set;
 		}
 
-		[Description("Specify what action is made if the tray icon is double clicked"), DefaultValue(ClickActions.OPEN_LAST_IN_EXPLORER)]
+		[Description("Specify what action is made if the tray icon is double clicked"), DefaultValue(ClickActions.OpenLastInExplorer)]
 		ClickActions DoubleClickAction
 		{
 			get;
