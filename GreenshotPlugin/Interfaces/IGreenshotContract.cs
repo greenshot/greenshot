@@ -37,12 +37,6 @@ namespace GreenshotPlugin.Interfaces
 		void Exit();
 
 		/// <summary>
-		/// Reload configuration
-		/// </summary>
-		[OperationContract]
-		void ReloadConfig();
-
-		/// <summary>
 		/// Open the specified file
 		/// </summary>
 		/// <param name="filename"></param>

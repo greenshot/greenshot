@@ -21,7 +21,6 @@
 
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
-using Greenshot.Plugin;
 using GreenshotEditorPlugin.Drawing;
 using GreenshotEditorPlugin.Forms;
 using GreenshotPlugin.Configuration;
@@ -32,6 +31,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Forms;
 
 namespace GreenshotEditorPlugin
 {

@@ -19,17 +19,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Plugin;
-using GreenshotOfficePlugin.OfficeExport;
-using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using GreenshotOfficePlugin.OfficeExport;
+using GreenshotPlugin.Core;
+using GreenshotPlugin.Interfaces;
 
-namespace GreenshotOfficePlugin
+namespace GreenshotOfficePlugin.Destinations
 {
 	public class OneNoteLegacyDestination : AbstractLegacyDestination
 	{

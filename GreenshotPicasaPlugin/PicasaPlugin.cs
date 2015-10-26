@@ -19,7 +19,6 @@
  */
 
 using Dapplo.Addons;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
@@ -29,6 +28,8 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotPicasaPlugin
 {
@@ -105,7 +106,7 @@ namespace GreenshotPicasaPlugin
 			{
 				Text = PicasaLanguage.Configure, Tag = PluginHost, Image = (Image) _resources.GetObject("Picasa")
 			};
-			_itemPlugInRoot.Click += ConfigMenuClick;
+			_itemPlugInRoot.Click += (sender, eventArgs) => Configure();
 			PluginUtils.AddToContextMenu(PluginHost, _itemPlugInRoot);
 			PicasaLanguage.PropertyChanged += OnPicasaLanguageChanged;
 			return Task.FromResult(true);
@@ -132,26 +133,7 @@ namespace GreenshotPicasaPlugin
 		/// </summary>
 		public void Configure()
 		{
-			ShowConfigDialog();
-		}
-
-		/// <summary>
-		/// A form for token
-		/// </summary>
-		/// <returns>bool true if OK was pressed, false if cancel</returns>
-		private bool ShowConfigDialog()
-		{
-			DialogResult result = new SettingsForm().ShowDialog();
-			if (result == DialogResult.OK)
-			{
-				return true;
-			}
-			return false;
-		}
-
-		private void ConfigMenuClick(object sender, EventArgs eventArgs)
-		{
-			ShowConfigDialog();
+			new SettingsForm().ShowDialog();
 		}
 	}
 }

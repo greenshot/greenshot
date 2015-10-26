@@ -23,8 +23,8 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using Greenshot.Plugin.Drawing;
 using System.Drawing.Drawing2D;
+using GreenshotPlugin.Interfaces.Drawing;
 using log4net;
 
 namespace GreenshotEditorPlugin.Drawing

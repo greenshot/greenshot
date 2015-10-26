@@ -19,15 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.ComponentModel.Composition;
-using System.Windows.Controls;
-using System.Windows.Input;
+using System.Threading.Tasks;
+using System.Windows.Media;
 
 namespace GreenshotPlugin.Interfaces
 {
-	[InheritedExport(typeof(IDestination))]
 	public interface IDestination: INotifyPropertyChanged
 	{
 		string Shortcut
@@ -48,13 +47,13 @@ namespace GreenshotPlugin.Interfaces
 			set;
 		}
 
-		Image Icon
+		ImageSource Icon
 		{
 			get;
 			set;
 		}
 
-		ICommand Command
+		Func<bool, Task<ExportInformation>> Export
 		{
 			get;
 			set;

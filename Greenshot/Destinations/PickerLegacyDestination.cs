@@ -21,13 +21,13 @@
 
 using System.Collections.Generic;
 using GreenshotPlugin.Core;
-using Greenshot.Plugin;
 using Dapplo.Config.Ini;
 using log4net;
 using System.Threading.Tasks;
 using System.Threading;
 using Dapplo.Config.Language;
 using GreenshotPlugin.Configuration;
+using GreenshotPlugin.Interfaces;
 
 namespace Greenshot.Destinations
 {

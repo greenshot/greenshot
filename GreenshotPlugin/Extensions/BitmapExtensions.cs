@@ -19,36 +19,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.ComponentModel;
+using System;
+using System.Drawing;
+using System.Windows;
+using System.Windows.Interop;
+using System.Windows.Media.Imaging;
+using Dapplo.Windows.SafeHandles;
 
-namespace GreenshotPlugin.Interfaces.Plugin
+namespace GreenshotPlugin.Extensions
 {
-	/// <summary>
-	///  Meta-data belonging to the PluginAttribute, which makes it possible to specify type-safe meta-data.
-	/// </summary>
-	public interface IGreenshotPluginMetadata
+	public static class BitmapExtensions
 	{
 		/// <summary>
-		/// The name of the plugin
+		/// Convert a Bitmap to a BitmapSource
 		/// </summary>
-		string Name
+		/// <param name="bitmap"></param>
+		/// <returns>BitmapSource</returns>
+		public static BitmapSource ToBitmapSource(this Bitmap bitmap)
 		{
-			get;
+			using (var hBitmap = new SafeHBitmapHandle(bitmap.GetHbitmap()))
+			{
+				return Imaging.CreateBitmapSourceFromHBitmap(hBitmap.DangerousGetHandle(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+			}
 		}
 
 		/// <summary>
-		/// Name of the creator
+		/// Extension method to convert an Icon to ImageSource (used for WPF)
 		/// </summary>
-		[DefaultValue("Greenshot")]
-		string CreatedBy
+		/// <param name="icon"></param>
+		/// <returns>BitmapSource</returns>
+		public static BitmapSource ToBitmapSource(this Icon icon)
 		{
-			get;
+			var bitmapSource = Imaging.CreateBitmapSourceFromHIcon(icon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+
+			return bitmapSource;
 		}
 
-		[DefaultValue(false)]
-		bool Configurable
-		{
-			get;
-		}
 	}
 }

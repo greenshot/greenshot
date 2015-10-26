@@ -19,9 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Plugin;
-using GreenshotOfficePlugin.OfficeExport;
-using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -30,30 +27,33 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using GreenshotOfficePlugin.OfficeExport;
+using GreenshotPlugin.Core;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
-namespace GreenshotOfficePlugin
+namespace GreenshotOfficePlugin.Destinations
 {
 	/// <summary>
 	/// ExcelDestination
 	/// </summary>
 	public class ExcelLegacyDestination : AbstractLegacyDestination
 	{
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ExcelLegacyDestination));
-		private const int ICON_APPLICATION = 0;
-		private const int ICON_WORKBOOK = 1;
-		private static string exePath = null;
-		private string _workbookName = null;
+		private const int IconApplication = 0;
+		private const int IconWorkbook = 1;
+		private static readonly string ExePath;
+		private readonly string _workbookName;
 
 		static ExcelLegacyDestination()
 		{
-			exePath = PluginUtils.GetExePath("EXCEL.EXE");
-			if (exePath != null && File.Exists(exePath))
+			ExePath = PluginUtils.GetExePath("EXCEL.EXE");
+			if (ExePath != null && File.Exists(ExePath))
 			{
 				WindowDetails.AddProcessToExcludeFromFreeze("excel");
 			}
 			else
 			{
-				exePath = null;
+				ExePath = null;
 			}
 		}
 
@@ -82,10 +82,7 @@ namespace GreenshotOfficePlugin
 				{
 					return "Microsoft Excel";
 				}
-				else
-				{
-					return _workbookName;
-				}
+				return _workbookName;
 			}
 		}
 
@@ -109,7 +106,7 @@ namespace GreenshotOfficePlugin
 		{
 			get
 			{
-				return base.IsActive && exePath != null;
+				return base.IsActive && ExePath != null;
 			}
 		}
 
@@ -119,9 +116,9 @@ namespace GreenshotOfficePlugin
 			{
 				if (!string.IsNullOrEmpty(_workbookName))
 				{
-					return PluginUtils.GetCachedExeIcon(exePath, ICON_WORKBOOK);
+					return PluginUtils.GetCachedExeIcon(ExePath, IconWorkbook);
 				}
-				return PluginUtils.GetCachedExeIcon(exePath, ICON_APPLICATION);
+				return PluginUtils.GetCachedExeIcon(ExePath, IconApplication);
 			}
 		}
 

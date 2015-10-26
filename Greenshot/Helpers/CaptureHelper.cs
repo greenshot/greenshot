@@ -21,7 +21,6 @@
 
 using Dapplo.Config.Ini;
 using Greenshot.Forms;
-using Greenshot.Plugin;
 using GreenshotEditorPlugin.Drawing;
 using GreenshotPlugin.Core;
 using Dapplo.Windows.Native;
@@ -37,7 +36,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Config.Language;
 using GreenshotPlugin.Configuration;
-using Dapplo.Windows.App;
+using GreenshotPlugin.Interfaces;
 
 namespace Greenshot.Helpers
 {
@@ -47,7 +46,7 @@ namespace Greenshot.Helpers
 	public class CaptureHelper : IDisposable
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof (CaptureHelper));
-		private static ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly ICoreConfiguration CoreConfiguration = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		// TODO: when we get the screen capture code working correctly, this needs to be enabled
 		//private static ScreenCaptureHelper screenCapture = null;
@@ -85,7 +84,7 @@ namespace Greenshot.Helpers
 			_selectedCaptureWindow = null;
 			_capture = null;
 			// Empty working set after capturing
-			if (conf.MinimizeWorkingSetSize)
+			if (CoreConfiguration.MinimizeWorkingSetSize)
 			{
 				PsAPI.EmptyWorkingSet();
 			}
@@ -93,7 +92,7 @@ namespace Greenshot.Helpers
 
 		public static async Task CaptureClipboardAsync(CancellationToken token = default(CancellationToken))
 		{
-			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Clipboard))
+			using (var captureHelper = new CaptureHelper(CaptureMode.Clipboard))
 			{
 				await captureHelper.MakeCaptureAsync(token);
 			}
@@ -101,7 +100,7 @@ namespace Greenshot.Helpers
 
 		public static async Task CaptureRegionAsync(bool captureMouse, CancellationToken token = default(CancellationToken))
 		{
-			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse))
+			using (var captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse))
 			{
 				await captureHelper.MakeCaptureAsync(token);
 			}
@@ -109,7 +108,7 @@ namespace Greenshot.Helpers
 
 		public static async Task CaptureRegionAsync(bool captureMouse, ILegacyDestination destination, CancellationToken token = default(CancellationToken))
 		{
-			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse, destination))
+			using (var captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse, destination))
 			{
 				await captureHelper.MakeCaptureAsync(token);
 			}
@@ -117,7 +116,7 @@ namespace Greenshot.Helpers
 
 		public static async Task CaptureRegionAsync(bool captureMouse, Rectangle region, CancellationToken token = default(CancellationToken))
 		{
-			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse))
+			using (var captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse))
 			{
 				await captureHelper.MakeCaptureAsync(region, token);
 			}
@@ -125,7 +124,7 @@ namespace Greenshot.Helpers
 
 		public static async Task CaptureFullscreenAsync(bool captureMouse, ScreenCaptureMode screenCaptureMode, CancellationToken token = default(CancellationToken))
 		{
-			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.FullScreen, captureMouse))
+			using (var captureHelper = new CaptureHelper(CaptureMode.FullScreen, captureMouse))
 			{
 				captureHelper._screenCaptureMode = screenCaptureMode;
 				await captureHelper.MakeCaptureAsync(token);
@@ -134,7 +133,7 @@ namespace Greenshot.Helpers
 
 		public static async Task CaptureLastRegionAsync(bool captureMouse, CancellationToken token = default(CancellationToken))
 		{
-			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.LastRegion, captureMouse))
+			using (var captureHelper = new CaptureHelper(CaptureMode.LastRegion, captureMouse))
 			{
 				await captureHelper.MakeCaptureAsync(token);
 			}
@@ -142,7 +141,7 @@ namespace Greenshot.Helpers
 
 		public static async Task CaptureIEAsync(bool captureMouse, WindowDetails windowToCapture, CancellationToken token = default(CancellationToken))
 		{
-			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.IE, captureMouse))
+			using (var captureHelper = new CaptureHelper(CaptureMode.IE, captureMouse))
 			{
 				captureHelper.SelectedCaptureWindow = windowToCapture;
 				await captureHelper.MakeCaptureAsync(token);
@@ -151,7 +150,7 @@ namespace Greenshot.Helpers
 
 		public static async Task CaptureWindowAsync(bool captureMouse, CancellationToken token = default(CancellationToken))
 		{
-			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.ActiveWindow, captureMouse))
+			using (var captureHelper = new CaptureHelper(CaptureMode.ActiveWindow, captureMouse))
 			{
 				await captureHelper.MakeCaptureAsync(token);
 			}
@@ -159,7 +158,7 @@ namespace Greenshot.Helpers
 
 		public static async Task CaptureWindowAsync(WindowDetails windowToCapture, CancellationToken token = default(CancellationToken))
 		{
-			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.ActiveWindow))
+			using (var captureHelper = new CaptureHelper(CaptureMode.ActiveWindow))
 			{
 				captureHelper.SelectedCaptureWindow = windowToCapture;
 				await captureHelper.MakeCaptureAsync(token);
@@ -168,7 +167,7 @@ namespace Greenshot.Helpers
 
 		public static async Task CaptureWindowInteractiveAsync(bool captureMouse, CancellationToken token = default(CancellationToken))
 		{
-			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Window))
+			using (var captureHelper = new CaptureHelper(CaptureMode.Window))
 			{
 				await captureHelper.MakeCaptureAsync(token);
 			}
@@ -176,7 +175,7 @@ namespace Greenshot.Helpers
 
 		public static async Task CaptureFileAsync(string filename, CancellationToken token = default(CancellationToken))
 		{
-			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.File))
+			using (var captureHelper = new CaptureHelper(CaptureMode.File))
 			{
 				await captureHelper.MakeCaptureAsync(filename, token);
 			}
@@ -184,7 +183,7 @@ namespace Greenshot.Helpers
 
 		public static async Task CaptureFileAsync(string filename, ILegacyDestination destination, CancellationToken token = default(CancellationToken))
 		{
-			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.File))
+			using (var captureHelper = new CaptureHelper(CaptureMode.File))
 			{
 				await captureHelper.AddDestination(destination).MakeCaptureAsync(filename, token);
 			}
@@ -192,7 +191,7 @@ namespace Greenshot.Helpers
 
 		public static async Task ImportCaptureAsync(ICapture captureToImport, CancellationToken token = default(CancellationToken))
 		{
-			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.File))
+			using (var captureHelper = new CaptureHelper(CaptureMode.File))
 			{
 				captureHelper._capture = captureToImport;
 				await captureHelper.HandleCaptureAsync(token);
@@ -241,7 +240,7 @@ namespace Greenshot.Helpers
 
 		private Task DoCaptureFeedbackAsync(CancellationToken token = default(CancellationToken))
 		{
-			if (conf.PlayCameraSound)
+			if (CoreConfiguration.PlayCameraSound)
 			{
 				SoundHelper.Play(token);
 			}
@@ -262,7 +261,8 @@ namespace Greenshot.Helpers
 		/// <summary>
 		/// Make Capture for region
 		/// </summary>
-		/// <param name="filename">filename</param>
+		/// <param name="region"></param>
+		/// <param name="token"></param>
 		private async Task MakeCaptureAsync(Rectangle region, CancellationToken token = default(CancellationToken))
 		{
 			_captureRect = region;
@@ -280,12 +280,12 @@ namespace Greenshot.Helpers
 
 			// This fixes a problem when a balloon is still visible and a capture needs to be taken
 			// forcefully removes the balloon!
-			if (!conf.HideTrayicon)
+			if (!CoreConfiguration.HideTrayicon)
 			{
 				MainForm.Instance.NotifyIcon.Visible = false;
 				MainForm.Instance.NotifyIcon.Visible = true;
 			}
-			LOG.Debug(String.Format("Capturing with mode {0} and using Cursor {1}", _captureMode, _captureMouseCursor));
+			LOG.Debug($"Capturing with mode {_captureMode} and using Cursor {_captureMouseCursor}");
 			_capture.CaptureDetails.CaptureMode = _captureMode;
 
 			// Get the windows details in a seperate thread, only for those captures that have a Feedback
@@ -316,27 +316,20 @@ namespace Greenshot.Helpers
 			}
 
 			// Delay for the Context menu
-			if (conf.CaptureDelay > 0)
+			if (CoreConfiguration.CaptureDelay > 0)
 			{
-				await Task.Delay(conf.CaptureDelay);
+				await Task.Delay(CoreConfiguration.CaptureDelay, token);
 			}
 			else
 			{
-				conf.CaptureDelay = 0;
+				CoreConfiguration.CaptureDelay = 0;
 			}
 
 			// Capture Mousecursor if we are not loading from file or clipboard, only show when needed
 			if (_captureMode != CaptureMode.File && _captureMode != CaptureMode.Clipboard)
 			{
 				_capture = WindowCapture.CaptureCursor(_capture);
-				if (_captureMouseCursor)
-				{
-					_capture.CursorVisible = conf.CaptureMousepointer;
-				}
-				else
-				{
-					_capture.CursorVisible = false;
-				}
+				_capture.CursorVisible = _captureMouseCursor && CoreConfiguration.CaptureMousepointer;
 			}
 
 			switch (_captureMode)
@@ -344,7 +337,7 @@ namespace Greenshot.Helpers
 				case CaptureMode.Window:
 					_capture = WindowCapture.CaptureScreen(_capture);
 					_capture.CaptureDetails.AddMetaData("source", "Screen");
-					SetDPI();
+					SetDpi();
 					await CaptureWithFeedbackAsync(retrieveWindowDetailsTask, token);
 					break;
 				case CaptureMode.ActiveWindow:
@@ -361,14 +354,14 @@ namespace Greenshot.Helpers
 						_capture.CaptureDetails.AddMetaData("source", "Screen");
 						_capture.CaptureDetails.Title = "Screen";
 					}
-					SetDPI();
+					SetDpi();
 					await HandleCaptureAsync(token);
 					break;
 				case CaptureMode.IE:
 					if (IECaptureHelper.CaptureIE(_capture, SelectedCaptureWindow) != null)
 					{
 						_capture.CaptureDetails.AddMetaData("source", "Internet Explorer");
-						SetDPI();
+						SetDpi();
 						await HandleCaptureAsync(token);
 					}
 					break;
@@ -390,9 +383,9 @@ namespace Greenshot.Helpers
 							}
 							break;
 						case ScreenCaptureMode.Fixed:
-							if (conf.ScreenToCapture > 0 && conf.ScreenToCapture <= User32.AllDisplays().Count)
+							if (CoreConfiguration.ScreenToCapture > 0 && CoreConfiguration.ScreenToCapture <= User32.AllDisplays().Count)
 							{
-								_capture = WindowCapture.CaptureRectangle(_capture, User32.AllDisplays()[conf.ScreenToCapture].BoundsRectangle);
+								_capture = WindowCapture.CaptureRectangle(_capture, User32.AllDisplays()[CoreConfiguration.ScreenToCapture].BoundsRectangle);
 								captureTaken = true;
 							}
 							break;
@@ -404,7 +397,7 @@ namespace Greenshot.Helpers
 					{
 						_capture = WindowCapture.CaptureScreen(_capture);
 					}
-					SetDPI();
+					SetDpi();
 					await HandleCaptureAsync(token);
 					break;
 				case CaptureMode.Clipboard:
@@ -495,27 +488,28 @@ namespace Greenshot.Helpers
 					}
 					break;
 				case CaptureMode.LastRegion:
-					if (!conf.LastCapturedRegion.IsEmpty)
+					if (!CoreConfiguration.LastCapturedRegion.IsEmpty)
 					{
-						_capture = WindowCapture.CaptureRectangle(_capture, conf.LastCapturedRegion);
+						_capture = WindowCapture.CaptureRectangle(_capture, CoreConfiguration.LastCapturedRegion);
 
 						// Set capture title, fixing bug #3569703
-						foreach (WindowDetails window in WindowDetails.GetVisibleWindows())
+						foreach (var window in WindowDetails.GetVisibleWindows())
 						{
-							Point estimatedLocation = new Point(conf.LastCapturedRegion.X + (conf.LastCapturedRegion.Width/2), conf.LastCapturedRegion.Y + (conf.LastCapturedRegion.Height/2));
-							if (window.Contains(estimatedLocation))
+							var estimatedLocation = new Point(CoreConfiguration.LastCapturedRegion.X + (CoreConfiguration.LastCapturedRegion.Width/2), CoreConfiguration.LastCapturedRegion.Y + (CoreConfiguration.LastCapturedRegion.Height/2));
+							if (!window.Contains(estimatedLocation))
 							{
-								_selectedCaptureWindow = window;
-								_capture.CaptureDetails.Title = _selectedCaptureWindow.Text;
-								break;
+								continue;
 							}
+							_selectedCaptureWindow = window;
+							_capture.CaptureDetails.Title = _selectedCaptureWindow.Text;
+							break;
 						}
 						// Move cursor, fixing bug #3569703
 						_capture.MoveMouseLocation(_capture.ScreenBounds.Location.X - _capture.Location.X, _capture.ScreenBounds.Location.Y - _capture.Location.Y);
 						//capture.MoveElements(capture.ScreenBounds.Location.X - capture.Location.X, capture.ScreenBounds.Location.Y - capture.Location.Y);
 
 						_capture.CaptureDetails.AddMetaData("source", "screen");
-						SetDPI();
+						SetDpi();
 						await HandleCaptureAsync(token);
 					}
 					break;
@@ -525,14 +519,14 @@ namespace Greenshot.Helpers
 					{
 						_capture = WindowCapture.CaptureScreen(_capture);
 						_capture.CaptureDetails.AddMetaData("source", "screen");
-						SetDPI();
+						SetDpi();
 						await CaptureWithFeedbackAsync(retrieveWindowDetailsTask, token);
 					}
 					else
 					{
 						_capture = WindowCapture.CaptureRectangle(_capture, _captureRect);
 						_capture.CaptureDetails.AddMetaData("source", "screen");
-						SetDPI();
+						SetDpi();
 						await HandleCaptureAsync(token);
 					}
 					break;
@@ -566,7 +560,7 @@ namespace Greenshot.Helpers
 			await Task.Run(() =>
 			{
 				// Force children retrieval, sometimes windows close on losing focus and this is solved by caching
-				int goLevelDeep = conf.WindowCaptureAllChildLocations ? 20 : 3;
+				int goLevelDeep = CoreConfiguration.WindowCaptureAllChildLocations ? 20 : 3;
                 var visibleWindows = from window in WindowDetails.GetMetroApps().Concat(WindowDetails.GetAllWindows())
 					where window.Visible && (window.WindowRectangle.Width != 0 && window.WindowRectangle.Height != 0)
 					select window;
@@ -586,7 +580,7 @@ namespace Greenshot.Helpers
 
 		private void AddConfiguredDestination()
 		{
-			foreach (string destinationDesignation in conf.OutputDestinations)
+			foreach (string destinationDesignation in CoreConfiguration.OutputDestinations)
 			{
 				ILegacyDestination destination = DestinationHelper.GetDestination(destinationDesignation);
 				if (destination != null)
@@ -610,7 +604,7 @@ namespace Greenshot.Helpers
 				RemoveEventHandler(sender, e);
 				return;
 			}
-			ISurface surface = eventArgs.Surface;
+			var surface = eventArgs.Surface;
 			if (surface != null && eventArgs.MessageType == SurfaceMessageTyp.FileSaved)
 			{
 				if (!string.IsNullOrEmpty(surface.LastSaveFullPath))
@@ -619,13 +613,15 @@ namespace Greenshot.Helpers
 
 					try
 					{
-						var psi = new ProcessStartInfo("explorer.exe");
-						psi.Arguments = Path.GetDirectoryName(surface.LastSaveFullPath);
-						psi.UseShellExecute = false;
-						using (Process p = new Process())
+						var psi = new ProcessStartInfo("explorer.exe")
 						{
-							p.StartInfo = psi;
-							p.Start();
+							Arguments = Path.GetDirectoryName(surface.LastSaveFullPath),
+							UseShellExecute = false
+						};
+						using (var process = new Process())
+						{
+							process.StartInfo = psi;
+							process.Start();
 						}
 					}
 					catch (Exception ex)
@@ -638,31 +634,37 @@ namespace Greenshot.Helpers
 						try
 						{
 							string windowsPath = Environment.GetEnvironmentVariable("SYSTEMROOT");
-							string explorerPath = Path.Combine(windowsPath, "explorer.exe");
-							if (File.Exists(explorerPath))
+							if (windowsPath != null)
 							{
-								var psi = new ProcessStartInfo(explorerPath);
-								psi.Arguments = Path.GetDirectoryName(surface.LastSaveFullPath);
-								psi.UseShellExecute = false;
-								using (var p = new Process())
+								string explorerPath = Path.Combine(windowsPath, "explorer.exe");
+								if (File.Exists(explorerPath))
 								{
-									p.StartInfo = psi;
-									p.Start();
+									var psi = new ProcessStartInfo(explorerPath)
+									{
+										Arguments = Path.GetDirectoryName(surface.LastSaveFullPath),
+										UseShellExecute = false
+									};
+									using (var process = new Process())
+									{
+										process.StartInfo = psi;
+										process.Start();
+									}
+									errorMessage = null;
 								}
-								errorMessage = null;
 							}
 						}
 						catch
 						{
+							// ignored
 						}
 					}
 					if (errorMessage != null)
 					{
-						MessageBox.Show(string.Format("{0}\r\nexplorer.exe {1}", errorMessage, surface.LastSaveFullPath), "explorer.exe", MessageBoxButtons.OK, MessageBoxIcon.Error);
+						MessageBox.Show($"{errorMessage}\r\nexplorer.exe {surface.LastSaveFullPath}", "explorer.exe", MessageBoxButtons.OK, MessageBoxIcon.Error);
 					}
 				}
 			}
-			else if (surface != null && surface.UploadUri != null)
+			else if (surface?.UploadUri != null)
 			{
 				Process.Start(surface.UploadUri.AbsoluteUri);
 			}
@@ -684,7 +686,7 @@ namespace Greenshot.Helpers
 		/// <param name="eventArgs"></param>
 		private void SurfaceMessageReceived(object sender, SurfaceMessageEventArgs eventArgs)
 		{
-			if (eventArgs == null || string.IsNullOrEmpty(eventArgs.Message))
+			if (string.IsNullOrEmpty(eventArgs?.Message))
 			{
 				return;
 			}
@@ -724,9 +726,9 @@ namespace Greenshot.Helpers
 			else
 			{
 				// Make sure the resolution is set correctly!
-				if (_capture.CaptureDetails != null && _capture.Image != null)
+				if (_capture.CaptureDetails != null)
 				{
-					((Bitmap) _capture.Image).SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
+					((Bitmap) _capture.Image)?.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
 				}
 				await DoCaptureFeedbackAsync(token);
 			}
@@ -740,11 +742,13 @@ namespace Greenshot.Helpers
 			}
 
 			// Create Surface with capture, this way elements can be added automatically (like the mouse cursor)
-			var surface = new Surface(_capture);
-			surface.Modified = !outputMade;
+			var surface = new Surface(_capture)
+			{
+				Modified = !outputMade
+			};
 
 			// Register notify events if this is wanted			
-			if (conf.ShowTrayNotification && !conf.HideTrayicon)
+			if (CoreConfiguration.ShowTrayNotification && !CoreConfiguration.HideTrayicon)
 			{
 				surface.SurfaceMessage += SurfaceMessageReceived;
 			}
@@ -841,8 +845,8 @@ namespace Greenshot.Helpers
 				return false;
 			}
 			// Fix for Bug #3430560 
-			conf.LastCapturedRegion = _selectedCaptureWindow.WindowRectangle;
-			bool returnValue = CaptureWindow(_selectedCaptureWindow, _capture, conf.WindowCaptureMode) != null;
+			CoreConfiguration.LastCapturedRegion = _selectedCaptureWindow.WindowRectangle;
+			bool returnValue = CaptureWindow(_selectedCaptureWindow, _capture, CoreConfiguration.WindowCaptureMode) != null;
 			return returnValue;
 		}
 
@@ -851,27 +855,29 @@ namespace Greenshot.Helpers
 		/// </summary>
 		/// <param name="process">Proces to check for the presentation framework</param>
 		/// <returns>true if the process uses WPF</returns>
-		private static bool isWPF(Process process)
+		private static bool IsWpf(Process process)
 		{
-			if (process != null)
+			if (process == null)
 			{
-				try
+				return false;
+			}
+			try
+			{
+				foreach (ProcessModule module in process.Modules)
 				{
-					foreach (ProcessModule module in process.Modules)
+					if (!module.ModuleName.StartsWith("PresentationFramework"))
 					{
-						if (module.ModuleName.StartsWith("PresentationFramework"))
-						{
-							LOG.InfoFormat("Found that Process {0} uses {1}, assuming it's using WPF", process.ProcessName, module.FileName);
-							return true;
-						}
+						continue;
 					}
-				}
-				catch (Exception)
-				{
-					// Access denied on the modules
-					LOG.WarnFormat("No access on the modules from process {0}, assuming WPF is used.", process.ProcessName);
+					LOG.InfoFormat("Found that Process {0} uses {1}, assuming it's using WPF", process.ProcessName, module.FileName);
 					return true;
 				}
+			}
+			catch (Exception)
+			{
+				// Access denied on the modules
+				LOG.WarnFormat("No access on the modules from process {0}, assuming WPF is used.", process.ProcessName);
+				return true;
 			}
 			return false;
 		}
@@ -889,12 +895,12 @@ namespace Greenshot.Helpers
 			{
 				captureForWindow = new Capture();
 			}
-			Rectangle windowRectangle = windowToCapture.WindowRectangle;
+			var windowRectangle = windowToCapture.WindowRectangle;
 
 			// When Vista & DWM (Aero) enabled
 			bool dwmEnabled = Dwm.IsDwmEnabled;
 			// get process name to be able to exclude certain processes from certain capture modes
-			using (Process process = windowToCapture.Process)
+			using (var process = windowToCapture.Process)
 			{
 				bool isAutoMode = windowCaptureMode == WindowCaptureMode.Auto;
 				// For WindowCaptureMode.Auto we check:
@@ -903,11 +909,11 @@ namespace Greenshot.Helpers
 				// 3) Otherwise use GDI (Screen might be also okay but might lose content)
 				if (isAutoMode)
 				{
-					if (conf.IECapture && IECaptureHelper.IsIEWindow(windowToCapture))
+					if (CoreConfiguration.IECapture && IECaptureHelper.IsIEWindow(windowToCapture))
 					{
 						try
 						{
-							ICapture ieCapture = IECaptureHelper.CaptureIE(captureForWindow, windowToCapture);
+							var ieCapture = IECaptureHelper.CaptureIE(captureForWindow, windowToCapture);
 							if (ieCapture != null)
 							{
 								return ieCapture;
@@ -925,7 +931,7 @@ namespace Greenshot.Helpers
 					// Change to GDI, if allowed
 					if (!windowToCapture.IsMetroApp && WindowCapture.IsGdiAllowed(process))
 					{
-						if (!dwmEnabled && isWPF(process))
+						if (!dwmEnabled && IsWpf(process))
 						{
 							// do not use GDI, as DWM is not enabled and the application uses PresentationFramework.dll -> isWPF
 							LOG.InfoFormat("Not using GDI for windows of process {0}, as the process uses WPF", process.ProcessName);
@@ -989,10 +995,10 @@ namespace Greenshot.Helpers
 								if (tmpCapture != null)
 								{
 									// check if GDI capture any good, by comparing it with the screen content
-									int blackCountGDI = ImageHelper.CountColor(tmpCapture.Image, Color.Black, false);
-									int GDIPixels = tmpCapture.Image.Width*tmpCapture.Image.Height;
-									int blackPercentageGDI = (blackCountGDI*100)/GDIPixels;
-									if (blackPercentageGDI >= 1)
+									int blackCountGdi = ImageHelper.CountColor(tmpCapture.Image, Color.Black, false);
+									int gdiPixels = tmpCapture.Image.Width*tmpCapture.Image.Height;
+									int blackPercentageGdi = (blackCountGdi*100)/gdiPixels;
+									if (blackPercentageGdi >= 1)
 									{
 										int screenPixels = windowRectangle.Width*windowRectangle.Height;
 										using (ICapture screenCapture = new Capture())
@@ -1002,11 +1008,11 @@ namespace Greenshot.Helpers
 											{
 												int blackCountScreen = ImageHelper.CountColor(screenCapture.Image, Color.Black, false);
 												int blackPercentageScreen = (blackCountScreen*100)/screenPixels;
-												if (screenPixels == GDIPixels)
+												if (screenPixels == gdiPixels)
 												{
 													// "easy compare", both have the same size
 													// If GDI has more black, use the screen capture.
-													if (blackPercentageGDI > blackPercentageScreen)
+													if (blackPercentageGdi > blackPercentageScreen)
 													{
 														LOG.Debug("Using screen capture, as GDI had additional black.");
 														// changeing the image will automatically dispose the previous
@@ -1015,10 +1021,10 @@ namespace Greenshot.Helpers
 														screenCapture.NullImage();
 													}
 												}
-												else if (screenPixels < GDIPixels)
+												else if (screenPixels < gdiPixels)
 												{
 													// Screen capture is cropped, window is outside of screen
-													if (blackPercentageGDI > 50 && blackPercentageGDI > blackPercentageScreen)
+													if (blackPercentageGdi > 50 && blackPercentageGdi > blackPercentageScreen)
 													{
 														LOG.Debug("Using screen capture, as GDI had additional black.");
 														// changeing the image will automatically dispose the previous
@@ -1094,33 +1100,27 @@ namespace Greenshot.Helpers
 
 			if (captureForWindow != null)
 			{
-				if (windowToCapture != null)
-				{
-					captureForWindow.CaptureDetails.Title = windowToCapture.Text;
-				}
+				captureForWindow.CaptureDetails.Title = windowToCapture.Text;
 			}
 
 			return captureForWindow;
 		}
 
-		private void SetDPI()
+		private void SetDpi()
 		{
 			// Workaround for proble with DPI retrieval, the FromHwnd activates the window...
-			WindowDetails previouslyActiveWindow = WindowDetails.GetActiveWindow();
+			var previouslyActiveWindow = WindowDetails.GetActiveWindow();
 			// Workaround for changed DPI settings in Windows 7
-			using (Graphics graphics = Graphics.FromHwnd(MainForm.Instance.Handle))
+			using (var graphics = Graphics.FromHwnd(MainForm.Instance.Handle))
 			{
 				_capture.CaptureDetails.DpiX = graphics.DpiX;
 				_capture.CaptureDetails.DpiY = graphics.DpiY;
 			}
-			if (previouslyActiveWindow != null)
+			// Set previouslyActiveWindow as foreground window
+			previouslyActiveWindow?.ToForeground();
+			if (_capture.CaptureDetails != null)
 			{
-				// Set previouslyActiveWindow as foreground window
-				previouslyActiveWindow.ToForeground();
-			}
-			if (_capture.CaptureDetails != null && _capture.Image != null)
-			{
-				((Bitmap) _capture.Image).SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
+				((Bitmap) _capture.Image)?.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
 			}
 		}
 
@@ -1133,7 +1133,7 @@ namespace Greenshot.Helpers
 			using (var captureForm = new CaptureForm(_capture, retrieveWindowsTask))
 			{
 				// Make sure the form is hidden after showing, even if an exception occurs, so all errors will be shown
-				DialogResult result = DialogResult.Cancel;
+				DialogResult result;
 				try
 				{
 					result = captureForm.ShowDialog(MainForm.Instance);
@@ -1161,7 +1161,7 @@ namespace Greenshot.Helpers
 						// Important here is that the location needs to be offsetted back to screen coordinates!
 						Rectangle tmpRectangle = _captureRect;
 						tmpRectangle.Offset(_capture.ScreenBounds.Location.X, _capture.ScreenBounds.Location.Y);
-						conf.LastCapturedRegion = tmpRectangle;
+						CoreConfiguration.LastCapturedRegion = tmpRectangle;
 						await HandleCaptureAsync(token);
 					}
 				}

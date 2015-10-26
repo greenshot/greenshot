@@ -20,7 +20,6 @@
  */
 
 using Dapplo.Config.Ini;
-using Greenshot.Plugin;
 using GreenshotPlugin.Configuration;
 using Dapplo.Windows.Native;
 using log4net;
@@ -30,7 +29,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
+using GreenshotPlugin.Interfaces.Forms;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotPlugin.Core
 {
@@ -64,24 +66,19 @@ namespace GreenshotPlugin.Core
 		/// <param name="e"></param>
 		private static void OnIconSizeChanged(object sender, PropertyChangedEventArgs e)
 		{
-			if (e.PropertyName == "IconSize")
+			if (e.PropertyName != "IconSize")
 			{
-				List<Image> cachedImages = new List<Image>();
-				lock (ExeIconCache)
-				{
-					foreach (string key in ExeIconCache.Keys)
-					{
-						cachedImages.Add(ExeIconCache[key]);
-					}
-					ExeIconCache.Clear();
-				}
-				foreach (Image cachedImage in cachedImages)
-				{
-					if (cachedImage != null)
-					{
-						cachedImage.Dispose();
-					}
-				}
+				return;
+			}
+			var cachedImages = new List<Image>();
+			lock (ExeIconCache)
+			{
+				cachedImages.AddRange(ExeIconCache.Keys.Select(key => ExeIconCache[key]));
+				ExeIconCache.Clear();
+			}
+			foreach (var cachedImage in cachedImages)
+			{
+				cachedImage?.Dispose();
 			}
 		}
 
@@ -126,7 +123,7 @@ namespace GreenshotPlugin.Core
 		/// <returns>Bitmap with the icon or null if something happended</returns>
 		public static Image GetCachedExeIcon(string path, int index)
 		{
-			string cacheKey = string.Format("{0}:{1}", path, index);
+			string cacheKey = $"{path}:{index}";
 			Image returnValue;
 			lock (ExeIconCache)
 			{
@@ -257,7 +254,7 @@ namespace GreenshotPlugin.Core
 		public static void AddToContextMenu(IGreenshotHost host, ToolStripMenuItem item)
 		{
 			// Here we can hang ourselves to the main context menu!
-			ContextMenuStrip contextMenu = host.MainMenu;
+			var contextMenu = host.MainMenu;
 			bool addedItem = false;
 
 			lock (contextMenu)
@@ -265,24 +262,26 @@ namespace GreenshotPlugin.Core
 				// Try to find a separator, so we insert ourselves after it 
 				for (int i = 0; i < contextMenu.Items.Count; i++)
 				{
-					if (contextMenu.Items[i].GetType() == typeof (ToolStripSeparator))
+					if (contextMenu.Items[i].GetType() != typeof (ToolStripSeparator))
 					{
-						// Check if we need to add a new separator, which is done if the first found has a Tag with the value "PluginsAreAddedBefore"
-						if ("PluginsAreAddedBefore".Equals(contextMenu.Items[i].Tag))
-						{
-							ToolStripSeparator separator = new ToolStripSeparator();
-							separator.Tag = "PluginsAreAddedAfter";
-							separator.Size = new Size(305, 6);
-							contextMenu.Items.Insert(i, separator);
-						}
-						else if (!"PluginsAreAddedAfter".Equals(contextMenu.Items[i].Tag))
-						{
-							continue;
-						}
-						contextMenu.Items.Insert(i + 1, item);
-						addedItem = true;
-						break;
+						continue;
 					}
+					// Check if we need to add a new separator, which is done if the first found has a Tag with the value "PluginsAreAddedBefore"
+					if ("PluginsAreAddedBefore".Equals(contextMenu.Items[i].Tag))
+					{
+						var separator = new ToolStripSeparator
+						{
+							Tag = "PluginsAreAddedAfter", Size = new Size(305, 6)
+						};
+						contextMenu.Items.Insert(i, separator);
+					}
+					else if (!"PluginsAreAddedAfter".Equals(contextMenu.Items[i].Tag))
+					{
+						continue;
+					}
+					contextMenu.Items.Insert(i + 1, item);
+					addedItem = true;
+					break;
 				}
 				// If we didn't insert the item, we just add it...
 				if (!addedItem)

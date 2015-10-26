@@ -23,7 +23,7 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using GreenshotEditorPlugin.Drawing.Fields;
-using Greenshot.Plugin.Drawing;
+using GreenshotPlugin.Interfaces.Drawing;
 
 /// <summary>
 /// Graphical filter which can be added to DrawableContainer.

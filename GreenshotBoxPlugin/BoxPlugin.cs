@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
@@ -30,6 +29,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.ComponentModel.Composition;
 using Dapplo.Addons;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
+using GreenshotPlugin.Extensions;
 
 namespace GreenshotBoxPlugin
 {
@@ -40,7 +42,7 @@ namespace GreenshotBoxPlugin
 	[StartupAction]
 	public class BoxPlugin : IGreenshotPlugin, IStartupAction
 	{
-		private ComponentResourceManager _resources;
+		private readonly ComponentResourceManager _resources = new ComponentResourceManager(typeof(BoxPlugin));
 		private ToolStripMenuItem _itemPlugInConfig;
 
 		[Import]
@@ -64,6 +66,17 @@ namespace GreenshotBoxPlugin
 			set;
 		}
 
+		[Export]
+		public IDestination BoxDestination
+		{
+			get
+			{
+				var destination = new BoxDestination();
+				var boxIcon = (Bitmap) _resources.GetObject("Box");
+                destination.Icon = boxIcon.ToBitmapSource();
+				return destination;
+			}
+		}
 
 		public void Dispose()
 		{
@@ -100,12 +113,10 @@ namespace GreenshotBoxPlugin
 		/// <param name="token"></param>
 		public Task StartAsync(CancellationToken token = new CancellationToken())
 		{
-			// Register / get the box configuration
-			_resources = new ComponentResourceManager(typeof (BoxPlugin));
-
 			_itemPlugInConfig = new ToolStripMenuItem
 			{
-				Image = (Image) _resources.GetObject("Box"), Text = BoxLanguage.Configure
+				Image = (Image)_resources.GetObject("Box"),
+				Text = BoxLanguage.Configure
 			};
 			_itemPlugInConfig.Click += (sender, eventArgs) => Configure();
 

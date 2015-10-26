@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Plugin;
 using GreenshotPlugin.Interfaces;
 using System.Collections.Generic;
 using System.ServiceModel;
@@ -61,15 +60,6 @@ namespace Greenshot.Helpers
 			{
 				var client = factory.CreateChannel();
 				client.Exit();
-			}
-		}
-
-		public static void ReloadConfig()
-		{
-			using (var factory = ChannelFactory)
-			{
-				var client = factory.CreateChannel();
-				client.ReloadConfig();
 			}
 		}
 	}

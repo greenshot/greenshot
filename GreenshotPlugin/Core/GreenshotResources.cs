@@ -19,13 +19,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.ComponentModel;
 using System.Drawing;
-using System.Windows;
-using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace GreenshotPlugin.Core
 {
@@ -34,7 +29,7 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public static class GreenshotResources
 	{
-		private static ComponentResourceManager greenshotResources = new ComponentResourceManager(typeof (GreenshotResources));
+		private static readonly ComponentResourceManager greenshotResources = new ComponentResourceManager(typeof (GreenshotResources));
 
 		public static Image GetImage(string imageName)
 		{
@@ -54,28 +49,6 @@ namespace GreenshotPlugin.Core
 		public static Image GetGreenshotImage()
 		{
 			return GetImage("Greenshot.Image");
-		}
-
-		/// <summary>
-		/// Extension method to convert an Icon to ImageSource (used for WPF)
-		/// </summary>
-		/// <param name="icon"></param>
-		/// <returns>BitmapSource</returns>
-		public static BitmapSource ToBitmapSource(this Icon icon)
-		{
-			var bitmapSource = Imaging.CreateBitmapSourceFromHIcon(icon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-
-			return bitmapSource;
-		}
-
-		/// <summary>
-		/// Extension method to convert an Icon to ImageSource (used for WPF)
-		/// </summary>
-		/// <param name="icon"></param>
-		/// <returns>BitmapSource</returns>
-		public static BitmapSource ToBitmapSource(this Bitmap bitmap)
-		{
-			return System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
 		}
 	}
 }

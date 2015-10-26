@@ -21,7 +21,6 @@
 
 using System.ComponentModel;
 using System.Drawing;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using log4net;
 using System.IO;
@@ -32,6 +31,8 @@ using System.Threading.Tasks;
 using GreenshotPlugin.Windows;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotFlickrPlugin
 {

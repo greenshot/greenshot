@@ -19,36 +19,74 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.ComponentModel;
+using System;
+using System.Collections.Generic;
+using GreenshotPlugin.Configuration;
 
-namespace GreenshotPlugin.Interfaces.Plugin
+namespace GreenshotPlugin.Interfaces
 {
 	/// <summary>
-	///  Meta-data belonging to the PluginAttribute, which makes it possible to specify type-safe meta-data.
+	/// Details for the capture, like the window title and date/time etc.
 	/// </summary>
-	public interface IGreenshotPluginMetadata
+	public interface ICaptureDetails
 	{
-		/// <summary>
-		/// The name of the plugin
-		/// </summary>
-		string Name
+		string Filename
+		{
+			get;
+			set;
+		}
+
+		string Title
+		{
+			get;
+			set;
+		}
+
+		DateTime DateTime
+		{
+			get;
+			set;
+		}
+
+		List<ILegacyDestination> CaptureDestinations
+		{
+			get;
+			set;
+		}
+
+		Dictionary<string, string> MetaData
 		{
 			get;
 		}
 
 		/// <summary>
-		/// Name of the creator
+		/// Helper method to prevent complex code which needs to check every key
 		/// </summary>
-		[DefaultValue("Greenshot")]
-		string CreatedBy
+		/// <param name="key">The key for the meta-data</param>
+		/// <param name="value">The value for the meta-data</param>
+		void AddMetaData(string key, string value);
+
+		void ClearDestinations();
+		void RemoveDestination(ILegacyDestination captureDestination);
+		void AddDestination(ILegacyDestination captureDestination);
+		bool HasDestination(string designation);
+
+		CaptureMode CaptureMode
 		{
 			get;
+			set;
 		}
 
-		[DefaultValue(false)]
-		bool Configurable
+		float DpiX
 		{
 			get;
+			set;
+		}
+
+		float DpiY
+		{
+			get;
+			set;
 		}
 	}
 }

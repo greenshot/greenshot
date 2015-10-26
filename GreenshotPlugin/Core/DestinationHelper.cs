@@ -20,13 +20,14 @@
  */
 
 using Dapplo.Config.Ini;
-using Greenshot.Plugin;
 using GreenshotPlugin.Configuration;
 using log4net;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotPlugin.Core
 {

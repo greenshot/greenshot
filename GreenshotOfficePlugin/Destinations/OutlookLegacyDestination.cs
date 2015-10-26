@@ -19,11 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using Greenshot.Plugin;
-using GreenshotOfficePlugin.OfficeExport;
-using GreenshotPlugin.Core;
-using Microsoft.Win32;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -31,9 +26,15 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Config.Ini;
+using GreenshotOfficePlugin.OfficeExport;
+using GreenshotPlugin.Core;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
+using Microsoft.Win32;
 using Outlook = Microsoft.Office.Interop.Outlook;
 
-namespace GreenshotOfficePlugin
+namespace GreenshotOfficePlugin.Destinations
 {
 	/// <summary>
 	/// Description of OutlookDestination.
@@ -41,37 +42,37 @@ namespace GreenshotOfficePlugin
 	public class OutlookLegacyDestination : AbstractLegacyDestination
 	{
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (OutlookLegacyDestination));
-		private const int ICON_APPLICATION = 0;
-		private const int ICON_MEETING = 2;
-		private const string OUTLOOK_PATH_KEY = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\OUTLOOK.EXE";
+		private const int IconApplication = 0;
+		private const int IconMeeting = 2;
+		private const string OutlookPathKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\OUTLOOK.EXE";
 
-		private static Image mailIcon = GreenshotResources.GetImage("Email.Image");
-		private static IOfficeConfiguration conf = IniConfig.Current.Get<IOfficeConfiguration>();
-		private static string exePath = null;
-		private static bool isActiveFlag = false;
-		private static string mapiClient = "Microsoft Outlook";
-		public const string DESIGNATION = "Outlook";
-		private string outlookInspectorCaption;
-		private Outlook.OlObjectClass outlookInspectorType;
+		private static readonly Image MailIcon = GreenshotResources.GetImage("Email.Image");
+		private static readonly IOfficeConfiguration OfficeConfiguration = IniConfig.Current.Get<IOfficeConfiguration>();
+		private static readonly string ExePath;
+		private static readonly bool IsActiveFlag;
+		private const string MapiClient = "Microsoft Outlook";
+		private const string DESIGNATION = "Outlook";
+		private readonly string _outlookInspectorCaption;
+		private readonly Outlook.OlObjectClass _outlookInspectorType;
 
 		static OutlookLegacyDestination()
 		{
 			if (HasOutlook())
 			{
-				isActiveFlag = true;
+				IsActiveFlag = true;
 			}
-			exePath = PluginUtils.GetExePath("OUTLOOK.EXE");
-			if (exePath != null && File.Exists(exePath))
+			ExePath = PluginUtils.GetExePath("OUTLOOK.EXE");
+			if (ExePath != null && File.Exists(ExePath))
 			{
 				WindowDetails.AddProcessToExcludeFromFreeze("outlook");
 			}
 			else
 			{
-				exePath = null;
+				ExePath = null;
 			}
-			if (exePath == null)
+			if (ExePath == null)
 			{
-				isActiveFlag = false;
+				IsActiveFlag = false;
 			}
 		}
 
@@ -82,8 +83,8 @@ namespace GreenshotOfficePlugin
 
 		public OutlookLegacyDestination(string outlookInspectorCaption, Outlook.OlObjectClass outlookInspectorType)
 		{
-			this.outlookInspectorCaption = outlookInspectorCaption;
-			this.outlookInspectorType = outlookInspectorType;
+			_outlookInspectorCaption = outlookInspectorCaption;
+			_outlookInspectorType = outlookInspectorType;
 		}
 
 		public override string Designation
@@ -98,14 +99,11 @@ namespace GreenshotOfficePlugin
 		{
 			get
 			{
-				if (outlookInspectorCaption == null)
+				if (_outlookInspectorCaption == null)
 				{
-					return mapiClient;
+					return MapiClient;
 				}
-				else
-				{
-					return outlookInspectorCaption;
-				}
+				return _outlookInspectorCaption;
 			}
 		}
 
@@ -121,7 +119,7 @@ namespace GreenshotOfficePlugin
 		{
 			get
 			{
-				return base.IsActive && isActiveFlag;
+				return base.IsActive && IsActiveFlag;
 			}
 		}
 
@@ -145,34 +143,29 @@ namespace GreenshotOfficePlugin
 		{
 			get
 			{
-				if (outlookInspectorCaption != null)
+				if (_outlookInspectorCaption != null)
 				{
-					if (Outlook.OlObjectClass.olAppointment.Equals(outlookInspectorType))
+					if (Outlook.OlObjectClass.olAppointment.Equals(_outlookInspectorType))
 					{
 						// Make sure we loaded the icon, maybe the configuration has been changed!
-						return PluginUtils.GetCachedExeIcon(exePath, ICON_MEETING);
+						return PluginUtils.GetCachedExeIcon(ExePath, IconMeeting);
 					}
-					else
-					{
-						return mailIcon;
-					}
+					return MailIcon;
 				}
-				else
-				{
-					return PluginUtils.GetCachedExeIcon(exePath, ICON_APPLICATION);
-				}
+				return PluginUtils.GetCachedExeIcon(ExePath, IconApplication);
 			}
 		}
 
 		public override IEnumerable<ILegacyDestination> DynamicDestinations()
 		{
-			IDictionary<string, Outlook.OlObjectClass> inspectorCaptions = OutlookExporter.RetrievePossibleTargets();
-			if (inspectorCaptions != null)
+			var inspectorCaptions = OutlookExporter.RetrievePossibleTargets();
+			if (inspectorCaptions == null)
 			{
-				foreach (string inspectorCaption in inspectorCaptions.Keys)
-				{
-					yield return new OutlookLegacyDestination(inspectorCaption, inspectorCaptions[inspectorCaption]);
-				}
+				yield break;
+			}
+			foreach (string inspectorCaption in inspectorCaptions.Keys)
+			{
+				yield return new OutlookLegacyDestination(inspectorCaption, inspectorCaptions[inspectorCaption]);
 			}
 		}
 
@@ -182,7 +175,8 @@ namespace GreenshotOfficePlugin
 		/// <param name="manuallyInitiated"></param>
 		/// <param name="surface"></param>
 		/// <param name="captureDetails"></param>
-		/// <returns></returns>
+		/// <param name="token"></param>
+		/// <returns>ExportInformation</returns>
 		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
 		{
 			var exportInformation = new ExportInformation
@@ -215,21 +209,23 @@ namespace GreenshotOfficePlugin
 			// Make sure it's "clean" so it doesn't corrupt the header
 			attachmentName = Regex.Replace(attachmentName, @"[^\x20\d\w]", "");
 
-			if (outlookInspectorCaption != null)
+			if (_outlookInspectorCaption != null)
 			{
 				await Task.Factory.StartNew(() =>
 				{
-					OutlookExporter.ExportToInspector(outlookInspectorCaption, tmpFile, attachmentName);
+					OutlookExporter.ExportToInspector(_outlookInspectorCaption, tmpFile, attachmentName);
 					exportInformation.ExportMade = true;
 				}, token, TaskCreationOptions.None, scheduler);
 			}
 			else
 			{
-				IDictionary<string, Outlook.OlObjectClass> inspectorCaptions = OutlookExporter.RetrievePossibleTargets();
+				var inspectorCaptions = OutlookExporter.RetrievePossibleTargets();
 				if (!manuallyInitiated && inspectorCaptions != null && inspectorCaptions.Count > 0)
 				{
-					List<ILegacyDestination> destinations = new List<ILegacyDestination>();
-					destinations.Add(new OutlookLegacyDestination());
+					var destinations = new List<ILegacyDestination>
+					{
+						new OutlookLegacyDestination()
+					};
 					foreach (string inspectorCaption in inspectorCaptions.Keys)
 					{
 						destinations.Add(new OutlookLegacyDestination(inspectorCaption, inspectorCaptions[inspectorCaption]));
@@ -237,13 +233,10 @@ namespace GreenshotOfficePlugin
 					// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
 					return await ShowPickerMenuAsync(false, surface, captureDetails, destinations, token).ConfigureAwait(false);
 				}
-				else
+				await Task.Factory.StartNew(() =>
 				{
-					await Task.Factory.StartNew(() =>
-					{
-						exportInformation.ExportMade = OutlookExporter.ExportToOutlook(conf.OutlookEmailFormat, tmpFile, FilenameHelper.FillPattern(conf.EmailSubjectPattern, captureDetails, false), attachmentName, conf.EmailTo, conf.EmailCC, conf.EmailBCC, null);
-					}, token, TaskCreationOptions.None, scheduler);
-				}
+					exportInformation.ExportMade = OutlookExporter.ExportToOutlook(OfficeConfiguration.OutlookEmailFormat, tmpFile, FilenameHelper.FillPattern(OfficeConfiguration.EmailSubjectPattern, captureDetails, false), attachmentName, OfficeConfiguration.EmailTo, OfficeConfiguration.EmailCC, OfficeConfiguration.EmailBCC, null);
+				}, token, TaskCreationOptions.None, scheduler);
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;
@@ -251,15 +244,11 @@ namespace GreenshotOfficePlugin
 
 		private static string GetOutlookExePath()
 		{
-			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(OUTLOOK_PATH_KEY, false))
+			using (var key = Registry.LocalMachine.OpenSubKey(OutlookPathKey, false))
 			{
-				if (key != null)
-				{
-					// "" is the default key, which should point to the outlook location
-					return (string) key.GetValue("");
-				}
+				// "" is the default key, which should point to the outlook location
+				return (string) key?.GetValue("");
 			}
-			return null;
 		}
 
 		/// <summary>

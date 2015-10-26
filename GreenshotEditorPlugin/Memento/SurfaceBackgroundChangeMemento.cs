@@ -19,9 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Plugin;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using GreenshotPlugin.Interfaces;
 
 namespace GreenshotEditorPlugin.Memento
 {

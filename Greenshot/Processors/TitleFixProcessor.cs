@@ -20,12 +20,12 @@
  */
 
 using Dapplo.Config.Ini;
-using Greenshot.Plugin;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
 using log4net;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using GreenshotPlugin.Interfaces;
 
 namespace Greenshot.Processors
 {

@@ -23,9 +23,7 @@ using Dapplo.Windows.Native;
 using log4net;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Greenshot.Helpers
 {
@@ -46,12 +44,6 @@ namespace Greenshot.Helpers
 		}
 
 		public bool IsHelp
-		{
-			get;
-			set;
-		}
-
-		public bool IsReload
 		{
 			get;
 			set;
@@ -123,16 +115,20 @@ namespace Greenshot.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Parse supplied argument
+		/// </summary>
+		/// <param name="args"></param>
 		public Arguments(string[] args)
 		{
 			FilesToOpen = new List<string>();
 
 			if (args.Length > 0 && LOG.IsDebugEnabled)
 			{
-				StringBuilder argumentString = new StringBuilder();
-				for (int argumentNr = 0; argumentNr < args.Length; argumentNr++)
+				var argumentString = new StringBuilder();
+				foreach (string argument in args)
 				{
-					argumentString.Append("[").Append(args[argumentNr]).Append("] ");
+					argumentString.Append("[").Append(argument).Append("] ");
 				}
 				LOG.Debug("Greenshot arguments: " + argumentString);
 			}
@@ -151,13 +147,6 @@ namespace Greenshot.Helpers
 				if (argument.ToLower().Equals("/exit"))
 				{
 					IsExit = true;
-					continue;
-				}
-
-				// Reload the configuration
-				if (argument.ToLower().Equals("/reload"))
-				{
-					IsReload = true;
 					continue;
 				}
 

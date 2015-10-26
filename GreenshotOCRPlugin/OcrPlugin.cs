@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Plugin;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
@@ -30,6 +29,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Addons;
 using GreenshotPlugin.Extensions;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotOCR
 {

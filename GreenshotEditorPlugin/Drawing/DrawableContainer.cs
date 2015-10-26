@@ -20,8 +20,6 @@
  */
 
 using Dapplo.Config.Ini;
-using Greenshot.Plugin;
-using Greenshot.Plugin.Drawing;
 using GreenshotEditorPlugin.Drawing.Fields;
 using GreenshotEditorPlugin.Drawing.Filters;
 using GreenshotEditorPlugin.Helpers;
@@ -33,6 +31,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace GreenshotEditorPlugin.Drawing
 {

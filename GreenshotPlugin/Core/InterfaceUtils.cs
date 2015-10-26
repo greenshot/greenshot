@@ -23,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
-using Greenshot.Plugin;
 using log4net;
 using System.Linq;
 

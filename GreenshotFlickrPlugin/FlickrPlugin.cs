@@ -24,12 +24,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System.Threading.Tasks;
 using System.Threading;
 using System.ComponentModel.Composition;
 using Dapplo.Addons;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotFlickrPlugin
 {

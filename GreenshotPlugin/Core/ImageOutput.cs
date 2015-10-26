@@ -21,7 +21,6 @@
 
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
-using Greenshot.Plugin;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Controls;
 using log4net;
@@ -36,6 +35,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 using Encoder = System.Drawing.Imaging.Encoder;
 
 namespace GreenshotPlugin.Core

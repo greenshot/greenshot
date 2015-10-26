@@ -20,12 +20,12 @@
  */
 
 using Dapplo.Config.Ini;
-using Greenshot.Plugin.Drawing;
 using log4net;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace GreenshotEditorPlugin.Drawing.Fields
 {

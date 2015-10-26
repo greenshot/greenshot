@@ -22,7 +22,6 @@
 using System.ComponentModel;
 using System.Collections.Generic;
 using System.Drawing;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Dapplo.Config.Ini;
 using System.Threading.Tasks;
@@ -32,6 +31,8 @@ using System.IO;
 using System;
 using System.Windows;
 using Dapplo.Config.Language;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotPhotobucketPlugin
 {

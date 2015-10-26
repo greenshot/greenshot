@@ -19,6 +19,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using GreenshotPlugin.Interfaces.Drawing;
+
 namespace GreenshotEditorPlugin.Forms
 {
 	partial class ImageEditorForm {
@@ -1446,28 +1448,28 @@ namespace GreenshotEditorPlugin.Forms
 			// 
 			this.arrowHeadStartMenuItem.LanguageKey = "editor_arrowheads_start";
 			this.arrowHeadStartMenuItem.Name = "arrowHeadStartMenuItem";
-			this.arrowHeadStartMenuItem.Tag = Greenshot.Plugin.Drawing.ArrowHeadCombination.START_POINT;
+			this.arrowHeadStartMenuItem.Tag = ArrowHeadCombination.START_POINT;
 			this.arrowHeadStartMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
 			// arrowHeadEndMenuItem
 			// 
 			this.arrowHeadEndMenuItem.LanguageKey = "editor_arrowheads_end";
 			this.arrowHeadEndMenuItem.Name = "arrowHeadEndMenuItem";
-			this.arrowHeadEndMenuItem.Tag = Greenshot.Plugin.Drawing.ArrowHeadCombination.END_POINT;
+			this.arrowHeadEndMenuItem.Tag = ArrowHeadCombination.END_POINT;
 			this.arrowHeadEndMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
 			// arrowHeadBothMenuItem
 			// 
 			this.arrowHeadBothMenuItem.LanguageKey = "editor_arrowheads_both";
 			this.arrowHeadBothMenuItem.Name = "arrowHeadBothMenuItem";
-			this.arrowHeadBothMenuItem.Tag = Greenshot.Plugin.Drawing.ArrowHeadCombination.BOTH;
+			this.arrowHeadBothMenuItem.Tag = ArrowHeadCombination.BOTH;
 			this.arrowHeadBothMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
 			// arrowHeadNoneMenuItem
 			// 
 			this.arrowHeadNoneMenuItem.LanguageKey = "editor_arrowheads_none";
 			this.arrowHeadNoneMenuItem.Name = "arrowHeadNoneMenuItem";
-			this.arrowHeadNoneMenuItem.Tag = Greenshot.Plugin.Drawing.ArrowHeadCombination.NONE;
+			this.arrowHeadNoneMenuItem.Tag = ArrowHeadCombination.NONE;
 			this.arrowHeadNoneMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
 			// shadowButton

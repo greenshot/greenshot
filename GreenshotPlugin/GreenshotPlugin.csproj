@@ -126,11 +126,14 @@
     </Compile>
     <Compile Include="Core\AsyncCommand.cs" />
     <Compile Include="Core\BuildInDestinationEnum.cs" />
+    <Compile Include="Core\Capture.cs" />
+    <Compile Include="Core\CaptureDetails.cs" />
     <Compile Include="Core\CaptureHandler.cs" />
     <Compile Include="Core\DestinationHelper.cs" />
     <Compile Include="Core\HelpFileLoader.cs" />
     <Compile Include="Core\WmInputLangChangeRequestFilter.cs" />
-    <Compile Include="Extensions\ControlExtension.cs" />
+    <Compile Include="Extensions\BitmapExtensions.cs" />
+    <Compile Include="Extensions\ControlExtensions.cs" />
     <Compile Include="Core\EventDelay.cs" />
     <Compile Include="Core\FastBitmap.cs" />
     <Compile Include="Configuration\ICaptureConfiguration.cs" />
@@ -151,6 +154,8 @@
     <Compile Include="IEInterop\IWebBrowser2.cs" />
     <Compile Include="Interfaces\AbstractDestination.cs" />
     <Compile Include="Interfaces\ExportInformation.cs" />
+    <Compile Include="Interfaces\ICapture.cs" />
+    <Compile Include="Interfaces\ICaptureDetails.cs" />
     <Compile Include="Interfaces\IDestination.cs" />
     <Compile Include="Interfaces\IGreenshotContract.cs" />
     <Compile Include="Interfaces\Plugin\IGreenshotPluginMetadata.cs" />
@@ -262,7 +267,6 @@
     <Compile Include="Core\SourceForgeHelper.cs" />
     <Compile Include="Core\WindowCapture.cs" />
     <Compile Include="Core\WindowsHelper.cs" />
-    <Compile Include="Interfaces\Capture.cs" />
     <Compile Include="Interfaces\Drawing\Container.cs" />
     <Compile Include="Interfaces\Forms\ImageEditor.cs" />
     <Compile Include="Interfaces\Generic.cs" />

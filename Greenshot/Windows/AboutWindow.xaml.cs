@@ -33,6 +33,7 @@ using System.Windows.Forms.Integration;
 using System.Windows.Input;
 using Dapplo.Config.Language;
 using GreenshotPlugin.Configuration;
+using GreenshotPlugin.Extensions;
 
 namespace Greenshot.Windows
 {
@@ -43,12 +44,12 @@ namespace Greenshot.Windows
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof (AboutWindow));
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
-		private static readonly object lockObject = new Object();
+		private static readonly object LockObject = new object();
 		private static AboutWindow _aboutWindow;
 
 		public static void Create()
 		{
-			lock (lockObject)
+			lock (LockObject)
 			{
 				if (_aboutWindow == null)
 				{

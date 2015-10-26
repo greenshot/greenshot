@@ -19,21 +19,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Plugin;
-using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Text.RegularExpressions;
 using System.Linq;
-using GreenshotOfficePlugin.OfficeExport;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using Dapplo.Config.Language;
+using GreenshotOfficePlugin.OfficeExport;
 using GreenshotPlugin.Configuration;
+using GreenshotPlugin.Core;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
-namespace GreenshotOfficePlugin
+namespace GreenshotOfficePlugin.Destinations
 {
 	/// <summary>
 	/// Description of EmailDestination.

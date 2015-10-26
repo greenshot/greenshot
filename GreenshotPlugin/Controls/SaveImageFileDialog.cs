@@ -20,7 +20,6 @@
  */
 
 using Dapplo.Config.Ini;
-using Greenshot.Plugin;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
 using log4net;
@@ -28,6 +27,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using GreenshotPlugin.Interfaces;
 
 namespace GreenshotPlugin.Controls
 {

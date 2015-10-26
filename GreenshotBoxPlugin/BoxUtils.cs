@@ -21,7 +21,6 @@
 
 using Dapplo.Config.Ini;
 using Dapplo.HttpExtensions;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.OAuth;
 using System;
@@ -32,6 +31,8 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotBoxPlugin
 {

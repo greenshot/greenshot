@@ -20,7 +20,7 @@
  */
 
 using System;
-using Greenshot.Plugin.Drawing;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace GreenshotEditorPlugin.Memento
 {

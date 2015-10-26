@@ -21,7 +21,6 @@
 
 using Dapplo.Config.Ini;
 using Greenshot.Core;
-using Greenshot.Plugin;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
@@ -31,6 +30,8 @@ using System.Drawing;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotOCR
 {

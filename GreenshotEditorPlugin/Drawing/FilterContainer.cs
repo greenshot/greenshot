@@ -21,11 +21,11 @@
 
 using System;
 using System.Drawing;
-using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Extensions;
 using System.Drawing.Drawing2D;
 using GreenshotEditorPlugin.Helpers;
 using GreenshotEditorPlugin.Drawing.Filters;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace GreenshotEditorPlugin.Drawing
 {

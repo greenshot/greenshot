@@ -21,7 +21,6 @@
 
 using Dapplo.Config.Ini;
 using Greenshot.Interop;
-using Greenshot.Plugin;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Interop;
 using Dapplo.Windows.Native;
@@ -41,6 +40,7 @@ using Dapplo.Windows.Enums;
 using Dapplo.Windows.Structs;
 using Dapplo.Windows.SafeHandles;
 using Dapplo.Windows.Desktop;
+using GreenshotPlugin.Interfaces;
 
 namespace GreenshotPlugin.Core
 {

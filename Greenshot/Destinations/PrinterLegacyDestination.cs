@@ -24,7 +24,6 @@ using System.Drawing;
 using System.Drawing.Printing;
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
-using Greenshot.Plugin;
 using Greenshot.Helpers;
 using log4net;
 using System.Threading;
@@ -33,6 +32,7 @@ using System;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using GreenshotPlugin.Configuration;
+using GreenshotPlugin.Interfaces;
 
 namespace Greenshot.Destinations
 {

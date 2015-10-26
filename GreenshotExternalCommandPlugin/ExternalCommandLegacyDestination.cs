@@ -28,9 +28,10 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Config.Ini;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotExternalCommandPlugin
 {

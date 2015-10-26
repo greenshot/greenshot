@@ -20,7 +20,6 @@
  */
 
 using Dapplo.Config.Ini;
-using Greenshot.Plugin;
 using GreenshotConfluencePlugin.Model;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
@@ -37,6 +36,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using Dapplo.Config.Language;
 using Dapplo.HttpExtensions;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotConfluencePlugin
 {

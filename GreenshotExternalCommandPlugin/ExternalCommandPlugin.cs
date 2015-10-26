@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Plugin;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
 using System;
@@ -32,6 +31,8 @@ using System.Windows.Forms;
 using ExternalCommand;
 using System.ComponentModel.Composition;
 using Dapplo.Addons;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotExternalCommandPlugin
 {

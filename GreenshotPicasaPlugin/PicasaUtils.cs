@@ -19,7 +19,6 @@
  */
 
 using Dapplo.Config.Ini;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.OAuth;
 using System;
@@ -29,6 +28,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Dapplo.HttpExtensions;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotPicasaPlugin
 {

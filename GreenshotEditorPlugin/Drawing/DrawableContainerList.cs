@@ -20,8 +20,6 @@
  */
 
 using Dapplo.Config.Language;
-using Greenshot.Plugin;
-using Greenshot.Plugin.Drawing;
 using GreenshotEditorPlugin.Forms;
 using GreenshotEditorPlugin.Memento;
 using GreenshotPlugin.Configuration;
@@ -35,6 +33,8 @@ using System.Drawing.Drawing2D;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace GreenshotEditorPlugin.Drawing
 {

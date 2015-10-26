@@ -19,11 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace GreenshotEditorPlugin.Drawing.Filters
 {

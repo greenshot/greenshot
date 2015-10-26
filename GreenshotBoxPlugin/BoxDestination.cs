@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Windows;
 using log4net;
@@ -53,14 +52,16 @@ namespace GreenshotBoxPlugin
 
 		public BoxDestination()
 		{
-			Command = new AsyncCommand(async o => await Task.Delay(1), o => true, true);
+			Export = async (b) => await ExportCaptureAsync(null, null);
+			Text = BoxLanguage.UploadMenuItem;	
 		}
 
-		private async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		private async Task<ExportInformation> ExportCaptureAsync(ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
 		{
 			var exportInformation = new ExportInformation
 			{
-				DestinationDesignation = Designation, DestinationDescription = BoxLanguage.UploadMenuItem
+				DestinationDesignation = Designation,
+				DestinationDescription = BoxLanguage.UploadMenuItem
 			};
 			try
 			{

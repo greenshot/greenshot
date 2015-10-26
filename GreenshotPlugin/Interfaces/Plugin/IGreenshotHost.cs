@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Greenshot.Plugin
+namespace GreenshotPlugin.Interfaces.Plugin
 {
 	/// <summary>
 	/// This interface is the GreenshotPluginHost, that which "Hosts" the plugin.

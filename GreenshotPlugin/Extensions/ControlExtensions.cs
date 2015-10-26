@@ -31,9 +31,9 @@ using System.Windows.Forms;
 
 namespace GreenshotPlugin.Extensions
 {
-	public static class ControlExtension
+	public static class ControlExtensions
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (ControlExtension));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (ControlExtensions));
 
 		/// <summary>
 		/// Very simple extention which makes it easier to call BeginInvoke on a control with a lambda

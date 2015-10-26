@@ -32,11 +32,11 @@ using Dapplo.Config.Language;
 using Dapplo.Windows.Native;
 using Greenshot.Destinations;
 using Greenshot.Helpers;
-using Greenshot.Plugin;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
+using GreenshotPlugin.Interfaces;
 using log4net;
 
 namespace Greenshot.Forms

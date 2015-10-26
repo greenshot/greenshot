@@ -24,13 +24,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
-using Greenshot.Plugin;
 using GreenshotPlugin.Extensions;
 using log4net;
 using System.Threading.Tasks;
 using Dapplo.Config.Ini;
 using GreenshotPlugin.Configuration;
 using Dapplo.Config.Language;
+using GreenshotPlugin.Interfaces;
 
 namespace GreenshotPlugin.Core
 {

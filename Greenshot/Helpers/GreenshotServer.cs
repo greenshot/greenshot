@@ -22,29 +22,26 @@
 using GreenshotPlugin.Interfaces;
 using log4net;
 using System;
-using System.ComponentModel.Composition;
 using System.IO;
 using System.Security.Principal;
 using System.ServiceModel;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 using Dapplo.Addons;
 
 namespace Greenshot.Helpers
 {
 	/// <summary>
-	/// This startup action starts the Greenshot "server", which allows to open files etc.
+	/// This startup/shutdown action starts the Greenshot "server", which allows to open files etc.
 	/// </summary>
-	[StartupAction]
-	public class GreenshotServer : IGreenshotContract, IStartupAction
+	[StartupAction, ShutdownAction]
+	public class GreenshotServer : IGreenshotContract, IStartupAction, IShutdownAction
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof (GreenshotServer));
 		private ServiceHost _host;
-		private const string PipeBaseEndpoint = "net.pipe://localhost/Greenshot";
-		private const string PipeAddressEndpoint = "/Server_";
+		private const string PipeBaseEndpoint = "net.pipe://localhost/Greenshot/Server_";
 
-		public static string Identity
+		private static string Identity
 		{
 			get
 			{
@@ -52,11 +49,14 @@ namespace Greenshot.Helpers
 			}
 		}
 
+		/// <summary>
+		/// This is the endpoint where the server is running
+		/// </summary>
 		public static string EndPoint
 		{
 			get
 			{
-				return string.Format("{0}{1}{1}", PipeBaseEndpoint, PipeAddressEndpoint);
+				return $"{PipeBaseEndpoint}{Identity}";
 			}
 		}
 
@@ -74,12 +74,17 @@ namespace Greenshot.Helpers
 				{
 					new Uri(PipeBaseEndpoint)
 				});
-				_host.AddServiceEndpoint(typeof (IGreenshotContract), new NetNamedPipeBinding(), PipeAddressEndpoint + Identity);
+				_host.AddServiceEndpoint(typeof (IGreenshotContract), new NetNamedPipeBinding(), EndPoint);
 				_host.Open();
 			}, token).ConfigureAwait(false);
 			LOG.Debug("Started Greenshot server");
 		}
 
+		/// <summary>
+		/// IShutdownAction entry, This stops the Greenshot server
+		/// </summary>
+		/// <param name="token"></param>
+		/// <returns>Task</returns>
 		public async Task ShutdownAsync(CancellationToken token = default(CancellationToken))
 		{
 			LOG.Debug("Stopping Greenshot server");
@@ -95,16 +100,18 @@ namespace Greenshot.Helpers
 
 		#region IGreenshotContract
 
+		/// <summary>
+		/// Exit Greenshot
+		/// </summary>
 		public void Exit()
 		{
 			Forms.MainForm.Instance.Exit();
 		}
 
-		public void ReloadConfig()
-		{
-			Forms.MainForm.Instance.BeginInvoke(new Action(async () => await Forms.MainForm.Instance.ReloadConfig()));
-		}
-
+		/// <summary>
+		/// Open a file into Greenshot
+		/// </summary>
+		/// <param name="filename"></param>
 		public void OpenFile(string filename)
 		{
 			LOG.InfoFormat("Open file requested for: {0}", filename);

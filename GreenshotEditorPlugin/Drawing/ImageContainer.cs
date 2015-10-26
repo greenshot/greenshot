@@ -20,13 +20,13 @@
  */
 
 using Greenshot.Core;
-using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
 using log4net;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace GreenshotEditorPlugin.Drawing
 {

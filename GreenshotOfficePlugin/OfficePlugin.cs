@@ -19,9 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Plugin;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using GreenshotOfficePlugin.Destinations;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotOfficePlugin
 {

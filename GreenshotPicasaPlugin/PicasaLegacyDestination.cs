@@ -20,7 +20,6 @@
 
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Windows;
 using System;
@@ -29,6 +28,7 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using GreenshotPlugin.Interfaces;
 
 namespace GreenshotPicasaPlugin
 {

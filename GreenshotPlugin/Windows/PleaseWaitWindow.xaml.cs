@@ -28,7 +28,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms.Integration;
 using System.Windows.Media;
-using System.Windows.Threading;
+using GreenshotPlugin.Extensions;
 
 namespace GreenshotPlugin.Windows
 {
@@ -38,9 +38,9 @@ namespace GreenshotPlugin.Windows
 	public partial class PleaseWaitWindow : Window, IProgress<int>, INotifyPropertyChanged, IDisposable
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
-		private int _progressValue = 0;
+		private int _progressValue;
 		private bool _isIndeterminate = true;
-		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+		private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 		private string _text;
 		private Brush _color = Brushes.Green;
 
@@ -60,13 +60,10 @@ namespace GreenshotPlugin.Windows
 			}
 			set
 			{
-				if (_color != value)
+				if (!Equals(_color, value))
 				{
 					_color = value;
-					if (PropertyChanged != null)
-					{
-						PropertyChanged(this, new PropertyChangedEventArgs("Color"));
-					}
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Color"));
 				}
 			}
 		}
@@ -135,11 +132,12 @@ namespace GreenshotPlugin.Windows
 		/// <param name="title">title of the window</param>
 		/// <param name="text">text for the window</param>
 		/// <param name="asyncFunction">async Function to run</param>
+		/// <param name="token"></param>
 		/// <param name="isIndeterminate">Tell if there is a progress reporting</param>
 		/// <returns>Task to wait for</returns>
 		public static async Task<T> CreateAndShowAsync<T>(string title, string text, Func<IProgress<int>, CancellationToken, Task<T>> asyncFunction, CancellationToken token = default(CancellationToken), bool isIndeterminate = true)
 		{
-			T result = default(T);
+			T result;
 			using (var pleaseWaitWindow = new PleaseWaitWindow())
 			{
 				if (token == default(CancellationToken))
@@ -200,18 +198,18 @@ namespace GreenshotPlugin.Windows
 
 		#region IDisposable Support
 
-		private bool disposedValue = false; // To detect redundant calls
+		private bool _disposedValue; // To detect redundant calls
 
 		protected virtual void Dispose(bool disposing)
 		{
-			if (!disposedValue)
+			if (!_disposedValue)
 			{
 				if (disposing)
 				{
 					_cancellationTokenSource.Dispose();
 				}
 
-				disposedValue = true;
+				_disposedValue = true;
 			}
 		}
 

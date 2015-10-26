@@ -20,10 +20,10 @@
  */
 
 using Dapplo.Config.Ini;
-using Greenshot.Plugin;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
 using System;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotPlugin.Controls
 {

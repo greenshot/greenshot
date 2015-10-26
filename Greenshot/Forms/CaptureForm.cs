@@ -23,7 +23,6 @@ using Dapplo.Config.Ini;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Native;
 using Greenshot.Helpers;
-using Greenshot.Plugin;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
@@ -39,6 +38,7 @@ using System.Security.Permissions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using GreenshotPlugin.Interfaces;
 
 namespace Greenshot.Forms
 {

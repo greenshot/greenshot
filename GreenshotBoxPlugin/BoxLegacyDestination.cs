@@ -20,7 +20,6 @@
  */
 
 using Dapplo.Config.Ini;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Windows;
 using log4net;
@@ -32,6 +31,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using Dapplo.Config.Language;
 using GreenshotPlugin.Configuration;
+using GreenshotPlugin.Interfaces;
 
 namespace GreenshotBoxPlugin
 {

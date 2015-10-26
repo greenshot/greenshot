@@ -22,7 +22,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Greenshot.Plugin
+namespace GreenshotPlugin.Interfaces.Plugin
 {
 	public interface IGreenshotPlugin : IDisposable
 	{

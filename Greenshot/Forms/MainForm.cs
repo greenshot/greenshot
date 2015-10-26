@@ -25,7 +25,6 @@ using Dapplo.Config.Language;
 using Dapplo.Config.Support;
 using Dapplo.Windows.Native;
 using Greenshot.Helpers;
-using Greenshot.Plugin;
 using Greenshot.Windows;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Controls;
@@ -46,6 +45,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using GreenshotPlugin.Interfaces;
 using Timer = System.Timers.Timer;
 
 namespace Greenshot.Forms
@@ -135,11 +135,6 @@ namespace Greenshot.Forms
 					if (arguments.IsExit)
 					{
 						GreenshotClient.Exit();
-					}
-
-					if (arguments.IsReload)
-					{
-						GreenshotClient.ReloadConfig();
 					}
 
 					ShowOtherInstances();
@@ -318,7 +313,6 @@ namespace Greenshot.Forms
 		private readonly System.Threading.Timer _backgroundWorkerTimer;
 		// Timer for the double click test
 		private readonly Timer _doubleClickTimer = new Timer();
-		private GreenshotServer server;
 
 		/// <summary>
 		/// Instance of the NotifyIcon, needed to open balloon-tips

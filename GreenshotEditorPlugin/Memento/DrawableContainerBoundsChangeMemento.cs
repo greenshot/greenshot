@@ -21,8 +21,8 @@
 
 using System.Collections.Generic;
 using System.Drawing;
-using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace GreenshotEditorPlugin.Memento
 {

@@ -26,7 +26,6 @@ using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using Greenshot.Helpers.IEInterop;
 using Greenshot.Interop;
-using Greenshot.Plugin;
 using Dapplo.Windows.Native;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
@@ -37,6 +36,7 @@ using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using GreenshotPlugin.Configuration;
 using Dapplo.Windows.Enums;
+using GreenshotPlugin.Interfaces;
 
 namespace Greenshot.Helpers
 {

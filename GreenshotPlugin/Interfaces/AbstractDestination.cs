@@ -20,21 +20,24 @@
  */
 
 
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows.Controls;
-using System.Windows.Input;
+using System.Threading.Tasks;
+using System.Windows.Media;
 
 namespace GreenshotPlugin.Interfaces
 {
+	/// <summary>
+	/// A simple base implementation for the IDestination
+	/// </summary>
 	public abstract class AbstractDestination : IDestination
 	{
 		private string _text;
 		private string _shortcut;
 		private bool _isEnabled = true;
-		private ICommand _command;
-		private Image _icon;
+		private ImageSource _icon;
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -44,10 +47,7 @@ namespace GreenshotPlugin.Interfaces
 		/// <param name="propertyName"></param>
 		private void OnPropertyChanged([CallerMemberName] string propertyName = null)
 		{
-			if (PropertyChanged != null)
-			{
-				PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-			}
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
 		public string Shortcut
@@ -98,7 +98,7 @@ namespace GreenshotPlugin.Interfaces
 			}
 		}
 
-		public Image Icon
+		public ImageSource Icon
 		{
 			get
 			{
@@ -106,7 +106,7 @@ namespace GreenshotPlugin.Interfaces
 			}
 			set
 			{
-				if (value != _icon)
+				if (!Equals(value, _icon))
 				{
 					_icon = value;
 					OnPropertyChanged();
@@ -114,20 +114,10 @@ namespace GreenshotPlugin.Interfaces
 			}
 		}
 
-		public ICommand Command
+		public Func<bool, Task<ExportInformation>> Export
 		{
-			get
-			{
-				return _command;
-			}
-			set
-			{
-				if (value != _command)
-				{
-					_command = value;
-					OnPropertyChanged();
-				}
-			}
+			get;
+			set;
 		}
 
 		public ObservableCollection<IDestination> Children

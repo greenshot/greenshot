@@ -21,8 +21,6 @@
 
 using Dapplo.Config.Ini;
 using Greenshot.Core;
-using Greenshot.Plugin;
-using Greenshot.Plugin.Drawing;
 using GreenshotEditorPlugin.Memento;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
@@ -41,6 +39,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace GreenshotEditorPlugin.Drawing
 {

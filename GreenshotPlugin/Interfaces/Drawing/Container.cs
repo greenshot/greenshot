@@ -20,15 +20,15 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.Windows.Forms;
-using System.ComponentModel;
-using System.Collections.Generic;
 using System.Reflection;
+using System.Windows.Forms;
 
-namespace Greenshot.Plugin.Drawing
+namespace GreenshotPlugin.Interfaces.Drawing
 {
 	[Serializable]
 	public enum RenderMode

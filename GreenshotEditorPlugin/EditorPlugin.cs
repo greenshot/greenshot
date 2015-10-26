@@ -21,12 +21,13 @@
 
 using Dapplo.Addons;
 using Dapplo.Config.Ini;
-using Greenshot.Plugin;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Threading;
 using System.Threading.Tasks;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotEditorPlugin
 {

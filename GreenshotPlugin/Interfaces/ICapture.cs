@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -19,100 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Configuration;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Greenshot.Plugin
+namespace GreenshotPlugin.Interfaces
 {
-	/// <summary>
-	/// Details for the capture, like the window title and date/time etc.
-	/// </summary>
-	public interface ICaptureDetails
-	{
-		string Filename
-		{
-			get;
-			set;
-		}
-
-		string Title
-		{
-			get;
-			set;
-		}
-
-		DateTime DateTime
-		{
-			get;
-			set;
-		}
-
-		List<ILegacyDestination> CaptureDestinations
-		{
-			get;
-			set;
-		}
-
-		Dictionary<string, string> MetaData
-		{
-			get;
-		}
-
-		/// <summary>
-		/// Helper method to prevent complex code which needs to check every key
-		/// </summary>
-		/// <param name="key">The key for the meta-data</param>
-		/// <param name="value">The value for the meta-data</param>
-		void AddMetaData(string key, string value);
-
-		void ClearDestinations();
-		void RemoveDestination(ILegacyDestination captureDestination);
-		void AddDestination(ILegacyDestination captureDestination);
-		bool HasDestination(string designation);
-
-		CaptureMode CaptureMode
-		{
-			get;
-			set;
-		}
-
-		float DpiX
-		{
-			get;
-			set;
-		}
-
-		float DpiY
-		{
-			get;
-			set;
-		}
-	}
-
-	public interface ICaptureElement
-	{
-		List<ICaptureElement> Children
-		{
-			get;
-			set;
-		}
-
-		Rectangle Bounds
-		{
-			get;
-			set;
-		}
-
-		string Name
-		{
-			get;
-			set;
-		}
-	}
-
 	/// <summary>
 	/// The interface to the Capture object, so Plugins can use it.
 	/// </summary>
@@ -177,27 +89,5 @@ namespace Greenshot.Plugin
 		/// <param name="x">x coordinates to move the mouse</param>
 		/// <param name="y">y coordinates to move the mouse</param>
 		void MoveMouseLocation(int x, int y);
-
-		// / TODO: Enable when the elements are usable again.
-		///// <summary>
-		///// Apply a translate to the elements e.g. needed for crop
-		///// </summary>
-		///// <param name="x">x coordinates to move the elements</param>
-		///// <param name="y">y coordinates to move the elements</param>
-		//void MoveElements(int x, int y);
-
-		///// <summary>
-		///// Add a new element to the capture
-		///// </summary>
-		///// <param name="element">Rectangle</param>
-		//void AddElement(ICaptureElement element);
-
-		///// <summary>
-		///// Returns a list of rectangles which represent objects that are "on" the capture
-		///// </summary>
-		//List<ICaptureElement> Elements {
-		//    get;
-		//    set;
-		//}
 	}
 }

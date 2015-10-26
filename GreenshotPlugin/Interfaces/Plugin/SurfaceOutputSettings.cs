@@ -19,12 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System.Collections.Generic;
 using Dapplo.Config.Ini;
 using Greenshot.Core;
 using GreenshotPlugin.Configuration;
-using System.Collections.Generic;
 
-namespace Greenshot.Plugin
+namespace GreenshotPlugin.Interfaces.Plugin
 {
 	public class SurfaceOutputSettings
 	{

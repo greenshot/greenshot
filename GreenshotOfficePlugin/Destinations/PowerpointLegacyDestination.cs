@@ -19,40 +19,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Plugin;
-using GreenshotOfficePlugin.OfficeExport;
-using GreenshotPlugin.Core;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using GreenshotOfficePlugin.OfficeExport;
+using GreenshotPlugin.Core;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
-namespace GreenshotOfficePlugin
+namespace GreenshotOfficePlugin.Destinations
 {
 	/// <summary>
 	/// Description of PowerpointDestination.
 	/// </summary>
 	public class PowerpointLegacyDestination : AbstractLegacyDestination
 	{
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (PowerpointLegacyDestination));
 		private const int ICON_APPLICATION = 0;
 		private const int ICON_PRESENTATION = 1;
 
-		private static string exePath = null;
-		private string presentationName = null;
+		private static readonly string ExePath;
+		private readonly string _presentationName;
 
 		static PowerpointLegacyDestination()
 		{
-			exePath = PluginUtils.GetExePath("POWERPNT.EXE");
-			if (exePath != null && File.Exists(exePath))
+			ExePath = PluginUtils.GetExePath("POWERPNT.EXE");
+			if (ExePath != null && File.Exists(ExePath))
 			{
 				WindowDetails.AddProcessToExcludeFromFreeze("powerpnt");
 			}
 			else
 			{
-				exePath = null;
+				ExePath = null;
 			}
 		}
 
@@ -62,7 +62,7 @@ namespace GreenshotOfficePlugin
 
 		public PowerpointLegacyDestination(string presentationName)
 		{
-			this.presentationName = presentationName;
+			_presentationName = presentationName;
 		}
 
 		public override string Designation
@@ -77,14 +77,11 @@ namespace GreenshotOfficePlugin
 		{
 			get
 			{
-				if (presentationName == null)
+				if (_presentationName == null)
 				{
 					return "Microsoft Powerpoint";
 				}
-				else
-				{
-					return presentationName;
-				}
+				return _presentationName;
 			}
 		}
 
@@ -108,7 +105,7 @@ namespace GreenshotOfficePlugin
 		{
 			get
 			{
-				return base.IsActive && exePath != null;
+				return base.IsActive && ExePath != null;
 			}
 		}
 
@@ -116,12 +113,12 @@ namespace GreenshotOfficePlugin
 		{
 			get
 			{
-				if (!string.IsNullOrEmpty(presentationName))
+				if (!string.IsNullOrEmpty(_presentationName))
 				{
-					return PluginUtils.GetCachedExeIcon(exePath, ICON_PRESENTATION);
+					return PluginUtils.GetCachedExeIcon(ExePath, ICON_PRESENTATION);
 				}
 
-				return PluginUtils.GetCachedExeIcon(exePath, ICON_APPLICATION);
+				return PluginUtils.GetCachedExeIcon(ExePath, ICON_APPLICATION);
 			}
 		}
 
@@ -146,9 +143,9 @@ namespace GreenshotOfficePlugin
 				tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
 				imageSize = surface.Image.Size;
 			}
-			if (presentationName != null)
+			if (_presentationName != null)
 			{
-				exportInformation.ExportMade = PowerpointExporter.ExportToPresentation(presentationName, tmpFile, imageSize, captureDetails.Title);
+				exportInformation.ExportMade = PowerpointExporter.ExportToPresentation(_presentationName, tmpFile, imageSize, captureDetails.Title);
 			}
 			else
 			{

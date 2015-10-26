@@ -19,12 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Plugin.Drawing;
 using GreenshotEditorPlugin.Helpers;
 using GreenshotPlugin.Extensions;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace GreenshotEditorPlugin.Drawing
 {

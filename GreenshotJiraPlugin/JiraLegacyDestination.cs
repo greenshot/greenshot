@@ -21,7 +21,6 @@
 
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Windows;
 using System;
@@ -36,6 +35,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using Dapplo.HttpExtensions;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotJiraPlugin
 {
