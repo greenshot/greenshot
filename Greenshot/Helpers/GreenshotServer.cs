@@ -22,35 +22,33 @@
 using GreenshotPlugin.Interfaces;
 using log4net;
 using System;
+using System.ComponentModel.Composition;
 using System.IO;
 using System.Security.Principal;
 using System.ServiceModel;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using Dapplo.Addons;
 
 namespace Greenshot.Helpers
 {
 	/// <summary>
 	/// This startup action starts the Greenshot "server", which allows to open files etc.
 	/// </summary>
-	public class GreenshotServer : IGreenshotContract
+	[StartupAction]
+	public class GreenshotServer : IGreenshotContract, IStartupAction
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof (GreenshotServer));
 		private ServiceHost _host;
-		private const string PIPE_BASE_ENDPOINT = "net.pipe://localhost/Greenshot";
-		private const string PIPE_ADDRESS_ENDPOINT = "/Server_";
+		private const string PipeBaseEndpoint = "net.pipe://localhost/Greenshot";
+		private const string PipeAddressEndpoint = "/Server_";
 
 		public static string Identity
 		{
 			get
 			{
-				var windowsIdentity = WindowsIdentity.GetCurrent();
-				if (windowsIdentity != null && windowsIdentity.User != null)
-				{
-					return windowsIdentity.User.ToString();
-				}
-				return null;
+				return WindowsIdentity.GetCurrent()?.User?.ToString();
 			}
 		}
 
@@ -58,10 +56,15 @@ namespace Greenshot.Helpers
 		{
 			get
 			{
-				return string.Format("{0}{1}{1}", PIPE_BASE_ENDPOINT, PIPE_ADDRESS_ENDPOINT);
+				return string.Format("{0}{1}{1}", PipeBaseEndpoint, PipeAddressEndpoint);
 			}
 		}
 
+		/// <summary>
+		/// IStartupAction entry for starting
+		/// </summary>
+		/// <param name="token"></param>
+		/// <returns></returns>
 		public async Task StartAsync(CancellationToken token = default(CancellationToken))
 		{
 			LOG.Debug("Starting Greenshot server");
@@ -69,9 +72,9 @@ namespace Greenshot.Helpers
 			{
 				_host = new ServiceHost(this, new[]
 				{
-					new Uri(PIPE_BASE_ENDPOINT)
+					new Uri(PipeBaseEndpoint)
 				});
-				_host.AddServiceEndpoint(typeof (IGreenshotContract), new NetNamedPipeBinding(), PIPE_ADDRESS_ENDPOINT + Identity);
+				_host.AddServiceEndpoint(typeof (IGreenshotContract), new NetNamedPipeBinding(), PipeAddressEndpoint + Identity);
 				_host.Open();
 			}, token).ConfigureAwait(false);
 			LOG.Debug("Started Greenshot server");
@@ -94,12 +97,12 @@ namespace Greenshot.Helpers
 
 		public void Exit()
 		{
-			Greenshot.Forms.MainForm.Instance.Exit();
+			Forms.MainForm.Instance.Exit();
 		}
 
 		public void ReloadConfig()
 		{
-			Greenshot.Forms.MainForm.Instance.BeginInvoke(new Action(async () => await Greenshot.Forms.MainForm.Instance.ReloadConfig()));
+			Forms.MainForm.Instance.BeginInvoke(new Action(async () => await Forms.MainForm.Instance.ReloadConfig()));
 		}
 
 		public void OpenFile(string filename)
@@ -108,7 +111,7 @@ namespace Greenshot.Helpers
 
 			if (File.Exists(filename))
 			{
-				Greenshot.Forms.MainForm.Instance.BeginInvoke(new Action(async () => await CaptureHelper.CaptureFileAsync(filename)));
+				Forms.MainForm.Instance.BeginInvoke(new Action(async () => await CaptureHelper.CaptureFileAsync(filename)));
 			}
 			else
 			{

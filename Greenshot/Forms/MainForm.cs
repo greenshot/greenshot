@@ -378,6 +378,9 @@ namespace Greenshot.Forms
 			ApplicationBootstrapper.Add(typeof(ICoreConfiguration).Assembly);
 			// Initialize the bootstrapper, so we can export
 			ApplicationBootstrapper.Initialize();
+
+			// Notify icon
+			ApplicationBootstrapper.Export(notifyIcon);
 			// Run!
 			ApplicationBootstrapper.Run();
 
@@ -449,10 +452,8 @@ namespace Greenshot.Forms
 			// Checking for updates etc in the background
 			_backgroundWorkerTimer = new System.Threading.Timer(async _ => await BackgroundWorkerTimerTick().ConfigureAwait(false), null, TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(5));
 
-			Load += async (sender, eventArguments) =>
+			Load += (sender, eventArguments) =>
 			{
-				server = new GreenshotServer();
-				await server.StartAsync();
 				// Use the client to connect to myself, maybe a bit overdone but it saves code
 				GreenshotClient.OpenFiles(arguments.FilesToOpen);
 			};

@@ -52,7 +52,7 @@ namespace Greenshot.Helpers
 			Instance = this;
 		}
 
-		[ImportMany]
+		[ImportMany(AllowRecomposition = true)]
 		public IEnumerable<Lazy<IGreenshotPlugin, IGreenshotPluginMetadata>> Plugins
 		{
 			get;
