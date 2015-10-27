@@ -20,6 +20,7 @@
 using System.Windows.Forms;
 using Greenshot.IniFile;
 using GreenshotPlugin.Core;
+using System;
 
 namespace GreenshotPicasaPlugin {
 	/// <summary>
@@ -36,11 +37,45 @@ namespace GreenshotPicasaPlugin {
 		[IniProperty("AfterUploadLinkToClipBoard", Description = "After upload send Picasa link to clipboard.", DefaultValue = "true")]
 		public bool AfterUploadLinkToClipBoard;
 
-		[IniProperty("PicasaToken", Description = "Picasa Token", Encrypted = true)]
-		public string PicasaToken;
+		[IniProperty("AddFilename", Description = "Is the filename passed on to Picasa", DefaultValue = "False")]
+		public bool AddFilename {
+			get;
+			set;
+		}
 
-		[IniProperty("PicasaTokenSecret", Description = "PicasaTokenSecret", Encrypted = true)]
-		public string PicasaTokenSecret;
+		[IniProperty("UploadUser", Description = "The picasa user to upload to", DefaultValue = "default")]
+		public string UploadUser {
+			get;
+			set;
+		}
+
+		[IniProperty("UploadAlbum", Description = "The picasa album to upload to", DefaultValue = "default")]
+		public string UploadAlbum {
+			get;
+			set;
+		}
+
+		[IniProperty("RefreshToken", Description = "Picasa authorization refresh Token", Encrypted = true)]
+		public string RefreshToken {
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Not stored
+		/// </summary>
+		public string AccessToken {
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Not stored
+		/// </summary>
+		public DateTimeOffset AccessTokenExpires {
+			get;
+			set;
+		}
 
 		/// <summary>
 		/// A form for token

@@ -35,7 +35,6 @@ namespace GreenshotImgurPlugin {
 			InitializeComponent();
 			CancelButton = buttonCancel;
 			AcceptButton = buttonOK;
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			
 			ImgurUtils.LoadHistory();
 

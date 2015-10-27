@@ -30,9 +30,11 @@ namespace GreenshotImgurPlugin {
 	/// </summary>
 	[IniSection("Imgur", Description="Greenshot Imgur Plugin configuration")]
 	public class ImgurConfiguration : IniSection {
-		[IniProperty("ImgurApiUrl", Description="Url to Imgur system.", DefaultValue="http://api.imgur.com/2")]
+		[IniProperty("ImgurApiUrl", Description="Url to Imgur system.", DefaultValue= "http://api.imgur.com/2")]
 		public string ImgurApiUrl;
-		
+		[IniProperty("ImgurApi3Url", Description = "Url to Imgur system.", DefaultValue = "https://api.imgur.com/3")]
+		public string ImgurApi3Url;
+
 		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
 		public OutputFormat UploadFormat;
 		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]

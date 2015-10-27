@@ -18,16 +18,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
+
+using Greenshot.IniFile;
+using GreenshotPlugin.Core;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Net;
-using System.Text;
-using Greenshot.IniFile;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
-using System.Runtime.Serialization.Json;
 using System.IO;
+using System.Runtime.Serialization.Json;
+using System.Text;
 
 namespace GreenshotBoxPlugin {
 
@@ -37,101 +35,24 @@ namespace GreenshotBoxPlugin {
 	public static class BoxUtils {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BoxUtils));
 		private static readonly BoxConfiguration Config = IniConfig.GetIniSection<BoxConfiguration>();
-		private const string RedirectUri = "https://www.box.com/home/";
 		private const string UploadFileUri = "https://upload.box.com/api/2.0/files/content";
-		private const string AuthorizeUri = "https://www.box.com/api/oauth2/authorize";
-		private const string TokenUri = "https://www.box.com/api/oauth2/token";
 		private const string FilesUri = "https://www.box.com/api/2.0/files/{0}";
 
-		private static bool Authorize() {
-			string authorizeUrl = string.Format("{0}?client_id={1}&response_type=code&state=dropboxplugin&redirect_uri={2}", AuthorizeUri, BoxCredentials.ClientId, RedirectUri);
-
-			OAuthLoginForm loginForm = new OAuthLoginForm("Box Authorize", new Size(1060, 600), authorizeUrl, RedirectUri);
-			loginForm.ShowDialog();
-			if (!loginForm.isOk) {
-				return false;
-			}
-			var callbackParameters = loginForm.CallbackParameters;
-			if (callbackParameters == null || !callbackParameters.ContainsKey("code")) {
-				return false;
-			}
-
-			string authorizationResponse = PostAndReturn(new Uri(TokenUri), string.Format("grant_type=authorization_code&code={0}&client_id={1}&client_secret={2}", callbackParameters["code"], BoxCredentials.ClientId, BoxCredentials.ClientSecret));
-			var authorization = JsonSerializer.Deserialize<Authorization>(authorizationResponse);
-
-			Config.BoxToken = authorization.AccessToken;
-			IniConfig.Save();
-			return true;
-		}
-
 		/// <summary>
-		/// Download a url response as string
-		/// </summary>
-		/// <param name="url">An Uri to specify the download location</param>
-		/// <param name="postMessage"></param>
-		/// <returns>string with the file content</returns>
-		public static string PostAndReturn(Uri url, string postMessage) {
-			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url);
-			webRequest.Method = "POST";
-			webRequest.KeepAlive = true;
-			webRequest.Credentials = CredentialCache.DefaultCredentials;
-			webRequest.ContentType = "application/x-www-form-urlencoded";
-			byte[] data = Encoding.UTF8.GetBytes(postMessage);
-			using (var requestStream = webRequest.GetRequestStream()) {
-				requestStream.Write(data, 0, data.Length);
-			}
-			return NetworkHelper.GetResponse(webRequest);
-		}
-
-		/// <summary>
-		/// Upload parameters by post
-		/// </summary>
-		/// <param name="url"></param>
-		/// <param name="parameters"></param>
-		/// <returns>response</returns>
-		public static string HttpPost(string url, IDictionary<string, object> parameters) {
-			var webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
-			webRequest.Method = "POST";
-			webRequest.KeepAlive = true;
-			webRequest.Credentials = CredentialCache.DefaultCredentials;
-			webRequest.Headers.Add("Authorization", "Bearer " + Config.BoxToken);
-			NetworkHelper.WriteMultipartFormData(webRequest, parameters);
-
-			return NetworkHelper.GetResponse(webRequest);
-		}
-
-		/// <summary>
-		/// Upload file by PUT
+		/// Put string
 		/// </summary>
 		/// <param name="url"></param>
 		/// <param name="content"></param>
+		/// <param name="settings">OAuth2Settings</param>
 		/// <returns>response</returns>
-		public static string HttpPut(string url, string content) {
-			var webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
-			webRequest.Method = "PUT";
-			webRequest.KeepAlive = true;
-			webRequest.Credentials = CredentialCache.DefaultCredentials;
-			webRequest.Headers.Add("Authorization", "Bearer " + Config.BoxToken);
+		public static string HttpPut(string url, string content, OAuth2Settings settings) {
+			var webRequest= OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.PUT, url, settings);
+
 			byte[] data = Encoding.UTF8.GetBytes(content);
 			using (var requestStream = webRequest.GetRequestStream()) {
 				requestStream.Write(data, 0, data.Length);
 			}
-			return NetworkHelper.GetResponse(webRequest);
-		}
-
-
-		/// <summary>
-		/// Get REST request
-		/// </summary>
-		/// <param name="url"></param>
-		/// <returns>response</returns>
-		public static string HttpGet(string url) {
-			var webRequest = (HttpWebRequest)NetworkHelper.CreateWebRequest(url);
-			webRequest.Method = "GET";
-			webRequest.KeepAlive = true;
-			webRequest.Credentials = CredentialCache.DefaultCredentials;
-			webRequest.Headers.Add("Authorization", "Bearer " + Config.BoxToken);
-			return NetworkHelper.GetResponse(webRequest);
+			return NetworkHelper.GetResponseAsString(webRequest);
 		}
 
 		/// <summary>
@@ -143,45 +64,52 @@ namespace GreenshotBoxPlugin {
 		/// <param name="filename">Filename of box upload</param>
 		/// <returns>url to uploaded image</returns>
 		public static string UploadToBox(SurfaceContainer image, string title, string filename) {
-			while (true) {
-				const string folderId = "0";
-				if (string.IsNullOrEmpty(Config.BoxToken)) {
-					if (!Authorize()) {
-						return null;
-					}
-				}
 
+			// Fill the OAuth2Settings
+			OAuth2Settings settings = new OAuth2Settings();
+
+			settings.AuthUrlPattern = "https://app.box.com/api/oauth2/authorize?client_id={ClientId}&response_type=code&state={State}&redirect_uri={RedirectUrl}";
+			settings.TokenUrl = "https://api.box.com/oauth2/token";
+			settings.CloudServiceName = "Box";
+			settings.ClientId = BoxCredentials.ClientId;
+			settings.ClientSecret = BoxCredentials.ClientSecret;
+			settings.RedirectUrl = "https://www.box.com/home/";
+			settings.BrowserSize = new Size(1060, 600);
+			settings.AuthorizeMode = OAuth2AuthorizeMode.EmbeddedBrowser;
+
+			// Copy the settings from the config, which is kept in memory and on the disk
+			settings.RefreshToken = Config.RefreshToken;
+			settings.AccessToken = Config.AccessToken;
+			settings.AccessTokenExpires = Config.AccessTokenExpires;
+
+			try {
+				var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.POST, UploadFileUri, settings);
 				IDictionary<string, object> parameters = new Dictionary<string, object>();
-				parameters.Add("filename", image);
-				parameters.Add("parent_id", folderId);
+				parameters.Add("file", image);
+				parameters.Add("parent_id", Config.FolderId);
 
-				var response = "";
-				try {
-					response = HttpPost(UploadFileUri, parameters);
-				} catch (WebException ex) {
-					if (ex.Status == WebExceptionStatus.ProtocolError) {
-						Config.BoxToken = null;
-						continue;
-					}
-				}
+				NetworkHelper.WriteMultipartFormData(webRequest, parameters);
+
+				var response = NetworkHelper.GetResponseAsString(webRequest);
 
 				LOG.DebugFormat("Box response: {0}", response);
 
-				// Check if the token is wrong
-				if ("wrong auth token".Equals(response)) {
-					Config.BoxToken = null;
-					IniConfig.Save();
-					continue;
-				}
 				var upload = JsonSerializer.Deserialize<Upload>(response);
 				if (upload == null || upload.Entries == null || upload.Entries.Count == 0) return null;
 
 				if (Config.UseSharedLink) {
-					string filesResponse = HttpPut(string.Format(FilesUri, upload.Entries[0].Id), "{\"shared_link\": {\"access\": \"open\"}}");
+					string filesResponse = HttpPut(string.Format(FilesUri, upload.Entries[0].Id), "{\"shared_link\": {\"access\": \"open\"}}", settings);
 					var file = JsonSerializer.Deserialize<FileEntry>(filesResponse);
 					return file.SharedLink.Url;
 				}
 				return string.Format("http://www.box.com/files/0/f/0/1/f_{0}", upload.Entries[0].Id);
+			} finally {
+				// Copy the settings back to the config, so they are stored.
+				Config.RefreshToken = settings.RefreshToken;
+				Config.AccessToken = settings.AccessToken;
+				Config.AccessTokenExpires = settings.AccessTokenExpires;
+				Config.IsDirty = true;
+				IniConfig.Save();
 			}
 		}
 	}

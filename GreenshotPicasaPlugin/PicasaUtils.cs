@@ -17,25 +17,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Xml;
+
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using System;
+using System.Net;
+using System.Xml;
 
 namespace GreenshotPicasaPlugin {
 	/// <summary>
 	/// Description of PicasaUtils.
 	/// </summary>
-	public class PicasaUtils {
-		private const string GoogleAccountUri = "https://www.google.com/accounts/";
+	public static class PicasaUtils {
+		private const string PicasaScope = "https://picasaweb.google.com/data/";
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PicasaUtils));
 		private static readonly PicasaConfiguration Config = IniConfig.GetIniSection<PicasaConfiguration>();
-
-		private PicasaUtils() {
-		}
+		private const string AuthUrl = "https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={ClientId}&redirect_uri={RedirectUrl}&state={State}&scope=" + PicasaScope;
+		private const string TokenUrl = "https://www.googleapis.com/oauth2/v3/token";
+		private const string UploadUrl = "https://picasaweb.google.com/data/feed/api/user/{0}/albumid/{1}";
 
 		/// <summary>
 		/// Do the actual upload to Picasa
@@ -46,46 +46,46 @@ namespace GreenshotPicasaPlugin {
 		/// <param name="filename"></param>
 		/// <returns>PicasaResponse</returns>
 		public static string UploadToPicasa(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename) {
-			OAuthSession oAuth = new OAuthSession(PicasaCredentials.ConsumerKey, PicasaCredentials.ConsumerSecret);
-			oAuth.BrowserSize = new Size(1020, 590);
-			oAuth.AccessTokenUrl =  GoogleAccountUri + "OAuthGetAccessToken";
-			oAuth.AuthorizeUrl =	GoogleAccountUri + "OAuthAuthorizeToken";
-			oAuth.RequestTokenUrl = GoogleAccountUri + "OAuthGetRequestToken";
-			oAuth.LoginTitle = "Picasa authorization";
-			oAuth.Token = Config.PicasaToken;
-			oAuth.TokenSecret = Config.PicasaTokenSecret;
-			oAuth.RequestTokenParameters.Add("scope", "https://picasaweb.google.com/data/");
-			oAuth.RequestTokenParameters.Add("xoauth_displayname", "Greenshot");
-			if (string.IsNullOrEmpty(oAuth.Token)) {
-				if (!oAuth.Authorize()) {
-					return null;
-				}
-				if (!string.IsNullOrEmpty(oAuth.Token)) {
-					Config.PicasaToken = oAuth.Token;
-				}
-				if (!string.IsNullOrEmpty(oAuth.TokenSecret)) {
-					Config.PicasaTokenSecret = oAuth.TokenSecret;
-				}
-				IniConfig.Save();
-			}
+			// Fill the OAuth2Settings
+			OAuth2Settings settings = new OAuth2Settings();
+			settings.AuthUrlPattern = AuthUrl;
+			settings.TokenUrl = TokenUrl;
+			settings.CloudServiceName = "Picasa";
+			settings.ClientId = PicasaCredentials.ClientId;
+			settings.ClientSecret = PicasaCredentials.ClientSecret;
+			settings.AuthorizeMode = OAuth2AuthorizeMode.LocalServer;
+
+			// Copy the settings from the config, which is kept in memory and on the disk
+			settings.RefreshToken = Config.RefreshToken;
+			settings.AccessToken = Config.AccessToken;
+			settings.AccessTokenExpires = Config.AccessTokenExpires;
+
 			try {
-				IDictionary<string, string> headers = new Dictionary<string, string>();
-				headers.Add("slug", OAuthSession.UrlEncode3986(filename));
-				string response = oAuth.MakeOAuthRequest(HTTPMethod.POST, "https://picasaweb.google.com/data/feed/api/user/default/albumid/default", headers, null, null, new SurfaceContainer(surfaceToUpload, outputSettings, filename));
+				var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.POST, string.Format(UploadUrl, Config.UploadUser, Config.UploadAlbum), settings);
+				if (Config.AddFilename) {
+					webRequest.Headers.Add("Slug", NetworkHelper.EscapeDataString(filename));
+				}
+				SurfaceContainer container = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
+				container.Upload(webRequest);
+				
+				string response = NetworkHelper.GetResponseAsString(webRequest);
+
 				return ParseResponse(response);
-			} catch (Exception ex) {
-				LOG.Error("Upload error: ", ex);
-				throw;
 			} finally {
-				if (!string.IsNullOrEmpty(oAuth.Token)) {
-					Config.PicasaToken = oAuth.Token;
-				}
-				if (!string.IsNullOrEmpty(oAuth.TokenSecret)) {
-					Config.PicasaTokenSecret = oAuth.TokenSecret;
-				}
+				// Copy the settings back to the config, so they are stored.
+				Config.RefreshToken = settings.RefreshToken;
+				Config.AccessToken = settings.AccessToken;
+				Config.AccessTokenExpires = settings.AccessTokenExpires;
+				Config.IsDirty = true;
+				IniConfig.Save();
 			}
 		}
 		
+		/// <summary>
+		/// Parse the upload URL from the response
+		/// </summary>
+		/// <param name="response"></param>
+		/// <returns></returns>
 		public static string ParseResponse(string response) {
 			if (response == null) {
 				return null;

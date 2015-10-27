@@ -291,7 +291,7 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		[IniProperty("WebRequestTimeout", Description = "The connect timeout value for webrequets, these are seconds", DefaultValue = "10")]
+		[IniProperty("WebRequestTimeout", Description = "The connect timeout value for webrequets, these are seconds", DefaultValue = "100")]
 		public int WebRequestTimeout;
 		[IniProperty("WebRequestReadWriteTimeout", Description = "The read/write timeout value for webrequets, these are seconds", DefaultValue = "100")]
 		public int WebRequestReadWriteTimeout;
@@ -408,6 +408,17 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
+		/// This method will be called before writing the configuration
+		/// </summary>
+		public override void BeforeSave() {
+			try {
+				// Store version, this can be used later to fix settings after an update
+				LastSaveWithVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
+			} catch {
+			}
+		}
+
+		/// <summary>
 		/// This method will be called after reading the configuration, so eventually some corrections can be made
 		/// </summary>
 		public override void AfterLoad() {
@@ -498,8 +509,8 @@ namespace GreenshotPlugin.Core {
 				OutputFileReduceColorsTo = 256;
 			}
 
-			if (WebRequestTimeout < 1) {
-				WebRequestTimeout = 10;
+			if (WebRequestTimeout <= 10) {
+				WebRequestTimeout = 100;
 			}
 			if (WebRequestReadWriteTimeout < 1) {
 				WebRequestReadWriteTimeout = 100;

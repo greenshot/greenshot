@@ -146,9 +146,6 @@ namespace Greenshot {
 			// Only use double-buffering when we are NOT in a Terminal Server session
 			DoubleBuffered = !isTerminalServerSession;
 
-			// Not needed for a Tool Window, but still for the task manager it's important
-			Icon = GreenshotResources.getGreenshotIcon();
-
 			// Use the self drawn image, first we create the background to be the backcolor (as we animate from this)
 			gBitmap = ImageHelper.CreateEmpty(90, 90, PixelFormat.Format24bppRgb, BackColor, 96, 96);
 			pictureBox1.Image = gBitmap;

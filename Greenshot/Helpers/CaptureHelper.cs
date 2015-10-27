@@ -967,7 +967,13 @@ namespace Greenshot.Helpers {
 			//}
 
 			using (CaptureForm captureForm = new CaptureForm(_capture, _windows)) {
-				DialogResult result = captureForm.ShowDialog();
+				// Make sure the form is hidden after showing, even if an exception occurs, so all errors will be shown
+				DialogResult result = DialogResult.Cancel;
+				try {
+					result = captureForm.ShowDialog(MainForm.Instance);
+				} finally {
+					captureForm.Hide();
+				}
 				if (result == DialogResult.OK) {
 					_selectedCaptureWindow = captureForm.SelectedCaptureWindow;
 					_captureRect = captureForm.CaptureRectangle;
@@ -975,11 +981,11 @@ namespace Greenshot.Helpers {
 					if (_selectedCaptureWindow != null) {
 						_capture.CaptureDetails.Title = _selectedCaptureWindow.Text;
 					}
-					
+
 					if (_captureRect.Height > 0 && _captureRect.Width > 0) {
 						// Take the captureRect, this already is specified as bitmap coordinates
 						_capture.Crop(_captureRect);
-						
+
 						// save for re-capturing later and show recapture context menu option
 						// Important here is that the location needs to be offsetted back to screen coordinates!
 						Rectangle tmpRectangle = _captureRect;

@@ -37,7 +37,6 @@ namespace GreenshotOCR {
 			InitializeComponent();
 			AcceptButton = buttonOK;
 			CancelButton = buttonCancel;
-			this.Icon = GreenshotResources.getGreenshotIcon();
 			
 			comboBox_languages.Items.Clear();
 			int index=0;

@@ -19,30 +19,198 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using GreenshotPlugin.Controls;
+using log4net;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Net;
+using System.Net.Sockets;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
-using GreenshotPlugin.Controls;
-using System.Security.Cryptography.X509Certificates;
-using log4net;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
-	/// Provides a predefined set of algorithms that are supported officially by the protocol
+	/// Provides a predefined set of algorithms that are supported officially by the OAuth 1.x protocol
 	/// </summary>
 	public enum OAuthSignatureTypes  {
 		HMACSHA1,
 		PLAINTEXT,
 		RSASHA1
 	}
-		
-	public enum HTTPMethod { GET, POST, PUT, DELETE };
+	
+	/// <summary>
+	/// Specify the autorize mode that is used to get the token from the cloud service.
+	/// </summary>
+	public enum OAuth2AuthorizeMode {
+		Unknown,		// Will give an exception, caller needs to specify another value
+		LocalServer,	// Will specify a redirect URL to http://localhost:port/authorize, while having a HttpListener
+		MonitorTitle,	// Not implemented yet: Will monitor for title changes
+		Pin,			// Not implemented yet: Will ask the user to enter the shown PIN
+		EmbeddedBrowser // Will open into an embedded _browser (OAuthLoginForm), and catch the redirect
+	}
 
+	/// <summary>
+	/// Settings for the OAuth 2 protocol
+	/// </summary>
+	public class OAuth2Settings {
+		public OAuth2Settings() {
+			AdditionalAttributes = new Dictionary<string, string>();
+			// Create a default state
+			State = Guid.NewGuid().ToString();
+			AuthorizeMode = OAuth2AuthorizeMode.Unknown;
+		}
+
+		public OAuth2AuthorizeMode AuthorizeMode {
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Specify the name of the cloud service, so it can be used in window titles, logs etc
+		/// </summary>
+		public string CloudServiceName {
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Specify the size of the embedded Browser, if using this
+		/// </summary>
+		public Size BrowserSize {
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// The OAuth 2 client id
+		/// </summary>
+		public string ClientId {
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// The OAuth 2 client secret
+		/// </summary>
+		public string ClientSecret {
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// The OAuth 2 state, this is something that is passed to the server, is not processed but returned back to the client.
+		/// e.g. a correlation ID
+		/// Default this is filled with a new Guid
+		/// </summary>
+		public string State {
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// The autorization URL where the values of this class can be "injected"
+		/// </summary>
+		public string AuthUrlPattern {
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Get formatted Auth url (this will call a FormatWith(this) on the AuthUrlPattern
+		/// </summary>
+		public string FormattedAuthUrl {
+			get {
+				return AuthUrlPattern.FormatWith(this);
+			}
+		}
+
+		/// <summary>
+		/// The URL to get a Token
+		/// </summary>
+		public string TokenUrl {
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// This is the redirect URL, in some implementations this is automatically set (LocalServerCodeReceiver)
+		/// In some implementations this could be e.g. urn:ietf:wg:oauth:2.0:oob or urn:ietf:wg:oauth:2.0:oob:auto
+		/// </summary>
+		public string RedirectUrl {
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Bearer token for accessing OAuth 2 services
+		/// </summary>
+		public string AccessToken {
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Expire time for the AccessToken, this this time (-60 seconds) is passed a new AccessToken needs to be generated with the RefreshToken
+		/// </summary>
+		public DateTimeOffset AccessTokenExpires {
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Return true if the access token is expired.
+		/// Important "side-effect": if true is returned the AccessToken will be set to null!
+		/// </summary>
+		public bool IsAccessTokenExpired {
+			get {
+				bool expired = true;
+				if (!string.IsNullOrEmpty(AccessToken) && AccessTokenExpires != null) {
+					expired = DateTimeOffset.Now.AddSeconds(60) > AccessTokenExpires;
+				}
+				// Make sure the token is not usable
+				if (expired) {
+					AccessToken = null;
+				}
+				return expired;
+			}
+		}
+
+		/// <summary>
+		/// Token used to get a new Access Token
+		/// </summary>
+		public string RefreshToken {
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Put anything in here which is needed for the OAuth 2 implementation of this specific service but isn't generic, e.g. for Google there is a "scope"
+		/// </summary>
+		public IDictionary<string, string> AdditionalAttributes {
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// This contains the code returned from the authorization, but only shortly after it was received.
+		/// It will be cleared as soon as it was used.
+		/// </summary>
+		public string Code {
+			get;
+			set;
+		}
+	}
+
+	/// <summary>
+	/// An OAuth 1 session object
+	/// </summary>
 	public class OAuthSession {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(OAuthSession));
 		protected const string OAUTH_VERSION = "1.0";
@@ -102,7 +270,7 @@ namespace GreenshotPlugin.Core {
 		private readonly string _consumerKey;
 		private readonly string _consumerSecret;
 
-		// default browser size
+		// default _browser size
 		private Size _browserSize = new Size(864, 587);
 		private string _loginTitle = "Authorize Greenshot access";
 
@@ -339,7 +507,7 @@ namespace GreenshotPlugin.Core {
 			LOG.DebugFormat("Opening AuthorizationLink: {0}", AuthorizationLink);
 			OAuthLoginForm oAuthLoginForm = new OAuthLoginForm(LoginTitle, BrowserSize, AuthorizationLink, CallbackUrl);
 			oAuthLoginForm.ShowDialog();
-			if (oAuthLoginForm.isOk) {
+			if (oAuthLoginForm.IsOk) {
 				if (oAuthLoginForm.CallbackParameters != null) {
 					string tokenValue;
 					if (oAuthLoginForm.CallbackParameters.TryGetValue(OAUTH_TOKEN_KEY, out tokenValue)) {
@@ -672,11 +840,9 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 			// Create webrequest
-			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(requestURL);
-			webRequest.Method = method.ToString();
+			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(requestURL, method);
 			webRequest.ServicePoint.Expect100Continue = false;
 			webRequest.UserAgent = _userAgent;
-			webRequest.Timeout = 100000;
 
 			if (UseHTTPHeadersForAuthorization && authHeader != null) {
 				LOG.DebugFormat("Authorization: OAuth {0}", authHeader);
@@ -720,7 +886,7 @@ namespace GreenshotPlugin.Core {
 
 			string responseData;
 			try {
-				responseData = NetworkHelper.GetResponse(webRequest);
+				responseData = NetworkHelper.GetResponseAsString(webRequest);
 				LOG.DebugFormat("Response: {0}", responseData);
 			} catch (Exception ex) {
 				LOG.Error("Couldn't retrieve response: ", ex);
@@ -730,6 +896,419 @@ namespace GreenshotPlugin.Core {
 			}
 
 			return responseData;
+		}
+	}
+
+	/// <summary>
+	/// OAuth 2.0 verification code receiver that runs a local server on a free port
+	/// and waits for a call with the authorization verification code.
+	/// </summary>
+	public class LocalServerCodeReceiver {
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(LocalServerCodeReceiver));
+		private readonly ManualResetEvent _ready = new ManualResetEvent(true);
+
+		private string _loopbackCallback = "http://localhost:{0}/authorize/";
+		/// <summary>
+		/// The call back format. Expects one port parameter.
+		/// Default: http://localhost:{0}/authorize/
+		/// </summary>
+		public string LoopbackCallbackUrl {
+			get {
+				return _loopbackCallback;
+			}
+			set {
+				_loopbackCallback = value;
+			}
+		}
+
+		private string _closePageResponse =
+@"<html>
+<head><title>OAuth 2.0 Authentication CloudServiceName</title></head>
+<body>
+Greenshot received information from CloudServiceName. You can close this browser / tab if it is not closed itself...
+<script type='text/javascript'>
+    window.setTimeout(function() {
+        window.open('', '_self', ''); 
+        window.close(); 
+    }, 1000);
+    if (window.opener) {
+		window.opener.checkToken();
+	}
+</script>
+</body>
+</html>";
+
+		/// <summary>
+		/// HTML code to to return the _browser, default it will try to close the _browser / tab, this won't always work.
+		/// You can use CloudServiceName where you want to show the CloudServiceName from your OAuth2 settings
+		/// </summary>
+		public string ClosePageResponse {
+			get {
+				return _closePageResponse;
+			}
+			set {
+				_closePageResponse = value;
+			}
+		}
+
+		private string _redirectUri;
+		/// <summary>
+		/// The URL to redirect to
+		/// </summary>
+		protected string RedirectUri {
+			get {
+				if (!string.IsNullOrEmpty(_redirectUri)) {
+					return _redirectUri;
+				}
+
+				return _redirectUri = string.Format(_loopbackCallback, GetRandomUnusedPort());
+			}
+		}
+
+		private string _cloudServiceName;
+
+		private IDictionary<string, string> _returnValues = new Dictionary<string, string>();
+
+
+		/// <summary>
+		/// The OAuth code receiver
+		/// </summary>
+		/// <param name="authorizationUrl"></param>
+		/// <returns>Dictionary with values</returns>
+		public IDictionary<string, string> ReceiveCode(OAuth2Settings oauth2Settings) {
+			// Set the redirect URL on the settings
+			oauth2Settings.RedirectUrl = RedirectUri;
+			_cloudServiceName = oauth2Settings.CloudServiceName;
+			using (var listener = new HttpListener()) {
+				listener.Prefixes.Add(oauth2Settings.RedirectUrl);
+				try {
+					listener.Start();
+
+					// Get the formatted FormattedAuthUrl
+					string authorizationUrl = oauth2Settings.FormattedAuthUrl;
+					LOG.DebugFormat("Open a browser with: {0}", authorizationUrl);
+					Process.Start(authorizationUrl);
+
+					// Wait to get the authorization code response.
+					var context = listener.BeginGetContext(new AsyncCallback(ListenerCallback), listener);
+					_ready.Reset();
+
+					while (!context.AsyncWaitHandle.WaitOne(1000, true)) {
+						LOG.Debug("Waiting for response");
+					}
+				} catch (Exception) {
+					// Make sure we can clean up, also if the thead is aborted
+					_ready.Set();
+					throw;
+				} finally {
+					_ready.WaitOne();
+					listener.Close();
+				}
+			}
+			return _returnValues;
+		}
+
+		/// <summary>
+		/// Handle a connection async, this allows us to break the waiting
+		/// </summary>
+		/// <param name="result">IAsyncResult</param>
+		private void ListenerCallback(IAsyncResult result) {
+			HttpListener listener = (HttpListener)result.AsyncState;
+
+			//If not listening return immediately as this method is called one last time after Close()
+			if (!listener.IsListening) {
+				return;
+			}
+
+			// Use EndGetContext to complete the asynchronous operation.
+			HttpListenerContext context = listener.EndGetContext(result);
+
+
+			// Handle request
+			HttpListenerRequest request = context.Request;
+			try {
+				NameValueCollection nameValueCollection = request.QueryString;
+
+				// Get response object.
+				using (HttpListenerResponse response = context.Response) {
+					// Write a "close" response.
+					byte[] buffer = System.Text.Encoding.UTF8.GetBytes(ClosePageResponse.Replace("CloudServiceName", _cloudServiceName));
+					// Write to response stream.
+					response.ContentLength64 = buffer.Length;
+					using (var stream = response.OutputStream) {
+						stream.Write(buffer, 0, buffer.Length);
+					}
+				}
+
+				// Create a new response URL with a dictionary that contains all the response query parameters.
+				foreach (var name in nameValueCollection.AllKeys) {
+					if (!_returnValues.ContainsKey(name)) {
+						_returnValues.Add(name, nameValueCollection[name]);
+					}
+				}
+			} catch (Exception) {
+				context.Response.OutputStream.Close();
+				throw;
+			}
+			_ready.Set();
+		}
+
+		/// <summary>
+		/// Returns a random, unused port.
+		/// </summary>
+		/// <returns>port to use</returns>
+		private static int GetRandomUnusedPort() {
+			var listener = new TcpListener(IPAddress.Loopback, 0);
+			try {
+				listener.Start();
+				return ((IPEndPoint)listener.LocalEndpoint).Port;
+			} finally {
+				listener.Stop();
+			}
+		}
+	}
+
+	/// <summary>
+	/// Code to simplify OAuth 2
+	/// </summary>
+	public static class OAuth2Helper {
+		private const string REFRESH_TOKEN = "refresh_token";
+		private const string ACCESS_TOKEN = "access_token";
+		private const string CODE = "code";
+		private const string CLIENT_ID = "client_id";
+		private const string CLIENT_SECRET = "client_secret";
+		private const string GRANT_TYPE = "grant_type";
+		private const string AUTHORIZATION_CODE = "authorization_code";
+		private const string REDIRECT_URI = "redirect_uri";
+		private const string EXPIRES_IN = "expires_in";
+
+		/// <summary>
+		/// Generate an OAuth 2 Token by using the supplied code
+		/// </summary>
+		/// <param name="code">Code to get the RefreshToken</param>
+		/// <param name="settings">OAuth2Settings to update with the information that was retrieved</param>
+		public static void GenerateRefreshToken(OAuth2Settings settings) {
+			IDictionary<string, object> data = new Dictionary<string, object>();
+			// Use the returned code to get a refresh code
+			data.Add(CODE, settings.Code);
+			data.Add(CLIENT_ID, settings.ClientId);
+			data.Add(REDIRECT_URI, settings.RedirectUrl);
+			data.Add(CLIENT_SECRET, settings.ClientSecret);
+			data.Add(GRANT_TYPE, AUTHORIZATION_CODE);
+			foreach (string key in settings.AdditionalAttributes.Keys) {
+				data.Add(key, settings.AdditionalAttributes[key]);
+			}
+
+			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(settings.TokenUrl, HTTPMethod.POST);
+			NetworkHelper.UploadFormUrlEncoded(webRequest, data);
+			string accessTokenJsonResult = NetworkHelper.GetResponseAsString(webRequest, true);
+
+			IDictionary<string, object> refreshTokenResult = JSONHelper.JsonDecode(accessTokenJsonResult);
+			if (refreshTokenResult.ContainsKey("error")) {
+				if (refreshTokenResult.ContainsKey("error_description")) {
+					throw new Exception(string.Format("{0} - {1}", refreshTokenResult["error"], refreshTokenResult["error_description"]));
+				} else {
+					throw new Exception((string)refreshTokenResult["error"]);
+				}
+			}
+
+			// gives as described here: https://developers.google.com/identity/protocols/OAuth2InstalledApp
+			//  "access_token":"1/fFAGRNJru1FTz70BzhT3Zg",
+			//	"expires_in":3920,
+			//	"token_type":"Bearer",
+			//	"refresh_token":"1/xEoDL4iW3cxlI7yDbSRFYNG01kVKM2C-259HOF2aQbI"
+			settings.AccessToken = (string)refreshTokenResult[ACCESS_TOKEN] as string;
+			settings.RefreshToken = (string)refreshTokenResult[REFRESH_TOKEN] as string;
+
+			object seconds = refreshTokenResult[EXPIRES_IN];
+			if (seconds != null) {
+				settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds((double)seconds);
+			}
+			settings.Code = null;
+		}
+
+		/// <summary>
+		/// Go out and retrieve a new access token via refresh-token with the TokenUrl in the settings
+		/// Will upate the access token, refresh token, expire date
+		/// </summary>
+		/// <param name="settings"></param>
+		public static void GenerateAccessToken(OAuth2Settings settings) {
+			IDictionary<string, object> data = new Dictionary<string, object>();
+			data.Add(REFRESH_TOKEN, settings.RefreshToken);
+			data.Add(CLIENT_ID, settings.ClientId);
+			data.Add(CLIENT_SECRET, settings.ClientSecret);
+			data.Add(GRANT_TYPE, REFRESH_TOKEN);
+			foreach (string key in settings.AdditionalAttributes.Keys) {
+				data.Add(key, settings.AdditionalAttributes[key]);
+			}
+
+			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(settings.TokenUrl, HTTPMethod.POST);
+			NetworkHelper.UploadFormUrlEncoded(webRequest, data);
+			string accessTokenJsonResult = NetworkHelper.GetResponseAsString(webRequest, true);
+
+			// gives as described here: https://developers.google.com/identity/protocols/OAuth2InstalledApp
+			//  "access_token":"1/fFAGRNJru1FTz70BzhT3Zg",
+			//	"expires_in":3920,
+			//	"token_type":"Bearer",
+
+			IDictionary<string, object> accessTokenResult = JSONHelper.JsonDecode(accessTokenJsonResult);
+			if (accessTokenResult.ContainsKey("error")) {
+				if ("invalid_grant" == (string)accessTokenResult["error"]) {
+					// Refresh token has also expired, we need a new one!
+					settings.RefreshToken = null;
+					settings.AccessToken = null;
+					settings.AccessTokenExpires = DateTimeOffset.MinValue;
+					settings.Code = null;
+					return;
+				} else {
+					if (accessTokenResult.ContainsKey("error_description")) {
+						throw new Exception(string.Format("{0} - {1}", accessTokenResult["error"], accessTokenResult["error_description"]));
+					} else {
+						throw new Exception((string)accessTokenResult["error"]);
+					}
+				}
+			}
+
+			settings.AccessToken = (string)accessTokenResult[ACCESS_TOKEN] as string;
+			if (accessTokenResult.ContainsKey(REFRESH_TOKEN)) {
+				// Refresh the refresh token :)
+				settings.RefreshToken = (string)accessTokenResult[REFRESH_TOKEN] as string;
+			}
+			object seconds = accessTokenResult[EXPIRES_IN];
+			if (seconds != null) {
+				settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds((double)seconds);
+			} else {
+				settings.AccessTokenExpires = DateTimeOffset.MaxValue;
+			}
+		}
+
+		/// <summary>
+		/// Authenticate by using the mode specified in the settings
+		/// </summary>
+		/// <param name="settings">OAuth2Settings</param>
+		/// <returns>false if it was canceled, true if it worked, exception if not</returns>
+		public static bool Authenticate(OAuth2Settings settings) {
+			bool completed = true;
+			switch (settings.AuthorizeMode) {
+				case OAuth2AuthorizeMode.LocalServer:
+					completed = AuthenticateViaLocalServer(settings);
+					break;
+				case OAuth2AuthorizeMode.EmbeddedBrowser:
+					completed = AuthenticateViaEmbeddedBrowser(settings);
+					break;
+				default:
+					throw new NotImplementedException(string.Format("Authorize mode '{0}' is not 'yet' implemented.", settings.AuthorizeMode));
+			}
+			return completed;
+		}
+
+		/// <summary>
+		/// Authenticate via an embedded browser
+		/// If this works, return the code
+		/// </summary>
+		/// <param name="settings">OAuth2Settings with the Auth / Token url etc</param>
+		/// <returns>true if completed, false if canceled</returns>
+		private static bool AuthenticateViaEmbeddedBrowser(OAuth2Settings settings) {
+			if (string.IsNullOrEmpty(settings.CloudServiceName)) {
+				throw new ArgumentNullException("CloudServiceName");
+			}
+			if (settings.BrowserSize == Size.Empty) {
+				throw new ArgumentNullException("BrowserSize");
+			}
+			OAuthLoginForm loginForm = new OAuthLoginForm(string.Format("Authorize {0}", settings.CloudServiceName), settings.BrowserSize, settings.FormattedAuthUrl, settings.RedirectUrl);
+			loginForm.ShowDialog();
+			if (loginForm.IsOk) {
+				string code;
+				if (loginForm.CallbackParameters.TryGetValue(CODE, out code) && !string.IsNullOrEmpty(code)) {
+					settings.Code = code;
+					GenerateRefreshToken(settings);
+					return true;
+				}
+			}
+			return false;
+		}
+
+		/// <summary>
+		/// Authenticate via a local server by using the LocalServerCodeReceiver
+		/// If this works, return the code
+		/// </summary>
+		/// <param name="settings">OAuth2Settings with the Auth / Token url etc</param>
+		/// <returns>true if completed</returns>
+		private static bool AuthenticateViaLocalServer(OAuth2Settings settings) {
+			var codeReceiver = new LocalServerCodeReceiver();
+			IDictionary<string, string> result = codeReceiver.ReceiveCode(settings);
+
+			string code;
+			if (result.TryGetValue(CODE, out code) && !string.IsNullOrEmpty(code)) {
+				settings.Code = code;
+				GenerateRefreshToken(settings);
+				return true;
+			}
+			string error;
+			if (result.TryGetValue("error", out error)) {
+				string errorDescription;
+				if (result.TryGetValue("error_description", out errorDescription)) {
+					throw new Exception(errorDescription);
+				}
+				if ("access_denied" == error) {
+					throw new UnauthorizedAccessException("Access denied");
+				} else {
+					throw new Exception(error);
+				}
+			}
+			return false;
+		}
+
+		/// <summary>
+		/// Simple helper to add the Authorization Bearer header
+		/// </summary>
+		/// <param name="webRequest">WebRequest</param>
+		/// <param name="settings">OAuth2Settings</param>
+		public static void AddOAuth2Credentials(HttpWebRequest webRequest, OAuth2Settings settings) {
+			if (!string.IsNullOrEmpty(settings.AccessToken)) {
+				webRequest.Headers.Add("Authorization", "Bearer " + settings.AccessToken);
+			}
+		}
+
+		/// <summary>
+		/// Check and authenticate or refresh tokens 
+		/// </summary>
+		/// <param name="settings">OAuth2Settings</param>
+		public static void CheckAndAuthenticateOrRefresh(OAuth2Settings settings) {
+			// Get Refresh / Access token
+			if (string.IsNullOrEmpty(settings.RefreshToken)) {
+				if (!Authenticate(settings)) {
+					throw new Exception("Authentication cancelled");
+				}
+			}
+			if (settings.IsAccessTokenExpired) {
+				GenerateAccessToken(settings);
+				// Get Refresh / Access token
+				if (string.IsNullOrEmpty(settings.RefreshToken)) {
+					if (!Authenticate(settings)) {
+						throw new Exception("Authentication cancelled");
+					}
+					GenerateAccessToken(settings);
+				}
+			}
+			if (settings.IsAccessTokenExpired) {
+				throw new Exception("Authentication failed");
+			}
+		}
+
+		/// <summary>
+		/// CreateWebRequest ready for OAuth 2 access
+		/// </summary>
+		/// <param name="method">HTTPMethod</param>
+		/// <param name="url"></param>
+		/// <param name="settings">OAuth2Settings</param>
+		/// <returns>HttpWebRequest</returns>
+		public static HttpWebRequest CreateOAuth2WebRequest(HTTPMethod method, string url, OAuth2Settings settings) {
+			CheckAndAuthenticateOrRefresh(settings);
+
+			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url, method);
+			AddOAuth2Credentials(webRequest, settings);
+			return webRequest;
 		}
 	}
 }

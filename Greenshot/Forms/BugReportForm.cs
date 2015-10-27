@@ -31,8 +31,7 @@ namespace Greenshot.Forms {
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-			Icon = GreenshotResources.getGreenshotIcon();
-			WindowDetails.ToForeground(Handle);
+			ToFront = true;
 		}
 
 		public BugReportForm(string bugText) : this() {

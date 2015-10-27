@@ -53,7 +53,6 @@ namespace GreenshotImgurPlugin {
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 			AcceptButton = finishedButton;
 			CancelButton = finishedButton;
 			// Init sorting
@@ -166,6 +165,11 @@ namespace GreenshotImgurPlugin {
 				IniConfig.Save();
 				redraw();
 			}
+		}
+
+		private void FinishedButtonClick(object sender, EventArgs e)
+		{
+			this.Hide();
 		}
 
 		private void OpenButtonClick(object sender, EventArgs e) {

@@ -143,8 +143,13 @@ namespace GreenshotImgurPlugin
 			try {
 				XmlDocument doc = new XmlDocument();
 				doc.LoadXml(response);
-				XmlNodeList nodes = doc.GetElementsByTagName("hash");
+				XmlNodeList nodes = doc.GetElementsByTagName("id");
 				if(nodes.Count > 0) {
+					imgurInfo.Hash = nodes.Item(0).InnerText;
+				}
+				nodes = doc.GetElementsByTagName("hash");
+				if (nodes.Count > 0)
+				{
 					imgurInfo.Hash = nodes.Item(0).InnerText;
 				}
 				nodes = doc.GetElementsByTagName("deletehash");
@@ -161,15 +166,40 @@ namespace GreenshotImgurPlugin
 				}
 				nodes = doc.GetElementsByTagName("datetime");
 				if(nodes.Count > 0) {
-					imgurInfo.Timestamp =  DateTime.Parse(nodes.Item(0).InnerText);
+					try
+					{
+						imgurInfo.Timestamp = DateTime.Parse(nodes.Item(0).InnerText);
+					}
+					catch (Exception)
+					{
+						// Version 3 has seconds since Epoch
+						double secondsSince;
+						if (double.TryParse(nodes.Item(0).InnerText, out secondsSince))
+						{
+							var epoch = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
+							imgurInfo.Timestamp = epoch.AddSeconds(secondsSince).DateTime;
+						}
+					}
 				}
 				nodes = doc.GetElementsByTagName("original");
 				if(nodes.Count > 0) {
 					imgurInfo.Original = nodes.Item(0).InnerText;
 				}
+				// Version 3 API only has Link
+				nodes = doc.GetElementsByTagName("link");
+				if (nodes.Count > 0)
+				{
+					imgurInfo.Original = nodes.Item(0).InnerText;
+				}
 				nodes = doc.GetElementsByTagName("imgur_page");
-				if(nodes.Count > 0) {
+				if (nodes.Count > 0)
+				{
 					imgurInfo.Page = nodes.Item(0).InnerText;
+				}
+				else
+				{
+					// Version 3 doesn't have a page link in the response
+					imgurInfo.Page = string.Format("http://imgur.com/{0}", imgurInfo.Hash);
 				}
 				nodes = doc.GetElementsByTagName("small_square");
 				if(nodes.Count > 0) {

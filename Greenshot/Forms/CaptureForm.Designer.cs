@@ -61,7 +61,7 @@ namespace Greenshot.Forms {
 			this.Cursor = System.Windows.Forms.Cursors.Cross;
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
 			this.Name = "CaptureForm";
-			this.ShowIcon = false;
+			this.ShowIcon = true;
 			this.ShowInTaskbar = false;
 			this.TopMost = true;
 			this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.CaptureFormKeyDown);

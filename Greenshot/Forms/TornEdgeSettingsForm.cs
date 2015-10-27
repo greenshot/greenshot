@@ -30,7 +30,6 @@ namespace Greenshot.Forms {
 		public TornEdgeSettingsForm(TornEdgeEffect effect) {
 			this.effect = effect;
 			InitializeComponent();
-			this.Icon = GreenshotResources.getGreenshotIcon();
 			ShowSettings();
 		}
 

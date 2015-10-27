@@ -38,7 +38,6 @@ namespace GreenshotPicasaPlugin {
 			InitializeComponent();
 			CancelButton = buttonCancel;
 			AcceptButton = buttonOK;
-			Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
 		}
 
 	}

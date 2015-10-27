@@ -18,17 +18,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.UnmanagedHelpers;
 using Greenshot.IniFile;
+using log4net;
 
 namespace GreenshotPlugin.Controls {
 	/// <summary>
 	/// Extend this Form to have the possibility for animations on your form
 	/// </summary>
 	public class AnimatingForm : GreenshotForm {
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(AnimatingForm));
 		private const int DEFAULT_VREFRESH = 60;
 		private int vRefresh = 0;
 		private Timer timer = null;
@@ -110,7 +113,11 @@ namespace GreenshotPlugin.Controls {
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		void timer_Tick(object sender, EventArgs e) {
-			Animate();
+			try {
+				Animate();
+			} catch (Exception ex) {
+				LOG.Warn("An exception occured while animating:", ex);
+			}
 		}
 
 		/// <summary>

@@ -41,14 +41,13 @@ namespace GreenshotPlugin.Controls {
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-			Icon = GreenshotResources.getGreenshotIcon();
 
 			checkBox_reduceColors.Checked = Settings.ReduceColors;
 			trackBarJpegQuality.Enabled = OutputFormat.jpg.Equals(outputSettings.Format);
 			trackBarJpegQuality.Value = Settings.JPGQuality;
 			textBoxJpegQuality.Enabled = OutputFormat.jpg.Equals(outputSettings.Format);
 			textBoxJpegQuality.Text = Settings.JPGQuality.ToString();
-			WindowDetails.ToForeground(Handle);
+			ToFront = true;
 		}
 		
 		void Button_okClick(object sender, EventArgs e) {

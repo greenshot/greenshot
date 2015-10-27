@@ -58,7 +58,10 @@ namespace Greenshot.IniFile {
 		/// <summary>
 		/// Flag to specify if values have been changed
 		/// </summary>
-		public bool IsDirty = false;
+		public bool IsDirty {
+			get;
+			set;
+		}
 
 		/// <summary>
 		/// Supply values we can't put as defaults
