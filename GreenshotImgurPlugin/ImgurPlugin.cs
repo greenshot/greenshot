@@ -194,17 +194,27 @@ namespace GreenshotImgurPlugin {
 						imgurInfo.Image = ImageHelper.CreateThumbnail(tmpImage, 90, 90);
 					}
 					IniConfig.Save();
-					try {
-						if (config.UsePageLink) {
-							uploadURL = imgurInfo.Page;
-							ClipboardHelper.SetClipboardData(imgurInfo.Page);
-						} else {
-							uploadURL = imgurInfo.Original;
+
+					if (config.UsePageLink)
+					{
+						uploadURL = imgurInfo.Page;
+					}
+					else
+					{
+						uploadURL = imgurInfo.Original;
+					}
+					if (string.IsNullOrEmpty(uploadURL) && config.CopyLinkToClipboard)
+					{
+						try
+						{
 							ClipboardHelper.SetClipboardData(imgurInfo.Original);
+
 						}
-					} catch (Exception ex) {
-						LOG.Error("Can't write to clipboard: ", ex);
-						uploadURL = null;
+						catch (Exception ex)
+						{
+							LOG.Error("Can't write to clipboard: ", ex);
+							uploadURL = null;
+						}
 					}
 					return true;
 				}

@@ -41,6 +41,8 @@ namespace GreenshotImgurPlugin {
 		public int UploadJpegQuality;
 		[IniProperty("UploadReduceColors", Description="Reduce color amount of the uploaded image to 256", DefaultValue="False")]
 		public bool UploadReduceColors;
+		[IniProperty("CopyLinkToClipboard", Description = "Copy the link, which one is controlled by the UsePageLink, on the clipboard", DefaultValue = "True")]
+		public bool CopyLinkToClipboard;
 		[IniProperty("UsePageLink", Description = "Use pagelink instead of direct link on the clipboard", DefaultValue = "False")]
 		public bool UsePageLink;
 		[IniProperty("AnonymousAccess", Description = "Use anonymous access to Imgur", DefaultValue="true")]
