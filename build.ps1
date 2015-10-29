@@ -290,5 +290,3 @@ PackagePortable
 echo "Generating Debug Symbols ZIP"
 PackageDbgSymbolsZip
 
-echo "build successful, tagging with $fileversion"
-TagCode
