@@ -92,14 +92,14 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		/// Saves ISurface to stream with specified output settings
 		/// </summary>
-		/// <param name="surface">ISurface to save</param>
+		/// <param name="capture">ICapture to save</param>
 		/// <param name="stream">Stream to save to</param>
 		/// <param name="outputSettings">SurfaceOutputSettings</param>
-		public static void SaveToStream(ISurface surface, Stream stream, SurfaceOutputSettings outputSettings)
+		public static void SaveToStream(ICapture capture, Stream stream, SurfaceOutputSettings outputSettings)
 		{
 			Image imageToSave;
-			bool disposeImage = CreateImageFromSurface(surface, outputSettings, out imageToSave);
-			SaveToStream(imageToSave, surface, stream, outputSettings);
+			bool disposeImage = CreateImageFromCapture(capture, outputSettings, out imageToSave);
+			SaveToStream(imageToSave, capture, stream, outputSettings);
 			// cleanup if needed
 			if (disposeImage && imageToSave != null)
 			{
@@ -113,15 +113,15 @@ namespace GreenshotPlugin.Core
 		/// the stream is checked if it's seekable and if needed a MemoryStream as "cache" is used.
 		/// </summary>
 		/// <param name="imageToSave">image to save</param>
-		/// <param name="surface">surface for the elements, needed if the greenshot format is used</param>
+		/// <param name="capture">capture for the elements, needed if the greenshot format is used</param>
 		/// <param name="stream">Stream to save to</param>
 		/// <param name="outputSettings">SurfaceOutputSettings</param>
-		public static void SaveToStream(Image imageToSave, ISurface surface, Stream stream, SurfaceOutputSettings outputSettings)
+		public static void SaveToStream(Image imageToSave, ICapture capture, Stream stream, SurfaceOutputSettings outputSettings)
 		{
 			ImageFormat imageFormat;
 			bool useMemoryStream = false;
 			MemoryStream memoryStream = null;
-			if (outputSettings.Format == OutputFormat.greenshot && surface == null)
+			if (outputSettings.Format == OutputFormat.greenshot && capture == null)
 			{
 				throw new ArgumentException("Surface needs to be se when using OutputFormat.Greenshot");
 			}
@@ -235,12 +235,12 @@ namespace GreenshotPlugin.Core
 				{
 					using (MemoryStream tmpStream = new MemoryStream())
 					{
-						long bytesWritten = surface.SaveElementsToStream(tmpStream);
+						long bytesWritten = capture.SaveElementsToStream(tmpStream);
 						using (BinaryWriter writer = new BinaryWriter(tmpStream, Encoding.UTF8, true))
 						{
 							writer.Write(bytesWritten);
 							Version v = Assembly.GetExecutingAssembly().GetName().Version;
-							byte[] marker = Encoding.ASCII.GetBytes(String.Format("Greenshot{0:00}.{1:00}", v.Major, v.Minor));
+							byte[] marker = Encoding.ASCII.GetBytes($"Greenshot{v.Major:00}.{v.Minor:00}");
 							writer.Write(marker);
 							tmpStream.WriteTo(stream);
 						}
@@ -249,10 +249,7 @@ namespace GreenshotPlugin.Core
 			}
 			finally
 			{
-				if (memoryStream != null)
-				{
-					memoryStream.Dispose();
-				}
+				memoryStream?.Dispose();
 			}
 		}
 
@@ -336,11 +333,11 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		/// Create an image from a surface with the settings from the output settings applied
 		/// </summary>
-		/// <param name="surface"></param>
+		/// <param name="capture"></param>
 		/// <param name="outputSettings"></param>
 		/// <param name="imageToSave"></param>
 		/// <returns>true if the image must be disposed</returns>
-		public static bool CreateImageFromSurface(ISurface surface, SurfaceOutputSettings outputSettings, out Image imageToSave)
+		public static bool CreateImageFromCapture(ICapture capture, SurfaceOutputSettings outputSettings, out Image imageToSave)
 		{
 			bool disposeImage = false;
 
@@ -348,12 +345,12 @@ namespace GreenshotPlugin.Core
 			if (outputSettings.Format == OutputFormat.greenshot || outputSettings.SaveBackgroundOnly)
 			{
 				// We save the image of the surface, this should not be disposed
-				imageToSave = surface.Image;
+				imageToSave = capture.Image;
 			}
 			else
 			{
 				// We create the export image of the surface to save
-				imageToSave = surface.GetImageForExport();
+				imageToSave = capture.GetImageForExport();
 				disposeImage = true;
 			}
 

@@ -127,7 +127,7 @@ namespace GreenshotEditorPlugin.Drawing
 			}
 			set
 			{
-				ParentID = value.ID;
+				ParentID = value.Id;
 				foreach (var drawableContainer in this)
 				{
 					var dc = (DrawableContainer) drawableContainer;

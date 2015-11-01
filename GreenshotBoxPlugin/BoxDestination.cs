@@ -28,9 +28,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Destination;
 
 namespace GreenshotBoxPlugin
 {
+	[Destination("Box")]
 	public class BoxDestination : AbstractDestination
 	{
 		private const string Designation = "Box";
@@ -52,11 +54,11 @@ namespace GreenshotBoxPlugin
 
 		public BoxDestination()
 		{
-			Export = async (b) => await ExportCaptureAsync(null, null);
+			Export = async (capture) => await ExportCaptureAsync(capture);
 			Text = BoxLanguage.UploadMenuItem;	
 		}
 
-		private async Task<ExportInformation> ExportCaptureAsync(ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		private async Task<ExportInformation> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))
 		{
 			var exportInformation = new ExportInformation
 			{
@@ -67,7 +69,7 @@ namespace GreenshotBoxPlugin
 			{
 				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, BoxLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
 				{
-					return await BoxUtils.UploadToBoxAsync(surface, captureDetails, progress, token);
+					return await BoxUtils.UploadToBoxAsync(capture, progress, token);
 				}, token);
 
 				if (url != null)

@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
@@ -19,41 +19,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Collections.ObjectModel;
+using System;
 using System.ComponentModel.Composition;
-using System.Windows;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Destination;
 
-namespace Greenshot.Windows
+namespace GreenshotPlugin.Interfaces.Destination
 {
-	/// <summary>
-	/// Interaction logic for ExportWindow.xaml
-	/// </summary>
-	[Export]
-	public partial class ExportWindow : Window
+	[MetadataAttribute]
+	[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+	public sealed class DestinationAttribute : InheritedExportAttribute, IDestinationMetadata
 	{
-		public ObservableCollection<IDestination> Children
-		{
-			get;
-			set;
-		} = new ObservableCollection<IDestination>();
-
-		public ExportWindow()
-		{
-			InitializeComponent();
-			DataContext = this;
-		}
-
-		public IDestination SelectedDestination
+		public string Name
 		{
 			get;
 			set;
 		}
 
-		private void Close_Click(object sender, RoutedEventArgs e)
+		public DestinationAttribute() : base(typeof(IDestination))
 		{
-			Close();
+		}
+
+		public DestinationAttribute(string name) : base(typeof(IDestination))
+		{
+			Name = name;
 		}
 	}
 }

@@ -32,6 +32,7 @@ using Dapplo.Addons;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using GreenshotPlugin.Extensions;
+using GreenshotPlugin.Interfaces.Destination;
 
 namespace GreenshotBoxPlugin
 {

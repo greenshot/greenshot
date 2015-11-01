@@ -22,6 +22,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Windows.Forms;
 using GreenshotPlugin.Interfaces;
 using log4net;
@@ -157,6 +158,11 @@ namespace GreenshotPlugin.Core
 
 		private CaptureDetails _captureDetails;
 
+		public Image GetImageForExport()
+		{
+			return Image;
+		}
+
 		/// <summary>
 		/// Get/set the CaptureDetails
 		/// </summary>
@@ -251,6 +257,16 @@ namespace GreenshotPlugin.Core
 		public void MoveMouseLocation(int x, int y)
 		{
 			_cursorLocation.Offset(x, y);
+		}
+
+		public long SaveElementsToStream(Stream stream)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void LoadElementsFromStream(Stream stream)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

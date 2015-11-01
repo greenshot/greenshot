@@ -19,10 +19,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
 using Greenshot.Core;
 using GreenshotEditorPlugin.Memento;
-using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
 using GreenshotPlugin.Windows;
@@ -50,28 +48,20 @@ namespace GreenshotEditorPlugin.Drawing
 	public class Surface : Control, ISurface, INotifyPropertyChanged
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof (Surface));
-		public static int Count = 0;
-		private static ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		public static int Count;
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		// Property to identify the Surface ID
-		private Guid _uniqueId = Guid.NewGuid();
 
 		/// <summary>
 		/// The GUID of the surface
 		/// </summary>
-		public Guid ID
+		public Guid Id
 		{
-			get
-			{
-				return _uniqueId;
-			}
-			set
-			{
-				_uniqueId = value;
-			}
-		}
+			get;
+			set;
+		} = Guid.NewGuid();
 
 		/// <summary>
 		/// Event handlers (do not serialize!)
@@ -484,11 +474,11 @@ namespace GreenshotEditorPlugin.Drawing
 		/// <summary>
 		/// Base Surface constructor
 		/// </summary>
-		public Surface() : base()
+		public Surface()
 		{
 			Count++;
-			_elements = new DrawableContainerList(_uniqueId);
-			_selectedElements = new DrawableContainerList(_uniqueId);
+			_elements = new DrawableContainerList(Id);
+			_selectedElements = new DrawableContainerList(Id);
 			LOG.Debug("Creating surface!");
 			MouseDown += SurfaceMouseDown;
 			MouseUp += SurfaceMouseUp;
@@ -552,10 +542,12 @@ namespace GreenshotEditorPlugin.Drawing
 				var captureRect = new Rectangle(Point.Empty, capture.Image.Size);
 
 				// Store the cursor, even if it wasn't visible, just in case the user wants to add it later
-				_cursorContainer = new CursorContainer(this);
-				_cursorContainer.Cursor = capture.Cursor;
-				_cursorContainer.Left = capture.CursorLocation.X;
-				_cursorContainer.Top = capture.CursorLocation.Y;
+				_cursorContainer = new CursorContainer(this)
+				{
+					Cursor = capture.Cursor,
+					Left = capture.CursorLocation.X,
+					Top = capture.CursorLocation.Y
+				};
 
 				// check if cursor is on the capture, otherwise we leave it out.
 				if (cursorRect.IntersectsWith(captureRect))
@@ -741,7 +733,7 @@ namespace GreenshotEditorPlugin.Drawing
 			try
 			{
 				long lengtBefore = streamWrite.Length;
-				BinaryFormatter binaryWrite = new BinaryFormatter();
+				var binaryWrite = new BinaryFormatter();
 				binaryWrite.Serialize(streamWrite, _elements);
 				bytesWritten = streamWrite.Length - lengtBefore;
 			}
@@ -760,14 +752,11 @@ namespace GreenshotEditorPlugin.Drawing
 		{
 			try
 			{
-				BinaryFormatter binaryRead = new BinaryFormatter();
-				DrawableContainerList loadedElements = (DrawableContainerList) binaryRead.Deserialize(streamRead);
+				var binaryRead = new BinaryFormatter();
+				var loadedElements = (DrawableContainerList) binaryRead.Deserialize(streamRead);
 				loadedElements.Parent = this;
 				// Make sure the steplabels are sorted accoring to their number
-				_stepLabels.Sort(delegate(StepLabelContainer p1, StepLabelContainer p2)
-				{
-					return p1.Number.CompareTo(p2.Number);
-				});
+				_stepLabels.Sort((p1, p2) => p1.Number.CompareTo(p2.Number));
 				DeselectAllElements();
 				AddElements(loadedElements);
 				SelectElements(loadedElements);
@@ -1121,7 +1110,7 @@ namespace GreenshotEditorPlugin.Drawing
 		/// </summary>
 		/// <param name="cropRectangle"></param>
 		/// <returns></returns>
-		public bool ApplyCrop(Rectangle cropRectangle)
+		public bool Crop(Rectangle cropRectangle)
 		{
 			if (IsCropPossible(ref cropRectangle))
 			{
@@ -1202,7 +1191,7 @@ namespace GreenshotEditorPlugin.Drawing
 					IDrawableContainer rightClickedContainer = _elements.ClickableElementAt(_mouseStart.X, _mouseStart.Y);
 					if (rightClickedContainer != null)
 					{
-						selectedList = new DrawableContainerList(ID);
+						selectedList = new DrawableContainerList(Id);
 						selectedList.Add(rightClickedContainer);
 					}
 				}
@@ -1237,7 +1226,10 @@ namespace GreenshotEditorPlugin.Drawing
 				// if a new element has been drawn, set location and register it
 				if (_drawingElement != null)
 				{
-					_drawingElement.Status = _undrawnElement.DefaultEditMode;
+					if (_undrawnElement != null)
+					{
+						_drawingElement.Status = _undrawnElement.DefaultEditMode;
+					}
 					_drawingElement.PropertyChanged += ElementPropertyChanged;
 					if (!_drawingElement.HandleMouseDown(_mouseStart.X, _mouseStart.Y))
 					{
@@ -1694,9 +1686,10 @@ namespace GreenshotEditorPlugin.Drawing
 			{
 				// As RemoveElement will remove the element from the selectedElements list we need to copy the element
 				// to another list.
-				List<DrawableContainer> elementsToRemove = new List<DrawableContainer>();
-				foreach (DrawableContainer element in _selectedElements)
+				var elementsToRemove = new List<DrawableContainer>();
+				foreach (var drawableContainer in _selectedElements)
 				{
+					var element = (DrawableContainer) drawableContainer;
 					// Collect to remove later
 					elementsToRemove.Add(element);
 				}
@@ -1758,7 +1751,7 @@ namespace GreenshotEditorPlugin.Drawing
 				RemoveElement(_cropContainer, false);
 				if (confirm)
 				{
-					ApplyCrop(_cropContainer.Bounds);
+					Crop(_cropContainer.Bounds);
 				}
 				_cropContainer.Dispose();
 				_cropContainer = null;
@@ -1793,7 +1786,7 @@ namespace GreenshotEditorPlugin.Drawing
 				{
 					// Make element(s) only move 10,10 if the surface is the same
 					Point moveOffset;
-					bool isSameSurface = (dcs.ParentID == _uniqueId);
+					bool isSameSurface = (dcs.ParentID == Id);
 					dcs.Parent = this;
 					if (isSameSurface)
 					{
@@ -2007,8 +2000,9 @@ namespace GreenshotEditorPlugin.Drawing
 		/// <param name="elements"></param>
 		public void SelectElements(DrawableContainerList elements)
 		{
-			foreach (DrawableContainer element in elements)
+			foreach (var drawableContainer in elements)
 			{
+				var element = (DrawableContainer) drawableContainer;
 				SelectElement(element);
 			}
 		}
@@ -2170,6 +2164,55 @@ namespace GreenshotEditorPlugin.Drawing
 						MakeUndoable(new ChangeFieldHolderMemento(fieldHolder, fieldAttribute), true);
 					}
 				}
+			}
+		}
+
+		public void NullImage()
+		{
+			throw new NotImplementedException();
+		}
+
+		public void MoveMouseLocation(int x, int y)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Rectangle ScreenBounds
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+
+			set
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public bool CursorVisible
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+
+			set
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public Point CursorLocation
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+
+			set
+			{
+				throw new NotImplementedException();
 			}
 		}
 	}

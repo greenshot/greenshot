@@ -83,7 +83,7 @@ namespace GreenshotBoxPlugin
 			{
 				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, language.CommunicationWait, async (progress, pleaseWaitToken) =>
 				{
-					return await BoxUtils.UploadToBoxAsync(surface, captureDetails, progress, token);
+					return await BoxUtils.UploadToBoxAsync(surface, progress, token);
 				}, token);
 
 				if (url != null)

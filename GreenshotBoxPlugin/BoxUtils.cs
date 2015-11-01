@@ -49,14 +49,13 @@ namespace GreenshotBoxPlugin
 		/// Do the actual upload to Box
 		/// For more details on the available parameters, see: http://developers.box.net/w/page/12923951/ApiFunction_Upload%20and%20Download
 		/// </summary>
-		/// <param name="surfaceToUpload"></param>
-		/// <param name="captureDetails"></param>
+		/// <param name="capture"></param>
 		/// <param name="progress"></param>
 		/// <param name="token"></param>
 		/// <returns>url to uploaded image</returns>
-		public static async Task<string> UploadToBoxAsync(ISurface surfaceToUpload, ICaptureDetails captureDetails, IProgress<int> progress, CancellationToken token = default(CancellationToken))
+		public static async Task<string> UploadToBoxAsync(ICapture capture, IProgress<int> progress, CancellationToken token = default(CancellationToken))
 		{
-			string filename = Path.GetFileName(FilenameHelper.GetFilename(Config.UploadFormat, captureDetails));
+			string filename = Path.GetFileName(FilenameHelper.GetFilename(Config.UploadFormat, capture.CaptureDetails));
 			var outputSettings = new SurfaceOutputSettings(Config.UploadFormat, Config.UploadJpegQuality, false);
 
 			// Fill the OAuth2Settings
@@ -81,7 +80,7 @@ namespace GreenshotBoxPlugin
 							Name = "\"parent_id\""
 						};
 						multiPartContent.Add(parentIdContent);
-						ImageOutput.SaveToStream(surfaceToUpload, stream, outputSettings);
+						ImageOutput.SaveToStream(capture, stream, outputSettings);
 						stream.Position = 0;
 						using (var uploadStream = new ProgressStream(stream, progress))
 						{

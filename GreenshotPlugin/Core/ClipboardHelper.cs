@@ -655,7 +655,7 @@ EndSelection:<<<<<<<4
 			{
 				SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
 				// Create the image which is going to be saved so we don't create it multiple times
-				disposeImage = ImageOutput.CreateImageFromSurface(surface, outputSettings, out imageToSave);
+				disposeImage = ImageOutput.CreateImageFromCapture(surface, outputSettings, out imageToSave);
 				try
 				{
 					// Create PNG stream

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -19,50 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Threading.Tasks;
-using System.Windows.Media;
-
-namespace GreenshotPlugin.Interfaces
+namespace GreenshotPlugin.Interfaces.Destination
 {
-	public interface IDestination: INotifyPropertyChanged
+	public interface IDestinationMetadata
 	{
-		string Shortcut
+		string Name
 		{
 			get;
-			set;
 		}
-
-		string Text
-		{
-			get;
-			set;
-		}
-
-		bool IsEnabled
-		{
-			get;
-			set;
-		}
-
-		ImageSource Icon
-		{
-			get;
-			set;
-		}
-
-		Func<bool, Task<ExportInformation>> Export
-		{
-			get;
-			set;
-		}
-
-		ObservableCollection<IDestination> Children
-		{
-			get;
-			set;
-		} 
 	}
 }

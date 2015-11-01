@@ -86,6 +86,7 @@
     <Compile Include="Destinations\EmailLegacyDestination.cs" />
     <Compile Include="Destinations\FileLegacyDestination.cs" />
     <Compile Include="Destinations\FileWithDialogLegacyDestination.cs" />
+    <Compile Include="Destinations\PickerDestination.cs" />
     <Compile Include="Destinations\PickerLegacyDestination.cs" />
     <Compile Include="Destinations\PrinterLegacyDestination.cs" />
     <Compile Include="Forms\BaseForm.cs">

@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
@@ -19,41 +19,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Collections.ObjectModel;
-using System.ComponentModel.Composition;
-using System.Windows;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Destination;
-
-namespace Greenshot.Windows
+namespace GreenshotPlugin.Interfaces
 {
-	/// <summary>
-	/// Interaction logic for ExportWindow.xaml
-	/// </summary>
-	[Export]
-	public partial class ExportWindow : Window
+	public enum DrawingModes
 	{
-		public ObservableCollection<IDestination> Children
-		{
-			get;
-			set;
-		} = new ObservableCollection<IDestination>();
-
-		public ExportWindow()
-		{
-			InitializeComponent();
-			DataContext = this;
-		}
-
-		public IDestination SelectedDestination
-		{
-			get;
-			set;
-		}
-
-		private void Close_Click(object sender, RoutedEventArgs e)
-		{
-			Close();
-		}
+		None,
+		Rect,
+		Ellipse,
+		Text,
+		Line,
+		Arrow,
+		Crop,
+		Highlight,
+		Obfuscate,
+		Bitmap,
+		Path,
+		SpeechBubble,
+		StepLabel
 	}
 }

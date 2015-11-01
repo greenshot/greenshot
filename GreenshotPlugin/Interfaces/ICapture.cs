@@ -21,6 +21,7 @@
 
 using System;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 
 namespace GreenshotPlugin.Interfaces
@@ -30,6 +31,13 @@ namespace GreenshotPlugin.Interfaces
 	/// </summary>
 	public interface ICapture : IDisposable
 	{
+		/// <summary>
+		/// Get the current Image from the Editor for Exporting (save/upload etc)
+		/// Don't forget to call image.Dispose() when finished!!!
+		/// </summary>
+		/// <returns>Bitmap</returns>
+		Image GetImageForExport();
+
 		// The Capture Details
 		ICaptureDetails CaptureDetails
 		{
@@ -89,5 +97,9 @@ namespace GreenshotPlugin.Interfaces
 		/// <param name="x">x coordinates to move the mouse</param>
 		/// <param name="y">y coordinates to move the mouse</param>
 		void MoveMouseLocation(int x, int y);
+
+		long SaveElementsToStream(Stream stream);
+		void LoadElementsFromStream(Stream stream);
+
 	}
 }

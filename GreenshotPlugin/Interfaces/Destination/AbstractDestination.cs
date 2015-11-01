@@ -27,7 +27,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Media;
 
-namespace GreenshotPlugin.Interfaces
+namespace GreenshotPlugin.Interfaces.Destination
 {
 	/// <summary>
 	/// A simple base implementation for the IDestination
@@ -114,7 +114,7 @@ namespace GreenshotPlugin.Interfaces
 			}
 		}
 
-		public Func<bool, Task<ExportInformation>> Export
+		public Func<ICapture, Task<ExportInformation>> Export
 		{
 			get;
 			set;

@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
@@ -19,41 +19,50 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel.Composition;
-using System.Windows;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Destination;
+using System.ComponentModel;
+using System.Threading.Tasks;
+using System.Windows.Media;
 
-namespace Greenshot.Windows
+namespace GreenshotPlugin.Interfaces.Destination
 {
-	/// <summary>
-	/// Interaction logic for ExportWindow.xaml
-	/// </summary>
-	[Export]
-	public partial class ExportWindow : Window
+	public interface IDestination: INotifyPropertyChanged
 	{
-		public ObservableCollection<IDestination> Children
-		{
-			get;
-			set;
-		} = new ObservableCollection<IDestination>();
-
-		public ExportWindow()
-		{
-			InitializeComponent();
-			DataContext = this;
-		}
-
-		public IDestination SelectedDestination
+		string Shortcut
 		{
 			get;
 			set;
 		}
 
-		private void Close_Click(object sender, RoutedEventArgs e)
+		string Text
 		{
-			Close();
+			get;
+			set;
 		}
+
+		bool IsEnabled
+		{
+			get;
+			set;
+		}
+
+		ImageSource Icon
+		{
+			get;
+			set;
+		}
+
+		Func<ICapture, Task<ExportInformation>> Export
+		{
+			get;
+			set;
+		}
+
+		ObservableCollection<IDestination> Children
+		{
+			get;
+			set;
+		} 
 	}
 }
