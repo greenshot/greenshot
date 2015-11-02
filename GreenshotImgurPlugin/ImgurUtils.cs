@@ -62,7 +62,7 @@ namespace GreenshotImgurPlugin
 		/// <param name="progress"></param>
 		/// <param name="token"></param>
 		/// <returns>PicasaResponse</returns>
-		public static async Task<ImageInfo> AuthenticatedUploadToImgurAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, IProgress<int> progress, CancellationToken token = default(CancellationToken))
+		public static async Task<ImageInfo> AuthenticatedUploadToImgurAsync(ICapture surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, IProgress<int> progress, CancellationToken token = default(CancellationToken))
 		{
 			// Fill the OAuth2Settings
 			var oauth2Settings = new OAuth2Settings();
@@ -113,7 +113,7 @@ namespace GreenshotImgurPlugin
 			}
 		}
 
-		private static async Task<ImageInfo> AnnonymousUploadToImgurAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, IProgress<int> progress, CancellationToken token = default(CancellationToken))
+		private static async Task<ImageInfo> AnnonymousUploadToImgurAsync(ICapture surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, IProgress<int> progress, CancellationToken token = default(CancellationToken))
 		{
 			var uploadUri = new Uri(config.ApiUrl).AppendSegments("upload.json").ExtendQuery(otherParameters);
 			using (var client = HttpClientFactory.CreateHttpClient(NetworkConfig))
@@ -150,7 +150,7 @@ namespace GreenshotImgurPlugin
 		/// <param name="progress"></param>
 		/// <param name="token"></param>
 		/// <returns>ImgurInfo with details</returns>
-		public static async Task<ImageInfo> UploadToImgurAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename, IProgress<int> progress, CancellationToken token = default(CancellationToken))
+		public static async Task<ImageInfo> UploadToImgurAsync(ICapture surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename, IProgress<int> progress, CancellationToken token = default(CancellationToken))
 		{
 			IDictionary<string, string> otherParameters = new Dictionary<string, string>();
 			// add title

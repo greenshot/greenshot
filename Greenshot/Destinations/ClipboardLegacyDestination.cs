@@ -87,11 +87,10 @@ namespace Greenshot.Destinations
 		/// 
 		/// </summary>
 		/// <param name="manuallyInitiated"></param>
-		/// <param name="surface"></param>
-		/// <param name="captureDetails"></param>
+		/// <param name="capture"></param>
 		/// <param name="token"></param>
 		/// <returns></returns>
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ICapture capture, CancellationToken token = default(CancellationToken))
 		{
 			var exportInformation = new ExportInformation
 			{
@@ -102,7 +101,7 @@ namespace Greenshot.Destinations
 				// There is not much that can work async for the Clipboard
 				await Task.Factory.StartNew(() =>
 				{
-					ClipboardHelper.SetClipboardData(surface);
+					ClipboardHelper.SetClipboardData(capture);
 				}, token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
 				exportInformation.ExportMade = true;
 			}
@@ -111,7 +110,6 @@ namespace Greenshot.Destinations
 				exportInformation.ErrorMessage = language.EditorClipboardfailed;
 			}
 
-			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
 	}

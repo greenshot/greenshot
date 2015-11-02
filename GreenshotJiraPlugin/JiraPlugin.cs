@@ -78,11 +78,6 @@ namespace GreenshotJiraPlugin
 			yield return new JiraLegacyDestination(this);
 		}
 
-		public IEnumerable<IProcessor> Processors()
-		{
-			yield break;
-		}
-
 		/// <summary>
 		/// Initialize
 		/// </summary>

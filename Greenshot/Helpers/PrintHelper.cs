@@ -45,12 +45,12 @@ namespace Greenshot.Helpers
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 
-		private ISurface _surface;
+		private ICapture _surface;
 		private readonly ICaptureDetails _captureDetails;
 		private PrintDocument _printDocument = new PrintDocument();
 		private PrintDialog _printDialog = new PrintDialog();
 
-		public PrintHelper(ISurface surface, ICaptureDetails captureDetails)
+		public PrintHelper(ICapture surface, ICaptureDetails captureDetails)
 		{
 			_surface = surface;
 			_captureDetails = captureDetails;

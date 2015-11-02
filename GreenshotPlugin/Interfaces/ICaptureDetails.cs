@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using GreenshotPlugin.Configuration;
+using GreenshotPlugin.Interfaces.Destination;
 
 namespace GreenshotPlugin.Interfaces
 {
@@ -48,7 +49,7 @@ namespace GreenshotPlugin.Interfaces
 			set;
 		}
 
-		List<ILegacyDestination> CaptureDestinations
+		IList<IDestination> CaptureDestinations
 		{
 			get;
 			set;
@@ -67,8 +68,8 @@ namespace GreenshotPlugin.Interfaces
 		void AddMetaData(string key, string value);
 
 		void ClearDestinations();
-		void RemoveDestination(ILegacyDestination captureDestination);
-		void AddDestination(ILegacyDestination captureDestination);
+		void RemoveDestination(IDestination captureDestination);
+		void AddDestination(IDestination captureDestination);
 		bool HasDestination(string designation);
 
 		CaptureMode CaptureMode
@@ -84,6 +85,15 @@ namespace GreenshotPlugin.Interfaces
 		}
 
 		float DpiY
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Specifies where the capture is stored
+		/// </summary>
+		Uri StoredAt
 		{
 			get;
 			set;

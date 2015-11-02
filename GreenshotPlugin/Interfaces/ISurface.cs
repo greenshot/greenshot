@@ -11,15 +11,21 @@ using GreenshotPlugin.Interfaces.Drawing;
 namespace GreenshotPlugin.Interfaces
 {
 	/// <summary>
+	/// Alignment Enums for possitioning
+	/// </summary>
+	//public enum HorizontalAlignment {LEFT, CENTER, RIGHT};
+	public enum VerticalAlignment
+	{
+		TOP,
+		CENTER,
+		BOTTOM
+	};
+
+	/// <summary>
 	/// The interface to the Surface object, so Plugins can use it.
 	/// </summary>
 	public interface ISurface : ICapture
 	{
-		event SurfaceSizeChangeEventHandler SurfaceSizeChanged;
-		event SurfaceMessageEventHandler SurfaceMessage;
-		event SurfaceDrawingModeEventHandler DrawingModeChanged;
-		event SurfaceElementEventHandler MovingElementChanged;
-
 		/// <summary>
 		/// Unique ID of the Surface
 		/// </summary>
@@ -85,12 +91,6 @@ namespace GreenshotPlugin.Interfaces
 		void Invalidate(Rectangle rectangleToInvalidate);
 		void Invalidate();
 
-		bool Modified
-		{
-			get;
-			set;
-		}
-
 		string LastSaveFullPath
 		{
 			get;
@@ -105,7 +105,6 @@ namespace GreenshotPlugin.Interfaces
 
 		void AddElement(IDrawableContainer elementToAdd, bool makeUndoable);
 		void RemoveElement(IDrawableContainer elementToRemove, bool makeUndoable);
-		void SendMessageEvent(object source, SurfaceMessageTyp messageType, string message);
 		Task ApplyBitmapEffectAsync(IEffect effect, CancellationToken token = default(CancellationToken));
 		void RemoveCursor();
 

@@ -67,7 +67,7 @@ namespace GreenshotFlickrPlugin
 			}
 		}
 
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ICapture capture, CancellationToken token = default(CancellationToken))
 		{
 			var exportInformation = new ExportInformation
 			{
@@ -78,8 +78,8 @@ namespace GreenshotFlickrPlugin
 			{
 				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, language.CommunicationWait, async (progress, pleaseWaitToken) =>
 				{
-					string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
-					return await FlickrUtils.UploadToFlickrAsync(surface, outputSettings, captureDetails.Title, filename, progress, token);
+					string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, capture.CaptureDetails));
+					return await FlickrUtils.UploadToFlickrAsync(capture, outputSettings, capture.CaptureDetails.Title, filename, progress, token);
 				}, token);
 
 				if (url != null)
@@ -97,7 +97,6 @@ namespace GreenshotFlickrPlugin
 				LOG.Error("Error uploading.", e);
 				MessageBox.Show(language.UploadFailure + " " + e.Message);
 			}
-			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
 	}

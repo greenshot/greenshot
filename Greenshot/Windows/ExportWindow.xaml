@@ -9,10 +9,10 @@
     </shell:WindowChrome.WindowChrome>
     <Window.Resources>
         <Style x:Key="DynamicMenuItemStyle" TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
+            <EventSetter Event="Click" Handler="OnClick" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
             <Setter Property="Header" Value="{Binding Text}"/>
-            <Setter Property="Command" Value="{Binding Command}" />
-            <Setter Property="CommandParameter" Value="{Binding}" />
+            <Setter Property="Tag" Value="{Binding}" />
             <Setter Property="Background" Value="#FF3D3D3D" />
             <Setter Property="InputGestureText" Value="{Binding Shortcut}" />
             <Setter Property="Icon" Value="{Binding Icon}" />

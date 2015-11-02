@@ -47,6 +47,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using GreenshotPlugin.Interfaces;
 using Timer = System.Timers.Timer;
+using GreenshotPlugin.Interfaces.Destination;
 
 namespace Greenshot.Forms
 {
@@ -62,6 +63,11 @@ namespace Greenshot.Forms
 		public static string LogFileLocation = null;
 		private static readonly ApplicationBootstrapper ApplicationBootstrapper = new ApplicationBootstrapper(ApplicationName);
 
+		public static ApplicationBootstrapper Bootstrapper {
+			get {
+				return ApplicationBootstrapper;
+			}
+		}
 
 		public static void Start(string[] args)
 		{
@@ -387,7 +393,7 @@ namespace Greenshot.Forms
 			// Check destinations, remove all that don't exist
 			foreach (string destination in coreConfiguration.OutputDestinations.ToArray())
 			{
-				if (DestinationHelper.GetDestination(destination) == null)
+				if (LegacyDestinationHelper.GetLegacyDestination(destination) == null)
 				{
 					coreConfiguration.OutputDestinations.Remove(destination);
 				}
@@ -1255,7 +1261,7 @@ namespace Greenshot.Forms
 				selectList = new ToolStripMenuSelectList("destinations", true);
 				selectList.Text = language.SettingsDestination;
 				// Working with IDestination:
-				foreach (var destination in DestinationHelper.GetAllDestinations())
+				foreach (var destination in LegacyDestinationHelper.GetAllLegacyDestinations())
 				{
 					selectList.AddItem(destination.Description, destination, coreConfiguration.OutputDestinations.Contains(destination.Designation));
 				}
@@ -1507,7 +1513,8 @@ namespace Greenshot.Forms
 				case ClickActions.OpenLastInEditor:
 					if (File.Exists(coreConfiguration.OutputFileAsFullpath))
 					{
-						await CaptureHelper.CaptureFileAsync(coreConfiguration.OutputFileAsFullpath, DestinationHelper.GetDestination(BuildInDestinationEnum.Editor.ToString()), token);
+						IDestination editor = ApplicationBootstrapper.GetExports<IDestination>().Where(x => x.Value.Designation == BuildInDestinationEnum.Editor.ToString()).Select(x => x.Value).First();
+						await CaptureHelper.CaptureFileAsync(coreConfiguration.OutputFileAsFullpath, editor, token);
 					}
 					break;
 				case ClickActions.OpenSettings:

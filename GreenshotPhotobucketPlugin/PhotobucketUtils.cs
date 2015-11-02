@@ -50,7 +50,7 @@ namespace GreenshotPhotobucketPlugin
 		/// For more details on the available parameters, see: http://api.Photobucket.com/resources_anon
 		/// </summary>
 		/// <returns>PhotobucketResponse</returns>
-		public static async Task<PhotobucketInfo> UploadToPhotobucket(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string albumPath, string title, string filename, IProgress<int> progress = null)
+		public static async Task<PhotobucketInfo> UploadToPhotobucket(ICapture surfaceToUpload, SurfaceOutputSettings outputSettings, string albumPath, string title, string filename, IProgress<int> progress = null)
 		{
 			string responseString;
 

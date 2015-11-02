@@ -97,17 +97,6 @@ namespace GreenshotBoxPlugin
 			}
 		}
 
-		public IEnumerable<ILegacyDestination> Destinations()
-		{
-			yield return new BoxLegacyDestination(this);
-		}
-
-
-		public IEnumerable<IProcessor> Processors()
-		{
-			yield break;
-		}
-
 		/// <summary>
 		/// Initialize
 		/// </summary>

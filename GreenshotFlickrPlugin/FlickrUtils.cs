@@ -74,7 +74,7 @@ namespace GreenshotFlickrPlugin
 		/// <param name="progress">IProgres is used to report the progress to</param>
 		/// <param name="token"></param>
 		/// <returns>url to image</returns>
-		public static async Task<string> UploadToFlickrAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename, IProgress<int> progress = null, CancellationToken token = default(CancellationToken))
+		public static async Task<string> UploadToFlickrAsync(ICapture surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename, IProgress<int> progress = null, CancellationToken token = default(CancellationToken))
 		{
 			var oAuth = new OAuthSession(config.ClientId, config.ClientSecret);
 			oAuth.BrowserSize = new Size(520, 800);

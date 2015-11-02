@@ -79,7 +79,7 @@ namespace GreenshotExternalCommandPlugin
 			}
 		}
 
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ICapture capture, CancellationToken token = default(CancellationToken))
 		{
 			var exportInformation = new ExportInformation
 			{
@@ -94,14 +94,13 @@ namespace GreenshotExternalCommandPlugin
 					config.RunInbackground.Add(presetCommand, true);
 				}
 				bool runInBackground = config.RunInbackground[presetCommand];
-				string fullPath = captureDetails.Filename;
+				string fullPath = capture.CaptureDetails.Filename;
 				if (fullPath == null)
 				{
-					fullPath = ImageOutput.SaveNamedTmpFile(surface, captureDetails, outputSettings);
+					fullPath = ImageOutput.SaveNamedTmpFile(capture, capture.CaptureDetails, outputSettings);
 				}
 
 				await CallExternalCommandAsync(exportInformation, presetCommand, fullPath, runInBackground, token);
-				ProcessExport(exportInformation, surface);
 			}
 			return exportInformation;
 		}

@@ -33,7 +33,7 @@ namespace GreenshotOfficePlugin.Destinations
 {
 	public class OneNoteLegacyDestination : AbstractLegacyDestination
 	{
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (WordLegacyDestination));
+		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (OneNoteLegacyDestination));
 		private const int ICON_APPLICATION = 0;
 		public const string DESIGNATION = "OneNote";
 		private static string exePath = null;
@@ -124,7 +124,7 @@ namespace GreenshotOfficePlugin.Destinations
 			}
 		}
 
-		public override Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		public override Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ICapture capture, CancellationToken token = default(CancellationToken))
 		{
 			var exportInformation = new ExportInformation
 			{
@@ -135,7 +135,7 @@ namespace GreenshotOfficePlugin.Destinations
 			{
 				try
 				{
-					exportInformation.ExportMade = OneNoteExporter.ExportToNewPage(surface);
+					exportInformation.ExportMade = OneNoteExporter.ExportToNewPage(capture);
 				}
 				catch (Exception ex)
 				{
@@ -147,7 +147,7 @@ namespace GreenshotOfficePlugin.Destinations
 			{
 				try
 				{
-					exportInformation.ExportMade = OneNoteExporter.ExportToPage(surface, page);
+					exportInformation.ExportMade = OneNoteExporter.ExportToPage(capture, page);
 				}
 				catch (Exception ex)
 				{

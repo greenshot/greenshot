@@ -129,7 +129,7 @@
     <Compile Include="Core\Capture.cs" />
     <Compile Include="Core\CaptureDetails.cs" />
     <Compile Include="Core\CaptureHandler.cs" />
-    <Compile Include="Core\DestinationHelper.cs" />
+    <Compile Include="Core\LegacyDestinationHelper.cs" />
     <Compile Include="Core\HelpFileLoader.cs" />
     <Compile Include="Core\WmInputLangChangeRequestFilter.cs" />
     <Compile Include="Extensions\BitmapExtensions.cs" />
@@ -153,7 +153,6 @@
     <Compile Include="Core\StreamDelegate.cs" />
     <Compile Include="IEInterop\IWebBrowser2.cs" />
     <Compile Include="Interfaces\Destination\AbstractDestination.cs" />
-    <Compile Include="Interfaces\DrawingModes.cs" />
     <Compile Include="Interfaces\ExportInformation.cs" />
     <Compile Include="Interfaces\ICapture.cs" />
     <Compile Include="Interfaces\ICaptureDetails.cs" />
@@ -161,7 +160,10 @@
     <Compile Include="Interfaces\Destination\IDestinationMetadata.cs" />
     <Compile Include="Interfaces\IGreenshotContract.cs" />
     <Compile Include="Interfaces\Destination\DestinationAttribute.cs" />
+    <Compile Include="Interfaces\INotification.cs" />
+    <Compile Include="Interfaces\INotificationCenter.cs" />
     <Compile Include="Interfaces\ISurface.cs" />
+    <Compile Include="Interfaces\Notification.cs" />
     <Compile Include="Interfaces\Plugin\IGreenshotPluginMetadata.cs" />
     <Compile Include="Interfaces\Plugin\PluginAttribute.cs" />
     <Compile Include="Interfaces\Plugin\IGreenshotHost.cs" />
@@ -245,7 +247,6 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Core\AbstractLegacyDestination.cs" />
-    <Compile Include="Core\AbstractProcessor.cs" />
     <Compile Include="Core\AccessibleHelper.cs" />
     <Compile Include="Core\AnimationHelpers.cs" />
     <Compile Include="Core\BinaryStructHelper.cs" />
@@ -273,9 +274,7 @@
     <Compile Include="Core\WindowsHelper.cs" />
     <Compile Include="Interfaces\Drawing\Container.cs" />
     <Compile Include="Interfaces\Forms\ImageEditor.cs" />
-    <Compile Include="Interfaces\Generic.cs" />
     <Compile Include="Interfaces\ILegacyDestination.cs" />
-    <Compile Include="Interfaces\IProcessor.cs" />
     <Compile Include="OAuth\LocalServerCodeReceiver.cs" />
     <Compile Include="OAuth\OAuth2AuthorizeMode.cs" />
     <Compile Include="OAuth\OAuth2Helper.cs" />

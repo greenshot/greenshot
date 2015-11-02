@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Destination;
 
 namespace GreenshotPlugin.Core
 {
@@ -86,18 +87,24 @@ namespace GreenshotPlugin.Core
 			set;
 		}
 
-		public List<ILegacyDestination> CaptureDestinations
+		public IList<IDestination> CaptureDestinations
 		{
 			get;
 			set;
-		} = new List<ILegacyDestination>();
+		} = new List<IDestination>();
+
+		public Uri StoredAt
+		{
+			get;
+			set;
+		}
 
 		public void ClearDestinations()
 		{
 			CaptureDestinations.Clear();
 		}
 
-		public void RemoveDestination(ILegacyDestination destination)
+		public void RemoveDestination(IDestination destination)
 		{
 			if (CaptureDestinations.Contains(destination))
 			{
@@ -105,7 +112,7 @@ namespace GreenshotPlugin.Core
 			}
 		}
 
-		public void AddDestination(ILegacyDestination captureDestination)
+		public void AddDestination(IDestination captureDestination)
 		{
 			if (!CaptureDestinations.Contains(captureDestination))
 			{

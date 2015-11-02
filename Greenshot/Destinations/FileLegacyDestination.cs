@@ -86,7 +86,7 @@ namespace Greenshot.Destinations
 			}
 		}
 
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ICapture capture, CancellationToken token = default(CancellationToken))
 		{
 			var exportInformation = new ExportInformation
 			{
@@ -98,17 +98,17 @@ namespace Greenshot.Destinations
 			// Get output settings from the configuration
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings();
 
-			if (captureDetails != null && captureDetails.Filename != null)
+			if (capture.CaptureDetails != null && capture.CaptureDetails.Filename != null)
 			{
 				// As we save a pre-selected file, allow to overwrite.
 				overwrite = true;
 				LOG.InfoFormat("Using previous filename");
-				fullPath = captureDetails.Filename;
+				fullPath = capture.CaptureDetails.Filename;
 				outputSettings.Format = ImageOutput.FormatForFilename(fullPath);
 			}
 			else
 			{
-				fullPath = CreateNewFilename(captureDetails);
+				fullPath = CreateNewFilename(capture.CaptureDetails);
 				// As we generate a file, the configuration tells us if we allow to overwrite
 				overwrite = conf.OutputFileAllowOverwrite;
 			}
@@ -123,7 +123,7 @@ namespace Greenshot.Destinations
 			try
 			{
 				TaskScheduler scheduler = TaskScheduler.FromCurrentSynchronizationContext();
-				Task<string> task = Task.Factory.StartNew(() => ImageOutput.Save(surface, fullPath, overwrite, outputSettings), token, TaskCreationOptions.None, scheduler);
+				Task<string> task = Task.Factory.StartNew(() => ImageOutput.Save(capture, fullPath, overwrite, outputSettings), token, TaskCreationOptions.None, scheduler);
 				fullPath = await task;
 				if (conf.OutputFileCopyPathToClipboard)
 				{
@@ -136,7 +136,7 @@ namespace Greenshot.Destinations
 				// Our generated filename exists, display 'save-as'
 				LOG.InfoFormat("Not overwriting: {0}", ex1.Message);
 				// when we don't allow to overwrite present a new SaveWithDialog
-				fullPath = ImageOutput.SaveWithDialog(surface, captureDetails);
+				fullPath = ImageOutput.SaveWithDialog(capture, capture.CaptureDetails);
 				outputMade = (fullPath != null);
 			}
 			catch (Exception ex2)
@@ -145,7 +145,7 @@ namespace Greenshot.Destinations
 				// Show the problem
 				MessageBox.Show(language.ErrorSave + " " + ex2.Message, Designation, MessageBoxButton.OK, MessageBoxImage.Error);
 				// when save failed we present a SaveWithDialog
-				fullPath = ImageOutput.SaveWithDialog(surface, captureDetails);
+				fullPath = ImageOutput.SaveWithDialog(capture, capture.CaptureDetails);
 				outputMade = (fullPath != null);
 			}
 			// Don't overwrite filename if no output is made
@@ -153,11 +153,10 @@ namespace Greenshot.Destinations
 			{
 				exportInformation.ExportMade = outputMade;
 				exportInformation.Filepath = fullPath;
-				captureDetails.Filename = fullPath;
+				capture.CaptureDetails.Filename = fullPath;
 				conf.OutputFileAsFullpath = fullPath;
 			}
 
-			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
 

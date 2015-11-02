@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -20,97 +20,103 @@
  */
 
 using System;
-using System.Drawing;
-using System.IO;
-using System.Windows.Forms;
 
 namespace GreenshotPlugin.Interfaces
 {
 	/// <summary>
-	/// The interface to the Capture object, so Plugins can use it.
+	/// Type of notifications
 	/// </summary>
-	public interface ICapture : IDisposable
+	public enum NotificationTypes {
+		Cancel,
+		Success,
+		Fail,
+	}
+
+	/// <summary>
+	/// Something to differenciate the sources
+	/// </summary>
+	public enum SourceTypes
+	{
+		Destination,
+		Plugin,
+		Service
+	}
+
+	/// <summary>
+	/// The interface for the notification object
+	/// </summary>
+	public interface INotification
 	{
 		/// <summary>
-		/// Get the current Image from the Editor for Exporting (save/upload etc)
-		/// Don't forget to call image.Dispose() when finished!!!
+		/// Notification type
 		/// </summary>
-		/// <returns>Bitmap</returns>
-		Image GetImageForExport();
-
-		// The Capture Details
-		ICaptureDetails CaptureDetails
-		{
-			get;
-			set;
-		}
-
-		// The captured Image
-		Image Image
-		{
-			get;
-			set;
-		}
-
-		void NullImage();
-
-		Rectangle ScreenBounds
-		{
-			get;
-			set;
-		}
-
-		Cursor Cursor
+		NotificationTypes NotificationType
 		{
 			get;
 			set;
 		}
 
 		/// <summary>
-		/// Boolean to specify if the cursor is available
+		/// What is the source type of the notification
 		/// </summary>
-		bool CursorVisible
-		{
-			get;
-			set;
-		}
-
-		Point CursorLocation
-		{
-			get;
-			set;
-		}
-
-		Point Location
+		SourceTypes SourceType
 		{
 			get;
 			set;
 		}
 
 		/// <summary>
-		/// Boolean to specify if the capture has modifications (reset on export/save)
+		/// What is the source of the notification
 		/// </summary>
-		bool Modified
+		string Source
 		{
 			get;
 			set;
 		}
 
 		/// <summary>
-		/// Crops the capture to the specified rectangle (with Bitmap coordinates!)
+		/// When was the notification
 		/// </summary>
-		/// <param name="cropRectangle">Rectangle with bitmap coordinates</param>
-		bool Crop(Rectangle cropRectangle);
+		DateTimeOffset Timestamp
+		{
+			get;
+			set;
+		}
 
 		/// <summary>
-		/// Apply a translate to the mouse location. e.g. needed for crop
+		/// A translated description of what kind of notification
 		/// </summary>
-		/// <param name="x">x coordinates to move the mouse</param>
-		/// <param name="y">y coordinates to move the mouse</param>
-		void MoveMouseLocation(int x, int y);
+		string Text
+		{
+			get;
+			set;
+		}
 
-		long SaveElementsToStream(Stream stream);
-		void LoadElementsFromStream(Stream stream);
+		/// <summary>
+		/// Details for an error
+		/// </summary>
+		string ErrorText
+		{
+			get;
+			set;
+		}
 
+		/// <summary>
+		/// When something is exported, this is where it went
+		/// </summary>
+		Uri ImageLocation
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// The location of a thumbnail, if any
+		/// </summary>
+		Uri ThumbnailLocation
+		{
+			get;
+			set;
+		}
 	}
 }

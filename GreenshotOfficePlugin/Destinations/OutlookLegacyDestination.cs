@@ -173,11 +173,11 @@ namespace GreenshotOfficePlugin.Destinations
 		/// Export the capture to outlook
 		/// </summary>
 		/// <param name="manuallyInitiated"></param>
-		/// <param name="surface"></param>
+		/// <param name="capture"></param>
 		/// <param name="captureDetails"></param>
 		/// <param name="token"></param>
 		/// <returns>ExportInformation</returns>
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ICapture capture, CancellationToken token = default(CancellationToken))
 		{
 			var exportInformation = new ExportInformation
 			{
@@ -185,10 +185,10 @@ namespace GreenshotOfficePlugin.Destinations
 			};
 			var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 			// Outlook logic
-			string tmpFile = captureDetails.Filename;
-			if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
+			string tmpFile = capture.CaptureDetails.Filename;
+			if (tmpFile == null || capture.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
 			{
-				tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
+				tmpFile = ImageOutput.SaveNamedTmpFile(capture, capture.CaptureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
 			}
 			else
 			{
@@ -196,7 +196,7 @@ namespace GreenshotOfficePlugin.Destinations
 			}
 
 			// Create a attachment name for the image
-			string attachmentName = captureDetails.Title;
+			string attachmentName = capture.CaptureDetails.Title;
 			if (!string.IsNullOrEmpty(attachmentName))
 			{
 				attachmentName = attachmentName.Trim();
@@ -231,14 +231,13 @@ namespace GreenshotOfficePlugin.Destinations
 						destinations.Add(new OutlookLegacyDestination(inspectorCaption, inspectorCaptions[inspectorCaption]));
 					}
 					// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
-					return await ShowPickerMenuAsync(false, surface, captureDetails, destinations, token).ConfigureAwait(false);
+					return await ShowPickerMenuAsync(false, capture, destinations, token).ConfigureAwait(false);
 				}
 				await Task.Factory.StartNew(() =>
 				{
-					exportInformation.ExportMade = OutlookExporter.ExportToOutlook(OfficeConfiguration.OutlookEmailFormat, tmpFile, FilenameHelper.FillPattern(OfficeConfiguration.EmailSubjectPattern, captureDetails, false), attachmentName, OfficeConfiguration.EmailTo, OfficeConfiguration.EmailCC, OfficeConfiguration.EmailBCC, null);
+					exportInformation.ExportMade = OutlookExporter.ExportToOutlook(OfficeConfiguration.OutlookEmailFormat, tmpFile, FilenameHelper.FillPattern(OfficeConfiguration.EmailSubjectPattern, capture.CaptureDetails, false), attachmentName, OfficeConfiguration.EmailTo, OfficeConfiguration.EmailCC, OfficeConfiguration.EmailBCC, null);
 				}, token, TaskCreationOptions.None, scheduler);
 			}
-			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
 

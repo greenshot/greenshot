@@ -130,22 +130,22 @@ namespace GreenshotOfficePlugin.Destinations
 			}
 		}
 
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ICapture capture, CancellationToken token = default(CancellationToken))
 		{
 			var exportInformation = new ExportInformation
 			{
 				DestinationDesignation = Designation, DestinationDescription = Description
 			};
-			string tmpFile = captureDetails.Filename;
+			string tmpFile = capture.CaptureDetails.Filename;
 			Size imageSize = Size.Empty;
-			if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
+			if (tmpFile == null || capture.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
 			{
-				tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
-				imageSize = surface.Image.Size;
+				tmpFile = ImageOutput.SaveNamedTmpFile(capture, capture.CaptureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
+				imageSize = capture.Image.Size;
 			}
 			if (_presentationName != null)
 			{
-				exportInformation.ExportMade = PowerpointExporter.ExportToPresentation(_presentationName, tmpFile, imageSize, captureDetails.Title);
+				exportInformation.ExportMade = PowerpointExporter.ExportToPresentation(_presentationName, tmpFile, imageSize, capture.CaptureDetails.Title);
 			}
 			else
 			{
@@ -165,15 +165,14 @@ namespace GreenshotOfficePlugin.Destinations
 					if (destinations.Count > 0)
 					{
 						// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
-						return await ShowPickerMenuAsync(false, surface, captureDetails, destinations, token).ConfigureAwait(false);
+						return await ShowPickerMenuAsync(false, capture, destinations, token).ConfigureAwait(false);
 					}
 				}
 				else if (!exportInformation.ExportMade)
 				{
-					exportInformation.ExportMade = PowerpointExporter.InsertIntoNewPresentation(tmpFile, imageSize, captureDetails.Title);
+					exportInformation.ExportMade = PowerpointExporter.InsertIntoNewPresentation(tmpFile, imageSize, capture.CaptureDetails.Title);
 				}
 			}
-			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
 	}

@@ -597,11 +597,11 @@ EndSelection:<<<<<<<4
 			SetDataObject(ido, true);
 		}
 
-		private static string getHTMLString(ISurface surface, string filename)
+		private static string getHTMLString(ICapture capture, string filename)
 		{
 			string utf8EncodedHTMLString = Encoding.GetEncoding(0).GetString(Encoding.UTF8.GetBytes(HTML_CLIPBOARD_STRING));
-			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${width}", surface.Image.Width.ToString());
-			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${height}", surface.Image.Height.ToString());
+			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${width}", capture.Image.Width.ToString());
+			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${height}", capture.Image.Height.ToString());
 			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${file}", filename.Replace("\\", "/"));
 			StringBuilder sb = new StringBuilder();
 			sb.Append(utf8EncodedHTMLString);
@@ -612,11 +612,11 @@ EndSelection:<<<<<<<4
 			return sb.ToString();
 		}
 
-		private static string getHTMLDataURLString(ISurface surface, MemoryStream pngStream)
+		private static string getHTMLDataURLString(ICapture capture, MemoryStream pngStream)
 		{
 			string utf8EncodedHTMLString = Encoding.GetEncoding(0).GetString(Encoding.UTF8.GetBytes(HTML_CLIPBOARD_BASE64_STRING));
-			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${width}", surface.Image.Width.ToString());
-			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${height}", surface.Image.Height.ToString());
+			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${width}", capture.Image.Width.ToString());
+			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${height}", capture.Image.Height.ToString());
 			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${format}", "png");
 			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${data}", Convert.ToBase64String(pngStream.GetBuffer(), 0, (int) pngStream.Length));
 			StringBuilder sb = new StringBuilder();
@@ -639,7 +639,7 @@ EndSelection:<<<<<<<4
 		/// </summary>
 		private const int BITMAPFILEHEADER_LENGTH = 14;
 
-		public static void SetClipboardData(ISurface surface)
+		public static void SetClipboardData(ICapture capture)
 		{
 			DataObject dataObject = new DataObject();
 
@@ -655,7 +655,7 @@ EndSelection:<<<<<<<4
 			{
 				SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
 				// Create the image which is going to be saved so we don't create it multiple times
-				disposeImage = ImageOutput.CreateImageFromCapture(surface, outputSettings, out imageToSave);
+				disposeImage = ImageOutput.CreateImageFromCapture(capture, outputSettings, out imageToSave);
 				try
 				{
 					// Create PNG stream
@@ -743,8 +743,8 @@ EndSelection:<<<<<<<4
 				// Set the HTML
 				if (config.ClipboardFormats.Contains(ClipboardFormat.HTML))
 				{
-					string tmpFile = ImageOutput.SaveToTmpFile(surface, new SurfaceOutputSettings(OutputFormat.png, 100, false), null);
-					string html = getHTMLString(surface, tmpFile);
+					string tmpFile = ImageOutput.SaveToTmpFile(capture, new SurfaceOutputSettings(OutputFormat.png, 100, false), null);
+					string html = getHTMLString(capture, tmpFile);
 					dataObject.SetText(html, TextDataFormat.Html);
 				}
 				else if (config.ClipboardFormats.Contains(ClipboardFormat.HTMLDATAURL))
@@ -759,13 +759,13 @@ EndSelection:<<<<<<<4
 						// Check if we can use the previously used image
 						if (imageToSave.PixelFormat != PixelFormat.Format8bppIndexed)
 						{
-							ImageOutput.SaveToStream(imageToSave, surface, tmpPNGStream, pngOutputSettings);
+							ImageOutput.SaveToStream(imageToSave, capture, tmpPNGStream, pngOutputSettings);
 						}
 						else
 						{
-							ImageOutput.SaveToStream(surface, tmpPNGStream, pngOutputSettings);
+							ImageOutput.SaveToStream(capture, tmpPNGStream, pngOutputSettings);
 						}
-						html = getHTMLDataURLString(surface, tmpPNGStream);
+						html = getHTMLDataURLString(capture, tmpPNGStream);
 					}
 					dataObject.SetText(html, TextDataFormat.Html);
 				}

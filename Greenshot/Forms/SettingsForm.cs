@@ -371,7 +371,7 @@ namespace Greenshot.Forms
 			ImageList imageList = new ImageList();
 			listview_destinations.SmallImageList = imageList;
 			int imageNr = -1;
-			foreach (ILegacyDestination currentDestination in DestinationHelper.GetAllDestinations())
+			foreach (ILegacyDestination currentDestination in LegacyDestinationHelper.GetAllLegacyDestinations())
 			{
 				Image destinationImage = currentDestination.DisplayIcon;
 				if (destinationImage != null)

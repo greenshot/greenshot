@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Greenshot.Services;
 using GreenshotPlugin.Interfaces;
 using System.Collections.Generic;
 using System.ServiceModel;

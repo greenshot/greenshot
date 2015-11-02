@@ -33,133 +33,111 @@ using System.Threading;
 using System.Threading.Tasks;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Forms;
+using System.ComponentModel.Composition;
+using GreenshotPlugin.Interfaces.Destination;
 
 namespace GreenshotEditorPlugin
 {
 	/// <summary>
 	/// Description of EditorDestination.
 	/// </summary>
-	public class EditorLegacyDestination : AbstractLegacyDestination
+	[Destination(_editorDesignation)]
+	public class EditorDestination : AbstractDestination
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (EditorLegacyDestination));
-		private static IEditorConfiguration editorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
-		private static readonly IEditorLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
+		private const string _editorDesignation = "Editor";
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (EditorDestination));
 		private IImageEditor editor = null;
 		private static Image greenshotIcon = GreenshotResources.GetGreenshotIcon().ToBitmap();
-
-		public EditorLegacyDestination()
+		[Import]
+		public IEditorConfiguration EditorConfiguration
 		{
+			get;
+			set;
 		}
 
-		public EditorLegacyDestination(IImageEditor editor)
+		[Import]
+		public IGreenshotLanguage GreenshotLanguage
 		{
-			this.editor = editor;
+			get;
+			set;
 		}
 
 		public override string Designation
 		{
 			get
 			{
-				return BuildInDestinationEnum.Editor.ToString();
+				return _editorDesignation;
 			}
 		}
 
-		public override string Description
+		public EditorDestination()
 		{
-			get
-			{
-				if (editor == null)
-				{
-					return language.SettingsDestinationEditor;
-				}
-				return language.SettingsDestinationEditor + " - " + editor.CaptureDetails.Title;
-			}
-		}
+			Export = async (capture, token) => await ExportCaptureAsync(capture, token);
+			Text = $"Export to {_editorDesignation}";
+        }
 
-		public override int Priority
+		public Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))
 		{
-			get
+			var returnValue = new Notification
 			{
-				return 1;
-			}
-		}
-
-		public override bool IsDynamic
-		{
-			get
-			{
-				return true;
-			}
-		}
-
-		public override Image DisplayIcon
-		{
-			get
-			{
-				return greenshotIcon;
-			}
-		}
-
-		public override IEnumerable<ILegacyDestination> DynamicDestinations()
-		{
-			foreach (IImageEditor editor in ImageEditorForm.Editors)
-			{
-				yield return new EditorLegacyDestination(editor);
-			}
-		}
-
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
-		{
-			if (surface == null && captureDetails.Filename != null && captureDetails.Filename.ToLower().EndsWith("." + OutputFormat.greenshot))
-			{
-				// Only a file, create a surface from the filename and continue!
-				surface = new Surface();
-				surface = ImageOutput.LoadGreenshotSurface(captureDetails.Filename, surface);
-				surface.CaptureDetails = captureDetails;
-			}
-			var exportInformation = new ExportInformation
-			{
-				DestinationDesignation = Designation, DestinationDescription = Description
+				NotificationType = NotificationTypes.Success,
+				Source = _editorDesignation,
+				SourceType = SourceTypes.Destination,
+				Text = Text
 			};
+
 			// Make sure we collect the garbage before opening the screenshot
 			GC.Collect();
 			GC.WaitForPendingFinalizers();
 
-			bool modified = surface.Modified;
+			bool modified = capture.Modified;
 			if (editor == null)
 			{
-				if (editorConfiguration.ReuseEditor)
+				ISurface surface;
+				if (capture == null && capture.CaptureDetails.Filename != null && capture.CaptureDetails.Filename.ToLower().EndsWith("." + OutputFormat.greenshot))
+				{
+					// Only a file, create a surface from the filename and continue!
+					surface = new Surface();
+					surface = ImageOutput.LoadGreenshotSurface(capture.CaptureDetails.Filename, surface);
+					surface.CaptureDetails = capture.CaptureDetails;
+				}
+				else
+				{
+					surface = new Surface(capture);
+				}
+				bool reusedEditor = false;
+				if (EditorConfiguration.ReuseEditor)
 				{
 					foreach (IImageEditor openedEditor in ImageEditorForm.Editors)
 					{
 						if (!openedEditor.Surface.Modified)
 						{
 							openedEditor.Surface = surface;
-							exportInformation.ExportMade = true;
-							break;
+							reusedEditor = true;
+                            break;
 						}
 					}
 				}
-				if (!exportInformation.ExportMade)
+				if (!reusedEditor)
 				{
 					try
 					{
 						var editorForm = new ImageEditorForm(surface, !surface.Modified); // Output made??
 
-						if (!string.IsNullOrEmpty(captureDetails.Filename))
+						if (!string.IsNullOrEmpty(surface.CaptureDetails.Filename))
 						{
-							editorForm.SetImagePath(captureDetails.Filename);
+							editorForm.SetImagePath(surface.CaptureDetails.Filename);
 						}
 						editorForm.Show();
 						editorForm.Activate();
-						await Task.Delay(300);
 						LOG.Debug("Finished opening Editor");
-						exportInformation.ExportMade = true;
 					}
 					catch (Exception e)
 					{
 						LOG.Error(e);
-						exportInformation.ErrorMessage = e.Message;
+						returnValue.NotificationType = NotificationTypes.Fail;
+						returnValue.ErrorText = e.Message;
+						returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, _editorDesignation);
 					}
 				}
 			}
@@ -167,22 +145,22 @@ namespace GreenshotEditorPlugin
 			{
 				try
 				{
-					using (Image image = surface.GetImageForExport())
+					using (Image image = capture.GetImageForExport())
 					{
 						editor.Surface.AddImageContainer(image, 10, 10);
 					}
-					exportInformation.ExportMade = true;
 				}
 				catch (Exception e)
 				{
 					LOG.Error(e);
-					exportInformation.ErrorMessage = e.Message;
-				}
+					returnValue.NotificationType = NotificationTypes.Fail;
+					returnValue.ErrorText = e.Message;
+					returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, _editorDesignation);
+                }
 			}
-			ProcessExport(exportInformation, surface);
 			// Workaround for the modified flag when using the editor.
-			surface.Modified = modified;
-			return exportInformation;
+			capture.Modified = modified;
+			return Task.FromResult<INotification>(returnValue);
 		}
 	}
 }

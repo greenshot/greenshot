@@ -95,11 +95,6 @@ namespace GreenshotImgurPlugin
 			yield return new ImgurLegacyDestination(this);
 		}
 
-		public IEnumerable<IProcessor> Processors()
-		{
-			yield break;
-		}
-
 		/// <summary>
 		/// Initialize
 		/// </summary>

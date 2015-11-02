@@ -88,11 +88,6 @@ namespace GreenshotPhotobucketPlugin
 			yield return new PhotobucketLegacyDestination();
 		}
 
-		public IEnumerable<IProcessor> Processors()
-		{
-			yield break;
-		}
-
 		/// <summary>
 		/// Initialize
 		/// </summary>

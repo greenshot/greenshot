@@ -151,38 +151,7 @@ namespace GreenshotPlugin.Core
 		/// <param name="captureDetails"></param>
 		/// <param name="token"></param>
 		/// <returns>Task with ExportInformation</returns>
-		public abstract Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken));
-
-		/// <summary>
-		/// A small helper method to perform some default destination actions, like inform the surface of the export
-		/// </summary>
-		/// <param name="exportInformation"></param>
-		/// <param name="surface"></param>
-		public void ProcessExport(ExportInformation exportInformation, ISurface surface)
-		{
-			if (exportInformation != null && exportInformation.ExportMade)
-			{
-				if (exportInformation.ExportedToUri != null)
-				{
-					surface.UploadUri = exportInformation.ExportedToUri;
-					surface.SendMessageEvent(this, SurfaceMessageTyp.UploadedUri, string.Format(language.ExportedTo, exportInformation.DestinationDescription));
-				}
-				else if (!string.IsNullOrEmpty(exportInformation.Filepath))
-				{
-					surface.LastSaveFullPath = exportInformation.Filepath;
-					surface.SendMessageEvent(this, SurfaceMessageTyp.FileSaved, string.Format(language.ExportedTo, exportInformation.DestinationDescription));
-				}
-				else
-				{
-					surface.SendMessageEvent(this, SurfaceMessageTyp.Info, string.Format(language.ExportedTo, exportInformation.DestinationDescription));
-				}
-				surface.Modified = false;
-			}
-			else if (exportInformation != null && !string.IsNullOrEmpty(exportInformation.ErrorMessage))
-			{
-				surface.SendMessageEvent(this, SurfaceMessageTyp.Error, string.Format(language.ExportedTo, exportInformation.DestinationDescription) + " " + exportInformation.ErrorMessage);
-			}
-		}
+		public abstract Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ICapture capture, CancellationToken token = default(CancellationToken));
 
 		public override string ToString()
 		{
@@ -197,7 +166,7 @@ namespace GreenshotPlugin.Core
 		/// <param name="captureDetails">Details for the surface</param>
 		/// <param name="destinations">The list of destinations to show</param>
 		/// <returns></returns>
-		public async Task<ExportInformation> ShowPickerMenuAsync(bool addDynamics, ISurface surface, ICaptureDetails captureDetails, IEnumerable<ILegacyDestination> destinations, CancellationToken token = default(CancellationToken))
+		public async Task<ExportInformation> ShowPickerMenuAsync(bool addDynamics, ICapture capture, IEnumerable<ILegacyDestination> destinations, CancellationToken token = default(CancellationToken))
 		{
 			// Generate an empty ExportInformation object, for when nothing was selected.
 			var exportInformation = new ExportInformation
@@ -272,7 +241,7 @@ namespace GreenshotPlugin.Core
 								menu.Close();
 
 								LOG.DebugFormat("Destination {0} was clicked", clickedDestination.Description);
-								exportInformation = await clickedDestination.ExportCaptureAsync(true, surface, captureDetails);
+								exportInformation = await clickedDestination.ExportCaptureAsync(true, capture);
 								if (exportInformation != null && exportInformation.ExportMade)
 								{
 									LOG.InfoFormat("Export to {0} success, closing menu", exportInformation.DestinationDescription);
@@ -328,8 +297,8 @@ namespace GreenshotPlugin.Core
 			// Dispose as the close is clicked, but only if we didn't export to the editor.
 			if (!"Editor".Equals(usedDestination))
 			{
-				surface.Dispose();
-				surface = null;
+				capture.Dispose();
+				capture = null;
 			}
 
 			return exportInformation;

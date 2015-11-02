@@ -1100,7 +1100,7 @@ namespace GreenshotEditorPlugin.Drawing
 				SurfaceMessageEventArgs eventArgs = new SurfaceMessageEventArgs();
 				eventArgs.Message = message;
 				eventArgs.MessageType = messageType;
-				eventArgs.Surface = this;
+				eventArgs.Capture = this;
 				_surfaceMessage(source, eventArgs);
 			}
 		}

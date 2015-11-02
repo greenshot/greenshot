@@ -149,13 +149,13 @@ namespace GreenshotConfluencePlugin
 			}
 		}
 
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surfaceToUpload, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ICapture capture, CancellationToken token = default(CancellationToken))
 		{
 			var exportInformation = new ExportInformation
 			{
 				DestinationDesignation = Designation, DestinationDescription = Description
 			};
-			string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(config.FilenamePattern, config.UploadFormat, captureDetails));
+			string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(config.FilenamePattern, config.UploadFormat, capture.CaptureDetails));
 			var outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 			if (_content == null)
 			{
@@ -184,7 +184,7 @@ namespace GreenshotConfluencePlugin
 						var multipartFormDataContent = new MultipartFormDataContent();
 						using (var stream = new MemoryStream())
 						{
-							ImageOutput.SaveToStream(surfaceToUpload, stream, outputSettings);
+							ImageOutput.SaveToStream(capture, stream, outputSettings);
 							stream.Position = 0;
 							using (var uploadStream = new ProgressStream(stream, progress))
 							{
@@ -235,7 +235,6 @@ namespace GreenshotConfluencePlugin
 					MessageBox.Show(_language.UploadFailure + " " + e.Message, Designation, MessageBoxButton.OK, MessageBoxImage.Error);
 				}
 			}
-			ProcessExport(exportInformation, surfaceToUpload);
 			return exportInformation;
 		}
 	}

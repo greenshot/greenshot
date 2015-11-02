@@ -102,11 +102,6 @@ namespace GreenshotExternalCommandPlugin
 			}
 		}
 
-		public IEnumerable<IProcessor> Processors()
-		{
-			yield break;
-		}
-
 		/// <summary>
 		/// Check and eventually fix the command settings
 		/// </summary>

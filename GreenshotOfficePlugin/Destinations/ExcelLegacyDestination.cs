@@ -129,30 +129,30 @@ namespace GreenshotOfficePlugin.Destinations
 				select new ExcelLegacyDestination(workbookname);
 		}
 
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ICapture capture, CancellationToken token = default(CancellationToken))
 		{
 			var exportInformation = new ExportInformation
 			{
 				DestinationDesignation = Designation, DestinationDescription = Description
 			};
 			bool createdFile = false;
-			string imageFile = captureDetails.Filename;
+			string imageFile = capture.CaptureDetails.Filename;
 			try
 			{
 				await Task.Factory.StartNew(() =>
 				{
-					if (imageFile == null || surface.Modified || !Regex.IsMatch(imageFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
+					if (imageFile == null || capture.Modified || !Regex.IsMatch(imageFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
 					{
-						imageFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
+						imageFile = ImageOutput.SaveNamedTmpFile(capture, capture.CaptureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
 						createdFile = true;
 					}
 					if (_workbookName != null)
 					{
-						ExcelExporter.InsertIntoExistingWorkbook(_workbookName, imageFile, surface.Image.Size);
+						ExcelExporter.InsertIntoExistingWorkbook(_workbookName, imageFile, capture.Image.Size);
 					}
 					else
 					{
-						ExcelExporter.InsertIntoNewWorkbook(imageFile, surface.Image.Size);
+						ExcelExporter.InsertIntoNewWorkbook(imageFile, capture.Image.Size);
 					}
 				}, token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
 				exportInformation.ExportMade = true;
@@ -161,7 +161,6 @@ namespace GreenshotOfficePlugin.Destinations
 			{
 				exportInformation.ErrorMessage = ex.Message;
 			}
-			ProcessExport(exportInformation, surface);
 
 			// Cleanup imageFile if we created it here, so less tmp-files are generated and left
 			if (createdFile)

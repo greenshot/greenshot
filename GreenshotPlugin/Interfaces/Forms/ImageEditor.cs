@@ -48,14 +48,6 @@ namespace GreenshotPlugin.Interfaces.Forms
 		/// <returns>ToolStripMenuItem</returns>
 		ToolStripMenuItem GetFileMenuItem();
 
-		/// <summary>
-		/// Make the ICaptureDetails from the current Surface in the EditorForm available.
-		/// </summary>
-		ICaptureDetails CaptureDetails
-		{
-			get;
-		}
-
 		ISurface Surface
 		{
 			get;

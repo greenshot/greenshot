@@ -32,7 +32,7 @@ namespace Greenshot.Processors
 	/// <summary>
 	/// Description of TitleFixProcessor.
 	/// </summary>
-	public class TitleFixProcessor : AbstractProcessor
+	public class TitleFixProcessor
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof (TitleFixProcessor));
 		private static readonly ICoreConfiguration config = IniConfig.Current.Get<ICoreConfiguration>();
@@ -62,7 +62,7 @@ namespace Greenshot.Processors
 			}
 		}
 
-		public override string Designation
+		public string Designation
 		{
 			get
 			{
@@ -70,7 +70,7 @@ namespace Greenshot.Processors
 			}
 		}
 
-		public override string Description
+		public string Description
 		{
 			get
 			{
@@ -78,7 +78,7 @@ namespace Greenshot.Processors
 			}
 		}
 
-		public override bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails)
+		public bool ProcessCapture(ICapture surface, ICaptureDetails captureDetails)
 		{
 			bool changed = false;
 			string title = captureDetails.Title;

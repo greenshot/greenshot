@@ -89,11 +89,6 @@ namespace GreenshotPicasaPlugin
 		}
 
 
-		public IEnumerable<IProcessor> Processors()
-		{
-			yield break;
-		}
-
 		/// <summary>
 		/// Implementation of the StartAsync
 		/// </summary>

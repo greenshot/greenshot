@@ -156,26 +156,19 @@ namespace GreenshotPlugin.Core
 			set;
 		} = Point.Empty;
 
-		private CaptureDetails _captureDetails;
-
-		public Image GetImageForExport()
-		{
-			return Image;
-		}
-
 		/// <summary>
 		/// Get/set the CaptureDetails
 		/// </summary>
 		public ICaptureDetails CaptureDetails
 		{
-			get
-			{
-				return _captureDetails;
-			}
-			set
-			{
-				_captureDetails = (CaptureDetails) value;
-			}
+			get;
+			set;
+		} = new CaptureDetails();
+
+		public bool Modified
+		{
+			get;
+			set;
 		}
 
 		/// <summary>
@@ -184,7 +177,6 @@ namespace GreenshotPlugin.Core
 		public Capture()
 		{
 			_screenBounds = WindowCapture.GetScreenBounds();
-			_captureDetails = new CaptureDetails();
 		}
 
 		/// <summary>
@@ -257,6 +249,11 @@ namespace GreenshotPlugin.Core
 		public void MoveMouseLocation(int x, int y)
 		{
 			_cursorLocation.Offset(x, y);
+		}
+
+		public Image GetImageForExport()
+		{
+			throw new NotImplementedException();
 		}
 
 		public long SaveElementsToStream(Stream stream)

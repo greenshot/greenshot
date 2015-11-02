@@ -28,8 +28,9 @@ using System.ServiceModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Addons;
+using Greenshot.Helpers;
 
-namespace Greenshot.Helpers
+namespace Greenshot.Services
 {
 	/// <summary>
 	/// This startup/shutdown action starts the Greenshot "server", which allows to open files etc.
@@ -74,6 +75,8 @@ namespace Greenshot.Helpers
 				{
 					new Uri(PipeBaseEndpoint)
 				});
+				var behaviour = _host.Description.Behaviors.Find<ServiceBehaviorAttribute>();
+				behaviour.InstanceContextMode = InstanceContextMode.Single;
 				_host.AddServiceEndpoint(typeof (IGreenshotContract), new NetNamedPipeBinding(), EndPoint);
 				_host.Open();
 			}, token).ConfigureAwait(false);

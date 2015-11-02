@@ -29,7 +29,7 @@ namespace Greenshot.Helpers
 {
 	public class Arguments
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (GreenshotServer));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (Arguments));
 
 		public IList<string> FilesToOpen
 		{

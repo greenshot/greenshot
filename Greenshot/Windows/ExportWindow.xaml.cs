@@ -24,6 +24,7 @@ using System.ComponentModel.Composition;
 using System.Windows;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Destination;
+using System.Windows.Controls;
 
 namespace Greenshot.Windows
 {
@@ -55,5 +56,18 @@ namespace Greenshot.Windows
 		{
 			Close();
 		}
-	}
+
+		public void OnClick(object sender, RoutedEventArgs e)
+		{
+			var item = sender as MenuItem;
+			var destination = item?.Tag as IDestination;
+			if (destination == null)
+			{
+				return;
+			}
+
+			SelectedDestination = destination;
+			DialogResult = true;
+        }
+    }
 }

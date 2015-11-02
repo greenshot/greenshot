@@ -24,6 +24,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
 
@@ -50,7 +51,12 @@ namespace GreenshotPlugin.Interfaces.Destination
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
-		public string Shortcut
+		public abstract string Designation
+		{
+			get;
+		}
+
+		public virtual string Shortcut
 		{
 			get
 			{
@@ -66,7 +72,7 @@ namespace GreenshotPlugin.Interfaces.Destination
 			}
 		}
 
-		public string Text
+		public virtual string Text
 		{
 			get
 			{
@@ -82,7 +88,7 @@ namespace GreenshotPlugin.Interfaces.Destination
 			}
 		}
 
-		public bool IsEnabled
+		public virtual bool IsEnabled
 		{
 			get
 			{
@@ -98,7 +104,7 @@ namespace GreenshotPlugin.Interfaces.Destination
 			}
 		}
 
-		public ImageSource Icon
+		public virtual ImageSource Icon
 		{
 			get
 			{
@@ -114,13 +120,13 @@ namespace GreenshotPlugin.Interfaces.Destination
 			}
 		}
 
-		public Func<ICapture, Task<ExportInformation>> Export
+		public virtual Func<ICapture, CancellationToken, Task<INotification>> Export
 		{
 			get;
 			set;
 		}
 
-		public ObservableCollection<IDestination> Children
+		public virtual ObservableCollection<IDestination> Children
 		{
 			get;
 			set;

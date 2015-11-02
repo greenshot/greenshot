@@ -22,6 +22,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
 
@@ -29,40 +30,39 @@ namespace GreenshotPlugin.Interfaces.Destination
 {
 	public interface IDestination: INotifyPropertyChanged
 	{
+		string Designation
+		{
+			get;
+		}
+
 		string Shortcut
 		{
 			get;
-			set;
 		}
 
 		string Text
 		{
 			get;
-			set;
 		}
 
 		bool IsEnabled
 		{
 			get;
-			set;
 		}
 
 		ImageSource Icon
 		{
 			get;
-			set;
 		}
 
-		Func<ICapture, Task<ExportInformation>> Export
+		Func<ICapture, CancellationToken, Task<INotification>> Export
 		{
 			get;
-			set;
 		}
 
 		ObservableCollection<IDestination> Children
 		{
 			get;
-			set;
 		} 
 	}
 }

@@ -19,53 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Addons;
-using Dapplo.Config.Ini;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.Threading;
-using System.Threading.Tasks;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 
-namespace GreenshotEditorPlugin
+namespace GreenshotPlugin.Interfaces
 {
-	/// <summary>
-	/// The editor as the plugin
-	/// </summary>
-	[Plugin("Editor")]
-	public class EditorPlugin : IGreenshotPlugin
+
+	public interface INotificationCenter
 	{
+		event EventHandler<INotification> OnNotification;
 
-		[Import]
-		public IEditorConfiguration EditorConfiguration
-		{
-			get;
-			set;
-		}
-
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-			}
-		}
-
-		public IEnumerable<ILegacyDestination> Destinations()
-		{
-			yield return new EditorLegacyDestination();
-		}
-
-		public IEnumerable<IProcessor> Processors()
-		{
-			yield break;
-		}
+		void Notify(object sender, INotification notification);
 	}
 }

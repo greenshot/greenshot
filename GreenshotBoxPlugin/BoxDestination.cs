@@ -32,11 +32,11 @@ using GreenshotPlugin.Interfaces.Destination;
 
 namespace GreenshotBoxPlugin
 {
-	[Destination("Box")]
+	[Destination(_boxDesignation)]
 	public class BoxDestination : AbstractDestination
 	{
-		private const string Designation = "Box";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (BoxLegacyDestination));
+		private const string _boxDesignation = "Box";
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (BoxDestination));
 
 		[Import]
 		public IBoxConfiguration BoxConfiguration
@@ -52,50 +52,73 @@ namespace GreenshotBoxPlugin
 			set;
 		}
 
-		public BoxDestination()
+		public override string Designation
 		{
-			Export = async (capture) => await ExportCaptureAsync(capture);
-			Text = BoxLanguage.UploadMenuItem;	
+			get
+			{
+				return _boxDesignation;
+			}
 		}
 
-		private async Task<ExportInformation> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))
+		public override string Text
 		{
-			var exportInformation = new ExportInformation
+			get
 			{
-				DestinationDesignation = Designation,
-				DestinationDescription = BoxLanguage.UploadMenuItem
+				return BoxLanguage.UploadMenuItem;
+			}
+
+			set
+			{
+			}
+		}
+
+		public BoxDestination()
+		{
+			Export = async (capture, token) => await ExportCaptureAsync(capture, token);
+		}
+
+		private async Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))
+		{
+			var returnValue = new Notification
+			{
+				NotificationType = NotificationTypes.Success,
+				Source = _boxDesignation,
+				SourceType = SourceTypes.Destination,
+				Text = string.Format(BoxLanguage.UploadSuccess, _boxDesignation)
 			};
 			try
 			{
-				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, BoxLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
+				var url = await PleaseWaitWindow.CreateAndShowAsync(_boxDesignation, BoxLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
 				{
 					return await BoxUtils.UploadToBoxAsync(capture, progress, token);
 				}, token);
 
 				if (url != null)
 				{
-					exportInformation.ExportedToUri = new Uri(url);
+					returnValue.ImageLocation = new Uri(url);
 					if (BoxConfiguration.AfterUploadLinkToClipBoard)
 					{
 						ClipboardHelper.SetClipboardData(url);
 					}
 				}
 
-				exportInformation.ExportMade = true;
 			}
 			catch (TaskCanceledException tcEx)
 			{
-				exportInformation.ErrorMessage = tcEx.Message;
+				returnValue.Text = string.Format(BoxLanguage.UploadFailure, _boxDesignation);
+                returnValue.NotificationType = NotificationTypes.Fail;
+				returnValue.ErrorText = tcEx.Message;
 				LOG.Info(tcEx.Message);
 			}
 			catch (Exception e)
 			{
-				exportInformation.ErrorMessage = e.Message;
+				returnValue.Text = string.Format(BoxLanguage.UploadFailure, _boxDesignation);
+				returnValue.NotificationType = NotificationTypes.Fail;
+				returnValue.ErrorText = e.Message;
 				LOG.Warn(e);
-				MessageBox.Show(BoxLanguage.UploadFailure + " " + e.Message, Designation, MessageBoxButton.OK, MessageBoxImage.Error);
+				MessageBox.Show(BoxLanguage.UploadFailure + " " + e.Message, _boxDesignation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
-			//ProcessExport(exportInformation, surface);
-			return exportInformation;
-		}
+			return returnValue;
+        }
 	}
 }

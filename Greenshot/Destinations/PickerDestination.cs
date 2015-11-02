@@ -28,15 +28,18 @@ using Greenshot.Windows;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Destination;
+using System.Threading;
 
 namespace Greenshot.Destinations
 {
 	/// <summary>
 	/// The PickerDestination shows a context menu with all possible destinations, so the user can "pick" one
 	/// </summary>
-	[Destination("Picker")]
+	[Destination(_pickerDesignation)]
 	public class PickerDestination : AbstractDestination
 	{
+		private const string _pickerDesignation = "Picker";
+
 		[Import]
 		public ICoreConfiguration CoreConfiguration
 		{
@@ -51,39 +54,64 @@ namespace Greenshot.Destinations
 			set;
 		}
 
+		[Import]
 		public ExportFactory<ExportWindow> ExportWindowFactory
 		{
 			get;
 			set;
 		} 
 
-		[Import(AllowRecomposition = true)]
+		[ImportMany(AllowRecomposition = true)]
 		public IEnumerable<Lazy<IDestination, IDestinationMetadata>> Destinations
 		{
 			get;
 			set;
 		}
 
-		public PickerDestination()
+		public override string Designation
 		{
-			Text = GreenshotLanguage.SettingsDestinationPicker;
-			Export = async capture => await ShowExport(capture);
+			get
+			{
+				return _pickerDesignation;
+			}
+		}
+		public override string Text
+		{
+			get
+			{
+				return GreenshotLanguage.SettingsDestinationPicker;
+			}
+
+			set
+			{
+			}
 		}
 
-		private async Task<ExportInformation> ShowExport(ICapture capture)
+		public PickerDestination()
+		{
+			Export = async (capture, token) => await ShowExport(capture, token);
+		}
+
+		private async Task<INotification> ShowExport(ICapture capture, CancellationToken token = default(CancellationToken))
 		{
 			using (var exportWindow = ExportWindowFactory.CreateExport())
 			{
-				foreach (var destination in Destinations.Where(destination => destination.Metadata.Name != "Picker"))
+				foreach (var destination in Destinations.Where(destination => destination.Metadata.Name != _pickerDesignation))
 				{
 					exportWindow.Value.Children.Add(destination.Value);
 				}
 				if (exportWindow.Value.ShowDialog() == true)
 				{
-					return await exportWindow.Value.SelectedDestination.Export(capture);
+					return await exportWindow.Value.SelectedDestination.Export(capture, token);
 				}
 			}
-			return null;
+			return new Notification
+			{
+				NotificationType = NotificationTypes.Cancel,
+				Source = _pickerDesignation,
+				SourceType = SourceTypes.Destination,
+				Text = "Cancelled"
+			};
 		}
 	}
 }

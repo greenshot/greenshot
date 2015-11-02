@@ -37,6 +37,8 @@ using System.Windows.Forms;
 using Dapplo.Config.Language;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Destination;
+using Greenshot.Windows;
 
 namespace Greenshot.Helpers
 {
@@ -53,7 +55,7 @@ namespace Greenshot.Helpers
 		private WindowDetails _selectedCaptureWindow;
 		private Rectangle _captureRect = Rectangle.Empty;
 		private readonly bool _captureMouseCursor;
-		private ICapture _capture;
+		private ICapture _capture = new Capture();
 		private CaptureMode _captureMode;
 		private ScreenCaptureMode _screenCaptureMode = ScreenCaptureMode.Auto;
 
@@ -106,7 +108,7 @@ namespace Greenshot.Helpers
 			}
 		}
 
-		public static async Task CaptureRegionAsync(bool captureMouse, ILegacyDestination destination, CancellationToken token = default(CancellationToken))
+		public static async Task CaptureRegionAsync(bool captureMouse, IDestination destination, CancellationToken token = default(CancellationToken))
 		{
 			using (var captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse, destination))
 			{
@@ -181,7 +183,7 @@ namespace Greenshot.Helpers
 			}
 		}
 
-		public static async Task CaptureFileAsync(string filename, ILegacyDestination destination, CancellationToken token = default(CancellationToken))
+		public static async Task CaptureFileAsync(string filename, IDestination destination, CancellationToken token = default(CancellationToken))
 		{
 			using (var captureHelper = new CaptureHelper(CaptureMode.File))
 			{
@@ -198,7 +200,7 @@ namespace Greenshot.Helpers
 			}
 		}
 
-		public CaptureHelper AddDestination(ILegacyDestination destination)
+		public CaptureHelper AddDestination(IDestination destination)
 		{
 			_capture.CaptureDetails.AddDestination(destination);
 			return this;
@@ -221,7 +223,7 @@ namespace Greenshot.Helpers
 			_screenCaptureMode = screenCaptureMode;
 		}
 
-		public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor, ILegacyDestination destination) : this(captureMode, captureMouseCursor)
+		public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor, IDestination destination) : this(captureMode, captureMouseCursor)
 		{
 			_capture.CaptureDetails.AddDestination(destination);
 		}
@@ -243,6 +245,11 @@ namespace Greenshot.Helpers
 			if (CoreConfiguration.PlayCameraSound)
 			{
 				SoundHelper.Play(token);
+			}
+			if (CoreConfiguration.ShowFlash)
+			{
+				var bounds = new System.Windows.Rect(_captureRect.X, _captureRect.Y, _captureRect.Width, _captureRect.Height);
+                FlashlightWindow.Flash(bounds);
 			}
 			return Task.FromResult(true);
 		}
@@ -418,13 +425,14 @@ namespace Greenshot.Helpers
 						if (_capture.CaptureDetails.HasDestination(BuildInDestinationEnum.Picker.ToString()))
 						{
 							_capture.CaptureDetails.ClearDestinations();
-							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(BuildInDestinationEnum.Editor.ToString()));
-							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(BuildInDestinationEnum.Picker.ToString()));
+							// TODO: add editor & Picker
+							//_capture.CaptureDetails.AddDestination(LegacyDestinationHelper.GetLegacyDestination(BuildInDestinationEnum.Editor.ToString()));
 						}
 						else
 						{
 							_capture.CaptureDetails.ClearDestinations();
-							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(BuildInDestinationEnum.Editor.ToString()));
+							// TODO: add editor
+							//_capture.CaptureDetails.AddDestination(LegacyDestinationHelper.GetLegacyDestination(BuildInDestinationEnum.Editor.ToString()));
 						}
 						await HandleCaptureAsync(token);
 					}
@@ -440,7 +448,7 @@ namespace Greenshot.Helpers
 							// Editor format
 							if (filename.ToLower().EndsWith("." + OutputFormat.greenshot))
 							{
-								await DestinationHelper.GetDestination(BuildInDestinationEnum.Editor.ToString()).ExportCaptureAsync(true, null, _capture.CaptureDetails, token);
+								await LegacyDestinationHelper.GetLegacyDestination(BuildInDestinationEnum.Editor.ToString()).ExportCaptureAsync(true, _capture, token);
 								break;
 							}
 						}
@@ -476,13 +484,15 @@ namespace Greenshot.Helpers
 						if (_capture.CaptureDetails.HasDestination(BuildInDestinationEnum.Picker.ToString()))
 						{
 							_capture.CaptureDetails.ClearDestinations();
-							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(BuildInDestinationEnum.Editor.ToString()));
-							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(BuildInDestinationEnum.Picker.ToString()));
+							// TODO: Add picker & editor
+							//_capture.CaptureDetails.AddDestination(LegacyDestinationHelper.GetLegacyDestination(BuildInDestinationEnum.Editor.ToString()));
+							//_capture.CaptureDetails.AddDestination(LegacyDestinationHelper.GetLegacyDestination(BuildInDestinationEnum.Picker.ToString()));
 						}
 						else
 						{
 							_capture.CaptureDetails.ClearDestinations();
-							_capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(BuildInDestinationEnum.Editor.ToString()));
+							// TODO: Add editor
+							//_capture.CaptureDetails.AddDestination(LegacyDestinationHelper.GetLegacyDestination(BuildInDestinationEnum.Editor.ToString()));
 						}
 						await HandleCaptureAsync(token);
 					}
@@ -580,13 +590,10 @@ namespace Greenshot.Helpers
 
 		private void AddConfiguredDestination()
 		{
-			foreach (string destinationDesignation in CoreConfiguration.OutputDestinations)
+			IEnumerable<IDestination> destinations = MainForm.Bootstrapper.GetExports<IDestination>().Where(x => CoreConfiguration.OutputDestinations.Contains(x.Value.Designation)).Select(x => x.Value);
+            foreach (var destination in destinations)
 			{
-				ILegacyDestination destination = DestinationHelper.GetDestination(destinationDesignation);
-				if (destination != null)
-				{
-					_capture.CaptureDetails.AddDestination(destination);
-				}
+				_capture.CaptureDetails.AddDestination(destination);
 			}
 		}
 
@@ -604,18 +611,26 @@ namespace Greenshot.Helpers
 				RemoveEventHandler(sender, e);
 				return;
 			}
-			var surface = eventArgs.Surface;
-			if (surface != null && eventArgs.MessageType == SurfaceMessageTyp.FileSaved)
+			var storedAtLocation = eventArgs?.Capture?.CaptureDetails?.StoredAt;
+			if (storedAtLocation == null)
 			{
-				if (!string.IsNullOrEmpty(surface.LastSaveFullPath))
-				{
-					string errorMessage = null;
+				LOG.Warn("OpenCaptureOnClick called without CaptureDetails or StoredAt");
+				RemoveEventHandler(sender, e);
+				return;
+			}
+			if (storedAtLocation.Scheme == "file")
+			{
+				var localPath = Path.GetDirectoryName(storedAtLocation.LocalPath);
 
-					try
+				string windowsPath = Environment.GetEnvironmentVariable("SYSTEMROOT");
+				if (windowsPath != null)
+				{
+					string explorerPath = Path.Combine(windowsPath, "explorer.exe");
+					if (File.Exists(explorerPath))
 					{
-						var psi = new ProcessStartInfo("explorer.exe")
+						var psi = new ProcessStartInfo(explorerPath)
 						{
-							Arguments = Path.GetDirectoryName(surface.LastSaveFullPath),
+							Arguments = Path.GetDirectoryName(localPath),
 							UseShellExecute = false
 						};
 						using (var process = new Process())
@@ -624,49 +639,11 @@ namespace Greenshot.Helpers
 							process.Start();
 						}
 					}
-					catch (Exception ex)
-					{
-						errorMessage = ex.Message;
-					}
-					// Added fallback for when the explorer can't be found
-					if (errorMessage != null)
-					{
-						try
-						{
-							string windowsPath = Environment.GetEnvironmentVariable("SYSTEMROOT");
-							if (windowsPath != null)
-							{
-								string explorerPath = Path.Combine(windowsPath, "explorer.exe");
-								if (File.Exists(explorerPath))
-								{
-									var psi = new ProcessStartInfo(explorerPath)
-									{
-										Arguments = Path.GetDirectoryName(surface.LastSaveFullPath),
-										UseShellExecute = false
-									};
-									using (var process = new Process())
-									{
-										process.StartInfo = psi;
-										process.Start();
-									}
-									errorMessage = null;
-								}
-							}
-						}
-						catch
-						{
-							// ignored
-						}
-					}
-					if (errorMessage != null)
-					{
-						MessageBox.Show($"{errorMessage}\r\nexplorer.exe {surface.LastSaveFullPath}", "explorer.exe", MessageBoxButtons.OK, MessageBoxIcon.Error);
-					}
 				}
 			}
-			else if (surface?.UploadUri != null)
+			else
 			{
-				Process.Start(surface.UploadUri.AbsoluteUri);
+				Process.Start(storedAtLocation.ToString());
 			}
 			LOG.DebugFormat("Deregistering the BalloonTipClicked");
 			RemoveEventHandler(sender, e);
@@ -715,13 +692,11 @@ namespace Greenshot.Helpers
 		{
 			// Flag to see if the image was "exported" so the FileEditor doesn't
 			// ask to save the file as long as nothing is done.
-			bool outputMade = false;
-
 			// Make sure the user sees that the capture is made
 			if (_capture.CaptureDetails.CaptureMode == CaptureMode.File || _capture.CaptureDetails.CaptureMode == CaptureMode.Clipboard)
 			{
 				// Maybe not "made" but the original is still there... somehow
-				outputMade = true;
+				_capture.Modified = false;
 			}
 			else
 			{
@@ -741,46 +716,31 @@ namespace Greenshot.Helpers
 				AddConfiguredDestination();
 			}
 
-			// Create Surface with capture, this way elements can be added automatically (like the mouse cursor)
-			var surface = new Surface(_capture)
-			{
-				Modified = !outputMade
-			};
-
+			// TODO:
 			// Register notify events if this is wanted			
-			if (CoreConfiguration.ShowTrayNotification && !CoreConfiguration.HideTrayicon)
-			{
-				surface.SurfaceMessage += SurfaceMessageReceived;
-			}
-			// Let the processors do their job
-			foreach (var processor in ProcessorHelper.GetAllProcessors())
-			{
-				if (processor.isActive)
-				{
-					LOG.InfoFormat("Calling processor {0}", processor.Description);
-					processor.ProcessCapture(surface, _capture.CaptureDetails);
-				}
-			}
+			//if (CoreConfiguration.ShowTrayNotification && !CoreConfiguration.HideTrayicon)
 
-			// As the surfaces copies the reference to the image, make sure the image is not being disposed (a trick to save memory)
-			_capture.Image = null;
+			// TODO:
+			// Let the processors do their job
 
 			// Get CaptureDetails as we need it even after the capture is disposed
 			var captureDetails = _capture.CaptureDetails;
 			bool canDisposeSurface = true;
 
-			if (captureDetails.HasDestination(BuildInDestinationEnum.Picker.ToString()))
+			foreach(var destination in captureDetails.CaptureDestinations)
 			{
-				await DestinationHelper.ExportCaptureAsync(false, BuildInDestinationEnum.Picker.ToString(), surface, captureDetails, token);
-				captureDetails.CaptureDestinations.Clear();
-				canDisposeSurface = false;
+				if (destination.Designation == BuildInDestinationEnum.Picker.ToString())
+				{
+					await destination.Export(_capture, token);
+					captureDetails.CaptureDestinations.Clear();
+					canDisposeSurface = false;
+					break;
+				}
 			}
 
 			// Disable capturing
 			_captureMode = CaptureMode.None;
 			// Dispose the capture, we don't need it anymore (the surface copied all information and we got the title (if any)).
-			_capture.Dispose();
-			_capture = null;
 
 			int destinationCount = captureDetails.CaptureDestinations.Count;
 			if (destinationCount > 0)
@@ -793,10 +753,10 @@ namespace Greenshot.Helpers
 					{
 						continue;
 					}
-					LOG.InfoFormat("Calling destination {0}", destination.Description);
+					LOG.InfoFormat("Calling destination {0}", destination.Text);
 
-					var exportInformation = await destination.ExportCaptureAsync(false, surface, captureDetails, token);
-					if (BuildInDestinationEnum.Editor.ToString().Equals(destination.Designation) && exportInformation.ExportMade)
+					var notification = await destination.Export(_capture, token);
+					if (BuildInDestinationEnum.Editor.ToString().Equals(notification.Source) && notification.NotificationType == NotificationTypes.Success)
 					{
 						canDisposeSurface = false;
 					}
@@ -804,7 +764,7 @@ namespace Greenshot.Helpers
 			}
 			if (canDisposeSurface)
 			{
-				surface.Dispose();
+				_capture.Dispose();
 			}
 		}
 

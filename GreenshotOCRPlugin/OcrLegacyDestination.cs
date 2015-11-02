@@ -80,13 +80,13 @@ namespace GreenshotOCR
 			_ocrCommand = ocrCommand;
 		}
 
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ICapture capture, CancellationToken token = default(CancellationToken))
 		{
 			var exportInformation = new ExportInformation
 			{
 				DestinationDesignation = Designation, DestinationDescription = Description
 			};
-			exportInformation.ExportMade = await DoOcrAsync(surface, token) != null;
+			exportInformation.ExportMade = await DoOcrAsync(capture, token) != null;
 			return exportInformation;
 		}
 
@@ -96,7 +96,7 @@ namespace GreenshotOCR
 		/// </summary>
 		/// <param name="surface">Has the Image</param>
 		/// <param name="token"></param>
-		private async Task<string> DoOcrAsync(ISurface surface, CancellationToken token = default(CancellationToken))
+		private async Task<string> DoOcrAsync(ICapture capture, CancellationToken token = default(CancellationToken))
 		{
 			var outputSettings = new SurfaceOutputSettings(OutputFormat.bmp, 0, true);
 			outputSettings.ReduceColors = true;
@@ -106,14 +106,14 @@ namespace GreenshotOCR
 			outputSettings.Effects.Add(new GrayscaleEffect());
 
 			// Also we need to check the size, resize if needed to 130x130 this is the minimum
-			if (surface.Image.Width < MinWidth || surface.Image.Height < MinHeight)
+			if (capture.Image.Width < MinWidth || capture.Image.Height < MinHeight)
 			{
-				int addedWidth = MinWidth - surface.Image.Width;
+				int addedWidth = MinWidth - capture.Image.Width;
 				if (addedWidth < 0)
 				{
 					addedWidth = 0;
 				}
-				int addedHeight = MinHeight - surface.Image.Height;
+				int addedHeight = MinHeight - capture.Image.Height;
 				if (addedHeight < 0)
 				{
 					addedHeight = 0;
@@ -121,7 +121,7 @@ namespace GreenshotOCR
 				IEffect effect = new ResizeCanvasEffect(addedWidth/2, addedWidth/2, addedHeight/2, addedHeight/2);
 				outputSettings.Effects.Add(effect);
 			}
-			string filePath = ImageOutput.SaveToTmpFile(surface, outputSettings, null);
+			string filePath = ImageOutput.SaveToTmpFile(capture, outputSettings, null);
 
 			LOG.Debug("Saved tmp file to: " + filePath);
 

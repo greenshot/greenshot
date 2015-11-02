@@ -506,7 +506,7 @@ namespace GreenshotPlugin.Core
 		/// <param name="outputSettings"></param>
 		/// <param name="copyPathToClipboard"></param>
 		/// <returns>Full save path</returns>
-		public static string Save(ISurface surface, string fullPath, bool allowOverwrite, SurfaceOutputSettings outputSettings)
+		public static string Save(ICapture surface, string fullPath, bool allowOverwrite, SurfaceOutputSettings outputSettings)
 		{
 			fullPath = CheckFullPath(fullPath, allowOverwrite);
 			LOG.DebugFormat("Saving surface to {0}", fullPath);
@@ -581,7 +581,7 @@ namespace GreenshotPlugin.Core
 		/// <param name="surface"></param>
 		/// <param name="captureDetails"></param>
 		/// <returns>Path to filename</returns>
-		public static string SaveWithDialog(ISurface surface, ICaptureDetails captureDetails)
+		public static string SaveWithDialog(ICapture surface, ICaptureDetails captureDetails)
 		{
 			string returnValue = null;
 			using (var saveImageFileDialog = new SaveImageFileDialog(captureDetails))
@@ -624,7 +624,7 @@ namespace GreenshotPlugin.Core
 		/// <param name="captureDetails"></param>
 		/// <param name="outputSettings"></param>
 		/// <returns>Path to image file</returns>
-		public static string SaveNamedTmpFile(ISurface surface, ICaptureDetails captureDetails, SurfaceOutputSettings outputSettings)
+		public static string SaveNamedTmpFile(ICapture surface, ICaptureDetails captureDetails, SurfaceOutputSettings outputSettings)
 		{
 			string pattern = conf.OutputFileFilenamePattern;
 			if (pattern == null || string.IsNullOrEmpty(pattern.Trim()))
@@ -689,7 +689,7 @@ namespace GreenshotPlugin.Core
 		/// <param name="outputSettings"></param>
 		/// <param name="destinationPath"></param>
 		/// <returns></returns>
-		public static string SaveToTmpFile(ISurface surface, SurfaceOutputSettings outputSettings, string destinationPath)
+		public static string SaveToTmpFile(ICapture surface, SurfaceOutputSettings outputSettings, string destinationPath)
 		{
 			string tmpFile = Path.GetRandomFileName() + "." + outputSettings.Format.ToString();
 			// Prevent problems with "other characters", which could cause problems

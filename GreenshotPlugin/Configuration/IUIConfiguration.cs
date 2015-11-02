@@ -63,6 +63,13 @@ namespace GreenshotPlugin.Configuration
 			set;
 		}
 
+		[Description("Flash the screen after taking a capture."), DefaultValue(true), Tag(ConfigTags.LanguageKey, "settings_showflashlight")]
+		bool ShowFlash
+		{
+			get;
+			set;
+		}
+
 		[Description("Play a camera sound after taking a capture."), DefaultValue(false), Tag(ConfigTags.LanguageKey, "settings_playsound")]
 		bool PlayCameraSound
 		{

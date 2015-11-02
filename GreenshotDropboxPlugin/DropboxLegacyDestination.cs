@@ -77,7 +77,7 @@ namespace GreenshotDropboxPlugin
 		}
 
 
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ICapture capture, CancellationToken token = default(CancellationToken))
 		{
 			var exportInformation = new ExportInformation
 			{
@@ -88,10 +88,10 @@ namespace GreenshotDropboxPlugin
 			{
 				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, _language.CommunicationWait, async (progress, pleaseWaitToken) =>
 				{
-					string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
+					string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, capture.CaptureDetails));
 					using (var stream = new MemoryStream())
 					{
-						ImageOutput.SaveToStream(surface, stream, outputSettings);
+						ImageOutput.SaveToStream(capture, stream, outputSettings);
 						stream.Position = 0;
 						using (var uploadStream = new ProgressStream(stream, progress))
 						{
@@ -119,7 +119,6 @@ namespace GreenshotDropboxPlugin
 				LOG.Error("Error uploading.", e);
 				MessageBox.Show(_language.UploadFailure + " " + e.Message);
 			}
-			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
 	}

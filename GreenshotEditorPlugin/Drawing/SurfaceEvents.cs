@@ -19,22 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Drawing;
 using System;
 using System.Collections.Generic;
-using GreenshotPlugin.Interfaces.Drawing;
 
-namespace GreenshotPlugin.Interfaces
+namespace GreenshotEditorPlugin.Drawing
 {
-	/// <summary>
-	/// Alignment Enums for possitioning
-	/// </summary>
-	//public enum HorizontalAlignment {LEFT, CENTER, RIGHT};
-	public enum VerticalAlignment
-	{
-		TOP,
-		CENTER,
-		BOTTOM
-	};
 
 	public enum SurfaceMessageTyp
 	{
@@ -58,7 +49,7 @@ namespace GreenshotPlugin.Interfaces
 			set;
 		}
 
-		public ISurface Surface
+		public ICapture Capture
 		{
 			get;
 			set;

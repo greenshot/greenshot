@@ -49,7 +49,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 		/// </summary>
 		/// <param name="surfaceToUpload">ISurface</param>
 		/// <returns>bool true if export worked</returns>
-		public static bool ExportToNewPage(ISurface surfaceToUpload)
+		public static bool ExportToNewPage(ICapture surfaceToUpload)
 		{
 			using (var oneNoteApplication = GetOrCreateOneNoteApplication())
 			{
@@ -74,7 +74,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 		/// <param name="surfaceToUpload">ISurface</param>
 		/// <param name="page">OneNotePage</param>
 		/// <returns>bool true if everything worked</returns>
-		public static bool ExportToPage(ISurface surfaceToUpload, OneNotePage page)
+		public static bool ExportToPage(ICapture surfaceToUpload, OneNotePage page)
 		{
 			using (var oneNoteApplication = GetOrCreateOneNoteApplication())
 			{
@@ -89,7 +89,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 		/// <param name="surfaceToUpload">ISurface</param>
 		/// <param name="page">OneNotePage</param>
 		/// <returns>bool true if everything worked</returns>
-		private static bool ExportToPage(IDisposableCom<OneNote.Application> oneNoteApplication, ISurface surfaceToUpload, OneNotePage page)
+		private static bool ExportToPage(IDisposableCom<OneNote.Application> oneNoteApplication, ICapture surfaceToUpload, OneNotePage page)
 		{
 			if (oneNoteApplication == null)
 			{

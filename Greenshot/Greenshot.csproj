@@ -87,7 +87,6 @@
     <Compile Include="Destinations\FileLegacyDestination.cs" />
     <Compile Include="Destinations\FileWithDialogLegacyDestination.cs" />
     <Compile Include="Destinations\PickerDestination.cs" />
-    <Compile Include="Destinations\PickerLegacyDestination.cs" />
     <Compile Include="Destinations\PrinterLegacyDestination.cs" />
     <Compile Include="Forms\BaseForm.cs">
       <SubType>Form</SubType>
@@ -133,6 +132,7 @@
     </Compile>
     <Compile Include="Helpers\PluginHelper.cs" />
     <Compile Include="Helpers\RoundedRectangle.cs" />
+    <Compile Include="Services\NotificationCenter.cs" />
     <Compile Include="Windows\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
@@ -147,10 +147,9 @@
     <Compile Include="Helpers\Arguments.cs" />
     <Compile Include="Helpers\CaptureHelper.cs" />
     <Compile Include="Helpers\GreenshotClient.cs" />
-    <Compile Include="Helpers\GreenshotServer.cs" />
+    <Compile Include="Services\GreenshotServer.cs" />
     <Compile Include="Helpers\IECaptureHelper.cs" />
     <Compile Include="Helpers\IEInterop\IEContainer.cs" />
-    <Compile Include="Helpers\ProcessorHelper.cs" />
     <Compile Include="Processors\TitleFixProcessor.cs" />
     <Compile Include="Helpers\WindowWrapper.cs" />
     <Compile Include="Helpers\UpdateHelper.cs" />

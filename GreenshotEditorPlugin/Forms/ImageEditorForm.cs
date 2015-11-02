@@ -120,7 +120,7 @@ namespace GreenshotEditorPlugin.Forms
 				// Create export buttons via dispatcher
 				this.AsyncInvoke(() =>
 				{
-					foreach (ILegacyDestination destination in DestinationHelper.GetAllDestinations())
+					foreach (ILegacyDestination destination in LegacyDestinationHelper.GetAllLegacyDestinations())
 					{
 						if (destination.Priority <= 2)
 						{
@@ -216,8 +216,8 @@ namespace GreenshotEditorPlugin.Forms
 		/// <summary>
 		/// Change the surface
 		/// </summary>
-		/// <param name="newSurface"></param>
-		private void SetSurface(ISurface newSurface)
+		/// <param name="newCapture"></param>
+		private void SetSurface(ICapture newCapture)
 		{
 			if (Surface != null && Surface.Modified)
 			{
@@ -228,7 +228,7 @@ namespace GreenshotEditorPlugin.Forms
 
 			surfacePanel.Height = 10;
 			surfacePanel.Width = 10;
-			_surface = newSurface as Surface;
+			_surface = newCapture as Surface;
 			if (_surface == null)
 			{
 				return;
@@ -335,13 +335,13 @@ namespace GreenshotEditorPlugin.Forms
 				defaultItem.Image = toolstripDestination.DisplayIcon;
 				defaultItem.Click += async (sender, e) =>
 				{
-					await toolstripDestination.ExportCaptureAsync(true, _surface, _surface.CaptureDetails).ConfigureAwait(false);
+					await toolstripDestination.ExportCaptureAsync(true, _surface).ConfigureAwait(false);
 				};
 
 				// The ButtonClick, this is for the icon, gets the current default item
 				destinationButton.ButtonClick += async (sender, e) =>
 				{
-					await toolstripDestination.ExportCaptureAsync(true, _surface, _surface.CaptureDetails).ConfigureAwait(false);
+					await toolstripDestination.ExportCaptureAsync(true, _surface).ConfigureAwait(false);
 				};
 
 				// Generate the entries for the drop down
@@ -363,7 +363,7 @@ namespace GreenshotEditorPlugin.Forms
 							destinationMenuItem.Image = closureFixedDestination.DisplayIcon;
 							destinationMenuItem.Click += async (sender2, e2) =>
 							{
-								await closureFixedDestination.ExportCaptureAsync(true, _surface, _surface.CaptureDetails).ConfigureAwait(false);
+								await closureFixedDestination.ExportCaptureAsync(true, _surface).ConfigureAwait(false);
 							};
 							destinationButton.DropDownItems.Add(destinationMenuItem);
 						}
@@ -378,7 +378,7 @@ namespace GreenshotEditorPlugin.Forms
 				destinationButton.Image = toolstripDestination.DisplayIcon;
 				destinationButton.Click += async (sender2, e2) =>
 				{
-					await toolstripDestination.ExportCaptureAsync(true, _surface, _surface.CaptureDetails).ConfigureAwait(false);
+					await toolstripDestination.ExportCaptureAsync(true, _surface).ConfigureAwait(false);
 				};
 			}
 			destinationsToolStrip.Items.Insert(destinationsToolStrip.Items.IndexOf(toolStripSeparator16), destinationButton);
@@ -407,7 +407,7 @@ namespace GreenshotEditorPlugin.Forms
 			ClearItems(fileStripMenuItem.DropDownItems);
 
 			// Add the destinations
-			foreach (ILegacyDestination destination in DestinationHelper.GetAllDestinations())
+			foreach (ILegacyDestination destination in LegacyDestinationHelper.GetAllLegacyDestinations())
 			{
 				if (ignoreDestinations.Contains(destination.Designation))
 				{
@@ -457,7 +457,7 @@ namespace GreenshotEditorPlugin.Forms
 						// Put the event message on the status label and attach the context menu
 						UpdateStatusLabel(dateTime + " - " + eventArgs.Message, fileSavedStatusContextMenu);
 						// Change title
-						Text = eventArgs.Surface.LastSaveFullPath + " - " + editorLanguage.EditorTitle;
+						Text = eventArgs.Capture.CaptureDetails.StoredAt + " - " + editorLanguage.EditorTitle;
 						break;
 					default:
 						// Put the event message on the status label
@@ -564,14 +564,6 @@ namespace GreenshotEditorPlugin.Forms
 
 		#region plugin interfaces
 
-		public ICaptureDetails CaptureDetails
-		{
-			get
-			{
-				return _surface.CaptureDetails;
-			}
-		}
-
 		public ToolStripMenuItem GetPluginMenuItem()
 		{
 			return pluginToolStripMenuItem;
@@ -593,7 +585,7 @@ namespace GreenshotEditorPlugin.Forms
 			{
 				destinationDesignation = BuildInDestinationEnum.FileDialog.ToString();
 			}
-			await DestinationHelper.ExportCaptureAsync(true, destinationDesignation, _surface, _surface.CaptureDetails);
+			await LegacyDestinationHelper.ExportCaptureAsync(true, destinationDesignation, _surface);
 		}
 
 		private async void BtnSaveClickAsync(object sender, EventArgs e)
@@ -603,7 +595,7 @@ namespace GreenshotEditorPlugin.Forms
 
 		private async void BtnClipboardClick(object sender, EventArgs e)
 		{
-			await DestinationHelper.ExportCaptureAsync(true, BuildInDestinationEnum.Clipboard.ToString(), _surface, _surface.CaptureDetails);
+			await LegacyDestinationHelper.ExportCaptureAsync(true, BuildInDestinationEnum.Clipboard.ToString(), _surface);
 		}
 
 		private void BtnPrintClick(object sender, EventArgs e)
@@ -611,7 +603,7 @@ namespace GreenshotEditorPlugin.Forms
 			// The BeginInvoke is a solution for the printdialog not having focus
 			this.AsyncInvoke(async () =>
 			{
-				await DestinationHelper.ExportCaptureAsync(true, BuildInDestinationEnum.Printer.ToString(), _surface, _surface.CaptureDetails);
+				await LegacyDestinationHelper.ExportCaptureAsync(true, BuildInDestinationEnum.Printer.ToString(), _surface);
 			});
 		}
 
@@ -1053,7 +1045,7 @@ namespace GreenshotEditorPlugin.Forms
 				// Go through the destinations to check the EditorShortcut Keys
 				// this way the menu entries don't need to be enabled.
 				// This also fixes bugs #3526974 & #3527020
-				foreach (ILegacyDestination destinationLV in DestinationHelper.GetAllDestinations())
+				foreach (ILegacyDestination destinationLV in LegacyDestinationHelper.GetAllLegacyDestinations())
 				{
 					var destination = destinationLV; // Capture the loop variable
 					if (ignoreDestinations.Contains(destination.Designation))
@@ -1069,7 +1061,7 @@ namespace GreenshotEditorPlugin.Forms
 					{
 						this.AsyncInvoke(async () =>
 						{
-							await destination.ExportCaptureAsync(true, _surface, _surface.CaptureDetails).ConfigureAwait(false);
+							await destination.ExportCaptureAsync(true, _surface).ConfigureAwait(false);
 						});
 						return true;
 					}
@@ -1424,7 +1416,7 @@ namespace GreenshotEditorPlugin.Forms
 			}
 			if (clickedDestination != null)
 			{
-				ExportInformation exportInformation = await clickedDestination.ExportCaptureAsync(true, _surface, _surface.CaptureDetails);
+				var exportInformation = await clickedDestination.ExportCaptureAsync(true, _surface);
 				if (exportInformation != null && exportInformation.ExportMade)
 				{
 					_surface.Modified = false;

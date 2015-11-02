@@ -26,14 +26,5 @@ namespace GreenshotPlugin.Interfaces.Plugin
 {
 	public interface IGreenshotPlugin : IDisposable
 	{
-		/// <summary>
-		/// Return IDestination's, if the plugin wants to
-		/// </summary>
-		IEnumerable<ILegacyDestination> Destinations();
-
-		/// <summary>
-		/// Return IProcessor's, if the plugin wants to
-		/// </summary>
-		IEnumerable<IProcessor> Processors();
 	}
 }

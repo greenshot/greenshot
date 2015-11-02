@@ -19,53 +19,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using GreenshotPlugin.Interfaces;
 using System;
+using System.ComponentModel.Composition;
 
-namespace GreenshotPlugin.Interfaces
+namespace Greenshot.Services
 {
 	/// <summary>
-	/// Description of IProcessor.
+	/// This is the notification center
+	/// All uploads, save etc go through here
+	/// If code needs to do something with this information, register the OnNotification
 	/// </summary>
-	public interface IProcessor : IDisposable, IComparable
+	[Export(typeof(INotificationCenter))]
+	public class NotificationCenter : INotificationCenter
 	{
-		/// <summary>
-		/// Simple "designation" like "FixTitle"
-		/// </summary>
-		string Designation
-		{
-			get;
-		}
+		public event EventHandler<INotification> OnNotification;
 
-		/// <summary>
-		/// Description which will be shown in the settings form, destination picker etc
-		/// </summary>
-		string Description
+		public void Notify(object sender, INotification notification)
 		{
-			get;
+			if (OnNotification != null)
+			{
+				OnNotification.Invoke(sender, notification);
+			}
 		}
-
-		/// <summary>
-		/// Priority, used for sorting
-		/// </summary>
-		int Priority
-		{
-			get;
-		}
-
-		/// <summary>
-		/// Returns if the destination is active
-		/// </summary>
-		bool isActive
-		{
-			get;
-		}
-
-		/// <summary>
-		/// If a capture is made, and the destination is enabled, this method is called.
-		/// </summary>
-		/// <param name="surface"></param>
-		/// <param name="captureDetails"></param>
-		/// <returns>true if the processor has "processed" the capture</returns>
-		bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails);
 	}
 }

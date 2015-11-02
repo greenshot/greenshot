@@ -106,6 +106,7 @@
     <Compile Include="Drawing\CursorContainer.cs" />
     <Compile Include="Drawing\DrawableContainer.cs" />
     <Compile Include="Drawing\DrawableContainerList.cs" />
+    <Compile Include="Drawing\DrawingModes.cs" />
     <Compile Include="Drawing\EllipseContainer.cs" />
     <Compile Include="Drawing\Fields\AbstractFieldHolder.cs" />
     <Compile Include="Drawing\Fields\Binding\AbstractBindingConverter.cs" />
@@ -135,7 +136,8 @@
     <Compile Include="Drawing\LineContainer.cs" />
     <Compile Include="Drawing\ObfuscateContainer.cs" />
     <Compile Include="Drawing\RectangleContainer.cs" />
-    <Compile Include="EditorPlugin.cs" />
+    <Compile Include="Drawing\SurfaceEvents.cs" />
+    <Compile Include="EditorDestination.cs" />
     <Compile Include="Forms\DropShadowSettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -163,7 +165,6 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Drawing\TextContainer.cs" />
-    <Compile Include="EditorLegacyDestination.cs" />
     <Compile Include="Forms\BaseForm.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -144,10 +144,10 @@ namespace Greenshot.Destinations
 		/// Export the capture to the printer
 		/// </summary>
 		/// <param name="manuallyInitiated"></param>
-		/// <param name="surface"></param>
+		/// <param name="capture"></param>
 		/// <param name="captureDetails"></param>
 		/// <returns>ExportInformation</returns>
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ICapture capture, CancellationToken token = default(CancellationToken))
 		{
 			var exportInformation = new ExportInformation
 			{
@@ -160,7 +160,7 @@ namespace Greenshot.Destinations
 					PrinterSettings printerSettings = null;
 					if (!string.IsNullOrEmpty(_printerName))
 					{
-						using (var printHelper = new PrintHelper(surface, captureDetails))
+						using (var printHelper = new PrintHelper(capture, capture.CaptureDetails))
 						{
 							printerSettings = printHelper.PrintTo(_printerName);
 						}
@@ -168,14 +168,14 @@ namespace Greenshot.Destinations
 					else if (!manuallyInitiated)
 					{
 						var settings = new PrinterSettings();
-						using (var printHelper = new PrintHelper(surface, captureDetails))
+						using (var printHelper = new PrintHelper(capture, capture.CaptureDetails))
 						{
 							printerSettings = printHelper.PrintTo(settings.PrinterName);
 						}
 					}
 					else
 					{
-						using (var printHelper = new PrintHelper(surface, captureDetails))
+						using (var printHelper = new PrintHelper(capture, capture.CaptureDetails))
 						{
 							printerSettings = printHelper.PrintWithDialog();
 						}
@@ -191,7 +191,6 @@ namespace Greenshot.Destinations
 				exportInformation.ErrorMessage = ex.Message;
 			}
 
-			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
 	}

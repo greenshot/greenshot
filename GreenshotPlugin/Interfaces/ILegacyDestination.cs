@@ -107,10 +107,9 @@ namespace GreenshotPlugin.Interfaces
 		/// Async version of the ExportCapture
 		/// </summary>
 		/// <param name="manuallyInitiated">true if the user selected this destination from a GUI, false if it was called as part of a process</param>
-		/// <param name="surface"></param>
-		/// <param name="captureDetails"></param>
+		/// <param name="capture">ICapture</param>
 		/// <param name="token"></param>
 		/// <returns>DestinationExportInformation with information, like if the destination has "exported" the capture</returns>
-		Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken));
+		Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ICapture capture, CancellationToken token = default(CancellationToken));
 	}
 }

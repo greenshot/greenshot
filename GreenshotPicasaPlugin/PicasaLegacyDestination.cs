@@ -67,11 +67,11 @@ namespace GreenshotPicasaPlugin
 		/// export the capture to Picasa
 		/// </summary>
 		/// <param name="manuallyInitiated"></param>
-		/// <param name="surface"></param>
+		/// <param name="capture"></param>
 		/// <param name="captureDetails"></param>
 		/// <param name="token"></param>
 		/// <returns></returns>
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ICapture capture, CancellationToken token = default(CancellationToken))
 		{
 			var exportInformation = new ExportInformation
 			{
@@ -82,7 +82,7 @@ namespace GreenshotPicasaPlugin
 			{
 				var uploadURL = await PleaseWaitWindow.CreateAndShowAsync(Designation, language.CommunicationWait, async (progress, pleaseWaitToken) =>
 				{
-					return await PicasaUtils.UploadToPicasa(surface, captureDetails, progress, token).ConfigureAwait(false);
+					return await PicasaUtils.UploadToPicasa(capture, progress, token).ConfigureAwait(false);
 				}, token);
 
 				if (!string.IsNullOrEmpty(uploadURL))
@@ -102,7 +102,6 @@ namespace GreenshotPicasaPlugin
 				LOG.Warn(e);
 				MessageBox.Show(language.UploadFailure + " " + e.Message, Designation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
-			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
 	}

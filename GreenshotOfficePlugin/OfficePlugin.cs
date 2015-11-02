@@ -58,13 +58,6 @@ namespace GreenshotOfficePlugin
 			catch
 			{
 			}
-			try
-			{
-				destinations.Add(new WordLegacyDestination());
-			}
-			catch
-			{
-			}
 
 			try
 			{
@@ -83,11 +76,6 @@ namespace GreenshotOfficePlugin
 			}
 
 			return destinations;
-		}
-
-		public IEnumerable<IProcessor> Processors()
-		{
-			yield break;
 		}
 
 		#region IDisposable Support

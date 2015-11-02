@@ -34,14 +34,14 @@ namespace GreenshotPlugin.Core
 	/// <summary>
 	/// Description of DestinationHelper.
 	/// </summary>
-	public static class DestinationHelper
+	public static class LegacyDestinationHelper
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (DestinationHelper));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (LegacyDestinationHelper));
 		private static Dictionary<string, ILegacyDestination> RegisteredDestinations = new Dictionary<string, ILegacyDestination>();
 		private static readonly ICoreConfiguration coreConfig = IniConfig.Current.Get<ICoreConfiguration>();
 
 		/// Initialize the destinations		
-		static DestinationHelper()
+		static LegacyDestinationHelper()
 		{
 			foreach (Type destinationType in InterfaceUtils.GetSubclassesOf(typeof (ILegacyDestination), true))
 			{
@@ -64,7 +64,7 @@ namespace GreenshotPlugin.Core
 				if (destination.IsActive)
 				{
 					LOG.DebugFormat("Found destination {0} with designation {1}", destinationType.Name, destination.Designation);
-					RegisterDestination(destination);
+					RegisterLegacyDestination(destination);
 				}
 				else
 				{
@@ -77,7 +77,7 @@ namespace GreenshotPlugin.Core
 		/// Register your destination here, if it doesn't come from a plugin and needs to be available
 		/// </summary>
 		/// <param name="destination"></param>
-		public static void RegisterDestination(ILegacyDestination destination)
+		public static void RegisterLegacyDestination(ILegacyDestination destination)
 		{
 			if (coreConfig.ExcludeDestinations == null || !coreConfig.ExcludeDestinations.Contains(destination.Designation))
 			{
@@ -87,44 +87,13 @@ namespace GreenshotPlugin.Core
 		}
 
 		/// <summary>
-		/// Method to get all the destinations from the plugins
-		/// </summary>
-		/// <returns>List<IDestination></returns>
-		private static List<ILegacyDestination> GetPluginDestinations()
-		{
-			List<ILegacyDestination> destinations = new List<ILegacyDestination>();
-			foreach (var pluginInfo in PluginUtils.Host.Plugins)
-			{
-				IGreenshotPlugin plugin = pluginInfo.Value;
-                try
-				{
-					foreach (ILegacyDestination destination in plugin.Destinations())
-					{
-						if (coreConfig.ExcludeDestinations == null || !coreConfig.ExcludeDestinations.Contains(destination.Designation))
-						{
-							destinations.Add(destination);
-						}
-					}
-				}
-				catch (Exception ex)
-				{
-					LOG.ErrorFormat("Couldn't get destinations from the plugin {0}", pluginInfo.Metadata.Name);
-					LOG.Error(ex);
-				}
-			}
-			destinations.Sort();
-			return destinations;
-		}
-
-		/// <summary>
 		/// Get a list of all destinations, registered or supplied by a plugin
 		/// </summary>
 		/// <returns></returns>
-		public static List<ILegacyDestination> GetAllDestinations()
+		public static List<ILegacyDestination> GetAllLegacyDestinations()
 		{
 			List<ILegacyDestination> destinations = new List<ILegacyDestination>();
 			destinations.AddRange(RegisteredDestinations.Values);
-			destinations.AddRange(GetPluginDestinations());
 			destinations.Sort();
 			return destinations;
 		}
@@ -134,7 +103,7 @@ namespace GreenshotPlugin.Core
 		/// </summary>
 		/// <param name="designation">Designation of the destination</param>
 		/// <returns>IDestination or null</returns>
-		public static ILegacyDestination GetDestination(string designation)
+		public static ILegacyDestination GetLegacyDestination(string designation)
 		{
 			if (designation == null)
 			{
@@ -143,13 +112,6 @@ namespace GreenshotPlugin.Core
 			if (RegisteredDestinations.ContainsKey(designation))
 			{
 				return RegisteredDestinations[designation];
-			}
-			foreach (ILegacyDestination destination in GetPluginDestinations())
-			{
-				if (designation.Equals(destination.Designation))
-				{
-					return destination;
-				}
 			}
 			return null;
 		}
@@ -160,12 +122,12 @@ namespace GreenshotPlugin.Core
 		/// <param name="designation"></param>
 		/// <param name="surface"></param>
 		/// <param name="captureDetails"></param>
-		public static async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		public static async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, string designation, ICapture capture, CancellationToken token = default(CancellationToken))
 		{
-			ILegacyDestination destination = GetDestination(designation);
+			ILegacyDestination destination = GetLegacyDestination(designation);
 			if (destination != null && destination.IsActive)
 			{
-				return await destination.ExportCaptureAsync(manuallyInitiated, surface, captureDetails, token).ConfigureAwait(false);
+				return await destination.ExportCaptureAsync(manuallyInitiated, capture, token).ConfigureAwait(false);
 			}
 			return null;
 		}

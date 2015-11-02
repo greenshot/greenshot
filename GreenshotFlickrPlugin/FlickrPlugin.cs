@@ -89,12 +89,6 @@ namespace GreenshotFlickrPlugin
 		{
 			yield return new FlickrLegacyDestination();
 		}
-
-		public IEnumerable<IProcessor> Processors()
-		{
-			yield break;
-		}
-
 		/// <summary>
 		/// Initialize
 		/// </summary>

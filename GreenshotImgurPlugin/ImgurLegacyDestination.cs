@@ -79,11 +79,10 @@ namespace GreenshotImgurPlugin
 		/// Implementation of the export capture functionality
 		/// </summary>
 		/// <param name="manuallyInitiated"></param>
-		/// <param name="surface"></param>
-		/// <param name="captureDetails"></param>
+		/// <param name="capture"></param>
 		/// <param name="token">CancellationToken</param>
 		/// <returns>Task with ExportInformation</returns>
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ICapture capture, CancellationToken token = default(CancellationToken))
 		{
 			var exportInformation = new ExportInformation
 			{
@@ -92,10 +91,10 @@ namespace GreenshotImgurPlugin
 			var outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
 			try
 			{
-				string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(config.FilenamePattern, config.UploadFormat, captureDetails));
+				string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(config.FilenamePattern, config.UploadFormat, capture.CaptureDetails));
 				var imgurInfo = await PleaseWaitWindow.CreateAndShowAsync(Designation, imgurLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
 				{
-					return await ImgurUtils.UploadToImgurAsync(surface, outputSettings, captureDetails.Title, filename, progress, pleaseWaitToken);
+					return await ImgurUtils.UploadToImgurAsync(capture, outputSettings, capture.CaptureDetails.Title, filename, progress, pleaseWaitToken);
 				}, token);
 
 				if (imgurInfo != null)
@@ -137,7 +136,6 @@ namespace GreenshotImgurPlugin
 				LOG.Warn(e);
 				MessageBox.Show(imgurLanguage.UploadFailure + " " + e.Message, Designation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
-			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
 	}

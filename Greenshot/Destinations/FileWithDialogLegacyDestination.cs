@@ -81,23 +81,22 @@ namespace Greenshot.Destinations
 			}
 		}
 
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ICapture capture, CancellationToken token = default(CancellationToken))
 		{
 			var exportInformation = new ExportInformation
 			{
 				DestinationDesignation = Designation, DestinationDescription = Description
 			};
-			string savedTo = await Task.Factory.StartNew(() => ImageOutput.SaveWithDialog(surface, captureDetails), token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+			string savedTo = await Task.Factory.StartNew(() => ImageOutput.SaveWithDialog(capture, capture.CaptureDetails), token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
 
 			// Bug #2918756 don't overwrite path if SaveWithDialog returns null!
 			if (savedTo != null)
 			{
 				exportInformation.ExportMade = true;
 				exportInformation.Filepath = savedTo;
-				captureDetails.Filename = savedTo;
+				capture.CaptureDetails.Filename = savedTo;
 				conf.OutputFileAsFullpath = savedTo;
 			}
-			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
 	}

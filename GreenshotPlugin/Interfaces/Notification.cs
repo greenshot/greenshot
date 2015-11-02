@@ -20,66 +20,60 @@
  */
 
 using System;
-using GreenshotPlugin.Interfaces;
 
-namespace GreenshotPlugin.Core
+namespace GreenshotPlugin.Interfaces
 {
 	/// <summary>
-	/// Description of AbstractProcessor.
+	/// Implementation of the INotification interface
 	/// </summary>
-	public abstract class AbstractProcessor : IProcessor
+	public class Notification : INotification
 	{
-		public virtual int CompareTo(object obj)
-		{
-			IProcessor other = obj as IProcessor;
-			if (other == null)
-			{
-				return 1;
-			}
-			if (Priority == other.Priority)
-			{
-				return Description.CompareTo(other.Description);
-			}
-			return Priority - other.Priority;
-		}
-
-		public abstract string Designation
+		public string ErrorText
 		{
 			get;
+			set;
 		}
 
-		public abstract string Description
+		public Uri ImageLocation
 		{
 			get;
+			set;
 		}
 
-		public virtual int Priority
+		public NotificationTypes NotificationType
 		{
-			get
-			{
-				return 10;
-			}
+			get;
+			set;
 		}
 
-		public void Dispose()
+		public string Source
 		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
+			get;
+			set;
 		}
 
-		protected virtual void Dispose(bool disposing)
+		public SourceTypes SourceType
 		{
-			//if (disposing) {}
+			get;
+			set;
 		}
 
-		public virtual bool isActive
+		public string Text
 		{
-			get
-			{
-				return true;
-			}
+			get;
+			set;
 		}
 
-		public abstract bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails);
+		public Uri ThumbnailLocation
+		{
+			get;
+			set;
+		}
+
+		public DateTimeOffset Timestamp
+		{
+			get;
+			set;
+		}
 	}
 }

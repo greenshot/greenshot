@@ -48,14 +48,13 @@ namespace GreenshotPicasaPlugin
 		/// <summary>
 		/// Do the actual upload to Picasa
 		/// </summary>
-		/// <param name="surfaceToUpload">Image to upload</param>
-		/// <param name="captureDetails">ICaptureDetails</param>
+		/// <param name="capture">Image to upload</param>
 		/// <param name="progress"></param>
 		/// <param name="token"></param>
 		/// <returns>url</returns>
-		public static async Task<string> UploadToPicasa(ISurface surfaceToUpload, ICaptureDetails captureDetails, IProgress<int> progress, CancellationToken token = default(CancellationToken))
+		public static async Task<string> UploadToPicasa(ICapture capture, IProgress<int> progress, CancellationToken token = default(CancellationToken))
 		{
-			string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
+			string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, capture.CaptureDetails));
 			var outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality);
 			// Fill the OAuth2Settings
 			var settings = new OAuth2Settings();
@@ -83,7 +82,7 @@ namespace GreenshotPicasaPlugin
 					}
 					using (var stream = new MemoryStream())
 					{
-						ImageOutput.SaveToStream(surfaceToUpload, stream, outputSettings);
+						ImageOutput.SaveToStream(capture, stream, outputSettings);
 						stream.Position = 0;
 						using (var uploadStream = new ProgressStream(stream, progress))
 						{

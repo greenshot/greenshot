@@ -114,11 +114,11 @@ namespace GreenshotPhotobucketPlugin
 		/// Export the capture to Photobucket
 		/// </summary>
 		/// <param name="manuallyInitiated"></param>
-		/// <param name="surface"></param>
+		/// <param name="capture"></param>
 		/// <param name="captureDetails"></param>
 		/// <param name="token"></param>
 		/// <returns></returns>
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails, CancellationToken token = default(CancellationToken))
+		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ICapture capture, CancellationToken token = default(CancellationToken))
 		{
 			var exportInformation = new ExportInformation
 			{
@@ -129,8 +129,8 @@ namespace GreenshotPhotobucketPlugin
 			{
 				var photobucketInfo = await PleaseWaitWindow.CreateAndShowAsync(Designation, Language.CommunicationWait, async (progress, pleaseWaitToken) =>
 				{
-					string filename = Path.GetFileName(FilenameHelper.GetFilename(Config.UploadFormat, captureDetails));
-					return await PhotobucketUtils.UploadToPhotobucket(surface, outputSettings, _albumPath, captureDetails.Title, filename, progress);
+					string filename = Path.GetFileName(FilenameHelper.GetFilename(Config.UploadFormat, capture.CaptureDetails));
+					return await PhotobucketUtils.UploadToPhotobucket(capture, outputSettings, _albumPath, capture.CaptureDetails.Title, filename, progress);
 				}, token);
 
 				// This causes an exeption if the upload failed :)
@@ -160,7 +160,6 @@ namespace GreenshotPhotobucketPlugin
 				LOG.Error("Error uploading.", e);
 				MessageBox.Show(Language.UploadFailure + " " + e.Message);
 			}
-			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
 	}
