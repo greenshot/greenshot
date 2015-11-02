@@ -21,13 +21,11 @@
 
 using GreenshotPlugin.Extensions;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Addons;
-using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotJiraPlugin
@@ -36,6 +34,7 @@ namespace GreenshotJiraPlugin
 	/// This is the JiraPlugin base code
 	/// </summary>
 	[Plugin("Jira", Configurable = true)]
+	[Export(typeof(JiraPlugin))]
 	[StartupAction]
 	public class JiraPlugin : IConfigurablePlugin, IStartupAction
 	{
@@ -71,11 +70,6 @@ namespace GreenshotJiraPlugin
 			{
 				return _jiraMonitor;
 			}
-		}
-
-		public IEnumerable<ILegacyDestination> Destinations()
-		{
-			yield return new JiraLegacyDestination(this);
 		}
 
 		/// <summary>
@@ -137,7 +131,7 @@ namespace GreenshotJiraPlugin
 
 		#region IDisposable Support
 
-		private bool _disposedValue = false; // To detect redundant calls
+		private bool _disposedValue; // To detect redundant calls
 
 		protected virtual void Dispose(bool disposing)
 		{

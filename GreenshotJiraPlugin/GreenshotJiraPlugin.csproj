@@ -97,7 +97,7 @@
     </Compile>
     <Compile Include="JiraAPI.cs" />
     <Compile Include="IJiraConfiguration.cs" />
-    <Compile Include="JiraLegacyDestination.cs" />
+    <Compile Include="JiraDestination.cs" />
     <Compile Include="JiraDetails.cs" />
     <Compile Include="JiraMonitor.cs" />
     <Compile Include="JiraPlugin.cs" />

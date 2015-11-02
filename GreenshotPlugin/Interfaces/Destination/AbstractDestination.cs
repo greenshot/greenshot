@@ -23,6 +23,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.ComponentModel.Composition;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,7 +34,7 @@ namespace GreenshotPlugin.Interfaces.Destination
 	/// <summary>
 	/// A simple base implementation for the IDestination
 	/// </summary>
-	public abstract class AbstractDestination : IDestination
+	public abstract class AbstractDestination : IDestination, IPartImportsSatisfiedNotification
 	{
 		private string _text;
 		private string _shortcut;
@@ -51,9 +52,30 @@ namespace GreenshotPlugin.Interfaces.Destination
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
-		public abstract string Designation
+		/// <summary>
+		/// Call initialize after all imports are inserted
+		/// </summary>
+		public void OnImportsSatisfied()
+		{
+			Initialize();
+		}
+
+		/// <summary>
+		/// Override, this will be called when all imports are available.
+		/// </summary>
+		protected virtual void Initialize()
+		{
+		}
+
+		public virtual Task Refresh(CancellationToken token = default(CancellationToken))
+		{
+			return Task.FromResult(true);
+		}
+
+		public virtual string Designation
 		{
 			get;
+			protected set;
 		}
 
 		public virtual string Shortcut
@@ -62,7 +84,7 @@ namespace GreenshotPlugin.Interfaces.Destination
 			{
 				return _shortcut;
 			}
-			set
+			protected set
 			{
 				if (value != _shortcut)
 				{
@@ -78,7 +100,7 @@ namespace GreenshotPlugin.Interfaces.Destination
 			{
 				return _text;
 			}
-			set
+			protected set
 			{
 				if (value != _text)
 				{
@@ -94,7 +116,7 @@ namespace GreenshotPlugin.Interfaces.Destination
 			{
 				return _isEnabled;
 			}
-			set
+			protected set
 			{
 				if (value != _isEnabled)
 				{
@@ -110,7 +132,7 @@ namespace GreenshotPlugin.Interfaces.Destination
 			{
 				return _icon;
 			}
-			set
+			protected set
 			{
 				if (!Equals(value, _icon))
 				{
@@ -123,13 +145,13 @@ namespace GreenshotPlugin.Interfaces.Destination
 		public virtual Func<ICapture, CancellationToken, Task<INotification>> Export
 		{
 			get;
-			set;
+			protected set;
 		}
 
 		public virtual ObservableCollection<IDestination> Children
 		{
 			get;
-			set;
+			protected set;
 		} = new ObservableCollection<IDestination>();
 
 	}

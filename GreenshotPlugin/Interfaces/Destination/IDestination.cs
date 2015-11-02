@@ -30,36 +30,65 @@ namespace GreenshotPlugin.Interfaces.Destination
 {
 	public interface IDestination: INotifyPropertyChanged
 	{
+		/// <summary>
+		/// This is the technical name of the destination, used for excluding or storing the configuration
+		/// </summary>
 		string Designation
 		{
 			get;
 		}
 
+		/// <summary>
+		/// If the entry needs a shortcut in the destination picker, it can be set with this value
+		/// </summary>
 		string Shortcut
 		{
 			get;
 		}
 
+		/// <summary>
+		/// This is the name of the destination in the settings and destination picker
+		/// </summary>
 		string Text
 		{
 			get;
 		}
 
+		/// <summary>
+		/// When set to false, the entry is disabled in the destination picker
+		/// </summary>
 		bool IsEnabled
 		{
 			get;
 		}
 
+		/// <summary>
+		/// This is the icon which is shown everywhere where the destination can be seen.
+		/// Two known locations are the settings and the destination picker.
+		/// </summary>
 		ImageSource Icon
 		{
 			get;
 		}
 
+		/// <summary>
+		/// This will be called before the item is shown, so it can update it's children etc.
+		/// </summary>
+		/// <param name="token"></param>
+		/// <returns>Task</returns>
+		Task Refresh(CancellationToken token = default(CancellationToken));
+
+		/// <summary>
+		/// Export a capture
+		/// </summary>
 		Func<ICapture, CancellationToken, Task<INotification>> Export
 		{
 			get;
 		}
 
+		/// <summary>
+		/// This is a collection of child destinations, shown in the destination picker
+		/// </summary>
 		ObservableCollection<IDestination> Children
 		{
 			get;

@@ -28,110 +28,122 @@ using GreenshotPlugin.Interfaces.Plugin;
 using log4net;
 using System;
 using System.ComponentModel.Composition;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
+using GreenshotPlugin.Extensions;
 
 namespace GreenshotOfficePlugin.Destinations
 {
 	/// <summary>
 	/// Description of WordDestination.
 	/// </summary>
-	[Destination(_wordDesignation)]
-	public class WordDestination : AbstractDestination
+	[Destination(WordDesignation)]
+	public sealed class WordDestination : AbstractDestination
 	{
-		private const string _wordDesignation = "Word";
+		private const string WordDesignation = "Word";
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(WordDestination));
+		private static readonly BitmapSource DocumentIcon;
+		private static readonly BitmapSource ApplicationIcon;
 
-		[Import]
-		public IOfficeConfiguration OfficeConfiguration
+		static WordDestination()
 		{
-			get;
-			set;
-		}
-
-		[Import]
-		public IGreenshotLanguage GreenshotLanguage
-		{
-			get;
-			set;
-		}
-
-		public string DocumentCaption
-		{
-			get;
-			set;
-		}
-
-		public override string Designation
-		{
-			get
+			var exePath = PluginUtils.GetExePath("WINWORD.EXE");
+			if (exePath != null && !File.Exists(exePath))
 			{
-				return _wordDesignation;
+				DocumentIcon = PluginUtils.GetCachedExeIcon(exePath, 1).ToBitmapSource();
+				ApplicationIcon = PluginUtils.GetCachedExeIcon(exePath, 0).ToBitmapSource();
 			}
 		}
 
-		public WordDestination()
+		[Import]
+		private IOfficeConfiguration OfficeConfiguration
 		{
-			Export = async (capture, token) => await ExportCaptureAsync(capture, token);
-			Text = Text = $"Export to {_wordDesignation}";
+			get;
+			set;
 		}
 
-		public Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))
+		[Import]
+		private IGreenshotLanguage GreenshotLanguage
+		{
+			get;
+			set;
+		}
+
+		protected override void Initialize()
+		{
+			base.Initialize();
+			Export = async (capture, token) => await ExportCaptureAsync(capture, null, token);
+			Text = Text = $"Export to {WordDesignation}";
+			Designation = WordDesignation;
+			Icon = ApplicationIcon;
+		}
+
+		/// <summary>
+		/// Load the current documents to export to
+		/// </summary>
+		/// <param name="token"></param>
+		/// <returns>Task</returns>
+		public override Task Refresh(CancellationToken token = new CancellationToken())
+		{
+			Children.Clear();
+			return Task.Run(() =>
+			{
+				foreach (var caption in WordExporter.GetWordDocuments().OrderBy(x => x))
+				{
+					var wordDestination = new WordDestination
+					{
+						Icon = DocumentIcon,
+						Export = async (capture, exportToken) => await ExportCaptureAsync(capture, caption, exportToken),
+						Text = $"Export to {WordDesignation} - {caption}",
+						OfficeConfiguration = OfficeConfiguration,
+						GreenshotLanguage = GreenshotLanguage
+					};
+                    Children.Add(wordDestination);
+				}
+			}, token);
+		}
+
+		private Task<INotification> ExportCaptureAsync(ICapture capture, string documentCaption, CancellationToken token = default(CancellationToken))
 		{
 			INotification returnValue = new Notification
 			{
 				NotificationType = NotificationTypes.Success,
-				Source = _wordDesignation,
+				Source = WordDesignation,
 				SourceType = SourceTypes.Destination,
-				Text = $"Exported to {_wordDesignation}"
+				Text = $"Exported to {WordDesignation}"
 			};
 			string tmpFile = capture.CaptureDetails.Filename;
 			if (tmpFile == null || capture.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
 			{
 				tmpFile = ImageOutput.SaveNamedTmpFile(capture, capture.CaptureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
 			}
-			if (DocumentCaption != null)
+			if (documentCaption != null)
 			{
 				try
 				{
-					WordExporter.InsertIntoExistingDocument(DocumentCaption, tmpFile);
+					WordExporter.InsertIntoExistingDocument(documentCaption, tmpFile);
 				}
 				catch (Exception)
 				{
 					try
 					{
-						WordExporter.InsertIntoExistingDocument(DocumentCaption, tmpFile);
+						WordExporter.InsertIntoExistingDocument(documentCaption, tmpFile);
 					}
 					catch (Exception ex)
 					{
 						LOG.Error(ex);
 						returnValue.ErrorText = ex.Message;
-						returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, _wordDesignation);
+						returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, WordDesignation);
                         return Task.FromResult(returnValue);
 					}
 				}
 			}
 			else
 			{
-				// TODO:
-				//if (!manuallyInitiated)
-				if (false)
-				{
-					Children.Clear();
-					foreach(var caption in WordExporter.GetWordDocuments().OrderBy(x => x))
-					{
-						Children.Add(new WordDestination { DocumentCaption = caption });
-					}
-
-					if (Children.Count > 0)
-					{
-						// Return the ExportInformation from the picker without processing, as this indirectly comes from us self
-						// TODO:
-						// return await ShowPickerMenuAsync(false, capture, destinations, token).ConfigureAwait(false);
-					}
-				}
 				try
 				{
 					WordExporter.InsertIntoNewDocument(tmpFile, null, null);
@@ -147,7 +159,7 @@ namespace GreenshotOfficePlugin.Destinations
 					{
 						LOG.Error(ex);
 						returnValue.ErrorText = ex.Message;
-						returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, _wordDesignation);
+						returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, WordDesignation);
 						return Task.FromResult(returnValue);
 					}
 				}

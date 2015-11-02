@@ -35,10 +35,10 @@ namespace Greenshot.Destinations
 	/// <summary>
 	/// The PickerDestination shows a context menu with all possible destinations, so the user can "pick" one
 	/// </summary>
-	[Destination(_pickerDesignation)]
-	public class PickerDestination : AbstractDestination
+	[Destination(PickerDesignation)]
+	public sealed class PickerDestination : AbstractDestination
 	{
-		private const string _pickerDesignation = "Picker";
+		private const string PickerDesignation = "Picker";
 
 		[Import]
 		public ICoreConfiguration CoreConfiguration
@@ -68,35 +68,19 @@ namespace Greenshot.Destinations
 			set;
 		}
 
-		public override string Designation
+		protected override void Initialize()
 		{
-			get
-			{
-				return _pickerDesignation;
-			}
-		}
-		public override string Text
-		{
-			get
-			{
-				return GreenshotLanguage.SettingsDestinationPicker;
-			}
-
-			set
-			{
-			}
-		}
-
-		public PickerDestination()
-		{
+			base.Initialize();
 			Export = async (capture, token) => await ShowExport(capture, token);
+			Text = GreenshotLanguage.SettingsDestinationPicker;
+			Designation = PickerDesignation;
 		}
 
 		private async Task<INotification> ShowExport(ICapture capture, CancellationToken token = default(CancellationToken))
 		{
 			using (var exportWindow = ExportWindowFactory.CreateExport())
 			{
-				foreach (var destination in Destinations.Where(destination => destination.Metadata.Name != _pickerDesignation))
+				foreach (var destination in Destinations.Where(destination => destination.Metadata.Name != PickerDesignation))
 				{
 					exportWindow.Value.Children.Add(destination.Value);
 				}
@@ -108,7 +92,7 @@ namespace Greenshot.Destinations
 			return new Notification
 			{
 				NotificationType = NotificationTypes.Cancel,
-				Source = _pickerDesignation,
+				Source = PickerDesignation,
 				SourceType = SourceTypes.Destination,
 				Text = "Cancelled"
 			};

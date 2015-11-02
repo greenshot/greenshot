@@ -187,7 +187,6 @@ namespace GreenshotJiraPlugin
 		/// <summary>
 		/// Handle title changes, check for JIRA
 		/// </summary>
-		/// <param name="sender"></param>
 		/// <param name="eventArgs"></param>
 		private void monitor_TitleChangeEvent(TitleChangeEventArgs eventArgs)
 		{

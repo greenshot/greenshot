@@ -43,7 +43,7 @@ namespace GreenshotPlugin.Core
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof (PluginUtils));
 		private static readonly ICoreConfiguration Conf = IniConfig.Current.Get<ICoreConfiguration>();
-		private static readonly IDictionary<string, Image> ExeIconCache = new Dictionary<string, Image>();
+		private static readonly IDictionary<string, Bitmap> ExeIconCache = new Dictionary<string, Bitmap>();
 
 		static PluginUtils()
 		{
@@ -121,10 +121,10 @@ namespace GreenshotPlugin.Core
 		/// <param name="path">path to the exe or dll</param>
 		/// <param name="index">index of the icon</param>
 		/// <returns>Bitmap with the icon or null if something happended</returns>
-		public static Image GetCachedExeIcon(string path, int index)
+		public static Bitmap GetCachedExeIcon(string path, int index)
 		{
 			string cacheKey = $"{path}:{index}";
-			Image returnValue;
+			Bitmap returnValue;
 			lock (ExeIconCache)
 			{
 				if (!ExeIconCache.TryGetValue(cacheKey, out returnValue))

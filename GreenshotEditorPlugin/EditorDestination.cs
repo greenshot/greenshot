@@ -19,21 +19,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using Dapplo.Config.Language;
 using GreenshotEditorPlugin.Drawing;
 using GreenshotEditorPlugin.Forms;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
 using log4net;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Forms;
 using System.ComponentModel.Composition;
+using System.Windows.Media.Imaging;
+using GreenshotPlugin.Extensions;
 using GreenshotPlugin.Interfaces.Destination;
 
 namespace GreenshotEditorPlugin
@@ -41,47 +40,65 @@ namespace GreenshotEditorPlugin
 	/// <summary>
 	/// Description of EditorDestination.
 	/// </summary>
-	[Destination(_editorDesignation)]
-	public class EditorDestination : AbstractDestination
+	[Destination(EditorDesignation)]
+	public sealed class EditorDestination : AbstractDestination
 	{
-		private const string _editorDesignation = "Editor";
+		private const string EditorDesignation = "Editor";
 		private static readonly ILog LOG = LogManager.GetLogger(typeof (EditorDestination));
-		private IImageEditor editor = null;
-		private static Image greenshotIcon = GreenshotResources.GetGreenshotIcon().ToBitmap();
+		private static readonly BitmapSource GreenshotIcon = GreenshotResources.GetGreenshotIcon().ToBitmapSource();
+
 		[Import]
-		public IEditorConfiguration EditorConfiguration
+		private IEditorConfiguration EditorConfiguration
 		{
 			get;
 			set;
 		}
 
 		[Import]
-		public IGreenshotLanguage GreenshotLanguage
+		private IGreenshotLanguage GreenshotLanguage
 		{
 			get;
 			set;
 		}
 
-		public override string Designation
+		protected override void Initialize()
 		{
-			get
+			base.Initialize();
+			Text = GreenshotLanguage.SettingsDestinationEditor;
+			Designation = EditorDesignation;
+			Export = async (capture, token) => await ExportCaptureAsync(capture, null, token);
+			Icon = GreenshotIcon;
+		}
+
+		/// <summary>
+		/// Load the current editors to export to
+		/// </summary>
+		/// <param name="token"></param>
+		/// <returns>Task</returns>
+		public override Task Refresh(CancellationToken token = new CancellationToken())
+		{
+			Children.Clear();
+			foreach (var openEditor in ImageEditorForm.Editors)
 			{
-				return _editorDesignation;
+				var editorDestination = new EditorDestination
+				{
+					Text = openEditor.Surface.CaptureDetails.Title,
+					Export = async (capture, exportToken) => await ExportCaptureAsync(capture, openEditor, exportToken),
+					Icon = GreenshotIcon,
+					EditorConfiguration = EditorConfiguration,
+					GreenshotLanguage = GreenshotLanguage
+				};
+				Children.Add(editorDestination);
 			}
+			return Task.FromResult(true);
 		}
 
-		public EditorDestination()
-		{
-			Export = async (capture, token) => await ExportCaptureAsync(capture, token);
-			Text = $"Export to {_editorDesignation}";
-        }
-
-		public Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))
+		private Task<INotification> ExportCaptureAsync(ICapture capture, IImageEditor editor, CancellationToken token = default(CancellationToken))
 		{
 			var returnValue = new Notification
 			{
 				NotificationType = NotificationTypes.Success,
-				Source = _editorDesignation,
+				Source = EditorDesignation,
 				SourceType = SourceTypes.Destination,
 				Text = Text
 			};
@@ -108,7 +125,7 @@ namespace GreenshotEditorPlugin
 				bool reusedEditor = false;
 				if (EditorConfiguration.ReuseEditor)
 				{
-					foreach (IImageEditor openedEditor in ImageEditorForm.Editors)
+					foreach (var openedEditor in ImageEditorForm.Editors)
 					{
 						if (!openedEditor.Surface.Modified)
 						{
@@ -137,7 +154,7 @@ namespace GreenshotEditorPlugin
 						LOG.Error(e);
 						returnValue.NotificationType = NotificationTypes.Fail;
 						returnValue.ErrorText = e.Message;
-						returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, _editorDesignation);
+						returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, EditorDesignation);
 					}
 				}
 			}
@@ -155,7 +172,7 @@ namespace GreenshotEditorPlugin
 					LOG.Error(e);
 					returnValue.NotificationType = NotificationTypes.Fail;
 					returnValue.ErrorText = e.Message;
-					returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, _editorDesignation);
+					returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, EditorDesignation);
                 }
 			}
 			// Workaround for the modified flag when using the editor.

@@ -32,49 +32,35 @@ using GreenshotPlugin.Interfaces.Destination;
 
 namespace GreenshotBoxPlugin
 {
-	[Destination(_boxDesignation)]
-	public class BoxDestination : AbstractDestination
+	[Destination(BoxDesignation)]
+	public sealed class BoxDestination : AbstractDestination
 	{
-		private const string _boxDesignation = "Box";
+		private const string BoxDesignation = "Box";
 		private static readonly ILog LOG = LogManager.GetLogger(typeof (BoxDestination));
 
 		[Import]
-		public IBoxConfiguration BoxConfiguration
+		private IBoxConfiguration BoxConfiguration
 		{
 			get;
 			set;
 		}
 
 		[Import]
-		public IBoxLanguage BoxLanguage
+		private IBoxLanguage BoxLanguage
 		{
 			get;
 			set;
 		}
 
-		public override string Designation
+		/// <summary>
+		/// Setup
+		/// </summary>
+		protected override void Initialize()
 		{
-			get
-			{
-				return _boxDesignation;
-			}
-		}
-
-		public override string Text
-		{
-			get
-			{
-				return BoxLanguage.UploadMenuItem;
-			}
-
-			set
-			{
-			}
-		}
-
-		public BoxDestination()
-		{
+			base.Initialize();
+			Designation = BoxDesignation;
 			Export = async (capture, token) => await ExportCaptureAsync(capture, token);
+			Text = BoxLanguage.UploadMenuItem;
 		}
 
 		private async Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))
@@ -82,13 +68,13 @@ namespace GreenshotBoxPlugin
 			var returnValue = new Notification
 			{
 				NotificationType = NotificationTypes.Success,
-				Source = _boxDesignation,
+				Source = BoxDesignation,
 				SourceType = SourceTypes.Destination,
-				Text = string.Format(BoxLanguage.UploadSuccess, _boxDesignation)
+				Text = string.Format(BoxLanguage.UploadSuccess, BoxDesignation)
 			};
 			try
 			{
-				var url = await PleaseWaitWindow.CreateAndShowAsync(_boxDesignation, BoxLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
+				var url = await PleaseWaitWindow.CreateAndShowAsync(BoxDesignation, BoxLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
 				{
 					return await BoxUtils.UploadToBoxAsync(capture, progress, token);
 				}, token);
@@ -105,18 +91,18 @@ namespace GreenshotBoxPlugin
 			}
 			catch (TaskCanceledException tcEx)
 			{
-				returnValue.Text = string.Format(BoxLanguage.UploadFailure, _boxDesignation);
-                returnValue.NotificationType = NotificationTypes.Fail;
+				returnValue.Text = string.Format(BoxLanguage.UploadFailure, BoxDesignation);
+                returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
 				LOG.Info(tcEx.Message);
 			}
 			catch (Exception e)
 			{
-				returnValue.Text = string.Format(BoxLanguage.UploadFailure, _boxDesignation);
+				returnValue.Text = string.Format(BoxLanguage.UploadFailure, BoxDesignation);
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
 				LOG.Warn(e);
-				MessageBox.Show(BoxLanguage.UploadFailure + " " + e.Message, _boxDesignation, MessageBoxButton.OK, MessageBoxImage.Error);
+				MessageBox.Show(BoxLanguage.UploadFailure + " " + e.Message, BoxDesignation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			return returnValue;
         }

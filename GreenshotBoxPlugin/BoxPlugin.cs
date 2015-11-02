@@ -21,7 +21,6 @@
 
 using GreenshotPlugin.Core;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Threading;
@@ -29,10 +28,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.ComponentModel.Composition;
 using Dapplo.Addons;
-using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using GreenshotPlugin.Extensions;
-using GreenshotPlugin.Interfaces.Destination;
 
 namespace GreenshotBoxPlugin
 {
@@ -47,36 +43,24 @@ namespace GreenshotBoxPlugin
 		private ToolStripMenuItem _itemPlugInConfig;
 
 		[Import]
-		public IGreenshotHost GreenshotHost
+		private IGreenshotHost GreenshotHost
 		{
 			get;
 			set;
 		}
 
 		[Import]
-		public IBoxConfiguration BoxConfiguration
+		private IBoxConfiguration BoxConfiguration
 		{
 			get;
 			set;
 		}
 
 		[Import]
-		public IBoxLanguage BoxLanguage
+		private IBoxLanguage BoxLanguage
 		{
 			get;
 			set;
-		}
-
-		[Export]
-		public IDestination BoxDestination
-		{
-			get
-			{
-				var destination = new BoxDestination();
-				var boxIcon = (Bitmap) _resources.GetObject("Box");
-                destination.Icon = boxIcon.ToBitmapSource();
-				return destination;
-			}
 		}
 
 		public void Dispose()
