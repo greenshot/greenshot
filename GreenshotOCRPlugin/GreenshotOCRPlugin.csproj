@@ -4,8 +4,8 @@
   <PropertyGroup>
     <ProjectGuid>{C6988EE8-2FEE-4349-9F09-F9628A0D8965}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>GreenshotOCR</RootNamespace>
-    <AssemblyName>GreenshotOCRPlugin</AssemblyName>
+    <RootNamespace>GreenshotOcrPlugin</RootNamespace>
+    <AssemblyName>GreenshotOcrPlugin</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
@@ -48,15 +48,20 @@
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IOcrLanguage.cs" />
+    <Compile Include="OcrDestination.cs" />
     <Compile Include="IOcrConfiguration.cs" />
     <Compile Include="ModiLanguage.cs" />
-    <Compile Include="OcrLegacyDestination.cs" />
     <Compile Include="OcrForm.cs">
       <SubType>Form</SubType>
     </Compile>

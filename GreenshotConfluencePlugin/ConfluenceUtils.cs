@@ -24,6 +24,7 @@ using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Automation;
 using log4net;
@@ -40,7 +41,7 @@ namespace GreenshotConfluencePlugin
 		private static readonly Regex displayRegex = new Regex(@"\/display\/([^\/]+)\/([^#]+)", RegexOptions.Compiled);
 		private static readonly Regex viewPageRegex = new Regex(@"pages\/viewpage.action\?title=(.+)&spaceKey=(.+)", RegexOptions.Compiled);
 
-		public static async Task<IList<Content>> GetCurrentPages()
+		public static async Task<IList<Content>> GetCurrentPages(CancellationToken token = default(CancellationToken))
 		{
 			IList<Content> pages = new List<Content>();
 			foreach (string browserurl in GetBrowserUrls())
@@ -77,7 +78,7 @@ namespace GreenshotConfluencePlugin
 						}
 						if (!pageDouble)
 						{
-							var page = await ConfluencePlugin.ConfluenceAPI.GetContentAsync(contentId).ConfigureAwait(false);
+							var page = await ConfluencePlugin.ConfluenceAPI.GetContentAsync(contentId, token: token).ConfigureAwait(false);
 							LOG.DebugFormat("Adding page {0}", page.Title);
 							pages.Add(page);
 						}
@@ -115,7 +116,7 @@ namespace GreenshotConfluencePlugin
 							}
 							if (!pageDouble)
 							{
-								var content = await ConfluencePlugin.ConfluenceAPI.SearchPageAsync(space, title).ConfigureAwait(false);
+								var content = await ConfluencePlugin.ConfluenceAPI.SearchPageAsync(space, title, token).ConfigureAwait(false);
 								LOG.DebugFormat("Adding page {0}", content.Title);
 								pages.Add(content);
 							}
@@ -154,7 +155,7 @@ namespace GreenshotConfluencePlugin
 							}
 							if (!pageDouble)
 							{
-								var content = await ConfluencePlugin.ConfluenceAPI.SearchPageAsync(space, title).ConfigureAwait(false);
+								var content = await ConfluencePlugin.ConfluenceAPI.SearchPageAsync(space, title, token).ConfigureAwait(false);
 								if (content != null)
 								{
 									LOG.DebugFormat("Adding page {0}", content.Title);

@@ -65,6 +65,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ImgurDestination.cs" />
     <Compile Include="Forms\ImgurForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -80,7 +81,6 @@
     <Compile Include="Forms\SettingsForm.Designer.cs">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="ImgurLegacyDestination.cs" />
     <Compile Include="ImgurInfo.cs" />
     <Compile Include="ImgurPlugin.cs" />
     <Compile Include="IImgurConfiguration.cs" />

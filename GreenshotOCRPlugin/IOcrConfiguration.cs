@@ -19,10 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
 using System.ComponentModel;
+using Dapplo.Config.Ini;
 
-namespace GreenshotOCR
+namespace GreenshotOcrPlugin
 {
 	/// <summary>
 	/// Description of CoreConfiguration.

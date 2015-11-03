@@ -21,7 +21,7 @@
 
 using System;
 
-namespace GreenshotOCR
+namespace GreenshotOcrPlugin
 {
 	/// <summary>
 	/// Description of SettingsForm.

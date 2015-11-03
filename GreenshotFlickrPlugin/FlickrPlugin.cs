@@ -20,7 +20,6 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -29,7 +28,6 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.ComponentModel.Composition;
 using Dapplo.Addons;
-using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotFlickrPlugin
@@ -85,10 +83,6 @@ namespace GreenshotFlickrPlugin
 			_itemPlugInConfig = null;
 		}
 
-		public IEnumerable<ILegacyDestination> Destinations()
-		{
-			yield return new FlickrLegacyDestination();
-		}
 		/// <summary>
 		/// Initialize
 		/// </summary>

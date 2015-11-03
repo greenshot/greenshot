@@ -37,7 +37,7 @@ namespace GreenshotBoxPlugin
 	/// </summary>
 	[Plugin("Box", Configurable = true)]
 	[StartupAction]
-	public class BoxPlugin : IGreenshotPlugin, IStartupAction
+	public class BoxPlugin : IConfigurablePlugin, IStartupAction
 	{
 		private readonly ComponentResourceManager _resources = new ComponentResourceManager(typeof(BoxPlugin));
 		private ToolStripMenuItem _itemPlugInConfig;

@@ -931,9 +931,8 @@ namespace Greenshot.Forms
 				this.AsyncInvoke(async () => await CaptureHelper.CaptureFullscreenAsync(false, ScreenCaptureMode.FullScreen));
 			};
 			captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
-			foreach (var display in User32.AllDisplays())
+			foreach (var screenToCapture in User32.AllDisplays())
 			{
-				var screenToCapture = display; // Capture loop variable
 				string deviceAlignment = "";
 				if (display.Bounds.Top == allScreensBounds.Top && display.Bounds.Bottom != allScreensBounds.Bottom)
 				{
@@ -1601,9 +1600,8 @@ namespace Greenshot.Forms
 				}
 			}
 
-			foreach (var formLV in formsToClose)
+			foreach (var form in formsToClose)
 			{
-				var form = formLV; // Capture the loop variable for the lambda
 				LOG.InfoFormat("Closing form: {0}", form.Name);
 				this.AsyncInvoke(() => form.Close());
 			}

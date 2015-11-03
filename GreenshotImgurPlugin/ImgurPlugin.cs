@@ -21,7 +21,6 @@
 
 using GreenshotPlugin.Core;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Drawing;
@@ -29,7 +28,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Addons;
-using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotImgurPlugin
@@ -88,11 +86,6 @@ namespace GreenshotImgurPlugin
 		{
 			get;
 			set;
-		}
-
-		public IEnumerable<ILegacyDestination> Destinations()
-		{
-			yield return new ImgurLegacyDestination(this);
 		}
 
 		/// <summary>

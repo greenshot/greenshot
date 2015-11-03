@@ -32,7 +32,7 @@ using GreenshotPlugin.Extensions;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
-namespace GreenshotOCR
+namespace GreenshotOcrPlugin
 {
 	/// <summary>
 	/// OCR Plugin Greenshot
@@ -67,14 +67,6 @@ namespace GreenshotOCR
 					_ocrMenuItem.Dispose();
 					_ocrMenuItem = null;
 				}
-			}
-		}
-
-		public IEnumerable<ILegacyDestination> Destinations()
-		{
-			if (HasModi())
-			{
-				yield return new OcrLegacyDestination(OcrCommand);
 			}
 		}
 

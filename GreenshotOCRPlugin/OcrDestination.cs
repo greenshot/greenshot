@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
@@ -19,82 +19,99 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using Greenshot.Core;
-using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Extensions;
+using log4net;
 using System;
+using System.ComponentModel.Composition;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
+using Greenshot.Core;
+using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Destination;
 using GreenshotPlugin.Interfaces.Plugin;
-
-namespace GreenshotOCR
+using GreenshotPlugin.Extensions;
+namespace GreenshotOcrPlugin
 {
-	/// <summary>
-	/// Description of OCRDestination.
-	/// </summary>
-	public class OcrLegacyDestination : AbstractLegacyDestination
+	[Destination(OcrDesignation)]
+	public sealed class OcrDestination : AbstractDestination
 	{
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (OcrLegacyDestination));
-		private static IOcrConfiguration _config = IniConfig.Current.Get<IOcrConfiguration>();
+		private const string OcrDesignation = "Ocr";
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (OcrDestination));
 		private const int MinWidth = 130;
 		private const int MinHeight = 130;
-		private readonly string _ocrCommand;
+		private static readonly string OcrCommand = Path.Combine(Path.GetDirectoryName(typeof(OcrPlugin).Assembly.Location), "greenshotocrcommand.exe");
+		private static readonly BitmapSource OcrIcon;
 
-		public override string Designation
+		static OcrDestination()
 		{
-			get
+			string exePath = PluginUtils.GetExePath("MSPVIEW.EXE");
+			if (exePath != null && File.Exists(exePath))
 			{
-				return "OCR";
-			}
-		}
-
-		public override string Description
-		{
-			get
-			{
-				return "OCR";
-			}
-		}
-
-		public override Image DisplayIcon
-		{
-			get
-			{
-				string exePath = PluginUtils.GetExePath("MSPVIEW.EXE");
-				if (exePath != null && File.Exists(exePath))
+				using (var icon = PluginUtils.GetCachedExeIcon(exePath, 0))
 				{
-					return PluginUtils.GetCachedExeIcon(exePath, 0);
+					OcrIcon = icon.ToBitmapSource();
 				}
-				return null;
 			}
 		}
 
-		public OcrLegacyDestination(string ocrCommand)
+		[Import]
+		private IOcrConfiguration OcrConfiguration
 		{
-			_ocrCommand = ocrCommand;
+			get;
+			set;
 		}
 
-		public override async Task<ExportInformation> ExportCaptureAsync(bool manuallyInitiated, ICapture capture, CancellationToken token = default(CancellationToken))
+		/// <summary>
+		/// Setup
+		/// </summary>
+		protected override void Initialize()
 		{
-			var exportInformation = new ExportInformation
-			{
-				DestinationDesignation = Designation, DestinationDescription = Description
-			};
-			exportInformation.ExportMade = await DoOcrAsync(capture, token) != null;
-			return exportInformation;
+			base.Initialize();
+			Designation = OcrDesignation;
+			Export = async (capture, token) => await ExportCaptureAsync(capture, token);
+			Text = OcrDesignation;
+			Icon = OcrIcon;
 		}
+
+		private async Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))
+		{
+			var returnValue = new Notification
+			{
+				NotificationType = NotificationTypes.Success,
+				Source = OcrDesignation,
+				SourceType = SourceTypes.Destination,
+				Text = OcrDesignation
+			};
+			try
+			{
+				await DoOcrAsync(capture, token);
+			}
+			catch (TaskCanceledException tcEx)
+			{
+				returnValue.Text = "Scan cancelled.";
+                returnValue.NotificationType = NotificationTypes.Cancel;
+				returnValue.ErrorText = tcEx.Message;
+				LOG.Info(tcEx.Message);
+			}
+			catch (Exception e)
+			{
+				returnValue.Text = "Scan failed.";
+				returnValue.NotificationType = NotificationTypes.Fail;
+				returnValue.ErrorText = e.Message;
+				LOG.Warn(e);
+			}
+			return returnValue;
+        }
 
 		/// <summary>
 		/// Handling of the CaptureTaken "event" from the ICaptureHost
 		/// We do the OCR here!
 		/// </summary>
-		/// <param name="surface">Has the Image</param>
+		/// <param name="capture">Has the Image</param>
 		/// <param name="token"></param>
 		private async Task<string> DoOcrAsync(ICapture capture, CancellationToken token = default(CancellationToken))
 		{
@@ -118,7 +135,7 @@ namespace GreenshotOCR
 				{
 					addedHeight = 0;
 				}
-				IEffect effect = new ResizeCanvasEffect(addedWidth/2, addedWidth/2, addedHeight/2, addedHeight/2);
+				IEffect effect = new ResizeCanvasEffect(addedWidth / 2, addedWidth / 2, addedHeight / 2, addedHeight / 2);
 				outputSettings.Effects.Add(effect);
 			}
 			string filePath = ImageOutput.SaveToTmpFile(capture, outputSettings, null);
@@ -128,9 +145,11 @@ namespace GreenshotOCR
 			string text = "";
 			try
 			{
-				var processStartInfo = new ProcessStartInfo(_ocrCommand, "\"" + filePath + "\" " + _config.Language + " " + _config.Orientimage + " " + _config.StraightenImage)
+				var processStartInfo = new ProcessStartInfo(OcrCommand, "\"" + filePath + "\" " + OcrConfiguration.Language + " " + OcrConfiguration.Orientimage + " " + OcrConfiguration.StraightenImage)
 				{
-					CreateNoWindow = true, RedirectStandardOutput = true, UseShellExecute = false
+					CreateNoWindow = true,
+					RedirectStandardOutput = true,
+					UseShellExecute = false
 				};
 				using (Process process = Process.Start(processStartInfo))
 				{

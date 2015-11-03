@@ -65,8 +65,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DropboxDestination.cs" />
     <Compile Include="IDropboxConfiguration.cs" />
-    <Compile Include="DropboxLegacyDestination.cs" />
     <Compile Include="DropboxPlugin.cs" />
     <Compile Include="DropboxUtils.cs" />
     <Compile Include="Forms\DropboxForm.cs">

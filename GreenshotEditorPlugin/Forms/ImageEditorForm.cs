@@ -1045,9 +1045,8 @@ namespace GreenshotEditorPlugin.Forms
 				// Go through the destinations to check the EditorShortcut Keys
 				// this way the menu entries don't need to be enabled.
 				// This also fixes bugs #3526974 & #3527020
-				foreach (ILegacyDestination destinationLV in LegacyDestinationHelper.GetAllLegacyDestinations())
+				foreach (var destination in LegacyDestinationHelper.GetAllLegacyDestinations())
 				{
-					var destination = destinationLV; // Capture the loop variable
 					if (ignoreDestinations.Contains(destination.Designation))
 					{
 						continue;

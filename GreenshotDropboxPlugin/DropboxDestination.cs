@@ -26,42 +26,45 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Drawing;
+using System.IO;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using GreenshotPlugin.Extensions;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Destination;
-
-namespace GreenshotBoxPlugin
+using GreenshotPlugin.Interfaces.Plugin;
+using GreenshotPlugin.Extensions;
+namespace GreenshotDropboxPlugin
 {
-	[Destination(BoxDesignation)]
-	public sealed class BoxDestination : AbstractDestination
+	[Destination(DropboxDesignation)]
+	public sealed class DropboxDestination : AbstractDestination
 	{
-		private const string BoxDesignation = "Box";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (BoxDestination));
-		private static readonly BitmapSource BoxIcon;
+		private const string DropboxDesignation = "Dropbox";
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (DropboxDestination));
+		private static readonly BitmapSource DropboxIcon;
 
-		static BoxDestination()
+		static DropboxDestination()
 		{
-			var resources = new ComponentResourceManager(typeof(BoxPlugin));
-			using (var boxImage = (Bitmap)resources.GetObject("Box"))
+			var resources = new ComponentResourceManager(typeof(DropboxPlugin));
+			using (var dropboxImage = (Bitmap) resources.GetObject("Dropbox"))
 			{
-				BoxIcon = boxImage.ToBitmapSource();
+				DropboxIcon = dropboxImage.ToBitmapSource();
 			}
 
 		}
 
 		[Import]
-		private IBoxConfiguration BoxConfiguration
+		private IDropboxConfiguration DropboxConfiguration
 		{
 			get;
 			set;
 		}
 
 		[Import]
-		private IBoxLanguage BoxLanguage
+		private IDropboxLanguage DropboxLanguage
 		{
 			get;
 			set;
@@ -73,10 +76,10 @@ namespace GreenshotBoxPlugin
 		protected override void Initialize()
 		{
 			base.Initialize();
-			Designation = BoxDesignation;
+			Designation = DropboxDesignation;
 			Export = async (capture, token) => await ExportCaptureAsync(capture, token);
-			Text = BoxLanguage.UploadMenuItem;
-			Icon = BoxIcon;
+			Text = DropboxLanguage.UploadMenuItem;
+			Icon = DropboxIcon;
 		}
 
 		private async Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))
@@ -84,21 +87,35 @@ namespace GreenshotBoxPlugin
 			var returnValue = new Notification
 			{
 				NotificationType = NotificationTypes.Success,
-				Source = BoxDesignation,
+				Source = DropboxDesignation,
 				SourceType = SourceTypes.Destination,
-				Text = string.Format(BoxLanguage.UploadSuccess, BoxDesignation)
+				Text = string.Format(DropboxLanguage.UploadSuccess, DropboxDesignation)
 			};
+			var outputSettings = new SurfaceOutputSettings(DropboxConfiguration.UploadFormat, DropboxConfiguration.UploadJpegQuality, false);
 			try
 			{
-				var url = await PleaseWaitWindow.CreateAndShowAsync(BoxDesignation, BoxLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
+				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, DropboxLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
 				{
-					return await BoxUtils.UploadToBoxAsync(capture, progress, token);
+					string filename = Path.GetFileName(FilenameHelper.GetFilename(DropboxConfiguration.UploadFormat, capture.CaptureDetails));
+					using (var stream = new MemoryStream())
+					{
+						ImageOutput.SaveToStream(capture, stream, outputSettings);
+						stream.Position = 0;
+						using (var uploadStream = new ProgressStream(stream, progress))
+						{
+							using (var streamContent = new StreamContent(uploadStream))
+							{
+								streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
+								return await DropboxUtils.UploadToDropbox(streamContent, filename);
+							}
+						}
+					}
 				}, token);
 
 				if (url != null)
 				{
 					returnValue.ImageLocation = new Uri(url);
-					if (BoxConfiguration.AfterUploadLinkToClipBoard)
+					if (DropboxConfiguration.AfterUploadLinkToClipBoard)
 					{
 						ClipboardHelper.SetClipboardData(url);
 					}
@@ -107,18 +124,18 @@ namespace GreenshotBoxPlugin
 			}
 			catch (TaskCanceledException tcEx)
 			{
-				returnValue.Text = string.Format(BoxLanguage.UploadFailure, BoxDesignation);
+				returnValue.Text = string.Format(DropboxLanguage.UploadFailure, DropboxDesignation);
                 returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
 				LOG.Info(tcEx.Message);
 			}
 			catch (Exception e)
 			{
-				returnValue.Text = string.Format(BoxLanguage.UploadFailure, BoxDesignation);
+				returnValue.Text = string.Format(DropboxLanguage.UploadFailure, DropboxDesignation);
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
 				LOG.Warn(e);
-				MessageBox.Show(BoxLanguage.UploadFailure + " " + e.Message, BoxDesignation, MessageBoxButton.OK, MessageBoxImage.Error);
+				MessageBox.Show(DropboxLanguage.UploadFailure + " " + e.Message, DropboxDesignation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			return returnValue;
         }

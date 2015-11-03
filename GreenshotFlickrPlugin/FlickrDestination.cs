@@ -26,42 +26,43 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Drawing;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using GreenshotPlugin.Extensions;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Destination;
-
-namespace GreenshotBoxPlugin
+using GreenshotPlugin.Interfaces.Plugin;
+using GreenshotPlugin.Extensions;
+namespace GreenshotFlickrPlugin
 {
-	[Destination(BoxDesignation)]
-	public sealed class BoxDestination : AbstractDestination
+	[Destination(FlickrDesignation)]
+	public sealed class FlickrDestination : AbstractDestination
 	{
-		private const string BoxDesignation = "Box";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (BoxDestination));
-		private static readonly BitmapSource BoxIcon;
+		private const string FlickrDesignation = "Flickr";
+		private static readonly ILog LOG = LogManager.GetLogger(typeof (FlickrDestination));
+		private static readonly BitmapSource FlickrIcon;
 
-		static BoxDestination()
+		static FlickrDestination()
 		{
-			var resources = new ComponentResourceManager(typeof(BoxPlugin));
-			using (var boxImage = (Bitmap)resources.GetObject("Box"))
+			var resources = new ComponentResourceManager(typeof(FlickrPlugin));
+			using (var flickrImage = (Bitmap) resources.GetObject("flickr"))
 			{
-				BoxIcon = boxImage.ToBitmapSource();
+				FlickrIcon = flickrImage.ToBitmapSource();
 			}
 
 		}
 
 		[Import]
-		private IBoxConfiguration BoxConfiguration
+		private IFlickrConfiguration FlickrConfiguration
 		{
 			get;
 			set;
 		}
 
 		[Import]
-		private IBoxLanguage BoxLanguage
+		private IFlickrLanguage FlickrLanguage
 		{
 			get;
 			set;
@@ -73,10 +74,10 @@ namespace GreenshotBoxPlugin
 		protected override void Initialize()
 		{
 			base.Initialize();
-			Designation = BoxDesignation;
+			Designation = FlickrDesignation;
 			Export = async (capture, token) => await ExportCaptureAsync(capture, token);
-			Text = BoxLanguage.UploadMenuItem;
-			Icon = BoxIcon;
+			Text = FlickrLanguage.UploadMenuItem;
+			Icon = FlickrIcon;
 		}
 
 		private async Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))
@@ -84,41 +85,42 @@ namespace GreenshotBoxPlugin
 			var returnValue = new Notification
 			{
 				NotificationType = NotificationTypes.Success,
-				Source = BoxDesignation,
+				Source = FlickrDesignation,
 				SourceType = SourceTypes.Destination,
-				Text = string.Format(BoxLanguage.UploadSuccess, BoxDesignation)
+				Text = string.Format(FlickrLanguage.UploadSuccess, FlickrDesignation)
 			};
+			var outputSettings = new SurfaceOutputSettings(FlickrConfiguration.UploadFormat, FlickrConfiguration.UploadJpegQuality, false);
 			try
 			{
-				var url = await PleaseWaitWindow.CreateAndShowAsync(BoxDesignation, BoxLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
+				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, FlickrLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
 				{
-					return await BoxUtils.UploadToBoxAsync(capture, progress, token);
+					string filename = Path.GetFileName(FilenameHelper.GetFilename(FlickrConfiguration.UploadFormat, capture.CaptureDetails));
+					return await FlickrUtils.UploadToFlickrAsync(capture, outputSettings, capture.CaptureDetails.Title, filename, progress, token);
 				}, token);
 
 				if (url != null)
 				{
 					returnValue.ImageLocation = new Uri(url);
-					if (BoxConfiguration.AfterUploadLinkToClipBoard)
+					if (FlickrConfiguration.AfterUploadLinkToClipBoard)
 					{
 						ClipboardHelper.SetClipboardData(url);
 					}
 				}
-
 			}
 			catch (TaskCanceledException tcEx)
 			{
-				returnValue.Text = string.Format(BoxLanguage.UploadFailure, BoxDesignation);
+				returnValue.Text = string.Format(FlickrLanguage.UploadFailure, FlickrDesignation);
                 returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
 				LOG.Info(tcEx.Message);
 			}
 			catch (Exception e)
 			{
-				returnValue.Text = string.Format(BoxLanguage.UploadFailure, BoxDesignation);
+				returnValue.Text = string.Format(FlickrLanguage.UploadFailure, FlickrDesignation);
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
 				LOG.Warn(e);
-				MessageBox.Show(BoxLanguage.UploadFailure + " " + e.Message, BoxDesignation, MessageBoxButton.OK, MessageBoxImage.Error);
+				MessageBox.Show(FlickrLanguage.UploadFailure + " " + e.Message, FlickrDesignation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			return returnValue;
         }

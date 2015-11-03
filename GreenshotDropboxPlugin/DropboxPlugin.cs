@@ -21,7 +21,6 @@
 
 using GreenshotPlugin.Core;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Threading;
@@ -29,7 +28,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.ComponentModel.Composition;
 using Dapplo.Addons;
-using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotDropboxPlugin
@@ -37,9 +35,9 @@ namespace GreenshotDropboxPlugin
 	/// <summary>
 	/// This is the Dropbox Plugin
 	/// </summary>
-	[Plugin("Dropbox")]
+	[Plugin("Dropbox", Configurable = true)]
 	[StartupAction]
-	public class DropboxPlugin : IGreenshotPlugin, IStartupAction
+	public class DropboxPlugin : IConfigurablePlugin, IStartupAction
 	{
 		public static PluginAttribute Attributes;
 		private ComponentResourceManager _resources;
@@ -83,12 +81,6 @@ namespace GreenshotDropboxPlugin
 				}
 			}
 		}
-
-		public IEnumerable<ILegacyDestination> Destinations()
-		{
-			yield return new DropboxLegacyDestination(this);
-		}
-
 
 		/// <summary>
 		/// Initialize

@@ -21,14 +21,10 @@
 
 using Dapplo.Config.Ini;
 using GreenshotConfluencePlugin.Model;
-using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Threading;
 
 namespace GreenshotConfluencePlugin
 {
@@ -39,7 +35,7 @@ namespace GreenshotConfluencePlugin
 	{
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ConfluenceTreePicker));
 		private static readonly IConfluenceConfiguration config = IniConfig.Current.Get<IConfluenceConfiguration>();
-		private ConfluenceUpload _confluenceUpload;
+		private readonly ConfluenceUpload _confluenceUpload;
 
 		public ConfluenceTreePicker(ConfluenceUpload confluenceUpload)
 		{
@@ -90,17 +86,17 @@ namespace GreenshotConfluencePlugin
 		private void Page_Loaded(object sender, RoutedEventArgs e)
 		{
 			_confluenceUpload.SelectedPage = null;
-			foreach (var spaceLV in ConfluencePlugin.ConfluenceAPI.Model.Spaces.Values)
+			foreach (var space in ConfluencePlugin.ConfluenceAPI.Model.Spaces.Values)
 			{
-				var space = spaceLV; // Capture loop variable for the lambda later
 				if (space.IsPersonal && !config.IncludePersonSpaces)
 				{
 					continue;
 				}
 
-				var spaceTreeViewItem = new TreeViewItem();
-				spaceTreeViewItem.Header = space.Name;
-				spaceTreeViewItem.Tag = space;
+				var spaceTreeViewItem = new TreeViewItem
+				{
+					Header = space.Name, Tag = space
+				};
 				ConfluenceTreeView.Items.Add(spaceTreeViewItem);
 
 				// Get homepage, in background

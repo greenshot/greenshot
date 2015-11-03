@@ -53,8 +53,10 @@ namespace GreenshotJiraPlugin
 		static JiraDestination()
 		{
 			var resources = new ComponentResourceManager(typeof(JiraPlugin));
-			var jiraLogo = (Bitmap)resources.GetObject("Jira");
-			JiraIcon = jiraLogo.ToBitmapSource();
+			using (var jiraLogo = (Bitmap) resources.GetObject("Jira"))
+			{
+				JiraIcon = jiraLogo.ToBitmapSource();
+			}
 		}
 
 		[Import]
@@ -109,7 +111,7 @@ namespace GreenshotJiraPlugin
 				{
 					Icon = JiraIcon,
 					Export = async (capture, token) => await ExportCaptureAsync(capture, jiraDetails, token),
-					Text = JiraLanguage.UploadMenuItem + jiraDetails.Title,
+					Text = FormatUpload(jiraDetails),
 					Plugin = Plugin,
 					JiraLanguage = JiraLanguage,
 					JiraConfiguration = JiraConfiguration

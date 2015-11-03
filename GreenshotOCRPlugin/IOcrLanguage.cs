@@ -19,33 +19,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Language;
+
 namespace GreenshotOcrPlugin
 {
-	internal enum ModiLanguage
+	[Language("OCR")]
+	public interface IOcrLanguage : ILanguage
 	{
-		// ReSharper disable InconsistentNaming
-		CHINESE_SIMPLIFIED = 2052,
-		CHINESE_TRADITIONAL = 1028,
-		CZECH = 5,
-		DANISH = 6,
-		DUTCH = 19,
-		ENGLISH = 9,
-		FINNISH = 11,
-		FRENCH = 12,
-		GERMAN = 7,
-		GREEK = 8,
-		HUNGARIAN = 14,
-		ITALIAN = 16,
-		JAPANESE = 17,
-		KOREAN = 18,
-		NORWEGIAN = 20,
-		POLISH = 21,
-		PORTUGUESE = 22,
-		RUSSIAN = 25,
-		SPANISH = 10,
-		SWEDISH = 29,
-		TURKISH = 31,
-		SYSDEFAULT = 2048
-		// ReSharper restore InconsistentNaming
+		string Language
+		{
+			get;
+		}
+
+		string OrientImage
+		{
+			get;
+		}
+
+		string StraightenImage
+		{
+			get;
+		}
 	}
 }
