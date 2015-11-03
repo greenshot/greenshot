@@ -253,7 +253,8 @@ namespace GreenshotPlugin.Core
 
 		public Image GetImageForExport()
 		{
-			throw new NotImplementedException();
+			// TODO: Draw mousecursor
+			return ImageHelper.Clone(Image);
 		}
 
 		public long SaveElementsToStream(Stream stream)

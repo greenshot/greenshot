@@ -30,8 +30,8 @@ namespace GreenshotPlugin.Controls
 {
 	public class GreenshotComboBox : ComboBox, IGreenshotConfigBindable, IGreenshotLanguageBindable
 	{
-		private Type enumType = null;
-		private Enum selectedEnum = null;
+		private Type _enumType = null;
+		private Enum _selectedEnum = null;
 
 		[Category("Greenshot"), DefaultValue("Core"), Description("Specifies the Ini-Section to map this control with.")]
 		public string SectionName
@@ -73,7 +73,7 @@ namespace GreenshotPlugin.Controls
 		{
 			if (currentValue != null)
 			{
-				selectedEnum = currentValue;
+				_selectedEnum = currentValue;
 				SelectedItem = LanguageLoader.Current.Translate(currentValue, LanguageModule);
 			}
 		}
@@ -86,7 +86,7 @@ namespace GreenshotPlugin.Controls
 		public void Populate(Type enumType)
 		{
 			// Store the enum-type, so we can work with it
-			this.enumType = enumType;
+			_enumType = enumType;
 
 			var availableValues = Enum.GetValues(enumType);
 			Items.Clear();
@@ -102,20 +102,20 @@ namespace GreenshotPlugin.Controls
 		/// </summary>
 		private void StoreSelectedEnum()
 		{
-			string enumTypeName = enumType.Name;
+			string enumTypeName = _enumType.Name;
 			string selectedValue = SelectedItem as string;
-			var availableValues = Enum.GetValues(enumType);
+			var availableValues = Enum.GetValues(_enumType);
 			object returnValue = null;
 
 			try
 			{
-				returnValue = Enum.Parse(enumType, selectedValue);
+				returnValue = Enum.Parse(_enumType, selectedValue);
 			}
 			catch (Exception)
 			{
 			}
 
-			foreach (Enum enumValue in availableValues)
+			foreach (var enumValue in availableValues)
 			{
 				string enumKey = enumTypeName + "." + enumValue.ToString();
 				string translation = LanguageLoader.Current.Translate(enumValue, LanguageModule);
@@ -124,7 +124,7 @@ namespace GreenshotPlugin.Controls
 					returnValue = enumValue;
 				}
 			}
-			selectedEnum = (Enum) returnValue;
+			_selectedEnum = (Enum) returnValue;
 		}
 
 		/// <summary>
@@ -133,7 +133,7 @@ namespace GreenshotPlugin.Controls
 		/// <returns>The enum value of the combobox</returns>
 		public Enum GetSelectedEnum()
 		{
-			return selectedEnum;
+			return _selectedEnum;
 		}
 	}
 }

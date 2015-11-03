@@ -2,20 +2,24 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
-        Height="Auto" Topmost="True" SizeToContent="WidthAndHeight" Background="#FF3D3D3D"
+        xmlns:plugin="clr-namespace:GreenshotPlugin.Controls;assembly=GreenshotPlugin"
+        Height="Auto" Topmost="True" SizeToContent="WidthAndHeight"
         WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome ResizeBorderThickness="0" CaptionHeight="20" NonClientFrameEdges="None" GlassFrameThickness="-1" CornerRadius="0"/>
     </shell:WindowChrome.WindowChrome>
     <Window.Resources>
-        <Style x:Key="DynamicMenuItemStyle" TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
+        <Style x:Key="DynamicMenuItemStyle" TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}" x:Shared="False">
             <EventSetter Event="Click" Handler="OnClick" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
             <Setter Property="Header" Value="{Binding Text}"/>
             <Setter Property="Tag" Value="{Binding}" />
-            <Setter Property="Background" Value="#FF3D3D3D" />
             <Setter Property="InputGestureText" Value="{Binding Shortcut}" />
-            <Setter Property="Icon" Value="{Binding Icon}" />
+            <Setter Property="Icon">
+                <Setter.Value>
+                    <Image Source="{Binding Icon}" Width="16" Height="16"></Image>
+                </Setter.Value>
+            </Setter>
             <Setter Property="ItemsSource" Value="{Binding Children}" />
             <Setter Property="ItemContainerStyle" Value="{DynamicResource DynamicMenuItemStyle}" />
             <Style.Triggers>
@@ -35,13 +39,20 @@
                 <Label DockPanel.Dock="Left" Content="Greenshot Export" Margin="0,-6,0,0" Foreground="#FF747474" FontFamily="Segoe UI Light" />
             </DockPanel>
         </Border>
-        <ListView ItemsSource="{Binding Children}" HorizontalContentAlignment="Stretch">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <MenuItem Style="{DynamicResource DynamicMenuItemStyle}" />
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListView>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="130" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <ListView ItemsSource="{Binding Children}" HorizontalContentAlignment="Stretch" Grid.Column="1">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <MenuItem Style="{DynamicResource DynamicMenuItemStyle}" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListView>
+            <plugin:AnimatedGreenshotLogo Grid.Column="0" />
+        </Grid>
     </StackPanel>
 </Window>
 

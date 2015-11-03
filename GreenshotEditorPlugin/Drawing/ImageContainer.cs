@@ -85,8 +85,11 @@ namespace GreenshotEditorPlugin.Drawing
 			if (_shadow)
 			{
 				CheckShadow(_shadow);
-				Width = _shadowBitmap.Width;
-				Height = _shadowBitmap.Height;
+				if (_shadowBitmap != null)
+				{
+					Width = _shadowBitmap.Width;
+					Height = _shadowBitmap.Height;
+				}
 				Left = Left - _shadowOffset.X;
 				Top = Top - _shadowOffset.Y;
 			}
@@ -212,7 +215,7 @@ namespace GreenshotEditorPlugin.Drawing
 		/// <param name="_shadow"></param>
 		private void CheckShadow(bool shadow)
 		{
-			if (shadow && _shadowBitmap == null)
+			if (shadow && _shadowBitmap == null && _image != null)
 			{
 				using (var matrix = new Matrix())
 				{

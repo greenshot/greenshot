@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 
 namespace GreenshotJiraPlugin
 {
+
 	/// <summary>
 	/// This class will monitor all _jira activity by registering for title changes
 	/// It keeps a list of the last "accessed" jiras, and makes it easy to upload to one.
@@ -43,6 +44,11 @@ namespace GreenshotJiraPlugin
 		private readonly IDictionary<string, JiraApi> _projectJiraApiMap = new Dictionary<string, JiraApi>();
 		private readonly int _maxEntries;
 		private IDictionary<string, JiraDetails> _recentJiras = new Dictionary<string, JiraDetails>();
+
+		/// <summary>
+		/// Register to this event to get events when new jira issues are detected
+		/// </summary>
+		public event EventHandler<JiraEventArgs> JiraEvent;
 
 		public JiraMonitor(int maxEntries = 40)
 		{
@@ -144,11 +150,11 @@ namespace GreenshotJiraPlugin
 		}
 
 		/// <summary>
-		/// A helper method to retrieve the title for a Jira (so we can display this clean) in the background (async)
+		/// This method will update details, like the title, and send an event to registed listeners of the JiraEvent
 		/// </summary>
 		/// <param name="jiraDetails">Contains the jira key to retrieve the title (XYZ-1234)</param>
-		/// <returns>title for the _jira key</returns>
-		private async Task GetTitle(JiraDetails jiraDetails)
+		/// <returns>Task</returns>
+		private async Task DetectedNewJiraIssue(JiraDetails jiraDetails)
 		{
 			try
 			{
@@ -158,6 +164,11 @@ namespace GreenshotJiraPlugin
 					var issue = await jiraApi.Issue(jiraDetails.JiraKey).ConfigureAwait(false);
 					jiraDetails.Title = issue.fields.summary;
 				}
+				// Send event
+				if (JiraEvent != null)
+				{
+					JiraEvent.Invoke(this, new JiraEventArgs { Details = jiraDetails, EventType = JiraEventTypes.DetectedNewJiraIssue });
+				}
 			}
 			catch (Exception ex)
 			{
@@ -166,7 +177,8 @@ namespace GreenshotJiraPlugin
 		}
 
 		/// <summary>
-		/// Try to make the title as clean as possible
+		/// Try to make the title as clean as possible, this is a quick indicator of the jira title
+		/// Later the title will be retrieved from the Jira system itself
 		/// </summary>
 		/// <param name="jiraApi"></param>
 		/// <param name="windowTitle"></param>
@@ -215,7 +227,14 @@ namespace GreenshotJiraPlugin
 					{
 						// update 
 						currentJiraDetails.SeenAt = DateTimeOffset.Now;
+
+						// Notify the order change
+						if (JiraEvent != null)
+						{
+							JiraEvent.Invoke(this, new JiraEventArgs { Details = currentJiraDetails, EventType = JiraEventTypes.OrderChanged });
+						}
 						// Nothing else to do
+
 						return;
 					}
 					// We detected an unknown JIRA, so add it to our list
@@ -235,7 +254,7 @@ namespace GreenshotJiraPlugin
 							select jiraDetails).Take(_maxEntries).ToDictionary(jd => jd.JiraKey, jd => jd);
 					}
 					// Now we can get the title from JIRA itself
-					var updateTitleTask = GetTitle(currentJiraDetails);
+					var updateTitleTask = DetectedNewJiraIssue(currentJiraDetails);
 				}
 				else
 				{

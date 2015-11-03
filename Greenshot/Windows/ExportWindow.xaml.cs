@@ -68,6 +68,7 @@ namespace Greenshot.Windows
 
 			SelectedDestination = destination;
 			DialogResult = true;
+			e.Handled = true;
         }
     }
 }

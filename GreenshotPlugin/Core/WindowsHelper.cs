@@ -20,10 +20,13 @@
  */
 
 using Dapplo.Config.Ini;
-using Greenshot.Interop;
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Interop;
+using Dapplo.Windows.App;
+using Dapplo.Windows.Enums;
 using Dapplo.Windows.Native;
+using Dapplo.Windows.SafeHandles;
+using Dapplo.Windows.Structs;
+using GreenshotPlugin.Configuration;
+using GreenshotPlugin.Interfaces;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -35,12 +38,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using Dapplo.Windows.App;
-using Dapplo.Windows.Enums;
-using Dapplo.Windows.Structs;
-using Dapplo.Windows.SafeHandles;
-using Dapplo.Windows.Desktop;
-using GreenshotPlugin.Interfaces;
 
 namespace GreenshotPlugin.Core
 {

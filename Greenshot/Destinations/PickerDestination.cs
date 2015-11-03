@@ -83,7 +83,8 @@ namespace Greenshot.Destinations
 				foreach (var destination in Destinations.Where(destination => destination.Metadata.Name != PickerDesignation))
 				{
 					exportWindow.Value.Children.Add(destination.Value);
-				}
+					var ignoreTask = destination.Value.Refresh(token);
+                }
 				if (exportWindow.Value.ShowDialog() == true)
 				{
 					return await exportWindow.Value.SelectedDestination.Export(capture, token);

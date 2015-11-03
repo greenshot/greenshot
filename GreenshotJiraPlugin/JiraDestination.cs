@@ -26,6 +26,7 @@ using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
@@ -78,7 +79,7 @@ namespace GreenshotJiraPlugin
 		}
 
 		/// <summary>
-		/// Setup
+		/// Setup, this is only called for the base element
 		/// </summary>
 		protected override void Initialize()
 		{
@@ -87,6 +88,39 @@ namespace GreenshotJiraPlugin
 			Export = async (capture, token) => await ExportCaptureAsync(capture, null, token);
 			Text = JiraLanguage.UploadMenuItem;
 			Icon = JiraIcon;
+			if (Plugin.JiraMonitor != null)
+			{
+				UpdateChildren();
+				Plugin.JiraMonitor.JiraEvent += JiraMonitor_JiraEvent;
+			}
+			else
+			{
+				IsEnabled = false;
+            }
+		}
+
+		private void UpdateChildren()
+		{
+			IsEnabled = Plugin.JiraMonitor.RecentJiras.Count() > 0;  // As soon as we have issues this should be set to true
+			Children.Clear();
+			foreach (var jiraDetails in Plugin.JiraMonitor.RecentJiras)
+			{
+				var jiraDestination = new JiraDestination
+				{
+					Icon = JiraIcon,
+					Export = async (capture, token) => await ExportCaptureAsync(capture, jiraDetails, token),
+					Text = JiraLanguage.UploadMenuItem + jiraDetails.Title,
+					Plugin = Plugin,
+					JiraLanguage = JiraLanguage,
+					JiraConfiguration = JiraConfiguration
+				};
+				Children.Add(jiraDestination);
+			}
+		}
+
+		private void JiraMonitor_JiraEvent(object sender, JiraEventArgs e)
+		{
+			Plugin.GreenshotHost.GreenshotForm.AsyncInvoke(() => UpdateChildren());
 		}
 
 		private string FormatUpload(JiraDetails jira)

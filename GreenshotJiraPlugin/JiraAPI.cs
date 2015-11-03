@@ -38,7 +38,7 @@ namespace GreenshotJiraPlugin
 	public class JiraApi : IDisposable
 	{
 		private static readonly INetworkConfiguration NetworkConfig = IniConfig.Current.Get<INetworkConfiguration>();
-		private const string RestPath = "rest/api/2";
+		private const string RestPath = "/rest/api/2";
 		private readonly HttpClient _client;
 
 		public string JiraVersion
@@ -65,6 +65,10 @@ namespace GreenshotJiraPlugin
 		/// <param name="baseUri">Base URL</param>
 		public JiraApi(Uri baseUri)
 		{
+			if (baseUri == null)
+			{
+				new ArgumentNullException("baseUri");
+			}
 			JiraBaseUri = baseUri;
 			_client = HttpClientFactory.CreateHttpClient(NetworkConfig);
 			_client.AddDefaultRequestHeader("X-Atlassian-Token", "nocheck");

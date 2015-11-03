@@ -391,9 +391,10 @@ namespace Greenshot.Forms
 			}).Wait();
 
 			// Check destinations, remove all that don't exist
+			var destinations = ApplicationBootstrapper.GetExports<IDestination, IDestinationMetadata>();
 			foreach (string destination in coreConfiguration.OutputDestinations.ToArray())
 			{
-				if (LegacyDestinationHelper.GetLegacyDestination(destination) == null)
+				if (destinations.Count(x => x.Value.Designation == destination) == 0)
 				{
 					coreConfiguration.OutputDestinations.Remove(destination);
 				}

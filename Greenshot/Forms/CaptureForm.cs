@@ -191,22 +191,19 @@ namespace Greenshot.Forms
 			DoubleBuffered = !isTerminalServerSession;
 			Text = "Greenshot capture form";
 
+			// Set the cursor positions, so the zoomer doesn't arrive at a weird place
+			_cursorPos = _mouseMovePos = WindowCapture.GetCursorLocationRelativeToScreenBounds();
+
 			// Make sure we never capture the captureform
 			WindowDetails.RegisterIgnoreHandle(Handle);
 			// Unregister at close
 			FormClosing += ClosingHandler;
-
-			// set cursor location
-			_cursorPos = WindowCapture.GetCursorLocationRelativeToScreenBounds();
 
 			// Initialize the animations, the window capture zooms out from the cursor to the window under the cursor 
 			if (UsedCaptureMode == CaptureMode.Window)
 			{
 				_windowAnimator = new RectangleAnimator(new Rectangle(_cursorPos, Size.Empty), _captureRect, FramesForMillis(700), EasingType.Quintic, EasingMode.EaseOut);
 			}
-
-			// Set the zoomer animation
-			InitializeZoomer(Conf.ZoomerEnabled);
 
 			SuspendLayout();
 			Bounds = capture.ScreenBounds;
@@ -215,6 +212,8 @@ namespace Greenshot.Forms
 			// Fix missing focus
 			ToFront = true;
 			TopMost = true;
+			// Set the zoomer animation
+			InitializeZoomer(Conf.ZoomerEnabled);
 		}
 
 		/// <summary>
@@ -471,7 +470,7 @@ namespace Greenshot.Forms
 		/// </summary>
 		/// <param name="animator"></param>
 		/// <returns></returns>
-		private bool isAnimating(IAnimator animator)
+		private bool IsAnimating(IAnimator animator)
 		{
 			if (animator == null)
 			{
@@ -488,7 +487,7 @@ namespace Greenshot.Forms
 			Point lastPos = _cursorPos;
 			_cursorPos = _mouseMovePos;
 
-			if (SelectedCaptureWindow != null && lastPos.Equals(_cursorPos) && !isAnimating(_zoomAnimator) && !isAnimating(_windowAnimator))
+			if (SelectedCaptureWindow != null && lastPos.Equals(_cursorPos) && !IsAnimating(_zoomAnimator) && !IsAnimating(_windowAnimator))
 			{
 				return;
 			}
@@ -604,7 +603,7 @@ namespace Greenshot.Forms
 			const int safetySize = 30;
 
 			// Check if we are animating 
-			if (isAnimating(_windowAnimator))
+			if (IsAnimating(_windowAnimator))
 			{
 				invalidateRectangle = _windowAnimator.Current;
 				invalidateRectangle.Inflate(safetySize, safetySize);
@@ -613,13 +612,13 @@ namespace Greenshot.Forms
 				invalidateRectangle.Inflate(safetySize, safetySize);
 				Invalidate(invalidateRectangle);
 				// Check if this was the last of the windows animations in the normal region capture.
-				if (UsedCaptureMode != CaptureMode.Window && !isAnimating(_windowAnimator))
+				if (UsedCaptureMode != CaptureMode.Window && !IsAnimating(_windowAnimator))
 				{
 					Invalidate();
 				}
 			}
 
-			if (_zoomAnimator != null && (isAnimating(_zoomAnimator) || UsedCaptureMode != CaptureMode.Window))
+			if (_zoomAnimator != null && (IsAnimating(_zoomAnimator) || UsedCaptureMode != CaptureMode.Window))
 			{
 				// Make sure we invalidate the old zoom area
 				invalidateRectangle = _zoomAnimator.Current;
@@ -632,7 +631,7 @@ namespace Greenshot.Forms
 				}
 				// The following logic is not needed, next always returns the current if there are no frames left
 				// but it makes more sense if we want to change something in the logic
-				invalidateRectangle = isAnimating(_zoomAnimator) ? _zoomAnimator.Next() : _zoomAnimator.Current;
+				invalidateRectangle = IsAnimating(_zoomAnimator) ? _zoomAnimator.Next() : _zoomAnimator.Current;
 				invalidateRectangle.Offset(_cursorPos);
 				Invalidate(invalidateRectangle);
 			}
@@ -824,13 +823,13 @@ namespace Greenshot.Forms
 				_capture.Cursor.DrawStretched(graphics, cursorBounds);
 			}
 
-			if (_mouseDown || UsedCaptureMode == CaptureMode.Window || isAnimating(_windowAnimator))
+			if (_mouseDown || UsedCaptureMode == CaptureMode.Window || IsAnimating(_windowAnimator))
 			{
 				_captureRect.Intersect(new Rectangle(Point.Empty, _capture.ScreenBounds.Size)); // crop what is outside the screen
 
 				Rectangle fixedRect;
 				//if (captureMode == CaptureMode.Window) {
-				if (isAnimating(_windowAnimator))
+				if (IsAnimating(_windowAnimator))
 				{
 					// Use the animator
 					fixedRect = _windowAnimator.Current;
@@ -980,7 +979,7 @@ namespace Greenshot.Forms
 			}
 
 			// Zoom
-			if (_zoomAnimator != null && (isAnimating(_zoomAnimator) || UsedCaptureMode != CaptureMode.Window))
+			if (_zoomAnimator != null && (IsAnimating(_zoomAnimator) || UsedCaptureMode != CaptureMode.Window))
 			{
 				const int zoomSourceWidth = 25;
 				const int zoomSourceHeight = 25;
