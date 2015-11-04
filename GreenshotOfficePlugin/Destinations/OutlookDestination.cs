@@ -91,7 +91,7 @@ namespace GreenshotOfficePlugin.Destinations
 		protected override void Initialize()
 		{
 			base.Initialize();
-			Export = async (capture, token) => await ExportCaptureAsync(capture, null, token);
+			Export = async (capture, token) => await ExportCaptureAsync(capture, null);
 			Text = Text = $"Export to {OutlookDesignation}";
 			Designation = OutlookDesignation;
 			Icon = ApplicationIcon;
@@ -114,20 +114,20 @@ namespace GreenshotOfficePlugin.Destinations
 				}
 				foreach (string inspectorCaption in inspectorCaptions.Keys)
 				{
-					var OutlookDestination = new OutlookDestination
+					var outlookDestination = new OutlookDestination
 					{
 						Icon = Microsoft.Office.Interop.Outlook.OlObjectClass.olAppointment.Equals(inspectorCaptions[inspectorCaption]) ? MeetingIcon : MailIcon,
-						Export = async (capture, exportToken) => await ExportCaptureAsync(capture, inspectorCaption, exportToken),
+						Export = async (capture, exportToken) => await ExportCaptureAsync(capture, inspectorCaption),
 						Text = inspectorCaption,
 						OfficeConfiguration = OfficeConfiguration,
 						GreenshotLanguage = GreenshotLanguage
 					};
-					Children.Add(OutlookDestination);
+					Children.Add(outlookDestination);
 				}
 			}, token);
 		}
 
-		private Task<INotification> ExportCaptureAsync(ICapture capture, string inspectorCaption, CancellationToken token = default(CancellationToken))
+		private Task<INotification> ExportCaptureAsync(ICapture capture, string inspectorCaption)
 		{
 			INotification returnValue = new Notification
 			{
@@ -136,7 +136,6 @@ namespace GreenshotOfficePlugin.Destinations
 				SourceType = SourceTypes.Destination,
 				Text = $"Exported to {OutlookDesignation}"
 			};
-			var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 			// Outlook logic
 			string tmpFile = capture.CaptureDetails.Filename;
 			if (tmpFile == null || capture.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))

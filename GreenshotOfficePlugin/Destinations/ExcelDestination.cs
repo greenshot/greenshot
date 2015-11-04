@@ -41,7 +41,7 @@ namespace GreenshotOfficePlugin.Destinations
 	/// <summary>
 	/// Description of ExcelDestination.
 	/// </summary>
-	[DestinationMetadata(ExcelDesignation)]
+	[Destination(ExcelDesignation), PartNotDiscoverable]
 	public sealed class ExcelDestination : AbstractDestination
 	{
 		public const string ExcelDesignation = "Excel";
@@ -86,7 +86,7 @@ namespace GreenshotOfficePlugin.Destinations
 		protected override void Initialize()
 		{
 			base.Initialize();
-			Export = async (capture, token) => await ExportCaptureAsync(capture, null, token);
+			Export = async (capture, token) => await ExportCaptureAsync(capture, null);
 			Text = Text = $"Export to {ExcelDesignation}";
 			Designation = ExcelDesignation;
 			Icon = ApplicationIcon;
@@ -104,20 +104,20 @@ namespace GreenshotOfficePlugin.Destinations
 			{
                 foreach (var workbook in ExcelExporter.GetWorkbooks().OrderBy(x => x))
 				{
-					var ExcelDestination = new ExcelDestination
+					var excelDestination = new ExcelDestination
 					{
 						Icon = WorkbookIcon,
-						Export = async (capture, exportToken) => await ExportCaptureAsync(capture, workbook, exportToken),
+						Export = async (capture, exportToken) => await ExportCaptureAsync(capture, workbook),
 						Text = workbook,
 						OfficeConfiguration = OfficeConfiguration,
 						GreenshotLanguage = GreenshotLanguage
 					};
-                    Children.Add(ExcelDestination);
+                    Children.Add(excelDestination);
 				}
 			}, token);
 		}
 
-		private Task<INotification> ExportCaptureAsync(ICapture capture, string workbook, CancellationToken token = default(CancellationToken))
+		private Task<INotification> ExportCaptureAsync(ICapture capture, string workbook)
 		{
 			INotification returnValue = new Notification
 			{

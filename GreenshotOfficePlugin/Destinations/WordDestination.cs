@@ -41,7 +41,7 @@ namespace GreenshotOfficePlugin.Destinations
 	/// <summary>
 	/// Description of WordDestination.
 	/// </summary>
-	[DestinationMetadata(WordDesignation)]
+	[Destination(WordDesignation), PartNotDiscoverable]
 	public sealed class WordDestination : AbstractDestination
 	{
 		public const string WordDesignation = "Word";
@@ -86,7 +86,7 @@ namespace GreenshotOfficePlugin.Destinations
 		protected override void Initialize()
 		{
 			base.Initialize();
-			Export = async (capture, token) => await ExportCaptureAsync(capture, null, token);
+			Export = async (capture, token) => await ExportCaptureAsync(capture, null);
 			Text = Text = $"Export to {WordDesignation}";
 			Designation = WordDesignation;
 			Icon = ApplicationIcon;
@@ -107,7 +107,7 @@ namespace GreenshotOfficePlugin.Destinations
 					var wordDestination = new WordDestination
 					{
 						Icon = DocumentIcon,
-						Export = async (capture, exportToken) => await ExportCaptureAsync(capture, caption, exportToken),
+						Export = async (capture, exportToken) => await ExportCaptureAsync(capture, caption),
 						Text = caption,
 						OfficeConfiguration = OfficeConfiguration,
 						GreenshotLanguage = GreenshotLanguage
@@ -117,7 +117,7 @@ namespace GreenshotOfficePlugin.Destinations
 			}, token);
 		}
 
-		private Task<INotification> ExportCaptureAsync(ICapture capture, string documentCaption, CancellationToken token = default(CancellationToken))
+		private Task<INotification> ExportCaptureAsync(ICapture capture, string documentCaption)
 		{
 			INotification returnValue = new Notification
 			{

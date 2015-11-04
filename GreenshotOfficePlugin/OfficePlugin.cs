@@ -24,7 +24,6 @@ using GreenshotOfficePlugin.Destinations;
 using GreenshotPlugin.Interfaces.Destination;
 using GreenshotPlugin.Interfaces.Plugin;
 using System.ComponentModel.Composition;
-using System;
 using Dapplo.Addons;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,6 +44,13 @@ namespace GreenshotOfficePlugin
 			set;
 		}
 
+		[Import]
+		private IOfficeConfiguration OfficeConfiguration
+		{
+			get;
+			set;
+		}
+
 		public void Dispose()
 		{
 			// Nothing to dispose
@@ -59,14 +65,20 @@ namespace GreenshotOfficePlugin
 		{
 			if (WordDestination.IsActive)
 			{
-				ServiceLocator.Export<IDestination>(new WordDestination());
+				var wordDestination = new WordDestination();
+				ServiceLocator.FillImports(wordDestination);
+                ServiceLocator.Export<IDestination>(wordDestination);
 			}
 			if (ExcelDestination.IsActive)
 			{
+				var excelDestination = new ExcelDestination();
+				ServiceLocator.FillImports(excelDestination);
 				ServiceLocator.Export<IDestination>(new ExcelDestination());
 			}
 			if (OutlookDestination.IsActive)
 			{
+				var outlookDestination = new OutlookDestination();
+				ServiceLocator.FillImports(outlookDestination);
 				ServiceLocator.Export<IDestination>(new OutlookDestination());
 			}
 			return Task.FromResult(true);
