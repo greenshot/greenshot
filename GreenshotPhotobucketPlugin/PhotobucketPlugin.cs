@@ -45,21 +45,21 @@ namespace GreenshotPhotobucketPlugin
 		private ToolStripMenuItem _itemPlugInConfig;
 
 		[Import]
-		public IGreenshotHost GreenshotHost
+		private IGreenshotHost GreenshotHost
 		{
 			get;
 			set;
 		}
 
 		[Import]
-		public IPhotobucketConfiguration PhotobucketConfiguration
+		private IPhotobucketConfiguration PhotobucketConfiguration
 		{
 			get;
 			set;
 		}
 
 		[Import]
-		public IPhotobucketLanguage PhotobucketLanguage
+		private IPhotobucketLanguage PhotobucketLanguage
 		{
 			get;
 			set;

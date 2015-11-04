@@ -46,7 +46,7 @@ namespace GreenshotOcrPlugin
 		private ToolStripMenuItem _ocrMenuItem = new ToolStripMenuItem();
 
 		[Import]
-		public IOcrConfiguration OcrConfiguration
+		private IOcrConfiguration OcrConfiguration
 		{
 			get;
 			set;

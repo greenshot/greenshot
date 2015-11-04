@@ -41,21 +41,21 @@ namespace GreenshotJiraPlugin
 		private JiraMonitor _jiraMonitor;
 
 		[Import]
-		public IGreenshotHost GreenshotHost
+		private IGreenshotHost GreenshotHost
 		{
 			get;
 			set;
 		}
 
 		[Import]
-		public IJiraConfiguration JiraConfiguration
+		private IJiraConfiguration JiraConfiguration
 		{
 			get;
 			set;
 		}
 
 		[Import]
-		public IJiraLanguage JiraLanguage
+		private IJiraLanguage JiraLanguage
 		{
 			get;
 			set;

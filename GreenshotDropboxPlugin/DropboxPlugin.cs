@@ -44,21 +44,21 @@ namespace GreenshotDropboxPlugin
 		private ToolStripMenuItem _itemPlugInConfig;
 
 		[Import]
-		public IGreenshotHost GreenshotHost
+		private IGreenshotHost GreenshotHost
 		{
 			get;
 			set;
 		}
 
 		[Import]
-		public IDropboxConfiguration DropboxConfiguration
+		private IDropboxConfiguration DropboxConfiguration
 		{
 			get;
 			set;
 		}
 
 		[Import]
-		public IDropboxLanguage DropboxLanguage
+		private IDropboxLanguage DropboxLanguage
 		{
 			get;
 			set;

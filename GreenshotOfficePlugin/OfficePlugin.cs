@@ -19,89 +19,57 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Collections.Generic;
-using System.ComponentModel.Composition;
+using Dapplo.Config.Support;
 using GreenshotOfficePlugin.Destinations;
-using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Destination;
 using GreenshotPlugin.Interfaces.Plugin;
+using System.ComponentModel.Composition;
+using System;
+using Dapplo.Addons;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace GreenshotOfficePlugin
 {
 	/// <summary>
-	/// This is the OfficePlugin base code
+	/// This is the OfficePlugin which takes care of exporting the different office destinations
 	/// </summary>
 	[Plugin("Office", Configurable = false)]
-    public class OfficePlugin : IGreenshotPlugin
+	[StartupAction]
+	public class OfficePlugin : IGreenshotPlugin, IStartupAction
 	{
 		[Import]
-		public IOfficeConfiguration OfficeConfiguration
+		private IServiceLocator ServiceLocator
 		{
 			get;
 			set;
 		}
 
-
-		public IEnumerable<ILegacyDestination> Destinations()
-		{
-			var destinations = new List<ILegacyDestination>();
-			try
-			{
-				destinations.Add(new ExcelLegacyDestination());
-			}
-			catch
-			{
-			}
-			try
-			{
-				destinations.Add(new PowerpointLegacyDestination());
-			}
-			catch
-			{
-			}
-
-			try
-			{
-				destinations.Add(new OutlookLegacyDestination());
-			}
-			catch
-			{
-			}
-
-			try
-			{
-				destinations.Add(new OneNoteLegacyDestination());
-			}
-			catch
-			{
-			}
-
-			return destinations;
-		}
-
-		#region IDisposable Support
-
-		private bool disposedValue = false; // To detect redundant calls
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!disposedValue)
-			{
-				if (disposing)
-				{
-					// TODO: dispose managed state (managed objects).
-				}
-
-				disposedValue = true;
-			}
-		}
-
-		// This code added to correctly implement the disposable pattern.
 		public void Dispose()
 		{
-			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-			Dispose(true);
+			// Nothing to dispose
 		}
 
-		#endregion
+		/// <summary>
+		/// Export all destinations
+		/// </summary>
+		/// <param name="token"></param>
+		/// <returns></returns>
+		public Task StartAsync(CancellationToken token = default(CancellationToken))
+		{
+			if (WordDestination.IsActive)
+			{
+				ServiceLocator.Export<IDestination>(new WordDestination());
+			}
+			if (ExcelDestination.IsActive)
+			{
+				ServiceLocator.Export<IDestination>(new ExcelDestination());
+			}
+			if (OutlookDestination.IsActive)
+			{
+				ServiceLocator.Export<IDestination>(new OutlookDestination());
+			}
+			return Task.FromResult(true);
+		}
 	}
 }

@@ -80,6 +80,13 @@ namespace GreenshotJiraPlugin
 			set;
 		}
 
+		[Import]
+		private IGreenshotHost GreenshotHost
+		{
+			get;
+			set;
+		}
+
 		/// <summary>
 		/// Setup, this is only called for the base element
 		/// </summary>
@@ -114,7 +121,8 @@ namespace GreenshotJiraPlugin
 					Text = FormatUpload(jiraDetails),
 					Plugin = Plugin,
 					JiraLanguage = JiraLanguage,
-					JiraConfiguration = JiraConfiguration
+					JiraConfiguration = JiraConfiguration,
+					GreenshotHost = GreenshotHost
 				};
 				Children.Add(jiraDestination);
 			}
@@ -122,7 +130,7 @@ namespace GreenshotJiraPlugin
 
 		private void JiraMonitor_JiraEvent(object sender, JiraEventArgs e)
 		{
-			Plugin.GreenshotHost.GreenshotForm.AsyncInvoke(() => UpdateChildren());
+			GreenshotHost.GreenshotForm.AsyncInvoke(() => UpdateChildren());
 		}
 
 		private string FormatUpload(JiraDetails jira)

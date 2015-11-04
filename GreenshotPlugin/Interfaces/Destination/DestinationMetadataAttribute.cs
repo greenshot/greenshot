@@ -24,23 +24,23 @@ using System.ComponentModel.Composition;
 
 namespace GreenshotPlugin.Interfaces.Destination
 {
+	/// <summary>
+	/// This attribute can be used to supply a name to a destination, without having it exported right away.
+	/// Is usefull when adding the export manually.
+	/// </summary>
 	[MetadataAttribute]
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
-	public sealed class DestinationAttribute : InheritedExportAttribute, IDestinationMetadata
+	public class DestinationMetadataAttribute : Attribute, IDestinationMetadata
 	{
 		public string Name
 		{
 			get;
 			set;
 		}
-
-		public DestinationAttribute() : base(typeof(IDestination))
-		{
-		}
-
-		public DestinationAttribute(string name) : base(typeof(IDestination))
+		public DestinationMetadataAttribute(string name)
 		{
 			Name = name;
 		}
+
 	}
 }

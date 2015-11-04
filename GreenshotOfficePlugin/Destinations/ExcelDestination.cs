@@ -39,25 +39,25 @@ using GreenshotPlugin.Extensions;
 namespace GreenshotOfficePlugin.Destinations
 {
 	/// <summary>
-	/// Description of WordDestination.
+	/// Description of ExcelDestination.
 	/// </summary>
-	[DestinationMetadata(WordDesignation)]
-	public sealed class WordDestination : AbstractDestination
+	[DestinationMetadata(ExcelDesignation)]
+	public sealed class ExcelDestination : AbstractDestination
 	{
-		public const string WordDesignation = "Word";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(WordDestination));
-		private static readonly BitmapSource DocumentIcon;
+		public const string ExcelDesignation = "Excel";
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(ExcelDestination));
+		private static readonly BitmapSource WorkbookIcon;
 		private static readonly BitmapSource ApplicationIcon;
 
-		static WordDestination()
+		static ExcelDestination()
 		{
-			var exePath = PluginUtils.GetExePath("WINWORD.EXE");
+			var exePath = PluginUtils.GetExePath("EXCEL.EXE");
 			if (exePath != null && File.Exists(exePath))
 			{
-				DocumentIcon = PluginUtils.GetCachedExeIcon(exePath, 1).ToBitmapSource();
 				ApplicationIcon = PluginUtils.GetCachedExeIcon(exePath, 0).ToBitmapSource();
+				WorkbookIcon = PluginUtils.GetCachedExeIcon(exePath, 1).ToBitmapSource();
 				IsActive = true;
-            }
+			}
 		}
 
 		/// <summary>
@@ -87,8 +87,8 @@ namespace GreenshotOfficePlugin.Destinations
 		{
 			base.Initialize();
 			Export = async (capture, token) => await ExportCaptureAsync(capture, null, token);
-			Text = Text = $"Export to {WordDesignation}";
-			Designation = WordDesignation;
+			Text = Text = $"Export to {ExcelDesignation}";
+			Designation = ExcelDesignation;
 			Icon = ApplicationIcon;
 		}
 
@@ -102,76 +102,60 @@ namespace GreenshotOfficePlugin.Destinations
 			Children.Clear();
 			return Task.Run(() =>
 			{
-				foreach (var caption in WordExporter.GetWordDocuments().OrderBy(x => x))
+                foreach (var workbook in ExcelExporter.GetWorkbooks().OrderBy(x => x))
 				{
-					var wordDestination = new WordDestination
+					var ExcelDestination = new ExcelDestination
 					{
-						Icon = DocumentIcon,
-						Export = async (capture, exportToken) => await ExportCaptureAsync(capture, caption, exportToken),
-						Text = caption,
+						Icon = WorkbookIcon,
+						Export = async (capture, exportToken) => await ExportCaptureAsync(capture, workbook, exportToken),
+						Text = workbook,
 						OfficeConfiguration = OfficeConfiguration,
 						GreenshotLanguage = GreenshotLanguage
 					};
-                    Children.Add(wordDestination);
+                    Children.Add(ExcelDestination);
 				}
 			}, token);
 		}
 
-		private Task<INotification> ExportCaptureAsync(ICapture capture, string documentCaption, CancellationToken token = default(CancellationToken))
+		private Task<INotification> ExportCaptureAsync(ICapture capture, string workbook, CancellationToken token = default(CancellationToken))
 		{
 			INotification returnValue = new Notification
 			{
 				NotificationType = NotificationTypes.Success,
-				Source = WordDesignation,
+				Source = ExcelDesignation,
 				SourceType = SourceTypes.Destination,
-				Text = $"Exported to {WordDesignation}"
+				Text = $"Exported to {ExcelDesignation}"
 			};
-			string tmpFile = capture.CaptureDetails.Filename;
-			if (tmpFile == null || capture.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
+			bool createdFile = false;
+			string imageFile = capture.CaptureDetails.Filename;
+			try
 			{
-				tmpFile = ImageOutput.SaveNamedTmpFile(capture, capture.CaptureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
-			}
-			if (documentCaption != null)
-			{
-				try
+				if (imageFile == null || capture.Modified || !Regex.IsMatch(imageFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
 				{
-					WordExporter.InsertIntoExistingDocument(documentCaption, tmpFile);
+					imageFile = ImageOutput.SaveNamedTmpFile(capture, capture.CaptureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
+					createdFile = true;
 				}
-				catch (Exception)
+				if (workbook != null)
 				{
-					try
-					{
-						WordExporter.InsertIntoExistingDocument(documentCaption, tmpFile);
-					}
-					catch (Exception ex)
-					{
-						LOG.Error(ex);
-						returnValue.ErrorText = ex.Message;
-						returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, WordDesignation);
-                        return Task.FromResult(returnValue);
-					}
+					ExcelExporter.InsertIntoExistingWorkbook(workbook, imageFile, capture.Image.Size);
+				}
+				else
+				{
+					ExcelExporter.InsertIntoNewWorkbook(imageFile, capture.Image.Size);
 				}
 			}
-			else
+			catch (Exception ex)
 			{
-				try
+				LOG.Error(ex);
+				returnValue.ErrorText = ex.Message;
+				returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, ExcelDesignation);
+				return Task.FromResult(returnValue);
+			}
+			finally
+			{
+				if (createdFile)
 				{
-					WordExporter.InsertIntoNewDocument(tmpFile, null, null);
-				}
-				catch (Exception)
-				{
-					// Retry once, just in case
-					try
-					{
-						WordExporter.InsertIntoNewDocument(tmpFile, null, null);
-					}
-					catch (Exception ex)
-					{
-						LOG.Error(ex);
-						returnValue.ErrorText = ex.Message;
-						returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, WordDesignation);
-						return Task.FromResult(returnValue);
-					}
+					ImageOutput.DeleteNamedTmpFile(imageFile);
 				}
 			}
 			return Task.FromResult(returnValue);

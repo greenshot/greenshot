@@ -931,7 +931,7 @@ namespace Greenshot.Forms
 				this.AsyncInvoke(async () => await CaptureHelper.CaptureFullscreenAsync(false, ScreenCaptureMode.FullScreen));
 			};
 			captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
-			foreach (var screenToCapture in User32.AllDisplays())
+			foreach (var display in User32.AllDisplays())
 			{
 				string deviceAlignment = "";
 				if (display.Bounds.Top == allScreensBounds.Top && display.Bounds.Bottom != allScreensBounds.Bottom)
@@ -953,7 +953,7 @@ namespace Greenshot.Forms
 				captureScreenItem = new ToolStripMenuItem(deviceAlignment);
 				captureScreenItem.Click += (item, eventArgs) =>
 				{
-					this.AsyncInvoke(async () => await CaptureHelper.CaptureRegionAsync(false, screenToCapture.BoundsRectangle));
+					this.AsyncInvoke(async () => await CaptureHelper.CaptureRegionAsync(false, display.BoundsRectangle));
 				};
 				captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
 			}

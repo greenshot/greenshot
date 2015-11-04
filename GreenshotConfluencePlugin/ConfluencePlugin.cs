@@ -19,17 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Addons;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Interfaces.Plugin;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TranslationByMarkupExtension;
-using Dapplo.Addons;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotConfluencePlugin
 {
@@ -67,15 +65,6 @@ namespace GreenshotConfluencePlugin
 		{
 			//if (disposing) {}
 		}
-
-		public IEnumerable<ILegacyDestination> Destinations()
-		{
-			if (ConfluenceLegacyDestination.IsInitialized)
-			{
-				yield return new ConfluenceLegacyDestination();
-			}
-		}
-
 
 		/// <summary>
 		/// Initialize

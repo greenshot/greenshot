@@ -45,14 +45,21 @@ namespace GreenshotPicasaPlugin
 		private ToolStripMenuItem _itemPlugInRoot;
 
 		[Import]
-		public IPicasaConfiguration PicasaConfiguration
+		private IPicasaConfiguration PicasaConfiguration
 		{
 			get;
 			set;
 		}
 
 		[Import]
-		public IPicasaLanguage PicasaLanguage
+		private IPicasaLanguage PicasaLanguage
+		{
+			get;
+			set;
+		}
+
+		[Import]
+		private IGreenshotHost PluginHost
 		{
 			get;
 			set;
@@ -75,19 +82,6 @@ namespace GreenshotPicasaPlugin
 				}
 			}
 		}
-
-		[Import]
-		public IGreenshotHost PluginHost
-		{
-			get;
-			set;
-		}
-
-		public IEnumerable<ILegacyDestination> Destinations()
-		{
-			yield return new PicasaLegacyDestination();
-		}
-
 
 		/// <summary>
 		/// Implementation of the StartAsync

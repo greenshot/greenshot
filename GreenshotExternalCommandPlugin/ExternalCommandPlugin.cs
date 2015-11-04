@@ -49,28 +49,28 @@ namespace GreenshotExternalCommandPlugin
 		private ToolStripMenuItem _itemPlugInRoot;
 
 		[Import]
-		public IGreenshotHost GreenshotHost
+		private IGreenshotHost GreenshotHost
 		{
 			get;
 			set;
 		}
 
 		[Import]
-		public IExternalCommandLanguage ExternalCommandLanguage
+		private IExternalCommandLanguage ExternalCommandLanguage
 		{
 			get;
 			set;
 		}
 
 		[Import]
-		public ICoreConfiguration CoreConfiguration
+		private ICoreConfiguration CoreConfiguration
 		{
 			get;
 			set;
 		}
 
 		[Import]
-		public IExternalCommandConfiguration ExternalCommandConfiguration
+		private IExternalCommandConfiguration ExternalCommandConfiguration
 		{
 			get;
 			set;

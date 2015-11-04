@@ -59,12 +59,12 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapplo.Addons, Version=0.1.20.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Addons.0.1.20.0\lib\net45\Dapplo.Addons.dll</HintPath>
+    <Reference Include="Dapplo.Addons, Version=0.1.21.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Addons.0.1.21.0\lib\net45\Dapplo.Addons.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Config, Version=0.1.114.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Config.0.1.114.0\lib\net45\Dapplo.Config.dll</HintPath>
+    <Reference Include="Dapplo.Config, Version=0.1.115.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Config.0.1.115.0\lib\net45\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
@@ -110,10 +110,10 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Destinations\OutlookLegacyDestination.cs" />
-    <Compile Include="Destinations\ExcelLegacyDestination.cs" />
+    <Compile Include="Destinations\OutlookDestination.cs" />
     <Compile Include="Destinations\OneNoteLegacyDestination.cs" />
     <Compile Include="Destinations\PowerpointLegacyDestination.cs" />
+    <Compile Include="Destinations\ExcelDestination.cs" />
     <Compile Include="Destinations\WordDestination.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="IOfficeConfiguration.cs" />

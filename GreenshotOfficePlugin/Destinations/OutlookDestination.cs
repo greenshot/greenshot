@@ -29,35 +29,40 @@ using log4net;
 using System;
 using System.ComponentModel.Composition;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using GreenshotPlugin.Extensions;
 
+
 namespace GreenshotOfficePlugin.Destinations
 {
 	/// <summary>
-	/// Description of WordDestination.
+	/// Description of OutlookDestination.
 	/// </summary>
-	[DestinationMetadata(WordDesignation)]
-	public sealed class WordDestination : AbstractDestination
+	[DestinationMetadata(OutlookDesignation)]
+	public sealed class OutlookDestination : AbstractDestination
 	{
-		public const string WordDesignation = "Word";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(WordDestination));
-		private static readonly BitmapSource DocumentIcon;
+		public const string OutlookDesignation = "Outlook";
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(OutlookDestination));
+		private static readonly BitmapSource MeetingIcon;
+		private static readonly BitmapSource MailIcon;
 		private static readonly BitmapSource ApplicationIcon;
-
-		static WordDestination()
+		
+		static OutlookDestination()
 		{
-			var exePath = PluginUtils.GetExePath("WINWORD.EXE");
+			var exePath = PluginUtils.GetExePath("Outlook.EXE");
 			if (exePath != null && File.Exists(exePath))
 			{
-				DocumentIcon = PluginUtils.GetCachedExeIcon(exePath, 1).ToBitmapSource();
 				ApplicationIcon = PluginUtils.GetCachedExeIcon(exePath, 0).ToBitmapSource();
+				MeetingIcon = PluginUtils.GetCachedExeIcon(exePath, 2).ToBitmapSource();
+				using (var mailIcon = GreenshotResources.GetImage("Email.Image"))
+				{
+					MailIcon = mailIcon.ToBitmapSource();
+				}
 				IsActive = true;
-            }
+			}
 		}
 
 		/// <summary>
@@ -87,8 +92,8 @@ namespace GreenshotOfficePlugin.Destinations
 		{
 			base.Initialize();
 			Export = async (capture, token) => await ExportCaptureAsync(capture, null, token);
-			Text = Text = $"Export to {WordDesignation}";
-			Designation = WordDesignation;
+			Text = Text = $"Export to {OutlookDesignation}";
+			Designation = OutlookDesignation;
 			Icon = ApplicationIcon;
 		}
 
@@ -102,77 +107,78 @@ namespace GreenshotOfficePlugin.Destinations
 			Children.Clear();
 			return Task.Run(() =>
 			{
-				foreach (var caption in WordExporter.GetWordDocuments().OrderBy(x => x))
+				var inspectorCaptions = OutlookExporter.RetrievePossibleTargets();
+				if (inspectorCaptions == null)
 				{
-					var wordDestination = new WordDestination
+					return;
+				}
+				foreach (string inspectorCaption in inspectorCaptions.Keys)
+				{
+					var OutlookDestination = new OutlookDestination
 					{
-						Icon = DocumentIcon,
-						Export = async (capture, exportToken) => await ExportCaptureAsync(capture, caption, exportToken),
-						Text = caption,
+						Icon = Microsoft.Office.Interop.Outlook.OlObjectClass.olAppointment.Equals(inspectorCaptions[inspectorCaption]) ? MeetingIcon : MailIcon,
+						Export = async (capture, exportToken) => await ExportCaptureAsync(capture, inspectorCaption, exportToken),
+						Text = inspectorCaption,
 						OfficeConfiguration = OfficeConfiguration,
 						GreenshotLanguage = GreenshotLanguage
 					};
-                    Children.Add(wordDestination);
+					Children.Add(OutlookDestination);
 				}
 			}, token);
 		}
 
-		private Task<INotification> ExportCaptureAsync(ICapture capture, string documentCaption, CancellationToken token = default(CancellationToken))
+		private Task<INotification> ExportCaptureAsync(ICapture capture, string inspectorCaption, CancellationToken token = default(CancellationToken))
 		{
 			INotification returnValue = new Notification
 			{
 				NotificationType = NotificationTypes.Success,
-				Source = WordDesignation,
+				Source = OutlookDesignation,
 				SourceType = SourceTypes.Destination,
-				Text = $"Exported to {WordDesignation}"
+				Text = $"Exported to {OutlookDesignation}"
 			};
+			var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
+			// Outlook logic
 			string tmpFile = capture.CaptureDetails.Filename;
 			if (tmpFile == null || capture.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
 			{
 				tmpFile = ImageOutput.SaveNamedTmpFile(capture, capture.CaptureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
 			}
-			if (documentCaption != null)
-			{
-				try
-				{
-					WordExporter.InsertIntoExistingDocument(documentCaption, tmpFile);
-				}
-				catch (Exception)
-				{
-					try
-					{
-						WordExporter.InsertIntoExistingDocument(documentCaption, tmpFile);
-					}
-					catch (Exception ex)
-					{
-						LOG.Error(ex);
-						returnValue.ErrorText = ex.Message;
-						returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, WordDesignation);
-                        return Task.FromResult(returnValue);
-					}
-				}
-			}
 			else
 			{
-				try
+				LOG.InfoFormat("Using already available file: {0}", tmpFile);
+			}
+
+			// Create a attachment name for the image
+			string attachmentName = capture.CaptureDetails.Title;
+			if (!string.IsNullOrEmpty(attachmentName))
+			{
+				attachmentName = attachmentName.Trim();
+			}
+			// Set default if non is set
+			if (string.IsNullOrEmpty(attachmentName))
+			{
+				attachmentName = "Greenshot Capture";
+			}
+			// Make sure it's "clean" so it doesn't corrupt the header
+			attachmentName = Regex.Replace(attachmentName, @"[^\x20\d\w]", "");
+
+			try
+			{
+				if (inspectorCaption != null)
 				{
-					WordExporter.InsertIntoNewDocument(tmpFile, null, null);
+					OutlookExporter.ExportToInspector(inspectorCaption, tmpFile, attachmentName);
 				}
-				catch (Exception)
+				else
 				{
-					// Retry once, just in case
-					try
-					{
-						WordExporter.InsertIntoNewDocument(tmpFile, null, null);
-					}
-					catch (Exception ex)
-					{
-						LOG.Error(ex);
-						returnValue.ErrorText = ex.Message;
-						returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, WordDesignation);
-						return Task.FromResult(returnValue);
-					}
+					OutlookExporter.ExportToOutlook(OfficeConfiguration.OutlookEmailFormat, tmpFile, FilenameHelper.FillPattern(OfficeConfiguration.EmailSubjectPattern, capture.CaptureDetails, false), attachmentName, OfficeConfiguration.EmailTo, OfficeConfiguration.EmailCC, OfficeConfiguration.EmailBCC, null);
 				}
+			}
+			catch (Exception ex)
+			{
+				LOG.Error(ex);
+				returnValue.ErrorText = ex.Message;
+				returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, OutlookDesignation);
+				return Task.FromResult(returnValue);
 			}
 			return Task.FromResult(returnValue);
 		}

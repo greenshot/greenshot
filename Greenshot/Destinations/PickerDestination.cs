@@ -41,28 +41,28 @@ namespace Greenshot.Destinations
 		private const string PickerDesignation = "Picker";
 
 		[Import]
-		public ICoreConfiguration CoreConfiguration
+		private ICoreConfiguration CoreConfiguration
 		{
 			get;
 			set;
 		}
 
 		[Import]
-		public IGreenshotLanguage GreenshotLanguage
+		private IGreenshotLanguage GreenshotLanguage
 		{
 			get;
 			set;
 		}
 
 		[Import]
-		public ExportFactory<ExportWindow> ExportWindowFactory
+		private ExportFactory<ExportWindow> ExportWindowFactory
 		{
 			get;
 			set;
 		} 
 
 		[ImportMany(AllowRecomposition = true)]
-		public IEnumerable<Lazy<IDestination, IDestinationMetadata>> Destinations
+		private IEnumerable<Lazy<IDestination, IDestinationMetadata>> Destinations
 		{
 			get;
 			set;

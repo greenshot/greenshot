@@ -43,21 +43,21 @@ namespace GreenshotFlickrPlugin
 		private ToolStripMenuItem _itemPlugInConfig;
 
 		[Import]
-		public IGreenshotHost GreenshotHost
+		private IGreenshotHost GreenshotHost
 		{
 			get;
 			set;
 		}
 
 		[Import]
-		public IFlickrConfiguration FlickrConfiguration
+		private IFlickrConfiguration FlickrConfiguration
 		{
 			get;
 			set;
 		}
 
 		[Import]
-		public IFlickrLanguage FlickrLanguage
+		private IFlickrLanguage FlickrLanguage
 		{
 			get;
 			set;
