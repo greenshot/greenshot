@@ -73,13 +73,13 @@ namespace GreenshotOfficePlugin
 			{
 				var excelDestination = new ExcelDestination();
 				ServiceLocator.FillImports(excelDestination);
-				ServiceLocator.Export<IDestination>(new ExcelDestination());
+				ServiceLocator.Export<IDestination>(excelDestination);
 			}
 			if (OutlookDestination.IsActive)
 			{
 				var outlookDestination = new OutlookDestination();
 				ServiceLocator.FillImports(outlookDestination);
-				ServiceLocator.Export<IDestination>(new OutlookDestination());
+				ServiceLocator.Export<IDestination>(outlookDestination);
 			}
 			return Task.FromResult(true);
 		}

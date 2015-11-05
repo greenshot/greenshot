@@ -41,7 +41,7 @@ namespace GreenshotOfficePlugin.Destinations
 	/// <summary>
 	/// Description of OutlookDestination.
 	/// </summary>
-	[DestinationMetadata(OutlookDesignation)]
+	[Destination(OutlookDesignation), PartNotDiscoverable]
 	public sealed class OutlookDestination : AbstractDestination
 	{
 		public const string OutlookDesignation = "Outlook";

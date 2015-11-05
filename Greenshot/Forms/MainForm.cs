@@ -384,11 +384,15 @@ namespace Greenshot.Forms
 			// Run!
 			ApplicationBootstrapper.Run();
 
-			// Load all the plugins
-			Task.Run(async () =>
-			{
-				await ApplicationBootstrapper.StartupAsync();
-			}).Wait();
+			Task.Factory.StartNew(
+				// this will use current synchronization context
+				async () =>
+				{
+					await ApplicationBootstrapper.StartupAsync();
+				}, 
+				CancellationToken.None,
+				TaskCreationOptions.None,
+				TaskScheduler.FromCurrentSynchronizationContext());
 
 			// Check destinations, remove all that don't exist
 			var destinations = ApplicationBootstrapper.GetExports<IDestination, IDestinationMetadata>();
@@ -453,11 +457,8 @@ namespace Greenshot.Forms
 			// Checking for updates etc in the background
 			_backgroundWorkerTimer = new System.Threading.Timer(async _ => await BackgroundWorkerTimerTick().ConfigureAwait(false), null, TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(5));
 
-			Load += (sender, eventArguments) =>
-			{
-				// Use the client to connect to myself, maybe a bit overdone but it saves code
-				GreenshotClient.OpenFiles(arguments.FilesToOpen);
-			};
+			// Use the client to connect to myself, maybe a bit overdone but it saves code
+			GreenshotClient.OpenFiles(arguments.FilesToOpen);
 		}
 
 		/// <summary>
