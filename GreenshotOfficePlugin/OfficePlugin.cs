@@ -19,12 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Support;
+using Dapplo.Addons;
 using GreenshotOfficePlugin.Destinations;
 using GreenshotPlugin.Interfaces.Destination;
 using GreenshotPlugin.Interfaces.Plugin;
 using System.ComponentModel.Composition;
-using Dapplo.Addons;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -80,6 +79,18 @@ namespace GreenshotOfficePlugin
 				var outlookDestination = new OutlookDestination();
 				ServiceLocator.FillImports(outlookDestination);
 				ServiceLocator.Export<IDestination>(outlookDestination);
+			}
+			if (PowerpointDestination.IsActive)
+			{
+				var powerpointDestination = new PowerpointDestination();
+				ServiceLocator.FillImports(powerpointDestination);
+				ServiceLocator.Export<IDestination>(powerpointDestination);
+			}
+			if (OneNoteDestination.IsActive)
+			{
+				var oneNoteDestination = new OneNoteDestination();
+				ServiceLocator.FillImports(oneNoteDestination);
+				ServiceLocator.Export<IDestination>(oneNoteDestination);
 			}
 			return Task.FromResult(true);
 		}

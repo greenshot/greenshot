@@ -29,6 +29,7 @@ using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Destination;
 using System.Threading;
+using log4net;
 
 namespace Greenshot.Destinations
 {
@@ -39,6 +40,7 @@ namespace Greenshot.Destinations
 	public sealed class PickerDestination : AbstractDestination
 	{
 		private const string PickerDesignation = "Picker";
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(PickerDestination));
 
 		[Import]
 		private ICoreConfiguration CoreConfiguration
@@ -78,16 +80,32 @@ namespace Greenshot.Destinations
 
 		private async Task<INotification> ShowExport(ICapture capture, CancellationToken token = default(CancellationToken))
 		{
-			using (var exportWindow = ExportWindowFactory.CreateExport())
+			using (var exportWindowContext = ExportWindowFactory.CreateExport())
 			{
+				var exportWindow = exportWindowContext.Value;
+				exportWindow.Capture = capture;
 				foreach (var destination in Destinations.Where(destination => destination.Metadata.Name != PickerDesignation))
 				{
-					exportWindow.Value.Children.Add(destination.Value);
+					exportWindow.Children.Add(destination.Value);
 					var ignoreTask = destination.Value.Refresh(token);
                 }
-				if (exportWindow.Value.ShowDialog() == true)
+				while (exportWindow.ShowDialog() == true)
 				{
-					return await exportWindow.Value.SelectedDestination.Export(capture, token);
+					try
+					{
+						return await exportWindow.SelectedDestination.Export(capture, token);
+					}
+					catch (Exception ex)
+					{
+						LOG.Error(ex);
+						//return new Notification
+						//{
+						//	NotificationType = NotificationTypes.Fail,
+						//	Source = PickerDesignation,
+						//	SourceType = SourceTypes.Destination,
+						//	Text = ex.Message
+						//};
+					}
 				}
 			}
 			return new Notification

@@ -76,7 +76,7 @@ namespace GreenshotJiraPlugin {
 			// 
 			this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.buttonCancel.LanguageKey = "CANCEL";
+            this.buttonCancel.LanguageKey = "CANCEL";
 			this.buttonCancel.Location = new System.Drawing.Point(305, 157);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
@@ -86,29 +86,29 @@ namespace GreenshotJiraPlugin {
 			// label_url
 			// 
 			this.label_url.LanguageKey = "label_url";
+			this.label_url.LanguageModule = "jira";
 			this.label_url.Location = new System.Drawing.Point(12, 19);
 			this.label_url.Name = "label_url";
 			this.label_url.Size = new System.Drawing.Size(146, 20);
 			this.label_url.TabIndex = 7;
-			this.label_url.Text = "Url";
 			// 
 			// label_username
 			// 
 			this.label_username.LanguageKey = "label_username";
+			this.label_username.LanguageModule = "jira";
 			this.label_username.Location = new System.Drawing.Point(12, 45);
 			this.label_username.Name = "label_username";
 			this.label_username.Size = new System.Drawing.Size(146, 20);
 			this.label_username.TabIndex = 7;
-			this.label_username.Text = "Username";
 			// 
 			// label_password
 			// 
 			this.label_password.LanguageKey = "label_password";
+			this.label_password.LanguageModule = "jira";
 			this.label_password.Location = new System.Drawing.Point(12, 71);
 			this.label_password.Name = "label_password";
 			this.label_password.Size = new System.Drawing.Size(146, 20);
 			this.label_password.TabIndex = 7;
-			this.label_password.Text = "Password";
 			// 
 			// textBoxUrl
 			// 
@@ -155,20 +155,20 @@ namespace GreenshotJiraPlugin {
 			// label_upload_format
 			// 
 			this.label_upload_format.LanguageKey = "label_upload_format";
+			this.label_upload_format.LanguageModule = "jira";
 			this.label_upload_format.Location = new System.Drawing.Point(12, 97);
 			this.label_upload_format.Name = "label_upload_format";
 			this.label_upload_format.Size = new System.Drawing.Size(146, 20);
 			this.label_upload_format.TabIndex = 9;
-			this.label_upload_format.Text = "Upload format";
 			// 
 			// label_pattern
 			// 
 			this.label_pattern.LanguageKey = "label_pattern";
+			this.label_pattern.LanguageModule = "jira";
 			this.label_pattern.Location = new System.Drawing.Point(12, 124);
 			this.label_pattern.Name = "label_pattern";
 			this.label_pattern.Size = new System.Drawing.Size(146, 20);
 			this.label_pattern.TabIndex = 12;
-			this.label_pattern.Text = "Filename pattern";
 			// 
 			// pattern_textbox
 			// 
@@ -199,10 +199,10 @@ namespace GreenshotJiraPlugin {
 			this.Controls.Add(this.buttonOK);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
 			this.LanguageKey = "settings_title";
+			this.LanguageModule = "jira";
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "SettingsForm";
-			this.Text = "Settings";
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

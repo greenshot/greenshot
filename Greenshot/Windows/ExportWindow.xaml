@@ -3,12 +3,21 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         xmlns:plugin="clr-namespace:GreenshotPlugin.Controls;assembly=GreenshotPlugin"
+		xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
         Height="Auto" Topmost="True" SizeToContent="WidthAndHeight"
         WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome ResizeBorderThickness="0" CaptionHeight="20" NonClientFrameEdges="None" GlassFrameThickness="-1" CornerRadius="0"/>
     </shell:WindowChrome.WindowChrome>
     <Window.Resources>
+        <DataTemplate x:Key="DragAdorner">
+            <Border Background="Silver" BorderBrush="Gray" BorderThickness="1" CornerRadius="2" Margin="1">
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="{Binding CapturedImage}" Width="16" Margin="0,0,2,0" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding Capture.CaptureDetails.Title}" Margin="0,0,2,0" VerticalAlignment="Center" />
+                </StackPanel>
+            </Border>
+        </DataTemplate>
         <Style x:Key="DynamicMenuItemStyle" TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}" x:Shared="False">
             <EventSetter Event="Click" Handler="OnClick" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -33,9 +42,9 @@
         </Style>
     </Window.Resources>
     <StackPanel>
-        <Border BorderBrush="Black" BorderThickness="1" Height="23" Background="White">
+        <Border BorderBrush="Black" BorderThickness="1" Height="30" Background="White">
             <DockPanel LastChildFill="True">
-                <Button DockPanel.Dock="Right" Margin="3,-3,3,3" shell:WindowChrome.IsHitTestVisibleInChrome="True" Content="X" Click="Close_Click" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" />
+                <Button DockPanel.Dock="Right" Margin="3,0,3,3" shell:WindowChrome.IsHitTestVisibleInChrome="True" Content="X" Click="Close_Click" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" />
                 <Label DockPanel.Dock="Left" Content="Greenshot Export" Margin="0,-6,0,0" Foreground="#FF747474" FontFamily="Segoe UI Light" />
             </DockPanel>
         </Border>
@@ -51,7 +60,15 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListView>
-            <plugin:AnimatedGreenshotLogo Grid.Column="0" />
+            <DockPanel Grid.Column="0" Background="#FF3D3D3D">
+                <ItemsControl Margin="10,10,10,10" DockPanel.Dock="Top"  HorizontalAlignment="Stretch"
+							  dd:DragDrop.IsDragSource="True" dd:DragDrop.DragAdornerTemplate="{StaticResource DragAdorner}">
+                    <ItemsControl.Items>
+                        <Image Source="{Binding CapturedImage}" />
+                    </ItemsControl.Items>
+				</ItemsControl>
+                <plugin:AnimatedGreenshotLogo  DockPanel.Dock="Bottom" />
+            </DockPanel>
         </Grid>
     </StackPanel>
 </Window>

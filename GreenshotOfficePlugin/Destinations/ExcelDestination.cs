@@ -54,6 +54,7 @@ namespace GreenshotOfficePlugin.Destinations
 			var exePath = PluginUtils.GetExePath("EXCEL.EXE");
 			if (exePath != null && File.Exists(exePath))
 			{
+				WindowDetails.AddProcessToExcludeFromFreeze("excel");
 				ApplicationIcon = PluginUtils.GetCachedExeIcon(exePath, 0).ToBitmapSource();
 				WorkbookIcon = PluginUtils.GetCachedExeIcon(exePath, 1).ToBitmapSource();
 				IsActive = true;
@@ -100,21 +101,27 @@ namespace GreenshotOfficePlugin.Destinations
 		public override Task Refresh(CancellationToken token = new CancellationToken())
 		{
 			Children.Clear();
-			return Task.Run(() =>
-			{
-                foreach (var workbook in ExcelExporter.GetWorkbooks().OrderBy(x => x))
+			return Task.Factory.StartNew(
+				// this will use current synchronization context
+				() =>
 				{
-					var excelDestination = new ExcelDestination
+					foreach (var workbook in ExcelExporter.GetWorkbooks().OrderBy(x => x))
 					{
-						Icon = WorkbookIcon,
-						Export = async (capture, exportToken) => await ExportCaptureAsync(capture, workbook),
-						Text = workbook,
-						OfficeConfiguration = OfficeConfiguration,
-						GreenshotLanguage = GreenshotLanguage
-					};
-                    Children.Add(excelDestination);
-				}
-			}, token);
+						var excelDestination = new ExcelDestination
+						{
+							Icon = WorkbookIcon,
+							Export = async (capture, exportToken) => await ExportCaptureAsync(capture, workbook),
+							Text = workbook,
+							OfficeConfiguration = OfficeConfiguration,
+							GreenshotLanguage = GreenshotLanguage
+						};
+						Children.Add(excelDestination);
+					}
+				},
+				token,
+				TaskCreationOptions.None,
+				TaskScheduler.FromCurrentSynchronizationContext()
+			);
 		}
 
 		private Task<INotification> ExportCaptureAsync(ICapture capture, string workbook)
@@ -147,6 +154,7 @@ namespace GreenshotOfficePlugin.Destinations
 			catch (Exception ex)
 			{
 				LOG.Error(ex);
+				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = ex.Message;
 				returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, ExcelDesignation);
 				return Task.FromResult(returnValue);

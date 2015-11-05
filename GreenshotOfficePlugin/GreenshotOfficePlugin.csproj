@@ -110,9 +110,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Destinations\OneNoteDestination.cs" />
+    <Compile Include="Destinations\PowerpointDestination.cs" />
     <Compile Include="Destinations\OutlookDestination.cs" />
-    <Compile Include="Destinations\OneNoteLegacyDestination.cs" />
-    <Compile Include="Destinations\PowerpointLegacyDestination.cs" />
     <Compile Include="Destinations\ExcelDestination.cs" />
     <Compile Include="Destinations\WordDestination.cs" />
     <Compile Include="GlobalSuppressions.cs" />

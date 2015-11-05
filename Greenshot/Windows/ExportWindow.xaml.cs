@@ -25,6 +25,10 @@ using System.Windows;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Destination;
 using System.Windows.Controls;
+using System.Windows.Media;
+using GreenshotPlugin.Extensions;
+using GongSolutions.Wpf.DragDrop;
+using System;
 
 namespace Greenshot.Windows
 {
@@ -32,24 +36,44 @@ namespace Greenshot.Windows
 	/// Interaction logic for ExportWindow.xaml
 	/// </summary>
 	[Export]
-	public partial class ExportWindow : Window
+	public partial class ExportWindow : Window, IDragSource
 	{
+		private ICapture _capture;
+
 		public ObservableCollection<IDestination> Children
 		{
 			get;
 			set;
 		} = new ObservableCollection<IDestination>();
 
-		public ExportWindow()
-		{
-			InitializeComponent();
-			DataContext = this;
-		}
-
 		public IDestination SelectedDestination
 		{
 			get;
 			set;
+		}
+
+		public ICapture Capture
+		{
+			get
+			{
+				return _capture;
+			}
+			set
+			{
+				_capture = value;
+				CapturedImage = _capture?.Image.ToBitmapSource();
+			}
+		}
+		public ImageSource CapturedImage
+		{
+			get;
+			set;
+		}
+
+		public ExportWindow()
+		{
+			InitializeComponent();
+			DataContext = this;
 		}
 
 		private void Close_Click(object sender, RoutedEventArgs e)
@@ -70,5 +94,25 @@ namespace Greenshot.Windows
 			DialogResult = true;
 			e.Handled = true;
         }
-    }
+
+		public void StartDrag(IDragInfo dragInfo)
+		{
+			dragInfo.Effects = DragDropEffects.Copy;
+			dragInfo.Data = Capture.Image;
+			dragInfo.DataObject = new DataObject();
+		}
+
+		public bool CanStartDrag(IDragInfo dragInfo)
+		{
+			return true;
+        }
+
+		public void Dropped(IDropInfo dropInfo)
+		{
+		}
+
+		public void DragCancelled()
+		{
+		}
+	}
 }

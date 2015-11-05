@@ -35,33 +35,27 @@ using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using GreenshotPlugin.Extensions;
 
-
 namespace GreenshotOfficePlugin.Destinations
 {
 	/// <summary>
-	/// Description of OutlookDestination.
+	/// Description of PowerpointDestination.
 	/// </summary>
-	[Destination(OutlookDesignation), PartNotDiscoverable]
-	public sealed class OutlookDestination : AbstractDestination
+	[Destination(PowerpointDesignation), PartNotDiscoverable]
+	public sealed class PowerpointDestination : AbstractDestination
 	{
-		public const string OutlookDesignation = "Outlook";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(OutlookDestination));
-		private static readonly BitmapSource MeetingIcon;
-		private static readonly BitmapSource MailIcon;
+		public const string PowerpointDesignation = "Powerpoint";
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(PowerpointDestination));
+		private static readonly BitmapSource PresentationIcon;
 		private static readonly BitmapSource ApplicationIcon;
 		
-		static OutlookDestination()
+		static PowerpointDestination()
 		{
-			var exePath = PluginUtils.GetExePath("Outlook.EXE");
+			var exePath = PluginUtils.GetExePath("POWERPNT.EXE");
 			if (exePath != null && File.Exists(exePath))
 			{
-				WindowDetails.AddProcessToExcludeFromFreeze("outlook");
+				WindowDetails.AddProcessToExcludeFromFreeze("POWERPNT");
 				ApplicationIcon = PluginUtils.GetCachedExeIcon(exePath, 0).ToBitmapSource();
-				MeetingIcon = PluginUtils.GetCachedExeIcon(exePath, 2).ToBitmapSource();
-				using (var mailIcon = GreenshotResources.GetImage("Email.Image"))
-				{
-					MailIcon = mailIcon.ToBitmapSource();
-				}
+				PresentationIcon = PluginUtils.GetCachedExeIcon(exePath, 1).ToBitmapSource();
 				IsActive = true;
 			}
 		}
@@ -93,8 +87,8 @@ namespace GreenshotOfficePlugin.Destinations
 		{
 			base.Initialize();
 			Export = async (capture, token) => await ExportCaptureAsync(capture, null);
-			Text = Text = $"Export to {OutlookDesignation}";
-			Designation = OutlookDesignation;
+			Text = Text = $"Export to {PowerpointDesignation}";
+			Designation = PowerpointDesignation;
 			Icon = ApplicationIcon;
 		}
 
@@ -110,22 +104,17 @@ namespace GreenshotOfficePlugin.Destinations
 				// this will use current synchronization context
 				() =>
 				{
-					var inspectorCaptions = OutlookExporter.RetrievePossibleTargets();
-					if (inspectorCaptions == null)
+					foreach (var presentation in PowerpointExporter.GetPowerpointPresentations())
 					{
-						return;
-					}
-					foreach (string inspectorCaption in inspectorCaptions.Keys)
-					{
-						var outlookDestination = new OutlookDestination
+						var powerpointDestination = new PowerpointDestination
 						{
-							Icon = Microsoft.Office.Interop.Outlook.OlObjectClass.olAppointment.Equals(inspectorCaptions[inspectorCaption]) ? MeetingIcon : MailIcon,
-							Export = async (capture, exportToken) => await ExportCaptureAsync(capture, inspectorCaption),
-							Text = inspectorCaption,
+							Icon = PresentationIcon,
+							Export = async (capture, exportToken) => await ExportCaptureAsync(capture, presentation),
+							Text = presentation,
 							OfficeConfiguration = OfficeConfiguration,
 							GreenshotLanguage = GreenshotLanguage
 						};
-						Children.Add(outlookDestination);
+						Children.Add(powerpointDestination);
 					}
 				},
 				token,
@@ -134,49 +123,31 @@ namespace GreenshotOfficePlugin.Destinations
 			);
 		}
 
-		private Task<INotification> ExportCaptureAsync(ICapture capture, string inspectorCaption)
+		private Task<INotification> ExportCaptureAsync(ICapture capture, string presentationName)
 		{
 			INotification returnValue = new Notification
 			{
 				NotificationType = NotificationTypes.Success,
-				Source = OutlookDesignation,
+				Source = PowerpointDesignation,
 				SourceType = SourceTypes.Destination,
-				Text = $"Exported to {OutlookDesignation}"
+				Text = $"Exported to {PowerpointDesignation}"
 			};
-			// Outlook logic
 			string tmpFile = capture.CaptureDetails.Filename;
+			var imageSize = System.Drawing.Size.Empty;
 			if (tmpFile == null || capture.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
 			{
 				tmpFile = ImageOutput.SaveNamedTmpFile(capture, capture.CaptureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
+				imageSize = capture.Image.Size;
 			}
-			else
-			{
-				LOG.InfoFormat("Using already available file: {0}", tmpFile);
-			}
-
-			// Create a attachment name for the image
-			string attachmentName = capture.CaptureDetails.Title;
-			if (!string.IsNullOrEmpty(attachmentName))
-			{
-				attachmentName = attachmentName.Trim();
-			}
-			// Set default if non is set
-			if (string.IsNullOrEmpty(attachmentName))
-			{
-				attachmentName = "Greenshot Capture";
-			}
-			// Make sure it's "clean" so it doesn't corrupt the header
-			attachmentName = Regex.Replace(attachmentName, @"[^\x20\d\w]", "");
-
 			try
 			{
-				if (inspectorCaption != null)
+				if (presentationName != null)
 				{
-					OutlookExporter.ExportToInspector(inspectorCaption, tmpFile, attachmentName);
+					PowerpointExporter.ExportToPresentation(presentationName, tmpFile, imageSize, capture.CaptureDetails.Title);
 				}
 				else
 				{
-					OutlookExporter.ExportToOutlook(OfficeConfiguration.OutlookEmailFormat, tmpFile, FilenameHelper.FillPattern(OfficeConfiguration.EmailSubjectPattern, capture.CaptureDetails, false), attachmentName, OfficeConfiguration.EmailTo, OfficeConfiguration.EmailCC, OfficeConfiguration.EmailBCC, null);
+					PowerpointExporter.InsertIntoNewPresentation(tmpFile, imageSize, capture.CaptureDetails.Title);
 				}
 			}
 			catch (Exception ex)
@@ -184,7 +155,7 @@ namespace GreenshotOfficePlugin.Destinations
 				LOG.Error(ex);
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = ex.Message;
-				returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, OutlookDesignation);
+				returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, PowerpointDesignation);
 				return Task.FromResult(returnValue);
 			}
 			return Task.FromResult(returnValue);

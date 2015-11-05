@@ -54,6 +54,7 @@ namespace GreenshotOfficePlugin.Destinations
 			var exePath = PluginUtils.GetExePath("WINWORD.EXE");
 			if (exePath != null && File.Exists(exePath))
 			{
+				WindowDetails.AddProcessToExcludeFromFreeze("WINWORD");
 				DocumentIcon = PluginUtils.GetCachedExeIcon(exePath, 1).ToBitmapSource();
 				ApplicationIcon = PluginUtils.GetCachedExeIcon(exePath, 0).ToBitmapSource();
 				IsActive = true;
@@ -100,21 +101,26 @@ namespace GreenshotOfficePlugin.Destinations
 		public override Task Refresh(CancellationToken token = new CancellationToken())
 		{
 			Children.Clear();
-			return Task.Run(() =>
-			{
-				foreach (var caption in WordExporter.GetWordDocuments().OrderBy(x => x))
-				{
-					var wordDestination = new WordDestination
+			return Task.Factory.StartNew(
+				// this will use current synchronization context
+				() => {
+					foreach (var caption in WordExporter.GetWordDocuments().OrderBy(x => x))
 					{
-						Icon = DocumentIcon,
-						Export = async (capture, exportToken) => await ExportCaptureAsync(capture, caption),
-						Text = caption,
-						OfficeConfiguration = OfficeConfiguration,
-						GreenshotLanguage = GreenshotLanguage
-					};
-                    Children.Add(wordDestination);
-				}
-			}, token);
+						var wordDestination = new WordDestination
+						{
+							Icon = DocumentIcon,
+							Export = async (capture, exportToken) => await ExportCaptureAsync(capture, caption),
+							Text = caption,
+							OfficeConfiguration = OfficeConfiguration,
+							GreenshotLanguage = GreenshotLanguage
+						};
+						Children.Add(wordDestination);
+					}
+				},
+				token,
+				TaskCreationOptions.None,
+				TaskScheduler.FromCurrentSynchronizationContext()
+			);
 		}
 
 		private Task<INotification> ExportCaptureAsync(ICapture capture, string documentCaption)
@@ -131,48 +137,41 @@ namespace GreenshotOfficePlugin.Destinations
 			{
 				tmpFile = ImageOutput.SaveNamedTmpFile(capture, capture.CaptureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
 			}
-			if (documentCaption != null)
+			try
 			{
-				try
-				{
-					WordExporter.InsertIntoExistingDocument(documentCaption, tmpFile);
-				}
-				catch (Exception)
+				if (documentCaption != null)
 				{
 					try
 					{
 						WordExporter.InsertIntoExistingDocument(documentCaption, tmpFile);
 					}
-					catch (Exception ex)
+					catch (Exception)
 					{
-						LOG.Error(ex);
-						returnValue.ErrorText = ex.Message;
-						returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, WordDesignation);
-                        return Task.FromResult(returnValue);
+						// Retry once, just in case
+						WordExporter.InsertIntoExistingDocument(documentCaption, tmpFile);
 					}
 				}
-			}
-			else
-			{
-				try
+				else
 				{
-					WordExporter.InsertIntoNewDocument(tmpFile, null, null);
-				}
-				catch (Exception)
-				{
-					// Retry once, just in case
 					try
 					{
 						WordExporter.InsertIntoNewDocument(tmpFile, null, null);
 					}
-					catch (Exception ex)
+					catch (Exception)
 					{
-						LOG.Error(ex);
-						returnValue.ErrorText = ex.Message;
-						returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, WordDesignation);
-						return Task.FromResult(returnValue);
+						// Retry once, just in case
+						WordExporter.InsertIntoNewDocument(tmpFile, null, null);
 					}
 				}
+
+			}
+			catch (Exception ex)
+			{
+				LOG.Error(ex);
+				returnValue.NotificationType = NotificationTypes.Fail;
+				returnValue.ErrorText = ex.Message;
+				returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, WordDesignation);
+				return Task.FromResult(returnValue);
 			}
 			return Task.FromResult(returnValue);
 		}

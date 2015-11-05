@@ -44,6 +44,24 @@ namespace GreenshotPlugin.Extensions
 		}
 
 		/// <summary>
+		/// Convert a Image to a BitmapSource
+		/// </summary>
+		/// <param name="image">image of type bitmap</param>
+		/// <returns>BitmapSource</returns>
+		public static BitmapSource ToBitmapSource(this Image image)
+		{
+			var bitmap = image as Bitmap;
+			if (bitmap == null)
+			{
+				return null;
+			}
+			using (var hBitmap = new SafeHBitmapHandle(bitmap.GetHbitmap()))
+			{
+				return Imaging.CreateBitmapSourceFromHBitmap(hBitmap.DangerousGetHandle(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+			}
+		}
+
+		/// <summary>
 		/// Extension method to convert an Icon to ImageSource (used for WPF)
 		/// </summary>
 		/// <param name="icon"></param>
