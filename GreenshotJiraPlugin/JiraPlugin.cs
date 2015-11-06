@@ -26,6 +26,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Addons;
+using GreenshotPlugin.Interfaces.Destination;
 using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotJiraPlugin
@@ -39,6 +40,7 @@ namespace GreenshotJiraPlugin
 	public class JiraPlugin : IConfigurablePlugin, IStartupAction
 	{
 		private JiraMonitor _jiraMonitor;
+		private JiraDestination _jiraDestination;
 
 		[Import]
 		private IGreenshotHost GreenshotHost
@@ -56,6 +58,13 @@ namespace GreenshotJiraPlugin
 
 		[Import]
 		private IJiraLanguage JiraLanguage
+		{
+			get;
+			set;
+		}
+
+		[Import]
+		private IServiceLocator ServiceLocator
 		{
 			get;
 			set;
@@ -91,6 +100,13 @@ namespace GreenshotJiraPlugin
 				_jiraMonitor = new JiraMonitor();
 				// Async call, will continue in the background!
 				var backgroundTask = _jiraMonitor.AddJiraInstance(new Uri(JiraConfiguration.RestUrl.TrimEnd('/')), JiraConfiguration.Username, JiraConfiguration.Password).ConfigureAwait(false);
+				if (_jiraDestination == null)
+				{
+					_jiraDestination = new JiraDestination();
+					ServiceLocator.FillImports(_jiraDestination);
+					ServiceLocator.Export<IDestination>(_jiraDestination);
+				}
+				_jiraDestination.Monitor = _jiraMonitor;
 			}
 		}
 

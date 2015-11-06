@@ -43,12 +43,13 @@ namespace GreenshotJiraPlugin
 	/// <summary>
 	/// Jira destination.
 	/// </summary>
-	[Destination(JiraDesignation)]
+	[Destination(JiraDesignation), PartNotDiscoverable]
 	public sealed class JiraDestination : AbstractDestination
 	{
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (JiraDestination));
 		private const string JiraDesignation = "Jira";
 		private static readonly BitmapSource JiraIcon;
+		private JiraMonitor _jiraMonitor = null;
 
 		static JiraDestination()
 		{
@@ -57,13 +58,6 @@ namespace GreenshotJiraPlugin
 			{
 				JiraIcon = jiraLogo.ToBitmapSource();
 			}
-		}
-
-		[Import]
-		private JiraPlugin Plugin
-		{
-			get;
-			set;
 		}
 
 		[Import]
@@ -88,6 +82,27 @@ namespace GreenshotJiraPlugin
 		}
 
 		/// <summary>
+		/// This should only be set from the plugin
+		/// </summary>
+		public JiraMonitor Monitor
+		{
+			get
+			{
+				return _jiraMonitor;
+			}
+			set
+			{
+				if (_jiraMonitor != null)
+				{
+					_jiraMonitor.JiraEvent -= JiraMonitor_JiraEvent;
+				}
+				_jiraMonitor = value;
+				_jiraMonitor.JiraEvent += JiraMonitor_JiraEvent;
+				UpdateChildren();
+			}
+		}
+
+		/// <summary>
 		/// Setup, this is only called for the base element
 		/// </summary>
 		protected override void Initialize()
@@ -97,32 +112,24 @@ namespace GreenshotJiraPlugin
 			Export = async (capture, token) => await ExportCaptureAsync(capture, null, token);
 			Text = JiraLanguage.UploadMenuItem;
 			Icon = JiraIcon;
-			if (Plugin.JiraMonitor != null)
-			{
-				UpdateChildren();
-				Plugin.JiraMonitor.JiraEvent += JiraMonitor_JiraEvent;
-			}
-			else
-			{
-				IsEnabled = false;
-            }
 		}
 
 		private void UpdateChildren()
 		{
-			IsEnabled = Plugin.JiraMonitor.RecentJiras.Count() > 0;  // As soon as we have issues this should be set to true
+			IsEnabled = _jiraMonitor.RecentJiras.Any();  // As soon as we have issues this should be set to true
 			Children.Clear();
-			foreach (var jiraDetails in Plugin.JiraMonitor.RecentJiras)
+			foreach (var jiraDetails in _jiraMonitor.RecentJiras)
 			{
 				var jiraDestination = new JiraDestination
 				{
 					Icon = JiraIcon,
 					Export = async (capture, token) => await ExportCaptureAsync(capture, jiraDetails, token),
 					Text = FormatUpload(jiraDetails),
-					Plugin = Plugin,
 					JiraLanguage = JiraLanguage,
 					JiraConfiguration = JiraConfiguration,
-					GreenshotHost = GreenshotHost
+					GreenshotHost = GreenshotHost,
+					// DO NOT set the JiraMonitor property on the children
+					_jiraMonitor = _jiraMonitor
 				};
 				Children.Add(jiraDestination);
 			}
@@ -154,7 +161,7 @@ namespace GreenshotJiraPlugin
 			{
 				try
 				{
-					var jiraApi = Plugin.JiraMonitor.GetJiraApiForKey(jiraDetails);
+					var jiraApi = _jiraMonitor.GetJiraApiForKey(jiraDetails);
 					// Run upload in the background
 					await PleaseWaitWindow.CreateAndShowAsync(Text, JiraLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
 					{
