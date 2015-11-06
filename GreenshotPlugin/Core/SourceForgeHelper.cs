@@ -97,7 +97,7 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public class SourceForgeHelper {
 		private static ILog LOG = LogManager.GetLogger(typeof(SourceForgeHelper));
-		private const String RSSFEED = "http://getgreenshot.org/project-feed/";
+		private const string RSSFEED = "http://getgreenshot.org/project-feed/";
 
 		/// <summary>
 		/// This is using the HTTP HEAD Method to check if the RSS Feed is modified after the supplied date

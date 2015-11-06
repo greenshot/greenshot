@@ -499,7 +499,7 @@ namespace GreenshotPlugin.Core {
 		/// Authorize the token by showing the dialog
 		/// </summary>
 		/// <returns>The request token.</returns>
-		private String GetAuthorizeToken() {
+		private string GetAuthorizeToken() {
 			if (string.IsNullOrEmpty(Token)) {
 				Exception e = new Exception("The request token is not set");
 				throw e;
@@ -532,7 +532,7 @@ namespace GreenshotPlugin.Core {
 		/// Get the access token
 		/// </summary>
 		/// <returns>The access token.</returns>		
-		private String GetAccessToken() {
+		private string GetAccessToken() {
 			if (string.IsNullOrEmpty(Token) || (CheckVerifier && string.IsNullOrEmpty(Verifier))) {
 				Exception e = new Exception("The request token and verifier were not set");
 				throw e;
@@ -663,39 +663,36 @@ namespace GreenshotPlugin.Core {
 				}
 				try {
 					Sign(method, signUrl, parametersToSign);
-					
+
 					// Join all parameters
 					IDictionary<string, object> newParameters = new Dictionary<string, object>();
-					foreach(var parameter in parametersToSign) {
+					foreach (var parameter in parametersToSign) {
 						newParameters.Add(parameter);
 					}
 					if (additionalParameters != null) {
-						foreach(var parameter in additionalParameters) {
+						foreach (var parameter in additionalParameters) {
 							newParameters.Add(parameter);
 						}
 					}
 					return MakeRequest(method, requestURL, headers, newParameters, postData);
-				} catch (WebException wEx) {
-					lastException = wEx;
-					if (wEx.Response != null) {
-						HttpWebResponse response = wEx.Response as HttpWebResponse;
-						if (response != null && response.StatusCode == HttpStatusCode.Unauthorized) {
-							Token = null;
-							TokenSecret = null;
-							// Remove oauth keys, so they aren't added double
-							List<string> keysToDelete = new List<string>();
-							foreach (string parameterKey in parametersToSign.Keys) {
-								if (parameterKey.StartsWith(OAUTH_PARAMETER_PREFIX)) {
-									keysToDelete.Add(parameterKey);
-								}
-							}
-							foreach(string keyToDelete in keysToDelete) {
-								parametersToSign.Remove(keyToDelete);
-							}
-							continue;
+				} catch (UnauthorizedAccessException uaEx) {
+					lastException = uaEx;
+					Token = null;
+					TokenSecret = null;
+					// Remove oauth keys, so they aren't added double
+					List<string> keysToDelete = new List<string>();
+					foreach (string parameterKey in parametersToSign.Keys)
+					{
+						if (parameterKey.StartsWith(OAUTH_PARAMETER_PREFIX))
+						{
+							keysToDelete.Add(parameterKey);
 						}
 					}
-					throw;
+					foreach (string keyToDelete in keysToDelete)
+					{
+						parametersToSign.Remove(keyToDelete);
+					}
+					continue;
 				}
 			}
 			if (lastException != null) {

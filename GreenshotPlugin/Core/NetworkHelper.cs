@@ -471,14 +471,20 @@ namespace GreenshotPlugin.Core {
 				isHttpError = (int)response.StatusCode >= 300;
 				if (isHttpError)
 				{
-					LOG.ErrorFormat("HTTP error {0} with content: {1}", response.StatusCode, responseData);
+					LOG.ErrorFormat("HTTP error {0}", response.StatusCode);
 				}
 				DebugHeaders(response);
 				responseData = GetResponseAsString(response);
-            } catch (WebException e) {
+				if (isHttpError)
+				{
+					LOG.ErrorFormat("HTTP response {0}", responseData);
+				}
+			}
+			catch (WebException e) {
 				response = (HttpWebResponse) e.Response;
+				HttpStatusCode statusCode = response.StatusCode;
 				if (response != null) {
-					LOG.ErrorFormat("HTTP error {0}", response.StatusCode);
+					LOG.ErrorFormat("HTTP error {0}", statusCode);
 					string errorContent = GetResponseAsString(response);
 					if (alsoReturnContentOnError)
 					{
@@ -487,6 +493,10 @@ namespace GreenshotPlugin.Core {
 					LOG.ErrorFormat("Content: {0}", errorContent);
 				}
 				LOG.Error("WebException: ", e);
+				if (statusCode == HttpStatusCode.Unauthorized)
+				{
+					throw new UnauthorizedAccessException(e.Message);
+				}
 				throw;
 			}
 			finally
