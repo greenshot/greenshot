@@ -49,7 +49,7 @@ namespace GreenshotJiraPlugin
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (JiraDestination));
 		private const string JiraDesignation = "Jira";
 		private static readonly BitmapSource JiraIcon;
-		private JiraMonitor _jiraMonitor = null;
+		private JiraMonitor _jiraMonitor;
 
 		static JiraDestination()
 		{
