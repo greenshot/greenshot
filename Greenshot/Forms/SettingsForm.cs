@@ -38,6 +38,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
 using GreenshotPlugin.Interfaces;
 using log4net;
+using GreenshotPlugin.Interfaces.Destination;
 
 namespace Greenshot.Forms
 {
@@ -678,8 +679,8 @@ namespace Greenshot.Forms
 			foreach (int index in listview_destinations.CheckedIndices)
 			{
 				ListViewItem item = listview_destinations.Items[index];
-				ILegacyDestination destinationFromTag = item.Tag as ILegacyDestination;
-				if (destinationFromTag != null && destinationFromTag.Designation.Equals(ClipboardLegacyDestination.DESIGNATION))
+				var destinationFromTag = item.Tag as IDestination;
+				if (destinationFromTag != null && destinationFromTag.Designation.Equals(BuildInDestinationEnum.Clipboard.ToString()))
 				{
 					clipboardDestinationChecked = true;
 					break;

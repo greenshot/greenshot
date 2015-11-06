@@ -86,12 +86,12 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Controls\ContextMenuToolStripProfessionalRenderer.cs" />
-    <Compile Include="Destinations\ClipboardLegacyDestination.cs" />
+    <Compile Include="Destinations\PrinterDestination.cs" />
+    <Compile Include="Destinations\ClipboardDestination.cs" />
     <Compile Include="Destinations\EmailLegacyDestination.cs" />
     <Compile Include="Destinations\FileLegacyDestination.cs" />
     <Compile Include="Destinations\FileWithDialogLegacyDestination.cs" />
     <Compile Include="Destinations\PickerDestination.cs" />
-    <Compile Include="Destinations\PrinterLegacyDestination.cs" />
     <Compile Include="Forms\BaseForm.cs">
       <SubType>Form</SubType>
     </Compile>
