@@ -203,11 +203,11 @@ namespace GreenshotImgurPlugin {
 					{
 						uploadURL = imgurInfo.Original;
 					}
-					if (string.IsNullOrEmpty(uploadURL) && config.CopyLinkToClipboard)
+					if (!string.IsNullOrEmpty(uploadURL) && config.CopyLinkToClipboard)
 					{
 						try
 						{
-							ClipboardHelper.SetClipboardData(imgurInfo.Original);
+							ClipboardHelper.SetClipboardData(uploadURL);
 
 						}
 						catch (Exception ex)
