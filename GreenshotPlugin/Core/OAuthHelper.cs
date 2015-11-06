@@ -476,7 +476,8 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Get the request token using the consumer key and secret.  Also initializes tokensecret
 		/// </summary>
-		private void GetRequestToken() {
+		/// <returns>response, this doesn't need to be used!!</returns>
+		private string GetRequestToken() {
 			IDictionary<string, object> parameters = new Dictionary<string, object>();
 			foreach(var value in _requestTokenParameters) {
 				parameters.Add(value);
@@ -493,15 +494,17 @@ namespace GreenshotPlugin.Core {
 					TokenSecret = _requestTokenResponseParameters[OAUTH_TOKEN_SECRET_KEY];
 				}
 			}
+			return response;
 		}
 
 		/// <summary>
 		/// Authorize the token by showing the dialog
 		/// </summary>
+		/// <param name="requestTokenResponse">Pass the response from the server's request token, so if there is something wrong we can show it.</param>
 		/// <returns>The request token.</returns>
-		private string GetAuthorizeToken() {
+		private string GetAuthorizeToken(string requestTokenResponse) {
 			if (string.IsNullOrEmpty(Token)) {
-				Exception e = new Exception("The request token is not set");
+				Exception e = new Exception("The request token is not set, service responded with: " + requestTokenResponse);
 				throw e;
 			}
 			LOG.DebugFormat("Opening AuthorizationLink: {0}", AuthorizationLink);
@@ -567,13 +570,14 @@ namespace GreenshotPlugin.Core {
 			TokenSecret = null;
 			Verifier = null;
 			LOG.Debug("Creating Token");
-			try {
-				GetRequestToken();
+			string requestTokenResponse;
+            try {
+				requestTokenResponse = GetRequestToken();
 			} catch (Exception ex) {
 				LOG.Error(ex);
 				throw new NotSupportedException("Service is not available: " + ex.Message);
 			}
-			if (string.IsNullOrEmpty(GetAuthorizeToken())) {
+			if (string.IsNullOrEmpty(GetAuthorizeToken(requestTokenResponse))) {
 				LOG.Debug("User didn't authenticate!");
 				return false;
 			}

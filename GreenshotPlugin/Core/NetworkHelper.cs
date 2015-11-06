@@ -482,8 +482,9 @@ namespace GreenshotPlugin.Core {
 			}
 			catch (WebException e) {
 				response = (HttpWebResponse) e.Response;
-				HttpStatusCode statusCode = response.StatusCode;
+				HttpStatusCode statusCode = HttpStatusCode.Unused;
 				if (response != null) {
+					statusCode = response.StatusCode;
 					LOG.ErrorFormat("HTTP error {0}", statusCode);
 					string errorContent = GetResponseAsString(response);
 					if (alsoReturnContentOnError)
