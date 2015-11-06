@@ -30,6 +30,7 @@ using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Destination;
 using System.Threading;
 using log4net;
+using GreenshotPlugin.Extensions;
 
 namespace Greenshot.Destinations
 {
@@ -89,7 +90,7 @@ namespace Greenshot.Destinations
 					exportWindow.Children.Add(destination.Value);
 					var ignoreTask = destination.Value.Refresh(token);
                 }
-				while (exportWindow.ShowDialog() == true)
+				while (true == await exportWindow.ShowDialogAsync(token))
 				{
 					try
 					{

@@ -19,18 +19,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Addons;
+using GreenshotPlugin.Extensions;
+using GreenshotPlugin.Interfaces.Destination;
+using GreenshotPlugin.Interfaces.Plugin;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Dapplo.Addons;
-using GreenshotPlugin.Extensions;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotOcrPlugin
 {
@@ -47,6 +46,13 @@ namespace GreenshotOcrPlugin
 
 		[Import]
 		private IOcrConfiguration OcrConfiguration
+		{
+			get;
+			set;
+		}
+
+		[Import]
+		private IServiceLocator ServiceLocator
 		{
 			get;
 			set;
@@ -83,6 +89,9 @@ namespace GreenshotOcrPlugin
 			else if (OcrConfiguration.Language != null)
 			{
 				OcrConfiguration.Language = OcrConfiguration.Language.Replace("miLANG_", "").Replace("_", " ");
+				var ocrDestination = new OcrDestination();
+				ServiceLocator.FillImports(ocrDestination);
+				ServiceLocator.Export<IDestination>(ocrDestination);
 			}
 			
 			return Task.FromResult(true);

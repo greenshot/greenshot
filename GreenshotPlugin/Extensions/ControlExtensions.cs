@@ -103,9 +103,9 @@ namespace GreenshotPlugin.Extensions
 			// (presumably on the next iteration of the message loop)
 			using (token.Register(() => taskCompletionSource.TrySetCanceled(), useSynchronizationContext: true))
 			{
-				RoutedEventHandler loadedHandler = (s, e) => taskCompletionSource.TrySetResult(true);
+				EventHandler loadedHandler = (s, e) => taskCompletionSource.TrySetResult(true);
 
-				window.Loaded += loadedHandler;
+				window.Closed += loadedHandler;
 				try
 				{
 					SynchronizationContext.Current.Post((_) => window.ShowDialog(), null);
@@ -113,7 +113,7 @@ namespace GreenshotPlugin.Extensions
 				}
 				finally
 				{
-					window.Loaded -= loadedHandler;
+					window.Closed -= loadedHandler;
 				}
 			}
 			return window.DialogResult;

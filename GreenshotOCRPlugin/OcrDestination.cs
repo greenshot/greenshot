@@ -36,7 +36,7 @@ using GreenshotPlugin.Interfaces.Plugin;
 using GreenshotPlugin.Extensions;
 namespace GreenshotOcrPlugin
 {
-	[Destination(OcrDesignation)]
+	[Destination(OcrDesignation), PartNotDiscoverable]
 	public sealed class OcrDestination : AbstractDestination
 	{
 		private const string OcrDesignation = "Ocr";

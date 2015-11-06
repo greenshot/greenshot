@@ -27,8 +27,13 @@ using GreenshotPlugin.Interfaces.Destination;
 using System.Windows.Controls;
 using System.Windows.Media;
 using GreenshotPlugin.Extensions;
-using GongSolutions.Wpf.DragDrop;
 using System;
+using System.Windows.Input;
+using System.Windows.Media.Imaging;
+using System.IO;
+using GreenshotPlugin.Interfaces.Plugin;
+using GreenshotPlugin.Core;
+using GreenshotPlugin.Configuration;
 
 namespace Greenshot.Windows
 {
@@ -36,9 +41,11 @@ namespace Greenshot.Windows
 	/// Interaction logic for ExportWindow.xaml
 	/// </summary>
 	[Export]
-	public partial class ExportWindow : Window, IDragSource
+	public partial class ExportWindow : Window
 	{
-		private ICapture _capture;
+		private Point _dragStartPoint;
+		private bool _dragInProgress;
+        private ICapture _capture;
 
 		public ObservableCollection<IDestination> Children
 		{
@@ -61,7 +68,7 @@ namespace Greenshot.Windows
 			set
 			{
 				_capture = value;
-				CapturedImage = _capture?.Image.ToBitmapSource();
+				CapturedImage = _capture?.Image?.ToBitmapSource();
 			}
 		}
 		public ImageSource CapturedImage
@@ -95,24 +102,52 @@ namespace Greenshot.Windows
 			e.Handled = true;
         }
 
-		public void StartDrag(IDragInfo dragInfo)
+		private void DragInitialize(object sender, MouseButtonEventArgs e)
 		{
-			dragInfo.Effects = DragDropEffects.Copy;
-			dragInfo.Data = Capture.Image;
-			dragInfo.DataObject = new DataObject();
+			// Store the mouse position
+			_dragStartPoint = e.GetPosition(null);
 		}
 
-		public bool CanStartDrag(IDragInfo dragInfo)
+		private void DragStart(object sender, MouseEventArgs e)
 		{
-			return true;
+			if (_dragInProgress)
+			{
+				return;
+			}
+			// Get the current mouse position
+			Point mousePos = e.GetPosition(null);
+			Vector diff = _dragStartPoint - mousePos;
+
+			if (e.LeftButton == MouseButtonState.Pressed &&
+				Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance ||
+				Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance)
+			{
+				_dragInProgress = true;
+				DragDrop.DoDragDrop(sender as Image, CreateDataObject(), DragDropEffects.Copy);
+				_dragInProgress = false;
+			}
+		}
+
+		/// <summary>
+		/// Create the drag/drop data format
+		/// </summary>
+		private IDataObject CreateDataObject()
+		{
+			var dataObject = new DataObject();
+			MemoryStream dibStream;
+			const int BITMAPFILEHEADER_LENGTH = 14;
+			using (MemoryStream tmpBmpStream = new MemoryStream())
+			{
+				// Save image as BMP
+				SurfaceOutputSettings bmpOutputSettings = new SurfaceOutputSettings(OutputFormat.bmp, 100, false);
+				ImageOutput.SaveToStream(_capture, tmpBmpStream, bmpOutputSettings);
+
+				dibStream = new MemoryStream();
+				// Copy the source, but skip the "BITMAPFILEHEADER" which has a size of 14
+				dibStream.Write(tmpBmpStream.GetBuffer(), BITMAPFILEHEADER_LENGTH, (int)tmpBmpStream.Length - BITMAPFILEHEADER_LENGTH);
+			}
+			dataObject.SetData(DataFormats.Dib, dibStream, true);
+			return dataObject;
         }
-
-		public void Dropped(IDropInfo dropInfo)
-		{
-		}
-
-		public void DragCancelled()
-		{
-		}
 	}
 }
