@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         xmlns:plugin="clr-namespace:GreenshotPlugin.Controls;assembly=GreenshotPlugin"
+		xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
         Height="Auto" Topmost="True" SizeToContent="WidthAndHeight"
         WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <shell:WindowChrome.WindowChrome>
@@ -49,8 +50,11 @@
                 </ListBox.ItemTemplate>
             </ListView>
             <DockPanel Grid.Column="0" Background="#FF3D3D3D">
-                <Image Name="DragSource" Source="{Binding CapturedImage}" Margin="10,10,10,10" DockPanel.Dock="Top"  HorizontalAlignment="Stretch"
-					   PreviewMouseLeftButtonDown="DragInitialize" PreviewMouseMove="DragStart"/>
+                <ItemsControl DockPanel.Dock="Top" Margin="10,10,10,10" HorizontalAlignment="Stretch" dd:DragDrop.IsDragSource="True" dd:DragDrop.DragHandler="{Binding}">
+                    <ItemsControl.Items>
+                        <Image Source="{Binding CapturedImage}"/>
+                    </ItemsControl.Items>
+				</ItemsControl>
                 <plugin:AnimatedGreenshotLogo  DockPanel.Dock="Bottom" />
             </DockPanel>
         </Grid>

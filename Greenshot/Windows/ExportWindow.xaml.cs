@@ -19,21 +19,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Collections.ObjectModel;
-using System.ComponentModel.Composition;
-using System.Windows;
+using GongSolutions.Wpf.DragDrop;
+using GreenshotPlugin.Configuration;
+using GreenshotPlugin.Core;
+using GreenshotPlugin.Extensions;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Destination;
+using GreenshotPlugin.Interfaces.Plugin;
+using System.Collections.ObjectModel;
+using System.ComponentModel.Composition;
+using System.IO;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using GreenshotPlugin.Extensions;
 using System;
-using System.Windows.Input;
-using System.Windows.Media.Imaging;
-using System.IO;
-using GreenshotPlugin.Interfaces.Plugin;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Configuration;
 
 namespace Greenshot.Windows
 {
@@ -41,10 +40,8 @@ namespace Greenshot.Windows
 	/// Interaction logic for ExportWindow.xaml
 	/// </summary>
 	[Export]
-	public partial class ExportWindow : Window
+	public partial class ExportWindow : Window, IDragSource
 	{
-		private Point _dragStartPoint;
-		private bool _dragInProgress;
         private ICapture _capture;
 
 		public ObservableCollection<IDestination> Children
@@ -102,32 +99,6 @@ namespace Greenshot.Windows
 			e.Handled = true;
         }
 
-		private void DragInitialize(object sender, MouseButtonEventArgs e)
-		{
-			// Store the mouse position
-			_dragStartPoint = e.GetPosition(null);
-		}
-
-		private void DragStart(object sender, MouseEventArgs e)
-		{
-			if (_dragInProgress)
-			{
-				return;
-			}
-			// Get the current mouse position
-			Point mousePos = e.GetPosition(null);
-			Vector diff = _dragStartPoint - mousePos;
-
-			if (e.LeftButton == MouseButtonState.Pressed &&
-				Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance ||
-				Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance)
-			{
-				_dragInProgress = true;
-				DragDrop.DoDragDrop(sender as Image, CreateDataObject(), DragDropEffects.Copy);
-				_dragInProgress = false;
-			}
-		}
-
 		/// <summary>
 		/// Create the drag/drop data format
 		/// </summary>
@@ -149,5 +120,25 @@ namespace Greenshot.Windows
 			dataObject.SetData(DataFormats.Dib, dibStream, true);
 			return dataObject;
         }
+
+		public void StartDrag(IDragInfo dragInfo)
+		{
+			dragInfo.Effects = DragDropEffects.Copy;
+			dragInfo.Data = "Blub";
+			dragInfo.DataObject = CreateDataObject();
+        }
+
+		public bool CanStartDrag(IDragInfo dragInfo)
+		{
+			return true;
+		}
+
+		public void Dropped(IDropInfo dropInfo)
+		{
+		}
+
+		public void DragCancelled()
+		{
+		}
 	}
 }
