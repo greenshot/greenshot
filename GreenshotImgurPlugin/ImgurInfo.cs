@@ -29,10 +29,11 @@ namespace GreenshotImgurPlugin
 	/// </summary>
 	public class ImgurInfo : IDisposable {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurInfo));
-		private string hash;
-		public string Hash {
-			get {return hash;}
-			set {hash = value;}
+
+		public string Hash
+		{
+			get;
+			set;
 		}
 
 		private string deleteHash;
@@ -40,57 +41,58 @@ namespace GreenshotImgurPlugin
 			get {return deleteHash;}
 			set {
 				deleteHash = value;
-				deletePage = "http://imgur.com/delete/" + value;
+				DeletePage = "https://imgur.com/delete/" + value;
 			}
 		}
 
-		private string title;
-		public string Title {
-			get {return title;}
-			set {title = value;}
+		public string Title
+		{
+			get;
+			set;
 		}
 
-		private string imageType;
-		public string ImageType {
-			get {return imageType;}
-			set {imageType = value;}
+		public string ImageType
+		{
+			get;
+			set;
 		}
 
-		private DateTime timestamp;
-		public DateTime Timestamp {
-			get {return timestamp;}
-			set {timestamp = value;}
+		public DateTime Timestamp
+		{
+			get;
+			set;
 		}
 
-		private string original;
-		public string Original {
-			get {return original;}
-			set {original = value;}
+		public string Original
+		{
+			get;
+			set;
 		}
 
-		private string page;
-		public string Page {
-			get {return page;}
-			set {page = value;}
+		public string Page
+		{
+			get;
+			set;
 		}
 
-		private string smallSquare;
-		public string SmallSquare {
-			get {return smallSquare;}
-			set {smallSquare = value;}
+		public string SmallSquare
+		{
+			get;
+			set;
 		}
 
-		private string largeThumbnail;
-		public string LargeThumbnail {
-			get {return largeThumbnail;}
-			set {largeThumbnail = value;}
+		public string LargeThumbnail
+		{
+			get;
+			set;
 		}
 
-		private string deletePage;
-		public string DeletePage {
-			get {return deletePage;}
-			set {deletePage = value;}
+		public string DeletePage
+		{
+			get;
+			set;
 		}
+
 		private Image image;
 		public Image Image {
 			get {return image;}
@@ -175,32 +177,34 @@ namespace GreenshotImgurPlugin
 					}
 				}
 				nodes = doc.GetElementsByTagName("original");
-				if(nodes.Count > 0) {
-					imgurInfo.Original = nodes.Item(0).InnerText;
+				if (nodes.Count > 0)
+				{
+					imgurInfo.Original = nodes.Item(0).InnerText.Replace("http:", "https:");
 				}
 				// Version 3 API only has Link
 				nodes = doc.GetElementsByTagName("link");
 				if (nodes.Count > 0)
 				{
-					imgurInfo.Original = nodes.Item(0).InnerText;
+					imgurInfo.Original = nodes.Item(0).InnerText.Replace("http:", "https:");
 				}
 				nodes = doc.GetElementsByTagName("imgur_page");
 				if (nodes.Count > 0)
 				{
-					imgurInfo.Page = nodes.Item(0).InnerText;
+					imgurInfo.Page = nodes.Item(0).InnerText.Replace("http:", "https:");
 				}
 				else
 				{
 					// Version 3 doesn't have a page link in the response
-					imgurInfo.Page = string.Format("http://imgur.com/{0}", imgurInfo.Hash);
+					imgurInfo.Page = string.Format("https://imgur.com/{0}", imgurInfo.Hash);
 				}
 				nodes = doc.GetElementsByTagName("small_square");
 				if(nodes.Count > 0) {
 					imgurInfo.SmallSquare = nodes.Item(0).InnerText;
 				}
 				nodes = doc.GetElementsByTagName("large_thumbnail");
-				if(nodes.Count > 0) {
-					imgurInfo.LargeThumbnail = nodes.Item(0).InnerText;
+				if(nodes.Count > 0)
+				{
+                    imgurInfo.LargeThumbnail = nodes.Item(0).InnerText.Replace("http:", "https:");
 				}
 			} catch(Exception e) {
 				LOG.ErrorFormat("Could not parse Imgur response due to error {0}, response was: {1}", e.Message, response);

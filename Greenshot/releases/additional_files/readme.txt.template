@@ -16,6 +16,8 @@ Bugs Resolved:
 BUG-1850: Greenshot stops responding
 BUG-1864: Imgur link wasn't copied to the clipboard
 
+Features:
+FEATURE-896: Use Imgur with HTTPS (with changing the Imgur API from V2 to V3 this was already required for the upload anyway.)
 
 Known bugs:
 * BUG-1852: When using the Imgur & clipboard destinations together, the imgur export Uri overwrites the clipboard image
