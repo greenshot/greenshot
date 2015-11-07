@@ -35,7 +35,9 @@ namespace GreenshotImgurPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurUtils));
 		private const string SmallUrlPattern = "http://i.imgur.com/{0}s.jpg";
 		private static readonly ImgurConfiguration Config = IniConfig.GetIniSection<ImgurConfiguration>();
-		private const string ImgurAnonymousClientId = "60e8838e21d6b66";
+		private const string AuthUrlPattern = "https://api.imgur.com/oauth2/authorize?response_type=code&client_id={ClientId}&redirect_uri={RedirectUrl}&state={State}";
+		private const string TokenUrl = "https://api.imgur.com/oauth2/token";
+
 		/// <summary>
 		/// Load the complete history of the imgur uploads, with the corresponding information
 		/// </summary>
@@ -94,8 +96,8 @@ namespace GreenshotImgurPlugin {
 		/// Use this to make sure Imgur knows from where the upload comes.
 		/// </summary>
 		/// <param name="webRequest"></param>
-		private static void SetClientId(HttpWebRequest webRequest, string clientId) {
-			webRequest.Headers.Add("Authorization", "Client-ID " + clientId);
+		private static void SetClientId(HttpWebRequest webRequest) {
+			webRequest.Headers.Add("Authorization", "Client-ID " + ImgurCredentials.CONSUMER_KEY);
 		}
 
 		/// <summary>
@@ -108,7 +110,6 @@ namespace GreenshotImgurPlugin {
 		/// <param name="filename">Filename</param>
 		/// <returns>ImgurInfo with details</returns>
 		public static ImgurInfo UploadToImgur(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename) {
-			IDictionary<string, object> uploadParameters = new Dictionary<string, object>();
 			IDictionary<string, object> otherParameters = new Dictionary<string, object>();
 			// add title
 			if (title != null && Config.AddTitle) {
@@ -126,7 +127,7 @@ namespace GreenshotImgurPlugin {
 				webRequest.ContentType = "image/" + outputSettings.Format;
 				webRequest.ServicePoint.Expect100Continue = false;
 
-				SetClientId(webRequest, ImgurAnonymousClientId);
+				SetClientId(webRequest);
 				try {
 					using (var requestStream = webRequest.GetRequestStream()) {
 						ImageOutput.SaveToStream(surfaceToUpload, requestStream, outputSettings);
@@ -143,72 +144,42 @@ namespace GreenshotImgurPlugin {
 					throw;
 				}
 			} else {
-				OAuthSession oAuth = new OAuthSession(ImgurCredentials.CONSUMER_KEY, ImgurCredentials.CONSUMER_SECRET);
-				oAuth.BrowserSize = new Size(650, 500);
-				oAuth.CallbackUrl = "http://getgreenshot.org";
-				oAuth.AccessTokenUrl = "http://api.imgur.com/oauth/access_token";
-				oAuth.AuthorizeUrl = "http://api.imgur.com/oauth/authorize";
-				oAuth.RequestTokenUrl = "http://api.imgur.com/oauth/request_token";
-				oAuth.LoginTitle = "Imgur authorization";
-				oAuth.Token = Config.ImgurToken;
-				oAuth.TokenSecret = Config.ImgurTokenSecret;
+
+				var oauth2Settings = new OAuth2Settings();
+				oauth2Settings.AuthUrlPattern = AuthUrlPattern;
+				oauth2Settings.TokenUrl = TokenUrl;
+				oauth2Settings.RedirectUrl = "https://imgur.com";
+				oauth2Settings.CloudServiceName = "Imgur";
+				oauth2Settings.ClientId = ImgurCredentials.CONSUMER_KEY;
+				oauth2Settings.ClientSecret = ImgurCredentials.CONSUMER_SECRET;
+				oauth2Settings.AuthorizeMode = OAuth2AuthorizeMode.EmbeddedBrowser;
+				oauth2Settings.BrowserSize = new Size(680, 880);
+
+				// Copy the settings from the config, which is kept in memory and on the disk
+				oauth2Settings.RefreshToken = Config.RefreshToken;
+				oauth2Settings.AccessToken = Config.AccessToken;
+				oauth2Settings.AccessTokenExpires = Config.AccessTokenExpires;
+
 				try
 				{
-					if (string.IsNullOrEmpty(oAuth.Token)) {
-						if (!oAuth.Authorize()) {
-							return null;
-						}
-						StoreOAuthToken(oAuth);
-					}
-				}
-				catch (Exception ex)
-				{
-					// Retry
-					LOG.Error(ex);
-					if (string.IsNullOrEmpty(oAuth.Token))
-					{
-						if (!oAuth.Authorize())
-						{
-							return null;
-						}
-						StoreOAuthToken(oAuth);
-					}
-				}
-				try {
+					var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.POST, Config.ImgurApi3Url + "upload.xml", oauth2Settings);
 					otherParameters.Add("image", new SurfaceContainer(surfaceToUpload, outputSettings, filename));
-					responseString = oAuth.MakeOAuthRequest(HTTPMethod.POST, "http://api.imgur.com/2/account/images.xml", uploadParameters, otherParameters, null);
-				} catch (Exception ex) {
-					LOG.Error("Upload to imgur gave an exeption: ", ex);
-					throw;
-				} finally {
-					StoreOAuthToken(oAuth);
+
+					NetworkHelper.WriteMultipartFormData(webRequest, otherParameters);
+
+					responseString = NetworkHelper.GetResponseAsString(webRequest);
+				}
+				finally
+				{
+					// Copy the settings back to the config, so they are stored.
+					Config.RefreshToken = oauth2Settings.RefreshToken;
+					Config.AccessToken = oauth2Settings.AccessToken;
+					Config.AccessTokenExpires = oauth2Settings.AccessTokenExpires;
+					Config.IsDirty = true;
+					IniConfig.Save();
 				}
 			}
 			return ImgurInfo.ParseResponse(responseString);
-		}
-
-		/// <summary>
-		/// Helper method to store the OAuth output, also if the key is null we need to remove it
-		/// </summary>
-		/// <param name="oAuth">OAuthSession</param>
-		private static void StoreOAuthToken(OAuthSession oAuth)
-		{
-			bool hasChances = false;
-
-			if (oAuth.Token != Config.ImgurToken)
-			{
-				Config.ImgurToken = oAuth.Token;
-				hasChances = true;
-			}
-			if (oAuth.TokenSecret != Config.ImgurTokenSecret)
-			{
-				Config.ImgurTokenSecret = oAuth.TokenSecret;
-				hasChances = true;
-			}
-			if (hasChances)
-			{
-				IniConfig.Save();
-			}
 		}
 
 		/// <summary>
@@ -223,7 +194,7 @@ namespace GreenshotImgurPlugin {
 			LOG.InfoFormat("Retrieving Imgur image for {0} with url {1}", imgurInfo.Hash, imgurInfo.SmallSquare);
 			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(string.Format(SmallUrlPattern, imgurInfo.Hash), HTTPMethod.GET);
 			webRequest.ServicePoint.Expect100Continue = false;
-			SetClientId(webRequest, ImgurCredentials.CONSUMER_KEY);
+			SetClientId(webRequest);
 			using (WebResponse response = webRequest.GetResponse()) {
 				LogRateLimitInfo(response);
 				Stream responseStream = response.GetResponseStream();
@@ -245,7 +216,7 @@ namespace GreenshotImgurPlugin {
 			LOG.InfoFormat("Retrieving Imgur info for {0} with url {1}", hash, url);
 			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url, HTTPMethod.GET);
 			webRequest.ServicePoint.Expect100Continue = false;
-			SetClientId(webRequest, ImgurCredentials.CONSUMER_KEY);
+			SetClientId(webRequest);
 			string responseString;
 			try {
 				using (WebResponse response = webRequest.GetResponse()) {
@@ -279,7 +250,7 @@ namespace GreenshotImgurPlugin {
 				string url = Config.ImgurApiUrl + "/delete/" + imgurInfo.DeleteHash;
 				HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url, HTTPMethod.GET);
 				webRequest.ServicePoint.Expect100Continue = false;
-				SetClientId(webRequest, ImgurCredentials.CONSUMER_KEY);
+				SetClientId(webRequest);
 				string responseString;
 				using (WebResponse response = webRequest.GetResponse()) {
 					LogRateLimitInfo(response);

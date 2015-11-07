@@ -166,19 +166,12 @@ namespace GreenshotImgurPlugin
 				}
 				nodes = doc.GetElementsByTagName("datetime");
 				if(nodes.Count > 0) {
-					try
+					// Version 3 has seconds since Epoch
+					double secondsSince;
+					if (double.TryParse(nodes.Item(0).InnerText, out secondsSince))
 					{
-						imgurInfo.Timestamp = DateTime.Parse(nodes.Item(0).InnerText);
-					}
-					catch (Exception)
-					{
-						// Version 3 has seconds since Epoch
-						double secondsSince;
-						if (double.TryParse(nodes.Item(0).InnerText, out secondsSince))
-						{
-							var epoch = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
-							imgurInfo.Timestamp = epoch.AddSeconds(secondsSince).DateTime;
-						}
+						var epoch = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
+						imgurInfo.Timestamp = epoch.AddSeconds(secondsSince).DateTime;
 					}
 				}
 				nodes = doc.GetElementsByTagName("original");
