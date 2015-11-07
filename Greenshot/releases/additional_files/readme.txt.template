@@ -9,12 +9,17 @@ All details to our tickets can be found here: https://greenshot.atlassian.net
 
 @DETAILVERSION@
 
-Bugs Resolved:
-* BUG-1850: Greenshot stops responding
+There were some major issues with the non anonymous uploads to Imgur, after contacting Imgur they told us that their old API was deprecated or disabled, unfortunately this was not communicated. Although we are working hard on Greenshot 1.3 we did see a need to fix the imgur uploads, so we moved to their new API as quickly as was possible. This should resolve a lot of tickets that were reported to us.
 
-Workaround:
-* BUG-1852: When using Imgur & clipboard destinations, the imgur export Uri overwrites the clipboard image
-  -> Change the CopyLinkToClipboard flag to false in the greenshot.ini
+Bugs Resolved:
+
+BUG-1850: Greenshot stops responding
+BUG-1864: Imgur link wasn't copied to the clipboard
+
+
+Known bugs:
+* BUG-1852: When using the Imgur & clipboard destinations together, the imgur export Uri overwrites the clipboard image
+  The current workaround -> Change the CopyLinkToClipboard flag to false in the greenshot.ini
 
 
 1.2.7.2-342a506 RELEASE

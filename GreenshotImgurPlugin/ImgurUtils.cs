@@ -162,7 +162,7 @@ namespace GreenshotImgurPlugin {
 
 				try
 				{
-					var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.POST, Config.ImgurApi3Url + "upload.xml", oauth2Settings);
+					var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.POST, Config.ImgurApi3Url + "/upload.xml", oauth2Settings);
 					otherParameters.Add("image", new SurfaceContainer(surfaceToUpload, outputSettings, filename));
 
 					NetworkHelper.WriteMultipartFormData(webRequest, otherParameters);
