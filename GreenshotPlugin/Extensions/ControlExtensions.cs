@@ -118,5 +118,38 @@ namespace GreenshotPlugin.Extensions
 			}
 			return window.DialogResult;
 		}
+
+		/// <summary>
+		/// Extension to call show, than await for the hide of a WPF Window
+		/// </summary>
+		/// <param name="window"></param>
+		/// <param name="token"></param>
+		/// <returns>Task to await</returns>
+		public static async Task ShowAsync(this Window window, CancellationToken token = default(CancellationToken))
+		{
+			var taskCompletionSource = new TaskCompletionSource<bool>();
+			// show the dialog asynchronously 
+			// (presumably on the next iteration of the message loop)
+			using (token.Register(() => taskCompletionSource.TrySetCanceled(), useSynchronizationContext: true))
+			{
+				DependencyPropertyChangedEventHandler visibilityHandler = (s, e) =>
+				{
+					if ((bool)e.NewValue == false)
+					{
+						taskCompletionSource.TrySetResult(true);
+					}
+				};
+                window.IsVisibleChanged += visibilityHandler;
+				try
+				{
+					SynchronizationContext.Current.Post((_) => window.ShowDialog(), null);
+					await taskCompletionSource.Task;
+				}
+				finally
+				{
+					window.IsVisibleChanged -= visibilityHandler;
+				}
+			}
+		}
 	}
 }

@@ -4,7 +4,7 @@
 		xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         xmlns:plugin="clr-namespace:GreenshotPlugin.Controls;assembly=GreenshotPlugin"
 		xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
-        Height="Auto" Topmost="True" SizeToContent="WidthAndHeight"
+        Height="Auto" Topmost="True" SizeToContent="WidthAndHeight" KeyDown="Window_KeyDown"
         WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome ResizeBorderThickness="0" CaptionHeight="20" NonClientFrameEdges="None" GlassFrameThickness="-1" CornerRadius="0"/>

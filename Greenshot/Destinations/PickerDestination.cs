@@ -90,11 +90,21 @@ namespace Greenshot.Destinations
 					exportWindow.Children.Add(destination.Value);
 					var ignoreTask = destination.Value.Refresh(token);
                 }
-				while (true == await exportWindow.ShowDialogAsync(token))
+				INotification exportResult = null;
+				do
 				{
+					await exportWindow.ShowAsync(token);
+					if (exportWindow.SelectedDestination == null)
+					{
+						break;
+					}
 					try
 					{
-						return await exportWindow.SelectedDestination.Export(capture, token);
+						exportResult = await exportWindow.SelectedDestination.Export(capture, token);
+						if (token.IsCancellationRequested || exportResult.NotificationType == NotificationTypes.Success)
+						{
+							return exportResult;
+						}
 					}
 					catch (Exception ex)
 					{
@@ -108,6 +118,7 @@ namespace Greenshot.Destinations
 						//};
 					}
 				}
+				while (exportResult != null && exportResult.NotificationType == NotificationTypes.Cancel);
 			}
 			return new Notification
 			{

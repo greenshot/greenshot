@@ -31,8 +31,8 @@ using System.ComponentModel.Composition;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
-using System;
 
 namespace Greenshot.Windows
 {
@@ -78,11 +78,12 @@ namespace Greenshot.Windows
 		{
 			InitializeComponent();
 			DataContext = this;
+			SelectedDestination = null;
 		}
 
 		private void Close_Click(object sender, RoutedEventArgs e)
 		{
-			Close();
+			Hide();
 		}
 
 		public void OnClick(object sender, RoutedEventArgs e)
@@ -95,9 +96,17 @@ namespace Greenshot.Windows
 			}
 
 			SelectedDestination = destination;
-			DialogResult = true;
 			e.Handled = true;
-        }
+			Hide();
+		}
+
+		private void Window_KeyDown(object sender, KeyEventArgs e)
+		{
+			if (e.Key == Key.Escape)
+			{
+				Hide();
+			}
+		}
 
 		/// <summary>
 		/// Create the drag/drop data format
@@ -106,16 +115,16 @@ namespace Greenshot.Windows
 		{
 			var dataObject = new DataObject();
 			MemoryStream dibStream;
-			const int BITMAPFILEHEADER_LENGTH = 14;
-			using (MemoryStream tmpBmpStream = new MemoryStream())
+			const int bitmapfileheaderLength = 14;
+			using (var tmpBmpStream = new MemoryStream())
 			{
 				// Save image as BMP
-				SurfaceOutputSettings bmpOutputSettings = new SurfaceOutputSettings(OutputFormat.bmp, 100, false);
+				var bmpOutputSettings = new SurfaceOutputSettings(OutputFormat.bmp, 100, false);
 				ImageOutput.SaveToStream(_capture, tmpBmpStream, bmpOutputSettings);
 
 				dibStream = new MemoryStream();
 				// Copy the source, but skip the "BITMAPFILEHEADER" which has a size of 14
-				dibStream.Write(tmpBmpStream.GetBuffer(), BITMAPFILEHEADER_LENGTH, (int)tmpBmpStream.Length - BITMAPFILEHEADER_LENGTH);
+				dibStream.Write(tmpBmpStream.GetBuffer(), bitmapfileheaderLength, (int)tmpBmpStream.Length - bitmapfileheaderLength);
 			}
 			dataObject.SetData(DataFormats.Dib, dibStream, true);
 			return dataObject;

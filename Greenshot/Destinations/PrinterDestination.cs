@@ -31,8 +31,8 @@ using System.Windows.Media.Imaging;
 using GreenshotPlugin.Extensions;
 using GreenshotPlugin.Interfaces.Destination;
 using System.Drawing.Printing;
-using System.Collections.Generic;
 using Greenshot.Helpers;
+using System.Linq;
 
 namespace Greenshot.Destinations
 {
@@ -84,26 +84,15 @@ namespace Greenshot.Destinations
 		{
 			Children.Clear();
 
-			PrinterSettings settings = new PrinterSettings();
+			var settings = new PrinterSettings();
 			string defaultPrinter = settings.PrinterName;
-			var printers = new List<string>();
-
-			foreach (string printer in PrinterSettings.InstalledPrinters)
+			var printers = PrinterSettings.InstalledPrinters.Cast<string>().OrderBy(x => x).ToList();
+			var defaultIndex = printers.IndexOf(defaultPrinter);
+			if (defaultIndex > 0)
 			{
-				printers.Add(printer);
+				printers.RemoveAt(defaultIndex);
+				printers.Insert(0, defaultPrinter);
 			}
-			printers.Sort(delegate (string p1, string p2) {
-				if (defaultPrinter.Equals(p1))
-				{
-					return -1;
-				}
-				if (defaultPrinter.Equals(p2))
-				{
-					return 1;
-				}
-				return p1.CompareTo(p2);
-			});
-
 			foreach (var printer in printers)
 			{
 				var printerDestination = new PrinterDestination
@@ -133,19 +122,18 @@ namespace Greenshot.Destinations
 			{
 				await Task.Factory.StartNew(() =>
 				{
-					PrinterSettings printerSettings = null;
 					if (!string.IsNullOrEmpty(printerName))
 					{
 						using (var printHelper = new PrintHelper(capture, capture.CaptureDetails))
 						{
-							printerSettings = printHelper.PrintTo(printerName);
+							printHelper.PrintTo(printerName);
 						}
 					}
 					else
 					{
 						using (var printHelper = new PrintHelper(capture, capture.CaptureDetails))
 						{
-							printerSettings = printHelper.PrintWithDialog();
+							printHelper.PrintWithDialog();
 						}
 					}
 				}, token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
