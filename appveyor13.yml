@@ -40,12 +40,14 @@ environment:
   build_type: ALPHA
 before_build:
   - nuget restore
-  - ps: Build/prebuild.ps1
+  - ps: Build/before_build.ps1
 build:
   project: greenshot.sln
   verbosity: normal
 after_build:
-- ps: Build/build.ps1
+- ps: Build/after_build.ps1
+on_success:
+- ps: Build/build_success.ps1
 test: off
 artifacts:
 - path: AssemblyDir\Greenshot*INSTALLER*.exe
