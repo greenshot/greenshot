@@ -29,6 +29,7 @@ using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Destination;
 using System.Threading;
+using System.Windows.Interop;
 using log4net;
 using GreenshotPlugin.Extensions;
 
@@ -74,7 +75,7 @@ namespace Greenshot.Destinations
 		protected override void Initialize()
 		{
 			base.Initialize();
-			Export = async (capture, token) => await ShowExport(capture, token);
+			Export = async (caller, capture, token) => await ShowExport(capture, token);
 			Text = GreenshotLanguage.SettingsDestinationPicker;
 			Designation = PickerDesignation;
 		}
@@ -84,27 +85,30 @@ namespace Greenshot.Destinations
 			using (var exportWindowContext = ExportWindowFactory.CreateExport())
 			{
 				var exportWindow = exportWindowContext.Value;
-				exportWindow.Capture = capture;
+				Handle = new WindowInteropHelper(exportWindow).Handle;
+                exportWindow.Capture = capture;
 				foreach (var destination in Destinations.Where(destination => destination.Metadata.Name != PickerDesignation))
 				{
 					exportWindow.Children.Add(destination.Value);
-					var ignoreTask = destination.Value.Refresh(token);
+					var ignoreTask = destination.Value.RefreshAsync(null, token);
                 }
 				INotification exportResult = null;
 				do
 				{
-					await exportWindow.ShowAsync(token);
+					exportWindow.SelectedDestination = null;
+                    await exportWindow.ShowAsync(token);
 					if (exportWindow.SelectedDestination == null)
 					{
 						break;
 					}
 					try
 					{
-						exportResult = await exportWindow.SelectedDestination.Export(capture, token);
+						exportResult = await exportWindow.SelectedDestination.Export(this, capture, token);
 						if (token.IsCancellationRequested || exportResult.NotificationType == NotificationTypes.Success)
 						{
 							return exportResult;
 						}
+						// TODO: When fail, there should be a message displayed somewhere?!
 					}
 					catch (Exception ex)
 					{
@@ -118,7 +122,7 @@ namespace Greenshot.Destinations
 						//};
 					}
 				}
-				while (exportResult != null && exportResult.NotificationType == NotificationTypes.Cancel);
+				while (exportResult != null && exportResult.NotificationType != NotificationTypes.Cancel);
 			}
 			return new Notification
 			{

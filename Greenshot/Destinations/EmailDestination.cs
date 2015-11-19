@@ -63,7 +63,7 @@ namespace Greenshot.Destinations
 			base.Initialize();
 			Text = GreenshotLanguage.SettingsDestinationEmail;
 			Designation = EmailDesignation;
-			Export = async (capture, token) => await ExportCaptureAsync(capture, token);
+			Export = async (caller, capture, token) => await ExportCaptureAsync(capture, token);
 			Icon = EmailIcon;
 		}
 

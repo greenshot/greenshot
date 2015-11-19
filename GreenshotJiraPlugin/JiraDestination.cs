@@ -109,7 +109,7 @@ namespace GreenshotJiraPlugin
 		{
 			base.Initialize();
 			Designation = JiraDesignation;
-			Export = async (capture, token) => await ExportCaptureAsync(capture, null, token);
+			Export = async (caller, capture, token) => await ExportCaptureAsync(capture, null, token);
 			Text = JiraLanguage.UploadMenuItem;
 			Icon = JiraIcon;
 		}
@@ -123,7 +123,7 @@ namespace GreenshotJiraPlugin
 				var jiraDestination = new JiraDestination
 				{
 					Icon = JiraIcon,
-					Export = async (capture, token) => await ExportCaptureAsync(capture, jiraDetails, token),
+					Export = async (caller, capture, token) => await ExportCaptureAsync(capture, jiraDetails, token),
 					Text = FormatUpload(jiraDetails),
 					JiraLanguage = JiraLanguage,
 					JiraConfiguration = JiraConfiguration,

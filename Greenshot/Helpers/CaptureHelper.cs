@@ -731,7 +731,8 @@ namespace Greenshot.Helpers
 			{
 				if (destination.Designation == BuildInDestinationEnum.Picker.ToString())
 				{
-					await destination.Export(_capture, token);
+					// TODO: Caller?
+					await destination.Export(null, _capture, token);
 					captureDetails.CaptureDestinations.Clear();
 					canDisposeSurface = false;
 					break;
@@ -755,7 +756,8 @@ namespace Greenshot.Helpers
 					}
 					LOG.InfoFormat("Calling destination {0}", destination.Text);
 
-					var notification = await destination.Export(_capture, token);
+					// TODO: Caller?
+					var notification = await destination.Export(null, _capture, token);
 					if (BuildInDestinationEnum.Editor.ToString().Equals(notification.Source) && notification.NotificationType == NotificationTypes.Success)
 					{
 						canDisposeSurface = false;

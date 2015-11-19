@@ -75,7 +75,7 @@ namespace GreenshotFlickrPlugin
 		{
 			base.Initialize();
 			Designation = FlickrDesignation;
-			Export = async (capture, token) => await ExportCaptureAsync(capture, token);
+			Export = async (caller, capture, token) => await ExportCaptureAsync(capture, token);
 			Text = FlickrLanguage.UploadMenuItem;
 			Icon = FlickrIcon;
 		}

@@ -33,7 +33,7 @@ namespace GreenshotPlugin.Interfaces.Destination
 	/// <summary>
 	/// A simple base implementation for the IDestination
 	/// </summary>
-	public abstract class AbstractDestination : IDestination, IPartImportsSatisfiedNotification
+	public abstract class AbstractDestination : IDestination, ICaller, IPartImportsSatisfiedNotification
 	{
 		private string _text;
 		private string _shortcut;
@@ -66,7 +66,7 @@ namespace GreenshotPlugin.Interfaces.Destination
 		{
 		}
 
-		public virtual Task Refresh(CancellationToken token = default(CancellationToken))
+		public virtual Task RefreshAsync(ICaller caller, CancellationToken token = default(CancellationToken))
 		{
 			return Task.FromResult(true);
 		}
@@ -141,7 +141,7 @@ namespace GreenshotPlugin.Interfaces.Destination
 			}
 		}
 
-		public virtual Func<ICapture, CancellationToken, Task<INotification>> Export
+		public virtual Func<ICaller, ICapture, CancellationToken, Task<INotification>> Export
 		{
 			get;
 			protected set;
@@ -153,5 +153,23 @@ namespace GreenshotPlugin.Interfaces.Destination
 			protected set;
 		} = new ObservableCollection<IDestination>();
 
+		/// <summary>
+		/// This is the Windows handle of the caller
+		/// Used by some exports
+		/// </summary>
+		public IntPtr Handle
+		{
+			get;
+			set;
+		} = IntPtr.Zero;
+
+		/// <summary>
+		/// the Progress interface can be used to present a progress bar
+		/// </summary>
+		public IProgress<int> Progress
+		{
+			get;
+			set;
+		}
 	}
 }

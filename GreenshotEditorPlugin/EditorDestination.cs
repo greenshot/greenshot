@@ -66,16 +66,17 @@ namespace GreenshotEditorPlugin
 			base.Initialize();
 			Text = GreenshotLanguage.SettingsDestinationEditor;
 			Designation = EditorDesignation;
-			Export = async (capture, token) => await ExportCaptureAsync(capture, null, token);
+			Export = async (caller, capture, token) => await ExportCaptureAsync(capture, null, token);
 			Icon = GreenshotIcon;
 		}
 
 		/// <summary>
 		/// Load the current editors to export to
 		/// </summary>
+		/// <param name="caller1"></param>
 		/// <param name="token"></param>
 		/// <returns>Task</returns>
-		public override Task Refresh(CancellationToken token = new CancellationToken())
+		public override Task RefreshAsync(ICaller caller1, CancellationToken token = default(CancellationToken))
 		{
 			Children.Clear();
 			foreach (var openEditor in ImageEditorForm.Editors)
@@ -83,7 +84,7 @@ namespace GreenshotEditorPlugin
 				var editorDestination = new EditorDestination
 				{
 					Text = openEditor.Surface.CaptureDetails.Title,
-					Export = async (capture, exportToken) => await ExportCaptureAsync(capture, openEditor, exportToken),
+					Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, openEditor, exportToken),
 					Icon = GreenshotIcon,
 					EditorConfiguration = EditorConfiguration,
 					GreenshotLanguage = GreenshotLanguage

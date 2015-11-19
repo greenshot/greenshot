@@ -36,6 +36,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotOfficePlugin", "Gr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotPhotobucketPlugin", "GreenshotPhotobucketPlugin\GreenshotPhotobucketPlugin.csproj", "{9C0ECC4C-7807-4111-916A-4F57BB29788A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotWindowsSharePlugin", "GreenshotWindowsSharePlugin\GreenshotWindowsSharePlugin.csproj", "{3E46EF79-0011-401F-86F0-13801EC55FFF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -164,6 +166,14 @@ Global
 		{9C0ECC4C-7807-4111-916A-4F57BB29788A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9C0ECC4C-7807-4111-916A-4F57BB29788A}.Release|x86.ActiveCfg = Release|x86
 		{9C0ECC4C-7807-4111-916A-4F57BB29788A}.Release|x86.Build.0 = Release|x86
+		{3E46EF79-0011-401F-86F0-13801EC55FFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E46EF79-0011-401F-86F0-13801EC55FFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E46EF79-0011-401F-86F0-13801EC55FFF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3E46EF79-0011-401F-86F0-13801EC55FFF}.Debug|x86.Build.0 = Debug|Any CPU
+		{3E46EF79-0011-401F-86F0-13801EC55FFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E46EF79-0011-401F-86F0-13801EC55FFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E46EF79-0011-401F-86F0-13801EC55FFF}.Release|x86.ActiveCfg = Release|Any CPU
+		{3E46EF79-0011-401F-86F0-13801EC55FFF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

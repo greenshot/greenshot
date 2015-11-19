@@ -74,14 +74,15 @@ namespace GreenshotPlugin.Interfaces.Destination
 		/// <summary>
 		/// This will be called before the item is shown, so it can update it's children etc.
 		/// </summary>
+		/// <param name="caller"></param>
 		/// <param name="token"></param>
 		/// <returns>Task</returns>
-		Task Refresh(CancellationToken token = default(CancellationToken));
+		Task RefreshAsync(ICaller caller, CancellationToken token = default(CancellationToken));
 
 		/// <summary>
 		/// Export a capture
 		/// </summary>
-		Func<ICapture, CancellationToken, Task<INotification>> Export
+		Func<ICaller, ICapture, CancellationToken, Task<INotification>> Export
 		{
 			get;
 		}

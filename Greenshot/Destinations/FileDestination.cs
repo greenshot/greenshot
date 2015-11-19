@@ -73,7 +73,7 @@ namespace Greenshot.Destinations
 			base.Initialize();
 			Text = GreenshotLanguage.SettingsDestinationFile;
 			Designation = FileDesignation;
-			Export = async (capture, token) => await ExportCaptureAsync(capture, token);
+			Export = async (caller, capture, token) => await ExportCaptureAsync(capture, token);
 			Icon = FileIcon;
 		}
 

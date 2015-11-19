@@ -86,7 +86,7 @@ namespace GreenshotOfficePlugin.Destinations
 		protected override void Initialize()
 		{
 			base.Initialize();
-			Export = async (capture, token) => await ExportCaptureAsync(capture, null);
+			Export = async (caller, capture, token) => await ExportCaptureAsync(capture, null);
 			Text = Text = $"Export to {PowerpointDesignation}";
 			Designation = PowerpointDesignation;
 			Icon = ApplicationIcon;
@@ -95,9 +95,10 @@ namespace GreenshotOfficePlugin.Destinations
 		/// <summary>
 		/// Load the current documents to export to
 		/// </summary>
+		/// <param name="caller1"></param>
 		/// <param name="token"></param>
 		/// <returns>Task</returns>
-		public override Task Refresh(CancellationToken token = new CancellationToken())
+		public override Task RefreshAsync(ICaller caller1, CancellationToken token = default(CancellationToken))
 		{
 			Children.Clear();
 			return Task.Factory.StartNew(
@@ -109,7 +110,7 @@ namespace GreenshotOfficePlugin.Destinations
 						var powerpointDestination = new PowerpointDestination
 						{
 							Icon = PresentationIcon,
-							Export = async (capture, exportToken) => await ExportCaptureAsync(capture, presentation),
+							Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, presentation),
 							Text = presentation,
 							OfficeConfiguration = OfficeConfiguration,
 							GreenshotLanguage = GreenshotLanguage

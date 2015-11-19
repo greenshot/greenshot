@@ -87,7 +87,7 @@ namespace GreenshotConfluencePlugin
 		{
 			base.Initialize();
 			Designation = ConfluenceDesignation;
-			Export = async (capture, token) => await ExportCaptureAsync(capture, null, token);
+			Export = async (caller, capture, token) => await ExportCaptureAsync(capture, null, token);
 			Text = ConfluenceLanguage.UploadMenuItem;
 			Icon = ConfluenceIcon;
 		}
@@ -95,9 +95,10 @@ namespace GreenshotConfluencePlugin
 		/// <summary>
 		/// Load the current documents to export to
 		/// </summary>
+		/// <param name="caller1"></param>
 		/// <param name="token"></param>
 		/// <returns>Task</returns>
-		public override async Task Refresh(CancellationToken token = new CancellationToken())
+		public override async Task RefreshAsync(ICaller caller1, CancellationToken token = default(CancellationToken))
 		{
 			Children.Clear();
 			var currentPages = await ConfluenceUtils.GetCurrentPages(token);
@@ -110,7 +111,7 @@ namespace GreenshotConfluencePlugin
 				var confluenceDestination = new ConfluenceDestination
 				{
 					Icon = ConfluenceIcon,
-					Export = async (capture, exportToken) => await ExportCaptureAsync(capture, currentPage, exportToken),
+					Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, currentPage, exportToken),
 					Text = currentPage.Title,
 					ConfluenceConfiguration = ConfluenceConfiguration,
 					ConfluenceLanguage = ConfluenceLanguage

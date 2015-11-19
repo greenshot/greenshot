@@ -71,16 +71,17 @@ namespace Greenshot.Destinations
 			base.Initialize();
 			Text = GreenshotLanguage.SettingsDestinationPrinter;
 			Designation = PrinterDesignation;
-			Export = async (capture, token) => await ExportCaptureAsync(capture, null, token);
+			Export = async (caller, capture, token) => await ExportCaptureAsync(capture, null, token);
 			Icon = PrinterIcon;
 		}
 
 		/// <summary>
 		/// Load the current editors to export to
 		/// </summary>
+		/// <param name="caller1"></param>
 		/// <param name="token"></param>
 		/// <returns>Task</returns>
-		public override Task Refresh(CancellationToken token = new CancellationToken())
+		public override Task RefreshAsync(ICaller caller1, CancellationToken token = default(CancellationToken))
 		{
 			Children.Clear();
 
@@ -98,7 +99,7 @@ namespace Greenshot.Destinations
 				var printerDestination = new PrinterDestination
 				{
 					Text = printer,
-					Export = async (capture, exportToken) => await ExportCaptureAsync(capture, printer, exportToken),
+					Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, printer, exportToken),
 					Icon = PrinterIcon,
 					CoreConfiguration = CoreConfiguration,
 					GreenshotLanguage = GreenshotLanguage

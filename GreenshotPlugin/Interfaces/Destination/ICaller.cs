@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2014 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
@@ -18,12 +18,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Collections.Generic;
-using System.Text;
-using GreenshotPlugin.Controls;
 
-namespace PluginExample {
-	public class ExampleForm : GreenshotForm{
+using System;
+
+namespace GreenshotPlugin.Interfaces.Destination
+{
+	/// <summary>
+	/// This interface can be used to specify the caller for the destination
+	/// Making interaction possible, like displaying progress
+	/// </summary>
+	public interface ICaller
+	{
+		IProgress<int> Progress
+		{
+			get;
+			set;
+		}
+			/// <summary>
+		/// Windows handle of the caller's window
+		/// </summary>
+		IntPtr Handle
+		{
+			get;
+			set;
+		}
 	}
 }
