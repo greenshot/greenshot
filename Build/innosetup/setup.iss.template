@@ -23,6 +23,7 @@ Source: {#GreenshotDir}\bin\Release\Dapplo.Addons.dll; DestDir: {app}; Component
 Source: {#GreenshotDir}\bin\Release\Dapplo.Config.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 Source: {#GreenshotDir}\bin\Release\Dapplo.Windows.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 Source: {#GreenshotDir}\bin\Release\Dapplo.HttpExtensions.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
+Source: {#GreenshotDir}\bin\Release\GongSolutions.Wpf.DragDrop.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 Source: {#GreenshotDir}\log4net.xml; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 Source: {#GreenshotDir}\bin\Release\checksum.MD5; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 ;Source: ..\greenshot-defaults.ini; DestDir: {app}; Flags: overwritereadonly ignoreversion replacesameversion
@@ -46,7 +47,7 @@ Source: {#GreenshotDir}\Languages\*et-EE*; Excludes: "*installer*,*website*"; De
 Source: {#GreenshotDir}\Languages\*fa-IR*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\faIR; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: {#GreenshotDir}\Languages\*fi-FI*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\fiFI; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: {#GreenshotDir}\Languages\*fr-FR*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\frFR; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#GreenshotDir}\Languages\*fr-QC*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\frQC; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: {#GreenshotDir}\Languages\*fr-CA*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\frQC; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: {#GreenshotDir}\Languages\*he-IL*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\heIL; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: {#GreenshotDir}\Languages\*hu-HU*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\huHU; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: {#GreenshotDir}\Languages\*id-ID*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\idID; Flags: overwritereadonly ignoreversion replacesameversion;
@@ -108,6 +109,9 @@ Source: {#GreenshotDir}\bin\Release\Languages\Plugins\GreenshotConfluencePlugin\
 ;ExternalCommand Plugin
 Source: {#GreenshotDir}\bin\Release\Plugins\GreenshotExternalCommandPlugin\GreenshotExternalCommandPlugin.gsp; DestDir: {app}\Plugins\GreenshotExternalCommandPlugin; Components: plugins\externalcommand; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: {#GreenshotDir}\bin\Release\Languages\Plugins\GreenshotExternalCommandPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotExternalCommandPlugin; Components: plugins\externalcommand; Flags: overwritereadonly ignoreversion replacesameversion;
+;App Share Plugin
+Source: {#GreenshotDir}\bin\Release\Plugins\GreenshotWindowsSharePlugin\GreenshotWindowsSharePlugin.gsp; DestDir: {app}\Plugins\GreenshotWindowsSharePlugin; Components: plugins\appshare; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+
 [Setup]
 ; changes associations is used when the installer installs new extensions, it clears the explorer icon cache
 ChangesAssociations=yes
@@ -195,7 +199,6 @@ de.ocr=OCR Plug-in (benötigt Microsoft Office Document Imaging (MODI))
 de.optimize=Optimierung der Leistung, kann etwas dauern.
 de.startgreenshot={#ExeName} starten
 de.startup={#ExeName} starten wenn Windows hochfährt
-en.office=Microsoft Office Plug-in
 
 en.confluence=Confluence plug-in
 en.default=Default installation
@@ -206,6 +209,7 @@ en.jira=Jira plug-in
 en.language=Additional languages
 en.ocr=OCR plug-in (needs Microsoft Office Document Imaging (MODI))
 en.office=Microsoft Office plug-in
+en.appshare=Windows 10 App Share
 en.optimize=Optimizing performance, this may take a while.
 en.startgreenshot=Start {#ExeName}
 en.startup=Start {#ExeName} with Windows start
@@ -344,7 +348,8 @@ Name: "custom"; Description: "{code:CustomInstall}"; Flags: iscustom
 [Components]
 Name: "greenshot"; Description: "Greenshot"; Types: default full compact custom; Flags: fixed
 Name: "plugins\editor"; Description: {cm:editor}; Types: default full compact custom; Flags: fixed 
-Name: "plugins\office"; Description: {cm:office}; Types: default full custom; Flags: disablenouninstallwarning 
+Name: "plugins\office"; Description: {cm:office}; Types: default full custom; Flags: disablenouninstallwarning
+Name: "plugins\appshare"; Description: {cm:appshare}; Types: default full custom; Flags: disablenouninstallwarning 
 Name: "plugins\ocr"; Description: {cm:ocr}; Types: default full custom; Flags: disablenouninstallwarning 
 Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disablenouninstallwarning 
 Name: "plugins\imgur"; Description: {cm:imgur}; Types: default full custom; Flags: disablenouninstallwarning 
