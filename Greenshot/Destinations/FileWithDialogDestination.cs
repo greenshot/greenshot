@@ -68,7 +68,7 @@ namespace Greenshot.Destinations
 			base.Initialize();
 			Text = GreenshotLanguage.SettingsDestinationFileas;
 			Designation = FileWithDialogDesignation;
-			Export = async (caller, capture, token) => await ExportCaptureAsync(capture, token);
+			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
 			Icon = FileWithDialogIcon;
 		}
 

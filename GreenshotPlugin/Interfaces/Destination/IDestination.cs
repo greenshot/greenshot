@@ -77,12 +77,12 @@ namespace GreenshotPlugin.Interfaces.Destination
 		/// <param name="caller"></param>
 		/// <param name="token"></param>
 		/// <returns>Task</returns>
-		Task RefreshAsync(ICaller caller, CancellationToken token = default(CancellationToken));
+		Task RefreshAsync(IExportContext caller, CancellationToken token = default(CancellationToken));
 
 		/// <summary>
 		/// Export a capture
 		/// </summary>
-		Func<ICaller, ICapture, CancellationToken, Task<INotification>> Export
+		Func<IExportContext, ICapture, CancellationToken, Task<INotification>> Export
 		{
 			get;
 		}

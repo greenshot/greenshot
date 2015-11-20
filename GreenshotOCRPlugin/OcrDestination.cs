@@ -72,7 +72,7 @@ namespace GreenshotOcrPlugin
 		{
 			base.Initialize();
 			Designation = OcrDesignation;
-			Export = async (caller, capture, token) => await ExportCaptureAsync(capture, token);
+			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
 			Text = OcrDesignation;
 			Icon = OcrIcon;
 		}

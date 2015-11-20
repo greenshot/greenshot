@@ -92,7 +92,7 @@ namespace GreenshotOfficePlugin.Destinations
 		protected override void Initialize()
 		{
 			base.Initialize();
-			Export = async (caller, capture, token) => await ExportCaptureAsync(capture, null);
+			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, null);
 			Text = Text = $"Export to {OutlookDesignation}";
 			Designation = OutlookDesignation;
 			Icon = ApplicationIcon;
@@ -104,7 +104,7 @@ namespace GreenshotOfficePlugin.Destinations
 		/// <param name="caller1"></param>
 		/// <param name="token"></param>
 		/// <returns>Task</returns>
-		public override Task RefreshAsync(ICaller caller1, CancellationToken token = default(CancellationToken))
+		public override Task RefreshAsync(IExportContext caller1, CancellationToken token = default(CancellationToken))
 		{
 			Children.Clear();
 			return Task.Factory.StartNew(

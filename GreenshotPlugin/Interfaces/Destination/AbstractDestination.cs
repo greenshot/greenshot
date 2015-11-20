@@ -33,7 +33,7 @@ namespace GreenshotPlugin.Interfaces.Destination
 	/// <summary>
 	/// A simple base implementation for the IDestination
 	/// </summary>
-	public abstract class AbstractDestination : IDestination, ICaller, IPartImportsSatisfiedNotification
+	public abstract class AbstractDestination : IDestination, IExportContext, IPartImportsSatisfiedNotification
 	{
 		private string _text;
 		private string _shortcut;
@@ -66,7 +66,7 @@ namespace GreenshotPlugin.Interfaces.Destination
 		{
 		}
 
-		public virtual Task RefreshAsync(ICaller caller, CancellationToken token = default(CancellationToken))
+		public virtual Task RefreshAsync(IExportContext caller, CancellationToken token = default(CancellationToken))
 		{
 			return Task.FromResult(true);
 		}
@@ -141,7 +141,7 @@ namespace GreenshotPlugin.Interfaces.Destination
 			}
 		}
 
-		public virtual Func<ICaller, ICapture, CancellationToken, Task<INotification>> Export
+		public virtual Func<IExportContext, ICapture, CancellationToken, Task<INotification>> Export
 		{
 			get;
 			protected set;

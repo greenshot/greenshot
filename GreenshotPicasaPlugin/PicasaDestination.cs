@@ -73,7 +73,7 @@ namespace GreenshotPicasaPlugin
 		{
 			base.Initialize();
 			Designation = PicasaDesignation;
-			Export = async (caller, capture, token) => await ExportCaptureAsync(capture, "0", token);
+			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, "0", token);
 			Text = PicasaLanguage.UploadMenuItem;
 			Icon = PicasaIcon;
 		}

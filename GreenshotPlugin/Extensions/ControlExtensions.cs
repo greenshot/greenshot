@@ -130,7 +130,7 @@ namespace GreenshotPlugin.Extensions
 			var taskCompletionSource = new TaskCompletionSource<bool>();
 			// show the dialog asynchronously 
 			// (presumably on the next iteration of the message loop)
-			using (token.Register(() => taskCompletionSource.TrySetCanceled(), useSynchronizationContext: true))
+			using (token.Register(() => taskCompletionSource.TrySetCanceled(), true))
 			{
 				DependencyPropertyChangedEventHandler visibilityHandler = (s, e) =>
 				{

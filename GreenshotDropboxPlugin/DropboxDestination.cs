@@ -77,7 +77,7 @@ namespace GreenshotDropboxPlugin
 		{
 			base.Initialize();
 			Designation = DropboxDesignation;
-			Export = async (caller, capture, token) => await ExportCaptureAsync(capture, token);
+			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
 			Text = DropboxLanguage.UploadMenuItem;
 			Icon = DropboxIcon;
 		}

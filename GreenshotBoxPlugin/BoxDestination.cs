@@ -74,7 +74,7 @@ namespace GreenshotBoxPlugin
 		{
 			base.Initialize();
 			Designation = BoxDesignation;
-			Export = async (caller, capture, token) => await ExportCaptureAsync(capture, token);
+			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
 			Text = BoxLanguage.UploadMenuItem;
 			Icon = BoxIcon;
 		}

@@ -27,7 +27,7 @@ namespace GreenshotPlugin.Interfaces.Destination
 	/// This interface can be used to specify the caller for the destination
 	/// Making interaction possible, like displaying progress
 	/// </summary>
-	public interface ICaller
+	public interface IExportContext
 	{
 		IProgress<int> Progress
 		{

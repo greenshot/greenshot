@@ -26,12 +26,15 @@ using System.ComponentModel.Composition;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using Windows.Storage.Streams;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Destination;
 using GreenshotPlugin.Extensions;
 using GreenshotPlugin.Interfaces.Plugin;
+using GreenshotPlugin.Windows;
 using GreenshotWindowsSharePlugin.Native;
 
 namespace GreenshotWindowsSharePlugin
@@ -62,18 +65,12 @@ namespace GreenshotWindowsSharePlugin
 		{
 			base.Initialize();
 			Designation = ShareDesignation;
-			Export = async (caller, capture, token) => await ExportCaptureAsync(caller, capture);
+			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
 			Text = ShareDesignation;
 			Icon = ShareIcon;
 		}
 
-		public override Task RefreshAsync(ICaller caller, CancellationToken token = default(CancellationToken))
-		{
-			IsEnabled = caller != null && caller.Handle != IntPtr.Zero;
-			return Task.FromResult(true);
-		}
-
-		private Task<INotification> ExportCaptureAsync(ICaller caller, ICapture capture)
+		private async Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))
 		{
 			var returnValue = new Notification
 			{
@@ -83,40 +80,76 @@ namespace GreenshotWindowsSharePlugin
 				Text = ShareDesignation
 			};
 
-			if (caller == null || caller.Handle == IntPtr.Zero)
-			{
-				returnValue.NotificationType = NotificationTypes.Fail;
-				returnValue.ErrorText = "Caller doesn't have a windows handle, sharing not possible.";
-				return Task.FromResult<INotification>(returnValue);
-			}
 			try
 			{
-				var dataTransferManagerHelper = new DataTransferManagerHelper(caller.Handle);
-				dataTransferManagerHelper.DataTransferManager.DataRequested += (sender, args) =>
+				await PleaseWaitWindow.CreateAndShowAsync(Designation, "Sharing", async (progress, pleaseWaitToken) =>
 				{
-					var dataPackage = args.Request.Data;
-					dataPackage.Properties.Title = "Share";
-					dataPackage.Properties.ApplicationName = "Greenshot";
-					dataPackage.Properties.Description = "screenshot";
-					try
+					RandomAccessStreamReference imageRandomAccessStreamReference;
+					using (var imageStream = new MemoryStream())
 					{
-						//dataPackage.Properties.Thumbnail
+						ImageOutput.SaveToStream(capture, imageStream, new SurfaceOutputSettings());
+						imageStream.Position = 0;
+						var randomAccessStream = await FromMemoryStream(imageStream);
+						imageRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(randomAccessStream);
+					}
 
-						using (var imageStream = new MemoryStream())
+					RandomAccessStreamReference thumbnailRandomAccessStreamReference;
+					using (var thumbnailStream = new MemoryStream())
+					{
+						using (var tmpImageForThumbnail = capture.GetImageForExport())
 						{
-							ImageOutput.SaveToStream(capture, imageStream, new SurfaceOutputSettings());
-							imageStream.Position = 0;
-							var randomAccessStream = imageStream.AsRandomAccessStream();
-							dataPackage.SetBitmap(RandomAccessStreamReference.CreateFromStream(randomAccessStream));
+							using (var thumbnail = ImageHelper.CreateThumbnail(tmpImageForThumbnail, 240, 160))
+							{
+								ImageOutput.SaveToStream(thumbnail, null, thumbnailStream, new SurfaceOutputSettings());
+								thumbnailStream.Position = 0;
+								var randomAccessStream = await FromMemoryStream(thumbnailStream);
+								thumbnailRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(randomAccessStream);
+							}
 						}
+					}
 
-					}
-					catch (Exception ex)
+					var pwWindow = progress as Window;
+					if (pwWindow != null)
 					{
-						args.Request.FailWithDisplayText(ex.Message);
+						var handle = new WindowInteropHelper(pwWindow).Handle;
+
+						var dataTransferManagerHelper = new DataTransferManagerHelper(handle);
+						dataTransferManagerHelper.DataTransferManager.TargetApplicationChosen += (dtm, args) =>
+						{
+							LOG.DebugFormat("Exported to {0}", args.ApplicationName);
+						};
+						dataTransferManagerHelper.DataTransferManager.DataRequested += (sender, args) =>
+						{
+							var deferral = args.Request.GetDeferral();
+							args.Request.Data.OperationCompleted += (dp, eventArgs) =>
+							{
+								LOG.DebugFormat("OperationCompleted: {0}", eventArgs.Operation);
+							};
+							var dataPackage = args.Request.Data;
+							dataPackage.Properties.Title = "Share";
+							dataPackage.Properties.ApplicationName = "Greenshot";
+							dataPackage.Properties.Description = "screenshot";
+							dataPackage.Properties.Thumbnail = thumbnailRandomAccessStreamReference;
+							dataPackage.SetBitmap(imageRandomAccessStreamReference);
+							dataPackage.Destroyed += (dp, o) =>
+							{
+								LOG.Debug("Destroyed.");
+							};
+							deferral.Complete();
+						};
+						dataTransferManagerHelper.ShowShareUi();
 					}
-				};
-				dataTransferManagerHelper.ShowShareUi();
+					await Task.Delay(1000, pleaseWaitToken);
+					return true;
+				}, token);
+
+			}
+			catch (TaskCanceledException tcEx)
+			{
+				returnValue.Text = "Share cancelled.";
+				returnValue.NotificationType = NotificationTypes.Cancel;
+				returnValue.ErrorText = tcEx.Message;
+				LOG.Info(tcEx.Message);
 			}
 			catch (Exception e)
 			{
@@ -125,7 +158,18 @@ namespace GreenshotWindowsSharePlugin
 				returnValue.ErrorText = e.Message;
 				LOG.Warn(e);
 			}
-			return Task.FromResult<INotification>(returnValue);
+			return returnValue;
         }
+
+		private static async Task<IRandomAccessStream> FromMemoryStream(MemoryStream stream)
+		{
+			var inMemoryStream = new InMemoryRandomAccessStream();
+			using (var inputStream = stream.AsInputStream())
+			{
+				await RandomAccessStream.CopyAsync(inputStream, inMemoryStream);
+			}
+			inMemoryStream.Seek(0);
+			return inMemoryStream;
+		}
 	}
 }

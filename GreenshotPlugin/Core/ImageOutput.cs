@@ -118,7 +118,6 @@ namespace GreenshotPlugin.Core
 		/// <param name="outputSettings">SurfaceOutputSettings</param>
 		public static void SaveToStream(Image imageToSave, ICapture capture, Stream stream, SurfaceOutputSettings outputSettings)
 		{
-			ImageFormat imageFormat;
 			bool useMemoryStream = false;
 			MemoryStream memoryStream = null;
 			if (outputSettings.Format == OutputFormat.greenshot && capture == null)
@@ -128,6 +127,7 @@ namespace GreenshotPlugin.Core
 
 			try
 			{
+				ImageFormat imageFormat;
 				switch (outputSettings.Format)
 				{
 					case OutputFormat.bmp:
@@ -172,7 +172,7 @@ namespace GreenshotPlugin.Core
 					{
 						if (imageCodec.FormatID == imageFormat.Guid)
 						{
-							EncoderParameters parameters = new EncoderParameters(1);
+							var parameters = new EncoderParameters(1);
 							parameters.Param[0] = new EncoderParameter(Encoder.Quality, outputSettings.JPGQuality);
 							// Removing transparency if it's not supported in the output
 							if (Image.IsAlphaPixelFormat(imageToSave.PixelFormat))

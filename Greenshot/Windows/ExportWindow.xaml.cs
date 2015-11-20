@@ -29,6 +29,7 @@ using GreenshotPlugin.Interfaces.Plugin;
 using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -43,6 +44,7 @@ namespace Greenshot.Windows
 	public partial class ExportWindow : Window, IDragSource
 	{
         private ICapture _capture;
+		private TaskCompletionSource<bool> _taskCompletionSource;
 
 		public ObservableCollection<IDestination> Children
 		{
@@ -81,9 +83,17 @@ namespace Greenshot.Windows
 			SelectedDestination = null;
 		}
 
+		public async Task ShowAndAwaitSelection()
+		{
+			_taskCompletionSource = new TaskCompletionSource<bool>();
+			Show();
+			await _taskCompletionSource.Task;
+			Hide();
+		}
+
 		private void Close_Click(object sender, RoutedEventArgs e)
 		{
-			Hide();
+			_taskCompletionSource.TrySetResult(true);
 		}
 
 		public void OnClick(object sender, RoutedEventArgs e)
@@ -97,14 +107,14 @@ namespace Greenshot.Windows
 
 			SelectedDestination = destination;
 			e.Handled = true;
-			Hide();
+			_taskCompletionSource.TrySetResult(true);
 		}
 
 		private void Window_KeyDown(object sender, KeyEventArgs e)
 		{
 			if (e.Key == Key.Escape)
 			{
-				Hide();
+				_taskCompletionSource.TrySetResult(true);
 			}
 		}
 

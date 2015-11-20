@@ -75,7 +75,7 @@ namespace GreenshotImgurPlugin
 		{
 			base.Initialize();
 			Designation = ImgurDesignation;
-			Export = async (caller, capture, token) => await ExportCaptureAsync(capture, token);
+			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
 			Text = ImgurLanguage.UploadMenuItem;
 			Icon = ImgurIcon;
 		}

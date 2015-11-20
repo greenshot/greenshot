@@ -158,7 +158,7 @@
     <Compile Include="IEInterop\IWebBrowser2.cs" />
     <Compile Include="Interfaces\Destination\AbstractDestination.cs" />
     <Compile Include="Interfaces\Destination\DestinationMetadataAttribute.cs" />
-    <Compile Include="Interfaces\Destination\ICaller.cs" />
+    <Compile Include="Interfaces\Destination\IExportContext.cs" />
     <Compile Include="Interfaces\ExportInformation.cs" />
     <Compile Include="Interfaces\ICapture.cs" />
     <Compile Include="Interfaces\ICaptureDetails.cs" />

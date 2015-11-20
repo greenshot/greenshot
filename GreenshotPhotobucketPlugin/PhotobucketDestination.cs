@@ -76,7 +76,7 @@ namespace GreenshotPhotobucketPlugin
 		{
 			base.Initialize();
 			Designation = PhotobucketDesignation;
-			Export = async (caller, capture, token) => await ExportCaptureAsync(capture, "0", token);
+			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, "0", token);
 			Text = PhotobucketLanguage.UploadMenuItem;
 			Icon = PhotobucketIcon;
 		}

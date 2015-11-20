@@ -159,14 +159,14 @@ namespace GreenshotPlugin.Core
 				thumbWidth = (int) (thumbHeight*(srcWidth/(float) srcHeight));
 			}
 
-			Bitmap bmp = new Bitmap(thumbWidth, thumbHeight);
-			using (Graphics graphics = Graphics.FromImage(bmp))
+			var bmp = new Bitmap(thumbWidth, thumbHeight);
+			using (var graphics = Graphics.FromImage(bmp))
 			{
 				graphics.SmoothingMode = SmoothingMode.HighQuality;
 				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 				graphics.CompositingQuality = CompositingQuality.HighQuality;
 				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-				Rectangle rectDestination = new Rectangle(0, 0, thumbWidth, thumbHeight);
+				var rectDestination = new Rectangle(0, 0, thumbWidth, thumbHeight);
 				graphics.DrawImage(image, rectDestination, 0, 0, srcWidth, srcHeight, GraphicsUnit.Pixel);
 			}
 			return bmp;

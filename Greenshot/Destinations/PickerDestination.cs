@@ -29,9 +29,7 @@ using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Destination;
 using System.Threading;
-using System.Windows.Interop;
 using log4net;
-using GreenshotPlugin.Extensions;
 
 namespace Greenshot.Destinations
 {
@@ -75,7 +73,7 @@ namespace Greenshot.Destinations
 		protected override void Initialize()
 		{
 			base.Initialize();
-			Export = async (caller, capture, token) => await ShowExport(capture, token);
+			Export = async (exportContext, capture, token) => await ShowExport(capture, token);
 			Text = GreenshotLanguage.SettingsDestinationPicker;
 			Designation = PickerDesignation;
 		}
@@ -85,7 +83,6 @@ namespace Greenshot.Destinations
 			using (var exportWindowContext = ExportWindowFactory.CreateExport())
 			{
 				var exportWindow = exportWindowContext.Value;
-				Handle = new WindowInteropHelper(exportWindow).Handle;
                 exportWindow.Capture = capture;
 				foreach (var destination in Destinations.Where(destination => destination.Metadata.Name != PickerDesignation))
 				{
@@ -96,7 +93,8 @@ namespace Greenshot.Destinations
 				do
 				{
 					exportWindow.SelectedDestination = null;
-                    await exportWindow.ShowAsync(token);
+
+                    await exportWindow.ShowAndAwaitSelection();
 					if (exportWindow.SelectedDestination == null)
 					{
 						break;
