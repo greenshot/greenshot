@@ -2,26 +2,26 @@
 
 <language>
 	<resources prefix="Core">
-		<resource name="about_bugs">Prosím oznámte chyby na</resource>
-		<resource name="about_donations">Ak se vám Greenshot páči, uvítame vašu podporu:</resource>
+		<resource name="about_bugs">Prosím, oznámte chyby na</resource>
+		<resource name="about_donations">Ak sa vám Greenshot páči, uvítame vašu podporu:</resource>
 		<resource name="about_host">Greenshot je na sourceforge.net</resource>
 		<resource name="about_icons">Ikony z Yusuke Kamiyamane's Fugue icon set (Creative Commons Attribution 3.0 license)</resource>
 		<resource name="about_license">
 			Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
-			Greenshot je ÚPLNE BEZ ZÁRUKY. Toto je FREE software, a môžete ho distribuovať za určitých podmienok.
+			Greenshot je ÚPLNE BEZ ZÁRUKY. Toto je FREE software a môžete ho distribuovať za určitých podmienok.
 			Podrobnosti o GNU General Public License:
 		</resource>
-		<resource name="about_title">O Greenshote</resource>
+		<resource name="about_title">O Greenshot</resource>
 		<resource name="application_title">Greenshot - revolučná screenshot utilita</resource>
 		<resource name="bugreport_cancel">Zavrieť</resource>
 		<resource name="bugreport_info">
 			Ospravedlňujeme sa za neočakávanú chybu.
 
-			Dobrá správa je, že nám môžete pomôť zbaviť se jej podaním hlásenia o chybe.
+			Dobrá správa je, že nám môžete pomôcť zbaviť se jej podaním hlásenia o chybe.
 			Prosím, navštívte nižšie uvedenú URL adresu, vytvorte nové hlásenie o chybe a vložte obsah z textovej oblasti do popisu.
 
-			Prosím, pridajte zmysluplné zhrnutie a uveďte všetky informácie, které považujete za užitočné pre reprodukciu problému.
-			Tiež by sme velmi ocenili, keby ste najskôr skontrolovali, či už neexistuje pre túto chybu tracker. (Môžete použiť vyhľadávanie.) Ďakujeme :)
+			Taktiež, prosím, pridajte zmysluplné zhrnutie a uveďte všetky informácie, ktoré považujete za užitočné pre reprodukciu problému.
+			Veľmi by sme ocenili, keby ste najskôr skontrolovali, či už pre túto chybu neexistuje tracker (môžete použiť vyhľadávanie). Ďakujeme :)
 		</resource>
 		<resource name="bugreport_title">Chyba</resource>
 		<resource name="CANCEL">Zrušiť</resource>
@@ -40,7 +40,7 @@
 		<resource name="colorpicker_red">Červená</resource>
 		<resource name="colorpicker_title">Výber farby</resource>
 		<resource name="colorpicker_transparent">Priehľadný</resource>
-		<resource name="config_unauthorizedaccess_write">Nemožno uložiť konfiguračný súbor Greenshotu. Prosím skontrolujte prístupové práva k '{0}'.</resource>
+		<resource name="config_unauthorizedaccess_write">Nemožno uložiť konfiguračný súbor Greenshot. Prosím, skontrolujte prístupové práva k '{0}'.</resource>
 		<resource name="contextmenu_about">O Greenshot</resource>
 		<resource name="contextmenu_capturearea">Zachytiť oblasť</resource>
 		<resource name="contextmenu_captureclipboard">Otvoriť obrázok zo schránky</resource>
@@ -55,14 +55,14 @@
 		<resource name="contextmenu_capturelastregion">Zachytiť predchádzajúcu oblasť</resource>
 		<resource name="contextmenu_capturewindow">Zachytiť aktívne okno</resource>
 		<resource name="contextmenu_capturewindowfromlist">Zachytiť okno zo zoznamu</resource>
-		<resource name="contextmenu_donate">Podpora Greenshotu</resource>
+		<resource name="contextmenu_donate">Podpora Greenshot</resource>
 		<resource name="contextmenu_exit">Ukončiť</resource>
 		<resource name="contextmenu_help">Nápoveda</resource>
 		<resource name="contextmenu_openfile">Otvoriť obrázok zo súboru</resource>
 		<resource name="contextmenu_openrecentcapture">Otvoriť posledné miesto uloženia</resource>
 		<resource name="contextmenu_quicksettings">Rýchle nastavenia</resource>
 		<resource name="contextmenu_settings">Predvoľby...</resource>
-		<resource name="destination_exportfailed">Chyba pri exporte do {0}. Prosím skúste to znova.</resource>
+		<resource name="destination_exportfailed">Chyba pri exporte do {0}. Prosím, skúste znova.</resource>
 		<resource name="editor_arrange">Usporiadať</resource>
 		<resource name="editor_arrowheads">Hlavička šípky</resource>
 		<resource name="editor_arrowheads_both">Oba</resource>
@@ -129,7 +129,7 @@
 		<resource name="editor_preview_quality">Ukážka kvality</resource>
 		<resource name="editor_print">Tlač</resource>
 		<resource name="editor_redo">Znova {0}</resource>
-		<resource name="editor_resetsize">Obnovit veľkosť</resource>
+		<resource name="editor_resetsize">Obnoviť veľkosť</resource>
 		<resource name="editor_rotateccw">Otočiť proti smeru hodinových ručičiek</resource>
 		<resource name="editor_rotatecw">Otočiť v smere hodinových ručičiek</resource>
 		<resource name="editor_save">Uložiť</resource>
@@ -152,18 +152,18 @@
 		<resource name="error">Chyba</resource>
 		<resource name="error_multipleinstances">Greenshot je už spustený.</resource>
 		<resource name="error_nowriteaccess">
-			Nedá sa uložiť súbor do {0}.
-			Skontrolujte prosím možnosť zapisovať do vybraného umiestnenia.
+			Súbor sa nedá uložiť do {0}.
+			Skontrolujte, prosím, možnosť zapisovania do vybraného umiestnenia.
 		</resource>
 		<resource name="error_openfile">Súbor "{0}" nemožno otvoriť.</resource>
 		<resource name="error_openlink">Nedá sa otvoriť odkaz.</resource>
-		<resource name="error_save">Nedá sa uložiť snímka, prosím nájdite vhodné umiestnenie.</resource>
+		<resource name="error_save">Snímka sa nedá uložiť; prosím, nájdite vhodné umiestnenie.</resource>
 		<resource name="expertsettings">Expert</resource>
 		<resource name="expertsettings_autoreducecolors">Vytvoriť 8-bit obrázok ak má snímka menej ako 256 farieb</resource>
 		<resource name="expertsettings_checkunstableupdates">Kontrola dostupnosti nestabilných aktualizácií</resource>
 		<resource name="expertsettings_clipboardformats">Formáty schránky</resource>
 		<resource name="expertsettings_counter">Číslo pre ${NUM} v šablóne názvu súboru</resource>
-		<resource name="expertsettings_enableexpert">Viem čo robím!</resource>
+		<resource name="expertsettings_enableexpert">Viem, čo robím!</resource>
 		<resource name="expertsettings_footerpattern">Šablóna pre tlač päty</resource>
 		<resource name="expertsettings_minimizememoryfootprint">Zníženie nárokov na pamäť za cenu zníženia výkonnosti (neodporúča sa).</resource>
 		<resource name="expertsettings_optimizeforrdp">Optimalizácia pre použitie so vzdialenou plochou</resource>
@@ -178,15 +178,15 @@
 		<resource name="jpegqualitydialog_dontaskagain">Uložiť ako predvolenú JPEG kvalitu a nepýtať sa znova</resource>
 		<resource name="jpegqualitydialog_title">Greenshot JPEG kvalita</resource>
 		<resource name="OK">Ok</resource>
-		<resource name="print_error">Nastala chyba pri pokuse tlačiť.</resource>
+		<resource name="print_error">Pri pokuse tlačiť nastala chyba.</resource>
 		<resource name="printoptions_allowcenter">Zarovnať na stred</resource>
 		<resource name="printoptions_allowenlarge">Zväčšiť na veľkosť papiera</resource>
 		<resource name="printoptions_allowrotate">Zmeniť orientáciu papiera</resource>
 		<resource name="printoptions_allowshrink">Zmenšiť na veľkosť papiera</resource>
-		<resource name="printoptions_dontaskagain">Uložiť možnosti ako predvolené a viac sa nepýtať</resource>
+		<resource name="printoptions_dontaskagain">Uložiť možnosti ako predvolené a viackrát sa nepýtať</resource>
 		<resource name="printoptions_inverted">Tlačiť s invertovanými farbami</resource>
 		<resource name="printoptions_printgrayscale">Vynútiť tlač v odtieňoch šedej</resource>
-		<resource name="printoptions_timestamp">Tlač dátumu / času v dolnej časti stránky</resource>
+		<resource name="printoptions_timestamp">Tlač dátumu/času v dolnej časti stránky</resource>
 		<resource name="printoptions_title">Možnosti tlače</resource>
 		<resource name="qualitydialog_dontaskagain">Uložiť ako predvolenú kvalitu a viackrát sa nepýtať</resource>
 		<resource name="qualitydialog_title">Greenshot kvalita</resource>
@@ -199,7 +199,7 @@
 		<resource name="settings_capture">Spraviť snímku</resource>
 		<resource name="settings_capture_mousepointer">Zachytiť aj kurzor myši</resource>
 		<resource name="settings_capture_windows_interactive">Interaktívny výber pri snímaní okien</resource>
-		<resource name="settings_checkperiod">Interval kontroly dostupnosti aktualizácií v dňoch (0=nekontrolovať)</resource>
+		<resource name="settings_checkperiod">Interval kontroly dostupnosti aktualizácií v dňoch (0 = nekontrolovať)</resource>
 		<resource name="settings_configureplugin">Konfigurovať</resource>
 		<resource name="settings_copypathtoclipboard">Kopírovať cestu k súboru do schránky pri každom ukladaní obrázku.</resource>
 		<resource name="settings_destination">Cieľ screenshotu</resource>
@@ -208,12 +208,12 @@
 		<resource name="settings_destination_email">E-Mail</resource>
 		<resource name="settings_destination_file">Uložiť priamo (pomocou nastavení nižšie)</resource>
 		<resource name="settings_destination_fileas">Uložiť ako (zobraz dialóg)</resource>
-		<resource name="settings_destination_picker">Vyberte cieľ dynamicky</resource>
+		<resource name="settings_destination_picker">Vybrať cieľ dynamicky</resource>
 		<resource name="settings_destination_printer">Poslať do tlačiarne</resource>
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Meno súboru - šablona</resource>
 		<resource name="settings_general">Hlavné</resource>
-		<resource name="settings_iecapture">Snímanie Internet Explorera</resource>
+		<resource name="settings_iecapture">Snímanie Internet Explorer</resource>
 		<resource name="settings_jpegquality">JPEG kavalita</resource>
 		<resource name="settings_jpegsettings">JPEG nastavenia</resource>
 		<resource name="settings_language">Jazyk</resource>
@@ -237,9 +237,9 @@
 
 			Príklad:  ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
 
-			bude vytvárať priečinky pre aktuálny deň vo vašom predvolenom úložisku,napr. 2008-06-29,
+			Príklad bude vytvárať priečinky pre aktuálny deň vo vašom predvolenom úložisku, napr. 2008-06-29,
 			názov súboru bude založený na aktuálnom čase, napr. 11-58-32
-			(+ je možné ďalšie rozšírenie definície podľa šablóny ako ju doplníme v Nastaveniach)
+			(je možné ďalšie rozšírenie definície podľa šablóny doplnenej v Nastaveniach).
 		</resource>
 		<resource name="settings_network">Sieť a aktualizácie</resource>
 		<resource name="settings_output">Výstup</resource>
@@ -261,31 +261,31 @@
 		<resource name="settings_storagelocation">Úložné miesto</resource>
 		<resource name="settings_title">Nastavenia</resource>
 		<resource name="settings_tooltip_filenamepattern">Šablona použitá pre generovanie súborov pri ukladaní snímok</resource>
-		<resource name="settings_tooltip_language">Jazyk uživateľského rozhrania (vyžaduje reštart)</resource>
+		<resource name="settings_tooltip_language">Jazyk používateľského rozhrania (vyžaduje reštart)</resource>
 		<resource name="settings_tooltip_primaryimageformat">Obrázok vo formáte použitý ako predvolený</resource>
-		<resource name="settings_tooltip_registerhotkeys">Definuje, či sú skratky PrnScr, Ctrl + PrnScr, Alt + PrnScr vyhradené pre použitie Greenshot počas behu programu.</resource>
-		<resource name="settings_tooltip_storagelocation">Miesto, kde sú screenshoty uložené vo východzom nastavení (nechajte prázdne pre uloženie do počítača)</resource>
-		<resource name="settings_usedefaultproxy">Použiť systémový proxy</resource>
+		<resource name="settings_tooltip_registerhotkeys">Definuje, či sú skratky PrtScn, Ctrl + PrtScn, Alt + PrtScn vyhradené pre použitie Greenshot počas behu programu.</resource>
+		<resource name="settings_tooltip_storagelocation">Miesto, kam sú screenshoty uložené vo východzom nastavení (nechajte prázdne pre uloženie do počítača)</resource>
+		<resource name="settings_usedefaultproxy">Použiť systémové proxy</resource>
 		<resource name="settings_visualization">Efekty</resource>
 		<resource name="settings_waittime">Koľko milisekúnd čakať pred vytvorením snímky</resource>
 		<resource name="settings_window_capture_mode">Režim snímania zaoblených a aero okien</resource>
 		<resource name="settings_windowscapture">Snímanie okna</resource>
-		<resource name="tooltip_firststart">Tu kliknúť pravým tlačidlom myši alebo stlačte PrtScr.</resource>
-		<resource name="update_found">K dispozícii je novšia verzia Greenshot! Chcete stiahnuť Greenshot {0}?</resource>
+		<resource name="tooltip_firststart">Sem kliknúť pravým tlačidlom myši alebo stlačte PrtScn.</resource>
+		<resource name="update_found">K dispozícii je nová verzia Greenshot! Chcete stiahnuť Greenshot {0}?</resource>
 		<resource name="wait_ie_capture">
-			Prosím počkať kým sa nasníma stránka z Internet Explorera...
+			Prosím čakajte kým sa nasníma stránka z Internet Explorer...
 
-			( Ak vidíte toto hlásenie dlhšie a Internet Explorer je minimalizovaný
+			( Ak vidíte toto hlásenie dlhšie a Internet Explorer je minimalizovaný,
 			treba ho obnoviť alebo maximalizovať. )
 		</resource>
 		<resource name="warning">Varovanie</resource>
 		<resource name="warning_hotkeys">
-			Jedna alebo viac klávesových skratiek nemohla byť zapísaná. Proto nemusia fungovať klávesové skratky Greenshot.
-			Problém je pravdepodobne v dôsledku blokovania iným nástrojom, ktorý používa rovnaké klávesové skratky.
-			Prosím deaktivujte iný software využívajúci PrintScreen tlačidlo. Môžete tiež využiť všetky funkcie Greenshot z kontextového menu tray ikony.
+			Jedna alebo viac klávesových skratiek nemohlo byť zapísaných. Z tohto dôvodu nemusia klávesové skratky Greenshot fungovať.
+			Problém je pravdepodobne zapríčinený iným nástrojom, ktorý používa rovnaké klávesové skratky.
+			Deaktivujte, prosím, iný software využívajúci PrtScn tlačidlo. Všetky funkcie Greenshot môžu byť taktiež využité prostredníctvom kontextového menu tray ikony.
 		</resource>
 		<resource name="WindowCaptureMode.Aero">Použiť vlastnú farbu</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">Zachovaj priehľadnosť</resource>
+		<resource name="WindowCaptureMode.AeroTransparent">Zachovať priehľadnosť</resource>
 		<resource name="WindowCaptureMode.Auto">Automaticky</resource>
 		<resource name="WindowCaptureMode.GDI">Použiť predvolenú farbu</resource>
 		<resource name="WindowCaptureMode.Screen">Ako je zobrazené</resource>
