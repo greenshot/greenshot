@@ -97,15 +97,21 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public class SourceForgeHelper {
 		private static ILog LOG = LogManager.GetLogger(typeof(SourceForgeHelper));
-		private const String RSSFEED = "http://getgreenshot.org/project-feed/";
+		private const string RSSFEED = "http://getgreenshot.org/project-feed/";
 
 		/// <summary>
 		/// This is using the HTTP HEAD Method to check if the RSS Feed is modified after the supplied date
 		/// </summary>
 		/// <param name="updateTime">DateTime</param>
 		/// <returns>true if the feed is newer</returns>
-		public static bool isRSSModifiedAfter(DateTime updateTime) {
+		public static bool IsRSSModifiedAfter(DateTime updateTime) {
 			DateTime lastModified = NetworkHelper.GetLastModified(new Uri(RSSFEED));
+			if (lastModified == DateTime.MinValue)
+			{
+				// Time could not be read, just take now and add one hour to it.
+				// This assist BUG-1850
+				lastModified = DateTime.Now.AddHours(1);
+			}
 			return updateTime.CompareTo(lastModified) < 0;
 		}
 

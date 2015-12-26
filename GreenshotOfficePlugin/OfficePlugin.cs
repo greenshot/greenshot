@@ -31,7 +31,6 @@ namespace GreenshotOfficePlugin {
 	public class OfficePlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OfficePlugin));
 		public static PluginAttribute Attributes;
-		private IGreenshotHost host;
 
 		public void Dispose() {
 			Dispose(true);
@@ -42,11 +41,8 @@ namespace GreenshotOfficePlugin {
 			//if (disposing) {}
 		}
 
-		public OfficePlugin() {
-		}
-
 		public IEnumerable<IDestination> Destinations() {
-			IDestination destination = null;
+			IDestination destination;
 			try {
 				destination = new ExcelDestination();
 			} catch {
@@ -100,12 +96,10 @@ namespace GreenshotOfficePlugin {
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
-		/// <param name="pluginAttribute">My own attributes</param>
+		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
+		/// <param name="myAttributes">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
 		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
-			this.host = (IGreenshotHost)pluginHost;
 			Attributes = myAttributes;
 			return true;
 		}

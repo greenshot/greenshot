@@ -1,10 +1,11 @@
-version: 1.2.7.{build}
+version: 1.2.8.{build}
 branches:
   only:
   - 1.2
 skip_tags: true
 configuration: Release
 platform: Any CPU
+shallow_clone: true
 clone_depth: 1
 assembly_info:
   patch: true
@@ -26,9 +27,9 @@ environment:
   credentials_flickr_consumer_secret:
     secure: 9TthlljPHXWPkDDeG3uiFVJ9YJwHZOV0ZsojaIBBuvw=
   credentials_imgur_consumer_key:
-    secure: z8S4QZ3/InPe3dgCf0CNyS0VGKuRyjjP8WMAq+AkK5OZJxZcbIxwobjgelE5CWYL
+    secure: XRTg1Ecs6ER9m4779CJAng==
   credentials_imgur_consumer_secret:
-    secure: ovfXJRorkkKUzbMXuZ4m0U6KF4icngmS+nzSljXJGSKfhI+GNXbMNa//mKYfTCXI
+    secure: gcCp/gJF8vqmnCUPKyb04H8Oz9mWmiB00U5X7iI/DGr5mxjoCG1khc6/zn6aSSqn
   credentials_photobucket_consumer_key:
     secure: oo9GD1Y8dkrli6hMfnnYsw==
   credentials_photobucket_consumer_secret:
