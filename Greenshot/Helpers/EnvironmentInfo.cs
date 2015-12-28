@@ -27,7 +27,7 @@ using System.Text;
 using System.Windows.Forms;
 using Dapplo.Windows.Native;
 using GreenshotPlugin.Core;
-using log4net;
+
 
 namespace Greenshot.Helpers
 {
@@ -36,7 +36,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public static class EnvironmentInfo
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (EnvironmentInfo));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(EnvironmentInfo));
 		private static bool? isWindows = null;
 
 		public static bool IsWindows

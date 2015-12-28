@@ -21,7 +21,7 @@
 
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
-using log4net;
+
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -41,7 +41,7 @@ namespace Greenshot.Destinations
 	public sealed class EmailDestination : AbstractDestination
 	{
 		private const string EmailDesignation = "Email";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (EmailDestination));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(EmailDestination));
 		private static readonly BitmapSource EmailIcon;
 		static EmailDestination()
 		{
@@ -87,7 +87,7 @@ namespace Greenshot.Destinations
 			}
 			catch (Exception e)
 			{
-				LOG.Error(e);
+				LOG.Error(e, "Email export failed");
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
 				returnValue.Text = GreenshotLanguage.SettingsDestinationEmail;

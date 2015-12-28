@@ -39,7 +39,7 @@ namespace GreenshotPicasaPlugin
 	public static class PicasaUtils
 	{
 		private const string PicasaScope = "https://picasaweb.google.com/data/";
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (PicasaUtils));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(PicasaUtils));
 		private static readonly IPicasaConfiguration _config = IniConfig.Current.Get<IPicasaConfiguration>();
 		private const string AuthUrl = "https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={ClientId}&redirect_uri={RedirectUrl}&state={State}&scope=" + PicasaScope;
 		private static readonly Uri TokenUrl = new Uri("https://www.googleapis.com/oauth2/v3/token");
@@ -144,7 +144,7 @@ namespace GreenshotPicasaPlugin
 			}
 			catch (Exception e)
 			{
-				LOG.ErrorFormat("Could not parse Picasa response due to error {0}, response was: {1}", e.Message, response);
+				LOG.Error("Could not parse Picasa response due to error {0}, response was: {1}", e.Message, response);
 			}
 			return null;
 		}

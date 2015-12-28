@@ -21,7 +21,7 @@
 
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Windows;
-using log4net;
+
 using System;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
@@ -43,7 +43,7 @@ namespace GreenshotDropboxPlugin
 	public sealed class DropboxDestination : AbstractDestination
 	{
 		private const string DropboxDesignation = "Dropbox";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (DropboxDestination));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(DropboxDestination));
 		private static readonly BitmapSource DropboxIcon;
 
 		static DropboxDestination()
@@ -127,14 +127,14 @@ namespace GreenshotDropboxPlugin
 				returnValue.Text = string.Format(DropboxLanguage.UploadFailure, DropboxDesignation);
                 returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
-				LOG.Info(tcEx.Message);
+				LOG.Information(tcEx.Message);
 			}
 			catch (Exception e)
 			{
 				returnValue.Text = string.Format(DropboxLanguage.UploadFailure, DropboxDesignation);
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
-				LOG.Warn(e);
+				LOG.Warning(e, "Dropbox export failed");
 				MessageBox.Show(DropboxLanguage.UploadFailure + " " + e.Message, DropboxDesignation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			return returnValue;

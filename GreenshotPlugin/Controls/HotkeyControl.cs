@@ -22,7 +22,7 @@
 using Dapplo.Config.Ini;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
-using log4net;
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -39,7 +39,7 @@ namespace GreenshotPlugin.Controls
 	/// </summary>
 	public class HotkeyControl : GreenshotTextBox
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (HotkeyControl));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(HotkeyControl));
 		private static readonly ICoreConfiguration coreConfiguration = IniConfig.Current.Get<ICoreConfiguration>();
 		private static EventDelay eventDelay = new EventDelay(TimeSpan.FromMilliseconds(600).Ticks);
 		private static bool isWindows7OrOlder = Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 1;
@@ -54,7 +54,7 @@ namespace GreenshotPlugin.Controls
 //			StringBuilder keyName = new StringBuilder();
 //			for(uint sc = 0; sc < 500; sc++) {
 //				if (GetKeyNameText(sc << 16, keyName, 100) != 0) {
-//					LOG.DebugFormat("SC {0} = {1}", sc, keyName);
+//					LOG.Debug("SC {0} = {1}", sc, keyName);
 //				}
 //			}
 //		}
@@ -540,7 +540,7 @@ namespace GreenshotPlugin.Controls
 		{
 			if (virtualKeyCode == Keys.None)
 			{
-				LOG.Warn("Trying to register a Keys.none hotkey, ignoring");
+				LOG.Warning("Trying to register a Keys.none hotkey, ignoring");
 				return 0;
 			}
 			// Convert Modifiers to fit HKM_SETHOTKEY
@@ -573,7 +573,7 @@ namespace GreenshotPlugin.Controls
 			}
 			else
 			{
-				LOG.Warn(String.Format("Couldn't register hotkey modifier {0} virtualKeyCode {1}", modifierKeyCode, virtualKeyCode));
+				LOG.Warning(String.Format("Couldn't register hotkey modifier {0} virtualKeyCode {1}", modifierKeyCode, virtualKeyCode));
 				return -1;
 			}
 		}

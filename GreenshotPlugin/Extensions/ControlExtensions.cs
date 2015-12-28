@@ -21,7 +21,7 @@
 
 using GreenshotPlugin.Core;
 using Dapplo.Windows.Native;
-using log4net;
+
 using System;
 using System.Drawing;
 using System.Threading;
@@ -33,7 +33,7 @@ namespace GreenshotPlugin.Extensions
 {
 	public static class ControlExtensions
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (ControlExtensions));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ControlExtensions));
 
 		/// <summary>
 		/// Very simple extention which makes it easier to call BeginInvoke on a control with a lambda

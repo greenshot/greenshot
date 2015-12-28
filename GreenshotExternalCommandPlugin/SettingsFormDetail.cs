@@ -35,7 +35,7 @@ namespace GreenshotExternalCommandPlugin
 		private string commando;
 		private int commandIndex;
 
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (SettingsFormDetail));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(SettingsFormDetail));
 		private static IExternalCommandConfiguration config = IniConfig.Current.Get<IExternalCommandConfiguration>();
 
 		public SettingsFormDetail(string commando)
@@ -104,7 +104,7 @@ namespace GreenshotExternalCommandPlugin
 				initialPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
 				openFileDialog.InitialDirectory = initialPath;
 			}
-			LOG.DebugFormat("Starting OpenFileDialog at {0}", initialPath);
+			LOG.Debug("Starting OpenFileDialog at {0}", initialPath);
 			if (openFileDialog.ShowDialog() == DialogResult.OK)
 			{
 				textBox_commandline.Text = openFileDialog.FileName;

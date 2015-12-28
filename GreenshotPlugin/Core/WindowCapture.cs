@@ -22,7 +22,7 @@
 using Dapplo.Config.Ini;
 using GreenshotPlugin.Configuration;
 using Dapplo.Windows.Native;
-using log4net;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -43,7 +43,7 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public static class WindowCapture
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (WindowCapture));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(WindowCapture));
 		private static readonly ICoreConfiguration Configuration = IniConfig.Current.Get<ICoreConfiguration>();
 
 		/// <summary>
@@ -177,7 +177,7 @@ namespace GreenshotPlugin.Core
 					}
 					catch (Exception ex)
 					{
-						LOG.Warn(ex.Message);
+						LOG.Warning(ex.Message);
 					}
 				}
 			}
@@ -205,7 +205,7 @@ namespace GreenshotPlugin.Core
 					}
 					catch (Exception ex)
 					{
-						LOG.Warn(ex.Message);
+						LOG.Warning(ex.Message);
 					}
 				}
 			}
@@ -274,7 +274,7 @@ namespace GreenshotPlugin.Core
 			Bitmap returnBitmap = null;
 			if (captureBounds.Height <= 0 || captureBounds.Width <= 0)
 			{
-				LOG.Warn("Nothing to capture, ignoring!");
+				LOG.Warning("Nothing to capture, ignoring!");
 				return null;
 			}
 			LOG.Debug("CaptureRectangle Called!");
@@ -401,7 +401,7 @@ namespace GreenshotPlugin.Core
 							}
 							catch (ExternalException ee)
 							{
-								LOG.Warn("Problem getting bitmap at try " + i + " : ", ee);
+								LOG.Warning("Problem getting bitmap at try " + i + " : ", ee);
 								exception = ee;
 							}
 						}

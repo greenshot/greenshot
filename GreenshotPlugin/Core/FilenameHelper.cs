@@ -21,7 +21,7 @@
 
 using Dapplo.Config.Ini;
 using GreenshotPlugin.Configuration;
-using log4net;
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -34,7 +34,7 @@ namespace GreenshotPlugin.Core
 {
 	public static class FilenameHelper
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (FilenameHelper));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(FilenameHelper));
 		// Specify the regular expression for the filename formatting:
 		// Starting with ${
 		// than the varname, which ends with a : or }

@@ -23,7 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using log4net;
+
 
 namespace GreenshotPlugin.Core
 {
@@ -305,7 +305,7 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public abstract unsafe class FastBitmap : IFastBitmap, IFastBitmapWithClip, IFastBitmapWithOffset
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (FastBitmap));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(FastBitmap));
 
 		protected const int PIXELFORMAT_INDEX_A = 3;
 		protected const int PIXELFORMAT_INDEX_R = 2;

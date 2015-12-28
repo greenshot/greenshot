@@ -21,7 +21,7 @@
 
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Windows;
-using log4net;
+
 using System;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
@@ -41,7 +41,7 @@ namespace GreenshotFlickrPlugin
 	public sealed class FlickrDestination : AbstractDestination
 	{
 		private const string FlickrDesignation = "Flickr";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (FlickrDestination));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(FlickrDestination));
 		private static readonly BitmapSource FlickrIcon;
 
 		static FlickrDestination()
@@ -112,14 +112,14 @@ namespace GreenshotFlickrPlugin
 				returnValue.Text = string.Format(FlickrLanguage.UploadFailure, FlickrDesignation);
                 returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
-				LOG.Info(tcEx.Message);
+				LOG.Information(tcEx.Message);
 			}
 			catch (Exception e)
 			{
 				returnValue.Text = string.Format(FlickrLanguage.UploadFailure, FlickrDesignation);
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
-				LOG.Warn(e);
+				LOG.Warning(e, "Flickr upload gave an exception");
 				MessageBox.Show(FlickrLanguage.UploadFailure + " " + e.Message, FlickrDesignation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			return returnValue;

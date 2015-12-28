@@ -25,7 +25,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Destination;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+
 using System;
 using System.ComponentModel.Composition;
 using System.IO;
@@ -45,7 +45,7 @@ namespace GreenshotOfficePlugin.Destinations
 	public sealed class ExcelDestination : AbstractDestination
 	{
 		public const string ExcelDesignation = "Excel";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(ExcelDestination));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ExcelDestination));
 		private static readonly BitmapSource WorkbookIcon;
 		private static readonly BitmapSource ApplicationIcon;
 
@@ -154,7 +154,7 @@ namespace GreenshotOfficePlugin.Destinations
 			}
 			catch (Exception ex)
 			{
-				LOG.Error(ex);
+				LOG.Error(ex, "Excel export failed");
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = ex.Message;
 				returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, ExcelDesignation);

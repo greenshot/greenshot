@@ -21,7 +21,7 @@
 
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
-using log4net;
+
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,7 +43,7 @@ namespace Greenshot.Destinations
 	public sealed class PrinterDestination : AbstractDestination
 	{
 		private const string PrinterDesignation = "Printer";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (PrinterDestination));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(PrinterDestination));
 		private static readonly BitmapSource PrinterIcon;
 		static PrinterDestination()
 		{
@@ -141,7 +141,7 @@ namespace Greenshot.Destinations
 			}
 			catch (Exception e)
 			{
-				LOG.Error(e);
+				LOG.Error(e, "Printer export failed");
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
 				returnValue.Text = GreenshotLanguage.PrintError;

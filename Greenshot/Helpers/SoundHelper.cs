@@ -21,7 +21,7 @@
 
 using Dapplo.Config.Ini;
 using GreenshotPlugin.Configuration;
-using log4net;
+
 using System;
 using System.IO;
 using System.Media;
@@ -39,7 +39,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public static class SoundHelper
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (SoundHelper));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(SoundHelper));
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static SoundPlayer soundPlayer;
 

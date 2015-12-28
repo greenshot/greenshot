@@ -25,7 +25,7 @@ using GreenshotEditorPlugin.Drawing.Filters;
 using GreenshotEditorPlugin.Helpers;
 using GreenshotEditorPlugin.Memento;
 using GreenshotPlugin.Extensions;
-using log4net;
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -45,7 +45,7 @@ namespace GreenshotEditorPlugin.Drawing
 	[Serializable]
 	public abstract class DrawableContainer : AbstractFieldHolder, IDrawableContainer
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (DrawableContainer));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(DrawableContainer));
 		protected static readonly IEditorConfiguration EditorConfig = IniConfig.Current.Get<IEditorConfiguration>();
 		private bool isMadeUndoable;
 		private const int M11 = 0;

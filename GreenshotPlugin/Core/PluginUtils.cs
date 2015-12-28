@@ -22,7 +22,7 @@
 using Dapplo.Config.Ini;
 using GreenshotPlugin.Configuration;
 using Dapplo.Windows.Native;
-using log4net;
+
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -41,7 +41,7 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public static class PluginUtils
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (PluginUtils));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(PluginUtils));
 		private static readonly ICoreConfiguration Conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IDictionary<string, Bitmap> ExeIconCache = new Dictionary<string, Bitmap>();
 
@@ -109,7 +109,7 @@ namespace GreenshotPlugin.Core
 				}
 				catch (Exception)
 				{
-					LOG.WarnFormat("Problem with path entry '{0}'.", pathEntry);
+					LOG.Warning("Problem with path entry '{0}'.", pathEntry);
 				}
 			}
 			return null;

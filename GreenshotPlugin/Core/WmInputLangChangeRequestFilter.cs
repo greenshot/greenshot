@@ -20,7 +20,7 @@
  */
 
 using Dapplo.Windows.Enums;
-using log4net;
+
 using System.Windows.Forms;
 
 namespace GreenshotPlugin.Core
@@ -32,7 +32,7 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public class WmInputLangChangeRequestFilter : IMessageFilter
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (WmInputLangChangeRequestFilter));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(WmInputLangChangeRequestFilter));
 
 		public bool PreFilterMessage(ref Message m)
 		{

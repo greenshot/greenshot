@@ -27,7 +27,7 @@ using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
-using log4net;
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -55,7 +55,7 @@ namespace Greenshot.Forms
 			Vertical
 		};
 
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (CaptureForm));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(CaptureForm));
 		private static readonly ICoreConfiguration Conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly Brush GreenOverlayBrush = new SolidBrush(Color.FromArgb(50, Color.MediumSeaGreen));
 		private static readonly Pen OverlayPen = new Pen(Color.FromArgb(50, Color.Black));
@@ -138,7 +138,7 @@ namespace Greenshot.Forms
 			{
 				return;
 			}
-			LOG.DebugFormat("Selected window: {0}", SelectedCaptureWindow);
+			LOG.Debug("Selected window: {0}", SelectedCaptureWindow);
 			_capture.CaptureDetails.Title = SelectedCaptureWindow.Text;
 			_capture.CaptureDetails.AddMetaData("windowtitle", SelectedCaptureWindow.Text);
 			if (UsedCaptureMode != CaptureMode.Window)
@@ -166,7 +166,7 @@ namespace Greenshot.Forms
 		{
 			if (_currentForm != null)
 			{
-				LOG.Warn("Found currentForm, Closing already opened CaptureForm");
+				LOG.Warning("Found currentForm, Closing already opened CaptureForm");
 				_currentForm.Close();
 				_currentForm = null;
 				Application.DoEvents();

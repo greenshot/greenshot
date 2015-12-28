@@ -43,7 +43,7 @@ namespace GreenshotExternalCommandPlugin
 	[StartupAction]
 	public class ExternalCommandPlugin : IConfigurablePlugin, IStartupAction
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ExternalCommandPlugin));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ExternalCommandPlugin));
 		private const string MsPaint = "MS Paint";
 		private const string PaintDotNet = "Paint.NET";
 		private ToolStripMenuItem _itemPlugInRoot;
@@ -111,24 +111,24 @@ namespace GreenshotExternalCommandPlugin
 		{
 			if (!ExternalCommandConfiguration.RunInbackground.ContainsKey(command))
 			{
-				LOG.WarnFormat("Found missing runInbackground for {0}", command);
+				LOG.Warning("Found missing runInbackground for {0}", command);
 				// Fix it
 				ExternalCommandConfiguration.RunInbackground.Add(command, true);
 			}
 			if (!ExternalCommandConfiguration.Argument.ContainsKey(command))
 			{
-				LOG.WarnFormat("Found missing argument for {0}", command);
+				LOG.Warning("Found missing argument for {0}", command);
 				// Fix it
 				ExternalCommandConfiguration.Argument.Add(command, "{0}");
 			}
 			if (!ExternalCommandConfiguration.Commandline.ContainsKey(command))
 			{
-				LOG.WarnFormat("Found missing commandline for {0}", command);
+				LOG.Warning("Found missing commandline for {0}", command);
 				return false;
 			}
 			if (!File.Exists(ExternalCommandConfiguration.Commandline[command]))
 			{
-				LOG.WarnFormat("Found 'invalid' commandline {0} for command {1}", ExternalCommandConfiguration.Commandline[command], command);
+				LOG.Warning("Found 'invalid' commandline {0} for command {1}", ExternalCommandConfiguration.Commandline[command], command);
 				return false;
 			}
 			return true;
@@ -194,7 +194,7 @@ namespace GreenshotExternalCommandPlugin
 				}
 				catch (Exception ex)
 				{
-					LOG.Warn("Couldn't get the cmd.exe image", ex);
+					LOG.Warning("Couldn't get the cmd.exe image", ex);
 				}
 			}
 		}

@@ -30,7 +30,7 @@ namespace GreenshotExternalCommandPlugin
 	public static class IconCache
 	{
 		private static IExternalCommandConfiguration config = IniConfig.Current.Get<IExternalCommandConfiguration>();
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (IconCache));
+		private static Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(IconCache));
 
 		public static Image IconForCommand(string commandName)
 		{
@@ -45,7 +45,7 @@ namespace GreenshotExternalCommandPlugin
 					}
 					catch (Exception ex)
 					{
-						LOG.Warn("Problem loading icon for " + config.Commandline[commandName], ex);
+						LOG.Warning("Problem loading icon for " + config.Commandline[commandName], ex);
 					}
 				}
 			}

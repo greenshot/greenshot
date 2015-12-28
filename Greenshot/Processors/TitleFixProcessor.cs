@@ -22,7 +22,7 @@
 using Dapplo.Config.Ini;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
-using log4net;
+
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using GreenshotPlugin.Interfaces;
@@ -34,7 +34,7 @@ namespace Greenshot.Processors
 	/// </summary>
 	public class TitleFixProcessor
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (TitleFixProcessor));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(TitleFixProcessor));
 		private static readonly ICoreConfiguration config = IniConfig.Current.Get<ICoreConfiguration>();
 
 		public TitleFixProcessor()
@@ -44,7 +44,7 @@ namespace Greenshot.Processors
 			{
 				if (!config.TitleFixMatcher.ContainsKey(key))
 				{
-					LOG.WarnFormat("Key {0} not found, configuration is broken! Disabling this key!");
+					LOG.Warning("Key {0} not found, configuration is broken! Disabling this key!");
 					corruptKeys.Add(key);
 				}
 			}

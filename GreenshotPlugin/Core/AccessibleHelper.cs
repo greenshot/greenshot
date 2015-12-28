@@ -23,7 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Accessibility;
-using log4net;
+
 
 namespace GreenshotPlugin.Core
 {
@@ -34,7 +34,7 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public class Accessible
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (Accessible));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(Accessible));
 
 		#region Interop
 

@@ -22,7 +22,7 @@
 using Dapplo.Config.Ini;
 using Greenshot.Forms;
 using GreenshotPlugin.Core;
-using log4net;
+
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -42,7 +42,7 @@ namespace Greenshot.Windows
 	/// </summary>
 	public partial class AboutWindow : Window
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (AboutWindow));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(AboutWindow));
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		private static readonly object LockObject = new object();
 		private static AboutWindow _aboutWindow;

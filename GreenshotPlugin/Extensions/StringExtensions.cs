@@ -21,7 +21,7 @@
 
 using System;
 using System.IO;
-using log4net;
+
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
@@ -32,7 +32,7 @@ namespace GreenshotPlugin.Extensions
 	/// </summary>
 	public static class StringExtensions
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (StringExtensions));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(StringExtensions));
 
 		/// <summary>
 		/// Format a string with the specified object

@@ -38,7 +38,7 @@ namespace GreenshotConfluencePlugin
 	[StartupAction, ShutdownAction]
 	public class ConfluencePlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ConfluencePlugin));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ConfluencePlugin));
 		private static ConfluenceApi _confluenceApi;
 
 		[Import]
@@ -80,15 +80,15 @@ namespace GreenshotConfluencePlugin
 			}
 			catch (Exception ex)
 			{
-				LOG.ErrorFormat("Problem in ConfluencePlugin.Initialize: {0}", ex.Message);
+				LOG.Error("Problem in ConfluencePlugin.Initialize: {0}", ex.Message);
 				return;
 			}
 			_confluenceApi = await GetConfluenceApi();
 			if (_confluenceApi != null)
 			{
-				LOG.Info("Loading spaces");
+				LOG.Information("Loading spaces");
 				// Store the task, so the compiler doesn't complain but do not wait so the task runs in the background
-				var ignoreTask = _confluenceApi.LoadSpacesAsync(token: token).ContinueWith((_) => LOG.Info("Finished loading spaces"), token).ConfigureAwait(false);
+				var ignoreTask = _confluenceApi.LoadSpacesAsync(token: token).ContinueWith((_) => LOG.Information("Finished loading spaces"), token).ConfigureAwait(false);
 			}
 		}
 
@@ -133,7 +133,7 @@ namespace GreenshotConfluencePlugin
 					{
 						// Try loading content for id 0, should be null (or something) but not give an exception
 						await confluenceApi.GetContentAsync(1).ConfigureAwait(false);
-						LOG.DebugFormat("Confluence access for User {0} worked", dialog.Name);
+						LOG.Debug("Confluence access for User {0} worked", dialog.Name);
 						if (dialog.SaveChecked)
 						{
 							dialog.Confirm(true);
@@ -142,7 +142,7 @@ namespace GreenshotConfluencePlugin
 					}
 					catch
 					{
-						LOG.DebugFormat("Confluence access for User {0} didn't work, probably a wrong password.", dialog.Name);
+						LOG.Debug("Confluence access for User {0} didn't work, probably a wrong password.", dialog.Name);
 						confluenceApi.Dispose();
 						confluenceApi = null;
 						try

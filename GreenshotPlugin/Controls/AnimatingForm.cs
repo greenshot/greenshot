@@ -20,7 +20,7 @@
  */
 
 using System;
-using log4net;
+
 using System.Threading.Tasks;
 using System.Threading;
 using System.Timers;
@@ -35,7 +35,7 @@ namespace GreenshotPlugin.Controls
 	/// </summary>
 	public class AnimatingForm : GreenshotForm
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (AnimatingForm));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(AnimatingForm));
 		private const int DEFAULT_VREFRESH = 60;
 		private int vRefresh = 0;
 		private System.Timers.Timer timer = null;
@@ -140,7 +140,7 @@ namespace GreenshotPlugin.Controls
 			}
 			catch (Exception ex)
 			{
-				LOG.Warn("An exception occured while animating:", ex);
+				LOG.Warning("An exception occured while animating:", ex);
 			}
 		}
 

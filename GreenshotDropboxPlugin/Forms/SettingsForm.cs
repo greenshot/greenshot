@@ -29,7 +29,7 @@ namespace GreenshotDropboxPlugin
 	/// </summary>
 	public partial class SettingsForm : DropboxForm
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (SettingsForm));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(SettingsForm));
 		private static readonly IDropboxConfiguration config = IniConfig.Current.Get<IDropboxConfiguration>();
 
 		public SettingsForm()

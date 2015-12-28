@@ -20,7 +20,7 @@
  */
 
 using GreenshotPlugin.Core;
-using log4net;
+
 using System;
 using System.Drawing;
 using System.IO;
@@ -34,7 +34,7 @@ namespace GreenshotPlugin.Extensions
 {
 	public static class UriExtensions
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (UriExtensions));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(UriExtensions));
 
 		/// <summary>
 		/// Download the uri to Bitmap
@@ -92,8 +92,7 @@ namespace GreenshotPlugin.Extensions
 			}
 			catch (Exception e)
 			{
-				LOG.ErrorFormat("Problem downloading the image from: {0}", uri);
-				LOG.Error(e);
+				LOG.Error(e, "Problem downloading the image from: {Uri}", uri);
 			}
 			return null;
 		}

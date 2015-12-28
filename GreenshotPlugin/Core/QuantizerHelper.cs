@@ -24,7 +24,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using log4net;
+
 
 namespace GreenshotPlugin.Core
 {
@@ -103,7 +103,7 @@ namespace GreenshotPlugin.Core
 
 	public class WuQuantizer : IDisposable
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (WuQuantizer));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(WuQuantizer));
 
 		private const Int32 MAXCOLOR = 512;
 		private const Int32 RED = 2;
@@ -332,12 +332,12 @@ namespace GreenshotPlugin.Core
 			if (colorCount < allowedColorCount)
 			{
 				// Simple logic to reduce to 8 bit
-				LOG.Info("Colors in the image are already less as whished for, using simple copy to indexed image, no quantizing needed!");
+				LOG.Information("Colors in the image are already less as whished for, using simple copy to indexed image, no quantizing needed!");
 				return SimpleReindex();
 			}
 			// preprocess the colors
 			CalculateMoments();
-			LOG.Info("Calculated the moments...");
+			LOG.Information("Calculated the moments...");
 			Int32 next = 0;
 			Single[] volumeVariance = new Single[MAXCOLOR];
 
@@ -408,7 +408,7 @@ namespace GreenshotPlugin.Core
 			blues = new Int32[allowedColorCount + 1];
 			sums = new Int32[allowedColorCount + 1];
 
-			LOG.Info("Starting bitmap reconstruction...");
+			LOG.Information("Starting bitmap reconstruction...");
 
 			using (FastChunkyBitmap dest = FastBitmap.Create(resultBitmap) as FastChunkyBitmap)
 			{

@@ -43,7 +43,7 @@ namespace GreenshotImgurPlugin
 	/// </summary>
 	public static class ImgurUtils
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ImgurUtils));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ImgurUtils));
 		private static readonly INetworkConfiguration NetworkConfig = IniConfig.Current.Get<INetworkConfiguration>();
 		private static readonly IImgurConfiguration config = IniConfig.Current.Get<IImgurConfiguration>();
 		private static readonly Uri IMGUR_IMAGES_URI = new Uri("http://api.imgur.com/2/account/images.json");
@@ -195,10 +195,10 @@ namespace GreenshotImgurPlugin
 		{
 			if (imgurInfo.SmallSquare == null)
 			{
-				LOG.Info("RetrieveImgurThumbnailAsync: Imgur URL was null, not retrieving thumbnail.");
+				LOG.Information("RetrieveImgurThumbnailAsync: Imgur URL was null, not retrieving thumbnail.");
 				return;
 			}
-			LOG.InfoFormat("Retrieving Imgur image for {0} with url {1}", imgurInfo.Id, imgurInfo.SmallSquare);
+			LOG.Information("Retrieving Imgur image for {0} with url {1}", imgurInfo.Id, imgurInfo.SmallSquare);
 			using (var client = HttpClientFactory.CreateHttpClient(NetworkConfig))
 			{
 				using (var response = await client.GetAsync(imgurInfo.SmallSquare, token).ConfigureAwait(false))
@@ -225,7 +225,7 @@ namespace GreenshotImgurPlugin
 		public static async Task<ImageInfo> RetrieveImgurInfoAsync(string id, string deleteHash, CancellationToken token = default(CancellationToken))
 		{
 			var imageUri = new Uri(string.Format(config.ApiUrl + "/image/{0}.json", id));
-			LOG.InfoFormat("Retrieving Imgur info for {0} with url {1}", id, imageUri);
+			LOG.Information("Retrieving Imgur info for {0} with url {1}", id, imageUri);
 
 			dynamic imageJson;
 			using (var client = HttpClientFactory.CreateHttpClient(NetworkConfig))
@@ -286,7 +286,7 @@ namespace GreenshotImgurPlugin
 		/// <param name="token"></param>
 		public static async Task<string> DeleteImgurImageAsync(ImageInfo imgurInfo, CancellationToken token = default(CancellationToken))
 		{
-			LOG.InfoFormat("Deleting Imgur image for {0}", imgurInfo.DeleteHash);
+			LOG.Information("Deleting Imgur image for {0}", imgurInfo.DeleteHash);
 			Uri deleteUri = new Uri(string.Format(config.ApiUrl + "/image/{0}", imgurInfo.DeleteHash));
 			string responseString;
 			using (var client = HttpClientFactory.CreateHttpClient(NetworkConfig))
@@ -299,7 +299,7 @@ namespace GreenshotImgurPlugin
 					await response.HandleErrorAsync(token: token).ConfigureAwait(false);
 				}
 				responseString = await response.GetAsStringAsync(false, token).ConfigureAwait(false);
-				LOG.InfoFormat("Delete result: {0}", responseString);
+				LOG.Information("Delete result: {0}", responseString);
 			}
 			// Make sure we remove it from the history, if no error occured
 			config.RuntimeImgurHistory.Remove(imgurInfo.Id);
@@ -332,12 +332,12 @@ namespace GreenshotImgurPlugin
 					if (data.ContainsKey("ClientRemaining"))
 					{
 						credits = (int) data.ClientRemaining;
-						LOG.InfoFormat("{0}={1}", "ClientRemaining", (int) data.ClientRemaining);
+						LOG.Information("{0}={1}", "ClientRemaining", (int) data.ClientRemaining);
 					}
 					if (data.ContainsKey("UserRemaining"))
 					{
 						credits = Math.Min(credits, (int) data.UserRemaining);
-						LOG.InfoFormat("{0}={1}", "UserRemaining", (int) data.UserRemaining);
+						LOG.Information("{0}={1}", "UserRemaining", (int) data.UserRemaining);
 					}
 					config.Credits = credits;
 				}

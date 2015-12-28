@@ -24,7 +24,7 @@ using GreenshotEditorPlugin.Memento;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
 using GreenshotPlugin.Windows;
-using log4net;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -47,7 +47,7 @@ namespace GreenshotEditorPlugin.Drawing
 	/// </summary>
 	public class Surface : Control, ISurface, INotifyPropertyChanged
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (Surface));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(Surface));
 		public static int Count;
 
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -525,7 +525,7 @@ namespace GreenshotEditorPlugin.Drawing
 		/// <param name="newImage"></param>
 		public Surface(Image newImage) : this()
 		{
-			LOG.DebugFormat("Got image with dimensions {0} and format {1}", newImage.Size, newImage.PixelFormat);
+			LOG.Debug("Got image with dimensions {0} and format {1}", newImage.Size, newImage.PixelFormat);
 			SetImage(newImage, true);
 		}
 
@@ -908,7 +908,7 @@ namespace GreenshotEditorPlugin.Drawing
 
 		private void OnDragEnter(object sender, DragEventArgs e)
 		{
-			if (LOG.IsDebugEnabled)
+			if (LOG.IsEnabled(Serilog.Events.LogEventLevel.Debug))
 			{
 				LOG.Debug("DragEnter got following formats: ");
 				foreach (string format in ClipboardHelper.GetFormats(e.Data))
@@ -1465,7 +1465,7 @@ namespace GreenshotEditorPlugin.Drawing
 				if (_buffer == null)
 				{
 					_buffer = ImageHelper.CreateEmpty(Image.Width, Image.Height, Image.PixelFormat, Color.Empty, Image.HorizontalResolution, Image.VerticalResolution);
-					LOG.DebugFormat("Created buffer with size: {0}x{1}", Image.Width, Image.Height);
+					LOG.Debug("Created buffer with size: {0}x{1}", Image.Width, Image.Height);
 				}
 				// Elements might need the bitmap, so we copy the part we need
 				using (Graphics graphics = Graphics.FromImage(_buffer))
@@ -1770,7 +1770,7 @@ namespace GreenshotEditorPlugin.Drawing
 			{
 				return;
 			}
-			if (LOG.IsDebugEnabled)
+			if (LOG.IsEnabled(Serilog.Events.LogEventLevel.Debug))
 			{
 				LOG.Debug("List of clipboard formats available for pasting:");
 				foreach (string format in formats)
@@ -1908,7 +1908,7 @@ namespace GreenshotEditorPlugin.Drawing
 		/// </summary>
 		public void DuplicateSelectedElements()
 		{
-			LOG.DebugFormat("Duplicating {0} selected elements", _selectedElements.Count);
+			LOG.Debug("Duplicating {0} selected elements", _selectedElements.Count);
 			DrawableContainerList dcs = _selectedElements.Clone();
 			dcs.Parent = this;
 			dcs.MoveBy(10, 10);

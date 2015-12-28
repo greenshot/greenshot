@@ -40,7 +40,7 @@ namespace GreenshotPicasaPlugin
 	[StartupAction]
 	public class PicasaPlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (PicasaPlugin));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(PicasaPlugin));
 		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _itemPlugInRoot;
 

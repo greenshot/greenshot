@@ -34,7 +34,7 @@ namespace GreenshotDropboxPlugin
 	/// </summary>
 	public static class DropboxUtils
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (DropboxUtils));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(DropboxUtils));
 		private static readonly IDropboxConfiguration config = IniConfig.Current.Get<IDropboxConfiguration>();
 		private static readonly Uri DROPBOX_API_URI = new Uri("https://api.dropbox.com/1");
 		private static readonly Uri DROPBOX_OAUTH_URI = DROPBOX_API_URI.AppendSegments("oauth");
@@ -57,7 +57,7 @@ namespace GreenshotDropboxPlugin
 			try
 			{
 				string uploadResponse = await oAuth.MakeOAuthRequest(HttpMethod.Post, DROPBOX_API_CONTENT_URI.AppendSegments(Uri.EscapeDataString(filename)), null, null, null, null, content);
-				LOG.DebugFormat("Upload response: {0}", uploadResponse);
+				LOG.Debug("Upload response: {0}", uploadResponse);
 			}
 			catch (Exception ex)
 			{
@@ -82,7 +82,7 @@ namespace GreenshotDropboxPlugin
 				string responseString = await oAuth.MakeOAuthRequest(HttpMethod.Get, DROPBOX_SHARES_URI.AppendSegments(Uri.EscapeDataString(filename)), null);
 				if (responseString != null)
 				{
-					LOG.DebugFormat("Parsing output: {0}", responseString);
+					LOG.Debug("Parsing output: {0}", responseString);
 					dynamic result = SimpleJson.DeserializeObject(responseString);
 					return result.url;
 				}

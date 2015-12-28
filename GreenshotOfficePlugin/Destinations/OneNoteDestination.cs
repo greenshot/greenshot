@@ -25,7 +25,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Destination;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+
 using System;
 using System.ComponentModel.Composition;
 using System.IO;
@@ -44,7 +44,7 @@ namespace GreenshotOfficePlugin.Destinations
 	public sealed class OneNoteDestination : AbstractDestination
 	{
 		public const string OneNoteDesignation = "OneNote";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(OneNoteDestination));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(OneNoteDestination));
 		private static readonly BitmapSource ApplicationIcon;
 		
 		static OneNoteDestination()
@@ -144,7 +144,7 @@ namespace GreenshotOfficePlugin.Destinations
 			}
 			catch (Exception ex)
 			{
-				LOG.Error(ex);
+				LOG.Error(ex, "OneNote export failed");
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = ex.Message;
 				returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, OneNoteDesignation);

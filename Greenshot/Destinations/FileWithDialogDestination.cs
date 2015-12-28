@@ -21,7 +21,7 @@
 
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
-using log4net;
+
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,7 +40,7 @@ namespace Greenshot.Destinations
 	public sealed class FileWithDialogDestination : AbstractDestination
 	{
 		private const string FileWithDialogDesignation = "FileWithDialog";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (FileWithDialogDestination));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(FileWithDialogDestination));
 		private static readonly BitmapSource FileWithDialogIcon;
 		static FileWithDialogDestination()
 		{
@@ -101,7 +101,7 @@ namespace Greenshot.Destinations
 			}
 			catch (Exception e)
 			{
-				LOG.Error(e);
+				LOG.Error(e, "Save as gave an exception");
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
 				returnValue.Text = GreenshotLanguage.EditorCancel;

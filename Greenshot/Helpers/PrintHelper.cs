@@ -27,7 +27,7 @@ using Greenshot.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
 using Greenshot.Core;
-using log4net;
+
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using GreenshotPlugin.Configuration;
@@ -41,7 +41,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public class PrintHelper : IDisposable
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (PrintHelper));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(PrintHelper));
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 

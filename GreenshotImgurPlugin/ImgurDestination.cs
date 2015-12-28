@@ -21,7 +21,7 @@
 
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Windows;
-using log4net;
+
 using System;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
@@ -41,7 +41,7 @@ namespace GreenshotImgurPlugin
 	public sealed class ImgurDestination : AbstractDestination
 	{
 		private const string ImgurDesignation = "Imgur";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (ImgurDestination));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ImgurDestination));
 		private static readonly BitmapSource ImgurIcon;
 
 		static ImgurDestination()
@@ -130,14 +130,14 @@ namespace GreenshotImgurPlugin
 				returnValue.Text = string.Format(ImgurLanguage.UploadFailure, ImgurDesignation);
                 returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
-				LOG.Info(tcEx.Message);
+				LOG.Information(tcEx.Message);
 			}
 			catch (Exception e)
 			{
 				returnValue.Text = string.Format(ImgurLanguage.UploadFailure, ImgurDesignation);
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
-				LOG.Warn(e);
+				LOG.Warning(e, "Upload to Imgur gave an exception");
 				MessageBox.Show(ImgurLanguage.UploadFailure + " " + e.Message, ImgurDesignation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			return returnValue;

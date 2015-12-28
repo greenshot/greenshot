@@ -21,7 +21,7 @@
 
 using Dapplo.Config.Ini;
 using GreenshotPlugin.Configuration;
-using log4net;
+
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -36,7 +36,7 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public static class LegacyDestinationHelper
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (LegacyDestinationHelper));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(LegacyDestinationHelper));
 		private static Dictionary<string, ILegacyDestination> RegisteredDestinations = new Dictionary<string, ILegacyDestination>();
 		private static readonly ICoreConfiguration coreConfig = IniConfig.Current.Get<ICoreConfiguration>();
 
@@ -57,18 +57,17 @@ namespace GreenshotPlugin.Core
 				}
 				catch (Exception e)
 				{
-					LOG.ErrorFormat("Can't create instance of {0}", destinationType);
-					LOG.Error(e);
+					LOG.Error(e, "Can't create instance of {Type}", destinationType);
 					continue;
 				}
 				if (destination.IsActive)
 				{
-					LOG.DebugFormat("Found destination {0} with designation {1}", destinationType.Name, destination.Designation);
+					LOG.Debug("Found destination {0} with designation {1}", destinationType.Name, destination.Designation);
 					RegisterLegacyDestination(destination);
 				}
 				else
 				{
-					LOG.DebugFormat("Ignoring destination {0} with designation {1}", destinationType.Name, destination.Designation);
+					LOG.Debug("Ignoring destination {0} with designation {1}", destinationType.Name, destination.Designation);
 				}
 			}
 		}

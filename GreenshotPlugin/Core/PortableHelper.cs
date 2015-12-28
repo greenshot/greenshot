@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using log4net;
+
 using System;
 using System.IO;
 using System.Reflection;
@@ -31,7 +31,7 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public static class PortableHelper
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (PortableHelper));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(PortableHelper));
 		private static bool _portable = false;
 		private static bool _portableCheckMade = false;
 		private static string _applicationStartupPath;
@@ -44,7 +44,7 @@ namespace GreenshotPlugin.Core
 			}
 			catch (Exception exception)
 			{
-				LOG.WarnFormat("Problem retrieving the AssemblyLocation: {0} (Designer mode?)", exception.Message);
+				LOG.Warning("Problem retrieving the AssemblyLocation: {0} (Designer mode?)", exception.Message);
 				_applicationStartupPath = @".";
 			}
 		}
@@ -61,12 +61,12 @@ namespace GreenshotPlugin.Core
 					string pafPath = Path.Combine(_applicationStartupPath, @"App\Greenshot");
 					if (!_portable)
 					{
-						LOG.Info("Checking for portable mode.");
+						LOG.Information("Checking for portable mode.");
 						_portableCheckMade = true;
 						if (Directory.Exists(pafPath))
 						{
 							_portable = true;
-							LOG.Info("Portable mode active!");
+							LOG.Information("Portable mode active!");
 						}
 					}
 				}
@@ -94,7 +94,7 @@ namespace GreenshotPlugin.Core
 					}
 					catch (Exception e)
 					{
-						LOG.WarnFormat("Portable mode NOT possible, couldn't create directory '{0}'! Reason: {1}", pafConfigPath, e.Message);
+						LOG.Warning("Portable mode NOT possible, couldn't create directory '{0}'! Reason: {1}", pafConfigPath, e.Message);
 					}
 				}
 				return null;

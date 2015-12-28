@@ -20,7 +20,7 @@
  */
 
 using GreenshotPlugin.Core;
-using log4net;
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -35,7 +35,7 @@ namespace GreenshotPlugin.Controls
 	/// </summary>
 	public partial class OAuthLoginForm : Form
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (OAuthLoginForm));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(OAuthLoginForm));
 		private readonly string _callbackUrl;
 		private IDictionary<string, string> _callbackParameters = null;
 
@@ -84,19 +84,19 @@ namespace GreenshotPlugin.Controls
 
 		private void Browser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
 		{
-			LOG.DebugFormat("document completed with url: {0}", _browser.Url);
+			LOG.Debug("document completed with url: {0}", _browser.Url);
 			CheckUrl();
 		}
 
 		private void Browser_Navigating(object sender, WebBrowserNavigatingEventArgs e)
 		{
-			LOG.DebugFormat("Navigating to url: {0}", _browser.Url);
+			LOG.Debug("Navigating to url: {0}", _browser.Url);
 			_addressTextBox.Text = e.Url.ToString();
 		}
 
 		private void Browser_Navigated(object sender, WebBrowserNavigatedEventArgs e)
 		{
-			LOG.DebugFormat("Navigated to url: {0}", _browser.Url);
+			LOG.Debug("Navigated to url: {0}", _browser.Url);
 			CheckUrl();
 		}
 

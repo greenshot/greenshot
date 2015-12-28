@@ -20,7 +20,7 @@
  */
 
 using Dapplo.Windows;
-using log4net;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,7 +37,7 @@ namespace GreenshotJiraPlugin
 	/// </summary>
 	public class JiraMonitor : IDisposable
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (JiraMonitor));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(JiraMonitor));
 		private readonly Regex _jiraKeyPattern = new Regex(@"[A-Z][A-Z0-9]+\-[0-9]+");
 		private readonly WindowsTitleMonitor _monitor;
 		private readonly IList<JiraApi> _jiraInstances = new List<JiraApi>();
@@ -172,7 +172,7 @@ namespace GreenshotJiraPlugin
 			}
 			catch (Exception ex)
 			{
-				LOG.WarnFormat("Couldn't retrieve JIRA title: {0}", ex.Message);
+				LOG.Warning("Couldn't retrieve JIRA title: {0}", ex.Message);
 			}
 		}
 
@@ -220,7 +220,7 @@ namespace GreenshotJiraPlugin
 				// Check if we have a JIRA instance with a project for this key
 				if (_projectJiraApiMap.TryGetValue(projectKey, out jiraApi))
 				{
-					LOG.InfoFormat("Matched {0} to {1}, loading details and placing it in the recent JIRAs list.", jiraKey, jiraApi.ServerTitle);
+					LOG.Information("Matched {0} to {1}, loading details and placing it in the recent JIRAs list.", jiraKey, jiraApi.ServerTitle);
 					// We have found a project for this _jira key, so it must be a valid & known JIRA
 					JiraDetails currentJiraDetails;
 					if (_recentJiras.TryGetValue(jiraKey, out currentJiraDetails))
@@ -258,7 +258,7 @@ namespace GreenshotJiraPlugin
 				}
 				else
 				{
-					LOG.InfoFormat("Couldn't match possible JIRA key {0} to projects in a configured JIRA instance, ignoring", projectKey);
+					LOG.Information("Couldn't match possible JIRA key {0} to projects in a configured JIRA instance, ignoring", projectKey);
 				}
 			}
 		}

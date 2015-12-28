@@ -23,7 +23,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using GreenshotPlugin.Extensions;
-using log4net;
+
 using GreenshotEditorPlugin.Drawing;
 
 namespace GreenshotEditorPlugin.Helpers
@@ -52,7 +52,7 @@ namespace GreenshotEditorPlugin.Helpers
 			Rational = 0x02
 		}
 
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (ScaleHelper));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ScaleHelper));
 
 		/// <summary>
 		/// calculates the Size an element must be resized to, in order to fit another element, keeping aspect ratio

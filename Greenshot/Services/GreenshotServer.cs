@@ -20,7 +20,7 @@
  */
 
 using GreenshotPlugin.Interfaces;
-using log4net;
+
 using System;
 using System.IO;
 using System.Security.Principal;
@@ -38,7 +38,7 @@ namespace Greenshot.Services
 	[StartupAction, ShutdownAction]
 	public class GreenshotServer : IGreenshotContract, IStartupAction, IShutdownAction
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (GreenshotServer));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(GreenshotServer));
 		private ServiceHost _host;
 		private const string PipeBaseEndpoint = "net.pipe://localhost/Greenshot/Server_";
 
@@ -117,7 +117,7 @@ namespace Greenshot.Services
 		/// <param name="filename"></param>
 		public void OpenFile(string filename)
 		{
-			LOG.InfoFormat("Open file requested for: {0}", filename);
+			LOG.Information("Open file requested for: {0}", filename);
 
 			if (File.Exists(filename))
 			{
@@ -125,7 +125,7 @@ namespace Greenshot.Services
 			}
 			else
 			{
-				LOG.Warn("No such file: " + filename);
+				LOG.Warning("No such file: " + filename);
 			}
 		}
 

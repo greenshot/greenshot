@@ -21,7 +21,7 @@
 
 using Greenshot.Core;
 using GreenshotPlugin.Core;
-using log4net;
+
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -36,7 +36,7 @@ namespace GreenshotEditorPlugin.Drawing
 	[Serializable]
 	public class ImageContainer : DrawableContainer, IImageContainer
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (ImageContainer));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ImageContainer));
 
 		protected bool _shadow = true;
 
@@ -177,7 +177,7 @@ namespace GreenshotEditorPlugin.Drawing
 			// we currently assume only one transformation has been made.
 			if (rotateAngle != 0)
 			{
-				LOG.DebugFormat("Rotating element with {0} degrees.", rotateAngle);
+				LOG.Debug("Rotating element with {0} degrees.", rotateAngle);
 				DisposeShadow();
 				using (var tmpMatrix = new Matrix())
 				{

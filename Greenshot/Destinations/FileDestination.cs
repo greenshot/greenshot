@@ -21,7 +21,7 @@
 
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
-using log4net;
+
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,7 +45,7 @@ namespace Greenshot.Destinations
 	public sealed class FileDestination : AbstractDestination
 	{
 		private const string FileDesignation = "File";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (FileDestination));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(FileDestination));
 		private static readonly BitmapSource FileIcon;
 		static FileDestination()
 		{
@@ -96,7 +96,7 @@ namespace Greenshot.Destinations
 			{
 				// As we save a pre-selected file, allow to overwrite.
 				overwrite = true;
-				LOG.InfoFormat("Using previous filename");
+				LOG.Information("Using previous filename");
 				fullPath = capture.CaptureDetails.Filename;
 				outputSettings.Format = ImageOutput.FormatForFilename(fullPath);
 			}
@@ -124,13 +124,13 @@ namespace Greenshot.Destinations
 			catch (ArgumentException ex1)
 			{
 				// Our generated filename exists, display 'save-as'
-				LOG.InfoFormat("Not overwriting: {0}", ex1.Message);
+				LOG.Information("Not overwriting: {0}", ex1.Message);
 				// when we don't allow to overwrite present a new SaveWithDialog
 				fullPath = ImageOutput.SaveWithDialog(capture, capture.CaptureDetails);
 			}
 			catch (Exception e)
 			{
-				LOG.Error(e);
+				LOG.Error(e, "Save file failed");
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
 				returnValue.Text = GreenshotLanguage.ErrorSave;
@@ -151,7 +151,7 @@ namespace Greenshot.Destinations
 		private string CreateNewFilename(ICaptureDetails captureDetails)
 		{
 			string fullPath;
-			LOG.InfoFormat("Creating new filename");
+			LOG.Information("Creating new filename");
 			string pattern = CoreConfiguration.OutputFileFilenamePattern;
 			if (string.IsNullOrEmpty(pattern))
 			{
@@ -166,7 +166,7 @@ namespace Greenshot.Destinations
 			catch (ArgumentException)
 			{
 				// configured filename or path not valid, show error message...
-				LOG.InfoFormat("Generated path or filename not valid: {0}, {1}", filepath, filename);
+				LOG.Information("Generated path or filename not valid: {0}, {1}", filepath, filename);
 
 				MessageBox.Show(GreenshotLanguage.ErrorSaveInvalidChars, GreenshotLanguage.Error, MessageBoxButton.OK, MessageBoxImage.Error);
 				// ... lets get the pattern fixed....

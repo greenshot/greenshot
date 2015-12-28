@@ -21,7 +21,7 @@
 
 using GreenshotPlugin.Controls;
 using Dapplo.HttpExtensions;
-using log4net;
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -43,7 +43,7 @@ namespace GreenshotPlugin.OAuth
 	/// </summary>
 	public class OAuthSession
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (OAuthSession));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(OAuthSession));
 		private static readonly INetworkConfiguration NetworkConfig = IniConfig.Current.Get<INetworkConfiguration>();
 		private const string OauthVersion = "1.0";
 		private const string OauthParameterPrefix = "oauth_";
@@ -285,7 +285,7 @@ namespace GreenshotPlugin.OAuth
 			{
 				var uriBuilder = new UriBuilder("http://getgreenshot.org");
 				uriBuilder.Query = Uri.UnescapeDataString(response.Replace("+", " "));
-				LOG.DebugFormat("Request token response: {0}", response);
+				LOG.Debug("Request token response: {0}", response);
 				_requestTokenResponseParameters = uriBuilder.Uri.QueryToDictionary();
 				string value;
 				if (_requestTokenResponseParameters.TryGetValue(OauthTokenKey, out value))
@@ -306,7 +306,7 @@ namespace GreenshotPlugin.OAuth
 			{
 				throw new Exception("The request token is not set");
 			}
-			LOG.DebugFormat("Opening AuthorizationLink: {0}", AuthorizationLink);
+			LOG.Debug("Opening AuthorizationLink: {0}", AuthorizationLink);
 			var oAuthLoginForm = new OAuthLoginForm(LoginTitle, BrowserSize, AuthorizationLink, CallbackUrl);
 			oAuthLoginForm.ShowDialog();
 			if (oAuthLoginForm.IsOk)
@@ -411,7 +411,7 @@ namespace GreenshotPlugin.OAuth
 			}
 			catch (Exception ex)
 			{
-				LOG.Error(ex);
+				LOG.Error(ex, "Retrieving an Oauth request token failed");
 				throw new NotSupportedException("Service is not available: " + ex.Message);
 			}
 			// Run the WebBrowser on a STA thread!
@@ -428,7 +428,7 @@ namespace GreenshotPlugin.OAuth
 			}
 			catch (Exception ex)
 			{
-				LOG.Error(ex);
+				LOG.Error(ex, "Retrieving an OAuth access token failed");
 				throw;
 			}
 		}
@@ -581,7 +581,7 @@ namespace GreenshotPlugin.OAuth
 				parameters.Add(OauthTokenKey, Token);
 			}
 			signatureBase.Append(Uri.EscapeDataString(GenerateNormalizedParametersString(parameters)));
-			LOG.DebugFormat("Signature base: {0}", signatureBase);
+			LOG.Debug("Signature base: {0}", signatureBase);
 			string key = string.Format(CultureInfo.InvariantCulture, "{0}&{1}", Uri.EscapeDataString(_consumerSecret), string.IsNullOrEmpty(TokenSecret) ? string.Empty : Uri.EscapeDataString(TokenSecret));
 			switch (SignatureType)
 			{
@@ -722,7 +722,7 @@ namespace GreenshotPlugin.OAuth
 				try
 				{
 					responseData = await responseMessage.GetAsStringAsync(true, token).ConfigureAwait(false);
-					LOG.DebugFormat("Response: {0}", responseData);
+					LOG.Debug("Response: {0}", responseData);
 				}
 				catch (Exception ex)
 				{

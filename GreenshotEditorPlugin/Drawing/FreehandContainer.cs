@@ -20,7 +20,7 @@
  */
 
 using GreenshotEditorPlugin.Helpers;
-using log4net;
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -36,7 +36,7 @@ namespace GreenshotEditorPlugin.Drawing
 	[Serializable]
 	public class FreehandContainer : DrawableContainer
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (FreehandContainer));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(FreehandContainer));
 
 		private static readonly float[] PointOffset =
 		{

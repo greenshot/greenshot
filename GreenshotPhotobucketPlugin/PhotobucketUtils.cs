@@ -41,7 +41,7 @@ namespace GreenshotPhotobucketPlugin
 	/// </summary>
 	public static class PhotobucketUtils
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (PhotobucketUtils));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(PhotobucketUtils));
 		private static readonly IPhotobucketConfiguration Config = IniConfig.Current.Get<IPhotobucketConfiguration>();
 		private static List<string> _albumsCache;
 
@@ -131,7 +131,7 @@ namespace GreenshotPhotobucketPlugin
 			{
 				return null;
 			}
-			LOG.Info(responseString);
+			LOG.Information(responseString);
 			var photobucketInfo = PhotobucketInfo.FromUploadResponse(responseString);
 			LOG.Debug("Upload to Photobucket was finished");
 			return photobucketInfo;
@@ -242,7 +242,7 @@ namespace GreenshotPhotobucketPlugin
 				{
 					RecurseAlbums(albums, null, xmlNode.ChildNodes);
 				}
-				LOG.DebugFormat("Albums: {0}", string.Join(",", albums.ToArray()));
+				LOG.Debug("Albums: {0}", string.Join(",", albums.ToArray()));
 				_albumsCache = albums;
 				return albums;
 			}

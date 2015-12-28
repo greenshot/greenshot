@@ -40,7 +40,7 @@ namespace GreenshotOcrPlugin
 	[StartupAction]
     public class OcrPlugin : IConfigurablePlugin, IStartupAction
 	{
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (OcrPlugin));
+		private static Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(OcrPlugin));
 		private static readonly string OcrCommand = Path.Combine(Path.GetDirectoryName(typeof(OcrPlugin).Assembly.Location), "greenshotocrcommand.exe");
 		private ToolStripMenuItem _ocrMenuItem = new ToolStripMenuItem();
 
@@ -84,7 +84,7 @@ namespace GreenshotOcrPlugin
 		{
 			if (!HasModi())
 			{
-				LOG.Warn("No MODI found!");
+				LOG.Warning("No MODI found!");
 			}
 			else if (OcrConfiguration.Language != null)
 			{
@@ -134,9 +134,9 @@ namespace GreenshotOcrPlugin
 			}
 			catch (Exception e)
 			{
-				LOG.DebugFormat("Error trying to initiate MODI: {0}", e.Message);
+				LOG.Debug("Error trying to initiate MODI: {0}", e.Message);
 			}
-			LOG.InfoFormat("No Microsoft Office Document Imaging (MODI) found, disabling OCR");
+			LOG.Information("No Microsoft Office Document Imaging (MODI) found, disabling OCR");
 			return false;
 		}
 	}

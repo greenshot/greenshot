@@ -25,7 +25,7 @@ using System.IO;
 using System.Windows.Forms;
 using System.Drawing.Drawing2D;
 using GreenshotPlugin.Interfaces.Drawing;
-using log4net;
+
 
 namespace GreenshotEditorPlugin.Drawing
 {
@@ -35,7 +35,7 @@ namespace GreenshotEditorPlugin.Drawing
 	[Serializable]
 	public class CursorContainer : DrawableContainer, ICursorContainer
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (CursorContainer));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(CursorContainer));
 
 		private Cursor _cursor;
 

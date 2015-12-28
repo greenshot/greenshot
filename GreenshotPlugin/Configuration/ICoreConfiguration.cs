@@ -21,7 +21,7 @@
 
 using Dapplo.Config.Ini;
 using GreenshotPlugin.Core;
-using log4net;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -130,7 +130,7 @@ namespace GreenshotPlugin.Configuration
 	/// </summary>
 	public static class CoreConfigurationChecker
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (CoreConfigurationChecker));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(CoreConfigurationChecker));
 
 		/// <summary>
 		/// Supply values we can't put as defaults
@@ -166,7 +166,7 @@ namespace GreenshotPlugin.Configuration
 							}
 							catch (Exception ex)
 							{
-								LOG.Warn(ex);
+								LOG.Warning(ex, "Unable to create directory {Directory}", pafOutputFilePath);
 								// Problem creating directory, fallback to Desktop
 							}
 						}

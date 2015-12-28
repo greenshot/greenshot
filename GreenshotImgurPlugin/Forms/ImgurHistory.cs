@@ -38,7 +38,7 @@ namespace GreenshotImgurPlugin
 	/// </summary>
 	public partial class ImgurHistory : ImgurForm
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ImgurHistory));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext<ImgurHistory>();
 		private GreenshotColumnSorter columnSorter;
 		private static readonly IImgurConfiguration config = IniConfig.Current.Get<IImgurConfiguration>();
 
@@ -292,14 +292,14 @@ namespace GreenshotImgurPlugin
 					}
 					else
 					{
-						LOG.DebugFormat("Deleting not found ImgUr {0} from config.", hash);
+						Log.Debug("Deleting not found ImgUr {Hash} from config.", hash);
 						config.ImgurUploadHistory.Remove(hash);
 						saveNeeded = true;
 					}
 				}
 				catch (Exception e)
 				{
-					LOG.Error("Problem loading ImgUr history for hash " + hash, e);
+					Log.Error("Problem loading ImgUr history for hash " + hash, e);
 				}
 			}
 			if (saveNeeded)

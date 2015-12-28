@@ -46,7 +46,7 @@ namespace GreenshotJiraPlugin
 	[Destination(JiraDesignation), PartNotDiscoverable]
 	public sealed class JiraDestination : AbstractDestination
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (JiraDestination));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(JiraDestination));
 		private const string JiraDesignation = "Jira";
 		private static readonly BitmapSource JiraIcon;
 		private JiraMonitor _jiraMonitor;
@@ -193,14 +193,14 @@ namespace GreenshotJiraPlugin
 					returnValue.Text = string.Format(JiraLanguage.UploadFailure, JiraDesignation);
 					returnValue.NotificationType = NotificationTypes.Cancel;
 					returnValue.ErrorText = tcEx.Message;
-					LOG.Info(tcEx.Message);
+					LOG.Information(tcEx.Message);
 				}
 				catch (Exception e)
 				{
 					returnValue.Text = string.Format(JiraLanguage.UploadFailure, JiraDesignation);
 					returnValue.NotificationType = NotificationTypes.Fail;
 					returnValue.ErrorText = e.Message;
-					LOG.Warn(e);
+					LOG.Warning(e, "Upload to JIRA gave an exception");
 				}
 			}
 			return returnValue;

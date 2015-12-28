@@ -20,7 +20,7 @@
  */
 
 using Dapplo.Config.Ini;
-using log4net;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -35,7 +35,7 @@ namespace GreenshotEditorPlugin.Drawing.Fields
 	[Serializable]
 	public abstract class AbstractFieldHolder : IFieldHolder
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (AbstractFieldHolder));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(AbstractFieldHolder));
 		private static IEditorConfiguration editorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
 
 		protected IDictionary<FieldTypes, FieldAttribute> fieldAttributes = new Dictionary<FieldTypes, FieldAttribute>();

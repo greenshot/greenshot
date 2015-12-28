@@ -25,7 +25,7 @@ using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using GreenshotPlugin.Extensions;
-using log4net;
+
 using System.Threading.Tasks;
 using Dapplo.Config.Ini;
 using GreenshotPlugin.Configuration;
@@ -39,7 +39,7 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public abstract class AbstractLegacyDestination : ILegacyDestination
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (AbstractLegacyDestination));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(AbstractLegacyDestination));
 		private static readonly ICoreConfiguration configuration = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 
@@ -191,7 +191,7 @@ namespace GreenshotPlugin.Core
 					// In some cases the closing event needs to be ignored.
 					menu.Closing += (source, eventArgs) =>
 					{
-						LOG.DebugFormat("Menu closing event with reason {0}", eventArgs.CloseReason);
+						LOG.Debug("Menu closing event with reason {0}", eventArgs.CloseReason);
 						switch (eventArgs.CloseReason)
 						{
 							case ToolStripDropDownCloseReason.Keyboard:
@@ -240,18 +240,18 @@ namespace GreenshotPlugin.Core
 								}
 								menu.Close();
 
-								LOG.DebugFormat("Destination {0} was clicked", clickedDestination.Description);
+								LOG.Debug("Destination {0} was clicked", clickedDestination.Description);
 								exportInformation = await clickedDestination.ExportCaptureAsync(true, capture);
 								if (exportInformation != null && exportInformation.ExportMade)
 								{
-									LOG.InfoFormat("Export to {0} success, closing menu", exportInformation.DestinationDescription);
+									LOG.Information("Export to {0} success, closing menu", exportInformation.DestinationDescription);
 									usedDestination = clickedDestination.Designation;
 									exit = true;
 								}
 								else
 								{
 									// Export didn't work, but as we didn't set exit=true the menu will be shown again.
-									LOG.Info("Export cancelled or failed, showing menu again");
+									LOG.Information("Export cancelled or failed, showing menu again");
 								}
 							}
 							finally
@@ -323,7 +323,7 @@ namespace GreenshotPlugin.Core
 					{
 						if (t.Exception != null)
 						{
-							LOG.ErrorFormat("Skipping {0}, due to the following error: {1}", Description, t.Exception.Message);
+							LOG.Error("Skipping {0}, due to the following error: {1}", Description, t.Exception.Message);
 						}
 						basisMenuItem.Invalidate();
 					});

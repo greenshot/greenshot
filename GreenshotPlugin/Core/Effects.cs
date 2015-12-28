@@ -22,7 +22,7 @@
 using Dapplo.Config.Language;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
-using log4net;
+
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -295,7 +295,7 @@ namespace Greenshot.Core
 	/// </summary>
 	public class ReduceColorsEffect : IEffect
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (ReduceColorsEffect));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ReduceColorsEffect));
 
 		public ReduceColorsEffect()
 		{
@@ -334,7 +334,7 @@ namespace Greenshot.Core
 					}
 					catch (Exception e)
 					{
-						LOG.Warn("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
+						LOG.Warning("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
 					}
 				}
 			}

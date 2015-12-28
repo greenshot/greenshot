@@ -21,7 +21,7 @@
 
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Windows;
-using log4net;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
@@ -47,7 +47,7 @@ namespace GreenshotConfluencePlugin
 	public sealed class ConfluenceDestination : AbstractDestination
 	{
 		private const string ConfluenceDesignation = "Confluence";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (ConfluenceDestination));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ConfluenceDestination));
 		private static readonly BitmapSource ConfluenceIcon;
 
 		static ConfluenceDestination()
@@ -202,14 +202,14 @@ namespace GreenshotConfluencePlugin
 					returnValue.Text = string.Format(ConfluenceLanguage.UploadFailure, ConfluenceDesignation);
 					returnValue.NotificationType = NotificationTypes.Cancel;
 					returnValue.ErrorText = tcEx.Message;
-					LOG.Info(tcEx.Message);
+					LOG.Information(tcEx.Message);
 				}
 				catch (Exception e)
 				{
 					returnValue.Text = string.Format(ConfluenceLanguage.UploadFailure, ConfluenceDesignation);
 					returnValue.NotificationType = NotificationTypes.Fail;
 					returnValue.ErrorText = e.Message;
-					LOG.Warn(e);
+					LOG.Warning(e, "Confluence export failed");
 				}
 			}
 

@@ -20,7 +20,7 @@
  */
 
 using GreenshotPlugin.Core;
-using log4net;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -38,7 +38,7 @@ namespace GreenshotPlugin.OAuth
 	/// </summary>
 	public class LocalServerCodeReceiver : IDisposable
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (LocalServerCodeReceiver));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(LocalServerCodeReceiver));
 		private readonly ManualResetEvent _ready = new ManualResetEvent(true);
 
 		private string _loopbackCallback = "http://localhost:{0}/authorize/";
@@ -133,7 +133,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 
 					// Get the formatted FormattedAuthUrl
 					var authorizationUrl = oauth2Settings.FormattedAuthUrl;
-					LOG.DebugFormat("Open a browser with: {0}", authorizationUrl.AbsoluteUri);
+					LOG.Debug("Open a browser with: {0}", authorizationUrl.AbsoluteUri);
 					Process.Start(authorizationUrl.AbsoluteUri);
 
 					// Wait to get the authorization code response.

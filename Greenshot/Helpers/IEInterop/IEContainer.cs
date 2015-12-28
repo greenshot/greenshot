@@ -23,7 +23,7 @@ using Dapplo.Config.Ini;
 using Greenshot.Interop.IE;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
-using log4net;
+
 using mshtml;
 using System;
 using System.Collections.Generic;
@@ -36,7 +36,7 @@ namespace Greenshot.Helpers.IEInterop
 {
 	public class DocumentContainer
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (DocumentContainer));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(DocumentContainer));
 		private static readonly ICoreConfiguration configuration = IniConfig.Current.Get<ICoreConfiguration>();
 		private const int E_ACCESSDENIED = unchecked((int) 0x80070005L);
 		private static readonly Guid IID_IWebBrowserApp = new Guid("0002DF05-0000-0000-C000-000000000046");
@@ -87,7 +87,7 @@ namespace Greenshot.Helpers.IEInterop
 					}
 					catch (Exception frameEx)
 					{
-						LOG.WarnFormat("Exception while disposing frame {0}", frameEx.Message);
+						LOG.Warning("Exception while disposing frame {0}", frameEx.Message);
 					}
 				}
 				try
@@ -96,7 +96,7 @@ namespace Greenshot.Helpers.IEInterop
 				}
 				catch (Exception document2Ex)
 				{
-					LOG.WarnFormat("Exception while disposing document2 {0}", document2Ex.Message);
+					LOG.Warning("Exception while disposing document2 {0}", document2Ex.Message);
 				}
 				try
 				{
@@ -104,7 +104,7 @@ namespace Greenshot.Helpers.IEInterop
 				}
 				catch (Exception document3Ex)
 				{
-					LOG.WarnFormat("Exception while disposing document3 {0}", document3Ex.Message);
+					LOG.Warning("Exception while disposing document3 {0}", document3Ex.Message);
 				}
 			}
 		}
@@ -116,7 +116,7 @@ namespace Greenshot.Helpers.IEInterop
 			IHTMLDocument2 document2 = GetDocumentFromWindow(frameWindow);
 			try
 			{
-				LOG.DebugFormat("frameWindow.name {0}", frameWindow.name);
+				LOG.Debug("frameWindow.name {0}", frameWindow.name);
 				name = frameWindow.name;
 			}
 			catch
@@ -124,14 +124,14 @@ namespace Greenshot.Helpers.IEInterop
 			}
 			try
 			{
-				LOG.DebugFormat("document2.url {0}", document2.url);
+				LOG.Debug("document2.url {0}", document2.url);
 			}
 			catch
 			{
 			}
 			try
 			{
-				LOG.DebugFormat("document2.title {0}", document2.title);
+				LOG.Debug("document2.title {0}", document2.title);
 			}
 			catch
 			{
@@ -176,7 +176,7 @@ namespace Greenshot.Helpers.IEInterop
 		public DocumentContainer(IHTMLDocument2 document2, WindowDetails contentWindow)
 		{
 			Init(document2, contentWindow);
-			LOG.DebugFormat("Creating DocumentContainer for Document {0} found in window with rectangle {1}", name, SourceRectangle);
+			LOG.Debug("Creating DocumentContainer for Document {0} found in window with rectangle {1}", name, SourceRectangle);
 		}
 
 		/// <summary>
@@ -215,8 +215,7 @@ namespace Greenshot.Helpers.IEInterop
 			}
 			catch (Exception ex)
 			{
-				LOG.Error("Error checking the compatibility mode:");
-				LOG.Error(ex);
+				LOG.Error(ex, "Error checking the compatibility mode:");
 			}
 			// Do not release IHTMLDocument5 com object, as this also gives problems with the document2!
 			//Marshal.ReleaseComObject(document5);
@@ -245,10 +244,10 @@ namespace Greenshot.Helpers.IEInterop
 
 
 					// Calculate the viewport rectangle, needed if there is a frame around the html window
-					LOG.DebugFormat("Screen {0}x{1}", ScaleX(screen.width), ScaleY(screen.height));
-					//LOG.DebugFormat("Screen location {0},{1}", window3.screenLeft, window3.screenTop);
-					LOG.DebugFormat("Window rectangle {0}", clientRectangle);
-					LOG.DebugFormat("Client size {0}x{1}", ClientWidth, ClientHeight);
+					LOG.Debug("Screen {0}x{1}", ScaleX(screen.width), ScaleY(screen.height));
+					//LOG.Debug("Screen location {0},{1}", window3.screenLeft, window3.screenTop);
+					LOG.Debug("Window rectangle {0}", clientRectangle);
+					LOG.Debug("Client size {0}x{1}", ClientWidth, ClientHeight);
 					int diffX = clientRectangle.Width - ClientWidth;
 					int diffY = clientRectangle.Height - ClientHeight;
 					// If there is a border around the inner window, the diff == 4
@@ -258,10 +257,10 @@ namespace Greenshot.Helpers.IEInterop
 						Point viewportOffset = new Point(2, 2);
 						Size viewportSize = new Size(ClientWidth, ClientHeight);
 						viewportRectangle = new Rectangle(viewportOffset, viewportSize);
-						LOG.DebugFormat("viewportRect {0}", viewportRectangle);
+						LOG.Debug("viewportRect {0}", viewportRectangle);
 					}
 				}
-				LOG.DebugFormat("Zoomlevel {0}, {1}", zoomLevelX, zoomLevelY);
+				LOG.Debug("Zoomlevel {0}, {1}", zoomLevelX, zoomLevelY);
 				// Release com objects
 				releaseCom(window2);
 				releaseCom(screen);
@@ -269,12 +268,12 @@ namespace Greenshot.Helpers.IEInterop
 			}
 			catch (Exception e)
 			{
-				LOG.Warn("Can't get certain properties for documents, using default. Due to: ", e);
+				LOG.Warning("Can't get certain properties for documents, using default. Due to: ", e);
 			}
 
 			try
 			{
-				LOG.DebugFormat("Calculated location {0} for {1}", startLocation, document2.title);
+				LOG.Debug("Calculated location {0} for {1}", startLocation, document2.title);
 				if (name == null)
 				{
 					name = document2.title;
@@ -282,7 +281,7 @@ namespace Greenshot.Helpers.IEInterop
 			}
 			catch (Exception e)
 			{
-				LOG.Warn("Problem while trying to get document title!", e);
+				LOG.Warning("Problem while trying to get document title!", e);
 			}
 
 			try
@@ -291,7 +290,7 @@ namespace Greenshot.Helpers.IEInterop
 			}
 			catch (Exception e)
 			{
-				LOG.Warn("Problem while trying to get document url!", e);
+				LOG.Warning("Problem while trying to get document url!", e);
 			}
 			sourceLocation = new Point(ScaleX((int) startLocation.X), ScaleY((int) startLocation.Y));
 			destinationLocation = new Point(ScaleX((int) startLocation.X), ScaleY((int) startLocation.Y));
@@ -312,20 +311,20 @@ namespace Greenshot.Helpers.IEInterop
 						// check if frame is hidden
 						if (!frameData.isHidden)
 						{
-							LOG.DebugFormat("Creating DocumentContainer for Frame {0} found in window with rectangle {1}", frameData.name, frameData.SourceRectangle);
+							LOG.Debug("Creating DocumentContainer for Frame {0} found in window with rectangle {1}", frameData.name, frameData.SourceRectangle);
 							frames.Add(frameData);
 						}
 						else
 						{
 							frameData.Dispose();
-							LOG.DebugFormat("Skipping frame {0}", frameData.Name);
+							LOG.Debug("Skipping frame {0}", frameData.Name);
 						}
 						// Clean up frameWindow
 						releaseCom(frameWindow);
 					}
 					catch (Exception e)
 					{
-						LOG.Warn("Problem while trying to get information from a frame, skipping the frame!", e);
+						LOG.Warning("Problem while trying to get information from a frame, skipping the frame!", e);
 					}
 				}
 				// Clean up collection
@@ -333,7 +332,7 @@ namespace Greenshot.Helpers.IEInterop
 			}
 			catch (Exception ex)
 			{
-				LOG.Warn("Problem while trying to get the frames, skipping!", ex);
+				LOG.Warning("Problem while trying to get the frames, skipping!", ex);
 			}
 
 			try
@@ -349,13 +348,13 @@ namespace Greenshot.Helpers.IEInterop
 					}
 					catch (Exception e)
 					{
-						LOG.Warn("Problem while trying to get information from an iframe, skipping the frame!", e);
+						LOG.Warning("Problem while trying to get information from an iframe, skipping the frame!", e);
 					}
 				}
 			}
 			catch (Exception ex)
 			{
-				LOG.Warn("Problem while trying to get the iframes, skipping!", ex);
+				LOG.Warning("Problem while trying to get the iframes, skipping!", ex);
 			}
 		}
 
@@ -389,20 +388,20 @@ namespace Greenshot.Helpers.IEInterop
 			Point elementBoundingLocation = new Point(rec.left, rec.top);
 			// Release IHTMLRect
 			releaseCom(rec);
-			LOG.DebugFormat("Looking for iframe to correct at {0}", elementBoundingLocation);
+			LOG.Debug("Looking for iframe to correct at {0}", elementBoundingLocation);
 			foreach (DocumentContainer foundFrame in frames)
 			{
 				Point frameLocation = foundFrame.SourceLocation;
 				if (frameLocation.Equals(elementBoundingLocation))
 				{
 					// Match found, correcting location
-					LOG.DebugFormat("Correcting frame from {0} to {1}", frameLocation, elementLocation);
+					LOG.Debug("Correcting frame from {0} to {1}", frameLocation, elementLocation);
 					foundFrame.SourceLocation = elementLocation;
 					foundFrame.DestinationLocation = elementLocation;
 				}
 				else
 				{
-					LOG.DebugFormat("{0} != {1}", frameLocation, elementBoundingLocation);
+					LOG.Debug("{0} != {1}", frameLocation, elementBoundingLocation);
 				}
 			}
 		}
@@ -416,7 +415,7 @@ namespace Greenshot.Helpers.IEInterop
 		{
 			if (htmlWindow == null)
 			{
-				LOG.Warn("htmlWindow == null");
+				LOG.Warning("htmlWindow == null");
 				return null;
 			}
 
@@ -431,7 +430,7 @@ namespace Greenshot.Helpers.IEInterop
 				// I think COMException won't be ever fired but just to be sure ...
 				if (comEx.ErrorCode != E_ACCESSDENIED)
 				{
-					LOG.Warn("comEx.ErrorCode != E_ACCESSDENIED but", comEx);
+					LOG.Warning("comEx.ErrorCode != E_ACCESSDENIED but", comEx);
 					return null;
 				}
 			}
@@ -441,7 +440,7 @@ namespace Greenshot.Helpers.IEInterop
 			}
 			catch (Exception ex1)
 			{
-				LOG.Warn("Some error: ", ex1);
+				LOG.Warning("Some error: ", ex1);
 				// Any other error.
 				return null;
 			}
@@ -466,7 +465,7 @@ namespace Greenshot.Helpers.IEInterop
 			}
 			catch (Exception ex2)
 			{
-				LOG.Warn("another error: ", ex2);
+				LOG.Warning("another error: ", ex2);
 			}
 			return null;
 		}

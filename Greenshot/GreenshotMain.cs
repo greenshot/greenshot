@@ -52,6 +52,7 @@ namespace Greenshot
 		[STAThread]
 		public static void Main(string[] args)
 		{
+
 			MainForm.Start(args);
 		}
 	}

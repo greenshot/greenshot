@@ -39,7 +39,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 	/// </summary>
 	public class OneNoteExporter
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (OneNoteExporter));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(OneNoteExporter));
 		private const string XMLImageContent = "<one:Image format=\"png\"><one:Size width=\"{1}.0\" height=\"{2}.0\" isSetByUser=\"true\" /><one:Data>{0}</one:Data></one:Image>";
 		private const string XMLOutline = "<?xml version=\"1.0\"?><one:Page xmlns:one=\"{2}\" ID=\"{1}\"><one:Title><one:OE><one:T><![CDATA[{3}]]></one:T></one:OE></one:Title>{0}</one:Page>";
 		private const string OnenoteNamespace2010 = "http://schemas.microsoft.com/office/onenote/2010/onenote";
@@ -105,7 +105,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 				{
 					imageXmlStr, page.Id, OnenoteNamespace2010, page.Name
 				});
-				LOG.InfoFormat("Sending XML: {0}", pageChangesXml);
+				LOG.Information("Sending XML: {0}", pageChangesXml);
 				oneNoteApplication.ComObject.UpdatePageContent(pageChangesXml, DateTime.MinValue, OneNote.XMLSchema.xs2010, false);
 				try
 				{
@@ -113,7 +113,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 				}
 				catch (Exception ex)
 				{
-					LOG.Warn("Unable to navigate to the target page", ex);
+					LOG.Warning("Unable to navigate to the target page", ex);
 				}
 				return true;
 			}
@@ -293,13 +293,13 @@ namespace GreenshotOfficePlugin.OfficeExport
 			{
 				if (cEx.ErrorCode == unchecked((int) 0x8002801D))
 				{
-					LOG.Warn("Wrong registry keys, to solve this remove the OneNote key as described here: http://microsoftmercenary.com/wp/outlook-excel-interop-calls-breaking-solved/");
+					LOG.Warning("Wrong registry keys, to solve this remove the OneNote key as described here: http://microsoftmercenary.com/wp/outlook-excel-interop-calls-breaking-solved/");
 				}
-				LOG.Warn("Problem retrieving onenote destinations, ignoring: ", cEx);
+				LOG.Warning("Problem retrieving onenote destinations, ignoring: ", cEx);
 			}
 			catch (Exception ex)
 			{
-				LOG.Warn("Problem retrieving onenote destinations, ignoring: ", ex);
+				LOG.Warning("Problem retrieving onenote destinations, ignoring: ", ex);
 			}
 			pages.Sort((page1, page2) =>
 			{

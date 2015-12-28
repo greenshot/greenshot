@@ -34,7 +34,7 @@ namespace GreenshotConfluencePlugin
 {
 	public class EnumDisplayer : IValueConverter
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (EnumDisplayer));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(EnumDisplayer));
 
 		private Type _type;
 		private IDictionary _displayValues;

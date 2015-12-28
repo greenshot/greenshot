@@ -20,7 +20,7 @@
  */
 
 using GreenshotPlugin.Core;
-using log4net;
+
 using System;
 using System.ComponentModel.Composition;
 using System.IO;
@@ -43,7 +43,7 @@ namespace GreenshotWindowsSharePlugin
 	public sealed class ShareDestination : AbstractDestination
 	{
 		private const string ShareDesignation = "Share";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (ShareDestination));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ShareDestination));
 		private static readonly BitmapSource ShareIcon;
 
 		static ShareDestination()
@@ -116,14 +116,14 @@ namespace GreenshotWindowsSharePlugin
 						var dataTransferManagerHelper = new DataTransferManagerHelper(handle);
 						dataTransferManagerHelper.DataTransferManager.TargetApplicationChosen += (dtm, args) =>
 						{
-							LOG.DebugFormat("Exported to {0}", args.ApplicationName);
+							LOG.Debug("Exported to {0}", args.ApplicationName);
 						};
 						dataTransferManagerHelper.DataTransferManager.DataRequested += (sender, args) =>
 						{
 							var deferral = args.Request.GetDeferral();
 							args.Request.Data.OperationCompleted += (dp, eventArgs) =>
 							{
-								LOG.DebugFormat("OperationCompleted: {0}", eventArgs.Operation);
+								LOG.Debug("OperationCompleted: {0}", eventArgs.Operation);
 							};
 							var dataPackage = args.Request.Data;
 							dataPackage.Properties.Title = "Share";
@@ -149,14 +149,14 @@ namespace GreenshotWindowsSharePlugin
 				returnValue.Text = "Share cancelled.";
 				returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
-				LOG.Info(tcEx.Message);
+				LOG.Information(tcEx.Message);
 			}
 			catch (Exception e)
 			{
 				returnValue.Text = "Share failed.";
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
-				LOG.Warn(e);
+				LOG.Warning(e, "Share export failed");
 			}
 			return returnValue;
         }

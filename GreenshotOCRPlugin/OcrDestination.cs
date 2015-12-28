@@ -20,7 +20,7 @@
  */
 
 using GreenshotPlugin.Core;
-using log4net;
+
 using System;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
@@ -40,7 +40,7 @@ namespace GreenshotOcrPlugin
 	public sealed class OcrDestination : AbstractDestination
 	{
 		private const string OcrDesignation = "Ocr";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (OcrDestination));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(OcrDestination));
 		private const int MinWidth = 130;
 		private const int MinHeight = 130;
 		private static readonly string OcrCommand = Path.Combine(Path.GetDirectoryName(typeof(OcrPlugin).Assembly.Location), "greenshotocrcommand.exe");
@@ -95,14 +95,14 @@ namespace GreenshotOcrPlugin
 				returnValue.Text = "Scan cancelled.";
                 returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
-				LOG.Info(tcEx.Message);
+				LOG.Information(tcEx.Message);
 			}
 			catch (Exception e)
 			{
 				returnValue.Text = "Scan failed.";
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
-				LOG.Warn(e);
+				LOG.Warning(e, "OCR failed");
 			}
 			return returnValue;
         }
@@ -178,13 +178,13 @@ namespace GreenshotOcrPlugin
 
 			if (text.Trim().Length == 0)
 			{
-				LOG.Info("No text returned");
+				LOG.Information("No text returned");
 				return null;
 			}
 
 			try
 			{
-				LOG.DebugFormat("Pasting OCR Text to Clipboard: {0}", text);
+				LOG.Debug("Pasting OCR Text to Clipboard: {0}", text);
 				ClipboardHelper.SetClipboardData(text);
 			}
 			catch (Exception e)

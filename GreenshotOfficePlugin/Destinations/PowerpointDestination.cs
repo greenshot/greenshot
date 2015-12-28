@@ -25,7 +25,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Destination;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+
 using System;
 using System.ComponentModel.Composition;
 using System.IO;
@@ -44,7 +44,7 @@ namespace GreenshotOfficePlugin.Destinations
 	public sealed class PowerpointDestination : AbstractDestination
 	{
 		public const string PowerpointDesignation = "Powerpoint";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(PowerpointDestination));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(PowerpointDestination));
 		private static readonly BitmapSource PresentationIcon;
 		private static readonly BitmapSource ApplicationIcon;
 		
@@ -153,7 +153,7 @@ namespace GreenshotOfficePlugin.Destinations
 			}
 			catch (Exception ex)
 			{
-				LOG.Error(ex);
+				LOG.Error(ex, "Powerpoint export failed");
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = ex.Message;
 				returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, PowerpointDesignation);

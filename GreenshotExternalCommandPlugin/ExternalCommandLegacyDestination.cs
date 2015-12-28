@@ -40,7 +40,7 @@ namespace GreenshotExternalCommandPlugin
 	/// </summary>
 	public class ExternalCommandLegacyDestination : AbstractLegacyDestination
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ExternalCommandLegacyDestination));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ExternalCommandLegacyDestination));
 		private static readonly Regex UriRegexp = new Regex(@"(file|ftp|gopher|https?|ldap|mailto|net\.pipe|net\.tcp|news|nntp|telnet|uuid):((((?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)");
 		private static readonly IExternalCommandConfiguration ExternalCommandConfiguration = IniConfig.Current.Get<IExternalCommandConfiguration>();
 		private readonly string _presetCommand;
@@ -136,7 +136,7 @@ namespace GreenshotExternalCommandPlugin
 						if (uriMatches.Count >= 0)
 						{
 							exportInformation.ExportedToUri = new Uri(uriMatches[0].Groups[1].Value);
-							LOG.InfoFormat("Got URI : {0} ", exportInformation.ExportedToUri);
+							LOG.Information("Got URI : {0} ", exportInformation.ExportedToUri);
 							if (ExternalCommandConfiguration.UriToClipboard)
 							{
 								ClipboardHelper.SetClipboardData(exportInformation.ExportedToUri);
@@ -146,14 +146,14 @@ namespace GreenshotExternalCommandPlugin
 				}
 				else
 				{
-					LOG.WarnFormat("Error calling external command: {0} ", result.StandardError);
+					LOG.Warning("Error calling external command: {0} ", result.StandardError);
 					exportInformation.ExportMade = false;
 					exportInformation.ErrorMessage = result.StandardError;
 				}
 			}
 			catch (Exception ex)
 			{
-				LOG.WarnFormat("Error calling external command: {0} ", ex.Message);
+				LOG.Warning("Error calling external command: {0} ", ex.Message);
 				exportInformation.ExportMade = false;
 				exportInformation.ErrorMessage = ex.Message;
 			}
@@ -233,7 +233,7 @@ namespace GreenshotExternalCommandPlugin
 					{
 						process.StartInfo.Verb = verb;
 					}
-					LOG.InfoFormat("Starting : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
+					LOG.Information("Starting : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
 					process.Start();
 					var processTask = Task.Run(async () =>
 					{
@@ -244,7 +244,7 @@ namespace GreenshotExternalCommandPlugin
 							if (ExternalCommandConfiguration.ShowStandardOutputInLog && output.Trim().Length > 0)
 							{
 								result.StandardOutput = output;
-								LOG.InfoFormat("Output:\n{0}", output);
+								LOG.Information("Output:\n{0}", output);
 							}
 						}
 						if (ExternalCommandConfiguration.RedirectStandardError)
@@ -253,10 +253,10 @@ namespace GreenshotExternalCommandPlugin
 							if (standardError.Trim().Length > 0)
 							{
 								result.StandardError = standardError;
-								LOG.WarnFormat("Error:\n{0}", standardError);
+								LOG.Warning("Error:\n{0}", standardError);
 							}
 						}
-						LOG.InfoFormat("Finished : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
+						LOG.Information("Finished : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
 						return process.ExitCode;
 					}, token).ConfigureAwait(false);
 					if (!runInBackground)

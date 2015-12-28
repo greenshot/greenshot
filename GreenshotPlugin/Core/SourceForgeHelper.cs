@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using log4net;
+
 using System;
 using System.Collections.Generic;
 using System.ServiceModel.Syndication;
@@ -122,7 +122,7 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public class SourceForgeHelper
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (SourceForgeHelper));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(SourceForgeHelper));
 		private static readonly Uri Rssfeed = new Uri("http://getgreenshot.org/project-feed/");
 
 		/// <summary>
@@ -205,7 +205,7 @@ namespace GreenshotPlugin.Core
 									Version fileVersion;
 									if (!Version.TryParse(version, out fileVersion))
 									{
-										LOG.DebugFormat("Found invalid version {0} in file {1}", version, file);
+										LOG.Debug("Found invalid version {0} in file {1}", version, file);
 									}
 									rssFile.Version = fileVersion;
 								}
@@ -220,7 +220,7 @@ namespace GreenshotPlugin.Core
 								}
 								catch (Exception)
 								{
-									LOG.WarnFormat("Can't read the native name of the culture {0}", culture);
+									LOG.Warning("Can't read the native name of the culture {0}", culture);
 								}
 							}
 							filesForType.Add(file, rssFile);
@@ -228,8 +228,8 @@ namespace GreenshotPlugin.Core
 					}
 					catch (Exception ex)
 					{
-						LOG.WarnFormat("Couldn't read RSS entry for: {0}", item.Title);
-						LOG.Warn("Reason: ", ex);
+						LOG.Warning("Couldn't read RSS entry for: {0}", item.Title);
+						LOG.Warning("Reason: ", ex);
 					}
 				}
 			}

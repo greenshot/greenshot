@@ -25,7 +25,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Windows.Forms;
 using GreenshotPlugin.Interfaces;
-using log4net;
+
 
 namespace GreenshotPlugin.Core
 {
@@ -35,7 +35,7 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public class Capture : ICapture
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (Capture));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(Capture));
 
 		private Rectangle _screenBounds;
 
@@ -89,7 +89,7 @@ namespace GreenshotPlugin.Core
 							value.Dispose();
 						}
 					}
-					LOG.DebugFormat("Image is set with the following specifications: {0} - {1}", _image.Size, _image.PixelFormat);
+					LOG.Debug("Image is set with the following specifications: {0} - {1}", _image.Size, _image.PixelFormat);
 				}
 				else
 				{

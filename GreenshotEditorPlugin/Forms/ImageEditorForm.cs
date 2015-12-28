@@ -30,7 +30,7 @@ using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
 using Dapplo.Windows.Native;
-using log4net;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -52,7 +52,7 @@ namespace GreenshotEditorPlugin.Forms
 	/// </summary>
 	public partial class ImageEditorForm : BaseForm, IImageEditor
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (ImageEditorForm));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ImageEditorForm));
 		private static readonly IEditorConfiguration editorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
 		private static readonly IEditorLanguage editorLanguage = LanguageLoader.Current.Get<IGreenshotLanguage>();
 
@@ -99,7 +99,7 @@ namespace GreenshotEditorPlugin.Forms
 				}
 				catch (Exception ex)
 				{
-					LOG.Warn("Sorting of editors failed.", ex);
+					LOG.Warning("Sorting of editors failed.", ex);
 				}
 				return editorList;
 			}
@@ -140,8 +140,8 @@ namespace GreenshotEditorPlugin.Forms
 						}
 						catch (Exception addingException)
 						{
-							LOG.WarnFormat("Problem adding destination {0}", destination.Designation);
-							LOG.Warn("Exception: ", addingException);
+							LOG.Warning("Problem adding destination {0}", destination.Designation);
+							LOG.Warning("Exception: ", addingException);
 						}
 					}
 				});
@@ -1487,7 +1487,7 @@ namespace GreenshotEditorPlugin.Forms
 			}
 			catch (Exception exception)
 			{
-				LOG.Error(exception);
+				LOG.Error(exception, "Capturing window failed");
 			}
 		}
 

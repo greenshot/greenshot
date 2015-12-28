@@ -23,7 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
-using log4net;
+
 using System.Linq;
 
 namespace GreenshotPlugin.Core
@@ -33,7 +33,7 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public static class InterfaceUtils
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (InterfaceUtils));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(InterfaceUtils));
 
 		public static IEnumerable<Type> GetSubclassesOf(Type implementingType, bool excludeSystemTypes)
 		{

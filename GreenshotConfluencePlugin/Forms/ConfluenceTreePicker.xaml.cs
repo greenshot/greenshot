@@ -33,7 +33,7 @@ namespace GreenshotConfluencePlugin
 	/// </summary>
 	public partial class ConfluenceTreePicker : System.Windows.Controls.Page
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (ConfluenceTreePicker));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ConfluenceTreePicker));
 		private static readonly IConfluenceConfiguration config = IniConfig.Current.Get<IConfluenceConfiguration>();
 		private readonly ConfluenceUpload _confluenceUpload;
 

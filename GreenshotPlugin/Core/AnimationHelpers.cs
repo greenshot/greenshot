@@ -22,7 +22,7 @@
 using System;
 using System.Drawing;
 using System.Collections.Generic;
-using log4net;
+
 
 namespace GreenshotPlugin.Core
 {
@@ -350,7 +350,7 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public class RectangleAnimator : AnimatorBase<Rectangle>
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (RectangleAnimator));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(RectangleAnimator));
 
 		public RectangleAnimator(Rectangle first, Rectangle last, int frames) : base(first, last, frames, EasingType.Linear, EasingMode.EaseIn)
 		{
@@ -393,7 +393,7 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public class ColorAnimator : AnimatorBase<Color>
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (ColorAnimator));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ColorAnimator));
 
 		public ColorAnimator(Color first, Color last, int frames) : base(first, last, frames, EasingType.Linear, EasingMode.EaseIn)
 		{

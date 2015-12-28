@@ -20,7 +20,7 @@
  */
 
 using Dapplo.Windows.Native;
-using log4net;
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -29,7 +29,7 @@ namespace Greenshot.Helpers
 {
 	public class Arguments
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (Arguments));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(Arguments));
 
 		public IList<string> FilesToOpen
 		{
@@ -123,7 +123,7 @@ namespace Greenshot.Helpers
 		{
 			FilesToOpen = new List<string>();
 
-			if (args.Length > 0 && LOG.IsDebugEnabled)
+			if (args.Length > 0 && LOG.IsEnabled(Serilog.Events.LogEventLevel.Debug))
 			{
 				var argumentString = new StringBuilder();
 				foreach (string argument in args)

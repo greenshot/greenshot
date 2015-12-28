@@ -25,7 +25,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Destination;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+
 using System;
 using System.ComponentModel.Composition;
 using System.IO;
@@ -45,7 +45,7 @@ namespace GreenshotOfficePlugin.Destinations
 	public sealed class WordDestination : AbstractDestination
 	{
 		public const string WordDesignation = "Word";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(WordDestination));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(WordDestination));
 		private static readonly BitmapSource DocumentIcon;
 		private static readonly BitmapSource ApplicationIcon;
 
@@ -168,7 +168,7 @@ namespace GreenshotOfficePlugin.Destinations
 			}
 			catch (Exception ex)
 			{
-				LOG.Error(ex);
+				LOG.Error(ex, "Error exporting image to Word");
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = ex.Message;
 				returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, WordDesignation);

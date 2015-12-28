@@ -22,7 +22,7 @@
 using Dapplo.Config.Ini;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
-using log4net;
+
 using System;
 using System.IO;
 using System.Linq;
@@ -37,7 +37,7 @@ namespace GreenshotPlugin.Controls
 	/// </summary>
 	public class SaveImageFileDialog : IDisposable
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (SaveImageFileDialog));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(SaveImageFileDialog));
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		protected SaveFileDialog saveFileDialog;
 		private FilterOption[] filterOptions;
@@ -84,7 +84,7 @@ namespace GreenshotPlugin.Controls
 			}
 			catch
 			{
-				LOG.WarnFormat("OutputFileAsFullpath was set to {0}, ignoring due to problem in path.", conf.OutputFileAsFullpath);
+				LOG.Warning("OutputFileAsFullpath was set to {0}, ignoring due to problem in path.", conf.OutputFileAsFullpath);
 			}
 
 			if (!string.IsNullOrEmpty(initialDirectory) && Directory.Exists(initialDirectory))
@@ -263,7 +263,7 @@ namespace GreenshotPlugin.Controls
 			}
 			catch (Exception e)
 			{
-				LOG.WarnFormat("Couldn't cleanup directory due to: {0}", e.Message);
+				LOG.Warning("Couldn't cleanup directory due to: {0}", e.Message);
 				eagerlyCreatedDirectory = null;
 			}
 		}

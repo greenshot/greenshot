@@ -23,7 +23,7 @@ using GreenshotPlugin.Extensions;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Destination;
 using GreenshotPlugin.Windows;
-using log4net;
+
 using System;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
@@ -39,7 +39,7 @@ namespace GreenshotPicasaPlugin
 	public sealed class PicasaDestination : AbstractDestination
 	{
 		private const string PicasaDesignation = "Picasa";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (PicasaDestination));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(PicasaDestination));
 		private static readonly BitmapSource PicasaIcon;
 
 		static PicasaDestination()
@@ -104,14 +104,14 @@ namespace GreenshotPicasaPlugin
 				returnValue.Text = string.Format(PicasaLanguage.UploadFailure, PicasaDesignation);
                 returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
-				LOG.Info(tcEx.Message);
+				LOG.Information(tcEx.Message);
 			}
 			catch (Exception e)
 			{
 				returnValue.Text = string.Format(PicasaLanguage.UploadFailure, PicasaDesignation);
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
-				LOG.Warn(e);
+				LOG.Warning(e, "Picasa export failed");
 				MessageBox.Show(PicasaLanguage.UploadFailure + " " + e.Message, PicasaDesignation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			return returnValue;

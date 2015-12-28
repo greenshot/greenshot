@@ -29,7 +29,7 @@ namespace GreenshotPhotobucketPlugin
 	/// </summary>
 	public class PhotobucketInfo
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof (PhotobucketInfo));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(PhotobucketInfo));
 
 		public string Original
 		{
@@ -92,7 +92,7 @@ namespace GreenshotPhotobucketPlugin
 			}
 			catch (Exception e)
 			{
-				LOG.ErrorFormat("Could not parse Photobucket response due to error {0}, response was: {1}", e.Message, response);
+				LOG.Error("Could not parse Photobucket response due to error {0}, response was: {1}", e.Message, response);
 			}
 			return photobucketInfo;
 		}

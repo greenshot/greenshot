@@ -21,7 +21,7 @@
 
 using System;
 using System.Windows.Forms;
-using log4net;
+
 using Microsoft.Win32;
 using System.IO;
 
@@ -32,7 +32,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public static class StartupHelper
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (StartupHelper));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(StartupHelper));
 
 		private const string RUNKEY6432 = @"Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Run";
 		private const string RUNKEY = @"Software\Microsoft\Windows\CurrentVersion\Run";
@@ -289,7 +289,7 @@ namespace Greenshot.Helpers
 				string startupPath = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
 				if (Directory.Exists(startupPath))
 				{
-					LOG.DebugFormat("Startup path: {0}", startupPath);
+					LOG.Debug("Startup path: {0}", startupPath);
 					if (File.Exists(Path.Combine(startupPath, lnkName)))
 					{
 						return true;
@@ -298,7 +298,7 @@ namespace Greenshot.Helpers
 				string startupAll = Environment.GetEnvironmentVariable("ALLUSERSPROFILE") + @"\Microsoft\Windows\Start Menu\Programs\Startup";
 				if (Directory.Exists(startupAll))
 				{
-					LOG.DebugFormat("Startup all path: {0}", startupAll);
+					LOG.Debug("Startup all path: {0}", startupAll);
 					if (File.Exists(Path.Combine(startupAll, lnkName)))
 					{
 						return true;

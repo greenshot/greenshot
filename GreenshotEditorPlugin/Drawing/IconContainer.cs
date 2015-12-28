@@ -24,7 +24,7 @@ using System.Drawing;
 using System.IO;
 using System.Drawing.Drawing2D;
 using GreenshotPlugin.Interfaces.Drawing;
-using log4net;
+
 
 namespace GreenshotEditorPlugin.Drawing
 {
@@ -34,7 +34,7 @@ namespace GreenshotEditorPlugin.Drawing
 	[Serializable]
 	public class IconContainer : DrawableContainer, IIconContainer
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (IconContainer));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(IconContainer));
 
 		private Icon _icon;
 

@@ -22,7 +22,7 @@
 using Dapplo.Config.Ini;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.OAuth;
-using log4net;
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -43,7 +43,7 @@ namespace GreenshotFlickrPlugin
 	/// </summary>
 	public static class FlickrUtils
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (FlickrUtils));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(FlickrUtils));
 		private static IFlickrConfiguration config = IniConfig.Current.Get<IFlickrConfiguration>();
 		private static readonly Uri FLICKR_API_BASE_URL = new Uri("https://api.flickr.com/services");
 		private static readonly Uri FLICKR_UPLOAD_URI = FLICKR_API_BASE_URL.AppendSegments("upload");

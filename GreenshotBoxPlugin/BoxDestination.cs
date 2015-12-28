@@ -21,7 +21,7 @@
 
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Windows;
-using log4net;
+
 using System;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
@@ -40,7 +40,7 @@ namespace GreenshotBoxPlugin
 	public sealed class BoxDestination : AbstractDestination
 	{
 		private const string BoxDesignation = "Box";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (BoxDestination));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(BoxDestination));
 		private static readonly BitmapSource BoxIcon;
 
 		static BoxDestination()
@@ -110,14 +110,14 @@ namespace GreenshotBoxPlugin
 				returnValue.Text = string.Format(BoxLanguage.UploadFailure, BoxDesignation);
                 returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
-				LOG.Info(tcEx.Message);
+				LOG.Information(tcEx.Message);
 			}
 			catch (Exception e)
 			{
 				returnValue.Text = string.Format(BoxLanguage.UploadFailure, BoxDesignation);
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
-				LOG.Warn(e);
+				LOG.Warning(e, "Box export failed");
 				MessageBox.Show(BoxLanguage.UploadFailure + " " + e.Message, BoxDesignation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			return returnValue;

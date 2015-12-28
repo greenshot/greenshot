@@ -22,7 +22,7 @@
 using Dapplo.Config.Ini;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
-using log4net;
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -48,7 +48,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public class MapiMailMessage : IDisposable
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof (MapiMailMessage));
+		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(MapiMailMessage));
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 
 		/// <summary>
