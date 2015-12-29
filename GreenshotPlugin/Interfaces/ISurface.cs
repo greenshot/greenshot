@@ -5,7 +5,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Greenshot.Core;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces.Drawing;
 
 namespace GreenshotPlugin.Interfaces

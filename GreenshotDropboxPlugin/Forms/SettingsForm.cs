@@ -19,10 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotDropboxPlugin.Forms;
 using Dapplo.Config.Ini;
 
-namespace GreenshotDropboxPlugin
+namespace GreenshotDropboxPlugin.Forms
 {
 	/// <summary>
 	/// Description of PasswordRequestForm.

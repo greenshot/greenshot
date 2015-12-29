@@ -21,7 +21,7 @@
 
 using System.Runtime.InteropServices;
 
-namespace Greenshot.Interop.IE
+namespace GreenshotPlugin.IEInterop
 {
 	// IWebBrowser: EAB22AC1-30C1-11CF-A7EB-0000C05BAE0B
 //	[ComVisible(true), ComImport(), Guid("D30C1661-CDAF-11D0-8A3E-00C04FC9E26E"),

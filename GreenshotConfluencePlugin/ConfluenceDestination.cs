@@ -134,7 +134,7 @@ namespace GreenshotConfluencePlugin
 			var outputSettings = new SurfaceOutputSettings(ConfluenceConfiguration.UploadFormat, ConfluenceConfiguration.UploadJpegQuality, ConfluenceConfiguration.UploadReduceColors);
 			if (page == null)
 			{
-				var confluenceUpload = new ConfluenceUpload(filename);
+				var confluenceUpload = new Forms.ConfluenceUpload(filename);
 				bool? dialogResult = await confluenceUpload.ShowDialogAsync(token);
 				if (dialogResult.HasValue && dialogResult.Value)
 				{

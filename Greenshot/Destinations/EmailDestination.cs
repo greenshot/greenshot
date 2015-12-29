@@ -41,7 +41,7 @@ namespace Greenshot.Destinations
 	public sealed class EmailDestination : AbstractDestination
 	{
 		private const string EmailDesignation = "Email";
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(EmailDestination));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(EmailDestination));
 		private static readonly BitmapSource EmailIcon;
 		static EmailDestination()
 		{
@@ -87,7 +87,7 @@ namespace Greenshot.Destinations
 			}
 			catch (Exception e)
 			{
-				LOG.Error(e, "Email export failed");
+				Log.Error(e, "Email export failed");
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
 				returnValue.Text = GreenshotLanguage.SettingsDestinationEmail;

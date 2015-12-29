@@ -20,9 +20,8 @@
  */
 
 using System;
-using System.Threading.Tasks;
 
-namespace GreenshotImgurPlugin
+namespace GreenshotImgurPlugin.Forms
 {
 	/// <summary>
 	/// Description of PasswordRequestForm.

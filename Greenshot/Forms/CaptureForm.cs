@@ -55,7 +55,7 @@ namespace Greenshot.Forms
 			Vertical
 		};
 
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(CaptureForm));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(CaptureForm));
 		private static readonly ICoreConfiguration Conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly Brush GreenOverlayBrush = new SolidBrush(Color.FromArgb(50, Color.MediumSeaGreen));
 		private static readonly Pen OverlayPen = new Pen(Color.FromArgb(50, Color.Black));
@@ -133,12 +133,12 @@ namespace Greenshot.Forms
 		private void ClosedHandler(object sender, EventArgs e)
 		{
 			_currentForm = null;
-			LOG.Debug("Remove CaptureForm from currentForm");
+			Log.Debug("Remove CaptureForm from currentForm");
 			if (SelectedCaptureWindow == null)
 			{
 				return;
 			}
-			LOG.Debug("Selected window: {0}", SelectedCaptureWindow);
+			Log.Debug("Selected window: {0}", SelectedCaptureWindow);
 			_capture.CaptureDetails.Title = SelectedCaptureWindow.Text;
 			_capture.CaptureDetails.AddMetaData("windowtitle", SelectedCaptureWindow.Text);
 			if (UsedCaptureMode != CaptureMode.Window)
@@ -153,7 +153,7 @@ namespace Greenshot.Forms
 
 		private void ClosingHandler(object sender, EventArgs e)
 		{
-			LOG.Debug("Closing captureform");
+			Log.Debug("Closing captureform");
 			WindowDetails.UnregisterIgnoreHandle(Handle);
 		}
 
@@ -166,7 +166,7 @@ namespace Greenshot.Forms
 		{
 			if (_currentForm != null)
 			{
-				LOG.Warning("Found currentForm, Closing already opened CaptureForm");
+				Log.Warning("Found currentForm, Closing already opened CaptureForm");
 				_currentForm.Close();
 				_currentForm = null;
 				Application.DoEvents();
@@ -188,7 +188,7 @@ namespace Greenshot.Forms
 			//
 			InitializeComponent();
 			// Only double-buffer when we are not in a TerminalServerSession
-			DoubleBuffered = !isTerminalServerSession;
+			DoubleBuffered = !IsTerminalServerSession;
 			Text = "Greenshot capture form";
 
 			// Set the cursor positions, so the zoomer doesn't arrive at a weird place
@@ -568,7 +568,7 @@ namespace Greenshot.Forms
 			}
 			else if (UsedCaptureMode != CaptureMode.Window)
 			{
-				if (!isTerminalServerSession)
+				if (!IsTerminalServerSession)
 				{
 					Rectangle allScreenBounds = WindowCapture.GetScreenBounds();
 					allScreenBounds.Location = WindowCapture.GetLocationRelativeToScreenBounds(allScreenBounds.Location);
@@ -947,7 +947,7 @@ namespace Greenshot.Forms
 			}
 			else
 			{
-				if (!isTerminalServerSession)
+				if (!IsTerminalServerSession)
 				{
 					using (Pen pen = new Pen(Color.LightSeaGreen))
 					{

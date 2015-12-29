@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 namespace GreenshotPlugin.Controls {
-	partial class OAuthLoginForm {
+	sealed partial class OAuthLoginForm {
         /// <summary>
         /// Required designer variable.
         /// </summary>

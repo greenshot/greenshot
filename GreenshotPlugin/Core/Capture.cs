@@ -26,7 +26,6 @@ using System.IO;
 using System.Windows.Forms;
 using GreenshotPlugin.Interfaces;
 
-
 namespace GreenshotPlugin.Core
 {
 	/// <summary>

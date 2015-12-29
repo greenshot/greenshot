@@ -20,9 +20,8 @@
  */
 
 using Dapplo.Config.Language;
-using GreenshotConfluencePlugin;
 
-namespace TranslationByMarkupExtension
+namespace GreenshotConfluencePlugin.Support
 {
 	/// <summary>
 	/// 

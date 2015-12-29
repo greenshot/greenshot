@@ -38,7 +38,7 @@ namespace Greenshot.Services
 	[StartupAction, ShutdownAction]
 	public class GreenshotServer : IGreenshotContract, IStartupAction, IShutdownAction
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(GreenshotServer));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(GreenshotServer));
 		private ServiceHost _host;
 		private const string PipeBaseEndpoint = "net.pipe://localhost/Greenshot/Server_";
 
@@ -68,7 +68,7 @@ namespace Greenshot.Services
 		/// <returns></returns>
 		public async Task StartAsync(CancellationToken token = default(CancellationToken))
 		{
-			LOG.Debug("Starting Greenshot server");
+			Log.Debug("Starting Greenshot server");
 			await Task.Run(() =>
 			{
 				_host = new ServiceHost(this, new[]
@@ -80,7 +80,7 @@ namespace Greenshot.Services
 				_host.AddServiceEndpoint(typeof (IGreenshotContract), new NetNamedPipeBinding(), EndPoint);
 				_host.Open();
 			}, token).ConfigureAwait(false);
-			LOG.Debug("Started Greenshot server");
+			Log.Debug("Started Greenshot server");
 		}
 
 		/// <summary>
@@ -90,7 +90,7 @@ namespace Greenshot.Services
 		/// <returns>Task</returns>
 		public async Task ShutdownAsync(CancellationToken token = default(CancellationToken))
 		{
-			LOG.Debug("Stopping Greenshot server");
+			Log.Debug("Stopping Greenshot server");
 			await Task.Run(() =>
 			{
 				if (_host != null)
@@ -117,7 +117,7 @@ namespace Greenshot.Services
 		/// <param name="filename"></param>
 		public void OpenFile(string filename)
 		{
-			LOG.Information("Open file requested for: {0}", filename);
+			Log.Information("Open file requested for: {0}", filename);
 
 			if (File.Exists(filename))
 			{
@@ -125,7 +125,7 @@ namespace Greenshot.Services
 			}
 			else
 			{
-				LOG.Warning("No such file: " + filename);
+				Log.Warning("No such file: " + filename);
 			}
 		}
 

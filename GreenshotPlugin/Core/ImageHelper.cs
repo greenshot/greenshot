@@ -20,7 +20,6 @@
  */
 
 using Dapplo.Config.Ini;
-using Greenshot.Core;
 using GreenshotPlugin.Configuration;
 using Dapplo.Windows.Native;
 

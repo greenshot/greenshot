@@ -130,7 +130,7 @@ namespace GreenshotPlugin.Configuration
 	/// </summary>
 	public static class CoreConfigurationChecker
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(CoreConfigurationChecker));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(CoreConfigurationChecker));
 
 		/// <summary>
 		/// Supply values we can't put as defaults
@@ -166,7 +166,7 @@ namespace GreenshotPlugin.Configuration
 							}
 							catch (Exception ex)
 							{
-								LOG.Warning(ex, "Unable to create directory {Directory}", pafOutputFilePath);
+								Log.Warning(ex, "Unable to create directory {Directory}", pafOutputFilePath);
 								// Problem creating directory, fallback to Desktop
 							}
 						}
@@ -239,6 +239,7 @@ namespace GreenshotPlugin.Configuration
 			}
 			catch
 			{
+				// ignored
 			}
 		}
 
@@ -285,8 +286,7 @@ namespace GreenshotPlugin.Configuration
 			// CheckForUnstable = true;
 
 			// check the icon size value
-			var ics = coreConfiguration.IconSize;
-			Size iconSize = FixIconSize(coreConfiguration.IconSize);
+			var iconSize = FixIconSize(coreConfiguration.IconSize);
 			if (iconSize != coreConfiguration.IconSize)
 			{
 				coreConfiguration.IconSize = iconSize;
@@ -301,6 +301,7 @@ namespace GreenshotPlugin.Configuration
 				}
 				catch
 				{
+					// ignored
 				}
 				// Disable the AutoReduceColors as it causes issues with Mozzila applications and some others
 				coreConfiguration.OutputFileAutoReduceColors = false;

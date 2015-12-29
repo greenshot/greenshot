@@ -48,7 +48,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public class MapiMailMessage : IDisposable
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(MapiMailMessage));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(MapiMailMessage));
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 
 		/// <summary>
@@ -81,7 +81,7 @@ namespace Greenshot.Helpers
 		/// <summary>
 		/// Helper Method for creating an Email with Image Attachment
 		/// </summary>
-		/// <param name="image">The image to send</param>
+		/// <param name="surface">The image to send</param>
 		/// <param name="captureDetails">ICaptureDetails</param>
 		public static void SendImage(ICapture surface, ICaptureDetails captureDetails)
 		{
@@ -323,7 +323,7 @@ namespace Greenshot.Helpers
 				if (errorCode != MAPI_CODES.SUCCESS && errorCode != MAPI_CODES.USER_ABORT)
 				{
 					string errorText = GetMapiError(errorCode);
-					LOG.Error("Error sending MAPI Email. Error: " + errorText + " (code = " + errorCode + ").");
+					Log.Error("Error sending MAPI Email. Error: " + errorText + " (code = " + errorCode + ").");
 					MessageBox.Show(errorText, "Mail (MAPI) destination", MessageBoxButtons.OK, MessageBoxIcon.Error);
 					// Recover from bad settings, show again
 					if (errorCode == MAPI_CODES.INVALID_RECIPS)

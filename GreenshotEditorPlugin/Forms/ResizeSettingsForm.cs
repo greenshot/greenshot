@@ -20,12 +20,12 @@
  */
 
 using Dapplo.Config.Language;
-using Greenshot.Core;
 using GreenshotPlugin.Configuration;
 using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using GreenshotPlugin.Core;
 
 namespace GreenshotEditorPlugin.Forms
 {

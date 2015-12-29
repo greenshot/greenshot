@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.ComponentModel.Composition;
 using Dapplo.Addons;
+using GreenshotDropboxPlugin.Forms;
 using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotDropboxPlugin

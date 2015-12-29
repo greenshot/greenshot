@@ -19,13 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotConfluencePlugin.Model;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using GreenshotConfluencePlugin.Model;
 
-namespace GreenshotConfluencePlugin
+namespace GreenshotConfluencePlugin.Forms
 {
 	/// <summary>
 	/// Interaction logic for ConfluenceUpload.xaml

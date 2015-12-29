@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotBoxPlugin.Forms;
-
-namespace GreenshotBoxPlugin
+namespace GreenshotBoxPlugin.Forms
 {
 	/// <summary>
 	/// Description of PasswordRequestForm.

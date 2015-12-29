@@ -30,7 +30,6 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Dapplo.Config.Language;
 using Dapplo.Windows.Native;
-using Greenshot.Destinations;
 using Greenshot.Helpers;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Controls;
@@ -47,7 +46,7 @@ namespace Greenshot.Forms
 	/// </summary>
 	public partial class SettingsForm : BaseForm
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(SettingsForm));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(SettingsForm));
 		//private static IEditorConfiguration editorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
 		private readonly ToolTip _toolTip = new ToolTip();
 		private bool _inHotkey;
@@ -563,7 +562,7 @@ namespace Greenshot.Forms
 			}
 			catch (Exception e)
 			{
-				LOG.Warning("Problem checking registry, ignoring for now: ", e);
+				Log.Warning("Problem checking registry, ignoring for now: ", e);
 			}
 		}
 
@@ -636,7 +635,7 @@ namespace Greenshot.Forms
 			WindowCaptureMode selectedWindowCaptureMode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
 			if (combobox_language.SelectedItem != null)
 			{
-				LOG.Debug("Setting language to: " + (string) combobox_language.SelectedValue);
+				Log.Debug("Setting language to: " + (string) combobox_language.SelectedValue);
 				await LanguageLoader.Current.ChangeLanguage((string) combobox_language.SelectedValue);
 			}
 			// Reflect language changes to the settings form

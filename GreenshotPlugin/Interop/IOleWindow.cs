@@ -22,7 +22,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Greenshot.Interop
+namespace GreenshotPlugin.Interop
 {
 	// Needed to get the Window handle from the IDocument2
 	// See: http://msdn.microsoft.com/en-us/library/ms680102%28v=vs.85%29.aspx

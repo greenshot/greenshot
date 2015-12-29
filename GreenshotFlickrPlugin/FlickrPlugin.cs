@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.ComponentModel.Composition;
 using Dapplo.Addons;
+using GreenshotFlickrPlugin.Forms;
 using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotFlickrPlugin

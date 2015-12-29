@@ -28,7 +28,6 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using ExternalCommand;
 using System.ComponentModel.Composition;
 using Dapplo.Addons;
 using GreenshotPlugin.Interfaces;

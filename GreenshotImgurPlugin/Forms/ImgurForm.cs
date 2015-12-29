@@ -22,7 +22,7 @@
 using Dapplo.Config.Language;
 using GreenshotPlugin.Controls;
 
-namespace GreenshotImgurPlugin
+namespace GreenshotImgurPlugin.Forms
 {
 	/// <summary>
 	/// This class is needed for design-time resolving of the language files

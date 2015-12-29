@@ -21,8 +21,8 @@
 
 using System.Collections.Generic;
 using Dapplo.Config.Ini;
-using Greenshot.Core;
 using GreenshotPlugin.Configuration;
+using GreenshotPlugin.Core;
 
 namespace GreenshotPlugin.Interfaces.Plugin
 {

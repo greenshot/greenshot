@@ -40,7 +40,7 @@ namespace Greenshot.Destinations
 	public sealed class PickerDestination : AbstractDestination
 	{
 		private const string PickerDesignation = "Picker";
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(PickerDestination));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(PickerDestination));
 
 		[Import]
 		private ICoreConfiguration CoreConfiguration
@@ -110,7 +110,7 @@ namespace Greenshot.Destinations
 					}
 					catch (Exception ex)
 					{
-						LOG.Error(ex, "Picker export failed");
+						Log.Error(ex, "Picker export failed");
 						//return new Notification
 						//{
 						//	NotificationType = NotificationTypes.Fail,

@@ -40,7 +40,7 @@ namespace Greenshot.Destinations
 	public sealed class ClipboardDestination : AbstractDestination
 	{
 		private const string ClipboardDesignation = "Clipboard";
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ClipboardDestination));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ClipboardDestination));
 		private static readonly BitmapSource ClipboardIcon;
 		static ClipboardDestination()
 		{
@@ -88,7 +88,7 @@ namespace Greenshot.Destinations
 			}
 			catch (Exception e)
 			{
-				LOG.Error(e, "Clipboard export failed");
+				Log.Error(e, "Clipboard export failed");
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
 				returnValue.Text = GreenshotLanguage.ClipboardError;

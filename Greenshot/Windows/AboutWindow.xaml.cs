@@ -42,7 +42,7 @@ namespace Greenshot.Windows
 	/// </summary>
 	public partial class AboutWindow : Window
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(AboutWindow));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(AboutWindow));
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		private static readonly object LockObject = new object();
 		private static AboutWindow _aboutWindow;
@@ -112,7 +112,7 @@ namespace Greenshot.Windows
 				}
 				catch (Exception ex)
 				{
-					LOG.Error("Error opening link: ", ex);
+					Log.Error("Error opening link: ", ex);
 				}
 			}
 		}
@@ -128,7 +128,7 @@ namespace Greenshot.Windows
 					}
 					catch (Exception ex)
 					{
-						LOG.Error("Can't open ini file:", ex);
+						Log.Error("Can't open ini file:", ex);
 					}
 					break;
 				case Key.L:
@@ -138,7 +138,7 @@ namespace Greenshot.Windows
 					}
 					catch (Exception ex)
 					{
-						LOG.Error("Can't open log file:", ex);
+						Log.Error("Can't open log file:", ex);
 					}
 					break;
 				case Key.Escape:

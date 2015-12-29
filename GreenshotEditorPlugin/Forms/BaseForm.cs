@@ -21,7 +21,7 @@
 
 using GreenshotPlugin.Controls;
 
-namespace GreenshotEditorPlugin
+namespace GreenshotEditorPlugin.Forms
 {
 	/// <summary>
 	/// This class is only here to help in the Designer mode, so it's clear where the language files are

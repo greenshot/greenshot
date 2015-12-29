@@ -28,7 +28,6 @@ using System.Media;
 using System.Reflection;
 using System.Resources;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Greenshot.Helpers
 {
@@ -39,9 +38,9 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public static class SoundHelper
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(SoundHelper));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(SoundHelper));
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
-		private static SoundPlayer soundPlayer;
+		private static SoundPlayer _soundPlayer;
 
 		public static void Initialize()
 		{
@@ -51,7 +50,7 @@ namespace Greenshot.Helpers
 				{
 					if (File.Exists(conf.NotificationSound))
 					{
-						soundPlayer = new SoundPlayer(conf.NotificationSound);
+						_soundPlayer = new SoundPlayer(conf.NotificationSound);
 						return;
 					}
 				}
@@ -59,12 +58,12 @@ namespace Greenshot.Helpers
 
 				using (var stream = new MemoryStream((byte[])resources.GetObject("camera")))
 				{
-					soundPlayer = new SoundPlayer(stream);
+					_soundPlayer = new SoundPlayer(stream);
 				}
 			}
 			catch (Exception e)
 			{
-				LOG.Error("Error initializing.", e);
+				Log.Error("Error initializing.", e);
 			}
 		}
 
@@ -74,16 +73,16 @@ namespace Greenshot.Helpers
 		/// <returns></returns>
 		public static void Play(CancellationToken token = default(CancellationToken))
 		{
-			if (soundPlayer != null)
+			if (_soundPlayer != null)
 			{
-				soundPlayer.Play();
+				_soundPlayer.Play();
 			}
 		}
 
 		public static void Deinitialize()
 		{
-			soundPlayer.Dispose();
-			soundPlayer = null;
+			_soundPlayer.Dispose();
+			_soundPlayer = null;
 		}
 	}
 }

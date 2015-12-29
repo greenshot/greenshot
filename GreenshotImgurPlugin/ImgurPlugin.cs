@@ -28,6 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Addons;
+using GreenshotImgurPlugin.Forms;
 using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotImgurPlugin

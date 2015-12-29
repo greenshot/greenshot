@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Core;
 using GreenshotEditorPlugin.Memento;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;

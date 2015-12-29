@@ -27,7 +27,7 @@ using System.ComponentModel.Composition;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using TranslationByMarkupExtension;
+using GreenshotConfluencePlugin.Support;
 
 namespace GreenshotConfluencePlugin
 {
@@ -179,7 +179,7 @@ namespace GreenshotConfluencePlugin
 				Url = ConfluenceConfiguration.RestUrl
 			};
 
-			ConfluenceConfigurationForm configForm = new ConfluenceConfigurationForm();
+			Forms.ConfluenceConfigurationForm configForm = new Forms.ConfluenceConfigurationForm();
 			var dialogResult = configForm.ShowDialog();
 			if (!dialogResult.HasValue || !dialogResult.Value)
 			{

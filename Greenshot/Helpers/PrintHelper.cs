@@ -26,8 +26,6 @@ using System.Windows.Forms;
 using Greenshot.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
-using Greenshot.Core;
-
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using GreenshotPlugin.Configuration;
@@ -41,7 +39,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public class PrintHelper : IDisposable
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(PrintHelper));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(PrintHelper));
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 
@@ -127,7 +125,7 @@ namespace Greenshot.Helpers
 			}
 			catch (Exception e)
 			{
-				LOG.Error("An error ocurred while trying to print", e);
+				Log.Error("An error ocurred while trying to print", e);
 				MessageBox.Show(language.PrintError, language.Error);
 			}
 			return returnPrinterSettings;
@@ -158,7 +156,7 @@ namespace Greenshot.Helpers
 				}
 				catch (Exception e)
 				{
-					LOG.Error("An error ocurred while trying to print", e);
+					Log.Error("An error ocurred while trying to print", e);
 					MessageBox.Show(language.PrintError, language.Error);
 				}
 			}

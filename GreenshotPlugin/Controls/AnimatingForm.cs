@@ -35,10 +35,10 @@ namespace GreenshotPlugin.Controls
 	/// </summary>
 	public class AnimatingForm : GreenshotForm
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(AnimatingForm));
-		private const int DEFAULT_VREFRESH = 60;
-		private int vRefresh = 0;
-		private System.Timers.Timer timer = null;
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(AnimatingForm));
+		private const int DefaultVrefresh = 60;
+		private int _vRefresh;
+		private System.Timers.Timer _timer;
 
 		/// <summary>
 		/// This flag specifies if any animation is used
@@ -56,28 +56,28 @@ namespace GreenshotPlugin.Controls
 		{
 			get
 			{
-				if (vRefresh == 0)
+				if (_vRefresh == 0)
 				{
 					// get te hDC of the desktop to get the VREFRESH
 					using (var desktopHandle = SafeWindowDCHandle.fromDesktop())
 					{
-						vRefresh = Gdi32.GetDeviceCaps(desktopHandle, DeviceCaps.VREFRESH);
+						_vRefresh = Gdi32.GetDeviceCaps(desktopHandle, DeviceCaps.VREFRESH);
 					}
 				}
 				// A vertical refresh rate value of 0 or 1 represents the display hardware's default refresh rate.
 				// As there is currently no know way to get the default, we guess it.
-				if (vRefresh <= 1)
+				if (_vRefresh <= 1)
 				{
-					vRefresh = DEFAULT_VREFRESH;
+					_vRefresh = DefaultVrefresh;
 				}
-				return vRefresh;
+				return _vRefresh;
 			}
 		}
 
 		/// <summary>
 		/// Check if we are in a Terminal Server session OR need to optimize for RDP / remote desktop connections
 		/// </summary>
-		protected bool isTerminalServerSession
+		protected bool IsTerminalServerSession
 		{
 			get
 			{
@@ -93,7 +93,7 @@ namespace GreenshotPlugin.Controls
 		protected int FramesForMillis(int milliseconds)
 		{
 			// If we are in a Terminal Server Session we return 1
-			if (isTerminalServerSession)
+			if (IsTerminalServerSession)
 			{
 				return 1;
 			}
@@ -109,21 +109,23 @@ namespace GreenshotPlugin.Controls
 			{
 				if (EnableAnimation)
 				{
-					timer = new System.Timers.Timer();
-					timer.Interval = 1000/VRefresh;
-					timer.Elapsed += timer_Tick;
-					timer.SynchronizingObject = this;
-					timer.Start();
+					_timer = new System.Timers.Timer
+					{
+						Interval = 1000d/VRefresh,
+						SynchronizingObject = this
+					};
+					_timer.Elapsed += timer_Tick;
+					_timer.Start();
 				}
 			};
 
 			// Unregister at close
 			FormClosing += delegate
 			{
-				if (timer != null)
+				if (_timer != null)
 				{
-					timer.Stop();
-					timer.Dispose();
+					_timer.Stop();
+					_timer.Dispose();
 				}
 			};
 		}
@@ -132,6 +134,7 @@ namespace GreenshotPlugin.Controls
 		/// The tick handler initiates the animation.
 		/// </summary>
 		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private async void timer_Tick(object sender, ElapsedEventArgs e)
 		{
 			try
@@ -140,7 +143,7 @@ namespace GreenshotPlugin.Controls
 			}
 			catch (Exception ex)
 			{
-				LOG.Warning("An exception occured while animating:", ex);
+				Log.Warning("An exception occured while animating:", ex);
 			}
 		}
 

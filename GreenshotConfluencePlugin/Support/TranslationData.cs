@@ -23,7 +23,7 @@ using System;
 using System.ComponentModel;
 using System.Windows;
 
-namespace TranslationByMarkupExtension
+namespace GreenshotConfluencePlugin.Support
 {
 	public class TranslationData : IWeakEventListener, INotifyPropertyChanged
 	{

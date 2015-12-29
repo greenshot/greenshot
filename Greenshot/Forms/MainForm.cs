@@ -57,7 +57,7 @@ namespace Greenshot.Forms
 	/// </summary>
 	public partial class MainForm : BaseForm
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(MainForm));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(MainForm));
 		private const string ApplicationName = "Greenshot";
 		private const string MutexId = @"Local\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08";
 		private static Mutex _applicationMutex;
@@ -86,11 +86,10 @@ namespace Greenshot.Forms
 			Application.ThreadException += Application_ThreadException;
 			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-			Log.Logger = new LoggerConfiguration().ReadFrom.AppSettings()
+			Serilog.Log.Logger = new LoggerConfiguration().ReadFrom.AppSettings()
 #if DEBUG
 				.MinimumLevel.Verbose()
-	.WriteTo.Trace(outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level}] {SourceContext} - {Message}{NewLine}{Exception}")
-#else
+				.WriteTo.Trace(outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level}] {SourceContext} - {Message}{NewLine}{Exception}")
 #endif
 			.CreateLogger();
 
@@ -127,7 +126,7 @@ namespace Greenshot.Forms
 			}).Wait();
 
 			// Log the startup
-			LOG.Information("Starting: " + EnvironmentInfo.EnvironmentToString(false));
+			Log.Information("Starting: " + EnvironmentInfo.EnvironmentToString(false));
 
 			try
 			{
@@ -179,7 +178,7 @@ namespace Greenshot.Forms
 			}
 			catch (Exception ex)
 			{
-				LOG.Error("Exception in startup.", ex);
+				Log.Error("Exception in startup.", ex);
 				Application_ThreadException(ActiveForm, new ThreadExceptionEventArgs(ex));
 			}
 		}
@@ -209,7 +208,7 @@ namespace Greenshot.Forms
 				}
 				catch (Exception ex)
 				{
-					LOG.Debug(ex, "Problem retrieving process path of a running Greenshot instance");
+					Log.Debug(ex, "Problem retrieving process path of a running Greenshot instance");
 				}
 				greenshotProcess.Dispose();
 			}
@@ -260,7 +259,7 @@ namespace Greenshot.Forms
 				// 2) Get the right to it, this returns false if it's already locked
 				if (!_applicationMutex.WaitOne(0, false))
 				{
-					LOG.Debug($"{ApplicationName} seems already to be running!");
+					Log.Debug($"{ApplicationName} seems already to be running!");
 					lockSuccess = false;
 					// Clean up
 					_applicationMutex.Close();
@@ -271,16 +270,16 @@ namespace Greenshot.Forms
 			{
 				// Another Greenshot instance didn't cleanup correctly!
 				// we can ignore the exception, it happend on the "waitone" but still the mutex belongs to us
-				LOG.Warning($"{ApplicationName} didn't cleanup correctly!", e);
+				Log.Warning($"{ApplicationName} didn't cleanup correctly!", e);
 			}
 			catch (UnauthorizedAccessException e)
 			{
-				LOG.Warning($"{ApplicationName} is most likely already running for a different user in the same session, can't create mutex due to error: ", e);
+				Log.Warning($"{ApplicationName} is most likely already running for a different user in the same session, can't create mutex due to error: ", e);
 				lockSuccess = false;
 			}
 			catch (Exception ex)
 			{
-				LOG.Warning("Problem obtaining the Mutex, assuming it was already taken!", ex);
+				Log.Warning("Problem obtaining the Mutex, assuming it was already taken!", ex);
 				lockSuccess = false;
 			}
 			return lockSuccess;
@@ -300,7 +299,7 @@ namespace Greenshot.Forms
 				}
 				catch (Exception ex)
 				{
-					LOG.Error("Error releasing Mutex!", ex);
+					Log.Error("Error releasing Mutex!", ex);
 				}
 			}
 		}
@@ -358,7 +357,7 @@ namespace Greenshot.Forms
 			contextmenu_settings.Visible = !coreConfiguration.DisableSettings;
 
 			// Make sure all hotkeys pass this window!
-			HotkeyControl.RegisterHotkeyHWND(Handle);
+			HotkeyControl.RegisterHotkeyHwnd(Handle);
 			RegisterHotkeys();
 
 			new ToolTip();
@@ -437,7 +436,7 @@ namespace Greenshot.Forms
 			if (coreConfiguration.IsFirstLaunch)
 			{
 				coreConfiguration.IsFirstLaunch = false;
-				LOG.Information("FirstLaunch: Created new configuration, showing balloon.");
+				Log.Information("FirstLaunch: Created new configuration, showing balloon.");
 				try
 				{
 					notifyIcon.BalloonTipClicked += BalloonTipClicked;
@@ -446,7 +445,7 @@ namespace Greenshot.Forms
 				}
 				catch (Exception ex)
 				{
-					LOG.Warning("Exception while showing first launch: ", ex);
+					Log.Warning("Exception while showing first launch: ", ex);
 				}
 			}
 
@@ -460,7 +459,6 @@ namespace Greenshot.Forms
 			}
 			// Checking for updates etc in the background
 			_backgroundWorkerTimer = new System.Threading.Timer(async _ => await BackgroundWorkerTimerTick().ConfigureAwait(false), null, TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(5));
-
 			// Use the client to connect to myself, maybe a bit overdone but it saves code
 			GreenshotClient.OpenFiles(arguments.FilesToOpen);
 		}
@@ -531,7 +529,7 @@ namespace Greenshot.Forms
 			{
 				if (HotkeyControl.RegisterHotKey(modifierKeyCode, virtualKeyCode, hotkeyAction) < 0)
 				{
-					LOG.Debug("Failed to register {0} to hotkey: {1}", functionName, hotkeyString);
+					Log.Debug("Failed to register {0} to hotkey: {1}", functionName, hotkeyString);
 					if (failedKeys.Length > 0)
 					{
 						failedKeys.Append(", ");
@@ -539,11 +537,11 @@ namespace Greenshot.Forms
 					failedKeys.Append(hotkeyString);
 					return false;
 				}
-				LOG.Debug("Registered {0} to hotkey: {1}", functionName, hotkeyString);
+				Log.Debug("Registered {0} to hotkey: {1}", functionName, hotkeyString);
 			}
 			else
 			{
-				LOG.Information("Skipping hotkey registration for {0}, no hotkey set!", functionName);
+				Log.Information("Skipping hotkey registration for {0}, no hotkey set!", functionName);
 			}
 			return true;
 		}
@@ -556,14 +554,14 @@ namespace Greenshot.Forms
 				bool success = RegisterHotkey(failedKeys, functionName, hotkeyValue.Value.ToString(), hotkeyAction);
 				if (!success && ignoreFailedRegistration)
 				{
-					LOG.Debug("Ignoring failed hotkey registration for {0}, with value '{1}', resetting to 'None'.", functionName, hotkeyValue.Value);
+					Log.Debug("Ignoring failed hotkey registration for {0}, with value '{1}', resetting to 'None'.", functionName, hotkeyValue.Value);
 					hotkeyValue.Value = Keys.None.ToString();
 				}
 				return success;
 			}
 			catch (Exception ex)
 			{
-				LOG.Warning(ex, "Restoring default hotkey for {function}, stored under {configKey} from '{key}' to '{defaultKey}'", functionName, configurationKey, hotkeyValue.Value, hotkeyValue.DefaultValue);
+				Log.Warning(ex, "Restoring default hotkey for {function}, stored under {configKey} from '{key}' to '{defaultKey}'", functionName, configurationKey, hotkeyValue.Value, hotkeyValue.DefaultValue);
 				// when getting an exception the key wasn't found: reset the hotkey value
 				hotkeyValue.ResetToDefault();
 				return RegisterHotkey(failedKeys, functionName, hotkeyValue.Value.ToString(), hotkeyAction);
@@ -656,13 +654,13 @@ namespace Greenshot.Forms
 			DialogResult dr = MessageBox.Show(Instance, string.Format(language.WarningHotkeys, failedKeys), language.Warning, MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Exclamation);
 			if (dr == DialogResult.Retry)
 			{
-				LOG.Debug("Re-trying to register hotkeys");
+				Log.Debug("Re-trying to register hotkeys");
 				HotkeyControl.UnregisterHotkeys();
 				success = RegisterHotkeys(false);
 			}
 			else if (dr == DialogResult.Ignore)
 			{
-				LOG.Debug("Ignoring failed hotkey registration");
+				Log.Debug("Ignoring failed hotkey registration");
 				HotkeyControl.UnregisterHotkeys();
 				success = RegisterHotkeys(true);
 			}
@@ -702,7 +700,7 @@ namespace Greenshot.Forms
 
 		private void MainFormFormClosing(object sender, FormClosingEventArgs e)
 		{
-			LOG.Debug("Mainform closing, reason: {0}", e.CloseReason);
+			Log.Debug("Mainform closing, reason: {0}", e.CloseReason);
 			_instance = null;
 			Exit();
 		}
@@ -820,7 +818,7 @@ namespace Greenshot.Forms
 			}
 			catch (Exception ex)
 			{
-				LOG.Warning("Problem accessing IE information: {0}", ex.Message);
+				Log.Warning("Problem accessing IE information: {0}", ex.Message);
 			}
 
 			// Multi-Screen captures
@@ -909,7 +907,7 @@ namespace Greenshot.Forms
 			}
 			catch (Exception ex)
 			{
-				LOG.Warning("Problem accessing IE information: {0}", ex.Message);
+				Log.Warning("Problem accessing IE information: {0}", ex.Message);
 			}
 		}
 
@@ -1094,7 +1092,7 @@ namespace Greenshot.Forms
 				}
 				catch (Exception exception)
 				{
-					LOG.Error(exception, "Capture window failed");
+					Log.Error(exception, "Capture window failed");
 				}
 			});
 		}
@@ -1108,7 +1106,7 @@ namespace Greenshot.Forms
 		{
 			if (!coreConfiguration.IECapture)
 			{
-				LOG.Information("IE Capture is disabled.");
+				Log.Information("IE Capture is disabled.");
 				return;
 			}
 			var clickedItem = (ToolStripMenuItem) sender;
@@ -1126,7 +1124,7 @@ namespace Greenshot.Forms
 				}
 				catch (Exception exception)
 				{
-					LOG.Error(exception, "Activating an IE tab failed");
+					Log.Error(exception, "Activating an IE tab failed");
 				}
 				try
 				{
@@ -1134,7 +1132,7 @@ namespace Greenshot.Forms
 				}
 				catch (Exception exception)
 				{
-					LOG.Error(exception, "Capturing IE failed");
+					Log.Error(exception, "Capturing IE failed");
 				}
 			}));
 		}
@@ -1411,7 +1409,7 @@ namespace Greenshot.Forms
 		{
 			Exception exceptionToLog = e.ExceptionObject as Exception;
 			string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
-			LOG.Error(EnvironmentInfo.ExceptionToString(exceptionToLog));
+			Log.Error(EnvironmentInfo.ExceptionToString(exceptionToLog));
 			new BugReportForm(exceptionText).ShowDialog();
 		}
 
@@ -1419,7 +1417,7 @@ namespace Greenshot.Forms
 		{
 			Exception exceptionToLog = e.Exception;
 			string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
-			LOG.Error(EnvironmentInfo.ExceptionToString(exceptionToLog));
+			Log.Error(EnvironmentInfo.ExceptionToString(exceptionToLog));
 			new BugReportForm(exceptionText).ShowDialog();
 		}
 
@@ -1569,9 +1567,9 @@ namespace Greenshot.Forms
 			}
 			catch (Exception ex)
 			{
-				LOG.Warning("Couldn't open the path to the last exported file, taking default.", ex);
+				Log.Warning("Couldn't open the path to the last exported file, taking default.", ex);
 			}
-			LOG.Debug("DoubleClick was called! Starting: " + path);
+			Log.Debug("DoubleClick was called! Starting: " + path);
 			try
 			{
 				Process.Start(path);
@@ -1580,7 +1578,7 @@ namespace Greenshot.Forms
 			{
 				// Make sure we show what we tried to open in the exception
 				ex.Data.Add("path", path);
-				LOG.Warning("Couldn't open the path to the last exported file", ex);
+				Log.Warning("Couldn't open the path to the last exported file", ex);
 				// No reason to create a bug-form, we just display the error.
 				MessageBox.Show(this, ex.Message, "Opening " + path, MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
@@ -1591,7 +1589,7 @@ namespace Greenshot.Forms
 		/// </summary>
 		public void Exit()
 		{
-			LOG.Information("Exit: {0}", EnvironmentInfo.EnvironmentToString(false));
+			Log.Information("Exit: {0}", EnvironmentInfo.EnvironmentToString(false));
 
 			// Close all open forms (except this), use a separate List to make sure we don't get a "InvalidOperationException: Collection was modified"
 			var formsToClose = new List<Form>();
@@ -1606,7 +1604,7 @@ namespace Greenshot.Forms
 
 			foreach (var form in formsToClose)
 			{
-				LOG.Information("Closing form: {0}", form.Name);
+				Log.Information("Closing form: {0}", form.Name);
 				this.AsyncInvoke(() => form.Close());
 			}
 			// Make sure any "save" actions are shown and handled!
@@ -1619,7 +1617,7 @@ namespace Greenshot.Forms
 			}
 			catch (Exception e)
 			{
-				LOG.Error("Error unregistering hotkeys!", e);
+				Log.Error("Error unregistering hotkeys!", e);
 			}
 
 			// Now the sound isn't needed anymore
@@ -1629,7 +1627,7 @@ namespace Greenshot.Forms
 			}
 			catch (Exception e)
 			{
-				LOG.Error("Error deinitializing sound!", e);
+				Log.Error("Error deinitializing sound!", e);
 			}
 
 			// Inform all registed plugins
@@ -1643,7 +1641,7 @@ namespace Greenshot.Forms
 			}
 			catch (Exception e)
 			{
-				LOG.Error("Error shutting down plugins!", e);
+				Log.Error("Error shutting down plugins!", e);
 			}
 
 			// Gracefull shutdown
@@ -1654,7 +1652,7 @@ namespace Greenshot.Forms
 			}
 			catch (Exception e)
 			{
-				LOG.Error("Error closing application!", e);
+				Log.Error("Error closing application!", e);
 			}
 
 			ImageOutput.RemoveTmpFiles();
@@ -1666,7 +1664,7 @@ namespace Greenshot.Forms
 			}
 			catch (Exception e)
 			{
-				LOG.Error("Error storing configuration!", e);
+				Log.Error("Error storing configuration!", e);
 			}
 
 			// Remove the application mutex
@@ -1693,7 +1691,7 @@ namespace Greenshot.Forms
 			}
 			if (await UpdateHelper.IsUpdateCheckNeeded().ConfigureAwait(false))
 			{
-				LOG.Debug("BackgroundWorkerTimerTick checking for update");
+				Log.Debug("BackgroundWorkerTimerTick checking for update");
 				await UpdateHelper.CheckAndAskForUpdate().ConfigureAwait(false);
 			}
 		}

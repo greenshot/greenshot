@@ -20,13 +20,13 @@
  */
 
 using Dapplo.Config.Ini;
-using Greenshot.Core;
 using Dapplo.Windows.Native;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.Serialization;
 using Dapplo.Windows.Enums;
+using GreenshotPlugin.Core;
 
 namespace GreenshotEditorPlugin
 {

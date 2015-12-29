@@ -36,19 +36,18 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public static class EnvironmentInfo
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(EnvironmentInfo));
-		private static bool? isWindows = null;
+		private static bool? _isWindows;
 
 		public static bool IsWindows
 		{
 			get
 			{
-				if (isWindows.HasValue)
+				if (_isWindows.HasValue)
 				{
-					return isWindows.Value;
+					return _isWindows.Value;
 				}
-				isWindows = Environment.OSVersion.Platform.ToString().StartsWith("Win");
-				return isWindows.Value;
+				_isWindows = Environment.OSVersion.Platform.ToString().StartsWith("Win");
+				return _isWindows.Value;
 			}
 		}
 
@@ -155,15 +154,15 @@ namespace Greenshot.Helpers
 
 			StringBuilder report = new StringBuilder();
 
-			report.AppendLine("Exception: " + ex.GetType().ToString());
+			report.AppendLine("Exception: " + ex.GetType());
 			report.AppendLine("Message: " + ex.Message);
-			if (ex.Data != null && ex.Data.Count > 0)
+			if (ex.Data.Count > 0)
 			{
 				report.AppendLine();
 				report.AppendLine("Additional Information:");
-				foreach (object key in ex.Data.Keys)
+				foreach (var key in ex.Data.Keys)
 				{
-					object data = ex.Data[key];
+					var data = ex.Data[key];
 					if (data != null)
 					{
 						report.AppendLine(key + " : " + data);

@@ -19,10 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Language;
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Core;
-
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -30,8 +26,10 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.Text;
+using Dapplo.Config.Language;
+using GreenshotPlugin.Configuration;
 
-namespace Greenshot.Core
+namespace GreenshotPlugin.Core
 {
 	/// <summary>
 	/// Interface to describe an effect

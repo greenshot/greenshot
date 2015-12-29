@@ -19,9 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using Greenshot.Interop.IE;
-using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
 
 using mshtml;
@@ -30,33 +27,30 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using IServiceProvider = Greenshot.Interop.IServiceProvider;
+using GreenshotPlugin.IEInterop;
+using IServiceProvider = GreenshotPlugin.Interop.IServiceProvider;
 
 namespace Greenshot.Helpers.IEInterop
 {
 	public class DocumentContainer
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(DocumentContainer));
-		private static readonly ICoreConfiguration configuration = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(DocumentContainer));
 		private const int E_ACCESSDENIED = unchecked((int) 0x80070005L);
 		private static readonly Guid IID_IWebBrowserApp = new Guid("0002DF05-0000-0000-C000-000000000046");
 		private static readonly Guid IID_IWebBrowser2 = new Guid("D30C1661-CDAF-11D0-8A3E-00C04FC9E26E");
-		private static int counter = 0;
-		private int id = counter++;
-		private IHTMLDocument2 document2;
-		private IHTMLDocument3 document3;
-		private Point sourceLocation;
-		private Point destinationLocation;
-		private Point startLocation = Point.Empty;
-		private Rectangle viewportRectangle = Rectangle.Empty;
-		private string name = null;
-		private string url;
-		private bool isDTD;
-		private DocumentContainer parent;
-		private WindowDetails contentWindow;
-		private double zoomLevelX = 1;
-		private double zoomLevelY = 1;
-		private List<DocumentContainer> frames = new List<DocumentContainer>();
+		private static int _counter;
+		private IHTMLDocument2 _document2;
+		private IHTMLDocument3 _document3;
+		private Point _sourceLocation;
+		private Point _destinationLocation;
+		private Point _startLocation = Point.Empty;
+		private Rectangle _viewportRectangle = Rectangle.Empty;
+		private bool _isDtd;
+		private DocumentContainer _parent;
+		private WindowDetails _contentWindow;
+		private double _zoomLevelX = 1;
+		private double _zoomLevelY = 1;
+		private readonly List<DocumentContainer> _frames = new List<DocumentContainer>();
 
 		/// <summary>
 		/// The public accessible Dispose
@@ -77,76 +71,80 @@ namespace Greenshot.Helpers.IEInterop
 		/// <param name="disposing"></param>
 		protected void Dispose(bool disposing)
 		{
-			if (disposing)
+			if (!disposing)
 			{
-				foreach (var documentContainer in frames)
-				{
-					try
-					{
-						documentContainer.Dispose();
-					}
-					catch (Exception frameEx)
-					{
-						LOG.Warning("Exception while disposing frame {0}", frameEx.Message);
-					}
-				}
+				return;
+			}
+			foreach (var documentContainer in _frames)
+			{
 				try
 				{
-					releaseCom(document2);
+					documentContainer.Dispose();
 				}
-				catch (Exception document2Ex)
+				catch (Exception frameEx)
 				{
-					LOG.Warning("Exception while disposing document2 {0}", document2Ex.Message);
+					Log.Warning("Exception while disposing frame {0}", frameEx.Message);
 				}
-				try
-				{
-					releaseCom(document3);
-				}
-				catch (Exception document3Ex)
-				{
-					LOG.Warning("Exception while disposing document3 {0}", document3Ex.Message);
-				}
+			}
+			try
+			{
+				ReleaseCom(_document2);
+			}
+			catch (Exception document2Ex)
+			{
+				Log.Warning("Exception while disposing _document2 {0}", document2Ex.Message);
+			}
+			try
+			{
+				ReleaseCom(_document3);
+			}
+			catch (Exception document3Ex)
+			{
+				Log.Warning("Exception while disposing _document3 {0}", document3Ex.Message);
 			}
 		}
 
 		private DocumentContainer(IHTMLWindow2 frameWindow, WindowDetails contentWindow, DocumentContainer parent)
 		{
 			//IWebBrowser2 webBrowser2 = frame as IWebBrowser2;
-			//IHTMLDocument2 document2 = webBrowser2.Document as IHTMLDocument2;
-			IHTMLDocument2 document2 = GetDocumentFromWindow(frameWindow);
+			//IHTMLDocument2 _document2 = webBrowser2.Document as IHTMLDocument2;
+			var document2 = GetDocumentFromWindow(frameWindow);
 			try
 			{
-				LOG.Debug("frameWindow.name {0}", frameWindow.name);
-				name = frameWindow.name;
+				Log.Debug("frameWindow._name {0}", frameWindow.name);
+				Name = frameWindow.name;
 			}
 			catch
 			{
+				// ignored
 			}
 			try
 			{
-				LOG.Debug("document2.url {0}", document2.url);
+				Log.Debug("_document2._url {0}", document2.url);
 			}
 			catch
 			{
+				// ignored
 			}
 			try
 			{
-				LOG.Debug("document2.title {0}", document2.title);
+				Log.Debug("_document2.title {0}", document2.title);
 			}
 			catch
 			{
+				// ignored
 			}
 
-			this.parent = parent;
+			_parent = parent;
 			try
 			{
-				Point contentWindowLocation = contentWindow.WindowRectangle.Location;
-				int x, y = 0;
-				// Calculate startLocation for the frames
-				IHTMLWindow2 window2 = document2.parentWindow;
+				var contentWindowLocation = contentWindow.WindowRectangle.Location;
+				int x, y;
+				// Calculate _startLocation for the _frames
+				var window2 = document2.parentWindow;
 				try
 				{
-					IHTMLWindow3 window3 = (IHTMLWindow3) window2;
+					var window3 = (IHTMLWindow3) window2;
 					try
 					{
 						x = window3.screenLeft - contentWindowLocation.X;
@@ -154,21 +152,21 @@ namespace Greenshot.Helpers.IEInterop
 					}
 					finally
 					{
-						releaseCom(window3);
+						ReleaseCom(window3);
 					}
 				}
 				finally
 				{
 					// Release IHTMLWindow 2+3 com objects
-					releaseCom(window2);
+					ReleaseCom(window2);
 				}
 
-				startLocation = new Point(x, y);
+				_startLocation = new Point(x, y);
 				Init(document2, contentWindow);
 			}
 			catch
 			{
-				releaseCom(document2);
+				ReleaseCom(document2);
 				throw;
 			}
 		}
@@ -176,14 +174,14 @@ namespace Greenshot.Helpers.IEInterop
 		public DocumentContainer(IHTMLDocument2 document2, WindowDetails contentWindow)
 		{
 			Init(document2, contentWindow);
-			LOG.Debug("Creating DocumentContainer for Document {0} found in window with rectangle {1}", name, SourceRectangle);
+			Log.Debug("Creating DocumentContainer for Document {0} found in window with rectangle {1}", Name, SourceRectangle);
 		}
 
 		/// <summary>
 		/// Helper method to release com objects
 		/// </summary>
 		/// <param name="comObject"></param>
-		private void releaseCom(object comObject)
+		private static void ReleaseCom(object comObject)
 		{
 			if (comObject != null)
 			{
@@ -198,163 +196,163 @@ namespace Greenshot.Helpers.IEInterop
 		/// <param name="contentWindow">WindowDetails</param>
 		private void Init(IHTMLDocument2 document2, WindowDetails contentWindow)
 		{
-			this.document2 = document2;
-			this.contentWindow = contentWindow;
-			document3 = document2 as IHTMLDocument3;
+			_document2 = document2;
+			_contentWindow = contentWindow;
+			_document3 = document2 as IHTMLDocument3;
 			// Check what access method is needed for the document
-			IHTMLDocument5 document5 = (IHTMLDocument5) document2;
+			var document5 = (IHTMLDocument5) document2;
 
 			//compatibility mode affects how height is computed
-			isDTD = false;
+			_isDtd = false;
 			try
 			{
-				if ((document3.documentElement != null) && (!document5.compatMode.Equals("BackCompat")))
+				if (_document3?.documentElement != null && (!document5.compatMode.Equals("BackCompat")))
 				{
-					isDTD = true;
+					_isDtd = true;
 				}
 			}
 			catch (Exception ex)
 			{
-				LOG.Error(ex, "Error checking the compatibility mode:");
+				Log.Error(ex, "Error checking the compatibility mode:");
 			}
-			// Do not release IHTMLDocument5 com object, as this also gives problems with the document2!
+			// Do not release IHTMLDocument5 com object, as this also gives problems with the _document2!
 			//Marshal.ReleaseComObject(document5);
 
-			Rectangle clientRectangle = contentWindow.WindowRectangle;
+			var clientRectangle = contentWindow.WindowRectangle;
 			try
 			{
-				IHTMLWindow2 window2 = (IHTMLWindow2) document2.parentWindow;
-				//IHTMLWindow3 window3 = (IHTMLWindow3)document2.parentWindow;
-				IHTMLScreen screen = window2.screen;
-				IHTMLScreen2 screen2 = (IHTMLScreen2) screen;
-				if (parent != null)
+				var window2 = document2.parentWindow;
+				//IHTMLWindow3 window3 = (IHTMLWindow3)_document2.parentWindow;
+				var screen = window2.screen;
+				var screen2 = (IHTMLScreen2) screen;
+				if (_parent != null)
 				{
-					// Copy parent values
-					zoomLevelX = parent.zoomLevelX;
-					zoomLevelY = parent.zoomLevelY;
-					viewportRectangle = parent.viewportRectangle;
+					// Copy _parent values
+					_zoomLevelX = _parent._zoomLevelX;
+					_zoomLevelY = _parent._zoomLevelY;
+					_viewportRectangle = _parent._viewportRectangle;
 				}
 				else
 				{
-					//DisableScrollbars(document2);
+					//DisableScrollbars(_document2);
 
 					// Calculate zoom level
-					zoomLevelX = (double) screen2.deviceXDPI/(double) screen2.logicalXDPI;
-					zoomLevelY = (double) screen2.deviceYDPI/(double) screen2.logicalYDPI;
+					_zoomLevelX = screen2.deviceXDPI/(double) screen2.logicalXDPI;
+					_zoomLevelY = screen2.deviceYDPI/(double) screen2.logicalYDPI;
 
 
 					// Calculate the viewport rectangle, needed if there is a frame around the html window
-					LOG.Debug("Screen {0}x{1}", ScaleX(screen.width), ScaleY(screen.height));
-					//LOG.Debug("Screen location {0},{1}", window3.screenLeft, window3.screenTop);
-					LOG.Debug("Window rectangle {0}", clientRectangle);
-					LOG.Debug("Client size {0}x{1}", ClientWidth, ClientHeight);
+					Log.Debug("Screen {0}x{1}", ScaleX(screen.width), ScaleY(screen.height));
+					//Log.Debug("Screen location {0},{1}", window3.screenLeft, window3.screenTop);
+					Log.Debug("Window rectangle {0}", clientRectangle);
+					Log.Debug("Client size {0}x{1}", ClientWidth, ClientHeight);
 					int diffX = clientRectangle.Width - ClientWidth;
 					int diffY = clientRectangle.Height - ClientHeight;
 					// If there is a border around the inner window, the diff == 4
 					// If there is a border AND a scrollbar the diff == 20
 					if ((diffX == 4 || diffX >= 20) && (diffY == 4 || diffY >= 20))
 					{
-						Point viewportOffset = new Point(2, 2);
-						Size viewportSize = new Size(ClientWidth, ClientHeight);
-						viewportRectangle = new Rectangle(viewportOffset, viewportSize);
-						LOG.Debug("viewportRect {0}", viewportRectangle);
+						var viewportOffset = new Point(2, 2);
+						var viewportSize = new Size(ClientWidth, ClientHeight);
+						_viewportRectangle = new Rectangle(viewportOffset, viewportSize);
+						Log.Debug("viewportRect {0}", _viewportRectangle);
 					}
 				}
-				LOG.Debug("Zoomlevel {0}, {1}", zoomLevelX, zoomLevelY);
+				Log.Debug("Zoomlevel {0}, {1}", _zoomLevelX, _zoomLevelY);
 				// Release com objects
-				releaseCom(window2);
-				releaseCom(screen);
-				releaseCom(screen2);
+				ReleaseCom(window2);
+				ReleaseCom(screen);
+				ReleaseCom(screen2);
 			}
 			catch (Exception e)
 			{
-				LOG.Warning("Can't get certain properties for documents, using default. Due to: ", e);
+				Log.Warning("Can't get certain properties for documents, using default. Due to: ", e);
 			}
 
 			try
 			{
-				LOG.Debug("Calculated location {0} for {1}", startLocation, document2.title);
-				if (name == null)
+				Log.Debug("Calculated location {0} for {1}", _startLocation, document2.title);
+				if (Name == null)
 				{
-					name = document2.title;
+					Name = document2.title;
 				}
 			}
 			catch (Exception e)
 			{
-				LOG.Warning("Problem while trying to get document title!", e);
+				Log.Warning("Problem while trying to get document title!", e);
 			}
 
 			try
 			{
-				url = document2.url;
+				Url = document2.url;
 			}
 			catch (Exception e)
 			{
-				LOG.Warning("Problem while trying to get document url!", e);
+				Log.Warning("Problem while trying to get document _url!", e);
 			}
-			sourceLocation = new Point(ScaleX((int) startLocation.X), ScaleY((int) startLocation.Y));
-			destinationLocation = new Point(ScaleX((int) startLocation.X), ScaleY((int) startLocation.Y));
+			_sourceLocation = new Point(ScaleX(_startLocation.X), ScaleY(_startLocation.Y));
+			_destinationLocation = new Point(ScaleX(_startLocation.X), ScaleY(_startLocation.Y));
 
-			if (parent != null)
+			if (_parent != null)
 			{
 				return;
 			}
 			try
 			{
-				IHTMLFramesCollection2 frameCollection = (IHTMLFramesCollection2) document2.frames;
+				var frameCollection = document2.frames;
 				for (int frame = 0; frame < frameCollection.length; frame++)
 				{
 					try
 					{
 						IHTMLWindow2 frameWindow = frameCollection.item(frame);
-						DocumentContainer frameData = new DocumentContainer(frameWindow, contentWindow, this);
+						var frameData = new DocumentContainer(frameWindow, contentWindow, this);
 						// check if frame is hidden
-						if (!frameData.isHidden)
+						if (!frameData.IsHidden)
 						{
-							LOG.Debug("Creating DocumentContainer for Frame {0} found in window with rectangle {1}", frameData.name, frameData.SourceRectangle);
-							frames.Add(frameData);
+							Log.Debug("Creating DocumentContainer for Frame {0} found in window with rectangle {1}", frameData.Name, frameData.SourceRectangle);
+							_frames.Add(frameData);
 						}
 						else
 						{
 							frameData.Dispose();
-							LOG.Debug("Skipping frame {0}", frameData.Name);
+							Log.Debug("Skipping frame {0}", frameData.Name);
 						}
 						// Clean up frameWindow
-						releaseCom(frameWindow);
+						ReleaseCom(frameWindow);
 					}
 					catch (Exception e)
 					{
-						LOG.Warning("Problem while trying to get information from a frame, skipping the frame!", e);
+						Log.Warning("Problem while trying to get information from a frame, skipping the frame!", e);
 					}
 				}
 				// Clean up collection
-				releaseCom(frameCollection);
+				ReleaseCom(frameCollection);
 			}
 			catch (Exception ex)
 			{
-				LOG.Warning("Problem while trying to get the frames, skipping!", ex);
+				Log.Warning("Problem while trying to get the _frames, skipping!", ex);
 			}
 
 			try
 			{
 				// Correct iframe locations
-				foreach (IHTMLElement frameElement in document3.getElementsByTagName("IFRAME"))
+				foreach (IHTMLElement frameElement in _document3.getElementsByTagName("IFRAME"))
 				{
 					try
 					{
 						CorrectFrameLocations(frameElement);
 						// Clean up frameElement
-						releaseCom(frameElement);
+						ReleaseCom(frameElement);
 					}
 					catch (Exception e)
 					{
-						LOG.Warning("Problem while trying to get information from an iframe, skipping the frame!", e);
+						Log.Warning("Problem while trying to get information from an iframe, skipping the frame!", e);
 					}
 				}
 			}
 			catch (Exception ex)
 			{
-				LOG.Warning("Problem while trying to get the iframes, skipping!", ex);
+				Log.Warning("Problem while trying to get the iframes, skipping!", ex);
 			}
 		}
 
@@ -366,7 +364,7 @@ namespace Greenshot.Helpers.IEInterop
 		{
 			long x = 0;
 			long y = 0;
-			IHTMLElement element = frameElement;
+			var element = frameElement;
 			IHTMLElement oldElement = null;
 			do
 			{
@@ -376,32 +374,32 @@ namespace Greenshot.Helpers.IEInterop
 				// Release element, but prevent the frameElement to be released
 				if (oldElement != null)
 				{
-					releaseCom(oldElement);
+					ReleaseCom(oldElement);
 				}
 				oldElement = element;
 			}
 			while (element != null);
 
-			Point elementLocation = new Point((int) x, (int) y);
-			IHTMLElement2 element2 = (IHTMLElement2) frameElement;
-			IHTMLRect rec = element2.getBoundingClientRect();
-			Point elementBoundingLocation = new Point(rec.left, rec.top);
+			var elementLocation = new Point((int) x, (int) y);
+			var element2 = (IHTMLElement2) frameElement;
+			var rec = element2.getBoundingClientRect();
+			var elementBoundingLocation = new Point(rec.left, rec.top);
 			// Release IHTMLRect
-			releaseCom(rec);
-			LOG.Debug("Looking for iframe to correct at {0}", elementBoundingLocation);
-			foreach (DocumentContainer foundFrame in frames)
+			ReleaseCom(rec);
+			Log.Debug("Looking for iframe to correct at {0}", elementBoundingLocation);
+			foreach (var foundFrame in _frames)
 			{
-				Point frameLocation = foundFrame.SourceLocation;
+				var frameLocation = foundFrame.SourceLocation;
 				if (frameLocation.Equals(elementBoundingLocation))
 				{
 					// Match found, correcting location
-					LOG.Debug("Correcting frame from {0} to {1}", frameLocation, elementLocation);
+					Log.Debug("Correcting frame from {0} to {1}", frameLocation, elementLocation);
 					foundFrame.SourceLocation = elementLocation;
 					foundFrame.DestinationLocation = elementLocation;
 				}
 				else
 				{
-					LOG.Debug("{0} != {1}", frameLocation, elementBoundingLocation);
+					Log.Debug("{0} != {1}", frameLocation, elementBoundingLocation);
 				}
 			}
 		}
@@ -415,14 +413,14 @@ namespace Greenshot.Helpers.IEInterop
 		{
 			if (htmlWindow == null)
 			{
-				LOG.Warning("htmlWindow == null");
+				Log.Warning("htmlWindow == null");
 				return null;
 			}
 
 			// First try the usual way to get the document.
 			try
 			{
-				IHTMLDocument2 doc = htmlWindow.document;
+				var doc = htmlWindow.document;
 				return doc;
 			}
 			catch (COMException comEx)
@@ -430,7 +428,7 @@ namespace Greenshot.Helpers.IEInterop
 				// I think COMException won't be ever fired but just to be sure ...
 				if (comEx.ErrorCode != E_ACCESSDENIED)
 				{
-					LOG.Warning("comEx.ErrorCode != E_ACCESSDENIED but", comEx);
+					Log.Warning("comEx.ErrorCode != E_ACCESSDENIED but", comEx);
 					return null;
 				}
 			}
@@ -440,7 +438,7 @@ namespace Greenshot.Helpers.IEInterop
 			}
 			catch (Exception ex1)
 			{
-				LOG.Warning("Some error: ", ex1);
+				Log.Warning("Some error: ", ex1);
 				// Any other error.
 				return null;
 			}
@@ -450,22 +448,22 @@ namespace Greenshot.Helpers.IEInterop
 			try
 			{
 				// Convert IHTMLWindow2 to IWebBrowser2 using IServiceProvider.
-				IServiceProvider sp = (IServiceProvider) htmlWindow;
+				var sp = (IServiceProvider) htmlWindow;
 
 				// Use IServiceProvider.QueryService to get IWebBrowser2 object.
-				Object brws = null;
-				Guid webBrowserApp = IID_IWebBrowserApp;
-				Guid webBrowser2 = IID_IWebBrowser2;
-				sp.QueryService(ref webBrowserApp, ref webBrowser2, out brws);
+				object brws = null;
+				var webBrowserAppGuid = IID_IWebBrowserApp;
+				var webBrowser2Guid = IID_IWebBrowser2;
+				sp.QueryService(ref webBrowserAppGuid, ref webBrowser2Guid, out brws);
 
 				// Get the document from IWebBrowser2.
-				IWebBrowser2 browser = (IWebBrowser2) (brws);
+				var browser = (IWebBrowser2) (brws);
 
 				return (IHTMLDocument2) browser.Document;
 			}
 			catch (Exception ex2)
 			{
-				LOG.Warning("another error: ", ex2);
+				Log.Warning("another error: ", ex2);
 			}
 			return null;
 		}
@@ -476,16 +474,16 @@ namespace Greenshot.Helpers.IEInterop
 			{
 				try
 				{
-					string bgColor = (string) document2.bgColor;
+					string bgColor = (string) _document2.bgColor;
 					if (bgColor != null)
 					{
-						int rgbInt = Int32.Parse(bgColor.Substring(1), NumberStyles.HexNumber);
+						int rgbInt = int.Parse(bgColor.Substring(1), NumberStyles.HexNumber);
 						return Color.FromArgb(rgbInt >> 16, (rgbInt >> 8) & 255, rgbInt & 255);
 					}
 				}
 				catch (Exception ex)
 				{
-					LOG.Error("Problem retrieving the background color: ", ex);
+					Log.Error("Problem retrieving the background color: ", ex);
 				}
 				return Color.White;
 			}
@@ -495,7 +493,7 @@ namespace Greenshot.Helpers.IEInterop
 		{
 			get
 			{
-				return viewportRectangle;
+				return _viewportRectangle;
 			}
 		}
 
@@ -503,7 +501,7 @@ namespace Greenshot.Helpers.IEInterop
 		{
 			get
 			{
-				return contentWindow;
+				return _contentWindow;
 			}
 		}
 
@@ -511,40 +509,40 @@ namespace Greenshot.Helpers.IEInterop
 		{
 			get
 			{
-				return parent;
+				return _parent;
 			}
 			set
 			{
-				parent = value;
+				_parent = value;
 			}
 		}
 
 		private int ScaleX(int physicalValue)
 		{
-			return (int) Math.Round(physicalValue*zoomLevelX, MidpointRounding.AwayFromZero);
+			return (int) Math.Round(physicalValue*_zoomLevelX, MidpointRounding.AwayFromZero);
 		}
 
 		private int ScaleY(int physicalValue)
 		{
-			return (int) Math.Round(physicalValue*zoomLevelY, MidpointRounding.AwayFromZero);
+			return (int) Math.Round(physicalValue*_zoomLevelY, MidpointRounding.AwayFromZero);
 		}
 
 		private int UnscaleX(int physicalValue)
 		{
-			return (int) Math.Round(physicalValue/zoomLevelX, MidpointRounding.AwayFromZero);
+			return (int) Math.Round(physicalValue/_zoomLevelX, MidpointRounding.AwayFromZero);
 		}
 
 		private int UnscaleY(int physicalValue)
 		{
-			return (int) Math.Round(physicalValue/zoomLevelY, MidpointRounding.AwayFromZero);
+			return (int) Math.Round(physicalValue/_zoomLevelY, MidpointRounding.AwayFromZero);
 		}
 
 		/// <summary>
 		/// Set/change an int attribute on a document
 		/// </summary>
-		public void setAttribute(string attribute, int value)
+		public void SetAttribute(string attribute, int value)
 		{
-			setAttribute(attribute, value.ToString());
+			SetAttribute(attribute, value.ToString());
 		}
 
 		/// <summary>
@@ -552,83 +550,60 @@ namespace Greenshot.Helpers.IEInterop
 		/// </summary>
 		/// <param name="attribute">Attribute to set</param>
 		/// <param name="value">Value to set</param>
-		/// <param name="document2">The IHTMLDocument2</param>
-		/// <param name="document3">The IHTMLDocument3</param>
-		public void setAttribute(string attribute, string value)
+		public void SetAttribute(string attribute, string value)
 		{
-			IHTMLElement element = null;
-			if (!isDTD)
+			IHTMLElement element;
+			if (!_isDtd)
 			{
-				element = document2.body;
+				element = _document2.body;
 			}
 			else
 			{
-				element = document3.documentElement;
+				element = _document3.documentElement;
 			}
 			element.setAttribute(attribute, value, 1);
 			// Release IHTMLElement com object
-			releaseCom(element);
+			ReleaseCom(element);
 		}
 
 		/// <summary>
 		/// Get the attribute from a document
 		/// </summary>
 		/// <param name="attribute">Attribute to get</param>
-		/// <param name="document2">The IHTMLDocument2</param>
-		/// <param name="document3">The IHTMLDocument3</param>
 		/// <returns>object with the attribute value</returns>
-		public object getAttribute(string attribute)
+		public object GetAttribute(string attribute)
 		{
-			IHTMLElement element = null;
-			object retVal = 0;
-			if (!isDTD)
+			IHTMLElement element;
+			if (!_isDtd)
 			{
-				element = document2.body;
+				element = _document2.body;
 			}
 			else
 			{
-				element = document3.documentElement;
+				element = _document3.documentElement;
 			}
-			retVal = element.getAttribute(attribute, 1);
+			object retVal = element.getAttribute(attribute, 1);
 			// Release IHTMLElement com object
-			releaseCom(element);
+			ReleaseCom(element);
 			return retVal;
 		}
 
 		/// <summary>
 		/// Get the attribute as int from a document
 		/// </summary>
-		public int getAttributeAsInt(string attribute)
+		public int GetAttributeAsInt(string attribute)
 		{
-			int retVal = (int) getAttribute(attribute);
+			int retVal = (int) GetAttribute(attribute);
 			return retVal;
 		}
 
-		public int ID
-		{
-			get
-			{
-				return id;
-			}
-		}
+		public int Id { get; } = _counter++;
 
-		public string Name
-		{
-			get
-			{
-				return name;
-			}
-		}
+		public string Name { get; private set; }
 
-		public string Url
-		{
-			get
-			{
-				return url;
-			}
-		}
+		public string Url { get; private set; }
 
-		public bool isHidden
+		public bool IsHidden
 		{
 			get
 			{
@@ -640,7 +615,7 @@ namespace Greenshot.Helpers.IEInterop
 		{
 			get
 			{
-				return ScaleX(getAttributeAsInt("clientWidth"));
+				return ScaleX(GetAttributeAsInt("clientWidth"));
 			}
 		}
 
@@ -648,7 +623,7 @@ namespace Greenshot.Helpers.IEInterop
 		{
 			get
 			{
-				return ScaleY(getAttributeAsInt("clientHeight"));
+				return ScaleY(GetAttributeAsInt("clientHeight"));
 			}
 		}
 
@@ -656,7 +631,7 @@ namespace Greenshot.Helpers.IEInterop
 		{
 			get
 			{
-				return ScaleX(getAttributeAsInt("scrollWidth"));
+				return ScaleX(GetAttributeAsInt("scrollWidth"));
 			}
 		}
 
@@ -664,7 +639,7 @@ namespace Greenshot.Helpers.IEInterop
 		{
 			get
 			{
-				return ScaleY(getAttributeAsInt("scrollHeight"));
+				return ScaleY(GetAttributeAsInt("scrollHeight"));
 			}
 		}
 
@@ -672,11 +647,11 @@ namespace Greenshot.Helpers.IEInterop
 		{
 			get
 			{
-				return sourceLocation;
+				return _sourceLocation;
 			}
 			set
 			{
-				sourceLocation = value;
+				_sourceLocation = value;
 			}
 		}
 
@@ -700,7 +675,7 @@ namespace Greenshot.Helpers.IEInterop
 		{
 			get
 			{
-				return sourceLocation.X;
+				return _sourceLocation.X;
 			}
 		}
 
@@ -708,7 +683,7 @@ namespace Greenshot.Helpers.IEInterop
 		{
 			get
 			{
-				return sourceLocation.Y;
+				return _sourceLocation.Y;
 			}
 		}
 
@@ -716,7 +691,7 @@ namespace Greenshot.Helpers.IEInterop
 		{
 			get
 			{
-				return sourceLocation.X + ClientWidth;
+				return _sourceLocation.X + ClientWidth;
 			}
 		}
 
@@ -724,7 +699,7 @@ namespace Greenshot.Helpers.IEInterop
 		{
 			get
 			{
-				return sourceLocation.Y + ClientHeight;
+				return _sourceLocation.Y + ClientHeight;
 			}
 		}
 
@@ -732,11 +707,11 @@ namespace Greenshot.Helpers.IEInterop
 		{
 			get
 			{
-				return destinationLocation;
+				return _destinationLocation;
 			}
 			set
 			{
-				destinationLocation = value;
+				_destinationLocation = value;
 			}
 		}
 
@@ -760,11 +735,11 @@ namespace Greenshot.Helpers.IEInterop
 		{
 			get
 			{
-				return destinationLocation.X;
+				return _destinationLocation.X;
 			}
 			set
 			{
-				destinationLocation.X = value;
+				_destinationLocation.X = value;
 			}
 		}
 
@@ -772,11 +747,11 @@ namespace Greenshot.Helpers.IEInterop
 		{
 			get
 			{
-				return destinationLocation.Y;
+				return _destinationLocation.Y;
 			}
 			set
 			{
-				destinationLocation.Y = value;
+				_destinationLocation.Y = value;
 			}
 		}
 
@@ -784,7 +759,7 @@ namespace Greenshot.Helpers.IEInterop
 		{
 			get
 			{
-				return destinationLocation.X + ScrollWidth;
+				return _destinationLocation.X + ScrollWidth;
 			}
 		}
 
@@ -792,7 +767,7 @@ namespace Greenshot.Helpers.IEInterop
 		{
 			get
 			{
-				return destinationLocation.Y + ScrollHeight;
+				return _destinationLocation.Y + ScrollHeight;
 			}
 		}
 
@@ -800,11 +775,11 @@ namespace Greenshot.Helpers.IEInterop
 		{
 			get
 			{
-				return ScaleX(getAttributeAsInt("scrollLeft"));
+				return ScaleX(GetAttributeAsInt("scrollLeft"));
 			}
 			set
 			{
-				setAttribute("scrollLeft", UnscaleX(value));
+				SetAttribute("scrollLeft", UnscaleX(value));
 			}
 		}
 
@@ -812,11 +787,11 @@ namespace Greenshot.Helpers.IEInterop
 		{
 			get
 			{
-				return ScaleY(getAttributeAsInt("scrollTop"));
+				return ScaleY(GetAttributeAsInt("scrollTop"));
 			}
 			set
 			{
-				setAttribute("scrollTop", UnscaleY(value));
+				SetAttribute("scrollTop", UnscaleY(value));
 			}
 		}
 
@@ -824,7 +799,7 @@ namespace Greenshot.Helpers.IEInterop
 		{
 			get
 			{
-				return frames;
+				return _frames;
 			}
 		}
 	}

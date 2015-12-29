@@ -22,7 +22,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace GreenshotInterop.Interop
+namespace GreenshotPlugin.Interop
 {
 	[ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown), ComVisible(true), Guid("B722BCCB-4E68-101B-A2BC-00AA00404770")]
 	public interface IOleCommandTarget

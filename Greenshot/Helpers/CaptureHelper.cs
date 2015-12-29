@@ -47,7 +47,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public class CaptureHelper : IDisposable
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(CaptureHelper));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(CaptureHelper));
 		private static readonly ICoreConfiguration CoreConfiguration = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		// TODO: when we get the screen capture code working correctly, this needs to be enabled
@@ -55,7 +55,7 @@ namespace Greenshot.Helpers
 		private WindowDetails _selectedCaptureWindow;
 		private Rectangle _captureRect = Rectangle.Empty;
 		private readonly bool _captureMouseCursor;
-		private ICapture _capture = new Capture();
+		private ICapture _capture;
 		private CaptureMode _captureMode;
 		private ScreenCaptureMode _screenCaptureMode = ScreenCaptureMode.Auto;
 
@@ -282,7 +282,7 @@ namespace Greenshot.Helpers
 		/// </summary>
 		private async Task MakeCaptureAsync(CancellationToken token = default(CancellationToken))
 		{
-			LOG.Debug("Starting MakeCaptureAsync");
+			Log.Debug("Starting MakeCaptureAsync");
 			var retrieveWindowDetailsTask = Task.FromResult<IList<WindowDetails>>(new List<WindowDetails>());
 
 			// This fixes a problem when a balloon is still visible and a capture needs to be taken
@@ -292,7 +292,7 @@ namespace Greenshot.Helpers
 				MainForm.Instance.NotifyIcon.Visible = false;
 				MainForm.Instance.NotifyIcon.Visible = true;
 			}
-			LOG.Debug($"Capturing with mode {_captureMode} and using Cursor {_captureMouseCursor}");
+			Log.Debug($"Capturing with mode {_captureMode} and using Cursor {_captureMouseCursor}");
 			_capture.CaptureDetails.CaptureMode = _captureMode;
 
 			// Get the windows details in a seperate thread, only for those captures that have a Feedback
@@ -454,7 +454,7 @@ namespace Greenshot.Helpers
 						}
 						catch (Exception e)
 						{
-							LOG.Error(e.Message, e);
+							Log.Error(e.Message, e);
 							MessageBox.Show(string.Format(language.ErrorOpenfile, filename));
 						}
 						try
@@ -463,7 +463,7 @@ namespace Greenshot.Helpers
 						}
 						catch (Exception e)
 						{
-							LOG.Error(e.Message, e);
+							Log.Error(e.Message, e);
 							MessageBox.Show(string.Format(language.ErrorOpenfile, filename));
 						}
 					}
@@ -541,17 +541,17 @@ namespace Greenshot.Helpers
 					}
 					break;
 				default:
-					LOG.Warning("Unknown capture mode: " + _captureMode);
+					Log.Warning("Unknown capture mode: " + _captureMode);
 					break;
 			}
 			// Wait for thread, otherwise we can't dipose the CaptureHelper
 			await retrieveWindowDetailsTask;
 			if (_capture != null)
 			{
-				LOG.Debug("Disposing capture");
+				Log.Debug("Disposing capture");
 				_capture.Dispose();
 			}
-			LOG.Debug("Ended MakeCaptureAsync");
+			Log.Debug("Ended MakeCaptureAsync");
 		}
 
 		/// <summary>
@@ -604,17 +604,17 @@ namespace Greenshot.Helpers
 		/// <param name="e"></param>
 		private void OpenCaptureOnClick(object sender, EventArgs e)
 		{
-			SurfaceMessageEventArgs eventArgs = MainForm.Instance.NotifyIcon.Tag as SurfaceMessageEventArgs;
+			var eventArgs = MainForm.Instance.NotifyIcon.Tag as SurfaceMessageEventArgs;
 			if (eventArgs == null)
 			{
-				LOG.Warning("OpenCaptureOnClick called without SurfaceMessageEventArgs");
+				Log.Warning("OpenCaptureOnClick called without SurfaceMessageEventArgs");
 				RemoveEventHandler(sender, e);
 				return;
 			}
-			var storedAtLocation = eventArgs?.Capture?.CaptureDetails?.StoredAt;
+			var storedAtLocation = eventArgs.Capture?.CaptureDetails?.StoredAt;
 			if (storedAtLocation == null)
 			{
-				LOG.Warning("OpenCaptureOnClick called without CaptureDetails or StoredAt");
+				Log.Warning("OpenCaptureOnClick called without CaptureDetails or StoredAt");
 				RemoveEventHandler(sender, e);
 				return;
 			}
@@ -645,7 +645,7 @@ namespace Greenshot.Helpers
 			{
 				Process.Start(storedAtLocation.ToString());
 			}
-			LOG.Debug("Deregistering the BalloonTipClicked");
+			Log.Debug("Deregistering the BalloonTipClicked");
 			RemoveEventHandler(sender, e);
 		}
 
@@ -657,7 +657,8 @@ namespace Greenshot.Helpers
 		}
 
 		/// <summary>
-		/// This is the SufraceMessageEvent receiver
+		/// This is the SufraceMessageEvent receiver, currently unused.
+		/// TODO: This functionality should be in the NotificationCenter
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="eventArgs"></param>
@@ -708,7 +709,7 @@ namespace Greenshot.Helpers
 				await DoCaptureFeedbackAsync(token);
 			}
 
-			LOG.Debug("A capture of: " + _capture.CaptureDetails.Title);
+			Log.Debug("A capture of: " + _capture.CaptureDetails.Title);
 
 			// check if someone has passed a destination
 			if (_capture.CaptureDetails.CaptureDestinations == null || _capture.CaptureDetails.CaptureDestinations.Count == 0)
@@ -754,7 +755,7 @@ namespace Greenshot.Helpers
 					{
 						continue;
 					}
-					LOG.Information("Calling destination {0}", destination.Text);
+					Log.Information("Calling destination {0}", destination.Text);
 
 					// TODO: Caller?
 					var notification = await destination.Export(null, _capture, token);
@@ -773,10 +774,10 @@ namespace Greenshot.Helpers
 		private bool CaptureActiveWindow()
 		{
 			bool presupplied = false;
-			LOG.Debug("CaptureActiveWindow");
+			Log.Debug("CaptureActiveWindow");
 			if (_selectedCaptureWindow != null)
 			{
-				LOG.Debug("Using supplied window");
+				Log.Debug("Using supplied window");
 				presupplied = true;
 			}
 			else
@@ -784,12 +785,12 @@ namespace Greenshot.Helpers
 				_selectedCaptureWindow = WindowDetails.GetActiveWindow();
 				if (_selectedCaptureWindow != null)
 				{
-					LOG.Debug("Capturing window: {0} with {1}", _selectedCaptureWindow.Text, _selectedCaptureWindow.WindowRectangle);
+					Log.Debug("Capturing window: {0} with {1}", _selectedCaptureWindow.Text, _selectedCaptureWindow.WindowRectangle);
 				}
 			}
 			if (_selectedCaptureWindow == null || (!presupplied && _selectedCaptureWindow.Iconic))
 			{
-				LOG.Warning("No window to capture!");
+				Log.Warning("No window to capture!");
 				// Nothing to capture, code up in the stack will capture the full screen
 				return false;
 			}
@@ -802,7 +803,7 @@ namespace Greenshot.Helpers
 			_selectedCaptureWindow = _selectedCaptureWindow.WindowToCapture();
 			if (_selectedCaptureWindow == null)
 			{
-				LOG.Warning("No window to capture, after SelectCaptureWindow!");
+				Log.Warning("No window to capture, after SelectCaptureWindow!");
 				// Nothing to capture, code up in the stack will capture the full screen
 				return false;
 			}
@@ -831,14 +832,14 @@ namespace Greenshot.Helpers
 					{
 						continue;
 					}
-					LOG.Information("Found that Process {0} uses {1}, assuming it's using WPF", process.ProcessName, module.FileName);
+					Log.Information("Found that Process {0} uses {1}, assuming it's using WPF", process.ProcessName, module.FileName);
 					return true;
 				}
 			}
 			catch (Exception)
 			{
 				// Access denied on the modules
-				LOG.Warning("No access on the modules from process {0}, assuming WPF is used.", process.ProcessName);
+				Log.Warning("No access on the modules from process {0}, assuming WPF is used.", process.ProcessName);
 				return true;
 			}
 			return false;
@@ -883,7 +884,7 @@ namespace Greenshot.Helpers
 						}
 						catch (Exception ex)
 						{
-							LOG.Warning("Problem capturing IE, skipping to normal capture. Exception message was: {0}", ex.Message);
+							Log.Warning("Problem capturing IE, skipping to normal capture. Exception message was: {0}", ex.Message);
 						}
 					}
 
@@ -896,7 +897,7 @@ namespace Greenshot.Helpers
 						if (!dwmEnabled && IsWpf(process))
 						{
 							// do not use GDI, as DWM is not enabled and the application uses PresentationFramework.dll -> isWPF
-							LOG.Information("Not using GDI for windows of process {0}, as the process uses WPF", process.ProcessName);
+							Log.Information("Not using GDI for windows of process {0}, as the process uses WPF", process.ProcessName);
 						}
 						else
 						{
@@ -932,7 +933,7 @@ namespace Greenshot.Helpers
 					windowCaptureMode = WindowCaptureMode.Screen;
 				}
 
-				LOG.Information("Capturing window with mode {0}", windowCaptureMode);
+				Log.Information("Capturing window with mode {0}", windowCaptureMode);
 				bool captureTaken = false;
 				windowRectangle.Intersect(captureForWindow.ScreenBounds);
 				// Try to capture
@@ -976,7 +977,7 @@ namespace Greenshot.Helpers
 													// If GDI has more black, use the screen capture.
 													if (blackPercentageGdi > blackPercentageScreen)
 													{
-														LOG.Debug("Using screen capture, as GDI had additional black.");
+														Log.Debug("Using screen capture, as GDI had additional black.");
 														// changeing the image will automatically dispose the previous
 														tmpCapture.Image = screenCapture.Image;
 														// Make sure it's not disposed, else the picture is gone!
@@ -988,7 +989,7 @@ namespace Greenshot.Helpers
 													// Screen capture is cropped, window is outside of screen
 													if (blackPercentageGdi > 50 && blackPercentageGdi > blackPercentageScreen)
 													{
-														LOG.Debug("Using screen capture, as GDI had additional black.");
+														Log.Debug("Using screen capture, as GDI had additional black.");
 														// changeing the image will automatically dispose the previous
 														tmpCapture.Image = screenCapture.Image;
 														// Make sure it's not disposed, else the picture is gone!
@@ -998,7 +999,7 @@ namespace Greenshot.Helpers
 												else
 												{
 													// Use the GDI capture by doing nothing
-													LOG.Debug("This should not happen, how can there be more screen as GDI pixels?");
+													Log.Debug("This should not happen, how can there be more screen as GDI pixels?");
 												}
 											}
 										}
@@ -1052,7 +1053,7 @@ namespace Greenshot.Helpers
 							}
 							catch (Exception e)
 							{
-								LOG.Error("Problem capturing", e);
+								Log.Error("Problem capturing", e);
 								return null;
 							}
 							break;
@@ -1090,7 +1091,7 @@ namespace Greenshot.Helpers
 
 		private async Task CaptureWithFeedbackAsync(Task<IList<WindowDetails>> retrieveWindowsTask, CancellationToken token = default(CancellationToken))
 		{
-			LOG.Debug("CaptureWithFeedbackAsync start");
+			Log.Debug("CaptureWithFeedbackAsync start");
 
 			using (var captureForm = new CaptureForm(_capture, retrieveWindowsTask))
 			{

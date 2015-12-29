@@ -19,10 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Language;
 using System.ComponentModel;
+using Dapplo.Config.Language;
 
-namespace ExternalCommand
+namespace GreenshotExternalCommandPlugin
 {
 	[Language("ExternalCommand")]
 	public interface IExternalCommandLanguage : ILanguage, INotifyPropertyChanged

@@ -21,7 +21,6 @@
 
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
-using Greenshot.Core;
 using GreenshotEditorPlugin.Drawing;
 using GreenshotEditorPlugin.Drawing.Fields.Binding;
 using GreenshotEditorPlugin.Helpers;

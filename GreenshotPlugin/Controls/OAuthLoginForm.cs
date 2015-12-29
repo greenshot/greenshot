@@ -33,11 +33,11 @@ namespace GreenshotPlugin.Controls
 	/// <summary>
 	/// The OAuthLoginForm is used to allow the user to authorize Greenshot with an "Oauth" application
 	/// </summary>
-	public partial class OAuthLoginForm : Form
+	public sealed partial class OAuthLoginForm : Form
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(OAuthLoginForm));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(OAuthLoginForm));
 		private readonly string _callbackUrl;
-		private IDictionary<string, string> _callbackParameters = null;
+		private IDictionary<string, string> _callbackParameters;
 
 		public IDictionary<string, string> CallbackParameters
 		{
@@ -84,19 +84,19 @@ namespace GreenshotPlugin.Controls
 
 		private void Browser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
 		{
-			LOG.Debug("document completed with url: {0}", _browser.Url);
+			Log.Debug("document completed with url: {0}", _browser.Url);
 			CheckUrl();
 		}
 
 		private void Browser_Navigating(object sender, WebBrowserNavigatingEventArgs e)
 		{
-			LOG.Debug("Navigating to url: {0}", _browser.Url);
+			Log.Debug("Navigating to url: {0}", _browser.Url);
 			_addressTextBox.Text = e.Url.ToString();
 		}
 
 		private void Browser_Navigated(object sender, WebBrowserNavigatedEventArgs e)
 		{
-			LOG.Debug("Navigated to url: {0}", _browser.Url);
+			Log.Debug("Navigated to url: {0}", _browser.Url);
 			CheckUrl();
 		}
 
@@ -113,12 +113,6 @@ namespace GreenshotPlugin.Controls
 				}
 				DialogResult = DialogResult.OK;
 			}
-		}
-
-		private void AddressTextBox_KeyPress(object sender, KeyPressEventArgs e)
-		{
-			//Cancel the key press so the user can't enter a new url
-			e.Handled = true;
 		}
 	}
 }

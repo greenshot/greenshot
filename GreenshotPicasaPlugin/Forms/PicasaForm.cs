@@ -20,7 +20,7 @@
 
 using GreenshotPlugin.Controls;
 
-namespace GreenshotPicasaPlugin
+namespace GreenshotPicasaPlugin.Forms
 {
 	public class PicasaForm : GreenshotForm
 	{

@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotPhotobucketPlugin
+namespace GreenshotPhotobucketPlugin.Forms
 {
 	/// <summary>
 	/// This class is needed for design-time resolving of the language files

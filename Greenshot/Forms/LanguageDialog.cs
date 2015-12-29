@@ -34,7 +34,7 @@ namespace Greenshot.Forms
 	/// </summary>
 	public partial class LanguageDialog : Form
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(LanguageDialog));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(LanguageDialog));
 		private static LanguageDialog _uniqueInstance;
 		private bool _properOkPressed;
 
@@ -77,7 +77,7 @@ namespace Greenshot.Forms
 
 			if (LanguageLoader.Current.CurrentLanguage != null)
 			{
-				LOG.Debug("Selecting {0}", LanguageLoader.Current.CurrentLanguage);
+				Log.Debug("Selecting {0}", LanguageLoader.Current.CurrentLanguage);
 				comboBoxLanguage.SelectedValue = LanguageLoader.Current.CurrentLanguage;
 			}
 			else
@@ -97,7 +97,7 @@ namespace Greenshot.Forms
 			}
 		}
 
-		private async void BtnOKClick(object sender, EventArgs e)
+		private async void BtnOkClick(object sender, EventArgs e)
 		{
 			_properOkPressed = true;
 			// Fix for Bug #3431100 

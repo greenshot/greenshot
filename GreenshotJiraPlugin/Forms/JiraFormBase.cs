@@ -19,10 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
 using GreenshotPlugin.Controls;
 
-namespace GreenshotJiraPlugin
+namespace GreenshotJiraPlugin.Forms
 {
 	public class JiraFormBase : GreenshotForm
 	{

@@ -40,15 +40,15 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public static class UpdateHelper
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(UpdateHelper));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(UpdateHelper));
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
-		private const string STABLE_DOWNLOAD_LINK = "http://getgreenshot.org/downloads/";
-		private const string VERSION_HISTORY_LINK = "http://getgreenshot.org/version-history/";
-		private static AsyncLock _asyncLock = new AsyncLock();
+		private const string StableDownloadLink = "http://getgreenshot.org/downloads/";
+		private const string VersionHistoryLink = "http://getgreenshot.org/version-history/";
+		private static readonly AsyncLock _asyncLock = new AsyncLock();
 		private static SourceforgeFile _latestGreenshot;
 		private static SourceforgeFile _currentGreenshot;
-		private static string downloadLink = STABLE_DOWNLOAD_LINK;
+		private static string _downloadLink = StableDownloadLink;
 
 		/// <summary>
 		/// Is an update check needed?
@@ -68,13 +68,13 @@ namespace Greenshot.Helpers
 					checkTime = checkTime.AddDays(conf.UpdateCheckInterval);
 					if (DateTimeOffset.Now.CompareTo(checkTime) < 0)
 					{
-						LOG.Debug("No need to check RSS feed for updates, feed check will be after {0}", checkTime);
+						Log.Debug("No need to check RSS feed for updates, feed check will be after {0}", checkTime);
 						return false;
 					}
-					LOG.Debug("Update check is due, last check was {0} check needs to be made after {1} (which is one {2} later)", conf.LastUpdateCheck, checkTime, conf.UpdateCheckInterval);
+					Log.Debug("Update check is due, last check was {0} check needs to be made after {1} (which is one {2} later)", conf.LastUpdateCheck, checkTime, conf.UpdateCheckInterval);
 					if (!await SourceForgeHelper.IsRssModifiedAfter(conf.LastUpdateCheck).ConfigureAwait(false))
 					{
-						LOG.Debug("RSS feed has not been updated since after {0}", conf.LastUpdateCheck);
+						Log.Debug("RSS feed has not been updated since after {0}", conf.LastUpdateCheck);
 						return false;
 					}
 				}
@@ -96,7 +96,7 @@ namespace Greenshot.Helpers
 				try
 				{
 					_latestGreenshot = null;
-					await ProcessRSSInfoAsync(currentVersion).ConfigureAwait(false);
+					await ProcessRssInfoAsync(currentVersion).ConfigureAwait(false);
 					if (_latestGreenshot != null)
 					{
 						MainForm.Instance.AsyncInvoke(() =>
@@ -110,7 +110,7 @@ namespace Greenshot.Helpers
 				}
 				catch (Exception e)
 				{
-					LOG.Error("An error occured while checking for updates, the error will be ignored: ", e);
+					Log.Error("An error occured while checking for updates, the error will be ignored: ", e);
 				}
 			}
 		}
@@ -130,12 +130,12 @@ namespace Greenshot.Helpers
 					// "Direct" download link
 					// Process.Start(latestGreenshot.Link);
 					// Go to getgreenshot.org
-					Process.Start(downloadLink);
+					Process.Start(_downloadLink);
 				}
 			}
 			catch (Exception)
 			{
-				MessageBox.Show(string.Format(language.ErrorOpenlink, downloadLink), language.Error);
+				MessageBox.Show(string.Format(language.ErrorOpenlink, _downloadLink), language.Error);
 			}
 			finally
 			{
@@ -143,7 +143,7 @@ namespace Greenshot.Helpers
 			}
 		}
 
-		private static async Task ProcessRSSInfoAsync(Version currentVersion)
+		private static async Task ProcessRssInfoAsync(Version currentVersion)
 		{
 			// Reset latest Greenshot
 			var rssFiles = await SourceForgeHelper.ReadRss().ConfigureAwait(false);
@@ -170,7 +170,7 @@ namespace Greenshot.Helpers
 						// do we have a version?
 						if (rssFile.Version == null)
 						{
-							LOG.Debug("Skipping unversioned exe {0} which is published at {1} : {2}", file, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
+							Log.Debug("Skipping unversioned exe {0} which is published at {1} : {2}", file, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
 							continue;
 						}
 
@@ -199,28 +199,28 @@ namespace Greenshot.Helpers
 						int versionCompare = rssFile.Version.CompareTo(currentVersion);
 						if (versionCompare > 0)
 						{
-							LOG.Debug("Found newer Greenshot '{0}' with version {1} published at {2} : {3}", file, rssFile.Version, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
+							Log.Debug("Found newer Greenshot '{0}' with version {1} published at {2} : {3}", file, rssFile.Version, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
 							if (_latestGreenshot == null || rssFile.Version.CompareTo(_latestGreenshot.Version) > 0)
 							{
 								_latestGreenshot = rssFile;
 								if (rssFile.IsReleaseCandidate || rssFile.IsUnstable)
 								{
-									downloadLink = VERSION_HISTORY_LINK;
+									_downloadLink = VersionHistoryLink;
 								}
 								else
 								{
-									downloadLink = STABLE_DOWNLOAD_LINK;
+									_downloadLink = StableDownloadLink;
 								}
 							}
 						}
 						else if (versionCompare < 0)
 						{
-							LOG.Debug("Skipping older greenshot with version {0}", rssFile.Version);
+							Log.Debug("Skipping older greenshot with version {0}", rssFile.Version);
 						}
 						else if (versionCompare == 0)
 						{
 							_currentGreenshot = rssFile;
-							LOG.Debug("Found current version as exe {0} with version {1} published at {2} : {3}", file, rssFile.Version, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
+							Log.Debug("Found current version as exe {0} with version {1} published at {2} : {3}", file, rssFile.Version, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
 						}
 					}
 				}
