@@ -1,8 +1,9 @@
 /*
- * A Picasa Plugin for Greenshot
- * Copyright (C) 2011  Francis Noel
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom,
  * 
  * For more information see: http://getgreenshot.org/
+ * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,18 +20,16 @@
  */
 
 using Dapplo.Addons;
+using GreenshotPicasaPlugin.Forms;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Interfaces.Plugin;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using GreenshotPicasaPlugin.Forms;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotPicasaPlugin
 {
