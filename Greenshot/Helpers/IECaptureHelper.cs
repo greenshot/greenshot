@@ -630,7 +630,7 @@ namespace Greenshot.Helpers
 				{
 					foreach (DocumentContainer otherFrame in documentContainer.Frames)
 					{
-						if (otherFrame.ID == currentFrame.ID)
+						if (otherFrame.Id == currentFrame.Id)
 						{
 							continue;
 						}
