@@ -549,7 +549,7 @@ namespace GreenshotPlugin.OAuth
 			signatureBase.Append(method).Append("&");
 
 			// Add normalized URL
-			signatureBase.Append(Uri.EscapeDataString(requestUri.Normalize().ToString())).Append("&");
+			signatureBase.Append(Uri.EscapeDataString(requestUri.Normalize().AbsoluteUri)).Append("&");
 
 			// Add normalized parameters
 			parameters.Add(OauthVersionKey, OauthVersion);

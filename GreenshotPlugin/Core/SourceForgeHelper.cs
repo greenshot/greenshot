@@ -163,7 +163,7 @@ namespace GreenshotPlugin.Core
 				}
 				foreach (var item in feed.Items)
 				{
-					var sfLink = item.Links[0].Uri.ToString();
+					var sfLink = item.Links[0].Uri.AbsoluteUri;
 					var pubdate = item.PublishDate;
 					try
 					{
