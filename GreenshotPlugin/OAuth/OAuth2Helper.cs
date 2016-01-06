@@ -38,15 +38,15 @@ namespace GreenshotPlugin.OAuth
 	public static class OAuth2Helper
 	{
 		private static readonly INetworkConfiguration NetworkConfig = IniConfig.Current.Get<INetworkConfiguration>();
-		private const string REFRESH_TOKEN = "refresh_token";
-		private const string ACCESS_TOKEN = "access_token";
-		private const string CODE = "code";
-		private const string CLIENT_ID = "client_id";
-		private const string CLIENT_SECRET = "client_secret";
-		private const string GRANT_TYPE = "grant_type";
-		private const string AUTHORIZATION_CODE = "authorization_code";
-		private const string REDIRECT_URI = "redirect_uri";
-		private const string EXPIRES_IN = "expires_in";
+		private const string RefreshToken = "refresh_token";
+		//private const string AccessToken = "access_token";
+		private const string Code = "code";
+		private const string ClientId = "client_id";
+		private const string ClientSecret = "client_secret";
+		private const string GrantType = "grant_type";
+		private const string AuthorizationCode = "authorization_code";
+		private const string RedirectUri = "redirect_uri";
+		private const string ExpiresIn = "expires_in";
 
 		/// <summary>
 		/// Generate an OAuth 2 Token by using the supplied code
@@ -57,11 +57,11 @@ namespace GreenshotPlugin.OAuth
 		{
 			IDictionary<string, string> data = new Dictionary<string, string>();
 			// Use the returned code to get a refresh code
-			data.Add(CODE, settings.Code);
-			data.Add(CLIENT_ID, settings.ClientId);
-			data.Add(REDIRECT_URI, settings.RedirectUrl);
-			data.Add(CLIENT_SECRET, settings.ClientSecret);
-			data.Add(GRANT_TYPE, AUTHORIZATION_CODE);
+			data.Add(Code, settings.Code);
+			data.Add(ClientId, settings.ClientId);
+			data.Add(RedirectUri, settings.RedirectUrl);
+			data.Add(ClientSecret, settings.ClientSecret);
+			data.Add(GrantType, AuthorizationCode);
 			foreach (var key in settings.AdditionalAttributes.Keys)
 			{
 				data.Add(key, settings.AdditionalAttributes[key]);
@@ -88,7 +88,7 @@ namespace GreenshotPlugin.OAuth
 			settings.AccessToken = refreshTokenResult.access_token;
 			settings.RefreshToken = refreshTokenResult.refresh_token;
 
-			if (refreshTokenResult.ContainsKey("expires_in"))
+			if (refreshTokenResult.ContainsKey(ExpiresIn))
 			{
 				double expiresIn = refreshTokenResult.expires_in;
 				settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds(expiresIn);
@@ -105,10 +105,10 @@ namespace GreenshotPlugin.OAuth
 		private static async Task GenerateAccessTokenAsync(OAuth2Settings settings, CancellationToken token = default(CancellationToken))
 		{
 			IDictionary<string, string> data = new Dictionary<string, string>();
-			data.Add(REFRESH_TOKEN, settings.RefreshToken);
-			data.Add(CLIENT_ID, settings.ClientId);
-			data.Add(CLIENT_SECRET, settings.ClientSecret);
-			data.Add(GRANT_TYPE, REFRESH_TOKEN);
+			data.Add(RefreshToken, settings.RefreshToken);
+			data.Add(ClientId, settings.ClientId);
+			data.Add(ClientSecret, settings.ClientSecret);
+			data.Add(GrantType, RefreshToken);
 			foreach (string key in settings.AdditionalAttributes.Keys)
 			{
 				data.Add(key, settings.AdditionalAttributes[key]);
@@ -147,12 +147,12 @@ namespace GreenshotPlugin.OAuth
 				//	"expires_in":3920,
 				//	"token_type":"Bearer"
 				settings.AccessToken = accessTokenResult.access_token;
-				if (accessTokenResult.ContainsKey("refresh_token"))
+				if (accessTokenResult.ContainsKey(RefreshToken))
 				{
 					// Refresh the refresh token :)
 					settings.RefreshToken = accessTokenResult.refresh_token;
 				}
-				if (accessTokenResult.ContainsKey("expires_in"))
+				if (accessTokenResult.ContainsKey(ExpiresIn))
 				{
 					double expiresIn = accessTokenResult.expires_in;
 					settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds(expiresIn);
@@ -178,7 +178,7 @@ namespace GreenshotPlugin.OAuth
 					completed = await AuthenticateViaEmbeddedBrowserAsync(settings, token).ConfigureAwait(false);
 					break;
 				default:
-					throw new NotImplementedException(string.Format("Authorize mode '{0}' is not 'yet' implemented.", settings.AuthorizeMode));
+					throw new NotImplementedException($"Authorize mode '{settings.AuthorizeMode}' is not 'yet' implemented.");
 			}
 			return completed;
 		}
@@ -194,18 +194,18 @@ namespace GreenshotPlugin.OAuth
 		{
 			if (string.IsNullOrEmpty(settings.CloudServiceName))
 			{
-				throw new ArgumentNullException("CloudServiceName");
+				throw new ArgumentNullException(nameof(settings.CloudServiceName));
 			}
 			if (settings.BrowserSize == Size.Empty)
 			{
-				throw new ArgumentNullException("BrowserSize");
+				throw new ArgumentNullException(nameof(settings.BrowserSize));
 			}
-			OAuthLoginForm loginForm = new OAuthLoginForm(string.Format("Authorize {0}", settings.CloudServiceName), settings.BrowserSize, settings.FormattedAuthUrl, settings.RedirectUrl);
+			var loginForm = new OAuthLoginForm($"Authorize {settings.CloudServiceName}", settings.BrowserSize, settings.FormattedAuthUrl, settings.RedirectUrl);
 			loginForm.ShowDialog();
 			if (loginForm.IsOk)
 			{
 				string code;
-				if (loginForm.CallbackParameters.TryGetValue(CODE, out code) && !string.IsNullOrEmpty(code))
+				if (loginForm.CallbackParameters.TryGetValue(Code, out code) && !string.IsNullOrEmpty(code))
 				{
 					settings.Code = code;
 					await GenerateRefreshTokenAsync(settings, token);
@@ -231,7 +231,7 @@ namespace GreenshotPlugin.OAuth
 			}
 
 			string code;
-			if (result.TryGetValue(CODE, out code) && !string.IsNullOrEmpty(code))
+			if (result.TryGetValue(Code, out code) && !string.IsNullOrEmpty(code))
 			{
 				settings.Code = code;
 				await GenerateRefreshTokenAsync(settings, token);
@@ -291,7 +291,6 @@ namespace GreenshotPlugin.OAuth
 		/// <summary>
 		/// create HttpClient ready for OAuth 2 access
 		/// </summary>
-		/// <param name="uri"></param>
 		/// <param name="settings">OAuth2Settings</param>
 		/// <param name="token"></param>
 		/// <returns>HttpClient</returns>

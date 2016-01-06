@@ -19,8 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Core;
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -38,7 +36,7 @@ namespace GreenshotPlugin.OAuth
 	/// </summary>
 	public class LocalServerCodeReceiver : IDisposable
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(LocalServerCodeReceiver));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(LocalServerCodeReceiver));
 		private readonly ManualResetEvent _ready = new ManualResetEvent(true);
 
 		private string _loopbackCallback = "http://localhost:{0}/authorize/";
@@ -59,7 +57,11 @@ namespace GreenshotPlugin.OAuth
 			}
 		}
 
-		private string _closePageResponse = @"<html>
+		/// <summary>
+		/// HTML code to to return the _browser, default it will try to close the _browser / tab, this won't always work.
+		/// You can use CloudServiceName where you want to show the CloudServiceName from your OAuth2 settings
+		/// </summary>
+		public string ClosePageResponse { get; set; } = @"<html>
 <head><title>OAuth 2.0 Authentication CloudServiceName</title></head>
 <body>
 Greenshot received information from CloudServiceName. You can close this browser / tab if it is not closed itself...
@@ -74,22 +76,6 @@ Greenshot received information from CloudServiceName. You can close this browser
 </script>
 </body>
 </html>";
-
-		/// <summary>
-		/// HTML code to to return the _browser, default it will try to close the _browser / tab, this won't always work.
-		/// You can use CloudServiceName where you want to show the CloudServiceName from your OAuth2 settings
-		/// </summary>
-		public string ClosePageResponse
-		{
-			get
-			{
-				return _closePageResponse;
-			}
-			set
-			{
-				_closePageResponse = value;
-			}
-		}
 
 		private Uri _redirectUri;
 
@@ -111,13 +97,14 @@ Greenshot received information from CloudServiceName. You can close this browser
 
 		private string _cloudServiceName;
 
-		private IDictionary<string, string> _returnValues = new Dictionary<string, string>();
+		private readonly IDictionary<string, string> _returnValues = new Dictionary<string, string>();
 
 
 		/// <summary>
 		/// The OAuth code receiver
 		/// </summary>
-		/// <param name="authorizationUrl"></param>
+		/// <param name="oauth2Settings"></param>
+		/// <param name="token"></param>
 		/// <returns>Dictionary with values</returns>
 		public async Task<IDictionary<string, string>> ReceiveCodeAsync(OAuth2Settings oauth2Settings, CancellationToken token = default(CancellationToken))
 		{
@@ -133,17 +120,17 @@ Greenshot received information from CloudServiceName. You can close this browser
 
 					// Get the formatted FormattedAuthUrl
 					var authorizationUrl = oauth2Settings.FormattedAuthUrl;
-					LOG.Debug("Open a browser with: {0}", authorizationUrl.AbsoluteUri);
+					Log.Debug("Open a browser with: {0}", authorizationUrl.AbsoluteUri);
 					Process.Start(authorizationUrl.AbsoluteUri);
 
 					// Wait to get the authorization code response.
-					var context = listener.BeginGetContext(new AsyncCallback(ListenerCallback), listener);
+					var context = listener.BeginGetContext(ListenerCallback, listener);
 					_ready.Reset();
 
 					while (!token.IsCancellationRequested && !context.AsyncWaitHandle.WaitOne(1))
 					{
-						LOG.Debug("Waiting for response");
-						await Task.Delay(1000).ConfigureAwait(false);
+						Log.Debug("Waiting for response");
+						await Task.Delay(1000, token).ConfigureAwait(false);
 					}
 				}
 				catch (Exception)
@@ -189,7 +176,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 				using (var response = context.Response)
 				{
 					// Write a "close" response.
-					byte[] buffer = Encoding.UTF8.GetBytes(ClosePageResponse.Replace("CloudServiceName", _cloudServiceName));
+					var buffer = Encoding.UTF8.GetBytes(ClosePageResponse.Replace("CloudServiceName", _cloudServiceName));
 					// Write to response stream.
 					response.ContentLength64 = buffer.Length;
 					using (var stream = response.OutputStream)
@@ -235,18 +222,18 @@ Greenshot received information from CloudServiceName. You can close this browser
 
 		#region IDisposable Support
 
-		private bool disposedValue = false; // To detect redundant calls
+		private bool _disposedValue; // To detect redundant calls
 
 		protected virtual void Dispose(bool disposing)
 		{
-			if (!disposedValue)
+			if (!_disposedValue)
 			{
 				if (disposing)
 				{
 					_ready.Dispose();
 				}
 
-				disposedValue = true;
+				_disposedValue = true;
 			}
 		}
 

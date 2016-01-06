@@ -34,7 +34,7 @@ namespace GreenshotPlugin.Core
 		/// Gets or sets the red minimum.
 		/// </summary>
 		/// <value>The red minimum.</value>
-		public Int32 RedMinimum
+		public int RedMinimum
 		{
 			get;
 			set;
@@ -44,7 +44,7 @@ namespace GreenshotPlugin.Core
 		/// Gets or sets the red maximum.
 		/// </summary>
 		/// <value>The red maximum.</value>
-		public Int32 RedMaximum
+		public int RedMaximum
 		{
 			get;
 			set;
@@ -54,7 +54,7 @@ namespace GreenshotPlugin.Core
 		/// Gets or sets the green minimum.
 		/// </summary>
 		/// <value>The green minimum.</value>
-		public Int32 GreenMinimum
+		public int GreenMinimum
 		{
 			get;
 			set;
@@ -64,7 +64,7 @@ namespace GreenshotPlugin.Core
 		/// Gets or sets the green maximum.
 		/// </summary>
 		/// <value>The green maximum.</value>
-		public Int32 GreenMaximum
+		public int GreenMaximum
 		{
 			get;
 			set;
@@ -74,7 +74,7 @@ namespace GreenshotPlugin.Core
 		/// Gets or sets the blue minimum.
 		/// </summary>
 		/// <value>The blue minimum.</value>
-		public Int32 BlueMinimum
+		public int BlueMinimum
 		{
 			get;
 			set;
@@ -84,7 +84,7 @@ namespace GreenshotPlugin.Core
 		/// Gets or sets the blue maximum.
 		/// </summary>
 		/// <value>The blue maximum.</value>
-		public Int32 BlueMaximum
+		public int BlueMaximum
 		{
 			get;
 			set;
@@ -94,7 +94,7 @@ namespace GreenshotPlugin.Core
 		/// Gets or sets the cube volume.
 		/// </summary>
 		/// <value>The volume.</value>
-		public Int32 Volume
+		public int Volume
 		{
 			get;
 			set;
@@ -103,35 +103,35 @@ namespace GreenshotPlugin.Core
 
 	public class WuQuantizer : IDisposable
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(WuQuantizer));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(WuQuantizer));
 
-		private const Int32 MAXCOLOR = 512;
-		private const Int32 RED = 2;
-		private const Int32 GREEN = 1;
-		private const Int32 BLUE = 0;
-		private const Int32 SIDESIZE = 33;
-		private const Int32 MAXSIDEINDEX = 32;
-		private const Int32 MAXVOLUME = SIDESIZE*SIDESIZE*SIDESIZE;
+		private const int MaxColor = 512;
+		private const int Red = 2;
+		private const int Green = 1;
+		private const int Blue = 0;
+		private const int SideSize = 33;
+		private const int MaxSideIndex = 32;
+		private const int MaxVolume = SideSize*SideSize*SideSize;
 
 		// To count the colors
-		private int colorCount = 0;
+		private readonly int _colorCount;
 
-		private Int32[] reds;
-		private Int32[] greens;
-		private Int32[] blues;
-		private Int32[] sums;
+		private int[] _reds;
+		private int[] _greens;
+		private int[] _blues;
+		private int[] _sums;
 
-		private Int64[,,] weights;
-		private Int64[,,] momentsRed;
-		private Int64[,,] momentsGreen;
-		private Int64[,,] momentsBlue;
-		private Single[,,] moments;
+		private readonly long[,,] _weights;
+		private readonly long[,,] _momentsRed;
+		private readonly long[,,] _momentsGreen;
+		private readonly long[,,] _momentsBlue;
+		private readonly float[,,] _moments;
 
-		private byte[] tag;
+		private byte[] _tag;
 
-		private WuColorCube[] cubes;
-		private Bitmap sourceBitmap;
-		private Bitmap resultBitmap;
+		private readonly WuColorCube[] _cubes;
+		private readonly Bitmap _sourceBitmap;
+		private Bitmap _resultBitmap;
 
 		public void Dispose()
 		{
@@ -143,62 +143,59 @@ namespace GreenshotPlugin.Core
 		{
 			if (disposing)
 			{
-				if (resultBitmap != null)
+				if (_resultBitmap != null)
 				{
-					resultBitmap.Dispose();
-					resultBitmap = null;
+					_resultBitmap.Dispose();
+					_resultBitmap = null;
 				}
 			}
 		}
 
-		/// <summary>
-		/// See <see cref="IColorQuantizer.Prepare"/> for more details.
-		/// </summary>
 		public WuQuantizer(Bitmap sourceBitmap)
 		{
-			this.sourceBitmap = sourceBitmap;
+			_sourceBitmap = sourceBitmap;
 			// Make sure the color count variables are reset
-			BitArray bitArray = new BitArray((int) Math.Pow(2, 24));
-			colorCount = 0;
+			var bitArray = new BitArray((int) Math.Pow(2, 24));
+			_colorCount = 0;
 
-			// creates all the cubes
-			cubes = new WuColorCube[MAXCOLOR];
+			// creates all the _cubes
+			_cubes = new WuColorCube[MaxColor];
 
-			// initializes all the cubes
-			for (Int32 cubeIndex = 0; cubeIndex < MAXCOLOR; cubeIndex++)
+			// initializes all the _cubes
+			for (int cubeIndex = 0; cubeIndex < MaxColor; cubeIndex++)
 			{
-				cubes[cubeIndex] = new WuColorCube();
+				_cubes[cubeIndex] = new WuColorCube();
 			}
 
 			// resets the reference minimums
-			cubes[0].RedMinimum = 0;
-			cubes[0].GreenMinimum = 0;
-			cubes[0].BlueMinimum = 0;
+			_cubes[0].RedMinimum = 0;
+			_cubes[0].GreenMinimum = 0;
+			_cubes[0].BlueMinimum = 0;
 
 			// resets the reference maximums
-			cubes[0].RedMaximum = MAXSIDEINDEX;
-			cubes[0].GreenMaximum = MAXSIDEINDEX;
-			cubes[0].BlueMaximum = MAXSIDEINDEX;
+			_cubes[0].RedMaximum = MaxSideIndex;
+			_cubes[0].GreenMaximum = MaxSideIndex;
+			_cubes[0].BlueMaximum = MaxSideIndex;
 
-			weights = new Int64[SIDESIZE, SIDESIZE, SIDESIZE];
-			momentsRed = new Int64[SIDESIZE, SIDESIZE, SIDESIZE];
-			momentsGreen = new Int64[SIDESIZE, SIDESIZE, SIDESIZE];
-			momentsBlue = new Int64[SIDESIZE, SIDESIZE, SIDESIZE];
-			moments = new Single[SIDESIZE, SIDESIZE, SIDESIZE];
+			_weights = new long[SideSize, SideSize, SideSize];
+			_momentsRed = new long[SideSize, SideSize, SideSize];
+			_momentsGreen = new long[SideSize, SideSize, SideSize];
+			_momentsBlue = new long[SideSize, SideSize, SideSize];
+			_moments = new float[SideSize, SideSize, SideSize];
 
-			Int32[] table = new Int32[256];
+			int[] table = new int[256];
 
-			for (Int32 tableIndex = 0; tableIndex < 256; ++tableIndex)
+			for (int tableIndex = 0; tableIndex < 256; ++tableIndex)
 			{
 				table[tableIndex] = tableIndex*tableIndex;
 			}
 
 			// Use a bitmap to store the initial match, which is just as good as an array and saves us 2x the storage
-			using (IFastBitmap sourceFastBitmap = FastBitmap.Create(sourceBitmap))
+			using (var sourceFastBitmap = FastBitmap.Create(sourceBitmap))
 			{
-				IFastBitmapWithBlend sourceFastBitmapWithBlend = sourceFastBitmap as IFastBitmapWithBlend;
+				var sourceFastBitmapWithBlend = sourceFastBitmap as IFastBitmapWithBlend;
 				sourceFastBitmap.Lock();
-				using (FastChunkyBitmap destinationFastBitmap = FastBitmap.CreateEmpty(sourceBitmap.Size, PixelFormat.Format8bppIndexed, Color.White) as FastChunkyBitmap)
+				using (var destinationFastBitmap = FastBitmap.CreateEmpty(sourceBitmap.Size, PixelFormat.Format8bppIndexed, Color.White) as FastChunkyBitmap)
 				{
 					destinationFastBitmap.Lock();
 					for (int y = 0; y < sourceFastBitmap.Height; y++)
@@ -220,36 +217,33 @@ namespace GreenshotPlugin.Core
 							if (!bitArray.Get(index))
 							{
 								// If not, add 1 to the single colors
-								colorCount++;
+								_colorCount++;
 								bitArray.Set(index, true);
 							}
 
-							Int32 indexRed = (color.R >> 3) + 1;
-							Int32 indexGreen = (color.G >> 3) + 1;
-							Int32 indexBlue = (color.B >> 3) + 1;
+							int indexRed = (color.R >> 3) + 1;
+							int indexGreen = (color.G >> 3) + 1;
+							int indexBlue = (color.B >> 3) + 1;
 
-							weights[indexRed, indexGreen, indexBlue]++;
-							momentsRed[indexRed, indexGreen, indexBlue] += color.R;
-							momentsGreen[indexRed, indexGreen, indexBlue] += color.G;
-							momentsBlue[indexRed, indexGreen, indexBlue] += color.B;
-							moments[indexRed, indexGreen, indexBlue] += table[color.R] + table[color.G] + table[color.B];
+							_weights[indexRed, indexGreen, indexBlue]++;
+							_momentsRed[indexRed, indexGreen, indexBlue] += color.R;
+							_momentsGreen[indexRed, indexGreen, indexBlue] += color.G;
+							_momentsBlue[indexRed, indexGreen, indexBlue] += color.B;
+							_moments[indexRed, indexGreen, indexBlue] += table[color.R] + table[color.G] + table[color.B];
 
 							// Store the initial "match"
-							Int32 paletteIndex = (indexRed << 10) + (indexRed << 6) + indexRed + (indexGreen << 5) + indexGreen + indexBlue;
+							int paletteIndex = (indexRed << 10) + (indexRed << 6) + indexRed + (indexGreen << 5) + indexGreen + indexBlue;
 							destinationFastBitmap.SetColorIndexAt(x, y, (byte) (paletteIndex & 0xff));
 						}
 					}
-					resultBitmap = destinationFastBitmap.UnlockAndReturnBitmap();
+					_resultBitmap = destinationFastBitmap.UnlockAndReturnBitmap();
 				}
 			}
 		}
 
-		/// <summary>
-		/// See <see cref="IColorQuantizer.Prepare"/> for more details.
-		/// </summary>
-		public Int32 GetColorCount()
+		public int GetColorCount()
 		{
-			return colorCount;
+			return _colorCount;
 		}
 
 		/// <summary>
@@ -258,17 +252,16 @@ namespace GreenshotPlugin.Core
 		/// <returns>Bitmap</returns>
 		public Bitmap SimpleReindex()
 		{
-			List<Color> colors = new List<Color>();
-			Dictionary<Color, byte> lookup = new Dictionary<Color, byte>();
-			using (FastChunkyBitmap bbbDest = FastBitmap.Create(resultBitmap) as FastChunkyBitmap)
+			var colors = new List<Color>();
+			var lookup = new Dictionary<Color, byte>();
+			using (var bbbDest = FastBitmap.Create(_resultBitmap) as FastChunkyBitmap)
 			{
 				bbbDest.Lock();
-				using (IFastBitmap bbbSrc = FastBitmap.Create(sourceBitmap))
+				using (var bbbSrc = FastBitmap.Create(_sourceBitmap))
 				{
-					IFastBitmapWithBlend bbbSrcBlend = bbbSrc as IFastBitmapWithBlend;
+					var bbbSrcBlend = bbbSrc as IFastBitmapWithBlend;
 
 					bbbSrc.Lock();
-					byte index;
 					for (int y = 0; y < bbbSrc.Height; y++)
 					{
 						for (int x = 0; x < bbbSrc.Width; x++)
@@ -282,6 +275,7 @@ namespace GreenshotPlugin.Core
 							{
 								color = bbbSrc.GetColorAt(x, y);
 							}
+							byte index;
 							if (lookup.ContainsKey(color))
 							{
 								index = lookup[color];
@@ -299,11 +293,11 @@ namespace GreenshotPlugin.Core
 			}
 
 			// generates palette
-			ColorPalette imagePalette = resultBitmap.Palette;
-			Color[] entries = imagePalette.Entries;
-			for (Int32 paletteIndex = 0; paletteIndex < 256; paletteIndex++)
+			var imagePalette = _resultBitmap.Palette;
+			var entries = imagePalette.Entries;
+			for (int paletteIndex = 0; paletteIndex < 256; paletteIndex++)
 			{
-				if (paletteIndex < colorCount)
+				if (paletteIndex < _colorCount)
 				{
 					entries[paletteIndex] = colors[paletteIndex];
 				}
@@ -312,11 +306,11 @@ namespace GreenshotPlugin.Core
 					entries[paletteIndex] = Color.Black;
 				}
 			}
-			resultBitmap.Palette = imagePalette;
+			_resultBitmap.Palette = imagePalette;
 
 			// Make sure the bitmap is not disposed, as we return it.
-			Bitmap tmpBitmap = resultBitmap;
-			resultBitmap = null;
+			var tmpBitmap = _resultBitmap;
+			_resultBitmap = null;
 			return tmpBitmap;
 		}
 
@@ -327,28 +321,28 @@ namespace GreenshotPlugin.Core
 		{
 			if (allowedColorCount > 256)
 			{
-				throw new ArgumentOutOfRangeException("Quantizing muss be done to get less than 256 colors");
+				throw new ArgumentOutOfRangeException(nameof(allowedColorCount), allowedColorCount, "Quantizing muss be done to get less than 256 colors");
 			}
-			if (colorCount < allowedColorCount)
+			if (_colorCount < allowedColorCount)
 			{
 				// Simple logic to reduce to 8 bit
-				LOG.Information("Colors in the image are already less as whished for, using simple copy to indexed image, no quantizing needed!");
+				Log.Information("Colors in the image are already less as whished for, using simple copy to indexed image, no quantizing needed!");
 				return SimpleReindex();
 			}
 			// preprocess the colors
 			CalculateMoments();
-			LOG.Information("Calculated the moments...");
-			Int32 next = 0;
-			Single[] volumeVariance = new Single[MAXCOLOR];
+			Log.Information("Calculated the _moments...");
+			int next = 0;
+			var volumeVariance = new float[MaxColor];
 
-			// processes the cubes
-			for (Int32 cubeIndex = 1; cubeIndex < allowedColorCount; ++cubeIndex)
+			// processes the _cubes
+			for (int cubeIndex = 1; cubeIndex < allowedColorCount; ++cubeIndex)
 			{
 				// if cut is possible; make it
-				if (Cut(cubes[next], cubes[cubeIndex]))
+				if (Cut(_cubes[next], _cubes[cubeIndex]))
 				{
-					volumeVariance[next] = cubes[next].Volume > 1 ? CalculateVariance(cubes[next]) : 0.0f;
-					volumeVariance[cubeIndex] = cubes[cubeIndex].Volume > 1 ? CalculateVariance(cubes[cubeIndex]) : 0.0f;
+					volumeVariance[next] = _cubes[next].Volume > 1 ? CalculateVariance(_cubes[next]) : 0.0f;
+					volumeVariance[cubeIndex] = _cubes[cubeIndex].Volume > 1 ? CalculateVariance(_cubes[cubeIndex]) : 0.0f;
 				}
 				else
 				{
@@ -358,9 +352,9 @@ namespace GreenshotPlugin.Core
 				}
 
 				next = 0;
-				Single temp = volumeVariance[0];
+				float temp = volumeVariance[0];
 
-				for (Int32 index = 1; index <= cubeIndex; ++index)
+				for (int index = 1; index <= cubeIndex; ++index)
 				{
 					if (volumeVariance[index] > temp)
 					{
@@ -376,24 +370,24 @@ namespace GreenshotPlugin.Core
 				}
 			}
 
-			Int32[] lookupRed = new Int32[MAXCOLOR];
-			Int32[] lookupGreen = new Int32[MAXCOLOR];
-			Int32[] lookupBlue = new Int32[MAXCOLOR];
+			int[] lookupRed = new int[MaxColor];
+			int[] lookupGreen = new int[MaxColor];
+			int[] lookupBlue = new int[MaxColor];
 
-			tag = new byte[MAXVOLUME];
+			_tag = new byte[MaxVolume];
 
 			// precalculates lookup tables
 			for (int k = 0; k < allowedColorCount; ++k)
 			{
-				Mark(cubes[k], k, tag);
+				Mark(_cubes[k], k, _tag);
 
-				long weight = Volume(cubes[k], weights);
+				long weight = Volume(_cubes[k], _weights);
 
 				if (weight > 0)
 				{
-					lookupRed[k] = (int) (Volume(cubes[k], momentsRed)/weight);
-					lookupGreen[k] = (int) (Volume(cubes[k], momentsGreen)/weight);
-					lookupBlue[k] = (int) (Volume(cubes[k], momentsBlue)/weight);
+					lookupRed[k] = (int) (Volume(_cubes[k], _momentsRed)/weight);
+					lookupGreen[k] = (int) (Volume(_cubes[k], _momentsGreen)/weight);
+					lookupBlue[k] = (int) (Volume(_cubes[k], _momentsBlue)/weight);
 				}
 				else
 				{
@@ -403,20 +397,19 @@ namespace GreenshotPlugin.Core
 				}
 			}
 
-			reds = new Int32[allowedColorCount + 1];
-			greens = new Int32[allowedColorCount + 1];
-			blues = new Int32[allowedColorCount + 1];
-			sums = new Int32[allowedColorCount + 1];
+			_reds = new int[allowedColorCount + 1];
+			_greens = new int[allowedColorCount + 1];
+			_blues = new int[allowedColorCount + 1];
+			_sums = new int[allowedColorCount + 1];
 
-			LOG.Information("Starting bitmap reconstruction...");
+			Log.Information("Starting bitmap reconstruction...");
 
-			using (FastChunkyBitmap dest = FastBitmap.Create(resultBitmap) as FastChunkyBitmap)
+			using (FastChunkyBitmap dest = FastBitmap.Create(_resultBitmap) as FastChunkyBitmap)
 			{
-				using (IFastBitmap src = FastBitmap.Create(sourceBitmap))
+				using (IFastBitmap src = FastBitmap.Create(_sourceBitmap))
 				{
-					IFastBitmapWithBlend srcBlend = src as IFastBitmapWithBlend;
-					Dictionary<Color, byte> lookup = new Dictionary<Color, byte>();
-					byte bestMatch;
+					var srcBlend = src as IFastBitmapWithBlend;
+					var lookup = new Dictionary<Color, byte>();
 					for (int y = 0; y < src.Height; y++)
 					{
 						for (int x = 0; x < src.Width; x++)
@@ -433,25 +426,26 @@ namespace GreenshotPlugin.Core
 							}
 
 							// Check if we already matched the color
+							byte bestMatch;
 							if (!lookup.ContainsKey(color))
 							{
 								// If not we need to find the best match
 
 								// First get initial match
 								bestMatch = dest.GetColorIndexAt(x, y);
-								bestMatch = tag[bestMatch];
+								bestMatch = _tag[bestMatch];
 
-								Int32 bestDistance = 100000000;
+								int bestDistance = 100000000;
 								for (int lookupIndex = 0; lookupIndex < allowedColorCount; lookupIndex++)
 								{
-									Int32 foundRed = lookupRed[lookupIndex];
-									Int32 foundGreen = lookupGreen[lookupIndex];
-									Int32 foundBlue = lookupBlue[lookupIndex];
-									Int32 deltaRed = color.R - foundRed;
-									Int32 deltaGreen = color.G - foundGreen;
-									Int32 deltaBlue = color.B - foundBlue;
+									int foundRed = lookupRed[lookupIndex];
+									int foundGreen = lookupGreen[lookupIndex];
+									int foundBlue = lookupBlue[lookupIndex];
+									int deltaRed = color.R - foundRed;
+									int deltaGreen = color.G - foundGreen;
+									int deltaBlue = color.B - foundBlue;
 
-									Int32 distance = deltaRed*deltaRed + deltaGreen*deltaGreen + deltaBlue*deltaBlue;
+									int distance = deltaRed*deltaRed + deltaGreen*deltaGreen + deltaBlue*deltaBlue;
 
 									if (distance < bestDistance)
 									{
@@ -467,10 +461,10 @@ namespace GreenshotPlugin.Core
 								bestMatch = lookup[color];
 							}
 
-							reds[bestMatch] += color.R;
-							greens[bestMatch] += color.G;
-							blues[bestMatch] += color.B;
-							sums[bestMatch]++;
+							_reds[bestMatch] += color.R;
+							_greens[bestMatch] += color.G;
+							_blues[bestMatch] += color.B;
+							_sums[bestMatch]++;
 
 							dest.SetColorIndexAt(x, y, bestMatch);
 						}
@@ -480,41 +474,41 @@ namespace GreenshotPlugin.Core
 
 
 			// generates palette
-			ColorPalette imagePalette = resultBitmap.Palette;
-			Color[] entries = imagePalette.Entries;
-			for (Int32 paletteIndex = 0; paletteIndex < allowedColorCount; paletteIndex++)
+			var imagePalette = _resultBitmap.Palette;
+			var entries = imagePalette.Entries;
+			for (int paletteIndex = 0; paletteIndex < allowedColorCount; paletteIndex++)
 			{
-				if (sums[paletteIndex] > 0)
+				if (_sums[paletteIndex] > 0)
 				{
-					reds[paletteIndex] /= sums[paletteIndex];
-					greens[paletteIndex] /= sums[paletteIndex];
-					blues[paletteIndex] /= sums[paletteIndex];
+					_reds[paletteIndex] /= _sums[paletteIndex];
+					_greens[paletteIndex] /= _sums[paletteIndex];
+					_blues[paletteIndex] /= _sums[paletteIndex];
 				}
 
-				entries[paletteIndex] = Color.FromArgb(255, reds[paletteIndex], greens[paletteIndex], blues[paletteIndex]);
+				entries[paletteIndex] = Color.FromArgb(255, _reds[paletteIndex], _greens[paletteIndex], _blues[paletteIndex]);
 			}
-			resultBitmap.Palette = imagePalette;
+			_resultBitmap.Palette = imagePalette;
 
 			// Make sure the bitmap is not disposed, as we return it.
-			Bitmap tmpBitmap = resultBitmap;
-			resultBitmap = null;
+			var tmpBitmap = _resultBitmap;
+			_resultBitmap = null;
 			return tmpBitmap;
 		}
 
 		/// <summary>
-		/// Converts the histogram to a series of moments.
+		/// Converts the histogram to a series of _moments.
 		/// </summary>
 		private void CalculateMoments()
 		{
-			Int64[] area = new Int64[SIDESIZE];
-			Int64[] areaRed = new Int64[SIDESIZE];
-			Int64[] areaGreen = new Int64[SIDESIZE];
-			Int64[] areaBlue = new Int64[SIDESIZE];
-			Single[] area2 = new Single[SIDESIZE];
+			long[] area = new long[SideSize];
+			long[] areaRed = new long[SideSize];
+			long[] areaGreen = new long[SideSize];
+			long[] areaBlue = new long[SideSize];
+			float[] area2 = new float[SideSize];
 
-			for (Int32 redIndex = 1; redIndex <= MAXSIDEINDEX; ++redIndex)
+			for (int redIndex = 1; redIndex <= MaxSideIndex; ++redIndex)
 			{
-				for (Int32 index = 0; index <= MAXSIDEINDEX; ++index)
+				for (int index = 0; index <= MaxSideIndex; ++index)
 				{
 					area[index] = 0;
 					areaRed[index] = 0;
@@ -523,21 +517,21 @@ namespace GreenshotPlugin.Core
 					area2[index] = 0;
 				}
 
-				for (Int32 greenIndex = 1; greenIndex <= MAXSIDEINDEX; ++greenIndex)
+				for (int greenIndex = 1; greenIndex <= MaxSideIndex; ++greenIndex)
 				{
-					Int64 line = 0;
-					Int64 lineRed = 0;
-					Int64 lineGreen = 0;
-					Int64 lineBlue = 0;
-					Single line2 = 0.0f;
+					long line = 0;
+					long lineRed = 0;
+					long lineGreen = 0;
+					long lineBlue = 0;
+					float line2 = 0.0f;
 
-					for (Int32 blueIndex = 1; blueIndex <= MAXSIDEINDEX; ++blueIndex)
+					for (int blueIndex = 1; blueIndex <= MaxSideIndex; ++blueIndex)
 					{
-						line += weights[redIndex, greenIndex, blueIndex];
-						lineRed += momentsRed[redIndex, greenIndex, blueIndex];
-						lineGreen += momentsGreen[redIndex, greenIndex, blueIndex];
-						lineBlue += momentsBlue[redIndex, greenIndex, blueIndex];
-						line2 += moments[redIndex, greenIndex, blueIndex];
+						line += _weights[redIndex, greenIndex, blueIndex];
+						lineRed += _momentsRed[redIndex, greenIndex, blueIndex];
+						lineGreen += _momentsGreen[redIndex, greenIndex, blueIndex];
+						lineBlue += _momentsBlue[redIndex, greenIndex, blueIndex];
+						line2 += _moments[redIndex, greenIndex, blueIndex];
 
 						area[blueIndex] += line;
 						areaRed[blueIndex] += lineRed;
@@ -545,11 +539,11 @@ namespace GreenshotPlugin.Core
 						areaBlue[blueIndex] += lineBlue;
 						area2[blueIndex] += line2;
 
-						weights[redIndex, greenIndex, blueIndex] = weights[redIndex - 1, greenIndex, blueIndex] + area[blueIndex];
-						momentsRed[redIndex, greenIndex, blueIndex] = momentsRed[redIndex - 1, greenIndex, blueIndex] + areaRed[blueIndex];
-						momentsGreen[redIndex, greenIndex, blueIndex] = momentsGreen[redIndex - 1, greenIndex, blueIndex] + areaGreen[blueIndex];
-						momentsBlue[redIndex, greenIndex, blueIndex] = momentsBlue[redIndex - 1, greenIndex, blueIndex] + areaBlue[blueIndex];
-						moments[redIndex, greenIndex, blueIndex] = moments[redIndex - 1, greenIndex, blueIndex] + area2[blueIndex];
+						_weights[redIndex, greenIndex, blueIndex] = _weights[redIndex - 1, greenIndex, blueIndex] + area[blueIndex];
+						_momentsRed[redIndex, greenIndex, blueIndex] = _momentsRed[redIndex - 1, greenIndex, blueIndex] + areaRed[blueIndex];
+						_momentsGreen[redIndex, greenIndex, blueIndex] = _momentsGreen[redIndex - 1, greenIndex, blueIndex] + areaGreen[blueIndex];
+						_momentsBlue[redIndex, greenIndex, blueIndex] = _momentsBlue[redIndex - 1, greenIndex, blueIndex] + areaBlue[blueIndex];
+						_moments[redIndex, greenIndex, blueIndex] = _moments[redIndex - 1, greenIndex, blueIndex] + area2[blueIndex];
 					}
 				}
 			}
@@ -558,7 +552,7 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		/// Computes the volume of the cube in a specific moment.
 		/// </summary>
-		private static Int64 Volume(WuColorCube cube, Int64[,,] moment)
+		private static long Volume(WuColorCube cube, long[,,] moment)
 		{
 			return moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMaximum] - moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMinimum] - moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMaximum] + moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMinimum] - moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMaximum] + moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMinimum] + moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMaximum] - moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum];
 		}
@@ -566,7 +560,7 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		/// Computes the volume of the cube in a specific moment. For the floating-point values.
 		/// </summary>
-		private static Single VolumeFloat(WuColorCube cube, Single[,,] moment)
+		private static float VolumeFloat(WuColorCube cube, float[,,] moment)
 		{
 			return moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMaximum] - moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMinimum] - moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMaximum] + moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMinimum] - moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMaximum] + moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMinimum] + moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMaximum] - moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum];
 		}
@@ -574,17 +568,17 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		/// Splits the cube in given position, and color direction.
 		/// </summary>
-		private static Int64 Top(WuColorCube cube, Int32 direction, Int32 position, Int64[,,] moment)
+		private static long Top(WuColorCube cube, int direction, int position, long[,,] moment)
 		{
 			switch (direction)
 			{
-				case RED:
+				case Red:
 					return (moment[position, cube.GreenMaximum, cube.BlueMaximum] - moment[position, cube.GreenMaximum, cube.BlueMinimum] - moment[position, cube.GreenMinimum, cube.BlueMaximum] + moment[position, cube.GreenMinimum, cube.BlueMinimum]);
 
-				case GREEN:
+				case Green:
 					return (moment[cube.RedMaximum, position, cube.BlueMaximum] - moment[cube.RedMaximum, position, cube.BlueMinimum] - moment[cube.RedMinimum, position, cube.BlueMaximum] + moment[cube.RedMinimum, position, cube.BlueMinimum]);
 
-				case BLUE:
+				case Blue:
 					return (moment[cube.RedMaximum, cube.GreenMaximum, position] - moment[cube.RedMaximum, cube.GreenMinimum, position] - moment[cube.RedMinimum, cube.GreenMaximum, position] + moment[cube.RedMinimum, cube.GreenMinimum, position]);
 
 				default:
@@ -595,17 +589,17 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		/// Splits the cube in a given color direction at its minimum.
 		/// </summary>
-		private static Int64 Bottom(WuColorCube cube, Int32 direction, Int64[,,] moment)
+		private static long Bottom(WuColorCube cube, int direction, long[,,] moment)
 		{
 			switch (direction)
 			{
-				case RED:
+				case Red:
 					return (-moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMaximum] + moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMinimum] + moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMaximum] - moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum]);
 
-				case GREEN:
+				case Green:
 					return (-moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMaximum] + moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMinimum] + moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMaximum] - moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum]);
 
-				case BLUE:
+				case Blue:
 					return (-moment[cube.RedMaximum, cube.GreenMaximum, cube.BlueMinimum] + moment[cube.RedMaximum, cube.GreenMinimum, cube.BlueMinimum] + moment[cube.RedMinimum, cube.GreenMaximum, cube.BlueMinimum] - moment[cube.RedMinimum, cube.GreenMinimum, cube.BlueMinimum]);
 				default:
 					return 0;
@@ -615,15 +609,15 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		/// Calculates statistical variance for a given cube.
 		/// </summary>
-		private Single CalculateVariance(WuColorCube cube)
+		private float CalculateVariance(WuColorCube cube)
 		{
-			Single volumeRed = Volume(cube, momentsRed);
-			Single volumeGreen = Volume(cube, momentsGreen);
-			Single volumeBlue = Volume(cube, momentsBlue);
-			Single volumeMoment = VolumeFloat(cube, moments);
-			Single volumeWeight = Volume(cube, weights);
+			float volumeRed = Volume(cube, _momentsRed);
+			float volumeGreen = Volume(cube, _momentsGreen);
+			float volumeBlue = Volume(cube, _momentsBlue);
+			float volumeMoment = VolumeFloat(cube, _moments);
+			float volumeWeight = Volume(cube, _weights);
 
-			Single distance = volumeRed*volumeRed + volumeGreen*volumeGreen + volumeBlue*volumeBlue;
+			float distance = volumeRed*volumeRed + volumeGreen*volumeGreen + volumeBlue*volumeBlue;
 
 			return volumeMoment - (distance/volumeWeight);
 		}
@@ -631,29 +625,29 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		///	Finds the optimal (maximal) position for the cut.
 		/// </summary>
-		private Single Maximize(WuColorCube cube, Int32 direction, Int32 first, Int32 last, Int32[] cut, Int64 wholeRed, Int64 wholeGreen, Int64 wholeBlue, Int64 wholeWeight)
+		private float Maximize(WuColorCube cube, int direction, int first, int last, int[] cut, long wholeRed, long wholeGreen, long wholeBlue, long wholeWeight)
 		{
-			Int64 bottomRed = Bottom(cube, direction, momentsRed);
-			Int64 bottomGreen = Bottom(cube, direction, momentsGreen);
-			Int64 bottomBlue = Bottom(cube, direction, momentsBlue);
-			Int64 bottomWeight = Bottom(cube, direction, weights);
+			long bottomRed = Bottom(cube, direction, _momentsRed);
+			long bottomGreen = Bottom(cube, direction, _momentsGreen);
+			long bottomBlue = Bottom(cube, direction, _momentsBlue);
+			long bottomWeight = Bottom(cube, direction, _weights);
 
-			Single result = 0.0f;
+			float result = 0.0f;
 			cut[0] = -1;
 
-			for (Int32 position = first; position < last; ++position)
+			for (int position = first; position < last; ++position)
 			{
 				// determines the cube cut at a certain position
-				Int64 halfRed = bottomRed + Top(cube, direction, position, momentsRed);
-				Int64 halfGreen = bottomGreen + Top(cube, direction, position, momentsGreen);
-				Int64 halfBlue = bottomBlue + Top(cube, direction, position, momentsBlue);
-				Int64 halfWeight = bottomWeight + Top(cube, direction, position, weights);
+				long halfRed = bottomRed + Top(cube, direction, position, _momentsRed);
+				long halfGreen = bottomGreen + Top(cube, direction, position, _momentsGreen);
+				long halfBlue = bottomBlue + Top(cube, direction, position, _momentsBlue);
+				long halfWeight = bottomWeight + Top(cube, direction, position, _weights);
 
 				// the cube cannot be cut at bottom (this would lead to empty cube)
 				if (halfWeight != 0)
 				{
-					Single halfDistance = halfRed*halfRed + halfGreen*halfGreen + halfBlue*halfBlue;
-					Single temp = halfDistance/halfWeight;
+					float halfDistance = halfRed*halfRed + halfGreen*halfGreen + halfBlue*halfBlue;
+					float temp = halfDistance/halfWeight;
 
 					halfRed = wholeRed - halfRed;
 					halfGreen = wholeGreen - halfGreen;
@@ -682,33 +676,33 @@ namespace GreenshotPlugin.Core
 		/// </summary>
 		private Boolean Cut(WuColorCube first, WuColorCube second)
 		{
-			Int32 direction;
+			int direction;
 
-			Int32[] cutRed =
+			int[] cutRed =
 			{
 				0
 			};
-			Int32[] cutGreen =
+			int[] cutGreen =
 			{
 				0
 			};
-			Int32[] cutBlue =
+			int[] cutBlue =
 			{
 				0
 			};
 
-			Int64 wholeRed = Volume(first, momentsRed);
-			Int64 wholeGreen = Volume(first, momentsGreen);
-			Int64 wholeBlue = Volume(first, momentsBlue);
-			Int64 wholeWeight = Volume(first, weights);
+			long wholeRed = Volume(first, _momentsRed);
+			long wholeGreen = Volume(first, _momentsGreen);
+			long wholeBlue = Volume(first, _momentsBlue);
+			long wholeWeight = Volume(first, _weights);
 
-			Single maxRed = Maximize(first, RED, first.RedMinimum + 1, first.RedMaximum, cutRed, wholeRed, wholeGreen, wholeBlue, wholeWeight);
-			Single maxGreen = Maximize(first, GREEN, first.GreenMinimum + 1, first.GreenMaximum, cutGreen, wholeRed, wholeGreen, wholeBlue, wholeWeight);
-			Single maxBlue = Maximize(first, BLUE, first.BlueMinimum + 1, first.BlueMaximum, cutBlue, wholeRed, wholeGreen, wholeBlue, wholeWeight);
+			float maxRed = Maximize(first, Red, first.RedMinimum + 1, first.RedMaximum, cutRed, wholeRed, wholeGreen, wholeBlue, wholeWeight);
+			float maxGreen = Maximize(first, Green, first.GreenMinimum + 1, first.GreenMaximum, cutGreen, wholeRed, wholeGreen, wholeBlue, wholeWeight);
+			float maxBlue = Maximize(first, Blue, first.BlueMinimum + 1, first.BlueMaximum, cutBlue, wholeRed, wholeGreen, wholeBlue, wholeWeight);
 
 			if ((maxRed >= maxGreen) && (maxRed >= maxBlue))
 			{
-				direction = RED;
+				direction = Red;
 
 				// cannot split empty cube
 				if (cutRed[0] < 0)
@@ -720,11 +714,11 @@ namespace GreenshotPlugin.Core
 			{
 				if ((maxGreen >= maxRed) && (maxGreen >= maxBlue))
 				{
-					direction = GREEN;
+					direction = Green;
 				}
 				else
 				{
-					direction = BLUE;
+					direction = Blue;
 				}
 			}
 
@@ -735,19 +729,19 @@ namespace GreenshotPlugin.Core
 			// cuts in a certain direction
 			switch (direction)
 			{
-				case RED:
+				case Red:
 					second.RedMinimum = first.RedMaximum = cutRed[0];
 					second.GreenMinimum = first.GreenMinimum;
 					second.BlueMinimum = first.BlueMinimum;
 					break;
 
-				case GREEN:
+				case Green:
 					second.GreenMinimum = first.GreenMaximum = cutGreen[0];
 					second.RedMinimum = first.RedMinimum;
 					second.BlueMinimum = first.BlueMinimum;
 					break;
 
-				case BLUE:
+				case Blue:
 					second.BlueMinimum = first.BlueMaximum = cutBlue[0];
 					second.RedMinimum = first.RedMinimum;
 					second.GreenMinimum = first.GreenMinimum;
@@ -765,13 +759,13 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		/// Marks all the tags with a given label.
 		/// </summary>
-		private void Mark(WuColorCube cube, Int32 label, byte[] tag)
+		private void Mark(WuColorCube cube, int label, byte[] tag)
 		{
-			for (Int32 redIndex = cube.RedMinimum + 1; redIndex <= cube.RedMaximum; ++redIndex)
+			for (int redIndex = cube.RedMinimum + 1; redIndex <= cube.RedMaximum; ++redIndex)
 			{
-				for (Int32 greenIndex = cube.GreenMinimum + 1; greenIndex <= cube.GreenMaximum; ++greenIndex)
+				for (int greenIndex = cube.GreenMinimum + 1; greenIndex <= cube.GreenMaximum; ++greenIndex)
 				{
-					for (Int32 blueIndex = cube.BlueMinimum + 1; blueIndex <= cube.BlueMaximum; ++blueIndex)
+					for (int blueIndex = cube.BlueMinimum + 1; blueIndex <= cube.BlueMaximum; ++blueIndex)
 					{
 						tag[(redIndex << 10) + (redIndex << 6) + redIndex + (greenIndex << 5) + greenIndex + blueIndex] = (byte) label;
 					}

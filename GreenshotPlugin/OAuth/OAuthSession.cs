@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
@@ -43,7 +44,7 @@ namespace GreenshotPlugin.OAuth
 	/// </summary>
 	public class OAuthSession
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(OAuthSession));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(OAuthSession));
 		private static readonly INetworkConfiguration NetworkConfig = IniConfig.Current.Get<INetworkConfiguration>();
 		private const string OauthVersion = "1.0";
 		private const string OauthParameterPrefix = "oauth_";
@@ -68,30 +69,15 @@ namespace GreenshotPlugin.OAuth
 
 		private static readonly Random RandomForNonce = new Random();
 
-		private IDictionary<string, string> _accessTokenResponseParameters;
-		private IDictionary<string, string> _requestTokenResponseParameters;
-
 		/// <summary>
 		/// Parameters of the last called getAccessToken
 		/// </summary>
-		public IDictionary<string, string> AccessTokenResponseParameters
-		{
-			get
-			{
-				return _accessTokenResponseParameters;
-			}
-		}
+		public IDictionary<string, string> AccessTokenResponseParameters { get; private set; }
 
 		/// <summary>
 		/// Parameters of the last called getRequestToken
 		/// </summary>
-		public IDictionary<string, string> RequestTokenResponseParameters
-		{
-			get
-			{
-				return _requestTokenResponseParameters;
-			}
-		}
+		public IDictionary<string, string> RequestTokenResponseParameters { get; private set; }
 
 		private readonly string _consumerKey;
 		private readonly string _consumerSecret;
@@ -211,12 +197,12 @@ namespace GreenshotPlugin.OAuth
 		{
 			if (hashAlgorithm == null)
 			{
-				throw new ArgumentNullException("hashAlgorithm");
+				throw new ArgumentNullException(nameof(hashAlgorithm));
 			}
 
 			if (string.IsNullOrEmpty(data))
 			{
-				throw new ArgumentNullException("data");
+				throw new ArgumentNullException(nameof(data));
 			}
 
 			byte[] dataBuffer = Encoding.UTF8.GetBytes(data);
@@ -244,7 +230,7 @@ namespace GreenshotPlugin.OAuth
 			{
 				if (queryParameters[key] is string)
 				{
-					sb.AppendFormat(CultureInfo.InvariantCulture, "{0}={1}&", key, Uri.EscapeDataString(string.Format("{0}", queryParameters[key])));
+					sb.AppendFormat(CultureInfo.InvariantCulture, "{0}={1}&", key, Uri.EscapeDataString($"{queryParameters[key]}"));
 				}
 			}
 			sb.Remove(sb.Length - 1, 1);
@@ -283,15 +269,17 @@ namespace GreenshotPlugin.OAuth
 			string response = await MakeRequest(RequestTokenMethod, RequestTokenUrl, null, parameters, null).ConfigureAwait(false);
 			if (!string.IsNullOrEmpty(response))
 			{
-				var uriBuilder = new UriBuilder("http://getgreenshot.org");
-				uriBuilder.Query = Uri.UnescapeDataString(response.Replace("+", " "));
-				LOG.Debug("Request token response: {0}", response);
-				_requestTokenResponseParameters = uriBuilder.Uri.QueryToDictionary();
+				var uriBuilder = new UriBuilder("http://getgreenshot.org")
+				{
+					Query = Uri.UnescapeDataString(response.Replace("+", " "))
+				};
+				Log.Debug("Request token response: {0}", response);
+				RequestTokenResponseParameters = uriBuilder.Uri.QueryToDictionary();
 				string value;
-				if (_requestTokenResponseParameters.TryGetValue(OauthTokenKey, out value))
+				if (RequestTokenResponseParameters.TryGetValue(OauthTokenKey, out value))
 				{
 					Token = value;
-					TokenSecret = _requestTokenResponseParameters[OauthTokenSecretKey];
+					TokenSecret = RequestTokenResponseParameters[OauthTokenSecretKey];
 				}
 			}
 		}
@@ -306,7 +294,7 @@ namespace GreenshotPlugin.OAuth
 			{
 				throw new Exception("The request token is not set");
 			}
-			LOG.Debug("Opening AuthorizationLink: {0}", AuthorizationLink);
+			Log.Debug("Opening AuthorizationLink: {0}", AuthorizationLink);
 			var oAuthLoginForm = new OAuthLoginForm(LoginTitle, BrowserSize, AuthorizationLink, CallbackUrl);
 			oAuthLoginForm.ShowDialog();
 			if (oAuthLoginForm.IsOk)
@@ -352,16 +340,18 @@ namespace GreenshotPlugin.OAuth
 			string response = await MakeRequest(AccessTokenMethod, AccessTokenUrl, null, parameters, null).ConfigureAwait(false);
 			if (!string.IsNullOrEmpty(response))
 			{
-				var uriBuilder = new UriBuilder("http://getgreenshot.org");
-				uriBuilder.Query = Uri.UnescapeDataString(response.Replace("+", " "));
-				_accessTokenResponseParameters = uriBuilder.Uri.QueryToDictionary();
+				var uriBuilder = new UriBuilder("http://getgreenshot.org")
+				{
+					Query = Uri.UnescapeDataString(response.Replace("+", " "))
+				};
+				AccessTokenResponseParameters = uriBuilder.Uri.QueryToDictionary();
 				string tokenValue;
-				if (_accessTokenResponseParameters.TryGetValue(OauthTokenKey, out tokenValue) && tokenValue != null)
+				if (AccessTokenResponseParameters.TryGetValue(OauthTokenKey, out tokenValue) && tokenValue != null)
 				{
 					Token = tokenValue;
 				}
 				string secretValue;
-				if (_accessTokenResponseParameters.TryGetValue(OauthTokenSecretKey, out secretValue) && secretValue != null)
+				if (AccessTokenResponseParameters.TryGetValue(OauthTokenSecretKey, out secretValue) && secretValue != null)
 				{
 					TokenSecret = secretValue;
 				}
@@ -404,21 +394,21 @@ namespace GreenshotPlugin.OAuth
 			Token = null;
 			TokenSecret = null;
 			Verifier = null;
-			LOG.Debug("Creating Token");
+			Log.Debug("Creating Token");
 			try
 			{
 				await GetRequestTokenAsync().ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
-				LOG.Error(ex, "Retrieving an Oauth request token failed");
+				Log.Error(ex, "Retrieving an Oauth request token failed");
 				throw new NotSupportedException("Service is not available: " + ex.Message);
 			}
 			// Run the WebBrowser on a STA thread!
 			var token = await StartStaTask(GetAuthorizeToken);
 			if (string.IsNullOrEmpty(token))
 			{
-				LOG.Debug("User didn't authenticate!");
+				Log.Debug("User didn't authenticate!");
 				return false;
 			}
 			try
@@ -428,7 +418,7 @@ namespace GreenshotPlugin.OAuth
 			}
 			catch (Exception ex)
 			{
-				LOG.Error(ex, "Retrieving an OAuth access token failed");
+				Log.Error(ex, "Retrieving an OAuth access token failed");
 				throw;
 			}
 		}
@@ -496,28 +486,18 @@ namespace GreenshotPlugin.OAuth
 				catch (WebException wEx)
 				{
 					lastException = wEx;
-					if (wEx.Response != null)
+					var response = wEx.Response as HttpWebResponse;
+					if (response != null && response.StatusCode == HttpStatusCode.Unauthorized)
 					{
-						var response = wEx.Response as HttpWebResponse;
-						if (response != null && response.StatusCode == HttpStatusCode.Unauthorized)
+						Token = null;
+						TokenSecret = null;
+						// Remove oauth keys, so they aren't added double
+						var keysToDelete = parametersToSign.Keys.Where(parameterKey => parameterKey.StartsWith(OauthParameterPrefix)).ToList();
+						foreach (string keyToDelete in keysToDelete)
 						{
-							Token = null;
-							TokenSecret = null;
-							// Remove oauth keys, so they aren't added double
-							var keysToDelete = new List<string>();
-							foreach (string parameterKey in parametersToSign.Keys)
-							{
-								if (parameterKey.StartsWith(OauthParameterPrefix))
-								{
-									keysToDelete.Add(parameterKey);
-								}
-							}
-							foreach (string keyToDelete in keysToDelete)
-							{
-								parametersToSign.Remove(keyToDelete);
-							}
-							continue;
+							parametersToSign.Remove(keyToDelete);
 						}
+						continue;
 					}
 					throw;
 				}
@@ -581,7 +561,7 @@ namespace GreenshotPlugin.OAuth
 				parameters.Add(OauthTokenKey, Token);
 			}
 			signatureBase.Append(Uri.EscapeDataString(GenerateNormalizedParametersString(parameters)));
-			LOG.Debug("Signature base: {0}", signatureBase);
+			Log.Debug("Signature base: {0}", signatureBase);
 			string key = string.Format(CultureInfo.InvariantCulture, "{0}&{1}", Uri.EscapeDataString(_consumerSecret), string.IsNullOrEmpty(TokenSecret) ? string.Empty : Uri.EscapeDataString(TokenSecret));
 			switch (SignatureType)
 			{
@@ -615,8 +595,7 @@ namespace GreenshotPlugin.OAuth
 					break;
 				default:
 					// Generate Signature and add it to the parameters
-					var hmacsha1 = new HMACSHA1();
-					hmacsha1.Key = Encoding.UTF8.GetBytes(key);
+					var hmacsha1 = new HMACSHA1 {Key = Encoding.UTF8.GetBytes(key)};
 					string signature = ComputeHash(hmacsha1, signatureBase.ToString());
 					parameters.Add(OauthSignatureKey, signature);
 					break;
@@ -638,12 +617,11 @@ namespace GreenshotPlugin.OAuth
 		{
 			if (parameters == null)
 			{
-				throw new ArgumentNullException("parameters");
+				throw new ArgumentNullException(nameof(parameters));
 			}
-			IDictionary<string, object> requestParameters;
 			// Add oAuth values as HTTP headers
 			var authHeader = new StringBuilder();
-			requestParameters = new SortedDictionary<string, object>();
+			IDictionary<string, object> requestParameters = new SortedDictionary<string, object>();
 			foreach (string parameterKey in parameters.Keys)
 			{
 				if (parameterKey.StartsWith(OauthParameterPrefix))
@@ -687,7 +665,7 @@ namespace GreenshotPlugin.OAuth
 				HttpResponseMessage responseMessage;
 				if (content != null)
 				{
-					responseMessage = await httpClient.PostAsync(requestUri, content).ConfigureAwait(false);
+					responseMessage = await httpClient.PostAsync(requestUri, content, token).ConfigureAwait(false);
 				}
 				else if ((HttpMethod.Post == method || HttpMethod.Put == method) && requestParameters.Count > 0)
 				{
@@ -695,7 +673,7 @@ namespace GreenshotPlugin.OAuth
 					foreach (var key in requestParameters.Keys)
 					{
 						var requestObject = requestParameters[key];
-						var formattedKey = string.Format("\"{0}\"", key);
+						var formattedKey = $"\"{key}\"";
 						if (requestObject is HttpContent)
 						{
 							multipartFormDataContent.Add(requestObject as HttpContent, formattedKey);
@@ -705,7 +683,7 @@ namespace GreenshotPlugin.OAuth
 							multipartFormDataContent.Add(new StringContent(requestObject as string), formattedKey);
 						}
 					}
-					responseMessage = await httpClient.PostAsync(requestUri, multipartFormDataContent).ConfigureAwait(false);
+					responseMessage = await httpClient.PostAsync(requestUri, multipartFormDataContent, token).ConfigureAwait(false);
 				}
 				else
 				{
@@ -722,11 +700,11 @@ namespace GreenshotPlugin.OAuth
 				try
 				{
 					responseData = await responseMessage.GetAsStringAsync(true, token).ConfigureAwait(false);
-					LOG.Debug("Response: {0}", responseData);
+					Log.Debug("Response: {0}", responseData);
 				}
 				catch (Exception ex)
 				{
-					LOG.Error("Couldn't retrieve response: ", ex);
+					Log.Error("Couldn't retrieve response: ", ex);
 					throw;
 				}
 			}
