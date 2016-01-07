@@ -528,8 +528,8 @@ namespace GreenshotPlugin.OAuth
 			// Add Method to signature base
 			signatureBase.Append(method).Append("&");
 
-			// Add normalized URL
-			signatureBase.Append(Uri.EscapeDataString(requestUri.Normalize().AbsoluteUri)).Append("&");
+			// Add normalized URL (this automatically happens when using "AbsoluteUri")
+			signatureBase.Append(Uri.EscapeDataString(requestUri.AbsoluteUri)).Append("&");
 
 			// Add normalized parameters
 			parameters.Add(OauthVersionKey, OauthVersion);
