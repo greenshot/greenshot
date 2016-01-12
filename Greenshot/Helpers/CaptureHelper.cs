@@ -240,18 +240,24 @@ namespace Greenshot.Helpers
 			}
 		}
 
-		private Task DoCaptureFeedbackAsync(CancellationToken token = default(CancellationToken))
+		/// <summary>
+		/// Play sound / show flash
+		/// </summary>
+		/// <param name="token"></param>
+		/// <returns>Task to wait for</returns>
+		private async Task DoCaptureFeedbackAsync(CancellationToken token = default(CancellationToken))
 		{
+			var tasks = new List<Task>();
 			if (CoreConfiguration.PlayCameraSound)
 			{
-				SoundHelper.Play(token);
+				tasks.Add(Task.Run(() => SoundHelper.Play(token)));
 			}
 			if (CoreConfiguration.ShowFlash)
 			{
 				var bounds = new System.Windows.Rect(_captureRect.X, _captureRect.Y, _captureRect.Width, _captureRect.Height);
-                FlashlightWindow.Flash(bounds);
+				tasks.Add(FlashlightWindow.Flash(bounds));
 			}
-			return Task.FromResult(true);
+			await Task.WhenAll(tasks);
 		}
 
 		/// <summary>

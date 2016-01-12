@@ -65,6 +65,25 @@ namespace GreenshotPlugin.Extensions
 		}
 
 		/// <summary>
+		/// Waits asynchronously for the Window to close
+		/// </summary>
+		/// <param name="window">The Window to wait for cancellation.</param>
+		/// <param name="cancellationToken">A cancellation token. If invoked, the task will return 
+		/// immediately as canceled.</param>
+		/// <returns>A Task representing waiting for the Window to close.</returns>
+		public static Task WaitForClosedAsync(this Window window, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			var taskCompletionSource = new TaskCompletionSource<object>();
+			window.Closed += (sender, args) => taskCompletionSource.TrySetResult(null);
+			if (cancellationToken != default(CancellationToken))
+			{
+				cancellationToken.Register(taskCompletionSource.SetCanceled);
+			}
+
+			return taskCompletionSource.Task;
+		}
+
+		/// <summary>
 		/// This method will show the supplied context menu at the mouse cursor, also makes sure it has focus and it's not visible in the taskbar.
 		/// </summary>
 		/// <param name="toolStripDropDown"></param>

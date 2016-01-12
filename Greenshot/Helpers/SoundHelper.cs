@@ -50,16 +50,17 @@ namespace Greenshot.Helpers
 				{
 					if (File.Exists(conf.NotificationSound))
 					{
-						_soundPlayer = new SoundPlayer(conf.NotificationSound);
+						_soundPlayer = new SoundPlayer();
+						_soundPlayer.SoundLocation = conf.NotificationSound;
+						_soundPlayer.LoadAsync();
 						return;
 					}
 				}
+				
 				var resources = new ResourceManager("Greenshot.Sounds", Assembly.GetExecutingAssembly());
 
-				using (var stream = new MemoryStream((byte[])resources.GetObject("camera")))
-				{
-					_soundPlayer = new SoundPlayer(stream);
-				}
+				_soundPlayer = new SoundPlayer();
+				_soundPlayer.Stream = new MemoryStream((byte[])resources.GetObject("camera"));
 			}
 			catch (Exception e)
 			{

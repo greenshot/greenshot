@@ -20,16 +20,19 @@
  */
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
+using GreenshotPlugin.Extensions;
 
 namespace Greenshot.Windows
 {
 	/// <summary>
-	/// This shows the flash after taking a capture
+	/// This class helps to show the flash after taking a capture
 	/// </summary>
 	public partial class FlashlightWindow : Window
 	{
-		public FlashlightWindow(Rect area = default(Rect))
+		private FlashlightWindow(Rect area = default(Rect))
 		{
 			InitializeComponent();
 			if (area.IsEmpty || area == default(Rect))
@@ -44,18 +47,27 @@ namespace Greenshot.Windows
 			Left = area.Left;
 		}
 
+		/// <summary>
+		/// This closes the window as soon as the storyboard is ready animating
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void Storyboard_Completed(object sender, EventArgs e)
 		{
 			Dispatcher.Invoke(Close);
 		}
 
-		public static void Flash(Rect area = default(Rect))
+		/// <summary>
+		/// Show a flashing window on the specified location
+		/// </summary>
+		/// <param name="area"></param>
+		/// <param name="token"></param>
+		/// <returns>Task to wait for</returns>
+		public static async Task Flash(Rect area = default(Rect), CancellationToken token = default(CancellationToken))
 		{
-			Forms.MainForm.Instance.BeginInvoke(
-			  new Action(() => {
-				  new FlashlightWindow(area).Show();
-			  }
-			));
+			var flashlightWindow = new FlashlightWindow(area);
+			flashlightWindow.Show();
+			await flashlightWindow.WaitForClosedAsync(token);
 		}
 	}
 }
