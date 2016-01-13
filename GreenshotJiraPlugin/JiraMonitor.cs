@@ -19,8 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Config.Ini;
+using Dapplo.Jira;
 using Dapplo.Windows;
-
+using GreenshotPlugin.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +40,7 @@ namespace GreenshotJiraPlugin
 	public class JiraMonitor : IDisposable
 	{
 		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(JiraMonitor));
+		private static readonly INetworkConfiguration NetworkConfig = IniConfig.Current.Get<INetworkConfiguration>();
 		private readonly Regex _jiraKeyPattern = new Regex(@"[A-Z][A-Z0-9]+\-[0-9]+");
 		private readonly WindowsTitleMonitor _monitor;
 		private readonly IList<JiraApi> _jiraInstances = new List<JiraApi>();
@@ -79,10 +82,6 @@ namespace GreenshotJiraPlugin
 				// free managed resources
 				_monitor.TitleChangeEvent -= monitor_TitleChangeEvent;
 				_monitor.Dispose();
-				foreach (var jiraInstance in _jiraInstances)
-				{
-					jiraInstance.Dispose();
-				}
 			}
 			// free native resources if there are any.
 		}
@@ -131,13 +130,10 @@ namespace GreenshotJiraPlugin
 		/// <param name="username"></param>
 		/// <param name="password"></param>
 		/// <param name="token"></param>
-		public async Task AddJiraInstance(Uri uri, string username, string password, CancellationToken token = default(CancellationToken))
+		public async Task AddJiraInstanceAsync(Uri uri, string username, string password, CancellationToken token = default(CancellationToken))
 		{
-			var jiraInstance = new JiraApi(uri);
+			var jiraInstance = await JiraApi.CreateAndInitializeAsync(uri, NetworkConfig);
 			jiraInstance.SetBasicAuthentication(username, password);
-			var serverInfo = await jiraInstance.ServerInfo(token).ConfigureAwait(false);
-			jiraInstance.ServerTitle = serverInfo.serverTitle;
-			jiraInstance.JiraVersion = serverInfo.version;
 
 			_jiraInstances.Add(jiraInstance);
 			foreach (var project in await jiraInstance.Projects(token).ConfigureAwait(false))
@@ -154,7 +150,7 @@ namespace GreenshotJiraPlugin
 		/// </summary>
 		/// <param name="jiraDetails">Contains the jira key to retrieve the title (XYZ-1234)</param>
 		/// <returns>Task</returns>
-		private async Task DetectedNewJiraIssue(JiraDetails jiraDetails)
+		private async Task DetectedNewJiraIssueAsync(JiraDetails jiraDetails)
 		{
 			try
 			{
@@ -254,7 +250,7 @@ namespace GreenshotJiraPlugin
 							select jiraDetails).Take(_maxEntries).ToDictionary(jd => jd.JiraKey, jd => jd);
 					}
 					// Now we can get the title from JIRA itself
-					var updateTitleTask = DetectedNewJiraIssue(currentJiraDetails);
+					var updateTitleTask = DetectedNewJiraIssueAsync(currentJiraDetails);
 				}
 				else
 				{

@@ -68,9 +68,9 @@ namespace GreenshotPlugin.OAuth
 			}
 
 			dynamic refreshTokenResult;
-			using (var responseMessage = await settings.TokenUrl.PostFormUrlEncodedAsync(data, token))
+			using (var responseMessage = await settings.TokenUrl.PostFormUrlEncodedAsync(data, null, token))
 			{
-				refreshTokenResult = await responseMessage.GetAsJsonAsync(token: token);
+				refreshTokenResult = await responseMessage.GetAsJsonAsync(null, token);
 			}
 			if (refreshTokenResult.ContainsKey("error"))
 			{
@@ -115,7 +115,7 @@ namespace GreenshotPlugin.OAuth
 			}
 
 			dynamic accessTokenResult;
-			using (var responseMessage = await settings.TokenUrl.PostFormUrlEncodedAsync(data, token))
+			using (var responseMessage = await settings.TokenUrl.PostFormUrlEncodedAsync(data, null, token))
 			{
 				accessTokenResult = await responseMessage.GetAsJsonAsync(token: token);
 			}
@@ -298,7 +298,7 @@ namespace GreenshotPlugin.OAuth
 		{
 			await CheckAndAuthenticateOrRefreshAsync(settings, token).ConfigureAwait(false);
 
-			var httpClient = HttpClientFactory.CreateHttpClient(NetworkConfig);
+			var httpClient = HttpClientFactory.CreateHttpClient(new HttpBehaviour { HttpSettings = NetworkConfig });
 			if (!string.IsNullOrEmpty(settings.AccessToken))
 			{
 				httpClient.SetBearer(settings.AccessToken);

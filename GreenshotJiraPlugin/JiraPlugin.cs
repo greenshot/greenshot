@@ -100,7 +100,7 @@ namespace GreenshotJiraPlugin
 			{
 				_jiraMonitor = new JiraMonitor();
 				// Async call, will continue in the background!
-				var backgroundTask = _jiraMonitor.AddJiraInstance(new Uri(JiraConfiguration.RestUrl.TrimEnd('/')), JiraConfiguration.Username, JiraConfiguration.Password).ConfigureAwait(false);
+				var backgroundTask = _jiraMonitor.AddJiraInstanceAsync(new Uri(JiraConfiguration.RestUrl.TrimEnd('/')), JiraConfiguration.Username, JiraConfiguration.Password).ConfigureAwait(false);
 				if (_jiraDestination == null)
 				{
 					_jiraDestination = new JiraDestination();

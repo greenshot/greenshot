@@ -27,6 +27,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 using Dapplo.HttpExtensions;
+using System.Threading;
 
 namespace GreenshotPlugin.Core
 {
@@ -140,7 +141,7 @@ namespace GreenshotPlugin.Core
 		/// Read the Greenshot RSS feed, so we can use this information to check for updates
 		/// </summary>
 		/// <returns>Dictionary&lt;string, Dictionary&lt;string, RssFile&gt;&gt; with files and their RssFile "description"</returns>
-		public static async Task<IDictionary<string, IDictionary<string, SourceforgeFile>>> ReadRss()
+		public static async Task<IDictionary<string, IDictionary<string, SourceforgeFile>>> ReadRssAsync(CancellationToken token = default(CancellationToken))
 		{
 			var rssFiles = new Dictionary<string, IDictionary<string, SourceforgeFile>>();
 			var rssContent = await Rssfeed.GetAsync().ConfigureAwait(false);
@@ -148,7 +149,7 @@ namespace GreenshotPlugin.Core
 			{
 				return rssFiles;
 			}
-			var stream = await rssContent.GetAsMemoryStreamAsync(false).ConfigureAwait(false);
+			var stream = await rssContent.GetAsMemoryStreamAsync(null, token).ConfigureAwait(false);
 			if (stream == null)
 			{
 				return rssFiles;

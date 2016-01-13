@@ -74,7 +74,8 @@ namespace GreenshotConfluencePlugin
 		public ConfluenceApi(Uri baseUri)
 		{
 			ConfluenceBaseUri = baseUri;
-			_client = HttpClientFactory.CreateHttpClient(NetworkConfig);
+
+			_client = HttpClientFactory.CreateHttpClient(new HttpBehaviour { HttpSettings = NetworkConfig});
 			_client.AddDefaultRequestHeader("X-Atlassian-Token", "nocheck");
 			Model = ProxyBuilder.CreateProxy<IConfluenceModel>().PropertyObject;
 			Model.ContentCachedById = new ConcurrentDictionary<long, Content>();
@@ -207,12 +208,7 @@ namespace GreenshotConfluencePlugin
 		public async Task<IList<Content>> GetChildrenAsync(long contentId, bool useCache = true, CancellationToken token = default(CancellationToken))
 		{
 			IList<Content> children = new List<Content>();
-			Uri childUri = ConfluenceBaseUri.AppendSegments(RestPath, "content", contentId, "child").ExtendQuery(new Dictionary<string, object>
-			{
-				{
-					"expand", "page"
-				}
-			});
+			Uri childUri = ConfluenceBaseUri.AppendSegments(RestPath, "content", contentId, "child").ExtendQuery("expand", "page");
 			using (var responseMessage = await _client.GetAsync(childUri, token).ConfigureAwait(false))
 			{
 				await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);

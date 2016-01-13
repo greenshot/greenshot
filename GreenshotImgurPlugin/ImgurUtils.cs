@@ -52,17 +52,24 @@ namespace GreenshotImgurPlugin
 		private const string SMALL_URL_PATTERN = "http://i.imgur.com/{0}s.png";
 		private const string AuthUrlPattern = "https://api.imgur.com/oauth2/authorize?response_type=code&client_id={ClientId}&redirect_uri={RedirectUrl}&state={State}";
 		private static readonly Uri TokenUrl = new Uri("https://api.imgur.com/oauth2/token");
-
-		/// <summary>
-		/// Do the actual upload to Picasa
-		/// </summary>
-		/// <param name="surfaceToUpload">Image to upload</param>
-		/// <param name="outputSettings"></param>
-		/// <param name="otherParameters"></param>
-		/// <param name="progress"></param>
-		/// <param name="token"></param>
-		/// <returns>PicasaResponse</returns>
-		public static async Task<ImageInfo> AuthenticatedUploadToImgurAsync(ICapture surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, IProgress<int> progress, CancellationToken token = default(CancellationToken))
+		private static readonly HttpBehaviour Behaviour = new HttpBehaviour {
+			HttpSettings = NetworkConfig,
+			OnCreateHttpClient = (httpClient) =>
+			{
+				httpClient.SetAuthorization("Client-ID", config.ClientId);
+				httpClient.DefaultRequestHeaders.ExpectContinue = false;
+			}
+		};
+	/// <summary>
+	/// Do the actual upload to Picasa
+	/// </summary>
+	/// <param name="surfaceToUpload">Image to upload</param>
+	/// <param name="outputSettings"></param>
+	/// <param name="otherParameters"></param>
+	/// <param name="progress"></param>
+	/// <param name="token"></param>
+	/// <returns>PicasaResponse</returns>
+	public static async Task<ImageInfo> AuthenticatedUploadToImgurAsync(ICapture surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, IProgress<int> progress, CancellationToken token = default(CancellationToken))
 		{
 			// Fill the OAuth2Settings
 			var oauth2Settings = new OAuth2Settings();
@@ -116,10 +123,8 @@ namespace GreenshotImgurPlugin
 		private static async Task<ImageInfo> AnnonymousUploadToImgurAsync(ICapture surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, IProgress<int> progress, CancellationToken token = default(CancellationToken))
 		{
 			var uploadUri = new Uri(config.ApiUrl).AppendSegments("upload.json").ExtendQuery(otherParameters);
-			using (var client = HttpClientFactory.CreateHttpClient(NetworkConfig))
+			using (var client = HttpClientFactory.CreateHttpClient(Behaviour))
 			{
-				client.SetAuthorization("Client-ID", config.ClientId);
-				client.DefaultRequestHeaders.ExpectContinue = false;
 				dynamic imageJson;
 				using (var imageStream = new MemoryStream())
 				{
@@ -199,12 +204,13 @@ namespace GreenshotImgurPlugin
 				return;
 			}
 			LOG.Information("Retrieving Imgur image for {0} with url {1}", imgurInfo.Id, imgurInfo.SmallSquare);
-			using (var client = HttpClientFactory.CreateHttpClient(NetworkConfig))
+
+			using (var client = HttpClientFactory.CreateHttpClient(Behaviour))
 			{
 				using (var response = await client.GetAsync(imgurInfo.SmallSquare, token).ConfigureAwait(false))
 				{
 					await response.HandleErrorAsync(token: token).ConfigureAwait(false);
-					using (var stream = await response.GetAsMemoryStreamAsync(true, token).ConfigureAwait(false))
+					using (var stream = await response.GetAsMemoryStreamAsync(Behaviour, token).ConfigureAwait(false))
 					{
 						using (var tmpImage = Image.FromStream(stream))
 						{
@@ -228,18 +234,16 @@ namespace GreenshotImgurPlugin
 			LOG.Information("Retrieving Imgur info for {0} with url {1}", id, imageUri);
 
 			dynamic imageJson;
-			using (var client = HttpClientFactory.CreateHttpClient(NetworkConfig))
+			using (var client = HttpClientFactory.CreateHttpClient(Behaviour))
 			{
-				client.SetAuthorization("Client-ID", config.ClientId);
-				client.DefaultRequestHeaders.ExpectContinue = false;
 				var response = await client.GetAsync(imageUri, token).ConfigureAwait(false);
 				// retrieving image data seems to throw a 403 (Unauthorized) if it has been deleted
 				if (response.StatusCode == HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.Redirect || response.StatusCode == HttpStatusCode.Unauthorized)
 				{
 					return null;
 				}
-				await response.HandleErrorAsync(token: token).ConfigureAwait(false);
-				imageJson = await response.GetAsJsonAsync(token: token).ConfigureAwait(false);
+				await response.HandleErrorAsync(Behaviour, token).ConfigureAwait(false);
+				imageJson = await response.GetAsJsonAsync(Behaviour, token).ConfigureAwait(false);
 			}
 
 			return CreateImageInfo(imageJson, deleteHash);
@@ -289,16 +293,15 @@ namespace GreenshotImgurPlugin
 			LOG.Information("Deleting Imgur image for {0}", imgurInfo.DeleteHash);
 			Uri deleteUri = new Uri(string.Format(config.ApiUrl + "/image/{0}", imgurInfo.DeleteHash));
 			string responseString;
-			using (var client = HttpClientFactory.CreateHttpClient(NetworkConfig))
+
+			using (var client = HttpClientFactory.CreateHttpClient(Behaviour))
 			{
-				client.SetAuthorization("Client-ID", config.ClientId);
-				client.DefaultRequestHeaders.ExpectContinue = false;
 				var response = await client.DeleteAsync(deleteUri, token).ConfigureAwait(false);
 				if (response.StatusCode != HttpStatusCode.NotFound && response.StatusCode != HttpStatusCode.BadRequest)
 				{
 					await response.HandleErrorAsync(token: token).ConfigureAwait(false);
 				}
-				responseString = await response.GetAsStringAsync(false, token).ConfigureAwait(false);
+				responseString = await response.GetAsStringAsync(Behaviour, token).ConfigureAwait(false);
 				LOG.Information("Delete result: {0}", responseString);
 			}
 			// Make sure we remove it from the history, if no error occured
@@ -318,13 +321,11 @@ namespace GreenshotImgurPlugin
 		{
 			var creditsUri = new Uri(string.Format("{0}/credits.json", config.ApiUrl));
 
-			using (var client = HttpClientFactory.CreateHttpClient(NetworkConfig))
+			using (var client = HttpClientFactory.CreateHttpClient(Behaviour))
 			{
-				client.SetAuthorization("Client-ID", config.ClientId);
-				client.DefaultRequestHeaders.ExpectContinue = false;
 				var response = await client.GetAsync(creditsUri, token).ConfigureAwait(false);
-				await response.HandleErrorAsync(token: token).ConfigureAwait(false);
-				var creditsJson = await response.GetAsJsonAsync(token: token).ConfigureAwait(false);
+				await response.HandleErrorAsync(Behaviour, token).ConfigureAwait(false);
+				var creditsJson = await response.GetAsJsonAsync(Behaviour, token).ConfigureAwait(false);
 				if (creditsJson != null && creditsJson.ContainsKey("data"))
 				{
 					dynamic data = creditsJson.data;

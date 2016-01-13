@@ -648,7 +648,7 @@ namespace GreenshotPlugin.OAuth
 				}
 			}
 			string responseData;
-			using (var httpClient = HttpClientFactory.CreateHttpClient(NetworkConfig))
+			using (var httpClient = HttpClientFactory.CreateHttpClient(new HttpBehaviour { HttpSettings = NetworkConfig }))
 			{
 				httpClient.DefaultRequestHeaders.ExpectContinue = false;
 				// TODO: Auth headers could be passed/stored different, maybe only one httpclient pro session?
@@ -699,7 +699,7 @@ namespace GreenshotPlugin.OAuth
 
 				try
 				{
-					responseData = await responseMessage.GetAsStringAsync(true, token).ConfigureAwait(false);
+					responseData = await responseMessage.GetAsStringAsync(null, token).ConfigureAwait(false);
 					Log.Debug("Response: {0}", responseData);
 				}
 				catch (Exception ex)

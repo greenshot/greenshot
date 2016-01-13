@@ -146,7 +146,7 @@ namespace Greenshot.Helpers
 		private static async Task ProcessRssInfoAsync(Version currentVersion)
 		{
 			// Reset latest Greenshot
-			var rssFiles = await SourceForgeHelper.ReadRss().ConfigureAwait(false);
+			var rssFiles = await SourceForgeHelper.ReadRssAsync().ConfigureAwait(false);
 
 			if (rssFiles == null)
 			{

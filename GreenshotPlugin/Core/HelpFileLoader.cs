@@ -89,7 +89,7 @@ namespace GreenshotPlugin.Core
 				try
 				{
 					// Although a "HeadAsync" should be enough, this gives an OK when the SF-Database has problems.
-					await localizedContentUri.HeadAsync(true, token);
+					await localizedContentUri.HeadAsync(null, token);
 					return localizedContentUri;
 				}
 				catch
@@ -104,7 +104,7 @@ namespace GreenshotPlugin.Core
 			try
 			{
 				// Although a "HeadAsync" should be enough, this give an OK when the SF-Database has problems.
-				await ExtHelpUrl.HeadAsync(true, token);
+				await ExtHelpUrl.HeadAsync(null, token);
 				return ExtHelpUrl;
 			}
 			catch
