@@ -4,50 +4,14 @@ permalink: project-feed/
 <?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0">
   <channel>
-    <title>Greenshot - Screen Recorder</title>
+    <title>Greenshot</title>
     <link>https://getgreenshot.org</link>
-    <description><![CDATA[Files from Greenshot - Screen Recorder Greenshot is a lightweight screenshot software tool for Windows that quickly creates screenshots of a selected region, window, or full screen; you can even capture complete (scrolling) web pages from Internet Explorer. Greenshot easily annotates, highlights, or obfuscates parts of the screenshot. Greenshot also exports screenshots in various ways: save to file, send to printer, copy to clipboard, attach to e-mail, send Microsoft Office programs, or upload to photo sites like Flickr or Picasa. And Greenshot has a lot more options, to simplify the creation of, and work with, screenshots every day. Overall, Greenshot is easy to understand and configurable, that&#39;s why it is an efficient tool for project managers, software developers, technical writers, testers, and anyone else creating screenshots. ]]></description>
-    <pubDate>Wed, 18 Nov 2015 20:55:55 UT</pubDate>
-    <docs>http://blogs.law.harvard.edu/tech/rss</docs>
+    <description>Greenshot update feed</description>
     <item>
-      <title><![CDATA[/Greenshot/Greenshot 1.2/Greenshot-INSTALLER-1.2.8.12-RELEASE.exe]]></title>
+      <title>Greenshot-INSTALLER-1.2.8.12-RELEASE.exe</title>
       <link>http://sourceforge.net/projects/greenshot/files/Greenshot/Greenshot%201.2/Greenshot-INSTALLER-1.2.8.12-RELEASE.exe/download</link>
       <pubDate>Wed, 18 Nov 2015 20:54:27 UT</pubDate>
-    </item>
-    <item>
-      <title><![CDATA[/Greenshot/Greenshot 1.2/Greenshot_for_PortableApps_1.2.8.12-RELEASE.paf.exe]]></title>
-      <link>http://sourceforge.net/projects/greenshot/files/Greenshot/Greenshot%201.2/Greenshot_for_PortableApps_1.2.8.12-RELEASE.paf.exe/download</link>
-      <pubDate>Wed, 18 Nov 2015 20:54:27 UT</pubDate>
-    </item>
-    <item>
-      <title><![CDATA[/Greenshot/Greenshot 1.2/Greenshot-NO-INSTALLER-1.2.8.12-RELEASE.zip]]></title>
-      <link>http://sourceforge.net/projects/greenshot/files/Greenshot/Greenshot%201.2/Greenshot-NO-INSTALLER-1.2.8.12-RELEASE.zip/download</link>
-      <pubDate>Wed, 18 Nov 2015 20:54:27 UT</pubDate>
-    </item>
-    <item>
-      <title><![CDATA[/Greenshot/Greenshot 1.2/Greenshot-DEBUGSYMBOLS-1.2.6.12-RELEASE.zip]]></title>
-      <link>http://sourceforge.net/projects/greenshot/files/Greenshot/Greenshot%201.2/Greenshot-DEBUGSYMBOLS-1.2.6.12-RELEASE.zip/download</link>
-      <pubDate>Sun, 04 Oct 2015 21:17:38 UT</pubDate>
-    </item>
-    <item>
-      <title><![CDATA[/Greenshot/Greenshot 1.2/Greenshot_for_PortableApps_1.2.6.12-RELEASE.paf.exe]]></title>
-      <link>http://sourceforge.net/projects/greenshot/files/Greenshot/Greenshot%201.2/Greenshot_for_PortableApps_1.2.6.12-RELEASE.paf.exe/download</link>
-      <pubDate>Sun, 04 Oct 2015 21:17:38 UT</pubDate>
-    </item>
-    <item>
-      <title><![CDATA[/Greenshot/Greenshot 1.2/Greenshot-NO-INSTALLER-1.2.6.12-RELEASE.zip]]></title>
-      <link>http://sourceforge.net/projects/greenshot/files/Greenshot/Greenshot%201.2/Greenshot-NO-INSTALLER-1.2.6.12-RELEASE.zip/download</link>
-      <pubDate>Sun, 04 Oct 2015 21:17:38 UT</pubDate>
-    </item>
-    <item>
-      <title><![CDATA[/Greenshot/Greenshot 1.2/Greenshot-INSTALLER-1.2.6.12-RELEASE.exe]]></title>
-      <link>http://sourceforge.net/projects/greenshot/files/Greenshot/Greenshot%201.2/Greenshot-INSTALLER-1.2.6.12-RELEASE.exe/download</link>
-      <pubDate>Sun, 04 Oct 2015 21:17:38 UT</pubDate>
-    </item>
-    <item>
-      <title><![CDATA[/Greenshot/Greenshot 1.2/readme.txt]]></title>
-      <link>http://sourceforge.net/projects/greenshot/files/Greenshot/Greenshot%201.2/readme.txt/download</link>
-      <pubDate>Sun, 04 Oct 2015 21:17:38 UT</pubDate>
+	  <description>Greenshot installer 1.2.8.12</description>
     </item>
   </channel>
 </rss>
