@@ -1,25 +1,12 @@
 ---
-layout: post
+layout: post 
 status: publish
 published: true
 title: Introducing the brand new Greenshot Language Editor - translators wanted
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 465
-wordpress_url: http://getgreenshot.org/?p=465
 date: !binary |-
   MjAxMi0wOC0xMCAwOTozNTowOCArMDIwMA==
 date_gmt: !binary |-
   MjAxMi0wOC0xMCAwNzozNTowOCArMDIwMA==
-categories:
-- Releases
-- Translations
 tags:
 - translation
 - internationalization

@@ -3,26 +3,11 @@ layout: post
 status: publish
 published: true
 title: Second release candidate for Greenshot 1.2
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 1111
-wordpress_url: http://getgreenshot.org/?p=1111
-date: !binary |-
-  MjAxNC0xMS0xMSAyMjo1MDoyMyArMDEwMA==
-date_gmt: !binary |-
-  MjAxNC0xMS0xMSAyMDo1MDoyMyArMDEwMA==
-categories:
-- Releases
+
 tags:
 - release candidate
 - '1.2'
-comments: []
+
 ---
 <p>It's time for another release candidate for Greenshot 1.2. If you have tried the <a href="/2014/09/18/release-candidate-for-greenshot-1-2-available/">first release candidate</a>, you probably already saw some of the brand new features like the speech bubble tool in the editor. Thanks to the awesome users who came up with useful bug reports and suggestions we now have ironed out some things that were not working perfectly yet.</p>
 <p>But that's not all: a few small features have made it into the new release candidate also. </p>

@@ -4,22 +4,11 @@ status: publish
 published: true
 title: ! 'New Greenshot translations: Vietnamese, Korean, Arabic, Persian, Ukrainian
   and Portuguese'
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 310
-wordpress_url: http://getgreenshot.org/?p=310
 date: !binary |-
   MjAxMi0wMy0xMyAxODoyMDozMSArMDEwMA==
 date_gmt: !binary |-
   MjAxMi0wMy0xMyAxNjoyMDozMSArMDEwMA==
-categories:
-- Translations
+
 tags:
 - translation
 - internationalization

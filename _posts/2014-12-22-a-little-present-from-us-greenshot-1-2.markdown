@@ -3,28 +3,13 @@ layout: post
 status: publish
 published: true
 title: ! 'A little present from us: Greenshot 1.2'
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 1124
-wordpress_url: http://getgreenshot.org/?p=1124
-date: !binary |-
-  MjAxNC0xMi0yMiAyMjoyMTowNiArMDEwMA==
-date_gmt: !binary |-
-  MjAxNC0xMi0yMiAyMDoyMTowNiArMDEwMA==
-categories:
-- Releases
+
 tags:
 - release
 - translation
 - '1.2'
 - latvian
-comments: []
+
 
 ---
 <p><a href="/2014/12/22/a-little-present-from-us-greenshot-1-2/speech-bubbles/" rel="attachment wp-att-1127"><img src="/assets/wp-content/uploads/2014/12/speech-bubbles-300x276.png" alt="Speech bubbles in Greenshot editor" width="300" height="276" class="alignright size-medium wp-image-1127" /></a></p>

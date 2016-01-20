@@ -3,22 +3,11 @@ layout: post
 status: publish
 published: true
 title: First release candidate for Greenshot 1.0 is out
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 459
-wordpress_url: http://getgreenshot.org/?p=459
 date: !binary |-
   MjAxMi0wOC0xMCAwOTozNjowMCArMDIwMA==
 date_gmt: !binary |-
   MjAxMi0wOC0xMCAwNzozNjowMCArMDIwMA==
-categories:
-- Uncategorized
+
 tags:
 - release candidate
 - '1.0'

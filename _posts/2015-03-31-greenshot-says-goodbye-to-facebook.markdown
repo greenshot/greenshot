@@ -3,23 +3,13 @@ layout: post
 status: publish
 published: true
 title: ! 'Greenshot Says Goodbye to Facebook'
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 1124
-wordpress_url: http://getgreenshot.org/?p=1124
 
 
-categories:
-- Announcements
+
+
 tags:
 - facebook
-comments: []
+
 
 ---
 <p><img src="http://getgreenshot.org/wp-content/uploads/2015/03/greenshot-goodbye-facebook1.png" alt="greenshot-goodbye-facebook" class="alignright size-full wp-image-1146" height="294" width="278">When we started <a href="https://facebook.com/Greenshot.Tool" target="_blank">Greenshot’s Facebook page</a> back in 2009, it was a brilliant thing for us to have… obviously, a lot of our users were using Facebook as well, and it was a good way to send out project-specific updates to a peer that showed interest in Greenshot (i.e. liked the page). After all, RSS and Atom feeds are not for fancy enough for everyone – so it was a good idea to offer an alternative.</p>

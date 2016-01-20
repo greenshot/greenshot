@@ -3,26 +3,11 @@ layout: post
 status: publish
 published: true
 title: Constructive feedback is always welcome
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 770
-wordpress_url: http://getgreenshot.org/?p=770
-date: !binary |-
-  MjAxMy0wMi0wNyAwMDo0Mjo0MCArMDEwMA==
-date_gmt: !binary |-
-  MjAxMy0wMi0wNiAyMjo0Mjo0MCArMDEwMA==
-categories:
-- Announcements
+
 tags:
 - bugs
 - support
-comments: []
+
 ---
 <p>Dear Greenshot users,</p>
 <p>When you encounter problems with Greenshot or need any assistance, we are happy to help out as much as we can. However, to ensure that we can actually be helpful, we kindly ask you to provide the following details with your bug report / support request:</p>

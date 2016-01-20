@@ -3,26 +3,11 @@ layout: post
 status: publish
 published: true
 title: Greenshot 0.8.1 RC1 is available for download
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 277
-wordpress_url: http://getgreenshot.org/?p=277
-date: !binary |-
-  MjAxMS0wOC0yNSAyMDo0MToxNCArMDIwMA==
-date_gmt: !binary |-
-  MjAxMS0wOC0yNSAxODo0MToxNCArMDIwMA==
-categories:
-- Releases
+
 tags:
 - release
 - release candidate
-comments: []
+
 ---
 <p>We have just uploaded the first <strong>release candidate</strong> for the next Greenshot version, 0.8.1.<br />
 Thanks to Robin's tireless efforts, many bugs of version 0.8.0.0627 have been fixed, and some new features have been added as well.<br />

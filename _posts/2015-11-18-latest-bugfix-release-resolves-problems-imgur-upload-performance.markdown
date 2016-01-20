@@ -4,13 +4,12 @@ status: publish
 published: true
 title: ! 'Latest bugfix release resolves problems with Imgur upload and performance'
 
-categories:
-- releases
+
 tags:
 - 1.2
 - bugfix
 - release
-comments: []
+
 
 ---
 <p>We have recently published another bugfix release, fixing two annoying problems many of you might have encountered during the last days.</p>

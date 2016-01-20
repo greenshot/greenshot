@@ -4,13 +4,12 @@ status: publish
 published: true
 title: ! 'New bugfix release: Greenshot 1.2.5'
 
-categories:
-- releases
+
 tags:
 - 1.2
 - bugfix
 - release
-comments: []
+
 
 ---
 We have just uploaded a new bugfix release, available on our <a href="/downloads/">downloads page</a>. It fixes some bugs that have been reported since the last release, as well as translation updates provided by industrious users all around the world.

@@ -3,23 +3,8 @@ layout: faq
 status: publish
 published: true
 title: What exactly does the exe installer do?
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 880
-wordpress_url: http://getgreenshot.org/?post_type=faq&#038;p=880
-date: !binary |-
-  MjAxMy0wNC0xNiAyMTo0MDo0MCArMDIwMA==
-date_gmt: !binary |-
-  MjAxMy0wNC0xNiAxOTo0MDo0MCArMDIwMA==
-categories: []
 tags: []
-comments: []
+
 ---
 <p>The Exe Installer does the following things:</p>
 <ol>

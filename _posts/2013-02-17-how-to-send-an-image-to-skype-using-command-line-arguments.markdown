@@ -3,27 +3,12 @@ layout: post
 status: publish
 published: true
 title: How to send an image to Skype using command line arguments
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 792
-wordpress_url: http://getgreenshot.org/?p=792
-date: !binary |-
-  MjAxMy0wMi0xNyAxOTowNjowNiArMDEwMA==
-date_gmt: !binary |-
-  MjAxMy0wMi0xNyAxNzowNjowNiArMDEwMA==
-categories:
-- How-to
+
 tags:
 - skype
 - tools
 - plugins
-comments: []
+
 ---
 <p><a href="/2013/02/17/how-to-send-an-image-to-skype-using-command-line-arguments/2-select-skype-contact-2/" rel="attachment wp-att-849" title="Selecting the Skype recipient"><img src="/assets/wp-content/uploads/2013/02/2-select-skype-contact-300x230.png" alt="2-select-skype-contact" width="300" height="230" class="alignleft size-medium wp-image-849"  alt="Selecting the Skype recipient" /></a>You may have read our recent blog article about <a href="/2013/01/28/how-to-use-the-external-command-plugin-to-send-screenshots-to-other-applications/" title="How to use the External Command Plugin to send screenshots to other applications">how to connect Greenshot to other desktop applications using the external command plugin</a>.</p>
 <p>For most popular software, available command line parameters are well documented, so one can easily find out whether and how it is possible to send an image to it via command line arguments.</p>

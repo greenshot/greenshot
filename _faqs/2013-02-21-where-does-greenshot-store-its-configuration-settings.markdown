@@ -3,23 +3,8 @@ layout: faq
 status: publish
 published: true
 title: Where does Greenshot store its configuration settings?
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 818
-wordpress_url: http://getgreenshot.org/?post_type=faq&#038;p=818
-date: !binary |-
-  MjAxMy0wMi0yMSAyMTo0NTo1MCArMDEwMA==
-date_gmt: !binary |-
-  MjAxMy0wMi0yMSAxOTo0NTo1MCArMDEwMA==
-categories: []
 tags: []
-comments: []
+
 ---
 <p>Greenshot keeps its configuration in a file called Greenshot.ini.<br />
 Its storage location depends on which version of Greenshot you are using as well as your Windows version:</p>

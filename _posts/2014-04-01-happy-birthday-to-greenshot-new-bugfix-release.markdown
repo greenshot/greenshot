@@ -3,26 +3,11 @@ layout: post
 status: publish
 published: true
 title: Happy Birthday to Greenshot + New Bugfix Release 1.1.8
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 1088
-wordpress_url: http://getgreenshot.org/?p=1088
-date: !binary |-
-  MjAxNC0wNC0wMSAyMDo1MjowOSArMDIwMA==
-date_gmt: !binary |-
-  MjAxNC0wNC0wMSAxODo1MjowOSArMDIwMA==
-categories:
-- Releases
+
 tags:
 - release
 - '1.1'
-comments: []
+
 ---
 <p>Hey, did you know that Greenshot just had it's seventh anniversary? To celebrate it, we have just uploaded a new release of Greenshot, version 1.1.8. Join the party :)</p>
 <p>It mainly consists of bugfixes and small improvements, most notably improved clipboard support, configurable file naming for the Imgur plugin, as well as better readability when editing white or very bright text in the image editor.</p>

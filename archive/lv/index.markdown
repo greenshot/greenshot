@@ -3,20 +3,6 @@ layout: page
 status: publish
 published: true
 title: Home-LV
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 1122
-wordpress_url: http://getgreenshot.org/?page_id=1122
-date: !binary |-
-  MjAxNC0xMi0yMSAxOTo0ODowNyArMDEwMA==
-date_gmt: !binary |-
-  MjAxNC0xMi0yMSAxNzo0ODowNyArMDEwMA==
 categories: []
 tags: []
 comments: []

@@ -3,23 +3,8 @@ layout: faq
 status: publish
 published: true
 title: Greenshot uses x MB of my RAM, why is that?
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 817
-wordpress_url: http://getgreenshot.org/?post_type=faq&#038;p=817
-date: !binary |-
-  MjAxMy0wMi0xOSAyMToxNzoxNSArMDEwMA==
-date_gmt: !binary |-
-  MjAxMy0wMi0xOSAxOToxNzoxNSArMDEwMA==
-categories: []
 tags: []
-comments: []
+
 ---
 <p>Before talking about memory usage, let's make sure we are talking the same language: there are some points to notice, and a lot of things that are easily misunderstood.</p>
 <ol>

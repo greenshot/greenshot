@@ -3,22 +3,7 @@ layout: post
 status: publish
 published: true
 title: Greenshot now available in Swedish, Finnish, Greek and Hebrew language
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 271
-wordpress_url: http://getgreenshot.org/?p=271
-date: !binary |-
-  MjAxMS0wNC0yNCAxMzo0NjowOCArMDIwMA==
-date_gmt: !binary |-
-  MjAxMS0wNC0yNCAxMTo0NjowOCArMDIwMA==
-categories:
-- Translations
+
 tags:
 - translation
 - internationalization
@@ -26,7 +11,7 @@ tags:
 - hebrew
 - finnish
 - swedish
-comments: []
+
 ---
 <p>We have received a bunch of new translations from friendly users :)</p>
 <p>We are happy to announce that Greenshot translation files are now available for Swedish (Tack, Eric F.), Finnish (Kiitos, Jari Majaniemi), Greek (Χάρη, ΓΙΩΡΓΟ ΣΚΟΥΝΤΖΗ) and Hebrew (תודה, רן ששון).<br />

@@ -3,26 +3,11 @@ layout: post
 status: publish
 published: true
 title: Release candidate for Greenshot 1.2 available
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 1105
-wordpress_url: http://getgreenshot.org/?p=1105
-date: !binary |-
-  MjAxNC0wOS0xOCAyMTozNTo0OCArMDIwMA==
-date_gmt: !binary |-
-  MjAxNC0wOS0xOCAxOTozNTo0OCArMDIwMA==
-categories:
-- Releases
+
 tags:
 - release candidate
 - '1.2'
-comments: []
+
 ---
 <p>We have just uploaded the first release candidate for Greenshot 1.2. It fixes some bugs of the prior version, but, far more important, adds some features that have been requested very often... most notably, the Greenshot 1.2 editor will finally draw speech bubbles / callouts, auto-incrementing labels and offer the possibility to resize the screenshot.</p>
 <p>As usual, the disclaimer: "release candidate" means that this version has not gone through extensive testing yet. It might be buggy, so if you do not like surprises, we suggest to stick with version 1.1 until we have ironed out all issues and publish the stable release of version 1.2. In case you encounter any problems with the release candidate, please <a href="getgreenshot.org/tickets/">file a bug report</a> - thanks a lot.</p>

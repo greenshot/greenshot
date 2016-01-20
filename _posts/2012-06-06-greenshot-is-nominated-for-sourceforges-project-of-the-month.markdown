@@ -2,27 +2,11 @@
 layout: post
 status: publish
 published: true
-title: ! 'Update: Greenshot is nominated for Sourceforge''s Project of the Month'
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 447
-wordpress_url: http://getgreenshot.org/?p=447
-date: !binary |-
-  MjAxMi0wNi0wNiAyMTowNDoyOCArMDIwMA==
-date_gmt: !binary |-
-  MjAxMi0wNi0wNiAxOTowNDoyOCArMDIwMA==
-categories:
-- Announcements
+title: ! 'Up  MjAxMi0wNi0wNiAyMTowNDoyOCArMDIwMA==
 tags:
 - sourceforge
 - voting
-comments: []
+
 ---
 <p>Sourceforge.net has nominated Greenshot as among eight projects for the <a href="http://sourceforge.net/blog/vote-july-2012-potm/">Project of the Month</a>. We are proud to enter the voting together with popular software like Liferay Portal, KeePass Password Safe and SugarCRM.</p>
 <p>The voting is open for everyone, the only thing you need is a Twitter account, since the poll is created with Twtpoll. <del datetime="2012-07-06T19:37:36+00:00">We'd be happy if you <a href="http://twtpoll.com/b0zo1b">took part in the election</a> and voted for your favorite candidate.</del> [<strong>Update</strong>: Voting finished, see below.]</p>

@@ -3,25 +3,10 @@ layout: post
 status: publish
 published: true
 title: Why a free web needs advertising
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 954
-wordpress_url: http://getgreenshot.org/?p=954
-date: !binary |-
-  MjAxMy0wNS0zMCAyMDo0NjozMyArMDIwMA==
-date_gmt: !binary |-
-  MjAxMy0wNS0zMCAxODo0NjozMyArMDIwMA==
-categories:
-- Uncategorized
+
 tags:
 - website
-comments: []
+
 ---
 <p>First of all: we would like to thank everybody who already donated to Greenshot: <strong>thank you so much</strong>! Of course, we also appreciate people visiting our website without blocking ads.</p>
 <p>Maybe you wonder what we do with your donations and the advertising revenue? Or rather you are asking yourself “What the heck does a piece of <em>code</em> need money for?”. Well, free services and products like Greenshot need financial means to keep going, and unfortunately we aren't backed by a company that covers our costs. Actually, we need a lot of things to generate this piece of code; our expenses involve costs for hardware, software, electricity, telecommunication, to name just a few... even if these costs wouldn't exist, we would still work for free, in our spare time. And although we really enjoy developing Greenshot, it's not just the programming which needs to be done. We spend a large amount of time working on the tickets that are reported (bugs, questions, feature request etc.), social media, coordinating the translations, maintaining this website, etc.</p>

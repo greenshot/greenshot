@@ -5,23 +5,8 @@ published: true
 title: What is the best way to control Greenshot's configuration at install time?
 # override permalink for to keep old URLs intact
 permalink: /faq/what-is-the-best-way-to-control-greenshots-configuration-at-install-time/
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 877
-wordpress_url: http://getgreenshot.org/?post_type=faq&#038;p=877
-date: !binary |-
-  MjAxMy0wNC0xNiAyMDo0NjozNiArMDIwMA==
-date_gmt: !binary |-
-  MjAxMy0wNC0xNiAxODo0NjozNiArMDIwMA==
-categories: []
 tags: []
-comments: []
+
 ---
 <p>Greenshot offers several mechanisms for better control over its configuration, especially useful when deploying Greenshot to several computers, e.g. roll-out in a company.</p>
 <p>Greenshot looks for config files in the following locations (and accepts the first location it finds a config file in):</p>

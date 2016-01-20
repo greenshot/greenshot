@@ -3,28 +3,13 @@ layout: post
 status: publish
 published: true
 title: ! 'Promised: No Bundled Installers, No Toolbars, No Unfair Advertisements'
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 1063
-wordpress_url: http://getgreenshot.org/?p=1063
-date: !binary |-
-  MjAxMy0xMS0xOSAyMDo1OTo0NCArMDEwMA==
-date_gmt: !binary |-
-  MjAxMy0xMS0xOSAxODo1OTo0NCArMDEwMA==
-categories:
-- Uncategorized
+
 tags:
 - website
 - sourceforge
 - advertising
 - malware
-comments: []
+
 ---
 <p>As Greenshot is a free and open source project, we depend on donations and advertising to keep the project running. You probably know that already, since we published a blog post about our <a href="/2013/05/30/why-a-free-web-needs-advertising/">thoughts of advertising</a> not so long ago.</p>
 <p>Recently, some users told us that bundled stuff like browser toolbars etc. had been installed on their computer by what they <em>assumed</em> was the Greenshot installer, which would have surprised us a lot, since there are no bundled installers or similar annoyances in Greenshot. <strong>We are convinced that bundled installers are abusing the user's trust and therefore we strongly oppose to it, no matter how much money marketing companies pay for them.</strong> In dialog with our users and with some research we then found out that these issues actually had nothing to do with our installer at all.</p>

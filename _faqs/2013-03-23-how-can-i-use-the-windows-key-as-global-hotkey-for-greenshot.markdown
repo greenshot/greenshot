@@ -3,23 +3,8 @@ layout: faq
 status: publish
 published: true
 title: How can I use the Windows key as global hotkey for Greenshot?
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 862
-wordpress_url: http://getgreenshot.org/?post_type=faq&#038;p=862
-date: !binary |-
-  MjAxMy0wMy0yMyAxMDowNDo1MSArMDEwMA==
-date_gmt: !binary |-
-  MjAxMy0wMy0yMyAwODowNDo1MSArMDEwMA==
-categories: []
 tags: []
-comments: []
+
 ---
 <p>There are some special keys that are handled differently by Windows and therefore cannot be inserted into the hotkey configuration panel (Settings > Hotkeys) directly. E.g. this is the case with the <kbd>Windows</kbd> or <kbd>Pause</kbd> keys. However, you can still use them with Greenshot - you just have to edit Greenshot's configuration file manually in order to do so:</p>
 <ul>

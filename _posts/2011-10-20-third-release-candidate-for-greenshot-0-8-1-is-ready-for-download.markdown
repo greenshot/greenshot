@@ -3,27 +3,12 @@ layout: post
 status: publish
 published: true
 title: Third release candidate for Greenshot 0.8.1 is ready for download
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 284
-wordpress_url: http://getgreenshot.org/?p=284
-date: !binary |-
-  MjAxMS0xMC0yMCAwOToyNjoyOCArMDIwMA==
-date_gmt: !binary |-
-  MjAxMS0xMC0yMCAwNzoyNjoyOCArMDIwMA==
-categories:
-- Releases
+
 tags:
 - release
 - release candidate
 - 0.8.1
-comments: []
+
 ---
 <p>Greenshot 0.8.1 RC3 is now available for <a href="http://sourceforge.net/projects/greenshot/files%2FGreenshot%2FGreenshot%200.8%20beta%2FGreenshot-RC3-INSTALLER-0.8.1.1339.exe/download">download</a>. Thanks to everybody who has been testing the previous release candidates and provided feedback.</p>
 <p>Here is the list of resolved bugs and added features since the first release candidate. Feel free to download the new build and, as always, <a href="https://sourceforge.net/tracker/?group_id=191585&atid=937972&status=1">let us know</a> if you encounter problems with it.</p>

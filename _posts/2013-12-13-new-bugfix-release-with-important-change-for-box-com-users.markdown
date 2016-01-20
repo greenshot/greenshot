@@ -3,27 +3,12 @@ layout: post
 status: publish
 published: true
 title: New Bugfix Release with Important Change for Box.com Users
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 1076
-wordpress_url: http://getgreenshot.org/?p=1076
-date: !binary |-
-  MjAxMy0xMi0xMyAxOTozOTo0MSArMDEwMA==
-date_gmt: !binary |-
-  MjAxMy0xMi0xMyAxNzozOTo0MSArMDEwMA==
-categories:
-- Releases
+
 tags:
 - release
 - bugfix
 - '1.1'
-comments: []
+
 ---
 <p>So here is another release in 2013 - probably the last one ;-) Important especially for those using Greenshot's Box plugin to send screenshots directly to Box.co. Box.com is applying a breaking change to the authentication API on December 13th, which means that the Box plugin released with Greenshot 1.1.6 will no longer work - we have changed the plugin to work with the new API as of Greenshot 1.1.7.</p>
 <p>There are also some bug fixes, especially we got rid of an annoying problem with screenshots being exported to the wrong Word document.<br />

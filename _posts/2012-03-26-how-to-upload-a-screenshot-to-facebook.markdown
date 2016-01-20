@@ -3,28 +3,13 @@ layout: post
 status: publish
 published: true
 title: ! 'Updated: How to upload a screenshot to Facebook'
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 328
-wordpress_url: http://getgreenshot.org/?p=328
-date: !binary |-
-  MjAxMi0wMy0yNiAxNjowNjo1OCArMDIwMA==
-date_gmt: !binary |-
-  MjAxMi0wMy0yNiAxNDowNjo1OCArMDIwMA==
-categories:
-- How-to
+
 tags:
 - screenshot
 - facebook
 - upload
 - social media
-comments: []
+
 ---
 <p><strong>Updated 2013/07/29:</strong> <i>Facebook has changed where to find the settings described below. Updated the link to display the current information from Facebook's Help Center.</i></p>
 <p>If you want to share screenshots via Facebook, there is an easy way to do so with Greenshot: simply use the so-called post-by-email address Facebook has set up for you.</p>

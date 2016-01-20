@@ -5,23 +5,8 @@ published: true
 title: Where can I find Greenshot's log file?
 # override permalink for to keep old URLs intact
 permalink: /faq/where-can-i-find-greenshots-log-file/
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 858
-wordpress_url: http://getgreenshot.org/?post_type=faq&#038;p=858
-date: !binary |-
-  MjAxMy0wMy0wNCAyMjozMTo1MSArMDEwMA==
-date_gmt: !binary |-
-  MjAxMy0wMy0wNCAyMDozMTo1MSArMDEwMA==
-categories: []
 tags: []
-comments: [] 
+ 
 ---
 <p>In case you encounter things not working as expected in Greenshot, the log file might help use to help you: it hopefully contains some information on what went wrong, and maybe even why.<br />
 Greenshot's log file is called Greenshot.log. Depending on which version of Greenshot you are using on which version of Windows, the log file can be found in one of the following directories:</p>

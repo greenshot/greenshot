@@ -3,28 +3,13 @@ layout: post
 status: publish
 published: true
 title: Greenshot featured on c't software collection
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 262
-wordpress_url: http://getgreenshot.org/?p=262
-date: !binary |-
-  MjAxMC0xMC0wMyAxMDo0MDowMCArMDIwMA==
-date_gmt: !binary |-
-  MjAxMC0xMC0wMyAwODo0MDowMCArMDIwMA==
-categories:
-- Announcements
+
 tags:
 - '0.8'
 - magazine
 - press
 - media
-comments: []
+
 ---
 <p>Wow :) We're happy to see that Version 0.8 of Greenshot is part of the c't magazine's current edition of software collection on CD. (c't is one of the most popular professional computer magazines in German speaking countries, just in case you should not know it.)</p>
 <p>The c't software collection 6/10 offers 88 software tools, most of them about editing photos and other images, among those: one tool for taking screenshots :)</p>

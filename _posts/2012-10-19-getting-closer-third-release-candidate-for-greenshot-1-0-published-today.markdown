@@ -4,22 +4,11 @@ status: publish
 published: true
 title: ! 'Updated: Getting closer... third release candidate for Greenshot 1.0 published
   today'
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 568
-wordpress_url: http://getgreenshot.org/?p=568
 date: !binary |-
   MjAxMi0xMC0xOSAxNjo0ODoxNyArMDIwMA==
 date_gmt: !binary |-
   MjAxMi0xMC0xOSAxNDo0ODoxNyArMDIwMA==
-categories:
-- Releases
+
 tags:
 - release candidate
 - '1.0'

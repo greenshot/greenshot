@@ -3,26 +3,13 @@ layout: post
 status: publish
 published: true
 title: ! 'Greenshot 1.1 is available: Introducing the Capture Zoom'
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 960
-wordpress_url: http://getgreenshot.org/?p=960
-date: !binary |-
-  MjAxMy0wNS0wNyAyMzoyNDozNiArMDIwMA==
-date_gmt: !binary |-
-  MjAxMy0wNS0wNyAyMToyNDozNiArMDIwMA==
+
 tags:
 - release
 - features
 - '1.1'
 - zoom
-comments: []
+
 ---
 <p>You may have noticed that we have been busy with <a href="/2013/04/30/getting-closer-third-release-candidate-for-greenshot-1-1-indonesian-translation/">release candidates</a> in the last few weeks. Now, after three release candidates, the few issues that existend seem to be sorted out, so that Greenshot 1.1 is available for download now.</p>
 <p><a href="/assets/wp-content/uploads/2013/05/greenshot-capture-zoom.png"><img src="/assets/wp-content/uploads/2013/05/greenshot-capture-zoom-300x250.png" alt="Greenshot&#039;s capture zoom feature" width="300" height="250" class="alignright size-medium wp-image-971" /></a>Greenshot 1.1 includes one of the recently most requested features: the new <strong>capture zoom</strong> is very helpful while selecting a region to capture: it displays a magnified view of the area around the cursor, making it easy to select pixel-exact regions, no matter how tiny they are. The zoom view is flexible enough to stay out of your way as you move the cursor on the screen, but in case you do not want or need it, you can either toggle it off/on easily during capture region selection by hitting the <kbd>Z</kbd> key, or disable/enable it in the settings.</p>

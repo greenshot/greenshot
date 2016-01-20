@@ -3,25 +3,10 @@ layout: post
 status: publish
 published: true
 title: How to Upload Screenshots to a Web Server via FTP, SCP or SFTP
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 1032
-wordpress_url: http://getgreenshot.org/?p=1032
-date: !binary |-
-  MjAxMy0xMS0wNyAwMDoxNzoxOCArMDEwMA==
-date_gmt: !binary |-
-  MjAxMy0xMS0wNiAyMjoxNzoxOCArMDEwMA==
-categories:
-- How-to
+
 tags:
 - plugin
-comments: []
+
 ---
 <p><img src="/assets/wp-content/uploads/2013/11/winscp-logo.gif" alt="WinSCP logo" width="64" height="64" class="alignleft size-full wp-image-1041" /> <strong>Ever needed to upload screenshots directly to a server using the FTP, SCP or SFTP protocol? Actually it is quite easy to harness WinSCP's great scripting capabilities with Greenshot's flexible external command plugin. This blog post provides a simple WinSCP upload script and explains how to make Greenshot call the script to upload your screenshot.</strong></p>
 <p>Sidenote: we know, a specialized plugin for this would be a nice thing to have. A WinSCP plugin is definitely near the top of our todo list, but it probably will not be available before <a href="/2013/10/16/current-development-status-future-plans/">Greenshot 2.0</a>. So in the meantime the following method is a good alternative.</p>

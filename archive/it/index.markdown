@@ -3,20 +3,6 @@ layout: page
 status: publish
 published: true
 title: Home-IT
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 557
-wordpress_url: http://getgreenshot.org/?page_id=557
-date: !binary |-
-  MjAxMi0wOS0yMCAxOTozOTo0NCArMDIwMA==
-date_gmt: !binary |-
-  MjAxMi0wOS0yMCAxNzozOTo0NCArMDIwMA==
 categories: []
 tags: []
 comments: []

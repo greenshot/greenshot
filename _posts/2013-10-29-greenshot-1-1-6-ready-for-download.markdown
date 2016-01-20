@@ -3,27 +3,12 @@ layout: post
 status: publish
 published: true
 title: Greenshot 1.1.6 is ready for download
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 1019
-wordpress_url: http://getgreenshot.org/?p=1019
-date: !binary |-
-  MjAxMy0xMC0yOSAyMTozNToxMCArMDEwMA==
-date_gmt: !binary |-
-  MjAxMy0xMC0yOSAxOTozNToxMCArMDEwMA==
-categories:
-- Releases
+
 tags:
 - release
 - bugfix
 - '1.1'
-comments: []
+
 ---
 <p><a href="http://getgreenshot.org/2013/10/16/current-development-status-future-plans/" title="Current Development Status and Plans for the Future">Not so long ago we have announced</a> that Greenshot 1.1.6 is near, today it is here :)</p>
 <p>It includes a few new features/improvements but is mainly a bugfix release, fixing some issues that have been reported for the previous version, especially for those who were having problems with Greenshot "forgetting" their settings now and then and for two problems that occurring when exporting screenshots to Microsoft Office.</p>

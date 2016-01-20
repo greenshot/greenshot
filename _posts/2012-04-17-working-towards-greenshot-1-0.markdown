@@ -3,26 +3,11 @@ layout: post
 status: publish
 published: true
 title: Working towards Greenshot 1.0
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 421
-wordpress_url: http://getgreenshot.org/?p=421
-date: !binary |-
-  MjAxMi0wNC0xNyAxODowNTo1OSArMDIwMA==
-date_gmt: !binary |-
-  MjAxMi0wNC0xNyAxNjowNTo1OSArMDIwMA==
-categories:
-- Announcements
+
 tags:
 - release
 - '1.0'
-comments: []
+
 ---
 <p>If you have been following the published <a href="/version-history/">unstable versions and release candidates of Greenshot</a> you might be wondering "What has happened to Version 0.8.1? There have been several release candidates some time ago... when will it finally be released?"</p>
 <p>Well, there's bad news and good news. The bad news is that there won't be a 0.8.1 release at all. The good news... no... the really awesome news is: we will release <strong>Greenshot 1.0</strong> soon! Yay!</p>

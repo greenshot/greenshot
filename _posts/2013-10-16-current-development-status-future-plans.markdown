@@ -3,28 +3,13 @@ layout: post
 status: publish
 published: true
 title: Current Development Status and Plans for the Future
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 1001
-wordpress_url: http://getgreenshot.org/?p=1001
-date: !binary |-
-  MjAxMy0xMC0xNiAyMTo1MTo1NiArMDIwMA==
-date_gmt: !binary |-
-  MjAxMy0xMC0xNiAxOTo1MTo1NiArMDIwMA==
-categories:
-- Announcements
+
 tags:
 - '1.1'
 - '2.0'
 - windows
 - .net
-comments: []
+
 ---
 <p>So what have we been up to? You might have heard little of us, but this doesn't mean we were sleeping!</p>
 <p>Of course we were working on Greenshot 1.1.6, we fixed some mean bugs and even managed to squeeze in a few small features! We will release the new version within the next few days, so stay tuned :)</p>

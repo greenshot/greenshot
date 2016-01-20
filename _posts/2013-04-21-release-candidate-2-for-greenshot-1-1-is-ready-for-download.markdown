@@ -3,26 +3,11 @@ layout: post
 status: publish
 published: true
 title: ! 'Release candidate #2 for Greenshot 1.1 is ready for download'
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 881
-wordpress_url: http://getgreenshot.org/?p=881
-date: !binary |-
-  MjAxMy0wNC0yMSAyMzo0NDo0NiArMDIwMA==
-date_gmt: !binary |-
-  MjAxMy0wNC0yMSAyMTo0NDo0NiArMDIwMA==
-categories:
-- Releases
+
 tags:
 - release candidate
 - '1.1'
-comments: []
+
 ---
 <p>Just a short notice that we have published the second release candidate for version 1.1 of Greenshot today. It does not only fix bugs reported with the previous release candidate, but also has two additional features:</p>
 <ul>

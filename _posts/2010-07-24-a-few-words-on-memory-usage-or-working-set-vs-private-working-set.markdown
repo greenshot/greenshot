@@ -3,28 +3,13 @@ layout: post
 status: publish
 published: true
 title: ! 'A few words on memory usage or: working set vs. private working set'
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 205
-wordpress_url: http://getgreenshot.org/?p=205
-date: !binary |-
-  MjAxMC0wNy0yNCAxNjowNDowNyArMDIwMA==
-date_gmt: !binary |-
-  MjAxMC0wNy0yNCAxNDowNDowNyArMDIwMA==
-categories:
-- Uncategorized
+
 tags:
 - memory
 - ram
 - working set
 - performance
-comments: []
+
 ---
 <p>Every once in a while, we read statements like "Woah, the task manager says my Greenshot installation takes x MB of RAM when it is idle! Why does Greenshot need so much memory?"</p>
 <p>Actually, it does not. Please do not judge any software by what the task manager says. Of course, the task manager is not lying to you; but its presentation of facts is rather misleading.</p>

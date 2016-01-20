@@ -3,26 +3,11 @@ layout: post
 status: publish
 published: true
 title: 5th Release Candidate for Greenshot 1.0 is ready for Download
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 590
-wordpress_url: http://getgreenshot.org/?p=590
-date: !binary |-
-  MjAxMi0xMC0yNyAxNjowNDoxOSArMDIwMA==
-date_gmt: !binary |-
-  MjAxMi0xMC0yNyAxNDowNDoxOSArMDIwMA==
-categories:
-- Releases
+
 tags:
 - release candidate
 - '1.0'
-comments: []
+
 ---
 <p>We have just uploaded the fifth release candidate for Greenshot 1.0 - the new version contains a few bugfixes, for details have a look at the changelog at the end of this entry.</p>
 <p>As always, please give us feedback if you have any problems. We are confident that (unless a serious bug is found in this release candidate) we will be ready for the final release of Greenshot 1.0 within the next few days. We are looking forward to this :)</p>

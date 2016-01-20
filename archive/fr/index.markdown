@@ -3,20 +3,6 @@ layout: page
 status: publish
 published: true
 title: Home-FR
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 546
-wordpress_url: http://getgreenshot.org/?page_id=546
-date: !binary |-
-  MjAxMi0wOS0xOSAyMzowODo0NyArMDIwMA==
-date_gmt: !binary |-
-  MjAxMi0wOS0xOSAyMTowODo0NyArMDIwMA==
 categories: []
 tags: []
 comments: []

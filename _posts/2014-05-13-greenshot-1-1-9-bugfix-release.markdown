@@ -3,26 +3,11 @@ layout: post
 status: publish
 published: true
 title: Greenshot 1.1.9 Bugfix Release
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 1097
-wordpress_url: http://getgreenshot.org/?p=1097
-date: !binary |-
-  MjAxNC0wNS0xMyAyMToxOTowMiArMDIwMA==
-date_gmt: !binary |-
-  MjAxNC0wNS0xMyAxOToxOTowMiArMDIwMA==
-categories:
-- Releases
+
 tags:
 - release
 - '1.1'
-comments: []
+
 ---
 <p>A new version of Greenshot is available for download, containing bug fixes and small improvements. Most notably, we have</p>
 <ul>

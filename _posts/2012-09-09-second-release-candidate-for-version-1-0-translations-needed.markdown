@@ -3,22 +3,11 @@ layout: post
 status: publish
 published: true
 title: Second release candidate for version 1.0 - translations needed
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 518
-wordpress_url: http://getgreenshot.org/?p=518
 date: !binary |-
   MjAxMi0wOS0wOSAyMTo0NDo1MSArMDIwMA==
 date_gmt: !binary |-
   MjAxMi0wOS0wOSAxOTo0NDo1MSArMDIwMA==
-categories:
-- Releases
+
 tags:
 - translation
 - release candidate

@@ -3,23 +3,8 @@ layout: faq
 status: publish
 published: true
 title: In which cases should I use the ZIP package instead of the installer?
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 878
-wordpress_url: http://getgreenshot.org/?post_type=faq&#038;p=878
-date: !binary |-
-  MjAxMy0wNC0xNiAyMTowNDowMSArMDIwMA==
-date_gmt: !binary |-
-  MjAxMy0wNC0xNiAxOTowNDowMSArMDIwMA==
-categories: []
 tags: []
-comments: []
+
 ---
 <p>The majority of users will be happy to use the exe installer. We recommend to do so, it is the easiest way to get started.<br />
 However, there a some use cases in which you might prefer the ZIP version:</p>

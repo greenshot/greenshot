@@ -3,20 +3,6 @@ layout: page
 status: publish
 published: true
 title: Ayuda de Greenshot
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 382
-wordpress_url: http://getgreenshot.org/
-date: !binary |-
-  MjAxMi0wNC0wOCAxOTo1MTowOCArMDIwMA==
-date_gmt: !binary |-
-  MjAxMi0wNC0wOCAxNzo1MTowOCArMDIwMA==
 categories: []
 tags: []
 comments: []

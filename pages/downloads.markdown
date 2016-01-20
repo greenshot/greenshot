@@ -4,20 +4,6 @@ status: publish
 published: true
 title: Downloads
 permalink: /downloads/
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 5
-wordpress_url: http://getgreenshot.org/blog/
-date: !binary |-
-  MjAxMC0wNi0xOSAyMjozMzozNSArMDIwMA==
-date_gmt: !binary |-
-  MjAxMC0wNi0xOSAyMDozMzozNSArMDIwMA==
 categories: []
 comments: []
 tags: menu

@@ -3,22 +3,11 @@ layout: post
 status: publish
 published: true
 title: Greenshot 1.0 is finally available for download now!
-author:
-  display_name: greenshot
-  login: admin
-  email: greenshot-developers@lists.sourceforge.net
-  url: http://getgreenshot.org/
-author_login: admin
-author_email: greenshot-developers@lists.sourceforge.net
-author_url: http://getgreenshot.org/
-wordpress_id: 606
-wordpress_url: http://getgreenshot.org/?p=606
 date: !binary |-
   MjAxMi0xMC0zMCAyMTowMTowMCArMDEwMA==
 date_gmt: !binary |-
   MjAxMi0xMC0zMCAxOTowMTowMCArMDEwMA==
-categories:
-- Releases
+
 tags:
 - release
 - '1.0'

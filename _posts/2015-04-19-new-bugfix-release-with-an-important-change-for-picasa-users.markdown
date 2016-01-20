@@ -4,13 +4,12 @@ status: publish
 published: true
 title: ! 'New Bugfix Release with an Important Change for Picasa Users'
 
-categories:
-- releases
+
 tags:
 - 1.2
 - bugfix
 - release
-comments: []
+
 
 ---
 <p>So here is another bugfix release, important especially for those using Greenshot’s Picasa plugin to send screenshots directly to Picasa. Google is deprecating the OAuth 1.x authentication API on the 20th of April, which means that the Picasa plugin released with Greenshot 1.2.5 will no longer work – we have changed the plugin to work with the new API as of Greenshot 1.2.6.</p>
