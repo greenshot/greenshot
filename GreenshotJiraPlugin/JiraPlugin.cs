@@ -89,18 +89,21 @@ namespace GreenshotJiraPlugin
 		public Task StartAsync(CancellationToken token = new CancellationToken())
 		{
 			// Make sure the InitializeMonitor is called after the message loop is initialized!
-			GreenshotHost.GreenshotForm.AsyncInvoke(InitializeMonitor);
-			return Task.FromResult(true);
+			return Task.Factory.StartNew(async () =>
+			{
+				await InitializeMonitor();
+			}, token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+			//GreenshotHost.GreenshotForm.AsyncInvoke(InitializeMonitor);
 		}
 
-		private void InitializeMonitor()
+		private async Task InitializeMonitor()
 		{
 			_jiraMonitor?.Dispose();
 			if (!string.IsNullOrEmpty(JiraConfiguration.Password))
 			{
 				_jiraMonitor = new JiraMonitor();
 				// Async call, will continue in the background!
-				var backgroundTask = _jiraMonitor.AddJiraInstanceAsync(new Uri(JiraConfiguration.RestUrl.TrimEnd('/')), JiraConfiguration.Username, JiraConfiguration.Password).ConfigureAwait(false);
+				await _jiraMonitor.AddJiraInstanceAsync(new Uri(JiraConfiguration.RestUrl.TrimEnd('/')), JiraConfiguration.Username, JiraConfiguration.Password);
 				if (_jiraDestination == null)
 				{
 					_jiraDestination = new JiraDestination();
@@ -118,7 +121,7 @@ namespace GreenshotJiraPlugin
 		{
 			if (ShowConfigDialog())
 			{
-				InitializeMonitor();
+				Task.Factory.StartNew(() => InitializeMonitor());
 			}
 		}
 

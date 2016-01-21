@@ -106,11 +106,11 @@ namespace GreenshotOfficePlugin.Destinations
 		/// <returns>Task</returns>
 		public override Task RefreshAsync(IExportContext caller1, CancellationToken token = default(CancellationToken))
 		{
-			Children.Clear();
 			return Task.Factory.StartNew(
 				// this will use current synchronization context
 				() =>
 				{
+					Children.Clear();
 					var inspectorCaptions = OutlookExporter.RetrievePossibleTargets();
 					if (inspectorCaptions == null)
 					{

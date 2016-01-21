@@ -136,11 +136,15 @@ namespace GreenshotJiraPlugin
 			jiraInstance.SetBasicAuthentication(username, password);
 
 			_jiraInstances.Add(jiraInstance);
-			foreach (var project in await jiraInstance.Projects(token).ConfigureAwait(false))
+			var projects = await jiraInstance.Projects(token);
+			if (projects != null)
 			{
-				if (!_projectJiraApiMap.ContainsKey(project.key))
+				foreach (var project in projects)
 				{
-					_projectJiraApiMap.Add(project.key, jiraInstance);
+					if (!_projectJiraApiMap.ContainsKey(project.key))
+					{
+						_projectJiraApiMap.Add(project.key, jiraInstance);
+					}
 				}
 			}
 		}
@@ -186,8 +190,6 @@ namespace GreenshotJiraPlugin
 			// Remove for emails:
 			title = title.Replace("[JIRA]", "");
 			title = Regex.Replace(title, string.Format(@"^[^a-zA-Z0-9]*{0}[^a-zA-Z0-9]*", jiraKey), "");
-
-
 			title = Regex.Replace(title, "^[^a-zA-Z0-9]*(.*)[^a-zA-Z0-9]*$", "$1");
 			return title;
 		}

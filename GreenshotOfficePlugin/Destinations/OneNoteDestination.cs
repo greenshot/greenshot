@@ -98,11 +98,11 @@ namespace GreenshotOfficePlugin.Destinations
 		/// <returns>Task</returns>
 		public override async Task RefreshAsync(IExportContext caller1, CancellationToken token = default(CancellationToken))
 		{
-			Children.Clear();
 			await Task.Factory.StartNew(
 				// this will use current synchronization context
 				() =>
 				{
+					Children.Clear();
 					foreach (var page in OneNoteExporter.GetPages())
 					{
 						var oneNoteDestination = new OneNoteDestination

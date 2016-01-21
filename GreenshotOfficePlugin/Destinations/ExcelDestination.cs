@@ -101,11 +101,11 @@ namespace GreenshotOfficePlugin.Destinations
 		/// <returns>Task</returns>
 		public override Task RefreshAsync(IExportContext caller1, CancellationToken token = default(CancellationToken))
 		{
-			Children.Clear();
 			return Task.Factory.StartNew(
 				// this will use current synchronization context
 				() =>
 				{
+					Children.Clear();
 					foreach (var workbook in ExcelExporter.GetWorkbooks().OrderBy(x => x))
 					{
 						var excelDestination = new ExcelDestination

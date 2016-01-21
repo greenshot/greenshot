@@ -83,30 +83,31 @@ namespace Greenshot.Destinations
 		/// <returns>Task</returns>
 		public override Task RefreshAsync(IExportContext caller1, CancellationToken token = default(CancellationToken))
 		{
-			Children.Clear();
-
-			var settings = new PrinterSettings();
-			string defaultPrinter = settings.PrinterName;
-			var printers = PrinterSettings.InstalledPrinters.Cast<string>().OrderBy(x => x).ToList();
-			var defaultIndex = printers.IndexOf(defaultPrinter);
-			if (defaultIndex > 0)
+			return Task.Factory.StartNew(() =>
 			{
-				printers.RemoveAt(defaultIndex);
-				printers.Insert(0, defaultPrinter);
-			}
-			foreach (var printer in printers)
-			{
-				var printerDestination = new PrinterDestination
+				Children.Clear();
+				var settings = new PrinterSettings();
+				string defaultPrinter = settings.PrinterName;
+				var printers = PrinterSettings.InstalledPrinters.Cast<string>().OrderBy(x => x).ToList();
+				var defaultIndex = printers.IndexOf(defaultPrinter);
+				if (defaultIndex > 0)
 				{
-					Text = printer,
-					Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, printer, exportToken),
-					Icon = PrinterIcon,
-					CoreConfiguration = CoreConfiguration,
-					GreenshotLanguage = GreenshotLanguage
-				};
-				Children.Add(printerDestination);
-			}
-			return Task.FromResult(true);
+					printers.RemoveAt(defaultIndex);
+					printers.Insert(0, defaultPrinter);
+				}
+				foreach (var printer in printers)
+				{
+					var printerDestination = new PrinterDestination
+					{
+						Text = printer,
+						Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, printer, exportToken),
+						Icon = PrinterIcon,
+						CoreConfiguration = CoreConfiguration,
+						GreenshotLanguage = GreenshotLanguage
+					};
+					Children.Add(printerDestination);
+				}
+			}, token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
 		}
 
 		private async Task<INotification> ExportCaptureAsync(ICapture capture, string printerName, CancellationToken token = default(CancellationToken))

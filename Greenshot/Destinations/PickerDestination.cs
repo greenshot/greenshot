@@ -83,7 +83,9 @@ namespace Greenshot.Destinations
 			using (var exportWindowContext = ExportWindowFactory.CreateExport())
 			{
 				var exportWindow = exportWindowContext.Value;
-                exportWindow.Capture = capture;
+				exportWindow.Capture = capture;
+				Task showTask = exportWindow.ShowAndAwaitSelection();
+
 				foreach (var destination in Destinations.Where(destination => destination.Metadata.Name != PickerDesignation))
 				{
 					exportWindow.Children.Add(destination.Value);
@@ -93,8 +95,12 @@ namespace Greenshot.Destinations
 				do
 				{
 					exportWindow.SelectedDestination = null;
-
-                    await exportWindow.ShowAndAwaitSelection();
+					if (showTask == null)
+					{
+						showTask = exportWindow.ShowAndAwaitSelection();
+					}
+                    await showTask;
+					showTask = null;
 					if (exportWindow.SelectedDestination == null)
 					{
 						break;
