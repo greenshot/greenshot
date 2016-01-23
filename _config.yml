@@ -13,7 +13,7 @@ openhub_project: greenshot
 
 # TODO change to index,follow before going live, also remove robots.txt
 metarobots: noindex, nofollow
-
+ 
 collections:
   faqs:
     output: true
