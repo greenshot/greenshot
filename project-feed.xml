@@ -7,11 +7,16 @@ permalink: project-feed/
     <title>Greenshot</title>
     <link>https://getgreenshot.org</link>
     <description>Greenshot update feed</description>
-    <item>
-      <title>Greenshot-INSTALLER-1.2.8.12-RELEASE.exe</title>
-      <link>http://sourceforge.net/projects/greenshot/files/Greenshot/Greenshot%201.2/Greenshot-INSTALLER-1.2.8.12-RELEASE.exe/download</link>
-      <pubDate>Wed, 18 Nov 2015 20:54:27 UT</pubDate>
-	  <description>Greenshot installer 1.2.8.12</description>
-    </item>
+    {% for release in site.github.releases %}
+	    <item>
+   	   <title>{{release.name}}</title>
+   	   {% for asset in release.assets %}
+   	   	 {{asset.content_type}} 
+      			<link>{{asset.browser_download_url}}</link>
+			{% endfor %}
+      	<pubDate>{{published}}</pubDate>
+	  		<description>{{body}}</description>
+    	</item>
+    {% endfor %}
   </channel>
 </rss>
