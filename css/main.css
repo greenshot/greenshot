@@ -199,8 +199,12 @@ a.cta:hover {
 
 @media only screen and (min-width: 1000px) {
 	
+	nav, .header-ad, .servicelinks {
+		right: 200px;
+	}
+	
 	.content-wrapper {
-		width: 960px;
+		width: 1160px;
 		margin: 0 auto;
 	}
 	.body-content, .body-ad {
@@ -210,9 +214,9 @@ a.cta:hover {
 		width: 960px;
 	}
 	.body-ad {
-		position:absolute;
-		top:0;
-		right:-200px;
+		position: absolute;
+		top: 0;
+		right: 0px;
 		width: 180px;
 		overflow: visible;
 	}
