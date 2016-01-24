@@ -94,7 +94,7 @@ namespace GreenshotBoxPlugin
 								multiPartContent.Add(streamContent);
 								using (var responseMessage = await httpClient.PostAsync(UploadFileUri, multiPartContent, token))
 								{
-									response = await responseMessage.GetAsJsonAsync(token: token);
+									response = await responseMessage.GetAsAsync<dynamic>(token: token);
 								}
 							}
 						}
@@ -122,7 +122,7 @@ namespace GreenshotBoxPlugin
 						var content = new StringContent(updateAcces.ToString(), Encoding.UTF8);
 						using (var responseMessage = await httpClient.PutAsync(uri, content, token))
 						{
-							var file = await responseMessage.GetAsJsonAsync(token: token);
+							var file = await responseMessage.GetAsAsync<dynamic>(token: token);
 							return file.shared_link.url;
 						}
 					}

@@ -29,6 +29,7 @@ using System.Drawing;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.HttpExtensions.Factory;
 
 namespace GreenshotPlugin.OAuth
 {
@@ -70,7 +71,7 @@ namespace GreenshotPlugin.OAuth
 			dynamic refreshTokenResult;
 			using (var responseMessage = await settings.TokenUrl.PostFormUrlEncodedAsync(data, null, token))
 			{
-				refreshTokenResult = await responseMessage.GetAsJsonAsync(null, token);
+				refreshTokenResult = await responseMessage.GetAsAsync<dynamic>(null, token);
 			}
 			if (refreshTokenResult.ContainsKey("error"))
 			{
@@ -117,7 +118,7 @@ namespace GreenshotPlugin.OAuth
 			dynamic accessTokenResult;
 			using (var responseMessage = await settings.TokenUrl.PostFormUrlEncodedAsync(data, null, token))
 			{
-				accessTokenResult = await responseMessage.GetAsJsonAsync(token: token);
+				accessTokenResult = await responseMessage.GetAsAsync<dynamic>(token: token);
 			}
 
 			if (accessTokenResult.ContainsKey("error"))
@@ -298,7 +299,7 @@ namespace GreenshotPlugin.OAuth
 		{
 			await CheckAndAuthenticateOrRefreshAsync(settings, token).ConfigureAwait(false);
 
-			var httpClient = HttpClientFactory.CreateHttpClient(new HttpBehaviour { HttpSettings = NetworkConfig });
+			var httpClient = HttpClientFactory.Create(new HttpBehaviour { HttpSettings = NetworkConfig });
 			if (!string.IsNullOrEmpty(settings.AccessToken))
 			{
 				httpClient.SetBearer(settings.AccessToken);

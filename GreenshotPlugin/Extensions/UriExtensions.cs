@@ -50,7 +50,7 @@ namespace GreenshotPlugin.Extensions
 				string content;
 				using (var response = await uri.GetAsync(token: token))
 				{
-					using (var stream = await response.GetAsMemoryStreamAsync(token: token))
+					using (var stream = await response.GetAsAsync<MemoryStream>(token: token))
 					{
 						try
 						{
@@ -76,12 +76,12 @@ namespace GreenshotPlugin.Extensions
 				var match = imageUrlRegex.Match(content);
 				if (match.Success)
 				{
-					Uri contentUri = new Uri(match.Value);
+					var contentUri = new Uri(match.Value);
 					using (var response = await contentUri.GetAsync(token: token))
 					{
-						using (var stream = await response.GetAsMemoryStreamAsync(token: token))
+						using (var stream = await response.GetAsAsync<MemoryStream>(token: token))
 						{
-							using (Image image = Image.FromStream(stream))
+							using (var image = Image.FromStream(stream))
 							{
 								return ImageHelper.Clone(image, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 							}

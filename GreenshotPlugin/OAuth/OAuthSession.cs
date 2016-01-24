@@ -34,8 +34,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using GreenshotPlugin.Configuration;
-using Dapplo.Config.Ini;
+using Dapplo.HttpExtensions.Factory;
 
 namespace GreenshotPlugin.OAuth
 {
@@ -45,7 +44,6 @@ namespace GreenshotPlugin.OAuth
 	public class OAuthSession
 	{
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(OAuthSession));
-		private static readonly INetworkConfiguration NetworkConfig = IniConfig.Current.Get<INetworkConfiguration>();
 		private const string OauthVersion = "1.0";
 		private const string OauthParameterPrefix = "oauth_";
 
@@ -648,7 +646,7 @@ namespace GreenshotPlugin.OAuth
 				}
 			}
 			string responseData;
-			using (var httpClient = HttpClientFactory.CreateHttpClient(new HttpBehaviour { HttpSettings = NetworkConfig }))
+			using (var httpClient = HttpClientFactory.Create())
 			{
 				httpClient.DefaultRequestHeaders.ExpectContinue = false;
 				// TODO: Auth headers could be passed/stored different, maybe only one httpclient pro session?
@@ -689,7 +687,7 @@ namespace GreenshotPlugin.OAuth
 				{
 					if (HttpMethod.Post == method)
 					{
-						responseMessage = await httpClient.PostAsync(requestUri, token).ConfigureAwait(false);
+						responseMessage = await httpClient.PostAsync(requestUri, null, token).ConfigureAwait(false);
 					}
 					else
 					{

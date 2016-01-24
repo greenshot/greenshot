@@ -32,6 +32,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.HttpExtensions.Factory;
 
 namespace GreenshotConfluencePlugin
 {
@@ -75,7 +76,7 @@ namespace GreenshotConfluencePlugin
 		{
 			ConfluenceBaseUri = baseUri;
 
-			_client = HttpClientFactory.CreateHttpClient(new HttpBehaviour { HttpSettings = NetworkConfig});
+			_client = HttpClientFactory.Create();
 			_client.AddDefaultRequestHeader("X-Atlassian-Token", "nocheck");
 			Model = ProxyBuilder.CreateProxy<IConfluenceModel>().PropertyObject;
 			Model.ContentCachedById = new ConcurrentDictionary<long, Content>();
@@ -148,7 +149,7 @@ namespace GreenshotConfluencePlugin
 				using (var responseMessage = await _client.GetAsync(spacesUri, token).ConfigureAwait(false))
 				{
 					await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
-					jsonResponse = await responseMessage.GetAsJsonAsync(token: token).ConfigureAwait(false);
+					jsonResponse = await responseMessage.GetAsAsync<dynamic>(token: token).ConfigureAwait(false);
 				}
 				foreach (var spaceJson in jsonResponse.results)
 				{
@@ -188,7 +189,7 @@ namespace GreenshotConfluencePlugin
 					return null;
 				}
 				await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
-				var jsonResponse = await responseMessage.GetAsJsonAsync(token: token).ConfigureAwait(false);
+				var jsonResponse = await responseMessage.GetAsAsync<dynamic>(token: token).ConfigureAwait(false);
 				resultContent = Content.CreateFromContent(jsonResponse);
 			}
 			if (useCache)
@@ -212,7 +213,7 @@ namespace GreenshotConfluencePlugin
 			using (var responseMessage = await _client.GetAsync(childUri, token).ConfigureAwait(false))
 			{
 				await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
-				var jsonResponse = await responseMessage.GetAsJsonAsync(token: token).ConfigureAwait(false);
+				var jsonResponse = await responseMessage.GetAsAsync<dynamic>(token: token).ConfigureAwait(false);
 				foreach (var pageContent in jsonResponse.page.results)
 				{
 					Content child = Content.CreateFromContent(pageContent);
@@ -243,7 +244,7 @@ namespace GreenshotConfluencePlugin
 			using (var responseMessage = await _client.GetAsync(searchdUri, token).ConfigureAwait(false))
 			{
 				await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
-				return await responseMessage.GetAsJsonAsync(token: token).ConfigureAwait(false);
+				return await responseMessage.GetAsAsync<dynamic>(token: token).ConfigureAwait(false);
 			}
 		}
 
@@ -289,7 +290,7 @@ namespace GreenshotConfluencePlugin
 				using (var responseMessage = await _client.GetAsync(searchUri, token).ConfigureAwait(false))
 				{
 					await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
-					jsonResponse = await responseMessage.GetAsJsonAsync(token: token).ConfigureAwait(false);
+					jsonResponse = await responseMessage.GetAsAsync<dynamic>(token: token).ConfigureAwait(false);
 				}
 				foreach (var pageContent in jsonResponse.results)
 				{
@@ -323,7 +324,7 @@ namespace GreenshotConfluencePlugin
 			using (var responseMessage = await _client.PostAsync(ConfluenceBaseUri.AppendSegments(RestPath, "content", id, "child", "attachment"), content, token).ConfigureAwait(false))
 			{
 				await responseMessage.HandleErrorAsync(token: token).ConfigureAwait(false);
-				var jsonResponse = await responseMessage.GetAsJsonAsync(token: token).ConfigureAwait(false);
+				var jsonResponse = await responseMessage.GetAsAsync<dynamic>(token: token).ConfigureAwait(false);
 				return jsonResponse.results[0].id;
 			}
 		}
