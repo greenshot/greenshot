@@ -69,7 +69,7 @@ namespace GreenshotJiraPlugin.Forms {
 			this.buttonOK.Location = new System.Drawing.Point(224, 157);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
-			this.buttonOK.TabIndex = 10;
+			this.buttonOK.TabIndex = 11;
 			this.buttonOK.UseVisualStyleBackColor = true;
 			// 
 			// buttonCancel
@@ -80,7 +80,7 @@ namespace GreenshotJiraPlugin.Forms {
 			this.buttonCancel.Location = new System.Drawing.Point(305, 157);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
-			this.buttonCancel.TabIndex = 11;
+			this.buttonCancel.TabIndex = 12;
 			this.buttonCancel.UseVisualStyleBackColor = true;
 			// 
 			// label_url
@@ -90,25 +90,7 @@ namespace GreenshotJiraPlugin.Forms {
 			this.label_url.Location = new System.Drawing.Point(12, 19);
 			this.label_url.Name = "label_url";
 			this.label_url.Size = new System.Drawing.Size(146, 20);
-			this.label_url.TabIndex = 7;
-			// 
-			// label_username
-			// 
-			this.label_username.LanguageKey = "label_username";
-			this.label_username.LanguageModule = "jira";
-			this.label_username.Location = new System.Drawing.Point(12, 45);
-			this.label_username.Name = "label_username";
-			this.label_username.Size = new System.Drawing.Size(146, 20);
-			this.label_username.TabIndex = 7;
-			// 
-			// label_password
-			// 
-			this.label_password.LanguageKey = "label_password";
-			this.label_password.LanguageModule = "jira";
-			this.label_password.Location = new System.Drawing.Point(12, 71);
-			this.label_password.Name = "label_password";
-			this.label_password.Size = new System.Drawing.Size(146, 20);
-			this.label_password.TabIndex = 7;
+			this.label_url.TabIndex = 6;
 			// 
 			// textBoxUrl
 			// 
@@ -120,6 +102,15 @@ namespace GreenshotJiraPlugin.Forms {
 			this.textBoxUrl.Size = new System.Drawing.Size(214, 20);
 			this.textBoxUrl.TabIndex = 6;
 			// 
+			// label_username
+			// 
+			this.label_username.LanguageKey = "label_username";
+			this.label_username.LanguageModule = "jira";
+			this.label_username.Location = new System.Drawing.Point(12, 45);
+			this.label_username.Name = "label_username";
+			this.label_username.Size = new System.Drawing.Size(146, 20);
+			this.label_username.TabIndex = 7;
+			// 
 			// textBoxUsername
 			// 
 			this.textBoxUsername.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -129,6 +120,15 @@ namespace GreenshotJiraPlugin.Forms {
 			this.textBoxUsername.SectionName = "Jira";
 			this.textBoxUsername.Size = new System.Drawing.Size(214, 20);
 			this.textBoxUsername.TabIndex = 7;
+			// 
+			// label_password
+			// 
+			this.label_password.LanguageKey = "label_password";
+			this.label_password.LanguageModule = "jira";
+			this.label_password.Location = new System.Drawing.Point(12, 71);
+			this.label_password.Name = "label_password";
+			this.label_password.Size = new System.Drawing.Size(146, 20);
+			this.label_password.TabIndex = 8;
 			// 
 			// textBoxPassword
 			// 
@@ -141,17 +141,6 @@ namespace GreenshotJiraPlugin.Forms {
 			this.textBoxPassword.Size = new System.Drawing.Size(214, 20);
 			this.textBoxPassword.TabIndex = 8;
 			// 
-			// combobox_uploadimageformat
-			// 
-			this.combobox_uploadimageformat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.combobox_uploadimageformat.FormattingEnabled = true;
-			this.combobox_uploadimageformat.Location = new System.Drawing.Point(164, 97);
-			this.combobox_uploadimageformat.Name = "combobox_uploadimageformat";
-			this.combobox_uploadimageformat.PropertyName = "UploadFormat";
-			this.combobox_uploadimageformat.SectionName = "Jira";
-			this.combobox_uploadimageformat.Size = new System.Drawing.Size(214, 21);
-			this.combobox_uploadimageformat.TabIndex = 8;
-			// 
 			// label_upload_format
 			// 
 			this.label_upload_format.LanguageKey = "label_upload_format";
@@ -161,6 +150,18 @@ namespace GreenshotJiraPlugin.Forms {
 			this.label_upload_format.Size = new System.Drawing.Size(146, 20);
 			this.label_upload_format.TabIndex = 9;
 			// 
+			// combobox_uploadimageformat
+			// 
+			this.combobox_uploadimageformat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.combobox_uploadimageformat.FormattingEnabled = true;
+			this.combobox_uploadimageformat.Location = new System.Drawing.Point(164, 97);
+			this.combobox_uploadimageformat.Name = "combobox_uploadimageformat";
+			this.combobox_uploadimageformat.PropertyName = "UploadFormat";
+			this.combobox_uploadimageformat.SectionName = "Jira";
+			this.combobox_uploadimageformat.Size = new System.Drawing.Size(214, 21);
+			this.combobox_uploadimageformat.TabIndex = 9;
+
+			// 
 			// label_pattern
 			// 
 			this.label_pattern.LanguageKey = "label_pattern";
@@ -168,7 +169,7 @@ namespace GreenshotJiraPlugin.Forms {
 			this.label_pattern.Location = new System.Drawing.Point(12, 124);
 			this.label_pattern.Name = "label_pattern";
 			this.label_pattern.Size = new System.Drawing.Size(146, 20);
-			this.label_pattern.TabIndex = 12;
+			this.label_pattern.TabIndex = 10;
 			// 
 			// pattern_textbox
 			// 
@@ -178,7 +179,7 @@ namespace GreenshotJiraPlugin.Forms {
 			this.pattern_textbox.PropertyName = "FilenamePattern";
 			this.pattern_textbox.SectionName = "Jira";
 			this.pattern_textbox.Size = new System.Drawing.Size(214, 20);
-			this.pattern_textbox.TabIndex = 13;
+			this.pattern_textbox.TabIndex = 10;
 			// 
 			// SettingsForm
 			// 

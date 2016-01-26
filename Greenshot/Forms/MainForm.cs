@@ -92,6 +92,8 @@ namespace Greenshot.Forms
 				.WriteTo.Trace(outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level}] {SourceContext} - {Message}{NewLine}{Exception}")
 #endif
 			.CreateLogger();
+			// Map Dapplo.HttpExtensions logs to seri-log
+			Dapplo.HttpExtensions.HttpExtensionsGlobals.Logger = new DapploSeriLogLogger();
 
 			// Setting the INI-directory
 			string iniDirectory = null;

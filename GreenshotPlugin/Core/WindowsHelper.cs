@@ -2047,12 +2047,12 @@ namespace GreenshotPlugin.Core
 		/// <returns>WindowDetails with the target Window OR a replacement</returns>
 		public WindowDetails WindowToCapture()
 		{
-			Rectangle windowRectangle = WindowRectangle;
+			var windowRectangle = WindowRectangle;
 			if (windowRectangle.Width == 0 || windowRectangle.Height == 0)
 			{
 				LOG.Warning("Window {0} has nothing to capture, using workaround to find other window of same process.", Text);
 				// Trying workaround, the size 0 arrises with e.g. Toad.exe, has a different Window when minimized
-				WindowDetails linkedWindow = WindowDetails.GetLinkedWindow(this);
+				var linkedWindow = GetLinkedWindow(this);
 				if (linkedWindow != null)
 				{
 					windowRectangle = linkedWindow.WindowRectangle;
