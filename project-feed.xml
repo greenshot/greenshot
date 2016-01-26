@@ -9,12 +9,12 @@ permalink: project-feed/
     <description>Greenshot update feed</description>
     {% for release in site.github.releases %}
       <item>
-        <title>{{release.name}}</title>
         {% for asset in release.assets %}
+          <title>{{asset.name}}</title>
           <link>{{asset.browser_download_url}}</link>
+          <pubDate>{{asset.created_at}}</pubDate>
+          <description>{{asset.label}}</description>
         {% endfor %}
-        <pubDate>{{published}}</pubDate>
-        <description>{{body}}</description>
       </item>
     {% endfor %}
   </channel>
