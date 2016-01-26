@@ -309,7 +309,7 @@ namespace GreenshotImgurPlugin
 				{
 					await response.HandleErrorAsync(token: token).ConfigureAwait(false);
 				}
-				responseString = await response.GetAsStringAsync(Behaviour, token).ConfigureAwait(false);
+				responseString = await response.GetAsAsync<string>(Behaviour, token).ConfigureAwait(false);
 				LOG.Information("Delete result: {0}", responseString);
 			}
 			// Make sure we remove it from the history, if no error occured

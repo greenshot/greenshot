@@ -64,8 +64,8 @@
       <HintPath>..\packages\Dapplo.Config.0.1.121.0\lib\net45\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.HttpExtensions, Version=0.3.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.HttpExtensions.0.3.2.0\lib\net451\Dapplo.HttpExtensions.dll</HintPath>
+    <Reference Include="Dapplo.HttpExtensions, Version=0.3.7.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.HttpExtensions.0.3.7.0\lib\net451\Dapplo.HttpExtensions.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.Windows, Version=0.1.14.0, Culture=neutral, processorArchitecture=MSIL">
@@ -156,7 +156,6 @@
     <Compile Include="Core\ProgressStream.cs" />
     <Compile Include="Extensions\RectangleExtensions.cs" />
     <Compile Include="Extensions\SizeExtentions.cs" />
-    <Compile Include="Extensions\UriExtensions.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Core\StreamDelegate.cs" />
     <Compile Include="IEInterop\IWebBrowser2.cs" />

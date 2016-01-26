@@ -178,7 +178,7 @@ namespace GreenshotJiraPlugin
 									multipartFormDataContent.Add(streamContent, "file", filename);
 									using (var reponseMessage = await jiraApi.Attach(jiraDetails.JiraKey, multipartFormDataContent, pleaseWaitToken))
 									{
-										return reponseMessage.GetAsStringAsync(token: token);
+										return reponseMessage.GetAsAsync<string>(token: token);
 									}
 								}
 							}

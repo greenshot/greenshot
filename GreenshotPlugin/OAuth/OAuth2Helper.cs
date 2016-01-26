@@ -68,11 +68,7 @@ namespace GreenshotPlugin.OAuth
 				data.Add(key, settings.AdditionalAttributes[key]);
 			}
 
-			dynamic refreshTokenResult;
-			using (var responseMessage = await settings.TokenUrl.PostFormUrlEncodedAsync(data, null, token))
-			{
-				refreshTokenResult = await responseMessage.GetAsAsync<dynamic>(null, token);
-			}
+			dynamic refreshTokenResult = await settings.TokenUrl.PostAsync<dynamic, IDictionary<string, string>>(data, null, token);
 			if (refreshTokenResult.ContainsKey("error"))
 			{
 				if (refreshTokenResult.ContainsKey("error_description"))
@@ -115,11 +111,7 @@ namespace GreenshotPlugin.OAuth
 				data.Add(key, settings.AdditionalAttributes[key]);
 			}
 
-			dynamic accessTokenResult;
-			using (var responseMessage = await settings.TokenUrl.PostFormUrlEncodedAsync(data, null, token))
-			{
-				accessTokenResult = await responseMessage.GetAsAsync<dynamic>(token: token);
-			}
+			dynamic accessTokenResult = await settings.TokenUrl.PostAsync<dynamic, IDictionary<string, string>>(data, null, token);
 
 			if (accessTokenResult.ContainsKey("error"))
 			{

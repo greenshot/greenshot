@@ -145,12 +145,7 @@ namespace GreenshotPlugin.Core
 		public static async Task<IDictionary<string, IDictionary<string, SourceforgeFile>>> ReadRssAsync(CancellationToken token = default(CancellationToken))
 		{
 			var rssFiles = new Dictionary<string, IDictionary<string, SourceforgeFile>>();
-			var rssContent = await Rssfeed.GetAsync(token: token).ConfigureAwait(false);
-			if (rssContent == null)
-			{
-				return rssFiles;
-			}
-			var stream = await rssContent.GetAsAsync<MemoryStream>(null, token).ConfigureAwait(false);
+			var stream = await Rssfeed.GetAsAsync<MemoryStream>(token: token).ConfigureAwait(false);
 			if (stream == null)
 			{
 				return rssFiles;

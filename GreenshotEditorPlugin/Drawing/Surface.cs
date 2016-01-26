@@ -38,6 +38,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Drawing;
+using Dapplo.HttpExtensions;
 
 namespace GreenshotEditorPlugin.Drawing
 {
@@ -947,7 +948,7 @@ namespace GreenshotEditorPlugin.Drawing
 				if (possibleUrl != null && possibleUrl.StartsWith("http"))
 				{
 					Uri imageUri = new Uri(possibleUrl);
-					using (var image = await imageUri.DownloadImageAsync())
+					using (var image = await imageUri.GetAsAsync<Bitmap>())
 					{
 						if (image != null)
 						{

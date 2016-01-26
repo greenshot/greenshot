@@ -697,7 +697,7 @@ namespace GreenshotPlugin.OAuth
 
 				try
 				{
-					responseData = await responseMessage.GetAsStringAsync(null, token).ConfigureAwait(false);
+					responseData = await responseMessage.GetAsAsync<string>(token: token).ConfigureAwait(false);
 					Log.Debug("Response: {0}", responseData);
 				}
 				catch (Exception ex)

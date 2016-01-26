@@ -60,12 +60,12 @@
       <HintPath>..\packages\Dapplo.Config.0.1.121.0\lib\net45\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.HttpExtensions, Version=0.3.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.HttpExtensions.0.3.2.0\lib\net451\Dapplo.HttpExtensions.dll</HintPath>
+    <Reference Include="Dapplo.HttpExtensions, Version=0.3.7.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.HttpExtensions.0.3.7.0\lib\net451\Dapplo.HttpExtensions.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Jira, Version=0.1.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Jira.0.1.5\lib\net451\Dapplo.Jira.dll</HintPath>
+    <Reference Include="Dapplo.Jira, Version=0.1.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Jira.0.1.8\lib\net451\Dapplo.Jira.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.Windows, Version=0.1.14.0, Culture=neutral, processorArchitecture=MSIL">
