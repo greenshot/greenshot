@@ -8,14 +8,14 @@ permalink: project-feed/
     <link>https://getgreenshot.org</link>
     <description>Greenshot update feed</description>
     {% for release in site.github.releases %}
-      <item>
-        {% for asset in release.assets %}
+      {% for asset in release.assets %}
+        <item>
           <title>{{asset.name}}</title>
           <link>{{asset.browser_download_url}}</link>
           <pubDate>{{asset.created_at}}</pubDate>
           <description>{{asset.label}}</description>
-        {% endfor %}
-      </item>
+        </item>
+      {% endfor %}
     {% endfor %}
   </channel>
 </rss>
