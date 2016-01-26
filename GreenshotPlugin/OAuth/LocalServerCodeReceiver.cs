@@ -27,6 +27,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.HttpExtensions;
+using GreenshotPlugin.Extensions;
 
 namespace GreenshotPlugin.OAuth
 {
@@ -34,28 +36,9 @@ namespace GreenshotPlugin.OAuth
 	/// OAuth 2.0 verification code receiver that runs a local server on a free port
 	/// and waits for a call with the authorization verification code.
 	/// </summary>
-	public class LocalServerCodeReceiver : IDisposable
+	public class LocalServerCodeReceiver
 	{
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(LocalServerCodeReceiver));
-		private readonly ManualResetEvent _ready = new ManualResetEvent(true);
-
-		private string _loopbackCallback = "http://localhost:{0}/authorize/";
-
-		/// <summary>
-		/// The call back format. Expects one port parameter.
-		/// Default: http://localhost:{0}/authorize/
-		/// </summary>
-		public string LoopbackCallbackUrl
-		{
-			get
-			{
-				return _loopbackCallback;
-			}
-			set
-			{
-				_loopbackCallback = value;
-			}
-		}
 
 		/// <summary>
 		/// HTML code to to return the _browser, default it will try to close the _browser / tab, this won't always work.
@@ -64,7 +47,7 @@ namespace GreenshotPlugin.OAuth
 		public string ClosePageResponse { get; set; } = @"<html>
 <head><title>OAuth 2.0 Authentication CloudServiceName</title></head>
 <body>
-Greenshot received information from CloudServiceName. You can close this browser / tab if it is not closed itself...
+The authentication process received information from CloudServiceName. You can close this browser / tab if it is not closed itself...
 <script type='text/javascript'>
     window.setTimeout(function() {
         window.open('', '_self', ''); 
@@ -77,29 +60,6 @@ Greenshot received information from CloudServiceName. You can close this browser
 </body>
 </html>";
 
-		private Uri _redirectUri;
-
-		/// <summary>
-		/// The URL to redirect to
-		/// </summary>
-		protected Uri RedirectUri
-		{
-			get
-			{
-				if (_redirectUri != null)
-				{
-					return _redirectUri;
-				}
-
-				return _redirectUri = new Uri(string.Format(_loopbackCallback, GetRandomUnusedPort()));
-			}
-		}
-
-		private string _cloudServiceName;
-
-		private readonly IDictionary<string, string> _returnValues = new Dictionary<string, string>();
-
-
 		/// <summary>
 		/// The OAuth code receiver
 		/// </summary>
@@ -109,97 +69,51 @@ Greenshot received information from CloudServiceName. You can close this browser
 		public async Task<IDictionary<string, string>> ReceiveCodeAsync(OAuth2Settings oauth2Settings, CancellationToken token = default(CancellationToken))
 		{
 			// Set the redirect URL on the settings
-			oauth2Settings.RedirectUrl = Uri.EscapeDataString(RedirectUri.AbsoluteUri);
-			_cloudServiceName = oauth2Settings.CloudServiceName;
-			using (var listener = new HttpListener())
+			var redirectUri = new Uri($"http://localhost:{GetRandomUnusedPort()}/authorize/");
+
+			oauth2Settings.RedirectUrl = Uri.EscapeDataString(redirectUri.AbsoluteUri);
+			var taskCompletionSource = new TaskCompletionSource<IDictionary<string, string>>();
+
+			// ReSharper disable once UnusedVariable
+			var listenTask = Task.Factory.StartNew(async () =>
 			{
-				listener.Prefixes.Add(RedirectUri.AbsoluteUri);
-				try
+				using (var listener = new HttpListener())
 				{
+					listener.Prefixes.Add(redirectUri.AbsoluteUri);
 					listener.Start();
-
-					// Get the formatted FormattedAuthUrl
-					var authorizationUrl = oauth2Settings.FormattedAuthUrl;
-					Log.Debug("Open a browser with: {0}", authorizationUrl.AbsoluteUri);
-					Process.Start(authorizationUrl.AbsoluteUri);
-
-					// Wait to get the authorization code response.
-					var context = listener.BeginGetContext(ListenerCallback, listener);
-					_ready.Reset();
-
-					while (!token.IsCancellationRequested && !context.AsyncWaitHandle.WaitOne(1))
+					var httpListenerContext = await listener.GetContextAsync();
+					var httpListenerRequest = httpListenerContext.Request;
+					try
 					{
-						Log.Debug("Waiting for response");
-						await Task.Delay(1000, token).ConfigureAwait(false);
+						// we got the result, parse the Query and set it as a result
+						taskCompletionSource.SetResult(httpListenerRequest.Url.QueryToDictionary());
+
+						// Get response object.
+						using (var response = httpListenerContext.Response)
+						{
+							// Write a "close" response.
+							var buffer = Encoding.UTF8.GetBytes(ClosePageResponse.Replace("CloudServiceName", oauth2Settings.CloudServiceName));
+							// Write to response stream.
+							response.ContentLength64 = buffer.Length;
+							using (var stream = response.OutputStream)
+							{
+								await stream.WriteAsync(buffer, 0, buffer.Length, token);
+							}
+						}
+					}
+					catch (Exception ex)
+					{
+						httpListenerContext.Response.OutputStream.Close();
+						taskCompletionSource.SetException(ex);
 					}
 				}
-				catch (Exception)
-				{
-					// Make sure we can clean up, also if the thead is aborted
-					_ready.Set();
-					throw;
-				}
-				finally
-				{
-					_ready.WaitOne();
-					listener.Close();
-				}
-			}
-			return _returnValues;
-		}
-
-		/// <summary>
-		/// Handle a connection async, this allows us to break the waiting
-		/// </summary>
-		/// <param name="result">IAsyncResult</param>
-		private void ListenerCallback(IAsyncResult result)
-		{
-			var listener = (HttpListener) result.AsyncState;
-
-			//If not listening return immediately as this method is called one last time after Close()
-			if (!listener.IsListening)
-			{
-				return;
-			}
-
-			// Use EndGetContext to complete the asynchronous operation.
-			var context = listener.EndGetContext(result);
-
-
-			// Handle request
-			var request = context.Request;
-			try
-			{
-				var nameValueCollection = request.QueryString;
-
-				// Get response object.
-				using (var response = context.Response)
-				{
-					// Write a "close" response.
-					var buffer = Encoding.UTF8.GetBytes(ClosePageResponse.Replace("CloudServiceName", _cloudServiceName));
-					// Write to response stream.
-					response.ContentLength64 = buffer.Length;
-					using (var stream = response.OutputStream)
-					{
-						stream.Write(buffer, 0, buffer.Length);
-					}
-				}
-
-				// Create a new response URL with a dictionary that contains all the response query parameters.
-				foreach (var name in nameValueCollection.AllKeys)
-				{
-					if (!_returnValues.ContainsKey(name))
-					{
-						_returnValues.Add(name, nameValueCollection[name]);
-					}
-				}
-			}
-			catch (Exception)
-			{
-				context.Response.OutputStream.Close();
-				throw;
-			}
-			_ready.Set();
+			}, token);
+			// Get the formatted FormattedAuthUrl
+			var authorizationUrl = new Uri(oauth2Settings.AuthUrlPattern.FormatWith(oauth2Settings));
+			Log.Debug("Open a browser with: {0}", authorizationUrl.AbsoluteUri);
+			// Open the url in the default browser
+			Process.Start(authorizationUrl.AbsoluteUri);
+			return await taskCompletionSource.Task;
 		}
 
 		/// <summary>
@@ -212,38 +126,14 @@ Greenshot received information from CloudServiceName. You can close this browser
 			try
 			{
 				listener.Start();
-				return ((IPEndPoint) listener.LocalEndpoint).Port;
+				var port = ((IPEndPoint)listener.LocalEndpoint).Port;
+				Log.Debug("Found free listener port {0} for the local code receiver.", port);
+				return port;
 			}
 			finally
 			{
 				listener.Stop();
 			}
 		}
-
-		#region IDisposable Support
-
-		private bool _disposedValue; // To detect redundant calls
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!_disposedValue)
-			{
-				if (disposing)
-				{
-					_ready.Dispose();
-				}
-
-				_disposedValue = true;
-			}
-		}
-
-		// This code added to correctly implement the disposable pattern.
-		public void Dispose()
-		{
-			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-			Dispose(true);
-		}
-
-		#endregion
 	}
 }

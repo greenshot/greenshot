@@ -217,11 +217,7 @@ namespace GreenshotPlugin.OAuth
 		/// <returns>true if completed</returns>
 		private static async Task<bool> AuthenticateViaLocalServerAsync(OAuth2Settings settings, CancellationToken token = default(CancellationToken))
 		{
-			IDictionary<string, string> result;
-			using (var codeReceiver = new LocalServerCodeReceiver())
-			{
-				result = await codeReceiver.ReceiveCodeAsync(settings, token);
-			}
+			var result = await new LocalServerCodeReceiver().ReceiveCodeAsync(settings, token);
 
 			string code;
 			if (result.TryGetValue(Code, out code) && !string.IsNullOrEmpty(code))

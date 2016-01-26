@@ -31,20 +31,11 @@ namespace GreenshotPlugin.OAuth
 	/// </summary>
 	public class OAuth2Settings
 	{
-		public OAuth2Settings()
-		{
-			AdditionalAttributes = new Dictionary<string, string>();
-			// Create a default state
-			State = Guid.NewGuid().ToString();
-			AuthorizeMode = OAuth2AuthorizeMode.Unknown;
-			RedirectUrl = "http://getgreenshot.org";
-		}
-
 		public OAuth2AuthorizeMode AuthorizeMode
 		{
 			get;
 			set;
-		}
+		} = OAuth2AuthorizeMode.Unknown;
 
 		/// <summary>
 		/// Specify the name of the cloud service, so it can be used in window titles, logs etc
@@ -91,7 +82,7 @@ namespace GreenshotPlugin.OAuth
 		{
 			get;
 			set;
-		}
+		} = Guid.NewGuid().ToString();
 
 		/// <summary>
 		/// The autorization URL where the values of this class can be "injected"
@@ -126,11 +117,7 @@ namespace GreenshotPlugin.OAuth
 		/// This is the redirect URL, in some implementations this is automatically set (LocalServerCodeReceiver)
 		/// In some implementations this could be e.g. urn:ietf:wg:oauth:2.0:oob or urn:ietf:wg:oauth:2.0:oob:auto
 		/// </summary>
-		public string RedirectUrl
-		{
-			get;
-			set;
-		}
+		public string RedirectUrl { get; set; } = "http://getgreenshot.org";
 
 		/// <summary>
 		/// Bearer token for accessing OAuth 2 services
@@ -159,7 +146,7 @@ namespace GreenshotPlugin.OAuth
 			get
 			{
 				bool expired = true;
-				if (!string.IsNullOrEmpty(AccessToken) && AccessTokenExpires != null)
+				if (!string.IsNullOrEmpty(AccessToken) && AccessTokenExpires != default(DateTimeOffset))
 				{
 					expired = DateTimeOffset.Now.AddSeconds(60) > AccessTokenExpires;
 				}
@@ -188,7 +175,8 @@ namespace GreenshotPlugin.OAuth
 		{
 			get;
 			set;
-		}
+		} = new Dictionary<string, string>();
+
 
 		/// <summary>
 		/// This contains the code returned from the authorization, but only shortly after it was received.

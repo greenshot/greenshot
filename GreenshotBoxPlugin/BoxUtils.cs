@@ -59,7 +59,7 @@ namespace GreenshotBoxPlugin
 			var outputSettings = new SurfaceOutputSettings(Config.UploadFormat, Config.UploadJpegQuality, false);
 
 			// Fill the OAuth2Settings
-			OAuth2Settings settings = new OAuth2Settings
+			var oAuth2Settings = new OAuth2Settings
 			{
 				AuthUrlPattern = "https://app.box.com/api/oauth2/authorize?client_id={ClientId}&response_type=code&state={State}&redirect_uri={RedirectUrl}", TokenUrl = new Uri("https://api.box.com/oauth2/token"), CloudServiceName = "Box", ClientId = Config.ClientId, ClientSecret = Config.ClientSecret, RedirectUrl = "https://www.box.com/home/", BrowserSize = new Size(1060, 600), AuthorizeMode = OAuth2AuthorizeMode.EmbeddedBrowser, RefreshToken = Config.RefreshToken, AccessToken = Config.AccessToken, AccessTokenExpires = Config.AccessTokenExpires
 			};
@@ -68,7 +68,7 @@ namespace GreenshotBoxPlugin
 
 			try
 			{
-				using (var httpClient = await OAuth2Helper.CreateOAuth2HttpClientAsync(settings, token))
+				using (var httpClient = await OAuth2Helper.CreateOAuth2HttpClientAsync(oAuth2Settings, token))
 				{
 					dynamic response;
 					using (var stream = new MemoryStream())
@@ -132,9 +132,9 @@ namespace GreenshotBoxPlugin
 			finally
 			{
 				// Copy the settings back to the config, so they are stored.
-				Config.RefreshToken = settings.RefreshToken;
-				Config.AccessToken = settings.AccessToken;
-				Config.AccessTokenExpires = settings.AccessTokenExpires;
+				Config.RefreshToken = oAuth2Settings.RefreshToken;
+				Config.AccessToken = oAuth2Settings.AccessToken;
+				Config.AccessTokenExpires = oAuth2Settings.AccessTokenExpires;
 			}
 		}
 	}

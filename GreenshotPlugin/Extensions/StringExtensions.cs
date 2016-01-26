@@ -20,8 +20,6 @@
  */
 
 using System;
-using System.IO;
-
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
@@ -32,34 +30,23 @@ namespace GreenshotPlugin.Extensions
 	/// </summary>
 	public static class StringExtensions
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(StringExtensions));
-
-		/// <summary>
-		/// Format a string with the specified object
-		/// </summary>
-		/// <param name="format">String with formatting, like {name}</param>
-		/// <param name="source">Object used for the formatting</param>
-		/// <returns>Formatted string</returns>
-		public static string FormatWith(this string format, object source)
-		{
-			return FormatWith(format, null, source);
-		}
+		private static readonly Regex PropertyRegex = new Regex(@"(?<start>\{)+(?<property>[\w\.\[\]]+)(?<format>:[^}]+)?(?<end>\})+", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
 		/// <summary>
 		/// Format the string "format" with the source
 		/// </summary>
-		/// <param name="format"></param>
-		/// <param name="provider"></param>
+		/// <param name="format">String with formatting, like {name}</param>
 		/// <param name="source">object with properties, if a property has the type IDictionary string,string it can used these parameters too</param>
+		/// <param name="provider">IFormatProvider</param>
 		/// <returns>Formatted string</returns>
-		public static string FormatWith(this string format, IFormatProvider provider, object source)
+		public static string FormatWith(this string format, object source, IFormatProvider provider = null)
 		{
 			if (format == null)
 			{
-				throw new ArgumentNullException("format");
+				throw new ArgumentNullException(nameof(format));
 			}
 
-			IDictionary<string, object> properties = new Dictionary<string, object>();
+			var properties = new Dictionary<string, object>();
 			foreach (var propertyInfo in  source.GetType().GetProperties())
 			{
 				if (propertyInfo.CanRead && propertyInfo.CanWrite)
@@ -71,7 +58,7 @@ namespace GreenshotPlugin.Extensions
 					}
 					else
 					{
-						IDictionary<string, string> dictionary = (IDictionary<string, string>) value;
+						var dictionary = (IDictionary<string, string>) value;
 						foreach (var propertyKey in dictionary.Keys)
 						{
 							properties.Add(propertyKey, dictionary[propertyKey]);
@@ -80,25 +67,17 @@ namespace GreenshotPlugin.Extensions
 				}
 			}
 
-			Regex r = new Regex(@"(?<start>\{)+(?<property>[\w\.\[\]]+)(?<format>:[^}]+)?(?<end>\})+", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
-			List<object> values = new List<object>();
-			string rewrittenFormat = r.Replace(format, delegate(Match m)
+			var values = new List<object>();
+			var rewrittenFormat = PropertyRegex.Replace(format, delegate(Match m)
 			{
-				Group startGroup = m.Groups["start"];
-				Group propertyGroup = m.Groups["property"];
-				Group formatGroup = m.Groups["format"];
-				Group endGroup = m.Groups["end"];
+				var startGroup = m.Groups["start"];
+				var propertyGroup = m.Groups["property"];
+				var formatGroup = m.Groups["format"];
+				var endGroup = m.Groups["end"];
 
 				object value;
-				if (properties.TryGetValue(propertyGroup.Value, out value))
-				{
-					values.Add(value);
-				}
-				else
-				{
-					values.Add(source);
-				}
+				values.Add(properties.TryGetValue(propertyGroup.Value, out value) ? value : source);
 				return new string('{', startGroup.Captures.Count) + (values.Count - 1) + formatGroup.Value + new string('}', endGroup.Captures.Count);
 			});
 
