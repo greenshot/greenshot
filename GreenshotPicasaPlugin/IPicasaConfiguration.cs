@@ -21,6 +21,7 @@
 
 using Dapplo.Config.Converters;
 using Dapplo.Config.Ini;
+using Dapplo.HttpExtensions.OAuth;
 using GreenshotPlugin.Configuration;
 using System;
 using System.ComponentModel;
@@ -31,7 +32,7 @@ namespace GreenshotPicasaPlugin
 	/// Description of PicasaConfiguration.
 	/// </summary>
 	[IniSection("Picasa"), Description("Greenshot Picasa Plugin configuration")]
-	public interface IPicasaConfiguration : IIniSection<IPicasaConfiguration>
+	public interface IPicasaConfiguration : IIniSection<IPicasaConfiguration>, IOAuth2Token
 	{
 		[Description("What file type to use for uploading"), DefaultValue(OutputFormat.png)]
 		OutputFormat UploadFormat
@@ -70,33 +71,6 @@ namespace GreenshotPicasaPlugin
 
 		[Description("The picasa album to upload to"), DefaultValue("default")]
 		string UploadAlbum
-		{
-			get;
-			set;
-		}
-
-		[Description("Picasa authorization refresh Token"), TypeConverter(typeof (StringEncryptionTypeConverter))]
-		string RefreshToken
-		{
-			get;
-			set;
-		}
-
-		/// <summary>
-		/// Not stored
-		/// </summary>
-		[IniPropertyBehavior(Read = false, Write = false)]
-		string AccessToken
-		{
-			get;
-			set;
-		}
-
-		/// <summary>
-		/// Not stored
-		/// </summary>
-		[IniPropertyBehavior(Read = false, Write = false)]
-		DateTimeOffset AccessTokenExpires
 		{
 			get;
 			set;

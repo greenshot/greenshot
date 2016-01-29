@@ -33,6 +33,9 @@ using System.Windows.Media.Imaging;
 using GreenshotPlugin.Extensions;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Destination;
+using Dapplo.HttpExtensions.OAuth;
+using Dapplo.HttpExtensions;
+using System.Collections.Generic;
 
 namespace GreenshotBoxPlugin
 {
@@ -42,6 +45,7 @@ namespace GreenshotBoxPlugin
 		private const string BoxDesignation = "Box";
 		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(BoxDestination));
 		private static readonly BitmapSource BoxIcon;
+		private OAuth2Settings _oauth2Settings;
 
 		static BoxDestination()
 		{
@@ -50,7 +54,6 @@ namespace GreenshotBoxPlugin
 			{
 				BoxIcon = boxImage.ToBitmapSource();
 			}
-
 		}
 
 		[Import]
@@ -77,6 +80,25 @@ namespace GreenshotBoxPlugin
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
 			Text = BoxLanguage.UploadMenuItem;
 			Icon = BoxIcon;
+
+			_oauth2Settings = new OAuth2Settings
+			{
+				AuthorizationUri = new Uri("https://app.box.com").
+					AppendSegments("api", "oauth2", "authorize").
+					ExtendQuery(new Dictionary<string, string>{
+						{ "response_type", "code"},
+						{ "client_id", "{ClientId}" },
+						{ "redirect_uri", "{RedirectUrl}" },
+						{ "state", "{State}"}
+					}),
+				TokenUrl = new Uri("https://api.box.com/oauth2/token"),
+				CloudServiceName = "Box",
+				ClientId = BoxConfiguration.ClientId,
+				ClientSecret = BoxConfiguration.ClientSecret,
+				RedirectUrl = "https://www.box.com/home/",
+				AuthorizeMode = AuthorizeModes.EmbeddedBrowser,
+				Token = BoxConfiguration
+			};
 		}
 
 		private async Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))
@@ -92,7 +114,7 @@ namespace GreenshotBoxPlugin
 			{
 				var url = await PleaseWaitWindow.CreateAndShowAsync(BoxDesignation, BoxLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
 				{
-					return await BoxUtils.UploadToBoxAsync(capture, progress, token);
+					return await BoxUtils.UploadToBoxAsync(_oauth2Settings, capture, progress, token);
 				}, token);
 
 				if (url != null)

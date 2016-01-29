@@ -35,6 +35,10 @@ using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Destination;
 using GreenshotPlugin.Interfaces.Plugin;
 using GreenshotPlugin.Extensions;
+using Dapplo.HttpExtensions.OAuth;
+using Dapplo.HttpExtensions;
+using System.Collections.Generic;
+
 namespace GreenshotImgurPlugin
 {
 	[Destination(ImgurDesignation)]
@@ -43,6 +47,7 @@ namespace GreenshotImgurPlugin
 		private const string ImgurDesignation = "Imgur";
 		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ImgurDestination));
 		private static readonly BitmapSource ImgurIcon;
+		private OAuth2Settings _oauth2Settings;
 
 		static ImgurDestination()
 		{
@@ -78,6 +83,24 @@ namespace GreenshotImgurPlugin
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
 			Text = ImgurLanguage.UploadMenuItem;
 			Icon = ImgurIcon;
+
+			_oauth2Settings = new OAuth2Settings
+			{
+				AuthorizationUri = new Uri("https://api.imgur.com").AppendSegments("oauth2", "authorize").
+					ExtendQuery(new Dictionary<string, string>{
+						{ "response_type", "code"},
+						{ "client_id", "{ClientId}" },
+						{ "redirect_uri", "{RedirectUrl}" },
+						{ "state", "{State}"}
+				}),
+				TokenUrl = new Uri("https://api.imgur.com/oauth2/token"),
+				CloudServiceName = "Imgur",
+				ClientId = ImgurConfiguration.ClientId,
+				ClientSecret = ImgurConfiguration.ClientSecret,
+				RedirectUrl = "http://getgreenshot.org",
+				AuthorizeMode = AuthorizeModes.EmbeddedBrowser,
+				Token = ImgurConfiguration
+			};
 		}
 
 		private async Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))
@@ -95,7 +118,7 @@ namespace GreenshotImgurPlugin
 				string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(ImgurConfiguration.FilenamePattern, ImgurConfiguration.UploadFormat, capture.CaptureDetails));
 				var imgurInfo = await PleaseWaitWindow.CreateAndShowAsync(Designation, ImgurLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
 				{
-					return await ImgurUtils.UploadToImgurAsync(capture, outputSettings, capture.CaptureDetails.Title, filename, progress, pleaseWaitToken);
+					return await ImgurUtils.UploadToImgurAsync(_oauth2Settings, capture, outputSettings, capture.CaptureDetails.Title, filename, progress, pleaseWaitToken);
 				}, token);
 
 				if (imgurInfo != null)

@@ -21,18 +21,16 @@
 
 using Dapplo.Config.Ini;
 using Dapplo.HttpExtensions;
+using Dapplo.HttpExtensions.OAuth;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.OAuth;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 using System;
-using System.Drawing;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotBoxPlugin
 {
@@ -53,88 +51,66 @@ namespace GreenshotBoxPlugin
 		/// <param name="progress"></param>
 		/// <param name="token"></param>
 		/// <returns>url to uploaded image</returns>
-		public static async Task<string> UploadToBoxAsync(ICapture capture, IProgress<int> progress, CancellationToken token = default(CancellationToken))
+		public static async Task<string> UploadToBoxAsync(OAuth2Settings oAuth2Settings, ICapture capture, IProgress<int> progress, CancellationToken token = default(CancellationToken))
 		{
 			string filename = Path.GetFileName(FilenameHelper.GetFilename(Config.UploadFormat, capture.CaptureDetails));
 			var outputSettings = new SurfaceOutputSettings(Config.UploadFormat, Config.UploadJpegQuality, false);
 
-			// Fill the OAuth2Settings
-			var oAuth2Settings = new OAuth2Settings
-			{
-				AuthUrlPattern = "https://app.box.com/api/oauth2/authorize?client_id={ClientId}&response_type=code&state={State}&redirect_uri={RedirectUrl}", TokenUrl = new Uri("https://api.box.com/oauth2/token"), CloudServiceName = "Box", ClientId = Config.ClientId, ClientSecret = Config.ClientSecret, RedirectUrl = "https://www.box.com/home/", BrowserSize = new Size(1060, 600), AuthorizeMode = OAuth2AuthorizeMode.EmbeddedBrowser, RefreshToken = Config.RefreshToken, AccessToken = Config.AccessToken, AccessTokenExpires = Config.AccessTokenExpires
-			};
+			var oauthHttpBehaviour = new HttpBehaviour();
+			oauthHttpBehaviour.OnHttpMessageHandlerCreated = httpMessageHandler => new OAuth2HttpMessageHandler(oAuth2Settings, oauthHttpBehaviour, httpMessageHandler);
 
-			// Copy the settings from the config, which is kept in memory and on the disk
-
-			try
+			dynamic response;
+			// TODO: See if the PostAsync<Bitmap> can be used? Or at least the HttpContentFactory?
+			using (var stream = new MemoryStream())
 			{
-				using (var httpClient = await OAuth2Helper.CreateOAuth2HttpClientAsync(oAuth2Settings, token))
+				var multiPartContent = new MultipartFormDataContent();
+				var parentIdContent = new StringContent(Config.FolderId);
+				parentIdContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
 				{
-					dynamic response;
-					using (var stream = new MemoryStream())
+					Name = "\"parent_id\""
+				};
+				multiPartContent.Add(parentIdContent);
+				ImageOutput.SaveToStream(capture, stream, outputSettings);
+				stream.Position = 0;
+				using (var uploadStream = new ProgressStream(stream, progress))
+				{
+					using (var streamContent = new StreamContent(uploadStream))
 					{
-						var multiPartContent = new MultipartFormDataContent();
-						var parentIdContent = new StringContent(Config.FolderId);
-						parentIdContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+						streamContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream"); //"image/" + outputSettings.Format);
+						streamContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
 						{
-							Name = "\"parent_id\""
-						};
-						multiPartContent.Add(parentIdContent);
-						ImageOutput.SaveToStream(capture, stream, outputSettings);
-						stream.Position = 0;
-						using (var uploadStream = new ProgressStream(stream, progress))
-						{
-							using (var streamContent = new StreamContent(uploadStream))
-							{
-								streamContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream"); //"image/" + outputSettings.Format);
-								streamContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
-								{
-									Name = "\"file\"", FileName = "\"" + filename + "\""
-								}; // the extra quotes are important here
-								multiPartContent.Add(streamContent);
-								using (var responseMessage = await httpClient.PostAsync(UploadFileUri, multiPartContent, token))
-								{
-									response = await responseMessage.GetAsAsync<dynamic>(token: token);
-								}
-							}
-						}
-					}
+							Name = "\"file\"", FileName = "\"" + filename + "\""
+						}; // the extra quotes are important here
+						multiPartContent.Add(streamContent);
 
-					if (response == null || !response.ContainsKey("total_count"))
-					{
-						return null;
+						response = await UploadFileUri.PostAsync<dynamic, HttpContent>(multiPartContent, oauthHttpBehaviour, token);
 					}
-
-					if (Config.UseSharedLink)
-					{
-						var uri = FilesUri.AppendSegments((string) response.entries[0].id);
-						var updateAcces = new JsonObject
-						{
-							{
-								"shared_link", new JsonObject
-								{
-									{
-										"access", "open"
-									}
-								}
-							}
-						};
-						var content = new StringContent(updateAcces.ToString(), Encoding.UTF8);
-						using (var responseMessage = await httpClient.PutAsync(uri, content, token))
-						{
-							var file = await responseMessage.GetAsAsync<dynamic>(token: token);
-							return file.shared_link.url;
-						}
-					}
-					return string.Format("http://www.box.com/files/0/f/0/1/f_{0}", response.entries[0].id);
 				}
-			}
-			finally
-			{
-				// Copy the settings back to the config, so they are stored.
-				Config.RefreshToken = oAuth2Settings.RefreshToken;
-				Config.AccessToken = oAuth2Settings.AccessToken;
-				Config.AccessTokenExpires = oAuth2Settings.AccessTokenExpires;
+
+				if (response == null || !response.ContainsKey("total_count"))
+				{
+					return null;
+				}
+
+				if (Config.UseSharedLink)
+				{
+					var uriForSharedLink = FilesUri.AppendSegments((string) response.entries[0].id);
+					var updateAcces = new JsonObject
+					{
+						{
+							"shared_link", new JsonObject
+							{
+								{
+									"access", "open"
+								}
+							}
+						}
+					};
+					// TODO: Add JsonObject
+					var file = await uriForSharedLink.PostAsync<dynamic, string>(updateAcces.ToString(), oauthHttpBehaviour, token);
+					return file.shared_link.url;
+				}
+				return string.Format("http://www.box.com/files/0/f/0/1/f_{0}", response.entries[0].id);
 			}
 		}
 	}

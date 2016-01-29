@@ -20,17 +20,18 @@
  */
 
 using Dapplo.Config.Ini;
+using Dapplo.HttpExtensions;
+using Dapplo.HttpExtensions.OAuth;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.OAuth;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using Dapplo.HttpExtensions;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotPicasaPlugin
 {
@@ -39,73 +40,66 @@ namespace GreenshotPicasaPlugin
 	/// </summary>
 	public static class PicasaUtils
 	{
-		private const string PicasaScope = "https://picasaweb.google.com/data/";
 		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(PicasaUtils));
 		private static readonly IPicasaConfiguration _config = IniConfig.Current.Get<IPicasaConfiguration>();
-		private const string AuthUrl = "https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={ClientId}&redirect_uri={RedirectUrl}&state={State}&scope=" + PicasaScope;
-		private static readonly Uri TokenUrl = new Uri("https://www.googleapis.com/oauth2/v3/token");
-		private const string UploadUrl = "https://picasaweb.google.com/data/feed/api/user/{0}/albumid/{1}";
 
 		/// <summary>
 		/// Do the actual upload to Picasa
 		/// </summary>
-		/// <param name="capture">Image to upload</param>
-		/// <param name="progress"></param>
-		/// <param name="token"></param>
+		/// <param name="capture">ICapture</param>
+		/// <param name="progress">IProgress</param>
+		/// <param name="token">CancellationToken</param>
 		/// <returns>url</returns>
 		public static async Task<string> UploadToPicasa(ICapture capture, IProgress<int> progress, CancellationToken token = default(CancellationToken))
 		{
 			string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, capture.CaptureDetails));
 			var outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality);
 			// Fill the OAuth2Settings
-			var settings = new OAuth2Settings();
-			settings.AuthUrlPattern = AuthUrl;
-			settings.TokenUrl = TokenUrl;
-			settings.CloudServiceName = "Picasa";
-			settings.ClientId = _config.ClientId;
-			settings.ClientSecret = _config.ClientSecret;
-			settings.AuthorizeMode = OAuth2AuthorizeMode.LocalServer;
 
-			// Copy the settings from the config, which is kept in memory and on the disk
-			settings.RefreshToken = _config.RefreshToken;
-			settings.AccessToken = _config.AccessToken;
-			settings.AccessTokenExpires = _config.AccessTokenExpires;
-
-			try
+			var oAuth2Settings = new OAuth2Settings
 			{
-				string response;
-				var uploadUri = new Uri(string.Format(UploadUrl, _config.UploadUser, _config.UploadAlbum));
-				using (var httpClient = await OAuth2Helper.CreateOAuth2HttpClientAsync(settings, token))
+				AuthorizationUri = new Uri("https://accounts.google.com").AppendSegments("o", "oauth2", "auth").
+					ExtendQuery(new Dictionary<string, string>{
+						{ "response_type", "code"},
+						{ "client_id", "{ClientId}" },
+						{ "redirect_uri", "{RedirectUrl}" },
+						{ "state", "{State}"},
+						{ "scope", "https://picasaweb.google.com/data/"}
+				}),
+				TokenUrl = new Uri("https://www.googleapis.com/oauth2/v3/token"),
+				CloudServiceName = "Picasa",
+				ClientId = _config.ClientId,
+				ClientSecret = _config.ClientSecret,
+				RedirectUrl = "http://getgreenshot.org",
+				AuthorizeMode = AuthorizeModes.LocalServer,
+				Token = _config
+			};
+
+			var oauthHttpBehaviour = new HttpBehaviour();
+			oauthHttpBehaviour.OnHttpMessageHandlerCreated = httpMessageHandler => new OAuth2HttpMessageHandler(oAuth2Settings, oauthHttpBehaviour, httpMessageHandler);
+			if (_config.AddFilename)
+			{
+				oauthHttpBehaviour.OnHttpClientCreated = httpClient => httpClient.AddDefaultRequestHeader("Slug", Uri.EscapeDataString(filename));
+			}
+
+			string response;
+			var uploadUri = new Uri("https://picasaweb.google.com/data/feed/api/user").AppendSegments(_config.UploadUser, "albumid", _config.UploadAlbum);
+			using (var stream = new MemoryStream())
+			{
+				ImageOutput.SaveToStream(capture, stream, outputSettings);
+				stream.Position = 0;
+				using (var uploadStream = new ProgressStream(stream, progress))
 				{
-					if (_config.AddFilename)
+					using (var content = new StreamContent(uploadStream))
 					{
-						httpClient.AddDefaultRequestHeader("Slug", Uri.EscapeDataString(filename));
-					}
-					using (var stream = new MemoryStream())
-					{
-						ImageOutput.SaveToStream(capture, stream, outputSettings);
-						stream.Position = 0;
-						using (var uploadStream = new ProgressStream(stream, progress))
-						{
-							using (var content = new StreamContent(uploadStream))
-							{
-								content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
-								var responseMessage = await httpClient.PostAsync(uploadUri, content, token).ConfigureAwait(false);
-								response = await responseMessage.GetAsAsync<string>(token: token).ConfigureAwait(false);
-							}
-						}
+						content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
+
+						response = await uploadUri.PostAsync<string, HttpContent>(content, oauthHttpBehaviour, token);
 					}
 				}
+			}
 
-				return ParseResponse(response);
-			}
-			finally
-			{
-				// Copy the settings back to the config, so they are stored.
-				_config.RefreshToken = settings.RefreshToken;
-				_config.AccessToken = settings.AccessToken;
-				_config.AccessTokenExpires = settings.AccessTokenExpires;
-			}
+			return ParseResponse(response);
 		}
 
 		/// <summary>

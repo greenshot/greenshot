@@ -35,6 +35,7 @@ using Dapplo.HttpExtensions.Factory;
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
+using Dapplo.HttpExtensions.OAuth;
 
 namespace GreenshotImgurPlugin
 {
@@ -50,8 +51,6 @@ namespace GreenshotImgurPlugin
 		private const string PAGE_URL_PATTERN = "http://imgur.com/{0}";
 		private const string IMAGE_URL_PATTERN = "http://i.imgur.com/{0}.png";
 		private const string SMALL_URL_PATTERN = "http://i.imgur.com/{0}s.png";
-		private const string AuthUrlPattern = "https://api.imgur.com/oauth2/authorize?response_type=code&client_id={ClientId}&redirect_uri={RedirectUrl}&state={State}";
-		private static readonly Uri TokenUrl = new Uri("https://api.imgur.com/oauth2/token");
 		private static readonly HttpBehaviour Behaviour = new HttpBehaviour
 		{
 			OnHttpClientCreated = (httpClient) =>
@@ -63,63 +62,36 @@ namespace GreenshotImgurPlugin
 		/// <summary>
 		/// Do the actual upload to Picasa
 		/// </summary>
-		/// <param name="surfaceToUpload">Image to upload</param>
-		/// <param name="outputSettings"></param>
-		/// <param name="otherParameters"></param>
+		/// <param name="oAuth2Settings">OAuth2Settings</param>
+		/// <param name="surfaceToUpload">ICapture</param>
+		/// <param name="outputSettings">SurfaceOutputSettings</param>
+		/// <param name="otherParameters">IDictionary</param>
 		/// <param name="progress"></param>
 		/// <param name="token"></param>
 		/// <returns>PicasaResponse</returns>
-		public static async Task<ImageInfo> AuthenticatedUploadToImgurAsync(ICapture surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, IProgress<int> progress, CancellationToken token = default(CancellationToken))
+		public static async Task<ImageInfo> AuthenticatedUploadToImgurAsync(OAuth2Settings oAuth2Settings, ICapture surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, IProgress<int> progress, CancellationToken token = default(CancellationToken))
 		{
-			// Fill the OAuth2Settings
-			var oauth2Settings = new OAuth2Settings
-			{
-				AuthUrlPattern = AuthUrlPattern,
-				TokenUrl = TokenUrl,
-				RedirectUrl = "https://imgur.com",
-				CloudServiceName = "Imgur",
-				ClientId = config.ClientId,
-				ClientSecret = config.ClientSecret,
-				AuthorizeMode = OAuth2AuthorizeMode.EmbeddedBrowser,
-				BrowserSize = new Size(680, 880),
-				RefreshToken = config.RefreshToken,
-				AccessToken = config.AccessToken,
-				AccessTokenExpires = config.AccessTokenExpires
-			};
+			dynamic imageJson;
+			var uploadUri = new Uri(config.ApiUrl).AppendSegments("upload.json").ExtendQuery(otherParameters);
 
-			// Copy the settings from the config, which is kept in memory and on the disk
+			var oauthHttpBehaviour = new HttpBehaviour();
+			oauthHttpBehaviour.OnHttpMessageHandlerCreated = httpMessageHandler => new OAuth2HttpMessageHandler(oAuth2Settings, oauthHttpBehaviour, httpMessageHandler);
 
-			try
+			using (var imageStream = new MemoryStream())
 			{
-				dynamic imageJson;
-				var uploadUri = new Uri(config.ApiUrl).AppendSegments("upload.json").ExtendQuery(otherParameters);
-				using (var httpClient = await OAuth2Helper.CreateOAuth2HttpClientAsync(oauth2Settings, token))
+				ImageOutput.SaveToStream(surfaceToUpload, imageStream, outputSettings);
+				imageStream.Position = 0;
+				using (var uploadStream = new ProgressStream(imageStream, progress))
 				{
-					using (var imageStream = new MemoryStream())
+					uploadStream.TotalBytesToReceive = imageStream.Length;
+					using (var content = new StreamContent(uploadStream))
 					{
-						ImageOutput.SaveToStream(surfaceToUpload, imageStream, outputSettings);
-						imageStream.Position = 0;
-						using (var uploadStream = new ProgressStream(imageStream, progress))
-						{
-							uploadStream.TotalBytesToReceive = imageStream.Length;
-							using (var content = new StreamContent(uploadStream))
-							{
-								content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
-								var responseMessage = await httpClient.PostAsync(uploadUri, content, token).ConfigureAwait(false);
-								imageJson = await responseMessage.GetAsAsync<dynamic>(token: token).ConfigureAwait(false);
-							}
-						}
+						content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
+						imageJson = await uploadUri.PostAsync<dynamic, HttpContent>(content, oauthHttpBehaviour, token);
 					}
 				}
-				return CreateImageInfo(imageJson);
 			}
-			finally
-			{
-				// Copy the settings back to the config, so they are stored.
-				config.RefreshToken = oauth2Settings.RefreshToken;
-				config.AccessToken = oauth2Settings.AccessToken;
-				config.AccessTokenExpires = oauth2Settings.AccessTokenExpires;
-			}
+			return CreateImageInfo(imageJson);
 		}
 
 		private static async Task<ImageInfo> AnnonymousUploadToImgurAsync(ICapture surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, IProgress<int> progress, CancellationToken token = default(CancellationToken))
@@ -157,7 +129,7 @@ namespace GreenshotImgurPlugin
 		/// <param name="progress"></param>
 		/// <param name="token"></param>
 		/// <returns>ImgurInfo with details</returns>
-		public static async Task<ImageInfo> UploadToImgurAsync(ICapture surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename, IProgress<int> progress, CancellationToken token = default(CancellationToken))
+		public static async Task<ImageInfo> UploadToImgurAsync(OAuth2Settings oAuth2Settings, ICapture surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename, IProgress<int> progress, CancellationToken token = default(CancellationToken))
 		{
 			IDictionary<string, string> otherParameters = new Dictionary<string, string>();
 			// add title
@@ -177,7 +149,7 @@ namespace GreenshotImgurPlugin
 			}
 			else
 			{
-				imageInfo = await AuthenticatedUploadToImgurAsync(surfaceToUpload, outputSettings, otherParameters, progress, token).ConfigureAwait(false);
+				imageInfo = await AuthenticatedUploadToImgurAsync(oAuth2Settings, surfaceToUpload, outputSettings, otherParameters, progress, token).ConfigureAwait(false);
 			}
 
 			if (imageInfo != null && config.TrackHistory)

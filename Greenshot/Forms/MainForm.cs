@@ -49,6 +49,7 @@ using GreenshotPlugin.Interfaces;
 using Timer = System.Timers.Timer;
 using GreenshotPlugin.Interfaces.Destination;
 using Serilog;
+using Dapplo.HttpExtensions.OAuth;
 
 namespace Greenshot.Forms
 {
@@ -366,7 +367,23 @@ namespace Greenshot.Forms
 
 			UpdateUi();
 
-            if (PortableHelper.IsPortable)
+			// TODO: Place the code for the OAuth EmbeddedBrowser somewhere else!!
+			OAuth2HttpMessageHandler.AuthorizeHandlers.Add(
+				AuthorizeModes.EmbeddedBrowser, async (oAuth2Settings, cancellationToken) =>
+				{
+					if (string.IsNullOrEmpty(oAuth2Settings.CloudServiceName))
+					{
+						throw new ArgumentNullException(nameof(oAuth2Settings.CloudServiceName));
+					}
+					using (var loginForm = new OAuthLoginForm($"Authorize {oAuth2Settings.CloudServiceName}", new Size(600, 800), oAuth2Settings.AuthorizationUri, oAuth2Settings.RedirectUrl))
+					{
+						loginForm.Show();
+						await loginForm.WaitForClosedAsync(cancellationToken);
+						return loginForm.CallbackParameters;
+					}
+				});
+
+			if (PortableHelper.IsPortable)
 			{
 				var pafPath = Path.Combine(Application.StartupPath, $@"App\{ApplicationName}");
 				ApplicationBootstrapper.Add(pafPath, "*.gsp");

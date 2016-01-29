@@ -54,7 +54,7 @@ namespace GreenshotPlugin.Interfaces.Destination
 		/// <summary>
 		/// Call initialize after all imports are inserted
 		/// </summary>
-		public void OnImportsSatisfied()
+		public virtual void OnImportsSatisfied()
 		{
 			Initialize();
 		}

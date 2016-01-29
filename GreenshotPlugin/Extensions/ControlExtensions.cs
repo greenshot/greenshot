@@ -49,13 +49,30 @@ namespace GreenshotPlugin.Extensions
 		/// Waits asynchronously for the Toolstrip to close
 		/// </summary>
 		/// <param name="toolStripDropDown">The ToolStripDropDown to wait for cancellation.</param>
-		/// <param name="cancellationToken">A cancellation token. If invoked, the task will return 
-		/// immediately as canceled.</param>
+		/// <param name="cancellationToken">A cancellation token. If invoked, the task will return immediately as canceled.</param>
 		/// <returns>A Task representing waiting for the ToolStripDropDown to close.</returns>
 		public static Task WaitForClosedAsync(this ToolStripDropDown toolStripDropDown, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			var taskCompletionSource = new TaskCompletionSource<object>();
 			toolStripDropDown.Closed += (sender, args) => taskCompletionSource.TrySetResult(null);
+			if (cancellationToken != default(CancellationToken))
+			{
+				cancellationToken.Register(taskCompletionSource.SetCanceled);
+			}
+
+			return taskCompletionSource.Task;
+		}
+
+		/// <summary>
+		/// Waits asynchronously for the Toolstrip to close
+		/// </summary>
+		/// <param name="form">The form to wait for cancellation.</param>
+		/// <param name="cancellationToken">A cancellation token. If invoked, the task will return immediately as canceled.</param>
+		/// <returns>A Task representing waiting for the ToolStripDropDown to close.</returns>
+		public static Task WaitForClosedAsync(this Form form, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			var taskCompletionSource = new TaskCompletionSource<object>();
+			form.Closed += (sender, args) => taskCompletionSource.TrySetResult(null);
 			if (cancellationToken != default(CancellationToken))
 			{
 				cancellationToken.Register(taskCompletionSource.SetCanceled);

@@ -21,6 +21,7 @@
 
 using Dapplo.Config.Converters;
 using Dapplo.Config.Ini;
+using Dapplo.HttpExtensions.OAuth;
 using GreenshotPlugin.Configuration;
 using System;
 using System.ComponentModel;
@@ -31,7 +32,7 @@ namespace GreenshotBoxPlugin
 	/// Description of ImgurConfiguration.
 	/// </summary>
 	[IniSection("Box"), Description("Greenshot Box Plugin configuration")]
-	public interface IBoxConfiguration : IIniSection<IBoxConfiguration>
+	public interface IBoxConfiguration : IIniSection<IBoxConfiguration>, IOAuth2Token
 	{
 		[Description("What file type to use for uploading"), DefaultValue(OutputFormat.png)]
 		OutputFormat UploadFormat
@@ -63,33 +64,6 @@ namespace GreenshotBoxPlugin
 
 		[Description("Folder ID to upload to, only change if you know what you are doing!"), DefaultValue("0")]
 		string FolderId
-		{
-			get;
-			set;
-		}
-
-		[Description("Box authorization refresh Token"), TypeConverter(typeof (StringEncryptionTypeConverter))]
-		string RefreshToken
-		{
-			get;
-			set;
-		}
-
-		/// <summary>
-		/// Not stored
-		/// </summary>
-		[IniPropertyBehavior(Read = false, Write = false)]
-		string AccessToken
-		{
-			get;
-			set;
-		}
-
-		/// <summary>
-		/// Not stored
-		/// </summary>
-		[IniPropertyBehavior(Read = false, Write = false)]
-		DateTimeOffset AccessTokenExpires
 		{
 			get;
 			set;

@@ -64,8 +64,8 @@
       <HintPath>..\packages\Dapplo.Config.0.1.121.0\lib\net45\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.HttpExtensions, Version=0.3.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.HttpExtensions.0.3.8.0\lib\net451\Dapplo.HttpExtensions.dll</HintPath>
+    <Reference Include="Dapplo.HttpExtensions, Version=0.3.12.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.HttpExtensions.0.3.12.0\lib\net451\Dapplo.HttpExtensions.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.Windows, Version=0.1.14.0, Culture=neutral, processorArchitecture=MSIL">
@@ -264,7 +264,6 @@
     <Compile Include="Configuration\ICoreConfiguration.cs" />
     <Compile Include="Core\CredentialsHelper.cs" />
     <Compile Include="Core\Effects.cs" />
-    <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Core\FilenameHelper.cs" />
     <Compile Include="Core\ImageOutput.cs" />
     <Compile Include="Core\InterfaceUtils.cs" />
@@ -283,10 +282,6 @@
     <Compile Include="Interfaces\Drawing\Container.cs" />
     <Compile Include="Interfaces\Forms\ImageEditor.cs" />
     <Compile Include="Interfaces\ILegacyDestination.cs" />
-    <Compile Include="OAuth\LocalServerCodeReceiver.cs" />
-    <Compile Include="OAuth\OAuth2AuthorizeMode.cs" />
-    <Compile Include="OAuth\OAuth2Helper.cs" />
-    <Compile Include="OAuth\OAuth2Settings.cs" />
     <Compile Include="OAuth\OAuthSession.cs" />
     <Compile Include="OAuth\OAuthSignatureTypes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

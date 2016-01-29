@@ -19,10 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Converters;
 using Dapplo.Config.Ini;
+using Dapplo.HttpExtensions.OAuth;
 using GreenshotPlugin.Configuration;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 
@@ -32,7 +31,7 @@ namespace GreenshotImgurPlugin
 	/// Description of ImgurConfiguration.
 	/// </summary>
 	[IniSection("Imgur"), Description("Greenshot Imgur Plugin configuration")]
-	public interface IImgurConfiguration : IIniSection<IImgurConfiguration>
+	public interface IImgurConfiguration : IIniSection<IImgurConfiguration>, IOAuth2Token
 	{
 		[Description("Url to Imgur API."), DefaultValue("https://api.imgur.com/3")]
 		string ApiUrl
@@ -90,20 +89,6 @@ namespace GreenshotImgurPlugin
 			set;
 		}
 
-		[Description("The Imgur token"), TypeConverter(typeof (StringEncryptionTypeConverter))]
-		string ImgurToken
-		{
-			get;
-			set;
-		}
-
-		[Description("The Imgur token secret"), TypeConverter(typeof (StringEncryptionTypeConverter))]
-		string ImgurTokenSecret
-		{
-			get;
-			set;
-		}
-
 		[Description("Is the title passed on to Imgur"), DefaultValue(false)]
 		bool AddTitle
 		{
@@ -127,36 +112,6 @@ namespace GreenshotImgurPlugin
 
 		[Description("Imgur upload history (ImgurUploadHistory.hash=deleteHash)")]
 		IDictionary<string, string> ImgurUploadHistory
-		{
-			get;
-			set;
-		}
-
-
-		[Description("Imgur authorization refresh Token"), TypeConverter(typeof (StringEncryptionTypeConverter))]
-		string RefreshToken
-		{
-			get;
-			set;
-		}
-
-
-		// Not stored, only run-time!
-		/// <summary>
-		/// AccessToken, not stored
-		/// </summary>
-		[IniPropertyBehavior(Read = false, Write = false)]
-		string AccessToken
-		{
-			get;
-			set;
-		}
-
-		/// <summary>
-		/// AccessTokenExpires, not stored
-		/// </summary>
-		[IniPropertyBehavior(Read = false, Write = false)]
-		DateTimeOffset AccessTokenExpires
 		{
 			get;
 			set;
