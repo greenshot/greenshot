@@ -4,7 +4,6 @@ status: publish
 published: true
 title: Downloads
 permalink: /downloads/
-categories: []
 comments: []
 tags: menu
 ---
