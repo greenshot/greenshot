@@ -28,13 +28,9 @@ tags: menu
 <p>In most cases, the latest stable version will be the best choice for you. However, if you are looking for the latest unstable version, need an older version or the ZIP distribution, you will find everything you need in the <a href="/version-history/" title="Download other versions of Greenshot">version history</a>.</p>
 
 <h2>Source code</h2>
-<p>If you want to download or have a look at the source code, you can do so at <a href="https://bitbucket.org/greenshot/greenshot/">Greenshot's Git respository</a> at BitBucket.</p>
+<p>If you want to have a look at the source code, you can do so in Greenshot's Git repositories at
+<a href="https://github.com/greenshot/greenshot/">GitHub</a> or 
+<a href="https://bitbucket.org/greenshot/greenshot/">BitBucket</a>.</p>
 </div>
-<div class="two-col right-box">
-<h2>Download translations</h2>
-<p>If you want to use Greenshot in another language, simply download the appropriate language file and save it to the "Languages" subdirectory of Greenshot's installation directory.<br />
-<strong>Note:</strong> <img src="/assets/wp-content/themes/greenshot/images/flags/us.gif" width="16" height="11" alt="EN" /> English and <img src="/assets/wp-content/themes/greenshot/images/flags/de.gif" width="16" height="11" alt="DE" /> German language files are included in the program by default.</p>
-<p><?=$langs?></p>
-<p><?=$helps?></p>
-</div>
+
 <div style="clear:both"></div>
