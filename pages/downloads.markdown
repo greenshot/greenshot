@@ -14,8 +14,8 @@ tags: menu
 <h2>Download the latest stable release</h2>
 <p style="display:table-row">
 	{% for asset in latestRelease.assets %}
-		{% if asset.name | split:. | last == "exe" %}
-			<a href="/downloads" class="cta" title="Download the latest stable version of Greenshot" rel="nofollow" style="display:table-cell">Latest version</a>
+		{% if asset.name | slice: -3, 3 == "exe" %}
+			<a href="{{ asset.browser_download_url }}" class="cta" title="Download the latest stable version of Greenshot" rel="nofollow" style="display:table-cell">Latest version</a>
 		{% endif %}
 	{% endfor %}
 	<small style="display:table-cell;vertical-align:middle;padding-left:1em;">
