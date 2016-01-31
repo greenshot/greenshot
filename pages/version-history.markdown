@@ -17,6 +17,6 @@ Here you go:
 {% for release in site.github.releases %}
 **{{release.name}}**
 	{% for asset in release.assets %}
-* [{{asset.name}}]({{asset.browser_download_url}}) <small>{{ latestRelease.created_at | date_to_string %}}</small>
+		[{{asset.name}}]({{asset.browser_download_url}}) ({{ latestRelease.created_at | date_to_string %}})
  	{% endfor %}
 {% endfor %}
