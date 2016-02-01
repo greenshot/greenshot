@@ -7,19 +7,15 @@ permalink: releases/installer/
     <title>Greenshot installers</title>
     <link>https://getgreenshot.org</link>
     <description>Greenshot released installer update feed</description>
-    {% for release in site.github.releases %}
-		{% if release.draf != 'false' %}
-			{% for asset in release.assets %}
-				{% if asset.content_type == 'application/x-msdownload' %}
+    {% for release in site.github.releases %}{% if release.draf == 'false' %}
+		{% for asset in release.assets %}{% if asset.name contains 'INSTALLER' and asset.name contains '.exe' %}
         <item>
           <title>{{asset.name}}</title>
           <link>{{asset.browser_download_url}}</link>
           <pubDate>{{asset.created_at}}</pubDate>
           <description>{{release.body}}</description>
         </item>
-				{% endif %}
-			{% endfor %}
-		{% endif %}
-    {% endfor %}
+		{% endif %}{% endfor %}
+	{% endif %}{% endfor %}
   </channel>
 </rss>
