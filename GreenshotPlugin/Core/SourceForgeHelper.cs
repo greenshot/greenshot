@@ -20,15 +20,13 @@
  */
 
 
+using Dapplo.HttpExtensions;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.ServiceModel.Syndication;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Xml;
-using Dapplo.HttpExtensions;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace GreenshotPlugin.Core
 {
@@ -134,7 +132,7 @@ namespace GreenshotPlugin.Core
 		/// <returns>true if the feed is newer</returns>
 		public static async Task<bool> IsRssModifiedAfter(DateTimeOffset updateTime)
 		{
-			DateTimeOffset lastModified = await Rssfeed.LastModifiedAsync().ConfigureAwait(false);
+			var lastModified = await Rssfeed.LastModifiedAsync().ConfigureAwait(false);
 			return updateTime.CompareTo(lastModified) < 0;
 		}
 
@@ -145,89 +143,83 @@ namespace GreenshotPlugin.Core
 		public static async Task<IDictionary<string, IDictionary<string, SourceforgeFile>>> ReadRssAsync(CancellationToken token = default(CancellationToken))
 		{
 			var rssFiles = new Dictionary<string, IDictionary<string, SourceforgeFile>>();
-			var stream = await Rssfeed.GetAsAsync<MemoryStream>(token: token).ConfigureAwait(false);
-			if (stream == null)
+
+
+			var feed = await Rssfeed.GetAsAsync<SyndicationFeed>(token: token).ConfigureAwait(false);
+
+			if (feed == null)
 			{
 				return rssFiles;
 			}
-			using (XmlReader reader = XmlReader.Create(stream))
+			foreach (var item in feed.Items)
 			{
-				var feed = SyndicationFeed.Load(reader);
-
-				if (feed == null)
+				var sfLink = item.Links[0].Uri.AbsoluteUri;
+				var pubdate = item.PublishDate;
+				try
 				{
-					return rssFiles;
-				}
-				foreach (var item in feed.Items)
-				{
-					var sfLink = item.Links[0].Uri.AbsoluteUri;
-					var pubdate = item.PublishDate;
-					try
+					var match = Regex.Match(Uri.UnescapeDataString(sfLink), @"^http.*sourceforge.*\/projects\/([^\/]+)\/files\/([^\/]+)\/([^\/]+)\/(.+)\/download$");
+					if (match.Success)
 					{
-						Match match = Regex.Match(Uri.UnescapeDataString(sfLink), @"^http.*sourceforge.*\/projects\/([^\/]+)\/files\/([^\/]+)\/([^\/]+)\/(.+)\/download$");
-						if (match.Success)
+						string project = match.Groups[1].Value;
+						string subdir = match.Groups[2].Value;
+						string type = match.Groups[3].Value;
+						string file = match.Groups[4].Value;
+						// !!! Change this to the mirror !!!
+						string mirror = "kent";
+						string directLink = Uri.EscapeUriString("http://" + mirror + ".dl.sourceforge.net/project/" + project + "/" + subdir + "/" + type + "/" + file);
+						IDictionary<string, SourceforgeFile> filesForType;
+						if (rssFiles.ContainsKey(type))
 						{
-							string project = match.Groups[1].Value;
-							string subdir = match.Groups[2].Value;
-							string type = match.Groups[3].Value;
-							string file = match.Groups[4].Value;
-							// !!! Change this to the mirror !!!
-							string mirror = "kent";
-							string directLink = Uri.EscapeUriString("http://" + mirror + ".dl.sourceforge.net/project/" + project + "/" + subdir + "/" + type + "/" + file);
-							IDictionary<string, SourceforgeFile> filesForType;
-							if (rssFiles.ContainsKey(type))
-							{
-								filesForType = rssFiles[type];
-							}
-							else
-							{
-								filesForType = new Dictionary<string, SourceforgeFile>();
-								rssFiles.Add(type, filesForType);
-							}
-							SourceforgeFile rssFile = new SourceforgeFile(file, pubdate, sfLink, directLink);
-							if (file.EndsWith(".exe") || file.EndsWith(".zip"))
-							{
-								string version = Regex.Replace(file, @".*[a-zA-Z_]\-", "");
-								version = version.Replace(@"\-[a-zA-Z]+.*", "");
-								version = Regex.Replace(version, @"\.exe$", "");
-								version = Regex.Replace(version, @"\.zip$", "");
-								version = Regex.Replace(version, @"RC[0-9]+", "");
-								if (version.Trim().Length > 0)
-								{
-									version = version.Replace('-', '.');
-									version = version.Replace(',', '.');
-									version = Regex.Replace(version, @"^[a-zA-Z_]*\.", "");
-									version = Regex.Replace(version, @"\.[a-zA-Z_]*$", "");
-
-									Version fileVersion;
-									if (!Version.TryParse(version, out fileVersion))
-									{
-										LOG.Debug("Found invalid version {0} in file {1}", version, file);
-									}
-									rssFile.Version = fileVersion;
-								}
-							}
-							else if (type.Equals("Translations"))
-							{
-								string culture = Regex.Replace(file, @"[a-zA-Z]+-(..-..)\.(xml|html)", "$1");
-								try
-								{
-									//CultureInfo cultureInfo = new CultureInfo(culture);
-									rssFile.Language = culture; //cultureInfo.NativeName;
-								}
-								catch (Exception)
-								{
-									LOG.Warning("Can't read the native name of the culture {0}", culture);
-								}
-							}
-							filesForType.Add(file, rssFile);
+							filesForType = rssFiles[type];
 						}
+						else
+						{
+							filesForType = new Dictionary<string, SourceforgeFile>();
+							rssFiles.Add(type, filesForType);
+						}
+						var rssFile = new SourceforgeFile(file, pubdate, sfLink, directLink);
+						if (file.EndsWith(".exe") || file.EndsWith(".zip"))
+						{
+							string version = Regex.Replace(file, @".*[a-zA-Z_]\-", "");
+							version = version.Replace(@"\-[a-zA-Z]+.*", "");
+							version = Regex.Replace(version, @"\.exe$", "");
+							version = Regex.Replace(version, @"\.zip$", "");
+							version = Regex.Replace(version, @"RC[0-9]+", "");
+							if (version.Trim().Length > 0)
+							{
+								version = version.Replace('-', '.');
+								version = version.Replace(',', '.');
+								version = Regex.Replace(version, @"^[a-zA-Z_]*\.", "");
+								version = Regex.Replace(version, @"\.[a-zA-Z_]*$", "");
+
+								Version fileVersion;
+								if (!Version.TryParse(version, out fileVersion))
+								{
+									LOG.Debug("Found invalid version {0} in file {1}", version, file);
+								}
+								rssFile.Version = fileVersion;
+							}
+						}
+						else if (type.Equals("Translations"))
+						{
+							string culture = Regex.Replace(file, @"[a-zA-Z]+-(..-..)\.(xml|html)", "$1");
+							try
+							{
+								//CultureInfo cultureInfo = new CultureInfo(culture);
+								rssFile.Language = culture; //cultureInfo.NativeName;
+							}
+							catch (Exception)
+							{
+								LOG.Warning("Can't read the native name of the culture {0}", culture);
+							}
+						}
+						filesForType.Add(file, rssFile);
 					}
-					catch (Exception ex)
-					{
-						LOG.Warning("Couldn't read RSS entry for: {0}", item.Title);
-						LOG.Warning("Reason: ", ex);
-					}
+				}
+				catch (Exception ex)
+				{
+					LOG.Warning("Couldn't read RSS entry for: {0}", item.Title);
+					LOG.Warning("Reason: ", ex);
 				}
 			}
 
