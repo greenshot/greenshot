@@ -43,7 +43,7 @@ namespace GreenshotBoxPlugin
 	public sealed class BoxDestination : AbstractDestination
 	{
 		private const string BoxDesignation = "Box";
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(BoxDestination));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(BoxDestination));
 		private static readonly BitmapSource BoxIcon;
 		private OAuth2Settings _oauth2Settings;
 
@@ -112,10 +112,11 @@ namespace GreenshotBoxPlugin
 			};
 			try
 			{
-				var url = await PleaseWaitWindow.CreateAndShowAsync(BoxDesignation, BoxLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
-				{
-					return await BoxUtils.UploadToBoxAsync(_oauth2Settings, capture, progress, token);
-				}, token);
+				var url = await PleaseWaitWindow.CreateAndShowAsync(
+					BoxDesignation,
+					BoxLanguage.CommunicationWait,
+					async (progress, pleaseWaitToken) => await BoxUtils.UploadToBoxAsync(_oauth2Settings, capture, progress, token),
+					token);
 
 				if (url != null)
 				{
@@ -130,16 +131,16 @@ namespace GreenshotBoxPlugin
 			catch (TaskCanceledException tcEx)
 			{
 				returnValue.Text = string.Format(BoxLanguage.UploadFailure, BoxDesignation);
-                returnValue.NotificationType = NotificationTypes.Cancel;
+				returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
-				LOG.Information(tcEx.Message);
+				Log.Information(tcEx.Message);
 			}
 			catch (Exception e)
 			{
 				returnValue.Text = string.Format(BoxLanguage.UploadFailure, BoxDesignation);
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
-				LOG.Warning(e, "Box export failed");
+				Log.Warning(e, "Box export failed");
 				MessageBox.Show(BoxLanguage.UploadFailure + " " + e.Message, BoxDesignation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			return returnValue;

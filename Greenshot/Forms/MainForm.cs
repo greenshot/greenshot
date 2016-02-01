@@ -50,6 +50,7 @@ using Timer = System.Timers.Timer;
 using GreenshotPlugin.Interfaces.Destination;
 using Serilog;
 using Dapplo.HttpExtensions.OAuth;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Forms
 {
@@ -94,7 +95,7 @@ namespace Greenshot.Forms
 #endif
 			.CreateLogger();
 			// Map Dapplo.HttpExtensions logs to seri-log
-			Dapplo.HttpExtensions.HttpExtensionsGlobals.Logger = new DapploSeriLogLogger();
+			LogExtensions.Logger = new DapploSeriLogLogger();
 
 			// Setting the INI-directory
 			string iniDirectory = null;
@@ -217,7 +218,7 @@ namespace Greenshot.Forms
 			}
 			if (!matchedThisProcess)
 			{
-				using (Process currentProcess = Process.GetCurrentProcess())
+				using (var currentProcess = Process.GetCurrentProcess())
 				{
 					instanceInfo.Append(index + ": ").AppendLine(Kernel32.GetProcessPath(currentProcess.Id));
 				}

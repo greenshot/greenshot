@@ -47,11 +47,12 @@ namespace GreenshotBoxPlugin
 		/// Do the actual upload to Box
 		/// For more details on the available parameters, see: http://developers.box.net/w/page/12923951/ApiFunction_Upload%20and%20Download
 		/// </summary>
-		/// <param name="capture"></param>
-		/// <param name="progress"></param>
-		/// <param name="token"></param>
+		/// <param name="oAuth2Settings">OAuth2Settings</param>
+		/// <param name="capture">ICapture</param>
+		/// <param name="progress">IProgress</param>
+		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>url to uploaded image</returns>
-		public static async Task<string> UploadToBoxAsync(OAuth2Settings oAuth2Settings, ICapture capture, IProgress<int> progress, CancellationToken token = default(CancellationToken))
+		public static async Task<string> UploadToBoxAsync(OAuth2Settings oAuth2Settings, ICapture capture, IProgress<int> progress, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			string filename = Path.GetFileName(FilenameHelper.GetFilename(Config.UploadFormat, capture.CaptureDetails));
 			var outputSettings = new SurfaceOutputSettings(Config.UploadFormat, Config.UploadJpegQuality, false);
@@ -59,7 +60,6 @@ namespace GreenshotBoxPlugin
 			var oauthHttpBehaviour = new HttpBehaviour();
 			oauthHttpBehaviour.OnHttpMessageHandlerCreated = httpMessageHandler => new OAuth2HttpMessageHandler(oAuth2Settings, oauthHttpBehaviour, httpMessageHandler);
 
-			dynamic response;
 			// TODO: See if the PostAsync<Bitmap> can be used? Or at least the HttpContentFactory?
 			using (var stream = new MemoryStream())
 			{
@@ -72,6 +72,7 @@ namespace GreenshotBoxPlugin
 				multiPartContent.Add(parentIdContent);
 				ImageOutput.SaveToStream(capture, stream, outputSettings);
 				stream.Position = 0;
+				dynamic response;
 				using (var uploadStream = new ProgressStream(stream, progress))
 				{
 					using (var streamContent = new StreamContent(uploadStream))
@@ -83,7 +84,7 @@ namespace GreenshotBoxPlugin
 						}; // the extra quotes are important here
 						multiPartContent.Add(streamContent);
 
-						response = await UploadFileUri.PostAsync<dynamic, HttpContent>(multiPartContent, oauthHttpBehaviour, token);
+						response = await UploadFileUri.PostAsync<dynamic, HttpContent>(multiPartContent, oauthHttpBehaviour, cancellationToken);
 					}
 				}
 
@@ -107,7 +108,7 @@ namespace GreenshotBoxPlugin
 						}
 					};
 					// TODO: Add JsonObject
-					var file = await uriForSharedLink.PostAsync<dynamic, string>(updateAcces.ToString(), oauthHttpBehaviour, token);
+					var file = await uriForSharedLink.PostAsync<dynamic, JsonObject>(updateAcces, oauthHttpBehaviour, cancellationToken);
 					return file.shared_link.url;
 				}
 				return string.Format("http://www.box.com/files/0/f/0/1/f_{0}", response.entries[0].id);

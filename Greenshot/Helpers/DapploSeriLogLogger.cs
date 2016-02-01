@@ -19,8 +19,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.HttpExtensions.Support;
 using System;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Helpers
 {
@@ -31,11 +31,14 @@ namespace Greenshot.Helpers
 	{
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext<DapploSeriLogLogger>();
 
-		private Serilog.Events.LogEventLevel MapLevel(ILogInfo logInfo)
+		private Serilog.Events.LogEventLevel MapLevel(LogInfo logInfo)
 		{
 			Serilog.Events.LogEventLevel level = Serilog.Events.LogEventLevel.Debug;
 			switch (logInfo.Level)
 			{
+				case LogLevel.Verbose:
+					level = Serilog.Events.LogEventLevel.Verbose;
+					break;
 				case LogLevel.Debug:
 					level = Serilog.Events.LogEventLevel.Debug;
 					break;
@@ -55,12 +58,12 @@ namespace Greenshot.Helpers
 			return level;
 		}
 
-		public void Write(ILogInfo logInfo, string messageTemplate, params object[] propertyValues)
+		public void Write(LogInfo logInfo, string messageTemplate, params object[] propertyValues)
 		{
 			Log.ForContext(logInfo.Caller).Write(MapLevel(logInfo), messageTemplate, propertyValues);
 		}
 
-		public void Write(ILogInfo logInfo, Exception exception, string messageTemplate, params object[] propertyValues)
+		public void Write(LogInfo logInfo, Exception exception, string messageTemplate, params object[] propertyValues)
 		{
 			Log.ForContext(logInfo.Caller).Write(MapLevel(logInfo), exception, messageTemplate, propertyValues);
 		}
