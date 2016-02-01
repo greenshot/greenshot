@@ -74,8 +74,7 @@ namespace GreenshotImgurPlugin
 			dynamic imageJson;
 			var uploadUri = new Uri(config.ApiUrl).AppendSegments("upload.json").ExtendQuery(otherParameters);
 
-			var oauthHttpBehaviour = new HttpBehaviour();
-			oauthHttpBehaviour.OnHttpMessageHandlerCreated = httpMessageHandler => new OAuth2HttpMessageHandler(oAuth2Settings, oauthHttpBehaviour, httpMessageHandler);
+			var oauthHttpBehaviour = OAuth2HttpBehaviourFactory.Create(oAuth2Settings, Behaviour);
 
 			using (var imageStream = new MemoryStream())
 			{
@@ -97,25 +96,21 @@ namespace GreenshotImgurPlugin
 		private static async Task<ImageInfo> AnnonymousUploadToImgurAsync(ICapture surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, IProgress<int> progress, CancellationToken token = default(CancellationToken))
 		{
 			var uploadUri = new Uri(config.ApiUrl).AppendSegments("upload.json").ExtendQuery(otherParameters);
-			using (var client = HttpClientFactory.Create(Behaviour))
+			dynamic imageJson;
+			using (var imageStream = new MemoryStream())
 			{
-				dynamic imageJson;
-				using (var imageStream = new MemoryStream())
+				ImageOutput.SaveToStream(surfaceToUpload, imageStream, outputSettings);
+				imageStream.Position = 0;
+				using (var uploadStream = new ProgressStream(imageStream, progress))
 				{
-					ImageOutput.SaveToStream(surfaceToUpload, imageStream, outputSettings);
-					imageStream.Position = 0;
-					using (var uploadStream = new ProgressStream(imageStream, progress))
+					using (var content = new StreamContent(uploadStream))
 					{
-						using (var content = new StreamContent(uploadStream))
-						{
-							content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
-							var response = await client.PostAsync(uploadUri, content, token).ConfigureAwait(false);
-							imageJson = await response.GetAsAsync<dynamic>(token: token).ConfigureAwait(false);
-						}
+						content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
+						imageJson = await uploadUri.PostAsync<dynamic, HttpContent>(content, Behaviour, token).ConfigureAwait(false);
 					}
 				}
-				return CreateImageInfo(imageJson);
 			}
+			return CreateImageInfo(imageJson);
 		}
 
 		/// <summary>
