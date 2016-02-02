@@ -31,7 +31,7 @@ defaults:
     layout: "faq"
 
 # Build settings
-markdown: kramdown
+markdown: redcarpet
 permalink: pretty
 exclude: ['README.md', 'Gemfile.lock', 'Gemfile', 'CNAME', 'LICENSE', '*.sh']
 
