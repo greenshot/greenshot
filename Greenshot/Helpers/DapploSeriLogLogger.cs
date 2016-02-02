@@ -31,41 +31,48 @@ namespace Greenshot.Helpers
 	{
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext<DapploSeriLogLogger>();
 
-		private Serilog.Events.LogEventLevel MapLevel(LogInfo logInfo)
+		public LogLevel Level { get; set; } = LogSettings.DefaultLevel;
+
+		private Serilog.Events.LogEventLevel MapLevel(LogLevel level)
 		{
-			Serilog.Events.LogEventLevel level = Serilog.Events.LogEventLevel.Debug;
-			switch (logInfo.Level)
+			Serilog.Events.LogEventLevel seriLogLevel = Serilog.Events.LogEventLevel.Debug;
+			switch (level)
 			{
 				case LogLevel.Verbose:
-					level = Serilog.Events.LogEventLevel.Verbose;
+					seriLogLevel = Serilog.Events.LogEventLevel.Verbose;
 					break;
 				case LogLevel.Debug:
-					level = Serilog.Events.LogEventLevel.Debug;
+					seriLogLevel = Serilog.Events.LogEventLevel.Debug;
 					break;
 				case LogLevel.Info:
-					level = Serilog.Events.LogEventLevel.Information;
+					seriLogLevel = Serilog.Events.LogEventLevel.Information;
 					break;
 				case LogLevel.Warn:
-					level = Serilog.Events.LogEventLevel.Warning;
+					seriLogLevel = Serilog.Events.LogEventLevel.Warning;
 					break;
 				case LogLevel.Error:
-					level = Serilog.Events.LogEventLevel.Error;
+					seriLogLevel = Serilog.Events.LogEventLevel.Error;
 					break;
 				case LogLevel.Fatal:
-					level = Serilog.Events.LogEventLevel.Fatal;
+					seriLogLevel = Serilog.Events.LogEventLevel.Fatal;
 					break;
 			}
-			return level;
+			return seriLogLevel;
 		}
 
 		public void Write(LogInfo logInfo, string messageTemplate, params object[] propertyValues)
 		{
-			Log.ForContext(logInfo.Caller).Write(MapLevel(logInfo), messageTemplate, propertyValues);
+			Log.ForContext(logInfo.Source.SourceType).Write(MapLevel(logInfo.Level), messageTemplate, propertyValues);
 		}
 
 		public void Write(LogInfo logInfo, Exception exception, string messageTemplate, params object[] propertyValues)
 		{
-			Log.ForContext(logInfo.Caller).Write(MapLevel(logInfo), exception, messageTemplate, propertyValues);
+			Log.ForContext(logInfo.Source.SourceType).Write(MapLevel(logInfo.Level), exception, messageTemplate, propertyValues);
+		}
+
+		public bool IsLogLevelEnabled(LogLevel level)
+		{
+			return Log.IsEnabled(MapLevel(level));
 		}
 	}
 }
