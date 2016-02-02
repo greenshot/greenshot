@@ -31,7 +31,7 @@ defaults:
     layout: "faq"
 
 # Build settings
-markdown: redcarpet
+markdown: kramdown
 permalink: pretty
 exclude: ['README.md', 'Gemfile.lock', 'Gemfile', 'CNAME', 'LICENSE', '*.sh']
 
@@ -43,6 +43,3 @@ gems:
 
 kramdown:
  input: GFM
-
-redcarpet:
- extensions: ["no_intra_emphasis", "fenced_code_blocks", "autolink", "tables", "with_toc_data", "hard_wrap"]
