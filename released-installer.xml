@@ -12,7 +12,7 @@ permalink: releases/installer/
         <item>
           <title>{{asset.name}}</title>
           <link>{{asset.browser_download_url}}</link>
-          <pubDate>{{asset.created_at}}</pubDate>
+          <pubDate>{{asset.created_at | date_to_rfc822}}</pubDate>
           <description>{{release.body}}</description>
         </item>
 		{% endif %}{% endfor %}
