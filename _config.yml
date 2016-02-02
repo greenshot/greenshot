@@ -42,4 +42,4 @@ gems:
   - jekyll-redirect-from
 
 kramdown:
-  input: GFM
+  input: GFM 
