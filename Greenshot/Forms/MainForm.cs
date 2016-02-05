@@ -121,8 +121,11 @@ namespace Greenshot.Forms
 			{
 				coreConfiguration = await iniConfig.RegisterAndGetAsync<ICoreConfiguration>();
 				var languageLoader = new LanguageLoader(ApplicationName, coreConfiguration.Language ?? "en-US");
-				ApplicationBootstrapper.LanguageLoader = languageLoader;
-				ApplicationBootstrapper.IniConfig = iniConfig;
+
+				// Defaults are taken, if multiple IniConfig / LanguageLoaders are used this needs to be changed:
+				//ApplicationBootstrapper.LanguageLoaderForExport = languageLoader;
+				//ApplicationBootstrapper.IniConfigForExport = iniConfig;
+
 				// Read configuration & languages
 				languageLoader.CorrectMissingTranslations();
 				language = await LanguageLoader.Current.RegisterAndGetAsync<IGreenshotLanguage>();
@@ -399,19 +402,18 @@ namespace Greenshot.Forms
 			}
 			// The GreenshotPlugin assembly needs to be added manually!
 			ApplicationBootstrapper.Add(typeof(ICoreConfiguration).Assembly);
-			// Initialize the bootstrapper, so we can export
-			ApplicationBootstrapper.Initialize();
-
-			// Notify icon
-			ApplicationBootstrapper.Export(notifyIcon);
-			// Run!
-			ApplicationBootstrapper.Run();
 
 			Task.Factory.StartNew(
 				// this will use current synchronization context
 				async () =>
 				{
-					await ApplicationBootstrapper.StartupAsync();
+					// Initialize the bootstrapper, so we can export
+					await ApplicationBootstrapper.InitializeAsync();
+
+					// Notify icon
+					ApplicationBootstrapper.Export(notifyIcon);
+					// Run!
+					await ApplicationBootstrapper.RunAsync();
 				}, 
 				CancellationToken.None,
 				TaskCreationOptions.None,
