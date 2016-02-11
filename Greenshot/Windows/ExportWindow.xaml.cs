@@ -83,10 +83,13 @@ namespace Greenshot.Windows
 			SelectedDestination = null;
 		}
 
-		public async Task ShowAndAwaitSelection()
+		public async Task AwaitSelection()
 		{
+			if (!IsVisible)
+			{
+				Show();
+			}
 			_taskCompletionSource = new TaskCompletionSource<bool>();
-			Show();
 			await _taskCompletionSource.Task;
 			Hide();
 		}

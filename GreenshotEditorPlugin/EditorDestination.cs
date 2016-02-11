@@ -76,9 +76,10 @@ namespace GreenshotEditorPlugin
 		/// <param name="caller1"></param>
 		/// <param name="token"></param>
 		/// <returns>Task</returns>
-		public override Task RefreshAsync(IExportContext caller1, CancellationToken token = default(CancellationToken))
+		public override async Task RefreshAsync(IExportContext caller1, CancellationToken token = default(CancellationToken))
 		{
 			Children.Clear();
+			await Task.Yield();
 			foreach (var openEditor in ImageEditorForm.Editors)
 			{
 				var editorDestination = new EditorDestination
@@ -91,7 +92,6 @@ namespace GreenshotEditorPlugin
 				};
 				Children.Add(editorDestination);
 			}
-			return Task.FromResult(true);
 		}
 
 		private Task<INotification> ExportCaptureAsync(ICapture capture, IImageEditor editor, CancellationToken token = default(CancellationToken))

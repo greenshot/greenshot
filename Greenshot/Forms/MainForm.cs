@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Addons.Implementation;
+using Dapplo.Addons.Bootstrapper;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using Dapplo.Config.Support;
@@ -39,8 +39,6 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security.AccessControl;
-using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -61,14 +59,13 @@ namespace Greenshot.Forms
 	{
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(MainForm));
 		private const string ApplicationName = "Greenshot";
-		private const string MutexId = @"Local\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08";
-		private static Mutex _applicationMutex;
+		private const string MutexId = "F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08";
 		public static string LogFileLocation = null;
-		private static readonly ApplicationBootstrapper ApplicationBootstrapper = new ApplicationBootstrapper(ApplicationName);
+		private static readonly ApplicationBootstrapper GreenshotBootstrapper = new ApplicationBootstrapper(ApplicationName, MutexId);
 
 		public static ApplicationBootstrapper Bootstrapper {
 			get {
-				return ApplicationBootstrapper;
+				return GreenshotBootstrapper;
 			}
 		}
 
@@ -139,7 +136,7 @@ namespace Greenshot.Forms
 			{
 				// Fix for Bug 2495900, Multi-user Environment
 				// check whether there's an local instance running already
-				if (!LockAppMutex())
+				if (!GreenshotBootstrapper.IsMutexLocked)
 				{
 					// Other instance is running, call a Greenshot client or exit etc
 
@@ -154,7 +151,7 @@ namespace Greenshot.Forms
 					}
 
 					ShowOtherInstances();
-					FreeMutex();
+					GreenshotBootstrapper.Dispose();
 					return;
 				}
 
@@ -242,75 +239,6 @@ namespace Greenshot.Forms
 			}
 		}
 
-		/// <summary>
-		/// This tries to get the AppMutex, which takes care of having multiple Greenshot instances running
-		/// </summary>
-		/// <returns>true if it worked, false if another instance is already running</returns>
-		private static bool LockAppMutex()
-		{
-			bool lockSuccess = true;
-			// check whether there's an local instance running already, but use local so this works in a multi-user environment
-			try
-			{
-				// Added Mutex Security, hopefully this prevents the UnauthorizedAccessException more gracefully
-				// See an example in Bug #3131534
-				var sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
-				var mutexsecurity = new MutexSecurity();
-				mutexsecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.FullControl, AccessControlType.Allow));
-				mutexsecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.ChangePermissions, AccessControlType.Deny));
-				mutexsecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.Delete, AccessControlType.Deny));
-
-				bool created;
-				// 1) Create Mutex
-				_applicationMutex = new Mutex(false, MutexId, out created, mutexsecurity);
-				// 2) Get the right to it, this returns false if it's already locked
-				if (!_applicationMutex.WaitOne(0, false))
-				{
-					Log.Debug($"{ApplicationName} seems already to be running!");
-					lockSuccess = false;
-					// Clean up
-					_applicationMutex.Close();
-					_applicationMutex = null;
-				}
-			}
-			catch (AbandonedMutexException e)
-			{
-				// Another Greenshot instance didn't cleanup correctly!
-				// we can ignore the exception, it happend on the "waitone" but still the mutex belongs to us
-				Log.Warning($"{ApplicationName} didn't cleanup correctly!", e);
-			}
-			catch (UnauthorizedAccessException e)
-			{
-				Log.Warning($"{ApplicationName} is most likely already running for a different user in the same session, can't create mutex due to error: ", e);
-				lockSuccess = false;
-			}
-			catch (Exception ex)
-			{
-				Log.Warning("Problem obtaining the Mutex, assuming it was already taken!", ex);
-				lockSuccess = false;
-			}
-			return lockSuccess;
-		}
-
-		/// <summary>
-		/// Free the application mutex
-		/// </summary>
-		private static void FreeMutex()
-		{
-			if (_applicationMutex != null)
-			{
-				try
-				{
-					_applicationMutex.ReleaseMutex();
-					_applicationMutex = null;
-				}
-				catch (Exception ex)
-				{
-					Log.Error("Error releasing Mutex!", ex);
-				}
-			}
-		}
-
 		private static MainForm _instance;
 
 		public static MainForm Instance
@@ -390,37 +318,37 @@ namespace Greenshot.Forms
 			if (PortableHelper.IsPortable)
 			{
 				var pafPath = Path.Combine(Application.StartupPath, $@"App\{ApplicationName}");
-				ApplicationBootstrapper.Add(pafPath, "*.gsp");
+				GreenshotBootstrapper.Add(pafPath, "*.gsp");
 			}
 			else
 			{
 				var pluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
-				ApplicationBootstrapper.Add(pluginPath, "*.gsp");
+				GreenshotBootstrapper.Add(pluginPath, "*.gsp");
 
 				var applicationPath = Path.GetDirectoryName(Application.ExecutablePath);
-				ApplicationBootstrapper.Add(applicationPath, "*.gsp");
+				GreenshotBootstrapper.Add(applicationPath, "*.gsp");
 			}
 			// The GreenshotPlugin assembly needs to be added manually!
-			ApplicationBootstrapper.Add(typeof(ICoreConfiguration).Assembly);
+			GreenshotBootstrapper.Add(typeof(ICoreConfiguration).Assembly);
 
 			Task.Factory.StartNew(
 				// this will use current synchronization context
 				async () =>
 				{
 					// Initialize the bootstrapper, so we can export
-					await ApplicationBootstrapper.InitializeAsync();
+					await GreenshotBootstrapper.InitializeAsync();
 
 					// Notify icon
-					ApplicationBootstrapper.Export(notifyIcon);
+					GreenshotBootstrapper.Export(notifyIcon);
 					// Run!
-					await ApplicationBootstrapper.RunAsync();
-				}, 
+					await GreenshotBootstrapper.RunAsync();
+				},
 				CancellationToken.None,
 				TaskCreationOptions.None,
-				TaskScheduler.FromCurrentSynchronizationContext());
+				TaskScheduler.FromCurrentSynchronizationContext()).Wait();
 
 			// Check destinations, remove all that don't exist
-			var destinations = ApplicationBootstrapper.GetExports<IDestination, IDestinationMetadata>();
+			var destinations = GreenshotBootstrapper.GetExports<IDestination, IDestinationMetadata>();
 			foreach (string destination in coreConfiguration.OutputDestinations.ToArray())
 			{
 				if (destinations.Count(x => x.Value.Designation == destination) == 0)
@@ -1537,7 +1465,7 @@ namespace Greenshot.Forms
 				case ClickActions.OpenLastInEditor:
 					if (File.Exists(coreConfiguration.OutputFileAsFullpath))
 					{
-						IDestination editor = ApplicationBootstrapper.GetExports<IDestination>().Where(x => x.Value.Designation == BuildInDestinationEnum.Editor.ToString()).Select(x => x.Value).First();
+						IDestination editor = GreenshotBootstrapper.GetExports<IDestination>().Where(x => x.Value.Designation == BuildInDestinationEnum.Editor.ToString()).Select(x => x.Value).First();
 						await CaptureHelper.CaptureFileAsync(coreConfiguration.OutputFileAsFullpath, editor, token);
 					}
 					break;
@@ -1652,12 +1580,12 @@ namespace Greenshot.Forms
 				Log.Error("Error deinitializing sound!", e);
 			}
 
-			// Inform all registed plugins
+			// Inform all registed plugins and remove the application mutex
 			try
 			{
 				Task.Run(async () =>
 				{
-					await ApplicationBootstrapper.ShutdownAsync();
+					await GreenshotBootstrapper.ShutdownAsync();
 				}).Wait();
 				
 			}
@@ -1689,8 +1617,6 @@ namespace Greenshot.Forms
 				Log.Error("Error storing configuration!", e);
 			}
 
-			// Remove the application mutex
-			FreeMutex();
 
 			// make the icon invisible otherwise it stays even after exit!!
 			if (notifyIcon != null)

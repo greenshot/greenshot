@@ -84,23 +84,18 @@ namespace Greenshot.Destinations
 			{
 				var exportWindow = exportWindowContext.Value;
 				exportWindow.Capture = capture;
-				Task showTask = exportWindow.ShowAndAwaitSelection();
+				exportWindow.Show();
 
 				foreach (var destination in Destinations.Where(destination => destination.Metadata.Name != PickerDesignation))
 				{
 					exportWindow.Children.Add(destination.Value);
-					var ignoreTask = destination.Value.RefreshAsync(null, token);
+					await destination.Value.RefreshAsync(null, token);
                 }
 				INotification exportResult = null;
 				do
 				{
 					exportWindow.SelectedDestination = null;
-					if (showTask == null)
-					{
-						showTask = exportWindow.ShowAndAwaitSelection();
-					}
-                    await showTask;
-					showTask = null;
+					await exportWindow.AwaitSelection();
 					if (exportWindow.SelectedDestination == null)
 					{
 						break;

@@ -104,9 +104,9 @@ namespace GreenshotOfficePlugin.Destinations
 		/// <param name="caller1"></param>
 		/// <param name="token"></param>
 		/// <returns>Task</returns>
-		public override Task RefreshAsync(IExportContext caller1, CancellationToken token = default(CancellationToken))
+		public override async Task RefreshAsync(IExportContext caller1, CancellationToken token = default(CancellationToken))
 		{
-			return Task.Factory.StartNew(
+			await Task.Factory.StartNew(
 				// this will use current synchronization context
 				() =>
 				{
