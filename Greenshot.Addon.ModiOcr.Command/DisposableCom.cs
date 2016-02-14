@@ -22,7 +22,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace GreenshotOCRCommand
+namespace Greenshot.Addon.ModiOcr.Command
 {
 	/// <summary>
 	/// A simple com wrapper which helps with "using"

@@ -1,12 +1,11 @@
 ﻿<Window x:Class="Greenshot.Addon.Confluence.Forms.ConfluenceConfigurationForm"
 		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:gscore="clr-namespace:GreenshotPlugin.Core;assembly=GreenshotPlugin"
-		xmlns:gsconfig="clr-namespace:GreenshotPlugin.Configuration;assembly=GreenshotPlugin"
+		xmlns:gsconfig="clr-namespace:Greenshot.Addon.Configuration;assembly=Greenshot.Addon"
 		xmlns:support="clr-namespace:Greenshot.Addon.Confluence.Support"
 		xmlns:confluence="clr-namespace:Greenshot.Addon.Confluence"
 		Title="{support:Translate plugin_settings}" SizeToContent="WidthAndHeight" ResizeMode="NoResize"
-		Icon="/GreenshotConfluencePlugin;component/Images/Confluence.ico">
+		Icon="/Greenshot.Addon.Confluence;component/Images/Confluence.ico">
 	<Window.Resources>
 		<confluence:EnumDisplayer Type="{x:Type gsconfig:OutputFormat}" LanguageModule="Core" x:Key="outputFormats" />
 	</Window.Resources>

@@ -42,7 +42,7 @@ namespace Greenshot.Addon.ModiOcr
 		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(OcrDestination));
 		private const int MinWidth = 130;
 		private const int MinHeight = 130;
-		private static readonly string OcrCommand = Path.Combine(Path.GetDirectoryName(typeof(OcrPlugin).Assembly.Location), "greenshotocrcommand.exe");
+		private static readonly string OcrCommand = Path.Combine(Path.GetDirectoryName(typeof(OcrPlugin).Assembly.Location), "ModiOcrCommand.exe");
 		private static readonly BitmapSource OcrIcon;
 
 		static OcrDestination()

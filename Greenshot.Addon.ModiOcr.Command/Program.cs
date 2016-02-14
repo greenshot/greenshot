@@ -23,7 +23,7 @@ using System;
 using System.IO;
 using MODI;
 
-namespace GreenshotOCRCommand
+namespace Greenshot.Addon.ModiOcr.Command
 {
 	public class Program
 	{
