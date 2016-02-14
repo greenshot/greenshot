@@ -25,10 +25,10 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using System.Threading.Tasks;
 using Greenshot.Windows;
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Destination;
 using System.Threading;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Destination;
 
 
 namespace Greenshot.Destinations

@@ -21,16 +21,18 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
-using Microsoft.Win32;
 using System.Runtime.InteropServices;
+using System.Text;
+using Dapplo.Config.Ini;
 using mshtml;
+using Microsoft.Win32;
+using Exception = System.Exception;
 using Word = Microsoft.Office.Interop.Word;
 using Outlook = Microsoft.Office.Interop.Outlook;
-using Dapplo.Config.Ini;
+using Version = System.Version;
 
-namespace GreenshotOfficePlugin.OfficeExport
+namespace Greenshot.Addon.Office.OfficeExport
 {
 	/// <summary>
 	/// Outlook exporter has all the functionality to export to outlook

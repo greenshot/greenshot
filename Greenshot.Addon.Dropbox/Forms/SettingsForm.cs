@@ -21,7 +21,7 @@
 
 using Dapplo.Config.Ini;
 
-namespace GreenshotDropboxPlugin.Forms
+namespace Greenshot.Addon.Dropbox.Forms
 {
 	/// <summary>
 	/// Description of PasswordRequestForm.

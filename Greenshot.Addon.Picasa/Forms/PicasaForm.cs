@@ -19,9 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
- using GreenshotPlugin.Controls;
+using Greenshot.Addon.Controls;
 
-namespace GreenshotPicasaPlugin.Forms
+namespace Greenshot.Addon.Picasa.Forms
 {
 	public class PicasaForm : GreenshotForm
 	{

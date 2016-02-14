@@ -19,10 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Addons;
-using GreenshotPlugin.Extensions;
-using GreenshotPlugin.Interfaces.Destination;
-using GreenshotPlugin.Interfaces.Plugin;
 using System;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
@@ -30,8 +26,12 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Addons;
+using Greenshot.Addon.Extensions;
+using Greenshot.Addon.Interfaces.Destination;
+using Greenshot.Addon.Interfaces.Plugin;
 
-namespace GreenshotOcrPlugin
+namespace Greenshot.Addon.ModiOcr
 {
 	/// <summary>
 	/// OCR Plugin Greenshot

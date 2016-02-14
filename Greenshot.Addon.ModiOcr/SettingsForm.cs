@@ -21,7 +21,7 @@
 
 using System;
 
-namespace GreenshotOcrPlugin
+namespace Greenshot.Addon.ModiOcr
 {
 	/// <summary>
 	/// Description of SettingsForm.

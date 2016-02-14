@@ -21,7 +21,7 @@
 
 using System.Drawing;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	/// <summary>
 	/// This is the method signature which is used to capture a rectangle from the screen.

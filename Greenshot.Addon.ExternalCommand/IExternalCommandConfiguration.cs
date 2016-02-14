@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Dapplo.Config.Ini;
 
-namespace GreenshotExternalCommandPlugin
+namespace Greenshot.Addon.ExternalCommand
 {
 	/// <summary>
 	/// Description of FlickrConfiguration.

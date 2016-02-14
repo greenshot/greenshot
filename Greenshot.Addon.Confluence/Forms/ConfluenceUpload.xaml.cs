@@ -22,9 +22,9 @@
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using GreenshotConfluencePlugin.Model;
+using Greenshot.Addon.Confluence.Model;
 
-namespace GreenshotConfluencePlugin.Forms
+namespace Greenshot.Addon.Confluence.Forms
 {
 	/// <summary>
 	/// Interaction logic for ConfluenceUpload.xaml

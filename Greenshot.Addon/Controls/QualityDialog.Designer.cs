@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace GreenshotPlugin.Controls {
+namespace Greenshot.Addon.Controls {
 	partial class QualityDialog {
 		/// <summary>
 		/// Designer variable used to keep track of non-visual components.
@@ -46,11 +46,11 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.label_choosejpegquality = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.label_choosejpegquality = new GreenshotLabel();
 			this.textBoxJpegQuality = new System.Windows.Forms.TextBox();
 			this.trackBarJpegQuality = new System.Windows.Forms.TrackBar();
-			this.checkbox_dontaskagain = new GreenshotPlugin.Controls.GreenshotCheckBox();
-			this.button_ok = new GreenshotPlugin.Controls.GreenshotButton();
+			this.checkbox_dontaskagain = new GreenshotCheckBox();
+			this.button_ok = new GreenshotButton();
 			this.checkBox_reduceColors = new System.Windows.Forms.CheckBox();
 			((System.ComponentModel.ISupportInitialize)(this.trackBarJpegQuality)).BeginInit();
 			this.SuspendLayout();
@@ -138,11 +138,11 @@ namespace GreenshotPlugin.Controls {
 			this.PerformLayout();
 
 		}
-		private GreenshotPlugin.Controls.GreenshotButton button_ok;
-		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_dontaskagain;
+		private GreenshotButton button_ok;
+		private GreenshotCheckBox checkbox_dontaskagain;
 		private System.Windows.Forms.TrackBar trackBarJpegQuality;
 		private System.Windows.Forms.TextBox textBoxJpegQuality;
-		private GreenshotPlugin.Controls.GreenshotLabel label_choosejpegquality;
+		private GreenshotLabel label_choosejpegquality;
 		private System.Windows.Forms.CheckBox checkBox_reduceColors;
 	}
 }

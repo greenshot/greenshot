@@ -19,13 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Converters;
-using Dapplo.Config.Ini;
-using GreenshotPlugin.Configuration;
 using System.ComponentModel;
 using System.Runtime.Serialization;
+using Dapplo.Config.Converters;
+using Dapplo.Config.Ini;
+using Greenshot.Addon.Configuration;
 
-namespace GreenshotFlickrPlugin
+namespace Greenshot.Addon.Flickr
 {
 	public enum SafetyLevel
 	{

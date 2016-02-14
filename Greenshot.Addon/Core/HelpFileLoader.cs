@@ -19,10 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Language;
-using Dapplo.Config.Support;
-using Dapplo.HttpExtensions;
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -30,8 +26,11 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.Config.Language;
+using Dapplo.Config.Support;
+using Dapplo.HttpExtensions;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	/// <summary>
 	/// Description of HelpFileLoader.

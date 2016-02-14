@@ -19,10 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Drawing;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Drawing;
 
-namespace GreenshotEditorPlugin.Memento
+namespace Greenshot.Addon.Editor.Memento
 {
 	/// <summary>
 	/// The AddElementMemento makes it possible to undo adding an element

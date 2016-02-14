@@ -21,7 +21,7 @@
 
 using System;
 
-namespace GreenshotConfluencePlugin.Support
+namespace Greenshot.Addon.Confluence.Support
 {
 	public class TranslationManager
 	{

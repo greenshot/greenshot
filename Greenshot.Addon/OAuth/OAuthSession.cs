@@ -19,9 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Controls;
-using Dapplo.HttpExtensions;
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -34,9 +31,11 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.Factory;
+using Greenshot.Addon.Controls;
 
-namespace GreenshotPlugin.OAuth
+namespace Greenshot.Addon.OAuth
 {
 	/// <summary>
 	/// An OAuth 1 session object

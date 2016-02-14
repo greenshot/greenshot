@@ -19,12 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using Dapplo.HttpExtensions;
-using Dapplo.HttpExtensions.OAuth;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -32,8 +26,14 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using Dapplo.Config.Ini;
+using Dapplo.HttpExtensions;
+using Dapplo.HttpExtensions.OAuth;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Plugin;
 
-namespace GreenshotPicasaPlugin
+namespace Greenshot.Addon.Picasa
 {
 	/// <summary>
 	/// Description of PicasaUtils.

@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotEditorPlugin.Drawing
+namespace Greenshot.Addon.Editor.Drawing
 {
 	public enum DrawingModes
 	{

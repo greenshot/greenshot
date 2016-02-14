@@ -19,14 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Core;
-
 using mshtml;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using Greenshot.Addon.Core;
 using SHDocVw;
 using IServiceProvider = Greenshot.Interop.IServiceProvider;
 

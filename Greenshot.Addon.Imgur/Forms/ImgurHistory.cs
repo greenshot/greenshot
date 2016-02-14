@@ -27,11 +27,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Config.Ini;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Windows;
+using Greenshot.Addon.Controls;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Windows;
 
-namespace GreenshotImgurPlugin.Forms
+namespace Greenshot.Addon.Imgur.Forms
 {
 	/// <summary>
 	/// Description of ImgurHistory.

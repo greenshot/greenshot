@@ -22,11 +22,10 @@
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
-using GreenshotPlugin.Core;
 using Dapplo.Config.Language;
-using GreenshotPlugin.Extensions;
+using Greenshot.Addon.Extensions;
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addon.Controls
 {
 	public class GreenshotComboBox : ComboBox, IGreenshotConfigBindable, IGreenshotLanguageBindable
 	{

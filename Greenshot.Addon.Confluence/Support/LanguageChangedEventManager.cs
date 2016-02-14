@@ -22,7 +22,7 @@
 using System;
 using System.Windows;
 
-namespace GreenshotConfluencePlugin.Support
+namespace Greenshot.Addon.Confluence.Support
 {
 	public class LanguageChangedEventManager : WeakEventManager
 	{

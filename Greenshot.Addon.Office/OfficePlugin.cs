@@ -19,15 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Addons;
-using GreenshotOfficePlugin.Destinations;
-using GreenshotPlugin.Interfaces.Destination;
-using GreenshotPlugin.Interfaces.Plugin;
 using System.ComponentModel.Composition;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.Addons;
+using Greenshot.Addon.Interfaces.Destination;
+using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.Addon.Office.Destinations;
 
-namespace GreenshotOfficePlugin
+namespace Greenshot.Addon.Office
 {
 	/// <summary>
 	/// This is the OfficePlugin which takes care of exporting the different office destinations

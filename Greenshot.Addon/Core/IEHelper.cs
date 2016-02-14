@@ -21,9 +21,8 @@
 
 using System.Collections.Generic;
 using Microsoft.Win32;
-using Accessibility;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	/// <summary>
 	/// Description of IEHelper.

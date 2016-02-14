@@ -19,18 +19,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Xml;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Plugin;
 using OneNote = Microsoft.Office.Interop.OneNote;
 
-namespace GreenshotOfficePlugin.OfficeExport
+namespace Greenshot.Addon.Office.OfficeExport
 {
 	/// <summary>
 	/// OneNote exporter

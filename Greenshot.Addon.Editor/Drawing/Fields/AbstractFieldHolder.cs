@@ -19,15 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
-using GreenshotPlugin.Interfaces.Drawing;
+using Dapplo.Config.Ini;
+using Greenshot.Addon.Interfaces.Drawing;
 
-namespace GreenshotEditorPlugin.Drawing.Fields
+namespace Greenshot.Addon.Editor.Drawing.Fields
 {
 	/// <summary>
 	/// Basic IFieldHolder implementation, providing access to a set of fields

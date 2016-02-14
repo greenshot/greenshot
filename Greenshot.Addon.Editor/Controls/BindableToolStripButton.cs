@@ -22,9 +22,9 @@
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
-using GreenshotPlugin.Controls;
+using Greenshot.Addon.Controls;
 
-namespace GreenshotEditorPlugin.Controls
+namespace Greenshot.Addon.Editor.Controls
 {
 	/// <summary>
 	/// Description of BindableToolStripButton.

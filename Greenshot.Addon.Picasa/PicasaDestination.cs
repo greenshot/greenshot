@@ -19,11 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Extensions;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Destination;
-using GreenshotPlugin.Windows;
-
 using System;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
@@ -32,8 +27,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using Greenshot.Addon.Extensions;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Destination;
+using Greenshot.Addon.Windows;
 
-namespace GreenshotPicasaPlugin
+namespace Greenshot.Addon.Picasa
 {
 	[Destination(PicasaDesignation)]
 	public sealed class PicasaDestination : AbstractDestination
@@ -45,9 +44,9 @@ namespace GreenshotPicasaPlugin
 		static PicasaDestination()
 		{
 			var resources = new ComponentResourceManager(typeof(PicasaPlugin));
-			using (var PicasaImage = (Bitmap) resources.GetObject("Picasa"))
+			using (var picasaImage = (Bitmap) resources.GetObject("Picasa"))
 			{
-				PicasaIcon = PicasaImage.ToBitmapSource();
+				PicasaIcon = picasaImage.ToBitmapSource();
 			}
 
 		}
@@ -73,12 +72,12 @@ namespace GreenshotPicasaPlugin
 		{
 			base.Initialize();
 			Designation = PicasaDesignation;
-			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, "0", token);
+			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
 			Text = PicasaLanguage.UploadMenuItem;
 			Icon = PicasaIcon;
 		}
 
-		private async Task<INotification> ExportCaptureAsync(ICapture capture, string album, CancellationToken token = default(CancellationToken))
+		private async Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))
 		{
 			var returnValue = new Notification
 			{
@@ -89,14 +88,14 @@ namespace GreenshotPicasaPlugin
 			};
 			try
 			{
-				var uploadURL = await PleaseWaitWindow.CreateAndShowAsync(Designation, PicasaLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
+				var uploadUrl = await PleaseWaitWindow.CreateAndShowAsync(Designation, PicasaLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
 				{
 					return await PicasaUtils.UploadToPicasa(capture, progress, token).ConfigureAwait(false);
 				}, token);
 
-				if (!string.IsNullOrEmpty(uploadURL))
+				if (!string.IsNullOrEmpty(uploadUrl))
 				{
-					returnValue.ImageLocation = new Uri(uploadURL);
+					returnValue.ImageLocation = new Uri(uploadUrl);
 				}
 			}
 			catch (TaskCanceledException tcEx)

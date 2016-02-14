@@ -25,7 +25,7 @@ using System.IO;
 using System.Windows.Forms;
 using Dapplo.Config.Ini;
 
-namespace GreenshotExternalCommandPlugin
+namespace Greenshot.Addon.ExternalCommand
 {
 	/// <summary>
 	/// Description of SettingsFormDetail.

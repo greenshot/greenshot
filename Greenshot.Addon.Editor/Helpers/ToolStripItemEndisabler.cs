@@ -22,7 +22,7 @@
 using System;
 using System.Windows.Forms;
 
-namespace GreenshotEditorPlugin.Helpers
+namespace Greenshot.Addon.Editor.Helpers
 {
 	/// <summary>
 	/// Enables or disables toolstrip items, taking care of the hierarchy.

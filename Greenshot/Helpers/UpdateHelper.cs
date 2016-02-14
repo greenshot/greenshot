@@ -27,10 +27,9 @@ using System.Windows.Forms;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using Dapplo.Config.Support;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Extensions;
 using Greenshot.Forms;
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Extensions;
 
 
 namespace Greenshot.Helpers

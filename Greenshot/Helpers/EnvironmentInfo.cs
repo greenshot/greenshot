@@ -26,7 +26,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using Dapplo.Windows.Native;
-using GreenshotPlugin.Core;
+using Greenshot.Addon.Core;
 
 
 namespace Greenshot.Helpers

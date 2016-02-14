@@ -20,15 +20,14 @@
  */
 
 using System;
-
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Timers;
 using Dapplo.Windows.Enums;
-using Dapplo.Windows.SafeHandles;
 using Dapplo.Windows.Native;
+using Dapplo.Windows.SafeHandles;
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addon.Controls
 {
 	/// <summary>
 	/// Extend this Form to have the possibility for animations on your form

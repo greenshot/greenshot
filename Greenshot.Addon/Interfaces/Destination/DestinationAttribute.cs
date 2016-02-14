@@ -22,7 +22,7 @@
 using System;
 using System.ComponentModel.Composition;
 
-namespace GreenshotPlugin.Interfaces.Destination
+namespace Greenshot.Addon.Interfaces.Destination
 {
 	[MetadataAttribute]
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, Inherited = false, AllowMultiple = false)]

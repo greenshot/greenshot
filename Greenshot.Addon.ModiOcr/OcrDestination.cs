@@ -19,8 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Core;
-
 using System;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
@@ -28,12 +26,14 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Destination;
-using GreenshotPlugin.Interfaces.Plugin;
-using GreenshotPlugin.Extensions;
-namespace GreenshotOcrPlugin
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Destination;
+using Greenshot.Addon.Interfaces.Plugin;
+
+namespace Greenshot.Addon.ModiOcr
 {
 	[Destination(OcrDesignation), PartNotDiscoverable]
 	public sealed class OcrDestination : AbstractDestination

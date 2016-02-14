@@ -19,16 +19,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Addons;
-using GreenshotPlugin.Interfaces.Destination;
-using GreenshotPlugin.Interfaces.Plugin;
 using System.ComponentModel.Composition;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
+using Dapplo.Addons;
+using Greenshot.Addon.Interfaces.Destination;
+using Greenshot.Addon.Interfaces.Plugin;
 
-namespace GreenshotWindowsSharePlugin
+namespace Greenshot.Addon.WindowsShare
 {
 	/// <summary>
 	/// Share Plugin Greenshot

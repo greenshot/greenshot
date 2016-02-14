@@ -19,17 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using GreenshotPlugin.Configuration;
-
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
+using Dapplo.Config.Ini;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Interfaces;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	/// <summary>
 	/// Description of DestinationHelper.

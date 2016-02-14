@@ -21,13 +21,13 @@
 
 using System;
 using System.Drawing;
-using GreenshotPlugin.Extensions;
 using System.Drawing.Drawing2D;
-using GreenshotEditorPlugin.Helpers;
-using GreenshotEditorPlugin.Drawing.Filters;
-using GreenshotPlugin.Interfaces.Drawing;
+using Greenshot.Addon.Editor.Drawing.Filters;
+using Greenshot.Addon.Editor.Helpers;
+using Greenshot.Addon.Extensions;
+using Greenshot.Addon.Interfaces.Drawing;
 
-namespace GreenshotEditorPlugin.Drawing
+namespace Greenshot.Addon.Editor.Drawing
 {
 	/// <summary>
 	/// empty container for filter-only elements

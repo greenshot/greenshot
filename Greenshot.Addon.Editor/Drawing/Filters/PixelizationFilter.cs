@@ -19,14 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotEditorPlugin.Helpers;
-using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using GreenshotPlugin.Interfaces.Drawing;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Editor.Helpers;
+using Greenshot.Addon.Interfaces.Drawing;
 
-namespace GreenshotEditorPlugin.Drawing.Filters
+namespace Greenshot.Addon.Editor.Drawing.Filters
 {
 	[Serializable]
 	public class PixelizationFilter : AbstractFilter

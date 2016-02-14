@@ -21,7 +21,7 @@
 
 using System;
 
-namespace GreenshotEditorPlugin.Drawing.Fields.Binding
+namespace Greenshot.Addon.Editor.Drawing.Fields.Binding
 {
 	/// <summary>
 	/// Converts decimal to int and vice versa.

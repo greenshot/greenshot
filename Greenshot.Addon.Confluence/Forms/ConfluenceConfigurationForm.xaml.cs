@@ -22,7 +22,7 @@
 using System.Windows;
 using Dapplo.Config.Ini;
 
-namespace GreenshotConfluencePlugin.Forms
+namespace Greenshot.Addon.Confluence.Forms
 {
 	/// <summary>
 	/// Interaction logic for ConfluenceConfigurationForm.xaml

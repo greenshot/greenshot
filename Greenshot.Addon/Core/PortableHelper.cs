@@ -24,7 +24,7 @@ using System;
 using System.IO;
 using System.Reflection;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	/// <summary>
 	/// This class contains all logic to help with Portable App issues

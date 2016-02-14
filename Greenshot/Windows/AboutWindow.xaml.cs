@@ -21,8 +21,6 @@
 
 using Dapplo.Config.Ini;
 using Greenshot.Forms;
-using GreenshotPlugin.Core;
-
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -32,8 +30,9 @@ using System.Windows.Documents;
 using System.Windows.Forms.Integration;
 using System.Windows.Input;
 using Dapplo.Config.Language;
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Extensions;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
 
 namespace Greenshot.Windows
 {

@@ -19,15 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using GreenshotPlugin.OAuth;
 using System;
 using System.Drawing;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Dapplo.Config.Ini;
 using Dapplo.HttpExtensions;
+using Greenshot.Addon.OAuth;
 
-namespace GreenshotDropboxPlugin
+namespace Greenshot.Addon.Dropbox
 {
 	/// <summary>
 	/// Description of DropboxUtils.

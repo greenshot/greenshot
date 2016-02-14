@@ -22,7 +22,7 @@
 using System.ComponentModel;
 using Dapplo.Config.Language;
 
-namespace GreenshotBoxPlugin
+namespace Greenshot.Addon.Box
 {
 	[Language("Box")]
 	public interface IBoxLanguage : ILanguage, INotifyPropertyChanged

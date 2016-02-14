@@ -24,7 +24,8 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using GreenshotPlugin.Controls;
+using Greenshot.Addon.Controls;
+using ColorDialog = Greenshot.Addon.Controls.ColorDialog;
 
 namespace Greenshot.Controls
 {
@@ -91,7 +92,7 @@ namespace Greenshot.Controls
 
 		private void ColorButtonClick(object sender, EventArgs e)
 		{
-			var colorDialog = GreenshotPlugin.Controls.ColorDialog.GetInstance();
+			var colorDialog = ColorDialog.GetInstance();
 			colorDialog.Color = SelectedColor;
 			// Using the parent to make sure the dialog doesn't show on another window
 			colorDialog.ShowDialog(Parent.Parent);

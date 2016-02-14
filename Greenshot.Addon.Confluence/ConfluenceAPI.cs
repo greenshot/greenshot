@@ -19,12 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config;
-using Dapplo.Config.Ini;
-using Dapplo.Config.Support;
-using Dapplo.HttpExtensions;
-using GreenshotConfluencePlugin.Model;
-using GreenshotPlugin.Configuration;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -32,9 +26,15 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.Config;
+using Dapplo.Config.Ini;
+using Dapplo.Config.Support;
+using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.Factory;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Confluence.Model;
 
-namespace GreenshotConfluencePlugin
+namespace Greenshot.Addon.Confluence
 {
 	/// <summary>
 	/// Confluence API, using the FlurlClient

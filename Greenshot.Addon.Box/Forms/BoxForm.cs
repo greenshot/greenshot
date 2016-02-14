@@ -19,9 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Controls;
+using Greenshot.Addon.Controls;
 
-namespace GreenshotBoxPlugin.Forms
+namespace Greenshot.Addon.Box.Forms
 {
 	public class BoxForm : GreenshotForm
 	{

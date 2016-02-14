@@ -5,8 +5,8 @@
     <ProjectGuid>{19FEEF09-313F-43C7-819D-F1BCA782B08B}</ProjectGuid>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
-    <RootNamespace>GreenshotJiraPlugin</RootNamespace>
-    <AssemblyName>GreenshotJiraPlugin</AssemblyName>
+    <RootNamespace>Greenshot.Addon.Jira</RootNamespace>
+    <AssemblyName>Greenshot.Addon.Jira</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
@@ -134,7 +134,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">
+    <ProjectReference Include="..\Greenshot.Addon\Greenshot.Addon.csproj">
       <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
       <Name>GreenshotPlugin</Name>
     </ProjectReference>

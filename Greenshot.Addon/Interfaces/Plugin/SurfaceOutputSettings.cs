@@ -21,10 +21,10 @@
 
 using System.Collections.Generic;
 using Dapplo.Config.Ini;
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Core;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Core;
 
-namespace GreenshotPlugin.Interfaces.Plugin
+namespace Greenshot.Addon.Interfaces.Plugin
 {
 	public class SurfaceOutputSettings
 	{

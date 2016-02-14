@@ -21,7 +21,7 @@
 
 using System;
 
-namespace GreenshotEditorPlugin.Helpers
+namespace Greenshot.Addon.Editor.Helpers
 {
 	/// <summary>
 	/// Description of GeometryHelper.

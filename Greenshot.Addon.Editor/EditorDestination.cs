@@ -19,23 +19,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotEditorPlugin.Drawing;
-using GreenshotEditorPlugin.Forms;
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Core;
-
 using System;
+using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Forms;
-using System.ComponentModel.Composition;
 using System.Windows.Media.Imaging;
-using GreenshotPlugin.Extensions;
-using GreenshotPlugin.Interfaces.Destination;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Editor.Drawing;
+using Greenshot.Addon.Editor.Forms;
+using Greenshot.Addon.Extensions;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Destination;
+using Greenshot.Addon.Interfaces.Forms;
 
-namespace GreenshotEditorPlugin
+namespace Greenshot.Addon.Editor
 {
 	/// <summary>
 	/// Description of EditorDestination.

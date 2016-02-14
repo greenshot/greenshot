@@ -4,8 +4,8 @@
   <PropertyGroup>
     <ProjectGuid>{80D8DEB9-94E3-4876-8CCA-2DF1ED5F2C50}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>GreenshotImgurPlugin</RootNamespace>
-    <AssemblyName>GreenshotImgurPlugin</AssemblyName>
+    <RootNamespace>Greenshot.Addon.Imgur</RootNamespace>
+    <AssemblyName>Greenshot.Addon.Imgur</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
@@ -114,7 +114,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">
+    <ProjectReference Include="..\Greenshot.Addon\Greenshot.Addon.csproj">
       <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
       <Name>GreenshotPlugin</Name>
     </ProjectReference>

@@ -21,10 +21,10 @@
 
 using System.Collections.Generic;
 using System.Drawing;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces.Drawing;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Interfaces.Drawing;
 
-namespace GreenshotEditorPlugin.Memento
+namespace Greenshot.Addon.Editor.Memento
 {
 	/// <summary>
 	/// The DrawableContainerBoundsChangeMemento makes it possible to undo-redo an IDrawableContainer resize & move

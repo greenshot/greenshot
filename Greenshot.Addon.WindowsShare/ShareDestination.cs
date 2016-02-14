@@ -19,8 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Core;
-
 using System;
 using System.ComponentModel.Composition;
 using System.IO;
@@ -30,14 +28,15 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using Windows.Storage.Streams;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Destination;
-using GreenshotPlugin.Extensions;
-using GreenshotPlugin.Interfaces.Plugin;
-using GreenshotPlugin.Windows;
-using GreenshotWindowsSharePlugin.Native;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Destination;
+using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.Addon.Windows;
+using Greenshot.Addon.WindowsShare.Native;
 
-namespace GreenshotWindowsSharePlugin
+namespace Greenshot.Addon.WindowsShare
 {
 	[Destination(ShareDesignation), PartNotDiscoverable]
 	public sealed class ShareDestination : AbstractDestination

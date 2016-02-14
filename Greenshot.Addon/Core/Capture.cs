@@ -24,9 +24,9 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Windows.Forms;
-using GreenshotPlugin.Interfaces;
+using Greenshot.Addon.Interfaces;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	/// <summary>
 	/// This class is used to pass an instance of the "Capture" around

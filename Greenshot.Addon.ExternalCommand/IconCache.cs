@@ -23,9 +23,9 @@ using System;
 using System.Drawing;
 using System.IO;
 using Dapplo.Config.Ini;
-using GreenshotPlugin.Core;
+using Greenshot.Addon.Core;
 
-namespace GreenshotExternalCommandPlugin
+namespace Greenshot.Addon.ExternalCommand
 {
 	public static class IconCache
 	{

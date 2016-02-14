@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Dapplo.Config.Proxy;
 
-namespace GreenshotConfluencePlugin.Model
+namespace Greenshot.Addon.Confluence.Model
 {
 	/// <summary>
 	/// Container for the Confluence data

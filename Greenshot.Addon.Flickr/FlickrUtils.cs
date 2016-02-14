@@ -19,10 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.OAuth;
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -32,11 +28,14 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using Dapplo.Config.Ini;
 using Dapplo.HttpExtensions;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.Addon.OAuth;
 
-namespace GreenshotFlickrPlugin
+namespace Greenshot.Addon.Flickr
 {
 	/// <summary>
 	/// Description of FlickrUtils.

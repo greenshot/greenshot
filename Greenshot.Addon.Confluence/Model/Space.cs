@@ -22,7 +22,7 @@
 using System;
 using System.Text.RegularExpressions;
 
-namespace GreenshotConfluencePlugin.Model
+namespace Greenshot.Addon.Confluence.Model
 {
 	/// <summary>
 	/// Simple container for the Space

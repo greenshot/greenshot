@@ -19,12 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using Dapplo.HttpExtensions;
 using System.ComponentModel;
+using Dapplo.Config.Ini;
 using Dapplo.Config.Proxy;
+using Dapplo.HttpExtensions;
 
-namespace GreenshotPlugin.Configuration
+namespace Greenshot.Addon.Configuration
 {
 	/// <summary>
 	/// Store all network specific settings, currently only the properties in the IHttpSettings are includes.

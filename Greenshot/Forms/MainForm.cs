@@ -26,11 +26,6 @@ using Dapplo.Config.Support;
 using Dapplo.Windows.Native;
 using Greenshot.Helpers;
 using Greenshot.Windows;
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Extensions;
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -43,12 +38,16 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using GreenshotPlugin.Interfaces;
 using Timer = System.Timers.Timer;
-using GreenshotPlugin.Interfaces.Destination;
 using Serilog;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.LogFacade;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Controls;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Destination;
 
 namespace Greenshot.Forms
 {

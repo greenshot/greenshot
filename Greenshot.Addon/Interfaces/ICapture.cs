@@ -24,7 +24,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
-namespace GreenshotPlugin.Interfaces
+namespace Greenshot.Addon.Interfaces
 {
 	/// <summary>
 	/// The interface to the Capture object, so Plugins can use it.

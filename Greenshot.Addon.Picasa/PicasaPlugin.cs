@@ -19,10 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Addons;
-using GreenshotPicasaPlugin.Forms;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces.Plugin;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
@@ -30,8 +26,12 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Addons;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.Addon.Picasa.Forms;
 
-namespace GreenshotPicasaPlugin
+namespace Greenshot.Addon.Picasa
 {
 	/// <summary>
 	/// This is the Picasa base code

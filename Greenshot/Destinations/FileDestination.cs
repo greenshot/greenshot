@@ -19,22 +19,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Core;
-
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using GreenshotPlugin.Interfaces;
 using System.ComponentModel.Composition;
 using System.Windows.Media.Imaging;
-using GreenshotPlugin.Extensions;
-using GreenshotPlugin.Interfaces.Destination;
 using System.IO;
 using System.Windows;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Controls;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Destination;
+using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Forms;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Interfaces.Plugin;
 
 namespace Greenshot.Destinations
 {

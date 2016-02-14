@@ -19,16 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Core;
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Web;
 using System.Windows.Forms;
+using Greenshot.Addon.Core;
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addon.Controls
 {
 	/// <summary>
 	/// The OAuthLoginForm is used to allow the user to authorize Greenshot with an "Oauth" application

@@ -21,7 +21,7 @@
 
 using System.ComponentModel;
 
-namespace GreenshotPlugin.Interfaces.Plugin
+namespace Greenshot.Addon.Interfaces.Plugin
 {
 	/// <summary>
 	///  Meta-data belonging to the PluginAttribute, which makes it possible to specify type-safe meta-data.

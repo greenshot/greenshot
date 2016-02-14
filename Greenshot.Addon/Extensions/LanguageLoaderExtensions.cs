@@ -21,7 +21,7 @@
 
 using Dapplo.Config.Language;
 
-namespace GreenshotPlugin.Extensions
+namespace Greenshot.Addon.Extensions
 {
 	public static class LanguageLoaderExtensions
 	{

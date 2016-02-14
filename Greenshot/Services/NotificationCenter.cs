@@ -19,9 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Interfaces;
 using System;
 using System.ComponentModel.Composition;
+using Greenshot.Addon.Interfaces;
 
 namespace Greenshot.Services
 {

@@ -21,7 +21,7 @@
 
 using System;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	[AttributeUsage(AttributeTargets.Field)]
 	public sealed class DisplayKeyAttribute : Attribute

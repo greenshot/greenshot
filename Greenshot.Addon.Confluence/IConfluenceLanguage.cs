@@ -21,7 +21,7 @@
 
 using Dapplo.Config.Language;
 
-namespace GreenshotConfluencePlugin
+namespace Greenshot.Addon.Confluence
 {
 	[Language("Confluence")]
 	public interface IConfluenceLanguage : ILanguage

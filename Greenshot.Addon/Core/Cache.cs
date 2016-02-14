@@ -23,7 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Timers;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	/// <summary>
 	/// Cache class 

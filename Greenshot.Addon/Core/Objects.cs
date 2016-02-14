@@ -26,7 +26,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	public static class Objects
 	{

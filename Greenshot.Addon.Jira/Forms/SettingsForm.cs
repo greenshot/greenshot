@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotJiraPlugin.Forms
+namespace Greenshot.Addon.Jira.Forms
 {
 	/// <summary>
 	/// Description of PasswordRequestForm.

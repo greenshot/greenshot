@@ -20,10 +20,10 @@
  */
 
 using Dapplo.Config.Ini;
-using GreenshotPlugin.Configuration;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using GreenshotPlugin.Interfaces;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Interfaces;
 
 namespace Greenshot.Processors
 {

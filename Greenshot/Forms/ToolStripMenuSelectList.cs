@@ -20,14 +20,14 @@
  */
 
 using Dapplo.Config.Ini;
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Core;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Core;
 
 namespace Greenshot.Forms
 {

@@ -21,18 +21,17 @@
 
 using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
-using System.Reflection;
-using GreenshotPlugin.Core;
 using System.ComponentModel;
 using System.ComponentModel.Design;
-using GreenshotPlugin.Extensions;
-
+using System.Reflection;
+using System.Windows.Forms;
 using Dapplo.Config.Ini;
-using GreenshotPlugin.Configuration;
 using Dapplo.Config.Language;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addon.Controls
 {
 	/// <summary>
 	/// This form is used for automatically binding the elements of the form to the language

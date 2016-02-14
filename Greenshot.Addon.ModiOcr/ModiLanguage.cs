@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotOcrPlugin
+namespace Greenshot.Addon.ModiOcr
 {
 	internal enum ModiLanguage
 	{

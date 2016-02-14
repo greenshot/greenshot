@@ -19,15 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using Dapplo.Windows.App;
-using Dapplo.Windows.Enums;
-using Dapplo.Windows.Native;
-using Dapplo.Windows.SafeHandles;
-using Dapplo.Windows.Structs;
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Interfaces;
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -38,8 +29,16 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Dapplo.Config.Ini;
+using Dapplo.Windows.App;
+using Dapplo.Windows.Enums;
+using Dapplo.Windows.Native;
+using Dapplo.Windows.SafeHandles;
+using Dapplo.Windows.Structs;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Interfaces;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 
 	#region EnumWindows

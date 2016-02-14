@@ -26,7 +26,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
 
-namespace GreenshotPlugin.Interfaces.Destination
+namespace Greenshot.Addon.Interfaces.Destination
 {
 	public interface IDestination: INotifyPropertyChanged
 	{

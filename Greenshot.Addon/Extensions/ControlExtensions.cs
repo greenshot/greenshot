@@ -19,17 +19,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Core;
-using Dapplo.Windows.Native;
-
 using System;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
+using Dapplo.Windows.Native;
+using Greenshot.Addon.Core;
 
-namespace GreenshotPlugin.Extensions
+namespace Greenshot.Addon.Extensions
 {
 	public static class ControlExtensions
 	{

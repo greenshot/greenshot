@@ -19,9 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Controls;
+using Greenshot.Addon.Controls;
 
-namespace GreenshotOcrPlugin
+namespace Greenshot.Addon.ModiOcr
 {
 	/// <summary>
 	/// This class is needed for design-time resolving of the language files

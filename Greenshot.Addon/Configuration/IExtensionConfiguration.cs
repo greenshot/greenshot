@@ -22,7 +22,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace GreenshotPlugin.Configuration
+namespace Greenshot.Addon.Configuration
 {
 	/// <summary>
 	/// This interface represents all the generic plugin/extension settings

@@ -22,7 +22,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace GreenshotEditorPlugin.Drawing
+namespace Greenshot.Addon.Editor.Drawing
 {
 	/// <summary>
 	/// Grippers are the dragable edges of our containers

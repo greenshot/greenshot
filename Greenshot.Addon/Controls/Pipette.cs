@@ -23,12 +23,12 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using Dapplo.Windows.Enums;
 using Dapplo.Windows.Native;
 using Dapplo.Windows.SafeHandles;
 using Dapplo.Windows.Structs;
-using Dapplo.Windows.Enums;
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addon.Controls
 {
 	/// <summary>
 	/// This code was supplied by Hi-Coder as a patch for Greenshot

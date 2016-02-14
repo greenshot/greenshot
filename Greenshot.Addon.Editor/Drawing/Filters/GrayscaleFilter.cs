@@ -21,12 +21,12 @@
 
 using System;
 using System.Drawing;
-using GreenshotPlugin.Core;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using GreenshotPlugin.Interfaces.Drawing;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Interfaces.Drawing;
 
-namespace GreenshotEditorPlugin.Drawing.Filters
+namespace Greenshot.Addon.Editor.Drawing.Filters
 {
 	/// <summary>
 	/// Description of GrayscaleFilter.

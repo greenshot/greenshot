@@ -22,7 +22,7 @@
 using System.ComponentModel;
 using Dapplo.Config.Language;
 
-namespace GreenshotPhotobucketPlugin
+namespace Greenshot.Addon.Photobucket
 {
 	[Language("Photobucket")]
 	public interface IPhotobucketLanguage : ILanguage, INotifyPropertyChanged

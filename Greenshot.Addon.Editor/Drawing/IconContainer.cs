@@ -21,12 +21,11 @@
 
 using System;
 using System.Drawing;
-using System.IO;
 using System.Drawing.Drawing2D;
-using GreenshotPlugin.Interfaces.Drawing;
+using System.IO;
+using Greenshot.Addon.Interfaces.Drawing;
 
-
-namespace GreenshotEditorPlugin.Drawing
+namespace Greenshot.Addon.Editor.Drawing
 {
 	/// <summary>
 	/// Description of IconContainer.

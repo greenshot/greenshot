@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotPlugin.Interfaces.Destination
+namespace Greenshot.Addon.Interfaces.Destination
 {
 	public interface IDestinationMetadata
 	{

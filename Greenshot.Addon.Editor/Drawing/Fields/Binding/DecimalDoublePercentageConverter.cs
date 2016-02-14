@@ -21,7 +21,7 @@
 
 using System;
 
-namespace GreenshotEditorPlugin.Drawing.Fields.Binding
+namespace Greenshot.Addon.Editor.Drawing.Fields.Binding
 {
 	/// <summary>
 	/// Converts decimal to double (%) and vice versa, e.g. 95f <---> 0.95d

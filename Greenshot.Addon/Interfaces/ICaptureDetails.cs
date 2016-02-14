@@ -21,10 +21,10 @@
 
 using System;
 using System.Collections.Generic;
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Interfaces.Destination;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Interfaces.Destination;
 
-namespace GreenshotPlugin.Interfaces
+namespace Greenshot.Addon.Interfaces
 {
 	/// <summary>
 	/// Details for the capture, like the window title and date/time etc.

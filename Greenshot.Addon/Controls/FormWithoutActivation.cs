@@ -21,7 +21,7 @@
 
 using System.Windows.Forms;
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addon.Controls
 {
 	/// <summary>
 	/// FormWithoutActivation is exactly like a normal form, but doesn't activate (steal focus)

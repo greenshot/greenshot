@@ -19,10 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Language;
 using System.ComponentModel;
+using Dapplo.Config.Language;
 
-namespace GreenshotPicasaPlugin
+namespace Greenshot.Addon.Picasa
 {
 	[Language("Picasa")]
 	public interface IPicasaLanguage : ILanguage, INotifyPropertyChanged

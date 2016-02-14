@@ -24,7 +24,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	/// <summary>
 	/// Class that delegates all calls to the supplied Stream

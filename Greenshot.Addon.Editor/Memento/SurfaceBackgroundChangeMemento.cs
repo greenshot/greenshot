@@ -21,9 +21,9 @@
 
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using GreenshotPlugin.Interfaces;
+using Greenshot.Addon.Interfaces;
 
-namespace GreenshotEditorPlugin.Memento
+namespace Greenshot.Addon.Editor.Memento
 {
 	/// <summary>
 	/// The SurfaceCropMemento makes it possible to undo-redo an surface crop

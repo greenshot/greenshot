@@ -19,19 +19,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Core;
 using System;
 using System.ComponentModel;
+using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.ComponentModel.Composition;
 using Dapplo.Addons;
-using GreenshotDropboxPlugin.Forms;
-using GreenshotPlugin.Interfaces.Plugin;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Dropbox.Forms;
+using Greenshot.Addon.Interfaces.Plugin;
 
-namespace GreenshotDropboxPlugin
+namespace Greenshot.Addon.Dropbox
 {
 	/// <summary>
 	/// This is the Dropbox Plugin

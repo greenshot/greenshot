@@ -26,8 +26,7 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
-
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	/// <summary>
 	/// Encapsulates dialog functionality from the Credential Management API.

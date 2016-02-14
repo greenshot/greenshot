@@ -21,7 +21,7 @@
 
 using System;
 
-namespace GreenshotImgurPlugin.Forms
+namespace Greenshot.Addon.Imgur.Forms
 {
 	/// <summary>
 	/// Description of PasswordRequestForm.

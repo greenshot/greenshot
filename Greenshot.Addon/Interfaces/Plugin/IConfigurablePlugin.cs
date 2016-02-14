@@ -20,7 +20,7 @@
  */
 
 
-namespace GreenshotPlugin.Interfaces.Plugin
+namespace Greenshot.Addon.Interfaces.Plugin
 {
 	public interface IConfigurablePlugin : IGreenshotPlugin
 	{

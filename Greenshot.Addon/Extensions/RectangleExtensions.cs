@@ -21,7 +21,7 @@
 
 using System.Drawing;
 
-namespace GreenshotPlugin.Extensions
+namespace Greenshot.Addon.Extensions
 {
 	public static class RectangleExtensions
 	{

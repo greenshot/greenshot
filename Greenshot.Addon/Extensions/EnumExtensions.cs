@@ -21,7 +21,7 @@
 
 using System;
 
-namespace GreenshotPlugin.Extensions
+namespace Greenshot.Addon.Extensions
 {
 	public static class EnumerationExtensions
 	{

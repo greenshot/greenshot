@@ -19,12 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Language;
-using GreenshotEditorPlugin.Forms;
-using GreenshotEditorPlugin.Memento;
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -33,10 +27,16 @@ using System.Drawing.Drawing2D;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Drawing;
+using Dapplo.Config.Language;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Editor.Forms;
+using Greenshot.Addon.Editor.Memento;
+using Greenshot.Addon.Extensions;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Drawing;
 
-namespace GreenshotEditorPlugin.Drawing
+namespace Greenshot.Addon.Editor.Drawing
 {
 	/// <summary>
 	/// Dispatches most of a DrawableContainer's public properties and methods to a list of DrawableContainers.

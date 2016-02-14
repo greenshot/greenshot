@@ -23,7 +23,7 @@ using System;
 using System.Windows.Data;
 using System.Windows.Markup;
 
-namespace GreenshotConfluencePlugin.Support
+namespace Greenshot.Addon.Confluence.Support
 {
 	/// <summary>
 	/// The Translate Markup extension returns a binding to a TranslationData

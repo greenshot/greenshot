@@ -28,7 +28,7 @@ using System.Drawing.Imaging;
 using System.Reflection;
 using System.Windows.Forms;
 
-namespace GreenshotPlugin.Interfaces.Drawing
+namespace Greenshot.Addon.Interfaces.Drawing
 {
 	[Serializable]
 	public enum RenderMode

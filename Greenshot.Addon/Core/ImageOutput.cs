@@ -19,11 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using Dapplo.Config.Language;
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Controls;
-
 using System;
 using System.Diagnostics;
 using System.Drawing;
@@ -35,11 +30,15 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
+using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Controls;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Plugin;
 using Encoder = System.Drawing.Imaging.Encoder;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	/// <summary>
 	/// Description of ImageOutput.

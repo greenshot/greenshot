@@ -19,9 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using GreenshotPlugin.Core;
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -29,9 +26,11 @@ using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
+using Dapplo.Config.Ini;
 using Dapplo.Config.Proxy;
+using Greenshot.Addon.Core;
 
-namespace GreenshotPlugin.Configuration
+namespace Greenshot.Addon.Configuration
 {
 	/// <summary>
 	/// Supporting clipboard formats

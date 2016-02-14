@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Accessibility;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	/// <summary>
 	/// See: http://social.msdn.microsoft.com/Forums/en-US/ieextensiondevelopment/thread/03a8c835-e9e4-405b-8345-6c3d36bc8941

@@ -5,8 +5,8 @@
     <NoWarn>1685</NoWarn>
     <ProjectGuid>{A9D7B3E5-6E59-488C-9E8B-AD240B246A0E}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>GreenshotEditorPlugin</RootNamespace>
-    <AssemblyName>GreenshotEditorPlugin</AssemblyName>
+    <RootNamespace>Greenshot.Addon.Editor</RootNamespace>
+    <AssemblyName>Greenshot.Addon.Editor</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
@@ -194,7 +194,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">
+    <ProjectReference Include="..\Greenshot.Addon\Greenshot.Addon.csproj">
       <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
       <Name>GreenshotPlugin</Name>
       <Private>False</Private>

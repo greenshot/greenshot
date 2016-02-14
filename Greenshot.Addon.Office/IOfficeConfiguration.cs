@@ -19,11 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
 using System.ComponentModel;
+using Dapplo.Config.Ini;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 
-namespace GreenshotOfficePlugin
+namespace Greenshot.Addon.Office
 {
 	/// <summary>
 	/// Specifies which EmailFormat the email needs to use

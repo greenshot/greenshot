@@ -19,15 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Core;
-
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
-using GreenshotPlugin.Interfaces.Drawing;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Interfaces.Drawing;
 
-namespace GreenshotEditorPlugin.Drawing
+namespace Greenshot.Addon.Editor.Drawing
 {
 	/// <summary>
 	/// Description of BitmapContainer.

@@ -23,7 +23,7 @@ using System;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel.DataTransfer;
 
-namespace GreenshotWindowsSharePlugin.Native
+namespace Greenshot.Addon.WindowsShare.Native
 {
 	public class DataTransferManagerHelper
 	{

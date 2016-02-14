@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotEditorPlugin.Drawing.Fields.Binding
+namespace Greenshot.Addon.Editor.Drawing.Fields.Binding
 {
 	/// <summary>
 	/// Interface for a bidirectional validator, for use with BidirectionalBinding.

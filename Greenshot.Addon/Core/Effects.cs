@@ -27,9 +27,9 @@ using System.Drawing.Imaging;
 using System.Globalization;
 using System.Text;
 using Dapplo.Config.Language;
-using GreenshotPlugin.Configuration;
+using Greenshot.Addon.Configuration;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	/// <summary>
 	/// Interface to describe an effect

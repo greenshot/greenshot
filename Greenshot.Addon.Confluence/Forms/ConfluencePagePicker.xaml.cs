@@ -20,9 +20,9 @@
  */
 
 using System.Collections.Generic;
-using GreenshotConfluencePlugin.Model;
+using Greenshot.Addon.Confluence.Model;
 
-namespace GreenshotConfluencePlugin.Forms
+namespace Greenshot.Addon.Confluence.Forms
 {
 	/// <summary>
 	/// Interaction logic for ConfluencePagePicker.xaml

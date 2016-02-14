@@ -28,12 +28,12 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Config.Ini;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Extensions;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Plugin;
 
-namespace GreenshotExternalCommandPlugin
+namespace Greenshot.Addon.ExternalCommand
 {
 	/// <summary>
 	/// Description of OCRDestination.

@@ -20,9 +20,8 @@
  */
 
 using System;
-using System.Collections.Generic;
 
-namespace GreenshotPlugin.Interfaces.Plugin
+namespace Greenshot.Addon.Interfaces.Plugin
 {
 	public interface IGreenshotPlugin : IDisposable
 	{

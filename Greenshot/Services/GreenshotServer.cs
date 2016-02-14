@@ -19,8 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Interfaces;
-
 using System;
 using System.IO;
 using System.Security.Principal;
@@ -28,6 +26,7 @@ using System.ServiceModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Addons;
+using Greenshot.Addon.Interfaces;
 using Greenshot.Helpers;
 
 namespace Greenshot.Services

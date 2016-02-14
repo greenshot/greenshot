@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 
-namespace GreenshotPlugin.Configuration
+namespace Greenshot.Addon.Configuration
 {
 	/// <summary>
 	/// All available window capture modes

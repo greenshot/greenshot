@@ -22,7 +22,7 @@
 using System;
 using System.ComponentModel.Composition;
 
-namespace GreenshotPlugin.Interfaces.Destination
+namespace Greenshot.Addon.Interfaces.Destination
 {
 	/// <summary>
 	/// This attribute can be used to supply a name to a destination, without having it exported right away.

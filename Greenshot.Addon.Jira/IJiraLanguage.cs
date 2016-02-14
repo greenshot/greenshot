@@ -19,10 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Language;
 using System.ComponentModel;
+using Dapplo.Config.Language;
 
-namespace GreenshotJiraPlugin
+namespace Greenshot.Addon.Jira
 {
 	[Language("Jira")]
 	public interface IJiraLanguage : ILanguage, INotifyPropertyChanged

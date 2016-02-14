@@ -21,7 +21,7 @@
 
 using System;
 
-namespace GreenshotEditorPlugin.Drawing.Fields.Binding
+namespace Greenshot.Addon.Editor.Drawing.Fields.Binding
 {
 	/// <summary>
 	/// Basic IBindingConverter implementation

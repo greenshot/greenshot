@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	public enum BuildInDestinationEnum
 	{

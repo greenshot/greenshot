@@ -19,9 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.OAuth;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -30,14 +27,16 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.Config.Ini;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.Factory;
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.HttpExtensions.OAuth;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Plugin;
 
-namespace GreenshotImgurPlugin
+namespace Greenshot.Addon.Imgur
 {
 	/// <summary>
 	/// Description of ImgurUtils.

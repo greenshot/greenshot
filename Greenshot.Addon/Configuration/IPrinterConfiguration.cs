@@ -22,7 +22,7 @@
 using System.ComponentModel;
 using Dapplo.Config.Proxy;
 
-namespace GreenshotPlugin.Configuration
+namespace Greenshot.Addon.Configuration
 {
 	/// <summary>
 	/// This interface represents all the printer settings

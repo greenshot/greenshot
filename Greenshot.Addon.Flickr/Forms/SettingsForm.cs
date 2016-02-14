@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotFlickrPlugin.Forms
+namespace Greenshot.Addon.Flickr.Forms
 {
 	/// <summary>
 	/// Description of PasswordRequestForm.

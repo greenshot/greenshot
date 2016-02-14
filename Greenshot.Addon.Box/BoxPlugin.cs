@@ -19,19 +19,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Core;
 using System;
 using System.ComponentModel;
+using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.ComponentModel.Composition;
 using Dapplo.Addons;
-using GreenshotBoxPlugin.Forms;
-using GreenshotPlugin.Interfaces.Plugin;
+using Greenshot.Addon.Box.Forms;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Interfaces.Plugin;
 
-namespace GreenshotBoxPlugin
+namespace Greenshot.Addon.Box
 {
 	/// <summary>
 	/// This is the Box base code

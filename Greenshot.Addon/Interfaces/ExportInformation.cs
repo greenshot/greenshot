@@ -21,7 +21,7 @@
 
 using System;
 
-namespace GreenshotPlugin.Interfaces
+namespace Greenshot.Addon.Interfaces
 {
 	public class ExportInformation
 	{

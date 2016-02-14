@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Language;
-
-namespace GreenshotPlugin.Configuration
+namespace Greenshot.Addon.Configuration
 {
 	public interface IEditorLanguage
 	{

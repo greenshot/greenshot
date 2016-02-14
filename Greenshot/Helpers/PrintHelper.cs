@@ -24,13 +24,13 @@ using System.Drawing;
 using System.Drawing.Printing;
 using System.Windows.Forms;
 using Greenshot.Forms;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Extensions;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Plugin;
 
 namespace Greenshot.Helpers
 {

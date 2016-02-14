@@ -23,7 +23,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using GreenshotPlugin.Extensions;
+using Greenshot.Addon.Extensions;
 
 namespace Greenshot.Windows
 {

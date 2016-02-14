@@ -21,7 +21,7 @@
 
 using System;
 
-namespace GreenshotPlugin.Interfaces.Destination
+namespace Greenshot.Addon.Interfaces.Destination
 {
 	/// <summary>
 	/// This interface can be used to specify the caller for the destination

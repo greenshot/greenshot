@@ -22,7 +22,7 @@
 using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addon.Controls
 {
 	public class GreenshotButton : Button, IGreenshotLanguageBindable
 	{

@@ -26,7 +26,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace GreenshotEditorPlugin.Controls
+namespace Greenshot.Addon.Editor.Controls
 {
 	public class NonJumpingPanel : Panel
 	{

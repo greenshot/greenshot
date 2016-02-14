@@ -20,9 +20,9 @@
  */
 
 using Greenshot.Services;
-using GreenshotPlugin.Interfaces;
 using System.Collections.Generic;
 using System.ServiceModel;
+using Greenshot.Addon.Interfaces;
 
 namespace Greenshot.Helpers
 {

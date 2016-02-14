@@ -21,7 +21,7 @@
 
 using Dapplo.Config.Language;
 
-namespace GreenshotConfluencePlugin.Support
+namespace Greenshot.Addon.Confluence.Support
 {
 	/// <summary>
 	/// 

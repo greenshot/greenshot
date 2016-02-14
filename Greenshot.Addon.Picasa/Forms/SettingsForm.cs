@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotPicasaPlugin.Forms
+namespace Greenshot.Addon.Picasa.Forms
 {
 	/// <summary>
 	/// Description of PasswordRequestForm.

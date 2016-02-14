@@ -20,10 +20,9 @@
  */
 
 using System;
-using System.ComponentModel;
 using System.Drawing;
-using GreenshotEditorPlugin.Drawing.Fields;
-using GreenshotPlugin.Interfaces.Drawing;
+using Greenshot.Addon.Editor.Drawing.Fields;
+using Greenshot.Addon.Interfaces.Drawing;
 
 /// <summary>
 /// Graphical filter which can be added to DrawableContainer.
@@ -31,7 +30,7 @@ using GreenshotPlugin.Interfaces.Drawing;
 /// OnPropertyChanged whenever a public property has been changed.
 /// </summary>
 
-namespace GreenshotEditorPlugin.Drawing.Filters
+namespace Greenshot.Addon.Editor.Drawing.Filters
 {
 	[Serializable]
 	public abstract class AbstractFilter : AbstractFieldHolder, IFilter

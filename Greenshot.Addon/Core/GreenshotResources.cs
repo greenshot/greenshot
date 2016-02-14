@@ -22,7 +22,7 @@
 using System.ComponentModel;
 using System.Drawing;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	/// <summary>
 	/// Centralized storage of the icons & bitmaps

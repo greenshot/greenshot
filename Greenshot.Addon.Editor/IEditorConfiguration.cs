@@ -19,16 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using Dapplo.Windows.Native;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.Serialization;
+using Dapplo.Config.Ini;
 using Dapplo.Windows.Enums;
-using GreenshotPlugin.Core;
+using Greenshot.Addon.Core;
 
-namespace GreenshotEditorPlugin
+namespace Greenshot.Addon.Editor
 {
 	/// <summary>
 	/// Description of CoreConfiguration.

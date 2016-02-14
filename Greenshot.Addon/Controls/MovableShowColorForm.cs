@@ -19,13 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Windows.Native;
-using Dapplo.Windows.SafeHandles;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Dapplo.Windows.Native;
+using Dapplo.Windows.SafeHandles;
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addon.Controls
 {
 	/// <summary>
 	/// This code was supplied by Hi-Coder as a patch for Greenshot

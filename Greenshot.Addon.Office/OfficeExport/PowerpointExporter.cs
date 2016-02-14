@@ -19,15 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using Microsoft.Office.Core;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using Dapplo.Config.Ini;
+using Microsoft.Office.Core;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 
-namespace GreenshotOfficePlugin.OfficeExport
+namespace Greenshot.Addon.Office.OfficeExport
 {
 	public class PowerpointExporter
 	{

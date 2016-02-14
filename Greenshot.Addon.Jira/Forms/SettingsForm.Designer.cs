@@ -18,7 +18,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace GreenshotJiraPlugin.Forms {
+
+using Greenshot.Addon.Controls;
+
+namespace Greenshot.Addon.Jira.Forms {
 	partial class SettingsForm {
 		/// <summary>
 		/// Designer variable used to keep track of non-visual components.
@@ -47,18 +50,18 @@ namespace GreenshotJiraPlugin.Forms {
 		private void InitializeComponent()
 		{
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsForm));
-			this.buttonOK = new GreenshotPlugin.Controls.GreenshotButton();
-			this.buttonCancel = new GreenshotPlugin.Controls.GreenshotButton();
-			this.label_url = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.label_username = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.label_password = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.textBoxUrl = new GreenshotPlugin.Controls.GreenshotTextBox();
-			this.textBoxUsername = new GreenshotPlugin.Controls.GreenshotTextBox();
-			this.textBoxPassword = new GreenshotPlugin.Controls.GreenshotTextBox();
-			this.combobox_uploadimageformat = new GreenshotPlugin.Controls.GreenshotComboBox();
-			this.label_upload_format = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.label_pattern = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.pattern_textbox = new GreenshotPlugin.Controls.GreenshotTextBox();
+			this.buttonOK = new GreenshotButton();
+			this.buttonCancel = new GreenshotButton();
+			this.label_url = new GreenshotLabel();
+			this.label_username = new GreenshotLabel();
+			this.label_password = new GreenshotLabel();
+			this.textBoxUrl = new GreenshotTextBox();
+			this.textBoxUsername = new GreenshotTextBox();
+			this.textBoxPassword = new GreenshotTextBox();
+			this.combobox_uploadimageformat = new GreenshotComboBox();
+			this.label_upload_format = new GreenshotLabel();
+			this.label_pattern = new GreenshotLabel();
+			this.pattern_textbox = new GreenshotTextBox();
 			this.SuspendLayout();
 			// 
 			// buttonOK
@@ -208,17 +211,17 @@ namespace GreenshotJiraPlugin.Forms {
 			this.PerformLayout();
 
 		}
-		private GreenshotPlugin.Controls.GreenshotComboBox combobox_uploadimageformat;
-		private GreenshotPlugin.Controls.GreenshotLabel label_upload_format;
-		private GreenshotPlugin.Controls.GreenshotTextBox textBoxUrl;
-		private GreenshotPlugin.Controls.GreenshotTextBox textBoxUsername;
-		private GreenshotPlugin.Controls.GreenshotTextBox textBoxPassword;
-		private GreenshotPlugin.Controls.GreenshotLabel label_url;
-		private GreenshotPlugin.Controls.GreenshotLabel label_username;
-		private GreenshotPlugin.Controls.GreenshotLabel label_password;
-		private GreenshotPlugin.Controls.GreenshotButton buttonCancel;
-		private GreenshotPlugin.Controls.GreenshotButton buttonOK;
-		private GreenshotPlugin.Controls.GreenshotLabel label_pattern;
-		private GreenshotPlugin.Controls.GreenshotTextBox pattern_textbox;
+		private GreenshotComboBox combobox_uploadimageformat;
+		private GreenshotLabel label_upload_format;
+		private GreenshotTextBox textBoxUrl;
+		private GreenshotTextBox textBoxUsername;
+		private GreenshotTextBox textBoxPassword;
+		private GreenshotLabel label_url;
+		private GreenshotLabel label_username;
+		private GreenshotLabel label_password;
+		private GreenshotButton buttonCancel;
+		private GreenshotButton buttonOK;
+		private GreenshotLabel label_pattern;
+		private GreenshotTextBox pattern_textbox;
 	}
 }

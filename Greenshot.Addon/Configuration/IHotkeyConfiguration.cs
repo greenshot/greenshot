@@ -22,7 +22,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace GreenshotPlugin.Configuration
+namespace Greenshot.Addon.Configuration
 {
 	/// <summary>
 	/// The configuration for the hotkeys

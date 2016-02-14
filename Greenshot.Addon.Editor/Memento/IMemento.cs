@@ -21,7 +21,7 @@
 
 using System;
 
-namespace GreenshotEditorPlugin.Memento
+namespace Greenshot.Addon.Editor.Memento
 {
 	/// <summary>
 	/// Description of IMemento.

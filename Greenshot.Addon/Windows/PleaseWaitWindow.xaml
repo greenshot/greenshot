@@ -1,4 +1,4 @@
-﻿<Window x:Class="GreenshotPlugin.Windows.PleaseWaitWindow"
+﻿<Window x:Class="Greenshot.Addon.Windows.PleaseWaitWindow"
 		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"

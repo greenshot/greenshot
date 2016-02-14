@@ -21,7 +21,7 @@
 
 using System;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	public class EventDelay
 	{

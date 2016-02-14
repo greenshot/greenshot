@@ -19,8 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Core;
-using Dapplo.Windows.Native;
 using System;
 using System.ComponentModel;
 using System.Threading;
@@ -28,9 +26,11 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms.Integration;
 using System.Windows.Media;
-using GreenshotPlugin.Extensions;
+using Dapplo.Windows.Native;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
 
-namespace GreenshotPlugin.Windows
+namespace Greenshot.Addon.Windows
 {
 	/// <summary>
 	/// Interaction logic for PleaseWaitWindow.xaml

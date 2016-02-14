@@ -26,7 +26,7 @@ using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using Dapplo.Windows.SafeHandles;
 
-namespace GreenshotPlugin.Extensions
+namespace Greenshot.Addon.Extensions
 {
 	public static class BitmapExtensions
 	{

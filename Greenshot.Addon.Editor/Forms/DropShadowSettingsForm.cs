@@ -22,43 +22,43 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using GreenshotPlugin.Core;
+using Greenshot.Addon.Core;
 
-namespace GreenshotEditorPlugin.Forms
+namespace Greenshot.Addon.Editor.Forms
 {
 	public partial class DropShadowSettingsForm : BaseForm
 	{
-		private DropShadowEffect effect;
+		private readonly DropShadowEffect _effect;
 
 		public DropShadowSettingsForm(DropShadowEffect effect)
 		{
-			this.effect = effect;
+			_effect = effect;
 			InitializeComponent();
 			ShowSettings();
 		}
 
 		/// <summary>
-		/// Apply the settings from the effect to the view
+		/// Apply the settings from the _effect to the view
 		/// </summary>
 		private void ShowSettings()
 		{
-			trackBar1.Value = (int) (effect.Darkness*40);
-			offsetX.Value = effect.ShadowOffset.X;
-			offsetY.Value = effect.ShadowOffset.Y;
-			thickness.Value = effect.ShadowSize;
+			trackBar1.Value = (int) (_effect.Darkness*40);
+			offsetX.Value = _effect.ShadowOffset.X;
+			offsetY.Value = _effect.ShadowOffset.Y;
+			thickness.Value = _effect.ShadowSize;
 		}
 
 		private void ButtonOK_Click(object sender, EventArgs e)
 		{
-			effect.Darkness = (float) trackBar1.Value/(float) 40;
-			effect.ShadowOffset = new Point((int) offsetX.Value, (int) offsetY.Value);
-			effect.ShadowSize = (int) thickness.Value;
+			_effect.Darkness = trackBar1.Value/40f;
+			_effect.ShadowOffset = new Point((int) offsetX.Value, (int) offsetY.Value);
+			_effect.ShadowSize = (int) thickness.Value;
 			DialogResult = DialogResult.OK;
 		}
 
 		private void ButtonReset_Click(object sender, EventArgs e)
 		{
-			effect.Reset();
+			_effect.Reset();
 			ShowSettings();
 		}
 	}

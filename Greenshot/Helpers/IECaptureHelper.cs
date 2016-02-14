@@ -27,17 +27,16 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Greenshot.Helpers.IEInterop;
 using Dapplo.Windows.Native;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
-
 using mshtml;
 using System.Threading;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
-using GreenshotPlugin.Configuration;
 using Dapplo.Windows.Enums;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Controls;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Interfaces;
 using Greenshot.Interop;
-using GreenshotPlugin.Interfaces;
 
 namespace Greenshot.Helpers
 {

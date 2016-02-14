@@ -21,8 +21,6 @@
 
 using Dapplo.Config.Ini;
 using Greenshot.Forms;
-using GreenshotEditorPlugin.Drawing;
-using GreenshotPlugin.Core;
 using Dapplo.Windows.Native;
 
 using System;
@@ -35,9 +33,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Config.Language;
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Destination;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Editor.Drawing;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Windows;
 
 namespace Greenshot.Helpers

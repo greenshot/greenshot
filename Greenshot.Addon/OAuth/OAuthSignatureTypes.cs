@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotPlugin.OAuth
+namespace Greenshot.Addon.OAuth
 {
 	/// <summary>
 	/// Provides a predefined set of algorithms that are supported officially by the OAuth 1.x protocol

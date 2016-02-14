@@ -20,9 +20,9 @@
  */
 
 using System;
-using GreenshotPlugin.Interfaces.Drawing;
+using Greenshot.Addon.Interfaces.Drawing;
 
-namespace GreenshotEditorPlugin.Memento
+namespace Greenshot.Addon.Editor.Memento
 {
 	/// <summary>
 	/// The ChangeFieldHolderMemento makes it possible to undo-redo an IDrawableContainer move

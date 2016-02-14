@@ -23,11 +23,11 @@ using System;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Extensions;
 using Dapplo.Windows.Native;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addon.Controls
 {
 	/// <summary>
 	/// Description of PleaseWaitForm.

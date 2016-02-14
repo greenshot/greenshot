@@ -22,7 +22,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	/// <summary>
 	/// A helper class which does the mashalling for structs

@@ -19,13 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotOfficePlugin.OfficeExport;
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Destination;
-using GreenshotPlugin.Interfaces.Plugin;
-
 using System;
 using System.ComponentModel.Composition;
 using System.IO;
@@ -34,9 +27,15 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
-using GreenshotPlugin.Extensions;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Destination;
+using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.Addon.Office.OfficeExport;
 
-namespace GreenshotOfficePlugin.Destinations
+namespace Greenshot.Addon.Office.Destinations
 {
 	/// <summary>
 	/// Description of WordDestination.

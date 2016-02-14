@@ -22,7 +22,7 @@
 using System.ComponentModel;
 using Dapplo.Config.Language;
 
-namespace GreenshotExternalCommandPlugin
+namespace Greenshot.Addon.ExternalCommand
 {
 	[Language("ExternalCommand")]
 	public interface IExternalCommandLanguage : ILanguage, INotifyPropertyChanged

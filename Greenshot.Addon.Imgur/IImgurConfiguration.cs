@@ -19,13 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using Dapplo.HttpExtensions.OAuth;
-using GreenshotPlugin.Configuration;
 using System.Collections.Generic;
 using System.ComponentModel;
+using Dapplo.Config.Ini;
+using Dapplo.HttpExtensions.OAuth;
+using Greenshot.Addon.Configuration;
 
-namespace GreenshotImgurPlugin
+namespace Greenshot.Addon.Imgur
 {
 	/// <summary>
 	/// Description of ImgurConfiguration.

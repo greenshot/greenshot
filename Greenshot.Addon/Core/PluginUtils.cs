@@ -19,11 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using GreenshotPlugin.Configuration;
-using Dapplo.Windows.Native;
-
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -31,10 +26,14 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using GreenshotPlugin.Interfaces.Forms;
-using GreenshotPlugin.Interfaces.Plugin;
+using Dapplo.Config.Ini;
+using Dapplo.Windows.Native;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Interfaces.Forms;
+using Greenshot.Addon.Interfaces.Plugin;
+using Microsoft.Win32;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	/// <summary>
 	/// Description of PluginUtils.

@@ -24,7 +24,7 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 
-namespace GreenshotEditorPlugin.Controls
+namespace Greenshot.Addon.Editor.Controls
 {
 	[ToolStripItemDesignerAvailability(ToolStripItemDesignerAvailability.ToolStrip | ToolStripItemDesignerAvailability.StatusStrip)]
 	public class ToolStripNumericUpDown : ToolStripControlHost, INotifyPropertyChanged

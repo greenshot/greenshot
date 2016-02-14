@@ -19,11 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using Dapplo.Config.Language;
-using GreenshotPlugin.Configuration;
-using Dapplo.Windows.Native;
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -34,12 +29,16 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using Dapplo.Windows.Structs;
+using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
 using Dapplo.Windows.Enums;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
+using Dapplo.Windows.Native;
+using Dapplo.Windows.Structs;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Plugin;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	/// <summary>
 	/// Description of ClipboardHelper.

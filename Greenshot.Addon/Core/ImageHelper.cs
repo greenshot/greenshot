@@ -19,18 +19,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using GreenshotPlugin.Configuration;
-using Dapplo.Windows.Native;
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using Dapplo.Config.Ini;
+using Dapplo.Windows.Native;
+using Greenshot.Addon.Configuration;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	internal enum ExifOrientations : byte
 	{

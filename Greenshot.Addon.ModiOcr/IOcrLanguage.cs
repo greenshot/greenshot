@@ -21,7 +21,7 @@
 
 using Dapplo.Config.Language;
 
-namespace GreenshotOcrPlugin
+namespace Greenshot.Addon.ModiOcr
 {
 	[Language("OCR")]
 	public interface IOcrLanguage : ILanguage

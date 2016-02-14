@@ -20,9 +20,9 @@
  */
 
 using Dapplo.Config.Language;
-using GreenshotPlugin.Controls;
+using Greenshot.Addon.Controls;
 
-namespace GreenshotImgurPlugin.Forms
+namespace Greenshot.Addon.Imgur.Forms
 {
 	/// <summary>
 	/// This class is needed for design-time resolving of the language files

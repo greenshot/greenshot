@@ -20,11 +20,10 @@
  */
 
 using System;
-using System.Drawing;
 using System.Collections.Generic;
+using System.Drawing;
 
-
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	/// <summary>
 	/// Helper interface for passing base type

@@ -19,7 +19,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Addon.Jira", "Gre
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Addon.ModiOcr", "Greenshot.Addon.ModiOcr\Greenshot.Addon.ModiOcr.csproj", "{C6988EE8-2FEE-4349-9F09-F9628A0D8965}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotOCRCommand", "GreenshotOCRCommand\GreenshotOCRCommand.csproj", "{D61E6ECE-E0B6-4467-B492-F08A06BA8F02}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Addon.ModiOcr.Command", "Greenshot.Addon.ModiOcr.Command\Greenshot.Addon.ModiOcr.Command.csproj", "{D61E6ECE-E0B6-4467-B492-F08A06BA8F02}"
 	ProjectSection(ProjectDependencies) = postProject
 		{C6988EE8-2FEE-4349-9F09-F9628A0D8965} = {C6988EE8-2FEE-4349-9F09-F9628A0D8965}
 	EndProjectSection

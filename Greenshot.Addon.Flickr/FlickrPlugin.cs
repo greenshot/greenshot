@@ -21,17 +21,17 @@
 
 using System;
 using System.ComponentModel;
-using System.Drawing;
-using System.Windows.Forms;
-using GreenshotPlugin.Core;
-using System.Threading.Tasks;
-using System.Threading;
 using System.ComponentModel.Composition;
+using System.Drawing;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 using Dapplo.Addons;
-using GreenshotFlickrPlugin.Forms;
-using GreenshotPlugin.Interfaces.Plugin;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Flickr.Forms;
+using Greenshot.Addon.Interfaces.Plugin;
 
-namespace GreenshotFlickrPlugin
+namespace Greenshot.Addon.Flickr
 {
 	/// <summary>
 	/// This is the Flickr base code

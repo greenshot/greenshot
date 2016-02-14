@@ -22,7 +22,7 @@
 using System.ComponentModel;
 using Dapplo.Config.Language;
 
-namespace GreenshotDropboxPlugin
+namespace Greenshot.Addon.Dropbox
 {
 	[Language("Dropbox")]
 	public interface IDropboxLanguage : ILanguage, INotifyPropertyChanged

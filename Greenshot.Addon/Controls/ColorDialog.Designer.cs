@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addon.Controls
 {
 	public partial class ColorDialog {
 		/// <summary>
@@ -48,21 +48,21 @@ namespace GreenshotPlugin.Controls
 		private void InitializeComponent()
 		{
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ColorDialog));
-			this.btnTransparent = new GreenshotPlugin.Controls.GreenshotButton();
+			this.btnTransparent = new GreenshotButton();
 			this.colorPanel = new System.Windows.Forms.Panel();
-			this.labelHtmlColor = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.labelHtmlColor = new GreenshotLabel();
 			this.textBoxHtmlColor = new System.Windows.Forms.TextBox();
-			this.labelRed = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.labelGreen = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.labelBlue = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.labelRed = new GreenshotLabel();
+			this.labelGreen = new GreenshotLabel();
+			this.labelBlue = new GreenshotLabel();
 			this.textBoxRed = new System.Windows.Forms.TextBox();
 			this.textBoxGreen = new System.Windows.Forms.TextBox();
 			this.textBoxBlue = new System.Windows.Forms.TextBox();
-			this.labelRecentColors = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.labelRecentColors = new GreenshotLabel();
 			this.textBoxAlpha = new System.Windows.Forms.TextBox();
-			this.labelAlpha = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.btnApply = new GreenshotPlugin.Controls.GreenshotButton();
-			this.pipette = new GreenshotPlugin.Controls.Pipette();
+			this.labelAlpha = new GreenshotLabel();
+			this.btnApply = new GreenshotButton();
+			this.pipette = new Pipette();
 			this.SuspendLayout();
 			// 
 			// btnTransparent
@@ -226,7 +226,7 @@ namespace GreenshotPlugin.Controls
 			this.pipette.Name = "pipette";
 			this.pipette.Size = new System.Drawing.Size(33, 23);
 			this.pipette.TabIndex = 13;
-			this.pipette.PipetteUsed += new System.EventHandler<GreenshotPlugin.Controls.PipetteUsedArgs>(this.PipetteUsed);
+			this.pipette.PipetteUsed += new System.EventHandler<PipetteUsedArgs>(this.PipetteUsed);
 			// 
 			// ColorDialog
 			// 
@@ -261,21 +261,21 @@ namespace GreenshotPlugin.Controls
 			this.PerformLayout();
 
 		}
-		private GreenshotPlugin.Controls.GreenshotLabel labelRed;
-		private GreenshotPlugin.Controls.GreenshotLabel labelGreen;
-		private GreenshotPlugin.Controls.GreenshotLabel labelBlue;
+		private GreenshotLabel labelRed;
+		private GreenshotLabel labelGreen;
+		private GreenshotLabel labelBlue;
 		private System.Windows.Forms.TextBox textBoxHtmlColor;
-		private GreenshotPlugin.Controls.GreenshotLabel labelRecentColors;
-		private GreenshotPlugin.Controls.GreenshotLabel labelAlpha;
-		private GreenshotPlugin.Controls.GreenshotLabel labelHtmlColor;
-		private GreenshotPlugin.Controls.GreenshotButton btnApply;
+		private GreenshotLabel labelRecentColors;
+		private GreenshotLabel labelAlpha;
+		private GreenshotLabel labelHtmlColor;
+		private GreenshotButton btnApply;
 		private System.Windows.Forms.TextBox textBoxAlpha;
 		private System.Windows.Forms.TextBox textBoxRed;
 		private System.Windows.Forms.TextBox textBoxGreen;
 		private System.Windows.Forms.TextBox textBoxBlue;
 		private System.Windows.Forms.Panel colorPanel;
-		private GreenshotPlugin.Controls.GreenshotButton btnTransparent;
-		private GreenshotPlugin.Controls.Pipette pipette;
+		private GreenshotButton btnTransparent;
+		private Pipette pipette;
 		
 		
 

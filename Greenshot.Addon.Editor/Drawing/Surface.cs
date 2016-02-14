@@ -19,11 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotEditorPlugin.Memento;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Extensions;
-using GreenshotPlugin.Windows;
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -36,11 +31,15 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Drawing;
 using Dapplo.HttpExtensions;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Editor.Memento;
+using Greenshot.Addon.Extensions;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Drawing;
+using Greenshot.Addon.Windows;
 
-namespace GreenshotEditorPlugin.Drawing
+namespace Greenshot.Addon.Editor.Drawing
 {
 	/// <summary>
 	/// Description of Surface.

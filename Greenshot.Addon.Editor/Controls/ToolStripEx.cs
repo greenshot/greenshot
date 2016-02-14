@@ -22,7 +22,7 @@
 using System;
 using System.Windows.Forms;
 
-namespace GreenshotEditorPlugin.Controls
+namespace Greenshot.Addon.Editor.Controls
 {
 	/// <summary>
 	/// This is an extension of the default ToolStrip and allows us to click it even when the form doesn't have focus.

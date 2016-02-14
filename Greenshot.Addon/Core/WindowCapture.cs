@@ -19,10 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using GreenshotPlugin.Configuration;
-using Dapplo.Windows.Native;
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -30,13 +26,16 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using Dapplo.Windows.Structs;
-using Dapplo.Windows.SafeHandles;
+using Dapplo.Config.Ini;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Enums;
-using GreenshotPlugin.Interfaces;
+using Dapplo.Windows.Native;
+using Dapplo.Windows.SafeHandles;
+using Dapplo.Windows.Structs;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Interfaces;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	/// <summary>
 	/// The Window Capture code

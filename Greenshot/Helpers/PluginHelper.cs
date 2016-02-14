@@ -20,9 +20,6 @@
  */
 
 using Greenshot.Forms;
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
@@ -30,8 +27,11 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Plugin;
 
 namespace Greenshot.Helpers
 {

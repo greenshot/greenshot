@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Core;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
@@ -28,10 +27,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Addons;
-using GreenshotImgurPlugin.Forms;
-using GreenshotPlugin.Interfaces.Plugin;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Imgur.Forms;
+using Greenshot.Addon.Interfaces.Plugin;
 
-namespace GreenshotImgurPlugin
+namespace Greenshot.Addon.Imgur
 {
 	/// <summary>
 	/// This is the ImgurPlugin code

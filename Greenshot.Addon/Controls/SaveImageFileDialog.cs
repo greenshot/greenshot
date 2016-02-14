@@ -19,17 +19,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Core;
-
 using System;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using GreenshotPlugin.Interfaces;
+using Dapplo.Config.Ini;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Interfaces;
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addon.Controls
 {
 	/// <summary>
 	/// Custom dialog for saving images, wraps SaveFileDialog.

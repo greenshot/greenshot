@@ -19,14 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Microsoft.Office.Core;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using Greenshot.Addon.Core;
+using Microsoft.Office.Core;
 using Excel = Microsoft.Office.Interop.Excel;
 
-namespace GreenshotOfficePlugin.OfficeExport
+namespace Greenshot.Addon.Office.OfficeExport
 {
 	/// <summary>
 	/// Excel exporter
@@ -124,7 +125,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 								workbook.ComObject.Activate();
 								using (var application = DisposableCom.Create(workbook.ComObject.Application))
 								{
-									GreenshotPlugin.Core.WindowDetails.ToForeground((IntPtr) application.ComObject.Hwnd);
+									WindowDetails.ToForeground((IntPtr) application.ComObject.Hwnd);
 								}
 							}
 						}

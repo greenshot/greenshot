@@ -22,11 +22,10 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using GreenshotPlugin.Extensions;
+using Greenshot.Addon.Editor.Drawing;
+using Greenshot.Addon.Extensions;
 
-using GreenshotEditorPlugin.Drawing;
-
-namespace GreenshotEditorPlugin.Helpers
+namespace Greenshot.Addon.Editor.Helpers
 {
 	/// <summary>
 	/// Offers a few helper functions for scaling/aligning an element with another element

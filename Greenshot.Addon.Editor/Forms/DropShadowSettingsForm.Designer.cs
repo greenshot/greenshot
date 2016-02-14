@@ -19,7 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotEditorPlugin.Forms {
+using Greenshot.Addon.Controls;
+
+namespace Greenshot.Addon.Editor.Forms {
 	partial class DropShadowSettingsForm {
 		/// <summary>
 		/// Required designer variable.
@@ -49,11 +51,11 @@ namespace GreenshotEditorPlugin.Forms {
 			this.label3 = new System.Windows.Forms.Label();
 			this.offsetY = new System.Windows.Forms.NumericUpDown();
 			this.trackBar1 = new System.Windows.Forms.TrackBar();
-			this.buttonOK = new GreenshotPlugin.Controls.GreenshotButton();
-			this.buttonCancel = new GreenshotPlugin.Controls.GreenshotButton();
-			this.labelDarkness = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.labelOffset = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.labelThickness = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.buttonOK = new GreenshotButton();
+			this.buttonCancel = new GreenshotButton();
+			this.labelDarkness = new GreenshotLabel();
+			this.labelOffset = new GreenshotLabel();
+			this.labelThickness = new GreenshotLabel();
 			((System.ComponentModel.ISupportInitialize)(this.thickness)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.offsetX)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.offsetY)).BeginInit();
@@ -232,10 +234,10 @@ namespace GreenshotEditorPlugin.Forms {
 		private System.Windows.Forms.Label label3;
 		private System.Windows.Forms.NumericUpDown offsetY;
 		private System.Windows.Forms.TrackBar trackBar1;
-		private GreenshotPlugin.Controls.GreenshotButton buttonOK;
-		private GreenshotPlugin.Controls.GreenshotButton buttonCancel;
-		private GreenshotPlugin.Controls.GreenshotLabel labelDarkness;
-		private GreenshotPlugin.Controls.GreenshotLabel labelOffset;
-		private GreenshotPlugin.Controls.GreenshotLabel labelThickness;
+		private GreenshotButton buttonOK;
+		private GreenshotButton buttonCancel;
+		private GreenshotLabel labelDarkness;
+		private GreenshotLabel labelOffset;
+		private GreenshotLabel labelThickness;
 	}
 }

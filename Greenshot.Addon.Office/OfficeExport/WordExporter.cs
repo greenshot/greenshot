@@ -19,14 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using Microsoft.Office.Core;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using Dapplo.Config.Ini;
+using Microsoft.Office.Core;
+using Version = System.Version;
 using Word = Microsoft.Office.Interop.Word;
 
-namespace GreenshotOfficePlugin.OfficeExport
+namespace Greenshot.Addon.Office.OfficeExport
 {
 	public class WordExporter
 	{

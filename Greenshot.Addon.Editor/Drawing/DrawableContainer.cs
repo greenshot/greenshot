@@ -19,22 +19,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using GreenshotEditorPlugin.Drawing.Fields;
-using GreenshotEditorPlugin.Drawing.Filters;
-using GreenshotEditorPlugin.Helpers;
-using GreenshotEditorPlugin.Memento;
-using GreenshotPlugin.Extensions;
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Drawing;
+using Dapplo.Config.Ini;
+using Greenshot.Addon.Editor.Drawing.Fields;
+using Greenshot.Addon.Editor.Drawing.Filters;
+using Greenshot.Addon.Editor.Helpers;
+using Greenshot.Addon.Editor.Memento;
+using Greenshot.Addon.Extensions;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Drawing;
 
-namespace GreenshotEditorPlugin.Drawing
+namespace Greenshot.Addon.Editor.Drawing
 {
 	/// <summary>
 	/// represents a rectangle, ellipse, label or whatever. Can contain filters, too.

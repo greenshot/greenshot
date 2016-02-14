@@ -22,9 +22,9 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using GreenshotPlugin.Core;
+using Greenshot.Addon.Core;
 
-namespace GreenshotEditorPlugin.Forms
+namespace Greenshot.Addon.Editor.Forms
 {
 	public partial class TornEdgeSettingsForm : BaseForm
 	{

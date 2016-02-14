@@ -19,18 +19,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using Dapplo.Jira;
-using Dapplo.Windows;
-using GreenshotPlugin.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.Config.Ini;
+using Dapplo.Jira;
+using Dapplo.Windows;
+using Greenshot.Addon.Configuration;
 
-namespace GreenshotJiraPlugin
+namespace Greenshot.Addon.Jira
 {
 
 	/// <summary>

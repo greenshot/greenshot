@@ -22,7 +22,7 @@
 using System.ComponentModel;
 using Dapplo.Config.Language;
 
-namespace GreenshotPlugin.Configuration
+namespace Greenshot.Addon.Configuration
 {
 	[Language("Core")]
 	public interface IGreenshotLanguage : ILanguage, INotifyPropertyChanged, IEditorLanguage

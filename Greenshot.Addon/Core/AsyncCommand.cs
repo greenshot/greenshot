@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Threading;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	public class AsyncCommand : ICommand
 	{

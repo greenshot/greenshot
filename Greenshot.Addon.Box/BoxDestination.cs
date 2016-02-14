@@ -19,10 +19,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Windows;
-
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Drawing;
@@ -30,14 +28,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using GreenshotPlugin.Extensions;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Destination;
-using Dapplo.HttpExtensions.OAuth;
 using Dapplo.HttpExtensions;
-using System.Collections.Generic;
+using Dapplo.HttpExtensions.OAuth;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Destination;
+using Greenshot.Addon.Windows;
 
-namespace GreenshotBoxPlugin
+namespace Greenshot.Addon.Box
 {
 	[Destination(BoxDesignation)]
 	public sealed class BoxDestination : AbstractDestination

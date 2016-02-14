@@ -26,11 +26,11 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Reflection;
 using System.Windows.Data;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Extensions;
 using Dapplo.Config.Language;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
 
-namespace GreenshotConfluencePlugin
+namespace Greenshot.Addon.Confluence
 {
 	public class EnumDisplayer : IValueConverter
 	{

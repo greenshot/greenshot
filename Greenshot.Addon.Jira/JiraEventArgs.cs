@@ -21,7 +21,7 @@
 
 using System;
 
-namespace GreenshotJiraPlugin
+namespace Greenshot.Addon.Jira
 {
 	public enum JiraEventTypes
 	{

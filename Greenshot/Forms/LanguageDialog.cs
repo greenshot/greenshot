@@ -24,7 +24,7 @@ using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Config.Language;
-using GreenshotPlugin.Core;
+using Greenshot.Addon.Core;
 
 
 namespace Greenshot.Forms

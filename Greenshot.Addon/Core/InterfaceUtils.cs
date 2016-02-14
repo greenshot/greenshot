@@ -21,12 +21,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Threading;
-
 using System.Linq;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	/// <summary>
 	/// Description of InterfaceUtils.

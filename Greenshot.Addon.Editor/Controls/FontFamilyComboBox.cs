@@ -24,7 +24,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace GreenshotEditorPlugin.Controls
+namespace Greenshot.Addon.Editor.Controls
 {
 	/// <summary>
 	/// ToolStripComboBox containing installed font families, 

@@ -23,16 +23,15 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
-using System.Windows.Forms;
-using GreenshotPlugin.Extensions;
-
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Dapplo.Config.Ini;
-using GreenshotPlugin.Configuration;
 using Dapplo.Config.Language;
-using GreenshotPlugin.Interfaces;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Extensions;
+using Greenshot.Addon.Interfaces;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addon.Core
 {
 	/// <summary>
 	/// Description of AbstractLegacyDestination.

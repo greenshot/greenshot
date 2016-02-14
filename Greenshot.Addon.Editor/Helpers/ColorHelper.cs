@@ -22,7 +22,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 
-namespace GreenshotEditorPlugin.Helpers
+namespace Greenshot.Addon.Editor.Helpers
 {
 	public static class ColorHelper
 	{

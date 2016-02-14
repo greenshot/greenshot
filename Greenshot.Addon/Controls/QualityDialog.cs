@@ -19,13 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Core;
 using System;
-using GreenshotPlugin.Interfaces.Plugin;
+using Dapplo.Config.Ini;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Interfaces.Plugin;
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addon.Controls
 {
 	/// <summary>
 	/// Description of JpegQualityDialog.

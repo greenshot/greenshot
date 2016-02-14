@@ -4,8 +4,8 @@
   <PropertyGroup>
     <ProjectGuid>{697CF066-9077-4F22-99D9-D989CCE7282B}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>GreenshotBoxPlugin</RootNamespace>
-    <AssemblyName>GreenshotBoxPlugin</AssemblyName>
+    <RootNamespace>Greenshot.Addon.Box</RootNamespace>
+    <AssemblyName>Greenshot.Addon.Box</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
@@ -119,7 +119,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">
+    <ProjectReference Include="..\Greenshot.Addon\Greenshot.Addon.csproj">
       <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
       <Name>GreenshotPlugin</Name>
     </ProjectReference>

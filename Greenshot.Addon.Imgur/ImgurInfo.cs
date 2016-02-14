@@ -22,7 +22,7 @@
 using System;
 using System.Drawing;
 
-namespace GreenshotImgurPlugin
+namespace Greenshot.Addon.Imgur
 {
 	/// <summary>
 	/// Description of ImageInfo.

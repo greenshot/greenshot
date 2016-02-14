@@ -30,14 +30,13 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Dapplo.Config.Language;
 using Dapplo.Windows.Native;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Controls;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Helpers;
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Extensions;
-using GreenshotPlugin.Interfaces;
-
-using GreenshotPlugin.Interfaces.Destination;
 
 namespace Greenshot.Forms
 {

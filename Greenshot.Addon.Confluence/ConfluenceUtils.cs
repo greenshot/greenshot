@@ -19,17 +19,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotConfluencePlugin.Model;
-using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Automation;
+using Greenshot.Addon.Confluence.Model;
+using Greenshot.Addon.Core;
 
-
-namespace GreenshotConfluencePlugin
+namespace Greenshot.Addon.Confluence
 {
 	/// <summary>
 	/// Confluence utils are to support the confluence plugin with retrieving the current confluence pages.

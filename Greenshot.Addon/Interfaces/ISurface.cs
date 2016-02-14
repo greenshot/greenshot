@@ -4,10 +4,10 @@ using System.Drawing.Drawing2D;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces.Drawing;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Interfaces.Drawing;
 
-namespace GreenshotPlugin.Interfaces
+namespace Greenshot.Addon.Interfaces
 {
 	/// <summary>
 	/// Alignment Enums for possitioning

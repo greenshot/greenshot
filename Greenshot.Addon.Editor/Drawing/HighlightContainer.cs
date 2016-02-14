@@ -21,9 +21,9 @@
 
 using System;
 using System.Runtime.Serialization;
-using GreenshotPlugin.Interfaces.Drawing;
+using Greenshot.Addon.Interfaces.Drawing;
 
-namespace GreenshotEditorPlugin.Drawing
+namespace Greenshot.Addon.Editor.Drawing
 {
 	/// <summary>
 	/// Description of ObfuscateContainer.

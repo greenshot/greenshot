@@ -22,7 +22,7 @@
 using System.ComponentModel;
 using Dapplo.Config.Ini;
 
-namespace GreenshotOcrPlugin
+namespace Greenshot.Addon.ModiOcr
 {
 	/// <summary>
 	/// Description of CoreConfiguration.

@@ -23,7 +23,7 @@ using System;
 using System.Runtime.InteropServices;
 using Windows.ApplicationModel.DataTransfer;
 
-namespace GreenshotWindowsSharePlugin.Native
+namespace Greenshot.Addon.WindowsShare.Native
 {
 	/// <summary>
 	/// The IDataTransferManagerInterOp is documented here: https://msdn.microsoft.com/en-us/library/windows/desktop/jj542488(v=vs.85).aspx.

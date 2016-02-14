@@ -22,7 +22,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace GreenshotEditorPlugin.Controls
+namespace Greenshot.Addon.Editor.Controls
 {
 	/// <summary>
 	/// Prevent having a gradient background in the toolstrip, and the overflow button

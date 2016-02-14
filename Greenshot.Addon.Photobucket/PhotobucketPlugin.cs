@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Core;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Drawing;
@@ -29,11 +27,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Addons;
-using GreenshotPhotobucketPlugin.Forms;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.Addon.Photobucket.Forms;
 
-namespace GreenshotPhotobucketPlugin
+namespace Greenshot.Addon.Photobucket
 {
 	/// <summary>
 	/// This is the GreenshotPhotobucketPlugin base code

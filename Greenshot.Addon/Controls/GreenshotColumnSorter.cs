@@ -22,7 +22,7 @@
 using System.Collections;
 using System.Windows.Forms;
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addon.Controls
 {
 	/// <summary>
 	/// This class is an implementation of the 'IComparer' interface.

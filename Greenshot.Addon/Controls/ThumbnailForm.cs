@@ -19,17 +19,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Core;
-using Dapplo.Windows.Native;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Dapplo.Windows.Structs;
+using Dapplo.Config.Ini;
 using Dapplo.Windows.Enums;
+using Dapplo.Windows.Native;
+using Dapplo.Windows.Structs;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Core;
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addon.Controls
 {
 	/// <summary>
 	/// This form allows us to show a Thumbnail preview of a window near the context menu when selecting a window to capture.

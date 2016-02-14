@@ -22,9 +22,9 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using GreenshotPlugin.Interfaces;
+using Greenshot.Addon.Interfaces;
 
-namespace GreenshotEditorPlugin.Drawing.Fields.Binding
+namespace Greenshot.Addon.Editor.Drawing.Fields.Binding
 {
 	/// <summary>
 	/// Converting horizontal alignment to its StringAlignment representation and vice versa.

@@ -19,12 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System.ComponentModel;
 using Dapplo.Config.Converters;
 using Dapplo.Config.Ini;
-using GreenshotPlugin.Configuration;
-using System.ComponentModel;
+using Greenshot.Addon.Configuration;
 
-namespace GreenshotJiraPlugin
+namespace Greenshot.Addon.Jira
 {
 	/// <summary>
 	/// Description of JiraConfiguration.

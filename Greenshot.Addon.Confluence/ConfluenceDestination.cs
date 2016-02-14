@@ -19,9 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Windows;
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
@@ -35,13 +32,16 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using Dapplo.HttpExtensions;
-using GreenshotConfluencePlugin.Model;
-using GreenshotPlugin.Extensions;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Destination;
-using GreenshotPlugin.Interfaces.Plugin;
+using Greenshot.Addon.Confluence.Forms;
+using Greenshot.Addon.Confluence.Model;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Destination;
+using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.Addon.Windows;
 
-namespace GreenshotConfluencePlugin
+namespace Greenshot.Addon.Confluence
 {
 	[Destination(ConfluenceDesignation)]
 	public sealed class ConfluenceDestination : AbstractDestination
@@ -134,7 +134,7 @@ namespace GreenshotConfluencePlugin
 			var outputSettings = new SurfaceOutputSettings(ConfluenceConfiguration.UploadFormat, ConfluenceConfiguration.UploadJpegQuality, ConfluenceConfiguration.UploadReduceColors);
 			if (page == null)
 			{
-				var confluenceUpload = new Forms.ConfluenceUpload(filename);
+				var confluenceUpload = new ConfluenceUpload(filename);
 				bool? dialogResult = await confluenceUpload.ShowDialogAsync(token);
 				if (dialogResult.HasValue && dialogResult.Value)
 				{

@@ -19,17 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using Dapplo.Config.Language;
-using GreenshotEditorPlugin.Drawing;
-using GreenshotEditorPlugin.Drawing.Fields.Binding;
-using GreenshotEditorPlugin.Helpers;
-using GreenshotPlugin.Configuration;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Extensions;
-using Dapplo.Windows.Native;
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -39,12 +28,22 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
+using Dapplo.Windows.Native;
 using Dapplo.Windows.Structs;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Drawing;
-using GreenshotPlugin.Interfaces.Forms;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Controls;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Editor.Drawing;
+using Greenshot.Addon.Editor.Drawing.Fields.Binding;
+using Greenshot.Addon.Editor.Helpers;
+using Greenshot.Addon.Extensions;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Drawing;
+using Greenshot.Addon.Interfaces.Forms;
 
-namespace GreenshotEditorPlugin.Forms
+namespace Greenshot.Addon.Editor.Forms
 {
 	/// <summary>
 	/// Description of ImageEditorForm.

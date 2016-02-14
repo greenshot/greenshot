@@ -19,8 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Windows;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
@@ -33,12 +31,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using Dapplo.HttpExtensions;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Destination;
-using GreenshotPlugin.Interfaces.Plugin;
-using GreenshotPlugin.Extensions;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Destination;
+using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.Addon.Windows;
 
-namespace GreenshotJiraPlugin
+namespace Greenshot.Addon.Jira
 {
 	/// <summary>
 	/// Jira destination.

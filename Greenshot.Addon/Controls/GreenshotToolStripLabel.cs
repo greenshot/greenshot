@@ -19,10 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Windows.Forms;
 using System.ComponentModel;
+using System.Windows.Forms;
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addon.Controls
 {
 	public class GreenshotToolStripLabel : ToolStripLabel, IGreenshotLanguageBindable
 	{

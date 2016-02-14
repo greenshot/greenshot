@@ -22,7 +22,7 @@
 using System;
 using System.Xml;
 
-namespace GreenshotPhotobucketPlugin
+namespace Greenshot.Addon.Photobucket
 {
 	/// <summary>
 	/// Description of PhotobucketInfo.

@@ -19,9 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.OAuth;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -31,10 +28,13 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Xml;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
+using Dapplo.Config.Ini;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.Addon.OAuth;
 
-namespace GreenshotPhotobucketPlugin
+namespace Greenshot.Addon.Photobucket
 {
 	/// <summary>
 	/// Description of PhotobucketUtils.

@@ -19,17 +19,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Addons;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces.Plugin;
 using System;
 using System.ComponentModel.Composition;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using GreenshotConfluencePlugin.Support;
+using Dapplo.Addons;
+using Greenshot.Addon.Confluence.Forms;
+using Greenshot.Addon.Confluence.Support;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Interfaces.Plugin;
 
-namespace GreenshotConfluencePlugin
+namespace Greenshot.Addon.Confluence
 {
 	/// <summary>
 	/// This is the ConfluencePlugin base code
@@ -179,7 +180,7 @@ namespace GreenshotConfluencePlugin
 				Url = ConfluenceConfiguration.RestUrl
 			};
 
-			Forms.ConfluenceConfigurationForm configForm = new Forms.ConfluenceConfigurationForm();
+			ConfluenceConfigurationForm configForm = new ConfluenceConfigurationForm();
 			var dialogResult = configForm.ShowDialog();
 			if (!dialogResult.HasValue || !dialogResult.Value)
 			{

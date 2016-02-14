@@ -23,10 +23,10 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
-using GreenshotEditorPlugin.Helpers;
-using GreenshotPlugin.Interfaces.Drawing;
+using Greenshot.Addon.Editor.Helpers;
+using Greenshot.Addon.Interfaces.Drawing;
 
-namespace GreenshotEditorPlugin.Drawing
+namespace Greenshot.Addon.Editor.Drawing
 {
 	/// <summary>
 	/// Description of LineContainer.

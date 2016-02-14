@@ -23,7 +23,7 @@ using System.ComponentModel;
 using System.Drawing;
 using Dapplo.Config.Proxy;
 
-namespace GreenshotPlugin.Configuration
+namespace Greenshot.Addon.Configuration
 {
 
 	/// <summary>

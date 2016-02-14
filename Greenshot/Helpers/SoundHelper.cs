@@ -20,14 +20,13 @@
  */
 
 using Dapplo.Config.Ini;
-using GreenshotPlugin.Configuration;
-
 using System;
 using System.IO;
 using System.Media;
 using System.Reflection;
 using System.Resources;
 using System.Threading;
+using Greenshot.Addon.Configuration;
 
 namespace Greenshot.Helpers
 {

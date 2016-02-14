@@ -24,9 +24,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using Dapplo.Config.Ini;
-using GreenshotConfluencePlugin.Model;
+using Greenshot.Addon.Confluence.Model;
 
-namespace GreenshotConfluencePlugin.Forms
+namespace Greenshot.Addon.Confluence.Forms
 {
 	/// <summary>
 	/// Interaction logic for ConfluenceTreePicker.xaml

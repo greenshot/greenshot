@@ -22,7 +22,7 @@
 using System.ComponentModel;
 using Dapplo.Config.Language;
 
-namespace GreenshotFlickrPlugin
+namespace Greenshot.Addon.Flickr
 {
 	[Language("flickr")]
 	public interface IFlickrLanguage : ILanguage, INotifyPropertyChanged
