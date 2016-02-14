@@ -678,7 +678,7 @@ namespace GreenshotEditorPlugin.Drawing
 			Invalidate();
 		}
 
-		public bool hasFilters
+		public bool HasFilters
 		{
 			get
 			{

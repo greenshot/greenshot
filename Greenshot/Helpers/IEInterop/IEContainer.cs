@@ -27,8 +27,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using GreenshotPlugin.IEInterop;
-using IServiceProvider = GreenshotPlugin.Interop.IServiceProvider;
+using SHDocVw;
+using IServiceProvider = Greenshot.Interop.IServiceProvider;
 
 namespace Greenshot.Helpers.IEInterop
 {
@@ -41,7 +41,6 @@ namespace Greenshot.Helpers.IEInterop
 		private static int _counter;
 		private IHTMLDocument2 _document2;
 		private IHTMLDocument3 _document3;
-		private Point _sourceLocation;
 		private Point _destinationLocation;
 		private Point _startLocation = Point.Empty;
 		private Rectangle _viewportRectangle = Rectangle.Empty;
@@ -50,7 +49,6 @@ namespace Greenshot.Helpers.IEInterop
 		private WindowDetails _contentWindow;
 		private double _zoomLevelX = 1;
 		private double _zoomLevelY = 1;
-		private readonly List<DocumentContainer> _frames = new List<DocumentContainer>();
 
 		/// <summary>
 		/// The public accessible Dispose
@@ -75,7 +73,7 @@ namespace Greenshot.Helpers.IEInterop
 			{
 				return;
 			}
-			foreach (var documentContainer in _frames)
+			foreach (var documentContainer in Frames)
 			{
 				try
 				{
@@ -290,7 +288,7 @@ namespace Greenshot.Helpers.IEInterop
 			{
 				Log.Warning("Problem while trying to get document _url!", e);
 			}
-			_sourceLocation = new Point(ScaleX(_startLocation.X), ScaleY(_startLocation.Y));
+			SourceLocation = new Point(ScaleX(_startLocation.X), ScaleY(_startLocation.Y));
 			_destinationLocation = new Point(ScaleX(_startLocation.X), ScaleY(_startLocation.Y));
 
 			if (_parent != null)
@@ -310,7 +308,7 @@ namespace Greenshot.Helpers.IEInterop
 						if (!frameData.IsHidden)
 						{
 							Log.Debug("Creating DocumentContainer for Frame {0} found in window with rectangle {1}", frameData.Name, frameData.SourceRectangle);
-							_frames.Add(frameData);
+							Frames.Add(frameData);
 						}
 						else
 						{
@@ -387,7 +385,7 @@ namespace Greenshot.Helpers.IEInterop
 			// Release IHTMLRect
 			ReleaseCom(rec);
 			Log.Debug("Looking for iframe to correct at {0}", elementBoundingLocation);
-			foreach (var foundFrame in _frames)
+			foreach (var foundFrame in Frames)
 			{
 				var frameLocation = foundFrame.SourceLocation;
 				if (frameLocation.Equals(elementBoundingLocation))
@@ -448,16 +446,17 @@ namespace Greenshot.Helpers.IEInterop
 			try
 			{
 				// Convert IHTMLWindow2 to IWebBrowser2 using IServiceProvider.
-				var sp = (IServiceProvider) htmlWindow;
+				// ReSharper disable once SuspiciousTypeConversion.Global
+				var serviceProvider = (IServiceProvider) htmlWindow;
 
 				// Use IServiceProvider.QueryService to get IWebBrowser2 object.
-				object brws = null;
+				object brws;
 				var webBrowserAppGuid = IID_IWebBrowserApp;
 				var webBrowser2Guid = IID_IWebBrowser2;
-				sp.QueryService(ref webBrowserAppGuid, ref webBrowser2Guid, out brws);
+				serviceProvider.QueryService(ref webBrowserAppGuid, ref webBrowser2Guid, out brws);
 
 				// Get the document from IWebBrowser2.
-				var browser = (IWebBrowser2) (brws);
+				var browser = (IWebBrowser2) brws;
 
 				return (IHTMLDocument2) browser.Document;
 			}
@@ -489,21 +488,9 @@ namespace Greenshot.Helpers.IEInterop
 			}
 		}
 
-		public Rectangle ViewportRectangle
-		{
-			get
-			{
-				return _viewportRectangle;
-			}
-		}
+		public Rectangle ViewportRectangle => _viewportRectangle;
 
-		public WindowDetails ContentWindow
-		{
-			get
-			{
-				return _contentWindow;
-			}
-		}
+		public WindowDetails ContentWindow => _contentWindow;
 
 		public DocumentContainer Parent
 		{
@@ -552,16 +539,8 @@ namespace Greenshot.Helpers.IEInterop
 		/// <param name="value">Value to set</param>
 		public void SetAttribute(string attribute, string value)
 		{
-			IHTMLElement element;
-			if (!_isDtd)
-			{
-				element = _document2.body;
-			}
-			else
-			{
-				element = _document3.documentElement;
-			}
-			element.setAttribute(attribute, value, 1);
+			var element = !_isDtd ? _document2.body : _document3.documentElement;
+			element.setAttribute(attribute, value);
 			// Release IHTMLElement com object
 			ReleaseCom(element);
 		}
@@ -573,15 +552,7 @@ namespace Greenshot.Helpers.IEInterop
 		/// <returns>object with the attribute value</returns>
 		public object GetAttribute(string attribute)
 		{
-			IHTMLElement element;
-			if (!_isDtd)
-			{
-				element = _document2.body;
-			}
-			else
-			{
-				element = _document3.documentElement;
-			}
+			var element = !_isDtd ? _document2.body : _document3.documentElement;
 			object retVal = element.getAttribute(attribute, 1);
 			// Release IHTMLElement com object
 			ReleaseCom(element);
@@ -593,8 +564,7 @@ namespace Greenshot.Helpers.IEInterop
 		/// </summary>
 		public int GetAttributeAsInt(string attribute)
 		{
-			int retVal = (int) GetAttribute(attribute);
-			return retVal;
+			return (int)GetAttribute(attribute);
 		}
 
 		public int Id { get; } = _counter++;
@@ -603,105 +573,29 @@ namespace Greenshot.Helpers.IEInterop
 
 		public string Url { get; private set; }
 
-		public bool IsHidden
-		{
-			get
-			{
-				return ClientWidth == 0 || ClientHeight == 0;
-			}
-		}
+		public bool IsHidden => ClientWidth == 0 || ClientHeight == 0;
 
-		public int ClientWidth
-		{
-			get
-			{
-				return ScaleX(GetAttributeAsInt("clientWidth"));
-			}
-		}
+		public int ClientWidth => ScaleX(GetAttributeAsInt("clientWidth"));
 
-		public int ClientHeight
-		{
-			get
-			{
-				return ScaleY(GetAttributeAsInt("clientHeight"));
-			}
-		}
+		public int ClientHeight => ScaleY(GetAttributeAsInt("clientHeight"));
 
-		public int ScrollWidth
-		{
-			get
-			{
-				return ScaleX(GetAttributeAsInt("scrollWidth"));
-			}
-		}
+		public int ScrollWidth => ScaleX(GetAttributeAsInt("scrollWidth"));
 
-		public int ScrollHeight
-		{
-			get
-			{
-				return ScaleY(GetAttributeAsInt("scrollHeight"));
-			}
-		}
+		public int ScrollHeight => ScaleY(GetAttributeAsInt("scrollHeight"));
 
-		public Point SourceLocation
-		{
-			get
-			{
-				return _sourceLocation;
-			}
-			set
-			{
-				_sourceLocation = value;
-			}
-		}
+		public Point SourceLocation { get; set; }
 
-		public Size SourceSize
-		{
-			get
-			{
-				return new Size(ClientWidth, ClientHeight);
-			}
-		}
+		public Size SourceSize => new Size(ClientWidth, ClientHeight);
 
-		public Rectangle SourceRectangle
-		{
-			get
-			{
-				return new Rectangle(SourceLocation, SourceSize);
-			}
-		}
+		public Rectangle SourceRectangle => new Rectangle(SourceLocation, SourceSize);
 
-		public int SourceLeft
-		{
-			get
-			{
-				return _sourceLocation.X;
-			}
-		}
+		public int SourceLeft => SourceLocation.X;
 
-		public int SourceTop
-		{
-			get
-			{
-				return _sourceLocation.Y;
-			}
-		}
+		public int SourceTop => SourceLocation.Y;
 
-		public int SourceRight
-		{
-			get
-			{
-				return _sourceLocation.X + ClientWidth;
-			}
-		}
+		public int SourceRight => SourceLocation.X + ClientWidth;
 
-		public int SourceBottom
-		{
-			get
-			{
-				return _sourceLocation.Y + ClientHeight;
-			}
-		}
+		public int SourceBottom => SourceLocation.Y + ClientHeight;
 
 		public Point DestinationLocation
 		{
@@ -715,21 +609,9 @@ namespace Greenshot.Helpers.IEInterop
 			}
 		}
 
-		public Size DestinationSize
-		{
-			get
-			{
-				return new Size(ScrollWidth, ScrollHeight);
-			}
-		}
+		public Size DestinationSize => new Size(ScrollWidth, ScrollHeight);
 
-		public Rectangle DestinationRectangle
-		{
-			get
-			{
-				return new Rectangle(DestinationLocation, DestinationSize);
-			}
-		}
+		public Rectangle DestinationRectangle => new Rectangle(DestinationLocation, DestinationSize);
 
 		public int DestinationLeft
 		{
@@ -755,21 +637,9 @@ namespace Greenshot.Helpers.IEInterop
 			}
 		}
 
-		public int DestinationRight
-		{
-			get
-			{
-				return _destinationLocation.X + ScrollWidth;
-			}
-		}
+		public int DestinationRight => _destinationLocation.X + ScrollWidth;
 
-		public int DestinationBottom
-		{
-			get
-			{
-				return _destinationLocation.Y + ScrollHeight;
-			}
-		}
+		public int DestinationBottom => _destinationLocation.Y + ScrollHeight;
 
 		public int ScrollLeft
 		{
@@ -795,12 +665,6 @@ namespace Greenshot.Helpers.IEInterop
 			}
 		}
 
-		public List<DocumentContainer> Frames
-		{
-			get
-			{
-				return _frames;
-			}
-		}
+		public List<DocumentContainer> Frames { get; } = new List<DocumentContainer>();
 	}
 }

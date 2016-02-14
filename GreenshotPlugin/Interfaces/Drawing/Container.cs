@@ -98,27 +98,21 @@ namespace GreenshotPlugin.Interfaces.Drawing
 	[Serializable, AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
 	public class FieldAttribute : Attribute
 	{
-		private FieldTypes fieldType;
-		private string scope;
+		private readonly FieldTypes _fieldType;
+		private string _scope;
 
 		[NonSerialized]
-		private PropertyInfo linkedProperty;
+		private PropertyInfo _linkedProperty;
 
 		public FieldAttribute(FieldTypes fieldType)
 		{
-			this.fieldType = fieldType;
+			_fieldType = fieldType;
 		}
 
 		/// <summary>
 		/// FieldType of this FieldAttribute
 		/// </summary>
-		public FieldTypes FieldType
-		{
-			get
-			{
-				return fieldType;
-			}
-		}
+		public FieldTypes FieldType => _fieldType;
 
 		/// <summary>
 		/// Scope of the field, default is set to the Type of the class
@@ -127,11 +121,11 @@ namespace GreenshotPlugin.Interfaces.Drawing
 		{
 			get
 			{
-				return scope;
+				return _scope;
 			}
 			set
 			{
-				scope = value;
+				_scope = value;
 			}
 		}
 
@@ -141,16 +135,16 @@ namespace GreenshotPlugin.Interfaces.Drawing
 		/// <param name="typeForAttribute"></param>
 		private void Reflect(Type typeForAttribute)
 		{
-			if (linkedProperty == null)
+			if (_linkedProperty == null)
 			{
 				foreach (var propertyInfo in typeForAttribute.GetProperties(BindingFlags.Public | BindingFlags.Instance))
 				{
 					foreach (var attribute in propertyInfo.GetCustomAttributes(true))
 					{
 						var fieldAttribute = attribute as FieldAttribute;
-						if (fieldAttribute != null && fieldAttribute.FieldType == fieldType)
+						if (fieldAttribute != null && fieldAttribute.FieldType == _fieldType)
 						{
-							linkedProperty = propertyInfo;
+							_linkedProperty = propertyInfo;
 							return;
 						}
 					}
@@ -165,24 +159,18 @@ namespace GreenshotPlugin.Interfaces.Drawing
 		{
 			private get
 			{
-				return linkedProperty;
+				return _linkedProperty;
 			}
 			set
 			{
-				linkedProperty = value;
+				_linkedProperty = value;
 			}
 		}
 
 		/// <summary>
 		/// Return the type of the property this attribute is linked to.
 		/// </summary>
-		public Type PropertyType
-		{
-			get
-			{
-				return LinkedProperty.PropertyType;
-			}
-		}
+		public Type PropertyType => LinkedProperty.PropertyType;
 
 		/// <summary>
 		/// Change the field value on the IFieldHolder
@@ -220,23 +208,15 @@ namespace GreenshotPlugin.Interfaces.Drawing
 	[Serializable, AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
 	public class FlagAttribute : Attribute
 	{
-		private ElementFlag _flag;
-
 		public FlagAttribute(ElementFlag flag)
 		{
-			_flag = flag;
+			Flag = flag;
 		}
 
 		/// <summary>
 		/// Flag for the element
 		/// </summary>
-		public ElementFlag Flag
-		{
-			get
-			{
-				return _flag;
-			}
-		}
+		public ElementFlag Flag { get; }
 	}
 
 	/// <summary>
@@ -334,7 +314,7 @@ namespace GreenshotPlugin.Interfaces.Drawing
 			get;
 		}
 
-		bool hasFilters
+		bool HasFilters
 		{
 			get;
 		}

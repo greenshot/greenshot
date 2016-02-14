@@ -149,7 +149,7 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		/// Returns if this FastBitmap has an alpha channel
 		/// </summary>
-		bool hasAlphaChannel
+		bool HasAlphaChannel
 		{
 			get;
 		}
@@ -228,7 +228,8 @@ namespace GreenshotPlugin.Core
 		/// The returned byte[] color depends on the underlying pixel format
 		/// </summary>
 		/// <param name="x">int x</param>
-		/// <param name="y">int y</par
+		/// <param name="y">int y</param>
+		/// <param name="color"></param>
 		new void GetColorAt(int x, int y, byte[] color);
 
 		new int Left
@@ -305,19 +306,17 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public abstract unsafe class FastBitmap : IFastBitmap, IFastBitmapWithClip, IFastBitmapWithOffset
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(FastBitmap));
+		protected const int PixelformatIndexA = 3;
+		protected const int PixelformatIndexR = 2;
+		protected const int PixelformatIndexG = 1;
+		protected const int PixelformatIndexB = 0;
 
-		protected const int PIXELFORMAT_INDEX_A = 3;
-		protected const int PIXELFORMAT_INDEX_R = 2;
-		protected const int PIXELFORMAT_INDEX_G = 1;
-		protected const int PIXELFORMAT_INDEX_B = 0;
+		public const int ColorIndexR = 0;
+		public const int ColorIndexG = 1;
+		public const int ColorIndexB = 2;
+		public const int ColorIndexA = 3;
 
-		public const int COLOR_INDEX_R = 0;
-		public const int COLOR_INDEX_G = 1;
-		public const int COLOR_INDEX_B = 2;
-		public const int COLOR_INDEX_A = 3;
-
-		protected Rectangle area = Rectangle.Empty;
+		private Rectangle _area;
 
 		/// <summary>
 		/// If this is set to true, the bitmap will be disposed when disposing the IFastBitmap
@@ -347,7 +346,7 @@ namespace GreenshotPlugin.Core
 
 		protected BitmapData bmData;
 		protected int stride; /* bytes per pixel row */
-		protected bool bitsLocked = false;
+		protected bool bitsLocked;
 		protected byte* pointer;
 
 		public static IFastBitmap Create(Bitmap source)
@@ -381,7 +380,7 @@ namespace GreenshotPlugin.Core
 				case PixelFormat.Format32bppPArgb:
 					return new Fast32ARGBBitmap(source, area);
 				default:
-					throw new NotSupportedException(string.Format("Not supported Pixelformat {0}", source.PixelFormat));
+					throw new NotSupportedException($"Not supported Pixelformat {source.PixelFormat}");
 			}
 		}
 
@@ -426,11 +425,14 @@ namespace GreenshotPlugin.Core
 		/// <returns>IFastBitmap</returns>
 		public static IFastBitmap CreateCloneOf(Image source, PixelFormat pixelFormat, Rectangle area)
 		{
-			Bitmap destination = ImageHelper.CloneArea(source, area, pixelFormat);
-			FastBitmap fastBitmap = Create(destination) as FastBitmap;
-			fastBitmap.NeedsDispose = true;
-			fastBitmap.Left = area.Left;
-			fastBitmap.Top = area.Top;
+			var destination = ImageHelper.CloneArea(source, area, pixelFormat);
+			var fastBitmap = Create(destination) as FastBitmap;
+			if (fastBitmap != null)
+			{
+				fastBitmap.NeedsDispose = true;
+				fastBitmap.Left = area.Left;
+				fastBitmap.Top = area.Top;
+			}
 			return fastBitmap;
 		}
 
@@ -443,8 +445,8 @@ namespace GreenshotPlugin.Core
 		/// <returns>IFastBitmap</returns>
 		public static IFastBitmap CreateEmpty(Size newSize, PixelFormat pixelFormat, Color backgroundColor)
 		{
-			Bitmap destination = ImageHelper.CreateEmpty(newSize.Width, newSize.Height, pixelFormat, backgroundColor, 96f, 96f);
-			IFastBitmap fastBitmap = Create(destination);
+			var destination = ImageHelper.CreateEmpty(newSize.Width, newSize.Height, pixelFormat, backgroundColor, 96f, 96f);
+			var fastBitmap = Create(destination);
 			fastBitmap.NeedsDispose = true;
 			return fastBitmap;
 		}
@@ -453,24 +455,25 @@ namespace GreenshotPlugin.Core
 		/// Constructor which stores the image and locks it when called
 		/// </summary>
 		/// <param name="bitmap"></param>
+		/// <param name="area"></param>
 		protected FastBitmap(Bitmap bitmap, Rectangle area)
 		{
 			this.bitmap = bitmap;
-			Rectangle bitmapArea = new Rectangle(Point.Empty, bitmap.Size);
+			var bitmapArea = new Rectangle(Point.Empty, bitmap.Size);
 			if (area != Rectangle.Empty)
 			{
 				area.Intersect(bitmapArea);
-				this.area = area;
+				_area = area;
 			}
 			else
 			{
-				this.area = bitmapArea;
+				_area = bitmapArea;
 			}
 			// As the lock takes care that only the specified area is made available we need to calculate the offset
 			Left = area.Left;
 			Top = area.Top;
 			// Default cliping is done to the area without invert
-			Clip = this.area;
+			Clip = _area;
 			InvertClip = false;
 			// Always lock, so we don't need to do this ourselves
 			Lock();
@@ -483,11 +486,11 @@ namespace GreenshotPlugin.Core
 		{
 			get
 			{
-				if (area == Rectangle.Empty)
+				if (_area == Rectangle.Empty)
 				{
 					return bitmap.Size;
 				}
-				return area.Size;
+				return _area.Size;
 			}
 		}
 
@@ -498,11 +501,11 @@ namespace GreenshotPlugin.Core
 		{
 			get
 			{
-				if (area == Rectangle.Empty)
+				if (_area == Rectangle.Empty)
 				{
 					return bitmap.Width;
 				}
-				return area.Width;
+				return _area.Width;
 			}
 		}
 
@@ -513,18 +516,18 @@ namespace GreenshotPlugin.Core
 		{
 			get
 			{
-				if (area == Rectangle.Empty)
+				if (_area == Rectangle.Empty)
 				{
 					return bitmap.Height;
 				}
-				return area.Height;
+				return _area.Height;
 			}
 		}
 
-		private int left;
+		private int _left;
 
 		/// <summary>
-		/// Return the left of the fastbitmap, this is also used as an offset
+		/// Return the _left of the fastbitmap, this is also used as an offset
 		/// </summary>
 		public int Left
 		{
@@ -534,29 +537,29 @@ namespace GreenshotPlugin.Core
 			}
 			set
 			{
-				left = value;
+				_left = value;
 			}
 		}
 
 		/// <summary>
-		/// Return the left of the fastbitmap, this is also used as an offset
+		/// Return the _left of the fastbitmap, this is also used as an offset
 		/// </summary>
 		int IFastBitmapWithOffset.Left
 		{
 			get
 			{
-				return left;
+				return _left;
 			}
 			set
 			{
-				left = value;
+				_left = value;
 			}
 		}
 
-		private int top;
+		private int _top;
 
 		/// <summary>
-		/// Return the top of the fastbitmap, this is also used as an offset
+		/// Return the _top of the fastbitmap, this is also used as an offset
 		/// </summary>
 		public int Top
 		{
@@ -566,46 +569,34 @@ namespace GreenshotPlugin.Core
 			}
 			set
 			{
-				top = value;
+				_top = value;
 			}
 		}
 
 		/// <summary>
-		/// Return the top of the fastbitmap, this is also used as an offset
+		/// Return the _top of the fastbitmap, this is also used as an offset
 		/// </summary>
 		int IFastBitmapWithOffset.Top
 		{
 			get
 			{
-				return top;
+				return _top;
 			}
 			set
 			{
-				top = value;
+				_top = value;
 			}
 		}
 
 		/// <summary>
 		/// Return the right of the fastbitmap
 		/// </summary>
-		public int Right
-		{
-			get
-			{
-				return Left + Width;
-			}
-		}
+		public int Right => Left + Width;
 
 		/// <summary>
 		/// Return the bottom of the fastbitmap
 		/// </summary>
-		public int Bottom
-		{
-			get
-			{
-				return Top + Height;
-			}
-		}
+		public int Bottom => Top + Height;
 
 		/// <summary>
 		/// Returns the underlying bitmap, unlocks it and prevents that it will be disposed
@@ -620,13 +611,7 @@ namespace GreenshotPlugin.Core
 			return bitmap;
 		}
 
-		public virtual bool hasAlphaChannel
-		{
-			get
-			{
-				return false;
-			}
-		}
+		public virtual bool HasAlphaChannel => false;
 
 		/// <summary>
 		/// Destructor
@@ -675,11 +660,11 @@ namespace GreenshotPlugin.Core
 		{
 			if (Width > 0 && Height > 0 && !bitsLocked)
 			{
-				bmData = bitmap.LockBits(area, ImageLockMode.ReadWrite, bitmap.PixelFormat);
+				bmData = bitmap.LockBits(_area, ImageLockMode.ReadWrite, bitmap.PixelFormat);
 				bitsLocked = true;
 
-				IntPtr Scan0 = bmData.Scan0;
-				pointer = (byte*) (void*) Scan0;
+				IntPtr scan0 = bmData.Scan0;
+				pointer = (byte*) (void*) scan0;
 				stride = bmData.Stride;
 			}
 		}
@@ -703,7 +688,7 @@ namespace GreenshotPlugin.Core
 		/// <param name="destination"></param>
 		public void DrawTo(Graphics graphics, Point destination)
 		{
-			DrawTo(graphics, new Rectangle(destination, area.Size));
+			DrawTo(graphics, new Rectangle(destination, _area.Size));
 		}
 
 		/// <summary>
@@ -712,7 +697,6 @@ namespace GreenshotPlugin.Core
 		/// </summary>
 		/// <param name="graphics"></param>
 		/// <param name="destinationRect"></param>
-		/// <param name="destination"></param>
 		public void DrawTo(Graphics graphics, Rectangle destinationRect)
 		{
 			// Make sure this.bitmap is unlocked, if it was locked
@@ -722,7 +706,7 @@ namespace GreenshotPlugin.Core
 				Unlock();
 			}
 
-			graphics.DrawImage(bitmap, destinationRect, area, GraphicsUnit.Pixel);
+			graphics.DrawImage(bitmap, destinationRect, _area, GraphicsUnit.Pixel);
 		}
 
 		/// <summary>
@@ -733,7 +717,7 @@ namespace GreenshotPlugin.Core
 		/// <returns>true if x & y are inside the FastBitmap</returns>
 		public bool Contains(int x, int y)
 		{
-			return area.Contains(x - Left, y - Top);
+			return _area.Contains(x - Left, y - Top);
 		}
 
 		public abstract Color GetColorAt(int x, int y);
@@ -788,34 +772,34 @@ namespace GreenshotPlugin.Core
 		/// <returns>true if x & y are inside the FastBitmap</returns>
 		bool IFastBitmapWithOffset.Contains(int x, int y)
 		{
-			return area.Contains(x - Left, y - Top);
+			return _area.Contains(x - Left, y - Top);
 		}
 
 		Color IFastBitmapWithOffset.GetColorAt(int x, int y)
 		{
-			x -= left;
-			y -= top;
+			x -= _left;
+			y -= _top;
 			return GetColorAt(x, y);
 		}
 
 		void IFastBitmapWithOffset.GetColorAt(int x, int y, byte[] color)
 		{
-			x -= left;
-			y -= top;
+			x -= _left;
+			y -= _top;
 			GetColorAt(x, y, color);
 		}
 
 		void IFastBitmapWithOffset.SetColorAt(int x, int y, byte[] color)
 		{
-			x -= left;
-			y -= top;
+			x -= _left;
+			y -= _top;
 			SetColorAt(x, y, color);
 		}
 
 		void IFastBitmapWithOffset.SetColorAt(int x, int y, Color color)
 		{
-			x -= left;
-			y -= top;
+			x -= _left;
+			y -= _top;
 			SetColorAt(x, y, color);
 		}
 
@@ -828,12 +812,12 @@ namespace GreenshotPlugin.Core
 	public unsafe class FastChunkyBitmap : FastBitmap
 	{
 		// Used for indexed images
-		private Color[] colorEntries;
-		private Dictionary<Color, byte> colorCache = new Dictionary<Color, byte>();
+		private readonly Color[] _colorEntries;
+		private readonly Dictionary<Color, byte> _colorCache = new Dictionary<Color, byte>();
 
 		public FastChunkyBitmap(Bitmap source, Rectangle area) : base(source, area)
 		{
-			colorEntries = bitmap.Palette.Entries;
+			_colorEntries = bitmap.Palette.Entries;
 		}
 
 		/// <summary>
@@ -846,7 +830,7 @@ namespace GreenshotPlugin.Core
 		{
 			int offset = x + (y*stride);
 			byte colorIndex = pointer[offset];
-			return colorEntries[colorIndex];
+			return _colorEntries[colorIndex];
 		}
 
 		/// <summary>
@@ -888,7 +872,7 @@ namespace GreenshotPlugin.Core
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="y"></param>
-		/// <param name="color-index"></param>
+		/// <param name="colorIndex"></param>
 		public void SetColorIndexAt(int x, int y, byte colorIndex)
 		{
 			int offset = x + (y*stride);
@@ -906,14 +890,14 @@ namespace GreenshotPlugin.Core
 		{
 			int offset = x + (y*stride);
 			byte colorIndex;
-			if (!colorCache.TryGetValue(color, out colorIndex))
+			if (!_colorCache.TryGetValue(color, out colorIndex))
 			{
 				bool foundColor = false;
-				for (colorIndex = 0; colorIndex < colorEntries.Length; colorIndex++)
+				for (colorIndex = 0; colorIndex < _colorEntries.Length; colorIndex++)
 				{
-					if (color == colorEntries[colorIndex])
+					if (color == _colorEntries[colorIndex])
 					{
-						colorCache.Add(color, colorIndex);
+						_colorCache.Add(color, colorIndex);
 						foundColor = true;
 						break;
 					}
@@ -946,7 +930,7 @@ namespace GreenshotPlugin.Core
 		public override Color GetColorAt(int x, int y)
 		{
 			int offset = (x*3) + (y*stride);
-			return Color.FromArgb(255, pointer[PIXELFORMAT_INDEX_R + offset], pointer[PIXELFORMAT_INDEX_G + offset], pointer[PIXELFORMAT_INDEX_B + offset]);
+			return Color.FromArgb(255, pointer[PixelformatIndexR + offset], pointer[PixelformatIndexG + offset], pointer[PixelformatIndexB + offset]);
 		}
 
 		/// <summary>
@@ -959,9 +943,9 @@ namespace GreenshotPlugin.Core
 		public override void SetColorAt(int x, int y, Color color)
 		{
 			int offset = (x*3) + (y*stride);
-			pointer[PIXELFORMAT_INDEX_R + offset] = color.R;
-			pointer[PIXELFORMAT_INDEX_G + offset] = color.G;
-			pointer[PIXELFORMAT_INDEX_B + offset] = color.B;
+			pointer[PixelformatIndexR + offset] = color.R;
+			pointer[PixelformatIndexG + offset] = color.G;
+			pointer[PixelformatIndexB + offset] = color.B;
 		}
 
 		/// <summary>
@@ -973,9 +957,9 @@ namespace GreenshotPlugin.Core
 		public override void GetColorAt(int x, int y, byte[] color)
 		{
 			int offset = (x*3) + (y*stride);
-			color[PIXELFORMAT_INDEX_R] = pointer[PIXELFORMAT_INDEX_R + offset];
-			color[PIXELFORMAT_INDEX_G] = pointer[PIXELFORMAT_INDEX_G + offset];
-			color[PIXELFORMAT_INDEX_B] = pointer[PIXELFORMAT_INDEX_B + offset];
+			color[PixelformatIndexR] = pointer[PixelformatIndexR + offset];
+			color[PixelformatIndexG] = pointer[PixelformatIndexG + offset];
+			color[PixelformatIndexB] = pointer[PixelformatIndexB + offset];
 		}
 
 		/// <summary>
@@ -987,9 +971,9 @@ namespace GreenshotPlugin.Core
 		public override void SetColorAt(int x, int y, byte[] color)
 		{
 			int offset = (x*3) + (y*stride);
-			pointer[PIXELFORMAT_INDEX_R + offset] = color[PIXELFORMAT_INDEX_R];
-			pointer[PIXELFORMAT_INDEX_G + offset] = color[PIXELFORMAT_INDEX_G];
-			pointer[PIXELFORMAT_INDEX_B + offset] = color[PIXELFORMAT_INDEX_B];
+			pointer[PixelformatIndexR + offset] = color[PixelformatIndexR];
+			pointer[PixelformatIndexG + offset] = color[PixelformatIndexG];
+			pointer[PixelformatIndexB + offset] = color[PixelformatIndexB];
 		}
 	}
 
@@ -1012,7 +996,7 @@ namespace GreenshotPlugin.Core
 		public override Color GetColorAt(int x, int y)
 		{
 			int offset = (x*4) + (y*stride);
-			return Color.FromArgb(255, pointer[PIXELFORMAT_INDEX_R + offset], pointer[PIXELFORMAT_INDEX_G + offset], pointer[PIXELFORMAT_INDEX_B + offset]);
+			return Color.FromArgb(255, pointer[PixelformatIndexR + offset], pointer[PixelformatIndexG + offset], pointer[PixelformatIndexB + offset]);
 		}
 
 		/// <summary>
@@ -1025,9 +1009,9 @@ namespace GreenshotPlugin.Core
 		public override void SetColorAt(int x, int y, Color color)
 		{
 			int offset = (x*4) + (y*stride);
-			pointer[PIXELFORMAT_INDEX_R + offset] = color.R;
-			pointer[PIXELFORMAT_INDEX_G + offset] = color.G;
-			pointer[PIXELFORMAT_INDEX_B + offset] = color.B;
+			pointer[PixelformatIndexR + offset] = color.R;
+			pointer[PixelformatIndexG + offset] = color.G;
+			pointer[PixelformatIndexB + offset] = color.B;
 		}
 
 		/// <summary>
@@ -1039,9 +1023,9 @@ namespace GreenshotPlugin.Core
 		public override void GetColorAt(int x, int y, byte[] color)
 		{
 			int offset = (x*4) + (y*stride);
-			color[COLOR_INDEX_R] = pointer[PIXELFORMAT_INDEX_R + offset];
-			color[COLOR_INDEX_G] = pointer[PIXELFORMAT_INDEX_G + offset];
-			color[COLOR_INDEX_B] = pointer[PIXELFORMAT_INDEX_B + offset];
+			color[ColorIndexR] = pointer[PixelformatIndexR + offset];
+			color[ColorIndexG] = pointer[PixelformatIndexG + offset];
+			color[ColorIndexB] = pointer[PixelformatIndexB + offset];
 		}
 
 		/// <summary>
@@ -1053,9 +1037,9 @@ namespace GreenshotPlugin.Core
 		public override void SetColorAt(int x, int y, byte[] color)
 		{
 			int offset = (x*4) + (y*stride);
-			pointer[PIXELFORMAT_INDEX_R + offset] = color[COLOR_INDEX_R]; // R
-			pointer[PIXELFORMAT_INDEX_G + offset] = color[COLOR_INDEX_G];
-			pointer[PIXELFORMAT_INDEX_B + offset] = color[COLOR_INDEX_B];
+			pointer[PixelformatIndexR + offset] = color[ColorIndexR]; // R
+			pointer[PixelformatIndexG + offset] = color[ColorIndexG];
+			pointer[PixelformatIndexB + offset] = color[ColorIndexB];
 		}
 	}
 
@@ -1064,13 +1048,7 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public unsafe class Fast32ARGBBitmap : FastBitmap, IFastBitmapWithBlend
 	{
-		public override bool hasAlphaChannel
-		{
-			get
-			{
-				return true;
-			}
-		}
+		public override bool HasAlphaChannel => true;
 
 		public Color BackgroundBlendColor
 		{
@@ -1092,7 +1070,7 @@ namespace GreenshotPlugin.Core
 		public override Color GetColorAt(int x, int y)
 		{
 			int offset = (x*4) + (y*stride);
-			return Color.FromArgb(pointer[PIXELFORMAT_INDEX_A + offset], pointer[PIXELFORMAT_INDEX_R + offset], pointer[PIXELFORMAT_INDEX_G + offset], pointer[PIXELFORMAT_INDEX_B + offset]);
+			return Color.FromArgb(pointer[PixelformatIndexA + offset], pointer[PixelformatIndexR + offset], pointer[PixelformatIndexG + offset], pointer[PixelformatIndexB + offset]);
 		}
 
 		/// <summary>
@@ -1105,10 +1083,10 @@ namespace GreenshotPlugin.Core
 		public override void SetColorAt(int x, int y, Color color)
 		{
 			int offset = (x*4) + (y*stride);
-			pointer[PIXELFORMAT_INDEX_A + offset] = color.A;
-			pointer[PIXELFORMAT_INDEX_R + offset] = color.R;
-			pointer[PIXELFORMAT_INDEX_G + offset] = color.G;
-			pointer[PIXELFORMAT_INDEX_B + offset] = color.B;
+			pointer[PixelformatIndexA + offset] = color.A;
+			pointer[PixelformatIndexR + offset] = color.R;
+			pointer[PixelformatIndexG + offset] = color.G;
+			pointer[PixelformatIndexB + offset] = color.B;
 		}
 
 		/// <summary>
@@ -1120,10 +1098,10 @@ namespace GreenshotPlugin.Core
 		public override void GetColorAt(int x, int y, byte[] color)
 		{
 			int offset = (x*4) + (y*stride);
-			color[COLOR_INDEX_R] = pointer[PIXELFORMAT_INDEX_R + offset];
-			color[COLOR_INDEX_G] = pointer[PIXELFORMAT_INDEX_G + offset];
-			color[COLOR_INDEX_B] = pointer[PIXELFORMAT_INDEX_B + offset];
-			color[COLOR_INDEX_A] = pointer[PIXELFORMAT_INDEX_A + offset];
+			color[ColorIndexR] = pointer[PixelformatIndexR + offset];
+			color[ColorIndexG] = pointer[PixelformatIndexG + offset];
+			color[ColorIndexB] = pointer[PixelformatIndexB + offset];
+			color[ColorIndexA] = pointer[PixelformatIndexA + offset];
 		}
 
 		/// <summary>
@@ -1135,10 +1113,10 @@ namespace GreenshotPlugin.Core
 		public override void SetColorAt(int x, int y, byte[] color)
 		{
 			int offset = (x*4) + (y*stride);
-			pointer[PIXELFORMAT_INDEX_R + offset] = color[COLOR_INDEX_R]; // R
-			pointer[PIXELFORMAT_INDEX_G + offset] = color[COLOR_INDEX_G];
-			pointer[PIXELFORMAT_INDEX_B + offset] = color[COLOR_INDEX_B];
-			pointer[PIXELFORMAT_INDEX_A + offset] = color[COLOR_INDEX_A];
+			pointer[PixelformatIndexR + offset] = color[ColorIndexR]; // R
+			pointer[PixelformatIndexG + offset] = color[ColorIndexG];
+			pointer[PixelformatIndexB + offset] = color[ColorIndexB];
+			pointer[PixelformatIndexA + offset] = color[ColorIndexA];
 		}
 
 		/// <summary>
@@ -1151,10 +1129,10 @@ namespace GreenshotPlugin.Core
 		public Color GetBlendedColorAt(int x, int y)
 		{
 			int offset = (x*4) + (y*stride);
-			int a = pointer[PIXELFORMAT_INDEX_A + offset];
-			int red = pointer[PIXELFORMAT_INDEX_R + offset];
-			int green = pointer[PIXELFORMAT_INDEX_G + offset];
-			int blue = pointer[PIXELFORMAT_INDEX_B + offset];
+			int a = pointer[PixelformatIndexA + offset];
+			int red = pointer[PixelformatIndexR + offset];
+			int green = pointer[PixelformatIndexG + offset];
+			int blue = pointer[PixelformatIndexB + offset];
 
 			if (a < 255)
 			{

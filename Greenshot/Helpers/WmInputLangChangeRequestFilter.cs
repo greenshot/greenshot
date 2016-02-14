@@ -19,29 +19,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
+using System.Windows.Forms;
+using Dapplo.Windows.Enums;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Helpers
 {
-	public class EventDelay
+	/// <summary>
+	/// This IMessageFilter filters out all WM_INPUTLANGCHANGEREQUEST messages which go to a handle which is >32 bits.
+	/// The need for this is documented here: http://stackoverflow.com/a/32021586
+	/// Unfortunately there is an error in the code example, should use HWnd instead of LParam for the handle.
+	/// </summary>
+	public class WmInputLangChangeRequestFilter : IMessageFilter
 	{
-		private long _lastCheck;
-		private readonly long _waitTime;
-
-		public EventDelay(long ticks)
+		public bool PreFilterMessage(ref Message m)
 		{
-			_waitTime = ticks;
-		}
-
-		public bool Check()
-		{
-			lock (this)
+			if (m.Msg == (int) WindowsMessages.WM_INPUTLANGCHANGEREQUEST || m.Msg == (int) WindowsMessages.WM_INPUTLANGCHANGE)
 			{
-				var now = DateTime.Now.Ticks;
-				var isPassed = now - _lastCheck > _waitTime;
-				_lastCheck = now;
-				return isPassed;
+				return m.LParam.ToInt64() > 0x7FFFFFFF;
 			}
+			return false;
 		}
 	}
 }

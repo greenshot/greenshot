@@ -23,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using GreenshotPlugin.Interop;
 using Microsoft.Win32;
 using System.Runtime.InteropServices;
 using mshtml;

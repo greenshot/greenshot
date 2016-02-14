@@ -20,28 +20,19 @@
  */
 
 using System;
+using System.Runtime.InteropServices;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Interop
 {
-	public class EventDelay
+	[ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("00000000-0000-0000-C000-000000000046")]
+	public interface IUnknown
 	{
-		private long _lastCheck;
-		private readonly long _waitTime;
+		IntPtr QueryInterface(ref Guid riid);
 
-		public EventDelay(long ticks)
-		{
-			_waitTime = ticks;
-		}
+		[PreserveSig]
+		uint AddRef();
 
-		public bool Check()
-		{
-			lock (this)
-			{
-				var now = DateTime.Now.Ticks;
-				var isPassed = now - _lastCheck > _waitTime;
-				_lastCheck = now;
-				return isPassed;
-			}
-		}
+		[PreserveSig]
+		uint Release();
 	}
 }

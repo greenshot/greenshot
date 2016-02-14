@@ -20,23 +20,33 @@
  */
 
 using System;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using GreenshotPlugin.Interop;
 
 namespace GreenshotPlugin.Controls
 {
+	[ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown), ComVisible(true), Guid("B722BCCB-4E68-101B-A2BC-00AA00404770")]
+	public interface IOleCommandTarget
+	{
+		[return: MarshalAs(UnmanagedType.I4)]
+		[PreserveSig]
+		int QueryStatus([In, MarshalAs(UnmanagedType.LPStruct)] Guid pguidCmdGroup, int cCmds, IntPtr prgCmds, IntPtr pCmdText);
+
+		[return: MarshalAs(UnmanagedType.I4)]
+		[PreserveSig]
+		int Exec([In, MarshalAs(UnmanagedType.LPStruct)] Guid pguidCmdGroup, int nCmdId, int nCmdexecopt, IntPtr pvaIn, IntPtr pvaOut);
+	}
+
 	public class ExtendedWebBrowser : WebBrowser
 	{
 		protected class ExtendedWebBrowserSite : WebBrowserSite, IOleCommandTarget
 		{
-			private const int OLECMDID_SHOWSCRIPTERROR = 40;
-			private const int OLECMDID_SHOWMESSAGE = 41;
+			private const int OleCmdIdShowScriptError = 40;
 
-			private static Guid CGID_DocHostCommandHandler = new Guid("F38BC242-B950-11D1-8918-00C04FC2C836");
+			private static readonly Guid GuidDocHostCommandHandler = new Guid("F38BC242-B950-11D1-8918-00C04FC2C836");
 
-			private const int S_OK = 0;
-			private const int OLECMDERR_E_NOTSUPPORTED = (-2147221248);
-			private const int OLECMDERR_E_UNKNOWNGROUP = (-2147221244);
+			private const int Ok = 0;
+			private const int OleCmdErrorNotsupported = (-2147221248);
 
 			public ExtendedWebBrowserSite(WebBrowser wb) : base(wb)
 			{
@@ -46,21 +56,21 @@ namespace GreenshotPlugin.Controls
 
 			public int QueryStatus(Guid pguidCmdGroup, int cCmds, IntPtr prgCmds, IntPtr pCmdText)
 			{
-				return OLECMDERR_E_NOTSUPPORTED;
+				return OleCmdErrorNotsupported;
 			}
 
-			public int Exec(Guid pguidCmdGroup, int nCmdID, int nCmdexecopt, IntPtr pvaIn, IntPtr pvaOut)
+			public int Exec(Guid pguidCmdGroup, int nCmdId, int nCmdexecopt, IntPtr pvaIn, IntPtr pvaOut)
 			{
-				if (pguidCmdGroup == CGID_DocHostCommandHandler)
+				if (pguidCmdGroup == GuidDocHostCommandHandler)
 				{
-					if (nCmdID == OLECMDID_SHOWSCRIPTERROR)
+					if (nCmdId == OleCmdIdShowScriptError)
 					{
 						// do not need to alter pvaOut as the docs says, enough to return S_OK here
-						return S_OK;
+						return Ok;
 					}
 				}
 
-				return OLECMDERR_E_NOTSUPPORTED;
+				return OleCmdErrorNotsupported;
 			}
 
 			#endregion
@@ -69,10 +79,6 @@ namespace GreenshotPlugin.Controls
 		protected override WebBrowserSiteBase CreateWebBrowserSiteBase()
 		{
 			return new ExtendedWebBrowserSite(this);
-		}
-
-		public ExtendedWebBrowser()
-		{
 		}
 	}
 }

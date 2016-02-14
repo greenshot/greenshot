@@ -285,7 +285,7 @@ namespace GreenshotEditorPlugin.Drawing
 		{
 			foreach (var dc in this)
 			{
-				if (dc.DrawingBounds.IntersectsWith(clipRectangle) && dc.hasFilters && dc.Status == EditStatus.IDLE)
+				if (dc.DrawingBounds.IntersectsWith(clipRectangle) && dc.HasFilters && dc.Status == EditStatus.IDLE)
 				{
 					return true;
 				}

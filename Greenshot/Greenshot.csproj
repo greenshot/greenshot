@@ -38,6 +38,8 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Accessibility" />
+    <Reference Include="CustomMarshalers" />
     <Reference Include="Dapplo.Addons, Version=0.3.10.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Addons.0.3.10.0\lib\net451\Dapplo.Addons.dll</HintPath>
       <Private>True</Private>
@@ -149,6 +151,12 @@
     <Compile Include="Helpers\DapploSeriLogLogger.cs" />
     <Compile Include="Helpers\PluginHelper.cs" />
     <Compile Include="Helpers\RoundedRectangle.cs" />
+    <Compile Include="Helpers\SourceForgeHelper.cs" />
+    <Compile Include="Helpers\WmInputLangChangeRequestFilter.cs" />
+    <Compile Include="Interop\IDispatch.cs" />
+    <Compile Include="Interop\IOleWindow.cs" />
+    <Compile Include="Interop\IServiceProvider.cs" />
+    <Compile Include="Interop\IUnknown.cs" />
     <Compile Include="Services\NotificationCenter.cs" />
     <Compile Include="Windows\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
@@ -391,6 +399,17 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Languages\plugin-translations-readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="SHDocVw">
+      <Guid>{EAB22AC0-30C1-11CF-A7EB-0000C05BAE0B}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>1</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <PropertyGroup>

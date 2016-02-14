@@ -26,19 +26,11 @@ namespace GreenshotPlugin.Core
 	[AttributeUsage(AttributeTargets.Field)]
 	public sealed class DisplayKeyAttribute : Attribute
 	{
-		private readonly string value;
+		public string Value { get; }
 
-		public string Value
+		public DisplayKeyAttribute(string value)
 		{
-			get
-			{
-				return value;
-			}
-		}
-
-		public DisplayKeyAttribute(string v)
-		{
-			value = v;
+			Value = value;
 		}
 
 		public DisplayKeyAttribute()

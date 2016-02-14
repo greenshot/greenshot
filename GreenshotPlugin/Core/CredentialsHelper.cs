@@ -26,40 +26,40 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
-/// <summary>
-/// The following code comes from: http://www.developerfusion.com/code/4693/using-the-credential-management-api/
-/// and is slightly modified so it works for us.
-/// As the "Stored usernames and passwords" which can be accessed by: Start-> Run and type "Control keymgr.dll"
-/// doesn't show all credentials use the tool here: http://www.microsoft.com/indonesia/msdn/credmgmt.aspx
-/// The following code is an example for a login, it will call the Authenticate with user/password
-/// which should return true if the login worked, false if not.
-///		private static bool Login(string system, string name) {
-///			try {
-///				CredentialsDialog dialog = new CredentialsDialog(system);
-///				dialog.Name = name;
-///				while (dialog.Show(dialog.Name) == DialogResult.OK) {
-///					if (Authenticate(dialog.Name, dialog.Password)) {
-///						if (dialog.SaveChecked) dialog.Confirm(true);
-///						return true;
-///					} else {
-///						try {
-///							dialog.Confirm(false);
-///						} catch (ApplicationException) {
-///							// exception handling ...
-///						}
-///						dialog.IncorrectPassword = true;
-///					}
-///				}
-///			} catch (ApplicationException) {
-///				// exception handling ...
-///			}
-///			return false;
-///		}
-/// </summary>
 
 namespace GreenshotPlugin.Core
 {
-	/// <summary>Encapsulates dialog functionality from the Credential Management API.</summary>
+	/// <summary>
+	/// Encapsulates dialog functionality from the Credential Management API.
+	/// The following code comes from: http://www.developerfusion.com/code/4693/using-the-credential-management-api/
+	/// and is slightly modified so it works for us.
+	/// As the "Stored usernames and passwords" which can be accessed by: Start-> Run and type "Control keymgr.dll"
+	/// doesn't show all credentials use the tool here: http://www.microsoft.com/indonesia/msdn/credmgmt.aspx
+	/// The following code is an example for a login, it will call the Authenticate with user/password
+	/// which should return true if the login worked, false if not.
+	///		private static bool Login(string system, string name) {
+	///			try {
+	///				CredentialsDialog dialog = new CredentialsDialog(system);
+	///				dialog.Name = name;
+	///				while (dialog.Show(dialog.Name) == DialogResult.OK) {
+	///					if (Authenticate(dialog.Name, dialog.Password)) {
+	///						if (dialog.SaveChecked) dialog.Confirm(true);
+	///						return true;
+	///					} else {
+	///						try {
+	///							dialog.Confirm(false);
+	///						} catch (ApplicationException) {
+	///							// exception handling ...
+	///						}
+	///						dialog.IncorrectPassword = true;
+	///					}
+	///				}
+	///			} catch (ApplicationException) {
+	///				// exception handling ...
+	///			}
+	///			return false;
+	///		}
+	/// </summary>
 	public sealed class CredentialsDialog
 	{
 		[DllImport("gdi32.dll", SetLastError = true)]
@@ -109,7 +109,7 @@ namespace GreenshotPlugin.Core
 			Banner = banner;
 		}
 
-		private bool _alwaysDisplay = false;
+		private bool _alwaysDisplay;
 
 		/// <summary>
 		/// Gets or sets if the dialog will be shown even if the credentials
@@ -142,50 +142,14 @@ namespace GreenshotPlugin.Core
 			}
 		}
 
-		private bool _persist = true;
-
 		/// <summary>Gets or sets if the credentials are to be persisted in the credential manager.</summary>
-		public bool Persist
-		{
-			get
-			{
-				return _persist;
-			}
-			set
-			{
-				_persist = value;
-			}
-		}
+		public bool Persist { get; set; } = true;
 
-		private bool _incorrectPassword = false;
-
-		/// <summary>Gets or sets if the incorrect password balloontip needs to be shown. Introduced AFTER Windows XP</summary>Gets></summary>
-		public bool IncorrectPassword
-		{
-			get
-			{
-				return _incorrectPassword;
-			}
-			set
-			{
-				_incorrectPassword = value;
-			}
-		}
-
-		private bool _keepName = false;
+		/// <summary>Gets or sets if the incorrect password balloontip needs to be shown. Introduced AFTER Windows XP</summary>
+		public bool IncorrectPassword { get; set; }
 
 		/// <summary>Gets or sets if the name is read-only.</summary>
-		public bool KeepName
-		{
-			get
-			{
-				return _keepName;
-			}
-			set
-			{
-				_keepName = value;
-			}
-		}
+		public bool KeepName { get; set; }
 
 		private string _name = String.Empty;
 
@@ -198,19 +162,16 @@ namespace GreenshotPlugin.Core
 			}
 			set
 			{
-				if (value != null)
+				if (value?.Length > CREDUI.MAX_USERNAME_LENGTH)
 				{
-					if (value.Length > CREDUI.MAX_USERNAME_LENGTH)
-					{
-						string message = String.Format(Thread.CurrentThread.CurrentUICulture, "The name has a maximum length of {0} characters.", CREDUI.MAX_USERNAME_LENGTH);
-						throw new ArgumentException(message, "Name");
-					}
+					string message = string.Format(Thread.CurrentThread.CurrentUICulture, "The name has a maximum length of {0} characters.", CREDUI.MAX_USERNAME_LENGTH);
+					throw new ArgumentException(message, nameof(Name));
 				}
 				_name = value;
 			}
 		}
 
-		private string _password = String.Empty;
+		private string _password = string.Empty;
 
 		/// <summary>Gets or sets the password for the credentials.</summary>
 		public string Password
@@ -221,50 +182,23 @@ namespace GreenshotPlugin.Core
 			}
 			set
 			{
-				if (value != null)
+				if (value?.Length > CREDUI.MAX_PASSWORD_LENGTH)
 				{
-					if (value.Length > CREDUI.MAX_PASSWORD_LENGTH)
-					{
-						string message = String.Format(Thread.CurrentThread.CurrentUICulture, "The password has a maximum length of {0} characters.", CREDUI.MAX_PASSWORD_LENGTH);
-						throw new ArgumentException(message, "Password");
-					}
+					string message = string.Format(Thread.CurrentThread.CurrentUICulture, "The password has a maximum length of {0} characters.", CREDUI.MAX_PASSWORD_LENGTH);
+					throw new ArgumentException(message, nameof(Password));
 				}
 				_password = value;
 			}
 		}
 
-		private bool _saveChecked = false;
-
 		/// <summary>Gets or sets if the save checkbox status.</summary>
-		public bool SaveChecked
-		{
-			get
-			{
-				return _saveChecked;
-			}
-			set
-			{
-				_saveChecked = value;
-			}
-		}
-
-		private bool _saveDisplayed = true;
+		public bool SaveChecked { get; set; }
 
 		/// <summary>Gets or sets if the save checkbox is displayed.</summary>
 		/// <remarks>This value only has effect if Persist is true.</remarks>
-		public bool SaveDisplayed
-		{
-			get
-			{
-				return _saveDisplayed;
-			}
-			set
-			{
-				_saveDisplayed = value;
-			}
-		}
+		public bool SaveDisplayed { get; set; } = true;
 
-		private string _target = String.Empty;
+		private string _target = string.Empty;
 
 		/// <summary>Gets or sets the name of the target for the credentials, typically a server name.</summary>
 		public string Target
@@ -277,18 +211,18 @@ namespace GreenshotPlugin.Core
 			{
 				if (value == null)
 				{
-					throw new ArgumentException("The target cannot be a null value.", "Target");
+					throw new ArgumentException("The target cannot be a null value.", nameof(Target));
 				}
-				else if (value.Length > CREDUI.MAX_GENERIC_TARGET_LENGTH)
+				if (value.Length > CREDUI.MAX_GENERIC_TARGET_LENGTH)
 				{
-					string message = String.Format(Thread.CurrentThread.CurrentUICulture, "The target has a maximum length of {0} characters.", CREDUI.MAX_GENERIC_TARGET_LENGTH);
-					throw new ArgumentException(message, "Target");
+					string message = string.Format(Thread.CurrentThread.CurrentUICulture, "The target has a maximum length of {0} characters.", CREDUI.MAX_GENERIC_TARGET_LENGTH);
+					throw new ArgumentException(message, nameof(Target));
 				}
 				_target = value;
 			}
 		}
 
-		private string _caption = String.Empty;
+		private string _caption = string.Empty;
 
 		/// <summary>Gets or sets the caption of the dialog.</summary>
 		/// <remarks>A null value will cause a system default caption to be used.</remarks>
@@ -300,19 +234,16 @@ namespace GreenshotPlugin.Core
 			}
 			set
 			{
-				if (value != null)
+				if (value?.Length > CREDUI.MAX_CAPTION_LENGTH)
 				{
-					if (value.Length > CREDUI.MAX_CAPTION_LENGTH)
-					{
-						string message = String.Format(Thread.CurrentThread.CurrentUICulture, "The caption has a maximum length of {0} characters.", CREDUI.MAX_CAPTION_LENGTH);
-						throw new ArgumentException(message, "Caption");
-					}
+					string message = string.Format(Thread.CurrentThread.CurrentUICulture, "The caption has a maximum length of {0} characters.", CREDUI.MAX_CAPTION_LENGTH);
+					throw new ArgumentException(message, nameof(Caption));
 				}
 				_caption = value;
 			}
 		}
 
-		private string _message = String.Empty;
+		private string _message = string.Empty;
 
 		/// <summary>Gets or sets the message of the dialog.</summary>
 		/// <remarks>A null value will cause a system default message to be used.</remarks>
@@ -324,19 +255,16 @@ namespace GreenshotPlugin.Core
 			}
 			set
 			{
-				if (value != null)
+				if (value?.Length > CREDUI.MAX_MESSAGE_LENGTH)
 				{
-					if (value.Length > CREDUI.MAX_MESSAGE_LENGTH)
-					{
-						string message = String.Format(Thread.CurrentThread.CurrentUICulture, "The message has a maximum length of {0} characters.", CREDUI.MAX_MESSAGE_LENGTH);
-						throw new ArgumentException(message, "Message");
-					}
+					string message = string.Format(Thread.CurrentThread.CurrentUICulture, "The message has a maximum length of {0} characters.", CREDUI.MAX_MESSAGE_LENGTH);
+					throw new ArgumentException(message, nameof(Message));
 				}
 				_message = value;
 			}
 		}
 
-		private Image _banner = null;
+		private Image _banner;
 
 		/// <summary>Gets or sets the image to display on the dialog.</summary>
 		/// <remarks>A null value will cause a system default image to be used.</remarks>
@@ -352,11 +280,11 @@ namespace GreenshotPlugin.Core
 				{
 					if (value.Width != ValidBannerWidth)
 					{
-						throw new ArgumentException("The banner image width must be 320 pixels.", "Banner");
+						throw new ArgumentException("The banner image width must be 320 pixels.", nameof(Banner));
 					}
 					if (value.Height != ValidBannerHeight)
 					{
-						throw new ArgumentException("The banner image height must be 60 pixels.", "Banner");
+						throw new ArgumentException("The banner image height must be 60 pixels.", nameof(Banner));
 					}
 				}
 				_banner = value;

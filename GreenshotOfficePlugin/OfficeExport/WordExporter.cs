@@ -20,7 +20,6 @@
  */
 
 using Dapplo.Config.Ini;
-using GreenshotPlugin.Interop;
 using Microsoft.Office.Core;
 using System;
 using System.Collections.Generic;

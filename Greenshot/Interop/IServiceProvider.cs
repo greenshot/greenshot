@@ -20,28 +20,16 @@
  */
 
 using System;
+using System.Runtime.InteropServices;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Interop
 {
-	public class EventDelay
+	// This is the COM IServiceProvider interface, not System.IServiceProvider .Net interface!
+	[ComImport(), ComVisible(true), Guid("6D5140C1-7436-11CE-8034-00AA006009FA"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+	public interface IServiceProvider
 	{
-		private long _lastCheck;
-		private readonly long _waitTime;
-
-		public EventDelay(long ticks)
-		{
-			_waitTime = ticks;
-		}
-
-		public bool Check()
-		{
-			lock (this)
-			{
-				var now = DateTime.Now.Ticks;
-				var isPassed = now - _lastCheck > _waitTime;
-				_lastCheck = now;
-				return isPassed;
-			}
-		}
+		[return: MarshalAs(UnmanagedType.I4)]
+		[PreserveSig]
+		int QueryService(ref Guid guidService, ref Guid riid, [MarshalAs(UnmanagedType.Interface)] out object ppvObject);
 	}
 }

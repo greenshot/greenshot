@@ -20,28 +20,18 @@
  */
 
 using System;
+using System.Runtime.InteropServices;
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Interop
 {
-	public class EventDelay
+	/// <summary>
+	/// Needed to get the Window handle from the IDocument2
+	/// See <a href="http://msdn.microsoft.com/en-us/library/ms680102%28v=vs.85%29.aspx">here</a>
+	/// </summary>
+	[ComImport, Guid("00000114-0000-0000-C000-000000000046"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+	public interface IOleWindow
 	{
-		private long _lastCheck;
-		private readonly long _waitTime;
-
-		public EventDelay(long ticks)
-		{
-			_waitTime = ticks;
-		}
-
-		public bool Check()
-		{
-			lock (this)
-			{
-				var now = DateTime.Now.Ticks;
-				var isPassed = now - _lastCheck > _waitTime;
-				_lastCheck = now;
-				return isPassed;
-			}
-		}
+		void GetWindow(out IntPtr phwnd);
+		void ContextSensitiveHelp([In, MarshalAs(UnmanagedType.Bool)] bool fEnterMode);
 	}
 }

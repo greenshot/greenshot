@@ -36,8 +36,8 @@ using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using GreenshotPlugin.Configuration;
 using Dapplo.Windows.Enums;
+using Greenshot.Interop;
 using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interop;
 
 namespace Greenshot.Helpers
 {

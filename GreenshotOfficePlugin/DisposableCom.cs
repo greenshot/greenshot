@@ -22,7 +22,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace GreenshotPlugin.Interop
+namespace GreenshotOfficePlugin
 {
 	/// <summary>
 	/// A simple com wrapper which helps with "using"

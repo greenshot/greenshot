@@ -24,12 +24,9 @@ using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Destination;
-using GreenshotPlugin.Interfaces.Plugin;
-
 using System;
 using System.ComponentModel.Composition;
 using System.IO;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;

@@ -21,7 +21,6 @@
 
 using GreenshotPlugin.Configuration;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Interop;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -39,9 +38,9 @@ namespace GreenshotOfficePlugin.OfficeExport
 	/// </summary>
 	public class OneNoteExporter
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(OneNoteExporter));
-		private const string XMLImageContent = "<one:Image format=\"png\"><one:Size width=\"{1}.0\" height=\"{2}.0\" isSetByUser=\"true\" /><one:Data>{0}</one:Data></one:Image>";
-		private const string XMLOutline = "<?xml version=\"1.0\"?><one:Page xmlns:one=\"{2}\" ID=\"{1}\"><one:Title><one:OE><one:T><![CDATA[{3}]]></one:T></one:OE></one:Title>{0}</one:Page>";
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(OneNoteExporter));
+		private const string XmlImageContent = "<one:Image format=\"png\"><one:Size width=\"{1}.0\" height=\"{2}.0\" isSetByUser=\"true\" /><one:Data>{0}</one:Data></one:Image>";
+		private const string XmlOutline = "<?xml version=\"1.0\"?><one:Page xmlns:one=\"{2}\" ID=\"{1}\"><one:Title><one:OE><one:T><![CDATA[{3}]]></one:T></one:OE></one:Title>{0}</one:Page>";
 		private const string OnenoteNamespace2010 = "http://schemas.microsoft.com/office/onenote/2010/onenote";
 
 		/// <summary>
@@ -100,12 +99,12 @@ namespace GreenshotOfficePlugin.OfficeExport
 				var pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
 				ImageOutput.SaveToStream(surfaceToUpload, pngStream, pngOutputSettings);
 				string base64String = Convert.ToBase64String(pngStream.GetBuffer());
-				string imageXmlStr = string.Format(XMLImageContent, base64String, surfaceToUpload.Image.Width, surfaceToUpload.Image.Height);
-				string pageChangesXml = string.Format(XMLOutline, new object[]
+				string imageXmlStr = string.Format(XmlImageContent, base64String, surfaceToUpload.Image.Width, surfaceToUpload.Image.Height);
+				string pageChangesXml = string.Format(XmlOutline, new object[]
 				{
 					imageXmlStr, page.Id, OnenoteNamespace2010, page.Name
 				});
-				LOG.Information("Sending XML: {0}", pageChangesXml);
+				Log.Information("Sending XML: {0}", pageChangesXml);
 				oneNoteApplication.ComObject.UpdatePageContent(pageChangesXml, DateTime.MinValue, OneNote.XMLSchema.xs2010, false);
 				try
 				{
@@ -113,7 +112,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 				}
 				catch (Exception ex)
 				{
-					LOG.Warning("Unable to navigate to the target page", ex);
+					Log.Warning("Unable to navigate to the target page", ex);
 				}
 				return true;
 			}
@@ -140,7 +139,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 			oneNoteApplication.ComObject.GetHierarchy("", OneNote.HierarchyScope.hsPages, out notebookXml, OneNote.XMLSchema.xs2010);
 			if (!string.IsNullOrEmpty(notebookXml))
 			{
-				LOG.Debug(notebookXml);
+				Log.Debug(notebookXml);
 				StringReader reader = null;
 				try
 				{
@@ -224,7 +223,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 						oneNoteApplication.ComObject.GetHierarchy("", OneNote.HierarchyScope.hsPages, out notebookXml, OneNote.XMLSchema.xs2010);
 						if (!string.IsNullOrEmpty(notebookXml))
 						{
-							LOG.Debug(notebookXml);
+							Log.Debug(notebookXml);
 							StringReader reader = null;
 							try
 							{
@@ -293,13 +292,13 @@ namespace GreenshotOfficePlugin.OfficeExport
 			{
 				if (cEx.ErrorCode == unchecked((int) 0x8002801D))
 				{
-					LOG.Warning("Wrong registry keys, to solve this remove the OneNote key as described here: http://microsoftmercenary.com/wp/outlook-excel-interop-calls-breaking-solved/");
+					Log.Warning("Wrong registry keys, to solve this remove the OneNote key as described here: http://microsoftmercenary.com/wp/outlook-excel-interop-calls-breaking-solved/");
 				}
-				LOG.Warning("Problem retrieving onenote destinations, ignoring: ", cEx);
+				Log.Warning("Problem retrieving onenote destinations, ignoring: ", cEx);
 			}
 			catch (Exception ex)
 			{
-				LOG.Warning("Problem retrieving onenote destinations, ignoring: ", ex);
+				Log.Warning("Problem retrieving onenote destinations, ignoring: ", ex);
 			}
 			pages.Sort((page1, page2) =>
 			{

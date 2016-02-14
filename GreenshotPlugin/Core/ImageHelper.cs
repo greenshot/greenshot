@@ -51,7 +51,7 @@ namespace GreenshotPlugin.Core
 	public static class ImageHelper
 	{
 		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ImageHelper));
-		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly ICoreConfiguration Conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private const int EXIF_ORIENTATION_ID = 0x0112;
 
 		/// <summary>
@@ -60,7 +60,7 @@ namespace GreenshotPlugin.Core
 		/// <param name="image"></param>
 		public static void Orientate(Image image)
 		{
-			if (!conf.ProcessEXIFOrientation)
+			if (!Conf.ProcessEXIFOrientation)
 			{
 				return;
 			}
@@ -178,13 +178,12 @@ namespace GreenshotPlugin.Core
 		/// <param name="cropRectangle">Rectangle with bitmap coordinates, will be "intersected" to the bitmap</param>
 		public static bool Crop(ref Image image, ref Rectangle cropRectangle)
 		{
-			Image returnImage = null;
-			if (image != null && image is Bitmap && ((image.Width*image.Height) > 0))
+			if (image is Bitmap && ((image.Width*image.Height) > 0))
 			{
 				cropRectangle.Intersect(new Rectangle(0, 0, image.Width, image.Height));
 				if (cropRectangle.Width != 0 || cropRectangle.Height != 0)
 				{
-					returnImage = CloneArea(image, cropRectangle, PixelFormat.DontCare);
+					Image returnImage = CloneArea(image, cropRectangle, PixelFormat.DontCare);
 					image.Dispose();
 					image = returnImage;
 					return true;
@@ -406,8 +405,8 @@ namespace GreenshotPlugin.Core
 		/// <returns>Bitmap with the Vista Icon (256x256)</returns>
 		private static Bitmap ExtractVistaIcon(Stream iconStream)
 		{
-			const int SizeICONDIR = 6;
-			const int SizeICONDIRENTRY = 16;
+			const int sizeIconDir = 6;
+			const int sizeIconDirEntry = 16;
 			Bitmap bmpPngExtracted = null;
 			try
 			{
@@ -416,14 +415,13 @@ namespace GreenshotPlugin.Core
 				int iCount = BitConverter.ToInt16(srcBuf, 4);
 				for (int iIndex = 0; iIndex < iCount; iIndex++)
 				{
-					int iWidth = srcBuf[SizeICONDIR + SizeICONDIRENTRY*iIndex];
-					int iHeight = srcBuf[SizeICONDIR + SizeICONDIRENTRY*iIndex + 1];
-					int iBitCount = BitConverter.ToInt16(srcBuf, SizeICONDIR + SizeICONDIRENTRY*iIndex + 6);
+					int iWidth = srcBuf[sizeIconDir + sizeIconDirEntry*iIndex];
+					int iHeight = srcBuf[sizeIconDir + sizeIconDirEntry*iIndex + 1];
 					if (iWidth == 0 && iHeight == 0)
 					{
-						int iImageSize = BitConverter.ToInt32(srcBuf, SizeICONDIR + SizeICONDIRENTRY*iIndex + 8);
-						int iImageOffset = BitConverter.ToInt32(srcBuf, SizeICONDIR + SizeICONDIRENTRY*iIndex + 12);
-						using (MemoryStream destStream = new MemoryStream())
+						int iImageSize = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry*iIndex + 8);
+						int iImageOffset = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry*iIndex + 12);
+						using (var destStream = new MemoryStream())
 						{
 							destStream.Write(srcBuf, iImageOffset, iImageSize);
 							destStream.Seek(0, SeekOrigin.Begin);
@@ -441,9 +439,8 @@ namespace GreenshotPlugin.Core
 		}
 
 		/// <summary>
-		/// See: http://msdn.microsoft.com/en-us/library/windows/desktop/ms648069%28v=vs.85%29.aspx
+		/// See <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms648069%28v=vs.85%29.aspx">here</a>
 		/// </summary>
-		/// <param name="icon">The icon to </param>
 		/// <param name="location">The file (EXE or DLL) to get the icon from</param>
 		/// <param name="index">Index of the icon</param>
 		/// <param name="takeLarge">true if the large icon is wanted</param>
@@ -509,8 +506,7 @@ namespace GreenshotPlugin.Core
 		/// <returns>Bitmap</returns>
 		public static Image ApplyEffect(Image sourceImage, IEffect effect, Matrix matrix)
 		{
-			List<IEffect> effects = new List<IEffect>();
-			effects.Add(effect);
+			var effects = new List<IEffect> {effect};
 			return ApplyEffects(sourceImage, effects, matrix);
 		}
 
@@ -518,8 +514,8 @@ namespace GreenshotPlugin.Core
 		/// Apply the effects in the supplied order to the bitmap
 		/// </summary>
 		/// <param name="sourceImage">Bitmap</param>
-		/// <param name="effects">List<IEffect></param>
-		/// <param name="matrix"></param>
+		/// <param name="effects">List with IEffect</param>
+		/// <param name="matrix">Matrix</param>
 		/// <returns>Bitmap</returns>
 		public static Image ApplyEffects(Image sourceImage, List<IEffect> effects, Matrix matrix)
 		{
@@ -527,7 +523,7 @@ namespace GreenshotPlugin.Core
 			bool disposeImage = false;
 			foreach (IEffect effect in effects)
 			{
-				Image tmpImage = effect.Apply(currentImage, matrix);
+				var tmpImage = effect.Apply(currentImage, matrix);
 				if (tmpImage != null)
 				{
 					if (disposeImage)
@@ -711,7 +707,7 @@ namespace GreenshotPlugin.Core
 			// By the central limit theorem, if applied 3 times on the same image, a box blur approximates the Gaussian kernel to within about 3%, yielding the same result as a quadratic convolution kernel.
 			// This might be true, but the GDI+ BlurEffect doesn't look the same, a 2x blur is more simular and we only make 2x Box-Blur.
 			// (Might also be a mistake in our blur, but for now it looks great)
-			if (fastBitmap.hasAlphaChannel)
+			if (fastBitmap.HasAlphaChannel)
 			{
 				BoxBlurHorizontalAlpha(fastBitmap, range);
 				BoxBlurVerticalAlpha(fastBitmap, range);
@@ -734,7 +730,7 @@ namespace GreenshotPlugin.Core
 		/// <param name="range">Range must be odd!</param>
 		private static void BoxBlurHorizontal(IFastBitmap targetFastBitmap, int range)
 		{
-			if (targetFastBitmap.hasAlphaChannel)
+			if (targetFastBitmap.HasAlphaChannel)
 			{
 				throw new NotSupportedException("BoxBlurHorizontal should NOT be called for bitmaps with alpha channel");
 			}
@@ -753,9 +749,9 @@ namespace GreenshotPlugin.Core
 					if (oldPixel >= targetFastBitmap.Left)
 					{
 						targetFastBitmap.GetColorAt(oldPixel, y, tmpColor);
-						r -= tmpColor[FastBitmap.COLOR_INDEX_R];
-						g -= tmpColor[FastBitmap.COLOR_INDEX_G];
-						b -= tmpColor[FastBitmap.COLOR_INDEX_B];
+						r -= tmpColor[FastBitmap.ColorIndexR];
+						g -= tmpColor[FastBitmap.ColorIndexG];
+						b -= tmpColor[FastBitmap.ColorIndexB];
 						hits--;
 					}
 
@@ -763,9 +759,9 @@ namespace GreenshotPlugin.Core
 					if (newPixel < targetFastBitmap.Right)
 					{
 						targetFastBitmap.GetColorAt(newPixel, y, tmpColor);
-						r += tmpColor[FastBitmap.COLOR_INDEX_R];
-						g += tmpColor[FastBitmap.COLOR_INDEX_G];
-						b += tmpColor[FastBitmap.COLOR_INDEX_B];
+						r += tmpColor[FastBitmap.ColorIndexR];
+						g += tmpColor[FastBitmap.ColorIndexG];
+						b += tmpColor[FastBitmap.ColorIndexB];
 						hits++;
 					}
 
@@ -788,7 +784,7 @@ namespace GreenshotPlugin.Core
 		/// <param name="range">Range must be odd!</param>
 		private static void BoxBlurHorizontalAlpha(IFastBitmap targetFastBitmap, int range)
 		{
-			if (!targetFastBitmap.hasAlphaChannel)
+			if (!targetFastBitmap.HasAlphaChannel)
 			{
 				throw new NotSupportedException("BoxBlurHorizontalAlpha should be called for bitmaps with alpha channel");
 			}
@@ -808,10 +804,10 @@ namespace GreenshotPlugin.Core
 					if (oldPixel >= targetFastBitmap.Left)
 					{
 						targetFastBitmap.GetColorAt(oldPixel, y, tmpColor);
-						a -= tmpColor[FastBitmap.COLOR_INDEX_A];
-						r -= tmpColor[FastBitmap.COLOR_INDEX_R];
-						g -= tmpColor[FastBitmap.COLOR_INDEX_G];
-						b -= tmpColor[FastBitmap.COLOR_INDEX_B];
+						a -= tmpColor[FastBitmap.ColorIndexA];
+						r -= tmpColor[FastBitmap.ColorIndexR];
+						g -= tmpColor[FastBitmap.ColorIndexG];
+						b -= tmpColor[FastBitmap.ColorIndexB];
 						hits--;
 					}
 
@@ -819,10 +815,10 @@ namespace GreenshotPlugin.Core
 					if (newPixel < targetFastBitmap.Right)
 					{
 						targetFastBitmap.GetColorAt(newPixel, y, tmpColor);
-						a += tmpColor[FastBitmap.COLOR_INDEX_A];
-						r += tmpColor[FastBitmap.COLOR_INDEX_R];
-						g += tmpColor[FastBitmap.COLOR_INDEX_G];
-						b += tmpColor[FastBitmap.COLOR_INDEX_B];
+						a += tmpColor[FastBitmap.ColorIndexA];
+						r += tmpColor[FastBitmap.ColorIndexR];
+						g += tmpColor[FastBitmap.ColorIndexG];
+						b += tmpColor[FastBitmap.ColorIndexB];
 						hits++;
 					}
 
@@ -845,7 +841,7 @@ namespace GreenshotPlugin.Core
 		/// <param name="range">Range must be odd!</param>
 		private static void BoxBlurVertical(IFastBitmap targetFastBitmap, int range)
 		{
-			if (targetFastBitmap.hasAlphaChannel)
+			if (targetFastBitmap.HasAlphaChannel)
 			{
 				throw new NotSupportedException("BoxBlurVertical should NOT be called for bitmaps with alpha channel");
 			}
@@ -864,9 +860,9 @@ namespace GreenshotPlugin.Core
 					if (oldPixel >= targetFastBitmap.Top)
 					{
 						targetFastBitmap.GetColorAt(x, oldPixel, tmpColor);
-						r -= tmpColor[FastBitmap.COLOR_INDEX_R];
-						g -= tmpColor[FastBitmap.COLOR_INDEX_G];
-						b -= tmpColor[FastBitmap.COLOR_INDEX_B];
+						r -= tmpColor[FastBitmap.ColorIndexR];
+						g -= tmpColor[FastBitmap.ColorIndexG];
+						b -= tmpColor[FastBitmap.ColorIndexB];
 						hits--;
 					}
 
@@ -874,9 +870,9 @@ namespace GreenshotPlugin.Core
 					if (newPixel < targetFastBitmap.Bottom)
 					{
 						targetFastBitmap.GetColorAt(x, newPixel, tmpColor);
-						r += tmpColor[FastBitmap.COLOR_INDEX_R];
-						g += tmpColor[FastBitmap.COLOR_INDEX_G];
-						b += tmpColor[FastBitmap.COLOR_INDEX_B];
+						r += tmpColor[FastBitmap.ColorIndexR];
+						g += tmpColor[FastBitmap.ColorIndexG];
+						b += tmpColor[FastBitmap.ColorIndexB];
 						hits++;
 					}
 
@@ -900,7 +896,7 @@ namespace GreenshotPlugin.Core
 		/// <param name="range">Range must be odd!</param>
 		private static void BoxBlurVerticalAlpha(IFastBitmap targetFastBitmap, int range)
 		{
-			if (!targetFastBitmap.hasAlphaChannel)
+			if (!targetFastBitmap.HasAlphaChannel)
 			{
 				throw new NotSupportedException("BoxBlurVerticalAlpha should be called for bitmaps with alpha channel");
 			}
@@ -921,10 +917,10 @@ namespace GreenshotPlugin.Core
 					if (oldPixel >= targetFastBitmap.Top)
 					{
 						targetFastBitmap.GetColorAt(x, oldPixel, tmpColor);
-						a -= tmpColor[FastBitmap.COLOR_INDEX_A];
-						r -= tmpColor[FastBitmap.COLOR_INDEX_R];
-						g -= tmpColor[FastBitmap.COLOR_INDEX_G];
-						b -= tmpColor[FastBitmap.COLOR_INDEX_B];
+						a -= tmpColor[FastBitmap.ColorIndexA];
+						r -= tmpColor[FastBitmap.ColorIndexR];
+						g -= tmpColor[FastBitmap.ColorIndexG];
+						b -= tmpColor[FastBitmap.ColorIndexB];
 						hits--;
 					}
 
@@ -933,10 +929,10 @@ namespace GreenshotPlugin.Core
 					{
 						//int colorg = pixels[index + newPixelOffset];
 						targetFastBitmap.GetColorAt(x, newPixel, tmpColor);
-						a += tmpColor[FastBitmap.COLOR_INDEX_A];
-						r += tmpColor[FastBitmap.COLOR_INDEX_R];
-						g += tmpColor[FastBitmap.COLOR_INDEX_G];
-						b += tmpColor[FastBitmap.COLOR_INDEX_B];
+						a += tmpColor[FastBitmap.ColorIndexA];
+						r += tmpColor[FastBitmap.ColorIndexR];
+						g += tmpColor[FastBitmap.ColorIndexG];
+						b += tmpColor[FastBitmap.ColorIndexB];
 						hits++;
 					}
 
@@ -1001,13 +997,15 @@ namespace GreenshotPlugin.Core
 			{
 				shadowSize++;
 			}
-			bool useGDIBlur = Gdiplus.IsBlurPossible(shadowSize);
+			bool useGdiBlur = Gdiplus.IsBlurPossible(shadowSize);
 			// Create "mask" for the shadow
-			ColorMatrix maskMatrix = new ColorMatrix();
-			maskMatrix.Matrix00 = 0;
-			maskMatrix.Matrix11 = 0;
-			maskMatrix.Matrix22 = 0;
-			if (useGDIBlur)
+			ColorMatrix maskMatrix = new ColorMatrix
+			{
+				Matrix00 = 0,
+				Matrix11 = 0,
+				Matrix22 = 0
+			};
+			if (useGdiBlur)
 			{
 				maskMatrix.Matrix33 = darkness + 0.1f;
 			}
@@ -1015,14 +1013,14 @@ namespace GreenshotPlugin.Core
 			{
 				maskMatrix.Matrix33 = darkness;
 			}
-			Rectangle shadowRectangle = new Rectangle(new Point(shadowSize, shadowSize), sourceBitmap.Size);
+			var shadowRectangle = new Rectangle(new Point(shadowSize, shadowSize), sourceBitmap.Size);
 			ApplyColorMatrix((Bitmap) sourceBitmap, Rectangle.Empty, returnImage, shadowRectangle, maskMatrix);
 
 			// blur "shadow", apply to whole new image
-			if (useGDIBlur)
+			if (useGdiBlur)
 			{
 				// Use GDI Blur
-				Rectangle newImageRectangle = new Rectangle(0, 0, returnImage.Width, returnImage.Height);
+				var newImageRectangle = new Rectangle(0, 0, returnImage.Width, returnImage.Height);
 				Gdiplus.ApplyBlur(returnImage, newImageRectangle, shadowSize, true);
 			}
 			else
@@ -1033,7 +1031,7 @@ namespace GreenshotPlugin.Core
 			}
 
 			// Draw the original image over the shadow
-			using (Graphics graphics = Graphics.FromImage(returnImage))
+			using (var graphics = Graphics.FromImage(returnImage))
 			{
 				// Make sure we draw with the best quality!
 				graphics.SmoothingMode = SmoothingMode.HighQuality;
@@ -1239,32 +1237,32 @@ namespace GreenshotPlugin.Core
 		public static ImageAttributes CreateAdjustAttributes(float brightness, float contrast, float gamma)
 		{
 			float adjustedBrightness = brightness - 1.0f;
-			ColorMatrix applyColorMatrix = new ColorMatrix(new float[][]
+			var applyColorMatrix = new ColorMatrix(new[]
 			{
-				new float[]
+				new[]
 				{
 					contrast, 0, 0, 0, 0
 				}, // scale red
-				new float[]
+				new[]
 				{
 					0, contrast, 0, 0, 0
 				}, // scale green
-				new float[]
+				new[]
 				{
 					0, 0, contrast, 0, 0
 				}, // scale blue
-				new float[]
+				new[]
 				{
 					0, 0, 0, 1.0f, 0
 				}, // don't scale alpha
-				new float[]
+				new[]
 				{
 					adjustedBrightness, adjustedBrightness, adjustedBrightness, 0, 1
 				}
 			});
 
 			//create some image attributes
-			ImageAttributes attributes = new ImageAttributes();
+			var attributes = new ImageAttributes();
 			attributes.ClearColorMatrix();
 			attributes.SetColorMatrix(applyColorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 			attributes.SetGamma(gamma, ColorAdjustType.Bitmap);
@@ -1284,8 +1282,8 @@ namespace GreenshotPlugin.Core
 		{
 			//create a blank bitmap the same size as original
 			// If using 8bpp than the following exception comes: A Graphics object cannot be created from an image that has an indexed pixel format. 
-			Bitmap newBitmap = CreateEmpty(sourceImage.Width, sourceImage.Height, PixelFormat.Format24bppRgb, Color.Empty, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
-			using (ImageAttributes adjustAttributes = CreateAdjustAttributes(brightness, contrast, gamma))
+			var newBitmap = CreateEmpty(sourceImage.Width, sourceImage.Height, PixelFormat.Format24bppRgb, Color.Empty, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
+			using (var adjustAttributes = CreateAdjustAttributes(brightness, contrast, gamma))
 			{
 				ApplyImageAttributes((Bitmap) sourceImage, Rectangle.Empty, newBitmap, Rectangle.Empty, adjustAttributes);
 			}
@@ -1299,18 +1297,18 @@ namespace GreenshotPlugin.Core
 		/// <returns>Bitmap with grayscale</returns>
 		public static Image CreateGrayscale(Image sourceImage)
 		{
-			Bitmap clone = (Bitmap) Clone(sourceImage);
-			ColorMatrix grayscaleMatrix = new ColorMatrix(new float[][]
+			var clone = (Bitmap) Clone(sourceImage);
+			var grayscaleMatrix = new ColorMatrix(new[]
 			{
-				new float[]
+				new[]
 				{
 					.3f, .3f, .3f, 0, 0
 				},
-				new float[]
+				new[]
 				{
 					.59f, .59f, .59f, 0, 0
 				},
-				new float[]
+				new[]
 				{
 					.11f, .11f, .11f, 0, 0
 				},
@@ -1385,8 +1383,8 @@ namespace GreenshotPlugin.Core
 		/// <returns></returns>
 		public static Bitmap CloneArea(Image sourceImage, Rectangle sourceRect, PixelFormat targetFormat)
 		{
-			Bitmap newImage = null;
-			Rectangle bitmapRect = new Rectangle(0, 0, sourceImage.Width, sourceImage.Height);
+			Bitmap newImage;
+			var bitmapRect = new Rectangle(0, 0, sourceImage.Width, sourceImage.Height);
 
 			// Make sure the source is not Rectangle.Empty
 			if (Rectangle.Empty.Equals(sourceRect))
@@ -1418,14 +1416,7 @@ namespace GreenshotPlugin.Core
 			// check the target format
 			if (!SupportsPixelFormat(targetFormat))
 			{
-				if (Image.IsAlphaPixelFormat(targetFormat))
-				{
-					targetFormat = PixelFormat.Format32bppArgb;
-				}
-				else
-				{
-					targetFormat = PixelFormat.Format24bppRgb;
-				}
+				targetFormat = Image.IsAlphaPixelFormat(targetFormat) ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb;
 			}
 
 			bool destinationIsTransparent = Image.IsAlphaPixelFormat(targetFormat);
@@ -1440,7 +1431,7 @@ namespace GreenshotPlugin.Core
 				// Make sure both images have the same resolution
 				newImage.SetResolution(sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
 
-				using (Graphics graphics = Graphics.FromImage(newImage))
+				using (var graphics = Graphics.FromImage(newImage))
 				{
 					if (fromTransparentToNon)
 					{
@@ -1491,7 +1482,7 @@ namespace GreenshotPlugin.Core
 		/// <returns></returns>
 		public static Image RotateFlip(Image sourceImage, RotateFlipType rotateFlipType)
 		{
-			Image returnImage = Clone(sourceImage);
+			var returnImage = Clone(sourceImage);
 			returnImage.RotateFlip(rotateFlipType);
 			return returnImage;
 		}
@@ -1504,7 +1495,7 @@ namespace GreenshotPlugin.Core
 		/// <returns></returns>
 		public static Bitmap CreateEmptyLike(Image sourceImage, Color backgroundColor)
 		{
-			PixelFormat pixelFormat = sourceImage.PixelFormat;
+			var pixelFormat = sourceImage.PixelFormat;
 			if (backgroundColor.A < 255)
 			{
 				pixelFormat = PixelFormat.Format32bppArgb;
@@ -1661,11 +1652,8 @@ namespace GreenshotPlugin.Core
 			int destX = 0;
 			int destY = 0;
 
-			float nPercentW = 0;
-			float nPercentH = 0;
-
-			nPercentW = (newWidth/(float) sourceImage.Width);
-			nPercentH = (newHeight/(float) sourceImage.Height);
+			var nPercentW = (newWidth/(float) sourceImage.Width);
+			var nPercentH = (newHeight/(float) sourceImage.Height);
 			if (maintainAspectRatio)
 			{
 				if (nPercentW == 1)
@@ -1716,24 +1704,18 @@ namespace GreenshotPlugin.Core
 			if (maintainAspectRatio && canvasUseNewSize)
 			{
 				newImage = CreateEmpty(newWidth, newHeight, sourceImage.PixelFormat, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
-				if (matrix != null)
-				{
-					matrix.Scale((float) newWidth/sourceImage.Width, (float) newHeight/sourceImage.Height, MatrixOrder.Append);
-				}
+				matrix?.Scale((float) newWidth/sourceImage.Width, (float) newHeight/sourceImage.Height, MatrixOrder.Append);
 			}
 			else
 			{
 				newImage = CreateEmpty(destWidth, destHeight, sourceImage.PixelFormat, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
-				if (matrix != null)
-				{
-					matrix.Scale((float) destWidth/sourceImage.Width, (float) destHeight/sourceImage.Height, MatrixOrder.Append);
-				}
+				matrix?.Scale((float) destWidth/sourceImage.Width, (float) destHeight/sourceImage.Height, MatrixOrder.Append);
 			}
 
-			using (Graphics graphics = Graphics.FromImage(newImage))
+			using (var graphics = Graphics.FromImage(newImage))
 			{
 				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-				using (ImageAttributes wrapMode = new ImageAttributes())
+				using (var wrapMode = new ImageAttributes())
 				{
 					wrapMode.SetWrapMode(WrapMode.TileFlipXY);
 					graphics.DrawImage(sourceImage, new Rectangle(destX, destY, destWidth, destHeight), 0, 0, sourceImage.Width, sourceImage.Height, GraphicsUnit.Pixel, wrapMode);

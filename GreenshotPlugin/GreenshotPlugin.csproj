@@ -52,9 +52,7 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>
-    <Reference Include="Accessibility">
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </Reference>
+    <Reference Include="Accessibility" />
     <Reference Include="CustomMarshalers" />
     <Reference Include="Dapplo.Addons, Version=0.3.10.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Addons.0.3.10.0\lib\net451\Dapplo.Addons.dll</HintPath>
@@ -136,6 +134,7 @@
     <Compile Include="Controls\Pipette.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Core\Accessible.cs" />
     <Compile Include="Core\AsyncCommand.cs" />
     <Compile Include="Core\BuildInDestinationEnum.cs" />
     <Compile Include="Core\Capture.cs" />
@@ -143,7 +142,6 @@
     <Compile Include="Core\CaptureHandler.cs" />
     <Compile Include="Core\LegacyDestinationHelper.cs" />
     <Compile Include="Core\HelpFileLoader.cs" />
-    <Compile Include="Core\WmInputLangChangeRequestFilter.cs" />
     <Compile Include="Extensions\BitmapExtensions.cs" />
     <Compile Include="Extensions\ControlExtensions.cs" />
     <Compile Include="Core\EventDelay.cs" />
@@ -162,7 +160,6 @@
     <Compile Include="Extensions\SizeExtentions.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Core\StreamDelegate.cs" />
-    <Compile Include="IEInterop\IWebBrowser2.cs" />
     <Compile Include="Interfaces\Destination\AbstractDestination.cs" />
     <Compile Include="Interfaces\Destination\DestinationMetadataAttribute.cs" />
     <Compile Include="Interfaces\Destination\IExportContext.cs" />
@@ -183,12 +180,6 @@
     <Compile Include="Interfaces\Plugin\IConfigurablePlugin.cs" />
     <Compile Include="Interfaces\Plugin\IGreenshotPlugin.cs" />
     <Compile Include="Interfaces\Plugin\SurfaceOutputSettings.cs" />
-    <Compile Include="Interop\DisposableCom.cs" />
-    <Compile Include="Interop\IUnknown.cs" />
-    <Compile Include="Interop\IDispatch.cs" />
-    <Compile Include="Interop\IOleWindow.cs" />
-    <Compile Include="Interop\IOleCommandTarget.cs" />
-    <Compile Include="Interop\IServiceProvider.cs" />
     <Compile Include="Controls\ExtendedWebBrowser.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -260,7 +251,6 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Core\AbstractLegacyDestination.cs" />
-    <Compile Include="Core\AccessibleHelper.cs" />
     <Compile Include="Core\AnimationHelpers.cs" />
     <Compile Include="Core\BinaryStructHelper.cs" />
     <Compile Include="Core\Cache.cs" />
@@ -272,7 +262,6 @@
     <Compile Include="Core\ImageOutput.cs" />
     <Compile Include="Core\InterfaceUtils.cs" />
     <Compile Include="Core\DisplayKeyAttribute.cs" />
-    <Compile Include="Core\EmailConfigHelper.cs" />
     <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Core\GreenshotResources.cs" />
     <Compile Include="Core\IEHelper.cs" />
@@ -280,7 +269,6 @@
     <Compile Include="Core\Objects.cs" />
     <Compile Include="Core\PluginUtils.cs" />
     <Compile Include="Core\QuantizerHelper.cs" />
-    <Compile Include="Core\SourceForgeHelper.cs" />
     <Compile Include="Core\WindowCapture.cs" />
     <Compile Include="Core\WindowsHelper.cs" />
     <Compile Include="Interfaces\Drawing\Container.cs" />
