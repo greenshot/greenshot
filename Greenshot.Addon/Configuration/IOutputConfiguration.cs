@@ -28,10 +28,10 @@ namespace Greenshot.Addon.Configuration
 	/// </summary>
 	public enum OutputFormat
 	{
+		png,
 		bmp,
 		gif,
 		jpg,
-		png,
 		tiff,
 		greenshot
 	}

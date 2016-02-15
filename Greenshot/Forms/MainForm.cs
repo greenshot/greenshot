@@ -118,7 +118,7 @@ namespace Greenshot.Forms
 				coreConfiguration = await iniConfig.RegisterAndGetAsync<ICoreConfiguration>();
 				var languageLoader = new LanguageLoader(ApplicationName, coreConfiguration.Language ?? "en-US");
 
-				// Defaults are taken, if multiple IniConfig / LanguageLoaders are used this needs to be changed:
+				// Defaults are taken, if multiple IniConfig / LanguageLoaders are used this needs to be uncommented:
 				//ApplicationBootstrapper.LanguageLoaderForExport = languageLoader;
 				//ApplicationBootstrapper.IniConfigForExport = iniConfig;
 

@@ -23,6 +23,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Config.Ini;
+using Greenshot.Addon.Core;
 
 namespace Greenshot.Addon.ExternalCommand
 {
@@ -80,8 +81,9 @@ namespace Greenshot.Addon.ExternalCommand
 				int imageNr = 0;
 				foreach (string commando in config.Commands)
 				{
+					var settings = new CommandSettings(commando);
 					ListViewItem item;
-					Image iconForExe = IconCache.IconForCommand(commando);
+					Image iconForExe = PluginUtils.GetCachedExeIcon(settings.Commandline, 0);
 					if (iconForExe != null)
 					{
 						imageList.Images.Add(iconForExe);

@@ -32,6 +32,7 @@ using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.Addon.Interfaces.Destination;
 
 namespace Greenshot.Addon.ExternalCommand
 {
@@ -49,6 +50,12 @@ namespace Greenshot.Addon.ExternalCommand
 
 		[Import]
 		private IGreenshotHost GreenshotHost
+		{
+			get;
+			set;
+		}
+		[Import]
+		private IServiceLocator ServiceLocator
 		{
 			get;
 			set;
@@ -90,14 +97,6 @@ namespace Greenshot.Addon.ExternalCommand
 					_itemPlugInRoot.Dispose();
 					_itemPlugInRoot = null;
 				}
-			}
-		}
-
-		public IEnumerable<ILegacyDestination> Destinations()
-		{
-			foreach (string command in ExternalCommandConfiguration.Commands)
-			{
-				yield return new ExternalCommandLegacyDestination(command);
 			}
 		}
 
@@ -162,6 +161,14 @@ namespace Greenshot.Addon.ExternalCommand
 				ExternalCommandConfiguration.Commands.Remove(command);
 			}
 
+			foreach (string command in ExternalCommandConfiguration.Commands)
+			{
+				var settings = new CommandSettings(command);
+				var externalCommandDestination = new ExternalCommandDestination(settings);
+				ServiceLocator.FillImports(externalCommandDestination);
+				ServiceLocator.Export<IDestination>(externalCommandDestination);
+			}
+
 			_itemPlugInRoot = new ToolStripMenuItem();
 			_itemPlugInRoot.Tag = GreenshotHost;
 			OnIconSizeChanged(this, new PropertyChangedEventArgs("IconSize"));
@@ -216,6 +223,10 @@ namespace Greenshot.Addon.ExternalCommand
 
 		/// <summary>
 		/// Fix the properties
+		/// 
+		/// TODO: Fix for BUG-1908: Store a flag were can see if the user has manually removed one of the defaults.
+		/// This way we can always check for Paint.NET (or other defaults) and add them, unless they are removed manually.
+		/// Another possible way to fix this bug, is to have a wizard... or a way to download settings.
 		/// </summary>
 		private void AfterLoad(IExternalCommandConfiguration config)
 		{

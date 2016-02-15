@@ -143,7 +143,7 @@ namespace Greenshot.Addon.ExternalCommand
 			// Are the arguments in a valid format? 
 			try
 			{
-				ExternalCommandLegacyDestination.FormatArguments(textBox_arguments.Text, string.Empty);
+				ProcessStarter.FormatArguments(textBox_arguments.Text, string.Empty);
 			}
 			catch
 			{

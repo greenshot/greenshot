@@ -19,37 +19,52 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Drawing;
-using System.IO;
 using Dapplo.Config.Ini;
-using Greenshot.Addon.Core;
+using Greenshot.Addon.Configuration;
 
 namespace Greenshot.Addon.ExternalCommand
 {
-	public static class IconCache
+	public class CommandSettings
 	{
-		private static IExternalCommandConfiguration config = IniConfig.Current.Get<IExternalCommandConfiguration>();
-		private static Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(IconCache));
+		private static readonly IExternalCommandConfiguration ExternalCommandConfiguration = IniConfig.Current.Get<IExternalCommandConfiguration>();
 
-		public static Image IconForCommand(string commandName)
+		public CommandSettings(string commando)
 		{
-			Image icon = null;
-			if (commandName != null)
-			{
-				if (config.Commandline.ContainsKey(commandName) && File.Exists(config.Commandline[commandName]))
-				{
-					try
-					{
-						icon = PluginUtils.GetCachedExeIcon(config.Commandline[commandName], 0);
-					}
-					catch (Exception ex)
-					{
-						LOG.Warning("Problem loading icon for " + config.Commandline[commandName], ex);
-					}
-				}
-			}
-			return icon;
+			Name = commando;
+			Commandline = ExternalCommandConfiguration.Commandline[commando];
+			Arguments = ExternalCommandConfiguration.Argument[commando];
+			RunInbackground = ExternalCommandConfiguration.RunInbackground[commando];
+			// TODO: Make configurable
+			Format = OutputFormat.png;
+		}
+
+		public string Name
+		{
+			get;
+			set;
+		}
+
+		public bool RunInbackground
+		{
+			get; set;
+		}
+
+		public string Commandline
+		{
+			get;
+			set;
+		}
+
+		public string Arguments
+		{
+			get;
+			set;
+		}
+
+		public OutputFormat Format
+		{
+			get;
+			set;
 		}
 	}
 }

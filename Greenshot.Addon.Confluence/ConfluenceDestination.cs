@@ -52,7 +52,7 @@ namespace Greenshot.Addon.Confluence
 
 		static ConfluenceDestination()
 		{
-			var confluenceIconUri = new Uri("/GreenshotConfluencePlugin;component/Images/Confluence.ico", UriKind.Relative);
+			var confluenceIconUri = new Uri("/Greenshot.Addon.Confluence;component/Images/Confluence.ico", UriKind.Relative);
 			var streamResourceInfo = Application.GetResourceStream(confluenceIconUri);
 			if (streamResourceInfo != null)
 			{

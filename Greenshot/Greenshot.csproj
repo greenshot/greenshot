@@ -40,8 +40,8 @@
   <ItemGroup>
     <Reference Include="Accessibility" />
     <Reference Include="CustomMarshalers" />
-    <Reference Include="Dapplo.Addons, Version=0.3.10.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Addons.0.3.10.0\lib\net451\Dapplo.Addons.dll</HintPath>
+    <Reference Include="Dapplo.Addons, Version=0.3.11.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Addons.0.3.11.0\lib\net451\Dapplo.Addons.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.Addons.Bootstrapper, Version=0.3.10.0, Culture=neutral, processorArchitecture=MSIL">
@@ -56,8 +56,8 @@
       <HintPath>..\packages\Dapplo.HttpExtensions.0.3.21.0\lib\net451\Dapplo.HttpExtensions.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.LogFacade, Version=0.1.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.LogFacade.0.1.3.0\lib\net451\Dapplo.LogFacade.dll</HintPath>
+    <Reference Include="Dapplo.LogFacade, Version=0.1.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.LogFacade.0.1.4.0\lib\net451\Dapplo.LogFacade.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.Windows, Version=0.1.14.0, Culture=neutral, processorArchitecture=MSIL">

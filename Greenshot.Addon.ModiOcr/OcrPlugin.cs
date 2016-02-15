@@ -41,7 +41,7 @@ namespace Greenshot.Addon.ModiOcr
     public class OcrPlugin : IConfigurablePlugin, IStartupAction
 	{
 		private static Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(OcrPlugin));
-		private static readonly string OcrCommand = Path.Combine(Path.GetDirectoryName(typeof(OcrPlugin).Assembly.Location), "greenshotocrcommand.exe");
+		private static readonly string OcrCommand = Path.Combine(Path.GetDirectoryName(typeof(OcrPlugin).Assembly.Location), "ModiOcrCommand.exe");
 		private ToolStripMenuItem _ocrMenuItem = new ToolStripMenuItem();
 
 		[Import]
