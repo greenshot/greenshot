@@ -50,7 +50,7 @@ namespace Greenshot.Addon.Editor.Forms
 	/// </summary>
 	public partial class ImageEditorForm : BaseForm, IImageEditor
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ImageEditorForm));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ImageEditorForm));
 		private static readonly IEditorConfiguration editorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
 		private static readonly IEditorLanguage editorLanguage = LanguageLoader.Current.Get<IGreenshotLanguage>();
 
@@ -97,7 +97,7 @@ namespace Greenshot.Addon.Editor.Forms
 				}
 				catch (Exception ex)
 				{
-					LOG.Warning("Sorting of editors failed.", ex);
+					Log.Warning("Sorting of editors failed.", ex);
 				}
 				return editorList;
 			}
@@ -138,8 +138,8 @@ namespace Greenshot.Addon.Editor.Forms
 						}
 						catch (Exception addingException)
 						{
-							LOG.Warning("Problem adding destination {0}", destination.Designation);
-							LOG.Warning("Exception: ", addingException);
+							Log.Warning("Problem adding destination {0}", destination.Designation);
+							Log.Warning("Exception: ", addingException);
 						}
 					}
 				});
@@ -928,7 +928,7 @@ namespace Greenshot.Addon.Editor.Forms
 
 		private async Task ImageEditorFormKeyDownAsync(object sender, KeyEventArgs e, CancellationToken token = default(CancellationToken))
 		{
-			// LOG.Debug("Got key event "+e.KeyCode + ", " + e.Modifiers);
+			// Log.Debug("Got key event "+e.KeyCode + ", " + e.Modifiers);
 			// avoid conflict with other shortcuts and
 			// make sure there's no selected element claiming input focus
 			if (e.Modifiers.Equals(Keys.None) && !_surface.KeysLocked)
@@ -1457,7 +1457,7 @@ namespace Greenshot.Addon.Editor.Forms
 			ToolStripMenuItem clickedItem = (ToolStripMenuItem) sender;
 			try
 			{
-				WindowDetails windowToCapture = (WindowDetails) clickedItem.Tag;
+				var windowToCapture = (WindowDetails) clickedItem.Tag;
 				ICapture capture = new Capture();
 				using (Graphics graphics = Graphics.FromHwnd(Handle))
 				{
@@ -1485,7 +1485,7 @@ namespace Greenshot.Addon.Editor.Forms
 			}
 			catch (Exception exception)
 			{
-				LOG.Error(exception, "Capturing window failed");
+				Log.Error(exception, "Capturing window failed");
 			}
 		}
 

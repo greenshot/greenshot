@@ -37,7 +37,7 @@ namespace Greenshot.Addon.WindowsShare
 	[StartupAction]
     public class SharePlugin : IGreenshotPlugin, IStartupAction
 	{
-		private static Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(SharePlugin));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(SharePlugin));
 
 		[Import]
 		private IServiceLocator ServiceLocator
@@ -68,7 +68,7 @@ namespace Greenshot.Addon.WindowsShare
 			catch
 			{
 				// Ignore
-				LOG.Information("Share button disabled.");
+				Log.Information("Share button disabled.");
 			}			
 			return Task.FromResult(true);
 		}

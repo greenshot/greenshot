@@ -36,7 +36,7 @@ namespace Greenshot.Addon.Controls
 	/// </summary>
 	public class SaveImageFileDialog : IDisposable
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(SaveImageFileDialog));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(SaveImageFileDialog));
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		protected SaveFileDialog saveFileDialog;
 		private FilterOption[] filterOptions;
@@ -83,7 +83,7 @@ namespace Greenshot.Addon.Controls
 			}
 			catch
 			{
-				LOG.Warning("OutputFileAsFullpath was set to {0}, ignoring due to problem in path.", conf.OutputFileAsFullpath);
+				Log.Warning("OutputFileAsFullpath was set to {0}, ignoring due to problem in path.", conf.OutputFileAsFullpath);
 			}
 
 			if (!string.IsNullOrEmpty(initialDirectory) && Directory.Exists(initialDirectory))
@@ -262,7 +262,7 @@ namespace Greenshot.Addon.Controls
 			}
 			catch (Exception e)
 			{
-				LOG.Warning("Couldn't cleanup directory due to: {0}", e.Message);
+				Log.Warning("Couldn't cleanup directory due to: {0}", e.Message);
 				eagerlyCreatedDirectory = null;
 			}
 		}
@@ -282,7 +282,7 @@ namespace Greenshot.Addon.Controls
 			}
 			catch (Exception e)
 			{
-				LOG.Error("Error in CreateDirectoryIfNotExists", e);
+				Log.Error("Error in CreateDirectoryIfNotExists", e);
 			}
 			return dirName;
 		}

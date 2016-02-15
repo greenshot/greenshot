@@ -33,7 +33,7 @@ namespace Greenshot.Addon.Core
 {
 	public static class FilenameHelper
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(FilenameHelper));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(FilenameHelper));
 		// Specify the regular expression for the filename formatting:
 		// Starting with ${
 		// than the varname, which ends with a : or }
@@ -150,7 +150,7 @@ namespace Greenshot.Addon.Core
 			}
 			catch (Exception e)
 			{
-				LOG.Error("Error in MatchVarEvaluatorInternal", e);
+				Log.Error("Error in MatchVarEvaluatorInternal", e);
 			}
 			return "";
 		}
@@ -498,7 +498,7 @@ namespace Greenshot.Addon.Core
 			}
 			catch (Exception e)
 			{
-				LOG.Error("Error retrieving EnvironmentVariableTarget.Process", e);
+				Log.Error("Error retrieving EnvironmentVariableTarget.Process", e);
 			}
 
 			try
@@ -507,7 +507,7 @@ namespace Greenshot.Addon.Core
 			}
 			catch (Exception e)
 			{
-				LOG.Error("Error retrieving EnvironmentVariableTarget.User", e);
+				Log.Error("Error retrieving EnvironmentVariableTarget.User", e);
 			}
 
 			try
@@ -516,7 +516,7 @@ namespace Greenshot.Addon.Core
 			}
 			catch (Exception e)
 			{
-				LOG.Error("Error retrieving EnvironmentVariableTarget.Machine", e);
+				Log.Error("Error retrieving EnvironmentVariableTarget.Machine", e);
 			}
 
 			return VAR_REGEXP.Replace(pattern, new MatchEvaluator(delegate(Match m)
@@ -543,7 +543,7 @@ namespace Greenshot.Addon.Core
 			}
 			catch (Exception e)
 			{
-				LOG.Error("Error retrieving EnvironmentVariableTarget.Process", e);
+				Log.Error("Error retrieving EnvironmentVariableTarget.Process", e);
 			}
 
 			try
@@ -552,7 +552,7 @@ namespace Greenshot.Addon.Core
 			}
 			catch (Exception e)
 			{
-				LOG.Error("Error retrieving EnvironmentVariableTarget.User", e);
+				Log.Error("Error retrieving EnvironmentVariableTarget.User", e);
 			}
 
 			try
@@ -561,7 +561,7 @@ namespace Greenshot.Addon.Core
 			}
 			catch (Exception e)
 			{
-				LOG.Error("Error retrieving EnvironmentVariableTarget.Machine", e);
+				Log.Error("Error retrieving EnvironmentVariableTarget.Machine", e);
 			}
 
 			try

@@ -23,8 +23,18 @@ using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Extensions
 {
+	/// <summary>
+	/// Extensions to support with the LanguageLoader
+	/// </summary>
 	public static class LanguageLoaderExtensions
 	{
+		/// <summary>
+		/// Get the translation from the language loader for a module and key
+		/// </summary>
+		/// <param name="loader">LanguageLoader</param>
+		/// <param name="languageKey">key to look for the translation with</param>
+		/// <param name="languageModule">Module to use for the translation</param>
+		/// <returns>translation</returns>
 		public static string Translate(this LanguageLoader loader, string languageKey, string languageModule)
 		{
 			if (string.IsNullOrEmpty(languageModule))
@@ -54,7 +64,7 @@ namespace Greenshot.Addon.Extensions
 		public static string Translate(this LanguageLoader loader, object languageKeyObject, string languageModule = "Core")
 		{
 			string typename = languageKeyObject.GetType().Name;
-			string languageKey = typename + "." + languageKeyObject.ToString();
+			string languageKey = typename + "." + languageKeyObject;
 			// Even if there is a default, null can be supplied!
 			if (string.IsNullOrEmpty(languageModule))
 			{

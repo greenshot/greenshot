@@ -34,41 +34,9 @@ namespace Greenshot.Addon.Core
 	/// </summary>
 	public static class LegacyDestinationHelper
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(LegacyDestinationHelper));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(LegacyDestinationHelper));
 		private static Dictionary<string, ILegacyDestination> RegisteredDestinations = new Dictionary<string, ILegacyDestination>();
 		private static readonly ICoreConfiguration coreConfig = IniConfig.Current.Get<ICoreConfiguration>();
-
-		/// Initialize the destinations		
-		static LegacyDestinationHelper()
-		{
-			foreach (Type destinationType in InterfaceUtils.GetSubclassesOf(typeof (ILegacyDestination), true))
-			{
-				// Only take our own
-				if (!"Greenshot.Destinations".Equals(destinationType.Namespace))
-				{
-					continue;
-				}
-				ILegacyDestination destination;
-				try
-				{
-					destination = (ILegacyDestination) Activator.CreateInstance(destinationType);
-				}
-				catch (Exception e)
-				{
-					LOG.Error(e, "Can't create instance of {Type}", destinationType);
-					continue;
-				}
-				if (destination.IsActive)
-				{
-					LOG.Debug("Found destination {0} with designation {1}", destinationType.Name, destination.Designation);
-					RegisterLegacyDestination(destination);
-				}
-				else
-				{
-					LOG.Debug("Ignoring destination {0} with designation {1}", destinationType.Name, destination.Designation);
-				}
-			}
-		}
 
 		/// <summary>
 		/// Register your destination here, if it doesn't come from a plugin and needs to be available

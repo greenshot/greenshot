@@ -32,8 +32,6 @@ namespace Greenshot.Addon.Extensions
 {
 	public static class ControlExtensions
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ControlExtensions));
-
 		/// <summary>
 		/// Very simple extention which makes it easier to call BeginInvoke on a control with a lambda
 		/// </summary>
@@ -143,7 +141,7 @@ namespace Greenshot.Addon.Extensions
 				window.Closed += loadedHandler;
 				try
 				{
-					SynchronizationContext.Current.Post((_) => window.ShowDialog(), null);
+					SynchronizationContext.Current.Post(_ => window.ShowDialog(), null);
 					await taskCompletionSource.Task;
 				}
 				finally
@@ -177,7 +175,7 @@ namespace Greenshot.Addon.Extensions
                 window.IsVisibleChanged += visibilityHandler;
 				try
 				{
-					SynchronizationContext.Current.Post((_) => window.ShowDialog(), null);
+					SynchronizationContext.Current.Post(_ => window.ShowDialog(), null);
 					await taskCompletionSource.Task;
 				}
 				finally

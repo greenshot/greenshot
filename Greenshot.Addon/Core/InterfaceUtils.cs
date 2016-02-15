@@ -30,7 +30,7 @@ namespace Greenshot.Addon.Core
 	/// </summary>
 	public static class InterfaceUtils
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(InterfaceUtils));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(InterfaceUtils));
 
 		public static IEnumerable<Type> GetSubclassesOf(Type implementingType, bool excludeSystemTypes)
 		{

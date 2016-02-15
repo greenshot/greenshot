@@ -41,7 +41,7 @@ namespace Greenshot.Addon.Photobucket
 	/// </summary>
 	public static class PhotobucketUtils
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(PhotobucketUtils));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(PhotobucketUtils));
 		private static readonly IPhotobucketConfiguration Config = IniConfig.Current.Get<IPhotobucketConfiguration>();
 		private static List<string> _albumsCache;
 
@@ -109,7 +109,7 @@ namespace Greenshot.Addon.Photobucket
 						}
 						catch (Exception ex)
 						{
-							LOG.Error("Error uploading to Photobucket.", ex);
+							Log.Error("Error uploading to Photobucket.", ex);
 							throw;
 						}
 						finally
@@ -131,9 +131,9 @@ namespace Greenshot.Addon.Photobucket
 			{
 				return null;
 			}
-			LOG.Information(responseString);
+			Log.Information(responseString);
 			var photobucketInfo = PhotobucketInfo.FromUploadResponse(responseString);
-			LOG.Debug("Upload to Photobucket was finished");
+			Log.Debug("Upload to Photobucket was finished");
 			return photobucketInfo;
 		}
 
@@ -214,7 +214,7 @@ namespace Greenshot.Addon.Photobucket
 			}
 			catch (Exception ex)
 			{
-				LOG.Error("Error uploading to Photobucket.", ex);
+				Log.Error("Error uploading to Photobucket.", ex);
 				throw;
 			}
 			finally
@@ -242,16 +242,16 @@ namespace Greenshot.Addon.Photobucket
 				{
 					RecurseAlbums(albums, null, xmlNode.ChildNodes);
 				}
-				LOG.Debug("Albums: {0}", string.Join(",", albums.ToArray()));
+				Log.Debug("Albums: {0}", string.Join(",", albums.ToArray()));
 				_albumsCache = albums;
 				return albums;
 			}
 			catch (Exception e)
 			{
-				LOG.Error("Error while Reading albums: ", e);
+				Log.Error("Error while Reading albums: ", e);
 			}
 
-			LOG.Debug("Upload to Photobucket was finished");
+			Log.Debug("Upload to Photobucket was finished");
 			return null;
 		}
 

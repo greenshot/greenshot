@@ -39,7 +39,7 @@ namespace Greenshot.Addon.ModiOcr
 	public sealed class OcrDestination : AbstractDestination
 	{
 		private const string OcrDesignation = "Ocr";
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(OcrDestination));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(OcrDestination));
 		private const int MinWidth = 130;
 		private const int MinHeight = 130;
 		private static readonly string OcrCommand = Path.Combine(Path.GetDirectoryName(typeof(OcrPlugin).Assembly.Location), "ModiOcrCommand.exe");
@@ -94,14 +94,14 @@ namespace Greenshot.Addon.ModiOcr
 				returnValue.Text = "Scan cancelled.";
                 returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
-				LOG.Information(tcEx.Message);
+				Log.Information(tcEx.Message);
 			}
 			catch (Exception e)
 			{
 				returnValue.Text = "Scan failed.";
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
-				LOG.Warning(e, "OCR failed");
+				Log.Warning(e, "OCR failed");
 			}
 			return returnValue;
         }
@@ -139,7 +139,7 @@ namespace Greenshot.Addon.ModiOcr
 			}
 			string filePath = ImageOutput.SaveToTmpFile(capture, outputSettings, null);
 
-			LOG.Debug("Saved tmp file to: " + filePath);
+			Log.Debug("Saved tmp file to: " + filePath);
 
 			string text = "";
 			try
@@ -164,31 +164,31 @@ namespace Greenshot.Addon.ModiOcr
 			}
 			catch (Exception e)
 			{
-				LOG.Error("Error while calling Microsoft Office Document Imaging (MODI) to OCR: ", e);
+				Log.Error("Error while calling Microsoft Office Document Imaging (MODI) to OCR: ", e);
 			}
 			finally
 			{
 				if (File.Exists(filePath))
 				{
-					LOG.Debug("Cleaning up tmp file: " + filePath);
+					Log.Debug("Cleaning up tmp file: " + filePath);
 					File.Delete(filePath);
 				}
 			}
 
 			if (text.Trim().Length == 0)
 			{
-				LOG.Information("No text returned");
+				Log.Information("No text returned");
 				return null;
 			}
 
 			try
 			{
-				LOG.Debug("Pasting OCR Text to Clipboard: {0}", text);
+				Log.Debug("Pasting OCR Text to Clipboard: {0}", text);
 				ClipboardHelper.SetClipboardData(text);
 			}
 			catch (Exception e)
 			{
-				LOG.Error("Problem pasting text to clipboard: ", e);
+				Log.Error("Problem pasting text to clipboard: ", e);
 			}
 			return text;
 		}

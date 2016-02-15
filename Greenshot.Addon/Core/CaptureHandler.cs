@@ -19,26 +19,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Drawing;
 
 namespace Greenshot.Addon.Core
 {
-	/// <summary>
-	/// This is the method signature which is used to capture a rectangle from the screen.
-	/// </summary>
-	/// <param name="captureBounds"></param>
-	/// <returns>Captured Bitmap</returns>
-	public delegate Bitmap CaptureScreenRectangleHandler(Rectangle captureBounds);
-
 	/// <summary>
 	/// This is a hack to experiment with different screen capture routines
 	/// </summary>
 	public static class CaptureHandler
 	{
 		/// <summary>
-		/// By changing this value, null is default
+		/// By changing this value, null is default, it is possible to insert a different capture algorithm.
 		/// </summary>
-		public static CaptureScreenRectangleHandler CaptureScreenRectangle
+		public static Func<Rectangle, Bitmap> CaptureScreenRectangle
 		{
 			get;
 			set;

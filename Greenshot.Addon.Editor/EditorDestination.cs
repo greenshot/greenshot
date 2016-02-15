@@ -43,7 +43,7 @@ namespace Greenshot.Addon.Editor
 	public sealed class EditorDestination : AbstractDestination
 	{
 		private const string EditorDesignation = "Editor";
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(EditorDestination));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(EditorDestination));
 		private static readonly BitmapSource GreenshotIcon = GreenshotResources.GetGreenshotIcon().ToBitmapSource();
 
 		[Import]
@@ -147,11 +147,11 @@ namespace Greenshot.Addon.Editor
 						}
 						editorForm.Show();
 						editorForm.Activate();
-						LOG.Debug("Finished opening Editor");
+						Log.Debug("Finished opening Editor");
 					}
 					catch (Exception e)
 					{
-						LOG.Error(e, "Editor export failed");
+						Log.Error(e, "Editor export failed");
 						returnValue.NotificationType = NotificationTypes.Fail;
 						returnValue.ErrorText = e.Message;
 						returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, EditorDesignation);
@@ -169,7 +169,7 @@ namespace Greenshot.Addon.Editor
 				}
 				catch (Exception e)
 				{
-					LOG.Error(e, "Failed to add an image to an already opened editor");
+					Log.Error(e, "Failed to add an image to an already opened editor");
 					returnValue.NotificationType = NotificationTypes.Fail;
 					returnValue.ErrorText = e.Message;
 					returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, EditorDesignation);

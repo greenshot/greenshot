@@ -34,7 +34,7 @@ namespace Greenshot.Addon.Editor.Drawing.Fields
 	[Serializable]
 	public abstract class AbstractFieldHolder : IFieldHolder
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(AbstractFieldHolder));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(AbstractFieldHolder));
 		private static IEditorConfiguration editorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
 
 		protected IDictionary<FieldTypes, FieldAttribute> fieldAttributes = new Dictionary<FieldTypes, FieldAttribute>();

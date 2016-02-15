@@ -40,7 +40,7 @@ namespace Greenshot.Addon.Core
 	/// </summary>
 	public static class PluginUtils
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(PluginUtils));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(PluginUtils));
 		private static readonly ICoreConfiguration Conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IDictionary<string, Bitmap> ExeIconCache = new Dictionary<string, Bitmap>();
 
@@ -108,7 +108,7 @@ namespace Greenshot.Addon.Core
 				}
 				catch (Exception)
 				{
-					LOG.Warning("Problem with path entry '{0}'.", pathEntry);
+					Log.Warning("Problem with path entry '{0}'.", pathEntry);
 				}
 			}
 			return null;
@@ -169,7 +169,7 @@ namespace Greenshot.Addon.Core
 			}
 			catch (Exception exIcon)
 			{
-				LOG.Error("error retrieving icon: ", exIcon);
+				Log.Error("error retrieving icon: ", exIcon);
 			}
 			return null;
 		}

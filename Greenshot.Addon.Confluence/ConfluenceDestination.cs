@@ -47,7 +47,7 @@ namespace Greenshot.Addon.Confluence
 	public sealed class ConfluenceDestination : AbstractDestination
 	{
 		private const string ConfluenceDesignation = "Confluence";
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ConfluenceDestination));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ConfluenceDestination));
 		private static readonly BitmapSource ConfluenceIcon;
 
 		static ConfluenceDestination()
@@ -173,7 +173,7 @@ namespace Greenshot.Addon.Confluence
 						}
 					}, token);
 
-					LOG.Debug("Uploaded to Confluence.");
+					Log.Debug("Uploaded to Confluence.");
 					var exportedUri = confluenceApi.ConfluenceBaseUri.AppendSegments("pages", "viewpage.action").ExtendQuery(new Dictionary<string, object>
 					{
 						{
@@ -202,14 +202,14 @@ namespace Greenshot.Addon.Confluence
 					returnValue.Text = string.Format(ConfluenceLanguage.UploadFailure, ConfluenceDesignation);
 					returnValue.NotificationType = NotificationTypes.Cancel;
 					returnValue.ErrorText = tcEx.Message;
-					LOG.Information(tcEx.Message);
+					Log.Information(tcEx.Message);
 				}
 				catch (Exception e)
 				{
 					returnValue.Text = string.Format(ConfluenceLanguage.UploadFailure, ConfluenceDesignation);
 					returnValue.NotificationType = NotificationTypes.Fail;
 					returnValue.ErrorText = e.Message;
-					LOG.Warning(e, "Confluence export failed");
+					Log.Warning(e, "Confluence export failed");
 				}
 			}
 

@@ -26,7 +26,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace Greenshot.Addon.Core
+namespace Greenshot.Addon.Editor.Helpers
 {
 	public static class Objects
 	{

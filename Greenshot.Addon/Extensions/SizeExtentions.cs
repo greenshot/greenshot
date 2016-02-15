@@ -24,8 +24,18 @@ using System.Drawing;
 
 namespace Greenshot.Addon.Extensions
 {
+	/// <summary>
+	/// Extensions for the Size struct
+	/// </summary>
 	public static class SizeExtentions
 	{
+		/// <summary>
+		/// Scale a rectangle
+		/// </summary>
+		/// <param name="currentSize">SizeF</param>
+		/// <param name="targetSize">SizeF</param>
+		/// <param name="crop">bool to specify if a crop can take place</param>
+		/// <returns>SizeF</returns>
 		public static SizeF Scale(this SizeF currentSize, SizeF targetSize, bool crop)
 		{
 			float wFactor = targetSize.Width/currentSize.Width;

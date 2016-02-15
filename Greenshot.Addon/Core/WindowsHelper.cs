@@ -194,7 +194,7 @@ namespace Greenshot.Addon.Core
 		private const string METRO_APPLAUNCHER_CLASS = "ImmersiveLauncher";
 		private const string METRO_GUTTER_CLASS = "ImmersiveGutter";
 
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(WindowDetails));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(WindowDetails));
 		private static readonly ICoreConfiguration Conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly List<IntPtr> _ignoreHandles = new List<IntPtr>();
 		private static readonly List<string> _excludeProcessesFromFreeze = new List<string>();
@@ -346,7 +346,7 @@ namespace Greenshot.Addon.Core
 				}
 				catch (Exception ex)
 				{
-					LOG.Warning(ex, "Couldn't get icon for window {Title} due to: {Message}", Text, ex.Message);
+					Log.Warning(ex, "Couldn't get icon for window {Title} due to: {Message}", Text, ex.Message);
 				}
 				if (IsMetroApp)
 				{
@@ -359,7 +359,7 @@ namespace Greenshot.Addon.Core
 				}
 				catch (Exception ex)
 				{
-					LOG.Warning(ex, "Couldn't get icon for window {Title} due to: {Message}", Text, ex.Message);
+					Log.Warning(ex, "Couldn't get icon for window {Title} due to: {Message}", Text, ex.Message);
 				}
 				return null;
 			}
@@ -899,7 +899,7 @@ namespace Greenshot.Addon.Core
 				}
 				catch (Exception ex)
 				{
-					LOG.Warning(ex, "Unable to get process information for process");
+					Log.Warning(ex, "Unable to get process information for process");
 				}
 				return null;
 			}
@@ -1253,7 +1253,7 @@ namespace Greenshot.Addon.Core
 						}
 						catch (Exception e)
 						{
-							LOG.Debug("Exception: ", e);
+							Log.Debug("Exception: ", e);
 							// Some problem occurred, cleanup and make a normal capture
 							if (capturedBitmap != null)
 							{
@@ -1299,7 +1299,7 @@ namespace Greenshot.Addon.Core
 								// Remove corners
 								if (!Image.IsAlphaPixelFormat(capturedBitmap.PixelFormat))
 								{
-									LOG.Debug("Changing pixelformat to Alpha for the RemoveCorners");
+									Log.Debug("Changing pixelformat to Alpha for the RemoveCorners");
 									Bitmap tmpBitmap = ImageHelper.Clone(capturedBitmap, PixelFormat.Format32bppArgb);
 									capturedBitmap.Dispose();
 									capturedBitmap = tmpBitmap;
@@ -1445,7 +1445,7 @@ namespace Greenshot.Addon.Core
 								{
 									// Calculate original color
 									byte originalAlpha = (byte) Math.Min(255, alpha*255);
-									//LOG.Debug("Alpha {0} & c0 {1} & c1 {2}", alpha, c0, c1);
+									//Log.Debug("Alpha {0} & c0 {1} & c1 {2}", alpha, c0, c1);
 									byte originalRed = (byte) Math.Min(255, c0.R/alpha);
 									byte originalGreen = (byte) Math.Min(255, c0.G/alpha);
 									byte originalBlue = (byte) Math.Min(255, c0.B/alpha);
@@ -1611,15 +1611,15 @@ namespace Greenshot.Addon.Core
 				string processName = proc.ProcessName;
 				if (!CanFreezeOrUnfreeze(processName))
 				{
-					LOG.Debug("Not freezing {0}", processName);
+					Log.Debug("Not freezing {0}", processName);
 					return false;
 				}
 				if (!CanFreezeOrUnfreeze(Text))
 				{
-					LOG.Debug("Not freezing {0}", processName);
+					Log.Debug("Not freezing {0}", processName);
 					return false;
 				}
-				LOG.Debug("Freezing process: {0}", processName);
+				Log.Debug("Freezing process: {0}", processName);
 
 
 				foreach (ProcessThread pT in proc.Threads)
@@ -1648,15 +1648,15 @@ namespace Greenshot.Addon.Core
 				string processName = proc.ProcessName;
 				if (!CanFreezeOrUnfreeze(processName))
 				{
-					LOG.Debug("Not unfreezing {0}", processName);
+					Log.Debug("Not unfreezing {0}", processName);
 					return;
 				}
 				if (!CanFreezeOrUnfreeze(Text))
 				{
-					LOG.Debug("Not unfreezing {0}", processName);
+					Log.Debug("Not unfreezing {0}", processName);
 					return;
 				}
-				LOG.Debug("Unfreezing process: {0}", processName);
+				Log.Debug("Unfreezing process: {0}", processName);
 
 				foreach (ProcessThread pT in proc.Threads)
 				{
@@ -1718,13 +1718,13 @@ namespace Greenshot.Addon.Core
 			// Return null if error
 			if (exceptionOccured != null)
 			{
-				LOG.Error("Error calling print window: {0}", exceptionOccured.Message);
+				Log.Error("Error calling print window: {0}", exceptionOccured.Message);
 				returnImage.Dispose();
 				return null;
 			}
 			if (!HasParent && Maximised)
 			{
-				LOG.Debug("Correcting for maximalization");
+				Log.Debug("Correcting for maximalization");
 				Size borderSize;
 				GetBorderSize(out borderSize);
 				Rectangle borderRectangle = new Rectangle(borderSize.Width, borderSize.Height, windowRect.Width - (2*borderSize.Width), windowRect.Height - (2*borderSize.Height));
@@ -1787,7 +1787,7 @@ namespace Greenshot.Addon.Core
 				}
 				catch (Exception ex)
 				{
-					LOG.Warning(ex, "Unable to get process information");
+					Log.Warning(ex, "Unable to get process information");
 				}
 				return false;
 			}
@@ -2001,7 +2001,7 @@ namespace Greenshot.Addon.Core
 
 				if (window.ProcessId == processIdSelectedWindow)
 				{
-					LOG.Information("Found window {0} belonging to same process as the window {1}", window.Text, windowToLinkTo.Text);
+					Log.Information("Found window {0} belonging to same process as the window {1}", window.Text, windowToLinkTo.Text);
 					return window;
 				}
 			}
@@ -2049,7 +2049,7 @@ namespace Greenshot.Addon.Core
 			var windowRectangle = WindowRectangle;
 			if (windowRectangle.Width == 0 || windowRectangle.Height == 0)
 			{
-				LOG.Warning("Window {0} has nothing to capture, using workaround to find other window of same process.", Text);
+				Log.Warning("Window {0} has nothing to capture, using workaround to find other window of same process.", Text);
 				// Trying workaround, the size 0 arrises with e.g. Toad.exe, has a different Window when minimized
 				var linkedWindow = GetLinkedWindow(this);
 				if (linkedWindow != null)

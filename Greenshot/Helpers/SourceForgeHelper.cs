@@ -122,7 +122,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public class SourceForgeHelper
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(SourceForgeHelper));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(SourceForgeHelper));
 		private static readonly Uri Rssfeed = new Uri("http://getgreenshot.org/project-feed/");
 
 		/// <summary>
@@ -195,7 +195,7 @@ namespace Greenshot.Helpers
 								Version fileVersion;
 								if (!Version.TryParse(version, out fileVersion))
 								{
-									LOG.Debug("Found invalid version {0} in file {1}", version, file);
+									Log.Debug("Found invalid version {0} in file {1}", version, file);
 								}
 								rssFile.Version = fileVersion;
 							}
@@ -210,7 +210,7 @@ namespace Greenshot.Helpers
 							}
 							catch (Exception)
 							{
-								LOG.Warning("Can't read the native name of the culture {0}", culture);
+								Log.Warning("Can't read the native name of the culture {0}", culture);
 							}
 						}
 						filesForType.Add(file, rssFile);
@@ -218,8 +218,8 @@ namespace Greenshot.Helpers
 				}
 				catch (Exception ex)
 				{
-					LOG.Warning("Couldn't read RSS entry for: {0}", item.Title);
-					LOG.Warning("Reason: ", ex);
+					Log.Warning("Couldn't read RSS entry for: {0}", item.Title);
+					Log.Warning("Reason: ", ex);
 				}
 			}
 

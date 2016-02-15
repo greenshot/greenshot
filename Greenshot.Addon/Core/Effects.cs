@@ -293,7 +293,7 @@ namespace Greenshot.Addon.Core
 	/// </summary>
 	public class ReduceColorsEffect : IEffect
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ReduceColorsEffect));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ReduceColorsEffect));
 
 		public ReduceColorsEffect()
 		{
@@ -332,7 +332,7 @@ namespace Greenshot.Addon.Core
 					}
 					catch (Exception e)
 					{
-						LOG.Warning("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
+						Log.Warning("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
 					}
 				}
 			}

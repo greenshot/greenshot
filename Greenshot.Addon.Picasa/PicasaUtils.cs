@@ -40,7 +40,7 @@ namespace Greenshot.Addon.Picasa
 	/// </summary>
 	public static class PicasaUtils
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(PicasaUtils));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(PicasaUtils));
 		private static readonly IPicasaConfiguration _config = IniConfig.Current.Get<IPicasaConfiguration>();
 
 		/// <summary>
@@ -139,7 +139,7 @@ namespace Greenshot.Addon.Picasa
 			}
 			catch (Exception e)
 			{
-				LOG.Error("Could not parse Picasa response due to error {0}, response was: {1}", e.Message, response);
+				Log.Error("Could not parse Picasa response due to error {0}, response was: {1}", e.Message, response);
 			}
 			return null;
 		}

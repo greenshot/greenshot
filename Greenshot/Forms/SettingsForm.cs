@@ -367,7 +367,7 @@ namespace Greenshot.Forms
 
 			listview_destinations.Items.Clear();
 			listview_destinations.ListViewItemSorter = new ListviewWithDestinationComparer();
-			ImageList imageList = new ImageList();
+			var imageList = new ImageList();
 			listview_destinations.SmallImageList = imageList;
 			int imageNr = -1;
 			foreach (ILegacyDestination currentDestination in LegacyDestinationHelper.GetAllLegacyDestinations())
@@ -403,7 +403,7 @@ namespace Greenshot.Forms
 				listview_destinations.Enabled = false;
 				foreach (int index in listview_destinations.CheckedIndices)
 				{
-					ListViewItem item = listview_destinations.Items[index];
+					var item = listview_destinations.Items[index];
 					item.Checked = false;
 				}
 			}

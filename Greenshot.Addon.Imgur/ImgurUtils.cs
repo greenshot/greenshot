@@ -43,7 +43,7 @@ namespace Greenshot.Addon.Imgur
 	/// </summary>
 	public static class ImgurUtils
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ImgurUtils));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ImgurUtils));
 		private static readonly INetworkConfiguration NetworkConfig = IniConfig.Current.Get<INetworkConfiguration>();
 		private static readonly IImgurConfiguration config = IniConfig.Current.Get<IImgurConfiguration>();
 		private static readonly Uri IMGUR_IMAGES_URI = new Uri("http://api.imgur.com/2/account/images.json");
@@ -168,10 +168,10 @@ namespace Greenshot.Addon.Imgur
 		{
 			if (imgurInfo.SmallSquare == null)
 			{
-				LOG.Information("RetrieveImgurThumbnailAsync: Imgur URL was null, not retrieving thumbnail.");
+				Log.Information("RetrieveImgurThumbnailAsync: Imgur URL was null, not retrieving thumbnail.");
 				return;
 			}
-			LOG.Information("Retrieving Imgur image for {0} with url {1}", imgurInfo.Id, imgurInfo.SmallSquare);
+			Log.Information("Retrieving Imgur image for {0} with url {1}", imgurInfo.Id, imgurInfo.SmallSquare);
 
 			using (var client = HttpClientFactory.Create(Behaviour))
 			{
@@ -199,7 +199,7 @@ namespace Greenshot.Addon.Imgur
 		public static async Task<ImageInfo> RetrieveImgurInfoAsync(string id, string deleteHash, CancellationToken token = default(CancellationToken))
 		{
 			var imageUri = new Uri(string.Format(config.ApiUrl + "/image/{0}.json", id));
-			LOG.Information("Retrieving Imgur info for {0} with url {1}", id, imageUri);
+			Log.Information("Retrieving Imgur info for {0} with url {1}", id, imageUri);
 
 			dynamic imageJson;
 			using (var client = HttpClientFactory.Create(Behaviour))
@@ -264,7 +264,7 @@ namespace Greenshot.Addon.Imgur
 		/// <param name="token"></param>
 		public static async Task<string> DeleteImgurImageAsync(ImageInfo imgurInfo, CancellationToken token = default(CancellationToken))
 		{
-			LOG.Information("Deleting Imgur image for {0}", imgurInfo.DeleteHash);
+			Log.Information("Deleting Imgur image for {0}", imgurInfo.DeleteHash);
 			Uri deleteUri = new Uri(string.Format(config.ApiUrl + "/image/{0}", imgurInfo.DeleteHash));
 			string responseString;
 
@@ -276,7 +276,7 @@ namespace Greenshot.Addon.Imgur
 					await response.HandleErrorAsync(token: token).ConfigureAwait(false);
 				}
 				responseString = await response.GetAsAsync<string>(Behaviour, token).ConfigureAwait(false);
-				LOG.Information("Delete result: {0}", responseString);
+				Log.Information("Delete result: {0}", responseString);
 			}
 			// Make sure we remove it from the history, if no error occured
 			config.RuntimeImgurHistory.Remove(imgurInfo.Id);
@@ -307,12 +307,12 @@ namespace Greenshot.Addon.Imgur
 					if (data.ContainsKey("ClientRemaining"))
 					{
 						credits = (int)data.ClientRemaining;
-						LOG.Information("{0}={1}", "ClientRemaining", (int)data.ClientRemaining);
+						Log.Information("{0}={1}", "ClientRemaining", (int)data.ClientRemaining);
 					}
 					if (data.ContainsKey("UserRemaining"))
 					{
 						credits = Math.Min(credits, (int)data.UserRemaining);
-						LOG.Information("{0}={1}", "UserRemaining", (int)data.UserRemaining);
+						Log.Information("{0}={1}", "UserRemaining", (int)data.UserRemaining);
 					}
 					config.Credits = credits;
 				}

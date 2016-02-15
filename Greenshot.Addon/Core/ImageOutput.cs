@@ -45,7 +45,7 @@ namespace Greenshot.Addon.Core
 	/// </summary>
 	public static class ImageOutput
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ImageOutput));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ImageOutput));
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		private static readonly int PROPERTY_TAG_SOFTWARE_USED = 0x0131;
@@ -81,7 +81,7 @@ namespace Greenshot.Addon.Core
 			}
 			catch (Exception e)
 			{
-				LOG.Warning("Error creating a PropertyItem: {0}", e.Message);
+				Log.Warning("Error creating a PropertyItem: {0}", e.Message);
 			}
 			return propertyItem;
 		}
@@ -150,10 +150,10 @@ namespace Greenshot.Addon.Core
 				if (!stream.CanSeek)
 				{
 					useMemoryStream = true;
-					LOG.Warning("Using memorystream prevent an issue with saving to a non seekable stream.");
+					Log.Warning("Using memorystream prevent an issue with saving to a non seekable stream.");
 				}
 
-				LOG.Debug("Saving image to stream with Format {0} and PixelFormat {1}", imageFormat, imageToSave.PixelFormat);
+				Log.Debug("Saving image to stream with Format {0} and PixelFormat {1}", imageFormat, imageToSave.PixelFormat);
 
 				// Check if we want to use a memory stream, to prevent a issue which happens with Windows before "7".
 				// The save is made to the targetStream, this is directed to either the MemoryStream or the original
@@ -266,7 +266,7 @@ namespace Greenshot.Addon.Core
 			}
 			if (!File.Exists(conf.OptimizePNGCommand))
 			{
-				LOG.Warning("Can't find 'OptimizePNGCommand' {0}", conf.OptimizePNGCommand);
+				Log.Warning("Can't find 'OptimizePNGCommand' {0}", conf.OptimizePNGCommand);
 				return false;
 			}
 			string tmpFileName = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName() + ".png");
@@ -274,16 +274,16 @@ namespace Greenshot.Addon.Core
 			{
 				using (FileStream tmpStream = File.Create(tmpFileName))
 				{
-					LOG.Debug("Writing png to tmp file: {0}", tmpFileName);
+					Log.Debug("Writing png to tmp file: {0}", tmpFileName);
 					imageToProcess.Save(tmpStream, ImageFormat.Png);
-					if (LOG.IsEnabled(Serilog.Events.LogEventLevel.Debug))
+					if (Log.IsEnabled(Serilog.Events.LogEventLevel.Debug))
 					{
-						LOG.Debug("File size before processing {0}", new FileInfo(tmpFileName).Length);
+						Log.Debug("File size before processing {0}", new FileInfo(tmpFileName).Length);
 					}
 				}
-				if (LOG.IsEnabled(Serilog.Events.LogEventLevel.Debug))
+				if (Log.IsEnabled(Serilog.Events.LogEventLevel.Debug))
 				{
-					LOG.Debug("Starting : {0}", conf.OptimizePNGCommand);
+					Log.Debug("Starting : {0}", conf.OptimizePNGCommand);
 				}
 
 				ProcessStartInfo processStartInfo = new ProcessStartInfo(conf.OptimizePNGCommand);
@@ -299,30 +299,30 @@ namespace Greenshot.Addon.Core
 						process.WaitForExit();
 						if (process.ExitCode == 0)
 						{
-							if (LOG.IsEnabled(Serilog.Events.LogEventLevel.Debug))
+							if (Log.IsEnabled(Serilog.Events.LogEventLevel.Debug))
 							{
-								LOG.Debug("File size after processing {0}", new FileInfo(tmpFileName).Length);
-								LOG.Debug("Reading back tmp file: {0}", tmpFileName);
+								Log.Debug("File size after processing {0}", new FileInfo(tmpFileName).Length);
+								Log.Debug("Reading back tmp file: {0}", tmpFileName);
 							}
 							byte[] processedImage = File.ReadAllBytes(tmpFileName);
 							targetStream.Write(processedImage, 0, processedImage.Length);
 							return true;
 						}
-						LOG.Error("Error while processing PNG image: {0}", process.ExitCode);
-						LOG.Error("Output: {0}", process.StandardOutput.ReadToEnd());
-						LOG.Error("Error: {0}", process.StandardError.ReadToEnd());
+						Log.Error("Error while processing PNG image: {0}", process.ExitCode);
+						Log.Error("Output: {0}", process.StandardOutput.ReadToEnd());
+						Log.Error("Error: {0}", process.StandardError.ReadToEnd());
 					}
 				}
 			}
 			catch (Exception e)
 			{
-				LOG.Error("Error while processing PNG image: ", e);
+				Log.Error("Error while processing PNG image: ", e);
 			}
 			finally
 			{
 				if (File.Exists(tmpFileName))
 				{
-					LOG.Debug("Cleaning up tmp file: {0}", tmpFileName);
+					Log.Debug("Cleaning up tmp file: {0}", tmpFileName);
 					File.Delete(tmpFileName);
 				}
 			}
@@ -388,14 +388,14 @@ namespace Greenshot.Addon.Core
 				using (var quantizer = new WuQuantizer((Bitmap) imageToSave))
 				{
 					int colorCount = quantizer.GetColorCount();
-					LOG.Information("Image with format {0} has {1} colors", imageToSave.PixelFormat, colorCount);
+					Log.Information("Image with format {0} has {1} colors", imageToSave.PixelFormat, colorCount);
 					if (!outputSettings.ReduceColors && colorCount >= 256)
 					{
 						return disposeImage;
 					}
 					try
 					{
-						LOG.Information("Reducing colors on bitmap to 256.");
+						Log.Information("Reducing colors on bitmap to 256.");
 						tmpImage = quantizer.GetQuantizedImage(conf.OutputFileReduceColorsTo);
 						if (disposeImage)
 						{
@@ -407,13 +407,13 @@ namespace Greenshot.Addon.Core
 					}
 					catch (Exception e)
 					{
-						LOG.Warning("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
+						Log.Warning("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
 					}
 				}
 			}
 			else if (isAlpha && !outputSettings.ReduceColors)
 			{
-				LOG.Information("Skipping 'optional' color reduction as the image has alpha");
+				Log.Information("Skipping 'optional' color reduction as the image has alpha");
 			}
 			return disposeImage;
 		}
@@ -434,7 +434,7 @@ namespace Greenshot.Addon.Core
 				}
 				catch (Exception)
 				{
-					LOG.Warning("Couldn't set property {0}", softwareUsedPropertyItem.Id);
+					Log.Warning("Couldn't set property {0}", softwareUsedPropertyItem.Id);
 				}
 			}
 		}
@@ -452,7 +452,7 @@ namespace Greenshot.Addon.Core
 				return null;
 			}
 			Image fileImage;
-			LOG.Information("Loading image from file {0}", fullPath);
+			Log.Information("Loading image from file {0}", fullPath);
 			// Fixed lock problem Bug #3431881
 			using (Stream surfaceFileStream = File.OpenRead(fullPath))
 			{
@@ -463,7 +463,7 @@ namespace Greenshot.Addon.Core
 				surfaceFileStream.Position = 0;
 				using (Image tmpImage = Image.FromStream(surfaceFileStream, true, true))
 				{
-					LOG.Debug("Loaded {0} with Size {1}x{2} and PixelFormat {3}", fullPath, tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
+					Log.Debug("Loaded {0} with Size {1}x{2} and PixelFormat {3}", fullPath, tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
 					fileImage = ImageHelper.Clone(tmpImage);
 				}
 				// Start at -14 read "GreenshotXX.YY" (XX=Major, YY=Minor)
@@ -477,7 +477,7 @@ namespace Greenshot.Addon.Core
 					{
 						throw new ArgumentException(string.Format("{0} is not a Greenshot file!", fullPath));
 					}
-					LOG.Information("Greenshot file format: {0}", greenshotMarker);
+					Log.Information("Greenshot file format: {0}", greenshotMarker);
 					const int filesizeLocation = 8 + markerSize;
 					surfaceFileStream.Seek(-filesizeLocation, SeekOrigin.End);
 					using (BinaryReader reader = new BinaryReader(surfaceFileStream))
@@ -491,7 +491,7 @@ namespace Greenshot.Addon.Core
 			if (fileImage != null)
 			{
 				returnSurface.Image = fileImage;
-				LOG.Information("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", fullPath, fileImage.Width, fileImage.Height, fileImage.PixelFormat, fileImage.HorizontalResolution, fileImage.VerticalResolution);
+				Log.Information("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", fullPath, fileImage.Width, fileImage.Height, fileImage.PixelFormat, fileImage.HorizontalResolution, fileImage.VerticalResolution);
 			}
 			return returnSurface;
 		}
@@ -508,7 +508,7 @@ namespace Greenshot.Addon.Core
 		public static string Save(ICapture surface, string fullPath, bool allowOverwrite, SurfaceOutputSettings outputSettings)
 		{
 			fullPath = CheckFullPath(fullPath, allowOverwrite);
-			LOG.Debug("Saving surface to {0}", fullPath);
+			Log.Debug("Saving surface to {0}", fullPath);
 			// Create the stream and call SaveToStream
 			using (var stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
 			{
@@ -565,7 +565,7 @@ namespace Greenshot.Addon.Core
 			}
 			catch (ArgumentException ae)
 			{
-				LOG.Warning("Couldn't parse extension: " + extension, ae);
+				Log.Warning("Couldn't parse extension: " + extension, ae);
 			}
 			return format;
 		}
@@ -637,7 +637,7 @@ namespace Greenshot.Addon.Core
 			filename = Regex.Replace(filename, @"_+", "_");
 			string tmpFile = Path.Combine(Path.GetTempPath(), filename);
 
-			LOG.Debug("Creating TMP File: " + tmpFile);
+			Log.Debug("Creating TMP File: " + tmpFile);
 
 			// Catching any exception to prevent that the user can't write in the directory.
 			// This is done for e.g. bugs #2974608, #2963943, #2816163, #2795317, #2789218
@@ -664,7 +664,7 @@ namespace Greenshot.Addon.Core
 		/// <returns>true if it worked</returns>
 		public static bool DeleteNamedTmpFile(string tmpfile)
 		{
-			LOG.Debug("Deleting TMP File: " + tmpfile);
+			Log.Debug("Deleting TMP File: " + tmpfile);
 			try
 			{
 				if (File.Exists(tmpfile))
@@ -676,7 +676,7 @@ namespace Greenshot.Addon.Core
 			}
 			catch (Exception ex)
 			{
-				LOG.Warning("Error deleting tmp file: ", ex);
+				Log.Warning("Error deleting tmp file: ", ex);
 			}
 			return false;
 		}
@@ -698,7 +698,7 @@ namespace Greenshot.Addon.Core
 				destinationPath = Path.GetTempPath();
 			}
 			string tmpFullPath = Path.Combine(destinationPath, tmpFile);
-			LOG.Debug("Creating TMP File : " + tmpFullPath);
+			Log.Debug("Creating TMP File : " + tmpFullPath);
 
 			try
 			{
@@ -721,7 +721,7 @@ namespace Greenshot.Addon.Core
 			{
 				if (File.Exists(tmpFile))
 				{
-					LOG.Debug("Removing old temp file {0}", tmpFile);
+					Log.Debug("Removing old temp file {0}", tmpFile);
 					File.Delete(tmpFile);
 				}
 				tmpFileCache.Remove(tmpFile);
@@ -738,7 +738,7 @@ namespace Greenshot.Addon.Core
 			string path = filename as string;
 			if (path != null && File.Exists(path))
 			{
-				LOG.Debug("Removing expired file {0}", path);
+				Log.Debug("Removing expired file {0}", path);
 				File.Delete(path);
 			}
 		}

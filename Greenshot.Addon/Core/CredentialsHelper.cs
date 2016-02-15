@@ -108,38 +108,14 @@ namespace Greenshot.Addon.Core
 			Banner = banner;
 		}
 
-		private bool _alwaysDisplay;
-
 		/// <summary>
 		/// Gets or sets if the dialog will be shown even if the credentials
 		/// can be returned from an existing credential in the credential manager.
 		/// </summary>
-		public bool AlwaysDisplay
-		{
-			get
-			{
-				return _alwaysDisplay;
-			}
-			set
-			{
-				_alwaysDisplay = value;
-			}
-		}
-
-		private bool _excludeCertificates = true;
+		public bool AlwaysDisplay { get; set; }
 
 		/// <summary>Gets or sets if the dialog is populated with name/password only.</summary>
-		public bool ExcludeCertificates
-		{
-			get
-			{
-				return _excludeCertificates;
-			}
-			set
-			{
-				_excludeCertificates = value;
-			}
-		}
+		public bool ExcludeCertificates { get; set; } = true;
 
 		/// <summary>Gets or sets if the credentials are to be persisted in the credential manager.</summary>
 		public bool Persist { get; set; } = true;
@@ -150,7 +126,7 @@ namespace Greenshot.Addon.Core
 		/// <summary>Gets or sets if the name is read-only.</summary>
 		public bool KeepName { get; set; }
 
-		private string _name = String.Empty;
+		private string _name = string.Empty;
 
 		/// <summary>Gets or sets the name for the credentials.</summary>
 		public string Name
@@ -528,12 +504,8 @@ namespace Greenshot.Addon.Core
 		}
 	}
 
-	internal sealed class CREDUI
+	internal static class CREDUI
 	{
-		private CREDUI()
-		{
-		}
-
 		/// <summary>http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/authentication_constants.asp</summary>
 		public const int MAX_MESSAGE_LENGTH = 100;
 

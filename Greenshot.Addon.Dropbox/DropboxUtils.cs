@@ -34,7 +34,7 @@ namespace Greenshot.Addon.Dropbox
 	/// </summary>
 	public static class DropboxUtils
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(DropboxUtils));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(DropboxUtils));
 		private static readonly IDropboxConfiguration config = IniConfig.Current.Get<IDropboxConfiguration>();
 		private static readonly Uri DROPBOX_API_URI = new Uri("https://api.dropbox.com/1");
 		private static readonly Uri DROPBOX_OAUTH_URI = DROPBOX_API_URI.AppendSegments("oauth");
@@ -57,11 +57,11 @@ namespace Greenshot.Addon.Dropbox
 			try
 			{
 				string uploadResponse = await oAuth.MakeOAuthRequest(HttpMethod.Post, DROPBOX_API_CONTENT_URI.AppendSegments(Uri.EscapeDataString(filename)), null, null, null, null, content);
-				LOG.Debug("Upload response: {0}", uploadResponse);
+				Log.Debug("Upload response: {0}", uploadResponse);
 			}
 			catch (Exception ex)
 			{
-				LOG.Error("Upload error: ", ex);
+				Log.Error("Upload error: ", ex);
 				throw;
 			}
 			finally
@@ -82,14 +82,14 @@ namespace Greenshot.Addon.Dropbox
 				string responseString = await oAuth.MakeOAuthRequest(HttpMethod.Get, DROPBOX_SHARES_URI.AppendSegments(Uri.EscapeDataString(filename)), null);
 				if (responseString != null)
 				{
-					LOG.Debug("Parsing output: {0}", responseString);
+					Log.Debug("Parsing output: {0}", responseString);
 					dynamic result = SimpleJson.DeserializeObject(responseString);
 					return result.url;
 				}
 			}
 			catch (Exception ex)
 			{
-				LOG.Error("Can't parse response.", ex);
+				Log.Error("Can't parse response.", ex);
 			}
 			return null;
 		}

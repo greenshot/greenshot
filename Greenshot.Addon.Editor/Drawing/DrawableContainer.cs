@@ -44,7 +44,7 @@ namespace Greenshot.Addon.Editor.Drawing
 	[Serializable]
 	public abstract class DrawableContainer : AbstractFieldHolder, IDrawableContainer
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(DrawableContainer));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(DrawableContainer));
 		protected static readonly IEditorConfiguration EditorConfig = IniConfig.Current.Get<IEditorConfiguration>();
 		private bool isMadeUndoable;
 		private const int M11 = 0;

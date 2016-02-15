@@ -34,7 +34,7 @@ namespace Greenshot.Addon.Core
 	/// </summary>
 	public class Capture : ICapture
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(Capture));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(Capture));
 
 		private Rectangle _screenBounds;
 
@@ -76,7 +76,7 @@ namespace Greenshot.Addon.Core
 				{
 					if (value.PixelFormat.Equals(PixelFormat.Format8bppIndexed) || value.PixelFormat.Equals(PixelFormat.Format1bppIndexed) || value.PixelFormat.Equals(PixelFormat.Format4bppIndexed))
 					{
-						LOG.Debug("Converting Bitmap to PixelFormat.Format32bppArgb as we don't support: " + value.PixelFormat);
+						Log.Debug("Converting Bitmap to PixelFormat.Format32bppArgb as we don't support: " + value.PixelFormat);
 						try
 						{
 							// Default Bitmap PixelFormat is Format32bppArgb
@@ -88,11 +88,11 @@ namespace Greenshot.Addon.Core
 							value.Dispose();
 						}
 					}
-					LOG.Debug("Image is set with the following specifications: {0} - {1}", _image.Size, _image.PixelFormat);
+					Log.Debug("Image is set with the following specifications: {0} - {1}", _image.Size, _image.PixelFormat);
 				}
 				else
 				{
-					LOG.Debug("Image is removed.");
+					Log.Debug("Image is removed.");
 				}
 			}
 		}
@@ -228,7 +228,7 @@ namespace Greenshot.Addon.Core
 		/// <param name="cropRectangle">Rectangle with bitmap coordinates</param>
 		public bool Crop(Rectangle cropRectangle)
 		{
-			LOG.Debug("Cropping to: " + cropRectangle);
+			Log.Debug("Cropping to: " + cropRectangle);
 			if (ImageHelper.Crop(ref _image, ref cropRectangle))
 			{
 				Location = cropRectangle.Location;
