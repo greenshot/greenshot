@@ -250,7 +250,6 @@
     <Compile Include="Controls\ThumbnailForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Core\AbstractLegacyDestination.cs" />
     <Compile Include="Core\AnimationHelpers.cs" />
     <Compile Include="Core\BinaryStructHelper.cs" />
     <Compile Include="Core\Cache.cs" />
