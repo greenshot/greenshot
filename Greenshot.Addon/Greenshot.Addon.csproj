@@ -65,10 +65,11 @@
       <HintPath>..\packages\Dapplo.HttpExtensions.0.3.21.0\lib\net451\Dapplo.HttpExtensions.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.LogFacade, Version=0.1.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.LogFacade.0.1.3.0\lib\net451\Dapplo.LogFacade.dll</HintPath>
+    <Reference Include="Dapplo.LogFacade, Version=0.1.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.LogFacade.0.1.4.0\lib\net451\Dapplo.LogFacade.dll</HintPath>
       <Private>True</Private>
-    </Reference>    <Reference Include="Dapplo.Windows, Version=0.1.14.0, Culture=neutral, processorArchitecture=MSIL">
+    </Reference>
+    <Reference Include="Dapplo.Windows, Version=0.1.14.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Windows.0.1.14.0\lib\net451\Dapplo.Windows.dll</HintPath>
       <Private>True</Private>
     </Reference>
