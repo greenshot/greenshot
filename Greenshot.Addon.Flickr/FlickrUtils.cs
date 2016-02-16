@@ -42,7 +42,7 @@ namespace Greenshot.Addon.Flickr
 	/// </summary>
 	public static class FlickrUtils
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(FlickrUtils));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(FlickrUtils));
 		private static IFlickrConfiguration config = IniConfig.Current.Get<IFlickrConfiguration>();
 		private static readonly Uri FLICKR_API_BASE_URL = new Uri("https://api.flickr.com/services");
 		private static readonly Uri FLICKR_UPLOAD_URI = FLICKR_API_BASE_URL.AppendSegments("upload");
@@ -157,7 +157,7 @@ namespace Greenshot.Addon.Flickr
 			}
 			catch (Exception ex)
 			{
-				LOG.Error("Upload error: ", ex);
+				Log.Error("Upload error: ", ex);
 				throw;
 			}
 			finally
@@ -191,7 +191,7 @@ namespace Greenshot.Addon.Flickr
 			}
 			catch (Exception ex)
 			{
-				LOG.Error("Error parsing Flickr Response.", ex);
+				Log.Error("Error parsing Flickr Response.", ex);
 			}
 			return null;
 		}

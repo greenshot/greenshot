@@ -33,7 +33,7 @@ namespace Greenshot.Addon.Editor.Drawing
 	[Serializable]
 	public class IconContainer : DrawableContainer, IIconContainer
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(IconContainer));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(IconContainer));
 
 		private Icon _icon;
 
@@ -89,7 +89,7 @@ namespace Greenshot.Addon.Editor.Drawing
 				using (Icon fileIcon = new Icon(filename))
 				{
 					Icon = fileIcon;
-					LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
+					Log.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
 				}
 			}
 		}

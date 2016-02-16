@@ -40,7 +40,7 @@ namespace Greenshot.Addon.Picasa
 	[StartupAction]
 	public class PicasaPlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(PicasaPlugin));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(PicasaPlugin));
 		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _itemPlugInRoot;
 
@@ -111,7 +111,7 @@ namespace Greenshot.Addon.Picasa
 
 		public Task ShutdownAsync(CancellationToken token = default(CancellationToken))
 		{
-			LOG.Debug("Picasa Plugin shutdown.");
+			Log.Debug("Picasa Plugin shutdown.");
 			PicasaLanguage.PropertyChanged -= OnPicasaLanguageChanged;
 			//host.OnImageEditorOpen -= new OnImageEditorOpenHandler(ImageEditorOpened);
 			return Task.FromResult(true);

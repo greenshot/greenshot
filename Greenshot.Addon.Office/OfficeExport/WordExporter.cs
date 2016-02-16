@@ -31,7 +31,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 {
 	public class WordExporter
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(WordExporter));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(WordExporter));
 		private static Version _wordVersion;
 		private static readonly IOfficeConfiguration Config = IniConfig.Current.Get<IOfficeConfiguration>();
 
@@ -103,7 +103,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 			{
 				if (selection == null)
 				{
-					LOG.Information("No selection to insert {0} into found.", tmpFile);
+					Log.Information("No selection to insert {0} into found.", tmpFile);
 					return false;
 				}
 				// Add Picture
@@ -125,7 +125,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 						}
 						catch (Exception e)
 						{
-							LOG.Warning("Couldn't add hyperlink for image: {0}", e.Message);
+							Log.Warning("Couldn't add hyperlink for image: {0}", e.Message);
 						}
 					}
 				}
@@ -147,11 +147,11 @@ namespace Greenshot.Addon.Office.OfficeExport
 				{
 					if (e.InnerException != null)
 					{
-						LOG.Warning("Couldn't set zoom to 100, error: {0}", e.InnerException.Message);
+						Log.Warning("Couldn't set zoom to 100, error: {0}", e.InnerException.Message);
 					}
 					else
 					{
-						LOG.Warning("Couldn't set zoom to 100, error: {0}", e.Message);
+						Log.Warning("Couldn't set zoom to 100, error: {0}", e.Message);
 					}
 				}
 				try
@@ -239,7 +239,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 									}
 									catch (Exception e)
 									{
-										LOG.Warning("Couldn't add hyperlink for image: {0}", e.Message);
+										Log.Warning("Couldn't add hyperlink for image: {0}", e.Message);
 									}
 								}
 							}
@@ -357,7 +357,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 			}
 			if (!Version.TryParse(wordApplication.ComObject.Version, out _wordVersion))
 			{
-				LOG.Warning("Assuming Word version 1997.");
+				Log.Warning("Assuming Word version 1997.");
 				_wordVersion = new Version((int) OfficeVersion.OFFICE_97, 0, 0, 0);
 			}
 		}

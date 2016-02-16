@@ -34,7 +34,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 	/// </summary>
 	public class ExcelExporter
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ExcelExporter));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ExcelExporter));
 		private static Version _excelVersion;
 
 		/// <summary>
@@ -207,7 +207,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 			}
 			if (!Version.TryParse(excelApplication.ComObject.Version, out _excelVersion))
 			{
-				LOG.Warning("Assuming Excel version 1997.");
+				Log.Warning("Assuming Excel version 1997.");
 				_excelVersion = new Version((int) OfficeVersion.OFFICE_97, 0, 0, 0);
 			}
 		}

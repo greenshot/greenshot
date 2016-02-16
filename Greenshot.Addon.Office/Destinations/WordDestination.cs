@@ -44,7 +44,7 @@ namespace Greenshot.Addon.Office.Destinations
 	public sealed class WordDestination : AbstractDestination
 	{
 		public const string WordDesignation = "Word";
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(WordDestination));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(WordDestination));
 		private static readonly BitmapSource DocumentIcon;
 		private static readonly BitmapSource ApplicationIcon;
 
@@ -167,7 +167,7 @@ namespace Greenshot.Addon.Office.Destinations
 			}
 			catch (Exception ex)
 			{
-				LOG.Error(ex, "Error exporting image to Word");
+				Log.Error(ex, "Error exporting image to Word");
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = ex.Message;
 				returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, WordDesignation);

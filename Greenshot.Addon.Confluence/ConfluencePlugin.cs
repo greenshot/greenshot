@@ -39,7 +39,7 @@ namespace Greenshot.Addon.Confluence
 	[StartupAction, ShutdownAction]
 	public class ConfluencePlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ConfluencePlugin));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ConfluencePlugin));
 		private static ConfluenceApi _confluenceApi;
 
 		[Import]
@@ -81,21 +81,21 @@ namespace Greenshot.Addon.Confluence
 			}
 			catch (Exception ex)
 			{
-				LOG.Error("Problem in ConfluencePlugin.Initialize: {0}", ex.Message);
+				Log.Error("Problem in ConfluencePlugin.Initialize: {0}", ex.Message);
 				return;
 			}
 			_confluenceApi = await GetConfluenceApi();
 			if (_confluenceApi != null)
 			{
-				LOG.Information("Loading spaces");
+				Log.Information("Loading spaces");
 				// Store the task, so the compiler doesn't complain but do not wait so the task runs in the background
-				var ignoreTask = _confluenceApi.LoadSpacesAsync(token: token).ContinueWith((_) => LOG.Information("Finished loading spaces"), token).ConfigureAwait(false);
+				var ignoreTask = _confluenceApi.LoadSpacesAsync(token: token).ContinueWith((_) => Log.Information("Finished loading spaces"), token).ConfigureAwait(false);
 			}
 		}
 
 		public Task ShutdownAsync(CancellationToken token = new CancellationToken())
 		{
-			LOG.Debug("Confluence Plugin shutdown.");
+			Log.Debug("Confluence Plugin shutdown.");
 			if (_confluenceApi != null)
 			{
 				_confluenceApi.Dispose();
@@ -134,7 +134,7 @@ namespace Greenshot.Addon.Confluence
 					{
 						// Try loading content for id 0, should be null (or something) but not give an exception
 						await confluenceApi.GetContentAsync(1).ConfigureAwait(false);
-						LOG.Debug("Confluence access for User {0} worked", dialog.Name);
+						Log.Debug("Confluence access for User {0} worked", dialog.Name);
 						if (dialog.SaveChecked)
 						{
 							dialog.Confirm(true);
@@ -143,7 +143,7 @@ namespace Greenshot.Addon.Confluence
 					}
 					catch
 					{
-						LOG.Debug("Confluence access for User {0} didn't work, probably a wrong password.", dialog.Name);
+						Log.Debug("Confluence access for User {0} didn't work, probably a wrong password.", dialog.Name);
 						confluenceApi.Dispose();
 						confluenceApi = null;
 						try
@@ -153,7 +153,7 @@ namespace Greenshot.Addon.Confluence
 						catch (ApplicationException e)
 						{
 							// exception handling ...
-							LOG.Error("Problem using the credentials dialog", e);
+							Log.Error("Problem using the credentials dialog", e);
 						}
 						// For every windows version after XP show an incorrect password baloon
 						dialog.IncorrectPassword = true;
@@ -165,7 +165,7 @@ namespace Greenshot.Addon.Confluence
 			catch (ApplicationException e)
 			{
 				// exception handling ...
-				LOG.Error("Problem using the credentials dialog", e);
+				Log.Error("Problem using the credentials dialog", e);
 			}
 			return confluenceApi;
 		}

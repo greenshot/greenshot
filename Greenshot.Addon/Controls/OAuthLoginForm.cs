@@ -22,10 +22,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Web;
 using System.Windows.Forms;
 using Greenshot.Addon.Core;
+using Dapplo.HttpExtensions;
 
 namespace Greenshot.Addon.Controls
 {
@@ -36,23 +35,10 @@ namespace Greenshot.Addon.Controls
 	{
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(OAuthLoginForm));
 		private readonly string _callbackUrl;
-		private IDictionary<string, string> _callbackParameters;
 
-		public IDictionary<string, string> CallbackParameters
-		{
-			get
-			{
-				return _callbackParameters;
-			}
-		}
+		public IDictionary<string, string> CallbackParameters { get; set; }
 
-		public bool IsOk
-		{
-			get
-			{
-				return DialogResult == DialogResult.OK;
-			}
-		}
+		public bool IsOk => DialogResult == DialogResult.OK;
 
 		public OAuthLoginForm(string browserTitle, Size size, Uri authorizationLink, string callbackUrl)
 		{
@@ -101,17 +87,12 @@ namespace Greenshot.Addon.Controls
 
 		private void CheckUrl()
 		{
-			if (_browser.Url.AbsoluteUri.StartsWith(_callbackUrl))
+			if (!_browser.Url.AbsoluteUri.StartsWith(_callbackUrl))
 			{
-				string queryParams = _browser.Url.Query;
-				if (queryParams.Length > 0)
-				{
-					//Store the Token and Token Secret
-					var nvc = HttpUtility.ParseQueryString(Uri.UnescapeDataString(queryParams.Replace("+", " ")));
-					_callbackParameters = nvc.AllKeys.ToDictionary(k => k, k => nvc[k]);
-				}
-				DialogResult = DialogResult.OK;
+				return;
 			}
+			CallbackParameters = _browser.Url.QueryToDictionary();
+			DialogResult = DialogResult.OK;
 		}
 	}
 }

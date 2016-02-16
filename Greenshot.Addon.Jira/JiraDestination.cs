@@ -46,7 +46,7 @@ namespace Greenshot.Addon.Jira
 	[Destination(JiraDesignation), PartNotDiscoverable]
 	public sealed class JiraDestination : AbstractDestination
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(JiraDestination));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(JiraDestination));
 		private const string JiraDesignation = "Jira";
 		private static readonly BitmapSource JiraIcon;
 		private JiraMonitor _jiraMonitor;
@@ -185,7 +185,7 @@ namespace Greenshot.Addon.Jira
 						}
 					}, token);
 
-					LOG.Debug("Uploaded to Jira.");
+					Log.Debug("Uploaded to Jira.");
 					returnValue.ImageLocation = jiraApi.JiraBaseUri.AppendSegments("browse", jiraDetails.JiraKey);
 				}
 				catch (TaskCanceledException tcEx)
@@ -193,14 +193,14 @@ namespace Greenshot.Addon.Jira
 					returnValue.Text = string.Format(JiraLanguage.UploadFailure, JiraDesignation);
 					returnValue.NotificationType = NotificationTypes.Cancel;
 					returnValue.ErrorText = tcEx.Message;
-					LOG.Information(tcEx.Message);
+					Log.Information(tcEx.Message);
 				}
 				catch (Exception e)
 				{
 					returnValue.Text = string.Format(JiraLanguage.UploadFailure, JiraDesignation);
 					returnValue.NotificationType = NotificationTypes.Fail;
 					returnValue.ErrorText = e.Message;
-					LOG.Warning(e, "Upload to JIRA gave an exception");
+					Log.Warning(e, "Upload to JIRA gave an exception");
 				}
 			}
 			return returnValue;

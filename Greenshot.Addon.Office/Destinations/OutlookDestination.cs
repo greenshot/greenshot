@@ -43,7 +43,7 @@ namespace Greenshot.Addon.Office.Destinations
 	public sealed class OutlookDestination : AbstractDestination
 	{
 		public const string OutlookDesignation = "Outlook";
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(OutlookDestination));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(OutlookDestination));
 		private static readonly BitmapSource MeetingIcon;
 		private static readonly BitmapSource MailIcon;
 		private static readonly BitmapSource ApplicationIcon;
@@ -150,7 +150,7 @@ namespace Greenshot.Addon.Office.Destinations
 			}
 			else
 			{
-				LOG.Information("Using already available file: {0}", tmpFile);
+				Log.Information("Using already available file: {0}", tmpFile);
 			}
 
 			// Create a attachment name for the image
@@ -180,7 +180,7 @@ namespace Greenshot.Addon.Office.Destinations
 			}
 			catch (Exception ex)
 			{
-				LOG.Error(ex, "Outlook export failed");
+				Log.Error(ex, "Outlook export failed");
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = ex.Message;
 				returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, OutlookDesignation);

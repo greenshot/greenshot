@@ -27,8 +27,8 @@ namespace Greenshot.Addon.ModiOcr.Command
 	/// <summary>
 	/// A simple com wrapper which helps with "using"
 	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	public interface IDisposableCom<T> : IDisposable
+	/// <typeparam name="T">A class which</typeparam>
+	public interface IDisposableCom<T> : IDisposable where T : class
 	{
 		T ComObject
 		{
@@ -48,9 +48,9 @@ namespace Greenshot.Addon.ModiOcr.Command
 		/// <typeparam name="T"></typeparam>
 		/// <param name="obj"></param>
 		/// <returns></returns>
-		public static IDisposableCom<T> Create<T>(T obj)
+		public static IDisposableCom<T> Create<T>(T obj) where T : class
 		{
-			if (!Equals(obj, default(T)))
+			if (obj != null)
 			{
 				return new DisposableComImplementation<T>(obj);
 			}
@@ -62,7 +62,7 @@ namespace Greenshot.Addon.ModiOcr.Command
 	/// Implementation of the IDisposableCom, this is internal to prevent other code to use it directly
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	internal class DisposableComImplementation<T> : IDisposableCom<T>
+	internal class DisposableComImplementation<T> : IDisposableCom<T> where T : class
 	{
 		public DisposableComImplementation(T obj)
 		{
@@ -95,7 +95,7 @@ namespace Greenshot.Addon.ModiOcr.Command
 				// Do not catch an exception from this.
 				// You may want to remove these guards depending on
 				// what you think the semantics should be.
-				if (!Equals(ComObject, default(T)) && Marshal.IsComObject(ComObject))
+				if (ComObject != null && Marshal.IsComObject(ComObject))
 				{
 					Marshal.ReleaseComObject(ComObject);
 				}

@@ -29,7 +29,7 @@ namespace Greenshot.Addon.Photobucket
 	/// </summary>
 	public class PhotobucketInfo
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(PhotobucketInfo));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(PhotobucketInfo));
 
 		public string Original
 		{
@@ -56,7 +56,7 @@ namespace Greenshot.Addon.Photobucket
 		/// <returns>PhotobucketInfo object</returns>
 		public static PhotobucketInfo FromUploadResponse(string response)
 		{
-			LOG.Debug(response);
+			Log.Debug(response);
 			var photobucketInfo = new PhotobucketInfo();
 			try
 			{
@@ -92,7 +92,7 @@ namespace Greenshot.Addon.Photobucket
 			}
 			catch (Exception e)
 			{
-				LOG.Error("Could not parse Photobucket response due to error {0}, response was: {1}", e.Message, response);
+				Log.Error("Could not parse Photobucket response due to error {0}, response was: {1}", e.Message, response);
 			}
 			return photobucketInfo;
 		}

@@ -49,7 +49,7 @@ namespace Greenshot.Addon.Core
 	/// </summary>
 	public static class ImageHelper
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ImageHelper));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ImageHelper));
 		private static readonly ICoreConfiguration Conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private const int EXIF_ORIENTATION_ID = 0x0112;
 
@@ -109,7 +109,7 @@ namespace Greenshot.Addon.Core
 			}
 			catch (Exception orientEx)
 			{
-				LOG.Warning("Problem orientating the image: ", orientEx);
+				Log.Warning("Problem orientating the image: ", orientEx);
 			}
 		}
 
@@ -188,7 +188,7 @@ namespace Greenshot.Addon.Core
 					return true;
 				}
 			}
-			LOG.Warning("Can't crop a null/zero size image!");
+			Log.Warning("Can't crop a null/zero size image!");
 			return false;
 		}
 
@@ -330,7 +330,7 @@ namespace Greenshot.Addon.Core
 				return null;
 			}
 			Image fileImage = null;
-			LOG.Information("Loading image from file {0}", filename);
+			Log.Information("Loading image from file {0}", filename);
 			// Fixed lock problem Bug #3431881
 			using (Stream imageFileStream = File.OpenRead(filename))
 			{
@@ -352,7 +352,7 @@ namespace Greenshot.Addon.Core
 					}
 					catch (Exception vistaIconException)
 					{
-						LOG.Warning("Can't read icon from " + filename, vistaIconException);
+						Log.Warning("Can't read icon from " + filename, vistaIconException);
 					}
 					if (fileImage == null)
 					{
@@ -371,7 +371,7 @@ namespace Greenshot.Addon.Core
 						}
 						catch (Exception iconException)
 						{
-							LOG.Warning("Can't read icon from " + filename, iconException);
+							Log.Warning("Can't read icon from " + filename, iconException);
 						}
 					}
 				}
@@ -381,14 +381,14 @@ namespace Greenshot.Addon.Core
 					imageFileStream.Position = 0;
 					using (Image tmpImage = Image.FromStream(imageFileStream, true, true))
 					{
-						LOG.Debug("Loaded {0} with Size {1}x{2} and PixelFormat {3}", filename, tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
+						Log.Debug("Loaded {0} with Size {1}x{2} and PixelFormat {3}", filename, tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
 						fileImage = Clone(tmpImage);
 					}
 				}
 			}
 			if (fileImage != null)
 			{
-				LOG.Information("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", filename, fileImage.Width, fileImage.Height, fileImage.PixelFormat, fileImage.HorizontalResolution, fileImage.VerticalResolution);
+				Log.Information("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", filename, fileImage.Width, fileImage.Height, fileImage.PixelFormat, fileImage.HorizontalResolution, fileImage.VerticalResolution);
 			}
 			// Make sure the orientation is set correctly so Greenshot can process the image correctly
 			Orientate(fileImage);
@@ -1466,7 +1466,7 @@ namespace Greenshot.Addon.Core
 					}
 					catch (Exception ex)
 					{
-						LOG.Warning("Problem cloning a propertyItem.", ex);
+						Log.Warning("Problem cloning a propertyItem.", ex);
 					}
 				}
 			}

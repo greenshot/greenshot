@@ -31,7 +31,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 {
 	public class PowerpointExporter
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(PowerpointExporter));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(PowerpointExporter));
 		private static readonly IOfficeConfiguration OfficeConfig = IniConfig.Current.Get<IOfficeConfiguration>();
 		private static Version _powerpointVersion;
 
@@ -55,7 +55,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 
 				using (var presentations = DisposableCom.Create(powerpointApplication.ComObject.Presentations))
 				{
-					LOG.Debug("Open Presentations: {0}", presentations.ComObject.Count);
+					Log.Debug("Open Presentations: {0}", presentations.ComObject.Count);
 					for (int i = 1; i <= presentations.ComObject.Count; i++)
 					{
 						using (var presentation = DisposableCom.Create(presentations.ComObject[i]))
@@ -100,7 +100,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 				}
 				using (var presentations = DisposableCom.Create(powerpointApplication.ComObject.Presentations))
 				{
-					LOG.Debug("Open Presentations: {0}", presentations.ComObject.Count);
+					Log.Debug("Open Presentations: {0}", presentations.ComObject.Count);
 					for (int i = 1; i <= presentations.ComObject.Count; i++)
 					{
 						using (var presentation = DisposableCom.Create(presentations.ComObject[i]))
@@ -120,7 +120,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 							}
 							catch (Exception e)
 							{
-								LOG.Error(e, "Adding picture to powerpoint failed");
+								Log.Error(e, "Adding picture to powerpoint failed");
 							}
 						}
 					}
@@ -196,7 +196,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 					}
 					catch (Exception e)
 					{
-						LOG.Error(e, "Powerpoint shape creating failed");
+						Log.Error(e, "Powerpoint shape creating failed");
 						using (var slides = DisposableCom.Create(presentation.ComObject.Slides))
 						{
 							slide = DisposableCom.Create(slides.ComObject.Add(slides.ComObject.Count + 1, PowerPoint.PpSlideLayout.ppLayoutBlank));
@@ -247,7 +247,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 						}
 						catch (Exception ex)
 						{
-							LOG.Warning("Problem setting the title to a text-range", ex);
+							Log.Warning("Problem setting the title to a text-range", ex);
 						}
 					}
 					// Activate/Goto the slide
@@ -266,7 +266,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 					}
 					catch (Exception ex)
 					{
-						LOG.Warning("Problem going to the slide", ex);
+						Log.Warning("Problem going to the slide", ex);
 					}
 				}
 				finally
@@ -306,7 +306,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 							}
 							catch (Exception e)
 							{
-								LOG.Error(e, "Powerpoint add picture to presentation failed");
+								Log.Error(e, "Powerpoint add picture to presentation failed");
 							}
 						}
 					}
@@ -327,7 +327,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 			}
 			if (!Version.TryParse(powerpointApplication.ComObject.Version, out _powerpointVersion))
 			{
-				LOG.Warning("Assuming Powerpoint version 1997.");
+				Log.Warning("Assuming Powerpoint version 1997.");
 				_powerpointVersion = new Version((int) OfficeVersion.OFFICE_97, 0, 0, 0);
 			}
 		}

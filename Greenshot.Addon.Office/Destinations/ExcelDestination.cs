@@ -44,7 +44,7 @@ namespace Greenshot.Addon.Office.Destinations
 	public sealed class ExcelDestination : AbstractDestination
 	{
 		public const string ExcelDesignation = "Excel";
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ExcelDestination));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ExcelDestination));
 		private static readonly BitmapSource WorkbookIcon;
 		private static readonly BitmapSource ApplicationIcon;
 
@@ -153,7 +153,7 @@ namespace Greenshot.Addon.Office.Destinations
 			}
 			catch (Exception ex)
 			{
-				LOG.Error(ex, "Excel export failed");
+				Log.Error(ex, "Excel export failed");
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = ex.Message;
 				returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, ExcelDesignation);

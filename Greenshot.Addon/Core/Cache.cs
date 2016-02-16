@@ -32,7 +32,7 @@ namespace Greenshot.Addon.Core
 	/// <typeparam name="TV">Type of value</typeparam>
 	public class Cache<TK, TV>
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof (Cache<TK, TV>));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof (Cache<TK, TV>));
 		private IDictionary<TK, TV> internalCache = new Dictionary<TK, TV>();
 		private object lockObject = new object();
 		private int secondsToExpire = 10;
@@ -151,7 +151,7 @@ namespace Greenshot.Addon.Core
 				{
 					if (internalCache.ContainsKey(cacheKey))
 					{
-						LOG.Debug("Expiring object with Key: {0}", cacheKey);
+						Log.Debug("Expiring object with Key: {0}", cacheKey);
 						if (expiredCallback != null)
 						{
 							expiredCallback(cacheKey, cacheValue);
@@ -160,19 +160,19 @@ namespace Greenshot.Addon.Core
 					}
 					else
 					{
-						LOG.Debug("Expired old object with Key: {0}", cacheKey);
+						Log.Debug("Expired old object with Key: {0}", cacheKey);
 					}
 				};
 
 				if (internalCache.ContainsKey(key))
 				{
 					internalCache[key] = value;
-					LOG.Debug("Updated item with Key: {0}", key);
+					Log.Debug("Updated item with Key: {0}", key);
 				}
 				else
 				{
 					internalCache.Add(key, cachedItem);
-					LOG.Debug("Added item with Key: {0}", key);
+					Log.Debug("Added item with Key: {0}", key);
 				}
 			}
 		}
@@ -190,7 +190,7 @@ namespace Greenshot.Addon.Core
 					throw new ApplicationException(String.Format("An object with key ‘{0}’ does not exists in cache", key));
 				}
 				internalCache.Remove(key);
-				LOG.Debug("Removed item with Key: {0}", key);
+				Log.Debug("Removed item with Key: {0}", key);
 			}
 		}
 

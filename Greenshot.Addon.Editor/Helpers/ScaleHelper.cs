@@ -51,7 +51,7 @@ namespace Greenshot.Addon.Editor.Helpers
 			Rational = 0x02
 		}
 
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ScaleHelper));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ScaleHelper));
 
 		/// <summary>
 		/// calculates the Size an element must be resized to, in order to fit another element, keeping aspect ratio

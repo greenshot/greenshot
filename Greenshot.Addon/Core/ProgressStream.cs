@@ -32,7 +32,7 @@ namespace Greenshot.Addon.Core
 	/// </summary>
 	public class ProgressStream : StreamDelegate
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ProgressStream));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ProgressStream));
 		private readonly IProgress<int> _progress;
 		private long _bytesReceived;
 		private long _bytesSent;
@@ -142,7 +142,7 @@ namespace Greenshot.Addon.Core
 				{
 					percentage = (int) ((100L*_bytesSent)/TotalBytesToSend);
 				}
-				LOG.Debug("Write progress at {BytesSent} bytes = {Percentage}", _bytesSent, percentage);
+				Log.Debug("Write progress at {BytesSent} bytes = {Percentage}", _bytesSent, percentage);
 
 				_progress.Report(percentage);
 			}
@@ -162,7 +162,7 @@ namespace Greenshot.Addon.Core
 				{
 					percentage = (int) ((100L*_bytesReceived)/TotalBytesToReceive);
 				}
-				LOG.Debug("Read progress at {BytesReceived} bytes = {Percentage}", _bytesReceived, percentage);
+				Log.Debug("Read progress at {BytesReceived} bytes = {Percentage}", _bytesReceived, percentage);
 				_progress.Report(percentage);
 			}
 		}

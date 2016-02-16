@@ -35,7 +35,7 @@ namespace Greenshot.Addon.Editor.Drawing
 	[Serializable]
 	public class FreehandContainer : DrawableContainer
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(FreehandContainer));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(FreehandContainer));
 
 		private static readonly float[] PointOffset =
 		{

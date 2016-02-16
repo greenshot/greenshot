@@ -41,7 +41,7 @@ namespace Greenshot.Addon.Photobucket
 	public sealed class PhotobucketDestination : AbstractDestination
 	{
 		private const string PhotobucketDesignation = "Photobucket";
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(PhotobucketDestination));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(PhotobucketDestination));
 		private static readonly BitmapSource PhotobucketIcon;
 
 		static PhotobucketDestination()
@@ -99,7 +99,7 @@ namespace Greenshot.Addon.Photobucket
 				}, token);
 
 				// This causes an exeption if the upload failed :)
-				LOG.Debug("Uploaded to Photobucket page: " + photobucketInfo.Page);
+				Log.Debug("Uploaded to Photobucket page: " + photobucketInfo.Page);
 				string uploadUrl = null;
 				try
 				{
@@ -107,7 +107,7 @@ namespace Greenshot.Addon.Photobucket
 				}
 				catch (Exception ex)
 				{
-					LOG.Error("Can't write to clipboard: ", ex);
+					Log.Error("Can't write to clipboard: ", ex);
 				}
 
 				if (uploadUrl != null)
@@ -124,14 +124,14 @@ namespace Greenshot.Addon.Photobucket
 				returnValue.Text = string.Format(PhotobucketLanguage.UploadFailure, PhotobucketDesignation);
                 returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
-				LOG.Information(tcEx.Message);
+				Log.Information(tcEx.Message);
 			}
 			catch (Exception e)
 			{
 				returnValue.Text = string.Format(PhotobucketLanguage.UploadFailure, PhotobucketDesignation);
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
-				LOG.Warning(e, "Photobucket export failed");
+				Log.Warning(e, "Photobucket export failed");
 				MessageBox.Show(PhotobucketLanguage.UploadFailure + " " + e.Message, PhotobucketDesignation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			return returnValue;

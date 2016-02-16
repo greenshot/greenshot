@@ -33,7 +33,7 @@ namespace Greenshot.Addon.Confluence.Forms
 	/// </summary>
 	public partial class ConfluenceTreePicker : System.Windows.Controls.Page
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ConfluenceTreePicker));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ConfluenceTreePicker));
 		private static readonly IConfluenceConfiguration config = IniConfig.Current.Get<IConfluenceConfiguration>();
 		private readonly ConfluenceUpload _confluenceUpload;
 
@@ -45,7 +45,7 @@ namespace Greenshot.Addon.Confluence.Forms
 
 		private void pageTreeViewItem_Click(object sender, RoutedEventArgs eventArgs)
 		{
-			LOG.Debug("pageTreeViewItem_Click is called!");
+			Log.Debug("pageTreeViewItem_Click is called!");
 			TreeViewItem clickedItem = sender as TreeViewItem;
 			if (clickedItem == null)
 			{
@@ -57,17 +57,17 @@ namespace Greenshot.Addon.Confluence.Forms
 				return;
 			}
 			_confluenceUpload.SelectedPage = page;
-			LOG.Debug("Page selected: " + page.Title);
+			Log.Debug("Page selected: " + page.Title);
 
 			if (!clickedItem.HasItems)
 			{
-				LOG.Debug("Loading pages for page: " + page.Title);
+				Log.Debug("Loading pages for page: " + page.Title);
 				Task.Factory.StartNew(async () =>
 				{
 					var pages = await ConfluencePlugin.ConfluenceAPI.GetChildrenAsync(page.Id);
 					foreach (var childPage in pages)
 					{
-						LOG.Debug("Adding page: " + childPage.Title);
+						Log.Debug("Adding page: " + childPage.Title);
 						TreeViewItem pageTreeViewItem = new TreeViewItem();
 						pageTreeViewItem.Header = childPage.Title;
 						pageTreeViewItem.Tag = childPage;

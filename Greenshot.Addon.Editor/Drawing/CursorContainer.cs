@@ -34,7 +34,7 @@ namespace Greenshot.Addon.Editor.Drawing
 	[Serializable]
 	public class CursorContainer : DrawableContainer, ICursorContainer
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(CursorContainer));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(CursorContainer));
 
 		private Cursor _cursor;
 
@@ -93,7 +93,7 @@ namespace Greenshot.Addon.Editor.Drawing
 			using (Cursor fileCursor = new Cursor(filename))
 			{
 				Cursor = fileCursor;
-				LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
+				Log.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
 			}
 		}
 

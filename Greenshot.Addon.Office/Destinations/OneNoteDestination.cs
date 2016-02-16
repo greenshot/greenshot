@@ -41,7 +41,7 @@ namespace Greenshot.Addon.Office.Destinations
 	public sealed class OneNoteDestination : AbstractDestination
 	{
 		public const string OneNoteDesignation = "OneNote";
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(OneNoteDestination));
+		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(OneNoteDestination));
 		private static readonly BitmapSource ApplicationIcon;
 		
 		static OneNoteDestination()
@@ -141,7 +141,7 @@ namespace Greenshot.Addon.Office.Destinations
 			}
 			catch (Exception ex)
 			{
-				LOG.Error(ex, "OneNote export failed");
+				Log.Error(ex, "OneNote export failed");
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = ex.Message;
 				returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, OneNoteDesignation);
