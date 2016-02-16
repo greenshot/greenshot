@@ -116,7 +116,7 @@ namespace Greenshot.Addon.Editor.Forms
 			Load += (sender, eventArgs) =>
 			{
 				// Create export buttons via dispatcher
-				this.AsyncInvoke(() =>
+				this.InvokeAsync(() =>
 				{
 					foreach (ILegacyDestination destination in LegacyDestinationHelper.GetAllLegacyDestinations())
 					{
@@ -599,7 +599,7 @@ namespace Greenshot.Addon.Editor.Forms
 		private void BtnPrintClick(object sender, EventArgs e)
 		{
 			// The BeginInvoke is a solution for the printdialog not having focus
-			this.AsyncInvoke(async () =>
+			this.InvokeAsync(async () =>
 			{
 				await LegacyDestinationHelper.ExportCaptureAsync(true, BuildInDestinationEnum.Printer.ToString(), _surface);
 			});
@@ -1056,7 +1056,7 @@ namespace Greenshot.Addon.Editor.Forms
 
 					if (destination.EditorShortcutKeys == keys)
 					{
-						this.AsyncInvoke(async () =>
+						this.InvokeAsync(async () =>
 						{
 							await destination.ExportCaptureAsync(true, _surface).ConfigureAwait(false);
 						});

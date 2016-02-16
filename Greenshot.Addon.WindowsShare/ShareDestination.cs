@@ -50,10 +50,7 @@ namespace Greenshot.Addon.WindowsShare
 			string exePath = PluginUtils.GetExePath("EXPLORER.EXE");
 			if (exePath != null && File.Exists(exePath))
 			{
-				using (var icon = PluginUtils.GetCachedExeIcon(exePath, 0))
-				{
-					ShareIcon = icon.ToBitmapSource();
-				}
+				ShareIcon = PluginUtils.GetCachedExeIcon(exePath, 0).ToBitmapSource();
 			}
 		}
 
@@ -86,10 +83,10 @@ namespace Greenshot.Addon.WindowsShare
 					RandomAccessStreamReference imageRandomAccessStreamReference;
 					using (var imageStream = new MemoryStream())
 					{
+						
 						ImageOutput.SaveToStream(capture, imageStream, new SurfaceOutputSettings());
 						imageStream.Position = 0;
-						var randomAccessStream = await FromMemoryStream(imageStream);
-						imageRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(randomAccessStream);
+						imageRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(imageStream.AsRandomAccessStream());
 					}
 
 					RandomAccessStreamReference thumbnailRandomAccessStreamReference;
@@ -101,8 +98,7 @@ namespace Greenshot.Addon.WindowsShare
 							{
 								ImageOutput.SaveToStream(thumbnail, null, thumbnailStream, new SurfaceOutputSettings());
 								thumbnailStream.Position = 0;
-								var randomAccessStream = await FromMemoryStream(thumbnailStream);
-								thumbnailRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(randomAccessStream);
+								thumbnailRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(thumbnailStream.AsRandomAccessStream());
 							}
 						}
 					}
@@ -159,16 +155,5 @@ namespace Greenshot.Addon.WindowsShare
 			}
 			return returnValue;
         }
-
-		private static async Task<IRandomAccessStream> FromMemoryStream(MemoryStream stream)
-		{
-			var inMemoryStream = new InMemoryRandomAccessStream();
-			using (var inputStream = stream.AsInputStream())
-			{
-				await RandomAccessStream.CopyAsync(inputStream, inMemoryStream);
-			}
-			inMemoryStream.Seek(0);
-			return inMemoryStream;
-		}
 	}
 }

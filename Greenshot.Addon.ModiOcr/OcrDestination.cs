@@ -50,10 +50,7 @@ namespace Greenshot.Addon.ModiOcr
 			string exePath = PluginUtils.GetExePath("MSPVIEW.EXE");
 			if (exePath != null && File.Exists(exePath))
 			{
-				using (var icon = PluginUtils.GetCachedExeIcon(exePath, 0))
-				{
-					OcrIcon = icon.ToBitmapSource();
-				}
+				OcrIcon = PluginUtils.GetCachedExeIcon(exePath, 0).ToBitmapSource();
 			}
 		}
 

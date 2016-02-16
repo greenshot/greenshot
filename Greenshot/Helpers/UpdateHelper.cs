@@ -98,7 +98,7 @@ namespace Greenshot.Helpers
 					await ProcessRssInfoAsync(currentVersion).ConfigureAwait(false);
 					if (_latestGreenshot != null)
 					{
-						MainForm.Instance.AsyncInvoke(() =>
+						await MainForm.Instance.InvokeAsync(() =>
 						{
 							MainForm.Instance.NotifyIcon.BalloonTipClicked += HandleBalloonTipClick;
 							MainForm.Instance.NotifyIcon.BalloonTipClosed += CleanupBalloonTipClick;

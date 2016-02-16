@@ -137,7 +137,7 @@ namespace Greenshot.Addon.Jira
 
 		private void JiraMonitor_JiraEvent(object sender, JiraEventArgs e)
 		{
-			GreenshotHost.GreenshotForm.AsyncInvoke(() => UpdateChildren());
+			GreenshotHost.GreenshotForm.InvokeAsync(() => UpdateChildren());
 		}
 
 		private string FormatUpload(JiraDetails jira)

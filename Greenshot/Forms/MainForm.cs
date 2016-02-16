@@ -879,7 +879,7 @@ namespace Greenshot.Forms
 			captureScreenItem = new ToolStripMenuItem(language.ContextmenuCapturefullscreenAll);
 			captureScreenItem.Click += (item, eventArgs) =>
 			{
-				this.AsyncInvoke(async () => await CaptureHelper.CaptureFullscreenAsync(false, ScreenCaptureMode.FullScreen));
+				this.InvokeAsync(async () => await CaptureHelper.CaptureFullscreenAsync(false, ScreenCaptureMode.FullScreen));
 			};
 			captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
 			foreach (var display in User32.AllDisplays())
@@ -904,7 +904,7 @@ namespace Greenshot.Forms
 				captureScreenItem = new ToolStripMenuItem(deviceAlignment);
 				captureScreenItem.Click += (item, eventArgs) =>
 				{
-					this.AsyncInvoke(async () => await CaptureHelper.CaptureRegionAsync(false, display.BoundsRectangle));
+					this.InvokeAsync(async () => await CaptureHelper.CaptureRegionAsync(false, display.BoundsRectangle));
 				};
 				captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
 			}
@@ -1001,7 +1001,7 @@ namespace Greenshot.Forms
 
 		private void CaptureAreaToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			this.AsyncInvoke(async () => await CaptureHelper.CaptureRegionAsync(false));
+			this.InvokeAsync(async () => await CaptureHelper.CaptureRegionAsync(false));
 		}
 
 		private async void CaptureClipboardToolStripMenuItemClick(object sender, EventArgs e)
@@ -1011,28 +1011,28 @@ namespace Greenshot.Forms
 
 		private void OpenFileToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			this.AsyncInvoke(() => CaptureFile());
+			this.InvokeAsync(() => CaptureFile());
 		}
 
 		private void CaptureFullScreenToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			this.AsyncInvoke(async () => await CaptureHelper.CaptureFullscreenAsync(false, coreConfiguration.ScreenCaptureMode));
+			this.InvokeAsync(async () => await CaptureHelper.CaptureFullscreenAsync(false, coreConfiguration.ScreenCaptureMode));
 		}
 
 		private void Contextmenu_capturelastregionClick(object sender, EventArgs e)
 		{
-			this.AsyncInvoke(async () => await CaptureHelper.CaptureLastRegionAsync(false));
+			this.InvokeAsync(async () => await CaptureHelper.CaptureLastRegionAsync(false));
 		}
 
 		private void Contextmenu_capturewindow_Click(object sender, EventArgs e)
 		{
-			this.AsyncInvoke(async () => await CaptureHelper.CaptureWindowInteractiveAsync(false));
+			this.InvokeAsync(async () => await CaptureHelper.CaptureWindowInteractiveAsync(false));
 		}
 
 		private void Contextmenu_capturewindowfromlist_Click(object sender, EventArgs e)
 		{
 			var clickedItem = (ToolStripMenuItem) sender;
-			this.AsyncInvoke(async () =>
+			this.InvokeAsync(async () =>
 			{
 				try
 				{
@@ -1093,7 +1093,7 @@ namespace Greenshot.Forms
 		/// <param name="e"></param>
 		private void Contextmenu_donateClick(object sender, EventArgs e)
 		{
-			this.AsyncInvoke(() => Process.Start("http://getgreenshot.org/support/"));
+			this.InvokeAsync(() => Process.Start("http://getgreenshot.org/support/"));
 		}
 
 		/// <summary>
@@ -1103,7 +1103,7 @@ namespace Greenshot.Forms
 		/// <param name="e"></param>
 		private void Contextmenu_settingsClick(object sender, EventArgs e)
 		{
-			this.AsyncInvoke(() => ShowSetting());
+			this.InvokeAsync(() => ShowSetting());
 		}
 
 		/// <summary>
@@ -1472,9 +1472,9 @@ namespace Greenshot.Forms
 					ShowSetting();
 					break;
 				case ClickActions.ShowContextMenu:
-					this.AsyncInvoke(() =>
+					await this.InvokeAsync(() =>
 					{
-						MethodInfo oMethodInfo = typeof (NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
+						var oMethodInfo = typeof (NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
 						oMethodInfo.Invoke(notifyIcon, null);
 					});
 					break;
@@ -1554,7 +1554,7 @@ namespace Greenshot.Forms
 			foreach (var form in formsToClose)
 			{
 				Log.Information("Closing form: {0}", form.Name);
-				this.AsyncInvoke(() => form.Close());
+				this.InvokeAsync(() => form.Close());
 			}
 			// Make sure any "save" actions are shown and handled!
 			Application.DoEvents();

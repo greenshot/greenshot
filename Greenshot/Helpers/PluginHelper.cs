@@ -160,7 +160,7 @@ namespace Greenshot.Helpers
 		/// <param name="captureToImport">Capture to handle</param>
 		public void ImportCapture(ICapture captureToImport)
 		{
-			MainForm.Instance.AsyncInvoke(async () =>
+			MainForm.Instance.InvokeAsync(async () =>
 			{
 				await CaptureHelper.ImportCaptureAsync(captureToImport).ConfigureAwait(false);
 			});

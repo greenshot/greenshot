@@ -102,7 +102,7 @@ namespace Greenshot.Addon.Controls
 				timer_checkforclose.Stop();
 				if (Visible)
 				{
-					this.AsyncInvoke(() => Close());
+					this.InvokeAsync(() => Close());
 				}
 			}
 		}

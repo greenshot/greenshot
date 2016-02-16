@@ -37,9 +37,43 @@ namespace Greenshot.Addon.Extensions
 		/// </summary>
 		/// <param name="control"></param>
 		/// <param name="action">Lambda</param>
-		public static void AsyncInvoke(this Control control, Action action)
+		/// <param name="cancellationToken"></param>
+		public static Task<T> InvokeAsync<T>(this Control control, Func<T> action, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			control.BeginInvoke(action);
+			var taskCompletionSource = new TaskCompletionSource<T>();
+			if (cancellationToken != default(CancellationToken))
+			{
+				cancellationToken.Register(taskCompletionSource.SetCanceled);
+			}
+
+			control.BeginInvoke(new Action(() =>
+			{
+				var result = action();
+				taskCompletionSource.SetResult(result);
+			}));
+			return taskCompletionSource.Task;
+		}
+
+		/// <summary>
+		/// Very simple extention which makes it easier to call BeginInvoke on a control with a lambda
+		/// </summary>
+		/// <param name="control"></param>
+		/// <param name="action">Lambda</param>
+		/// <param name="cancellationToken"></param>
+		public static Task InvokeAsync(this Control control, Action action, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			var taskCompletionSource = new TaskCompletionSource<bool>();
+			if (cancellationToken != default(CancellationToken))
+			{
+				cancellationToken.Register(taskCompletionSource.SetCanceled);
+			}
+
+			control.BeginInvoke(new Action(() =>
+			{
+				action();
+				taskCompletionSource.SetResult(true);
+			}));
+			return taskCompletionSource.Task;
 		}
 
 		/// <summary>
