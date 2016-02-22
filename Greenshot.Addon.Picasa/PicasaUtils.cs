@@ -71,7 +71,7 @@ namespace Greenshot.Addon.Picasa
 				ClientId = _config.ClientId,
 				ClientSecret = _config.ClientSecret,
 				RedirectUrl = "http://getgreenshot.org",
-				AuthorizeMode = AuthorizeModes.LocalServer,
+				AuthorizeMode = AuthorizeModes.LocalhostServer,
 				Token = _config
 			};
 
@@ -94,7 +94,8 @@ namespace Greenshot.Addon.Picasa
 					{
 						content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
 
-						response = await uploadUri.PostAsync<string, HttpContent>(content, oauthHttpBehaviour, token);
+						oauthHttpBehaviour.MakeCurrent();
+						response = await uploadUri.PostAsync<string, HttpContent>(content, token);
 					}
 				}
 			}

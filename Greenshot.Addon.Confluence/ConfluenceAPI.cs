@@ -205,7 +205,7 @@ namespace Greenshot.Addon.Confluence
 		{
 			IList<Content> children = new List<Content>();
 			Uri childUri = ConfluenceBaseUri.AppendSegments(RestPath, "content", contentId, "child").ExtendQuery("expand", "page");
-			var jsonResponse = await _client.GetAsAsync<dynamic>(childUri, null, token).ConfigureAwait(false);
+			var jsonResponse = await _client.GetAsAsync<dynamic>(childUri, token).ConfigureAwait(false);
 			foreach (var pageContent in jsonResponse.page.results)
 			{
 				Content child = Content.CreateFromContent(pageContent);
@@ -227,7 +227,7 @@ namespace Greenshot.Addon.Confluence
 		public async Task<dynamic> SearchAsync(string cql, CancellationToken token = default(CancellationToken))
 		{
 			Uri searchdUri = ConfluenceBaseUri.AppendSegments(RestPath, "content", "search").ExtendQuery("cql", cql);
-			return await _client.GetAsAsync<dynamic>(searchdUri, null, token).ConfigureAwait(false);
+			return await _client.GetAsAsync<dynamic>(searchdUri, token).ConfigureAwait(false);
 		}
 
 		/// <summary>
@@ -268,7 +268,7 @@ namespace Greenshot.Addon.Confluence
 						"title", title
 					},
 				});
-				dynamic jsonResponse = await _client.GetAsAsync<dynamic>(searchUri, null, token).ConfigureAwait(false);
+				dynamic jsonResponse = await _client.GetAsAsync<dynamic>(searchUri, token).ConfigureAwait(false);
 				foreach (var pageContent in jsonResponse.results)
 				{
 					foundPage = Content.CreateFromContent(pageContent);
@@ -300,7 +300,7 @@ namespace Greenshot.Addon.Confluence
 		{
 			var attachUri = ConfluenceBaseUri.AppendSegments(RestPath, "content", id, "child", "attachment");
 
-			var jsonResponse = await _client.PostAsync<dynamic, HttpContent>(attachUri, content, null, token).ConfigureAwait(false);
+			var jsonResponse = await _client.PostAsync<dynamic, HttpContent>(attachUri, content, token).ConfigureAwait(false);
 			return jsonResponse.results[0].id;
 		}
 	}

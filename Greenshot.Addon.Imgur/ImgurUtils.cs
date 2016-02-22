@@ -58,6 +58,7 @@ namespace Greenshot.Addon.Imgur
 				httpClient.DefaultRequestHeaders.ExpectContinue = false;
 			}
 		};
+
 		/// <summary>
 		/// Do the actual upload to Picasa
 		/// </summary>
@@ -85,7 +86,8 @@ namespace Greenshot.Addon.Imgur
 					using (var content = new StreamContent(uploadStream))
 					{
 						content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
-						imageJson = await uploadUri.PostAsync<dynamic, HttpContent>(content, oauthHttpBehaviour, token);
+						oauthHttpBehaviour.MakeCurrent();
+						imageJson = await uploadUri.PostAsync<dynamic, HttpContent>(content, token);
 					}
 				}
 			}
@@ -105,7 +107,8 @@ namespace Greenshot.Addon.Imgur
 					using (var content = new StreamContent(uploadStream))
 					{
 						content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
-						imageJson = await uploadUri.PostAsync<dynamic, HttpContent>(content, Behaviour, token).ConfigureAwait(false);
+						Behaviour.MakeCurrent();
+						imageJson = await uploadUri.PostAsync<dynamic, HttpContent>(content, token).ConfigureAwait(false);
 					}
 				}
 			}
@@ -172,13 +175,13 @@ namespace Greenshot.Addon.Imgur
 				return;
 			}
 			Log.Information("Retrieving Imgur image for {0} with url {1}", imgurInfo.Id, imgurInfo.SmallSquare);
-
-			using (var client = HttpClientFactory.Create(Behaviour))
+			Behaviour.MakeCurrent();
+			using (var client = HttpClientFactory.Create(imgurInfo.SmallSquare))
 			{
 				using (var response = await client.GetAsync(imgurInfo.SmallSquare, token).ConfigureAwait(false))
 				{
 					await response.HandleErrorAsync(token: token).ConfigureAwait(false);
-					using (var stream = await response.GetAsAsync<MemoryStream>(Behaviour, token).ConfigureAwait(false))
+					using (var stream = await response.GetAsAsync<MemoryStream>(token).ConfigureAwait(false))
 					{
 						using (var tmpImage = Image.FromStream(stream))
 						{
@@ -202,7 +205,8 @@ namespace Greenshot.Addon.Imgur
 			Log.Information("Retrieving Imgur info for {0} with url {1}", id, imageUri);
 
 			dynamic imageJson;
-			using (var client = HttpClientFactory.Create(Behaviour))
+			Behaviour.MakeCurrent();
+			using (var client = HttpClientFactory.Create(imageUri))
 			{
 				var response = await client.GetAsync(imageUri, token).ConfigureAwait(false);
 				// retrieving image data seems to throw a 403 (Unauthorized) if it has been deleted
@@ -210,8 +214,8 @@ namespace Greenshot.Addon.Imgur
 				{
 					return null;
 				}
-				await response.HandleErrorAsync(Behaviour, token).ConfigureAwait(false);
-				imageJson = await response.GetAsAsync<dynamic>(Behaviour, token).ConfigureAwait(false);
+				await response.HandleErrorAsync(token).ConfigureAwait(false);
+				imageJson = await response.GetAsAsync<dynamic>(token).ConfigureAwait(false);
 			}
 
 			return CreateImageInfo(imageJson, deleteHash);
@@ -267,15 +271,15 @@ namespace Greenshot.Addon.Imgur
 			Log.Information("Deleting Imgur image for {0}", imgurInfo.DeleteHash);
 			Uri deleteUri = new Uri(string.Format(config.ApiUrl + "/image/{0}", imgurInfo.DeleteHash));
 			string responseString;
-
-			using (var client = HttpClientFactory.Create(Behaviour))
+			Behaviour.MakeCurrent();
+			using (var client = HttpClientFactory.Create(deleteUri))
 			{
 				var response = await client.DeleteAsync(deleteUri, token).ConfigureAwait(false);
 				if (response.StatusCode != HttpStatusCode.NotFound && response.StatusCode != HttpStatusCode.BadRequest)
 				{
-					await response.HandleErrorAsync(token: token).ConfigureAwait(false);
+					await response.HandleErrorAsync(token).ConfigureAwait(false);
 				}
-				responseString = await response.GetAsAsync<string>(Behaviour, token).ConfigureAwait(false);
+				responseString = await response.GetAsAsync<string>(token).ConfigureAwait(false);
 				Log.Information("Delete result: {0}", responseString);
 			}
 			// Make sure we remove it from the history, if no error occured
@@ -294,12 +298,12 @@ namespace Greenshot.Addon.Imgur
 		public static async Task RetrieveImgurCredits(CancellationToken token = default(CancellationToken))
 		{
 			var creditsUri = new Uri(string.Format("{0}/credits.json", config.ApiUrl));
-
-			using (var client = HttpClientFactory.Create(Behaviour))
+			Behaviour.MakeCurrent();
+			using (var client = HttpClientFactory.Create(creditsUri))
 			{
 				var response = await client.GetAsync(creditsUri, token).ConfigureAwait(false);
-				await response.HandleErrorAsync(Behaviour, token).ConfigureAwait(false);
-				var creditsJson = await response.GetAsAsync<dynamic>(Behaviour, token).ConfigureAwait(false);
+				await response.HandleErrorAsync(token).ConfigureAwait(false);
+				var creditsJson = await response.GetAsAsync<dynamic>(token).ConfigureAwait(false);
 				if (creditsJson != null && creditsJson.ContainsKey("data"))
 				{
 					dynamic data = creditsJson.data;

@@ -84,7 +84,8 @@ namespace Greenshot.Addon.Box
 						}; // the extra quotes are important here
 						multiPartContent.Add(streamContent);
 
-						response = await UploadFileUri.PostAsync<dynamic, HttpContent>(multiPartContent, oauthHttpBehaviour, cancellationToken);
+						oauthHttpBehaviour.MakeCurrent();
+						response = await UploadFileUri.PostAsync<dynamic, HttpContent>(multiPartContent, cancellationToken);
 					}
 				}
 
@@ -107,8 +108,9 @@ namespace Greenshot.Addon.Box
 							}
 						}
 					};
+					oauthHttpBehaviour.MakeCurrent();
 					// TODO: Add JsonObject
-					var file = await uriForSharedLink.PostAsync<dynamic, JsonObject>(updateAcces, oauthHttpBehaviour, cancellationToken);
+					var file = await uriForSharedLink.PostAsync<dynamic, JsonObject>(updateAcces, cancellationToken);
 					return file.shared_link.url;
 				}
 				return string.Format("http://www.box.com/files/0/f/0/1/f_{0}", response.entries[0].id);

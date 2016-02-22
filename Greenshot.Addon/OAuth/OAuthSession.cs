@@ -466,11 +466,7 @@ namespace Greenshot.Addon.OAuth
 					Sign(method, signUri, parametersToSign);
 
 					// Join all parameters
-					IDictionary<string, object> newParameters = new Dictionary<string, object>();
-					foreach (var parameter in parametersToSign)
-					{
-						newParameters.Add(parameter);
-					}
+					IDictionary<string, object> newParameters = new Dictionary<string, object>(parametersToSign);
 					if (additionalParameters != null)
 					{
 						foreach (var parameter in additionalParameters)
