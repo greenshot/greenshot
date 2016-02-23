@@ -115,7 +115,8 @@ namespace Greenshot.Addon.Editor.Drawing
 			base.SwitchParent(newParent);
 			if (newParent != null)
 			{
-				((Surface) Parent).AddStepLabel(this);
+				var surface = (Surface) Parent;
+				surface?.AddStepLabel(this);
 			}
 		}
 
@@ -252,9 +253,9 @@ namespace Greenshot.Addon.Editor.Drawing
 			}
 			using (var fam = new FontFamily(FontFamily.GenericSansSerif.Name))
 			{
-				using (var _font = new Font(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel))
+				using (var font = new Font(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel))
 				{
-					TextContainer.DrawText(graphics, rect, 0, _lineColor, false, _stringFormat, text, _font);
+					TextContainer.DrawText(graphics, rect, 0, _lineColor, false, _stringFormat, text, font);
 				}
 			}
 		}

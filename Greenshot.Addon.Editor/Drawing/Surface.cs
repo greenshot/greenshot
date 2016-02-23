@@ -276,7 +276,7 @@ namespace Greenshot.Addon.Editor.Drawing
 			int number = CounterStart;
 			foreach (var possibleThis in _stepLabels)
 			{
-				if (possibleThis == stopAtContainer)
+				if (Equals(possibleThis, stopAtContainer))
 				{
 					break;
 				}

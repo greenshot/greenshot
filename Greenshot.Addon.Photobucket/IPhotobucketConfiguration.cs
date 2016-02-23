@@ -22,6 +22,7 @@
 using System.ComponentModel;
 using Dapplo.Config.Converters;
 using Dapplo.Config.Ini;
+using Dapplo.HttpExtensions.OAuth;
 using Greenshot.Addon.Configuration;
 
 namespace Greenshot.Addon.Photobucket
@@ -30,7 +31,7 @@ namespace Greenshot.Addon.Photobucket
 	/// Description of IPhotobucketConfiguration.
 	/// </summary>
 	[IniSection("Photobucket"), Description("Greenshot Photobucket Plugin configuration")]
-	public interface IPhotobucketConfiguration : IIniSection<IPhotobucketConfiguration>
+	public interface IPhotobucketConfiguration : IOAuthToken, IIniSection<IPhotobucketConfiguration>
 	{
 		[Description("What file type to use for uploading"), DefaultValue(OutputFormat.png)]
 		OutputFormat UploadFormat
@@ -67,20 +68,6 @@ namespace Greenshot.Addon.Photobucket
 			set;
 		}
 
-		[Description("The Photobucket token"), TypeConverter(typeof (StringEncryptionTypeConverter))]
-		string Token
-		{
-			get;
-			set;
-		}
-
-		[Description("The Photobucket token secret"), TypeConverter(typeof (StringEncryptionTypeConverter))]
-		string TokenSecret
-		{
-			get;
-			set;
-		}
-
 		[Description("The Photobucket api subdomain"), TypeConverter(typeof (StringEncryptionTypeConverter))]
 		string SubDomain
 		{
@@ -95,9 +82,8 @@ namespace Greenshot.Addon.Photobucket
 			set;
 		}
 
-
-		[IniPropertyBehavior(Read = false, Write = false)]
-		int Credits
+		[Description("The Photobucket album to use")]
+		string Album
 		{
 			get;
 			set;
@@ -106,7 +92,7 @@ namespace Greenshot.Addon.Photobucket
 		/// <summary>
 		/// Not stored, but read so people could theoretically specify their own Client ID.
 		/// </summary>
-		[IniPropertyBehavior(Write = false), DefaultValue("@credentials_photobucket_consumer_key@")]
+		[IniPropertyBehavior(Write = false), DefaultValue("149833145")]
 		string ClientId
 		{
 			get;
@@ -116,7 +102,7 @@ namespace Greenshot.Addon.Photobucket
 		/// <summary>
 		/// Not stored, but read so people could theoretically specify their own client secret.
 		/// </summary>
-		[IniPropertyBehavior(Write = false), DefaultValue("@credentials_photobucket_consumer_secret@")]
+		[IniPropertyBehavior(Write = false), DefaultValue("ebd828180b11103c010c7e71c66f6bcb")]
 		string ClientSecret
 		{
 			get;

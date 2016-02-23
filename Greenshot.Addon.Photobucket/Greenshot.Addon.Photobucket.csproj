@@ -44,8 +44,8 @@
       <HintPath>..\packages\Dapplo.Config.0.1.126.0\lib\net451\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.HttpExtensions, Version=0.4.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.HttpExtensions.0.4.3.0\lib\net451\Dapplo.HttpExtensions.dll</HintPath>
+    <Reference Include="Dapplo.HttpExtensions, Version=0.4.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.HttpExtensions.0.4.9.0\lib\net451\Dapplo.HttpExtensions.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.LogFacade, Version=0.1.8.0, Culture=neutral, processorArchitecture=MSIL">
@@ -82,7 +82,6 @@
     <Compile Include="PhotobucketInfo.cs" />
     <Compile Include="PhotobucketPlugin.cs" />
     <Compile Include="IPhotobucketConfiguration.cs" />
-    <Compile Include="PhotobucketUtils.cs" />
     <Compile Include="IPhotobucketLanguage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="Languages\language_Photobucketplugin-de-DE.xml">
