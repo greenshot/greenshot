@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Drawing;
@@ -30,6 +31,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using Dapplo.HttpExtensions;
+using Dapplo.HttpExtensions.OAuth;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
@@ -44,7 +47,9 @@ namespace Greenshot.Addon.Dropbox
 	{
 		private const string DropboxDesignation = "Dropbox";
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(DropboxDestination));
+		private static readonly Uri DropboxUri = new Uri("https://api.dropbox.com/1");
 		private static readonly BitmapSource DropboxIcon;
+		private OAuth2Settings _oauth2Settings;
 
 		static DropboxDestination()
 		{
@@ -80,6 +85,25 @@ namespace Greenshot.Addon.Dropbox
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
 			Text = DropboxLanguage.UploadMenuItem;
 			Icon = DropboxIcon;
+
+			_oauth2Settings = new OAuth2Settings
+			{
+				AuthorizationUri = DropboxUri.
+					AppendSegments("oauth2", "authorize").
+					ExtendQuery(new Dictionary<string, string>{
+								{ "response_type", "code"},
+								{ "client_id", "{ClientId}" },
+								{ "redirect_uri", "{RedirectUrl}" },
+								{ "state", "{State}"}
+					}),
+				TokenUrl = DropboxUri.AppendSegments("oauth2", "token"),
+				CloudServiceName = "Dropbox",
+				ClientId = DropboxConfiguration.ClientId,
+				ClientSecret = DropboxConfiguration.ClientSecret,
+				AuthorizeMode = AuthorizeModes.EmbeddedBrowser,
+				RedirectUrl = "http://getgreenshot.org",
+				Token = DropboxConfiguration
+			};
 		}
 
 		private async Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))

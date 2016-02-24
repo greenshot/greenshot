@@ -22,6 +22,7 @@
 using System.ComponentModel;
 using Dapplo.Config.Converters;
 using Dapplo.Config.Ini;
+using Dapplo.HttpExtensions.OAuth;
 using Greenshot.Addon.Configuration;
 
 namespace Greenshot.Addon.Dropbox
@@ -30,7 +31,7 @@ namespace Greenshot.Addon.Dropbox
 	/// Description of ImgurConfiguration.
 	/// </summary>
 	[IniSection("Dropbox"), Description("Greenshot Dropbox Plugin configuration")]
-	public interface IDropboxConfiguration : IIniSection<IDropboxConfiguration>
+	public interface IDropboxConfiguration : IIniSection<IDropboxConfiguration>, IOAuth2Token
 	{
 		[Description("What file type to use for uploading"), DefaultValue(OutputFormat.png)]
 		OutputFormat UploadFormat
@@ -48,20 +49,6 @@ namespace Greenshot.Addon.Dropbox
 
 		[Description("After upload send Dropbox link to clipboard."), DefaultValue(true)]
 		bool AfterUploadLinkToClipBoard
-		{
-			get;
-			set;
-		}
-
-		[Description("The Dropbox token"), TypeConverter(typeof (StringEncryptionTypeConverter))]
-		string DropboxToken
-		{
-			get;
-			set;
-		}
-
-		[Description("The Dropbox token secret"), TypeConverter(typeof (StringEncryptionTypeConverter))]
-		string DropboxTokenSecret
 		{
 			get;
 			set;
