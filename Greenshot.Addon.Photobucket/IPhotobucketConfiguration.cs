@@ -92,7 +92,7 @@ namespace Greenshot.Addon.Photobucket
 		/// <summary>
 		/// Not stored, but read so people could theoretically specify their own Client ID.
 		/// </summary>
-		[IniPropertyBehavior(Write = false), DefaultValue("149833145")]
+		[IniPropertyBehavior(Write = false), DefaultValue("@credentials_photobucket_consumer_key@")]
 		string ClientId
 		{
 			get;
@@ -102,7 +102,7 @@ namespace Greenshot.Addon.Photobucket
 		/// <summary>
 		/// Not stored, but read so people could theoretically specify their own client secret.
 		/// </summary>
-		[IniPropertyBehavior(Write = false), DefaultValue("ebd828180b11103c010c7e71c66f6bcb")]
+		[IniPropertyBehavior(Write = false), DefaultValue("@credentials_photobucket_consumer_secret@")]
 		string ClientSecret
 		{
 			get;

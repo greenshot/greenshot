@@ -38,6 +38,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Addon.Photobucket
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Addon.WindowsShare", "Greenshot.Addon.WindowsShare\Greenshot.Addon.WindowsShare.csproj", "{3E46EF79-0011-401F-86F0-13801EC55FFF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Addon.WindowsOcr", "Greenshot.Addon.WindowsOcr\Greenshot.Addon.WindowsOcr.csproj", "{72110DF1-512B-4438-805F-112FA307F8F2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -174,6 +176,14 @@ Global
 		{3E46EF79-0011-401F-86F0-13801EC55FFF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3E46EF79-0011-401F-86F0-13801EC55FFF}.Release|x86.ActiveCfg = Release|Any CPU
 		{3E46EF79-0011-401F-86F0-13801EC55FFF}.Release|x86.Build.0 = Release|Any CPU
+		{72110DF1-512B-4438-805F-112FA307F8F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72110DF1-512B-4438-805F-112FA307F8F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72110DF1-512B-4438-805F-112FA307F8F2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{72110DF1-512B-4438-805F-112FA307F8F2}.Debug|x86.Build.0 = Debug|Any CPU
+		{72110DF1-512B-4438-805F-112FA307F8F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72110DF1-512B-4438-805F-112FA307F8F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72110DF1-512B-4438-805F-112FA307F8F2}.Release|x86.ActiveCfg = Release|Any CPU
+		{72110DF1-512B-4438-805F-112FA307F8F2}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
