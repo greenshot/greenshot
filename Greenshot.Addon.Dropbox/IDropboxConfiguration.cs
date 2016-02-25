@@ -20,7 +20,6 @@
  */
 
 using System.ComponentModel;
-using Dapplo.Config.Converters;
 using Dapplo.Config.Ini;
 using Dapplo.HttpExtensions.OAuth;
 using Greenshot.Addon.Configuration;

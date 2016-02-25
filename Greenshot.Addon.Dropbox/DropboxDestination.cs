@@ -47,9 +47,11 @@ namespace Greenshot.Addon.Dropbox
 	{
 		private const string DropboxDesignation = "Dropbox";
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(DropboxDestination));
-		private static readonly Uri DropboxUri = new Uri("https://api.dropbox.com/1");
+		private static readonly Uri DropboxApiUri = new Uri("https://api.dropbox.com");
+		private static readonly Uri DropboxContentUri = new Uri("https://content.dropboxapi.com/2/files/upload");
 		private static readonly BitmapSource DropboxIcon;
-		private OAuth2Settings _oauth2Settings;
+		private OAuth2Settings _oAuth2Settings;
+		private IHttpBehaviour _oAuthHttpBehaviour;
 
 		static DropboxDestination()
 		{
@@ -86,17 +88,17 @@ namespace Greenshot.Addon.Dropbox
 			Text = DropboxLanguage.UploadMenuItem;
 			Icon = DropboxIcon;
 
-			_oauth2Settings = new OAuth2Settings
+			_oAuth2Settings = new OAuth2Settings
 			{
-				AuthorizationUri = DropboxUri.
-					AppendSegments("oauth2", "authorize").
+				AuthorizationUri = DropboxApiUri.
+					AppendSegments("1","oauth2", "authorize").
 					ExtendQuery(new Dictionary<string, string>{
 								{ "response_type", "code"},
 								{ "client_id", "{ClientId}" },
 								{ "redirect_uri", "{RedirectUrl}" },
 								{ "state", "{State}"}
 					}),
-				TokenUrl = DropboxUri.AppendSegments("oauth2", "token"),
+				TokenUrl = DropboxApiUri.AppendSegments("1","oauth2", "token"),
 				CloudServiceName = "Dropbox",
 				ClientId = DropboxConfiguration.ClientId,
 				ClientSecret = DropboxConfiguration.ClientSecret,
@@ -104,6 +106,7 @@ namespace Greenshot.Addon.Dropbox
 				RedirectUrl = "http://getgreenshot.org",
 				Token = DropboxConfiguration
 			};
+			_oAuthHttpBehaviour = OAuth2HttpBehaviourFactory.Create(_oAuth2Settings);
 		}
 
 		private async Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))
@@ -130,7 +133,7 @@ namespace Greenshot.Addon.Dropbox
 							using (var streamContent = new StreamContent(uploadStream))
 							{
 								streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
-								return await DropboxUtils.UploadToDropbox(streamContent, filename);
+								return await UploadAsync(filename, streamContent, pleaseWaitToken);
 							}
 						}
 					}
@@ -163,5 +166,43 @@ namespace Greenshot.Addon.Dropbox
 			}
 			return returnValue;
         }
+
+		/// <summary>
+		/// Upload the HttpContent to dropbox
+		/// </summary>
+		/// <param name="filename">Name of the file</param>
+		/// <param name="content">HttpContent</param>
+		/// <param name="cancellationToken">CancellationToken</param>
+		/// <returns>Url as string</returns>
+		private async Task<string> UploadAsync(string filename, HttpContent content, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			var parameters = new DropboxUploadRequest
+			{
+				Path = filename
+			};
+
+			var jsonString = SimpleJson.SerializeObject(parameters);
+			var minifiedJson = SimpleJson.Minify(jsonString);
+			// TODO: add the json to the headers under "Dropbox-API-Arg", otherwise it won't work
+			// TODO: Unfortunately this is not finished yet in the Dapplo.HttpExtensions
+			_oAuthHttpBehaviour.MakeCurrent();
+			var response = await DropboxContentUri.PostAsync<HttpResponse<DropboxUploadReply,DropboxError>,HttpContent>(content, cancellationToken);
+
+			if (response.HasError)
+			{
+				throw new ApplicationException(response.ErrorResponse.Summary);
+			}
+			// Take the response from the upload, and use the information to request dropbox to create a link
+			var createLinkRequest = new DropboxCreateLinkRequest
+			{
+				Path = response.Response.PathDisplay
+			};
+			var reply = await DropboxApiUri.AppendSegments("2", "sharing", "create_shared_link_with_settings").PostAsync<HttpResponse<DropboxCreateLinkReply, DropboxError>, DropboxCreateLinkRequest>(createLinkRequest, cancellationToken);
+			if (reply.HasError)
+			{
+				throw new ApplicationException(reply.ErrorResponse.Summary);
+			}
+			return reply.Response.Url;
+		}
 	}
 }

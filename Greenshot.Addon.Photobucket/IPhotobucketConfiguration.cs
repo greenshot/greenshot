@@ -31,7 +31,7 @@ namespace Greenshot.Addon.Photobucket
 	/// Description of IPhotobucketConfiguration.
 	/// </summary>
 	[IniSection("Photobucket"), Description("Greenshot Photobucket Plugin configuration")]
-	public interface IPhotobucketConfiguration : IOAuthToken, IIniSection<IPhotobucketConfiguration>
+	public interface IPhotobucketConfiguration : IOAuth1Token, IIniSection<IPhotobucketConfiguration>
 	{
 		[Description("What file type to use for uploading"), DefaultValue(OutputFormat.png)]
 		OutputFormat UploadFormat

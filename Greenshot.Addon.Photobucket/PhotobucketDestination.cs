@@ -50,8 +50,8 @@ namespace Greenshot.Addon.Photobucket
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(PhotobucketDestination));
 		private static readonly BitmapSource PhotobucketIcon;
 		private static readonly Uri PhotobucketApiUri = new Uri("http://api.photobucket.com");
-		private OAuthSettings _oAuthSettings;
-		private OAuthHttpBehaviour _oAuthHttpBehaviour;
+		private OAuth1Settings _oAuthSettings;
+		private OAuth1HttpBehaviour _oAuthHttpBehaviour;
 
 		static PhotobucketDestination()
 		{
@@ -88,7 +88,7 @@ namespace Greenshot.Addon.Photobucket
 			Text = PhotobucketLanguage.UploadMenuItem;
 			Icon = PhotobucketIcon;
 
-			_oAuthSettings = new OAuthSettings
+			_oAuthSettings = new OAuth1Settings
 			{
 				Token = PhotobucketConfiguration,
 				ClientId = PhotobucketConfiguration.ClientId,
@@ -103,13 +103,13 @@ namespace Greenshot.Addon.Photobucket
 				AccessTokenMethod = HttpMethod.Post,
 				AuthorizationUri = PhotobucketApiUri.AppendSegments("apilogin", "login")
 				 .ExtendQuery(new Dictionary<string, string>{
-						{ OAuthParameters.Token.EnumValueOf(), "{RequestToken}"},
-						{ OAuthParameters.Callback.EnumValueOf(), "{RedirectUrl}"}
+						{ OAuth1Parameters.Token.EnumValueOf(), "{RequestToken}"},
+						{ OAuth1Parameters.Callback.EnumValueOf(), "{RedirectUrl}"}
 				 }),
 				RedirectUrl = "http://getgreenshot.org",
 				CheckVerifier = false,
 			};
-			var oAuthHttpBehaviour = OAuthHttpBehaviourFactory.Create(_oAuthSettings);
+			var oAuthHttpBehaviour = OAuth1HttpBehaviourFactory.Create(_oAuthSettings);
 			// Store the leftover values
 			oAuthHttpBehaviour.OnAccessToken = values =>
 			{
@@ -213,7 +213,7 @@ namespace Greenshot.Addon.Photobucket
 			_oAuthHttpBehaviour.MakeCurrent();
 			if (PhotobucketConfiguration.Username == null || PhotobucketConfiguration.SubDomain == null)
 			{
-				await PhotobucketApiUri.AppendSegments("users").ExtendQuery("format", "json").OAuthGetAsAsync<dynamic>(cancellationToken: token);
+				await PhotobucketApiUri.AppendSegments("users").ExtendQuery("format", "json").OAuth1GetAsAsync<dynamic>(cancellationToken: token);
 			}
 			if (PhotobucketConfiguration.Album == null)
 			{
@@ -252,7 +252,7 @@ namespace Greenshot.Addon.Photobucket
 
 						try
 						{							
-							responseString = await uploadUri.OAuthPostAsync<string, HttpContent>(streamContent, signedParameters, token);
+							responseString = await uploadUri.OAuth1PostAsync<string, HttpContent>(streamContent, signedParameters, token);
 						}
 						catch (Exception ex)
 						{
