@@ -40,8 +40,8 @@
       <HintPath>..\packages\Dapplo.Addons.0.3.11.0\lib\net451\Dapplo.Addons.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Config, Version=0.1.126.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Config.0.1.126.0\lib\net451\Dapplo.Config.dll</HintPath>
+    <Reference Include="Dapplo.Config, Version=0.1.127.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Config.0.1.127.0\lib\net451\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.LogFacade, Version=0.1.8.0, Culture=neutral, processorArchitecture=MSIL">

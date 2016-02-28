@@ -300,7 +300,7 @@ namespace Greenshot.Addon.Confluence
 		{
 			var attachUri = ConfluenceBaseUri.AppendSegments(RestPath, "content", id, "child", "attachment");
 
-			var jsonResponse = await _client.PostAsync<dynamic, HttpContent>(attachUri, content, token).ConfigureAwait(false);
+			var jsonResponse = await _client.PostAsync<dynamic>(attachUri, content, token).ConfigureAwait(false);
 			return jsonResponse.results[0].id;
 		}
 	}

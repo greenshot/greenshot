@@ -40,12 +40,12 @@
       <HintPath>..\packages\Dapplo.Addons.0.3.11.0\lib\net451\Dapplo.Addons.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Config, Version=0.1.126.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Config.0.1.126.0\lib\net451\Dapplo.Config.dll</HintPath>
+    <Reference Include="Dapplo.Config, Version=0.1.127.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Config.0.1.127.0\lib\net451\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.HttpExtensions, Version=0.4.12.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.HttpExtensions.0.4.12.0\lib\net451\Dapplo.HttpExtensions.dll</HintPath>
+    <Reference Include="Dapplo.HttpExtensions, Version=0.4.14.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.HttpExtensions.0.4.14.0\lib\net451\Dapplo.HttpExtensions.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.LogFacade, Version=0.1.8.0, Culture=neutral, processorArchitecture=MSIL">
@@ -69,12 +69,13 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DropboxCreateLinkReply.cs" />
     <Compile Include="DropboxDestination.cs" />
-    <Compile Include="DropboxCreateLinkRequest.cs" />
-    <Compile Include="DropboxError.cs" />
-    <Compile Include="DropboxUploadRequest.cs" />
-    <Compile Include="DropboxUploadReply.cs" />
+    <Compile Include="Entities\CreateLinkReply.cs" />
+    <Compile Include="Entities\CreateLinkRequest.cs" />
+    <Compile Include="Entities\Error.cs" />
+    <Compile Include="Entities\Upload.cs" />
+    <Compile Include="Entities\UploadReply.cs" />
+    <Compile Include="Entities\UploadRequest.cs" />
     <Compile Include="IDropboxConfiguration.cs" />
     <Compile Include="DropboxPlugin.cs" />
     <Compile Include="Forms\DropboxForm.cs">

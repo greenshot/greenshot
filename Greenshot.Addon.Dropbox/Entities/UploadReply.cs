@@ -22,7 +22,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Greenshot.Addon.Dropbox
+namespace Greenshot.Addon.Dropbox.Entities
 {
 	[DataContract]
 	internal class SharingInfo
@@ -35,7 +35,8 @@ namespace Greenshot.Addon.Dropbox
 		public string ModifiedBy { get; set; }
 	}
 
-	internal class DropboxUploadReply
+	[DataContract]
+	internal class UploadReply
 	{
 		[DataMember(Name = "name")]
 		public string Name { get; set; }

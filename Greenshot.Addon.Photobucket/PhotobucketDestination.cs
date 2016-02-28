@@ -252,7 +252,7 @@ namespace Greenshot.Addon.Photobucket
 
 						try
 						{							
-							responseString = await uploadUri.OAuth1PostAsync<string, HttpContent>(streamContent, signedParameters, token);
+							responseString = await uploadUri.OAuth1PostAsync<string>(streamContent, signedParameters, token);
 						}
 						catch (Exception ex)
 						{

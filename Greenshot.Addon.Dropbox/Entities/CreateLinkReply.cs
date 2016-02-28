@@ -21,12 +21,12 @@
 
 using System.Runtime.Serialization;
 
-namespace Greenshot.Addon.Dropbox
+namespace Greenshot.Addon.Dropbox.Entities
 {
 	[DataContract]
-	internal class DropboxCreateLinkRequest
+	internal class CreateLinkReply
 	{
-		[DataMember(Name = "path")]
-		public string Path { get; set; }
+		[DataMember(Name = "url")]
+		public string Url { get; set; }
 	}
 }

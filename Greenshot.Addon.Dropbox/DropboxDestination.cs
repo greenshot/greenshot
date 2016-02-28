@@ -34,6 +34,7 @@ using System.Windows.Media.Imaging;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.OAuth;
 using Greenshot.Addon.Core;
+using Greenshot.Addon.Dropbox.Entities;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
@@ -102,8 +103,8 @@ namespace Greenshot.Addon.Dropbox
 				CloudServiceName = "Dropbox",
 				ClientId = DropboxConfiguration.ClientId,
 				ClientSecret = DropboxConfiguration.ClientSecret,
-				AuthorizeMode = AuthorizeModes.EmbeddedBrowser,
-				RedirectUrl = "http://getgreenshot.org",
+				AuthorizeMode = AuthorizeModes.LocalhostServer,
+				RedirectUrl = "http://localhost:47336",
 				Token = DropboxConfiguration
 			};
 			_oAuthHttpBehaviour = OAuth2HttpBehaviourFactory.Create(_oAuth2Settings);
@@ -176,28 +177,45 @@ namespace Greenshot.Addon.Dropbox
 		/// <returns>Url as string</returns>
 		private async Task<string> UploadAsync(string filename, HttpContent content, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			var parameters = new DropboxUploadRequest
+
+			_oAuthHttpBehaviour.MakeCurrent();
+
+			// Build the upload content together
+			var uploadContent = new Upload
+			{
+				Content = content
+			};
+
+			// This is needed
+			if (!filename.StartsWith("/"))
+			{
+				filename = "/" + filename;
+			}
+			// Create the upload request parameters
+			var parameters = new UploadRequest
 			{
 				Path = filename
 			};
-
+			// Make a Json string from the parameters
 			var jsonString = SimpleJson.SerializeObject(parameters);
+			// Minify, as it will be transported in the headers
 			var minifiedJson = SimpleJson.Minify(jsonString);
-			// TODO: add the json to the headers under "Dropbox-API-Arg", otherwise it won't work
-			// TODO: Unfortunately this is not finished yet in the Dapplo.HttpExtensions
-			_oAuthHttpBehaviour.MakeCurrent();
-			var response = await DropboxContentUri.PostAsync<HttpResponse<DropboxUploadReply,DropboxError>,HttpContent>(content, cancellationToken);
+			// Add it to the headers
+			uploadContent.Headers.Add("Dropbox-API-Arg", minifiedJson);
+
+			// Post everything, and return the upload reply or an error
+			var response = await DropboxContentUri.PostAsync<HttpResponse<UploadReply,Error>>(uploadContent, cancellationToken);
 
 			if (response.HasError)
 			{
 				throw new ApplicationException(response.ErrorResponse.Summary);
 			}
 			// Take the response from the upload, and use the information to request dropbox to create a link
-			var createLinkRequest = new DropboxCreateLinkRequest
+			var createLinkRequest = new CreateLinkRequest
 			{
 				Path = response.Response.PathDisplay
 			};
-			var reply = await DropboxApiUri.AppendSegments("2", "sharing", "create_shared_link_with_settings").PostAsync<HttpResponse<DropboxCreateLinkReply, DropboxError>, DropboxCreateLinkRequest>(createLinkRequest, cancellationToken);
+			var reply = await DropboxApiUri.AppendSegments("2", "sharing", "create_shared_link_with_settings").PostAsync<HttpResponse<CreateLinkReply, Error>>(createLinkRequest, cancellationToken);
 			if (reply.HasError)
 			{
 				throw new ApplicationException(reply.ErrorResponse.Summary);

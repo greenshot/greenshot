@@ -21,10 +21,10 @@
 
 using System.Runtime.Serialization;
 
-namespace Greenshot.Addon.Dropbox
+namespace Greenshot.Addon.Dropbox.Entities
 {
 	[DataContract]
-	internal class DropboxUploadRequest
+	internal class UploadRequest
 	{
 		[DataMember(Name = "path")]
 		public string Path { get; set; }

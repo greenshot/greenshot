@@ -87,7 +87,7 @@ namespace Greenshot.Addon.Imgur
 					{
 						content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
 						oauthHttpBehaviour.MakeCurrent();
-						imageJson = await uploadUri.PostAsync<dynamic, HttpContent>(content, token);
+						imageJson = await uploadUri.PostAsync<dynamic>(content, token);
 					}
 				}
 			}
@@ -108,7 +108,7 @@ namespace Greenshot.Addon.Imgur
 					{
 						content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
 						Behaviour.MakeCurrent();
-						imageJson = await uploadUri.PostAsync<dynamic, HttpContent>(content, token).ConfigureAwait(false);
+						imageJson = await uploadUri.PostAsync<dynamic>(content, token).ConfigureAwait(false);
 					}
 				}
 			}

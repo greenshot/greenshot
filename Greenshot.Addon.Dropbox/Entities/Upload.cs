@@ -19,23 +19,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Runtime.Serialization;
+using System.Collections.Generic;
+using System.Net.Http;
+using Dapplo.HttpExtensions.Support;
 
-namespace Greenshot.Addon.Dropbox
+namespace Greenshot.Addon.Dropbox.Entities
 {
-	[DataContract]
-	internal class Error
+	/// <summary>
+	/// This defines the request "content" for the Dropbox upload
+	/// </summary>
+	[Http(HttpParts.Request)]
+	public class Upload
 	{
-		[DataMember(Name = ".tag")]
-		public string Tag { get; set; }
-	}
+		/// <summary>
+		/// Headers is needed for the "Dropbox-API-Arg" value
+		/// </summary>
+		[Http(HttpParts.RequestHeaders)]
+		public IDictionary<string, string> Headers { get; } = new Dictionary<string, string>();
 
-	[DataContract]
-	internal class DropboxError
-	{
-		[DataMember(Name = "error_summary")]
-		public string Summary { get; set; }
-		[DataMember(Name = "error")]
-		public Error Error { get; set; }
+		/// <summary>
+		/// This is what dropbox expects, not what it really is...
+		/// </summary>
+		[Http(HttpParts.RequestContentType)]
+		public string ContentType { get; set; } = "application/octet-stream";
+
+		/// <summary>
+		/// The actual image for the upload is stored here
+		/// </summary>
+		[Http(HttpParts.RequestContent)]
+		public HttpContent Content { get; set; }
 	}
 }
