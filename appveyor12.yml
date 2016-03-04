@@ -1,7 +1,7 @@
 version: 1.2.7.{build}
 branches:
   only:
-  - 1.2
+  - master
 skip_tags: true
 configuration: Release
 platform: Any CPU
