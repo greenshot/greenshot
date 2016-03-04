@@ -101,26 +101,15 @@ namespace Greenshot.Addon.Jira
 		/// <summary>
 		/// Get the "list" of recently seen Jiras
 		/// </summary>
-		public IEnumerable<JiraDetails> RecentJiras
-		{
-			get
-			{
-				return (from jiraDetails in _recentJiras.Values
-					orderby jiraDetails.SeenAt descending
-					select jiraDetails);
-			}
-		}
+		public IEnumerable<JiraDetails> RecentJiras =>
+			(from jiraDetails in _recentJiras.Values
+			orderby jiraDetails.SeenAt descending
+			select jiraDetails);
 
 		/// <summary>
 		/// Check if this monitor has active instances
 		/// </summary>
-		public bool HasJiraInstances
-		{
-			get
-			{
-				return _jiraInstances.Count > 0;
-			}
-		}
+		public bool HasJiraInstances => _jiraInstances.Count > 0;
 
 
 		/// <summary>
@@ -136,14 +125,14 @@ namespace Greenshot.Addon.Jira
 			jiraInstance.SetBasicAuthentication(username, password);
 
 			_jiraInstances.Add(jiraInstance);
-			var projects = await jiraInstance.Projects(token);
+			var projects = await jiraInstance.ProjectsAsync(token);
 			if (projects != null)
 			{
 				foreach (var project in projects)
 				{
-					if (!_projectJiraApiMap.ContainsKey(project.key))
+					if (!_projectJiraApiMap.ContainsKey(project.Key))
 					{
-						_projectJiraApiMap.Add(project.key, jiraInstance);
+						_projectJiraApiMap.Add(project.Key, jiraInstance);
 					}
 				}
 			}
@@ -161,14 +150,11 @@ namespace Greenshot.Addon.Jira
 				JiraApi jiraApi;
 				if (_projectJiraApiMap.TryGetValue(jiraDetails.ProjectKey, out jiraApi))
 				{
-					var issue = await jiraApi.Issue(jiraDetails.JiraKey).ConfigureAwait(false);
-					jiraDetails.Title = issue.fields.summary;
+					var issue = await jiraApi.IssueAsync(jiraDetails.JiraKey).ConfigureAwait(false);
+					jiraDetails.Title = issue.Fields.Summary;
 				}
 				// Send event
-				if (JiraEvent != null)
-				{
-					JiraEvent.Invoke(this, new JiraEventArgs { Details = jiraDetails, EventType = JiraEventTypes.DetectedNewJiraIssue });
-				}
+				JiraEvent?.Invoke(this, new JiraEventArgs { Details = jiraDetails, EventType = JiraEventTypes.DetectedNewJiraIssue });
 			}
 			catch (Exception ex)
 			{
@@ -189,7 +175,7 @@ namespace Greenshot.Addon.Jira
 			var title = windowTitle.Replace(jiraApi.ServerTitle, "");
 			// Remove for emails:
 			title = title.Replace("[JIRA]", "");
-			title = Regex.Replace(title, string.Format(@"^[^a-zA-Z0-9]*{0}[^a-zA-Z0-9]*", jiraKey), "");
+			title = Regex.Replace(title, $@"^[^a-zA-Z0-9]*{jiraKey}[^a-zA-Z0-9]*", "");
 			title = Regex.Replace(title, "^[^a-zA-Z0-9]*(.*)[^a-zA-Z0-9]*$", "$1");
 			return title;
 		}
@@ -227,10 +213,7 @@ namespace Greenshot.Addon.Jira
 						currentJiraDetails.SeenAt = DateTimeOffset.Now;
 
 						// Notify the order change
-						if (JiraEvent != null)
-						{
-							JiraEvent.Invoke(this, new JiraEventArgs { Details = currentJiraDetails, EventType = JiraEventTypes.OrderChanged });
-						}
+						JiraEvent?.Invoke(this, new JiraEventArgs { Details = currentJiraDetails, EventType = JiraEventTypes.OrderChanged });
 						// Nothing else to do
 
 						return;
@@ -252,6 +235,7 @@ namespace Greenshot.Addon.Jira
 							select jiraDetails).Take(_maxEntries).ToDictionary(jd => jd.JiraKey, jd => jd);
 					}
 					// Now we can get the title from JIRA itself
+					// ReSharper disable once UnusedVariable
 					var updateTitleTask = DetectedNewJiraIssueAsync(currentJiraDetails);
 				}
 				else
