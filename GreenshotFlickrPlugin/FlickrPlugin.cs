@@ -125,7 +125,7 @@ namespace GreenshotFlickrPlugin
 			_config.ShowConfigDialog();
 		}
 
-		public bool Upload(ICaptureDetails captureDetails, ISurface surface, out String uploadUrl) {
+		public bool Upload(ICaptureDetails captureDetails, ISurface surface, out string uploadUrl) {
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
 			uploadUrl = null;
 			try {

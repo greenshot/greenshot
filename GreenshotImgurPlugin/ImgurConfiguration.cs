@@ -18,6 +18,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using Greenshot.IniFile;
@@ -41,14 +43,26 @@ namespace GreenshotImgurPlugin {
 		public int UploadJpegQuality;
 		[IniProperty("UploadReduceColors", Description="Reduce color amount of the uploaded image to 256", DefaultValue="False")]
 		public bool UploadReduceColors;
+		[IniProperty("CopyLinkToClipboard", Description = "Copy the link, which one is controlled by the UsePageLink, on the clipboard", DefaultValue = "True")]
+		public bool CopyLinkToClipboard;
 		[IniProperty("UsePageLink", Description = "Use pagelink instead of direct link on the clipboard", DefaultValue = "False")]
 		public bool UsePageLink;
 		[IniProperty("AnonymousAccess", Description = "Use anonymous access to Imgur", DefaultValue="true")]
 		public bool AnonymousAccess;
-		[IniProperty("ImgurToken", Description = "The Imgur token", Encrypted=true, ExcludeIfNull=true)]
-		public string ImgurToken;
-		[IniProperty("ImgurTokenSecret", Description = "The Imgur token secret", Encrypted=true, ExcludeIfNull=true)]
-		public string ImgurTokenSecret;
+
+		[IniProperty("RefreshToken", Description = "Imgur refresh Token", Encrypted = true, ExcludeIfNull = true)]
+		public string RefreshToken;
+
+		/// <summary>
+		/// AccessToken, not stored
+		/// </summary>
+		public string AccessToken;
+
+		/// <summary>
+		/// AccessTokenExpires, not stored
+		/// </summary>
+		public DateTimeOffset AccessTokenExpires;
+
 		[IniProperty("AddTitle", Description = "Is the title passed on to Imgur", DefaultValue = "False")]
 		public bool AddTitle;
 		[IniProperty("AddFilename", Description = "Is the filename passed on to Imgur", DefaultValue = "False")]

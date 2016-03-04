@@ -83,10 +83,15 @@ namespace Greenshot.Help
 		private static HttpStatusCode? GetHttpStatus(string url) {
 			try {
 				HttpWebRequest req = NetworkHelper.CreateWebRequest(url);
-				HttpWebResponse res = (HttpWebResponse)req.GetResponse();
-				return res.StatusCode;
-			} catch(WebException e) {
-				if(e.Response != null) return ((HttpWebResponse)e.Response).StatusCode;
+				using (HttpWebResponse res = (HttpWebResponse)req.GetResponse())
+				{
+					return res.StatusCode;
+				}
+			} catch (WebException e) {
+				if (e.Response != null)
+				{
+					return ((HttpWebResponse)e.Response).StatusCode;
+				}
 				return null;
 			}
 		}

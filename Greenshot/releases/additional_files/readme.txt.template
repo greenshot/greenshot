@@ -9,6 +9,31 @@ All details to our tickets can be found here: https://greenshot.atlassian.net
 
 @DETAILVERSION@
 
+There were some major issues with the authenticated (non anonymous) uploads to Imgur.
+After contacting Imgur they told us that their old API was deprecated or disabled, unfortunately this was not communicated.
+Although we are working hard on Greenshot 1.3, where we changed most of the Imgur code already, we can't release it.
+We did see a need to fix the imgur uploads, so in this release we quickly updated the Imgur API.
+This should resolve a lot of tickets that were reported to us.
+
+Additionally our website http://getgreenshot.org is hosted by sourceforge and they seem to have a lot of stability problems.
+Due to these problems a bug in the Greenshot update check manifested itself and causes Greenshot to get slow or even stop responding.
+In this version we fix the bug in the update check, and we are also working on a solution for the instability with our website.
+
+Here is the list of chances:
+
+Bugs Resolved:
+
+BUG-1527 / BUG-1848 / BUG-1850 / BUG-1851 / BUG-1859 : Greenshot stops responding, hangs or crashes
+BUG-1843 / BUG-1844 / BUG-1846 : Imgur problems with authenticated uploads
+BUG-1864: Imgur link wasn't copied to the clipboard
+
+Features:
+FEATURE-896: Use Imgur with HTTPS (with changing the Imgur API from V2 to V3 this was already required for the upload anyway.)
+
+
+
+1.2.7.2-342a506 RELEASE
+
 Bugs Resolved:
 * BUG-1809: OverflowException when changing the windows input language
 * BUG-1835: Imgur: uploads were cancelled due to a timeout which was set too small

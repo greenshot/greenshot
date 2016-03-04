@@ -77,12 +77,18 @@ namespace GreenshotPlugin.Core {
 			Uri url = new Uri(baseUri, new Uri("favicon.ico"));
 			try {
 				HttpWebRequest request = CreateWebRequest(url);
-				HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-				if (request.HaveResponse) {
-					using (Stream responseStream = response.GetResponseStream()) {
-						if (responseStream != null) {
-							using (Image image = Image.FromStream(responseStream)) {
-								return (image.Height > 16 && image.Width > 16) ? new Bitmap(image, 16, 16) : new Bitmap(image);
+				using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+				{
+					if (request.HaveResponse)
+					{
+						using (Stream responseStream = response.GetResponseStream())
+						{
+							if (responseStream != null)
+							{
+								using (Image image = Image.FromStream(responseStream))
+								{
+									return (image.Height > 16 && image.Width > 16) ? new Bitmap(image, 16, 16) : new Bitmap(image);
+								}
 							}
 						}
 					}
@@ -425,46 +431,86 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
+		/// Read the response as string
+		/// </summary>
+		/// <param name="response"></param>
+		/// <returns>string or null</returns>
+		private static string GetResponseAsString(HttpWebResponse response)
+		{
+			string responseData = null;
+			if (response == null)
+			{
+				return null;
+			}
+			using (response)
+			{
+				Stream responseStream = response.GetResponseStream();
+				if (responseStream != null)
+				{
+					using (StreamReader reader = new StreamReader(responseStream, true))
+					{
+						responseData = reader.ReadToEnd();
+					}
+				}
+			}
+			return responseData;
+		}
+
+		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="webRequest"></param>
 		/// <returns></returns>
 		public static string GetResponseAsString(HttpWebRequest webRequest, bool alsoReturnContentOnError) {
 			string responseData = null;
-			try {
-				HttpWebResponse response = (HttpWebResponse) webRequest.GetResponse();
+			HttpWebResponse response = null;
+			bool isHttpError = false;
+            try {
+				response = (HttpWebResponse)webRequest.GetResponse();
 				LOG.InfoFormat("Response status: {0}", response.StatusCode);
-				bool isHttpError = (int) response.StatusCode >= 300;
-				DebugHeaders(response);
-				Stream responseStream = response.GetResponseStream();
-				if (responseStream != null) {
-					using (StreamReader reader = new StreamReader(responseStream, true)) {
-						responseData = reader.ReadToEnd();
-					}
-					if (isHttpError) {
-						LOG.ErrorFormat("HTTP error {0} with content: {1}", response.StatusCode, responseData);
-					}
-				}
-			} catch (WebException e) {
-				HttpWebResponse response = (HttpWebResponse) e.Response;
-				if (response != null) {
+				isHttpError = (int)response.StatusCode >= 300;
+				if (isHttpError)
+				{
 					LOG.ErrorFormat("HTTP error {0}", response.StatusCode);
-					using (Stream responseStream = response.GetResponseStream()) {
-						if (responseStream != null) {
-							using (StreamReader streamReader = new StreamReader(responseStream, true)) {
-								string errorContent = streamReader.ReadToEnd();
-								if (alsoReturnContentOnError) {
-									return errorContent;
-								}
-								LOG.ErrorFormat("Content: {0}", errorContent);
-							}
-						}
+				}
+				DebugHeaders(response);
+				responseData = GetResponseAsString(response);
+				if (isHttpError)
+				{
+					LOG.ErrorFormat("HTTP response {0}", responseData);
+				}
+			}
+			catch (WebException e) {
+				response = (HttpWebResponse) e.Response;
+				HttpStatusCode statusCode = HttpStatusCode.Unused;
+				if (response != null) {
+					statusCode = response.StatusCode;
+					LOG.ErrorFormat("HTTP error {0}", statusCode);
+					string errorContent = GetResponseAsString(response);
+					if (alsoReturnContentOnError)
+					{
+						return errorContent;
 					}
+					LOG.ErrorFormat("Content: {0}", errorContent);
 				}
 				LOG.Error("WebException: ", e);
+				if (statusCode == HttpStatusCode.Unauthorized)
+				{
+					throw new UnauthorizedAccessException(e.Message);
+				}
 				throw;
 			}
-
+			finally
+			{
+				if (response != null)
+				{
+					if (isHttpError)
+					{
+						LOG.ErrorFormat("HTTP error {0} with content: {1}", response.StatusCode, responseData);
+					}
+					response.Close();
+				}
+			}
 			return responseData;
 		}
 
@@ -477,9 +523,11 @@ namespace GreenshotPlugin.Core {
 			try {
 				HttpWebRequest webRequest = CreateWebRequest(uri);
 				webRequest.Method = HTTPMethod.HEAD.ToString();
-				HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
-				LOG.DebugFormat("RSS feed was updated at {0}", webResponse.LastModified);
-				return webResponse.LastModified;
+				using (HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse())
+				{
+					LOG.DebugFormat("RSS feed was updated at {0}", webResponse.LastModified);
+					return webResponse.LastModified;
+				}
 			} catch (Exception wE) {
 				LOG.WarnFormat("Problem requesting HTTP - HEAD on uri {0}", uri);
 				LOG.Warn(wE.Message);
