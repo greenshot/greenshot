@@ -176,10 +176,8 @@ namespace Greenshot.Addon.Jira
 								{
 									streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
 									multipartFormDataContent.Add(streamContent, "file", filename);
-									using (var reponseMessage = await jiraApi.Attach(jiraDetails.JiraKey, multipartFormDataContent, pleaseWaitToken))
-									{
-										return reponseMessage.GetAsAsync<string>(token: token);
-									}
+									var attachment = await jiraApi.AttachAsync(jiraDetails.JiraKey, multipartFormDataContent, pleaseWaitToken);
+									return attachment.ContentUri;
 								}
 							}
 						}
