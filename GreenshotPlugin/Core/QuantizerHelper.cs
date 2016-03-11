@@ -578,7 +578,7 @@ namespace GreenshotPlugin.Core {
 
 				// the cube cannot be cut at bottom (this would lead to empty cube)
 				if (halfWeight != 0) {
-					Single halfDistance = halfRed * halfRed + halfGreen * halfGreen + halfBlue * halfBlue;
+					Single halfDistance = (Single)halfRed * halfRed + (Single)halfGreen * halfGreen + (Single)halfBlue * halfBlue;
 					Single temp = halfDistance / halfWeight;
 
 					halfRed = wholeRed - halfRed;
@@ -587,7 +587,7 @@ namespace GreenshotPlugin.Core {
 					halfWeight = wholeWeight - halfWeight;
 
 					if (halfWeight != 0) {
-						halfDistance = halfRed * halfRed + halfGreen * halfGreen + halfBlue * halfBlue;
+						halfDistance = (Single)halfRed * halfRed + (Single)halfGreen * halfGreen + (Single)halfBlue * halfBlue;
 						temp += halfDistance / halfWeight;
 
 						if (temp > result) {
