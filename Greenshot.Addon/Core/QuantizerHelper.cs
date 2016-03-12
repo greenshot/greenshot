@@ -645,7 +645,7 @@ namespace Greenshot.Addon.Core
 				// the cube cannot be cut at bottom (this would lead to empty cube)
 				if (halfWeight != 0)
 				{
-					float halfDistance = halfRed*halfRed + halfGreen*halfGreen + halfBlue*halfBlue;
+					float halfDistance = (float)halfRed*halfRed + (float)halfGreen*halfGreen + (float)halfBlue*halfBlue;
 					float temp = halfDistance/halfWeight;
 
 					halfRed = wholeRed - halfRed;
@@ -655,7 +655,7 @@ namespace Greenshot.Addon.Core
 
 					if (halfWeight != 0)
 					{
-						halfDistance = halfRed*halfRed + halfGreen*halfGreen + halfBlue*halfBlue;
+						halfDistance = (float)halfRed*halfRed + (float)halfGreen*halfGreen + (float)halfBlue*halfBlue;
 						temp += halfDistance/halfWeight;
 
 						if (temp > result)

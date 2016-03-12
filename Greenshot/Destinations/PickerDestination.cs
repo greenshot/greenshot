@@ -122,6 +122,7 @@ namespace Greenshot.Destinations
 					}
 				}
 				while (exportResult != null && exportResult.NotificationType != NotificationTypes.Cancel);
+				exportWindow.Close();
 			}
 			return new Notification
 			{
