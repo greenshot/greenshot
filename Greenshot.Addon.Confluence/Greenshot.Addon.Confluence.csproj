@@ -46,8 +46,12 @@
       <HintPath>..\packages\Dapplo.Config.0.2.3.0\lib\net46\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.HttpExtensions, Version=0.4.22.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.HttpExtensions.0.4.22.0\lib\net46\Dapplo.HttpExtensions.dll</HintPath>
+    <Reference Include="Dapplo.Confluence, Version=0.1.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Confluence.0.1.6\lib\net46\Dapplo.Confluence.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Dapplo.HttpExtensions, Version=0.4.25.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.HttpExtensions.0.4.25.0\lib\net46\Dapplo.HttpExtensions.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.LogFacade, Version=0.2.13.0, Culture=neutral, processorArchitecture=MSIL">
@@ -80,27 +84,24 @@
     <Compile Include="IConfluenceConfiguration.cs" />
     <Compile Include="ConfluencePlugin.cs" />
     <Compile Include="ConfluenceUtils.cs" />
-    <Compile Include="Forms\ConfluenceConfigurationForm.xaml.cs">
+    <Compile Include="Windows\ConfluenceConfigurationForm.xaml.cs">
       <DependentUpon>ConfluenceConfigurationForm.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Forms\ConfluencePagePicker.xaml.cs">
+    <Compile Include="Windows\ConfluencePagePicker.xaml.cs">
       <DependentUpon>ConfluencePagePicker.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Forms\ConfluenceTreePicker.xaml.cs">
+    <Compile Include="Windows\ConfluenceTreePicker.xaml.cs">
       <DependentUpon>ConfluenceTreePicker.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Forms\ConfluenceUpload.xaml.cs">
+    <Compile Include="Windows\ConfluenceUpload.xaml.cs">
       <DependentUpon>ConfluenceUpload.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ConfluenceAPI.cs" />
     <Compile Include="IConfluenceLanguage.cs" />
-    <Compile Include="Model\Content.cs" />
-    <Compile Include="Model\IConfluenceModel.cs" />
-    <Compile Include="Model\Space.cs" />
+    <Compile Include="Model\ConfluenceModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Support\ITranslationProvider.cs" />
     <Compile Include="Support\LanguageChangedEventManager.cs" />
@@ -121,25 +122,25 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Forms\ConfluenceConfigurationForm.xaml">
+    <Page Include="Windows\ConfluenceConfigurationForm.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Forms\ConfluencePagePicker.xaml">
+    <Page Include="Windows\ConfluencePagePicker.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Forms\ConfluenceTreePicker.xaml">
+    <Page Include="Windows\ConfluenceTreePicker.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Forms\ConfluenceUpload.xaml">
+    <Page Include="Windows\ConfluenceUpload.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

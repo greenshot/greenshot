@@ -19,27 +19,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Windows;
-using Dapplo.Config.Ini;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using Dapplo.Confluence.Entities;
 
-namespace Greenshot.Addon.Confluence.Forms
+namespace Greenshot.Addon.Confluence.Model
 {
 	/// <summary>
-	/// Interaction logic for ConfluenceConfigurationForm.xaml
+	/// Container for the Confluence data
 	/// </summary>
-	public partial class ConfluenceConfigurationForm : Window
+	public class ConfluenceModel
 	{
-		private static IConfluenceConfiguration config = IniConfig.Current.Get<IConfluenceConfiguration>();
-
-		public ConfluenceConfigurationForm()
+		public IDictionary<string, Space> Spaces
 		{
-			this.DataContext = config;
-			InitializeComponent();
-		}
+			get;
+			set;
+		} = new ConcurrentDictionary<string, Space>();
 
-		private void Button_OK_Click(object sender, RoutedEventArgs e)
+		public IDictionary<long, Content> ContentCachedById
 		{
-			DialogResult = true;
-		}
+			get;
+			set;
+		} = new ConcurrentDictionary<long, Content>();
+
+		public IDictionary<string, Content> ContentCachedBySpaceAndTitle
+		{
+			get;
+			set;
+		} = new ConcurrentDictionary<string, Content>();
 	}
 }
