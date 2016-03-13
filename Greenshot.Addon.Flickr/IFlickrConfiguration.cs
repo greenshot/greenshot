@@ -23,6 +23,7 @@ using System.ComponentModel;
 using System.Runtime.Serialization;
 using Dapplo.Config.Converters;
 using Dapplo.Config.Ini;
+using Dapplo.HttpExtensions.OAuth;
 using Greenshot.Addon.Configuration;
 
 namespace Greenshot.Addon.Flickr
@@ -38,7 +39,7 @@ namespace Greenshot.Addon.Flickr
 	/// Description of FlickrConfiguration.
 	/// </summary>
 	[IniSection("Flickr"), Description("Greenshot Flickr Plugin configuration")]
-	public interface IFlickrConfiguration : IIniSection<IFlickrConfiguration>
+	public interface IFlickrConfiguration : IOAuth1Token, IIniSection<IFlickrConfiguration>
 	{
 		[DataMember(Name = "flickrIsPublic"), Description("IsPublic."), DefaultValue(true)]
 		bool IsPublic
@@ -98,20 +99,6 @@ namespace Greenshot.Addon.Flickr
 
 		[Description("Use pagelink instead of direct link on the clipboard"), DefaultValue(false)]
 		bool UsePageLink
-		{
-			get;
-			set;
-		}
-
-		[Description("The Flickr token"), TypeConverter(typeof (StringEncryptionTypeConverter))]
-		string FlickrToken
-		{
-			get;
-			set;
-		}
-
-		[Description("The Flickr token secret"), TypeConverter(typeof (StringEncryptionTypeConverter))]
-		string FlickrTokenSecret
 		{
 			get;
 			set;

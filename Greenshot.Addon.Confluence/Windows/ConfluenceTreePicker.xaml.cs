@@ -98,6 +98,7 @@ namespace Greenshot.Addon.Confluence.Windows
 				ConfluenceTreeView.Items.Add(spaceTreeViewItem);
 
 				// Get homepage, in background
+				// ReSharper disable once UnusedVariable
 				var loadPageTask = Task.Factory.StartNew(async () =>
 				{
 					var page = await ConfluencePlugin.ConfluenceAPI.ContentAsync(space.Id);

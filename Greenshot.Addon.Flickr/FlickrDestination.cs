@@ -20,14 +20,20 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using Dapplo.HttpExtensions;
+using Dapplo.HttpExtensions.Listener;
+using Dapplo.HttpExtensions.OAuth;
+using Dapplo.LogFacade;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
@@ -42,7 +48,9 @@ namespace Greenshot.Addon.Flickr
 	{
 		private const string FlickrDesignation = "Flickr";
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(FlickrDestination));
+		private static readonly Uri FlickrOAuthUri = new Uri("https://api.flickr.com/services/oauth");
 		private static readonly BitmapSource FlickrIcon;
+		private OAuth1HttpBehaviour _oAuthHttpBehaviour;
 
 		static FlickrDestination()
 		{
@@ -78,6 +86,30 @@ namespace Greenshot.Addon.Flickr
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
 			Text = FlickrLanguage.UploadMenuItem;
 			Icon = FlickrIcon;
+
+			var oAuthSettings = new OAuth1Settings
+			{
+				Token = FlickrConfiguration,
+				ClientId = FlickrConfiguration.ClientId,
+				ClientSecret = FlickrConfiguration.ClientSecret,
+				CloudServiceName = "Flickr",
+				AuthorizeMode = AuthorizeModes.LocalhostServer,
+				TokenUrl = FlickrOAuthUri.AppendSegments("request_token"),
+				TokenMethod = HttpMethod.Post,
+				AccessTokenUrl = FlickrOAuthUri.AppendSegments("access_token"),
+				AccessTokenMethod = HttpMethod.Post,
+				AuthorizationUri = FlickrOAuthUri.AppendSegments("authorize")
+				 .ExtendQuery(new Dictionary<string, string>{
+						{ OAuth1Parameters.Token.EnumValueOf(), "{RequestToken}"},
+						{ OAuth1Parameters.Callback.EnumValueOf(), "{RedirectUrl}"}
+				 }),
+				// Create a localhost redirect uri, prefer port 47336, but use the first free found
+				RedirectUrl = (new[] { 47336, 0 }.CreateLocalHostUri()).AbsoluteUri,
+				CheckVerifier = true
+			};
+			
+			_oAuthHttpBehaviour = OAuth1HttpBehaviourFactory.Create(oAuthSettings);
+			_oAuthHttpBehaviour.ValidateResponseContentType = false;
 		}
 
 		private async Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))
@@ -95,6 +127,7 @@ namespace Greenshot.Addon.Flickr
 				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, FlickrLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
 				{
 					string filename = Path.GetFileName(FilenameHelper.GetFilename(FlickrConfiguration.UploadFormat, capture.CaptureDetails));
+					_oAuthHttpBehaviour.MakeCurrent();
 					return await FlickrUtils.UploadToFlickrAsync(capture, outputSettings, capture.CaptureDetails.Title, filename, progress, token);
 				}, token);
 
