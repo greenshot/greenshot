@@ -9,6 +9,21 @@ All details to our tickets can be found here: https://greenshot.atlassian.net
 
 @DETAILVERSION@
 
+Open issues planned for this version:
+BUG-1887: hang on exit - hang time proportional to number of objects
+BUG-1872: OneDrive prevents Greenshot hotkeys from working
+BUG-1876: Already running message, multi user environment
+BUG-1892: Greenshot saves blank JPG file with reduce colors
+BUG-1898: Specify it's GPLv3 in the license text
+BUG-1912: Translation (Enu)
+FEATURE-916: Save file as icon
+FEATURE-919: Allow adding of space around screenshot
+FEATURE-912: [Storage Location] Define directory pattern
+BUG-1918: Speechbubble issue: Artifacts appeared when shadow is on
+
+
+1.2.8.12-cab854b RELEASE
+
 There were some major issues with the authenticated (non anonymous) uploads to Imgur.
 After contacting Imgur they told us that their old API was deprecated or disabled, unfortunately this was not communicated.
 Although we are working hard on Greenshot 1.3, where we changed most of the Imgur code already, we can't release it.
@@ -29,7 +44,6 @@ BUG-1864: Imgur link wasn't copied to the clipboard
 
 Features:
 FEATURE-896: Use Imgur with HTTPS (with changing the Imgur API from V2 to V3 this was already required for the upload anyway.)
-
 
 
 1.2.7.2-342a506 RELEASE
