@@ -111,10 +111,12 @@ namespace Greenshot.Addon.ModiOcr
 		/// <param name="token"></param>
 		private async Task<string> DoOcrAsync(ICapture capture, CancellationToken token = default(CancellationToken))
 		{
-			var outputSettings = new SurfaceOutputSettings(OutputFormat.bmp, 0, true);
-			outputSettings.ReduceColors = true;
-			// We only want the background
-			outputSettings.SaveBackgroundOnly = true;
+			var outputSettings = new SurfaceOutputSettings(OutputFormat.bmp, 0, true)
+			{
+				ReduceColors = true,
+				// We only want the background
+				SaveBackgroundOnly = true
+			};
 			// Force Grayscale output
 			outputSettings.Effects.Add(new GrayscaleEffect());
 
@@ -172,7 +174,8 @@ namespace Greenshot.Addon.ModiOcr
 				}
 			}
 
-			if (text.Trim().Length == 0)
+			text = text.Trim();
+			if (string.IsNullOrWhiteSpace(text))
 			{
 				Log.Information("No text returned");
 				return null;

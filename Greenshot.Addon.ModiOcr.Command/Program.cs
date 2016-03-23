@@ -83,7 +83,7 @@ namespace Greenshot.Addon.ModiOcr.Command
 						{
 							using (var layout = DisposableCom.Create(image.ComObject.Layout))
 							{
-								Console.WriteLine(layout.ComObject.Text);
+								Console.WriteLine(layout.ComObject.Text.Trim());
 							}
 						}
 						document.ComObject.Close();
