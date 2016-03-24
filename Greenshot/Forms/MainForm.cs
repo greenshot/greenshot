@@ -26,8 +26,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
-using System.Security.AccessControl;
-using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -52,7 +50,7 @@ namespace Greenshot {
 	/// </summary>
 	public partial class MainForm : BaseForm {
 		private static ILog LOG;
-		private static Mutex _applicationMutex;
+		private static ResourceMutex _applicationMutex;
 		private static CoreConfiguration _conf;
 		public static string LogFileLocation = null;
 
@@ -82,38 +80,9 @@ namespace Greenshot {
 			try {
 				// Fix for Bug 2495900, Multi-user Environment
 				// check whether there's an local instance running already
-				
-				try {
-					// Added Mutex Security, hopefully this prevents the UnauthorizedAccessException more gracefully
-					// See an example in Bug #3131534
-					SecurityIdentifier sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
-					MutexSecurity mutexsecurity = new MutexSecurity();
-					mutexsecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.FullControl, AccessControlType.Allow));
-					mutexsecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.ChangePermissions, AccessControlType.Deny));
-					mutexsecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.Delete, AccessControlType.Deny));
+				_applicationMutex = ResourceMutex.Create("F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08", "Greenshot", false);
 
-					bool created;
-					// 1) Create Mutex
-					_applicationMutex = new Mutex(false, @"Local\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08", out created, mutexsecurity);
-					// 2) Get the right to it, this returns false if it's already locked
-					if (!_applicationMutex.WaitOne(0, false)) {
-						LOG.Debug("Greenshot seems already to be running!");
-						isAlreadyRunning = true;
-						// Clean up
-						_applicationMutex.Close();
-						_applicationMutex = null;
-					}
-				} catch (AbandonedMutexException e) {
-					// Another Greenshot instance didn't cleanup correctly!
-					// we can ignore the exception, it happend on the "waitone" but still the mutex belongs to us
-					LOG.Warn("Greenshot didn't cleanup correctly!", e);
-				} catch (UnauthorizedAccessException e) {
-					LOG.Warn("Greenshot is most likely already running for a different user in the same session, can't create mutex due to error: ", e);
-					isAlreadyRunning = true;
-				} catch (Exception e) {
-					LOG.Warn("Problem obtaining the Mutex, assuming it was already taken!", e);
-					isAlreadyRunning = true;
-				}
+				isAlreadyRunning = !_applicationMutex.IsLocked;
 
 				if (args.Length > 0 && LOG.IsDebugEnabled) {
 					StringBuilder argumentString = new StringBuilder();
@@ -316,7 +285,7 @@ namespace Greenshot {
 			// Remove the application mutex
 			if (_applicationMutex != null) {
 				try {
-					_applicationMutex.ReleaseMutex();
+					_applicationMutex.Dispose();
 					_applicationMutex = null;
 				} catch (Exception ex) {
 					LOG.Error("Error releasing Mutex!", ex);
