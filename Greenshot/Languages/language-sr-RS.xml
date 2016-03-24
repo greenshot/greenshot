@@ -3,7 +3,7 @@
 	<resources>
 		<resource name="about_bugs">Пријавите грешке на:</resource>
 		<resource name="about_donations">Ако вам се свиђа Гриншот, помозите нам:</resource>
-		<resource name="about_host">Гриншот покреће Сорсфорџ (GitHub):</resource>
+		<resource name="about_host">Гриншот покреће Сорсфорџ (sourceforge.net):</resource>
 		<resource name="about_icons">Иконе су преузете из пакета „Fugue“ Јусуке Камијамане (лиценца Кријејтив комонс Ауторство 3.0)</resource>
 		<resource name="about_license">Ауторска права © 2007–2012 Томас Браун, Џенс Клинџен, Робин Кром
 Гриншот се издаје БЕЗ ИКАКВЕ ГАРАНЦИЈЕ. Он је бесплатан програм, који можете да делите под одређеним условима.

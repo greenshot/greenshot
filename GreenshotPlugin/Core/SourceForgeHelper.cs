@@ -3,7 +3,7 @@
  * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ using System.Xml;
 using log4net;
 
 namespace GreenshotPlugin.Core {
-	public class RssFile {
+	public class SourceforgeFile {
 		private readonly string _file;
 		public string File {
 			get {return _file;}
@@ -40,6 +40,10 @@ namespace GreenshotPlugin.Core {
 		private readonly string _link;
 		public string Link {
 			get {return _link;}
+		}
+		private readonly string _directLink;
+		public string DirectLink {
+			get {return _directLink;}
 		}
 		private Version _version;
 		public Version Version {
@@ -81,21 +85,18 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		public RssFile(string file, string pubdate, string link) {
-			_file = file;
-			if (!DateTime.TryParse(pubdate, out _pubdate))
-			{
-				DateTime.TryParseExact(pubdate.Replace(" UT", ""), "ddd, dd MMM yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out _pubdate);
-			}
-			_link = link;
+		public SourceforgeFile(string file, string pubdate, string link, string directLink) {
+			this._file = file;
+			DateTime.TryParse(pubdate, out _pubdate);
+			this._link = link;
+			this._directLink = directLink;
 		}
 	}
-
 	/// <summary>
-	/// Description of RssHelper.
+	/// Description of SourceForgeHelper.
 	/// </summary>
-	public class RssHelper {
-		private static ILog LOG = LogManager.GetLogger(typeof(RssHelper));
+	public class SourceForgeHelper {
+		private static ILog LOG = LogManager.GetLogger(typeof(SourceForgeHelper));
 		private const string RSSFEED = "http://getgreenshot.org/project-feed/";
 
 		/// <summary>
@@ -117,8 +118,8 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Read the Greenshot RSS feed, so we can use this information to check for updates
 		/// </summary>
-		/// <returns>List with RssFile(s)</returns>
-		public static IList<RssFile> readRSS() {
+		/// <returns>Dictionary<string, Dictionary<string, RssFile>> with files and their RssFile "description"</returns>
+		public static Dictionary<string, Dictionary<string, SourceforgeFile>> readRSS() {
 			XmlDocument rssDoc = new XmlDocument();
 			try {
 				HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(RSSFEED);
@@ -162,7 +163,7 @@ namespace GreenshotPlugin.Core {
 				return null;
 			}
 
-			IList<RssFile> rssFiles = new List<RssFile>();
+			Dictionary<string, Dictionary<string, SourceforgeFile>> rssFiles = new Dictionary<string, Dictionary<string, SourceforgeFile>>();
 
 			// Loop for the <title>, <link>, <description> and all the other tags
 			for (int i = 0; i < nodeChannel.ChildNodes.Count; i++) {
@@ -170,14 +171,26 @@ namespace GreenshotPlugin.Core {
 
 				if (nodeChannel.ChildNodes[i].Name == "item") {
 					XmlNode nodeItem = nodeChannel.ChildNodes[i];
-					string link = nodeItem["link"].InnerText;
+					string sfLink = nodeItem["link"].InnerText;
 					string pubdate = nodeItem["pubDate"].InnerText;
 					try {
-						Match match= Regex.Match(Uri.UnescapeDataString(link), @"^.*\/(Greenshot.+)\/download$");
+						Match match= Regex.Match(Uri.UnescapeDataString(sfLink), @"^http.*sourceforge.*\/projects\/([^\/]+)\/files\/([^\/]+)\/([^\/]+)\/(.+)\/download$");
 						if (match.Success) {
-							string file = match.Groups[1].Value;
-
-							RssFile rssFile = new RssFile(file, pubdate, link);
+							string project = match.Groups[1].Value;
+							string subdir = match.Groups[2].Value;
+							string type = match.Groups[3].Value;
+							string file = match.Groups[4].Value;
+							// !!! Change this to the mirror !!!
+							string mirror = "kent";
+							string directLink = Uri.EscapeUriString("http://"+mirror+".dl.sourceforge.net/project/"+project+"/"+subdir+"/"+type+"/"+file);
+							Dictionary<string, SourceforgeFile> filesForType;
+							if (rssFiles.ContainsKey(type)) {
+								filesForType = rssFiles[type];
+							} else {
+								filesForType = new Dictionary<string, SourceforgeFile>();
+								rssFiles.Add(type, filesForType);
+							}
+							SourceforgeFile rssFile = new SourceforgeFile(file, pubdate, sfLink, directLink);
 							if (file.EndsWith(".exe") ||file.EndsWith(".zip")) {
 								string version = Regex.Replace(file, @".*[a-zA-Z_]\-", "");
 								version = version.Replace(@"\-[a-zA-Z]+.*","");
@@ -196,8 +209,16 @@ namespace GreenshotPlugin.Core {
 										LOG.DebugFormat("Found invalid version {0} in file {1}", version, file);
 									}
 								}
-								rssFiles.Add(rssFile);
+							} else if (type.Equals("Translations")) {
+								string culture = Regex.Replace(file, @"[a-zA-Z]+-(..-..)\.(xml|html)", "$1");
+								try {
+									//CultureInfo cultureInfo = new CultureInfo(culture);
+									rssFile.Language = culture;//cultureInfo.NativeName;
+								} catch (Exception) {
+									LOG.WarnFormat("Can't read the native name of the culture {0}", culture);
+								}
 							}
+							filesForType.Add(file, rssFile);
 						}
 					} catch (Exception ex) {
 						LOG.WarnFormat("Couldn't read RSS entry for: {0}", nodeChannel["title"].InnerText);

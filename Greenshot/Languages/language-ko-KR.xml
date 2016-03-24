@@ -3,7 +3,7 @@
 	<resources>
 		<resource name="about_bugs">버그는 아래 URL로 전달바랍니다.</resource>
 		<resource name="about_donations">Greenshot이 좋다면 아래 URL로 방문하셔서 지원할 수 있습니다.</resource>
-		<resource name="about_host">Greenshot은 GitHub 관리하에 아래 링크에서 호스팅되고 있습니다</resource>
+		<resource name="about_host">Greenshot은 sourceforge.net 관리하에 아래 링크에서 호스팅되고 있습니다</resource>
 		<resource name="about_icons">아이콘은 Yusuke Kamiyamane's Fugue icon set으로부터 제공받은 것입니다. (Creative Commons Attribution 3.0 license)</resource>
 		<resource name="about_license">Copyright (C) 2007-2010 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
