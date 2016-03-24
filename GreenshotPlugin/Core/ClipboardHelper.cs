@@ -3,7 +3,7 @@
  * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -349,7 +349,7 @@ EndSelection:<<<<<<<4
 		
 		/// <summary>
 		/// Helper method to try to get an image in the specified format from the dataObject
-		/// the DIB reader should solve some issues
+		/// the DIB readed should solve the issue reported here: https://sourceforge.net/projects/greenshot/forums/forum/676083/topic/6354353/index/page/1
 		/// It also supports Format17/DibV5, by using the following information: http://stackoverflow.com/a/14335591
 		/// </summary>
 		/// <param name="format">string with the format</param>
