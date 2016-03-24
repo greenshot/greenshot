@@ -45,7 +45,8 @@ namespace Greenshot
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(GreenshotStart));
 		private const string MutexId = "F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08";
 		public static string LogFileLocation = null;
-		private static readonly ApplicationBootstrapper GreenshotBootstrapper = new ApplicationBootstrapper(GreenshotMain.ApplicationName, MutexId);
+		public const string ApplicationName = "Greenshot";
+		private static readonly ApplicationBootstrapper GreenshotBootstrapper = new ApplicationBootstrapper(ApplicationName, MutexId);
 		protected static IniConfig iniConfig;
 		protected static IGreenshotLanguage language;
 		protected static ICoreConfiguration coreConfiguration;
@@ -62,7 +63,7 @@ namespace Greenshot
 		public static void Start(string[] args)
 		{
 			// Set the Thread name, is better than "1"
-			Thread.CurrentThread.Name = GreenshotMain.ApplicationName;
+			Thread.CurrentThread.Name = ApplicationName;
 			// Handle exceptions
 			TaskScheduler.UnobservedTaskException += (s, e) => ShowException(e.Exception);
 			AppDomain.CurrentDomain.UnhandledException += (s, e) => ShowException(e.ExceptionObject as Exception);
@@ -100,14 +101,14 @@ namespace Greenshot
 			// Initialize the string encryption, TODO: Move "credentials" to build server / yaml
 			Dapplo.Config.Converters.StringEncryptionTypeConverter.RgbIv = "dlgjowejgogkklwj";
 			Dapplo.Config.Converters.StringEncryptionTypeConverter.RgbKey = "lsjvkwhvwujkagfauguwcsjgu2wueuff";
-			iniConfig = new IniConfig(GreenshotMain.ApplicationName, GreenshotMain.ApplicationName, iniDirectory);
+			iniConfig = new IniConfig(ApplicationName, ApplicationName, iniDirectory);
 			// Register method to fix some values
 			iniConfig.AfterLoad<ICoreConfiguration>(CoreConfigurationChecker.AfterLoad);
 
 			Task.Run(async () =>
 			{
 				coreConfiguration = await iniConfig.RegisterAndGetAsync<ICoreConfiguration>();
-				var languageLoader = new LanguageLoader(GreenshotMain.ApplicationName, coreConfiguration.Language ?? "en-US");
+				var languageLoader = new LanguageLoader(ApplicationName, coreConfiguration.Language ?? "en-US");
 
 				// Defaults are taken, if multiple IniConfig / LanguageLoaders are used this needs to be uncommented:
 				//ApplicationBootstrapper.LanguageLoaderForExport = languageLoader;
@@ -187,7 +188,7 @@ namespace Greenshot
 			{
 				currentProcessId = currentProcess.Id;
 			}
-			foreach (var greenshotProcess in Process.GetProcessesByName(GreenshotMain.ApplicationName))
+			foreach (var greenshotProcess in Process.GetProcessesByName(ApplicationName))
 			{
 				try
 				{

@@ -19,41 +19,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 using System;
-using System.Reflection;
 using System.Linq;
-
-// Remove AppendPrivatePath warning:
-using Greenshot.Forms;
-
-#pragma warning disable 0618
+using System.Reflection;
+using System.Windows;
 
 namespace Greenshot
 {
 	/// <summary>
-	/// Description of Main.
+	/// Interaction logic for App.xaml
 	/// </summary>
-	public class GreenshotMain
+	public partial class App : Application
 	{
-		public const string ApplicationName = "Greenshot";
-		static GreenshotMain()
+		static App()
 		{
 			AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 		}
 
 		private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
 		{
-			string _shortAssemblyName = args.Name.Split(',')[0];
+			string shortAssemblyName = args.Name.Split(',')[0];
 			var foundAssembly = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
-				where _shortAssemblyName == assembly.FullName.Split(',')[0]
-				select assembly).FirstOrDefault();
+								 where shortAssemblyName == assembly.FullName.Split(',')[0]
+								 select assembly).FirstOrDefault();
 			return foundAssembly;
 		}
 
-		[STAThread]
-		public static void Main(string[] args)
+
+		private void App_OnStartup(object sender, StartupEventArgs e)
 		{
-			GreenshotStart.Start(args);
+			GreenshotStart.Start(e.Args);
 		}
 	}
 }

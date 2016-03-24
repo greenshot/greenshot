@@ -51,6 +51,7 @@ namespace Greenshot.Forms
 	public partial class MainForm : BaseForm
 	{
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(MainForm));
+		public const string ApplicationName = "Greenshot";
 
 		private static MainForm _instance;
 
@@ -139,7 +140,7 @@ namespace Greenshot.Forms
 
 			if (PortableHelper.IsPortable)
 			{
-				var pafPath = Path.Combine(Application.StartupPath, $@"App\{GreenshotMain.ApplicationName}");
+				var pafPath = Path.Combine(Application.StartupPath, $@"App\{ApplicationName}");
 				GreenshotStart.Bootstrapper.Add(pafPath, "*.gsp");
 			}
 			else
@@ -217,7 +218,7 @@ namespace Greenshot.Forms
 				{
 					notifyIcon.BalloonTipClicked += BalloonTipClicked;
 					notifyIcon.BalloonTipClosed += BalloonTipClosed;
-					notifyIcon.ShowBalloonTip(2000, GreenshotMain.ApplicationName, string.Format(language.TooltipFirststart, HotkeyControl.GetLocalizedHotkeyStringFromString(coreConfiguration.RegionHotkey)), ToolTipIcon.Info);
+					notifyIcon.ShowBalloonTip(2000, ApplicationName, string.Format(language.TooltipFirststart, HotkeyControl.GetLocalizedHotkeyStringFromString(coreConfiguration.RegionHotkey)), ToolTipIcon.Info);
 				}
 				catch (Exception ex)
 				{
