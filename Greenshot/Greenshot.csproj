@@ -147,6 +147,7 @@
     <Compile Include="Forms\BugReportForm.Designer.cs">
       <DependentUpon>BugReportForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="GreenshotStart.cs" />
     <Compile Include="Helpers\DapploSeriLogLogger.cs" />
     <Compile Include="Helpers\PluginHelper.cs" />
     <Compile Include="Helpers\RoundedRectangle.cs" />

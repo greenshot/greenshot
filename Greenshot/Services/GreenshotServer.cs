@@ -32,6 +32,8 @@ using System.ServiceModel.Description;
 using Greenshot.Addon.Core;
 using System.ServiceModel.Dispatcher;
 using System.ServiceModel.Channels;
+using Greenshot.Addon.Configuration;
+using System.ComponentModel.Composition;
 
 namespace Greenshot.Services
 {
@@ -63,6 +65,13 @@ namespace Greenshot.Services
 			{
 				return $"{PipeBaseEndpoint}{Identity}";
 			}
+		}
+
+		[Import]
+		private TaskScheduler UITaskScheduler
+		{
+			get;
+			set;
 		}
 
 		public bool IsStarted
@@ -155,12 +164,22 @@ namespace Greenshot.Services
 
 			if (File.Exists(filename))
 			{
-				Forms.MainForm.Instance.BeginInvoke(new Action(async () => await CaptureHelper.CaptureFileAsync(filename)));
+				Task.Factory.StartNew(
+					async () => await CaptureHelper.CaptureFileAsync(filename),
+					default(CancellationToken), TaskCreationOptions.None, UITaskScheduler);
 			}
 			else
 			{
 				Log.Warning("No such file: " + filename);
 			}
+		}
+
+
+		public void CaptureScreen(bool cursor)
+		{
+			Task.Factory.StartNew(
+				async () => await CaptureHelper.CaptureFullscreenAsync(true, ScreenCaptureMode.Auto),
+				default(CancellationToken), TaskCreationOptions.None, UITaskScheduler);
 		}
 
 		#endregion
@@ -219,6 +238,7 @@ namespace Greenshot.Services
 		{
 			// Do nothing
 		}
+
 		#endregion
 	}
 }

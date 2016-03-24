@@ -19,11 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Addons.Bootstrapper;
 using Dapplo.Config.Ini;
-using Dapplo.Config.Language;
-using Dapplo.Config.Support;
 using Dapplo.Windows.Native;
+using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Controls;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
+using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Helpers;
 using Greenshot.Windows;
 using System;
@@ -39,15 +42,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Timer = System.Timers.Timer;
-using Serilog;
-using Dapplo.HttpExtensions.OAuth;
-using Dapplo.LogFacade;
-using Greenshot.Addon.Configuration;
-using Greenshot.Addon.Controls;
-using Greenshot.Addon.Core;
-using Greenshot.Addon.Extensions;
-using Greenshot.Addon.Interfaces;
-using Greenshot.Addon.Interfaces.Destination;
 
 namespace Greenshot.Forms
 {
@@ -57,186 +51,6 @@ namespace Greenshot.Forms
 	public partial class MainForm : BaseForm
 	{
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(MainForm));
-		private const string ApplicationName = "Greenshot";
-		private const string MutexId = "F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08";
-		public static string LogFileLocation = null;
-		private static readonly ApplicationBootstrapper GreenshotBootstrapper = new ApplicationBootstrapper(ApplicationName, MutexId);
-
-		public static ApplicationBootstrapper Bootstrapper {
-			get {
-				return GreenshotBootstrapper;
-			}
-		}
-
-		public static void Start(string[] args)
-		{
-			// Set the Thread name, is better than "1"
-			Thread.CurrentThread.Name = Application.ProductName;
-
-			// Read arguments
-			var arguments = new Arguments(args);
-			// Don't continue if the Help was requested
-			if (arguments.IsHelp)
-			{
-				return;
-			}
-
-			Application.ThreadException += Application_ThreadException;
-			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-
-			Serilog.Log.Logger = new LoggerConfiguration().ReadFrom.AppSettings()
-#if DEBUG
-				.MinimumLevel.Verbose()
-				.WriteTo.Trace(outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level}] {SourceContext} - {Message}{NewLine}{Exception}")
-#endif
-			.CreateLogger();
-			// Map Dapplo.HttpExtensions logs to seri-log
-			LogSettings.Logger = new DapploSeriLogLogger();
-
-			// Setting the INI-directory
-			string iniDirectory = null;
-			// Specified the ini directory directly
-			if (!string.IsNullOrWhiteSpace(arguments.IniDirectory))
-			{
-				iniDirectory = arguments.IniDirectory;
-			}
-			// Portable mode
-			if (PortableHelper.IsPortable)
-			{
-				iniDirectory = PortableHelper.PortableIniFileLocation;
-			}
-
-			// Initialize the string encryption, TODO: Move "credentials" to build server / yaml
-			Dapplo.Config.Converters.StringEncryptionTypeConverter.RgbIv = "dlgjowejgogkklwj";
-			Dapplo.Config.Converters.StringEncryptionTypeConverter.RgbKey = "lsjvkwhvwujkagfauguwcsjgu2wueuff";
-			iniConfig = new IniConfig(ApplicationName, ApplicationName, iniDirectory);
-			// Register method to fix some values
-			iniConfig.AfterLoad<ICoreConfiguration>(CoreConfigurationChecker.AfterLoad);
-
-			Task.Run(async () =>
-			{
-				coreConfiguration = await iniConfig.RegisterAndGetAsync<ICoreConfiguration>();
-				var languageLoader = new LanguageLoader(ApplicationName, coreConfiguration.Language ?? "en-US");
-
-				// Defaults are taken, if multiple IniConfig / LanguageLoaders are used this needs to be uncommented:
-				//ApplicationBootstrapper.LanguageLoaderForExport = languageLoader;
-				//ApplicationBootstrapper.IniConfigForExport = iniConfig;
-
-				// Read configuration & languages
-				languageLoader.CorrectMissingTranslations();
-				language = await LanguageLoader.Current.RegisterAndGetAsync<IGreenshotLanguage>();
-				await iniConfig.RegisterAndGetAsync<INetworkConfiguration>();
-			}).Wait();
-
-			// Log the startup
-			Log.Information("Starting: " + EnvironmentInfo.EnvironmentToString(false));
-
-			try
-			{
-				// Fix for Bug 2495900, Multi-user Environment
-				// check whether there's an local instance running already
-				if (!GreenshotBootstrapper.IsMutexLocked)
-				{
-					// Other instance is running, call a Greenshot client or exit etc
-
-					if (arguments.FilesToOpen.Count > 0)
-					{
-						GreenshotClient.OpenFiles(arguments.FilesToOpen);
-					}
-
-					if (arguments.IsExit)
-					{
-						GreenshotClient.Exit();
-					}
-
-					ShowOtherInstances();
-					GreenshotBootstrapper.Dispose();
-					return;
-				}
-
-				if (!string.IsNullOrWhiteSpace(arguments.Language))
-				{
-					// Set language
-					coreConfiguration.Language = arguments.Language;
-				}
-
-				// From here on we continue starting Greenshot
-				Application.EnableVisualStyles();
-				// BUG-1809: Add message filter, to filter out all the InputLangChanged messages which go to a target control with a handle > 32 bit.
-				Application.AddMessageFilter(new WmInputLangChangeRequestFilter());
-				Application.SetCompatibleTextRenderingDefault(false);
-
-				// if language is not set, show language dialog
-				if (string.IsNullOrEmpty(coreConfiguration.Language))
-				{
-					var languageDialog = LanguageDialog.GetInstance();
-					languageDialog.ShowDialog();
-					coreConfiguration.Language = languageDialog.SelectedLanguage;
-				}
-
-				// Should fix BUG-1633
-				Application.DoEvents();
-				_instance = new MainForm(arguments);
-				Application.Run();
-			}
-			catch (Exception ex)
-			{
-				Log.Error("Exception in startup.", ex);
-				Application_ThreadException(ActiveForm, new ThreadExceptionEventArgs(ex));
-			}
-		}
-
-		/// <summary>
-		/// Helper method to show the other running instances
-		/// </summary>
-		private static void ShowOtherInstances()
-		{
-			var instanceInfo = new StringBuilder();
-			var matchedThisProcess = false;
-			var index = 1;
-			int currentProcessId;
-			using (var currentProcess = Process.GetCurrentProcess())
-			{
-				currentProcessId = currentProcess.Id;
-			}
-			foreach (var greenshotProcess in Process.GetProcessesByName(ApplicationName))
-			{
-				try
-				{
-					instanceInfo.Append(index++ + ": ").AppendLine(Kernel32.GetProcessPath(greenshotProcess.Id));
-					if (currentProcessId == greenshotProcess.Id)
-					{
-						matchedThisProcess = true;
-					}
-				}
-				catch (Exception ex)
-				{
-					Log.Debug(ex, "Problem retrieving process path of a running Greenshot instance");
-				}
-				greenshotProcess.Dispose();
-			}
-			if (!matchedThisProcess)
-			{
-				using (var currentProcess = Process.GetCurrentProcess())
-				{
-					instanceInfo.Append(index + ": ").AppendLine(Kernel32.GetProcessPath(currentProcess.Id));
-				}
-			}
-
-			// A dirty fix to make sure the messagebox is visible as a Greenshot window on the taskbar
-			using (var dummyForm = new Form())
-			{
-				dummyForm.Icon = GreenshotResources.GetGreenshotIcon();
-				dummyForm.ShowInTaskbar = true;
-				dummyForm.FormBorderStyle = FormBorderStyle.None;
-				dummyForm.Location = new Point(int.MinValue, int.MinValue);
-				dummyForm.Load += (sender, eventArgs) => dummyForm.Size = Size.Empty;
-				dummyForm.Show();
-				// Make sure the language files are loaded, so we can show the error message "Greenshot is already running" in the right language.
-
-				MessageBox.Show(dummyForm, language.TranslationOrDefault(t => t.ErrorMultipleinstances) + "\r\n" + instanceInfo, language.TranslationOrDefault(t => t.Error), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-			}
-		}
 
 		private static MainForm _instance;
 
@@ -248,6 +62,30 @@ namespace Greenshot.Forms
 			}
 		}
 
+		public static void Start(Arguments arguments)
+		{
+			Application.ThreadException += (s, e) => GreenshotStart.ShowException(e.Exception);
+
+			// From here on we continue starting Greenshot
+			Application.EnableVisualStyles();
+			// BUG-1809: Add message filter, to filter out all the InputLangChanged messages which go to a target control with a handle > 32 bit.
+			Application.AddMessageFilter(new WmInputLangChangeRequestFilter());
+			Application.SetCompatibleTextRenderingDefault(false);
+
+			// if language is not set, show language dialog
+			if (string.IsNullOrEmpty(coreConfiguration.Language))
+			{
+				var languageDialog = LanguageDialog.GetInstance();
+				languageDialog.ShowDialog();
+				coreConfiguration.Language = languageDialog.SelectedLanguage;
+			}
+
+			// Should fix BUG-1633
+			Application.DoEvents();
+			_instance = new MainForm(arguments);
+			Application.Run();
+		}
+
 		// Thumbnail preview
 		private ThumbnailForm _thumbnailForm;
 		// Make sure we have only one settings form
@@ -256,6 +94,7 @@ namespace Greenshot.Forms
 		private readonly System.Threading.Timer _backgroundWorkerTimer;
 		// Timer for the double click test
 		private readonly Timer _doubleClickTimer = new Timer();
+		private readonly TaskScheduler _UITaskScheduler;
 
 		/// <summary>
 		/// Instance of the NotifyIcon, needed to open balloon-tips
@@ -271,7 +110,7 @@ namespace Greenshot.Forms
 		public MainForm(Arguments arguments)
 		{
 			_instance = this;
-
+			_UITaskScheduler = TaskScheduler.FromCurrentSynchronizationContext();
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
@@ -300,38 +139,42 @@ namespace Greenshot.Forms
 
 			if (PortableHelper.IsPortable)
 			{
-				var pafPath = Path.Combine(Application.StartupPath, $@"App\{ApplicationName}");
-				GreenshotBootstrapper.Add(pafPath, "*.gsp");
+				var pafPath = Path.Combine(Application.StartupPath, $@"App\{GreenshotMain.ApplicationName}");
+				GreenshotStart.Bootstrapper.Add(pafPath, "*.gsp");
 			}
 			else
 			{
 				var pluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
-				GreenshotBootstrapper.Add(pluginPath, "*.gsp");
+				GreenshotStart.Bootstrapper.Add(pluginPath, "*.gsp");
 
 				var applicationPath = Path.GetDirectoryName(Application.ExecutablePath);
-				GreenshotBootstrapper.Add(applicationPath, "*.gsp");
+				GreenshotStart.Bootstrapper.Add(applicationPath, "*.gsp");
 			}
 			// The GreenshotPlugin assembly needs to be added manually!
-			GreenshotBootstrapper.Add(typeof(ICoreConfiguration).Assembly);
+			GreenshotStart.Bootstrapper.Add(typeof(ICoreConfiguration).Assembly);
 
 			Task.Factory.StartNew(
 				// this will use current synchronization context
 				async () =>
 				{
 					// Initialize the bootstrapper, so we can export
-					await GreenshotBootstrapper.InitializeAsync();
+					await GreenshotStart.Bootstrapper.InitializeAsync();
 
 					// Notify icon
-					GreenshotBootstrapper.Export(notifyIcon);
+					GreenshotStart.Bootstrapper.Export(notifyIcon);
+
+					// Current synchronization context
+					GreenshotStart.Bootstrapper.Export(_UITaskScheduler);
+
 					// Run!
-					await GreenshotBootstrapper.RunAsync();
+					await GreenshotStart.Bootstrapper.RunAsync();
 				},
 				CancellationToken.None,
 				TaskCreationOptions.None,
-				TaskScheduler.FromCurrentSynchronizationContext()).Wait();
+				_UITaskScheduler).Wait();
 
 			// Check destinations, remove all that don't exist
-			var destinations = GreenshotBootstrapper.GetExports<IDestination, IDestinationMetadata>();
+			var destinations = GreenshotStart.Bootstrapper.GetExports<IDestination, IDestinationMetadata>();
 			foreach (var destination in coreConfiguration.OutputDestinations.ToArray())
 			{
 				if (destinations.Count(x => x.Value.Designation == destination) == 0)
@@ -374,7 +217,7 @@ namespace Greenshot.Forms
 				{
 					notifyIcon.BalloonTipClicked += BalloonTipClicked;
 					notifyIcon.BalloonTipClosed += BalloonTipClosed;
-					notifyIcon.ShowBalloonTip(2000, ApplicationName, string.Format(language.TooltipFirststart, HotkeyControl.GetLocalizedHotkeyStringFromString(coreConfiguration.RegionHotkey)), ToolTipIcon.Info);
+					notifyIcon.ShowBalloonTip(2000, GreenshotMain.ApplicationName, string.Format(language.TooltipFirststart, HotkeyControl.GetLocalizedHotkeyStringFromString(coreConfiguration.RegionHotkey)), ToolTipIcon.Info);
 				}
 				catch (Exception ex)
 				{
@@ -650,11 +493,10 @@ namespace Greenshot.Forms
 
 		private void CaptureRegion(CancellationToken token = default(CancellationToken))
 		{
-			var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 			var task = Task.Factory.StartNew(async () =>
 			{
 				await CaptureHelper.CaptureRegionAsync(true, token);
-			}, token, TaskCreationOptions.None, scheduler);
+			}, token, TaskCreationOptions.None, _UITaskScheduler);
 		}
 
 		private void CaptureFile(CancellationToken token = default(CancellationToken))
@@ -667,48 +509,43 @@ namespace Greenshot.Forms
 			{
 				if (File.Exists(openFileDialog.FileName))
 				{
-					var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 					var task = Task.Factory.StartNew(async () =>
 					{
 						await CaptureHelper.CaptureFileAsync(openFileDialog.FileName, token);
-					}, token, TaskCreationOptions.None, scheduler);
+					}, token, TaskCreationOptions.None, _UITaskScheduler);
 				}
 			}
 		}
 
 		private void CaptureFullScreen(CancellationToken token = default(CancellationToken))
 		{
-			var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 			var task = Task.Factory.StartNew(async () =>
 			{
 				await CaptureHelper.CaptureFullscreenAsync(true, coreConfiguration.ScreenCaptureMode, token);
-			}, token, TaskCreationOptions.None, scheduler);
+			}, token, TaskCreationOptions.None, _UITaskScheduler);
 		}
 
 		private void CaptureLastRegion(CancellationToken token = default(CancellationToken))
 		{
-			var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 			var task = Task.Factory.StartNew(async () =>
 			{
 				await CaptureHelper.CaptureLastRegionAsync(true, token);
-			}, token, TaskCreationOptions.None, scheduler);
+			}, token, TaskCreationOptions.None, _UITaskScheduler);
 		}
 
 		private void CaptureIE(CancellationToken token = default(CancellationToken))
 		{
 			if (coreConfiguration.IECapture)
 			{
-				var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 				var task = Task.Factory.StartNew(async () =>
 				{
 					await CaptureHelper.CaptureIEAsync(true, null, token);
-				}, token, TaskCreationOptions.None, scheduler);
+				}, token, TaskCreationOptions.None, _UITaskScheduler);
 			}
 		}
 
 		private void CaptureWindow(CancellationToken token = default(CancellationToken))
 		{
-			var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 			var task = Task.Factory.StartNew(async () =>
 			{
 				if (coreConfiguration.CaptureWindowsInteractive)
@@ -719,7 +556,7 @@ namespace Greenshot.Forms
 				{
 					await CaptureHelper.CaptureWindowAsync(true, token);
 				}
-			}, token, TaskCreationOptions.None, scheduler);
+			}, token, TaskCreationOptions.None, _UITaskScheduler);
 		}
 
 		#endregion
@@ -983,9 +820,9 @@ namespace Greenshot.Forms
 			}
 		}
 
-		private void CaptureAreaToolStripMenuItemClick(object sender, EventArgs e)
+		private async void CaptureAreaToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			this.InvokeAsync(async () => await CaptureHelper.CaptureRegionAsync(false));
+			await CaptureHelper.CaptureRegionAsync(false);
 		}
 
 		private async void CaptureClipboardToolStripMenuItemClick(object sender, EventArgs e)
@@ -998,36 +835,33 @@ namespace Greenshot.Forms
 			this.InvokeAsync(() => CaptureFile());
 		}
 
-		private void CaptureFullScreenToolStripMenuItemClick(object sender, EventArgs e)
+		private async void CaptureFullScreenToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			this.InvokeAsync(async () => await CaptureHelper.CaptureFullscreenAsync(false, coreConfiguration.ScreenCaptureMode));
+			await CaptureHelper.CaptureFullscreenAsync(false, coreConfiguration.ScreenCaptureMode);
 		}
 
-		private void Contextmenu_capturelastregionClick(object sender, EventArgs e)
+		private async void Contextmenu_capturelastregionClick(object sender, EventArgs e)
 		{
-			this.InvokeAsync(async () => await CaptureHelper.CaptureLastRegionAsync(false));
+			await CaptureHelper.CaptureLastRegionAsync(false);
 		}
 
-		private void Contextmenu_capturewindow_Click(object sender, EventArgs e)
+		private async void Contextmenu_capturewindow_Click(object sender, EventArgs e)
 		{
-			this.InvokeAsync(async () => await CaptureHelper.CaptureWindowInteractiveAsync(false));
+			await CaptureHelper.CaptureWindowInteractiveAsync(false);
 		}
 
-		private void Contextmenu_capturewindowfromlist_Click(object sender, EventArgs e)
+		private async void Contextmenu_capturewindowfromlist_Click(object sender, EventArgs e)
 		{
 			var clickedItem = (ToolStripMenuItem) sender;
-			this.InvokeAsync(async () =>
+			try
 			{
-				try
-				{
-					var windowToCapture = (WindowDetails) clickedItem.Tag;
-					await CaptureHelper.CaptureWindowAsync(windowToCapture);
-				}
-				catch (Exception exception)
-				{
-					Log.Error(exception, "Capture window failed");
-				}
-			});
+				var windowToCapture = (WindowDetails) clickedItem.Tag;
+				await CaptureHelper.CaptureWindowAsync(windowToCapture);
+			}
+			catch (Exception exception)
+			{
+				Log.Error(exception, "Capture window failed");
+			}
 		}
 
 		private void Contextmenu_captureie_Click(object sender, EventArgs e)
@@ -1141,9 +975,9 @@ namespace Greenshot.Forms
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void Contextmenu_helpClick(object sender, EventArgs e)
+		private async void Contextmenu_helpClick(object sender, EventArgs e)
 		{
-			var ignoreTask = HelpFileLoader.LoadHelpAsync();
+			await HelpFileLoader.LoadHelpAsync();
 		}
 
 		/// <summary>
@@ -1448,7 +1282,7 @@ namespace Greenshot.Forms
 				case ClickActions.OpenLastInEditor:
 					if (File.Exists(coreConfiguration.OutputFileAsFullpath))
 					{
-						var editor = GreenshotBootstrapper.GetExports<IDestination>().Where(x => x.Value.Designation == BuildInDestinationEnum.Editor.ToString()).Select(x => x.Value).First();
+						var editor = GreenshotStart.Bootstrapper.GetExports<IDestination>().Where(x => x.Value.Designation == BuildInDestinationEnum.Editor.ToString()).Select(x => x.Value).First();
 						await CaptureHelper.CaptureFileAsync(coreConfiguration.OutputFileAsFullpath, editor, token);
 					}
 					break;
@@ -1568,7 +1402,7 @@ namespace Greenshot.Forms
 			{
 				Task.Run(async () =>
 				{
-					await GreenshotBootstrapper.ShutdownAsync();
+					await GreenshotStart.Bootstrapper.ShutdownAsync();
 				}).Wait();
 				
 			}

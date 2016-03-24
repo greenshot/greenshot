@@ -42,5 +42,11 @@ namespace Greenshot.Addon.Interfaces
 		/// <param name="filename"></param>
 		[OperationContract]
 		void OpenFile(string filename);
+
+		/// <summary>
+		/// Make a region capture of the screen
+		/// </summary>
+		[OperationContract]
+		void CaptureScreen(bool captureMouse);
 	}
 }

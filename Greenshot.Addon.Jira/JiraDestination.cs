@@ -81,6 +81,13 @@ namespace Greenshot.Addon.Jira
 			set;
 		}
 
+		[Import]
+		private TaskScheduler UITaskScheduler
+		{
+			get;
+			set;
+		}
+
 		/// <summary>
 		/// This should only be set from the plugin
 		/// </summary>
@@ -137,7 +144,9 @@ namespace Greenshot.Addon.Jira
 
 		private void JiraMonitor_JiraEvent(object sender, JiraEventArgs e)
 		{
-			GreenshotHost.GreenshotForm.InvokeAsync(() => UpdateChildren());
+			Task.Factory.StartNew(
+					() => UpdateChildren(),
+					default(CancellationToken), TaskCreationOptions.None, UITaskScheduler);
 		}
 
 		private string FormatUpload(JiraDetails jira)

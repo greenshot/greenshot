@@ -133,7 +133,7 @@ namespace Greenshot.Windows
 				case Key.L:
 					try
 					{
-						Process.Start(MainForm.LogFileLocation);
+						Process.Start(GreenshotStart.LogFileLocation);
 					}
 					catch (Exception ex)
 					{

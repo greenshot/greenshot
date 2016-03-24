@@ -596,7 +596,7 @@ namespace Greenshot.Helpers
 
 		private void AddConfiguredDestination()
 		{
-			IEnumerable<IDestination> destinations = MainForm.Bootstrapper.GetExports<IDestination>().Where(x => CoreConfiguration.OutputDestinations.Contains(x.Value.Designation)).Select(x => x.Value);
+			IEnumerable<IDestination> destinations = GreenshotStart.Bootstrapper.GetExports<IDestination>().Where(x => CoreConfiguration.OutputDestinations.Contains(x.Value.Designation)).Select(x => x.Value);
             foreach (var destination in destinations)
 			{
 				_capture.CaptureDetails.AddDestination(destination);

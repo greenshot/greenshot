@@ -39,9 +39,9 @@ namespace Greenshot.Addon.Controls
 	public class GreenshotForm : Form, IGreenshotLanguageBindable
 	{
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(GreenshotForm));
-		protected static IniConfig iniConfig;
-		protected static IGreenshotLanguage language;
-		protected static ICoreConfiguration coreConfiguration;
+		protected static readonly IniConfig iniConfig = IniConfig.Current;
+		protected static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
+		protected static readonly ICoreConfiguration coreConfiguration = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IDictionary<Type, FieldInfo[]> ReflectionCache = new Dictionary<Type, FieldInfo[]>();
 		private IComponentChangeService _mChangeService;
 		private bool _isDesignModeLanguageSet;

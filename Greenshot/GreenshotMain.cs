@@ -35,6 +35,7 @@ namespace Greenshot
 	/// </summary>
 	public class GreenshotMain
 	{
+		public const string ApplicationName = "Greenshot";
 		static GreenshotMain()
 		{
 			AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
@@ -52,8 +53,7 @@ namespace Greenshot
 		[STAThread]
 		public static void Main(string[] args)
 		{
-
-			MainForm.Start(args);
+			GreenshotStart.Start(args);
 		}
 	}
 }
