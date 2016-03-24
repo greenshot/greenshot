@@ -180,7 +180,7 @@
     <Compile Include="Core\Objects.cs" />
     <Compile Include="Core\PluginUtils.cs" />
     <Compile Include="Core\QuantizerHelper.cs" />
-    <Compile Include="Core\SourceForgeHelper.cs" />
+    <Compile Include="Core\RssHelper.cs" />
     <Compile Include="Core\WindowCapture.cs" />
     <Compile Include="Core\WindowsHelper.cs" />
     <Compile Include="IniFile\IniAttributes.cs" />

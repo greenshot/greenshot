@@ -3,7 +3,7 @@
  * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -104,7 +104,7 @@ namespace Greenshot {
 			this.linkLblHost.Size = new System.Drawing.Size(465, 23);
 			this.linkLblHost.TabIndex = 6;
 			this.linkLblHost.TabStop = true;
-			this.linkLblHost.Text = "http://sourceforge.net/projects/greenshot/";
+			this.linkLblHost.Text = "https://github.com/greenshot/greenshot";
 			this.linkLblHost.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabelClicked);
 			// 
 			// linkLblBugs
