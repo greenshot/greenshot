@@ -28,6 +28,10 @@ using System.Threading.Tasks;
 using Dapplo.Addons;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Helpers;
+using System.ServiceModel.Description;
+using Greenshot.Addon.Core;
+using System.ServiceModel.Dispatcher;
+using System.ServiceModel.Channels;
 
 namespace Greenshot.Services
 {
@@ -35,7 +39,8 @@ namespace Greenshot.Services
 	/// This startup/shutdown action starts the Greenshot "server", which allows to open files etc.
 	/// </summary>
 	[StartupAction, ShutdownAction]
-	public class GreenshotServer : IGreenshotContract, IStartupAction, IShutdownAction
+	[ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
+	public class GreenshotServer : IGreenshotContract, IStartupAction, IShutdownAction, IErrorHandler, IDispatchMessageInspector, IEndpointBehavior
 	{
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(GreenshotServer));
 		private ServiceHost _host;
@@ -45,7 +50,7 @@ namespace Greenshot.Services
 		{
 			get
 			{
-				return WindowsIdentity.GetCurrent()?.User?.ToString();
+				return WindowsIdentity.GetCurrent()?.User?.Value;
 			}
 		}
 
@@ -60,26 +65,56 @@ namespace Greenshot.Services
 			}
 		}
 
+		public bool IsStarted
+		{
+			get;
+			set;
+		}
+
 		/// <summary>
 		/// IStartupAction entry for starting
 		/// </summary>
 		/// <param name="token"></param>
 		/// <returns></returns>
-		public async Task StartAsync(CancellationToken token = default(CancellationToken))
+		public Task StartAsync(CancellationToken token = default(CancellationToken))
 		{
 			Log.Debug("Starting Greenshot server");
-			await Task.Run(() =>
-			{
-				_host = new ServiceHost(this, new[]
+			return Task.Factory.StartNew(
+				// this will use current synchronization context
+				() =>
 				{
-					new Uri(PipeBaseEndpoint)
-				});
-				var behaviour = _host.Description.Behaviors.Find<ServiceBehaviorAttribute>();
-				behaviour.InstanceContextMode = InstanceContextMode.Single;
-				_host.AddServiceEndpoint(typeof (IGreenshotContract), new NetNamedPipeBinding(), EndPoint);
-				_host.Open();
-			}, token).ConfigureAwait(false);
-			Log.Debug("Started Greenshot server");
+					try
+					{
+						_host = new ServiceHost(this, new[] { new Uri(PipeBaseEndpoint) });
+						Log.Debug("Starting Greenshot server with endpoints:");
+
+						// Add ServiceMetadataBehavior
+						_host.Description.Behaviors.Add(new ServiceMetadataBehavior { HttpsGetEnabled = false });
+
+						// Our IGreenshotContract endpoint:
+						var serviceEndpointGreenshotContract = _host.AddServiceEndpoint(typeof(IGreenshotContract), new NetNamedPipeBinding(), EndPoint);
+						Log.Debug("Added endpoint: address=\"{4:l}\", contract=\"{0:l}\", contractNamespace=\"{1:l}\", binding=\"{2:l}_{0:l}\", bindingNamespace=\"{3:l}\"", serviceEndpointGreenshotContract.Contract.Name, serviceEndpointGreenshotContract.Contract.Namespace, serviceEndpointGreenshotContract.Binding.Name, serviceEndpointGreenshotContract.Binding.Namespace, serviceEndpointGreenshotContract.ListenUri.AbsoluteUri);
+
+						// Add error / request logging
+						serviceEndpointGreenshotContract.EndpointBehaviors.Add(this);
+
+						// The MetadataExchangeBindings endpoint
+						var serviceEndpointMex = _host.AddServiceEndpoint(ServiceMetadataBehavior.MexContractName, MetadataExchangeBindings.CreateMexNamedPipeBinding(), EndPoint + "/mex");
+						Log.Debug("Added endpoint: address=\"{4}\", contract=\"{0}\", contractNamespace=\"{1}\", binding=\"{2}\", bindingNamespace=\"{3}\"", serviceEndpointMex.Contract.Name, serviceEndpointMex.Contract.Namespace, serviceEndpointMex.Binding.Name, serviceEndpointMex.Binding.Namespace, serviceEndpointMex.ListenUri.AbsoluteUri);
+						_host.Open();
+						IsStarted = true;
+						Log.Debug("Started Greenshot server");
+					}
+					catch (Exception ex)
+					{
+						Log.Error(ex, "Couldn't create Greenshot server");
+						throw;
+					}
+				},
+				token,
+				TaskCreationOptions.None,
+				TaskScheduler.FromCurrentSynchronizationContext()
+			);
 		}
 
 		/// <summary>
@@ -128,6 +163,62 @@ namespace Greenshot.Services
 			}
 		}
 
+		#endregion
+
+		#region IErrorHandler
+
+		public void ProvideFault(Exception exception, MessageVersion messageVersion, ref Message faultMessage)
+		{
+			Log.Error(exception, faultMessage.ToString());
+		}
+
+		public bool HandleError(Exception error)
+		{
+			return false;
+		}
+		#endregion
+
+		#region IDispatchMessageInspector
+		public object AfterReceiveRequest(ref Message requestMessage, IClientChannel channel, InstanceContext instanceContext)
+		{
+			if (Log.IsEnabled(Serilog.Events.LogEventLevel.Debug))
+			{
+				Log.Debug(requestMessage.ToString());
+			}
+			return null;
+		}
+
+		public void BeforeSendReply(ref Message replyMessage, object correlationState)
+		{
+			if (Log.IsEnabled(Serilog.Events.LogEventLevel.Debug))
+			{
+				Log.Debug(replyMessage.ToString());
+			}
+		}
+
+		#endregion
+
+		#region IEndpointBehavior
+		public void Validate(ServiceEndpoint endpoint)
+		{
+			// Do nothing
+		}
+
+		public void AddBindingParameters(ServiceEndpoint endpoint, BindingParameterCollection bindingParameters)
+		{
+			// Do nothing
+		}
+
+		public void ApplyDispatchBehavior(ServiceEndpoint endpoint, EndpointDispatcher endpointDispatcher)
+		{
+			endpointDispatcher.ChannelDispatcher.ErrorHandlers.Add(this);
+			endpointDispatcher.DispatchRuntime.MessageInspectors.Add(this);
+		}
+
+		public void ApplyClientBehavior(ServiceEndpoint endpoint, ClientRuntime clientRuntime)
+		{
+			// Do nothing
+		}
 		#endregion
 	}
 }

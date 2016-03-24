@@ -24,9 +24,10 @@ using System.ServiceModel;
 namespace Greenshot.Addon.Interfaces
 {
 	/// <summary>
-	/// This interface specifies the interface to Greenshot 1.3+, and is used by Greenshot itself but can also be used from the PowerShell
+	/// This interface specifies the interface to Greenshot 1.3+, and is used by Greenshot itself but can also be used from e.g. PowerShell or VBA
+	/// In fact anything that can talk to WCF...
 	/// </summary>
-	[ServiceContract]
+	[ServiceContract(Namespace = "https://getgreenshot.org")]
 	public interface IGreenshotContract
 	{
 		/// <summary>
