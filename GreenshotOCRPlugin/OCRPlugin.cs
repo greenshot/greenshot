@@ -202,6 +202,9 @@ namespace GreenshotOCR {
 				return null;
 			}
 
+			// For for BUG-1884:
+			text = text.Trim();
+
 			try {
 				LOG.DebugFormat("Pasting OCR Text to Clipboard: {0}", text);
 				// Paste to Clipboard (the Plugin currently doesn't have access to the ClipboardHelper from Greenshot

@@ -40,7 +40,12 @@ namespace GreenshotOCRCommand {
 						modiDocument.OCR(language, orientimage, straightenImage);
 						IImage modiImage = modiDocument.Images[0];
 						ILayout layout = modiImage.Layout;
-						Console.WriteLine(layout.Text);
+						if (layout.Text != null)
+						{
+							// For for BUG-1884:
+							// Although this is done in the OCR Plugin, it does make sense in the command too.
+							Console.WriteLine(layout.Text.Trim());
+						}
 						modiDocument.Close(false);
 						return 0;
 					}
