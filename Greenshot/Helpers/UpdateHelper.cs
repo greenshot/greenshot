@@ -3,7 +3,7 @@
  * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ namespace Greenshot.Experimental {
 		private const string STABLE_DOWNLOAD_LINK = "http://getgreenshot.org/downloads/";
 		private const string VERSION_HISTORY_LINK = "http://getgreenshot.org/version-history/";
 		private static readonly object LockObject = new object();
-		private static SourceforgeFile _latestGreenshot;
+		private static RssFile _latestGreenshot;
 		private static string _downloadLink = STABLE_DOWNLOAD_LINK;
 
 		/// <summary>
@@ -59,7 +59,7 @@ namespace Greenshot.Experimental {
 						return false;
 					}
 					LOG.DebugFormat("Update check is due, last check was {0} check needs to be made after {1} (which is one {2} later)", conf.LastUpdateCheck, checkTime, conf.UpdateCheckInterval);
-					if (!SourceForgeHelper.IsRSSModifiedAfter(conf.LastUpdateCheck)) {
+					if (!RssHelper.IsRSSModifiedAfter(conf.LastUpdateCheck)) {
 						LOG.DebugFormat("RSS feed has not been updated since after {0}", conf.LastUpdateCheck);
 						return false;
 					}
@@ -114,88 +114,62 @@ namespace Greenshot.Experimental {
 
 		private static void ProcessRSSInfo(Version currentVersion) {
 			// Reset latest Greenshot
-			Dictionary<string, Dictionary<string, SourceforgeFile>> rssFiles = SourceForgeHelper.readRSS();
+			IList<RssFile> rssFiles = RssHelper.readRSS();
 
 			if (rssFiles == null) {
 				return;
 			}
 
 			// Retrieve the current and latest greenshot
-			foreach(string fileType in rssFiles.Keys) {
-				foreach(string file in rssFiles[fileType].Keys) {
-					SourceforgeFile rssFile = rssFiles[fileType][file];
-					if (fileType.StartsWith("Greenshot")) {
-						// check for exe
-						if (!rssFile.isExe) {
+			foreach(RssFile rssFile in rssFiles) {
+				if (rssFile.File.StartsWith("Greenshot")) {
+					// check for exe
+					if (!rssFile.isExe) {
+						continue;
+					}
+
+					// do we have a version?
+					if (rssFile.Version == null) {
+						LOG.DebugFormat("Skipping unversioned exe {0} which is published at {1} : {2}", rssFile.File, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
+						continue;
+					}
+
+					// if the file is unstable, we will skip it when:
+					// the current version is a release or release candidate AND check unstable is turned off.
+					if (rssFile.isUnstable) {
+						// Skip if we shouldn't check unstables
+						if ((conf.BuildState == BuildStates.RELEASE) && !conf.CheckForUnstable) {
 							continue;
 						}
+					}
 
-						// do we have a version?
-						if (rssFile.Version == null) {
-							LOG.DebugFormat("Skipping unversioned exe {0} which is published at {1} : {2}", file, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
+					// if the file is a release candidate, we will skip it when:
+					// the current version is a release AND check unstable is turned off.
+					if (rssFile.isReleaseCandidate) {
+						if (conf.BuildState == BuildStates.RELEASE && !conf.CheckForUnstable) {
 							continue;
 						}
+					}
 
-						// if the file is unstable, we will skip it when:
-						// the current version is a release or release candidate AND check unstable is turned off.
-						if (rssFile.isUnstable) {
-							// Skip if we shouldn't check unstables
-							if ((conf.BuildState == BuildStates.RELEASE) && !conf.CheckForUnstable) {
-								continue;
+					// Compare versions
+					int versionCompare = rssFile.Version.CompareTo(currentVersion);
+					if (versionCompare > 0) {
+						LOG.DebugFormat("Found newer Greenshot '{0}' with version {1} published at {2} : {3}", rssFile.File, rssFile.Version, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
+						if (_latestGreenshot == null || rssFile.Version.CompareTo(_latestGreenshot.Version) > 0) {
+							_latestGreenshot = rssFile;
+							if (rssFile.isReleaseCandidate || rssFile.isUnstable) {
+								_downloadLink = VERSION_HISTORY_LINK;
+							} else {
+								_downloadLink = STABLE_DOWNLOAD_LINK;
 							}
 						}
-
-						// if the file is a release candidate, we will skip it when:
-						// the current version is a release AND check unstable is turned off.
-						if (rssFile.isReleaseCandidate) {
-							if (conf.BuildState == BuildStates.RELEASE && !conf.CheckForUnstable) {
-								continue;
-							}
-						}
-
-						// Compare versions
-						int versionCompare = rssFile.Version.CompareTo(currentVersion);
-						if (versionCompare > 0) {
-							LOG.DebugFormat("Found newer Greenshot '{0}' with version {1} published at {2} : {3}", file, rssFile.Version, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
-							if (_latestGreenshot == null || rssFile.Version.CompareTo(_latestGreenshot.Version) > 0) {
-								_latestGreenshot = rssFile;
-								if (rssFile.isReleaseCandidate || rssFile.isUnstable) {
-									_downloadLink = VERSION_HISTORY_LINK;
-								} else {
-									_downloadLink = STABLE_DOWNLOAD_LINK;
-								}
-							}
-						} else if (versionCompare < 0) {
-							LOG.DebugFormat("Skipping older greenshot with version {0}", rssFile.Version);
-						} else if (versionCompare == 0) {
-							LOG.DebugFormat("Found current version as exe {0} with version {1} published at {2} : {3}", file, rssFile.Version, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
-						}
+					} else if (versionCompare < 0) {
+						LOG.DebugFormat("Skipping older greenshot with version {0}", rssFile.Version);
+					} else if (versionCompare == 0) {
+						LOG.DebugFormat("Found current version as exe {0} with version {1} published at {2} : {3}", rssFile.File, rssFile.Version, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
 					}
 				}
 			}
-
-//			// check for language file updates
-//			// Directory to store the language files
-//			string languageFilePath = Path.GetDirectoryName(Language.GetInstance().GetHelpFilePath());
-//			LOG.DebugFormat("Language file path: {0}", languageFilePath);
-//			foreach(string fileType in rssFiles.Keys) {
-//				foreach(string file in rssFiles[fileType].Keys) {
-//					RssFile rssFile = rssFiles[fileType][file];
-//					if (fileType.Equals("Translations")) {
-//						LOG.DebugFormat("Found translation {0} with language {1} published at {2} : {3}", file, rssFile.Language, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
-//						string languageFile = Path.Combine(languageFilePath, file);
-//						if (!File.Exists(languageFile)) {
-//							LOG.DebugFormat("Found not installed language: {0}", rssFile.Language);
-//							// Example to download language files
-//							//string languageFileContent = GreenshotPlugin.Core.NetworkHelper.DownloadFileAsString(new Uri(rssFile.Link), Encoding.UTF8);
-//							//TextWriter writer = new StreamWriter(languageFile, false, Encoding.UTF8);
-//							//LOG.InfoFormat("Writing {0}", languageFile);
-//							//writer.Write(languageFileContent);
-//							//writer.Close();
-//						}
-//					}
-//				}
-//			}
 		}
 	}
 }
