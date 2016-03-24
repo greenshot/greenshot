@@ -21,19 +21,19 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
+using System.Xml.Linq;
 using Dapplo.Config.Ini;
 using Dapplo.HttpExtensions;
+using Dapplo.HttpExtensions.OAuth;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Plugin;
-using Greenshot.Addon.OAuth;
 
 namespace Greenshot.Addon.Flickr
 {
@@ -43,19 +43,14 @@ namespace Greenshot.Addon.Flickr
 	public static class FlickrUtils
 	{
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(FlickrUtils));
-		private static IFlickrConfiguration config = IniConfig.Current.Get<IFlickrConfiguration>();
-		private static readonly Uri FLICKR_API_BASE_URL = new Uri("https://api.flickr.com/services");
-		private static readonly Uri FLICKR_UPLOAD_URI = FLICKR_API_BASE_URL.AppendSegments("upload");
-		// OAUTH
-		private static readonly Uri FLICKR_OAUTH_BASE_URL = FLICKR_API_BASE_URL.AppendSegments("oauth");
-		private static readonly Uri FLICKR_ACCESS_TOKEN_URL = FLICKR_OAUTH_BASE_URL.AppendSegments("access_token");
-		private static readonly Uri FLICKR_AUTHORIZE_URL = FLICKR_OAUTH_BASE_URL.AppendSegments("authorize");
-		private static readonly Uri FLICKR_REQUEST_TOKEN_URL = FLICKR_OAUTH_BASE_URL.AppendSegments("request_token");
-		private const string FLICKR_FARM_URL = "https://farm{0}.staticflickr.com/{1}/{2}_{3}.jpg";
+		private static readonly IFlickrConfiguration Config = IniConfig.Current.Get<IFlickrConfiguration>();
+		private static readonly Uri FlickrApiBaseUrl = new Uri("https://api.flickr.com/services");
+		private static readonly Uri FlickrUploadUri = new Uri("https://up.flickr.com/services/upload");
+		private const string FlickrFarmUrl = "https://farm{0}.staticflickr.com/{1}/{2}_{3}.jpg";
 		// REST
-		private static readonly Uri FLICKR_REST_URL = FLICKR_API_BASE_URL.AppendSegments("rest");
+		private static readonly Uri FlickrRestUrl = FlickrApiBaseUrl.AppendSegments("rest");
 
-		private static readonly Uri FLICKR_GET_INFO_URL = FLICKR_REST_URL.ExtendQuery(new Dictionary<string, object>
+		private static readonly Uri FlickrGetInfoUrl = FlickrRestUrl.ExtendQuery(new Dictionary<string, object>
 		{
 			{
 				"method", "flickr.photos.getInfo"
@@ -75,45 +70,22 @@ namespace Greenshot.Addon.Flickr
 		/// <returns>url to image</returns>
 		public static async Task<string> UploadToFlickrAsync(ICapture surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename, IProgress<int> progress = null, CancellationToken token = default(CancellationToken))
 		{
-			var oAuth = new OAuthSession(config.ClientId, config.ClientSecret);
-			oAuth.BrowserSize = new Size(520, 800);
-			oAuth.CheckVerifier = false;
-			oAuth.AccessTokenUrl = FLICKR_ACCESS_TOKEN_URL;
-			oAuth.AuthorizeUrl = FLICKR_AUTHORIZE_URL;
-			oAuth.RequestTokenUrl = FLICKR_REQUEST_TOKEN_URL;
-			oAuth.LoginTitle = "Flickr authorization";
-			oAuth.Token = config.FlickrToken;
-			oAuth.TokenSecret = config.FlickrTokenSecret;
-			if (string.IsNullOrEmpty(oAuth.Token))
-			{
-				if (!await oAuth.AuthorizeAsync())
-				{
-					return null;
-				}
-				if (!string.IsNullOrEmpty(oAuth.Token))
-				{
-					config.FlickrToken = oAuth.Token;
-				}
-				if (!string.IsNullOrEmpty(oAuth.TokenSecret))
-				{
-					config.FlickrTokenSecret = oAuth.TokenSecret;
-				}
-			}
 			try
 			{
-				IDictionary<string, object> signedParameters = new Dictionary<string, object>();
-				signedParameters.Add("content_type", "2"); // content = screenshot
-				signedParameters.Add("tags", "Greenshot");
-				signedParameters.Add("is_public", config.IsPublic ? "1" : "0");
-				signedParameters.Add("is_friend", config.IsFriend ? "1" : "0");
-				signedParameters.Add("is_family", config.IsFamily ? "1" : "0");
-				signedParameters.Add("safety_level", string.Format("{0}", (int) config.SafetyLevel));
-				signedParameters.Add("hidden", config.HiddenFromSearch ? "1" : "2");
-				signedParameters.Add("format", "json"); // Doesn't work... :(
-				signedParameters.Add("nojsoncallback", "1");
+				var signedParameters = new Dictionary<string, object>
+				{
+					{"content_type", "2"}, // content = screenshot
+					{"tags", "Greenshot"},
+					{"is_public", Config.IsPublic ? "1" : "0"},
+					{"is_friend", Config.IsFriend ? "1" : "0"},
+					{"is_family", Config.IsFamily ? "1" : "0"},
+					{"safety_level", $"{(int) Config.SafetyLevel}"},
+					{"hidden", Config.HiddenFromSearch ? "1" : "2"},
+					{"format", "json"}, // Doesn't work... :(
+					{"nojsoncallback", "1"}
+				};
 
-				var unsignedParameters = new Dictionary<string, object>();
-				string response, photoId;
+				string photoId;
 				using (var stream = new MemoryStream())
 				{
 					ImageOutput.SaveToStream(surfaceToUpload, stream, outputSettings);
@@ -127,9 +99,10 @@ namespace Greenshot.Addon.Flickr
 							{
 								Name = "\"photo\"", FileName = "\"" + filename + "\"",
 							};
-							unsignedParameters.Add("photo", streamContent);
-							response = await oAuth.MakeOAuthRequest(HttpMethod.Post, FLICKR_UPLOAD_URI, FLICKR_UPLOAD_URI, null, signedParameters, unsignedParameters);
-							photoId = GetPhotoId(response);
+							var response = await FlickrUploadUri.OAuth1PostAsync<XDocument>(streamContent, signedParameters, token);
+							photoId = (from element in response.Root.Elements()
+									   where element.Name == "photoid"
+									   select element.Value).First();
 						}
 					}
 				}
@@ -137,63 +110,22 @@ namespace Greenshot.Addon.Flickr
 				// Get Photo Info
 				signedParameters = new Dictionary<string, object>
 				{
-					{
-						"photo_id", photoId
-					},
-					{
-						"format", "json"
-					},
-					{
-						"nojsoncallback", "1"
-					}
+					{"photo_id", photoId},
+					{"format", "json"},
+					{"nojsoncallback", "1"}
 				};
-				response = await oAuth.MakeOAuthRequest(HttpMethod.Post, FLICKR_GET_INFO_URL, FLICKR_GET_INFO_URL, null, signedParameters);
-				dynamic photoInfo = SimpleJson.DeserializeObject(response);
-				if (config.UsePageLink)
+				var photoInfo = await FlickrGetInfoUrl.OAuth1PostAsync<dynamic>(signedParameters, token);
+				if (Config.UsePageLink)
 				{
 					return photoInfo.photo.urls.url[0]._content;
 				}
-				return string.Format(FLICKR_FARM_URL, photoInfo.photo.farm, photoInfo.photo.server, photoId, photoInfo.photo.secret);
+				return string.Format(FlickrFarmUrl, photoInfo.photo.farm, photoInfo.photo.server, photoId, photoInfo.photo.secret);
 			}
 			catch (Exception ex)
 			{
 				Log.Error("Upload error: ", ex);
 				throw;
 			}
-			finally
-			{
-				if (!string.IsNullOrEmpty(oAuth.Token))
-				{
-					config.FlickrToken = oAuth.Token;
-				}
-				if (!string.IsNullOrEmpty(oAuth.TokenSecret))
-				{
-					config.FlickrTokenSecret = oAuth.TokenSecret;
-				}
-			}
-		}
-
-		private static string GetPhotoId(string response)
-		{
-			try
-			{
-				var doc = new XmlDocument();
-				doc.LoadXml(response);
-				var nodes = doc.GetElementsByTagName("photoid");
-				if (nodes.Count > 0)
-				{
-					var xmlNode = nodes.Item(0);
-					if (xmlNode != null)
-					{
-						return xmlNode.InnerText;
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				Log.Error("Error parsing Flickr Response.", ex);
-			}
-			return null;
 		}
 	}
 }

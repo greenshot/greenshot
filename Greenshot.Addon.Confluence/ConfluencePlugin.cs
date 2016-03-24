@@ -25,8 +25,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Addons;
-using Greenshot.Addon.Confluence.Forms;
+using Dapplo.Confluence;
+using Greenshot.Addon.Confluence.Model;
 using Greenshot.Addon.Confluence.Support;
+using Greenshot.Addon.Confluence.Windows;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces.Plugin;
 
@@ -42,6 +44,8 @@ namespace Greenshot.Addon.Confluence
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ConfluencePlugin));
 		private static ConfluenceApi _confluenceApi;
 
+		public static ConfluencePlugin Instance { get; private set; }
+
 		[Import]
 		public IConfluenceConfiguration ConfluenceConfiguration
 		{
@@ -55,6 +59,13 @@ namespace Greenshot.Addon.Confluence
 			get;
 			set;
 		}
+
+		public ConfluenceModel Model
+		{
+			get;
+		} = new ConfluenceModel();
+
+		public static ConfluenceApi ConfluenceAPI => _confluenceApi;
 
 		public void Dispose()
 		{
@@ -73,6 +84,7 @@ namespace Greenshot.Addon.Confluence
 		/// <param name="token"></param>
 		public async Task StartAsync(CancellationToken token = new CancellationToken())
 		{
+			Instance = this;
 			// Register / get the confluence configuration
 			try
 			{
@@ -89,30 +101,34 @@ namespace Greenshot.Addon.Confluence
 			{
 				Log.Information("Loading spaces");
 				// Store the task, so the compiler doesn't complain but do not wait so the task runs in the background
-				var ignoreTask = _confluenceApi.LoadSpacesAsync(token: token).ContinueWith((_) => Log.Information("Finished loading spaces"), token).ConfigureAwait(false);
+				var ignoringTask = _confluenceApi.SpacesAsync(token).ContinueWith(async spacesTask =>
+				{
+					var spaces = await spacesTask;
+					foreach (var space in spaces)
+					{
+						if (Model.Spaces.ContainsKey(space.Key))
+						{
+							Model.Spaces[space.Key] = space;
+						}
+						else
+						{
+							Model.Spaces.Add(space.Key, space);
+						}
+					}
+					Log.Information("Finished loading spaces");
+					return spaces;
+				}, token).ConfigureAwait(false);
 			}
 		}
 
 		public Task ShutdownAsync(CancellationToken token = new CancellationToken())
 		{
 			Log.Debug("Confluence Plugin shutdown.");
-			if (_confluenceApi != null)
-			{
-				_confluenceApi.Dispose();
-				_confluenceApi = null;
-			}
+			_confluenceApi = null;
 			return Task.FromResult(true);
 		}
 
-		public static ConfluenceApi ConfluenceAPI
-		{
-			get
-			{
-				return _confluenceApi;
-			}
-		}
-
-		public async Task<ConfluenceApi> GetConfluenceApi()
+		private async Task<ConfluenceApi> GetConfluenceApi()
 		{
 			ConfluenceApi confluenceApi = null;
 			if (string.IsNullOrEmpty(ConfluenceConfiguration.RestUrl))
@@ -133,7 +149,7 @@ namespace Greenshot.Addon.Confluence
 					try
 					{
 						// Try loading content for id 0, should be null (or something) but not give an exception
-						await confluenceApi.GetContentAsync(1).ConfigureAwait(false);
+						await confluenceApi.ContentAsync("1").ConfigureAwait(false);
 						Log.Debug("Confluence access for User {0} worked", dialog.Name);
 						if (dialog.SaveChecked)
 						{
@@ -144,7 +160,6 @@ namespace Greenshot.Addon.Confluence
 					catch
 					{
 						Log.Debug("Confluence access for User {0} didn't work, probably a wrong password.", dialog.Name);
-						confluenceApi.Dispose();
 						confluenceApi = null;
 						try
 						{
@@ -180,7 +195,7 @@ namespace Greenshot.Addon.Confluence
 				Url = ConfluenceConfiguration.RestUrl
 			};
 
-			ConfluenceConfigurationForm configForm = new ConfluenceConfigurationForm();
+			var configForm = new ConfluenceConfigurationForm();
 			var dialogResult = configForm.ShowDialog();
 			if (!dialogResult.HasValue || !dialogResult.Value)
 			{
@@ -192,7 +207,6 @@ namespace Greenshot.Addon.Confluence
 			};
 			if (!newConfig.Equals(oldConfig))
 			{
-				_confluenceApi.Dispose();
 				_confluenceApi = null;
 			}
 		}

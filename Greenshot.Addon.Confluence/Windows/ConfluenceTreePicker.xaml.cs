@@ -24,17 +24,17 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using Dapplo.Config.Ini;
-using Greenshot.Addon.Confluence.Model;
+using Dapplo.Confluence.Entities;
 
-namespace Greenshot.Addon.Confluence.Forms
+namespace Greenshot.Addon.Confluence.Windows
 {
 	/// <summary>
 	/// Interaction logic for ConfluenceTreePicker.xaml
 	/// </summary>
-	public partial class ConfluenceTreePicker : System.Windows.Controls.Page
+	public partial class ConfluenceTreePicker
 	{
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ConfluenceTreePicker));
-		private static readonly IConfluenceConfiguration config = IniConfig.Current.Get<IConfluenceConfiguration>();
+		private static readonly IConfluenceConfiguration Config = IniConfig.Current.Get<IConfluenceConfiguration>();
 		private readonly ConfluenceUpload _confluenceUpload;
 
 		public ConfluenceTreePicker(ConfluenceUpload confluenceUpload)
@@ -46,12 +46,8 @@ namespace Greenshot.Addon.Confluence.Forms
 		private void pageTreeViewItem_Click(object sender, RoutedEventArgs eventArgs)
 		{
 			Log.Debug("pageTreeViewItem_Click is called!");
-			TreeViewItem clickedItem = sender as TreeViewItem;
-			if (clickedItem == null)
-			{
-				return;
-			}
-			var page = clickedItem.Tag as Content;
+			var clickedItem = sender as TreeViewItem;
+			var page = clickedItem?.Tag as Content;
 			if (page == null)
 			{
 				return;
@@ -64,13 +60,15 @@ namespace Greenshot.Addon.Confluence.Forms
 				Log.Debug("Loading pages for page: " + page.Title);
 				Task.Factory.StartNew(async () =>
 				{
-					var pages = await ConfluencePlugin.ConfluenceAPI.GetChildrenAsync(page.Id);
+					var pages = await ConfluencePlugin.ConfluenceAPI.ChildrenAsync(page.Id);
 					foreach (var childPage in pages)
 					{
 						Log.Debug("Adding page: " + childPage.Title);
-						TreeViewItem pageTreeViewItem = new TreeViewItem();
-						pageTreeViewItem.Header = childPage.Title;
-						pageTreeViewItem.Tag = childPage;
+						var pageTreeViewItem = new TreeViewItem
+						{
+							Header = childPage.Title,
+							Tag = childPage
+						};
 						clickedItem.Items.Add(pageTreeViewItem);
 						pageTreeViewItem.MouseUp += pageTreeViewItem_Click;
 					}
@@ -86,9 +84,9 @@ namespace Greenshot.Addon.Confluence.Forms
 		private void Page_Loaded(object sender, RoutedEventArgs e)
 		{
 			_confluenceUpload.SelectedPage = null;
-			foreach (var space in ConfluencePlugin.ConfluenceAPI.Model.Spaces.Values)
+			foreach (var space in ConfluencePlugin.Instance.Model.Spaces.Values)
 			{
-				if (space.IsPersonal && !config.IncludePersonSpaces)
+				if (space.IsPersonal && !Config.IncludePersonSpaces)
 				{
 					continue;
 				}
@@ -100,14 +98,17 @@ namespace Greenshot.Addon.Confluence.Forms
 				ConfluenceTreeView.Items.Add(spaceTreeViewItem);
 
 				// Get homepage, in background
+				// ReSharper disable once UnusedVariable
 				var loadPageTask = Task.Factory.StartNew(async () =>
 				{
-					var page = await ConfluencePlugin.ConfluenceAPI.GetContentAsync(space.ContentId);
+					var page = await ConfluencePlugin.ConfluenceAPI.ContentAsync(space.Id);
 					if (page != null)
 					{
-						var pageTreeViewItem = new TreeViewItem();
-						pageTreeViewItem.Header = page.Title;
-						pageTreeViewItem.Tag = page;
+						var pageTreeViewItem = new TreeViewItem
+						{
+							Header = page.Title,
+							Tag = page
+						};
 						pageTreeViewItem.MouseUp += pageTreeViewItem_Click;
 						spaceTreeViewItem.Items.Add(pageTreeViewItem);
 					}

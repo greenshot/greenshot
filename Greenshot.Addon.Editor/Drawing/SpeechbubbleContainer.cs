@@ -101,15 +101,15 @@ namespace Greenshot.Addon.Editor.Drawing
 		/// <returns>base.HandleMouseMove</returns>
 		public override bool HandleMouseMove(int x, int y)
 		{
-			bool returnValue = base.HandleMouseMove(x, y);
+			var returnValue = base.HandleMouseMove(x, y);
 
-			bool leftAligned = _boundsAfterResize.Right - _boundsAfterResize.Left >= 0;
-			bool topAligned = _boundsAfterResize.Bottom - _boundsAfterResize.Top >= 0;
+			var leftAligned = _boundsAfterResize.Right - _boundsAfterResize.Left >= 0;
+			var topAligned = _boundsAfterResize.Bottom - _boundsAfterResize.Top >= 0;
 
-			int xOffset = leftAligned ? -20 : 20;
-			int yOffset = topAligned ? -20 : 20;
+			var xOffset = leftAligned ? -20 : 20;
+			var yOffset = topAligned ? -20 : 20;
 
-			Point newGripperLocation = _initialGripperPoint;
+			var newGripperLocation = _initialGripperPoint;
 			newGripperLocation.Offset(xOffset, yOffset);
 
 			if (TargetGripper.Location != newGripperLocation)
@@ -130,10 +130,10 @@ namespace Greenshot.Addon.Editor.Drawing
 			{
 				if (Status != EditStatus.UNDRAWN)
 				{
-					using (Pen pen = new Pen(_lineColor, _lineThickness))
+					using (var pen = new Pen(_lineColor, _lineThickness))
 					{
-						int inflateValue = _lineThickness + 2 + (_shadow ? 6 : 0);
-						using (GraphicsPath tailPath = CreateTail())
+						var inflateValue = _lineThickness + 2 + (_shadow ? 6 : 0);
+						using (var tailPath = CreateTail())
 						{
 							return Rectangle.Inflate(Rectangle.Union(Rectangle.Round(tailPath.GetBounds(new Matrix(), pen)), new Rectangle(Left, Top, Width, Height).MakeGuiRectangle()), inflateValue, inflateValue);
 						}
@@ -150,13 +150,13 @@ namespace Greenshot.Addon.Editor.Drawing
 		/// <returns></returns>
 		private GraphicsPath CreateBubble(int lineThickness)
 		{
-			GraphicsPath bubble = new GraphicsPath();
-			Rectangle rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
+			var bubble = new GraphicsPath();
+			var rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
 
-			Rectangle bubbleRect = new Rectangle(0, 0, rect.Width, rect.Height).MakeGuiRectangle();
+			var bubbleRect = new Rectangle(0, 0, rect.Width, rect.Height).MakeGuiRectangle();
 			// adapt corner radius to small rectangle dimensions
-			int smallerSideLength = Math.Min(bubbleRect.Width, bubbleRect.Height);
-			int cornerRadius = Math.Min(30, smallerSideLength/2 - lineThickness);
+			var smallerSideLength = Math.Min(bubbleRect.Width, bubbleRect.Height);
+			var cornerRadius = Math.Min(30, smallerSideLength/2 - lineThickness);
 			if (cornerRadius > 0)
 			{
 				bubble.AddArc(bubbleRect.X, bubbleRect.Y, cornerRadius, cornerRadius, 180, 90);
@@ -169,7 +169,7 @@ namespace Greenshot.Addon.Editor.Drawing
 				bubble.AddRectangle(bubbleRect);
 			}
 			bubble.CloseAllFigures();
-			using (Matrix bubbleMatrix = new Matrix())
+			using (var bubbleMatrix = new Matrix())
 			{
 				bubbleMatrix.Translate(rect.Left, rect.Top);
 				bubble.Transform(bubbleMatrix);
@@ -183,23 +183,23 @@ namespace Greenshot.Addon.Editor.Drawing
 		/// <returns></returns>
 		private GraphicsPath CreateTail()
 		{
-			Rectangle rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
+			var rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
 
-			int tailLength = GeometryHelper.Distance2D(rect.Left + (rect.Width/2), rect.Top + (rect.Height/2), TargetGripper.Left, TargetGripper.Top);
-			int tailWidth = (Math.Abs(rect.Width) + Math.Abs(rect.Height))/20;
+			var tailLength = GeometryHelper.Distance2D(rect.Left + (rect.Width/2), rect.Top + (rect.Height/2), TargetGripper.Left, TargetGripper.Top);
+			var tailWidth = (Math.Abs(rect.Width) + Math.Abs(rect.Height))/20;
 
 			// This should fix a problem with the tail being to wide
 			tailWidth = Math.Min(Math.Abs(rect.Width)/2, tailWidth);
 			tailWidth = Math.Min(Math.Abs(rect.Height)/2, tailWidth);
 
-			GraphicsPath tail = new GraphicsPath();
+			var tail = new GraphicsPath();
 			tail.AddLine(-tailWidth, 0, tailWidth, 0);
 			tail.AddLine(tailWidth, 0, 0, -tailLength);
 			tail.CloseFigure();
 
-			int tailAngle = 90 + (int) GeometryHelper.Angle2D(rect.Left + (rect.Width/2), rect.Top + (rect.Height/2), TargetGripper.Left, TargetGripper.Top);
+			var tailAngle = 90 + (int) GeometryHelper.Angle2D(rect.Left + (rect.Width/2), rect.Top + (rect.Height/2), TargetGripper.Left, TargetGripper.Top);
 
-			using (Matrix tailMatrix = new Matrix())
+			using (var tailMatrix = new Matrix())
 			{
 				tailMatrix.Translate(rect.Left + (rect.Width/2), rect.Top + (rect.Height/2));
 				tailMatrix.Rotate(tailAngle);
@@ -226,41 +226,60 @@ namespace Greenshot.Addon.Editor.Drawing
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
 			graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
 
-			bool lineVisible = (_lineThickness > 0 && ColorHelper.IsVisible(_lineColor));
-			Rectangle rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
+			var lineVisible = (_lineThickness > 0 && ColorHelper.IsVisible(_lineColor));
+			var rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
 
 			if (Selected && renderMode == RenderMode.EDIT)
 			{
 				DrawSelectionBorder(graphics, rect);
 			}
 
-			GraphicsPath bubble = CreateBubble(_lineThickness);
+			var bubble = CreateBubble(_lineThickness);
 
-			GraphicsPath tail = CreateTail();
+			var tail = CreateTail();
 
 			//draw shadow first
 			if (_shadow && (lineVisible || ColorHelper.IsVisible(_fillColor)))
 			{
 				const int basealpha = 100;
-				int alpha = basealpha;
+				var alpha = basealpha;
 				const int steps = 5;
-				int currentStep = lineVisible ? 1 : 0;
-				using (Matrix shadowMatrix = new Matrix())
+				var currentStep = lineVisible ? 1 : 0;
+				using (var shadowMatrix = new Matrix())
 				{
-					using (GraphicsPath bubbleClone = (GraphicsPath) bubble.Clone())
+					using (var bubbleClone = (GraphicsPath) bubble.Clone())
+					using (var bubbleClipRegion = new Region(bubbleClone))
 					{
-						using (GraphicsPath tailClone = (GraphicsPath) tail.Clone())
+						using (var tailClone = (GraphicsPath) tail.Clone())
+						using (var tailClipRegion = new Region(tailClone))
 						{
 							shadowMatrix.Translate(1, 1);
 							while (currentStep <= steps)
 							{
-								using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100)))
+								using (var shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100)))
 								{
 									shadowPen.Width = lineVisible ? _lineThickness : 1;
+									// make sure we can restore to a state before the exclude clip
+									var stateBeforeClip = graphics.Save();
+									// Set the bubble as the exclude clip region, so we can draw the tail shadow
+									graphics.ExcludeClip(bubbleClipRegion);
+
 									tailClone.Transform(shadowMatrix);
 									graphics.DrawPath(shadowPen, tailClone);
+
+									// Restore, so the clipping is gone
+									graphics.Restore(stateBeforeClip);
+
+									// make sure we can restore to a state before the exclude clip
+									stateBeforeClip = graphics.Save();
+
+									// Set the bubble as the exclude clip region, so we can draw the tail shadow
+									graphics.ExcludeClip(tailClipRegion);
 									bubbleClone.Transform(shadowMatrix);
 									graphics.DrawPath(shadowPen, bubbleClone);
+
+									// Restore, so the clipping is gone
+									graphics.Restore(stateBeforeClip);
 								}
 								currentStep++;
 								alpha = alpha - (basealpha/steps);
@@ -270,12 +289,12 @@ namespace Greenshot.Addon.Editor.Drawing
 				}
 			}
 
-			GraphicsState state = graphics.Save();
+			var state = graphics.Save();
 			// draw the tail border where the bubble is not visible
-			using (Region clipRegion = new Region(bubble))
+			using (var clipRegion = new Region(bubble))
 			{
 				graphics.SetClip(clipRegion, CombineMode.Exclude);
-				using (Pen pen = new Pen(_lineColor, _lineThickness))
+				using (var pen = new Pen(_lineColor, _lineThickness))
 				{
 					graphics.DrawPath(pen, tail);
 				}
@@ -298,10 +317,10 @@ namespace Greenshot.Addon.Editor.Drawing
 				//draw the bubble border
 				state = graphics.Save();
 				// Draw bubble where the Tail is not visible.
-				using (Region clipRegion = new Region(tail))
+				using (var clipRegion = new Region(tail))
 				{
 					graphics.SetClip(clipRegion, CombineMode.Exclude);
-					using (Pen pen = new Pen(_lineColor, _lineThickness))
+					using (var pen = new Pen(_lineColor, _lineThickness))
 					{
 						//pen.EndCap = pen.StartCap = LineCap.Round;
 						graphics.DrawPath(pen, bubble);
@@ -336,12 +355,12 @@ namespace Greenshot.Addon.Editor.Drawing
 			{
 				return true;
 			}
-			Point clickedPoint = new Point(x, y);
+			var clickedPoint = new Point(x, y);
 			if (Status != EditStatus.UNDRAWN)
 			{
-				using (Pen pen = new Pen(_lineColor, _lineThickness))
+				using (var pen = new Pen(_lineColor, _lineThickness))
 				{
-					using (GraphicsPath bubblePath = CreateBubble(_lineThickness))
+					using (var bubblePath = CreateBubble(_lineThickness))
 					{
 						bubblePath.Widen(pen);
 						if (bubblePath.IsVisible(clickedPoint))
@@ -349,7 +368,7 @@ namespace Greenshot.Addon.Editor.Drawing
 							return true;
 						}
 					}
-					using (GraphicsPath tailPath = CreateTail())
+					using (var tailPath = CreateTail())
 					{
 						tailPath.Widen(pen);
 						if (tailPath.IsVisible(clickedPoint))

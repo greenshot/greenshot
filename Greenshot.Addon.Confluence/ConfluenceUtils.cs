@@ -21,11 +21,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Automation;
-using Greenshot.Addon.Confluence.Model;
+using Dapplo.Confluence.Entities;
 using Greenshot.Addon.Core;
 
 namespace Greenshot.Addon.Confluence
@@ -36,14 +37,14 @@ namespace Greenshot.Addon.Confluence
 	public class ConfluenceUtils
 	{
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ConfluenceUtils));
-		private static readonly Regex pageIdRegex = new Regex(@"pageId=(\d+)", RegexOptions.Compiled);
-		private static readonly Regex displayRegex = new Regex(@"\/display\/([^\/]+)\/([^#]+)", RegexOptions.Compiled);
-		private static readonly Regex viewPageRegex = new Regex(@"pages\/viewpage.action\?title=(.+)&spaceKey=(.+)", RegexOptions.Compiled);
+		private static readonly Regex PageIdRegex = new Regex(@"pageId=(\d+)", RegexOptions.Compiled);
+		private static readonly Regex DisplayRegex = new Regex(@"\/display\/([^\/]+)\/([^#]+)", RegexOptions.Compiled);
+		private static readonly Regex ViewPageRegex = new Regex(@"pages\/viewpage.action\?title=(.+)&spaceKey=(.+)", RegexOptions.Compiled);
 
 		public static async Task<IList<Content>> GetCurrentPages(CancellationToken token = default(CancellationToken))
 		{
 			IList<Content> pages = new List<Content>();
-			var browserUrls = await Task.Factory.StartNew(() => GetBrowserUrls());
+			var browserUrls = await Task.Factory.StartNew(() => GetBrowserUrls(), token);
 			foreach (string browserurl in GetBrowserUrls())
 			{
 				string url;
@@ -56,14 +57,10 @@ namespace Greenshot.Addon.Confluence
 					Log.Warning("Error processing URL: {0}", browserurl);
 					continue;
 				}
-				MatchCollection pageIdMatch = pageIdRegex.Matches(url);
+				var pageIdMatch = PageIdRegex.Matches(url);
 				if (pageIdMatch.Count > 0)
 				{
-					long contentId;
-					if (!long.TryParse(pageIdMatch[0].Groups[1].Value, out contentId))
-					{
-						continue;
-					}
+					string contentId = pageIdMatch[0].Groups[1].Value;
 					try
 					{
 						bool pageDouble = false;
@@ -78,7 +75,7 @@ namespace Greenshot.Addon.Confluence
 						}
 						if (!pageDouble)
 						{
-							var page = await ConfluencePlugin.ConfluenceAPI.GetContentAsync(contentId, token: token).ConfigureAwait(false);
+							var page = await ConfluencePlugin.ConfluenceAPI.ContentAsync(contentId, token).ConfigureAwait(false);
 							Log.Debug("Adding page {0}", page.Title);
 							pages.Add(page);
 						}
@@ -90,7 +87,7 @@ namespace Greenshot.Addon.Confluence
 						Log.Warning(ex, "Couldn't get page details for PageID {0}", contentId);
 					}
 				}
-				MatchCollection spacePageMatch = displayRegex.Matches(url);
+				MatchCollection spacePageMatch = DisplayRegex.Matches(url);
 				if (spacePageMatch.Count > 0)
 				{
 					if (spacePageMatch[0].Groups.Count >= 2)
@@ -115,9 +112,13 @@ namespace Greenshot.Addon.Confluence
 							}
 							if (!pageDouble)
 							{
-								var content = await ConfluencePlugin.ConfluenceAPI.SearchPageAsync(space, title, token).ConfigureAwait(false);
-								Log.Debug("Adding page {0}", content.Title);
-								pages.Add(content);
+								var contentList = await ConfluencePlugin.ConfluenceAPI.ContentByTitleAsync(space, title, 0, 20, token).ConfigureAwait(false);
+								if (contentList != null && contentList.Results.Count > 0)
+								{
+									var content = contentList.Results.First();
+									Log.Debug("Adding page {0}", content.Title);
+									pages.Add(content);
+								}
 							}
 							continue;
 						}
@@ -128,7 +129,7 @@ namespace Greenshot.Addon.Confluence
 						}
 					}
 				}
-				MatchCollection viewPageMatch = viewPageRegex.Matches(url);
+				var viewPageMatch = ViewPageRegex.Matches(url);
 				if (viewPageMatch.Count > 0)
 				{
 					if (viewPageMatch[0].Groups.Count >= 2)
@@ -153,9 +154,10 @@ namespace Greenshot.Addon.Confluence
 							}
 							if (!pageDouble)
 							{
-								var content = await ConfluencePlugin.ConfluenceAPI.SearchPageAsync(space, title, token).ConfigureAwait(false);
-								if (content != null)
+								var contentList = await ConfluencePlugin.ConfluenceAPI.ContentByTitleAsync(space, title, 0, 20, token).ConfigureAwait(false);
+								if (contentList != null && contentList.Results.Count > 0)
 								{
+									var content = contentList.Results.First();
 									Log.Debug("Adding page {0}", content.Title);
 									pages.Add(content);
 								}

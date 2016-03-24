@@ -19,15 +19,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Addon.OAuth
+using System.Windows;
+using Dapplo.Config.Ini;
+
+namespace Greenshot.Addon.Confluence.Windows
 {
 	/// <summary>
-	/// Provides a predefined set of algorithms that are supported officially by the OAuth 1.x protocol
+	/// Interaction logic for ConfluenceConfigurationForm.xaml
 	/// </summary>
-	public enum OAuthSignatureTypes
+	public partial class ConfluenceConfigurationForm : Window
 	{
-		HMACSHA1,
-		PLAINTEXT,
-		RSASHA1
+		private static IConfluenceConfiguration config = IniConfig.Current.Get<IConfluenceConfiguration>();
+
+		public ConfluenceConfigurationForm()
+		{
+			this.DataContext = config;
+			InitializeComponent();
+		}
+
+		private void Button_OK_Click(object sender, RoutedEventArgs e)
+		{
+			DialogResult = true;
+		}
 	}
 }

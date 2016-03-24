@@ -22,60 +22,60 @@
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using Greenshot.Addon.Confluence.Model;
+using Dapplo.Confluence.Entities;
 
-namespace Greenshot.Addon.Confluence.Forms
+namespace Greenshot.Addon.Confluence.Windows
 {
 	/// <summary>
 	/// Interaction logic for ConfluenceUpload.xaml
 	/// </summary>
 	public partial class ConfluenceUpload : Window
 	{
-		private Page pickerPage = null;
+		private Page _pickerPage;
 
 		public Page PickerPage
 		{
 			get
 			{
-				if (pickerPage == null)
+				if (_pickerPage == null)
 				{
 					// TODO: Do not run async code from synchronous code
 					var pages = Task.Run(async () => await ConfluenceUtils.GetCurrentPages()).Result;
 					if (pages != null && pages.Count > 0)
 					{
-						pickerPage = new ConfluencePagePicker(this, pages);
+						_pickerPage = new ConfluencePagePicker(this, pages);
 					}
 				}
-				return pickerPage;
+				return _pickerPage;
 			}
 		}
 
-		private Page browsePage = null;
+		private Page _browsePage;
 
 		public Page BrowsePage
 		{
 			get
 			{
-				if (browsePage == null)
+				if (_browsePage == null)
 				{
-					browsePage = new ConfluenceTreePicker(this);
+					_browsePage = new ConfluenceTreePicker(this);
 				}
-				return browsePage;
+				return _browsePage;
 			}
 		}
 
-		private Content selectedPage = null;
+		private Content _selectedPage;
 
 		public Content SelectedPage
 		{
 			get
 			{
-				return selectedPage;
+				return _selectedPage;
 			}
 			set
 			{
-				selectedPage = value;
-				if (selectedPage != null)
+				_selectedPage = value;
+				if (_selectedPage != null)
 				{
 					Upload.IsEnabled = true;
 				}
@@ -83,11 +83,11 @@ namespace Greenshot.Addon.Confluence.Forms
 				{
 					Upload.IsEnabled = false;
 				}
-				isOpenPageSelected = false;
+				IsOpenPageSelected = false;
 			}
 		}
 
-		public bool isOpenPageSelected
+		public bool IsOpenPageSelected
 		{
 			get;
 			set;

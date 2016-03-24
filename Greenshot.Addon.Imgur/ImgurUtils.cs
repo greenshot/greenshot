@@ -31,7 +31,6 @@ using Dapplo.Config.Ini;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.Factory;
 using Dapplo.HttpExtensions.OAuth;
-using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Plugin;
@@ -44,17 +43,14 @@ namespace Greenshot.Addon.Imgur
 	public static class ImgurUtils
 	{
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ImgurUtils));
-		private static readonly INetworkConfiguration NetworkConfig = IniConfig.Current.Get<INetworkConfiguration>();
-		private static readonly IImgurConfiguration config = IniConfig.Current.Get<IImgurConfiguration>();
-		private static readonly Uri IMGUR_IMAGES_URI = new Uri("http://api.imgur.com/2/account/images.json");
-		private const string PAGE_URL_PATTERN = "http://imgur.com/{0}";
-		private const string IMAGE_URL_PATTERN = "http://i.imgur.com/{0}.png";
-		private const string SMALL_URL_PATTERN = "http://i.imgur.com/{0}s.png";
+		private static readonly IImgurConfiguration Config = IniConfig.Current.Get<IImgurConfiguration>();
+		private const string PageUrlPattern = "http://imgur.com/{0}";
+		private const string SmallUrlPattern = "http://i.imgur.com/{0}s.png";
 		private static readonly HttpBehaviour Behaviour = new HttpBehaviour
 		{
-			OnHttpClientCreated = (httpClient) =>
+			OnHttpClientCreated = httpClient =>
 			{
-				httpClient.SetAuthorization("Client-ID", config.ClientId);
+				httpClient.SetAuthorization("Client-ID", Config.ClientId);
 				httpClient.DefaultRequestHeaders.ExpectContinue = false;
 			}
 		};
@@ -72,7 +68,7 @@ namespace Greenshot.Addon.Imgur
 		public static async Task<ImageInfo> AuthenticatedUploadToImgurAsync(OAuth2Settings oAuth2Settings, ICapture surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, IProgress<int> progress, CancellationToken token = default(CancellationToken))
 		{
 			dynamic imageJson;
-			var uploadUri = new Uri(config.ApiUrl).AppendSegments("upload.json").ExtendQuery(otherParameters);
+			var uploadUri = new Uri(Config.ApiUrl).AppendSegments("upload.json").ExtendQuery(otherParameters);
 
 			var oauthHttpBehaviour = OAuth2HttpBehaviourFactory.Create(oAuth2Settings, Behaviour);
 
@@ -96,7 +92,7 @@ namespace Greenshot.Addon.Imgur
 
 		private static async Task<ImageInfo> AnnonymousUploadToImgurAsync(ICapture surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, IProgress<int> progress, CancellationToken token = default(CancellationToken))
 		{
-			var uploadUri = new Uri(config.ApiUrl).AppendSegments("upload.json").ExtendQuery(otherParameters);
+			var uploadUri = new Uri(Config.ApiUrl).AppendSegments("upload.json").ExtendQuery(otherParameters);
 			dynamic imageJson;
 			using (var imageStream = new MemoryStream())
 			{
@@ -119,6 +115,7 @@ namespace Greenshot.Addon.Imgur
 		/// Do the actual upload to Imgur
 		/// For more details on the available parameters, see: http://api.imgur.com/resources_anon
 		/// </summary>
+		/// <param name="oAuth2Settings"></param>
 		/// <param name="surfaceToUpload">ISurface to upload</param>
 		/// <param name="outputSettings">OutputSettings for the image file format</param>
 		/// <param name="title">Title</param>
@@ -130,17 +127,17 @@ namespace Greenshot.Addon.Imgur
 		{
 			IDictionary<string, string> otherParameters = new Dictionary<string, string>();
 			// add title
-			if (title != null && config.AddTitle)
+			if (title != null && Config.AddTitle)
 			{
 				otherParameters.Add("title", title);
 			}
 			// add filename
-			if (filename != null && config.AddFilename)
+			if (filename != null && Config.AddFilename)
 			{
 				otherParameters.Add("name", filename);
 			}
 			ImageInfo imageInfo;
-			if (config.AnonymousAccess)
+			if (Config.AnonymousAccess)
 			{
 				imageInfo = await AnnonymousUploadToImgurAsync(surfaceToUpload, outputSettings, otherParameters, progress, token).ConfigureAwait(false);
 			}
@@ -149,10 +146,10 @@ namespace Greenshot.Addon.Imgur
 				imageInfo = await AuthenticatedUploadToImgurAsync(oAuth2Settings, surfaceToUpload, outputSettings, otherParameters, progress, token).ConfigureAwait(false);
 			}
 
-			if (imageInfo != null && config.TrackHistory)
+			if (imageInfo != null && Config.TrackHistory)
 			{
-				config.ImgurUploadHistory.Add(imageInfo.Id, imageInfo.DeleteHash);
-				config.RuntimeImgurHistory.Add(imageInfo.Id, imageInfo);
+				Config.ImgurUploadHistory.Add(imageInfo.Id, imageInfo.DeleteHash);
+				Config.RuntimeImgurHistory.Add(imageInfo.Id, imageInfo);
 				using (var tmpImage = surfaceToUpload.GetImageForExport())
 				{
 					imageInfo.Image = ImageHelper.CreateThumbnail(tmpImage, 90, 90);
@@ -201,7 +198,7 @@ namespace Greenshot.Addon.Imgur
 		/// <returns>ImgurInfo</returns>
 		public static async Task<ImageInfo> RetrieveImgurInfoAsync(string id, string deleteHash, CancellationToken token = default(CancellationToken))
 		{
-			var imageUri = new Uri(string.Format(config.ApiUrl + "/image/{0}.json", id));
+			var imageUri = new Uri(string.Format(Config.ApiUrl + "/image/{0}.json", id));
 			Log.Information("Retrieving Imgur info for {0} with url {1}", id, imageUri);
 
 			dynamic imageJson;
@@ -250,8 +247,8 @@ namespace Greenshot.Addon.Imgur
 					Title = data.ContainsKey("title") ? data.title : null,
 					Timestamp = data.ContainsKey("datetime") ? FromUnixTime(data.datetime) : default(DateTimeOffset),
 					Original = data.ContainsKey("link") ? new Uri(data.link) : null,
-					Page = data.ContainsKey("id") ? new Uri(string.Format(PAGE_URL_PATTERN, data.id)) : null,
-					SmallSquare = data.ContainsKey("id") ? new Uri(string.Format(SMALL_URL_PATTERN, data.id)) : null
+					Page = data.ContainsKey("id") ? new Uri(string.Format(PageUrlPattern, data.id)) : null,
+					SmallSquare = data.ContainsKey("id") ? new Uri(string.Format(SmallUrlPattern, data.id)) : null
 				};
 				if (string.IsNullOrEmpty(imageInfo.DeleteHash))
 				{
@@ -269,7 +266,7 @@ namespace Greenshot.Addon.Imgur
 		public static async Task<string> DeleteImgurImageAsync(ImageInfo imgurInfo, CancellationToken token = default(CancellationToken))
 		{
 			Log.Information("Deleting Imgur image for {0}", imgurInfo.DeleteHash);
-			Uri deleteUri = new Uri(string.Format(config.ApiUrl + "/image/{0}", imgurInfo.DeleteHash));
+			Uri deleteUri = new Uri(string.Format(Config.ApiUrl + "/image/{0}", imgurInfo.DeleteHash));
 			string responseString;
 			Behaviour.MakeCurrent();
 			using (var client = HttpClientFactory.Create(deleteUri))
@@ -283,8 +280,8 @@ namespace Greenshot.Addon.Imgur
 				Log.Information("Delete result: {0}", responseString);
 			}
 			// Make sure we remove it from the history, if no error occured
-			config.RuntimeImgurHistory.Remove(imgurInfo.Id);
-			config.ImgurUploadHistory.Remove(imgurInfo.Id);
+			Config.RuntimeImgurHistory.Remove(imgurInfo.Id);
+			Config.ImgurUploadHistory.Remove(imgurInfo.Id);
 
 			// dispose is called inside the imgurInfo object
 			imgurInfo.Image = null;
@@ -297,7 +294,7 @@ namespace Greenshot.Addon.Imgur
 		/// <param name="token"></param>
 		public static async Task RetrieveImgurCredits(CancellationToken token = default(CancellationToken))
 		{
-			var creditsUri = new Uri(string.Format("{0}/credits.json", config.ApiUrl));
+			var creditsUri = new Uri(string.Format("{0}/credits.json", Config.ApiUrl));
 			Behaviour.MakeCurrent();
 			using (var client = HttpClientFactory.Create(creditsUri))
 			{
@@ -318,7 +315,7 @@ namespace Greenshot.Addon.Imgur
 						credits = Math.Min(credits, (int)data.UserRemaining);
 						Log.Information("{0}={1}", "UserRemaining", (int)data.UserRemaining);
 					}
-					config.Credits = credits;
+					Config.Credits = credits;
 				}
 			}
 		}

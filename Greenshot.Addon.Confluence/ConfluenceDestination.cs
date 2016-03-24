@@ -31,9 +31,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using Dapplo.Confluence.Entities;
 using Dapplo.HttpExtensions;
-using Greenshot.Addon.Confluence.Forms;
-using Greenshot.Addon.Confluence.Model;
+using Greenshot.Addon.Confluence.Windows;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
@@ -167,7 +167,7 @@ namespace Greenshot.Addon.Confluence
 								{
 									streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
 									multipartFormDataContent.Add(streamContent, "file", filename);
-									return await confluenceApi.AttachToContentAsync(page.Id, multipartFormDataContent, pleaseWaitToken);
+									return await confluenceApi.AttachAsync(page.Id, multipartFormDataContent, pleaseWaitToken);
 								}
 							}
 						}

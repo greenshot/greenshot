@@ -20,22 +20,22 @@
  */
 
 using System.Collections.Generic;
-using Greenshot.Addon.Confluence.Model;
+using Dapplo.Confluence.Entities;
 
-namespace Greenshot.Addon.Confluence.Forms
+namespace Greenshot.Addon.Confluence.Windows
 {
 	/// <summary>
 	/// Interaction logic for ConfluencePagePicker.xaml
 	/// </summary>
-	public partial class ConfluencePagePicker : System.Windows.Controls.Page
+	public partial class ConfluencePagePicker
 	{
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ConfluencePagePicker));
-		private ConfluenceUpload confluenceUpload = null;
+		private readonly ConfluenceUpload _confluenceUpload;
 
 		public ConfluencePagePicker(ConfluenceUpload confluenceUpload, IList<Content> pagesToPick)
 		{
-			this.confluenceUpload = confluenceUpload;
-			this.DataContext = pagesToPick;
+			_confluenceUpload = confluenceUpload;
+			DataContext = pagesToPick;
 			InitializeComponent();
 		}
 
@@ -48,13 +48,13 @@ namespace Greenshot.Addon.Confluence.Forms
 		{
 			if (PageListView.HasItems && PageListView.SelectedItems.Count > 0)
 			{
-				confluenceUpload.SelectedPage = (Content) PageListView.SelectedItem;
+				_confluenceUpload.SelectedPage = (Content) PageListView.SelectedItem;
 				// Make sure the uploader knows we selected an already opened page
-				confluenceUpload.isOpenPageSelected = true;
+				_confluenceUpload.IsOpenPageSelected = true;
 			}
 			else
 			{
-				confluenceUpload.SelectedPage = null;
+				_confluenceUpload.SelectedPage = null;
 			}
 		}
 
