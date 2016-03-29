@@ -20,7 +20,7 @@
  */
 
 using System.ComponentModel;
-using Dapplo.Config.Proxy;
+using Dapplo.Config.Interfaces;
 
 namespace Greenshot.Addon.Configuration
 {

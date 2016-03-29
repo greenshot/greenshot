@@ -21,7 +21,7 @@
 
 using System.ComponentModel;
 using Dapplo.Config.Ini;
-using Dapplo.Config.Proxy;
+using Dapplo.Config.Interfaces;
 using Dapplo.HttpExtensions;
 
 namespace Greenshot.Addon.Configuration

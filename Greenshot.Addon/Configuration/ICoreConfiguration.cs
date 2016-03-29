@@ -27,7 +27,7 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 using Dapplo.Config.Ini;
-using Dapplo.Config.Proxy;
+using Dapplo.Config.Interfaces;
 using Greenshot.Addon.Core;
 
 namespace Greenshot.Addon.Configuration
@@ -64,7 +64,7 @@ namespace Greenshot.Addon.Configuration
 		IUiConfiguration, ICaptureConfiguration, IMiscConfiguration,
 		IUpdateConfiguration, IHotkeyConfiguration,
 		// Ini-Framework
-		IIniSection<ICoreConfiguration>, INotifyPropertyChanged, ITagging<ICoreConfiguration>
+		IIniSection<ICoreConfiguration>, INotifyPropertyChanged, ITagging<ICoreConfiguration>, IWriteProtectProperties<ICoreConfiguration>
 	{
 		[Description("Which destinations? Possible options (more might be added by plugins) are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail, Picker"), DefaultValue("Picker")]
 		IList<string> OutputDestinations

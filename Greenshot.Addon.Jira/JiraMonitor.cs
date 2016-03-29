@@ -27,6 +27,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Config.Ini;
 using Dapplo.Jira;
+using Dapplo.Jira.Entities;
 using Dapplo.Windows;
 using Greenshot.Addon.Configuration;
 
@@ -45,6 +46,7 @@ namespace Greenshot.Addon.Jira
 		private readonly WindowsTitleMonitor _monitor;
 		private readonly IList<JiraApi> _jiraInstances = new List<JiraApi>();
 		private readonly IDictionary<string, JiraApi> _projectJiraApiMap = new Dictionary<string, JiraApi>();
+		private readonly IDictionary<Uri, ServerInfo> _jiraServerInfos = new Dictionary<Uri, ServerInfo>();
 		private readonly int _maxEntries;
 		private IDictionary<string, JiraDetails> _recentJiras = new Dictionary<string, JiraDetails>();
 
@@ -111,7 +113,6 @@ namespace Greenshot.Addon.Jira
 		/// </summary>
 		public bool HasJiraInstances => _jiraInstances.Count > 0;
 
-
 		/// <summary>
 		/// Add an instance of a JIRA system
 		/// </summary>
@@ -121,11 +122,17 @@ namespace Greenshot.Addon.Jira
 		/// <param name="token"></param>
 		public async Task AddJiraInstanceAsync(Uri uri, string username, string password, CancellationToken token = default(CancellationToken))
 		{
-			var jiraInstance = await JiraApi.CreateAndInitializeAsync(uri, NetworkConfig);
+			var jiraInstance = new JiraApi(uri, NetworkConfig);
 			jiraInstance.SetBasicAuthentication(username, password);
 
+			if (!_jiraServerInfos.ContainsKey(uri))
+			{
+				var serverInfo = await jiraInstance.GetServerInfoAsync(token);
+				_jiraServerInfos.Add(uri, serverInfo);
+			}
+
 			_jiraInstances.Add(jiraInstance);
-			var projects = await jiraInstance.ProjectsAsync(token);
+			var projects = await jiraInstance.GetProjectsAsync(token);
 			if (projects != null)
 			{
 				foreach (var project in projects)
@@ -150,7 +157,7 @@ namespace Greenshot.Addon.Jira
 				JiraApi jiraApi;
 				if (_projectJiraApiMap.TryGetValue(jiraDetails.ProjectKey, out jiraApi))
 				{
-					var issue = await jiraApi.IssueAsync(jiraDetails.JiraKey).ConfigureAwait(false);
+					var issue = await jiraApi.GetIssueAsync(jiraDetails.JiraKey).ConfigureAwait(false);
 					jiraDetails.Title = issue.Fields.Summary;
 				}
 				// Send event
@@ -172,7 +179,8 @@ namespace Greenshot.Addon.Jira
 		/// <returns>a clean windows title</returns>
 		private string CleanWindowTitle(JiraApi jiraApi, string jiraKey, string windowTitle)
 		{
-			var title = windowTitle.Replace(jiraApi.ServerTitle, "");
+			var serverInfo = _jiraServerInfos[jiraApi.JiraBaseUri];
+			var title = windowTitle.Replace(serverInfo.ServerTitle, "");
 			// Remove for emails:
 			title = title.Replace("[JIRA]", "");
 			title = Regex.Replace(title, $@"^[^a-zA-Z0-9]*{jiraKey}[^a-zA-Z0-9]*", "");
@@ -204,7 +212,8 @@ namespace Greenshot.Addon.Jira
 				// Check if we have a JIRA instance with a project for this key
 				if (_projectJiraApiMap.TryGetValue(projectKey, out jiraApi))
 				{
-					Log.Information("Matched {0} to {1}, loading details and placing it in the recent JIRAs list.", jiraKey, jiraApi.ServerTitle);
+					var serverInfo = _jiraServerInfos[jiraApi.JiraBaseUri];
+					Log.Information("Matched {0} to {1}, loading details and placing it in the recent JIRAs list.", jiraKey, serverInfo.ServerTitle);
 					// We have found a project for this _jira key, so it must be a valid & known JIRA
 					JiraDetails currentJiraDetails;
 					if (_recentJiras.TryGetValue(jiraKey, out currentJiraDetails))

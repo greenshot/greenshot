@@ -29,7 +29,7 @@
 						Foreground="#FF747474" FontFamily="Segoe UI Light" />
 			</StackPanel>
 		</Border>
-		<Button VerticalAlignment="Top" HorizontalAlignment="Right" Padding="1" Grid.ColumnSpan="2"
+		<Button VerticalAlignment="Top" HorizontalAlignment="Right" Padding="1" Grid.Row="0" Grid.ColumnSpan="2" Grid.Column="0"
 				Margin="10,10,10,10" shell:WindowChrome.IsHitTestVisibleInChrome="True" Content="X" Click="Close_Click"
 				Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" FontSize="20" />
 		<StackPanel Grid.Column="1" Grid.Row="1">

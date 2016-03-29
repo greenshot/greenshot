@@ -26,6 +26,7 @@ using System.ComponentModel.Design;
 using System.Reflection;
 using System.Windows.Forms;
 using Dapplo.Config.Ini;
+using Dapplo.Config.Interfaces;
 using Dapplo.Config.Language;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
@@ -496,7 +497,7 @@ namespace Greenshot.Addon.Controls
 					}
 					if (iniValue != null)
 					{
-						bool writeProtected = section.IsWriteProtected(configBindable.PropertyName);
+						bool writeProtected = (section as IWriteProtectProperties)?.IsWriteProtected(configBindable.PropertyName) == true;
 						var checkBox = controlObject as CheckBox;
 						if (checkBox != null)
 						{

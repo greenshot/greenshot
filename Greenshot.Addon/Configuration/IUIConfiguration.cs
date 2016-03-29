@@ -21,7 +21,7 @@
 
 using System.ComponentModel;
 using System.Drawing;
-using Dapplo.Config.Proxy;
+using Dapplo.Config.Interfaces;
 
 namespace Greenshot.Addon.Configuration
 {

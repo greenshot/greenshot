@@ -78,7 +78,7 @@ namespace Greenshot
 
 			Serilog.Log.Logger = new LoggerConfiguration().ReadFrom.AppSettings()
 #if DEBUG
-				.MinimumLevel.Verbose()
+				.MinimumLevel.Debug()
 				.WriteTo.Trace(outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level}] {SourceContext} - {Message}{NewLine}{Exception}")
 #endif
 			.CreateLogger();

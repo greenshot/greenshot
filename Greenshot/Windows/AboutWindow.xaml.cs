@@ -20,7 +20,6 @@
  */
 
 using Dapplo.Config.Ini;
-using Greenshot.Forms;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
