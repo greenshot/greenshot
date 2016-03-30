@@ -40,8 +40,8 @@
       <HintPath>..\packages\Dapplo.Addons.0.3.16.0\lib\net452\Dapplo.Addons.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Config, Version=0.3.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Config.0.3.3.0\lib\net452\Dapplo.Config.dll</HintPath>
+    <Reference Include="Dapplo.Config">
+      <HintPath>..\packages\Dapplo.Config.0.3.5.0\lib\net452\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.HttpExtensions, Version=0.4.38.0, Culture=neutral, processorArchitecture=MSIL">

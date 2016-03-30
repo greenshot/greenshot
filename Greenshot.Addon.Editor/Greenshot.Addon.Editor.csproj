@@ -39,23 +39,23 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>
-    <Reference Include="Dapplo.Addons, Version=0.3.16.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Dapplo.Addons">
       <HintPath>..\packages\Dapplo.Addons.0.3.16.0\lib\net452\Dapplo.Addons.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Config, Version=0.3.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Config.0.3.3.0\lib\net452\Dapplo.Config.dll</HintPath>
+    <Reference Include="Dapplo.Config">
+      <HintPath>..\packages\Dapplo.Config.0.3.5.0\lib\net452\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.HttpExtensions, Version=0.4.38.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Dapplo.HttpExtensions">
       <HintPath>..\packages\Dapplo.HttpExtensions.0.4.38\lib\net45\Dapplo.HttpExtensions.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.LogFacade, Version=0.2.20.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Dapplo.LogFacade">
       <HintPath>..\packages\Dapplo.LogFacade.0.2.20\lib\net45\Dapplo.LogFacade.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Windows, Version=0.1.14.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Dapplo.Windows">
       <HintPath>..\packages\Dapplo.Windows.0.1.14.0\lib\net451\Dapplo.Windows.dll</HintPath>
       <Private>True</Private>
     </Reference>

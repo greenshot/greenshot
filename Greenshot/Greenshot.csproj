@@ -49,7 +49,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.Config">
-      <HintPath>..\packages\Dapplo.Config.0.3.3.0\lib\net452\Dapplo.Config.dll</HintPath>
+      <HintPath>..\packages\Dapplo.Config.0.3.5.0\lib\net452\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.HttpExtensions">
@@ -247,5 +247,11 @@
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>
+mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages"
+copy "$(ProjectDir)Languages\*.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\"
+</PostBuildEvent>
   </PropertyGroup>
 </Project>
