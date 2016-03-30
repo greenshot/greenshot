@@ -362,7 +362,7 @@ namespace Greenshot.Addon.Controls
 			{
 				return;
 			}
-			var iniValue = iniConfig.Get(configBindable.SectionName).GetIniValue(configBindable.PropertyName);
+			var iniValue = iniConfig[configBindable.SectionName][configBindable.PropertyName];
 			if (iniValue == null)
 			{
 				return;

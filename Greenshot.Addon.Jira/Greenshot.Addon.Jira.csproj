@@ -53,11 +53,11 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>
     <Reference Include="Dapplo.Addons">
-      <HintPath>..\packages\Dapplo.Addons.0.3.16.0\lib\net452\Dapplo.Addons.dll</HintPath>
+      <HintPath>..\packages\Dapplo.Addons.0.3.21.0\lib\net452\Dapplo.Addons.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.Config">
-      <HintPath>..\packages\Dapplo.Config.0.3.5.0\lib\net452\Dapplo.Config.dll</HintPath>
+      <HintPath>..\packages\Dapplo.Config.0.3.10.0\lib\net452\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.HttpExtensions">

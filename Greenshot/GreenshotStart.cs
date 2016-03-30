@@ -101,18 +101,14 @@ namespace Greenshot
 			// Initialize the string encryption, TODO: Move "credentials" to build server / yaml
 			Dapplo.Config.Converters.StringEncryptionTypeConverter.RgbIv = "dlgjowejgogkklwj";
 			Dapplo.Config.Converters.StringEncryptionTypeConverter.RgbKey = "lsjvkwhvwujkagfauguwcsjgu2wueuff";
-			iniConfig = new IniConfig(ApplicationName, ApplicationName, iniDirectory);
-			// Register method to fix some values
-			iniConfig.AfterLoad<ICoreConfiguration>(CoreConfigurationChecker.AfterLoad);
 
 			Task.Run(async () =>
 			{
+				iniConfig = new IniConfig(ApplicationName, ApplicationName, iniDirectory);
+				// Register method to fix some values
+				iniConfig.AfterLoad<ICoreConfiguration>(CoreConfigurationChecker.AfterLoad);
 				coreConfiguration = await iniConfig.RegisterAndGetAsync<ICoreConfiguration>();
 				var languageLoader = new LanguageLoader(ApplicationName, coreConfiguration.Language ?? "en-US");
-
-				// Defaults are taken, if multiple IniConfig / LanguageLoaders are used this needs to be uncommented:
-				//ApplicationBootstrapper.LanguageLoaderForExport = languageLoader;
-				//ApplicationBootstrapper.IniConfigForExport = iniConfig;
 
 				// Read configuration & languages
 				languageLoader.CorrectMissingTranslations();

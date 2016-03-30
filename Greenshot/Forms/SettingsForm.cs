@@ -635,7 +635,7 @@ namespace Greenshot.Forms
 			if (combobox_language.SelectedItem != null)
 			{
 				Log.Debug("Setting language to: " + (string) combobox_language.SelectedValue);
-				await LanguageLoader.Current.ChangeLanguage((string) combobox_language.SelectedValue);
+				await LanguageLoader.Current.ChangeLanguageAsync((string) combobox_language.SelectedValue);
 			}
 			// Reflect language changes to the settings form
 			UpdateUi();

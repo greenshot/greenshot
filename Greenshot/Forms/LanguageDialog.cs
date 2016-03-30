@@ -91,7 +91,7 @@ namespace Greenshot.Forms
 			{
 				var key = LanguageLoader.Current.AvailableLanguages.Keys.First();
 				comboBoxLanguage.SelectedValue = key;
-				await LanguageLoader.Current.ChangeLanguage(key);
+				await LanguageLoader.Current.ChangeLanguageAsync(key);
 				_properOkPressed = true;
 				Close();
 			}
@@ -101,7 +101,7 @@ namespace Greenshot.Forms
 		{
 			_properOkPressed = true;
 			// Fix for Bug #3431100 
-			await LanguageLoader.Current.ChangeLanguage(SelectedLanguage);
+			await LanguageLoader.Current.ChangeLanguageAsync(SelectedLanguage);
 			Close();
 		}
 
