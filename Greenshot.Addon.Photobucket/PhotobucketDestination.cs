@@ -33,7 +33,7 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.OAuth;
-using Dapplo.LogFacade;
+using Dapplo.Utils.Extensions;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;

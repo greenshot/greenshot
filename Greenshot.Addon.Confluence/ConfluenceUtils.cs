@@ -75,7 +75,7 @@ namespace Greenshot.Addon.Confluence
 						}
 						if (!pageDouble)
 						{
-							var page = await ConfluencePlugin.ConfluenceAPI.ContentAsync(contentId, token).ConfigureAwait(false);
+							var page = await ConfluencePlugin.ConfluenceAPI.GetContentAsync(contentId, token).ConfigureAwait(false);
 							Log.Debug("Adding page {0}", page.Title);
 							pages.Add(page);
 						}
@@ -112,7 +112,7 @@ namespace Greenshot.Addon.Confluence
 							}
 							if (!pageDouble)
 							{
-								var contentList = await ConfluencePlugin.ConfluenceAPI.ContentByTitleAsync(space, title, 0, 20, token).ConfigureAwait(false);
+								var contentList = await ConfluencePlugin.ConfluenceAPI.GetContentByTitleAsync(space, title, 0, 20, token).ConfigureAwait(false);
 								if (contentList != null && contentList.Results.Count > 0)
 								{
 									var content = contentList.Results.First();
@@ -154,7 +154,7 @@ namespace Greenshot.Addon.Confluence
 							}
 							if (!pageDouble)
 							{
-								var contentList = await ConfluencePlugin.ConfluenceAPI.ContentByTitleAsync(space, title, 0, 20, token).ConfigureAwait(false);
+								var contentList = await ConfluencePlugin.ConfluenceAPI.GetContentByTitleAsync(space, title, 0, 20, token).ConfigureAwait(false);
 								if (contentList != null && contentList.Results.Count > 0)
 								{
 									var content = contentList.Results.First();

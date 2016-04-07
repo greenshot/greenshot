@@ -156,7 +156,6 @@ namespace Greenshot.Addon.Confluence
 					// Run upload in the background
 					await PleaseWaitWindow.CreateAndShowAsync(ConfluenceDesignation, ConfluenceLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
 					{
-						var multipartFormDataContent = new MultipartFormDataContent();
 						using (var stream = new MemoryStream())
 						{
 							ImageOutput.SaveToStream(capture, stream, outputSettings);
@@ -166,8 +165,7 @@ namespace Greenshot.Addon.Confluence
 								using (var streamContent = new StreamContent(uploadStream))
 								{
 									streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
-									multipartFormDataContent.Add(streamContent, "file", filename);
-									return await confluenceApi.AttachAsync(page.Id, multipartFormDataContent, pleaseWaitToken);
+									return await confluenceApi.AttachAsync(page.Id, streamContent, filename, "Added via Greenshot", "image/" + outputSettings.Format, pleaseWaitToken);
 								}
 							}
 						}

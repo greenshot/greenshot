@@ -82,7 +82,7 @@ namespace Greenshot.Addon.Jira
 		}
 
 		[Import]
-		private TaskScheduler UITaskScheduler
+		private TaskScheduler UiTaskScheduler
 		{
 			get;
 			set;
@@ -146,7 +146,7 @@ namespace Greenshot.Addon.Jira
 		{
 			Task.Factory.StartNew(
 					() => UpdateChildren(),
-					default(CancellationToken), TaskCreationOptions.None, UITaskScheduler);
+					default(CancellationToken), TaskCreationOptions.None, UiTaskScheduler);
 		}
 
 		private string FormatUpload(JiraDetails jira)
@@ -174,7 +174,6 @@ namespace Greenshot.Addon.Jira
 					// Run upload in the background
 					await PleaseWaitWindow.CreateAndShowAsync(Text, JiraLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
 					{
-						var multipartFormDataContent = new MultipartFormDataContent();
 						using (var stream = new MemoryStream())
 						{
 							ImageOutput.SaveToStream(capture, stream, outputSettings);
@@ -184,9 +183,8 @@ namespace Greenshot.Addon.Jira
 								using (var streamContent = new StreamContent(uploadStream))
 								{
 									streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
-									multipartFormDataContent.Add(streamContent, "file", filename);
-									var attachment = await jiraApi.AttachAsync(jiraDetails.JiraKey, multipartFormDataContent, pleaseWaitToken);
-									return attachment.ContentUri;
+									var attachment = await jiraApi.AttachAsync(jiraDetails.JiraKey, streamContent, filename, "image/" + outputSettings.Format, pleaseWaitToken);
+									return attachment[0].ContentUri;
 								}
 							}
 						}

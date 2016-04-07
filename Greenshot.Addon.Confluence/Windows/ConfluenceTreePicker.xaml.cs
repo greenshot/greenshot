@@ -60,7 +60,7 @@ namespace Greenshot.Addon.Confluence.Windows
 				Log.Debug("Loading pages for page: " + page.Title);
 				Task.Factory.StartNew(async () =>
 				{
-					var pages = await ConfluencePlugin.ConfluenceAPI.ChildrenAsync(page.Id);
+					var pages = await ConfluencePlugin.ConfluenceAPI.GetChildrenAsync(page.Id);
 					foreach (var childPage in pages)
 					{
 						Log.Debug("Adding page: " + childPage.Title);
@@ -101,7 +101,7 @@ namespace Greenshot.Addon.Confluence.Windows
 				// ReSharper disable once UnusedVariable
 				var loadPageTask = Task.Factory.StartNew(async () =>
 				{
-					var page = await ConfluencePlugin.ConfluenceAPI.ContentAsync(space.Id);
+					var page = await ConfluencePlugin.ConfluenceAPI.GetContentAsync(space.Id);
 					if (page != null)
 					{
 						var pageTreeViewItem = new TreeViewItem

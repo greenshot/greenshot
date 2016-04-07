@@ -96,12 +96,12 @@ namespace Greenshot.Addon.Confluence
 				Log.Error("Problem in ConfluencePlugin.Initialize: {0}", ex.Message);
 				return;
 			}
-			_confluenceApi = await GetConfluenceApi();
+			_confluenceApi = await GetConfluenceApiAsync(token);
 			if (_confluenceApi != null)
 			{
 				Log.Information("Loading spaces");
 				// Store the task, so the compiler doesn't complain but do not wait so the task runs in the background
-				var ignoringTask = _confluenceApi.SpacesAsync(token).ContinueWith(async spacesTask =>
+				var ignoringTask = _confluenceApi.GetSpacesAsync(token).ContinueWith(async spacesTask =>
 				{
 					var spaces = await spacesTask;
 					foreach (var space in spaces)
@@ -121,14 +121,14 @@ namespace Greenshot.Addon.Confluence
 			}
 		}
 
-		public Task ShutdownAsync(CancellationToken token = new CancellationToken())
+		public Task ShutdownAsync(CancellationToken token = default(CancellationToken))
 		{
 			Log.Debug("Confluence Plugin shutdown.");
 			_confluenceApi = null;
 			return Task.FromResult(true);
 		}
 
-		private async Task<ConfluenceApi> GetConfluenceApi()
+		private async Task<ConfluenceApi> GetConfluenceApiAsync(CancellationToken token = default(CancellationToken))
 		{
 			ConfluenceApi confluenceApi = null;
 			if (string.IsNullOrEmpty(ConfluenceConfiguration.RestUrl))
@@ -149,7 +149,7 @@ namespace Greenshot.Addon.Confluence
 					try
 					{
 						// Try loading content for id 0, should be null (or something) but not give an exception
-						await confluenceApi.ContentAsync("1").ConfigureAwait(false);
+						await confluenceApi.GetCurrentUserAsync(token).ConfigureAwait(false);
 						Log.Debug("Confluence access for User {0} worked", dialog.Name);
 						if (dialog.SaveChecked)
 						{

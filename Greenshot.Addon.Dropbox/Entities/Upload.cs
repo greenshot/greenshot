@@ -28,25 +28,25 @@ namespace Greenshot.Addon.Dropbox.Entities
 	/// <summary>
 	/// This defines the request "content" for the Dropbox upload
 	/// </summary>
-	[Http(HttpParts.Request)]
+	[HttpRequest]
 	public class Upload
 	{
 		/// <summary>
 		/// Headers is needed for the "Dropbox-API-Arg" value
 		/// </summary>
-		[Http(HttpParts.RequestHeaders)]
+		[HttpPart(HttpParts.RequestHeaders)]
 		public IDictionary<string, string> Headers { get; } = new Dictionary<string, string>();
 
 		/// <summary>
 		/// This is what dropbox expects, not what it really is...
 		/// </summary>
-		[Http(HttpParts.RequestContentType)]
+		[HttpPart(HttpParts.RequestContentType)]
 		public string ContentType { get; set; } = "application/octet-stream";
 
 		/// <summary>
 		/// The actual image for the upload is stored here
 		/// </summary>
-		[Http(HttpParts.RequestContent)]
+		[HttpPart(HttpParts.RequestContent)]
 		public HttpContent Content { get; set; }
 	}
 }
