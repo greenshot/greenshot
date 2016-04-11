@@ -40,7 +40,7 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public static class ClipboardHelper {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(ClipboardHelper));
-		private static readonly Object clipboardLockObject = new Object();
+		private static readonly object clipboardLockObject = new object();
 		private static readonly CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
 		private static readonly string FORMAT_FILECONTENTS = "FileContents";
 		private static readonly string FORMAT_PNG = "PNG";
@@ -103,20 +103,35 @@ EndSelection:<<<<<<<4
 			try {
 				IntPtr hWnd = User32.GetClipboardOwner();
 				if (hWnd != IntPtr.Zero) {
-					int pid;
-					User32.GetWindowThreadProcessId( hWnd, out pid);
-					using (Process me = Process.GetCurrentProcess())
-					using (Process ownerProcess = Process.GetProcessById(pid)) {
-						// Exclude myself
-						if (ownerProcess != null && me.Id != ownerProcess.Id) {
-							// Get Process Name
-							owner = ownerProcess.ProcessName;
-							// Try to get the starting Process Filename, this might fail.
-							try {
-								owner = ownerProcess.Modules[0].FileName;
-							} catch (Exception) {
+					try
+					{
+						int pid;
+						User32.GetWindowThreadProcessId(hWnd, out pid);
+						using (Process me = Process.GetCurrentProcess())
+						using (Process ownerProcess = Process.GetProcessById(pid))
+						{
+							// Exclude myself
+							if (ownerProcess != null && me.Id != ownerProcess.Id)
+							{
+								// Get Process Name
+								owner = ownerProcess.ProcessName;
+								// Try to get the starting Process Filename, this might fail.
+								try
+								{
+									owner = ownerProcess.Modules[0].FileName;
+								}
+								catch (Exception)
+								{
+								}
 							}
 						}
+					}
+					catch(Exception e)
+					{
+						LOG.Warn("Non critical error: Couldn't get clipboard process, trying to use the title.", e);
+						StringBuilder title = new StringBuilder(260, 260);
+						User32.GetWindowText(hWnd, title, title.Capacity);
+						owner = title.ToString();
 					}
 				}
 			} catch (Exception e) {
@@ -133,27 +148,31 @@ EndSelection:<<<<<<<4
 		/// <param name="copy"></param>
 		private static void SetDataObject(IDataObject ido, bool copy) {
 			lock (clipboardLockObject) {
-				int retryCount = 5;
-				while (retryCount >= 0) {
-					try {
-						Clipboard.SetDataObject(ido, copy);
-						break;
-					} catch (Exception ee) {
-						if (retryCount == 0) {
-							string messageText = null;
-							string clipboardOwner = GetClipboardOwner();
-							if (clipboardOwner != null) {
-								messageText = Language.GetFormattedString("clipboard_inuse", clipboardOwner);
-							} else {
-								messageText = Language.GetString("clipboard_error");
-							}
-							LOG.Error(messageText, ee);
-						} else {
-							Thread.Sleep(100);
-						}
-					} finally {
-						--retryCount;
+				// Clear first, this seems to solve some issues
+				try
+				{
+					Clipboard.Clear();
+				}
+				catch (Exception clearException)
+				{
+					LOG.Warn(clearException.Message);
+				}
+				try
+				{
+					Clipboard.SetDataObject(ido, copy, 5, 200);
+				}
+				catch (Exception clipboardSetException)
+				{
+					string messageText = null;
+					string clipboardOwner = GetClipboardOwner();
+					if (clipboardOwner != null)
+					{
+						messageText = Language.GetFormattedString("clipboard_inuse", clipboardOwner);
 					}
+					else {
+						messageText = Language.GetString("clipboard_error");
+					}
+					LOG.Error(messageText, clipboardSetException);
 				}
 			}
 		}
