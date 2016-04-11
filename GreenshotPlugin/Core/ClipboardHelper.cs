@@ -159,7 +159,8 @@ EndSelection:<<<<<<<4
 				}
 				try
 				{
-					Clipboard.SetDataObject(ido, copy, 5, 200);
+					// For BUG-1935 this was changed from looping ourselfs, or letting MS retry...
+					Clipboard.SetDataObject(ido, copy, 15, 150);
 				}
 				catch (Exception clipboardSetException)
 				{
