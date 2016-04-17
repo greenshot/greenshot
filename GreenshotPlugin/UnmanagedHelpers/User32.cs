@@ -104,14 +104,14 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public extern static bool IsZoomed(IntPtr hwnd);
 		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
 		public extern static int GetClassName (IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
-		[DllImport("user32", SetLastError = true)]
+		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
 		public static extern uint GetClassLong(IntPtr hWnd, int nIndex);
 		[DllImport("user32", SetLastError = true, EntryPoint = "GetClassLongPtr")]
 		public static extern IntPtr GetClassLongPtr(IntPtr hWnd, int nIndex);
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool PrintWindow(IntPtr hwnd, IntPtr hDC, uint nFlags);
-		[DllImport("user32", SetLastError=true)]
+		[DllImport("user32", CharSet=CharSet.Unicode, SetLastError=true)]
 		public extern static IntPtr SendMessage(IntPtr hWnd, uint wMsg, IntPtr wParam, IntPtr lParam);
 		[DllImport("user32", SetLastError = true)]
 		public extern static IntPtr SendMessage(IntPtr hWnd, uint wMsg, IntPtr wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
@@ -119,7 +119,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public extern static int GetWindowLong(IntPtr hwnd, int index);
 		[DllImport("user32", SetLastError = true, EntryPoint = "GetWindowLongPtr")]
 		public extern static IntPtr GetWindowLongPtr(IntPtr hwnd, int nIndex);
-		[DllImport("user32", SetLastError = true)]
+		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
 		public static extern int SetWindowLong(IntPtr hWnd, int index, int styleFlags);
 		[DllImport("user32", SetLastError = true, EntryPoint = "SetWindowLongPtr")]
 		public static extern IntPtr SetWindowLongPtr(IntPtr hWnd, int index, IntPtr styleFlags);
@@ -139,9 +139,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern bool GetScrollInfo(IntPtr hwnd, int fnBar, ref SCROLLINFO lpsi);
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
-		public static extern bool ShowScrollBar(IntPtr hwnd, ScrollBarDirection scrollBar, bool show);
+		public static extern bool ShowScrollBar(IntPtr hwnd, ScrollBarDirection scrollBar, [MarshalAs(UnmanagedType.Bool)] bool show);
 		[DllImport("user32", SetLastError = true)]
-		public static extern int SetScrollPos(IntPtr hWnd, Orientation nBar, int nPos, bool bRedraw);
+		public static extern int SetScrollPos(IntPtr hWnd, Orientation nBar, int nPos, [MarshalAs(UnmanagedType.Bool)] bool bRedraw);
 		[DllImport("user32", SetLastError = true)]
 		public static extern RegionResult GetWindowRgn(IntPtr hWnd, SafeHandle hRgn);
 		[DllImport("user32", SetLastError = true)]

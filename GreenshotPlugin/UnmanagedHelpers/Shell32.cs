@@ -49,12 +49,12 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			public SHITEMID mkid;
 		}
 
-		[StructLayout(LayoutKind.Sequential)]
+		[StructLayout(LayoutKind.Sequential, CharSet=CharSet.Unicode)]
 		private struct BROWSEINFO {
 			public IntPtr hwndOwner;
 			public IntPtr pidlRoot;
 			public IntPtr pszDisplayName;
-			[MarshalAs(UnmanagedType.LPTStr)]
+			[MarshalAs(UnmanagedType.LPWStr)]
 			public string lpszTitle;
 			public uint ulFlags;
 			public IntPtr lpfn;

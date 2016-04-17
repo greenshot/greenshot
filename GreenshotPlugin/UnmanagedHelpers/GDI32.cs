@@ -62,6 +62,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// </summary>
 	public abstract class SafeObjectHandle : SafeHandleZeroOrMinusOneIsInvalid {
 		[DllImport("gdi32", SetLastError = true)]
+		[return: MarshalAs(UnmanagedType.Bool)]
 		private static extern bool DeleteObject(IntPtr hObject);
 
 		protected SafeObjectHandle(bool ownsHandle)	: base(ownsHandle) {
@@ -149,7 +150,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// </summary>
 	public class SafeCompatibleDCHandle : SafeDCHandle {
 		[DllImport("gdi32", SetLastError = true)]
-		private static extern bool DeleteDC(IntPtr hDC);
+		[return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool DeleteDC(IntPtr hDC);
 
 		[SecurityCritical]
 		private SafeCompatibleDCHandle() : base(true) {

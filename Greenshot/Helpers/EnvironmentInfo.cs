@@ -645,6 +645,7 @@ namespace Greenshot.Helpers
 		#region GET
 		#region PRODUCT INFO
 		[DllImport("Kernel32.dll")]
+		[return: MarshalAs(UnmanagedType.Bool)]
 		internal static extern bool GetProductInfo(
 			int osMajorVersion,
 			int osMinorVersion,
@@ -654,7 +655,8 @@ namespace Greenshot.Helpers
 		#endregion PRODUCT INFO
 
 		#region VERSION
-		[DllImport("kernel32.dll")]
+		[DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+		[return: MarshalAs(UnmanagedType.Bool)]
 		private static extern bool GetVersionEx(ref OSVERSIONINFOEX osVersionInfo);
 		#endregion VERSION
 		#endregion GET
