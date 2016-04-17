@@ -59,6 +59,7 @@ namespace GreenshotPlugin.Core {
 	/// <summary>Encapsulates dialog functionality from the Credential Management API.</summary>
 	public sealed class CredentialsDialog {
 		[DllImport("gdi32.dll", SetLastError=true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool DeleteObject(IntPtr hObject);
 
         /// <summary>The only valid bitmap height (in pixels) of a user-defined banner.</summary>
@@ -602,6 +603,6 @@ namespace GreenshotPlugin.Core {
 		/// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/creduiconfirmcredentials.asp
 		/// </summary>
 		[DllImport("credui.dll", CharSet=CharSet.Unicode)]
-		public static extern ReturnCodes CredUIConfirmCredentials(string targetName, bool confirm);
+		public static extern ReturnCodes CredUIConfirmCredentials(string targetName, [MarshalAs(UnmanagedType.Bool)] bool confirm);
 	}
 }

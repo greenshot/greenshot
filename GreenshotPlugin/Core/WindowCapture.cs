@@ -423,6 +423,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="hObject"></param>
 		/// <returns></returns>
 		[DllImport("gdi32", SetLastError = true)]
+		[return: MarshalAs(UnmanagedType.Bool)]
 		private static extern bool DeleteObject(IntPtr hObject);
 
 		private WindowCapture() {
