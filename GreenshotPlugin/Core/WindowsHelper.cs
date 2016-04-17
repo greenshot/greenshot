@@ -47,7 +47,7 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public class WindowsEnumerator {
 		#region Member Variables
-		private List<WindowDetails> items = null;
+		private List<WindowDetails> items;
 		#endregion
 
 		/// <summary>
@@ -89,7 +89,7 @@ namespace GreenshotPlugin.Core {
 		public WindowsEnumerator GetWindows(IntPtr hWndParent, string classname) {
 			items = new List<WindowDetails>();
 			List<WindowDetails> windows = new List<WindowDetails>();
-			User32.EnumChildWindows(hWndParent, new EnumWindowsProc(WindowEnum), IntPtr.Zero);
+			User32.EnumChildWindows(hWndParent, WindowEnum, IntPtr.Zero);
 
 			bool hasParent = !IntPtr.Zero.Equals(hWndParent);
 			string parentText = null;
@@ -164,11 +164,11 @@ namespace GreenshotPlugin.Core {
 		private const string METRO_APPLAUNCHER_CLASS = "ImmersiveLauncher";
 		private const string METRO_GUTTER_CLASS = "ImmersiveGutter";
 		
-		private static ILog LOG = LogManager.GetLogger(typeof(WindowDetails));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-		private static List<IntPtr> ignoreHandles = new List<IntPtr>();
-		private static List<string> excludeProcessesFromFreeze = new List<string>();
-		private static IAppVisibility appVisibility = null;
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(WindowDetails));
+		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly List<IntPtr> ignoreHandles = new List<IntPtr>();
+		private static readonly List<string> excludeProcessesFromFreeze = new List<string>();
+		private static readonly IAppVisibility appVisibility;
 		
 		static WindowDetails() {
 			try {
@@ -189,10 +189,10 @@ namespace GreenshotPlugin.Core {
 			return ignoreHandles.Contains(handle);
 		}
 
-		private List<WindowDetails> childWindows = null;
+		private List<WindowDetails> childWindows;
 		private IntPtr parentHandle = IntPtr.Zero;
-		private WindowDetails parent = null;
-		private bool frozen = false;
+		private WindowDetails parent;
+		private bool frozen;
 
 		public bool isApp {
 			get {
@@ -224,7 +224,7 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// The window handle.
 		/// </summary>
-		private IntPtr hWnd = IntPtr.Zero;
+		private readonly IntPtr hWnd = IntPtr.Zero;
 
 		/// <summary>
 		/// To allow items to be compared, the hash code
@@ -588,7 +588,7 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		private string text = null;
+		private string text;
 		/// <summary>
 		/// Gets the window's title (caption)
 		/// </summary>
@@ -606,7 +606,7 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		private string className = null;
+		private string className;
 		/// <summary>
 		/// Gets the window's class name.
 		/// </summary>
@@ -755,7 +755,7 @@ namespace GreenshotPlugin.Core {
 		}
 
 		private Rectangle previousWindowRectangle = Rectangle.Empty;
-		private long lastWindowRectangleRetrieveTime = 0;
+		private long lastWindowRectangleRetrieveTime;
 		private const long CACHE_TIME = TimeSpan.TicksPerSecond * 2;
 		/// <summary>
 		/// Gets the bounding rectangle of the window
@@ -1515,7 +1515,7 @@ namespace GreenshotPlugin.Core {
 					continue;
 				}
 				// Ignore some classes
-				List<string> ignoreClasses = new List<string>(new string[] { "Progman", "XLMAIN", "Button", "Dwm" }); //"MS-SDIa"
+				List<string> ignoreClasses = new List<string>(new[] { "Progman", "XLMAIN", "Button", "Dwm" }); //"MS-SDIa"
 				if (ignoreClasses.Contains(window.ClassName)) {
 					continue;
 				}
@@ -1585,7 +1585,7 @@ namespace GreenshotPlugin.Core {
 					continue;
 				}
 				// Ignore some classes
-				List<string> ignoreClasses = new List<string>(new string[] { "Progman", "XLMAIN", "Button", "Dwm" }); //"MS-SDIa"
+				List<string> ignoreClasses = new List<string>(new[] { "Progman", "XLMAIN", "Button", "Dwm" }); //"MS-SDIa"
 				if (ignoreClasses.Contains(window.ClassName)) {
 					continue;
 				}

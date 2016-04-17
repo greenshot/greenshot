@@ -41,7 +41,7 @@ namespace GreenshotPlugin.Core {
 
 		private static readonly Regex SPLIT_REGEXP = new Regex(";(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", RegexOptions.Compiled);
 		private const int MAX_TITLE_LENGTH = 80;
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private const string UNSAFE_REPLACEMENT = "_";
 
 		/// <summary>
@@ -159,7 +159,7 @@ namespace GreenshotPlugin.Core {
 					switch (parameter.Substring(0, 1)) {
 						// Padding p<width>[,pad-character]
 						case "p":
-							string[] padParams = parameter.Substring(1).Split(new char[] { ',' });
+							string[] padParams = parameter.Substring(1).Split(new[] { ',' });
 							try {
 								padWidth = int.Parse(padParams[0]);
 							} catch {
@@ -171,7 +171,7 @@ namespace GreenshotPlugin.Core {
 						// replace
 						// r<old string>,<new string>
 						case "r":
-							string[] replaceParameters = parameter.Substring(1).Split(new char[] { ',' });
+							string[] replaceParameters = parameter.Substring(1).Split(new[] { ',' });
 							if (replaceParameters != null && replaceParameters.Length == 2) {
 								replacements.Add(replaceParameters[0], replaceParameters[1]);
 							}
@@ -191,7 +191,7 @@ namespace GreenshotPlugin.Core {
 						// s<start>[,length]
 						case "s":
 							string range = parameter.Substring(1);
-							string[] rangelist = range.Split(new char[] { ',' });
+							string[] rangelist = range.Split(new[] { ',' });
 							if (rangelist.Length > 0) {
 								try {
 									startIndex = int.Parse(rangelist[0]);
@@ -418,9 +418,9 @@ namespace GreenshotPlugin.Core {
 			}
 
 			return VAR_REGEXP.Replace(pattern,
-				new MatchEvaluator(delegate(Match m) {
-				return MatchVarEvaluator(m, null, processVars, userVars, machineVars, filenameSafeMode);
-			})
+				delegate(Match m) {
+									return MatchVarEvaluator(m, null, processVars, userVars, machineVars, filenameSafeMode);
+				}
 			);
 		}
 
@@ -455,9 +455,9 @@ namespace GreenshotPlugin.Core {
 
 			try {
 				return VAR_REGEXP.Replace(pattern,
-					new MatchEvaluator(delegate(Match m) {
-					return MatchVarEvaluator(m, captureDetails, processVars, userVars, machineVars, filenameSafeMode);
-				})
+					delegate(Match m) {
+										return MatchVarEvaluator(m, captureDetails, processVars, userVars, machineVars, filenameSafeMode);
+					}
 				);
 			} catch (Exception e) {
 				// adding additional data for bug tracking

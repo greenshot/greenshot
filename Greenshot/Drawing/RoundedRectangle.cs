@@ -35,13 +35,13 @@ namespace Greenshot.Drawing {
 	
 	    public static GraphicsPath Create2(int x, int y, int width, int height, int radius) {
 	    	GraphicsPath gp = new GraphicsPath();
-	    	gp.AddLine(x + radius, y, x + width - (radius * 2), y); // Line
-	    	gp.AddArc(x + width - (radius * 2), y, radius * 2, radius * 2, 270, 90); // Corner
-	    	gp.AddLine(x + width, y + radius, x + width, y + height - (radius * 2)); // Line
-	    	gp.AddArc(x + width - (radius * 2), y + height - (radius * 2), radius * 2, radius * 2, 0, 90); // Corner
-	    	gp.AddLine(x + width - (radius * 2), y + height, x + radius, y + height); // Line
-	    	gp.AddArc(x, y + height - (radius * 2), radius * 2, radius * 2, 90, 90); // Corner
-	    	gp.AddLine(x, y + height - (radius * 2), x, y + radius); // Line
+	    	gp.AddLine(x + radius, y, x + width - radius * 2, y); // Line
+	    	gp.AddArc(x + width - radius * 2, y, radius * 2, radius * 2, 270, 90); // Corner
+	    	gp.AddLine(x + width, y + radius, x + width, y + height - radius * 2); // Line
+	    	gp.AddArc(x + width - radius * 2, y + height - radius * 2, radius * 2, radius * 2, 0, 90); // Corner
+	    	gp.AddLine(x + width - radius * 2, y + height, x + radius, y + height); // Line
+	    	gp.AddArc(x, y + height - radius * 2, radius * 2, radius * 2, 90, 90); // Corner
+	    	gp.AddLine(x, y + height - radius * 2, x, y + radius); // Line
 	    	gp.AddArc(x, y, radius * 2, radius * 2, 180, 90); // Corner
 	    	gp.CloseFigure();
 	    	

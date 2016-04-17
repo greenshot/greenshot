@@ -97,9 +97,9 @@ namespace Greenshot.Helpers {
 		private class MapiFileDescriptor {
 			public int reserved = 0;
 			public int flags = 0;
-			public int position = 0;
-			public string path = null;
-			public string name = null;
+			public int position;
+			public string path;
+			public string name;
 			public IntPtr type = IntPtr.Zero;
 		}
 
@@ -110,7 +110,8 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Specifies the valid RecipientTypes for a Recipient.
 		/// </summary>
-		public enum RecipientType : int {
+		public enum RecipientType
+		{
 			/// <summary>
 			/// Recipient will be in the TO list.
 			/// </summary>
@@ -497,25 +498,25 @@ namespace Greenshot.Helpers {
 			[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
 			public class MapiMessage {
 				public int Reserved = 0;
-				public string Subject = null;
-				public string NoteText = null;
+				public string Subject;
+				public string NoteText;
 				public string MessageType = null;
 				public string DateReceived = null;
 				public string ConversationID = null;
 				public int Flags = 0;
 				public IntPtr Originator = IntPtr.Zero;
-				public int RecipientCount = 0;
+				public int RecipientCount;
 				public IntPtr Recipients = IntPtr.Zero;
-				public int FileCount = 0;
+				public int FileCount;
 				public IntPtr Files = IntPtr.Zero;
 			}
 
 			[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
 			public class MapiRecipDesc {
 				public int Reserved = 0;
-				public int RecipientClass = 0;
-				public string Name = null;
-				public string Address = null;
+				public int RecipientClass;
+				public string Name;
+				public string Address;
 				public int eIDSize = 0;
 				public IntPtr EntryID = IntPtr.Zero;
 			}
@@ -542,12 +543,12 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// The email address of this recipient.
 		/// </summary>
-		public string Address = null;
+		public string Address;
 
 		/// <summary>
 		/// The display name of this recipient.
 		/// </summary>
-		public string DisplayName = null;
+		public string DisplayName;
 
 		/// <summary>
 		/// How the recipient will receive this message (To, CC, BCC).

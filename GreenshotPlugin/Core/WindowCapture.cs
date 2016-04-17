@@ -62,7 +62,7 @@ namespace GreenshotPlugin.Core {
 			set;
 		}
 
-		private Dictionary<string, string> metaData = new Dictionary<string, string>();
+		private readonly Dictionary<string, string> metaData = new Dictionary<string, string>();
 		public Dictionary<string, string> MetaData {
 			get {return metaData;}
 		}
@@ -644,7 +644,7 @@ namespace GreenshotPlugin.Core {
 			// capture.Image = capturedBitmap;
 			// capture.Location = captureBounds.Location;
 
-			using (SafeWindowDCHandle desktopDCHandle = SafeWindowDCHandle.fromDesktop()) {
+			using (SafeWindowDCHandle desktopDCHandle = SafeWindowDCHandle.FromDesktop()) {
 				if (desktopDCHandle.IsInvalid) {
 					// Get Exception before the error is lost
 					Exception exceptionToThrow = CreateCaptureException("desktopDCHandle", captureBounds);

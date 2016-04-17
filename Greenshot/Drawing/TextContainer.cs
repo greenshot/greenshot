@@ -332,8 +332,8 @@ namespace Greenshot.Drawing {
 			if (lineThickness <= 1) {
 				lineWidth = 0;
 			}
-			_textBox.Width = absRectangle.Width - (2 * lineWidth) + correction;
-			_textBox.Height = absRectangle.Height - (2 * lineWidth) + correction;
+			_textBox.Width = absRectangle.Width - 2 * lineWidth + correction;
+			_textBox.Height = absRectangle.Height - 2 * lineWidth + correction;
 		}
 
 		public override void ApplyBounds(RectangleF newBounds) {
@@ -415,7 +415,7 @@ namespace Greenshot.Drawing {
 		/// <param name="text"></param>
 		/// <param name="font"></param>
 		public static void DrawText(Graphics graphics, Rectangle drawingRectange, int lineThickness, Color fontColor, bool drawShadow, StringFormat stringFormat, string text, Font font) {
-			int textOffset = (lineThickness > 0) ? (int)Math.Ceiling(lineThickness / 2d) : 0;
+			int textOffset = lineThickness > 0 ? (int)Math.Ceiling(lineThickness / 2d) : 0;
 			// draw shadow before anything else
 			if (drawShadow) {
 				int basealpha = 100;

@@ -21,9 +21,7 @@
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using System.Security;
 using log4net;
-using Microsoft.Win32.SafeHandles;
 using System.Reflection;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -94,7 +92,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// GDIplus Helpers
 	/// </summary>
 	public static class GDIplus {
-		private static ILog LOG = LogManager.GetLogger(typeof(GDIplus));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(GDIplus));
 
 		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true)]
 		private static extern int GdipBitmapApplyEffect(IntPtr bitmap, IntPtr effect, ref RECT rectOfInterest, bool useAuxData, IntPtr auxData, int auxDataSize);
@@ -107,7 +105,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		private static extern int GdipCreateEffect(Guid guid, out IntPtr effect);
 		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true)]
 		private static extern int GdipDeleteEffect(IntPtr effect);
-		private static Guid BlurEffectGuid = new Guid("{633C80A4-1843-482B-9EF2-BE2834C5FDD4}");
+		private static readonly Guid BlurEffectGuid = new Guid("{633C80A4-1843-482B-9EF2-BE2834C5FDD4}");
 
 		// Constant "FieldInfo" for getting the nativeImage from the Bitmap
 		private static readonly FieldInfo FIELD_INFO_NATIVE_IMAGE = typeof(Bitmap).GetField("nativeImage", BindingFlags.GetField | BindingFlags.Instance | BindingFlags.NonPublic);
@@ -118,7 +116,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		// Constant "FieldInfo" for getting the nativeImageAttributes from the ImageAttributes
 		private static readonly FieldInfo FIELD_INFO_NATIVE_IMAGEATTRIBUTES = typeof(ImageAttributes).GetField("nativeImageAttributes", BindingFlags.GetField | BindingFlags.Instance | BindingFlags.NonPublic);
 
-		private static bool isBlurEnabled = Environment.OSVersion.Version.Major >= 6;
+		private static bool _isBlurEnabled = Environment.OSVersion.Version.Major >= 6;
 		/// <summary>
 		/// Get the nativeImage field from the bitmap
 		/// </summary>
@@ -173,10 +171,11 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// </summary>
 		/// <param name="radius"></param>
 		/// <returns></returns>
-		public static bool isBlurPossible(int radius) {
-			if (!isBlurEnabled) {
+		public static bool IsBlurPossible(int radius) {
+			if (!_isBlurEnabled) {
 				return false;
-			} else if (Environment.OSVersion.Version.Minor >= 2 && radius < 20) {
+			}
+			if (Environment.OSVersion.Version.Minor >= 2 && radius < 20) {
 				return false;
 			}
 			return true;
@@ -191,7 +190,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// <param name="expandEdges">bool true if the edges are expanded with the radius</param>
 		/// <returns>false if there is no GDI+ available or an exception occured</returns>
 		public static bool ApplyBlur(Bitmap destinationBitmap, Rectangle area, int radius, bool expandEdges) {
-			if (!isBlurPossible(radius)) {
+			if (!IsBlurPossible(radius)) {
 				return false;
 			}
 			IntPtr hBlurParams = IntPtr.Zero;
@@ -226,7 +225,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 				// Everything worked, return true
 				return true;
 			} catch (Exception ex) {
-				isBlurEnabled = false;
+				_isBlurEnabled = false;
 				LOG.Error("Problem using GdipBitmapApplyEffect: ", ex);
 				return false;
 			} finally {
@@ -240,7 +239,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 						Marshal.FreeHGlobal(hBlurParams);
 					}
 				} catch (Exception ex) {
-					isBlurEnabled = false;
+					_isBlurEnabled = false;
 					LOG.Error("Problem cleaning up ApplyBlur: ", ex);
 				}
 			}
@@ -251,7 +250,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// </summary>
 		/// <returns>false if there is no GDI+ available or an exception occured</returns>
 		public static bool DrawWithBlur(Graphics graphics, Bitmap image, Rectangle source, Matrix transform, ImageAttributes imageAttributes, int radius, bool expandEdges) {
-			if (!isBlurPossible(radius)) {
+			if (!IsBlurPossible(radius)) {
 				return false;
 			}
 
@@ -291,7 +290,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 				// Everything worked, return true
 				return true;
 			} catch (Exception ex) {
-				isBlurEnabled = false;
+				_isBlurEnabled = false;
 				LOG.Error("Problem using GdipDrawImageFX: ", ex);
 				return false;
 			} finally {
@@ -305,7 +304,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 						Marshal.FreeHGlobal(hBlurParams);
 					}
 				} catch (Exception ex) {
-					isBlurEnabled = false;
+					_isBlurEnabled = false;
 					LOG.Error("Problem cleaning up DrawWithBlur: ", ex);
 				}
 			}

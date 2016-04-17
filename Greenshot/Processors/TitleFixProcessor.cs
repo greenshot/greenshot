@@ -32,8 +32,8 @@ namespace Greenshot.Processors  {
 	/// Description of TitleFixProcessor.
 	/// </summary>
 	public class TitleFixProcessor : AbstractProcessor {
-		private static ILog LOG = LogManager.GetLogger(typeof(TitleFixProcessor));
-		private static CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(TitleFixProcessor));
+		private static readonly CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
 		
 		public TitleFixProcessor() {
 			List<string> corruptKeys = new List<string>();

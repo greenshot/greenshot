@@ -35,8 +35,8 @@ namespace Greenshot.Destinations {
 	/// Description of FileSaveAsDestination.
 	/// </summary>
 	public class FileDestination : AbstractDestination {
-		private static ILog LOG = LogManager.GetLogger(typeof(FileDestination));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(FileDestination));
+		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		public const string DESIGNATION = "FileNoDialog";
 
 		public override string Designation {
@@ -103,20 +103,23 @@ namespace Greenshot.Destinations {
 				LOG.InfoFormat("Not overwriting: {0}", ex1.Message);
 				// when we don't allow to overwrite present a new SaveWithDialog
 				fullPath = ImageOutput.SaveWithDialog(surface, captureDetails);
-				outputMade = (fullPath != null);
+				outputMade = fullPath != null;
 			} catch (Exception ex2) {
 				LOG.Error("Error saving screenshot!", ex2);
 				// Show the problem
 				MessageBox.Show(Language.GetString(LangKey.error_save), Language.GetString(LangKey.error));
 				// when save failed we present a SaveWithDialog
 				fullPath = ImageOutput.SaveWithDialog(surface, captureDetails);
-				outputMade = (fullPath != null);
+				outputMade = fullPath != null;
 			}
 			// Don't overwrite filename if no output is made
 			if (outputMade) {
 				exportInformation.ExportMade = outputMade;
 				exportInformation.Filepath = fullPath;
-				captureDetails.Filename = fullPath;
+				if (captureDetails != null)
+				{
+					captureDetails.Filename = fullPath;
+				}
 				conf.OutputFileAsFullpath = fullPath;
 			}
 

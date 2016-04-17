@@ -30,7 +30,7 @@ namespace Greenshot.Controls {
 	/// ToolStripProfessionalRenderer which draws the Check correctly when the icons are larger
 	/// </summary>
 	public class ContextMenuToolStripProfessionalRenderer : ToolStripProfessionalRenderer {
-		private static CoreConfiguration coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
 		private static Image scaledCheckbox;
 
 		protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs e) {

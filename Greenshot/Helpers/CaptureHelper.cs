@@ -42,7 +42,7 @@ namespace Greenshot.Helpers {
 	/// </summary>
 	public class CaptureHelper : IDisposable {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(CaptureHelper));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		// TODO: when we get the screen capture code working correctly, this needs to be enabled
 		//private static ScreenCaptureHelper screenCapture = null;
 		private List<WindowDetails> _windows = new List<WindowDetails>();
@@ -404,7 +404,7 @@ namespace Greenshot.Helpers {
 
 						// Set capture title, fixing bug #3569703
 						foreach (WindowDetails window in WindowDetails.GetVisibleWindows()) {
-							Point estimatedLocation = new Point(conf.LastCapturedRegion.X + (conf.LastCapturedRegion.Width / 2), conf.LastCapturedRegion.Y + (conf.LastCapturedRegion.Height / 2));
+							Point estimatedLocation = new Point(conf.LastCapturedRegion.X + conf.LastCapturedRegion.Width / 2, conf.LastCapturedRegion.Y + conf.LastCapturedRegion.Height / 2);
 							if (window.Contains(estimatedLocation)) {
 								_selectedCaptureWindow = window;
 								_capture.CaptureDetails.Title = _selectedCaptureWindow.Text;
@@ -850,14 +850,14 @@ namespace Greenshot.Helpers {
 									// check if GDI capture any good, by comparing it with the screen content
 									int blackCountGDI = ImageHelper.CountColor(tmpCapture.Image, Color.Black, false);
 									int GDIPixels = tmpCapture.Image.Width * tmpCapture.Image.Height;
-									int blackPercentageGDI = (blackCountGDI * 100) / GDIPixels;
+									int blackPercentageGDI = blackCountGDI * 100 / GDIPixels;
 									if (blackPercentageGDI >= 1) {
 										int screenPixels = windowRectangle.Width * windowRectangle.Height;
 										using (ICapture screenCapture = new Capture()) {
 											screenCapture.CaptureDetails = captureForWindow.CaptureDetails;
 											if (WindowCapture.CaptureRectangleFromDesktopScreen(screenCapture, windowRectangle) != null) {
 												int blackCountScreen = ImageHelper.CountColor(screenCapture.Image, Color.Black, false);
-												int blackPercentageScreen = (blackCountScreen * 100) / screenPixels;
+												int blackPercentageScreen = blackCountScreen * 100 / screenPixels;
 												if (screenPixels == GDIPixels) {
 													// "easy compare", both have the same size
 													// If GDI has more black, use the screen capture.

@@ -46,10 +46,8 @@ namespace Greenshot.Drawing {
 	public abstract class DrawableContainer : AbstractFieldHolderWithChildren, IDrawableContainer {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(DrawableContainer));
 		protected static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
-		private bool isMadeUndoable;
+		private bool _isMadeUndoable;
 		private const int M11 = 0;
-		private const int M12 = 1;
-		private const int M21 = 2;
 		private const int M22 = 3;
 
 
@@ -305,7 +303,7 @@ namespace Greenshot.Drawing {
 				Left = _parent.Width - Width - lineThickness/2;
 			}
 			if (horizontalAlignment == HorizontalAlignment.Center) {
-				Left = (_parent.Width / 2) - (Width / 2) - lineThickness/2;
+				Left = _parent.Width / 2 - Width / 2 - lineThickness/2;
 			}
 
 			if (verticalAlignment == VerticalAlignment.TOP) {
@@ -315,7 +313,7 @@ namespace Greenshot.Drawing {
 				Top = _parent.Height - Height - lineThickness/2;
 			}
 			if (verticalAlignment == VerticalAlignment.CENTER) {
-				Top = (_parent.Height / 2) - (Height / 2) - lineThickness/2;
+				Top = _parent.Height / 2 - Height / 2 - lineThickness/2;
 			}
 		}
 		
@@ -455,7 +453,7 @@ namespace Greenshot.Drawing {
 			} else {
 				Status = EditStatus.MOVING;
 			}
-			isMadeUndoable = false;
+			_isMadeUndoable = false;
 		}
 
 		private void GripperMouseUp(object sender, MouseEventArgs e) {
@@ -463,7 +461,7 @@ namespace Greenshot.Drawing {
 			if (originatingGripper != _targetGripper) {
 				_boundsBeforeResize = Rectangle.Empty;
 				_boundsAfterResize = RectangleF.Empty;
-				isMadeUndoable = false;
+				_isMadeUndoable = false;
 			}
 			Status = EditStatus.IDLE;
 			Invalidate();
@@ -478,9 +476,9 @@ namespace Greenshot.Drawing {
 				TargetGripperMove(absX, absY);
 			} else if (Status.Equals(EditStatus.RESIZING)) {
 				// check if we already made this undoable
-				if (!isMadeUndoable) {
+				if (!_isMadeUndoable) {
 					// don't allow another undo until we are finished with this move
-					isMadeUndoable = true;
+					_isMadeUndoable = true;
 					// Make undo-able
 					MakeBoundsChangeUndoable(false);
 				}
@@ -699,6 +697,8 @@ namespace Greenshot.Drawing {
 		}
 		
 		public override int GetHashCode() {
+			// TODO: This actually doesn't make sense...
+			// Place the container in a list, and you can't find it :)
 			return left.GetHashCode() ^ top.GetHashCode() ^ width.GetHashCode() ^ height.GetHashCode() ^ GetFields().GetHashCode();
 		}
 		

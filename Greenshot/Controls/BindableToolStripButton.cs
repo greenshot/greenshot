@@ -36,7 +36,8 @@ namespace Greenshot.Controls {
 			set;
 		}
 
-		public BindableToolStripButton() :base() {
+		public BindableToolStripButton()
+		{
 			CheckedChanged += BindableToolStripButton_CheckedChanged;
 		}
 

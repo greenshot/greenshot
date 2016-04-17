@@ -102,7 +102,7 @@ namespace GreenshotPlugin.Core {
 			Banner = banner;
 		}
 
-		private bool _alwaysDisplay = false;
+		private bool _alwaysDisplay;
 		/// <summary>
 		/// Gets or sets if the dialog will be shown even if the credentials
 		/// can be returned from an existing credential in the credential manager.
@@ -138,7 +138,7 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		private bool _incorrectPassword = false;
+		private bool _incorrectPassword;
 		/// <summary>Gets or sets if the incorrect password balloontip needs to be shown. Introduced AFTER Windows XP</summary>Gets></summary>
 		public bool IncorrectPassword {
 			get {
@@ -149,7 +149,7 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		private bool _keepName = false;
+		private bool _keepName;
 		/// <summary>Gets or sets if the name is read-only.</summary>
 		public bool KeepName {
 			get {
@@ -200,7 +200,7 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		private bool _saveChecked = false;
+		private bool _saveChecked;
 		/// <summary>Gets or sets if the save checkbox status.</summary>
 		public bool SaveChecked {
 			get {
@@ -285,7 +285,7 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		private Image _banner = null;
+		private Image _banner;
 		/// <summary>Gets or sets the image to display on the dialog.</summary>
 		/// <remarks>A null value will cause a system default image to be used.</remarks>
 		public Image Banner {

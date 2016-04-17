@@ -28,7 +28,7 @@ namespace Greenshot.Memento {
 	/// </summary>
 	public class TextChangeMemento : IMemento  {
 		private TextContainer textContainer;
-		private string oldText;
+		private readonly string oldText;
 		
 		public TextChangeMemento(TextContainer textContainer) {
 			this.textContainer = textContainer;

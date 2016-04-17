@@ -32,11 +32,11 @@ namespace Greenshot.Destinations {
 	/// Description of EditorDestination.
 	/// </summary>
 	public class EditorDestination : AbstractDestination {
-		private static ILog LOG = LogManager.GetLogger(typeof(EditorDestination));
-		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(EditorDestination));
+		private static readonly EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
 		public const string DESIGNATION = "Editor";
-		private IImageEditor editor = null;
-		private static Image greenshotIcon = GreenshotResources.getGreenshotIcon().ToBitmap();
+		private readonly IImageEditor editor;
+		private static readonly Image greenshotIcon = GreenshotResources.getGreenshotIcon().ToBitmap();
 
 		public EditorDestination() {
 		}
@@ -79,8 +79,8 @@ namespace Greenshot.Destinations {
 		}
 
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			foreach (IImageEditor editor in ImageEditorForm.Editors) {
-				yield return new EditorDestination(editor);
+			foreach (IImageEditor someEditor in ImageEditorForm.Editors) {
+				yield return new EditorDestination(someEditor);
 			}
 		}
 

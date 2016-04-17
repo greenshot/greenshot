@@ -39,27 +39,27 @@ namespace Greenshot.Helpers {
 	/// </summary>
 	public static class SoundHelper {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(SoundHelper));
-        private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-		private static GCHandle? gcHandle = null;
-	    private static byte[] soundBuffer = null;
+        private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static GCHandle? _gcHandle;
+	    private static byte[] _soundBuffer;
 		
 		public static void Initialize() {
-			if (gcHandle == null) {
+			if (_gcHandle == null) {
 				try {
 					ResourceManager resources = new ResourceManager("Greenshot.Sounds", Assembly.GetExecutingAssembly());
-					soundBuffer = (byte[])resources.GetObject("camera");
+					_soundBuffer = (byte[])resources.GetObject("camera");
 
 					if (conf.NotificationSound != null && conf.NotificationSound.EndsWith(".wav")) {
 						try {
 							if (File.Exists(conf.NotificationSound)) {
-								soundBuffer = File.ReadAllBytes(conf.NotificationSound);
+								_soundBuffer = File.ReadAllBytes(conf.NotificationSound);
 							}
 						} catch (Exception ex) {
 							LOG.WarnFormat("couldn't load {0}: {1}", conf.NotificationSound, ex.Message);
 						}
 					}
 					// Pin sound so it can't be moved by the Garbage Collector, this was the cause for the bad sound
-					gcHandle = GCHandle.Alloc(soundBuffer, GCHandleType.Pinned);
+					_gcHandle = GCHandle.Alloc(_soundBuffer, GCHandleType.Pinned);
 				} catch (Exception e) {
 					LOG.Error("Error initializing.", e);
 				}
@@ -67,11 +67,11 @@ namespace Greenshot.Helpers {
 		}
 		
 		public static void Play() {
-            if (soundBuffer != null) {
+            if (_soundBuffer != null) {
                 //Thread playSoundThread = new Thread(delegate() {
                 SoundFlags flags = SoundFlags.SND_ASYNC | SoundFlags.SND_MEMORY | SoundFlags.SND_NOWAIT | SoundFlags.SND_NOSTOP;
                 try {
-                    WinMM.PlaySound(gcHandle.Value.AddrOfPinnedObject(), (UIntPtr)0, (uint)flags);
+                    WinMM.PlaySound(_gcHandle.Value.AddrOfPinnedObject(), (UIntPtr)0, (uint)flags);
                 } catch (Exception e) {
                     LOG.Error("Error in play.", e);
                 }
@@ -84,10 +84,10 @@ namespace Greenshot.Helpers {
 
 	    public static void Deinitialize() {
 	    	try {
-				if (gcHandle != null) {
+				if (_gcHandle != null) {
 					WinMM.PlaySound((byte[])null, (UIntPtr)0, (uint)0);
-					gcHandle.Value.Free();
-					gcHandle = null;
+					_gcHandle.Value.Free();
+					_gcHandle = null;
 				}
 	    	} catch (Exception e) {
 	    		LOG.Error("Error in deinitialize.", e);

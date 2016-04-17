@@ -36,9 +36,9 @@ namespace Greenshot.Destinations {
 	public class EmailDestination : AbstractDestination {
 		private static ILog LOG = LogManager.GetLogger(typeof(EmailDestination));
 		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-		private static Image mailIcon = GreenshotResources.getImage("Email.Image");
-		private static bool isActiveFlag = false;
-		private static string mapiClient = null;
+		private static readonly Image mailIcon = GreenshotResources.getImage("Email.Image");
+		private static bool isActiveFlag;
+		private static string mapiClient;
 		public const string DESIGNATION = "EMail";
 
 		static EmailDestination() {

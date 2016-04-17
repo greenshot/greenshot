@@ -33,12 +33,12 @@ namespace GreenshotPlugin.Controls {
 	/// For some reason SFD is sealed :(
 	/// </summary>
 	public class SaveImageFileDialog : IDisposable {
-		private static ILog LOG = LogManager.GetLogger(typeof(SaveImageFileDialog));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-		protected SaveFileDialog saveFileDialog;
-		private FilterOption[] filterOptions;
-		private DirectoryInfo eagerlyCreatedDirectory;
-		private ICaptureDetails captureDetails = null;
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(SaveImageFileDialog));
+		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		protected SaveFileDialog SaveFileDialog;
+		private FilterOption[] _filterOptions;
+		private DirectoryInfo _eagerlyCreatedDirectory;
+		private readonly ICaptureDetails _captureDetails;
 
 		public void Dispose() {
 			Dispose(true);
@@ -47,25 +47,25 @@ namespace GreenshotPlugin.Controls {
 
 		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
-				if (saveFileDialog != null) {
-					saveFileDialog.Dispose();
-					saveFileDialog = null;
+				if (SaveFileDialog != null) {
+					SaveFileDialog.Dispose();
+					SaveFileDialog = null;
 				}
 			}
 		}
 
 		public SaveImageFileDialog() {
-			init();
+			Init();
 		}
 
 		public SaveImageFileDialog(ICaptureDetails captureDetails) {
-			this.captureDetails = captureDetails;
-			init();
+			_captureDetails = captureDetails;
+			Init();
 		}
 
-		private void init() {
-			saveFileDialog = new SaveFileDialog();
-			applyFilterOptions();
+		private void Init() {
+			SaveFileDialog = new SaveFileDialog();
+			ApplyFilterOptions();
 			string initialDirectory = null;
 			try {
 				initialDirectory = Path.GetDirectoryName(conf.OutputFileAsFullpath);
@@ -74,44 +74,46 @@ namespace GreenshotPlugin.Controls {
 			}
 			
 			if (!string.IsNullOrEmpty(initialDirectory) && Directory.Exists(initialDirectory)) {
-				saveFileDialog.InitialDirectory = initialDirectory;
+				SaveFileDialog.InitialDirectory = initialDirectory;
 			} else if (Directory.Exists(conf.OutputFilePath)) {
-				saveFileDialog.InitialDirectory = conf.OutputFilePath;
+				SaveFileDialog.InitialDirectory = conf.OutputFilePath;
 			}
 			// The following property fixes a problem that the directory where we save is locked (bug #2899790)
-			saveFileDialog.RestoreDirectory = true;
-			saveFileDialog.OverwritePrompt = true;
-			saveFileDialog.CheckPathExists = false;
-			saveFileDialog.AddExtension = true;
+			SaveFileDialog.RestoreDirectory = true;
+			SaveFileDialog.OverwritePrompt = true;
+			SaveFileDialog.CheckPathExists = false;
+			SaveFileDialog.AddExtension = true;
 			ApplySuggestedValues();
 		}
 
-		private void applyFilterOptions() {
-			prepareFilterOptions();
+		private void ApplyFilterOptions() {
+			PrepareFilterOptions();
 			string fdf = "";
 			int preselect = 0;
             var outputFileFormatAsString = Enum.GetName(typeof(OutputFormat), conf.OutputFileFormat);
-			for(int i=0; i<filterOptions.Length; i++){
-				FilterOption fo = filterOptions[i];
+			for(int i=0; i<_filterOptions.Length; i++){
+				FilterOption fo = _filterOptions[i];
 				fdf +=  fo.Label + "|*." + fo.Extension + "|";
                 if(outputFileFormatAsString == fo.Extension)
 				    preselect = i;
 			}
 			fdf = fdf.Substring(0, fdf.Length-1);
-			saveFileDialog.Filter = fdf;
-			saveFileDialog.FilterIndex = preselect + 1;
+			SaveFileDialog.Filter = fdf;
+			SaveFileDialog.FilterIndex = preselect + 1;
 		}
 		
-		private void prepareFilterOptions() {
+		private void PrepareFilterOptions() {
 			OutputFormat[] supportedImageFormats = (OutputFormat[])Enum.GetValues(typeof(OutputFormat));
-			filterOptions = new FilterOption[supportedImageFormats.Length];
-			for(int i=0; i<filterOptions.Length; i++){
+			_filterOptions = new FilterOption[supportedImageFormats.Length];
+			for(int i=0; i<_filterOptions.Length; i++){
 				string ifo = supportedImageFormats[i].ToString();
 				if (ifo.ToLower().Equals("jpeg")) ifo = "Jpg"; // we dont want no jpeg files, so let the dialog check for jpg
-				FilterOption fo = new FilterOption();
-				fo.Label = ifo.ToUpper();
-				fo.Extension = ifo.ToLower();
-				filterOptions.SetValue(fo, i);
+				FilterOption fo = new FilterOption
+				{
+					Label = ifo.ToUpper(),
+					Extension = ifo.ToLower()
+				};
+				_filterOptions.SetValue(fo, i);
 			}
 		}
 		
@@ -119,16 +121,16 @@ namespace GreenshotPlugin.Controls {
 		/// filename exactly as typed in the filename field
 		/// </summary>
 		public string FileName {
-			get {return saveFileDialog.FileName;}
-			set {saveFileDialog.FileName = value;}
+			get {return SaveFileDialog.FileName;}
+			set {SaveFileDialog.FileName = value;}
 		}
 		
 		/// <summary>
 		/// initial directory of the dialog
 		/// </summary>
 		public string InitialDirectory {
-			get {return saveFileDialog.InitialDirectory;}
-			set {saveFileDialog.InitialDirectory = value;}
+			get {return SaveFileDialog.InitialDirectory;}
+			set {SaveFileDialog.InitialDirectory = value;}
 		}
 		
 		/// <summary>
@@ -138,7 +140,7 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		public string FileNameWithExtension {
 			get {
-				string fn = saveFileDialog.FileName;
+				string fn = SaveFileDialog.FileName;
 				// if the filename contains a valid extension, which is the same like the selected filter item's extension, the filename is okay
 				if(fn.EndsWith(Extension,StringComparison.CurrentCultureIgnoreCase)) return fn;
 				// otherwise we just add the selected filter item's extension
@@ -155,19 +157,19 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		public string Extension {
 			get {
-				return filterOptions[saveFileDialog.FilterIndex-1].Extension;
+				return _filterOptions[SaveFileDialog.FilterIndex-1].Extension;
 			}
 			set {
-				for(int i=0; i<filterOptions.Length; i++) {
-					if(value.Equals(filterOptions[i].Extension, StringComparison.CurrentCultureIgnoreCase)) {
-						saveFileDialog.FilterIndex = i + 1;
+				for(int i=0; i<_filterOptions.Length; i++) {
+					if(value.Equals(_filterOptions[i].Extension, StringComparison.CurrentCultureIgnoreCase)) {
+						SaveFileDialog.FilterIndex = i + 1;
 					}
 				}
 			}
 		}
 		
 		public DialogResult ShowDialog() {
-			DialogResult ret = saveFileDialog.ShowDialog();
+			DialogResult ret = SaveFileDialog.ShowDialog();
 			CleanUp();
 			return ret;
 		}
@@ -175,18 +177,11 @@ namespace GreenshotPlugin.Controls {
 		/// <summary>
 		/// sets InitialDirectory and FileName property of a SaveFileDialog smartly, considering default pattern and last used path
 		/// </summary>
-		/// <param name="sfd">a SaveFileDialog instance</param>
 		private void ApplySuggestedValues() {
 			// build the full path and set dialog properties
-			FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(conf.OutputFileFilenamePattern, captureDetails);
+			FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(conf.OutputFileFilenamePattern, _captureDetails);
 		}
-		
-		private string GetRootDirFromConfig() {
-			string rootDir = conf.OutputFilePath;
-			rootDir = FilenameHelper.FillVariables(rootDir, false);
-			return rootDir;
-		}
-		
+
 		private class FilterOption {
 			public string Label;
 			public string Extension;
@@ -195,29 +190,14 @@ namespace GreenshotPlugin.Controls {
 		private void CleanUp() {
 			// fix for bug #3379053
 			try {
-				if(eagerlyCreatedDirectory != null && eagerlyCreatedDirectory.GetFiles().Length == 0  && eagerlyCreatedDirectory.GetDirectories().Length == 0) {
-					eagerlyCreatedDirectory.Delete();
-					eagerlyCreatedDirectory = null;
+				if(_eagerlyCreatedDirectory != null && _eagerlyCreatedDirectory.GetFiles().Length == 0  && _eagerlyCreatedDirectory.GetDirectories().Length == 0) {
+					_eagerlyCreatedDirectory.Delete();
+					_eagerlyCreatedDirectory = null;
 				}
 			} catch (Exception e) {
 				LOG.WarnFormat("Couldn't cleanup directory due to: {0}", e.Message);
-				eagerlyCreatedDirectory = null;
+				_eagerlyCreatedDirectory = null;
 			}
-		}
-		
-		private string CreateDirectoryIfNotExists(string fullPath) {
-			string dirName = null;
-			try {
-				dirName = Path.GetDirectoryName(fullPath);
-				DirectoryInfo di = new DirectoryInfo(dirName);
-				if(!di.Exists) {
-					 di = Directory.CreateDirectory(dirName);
-					 eagerlyCreatedDirectory = di;
-				}
-			} catch (Exception e) {
-				LOG.Error("Error in CreateDirectoryIfNotExists",e);
-			}
-			return dirName;
 		}
 	}
 }

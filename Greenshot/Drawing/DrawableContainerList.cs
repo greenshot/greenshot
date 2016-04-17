@@ -322,7 +322,7 @@ namespace Greenshot.Drawing {
 				if (!elements.Contains(dc)) {
 					continue;
 				}
-				if (Count > (i+1) && !elements.Contains(this[i+1])) {
+				if (Count > i+1 && !elements.Contains(this[i+1])) {
 					SwapElements(i,i+1);
 				}
 			}
@@ -468,7 +468,7 @@ namespace Greenshot.Drawing {
 
 			// Copy
 			item = new ToolStripMenuItem(Language.GetString(LangKey.editor_copytoclipboard));
-			item.Image = ((Image)(editorFormResources.GetObject("copyToolStripMenuItem.Image")));
+			item.Image = (Image)editorFormResources.GetObject("copyToolStripMenuItem.Image");
 			item.Click += delegate {
 				ClipboardHelper.SetClipboardData(typeof(DrawableContainerList), this);
 			};
@@ -476,7 +476,7 @@ namespace Greenshot.Drawing {
 
 			// Cut
 			item = new ToolStripMenuItem(Language.GetString(LangKey.editor_cuttoclipboard));
-			item.Image = ((Image)(editorFormResources.GetObject("btnCut.Image")));
+			item.Image = (Image)editorFormResources.GetObject("btnCut.Image");
 			item.Click += delegate {
 				ClipboardHelper.SetClipboardData(typeof(DrawableContainerList), this);
 				List<DrawableContainer> containersToDelete = new List<DrawableContainer>();
@@ -492,7 +492,7 @@ namespace Greenshot.Drawing {
 
 			// Delete
 			item = new ToolStripMenuItem(Language.GetString(LangKey.editor_deleteelement));
-			item.Image = ((Image)(editorFormResources.GetObject("removeObjectToolStripMenuItem.Image")));
+			item.Image = (Image)editorFormResources.GetObject("removeObjectToolStripMenuItem.Image");
 			item.Click += delegate {
 				List<DrawableContainer> containersToDelete = new List<DrawableContainer>();
 				foreach(var drawableContainer in this) {

@@ -24,10 +24,8 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Runtime.InteropServices;
 using Greenshot.IniFile;
 using GreenshotPlugin.UnmanagedHelpers;
-using Greenshot.Plugin;
 using Greenshot.Core;
 using log4net;
 
@@ -48,8 +46,8 @@ namespace GreenshotPlugin.Core {
 	/// Description of ImageHelper.
 	/// </summary>
 	public static class ImageHelper {
-		private static ILog LOG = LogManager.GetLogger(typeof(ImageHelper));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(ImageHelper));
+		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private const int EXIF_ORIENTATION_ID = 0x0112;
 
 		/// <summary>
@@ -827,7 +825,7 @@ namespace GreenshotPlugin.Core {
 			if ((shadowSize & 1) == 0) {
 				shadowSize++;
 			}
-			bool useGDIBlur = GDIplus.isBlurPossible(shadowSize);
+			bool useGDIBlur = GDIplus.IsBlurPossible(shadowSize);
 			// Create "mask" for the shadow
 			ColorMatrix maskMatrix = new ColorMatrix();
 			maskMatrix.Matrix00 = 0;
@@ -1021,12 +1019,13 @@ namespace GreenshotPlugin.Core {
 		public static ImageAttributes CreateAdjustAttributes(float brightness, float contrast, float gamma) {
 			float adjustedBrightness = brightness - 1.0f;
 			ColorMatrix applyColorMatrix = new ColorMatrix(
-					new float[][] {
-						new float[] {contrast, 0, 0, 0, 0}, // scale red
-						new float[] {0, contrast, 0, 0, 0}, // scale green
-						new float[] {0, 0, contrast, 0, 0}, // scale blue
-						new float[] {0, 0, 0, 1.0f, 0}, // don't scale alpha
-						new float[] {adjustedBrightness, adjustedBrightness, adjustedBrightness, 0, 1}
+					new[]
+					{
+						new[] {contrast, 0, 0, 0, 0}, // scale red
+						new[] {0, contrast, 0, 0, 0}, // scale green
+						new[] {0, 0, contrast, 0, 0}, // scale blue
+						new[] {0, 0, 0, 1.0f, 0}, // don't scale alpha
+						new[] {adjustedBrightness, adjustedBrightness, adjustedBrightness, 0, 1}
 					});
 
 			//create some image attributes
@@ -1063,10 +1062,11 @@ namespace GreenshotPlugin.Core {
 		/// <returns>Bitmap with grayscale</returns>
 		public static Image CreateGrayscale(Image sourceImage) {
 			Bitmap clone = (Bitmap)Clone(sourceImage);
-			ColorMatrix grayscaleMatrix = new ColorMatrix( new float[][] {
-				new float[] {.3f, .3f, .3f, 0, 0},
-				new float[] {.59f, .59f, .59f, 0, 0},
-				new float[] {.11f, .11f, .11f, 0, 0},
+			ColorMatrix grayscaleMatrix = new ColorMatrix( new[]
+			{
+				new[] {.3f, .3f, .3f, 0, 0},
+				new[] {.59f, .59f, .59f, 0, 0},
+				new[] {.11f, .11f, .11f, 0, 0},
 				new float[] {0, 0, 0, 1, 0},
 				new float[] {0, 0, 0, 0, 1}
 			});

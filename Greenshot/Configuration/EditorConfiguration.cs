@@ -73,7 +73,7 @@ namespace Greenshot.Configuration {
 
 		/// <param name="requestingType">Type of the class for which to create the field</param>
 		/// <param name="fieldType">FieldType of the field to construct</param>
-		/// <param name="scope">FieldType of the field to construct</param>
+		/// <param name="preferredDefaultValue"></param>
 		/// <returns>a new Field of the given fieldType, with the scope of it's value being restricted to the Type scope</returns>
 		public Field CreateField(Type requestingType, FieldType fieldType, object preferredDefaultValue) {
 			string requestingTypeName = requestingType.Name;

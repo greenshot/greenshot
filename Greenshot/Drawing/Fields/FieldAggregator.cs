@@ -25,7 +25,6 @@ using System.ComponentModel;
 using Greenshot.Configuration;
 using Greenshot.IniFile;
 using Greenshot.Plugin.Drawing;
-using log4net;
 
 namespace Greenshot.Drawing.Fields {
 	/// <summary>
@@ -41,13 +40,10 @@ namespace Greenshot.Drawing.Fields {
 	/// </summary>
 	public class FieldAggregator : AbstractFieldHolder {
 		
-		private List<IDrawableContainer> boundContainers;
-		private bool internalUpdateRunning = false;
-		
-		enum Status {IDLE, BINDING, UPDATING};
-		
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(FieldAggregator));
-		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+		private readonly List<IDrawableContainer> boundContainers;
+		private bool internalUpdateRunning;
+
+		private static readonly EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
 
 		public FieldAggregator() {
 			foreach(FieldType fieldType in FieldType.Values) {

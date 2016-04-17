@@ -41,21 +41,21 @@ namespace Greenshot {
 	/// The about form
 	/// </summary>
 	public partial class AboutForm : AnimatingBaseForm {
-		private static ILog LOG = LogManager.GetLogger(typeof(AboutForm));
-		private Bitmap gBitmap;
-		private ColorAnimator backgroundAnimation;
-		private List<RectangleAnimator> pixels = new List<RectangleAnimator>();
-		private List<Color> colorFlow = new List<Color>();
-		private List<Color> pixelColors = new List<Color>();
-		private Random rand = new Random();
-		private readonly Color backColor = Color.FromArgb(61, 61, 61);
-		private readonly Color pixelColor = Color.FromArgb(138, 255, 0);
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(AboutForm));
+		private Bitmap _bitmap;
+		private readonly ColorAnimator _backgroundAnimation;
+		private readonly IList<RectangleAnimator> _pixels = new List<RectangleAnimator>();
+		private readonly IList<Color> _colorFlow = new List<Color>();
+		private readonly IList<Color> _pixelColors = new List<Color>();
+		private readonly Random _rand = new Random();
+		private readonly Color _backColor = Color.FromArgb(61, 61, 61);
+		private readonly Color _pixelColor = Color.FromArgb(138, 255, 0);
 
 		// Variables used for the color-cycle
-		private int waitFrames = 0;
-		private int colorIndex = 0;
-		private int scrollCount = 0;
-		private bool hasAnimationsLeft;
+		private int _waitFrames;
+		private int _colorIndex;
+		private int _scrollCount;
+		private bool _hasAnimationsLeft;
 
 		// Variables are used to define the location of the dots
 		private const int w = 13;
@@ -70,7 +70,7 @@ namespace Greenshot {
 		/// <summary>
 		/// The location of every dot in the "G"
 		/// </summary>
-		private List<Point> gSpots = new List<Point>() {
+		private readonly List<Point> gSpots = new List<Point>() {
              	// Top row
              	new Point(p2, p1),	// 0
              	new Point(p3, p1),  // 1
@@ -116,15 +116,15 @@ namespace Greenshot {
 		// 18 19 20 21 22 23
 
 		// The order in which we draw the dots & flow the collors.
-		List<int> flowOrder = new List<int>() { 4, 3, 2, 1, 0, 5, 6, 7, 8, 9, 10, 14, 15, 18, 19, 20, 21, 22, 23, 16, 17, 13, 12, 11 };
+		readonly List<int> flowOrder = new List<int>() { 4, 3, 2, 1, 0, 5, 6, 7, 8, 9, 10, 14, 15, 18, 19, 20, 21, 22, 23, 16, 17, 13, 12, 11 };
 
 		/// <summary>
 		/// Cleanup all the allocated resources
 		/// </summary>
 		private void Cleanup(object sender, EventArgs e) {
-			if (gBitmap != null) {
-				gBitmap.Dispose();
-				gBitmap = null;
+			if (_bitmap != null) {
+				_bitmap.Dispose();
+				_bitmap = null;
 			}
 		}
 
@@ -144,22 +144,22 @@ namespace Greenshot {
 			InitializeComponent();
 
 			// Only use double-buffering when we are NOT in a Terminal Server session
-			DoubleBuffered = !isTerminalServerSession;
+			DoubleBuffered = !IsTerminalServerSession;
 
 			// Use the self drawn image, first we create the background to be the backcolor (as we animate from this)
-			gBitmap = ImageHelper.CreateEmpty(90, 90, PixelFormat.Format24bppRgb, BackColor, 96, 96);
-			pictureBox1.Image = gBitmap;
+			_bitmap = ImageHelper.CreateEmpty(90, 90, PixelFormat.Format24bppRgb, BackColor, 96, 96);
+			pictureBox1.Image = _bitmap;
 			Version v = Assembly.GetExecutingAssembly().GetName().Version;
 
 			// Format is like this:  AssemblyVersion("Major.Minor.Build.Revision")]
-			lblTitle.Text = "Greenshot " + v.Major + "." + v.Minor + "." + v.Build + " Build " + v.Revision + (IniConfig.IsPortable ? " Portable" : "") + (" (" + OSInfo.Bits + " bit)");
+			lblTitle.Text = "Greenshot " + v.Major + "." + v.Minor + "." + v.Build + " Build " + v.Revision + (IniConfig.IsPortable ? " Portable" : "") + (" (" + OSInfo.Bits) + " bit)";
 
 			//Random rand = new Random();
 
 			// Number of frames the pixel animation takes
 			int frames = FramesForMillis(2000);
 			// The number of frames the color-cycle waits before it starts
-			waitFrames = FramesForMillis(6000);
+			_waitFrames = FramesForMillis(6000);
 
 			// Every pixel is created after pixelWaitFrames frames, which is increased in the loop.
 			int pixelWaitFrames = FramesForMillis(2000);
@@ -174,7 +174,7 @@ namespace Greenshot {
 				int offset = (w - 2) / 2;
 
 				// If the optimize for Terminal Server is set we make the animation without much ado
-				if (isTerminalServerSession) {
+				if (IsTerminalServerSession) {
 					// No animation
 					pixelAnimation = new RectangleAnimator(new Rectangle(gSpot.X, gSpot.Y, w - 2, w - 2), new Rectangle(gSpot.X, gSpot.Y, w - 2, w - 2), 1, EasingType.Cubic, EasingMode.EaseIn);
 				} else {
@@ -187,23 +187,23 @@ namespace Greenshot {
 				// Increase the wait frames
 				pixelWaitFrames += FramesForMillis(100);
 				// Add to the list of to be animated pixels
-				pixels.Add(pixelAnimation);
+				_pixels.Add(pixelAnimation);
 				// Add a color to the list for this pixel.
-				pixelColors.Add(pixelColor);
+				_pixelColors.Add(_pixelColor);
 			}
 			// Make sure the frame "loop" knows we have to animate
-			hasAnimationsLeft = true;
+			_hasAnimationsLeft = true;
 
 			// Pixel Color cycle colors, here we use a pre-animated loop which stores the values.
-			ColorAnimator pixelColorAnimator = new ColorAnimator(pixelColor, Color.FromArgb(255, 255, 255), 6, EasingType.Quadratic, EasingMode.EaseIn);
-			pixelColorAnimator.QueueDestinationLeg(pixelColor, 6, EasingType.Quadratic, EasingMode.EaseOut);
+			ColorAnimator pixelColorAnimator = new ColorAnimator(_pixelColor, Color.FromArgb(255, 255, 255), 6, EasingType.Quadratic, EasingMode.EaseIn);
+			pixelColorAnimator.QueueDestinationLeg(_pixelColor, 6, EasingType.Quadratic, EasingMode.EaseOut);
 			do {
-				colorFlow.Add(pixelColorAnimator.Current);
+				_colorFlow.Add(pixelColorAnimator.Current);
 				pixelColorAnimator.Next();
-			} while (pixelColorAnimator.hasNext);
+			} while (pixelColorAnimator.HasNext);
 
 			// color animation for the background
-			backgroundAnimation = new ColorAnimator(BackColor, backColor, FramesForMillis(5000), EasingType.Linear, EasingMode.EaseIn);
+			_backgroundAnimation = new ColorAnimator(BackColor, _backColor, FramesForMillis(5000), EasingType.Linear, EasingMode.EaseIn);
 		}
 
 		/// <summary>
@@ -227,63 +227,63 @@ namespace Greenshot {
 		/// Called from the AnimatingForm, for every frame
 		/// </summary>
 		protected override void Animate() {
-			if (gBitmap == null) {
+			if (_bitmap == null) {
 				return;
 			}
-			if (!isTerminalServerSession) {
+			if (!IsTerminalServerSession) {
 				// Color cycle
-				if (waitFrames != 0) {
-					waitFrames--;
+				if (_waitFrames != 0) {
+					_waitFrames--;
 					// Check if there is something else to do, if not we return so we don't occupy the CPU
-					if (!hasAnimationsLeft) {
+					if (!_hasAnimationsLeft) {
 						return;
 					}
-				} else if (scrollCount < (pixelColors.Count + colorFlow.Count)) {
+				} else if (_scrollCount < _pixelColors.Count + _colorFlow.Count) {
 					// Scroll colors, the scrollCount is the amount of pixels + the amount of colors to cycle.
-					for (int index = pixelColors.Count - 1; index > 0; index--) {
-						pixelColors[index] = pixelColors[index - 1];
+					for (int index = _pixelColors.Count - 1; index > 0; index--) {
+						_pixelColors[index] = _pixelColors[index - 1];
 					}
 					// Keep adding from  the colors to cycle until there is nothing left
-					if (colorIndex < colorFlow.Count) {
-						pixelColors[0] = colorFlow[colorIndex++];
+					if (_colorIndex < _colorFlow.Count) {
+						_pixelColors[0] = _colorFlow[_colorIndex++];
 					}
-					scrollCount++;
+					_scrollCount++;
 				} else {
 					// Reset values, wait X time for the next one
-					waitFrames = FramesForMillis(3000 + rand.Next(35000));
-					colorIndex = 0;
-					scrollCount = 0;
+					_waitFrames = FramesForMillis(3000 + _rand.Next(35000));
+					_colorIndex = 0;
+					_scrollCount = 0;
 					// Check if there is something else to do, if not we return so we don't occupy the CPU
-					if (!hasAnimationsLeft) {
+					if (!_hasAnimationsLeft) {
 						return;
 					}
 				}
-			} else if (!hasAnimationsLeft) {
+			} else if (!_hasAnimationsLeft) {
 				return;
 			}
 
 			// Draw the "G"
-			using (Graphics graphics = Graphics.FromImage(gBitmap)) {
+			using (Graphics graphics = Graphics.FromImage(_bitmap)) {
 				graphics.SmoothingMode = SmoothingMode.HighQuality;
 				graphics.InterpolationMode = InterpolationMode.HighQualityBilinear;
 				graphics.CompositingQuality = CompositingQuality.HighQuality;
 				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
-				graphics.Clear(backgroundAnimation.Next());
+				graphics.Clear(_backgroundAnimation.Next());
 
 				graphics.TranslateTransform(2, -2);
 				graphics.RotateTransform(20);
 
-				using (SolidBrush brush = new SolidBrush(pixelColor)) {
+				using (SolidBrush brush = new SolidBrush(_pixelColor)) {
 					int index = 0;
 					// We asume there is nothing to animate in the next Animate loop
-					hasAnimationsLeft = false;
+					_hasAnimationsLeft = false;
 					// Pixels of the G
-					foreach (RectangleAnimator pixel in pixels) {
-						brush.Color = pixelColors[index++];
+					foreach (RectangleAnimator pixel in _pixels) {
+						brush.Color = _pixelColors[index++];
 						graphics.FillEllipse(brush, pixel.Current);
 						// If a pixel still has frames left, the hasAnimationsLeft will be true
-						hasAnimationsLeft = hasAnimationsLeft | pixel.hasNext;
+						_hasAnimationsLeft = _hasAnimationsLeft | pixel.HasNext;
 						pixel.Next();
 					}
 				}

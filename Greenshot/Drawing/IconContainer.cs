@@ -31,7 +31,7 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable] 
 	public class IconContainer : DrawableContainer, IIconContainer {
-		private static ILog LOG = LogManager.GetLogger(typeof(IconContainer));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(IconContainer));
 
 		protected Icon icon;
 

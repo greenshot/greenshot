@@ -552,10 +552,10 @@ namespace GreenshotPlugin.Core {
 	/// A container to supply files to a Multi-part form data upload
 	/// </summary>
 	public class ByteContainer : IBinaryContainer {
-		private byte[] file;
-		private string fileName;
-		private string contentType;
-		private int fileSize;
+		private readonly byte[] file;
+		private readonly string fileName;
+		private readonly string contentType;
+		private readonly int fileSize;
 		public ByteContainer(byte[] file) : this(file, null) {
 		}
 		public ByteContainer(byte[] file, string filename) : this(file, filename, null) {
@@ -635,9 +635,9 @@ namespace GreenshotPlugin.Core {
 	/// A container to supply images to a Multi-part form data upload
 	/// </summary>
 	public class BitmapContainer : IBinaryContainer {
-		private Bitmap bitmap;
-		private SurfaceOutputSettings outputSettings;
-		private string fileName;
+		private readonly Bitmap bitmap;
+		private readonly SurfaceOutputSettings outputSettings;
+		private readonly string fileName;
 
 		public BitmapContainer(Bitmap bitmap, SurfaceOutputSettings outputSettings, string filename) {
 			this.bitmap = bitmap;
@@ -712,9 +712,9 @@ namespace GreenshotPlugin.Core {
 	/// A container to supply surfaces to a Multi-part form data upload
 	/// </summary>
 	public class SurfaceContainer : IBinaryContainer {
-		private ISurface surface;
-		private SurfaceOutputSettings outputSettings;
-		private string fileName;
+		private readonly ISurface surface;
+		private readonly SurfaceOutputSettings outputSettings;
+		private readonly string fileName;
 
 		public SurfaceContainer(ISurface surface, SurfaceOutputSettings outputSettings, string filename) {
 			this.surface = surface;

@@ -37,10 +37,10 @@ namespace Greenshot.Helpers {
 	/// </summary>
 	public class PrintHelper : IDisposable {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(PrintHelper));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
 		private ISurface surface;
-		private ICaptureDetails captureDetails;
+		private readonly ICaptureDetails captureDetails;
 		private PrintDocument printDocument = new PrintDocument();
 		private PrintDialog printDialog = new PrintDialog();
 
@@ -218,7 +218,7 @@ namespace Greenshot.Helpers {
 				if (conf.OutputPrintFooter) {
 					//printRect = new RectangleF(0, 0, printRect.Width, printRect.Height - (dateStringHeight * 2));
 					using (Font f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular)) {
-						e.Graphics.DrawString(footerString, f, Brushes.Black, pageRect.Width / 2 - (footerStringWidth / 2), pageRect.Height);
+						e.Graphics.DrawString(footerString, f, Brushes.Black, pageRect.Width / 2 - footerStringWidth / 2, pageRect.Height);
 					}
 				}
 				e.Graphics.DrawImage(image, printRect, imageRect, GraphicsUnit.Pixel);

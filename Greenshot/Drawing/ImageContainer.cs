@@ -34,7 +34,7 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable] 
 	public class ImageContainer : DrawableContainer, IImageContainer {
-		private static ILog LOG = LogManager.GetLogger(typeof(ImageContainer));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(ImageContainer));
 
 		private Image image;
 

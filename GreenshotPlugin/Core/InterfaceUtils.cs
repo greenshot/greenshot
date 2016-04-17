@@ -30,7 +30,7 @@ namespace GreenshotPlugin.Core {
 	/// Description of InterfaceUtils.
 	/// </summary>
 	public static class InterfaceUtils {
-		private static ILog LOG = LogManager.GetLogger(typeof(InterfaceUtils));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(InterfaceUtils));
 
 		public static List<Type> GetSubclassesOf(Type type, bool excludeSystemTypes) {
 			List<Type> list = new List<Type>();

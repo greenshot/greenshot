@@ -22,6 +22,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
@@ -37,13 +38,13 @@ namespace GreenshotPlugin.Controls {
 	/// But is modified to fit in Greenshot, and have localized support
 	/// </summary>
 	public class HotkeyControl : GreenshotTextBox {
-		private static ILog LOG = LogManager.GetLogger(typeof(HotkeyControl));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(HotkeyControl));
 
-		private static EventDelay eventDelay = new EventDelay(TimeSpan.FromMilliseconds(600).Ticks);
-		private static bool isWindows7OrOlder = Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 1;
+		private static readonly EventDelay eventDelay = new EventDelay(TimeSpan.FromMilliseconds(600).Ticks);
+		private static readonly bool isWindows7OrOlder = Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 1;
 
 		// Holds the list of hotkeys
-		private static Dictionary<int, HotKeyHandler> keyHandlers = new Dictionary<int, HotKeyHandler>();
+		private static readonly IDictionary<int, HotKeyHandler> keyHandlers = new Dictionary<int, HotKeyHandler>();
 		private static int hotKeyCounter = 1;
 		private const uint WM_HOTKEY = 0x312;
 		private static IntPtr hotkeyHWND;
@@ -57,6 +58,7 @@ namespace GreenshotPlugin.Controls {
 //			}
 //		}
 
+		[SuppressMessage("ReSharper", "InconsistentNaming")]
 		public enum Modifiers : uint {
 			NONE = 0,
 			ALT = 1,
@@ -66,6 +68,7 @@ namespace GreenshotPlugin.Controls {
 			NO_REPEAT = 0x4000
 		}
 
+		[SuppressMessage("ReSharper", "InconsistentNaming")]
 		private enum MapType : uint {
 			MAPVK_VK_TO_VSC = 0, //The uCode parameter is a virtual-key code and is translated into a scan code. If it is a virtual-key code that does not distinguish between left- and right-hand keys, the left-hand scan code is returned. If there is no translation, the function returns 0.
 			MAPVK_VSC_TO_VK = 1, //The uCode parameter is a scan code and is translated into a virtual-key code that does not distinguish between left- and right-hand keys. If there is no translation, the function returns 0.
@@ -93,10 +96,10 @@ namespace GreenshotPlugin.Controls {
 
 		// ArrayLists used to enforce the use of proper modifiers.
 		// Shift+A isn't a valid hotkey, for instance, as it would screw up when the user is typing.
-		private ArrayList needNonShiftModifier = null;
-		private ArrayList needNonAltGrModifier = null;
+		private readonly ArrayList needNonShiftModifier;
+		private readonly ArrayList needNonAltGrModifier;
 
-		private ContextMenu dummy = new ContextMenu();
+		private readonly ContextMenu dummy = new ContextMenu();
 
 		/// <summary>
 		/// Used to make sure that there is no right-click menu available
@@ -131,9 +134,9 @@ namespace GreenshotPlugin.Controls {
 			Text = "None";
 
 			// Handle events that occurs when keys are pressed
-			KeyPress += new KeyPressEventHandler(HotkeyControl_KeyPress);
-			KeyUp += new KeyEventHandler(HotkeyControl_KeyUp);
-			KeyDown += new KeyEventHandler(HotkeyControl_KeyDown);
+			KeyPress += HotkeyControl_KeyPress;
+			KeyUp += HotkeyControl_KeyUp;
+			KeyDown += HotkeyControl_KeyDown;
 
 			// Fill the ArrayLists that contain all invalid hotkey combinations
 			needNonShiftModifier = new ArrayList();

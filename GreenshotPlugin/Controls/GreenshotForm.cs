@@ -34,13 +34,13 @@ namespace GreenshotPlugin.Controls {
 	/// This form is used for automatically binding the elements of the form to the language
 	/// </summary>
 	public class GreenshotForm : Form, IGreenshotLanguageBindable {
-		private static ILog LOG = LogManager.GetLogger(typeof(GreenshotForm));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(GreenshotForm));
 		protected static CoreConfiguration coreConfiguration;
-		private static IDictionary<Type, FieldInfo[]> reflectionCache = new Dictionary<Type, FieldInfo[]>();
+		private static readonly IDictionary<Type, FieldInfo[]> reflectionCache = new Dictionary<Type, FieldInfo[]>();
 		private IComponentChangeService m_changeService;
-		private bool _isDesignModeLanguageSet = false;
-		private bool _applyLanguageManually = false;
-		private bool _storeFieldsManually = false;
+		private bool _isDesignModeLanguageSet;
+		private bool _applyLanguageManually;
+		private bool _storeFieldsManually;
 		private IDictionary<string, Control> _designTimeControls;
 		private IDictionary<string, ToolStripItem> _designTimeToolStripItems;
 
@@ -210,16 +210,16 @@ namespace GreenshotPlugin.Controls {
 
 			// Clear our the component change events to prepare for re-siting.				
 			if (m_changeService != null) {
-				m_changeService.ComponentChanged -= new ComponentChangedEventHandler(OnComponentChanged);
-				m_changeService.ComponentAdded -= new ComponentEventHandler(OnComponentAdded);
+				m_changeService.ComponentChanged -= OnComponentChanged;
+				m_changeService.ComponentAdded -= OnComponentAdded;
 			}
 		}
 
 		private void RegisterChangeNotifications() {
 			// Register the event handlers for the IComponentChangeService events
 			if (m_changeService != null) {
-				m_changeService.ComponentChanged += new ComponentChangedEventHandler(OnComponentChanged);
-				m_changeService.ComponentAdded += new ComponentEventHandler(OnComponentAdded);
+				m_changeService.ComponentChanged += OnComponentChanged;
+				m_changeService.ComponentAdded += OnComponentAdded;
 			}
 		}
 
@@ -277,7 +277,7 @@ namespace GreenshotPlugin.Controls {
 		}
 
 		protected void ApplyLanguage(ToolStripItem applyTo, string languageKey) {
-			string langString = null;
+			string langString;
 			if (!string.IsNullOrEmpty(languageKey)) {
 				if (!Language.TryGetString(languageKey, out langString)) {
 					LOG.WarnFormat("Unknown language key '{0}' configured for control '{1}', this might be okay.", languageKey, applyTo.Name);
@@ -473,7 +473,6 @@ namespace GreenshotPlugin.Controls {
 							comboxBox.Populate(iniValue.ValueType);
 							comboxBox.SetValue((Enum)iniValue.Value);
 							comboxBox.Enabled = !iniValue.IsFixed;
-							continue;
 						}
 					}
 				}

@@ -19,8 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows.Forms;
 using GreenshotInterop.Interop;
 
@@ -30,7 +28,7 @@ namespace GreenshotPlugin.Controls {
 			const int OLECMDID_SHOWSCRIPTERROR = 40;
 			const int OLECMDID_SHOWMESSAGE = 41;
 
-			static Guid CGID_DocHostCommandHandler = new Guid("F38BC242-B950-11D1-8918-00C04FC2C836");
+			static readonly Guid CGID_DocHostCommandHandler = new Guid("F38BC242-B950-11D1-8918-00C04FC2C836");
 
 			const int S_OK = 0;
 			const int OLECMDERR_E_NOTSUPPORTED = (-2147221248);

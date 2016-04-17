@@ -26,7 +26,7 @@ using GreenshotPlugin.Core;
 
 namespace Greenshot.Forms {
 	public partial class TornEdgeSettingsForm : BaseForm {
-		private TornEdgeEffect effect;
+		private readonly TornEdgeEffect effect;
 		public TornEdgeSettingsForm(TornEdgeEffect effect) {
 			this.effect = effect;
 			InitializeComponent();
@@ -58,11 +58,6 @@ namespace Greenshot.Forms {
 			effect.Edges = new bool[] { top.Checked, right.Checked, bottom.Checked, left.Checked };
 			effect.GenerateShadow = shadowCheckbox.Checked;
 			DialogResult = DialogResult.OK;
-		}
-
-		private void ButtonReset_Click(object sender, EventArgs e) {
-			effect.Reset();
-			ShowSettings();
 		}
 
 		private void ShadowCheckbox_CheckedChanged(object sender, EventArgs e) {

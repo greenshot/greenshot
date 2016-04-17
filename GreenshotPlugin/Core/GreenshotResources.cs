@@ -26,7 +26,7 @@ namespace GreenshotPlugin.Core {
 	/// Centralized storage of the icons & bitmaps
 	/// </summary>
 	public static class GreenshotResources {
-		private static ComponentResourceManager greenshotResources = new ComponentResourceManager(typeof(GreenshotResources));
+		private static readonly ComponentResourceManager greenshotResources = new ComponentResourceManager(typeof(GreenshotResources));
 
 		public static Image getImage(string imageName) {
 			return (Image)greenshotResources.GetObject(imageName);

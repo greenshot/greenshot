@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
+
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -28,7 +28,7 @@ namespace Greenshot.IniFile {
 		private const string SECTION_START = "[";
 		private const string SECTION_END = "]";
 		private const string COMMENT = ";";
-		private static char[] ASSIGNMENT = new char[] { '=' };
+		private static readonly char[] ASSIGNMENT = new[] { '=' };
 
 		/**
 		 * Read an ini file to a Dictionary, each key is a section and the value is a Dictionary with name and values.

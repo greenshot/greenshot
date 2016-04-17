@@ -32,9 +32,9 @@ namespace Greenshot.Forms {
 	/// the ToolStripMenuSelectList makes it possible to have a single or multi-check menu
 	/// </summary>
 	public class ToolStripMenuSelectList : ToolStripMenuItem {
-		private static CoreConfiguration coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
-		private bool multiCheckAllowed = false;
-		private bool updateInProgress = false;
+		private static readonly CoreConfiguration coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
+		private readonly bool multiCheckAllowed;
+		private bool updateInProgress;
 		private static Image defaultImage;
 
 		/// <summary>

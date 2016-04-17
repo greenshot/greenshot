@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Drawing;
 using Greenshot.Drawing.Fields;
@@ -25,13 +26,10 @@ using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.UnmanagedHelpers;
 using System.Drawing.Drawing2D;
-using log4net;
 
 namespace Greenshot.Drawing.Filters {
 	[Serializable()] 
 	public class BlurFilter : AbstractFilter {
-		private static ILog LOG = LogManager.GetLogger(typeof(BlurFilter));
-
 		public double previewQuality;
 		public double PreviewQuality {
 			get { return previewQuality; }
@@ -43,7 +41,7 @@ namespace Greenshot.Drawing.Filters {
 			AddField(GetType(), FieldType.PREVIEW_QUALITY, 1.0d);
 		}
 
-		public unsafe override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
+		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
 			int blurRadius = GetFieldValueAsInt(FieldType.BLUR_RADIUS);
 			Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
 			if (applyRect.Width == 0 || applyRect.Height == 0) {
@@ -54,7 +52,7 @@ namespace Greenshot.Drawing.Filters {
 				graphics.SetClip(applyRect);
 				graphics.ExcludeClip(rect);
 			}
-			if (GDIplus.isBlurPossible(blurRadius)) {
+			if (GDIplus.IsBlurPossible(blurRadius)) {
 				GDIplus.DrawWithBlur(graphics, applyBitmap, applyRect, null, null, blurRadius, false);
 			} else {
 				using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect)) {
@@ -63,7 +61,6 @@ namespace Greenshot.Drawing.Filters {
 				}
 			}
 			graphics.Restore(state);
-			return;
 		}
 	}
 }

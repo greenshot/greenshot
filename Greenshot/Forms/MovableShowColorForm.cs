@@ -85,8 +85,8 @@ namespace Greenshot.Forms {
 		/// </summary>
 		/// <param name="screenCoordinates">Point with the coordinates</param>
 		/// <returns>Color at the specified screenCoordinates</returns>
-		static private Color GetPixelColor(Point screenCoordinates) {
-			using (SafeWindowDCHandle screenDC = SafeWindowDCHandle.fromDesktop()) {
+		private static Color GetPixelColor(Point screenCoordinates) {
+			using (SafeWindowDCHandle screenDC = SafeWindowDCHandle.FromDesktop()) {
 				try {
 					uint pixel = GDI32.GetPixel(screenDC, screenCoordinates.X, screenCoordinates.Y);
 					Color color = Color.FromArgb(255, (int)(pixel & 0xFF), (int)(pixel & 0xFF00) >> 8, (int)(pixel & 0xFF0000) >> 16);

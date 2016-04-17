@@ -22,7 +22,6 @@
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
-using log4net;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -35,15 +34,14 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable] 
 	public class FreehandContainer : DrawableContainer {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(FreehandContainer));
 		private static readonly float [] POINT_OFFSET = new float[]{0.5f, 0.25f, 0.75f};
 
 		[NonSerialized]
 		private GraphicsPath freehandPath = new GraphicsPath();
 		private Rectangle myBounds = Rectangle.Empty;
 		private Point lastMouse = Point.Empty;
-		private List<Point> capturePoints = new List<Point>();
-		private bool isRecalculated = false;
+		private readonly List<Point> capturePoints = new List<Point>();
+		private bool isRecalculated;
 		
 		/// <summary>
 		/// Constructor
@@ -119,7 +117,7 @@ namespace Greenshot.Drawing {
 		public override bool HandleMouseMove(int mouseX, int mouseY) {
 			Point previousPoint = capturePoints[capturePoints.Count-1];
 
-			if (GeometryHelper.Distance2D(previousPoint.X, previousPoint.Y, mouseX, mouseY) >= (2*EditorConfig.FreehandSensitivity)) {
+			if (GeometryHelper.Distance2D(previousPoint.X, previousPoint.Y, mouseX, mouseY) >= 2*EditorConfig.FreehandSensitivity) {
 				capturePoints.Add(new Point(mouseX, mouseY));
 			}
 			if (GeometryHelper.Distance2D(lastMouse.X, lastMouse.Y, mouseX, mouseY) >= EditorConfig.FreehandSensitivity) {
@@ -232,7 +230,7 @@ namespace Greenshot.Drawing {
 				if (!myBounds.IsEmpty) {
 					int lineThickness = Math.Max(10, GetFieldValueAsInt(FieldType.LINE_THICKNESS));
 					int safetymargin = 10;
-					return new Rectangle((myBounds.Left + Left) - (safetymargin+lineThickness), (myBounds.Top + Top) - (safetymargin+lineThickness), myBounds.Width + (2*(lineThickness+safetymargin)), myBounds.Height + (2*(lineThickness+safetymargin)));
+					return new Rectangle(myBounds.Left + Left - (safetymargin+lineThickness), myBounds.Top + Top - (safetymargin+lineThickness), myBounds.Width + 2*(lineThickness+safetymargin), myBounds.Height + 2*(lineThickness+safetymargin));
 				}
 				return new Rectangle(0, 0, _parent.Width, _parent.Height);
 			}

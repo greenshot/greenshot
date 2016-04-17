@@ -31,8 +31,8 @@ namespace Greenshot.Memento {
 	/// The DrawableContainerBoundsChangeMemento makes it possible to undo-redo an IDrawableContainer resize & move
 	/// </summary>
 	public class DrawableContainerBoundsChangeMemento : IMemento  {
-		List<Point> points = new List<Point>();
-		List<Size> sizes = new List<Size>();
+		readonly List<Point> points = new List<Point>();
+		readonly List<Size> sizes = new List<Size>();
 		List<IDrawableContainer> listOfdrawableContainer;
 		
 		private void StoreBounds() {

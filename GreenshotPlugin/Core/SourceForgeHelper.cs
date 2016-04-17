@@ -21,7 +21,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -96,7 +95,7 @@ namespace GreenshotPlugin.Core {
 	/// Description of SourceForgeHelper.
 	/// </summary>
 	public class SourceForgeHelper {
-		private static ILog LOG = LogManager.GetLogger(typeof(SourceForgeHelper));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(SourceForgeHelper));
 		private const string RSSFEED = "http://getgreenshot.org/project-feed/";
 
 		/// <summary>

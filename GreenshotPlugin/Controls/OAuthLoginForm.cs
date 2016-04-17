@@ -20,12 +20,8 @@
  */
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
-using System.Web;
-using System.Collections.Specialized;
 using GreenshotPlugin.Core;
 using log4net;
 
@@ -35,8 +31,8 @@ namespace GreenshotPlugin.Controls {
 	/// </summary>
 	public partial class OAuthLoginForm : Form {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(OAuthLoginForm));
-		private string _callbackUrl = null;
-		private IDictionary<string, string> _callbackParameters = null;
+		private readonly string _callbackUrl;
+		private IDictionary<string, string> _callbackParameters;
 		
 		public IDictionary<string, string> CallbackParameters {
 			get {

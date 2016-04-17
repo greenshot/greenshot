@@ -26,7 +26,7 @@ using GreenshotPlugin.Core;
 
 namespace Greenshot.Forms {
 	public partial class DropShadowSettingsForm : BaseForm {
-		private DropShadowEffect effect;
+		private readonly DropShadowEffect effect;
 
 		public DropShadowSettingsForm(DropShadowEffect effect) {
 			this.effect = effect;
@@ -49,11 +49,6 @@ namespace Greenshot.Forms {
 			effect.ShadowOffset = new Point((int)offsetX.Value, (int)offsetY.Value);
 			effect.ShadowSize = (int)thickness.Value;
 			DialogResult = DialogResult.OK;
-		}
-
-		private void ButtonReset_Click(object sender, EventArgs e) {
-			effect.Reset();
-			ShowSettings();
 		}
 	}
 }

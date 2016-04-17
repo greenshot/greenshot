@@ -19,14 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// <summary>
-/// See: http://nickstips.wordpress.com/2010/03/03/c-panel-resets-scroll-position-after-focus-is-lost-and-regained/
-/// </summary>
-
 using System.Drawing;
 using System.Windows.Forms;
 
 namespace GreenshotPlugin.Controls {
+	/// <summary>
+	/// See: http://nickstips.wordpress.com/2010/03/03/c-panel-resets-scroll-position-after-focus-is-lost-and-regained/
+	/// </summary>
 	public class NonJumpingPanel : Panel {
 		protected override Point ScrollToControl(Control activeControl) {
 			// Returning the current location prevents the panel from

@@ -46,9 +46,9 @@ namespace Greenshot.Drawing {
 	/// Description of Surface.
 	/// </summary>
 	public class Surface : Control, ISurface {
-		private static ILog LOG = LogManager.GetLogger(typeof(Surface));
-		public static int Count = 0;
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(Surface));
+		public static int Count;
+		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
 		// Property to identify the Surface ID
 		private Guid _uniqueId = Guid.NewGuid();
@@ -169,7 +169,7 @@ namespace Greenshot.Drawing {
 		/// all selected elements, do not serialize
 		/// </summary>
 		[NonSerialized]
-		private DrawableContainerList selectedElements;
+		private readonly DrawableContainerList selectedElements;
 
 		/// <summary>
 		/// the element we are drawing with, do not serialize
@@ -208,7 +208,7 @@ namespace Greenshot.Drawing {
 		/// <summary>
 		/// all stepLabels for the surface, needed with serialization
 		/// </summary>
-		private List<StepLabelContainer> _stepLabels = new List<StepLabelContainer>();
+		private readonly List<StepLabelContainer> _stepLabels = new List<StepLabelContainer>();
 
 		public void AddStepLabel(StepLabelContainer stepLabel) {
 			_stepLabels.Add(stepLabel);
@@ -225,7 +225,7 @@ namespace Greenshot.Drawing {
 		public int CountStepLabels(IDrawableContainer stopAtContainer) {
 			int number = 1;
 			foreach (var possibleThis in _stepLabels) {
-				if (possibleThis == stopAtContainer) {
+				if (possibleThis.Equals(stopAtContainer)) {
 					break;
 				}
 				if (IsOnSurface(possibleThis)) {
@@ -1037,7 +1037,10 @@ namespace Greenshot.Drawing {
 				_drawingElement = _undrawnElement;
 				// if a new element has been drawn, set location and register it
 				if (_drawingElement != null) {
-					_drawingElement.Status = _undrawnElement.DefaultEditMode;
+					if (_undrawnElement != null)
+					{
+						_drawingElement.Status = _undrawnElement.DefaultEditMode;
+					}
 					_drawingElement.PropertyChanged += ElementPropertyChanged;
 					if (!_drawingElement.HandleMouseDown(_mouseStart.X, _mouseStart.Y)) {
 						_drawingElement.Left = _mouseStart.X;
@@ -1331,7 +1334,7 @@ namespace Greenshot.Drawing {
 		/// <returns></returns>
 		public bool HasSelectedElements {
 			get {
-				return (selectedElements != null && selectedElements.Count > 0);				
+				return selectedElements != null && selectedElements.Count > 0;				
 			}
 		}
 
@@ -1387,6 +1390,10 @@ namespace Greenshot.Drawing {
 		public void ConfirmSelectedConfirmableElements(bool confirm){
 			// create new collection so that we can iterate safely (selectedElements might change due with confirm/cancel)
 			List<IDrawableContainer> selectedDCs = new List<IDrawableContainer>(selectedElements);
+			if (_cropContainer == null)
+			{
+				return;
+			}
 			foreach (IDrawableContainer dc in selectedDCs){
 				if (dc.Equals(_cropContainer)){
 					DrawingMode = DrawingModes.None;
@@ -1397,6 +1404,7 @@ namespace Greenshot.Drawing {
 					}
 					_cropContainer.Dispose();
 					_cropContainer = null;
+					break;
 				}
 			}
 		}
@@ -1423,7 +1431,7 @@ namespace Greenshot.Drawing {
 				if (dcs != null) {
 					// Make element(s) only move 10,10 if the surface is the same
 					Point moveOffset;
-					bool isSameSurface = (dcs.ParentID == _uniqueId);
+					bool isSameSurface = dcs.ParentID == _uniqueId;
 					dcs.Parent = this;
 					if (isSameSurface) {
 						moveOffset = new Point(10, 10);

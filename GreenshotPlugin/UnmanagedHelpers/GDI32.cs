@@ -53,7 +53,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// <param name="graphics"></param>
 		/// <returns>SafeDeviceContextHandle</returns>
 		public static SafeDeviceContextHandle GetSafeDeviceContext(this Graphics graphics) {
-			return SafeDeviceContextHandle.fromGraphics(graphics);
+			return SafeDeviceContextHandle.FromGraphics(graphics);
 		}
 	}
 
@@ -77,10 +77,6 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// A hbitmap SafeHandle implementation
 	/// </summary>
 	public class SafeHBitmapHandle : SafeObjectHandle {
-		[SecurityCritical]
-		private SafeHBitmapHandle() : base(true) {
-		}
-
 		[SecurityCritical]
 		public SafeHBitmapHandle(IntPtr preexistingHandle) : base(true) {
 			SetHandle(preexistingHandle);
@@ -106,10 +102,6 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// </summary>
 	public class SafeDibSectionHandle : SafeObjectHandle {
 		[SecurityCritical]
-		private SafeDibSectionHandle() : base(true) {
-		}
-
-		[SecurityCritical]
 		public SafeDibSectionHandle(IntPtr preexistingHandle) : base(true) {
 			SetHandle(preexistingHandle);
 		}
@@ -123,20 +115,16 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("gdi32", SetLastError = true)]
 		private static extern IntPtr SelectObject(IntPtr hDC, IntPtr hObject);
 
-		private SafeHandle hdc;
-
-		[SecurityCritical]
-		private SafeSelectObjectHandle() : base(true) {
-		}
+		private readonly SafeHandle _hdc;
 
 		[SecurityCritical]
 		public SafeSelectObjectHandle(SafeDCHandle hdc, SafeHandle newHandle) : base(true) {
-			this.hdc = hdc;
+			_hdc = hdc;
 			SetHandle(SelectObject(hdc.DangerousGetHandle(), newHandle.DangerousGetHandle()));
 		}
 
 		protected override bool ReleaseHandle() {
-			SelectObject(hdc.DangerousGetHandle(), handle);
+			SelectObject(_hdc.DangerousGetHandle(), handle);
 			return true;
 		}
 	}
@@ -152,10 +140,6 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("gdi32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool DeleteDC(IntPtr hDC);
-
-		[SecurityCritical]
-		private SafeCompatibleDCHandle() : base(true) {
-		}
 
 		[SecurityCritical]
 		public SafeCompatibleDCHandle(IntPtr preexistingHandle) : base(true) {
@@ -175,20 +159,16 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// A DeviceContext SafeHandle implementation
 	/// </summary>
 	public class SafeDeviceContextHandle : SafeDCHandle {
-		private Graphics graphics = null;
-		
-		[SecurityCritical]
-		private SafeDeviceContextHandle() : base(true) {
-		}
+		private readonly Graphics _graphics;
 
 		[SecurityCritical]
 		public SafeDeviceContextHandle(Graphics graphics, IntPtr preexistingHandle) : base(true) {
-			this.graphics = graphics;
+			_graphics = graphics;
 			SetHandle(preexistingHandle);
 		}
 
 		protected override bool ReleaseHandle() {
-			graphics.ReleaseHdc(handle);
+			_graphics.ReleaseHdc(handle);
 			return true;
 		}
 
@@ -196,7 +176,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			return new SafeSelectObjectHandle(this, newHandle);
 		}
 
-		public static SafeDeviceContextHandle fromGraphics(Graphics graphics) {
+		public static SafeDeviceContextHandle FromGraphics(Graphics graphics) {
 			return new SafeDeviceContextHandle(graphics, graphics.GetHdc());
 		}
 	}
@@ -221,41 +201,6 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern uint GetPixel(SafeHandle hdc, int nXPos, int nYPos);
 		[DllImport("gdi32", SetLastError=true)]
 		public static extern int GetDeviceCaps(SafeHandle hdc, DeviceCaps nIndex);
-		
-		/// <summary>
-		/// StretchBlt extension for the graphics object
-		/// Doesn't work?
-		/// </summary>
-		/// <param name="target"></param>
-		/// <param name="source"></param>
-		public static void StretchBlt(this Graphics target, Bitmap sourceBitmap, Rectangle source, Rectangle destination) {
-			using (SafeDeviceContextHandle targetDC = target.GetSafeDeviceContext()) {
-				using (SafeCompatibleDCHandle safeCompatibleDCHandle = CreateCompatibleDC(targetDC)) {
-					using (SafeHBitmapHandle hBitmapHandle = new SafeHBitmapHandle(sourceBitmap.GetHbitmap())) {
-						using (safeCompatibleDCHandle.SelectObject(hBitmapHandle)) {
-							StretchBlt(targetDC, destination.X, destination.Y, destination.Width, destination.Height, safeCompatibleDCHandle, source.Left, source.Top, source.Width, source.Height, CopyPixelOperation.SourceCopy);
-						}
-					}
-				}
-			}
-		}
-
-		/// <summary>
-		/// Bitblt extension for the graphics object
-		/// </summary>
-		/// <param name="target"></param>
-		/// <param name="source"></param>
-		public static void BitBlt(this Graphics target, Bitmap sourceBitmap, Rectangle source, Point destination, CopyPixelOperation rop) {
-			using (SafeDeviceContextHandle targetDC = target.GetSafeDeviceContext()) {
-				using (SafeCompatibleDCHandle safeCompatibleDCHandle = CreateCompatibleDC(targetDC)) {
-					using (SafeHBitmapHandle hBitmapHandle = new SafeHBitmapHandle(sourceBitmap.GetHbitmap())) {
-						using (safeCompatibleDCHandle.SelectObject(hBitmapHandle)) {
-							BitBlt(targetDC, destination.X, destination.Y, source.Width, source.Height, safeCompatibleDCHandle, source.Left, source.Top, rop);
-						}
-					}
-				}
-			}
-		}
 	}
 
 	[StructLayout(LayoutKind.Sequential, Pack = 2)]
@@ -380,10 +325,12 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			bV5BlueMask = (uint)255;
 			bV5AlphaMask = (uint)255 << 24;
 			bV5CSType = 1934772034; // sRGB
-			bV5Endpoints = new CIEXYZTRIPLE();
-			bV5Endpoints.ciexyzBlue = new CIEXYZ(0);
-			bV5Endpoints.ciexyzGreen = new CIEXYZ(0);
-			bV5Endpoints.ciexyzRed = new CIEXYZ(0);
+			bV5Endpoints = new CIEXYZTRIPLE
+			{
+				ciexyzBlue = new CIEXYZ(0),
+				ciexyzGreen = new CIEXYZ(0),
+				ciexyzRed = new CIEXYZ(0)
+			};
 			bV5GammaRed = 0;
 			bV5GammaGreen = 0;
 			bV5GammaBlue = 0;

@@ -31,10 +31,10 @@ namespace GreenshotPlugin.Core {
 	/// <typeparam name="TV">Type of value</typeparam>
 	public class Cache<TK, TV> {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(Cache<TK, TV>));
-		private IDictionary<TK, TV> internalCache = new Dictionary<TK, TV>();
-		private object lockObject = new object();
-		private int secondsToExpire = 10;
-		private CacheObjectExpired expiredCallback = null;
+		private readonly IDictionary<TK, TV> internalCache = new Dictionary<TK, TV>();
+		private readonly object lockObject = new object();
+		private readonly int secondsToExpire = 10;
+		private readonly CacheObjectExpired expiredCallback;
 		public delegate void CacheObjectExpired(TK key, TV cacheValue);
 
 		/// <summary>
@@ -168,7 +168,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		private class CachedItem {
 			public event CacheObjectExpired Expired;
-			private int secondsToExpire;
+			private readonly int secondsToExpire;
 			private readonly Timer _timerEvent;
 
 			public CachedItem(TK key, TV item, int secondsToExpire) {

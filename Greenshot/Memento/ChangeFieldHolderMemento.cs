@@ -29,8 +29,8 @@ namespace Greenshot.Memento {
 	/// </summary>
 	public class ChangeFieldHolderMemento : IMemento  {
 		private IDrawableContainer drawableContainer;
-		private Field fieldToBeChanged;
-		private object oldValue;
+		private readonly Field fieldToBeChanged;
+		private readonly object oldValue;
 		
 		public ChangeFieldHolderMemento(IDrawableContainer drawableContainer, Field fieldToBeChanged) {
 			this.drawableContainer = drawableContainer;
