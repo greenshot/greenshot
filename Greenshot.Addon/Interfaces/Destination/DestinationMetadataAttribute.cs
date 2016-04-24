@@ -32,14 +32,14 @@ namespace Greenshot.Addon.Interfaces.Destination
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
 	public class DestinationMetadataAttribute : Attribute, IDestinationMetadata
 	{
-		public string Name
-		{
-			get;
-			set;
-		}
-		public DestinationMetadataAttribute(string name)
+		public string Name { get; }
+
+		public int Order { get; }
+
+		public DestinationMetadataAttribute(string name, int order = int.MaxValue)
 		{
 			Name = name;
+			Order = order;
 		}
 
 	}

@@ -40,6 +40,9 @@ using System.Windows;
 
 namespace Greenshot
 {
+	/// <summary>
+	/// This takes care or starting Greenshot
+	/// </summary>
 	public class GreenshotStart
 	{
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(GreenshotStart));
@@ -52,13 +55,7 @@ namespace Greenshot
 		protected static ICoreConfiguration coreConfiguration;
 
 
-		public static ApplicationBootstrapper Bootstrapper
-		{
-			get
-			{
-				return GreenshotBootstrapper;
-			}
-		}
+		public static ApplicationBootstrapper Bootstrapper => GreenshotBootstrapper;
 
 		public static void Start(string[] args)
 		{

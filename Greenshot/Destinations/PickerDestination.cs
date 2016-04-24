@@ -86,16 +86,20 @@ namespace Greenshot.Destinations
 				exportWindow.Capture = capture;
 				exportWindow.Show();
 
-				foreach (var destination in Destinations.Where(destination => destination.Metadata.Name != PickerDesignation))
+				IList<Task> refreshTasks = new List<Task>();
+				foreach (var destination in Destinations.Where(d => d.Metadata.Name != PickerDesignation).OrderBy(d => d.Metadata.Order).ThenBy(d => d.Value.Text))
 				{
 					exportWindow.Children.Add(destination.Value);
-					await destination.Value.RefreshAsync(null, token);
-                }
+					refreshTasks.Add(destination.Value.RefreshAsync(this, token));
+				}
+				await Task.WhenAll(refreshTasks);
+
 				INotification exportResult = null;
 				do
 				{
 					exportWindow.SelectedDestination = null;
 					await exportWindow.AwaitSelection();
+
 					if (exportWindow.SelectedDestination == null)
 					{
 						break;

@@ -22,9 +22,11 @@
 using System;
 using System.ComponentModel.Composition;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
+using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
@@ -95,28 +97,24 @@ namespace Greenshot.Addon.Office.Destinations
 		/// <returns>Task</returns>
 		public override async Task RefreshAsync(IExportContext caller1, CancellationToken token = default(CancellationToken))
 		{
-			await Task.Factory.StartNew(
-				// this will use current synchronization context
-				() =>
+			Children.Clear();
+			await Task.Run(() =>
+			{
+				return OneNoteExporter.GetPages().OrderBy(x => x.DisplayName).Select(page => new OneNoteDestination
 				{
-					Children.Clear();
-					foreach (var page in OneNoteExporter.GetPages())
-					{
-						var oneNoteDestination = new OneNoteDestination
-						{
-							Icon = ApplicationIcon,
-							Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, page),
-							Text = page.DisplayName,
-							OfficeConfiguration = OfficeConfiguration,
-							GreenshotLanguage = GreenshotLanguage
-						};
-						Children.Add(oneNoteDestination);
-					}
-				},
-				token,
-				TaskCreationOptions.None,
-				TaskScheduler.FromCurrentSynchronizationContext()
-			);
+					Icon = ApplicationIcon,
+					Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, page),
+					Text = page.DisplayName,
+					OfficeConfiguration = OfficeConfiguration,
+					GreenshotLanguage = GreenshotLanguage
+				}).ToList();
+			}, token).ContinueWith(async destinations =>
+			{
+				foreach (var oneNoteDestination in await destinations)
+				{
+					Children.Add(oneNoteDestination);
+				}
+			}, token, TaskContinuationOptions.None, UiContext.UiTaskScheduler).ConfigureAwait(false);
 		}
 
 		private Task<INotification> ExportCaptureAsync(ICapture capture, OneNotePage page)

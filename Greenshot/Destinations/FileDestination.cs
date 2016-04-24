@@ -26,6 +26,7 @@ using System.ComponentModel.Composition;
 using System.Windows.Media.Imaging;
 using System.IO;
 using System.Windows;
+using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Controls;
 using Greenshot.Addon.Core;
@@ -40,7 +41,7 @@ namespace Greenshot.Destinations
 	/// <summary>
 	/// Description of FileDestination.
 	/// </summary>
-	[Destination(FileDesignation)]
+	[Destination(FileDesignation, 3)]
 	public sealed class FileDestination : AbstractDestination
 	{
 		private const string FileDesignation = "File";
@@ -115,10 +116,8 @@ namespace Greenshot.Destinations
 			// This is done for e.g. bugs #2974608, #2963943, #2816163, #2795317, #2789218, #3004642
 			try
 			{
-				var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 				var outputPath = fullPath;
-				var task = Task.Factory.StartNew(() => ImageOutput.Save(capture, outputPath, overwrite, outputSettings), token, TaskCreationOptions.None, scheduler);
-				fullPath = await task;
+				await UiContext.RunOn(() => fullPath = ImageOutput.Save(capture, outputPath, overwrite, outputSettings), token);
 			}
 			catch (ArgumentException ex1)
 			{

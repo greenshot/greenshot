@@ -21,11 +21,20 @@
 
 namespace Greenshot.Addon.Interfaces.Destination
 {
+	/// <summary>
+	/// The metadata of a destination, this is set when exporting
+	/// </summary>
 	public interface IDestinationMetadata
 	{
-		string Name
-		{
-			get;
-		}
+		/// <summary>
+		/// Name of the destination
+		/// </summary>
+		string Name { get; }
+
+		/// <summary>
+		/// Order for the destination when shown in a list.
+		/// Default is on the end (int.MaxValue)
+		/// </summary>
+		int Order { get; }
 	}
 }

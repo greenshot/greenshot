@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
-using Dapplo.Config.Support;
+using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Extensions;
 using Greenshot.Forms;

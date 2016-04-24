@@ -70,6 +70,7 @@ namespace Greenshot.Windows
 				CapturedImage = _capture?.Image?.ToBitmapSource();
 			}
 		}
+
 		public ImageSource CapturedImage
 		{
 			get;

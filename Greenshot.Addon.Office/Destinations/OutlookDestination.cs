@@ -26,6 +26,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
+using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
@@ -33,6 +34,7 @@ using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Office.OfficeExport;
+using System.Linq;
 
 namespace Greenshot.Addon.Office.Destinations
 {
@@ -104,33 +106,24 @@ namespace Greenshot.Addon.Office.Destinations
 		/// <returns>Task</returns>
 		public override async Task RefreshAsync(IExportContext caller1, CancellationToken token = default(CancellationToken))
 		{
-			await Task.Factory.StartNew(
-				// this will use current synchronization context
-				() =>
+			Children.Clear();
+			await Task.Run(() =>
+			{
+				return OutlookExporter.RetrievePossibleTargets().OrderBy(x => x.Key).Select(inspectorCaption => new OutlookDestination
 				{
-					Children.Clear();
-					var inspectorCaptions = OutlookExporter.RetrievePossibleTargets();
-					if (inspectorCaptions == null)
-					{
-						return;
-					}
-					foreach (string inspectorCaption in inspectorCaptions.Keys)
-					{
-						var outlookDestination = new OutlookDestination
-						{
-							Icon = Microsoft.Office.Interop.Outlook.OlObjectClass.olAppointment.Equals(inspectorCaptions[inspectorCaption]) ? MeetingIcon : MailIcon,
-							Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, inspectorCaption),
-							Text = inspectorCaption,
-							OfficeConfiguration = OfficeConfiguration,
-							GreenshotLanguage = GreenshotLanguage
-						};
-						Children.Add(outlookDestination);
-					}
-				},
-				token,
-				TaskCreationOptions.None,
-				TaskScheduler.FromCurrentSynchronizationContext()
-			);
+					Icon = Microsoft.Office.Interop.Outlook.OlObjectClass.olAppointment.Equals(inspectorCaption.Value) ? MeetingIcon : MailIcon,
+					Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, inspectorCaption.Key),
+					Text = inspectorCaption.Key,
+					OfficeConfiguration = OfficeConfiguration,
+					GreenshotLanguage = GreenshotLanguage
+				}).ToList();
+			}, token).ContinueWith(async destinations =>
+			{
+				foreach (var oneNoteDestination in await destinations)
+				{
+					Children.Add(oneNoteDestination);
+				}
+			}, token, TaskContinuationOptions.None, UiContext.UiTaskScheduler).ConfigureAwait(false);
 		}
 
 		private Task<INotification> ExportCaptureAsync(ICapture capture, string inspectorCaption)

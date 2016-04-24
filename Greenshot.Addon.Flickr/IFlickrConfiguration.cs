@@ -21,7 +21,6 @@
 
 using System.ComponentModel;
 using System.Runtime.Serialization;
-using Dapplo.Config.Converters;
 using Dapplo.Config.Ini;
 using Dapplo.HttpExtensions.OAuth;
 using Greenshot.Addon.Configuration;

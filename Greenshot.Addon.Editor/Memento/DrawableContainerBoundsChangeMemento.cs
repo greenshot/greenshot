@@ -21,7 +21,6 @@
 
 using System.Collections.Generic;
 using System.Drawing;
-using Greenshot.Addon.Core;
 using Greenshot.Addon.Editor.Helpers;
 using Greenshot.Addon.Interfaces.Drawing;
 

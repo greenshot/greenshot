@@ -21,17 +21,16 @@
 
 using System;
 using Dapplo.LogFacade;
+using Dapplo.LogFacade.Loggers;
 
 namespace Greenshot.Helpers
 {
 	/// <summary>
 	/// Wrapper for Dapplo.HttpExtensions.ILogger -> SeriLog
 	/// </summary>
-	public class DapploSeriLogLogger : ILogger
+	public class DapploSeriLogLogger : AbstractLogger
 	{
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext<DapploSeriLogLogger>();
-
-		public LogLevel Level { get; set; } = LogSettings.DefaultLevel;
 
 		private Serilog.Events.LogEventLevel MapLevel(LogLevel level)
 		{
@@ -60,17 +59,17 @@ namespace Greenshot.Helpers
 			return seriLogLevel;
 		}
 
-		public void Write(LogInfo logInfo, string messageTemplate, params object[] propertyValues)
+		public override void Write(LogInfo logInfo, string messageTemplate, params object[] propertyValues)
 		{
 			Log.ForContext(logInfo.Source.SourceType).Write(MapLevel(logInfo.Level), messageTemplate, propertyValues);
 		}
 
-		public void Write(LogInfo logInfo, Exception exception, string messageTemplate, params object[] propertyValues)
+		public override void Write(LogInfo logInfo, Exception exception, string messageTemplate = null, params object[] propertyValues)
 		{
 			Log.ForContext(logInfo.Source.SourceType).Write(MapLevel(logInfo.Level), exception, messageTemplate, propertyValues);
 		}
 
-		public bool IsLogLevelEnabled(LogLevel level)
+		public override bool IsLogLevelEnabled(LogLevel level)
 		{
 			return Log.IsEnabled(MapLevel(level));
 		}

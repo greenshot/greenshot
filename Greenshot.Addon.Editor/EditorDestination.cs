@@ -22,9 +22,11 @@
 using System;
 using System.ComponentModel.Composition;
 using System.Drawing;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
+using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Editor.Drawing;
@@ -39,7 +41,7 @@ namespace Greenshot.Addon.Editor
 	/// <summary>
 	/// Description of EditorDestination.
 	/// </summary>
-	[Destination(EditorDesignation)]
+	[Destination(EditorDesignation, 1)]
 	public sealed class EditorDestination : AbstractDestination
 	{
 		private const string EditorDesignation = "Editor";
@@ -78,19 +80,23 @@ namespace Greenshot.Addon.Editor
 		public override async Task RefreshAsync(IExportContext caller1, CancellationToken token = default(CancellationToken))
 		{
 			Children.Clear();
-			await Task.Yield();
-			foreach (var openEditor in ImageEditorForm.Editors)
+			await Task.Run(() =>
 			{
-				var editorDestination = new EditorDestination
+				return ImageEditorForm.Editors.Select(openEditor => new EditorDestination
 				{
 					Text = openEditor.Surface.CaptureDetails.Title,
 					Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, openEditor, exportToken),
 					Icon = GreenshotIcon,
 					EditorConfiguration = EditorConfiguration,
 					GreenshotLanguage = GreenshotLanguage
-				};
-				Children.Add(editorDestination);
-			}
+				}).ToList();
+			}, token).ContinueWith(async destinations =>
+			{
+				foreach (var editorDestination in await destinations)
+				{
+					Children.Add(editorDestination);
+				}
+			}, token, TaskContinuationOptions.None, UiContext.UiTaskScheduler).ConfigureAwait(false);
 		}
 
 		private Task<INotification> ExportCaptureAsync(ICapture capture, IImageEditor editor, CancellationToken token = default(CancellationToken))

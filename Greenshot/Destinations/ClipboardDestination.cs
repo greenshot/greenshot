@@ -35,7 +35,7 @@ namespace Greenshot.Destinations
 	/// <summary>
 	/// Description of ClipboardDestination.
 	/// </summary>
-	[Destination(ClipboardDesignation)]
+	[Destination(ClipboardDesignation, 2)]
 	public sealed class ClipboardDestination : AbstractDestination
 	{
 		private const string ClipboardDesignation = "Clipboard";

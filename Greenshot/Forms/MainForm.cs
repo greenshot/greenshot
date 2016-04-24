@@ -41,6 +41,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Utils;
 using Timer = System.Timers.Timer;
 
 namespace Greenshot.Forms
@@ -95,7 +96,6 @@ namespace Greenshot.Forms
 		private readonly System.Threading.Timer _backgroundWorkerTimer;
 		// Timer for the double click test
 		private readonly Timer _doubleClickTimer = new Timer();
-		private readonly TaskScheduler _UITaskScheduler;
 
 		/// <summary>
 		/// Instance of the NotifyIcon, needed to open balloon-tips
@@ -111,7 +111,7 @@ namespace Greenshot.Forms
 		public MainForm(Arguments arguments)
 		{
 			_instance = this;
-			_UITaskScheduler = TaskScheduler.FromCurrentSynchronizationContext();
+			UiContext.Initialize();
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
@@ -154,7 +154,7 @@ namespace Greenshot.Forms
 			// The GreenshotPlugin assembly needs to be added manually!
 			GreenshotStart.Bootstrapper.Add(typeof(ICoreConfiguration).Assembly);
 
-			Task.Factory.StartNew(
+			UiContext.RunOn(
 				// this will use current synchronization context
 				async () =>
 				{
@@ -164,15 +164,9 @@ namespace Greenshot.Forms
 					// Notify icon
 					GreenshotStart.Bootstrapper.Export(notifyIcon);
 
-					// Current synchronization context
-					GreenshotStart.Bootstrapper.Export(_UITaskScheduler);
-
 					// Run!
 					await GreenshotStart.Bootstrapper.RunAsync();
-				},
-				CancellationToken.None,
-				TaskCreationOptions.None,
-				_UITaskScheduler).Wait();
+				}).Wait();
 
 			// Check destinations, remove all that don't exist
 			var destinations = GreenshotStart.Bootstrapper.GetExports<IDestination, IDestinationMetadata>();
@@ -494,10 +488,10 @@ namespace Greenshot.Forms
 
 		private void CaptureRegion(CancellationToken token = default(CancellationToken))
 		{
-			var task = Task.Factory.StartNew(async () =>
+			UiContext.RunOn(async () =>
 			{
 				await CaptureHelper.CaptureRegionAsync(true, token);
-			}, token, TaskCreationOptions.None, _UITaskScheduler);
+			}, token);
 		}
 
 		private void CaptureFile(CancellationToken token = default(CancellationToken))
@@ -510,44 +504,44 @@ namespace Greenshot.Forms
 			{
 				if (File.Exists(openFileDialog.FileName))
 				{
-					var task = Task.Factory.StartNew(async () =>
+					UiContext.RunOn(async () =>
 					{
 						await CaptureHelper.CaptureFileAsync(openFileDialog.FileName, token);
-					}, token, TaskCreationOptions.None, _UITaskScheduler);
+					}, token);
 				}
 			}
 		}
 
 		private void CaptureFullScreen(CancellationToken token = default(CancellationToken))
 		{
-			var task = Task.Factory.StartNew(async () =>
+			UiContext.RunOn(async () =>
 			{
 				await CaptureHelper.CaptureFullscreenAsync(true, coreConfiguration.ScreenCaptureMode, token);
-			}, token, TaskCreationOptions.None, _UITaskScheduler);
+			}, token);
 		}
 
 		private void CaptureLastRegion(CancellationToken token = default(CancellationToken))
 		{
-			var task = Task.Factory.StartNew(async () =>
+			UiContext.RunOn(async () =>
 			{
 				await CaptureHelper.CaptureLastRegionAsync(true, token);
-			}, token, TaskCreationOptions.None, _UITaskScheduler);
+			}, token);
 		}
 
 		private void CaptureIE(CancellationToken token = default(CancellationToken))
 		{
 			if (coreConfiguration.IECapture)
 			{
-				var task = Task.Factory.StartNew(async () =>
+				UiContext.RunOn(async () =>
 				{
 					await CaptureHelper.CaptureIEAsync(true, null, token);
-				}, token, TaskCreationOptions.None, _UITaskScheduler);
+				}, token);
 			}
 		}
 
 		private void CaptureWindow(CancellationToken token = default(CancellationToken))
 		{
-			var task = Task.Factory.StartNew(async () =>
+			UiContext.RunOn(async () =>
 			{
 				if (coreConfiguration.CaptureWindowsInteractive)
 				{
@@ -557,7 +551,7 @@ namespace Greenshot.Forms
 				{
 					await CaptureHelper.CaptureWindowAsync(true, token);
 				}
-			}, token, TaskCreationOptions.None, _UITaskScheduler);
+			}, token);
 		}
 
 		#endregion

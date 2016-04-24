@@ -27,8 +27,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Config.Language;
-using Dapplo.Config.Support;
 using Dapplo.HttpExtensions;
+using Dapplo.Utils;
 
 namespace Greenshot.Addon.Core
 {

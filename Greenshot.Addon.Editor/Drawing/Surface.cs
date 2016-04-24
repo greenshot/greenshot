@@ -1046,11 +1046,8 @@ namespace Greenshot.Addon.Editor.Drawing
 						}
 						return true;
 					}
-					else
-					{
-						// clean up matrix, as it hasn't been used in the undo stack.
-						matrix.Dispose();
-					}
+					// clean up matrix, as it hasn't been used in the undo stack.
+					matrix.Dispose();
 					return false;
 				}, token, TaskCreationOptions.None, scheduler);
 			}, token);

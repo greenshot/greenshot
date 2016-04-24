@@ -25,6 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Addons;
+using Dapplo.Utils;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Jira.Forms;
@@ -73,13 +74,7 @@ namespace Greenshot.Addon.Jira
 		/// <summary>
 		/// Get the JiraMonitor
 		/// </summary>
-		public JiraMonitor JiraMonitor
-		{
-			get
-			{
-				return _jiraMonitor;
-			}
-		}
+		public JiraMonitor JiraMonitor => _jiraMonitor;
 
 		/// <summary>
 		/// Initialize
@@ -88,10 +83,10 @@ namespace Greenshot.Addon.Jira
 		public Task StartAsync(CancellationToken token = new CancellationToken())
 		{
 			// Make sure the InitializeMonitor is called after the message loop is initialized!
-			return Task.Factory.StartNew(async () =>
+			return UiContext.RunOn(async () =>
 			{
 				await InitializeMonitor();
-			}, token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+			}, token);
 			//GreenshotHost.GreenshotForm.AsyncInvoke(InitializeMonitor);
 		}
 
@@ -120,7 +115,7 @@ namespace Greenshot.Addon.Jira
 		{
 			if (ShowConfigDialog())
 			{
-				Task.Factory.StartNew(() => InitializeMonitor());
+				UiContext.RunOn(async () => await InitializeMonitor());
 			}
 		}
 

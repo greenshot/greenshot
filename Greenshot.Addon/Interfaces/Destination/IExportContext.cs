@@ -34,7 +34,8 @@ namespace Greenshot.Addon.Interfaces.Destination
 			get;
 			set;
 		}
-			/// <summary>
+
+		/// <summary>
 		/// Windows handle of the caller's window
 		/// </summary>
 		IntPtr Handle

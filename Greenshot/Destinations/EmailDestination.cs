@@ -24,6 +24,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.ComponentModel.Composition;
 using System.Windows.Media.Imaging;
+using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
@@ -36,7 +37,7 @@ namespace Greenshot.Destinations
 	/// <summary>
 	/// Description of EmailDestination.
 	/// </summary>
-	[Destination(EmailDesignation)]
+	[Destination(EmailDesignation, 10)]
 	public sealed class EmailDestination : AbstractDestination
 	{
 		private const string EmailDesignation = "Email";
@@ -78,11 +79,11 @@ namespace Greenshot.Destinations
 
 			try
 			{
-				// There is not much that can work async for the MapiMailMessage
-				await Task.Factory.StartNew(() =>
+				await UiContext.RunOn(
+				() =>
 				{
 					MapiMailMessage.SendImage(capture, capture.CaptureDetails);
-				}, token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+				}, token);
 			}
 			catch (Exception e)
 			{

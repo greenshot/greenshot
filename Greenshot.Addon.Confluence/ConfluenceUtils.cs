@@ -44,7 +44,7 @@ namespace Greenshot.Addon.Confluence
 		public static async Task<IList<Content>> GetCurrentPages(CancellationToken token = default(CancellationToken))
 		{
 			IList<Content> pages = new List<Content>();
-			var browserUrls = await Task.Factory.StartNew(() => GetBrowserUrls(), token);
+			var browserUrls = await Task.Factory.StartNew(GetBrowserUrls, token);
 			foreach (string browserurl in GetBrowserUrls())
 			{
 				string url;

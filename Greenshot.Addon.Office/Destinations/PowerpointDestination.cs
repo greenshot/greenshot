@@ -26,6 +26,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
+using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
@@ -33,6 +34,7 @@ using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Office.OfficeExport;
+using System.Linq;
 
 namespace Greenshot.Addon.Office.Destinations
 {
@@ -99,28 +101,24 @@ namespace Greenshot.Addon.Office.Destinations
 		/// <returns>Task</returns>
 		public override async Task RefreshAsync(IExportContext caller1, CancellationToken token = default(CancellationToken))
 		{
-			await Task.Factory.StartNew(
-				// this will use current synchronization context
-				() =>
+			Children.Clear();
+			await Task.Run(() =>
+			{
+				return PowerpointExporter.GetPowerpointPresentations().OrderBy(x => x).Select(presentation => new PowerpointDestination
 				{
-					Children.Clear();
-					foreach (var presentation in PowerpointExporter.GetPowerpointPresentations())
-					{
-						var powerpointDestination = new PowerpointDestination
-						{
-							Icon = PresentationIcon,
-							Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, presentation),
-							Text = presentation,
-							OfficeConfiguration = OfficeConfiguration,
-							GreenshotLanguage = GreenshotLanguage
-						};
-						Children.Add(powerpointDestination);
-					}
-				},
-				token,
-				TaskCreationOptions.None,
-				TaskScheduler.FromCurrentSynchronizationContext()
-			);
+					Icon = PresentationIcon,
+					Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, presentation),
+					Text = presentation,
+					OfficeConfiguration = OfficeConfiguration,
+					GreenshotLanguage = GreenshotLanguage
+				}).ToList();
+			}, token).ContinueWith(async destinations =>
+			{
+				foreach (var powerpointDestination in await destinations)
+				{
+					Children.Add(powerpointDestination);
+				}
+			}, token, TaskContinuationOptions.None, UiContext.UiTaskScheduler).ConfigureAwait(false);
 		}
 
 		private Task<INotification> ExportCaptureAsync(ICapture capture, string presentationName)

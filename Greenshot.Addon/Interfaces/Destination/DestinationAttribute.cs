@@ -34,13 +34,15 @@ namespace Greenshot.Addon.Interfaces.Destination
 			set;
 		}
 
-		public DestinationAttribute() : base(typeof(IDestination))
-		{
-		}
+		/// <summary>
+		/// Order of the destination when shown in a list
+		/// </summary>
+		public int Order { get; }
 
-		public DestinationAttribute(string name) : base(typeof(IDestination))
+		public DestinationAttribute(string name, int order = int.MaxValue) : base(typeof(IDestination))
 		{
 			Name = name;
+			Order = order;
 		}
 	}
 }

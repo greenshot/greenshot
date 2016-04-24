@@ -31,6 +31,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using Dapplo.HttpExtensions;
+using Dapplo.Utils;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
@@ -81,13 +82,6 @@ namespace Greenshot.Addon.Jira
 			set;
 		}
 
-		[Import]
-		private TaskScheduler UiTaskScheduler
-		{
-			get;
-			set;
-		}
-
 		/// <summary>
 		/// This should only be set from the plugin
 		/// </summary>
@@ -124,10 +118,11 @@ namespace Greenshot.Addon.Jira
 		private void UpdateChildren()
 		{
 			IsEnabled = _jiraMonitor.RecentJiras.Any();  // As soon as we have issues this should be set to true
+
 			Children.Clear();
-			foreach (var jiraDetails in _jiraMonitor.RecentJiras)
+			Task.Run(() =>
 			{
-				var jiraDestination = new JiraDestination
+				return _jiraMonitor.RecentJiras.Select(jiraDetails => new JiraDestination
 				{
 					Icon = JiraIcon,
 					Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, jiraDetails, token),
@@ -137,19 +132,22 @@ namespace Greenshot.Addon.Jira
 					GreenshotHost = GreenshotHost,
 					// DO NOT set the JiraMonitor property on the children
 					_jiraMonitor = _jiraMonitor
-				};
-				Children.Add(jiraDestination);
-			}
+				}).ToList();
+			}).ContinueWith(async destinations =>
+			{
+				foreach (var jiraDestination in await destinations)
+				{
+					Children.Add(jiraDestination);
+				}
+			}, CancellationToken.None, TaskContinuationOptions.None, UiContext.UiTaskScheduler).ConfigureAwait(false);
 		}
 
 		private void JiraMonitor_JiraEvent(object sender, JiraEventArgs e)
 		{
-			Task.Factory.StartNew(
-					() => UpdateChildren(),
-					default(CancellationToken), TaskCreationOptions.None, UiTaskScheduler);
+			UpdateChildren();
 		}
 
-		private string FormatUpload(JiraDetails jira)
+		private static string FormatUpload(JiraDetails jira)
 		{
 			return $"{jira.JiraKey} - {jira.Title.Substring(0, Math.Min(40, jira.Title.Length))}";
 		}

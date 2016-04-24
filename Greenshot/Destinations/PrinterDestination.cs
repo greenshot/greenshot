@@ -27,6 +27,7 @@ using System.Windows.Media.Imaging;
 using System.Drawing.Printing;
 using Greenshot.Helpers;
 using System.Linq;
+using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
@@ -38,7 +39,7 @@ namespace Greenshot.Destinations
 	/// <summary>
 	/// Description of PrinterDestination.
 	/// </summary>
-	[Destination(PrinterDesignation)]
+	[Destination(PrinterDesignation, 4)]
 	public sealed class PrinterDestination : AbstractDestination
 	{
 		private const string PrinterDesignation = "Printer";
@@ -82,31 +83,37 @@ namespace Greenshot.Destinations
 		/// <returns>Task</returns>
 		public override async Task RefreshAsync(IExportContext caller1, CancellationToken token = default(CancellationToken))
 		{
-			await Task.Factory.StartNew(() =>
-			{
-				Children.Clear();
-				var settings = new PrinterSettings();
-				string defaultPrinter = settings.PrinterName;
-				var printers = PrinterSettings.InstalledPrinters.Cast<string>().OrderBy(x => x).ToList();
-				var defaultIndex = printers.IndexOf(defaultPrinter);
-				if (defaultIndex > 0)
+			Children.Clear();
+
+			await Task.Run(
+				() =>
 				{
-					printers.RemoveAt(defaultIndex);
-					printers.Insert(0, defaultPrinter);
-				}
-				foreach (var printer in printers)
-				{
-					var printerDestination = new PrinterDestination
+					var settings = new PrinterSettings();
+					string defaultPrinter = settings.PrinterName;
+					var printers = PrinterSettings.InstalledPrinters.Cast<string>().OrderBy(x => x).ToList();
+					var defaultIndex = printers.IndexOf(defaultPrinter);
+					if (defaultIndex > 0)
+					{
+						printers.RemoveAt(defaultIndex);
+						printers.Insert(0, defaultPrinter);
+					}
+					return printers.Select(printer => new PrinterDestination
 					{
 						Text = printer,
 						Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, printer, exportToken),
 						Icon = PrinterIcon,
 						CoreConfiguration = CoreConfiguration,
 						GreenshotLanguage = GreenshotLanguage
-					};
-					Children.Add(printerDestination);
-				}
-			}, token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+					}).ToList();
+				}, token).ContinueWith(async printerDestinations =>
+					{
+						foreach (var printerDestination in await printerDestinations)
+						{
+							Children.Add(printerDestination);
+						}
+
+					}, token, TaskContinuationOptions.None, UiContext.UiTaskScheduler
+				).ConfigureAwait(false);
 		}
 
 		private async Task<INotification> ExportCaptureAsync(ICapture capture, string printerName, CancellationToken token = default(CancellationToken))
@@ -121,7 +128,7 @@ namespace Greenshot.Destinations
 
 			try
 			{
-				await Task.Factory.StartNew(() =>
+				await UiContext.RunOn(() =>
 				{
 					if (!string.IsNullOrEmpty(printerName))
 					{
@@ -137,7 +144,7 @@ namespace Greenshot.Destinations
 							printHelper.PrintWithDialog();
 						}
 					}
-				}, token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+				}, token);
 			}
 			catch (Exception e)
 			{

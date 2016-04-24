@@ -22,12 +22,13 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 using Dapplo.Config.Ini;
-using Dapplo.Config.Interfaces;
+using Dapplo.InterfaceImpl.Extensions;
 using Greenshot.Addon.Core;
 
 namespace Greenshot.Addon.Configuration
@@ -35,6 +36,7 @@ namespace Greenshot.Addon.Configuration
 	/// <summary>
 	/// Supporting clipboard formats
 	/// </summary>
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	public enum ClipboardFormat
 	{
 		PNG,
@@ -326,10 +328,7 @@ namespace Greenshot.Addon.Configuration
 			// Make sure we have clipboard formats, otherwise a paste doesn't make sense!
 			if (coreConfiguration.ClipboardFormats == null || coreConfiguration.ClipboardFormats.Count == 0)
 			{
-				coreConfiguration.ClipboardFormats = new List<ClipboardFormat>();
-				coreConfiguration.ClipboardFormats.Add(ClipboardFormat.PNG);
-				coreConfiguration.ClipboardFormats.Add(ClipboardFormat.HTML);
-				coreConfiguration.ClipboardFormats.Add(ClipboardFormat.DIB);
+				coreConfiguration.ClipboardFormats = new List<ClipboardFormat> {ClipboardFormat.PNG, ClipboardFormat.HTML, ClipboardFormat.DIB};
 			}
 
 			// Make sure the lists are lowercase, to speedup the check
@@ -357,9 +356,12 @@ namespace Greenshot.Addon.Configuration
 				{
 					if ("citrix".Equals(coreConfiguration.NoDWMCaptureForProduct[0]) && "ica".Equals(coreConfiguration.NoDWMCaptureForProduct[1]) && "client".Equals(coreConfiguration.NoDWMCaptureForProduct[2]))
 					{
-						coreConfiguration.NoGDICaptureForProduct.RemoveAt(0);
-						coreConfiguration.NoGDICaptureForProduct.RemoveAt(0);
-						coreConfiguration.NoGDICaptureForProduct.RemoveAt(0);
+						if (coreConfiguration.NoGDICaptureForProduct != null)
+						{
+							coreConfiguration.NoGDICaptureForProduct.RemoveAt(0);
+							coreConfiguration.NoGDICaptureForProduct.RemoveAt(0);
+							coreConfiguration.NoGDICaptureForProduct.RemoveAt(0);
+						}
 						coreConfiguration.NoDWMCaptureForProduct.Add("Citrix ICA Client");
 					}
 				}

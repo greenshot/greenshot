@@ -27,6 +27,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
+using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
@@ -100,27 +101,24 @@ namespace Greenshot.Addon.Office.Destinations
 		/// <returns>Task</returns>
 		public override async Task RefreshAsync(IExportContext caller1, CancellationToken token = default(CancellationToken))
 		{
-			await Task.Factory.StartNew(
-				// this will use current synchronization context
-				() => {
-					Children.Clear();
-					foreach (var caption in WordExporter.GetWordDocuments().OrderBy(x => x))
-					{
-						var wordDestination = new WordDestination
-						{
-							Icon = DocumentIcon,
-							Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, caption),
-							Text = caption,
-							OfficeConfiguration = OfficeConfiguration,
-							GreenshotLanguage = GreenshotLanguage
-						};
-						Children.Add(wordDestination);
-					}
-				},
-				token,
-				TaskCreationOptions.None,
-				TaskScheduler.FromCurrentSynchronizationContext()
-			);
+			Children.Clear();
+			await Task.Run(() =>
+			{
+				return WordExporter.GetWordDocuments().OrderBy(x => x).Select(caption => new WordDestination
+				{
+					Icon = DocumentIcon,
+					Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, caption),
+					Text = caption,
+					OfficeConfiguration = OfficeConfiguration,
+					GreenshotLanguage = GreenshotLanguage
+				}).ToList();
+			}, token).ContinueWith(async destinations =>
+			{
+				foreach (var caption in await destinations)
+				{
+					Children.Add(caption);
+				}
+			}, token, TaskContinuationOptions.None, UiContext.UiTaskScheduler).ConfigureAwait(false);
 		}
 
 		private Task<INotification> ExportCaptureAsync(ICapture capture, string documentCaption)

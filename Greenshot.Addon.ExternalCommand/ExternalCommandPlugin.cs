@@ -30,7 +30,6 @@ using System.Windows.Forms;
 using Dapplo.Addons;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
-using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Interfaces.Destination;
 

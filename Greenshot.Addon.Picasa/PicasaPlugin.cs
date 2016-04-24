@@ -26,10 +26,10 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Dapplo.Addons;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Picasa.Forms;
+using Dapplo.Addons;
 
 namespace Greenshot.Addon.Picasa
 {

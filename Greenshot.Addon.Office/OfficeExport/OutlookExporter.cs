@@ -67,7 +67,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 				{
 					if (outlookApplication == null)
 					{
-						return null;
+						return inspectorCaptions;
 					}
 
 					// The activeexplorer inline response only works with >= 2013, Microsoft Outlook 15.0 Object Library

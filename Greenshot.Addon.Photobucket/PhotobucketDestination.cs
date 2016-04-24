@@ -111,7 +111,7 @@ namespace Greenshot.Addon.Photobucket
 			};
 			var oAuthHttpBehaviour = OAuth1HttpBehaviourFactory.Create(_oAuthSettings);
 			// Store the leftover values
-			oAuthHttpBehaviour.OnAccessToken = values =>
+			oAuthHttpBehaviour.OnAccessTokenValues = values =>
 			{
 				if (values != null && values.ContainsKey("subdomain"))
 				{

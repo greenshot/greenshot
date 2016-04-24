@@ -29,11 +29,11 @@ using Dapplo.Addons;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Helpers;
 using System.ServiceModel.Description;
-using Greenshot.Addon.Core;
 using System.ServiceModel.Dispatcher;
 using System.ServiceModel.Channels;
 using Greenshot.Addon.Configuration;
 using System.ComponentModel.Composition;
+using Dapplo.Utils;
 
 namespace Greenshot.Services
 {
@@ -59,20 +59,7 @@ namespace Greenshot.Services
 		/// <summary>
 		/// This is the endpoint where the server is running
 		/// </summary>
-		public static string EndPoint
-		{
-			get
-			{
-				return $"{PipeBaseEndpoint}{Identity}";
-			}
-		}
-
-		[Import]
-		private TaskScheduler UITaskScheduler
-		{
-			get;
-			set;
-		}
+		public static string EndPoint => $"{PipeBaseEndpoint}{Identity}";
 
 		public bool IsStarted
 		{
@@ -164,9 +151,7 @@ namespace Greenshot.Services
 
 			if (File.Exists(filename))
 			{
-				Task.Factory.StartNew(
-					async () => await CaptureHelper.CaptureFileAsync(filename),
-					default(CancellationToken), TaskCreationOptions.None, UITaskScheduler);
+				UiContext.RunOn(async () => await CaptureHelper.CaptureFileAsync(filename));
 			}
 			else
 			{
@@ -177,9 +162,7 @@ namespace Greenshot.Services
 
 		public void CaptureScreen(bool cursor)
 		{
-			Task.Factory.StartNew(
-				async () => await CaptureHelper.CaptureFullscreenAsync(true, ScreenCaptureMode.Auto),
-				default(CancellationToken), TaskCreationOptions.None, UITaskScheduler);
+			UiContext.RunOn(async () => await CaptureHelper.CaptureFullscreenAsync(true, ScreenCaptureMode.Auto));
 		}
 
 		#endregion

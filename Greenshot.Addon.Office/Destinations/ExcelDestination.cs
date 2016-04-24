@@ -27,6 +27,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
+using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
@@ -100,28 +101,24 @@ namespace Greenshot.Addon.Office.Destinations
 		/// <returns>Task</returns>
 		public override async Task RefreshAsync(IExportContext caller1, CancellationToken token = default(CancellationToken))
 		{
-			await Task.Factory.StartNew(
-				// this will use current synchronization context
-				() =>
+			Children.Clear();
+			await Task.Run(() =>
+			{
+				return ExcelExporter.GetWorkbooks().OrderBy(x => x).Select(workbook => new ExcelDestination
 				{
-					Children.Clear();
-					foreach (var workbook in ExcelExporter.GetWorkbooks().OrderBy(x => x))
-					{
-						var excelDestination = new ExcelDestination
-						{
-							Icon = WorkbookIcon,
-							Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, workbook),
-							Text = workbook,
-							OfficeConfiguration = OfficeConfiguration,
-							GreenshotLanguage = GreenshotLanguage
-						};
-						Children.Add(excelDestination);
-					}
-				},
-				token,
-				TaskCreationOptions.None,
-				TaskScheduler.FromCurrentSynchronizationContext()
-			);
+					Icon = WorkbookIcon,
+					Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, workbook),
+					Text = workbook,
+					OfficeConfiguration = OfficeConfiguration,
+					GreenshotLanguage = GreenshotLanguage
+				}).ToList();
+			}, token).ContinueWith(async destinations =>
+			{
+				foreach (var excelDestination in await destinations)
+				{
+					Children.Add(excelDestination);
+				}
+			}, token, TaskContinuationOptions.None, UiContext.UiTaskScheduler).ConfigureAwait(false);
 		}
 
 		private Task<INotification> ExportCaptureAsync(ICapture capture, string workbook)

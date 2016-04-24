@@ -25,6 +25,7 @@ using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
@@ -33,6 +34,7 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 using Dapplo.Confluence.Entities;
 using Dapplo.HttpExtensions;
+using Dapplo.Utils;
 using Greenshot.Addon.Confluence.Windows;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
@@ -101,24 +103,25 @@ namespace Greenshot.Addon.Confluence
 		public override async Task RefreshAsync(IExportContext caller1, CancellationToken token = default(CancellationToken))
 		{
 			Children.Clear();
-			var currentPages = await ConfluenceUtils.GetCurrentPages(token);
-			if (currentPages == null || currentPages.Count == 0)
+			await Task.Run(async () =>
 			{
-				return;
-			}
-			foreach (var currentPage in currentPages)
-			{
-				var confluenceDestination = new ConfluenceDestination
+				var pages = await ConfluenceUtils.GetCurrentPages(token);
+				return pages.OrderBy(x => x.Title).Select(currentPage => new ConfluenceDestination
 				{
 					Icon = ConfluenceIcon,
 					Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, currentPage, exportToken),
 					Text = currentPage.Title,
 					ConfluenceConfiguration = ConfluenceConfiguration,
 					ConfluenceLanguage = ConfluenceLanguage
-				};
-				Children.Add(confluenceDestination);
-			}
-	}
+				}).ToList();
+			}, token).ContinueWith(async destinations =>
+			{
+				foreach (var confluenceDestination in await destinations)
+				{
+					Children.Add(confluenceDestination);
+				}
+			}, token, TaskContinuationOptions.None, UiContext.UiTaskScheduler).ConfigureAwait(false);
+		}
 
 		private async Task<INotification> ExportCaptureAsync(ICapture capture, Content page, CancellationToken token = default(CancellationToken))
 		{
@@ -172,7 +175,7 @@ namespace Greenshot.Addon.Confluence
 					}, token);
 
 					Log.Debug("Uploaded to Confluence.");
-					var exportedUri = confluenceApi.ConfluenceBaseUri.AppendSegments("pages", "viewpage.action").ExtendQuery(new Dictionary<string, object>
+					var exportedUri = confluenceApi.ConfluenceApiBaseUri.AppendSegments("pages", "viewpage.action").ExtendQuery(new Dictionary<string, object>
 					{
 						{
 							"pageId", page.Id

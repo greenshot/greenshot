@@ -250,12 +250,12 @@ namespace Greenshot.Helpers
 			var tasks = new List<Task>();
 			if (CoreConfiguration.PlayCameraSound)
 			{
-				tasks.Add(Task.Run(() => SoundHelper.Play(token)));
+				tasks.Add(Task.Run(() => SoundHelper.Play(token), token));
 			}
 			if (CoreConfiguration.ShowFlash)
 			{
 				var bounds = new System.Windows.Rect(_captureRect.X, _captureRect.Y, _captureRect.Width, _captureRect.Height);
-				tasks.Add(FlashlightWindow.Flash(bounds));
+				tasks.Add(FlashlightWindow.Flash(bounds, token));
 			}
 			await Task.WhenAll(tasks);
 		}

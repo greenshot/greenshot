@@ -24,6 +24,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.ComponentModel.Composition;
 using System.Windows.Media.Imaging;
+using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
@@ -35,7 +36,7 @@ namespace Greenshot.Destinations
 	/// <summary>
 	/// Description of FileWithDialogDestination.
 	/// </summary>
-	[Destination(FileWithDialogDesignation)]
+	[Destination(FileWithDialogDesignation, 3)]
 	public sealed class FileWithDialogDestination : AbstractDestination
 	{
 		private const string FileWithDialogDesignation = "FileWithDialog";
@@ -83,7 +84,8 @@ namespace Greenshot.Destinations
 
 			try
 			{
-				string savedTo = await Task.Factory.StartNew(() => ImageOutput.SaveWithDialog(capture, capture.CaptureDetails), token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+				string savedTo = null;
+				await UiContext.RunOn(() => savedTo = ImageOutput.SaveWithDialog(capture, capture.CaptureDetails), token);
 
 				// Bug #2918756 don't overwrite path if SaveWithDialog returns null!
 				if (savedTo != null)

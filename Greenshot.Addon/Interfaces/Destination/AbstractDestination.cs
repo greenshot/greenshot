@@ -66,9 +66,9 @@ namespace Greenshot.Addon.Interfaces.Destination
 		{
 		}
 
-		public virtual Task RefreshAsync(IExportContext caller, CancellationToken token = default(CancellationToken))
+		public virtual async Task RefreshAsync(IExportContext caller, CancellationToken token = default(CancellationToken))
 		{
-			return Task.FromResult(true);
+			await Task.Yield();
 		}
 
 		public virtual string Designation
