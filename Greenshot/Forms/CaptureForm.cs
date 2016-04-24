@@ -72,7 +72,7 @@ namespace Greenshot.Forms
 
 		private int _mX;
 		private int _mY;
-		private Point _mouseMovePos = Point.Empty;
+		private Point _mouseMovePos;
 		private Point _cursorPos;
 		private readonly Task<IList<WindowDetails>> _retrieveWindowsTask;
 		private IList<WindowDetails> _windows;

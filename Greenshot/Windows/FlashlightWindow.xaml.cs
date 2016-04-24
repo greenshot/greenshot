@@ -23,6 +23,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using Dapplo.Utils;
 using Greenshot.Addon.Extensions;
 
 namespace Greenshot.Windows
@@ -41,8 +42,11 @@ namespace Greenshot.Windows
 					new Point(SystemParameters.VirtualScreenLeft, SystemParameters.VirtualScreenTop),
 					new Size(SystemParameters.VirtualScreenWidth, SystemParameters.VirtualScreenHeight));
 			}
-			// Scale device coordinates (from the capture form) to WPF
-			area = Rect.Transform(area, this.TransformFromDevice());
+			else
+			{
+				// Scale device coordinates (from the capture form) to WPF
+				area = Rect.Transform(area, this.TransformFromDevice());
+			}
 			Width = area.Width;
 			Height = area.Height;
 			Top = area.Top;
@@ -63,13 +67,15 @@ namespace Greenshot.Windows
 		/// Show a flashing window on the specified location
 		/// </summary>
 		/// <param name="area"></param>
-		/// <param name="token"></param>
 		/// <returns>Task to wait for</returns>
-		public static async Task Flash(Rect area = default(Rect), CancellationToken token = default(CancellationToken))
+		public static Task Flash(Rect area = default(Rect))
 		{
-			var flashlightWindow = new FlashlightWindow(area);
-			flashlightWindow.Show();
-			await flashlightWindow.WaitForClosedAsync(token);
+			return UiContext.RunOn(async () =>
+			{
+				var flashlightWindow = new FlashlightWindow(area);
+				flashlightWindow.Show();
+				await flashlightWindow.WaitForClosedAsync();
+			});
 		}
 	}
 }

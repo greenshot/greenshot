@@ -25,7 +25,6 @@ using System.IO;
 using System.Media;
 using System.Reflection;
 using System.Resources;
-using System.Threading;
 using Greenshot.Addon.Configuration;
 
 namespace Greenshot.Helpers
@@ -49,8 +48,10 @@ namespace Greenshot.Helpers
 				{
 					if (File.Exists(conf.NotificationSound))
 					{
-						_soundPlayer = new SoundPlayer();
-						_soundPlayer.SoundLocation = conf.NotificationSound;
+						_soundPlayer = new SoundPlayer
+						{
+							SoundLocation = conf.NotificationSound
+						};
 						_soundPlayer.LoadAsync();
 						return;
 					}
@@ -58,8 +59,10 @@ namespace Greenshot.Helpers
 				
 				var resources = new ResourceManager("Greenshot.Sounds", Assembly.GetExecutingAssembly());
 
-				_soundPlayer = new SoundPlayer();
-				_soundPlayer.Stream = new MemoryStream((byte[])resources.GetObject("camera"));
+				_soundPlayer = new SoundPlayer
+				{
+					Stream = new MemoryStream((byte[]) resources.GetObject("camera"))
+				};
 			}
 			catch (Exception e)
 			{
@@ -71,12 +74,9 @@ namespace Greenshot.Helpers
 		/// Play the sound async (is wrapeed)
 		/// </summary>
 		/// <returns></returns>
-		public static void Play(CancellationToken token = default(CancellationToken))
+		public static void Play()
 		{
-			if (_soundPlayer != null)
-			{
-				_soundPlayer.Play();
-			}
+			_soundPlayer?.Play();
 		}
 
 		public static void Deinitialize()

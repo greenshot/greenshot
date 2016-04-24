@@ -33,6 +33,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Config.Language;
+using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Editor.Drawing;
@@ -96,7 +97,7 @@ namespace Greenshot.Helpers
 		{
 			using (var captureHelper = new CaptureHelper(CaptureMode.Clipboard))
 			{
-				await captureHelper.MakeCaptureAsync(token);
+				await captureHelper.MakeCaptureAsync(token).ConfigureAwait(false);
 			}
 		}
 
@@ -104,7 +105,7 @@ namespace Greenshot.Helpers
 		{
 			using (var captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse))
 			{
-				await captureHelper.MakeCaptureAsync(token);
+				await captureHelper.MakeCaptureAsync(token).ConfigureAwait(false);
 			}
 		}
 
@@ -112,7 +113,7 @@ namespace Greenshot.Helpers
 		{
 			using (var captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse, destination))
 			{
-				await captureHelper.MakeCaptureAsync(token);
+				await captureHelper.MakeCaptureAsync(token).ConfigureAwait(false);
 			}
 		}
 
@@ -120,7 +121,7 @@ namespace Greenshot.Helpers
 		{
 			using (var captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse))
 			{
-				await captureHelper.MakeCaptureAsync(region, token);
+				await captureHelper.MakeCaptureAsync(region, token).ConfigureAwait(false);
 			}
 		}
 
@@ -129,7 +130,7 @@ namespace Greenshot.Helpers
 			using (var captureHelper = new CaptureHelper(CaptureMode.FullScreen, captureMouse))
 			{
 				captureHelper._screenCaptureMode = screenCaptureMode;
-				await captureHelper.MakeCaptureAsync(token);
+				await captureHelper.MakeCaptureAsync(token).ConfigureAwait(false);
 			}
 		}
 
@@ -137,7 +138,7 @@ namespace Greenshot.Helpers
 		{
 			using (var captureHelper = new CaptureHelper(CaptureMode.LastRegion, captureMouse))
 			{
-				await captureHelper.MakeCaptureAsync(token);
+				await captureHelper.MakeCaptureAsync(token).ConfigureAwait(false);
 			}
 		}
 
@@ -146,7 +147,7 @@ namespace Greenshot.Helpers
 			using (var captureHelper = new CaptureHelper(CaptureMode.IE, captureMouse))
 			{
 				captureHelper.SelectedCaptureWindow = windowToCapture;
-				await captureHelper.MakeCaptureAsync(token);
+				await captureHelper.MakeCaptureAsync(token).ConfigureAwait(false);
 			}
 		}
 
@@ -154,7 +155,7 @@ namespace Greenshot.Helpers
 		{
 			using (var captureHelper = new CaptureHelper(CaptureMode.ActiveWindow, captureMouse))
 			{
-				await captureHelper.MakeCaptureAsync(token);
+				await captureHelper.MakeCaptureAsync(token).ConfigureAwait(false);
 			}
 		}
 
@@ -163,7 +164,7 @@ namespace Greenshot.Helpers
 			using (var captureHelper = new CaptureHelper(CaptureMode.ActiveWindow))
 			{
 				captureHelper.SelectedCaptureWindow = windowToCapture;
-				await captureHelper.MakeCaptureAsync(token);
+				await captureHelper.MakeCaptureAsync(token).ConfigureAwait(false);
 			}
 		}
 
@@ -171,7 +172,7 @@ namespace Greenshot.Helpers
 		{
 			using (var captureHelper = new CaptureHelper(CaptureMode.Window))
 			{
-				await captureHelper.MakeCaptureAsync(token);
+				await captureHelper.MakeCaptureAsync(token).ConfigureAwait(false);
 			}
 		}
 
@@ -179,7 +180,7 @@ namespace Greenshot.Helpers
 		{
 			using (var captureHelper = new CaptureHelper(CaptureMode.File))
 			{
-				await captureHelper.MakeCaptureAsync(filename, token);
+				await captureHelper.MakeCaptureAsync(filename, token).ConfigureAwait(false);
 			}
 		}
 
@@ -187,7 +188,7 @@ namespace Greenshot.Helpers
 		{
 			using (var captureHelper = new CaptureHelper(CaptureMode.File))
 			{
-				await captureHelper.AddDestination(destination).MakeCaptureAsync(filename, token);
+				await captureHelper.AddDestination(destination).MakeCaptureAsync(filename, token).ConfigureAwait(false);
 			}
 		}
 
@@ -196,7 +197,7 @@ namespace Greenshot.Helpers
 			using (var captureHelper = new CaptureHelper(CaptureMode.File))
 			{
 				captureHelper._capture = captureToImport;
-				await captureHelper.HandleCaptureAsync(token);
+				await captureHelper.HandleCaptureAsync(token).ConfigureAwait(false);
 			}
 		}
 
@@ -243,21 +244,20 @@ namespace Greenshot.Helpers
 		/// <summary>
 		/// Play sound / show flash
 		/// </summary>
-		/// <param name="token"></param>
 		/// <returns>Task to wait for</returns>
-		private async Task DoCaptureFeedbackAsync(CancellationToken token = default(CancellationToken))
+		private async Task DoCaptureFeedbackAsync()
 		{
 			var tasks = new List<Task>();
 			if (CoreConfiguration.PlayCameraSound)
 			{
-				tasks.Add(Task.Run(() => SoundHelper.Play(token), token));
+				tasks.Add(Task.Run(() => SoundHelper.Play()));
 			}
 			if (CoreConfiguration.ShowFlash)
 			{
 				var bounds = new System.Windows.Rect(_captureRect.X, _captureRect.Y, _captureRect.Width, _captureRect.Height);
-				tasks.Add(FlashlightWindow.Flash(bounds, token));
+				tasks.Add(FlashlightWindow.Flash(bounds));
 			}
-			await Task.WhenAll(tasks);
+			await Task.WhenAll(tasks).ConfigureAwait(false);
 		}
 
 		/// <summary>
@@ -268,7 +268,7 @@ namespace Greenshot.Helpers
 		private async Task MakeCaptureAsync(string filename, CancellationToken token = default(CancellationToken))
 		{
 			_capture.CaptureDetails.Filename = filename;
-			await MakeCaptureAsync(token);
+			await MakeCaptureAsync(token).ConfigureAwait(false);
 		}
 
 		/// <summary>
@@ -279,7 +279,7 @@ namespace Greenshot.Helpers
 		private async Task MakeCaptureAsync(Rectangle region, CancellationToken token = default(CancellationToken))
 		{
 			_captureRect = region;
-			await MakeCaptureAsync(token);
+			await MakeCaptureAsync(token).ConfigureAwait(false);
 		}
 
 
@@ -289,7 +289,7 @@ namespace Greenshot.Helpers
 		private async Task MakeCaptureAsync(CancellationToken token = default(CancellationToken))
 		{
 			Log.Debug("Starting MakeCaptureAsync");
-			var retrieveWindowDetailsTask = Task.FromResult<IList<WindowDetails>>(new List<WindowDetails>());
+			Task<IList<WindowDetails>> retrieveWindowDetailsTask = null;
 
 			// This fixes a problem when a balloon is still visible and a capture needs to be taken
 			// forcefully removes the balloon!
@@ -331,7 +331,7 @@ namespace Greenshot.Helpers
 			// Delay for the Context menu
 			if (CoreConfiguration.CaptureDelay > 0)
 			{
-				await Task.Delay(CoreConfiguration.CaptureDelay, token);
+				await Task.Delay(CoreConfiguration.CaptureDelay, token).ConfigureAwait(false);
 			}
 			else
 			{
@@ -350,11 +350,11 @@ namespace Greenshot.Helpers
 				case CaptureMode.Window:
 					_capture = WindowCapture.CaptureScreen(_capture);
 					_capture.CaptureDetails.AddMetaData("source", "Screen");
-					SetDpi();
-					await CaptureWithFeedbackAsync(retrieveWindowDetailsTask, token);
+					await SetDpi().ConfigureAwait(false);
+					await CaptureWithFeedbackAsync(retrieveWindowDetailsTask, token).ConfigureAwait(false);
 					break;
 				case CaptureMode.ActiveWindow:
-					if (CaptureActiveWindow())
+					if (await CaptureActiveWindow().ConfigureAwait(false))
 					{
 						// Capture worked, offset mouse according to screen bounds and capture location
 						_capture.MoveMouseLocation(_capture.ScreenBounds.Location.X - _capture.Location.X, _capture.ScreenBounds.Location.Y - _capture.Location.Y);
@@ -367,15 +367,15 @@ namespace Greenshot.Helpers
 						_capture.CaptureDetails.AddMetaData("source", "Screen");
 						_capture.CaptureDetails.Title = "Screen";
 					}
-					SetDpi();
-					await HandleCaptureAsync(token);
+					await SetDpi().ConfigureAwait(false);
+					await HandleCaptureAsync(token).ConfigureAwait(false);
 					break;
 				case CaptureMode.IE:
 					if (IECaptureHelper.CaptureIE(_capture, SelectedCaptureWindow) != null)
 					{
 						_capture.CaptureDetails.AddMetaData("source", "Internet Explorer");
-						SetDpi();
-						await HandleCaptureAsync(token);
+						await SetDpi().ConfigureAwait(false);
+						await HandleCaptureAsync(token).ConfigureAwait(false);
 					}
 					break;
 				case CaptureMode.FullScreen:
@@ -410,8 +410,8 @@ namespace Greenshot.Helpers
 					{
 						_capture = WindowCapture.CaptureScreen(_capture);
 					}
-					SetDpi();
-					await HandleCaptureAsync(token);
+					await SetDpi().ConfigureAwait(false);
+					await HandleCaptureAsync(token).ConfigureAwait(false);
 					break;
 				case CaptureMode.Clipboard:
 					var clipboardImage = ClipboardHelper.GetImage();
@@ -440,7 +440,7 @@ namespace Greenshot.Helpers
 							// TODO: add editor
 							//_capture.CaptureDetails.AddDestination(LegacyDestinationHelper.GetLegacyDestination(BuildInDestinationEnum.Editor.ToString()));
 						}
-						await HandleCaptureAsync(token);
+						await HandleCaptureAsync(token).ConfigureAwait(false);
 					}
 					break;
 				case CaptureMode.File:
@@ -500,7 +500,7 @@ namespace Greenshot.Helpers
 							// TODO: Add editor
 							//_capture.CaptureDetails.AddDestination(LegacyDestinationHelper.GetLegacyDestination(BuildInDestinationEnum.Editor.ToString()));
 						}
-						await HandleCaptureAsync(token);
+						await HandleCaptureAsync(token).ConfigureAwait(false);
 					}
 					break;
 				case CaptureMode.LastRegion:
@@ -525,8 +525,8 @@ namespace Greenshot.Helpers
 						//capture.MoveElements(capture.ScreenBounds.Location.X - capture.Location.X, capture.ScreenBounds.Location.Y - capture.Location.Y);
 
 						_capture.CaptureDetails.AddMetaData("source", "screen");
-						SetDpi();
-						await HandleCaptureAsync(token);
+						await SetDpi().ConfigureAwait(false);
+						await HandleCaptureAsync(token).ConfigureAwait(false);
 					}
 					break;
 				case CaptureMode.Region:
@@ -535,15 +535,15 @@ namespace Greenshot.Helpers
 					{
 						_capture = WindowCapture.CaptureScreen(_capture);
 						_capture.CaptureDetails.AddMetaData("source", "screen");
-						SetDpi();
-						await CaptureWithFeedbackAsync(retrieveWindowDetailsTask, token);
+						await SetDpi().ConfigureAwait(false);
+						await CaptureWithFeedbackAsync(retrieveWindowDetailsTask, token).ConfigureAwait(false);
 					}
 					else
 					{
 						_capture = WindowCapture.CaptureRectangle(_capture, _captureRect);
 						_capture.CaptureDetails.AddMetaData("source", "screen");
-						SetDpi();
-						await HandleCaptureAsync(token);
+						await SetDpi().ConfigureAwait(false);
+						await HandleCaptureAsync(token).ConfigureAwait(false);
 					}
 					break;
 				default:
@@ -551,7 +551,10 @@ namespace Greenshot.Helpers
 					break;
 			}
 			// Wait for thread, otherwise we can't dipose the CaptureHelper
-			await retrieveWindowDetailsTask;
+			if (retrieveWindowDetailsTask != null)
+			{
+				await retrieveWindowDetailsTask;
+			}
 			if (_capture != null)
 			{
 				Log.Debug("Disposing capture");
@@ -694,7 +697,6 @@ namespace Greenshot.Helpers
 			}
 		}
 
-
 		private async Task HandleCaptureAsync(CancellationToken token = default(CancellationToken))
 		{
 			// Flag to see if the image was "exported" so the FileEditor doesn't
@@ -712,7 +714,7 @@ namespace Greenshot.Helpers
 				{
 					((Bitmap) _capture.Image)?.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
 				}
-				await DoCaptureFeedbackAsync(token);
+				await DoCaptureFeedbackAsync().ConfigureAwait(false);
 			}
 
 			Log.Debug("A capture of: " + _capture.CaptureDetails.Title);
@@ -777,7 +779,7 @@ namespace Greenshot.Helpers
 			}
 		}
 
-		private bool CaptureActiveWindow()
+		private async Task<bool> CaptureActiveWindow()
 		{
 			bool presupplied = false;
 			Log.Debug("CaptureActiveWindow");
@@ -800,12 +802,21 @@ namespace Greenshot.Helpers
 				// Nothing to capture, code up in the stack will capture the full screen
 				return false;
 			}
-			if (!presupplied && _selectedCaptureWindow != null && _selectedCaptureWindow.Iconic)
+
+			// Used to be !presupplied &&, but I don't know why
+			if (_selectedCaptureWindow != null && _selectedCaptureWindow.Iconic)
 			{
-				// Restore the window making sure it's visible!
-				// This is done mainly for a screen capture, but some applications like Excel and TOAD have weird behaviour!
+				// Restore the window making sure it's visible, and responding (TOAD / Excel)
 				_selectedCaptureWindow.Restore();
+				// Await the animation of maximizing the wiEndow
+				await Task.Delay(300).ConfigureAwait(false);
 			}
+			else if (presupplied)
+			{
+				_selectedCaptureWindow.ToForeground();
+			}
+
+			// Some applications like Excel and TOAD have weird behaviour, and the window selected is not the one that is visible!
 			_selectedCaptureWindow = _selectedCaptureWindow.WindowToCapture();
 			if (_selectedCaptureWindow == null)
 			{
@@ -813,8 +824,9 @@ namespace Greenshot.Helpers
 				// Nothing to capture, code up in the stack will capture the full screen
 				return false;
 			}
+			_captureRect = _selectedCaptureWindow.WindowRectangle;
 			// Fix for Bug #3430560 
-			CoreConfiguration.LastCapturedRegion = _selectedCaptureWindow.WindowRectangle;
+			CoreConfiguration.LastCapturedRegion = _captureRect;
 			bool returnValue = CaptureWindow(_selectedCaptureWindow, _capture, CoreConfiguration.WindowCaptureMode) != null;
 			return returnValue;
 		}
@@ -864,6 +876,7 @@ namespace Greenshot.Helpers
 			{
 				captureForWindow = new Capture();
 			}
+			windowToCapture.Reset();
 			var windowRectangle = windowToCapture.WindowRectangle;
 
 			// When Vista & DWM (Aero) enabled
@@ -960,7 +973,7 @@ namespace Greenshot.Helpers
 								{
 									windowToCapture.ToForeground();
 								}
-								tmpCapture = windowToCapture.CaptureGDIWindow(captureForWindow);
+								tmpCapture = windowToCapture.CaptureGdiWindow(captureForWindow);
 								if (tmpCapture != null)
 								{
 									// check if GDI capture any good, by comparing it with the screen content
@@ -1027,7 +1040,7 @@ namespace Greenshot.Helpers
 						case WindowCaptureMode.AeroTransparent:
 							if (windowToCapture.IsMetroApp || WindowCapture.IsDwmAllowed(process))
 							{
-								tmpCapture = windowToCapture.CaptureDWMWindow(captureForWindow, windowCaptureMode, isAutoMode);
+								tmpCapture = windowToCapture.CaptureDwmWindow(captureForWindow, windowCaptureMode, isAutoMode);
 							}
 							if (tmpCapture != null)
 							{
@@ -1075,22 +1088,25 @@ namespace Greenshot.Helpers
 			return captureForWindow;
 		}
 
-		private void SetDpi()
+		private async Task SetDpi()
 		{
 			// Workaround for proble with DPI retrieval, the FromHwnd activates the window...
 			var previouslyActiveWindow = WindowDetails.GetActiveWindow();
-			// Workaround for changed DPI settings in Windows 7
-			using (var graphics = Graphics.FromHwnd(MainForm.Instance.Handle))
+			await UiContext.RunOn(() =>
 			{
-				_capture.CaptureDetails.DpiX = graphics.DpiX;
-				_capture.CaptureDetails.DpiY = graphics.DpiY;
-			}
-			// Set previouslyActiveWindow as foreground window
-			previouslyActiveWindow?.ToForeground();
-			if (_capture.CaptureDetails != null)
-			{
-				((Bitmap) _capture.Image)?.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
-			}
+				// Workaround for changed DPI settings in Windows 7
+				using (var graphics = Graphics.FromHwnd(MainForm.Instance.Handle))
+				{
+					_capture.CaptureDetails.DpiX = graphics.DpiX;
+					_capture.CaptureDetails.DpiY = graphics.DpiY;
+				}
+				// Set previouslyActiveWindow as foreground window
+				previouslyActiveWindow?.ToForeground();
+				if (_capture.CaptureDetails != null)
+				{
+					((Bitmap)_capture.Image)?.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
+				}
+			}).ConfigureAwait(false);
 		}
 
 		#region capture with feedback
@@ -1098,41 +1114,49 @@ namespace Greenshot.Helpers
 		private async Task CaptureWithFeedbackAsync(Task<IList<WindowDetails>> retrieveWindowsTask, CancellationToken token = default(CancellationToken))
 		{
 			Log.Debug("CaptureWithFeedbackAsync start");
-
-			using (var captureForm = new CaptureForm(_capture, retrieveWindowsTask))
+			bool isOk = false;
+			await UiContext.RunOn(() =>
 			{
-				// Make sure the form is hidden after showing, even if an exception occurs, so all errors will be shown
-				DialogResult result;
-				try
+				using (var captureForm = new CaptureForm(_capture, retrieveWindowsTask))
 				{
-					result = captureForm.ShowDialog(MainForm.Instance);
-				}
-				finally
-				{
-					captureForm.Hide();
-				}
-				if (result == DialogResult.OK)
-				{
-					_selectedCaptureWindow = captureForm.SelectedCaptureWindow;
-					_captureRect = captureForm.CaptureRectangle;
-					// Get title
-					if (_selectedCaptureWindow != null)
+					DialogResult result;
+					// Make sure the form is hidden after showing, even if an exception occurs, so all errors will be shown
+					try
 					{
-						_capture.CaptureDetails.Title = _selectedCaptureWindow.Text;
+						result = captureForm.ShowDialog(MainForm.Instance);
 					}
-
-					if (_captureRect.Height > 0 && _captureRect.Width > 0)
+					finally
 					{
-						// Take the captureRect, this already is specified as bitmap coordinates
-						_capture.Crop(_captureRect);
-
-						// save for re-capturing later and show recapture context menu option
-						// Important here is that the location needs to be offsetted back to screen coordinates!
-						Rectangle tmpRectangle = _captureRect;
-						tmpRectangle.Offset(_capture.ScreenBounds.Location.X, _capture.ScreenBounds.Location.Y);
-						CoreConfiguration.LastCapturedRegion = tmpRectangle;
-						await HandleCaptureAsync(token);
+						captureForm.Hide();
 					}
+					if (result == DialogResult.OK)
+					{
+						isOk = true;
+						_selectedCaptureWindow = captureForm.SelectedCaptureWindow;
+						_captureRect = captureForm.CaptureRectangle;
+					}
+				}
+			}, token).ConfigureAwait(false);
+
+			if (isOk)
+			{
+				// Get title
+				if (_selectedCaptureWindow != null)
+				{
+					_capture.CaptureDetails.Title = _selectedCaptureWindow.Text;
+				}
+
+				if (_captureRect.Height > 0 && _captureRect.Width > 0)
+				{
+					// Take the captureRect, this already is specified as bitmap coordinates
+					_capture.Crop(_captureRect);
+
+					// save for re-capturing later and show recapture context menu option
+					// Important here is that the location needs to be offsetted back to screen coordinates!
+					Rectangle tmpRectangle = _captureRect;
+					tmpRectangle.Offset(_capture.ScreenBounds.Location.X, _capture.ScreenBounds.Location.Y);
+					CoreConfiguration.LastCapturedRegion = tmpRectangle;
+					await HandleCaptureAsync(token);
 				}
 			}
 		}

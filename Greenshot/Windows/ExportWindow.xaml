@@ -5,7 +5,7 @@
         xmlns:plugin="clr-namespace:Greenshot.Addon.Controls;assembly=Greenshot.Addon"
 		xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
         Height="Auto" Topmost="True" SizeToContent="WidthAndHeight" KeyDown="Window_KeyDown"
-        WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+        WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="#FF3D3D3D">
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome ResizeBorderThickness="0" CaptionHeight="20" NonClientFrameEdges="None" GlassFrameThickness="-1" CornerRadius="0"/>
     </shell:WindowChrome.WindowChrome>
@@ -31,15 +31,17 @@
         </Style>
     </Window.Resources>
     <StackPanel>
-        <Border BorderBrush="Black" BorderThickness="1" Height="30" Background="White">
+		<Border BorderBrush="Black" BorderThickness="1" Height="30" Background="#FF3D3D3D">
             <DockPanel LastChildFill="True">
-                <Button DockPanel.Dock="Right" Margin="3,0,3,3" shell:WindowChrome.IsHitTestVisibleInChrome="True" Content="X" Click="Close_Click" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" />
-                <Label DockPanel.Dock="Left" Content="{Binding Capture.CaptureDetails.Title}" Margin="0,-6,0,0" Foreground="#FF747474" FontFamily="Segoe UI Light" />
+                <Button DockPanel.Dock="Right" Margin="3,0,3,3" shell:WindowChrome.IsHitTestVisibleInChrome="True" Content="X" Click="Close_Click" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Foreground="White"/>
+				<Viewbox Stretch="Uniform">
+					<Label DockPanel.Dock="Left" Content="{Binding Capture.CaptureDetails.Title}" Margin="0,-6,0,0" Foreground="#FF747474" FontFamily="Segoe UI Light"/>
+				</Viewbox>
             </DockPanel>
         </Border>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="130" />
+                <ColumnDefinition Width="150" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <ListView ItemsSource="{Binding Children}" HorizontalContentAlignment="Stretch" Grid.Column="1">

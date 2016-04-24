@@ -265,13 +265,7 @@ namespace Greenshot.Forms
 		/// <summary>
 		/// Get the ContextMenuStrip
 		/// </summary>
-		public ContextMenuStrip MainMenu
-		{
-			get
-			{
-				return contextMenu;
-			}
-		}
+		public ContextMenuStrip MainMenu => contextMenu;
 
 		#region hotkeys
 
@@ -488,43 +482,44 @@ namespace Greenshot.Forms
 
 		private void CaptureRegion(CancellationToken token = default(CancellationToken))
 		{
-			UiContext.RunOn(async () =>
+			Task.Run(async () =>
 			{
-				await CaptureHelper.CaptureRegionAsync(true, token);
+				await CaptureHelper.CaptureRegionAsync(true, token).ConfigureAwait(false);
 			}, token);
 		}
 
 		private void CaptureFile(CancellationToken token = default(CancellationToken))
 		{
-			var openFileDialog = new OpenFileDialog
+			// Needs ui thread for the dialog
+			UiContext.RunOn(async () =>
 			{
-				Filter = "Image files (*.greenshot, *.png, *.jpg, *.gif, *.bmp, *.ico, *.tiff, *.wmf)|*.greenshot; *.png; *.jpg; *.jpeg; *.gif; *.bmp; *.ico; *.tiff; *.tif; *.wmf"
-			};
-			if (openFileDialog.ShowDialog() == DialogResult.OK)
-			{
-				if (File.Exists(openFileDialog.FileName))
+				var openFileDialog = new OpenFileDialog
 				{
-					UiContext.RunOn(async () =>
+					Filter = "Image files (*.greenshot, *.png, *.jpg, *.gif, *.bmp, *.ico, *.tiff, *.wmf)|*.greenshot; *.png; *.jpg; *.jpeg; *.gif; *.bmp; *.ico; *.tiff; *.tif; *.wmf"
+				};
+				if (openFileDialog.ShowDialog() == DialogResult.OK)
+				{
+					if (File.Exists(openFileDialog.FileName))
 					{
-						await CaptureHelper.CaptureFileAsync(openFileDialog.FileName, token);
-					}, token);
+						await CaptureHelper.CaptureFileAsync(openFileDialog.FileName, token).ConfigureAwait(false);
+					}
 				}
-			}
+			}, token);
 		}
 
 		private void CaptureFullScreen(CancellationToken token = default(CancellationToken))
 		{
-			UiContext.RunOn(async () =>
+			Task.Run(async () =>
 			{
-				await CaptureHelper.CaptureFullscreenAsync(true, coreConfiguration.ScreenCaptureMode, token);
+				await CaptureHelper.CaptureFullscreenAsync(true, coreConfiguration.ScreenCaptureMode, token).ConfigureAwait(false);
 			}, token);
 		}
 
 		private void CaptureLastRegion(CancellationToken token = default(CancellationToken))
 		{
-			UiContext.RunOn(async () =>
+			Task.Run(async () =>
 			{
-				await CaptureHelper.CaptureLastRegionAsync(true, token);
+				await CaptureHelper.CaptureLastRegionAsync(true, token).ConfigureAwait(false);
 			}, token);
 		}
 
@@ -532,24 +527,24 @@ namespace Greenshot.Forms
 		{
 			if (coreConfiguration.IECapture)
 			{
-				UiContext.RunOn(async () =>
+				Task.Run(async () =>
 				{
-					await CaptureHelper.CaptureIEAsync(true, null, token);
+					await CaptureHelper.CaptureIEAsync(true, null, token).ConfigureAwait(false);
 				}, token);
 			}
 		}
 
 		private void CaptureWindow(CancellationToken token = default(CancellationToken))
 		{
-			UiContext.RunOn(async () =>
+			Task.Run(async () =>
 			{
 				if (coreConfiguration.CaptureWindowsInteractive)
 				{
-					await CaptureHelper.CaptureWindowInteractiveAsync(true, token);
+					await CaptureHelper.CaptureWindowInteractiveAsync(true, token).ConfigureAwait(false);
 				}
 				else
 				{
-					await CaptureHelper.CaptureWindowAsync(true, token);
+					await CaptureHelper.CaptureWindowAsync(true, token).ConfigureAwait(false);
 				}
 			}, token);
 		}
@@ -689,13 +684,12 @@ namespace Greenshot.Forms
 			{
 				return;
 			}
-			ToolStripMenuItem captureScreenItem;
 			var allScreensBounds = WindowCapture.GetScreenBounds();
 
-			captureScreenItem = new ToolStripMenuItem(language.ContextmenuCapturefullscreenAll);
+			var captureScreenItem = new ToolStripMenuItem(language.ContextmenuCapturefullscreenAll);
 			captureScreenItem.Click += (item, eventArgs) =>
 			{
-				this.InvokeAsync(async () => await CaptureHelper.CaptureFullscreenAsync(false, ScreenCaptureMode.FullScreen));
+				Task.Run(async () => await CaptureHelper.CaptureFullscreenAsync(false, ScreenCaptureMode.FullScreen).ConfigureAwait(false));
 			};
 			captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
 			foreach (var display in User32.AllDisplays())
@@ -720,7 +714,7 @@ namespace Greenshot.Forms
 				captureScreenItem = new ToolStripMenuItem(deviceAlignment);
 				captureScreenItem.Click += (item, eventArgs) =>
 				{
-					this.InvokeAsync(async () => await CaptureHelper.CaptureRegionAsync(false, display.BoundsRectangle));
+					Task.Run(async () => await CaptureHelper.CaptureRegionAsync(false, display.BoundsRectangle).ConfigureAwait(false));
 				};
 				captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
 			}
@@ -770,10 +764,7 @@ namespace Greenshot.Forms
 
 		private void HideThumbnailOnLeave(object sender, EventArgs e)
 		{
-			if (_thumbnailForm != null)
-			{
-				_thumbnailForm.Hide();
-			}
+			_thumbnailForm?.Hide();
 		}
 
 		private void CleanupThumbnail()
@@ -817,32 +808,32 @@ namespace Greenshot.Forms
 
 		private async void CaptureAreaToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			await CaptureHelper.CaptureRegionAsync(false);
+			await CaptureHelper.CaptureRegionAsync(false).ConfigureAwait(false);
 		}
 
 		private async void CaptureClipboardToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			await CaptureHelper.CaptureClipboardAsync();
+			await CaptureHelper.CaptureClipboardAsync().ConfigureAwait(false);
 		}
 
 		private void OpenFileToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			this.InvokeAsync(() => CaptureFile());
+			CaptureFile();
 		}
 
 		private async void CaptureFullScreenToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			await CaptureHelper.CaptureFullscreenAsync(false, coreConfiguration.ScreenCaptureMode);
+			await CaptureHelper.CaptureFullscreenAsync(false, coreConfiguration.ScreenCaptureMode).ConfigureAwait(false);
 		}
 
 		private async void Contextmenu_capturelastregionClick(object sender, EventArgs e)
 		{
-			await CaptureHelper.CaptureLastRegionAsync(false);
+			await CaptureHelper.CaptureLastRegionAsync(false).ConfigureAwait(false);
 		}
 
 		private async void Contextmenu_capturewindow_Click(object sender, EventArgs e)
 		{
-			await CaptureHelper.CaptureWindowInteractiveAsync(false);
+			await CaptureHelper.CaptureWindowInteractiveAsync(false).ConfigureAwait(false);
 		}
 
 		private async void Contextmenu_capturewindowfromlist_Click(object sender, EventArgs e)
@@ -851,7 +842,7 @@ namespace Greenshot.Forms
 			try
 			{
 				var windowToCapture = (WindowDetails) clickedItem.Tag;
-				await CaptureHelper.CaptureWindowAsync(windowToCapture);
+				await CaptureHelper.CaptureWindowAsync(windowToCapture).ConfigureAwait(false);
 			}
 			catch (Exception exception)
 			{

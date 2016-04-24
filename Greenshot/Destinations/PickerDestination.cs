@@ -26,6 +26,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Greenshot.Windows;
 using System.Threading;
+using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
@@ -75,7 +76,7 @@ namespace Greenshot.Destinations
 		protected override void Initialize()
 		{
 			base.Initialize();
-			Export = async (exportContext, capture, token) => await ShowExport(capture, token);
+			Export = async (exportContext, capture, token) => await UiContext.RunOn(async () => await ShowExport(capture, token), token);
 			Text = GreenshotLanguage.SettingsDestinationPicker;
 			Designation = PickerDesignation;
 		}
