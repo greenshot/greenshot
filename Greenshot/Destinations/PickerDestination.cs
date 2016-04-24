@@ -67,6 +67,8 @@ namespace Greenshot.Destinations
 		private IEnumerable<Lazy<IDestination, IDestinationMetadata>> Destinations
 		{
 			get;
+			// Needed for importing
+			// ReSharper disable once UnusedAutoPropertyAccessor.Local
 			set;
 		}
 

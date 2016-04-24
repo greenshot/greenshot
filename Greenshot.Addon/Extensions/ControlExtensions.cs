@@ -25,6 +25,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
+using System.Windows.Interop;
+using System.Windows.Media;
 using Dapplo.Windows.Native;
 using Greenshot.Addon.Core;
 
@@ -52,6 +54,52 @@ namespace Greenshot.Addon.Extensions
 				taskCompletionSource.SetResult(result);
 			}));
 			return taskCompletionSource.Task;
+		}
+
+		/// <summary>
+		/// Return a matrix which allows to scale device coordinates from WPF coordinates
+		/// </summary>
+		/// <param name="visual">Visual to get the matrix from</param>
+		/// <returns>Matrix</returns>
+		public static Matrix TransformToDevice(this Visual visual)
+		{
+			var presentationsource = PresentationSource.FromVisual(visual);
+
+			if (presentationsource?.CompositionTarget != null) // make sure it's connected
+			{
+				return presentationsource.CompositionTarget.TransformToDevice;
+			}
+			using (var source = new HwndSource(new HwndSourceParameters()))
+			{
+				if (source.CompositionTarget != null)
+				{
+					return source.CompositionTarget.TransformToDevice;
+				}
+			}
+			return Matrix.Identity;
+		}
+
+		/// <summary>
+		/// Return a matrix which allows to scale device coordinates to WPF coordinates
+		/// </summary>
+		/// <param name="visual">Visual to get the matrix from</param>
+		/// <returns>Matrix</returns>
+		public static Matrix TransformFromDevice(this Visual visual)
+		{
+			var presentationsource = PresentationSource.FromVisual(visual);
+
+			if (presentationsource?.CompositionTarget != null) // make sure it's connected
+			{
+				return presentationsource.CompositionTarget.TransformFromDevice;
+			}
+			using (var source = new HwndSource(new HwndSourceParameters()))
+			{
+				if (source.CompositionTarget != null)
+				{
+					return source.CompositionTarget.TransformFromDevice;
+				}
+			}
+			return Matrix.Identity;
 		}
 
 		/// <summary>

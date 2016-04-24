@@ -41,6 +41,8 @@ namespace Greenshot.Windows
 					new Point(SystemParameters.VirtualScreenLeft, SystemParameters.VirtualScreenTop),
 					new Size(SystemParameters.VirtualScreenWidth, SystemParameters.VirtualScreenHeight));
 			}
+			// Scale device coordinates (from the capture form) to WPF
+			area = Rect.Transform(area, this.TransformFromDevice());
 			Width = area.Width;
 			Height = area.Height;
 			Top = area.Top;
