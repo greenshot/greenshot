@@ -149,7 +149,7 @@ namespace Greenshot.Addon.Confluence
 					try
 					{
 						// Try loading content for id 0, should be null (or something) but not give an exception
-						await confluenceApi.GetCurrentUserAsync(token).ConfigureAwait(false);
+						await confluenceApi.GetSpacesAsync(token).ConfigureAwait(false);
 						Log.Debug("Confluence access for User {0} worked", dialog.Name);
 						if (dialog.SaveChecked)
 						{

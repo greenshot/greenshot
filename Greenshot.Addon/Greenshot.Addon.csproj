@@ -57,8 +57,8 @@
       <HintPath>..\packages\Dapplo.Addons.0.3.29.0\lib\net452\Dapplo.Addons.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Config, Version=0.3.19.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Config.0.3.19.0\lib\net452\Dapplo.Config.dll</HintPath>
+    <Reference Include="Dapplo.Config, Version=0.3.20.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Config.0.3.20.0\lib\net452\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.HttpExtensions, Version=0.5.5.0, Culture=neutral, processorArchitecture=MSIL">
@@ -77,8 +77,8 @@
       <HintPath>..\packages\Dapplo.Utils.0.1.28\lib\net45\Dapplo.Utils.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Windows, Version=0.1.14.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.0.1.14.0\lib\net451\Dapplo.Windows.dll</HintPath>
+    <Reference Include="Dapplo.Windows, Version=0.1.25.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.0.1.25.0\lib\net451\Dapplo.Windows.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />

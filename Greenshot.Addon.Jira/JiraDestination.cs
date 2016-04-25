@@ -49,17 +49,7 @@ namespace Greenshot.Addon.Jira
 	{
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(JiraDestination));
 		private const string JiraDesignation = "Jira";
-		private static readonly BitmapSource JiraIcon;
 		private JiraMonitor _jiraMonitor;
-
-		static JiraDestination()
-		{
-			var resources = new ComponentResourceManager(typeof(JiraPlugin));
-			using (var jiraLogo = (Bitmap) resources.GetObject("Jira"))
-			{
-				JiraIcon = jiraLogo.ToBitmapSource();
-			}
-		}
 
 		[Import]
 		private IJiraConfiguration JiraConfiguration
@@ -96,6 +86,7 @@ namespace Greenshot.Addon.Jira
 				if (_jiraMonitor != null)
 				{
 					_jiraMonitor.JiraEvent -= JiraMonitor_JiraEvent;
+					_jiraMonitor.Dispose();
 				}
 				_jiraMonitor = value;
 				_jiraMonitor.JiraEvent += JiraMonitor_JiraEvent;
@@ -112,19 +103,28 @@ namespace Greenshot.Addon.Jira
 			Designation = JiraDesignation;
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, null, token);
 			Text = JiraLanguage.UploadMenuItem;
-			Icon = JiraIcon;
+
+			var resources = new ComponentResourceManager(typeof(JiraPlugin));
+			// Make sure this runs on the UI
+			UiContext.RunOn(() =>
+			{
+				using (var jiraLogo = (Bitmap)resources.GetObject("Jira"))
+				{
+					Icon = jiraLogo.ToBitmapSource();
+				}
+			}).Wait();
 		}
 
 		private void UpdateChildren()
 		{
 			IsEnabled = _jiraMonitor.RecentJiras.Any();  // As soon as we have issues this should be set to true
 
-			Children.Clear();
 			Task.Run(() =>
 			{
 				return _jiraMonitor.RecentJiras.Select(jiraDetails => new JiraDestination
 				{
-					Icon = JiraIcon,
+					// TODO: Change to icon for the jira itself
+					Icon = Icon,
 					Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, jiraDetails, token),
 					Text = FormatUpload(jiraDetails),
 					JiraLanguage = JiraLanguage,
@@ -135,6 +135,7 @@ namespace Greenshot.Addon.Jira
 				}).ToList();
 			}).ContinueWith(async destinations =>
 			{
+				Children.Clear();
 				foreach (var jiraDestination in await destinations)
 				{
 					Children.Add(jiraDestination);

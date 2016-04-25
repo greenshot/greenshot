@@ -46,11 +46,14 @@ namespace Greenshot.Windows
         private ICapture _capture;
 		private TaskCompletionSource<bool> _taskCompletionSource;
 
+		/// <summary>
+		/// All the destinations that needs showing
+		/// </summary>
 		public ObservableCollection<IDestination> Children
 		{
 			get;
 			set;
-		} = new ObservableCollection<IDestination>();
+		}
 
 		public IDestination SelectedDestination
 		{

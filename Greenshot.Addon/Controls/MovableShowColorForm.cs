@@ -103,7 +103,7 @@ namespace Greenshot.Addon.Controls
 		/// <returns>Color at the specified screenCoordinates</returns>
 		private static Color GetPixelColor(Point screenCoordinates)
 		{
-			using (SafeWindowDCHandle screenDC = SafeWindowDCHandle.fromDesktop())
+			using (SafeWindowDcHandle screenDC = SafeWindowDcHandle.FromDesktop())
 			{
 				try
 				{

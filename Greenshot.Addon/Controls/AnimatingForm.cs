@@ -58,7 +58,7 @@ namespace Greenshot.Addon.Controls
 				if (_vRefresh == 0)
 				{
 					// get te hDC of the desktop to get the VREFRESH
-					using (var desktopHandle = SafeWindowDCHandle.fromDesktop())
+					using (var desktopHandle = SafeWindowDcHandle.FromDesktop())
 					{
 						_vRefresh = Gdi32.GetDeviceCaps(desktopHandle, DeviceCaps.VREFRESH);
 					}

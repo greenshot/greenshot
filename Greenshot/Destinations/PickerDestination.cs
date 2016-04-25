@@ -30,7 +30,7 @@ using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
-
+using System.Collections.ObjectModel;
 
 namespace Greenshot.Destinations
 {
@@ -42,6 +42,8 @@ namespace Greenshot.Destinations
 	{
 		private const string PickerDesignation = "Picker";
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(PickerDestination));
+
+		private ObservableCollection<IDestination> _destinationsCache;
 
 		[Import]
 		private ICoreConfiguration CoreConfiguration
@@ -79,20 +81,29 @@ namespace Greenshot.Destinations
 			Export = async (exportContext, capture, token) => await UiContext.RunOn(async () => await ShowExport(capture, token), token);
 			Text = GreenshotLanguage.SettingsDestinationPicker;
 			Designation = PickerDesignation;
+			_destinationsCache = null;
 		}
 
 		private async Task<INotification> ShowExport(ICapture capture, CancellationToken token = default(CancellationToken))
 		{
+			if (_destinationsCache == null)
+			{
+				_destinationsCache = new ObservableCollection<IDestination>();
+				foreach (var destination in Destinations.Where(d => d.Metadata.Name != PickerDesignation).OrderBy(d => d.Metadata.Order).ThenBy(d => d.Value.Text))
+				{
+					_destinationsCache.Add(destination.Value);
+				}
+			}
 			using (var exportWindowContext = ExportWindowFactory.CreateExport())
 			{
 				var exportWindow = exportWindowContext.Value;
 				exportWindow.Capture = capture;
+				exportWindow.Children = _destinationsCache;
 				exportWindow.Show();
 
 				IList<Task> refreshTasks = new List<Task>();
 				foreach (var destination in Destinations.Where(d => d.Metadata.Name != PickerDesignation).OrderBy(d => d.Metadata.Order).ThenBy(d => d.Value.Text))
 				{
-					exportWindow.Children.Add(destination.Value);
 					refreshTasks.Add(destination.Value.RefreshAsync(this, token));
 				}
 				await Task.WhenAll(refreshTasks);

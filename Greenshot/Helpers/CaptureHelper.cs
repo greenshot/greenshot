@@ -573,10 +573,8 @@ namespace Greenshot.Helpers
 			if (appLauncherWindow != null && appLauncherWindow.Visible)
 			{
 				result.Add(appLauncherWindow);
-				// TODO: do not return when Windows 10???
-				return result;
 			}
-			await Task.Run(() =>
+			return await Task.Run(() =>
 			{
 				// Force children retrieval, sometimes windows close on losing focus and this is solved by caching
 				int goLevelDeep = CoreConfiguration.WindowCaptureAllChildLocations ? 20 : 3;
@@ -593,8 +591,8 @@ namespace Greenshot.Helpers
 					window.GetChildren(goLevelDeep);
 					result.Add(window);
 				}
+				return result;
 			}, token).ConfigureAwait(false);
-			return result;
 		}
 
 		private void AddConfiguredDestination()

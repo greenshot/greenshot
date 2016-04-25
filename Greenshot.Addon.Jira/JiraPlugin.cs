@@ -87,7 +87,6 @@ namespace Greenshot.Addon.Jira
 			{
 				await InitializeMonitor();
 			}, token);
-			//GreenshotHost.GreenshotForm.AsyncInvoke(InitializeMonitor);
 		}
 
 		private async Task InitializeMonitor()

@@ -287,7 +287,7 @@ namespace Greenshot.Addon.Core
 			// capture.Image = capturedBitmap;
 			// capture.Location = captureBounds.Location;
 
-			using (var desktopDcHandle = SafeWindowDCHandle.fromDesktop())
+			using (var desktopDcHandle = SafeWindowDcHandle.FromDesktop())
 			{
 				if (desktopDcHandle.IsInvalid)
 				{

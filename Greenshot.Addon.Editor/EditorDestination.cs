@@ -99,7 +99,7 @@ namespace Greenshot.Addon.Editor
 			}, token, TaskContinuationOptions.None, UiContext.UiTaskScheduler).ConfigureAwait(false);
 		}
 
-		private Task<INotification> ExportCaptureAsync(ICapture capture, IImageEditor editor, CancellationToken token = default(CancellationToken))
+		private async Task<INotification> ExportCaptureAsync(ICapture capture, IImageEditor editor, CancellationToken token = default(CancellationToken))
 		{
 			var returnValue = new Notification
 			{
@@ -113,77 +113,80 @@ namespace Greenshot.Addon.Editor
 			GC.Collect();
 			GC.WaitForPendingFinalizers();
 
-			bool modified = capture.Modified;
-			if (editor == null)
+			return await UiContext.RunOn(() =>
 			{
-				ISurface surface;
-				if (capture == null && capture.CaptureDetails.Filename != null && capture.CaptureDetails.Filename.ToLower().EndsWith("." + OutputFormat.greenshot))
+				bool modified = capture.Modified;
+				if (editor == null)
 				{
-					// Only a file, create a surface from the filename and continue!
-					surface = new Surface();
-					surface = ImageOutput.LoadGreenshotSurface(capture.CaptureDetails.Filename, surface);
-					surface.CaptureDetails = capture.CaptureDetails;
+					ISurface surface;
+					if (capture == null && capture.CaptureDetails.Filename != null && capture.CaptureDetails.Filename.ToLower().EndsWith("." + OutputFormat.greenshot))
+					{
+						// Only a file, create a surface from the filename and continue!
+						surface = new Surface();
+						surface = ImageOutput.LoadGreenshotSurface(capture.CaptureDetails.Filename, surface);
+						surface.CaptureDetails = capture.CaptureDetails;
+					}
+					else
+					{
+						surface = new Surface(capture);
+					}
+					bool reusedEditor = false;
+					if (EditorConfiguration.ReuseEditor)
+					{
+						foreach (var openedEditor in ImageEditorForm.Editors)
+						{
+							if (!openedEditor.Surface.Modified)
+							{
+								openedEditor.Surface = surface;
+								reusedEditor = true;
+								break;
+							}
+						}
+					}
+					if (!reusedEditor)
+					{
+						try
+						{
+							var editorForm = new ImageEditorForm(surface, !surface.Modified); // Output made??
+
+							if (!string.IsNullOrEmpty(surface.CaptureDetails.Filename))
+							{
+								editorForm.SetImagePath(surface.CaptureDetails.Filename);
+							}
+							editorForm.Show();
+							editorForm.Activate();
+							Log.Debug("Finished opening Editor");
+						}
+						catch (Exception e)
+						{
+							Log.Error(e, "Editor export failed");
+							returnValue.NotificationType = NotificationTypes.Fail;
+							returnValue.ErrorText = e.Message;
+							returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, EditorDesignation);
+						}
+					}
 				}
 				else
 				{
-					surface = new Surface(capture);
-				}
-				bool reusedEditor = false;
-				if (EditorConfiguration.ReuseEditor)
-				{
-					foreach (var openedEditor in ImageEditorForm.Editors)
-					{
-						if (!openedEditor.Surface.Modified)
-						{
-							openedEditor.Surface = surface;
-							reusedEditor = true;
-                            break;
-						}
-					}
-				}
-				if (!reusedEditor)
-				{
 					try
 					{
-						var editorForm = new ImageEditorForm(surface, !surface.Modified); // Output made??
-
-						if (!string.IsNullOrEmpty(surface.CaptureDetails.Filename))
+						using (Image image = capture.GetImageForExport())
 						{
-							editorForm.SetImagePath(surface.CaptureDetails.Filename);
+							editor.Surface.AddImageContainer(image, 10, 10);
 						}
-						editorForm.Show();
-						editorForm.Activate();
-						Log.Debug("Finished opening Editor");
 					}
 					catch (Exception e)
 					{
-						Log.Error(e, "Editor export failed");
+						Log.Error(e, "Failed to add an image to an already opened editor");
 						returnValue.NotificationType = NotificationTypes.Fail;
 						returnValue.ErrorText = e.Message;
 						returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, EditorDesignation);
 					}
 				}
-			}
-			else
-			{
-				try
-				{
-					using (Image image = capture.GetImageForExport())
-					{
-						editor.Surface.AddImageContainer(image, 10, 10);
-					}
-				}
-				catch (Exception e)
-				{
-					Log.Error(e, "Failed to add an image to an already opened editor");
-					returnValue.NotificationType = NotificationTypes.Fail;
-					returnValue.ErrorText = e.Message;
-					returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, EditorDesignation);
-                }
-			}
-			// Workaround for the modified flag when using the editor.
-			capture.Modified = modified;
-			return Task.FromResult<INotification>(returnValue);
+				// Workaround for the modified flag when using the editor.
+				capture.Modified = modified;
+				return returnValue;
+			}, token);
 		}
 	}
 }

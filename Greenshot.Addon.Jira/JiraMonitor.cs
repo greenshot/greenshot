@@ -37,6 +37,7 @@ namespace Greenshot.Addon.Jira
 	/// <summary>
 	/// This class will monitor all _jira activity by registering for title changes
 	/// It keeps a list of the last "accessed" jiras, and makes it easy to upload to one.
+	/// Make sure this is instanciated on the UI thread!
 	/// </summary>
 	public class JiraMonitor : IDisposable
 	{
@@ -128,7 +129,7 @@ namespace Greenshot.Addon.Jira
 			if (!_jiraServerInfos.ContainsKey(uri))
 			{
 				var serverInfo = await jiraInstance.GetServerInfoAsync(token);
-				_jiraServerInfos.Add(uri, serverInfo);
+				_jiraServerInfos.Add(jiraInstance.JiraBaseUri, serverInfo);
 			}
 
 			_jiraInstances.Add(jiraInstance);
