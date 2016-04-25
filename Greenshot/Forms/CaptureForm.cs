@@ -172,6 +172,12 @@ namespace Greenshot.Forms
 			}
 			_currentForm = this;
 
+			// Await windows retrieval outside UI
+			if (retrieveWindowsTask != null)
+			{
+				Task.Run(async () => _windows = await _retrieveWindowsTask.ConfigureAwait(true));
+			}
+
 			// Enable the AnimatingForm
 			EnableAnimation = true;
 
@@ -481,14 +487,14 @@ namespace Greenshot.Forms
 		/// <summary>
 		/// update the frame, this only invalidates
 		/// </summary>
-		protected override async Task Animate(CancellationToken token = default(CancellationToken))
+		protected override Task Animate(CancellationToken token = default(CancellationToken))
 		{
 			Point lastPos = _cursorPos;
 			_cursorPos = _mouseMovePos;
 
 			if (SelectedCaptureWindow != null && lastPos.Equals(_cursorPos) && !IsAnimating(_zoomAnimator) && !IsAnimating(_windowAnimator))
 			{
-				return;
+				return Task.FromResult(true);
 			}
 
 			WindowDetails lastWindow = SelectedCaptureWindow;
@@ -511,10 +517,6 @@ namespace Greenshot.Forms
 
 			// Iterate over the found windows and check if the current location is inside a window
 			var cursorPosition = Cursor.Position;
-			if (_windows == null && (UsedCaptureMode == CaptureMode.Window || _mouseDown))
-			{
-				_windows = await _retrieveWindowsTask.ConfigureAwait(true);
-			}
 
 			if (_windows != null && _windows.Count > 0)
 			{
@@ -636,6 +638,7 @@ namespace Greenshot.Forms
 			}
 			// Force update "now"
 			Update();
+			return Task.FromResult(true);
 		}
 
 		/// <summary>
