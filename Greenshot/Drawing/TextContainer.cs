@@ -22,7 +22,6 @@
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Memento;
-using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
 using System;
 using System.ComponentModel;
@@ -72,7 +71,7 @@ namespace Greenshot.Drawing {
 		}
 		
 		internal void ChangeText(string newText, bool allowUndoable) {
-			if ((text == null && newText != null)  || !text.Equals(newText)) {
+			if ((text == null && newText != null)  || !string.Equals(text, newText)) {
 				if (makeUndoable && allowUndoable) {
 					makeUndoable = false;
 					_parent.MakeUndoable(new TextChangeMemento(this), false);
@@ -123,8 +122,10 @@ namespace Greenshot.Drawing {
 		}
 		
 		private void Init() {
-			_stringFormat = new StringFormat();
-			_stringFormat.Trimming = StringTrimming.EllipsisWord;
+			_stringFormat = new StringFormat
+			{
+				Trimming = StringTrimming.EllipsisWord
+			};
 
 			CreateTextBox();
 
@@ -178,15 +179,18 @@ namespace Greenshot.Drawing {
 			}
 			// Only dispose the font, and re-create it, when a font field has changed.
 			if (e.Field.FieldType.Name.StartsWith("FONT")) {
-				_font.Dispose();
-				_font = null;
+				if (_font != null)
+				{
+					_font.Dispose();
+					_font = null;
+				}
 				UpdateFormat();
 			} else { 
 				UpdateAlignment();
 			}
 			UpdateTextBoxFormat();
 			
-			if (_textBox.Visible) {
+			if (_textBox != null && _textBox.Visible) {
 				_textBox.Invalidate();
 			}
 		}
@@ -196,17 +200,19 @@ namespace Greenshot.Drawing {
 		}
 		
 		private void CreateTextBox() {
-			_textBox = new TextBox();
+			_textBox = new TextBox
+			{
+				ImeMode = ImeMode.On,
+				Multiline = true,
+				AcceptsTab = true,
+				AcceptsReturn = true,
+				BorderStyle = BorderStyle.None,
+				Visible = false
+			};
 
-			_textBox.ImeMode = ImeMode.On;
-			_textBox.Multiline = true;
-			_textBox.AcceptsTab = true;
-			_textBox.AcceptsReturn = true;
 			_textBox.DataBindings.Add("Text", this, "Text", false, DataSourceUpdateMode.OnPropertyChanged);
 			_textBox.LostFocus += textBox_LostFocus;
 			_textBox.KeyDown += textBox_KeyDown;
-			_textBox.BorderStyle = BorderStyle.None;
-			_textBox.Visible = false;
 		}
 
 		private void ShowTextBox() {
@@ -294,6 +300,7 @@ namespace Greenshot.Drawing {
 							}
 						}
 					}
+					_font?.Dispose();
 					_font = new Font(fam, fontSize, fs, GraphicsUnit.Pixel);
 					_textBox.Font = _font;
 				}
@@ -390,7 +397,7 @@ namespace Greenshot.Drawing {
 				DrawSelectionBorder(graphics, rect);
 			}
 			
-			if (text == null || text.Length == 0 ) {
+			if (string.IsNullOrEmpty(text) ) {
 				return;
 			}
 
@@ -411,6 +418,7 @@ namespace Greenshot.Drawing {
 		/// <param name="drawingRectange"></param>
 		/// <param name="lineThickness"></param>
 		/// <param name="fontColor"></param>
+		/// <param name="drawShadow"></param>
 		/// <param name="stringFormat"></param>
 		/// <param name="text"></param>
 		/// <param name="font"></param>
