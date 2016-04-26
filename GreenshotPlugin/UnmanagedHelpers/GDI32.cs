@@ -77,6 +77,16 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// A hbitmap SafeHandle implementation
 	/// </summary>
 	public class SafeHBitmapHandle : SafeObjectHandle {
+
+		/// <summary>
+		/// Needed for marshalling return values
+		/// </summary>
+		[SecurityCritical]
+		public SafeHBitmapHandle() : base(true)
+		{
+			
+		}
+
 		[SecurityCritical]
 		public SafeHBitmapHandle(IntPtr preexistingHandle) : base(true) {
 			SetHandle(preexistingHandle);
@@ -87,8 +97,12 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// A hRegion SafeHandle implementation
 	/// </summary>
 	public class SafeRegionHandle : SafeObjectHandle {
+		/// <summary>
+		/// Needed for marshalling return values
+		/// </summary>
 		[SecurityCritical]
-		private SafeRegionHandle() : base(true) {
+		public SafeRegionHandle() : base(true)
+		{
 		}
 
 		[SecurityCritical]
@@ -101,6 +115,14 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// A dibsection SafeHandle implementation
 	/// </summary>
 	public class SafeDibSectionHandle : SafeObjectHandle {
+		/// <summary>
+		/// Needed for marshalling return values
+		/// </summary>
+		[SecurityCritical]
+		public SafeDibSectionHandle() : base(true)
+		{
+		}
+
 		[SecurityCritical]
 		public SafeDibSectionHandle(IntPtr preexistingHandle) : base(true) {
 			SetHandle(preexistingHandle);
@@ -116,6 +138,13 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		private static extern IntPtr SelectObject(IntPtr hDC, IntPtr hObject);
 
 		private readonly SafeHandle _hdc;
+		/// <summary>
+		/// Needed for marshalling return values
+		/// </summary>
+		[SecurityCritical]
+		public SafeSelectObjectHandle() : base(true)
+		{
+		}
 
 		[SecurityCritical]
 		public SafeSelectObjectHandle(SafeDCHandle hdc, SafeHandle newHandle) : base(true) {
@@ -141,6 +170,14 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool DeleteDC(IntPtr hDC);
 
+		/// <summary>
+		/// Needed for marshalling return values
+		/// </summary>
+		[SecurityCritical]
+		public SafeCompatibleDCHandle() : base(true)
+		{
+		}
+
 		[SecurityCritical]
 		public SafeCompatibleDCHandle(IntPtr preexistingHandle) : base(true) {
 			SetHandle(preexistingHandle);
@@ -160,6 +197,14 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// </summary>
 	public class SafeDeviceContextHandle : SafeDCHandle {
 		private readonly Graphics _graphics;
+
+		/// <summary>
+		/// Needed for marshalling return values
+		/// </summary>
+		[SecurityCritical]
+		public SafeDeviceContextHandle() : base(true)
+		{
+		}
 
 		[SecurityCritical]
 		public SafeDeviceContextHandle(Graphics graphics, IntPtr preexistingHandle) : base(true) {

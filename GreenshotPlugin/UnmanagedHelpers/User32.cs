@@ -359,6 +359,16 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// A SafeHandle class implementation for the hIcon
 	/// </summary>
 	public class SafeIconHandle : SafeHandleZeroOrMinusOneIsInvalid {
+
+		/// <summary>
+		/// Needed for marshalling return values
+		/// </summary>
+		[SecurityCritical]
+		public SafeIconHandle() : base(true)
+		{
+		}
+
+
 		public SafeIconHandle(IntPtr hIcon) : base(true) {
 			SetHandle(hIcon);
 		}
@@ -379,6 +389,13 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		private static extern bool ReleaseDC(IntPtr hWnd, IntPtr hDC);
 
 		private readonly IntPtr _hWnd;
+
+		/// <summary>
+		/// Needed for marshalling return values
+		/// </summary>
+		public SafeWindowDCHandle() : base(true)
+		{
+		}
 
 		[SecurityCritical]
 		public SafeWindowDCHandle(IntPtr hWnd, IntPtr preexistingHandle) : base(true) {
