@@ -768,7 +768,13 @@ namespace GreenshotPlugin.Core {
 					if (previousWindowRectangle.IsEmpty || now - lastWindowRectangleRetrieveTime > CACHE_TIME) {
 						Rectangle windowRect = Rectangle.Empty;
 						if (DWM.isDWMEnabled()) {
-							GetExtendedFrameBounds(out windowRect);
+							if (GetExtendedFrameBounds(out windowRect) && Environment.OSVersion.IsWindows10())
+							{
+								lastWindowRectangleRetrieveTime = now;
+								previousWindowRectangle = windowRect;
+								// DWM does it corectly, just return the window rectangle we just gotten.
+								return windowRect;
+							}
 						}
 
 						if (windowRect.IsEmpty) {
@@ -915,10 +921,12 @@ namespace GreenshotPlugin.Core {
 			Form tempForm = null;
 			bool tempFormShown = false;
 			try {
-				tempForm = new Form();
-				tempForm.ShowInTaskbar = false;
-				tempForm.FormBorderStyle = FormBorderStyle.None;
-				tempForm.TopMost = true;
+				tempForm = new Form
+				{
+					ShowInTaskbar = false,
+					FormBorderStyle = FormBorderStyle.None,
+					TopMost = true
+				};
 
 				// Register the Thumbnail
 				DWM.DwmRegisterThumbnail(tempForm.Handle, Handle, out thumbnailHandle);
@@ -932,8 +940,8 @@ namespace GreenshotPlugin.Core {
 				}
 
 				// Calculate the location of the temp form
-				Point formLocation;
 				Rectangle windowRectangle = WindowRectangle;
+				Point formLocation = formLocation = windowRectangle.Location;
 				Size borderSize = new Size();
 				bool doesCaptureFit = false;
 				if (!Maximised) {
@@ -962,7 +970,7 @@ namespace GreenshotPlugin.Core {
 							doesCaptureFit = true;
 						}
 					}
-				} else {
+				} else if (!Environment.OSVersion.IsWindows8OrLater()) {
 					//GetClientRect(out windowRectangle);
 					GetBorderSize(out borderSize);
 					formLocation = new Point(windowRectangle.X - borderSize.Width, windowRectangle.Y - borderSize.Height);
@@ -1067,7 +1075,7 @@ namespace GreenshotPlugin.Core {
 					}
 					if (capturedBitmap != null) {
 						// Not needed for Windows 8
-						if (!(Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor >= 2)) {
+						if (!Environment.OSVersion.IsWindows8OrLater()) {
 							// Only if the Inivalue is set, not maximized and it's not a tool window.
 							if (conf.WindowCaptureRemoveCorners && !Maximised && (ExtendedWindowStyle & ExtendedWindowStyleFlags.WS_EX_TOOLWINDOW) == 0) {
 								// Remove corners
