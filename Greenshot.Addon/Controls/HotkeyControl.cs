@@ -28,6 +28,7 @@ using System.Windows.Forms;
 using Dapplo.Config.Ini;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
 
 namespace Greenshot.Addon.Controls
 {
@@ -41,7 +42,7 @@ namespace Greenshot.Addon.Controls
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(HotkeyControl));
 		private static readonly ICoreConfiguration coreConfiguration = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly EventDelay eventDelay = new EventDelay(TimeSpan.FromMilliseconds(600).Ticks);
-		private static readonly bool IsWindows7OrOlder = Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 1;
+		private static readonly bool IsWindows7OrOlder = Environment.OSVersion.IsWindows7OrLater();
 
 		// Holds the list of hotkeys
 		private static readonly Dictionary<int, Action> KeyHandlers = new Dictionary<int, Action>();

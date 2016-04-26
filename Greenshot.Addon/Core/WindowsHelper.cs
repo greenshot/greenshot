@@ -37,6 +37,7 @@ using Dapplo.Windows.SafeHandles;
 using Dapplo.Windows.Structs;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Interfaces;
+using Greenshot.Addon.Extensions;
 
 namespace Greenshot.Addon.Core
 {
@@ -818,7 +819,7 @@ namespace Greenshot.Addon.Core
 						Rectangle windowRect = Rectangle.Empty;
 						if (Dwm.IsDwmEnabled)
 						{
-							if (GetExtendedFrameBounds(out windowRect))
+							if (GetExtendedFrameBounds(out windowRect) && Environment.OSVersion.Version.Major == 10)
 							{
 								// DWM does it corectly, just return the window rectangle we just gotten.
 								return windowRect;
@@ -1178,8 +1179,7 @@ namespace Greenshot.Addon.Core
 					if (capturedBitmap != null)
 					{
 						// Not needed for Windows 8 or higher
-						var windowsVersion = Environment.OSVersion.Version;
-						if (windowsVersion.Major != 10 && !(windowsVersion.Major == 6 && windowsVersion.Minor >= 2))
+						if (Environment.OSVersion.IsWindows8OrLater())
 						{
 							// Only if the Inivalue is set, not maximized and it's not a tool window.
 							if (Conf.WindowCaptureRemoveCorners && !Maximised && (ExtendedWindowStyle & ExtendedWindowStyleFlags.WS_EX_TOOLWINDOW) == 0)

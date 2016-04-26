@@ -140,6 +140,7 @@
     <Compile Include="Core\CaptureHandler.cs" />
     <Compile Include="Core\LegacyDestinationHelper.cs" />
     <Compile Include="Core\HelpFileLoader.cs" />
+    <Compile Include="Extensions\OperatingSystemExtensions.cs" />
     <Compile Include="Extensions\BitmapExtensions.cs" />
     <Compile Include="Extensions\ControlExtensions.cs" />
     <Compile Include="Core\EventDelay.cs" />

@@ -63,7 +63,7 @@ namespace Greenshot.Forms
 			base.OnLoad(e);
 
 			// Fix for Vista/XP differences
-			if (Environment.OSVersion.Version.Major >= 6)
+			if (Environment.OSVersion.IsWindowsVistaOrLater())
 			{
 				trackBarJpegQuality.BackColor = SystemColors.Window;
 			}
@@ -652,7 +652,7 @@ namespace Greenshot.Forms
 		{
 			int windowsVersion = Environment.OSVersion.Version.Major;
 			WindowCaptureMode mode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
-			if (windowsVersion >= 6)
+			if (Environment.OSVersion.IsWindowsVistaOrLater())
 			{
 				switch (mode)
 				{

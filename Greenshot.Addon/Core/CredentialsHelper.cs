@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Greenshot.Addon.Extensions;
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
@@ -343,7 +344,7 @@ namespace Greenshot.Addon.Core
 		/// <returns>Returns a DialogResult indicating the user action.</returns>
 		public DialogResult Show(IWin32Window owner, string name, string password, bool saveChecked)
 		{
-			if ((Environment.OSVersion.Version.Major < 5) || ((Environment.OSVersion.Version.Major == 5) && (Environment.OSVersion.Version.Minor < 1)))
+			if (!Environment.OSVersion.IsWindowsXPOrLater())
 			{
 				throw new ApplicationException("The Credential Management API requires Windows XP / Windows Server 2003 or later.");
 			}
