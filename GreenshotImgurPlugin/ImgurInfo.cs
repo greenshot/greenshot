@@ -27,7 +27,8 @@ namespace GreenshotImgurPlugin
 	/// <summary>
 	/// Description of ImgurInfo.
 	/// </summary>
-	public class ImgurInfo : IDisposable {
+	public class ImgurInfo : IDisposable
+	{
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurInfo));
 
 		public string Hash
@@ -37,9 +38,11 @@ namespace GreenshotImgurPlugin
 		}
 
 		private string deleteHash;
-		public string DeleteHash {
-			get {return deleteHash;}
-			set {
+		public string DeleteHash
+		{
+			get { return deleteHash; }
+			set
+			{
 				deleteHash = value;
 				DeletePage = "https://imgur.com/delete/" + value;
 			}
@@ -94,24 +97,29 @@ namespace GreenshotImgurPlugin
 		}
 
 		private Image image;
-		public Image Image {
-			get {return image;}
-			set {
-				if (image != null) {
+		public Image Image
+		{
+			get { return image; }
+			set
+			{
+				if (image != null)
+				{
 					image.Dispose();
 				}
 				image = value;
 			}
 		}
 
-		public ImgurInfo() {
+		public ImgurInfo()
+		{
 		}
 
 		/// <summary>
 		/// The public accessible Dispose
 		/// Will call the GarbageCollector to SuppressFinalize, preventing being cleaned twice
 		/// </summary>
-		public void Dispose() {
+		public void Dispose()
+		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
@@ -121,15 +129,19 @@ namespace GreenshotImgurPlugin
 		/// When disposing==true all non-managed resources should be freed too!
 		/// </summary>
 		/// <param name="disposing"></param>
-		protected virtual void Dispose(bool disposing) {
-			if (disposing) {
-				if (image != null) {
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				if (image != null)
+				{
 					image.Dispose();
 				}
 			}
 			image = null;
 		}
-		public static ImgurInfo ParseResponse(string response) {
+		public static ImgurInfo ParseResponse(string response)
+		{
 			LOG.Debug(response);
 			// This is actually a hack for BUG-1695
 			// The problem is the (C) sign, we send it HTML encoded "&reg;" to Imgur and get it HTML encoded in the XML back 
@@ -142,11 +154,13 @@ namespace GreenshotImgurPlugin
 			response = response.Replace("&reg;", "&#174;");
 
 			ImgurInfo imgurInfo = new ImgurInfo();
-			try {
+			try
+			{
 				XmlDocument doc = new XmlDocument();
 				doc.LoadXml(response);
 				XmlNodeList nodes = doc.GetElementsByTagName("id");
-				if(nodes.Count > 0) {
+				if (nodes.Count > 0)
+				{
 					imgurInfo.Hash = nodes.Item(0).InnerText;
 				}
 				nodes = doc.GetElementsByTagName("hash");
@@ -155,19 +169,23 @@ namespace GreenshotImgurPlugin
 					imgurInfo.Hash = nodes.Item(0).InnerText;
 				}
 				nodes = doc.GetElementsByTagName("deletehash");
-				if(nodes.Count > 0) {
+				if (nodes.Count > 0)
+				{
 					imgurInfo.DeleteHash = nodes.Item(0).InnerText;
 				}
 				nodes = doc.GetElementsByTagName("type");
-				if(nodes.Count > 0) {
+				if (nodes.Count > 0)
+				{
 					imgurInfo.ImageType = nodes.Item(0).InnerText;
 				}
 				nodes = doc.GetElementsByTagName("title");
-				if(nodes.Count > 0) {
+				if (nodes.Count > 0)
+				{
 					imgurInfo.Title = nodes.Item(0).InnerText;
 				}
 				nodes = doc.GetElementsByTagName("datetime");
-				if(nodes.Count > 0) {
+				if (nodes.Count > 0)
+				{
 					// Version 3 has seconds since Epoch
 					double secondsSince;
 					if (double.TryParse(nodes.Item(0).InnerText, out secondsSince))
@@ -198,15 +216,17 @@ namespace GreenshotImgurPlugin
 					imgurInfo.Page = string.Format("https://imgur.com/{0}", imgurInfo.Hash);
 				}
 				nodes = doc.GetElementsByTagName("small_square");
-				if(nodes.Count > 0) {
+				if (nodes.Count > 0)
+				{
 					imgurInfo.SmallSquare = nodes.Item(0).InnerText;
 				}
-				nodes = doc.GetElementsByTagName("large_thumbnail");
-				if(nodes.Count > 0)
+				else
 				{
-                    imgurInfo.LargeThumbnail = nodes.Item(0).InnerText.Replace("http:", "https:");
+					imgurInfo.SmallSquare = string.Format("http://i.imgur.com/{0}s.png",imgurInfo.Hash);
 				}
-			} catch(Exception e) {
+			}
+			catch (Exception e)
+			{
 				LOG.ErrorFormat("Could not parse Imgur response due to error {0}, response was: {1}", e.Message, response);
 			}
 			return imgurInfo;
