@@ -31,6 +31,7 @@ using Dapplo.HttpExtensions.OAuth;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Plugin;
+using Dapplo.Utils;
 
 namespace Greenshot.Addon.Box
 {
@@ -57,7 +58,13 @@ namespace Greenshot.Addon.Box
 			string filename = Path.GetFileName(FilenameHelper.GetFilename(Config.UploadFormat, capture.CaptureDetails));
 			var outputSettings = new SurfaceOutputSettings(Config.UploadFormat, Config.UploadJpegQuality, false);
 
-			var oauthHttpBehaviour = new HttpBehaviour();
+			var oauthHttpBehaviour = HttpBehaviour.Current.Clone();
+			// Use UploadProgress
+			oauthHttpBehaviour.UploadProgress = (percent) =>
+			{
+				UiContext.RunOn(() => progress.Report((int)(percent * 100)));
+			};
+
 			oauthHttpBehaviour.OnHttpMessageHandlerCreated = httpMessageHandler => new OAuth2HttpMessageHandler(oAuth2Settings, oauthHttpBehaviour, httpMessageHandler);
 
 			// TODO: See if the PostAsync<Bitmap> can be used? Or at least the HttpContentFactory?
@@ -73,20 +80,18 @@ namespace Greenshot.Addon.Box
 				ImageOutput.SaveToStream(capture, stream, outputSettings);
 				stream.Position = 0;
 				dynamic response;
-				using (var uploadStream = new ProgressStream(stream, progress))
-				{
-					using (var streamContent = new StreamContent(uploadStream))
-					{
-						streamContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream"); //"image/" + outputSettings.Format);
-						streamContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
-						{
-							Name = "\"file\"", FileName = "\"" + filename + "\""
-						}; // the extra quotes are important here
-						multiPartContent.Add(streamContent);
 
-						oauthHttpBehaviour.MakeCurrent();
-						response = await UploadFileUri.PostAsync<dynamic>(multiPartContent, cancellationToken);
-					}
+				using (var streamContent = new StreamContent(stream))
+				{
+					streamContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream"); //"image/" + outputSettings.Format);
+					streamContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+					{
+						Name = "\"file\"", FileName = "\"" + filename + "\""
+					}; // the extra quotes are important here
+					multiPartContent.Add(streamContent);
+
+					oauthHttpBehaviour.MakeCurrent();
+					response = await UploadFileUri.PostAsync<dynamic>(multiPartContent, cancellationToken);
 				}
 
 				if (response == null || !response.ContainsKey("total_count"))

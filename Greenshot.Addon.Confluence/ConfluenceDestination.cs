@@ -159,17 +159,21 @@ namespace Greenshot.Addon.Confluence
 					// Run upload in the background
 					await PleaseWaitWindow.CreateAndShowAsync(ConfluenceDesignation, ConfluenceLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
 					{
+						var httpBehaviour = HttpBehaviour.Current.Clone();
+						// Use UploadProgress
+						httpBehaviour.UploadProgress = (percent) =>
+						{
+							UiContext.RunOn(() => progress.Report((int)(percent * 100)));
+						};
+						httpBehaviour.MakeCurrent();
 						using (var stream = new MemoryStream())
 						{
 							ImageOutput.SaveToStream(capture, stream, outputSettings);
 							stream.Position = 0;
-							using (var uploadStream = new ProgressStream(stream, progress))
+							using (var streamContent = new StreamContent(stream))
 							{
-								using (var streamContent = new StreamContent(uploadStream))
-								{
-									streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
-									return await confluenceApi.AttachAsync(page.Id, streamContent, filename, "Added via Greenshot", "image/" + outputSettings.Format, pleaseWaitToken);
-								}
+								streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
+								return await confluenceApi.AttachAsync(page.Id, streamContent, filename, "Added via Greenshot", "image/" + outputSettings.Format, pleaseWaitToken);
 							}
 						}
 					}, token);

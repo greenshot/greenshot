@@ -40,6 +40,7 @@ using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
+using Dapplo.Utils;
 
 namespace Greenshot.Addon.Flickr
 {
@@ -127,8 +128,14 @@ namespace Greenshot.Addon.Flickr
 				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, FlickrLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
 				{
 					string filename = Path.GetFileName(FilenameHelper.GetFilename(FlickrConfiguration.UploadFormat, capture.CaptureDetails));
+					var oAuthHttpBehaviour = _oAuthHttpBehaviour.Clone();
+					// Use UploadProgress
+					oAuthHttpBehaviour.UploadProgress = (percent) =>
+					{
+						UiContext.RunOn(() => progress.Report((int)(percent * 100)));
+					};
 					_oAuthHttpBehaviour.MakeCurrent();
-					return await FlickrUtils.UploadToFlickrAsync(capture, outputSettings, capture.CaptureDetails.Title, filename, progress, token);
+					return await FlickrUtils.UploadToFlickrAsync(capture, outputSettings, capture.CaptureDetails.Title, filename, token);
 				}, token);
 
 				if (url != null)

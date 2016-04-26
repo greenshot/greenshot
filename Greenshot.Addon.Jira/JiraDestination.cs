@@ -173,18 +173,22 @@ namespace Greenshot.Addon.Jira
 					// Run upload in the background
 					await PleaseWaitWindow.CreateAndShowAsync(Text, JiraLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
 					{
+						var httpBehaviour = HttpBehaviour.Current.Clone();
+						// Use UploadProgress
+						httpBehaviour.UploadProgress = (percent) =>
+						{
+							UiContext.RunOn(() => progress.Report((int)(percent * 100)));
+						};
+						httpBehaviour.MakeCurrent();
 						using (var stream = new MemoryStream())
 						{
 							ImageOutput.SaveToStream(capture, stream, outputSettings);
 							stream.Position = 0;
-							using (var uploadStream = new ProgressStream(stream, progress))
+							using (var streamContent = new StreamContent(stream))
 							{
-								using (var streamContent = new StreamContent(uploadStream))
-								{
-									streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
-									var attachment = await jiraApi.AttachAsync(jiraDetails.JiraKey, streamContent, filename, "image/" + outputSettings.Format, pleaseWaitToken);
-									return attachment[0].ContentUri;
-								}
+								streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
+								var attachment = await jiraApi.AttachAsync(jiraDetails.JiraKey, streamContent, filename, "image/" + outputSettings.Format, pleaseWaitToken);
+								return attachment[0].ContentUri;
 							}
 						}
 					}, token);

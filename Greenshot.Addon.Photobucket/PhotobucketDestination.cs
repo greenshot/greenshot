@@ -40,6 +40,7 @@ using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
+using Dapplo.Utils;
 
 namespace Greenshot.Addon.Photobucket
 {
@@ -210,6 +211,13 @@ namespace Greenshot.Addon.Photobucket
 		{
 			string responseString;
 
+			var oAuthHttpBehaviour = _oAuthHttpBehaviour.Clone();
+
+			// Use UploadProgress
+			oAuthHttpBehaviour.UploadProgress = (percent) =>
+			{
+				UiContext.RunOn(() => progress.Report((int)(percent * 100)));
+			};
 			_oAuthHttpBehaviour.MakeCurrent();
 			if (PhotobucketConfiguration.Username == null || PhotobucketConfiguration.SubDomain == null)
 			{
@@ -239,26 +247,23 @@ namespace Greenshot.Addon.Photobucket
 			{
 				ImageOutput.SaveToStream(surfaceToUpload, stream, outputSettings);
 				stream.Position = 0;
-				using (var uploadStream = new ProgressStream(stream, progress))
+				using (var streamContent = new StreamContent(stream))
 				{
-					using (var streamContent = new StreamContent(uploadStream))
+					streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
+					streamContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
 					{
-						streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
-						streamContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
-						{
-							Name = "\"uploadfile\"",
-							FileName = "\"" + filename + "\"",
-						};
+						Name = "\"uploadfile\"",
+						FileName = "\"" + filename + "\"",
+					};
 
-						try
-						{							
-							responseString = await uploadUri.OAuth1PostAsync<string>(streamContent, signedParameters, token);
-						}
-						catch (Exception ex)
-						{
-							Log.Error("Error uploading to Photobucket.", ex);
-							throw;
-						}
+					try
+					{							
+						responseString = await uploadUri.OAuth1PostAsync<string>(streamContent, signedParameters, token);
+					}
+					catch (Exception ex)
+					{
+						Log.Error("Error uploading to Photobucket.", ex);
+						throw;
 					}
 				}
 			}

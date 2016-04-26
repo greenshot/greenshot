@@ -32,6 +32,7 @@ using Dapplo.HttpExtensions.OAuth;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Plugin;
+using Dapplo.Utils;
 
 namespace Greenshot.Addon.Picasa
 {
@@ -75,11 +76,17 @@ namespace Greenshot.Addon.Picasa
 				Token = PicasaConfiguration
 			};
 
-			var oauthHttpBehaviour = new HttpBehaviour();
-			oauthHttpBehaviour.OnHttpMessageHandlerCreated = httpMessageHandler => new OAuth2HttpMessageHandler(oAuth2Settings, oauthHttpBehaviour, httpMessageHandler);
+			var oAuthHttpBehaviour = HttpBehaviour.Current.Clone();
+
+			// Use UploadProgress
+			oAuthHttpBehaviour.UploadProgress = (percent) =>
+			{
+				UiContext.RunOn(() => progress.Report((int)(percent * 100)));
+			};
+			oAuthHttpBehaviour.OnHttpMessageHandlerCreated = httpMessageHandler => new OAuth2HttpMessageHandler(oAuth2Settings, oAuthHttpBehaviour, httpMessageHandler);
 			if (PicasaConfiguration.AddFilename)
 			{
-				oauthHttpBehaviour.OnHttpClientCreated = httpClient => httpClient.AddDefaultRequestHeader("Slug", Uri.EscapeDataString(filename));
+				oAuthHttpBehaviour.OnHttpClientCreated = httpClient => httpClient.AddDefaultRequestHeader("Slug", Uri.EscapeDataString(filename));
 			}
 
 			string response;
@@ -88,15 +95,12 @@ namespace Greenshot.Addon.Picasa
 			{
 				ImageOutput.SaveToStream(capture, stream, outputSettings);
 				stream.Position = 0;
-				using (var uploadStream = new ProgressStream(stream, progress))
+				using (var content = new StreamContent(stream))
 				{
-					using (var content = new StreamContent(uploadStream))
-					{
-						content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
+					content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
 
-						oauthHttpBehaviour.MakeCurrent();
-						response = await uploadUri.PostAsync<string>(content, token);
-					}
+					oAuthHttpBehaviour.MakeCurrent();
+					response = await uploadUri.PostAsync<string>(content, token);
 				}
 			}
 

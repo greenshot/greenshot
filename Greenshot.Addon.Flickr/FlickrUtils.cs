@@ -34,6 +34,7 @@ using Dapplo.HttpExtensions.OAuth;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Plugin;
+using Dapplo.Utils;
 
 namespace Greenshot.Addon.Flickr
 {
@@ -68,7 +69,7 @@ namespace Greenshot.Addon.Flickr
 		/// <param name="progress">IProgres is used to report the progress to</param>
 		/// <param name="token"></param>
 		/// <returns>url to image</returns>
-		public static async Task<string> UploadToFlickrAsync(ICapture surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename, IProgress<int> progress = null, CancellationToken token = default(CancellationToken))
+		public static async Task<string> UploadToFlickrAsync(ICapture surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename, CancellationToken token = default(CancellationToken))
 		{
 			try
 			{
@@ -90,20 +91,17 @@ namespace Greenshot.Addon.Flickr
 				{
 					ImageOutput.SaveToStream(surfaceToUpload, stream, outputSettings);
 					stream.Position = 0;
-					using (var uploadStream = new ProgressStream(stream, progress))
+					using (var streamContent = new StreamContent(stream))
 					{
-						using (var streamContent = new StreamContent(uploadStream))
+						streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
+						streamContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
 						{
-							streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
-							streamContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
-							{
-								Name = "\"photo\"", FileName = "\"" + filename + "\"",
-							};
-							var response = await FlickrUploadUri.OAuth1PostAsync<XDocument>(streamContent, signedParameters, token);
-							photoId = (from element in response.Root.Elements()
-									   where element.Name == "photoid"
-									   select element.Value).First();
-						}
+							Name = "\"photo\"", FileName = "\"" + filename + "\"",
+						};
+						var response = await FlickrUploadUri.OAuth1PostAsync<XDocument>(streamContent, signedParameters, token);
+						photoId = (from element in response.Root.Elements()
+									where element.Name == "photoid"
+									select element.Value).First();
 					}
 				}
 

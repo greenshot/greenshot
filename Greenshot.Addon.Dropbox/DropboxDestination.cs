@@ -40,6 +40,7 @@ using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
+using Dapplo.Utils;
 
 namespace Greenshot.Addon.Dropbox
 {
@@ -129,13 +130,10 @@ namespace Greenshot.Addon.Dropbox
 					{
 						ImageOutput.SaveToStream(capture, stream, outputSettings);
 						stream.Position = 0;
-						using (var uploadStream = new ProgressStream(stream, progress))
+						using (var streamContent = new StreamContent(stream))
 						{
-							using (var streamContent = new StreamContent(uploadStream))
-							{
-								streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
-								return await UploadAsync(filename, streamContent, pleaseWaitToken);
-							}
+							streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
+							return await UploadAsync(filename, streamContent, progress, pleaseWaitToken);
 						}
 					}
 				}, token);
@@ -175,10 +173,15 @@ namespace Greenshot.Addon.Dropbox
 		/// <param name="content">HttpContent</param>
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Url as string</returns>
-		private async Task<string> UploadAsync(string filename, HttpContent content, CancellationToken cancellationToken = default(CancellationToken))
+		private async Task<string> UploadAsync(string filename, HttpContent content, IProgress<int> progress, CancellationToken cancellationToken = default(CancellationToken))
 		{
-
-			_oAuthHttpBehaviour.MakeCurrent();
+			var oAuthHttpBehaviour =_oAuthHttpBehaviour.Clone();
+			// Use UploadProgress
+			oAuthHttpBehaviour.UploadProgress = (percent) =>
+			{
+				UiContext.RunOn(() => progress.Report((int)(percent * 100)));
+			};
+			oAuthHttpBehaviour.MakeCurrent();
 
 			// Build the upload content together
 			var uploadContent = new Upload

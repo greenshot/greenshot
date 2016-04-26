@@ -34,6 +34,7 @@ using Dapplo.HttpExtensions.OAuth;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Plugin;
+using Dapplo.Utils;
 
 namespace Greenshot.Addon.Imgur
 {
@@ -69,22 +70,21 @@ namespace Greenshot.Addon.Imgur
 		{
 			dynamic imageJson;
 			var uploadUri = new Uri(Config.ApiUrl).AppendSegments("upload.json").ExtendQuery(otherParameters);
-
-			var oauthHttpBehaviour = OAuth2HttpBehaviourFactory.Create(oAuth2Settings, Behaviour);
-
+			var localBehaviour = Behaviour.Clone();
+			localBehaviour.UploadProgress = (percent) =>
+			{
+				UiContext.RunOn(() => progress.Report((int)(percent*100)));
+			};
+			var oauthHttpBehaviour = OAuth2HttpBehaviourFactory.Create(oAuth2Settings, localBehaviour);
 			using (var imageStream = new MemoryStream())
 			{
 				ImageOutput.SaveToStream(surfaceToUpload, imageStream, outputSettings);
 				imageStream.Position = 0;
-				using (var uploadStream = new ProgressStream(imageStream, progress))
+				using (var content = new StreamContent(imageStream))
 				{
-					uploadStream.TotalBytesToReceive = imageStream.Length;
-					using (var content = new StreamContent(uploadStream))
-					{
-						content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
-						oauthHttpBehaviour.MakeCurrent();
-						imageJson = await uploadUri.PostAsync<dynamic>(content, token);
-					}
+					content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
+					oauthHttpBehaviour.MakeCurrent();
+					imageJson = await uploadUri.PostAsync<dynamic>(content, token);
 				}
 			}
 			return CreateImageInfo(imageJson);
@@ -94,18 +94,21 @@ namespace Greenshot.Addon.Imgur
 		{
 			var uploadUri = new Uri(Config.ApiUrl).AppendSegments("upload.json").ExtendQuery(otherParameters);
 			dynamic imageJson;
+			var localBehaviour = Behaviour.Clone();
+			localBehaviour.UploadProgress = (percent) =>
+			{
+				UiContext.RunOn(() => progress.Report((int)(percent * 100)));
+			};
+
 			using (var imageStream = new MemoryStream())
 			{
 				ImageOutput.SaveToStream(surfaceToUpload, imageStream, outputSettings);
 				imageStream.Position = 0;
-				using (var uploadStream = new ProgressStream(imageStream, progress))
+				using (var content = new StreamContent(imageStream))
 				{
-					using (var content = new StreamContent(uploadStream))
-					{
-						content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
-						Behaviour.MakeCurrent();
-						imageJson = await uploadUri.PostAsync<dynamic>(content, token).ConfigureAwait(false);
-					}
+					content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
+					localBehaviour.MakeCurrent();
+					imageJson = await uploadUri.PostAsync<dynamic>(content, token).ConfigureAwait(false);
 				}
 			}
 			return CreateImageInfo(imageJson);
