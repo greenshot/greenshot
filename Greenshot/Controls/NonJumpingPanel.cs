@@ -32,5 +32,23 @@ namespace GreenshotPlugin.Controls {
 			// scrolling to the active control when the panel loses and regains focus
 			return DisplayRectangle.Location;
 		}
+
+		/// <summary>
+		/// Add horizontal scrolling to the panel, when using the wheel and the shift key is pressed
+		/// </summary>
+		/// <param name="e">MouseEventArgs</param>
+		protected override void OnMouseWheel(MouseEventArgs e)
+		{
+			if (VScroll && (ModifierKeys & Keys.Shift) == Keys.Shift)
+			{
+				VScroll = false;
+				base.OnMouseWheel(e);
+				VScroll = true;
+			}
+			else
+			{
+				base.OnMouseWheel(e);
+			}
+		}
 	}
 }
