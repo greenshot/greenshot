@@ -135,7 +135,7 @@ namespace Greenshot.Forms
 			comboBox.Items.Clear();
 			foreach (var enumValue in availableValues)
 			{
-				string translation = language[enumValue.GetType().Name + "." + enumValue];
+				var translation = language[enumValue.GetType().Name + "." + enumValue];
 				comboBox.Items.Add(translation);
 			}
 			comboBox.SelectedItem = language[selectedValue.GetType().Name + "." + selectedValue];

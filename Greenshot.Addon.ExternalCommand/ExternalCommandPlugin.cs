@@ -53,6 +53,14 @@ namespace Greenshot.Addon.ExternalCommand
 			get;
 			set;
 		}
+
+		[Import]
+		private IServiceExporter ServiceExporter
+		{
+			get;
+			set;
+		}
+
 		[Import]
 		private IServiceLocator ServiceLocator
 		{
@@ -165,7 +173,7 @@ namespace Greenshot.Addon.ExternalCommand
 				var settings = new CommandSettings(command);
 				var externalCommandDestination = new ExternalCommandDestination(settings);
 				ServiceLocator.FillImports(externalCommandDestination);
-				ServiceLocator.Export<IDestination>(externalCommandDestination);
+				ServiceExporter.Export<IDestination>(externalCommandDestination);
 			}
 
 			_itemPlugInRoot = new ToolStripMenuItem();

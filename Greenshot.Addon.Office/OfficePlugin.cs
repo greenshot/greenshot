@@ -44,6 +44,13 @@ namespace Greenshot.Addon.Office
 		}
 
 		[Import]
+		private IServiceExporter ServiceExporter
+		{
+			get;
+			set;
+		}
+
+		[Import]
 		private IOfficeConfiguration OfficeConfiguration
 		{
 			get;
@@ -66,31 +73,31 @@ namespace Greenshot.Addon.Office
 			{
 				var wordDestination = new WordDestination();
 				ServiceLocator.FillImports(wordDestination);
-                ServiceLocator.Export<IDestination>(wordDestination);
+				ServiceExporter.Export<IDestination>(wordDestination);
 			}
 			if (ExcelDestination.IsActive)
 			{
 				var excelDestination = new ExcelDestination();
 				ServiceLocator.FillImports(excelDestination);
-				ServiceLocator.Export<IDestination>(excelDestination);
+				ServiceExporter.Export<IDestination>(excelDestination);
 			}
 			if (OutlookDestination.IsActive)
 			{
 				var outlookDestination = new OutlookDestination();
 				ServiceLocator.FillImports(outlookDestination);
-				ServiceLocator.Export<IDestination>(outlookDestination);
+				ServiceExporter.Export<IDestination>(outlookDestination);
 			}
 			if (PowerpointDestination.IsActive)
 			{
 				var powerpointDestination = new PowerpointDestination();
 				ServiceLocator.FillImports(powerpointDestination);
-				ServiceLocator.Export<IDestination>(powerpointDestination);
+				ServiceExporter.Export<IDestination>(powerpointDestination);
 			}
 			if (OneNoteDestination.IsActive)
 			{
 				var oneNoteDestination = new OneNoteDestination();
 				ServiceLocator.FillImports(oneNoteDestination);
-				ServiceLocator.Export<IDestination>(oneNoteDestination);
+				ServiceExporter.Export<IDestination>(oneNoteDestination);
 			}
 			return Task.FromResult(true);
 		}

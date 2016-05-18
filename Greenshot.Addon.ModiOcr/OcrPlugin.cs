@@ -58,6 +58,13 @@ namespace Greenshot.Addon.ModiOcr
 			set;
 		}
 
+		[Import]
+		private IServiceExporter ServiceExporter
+		{
+			get;
+			set;
+		}
+
 		public void Dispose()
 		{
 			Dispose(true);
@@ -91,7 +98,7 @@ namespace Greenshot.Addon.ModiOcr
 				OcrConfiguration.Language = OcrConfiguration.Language.Replace("miLANG_", "").Replace("_", " ");
 				var ocrDestination = new OcrDestination();
 				ServiceLocator.FillImports(ocrDestination);
-				ServiceLocator.Export<IDestination>(ocrDestination);
+				ServiceExporter.Export<IDestination>(ocrDestination);
 			}
 			
 			return Task.FromResult(true);

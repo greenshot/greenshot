@@ -71,6 +71,13 @@ namespace Greenshot.Addon.Jira
 			set;
 		}
 
+		[Import]
+		private IServiceExporter ServiceExporter
+		{
+			get;
+			set;
+		}
+
 		/// <summary>
 		/// Get the JiraMonitor
 		/// </summary>
@@ -101,7 +108,7 @@ namespace Greenshot.Addon.Jira
 				{
 					_jiraDestination = new JiraDestination();
 					ServiceLocator.FillImports(_jiraDestination);
-					ServiceLocator.Export<IDestination>(_jiraDestination);
+					ServiceExporter.Export<IDestination>(_jiraDestination);
 				}
 				_jiraDestination.Monitor = _jiraMonitor;
 			}
