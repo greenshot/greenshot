@@ -29,11 +29,11 @@ using System.IO;
 
 namespace GreenshotOfficePlugin {
 	public class OneNoteDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordDestination));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordDestination));
 		private const int ICON_APPLICATION = 0;
 		public const string DESIGNATION = "OneNote";
-		private static string exePath = null;
-		private OneNotePage page = null;
+		private static readonly string exePath = null;
+		private readonly OneNotePage page = null;
 
 		static OneNoteDestination() {
 			exePath = PluginUtils.GetExePath("ONENOTE.EXE");
@@ -99,7 +99,7 @@ namespace GreenshotOfficePlugin {
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
+			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 
 			if (page == null) {
 				try {

@@ -74,8 +74,11 @@ namespace GreenshotPlugin.Core {
 			get {
 				List<TV> elements = new List<TV>();
 
-				foreach (TV element in internalCache.Values) {
-					elements.Add(element);
+				lock (lockObject)
+				{
+					foreach (TV element in internalCache.Values) {
+						elements.Add(element);
+					}
 				}
 				foreach (TV element in elements) {
 					yield return element;
@@ -105,8 +108,12 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="key"></param>
 		/// <returns>true if the cache contains the key</returns>
-		public bool Contains(TK key) {
-			return internalCache.ContainsKey(key);
+		public bool Contains(TK key)
+		{
+			lock (lockObject)
+			{
+				return internalCache.ContainsKey(key);
+			}
 		}
 
 		/// <summary>

@@ -100,12 +100,12 @@ namespace GreenshotConfluencePlugin {
 		}
 
 		public ConfluenceUpload(string filename) {
-			this.Filename = filename;
+			Filename = filename;
 			InitializeComponent();
 			this.DataContext = this;
 			updateSpaces();
 			if (PickerPage == null) {
-				PickerTab.Visibility = System.Windows.Visibility.Collapsed;
+				PickerTab.Visibility = Visibility.Collapsed;
 				SearchTab.IsSelected = true;
 			}
 		}

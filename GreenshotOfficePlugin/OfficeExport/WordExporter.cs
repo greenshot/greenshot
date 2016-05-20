@@ -20,9 +20,6 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Text;
-
-using Greenshot.Interop;
 using GreenshotOfficePlugin;
 using Greenshot.IniFile;
 
@@ -30,7 +27,7 @@ namespace Greenshot.Interop.Office {
 	public class WordExporter {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordExporter));
 		private static Version wordVersion = null;
-		private static OfficeConfiguration config = IniConfig.GetIniSection<OfficeConfiguration>();
+		private static readonly OfficeConfiguration config = IniConfig.GetIniSection<OfficeConfiguration>();
 
 		/// <summary>
 		/// Check if the used version is higher than Office 2003

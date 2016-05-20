@@ -20,10 +20,7 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Reflection;
-
-using Greenshot.Interop;
 using System.Drawing;
 using GreenshotOfficePlugin;
 using Greenshot.IniFile;

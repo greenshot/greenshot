@@ -441,7 +441,7 @@ namespace GreenshotPlugin.Controls {
 				if (hotkey.LastIndexOf('+') > 0) {
 					hotkey = hotkey.Remove(0,hotkey.LastIndexOf('+')+1).Trim();
 				}
-				key = (Keys)Keys.Parse(typeof(Keys), hotkey);
+				key = (Keys)Enum.Parse(typeof(Keys), hotkey);
 			}
 			return key;
 		}

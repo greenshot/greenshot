@@ -21,15 +21,12 @@
 
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
-using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Runtime.Serialization;
-using System.Windows.Forms;
-using log4net;
 
 namespace Greenshot.Drawing {
 	/// <summary>

@@ -85,10 +85,10 @@ namespace GreenshotPlugin.Core {
 		}
 
 		public SourceforgeFile(string file, string pubdate, string link, string directLink) {
-			this._file = file;
+			_file = file;
 			DateTime.TryParse(pubdate, out _pubdate);
-			this._link = link;
-			this._directLink = directLink;
+			_link = link;
+			_directLink = directLink;
 		}
 	}
 	/// <summary>

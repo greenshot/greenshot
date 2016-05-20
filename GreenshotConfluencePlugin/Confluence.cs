@@ -95,14 +95,14 @@ namespace Confluence {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceConnector));
 		private const string AUTH_FAILED_EXCEPTION_NAME = "com.atlassian.confluence.rpc.AuthenticationFailedException";
         private const string V2_FAILED = "AXIS";
-        private static ConfluenceConfiguration config = IniConfig.GetIniSection<ConfluenceConfiguration>();
+        private static readonly ConfluenceConfiguration config = IniConfig.GetIniSection<ConfluenceConfiguration>();
 		private string credentials = null;
 		private DateTime loggedInTime = DateTime.Now;
 		private bool loggedIn = false;
 		private ConfluenceSoapServiceService confluence;
-		private int timeout;
+		private readonly int timeout;
 		private string url;
-		private Cache<string, RemotePage> pageCache = new Cache<string, RemotePage>(60 * config.Timeout);
+		private readonly Cache<string, RemotePage> pageCache = new Cache<string, RemotePage>(60 * config.Timeout);
 
 		public void Dispose() {
 			Dispose(true);
@@ -143,9 +143,9 @@ namespace Confluence {
 		/// <returns>true if login was done sucessfully</returns>
 		private bool doLogin(string user, string password) {
 			try {
-				this.credentials = confluence.login(user, password);
-				this.loggedInTime = DateTime.Now;
-				this.loggedIn = true;
+				credentials = confluence.login(user, password);
+				loggedInTime = DateTime.Now;
+				loggedIn = true;
 			} catch (Exception e) {
                 // Check if confluence-v2 caused an error, use v1 instead
                 if (e.Message.Contains(V2_FAILED) && url.Contains("v2")) {
@@ -157,8 +157,8 @@ namespace Confluence {
 					return false;
 				}
 				// Not an authentication issue
-				this.loggedIn = false;
-				this.credentials = null;
+				loggedIn = false;
+				credentials = null;
 				e.Data.Add("user", user);
 				e.Data.Add("url", url);
 				throw;

@@ -24,13 +24,7 @@ using System.Text;
 using System.IO;
 
 using Microsoft.Win32;
-
-using Greenshot.Interop;
 using Greenshot.Interop.IE;
-using System.Threading;
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
-using GreenshotPlugin.Core;
 using GreenshotOfficePlugin;
 using Greenshot.IniFile;
 

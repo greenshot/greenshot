@@ -1032,7 +1032,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 				// Get response object.
 				using (HttpListenerResponse response = context.Response) {
 					// Write a "close" response.
-					byte[] buffer = System.Text.Encoding.UTF8.GetBytes(ClosePageResponse.Replace("CloudServiceName", _cloudServiceName));
+					byte[] buffer = Encoding.UTF8.GetBytes(ClosePageResponse.Replace("CloudServiceName", _cloudServiceName));
 					// Write to response stream.
 					response.ContentLength64 = buffer.Length;
 					using (var stream = response.OutputStream) {

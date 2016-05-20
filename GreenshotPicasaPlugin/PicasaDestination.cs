@@ -28,7 +28,7 @@ namespace GreenshotPicasaPlugin {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PicasaDestination));
 		private static PicasaConfiguration config = IniConfig.GetIniSection<PicasaConfiguration>();
 
-		private PicasaPlugin plugin = null;
+		private readonly PicasaPlugin plugin = null;
 		public PicasaDestination(PicasaPlugin plugin) {
 			this.plugin = plugin;
 		}
@@ -53,7 +53,7 @@ namespace GreenshotPicasaPlugin {
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
+			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			string uploadURL = null;
 			bool uploaded = plugin.Upload(captureDetails, surface, out uploadURL);
 			if (uploaded) {

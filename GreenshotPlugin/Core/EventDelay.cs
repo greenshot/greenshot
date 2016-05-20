@@ -26,7 +26,7 @@ namespace GreenshotPlugin.Core {
 		private long lastCheck;
 		private readonly long waitTime;
 		public EventDelay(long ticks) {
-			this.waitTime = ticks;
+			waitTime = ticks;
 		}
 
 		public bool Check() {

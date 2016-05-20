@@ -73,7 +73,7 @@ namespace GreenshotPicasaPlugin {
 		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
 		/// <param name="pluginAttribute">My own attributes</param>
 		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
-			this.host = (IGreenshotHost)pluginHost;
+			host = (IGreenshotHost)pluginHost;
 			Attributes = myAttributes;
 
 			// Get configuration
@@ -84,7 +84,7 @@ namespace GreenshotPicasaPlugin {
 			itemPlugInRoot.Text = Language.GetString("picasa", LangKey.Configure);
 			itemPlugInRoot.Tag = host;
 			itemPlugInRoot.Image = (Image)resources.GetObject("Picasa");
-			itemPlugInRoot.Click += new System.EventHandler(ConfigMenuClick);
+			itemPlugInRoot.Click += new EventHandler(ConfigMenuClick);
 			PluginUtils.AddToContextMenu(host, itemPlugInRoot);
 			Language.LanguageChanged += new LanguageChangedHandler(OnLanguageChanged);
 			return true;
@@ -127,7 +127,7 @@ namespace GreenshotPicasaPlugin {
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality);
 			try {
 				string url = null;
-				new PleaseWaitForm().ShowAndWait(PicasaPlugin.Attributes.Name, Language.GetString("picasa", LangKey.communication_wait), 
+				new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("picasa", LangKey.communication_wait), 
 					delegate() {
 						string filename = Path.GetFileName(FilenameHelper.GetFilename(config.UploadFormat, captureDetails));
 						string contentType = "image/" + config.UploadFormat.ToString();

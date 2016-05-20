@@ -33,8 +33,8 @@ namespace GreenshotImgurPlugin {
 	/// </summary>
 	public partial class ImgurHistory : ImgurForm {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurHistory));
-		private GreenshotColumnSorter columnSorter;
-		private static ImgurConfiguration config = IniConfig.GetIniSection<ImgurConfiguration>();
+		private readonly GreenshotColumnSorter columnSorter;
+		private static readonly ImgurConfiguration config = IniConfig.GetIniSection<ImgurConfiguration>();
 		private static ImgurHistory instance;
 		
 		public static void ShowHistory() {
@@ -48,7 +48,7 @@ namespace GreenshotImgurPlugin {
 		}
 		
 		private ImgurHistory() {
-			this.ManualLanguageApply = true;
+			ManualLanguageApply = true;
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
@@ -57,7 +57,7 @@ namespace GreenshotImgurPlugin {
 			CancelButton = finishedButton;
 			// Init sorting
 			columnSorter = new GreenshotColumnSorter();
-			this.listview_imgur_uploads.ListViewItemSorter = columnSorter;
+			listview_imgur_uploads.ListViewItemSorter = columnSorter;
 			columnSorter.SortColumn = 3;
 			columnSorter.Order = SortOrder.Descending;
 			redraw();
@@ -66,7 +66,7 @@ namespace GreenshotImgurPlugin {
 			}
 			ApplyLanguage();
 			if (config.Credits > 0) {
-				this.Text = this.Text + " (" + config.Credits + " credits)";
+				Text = Text + " (" + config.Credits + " credits)";
 			}
 		}
 
@@ -169,7 +169,7 @@ namespace GreenshotImgurPlugin {
 
 		private void FinishedButtonClick(object sender, EventArgs e)
 		{
-			this.Hide();
+			Hide();
 		}
 
 		private void OpenButtonClick(object sender, EventArgs e) {
@@ -197,7 +197,7 @@ namespace GreenshotImgurPlugin {
 			}
 
 			// Perform the sort with these new sort options.
-			this.listview_imgur_uploads.Sort();
+			listview_imgur_uploads.Sort();
 		}
 
 		

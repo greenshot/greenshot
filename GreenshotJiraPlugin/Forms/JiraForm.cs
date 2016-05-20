@@ -29,21 +29,21 @@ using Jira;
 
 namespace GreenshotJiraPlugin {
 	public partial class JiraForm : Form {
-		private JiraConnector jiraConnector;
+		private readonly JiraConnector jiraConnector;
 		private JiraIssue selectedIssue;
-		private GreenshotColumnSorter columnSorter;
-		private JiraConfiguration config = IniConfig.GetIniSection<JiraConfiguration>();
+		private readonly GreenshotColumnSorter columnSorter;
+		private readonly JiraConfiguration config = IniConfig.GetIniSection<JiraConfiguration>();
 
 		public JiraForm(JiraConnector jiraConnector) {
 			InitializeComponent();
-			this.Icon = GreenshotPlugin.Core.GreenshotResources.getGreenshotIcon();
+			Icon = GreenshotResources.getGreenshotIcon();
 			AcceptButton = uploadButton;
 			CancelButton = cancelButton;
 
 			initializeComponentText();
 
-			this.columnSorter = new GreenshotColumnSorter();
-			this.jiraListView.ListViewItemSorter = columnSorter;
+			columnSorter = new GreenshotColumnSorter();
+			jiraListView.ListViewItemSorter = columnSorter;
 
 			this.jiraConnector = jiraConnector;
 
@@ -60,9 +60,9 @@ namespace GreenshotJiraPlugin {
 		}
 
 		private void initializeComponentText() {
-			this.label_jirafilter.Text = Language.GetString("jira", LangKey.label_jirafilter);
-			this.label_comment.Text = Language.GetString("jira", LangKey.label_comment);
-			this.label_filename.Text = Language.GetString("jira", LangKey.label_filename);
+			label_jirafilter.Text = Language.GetString("jira", LangKey.label_jirafilter);
+			label_comment.Text = Language.GetString("jira", LangKey.label_comment);
+			label_filename.Text = Language.GetString("jira", LangKey.label_filename);
 		}
 
 		private void updateForm() {
@@ -188,7 +188,7 @@ namespace GreenshotJiraPlugin {
 			}
 
 			// Perform the sort with these new sort options.
-			this.jiraListView.Sort();
+			jiraListView.Sort();
 		}
 
 		void JiraKeyTextChanged(object sender, EventArgs e) {

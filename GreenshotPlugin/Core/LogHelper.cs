@@ -101,7 +101,7 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public class SpecialFolderPatternConverter : PatternConverter {
 		override protected void Convert(TextWriter writer, object state) {
-			Environment.SpecialFolder specialFolder = (Environment.SpecialFolder)Enum.Parse(typeof(Environment.SpecialFolder), base.Option, true);
+			Environment.SpecialFolder specialFolder = (Environment.SpecialFolder)Enum.Parse(typeof(Environment.SpecialFolder), Option, true);
 			writer.Write(Environment.GetFolderPath(specialFolder));
 		}
 	}

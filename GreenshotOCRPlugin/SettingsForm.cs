@@ -19,15 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Windows.Forms;
-using GreenshotPlugin.Core;
 
 namespace GreenshotOCR {
 	/// <summary>
 	/// Description of SettingsForm.
 	/// </summary>
 	public partial class SettingsForm : OCRForm {
-		private OCRConfiguration config;
+		private readonly OCRConfiguration config;
 
 		public SettingsForm(string [] languages, OCRConfiguration config) {
 			//

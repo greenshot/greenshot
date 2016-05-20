@@ -20,7 +20,6 @@
  */
 
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;

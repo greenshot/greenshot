@@ -36,11 +36,11 @@ namespace GreenshotConfluencePlugin {
 	/// Description of ConfluenceDestination.
 	/// </summary>
 	public class ConfluenceDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceDestination));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceDestination));
 		private static readonly ConfluenceConfiguration config = IniConfig.GetIniSection<ConfluenceConfiguration>();
 		private static readonly CoreConfiguration coreConfig = IniConfig.GetIniSection<CoreConfiguration>();
-		private static Image confluenceIcon = null;
-		private Confluence.Page page;
+		private static readonly Image confluenceIcon = null;
+		private readonly Page page;
 		public static bool IsInitialized {
 			get;
 			private set;
@@ -63,7 +63,7 @@ namespace GreenshotConfluencePlugin {
 		public ConfluenceDestination() {
 		}
 
-		public ConfluenceDestination(Confluence.Page page) {
+		public ConfluenceDestination(Page page) {
 			this.page = page;
 		}
 		
@@ -105,17 +105,17 @@ namespace GreenshotConfluencePlugin {
 			if (ConfluencePlugin.ConfluenceConnectorNoLogin == null || !ConfluencePlugin.ConfluenceConnectorNoLogin.isLoggedIn) {
 				yield break;
 			}
-			List<Confluence.Page> currentPages = ConfluenceUtils.GetCurrentPages();
+			List<Page> currentPages = ConfluenceUtils.GetCurrentPages();
 			if (currentPages == null || currentPages.Count == 0) {
 				yield break;
 			}
-			foreach(Confluence.Page currentPage in currentPages) {
+			foreach(Page currentPage in currentPages) {
 				yield return new ConfluenceDestination(currentPage);
 			}
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
+			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			// force password check to take place before the pages load
 			if (!ConfluencePlugin.ConfluenceConnector.isLoggedIn) {
 				return exportInformation;

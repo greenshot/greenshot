@@ -31,7 +31,7 @@ namespace GreenshotImgurPlugin  {
 	public class ImgurDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurDestination));
 		private static ImgurConfiguration config = IniConfig.GetIniSection<ImgurConfiguration>();
-		private ImgurPlugin plugin = null;
+		private readonly ImgurPlugin plugin = null;
 
 		public ImgurDestination(ImgurPlugin plugin) {
 			this.plugin = plugin;
@@ -57,7 +57,7 @@ namespace GreenshotImgurPlugin  {
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
+			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			string uploadURL = null;
 			exportInformation.ExportMade = plugin.Upload(captureDetails, surface, out uploadURL);
 			exportInformation.Uri = uploadURL;

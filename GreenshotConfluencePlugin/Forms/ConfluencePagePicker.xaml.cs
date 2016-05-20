@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
+
 using Confluence;
 using System.Collections.Generic;
 
@@ -28,11 +28,11 @@ namespace GreenshotConfluencePlugin {
 	/// </summary>
 	public partial class ConfluencePagePicker : System.Windows.Controls.Page {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluencePagePicker));
-		private ConfluenceUpload confluenceUpload = null;
+		private readonly ConfluenceUpload confluenceUpload = null;
 
 		public ConfluencePagePicker(ConfluenceUpload confluenceUpload, List<Page> pagesToPick) {
 			this.confluenceUpload = confluenceUpload;
-			this.DataContext = pagesToPick;
+			DataContext = pagesToPick;
 			InitializeComponent();
 		}
 		

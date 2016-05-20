@@ -110,12 +110,15 @@ namespace GreenshotPlugin.Core {
 		public static Image GetCachedExeIcon(string path, int index) {
 			string cacheKey = string.Format("{0}:{1}", path, index);
 			Image returnValue;
-			if (!exeIconCache.TryGetValue(cacheKey, out returnValue)) {
-				lock (exeIconCache) {
-					if (!exeIconCache.TryGetValue(cacheKey, out returnValue)) {
-						returnValue = GetExeIcon(path, index);
-						if (returnValue != null) {
-							exeIconCache.Add(cacheKey, returnValue);
+			lock (exeIconCache)
+			{
+				if (!exeIconCache.TryGetValue(cacheKey, out returnValue)) {
+					lock (exeIconCache) {
+						if (!exeIconCache.TryGetValue(cacheKey, out returnValue)) {
+							returnValue = GetExeIcon(path, index);
+							if (returnValue != null) {
+								exeIconCache.Add(cacheKey, returnValue);
+							}
 						}
 					}
 				}

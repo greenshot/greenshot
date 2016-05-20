@@ -33,8 +33,8 @@ namespace GreenshotPhotobucketPlugin  {
 	public class PhotobucketDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PhotobucketDestination));
 		private static PhotobucketConfiguration config = IniConfig.GetIniSection<PhotobucketConfiguration>();
-		private PhotobucketPlugin plugin = null;
-		private string albumPath = null;
+		private readonly PhotobucketPlugin plugin = null;
+		private readonly string albumPath = null;
 
 		/// <summary>
 		/// Create a Photobucket destination, which also has the path to the album in it
@@ -97,7 +97,7 @@ namespace GreenshotPhotobucketPlugin  {
 		/// <param name="captureDetails"></param>
 		/// <returns></returns>
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
+			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			string uploadURL = null;
 			bool uploaded = plugin.Upload(captureDetails, surface, albumPath, out uploadURL);
 			if (uploaded) {

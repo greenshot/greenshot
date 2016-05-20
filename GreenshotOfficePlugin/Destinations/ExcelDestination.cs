@@ -18,16 +18,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
+
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Windows.Forms;
-
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Greenshot.Interop.Office;
-using Greenshot.IniFile;
 using System.Text.RegularExpressions;
 
 namespace GreenshotOfficePlugin {
@@ -38,8 +35,8 @@ namespace GreenshotOfficePlugin {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExcelDestination));
 		private const int ICON_APPLICATION = 0;
 		private const int ICON_WORKBOOK = 1;
-		private static string exePath = null;
-		private string workbookName = null;
+		private static readonly string exePath = null;
+		private readonly string workbookName = null;
 
 		static ExcelDestination() {
 			exePath = PluginUtils.GetExePath("EXCEL.EXE");
@@ -107,7 +104,7 @@ namespace GreenshotOfficePlugin {
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
+			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			bool createdFile = false;
 			string imageFile = captureDetails.Filename;
 			if (imageFile == null || surface.Modified || !Regex.IsMatch(imageFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$")) {
