@@ -146,7 +146,7 @@ namespace Greenshot {
 		
 		private void SetWindowCaptureMode(WindowCaptureMode selectedWindowCaptureMode) {
 			WindowCaptureMode[] availableModes;
-			if (!DWM.isDWMEnabled()) {
+			if (!DWM.IsDwmEnabled()) {
 				// Remove DWM from configuration, as DWM is disabled!
 				if (coreConfiguration.WindowCaptureMode == WindowCaptureMode.Aero || coreConfiguration.WindowCaptureMode == WindowCaptureMode.AeroTransparent) {
 					coreConfiguration.WindowCaptureMode = WindowCaptureMode.GDI;

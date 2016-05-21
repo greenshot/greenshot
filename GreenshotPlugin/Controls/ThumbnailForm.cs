@@ -77,10 +77,10 @@ namespace GreenshotPlugin.Controls {
 				SIZE sourceSize;
 				DWM.DwmQueryThumbnailSourceSize(_thumbnailHandle, out sourceSize);
 				int thumbnailHeight = 200;
-				int thumbnailWidth = (int)(thumbnailHeight * ((float)sourceSize.width / (float)sourceSize.height));
+				int thumbnailWidth = (int)(thumbnailHeight * ((float)sourceSize.Width / (float)sourceSize.Height));
 				if (parentControl != null && thumbnailWidth > parentControl.Width) {
 					thumbnailWidth = parentControl.Width;
-					thumbnailHeight = (int)(thumbnailWidth * ((float)sourceSize.height / (float)sourceSize.width));
+					thumbnailHeight = (int)(thumbnailWidth * ((float)sourceSize.Height / (float)sourceSize.Width));
 				}
 				Width = thumbnailWidth;
 				Height = thumbnailHeight;

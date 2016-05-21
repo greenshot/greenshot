@@ -35,6 +35,7 @@ This version has changes, compared to 1.2.8.12, for the following reported ticke
 * BUG-1941: Error when creating speech bubble|
 * BUG-1945: Failure starting Greenshot at system startup|
 * BUG-1949: Can't delete Imgur upload
+* BUG-1965: Activation border around window is visible in the capture
 * FEATURE-945: Added environment variables to the external command
 
 Testing is not finished, use at your own risk...
