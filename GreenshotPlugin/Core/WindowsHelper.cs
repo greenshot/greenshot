@@ -856,7 +856,7 @@ namespace GreenshotPlugin.Core {
 				if (GetClientRect(out clientRect))
 				{
 					Win32Error error = Win32.GetLastErrorCode();
-					LOG.WarnFormat("Couldn't retrieve the client rectangle: {0}", Win32.GetMessage(error));
+					LOG.WarnFormat("Couldn't retrieve the client rectangle for {0}, error: {1}", Text, Win32.GetMessage(error));
 				}
 				return clientRect;
 			}
