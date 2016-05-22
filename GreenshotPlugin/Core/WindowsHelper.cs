@@ -159,7 +159,7 @@ namespace GreenshotPlugin.Core {
 	/// enumeration
 	/// </summary>
 	public class WindowDetails : IEquatable<WindowDetails>{
-		private const string METRO_WINDOWS_CLASS = "Windows.UI.Core.CoreWindow";
+		private const string METRO_WINDOWS_CLASS = "Windows.UI.Core.CoreWindow"; // Windows 10 uses ApplicationFrameWindow
 		private const string METRO_APPLAUNCHER_CLASS = "ImmersiveLauncher";
 		private const string METRO_GUTTER_CLASS = "ImmersiveGutter";
 		
@@ -193,6 +193,10 @@ namespace GreenshotPlugin.Core {
 		private WindowDetails _parent;
 		private bool _frozen;
 
+		/// <summary>
+		/// This checks if the window is a Windows 8 App
+		/// For Windows 10 most normal code works, as it's hosted inside "ApplicationFrameWindow"
+		/// </summary>
 		public bool IsApp {
 			get {
 				return METRO_WINDOWS_CLASS.Equals(ClassName);
@@ -644,7 +648,8 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		public bool Maximised {
 			get {
-				if (IsApp) {
+				if (IsApp)
+				{
 					if (Visible) {
 						Rectangle windowRectangle = WindowRectangle;
 						foreach (Screen screen in Screen.AllScreens) {
@@ -758,6 +763,7 @@ namespace GreenshotPlugin.Core {
 		private Rectangle _previousWindowRectangle = Rectangle.Empty;
 		private long _lastWindowRectangleRetrieveTime;
 		private const long CacheTime = TimeSpan.TicksPerSecond * 2;
+
 		/// <summary>
 		/// Gets the bounding rectangle of the window
 		/// </summary>
@@ -768,14 +774,25 @@ namespace GreenshotPlugin.Core {
 				if (_previousWindowRectangle.IsEmpty || !_frozen) {
 					if (_previousWindowRectangle.IsEmpty || now - _lastWindowRectangleRetrieveTime > CacheTime) {
 						Rectangle windowRect = Rectangle.Empty;
-						if (DWM.IsDwmEnabled() && !Maximised) {
-							if (GetExtendedFrameBounds(out windowRect) && Environment.OSVersion.IsWindows10())
+						if (DWM.IsDwmEnabled())
+						{
+							bool gotFrameBounds = GetExtendedFrameBounds(out windowRect);
+							if (IsApp)
 							{
-								_lastWindowRectangleRetrieveTime = now;
+								// Pre-Cache for Maximised call, this is only on Windows 8 apps (full screen)
+								if (gotFrameBounds)
+								{
+									_previousWindowRectangle = windowRect;
+									_lastWindowRectangleRetrieveTime = now;
+								}
+							}
+							if (gotFrameBounds && Environment.OSVersion.IsWindows10() && !Maximised)
+							{
 								// Somehow DWM doesn't calculate it corectly, there is a 1 pixel border around the capture
 								// Remove this border, currently it's fixed but TODO: Make it depend on the OS?
 								windowRect.Inflate(-1, -1);
 								_previousWindowRectangle = windowRect;
+								_lastWindowRectangleRetrieveTime = now;
 								return windowRect;
 							}
 						}
