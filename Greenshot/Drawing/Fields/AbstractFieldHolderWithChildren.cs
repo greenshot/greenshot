@@ -45,8 +45,8 @@ namespace Greenshot.Drawing.Fields {
 			fieldChangedEventHandler = OnFieldChanged;
 		}
 		
-		[OnDeserialized()]
-		private void OnDeserialized(StreamingContext context) {
+		[OnDeserialized]
+		private void OnFieldHolderWithChildrenDeserialized(StreamingContext context) {
 			// listen to changing properties
 			foreach(IFieldHolder fieldHolder in Children) {
 				fieldHolder.FieldChanged += fieldChangedEventHandler;

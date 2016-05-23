@@ -26,6 +26,7 @@ using System.Windows.Forms;
 using Greenshot.Plugin.Drawing;
 using System.Drawing.Drawing2D;
 using log4net;
+using System.Runtime.Serialization;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -38,9 +39,21 @@ namespace Greenshot.Drawing {
 		protected Cursor cursor;
 
 		public CursorContainer(Surface parent) : base(parent) {
+			Init();
 		}
 
-		public CursorContainer(Surface parent, string filename) : base(parent) {
+		protected override void OnDeserialized(StreamingContext streamingContext)
+		{
+			base.OnDeserialized(streamingContext);
+			Init();
+		}
+
+		private void Init()
+		{
+			CreateDefaultAdorners();
+		}
+
+		public CursorContainer(Surface parent, string filename) : this(parent) {
 			Load(filename);
 		}
 

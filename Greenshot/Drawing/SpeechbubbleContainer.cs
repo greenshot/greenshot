@@ -28,7 +28,8 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Runtime.Serialization;
 
-namespace Greenshot.Drawing {
+namespace Greenshot.Drawing
+{
 	/// <summary>
 	/// Description of SpeechbubbleContainer.
 	/// </summary>
@@ -56,8 +57,8 @@ namespace Greenshot.Drawing {
 		/// Restore the target gripper
 		/// </summary>
 		/// <param name="context"></param>
-		[OnDeserialized]
-		private void SetValuesOnDeserialized(StreamingContext context) {
+		protected override void OnDeserialized(StreamingContext context)
+		{
 			InitTargetGripper(Color.Green, _storedTargetGripperLocation);
 		}
 		#endregion
@@ -115,7 +116,7 @@ namespace Greenshot.Drawing {
 			
 			if (TargetGripper.Location != newGripperLocation) {
 				Invalidate();
-				TargetGripperMove(newGripperLocation.X, newGripperLocation.Y);
+				TargetGripper.Location = newGripperLocation;
 				Invalidate();
 			}
 			return returnValue;
@@ -177,8 +178,7 @@ namespace Greenshot.Drawing {
 		private GraphicsPath CreateTail() {
 			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 
-			int tailLength = GeometryHelper.Distance2D(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2, TargetGripper.Left, TargetGripper.Top);
-			int tailWidth = (Math.Abs(rect.Width) + Math.Abs(rect.Height)) / 20;
+			int tailLength = GeometryHelper.Distance2D(rect.Left + (rect.Width / 2), rect.Top + (rect.Height / 2), TargetGripper.Left, TargetGripper.Top);			int tailWidth = (Math.Abs(rect.Width) + Math.Abs(rect.Height)) / 20;
 
 			// This should fix a problem with the tail being to wide
 			tailWidth = Math.Min(Math.Abs(rect.Width) / 2, tailWidth);
@@ -189,7 +189,6 @@ namespace Greenshot.Drawing {
 			tail.AddLine(tailWidth, 0, 0, -tailLength);
 			tail.CloseFigure();
 
-			int tailAngle = 90 + (int)GeometryHelper.Angle2D(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2, TargetGripper.Left, TargetGripper.Top);
 
 			using (Matrix tailMatrix = new Matrix()) {
 				tailMatrix.Translate(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);

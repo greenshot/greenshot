@@ -27,6 +27,7 @@ using GreenshotPlugin.Core;
 using System.Drawing.Drawing2D;
 using Greenshot.Core;
 using log4net;
+using System.Runtime.Serialization;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -58,6 +59,18 @@ namespace Greenshot.Drawing {
 
 		public ImageContainer(Surface parent) : base(parent) {
 			FieldChanged += BitmapContainer_OnFieldChanged;
+			Init();
+		}
+
+		protected override void OnDeserialized(StreamingContext streamingContext)
+		{
+			base.OnDeserialized(streamingContext);
+			Init();
+		}
+
+		private void Init()
+		{
+			CreateDefaultAdorners();
 		}
 
 		protected override void InitializeFields() {

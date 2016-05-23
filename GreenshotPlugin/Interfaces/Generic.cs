@@ -197,5 +197,7 @@ namespace Greenshot.Plugin {
 			get;
 			set;
 		}
+		int Width { get; }
+		int Height { get; }
 	}
 }

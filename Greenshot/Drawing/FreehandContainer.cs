@@ -47,7 +47,6 @@ namespace Greenshot.Drawing {
 		/// Constructor
 		/// </summary>
 		public FreehandContainer(Surface parent) : base(parent) {
-			Init();
 			Width = parent.Width;
 			Height = parent.Height;
 			Top = 0;
@@ -59,16 +58,6 @@ namespace Greenshot.Drawing {
 			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
 		}
 
-		
-		protected void Init() {
-			if (_grippers != null) {
-				for (int i = 0; i < _grippers.Length; i++) {
-					_grippers[i].Enabled = false;
-					_grippers[i].Visible = false;
-				}
-			}
-		}
-
 		public override void Transform(Matrix matrix) {
 			Point[] points = capturePoints.ToArray();
 
@@ -78,11 +67,7 @@ namespace Greenshot.Drawing {
 			RecalculatePath();
 		}
 		
-		[OnDeserialized]
-		private void OnDeserialized(StreamingContext context) {
-			InitGrippers();
-			DoLayout();
-			Init();
+		protected override void OnDeserialized(StreamingContext context) {
 			RecalculatePath();
 		}
 
@@ -254,17 +239,6 @@ namespace Greenshot.Drawing {
 
 		public override int GetHashCode() {
 			return freehandPath.GetHashCode();
-		}
-
-		/// <summary>
-		/// This is overriden to prevent the grippers to be modified.
-		/// Might not be the best way...
-		/// </summary>
-		protected override void DoLayout() {
-		}
-
-		public override void ShowGrippers() {
-			ResumeLayout();
 		}
 
 		public override bool ClickableAt(int x, int y) {

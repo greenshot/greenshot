@@ -27,6 +27,7 @@ using Greenshot.IniFile;
 using Greenshot.Memento;
 using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
+using Greenshot.Plugin.Drawing.Adorners;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using log4net;
@@ -40,7 +41,8 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 
-namespace Greenshot.Drawing {
+namespace Greenshot.Drawing
+{
 
 	/// <summary>
 	/// Description of Surface.
@@ -992,11 +994,45 @@ namespace Greenshot.Drawing {
 		}
 
 		/// <summary>
+		/// Check if an adorner was "hit", and change the cursor if so
+		/// </summary>
+		/// <param name="mouseEventArgs">MouseEventArgs</param>
+		/// <returns>IAdorner</returns>
+		private IAdorner FindActiveAdorner(MouseEventArgs mouseEventArgs)
+		{
+			foreach(IDrawableContainer drawableContainer in selectedElements)
+			{
+				foreach(IAdorner adorner in drawableContainer.Adorners)
+				{
+					
+					if (adorner.IsActive || adorner.HitTest(mouseEventArgs.Location))
+					{
+						if (adorner.Cursor != null)
+						{
+							Cursor = adorner.Cursor;
+						}
+						return adorner;
+					}
+				}
+			}
+			return null;
+		}
+
+		/// <summary>
 		/// This event handler is called when someone presses the mouse on a surface.
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		void SurfaceMouseDown(object sender, MouseEventArgs e) {
+
+			// Handle Adorners
+			var adorner = FindActiveAdorner(e);
+			if (adorner != null)
+			{
+				adorner.MouseDown(sender, e);
+				return;
+			}
+
 			_mouseStart = e.Location;
 		
 			// check contextmenu
@@ -1068,6 +1104,15 @@ namespace Greenshot.Drawing {
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		void SurfaceMouseUp(object sender, MouseEventArgs e) {
+
+			// Handle Adorners
+			var adorner = FindActiveAdorner(e);
+			if (adorner != null)
+			{
+				adorner.MouseUp(sender, e);
+				return;
+			}
+
 			Point currentMouse = new Point(e.X, e.Y);
 
 			_elements.Status = EditStatus.IDLE;
@@ -1101,7 +1146,7 @@ namespace Greenshot.Drawing {
 			}
 			
 			if (selectedElements.Count > 0) {
-				selectedElements.ShowGrippers();
+				selectedElements.Invalidate();
 				selectedElements.Selected = true;
 			}
 
@@ -1129,6 +1174,14 @@ namespace Greenshot.Drawing {
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		void SurfaceMouseMove(object sender, MouseEventArgs e) {
+			// Handle Adorners
+			var adorner = FindActiveAdorner(e);
+			if (adorner != null)
+			{
+				adorner.MouseMove(sender, e);
+				return;
+			}
+
 			Point currentMouse = e.Location;
 
 			if (DrawingMode != DrawingModes.None) {
@@ -1140,7 +1193,7 @@ namespace Greenshot.Drawing {
 			if (_mouseDown) {
 				if (_mouseDownElement != null) { // an element is currently dragged
 					_mouseDownElement.Invalidate();
-					selectedElements.HideGrippers();
+					selectedElements.Invalidate();
 					// Move the element
 					if (_mouseDownElement.Selected) {
 						if (!_isSurfaceMoveMadeUndoable) {
@@ -1206,15 +1259,15 @@ namespace Greenshot.Drawing {
 		public Image GetImageForExport() {
 			return GetImage(RenderMode.EXPORT);
 		}
-		
+
 		/// <summary>
 		/// This is the event handler for the Paint Event, try to draw as little as possible!
 		/// </summary>
 		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		void SurfacePaint(object sender, PaintEventArgs e) {
-			Graphics targetGraphics = e.Graphics;
-			Rectangle clipRectangle = e.ClipRectangle;
+		/// <param name="paintEventArgs">PaintEventArgs</param>
+		void SurfacePaint(object sender, PaintEventArgs paintEventArgs) {
+			Graphics targetGraphics = paintEventArgs.Graphics;
+			Rectangle clipRectangle = paintEventArgs.ClipRectangle;
 			if (Rectangle.Empty.Equals(clipRectangle)) {
 				LOG.Debug("Empty cliprectangle??");
 				return;
@@ -1248,6 +1301,17 @@ namespace Greenshot.Drawing {
 				DrawBackground(targetGraphics, clipRectangle);
 				targetGraphics.DrawImage(Image, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
 				_elements.Draw(targetGraphics, null, RenderMode.EDIT, clipRectangle);
+			}
+
+			// No clipping for the adorners
+			targetGraphics.ResetClip();
+			// Draw adorners last
+			foreach (var drawableContainer in selectedElements)
+			{
+				foreach(var adorner in drawableContainer.Adorners)
+				{
+					adorner.Paint(paintEventArgs);
+				}
 			}
 		}
 
@@ -1539,9 +1603,9 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="container"></param>
 		public void DeselectElement(IDrawableContainer container) {
-			container.HideGrippers();
 			container.Selected = false;
 			selectedElements.Remove(container);
+			container.Invalidate();
 			FieldAggregator.UnbindElement(container);
 			if (_movingElementChanged != null) {
 				SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs();
@@ -1557,10 +1621,9 @@ namespace Greenshot.Drawing {
 			if (HasSelectedElements) {
 				while(selectedElements.Count > 0) {
 					IDrawableContainer element = selectedElements[0];
-					element.Invalidate();
-					element.HideGrippers();
 					element.Selected = false;
 					selectedElements.Remove(element);
+					element.Invalidate();
 					FieldAggregator.UnbindElement(element);
 				}
 				if (_movingElementChanged != null) {
@@ -1578,7 +1641,6 @@ namespace Greenshot.Drawing {
 		public void SelectElement(IDrawableContainer container) {
 			if (!selectedElements.Contains(container)) {
 				selectedElements.Add(container);
-				container.ShowGrippers();
 				container.Selected = true;
 				FieldAggregator.BindElement(container);
 				if (_movingElementChanged != null) {
