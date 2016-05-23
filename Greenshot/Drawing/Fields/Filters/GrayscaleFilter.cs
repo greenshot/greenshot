@@ -24,7 +24,6 @@ using GreenshotPlugin.Core;
 using Greenshot.Plugin.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing.Filters {
 	/// <summary>

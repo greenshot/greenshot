@@ -21,7 +21,6 @@
 using System;
 using System.Windows.Forms;
 using Greenshot.IniFile;
-using GreenshotPlugin.Core;
 
 namespace Greenshot.Forms {
 	/// <summary>

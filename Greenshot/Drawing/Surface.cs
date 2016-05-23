@@ -27,7 +27,6 @@ using Greenshot.IniFile;
 using Greenshot.Memento;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Drawing;
 using log4net;
 using System;
@@ -101,6 +100,7 @@ namespace Greenshot.Drawing
 				_surfaceSizeChanged -= value;
 			}
 		}
+
 		[NonSerialized]
 		private SurfaceMessageEventHandler _surfaceMessage;
 		public event SurfaceMessageEventHandler SurfaceMessage {
@@ -228,7 +228,7 @@ namespace Greenshot.Drawing
 		public int CountStepLabels(IDrawableContainer stopAtContainer) {
 			int number = 1;
 			foreach (var possibleThis in _stepLabels) {
-				if (possibleThis == stopAtContainer) {
+				if (Equals(possibleThis, stopAtContainer)) {
 					break;
 				}
 				if (IsOnSurface(possibleThis)) {

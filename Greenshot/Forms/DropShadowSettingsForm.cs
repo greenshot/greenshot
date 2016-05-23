@@ -22,7 +22,6 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Core;
-using GreenshotPlugin.Core;
 
 namespace Greenshot.Forms {
 	public partial class DropShadowSettingsForm : BaseForm {

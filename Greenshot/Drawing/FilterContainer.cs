@@ -25,7 +25,6 @@ using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
-using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing {
 	/// <summary>

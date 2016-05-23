@@ -22,7 +22,6 @@
 using Greenshot.Configuration;
 using Greenshot.Memento;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Drawing;
 using System;
 using System.Collections.Generic;

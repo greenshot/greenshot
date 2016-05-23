@@ -27,7 +27,6 @@ using Greenshot.Helpers;
 using Greenshot.IniFile;
 using Greenshot.Memento;
 using Greenshot.Plugin;
-using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Drawing;
 using log4net;
 using System;
@@ -490,22 +489,6 @@ namespace Greenshot.Drawing
 			foreach(IFilter filter in Filters) {
 				filter.Parent = this;
 			}
-		}
-		
-		// drawablecontainers are regarded equal if they are of the same type and their bounds are equal. this should be sufficient.
-		public override bool Equals(object obj) {
-			bool ret = false;
-			if (obj != null && GetType() == obj.GetType()) {
-				DrawableContainer other = obj as DrawableContainer;
-				if (other != null && left==other.left && top==other.top && width==other.width && height==other.height) {
-					ret = true;
-				}
-			}
-			return ret;
-		}
-		
-		public override int GetHashCode() {
-			return left.GetHashCode() ^ top.GetHashCode() ^ width.GetHashCode() ^ height.GetHashCode() ^ GetFields().GetHashCode();
 		}
 		
 		protected void OnPropertyChanged(string propertyName) {

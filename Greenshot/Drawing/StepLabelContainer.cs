@@ -22,7 +22,6 @@
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
-using GreenshotPlugin.Interfaces.Drawing;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -85,9 +84,11 @@ namespace Greenshot.Drawing {
 		protected override void OnDeserialized(StreamingContext context)
 		{
 			Init();
-			_stringFormat = new StringFormat();
-			_stringFormat.Alignment = StringAlignment.Center;
-			_stringFormat.LineAlignment = StringAlignment.Center;
+			_stringFormat = new StringFormat
+			{
+				Alignment = StringAlignment.Center,
+				LineAlignment = StringAlignment.Center
+			};
 		}
 
 		/// <summary>
@@ -95,12 +96,10 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="newParent"></param>
 		protected override void SwitchParent(Surface newParent) {
-			if (Parent != null) {
-				((Surface)Parent).RemoveStepLabel(this);
-			}
+			((Surface)Parent)?.RemoveStepLabel(this);
 			base.SwitchParent(newParent);
 			if (newParent != null) {
-				((Surface)Parent).AddStepLabel(this);
+				((Surface)Parent)?.AddStepLabel(this);
 			}
 		}
 
@@ -202,8 +201,8 @@ namespace Greenshot.Drawing {
 				EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
 			}
 			using (FontFamily fam = new FontFamily(FontFamily.GenericSansSerif.Name)) {
-				using (Font _font = new Font(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel)) {
-					TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, _font);
+				using (Font font = new Font(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel)) {
+					TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, font);
 				}
 			}
 		}

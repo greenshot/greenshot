@@ -25,7 +25,6 @@ using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.UnmanagedHelpers;
 using System.Drawing.Drawing2D;
-using GreenshotPlugin.Interfaces.Drawing;
 using log4net;
 
 namespace Greenshot.Drawing.Filters {

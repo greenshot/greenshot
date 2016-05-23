@@ -25,7 +25,6 @@ using System.Collections.Generic;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
-using GreenshotPlugin.Interfaces;
 using log4net;
 
 namespace Greenshot.Helpers {

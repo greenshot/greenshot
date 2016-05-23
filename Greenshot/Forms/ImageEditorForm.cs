@@ -42,7 +42,7 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
-using GreenshotPlugin.Interfaces;
+using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot {
@@ -58,7 +58,7 @@ namespace Greenshot {
 		private Surface surface;
 		private GreenshotToolStripButton[] toolbarButtons;
 		
-		private static readonly string[] SUPPORTED_CLIPBOARD_FORMATS = {typeof(string).FullName, "Text", typeof(DrawableContainerList).FullName};
+		private static readonly string[] SUPPORTED_CLIPBOARD_FORMATS = {typeof(string).FullName, "Text", typeof(IDrawableContainerList).FullName};
 
 		private bool originalBoldCheckState = false;
 		private bool originalItalicCheckState = false;
