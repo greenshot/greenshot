@@ -45,6 +45,12 @@ namespace Greenshot.Drawing {
 		public StepLabelContainer(Surface parent) : base(parent) {
 			parent.AddStepLabel(this);
 			InitContent();
+			Init();
+		}
+
+		private void Init()
+		{
+			CreateDefaultAdorners();
 		}
 
 		#region Number serializing
@@ -75,8 +81,9 @@ namespace Greenshot.Drawing {
 		/// Restore values that don't serialize
 		/// </summary>
 		/// <param name="context"></param>
-		[OnDeserialized]
-		private void SetValuesOnDeserialized(StreamingContext context) {
+		protected override void OnDeserialized(StreamingContext context)
+		{
+			Init();
 			_stringFormat = new StringFormat();
 			_stringFormat.Alignment = StringAlignment.Center;
 			_stringFormat.LineAlignment = StringAlignment.Center;

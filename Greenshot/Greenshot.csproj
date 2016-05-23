@@ -76,7 +76,8 @@
     <Compile Include="Destinations\PickerDestination.cs" />
     <Compile Include="Destinations\PrinterDestination.cs" />
     <Compile Include="Drawing\Adorners\AbstractAdorner.cs" />
-    <Compile Include="Drawing\Adorners\GripperAdorner.cs" />
+    <Compile Include="Drawing\Adorners\MoveAdorner.cs" />
+    <Compile Include="Drawing\Adorners\ResizeAdorner.cs" />
     <Compile Include="Drawing\Adorners\TargetAdorner.cs" />
     <Compile Include="Drawing\ArrowContainer.cs" />
     <Compile Include="Drawing\Positions.cs" />

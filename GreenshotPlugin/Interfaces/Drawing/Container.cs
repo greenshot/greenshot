@@ -26,6 +26,7 @@ using System.Windows.Forms;
 using System.ComponentModel;
 using System.Collections.Generic;
 using Greenshot.Plugin.Drawing.Adorners;
+using System.Runtime.Serialization;
 
 namespace Greenshot.Plugin.Drawing {
 	public enum RenderMode {EDIT, EXPORT};
@@ -77,8 +78,6 @@ namespace Greenshot.Plugin.Drawing {
 		}
 
 		void ApplyBounds(RectangleF newBounds);
-
-		void DoLayout();
 	
 		bool hasFilters {
 			get;

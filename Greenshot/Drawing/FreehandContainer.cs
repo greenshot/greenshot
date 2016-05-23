@@ -49,7 +49,6 @@ namespace Greenshot.Drawing {
 		/// Constructor
 		/// </summary>
 		public FreehandContainer(Surface parent) : base(parent) {
-			Init();
 			Width = parent.Width;
 			Height = parent.Height;
 			Top = 0;
@@ -61,11 +60,6 @@ namespace Greenshot.Drawing {
 			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
 		}
 
-		
-		protected void Init() {
-			// TODO: Remove grippers
-		}
-
 		public override void Transform(Matrix matrix) {
 			Point[] points = capturePoints.ToArray();
 
@@ -75,11 +69,7 @@ namespace Greenshot.Drawing {
 			RecalculatePath();
 		}
 		
-		[OnDeserialized]
-		private void OnDeserialized(StreamingContext context) {
-			InitGrippers();
-			DoLayout();
-			Init();
+		protected override void OnDeserialized(StreamingContext context) {
 			RecalculatePath();
 		}
 

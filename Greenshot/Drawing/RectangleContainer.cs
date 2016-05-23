@@ -25,6 +25,7 @@ using System.Drawing.Drawing2D;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
+using System.Runtime.Serialization;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -34,6 +35,22 @@ namespace Greenshot.Drawing {
 	public class RectangleContainer : DrawableContainer {
 
 		public RectangleContainer(Surface parent) : base(parent) {
+			Init();
+		}
+
+		/// <summary>
+		/// Do some logic to make sure all field are initiated correctly
+		/// </summary>
+		/// <param name="streamingContext">StreamingContext</param>
+		protected override void OnDeserialized(StreamingContext streamingContext)
+		{
+			base.OnDeserialized(streamingContext);
+			Init();
+		}
+
+		private void Init()
+		{
+			CreateDefaultAdorners();
 		}
 
 		protected override void InitializeFields() {

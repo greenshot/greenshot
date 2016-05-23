@@ -24,6 +24,7 @@ using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
 using System.Drawing.Drawing2D;
+using System.Runtime.Serialization;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -40,6 +41,18 @@ namespace Greenshot.Drawing {
 		}
 		
 		public FilterContainer(Surface parent) : base(parent) {
+			Init();
+		}
+
+		protected override void OnDeserialized(StreamingContext streamingContext)
+		{
+			base.OnDeserialized(streamingContext);
+			Init();
+		}
+
+		private void Init()
+		{
+			CreateDefaultAdorners();
 		}
 
 		protected override void InitializeFields() {

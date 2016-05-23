@@ -35,6 +35,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Runtime.Serialization;
 using System.Windows.Forms;
 
 namespace Greenshot.Drawing
@@ -55,6 +56,20 @@ namespace Greenshot.Drawing
 		private const int M21 = 2;
 		private const int M22 = 3;
 
+		[OnDeserialized]
+		private void OnDeserializedInit(StreamingContext context)
+		{
+			_adorners = new List<IAdorner>();
+			OnDeserialized(context);
+		}
+
+		/// <summary>
+		/// Override to implement your own deserialization logic, like initializing properties which are not serialized
+		/// </summary>
+		/// <param name="streamingContext"></param>
+		protected virtual void OnDeserialized(StreamingContext streamingContext)
+		{
+		}
 
 		protected EditStatus _defaultEditMode = EditStatus.DRAWING;
 		public EditStatus DefaultEditMode {
@@ -111,11 +126,8 @@ namespace Greenshot.Drawing
 			set { SwitchParent((Surface)value); }
 		}
 
-		private bool layoutSuspended;
-
 		[NonSerialized]
 		private TargetAdorner _targetGripper;
-
 		public TargetAdorner TargetGripper {
 			get {
 				return _targetGripper;
@@ -152,7 +164,6 @@ namespace Greenshot.Drawing
 					return;
 				}
 				left = value;
-				DoLayout();
 			}
 		}
 		
@@ -164,7 +175,6 @@ namespace Greenshot.Drawing
 					return;
 				}
 				top = value;
-				DoLayout();
 			}
 		}
 		
@@ -176,7 +186,6 @@ namespace Greenshot.Drawing
 					return;
 				}
 				width = value;
-				DoLayout();
 			}
 		}
 		
@@ -188,7 +197,6 @@ namespace Greenshot.Drawing
 					return;
 				}
 				height = value;
-				DoLayout();
 			}
 		}
 		
@@ -215,7 +223,15 @@ namespace Greenshot.Drawing
 		/// <summary>
 		/// List of available Adorners
 		/// </summary>
-		public IList<IAdorner> Adorners { get; } = new List<IAdorner>();
+		[NonSerialized]
+		private IList<IAdorner> _adorners = new List<IAdorner>();
+		public IList<IAdorner> Adorners
+		{
+			get
+			{
+				return _adorners;
+			}
+		}
 
 		[NonSerialized]
 		// will store current bounds of this DrawableContainer before starting a resize
@@ -245,7 +261,6 @@ namespace Greenshot.Drawing
 		public DrawableContainer(Surface parent) {
 			InitializeFields();
 			_parent = parent;
-			InitControls();
 		}
 
 		public void Add(IFilter filter) {
@@ -319,12 +334,6 @@ namespace Greenshot.Drawing
 		public virtual bool InitContent() { return true; }
 		
 		public virtual void OnDoubleClick() {}
-		
-		private void InitControls() {
-			InitGrippers();
-			
-			DoLayout();
-		}
 
 		/// <summary>
 		/// Initialize a target gripper
@@ -334,29 +343,23 @@ namespace Greenshot.Drawing
 			Adorners.Add(_targetGripper);
 		}
 
-		protected void InitGrippers() {
+		/// <summary>
+		/// Create the default adorners for a rectangle based container
+		/// </summary>
+		protected void CreateDefaultAdorners() {
+			if (Adorners.Count > 0)
+			{
+				LOG.Warn("Adorners are already defined!");
+			}
 			// Create the GripperAdorners
-			Adorners.Add(new GripperAdorner(this, Positions.TopLeft));
-			Adorners.Add(new GripperAdorner(this, Positions.TopCenter));
-			Adorners.Add(new GripperAdorner(this, Positions.TopRight));
-			Adorners.Add(new GripperAdorner(this, Positions.BottomLeft));
-			Adorners.Add(new GripperAdorner(this, Positions.BottomCenter));
-			Adorners.Add(new GripperAdorner(this, Positions.BottomRight));
-			Adorners.Add(new GripperAdorner(this, Positions.MiddleLeft));
-			Adorners.Add(new GripperAdorner(this, Positions.MiddleRight));
-		}
-		
-		public void SuspendLayout() {
-			layoutSuspended = true;
-		}
-		
-		public void ResumeLayout() {
-			layoutSuspended = false;
-			DoLayout();
-		}
-		
-		public virtual void DoLayout() {
-
+			Adorners.Add(new ResizeAdorner(this, Positions.TopLeft));
+			Adorners.Add(new ResizeAdorner(this, Positions.TopCenter));
+			Adorners.Add(new ResizeAdorner(this, Positions.TopRight));
+			Adorners.Add(new ResizeAdorner(this, Positions.BottomLeft));
+			Adorners.Add(new ResizeAdorner(this, Positions.BottomCenter));
+			Adorners.Add(new ResizeAdorner(this, Positions.BottomRight));
+			Adorners.Add(new ResizeAdorner(this, Positions.MiddleLeft));
+			Adorners.Add(new ResizeAdorner(this, Positions.MiddleRight));
 		}
 				
 		public bool hasFilters {
@@ -414,10 +417,8 @@ namespace Greenshot.Drawing
 		}
 		
 		public void ResizeTo(int width, int height, int anchorPosition) {
-			SuspendLayout();
 			Width = width;
 			Height = height;
-			ResumeLayout();
 		}
 
 		/// <summary>
@@ -429,10 +430,8 @@ namespace Greenshot.Drawing
 		}
 		
 		public void MoveBy(int dx, int dy) {
-			SuspendLayout();
 			Left += dx;
 			Top += dy;
-			ResumeLayout();
 		}
 		
 		/// <summary>
@@ -455,7 +454,6 @@ namespace Greenshot.Drawing
 		/// <returns>true if the event is handled, false if the surface needs to handle it</returns>
 		public virtual bool HandleMouseMove(int x, int y) {
 			Invalidate();
-			SuspendLayout();
 			
 			// reset "workrbench" rectangle to current bounds
 			_boundsAfterResize.X = _boundsBeforeResize.Left;
@@ -468,7 +466,6 @@ namespace Greenshot.Drawing
 			// apply scaled bounds to this DrawableContainer
 			ApplyBounds(_boundsAfterResize);
 			
-			ResumeLayout();
 			Invalidate();
 			return true;
 		}
@@ -482,6 +479,7 @@ namespace Greenshot.Drawing
 		}
 		
 		protected virtual void SwitchParent(Surface newParent) {
+			_parent = newParent;
 			foreach(IFilter filter in Filters) {
 				filter.Parent = this;
 			}
@@ -576,7 +574,6 @@ namespace Greenshot.Drawing
 			if (matrix == null) {
 				return;
 			}
-			SuspendLayout();
 			Point topLeft = new Point(Left, Top);
 			Point bottomRight = new Point(Left + Width, Top + Height);
 			Point[] points = new[] { topLeft, bottomRight };
@@ -586,7 +583,6 @@ namespace Greenshot.Drawing
 			Top = points[0].Y;
 			Width = points[1].X - points[0].X;
 			Height = points[1].Y - points[0].Y;
-			ResumeLayout();
 		}
 
 		protected virtual ScaleHelper.IDoubleProcessor GetAngleRoundProcessor() {

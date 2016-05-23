@@ -21,7 +21,6 @@
 
 using Greenshot.Configuration;
 using Greenshot.Core;
-using Greenshot.Drawing.Adorners;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.IniFile;
@@ -42,7 +41,8 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 
-namespace Greenshot.Drawing {
+namespace Greenshot.Drawing
+{
 
 	/// <summary>
 	/// Description of Surface.
@@ -1300,8 +1300,10 @@ namespace Greenshot.Drawing {
 				_elements.Draw(targetGraphics, null, RenderMode.EDIT, clipRectangle);
 			}
 
+			// No clipping for the adorners
+			targetGraphics.ResetClip();
 			// Draw adorners last
-			foreach(var drawableContainer in selectedElements)
+			foreach (var drawableContainer in selectedElements)
 			{
 				foreach(var adorner in drawableContainer.Adorners)
 				{

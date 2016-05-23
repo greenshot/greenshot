@@ -37,15 +37,16 @@ namespace Greenshot.Drawing {
 			base.InitializeFields();
 			AddField(GetType(), FieldType.PREPARED_FILTER_OBFUSCATE, PreparedFilter.PIXELIZE);
 		}
-		
-		[OnDeserialized]
-		private void OnDeserialized(StreamingContext context) {
+
+		protected override void OnDeserialized(StreamingContext context)
+		{
 			Init();
 		}
 		
 		private void Init() {
 			FieldChanged += ObfuscateContainer_OnFieldChanged;
 			ConfigurePreparedFilters();
+			CreateDefaultAdorners();
 		}	
 		
 		protected void ObfuscateContainer_OnFieldChanged(object sender, FieldChangedEventArgs e) {

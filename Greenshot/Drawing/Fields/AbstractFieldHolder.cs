@@ -55,7 +55,7 @@ namespace Greenshot.Drawing.Fields {
 		public AbstractFieldHolder() {}
 		
 		[OnDeserialized]
-		private void OnDeserialized(StreamingContext context) {
+		private void OnFieldHolderDeserialized(StreamingContext context) {
 			fieldsByType = new Dictionary<FieldType, Field>();
 			// listen to changing properties
 			foreach(Field field in fields) {

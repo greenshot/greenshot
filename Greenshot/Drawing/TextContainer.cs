@@ -98,9 +98,13 @@ namespace Greenshot.Drawing {
 			AddField(GetType(), FieldType.TEXT_HORIZONTAL_ALIGNMENT, StringAlignment.Center);
 			AddField(GetType(), FieldType.TEXT_VERTICAL_ALIGNMENT, StringAlignment.Center);
 		}
-		
-		[OnDeserialized]
-		private void OnDeserialized(StreamingContext context) {
+
+		/// <summary>
+		/// Do some logic to make sure all field are initiated correctly
+		/// </summary>
+		/// <param name="streamingContext">StreamingContext</param>
+		protected override void OnDeserialized(StreamingContext streamingContext) {
+			base.OnDeserialized(streamingContext);
 			Init();
 		}
 

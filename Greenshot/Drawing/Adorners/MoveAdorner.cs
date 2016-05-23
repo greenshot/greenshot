@@ -29,16 +29,16 @@ using System.Windows.Forms;
 namespace Greenshot.Drawing.Adorners
 {
 	/// <summary>
-	/// This is the default "legacy" gripper adorner, not the one used for the tail in the speech-bubble
+	/// This is the adorner for the line based containers
 	/// </summary>
-	public class GripperAdorner : AbstractAdorner
+	public class MoveAdorner : AbstractAdorner
 	{
 		private Rectangle _boundsBeforeResize = Rectangle.Empty;
 		private RectangleF _boundsAfterResize = RectangleF.Empty;
 
 		public Positions Position { get; private set; }
 
-		public GripperAdorner(IDrawableContainer owner, Positions position) : base(owner)
+		public MoveAdorner(IDrawableContainer owner, Positions position) : base(owner)
 		{
 			Position = position;
 		}
@@ -50,28 +50,7 @@ namespace Greenshot.Drawing.Adorners
 		{
 			get
 			{
-				bool isNotSwitched = Owner.Width >= 0;
-				if (Owner.Height < 0)
-				{
-					isNotSwitched = !isNotSwitched;
-				}
-				switch (Position)
-				{
-					case Positions.TopLeft:
-					case Positions.BottomRight:
-						return isNotSwitched ? Cursors.SizeNWSE : Cursors.SizeNESW;
-					case Positions.TopRight:
-					case Positions.BottomLeft:
-						return isNotSwitched ? Cursors.SizeNESW : Cursors.SizeNWSE;
-					case Positions.MiddleLeft:
-					case Positions.MiddleRight:
-						return Cursors.SizeWE;
-					case Positions.TopCenter:
-					case Positions.BottomCenter:
-						return Cursors.SizeNS;
-					default:
-						return Cursors.SizeAll;
-				}
+				return Cursors.SizeAll;
 			}
 		}
 
@@ -101,8 +80,6 @@ namespace Greenshot.Drawing.Adorners
 			Owner.Invalidate();
 			Owner.MakeBoundsChangeUndoable(false);
 
-			//SuspendLayout();
-
 			// reset "workbench" rectangle to current bounds
 			_boundsAfterResize.X = _boundsBeforeResize.X;
 			_boundsAfterResize.Y = _boundsBeforeResize.Y;
@@ -114,9 +91,6 @@ namespace Greenshot.Drawing.Adorners
 
 			// apply scaled bounds to this DrawableContainer
 			Owner.ApplyBounds(_boundsAfterResize);
-
-			//ResumeLayout();
-			Owner.DoLayout();
 
 			Owner.Invalidate();
 		}
@@ -186,7 +160,6 @@ namespace Greenshot.Drawing.Adorners
 
 			targetGraphics.FillRectangle(Brushes.Black, bounds.X, bounds.Y, bounds.Width , bounds.Height);
 			targetGraphics.Restore(state);
-
 		}
 	}
 }
