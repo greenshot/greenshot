@@ -998,13 +998,14 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="mouseEventArgs">MouseEventArgs</param>
 		/// <returns>IAdorner</returns>
-		private IAdorner AdornersHitTest(MouseEventArgs mouseEventArgs)
+		private IAdorner FindActiveAdorner(MouseEventArgs mouseEventArgs)
 		{
 			foreach(IDrawableContainer drawableContainer in selectedElements)
 			{
 				foreach(IAdorner adorner in drawableContainer.Adorners)
 				{
-					if (adorner.HitTest(mouseEventArgs.Location))
+					
+					if (adorner.IsActive || adorner.HitTest(mouseEventArgs.Location))
 					{
 						if (adorner.Cursor != null)
 						{
@@ -1025,7 +1026,7 @@ namespace Greenshot.Drawing {
 		void SurfaceMouseDown(object sender, MouseEventArgs e) {
 
 			// Handle Adorners
-			var adorner = AdornersHitTest(e);
+			var adorner = FindActiveAdorner(e);
 			if (adorner != null)
 			{
 				adorner.MouseDown(sender, e);
@@ -1102,7 +1103,7 @@ namespace Greenshot.Drawing {
 		void SurfaceMouseUp(object sender, MouseEventArgs e) {
 
 			// Handle Adorners
-			var adorner = AdornersHitTest(e);
+			var adorner = FindActiveAdorner(e);
 			if (adorner != null)
 			{
 				adorner.MouseUp(sender, e);
@@ -1171,7 +1172,7 @@ namespace Greenshot.Drawing {
 		/// <param name="e"></param>
 		void SurfaceMouseMove(object sender, MouseEventArgs e) {
 			// Handle Adorners
-			var adorner = AdornersHitTest(e);
+			var adorner = FindActiveAdorner(e);
 			if (adorner != null)
 			{
 				adorner.MouseMove(sender, e);

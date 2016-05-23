@@ -30,41 +30,12 @@ namespace Greenshot.Drawing.Adorners
 	/// <summary>
 	/// This implements the special "gripper" for the Speech-Bubble tail
 	/// </summary>
-	public class TargetAdorner : IAdorner
+	public class TargetAdorner : AbstractAdorner
 	{
-		private EditStatus _editStatus;
 
-		public TargetAdorner(IDrawableContainer owner, Point location)
+		public TargetAdorner(IDrawableContainer owner, Point location) : base(owner)
 		{
-			Owner = owner;
 			Location = location;
-		}
-
-		/// <summary>
-		/// Returns the cursor for when the mouse is over the adorner
-		/// </summary>
-		public Cursor Cursor
-		{
-			get
-			{
-				return Cursors.SizeAll;
-			}
-		}
-
-		public IDrawableContainer Owner
-		{
-			get;
-			set;
-		}
-
-		/// <summary>
-		/// Test if the point is inside the adorner
-		/// </summary>
-		/// <param name="point"></param>
-		/// <returns></returns>
-		public bool HitTest(Point point)
-		{
-			return Bounds.Contains(point);
 		}
 
 		/// <summary>
@@ -72,9 +43,9 @@ namespace Greenshot.Drawing.Adorners
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="mouseEventArgs"></param>
-		public void MouseDown(object sender, MouseEventArgs mouseEventArgs)
+		public override void MouseDown(object sender, MouseEventArgs mouseEventArgs)
 		{
-			_editStatus = EditStatus.MOVING;
+			EditStatus = EditStatus.MOVING;
 		}
 
 		/// <summary>
@@ -82,8 +53,13 @@ namespace Greenshot.Drawing.Adorners
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="mouseEventArgs"></param>
-		public void MouseMove(object sender, MouseEventArgs mouseEventArgs)
+		public override void MouseMove(object sender, MouseEventArgs mouseEventArgs)
 		{
+			if (EditStatus != EditStatus.MOVING)
+			{
+				return;
+			}
+
 			Owner.Invalidate();
 			Point newGripperLocation = new Point(mouseEventArgs.X, mouseEventArgs.Y);
 			Rectangle surfaceBounds = new Rectangle(0, 0, Owner.Parent.Width, Owner.Parent.Height);
@@ -114,56 +90,23 @@ namespace Greenshot.Drawing.Adorners
 		}
 
 		/// <summary>
-		/// Handle the mouse up
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="mouseEventArgs"></param>
-		public void MouseUp(object sender, MouseEventArgs mouseEventArgs)
-		{
-			_editStatus = EditStatus.IDLE;
-			Owner.Invalidate();
-		}
-
-		/// <summary>
-		/// Return the location of the adorner
-		/// </summary>
-		public Point Location
-		{
-			get;
-			set;
-		}
-
-		/// <summary>
-		/// Return the bounds of the Adorner
-		/// </summary>
-		public Rectangle Bounds
-		{
-			get
-			{
-				Point location = Location;
-				Size size = new Size(10, 10);
-				return new Rectangle(location.X - (size.Width / 2), location.Y - (size.Height / 2), size.Width, size.Height);
-			}
-		}
-
-		/// <summary>
 		/// Draw the adorner
 		/// </summary>
 		/// <param name="paintEventArgs">PaintEventArgs</param>
-		public void Paint(PaintEventArgs paintEventArgs)
+		public override void Paint(PaintEventArgs paintEventArgs)
 		{
 			Graphics targetGraphics = paintEventArgs.Graphics;
 			Rectangle clipRectangle = paintEventArgs.ClipRectangle;
 
 			var bounds = Bounds;
-			targetGraphics.DrawRectangle(Pens.Green, bounds.X, bounds.Y, bounds.Width, bounds.Height);
+			targetGraphics.FillRectangle(Brushes.Green, bounds.X, bounds.Y, bounds.Width, bounds.Height);
 		}
 
 		/// <summary>
 		/// Made sure this adorner is transformed
 		/// </summary>
 		/// <param name="matrix">Matrix</param>
-		public void Transform(Matrix matrix)
+		public override void Transform(Matrix matrix)
 		{
 			if (matrix == null)
 			{

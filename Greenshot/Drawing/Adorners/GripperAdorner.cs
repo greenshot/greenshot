@@ -20,49 +20,49 @@
  */
 
 using Greenshot.Helpers;
-using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
 using Greenshot.Plugin.Drawing.Adorners;
-using System;
 using System.Drawing;
-using System.Windows.Forms;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 
 namespace Greenshot.Drawing.Adorners
 {
 	/// <summary>
 	/// This is the default "legacy" gripper adorner, not the one used for the tail in the speech-bubble
 	/// </summary>
-	public class GripperAdorner : IAdorner
+	public class GripperAdorner : AbstractAdorner
 	{
 		private Rectangle _boundsBeforeResize = Rectangle.Empty;
 		private RectangleF _boundsAfterResize = RectangleF.Empty;
-		private EditStatus _editStatus;
 
 		public Positions Position { get; private set; }
 
-		public GripperAdorner(IDrawableContainer owner, Positions position)
+		public GripperAdorner(IDrawableContainer owner, Positions position) : base(owner)
 		{
-			Owner = owner;
 			Position = position;
 		}
 
 		/// <summary>
 		/// Returns the cursor for when the mouse is over the adorner
 		/// </summary>
-		public Cursor Cursor
+		public override Cursor Cursor
 		{
 			get
 			{
-				bool horizontalSwitched = Owner.Width < 0;
+				bool isNotSwitched = Owner.Width >= 0;
+				if (Owner.Height < 0)
+				{
+					isNotSwitched = !isNotSwitched;
+				}
 				switch (Position)
 				{
 					case Positions.TopLeft:
 					case Positions.BottomRight:
-						return horizontalSwitched ? Cursors.SizeNWSE : Cursors.SizeNESW;
+						return isNotSwitched ? Cursors.SizeNWSE : Cursors.SizeNESW;
 					case Positions.TopRight:
 					case Positions.BottomLeft:
-						return horizontalSwitched ? Cursors.SizeNESW : Cursors.SizeNWSE;
+						return isNotSwitched ? Cursors.SizeNESW : Cursors.SizeNWSE;
 					case Positions.MiddleLeft:
 					case Positions.MiddleRight:
 						return Cursors.SizeWE;
@@ -75,30 +75,14 @@ namespace Greenshot.Drawing.Adorners
 			}
 		}
 
-		public IDrawableContainer Owner
-		{
-			get;
-			set;
-		}
-
-		/// <summary>
-		/// Test if the point is inside the adorner
-		/// </summary>
-		/// <param name="point"></param>
-		/// <returns></returns>
-		public bool HitTest(Point point)
-		{
-			return Bounds.Contains(point);
-		}
-
 		/// <summary>
 		/// Handle the mouse down
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="mouseEventArgs"></param>
-		public void MouseDown(object sender, MouseEventArgs mouseEventArgs)
+		public override void MouseDown(object sender, MouseEventArgs mouseEventArgs)
 		{
-			_editStatus = EditStatus.RESIZING;
+			EditStatus = EditStatus.RESIZING;
 			_boundsBeforeResize = new Rectangle(Owner.Left, Owner.Top, Owner.Width, Owner.Height);
 			_boundsAfterResize = _boundsBeforeResize;
 		}
@@ -108,51 +92,39 @@ namespace Greenshot.Drawing.Adorners
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="mouseEventArgs"></param>
-		public void MouseMove(object sender, MouseEventArgs mouseEventArgs)
+		public override void MouseMove(object sender, MouseEventArgs mouseEventArgs)
 		{
-			Owner.Invalidate();
-			int absX = Owner.Left + mouseEventArgs.X;
-			int absY = Owner.Top + mouseEventArgs.Y;
-
-			if (_editStatus.Equals(EditStatus.RESIZING))
+			if (EditStatus != EditStatus.RESIZING)
 			{
-				Owner.MakeBoundsChangeUndoable(false);
-
-				//SuspendLayout();
-
-				// reset "workbench" rectangle to current bounds
-				_boundsAfterResize.X = _boundsBeforeResize.X;
-				_boundsAfterResize.Y = _boundsBeforeResize.Y;
-				_boundsAfterResize.Width = _boundsBeforeResize.Width;
-				_boundsAfterResize.Height = _boundsBeforeResize.Height;
-
-				// calculate scaled rectangle
-				ScaleHelper.Scale(ref _boundsAfterResize, Position, new PointF(absX, absY), ScaleHelper.GetScaleOptions());
-
-				// apply scaled bounds to this DrawableContainer
-				Owner.ApplyBounds(_boundsAfterResize);
-
-				//ResumeLayout();
-				Owner.DoLayout();
+				return;
 			}
 			Owner.Invalidate();
-		}
+			Owner.MakeBoundsChangeUndoable(false);
 
-		/// <summary>
-		/// Handle the mouse up
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="mouseEventArgs"></param>
-		public void MouseUp(object sender, MouseEventArgs mouseEventArgs)
-		{
-			_editStatus = EditStatus.IDLE;
+			//SuspendLayout();
+
+			// reset "workbench" rectangle to current bounds
+			_boundsAfterResize.X = _boundsBeforeResize.X;
+			_boundsAfterResize.Y = _boundsBeforeResize.Y;
+			_boundsAfterResize.Width = _boundsBeforeResize.Width;
+			_boundsAfterResize.Height = _boundsBeforeResize.Height;
+
+			// calculate scaled rectangle
+			ScaleHelper.Scale(ref _boundsAfterResize, Position, new PointF(mouseEventArgs.X, mouseEventArgs.Y), ScaleHelper.GetScaleOptions());
+
+			// apply scaled bounds to this DrawableContainer
+			Owner.ApplyBounds(_boundsAfterResize);
+
+			//ResumeLayout();
+			Owner.DoLayout();
+
 			Owner.Invalidate();
 		}
 
 		/// <summary>
 		/// Return the location of the adorner
 		/// </summary>
-		public Point Location {
+		public override Point Location {
 			get
 			{
 				int x = 0,y = 0;
@@ -196,37 +168,25 @@ namespace Greenshot.Drawing.Adorners
 		}
 
 		/// <summary>
-		/// Return the bounds of the Adorner
-		/// </summary>
-		public Rectangle Bounds
-		{
-			get
-			{
-				Point location = Location;
-				Size size = new Size(10, 10);
-				return new Rectangle(location.X - (size.Width / 2), location.Y - (size.Height / 2), size.Width, size.Height);
-			}
-		}
-
-		/// <summary>
 		/// Draw the adorner
 		/// </summary>
 		/// <param name="paintEventArgs">PaintEventArgs</param>
-		public void Paint(PaintEventArgs paintEventArgs)
+		public override void Paint(PaintEventArgs paintEventArgs)
 		{
 			Graphics targetGraphics = paintEventArgs.Graphics;
 			Rectangle clipRectangle = paintEventArgs.ClipRectangle;
 
 			var bounds = Bounds;
-			targetGraphics.DrawRectangle(Pens.Black, bounds.X, bounds.Y, bounds.Width , bounds.Height);
-		}
+			GraphicsState state = targetGraphics.Save();
 
-		/// <summary>
-		/// We ignore the Transform, as the coordinates are directly bound to those of the owner
-		/// </summary>
-		/// <param name="matrix"></param>
-		public void Transform(Matrix matrix)
-		{
+			targetGraphics.SmoothingMode = SmoothingMode.None;
+			targetGraphics.CompositingMode = CompositingMode.SourceCopy;
+			targetGraphics.PixelOffsetMode = PixelOffsetMode.Half;
+			targetGraphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+
+			targetGraphics.FillRectangle(Brushes.Black, bounds.X, bounds.Y, bounds.Width , bounds.Height);
+			targetGraphics.Restore(state);
+
 		}
 	}
 }

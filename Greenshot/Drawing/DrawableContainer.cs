@@ -331,6 +331,7 @@ namespace Greenshot.Drawing
 		/// </summary>
 		protected void InitTargetGripper(Color gripperColor, Point location) {
 			_targetGripper = new TargetAdorner(this, location);
+			Adorners.Add(_targetGripper);
 		}
 
 		protected void InitGrippers() {

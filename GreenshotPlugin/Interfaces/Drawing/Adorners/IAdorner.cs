@@ -28,6 +28,16 @@ namespace Greenshot.Plugin.Drawing.Adorners
 	public interface IAdorner
 	{
 		/// <summary>
+		/// Returns if this adorner is active
+		/// </summary>
+		bool IsActive { get; }
+
+		/// <summary>
+		/// The current edit status, this is needed to locate the adorner to send events to
+		/// </summary>
+		EditStatus EditStatus { get; }
+
+		/// <summary>
 		/// The owner of this adorner
 		/// </summary>
 		IDrawableContainer Owner { get; }
