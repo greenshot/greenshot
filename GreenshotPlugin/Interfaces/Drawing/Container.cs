@@ -24,6 +24,8 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
 using System.ComponentModel;
+using System.Collections.Generic;
+using Greenshot.Plugin.Drawing.Adorners;
 
 namespace Greenshot.Plugin.Drawing {
 	public enum RenderMode {EDIT, EXPORT};
@@ -73,7 +75,11 @@ namespace Greenshot.Plugin.Drawing {
 		Rectangle DrawingBounds {
 			get;
 		}
-		
+
+		void ApplyBounds(RectangleF newBounds);
+
+		void DoLayout();
+	
 		bool hasFilters {
 			get;
 		}
@@ -85,8 +91,6 @@ namespace Greenshot.Plugin.Drawing {
 		void AlignToParent(HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment);
 		void Invalidate();
 		bool ClickableAt(int x, int y);
-		void HideGrippers();
-		void ShowGrippers();
 		void MoveBy(int x, int y);
 		void Transform(Matrix matrix);
 		bool HandleMouseDown(int x, int y);
@@ -97,6 +101,11 @@ namespace Greenshot.Plugin.Drawing {
 		EditStatus DefaultEditMode {
 			get;
 		}
+
+		/// <summary>
+		/// Available adorners for the DrawableContainer
+		/// </summary>
+		IList<IAdorner> Adorners { get; }
 	}
 
 	public interface ITextContainer: IDrawableContainer {

@@ -19,38 +19,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Drawing;
-using System.Windows.Forms;
-
-namespace Greenshot.Drawing {
+namespace Greenshot.Drawing
+{
 	/// <summary>
-	/// Grippers are the dragable edges of our containers
+	/// Position 
 	/// </summary>
-	public class Gripper : Label {
-		/// <summary>
-		/// Constants for anchor/gripper position:
-		/// 0 1 2
-		/// 7   3
-		/// 6 5 4
-		/// </summary>
-		public const int POSITION_TOP_LEFT = 0;
-		public const int POSITION_TOP_CENTER = 1;
-		public const int POSITION_TOP_RIGHT = 2;
-		public const int POSITION_MIDDLE_RIGHT = 3;
-		public const int POSITION_BOTTOM_RIGHT = 4;
-		public const int POSITION_BOTTOM_CENTER = 5;
-		public const int POSITION_BOTTOM_LEFT = 6;
-		public const int POSITION_MIDDLE_LEFT = 7;
-
-		public int Position {
-			get;
-			set;
-		}
-
-		public Gripper() {
-			Width = 5;
-			Height = 5;
-			BackColor = Color.Black;
-		}
+	public enum Positions : int
+	{
+		TopLeft = 0,
+		TopCenter = 1,
+		TopRight = 2,
+		MiddleRight = 3,
+		BottomRight = 4,
+		BottomCenter = 5,
+		BottomLeft = 6,
+		MiddleLeft = 7
 	}
 }

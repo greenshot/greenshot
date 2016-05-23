@@ -75,7 +75,10 @@
     <Compile Include="Destinations\FileWithDialogDestination.cs" />
     <Compile Include="Destinations\PickerDestination.cs" />
     <Compile Include="Destinations\PrinterDestination.cs" />
+    <Compile Include="Drawing\Adorners\GripperAdorner.cs" />
+    <Compile Include="Drawing\Adorners\TargetAdorner.cs" />
     <Compile Include="Drawing\ArrowContainer.cs" />
+    <Compile Include="Drawing\Positions.cs" />
     <Compile Include="Drawing\StepLabelContainer.cs" />
     <Compile Include="Drawing\ImageContainer.cs" />
     <Compile Include="Drawing\CropContainer.cs" />
@@ -101,9 +104,6 @@
     <Compile Include="Drawing\Filters\MagnifierFilter.cs" />
     <Compile Include="Drawing\Filters\PixelizationFilter.cs" />
     <Compile Include="Drawing\Filters\BlurFilter.cs" />
-    <Compile Include="Drawing\Gripper.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Drawing\HighlightContainer.cs" />
     <Compile Include="Drawing\IconContainer.cs" />
     <Compile Include="Drawing\LineContainer.cs" />

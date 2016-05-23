@@ -66,6 +66,7 @@
     <Compile Include="IEInterop\IHTMLWindow3.cs" />
     <Compile Include="IEInterop\IHTMLWindow4.cs" />
     <Compile Include="IEInterop\IWebBrowser2.cs" />
+    <Compile Include="Interfaces\Drawing\Adorners\IAdorner.cs" />
     <Compile Include="Interop\Base.cs" />
     <Compile Include="Interop\ComProgIdAttribute.cs" />
     <Compile Include="Interop\COMWrapper.cs" />

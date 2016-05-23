@@ -118,7 +118,7 @@ namespace Greenshot.Drawing {
 			
 			if (TargetGripper.Location != newGripperLocation) {
 				Invalidate();
-				TargetGripperMove(newGripperLocation.X, newGripperLocation.Y);
+				TargetGripper.Location = newGripperLocation;
 				Invalidate();
 			}
 			return returnValue;
@@ -180,7 +180,7 @@ namespace Greenshot.Drawing {
 		private GraphicsPath CreateTail() {
 			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 
-			int tailLength = GeometryHelper.Distance2D(rect.Left + (rect.Width / 2), rect.Top + (rect.Height / 2), TargetGripper.Left, TargetGripper.Top);
+			int tailLength = GeometryHelper.Distance2D(rect.Left + (rect.Width / 2), rect.Top + (rect.Height / 2), TargetGripper.Location.X, TargetGripper.Location.Y);
 			int tailWidth = (Math.Abs(rect.Width) + Math.Abs(rect.Height)) / 20;
 
 			// This should fix a problem with the tail being to wide
@@ -192,7 +192,7 @@ namespace Greenshot.Drawing {
 			tail.AddLine(tailWidth, 0, 0, -tailLength);
 			tail.CloseFigure();
 
-			int tailAngle = 90 + (int)GeometryHelper.Angle2D(rect.Left + (rect.Width / 2), rect.Top + (rect.Height / 2), TargetGripper.Left, TargetGripper.Top);
+			int tailAngle = 90 + (int)GeometryHelper.Angle2D(rect.Left + (rect.Width / 2), rect.Top + (rect.Height / 2), TargetGripper.Location.X, TargetGripper.Location.Y);
 
 			using (Matrix tailMatrix = new Matrix()) {
 				tailMatrix.Translate(rect.Left + (rect.Width / 2), rect.Top + (rect.Height / 2));

@@ -53,11 +53,7 @@ namespace Greenshot.Drawing {
 		}
 
 		protected void Init() {
-			if (_grippers != null) {
-				foreach (int index in new[] { 1, 2, 3, 5, 6, 7 }) {
-					_grippers[index].Enabled = false;
-				}
-			}
+			// TODO: Remove the unneeded grippers (1, 2, 3, 5, 6, 7)
 		}
 		
 		public override void Draw(Graphics graphics, RenderMode rm) {

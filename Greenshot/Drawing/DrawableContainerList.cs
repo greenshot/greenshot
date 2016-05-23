@@ -172,26 +172,6 @@ namespace Greenshot.Drawing {
 		}
 		
 		/// <summary>
-		/// Hides the grippers of all elements in the list.
-		/// </summary>
-		public void HideGrippers() {
-			foreach(var dc in this) {
-				dc.HideGrippers();
-				dc.Invalidate();
-			}
-		}
-		
-		/// <summary>
-		/// Shows the grippers of all elements in the list.
-		/// </summary>
-		public void ShowGrippers() {
-			foreach(var dc in this) {
-				dc.ShowGrippers();
-				dc.Invalidate();
-			}
-		}
-		
-		/// <summary>
 		/// Indicates whether on of the elements is clickable at the given location
 		/// </summary>
 		/// <param name="x">x coordinate to be checked</param>
