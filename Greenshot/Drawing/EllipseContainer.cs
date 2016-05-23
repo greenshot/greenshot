@@ -33,6 +33,7 @@ namespace Greenshot.Drawing {
 	[Serializable()] 
 	public class EllipseContainer : DrawableContainer {
 		public EllipseContainer(Surface parent) : base(parent) {
+			CreateDefaultAdorners();
 		}
 
 		protected override void InitializeFields() {

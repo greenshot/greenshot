@@ -20,6 +20,7 @@
  */
 
 using System.Drawing;
+using System.Runtime.Serialization;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
@@ -30,8 +31,19 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	public class CropContainer : DrawableContainer {
 		public CropContainer(Surface parent) : base(parent) {
+			Init();
 		}
 
+		protected override void OnDeserialized(StreamingContext streamingContext)
+		{
+			base.OnDeserialized(streamingContext);
+			Init();
+		}
+
+		private void Init()
+		{
+			CreateDefaultAdorners();
+		}
 		protected override void InitializeFields() {
 			AddField(GetType(), FieldType.FLAGS, FieldType.Flag.CONFIRMABLE);
 		}

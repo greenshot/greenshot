@@ -42,8 +42,8 @@ namespace Greenshot.Drawing {
 			AddField(GetType(), FieldType.PREPARED_FILTER_HIGHLIGHT, PreparedFilter.TEXT_HIGHTLIGHT);
 		}
 
-		[OnDeserialized]
-		private void OnDeserialized(StreamingContext context) {
+		protected override void OnDeserialized(StreamingContext context)
+		{
 			Init();
 		}
 		
