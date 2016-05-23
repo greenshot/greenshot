@@ -21,6 +21,7 @@
 using System;
 
 using Greenshot.Plugin;
+using GreenshotPlugin.Interfaces;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>

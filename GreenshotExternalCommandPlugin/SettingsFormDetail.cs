@@ -30,11 +30,11 @@ namespace ExternalCommand {
 	/// Description of SettingsFormDetail.
 	/// </summary>
 	public partial class SettingsFormDetail : ExternalCommandForm {
-		private string commando;
-		private int commandIndex;
+		private readonly string commando;
+		private readonly int commandIndex;
 
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SettingsFormDetail));
-		private static ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
+		private static readonly ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
 
 		public SettingsFormDetail(string commando) {
 			InitializeComponent();

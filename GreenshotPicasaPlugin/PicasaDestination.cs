@@ -28,7 +28,7 @@ namespace GreenshotPicasaPlugin {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PicasaDestination));
 		private static PicasaConfiguration config = IniConfig.GetIniSection<PicasaConfiguration>();
 
-		private PicasaPlugin plugin = null;
+		private readonly PicasaPlugin plugin = null;
 		public PicasaDestination(PicasaPlugin plugin) {
 			this.plugin = plugin;
 		}

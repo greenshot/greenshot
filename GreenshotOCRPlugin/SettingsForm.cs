@@ -27,7 +27,7 @@ namespace GreenshotOCR {
 	/// Description of SettingsForm.
 	/// </summary>
 	public partial class SettingsForm : OCRForm {
-		private OCRConfiguration config;
+		private readonly OCRConfiguration config;
 
 		public SettingsForm(string [] languages, OCRConfiguration config) {
 			//

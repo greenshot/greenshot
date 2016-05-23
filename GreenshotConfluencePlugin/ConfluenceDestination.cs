@@ -36,11 +36,11 @@ namespace GreenshotConfluencePlugin {
 	/// Description of ConfluenceDestination.
 	/// </summary>
 	public class ConfluenceDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceDestination));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceDestination));
 		private static readonly ConfluenceConfiguration config = IniConfig.GetIniSection<ConfluenceConfiguration>();
 		private static readonly CoreConfiguration coreConfig = IniConfig.GetIniSection<CoreConfiguration>();
-		private static Image confluenceIcon = null;
-		private Confluence.Page page;
+		private static readonly Image confluenceIcon = null;
+		private readonly Confluence.Page page;
 		public static bool IsInitialized {
 			get;
 			private set;

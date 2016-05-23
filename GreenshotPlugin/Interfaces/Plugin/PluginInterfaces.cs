@@ -27,6 +27,7 @@ using System.Windows.Forms;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using Greenshot.Core;
+using GreenshotPlugin.Interfaces;
 
 namespace Greenshot.Plugin {
 	[Serializable]
@@ -76,10 +77,10 @@ namespace Greenshot.Plugin {
 	public delegate void HotKeyHandler();
 
 	public class SurfaceOutputSettings {
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private bool reduceColors;
 		private bool disableReduceColors;
-		private List<IEffect> effects = new List<IEffect>();
+		private readonly List<IEffect> effects = new List<IEffect>();
 
 		public SurfaceOutputSettings() {
 			disableReduceColors = false;

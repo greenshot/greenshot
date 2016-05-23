@@ -26,7 +26,7 @@ namespace GreenshotConfluencePlugin {
 	/// Interaction logic for ConfluenceConfigurationForm.xaml
 	/// </summary>
 	public partial class ConfluenceConfigurationForm : Window {
-		private ConfluenceConfiguration config;
+		private readonly ConfluenceConfiguration config;
 		public ConfluenceConfiguration Config {
 			get {
 				return config;

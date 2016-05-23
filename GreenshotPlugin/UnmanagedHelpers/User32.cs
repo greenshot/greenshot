@@ -381,7 +381,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("user32", SetLastError = true)]
 		private static extern bool ReleaseDC(IntPtr hWnd, IntPtr hDC);
 
-		private IntPtr hWnd;
+		private readonly IntPtr hWnd;
 		[SecurityCritical]
 		private SafeWindowDCHandle() : base(true) {
 		}

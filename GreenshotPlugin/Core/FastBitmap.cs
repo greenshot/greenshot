@@ -726,8 +726,8 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public unsafe class FastChunkyBitmap : FastBitmap {
 		// Used for indexed images
-		private Color[] colorEntries;
-		private Dictionary<Color, byte> colorCache = new Dictionary<Color, byte>();
+		private readonly Color[] colorEntries;
+		private readonly Dictionary<Color, byte> colorCache = new Dictionary<Color, byte>();
 
 		public FastChunkyBitmap(Bitmap source, Rectangle area) : base(source, area) {
 			colorEntries = bitmap.Palette.Entries;

@@ -26,6 +26,7 @@ using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing.Filters {
 	[Serializable()] 

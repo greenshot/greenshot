@@ -3,7 +3,7 @@
  * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ using System.Runtime.Serialization;
 using Greenshot.Configuration;
 using Greenshot.IniFile;
 using log4net;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing.Fields {
 	/// <summary>
@@ -34,133 +35,130 @@ namespace Greenshot.Drawing.Fields {
 	[Serializable]
 	public abstract class AbstractFieldHolder : IFieldHolder {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(AbstractFieldHolder));
-		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+		private static readonly EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
 
 		/// <summary>
 		/// called when a field's value has changed
 		/// </summary>
 		[NonSerialized]
-		private FieldChangedEventHandler fieldChanged;
+		private FieldChangedEventHandler _fieldChanged;
 		public event FieldChangedEventHandler FieldChanged {
-			add { fieldChanged += value; }
-			remove{ fieldChanged -= value; }
+			add { _fieldChanged += value; }
+			remove{ _fieldChanged -= value; }
 		}
 		
 		// we keep two Collections of our fields, dictionary for quick access, list for serialization
 		// this allows us to use default serialization
 		[NonSerialized]
-		private Dictionary<FieldType, Field> fieldsByType = new Dictionary<FieldType, Field>();
-		private List<Field> fields = new List<Field>();
-		
-		public AbstractFieldHolder() {}
+		private IDictionary<IFieldType, IField> _fieldsByType = new Dictionary<IFieldType, IField>();
+		private readonly IList<IField> _fields = new List<IField>();
 		
 		[OnDeserialized]
-		private void OnFieldHolderDeserialized(StreamingContext context) {
-			fieldsByType = new Dictionary<FieldType, Field>();
+		private void OnDeserialized(StreamingContext context) {
+			_fieldsByType = new Dictionary<IFieldType, IField>();
 			// listen to changing properties
-			foreach(Field field in fields) {
-				field.PropertyChanged += delegate {
-					if (fieldChanged != null) {
-						fieldChanged(this, new FieldChangedEventArgs(field));
-					}
+			foreach(IField field in _fields) {
+				field.PropertyChanged += delegate
+				{
+					_fieldChanged?.Invoke(this, new FieldChangedEventArgs(field));
 				};
-				fieldsByType[field.FieldType] = field;
+				_fieldsByType[field.FieldType] = field;
 			}
 		}
 
-		public void AddField(Type requestingType, FieldType fieldType, object fieldValue) {
+		public void AddField(Type requestingType, IFieldType fieldType, object fieldValue) {
 			AddField(editorConfiguration.CreateField(requestingType, fieldType, fieldValue));
 		}
 
-		public virtual void AddField(Field field) {
-			if (fieldsByType != null && fieldsByType.ContainsKey(field.FieldType)) {
+		public virtual void AddField(IField field) {
+			if (_fieldsByType != null && _fieldsByType.ContainsKey(field.FieldType)) {
 				if (LOG.IsDebugEnabled) {
 					LOG.DebugFormat("A field with of type '{0}' already exists in this {1}, will overwrite.", field.FieldType, GetType());
 				}
 			} 
 			
-			fields.Add(field);
-			fieldsByType[field.FieldType] = field;
-			field.PropertyChanged += delegate { if(fieldChanged != null) fieldChanged(this, new FieldChangedEventArgs(field)); };
-		}
-		
-		public void RemoveField(Field field) {
-			fields.Remove(field);
-			fieldsByType.Remove(field.FieldType);
-			field.PropertyChanged -= delegate {
-				if (fieldChanged != null) {
-					fieldChanged(this, new FieldChangedEventArgs(field));
-				}
+			_fields.Add(field);
+
+			_fieldsByType[field.FieldType] = field;
+			field.PropertyChanged += delegate
+			{
+				_fieldChanged?.Invoke(this, new FieldChangedEventArgs(field));
 			};
 		}
 		
-		public List<Field> GetFields() {
-			return fields;
+		public void RemoveField(IField field) {
+			_fields.Remove(field);
+			_fieldsByType.Remove(field.FieldType);
+			field.PropertyChanged -= delegate {
+				_fieldChanged?.Invoke(this, new FieldChangedEventArgs(field));
+			};
+		}
+		
+		public IList<IField> GetFields() {
+			return _fields;
 		}
 
 		
-		public Field GetField(FieldType fieldType) {
+		public IField GetField(IFieldType fieldType) {
 			try {
-				return fieldsByType[fieldType];
+				return _fieldsByType[fieldType];
 			} catch(KeyNotFoundException e) {
 				throw new ArgumentException("Field '" + fieldType + "' does not exist in " + GetType(), e);
 			}
 		}
 		
-		public object GetFieldValue(FieldType fieldType) {
+		public object GetFieldValue(IFieldType fieldType) {
 			return GetField(fieldType).Value;
 		}
 		
 		#region convenience methods to save us some casts outside
-		public string GetFieldValueAsString(FieldType fieldType) {
+		public string GetFieldValueAsString(IFieldType fieldType) {
 			return Convert.ToString(GetFieldValue(fieldType));
 		}
 		
-		public int GetFieldValueAsInt(FieldType fieldType) {
+		public int GetFieldValueAsInt(IFieldType fieldType) {
 			return Convert.ToInt32(GetFieldValue(fieldType));
 		}
 		
-		public decimal GetFieldValueAsDecimal(FieldType fieldType) {
+		public decimal GetFieldValueAsDecimal(IFieldType fieldType) {
 			return Convert.ToDecimal(GetFieldValue(fieldType));
 		}
 		
-		public double GetFieldValueAsDouble(FieldType fieldType) {
+		public double GetFieldValueAsDouble(IFieldType fieldType) {
 			return Convert.ToDouble(GetFieldValue(fieldType));
 		}
 		
-		public float GetFieldValueAsFloat(FieldType fieldType) {
+		public float GetFieldValueAsFloat(IFieldType fieldType) {
 			return Convert.ToSingle(GetFieldValue(fieldType));
 		}
 		
-		public bool GetFieldValueAsBool(FieldType fieldType) {
+		public bool GetFieldValueAsBool(IFieldType fieldType) {
 			return Convert.ToBoolean(GetFieldValue(fieldType));
 		}
 		
-		public Color GetFieldValueAsColor(FieldType fieldType) {
+		public Color GetFieldValueAsColor(IFieldType fieldType) {
 			return (Color)GetFieldValue(fieldType);
 		}
 		#endregion
 		
-		public bool HasField(FieldType fieldType) {
-			return fieldsByType.ContainsKey(fieldType);
+		public bool HasField(IFieldType fieldType) {
+			return _fieldsByType.ContainsKey(fieldType);
 		}
 		
-		public bool HasFieldValue(FieldType fieldType) {
-			return HasField(fieldType) && fieldsByType[fieldType].HasValue;
+		public bool HasFieldValue(IFieldType fieldType) {
+			return HasField(fieldType) && _fieldsByType[fieldType].HasValue;
 		}
 		
-		public void SetFieldValue(FieldType fieldType, object value) {
+		public void SetFieldValue(IFieldType fieldType, object value) {
 			try {
-				fieldsByType[fieldType].Value = value;
+				_fieldsByType[fieldType].Value = value;
 			} catch(KeyNotFoundException e) {
 				throw new ArgumentException("Field '"+fieldType+"' does not exist in " + GetType(), e);
 			}
 		}
 		
 		protected void OnFieldChanged(object sender, FieldChangedEventArgs e){
-			if (fieldChanged != null) {
-				fieldChanged(sender, e);
-			}
+			_fieldChanged?.Invoke(sender, e);
 		}
 	}
 }

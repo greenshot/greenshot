@@ -3,7 +3,7 @@
  * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,8 +27,8 @@ using Greenshot.Helpers;
 using Greenshot.IniFile;
 using Greenshot.Memento;
 using Greenshot.Plugin;
-using Greenshot.Plugin.Drawing;
-using Greenshot.Plugin.Drawing.Adorners;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Drawing;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -37,6 +37,8 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
+using Greenshot.Plugin.Drawing;
+using Greenshot.Plugin.Drawing.Adorners;
 
 namespace Greenshot.Drawing
 {
@@ -84,20 +86,17 @@ namespace Greenshot.Drawing
 		/// </summary>
 		public void Dispose() {
 			Dispose(true);
-			GC.SuppressFinalize(this);
 		}
 
 		protected virtual void Dispose(bool disposing) {
 			if (!disposing) {
 				return;
 			}
-
-			FieldAggregator aggProps = _parent.FieldAggregator;
-			aggProps.UnbindElement(this);
-		}
-
-		~DrawableContainer() {
-			Dispose(false);
+			if (_parent != null)
+			{
+				FieldAggregator aggProps = _parent.FieldAggregator;
+				aggProps.UnbindElement(this);
+			}
 		}
 
 		[NonSerialized]
@@ -107,7 +106,7 @@ namespace Greenshot.Drawing
 			remove{ _propertyChanged -= value; }
 		}
 		
-		public List<IFilter> Filters {
+		public IList<IFilter> Filters {
 			get {
 				List<IFilter> ret = new List<IFilter>();
 				foreach(IFieldHolder c in Children) {
@@ -308,7 +307,10 @@ namespace Greenshot.Drawing
 		}
 		
 		public void AlignToParent(HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment) {
-			
+			if (_parent == null)
+			{
+				return;
+			}
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 			if (horizontalAlignment == HorizontalAlignment.Left) {
 				Left = lineThickness/2;
@@ -466,6 +468,7 @@ namespace Greenshot.Drawing
 			// apply scaled bounds to this DrawableContainer
 			ApplyBounds(_boundsAfterResize);
 			
+			// after "move"
 			Invalidate();
 			return true;
 		}
@@ -479,6 +482,10 @@ namespace Greenshot.Drawing
 		}
 		
 		protected virtual void SwitchParent(Surface newParent) {
+			if (newParent == Parent)
+			{
+				return;
+			}
 			_parent = newParent;
 			foreach(IFilter filter in Filters) {
 				filter.Parent = this;
@@ -504,7 +511,6 @@ namespace Greenshot.Drawing
 		protected void OnPropertyChanged(string propertyName) {
 			if (_propertyChanged != null) {
 				_propertyChanged(this, new PropertyChangedEventArgs(propertyName));
-				Invalidate();
 			}
 		}
 		
@@ -514,9 +520,8 @@ namespace Greenshot.Drawing
 		/// </summary>
 		/// <param name="fieldToBeChanged">The field to be changed</param>
 		/// <param name="newValue">The new value</param>
-		public virtual void BeforeFieldChange(Field fieldToBeChanged, object newValue) {
+		public virtual void BeforeFieldChange(IField fieldToBeChanged, object newValue) {
 			_parent.MakeUndoable(new ChangeFieldHolderMemento(this, fieldToBeChanged), true);
-			Invalidate();
 		}
 		
 		/// <summary>
@@ -529,7 +534,6 @@ namespace Greenshot.Drawing
 			if (e.Field.FieldType == FieldType.SHADOW) {
 				accountForShadowChange = true;
 			}
-			Invalidate();
 		}
 
 		/// <summary>

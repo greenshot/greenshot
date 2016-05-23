@@ -29,9 +29,9 @@ namespace Greenshot.Forms {
 	/// A form to set the resize settings
 	/// </summary>
 	public partial class ResizeSettingsForm : BaseForm {
-		private ResizeEffect effect;
-		private string value_pixel;
-		private string value_percent;
+		private readonly ResizeEffect effect;
+		private readonly string value_pixel;
+		private readonly string value_percent;
 		private double newWidth, newHeight;
 
 		public ResizeSettingsForm(ResizeEffect effect) {

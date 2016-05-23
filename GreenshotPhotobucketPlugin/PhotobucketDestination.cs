@@ -33,8 +33,8 @@ namespace GreenshotPhotobucketPlugin  {
 	public class PhotobucketDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PhotobucketDestination));
 		private static PhotobucketConfiguration config = IniConfig.GetIniSection<PhotobucketConfiguration>();
-		private PhotobucketPlugin plugin = null;
-		private string albumPath = null;
+		private readonly PhotobucketPlugin plugin = null;
+		private readonly string albumPath = null;
 
 		/// <summary>
 		/// Create a Photobucket destination, which also has the path to the album in it

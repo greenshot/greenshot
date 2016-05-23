@@ -33,8 +33,8 @@ namespace GreenshotImgurPlugin {
 	/// </summary>
 	public partial class ImgurHistory : ImgurForm {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurHistory));
-		private GreenshotColumnSorter columnSorter;
-		private static ImgurConfiguration config = IniConfig.GetIniSection<ImgurConfiguration>();
+		private readonly GreenshotColumnSorter columnSorter;
+		private static readonly ImgurConfiguration config = IniConfig.GetIniSection<ImgurConfiguration>();
 		private static ImgurHistory instance;
 		
 		public static void ShowHistory() {

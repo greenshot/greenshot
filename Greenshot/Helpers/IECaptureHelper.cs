@@ -42,7 +42,7 @@ namespace Greenshot.Helpers {
 	/// Many thanks to all the people who contributed here!
 	/// </summary>
 	public static class IECaptureHelper {
-		private static ILog LOG = LogManager.GetLogger(typeof(IECaptureHelper));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(IECaptureHelper));
 		private static readonly CoreConfiguration configuration = IniConfig.GetIniSection<CoreConfiguration>();
 
 		// Helper method to activate a certain IE Tab

@@ -22,12 +22,13 @@ using System;
 using System.Drawing;
 using System.IO;
 using Greenshot.Drawing.Fields;
-using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
 using System.Drawing.Drawing2D;
 using Greenshot.Core;
 using log4net;
 using System.Runtime.Serialization;
+using Greenshot.Plugin.Drawing;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -35,7 +36,7 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable] 
 	public class ImageContainer : DrawableContainer, IImageContainer {
-		private static ILog LOG = LogManager.GetLogger(typeof(ImageContainer));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(ImageContainer));
 
 		private Image image;
 

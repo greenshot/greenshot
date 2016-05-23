@@ -6,7 +6,7 @@ namespace TranslationByMarkupExtension {
     public class TranslationData : IWeakEventListener, INotifyPropertyChanged {
         #region Private Members
 
-        private string _key;
+        private readonly string _key;
 
         #endregion
 

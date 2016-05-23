@@ -37,7 +37,7 @@ namespace Greenshot.Helpers {
 
 	[Serializable()]
 	public class CopyDataTransport {
-		List<KeyValuePair<CommandEnum, string>> commands;
+		readonly List<KeyValuePair<CommandEnum, string>> commands;
 		public List<KeyValuePair<CommandEnum, string>> Commands {
 			get {return commands;}
 		}
@@ -81,9 +81,9 @@ namespace Greenshot.Helpers {
 
 		[StructLayout(LayoutKind.Sequential)]
 		private struct COPYDATASTRUCT {
-			public IntPtr dwData;
-			public int cbData;
-			public IntPtr lpData;
+			public readonly IntPtr dwData;
+			public readonly int cbData;
+			public readonly IntPtr lpData;
 		}
 		
 		private const int WM_COPYDATA = 0x4A;
@@ -196,10 +196,10 @@ namespace Greenshot.Helpers {
 	/// which has been sent from another application.
 	/// </summary>
 	public class CopyDataReceivedEventArgs : EventArgs {
-		private string channelName = "";
-		private object data = null;
-		private DateTime sent;
-		private DateTime received;
+		private readonly string channelName = "";
+		private readonly object data = null;
+		private readonly DateTime sent;
+		private readonly DateTime received;
 
 		/// <summary>
 		/// Gets the channel name that this data was sent on.
@@ -254,7 +254,7 @@ namespace Greenshot.Helpers {
 	/// class.
 	/// </summary>
 	public class CopyDataChannels : DictionaryBase {
-		private NativeWindow owner = null;
+		private readonly NativeWindow owner = null;
 
 		/// <summary>
 		/// Returns an enumerator for each of the CopyDataChannel objects
@@ -388,7 +388,7 @@ namespace Greenshot.Helpers {
 
 		#region Member Variables
 		private string channelName = "";
-		private NativeWindow owner = null;
+		private readonly NativeWindow owner = null;
 		private bool recreateChannel = false;
 		#endregion
 

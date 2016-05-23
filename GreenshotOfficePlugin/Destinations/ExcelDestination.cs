@@ -38,8 +38,8 @@ namespace GreenshotOfficePlugin {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExcelDestination));
 		private const int ICON_APPLICATION = 0;
 		private const int ICON_WORKBOOK = 1;
-		private static string exePath = null;
-		private string workbookName = null;
+		private static readonly string exePath = null;
+		private readonly string workbookName = null;
 
 		static ExcelDestination() {
 			exePath = PluginUtils.GetExePath("EXCEL.EXE");

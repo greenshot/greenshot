@@ -3,7 +3,7 @@
  * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+using GreenshotPlugin.Interfaces.Drawing;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -30,8 +31,7 @@ namespace Greenshot.Drawing.Fields {
 	/// </summary>
 	[Serializable()] 
 	public abstract class AbstractFieldHolderWithChildren : AbstractFieldHolder {
-		
-		FieldChangedEventHandler fieldChangedEventHandler;
+		readonly FieldChangedEventHandler fieldChangedEventHandler;
 		
 		[NonSerialized]
 		private EventHandler childrenChanged;
@@ -46,8 +46,8 @@ namespace Greenshot.Drawing.Fields {
 			fieldChangedEventHandler = OnFieldChanged;
 		}
 		
-		[OnDeserialized]
-		private void OnFieldHolderWithChildrenDeserialized(StreamingContext context) {
+		[OnDeserialized()]
+		private void OnDeserialized(StreamingContext context) {
 			// listen to changing properties
 			foreach(IFieldHolder fieldHolder in Children) {
 				fieldHolder.FieldChanged += fieldChangedEventHandler;
@@ -67,34 +67,40 @@ namespace Greenshot.Drawing.Fields {
 			if(childrenChanged != null) childrenChanged(this, EventArgs.Empty);
 		}
 		
-		public new List<Field> GetFields() {
-			List<Field> ret = new List<Field>();
+		public new IList<IField> GetFields() {
+			List<IField> ret = new List<IField>();
 			ret.AddRange(base.GetFields());
 			foreach(IFieldHolder fh in Children) {
 				ret.AddRange(fh.GetFields());
 			}
 			return ret;
 		}
-		
-		public new Field GetField(FieldType fieldType) {
-			Field ret = null;
-			if(base.HasField(fieldType)) {
+
+		public new IField GetField(IFieldType fieldType)
+		{
+			IField ret = null;
+			if (base.HasField(fieldType))
+			{
 				ret = base.GetField(fieldType);
-			} else {
-				foreach(IFieldHolder fh in Children) {
-					if(fh.HasField(fieldType)) {
+			}
+			else {
+				foreach (IFieldHolder fh in Children)
+				{
+					if (fh.HasField(fieldType))
+					{
 						ret = fh.GetField(fieldType);
 						break;
 					}
 				}
 			}
-			if(ret == null) {
-				throw new ArgumentException("Field '"+fieldType+"' does not exist in " + GetType());
+			if (ret == null)
+			{
+				throw new ArgumentException("Field '" + fieldType + "' does not exist in " + GetType());
 			}
 			return ret;
 		}
-		
-		public new bool HasField(FieldType fieldType) {
+
+		public new bool HasField(IFieldType fieldType) {
 			bool ret = base.HasField(fieldType);
 			if(!ret) {
 				foreach(IFieldHolder fh in Children) {
@@ -107,13 +113,13 @@ namespace Greenshot.Drawing.Fields {
 			return ret;
 		}
 		
-		public new bool HasFieldValue(FieldType fieldType) {
-			Field f = GetField(fieldType);
+		public new bool HasFieldValue(IFieldType fieldType) {
+			IField f = GetField(fieldType);
 			return f != null && f.HasValue;
 		}
 		
-		public new void SetFieldValue(FieldType fieldType, object value) {
-			Field f = GetField(fieldType);
+		public new void SetFieldValue(IFieldType fieldType, object value) {
+			IField f = GetField(fieldType);
 			if(f != null) f.Value = value;
 		}
 		

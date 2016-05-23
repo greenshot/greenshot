@@ -96,7 +96,7 @@ namespace GreenshotPlugin.Core {
 	/// Description of SourceForgeHelper.
 	/// </summary>
 	public class SourceForgeHelper {
-		private static ILog LOG = LogManager.GetLogger(typeof(SourceForgeHelper));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(SourceForgeHelper));
 		private const string RSSFEED = "http://getgreenshot.org/project-feed/";
 
 		/// <summary>

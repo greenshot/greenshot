@@ -33,12 +33,12 @@ namespace GreenshotPlugin.Controls {
 	/// For some reason SFD is sealed :(
 	/// </summary>
 	public class SaveImageFileDialog : IDisposable {
-		private static ILog LOG = LogManager.GetLogger(typeof(SaveImageFileDialog));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(SaveImageFileDialog));
+		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		protected SaveFileDialog saveFileDialog;
 		private FilterOption[] filterOptions;
 		private DirectoryInfo eagerlyCreatedDirectory;
-		private ICaptureDetails captureDetails = null;
+		private readonly ICaptureDetails captureDetails = null;
 
 		public void Dispose() {
 			Dispose(true);

@@ -27,6 +27,7 @@ using Greenshot.Plugin.Drawing;
 using System.Drawing.Drawing2D;
 using log4net;
 using System.Runtime.Serialization;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -34,7 +35,7 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable] 
 	public class CursorContainer : DrawableContainer, ICursorContainer {
-		private static ILog LOG = LogManager.GetLogger(typeof(CursorContainer));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(CursorContainer));
 
 		protected Cursor cursor;
 

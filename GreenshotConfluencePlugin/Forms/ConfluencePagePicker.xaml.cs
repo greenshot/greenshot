@@ -28,7 +28,7 @@ namespace GreenshotConfluencePlugin {
 	/// </summary>
 	public partial class ConfluencePagePicker : System.Windows.Controls.Page {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluencePagePicker));
-		private ConfluenceUpload confluenceUpload = null;
+		private readonly ConfluenceUpload confluenceUpload = null;
 
 		public ConfluencePagePicker(ConfluenceUpload confluenceUpload, List<Page> pagesToPick) {
 			this.confluenceUpload = confluenceUpload;

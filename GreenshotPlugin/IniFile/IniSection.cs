@@ -34,7 +34,7 @@ namespace Greenshot.IniFile {
 		protected static ILog LOG = LogManager.GetLogger(typeof(IniSection));
 
 		[NonSerialized]
-		private IDictionary<string, IniValue> values = new Dictionary<string, IniValue>();
+		private readonly IDictionary<string, IniValue> values = new Dictionary<string, IniValue>();
 		[NonSerialized]
 		private IniSectionAttribute iniSectionAttribute = null;
 		public IniSectionAttribute IniSectionAttribute {

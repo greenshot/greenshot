@@ -42,6 +42,8 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot {
 	/// <summary>
@@ -49,14 +51,14 @@ namespace Greenshot {
 	/// </summary>
 	public partial class ImageEditorForm : BaseForm, IImageEditor {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(ImageEditorForm));
-		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
-		private static List<string> ignoreDestinations = new List<string>() { PickerDestination.DESIGNATION, EditorDestination.DESIGNATION };
-		private static List<IImageEditor> editorList = new List<IImageEditor>();
+		private static readonly EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+		private static readonly List<string> ignoreDestinations = new List<string>() { PickerDestination.DESIGNATION, EditorDestination.DESIGNATION };
+		private static readonly List<IImageEditor> editorList = new List<IImageEditor>();
 
 		private Surface surface;
 		private GreenshotToolStripButton[] toolbarButtons;
 		
-		private static string[] SUPPORTED_CLIPBOARD_FORMATS = {typeof(string).FullName, "Text", typeof(DrawableContainerList).FullName};
+		private static readonly string[] SUPPORTED_CLIPBOARD_FORMATS = {typeof(string).FullName, "Text", typeof(DrawableContainerList).FullName};
 
 		private bool originalBoldCheckState = false;
 		private bool originalItalicCheckState = false;
@@ -143,12 +145,15 @@ namespace Greenshot {
 			Image backgroundForTransparency = GreenshotResources.getImage("Checkerboard.Image");
 			surface.TransparencyBackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
 
-			surface.MovingElementChanged += delegate {
-				refreshEditorControls();
-			};
+			surface.MovingElementChanged -= surface_MovingElementChanged;
+			surface.MovingElementChanged += surface_MovingElementChanged;
+			surface.DrawingModeChanged -= surface_DrawingModeChanged;
 			surface.DrawingModeChanged += surface_DrawingModeChanged;
+			surface.SurfaceSizeChanged -= SurfaceSizeChanged;
 			surface.SurfaceSizeChanged += SurfaceSizeChanged;
+			surface.SurfaceMessage -= SurfaceMessageReceived;
 			surface.SurfaceMessage += SurfaceMessageReceived;
+			surface.FieldAggregator.FieldChanged -= FieldAggregatorFieldChanged;
 			surface.FieldAggregator.FieldChanged += FieldAggregatorFieldChanged;
 			SurfaceSizeChanged(Surface, null);
 
@@ -159,6 +164,11 @@ namespace Greenshot {
 				Text = surface.CaptureDetails.Title + " - " + Language.GetString(LangKey.editor_title);
 			}
 			WindowDetails.ToForeground(Handle);
+		}
+
+		private void surface_MovingElementChanged(object sender, SurfaceElementEventArgs e)
+		{
+			refreshEditorControls();
 		}
 
 		private void updateUI() {
@@ -1028,8 +1038,8 @@ namespace Greenshot {
 				textVerticalAlignmentButton.Visible = props.HasFieldValue(FieldType.TEXT_VERTICAL_ALIGNMENT);
 				shadowButton.Visible = props.HasFieldValue(FieldType.SHADOW);
 				btnConfirm.Visible = btnCancel.Visible = props.HasFieldValue(FieldType.FLAGS)
-					&& ((FieldType.Flag)props.GetFieldValue(FieldType.FLAGS)&FieldType.Flag.CONFIRMABLE) == FieldType.Flag.CONFIRMABLE;
-				
+					&& ((FieldFlag)props.GetFieldValue(FieldType.FLAGS) & FieldFlag.CONFIRMABLE) == FieldFlag.CONFIRMABLE;
+
 				obfuscateModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE);
 				highlightModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT);
 			} else {
@@ -1061,9 +1071,10 @@ namespace Greenshot {
 		    FieldAggregator props = surface.FieldAggregator;
 			// if a confirmable element is selected, we must disable most of the controls
 			// since we demand confirmation or cancel for confirmable element
-			if (props.HasFieldValue(FieldType.FLAGS) && ((FieldType.Flag)props.GetFieldValue(FieldType.FLAGS) & FieldType.Flag.CONFIRMABLE) == FieldType.Flag.CONFIRMABLE) {
+			if (props.HasFieldValue(FieldType.FLAGS) && ((FieldFlag)props.GetFieldValue(FieldType.FLAGS) & FieldFlag.CONFIRMABLE) == FieldFlag.CONFIRMABLE)
+			{
 				// disable most controls
-				if(!controlsDisabledDueToConfirmable) {
+				if (!controlsDisabledDueToConfirmable) {
 					ToolStripItemEndisabler.Disable(menuStrip1);
 					ToolStripItemEndisabler.Disable(destinationsToolStrip);
 					ToolStripItemEndisabler.Disable(toolsToolStrip);

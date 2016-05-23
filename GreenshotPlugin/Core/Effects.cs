@@ -146,7 +146,7 @@ namespace Greenshot.Core {
 	/// MonochromeEffect
 	/// </summary>
 	public class MonochromeEffect : IEffect {
-        private byte threshold;
+        private readonly byte threshold;
         /// <param name="threshold">Threshold for monochrome filter (0 - 255), lower value means less black</param>
         public MonochromeEffect(byte threshold) {
             this.threshold = threshold;
@@ -192,7 +192,7 @@ namespace Greenshot.Core {
 	/// ReduceColorsEffect
 	/// </summary>
 	public class ReduceColorsEffect : IEffect {
-		private static ILog LOG = LogManager.GetLogger(typeof(ReduceColorsEffect));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(ReduceColorsEffect));
 		public ReduceColorsEffect() : base() {
 			Reset();
 		}
@@ -355,7 +355,7 @@ namespace Greenshot.Core {
 
 	public class EffectConverter : TypeConverter {
 		// Fix to prevent BUG-1753
-		private NumberFormatInfo numberFormatInfo = new NumberFormatInfo();
+		private readonly NumberFormatInfo numberFormatInfo = new NumberFormatInfo();
 
 		public EffectConverter() : base() {
 			numberFormatInfo.NumberDecimalSeparator = ".";

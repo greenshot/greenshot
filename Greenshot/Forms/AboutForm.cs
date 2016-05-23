@@ -41,13 +41,13 @@ namespace Greenshot {
 	/// The about form
 	/// </summary>
 	public partial class AboutForm : AnimatingBaseForm {
-		private static ILog LOG = LogManager.GetLogger(typeof(AboutForm));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(AboutForm));
 		private Bitmap gBitmap;
-		private ColorAnimator backgroundAnimation;
-		private List<RectangleAnimator> pixels = new List<RectangleAnimator>();
-		private List<Color> colorFlow = new List<Color>();
-		private List<Color> pixelColors = new List<Color>();
-		private Random rand = new Random();
+		private readonly ColorAnimator backgroundAnimation;
+		private readonly List<RectangleAnimator> pixels = new List<RectangleAnimator>();
+		private readonly List<Color> colorFlow = new List<Color>();
+		private readonly List<Color> pixelColors = new List<Color>();
+		private readonly Random rand = new Random();
 		private readonly Color backColor = Color.FromArgb(61, 61, 61);
 		private readonly Color pixelColor = Color.FromArgb(138, 255, 0);
 
@@ -70,7 +70,7 @@ namespace Greenshot {
 		/// <summary>
 		/// The location of every dot in the "G"
 		/// </summary>
-		private List<Point> gSpots = new List<Point>() {
+		private readonly List<Point> gSpots = new List<Point>() {
              	// Top row
              	new Point(p2, p1),	// 0
              	new Point(p3, p1),  // 1
@@ -116,7 +116,7 @@ namespace Greenshot {
 		// 18 19 20 21 22 23
 
 		// The order in which we draw the dots & flow the collors.
-		List<int> flowOrder = new List<int>() { 4, 3, 2, 1, 0, 5, 6, 7, 8, 9, 10, 14, 15, 18, 19, 20, 21, 22, 23, 16, 17, 13, 12, 11 };
+		readonly List<int> flowOrder = new List<int>() { 4, 3, 2, 1, 0, 5, 6, 7, 8, 9, 10, 14, 15, 18, 19, 20, 21, 22, 23, 16, 17, 13, 12, 11 };
 
 		/// <summary>
 		/// Cleanup all the allocated resources

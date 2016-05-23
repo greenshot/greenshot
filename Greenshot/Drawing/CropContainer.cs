@@ -24,6 +24,7 @@ using System.Runtime.Serialization;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -45,11 +46,14 @@ namespace Greenshot.Drawing {
 			CreateDefaultAdorners();
 		}
 		protected override void InitializeFields() {
-			AddField(GetType(), FieldType.FLAGS, FieldType.Flag.CONFIRMABLE);
+			AddField(GetType(), FieldType.FLAGS, FieldFlag.CONFIRMABLE);
 		}
 
 		public override void Invalidate() {
-			_parent.Invalidate();
+			if (_parent == null)
+			{
+				_parent.Invalidate();
+			}
 		}
 
 		/// <summary>

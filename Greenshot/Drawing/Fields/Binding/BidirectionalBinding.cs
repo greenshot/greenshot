@@ -29,14 +29,14 @@ namespace Greenshot.Drawing.Fields.Binding {
 	/// behavior (e.g. when binding to a 
 	/// </summary>
 	public class BidirectionalBinding {
-		private INotifyPropertyChanged controlObject;
-		private INotifyPropertyChanged fieldObject;
-		private string controlPropertyName;
-		private string fieldPropertyName;
+		private readonly INotifyPropertyChanged controlObject;
+		private readonly INotifyPropertyChanged fieldObject;
+		private readonly string controlPropertyName;
+		private readonly string fieldPropertyName;
 		private bool updatingControl = false;
 		private bool updatingField = false;
 		private IBindingConverter converter;
-		private IBindingValidator validator;
+		private readonly IBindingValidator validator;
 		
 		/// <summary>
 		/// Whether or not null values are passed on to the other object.

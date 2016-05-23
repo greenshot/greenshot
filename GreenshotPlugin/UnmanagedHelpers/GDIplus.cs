@@ -94,7 +94,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// GDIplus Helpers
 	/// </summary>
 	public static class GDIplus {
-		private static ILog LOG = LogManager.GetLogger(typeof(GDIplus));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(GDIplus));
 
 		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true)]
 		private static extern int GdipBitmapApplyEffect(IntPtr bitmap, IntPtr effect, ref RECT rectOfInterest, bool useAuxData, IntPtr auxData, int auxDataSize);
@@ -107,7 +107,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		private static extern int GdipCreateEffect(Guid guid, out IntPtr effect);
 		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true)]
 		private static extern int GdipDeleteEffect(IntPtr effect);
-		private static Guid BlurEffectGuid = new Guid("{633C80A4-1843-482B-9EF2-BE2834C5FDD4}");
+		private static readonly Guid BlurEffectGuid = new Guid("{633C80A4-1843-482B-9EF2-BE2834C5FDD4}");
 
 		// Constant "FieldInfo" for getting the nativeImage from the Bitmap
 		private static readonly FieldInfo FIELD_INFO_NATIVE_IMAGE = typeof(Bitmap).GetField("nativeImage", BindingFlags.GetField | BindingFlags.Instance | BindingFlags.NonPublic);

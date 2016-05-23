@@ -32,13 +32,13 @@ using IServiceProvider = Greenshot.Interop.IServiceProvider;
 
 namespace Greenshot.Helpers.IEInterop {
 	public class DocumentContainer {
-		private static ILog LOG = LogManager.GetLogger(typeof(DocumentContainer));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(DocumentContainer));
 		private static CoreConfiguration configuration = IniConfig.GetIniSection<CoreConfiguration>();
 		private const int  E_ACCESSDENIED = unchecked((int)0x80070005L);
 		private static readonly Guid IID_IWebBrowserApp = new Guid("0002DF05-0000-0000-C000-000000000046");
 		private static readonly Guid IID_IWebBrowser2 = new Guid("D30C1661-CDAF-11D0-8A3E-00C04FC9E26E");
 		private static int counter = 0;
-		private int id = counter++;
+		private readonly int id = counter++;
 		private IHTMLDocument2 document2;
 		private IHTMLDocument3 document3;
 		private Point sourceLocation;
@@ -52,7 +52,7 @@ namespace Greenshot.Helpers.IEInterop {
 		private WindowDetails contentWindow;
 		private double zoomLevelX = 1;
 		private double zoomLevelY = 1;
-		private List<DocumentContainer> frames = new List<DocumentContainer>();
+		private readonly List<DocumentContainer> frames = new List<DocumentContainer>();
 
 		private DocumentContainer(IHTMLWindow2 frameWindow, WindowDetails contentWindow, DocumentContainer parent) {
 			//IWebBrowser2 webBrowser2 = frame as IWebBrowser2;

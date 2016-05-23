@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using GreenshotPlugin.Interfaces;
 
 namespace Greenshot.Plugin {
 	public class ExportInformation {
@@ -29,7 +30,7 @@ namespace Greenshot.Plugin {
 		private string filepath = null;
 
 		private bool exportMade = false;
-		private string destinationDesignation = null;
+		private readonly string destinationDesignation = null;
 		private string destinationDescription = null;
 
 		private string errorMessage = null;

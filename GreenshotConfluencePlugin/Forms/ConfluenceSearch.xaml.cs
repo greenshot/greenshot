@@ -30,8 +30,8 @@ using Greenshot.IniFile;
 namespace GreenshotConfluencePlugin {
 	public partial class ConfluenceSearch : System.Windows.Controls.Page {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceSearch));
-		private static ConfluenceConfiguration config = IniConfig.GetIniSection<ConfluenceConfiguration>();
-		private ConfluenceUpload confluenceUpload;
+		private static readonly ConfluenceConfiguration config = IniConfig.GetIniSection<ConfluenceConfiguration>();
+		private readonly ConfluenceUpload confluenceUpload;
 		
 		public List<Confluence.Space> Spaces {
 			get {
@@ -39,7 +39,7 @@ namespace GreenshotConfluencePlugin {
 			}
 		}
 
-		private ObservableCollection<Confluence.Page> pages = new ObservableCollection<Confluence.Page>();
+		private readonly ObservableCollection<Confluence.Page> pages = new ObservableCollection<Confluence.Page>();
 		public ObservableCollection<Confluence.Page> Pages {
 			get {
 				return pages;

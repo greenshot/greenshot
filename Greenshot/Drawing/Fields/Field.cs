@@ -3,7 +3,7 @@
  * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using GreenshotPlugin.Interfaces.Drawing;
 using System;
 using System.ComponentModel;
 
@@ -27,26 +29,34 @@ namespace Greenshot.Drawing.Fields {
 	/// line thickness of a rectangle.
 	/// </summary>
 	[Serializable]
-	public class Field : INotifyPropertyChanged {
+	public class Field : IField {
 		[field:NonSerialized]
 		public event PropertyChangedEventHandler PropertyChanged;
 		
-		public object myValue;
+		private object _myValue;
 		public object Value {
 			get {
-				return myValue;
+				return _myValue;
 			}
 			set {
-				if (!Equals(myValue,value)) {
-					myValue = value; 
+				if (!Equals(_myValue,value)) {
+					_myValue = value; 
 					if (PropertyChanged!=null) {
 						PropertyChanged(this, new PropertyChangedEventArgs("Value"));
 					}
 				}
 			}
 		}
-		public FieldType FieldType;
-		public string Scope;
+		public IFieldType FieldType
+		{
+			get;
+			set;
+		}
+		public string Scope
+		{
+			get;
+			set;
+		}
 		
 		/// <summary>
 		/// Constructs a new Field instance, usually you should be using FieldFactory
@@ -59,15 +69,15 @@ namespace Greenshot.Drawing.Fields {
 		/// When scope is set to a Type (e.g. typeof(RectangleContainer)), its value
 		/// should not be reused for FieldHolders of another Type (e.g. typeof(EllipseContainer))
 		/// </param>
-		public Field(FieldType fieldType, Type scope) {
+		public Field(IFieldType fieldType, Type scope) {
 			FieldType = fieldType;
 			Scope = scope.Name;
 		}
-		public Field(FieldType fieldType, string scope) {
+		public Field(IFieldType fieldType, string scope) {
 			FieldType = fieldType;
 			Scope = scope;
 		}
-		public Field(FieldType fieldType) {
+		public Field(IFieldType fieldType) {
 			FieldType = fieldType;
 		}
 		/// <summary>
@@ -106,23 +116,7 @@ namespace Greenshot.Drawing.Fields {
 		}
 		
 		public override string ToString() {
-			return string.Format("[Field FieldType={1} Value={0} Scope={2}]", myValue, FieldType, Scope);
-		}
-	}
-	
-	
-	/// <summary>
-	/// EventHandler to be used when a field value changes
-	/// </summary>
-	public delegate void FieldChangedEventHandler(object sender, FieldChangedEventArgs e);
-	
-	/// <summary>
-	/// EventArgs to be used with FieldChangedEventHandler
-	/// </summary>
-	public class FieldChangedEventArgs : EventArgs {
-		public readonly Field Field;
-		public FieldChangedEventArgs(Field field) {
-			Field = field;
+			return string.Format("[Field FieldType={1} Value={0} Scope={2}]", _myValue, FieldType, Scope);
 		}
 	}
 }

@@ -84,7 +84,7 @@ namespace GreenshotPlugin.Core {
 		protected T first;
 		protected T last;
 		protected T current;
-		private Queue<AnimationLeg<T>> queue = new Queue<AnimationLeg<T>>();
+		private readonly Queue<AnimationLeg<T>> queue = new Queue<AnimationLeg<T>>();
 		protected int frames;
 		protected int currentFrameNr = 0;
 

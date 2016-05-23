@@ -25,6 +25,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using System;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing.Adorners
 {

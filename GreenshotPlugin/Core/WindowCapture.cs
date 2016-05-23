@@ -62,7 +62,7 @@ namespace GreenshotPlugin.Core {
 			set;
 		}
 
-		private Dictionary<string, string> metaData = new Dictionary<string, string>();
+		private readonly Dictionary<string, string> metaData = new Dictionary<string, string>();
 		public Dictionary<string, string> MetaData {
 			get {return metaData;}
 		}

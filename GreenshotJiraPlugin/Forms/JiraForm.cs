@@ -29,10 +29,10 @@ using Jira;
 
 namespace GreenshotJiraPlugin {
 	public partial class JiraForm : Form {
-		private JiraConnector jiraConnector;
+		private readonly JiraConnector jiraConnector;
 		private JiraIssue selectedIssue;
-		private GreenshotColumnSorter columnSorter;
-		private JiraConfiguration config = IniConfig.GetIniSection<JiraConfiguration>();
+		private readonly GreenshotColumnSorter columnSorter;
+		private readonly JiraConfiguration config = IniConfig.GetIniSection<JiraConfiguration>();
 
 		public JiraForm(JiraConnector jiraConnector) {
 			InitializeComponent();

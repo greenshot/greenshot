@@ -164,11 +164,11 @@ namespace GreenshotPlugin.Core {
 		private const string METRO_APPLAUNCHER_CLASS = "ImmersiveLauncher";
 		private const string METRO_GUTTER_CLASS = "ImmersiveGutter";
 		
-		private static ILog LOG = LogManager.GetLogger(typeof(WindowDetails));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-		private static List<IntPtr> ignoreHandles = new List<IntPtr>();
-		private static List<string> excludeProcessesFromFreeze = new List<string>();
-		private static IAppVisibility appVisibility = null;
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(WindowDetails));
+		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly List<IntPtr> ignoreHandles = new List<IntPtr>();
+		private static readonly List<string> excludeProcessesFromFreeze = new List<string>();
+		private static readonly IAppVisibility appVisibility = null;
 		
 		static WindowDetails() {
 			try {
@@ -224,7 +224,7 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// The window handle.
 		/// </summary>
-		private IntPtr hWnd = IntPtr.Zero;
+		private readonly IntPtr hWnd = IntPtr.Zero;
 
 		/// <summary>
 		/// To allow items to be compared, the hash code

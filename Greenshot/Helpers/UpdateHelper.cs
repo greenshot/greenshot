@@ -35,7 +35,7 @@ namespace Greenshot.Experimental {
 	/// </summary>
 	public static class UpdateHelper {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(UpdateHelper));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private const string STABLE_DOWNLOAD_LINK = "http://getgreenshot.org/downloads/";
 		private const string VERSION_HISTORY_LINK = "http://getgreenshot.org/version-history/";
 		private static readonly object LockObject = new object();

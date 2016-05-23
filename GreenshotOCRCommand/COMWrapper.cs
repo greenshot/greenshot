@@ -43,12 +43,12 @@ namespace Greenshot.Interop {
 		/// <summary>
 		/// Type of the COM object, set on constructor after getting the COM reference
 		/// </summary>
-		private Type _COMType;
+		private readonly Type _COMType;
 
 		/// <summary>
 		/// The type of which method calls are intercepted and executed on the COM object.
 		/// </summary>
-		private Type _InterceptType;
+		private readonly Type _InterceptType;
 
 		#endregion
 		[DllImport("ole32.dll")]

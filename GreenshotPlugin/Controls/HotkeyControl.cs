@@ -37,13 +37,13 @@ namespace GreenshotPlugin.Controls {
 	/// But is modified to fit in Greenshot, and have localized support
 	/// </summary>
 	public class HotkeyControl : GreenshotTextBox {
-		private static ILog LOG = LogManager.GetLogger(typeof(HotkeyControl));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(HotkeyControl));
 
-		private static EventDelay eventDelay = new EventDelay(TimeSpan.FromMilliseconds(600).Ticks);
-		private static bool isWindows7OrOlder = Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 1;
+		private static readonly EventDelay eventDelay = new EventDelay(TimeSpan.FromMilliseconds(600).Ticks);
+		private static readonly bool isWindows7OrOlder = Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 1;
 
 		// Holds the list of hotkeys
-		private static Dictionary<int, HotKeyHandler> keyHandlers = new Dictionary<int, HotKeyHandler>();
+		private static readonly Dictionary<int, HotKeyHandler> keyHandlers = new Dictionary<int, HotKeyHandler>();
 		private static int hotKeyCounter = 1;
 		private const uint WM_HOTKEY = 0x312;
 		private static IntPtr hotkeyHWND;
@@ -93,10 +93,10 @@ namespace GreenshotPlugin.Controls {
 
 		// ArrayLists used to enforce the use of proper modifiers.
 		// Shift+A isn't a valid hotkey, for instance, as it would screw up when the user is typing.
-		private ArrayList needNonShiftModifier = null;
-		private ArrayList needNonAltGrModifier = null;
+		private readonly ArrayList needNonShiftModifier = null;
+		private readonly ArrayList needNonAltGrModifier = null;
 
-		private ContextMenu dummy = new ContextMenu();
+		private readonly ContextMenu dummy = new ContextMenu();
 
 		/// <summary>
 		/// Used to make sure that there is no right-click menu available

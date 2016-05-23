@@ -349,7 +349,7 @@ namespace Greenshot.Helpers {
 			}
 		}
 		public class FixedAngleRoundBehavior : IDoubleProcessor {
-			private double fixedAngle;
+			private readonly double fixedAngle;
 			public FixedAngleRoundBehavior(double fixedAngle) {
 				this.fixedAngle = fixedAngle;
 			}

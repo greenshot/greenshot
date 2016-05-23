@@ -20,25 +20,21 @@
  */
 using System;
 using System.Drawing;
-using Greenshot.Drawing.Fields;
-using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
+using Greenshot.Plugin.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing.Filters {
+	/// <summary>
+	/// Description of GrayscaleFilter.
+	/// </summary>
 	[Serializable()] 
-	public class HighlightFilter : AbstractFilter {
-		public HighlightFilter(DrawableContainer parent) : base(parent) {
-			AddField(GetType(), FieldType.FILL_COLOR, Color.Yellow);
+	public class GrayscaleFilter : AbstractFilter {
+		public GrayscaleFilter(DrawableContainer parent) : base(parent) {
 		}
 
-		/// <summary>
-		/// Implements the Apply code for the Brightness Filet
-		/// </summary>
-		/// <param name="graphics"></param>
-		/// <param name="applyBitmap"></param>
-		/// <param name="rect"></param>
-		/// <param name="renderMode"></param>
 		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
 			Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
 
@@ -51,18 +47,19 @@ namespace Greenshot.Drawing.Filters {
 				graphics.SetClip(applyRect);
 				graphics.ExcludeClip(rect);
 			}
-			using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect)) {
-				Color highlightColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-				for (int y = fastBitmap.Top; y < fastBitmap.Bottom; y++) {
-					for (int x = fastBitmap.Left; x < fastBitmap.Right; x++) {
-						Color color = fastBitmap.GetColorAt(x, y);
-						color = Color.FromArgb(color.A, Math.Min(highlightColor.R, color.R), Math.Min(highlightColor.G, color.G), Math.Min(highlightColor.B, color.B));
-						fastBitmap.SetColorAt(x, y, color);
-					}
-				}
-				fastBitmap.DrawTo(graphics, applyRect.Location);
+			ColorMatrix grayscaleMatrix = new ColorMatrix(new[] {
+				new[] {.3f, .3f, .3f, 0, 0},
+				new[] {.59f, .59f, .59f, 0, 0},
+				new[] {.11f, .11f, .11f, 0, 0},
+				new float[] {0, 0, 0, 1, 0},
+				new float[] {0, 0, 0, 0, 1}
+			});
+			using (ImageAttributes ia = new ImageAttributes()) {
+				ia.SetColorMatrix(grayscaleMatrix);
+				graphics.DrawImage(applyBitmap, applyRect, applyRect.X, applyRect.Y, applyRect.Width, applyRect.Height, GraphicsUnit.Pixel, ia);
 			}
 			graphics.Restore(state);
+
 		}
 	}
 }

@@ -39,8 +39,8 @@ namespace GreenshotOfficePlugin {
 		private const int ICON_APPLICATION = 0;
 		private const int ICON_PRESENTATION = 1;
 
-		private static string exePath = null;
-		private string presentationName = null;
+		private static readonly string exePath = null;
+		private readonly string presentationName = null;
 		
 		static PowerpointDestination() {
 			exePath = PluginUtils.GetExePath("POWERPNT.EXE");

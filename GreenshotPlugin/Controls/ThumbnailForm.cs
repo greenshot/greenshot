@@ -31,7 +31,7 @@ namespace GreenshotPlugin.Controls {
 	/// Didn't make it completely "generic" yet, but at least most logic is in here so we don't have it in the mainform.
 	/// </summary>
 	public class ThumbnailForm : FormWithoutActivation {
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
 		private IntPtr thumbnailHandle = IntPtr.Zero;
 		private Rectangle parentMenuBounds = Rectangle.Empty;

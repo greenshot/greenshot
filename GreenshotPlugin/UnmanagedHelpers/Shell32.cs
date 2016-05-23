@@ -39,37 +39,37 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		#region Structs
 		[StructLayout(LayoutKind.Sequential)]
 		private struct SHITEMID {
-			public ushort cb;
+			public readonly ushort cb;
 			[MarshalAs(UnmanagedType.LPArray)]
-			public byte[] abID;
+			public readonly byte[] abID;
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
 		private struct ITEMIDLIST {
-			public SHITEMID mkid;
+			public readonly SHITEMID mkid;
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
 		private struct BROWSEINFO {
-			public IntPtr hwndOwner;
-			public IntPtr pidlRoot;
-			public IntPtr pszDisplayName;
+			public readonly IntPtr hwndOwner;
+			public readonly IntPtr pidlRoot;
+			public readonly IntPtr pszDisplayName;
 			[MarshalAs(UnmanagedType.LPTStr)]
-			public string lpszTitle;
-			public uint ulFlags;
-			public IntPtr lpfn;
-			public int lParam;
-			public IntPtr iImage;
+			public readonly string lpszTitle;
+			public readonly uint ulFlags;
+			public readonly IntPtr lpfn;
+			public readonly int lParam;
+			public readonly IntPtr iImage;
 		}
 		[StructLayout(LayoutKind.Sequential, CharSet=CharSet.Unicode)]
 		private struct SHFILEINFO {
-			public IntPtr hIcon;
-			public int iIcon;
-			public uint dwAttributes;
+			public readonly IntPtr hIcon;
+			public readonly int iIcon;
+			public readonly uint dwAttributes;
 			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
-			public string szDisplayName;
+			public readonly string szDisplayName;
 			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)]
-			public string szTypeName;
+			public readonly string szTypeName;
 		};
 
 		#endregion

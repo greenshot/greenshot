@@ -35,10 +35,10 @@ namespace GreenshotJiraPlugin {
 	/// Description of JiraDestination.
 	/// </summary>
 	public class JiraDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraDestination));
-		private static JiraConfiguration config = IniConfig.GetIniSection<JiraConfiguration>();
-		private JiraPlugin jiraPlugin = null;
-		private JiraIssue jira = null;
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraDestination));
+		private static readonly JiraConfiguration config = IniConfig.GetIniSection<JiraConfiguration>();
+		private readonly JiraPlugin jiraPlugin = null;
+		private readonly JiraIssue jira = null;
 		
 		public JiraDestination(JiraPlugin jiraPlugin) {
 			this.jiraPlugin = jiraPlugin;

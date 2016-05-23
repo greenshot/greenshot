@@ -100,17 +100,17 @@ namespace Jira {
 	public class JiraConnector : IDisposable {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraConnector));
 		private const string AUTH_FAILED_EXCEPTION_NAME = "com.atlassian.jira.rpc.exception.RemoteAuthenticationException";
-		private static JiraConfiguration config = IniConfig.GetIniSection<JiraConfiguration>();
+		private static readonly JiraConfiguration config = IniConfig.GetIniSection<JiraConfiguration>();
 		public const string DEFAULT_POSTFIX = "/rpc/soap/jirasoapservice-v2?wsdl";
 		private string credentials;
 		private DateTime loggedInTime = DateTime.Now;
 		private bool loggedIn;
 		private JiraSoapServiceService jira;
-		private int timeout;
+		private readonly int timeout;
 		private string url;
-		private Cache<string, JiraIssue> jiraCache = new Cache<string, JiraIssue>(60 * config.Timeout);
-		private Cache<string, RemoteUser> userCache = new Cache<string, RemoteUser>(60 * config.Timeout);
-		private bool suppressBackgroundForm = false;
+		private readonly Cache<string, JiraIssue> jiraCache = new Cache<string, JiraIssue>(60 * config.Timeout);
+		private readonly Cache<string, RemoteUser> userCache = new Cache<string, RemoteUser>(60 * config.Timeout);
+		private readonly bool suppressBackgroundForm = false;
 
 		public void Dispose() {
 			Dispose(true);

@@ -601,11 +601,11 @@ namespace Greenshot.Interop.Office {
 			[FieldOffset(0)]
 			public uint propTag;
 			[FieldOffset(4)]
-			public uint alignPad;
+			public readonly uint alignPad;
 			[FieldOffset(8)]
 			public IntPtr Value;
 			[FieldOffset(8)]
-			public long filler;
+			public readonly long filler;
 		}
 
 		/// <summary>

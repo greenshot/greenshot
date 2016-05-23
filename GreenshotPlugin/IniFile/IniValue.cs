@@ -31,11 +31,11 @@ namespace Greenshot.IniFile {
 	/// A container to be able to pass the value from a IniSection around.
 	/// </summary>
 	public class IniValue {
-		private static ILog LOG = LogManager.GetLogger(typeof(IniValue));
-		private PropertyInfo propertyInfo;
-		private FieldInfo fieldInfo;
-		private IniSection containingIniSection;
-		private IniPropertyAttribute attributes;
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(IniValue));
+		private readonly PropertyInfo propertyInfo;
+		private readonly FieldInfo fieldInfo;
+		private readonly IniSection containingIniSection;
+		private readonly IniPropertyAttribute attributes;
 
 		public IniValue(IniSection containingIniSection, PropertyInfo propertyInfo, IniPropertyAttribute iniPropertyAttribute) {
 			this.containingIniSection = containingIniSection;

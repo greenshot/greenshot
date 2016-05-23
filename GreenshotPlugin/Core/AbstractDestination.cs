@@ -25,6 +25,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
+using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 
@@ -34,7 +35,7 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public abstract class AbstractDestination : IDestination {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(AbstractDestination));
-		private static CoreConfiguration configuration = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration configuration = IniConfig.GetIniSection<CoreConfiguration>();
 		
 		public virtual int CompareTo(object obj) {
 			IDestination other = obj as IDestination;

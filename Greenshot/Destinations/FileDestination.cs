@@ -35,8 +35,8 @@ namespace Greenshot.Destinations {
 	/// Description of FileSaveAsDestination.
 	/// </summary>
 	public class FileDestination : AbstractDestination {
-		private static ILog LOG = LogManager.GetLogger(typeof(FileDestination));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(FileDestination));
+		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		public const string DESIGNATION = "FileNoDialog";
 
 		public override string Designation {

@@ -19,50 +19,49 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using Greenshot.Drawing;
+using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Memento
 {
 	/// <summary>
-	/// The TextChangeMemento makes it possible to undo-redo an IDrawableContainer move
+	/// The DeleteElementMemento makes it possible to undo deleting an element
 	/// </summary>
-	public class TextChangeMemento : IMemento  {
-		private TextContainer textContainer;
-		private readonly string oldText;
-		
-		public TextChangeMemento(TextContainer textContainer) {
-			this.textContainer = textContainer;
-			oldText = textContainer.Text;
+	public class DeleteElementsMemento : IMemento  {
+		private IDrawableContainerList _containerList;
+		private Surface _surface;
+
+		public DeleteElementsMemento(Surface surface, IDrawableContainerList containerList) {
+			_surface = surface;
+			_containerList = containerList;
 		}
 
 		public void Dispose() {
 			Dispose(true);
 		}
 
-		protected virtual void Dispose(bool disposing) {
-			if (disposing) {
-				textContainer = null;
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				if (_containerList != null)
+				{
+					_containerList.Dispose();
+				}
 			}
+			_containerList = null;
+			_surface = null;
 		}
 
 		public bool Merge(IMemento otherMemento) {
-			TextChangeMemento other = otherMemento as TextChangeMemento;
-			if (other != null) {
-				if (other.textContainer.Equals(textContainer)) {
-					// Match, do not store anything as the initial state is what we want.
-					return true;
-				}
-			}
 			return false;
 		}
 
 		public IMemento Restore() {
-			// Before
-			textContainer.Invalidate();
-			TextChangeMemento oldState = new TextChangeMemento(textContainer);
-			textContainer.ChangeText(oldText, false);
+			AddElementsMemento oldState = new AddElementsMemento(_surface, _containerList);
+			_surface.AddElements(_containerList, false);
 			// After
-			textContainer.Invalidate();
+			_surface.Invalidate();
 			return oldState;
 		}
 	}

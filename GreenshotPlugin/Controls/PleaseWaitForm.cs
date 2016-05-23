@@ -30,7 +30,7 @@ namespace GreenshotPlugin.Controls {
 	/// Description of PleaseWaitForm.
 	/// </summary>
 	public partial class PleaseWaitForm : Form {
-		private static ILog LOG = LogManager.GetLogger(typeof(PleaseWaitForm));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(PleaseWaitForm));
 		private Thread waitFor = null;
 		private string title;
 		public PleaseWaitForm() {

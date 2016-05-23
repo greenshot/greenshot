@@ -26,9 +26,9 @@ using GreenshotPlugin.Core;
 namespace GreenshotDropboxPlugin {
 	class DropboxDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(DropboxDestination));
-		private static DropboxPluginConfiguration config = IniConfig.GetIniSection<DropboxPluginConfiguration>();
+		private static readonly DropboxPluginConfiguration config = IniConfig.GetIniSection<DropboxPluginConfiguration>();
 
-		private DropboxPlugin plugin = null;
+		private readonly DropboxPlugin plugin = null;
 		public DropboxDestination(DropboxPlugin plugin) {
 			this.plugin = plugin;
 		}

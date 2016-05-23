@@ -35,21 +35,21 @@ namespace GreenshotPlugin.Core {
 	/// The language resources are loaded from the language files found on fixed or supplied paths
 	/// </summary>
 	public class Language {
-		private static ILog LOG = LogManager.GetLogger(typeof(Language));
-		private static List<string> languagePaths = new List<string>();
-		private static IDictionary<string, List<LanguageFile>> languageFiles = new Dictionary<string, List<LanguageFile>>();
-		private static IDictionary<string, string> helpFiles = new Dictionary<string, string>();
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(Language));
+		private static readonly List<string> languagePaths = new List<string>();
+		private static readonly IDictionary<string, List<LanguageFile>> languageFiles = new Dictionary<string, List<LanguageFile>>();
+		private static readonly IDictionary<string, string> helpFiles = new Dictionary<string, string>();
 		private const string DEFAULT_LANGUAGE = "en-US";
 		private const string HELP_FILENAME_PATTERN = @"help-*.html";
 		private const string LANGUAGE_FILENAME_PATTERN = @"language*.xml";
-		private static Regex PREFIX_REGEXP = new Regex(@"language_([a-zA-Z0-9]+).*");
-		private static Regex IETF_CLEAN_REGEXP = new Regex(@"[^a-zA-Z]+");
-		private static Regex IETF_REGEXP = new Regex(@"^.*([a-zA-Z]{2}-[a-zA-Z]{2})\.xml$");
+		private static readonly Regex PREFIX_REGEXP = new Regex(@"language_([a-zA-Z0-9]+).*");
+		private static readonly Regex IETF_CLEAN_REGEXP = new Regex(@"[^a-zA-Z]+");
+		private static readonly Regex IETF_REGEXP = new Regex(@"^.*([a-zA-Z]{2}-[a-zA-Z]{2})\.xml$");
 		private const string LANGUAGE_GROUPS_KEY = @"SYSTEM\CurrentControlSet\Control\Nls\Language Groups";
-		private static List<string> unsupportedLanguageGroups = new List<string>();
-		private static IDictionary<string, string> resources = new Dictionary<string, string>();
+		private static readonly List<string> unsupportedLanguageGroups = new List<string>();
+		private static readonly IDictionary<string, string> resources = new Dictionary<string, string>();
 		private static string currentLanguage = null;
-		private static CoreConfiguration coreConfig = null;
+		private static readonly CoreConfiguration coreConfig = null;
 
 		public static event LanguageChangedHandler LanguageChanged;
 

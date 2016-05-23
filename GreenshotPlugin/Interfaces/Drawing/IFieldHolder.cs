@@ -3,7 +3,7 @@
  * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,8 @@
 
 using System.Collections.Generic;
 
-namespace Greenshot.Drawing.Fields {
+namespace GreenshotPlugin.Interfaces.Drawing
+{
 	/// <summary>
 	/// Any element holding Fields must provide access to it.
 	/// AbstractFieldHolder is the basic implementation.
@@ -32,12 +33,12 @@ namespace Greenshot.Drawing.Fields {
 		
 		event FieldChangedEventHandler FieldChanged;
 		
-		void AddField(Field field);
-		void RemoveField(Field field);
-		List<Field> GetFields();
-		Field GetField(FieldType fieldType);
-		bool HasField(FieldType fieldType);
-		void SetFieldValue(FieldType fieldType, object value);
+		void AddField(IField field);
+		void RemoveField(IField field);
+		IList<IField> GetFields();
+		IField GetField(IFieldType fieldType);
+		bool HasField(IFieldType fieldType);
+		void SetFieldValue(IFieldType fieldType, object value);
 	}
 	
 	/// <summary>

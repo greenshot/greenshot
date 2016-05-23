@@ -34,8 +34,8 @@ namespace ExternalCommand {
 	/// </summary>
 	public class ExternalCommandPlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExternalCommandPlugin));
-		private static CoreConfiguration coreConfig = IniConfig.GetIniSection<CoreConfiguration>();
-		private static ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
+		private static readonly CoreConfiguration coreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
 		private IGreenshotHost host;
 		private PluginAttribute myAttributes;
 		private ToolStripMenuItem itemPlugInRoot;

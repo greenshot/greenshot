@@ -122,7 +122,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("gdi32", SetLastError = true)]
 		private static extern IntPtr SelectObject(IntPtr hDC, IntPtr hObject);
 
-		private SafeHandle hdc;
+		private readonly SafeHandle hdc;
 
 		[SecurityCritical]
 		private SafeSelectObjectHandle() : base(true) {
@@ -173,7 +173,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// A DeviceContext SafeHandle implementation
 	/// </summary>
 	public class SafeDeviceContextHandle : SafeDCHandle {
-		private Graphics graphics = null;
+		private readonly Graphics graphics = null;
 		
 		[SecurityCritical]
 		private SafeDeviceContextHandle() : base(true) {

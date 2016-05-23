@@ -3,7 +3,7 @@
  * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using Greenshot.Configuration;
 
-namespace Greenshot.Memento {
+namespace GreenshotPlugin.Interfaces.Drawing
+{
 	/// <summary>
 	/// Description of IMemento.
 	/// </summary>
@@ -40,12 +40,5 @@ namespace Greenshot.Memento {
 		/// <param name="other">The memento to try to merge with</param>
 		/// <returns></returns>
 		bool Merge(IMemento other);
-		
-		/// <summary>
-		/// Returns the language key for the action which is performed
-		/// </summary>
-		LangKey ActionLanguageKey {
-			get;
-		}
 	}
 }

@@ -34,18 +34,18 @@ namespace GreenshotOfficePlugin {
 	/// Description of OutlookDestination.
 	/// </summary>
 	public class OutlookDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OutlookDestination));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OutlookDestination));
 		private const int ICON_APPLICATION = 0;
 		private const int ICON_MEETING = 2;
 
-		private static Image mailIcon = GreenshotPlugin.Core.GreenshotResources.getImage("Email.Image");
-		private static OfficeConfiguration conf = IniConfig.GetIniSection<OfficeConfiguration>();
-		private static string exePath = null;
-		private static bool isActiveFlag = false;
-		private static string mapiClient = "Microsoft Outlook";
+		private static readonly Image mailIcon = GreenshotPlugin.Core.GreenshotResources.getImage("Email.Image");
+		private static readonly OfficeConfiguration conf = IniConfig.GetIniSection<OfficeConfiguration>();
+		private static readonly string exePath = null;
+		private static readonly bool isActiveFlag = false;
+		private static readonly string mapiClient = "Microsoft Outlook";
 		public const string DESIGNATION = "Outlook";
-		private string outlookInspectorCaption;
-		private OlObjectClass outlookInspectorType;
+		private readonly string outlookInspectorCaption;
+		private readonly OlObjectClass outlookInspectorType;
 
 		static OutlookDestination() {
 			if (EmailConfigHelper.HasOutlook()) {

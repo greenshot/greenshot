@@ -3,7 +3,7 @@
  * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,22 +18,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
+using Greenshot.Drawing;
+using GreenshotPlugin.Core;
+using GreenshotPlugin.Interfaces.Drawing;
 using System.Collections.Generic;
 using System.Drawing;
-
-using Greenshot.Configuration;
 using Greenshot.Plugin.Drawing;
-using GreenshotPlugin.Core;
 
-namespace Greenshot.Memento {
+namespace Greenshot.Memento
+{
 	/// <summary>
 	/// The DrawableContainerBoundsChangeMemento makes it possible to undo-redo an IDrawableContainer resize & move
 	/// </summary>
 	public class DrawableContainerBoundsChangeMemento : IMemento  {
-		List<Point> points = new List<Point>();
-		List<Size> sizes = new List<Size>();
-		List<IDrawableContainer> listOfdrawableContainer;
+		readonly List<Point> points = new List<Point>();
+		readonly List<Size> sizes = new List<Size>();
+		IDrawableContainerList listOfdrawableContainer;
 		
 		private void StoreBounds() {
 			foreach(IDrawableContainer drawableContainer in listOfdrawableContainer) {
@@ -42,35 +42,36 @@ namespace Greenshot.Memento {
 			}
 		}
 
-		public DrawableContainerBoundsChangeMemento(List<IDrawableContainer> listOfdrawableContainer) {
+		public DrawableContainerBoundsChangeMemento(IDrawableContainerList listOfdrawableContainer) {
 			this.listOfdrawableContainer = listOfdrawableContainer;
 			StoreBounds();
 		}
 
 		public DrawableContainerBoundsChangeMemento(IDrawableContainer drawableContainer) {
-			listOfdrawableContainer = new List<IDrawableContainer>();
+			listOfdrawableContainer = new DrawableContainerList();
 			listOfdrawableContainer.Add(drawableContainer);
+			listOfdrawableContainer.Parent = drawableContainer.Parent;
 			StoreBounds();
 		}
 
 		public void Dispose() {
 			Dispose(true);
-			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing) {
-			// if (disposing) { }
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				if (listOfdrawableContainer != null)
+				{
+					listOfdrawableContainer.Dispose();
+				}
+			}
 			listOfdrawableContainer = null;
 		}
 
-		public LangKey ActionLanguageKey {
-			get {
-				return LangKey.none;
-			}
-		}
-
 		public bool Merge(IMemento otherMemento) {
-			DrawableContainerBoundsChangeMemento other = otherMemento as DrawableContainerBoundsChangeMemento;
+			var other = otherMemento as DrawableContainerBoundsChangeMemento;
 			if (other != null) {
 				if (Objects.CompareLists<IDrawableContainer>(listOfdrawableContainer, other.listOfdrawableContainer)) {
 					// Lists are equal, as we have the state already we can ignore the new memento
@@ -81,7 +82,7 @@ namespace Greenshot.Memento {
 		}
 
 		public IMemento Restore() {
-			DrawableContainerBoundsChangeMemento oldState = new DrawableContainerBoundsChangeMemento(listOfdrawableContainer);
+			var oldState = new DrawableContainerBoundsChangeMemento(listOfdrawableContainer);
 			for(int index = 0; index < listOfdrawableContainer.Count; index++) {
 				IDrawableContainer drawableContainer = listOfdrawableContainer[index];
 				// Before

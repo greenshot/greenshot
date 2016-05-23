@@ -32,6 +32,7 @@ using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
 using System.Runtime.InteropServices;
+using GreenshotPlugin.Interfaces;
 using log4net;
 
 namespace GreenshotPlugin.Core {

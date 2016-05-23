@@ -20,20 +20,28 @@
  */
 using System;
 using System.Drawing;
-using GreenshotPlugin.Core;
+using Greenshot.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
-using System.Drawing.Drawing2D;
+using GreenshotPlugin.Core;
 using System.Drawing.Imaging;
+using System.Drawing.Drawing2D;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing.Filters {
-	/// <summary>
-	/// Description of GrayscaleFilter.
-	/// </summary>
 	[Serializable()] 
-	public class GrayscaleFilter : AbstractFilter {
-		public GrayscaleFilter(DrawableContainer parent) : base(parent) {
+	public class BrightnessFilter : AbstractFilter {
+		
+		public BrightnessFilter(DrawableContainer parent) : base(parent) {
+			AddField(GetType(), FieldType.BRIGHTNESS, 0.9d);
 		}
 
+		/// <summary>
+		/// Implements the Apply code for the Brightness Filet
+		/// </summary>
+		/// <param name="graphics"></param>
+		/// <param name="applyBitmap"></param>
+		/// <param name="rect"></param>
+		/// <param name="renderMode"></param>
 		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode) {
 			Rectangle applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
 
@@ -41,24 +49,17 @@ namespace Greenshot.Drawing.Filters {
 				// nothing to do
 				return;
 			}
-			GraphicsState state = graphics.Save();
+
+			GraphicsState state =  graphics.Save();
 			if (Invert) {
 				graphics.SetClip(applyRect);
 				graphics.ExcludeClip(rect);
 			}
-			ColorMatrix grayscaleMatrix = new ColorMatrix(new[] {
-				new[] {.3f, .3f, .3f, 0, 0},
-				new[] {.59f, .59f, .59f, 0, 0},
-				new[] {.11f, .11f, .11f, 0, 0},
-				new float[] {0, 0, 0, 1, 0},
-				new float[] {0, 0, 0, 0, 1}
-			});
-			using (ImageAttributes ia = new ImageAttributes()) {
-				ia.SetColorMatrix(grayscaleMatrix);
+			float brightness = GetFieldValueAsFloat(FieldType.BRIGHTNESS);
+			using (ImageAttributes ia = ImageHelper.CreateAdjustAttributes(brightness, 1f, 1f)) {
 				graphics.DrawImage(applyBitmap, applyRect, applyRect.X, applyRect.Y, applyRect.Width, applyRect.Height, GraphicsUnit.Pixel, ia);
 			}
 			graphics.Restore(state);
-
 		}
 	}
 }

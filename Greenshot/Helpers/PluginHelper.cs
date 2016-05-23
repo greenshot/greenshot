@@ -36,12 +36,12 @@ namespace Greenshot.Helpers {
 	[Serializable]
 	public class PluginHelper : IGreenshotHost {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(PluginHelper));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
-		private static string pluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),Application.ProductName);
-		private static string applicationPath = Path.GetDirectoryName(Application.ExecutablePath);
-		private static string pafPath =  Path.Combine(Application.StartupPath, @"App\Greenshot");
-		private static IDictionary<PluginAttribute, IGreenshotPlugin> plugins = new SortedDictionary<PluginAttribute, IGreenshotPlugin>();
+		private static readonly string pluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),Application.ProductName);
+		private static readonly string applicationPath = Path.GetDirectoryName(Application.ExecutablePath);
+		private static readonly string pafPath =  Path.Combine(Application.StartupPath, @"App\Greenshot");
+		private static readonly IDictionary<PluginAttribute, IGreenshotPlugin> plugins = new SortedDictionary<PluginAttribute, IGreenshotPlugin>();
 		private static readonly PluginHelper instance = new PluginHelper();
 		public static PluginHelper Instance {
 			get {

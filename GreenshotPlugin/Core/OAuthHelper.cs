@@ -968,7 +968,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 
 		private string _cloudServiceName;
 
-		private IDictionary<string, string> _returnValues = new Dictionary<string, string>();
+		private readonly IDictionary<string, string> _returnValues = new Dictionary<string, string>();
 
 
 		/// <summary>

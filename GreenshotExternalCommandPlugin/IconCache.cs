@@ -7,8 +7,8 @@ using GreenshotPlugin.Core;
 
 namespace ExternalCommand {
 	public static class IconCache {
-		private static ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(IconCache));
+		private static readonly ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(IconCache));
 
 		public static Image IconForCommand(string commandName) {
 			Image icon = null;

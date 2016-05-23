@@ -37,7 +37,7 @@ namespace GreenshotPlugin.Controls {
 		/// <summary>
 		/// Case insensitive comparer object
 		/// </summary>
-		private CaseInsensitiveComparer ObjectCompare;
+		private readonly CaseInsensitiveComparer ObjectCompare;
 
 		/// <summary>
 		/// Class constructor.  Initializes various elements

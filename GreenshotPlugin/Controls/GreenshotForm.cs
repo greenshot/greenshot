@@ -34,9 +34,9 @@ namespace GreenshotPlugin.Controls {
 	/// This form is used for automatically binding the elements of the form to the language
 	/// </summary>
 	public class GreenshotForm : Form, IGreenshotLanguageBindable {
-		private static ILog LOG = LogManager.GetLogger(typeof(GreenshotForm));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(GreenshotForm));
 		protected static CoreConfiguration coreConfiguration;
-		private static IDictionary<Type, FieldInfo[]> reflectionCache = new Dictionary<Type, FieldInfo[]>();
+		private static readonly IDictionary<Type, FieldInfo[]> reflectionCache = new Dictionary<Type, FieldInfo[]>();
 		private IComponentChangeService m_changeService;
 		private bool _isDesignModeLanguageSet = false;
 		private bool _applyLanguageManually = false;

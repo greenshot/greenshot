@@ -35,7 +35,7 @@ namespace GreenshotPlugin.Controls {
 	/// </summary>
 	public partial class OAuthLoginForm : Form {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(OAuthLoginForm));
-		private string _callbackUrl = null;
+		private readonly string _callbackUrl = null;
 		private IDictionary<string, string> _callbackParameters = null;
 		
 		public IDictionary<string, string> CallbackParameters {

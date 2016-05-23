@@ -33,11 +33,11 @@ namespace GreenshotOfficePlugin {
 	/// Description of EmailDestination.
 	/// </summary>
 	public class WordDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordDestination));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordDestination));
 		private const int ICON_APPLICATION = 0;
 		private const int ICON_DOCUMENT = 1;
-		private static string exePath = null;
-		private string documentCaption = null;
+		private static readonly string exePath = null;
+		private readonly string documentCaption = null;
 
 		static WordDestination() {
 			exePath = PluginUtils.GetExePath("WINWORD.EXE");

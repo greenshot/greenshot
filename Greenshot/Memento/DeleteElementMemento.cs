@@ -3,7 +3,7 @@
  * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,43 +18,38 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
-using Greenshot.Configuration;
 using Greenshot.Drawing;
 using Greenshot.Plugin.Drawing;
+using GreenshotPlugin.Interfaces.Drawing;
 
-namespace Greenshot.Memento {
+namespace Greenshot.Memento
+{
 	/// <summary>
 	/// The DeleteElementMemento makes it possible to undo deleting an element
 	/// </summary>
 	public class DeleteElementMemento : IMemento  {
-		private IDrawableContainer drawableContainer;
-		private Surface surface;
+		private IDrawableContainer _drawableContainer;
+		private Surface _surface;
 
 		public DeleteElementMemento(Surface surface, IDrawableContainer drawableContainer) {
-			this.surface = surface;
-			this.drawableContainer = drawableContainer;
+			_surface = surface;
+			_drawableContainer = drawableContainer;
 		}
 
 		public void Dispose() {
 			Dispose(true);
-			GC.SuppressFinalize(this);
 		}
 
 		protected virtual void Dispose(bool disposing) {
-			if (disposing) {
-				if (drawableContainer != null) {
-					drawableContainer.Dispose();
-					drawableContainer = null;
+			if (disposing)
+			{
+				if (_drawableContainer != null)
+				{
+					_drawableContainer.Dispose();
 				}
 			}
-		}
-
-		public LangKey ActionLanguageKey {
-			get {
-				//return LangKey.editor_deleteelement;
-				return LangKey.none;
-			}
+			_drawableContainer = null;
+			_surface = null;
 		}
 
 		public bool Merge(IMemento otherMemento) {
@@ -62,18 +57,15 @@ namespace Greenshot.Memento {
 		}
 
 		public IMemento Restore() {
-			// Before
-			drawableContainer.Invalidate();
-
-			AddElementMemento oldState = new AddElementMemento(surface, drawableContainer);
-			surface.AddElement(drawableContainer, false);
+			AddElementMemento oldState = new AddElementMemento(_surface, _drawableContainer);
+			_surface.AddElement(_drawableContainer, false, false);
 			// The container has a selected flag which represents the state at the moment it was deleted.
-			if (drawableContainer.Selected) {
-				surface.SelectElement(drawableContainer);
+			if (_drawableContainer.Selected) {
+				_surface.SelectElement(_drawableContainer, false);
 			}
 
 			// After
-			drawableContainer.Invalidate();
+			_drawableContainer.Invalidate();
 			return oldState;
 		}
 	}

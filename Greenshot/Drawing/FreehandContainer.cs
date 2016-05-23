@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -42,7 +43,7 @@ namespace Greenshot.Drawing {
 		private GraphicsPath freehandPath = new GraphicsPath();
 		private Rectangle myBounds = Rectangle.Empty;
 		private Point lastMouse = Point.Empty;
-		private List<Point> capturePoints = new List<Point>();
+		private readonly List<Point> capturePoints = new List<Point>();
 		private bool isRecalculated = false;
 		
 		/// <summary>

@@ -22,6 +22,7 @@
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
+using GreenshotPlugin.Interfaces.Drawing;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -144,7 +145,8 @@ namespace Greenshot.Drawing {
 			if (!disposing) {
 				return;
 			}
-			((Surface)Parent).RemoveStepLabel(this);
+			((Surface) Parent)?.RemoveStepLabel(this);
+
 			if (_stringFormat != null) {
 				_stringFormat.Dispose();
 				_stringFormat = null;

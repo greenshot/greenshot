@@ -48,8 +48,8 @@ namespace GreenshotPlugin.Core {
 	/// Description of ImageHelper.
 	/// </summary>
 	public static class ImageHelper {
-		private static ILog LOG = LogManager.GetLogger(typeof(ImageHelper));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(ImageHelper));
+		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private const int EXIF_ORIENTATION_ID = 0x0112;
 
 		/// <summary>

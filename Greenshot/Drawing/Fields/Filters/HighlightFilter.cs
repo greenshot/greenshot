@@ -23,15 +23,14 @@ using System.Drawing;
 using Greenshot.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
-using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing.Filters {
 	[Serializable()] 
-	public class BrightnessFilter : AbstractFilter {
-		
-		public BrightnessFilter(DrawableContainer parent) : base(parent) {
-			AddField(GetType(), FieldType.BRIGHTNESS, 0.9d);
+	public class HighlightFilter : AbstractFilter {
+		public HighlightFilter(DrawableContainer parent) : base(parent) {
+			AddField(GetType(), FieldType.FILL_COLOR, Color.Yellow);
 		}
 
 		/// <summary>
@@ -48,15 +47,21 @@ namespace Greenshot.Drawing.Filters {
 				// nothing to do
 				return;
 			}
-
-			GraphicsState state =  graphics.Save();
+			GraphicsState state = graphics.Save();
 			if (Invert) {
 				graphics.SetClip(applyRect);
 				graphics.ExcludeClip(rect);
 			}
-			float brightness = GetFieldValueAsFloat(FieldType.BRIGHTNESS);
-			using (ImageAttributes ia = ImageHelper.CreateAdjustAttributes(brightness, 1f, 1f)) {
-				graphics.DrawImage(applyBitmap, applyRect, applyRect.X, applyRect.Y, applyRect.Width, applyRect.Height, GraphicsUnit.Pixel, ia);
+			using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect)) {
+				Color highlightColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
+				for (int y = fastBitmap.Top; y < fastBitmap.Bottom; y++) {
+					for (int x = fastBitmap.Left; x < fastBitmap.Right; x++) {
+						Color color = fastBitmap.GetColorAt(x, y);
+						color = Color.FromArgb(color.A, Math.Min(highlightColor.R, color.R), Math.Min(highlightColor.G, color.G), Math.Min(highlightColor.B, color.B));
+						fastBitmap.SetColorAt(x, y, color);
+					}
+				}
+				fastBitmap.DrawTo(graphics, applyRect.Location);
 			}
 			graphics.Restore(state);
 		}

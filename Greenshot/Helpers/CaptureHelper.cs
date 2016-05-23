@@ -42,7 +42,7 @@ namespace Greenshot.Helpers {
 	/// </summary>
 	public class CaptureHelper : IDisposable {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(CaptureHelper));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		// TODO: when we get the screen capture code working correctly, this needs to be enabled
 		//private static ScreenCaptureHelper screenCapture = null;
 		private List<WindowDetails> _windows = new List<WindowDetails>();

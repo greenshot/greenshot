@@ -28,7 +28,7 @@ using log4net;
 
 namespace Greenshot.IniFile {
 	public class IniConfig {
-		private static ILog LOG = LogManager.GetLogger(typeof(IniConfig));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(IniConfig));
 		private const string INI_EXTENSION = ".ini";
 		private const string DEFAULTS_POSTFIX = "-defaults";
 		private const string FIXED_POSTFIX = "-fixed";
@@ -36,7 +36,7 @@ namespace Greenshot.IniFile {
 		/// <summary>
 		/// A lock object for the ini file saving
 		/// </summary>
-		private static object iniLock = new object();
+		private static readonly object iniLock = new object();
 
 		/// <summary>
 		/// As the ini implementation is kept someone generic, for reusing, this holds the name of the application
@@ -51,7 +51,7 @@ namespace Greenshot.IniFile {
 		/// <summary>
 		/// A Dictionary with all the sections stored by section name
 		/// </summary>
-		private static Dictionary<string, IniSection> sectionMap = new Dictionary<string, IniSection>();
+		private static readonly Dictionary<string, IniSection> sectionMap = new Dictionary<string, IniSection>();
 
 		/// <summary>
 		/// A Dictionary with the properties for a section stored by section name
