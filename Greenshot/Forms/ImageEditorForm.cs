@@ -30,8 +30,10 @@ using Greenshot.Help;
 using Greenshot.Helpers;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
+using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Interfaces.Drawing;
 using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using System;
@@ -56,7 +58,7 @@ namespace Greenshot {
 		private Surface _surface;
 		private GreenshotToolStripButton[] _toolbarButtons;
 		
-		private static readonly string[] SupportedClipboardFormats = {typeof(string).FullName, "Text", typeof(DrawableContainerList).FullName};
+		private static readonly string[] SupportedClipboardFormats = {typeof(string).FullName, "Text", typeof(IDrawableContainerList).FullName};
 
 		private bool _originalBoldCheckState;
 		private bool _originalItalicCheckState;
@@ -1045,8 +1047,8 @@ namespace Greenshot {
 				textVerticalAlignmentButton.Visible = props.HasFieldValue(FieldType.TEXT_VERTICAL_ALIGNMENT);
 				shadowButton.Visible = props.HasFieldValue(FieldType.SHADOW);
 				btnConfirm.Visible = btnCancel.Visible = props.HasFieldValue(FieldType.FLAGS)
-					&& ((FieldType.Flag)props.GetFieldValue(FieldType.FLAGS)&FieldType.Flag.CONFIRMABLE) == FieldType.Flag.CONFIRMABLE;
-				
+					&& ((FieldFlag)props.GetFieldValue(FieldType.FLAGS) & FieldFlag.CONFIRMABLE) == FieldFlag.CONFIRMABLE;
+
 				obfuscateModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE);
 				highlightModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT);
 			} else {
@@ -1078,9 +1080,10 @@ namespace Greenshot {
 		    FieldAggregator props = _surface.FieldAggregator;
 			// if a confirmable element is selected, we must disable most of the controls
 			// since we demand confirmation or cancel for confirmable element
-			if (props.HasFieldValue(FieldType.FLAGS) && ((FieldType.Flag)props.GetFieldValue(FieldType.FLAGS) & FieldType.Flag.CONFIRMABLE) == FieldType.Flag.CONFIRMABLE) {
+			if (props.HasFieldValue(FieldType.FLAGS) && ((FieldFlag)props.GetFieldValue(FieldType.FLAGS) & FieldFlag.CONFIRMABLE) == FieldFlag.CONFIRMABLE)
+			{
 				// disable most controls
-				if(!_controlsDisabledDueToConfirmable) {
+				if (!_controlsDisabledDueToConfirmable) {
 					ToolStripItemEndisabler.Disable(menuStrip1);
 					ToolStripItemEndisabler.Disable(destinationsToolStrip);
 					ToolStripItemEndisabler.Disable(toolsToolStrip);

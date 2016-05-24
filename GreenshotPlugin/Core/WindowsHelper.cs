@@ -1017,7 +1017,11 @@ namespace GreenshotPlugin.Core {
 					// and subtracting the border from the size (2 times, as we move right/down for the capture without resizing)
 					captureRectangle.Inflate(borderSize.Width, borderSize.Height);
 				} else {
-					captureRectangle.Inflate(-1, -1);
+					// TODO: Also 8.x?
+					if (Environment.OSVersion.IsWindows10())
+					{
+						captureRectangle.Inflate(-1, -1);
+					}
 
 					if (autoMode) {
 						// check if the capture fits

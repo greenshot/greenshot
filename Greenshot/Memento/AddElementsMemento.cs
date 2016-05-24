@@ -18,26 +18,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+using Greenshot.Drawing;
 using Greenshot.Plugin.Drawing;
-using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Memento
 {
 	/// <summary>
-	/// The ChangeFieldHolderMemento makes it possible to undo-redo an IDrawableContainer move
+	/// The AddElementMemento makes it possible to undo adding an element
 	/// </summary>
-	public class ChangeFieldHolderMemento : IMemento
+	public class AddElementsMemento : IMemento
 	{
-		private IDrawableContainer _drawableContainer;
-		private IField _fieldToBeChanged;
-		private object _oldValue;
+		private IDrawableContainerList _containerList;
+		private Surface _surface;
 
-		public ChangeFieldHolderMemento(IDrawableContainer drawableContainer, IField fieldToBeChanged)
+		public AddElementsMemento(Surface surface, IDrawableContainerList containerList)
 		{
-			_drawableContainer = drawableContainer;
-			_fieldToBeChanged = fieldToBeChanged;
-			_oldValue = fieldToBeChanged.Value;
+			_surface = surface;
+			_containerList = containerList;
 		}
 
 		public void Dispose()
@@ -49,39 +46,31 @@ namespace Greenshot.Memento
 		{
 			if (disposing)
 			{
-				if (_drawableContainer != null)
+				if (_containerList != null)
 				{
-					_drawableContainer.Dispose();
+					_containerList.Dispose();
 				}
 			}
-			_drawableContainer = null;
+			_containerList = null;
+			_surface = null;
 		}
 
 		public bool Merge(IMemento otherMemento)
 		{
-			ChangeFieldHolderMemento other = otherMemento as ChangeFieldHolderMemento;
-			if (other != null)
-			{
-				if (other._drawableContainer.Equals(_drawableContainer))
-				{
-					if (other._fieldToBeChanged.Equals(_fieldToBeChanged))
-					{
-						// Match, do not store anything as the initial state is what we want.
-						return true;
-					}
-				}
-			}
 			return false;
 		}
 
 		public IMemento Restore()
 		{
-			// Before
-			_drawableContainer.Invalidate();
-			ChangeFieldHolderMemento oldState = new ChangeFieldHolderMemento(_drawableContainer, _fieldToBeChanged);
-			_fieldToBeChanged.Value = _oldValue;
-			// After
-			_drawableContainer.Invalidate();
+			// Store the selected state, as it's overwritten by the RemoveElement
+			bool selected = _containerList.Selected;
+
+			var oldState = new DeleteElementsMemento(_surface, _containerList);
+
+			_surface.RemoveElements(_containerList, false);
+
+			// After, so everything is gone
+			_surface.Invalidate();
 			return oldState;
 		}
 	}

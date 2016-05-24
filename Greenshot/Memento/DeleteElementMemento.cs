@@ -50,13 +50,6 @@ namespace Greenshot.Memento {
 			}
 		}
 
-		public LangKey ActionLanguageKey {
-			get {
-				//return LangKey.editor_deleteelement;
-				return LangKey.none;
-			}
-		}
-
 		public bool Merge(IMemento otherMemento) {
 			return false;
 		}

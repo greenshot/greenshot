@@ -47,12 +47,6 @@ namespace Greenshot.Memento {
 			_surface = null;
 		}
 
-		public LangKey ActionLanguageKey {
-			get {
-				return LangKey.none;
-			}
-		}
-
 		public bool Merge(IMemento otherMemento) {
 			return false;
 		}

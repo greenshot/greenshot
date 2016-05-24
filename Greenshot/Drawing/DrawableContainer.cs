@@ -29,6 +29,7 @@ using Greenshot.Memento;
 using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
 using Greenshot.Plugin.Drawing.Adorners;
+using GreenshotPlugin.Interfaces.Drawing;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -104,7 +105,7 @@ namespace Greenshot.Drawing
 			remove{ _propertyChanged -= value; }
 		}
 		
-		public List<IFilter> Filters {
+		public IList<IFilter> Filters {
 			get {
 				List<IFilter> ret = new List<IFilter>();
 				foreach(IFieldHolder c in Children) {
@@ -124,10 +125,10 @@ namespace Greenshot.Drawing
 		}
 
 		[NonSerialized]
-		private TargetAdorner _targetGripper;
-		public TargetAdorner TargetGripper {
+		private TargetAdorner _targetAdorner;
+		public TargetAdorner TargetAdorner {
 			get {
-				return _targetGripper;
+				return _targetAdorner;
 			}
 		}
 
@@ -305,7 +306,10 @@ namespace Greenshot.Drawing
 		}
 		
 		public void AlignToParent(HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment) {
-			
+			if (_parent == null)
+			{
+				return;
+			}
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 			if (horizontalAlignment == HorizontalAlignment.Left) {
 				Left = lineThickness/2;
@@ -335,9 +339,9 @@ namespace Greenshot.Drawing
 		/// <summary>
 		/// Initialize a target gripper
 		/// </summary>
-		protected void InitTargetGripper(Color gripperColor, Point location) {
-			_targetGripper = new TargetAdorner(this, location);
-			Adorners.Add(_targetGripper);
+		protected void InitAdorner(Color gripperColor, Point location) {
+			_targetAdorner = new TargetAdorner(this, location);
+			Adorners.Add(_targetAdorner);
 		}
 
 		/// <summary>
@@ -478,29 +482,24 @@ namespace Greenshot.Drawing
 		}
 		
 		protected virtual void SwitchParent(Surface newParent) {
+			if (newParent == Parent)
+			{
+				return;
+			}
+			if (_parent != null)
+			{
+				// Remove FieldAggregator
+				FieldAggregator fieldAggregator = _parent.FieldAggregator;
+				if (fieldAggregator != null)
+				{
+					fieldAggregator.UnbindElement(this);
+				}
+			}
 
 			_parent = newParent;
 			foreach(IFilter filter in Filters) {
 				filter.Parent = this;
 			}
-		}
-		
-		// drawablecontainers are regarded equal if they are of the same type and their bounds are equal. this should be sufficient.
-		public override bool Equals(object obj) {
-			bool ret = false;
-			if (obj != null && GetType() == obj.GetType()) {
-				DrawableContainer other = obj as DrawableContainer;
-				if (other != null && left==other.left && top==other.top && width==other.width && height==other.height) {
-					ret = true;
-				}
-			}
-			return ret;
-		}
-		
-		public override int GetHashCode() {
-			// TODO: This actually doesn't make sense...
-			// Place the container in a list, and you can't find it :)
-			return left.GetHashCode() ^ top.GetHashCode() ^ width.GetHashCode() ^ height.GetHashCode() ^ GetFields().GetHashCode();
 		}
 		
 		protected void OnPropertyChanged(string propertyName) {
@@ -516,7 +515,7 @@ namespace Greenshot.Drawing
 		/// </summary>
 		/// <param name="fieldToBeChanged">The field to be changed</param>
 		/// <param name="newValue">The new value</param>
-		public virtual void BeforeFieldChange(Field fieldToBeChanged, object newValue) {
+		public virtual void BeforeFieldChange(IField fieldToBeChanged, object newValue) {
 			_parent.MakeUndoable(new ChangeFieldHolderMemento(this, fieldToBeChanged), true);
 			Invalidate();
 		}
@@ -531,7 +530,6 @@ namespace Greenshot.Drawing
 			if (e.Field.FieldType == FieldType.SHADOW) {
 				accountForShadowChange = true;
 			}
-			Invalidate();
 		}
 
 		/// <summary>

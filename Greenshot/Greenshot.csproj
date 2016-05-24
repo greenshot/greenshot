@@ -112,7 +112,6 @@
     <Compile Include="Drawing\Fields\AbstractFieldHolder.cs" />
     <Compile Include="Drawing\Fields\Field.cs" />
     <Compile Include="Drawing\Fields\FieldType.cs" />
-    <Compile Include="Drawing\Fields\IFieldHolder.cs" />
     <Compile Include="Drawing\Fields\FieldAggregator.cs" />
     <Compile Include="Drawing\ObfuscateContainer.cs" />
     <Compile Include="Drawing\FreehandContainer.cs" />
@@ -215,13 +214,14 @@
     <Compile Include="Helpers\IEInterop\IEContainer.cs" />
     <Compile Include="Helpers\ProcessorHelper.cs" />
     <Compile Include="Help\HelpFileLoader.cs" />
+    <Compile Include="Memento\AddElementsMemento.cs" />
+    <Compile Include="Memento\DeleteElementsMemento.cs" />
     <Compile Include="Processors\TitleFixProcessor.cs" />
     <Compile Include="Helpers\WindowWrapper.cs" />
     <Compile Include="Memento\AddElementMemento.cs" />
     <Compile Include="Memento\ChangeFieldHolderMemento.cs" />
     <Compile Include="Memento\DeleteElementMemento.cs" />
     <Compile Include="Memento\TextChangeMemento.cs" />
-    <Compile Include="Memento\IMemento.cs" />
     <Compile Include="Memento\DrawableContainerBoundsChangeMemento.cs" />
     <Compile Include="Memento\SurfaceBackgroundChangeMemento.cs" />
     <Compile Include="Helpers\UpdateHelper.cs" />

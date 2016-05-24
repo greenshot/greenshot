@@ -18,18 +18,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+using System;
 
-using System.ComponentModel;
-using System.Drawing;
-using Greenshot.Plugin.Drawing;
-using GreenshotPlugin.Interfaces.Drawing;
-
-namespace Greenshot.Drawing.Filters
-{
-	public interface IFilter : INotifyPropertyChanged, IFieldHolder {
-		DrawableContainer Parent {get; set; }
-		void Apply(Graphics graphics, Bitmap bmp, Rectangle rect, RenderMode renderMode);
-		DrawableContainer GetParent();
-		bool Invert {get; set;}
+namespace Greenshot.Memento {
+	/// <summary>
+	/// Description of IMemento.
+	/// </summary>
+	public interface IMemento : IDisposable {
+	    /// <summary>
+	    /// Restores target to the state memorized by this memento.
+		/// </summary>
+		/// <returns>
+		/// A memento of the state before restoring
+		/// </returns>
+		IMemento Restore();
+		
+		/// <summary>
+		/// Try to merge the current memento with another, preventing loads of items on the stack
+		/// </summary>
+		/// <param name="other">The memento to try to merge with</param>
+		/// <returns></returns>
+		bool Merge(IMemento other);
 	}
 }

@@ -48,8 +48,8 @@ namespace Greenshot.Drawing
 		/// <param name="context"></param>
 		[OnSerializing]
 		private void SetValuesOnSerializing(StreamingContext context) {
-			if (TargetGripper != null) {
-				_storedTargetGripperLocation = TargetGripper.Location;
+			if (TargetAdorner != null) {
+				_storedTargetGripperLocation = TargetAdorner.Location;
 			}
 		}
 
@@ -59,7 +59,7 @@ namespace Greenshot.Drawing
 		/// <param name="context"></param>
 		protected override void OnDeserialized(StreamingContext context)
 		{
-			InitTargetGripper(Color.Green, _storedTargetGripperLocation);
+			InitAdorner(Color.Green, _storedTargetGripperLocation);
 		}
 		#endregion
 
@@ -88,9 +88,9 @@ namespace Greenshot.Drawing
 		/// </summary>
 		/// <returns>true if the surface doesn't need to handle the event</returns>
 		public override bool HandleMouseDown(int mouseX, int mouseY) {
-			if (TargetGripper == null) {
+			if (TargetAdorner == null) {
 				_initialGripperPoint = new Point(mouseX, mouseY);
-				InitTargetGripper(Color.Green, new Point(mouseX, mouseY));
+				InitAdorner(Color.Green, new Point(mouseX, mouseY));
 			}
 			return base.HandleMouseDown(mouseX, mouseY);
 		}
@@ -114,9 +114,9 @@ namespace Greenshot.Drawing
 			Point newGripperLocation = _initialGripperPoint;
 			newGripperLocation.Offset(xOffset, yOffset);
 			
-			if (TargetGripper.Location != newGripperLocation) {
+			if (TargetAdorner.Location != newGripperLocation) {
 				Invalidate();
-				TargetGripper.Location = newGripperLocation;
+				TargetAdorner.Location = newGripperLocation;
 				Invalidate();
 			}
 			return returnValue;
@@ -178,7 +178,7 @@ namespace Greenshot.Drawing
 		private GraphicsPath CreateTail() {
 			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 
-			int tailLength = GeometryHelper.Distance2D(rect.Left + (rect.Width / 2), rect.Top + (rect.Height / 2), TargetGripper.Location.X, TargetGripper.Location.Y);
+			int tailLength = GeometryHelper.Distance2D(rect.Left + (rect.Width / 2), rect.Top + (rect.Height / 2), TargetAdorner.Location.X, TargetAdorner.Location.Y);
 			int tailWidth = (Math.Abs(rect.Width) + Math.Abs(rect.Height)) / 20;
 
 			// This should fix a problem with the tail being to wide
@@ -190,7 +190,7 @@ namespace Greenshot.Drawing
 			tail.AddLine(tailWidth, 0, 0, -tailLength);
 			tail.CloseFigure();
 
-			int tailAngle = 90 + (int)GeometryHelper.Angle2D(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2, TargetGripper.Location.X, TargetGripper.Location.Y);
+			int tailAngle = 90 + (int)GeometryHelper.Angle2D(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2, TargetAdorner.Location.X, TargetAdorner.Location.Y);
 
 			using (Matrix tailMatrix = new Matrix()) {
 				tailMatrix.Translate(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
@@ -207,7 +207,7 @@ namespace Greenshot.Drawing
 		/// <param name="graphics"></param>
 		/// <param name="renderMode"></param>
 		public override void Draw(Graphics graphics, RenderMode renderMode) {
-			if (TargetGripper == null) {
+			if (TargetAdorner == null) {
 				return;
 			}
 			graphics.SmoothingMode = SmoothingMode.HighQuality;

@@ -55,7 +55,7 @@ namespace GreenshotPlugin.Core
 		/// <returns>true if we are running on Windows 8 or later</returns>
 		public static bool IsWindows8OrLater(this OperatingSystem operatingSystem)
 		{
-			return (operatingSystem.Version.Major == 6 && operatingSystem.Version.Minor >= 2) || operatingSystem.Version.Major >= 6;
+			return (operatingSystem.Version.Major == 6 && operatingSystem.Version.Minor >= 2) || operatingSystem.Version.Major > 6;
 		}
 
 		/// <summary>
@@ -65,7 +65,7 @@ namespace GreenshotPlugin.Core
 		/// <returns>true if we are running on Windows 7 or later</returns>
 		public static bool IsWindows7OrLater(this OperatingSystem operatingSystem)
 		{
-			return (operatingSystem.Version.Major == 6 && operatingSystem.Version.Minor >= 1) || operatingSystem.Version.Major >= 6;
+			return (operatingSystem.Version.Major == 6 && operatingSystem.Version.Minor >= 1) || operatingSystem.Version.Major > 6;
 		}
 
 		/// <summary>

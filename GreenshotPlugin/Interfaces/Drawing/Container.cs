@@ -3,7 +3,7 @@
  * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,65 +25,80 @@ using System.Drawing.Imaging;
 using System.Windows.Forms;
 using System.ComponentModel;
 using System.Collections.Generic;
+using GreenshotPlugin.Interfaces.Drawing;
 using Greenshot.Plugin.Drawing.Adorners;
-using System.Runtime.Serialization;
 
-namespace Greenshot.Plugin.Drawing {
-	public enum RenderMode {EDIT, EXPORT};
-	public enum EditStatus {UNDRAWN, DRAWING, MOVING, RESIZING, IDLE};
+namespace Greenshot.Plugin.Drawing
+{
+	public enum RenderMode { EDIT, EXPORT };
+	public enum EditStatus { UNDRAWN, DRAWING, MOVING, RESIZING, IDLE };
 
-	public interface IDrawableContainer : INotifyPropertyChanged, IDisposable {
-		ISurface Parent {
-			get;
-		}
-		bool Selected {
-			get;
-			set;
-		}
-		
-		int Left {
+	public interface IDrawableContainer : INotifyPropertyChanged, IDisposable
+	{
+		ISurface Parent
+		{
 			get;
 			set;
 		}
-		
-		int Top {
+		bool Selected
+		{
 			get;
 			set;
-		}
-		
-		int Width {
-			get;
-			set;
-		}
-		
-		int Height {
-			get;
-			set;
-		}
-		
-		Point Location {
-			get;
 		}
 
-		Size Size {
+		int Left
+		{
 			get;
+			set;
 		}
-		
-		Rectangle Bounds {
+
+		int Top
+		{
+			get;
+			set;
+		}
+
+		int Width
+		{
+			get;
+			set;
+		}
+
+		int Height
+		{
+			get;
+			set;
+		}
+
+		Point Location
+		{
 			get;
 		}
 
-		Rectangle DrawingBounds {
+		Size Size
+		{
+			get;
+		}
+
+		Rectangle Bounds
+		{
+			get;
+		}
+
+		Rectangle DrawingBounds
+		{
 			get;
 		}
 
 		void ApplyBounds(RectangleF newBounds);
-	
-		bool hasFilters {
+
+		bool hasFilters
+		{
 			get;
 		}
 
-		EditStatus Status {
+		EditStatus Status
+		{
 			get;
 			set;
 		}
@@ -97,7 +112,8 @@ namespace Greenshot.Plugin.Drawing {
 		bool HandleMouseMove(int x, int y);
 		bool InitContent();
 		void MakeBoundsChangeUndoable(bool allowMerge);
-		EditStatus DefaultEditMode {
+		EditStatus DefaultEditMode
+		{
 			get;
 		}
 
@@ -107,38 +123,91 @@ namespace Greenshot.Plugin.Drawing {
 		IList<IAdorner> Adorners { get; }
 	}
 
-	public interface ITextContainer: IDrawableContainer {
-		string Text {
+	public interface IDrawableContainerList : IList<IDrawableContainer>, IDisposable
+	{
+		Guid ParentID
+		{
+			get;
+		}
+
+		bool Selected
+		{
+			get;
+			set;
+		}
+
+		ISurface Parent
+		{
+			get;
+			set;
+		}
+		EditStatus Status
+		{
+			get;
+			set;
+		}
+		void MakeBoundsChangeUndoable(bool allowMerge);
+		void Transform(Matrix matrix);
+		void MoveBy(int dx, int dy);
+		bool ClickableAt(int x, int y);
+		IDrawableContainer ClickableElementAt(int x, int y);
+		void OnDoubleClick();
+		bool HasIntersectingFilters(Rectangle clipRectangle);
+		bool IntersectsWith(Rectangle clipRectangle);
+		void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode, Rectangle clipRectangle);
+		void Invalidate();
+		void PullElementsToTop(IDrawableContainerList elements);
+		bool CanPushDown(IDrawableContainerList elements);
+		void PullElementsUp(IDrawableContainerList elements);
+		bool CanPullUp(IDrawableContainerList elements);
+		void PushElementsDown(IDrawableContainerList elements);
+		void PushElementsToBottom(IDrawableContainerList elements);
+		void ShowContextMenu(MouseEventArgs e, ISurface surface);
+		void HandleFieldChangedEvent(object sender, FieldChangedEventArgs e);
+	}
+
+	public interface ITextContainer : IDrawableContainer
+	{
+		string Text
+		{
 			get;
 			set;
 		}
 		void FitToText();
 	}
 
-	public interface IImageContainer: IDrawableContainer {
-		Image Image {
+	public interface IImageContainer : IDrawableContainer
+	{
+		Image Image
+		{
 			get;
 			set;
 		}
 		void Load(string filename);
 	}
-	public interface ICursorContainer: IDrawableContainer {
-		Cursor Cursor {
+	public interface ICursorContainer : IDrawableContainer
+	{
+		Cursor Cursor
+		{
 			get;
 			set;
 		}
 		void Load(string filename);
 	}
-	public interface IIconContainer: IDrawableContainer {
-		Icon Icon {
+	public interface IIconContainer : IDrawableContainer
+	{
+		Icon Icon
+		{
 			get;
 			set;
 		}
 		void Load(string filename);
 	}
 
-	public interface IMetafileContainer: IDrawableContainer {
-		Metafile Metafile {
+	public interface IMetafileContainer : IDrawableContainer
+	{
+		Metafile Metafile
+		{
 			get;
 			set;
 		}

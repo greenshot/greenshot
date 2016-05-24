@@ -28,6 +28,7 @@ using System.Drawing.Drawing2D;
 using Greenshot.Core;
 using log4net;
 using System.Runtime.Serialization;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing {
 	/// <summary>

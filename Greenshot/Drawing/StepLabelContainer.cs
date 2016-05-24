@@ -94,6 +94,10 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="newParent"></param>
 		protected override void SwitchParent(Surface newParent) {
+			if (newParent == Parent)
+			{
+				return;
+			}
 			if (Parent != null) {
 				((Surface)Parent).RemoveStepLabel(this);
 			}
