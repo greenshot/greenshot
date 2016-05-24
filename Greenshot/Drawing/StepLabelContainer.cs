@@ -148,7 +148,10 @@ namespace Greenshot.Drawing {
 			if (!disposing) {
 				return;
 			}
-			((Surface)Parent).RemoveStepLabel(this);
+			if (Parent != null)
+			{
+				((Surface)Parent).RemoveStepLabel(this);
+			}
 			if (_stringFormat != null) {
 				_stringFormat.Dispose();
 				_stringFormat = null;
