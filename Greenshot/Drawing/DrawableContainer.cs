@@ -89,9 +89,14 @@ namespace Greenshot.Drawing
 			if (!disposing) {
 				return;
 			}
-
-			FieldAggregator aggProps = _parent.FieldAggregator;
-			aggProps.UnbindElement(this);
+			if (_parent != null)
+			{
+				FieldAggregator fieldAggregator = _parent.FieldAggregator;
+				if (fieldAggregator != null)
+				{
+					fieldAggregator.UnbindElement(this);
+				}
+			}
 		}
 
 		~DrawableContainer() {
