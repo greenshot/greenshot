@@ -9,17 +9,27 @@ All details to our tickets can be found here: https://greenshot.atlassian.net
 
 @DETAILVERSION@
 
+Fixed:
+* BUG-1876: Already running message, multi user environment
+* BUG-1884: OCR has trailing blank spaces
+* BUG-1887: hang on exit - hang time proportional to number of objects
+* BUG-1890: Slight cropping around window on Windows 10
+* BUG-1892: Greenshot saves blank JPG file with reduce colors
+* BUG-1898: Specify GPLv3 in the license text
+* BUG-1918: Speechbubble issue: Artifacts appeared when shadow is on and transparency is used
+* BUG-1933: Greenshot Installer sets bad registry key permission
+* BUG-1935: Delay when pasting and ShapeShifter from FlameFusion is running
+* BUG-1941: Error when creating speech bubble
+* BUG-1945: Failure starting Greenshot at system startup
+* BUG-1949: Can't delete Imgur upload
+* BUG-1965: Activation border around window is visible in the capture
+* FEATURE-919: Allow adding of space around screenshot
+* FEATURE-945:	Added environment variables to the external command
+
 Open issues planned for this version:
-BUG-1887: hang on exit - hang time proportional to number of objects
 BUG-1872: OneDrive prevents Greenshot hotkeys from working
-BUG-1876: Already running message, multi user environment
-BUG-1892: Greenshot saves blank JPG file with reduce colors
-BUG-1898: Specify it's GPLv3 in the license text
-BUG-1912: Translation (Enu)
 FEATURE-916: Save file as icon
-FEATURE-919: Allow adding of space around screenshot
 FEATURE-912: [Storage Location] Define directory pattern
-BUG-1918: Speechbubble issue: Artifacts appeared when shadow is on
 
 
 1.2.8.12-cab854b RELEASE

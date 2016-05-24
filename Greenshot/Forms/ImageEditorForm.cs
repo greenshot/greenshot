@@ -854,6 +854,12 @@ namespace Greenshot {
 					case Keys.OemPeriod:	// Rotate CW Ctrl + .
 						RotateCwToolstripButtonClick(sender, e);
 						break;
+					case Keys.Add:    // Ctrl + +
+						EnlargeCanvasToolStripMenuItemClick(sender, e);
+						break;
+					case Keys.Subtract:    // Ctrl + -
+						ShrinkCanvasToolStripMenuItemClick(sender, e);
+						break;
 				}
 			}
 		}
@@ -1295,6 +1301,36 @@ namespace Greenshot {
 		private void AddBorderToolStripMenuItemClick(object sender, EventArgs e) {
 			_surface.ApplyBitmapEffect(new BorderEffect());
 			UpdateUndoRedoSurfaceDependencies();
+		}
+
+		/// <summary>
+		/// Added for FEATURE-919, increasing the canvas by 25 pixels in every direction.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void EnlargeCanvasToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			_surface.ApplyBitmapEffect(new ResizeCanvasEffect(25, 25, 25, 25));
+			UpdateUndoRedoSurfaceDependencies();
+		}
+
+		/// <summary>
+		/// Added for FEATURE-919, to make the capture as small as possible again.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void ShrinkCanvasToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			Rectangle cropRectangle;
+			using (Image tmpImage = GetImageForExport())
+			{
+				cropRectangle = ImageHelper.FindAutoCropRectangle(tmpImage, coreConfiguration.AutoCropDifference);
+			}
+			if (_surface.IsCropPossible(ref cropRectangle))
+			{
+				_surface.ApplyCrop(cropRectangle);
+				UpdateUndoRedoSurfaceDependencies();
+			}
 		}
 
 		/// <summary>
