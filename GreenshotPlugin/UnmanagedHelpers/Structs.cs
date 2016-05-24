@@ -25,17 +25,17 @@ using System.Runtime.InteropServices;
 namespace GreenshotPlugin.UnmanagedHelpers {
 	[StructLayout(LayoutKind.Sequential), Serializable()]
 	public struct SIZE {
-		public int width;
-		public int height;
+		public int Width;
+		public int Height;
 		public SIZE(Size size) : this(size.Width, size.Height) {
 			
 		}
 		public SIZE(int width, int height) {
-			this.width = width;
-			this.height = height;
+			Width = width;
+			Height = height;
 		}
 		public Size ToSize() {
-			return new Size(width, height);
+			return new Size(Width, Height);
 		}
 	}
 	[StructLayout(LayoutKind.Sequential), Serializable()]

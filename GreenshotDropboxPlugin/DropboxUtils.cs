@@ -31,7 +31,7 @@ namespace GreenshotDropboxPlugin {
 	/// </summary>
 	public class DropboxUtils {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(DropboxUtils));
-		private static DropboxPluginConfiguration config = IniConfig.GetIniSection<DropboxPluginConfiguration>();
+		private static readonly DropboxPluginConfiguration config = IniConfig.GetIniSection<DropboxPluginConfiguration>();
 
 		private DropboxUtils() {
 		}

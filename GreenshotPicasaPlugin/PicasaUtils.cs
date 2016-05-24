@@ -22,7 +22,6 @@ using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
-using System.Net;
 using System.Xml;
 
 namespace GreenshotPicasaPlugin {

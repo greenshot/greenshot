@@ -59,7 +59,7 @@ namespace GreenshotPlugin.Core {
 
 		private const int IE_ACTIVE_TAB = 2097154;
 		private const int CHILDID_SELF = 0;
-		private IAccessible accessible;
+		private readonly IAccessible accessible;
 		private Accessible[] Children {
 			get {
 				int num = 0;

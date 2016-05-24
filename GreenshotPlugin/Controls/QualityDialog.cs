@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Windows.Forms;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
@@ -29,7 +28,7 @@ namespace GreenshotPlugin.Controls {
 	/// Description of JpegQualityDialog.
 	/// </summary>
 	public partial class QualityDialog : GreenshotForm {
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		public SurfaceOutputSettings Settings {
 			get;
 			set;

@@ -31,6 +31,6 @@ namespace Greenshot.Helpers {
 			get { return _hwnd; }
 		}
 	
-		private IntPtr _hwnd;
+		private readonly IntPtr _hwnd;
 	}
 }

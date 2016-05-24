@@ -27,7 +27,6 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
@@ -968,7 +967,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 
 		private string _cloudServiceName;
 
-		private IDictionary<string, string> _returnValues = new Dictionary<string, string>();
+		private readonly IDictionary<string, string> _returnValues = new Dictionary<string, string>();
 
 
 		/// <summary>
@@ -991,7 +990,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 					Process.Start(authorizationUrl);
 
 					// Wait to get the authorization code response.
-					var context = listener.BeginGetContext(new AsyncCallback(ListenerCallback), listener);
+					var context = listener.BeginGetContext(ListenerCallback, listener);
 					_ready.Reset();
 
 					while (!context.AsyncWaitHandle.WaitOne(1000, true)) {
@@ -1033,7 +1032,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 				// Get response object.
 				using (HttpListenerResponse response = context.Response) {
 					// Write a "close" response.
-					byte[] buffer = System.Text.Encoding.UTF8.GetBytes(ClosePageResponse.Replace("CloudServiceName", _cloudServiceName));
+					byte[] buffer = Encoding.UTF8.GetBytes(ClosePageResponse.Replace("CloudServiceName", _cloudServiceName));
 					// Write to response stream.
 					response.ContentLength64 = buffer.Length;
 					using (var stream = response.OutputStream) {

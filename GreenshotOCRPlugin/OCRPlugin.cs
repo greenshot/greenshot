@@ -21,7 +21,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Greenshot.IniFile;
@@ -61,7 +60,7 @@ namespace GreenshotOCR {
 	/// OCR Plugin Greenshot
 	/// </summary>
 	public class OcrPlugin : IGreenshotPlugin {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OcrPlugin));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OcrPlugin));
 		private const string CONFIG_FILENAME = "ocr-config.properties";
 		private string OCR_COMMAND;
 		private static IGreenshotHost host;

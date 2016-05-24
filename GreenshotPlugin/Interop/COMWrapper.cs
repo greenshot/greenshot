@@ -55,12 +55,12 @@ namespace Greenshot.Interop {
 		/// <summary>
 		/// The type of which method calls are intercepted and executed on the COM object.
 		/// </summary>
-		private readonly Type _InterceptType;
+		private readonly Type _interceptType;
 
 		/// <summary>
 		/// The humanly readable target name
 		/// </summary>
-		private readonly string _TargetName;
+		private readonly string _targetName;
 
 		#endregion
 		[DllImport("ole32.dll")]
@@ -341,8 +341,8 @@ namespace Greenshot.Interop {
 		private COMWrapper(object comObject, Type type, string targetName) : base(type) {
 			_COMObject = comObject;
 			_COMType = comObject.GetType();
-			_InterceptType = type;
-			_TargetName = targetName;
+			_interceptType = type;
+			_targetName = targetName;
 		}
 
 		#endregion
@@ -354,7 +354,7 @@ namespace Greenshot.Interop {
 		/// sure that the COM object is still cleaned up.
 		/// </summary>
 		~COMWrapper() {
-			LOG.DebugFormat("Finalize {0}", _InterceptType.ToString());
+			LOG.DebugFormat("Finalize {0}", _interceptType);
 			Dispose(false);
 		}
 
@@ -375,13 +375,13 @@ namespace Greenshot.Interop {
 		/// </param>
 		private void Dispose(bool disposing) {
 			if (null != _COMObject) {
-				LOG.DebugFormat("Disposing {0}", _InterceptType.ToString());
+				LOG.DebugFormat("Disposing {0}", _interceptType);
 				if (Marshal.IsComObject(_COMObject)) {
 					try {
 						int count;
 						do {
 							count = Marshal.ReleaseComObject(_COMObject);
-							LOG.DebugFormat("RCW count for {0} now is {1}", _InterceptType.ToString(), count);
+							LOG.DebugFormat("RCW count for {0} now is {1}", _interceptType, count);
 						} while (count > 0);
 					} catch (Exception ex) {
 						LOG.WarnFormat("Problem releasing COM object {0}", _COMType);
@@ -406,7 +406,7 @@ namespace Greenshot.Interop {
 		/// The full name of the intercepted type.
 		/// </returns>
 		public override string ToString() {
-			return _InterceptType.FullName;
+			return _interceptType.FullName;
 		}
 
 		/// <summary>
@@ -485,11 +485,11 @@ namespace Greenshot.Interop {
 			if (oldWrapper == null) {
 				throw new ArgumentException("wrapper proxy was no COMWrapper");
 			}
-			if (oldWrapper._InterceptType.IsAssignableFrom(newType)) {
-				COMWrapper newWrapper = new COMWrapper(oldWrapper._COMObject, newType, oldWrapper._TargetName);
+			if (oldWrapper._interceptType.IsAssignableFrom(newType)) {
+				COMWrapper newWrapper = new COMWrapper(oldWrapper._COMObject, newType, oldWrapper._targetName);
 				return (T)newWrapper.GetTransparentProxy();
 			}
-			throw new InvalidCastException(string.Format("{0} is not assignable from {1}", oldWrapper._InterceptType, newType));
+			throw new InvalidCastException(string.Format("{0} is not assignable from {1}", oldWrapper._interceptType, newType));
 		}
 
 		/// <summary>
@@ -536,21 +536,21 @@ namespace Greenshot.Interop {
 			LOG.InfoFormat("Type information for Type with name: {0}", type.Name);
 			try {
 				foreach (MemberInfo memberInfo in type.GetMembers()) {
-					LOG.InfoFormat("Member: {0};", memberInfo.ToString());
+					LOG.InfoFormat("Member: {0};", memberInfo);
 				}
 			} catch (Exception memberException) {
 				LOG.Error(memberException);
 			}
 			try {
 				foreach (PropertyInfo propertyInfo in type.GetProperties()) {
-					LOG.InfoFormat("Property: {0};", propertyInfo.ToString());
+					LOG.InfoFormat("Property: {0};", propertyInfo);
 				}
 			} catch (Exception propertyException) {
 				LOG.Error(propertyException);
 			}
 			try {
 				foreach (FieldInfo fieldInfo in type.GetFields()) {
-					LOG.InfoFormat("Field: {0};", fieldInfo.ToString());
+					LOG.InfoFormat("Field: {0};", fieldInfo);
 				}
 			} catch (Exception fieldException) {
 				LOG.Error(fieldException);
@@ -570,13 +570,13 @@ namespace Greenshot.Interop {
 		public override IMessage Invoke(IMessage myMessage) {
 			IMethodCallMessage callMessage = myMessage as IMethodCallMessage;
 			if (null == callMessage) {
-				LOG.DebugFormat("Message type not implemented: {0}", myMessage.GetType().ToString());
+				LOG.DebugFormat("Message type not implemented: {0}", myMessage.GetType());
 				return null;
 			}
 
 			MethodInfo method = callMessage.MethodBase as MethodInfo;
 			if (null == method) {
-				LOG.DebugFormat("Unrecognized Invoke call: {0}", callMessage.MethodBase.ToString());
+				LOG.DebugFormat("Unrecognized Invoke call: {0}", callMessage.MethodBase);
 				return null;
 			}
 
@@ -589,25 +589,15 @@ namespace Greenshot.Interop {
 			BindingFlags flags = BindingFlags.InvokeMethod;
 			int argCount = callMessage.ArgCount;
 
-			object invokeObject;
-			Type invokeType;
-			Type byValType;
-
-			object[] args;
-			object arg;
-			COMWrapper[] originalArgs;
-			COMWrapper wrapper;
-
 			ParameterModifier[] argModifiers = null;
 			ParameterInfo[] parameters = null;
-			ParameterInfo parameter;
 
 			if ("Dispose" == methodName && 0 == argCount && typeof(void) == returnType) {
 				Dispose();
 			} else if ("ToString" == methodName && 0 == argCount && typeof(string) == returnType) {
 				returnValue = ToString();
 			} else if ("GetType" == methodName && 0 == argCount && typeof(Type) == returnType) {
-				returnValue = _InterceptType;
+				returnValue = _interceptType;
 			} else if ("GetHashCode" == methodName && 0 == argCount && typeof(int) == returnType) {
 				returnValue = GetHashCode();
 			} else if ("Equals" == methodName && 1 == argCount && typeof(bool) == returnType) {
@@ -621,9 +611,11 @@ namespace Greenshot.Interop {
 					return new ReturnMessage(new ArgumentNullException("handler"), callMessage);
 				}
 			} else {
-				invokeObject = _COMObject;
-				invokeType = _COMType;
+				var invokeObject = _COMObject;
+				var invokeType = _COMType;
 
+				object[] args;
+				ParameterInfo parameter;
 				if (methodName.StartsWith("get_")) {
 					// Property Get
 					methodName = methodName.Substring(4);
@@ -657,6 +649,9 @@ namespace Greenshot.Interop {
 				}
 
 				// Un-wrap wrapped COM objects before passing to the method
+				Type byValType;
+				COMWrapper wrapper;
+				COMWrapper[] originalArgs;
 				if (null == args || 0 == args.Length) {
 					originalArgs = null;
 				} else {
@@ -677,7 +672,7 @@ namespace Greenshot.Interop {
 								if (null == args[i]) {
 									args[i] = new DispatchWrapper(null);
 								}
-							} else if (typeof(Decimal) == byValType) {
+							} else if (typeof(decimal) == byValType) {
 								// If we're passing a decimal value by reference,
 								// we need to pass a CurrencyWrapper to avoid a 
 								// type mismatch exception.
@@ -694,7 +689,7 @@ namespace Greenshot.Interop {
 						break;
 					} catch (InvalidComObjectException icoEx) {
 						// Should assist BUG-1616 and others
-						LOG.WarnFormat("COM object {0} has been separated from its underlying RCW cannot be used. The COM object was released while it was still in use on another thread.", _InterceptType.FullName);
+						LOG.WarnFormat("COM object {0} has been separated from its underlying RCW cannot be used. The COM object was released while it was still in use on another thread.", _interceptType.FullName);
 						return new ReturnMessage(icoEx, callMessage);
 					} catch (Exception ex) {
 						// Test for rejected
@@ -703,13 +698,13 @@ namespace Greenshot.Interop {
 							comEx = ex.InnerException as COMException;
 						}
 						if (comEx != null && (comEx.ErrorCode == RPC_E_CALL_REJECTED || comEx.ErrorCode == RPC_E_FAIL)) {
-							string destinationName = _TargetName;
+							string destinationName = _targetName;
 							// Try to find a "catchy" name for the rejecting application
 							if (destinationName != null && destinationName.Contains(".")) {
-								destinationName = destinationName.Substring(0, destinationName.IndexOf("."));
+								destinationName = destinationName.Substring(0, destinationName.IndexOf(".", StringComparison.Ordinal));
 							}
 							if (destinationName == null) {
-								destinationName = _InterceptType.FullName;
+								destinationName = _interceptType.FullName;
 							}
 							DialogResult result = MessageBox.Show(PluginUtils.Host.GreenshotForm, Language.GetFormattedString("com_rejected", destinationName), Language.GetString("com_rejected_title"), MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
 							if (result == DialogResult.OK) {
@@ -726,7 +721,7 @@ namespace Greenshot.Interop {
 					if (returnType.IsInterface) {
 						// Wrap the returned value in an intercepting COM wrapper
 						if (Marshal.IsComObject(returnValue)) {
-							returnValue = Wrap(returnValue, returnType, _TargetName);
+							returnValue = Wrap(returnValue, returnType, _targetName);
 						}
 					} else if (returnType.IsEnum) {
 						// Convert to proper Enum type
@@ -742,7 +737,7 @@ namespace Greenshot.Interop {
 							continue;
 						}
 
-						arg = args[i];
+						var arg = args[i];
 						if (null == arg) {
 							continue;
 						}
@@ -751,7 +746,7 @@ namespace Greenshot.Interop {
 						wrapper = null;
 
 						byValType = GetByValType(parameter.ParameterType);
-						if (typeof(Decimal) == byValType) {
+						if (typeof(decimal) == byValType) {
 							if (arg is CurrencyWrapper) {
 								arg = ((CurrencyWrapper)arg).WrappedObject;
 							}
@@ -766,7 +761,7 @@ namespace Greenshot.Interop {
 								}
 
 								if (null == wrapper) {
-									wrapper = new COMWrapper(arg, byValType, _TargetName);
+									wrapper = new COMWrapper(arg, byValType, _targetName);
 								}
 								arg = wrapper.GetTransparentProxy();
 							}
@@ -787,7 +782,7 @@ namespace Greenshot.Interop {
 		/// <param name="o">object to cast</param>
 		/// <returns></returns>
 		public bool CanCastTo(Type toType, object o) {
-			bool returnValue = _InterceptType.IsAssignableFrom(toType);
+			bool returnValue = _interceptType.IsAssignableFrom(toType);
 			return returnValue;
 		}
 

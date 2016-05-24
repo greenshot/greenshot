@@ -75,7 +75,12 @@
     <Compile Include="Destinations\FileWithDialogDestination.cs" />
     <Compile Include="Destinations\PickerDestination.cs" />
     <Compile Include="Destinations\PrinterDestination.cs" />
+    <Compile Include="Drawing\Adorners\AbstractAdorner.cs" />
+    <Compile Include="Drawing\Adorners\MoveAdorner.cs" />
+    <Compile Include="Drawing\Adorners\ResizeAdorner.cs" />
+    <Compile Include="Drawing\Adorners\TargetAdorner.cs" />
     <Compile Include="Drawing\ArrowContainer.cs" />
+    <Compile Include="Drawing\Positions.cs" />
     <Compile Include="Drawing\StepLabelContainer.cs" />
     <Compile Include="Drawing\ImageContainer.cs" />
     <Compile Include="Drawing\CropContainer.cs" />
@@ -101,16 +106,12 @@
     <Compile Include="Drawing\Filters\MagnifierFilter.cs" />
     <Compile Include="Drawing\Filters\PixelizationFilter.cs" />
     <Compile Include="Drawing\Filters\BlurFilter.cs" />
-    <Compile Include="Drawing\Gripper.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Drawing\HighlightContainer.cs" />
     <Compile Include="Drawing\IconContainer.cs" />
     <Compile Include="Drawing\LineContainer.cs" />
     <Compile Include="Drawing\Fields\AbstractFieldHolder.cs" />
     <Compile Include="Drawing\Fields\Field.cs" />
     <Compile Include="Drawing\Fields\FieldType.cs" />
-    <Compile Include="Drawing\Fields\IFieldHolder.cs" />
     <Compile Include="Drawing\Fields\FieldAggregator.cs" />
     <Compile Include="Drawing\ObfuscateContainer.cs" />
     <Compile Include="Drawing\FreehandContainer.cs" />
@@ -214,13 +215,14 @@
     <Compile Include="Helpers\ProcessorHelper.cs" />
     <Compile Include="Helpers\ResourceMutex.cs" />
     <Compile Include="Help\HelpFileLoader.cs" />
+    <Compile Include="Memento\AddElementsMemento.cs" />
+    <Compile Include="Memento\DeleteElementsMemento.cs" />
     <Compile Include="Processors\TitleFixProcessor.cs" />
     <Compile Include="Helpers\WindowWrapper.cs" />
     <Compile Include="Memento\AddElementMemento.cs" />
     <Compile Include="Memento\ChangeFieldHolderMemento.cs" />
     <Compile Include="Memento\DeleteElementMemento.cs" />
     <Compile Include="Memento\TextChangeMemento.cs" />
-    <Compile Include="Memento\IMemento.cs" />
     <Compile Include="Memento\DrawableContainerBoundsChangeMemento.cs" />
     <Compile Include="Memento\SurfaceBackgroundChangeMemento.cs" />
     <Compile Include="Helpers\UpdateHelper.cs" />

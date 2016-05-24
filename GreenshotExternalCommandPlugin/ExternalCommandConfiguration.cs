@@ -61,12 +61,12 @@ namespace ExternalCommand {
 		public Dictionary<string, bool> runInbackground;
 
 		private const string MSPAINT = "MS Paint";
-		private static string paintPath;
-		private static bool hasPaint = false;
+		private static readonly string paintPath;
+		private static readonly bool hasPaint = false;
 
 		private const string PAINTDOTNET = "Paint.NET";
-		private static string paintDotNetPath;
-		private static bool hasPaintDotNet = false;
+		private static readonly string paintDotNetPath;
+		private static readonly bool hasPaintDotNet = false;
 		static ExternalCommandConfiguration() {
 			try {
 				paintPath = PluginUtils.GetExePath("pbrush.exe");

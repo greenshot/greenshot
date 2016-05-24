@@ -22,8 +22,8 @@
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Memento;
-using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
+using GreenshotPlugin.Interfaces.Drawing;
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -72,7 +72,7 @@ namespace Greenshot.Drawing {
 		}
 		
 		internal void ChangeText(string newText, bool allowUndoable) {
-			if ((text == null && newText != null)  || !text.Equals(newText)) {
+			if ((text == null && newText != null)  || !string.Equals(text, newText)) {
 				if (makeUndoable && allowUndoable) {
 					makeUndoable = false;
 					_parent.MakeUndoable(new TextChangeMemento(this), false);
@@ -98,9 +98,13 @@ namespace Greenshot.Drawing {
 			AddField(GetType(), FieldType.TEXT_HORIZONTAL_ALIGNMENT, StringAlignment.Center);
 			AddField(GetType(), FieldType.TEXT_VERTICAL_ALIGNMENT, StringAlignment.Center);
 		}
-		
-		[OnDeserialized]
-		private void OnDeserialized(StreamingContext context) {
+
+		/// <summary>
+		/// Do some logic to make sure all field are initiated correctly
+		/// </summary>
+		/// <param name="streamingContext">StreamingContext</param>
+		protected override void OnDeserialized(StreamingContext streamingContext) {
+			base.OnDeserialized(streamingContext);
 			Init();
 		}
 
@@ -123,8 +127,10 @@ namespace Greenshot.Drawing {
 		}
 		
 		private void Init() {
-			_stringFormat = new StringFormat();
-			_stringFormat.Trimming = StringTrimming.EllipsisWord;
+			_stringFormat = new StringFormat
+			{
+				Trimming = StringTrimming.EllipsisWord
+			};
 
 			CreateTextBox();
 
@@ -178,15 +184,18 @@ namespace Greenshot.Drawing {
 			}
 			// Only dispose the font, and re-create it, when a font field has changed.
 			if (e.Field.FieldType.Name.StartsWith("FONT")) {
-				_font.Dispose();
-				_font = null;
+				if (_font != null)
+				{
+					_font.Dispose();
+					_font = null;
+				}
 				UpdateFormat();
 			} else { 
 				UpdateAlignment();
 			}
 			UpdateTextBoxFormat();
 			
-			if (_textBox.Visible) {
+			if (_textBox != null && _textBox.Visible) {
 				_textBox.Invalidate();
 			}
 		}
@@ -196,17 +205,19 @@ namespace Greenshot.Drawing {
 		}
 		
 		private void CreateTextBox() {
-			_textBox = new TextBox();
+			_textBox = new TextBox
+			{
+				ImeMode = ImeMode.On,
+				Multiline = true,
+				AcceptsTab = true,
+				AcceptsReturn = true,
+				BorderStyle = BorderStyle.None,
+				Visible = false
+			};
 
-			_textBox.ImeMode = ImeMode.On;
-			_textBox.Multiline = true;
-			_textBox.AcceptsTab = true;
-			_textBox.AcceptsReturn = true;
 			_textBox.DataBindings.Add("Text", this, "Text", false, DataSourceUpdateMode.OnPropertyChanged);
 			_textBox.LostFocus += textBox_LostFocus;
 			_textBox.KeyDown += textBox_KeyDown;
-			_textBox.BorderStyle = BorderStyle.None;
-			_textBox.Visible = false;
 		}
 
 		private void ShowTextBox() {
@@ -294,6 +305,7 @@ namespace Greenshot.Drawing {
 							}
 						}
 					}
+					_font?.Dispose();
 					_font = new Font(fam, fontSize, fs, GraphicsUnit.Pixel);
 					_textBox.Font = _font;
 				}
@@ -332,8 +344,8 @@ namespace Greenshot.Drawing {
 			if (lineThickness <= 1) {
 				lineWidth = 0;
 			}
-			_textBox.Width = absRectangle.Width - (2 * lineWidth) + correction;
-			_textBox.Height = absRectangle.Height - (2 * lineWidth) + correction;
+			_textBox.Width = absRectangle.Width - 2 * lineWidth + correction;
+			_textBox.Height = absRectangle.Height - 2 * lineWidth + correction;
 		}
 
 		public override void ApplyBounds(RectangleF newBounds) {
@@ -390,7 +402,7 @@ namespace Greenshot.Drawing {
 				DrawSelectionBorder(graphics, rect);
 			}
 			
-			if (text == null || text.Length == 0 ) {
+			if (string.IsNullOrEmpty(text) ) {
 				return;
 			}
 
@@ -411,11 +423,12 @@ namespace Greenshot.Drawing {
 		/// <param name="drawingRectange"></param>
 		/// <param name="lineThickness"></param>
 		/// <param name="fontColor"></param>
+		/// <param name="drawShadow"></param>
 		/// <param name="stringFormat"></param>
 		/// <param name="text"></param>
 		/// <param name="font"></param>
 		public static void DrawText(Graphics graphics, Rectangle drawingRectange, int lineThickness, Color fontColor, bool drawShadow, StringFormat stringFormat, string text, Font font) {
-			int textOffset = (lineThickness > 0) ? (int)Math.Ceiling(lineThickness / 2d) : 0;
+			int textOffset = lineThickness > 0 ? (int)Math.Ceiling(lineThickness / 2d) : 0;
 			// draw shadow before anything else
 			if (drawShadow) {
 				int basealpha = 100;

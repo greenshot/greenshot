@@ -33,8 +33,8 @@ namespace Jira {
 	#region transport classes
 	public class JiraFilter {
 		public JiraFilter(string name, string id) {
-			this.Name = name;
-			this.Id = id;
+			Name = name;
+			Id = id;
 		}
 		public string Name {
 			get;
@@ -48,15 +48,15 @@ namespace Jira {
 
 	public class JiraIssue {
 		public JiraIssue(string key, DateTime? created, string reporter, string assignee, string project, string summary, string description, string environment, string [] attachmentNames) {
-			this.Key = key;
-			this.Created = created;
-			this.Reporter = reporter;
-			this.Assignee = assignee;
-			this.Project = project;
-			this.Summary = summary;
-			this.Description = description;
-			this.Environment = environment;
-			this.AttachmentNames = attachmentNames;
+			Key = key;
+			Created = created;
+			Reporter = reporter;
+			Assignee = assignee;
+			Project = project;
+			Summary = summary;
+			Description = description;
+			Environment = environment;
+			AttachmentNames = attachmentNames;
 		}
 		public string Key {
 			get;
@@ -100,17 +100,17 @@ namespace Jira {
 	public class JiraConnector : IDisposable {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraConnector));
 		private const string AUTH_FAILED_EXCEPTION_NAME = "com.atlassian.jira.rpc.exception.RemoteAuthenticationException";
-		private static JiraConfiguration config = IniConfig.GetIniSection<JiraConfiguration>();
+		private static readonly JiraConfiguration config = IniConfig.GetIniSection<JiraConfiguration>();
 		public const string DEFAULT_POSTFIX = "/rpc/soap/jirasoapservice-v2?wsdl";
 		private string credentials;
 		private DateTime loggedInTime = DateTime.Now;
 		private bool loggedIn;
 		private JiraSoapServiceService jira;
-		private int timeout;
+		private readonly int timeout;
 		private string url;
-		private Cache<string, JiraIssue> jiraCache = new Cache<string, JiraIssue>(60 * config.Timeout);
-		private Cache<string, RemoteUser> userCache = new Cache<string, RemoteUser>(60 * config.Timeout);
-		private bool suppressBackgroundForm = false;
+		private readonly Cache<string, JiraIssue> jiraCache = new Cache<string, JiraIssue>(60 * config.Timeout);
+		private readonly Cache<string, RemoteUser> userCache = new Cache<string, RemoteUser>(60 * config.Timeout);
+		private readonly bool suppressBackgroundForm = false;
 
 		public void Dispose() {
 			Dispose(true);
@@ -134,8 +134,8 @@ namespace Jira {
 		}
 
 		public JiraConnector(bool suppressBackgroundForm) {
-			this.url = config.Url;
-			this.timeout = config.Timeout;
+			url = config.Url;
+			timeout = config.Timeout;
 			this.suppressBackgroundForm = suppressBackgroundForm;
 			createService();
 		}
@@ -171,13 +171,13 @@ namespace Jira {
 			ThreadStart jiraLogin = delegate {
 				LOG.DebugFormat("Loggin in");
 				try {
-					this.credentials = jira.login(user, password);
+					credentials = jira.login(user, password);
 				} catch (Exception) {
 					if (!url.EndsWith("wsdl")) {
 						url = url + "/rpc/soap/jirasoapservice-v2?wsdl";
 						// recreate the service with the new url
 						createService();
-						this.credentials = jira.login(user, password);
+						credentials = jira.login(user, password);
 						// Worked, store the url in the configuration
 						config.Url = url;
 						IniConfig.Save();
@@ -187,8 +187,8 @@ namespace Jira {
 				}
 				
 				LOG.DebugFormat("Logged in");
-				this.loggedInTime = DateTime.Now;
-				this.loggedIn = true;
+				loggedInTime = DateTime.Now;
+				loggedIn = true;
 
 			};
 			// Here we do it
@@ -204,8 +204,8 @@ namespace Jira {
 					return false;
 				}
 				// Not an authentication issue
-				this.loggedIn = false;
-				this.credentials = null;
+				loggedIn = false;
+				credentials = null;
 				e.Data.Add("user", user);
 				e.Data.Add("url", url);
 				throw;

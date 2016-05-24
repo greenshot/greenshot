@@ -18,20 +18,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
+
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
-
-using Confluence;
-using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 
 namespace GreenshotConfluencePlugin {
 	public partial class ConfluenceSearch : System.Windows.Controls.Page {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceSearch));
-		private static ConfluenceConfiguration config = IniConfig.GetIniSection<ConfluenceConfiguration>();
-		private ConfluenceUpload confluenceUpload;
+		private static readonly ConfluenceConfiguration config = IniConfig.GetIniSection<ConfluenceConfiguration>();
+		private readonly ConfluenceUpload confluenceUpload;
 		
 		public List<Confluence.Space> Spaces {
 			get {
@@ -39,7 +36,7 @@ namespace GreenshotConfluencePlugin {
 			}
 		}
 
-		private ObservableCollection<Confluence.Page> pages = new ObservableCollection<Confluence.Page>();
+		private readonly ObservableCollection<Confluence.Page> pages = new ObservableCollection<Confluence.Page>();
 		public ObservableCollection<Confluence.Page> Pages {
 			get {
 				return pages;
@@ -48,14 +45,14 @@ namespace GreenshotConfluencePlugin {
 
 		public ConfluenceSearch(ConfluenceUpload confluenceUpload) {
 			this.confluenceUpload = confluenceUpload;
-			this.DataContext = this;
+			DataContext = this;
 			InitializeComponent();
 			if (config.SearchSpaceKey == null) {
-				this.SpaceComboBox.SelectedItem = Spaces[0];
+				SpaceComboBox.SelectedItem = Spaces[0];
 			} else {
 				foreach(Confluence.Space space in Spaces) {
 					if (space.Key.Equals(config.SearchSpaceKey)) {
-						this.SpaceComboBox.SelectedItem = space;
+						SpaceComboBox.SelectedItem = space;
 					}
 				}
 			}
@@ -94,7 +91,7 @@ namespace GreenshotConfluencePlugin {
 			}
 		}
 		
-		void Page_Loaded(object sender,  System.Windows.RoutedEventArgs e) {
+		void Page_Loaded(object sender,  RoutedEventArgs e) {
 			SelectionChanged();
 		}
 

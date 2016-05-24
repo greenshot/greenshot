@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
+
 using System.Windows;
 
 namespace GreenshotConfluencePlugin {
@@ -26,7 +26,7 @@ namespace GreenshotConfluencePlugin {
 	/// Interaction logic for ConfluenceConfigurationForm.xaml
 	/// </summary>
 	public partial class ConfluenceConfigurationForm : Window {
-		private ConfluenceConfiguration config;
+		private readonly ConfluenceConfiguration config;
 		public ConfluenceConfiguration Config {
 			get {
 				return config;
@@ -34,7 +34,7 @@ namespace GreenshotConfluencePlugin {
 		}
 		
 		public ConfluenceConfigurationForm(ConfluenceConfiguration config) {
-			this.DataContext = config;
+			DataContext = config;
 			this.config = config;
 			InitializeComponent();
 		}

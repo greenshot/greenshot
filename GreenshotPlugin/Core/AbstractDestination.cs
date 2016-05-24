@@ -34,7 +34,7 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public abstract class AbstractDestination : IDestination {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(AbstractDestination));
-		private static CoreConfiguration configuration = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration configuration = IniConfig.GetIniSection<CoreConfiguration>();
 		
 		public virtual int CompareTo(object obj) {
 			IDestination other = obj as IDestination;
@@ -312,7 +312,8 @@ namespace GreenshotPlugin.Core {
 			basisMenuItem.Click += destinationClickHandler;		
 
 			if (isDynamic && addDynamics) {
-				basisMenuItem.DropDownOpening += delegate(object source, EventArgs eventArgs) {
+				basisMenuItem.DropDownOpening += delegate
+				{
 					if (basisMenuItem.DropDownItems.Count == 0) {
 						List<IDestination> subDestinations = new List<IDestination>();
 						// Fixing Bug #3536968 by catching the COMException (every exception) and not displaying the "subDestinations"

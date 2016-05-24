@@ -26,6 +26,7 @@ using Greenshot.Drawing.Fields;
 using GreenshotPlugin.UnmanagedHelpers;
 using Greenshot.IniFile;
 using Greenshot.Core;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Configuration {
 	/// <summary>
@@ -73,9 +74,10 @@ namespace Greenshot.Configuration {
 
 		/// <param name="requestingType">Type of the class for which to create the field</param>
 		/// <param name="fieldType">FieldType of the field to construct</param>
-		/// <param name="scope">FieldType of the field to construct</param>
+		/// <param name="preferredDefaultValue"></param>
 		/// <returns>a new Field of the given fieldType, with the scope of it's value being restricted to the Type scope</returns>
-		public Field CreateField(Type requestingType, FieldType fieldType, object preferredDefaultValue) {
+		public IField CreateField(Type requestingType, IFieldType fieldType, object preferredDefaultValue)
+		{
 			string requestingTypeName = requestingType.Name;
 			string requestedField = requestingTypeName + "." + fieldType.Name;
 			object fieldValue = preferredDefaultValue;
@@ -101,8 +103,9 @@ namespace Greenshot.Configuration {
 			returnField.Value = fieldValue;
 			return returnField;
 		}
-		
-		public void UpdateLastFieldValue(Field field) {
+
+		public void UpdateLastFieldValue(IField field)
+		{
 			string requestedField = field.Scope + "." + field.FieldType.Name;
 			// Check if the configuration exists
 			if (LastUsedFieldValues == null) {
@@ -110,9 +113,9 @@ namespace Greenshot.Configuration {
 			}
 			// check if settings for the requesting type exist, if not create!
 			if (LastUsedFieldValues.ContainsKey(requestedField)) {
-				LastUsedFieldValues[requestedField] = field.myValue;
+				LastUsedFieldValues[requestedField] = field.Value;
 			} else {
-				LastUsedFieldValues.Add(requestedField, field.myValue);
+				LastUsedFieldValues.Add(requestedField, field.Value);
 			}
 		}
 

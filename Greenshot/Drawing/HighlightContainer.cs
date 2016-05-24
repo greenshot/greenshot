@@ -19,11 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Drawing;
 using System.Runtime.Serialization;
 
 using Greenshot.Drawing.Fields;
 using Greenshot.Drawing.Filters;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -43,8 +43,8 @@ namespace Greenshot.Drawing {
 			AddField(GetType(), FieldType.PREPARED_FILTER_HIGHLIGHT, PreparedFilter.TEXT_HIGHTLIGHT);
 		}
 
-		[OnDeserialized]
-		private void OnDeserialized(StreamingContext context) {
+		protected override void OnDeserialized(StreamingContext context)
+		{
 			Init();
 		}
 		

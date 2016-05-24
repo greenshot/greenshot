@@ -24,6 +24,7 @@ using System.IO;
 using Greenshot.Plugin.Drawing;
 using System.Drawing.Drawing2D;
 using log4net;
+using System.Runtime.Serialization;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -31,11 +32,23 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable] 
 	public class IconContainer : DrawableContainer, IIconContainer {
-		private static ILog LOG = LogManager.GetLogger(typeof(IconContainer));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(IconContainer));
 
 		protected Icon icon;
 
 		public IconContainer(Surface parent) : base(parent) {
+			Init();
+		}
+
+		protected override void OnDeserialized(StreamingContext streamingContext)
+		{
+			base.OnDeserialized(streamingContext);
+			Init();
+		}
+
+		private void Init()
+		{
+			CreateDefaultAdorners();
 		}
 
 		public IconContainer(Surface parent, string filename) : base(parent) {

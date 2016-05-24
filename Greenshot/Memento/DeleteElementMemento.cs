@@ -29,7 +29,7 @@ namespace Greenshot.Memento {
 	/// </summary>
 	public class DeleteElementMemento : IMemento  {
 		private IDrawableContainer drawableContainer;
-		private Surface surface;
+		private readonly Surface surface;
 
 		public DeleteElementMemento(Surface surface, IDrawableContainer drawableContainer) {
 			this.surface = surface;
@@ -47,13 +47,6 @@ namespace Greenshot.Memento {
 					drawableContainer.Dispose();
 					drawableContainer = null;
 				}
-			}
-		}
-
-		public LangKey ActionLanguageKey {
-			get {
-				//return LangKey.editor_deleteelement;
-				return LangKey.none;
 			}
 		}
 

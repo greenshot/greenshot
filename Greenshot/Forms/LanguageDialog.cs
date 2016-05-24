@@ -29,9 +29,9 @@ namespace Greenshot.Forms {
 	/// Description of LanguageDialog.
 	/// </summary>
 	public partial class LanguageDialog : Form {
-		private static ILog LOG = LogManager.GetLogger(typeof(LanguageDialog));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(LanguageDialog));
 		private static LanguageDialog uniqueInstance;
-		private bool properOkPressed = false;
+		private bool properOkPressed;
 
 		private LanguageDialog() {
 			//

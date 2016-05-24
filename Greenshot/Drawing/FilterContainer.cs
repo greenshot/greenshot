@@ -24,6 +24,7 @@ using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
 using System.Drawing.Drawing2D;
+using System.Runtime.Serialization;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -40,6 +41,18 @@ namespace Greenshot.Drawing {
 		}
 		
 		public FilterContainer(Surface parent) : base(parent) {
+			Init();
+		}
+
+		protected override void OnDeserialized(StreamingContext streamingContext)
+		{
+			base.OnDeserialized(streamingContext);
+			Init();
+		}
+
+		private void Init()
+		{
+			CreateDefaultAdorners();
 		}
 
 		protected override void InitializeFields() {
@@ -52,7 +65,7 @@ namespace Greenshot.Drawing {
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
 			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
-			bool lineVisible = (lineThickness > 0 && Colors.IsVisible(lineColor));
+			bool lineVisible = lineThickness > 0 && Colors.IsVisible(lineColor);
 			if (lineVisible) {
 				graphics.SmoothingMode = SmoothingMode.HighSpeed;
 				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -69,7 +82,7 @@ namespace Greenshot.Drawing {
 							Rectangle shadowRect = GuiRectangle.GetGuiRectangle(Left + currentStep, Top + currentStep, Width, Height);
 							graphics.DrawRectangle(shadowPen, shadowRect);
 							currentStep++;
-							alpha = alpha - (basealpha / steps);
+							alpha = alpha - basealpha / steps;
 						}
 					}
 				}

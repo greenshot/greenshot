@@ -37,7 +37,7 @@ namespace GreenshotPlugin.Core {
 	public class LogHelper {
 		private const string LOG4NET_FILE = "log4net.xml";
 		private const string LOG4NET_PORTABLE_FILE = "log4net-portable.xml";
-		private static bool isLog4NetConfigured = false;
+		private static bool isLog4NetConfigured;
 		private const string INIT_MESSAGE = "Greenshot initialization of log system failed";
 		public static bool isInitialized {
 			get {
@@ -101,7 +101,7 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public class SpecialFolderPatternConverter : PatternConverter {
 		override protected void Convert(TextWriter writer, object state) {
-			Environment.SpecialFolder specialFolder = (Environment.SpecialFolder)Enum.Parse(typeof(Environment.SpecialFolder), base.Option, true);
+			Environment.SpecialFolder specialFolder = (Environment.SpecialFolder)Enum.Parse(typeof(Environment.SpecialFolder), Option, true);
 			writer.Write(Environment.GetFolderPath(specialFolder));
 		}
 	}

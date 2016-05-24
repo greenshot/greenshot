@@ -26,9 +26,9 @@ using GreenshotPlugin.Core;
 namespace GreenshotDropboxPlugin {
 	class DropboxDestination : AbstractDestination {
 		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(DropboxDestination));
-		private static DropboxPluginConfiguration config = IniConfig.GetIniSection<DropboxPluginConfiguration>();
+		private static readonly DropboxPluginConfiguration config = IniConfig.GetIniSection<DropboxPluginConfiguration>();
 
-		private DropboxPlugin plugin = null;
+		private readonly DropboxPlugin plugin = null;
 		public DropboxDestination(DropboxPlugin plugin) {
 			this.plugin = plugin;
 		}
@@ -53,7 +53,7 @@ namespace GreenshotDropboxPlugin {
 		}
 		
 		public override ExportInformation ExportCapture(bool manually, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
+			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			string uploadURL = null;
 			bool uploaded = plugin.Upload(captureDetails, surface, out uploadURL);
 			if (uploaded) {

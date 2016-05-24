@@ -26,7 +26,6 @@ using System.Text;
 using log4net;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
-using System.Reflection;
 
 namespace GreenshotPlugin.Core {
 	public static class StringExtensions {

@@ -36,6 +36,28 @@ In this version we fix the bug in the update check, and we are also working on a
 
 Here is the list of chances:
 
+This is a pre-release for the comming bug-fix release of Greenshot.
+
+This version has changes, compared to 1.2.8.12, for the following reported tickets:
+
+* BUG-1884: OCR has trailing blank spaces|
+* BUG-1890: Slight cropping around window on Windows 10|
+* BUG-1892: Greenshot saves blank JPG file with reduce colors|
+* BUG-1898: Specify GPLv3 in the license text|
+* BUG-1918: Speechbubble issue: Artifacts appeared when shadow is on and transparency is used|
+* BUG-1933: Greenshot Installer sets bad registry key permission|
+* BUG-1935: Delay when pasting and ShapeShifter from FlameFusion is running|
+* BUG-1941: Error when creating speech bubble|
+* BUG-1945: Failure starting Greenshot at system startup|
+* BUG-1949: Can't delete Imgur upload
+* BUG-1965: Activation border around window is visible in the capture
+* FEATURE-945: Added environment variables to the external command
+
+Testing is not finished, use at your own risk...
+
+
+1.2.8.12 Release 
+
 Bugs Resolved:
 
 BUG-1527 / BUG-1848 / BUG-1850 / BUG-1851 / BUG-1859 : Greenshot stops responding, hangs or crashes

@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
+
 using System.ComponentModel;
 using System.Windows.Forms;
 
@@ -33,16 +33,8 @@ namespace GreenshotPlugin.Controls {
 			set;
 		}
 
-		private string sectionName = "Core";
 		[Category("Greenshot"), DefaultValue("Core"), Description("Specifies the Ini-Section to map this control with.")]
-		public string SectionName {
-			get {
-				return sectionName;
-			}
-			set {
-				sectionName = value;
-			}
-		}
+		public string SectionName { get; set; } = "Core";
 
 		[Category("Greenshot"), DefaultValue(null), Description("Specifies the property name to map the configuration.")]
 		public string PropertyName {

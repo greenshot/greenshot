@@ -27,6 +27,8 @@ using GreenshotPlugin.Core;
 using System.Drawing.Drawing2D;
 using Greenshot.Core;
 using log4net;
+using System.Runtime.Serialization;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -34,7 +36,7 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable] 
 	public class ImageContainer : DrawableContainer, IImageContainer {
-		private static ILog LOG = LogManager.GetLogger(typeof(ImageContainer));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(ImageContainer));
 
 		private Image image;
 
@@ -58,6 +60,18 @@ namespace Greenshot.Drawing {
 
 		public ImageContainer(Surface parent) : base(parent) {
 			FieldChanged += BitmapContainer_OnFieldChanged;
+			Init();
+		}
+
+		protected override void OnDeserialized(StreamingContext streamingContext)
+		{
+			base.OnDeserialized(streamingContext);
+			Init();
+		}
+
+		private void Init()
+		{
+			CreateDefaultAdorners();
 		}
 
 		protected override void InitializeFields() {

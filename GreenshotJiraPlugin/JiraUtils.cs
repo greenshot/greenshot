@@ -30,7 +30,7 @@ namespace GreenshotJiraPlugin {
 	/// </summary>
 	public class JiraUtils {
 		private static readonly Regex JIRA_KEY_REGEX = new Regex(@"/browse/([A-Z0-9]+\-[0-9]+)");
-		private static JiraConfiguration config = IniConfig.GetIniSection<JiraConfiguration>();
+		private static readonly JiraConfiguration config = IniConfig.GetIniSection<JiraConfiguration>();
 
 		public static List<JiraIssue> GetCurrentJiras() {
 			// Make sure we suppress the login

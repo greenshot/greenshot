@@ -21,9 +21,7 @@
 
 using System;
 using System.Windows.Forms;
-using GreenshotPlugin.Core;
 using GreenshotPlugin.UnmanagedHelpers;
-using Greenshot.IniFile;
 using log4net;
 
 namespace GreenshotPlugin.Controls {
@@ -33,8 +31,8 @@ namespace GreenshotPlugin.Controls {
 	public class AnimatingForm : GreenshotForm {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(AnimatingForm));
 		private const int DEFAULT_VREFRESH = 60;
-		private int vRefresh = 0;
-		private Timer timer = null;
+		private int _vRefresh;
+		private Timer _timer;
 
 		/// <summary>
 		/// This flag specifies if any animation is used
@@ -49,27 +47,27 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		protected int VRefresh {
 			get {
-				if (vRefresh == 0) {
+				if (_vRefresh == 0) {
 					// get te hDC of the desktop to get the VREFRESH
-					using (SafeWindowDCHandle desktopHandle = SafeWindowDCHandle.fromDesktop()) {
-						vRefresh = GDI32.GetDeviceCaps(desktopHandle, DeviceCaps.VREFRESH);
+					using (SafeWindowDCHandle desktopHandle = SafeWindowDCHandle.FromDesktop()) {
+						_vRefresh = GDI32.GetDeviceCaps(desktopHandle, DeviceCaps.VREFRESH);
 					}
 				}
 				// A vertical refresh rate value of 0 or 1 represents the display hardware's default refresh rate.
 				// As there is currently no know way to get the default, we guess it.
-				if (vRefresh <= 1) {
-					vRefresh = DEFAULT_VREFRESH;
+				if (_vRefresh <= 1) {
+					_vRefresh = DEFAULT_VREFRESH;
 				}
-				return vRefresh;
+				return _vRefresh;
 			}
 		}
 
 		/// <summary>
 		/// Check if we are in a Terminal Server session OR need to optimize for RDP / remote desktop connections
 		/// </summary>
-		protected bool isTerminalServerSession {
+		protected bool IsTerminalServerSession {
 			get {
-				return coreConfiguration.OptimizeForRDP || SystemInformation.TerminalServerSession;
+				return !coreConfiguration.DisableRDPOptimizing && (coreConfiguration.OptimizeForRDP || SystemInformation.TerminalServerSession);
 			}
 		}
 
@@ -80,7 +78,7 @@ namespace GreenshotPlugin.Controls {
 		/// <returns>Number of frames, 1 if in Terminal Server Session</returns>
 		protected int FramesForMillis(int milliseconds) {
 			// If we are in a Terminal Server Session we return 1
-			if (isTerminalServerSession) {
+			if (IsTerminalServerSession) {
 				return 1;
 			}
 			return milliseconds / VRefresh;
@@ -92,17 +90,17 @@ namespace GreenshotPlugin.Controls {
 		protected AnimatingForm() {
 			Load += delegate {
 				if (EnableAnimation) {
-					timer = new Timer();
-					timer.Interval = 1000 / VRefresh;
-					timer.Tick += new EventHandler(timer_Tick);
-					timer.Start();
+					_timer = new Timer();
+					_timer.Interval = 1000 / VRefresh;
+					_timer.Tick += timer_Tick;
+					_timer.Start();
 				}
 			};
 
 			// Unregister at close
 			FormClosing += delegate {
-				if (timer != null) {
-					timer.Stop();
+				if (_timer != null) {
+					_timer.Stop();
 				}
 			};
 		}

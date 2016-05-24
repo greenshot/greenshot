@@ -42,7 +42,7 @@ namespace Greenshot.Helpers {
 	/// Many thanks to all the people who contributed here!
 	/// </summary>
 	public static class IECaptureHelper {
-		private static ILog LOG = LogManager.GetLogger(typeof(IECaptureHelper));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(IECaptureHelper));
 		private static readonly CoreConfiguration configuration = IniConfig.GetIniSection<CoreConfiguration>();
 
 		// Helper method to activate a certain IE Tab
@@ -69,7 +69,7 @@ namespace Greenshot.Helpers {
 			if (ieWindow != null) {
 				Rectangle wholeClient = someWindow.ClientRectangle;
 				Rectangle partClient = ieWindow.ClientRectangle;
-				int percentage = (int)(100*((float)(partClient.Width * partClient.Height)) / ((float)(wholeClient.Width * wholeClient.Height)));
+				int percentage = (int)(100*(float)(partClient.Width * partClient.Height) / (float)(wholeClient.Width * wholeClient.Height));
 				LOG.InfoFormat("Window {0}, ie part {1}, percentage {2}", wholeClient, partClient, percentage);
 				if (percentage > minimumPercentage) {
 					return true;
@@ -143,7 +143,7 @@ namespace Greenshot.Helpers {
 						} else if (configuration.WindowClassesToCheckForIE != null && configuration.WindowClassesToCheckForIE.Contains(ieWindow.ClassName)) {
 							List<string> singleWindowText = new List<string>();
 							try {
-								IHTMLDocument2 document2 = getHTMLDocument(ieWindow);
+								IHTMLDocument2 document2 = GetHtmlDocument(ieWindow);
 								string title = document2.title;
 								Marshal.ReleaseComObject(document2);
 								if (string.IsNullOrEmpty(title)) {
@@ -177,7 +177,7 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <param name="mainWindow"></param>
 		/// <returns></returns>
-		private static IHTMLDocument2 getHTMLDocument(WindowDetails mainWindow) {
+		private static IHTMLDocument2 GetHtmlDocument(WindowDetails mainWindow) {
 			WindowDetails ieServer;
 			if ("Internet Explorer_Server".Equals(mainWindow.ClassName)) {
 				ieServer = mainWindow;
@@ -249,7 +249,7 @@ namespace Greenshot.Helpers {
 
 				try {
 					// Get the Document
-					IHTMLDocument2 document2 = getHTMLDocument(ieWindow);
+					IHTMLDocument2 document2 = GetHtmlDocument(ieWindow);
 					if (document2 == null) {
 						continue;
 					}
@@ -371,7 +371,7 @@ namespace Greenshot.Helpers {
 				Bitmap returnBitmap = null;
 				try {
 					Size pageSize = PrepareCapture(documentContainer, capture);
-					returnBitmap = capturePage(documentContainer, capture, pageSize);
+					returnBitmap = CapturePage(documentContainer, pageSize);
 				} catch (Exception captureException) {
 					LOG.Error("Exception found, ignoring and returning nothing! Error was: ", captureException);
 				}
@@ -554,8 +554,9 @@ namespace Greenshot.Helpers {
 		/// Capture the actual page (document)
 		/// </summary>
 		/// <param name="documentContainer">The document wrapped in a container</param>
+		/// <param name="pageSize"></param>
 		/// <returns>Bitmap with the page content as an image</returns>
-		private static Bitmap capturePage(DocumentContainer documentContainer, ICapture capture, Size pageSize) {
+		private static Bitmap CapturePage(DocumentContainer documentContainer, Size pageSize) {
 			WindowDetails contentWindowDetails = documentContainer.ContentWindow;
 
 			//Create a target bitmap to draw into with the calculated page size
@@ -567,7 +568,7 @@ namespace Greenshot.Helpers {
 				graphicsTarget.Clear(clearColor);
 
 				// Get the base document & draw it
-				drawDocument(documentContainer, contentWindowDetails, graphicsTarget);
+				DrawDocument(documentContainer, contentWindowDetails, graphicsTarget);
 				
 				// Loop over the frames and clear their source area so we don't see any artefacts
 				foreach(DocumentContainer frameDocument in documentContainer.Frames) {
@@ -577,7 +578,7 @@ namespace Greenshot.Helpers {
 				}
 				// Loop over the frames and capture their content
 				foreach(DocumentContainer frameDocument in documentContainer.Frames) {
-					drawDocument(frameDocument, contentWindowDetails, graphicsTarget);
+					DrawDocument(frameDocument, contentWindowDetails, graphicsTarget);
 				}
 			}
 			return returnBitmap;
@@ -586,11 +587,11 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// This method takes the actual capture of the document (frame)
 		/// </summary>
-		/// <param name="frameDocument"></param>
+		/// <param name="documentContainer"></param>
 		/// <param name="contentWindowDetails">Needed for referencing the location of the frame</param>
 		/// <returns>Bitmap with the capture</returns>
-		private static void drawDocument(DocumentContainer documentContainer, WindowDetails contentWindowDetails, Graphics graphicsTarget) {
-			documentContainer.setAttribute("scroll", 1);
+		private static void DrawDocument(DocumentContainer documentContainer, WindowDetails contentWindowDetails, Graphics graphicsTarget) {
+			documentContainer.SetAttribute("scroll", 1);
 
 			//Get Browser Window Width & Height
 			int pageWidth = documentContainer.ScrollWidth;
@@ -621,14 +622,14 @@ namespace Greenshot.Helpers {
 			Point targetOffset = new Point();
 			
 			// Loop of the pages and make a copy of the visible viewport
-			while ((horizontalPage * viewportWidth) < pageWidth) {
+			while (horizontalPage * viewportWidth < pageWidth) {
 				// Scroll to location
 				documentContainer.ScrollLeft = viewportWidth * horizontalPage;
 				targetOffset.X = documentContainer.ScrollLeft;
 
 				// Variable used for looping vertically
 				int verticalPage = 0;
-				while ((verticalPage * viewportHeight) < pageHeight) {
+				while (verticalPage * viewportHeight < pageHeight) {
 					// Scroll to location
 					documentContainer.ScrollTop = viewportHeight * verticalPage;
 					//Shoot visible window

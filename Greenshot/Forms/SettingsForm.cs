@@ -43,7 +43,7 @@ namespace Greenshot {
 	/// Description of SettingsForm.
 	/// </summary>
 	public partial class SettingsForm : BaseForm {
-		private static ILog LOG = LogManager.GetLogger(typeof(SettingsForm));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(SettingsForm));
 		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
 		private readonly ToolTip _toolTip = new ToolTip();
 		private bool _inHotkey;
@@ -146,7 +146,7 @@ namespace Greenshot {
 		
 		private void SetWindowCaptureMode(WindowCaptureMode selectedWindowCaptureMode) {
 			WindowCaptureMode[] availableModes;
-			if (!DWM.isDWMEnabled()) {
+			if (!DWM.IsDwmEnabled()) {
 				// Remove DWM from configuration, as DWM is disabled!
 				if (coreConfiguration.WindowCaptureMode == WindowCaptureMode.Aero || coreConfiguration.WindowCaptureMode == WindowCaptureMode.AeroTransparent) {
 					coreConfiguration.WindowCaptureMode = WindowCaptureMode.GDI;
@@ -237,7 +237,7 @@ namespace Greenshot {
 			string filenamePart = pathParts[pathParts.Length-1];
 			settingsOk = FilenameHelper.IsFilenameValid(filenamePart);
 
-			for (int i = 0; (settingsOk && i<pathParts.Length-1); i++) {
+			for (int i = 0; settingsOk && i<pathParts.Length-1; i++) {
 				settingsOk = FilenameHelper.IsDirectoryNameValid(pathParts[i]);
 			}
 
@@ -399,7 +399,7 @@ namespace Greenshot {
 			
 			numericUpDown_daysbetweencheck.Value = coreConfiguration.UpdateCheckInterval;
 			numericUpDown_daysbetweencheck.Enabled = !coreConfiguration.Values["UpdateCheckInterval"].IsFixed;
-			numericUpdownIconSize.Value = (coreConfiguration.IconSize.Width /16) * 16;
+			numericUpdownIconSize.Value = coreConfiguration.IconSize.Width /16 * 16;
 			CheckDestinationSettings();
 		}
 
@@ -444,7 +444,6 @@ namespace Greenshot {
 			coreConfiguration.DWMBackgroundColor = colorButton_window_background.SelectedColor;
 			coreConfiguration.UpdateCheckInterval = (int)numericUpDown_daysbetweencheck.Value;
 
-			Size previousValue = coreConfiguration.IconSize;
 			coreConfiguration.IconSize = new Size((int)numericUpdownIconSize.Value, (int)numericUpdownIconSize.Value);
 
 			try {

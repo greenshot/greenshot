@@ -19,13 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace GreenshotPlugin.UnmanagedHelpers {
 	/// <summary>
 	/// Window Style Flags
 	/// </summary>
 	[Flags]
-    public enum WindowStyleFlags : long {
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
+	public enum WindowStyleFlags : long {
 		//WS_OVERLAPPED       = 0x00000000,
 		WS_POPUP            = 0x80000000,
 		WS_CHILD            = 0x40000000,
@@ -76,7 +78,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	}
 
 	[Flags]
-    public enum ExtendedWindowStyleFlags : uint {
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
+	public enum ExtendedWindowStyleFlags : uint {
 		WS_EX_DLGMODALFRAME    = 0x00000001,
 		WS_EX_NOPARENTNOTIFY   = 0x00000004,
 		WS_EX_TOPMOST      = 0x00000008,
@@ -112,6 +115,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
     }
 
 	[Flags]
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	public enum WindowPlacementFlags : uint {
 		// The coordinates of the minimized window may be specified.
 		// This flag must be specified if the coordinates are set in the ptMinPosition member.
@@ -123,6 +127,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		WPF_RESTORETOMAXIMIZED = 0x0002
 	}
 
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	public enum ShowWindowCommand : uint {
 		/// <summary>
 		/// Hides the window and activates another window.
@@ -149,7 +154,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		ShowMaximized = 3,
 		/// <summary>
 		/// Displays a window in its most recent size and position. This value
-		/// is similar to <see cref="Win32.ShowWindowCommand.Normal"/>, except
+		/// is similar to <see cref="ShowWindowCommand.Normal"/>, except
 		/// the window is not actived.
 		/// </summary>
 		ShowNoActivate = 4,
@@ -164,13 +169,13 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		Minimize = 6,
 		/// <summary>
 		/// Displays the window as a minimized window. This value is similar to
-		/// <see cref="Win32.ShowWindowCommand.ShowMinimized"/>, except the
+		/// <see cref="ShowWindowCommand.ShowMinimized"/>, except the
 		/// window is not activated.
 		/// </summary>
 		ShowMinNoActive = 7,
 		/// <summary>
 		/// Displays the window in its current size and position. This value is
-		/// similar to <see cref="Win32.ShowWindowCommand.Show"/>, except the
+		/// similar to <see cref="ShowWindowCommand.Show"/>, except the
 		/// window is not activated.
 		/// </summary>
 		ShowNA = 8,
@@ -194,7 +199,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		ForceMinimize = 11
 	}
 
-	public enum SYSCOLOR : int {
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
+	public enum SYSCOLOR
+	{
         SCROLLBAR = 0,
         BACKGROUND = 1,
         DESKTOP = 1,
@@ -234,7 +241,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// ai_productions@verizon.net or osirisgothra@hotmail.com
 	/// Obtained on pinvoke.net, please contribute your code to support the wiki!
 	/// </summary>
-	public enum SystemMetric : int {
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
+	public enum SystemMetric
+	{
 		/// <summary>
 		///  Width of the screen of the primary display monitor, in pixels. This is the same values obtained by calling GetDeviceCaps as follows: GetDeviceCaps( hdcPrimaryMonitor, HORZRES).
 		/// </summary>
@@ -612,7 +621,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// </summary>
 		SM_REMOTECONTROL=0x2001
 	}
-	
+
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	public enum RegionResult {
 		REGION_ERROR = 0,
 		REGION_NULLREGION = 1,
@@ -621,6 +631,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	}
 
 	// See http://msdn.microsoft.com/en-us/library/aa969530(v=vs.85).aspx
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	public enum DWMWINDOWATTRIBUTE {
 		DWMWA_NCRENDERING_ENABLED = 1,
 		DWMWA_NCRENDERING_POLICY,
@@ -639,7 +650,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
         DWMWA_FREEZE_REPRESENTATION,    // Since Windows 8
 		DWMWA_LAST
 	}
-	
+
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	public enum GetWindowCommand : uint {
 		GW_HWNDFIRST = 0,
 		GW_HWNDLAST = 1,
@@ -651,13 +663,16 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	}
 	
 	[Flags]
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	public enum DWM_BB {
 		Enable = 1,
 		BlurRegion = 2,
 		TransitionMaximized = 4
 	}
 
-	public enum ClassLongIndex : int {
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
+	public enum ClassLongIndex
+	{
 		GCL_CBCLSEXTRA = -20, // the size, in bytes, of the extra memory associated with the class. Setting this value does not change the number of extra bytes already allocated.
 		GCL_CBWNDEXTRA = -18, // the size, in bytes, of the extra window memory associated with each window in the class. Setting this value does not change the number of extra bytes already allocated. For information on how to access this memory, see SetWindowLong.
 		GCL_HBRBACKGROUND = -10, // a handle to the background brush associated with the class.
@@ -670,7 +685,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		GCL_WNDPROC = -24, // the address of the window procedure, or a handle representing the address of the window procedure. You must use the CallWindowProc function to call the window procedure. 
 	}
 
-	public enum WindowsMessages : int {
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
+	public enum WindowsMessages
+	{
 		WM_NULL = 0x0000,
 		WM_CREATE = 0x0001,
 		WM_DESTROY = 0x0002,
@@ -877,7 +894,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	}
 	
 	// Get/Set WindowLong Enum See: http://msdn.microsoft.com/en-us/library/ms633591.aspx
-	public enum WindowLongIndex : int {
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
+	public enum WindowLongIndex
+	{
 		GWL_EXSTYLE = -20,	// Sets a new extended window style.
 		GWL_HINSTANCE = -6,	// Sets a new application instance handle.
 		GWL_ID = -12,	// Sets a new identifier of the child window. The window cannot be a top-level window.
@@ -888,7 +907,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	
 	// See: http://msdn.microsoft.com/en-us/library/ms633545.aspx
 	[Flags]
-	public enum WindowPos : int {
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
+	public enum WindowPos
+	{
 		SWP_ASYNCWINDOWPOS = 0x4000,	// If the calling thread and the thread that owns the window are attached to different input queues, the system posts the request to the thread that owns the window. This prevents the calling thread from blocking its execution while other threads process the request.
 		SWP_DEFERERASE =  0x2000,	// Prevents generation of the WM_SYNCPAINT message.
 		SWP_DRAWFRAME = 0x0020,	 // Draws a frame (defined in the window's class description) around the window.
@@ -906,13 +927,18 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		SWP_SHOWWINDOW = 0x0040	//Displays the window.
 	}
 
-	public enum ScrollBarDirection : int {
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
+	public enum ScrollBarDirection
+	{
 		SB_HORZ = 0,
 		SB_VERT = 1,
 		SB_CTL = 2,
 		SB_BOTH = 3
 	}
-	public enum ScrollbarCommand : int {
+
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
+	public enum ScrollbarCommand
+	{
 		SB_LINEUP = 0, // Scrolls one line up.
 		SB_LINEDOWN = 1, // Scrolls one line down.
 		SB_PAGEUP = 2, // Scrolls one page up.
@@ -924,6 +950,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		SB_ENDSCROLL = 8 // Ends scroll.
 	}
 
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	public enum ScrollInfoMask {
 		SIF_RANGE = 0x1,
 		SIF_PAGE = 0x2,
@@ -937,6 +964,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// See: http://www.pinvoke.net/default.aspx/Enums/SendMessageTimeoutFlags.html
 	/// </summary>
 	[Flags]
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	public enum SendMessageTimeoutFlags : uint {
 		SMTO_NORMAL				= 0x0,
 		SMTO_BLOCK				= 0x1,
@@ -945,6 +973,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	}
 
 	[Flags]
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	public enum ProcessAccessFlags : uint {
 		All = 0x001F0FFF,
 		Terminate = 0x00000001,
@@ -962,7 +991,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
     /// See: http://msdn.microsoft.com/en-us/library/aa909766.aspx
     /// </summary>
     [Flags]
-    public enum SoundFlags : int {
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    public enum SoundFlags
+    {
         SND_SYNC = 0x0000,			// play synchronously (default)
         SND_ASYNC = 0x0001,			// play asynchronously
         SND_NODEFAULT = 0x0002,		// silence (!default) if sound not found
@@ -979,6 +1010,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// Used by GDI32.GetDeviceCaps
 	/// See: http://msdn.microsoft.com/en-us/library/windows/desktop/dd144877%28v=vs.85%29.aspx
 	/// </summary>
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	public enum DeviceCaps {
         /// <summary>
         /// Device driver version
@@ -1147,7 +1179,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// Used for User32.SetWinEventHook
 	/// See: http://msdn.microsoft.com/en-us/library/windows/desktop/dd373640%28v=vs.85%29.aspx
 	/// </summary>
-	public enum WinEventHookFlags : int {
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
+	public enum WinEventHookFlags
+	{
 		WINEVENT_SKIPOWNTHREAD = 1,
 		WINEVENT_SKIPOWNPROCESS = 2,
 		WINEVENT_OUTOFCONTEXT = 0,
@@ -1158,6 +1192,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// Used for User32.SetWinEventHook
 	/// See MSDN: http://msdn.microsoft.com/en-us/library/windows/desktop/dd318066%28v=vs.85%29.aspx
 	/// </summary>
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	public enum WinEvent : uint {
 		EVENT_OBJECT_ACCELERATORCHANGE = 32786,
 		EVENT_OBJECT_CREATE = 32768,
@@ -1207,7 +1242,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// Used for User32.SetWinEventHook
 	/// See: http://msdn.microsoft.com/en-us/library/windows/desktop/dd373606%28v=vs.85%29.aspx#OBJID_WINDOW
 	/// </summary>
-	public enum EventObjects : int {
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
+	public enum EventObjects
+	{
 		OBJID_ALERT = -10,
 		OBJID_CARET = -8,
 		OBJID_CLIENT = -4,
@@ -1223,6 +1260,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	}
 
 	[Flags]
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	public enum DesktopAccessRight : uint {
 		DESKTOP_READOBJECTS = 0x00000001,
 		DESKTOP_CREATEWINDOW = 0x00000002,

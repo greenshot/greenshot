@@ -34,7 +34,7 @@ namespace Greenshot.Controls {
 		private MovableShowColorForm movableShowColorForm;
 		private bool dragging;
 		private Cursor _cursor;
-		private Bitmap _image;
+		private readonly Bitmap _image;
 		private const int VK_ESC = 27;
 
 		public event EventHandler<PipetteUsedArgs> PipetteUsed;
@@ -111,10 +111,14 @@ namespace Greenshot.Controls {
 		/// </summary>
 		/// <param name="e">MouseEventArgs</param>
 		protected override void OnMouseUp(MouseEventArgs e) {
-			if (e.Button == MouseButtons.Left) {
+			if (e.Button == MouseButtons.Left)
+			{
 				//Release Capture should consume MouseUp when canceled with the escape key 
 				User32.ReleaseCapture();
-				PipetteUsed(this, new PipetteUsedArgs(movableShowColorForm.color));
+				if (PipetteUsed != null)
+				{
+					PipetteUsed(this, new PipetteUsedArgs(movableShowColorForm.color));
+				}
 			}
 			base.OnMouseUp(e);
 		}

@@ -42,6 +42,7 @@
     <Compile Include="Core\CaptureHandler.cs" />
     <Compile Include="Core\EventDelay.cs" />
     <Compile Include="Core\FastBitmap.cs" />
+    <Compile Include="Core\OperatingSystemExtensions.cs" />
     <Compile Include="Core\WmInputLangChangeRequestFilter.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="IEInterop\IHTMLBodyElement.cs" />
@@ -66,6 +67,10 @@
     <Compile Include="IEInterop\IHTMLWindow3.cs" />
     <Compile Include="IEInterop\IHTMLWindow4.cs" />
     <Compile Include="IEInterop\IWebBrowser2.cs" />
+    <Compile Include="Interfaces\Drawing\Adorners\IAdorner.cs" />
+    <Compile Include="Interfaces\Drawing\IField.cs" />
+    <Compile Include="Interfaces\Drawing\IFieldHolder.cs" />
+    <Compile Include="Interfaces\Drawing\IMemento.cs" />
     <Compile Include="Interop\Base.cs" />
     <Compile Include="Interop\ComProgIdAttribute.cs" />
     <Compile Include="Interop\COMWrapper.cs" />

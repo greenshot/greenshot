@@ -42,7 +42,7 @@ namespace Greenshot.Helpers {
 	/// </summary>
 	public class CaptureHelper : IDisposable {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(CaptureHelper));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		// TODO: when we get the screen capture code working correctly, this needs to be enabled
 		//private static ScreenCaptureHelper screenCapture = null;
 		private List<WindowDetails> _windows = new List<WindowDetails>();
@@ -404,7 +404,7 @@ namespace Greenshot.Helpers {
 
 						// Set capture title, fixing bug #3569703
 						foreach (WindowDetails window in WindowDetails.GetVisibleWindows()) {
-							Point estimatedLocation = new Point(conf.LastCapturedRegion.X + (conf.LastCapturedRegion.Width / 2), conf.LastCapturedRegion.Y + (conf.LastCapturedRegion.Height / 2));
+							Point estimatedLocation = new Point(conf.LastCapturedRegion.X + conf.LastCapturedRegion.Width / 2, conf.LastCapturedRegion.Y + conf.LastCapturedRegion.Height / 2);
 							if (window.Contains(estimatedLocation)) {
 								_selectedCaptureWindow = window;
 								_capture.CaptureDetails.Title = _selectedCaptureWindow.Text;
@@ -693,7 +693,10 @@ namespace Greenshot.Helpers {
 			} else {
 				_selectedCaptureWindow = WindowDetails.GetActiveWindow();
 				if (_selectedCaptureWindow != null) {
-					LOG.DebugFormat("Capturing window: {0} with {1}", _selectedCaptureWindow.Text, _selectedCaptureWindow.WindowRectangle);
+					if (LOG.IsDebugEnabled)
+					{
+						LOG.DebugFormat("Capturing window: {0} with {1}", _selectedCaptureWindow.Text, _selectedCaptureWindow.WindowRectangle);
+					}
 				}
 			}
 			if (_selectedCaptureWindow == null || (!presupplied && _selectedCaptureWindow.Iconic)) {
@@ -731,7 +734,6 @@ namespace Greenshot.Helpers {
 				// Trying workaround, the size 0 arrises with e.g. Toad.exe, has a different Window when minimized
 				WindowDetails linkedWindow = WindowDetails.GetLinkedWindow(windowToCapture);
 				if (linkedWindow != null) {
-					windowRectangle = linkedWindow.WindowRectangle;
 					windowToCapture = linkedWindow;
 				} else {
 					return null;
@@ -777,7 +779,7 @@ namespace Greenshot.Helpers {
 			Rectangle windowRectangle = windowToCapture.WindowRectangle;
 
 			// When Vista & DWM (Aero) enabled
-			bool dwmEnabled = DWM.isDWMEnabled();
+			bool dwmEnabled = DWM.IsDwmEnabled();
 			// get process name to be able to exclude certain processes from certain capture modes
 			using (Process process = windowToCapture.Process) {
 				bool isAutoMode = windowCaptureMode == WindowCaptureMode.Auto;
@@ -801,7 +803,7 @@ namespace Greenshot.Helpers {
 					windowCaptureMode = WindowCaptureMode.Screen;
 
 					// Change to GDI, if allowed
-					if (!windowToCapture.isMetroApp && WindowCapture.IsGdiAllowed(process)) {
+					if (!windowToCapture.IsMetroApp && WindowCapture.IsGdiAllowed(process)) {
 						if (!dwmEnabled && isWPF(process)) {
 							// do not use GDI, as DWM is not enabled and the application uses PresentationFramework.dll -> isWPF
 							LOG.InfoFormat("Not using GDI for windows of process {0}, as the process uses WPF", process.ProcessName);
@@ -812,12 +814,12 @@ namespace Greenshot.Helpers {
 
 					// Change to DWM, if enabled and allowed
 					if (dwmEnabled) {
-						if (windowToCapture.isMetroApp || WindowCapture.IsDwmAllowed(process)) {
+						if (windowToCapture.IsMetroApp || WindowCapture.IsDwmAllowed(process)) {
 							windowCaptureMode = WindowCaptureMode.Aero;
 						}
 					}
 				} else if (windowCaptureMode == WindowCaptureMode.Aero || windowCaptureMode == WindowCaptureMode.AeroTransparent) {
-					if (!dwmEnabled || (!windowToCapture.isMetroApp && !WindowCapture.IsDwmAllowed(process))) {
+					if (!dwmEnabled || (!windowToCapture.IsMetroApp && !WindowCapture.IsDwmAllowed(process))) {
 						// Take default screen
 						windowCaptureMode = WindowCaptureMode.Screen;
 						// Change to GDI, if allowed
@@ -845,32 +847,32 @@ namespace Greenshot.Helpers {
 								} else {
 									windowToCapture.ToForeground();
 								}
-								tmpCapture = windowToCapture.CaptureGDIWindow(captureForWindow);
+								tmpCapture = windowToCapture.CaptureGdiWindow(captureForWindow);
 								if (tmpCapture != null) {
 									// check if GDI capture any good, by comparing it with the screen content
-									int blackCountGDI = ImageHelper.CountColor(tmpCapture.Image, Color.Black, false);
-									int GDIPixels = tmpCapture.Image.Width * tmpCapture.Image.Height;
-									int blackPercentageGDI = (blackCountGDI * 100) / GDIPixels;
-									if (blackPercentageGDI >= 1) {
+									int blackCountGdi = ImageHelper.CountColor(tmpCapture.Image, Color.Black, false);
+									int gdiPixels = tmpCapture.Image.Width * tmpCapture.Image.Height;
+									int blackPercentageGdi = blackCountGdi * 100 / gdiPixels;
+									if (blackPercentageGdi >= 1) {
 										int screenPixels = windowRectangle.Width * windowRectangle.Height;
 										using (ICapture screenCapture = new Capture()) {
 											screenCapture.CaptureDetails = captureForWindow.CaptureDetails;
 											if (WindowCapture.CaptureRectangleFromDesktopScreen(screenCapture, windowRectangle) != null) {
 												int blackCountScreen = ImageHelper.CountColor(screenCapture.Image, Color.Black, false);
-												int blackPercentageScreen = (blackCountScreen * 100) / screenPixels;
-												if (screenPixels == GDIPixels) {
+												int blackPercentageScreen = blackCountScreen * 100 / screenPixels;
+												if (screenPixels == gdiPixels) {
 													// "easy compare", both have the same size
 													// If GDI has more black, use the screen capture.
-													if (blackPercentageGDI > blackPercentageScreen) {
+													if (blackPercentageGdi > blackPercentageScreen) {
 														LOG.Debug("Using screen capture, as GDI had additional black.");
 														// changeing the image will automatically dispose the previous
 														tmpCapture.Image = screenCapture.Image;
 														// Make sure it's not disposed, else the picture is gone!
 														screenCapture.NullImage();
 													}
-												} else if (screenPixels < GDIPixels) {
+												} else if (screenPixels < gdiPixels) {
 													// Screen capture is cropped, window is outside of screen
-													if (blackPercentageGDI > 50 && blackPercentageGDI > blackPercentageScreen) {
+													if (blackPercentageGdi > 50 && blackPercentageGdi > blackPercentageScreen) {
 														LOG.Debug("Using screen capture, as GDI had additional black.");
 														// changeing the image will automatically dispose the previous
 														tmpCapture.Image = screenCapture.Image;
@@ -896,8 +898,8 @@ namespace Greenshot.Helpers {
 							break;
 						case WindowCaptureMode.Aero:
 						case WindowCaptureMode.AeroTransparent:
-							if (windowToCapture.isMetroApp || WindowCapture.IsDwmAllowed(process)) {
-								tmpCapture = windowToCapture.CaptureDWMWindow(captureForWindow, windowCaptureMode, isAutoMode);
+							if (windowToCapture.IsMetroApp || WindowCapture.IsDwmAllowed(process)) {
+								tmpCapture = windowToCapture.CaptureDwmWindow(captureForWindow, windowCaptureMode, isAutoMode);
 							}
 							if (tmpCapture != null) {
 								captureForWindow = tmpCapture;

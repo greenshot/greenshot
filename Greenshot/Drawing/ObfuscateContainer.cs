@@ -22,6 +22,7 @@ using System;
 using System.Runtime.Serialization;
 using Greenshot.Drawing.Fields;
 using Greenshot.Drawing.Filters;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -37,15 +38,16 @@ namespace Greenshot.Drawing {
 			base.InitializeFields();
 			AddField(GetType(), FieldType.PREPARED_FILTER_OBFUSCATE, PreparedFilter.PIXELIZE);
 		}
-		
-		[OnDeserialized]
-		private void OnDeserialized(StreamingContext context) {
+
+		protected override void OnDeserialized(StreamingContext context)
+		{
 			Init();
 		}
 		
 		private void Init() {
 			FieldChanged += ObfuscateContainer_OnFieldChanged;
 			ConfigurePreparedFilters();
+			CreateDefaultAdorners();
 		}	
 		
 		protected void ObfuscateContainer_OnFieldChanged(object sender, FieldChangedEventArgs e) {

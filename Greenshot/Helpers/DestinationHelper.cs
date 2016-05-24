@@ -31,9 +31,9 @@ namespace Greenshot.Helpers {
 	/// Description of DestinationHelper.
 	/// </summary>
 	public static class DestinationHelper {
-		private static ILog LOG = LogManager.GetLogger(typeof(DestinationHelper));
-		private static Dictionary<string, IDestination> RegisteredDestinations = new Dictionary<string, IDestination>();
-		private static CoreConfiguration coreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(DestinationHelper));
+		private static readonly Dictionary<string, IDestination> RegisteredDestinations = new Dictionary<string, IDestination>();
+		private static readonly CoreConfiguration coreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 
 		/// Initialize the destinations		
 		static DestinationHelper() {

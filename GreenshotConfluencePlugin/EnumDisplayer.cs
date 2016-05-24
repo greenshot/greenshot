@@ -40,7 +40,7 @@ namespace GreenshotConfluencePlugin {
 		}
 	
 		public EnumDisplayer(Type type) {
-			this.Type = type;
+			Type = type;
 		}
 	
 		public Type Type {
@@ -49,15 +49,15 @@ namespace GreenshotConfluencePlugin {
 				if (!value.IsEnum) {
 					throw new ArgumentException("parameter is not an Enumerated type", "value");
 				}
-				this.type = value;
+				type = value;
 			}
 		}
 		
 		public ReadOnlyCollection<string> DisplayNames {
 			get {
-				this.reverseValues = (IDictionary) Activator.CreateInstance(typeof(Dictionary<,>).GetGenericTypeDefinition().MakeGenericType(typeof(string),type));
+				reverseValues = (IDictionary) Activator.CreateInstance(typeof(Dictionary<,>).GetGenericTypeDefinition().MakeGenericType(typeof(string),type));
 				
-				this.displayValues = (IDictionary)Activator.CreateInstance(typeof(Dictionary<,>).GetGenericTypeDefinition().MakeGenericType(type, typeof(string)));
+				displayValues = (IDictionary)Activator.CreateInstance(typeof(Dictionary<,>).GetGenericTypeDefinition().MakeGenericType(type, typeof(string)));
 				
 				var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static);
 				foreach (var field in fields) {

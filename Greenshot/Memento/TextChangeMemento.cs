@@ -28,7 +28,7 @@ namespace Greenshot.Memento {
 	/// </summary>
 	public class TextChangeMemento : IMemento  {
 		private TextContainer textContainer;
-		private string oldText;
+		private readonly string oldText;
 		
 		public TextChangeMemento(TextContainer textContainer) {
 			this.textContainer = textContainer;
@@ -37,18 +37,11 @@ namespace Greenshot.Memento {
 
 		public void Dispose() {
 			Dispose(true);
-			GC.SuppressFinalize(this);
 		}
 
 		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
 				textContainer = null;
-			}
-		}
-
-		public LangKey ActionLanguageKey {
-			get {
-				return LangKey.none;
 			}
 		}
 

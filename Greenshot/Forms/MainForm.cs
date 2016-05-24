@@ -52,7 +52,7 @@ namespace Greenshot {
 		private static ILog LOG;
 		private static ResourceMutex _applicationMutex;
 		private static CoreConfiguration _conf;
-		public static string LogFileLocation = null;
+		public static string LogFileLocation;
 
 		public static void Start(string[] args) {
 			bool isAlreadyRunning = false;
@@ -227,7 +227,7 @@ namespace Greenshot {
 						using (Form dummyForm = new Form()) {
 							dummyForm.Icon = GreenshotResources.getGreenshotIcon();
 							dummyForm.ShowInTaskbar = true;
-							dummyForm.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+							dummyForm.FormBorderStyle = FormBorderStyle.None;
 							dummyForm.Location = new Point(int.MinValue, int.MinValue);
 							dummyForm.Load += delegate { dummyForm.Size = Size.Empty; };
 							dummyForm.Show();
@@ -550,7 +550,7 @@ namespace Greenshot {
 				contextMenu.ImageScalingSize = coreConfiguration.IconSize;
 				string ieExePath = PluginUtils.GetExePath("iexplore.exe");
 				if (!string.IsNullOrEmpty(ieExePath)) {
-					this.contextmenu_captureie.Image = PluginUtils.GetCachedExeIcon(ieExePath, 0);
+					contextmenu_captureie.Image = PluginUtils.GetCachedExeIcon(ieExePath, 0);
 				}
 			}
 		}
@@ -877,7 +877,7 @@ namespace Greenshot {
 		public void AddCaptureWindowMenuItems(ToolStripMenuItem menuItem, EventHandler eventHandler) {
 			menuItem.DropDownItems.Clear();
 			// check if thumbnailPreview is enabled and DWM is enabled
-			bool thumbnailPreview = _conf.ThumnailPreview && DWM.isDWMEnabled();
+			bool thumbnailPreview = _conf.ThumnailPreview && DWM.IsDwmEnabled();
 
 			List<WindowDetails> windows = WindowDetails.GetTopLevelWindows();
 			foreach(WindowDetails window in windows) {

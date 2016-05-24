@@ -38,9 +38,6 @@ namespace Greenshot.Controls {
 			set;
 		}
 
-		public BindableToolStripDropDownButton() {
-		}
-		
 		public object SelectedTag {
 			get { if(Tag==null && DropDownItems.Count>0) Tag=DropDownItems[0].Tag; return Tag; }
 			set { AdoptFromTag(value); }

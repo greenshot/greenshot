@@ -29,7 +29,7 @@ namespace GreenshotPlugin.Controls {
 	/// Description of PleaseWaitForm.
 	/// </summary>
 	public partial class BackgroundForm : Form {
-		private volatile bool shouldClose = false;
+		private volatile bool _shouldClose;
 				
 		private void BackgroundShowDialog() {
 			ShowDialog();
@@ -38,7 +38,7 @@ namespace GreenshotPlugin.Controls {
 		public static BackgroundForm ShowAndWait(string title, string text) {
 			BackgroundForm backgroundForm = new BackgroundForm(title, text);
 			// Show form in background thread
-			Thread backgroundTask = new Thread (new ThreadStart(backgroundForm.BackgroundShowDialog));
+			Thread backgroundTask = new Thread (backgroundForm.BackgroundShowDialog);
 			backgroundForm.Name = "Background form";
 			backgroundTask.IsBackground = true;
 			backgroundTask.SetApartmentState(ApartmentState.STA);
@@ -52,7 +52,7 @@ namespace GreenshotPlugin.Controls {
 			//
 			InitializeComponent();
 			Icon = GreenshotResources.getGreenshotIcon();
-			shouldClose = false;
+			_shouldClose = false;
 			Text = title;
 			label_pleasewait.Text = text;
 			FormClosing += PreventFormClose;
@@ -76,20 +76,20 @@ namespace GreenshotPlugin.Controls {
 		}
 
 		private void PreventFormClose(object sender, FormClosingEventArgs e) {
-			if(!shouldClose) {
+			if(!_shouldClose) {
 				e.Cancel = true;
 			}
 		}
 
 		private void Timer_checkforcloseTick(object sender, EventArgs e) {
-			if (shouldClose) {
+			if (_shouldClose) {
 				timer_checkforclose.Stop();
 				BeginInvoke(new EventHandler( delegate {Close();}));
 			}
 		}
 		
 		public void CloseDialog() {
-			shouldClose = true;
+			_shouldClose = true;
 			Application.DoEvents();
 		}
 		

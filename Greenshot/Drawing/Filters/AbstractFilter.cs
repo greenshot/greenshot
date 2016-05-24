@@ -41,7 +41,7 @@ namespace Greenshot.Drawing.Filters {
 			remove{ propertyChanged -= value; }
 		}
 		
-		private bool invert = false;
+		private bool invert;
 		public bool Invert {
 			get {
 				return invert;

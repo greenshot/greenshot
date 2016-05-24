@@ -37,9 +37,9 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public static class PluginUtils {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(PluginUtils));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private const string PATH_KEY = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
-		private static IDictionary<string, Image> exeIconCache = new Dictionary<string, Image>();
+		private static readonly IDictionary<string, Image> exeIconCache = new Dictionary<string, Image>();
 
 		static PluginUtils() {
 			conf.PropertyChanged += OnIconSizeChanged;
@@ -110,12 +110,15 @@ namespace GreenshotPlugin.Core {
 		public static Image GetCachedExeIcon(string path, int index) {
 			string cacheKey = string.Format("{0}:{1}", path, index);
 			Image returnValue;
-			if (!exeIconCache.TryGetValue(cacheKey, out returnValue)) {
-				lock (exeIconCache) {
-					if (!exeIconCache.TryGetValue(cacheKey, out returnValue)) {
-						returnValue = GetExeIcon(path, index);
-						if (returnValue != null) {
-							exeIconCache.Add(cacheKey, returnValue);
+			lock (exeIconCache)
+			{
+				if (!exeIconCache.TryGetValue(cacheKey, out returnValue)) {
+					lock (exeIconCache) {
+						if (!exeIconCache.TryGetValue(cacheKey, out returnValue)) {
+							returnValue = GetExeIcon(path, index);
+							if (returnValue != null) {
+								exeIconCache.Add(cacheKey, returnValue);
+							}
 						}
 					}
 				}

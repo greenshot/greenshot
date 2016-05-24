@@ -20,7 +20,6 @@
  */
 using System;
 using System.Runtime.InteropServices;
-using Greenshot.Interop;
 
 namespace Greenshot.Interop {
 	// This is used for Windows 8 to see if the App Launcher is active

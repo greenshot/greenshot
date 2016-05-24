@@ -26,6 +26,7 @@ using System.Runtime.Serialization;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
+using Greenshot.Drawing.Adorners;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -45,19 +46,14 @@ namespace Greenshot.Drawing {
 			AddField(GetType(), FieldType.SHADOW, true);
 		}
 		
-		[OnDeserialized()]
-		private void OnDeserialized(StreamingContext context) {
-			InitGrippers();
-			DoLayout();
+		protected override void OnDeserialized(StreamingContext context)
+		{
 			Init();
 		}
 
 		protected void Init() {
-			if (_grippers != null) {
-				foreach (int index in new[] { 1, 2, 3, 5, 6, 7 }) {
-					_grippers[index].Enabled = false;
-				}
-			}
+			Adorners.Add(new MoveAdorner(this, Positions.TopLeft));
+			Adorners.Add(new MoveAdorner(this, Positions.BottomRight));
 		}
 		
 		public override void Draw(Graphics graphics, RenderMode rm) {
@@ -86,7 +82,7 @@ namespace Greenshot.Drawing {
 								Top + currentStep + Height);
 
 							currentStep++;
-							alpha = alpha - (basealpha / steps);
+							alpha = alpha - basealpha / steps;
 						}
 					}
 				}
@@ -113,8 +109,6 @@ namespace Greenshot.Drawing {
 		
 		protected override ScaleHelper.IDoubleProcessor GetAngleRoundProcessor() {
 			return ScaleHelper.LineAngleRoundBehavior.Instance;
-		}
-		
-		
+		}		
 	}
 }

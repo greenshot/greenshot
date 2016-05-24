@@ -36,7 +36,8 @@ namespace Greenshot.Controls {
 			set;
 		}
 
-		public BindableToolStripComboBox() :base() {
+		public BindableToolStripComboBox()
+		{
 			SelectedIndexChanged += BindableToolStripComboBox_SelectedIndexChanged;
 		}
 

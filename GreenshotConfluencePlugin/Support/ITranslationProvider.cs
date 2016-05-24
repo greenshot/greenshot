@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-
-namespace TranslationByMarkupExtension {
+﻿namespace TranslationByMarkupExtension {
     public interface ITranslationProvider {
         /// <summary>
         /// Translates the specified key.

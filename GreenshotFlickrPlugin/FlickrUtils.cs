@@ -34,7 +34,7 @@ namespace GreenshotFlickrPlugin {
 	/// </summary>
 	public class FlickrUtils {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(FlickrUtils));
-		private static FlickrConfiguration config = IniConfig.GetIniSection<FlickrConfiguration>();
+		private static readonly FlickrConfiguration config = IniConfig.GetIniSection<FlickrConfiguration>();
 		private const string FLICKR_API_BASE_URL = "https://api.flickr.com/services/";
 		private const string FLICKR_UPLOAD_URL = FLICKR_API_BASE_URL + "upload/";
 		// OAUTH

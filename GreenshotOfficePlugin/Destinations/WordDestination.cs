@@ -33,11 +33,11 @@ namespace GreenshotOfficePlugin {
 	/// Description of EmailDestination.
 	/// </summary>
 	public class WordDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordDestination));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordDestination));
 		private const int ICON_APPLICATION = 0;
 		private const int ICON_DOCUMENT = 1;
-		private static string exePath = null;
-		private string documentCaption = null;
+		private static readonly string exePath = null;
+		private readonly string documentCaption = null;
 
 		static WordDestination() {
 			exePath = PluginUtils.GetExePath("WINWORD.EXE");
@@ -51,7 +51,7 @@ namespace GreenshotOfficePlugin {
 		}
 
 		public WordDestination(string wordCaption) {
-			this.documentCaption = wordCaption;
+			documentCaption = wordCaption;
 		}
 
 		public override string Designation {
@@ -104,7 +104,7 @@ namespace GreenshotOfficePlugin {
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
+			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			string tmpFile = captureDetails.Filename;
 			if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$")) {
 				tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());

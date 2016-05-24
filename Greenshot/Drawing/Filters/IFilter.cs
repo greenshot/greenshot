@@ -21,11 +21,11 @@
 
 using System.ComponentModel;
 using System.Drawing;
-
-using Greenshot.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
+using GreenshotPlugin.Interfaces.Drawing;
 
-namespace Greenshot.Drawing.Filters {
+namespace Greenshot.Drawing.Filters
+{
 	public interface IFilter : INotifyPropertyChanged, IFieldHolder {
 		DrawableContainer Parent {get; set; }
 		void Apply(Graphics graphics, Bitmap bmp, Rectangle rect, RenderMode renderMode);

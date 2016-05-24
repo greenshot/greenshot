@@ -28,18 +28,14 @@ using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Greenshot.Helpers;
-using Greenshot.IniFile;
-using log4net;
 
 namespace Greenshot.Destinations {
 	/// <summary>
 	/// Description of PrinterDestination.
 	/// </summary>
 	public class PrinterDestination : AbstractDestination {
-		private static ILog LOG = LogManager.GetLogger(typeof(PrinterDestination));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		public const string DESIGNATION = "Printer";
-		public string printerName = null;
+		public string printerName;
 
 		public PrinterDestination() {
 		}

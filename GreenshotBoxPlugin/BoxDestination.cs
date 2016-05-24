@@ -22,12 +22,9 @@ using System.ComponentModel;
 using System.Drawing;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using log4net;
 
 namespace GreenshotBoxPlugin {
 	public class BoxDestination : AbstractDestination {
-		private static ILog LOG = LogManager.GetLogger(typeof(BoxDestination));
-
 		private readonly BoxPlugin _plugin;
 		public BoxDestination(BoxPlugin plugin) {
 			_plugin = plugin;

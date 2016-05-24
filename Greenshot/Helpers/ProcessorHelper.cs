@@ -30,8 +30,8 @@ namespace Greenshot.Helpers {
 	/// Description of ProcessorHelper.
 	/// </summary>
 	public static class ProcessorHelper {
-		private static ILog LOG = LogManager.GetLogger(typeof(ProcessorHelper));
-		private static Dictionary<string, IProcessor> RegisteredProcessors = new Dictionary<string, IProcessor>();
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(ProcessorHelper));
+		private static readonly Dictionary<string, IProcessor> RegisteredProcessors = new Dictionary<string, IProcessor>();
 
 		/// Initialize the Processors		
 		static ProcessorHelper() {

@@ -45,6 +45,12 @@ namespace Greenshot.Drawing {
 		public StepLabelContainer(Surface parent) : base(parent) {
 			parent.AddStepLabel(this);
 			InitContent();
+			Init();
+		}
+
+		private void Init()
+		{
+			CreateDefaultAdorners();
 		}
 
 		#region Number serializing
@@ -75,8 +81,9 @@ namespace Greenshot.Drawing {
 		/// Restore values that don't serialize
 		/// </summary>
 		/// <param name="context"></param>
-		[OnDeserialized]
-		private void SetValuesOnDeserialized(StreamingContext context) {
+		protected override void OnDeserialized(StreamingContext context)
+		{
+			Init();
 			_stringFormat = new StringFormat();
 			_stringFormat.Alignment = StringAlignment.Center;
 			_stringFormat.LineAlignment = StringAlignment.Center;
@@ -87,6 +94,10 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="newParent"></param>
 		protected override void SwitchParent(Surface newParent) {
+			if (newParent == Parent)
+			{
+				return;
+			}
 			if (Parent != null) {
 				((Surface)Parent).RemoveStepLabel(this);
 			}
@@ -118,7 +129,7 @@ namespace Greenshot.Drawing {
 		/// This makes it possible for the label to be placed exactly in the middle of the pointer.
 		/// </summary>
 		public override bool HandleMouseDown(int mouseX, int mouseY) {
-			return base.HandleMouseDown(mouseX - (Width / 2), mouseY - (Height / 2));
+			return base.HandleMouseDown(mouseX - Width / 2, mouseY - Height / 2);
 		}
 
 		/// <summary>
@@ -146,8 +157,8 @@ namespace Greenshot.Drawing {
 
 		public override bool HandleMouseMove(int x, int y) {
 			Invalidate();
-			Left = x - (Width / 2);
-			Top = y - (Height / 2);
+			Left = x - Width / 2;
+			Top = y - Height / 2;
 			Invalidate();
 			return true;
 		}
@@ -167,7 +178,7 @@ namespace Greenshot.Drawing {
 
 			int widthAfter = rect.Width;
 			int heightAfter = rect.Height;
-			float factor = (((float)widthAfter / widthBefore) + ((float)heightAfter / heightBefore)) / 2;
+			float factor = ((float)widthAfter / widthBefore + (float)heightAfter / heightBefore) / 2;
 
 			fontSize *= factor;
 		}

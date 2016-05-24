@@ -23,10 +23,10 @@ using System;
 
 namespace GreenshotPlugin.Core {
 	public class EventDelay {
-		private long lastCheck = 0;
-		private long waitTime;
+		private long lastCheck;
+		private readonly long waitTime;
 		public EventDelay(long ticks) {
-			this.waitTime = ticks;
+			waitTime = ticks;
 		}
 
 		public bool Check() {

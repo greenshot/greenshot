@@ -73,7 +73,7 @@ namespace GreenshotDropboxPlugin {
 		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="pluginAttribute">My own attributes</param>
 		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
-			this.host = (IGreenshotHost)pluginHost;
+			host = (IGreenshotHost)pluginHost;
 			Attributes = myAttributes;
 
 			// Register configuration (don't need the configuration itself)
@@ -83,7 +83,7 @@ namespace GreenshotDropboxPlugin {
 			itemPlugInConfig = new ToolStripMenuItem();
 			itemPlugInConfig.Text = Language.GetString("dropbox", LangKey.Configure);
 			itemPlugInConfig.Tag = host;
-			itemPlugInConfig.Click += new System.EventHandler(ConfigMenuClick);
+			itemPlugInConfig.Click += new EventHandler(ConfigMenuClick);
 			itemPlugInConfig.Image = (Image)resources.GetObject("Dropbox");
 
 			PluginUtils.AddToContextMenu(host, itemPlugInConfig);

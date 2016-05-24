@@ -34,24 +34,24 @@ namespace ExternalCommand {
 	/// Description of OCRDestination.
 	/// </summary>
 	public class ExternalCommandDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExternalCommandDestination));
-		private static Regex URI_REGEXP = new Regex(@"((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)");
-		private static ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
-		private string presetCommand;
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExternalCommandDestination));
+		private static readonly Regex URI_REGEXP = new Regex(@"((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)");
+		private static readonly ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
+		private readonly string _presetCommand;
 		
 		public ExternalCommandDestination(string commando) {
-			this.presetCommand = commando;
+			_presetCommand = commando;
 		}
 
 		public override string Designation {
 			get {
-				return "External " + presetCommand.Replace(',','_');
+				return "External " + _presetCommand.Replace(',','_');
 			}
 		}
 
 		public override string Description {
 			get {
-				return presetCommand;
+				return _presetCommand;
 			}
 		}
 
@@ -61,20 +61,20 @@ namespace ExternalCommand {
 
 		public override Image DisplayIcon {
 			get {
-				return IconCache.IconForCommand(presetCommand);
+				return IconCache.IconForCommand(_presetCommand);
 			}
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
+			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings();
 
 			
-			if (presetCommand != null) {
-				if (!config.runInbackground.ContainsKey(presetCommand)) {
-					config.runInbackground.Add(presetCommand, true);
+			if (_presetCommand != null) {
+				if (!config.runInbackground.ContainsKey(_presetCommand)) {
+					config.runInbackground.Add(_presetCommand, true);
 				}
-				bool runInBackground = config.runInbackground[presetCommand];
+				bool runInBackground = config.runInbackground[_presetCommand];
 				string fullPath = captureDetails.Filename;
 				if (fullPath == null) {
 					fullPath = ImageOutput.SaveNamedTmpFile(surface, captureDetails, outputSettings);
@@ -83,17 +83,20 @@ namespace ExternalCommand {
 				string output;
 				string error;
 				if (runInBackground) {
-					Thread commandThread = new Thread(delegate() {
-						CallExternalCommand(exportInformation, presetCommand, fullPath, out output, out error);
+					Thread commandThread = new Thread(delegate()
+					{
+						CallExternalCommand(exportInformation, fullPath, out output, out error);
 						ProcessExport(exportInformation, surface);
-					});
-					commandThread.Name = "Running " + presetCommand;
-					commandThread.IsBackground = true;
+					})
+					{
+						Name = "Running " + _presetCommand,
+						IsBackground = true
+					};
 					commandThread.SetApartmentState(ApartmentState.STA);
 					commandThread.Start();
 					exportInformation.ExportMade = true;
 				} else {
-					CallExternalCommand(exportInformation, presetCommand, fullPath, out output, out error);
+					CallExternalCommand(exportInformation, fullPath, out output, out error);
 					ProcessExport(exportInformation, surface);
 				}
 			}
@@ -105,15 +108,14 @@ namespace ExternalCommand {
 		/// Call the external command, parse for URI, place to clipboard and set the export information
 		/// </summary>
 		/// <param name="exportInformation"></param>
-		/// <param name="commando"></param>
 		/// <param name="fullPath"></param>
 		/// <param name="output"></param>
 		/// <param name="error"></param>
-		private void CallExternalCommand(ExportInformation exportInformation, string commando, string fullPath, out string output, out string error) {
+		private void CallExternalCommand(ExportInformation exportInformation, string fullPath, out string output, out string error) {
 			output = null;
 			error = null;
 			try {
-				if (CallExternalCommand(presetCommand, fullPath, out output, out error) == 0) {
+				if (CallExternalCommand(_presetCommand, fullPath, out output, out error) == 0) {
 					exportInformation.ExportMade = true;
 					if (!string.IsNullOrEmpty(output)) {
 						MatchCollection uriMatches = URI_REGEXP.Matches(output);
@@ -121,7 +123,7 @@ namespace ExternalCommand {
 						if (config.OutputToClipboard) {
 							ClipboardHelper.SetClipboardData(output);
 						}
-						if (uriMatches != null && uriMatches.Count > 0) {
+						if (uriMatches.Count > 0) {
 							exportInformation.Uri = uriMatches[0].Groups[1].Value;
 							LOG.InfoFormat("Got URI : {0} ", exportInformation.Uri);
 							if (config.UriToClipboard) {
@@ -156,13 +158,13 @@ namespace ExternalCommand {
 				try {
 					return CallExternalCommand(commando, fullPath, "runas", out output, out error);
 				} catch {
-					w32ex.Data.Add("commandline", config.commandlines[presetCommand]);
-					w32ex.Data.Add("arguments", config.arguments[presetCommand]);
+					w32ex.Data.Add("commandline", config.commandlines[_presetCommand]);
+					w32ex.Data.Add("arguments", config.arguments[_presetCommand]);
 					throw;
 				}
 			} catch (Exception ex) {
-				ex.Data.Add("commandline", config.commandlines[presetCommand]);
-				ex.Data.Add("arguments", config.arguments[presetCommand]);
+				ex.Data.Add("commandline", config.commandlines[_presetCommand]);
+				ex.Data.Add("arguments", config.arguments[_presetCommand]);
 				throw;
 			}
 		}
@@ -182,8 +184,16 @@ namespace ExternalCommand {
 			output = null;
 			error = null;
 			if (!string.IsNullOrEmpty(commandline)) {
-				using (Process process = new Process()) {
-					process.StartInfo.FileName = commandline;
+				using (Process process = new Process())
+				{
+					// Fix variables
+					commandline = FilenameHelper.FillVariables(commandline, true);
+					commandline = FilenameHelper.FillCmdVariables(commandline, true);
+
+					arguments = FilenameHelper.FillVariables(arguments, false);
+					arguments = FilenameHelper.FillCmdVariables(arguments, false);
+
+					process.StartInfo.FileName = FilenameHelper.FillCmdVariables(commandline, true);
 					process.StartInfo.Arguments = FormatArguments(arguments, fullPath);
 					process.StartInfo.UseShellExecute = false;
 					if (config.RedirectStandardOutput) {
@@ -200,13 +210,13 @@ namespace ExternalCommand {
 					process.WaitForExit();
 					if (config.RedirectStandardOutput) {
 						output = process.StandardOutput.ReadToEnd();
-						if (config.ShowStandardOutputInLog && output != null && output.Trim().Length > 0) {
+						if (config.ShowStandardOutputInLog && output.Trim().Length > 0) {
 							LOG.InfoFormat("Output:\n{0}", output);
 						}
 					}
 					if (config.RedirectStandardError) {
 						error = process.StandardError.ReadToEnd();
-						if (error != null && error.Trim().Length > 0) {
+						if (error.Trim().Length > 0) {
 							LOG.WarnFormat("Error:\n{0}", error);
 						}
 					}
@@ -219,7 +229,7 @@ namespace ExternalCommand {
 
         public static string FormatArguments(string arguments, string fullpath)
         {
-            return String.Format(arguments, fullpath);
+            return string.Format(arguments, fullpath);
         }
     }
 }

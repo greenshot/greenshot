@@ -31,10 +31,9 @@ namespace GreenshotPlugin.Controls {
 	/// Didn't make it completely "generic" yet, but at least most logic is in here so we don't have it in the mainform.
 	/// </summary>
 	public class ThumbnailForm : FormWithoutActivation {
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
-		private IntPtr thumbnailHandle = IntPtr.Zero;
-		private Rectangle parentMenuBounds = Rectangle.Empty;
+		private IntPtr _thumbnailHandle = IntPtr.Zero;
 
 		public ThumbnailForm() {
 			ShowInTaskbar = false;
@@ -59,9 +58,9 @@ namespace GreenshotPlugin.Controls {
 		}
 
 		private void UnregisterThumbnail() {
-			if (thumbnailHandle != IntPtr.Zero) {
-				DWM.DwmUnregisterThumbnail(thumbnailHandle);
-				thumbnailHandle = IntPtr.Zero;
+			if (_thumbnailHandle != IntPtr.Zero) {
+				DWM.DwmUnregisterThumbnail(_thumbnailHandle);
+				_thumbnailHandle = IntPtr.Zero;
 			}
 		}
 
@@ -73,25 +72,27 @@ namespace GreenshotPlugin.Controls {
 		public void ShowThumbnail(WindowDetails window, Control parentControl) {
 			UnregisterThumbnail();
 
-			DWM.DwmRegisterThumbnail(Handle, window.Handle, out thumbnailHandle);
-			if (thumbnailHandle != IntPtr.Zero) {
+			DWM.DwmRegisterThumbnail(Handle, window.Handle, out _thumbnailHandle);
+			if (_thumbnailHandle != IntPtr.Zero) {
 				SIZE sourceSize;
-				DWM.DwmQueryThumbnailSourceSize(thumbnailHandle, out sourceSize);
+				DWM.DwmQueryThumbnailSourceSize(_thumbnailHandle, out sourceSize);
 				int thumbnailHeight = 200;
-				int thumbnailWidth = (int)(thumbnailHeight * ((float)sourceSize.width / (float)sourceSize.height));
+				int thumbnailWidth = (int)(thumbnailHeight * ((float)sourceSize.Width / (float)sourceSize.Height));
 				if (parentControl != null && thumbnailWidth > parentControl.Width) {
 					thumbnailWidth = parentControl.Width;
-					thumbnailHeight = (int)(thumbnailWidth * ((float)sourceSize.height / (float)sourceSize.width));
+					thumbnailHeight = (int)(thumbnailWidth * ((float)sourceSize.Height / (float)sourceSize.Width));
 				}
 				Width = thumbnailWidth;
 				Height = thumbnailHeight;
 				// Prepare the displaying of the Thumbnail
-				DWM_THUMBNAIL_PROPERTIES props = new DWM_THUMBNAIL_PROPERTIES();
-				props.Opacity = (byte)255;
-				props.Visible = true;
-				props.SourceClientAreaOnly = false;
-				props.Destination = new RECT(0, 0, thumbnailWidth, thumbnailHeight);
-				DWM.DwmUpdateThumbnailProperties(thumbnailHandle, ref props);
+				DWM_THUMBNAIL_PROPERTIES props = new DWM_THUMBNAIL_PROPERTIES
+				{
+					Opacity = 255,
+					Visible = true,
+					SourceClientAreaOnly = false,
+					Destination = new RECT(0, 0, thumbnailWidth, thumbnailHeight)
+				};
+				DWM.DwmUpdateThumbnailProperties(_thumbnailHandle, ref props);
 				if (parentControl != null) {
 					AlignToControl(parentControl);
 				}

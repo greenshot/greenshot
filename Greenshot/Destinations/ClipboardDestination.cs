@@ -25,16 +25,12 @@ using System.Windows.Forms;
 using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
-using Greenshot.IniFile;
-using log4net;
 
 namespace Greenshot.Destinations {
 	/// <summary>
 	/// Description of ClipboardDestination.
 	/// </summary>
 	public class ClipboardDestination : AbstractDestination {
-		private static ILog LOG = LogManager.GetLogger(typeof(ClipboardDestination));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		public const string DESIGNATION = "Clipboard";
 
 		public override string Designation {
