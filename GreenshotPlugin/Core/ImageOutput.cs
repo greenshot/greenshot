@@ -24,6 +24,7 @@ using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using log4net;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -101,7 +102,6 @@ namespace GreenshotPlugin.Core {
 		/// <param name="stream">Stream to save to</param>
 		/// <param name="outputSettings">SurfaceOutputSettings</param>
 		public static void SaveToStream(Image imageToSave, ISurface surface, Stream stream, SurfaceOutputSettings outputSettings) {
-			ImageFormat imageFormat;
 			bool useMemoryStream = false;
 			MemoryStream memoryStream = null;
 			if (outputSettings.Format == OutputFormat.greenshot && surface == null) {
@@ -109,6 +109,7 @@ namespace GreenshotPlugin.Core {
 			}
 
 			try {
+				ImageFormat imageFormat;
 				switch (outputSettings.Format) {
 					case OutputFormat.bmp:
 						imageFormat = ImageFormat.Bmp;
@@ -122,13 +123,15 @@ namespace GreenshotPlugin.Core {
 					case OutputFormat.tiff:
 						imageFormat = ImageFormat.Tiff;
 						break;
+					case OutputFormat.ico:
+						imageFormat = ImageFormat.Icon;
+						break;
 					default:
 						// Problem with non-seekable streams most likely doesn't happen with Windows 7 (OS Version 6.1 and later)
 						// http://stackoverflow.com/questions/8349260/generic-gdi-error-on-one-machine-but-not-the-other
 						if (!stream.CanSeek) {
-							int majorVersion = Environment.OSVersion.Version.Major;
-							int minorVersion = Environment.OSVersion.Version.Minor;
-							if (majorVersion < 6 || (majorVersion == 6 && minorVersion == 0)) {
+							if (!Environment.OSVersion.IsWindows7OrLater())
+							{
 								useMemoryStream = true;
 								LOG.Warn("Using memorystream prevent an issue with saving to a non seekable stream.");
 							}
@@ -146,20 +149,26 @@ namespace GreenshotPlugin.Core {
 					targetStream = memoryStream;
 				}
 
-				if (Equals(imageFormat, ImageFormat.Jpeg)) {
+				if (Equals(imageFormat, ImageFormat.Jpeg))
+				{
 					bool foundEncoder = false;
-					foreach (ImageCodecInfo imageCodec in ImageCodecInfo.GetImageEncoders()) {
-						if (imageCodec.FormatID == imageFormat.Guid) {
+					foreach (ImageCodecInfo imageCodec in ImageCodecInfo.GetImageEncoders())
+					{
+						if (imageCodec.FormatID == imageFormat.Guid)
+						{
 							EncoderParameters parameters = new EncoderParameters(1);
 							parameters.Param[0] = new EncoderParameter(Encoder.Quality, outputSettings.JPGQuality);
 							// Removing transparency if it's not supported in the output
-							if (Image.IsAlphaPixelFormat(imageToSave.PixelFormat)) {
+							if (Image.IsAlphaPixelFormat(imageToSave.PixelFormat))
+							{
 								Image nonAlphaImage = ImageHelper.Clone(imageToSave, PixelFormat.Format24bppRgb);
 								AddTag(nonAlphaImage);
 								nonAlphaImage.Save(targetStream, imageCodec, parameters);
 								nonAlphaImage.Dispose();
 								nonAlphaImage = null;
-							} else {
+							}
+							else
+							{
 								AddTag(imageToSave);
 								imageToSave.Save(targetStream, imageCodec, parameters);
 							}
@@ -167,9 +176,15 @@ namespace GreenshotPlugin.Core {
 							break;
 						}
 					}
-					if (!foundEncoder) {
+					if (!foundEncoder)
+					{
 						throw new ApplicationException("No JPG encoder found, this should not happen.");
 					}
+				} else if (Equals(imageFormat, ImageFormat.Icon)) {
+					// FEATURE-916: Added Icon support
+					IList<Image> images = new List<Image>();
+					images.Add(imageToSave);
+					WriteIcon(stream, images);
 				} else {
 					bool needsDispose = false;
 					// Removing transparency if it's not supported in the output
@@ -181,7 +196,7 @@ namespace GreenshotPlugin.Core {
 					// Added for OptiPNG
 					bool processed = false;
 					if (Equals(imageFormat, ImageFormat.Png) && !string.IsNullOrEmpty(conf.OptimizePNGCommand)) {
-						processed = ProcessPNGImageExternally(imageToSave, targetStream);
+						processed = ProcessPngImageExternally(imageToSave, targetStream);
 					}
 					if (!processed) {
 						imageToSave.Save(targetStream, imageFormat);
@@ -223,7 +238,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="imageToProcess">Image to pass to the external process</param>
 		/// <param name="targetStream">stream to write the processed image to</param>
 		/// <returns></returns>
-		private static bool ProcessPNGImageExternally(Image imageToProcess, Stream targetStream) {
+		private static bool ProcessPngImageExternally(Image imageToProcess, Stream targetStream) {
 			if (string.IsNullOrEmpty(conf.OptimizePNGCommand)) {
 				return false;
 			}
@@ -244,12 +259,14 @@ namespace GreenshotPlugin.Core {
 					LOG.DebugFormat("Starting : {0}", conf.OptimizePNGCommand);
 				}
 
-				ProcessStartInfo processStartInfo = new ProcessStartInfo(conf.OptimizePNGCommand);
-				processStartInfo.Arguments = string.Format(conf.OptimizePNGCommandArguments, tmpFileName);
-				processStartInfo.CreateNoWindow = true;
-				processStartInfo.RedirectStandardOutput = true;
-				processStartInfo.RedirectStandardError = true;
-				processStartInfo.UseShellExecute = false;
+				ProcessStartInfo processStartInfo = new ProcessStartInfo(conf.OptimizePNGCommand)
+				{
+					Arguments = string.Format(conf.OptimizePNGCommandArguments, tmpFileName),
+					CreateNoWindow = true,
+					RedirectStandardOutput = true,
+					RedirectStandardError = true,
+					UseShellExecute = false
+				};
 				using (Process process = Process.Start(processStartInfo)) {
 					if (process != null) {
 						process.WaitForExit();
@@ -450,7 +467,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>OutputFormat</returns>
 		public static OutputFormat FormatForFilename(string fullPath) {
 			// Fix for bug 2912959
-			string extension = fullPath.Substring(fullPath.LastIndexOf(".") + 1);
+			string extension = fullPath.Substring(fullPath.LastIndexOf(".", StringComparison.Ordinal) + 1);
 			OutputFormat format = OutputFormat.png;
 			try {
 				format = (OutputFormat)Enum.Parse(typeof(OutputFormat), extension.ToLower());
@@ -601,5 +618,77 @@ namespace GreenshotPlugin.Core {
 				File.Delete(path);
 			}
 		}
+
+		#region Icon
+
+		/// <summary>
+		/// Write the images to the stream as icon
+		/// Every image is resized to 256x256 (but the content maintains the aspect ratio)
+		/// </summary>
+		/// <param name="stream">Stream to write to</param>
+		/// <param name="images">List of images</param>
+		public static void WriteIcon(Stream stream, IList<Image> images)
+		{
+			var binaryWriter = new BinaryWriter(stream);
+			//
+			// ICONDIR structure
+			//
+			binaryWriter.Write((short)0); // reserved
+			binaryWriter.Write((short)1); // image type (icon)
+			binaryWriter.Write((short)images.Count); // number of images
+
+			IList<Size> imageSizes = new List<Size>();
+			IList<MemoryStream> encodedImages = new List<MemoryStream>();
+			foreach (var image in images)
+			{
+				var imageStream = new MemoryStream();
+				// Always size to 256x256, first make sure the image is 32bpp
+				using (var clonedImage = ImageHelper.Clone(image, PixelFormat.Format32bppArgb))
+				{
+					using (var resizedImage = ImageHelper.ResizeImage(clonedImage, true, true, Color.Empty, 256, 256, null))
+					{
+						resizedImage.Save(imageStream, ImageFormat.Png);
+						imageSizes.Add(resizedImage.Size);
+					}
+
+				}
+				imageStream.Seek(0, SeekOrigin.Begin);
+				encodedImages.Add(imageStream);
+			}
+
+			//
+			// ICONDIRENTRY structure
+			//
+			const int iconDirSize = 6;
+			const int iconDirEntrySize = 16;
+
+			var offset = iconDirSize + (images.Count * iconDirEntrySize);
+			for (int i = 0; i < images.Count; i++)
+			{
+				var imageSize = imageSizes[i];
+				// Write the width / height, 0 means 256
+				binaryWriter.Write(imageSize.Width == 256 ? (byte)0 : (byte)imageSize.Width);
+				binaryWriter.Write(imageSize.Height == 256 ? (byte)0 : (byte)imageSize.Height);
+				binaryWriter.Write((byte)0); // no pallete
+				binaryWriter.Write((byte)0); // reserved
+				binaryWriter.Write((short)0); // no color planes
+				binaryWriter.Write((short)32); // 32 bpp
+				binaryWriter.Write((int)encodedImages[i].Length); // image data length
+				binaryWriter.Write(offset);
+				offset += (int)encodedImages[i].Length;
+			}
+
+			binaryWriter.Flush();
+			//
+			// Write image data
+			//
+			foreach (var encodedImage in encodedImages)
+			{
+				encodedImage.WriteTo(stream);
+				encodedImage.Dispose();
+			}
+		}
+		#endregion
+
 	}
 }
