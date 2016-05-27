@@ -59,13 +59,12 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapplo.Addons, Version=0.3.29.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Addons.0.3.38\lib\net452\Dapplo.Addons.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
+    <Reference Include="Dapplo.Addons, Version=0.3.39.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Addons.0.3.39\lib\net452\Dapplo.Addons.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Config, Version=0.3.29.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Config.0.3.29\lib\net452\Dapplo.Config.dll</HintPath>
+    <Reference Include="Dapplo.Config, Version=0.3.31.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Config.0.3.31\lib\net452\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.InterfaceImpl, Version=0.1.9.0, Culture=neutral, processorArchitecture=MSIL">
@@ -73,10 +72,9 @@
       <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Dapplo.LogFacade, Version=0.2.43.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.LogFacade.0.2.44\lib\net45\Dapplo.LogFacade.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
+    <Reference Include="Dapplo.LogFacade, Version=0.2.45.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.LogFacade.0.2.45\lib\net45\Dapplo.LogFacade.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.Utils, Version=0.1.28.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Utils.0.1.31\lib\net45\Dapplo.Utils.dll</HintPath>

@@ -81,6 +81,9 @@ namespace Greenshot
 			.CreateLogger();
 			// Map Dapplo.HttpExtensions logs to seri-log
 			LogSettings.Logger = new DapploSeriLogLogger();
+#if DEBUG
+			LogSettings.Logger.Level = LogLevel.Verbose;
+#endif
 
 			// Setting the INI-directory
 			string iniDirectory = null;

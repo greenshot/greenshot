@@ -46,7 +46,7 @@ namespace Greenshot.Addon.Core
 	public static class ClipboardHelper
 	{
 		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ClipboardHelper));
-		private static readonly Object clipboardLockObject = new Object();
+		private static readonly object clipboardLockObject = new object();
 		private static readonly ICoreConfiguration config = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		private static readonly string FORMAT_FILECONTENTS = "FileContents";
