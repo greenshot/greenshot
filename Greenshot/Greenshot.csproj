@@ -390,6 +390,7 @@
     <Compile Include="Forms\ColorDialog.cs">
       <SubType>Form</SubType>
     </Compile>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">
