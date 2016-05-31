@@ -235,7 +235,7 @@ Function PackageDbgSymbolsZip {
 # This function creates the installer
 Function PackageInstaller {
 	$setupOutput = "$(get-location)\setup"
-	$innoSetup = "$(get-location)\greenshot\packages\Tools.InnoSetup.5.5.9\tools\ISCC.exe"
+	$innoSetup = "$(get-location)\packages\Tools.InnoSetup.5.5.9\tools\ISCC.exe"
 	$innoSetupFile = "$(get-location)\greenshot\releases\innosetup\setup.iss"
 	Write-Host "Starting $innoSetup $innoSetupFile"
 	$setupResult = Start-Process -wait -PassThru "$innoSetup" -ArgumentList "$innoSetupFile" -NoNewWindow -RedirectStandardOutput "$setupOutput.log" -RedirectStandardError "$setupOutput.error"
