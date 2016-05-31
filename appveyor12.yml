@@ -45,7 +45,7 @@ before_build:
 - nuget restore
 - ps: .\prebuild.ps1
 build:
-  project: greenshot\greenshot.sln
+  project: greenshot.sln
   verbosity: normal
 after_build:
 - ps: .\build.ps1
