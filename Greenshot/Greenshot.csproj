@@ -401,6 +401,6 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <PropertyGroup>
     <PreBuildEvent>
-copy "$(ProjectDir)log4net-debug.xml" "$(SolutionDir)bin\$(Configuration)\log4net.xml"</PreBuildEvent>
+copy "$(ProjectDir)log4net-debug.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\log4net.xml"</PreBuildEvent>
   </PropertyGroup>
 </Project>
