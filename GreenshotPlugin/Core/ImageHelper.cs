@@ -1345,7 +1345,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="sourceImage">Image to scale</param>
 		/// <param name="maintainAspectRatio">true to maintain the aspect ratio</param>
-		/// <param name="canvasUseNewSize"></param>
+		/// <param name="canvasUseNewSize">Makes the image maintain aspect ratio, but the canvas get's the specified size</param>
 		/// <param name="backgroundColor">The color to fill with, or Color.Empty to take the default depending on the pixel format</param>
 		/// <param name="newWidth">new width</param>
 		/// <param name="newHeight">new height</param>
