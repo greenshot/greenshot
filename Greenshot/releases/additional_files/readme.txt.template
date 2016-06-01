@@ -23,13 +23,19 @@ Fixed:
 * BUG-1945: Failure starting Greenshot at system startup
 * BUG-1949: Can't delete Imgur upload
 * BUG-1965: Activation border around window is visible in the capture
+* FEATURE-916: Added icon as possible format to save with (image is sized to 256x256)
 * FEATURE-919: Allow adding of space around screenshot
-* FEATURE-945:	Added environment variables to the external command
+* FEATURE-945:Added environment variables resolving to the external command
+* FEATURE-949: Updated to Inno-Setup 5.5.9 for improved installer security
 
 Open issues planned for this version:
 BUG-1872: OneDrive prevents Greenshot hotkeys from working
-FEATURE-916: Save file as icon
+BUG-1908: External Command plugin should check for possible default-commands at startup
+BUG-1910: Error occurs after adding 10+ text boxes with arrows
 FEATURE-912: [Storage Location] Define directory pattern
+
+Known issues:
+* TextContainer (the thing in the editor that can add text to your capture) can throw exceptions.
 
 
 1.2.8.12-cab854b RELEASE
