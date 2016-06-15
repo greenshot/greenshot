@@ -26,6 +26,7 @@ using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
 using Greenshot.Addon.Editor.Helpers;
 using Greenshot.Addon.Interfaces.Drawing;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Editor.Drawing
 {
@@ -35,7 +36,7 @@ namespace Greenshot.Addon.Editor.Drawing
 	[Serializable]
 	public class FreehandContainer : DrawableContainer
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(FreehandContainer));
+		private static readonly LogSource Log = new LogSource();
 
 		private static readonly float[] PointOffset =
 		{

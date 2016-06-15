@@ -58,7 +58,7 @@ namespace Greenshot.Addon.Box
 			string filename = Path.GetFileName(FilenameHelper.GetFilename(Config.UploadFormat, capture.CaptureDetails));
 			var outputSettings = new SurfaceOutputSettings(Config.UploadFormat, Config.UploadJpegQuality, false);
 
-			var oauthHttpBehaviour = HttpBehaviour.Current.Clone();
+			var oauthHttpBehaviour = HttpBehaviour.Current.ShallowClone();
 			// Use UploadProgress
 			oauthHttpBehaviour.UploadProgress = (percent) =>
 			{

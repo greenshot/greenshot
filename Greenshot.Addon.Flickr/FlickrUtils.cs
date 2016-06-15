@@ -35,6 +35,7 @@ using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Plugin;
 using Dapplo.Utils;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Flickr
 {
@@ -43,7 +44,7 @@ namespace Greenshot.Addon.Flickr
 	/// </summary>
 	public static class FlickrUtils
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(FlickrUtils));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly IFlickrConfiguration Config = IniConfig.Current.Get<IFlickrConfiguration>();
 		private static readonly Uri FlickrApiBaseUrl = new Uri("https://api.flickr.com/services");
 		private static readonly Uri FlickrUploadUri = new Uri("https://up.flickr.com/services/upload");
@@ -121,7 +122,7 @@ namespace Greenshot.Addon.Flickr
 			}
 			catch (Exception ex)
 			{
-				Log.Error("Upload error: ", ex);
+				Log.Error().WriteLine(ex, "Upload error: ");
 				throw;
 			}
 		}

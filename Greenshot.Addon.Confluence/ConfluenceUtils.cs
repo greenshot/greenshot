@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using System.Windows.Automation;
 using Dapplo.Confluence.Entities;
 using Greenshot.Addon.Core;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Confluence
 {
@@ -36,7 +37,7 @@ namespace Greenshot.Addon.Confluence
 	/// </summary>
 	public class ConfluenceUtils
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ConfluenceUtils));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly Regex PageIdRegex = new Regex(@"pageId=(\d+)", RegexOptions.Compiled);
 		private static readonly Regex DisplayRegex = new Regex(@"\/display\/([^\/]+)\/([^#]+)", RegexOptions.Compiled);
 		private static readonly Regex ViewPageRegex = new Regex(@"pages\/viewpage.action\?title=(.+)&spaceKey=(.+)", RegexOptions.Compiled);
@@ -54,7 +55,7 @@ namespace Greenshot.Addon.Confluence
 				}
 				catch
 				{
-					Log.Warning("Error processing URL: {0}", browserurl);
+					Log.Warn().WriteLine("Error processing URL: {0}", browserurl);
 					continue;
 				}
 				var pageIdMatch = PageIdRegex.Matches(url);
@@ -69,14 +70,14 @@ namespace Greenshot.Addon.Confluence
 							if (page.Id == contentId)
 							{
 								pageDouble = true;
-								Log.Debug("Skipping double page with ID {0}", contentId);
+								Log.Debug().WriteLine("Skipping double page with ID {0}", contentId);
 								break;
 							}
 						}
 						if (!pageDouble)
 						{
 							var page = await ConfluencePlugin.ConfluenceAPI.GetContentAsync(contentId, token).ConfigureAwait(false);
-							Log.Debug("Adding page {0}", page.Title);
+							Log.Debug().WriteLine("Adding page {0}", page.Title);
 							pages.Add(page);
 						}
 						continue;
@@ -84,7 +85,7 @@ namespace Greenshot.Addon.Confluence
 					catch (Exception ex)
 					{
 						// Preventing security problems
-						Log.Warning(ex, "Couldn't get page details for PageID {0}", contentId);
+						Log.Warn().WriteLine(ex, "Couldn't get page details for PageID {0}", contentId);
 					}
 				}
 				MatchCollection spacePageMatch = DisplayRegex.Matches(url);
@@ -105,7 +106,7 @@ namespace Greenshot.Addon.Confluence
 							{
 								if (page.Title == title)
 								{
-									Log.Debug("Skipping double page with title {0}", title);
+									Log.Debug().WriteLine("Skipping double page with title {0}", title);
 									pageDouble = true;
 									break;
 								}
@@ -116,7 +117,7 @@ namespace Greenshot.Addon.Confluence
 								if (contentList != null && contentList.Results.Count > 0)
 								{
 									var content = contentList.Results.First();
-									Log.Debug("Adding page {0}", content.Title);
+									Log.Debug().WriteLine("Adding page {0}", content.Title);
 									pages.Add(content);
 								}
 							}
@@ -125,7 +126,7 @@ namespace Greenshot.Addon.Confluence
 						catch (Exception ex)
 						{
 							// Preventing security problems
-							Log.Warning(ex, "Couldn't get page details for space {0} / title {1}", space, title);
+							Log.Warn().WriteLine(ex, "Couldn't get page details for space {0} / title {1}", space, title);
 						}
 					}
 				}
@@ -147,7 +148,7 @@ namespace Greenshot.Addon.Confluence
 							{
 								if (page.Title == title)
 								{
-									Log.Debug("Skipping double page with title {0}", title);
+									Log.Debug().WriteLine("Skipping double page with title {0}", title);
 									pageDouble = true;
 									break;
 								}
@@ -158,7 +159,7 @@ namespace Greenshot.Addon.Confluence
 								if (contentList != null && contentList.Results.Count > 0)
 								{
 									var content = contentList.Results.First();
-									Log.Debug("Adding page {0}", content.Title);
+									Log.Debug().WriteLine("Adding page {0}", content.Title);
 									pages.Add(content);
 								}
 							}
@@ -166,7 +167,7 @@ namespace Greenshot.Addon.Confluence
 						catch (Exception ex)
 						{
 							// Preventing security problems
-							Log.Warning(ex, "Couldn't get page details for space {0} / title {1}", space, title);
+							Log.Warn().WriteLine(ex, "Couldn't get page details for space {0} / title {1}", space, title);
 						}
 					}
 				}

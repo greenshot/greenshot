@@ -25,6 +25,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Dapplo.Config.Ini;
 using Dapplo.Confluence.Entities;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Confluence.Windows
 {
@@ -33,7 +34,7 @@ namespace Greenshot.Addon.Confluence.Windows
 	/// </summary>
 	public partial class ConfluenceTreePicker
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ConfluenceTreePicker));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly IConfluenceConfiguration Config = IniConfig.Current.Get<IConfluenceConfiguration>();
 		private readonly ConfluenceUpload _confluenceUpload;
 
@@ -45,7 +46,7 @@ namespace Greenshot.Addon.Confluence.Windows
 
 		private void pageTreeViewItem_Click(object sender, RoutedEventArgs eventArgs)
 		{
-			Log.Debug("pageTreeViewItem_Click is called!");
+			Log.Debug().WriteLine("pageTreeViewItem_Click is called!");
 			var clickedItem = sender as TreeViewItem;
 			var page = clickedItem?.Tag as Content;
 			if (page == null)
@@ -53,17 +54,17 @@ namespace Greenshot.Addon.Confluence.Windows
 				return;
 			}
 			_confluenceUpload.SelectedPage = page;
-			Log.Debug("Page selected: " + page.Title);
+			Log.Debug().WriteLine("Page selected: {0}", page.Title);
 
 			if (!clickedItem.HasItems)
 			{
-				Log.Debug("Loading pages for page: " + page.Title);
+				Log.Debug().WriteLine("Loading pages for page: {0}", page.Title);
 				Task.Factory.StartNew(async () =>
 				{
 					var pages = await ConfluencePlugin.ConfluenceAPI.GetChildrenAsync(page.Id);
 					foreach (var childPage in pages)
 					{
-						Log.Debug("Adding page: " + childPage.Title);
+						Log.Debug().WriteLine("Adding page: {0}", childPage.Title);
 						var pageTreeViewItem = new TreeViewItem
 						{
 							Header = childPage.Title,

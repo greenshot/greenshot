@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.LogFacade;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -349,7 +350,7 @@ namespace Greenshot.Addon.Core
 	/// </summary>
 	public class RectangleAnimator : AnimatorBase<Rectangle>
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(RectangleAnimator));
+		private static readonly LogSource Log = new LogSource();
 
 		public RectangleAnimator(Rectangle first, Rectangle last, int frames) : base(first, last, frames, EasingType.Linear, EasingMode.EaseIn)
 		{
@@ -392,7 +393,7 @@ namespace Greenshot.Addon.Core
 	/// </summary>
 	public class ColorAnimator : AnimatorBase<Color>
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ColorAnimator));
+		private static readonly LogSource Log = new LogSource();
 
 		public ColorAnimator(Color first, Color last, int frames) : base(first, last, frames, EasingType.Linear, EasingMode.EaseIn)
 		{

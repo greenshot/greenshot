@@ -32,6 +32,7 @@ using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Interfaces.Destination;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.ExternalCommand
 {
@@ -42,7 +43,7 @@ namespace Greenshot.Addon.ExternalCommand
 	[StartupAction]
 	public class ExternalCommandPlugin : IConfigurablePlugin, IStartupAction
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ExternalCommandPlugin));
+		private static readonly LogSource Log = new LogSource();
 		private const string MsPaint = "MS Paint";
 		private const string PaintDotNet = "Paint.NET";
 		private ToolStripMenuItem _itemPlugInRoot;
@@ -116,24 +117,24 @@ namespace Greenshot.Addon.ExternalCommand
 		{
 			if (!ExternalCommandConfiguration.RunInbackground.ContainsKey(command))
 			{
-				LOG.Warning("Found missing runInbackground for {0}", command);
+				Log.Warn().WriteLine("Found missing runInbackground for {0}", command);
 				// Fix it
 				ExternalCommandConfiguration.RunInbackground.Add(command, true);
 			}
 			if (!ExternalCommandConfiguration.Argument.ContainsKey(command))
 			{
-				LOG.Warning("Found missing argument for {0}", command);
+				Log.Warn().WriteLine("Found missing argument for {0}", command);
 				// Fix it
 				ExternalCommandConfiguration.Argument.Add(command, "{0}");
 			}
 			if (!ExternalCommandConfiguration.Commandline.ContainsKey(command))
 			{
-				LOG.Warning("Found missing commandline for {0}", command);
+				Log.Warn().WriteLine("Found missing commandline for {0}", command);
 				return false;
 			}
 			if (!File.Exists(ExternalCommandConfiguration.Commandline[command]))
 			{
-				LOG.Warning("Found 'invalid' commandline {0} for command {1}", ExternalCommandConfiguration.Commandline[command], command);
+				Log.Warn().WriteLine("Found 'invalid' commandline {0} for command {1}", ExternalCommandConfiguration.Commandline[command], command);
 				return false;
 			}
 			return true;
@@ -207,7 +208,7 @@ namespace Greenshot.Addon.ExternalCommand
 				}
 				catch (Exception ex)
 				{
-					LOG.Warning("Couldn't get the cmd.exe image", ex);
+					Log.Warn().WriteLine(ex, "Couldn't get the cmd.exe image");
 				}
 			}
 		}

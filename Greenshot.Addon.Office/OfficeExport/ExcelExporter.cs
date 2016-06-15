@@ -26,6 +26,7 @@ using System.Runtime.InteropServices;
 using Greenshot.Addon.Core;
 using Microsoft.Office.Core;
 using Excel = Microsoft.Office.Interop.Excel;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Office.OfficeExport
 {
@@ -34,7 +35,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 	/// </summary>
 	public class ExcelExporter
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ExcelExporter));
+		private static readonly LogSource Log = new LogSource();
 		private static Version _excelVersion;
 
 		/// <summary>
@@ -207,7 +208,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 			}
 			if (!Version.TryParse(excelApplication.ComObject.Version, out _excelVersion))
 			{
-				Log.Warning("Assuming Excel version 1997.");
+				Log.Warn().WriteLine("Assuming Excel version 1997.");
 				_excelVersion = new Version((int) OfficeVersion.OFFICE_97, 0, 0, 0);
 			}
 		}

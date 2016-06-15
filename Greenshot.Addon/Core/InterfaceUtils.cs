@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.LogFacade;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,7 +31,7 @@ namespace Greenshot.Addon.Core
 	/// </summary>
 	public static class InterfaceUtils
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(InterfaceUtils));
+		private static readonly LogSource Log = new LogSource();
 
 		public static IEnumerable<Type> GetSubclassesOf(Type implementingType, bool excludeSystemTypes)
 		{

@@ -32,6 +32,7 @@ using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Interfaces.Forms;
 using Greenshot.Addon.Interfaces.Plugin;
 using Microsoft.Win32;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Core
 {
@@ -40,7 +41,7 @@ namespace Greenshot.Addon.Core
 	/// </summary>
 	public static class PluginUtils
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(PluginUtils));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly ICoreConfiguration Conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IDictionary<string, Bitmap> ExeIconCache = new Dictionary<string, Bitmap>();
 
@@ -108,7 +109,7 @@ namespace Greenshot.Addon.Core
 				}
 				catch (Exception)
 				{
-					Log.Warning("Problem with path entry '{0}'.", pathEntry);
+					Log.Warn().WriteLine("Problem with path entry '{0}'.", pathEntry);
 				}
 			}
 			return null;
@@ -169,7 +170,7 @@ namespace Greenshot.Addon.Core
 			}
 			catch (Exception exIcon)
 			{
-				Log.Error("error retrieving icon: ", exIcon);
+				Log.Error().WriteLine(exIcon, "error retrieving icon: ");
 			}
 			return null;
 		}

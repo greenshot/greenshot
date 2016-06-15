@@ -31,6 +31,7 @@ using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using System.Collections.ObjectModel;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Destinations
 {
@@ -41,7 +42,7 @@ namespace Greenshot.Destinations
 	public sealed class PickerDestination : AbstractDestination
 	{
 		private const string PickerDesignation = "Picker";
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(PickerDestination));
+		private static readonly LogSource Log = new LogSource();
 
 		private ObservableCollection<IDestination> _destinationsCache;
 
@@ -129,7 +130,7 @@ namespace Greenshot.Destinations
 					}
 					catch (Exception ex)
 					{
-						Log.Error(ex, "Picker export failed");
+						Log.Error().WriteLine(ex, "Picker export failed");
 						//return new Notification
 						//{
 						//	NotificationType = NotificationTypes.Fail,

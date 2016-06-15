@@ -35,6 +35,7 @@ using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Office.OfficeExport;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Office.Destinations
 {
@@ -45,7 +46,7 @@ namespace Greenshot.Addon.Office.Destinations
 	public sealed class WordDestination : AbstractDestination
 	{
 		public const string WordDesignation = "Word";
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(WordDestination));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly BitmapSource DocumentIcon;
 		private static readonly BitmapSource ApplicationIcon;
 
@@ -165,7 +166,7 @@ namespace Greenshot.Addon.Office.Destinations
 			}
 			catch (Exception ex)
 			{
-				Log.Error(ex, "Error exporting image to Word");
+				Log.Error().WriteLine(ex, "Error exporting image to Word");
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = ex.Message;
 				returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, WordDesignation);

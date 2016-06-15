@@ -31,6 +31,7 @@ using Greenshot.Addon.Confluence.Support;
 using Greenshot.Addon.Confluence.Windows;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces.Plugin;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Confluence
 {
@@ -41,7 +42,7 @@ namespace Greenshot.Addon.Confluence
 	[StartupAction, ShutdownAction]
 	public class ConfluencePlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ConfluencePlugin));
+		private static readonly LogSource Log = new LogSource();
 		private static ConfluenceApi _confluenceApi;
 
 		public static ConfluencePlugin Instance { get; private set; }
@@ -93,13 +94,13 @@ namespace Greenshot.Addon.Confluence
 			}
 			catch (Exception ex)
 			{
-				Log.Error("Problem in ConfluencePlugin.Initialize: {0}", ex.Message);
+				Log.Error().WriteLine("Problem in ConfluencePlugin.Initialize: {0}", ex.Message);
 				return;
 			}
 			_confluenceApi = await GetConfluenceApiAsync(token);
 			if (_confluenceApi != null)
 			{
-				Log.Information("Loading spaces");
+				Log.Info().WriteLine("Loading spaces");
 				// Store the task, so the compiler doesn't complain but do not wait so the task runs in the background
 				var ignoringTask = _confluenceApi.GetSpacesAsync(token).ContinueWith(async spacesTask =>
 				{
@@ -115,7 +116,7 @@ namespace Greenshot.Addon.Confluence
 							Model.Spaces.Add(space.Key, space);
 						}
 					}
-					Log.Information("Finished loading spaces");
+					Log.Info().WriteLine("Finished loading spaces");
 					return spaces;
 				}, token).ConfigureAwait(false);
 			}
@@ -123,7 +124,7 @@ namespace Greenshot.Addon.Confluence
 
 		public Task ShutdownAsync(CancellationToken token = default(CancellationToken))
 		{
-			Log.Debug("Confluence Plugin shutdown.");
+			Log.Debug().WriteLine("Confluence Plugin shutdown.");
 			_confluenceApi = null;
 			return Task.FromResult(true);
 		}
@@ -150,7 +151,7 @@ namespace Greenshot.Addon.Confluence
 					{
 						// Try loading content for id 0, should be null (or something) but not give an exception
 						await confluenceApi.GetSpacesAsync(token).ConfigureAwait(false);
-						Log.Debug("Confluence access for User {0} worked", dialog.Name);
+						Log.Debug().WriteLine("Confluence access for User {0} worked", dialog.Name);
 						if (dialog.SaveChecked)
 						{
 							dialog.Confirm(true);
@@ -159,7 +160,7 @@ namespace Greenshot.Addon.Confluence
 					}
 					catch
 					{
-						Log.Debug("Confluence access for User {0} didn't work, probably a wrong password.", dialog.Name);
+						Log.Debug().WriteLine("Confluence access for User {0} didn't work, probably a wrong password.", dialog.Name);
 						confluenceApi = null;
 						try
 						{
@@ -168,7 +169,7 @@ namespace Greenshot.Addon.Confluence
 						catch (ApplicationException e)
 						{
 							// exception handling ...
-							Log.Error("Problem using the credentials dialog", e);
+							Log.Error().WriteLine("Problem using the credentials dialog", e);
 						}
 						// For every windows version after XP show an incorrect password baloon
 						dialog.IncorrectPassword = true;
@@ -180,7 +181,7 @@ namespace Greenshot.Addon.Confluence
 			catch (ApplicationException e)
 			{
 				// exception handling ...
-				Log.Error("Problem using the credentials dialog", e);
+				Log.Error().WriteLine("Problem using the credentials dialog", e);
 			}
 			return confluenceApi;
 		}

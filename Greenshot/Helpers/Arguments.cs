@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.LogFacade;
 using Dapplo.Windows.Native;
 
 using System;
@@ -29,7 +30,7 @@ namespace Greenshot.Helpers
 {
 	public class Arguments
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(Arguments));
+		private static readonly LogSource Log = new LogSource();
 
 		public IList<string> FilesToOpen
 		{
@@ -123,14 +124,14 @@ namespace Greenshot.Helpers
 		{
 			FilesToOpen = new List<string>();
 
-			if (args.Length > 0 && Log.IsEnabled(Serilog.Events.LogEventLevel.Debug))
+			if (args.Length > 0 && Log.IsDebugEnabled())
 			{
 				var argumentString = new StringBuilder();
 				foreach (string argument in args)
 				{
 					argumentString.Append("[").Append(argument).Append("] ");
 				}
-				Log.Debug("Greenshot arguments: " + argumentString);
+				Log.Debug().WriteLine("Greenshot arguments: {0}", argumentString);
 			}
 
 			for (int argumentNr = 0; argumentNr < args.Length; argumentNr++)

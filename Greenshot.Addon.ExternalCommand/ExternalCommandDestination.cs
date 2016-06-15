@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.LogFacade;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
@@ -33,7 +34,7 @@ namespace Greenshot.Addon.ExternalCommand
 	[Destination("ExternalCommand"), PartNotDiscoverable]
 	public sealed class ExternalCommandDestination : AbstractDestination
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ExternalCommandDestination));
+		private static readonly LogSource Log = new LogSource();
 		private readonly CommandSettings _settings;
 
 		[Import]

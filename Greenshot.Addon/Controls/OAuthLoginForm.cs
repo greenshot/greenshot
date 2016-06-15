@@ -25,6 +25,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Addon.Core;
 using Dapplo.HttpExtensions;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Controls
 {
@@ -33,7 +34,7 @@ namespace Greenshot.Addon.Controls
 	/// </summary>
 	public sealed partial class OAuthLoginForm : Form
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(OAuthLoginForm));
+		private static readonly LogSource Log = new LogSource();
 		private readonly string _callbackUrl;
 
 		public IDictionary<string, string> CallbackParameters { get; set; }
@@ -69,19 +70,19 @@ namespace Greenshot.Addon.Controls
 
 		private void Browser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
 		{
-			Log.Debug("document completed with url: {0}", _browser.Url);
+			Log.Debug().WriteLine("document completed with url: {0}", _browser.Url);
 			CheckUrl();
 		}
 
 		private void Browser_Navigating(object sender, WebBrowserNavigatingEventArgs e)
 		{
-			Log.Debug("Navigating to url: {0}", _browser.Url);
+			Log.Debug().WriteLine("Navigating to url: {0}", _browser.Url);
 			_addressTextBox.Text = e.Url.ToString();
 		}
 
 		private void Browser_Navigated(object sender, WebBrowserNavigatedEventArgs e)
 		{
-			Log.Debug("Navigated to url: {0}", _browser.Url);
+			Log.Debug().WriteLine("Navigated to url: {0}", _browser.Url);
 			CheckUrl();
 		}
 

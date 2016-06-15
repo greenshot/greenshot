@@ -35,6 +35,7 @@ using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Office.OfficeExport;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Office.Destinations
 {
@@ -45,7 +46,7 @@ namespace Greenshot.Addon.Office.Destinations
 	public sealed class ExcelDestination : AbstractDestination
 	{
 		public const string ExcelDesignation = "Excel";
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ExcelDestination));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly BitmapSource WorkbookIcon;
 		private static readonly BitmapSource ApplicationIcon;
 
@@ -150,7 +151,7 @@ namespace Greenshot.Addon.Office.Destinations
 			}
 			catch (Exception ex)
 			{
-				Log.Error(ex, "Excel export failed");
+				Log.Error().WriteLine(ex, "Excel export failed");
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = ex.Message;
 				returnValue.Text = string.Format(GreenshotLanguage.DestinationExportFailed, ExcelDesignation);

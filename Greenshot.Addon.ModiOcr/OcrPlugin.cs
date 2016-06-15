@@ -30,6 +30,7 @@ using Dapplo.Addons;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.ModiOcr
 {
@@ -40,7 +41,7 @@ namespace Greenshot.Addon.ModiOcr
 	[StartupAction]
     public class OcrPlugin : IConfigurablePlugin, IStartupAction
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(OcrPlugin));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly string OcrCommand = Path.Combine(Path.GetDirectoryName(typeof(OcrPlugin).Assembly.Location), "ModiOcrCommand.exe");
 		private ToolStripMenuItem _ocrMenuItem = new ToolStripMenuItem();
 
@@ -91,7 +92,7 @@ namespace Greenshot.Addon.ModiOcr
 		{
 			if (!HasModi())
 			{
-				Log.Warning("No MODI found!");
+				Log.Warn().WriteLine("No MODI found!");
 			}
 			else if (OcrConfiguration.Language != null)
 			{
@@ -141,9 +142,9 @@ namespace Greenshot.Addon.ModiOcr
 			}
 			catch (Exception e)
 			{
-				Log.Debug("Error trying to initiate MODI: {0}", e.Message);
+				Log.Debug().WriteLine("Error trying to initiate MODI: {0}", e.Message);
 			}
-			Log.Information("No Microsoft Office Document Imaging (MODI) found, disabling OCR");
+			Log.Info().WriteLine("No Microsoft Office Document Imaging (MODI) found, disabling OCR");
 			return false;
 		}
 	}

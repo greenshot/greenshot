@@ -29,6 +29,7 @@ using Dapplo.Config.Ini;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Controls
 {
@@ -39,7 +40,7 @@ namespace Greenshot.Addon.Controls
 	/// </summary>
 	public sealed class HotkeyControl : GreenshotTextBox
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(HotkeyControl));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly ICoreConfiguration coreConfiguration = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly EventDelay eventDelay = new EventDelay(TimeSpan.FromMilliseconds(600).Ticks);
 		private static readonly bool IsWindows7OrOlder = Environment.OSVersion.IsWindows7OrLater();
@@ -54,7 +55,7 @@ namespace Greenshot.Addon.Controls
 //			StringBuilder keyName = new StringBuilder();
 //			for(uint sc = 0; sc < 500; sc++) {
 //				if (GetKeyNameText(sc << 16, keyName, 100) != 0) {
-//					Log.Debug("SC {0} = {1}", sc, keyName);
+//					Log.Debug().WriteLine("SC {0} = {1}", sc, keyName);
 //				}
 //			}
 //		}
@@ -536,7 +537,7 @@ namespace Greenshot.Addon.Controls
 		{
 			if (virtualKeyCode == Keys.None)
 			{
-				Log.Warning("Trying to register a Keys.none hotkey, ignoring");
+				Log.Warn().WriteLine("Trying to register a Keys.none hotkey, ignoring");
 				return 0;
 			}
 			// Convert Modifiers to fit HKM_SETHOTKEY
@@ -569,7 +570,7 @@ namespace Greenshot.Addon.Controls
 			}
 			else
 			{
-				Log.Warning(String.Format("Couldn't register hotkey modifier {0} virtualKeyCode {1}", modifierKeyCode, virtualKeyCode));
+				Log.Warn().WriteLine(String.Format("Couldn't register hotkey modifier {0} virtualKeyCode {1}", modifierKeyCode, virtualKeyCode));
 				return -1;
 			}
 		}
@@ -706,7 +707,7 @@ namespace Greenshot.Addon.Controls
 				case Keys.Insert:
 				case Keys.Delete:
 				case Keys.NumLock:
-					Log.Debug("Modifying Extended bit");
+					Log.Debug().WriteLine("Modifying Extended bit");
 					scanCode |= 0x100; // set extended bit
 					break;
 				case Keys.PrintScreen: // PrintScreen

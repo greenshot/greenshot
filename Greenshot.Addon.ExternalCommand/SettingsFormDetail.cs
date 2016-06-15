@@ -24,6 +24,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Dapplo.Config.Ini;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.ExternalCommand
 {
@@ -35,7 +36,7 @@ namespace Greenshot.Addon.ExternalCommand
 		private string commando;
 		private int commandIndex;
 
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(SettingsFormDetail));
+		private static readonly LogSource Log = new LogSource();
 		private static IExternalCommandConfiguration config = IniConfig.Current.Get<IExternalCommandConfiguration>();
 
 		public SettingsFormDetail(string commando)
@@ -104,7 +105,7 @@ namespace Greenshot.Addon.ExternalCommand
 				initialPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
 				openFileDialog.InitialDirectory = initialPath;
 			}
-			LOG.Debug("Starting OpenFileDialog at {0}", initialPath);
+			Log.Debug().WriteLine("Starting OpenFileDialog at {0}", initialPath);
 			if (openFileDialog.ShowDialog() == DialogResult.OK)
 			{
 				textBox_commandline.Text = openFileDialog.FileName;

@@ -32,6 +32,7 @@ using Dapplo.Config.Language;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Windows
 {
@@ -40,7 +41,7 @@ namespace Greenshot.Windows
 	/// </summary>
 	public partial class AboutWindow : Window
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(AboutWindow));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		private static readonly object LockObject = new object();
 		private static AboutWindow _aboutWindow;
@@ -110,7 +111,7 @@ namespace Greenshot.Windows
 				}
 				catch (Exception ex)
 				{
-					Log.Error("Error opening link: ", ex);
+					Log.Error().WriteLine(ex, "Error opening link: ");
 				}
 			}
 		}
@@ -126,7 +127,7 @@ namespace Greenshot.Windows
 					}
 					catch (Exception ex)
 					{
-						Log.Error("Can't open ini file:", ex);
+						Log.Error().WriteLine(ex, "Can't open ini file:");
 					}
 					break;
 				case Key.L:
@@ -136,7 +137,7 @@ namespace Greenshot.Windows
 					}
 					catch (Exception ex)
 					{
-						Log.Error("Can't open log file:", ex);
+						Log.Error().WriteLine(ex, "Can't open log file:");
 					}
 					break;
 				case Key.Escape:

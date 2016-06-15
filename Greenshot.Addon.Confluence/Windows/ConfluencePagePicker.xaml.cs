@@ -21,6 +21,7 @@
 
 using System.Collections.Generic;
 using Dapplo.Confluence.Entities;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Confluence.Windows
 {
@@ -29,7 +30,7 @@ namespace Greenshot.Addon.Confluence.Windows
 	/// </summary>
 	public partial class ConfluencePagePicker
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ConfluencePagePicker));
+		private static readonly LogSource Log = new LogSource();
 		private readonly ConfluenceUpload _confluenceUpload;
 
 		public ConfluencePagePicker(ConfluenceUpload confluenceUpload, IList<Content> pagesToPick)

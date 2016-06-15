@@ -41,6 +41,7 @@ using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
 using Dapplo.Utils;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Flickr
 {
@@ -48,7 +49,7 @@ namespace Greenshot.Addon.Flickr
 	public sealed class FlickrDestination : AbstractDestination
 	{
 		private const string FlickrDesignation = "Flickr";
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(FlickrDestination));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly Uri FlickrOAuthUri = new Uri("https://api.flickr.com/services/oauth");
 		private static readonly BitmapSource FlickrIcon;
 		private OAuth1HttpBehaviour _oAuthHttpBehaviour;
@@ -128,7 +129,7 @@ namespace Greenshot.Addon.Flickr
 				var url = await PleaseWaitWindow.CreateAndShowAsync(Designation, FlickrLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
 				{
 					string filename = Path.GetFileName(FilenameHelper.GetFilename(FlickrConfiguration.UploadFormat, capture.CaptureDetails));
-					var oAuthHttpBehaviour = _oAuthHttpBehaviour.Clone();
+					var oAuthHttpBehaviour = _oAuthHttpBehaviour.ShallowClone();
 					// Use UploadProgress
 					oAuthHttpBehaviour.UploadProgress = (percent) =>
 					{
@@ -152,14 +153,14 @@ namespace Greenshot.Addon.Flickr
 				returnValue.Text = string.Format(FlickrLanguage.UploadFailure, FlickrDesignation);
                 returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
-				Log.Information(tcEx.Message);
+				Log.Info().WriteLine(tcEx.Message);
 			}
 			catch (Exception e)
 			{
 				returnValue.Text = string.Format(FlickrLanguage.UploadFailure, FlickrDesignation);
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
-				Log.Warning(e, "Flickr upload gave an exception");
+				Log.Warn().WriteLine(e, "Flickr upload gave an exception");
 				MessageBox.Show(FlickrLanguage.UploadFailure + " " + e.Message, FlickrDesignation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			return returnValue;

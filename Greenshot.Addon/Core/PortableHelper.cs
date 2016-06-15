@@ -20,6 +20,7 @@
  */
 
 
+using Dapplo.LogFacade;
 using System;
 using System.IO;
 using System.Reflection;
@@ -31,7 +32,7 @@ namespace Greenshot.Addon.Core
 	/// </summary>
 	public static class PortableHelper
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(PortableHelper));
+		private static readonly LogSource Log = new LogSource();
 		private static bool _portable = false;
 		private static bool _portableCheckMade = false;
 		private static string _applicationStartupPath;
@@ -44,7 +45,7 @@ namespace Greenshot.Addon.Core
 			}
 			catch (Exception exception)
 			{
-				Log.Warning("Problem retrieving the AssemblyLocation: {0} (Designer mode?)", exception.Message);
+				Log.Warn().WriteLine("Problem retrieving the AssemblyLocation: {0} (Designer mode?)", exception.Message);
 				_applicationStartupPath = @".";
 			}
 		}
@@ -61,12 +62,12 @@ namespace Greenshot.Addon.Core
 					string pafPath = Path.Combine(_applicationStartupPath, @"App\Greenshot");
 					if (!_portable)
 					{
-						Log.Information("Checking for portable mode.");
+						Log.Info().WriteLine("Checking for portable mode.");
 						_portableCheckMade = true;
 						if (Directory.Exists(pafPath))
 						{
 							_portable = true;
-							Log.Information("Portable mode active!");
+							Log.Info().WriteLine("Portable mode active!");
 						}
 					}
 				}
@@ -94,7 +95,7 @@ namespace Greenshot.Addon.Core
 					}
 					catch (Exception e)
 					{
-						Log.Warning("Portable mode NOT possible, couldn't create directory '{0}'! Reason: {1}", pafConfigPath, e.Message);
+						Log.Warn().WriteLine("Portable mode NOT possible, couldn't create directory '{0}'! Reason: {1}", pafConfigPath, e.Message);
 					}
 				}
 				return null;

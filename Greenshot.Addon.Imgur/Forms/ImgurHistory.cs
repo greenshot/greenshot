@@ -30,6 +30,7 @@ using Dapplo.Config.Ini;
 using Greenshot.Addon.Controls;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Windows;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Imgur.Forms
 {
@@ -38,7 +39,7 @@ namespace Greenshot.Addon.Imgur.Forms
 	/// </summary>
 	public partial class ImgurHistory : ImgurForm
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext<ImgurHistory>();
+		private static readonly LogSource Log = new LogSource();
 		private GreenshotColumnSorter columnSorter;
 		private static readonly IImgurConfiguration config = IniConfig.Current.Get<IImgurConfiguration>();
 
@@ -292,14 +293,14 @@ namespace Greenshot.Addon.Imgur.Forms
 					}
 					else
 					{
-						Log.Debug("Deleting not found ImgUr {Hash} from config.", hash);
+						Log.Debug().WriteLine("Deleting not found ImgUr {0} from config.", hash);
 						config.ImgurUploadHistory.Remove(hash);
 						saveNeeded = true;
 					}
 				}
 				catch (Exception e)
 				{
-					Log.Error("Problem loading ImgUr history for hash " + hash, e);
+					Log.Error().WriteLine(e, "Problem loading ImgUr history for hash {0}", hash);
 				}
 			}
 			if (saveNeeded)

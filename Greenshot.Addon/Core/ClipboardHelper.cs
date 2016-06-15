@@ -37,6 +37,7 @@ using Dapplo.Windows.Structs;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Plugin;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Core
 {
@@ -45,7 +46,7 @@ namespace Greenshot.Addon.Core
 	/// </summary>
 	public static class ClipboardHelper
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ClipboardHelper));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly object clipboardLockObject = new object();
 		private static readonly ICoreConfiguration config = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
@@ -139,7 +140,7 @@ EndSelection:<<<<<<<4
 			}
 			catch (Exception e)
 			{
-				Log.Warning("Non critical error: Couldn't get clipboard owner.", e);
+				Log.Warn().WriteLine("Non critical error: Couldn't get clipboard owner.", e);
 			}
 			return owner;
 		}
@@ -176,7 +177,7 @@ EndSelection:<<<<<<<4
 							{
 								messageText = language.ClipboardError;
 							}
-							Log.Error(messageText, ee);
+							Log.Error().WriteLine(ee, messageText);
 						}
 						else
 						{
@@ -227,7 +228,7 @@ EndSelection:<<<<<<<4
 							{
 								messageText = language.ClipboardError;
 							}
-							Log.Error(messageText, ee);
+							Log.Error().WriteLine(ee, messageText);
 						}
 						else
 						{
@@ -357,7 +358,7 @@ EndSelection:<<<<<<<4
 			Image singleImage = GetImage(dataObject);
 			if (singleImage != null)
 			{
-				Log.Information("Got image from clipboard with size {0} and format {1}", singleImage.Size, singleImage.PixelFormat);
+				Log.Info().WriteLine("Got image from clipboard with size {0} and format {1}", singleImage.Size, singleImage.PixelFormat);
 				yield return singleImage;
 			}
 			else
@@ -375,11 +376,11 @@ EndSelection:<<<<<<<4
 						}
 						catch (Exception streamImageEx)
 						{
-							Log.Error("Problem retrieving Image from clipboard.", streamImageEx);
+							Log.Error().WriteLine(streamImageEx, "Problem retrieving Image from clipboard.");
 						}
 						if (returnImage != null)
 						{
-							Log.Information("Got image from clipboard with size {0} and format {1}", returnImage.Size, returnImage.PixelFormat);
+							Log.Info().WriteLine("Got image from clipboard with size {0} and format {1}", returnImage.Size, returnImage.PixelFormat);
 							yield return returnImage;
 						}
 					}
@@ -405,7 +406,7 @@ EndSelection:<<<<<<<4
 				if (formats != null && formats.Contains(FORMAT_PNG_OFFICEART) && formats.Contains(DataFormats.Dib))
 				{
 					// Outlook ??
-					Log.Information("Most likely the current clipboard contents come from Outlook, as this has a problem with PNG and others we place the DIB format to the front...");
+					Log.Info().WriteLine("Most likely the current clipboard contents come from Outlook, as this has a problem with PNG and others we place the DIB format to the front...");
 					retrieveFormats = new string[]
 					{
 						DataFormats.Dib, FORMAT_BITMAP, FORMAT_FILECONTENTS, FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JFIF, DataFormats.Tiff, FORMAT_GIF
@@ -422,12 +423,12 @@ EndSelection:<<<<<<<4
 				{
 					if (formats.Contains(currentFormat))
 					{
-						Log.Information("Found {0}, trying to retrieve.", currentFormat);
+						Log.Info().WriteLine("Found {0}, trying to retrieve.", currentFormat);
 						returnImage = GetImageForFormat(currentFormat, dataObject);
 					}
 					else
 					{
-						Log.Debug("Couldn't find format {0}.", currentFormat);
+						Log.Debug().WriteLine("Couldn't find format {0}.", currentFormat);
 					}
 					if (returnImage != null)
 					{
@@ -462,7 +463,7 @@ EndSelection:<<<<<<<4
 				{
 					if (format == FORMAT_17 || format == DataFormats.Dib)
 					{
-						Log.Information("Found DIB stream, trying to process it.");
+						Log.Info().WriteLine("Found DIB stream, trying to process it.");
 						try
 						{
 							byte[] dibBuffer = new byte[imageStream.Length];
@@ -470,7 +471,7 @@ EndSelection:<<<<<<<4
 							BITMAPINFOHEADER infoHeader = BinaryStructHelper.FromByteArray<BITMAPINFOHEADER>(dibBuffer);
 							if (!infoHeader.IsDibV5)
 							{
-								Log.Information("Using special DIB <v5 format reader with biCompression {0}", infoHeader.biCompression);
+								Log.Info().WriteLine("Using special DIB <v5 format reader with biCompression {0}", infoHeader.biCompression);
 								int fileHeaderSize = Marshal.SizeOf(typeof (BITMAPFILEHEADER));
 								uint infoHeaderSize = infoHeader.biSize;
 								int fileSize = (int) (fileHeaderSize + infoHeader.biSize + infoHeader.biSizeImage);
@@ -500,7 +501,7 @@ EndSelection:<<<<<<<4
 							}
 							else
 							{
-								Log.Information("Using special DIBV5 / Format17 format reader");
+								Log.Info().WriteLine("Using special DIBV5 / Format17 format reader");
 								// CF_DIBV5
 								IntPtr gcHandle = IntPtr.Zero;
 								try
@@ -511,7 +512,7 @@ EndSelection:<<<<<<<4
 								}
 								catch (Exception ex)
 								{
-									Log.Error("Problem retrieving Format17 from clipboard.", ex);
+									Log.Error().WriteLine(ex, "Problem retrieving Format17 from clipboard.");
 								}
 								finally
 								{
@@ -524,13 +525,13 @@ EndSelection:<<<<<<<4
 						}
 						catch (Exception dibEx)
 						{
-							Log.Error("Problem retrieving DIB from clipboard.", dibEx);
+							Log.Error().WriteLine(dibEx, "Problem retrieving DIB from clipboard.");
 						}
 					}
 				}
 				else
 				{
-					Log.Information("Skipping special DIB format reader as it's disabled in the configuration.");
+					Log.Info().WriteLine("Skipping special DIB format reader as it's disabled in the configuration.");
 				}
 				try
 				{
@@ -539,14 +540,14 @@ EndSelection:<<<<<<<4
 					{
 						if (tmpImage != null)
 						{
-							Log.Information("Got image with clipboard format {0} from the clipboard.", format);
+							Log.Info().WriteLine("Got image with clipboard format {0} from the clipboard.", format);
 							return ImageHelper.Clone(tmpImage);
 						}
 					}
 				}
 				catch (Exception streamImageEx)
 				{
-					Log.Error(string.Format("Problem retrieving {0} from clipboard.", format), streamImageEx);
+					Log.Error().WriteLine(streamImageEx, "Problem retrieving {0} from clipboard.", format);
 				}
 			}
 			return null;
@@ -671,7 +672,7 @@ EndSelection:<<<<<<<4
 				}
 				catch (Exception pngEX)
 				{
-					Log.Error("Error creating PNG for the Clipboard.", pngEX);
+					Log.Error().WriteLine(pngEX, "Error creating PNG for the Clipboard.");
 				}
 
 				try
@@ -695,7 +696,7 @@ EndSelection:<<<<<<<4
 				}
 				catch (Exception dibEx)
 				{
-					Log.Error("Error creating DIB for the Clipboard.", dibEx);
+					Log.Error().WriteLine(dibEx, "Error creating DIB for the Clipboard.");
 				}
 
 				// CF_DibV5
@@ -736,7 +737,7 @@ EndSelection:<<<<<<<4
 				}
 				catch (Exception dibEx)
 				{
-					Log.Error("Error creating DIB for the Clipboard.", dibEx);
+					Log.Error().WriteLine(dibEx, "Error creating DIB for the Clipboard.");
 				}
 
 				// Set the HTML
@@ -878,7 +879,7 @@ EndSelection:<<<<<<<4
 			}
 			if (formats != null)
 			{
-				Log.Debug("Got clipboard formats: {0}", String.Join(",", formats));
+				Log.Debug().WriteLine("Got clipboard formats: {0}", String.Join(",", formats));
 				return new List<string>(formats);
 			}
 			return new List<string>();
@@ -997,7 +998,7 @@ EndSelection:<<<<<<<4
 			}
 			catch (Exception ex)
 			{
-				Log.Warning("Ignoring an issue with getting the dropFilenames from the clipboard: ", ex);
+				Log.Warn().WriteLine(ex, "Ignoring an issue with getting the dropFilenames from the clipboard: ");
 			}
 			return filenames;
 		}
@@ -1018,7 +1019,7 @@ EndSelection:<<<<<<<4
 				}
 				catch (Exception e)
 				{
-					Log.Error("Error in GetClipboardData.", e);
+					Log.Error().WriteLine(e, "Error in GetClipboardData.");
 				}
 			}
 			return null;

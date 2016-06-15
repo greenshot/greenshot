@@ -26,12 +26,13 @@ using System.Runtime.InteropServices;
 using Dapplo.Config.Ini;
 using Microsoft.Office.Core;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Office.OfficeExport
 {
 	public class PowerpointExporter
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(PowerpointExporter));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly IOfficeConfiguration OfficeConfig = IniConfig.Current.Get<IOfficeConfiguration>();
 		private static Version _powerpointVersion;
 
@@ -55,7 +56,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 
 				using (var presentations = DisposableCom.Create(powerpointApplication.ComObject.Presentations))
 				{
-					Log.Debug("Open Presentations: {0}", presentations.ComObject.Count);
+					Log.Debug().WriteLine("Open Presentations: {0}", presentations.ComObject.Count);
 					for (int i = 1; i <= presentations.ComObject.Count; i++)
 					{
 						using (var presentation = DisposableCom.Create(presentations.ComObject[i]))
@@ -100,7 +101,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 				}
 				using (var presentations = DisposableCom.Create(powerpointApplication.ComObject.Presentations))
 				{
-					Log.Debug("Open Presentations: {0}", presentations.ComObject.Count);
+					Log.Debug().WriteLine("Open Presentations: {0}", presentations.ComObject.Count);
 					for (int i = 1; i <= presentations.ComObject.Count; i++)
 					{
 						using (var presentation = DisposableCom.Create(presentations.ComObject[i]))
@@ -120,7 +121,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 							}
 							catch (Exception e)
 							{
-								Log.Error(e, "Adding picture to powerpoint failed");
+								Log.Error().WriteLine(e, "Adding picture to powerpoint failed");
 							}
 						}
 					}
@@ -196,7 +197,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 					}
 					catch (Exception e)
 					{
-						Log.Error(e, "Powerpoint shape creating failed");
+						Log.Error().WriteLine(e, "Powerpoint shape creating failed");
 						using (var slides = DisposableCom.Create(presentation.ComObject.Slides))
 						{
 							slide = DisposableCom.Create(slides.ComObject.Add(slides.ComObject.Count + 1, PowerPoint.PpSlideLayout.ppLayoutBlank));
@@ -247,7 +248,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 						}
 						catch (Exception ex)
 						{
-							Log.Warning("Problem setting the title to a text-range", ex);
+							Log.Warn().WriteLine(ex, "Problem setting the title to a text-range");
 						}
 					}
 					// Activate/Goto the slide
@@ -266,7 +267,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 					}
 					catch (Exception ex)
 					{
-						Log.Warning("Problem going to the slide", ex);
+						Log.Warn().WriteLine(ex, "Problem going to the slide");
 					}
 				}
 				finally
@@ -306,7 +307,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 							}
 							catch (Exception e)
 							{
-								Log.Error(e, "Powerpoint add picture to presentation failed");
+								Log.Error().WriteLine(e, "Powerpoint add picture to presentation failed");
 							}
 						}
 					}
@@ -327,7 +328,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 			}
 			if (!Version.TryParse(powerpointApplication.ComObject.Version, out _powerpointVersion))
 			{
-				Log.Warning("Assuming Powerpoint version 1997.");
+				Log.Warn().WriteLine("Assuming Powerpoint version 1997.");
 				_powerpointVersion = new Version((int) OfficeVersion.OFFICE_97, 0, 0, 0);
 			}
 		}

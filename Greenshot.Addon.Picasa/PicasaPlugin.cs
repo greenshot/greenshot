@@ -30,6 +30,7 @@ using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Picasa.Forms;
 using Dapplo.Addons;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Picasa
 {
@@ -40,7 +41,7 @@ namespace Greenshot.Addon.Picasa
 	[StartupAction]
 	public class PicasaPlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(PicasaPlugin));
+		private static readonly LogSource Log = new LogSource();
 		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _itemPlugInRoot;
 
@@ -111,7 +112,7 @@ namespace Greenshot.Addon.Picasa
 
 		public Task ShutdownAsync(CancellationToken token = default(CancellationToken))
 		{
-			Log.Debug("Picasa Plugin shutdown.");
+			Log.Debug().WriteLine("Picasa Plugin shutdown.");
 			PicasaLanguage.PropertyChanged -= OnPicasaLanguageChanged;
 			//host.OnImageEditorOpen -= new OnImageEditorOpenHandler(ImageEditorOpened);
 			return Task.FromResult(true);

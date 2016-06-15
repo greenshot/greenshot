@@ -1,4 +1,5 @@
 ﻿using Dapplo.Config.Language;
+using Dapplo.LogFacade;
 using Greenshot.Addon.Extensions;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,7 @@ namespace Greenshot.Addon.Confluence
 	/// </summary>
 	public class EnumDisplayer : IValueConverter
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(EnumDisplayer));
+		private static readonly LogSource Log = new LogSource();
 
 		private Type _type;
 		private readonly IDictionary<object, string> _displayValues = new Dictionary<object, string>();

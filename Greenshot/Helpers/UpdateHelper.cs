@@ -30,7 +30,7 @@ using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Extensions;
 using Greenshot.Forms;
-
+using Dapplo.LogFacade;
 
 namespace Greenshot.Helpers
 {
@@ -39,7 +39,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public static class UpdateHelper
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(UpdateHelper));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		private const string StableDownloadLink = "http://getgreenshot.org/downloads/";
@@ -67,13 +67,13 @@ namespace Greenshot.Helpers
 					checkTime = checkTime.AddDays(conf.UpdateCheckInterval);
 					if (DateTimeOffset.Now.CompareTo(checkTime) < 0)
 					{
-						Log.Debug("No need to check RSS feed for updates, feed check will be after {0}", checkTime);
+						Log.Debug().WriteLine("No need to check RSS feed for updates, feed check will be after {0}", checkTime);
 						return false;
 					}
-					Log.Debug("Update check is due, last check was {0} check needs to be made after {1} (which is one {2} later)", conf.LastUpdateCheck, checkTime, conf.UpdateCheckInterval);
+					Log.Debug().WriteLine("Update check is due, last check was {0} check needs to be made after {1} (which is one {2} later)", conf.LastUpdateCheck, checkTime, conf.UpdateCheckInterval);
 					if (!await SourceForgeHelper.IsRssModifiedAfter(conf.LastUpdateCheck).ConfigureAwait(false))
 					{
-						Log.Debug("RSS feed has not been updated since after {0}", conf.LastUpdateCheck);
+						Log.Debug().WriteLine("RSS feed has not been updated since after {0}", conf.LastUpdateCheck);
 						return false;
 					}
 				}
@@ -109,7 +109,7 @@ namespace Greenshot.Helpers
 				}
 				catch (Exception e)
 				{
-					Log.Error("An error occured while checking for updates, the error will be ignored: ", e);
+					Log.Error().WriteLine("An error occured while checking for updates, the error will be ignored: ", e);
 				}
 			}
 		}
@@ -169,7 +169,7 @@ namespace Greenshot.Helpers
 						// do we have a version?
 						if (rssFile.Version == null)
 						{
-							Log.Debug("Skipping unversioned exe {0} which is published at {1} : {2}", file, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
+							Log.Debug().WriteLine("Skipping unversioned exe {0} which is published at {1} : {2}", file, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
 							continue;
 						}
 
@@ -198,7 +198,7 @@ namespace Greenshot.Helpers
 						int versionCompare = rssFile.Version.CompareTo(currentVersion);
 						if (versionCompare > 0)
 						{
-							Log.Debug("Found newer Greenshot '{0}' with version {1} published at {2} : {3}", file, rssFile.Version, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
+							Log.Debug().WriteLine("Found newer Greenshot '{0}' with version {1} published at {2} : {3}", file, rssFile.Version, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
 							if (_latestGreenshot == null || rssFile.Version.CompareTo(_latestGreenshot.Version) > 0)
 							{
 								_latestGreenshot = rssFile;
@@ -214,12 +214,12 @@ namespace Greenshot.Helpers
 						}
 						else if (versionCompare < 0)
 						{
-							Log.Debug("Skipping older greenshot with version {0}", rssFile.Version);
+							Log.Debug().WriteLine("Skipping older greenshot with version {0}", rssFile.Version);
 						}
 						else if (versionCompare == 0)
 						{
 							_currentGreenshot = rssFile;
-							Log.Debug("Found current version as exe {0} with version {1} published at {2} : {3}", file, rssFile.Version, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
+							Log.Debug().WriteLine("Found current version as exe {0} with version {1} published at {2} : {3}", file, rssFile.Version, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
 						}
 					}
 				}

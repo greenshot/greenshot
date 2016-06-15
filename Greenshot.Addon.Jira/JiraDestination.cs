@@ -38,6 +38,7 @@ using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Jira
 {
@@ -47,7 +48,7 @@ namespace Greenshot.Addon.Jira
 	[Destination(JiraDesignation), PartNotDiscoverable]
 	public sealed class JiraDestination : AbstractDestination
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(JiraDestination));
+		private static readonly LogSource Log = new LogSource();
 		private const string JiraDesignation = "Jira";
 		private JiraMonitor _jiraMonitor;
 
@@ -173,7 +174,7 @@ namespace Greenshot.Addon.Jira
 					// Run upload in the background
 					await PleaseWaitWindow.CreateAndShowAsync(Text, JiraLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
 					{
-						var httpBehaviour = HttpBehaviour.Current.Clone();
+						var httpBehaviour = HttpBehaviour.Current.ShallowClone();
 						// Use UploadProgress
 						httpBehaviour.UploadProgress = (percent) =>
 						{
@@ -193,7 +194,7 @@ namespace Greenshot.Addon.Jira
 						}
 					}, token);
 
-					Log.Debug("Uploaded to Jira.");
+					Log.Debug().WriteLine("Uploaded to Jira.");
 					returnValue.ImageLocation = jiraApi.JiraBaseUri.AppendSegments("browse", jiraDetails.JiraKey);
 				}
 				catch (TaskCanceledException tcEx)
@@ -201,14 +202,14 @@ namespace Greenshot.Addon.Jira
 					returnValue.Text = string.Format(JiraLanguage.UploadFailure, JiraDesignation);
 					returnValue.NotificationType = NotificationTypes.Cancel;
 					returnValue.ErrorText = tcEx.Message;
-					Log.Information(tcEx.Message);
+					Log.Info().WriteLine(tcEx.Message);
 				}
 				catch (Exception e)
 				{
 					returnValue.Text = string.Format(JiraLanguage.UploadFailure, JiraDesignation);
 					returnValue.NotificationType = NotificationTypes.Fail;
 					returnValue.ErrorText = e.Message;
-					Log.Warning(e, "Upload to JIRA gave an exception");
+					Log.Warn().WriteLine(e, "Upload to JIRA gave an exception");
 				}
 			}
 			return returnValue;

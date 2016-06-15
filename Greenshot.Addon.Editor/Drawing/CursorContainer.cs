@@ -25,6 +25,7 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
 using Greenshot.Addon.Interfaces.Drawing;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Editor.Drawing
 {
@@ -34,7 +35,7 @@ namespace Greenshot.Addon.Editor.Drawing
 	[Serializable]
 	public class CursorContainer : DrawableContainer, ICursorContainer
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(CursorContainer));
+		private static readonly LogSource Log = new LogSource();
 
 		private Cursor _cursor;
 
@@ -93,7 +94,7 @@ namespace Greenshot.Addon.Editor.Drawing
 			using (Cursor fileCursor = new Cursor(filename))
 			{
 				Cursor = fileCursor;
-				Log.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
+				Log.Debug().WriteLine("Loaded file: {0} with resolution: {1},{2}", filename, Height, Width);
 			}
 		}
 

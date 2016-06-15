@@ -20,6 +20,7 @@
  */
 
 using Dapplo.Config.Ini;
+using Dapplo.LogFacade;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
@@ -34,7 +35,7 @@ namespace Greenshot.Addon.ExternalCommand
 {
 	public static class ProcessStarter
 	{
-		private static readonly Serilog.ILogger LOG = Serilog.Log.Logger.ForContext(typeof(ProcessStarter));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly Regex UriRegexp = new Regex(@"(file|ftp|gopher|https?|ldap|mailto|net\.pipe|net\.tcp|news|nntp|telnet|uuid):((((?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)");
 		private static readonly IExternalCommandConfiguration ExternalCommandConfiguration = IniConfig.Current.Get<IExternalCommandConfiguration>();
 
@@ -70,7 +71,7 @@ namespace Greenshot.Addon.ExternalCommand
 						if (uriMatches.Count >= 0)
 						{
 							notification.ImageLocation = new Uri(uriMatches[0].Groups[1].Value);
-							LOG.Information("Got URI : {0} ", notification.ImageLocation);
+							Log.Info().WriteLine("Got URI : {0} ", notification.ImageLocation);
 							if (ExternalCommandConfiguration.UriToClipboard)
 							{
 								ClipboardHelper.SetClipboardData(notification.ImageLocation);
@@ -80,14 +81,14 @@ namespace Greenshot.Addon.ExternalCommand
 				}
 				else
 				{
-					LOG.Warning("Error calling external command: {0} ", result.StandardError);
+					Log.Warn().WriteLine("Error calling external command: {0} ", result.StandardError);
 					notification.NotificationType = NotificationTypes.Fail;
 					notification.ErrorText = result.StandardError;
 				}
 			}
 			catch (Exception ex)
 			{
-				LOG.Warning("Error calling external command: {0} ", ex.Message);
+				Log.Warn().WriteLine("Error calling external command: {0} ", ex.Message);
 				notification.NotificationType = NotificationTypes.Fail;
 				notification.ErrorText = ex.Message;
 			}
@@ -165,7 +166,7 @@ namespace Greenshot.Addon.ExternalCommand
 					{
 						process.StartInfo.Verb = verb;
 					}
-					LOG.Information("Starting : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
+					Log.Info().WriteLine("Starting : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
 					process.Start();
 					var processTask = Task.Run(async () =>
 					{
@@ -176,7 +177,7 @@ namespace Greenshot.Addon.ExternalCommand
 							if (ExternalCommandConfiguration.ShowStandardOutputInLog && output.Trim().Length > 0)
 							{
 								result.StandardOutput = output;
-								LOG.Information("Output:\n{0}", output);
+								Log.Info().WriteLine("Output:\n{0}", output);
 							}
 						}
 						if (ExternalCommandConfiguration.RedirectStandardError)
@@ -185,10 +186,10 @@ namespace Greenshot.Addon.ExternalCommand
 							if (standardError.Trim().Length > 0)
 							{
 								result.StandardError = standardError;
-								LOG.Warning("Error:\n{0}", standardError);
+								Log.Warn().WriteLine("Error:\n{0}", standardError);
 							}
 						}
-						LOG.Information("Finished : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
+						Log.Info().WriteLine("Finished : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
 						return process.ExitCode;
 					}, token).ConfigureAwait(false);
 					if (!commandSettings.RunInbackground)

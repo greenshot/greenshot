@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using Greenshot.Addon.Interfaces.Drawing;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Editor.Drawing
 {
@@ -33,7 +34,7 @@ namespace Greenshot.Addon.Editor.Drawing
 	[Serializable]
 	public class IconContainer : DrawableContainer, IIconContainer
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(IconContainer));
+		private static readonly LogSource Log = new LogSource();
 
 		private Icon _icon;
 
@@ -89,7 +90,7 @@ namespace Greenshot.Addon.Editor.Drawing
 				using (Icon fileIcon = new Icon(filename))
 				{
 					Icon = fileIcon;
-					Log.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
+					Log.Debug().WriteLine("Loaded file: {0} with resolution: {1},{2}", filename, Height, Width);
 				}
 			}
 		}

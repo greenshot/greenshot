@@ -33,6 +33,7 @@ using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Destinations
 {
@@ -43,7 +44,7 @@ namespace Greenshot.Destinations
 	public sealed class PrinterDestination : AbstractDestination
 	{
 		private const string PrinterDesignation = "Printer";
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(PrinterDestination));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly BitmapSource PrinterIcon;
 		static PrinterDestination()
 		{
@@ -148,7 +149,7 @@ namespace Greenshot.Destinations
 			}
 			catch (Exception e)
 			{
-				Log.Error(e, "Printer export failed");
+				Log.Error().WriteLine(e, "Printer export failed");
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
 				returnValue.Text = GreenshotLanguage.PrintError;

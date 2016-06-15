@@ -24,13 +24,13 @@ using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using Dapplo.Config.Support;
 using Dapplo.LogFacade;
+using Dapplo.LogFacade.Loggers;
 using Dapplo.Windows.Native;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Forms;
 using Greenshot.Helpers;
-using Serilog;
 using System;
 using System.Diagnostics;
 using System.Text;
@@ -45,7 +45,7 @@ namespace Greenshot
 	/// </summary>
 	public class GreenshotStart
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(GreenshotStart));
+		private static readonly LogSource Log = new LogSource();
 		private const string MutexId = "F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08";
 		public static string LogFileLocation = null;
 		public const string ApplicationName = "Greenshot";
@@ -73,16 +73,10 @@ namespace Greenshot
 				return;
 			}
 
-			Serilog.Log.Logger = new LoggerConfiguration().ReadFrom.AppSettings()
 #if DEBUG
-				.MinimumLevel.Debug()
-				.WriteTo.Trace(outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level}] {SourceContext} - {Message}{NewLine}{Exception}")
-#endif
-			.CreateLogger();
-			// Map Dapplo.HttpExtensions logs to seri-log
-			LogSettings.Logger = new DapploSeriLogLogger();
-#if DEBUG
-			LogSettings.Logger.Level = LogLevel.Verbose;
+			LogSettings.RegisterDefaultLogger<TraceLogger>(LogLevels.Verbose);
+#else
+			LogSettings.RegisterDefaultLogger<TraceLogger>(LogLevels.Info);
 #endif
 
 			// Setting the INI-directory
@@ -117,7 +111,7 @@ namespace Greenshot
 			}).Wait();
 
 			// Log the startup
-			Log.Information("Starting: " + EnvironmentInfo.EnvironmentToString(false));
+			Log.Info().WriteLine("Starting: {0}", EnvironmentInfo.EnvironmentToString(false));
 
 			try
 			{
@@ -152,7 +146,7 @@ namespace Greenshot
 			}
 			catch (Exception ex)
 			{
-				Log.Error("Exception in startup.", ex);
+				Log.Error().WriteLine(ex, "Exception in startup.");
 				ShowException(ex);
 			}
 		}
@@ -166,7 +160,7 @@ namespace Greenshot
 			if (exception != null)
 			{
 				var exceptionText = EnvironmentInfo.BuildReport(exception);
-				Log.Error(EnvironmentInfo.ExceptionToString(exception));
+				Log.Error().WriteLine(EnvironmentInfo.ExceptionToString(exception));
 				new BugReportForm(exceptionText).ShowDialog();
 			}
 		}
@@ -196,7 +190,7 @@ namespace Greenshot
 				}
 				catch (Exception ex)
 				{
-					Log.Debug(ex, "Problem retrieving process path of a running Greenshot instance");
+					Log.Debug().WriteLine(ex, "Problem retrieving process path of a running Greenshot instance");
 				}
 				greenshotProcess.Dispose();
 			}

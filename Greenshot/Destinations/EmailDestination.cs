@@ -31,6 +31,7 @@ using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Helpers;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Destinations
 {
@@ -41,7 +42,7 @@ namespace Greenshot.Destinations
 	public sealed class EmailDestination : AbstractDestination
 	{
 		private const string EmailDesignation = "Email";
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(EmailDestination));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly BitmapSource EmailIcon;
 		static EmailDestination()
 		{
@@ -87,7 +88,7 @@ namespace Greenshot.Destinations
 			}
 			catch (Exception e)
 			{
-				Log.Error(e, "Email export failed");
+				Log.Error().WriteLine(e, "Email export failed");
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
 				returnValue.Text = GreenshotLanguage.SettingsDestinationEmail;

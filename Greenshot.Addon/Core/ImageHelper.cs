@@ -28,6 +28,7 @@ using System.IO;
 using Dapplo.Config.Ini;
 using Dapplo.Windows.Native;
 using Greenshot.Addon.Configuration;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Core
 {
@@ -49,7 +50,7 @@ namespace Greenshot.Addon.Core
 	/// </summary>
 	public static class ImageHelper
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ImageHelper));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly ICoreConfiguration Conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private const int EXIF_ORIENTATION_ID = 0x0112;
 
@@ -109,7 +110,7 @@ namespace Greenshot.Addon.Core
 			}
 			catch (Exception orientEx)
 			{
-				Log.Warning("Problem orientating the image: ", orientEx);
+				Log.Warn().WriteLine(orientEx, "Problem orientating the image: ");
 			}
 		}
 
@@ -188,7 +189,7 @@ namespace Greenshot.Addon.Core
 					return true;
 				}
 			}
-			Log.Warning("Can't crop a null/zero size image!");
+			Log.Warn().WriteLine("Can't crop a null/zero size image!");
 			return false;
 		}
 
@@ -330,7 +331,7 @@ namespace Greenshot.Addon.Core
 				return null;
 			}
 			Image fileImage = null;
-			Log.Information("Loading image from file {0}", filename);
+			Log.Info().WriteLine("Loading image from file {0}", filename);
 			// Fixed lock problem Bug #3431881
 			using (Stream imageFileStream = File.OpenRead(filename))
 			{
@@ -352,7 +353,7 @@ namespace Greenshot.Addon.Core
 					}
 					catch (Exception vistaIconException)
 					{
-						Log.Warning("Can't read icon from " + filename, vistaIconException);
+						Log.Warn().WriteLine(vistaIconException, "Can't read icon from {0}", filename);
 					}
 					if (fileImage == null)
 					{
@@ -371,7 +372,7 @@ namespace Greenshot.Addon.Core
 						}
 						catch (Exception iconException)
 						{
-							Log.Warning("Can't read icon from " + filename, iconException);
+							Log.Warn().WriteLine(iconException, "Can't read icon from {0}", filename);
 						}
 					}
 				}
@@ -381,14 +382,14 @@ namespace Greenshot.Addon.Core
 					imageFileStream.Position = 0;
 					using (Image tmpImage = Image.FromStream(imageFileStream, true, true))
 					{
-						Log.Debug("Loaded {0} with Size {1}x{2} and PixelFormat {3}", filename, tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
+						Log.Debug().WriteLine("Loaded {0} with Size {1}x{2} and PixelFormat {3}", filename, tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
 						fileImage = Clone(tmpImage);
 					}
 				}
 			}
 			if (fileImage != null)
 			{
-				Log.Information("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", filename, fileImage.Width, fileImage.Height, fileImage.PixelFormat, fileImage.HorizontalResolution, fileImage.VerticalResolution);
+				Log.Info().WriteLine("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", filename, fileImage.Width, fileImage.Height, fileImage.PixelFormat, fileImage.HorizontalResolution, fileImage.VerticalResolution);
 			}
 			// Make sure the orientation is set correctly so Greenshot can process the image correctly
 			Orientate(fileImage);
@@ -1466,7 +1467,7 @@ namespace Greenshot.Addon.Core
 					}
 					catch (Exception ex)
 					{
-						Log.Warning("Problem cloning a propertyItem.", ex);
+						Log.Warn().WriteLine(ex, "Problem cloning a propertyItem.");
 					}
 				}
 			}

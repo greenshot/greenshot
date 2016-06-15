@@ -37,6 +37,7 @@ using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Imgur
 {
@@ -44,7 +45,7 @@ namespace Greenshot.Addon.Imgur
 	public sealed class ImgurDestination : AbstractDestination
 	{
 		private const string ImgurDesignation = "Imgur";
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ImgurDestination));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly BitmapSource ImgurIcon;
 		private OAuth2Settings _oauth2Settings;
 
@@ -143,7 +144,7 @@ namespace Greenshot.Addon.Imgur
 					}
 					catch (Exception ex)
 					{
-						Log.Error("Can't write to clipboard: ", ex);
+						Log.Error().WriteLine(ex, "Can't write to clipboard: ");
 					}
 				}
 			}
@@ -152,14 +153,14 @@ namespace Greenshot.Addon.Imgur
 				returnValue.Text = string.Format(ImgurLanguage.UploadFailure, ImgurDesignation);
                 returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
-				Log.Information(tcEx.Message);
+				Log.Info().WriteLine(tcEx.Message);
 			}
 			catch (Exception e)
 			{
 				returnValue.Text = string.Format(ImgurLanguage.UploadFailure, ImgurDesignation);
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
-				Log.Warning(e, "Upload to Imgur gave an exception");
+				Log.Warn().WriteLine(e, "Upload to Imgur gave an exception");
 				MessageBox.Show(ImgurLanguage.UploadFailure + " " + e.Message, ImgurDesignation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			return returnValue;

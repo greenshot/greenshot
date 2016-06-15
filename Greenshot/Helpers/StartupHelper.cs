@@ -24,6 +24,7 @@ using System.Windows.Forms;
 
 using Microsoft.Win32;
 using System.IO;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Helpers
 {
@@ -32,7 +33,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public static class StartupHelper
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(StartupHelper));
+		private static readonly LogSource Log = new LogSource();
 
 		private const string Runkey6432 = @"Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Run";
 		private const string Runkey = @"Software\Microsoft\Windows\CurrentVersion\Run";
@@ -164,7 +165,7 @@ namespace Greenshot.Helpers
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error retrieving RunAllValue", e);
+				Log.Error().WriteLine("Error retrieving RunAllValue", e);
 			}
 			return false;
 		}
@@ -182,7 +183,7 @@ namespace Greenshot.Helpers
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error retrieving RunUserValue", e);
+				Log.Error().WriteLine("Error retrieving RunUserValue", e);
 			}
 			return runValue != null;
 		}
@@ -205,7 +206,7 @@ namespace Greenshot.Helpers
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error in deleteRunAll.", e);
+				Log.Error().WriteLine("Error in deleteRunAll.", e);
 			}
 			try
 			{
@@ -220,7 +221,7 @@ namespace Greenshot.Helpers
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error in deleteRunAll.", e);
+				Log.Error().WriteLine("Error in deleteRunAll.", e);
 			}
 		}
 
@@ -242,7 +243,7 @@ namespace Greenshot.Helpers
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error in deleteRunUser.", e);
+				Log.Error().WriteLine("Error in deleteRunUser.", e);
 			}
 			try
 			{
@@ -257,7 +258,7 @@ namespace Greenshot.Helpers
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error in deleteRunUser.", e);
+				Log.Error().WriteLine("Error in deleteRunUser.", e);
 			}
 		}
 
@@ -275,7 +276,7 @@ namespace Greenshot.Helpers
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error in setRunUser.", e);
+				Log.Error().WriteLine("Error in setRunUser.", e);
 			}
 		}
 
@@ -291,7 +292,7 @@ namespace Greenshot.Helpers
 				string startupPath = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
 				if (Directory.Exists(startupPath))
 				{
-					Log.Debug("Startup path: {0}", startupPath);
+					Log.Debug().WriteLine("Startup path: {0}", startupPath);
 					if (File.Exists(Path.Combine(startupPath, lnkName)))
 					{
 						return true;
@@ -300,7 +301,7 @@ namespace Greenshot.Helpers
 				string startupAll = Environment.GetEnvironmentVariable("ALLUSERSPROFILE") + @"\Microsoft\Windows\Start Menu\Programs\Startup";
 				if (Directory.Exists(startupAll))
 				{
-					Log.Debug("Startup all path: {0}", startupAll);
+					Log.Debug().WriteLine("Startup all path: {0}", startupAll);
 					if (File.Exists(Path.Combine(startupAll, lnkName)))
 					{
 						return true;

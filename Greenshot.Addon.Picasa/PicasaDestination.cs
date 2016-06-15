@@ -31,6 +31,7 @@ using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Windows;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Picasa
 {
@@ -38,7 +39,7 @@ namespace Greenshot.Addon.Picasa
 	public sealed class PicasaDestination : AbstractDestination
 	{
 		private const string PicasaDesignation = "Picasa";
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(PicasaDestination));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly BitmapSource PicasaIcon;
 
 		static PicasaDestination()
@@ -103,14 +104,14 @@ namespace Greenshot.Addon.Picasa
 				returnValue.Text = string.Format(PicasaLanguage.UploadFailure, PicasaDesignation);
                 returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
-				Log.Information(tcEx.Message);
+				Log.Info().WriteLine(tcEx.Message);
 			}
 			catch (Exception e)
 			{
 				returnValue.Text = string.Format(PicasaLanguage.UploadFailure, PicasaDesignation);
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
-				Log.Warning(e, "Picasa export failed");
+				Log.Warn().WriteLine(e, "Picasa export failed");
 				MessageBox.Show(PicasaLanguage.UploadFailure + " " + e.Message, PicasaDesignation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			return returnValue;

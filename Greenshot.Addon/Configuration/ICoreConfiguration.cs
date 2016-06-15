@@ -30,6 +30,7 @@ using System.Windows.Forms;
 using Dapplo.Config.Ini;
 using Dapplo.InterfaceImpl.Extensions;
 using Greenshot.Addon.Core;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Configuration
 {
@@ -131,7 +132,7 @@ namespace Greenshot.Addon.Configuration
 	/// </summary>
 	public static class CoreConfigurationChecker
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(CoreConfigurationChecker));
+		private static readonly LogSource Log = new LogSource();
 
 		/// <summary>
 		/// Supply values we can't put as defaults
@@ -167,7 +168,7 @@ namespace Greenshot.Addon.Configuration
 							}
 							catch (Exception ex)
 							{
-								Log.Warning(ex, "Unable to create directory {Directory}", pafOutputFilePath);
+								Log.Warn().WriteLine(ex, "Unable to create directory {0}", pafOutputFilePath);
 								// Problem creating directory, fallback to Desktop
 							}
 						}

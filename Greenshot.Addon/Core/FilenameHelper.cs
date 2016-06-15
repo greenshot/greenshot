@@ -28,12 +28,13 @@ using System.Windows.Forms;
 using Dapplo.Config.Ini;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Interfaces;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Core
 {
 	public static class FilenameHelper
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(FilenameHelper));
+		private static readonly LogSource Log = new LogSource();
 		// Specify the regular expression for the filename formatting:
 		// Starting with ${
 		// than the varname, which ends with a : or }
@@ -150,7 +151,7 @@ namespace Greenshot.Addon.Core
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error in MatchVarEvaluatorInternal", e);
+				Log.Error().WriteLine("Error in MatchVarEvaluatorInternal", e);
 			}
 			return "";
 		}
@@ -498,7 +499,7 @@ namespace Greenshot.Addon.Core
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error retrieving EnvironmentVariableTarget.Process", e);
+				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.Process", e);
 			}
 
 			try
@@ -507,7 +508,7 @@ namespace Greenshot.Addon.Core
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error retrieving EnvironmentVariableTarget.User", e);
+				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.User", e);
 			}
 
 			try
@@ -516,7 +517,7 @@ namespace Greenshot.Addon.Core
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error retrieving EnvironmentVariableTarget.Machine", e);
+				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.Machine", e);
 			}
 
 			return VAR_REGEXP.Replace(pattern, new MatchEvaluator(delegate(Match m)
@@ -543,7 +544,7 @@ namespace Greenshot.Addon.Core
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error retrieving EnvironmentVariableTarget.Process", e);
+				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.Process", e);
 			}
 
 			try
@@ -552,7 +553,7 @@ namespace Greenshot.Addon.Core
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error retrieving EnvironmentVariableTarget.User", e);
+				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.User", e);
 			}
 
 			try
@@ -561,7 +562,7 @@ namespace Greenshot.Addon.Core
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error retrieving EnvironmentVariableTarget.Machine", e);
+				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.Machine", e);
 			}
 
 			try

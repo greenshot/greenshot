@@ -32,6 +32,7 @@ using Greenshot.Addon.Editor.Memento;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Drawing;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Editor.Drawing
 {
@@ -44,7 +45,7 @@ namespace Greenshot.Addon.Editor.Drawing
 	[Serializable]
 	public abstract class DrawableContainer : AbstractFieldHolder, IDrawableContainer
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(DrawableContainer));
+		private static readonly LogSource Log = new LogSource();
 		protected static readonly IEditorConfiguration EditorConfig = IniConfig.Current.Get<IEditorConfiguration>();
 		private bool isMadeUndoable;
 		private const int M11 = 0;

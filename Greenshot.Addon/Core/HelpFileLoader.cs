@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using Dapplo.Config.Language;
 using Dapplo.HttpExtensions;
 using Dapplo.Utils;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Core
 {
@@ -37,7 +38,7 @@ namespace Greenshot.Addon.Core
 	/// </summary>
 	public static class HelpFileLoader
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(HelpFileLoader));
+		private static readonly LogSource Log = new LogSource();
 
 		private static readonly Uri ExtHelpUrl = new Uri(@"http://getgreenshot.org/help/");
 		private static readonly string HelpfilePattern = "help-{0}.html";
@@ -96,7 +97,7 @@ namespace Greenshot.Addon.Core
 					// NO internet or wrong URI
 				}
 
-				Log.Information("Localized online help not found at {0}, will try {1} as fallback", localizedContentUri, ExtHelpUrl);
+				Log.Info().WriteLine("Localized online help not found at {0}, will try {1} as fallback", localizedContentUri, ExtHelpUrl);
 			}
 
 			// Check if the online content (en-US) is available.

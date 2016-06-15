@@ -25,7 +25,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Config.Language;
 using Greenshot.Addon.Core;
-
+using Dapplo.LogFacade;
 
 namespace Greenshot.Forms
 {
@@ -34,7 +34,7 @@ namespace Greenshot.Forms
 	/// </summary>
 	public partial class LanguageDialog : Form
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(LanguageDialog));
+		private static readonly LogSource Log = new LogSource();
 		private static LanguageDialog _uniqueInstance;
 		private bool _properOkPressed;
 
@@ -77,7 +77,7 @@ namespace Greenshot.Forms
 
 			if (LanguageLoader.Current.CurrentLanguage != null)
 			{
-				Log.Debug("Selecting {0}", LanguageLoader.Current.CurrentLanguage);
+				Log.Debug().WriteLine("Selecting {0}", LanguageLoader.Current.CurrentLanguage);
 				comboBoxLanguage.SelectedValue = LanguageLoader.Current.CurrentLanguage;
 			}
 			else

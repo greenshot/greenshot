@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Addon.Editor.Drawing;
 using Greenshot.Addon.Extensions;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Editor.Helpers
 {
@@ -51,7 +52,7 @@ namespace Greenshot.Addon.Editor.Helpers
 			Rational = 0x02
 		}
 
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ScaleHelper));
+		private static readonly LogSource Log = new LogSource();
 
 		/// <summary>
 		/// calculates the Size an element must be resized to, in order to fit another element, keeping aspect ratio

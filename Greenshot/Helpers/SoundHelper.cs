@@ -26,6 +26,7 @@ using System.Media;
 using System.Reflection;
 using System.Resources;
 using Greenshot.Addon.Configuration;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Helpers
 {
@@ -36,7 +37,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public static class SoundHelper
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(SoundHelper));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static SoundPlayer _soundPlayer;
 
@@ -66,7 +67,7 @@ namespace Greenshot.Helpers
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error initializing.", e);
+				Log.Error().WriteLine(e, "Error initializing.");
 			}
 		}
 

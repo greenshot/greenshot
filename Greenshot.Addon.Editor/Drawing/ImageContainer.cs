@@ -25,6 +25,7 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces.Drawing;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Editor.Drawing
 {
@@ -34,7 +35,7 @@ namespace Greenshot.Addon.Editor.Drawing
 	[Serializable]
 	public class ImageContainer : DrawableContainer, IImageContainer
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ImageContainer));
+		private static readonly LogSource Log = new LogSource();
 
 		protected bool _shadow = true;
 
@@ -175,7 +176,7 @@ namespace Greenshot.Addon.Editor.Drawing
 			// we currently assume only one transformation has been made.
 			if (rotateAngle != 0)
 			{
-				Log.Debug("Rotating element with {0} degrees.", rotateAngle);
+				Log.Debug().WriteLine("Rotating element with {0} degrees.", rotateAngle);
 				DisposeShadow();
 				using (var tmpMatrix = new Matrix())
 				{
@@ -202,7 +203,7 @@ namespace Greenshot.Addon.Editor.Drawing
 				{
 					Image = tmpImage;
 				}
-				Log.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
+				Log.Debug().WriteLine("Loaded file: {0} with resolution: {1},{2}", filename, Height, Width);
 			}
 		}
 

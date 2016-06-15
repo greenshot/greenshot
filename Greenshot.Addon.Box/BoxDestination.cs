@@ -35,6 +35,7 @@ using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Windows;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Box
 {
@@ -42,7 +43,7 @@ namespace Greenshot.Addon.Box
 	public sealed class BoxDestination : AbstractDestination
 	{
 		private const string BoxDesignation = "Box";
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(BoxDestination));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly BitmapSource BoxIcon;
 		private OAuth2Settings _oauth2Settings;
 
@@ -132,14 +133,14 @@ namespace Greenshot.Addon.Box
 				returnValue.Text = string.Format(BoxLanguage.UploadFailure, BoxDesignation);
 				returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
-				Log.Information(tcEx.Message);
+				Log.Info().WriteLine(tcEx.Message);
 			}
 			catch (Exception e)
 			{
 				returnValue.Text = string.Format(BoxLanguage.UploadFailure, BoxDesignation);
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
-				Log.Warning(e, "Box export failed");
+				Log.Warn().WriteLine(e, "Box export failed");
 				MessageBox.Show(BoxLanguage.UploadFailure + " " + e.Message, BoxDesignation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			return returnValue;

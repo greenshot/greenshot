@@ -32,6 +32,7 @@ using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Plugin;
 using Microsoft.Win32;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Helpers
 {
@@ -48,7 +49,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public class MapiMailMessage : IDisposable
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(MapiMailMessage));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly ICoreConfiguration Conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private const string MapiClientKey = @"SOFTWARE\Clients\Mail";
 		private const string MapiLocationKey = @"SOFTWARE\Microsoft\Windows Messaging Subsystem";
@@ -353,7 +354,7 @@ namespace Greenshot.Helpers
 				if (errorCode != MAPI_CODES.SUCCESS && errorCode != MAPI_CODES.USER_ABORT)
 				{
 					string errorText = GetMapiError(errorCode);
-					Log.Error("Error sending MAPI Email. Error: " + errorText + " (code = " + errorCode + ").");
+					Log.Error().WriteLine("Error sending MAPI Email. Error: {0} (code = {1}).", errorText, errorCode);
 					MessageBox.Show(errorText, "Mail (MAPI) destination", MessageBoxButtons.OK, MessageBoxIcon.Error);
 					// Recover from bad settings, show again
 					if (errorCode == MAPI_CODES.INVALID_RECIPS)

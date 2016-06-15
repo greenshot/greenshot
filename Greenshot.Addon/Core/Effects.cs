@@ -28,6 +28,7 @@ using System.Globalization;
 using System.Text;
 using Dapplo.Config.Language;
 using Greenshot.Addon.Configuration;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Core
 {
@@ -293,7 +294,7 @@ namespace Greenshot.Addon.Core
 	/// </summary>
 	public class ReduceColorsEffect : IEffect
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ReduceColorsEffect));
+		private static readonly LogSource Log = new LogSource();
 
 		public ReduceColorsEffect()
 		{
@@ -332,7 +333,7 @@ namespace Greenshot.Addon.Core
 					}
 					catch (Exception e)
 					{
-						Log.Warning("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
+						Log.Warn().WriteLine("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
 					}
 				}
 			}

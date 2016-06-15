@@ -26,6 +26,7 @@ using System.Timers;
 using Dapplo.Windows.Enums;
 using Dapplo.Windows.Native;
 using Dapplo.Windows.SafeHandles;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Controls
 {
@@ -34,7 +35,7 @@ namespace Greenshot.Addon.Controls
 	/// </summary>
 	public class AnimatingForm : GreenshotForm
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(AnimatingForm));
+		private static readonly LogSource Log = new LogSource();
 		private const int DefaultVrefresh = 60;
 		private int _vRefresh;
 		private System.Timers.Timer _timer;
@@ -142,7 +143,7 @@ namespace Greenshot.Addon.Controls
 			}
 			catch (Exception ex)
 			{
-				Log.Warning("An exception occured while animating:", ex);
+				Log.Warn().WriteLine(ex, "An exception occured while animating:");
 			}
 		}
 

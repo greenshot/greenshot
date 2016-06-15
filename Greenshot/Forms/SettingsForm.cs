@@ -37,6 +37,7 @@ using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Helpers;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Forms
 {
@@ -45,7 +46,7 @@ namespace Greenshot.Forms
 	/// </summary>
 	public partial class SettingsForm : BaseForm
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(SettingsForm));
+		private static readonly LogSource Log = new LogSource();
 		//private static IEditorConfiguration editorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
 		private readonly ToolTip _toolTip = new ToolTip();
 		private bool _inHotkey;
@@ -561,7 +562,7 @@ namespace Greenshot.Forms
 			}
 			catch (Exception e)
 			{
-				Log.Warning("Problem checking registry, ignoring for now: ", e);
+				Log.Warn().WriteLine(e, "Problem checking registry, ignoring for now: ");
 			}
 		}
 
@@ -634,7 +635,7 @@ namespace Greenshot.Forms
 			WindowCaptureMode selectedWindowCaptureMode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
 			if (combobox_language.SelectedItem != null)
 			{
-				Log.Debug("Setting language to: " + (string) combobox_language.SelectedValue);
+				Log.Debug().WriteLine("Setting language to: {0}", combobox_language.SelectedValue);
 				await LanguageLoader.Current.ChangeLanguageAsync((string) combobox_language.SelectedValue);
 			}
 			// Reflect language changes to the settings form

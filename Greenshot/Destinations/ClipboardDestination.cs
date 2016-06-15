@@ -29,6 +29,7 @@ using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Destinations
 {
@@ -39,7 +40,7 @@ namespace Greenshot.Destinations
 	public sealed class ClipboardDestination : AbstractDestination
 	{
 		private const string ClipboardDesignation = "Clipboard";
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ClipboardDestination));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly BitmapSource ClipboardIcon;
 		static ClipboardDestination()
 		{
@@ -87,7 +88,7 @@ namespace Greenshot.Destinations
 			}
 			catch (Exception e)
 			{
-				Log.Error(e, "Clipboard export failed");
+				Log.Error().WriteLine(e, "Clipboard export failed");
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
 				returnValue.Text = GreenshotLanguage.ClipboardError;

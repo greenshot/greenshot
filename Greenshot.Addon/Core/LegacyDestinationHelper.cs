@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using Dapplo.Config.Ini;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Interfaces;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Core
 {
@@ -33,7 +34,7 @@ namespace Greenshot.Addon.Core
 	/// </summary>
 	public static class LegacyDestinationHelper
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(LegacyDestinationHelper));
+		private static readonly LogSource Log = new LogSource();
 		private static Dictionary<string, ILegacyDestination> RegisteredDestinations = new Dictionary<string, ILegacyDestination>();
 		private static readonly ICoreConfiguration coreConfig = IniConfig.Current.Get<ICoreConfiguration>();
 

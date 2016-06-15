@@ -27,6 +27,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.HttpExtensions;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Helpers
 {
@@ -122,7 +123,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public class SourceForgeHelper
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(SourceForgeHelper));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly Uri Rssfeed = new Uri("http://getgreenshot.org/project-feed/");
 
 		/// <summary>
@@ -195,7 +196,7 @@ namespace Greenshot.Helpers
 								Version fileVersion;
 								if (!Version.TryParse(version, out fileVersion))
 								{
-									Log.Debug("Found invalid version {0} in file {1}", version, file);
+									Log.Debug().WriteLine("Found invalid version {0} in file {1}", version, file);
 								}
 								rssFile.Version = fileVersion;
 							}
@@ -210,7 +211,7 @@ namespace Greenshot.Helpers
 							}
 							catch (Exception)
 							{
-								Log.Warning("Can't read the native name of the culture {0}", culture);
+								Log.Warn().WriteLine("Can't read the native name of the culture {0}", culture);
 							}
 						}
 						filesForType.Add(file, rssFile);
@@ -218,8 +219,8 @@ namespace Greenshot.Helpers
 				}
 				catch (Exception ex)
 				{
-					Log.Warning("Couldn't read RSS entry for: {0}", item.Title);
-					Log.Warning("Reason: ", ex);
+					Log.Warn().WriteLine("Couldn't read RSS entry for: {0}", item.Title);
+					Log.Warn().WriteLine(ex);
 				}
 			}
 

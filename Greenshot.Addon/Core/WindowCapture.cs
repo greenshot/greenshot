@@ -34,6 +34,7 @@ using Dapplo.Windows.SafeHandles;
 using Dapplo.Windows.Structs;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Interfaces;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Core
 {
@@ -42,7 +43,7 @@ namespace Greenshot.Addon.Core
 	/// </summary>
 	public static class WindowCapture
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(WindowCapture));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly ICoreConfiguration Configuration = IniConfig.Current.Get<ICoreConfiguration>();
 
 		/// <summary>
@@ -98,7 +99,7 @@ namespace Greenshot.Addon.Core
 		/// <returns>A Capture Object with the Mouse Cursor information in it.</returns>
 		public static ICapture CaptureCursor(ICapture capture)
 		{
-			Log.Debug("Capturing the mouse cursor.");
+			Log.Debug().WriteLine("Capturing the mouse cursor.");
 			if (capture == null)
 			{
 				capture = new Capture();
@@ -176,7 +177,7 @@ namespace Greenshot.Addon.Core
 					}
 					catch (Exception ex)
 					{
-						Log.Warning(ex.Message);
+						Log.Warn().WriteLine(ex.Message);
 					}
 				}
 			}
@@ -204,7 +205,7 @@ namespace Greenshot.Addon.Core
 					}
 					catch (Exception ex)
 					{
-						Log.Warning(ex.Message);
+						Log.Warn().WriteLine(ex.Message);
 					}
 				}
 			}
@@ -273,10 +274,10 @@ namespace Greenshot.Addon.Core
 			Bitmap returnBitmap = null;
 			if (captureBounds.Height <= 0 || captureBounds.Width <= 0)
 			{
-				Log.Warning("Nothing to capture, ignoring!");
+				Log.Warn().WriteLine("Nothing to capture, ignoring!");
 				return null;
 			}
-			Log.Debug("CaptureRectangle Called!");
+			Log.Debug().WriteLine("CaptureRectangle Called!");
 
 			// .NET GDI+ Solution, according to some post this has a GDI+ leak...
 			// See http://connect.microsoft.com/VisualStudio/feedback/details/344752/gdi-object-leak-when-calling-graphics-copyfromscreen
@@ -400,13 +401,13 @@ namespace Greenshot.Addon.Core
 							}
 							catch (ExternalException ee)
 							{
-								Log.Warning("Problem getting bitmap at try " + i + " : ", ee);
+								Log.Warn().WriteLine(ee, "Problem getting bitmap at try {0} : ", i);
 								exception = ee;
 							}
 						}
 						if (!success)
 						{
-							Log.Error("Still couldn't create Bitmap!");
+							Log.Error().WriteLine("Still couldn't create Bitmap!");
 							if (exception != null)
 							{
 								throw exception;

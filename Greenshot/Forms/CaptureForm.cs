@@ -38,6 +38,7 @@ using Greenshot.Addon.Controls;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Forms
 {
@@ -54,7 +55,7 @@ namespace Greenshot.Forms
 			Vertical
 		};
 
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(CaptureForm));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly ICoreConfiguration Conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly Brush GreenOverlayBrush = new SolidBrush(Color.FromArgb(50, Color.MediumSeaGreen));
 		private static readonly Pen OverlayPen = new Pen(Color.FromArgb(50, Color.Black));
@@ -132,12 +133,12 @@ namespace Greenshot.Forms
 		private void ClosedHandler(object sender, EventArgs e)
 		{
 			_currentForm = null;
-			Log.Debug("Remove CaptureForm from currentForm");
+			Log.Debug().WriteLine("Remove CaptureForm from currentForm");
 			if (SelectedCaptureWindow == null)
 			{
 				return;
 			}
-			Log.Debug("Selected window: {0}", SelectedCaptureWindow);
+			Log.Debug().WriteLine("Selected window: {0}", SelectedCaptureWindow);
 			_capture.CaptureDetails.Title = SelectedCaptureWindow.Text;
 			_capture.CaptureDetails.AddMetaData("windowtitle", SelectedCaptureWindow.Text);
 			if (UsedCaptureMode != CaptureMode.Window)
@@ -152,7 +153,7 @@ namespace Greenshot.Forms
 
 		private void ClosingHandler(object sender, EventArgs e)
 		{
-			Log.Debug("Closing captureform");
+			Log.Debug().WriteLine("Closing captureform");
 			WindowDetails.UnregisterIgnoreHandle(Handle);
 		}
 
@@ -165,7 +166,7 @@ namespace Greenshot.Forms
 		{
 			if (_currentForm != null)
 			{
-				Log.Warning("Found currentForm, Closing already opened CaptureForm");
+				Log.Warn().WriteLine("Found currentForm, Closing already opened CaptureForm");
 				_currentForm.Close();
 				_currentForm = null;
 				Application.DoEvents();

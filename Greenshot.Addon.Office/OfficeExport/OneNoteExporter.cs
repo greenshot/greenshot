@@ -29,6 +29,7 @@ using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Plugin;
 using OneNote = Microsoft.Office.Interop.OneNote;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Office.OfficeExport
 {
@@ -38,7 +39,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 	/// </summary>
 	public class OneNoteExporter
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(OneNoteExporter));
+		private static readonly LogSource Log = new LogSource();
 		private const string XmlImageContent = "<one:Image format=\"png\"><one:Size width=\"{1}.0\" height=\"{2}.0\" isSetByUser=\"true\" /><one:Data>{0}</one:Data></one:Image>";
 		private const string XmlOutline = "<?xml version=\"1.0\"?><one:Page xmlns:one=\"{2}\" ID=\"{1}\"><one:Title><one:OE><one:T><![CDATA[{3}]]></one:T></one:OE></one:Title>{0}</one:Page>";
 		private const string OnenoteNamespace2010 = "http://schemas.microsoft.com/office/onenote/2010/onenote";
@@ -104,7 +105,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 				{
 					imageXmlStr, page.Id, OnenoteNamespace2010, page.Name
 				});
-				Log.Information("Sending XML: {0}", pageChangesXml);
+				Log.Info().WriteLine("Sending XML: {0}", pageChangesXml);
 				oneNoteApplication.ComObject.UpdatePageContent(pageChangesXml, DateTime.MinValue, OneNote.XMLSchema.xs2010, false);
 				try
 				{
@@ -112,7 +113,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 				}
 				catch (Exception ex)
 				{
-					Log.Warning("Unable to navigate to the target page", ex);
+					Log.Warn().WriteLine(ex, "Unable to navigate to the target page");
 				}
 				return true;
 			}
@@ -139,7 +140,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 			oneNoteApplication.ComObject.GetHierarchy("", OneNote.HierarchyScope.hsPages, out notebookXml, OneNote.XMLSchema.xs2010);
 			if (!string.IsNullOrEmpty(notebookXml))
 			{
-				Log.Debug(notebookXml);
+				Log.Debug().WriteLine(notebookXml);
 				StringReader reader = null;
 				try
 				{
@@ -223,7 +224,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 						oneNoteApplication.ComObject.GetHierarchy("", OneNote.HierarchyScope.hsPages, out notebookXml, OneNote.XMLSchema.xs2010);
 						if (!string.IsNullOrEmpty(notebookXml))
 						{
-							Log.Debug(notebookXml);
+							Log.Debug().WriteLine(notebookXml);
 							StringReader reader = null;
 							try
 							{
@@ -292,13 +293,13 @@ namespace Greenshot.Addon.Office.OfficeExport
 			{
 				if (cEx.ErrorCode == unchecked((int) 0x8002801D))
 				{
-					Log.Warning("Wrong registry keys, to solve this remove the OneNote key as described here: http://microsoftmercenary.com/wp/outlook-excel-interop-calls-breaking-solved/");
+					Log.Warn().WriteLine("Wrong registry keys, to solve this remove the OneNote key as described here: http://microsoftmercenary.com/wp/outlook-excel-interop-calls-breaking-solved/");
 				}
-				Log.Warning("Problem retrieving onenote destinations, ignoring: ", cEx);
+				Log.Warn().WriteLine(cEx, "Problem retrieving onenote destinations, ignoring: ");
 			}
 			catch (Exception ex)
 			{
-				Log.Warning("Problem retrieving onenote destinations, ignoring: ", ex);
+				Log.Warn().WriteLine(ex, "Problem retrieving onenote destinations, ignoring: ");
 			}
 			pages.Sort((page1, page2) =>
 			{

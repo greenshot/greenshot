@@ -39,6 +39,7 @@ using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Drawing;
 using Greenshot.Addon.Windows;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Editor.Drawing
 {
@@ -47,7 +48,7 @@ namespace Greenshot.Addon.Editor.Drawing
 	/// </summary>
 	public class Surface : Control, ISurface, INotifyPropertyChanged
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(Surface));
+		private static readonly LogSource Log = new LogSource();
 		public static int Count;
 
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -479,7 +480,7 @@ namespace Greenshot.Addon.Editor.Drawing
 			Count++;
 			_elements = new DrawableContainerList(Id);
 			_selectedElements = new DrawableContainerList(Id);
-			Log.Debug("Creating surface!");
+			Log.Debug().WriteLine("Creating surface!");
 			MouseDown += SurfaceMouseDown;
 			MouseUp += SurfaceMouseUp;
 			MouseMove += SurfaceMouseMove;
@@ -525,7 +526,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		/// <param name="newImage"></param>
 		public Surface(Image newImage) : this()
 		{
-			Log.Debug("Got image with dimensions {0} and format {1}", newImage.Size, newImage.PixelFormat);
+			Log.Debug().WriteLine("Got image with dimensions {0} and format {1}", newImage.Size, newImage.PixelFormat);
 			SetImage(newImage, true);
 		}
 
@@ -571,7 +572,7 @@ namespace Greenshot.Addon.Editor.Drawing
 			if (disposing)
 			{
 				Count--;
-				Log.Debug("Disposing surface!");
+				Log.Debug().WriteLine("Disposing surface!");
 				if (_buffer != null)
 				{
 					_buffer.Dispose();
@@ -739,7 +740,7 @@ namespace Greenshot.Addon.Editor.Drawing
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error serializing elements to stream.", e);
+				Log.Error().WriteLine("Error serializing elements to stream.", e);
 			}
 			return bytesWritten;
 		}
@@ -763,7 +764,7 @@ namespace Greenshot.Addon.Editor.Drawing
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error serializing elements from stream.", e);
+				Log.Error().WriteLine("Error serializing elements from stream.", e);
 			}
 		}
 
@@ -908,12 +909,12 @@ namespace Greenshot.Addon.Editor.Drawing
 
 		private void OnDragEnter(object sender, DragEventArgs e)
 		{
-			if (Log.IsEnabled(Serilog.Events.LogEventLevel.Debug))
+			if (Log.IsDebugEnabled())
 			{
-				Log.Debug("DragEnter got following formats: ");
+				Log.Debug().WriteLine("DragEnter got following formats: ");
 				foreach (string format in ClipboardHelper.GetFormats(e.Data))
 				{
-					Log.Debug(format);
+					Log.Debug().WriteLine(format);
 				}
 			}
 			if ((e.AllowedEffect & DragDropEffects.Copy) != DragDropEffects.Copy)
@@ -1445,7 +1446,7 @@ namespace Greenshot.Addon.Editor.Drawing
 			Rectangle clipRectangle = e.ClipRectangle;
 			if (Rectangle.Empty.Equals(clipRectangle))
 			{
-				Log.Debug("Empty cliprectangle??");
+				Log.Debug().WriteLine("Empty cliprectangle??");
 				return;
 			}
 
@@ -1462,7 +1463,7 @@ namespace Greenshot.Addon.Editor.Drawing
 				if (_buffer == null)
 				{
 					_buffer = ImageHelper.CreateEmpty(Image.Width, Image.Height, Image.PixelFormat, Color.Empty, Image.HorizontalResolution, Image.VerticalResolution);
-					Log.Debug("Created buffer with size: {0}x{1}", Image.Width, Image.Height);
+					Log.Debug().WriteLine("Created buffer with size: {0}x{1}", Image.Width, Image.Height);
 				}
 				// Elements might need the bitmap, so we copy the part we need
 				using (Graphics graphics = Graphics.FromImage(_buffer))
@@ -1767,13 +1768,9 @@ namespace Greenshot.Addon.Editor.Drawing
 			{
 				return;
 			}
-			if (Log.IsEnabled(Serilog.Events.LogEventLevel.Debug))
+			if (Log.IsDebugEnabled())
 			{
-				Log.Debug("List of clipboard formats available for pasting:");
-				foreach (string format in formats)
-				{
-					Log.Debug("\tgot format: " + format);
-				}
+				Log.Debug().WriteLine("List of clipboard formats available for pasting: {0}", string.Join(",", formats));
 			}
 
 			if (formats.Contains(typeof (DrawableContainerList).FullName))
@@ -1905,7 +1902,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		/// </summary>
 		public void DuplicateSelectedElements()
 		{
-			Log.Debug("Duplicating {0} selected elements", _selectedElements.Count);
+			Log.Debug().WriteLine("Duplicating {0} selected elements", _selectedElements.Count);
 			DrawableContainerList dcs = _selectedElements.Clone();
 			dcs.Parent = this;
 			dcs.MoveBy(10, 10);

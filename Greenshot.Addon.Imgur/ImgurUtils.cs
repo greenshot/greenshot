@@ -35,6 +35,7 @@ using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Plugin;
 using Dapplo.Utils;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Imgur
 {
@@ -43,7 +44,7 @@ namespace Greenshot.Addon.Imgur
 	/// </summary>
 	public static class ImgurUtils
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ImgurUtils));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly IImgurConfiguration Config = IniConfig.Current.Get<IImgurConfiguration>();
 		private const string PageUrlPattern = "http://imgur.com/{0}";
 		private const string SmallUrlPattern = "http://i.imgur.com/{0}s.png";
@@ -70,7 +71,7 @@ namespace Greenshot.Addon.Imgur
 		{
 			dynamic imageJson;
 			var uploadUri = new Uri(Config.ApiUrl).AppendSegments("upload.json").ExtendQuery(otherParameters);
-			var localBehaviour = Behaviour.Clone();
+			var localBehaviour = Behaviour.ShallowClone();
 			localBehaviour.UploadProgress = (percent) =>
 			{
 				UiContext.RunOn(() => progress.Report((int)(percent*100)));
@@ -94,7 +95,7 @@ namespace Greenshot.Addon.Imgur
 		{
 			var uploadUri = new Uri(Config.ApiUrl).AppendSegments("upload.json").ExtendQuery(otherParameters);
 			dynamic imageJson;
-			var localBehaviour = Behaviour.Clone();
+			var localBehaviour = Behaviour.ShallowClone();
 			localBehaviour.UploadProgress = (percent) =>
 			{
 				UiContext.RunOn(() => progress.Report((int)(percent * 100)));
@@ -171,10 +172,10 @@ namespace Greenshot.Addon.Imgur
 		{
 			if (imgurInfo.SmallSquare == null)
 			{
-				Log.Information("RetrieveImgurThumbnailAsync: Imgur URL was null, not retrieving thumbnail.");
+				Log.Info().WriteLine("RetrieveImgurThumbnailAsync: Imgur URL was null, not retrieving thumbnail.");
 				return;
 			}
-			Log.Information("Retrieving Imgur image for {0} with url {1}", imgurInfo.Id, imgurInfo.SmallSquare);
+			Log.Info().WriteLine("Retrieving Imgur image for {0} with url {1}", imgurInfo.Id, imgurInfo.SmallSquare);
 			Behaviour.MakeCurrent();
 			using (var client = HttpClientFactory.Create(imgurInfo.SmallSquare))
 			{
@@ -202,7 +203,7 @@ namespace Greenshot.Addon.Imgur
 		public static async Task<ImageInfo> RetrieveImgurInfoAsync(string id, string deleteHash, CancellationToken token = default(CancellationToken))
 		{
 			var imageUri = new Uri(string.Format(Config.ApiUrl + "/image/{0}.json", id));
-			Log.Information("Retrieving Imgur info for {0} with url {1}", id, imageUri);
+			Log.Info().WriteLine("Retrieving Imgur info for {0} with url {1}", id, imageUri);
 
 			dynamic imageJson;
 			Behaviour.MakeCurrent();
@@ -268,7 +269,7 @@ namespace Greenshot.Addon.Imgur
 		/// <param name="token"></param>
 		public static async Task<string> DeleteImgurImageAsync(ImageInfo imgurInfo, CancellationToken token = default(CancellationToken))
 		{
-			Log.Information("Deleting Imgur image for {0}", imgurInfo.DeleteHash);
+			Log.Info().WriteLine("Deleting Imgur image for {0}", imgurInfo.DeleteHash);
 			Uri deleteUri = new Uri(string.Format(Config.ApiUrl + "/image/{0}", imgurInfo.DeleteHash));
 			string responseString;
 			Behaviour.MakeCurrent();
@@ -280,7 +281,7 @@ namespace Greenshot.Addon.Imgur
 					await response.HandleErrorAsync(token).ConfigureAwait(false);
 				}
 				responseString = await response.GetAsAsync<string>(token).ConfigureAwait(false);
-				Log.Information("Delete result: {0}", responseString);
+				Log.Info().WriteLine("Delete result: {0}", responseString);
 			}
 			// Make sure we remove it from the history, if no error occured
 			Config.RuntimeImgurHistory.Remove(imgurInfo.Id);
@@ -311,12 +312,12 @@ namespace Greenshot.Addon.Imgur
 					if (data.ContainsKey("ClientRemaining"))
 					{
 						credits = (int)data.ClientRemaining;
-						Log.Information("{0}={1}", "ClientRemaining", (int)data.ClientRemaining);
+						Log.Info().WriteLine("{0}={1}", "ClientRemaining", (int)data.ClientRemaining);
 					}
 					if (data.ContainsKey("UserRemaining"))
 					{
 						credits = Math.Min(credits, (int)data.UserRemaining);
-						Log.Information("{0}={1}", "UserRemaining", (int)data.UserRemaining);
+						Log.Info().WriteLine("{0}={1}", "UserRemaining", (int)data.UserRemaining);
 					}
 					Config.Credits = credits;
 				}

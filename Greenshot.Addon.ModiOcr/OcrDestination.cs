@@ -32,6 +32,7 @@ using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.ModiOcr
 {
@@ -39,7 +40,7 @@ namespace Greenshot.Addon.ModiOcr
 	public sealed class OcrDestination : AbstractDestination
 	{
 		private const string OcrDesignation = "Ocr";
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(OcrDestination));
+		private static readonly LogSource Log = new LogSource();
 		private const int MinWidth = 130;
 		private const int MinHeight = 130;
 		private static readonly string OcrCommand = Path.Combine(Path.GetDirectoryName(typeof(OcrPlugin).Assembly.Location), "ModiOcrCommand.exe");
@@ -91,14 +92,14 @@ namespace Greenshot.Addon.ModiOcr
 				returnValue.Text = "Scan cancelled.";
                 returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
-				Log.Information(tcEx.Message);
+				Log.Info().WriteLine(tcEx.Message);
 			}
 			catch (Exception e)
 			{
 				returnValue.Text = "Scan failed.";
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
-				Log.Warning(e, "OCR failed");
+				Log.Warn().WriteLine(e, "OCR failed");
 			}
 			return returnValue;
         }
@@ -138,7 +139,7 @@ namespace Greenshot.Addon.ModiOcr
 			}
 			string filePath = ImageOutput.SaveToTmpFile(capture, outputSettings, null);
 
-			Log.Debug("Saved tmp file to: " + filePath);
+			Log.Debug().WriteLine("Saved tmp file to: {0}", filePath);
 
 			string text = "";
 			try
@@ -163,13 +164,13 @@ namespace Greenshot.Addon.ModiOcr
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error while calling Microsoft Office Document Imaging (MODI) to OCR: ", e);
+				Log.Error().WriteLine("Error while calling Microsoft Office Document Imaging (MODI) to OCR: ", e);
 			}
 			finally
 			{
 				if (File.Exists(filePath))
 				{
-					Log.Debug("Cleaning up tmp file: " + filePath);
+					Log.Debug().WriteLine("Cleaning up tmp file: {0}", filePath);
 					File.Delete(filePath);
 				}
 			}
@@ -177,18 +178,18 @@ namespace Greenshot.Addon.ModiOcr
 			text = text.Trim();
 			if (string.IsNullOrWhiteSpace(text))
 			{
-				Log.Information("No text returned");
+				Log.Info().WriteLine("No text returned");
 				return null;
 			}
 
 			try
 			{
-				Log.Debug("Pasting OCR Text to Clipboard: {0}", text);
+				Log.Debug().WriteLine("Pasting OCR Text to Clipboard: {0}", text);
 				ClipboardHelper.SetClipboardData(text);
 			}
 			catch (Exception e)
 			{
-				Log.Error("Problem pasting text to clipboard: ", e);
+				Log.Error().WriteLine(e, "Problem pasting text to clipboard: ");
 			}
 			return text;
 		}

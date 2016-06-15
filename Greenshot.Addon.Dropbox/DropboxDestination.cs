@@ -41,6 +41,7 @@ using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
 using Dapplo.Utils;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Dropbox
 {
@@ -48,7 +49,7 @@ namespace Greenshot.Addon.Dropbox
 	public sealed class DropboxDestination : AbstractDestination
 	{
 		private const string DropboxDesignation = "Dropbox";
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(DropboxDestination));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly Uri DropboxApiUri = new Uri("https://api.dropbox.com");
 		private static readonly Uri DropboxContentUri = new Uri("https://content.dropboxapi.com/2/files/upload");
 		private static readonly BitmapSource DropboxIcon;
@@ -153,14 +154,14 @@ namespace Greenshot.Addon.Dropbox
 				returnValue.Text = string.Format(DropboxLanguage.UploadFailure, DropboxDesignation);
                 returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
-				Log.Information(tcEx.Message);
+				Log.Info().WriteLine(tcEx.Message);
 			}
 			catch (Exception e)
 			{
 				returnValue.Text = string.Format(DropboxLanguage.UploadFailure, DropboxDesignation);
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
-				Log.Warning(e, "Dropbox export failed");
+				Log.Warn().WriteLine(e, "Dropbox export failed");
 				MessageBox.Show(DropboxLanguage.UploadFailure + " " + e.Message, DropboxDesignation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			return returnValue;
@@ -175,7 +176,7 @@ namespace Greenshot.Addon.Dropbox
 		/// <returns>Url as string</returns>
 		private async Task<string> UploadAsync(string filename, HttpContent content, IProgress<int> progress, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			var oAuthHttpBehaviour =_oAuthHttpBehaviour.Clone();
+			var oAuthHttpBehaviour =_oAuthHttpBehaviour.ShallowClone();
 			// Use UploadProgress
 			oAuthHttpBehaviour.UploadProgress = (percent) =>
 			{

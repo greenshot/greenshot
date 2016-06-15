@@ -34,6 +34,7 @@ using System.ServiceModel.Channels;
 using Greenshot.Addon.Configuration;
 using System.ComponentModel.Composition;
 using Dapplo.Utils;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Services
 {
@@ -44,7 +45,7 @@ namespace Greenshot.Services
 	[ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
 	public class GreenshotServer : IGreenshotContract, IStartupAction, IShutdownAction, IErrorHandler, IDispatchMessageInspector, IEndpointBehavior
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(GreenshotServer));
+		private static readonly LogSource Log = new LogSource();
 		private ServiceHost _host;
 		private const string PipeBaseEndpoint = "net.pipe://localhost/Greenshot/Server_";
 
@@ -74,7 +75,7 @@ namespace Greenshot.Services
 		/// <returns></returns>
 		public Task StartAsync(CancellationToken token = default(CancellationToken))
 		{
-			Log.Debug("Starting Greenshot server");
+			Log.Debug().WriteLine("Starting Greenshot server");
 			return Task.Factory.StartNew(
 				// this will use current synchronization context
 				() =>
@@ -82,28 +83,28 @@ namespace Greenshot.Services
 					try
 					{
 						_host = new ServiceHost(this, new[] { new Uri(PipeBaseEndpoint) });
-						Log.Debug("Starting Greenshot server with endpoints:");
+						Log.Debug().WriteLine("Starting Greenshot server with endpoints:");
 
 						// Add ServiceMetadataBehavior
 						_host.Description.Behaviors.Add(new ServiceMetadataBehavior { HttpsGetEnabled = false });
 
 						// Our IGreenshotContract endpoint:
 						var serviceEndpointGreenshotContract = _host.AddServiceEndpoint(typeof(IGreenshotContract), new NetNamedPipeBinding(), EndPoint);
-						Log.Debug("Added endpoint: address=\"{4:l}\", contract=\"{0:l}\", contractNamespace=\"{1:l}\", binding=\"{2:l}_{0:l}\", bindingNamespace=\"{3:l}\"", serviceEndpointGreenshotContract.Contract.Name, serviceEndpointGreenshotContract.Contract.Namespace, serviceEndpointGreenshotContract.Binding.Name, serviceEndpointGreenshotContract.Binding.Namespace, serviceEndpointGreenshotContract.ListenUri.AbsoluteUri);
+						Log.Debug().WriteLine("Added endpoint: address=\"{4:l}\", contract=\"{0:l}\", contractNamespace=\"{1:l}\", binding=\"{2:l}_{0:l}\", bindingNamespace=\"{3:l}\"", serviceEndpointGreenshotContract.Contract.Name, serviceEndpointGreenshotContract.Contract.Namespace, serviceEndpointGreenshotContract.Binding.Name, serviceEndpointGreenshotContract.Binding.Namespace, serviceEndpointGreenshotContract.ListenUri.AbsoluteUri);
 
 						// Add error / request logging
 						serviceEndpointGreenshotContract.EndpointBehaviors.Add(this);
 
 						// The MetadataExchangeBindings endpoint
 						var serviceEndpointMex = _host.AddServiceEndpoint(ServiceMetadataBehavior.MexContractName, MetadataExchangeBindings.CreateMexNamedPipeBinding(), EndPoint + "/mex");
-						Log.Debug("Added endpoint: address=\"{4}\", contract=\"{0}\", contractNamespace=\"{1}\", binding=\"{2}\", bindingNamespace=\"{3}\"", serviceEndpointMex.Contract.Name, serviceEndpointMex.Contract.Namespace, serviceEndpointMex.Binding.Name, serviceEndpointMex.Binding.Namespace, serviceEndpointMex.ListenUri.AbsoluteUri);
+						Log.Debug().WriteLine("Added endpoint: address=\"{4}\", contract=\"{0}\", contractNamespace=\"{1}\", binding=\"{2}\", bindingNamespace=\"{3}\"", serviceEndpointMex.Contract.Name, serviceEndpointMex.Contract.Namespace, serviceEndpointMex.Binding.Name, serviceEndpointMex.Binding.Namespace, serviceEndpointMex.ListenUri.AbsoluteUri);
 						_host.Open();
 						IsStarted = true;
-						Log.Debug("Started Greenshot server");
+						Log.Debug().WriteLine("Started Greenshot server");
 					}
 					catch (Exception ex)
 					{
-						Log.Error(ex, "Couldn't create Greenshot server");
+						Log.Error().WriteLine(ex, "Couldn't create Greenshot server");
 						throw;
 					}
 				},
@@ -120,7 +121,7 @@ namespace Greenshot.Services
 		/// <returns>Task</returns>
 		public async Task ShutdownAsync(CancellationToken token = default(CancellationToken))
 		{
-			Log.Debug("Stopping Greenshot server");
+			Log.Debug().WriteLine("Stopping Greenshot server");
 			await Task.Run(() =>
 			{
 				if (_host != null)
@@ -147,7 +148,7 @@ namespace Greenshot.Services
 		/// <param name="filename"></param>
 		public void OpenFile(string filename)
 		{
-			Log.Information("Open file requested for: {0}", filename);
+			Log.Info().WriteLine("Open file requested for: {0}", filename);
 
 			if (File.Exists(filename))
 			{
@@ -155,7 +156,7 @@ namespace Greenshot.Services
 			}
 			else
 			{
-				Log.Warning("No such file: " + filename);
+				Log.Warn().WriteLine("No such file: {0}", filename);
 			}
 		}
 
@@ -171,7 +172,7 @@ namespace Greenshot.Services
 
 		public void ProvideFault(Exception exception, MessageVersion messageVersion, ref Message faultMessage)
 		{
-			Log.Error(exception, faultMessage.ToString());
+			Log.Error().WriteLine(exception, faultMessage.ToString());
 		}
 
 		public bool HandleError(Exception error)
@@ -183,18 +184,18 @@ namespace Greenshot.Services
 		#region IDispatchMessageInspector
 		public object AfterReceiveRequest(ref Message requestMessage, IClientChannel channel, InstanceContext instanceContext)
 		{
-			if (Log.IsEnabled(Serilog.Events.LogEventLevel.Debug))
+			if (Log.IsDebugEnabled())
 			{
-				Log.Debug(requestMessage.ToString());
+				Log.Debug().WriteLine(requestMessage.ToString());
 			}
 			return null;
 		}
 
 		public void BeforeSendReply(ref Message replyMessage, object correlationState)
 		{
-			if (Log.IsEnabled(Serilog.Events.LogEventLevel.Debug))
+			if (Log.IsDebugEnabled())
 			{
-				Log.Debug(replyMessage.ToString());
+				Log.Debug().WriteLine(replyMessage.ToString());
 			}
 		}
 

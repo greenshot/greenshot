@@ -31,6 +31,7 @@ using Dapplo.InterfaceImpl.Extensions;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Controls
 {
@@ -39,7 +40,7 @@ namespace Greenshot.Addon.Controls
 	/// </summary>
 	public class GreenshotForm : Form, IGreenshotLanguageBindable
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(GreenshotForm));
+		private static readonly LogSource Log = new LogSource();
 		protected static readonly IniConfig iniConfig = IniConfig.Current;
 		protected static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		protected static readonly ICoreConfiguration coreConfiguration = IniConfig.Current.Get<ICoreConfiguration>();
@@ -148,7 +149,7 @@ namespace Greenshot.Addon.Controls
 			}
 			else
 			{
-				Log.Information("OnLoad called from designer.");
+				Log.Info().WriteLine("OnLoad called from designer.");
 				InitializeForDesigner();
 				base.OnLoad(e);
 				ApplyLanguage();
@@ -178,7 +179,7 @@ namespace Greenshot.Addon.Controls
 			{
 				if (DialogResult == DialogResult.OK)
 				{
-					Log.Information("Form was closed with OK: storing field values.");
+					Log.Info().WriteLine("Form was closed with OK: storing field values.");
 					StoreFields();
 				}
 			}
@@ -248,7 +249,7 @@ namespace Greenshot.Addon.Controls
 					var control = ce.Component as Control;
 					if (control != null)
 					{
-						Log.Information("Changing LanguageKey for {0} to {1}", control.Name, ce.NewValue);
+						Log.Info().WriteLine("Changing LanguageKey for {0} to {1}", control.Name, ce.NewValue);
 						ApplyLanguage(control, null, (string) ce.NewValue);
 					}
 					else
@@ -256,12 +257,12 @@ namespace Greenshot.Addon.Controls
 						var item = ce.Component as ToolStripItem;
 						if (item != null)
 						{
-							Log.Information("Changing LanguageKey for {0} to {1}", item.Name, ce.NewValue);
+							Log.Info().WriteLine("Changing LanguageKey for {0} to {1}", item.Name, ce.NewValue);
 							ApplyLanguage(item, null, (string) ce.NewValue);
 						}
 						else
 						{
-							Log.Information("Not possible to changing LanguageKey for {0} to {1}", ce.Component.GetType(), ce.NewValue);
+							Log.Info().WriteLine("Not possible to changing LanguageKey for {0} to {1}", ce.Component.GetType(), ce.NewValue);
 						}
 					}
 				}
@@ -409,7 +410,7 @@ namespace Greenshot.Addon.Controls
 					var controlObject = field.GetValue(this);
 					if (controlObject == null)
 					{
-						Log.Debug("No value: {0}", field.Name);
+						Log.Debug().WriteLine("No value: {0}", field.Name);
 						continue;
 					}
 					var applyToControl = controlObject as Control;
@@ -418,7 +419,7 @@ namespace Greenshot.Addon.Controls
 						var applyToItem = controlObject as ToolStripItem;
 						if (applyToItem == null)
 						{
-							Log.Debug("No Control or ToolStripItem: {0}", field.Name);
+							Log.Debug().WriteLine("No Control or ToolStripItem: {0}", field.Name);
 							continue;
 						}
 						ApplyLanguage(applyToItem);
@@ -485,14 +486,14 @@ namespace Greenshot.Addon.Controls
 					IIniSection section;
 					if (!iniConfig.TryGet(configBindable.SectionName, out section))
 					{
-						Log.Debug("Wrong section '{0}' configured for field '{1}'", configBindable.SectionName, field.Name);
+						Log.Debug().WriteLine("Wrong section '{0}' configured for field '{1}'", configBindable.SectionName, field.Name);
 						continue;
 					}
 
 					IniValue iniValue;
 					if (!section.TryGetIniValue(configBindable.PropertyName, out iniValue))
 					{
-						Log.Debug("Wrong property '{0}' configured for field '{1}'", configBindable.PropertyName, field.Name);
+						Log.Debug().WriteLine("Wrong property '{0}' configured for field '{1}'", configBindable.PropertyName, field.Name);
 						continue;
 					}
 					if (iniValue != null)
@@ -584,14 +585,14 @@ namespace Greenshot.Addon.Controls
 				IIniSection section;
 				if (!iniConfig.TryGet(configBindable.SectionName, out section))
 				{
-					Log.Debug("Wrong section '{0}' configured for field '{1}'", configBindable.SectionName, field.Name);
+					Log.Debug().WriteLine("Wrong section '{0}' configured for field '{1}'", configBindable.SectionName, field.Name);
 					continue;
 				}
 
 				IniValue iniValue;
 				if (!section.TryGetIniValue(configBindable.PropertyName, out iniValue))
 				{
-					Log.Debug("Wrong property '{0}' configured for field '{1}'", configBindable.PropertyName, field.Name);
+					Log.Debug().WriteLine("Wrong property '{0}' configured for field '{1}'", configBindable.PropertyName, field.Name);
 					continue;
 				}
 

@@ -33,6 +33,7 @@ using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Plugin;
 using Dapplo.Utils;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Picasa
 {
@@ -41,7 +42,7 @@ namespace Greenshot.Addon.Picasa
 	/// </summary>
 	public static class PicasaUtils
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(PicasaUtils));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly IPicasaConfiguration PicasaConfiguration = IniConfig.Current.Get<IPicasaConfiguration>();
 
 		/// <summary>
@@ -76,7 +77,7 @@ namespace Greenshot.Addon.Picasa
 				Token = PicasaConfiguration
 			};
 
-			var oAuthHttpBehaviour = HttpBehaviour.Current.Clone();
+			var oAuthHttpBehaviour = HttpBehaviour.Current.ShallowClone();
 
 			// Use UploadProgress
 			oAuthHttpBehaviour.UploadProgress = (percent) =>
@@ -144,7 +145,7 @@ namespace Greenshot.Addon.Picasa
 			}
 			catch (Exception e)
 			{
-				Log.Error("Could not parse Picasa response due to error {0}, response was: {1}", e.Message, response);
+				Log.Error().WriteLine("Could not parse Picasa response due to error {0}, response was: {1}", e.Message, response);
 			}
 			return null;
 		}

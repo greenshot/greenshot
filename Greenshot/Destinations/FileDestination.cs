@@ -35,6 +35,7 @@ using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Forms;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Destinations
 {
@@ -45,7 +46,7 @@ namespace Greenshot.Destinations
 	public sealed class FileDestination : AbstractDestination
 	{
 		private const string FileDesignation = "File";
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(FileDestination));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly BitmapSource FileIcon;
 		static FileDestination()
 		{
@@ -96,7 +97,7 @@ namespace Greenshot.Destinations
 			{
 				// As we save a pre-selected file, allow to overwrite.
 				overwrite = true;
-				Log.Information("Using previous filename");
+				Log.Info().WriteLine("Using previous filename");
 				fullPath = capture.CaptureDetails.Filename;
 				outputSettings.Format = ImageOutput.FormatForFilename(fullPath);
 			}
@@ -122,13 +123,13 @@ namespace Greenshot.Destinations
 			catch (ArgumentException ex1)
 			{
 				// Our generated filename exists, display 'save-as'
-				Log.Information("Not overwriting: {0}", ex1.Message);
+				Log.Info().WriteLine("Not overwriting: {0}", ex1.Message);
 				// when we don't allow to overwrite present a new SaveWithDialog
 				fullPath = ImageOutput.SaveWithDialog(capture, capture.CaptureDetails);
 			}
 			catch (Exception e)
 			{
-				Log.Error(e, "Save file failed");
+				Log.Error().WriteLine(e, "Save file failed");
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
 				returnValue.Text = GreenshotLanguage.ErrorSave;
@@ -149,7 +150,7 @@ namespace Greenshot.Destinations
 		private string CreateNewFilename(ICaptureDetails captureDetails)
 		{
 			string fullPath;
-			Log.Information("Creating new filename");
+			Log.Info().WriteLine("Creating new filename");
 			string pattern = CoreConfiguration.OutputFileFilenamePattern;
 			if (string.IsNullOrEmpty(pattern))
 			{
@@ -164,7 +165,7 @@ namespace Greenshot.Destinations
 			catch (ArgumentException)
 			{
 				// configured filename or path not valid, show error message...
-				Log.Information("Generated path or filename not valid: {0}, {1}", filepath, filename);
+				Log.Info().WriteLine("Generated path or filename not valid: {0}, {1}", filepath, filename);
 
 				MessageBox.Show(GreenshotLanguage.ErrorSaveInvalidChars, GreenshotLanguage.Error, MessageBoxButton.OK, MessageBoxImage.Error);
 				// ... lets get the pattern fixed....

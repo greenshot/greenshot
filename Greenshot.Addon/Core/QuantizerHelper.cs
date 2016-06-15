@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Dapplo.LogFacade;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -102,7 +103,7 @@ namespace Greenshot.Addon.Core
 
 	public class WuQuantizer : IDisposable
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(WuQuantizer));
+		private static readonly LogSource Log = new LogSource();
 
 		private const int MaxColor = 512;
 		private const int Red = 2;
@@ -325,12 +326,12 @@ namespace Greenshot.Addon.Core
 			if (_colorCount < allowedColorCount)
 			{
 				// Simple logic to reduce to 8 bit
-				Log.Information("Colors in the image are already less as whished for, using simple copy to indexed image, no quantizing needed!");
+				Log.Info().WriteLine("Colors in the image are already less as whished for, using simple copy to indexed image, no quantizing needed!");
 				return SimpleReindex();
 			}
 			// preprocess the colors
 			CalculateMoments();
-			Log.Information("Calculated the _moments...");
+			Log.Info().WriteLine("Calculated the _moments...");
 			int next = 0;
 			var volumeVariance = new float[MaxColor];
 
@@ -401,7 +402,7 @@ namespace Greenshot.Addon.Core
 			_blues = new int[allowedColorCount + 1];
 			_sums = new int[allowedColorCount + 1];
 
-			Log.Information("Starting bitmap reconstruction...");
+			Log.Info().WriteLine("Starting bitmap reconstruction...");
 
 			using (FastChunkyBitmap dest = FastBitmap.Create(_resultBitmap) as FastChunkyBitmap)
 			{

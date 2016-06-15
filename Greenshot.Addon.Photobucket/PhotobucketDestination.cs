@@ -41,6 +41,7 @@ using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
 using Dapplo.Utils;
+using Dapplo.LogFacade;
 
 namespace Greenshot.Addon.Photobucket
 {
@@ -48,7 +49,7 @@ namespace Greenshot.Addon.Photobucket
 	public sealed class PhotobucketDestination : AbstractDestination
 	{
 		private const string PhotobucketDesignation = "Photobucket";
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(PhotobucketDestination));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly BitmapSource PhotobucketIcon;
 		private static readonly Uri PhotobucketApiUri = new Uri("http://api.photobucket.com");
 		private OAuth1Settings _oAuthSettings;
@@ -164,7 +165,7 @@ namespace Greenshot.Addon.Photobucket
 				}, token);
 
 				// This causes an exeption if the upload failed :)
-				Log.Debug("Uploaded to Photobucket page: " + photobucketInfo.Page);
+				Log.Debug().WriteLine("Uploaded to Photobucket page: {0}", photobucketInfo.Page);
 				string uploadUrl = null;
 				try
 				{
@@ -172,7 +173,7 @@ namespace Greenshot.Addon.Photobucket
 				}
 				catch (Exception ex)
 				{
-					Log.Error("Can't write to clipboard: ", ex);
+					Log.Error().WriteLine(ex, "Can't write to clipboard: ");
 				}
 
 				if (uploadUrl != null)
@@ -189,14 +190,14 @@ namespace Greenshot.Addon.Photobucket
 				returnValue.Text = string.Format(PhotobucketLanguage.UploadFailure, PhotobucketDesignation);
                 returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
-				Log.Information(tcEx.Message);
+				Log.Info().WriteLine(tcEx.Message);
 			}
 			catch (Exception e)
 			{
 				returnValue.Text = string.Format(PhotobucketLanguage.UploadFailure, PhotobucketDesignation);
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
-				Log.Warning(e, "Photobucket export failed");
+				Log.Warn().WriteLine(e, "Photobucket export failed");
 				MessageBox.Show(PhotobucketLanguage.UploadFailure + " " + e.Message, PhotobucketDesignation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			return returnValue;
@@ -211,7 +212,7 @@ namespace Greenshot.Addon.Photobucket
 		{
 			string responseString;
 
-			var oAuthHttpBehaviour = _oAuthHttpBehaviour.Clone();
+			var oAuthHttpBehaviour = _oAuthHttpBehaviour.ShallowClone();
 
 			// Use UploadProgress
 			oAuthHttpBehaviour.UploadProgress = (percent) =>
@@ -262,7 +263,7 @@ namespace Greenshot.Addon.Photobucket
 					}
 					catch (Exception ex)
 					{
-						Log.Error("Error uploading to Photobucket.", ex);
+						Log.Error().WriteLine(ex, "Error uploading to Photobucket.");
 						throw;
 					}
 				}
@@ -272,9 +273,9 @@ namespace Greenshot.Addon.Photobucket
 			{
 				return null;
 			}
-			Log.Information(responseString);
+			Log.Info().WriteLine(responseString);
 			var photobucketInfo = PhotobucketInfo.FromUploadResponse(responseString);
-			Log.Debug("Upload to Photobucket was finished");
+			Log.Debug().WriteLine("Upload to Photobucket was finished");
 			return photobucketInfo;
 		}
 
