@@ -1618,7 +1618,10 @@ namespace Greenshot.Drawing
 			{
 				element.FieldChanged -= element_FieldChanged;
 			}
-			element.Parent = null;
+			if (elementToRemove != null)
+			{
+				elementToRemove.Parent = null;
+			}
 			// Do not dispose, the memento should!! element.Dispose();
 			if (invalidate)
 			{

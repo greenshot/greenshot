@@ -484,7 +484,7 @@ namespace Greenshot.Drawing
 			{
 				return;
 			}
-			_parent.FieldAggregator?.UnbindElement(this);
+			_parent?.FieldAggregator?.UnbindElement(this);
 
 			_parent = newParent;
 			foreach(IFilter filter in Filters) {
