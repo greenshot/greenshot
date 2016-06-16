@@ -217,7 +217,7 @@ namespace Greenshot.Drawing {
 					int safetymargin = 10;
 					return new Rectangle(myBounds.Left + Left - (safetymargin+lineThickness), myBounds.Top + Top - (safetymargin+lineThickness), myBounds.Width + 2*(lineThickness+safetymargin), myBounds.Height + 2*(lineThickness+safetymargin));
 				}
-				return new Rectangle(0, 0, _parent.Width, _parent.Height);
+				return new Rectangle(0, 0, _parent?.Width??0, _parent?.Height?? 0);
 			}
 		}
 

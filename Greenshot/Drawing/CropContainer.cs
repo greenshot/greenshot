@@ -50,24 +50,20 @@ namespace Greenshot.Drawing {
 		}
 
 		public override void Invalidate() {
-			if (_parent == null)
-			{
-				return;
-			}
-			_parent.Invalidate();
+			_parent?.Invalidate();
 		}
 
 		/// <summary>
 		/// We need to override the DrawingBound, return a rectangle in the size of the image, to make sure this element is always draw
 		/// (we create a transparent brown over the complete picture)
 		/// </summary>
-		public override Rectangle DrawingBounds {
-			get {
-				return new Rectangle(0,0,_parent.Width, _parent.Height);
-			}
-		}
+		public override Rectangle DrawingBounds => new Rectangle(0,0,_parent?.Width??0, _parent?.Height ?? 0);
 
 		public override void Draw(Graphics g, RenderMode rm) {
+			if (_parent == null)
+			{
+				return;
+			}
 			using (Brush cropBrush = new SolidBrush(Color.FromArgb(100, 150, 150, 100))) {
 				Rectangle cropRectangle = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 				Rectangle selectionRect = new Rectangle(cropRectangle.Left - 1, cropRectangle.Top - 1, cropRectangle.Width + 1, cropRectangle.Height + 1);

@@ -40,14 +40,12 @@ namespace Greenshot.Drawing {
 	public class TextContainer : RectangleContainer, ITextContainer {
 		// If makeUndoable is true the next text-change will make the change undoable.
 		// This is set to true AFTER the first change is made, as there is already a "add element" on the undo stack
+		// Although the name is wrong, we can't change it due to file serialization
+		// ReSharper disable once InconsistentNaming
 		private bool makeUndoable;
 		[NonSerialized]
 		private Font _font;
-		public Font Font {
-			get {
-				return _font;
-			}
-		}
+		public Font Font => _font;
 
 		[NonSerialized]
 		private TextBox _textBox;
@@ -57,11 +55,10 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		[NonSerialized]
 		StringFormat _stringFormat = new StringFormat();
-		public StringFormat StringFormat {
-			get {
-				return _stringFormat;
-			}
-		}
+		public StringFormat StringFormat => _stringFormat;
+
+		// Although the name is wrong, we can't change it due to file serialization
+		// ReSharper disable once InconsistentNaming
 		private string text;
 		// there is a binding on the following property!
 		public string Text {
@@ -168,7 +165,7 @@ namespace Greenshot.Drawing {
 					HideTextBox();
 				} else if (Selected && Status == EditStatus.DRAWING) {
 					ShowTextBox();
-				} else if (Selected && Status == EditStatus.IDLE && _textBox.Visible) {
+				} else if (_parent != null && Selected && Status == EditStatus.IDLE && _textBox.Visible) {
 					// Fix (workaround) for BUG-1698
 					_parent.KeysLocked = true;
 				}
@@ -221,8 +218,11 @@ namespace Greenshot.Drawing {
 		}
 
 		private void ShowTextBox() {
-			_parent.KeysLocked = true;
-			_parent.Controls.Add(_textBox);
+			if (_parent != null)
+			{
+				_parent.KeysLocked = true;
+				_parent.Controls.Add(_textBox);
+			}
 			EnsureTextBoxContrast();
 			_textBox.Show();
 			_textBox.Focus();

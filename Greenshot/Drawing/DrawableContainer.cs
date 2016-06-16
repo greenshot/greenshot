@@ -89,14 +89,7 @@ namespace Greenshot.Drawing
 			if (!disposing) {
 				return;
 			}
-			if (_parent != null)
-			{
-				FieldAggregator fieldAggregator = _parent.FieldAggregator;
-				if (fieldAggregator != null)
-				{
-					fieldAggregator.UnbindElement(this);
-				}
-			}
+			_parent?.FieldAggregator?.UnbindElement(this);
 		}
 
 		~DrawableContainer() {
@@ -306,7 +299,7 @@ namespace Greenshot.Drawing
 
 		public virtual void Invalidate() {
 			if (Status != EditStatus.UNDRAWN) {
-				_parent.Invalidate(DrawingBounds);
+				_parent?.Invalidate(DrawingBounds);
 			}
 		}
 		
@@ -491,15 +484,7 @@ namespace Greenshot.Drawing
 			{
 				return;
 			}
-			if (_parent != null)
-			{
-				// Remove FieldAggregator
-				FieldAggregator fieldAggregator = _parent.FieldAggregator;
-				if (fieldAggregator != null)
-				{
-					fieldAggregator.UnbindElement(this);
-				}
-			}
+			_parent.FieldAggregator?.UnbindElement(this);
 
 			_parent = newParent;
 			foreach(IFilter filter in Filters) {
@@ -521,7 +506,7 @@ namespace Greenshot.Drawing
 		/// <param name="fieldToBeChanged">The field to be changed</param>
 		/// <param name="newValue">The new value</param>
 		public virtual void BeforeFieldChange(IField fieldToBeChanged, object newValue) {
-			_parent.MakeUndoable(new ChangeFieldHolderMemento(this, fieldToBeChanged), true);
+			_parent?.MakeUndoable(new ChangeFieldHolderMemento(this, fieldToBeChanged), true);
 			Invalidate();
 		}
 		
