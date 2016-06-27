@@ -42,7 +42,8 @@ using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Drawing;
 using Greenshot.Addon.Interfaces.Forms;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
+using Greenshot.Addon.Interfaces.Destination;
 
 namespace Greenshot.Addon.Editor.Forms
 {
@@ -119,23 +120,24 @@ namespace Greenshot.Addon.Editor.Forms
 				// Create export buttons via dispatcher
 				this.InvokeAsync(() =>
 				{
-					foreach (ILegacyDestination destination in LegacyDestinationHelper.GetAllLegacyDestinations())
+					// TODO: Fix!
+					foreach (IDestination destination in new IDestination[] {})
 					{
-						if (destination.Priority <= 2)
-						{
-							continue;
-						}
-						if (!destination.IsActive)
-						{
-							continue;
-						}
-						if (destination.DisplayIcon == null)
-						{
-							continue;
-						}
+						//if (destination.Priority <= 2)
+						//{
+						//	continue;
+						//}
+						//if (!destination.IsActive)
+						//{
+						//	continue;
+						//}
+						//if (destination.DisplayIcon == null)
+						//{
+						//	continue;
+						//}
 						try
 						{
-							AddDestinationButton(destination);
+							//AddDestinationButton(null);
 						}
 						catch (Exception addingException)
 						{
@@ -318,71 +320,6 @@ namespace Greenshot.Addon.Editor.Forms
 			}
 		}
 
-		private void AddDestinationButton(ILegacyDestination toolstripDestination)
-		{
-			var destinationButton = new ToolStripSplitButton();
-			if (toolstripDestination.IsDynamic)
-			{
-				//ToolStripDropDownButton destinationButton = new ToolStripDropDownButton();
-				destinationButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
-				destinationButton.Size = new Size(23, 22);
-				destinationButton.Text = toolstripDestination.Description;
-				destinationButton.Image = toolstripDestination.DisplayIcon;
-
-				var defaultItem = new ToolStripMenuItem(toolstripDestination.Description);
-				defaultItem.Tag = toolstripDestination;
-				defaultItem.Image = toolstripDestination.DisplayIcon;
-				defaultItem.Click += async (sender, e) =>
-				{
-					await toolstripDestination.ExportCaptureAsync(true, _surface).ConfigureAwait(false);
-				};
-
-				// The ButtonClick, this is for the icon, gets the current default item
-				destinationButton.ButtonClick += async (sender, e) =>
-				{
-					await toolstripDestination.ExportCaptureAsync(true, _surface).ConfigureAwait(false);
-				};
-
-				// Generate the entries for the drop down
-				destinationButton.DropDownOpening += delegate
-				{
-					ClearItems(destinationButton.DropDownItems);
-					destinationButton.DropDownItems.Add(defaultItem);
-
-					List<ILegacyDestination> subDestinations = new List<ILegacyDestination>();
-					subDestinations.AddRange(toolstripDestination.DynamicDestinations());
-					if (subDestinations.Count > 0)
-					{
-						subDestinations.Sort();
-						foreach (ILegacyDestination subDestination in subDestinations)
-						{
-							ILegacyDestination closureFixedDestination = subDestination;
-							ToolStripMenuItem destinationMenuItem = new ToolStripMenuItem(closureFixedDestination.Description);
-							destinationMenuItem.Tag = closureFixedDestination;
-							destinationMenuItem.Image = closureFixedDestination.DisplayIcon;
-							destinationMenuItem.Click += async (sender2, e2) =>
-							{
-								await closureFixedDestination.ExportCaptureAsync(true, _surface).ConfigureAwait(false);
-							};
-							destinationButton.DropDownItems.Add(destinationMenuItem);
-						}
-					}
-				};
-			}
-			else
-			{
-				destinationButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
-				destinationButton.Size = new Size(23, 22);
-				destinationButton.Text = toolstripDestination.Description;
-				destinationButton.Image = toolstripDestination.DisplayIcon;
-				destinationButton.Click += async (sender2, e2) =>
-				{
-					await toolstripDestination.ExportCaptureAsync(true, _surface).ConfigureAwait(false);
-				};
-			}
-			destinationsToolStrip.Items.Insert(destinationsToolStrip.Items.IndexOf(toolStripSeparator16), destinationButton);
-		}
-
 		/// <summary>
 		/// According to some information I found, the clear doesn't work correctly when the shortcutkeys are set?
 		/// This helper method takes care of this.
@@ -406,22 +343,23 @@ namespace Greenshot.Addon.Editor.Forms
 			ClearItems(fileStripMenuItem.DropDownItems);
 
 			// Add the destinations
-			foreach (ILegacyDestination destination in LegacyDestinationHelper.GetAllLegacyDestinations())
+			foreach (IDestination destination in new IDestination[] { })
 			{
 				if (ignoreDestinations.Contains(destination.Designation))
 				{
 					continue;
 				}
-				if (!destination.IsActive)
+				if (!destination.IsEnabled)
 				{
 					continue;
 				}
 
-				ToolStripMenuItem item = destination.CreateMenuItem(true, DestinationToolStripMenuItemClickAsync);
+				// TODO: Fix
+				ToolStripMenuItem item = null;//destination.CreateMenuItem(true, DestinationToolStripMenuItemClickAsync);
 				if (item != null)
 				{
 					fileStripMenuItem.DropDownItems.Add(item);
-					item.ShortcutKeys = destination.EditorShortcutKeys;
+					item.ShortcutKeys = Keys.None; //destination.EditorShortcutKeys;
 				}
 			}
 			// add the elements after the destinations
@@ -584,7 +522,8 @@ namespace Greenshot.Addon.Editor.Forms
 			{
 				destinationDesignation = BuildInDestinationEnum.FileDialog.ToString();
 			}
-			await LegacyDestinationHelper.ExportCaptureAsync(true, destinationDesignation, _surface);
+			// TODO: Fix
+			// await LegacyDestinationHelper.ExportCaptureAsync(true, destinationDesignation, _surface);
 		}
 
 		private async void BtnSaveClickAsync(object sender, EventArgs e)
@@ -594,7 +533,8 @@ namespace Greenshot.Addon.Editor.Forms
 
 		private async void BtnClipboardClick(object sender, EventArgs e)
 		{
-			await LegacyDestinationHelper.ExportCaptureAsync(true, BuildInDestinationEnum.Clipboard.ToString(), _surface);
+			// TODO: Fix
+			// await LegacyDestinationHelper.ExportCaptureAsync(true, BuildInDestinationEnum.Clipboard.ToString(), _surface);
 		}
 
 		private void BtnPrintClick(object sender, EventArgs e)
@@ -602,7 +542,8 @@ namespace Greenshot.Addon.Editor.Forms
 			// The BeginInvoke is a solution for the printdialog not having focus
 			this.InvokeAsync(async () =>
 			{
-				await LegacyDestinationHelper.ExportCaptureAsync(true, BuildInDestinationEnum.Printer.ToString(), _surface);
+				// TODO: Fix
+				// await LegacyDestinationHelper.ExportCaptureAsync(true, BuildInDestinationEnum.Printer.ToString(), _surface);
 			});
 		}
 
@@ -1044,25 +985,26 @@ namespace Greenshot.Addon.Editor.Forms
 				// Go through the destinations to check the EditorShortcut Keys
 				// this way the menu entries don't need to be enabled.
 				// This also fixes bugs #3526974 & #3527020
-				foreach (var destination in LegacyDestinationHelper.GetAllLegacyDestinations())
+				foreach (var destination in new IDestination[] {})
 				{
 					if (ignoreDestinations.Contains(destination.Designation))
 					{
 						continue;
 					}
-					if (!destination.IsActive)
+					if (!destination.IsEnabled)
 					{
 						continue;
 					}
 
-					if (destination.EditorShortcutKeys == keys)
-					{
-						this.InvokeAsync(async () =>
-						{
-							await destination.ExportCaptureAsync(true, _surface).ConfigureAwait(false);
-						});
-						return true;
-					}
+					// TODO: Destination Hotkeys?
+					//if (destination.EditorShortcutKeys == keys)
+					//{
+					//	this.InvokeAsync(async () =>
+					//	{
+					//		await destination.ExportCaptureAsync(true, _surface).ConfigureAwait(false);
+					//	});
+					//	return true;
+					//}
 				}
 				if (!_surface.ProcessCmdKey(keys))
 				{
@@ -1396,7 +1338,7 @@ namespace Greenshot.Addon.Editor.Forms
 
 		private async void DestinationToolStripMenuItemClickAsync(object sender, EventArgs e)
 		{
-			ILegacyDestination clickedDestination = null;
+			IDestination clickedDestination = null;
 			if (sender is Control)
 			{
 				Control clickedControl = sender as Control;
@@ -1405,17 +1347,17 @@ namespace Greenshot.Addon.Editor.Forms
 					clickedControl.ContextMenuStrip.Show(Cursor.Position);
 					return;
 				}
-				clickedDestination = (ILegacyDestination) clickedControl.Tag;
+				clickedDestination = (IDestination) clickedControl.Tag;
 			}
 			else if (sender is ToolStripMenuItem)
 			{
 				ToolStripMenuItem clickedMenuItem = sender as ToolStripMenuItem;
-				clickedDestination = (ILegacyDestination) clickedMenuItem.Tag;
+				clickedDestination = (IDestination) clickedMenuItem.Tag;
 			}
 			if (clickedDestination != null)
 			{
-				var exportInformation = await clickedDestination.ExportCaptureAsync(true, _surface);
-				if (exportInformation != null && exportInformation.ExportMade)
+				var exportInformation = await clickedDestination.Export(null, new Capture(_surface.Image), default(CancellationToken));
+				if (exportInformation.NotificationType == NotificationTypes.Success)
 				{
 					_surface.Modified = false;
 				}

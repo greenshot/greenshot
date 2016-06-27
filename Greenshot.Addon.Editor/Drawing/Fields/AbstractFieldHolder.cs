@@ -25,7 +25,7 @@ using System.ComponentModel;
 using System.Reflection;
 using Dapplo.Config.Ini;
 using Greenshot.Addon.Interfaces.Drawing;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 
 namespace Greenshot.Addon.Editor.Drawing.Fields
 {

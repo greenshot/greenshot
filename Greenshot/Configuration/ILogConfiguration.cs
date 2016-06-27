@@ -19,35 +19,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Collections.Generic;
 using System.ComponentModel;
+using Dapplo.Config.Ini;
+using Dapplo.Log.LogFile;
 
-namespace Greenshot.Addon.Configuration
+namespace Greenshot.Configuration
 {
 	/// <summary>
-	/// This interface represents all the generic plugin/extension settings
+	/// Store all log specific settings, currently only FileLogger settings are here
 	/// </summary>
-	public interface IExtensionConfiguration
+	[IniSection("Log"), Description("Greenshot Log configuration")]
+	public interface ILogConfiguration : IFileLoggerConfiguration, IIniSection<ILogConfiguration>
 	{
-		[Description("Comma separated list of Plugins which are allowed. If something in the list, than every plugin not in the list will not be loaded!")]
-		IList<string> IncludePlugins
-		{
-			get;
-			set;
-		}
-
-		[Description("Comma separated list of Plugins which are NOT allowed.")]
-		IList<string> ExcludePlugins
-		{
-			get;
-			set;
-		}
-
-		[Description("Comma separated list of destinations which should be disabled.")]
-		IList<string> ExcludeDestinations
-		{
-			get;
-			set;
-		}
 	}
 }

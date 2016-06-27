@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 using Dapplo.Config.Language;
 using Dapplo.HttpExtensions;
 using Dapplo.Utils;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 
 namespace Greenshot.Addon.Core
 {

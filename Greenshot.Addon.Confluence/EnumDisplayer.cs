@@ -1,5 +1,5 @@
 ﻿using Dapplo.Config.Language;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 using Greenshot.Addon.Extensions;
 using System;
 using System.Collections.Generic;

@@ -24,7 +24,7 @@ using System.Windows.Forms;
 
 using Microsoft.Win32;
 using System.IO;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 
 namespace Greenshot.Helpers
 {

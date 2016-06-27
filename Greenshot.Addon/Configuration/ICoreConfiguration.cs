@@ -30,7 +30,7 @@ using System.Windows.Forms;
 using Dapplo.Config.Ini;
 using Dapplo.InterfaceImpl.Extensions;
 using Greenshot.Addon.Core;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 
 namespace Greenshot.Addon.Configuration
 {
@@ -63,7 +63,7 @@ namespace Greenshot.Addon.Configuration
 	[IniSection("Core"), Description("Greenshot core configuration")]
 	public interface ICoreConfiguration :
 		// Importing other configuration interfaces, so the file doesn't get to big
-		IOutputConfiguration, IPrinterConfiguration, IExtensionConfiguration,
+		IOutputConfiguration, IPrinterConfiguration,
 		IUiConfiguration, ICaptureConfiguration, IMiscConfiguration,
 		IUpdateConfiguration, IHotkeyConfiguration,
 		// Ini-Framework

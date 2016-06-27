@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 using System;
 using System.Xml;
 

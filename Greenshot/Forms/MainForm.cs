@@ -43,7 +43,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Utils;
 using Timer = System.Timers.Timer;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 
 namespace Greenshot.Forms
 {
@@ -1017,9 +1017,10 @@ namespace Greenshot.Forms
 				selectList = new ToolStripMenuSelectList("destinations", true);
 				selectList.Text = language.SettingsDestination;
 				// Working with IDestination:
-				foreach (var destination in LegacyDestinationHelper.GetAllLegacyDestinations())
+				// TODO: Fix
+				foreach (var destination in new IDestination[] {})
 				{
-					selectList.AddItem(destination.Description, destination, coreConfiguration.OutputDestinations.Contains(destination.Designation));
+					selectList.AddItem(destination.Text, destination, coreConfiguration.OutputDestinations.Contains(destination.Designation));
 				}
 				selectList.CheckedChanged += QuickSettingDestinationChanged;
 				contextmenu_quicksettings.DropDownItems.Add(selectList);
@@ -1120,7 +1121,7 @@ namespace Greenshot.Forms
 		private void QuickSettingDestinationChanged(object sender, EventArgs e)
 		{
 			var item = ((ItemCheckedChangedEventArgs) e).Item;
-			var selectedDestination = (ILegacyDestination) item.Data;
+			var selectedDestination = (IDestination) item.Data;
 			if (item.Checked)
 			{
 				if (selectedDestination.Designation.Equals(BuildInDestinationEnum.Picker.ToString()))

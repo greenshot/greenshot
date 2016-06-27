@@ -34,7 +34,7 @@ using System.ServiceModel.Channels;
 using Greenshot.Addon.Configuration;
 using System.ComponentModel.Composition;
 using Dapplo.Utils;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 
 namespace Greenshot.Services
 {

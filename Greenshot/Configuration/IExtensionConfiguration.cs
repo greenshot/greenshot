@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -19,28 +19,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Log.Facade;
-using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.ComponentModel;
+using Dapplo.Config.Ini;
 
-namespace Greenshot.Addon.Core
+namespace Greenshot.Configuration
 {
 	/// <summary>
-	/// Description of InterfaceUtils.
+	/// This interface represents all the generic plugin/extension settings
 	/// </summary>
-	public static class InterfaceUtils
+	[IniSection("Addons"), Description("Greenshot addon configuration")]
+	public interface IExtensionConfiguration
 	{
-		private static readonly LogSource Log = new LogSource();
-
-		public static IEnumerable<Type> GetSubclassesOf(Type implementingType, bool excludeSystemTypes)
+		[Description("Comma separated list of Plugins which are allowed. If something in the list, than every plugin not in the list will not be loaded!")]
+		IList<string> IncludePlugins
 		{
-			var subClasses = from assembly in AppDomain.CurrentDomain.GetAssemblies()
-				where !assembly.FullName.StartsWith("System") && !assembly.FullName.StartsWith("mscorlib") && !assembly.FullName.StartsWith("Microsoft")
-				from type in assembly.GetTypes()
-				where type.IsClass && !type.IsAbstract && implementingType.IsAssignableFrom(type)
-				select type;
-			return subClasses;
+			get;
+			set;
+		}
+
+		[Description("Comma separated list of Plugins which are NOT allowed.")]
+		IList<string> ExcludePlugins
+		{
+			get;
+			set;
+		}
+
+		[Description("Comma separated list of destinations which should be disabled.")]
+		IList<string> ExcludeDestinations
+		{
+			get;
+			set;
 		}
 	}
 }

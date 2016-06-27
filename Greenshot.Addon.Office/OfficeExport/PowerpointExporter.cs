@@ -26,7 +26,7 @@ using System.Runtime.InteropServices;
 using Dapplo.Config.Ini;
 using Microsoft.Office.Core;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 
 namespace Greenshot.Addon.Office.OfficeExport
 {

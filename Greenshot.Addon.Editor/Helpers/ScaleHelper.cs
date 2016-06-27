@@ -24,7 +24,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Addon.Editor.Drawing;
 using Greenshot.Addon.Extensions;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 
 namespace Greenshot.Addon.Editor.Helpers
 {

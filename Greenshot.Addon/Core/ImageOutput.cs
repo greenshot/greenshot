@@ -37,7 +37,7 @@ using Greenshot.Addon.Controls;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Plugin;
 using Encoder = System.Drawing.Imaging.Encoder;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 
 namespace Greenshot.Addon.Core
 {

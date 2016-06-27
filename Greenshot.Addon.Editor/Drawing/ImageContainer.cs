@@ -25,7 +25,7 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces.Drawing;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 
 namespace Greenshot.Addon.Editor.Drawing
 {

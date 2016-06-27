@@ -58,19 +58,6 @@ namespace Greenshot.Addon.Interfaces.Plugin
 		}
 
 		/// <summary>
-		/// Get a destination by it's designation
-		/// </summary>
-		/// <param name="destination"></param>
-		/// <returns>IDestination</returns>
-		ILegacyDestination GetDestination(string designation);
-
-		/// <summary>
-		/// Get a list of all available destinations
-		/// </summary>
-		/// <returns>List<IDestination></returns>
-		List<ILegacyDestination> GetAllDestinations();
-
-		/// <summary>
 		/// Use the supplied capture, and handle it as if it's captured.
 		/// </summary>
 		/// <param name="captureToImport">ICapture to import</param>

@@ -30,7 +30,7 @@ using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Picasa.Forms;
 using Dapplo.Addons;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 
 namespace Greenshot.Addon.Picasa
 {

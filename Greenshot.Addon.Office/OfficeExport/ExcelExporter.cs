@@ -26,7 +26,7 @@ using System.Runtime.InteropServices;
 using Greenshot.Addon.Core;
 using Microsoft.Office.Core;
 using Excel = Microsoft.Office.Interop.Excel;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 
 namespace Greenshot.Addon.Office.OfficeExport
 {

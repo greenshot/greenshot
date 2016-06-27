@@ -28,7 +28,7 @@ using System.Runtime.InteropServices;
 using Greenshot.Addon.Core;
 using SHDocVw;
 using IServiceProvider = Greenshot.Interop.IServiceProvider;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 
 namespace Greenshot.Helpers.IEInterop
 {

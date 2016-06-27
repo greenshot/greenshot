@@ -25,7 +25,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Windows.Forms;
 using Greenshot.Addon.Interfaces;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 
 namespace Greenshot.Addon.Core
 {

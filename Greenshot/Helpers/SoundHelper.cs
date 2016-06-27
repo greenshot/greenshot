@@ -26,7 +26,7 @@ using System.Media;
 using System.Reflection;
 using System.Resources;
 using Greenshot.Addon.Configuration;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 
 namespace Greenshot.Helpers
 {

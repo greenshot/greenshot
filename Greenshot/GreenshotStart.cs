@@ -23,8 +23,7 @@ using Dapplo.Addons.Bootstrapper;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using Dapplo.Config.Support;
-using Dapplo.LogFacade;
-using Dapplo.LogFacade.Loggers;
+using Dapplo.Log.Facade;
 using Dapplo.Windows.Native;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
@@ -37,6 +36,14 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using Dapplo.HttpExtensions;
+
+using Dapplo.Log.Loggers;
+
+#if !DEBUG
+using Dapplo.Log.LogFile;
+using Greenshot.Configuration;
+#endif
 
 namespace Greenshot
 {
@@ -76,7 +83,7 @@ namespace Greenshot
 #if DEBUG
 			LogSettings.RegisterDefaultLogger<TraceLogger>(LogLevels.Verbose);
 #else
-			LogSettings.RegisterDefaultLogger<TraceLogger>(LogLevels.Info);
+			LogSettings.RegisterDefaultLogger<ForwardingLogger>(LogLevels.Verbose);
 #endif
 
 			// Setting the INI-directory
@@ -107,7 +114,15 @@ namespace Greenshot
 				// Read configuration & languages
 				languageLoader.CorrectMissingTranslations();
 				language = await LanguageLoader.Current.RegisterAndGetAsync<IGreenshotLanguage>();
-				await iniConfig.RegisterAndGetAsync<INetworkConfiguration>();
+				// Read the http configuration and set it to the framework
+				HttpExtensionsGlobals.HttpSettings = await iniConfig.RegisterAndGetAsync<INetworkConfiguration>();
+
+#if !DEBUG
+				// Read the log configuration and set it to the framework
+				var logConfiguration = await iniConfig.RegisterAndGetAsync<ILogConfiguration>();
+				LogSettings.RegisterDefaultLogger<FileLogger>(LogLevels.Verbose, logConfiguration);
+#endif
+
 			}).Wait();
 
 			// Log the startup

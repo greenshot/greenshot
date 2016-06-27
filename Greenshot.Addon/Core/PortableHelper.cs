@@ -20,7 +20,7 @@
  */
 
 
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 using System;
 using System.IO;
 using System.Reflection;

@@ -25,7 +25,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Addon.Core;
 using Dapplo.HttpExtensions;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 
 namespace Greenshot.Addon.Controls
 {

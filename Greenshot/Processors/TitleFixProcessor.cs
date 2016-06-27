@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Interfaces;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 
 namespace Greenshot.Processors
 {

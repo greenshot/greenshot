@@ -31,7 +31,7 @@ using Exception = System.Exception;
 using Word = Microsoft.Office.Interop.Word;
 using Outlook = Microsoft.Office.Interop.Outlook;
 using Version = System.Version;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 
 namespace Greenshot.Addon.Office.OfficeExport
 {

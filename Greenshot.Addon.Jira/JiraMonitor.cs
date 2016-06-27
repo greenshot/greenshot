@@ -30,7 +30,7 @@ using Dapplo.Jira;
 using Dapplo.Jira.Entities;
 using Dapplo.Windows;
 using Greenshot.Addon.Configuration;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 
 namespace Greenshot.Addon.Jira
 {

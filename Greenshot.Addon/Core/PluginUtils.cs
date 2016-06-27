@@ -32,7 +32,7 @@ using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Interfaces.Forms;
 using Greenshot.Addon.Interfaces.Plugin;
 using Microsoft.Win32;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 
 namespace Greenshot.Addon.Core
 {

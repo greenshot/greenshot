@@ -40,7 +40,7 @@ using Greenshot.Addon.Editor.Drawing;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Windows;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 
 namespace Greenshot.Helpers
 {
@@ -455,7 +455,8 @@ namespace Greenshot.Helpers
 							// Editor format
 							if (filename.ToLower().EndsWith("." + OutputFormat.greenshot))
 							{
-								await LegacyDestinationHelper.GetLegacyDestination(BuildInDestinationEnum.Editor.ToString()).ExportCaptureAsync(true, _capture, token);
+								// TODO: Fix
+								// await LegacyDestinationHelper.GetLegacyDestination(BuildInDestinationEnum.Editor.ToString()).ExportCaptureAsync(true, _capture, token);
 								break;
 							}
 						}

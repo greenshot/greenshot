@@ -144,16 +144,6 @@ namespace Greenshot.Helpers
 			}
 		}
 
-		public ILegacyDestination GetDestination(string designation)
-		{
-			return LegacyDestinationHelper.GetLegacyDestination(designation);
-		}
-
-		public List<ILegacyDestination> GetAllDestinations()
-		{
-			return LegacyDestinationHelper.GetAllLegacyDestinations();
-		}
-
 		/// <summary>
 		/// Use the supplied image, and handle it as if it's captured.
 		/// </summary>

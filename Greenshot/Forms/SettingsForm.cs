@@ -37,7 +37,7 @@ using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Helpers;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 
 namespace Greenshot.Forms
 {
@@ -338,10 +338,10 @@ namespace Greenshot.Forms
 		{
 			foreach (ListViewItem item in listview_destinations.Items)
 			{
-				ILegacyDestination destinationFromTag = item.Tag as ILegacyDestination;
+				var destinationFromTag = item.Tag as IDestination;
 				if (destinationFromTag != null)
 				{
-					item.Text = destinationFromTag.Description;
+					item.Text = destinationFromTag.Text;
 				}
 			}
 		}
@@ -371,29 +371,31 @@ namespace Greenshot.Forms
 			var imageList = new ImageList();
 			listview_destinations.SmallImageList = imageList;
 			int imageNr = -1;
-			foreach (ILegacyDestination currentDestination in LegacyDestinationHelper.GetAllLegacyDestinations())
+			// TODO: Fix
+			foreach (var currentDestination in new IDestination[] {})
 			{
-				Image destinationImage = currentDestination.DisplayIcon;
+				var destinationImage = currentDestination.Icon;
 				if (destinationImage != null)
 				{
-					imageList.Images.Add(currentDestination.DisplayIcon);
+					// TODO: Fix (Recreate in WPF!)
+					//imageList.Images.Add(destinationImage.ToBitmap());
 					imageNr++;
 				}
 				if (BuildInDestinationEnum.Picker.ToString().Equals(currentDestination.Designation))
 				{
 					checkbox_picker.Checked = coreConfiguration.OutputDestinations.Contains(currentDestination.Designation);
-					checkbox_picker.Text = currentDestination.Description;
+					checkbox_picker.Text = currentDestination.Text;
 				}
 				else
 				{
 					ListViewItem item;
 					if (destinationImage != null)
 					{
-						item = listview_destinations.Items.Add(currentDestination.Description, imageNr);
+						item = listview_destinations.Items.Add(currentDestination.Text, imageNr);
 					}
 					else
 					{
-						item = listview_destinations.Items.Add(currentDestination.Description);
+						item = listview_destinations.Items.Add(currentDestination.Text);
 					}
 					item.Tag = currentDestination;
 					item.Checked = coreConfiguration.OutputDestinations.Contains(currentDestination.Designation);
@@ -523,7 +525,7 @@ namespace Greenshot.Forms
 			{
 				ListViewItem item = listview_destinations.Items[index];
 
-				ILegacyDestination destinationFromTag = item.Tag as ILegacyDestination;
+				var destinationFromTag = item.Tag as IDestination;
 				if (item.Checked && destinationFromTag != null)
 				{
 					destinations.Add(destinationFromTag.Designation);
@@ -778,20 +780,16 @@ namespace Greenshot.Forms
 			ListViewItem l1 = (ListViewItem) x;
 			ListViewItem l2 = (ListViewItem) y;
 
-			ILegacyDestination firstDestination = l1.Tag as ILegacyDestination;
-			ILegacyDestination secondDestination = l2.Tag as ILegacyDestination;
+			var firstDestination = l1.Tag as IDestination;
+			var secondDestination = l2.Tag as IDestination;
 
 			if (secondDestination == null)
 			{
 				return 1;
 			}
-			if (firstDestination != null && firstDestination.Priority == secondDestination.Priority)
+			if (firstDestination != null && firstDestination.IsEnabled == secondDestination.IsEnabled)
 			{
-				return String.Compare(firstDestination.Description, secondDestination.Description, StringComparison.Ordinal);
-			}
-			if (firstDestination != null)
-			{
-				return firstDestination.Priority - secondDestination.Priority;
+				return string.Compare(firstDestination.Text, secondDestination.Text, StringComparison.Ordinal);
 			}
 			return 0;
 		}
