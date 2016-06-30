@@ -100,7 +100,7 @@ namespace Greenshot.Addon.Interfaces
 		/// Crops the capture to the specified rectangle (with Bitmap coordinates!)
 		/// </summary>
 		/// <param name="cropRectangle">Rectangle with bitmap coordinates</param>
-		bool Crop(Rectangle cropRectangle);
+		bool ApplyCrop(Rectangle cropRectangle);
 
 		/// <summary>
 		/// Apply a translate to the mouse location. e.g. needed for crop

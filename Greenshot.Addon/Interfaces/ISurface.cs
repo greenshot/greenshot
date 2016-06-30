@@ -34,6 +34,8 @@ namespace Greenshot.Addon.Interfaces
 			set;
 		}
 
+		IDrawableContainerList Elements { get; }
+
 		/// <summary>
 		/// The background here is the captured image.
 		/// This is called from the SurfaceBackgroundChangeMemento.
@@ -76,10 +78,32 @@ namespace Greenshot.Addon.Interfaces
 		void CopySelectedElements();
 		void PasteElementFromClipboard();
 		void DuplicateSelectedElements();
-		void DeselectElement(IDrawableContainer container);
+		void DeselectElement(IDrawableContainer container, bool generateEvents = true);
 		void DeselectAllElements();
-		void SelectElement(IDrawableContainer container);
 
+		/// <summary>
+		/// Add an element to the surface
+		/// </summary>
+		/// <param name="elements">IDrawableContainerList</param>
+		/// <param name="makeUndoable">Should it be placed on the undo stack?</param>
+		void AddElements(IDrawableContainerList elements, bool makeUndoable = true);
+		void RemoveElements(IDrawableContainerList elements, bool makeUndoable = true);
+		void SelectElements(IDrawableContainerList elements);
+
+		/// <summary>
+		/// Add an element to the surface
+		/// </summary>
+		/// <param name="element">IDrawableContainer</param>
+		/// <param name="makeUndoable">Should it be placed on the undo stack?</param>
+		/// <param name="invalidate">Should it be invalidated (draw)</param>
+		void AddElement(IDrawableContainer element, bool makeUndoable = true, bool invalidate = true);
+
+		/// <summary>
+		/// Select the supplied container
+		/// </summary>
+		/// <param name="container">IDrawableContainer</param>
+		/// <param name="invalidate">false to skip invalidation</param>
+		void SelectElement(IDrawableContainer container, bool invalidate = true, bool generateEvents = true);
 		/// <summary>
 		/// Is the supplied container "on" the surface?
 		/// </summary>
@@ -89,7 +113,6 @@ namespace Greenshot.Addon.Interfaces
 
 		void Invalidate(Rectangle rectangleToInvalidate);
 		void Invalidate();
-
 		string LastSaveFullPath
 		{
 			get;
@@ -101,9 +124,15 @@ namespace Greenshot.Addon.Interfaces
 			get;
 			set;
 		}
+		/// <summary>
+		/// Remove an element of the elements list
+		/// </summary>
+		/// <param name="elementToRemove">Element to remove</param>
+		/// <param name="makeUndoable">flag specifying if the remove needs to be undoable</param>
+		/// <param name="invalidate">flag specifying if an surface invalidate needs to be called</param>
+		/// <param name="generateEvents">flag specifying if the deselect needs to generate an event</param>
+		void RemoveElement(IDrawableContainer elementToRemove, bool makeUndoable = true, bool invalidate = true, bool generateEvents = true);
 
-		void AddElement(IDrawableContainer elementToAdd, bool makeUndoable);
-		void RemoveElement(IDrawableContainer elementToRemove, bool makeUndoable);
 		Task ApplyBitmapEffectAsync(IEffect effect, CancellationToken token = default(CancellationToken));
 		void RemoveCursor();
 
@@ -117,5 +146,9 @@ namespace Greenshot.Addon.Interfaces
 			get;
 			set;
 		}
+		int Width { get; }
+		int Height { get; }
+
+		void MakeUndoable(IMemento memento, bool allowMerge);
 	}
 }

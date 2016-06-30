@@ -21,7 +21,9 @@
 
 using System.Collections.Generic;
 using System.Drawing;
+using Greenshot.Addon.Editor.Drawing;
 using Greenshot.Addon.Editor.Helpers;
+using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Drawing;
 
 namespace Greenshot.Addon.Editor.Memento
@@ -33,7 +35,7 @@ namespace Greenshot.Addon.Editor.Memento
 	{
 		private IList<Point> _points = new List<Point>();
 		private IList<Size> _sizes = new List<Size>();
-		private IList<IDrawableContainer> _listOfdrawableContainer;
+		private IDrawableContainerList _listOfdrawableContainer;
 
 		private void StoreBounds()
 		{
@@ -44,7 +46,7 @@ namespace Greenshot.Addon.Editor.Memento
 			}
 		}
 
-		public DrawableContainerBoundsChangeMemento(IList<IDrawableContainer> listOfdrawableContainer)
+		public DrawableContainerBoundsChangeMemento(IDrawableContainerList listOfdrawableContainer)
 		{
 			_listOfdrawableContainer = listOfdrawableContainer;
 			StoreBounds();
@@ -52,17 +54,9 @@ namespace Greenshot.Addon.Editor.Memento
 
 		public DrawableContainerBoundsChangeMemento(IDrawableContainer drawableContainer)
 		{
-			_listOfdrawableContainer = new List<IDrawableContainer>();
-			_listOfdrawableContainer.Add(drawableContainer);
+			_listOfdrawableContainer = new DrawableContainerList {drawableContainer};
+			_listOfdrawableContainer.Parent = drawableContainer.Parent;
 			StoreBounds();
-		}
-
-		public string ActionDescription
-		{
-			get
-			{
-				return "";
-			}
 		}
 
 		public bool Merge(IMemento otherMemento)
@@ -81,7 +75,7 @@ namespace Greenshot.Addon.Editor.Memento
 
 		public IMemento Restore()
 		{
-			DrawableContainerBoundsChangeMemento oldState = new DrawableContainerBoundsChangeMemento(_listOfdrawableContainer);
+			var oldState = new DrawableContainerBoundsChangeMemento(_listOfdrawableContainer);
 			for (int index = 0; index < _listOfdrawableContainer.Count; index++)
 			{
 				IDrawableContainer drawableContainer = _listOfdrawableContainer[index];

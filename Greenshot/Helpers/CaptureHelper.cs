@@ -1149,7 +1149,7 @@ namespace Greenshot.Helpers
 				if (_captureRect.Height > 0 && _captureRect.Width > 0)
 				{
 					// Take the captureRect, this already is specified as bitmap coordinates
-					_capture.Crop(_captureRect);
+					_capture.ApplyCrop(_captureRect);
 
 					// save for re-capturing later and show recapture context menu option
 					// Important here is that the location needs to be offsetted back to screen coordinates!

@@ -100,6 +100,7 @@ namespace Greenshot.Addon.Editor.Drawing
 
 		public EllipseContainer(Surface parent) : base(parent)
 		{
+			CreateDefaultAdorners();
 		}
 
 		public override void Draw(Graphics graphics, RenderMode renderMode)
@@ -115,9 +116,13 @@ namespace Greenshot.Addon.Editor.Drawing
 		/// <summary>
 		/// This allows another container to draw an ellipse
 		/// </summary>
-		/// <param name="caller"></param>
+		/// <param name="rect"></param>
 		/// <param name="graphics"></param>
 		/// <param name="renderMode"></param>
+		/// <param name="lineThickness"></param>
+		/// <param name="lineColor"></param>
+		/// <param name="fillColor"></param>
+		/// <param name="shadow"></param>
 		public static void DrawEllipse(Rectangle rect, Graphics graphics, RenderMode renderMode, int lineThickness, Color lineColor, Color fillColor, bool shadow)
 		{
 			bool lineVisible = (lineThickness > 0 && ColorHelper.IsVisible(lineColor));

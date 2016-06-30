@@ -25,6 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Dapplo.Addons;
+using Dapplo.Log.Facade;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 
@@ -37,10 +38,17 @@ namespace Greenshot.Addon.WindowsShare
 	[StartupAction]
     public class SharePlugin : IGreenshotPlugin, IStartupAction
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(SharePlugin));
+		private static readonly LogSource Log = new LogSource();
 
 		[Import]
 		private IServiceLocator ServiceLocator
+		{
+			get;
+			set;
+		}
+
+		[Import]
+		private IServiceExporter ServiceExporter
 		{
 			get;
 			set;
@@ -63,12 +71,13 @@ namespace Greenshot.Addon.WindowsShare
 				WindowsRuntimeMarshal.GetActivationFactory(typeof(DataTransferManager));
 				var shareDestination = new ShareDestination();
 				ServiceLocator.FillImports(shareDestination);
-				ServiceLocator.Export<IDestination>(shareDestination);
+
+				ServiceExporter.Export<IDestination>(shareDestination);
 			}
 			catch
 			{
 				// Ignore
-				Log.Information("Share button disabled.");
+				Log.Info().WriteLine("Share button disabled.");
 			}			
 			return Task.FromResult(true);
 		}

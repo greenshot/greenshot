@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Drawing;
 
 namespace Greenshot.Addon.Editor.Memento
@@ -35,14 +36,6 @@ namespace Greenshot.Addon.Editor.Memento
 		{
 			_textContainer = textContainer;
 			_oldText = textContainer.Text;
-		}
-
-		public string ActionDescription
-		{
-			get
-			{
-				return "";
-			}
 		}
 
 		public bool Merge(IMemento otherMemento)

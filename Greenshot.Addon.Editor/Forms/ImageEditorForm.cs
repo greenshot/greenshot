@@ -68,7 +68,7 @@ namespace Greenshot.Addon.Editor.Forms
 
 		private static readonly string[] SupportedClipboardFormats =
 		{
-			typeof (string).FullName, "Text", typeof (DrawableContainerList).FullName
+			typeof (string).FullName, "Text", typeof (IDrawableContainerList).FullName
 		};
 
 		private readonly List<BidirectionalBinding> _bindings = new List<BidirectionalBinding>();
@@ -95,7 +95,7 @@ namespace Greenshot.Addon.Editor.Forms
 			{
 				try
 				{
-					editorList.Sort((e1, e2) => String.Compare(e1.Surface.CaptureDetails.Title, e2.Surface.CaptureDetails.Title, StringComparison.Ordinal));
+					editorList.Sort((e1, e2) => string.Compare(e1.Surface.CaptureDetails.Title, e2.Surface.CaptureDetails.Title, StringComparison.Ordinal));
 				}
 				catch (Exception ex)
 				{
@@ -158,7 +158,6 @@ namespace Greenshot.Addon.Editor.Forms
 			invertToolStripMenuItem.Click += async (sender, e) => await InvertToolStripMenuItemClickAsync();
 			btnResize.Click += async (sender, e) => await BtnResizeClickAsync();
 			rotateCcwToolstripButton.Click += async (sender, e) => await RotateCcwToolstripButtonClickAsync();
-
 
 			// Make sure the editor is placed on the same location as the last editor was on close
 			new WindowDetails(Handle).WindowPlacement = GetEditorPlacement();
@@ -312,10 +311,13 @@ namespace Greenshot.Addon.Editor.Forms
 						continue;
 					}
 					// Calculate the rectangle
-					Rectangle r = new Rectangle(cb.ComboBox.Location.X - 1, cb.ComboBox.Location.Y - 1, cb.ComboBox.Size.Width + 1, cb.ComboBox.Size.Height + 1);
+					if (cb.ComboBox != null)
+					{
+						Rectangle r = new Rectangle(cb.ComboBox.Location.X - 1, cb.ComboBox.Location.Y - 1, cb.ComboBox.Size.Width + 1, cb.ComboBox.Size.Height + 1);
 
-					// Draw the rectangle
-					e.Graphics.DrawRectangle(cbBorderPen, r);
+						// Draw the rectangle
+						e.Graphics.DrawRectangle(cbBorderPen, r);
+					}
 				}
 			}
 		}
@@ -949,6 +951,12 @@ namespace Greenshot.Addon.Editor.Forms
 					case Keys.OemPeriod: // Rotate CW Ctrl + .
 						await RotateCwToolstripButtonClickAsync(token);
 						break;
+					case Keys.Add:    // Ctrl + +
+						await EnlargeCanvasToolStripMenuItemClickAsync(token);
+						break;
+					case Keys.Subtract:    // Ctrl + -
+						ShrinkCanvasToolStripMenuItemClick(sender, e);
+						break;
 				}
 			}
 		}
@@ -1027,14 +1035,16 @@ namespace Greenshot.Addon.Editor.Forms
 			bool canUndo = _surface.CanUndo;
 			btnUndo.Enabled = canUndo;
 			undoToolStripMenuItem.Enabled = canUndo;
-			string undoText = string.Format(editorLanguage.EditorUndo, _surface.UndoActionLanguageKey);
+			// TODO: Include redo action
+			string undoText = string.Format(editorLanguage.EditorUndo, "");
 			btnUndo.Text = undoText;
 			undoToolStripMenuItem.Text = undoText;
 
 			bool canRedo = _surface.CanRedo;
 			btnRedo.Enabled = canRedo;
 			redoToolStripMenuItem.Enabled = canRedo;
-			string redoText = string.Format(editorLanguage.EditorRedo, _surface.RedoActionLanguageKey);
+			// TODO: Include redo action
+			string redoText = string.Format(editorLanguage.EditorRedo, "");
 			btnRedo.Text = redoText;
 			redoToolStripMenuItem.Text = redoText;
 		}
@@ -1253,8 +1263,14 @@ namespace Greenshot.Addon.Editor.Forms
 		private void FontPropertyChanged(object sender, EventArgs e)
 		{
 			// in case we forced another FontStyle before, reset it first.
-			fontBoldButton.Checked = _originalBoldCheckState;
-			fontItalicButton.Checked = _originalItalicCheckState;
+			if (fontBoldButton != null && _originalBoldCheckState != fontBoldButton.Checked)
+			{
+				fontBoldButton.Checked = _originalBoldCheckState;
+			}
+			if (fontItalicButton != null && _originalItalicCheckState != fontItalicButton.Checked)
+			{
+				fontItalicButton.Checked = _originalItalicCheckState;
+			}
 
 			FontFamily fam = fontFamilyComboBox.FontFamily;
 
@@ -1452,6 +1468,34 @@ namespace Greenshot.Addon.Editor.Forms
 		{
 			await _surface.ApplyBitmapEffectAsync(new BorderEffect(), token);
 			UpdateUndoRedoSurfaceDependencies();
+		}
+
+		/// <summary>
+		/// Added for FEATURE-919, increasing the canvas by 25 pixels in every direction.
+		/// </summary>
+		private async Task EnlargeCanvasToolStripMenuItemClickAsync(CancellationToken token = default(CancellationToken))
+		{
+			await _surface.ApplyBitmapEffectAsync(new ResizeCanvasEffect(25, 25, 25, 25), token);
+			UpdateUndoRedoSurfaceDependencies();
+		}
+
+		/// <summary>
+		/// Added for FEATURE-919, to make the capture as small as possible again.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void ShrinkCanvasToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			Rectangle cropRectangle;
+			using (Image tmpImage = Surface.GetImageForExport())
+			{
+				cropRectangle = ImageHelper.FindAutoCropRectangle(tmpImage, editorConfiguration.AutoCropDifference);
+			}
+			if (_surface.IsCropPossible(ref cropRectangle))
+			{
+				_surface.ApplyCrop(cropRectangle);
+				UpdateUndoRedoSurfaceDependencies();
+			}
 		}
 
 		/// <summary>

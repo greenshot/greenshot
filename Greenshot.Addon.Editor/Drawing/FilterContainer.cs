@@ -22,6 +22,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Runtime.Serialization;
 using Greenshot.Addon.Editor.Drawing.Filters;
 using Greenshot.Addon.Editor.Helpers;
 using Greenshot.Addon.Extensions;
@@ -101,6 +102,18 @@ namespace Greenshot.Addon.Editor.Drawing
 
 		public FilterContainer(Surface parent) : base(parent)
 		{
+			Init();
+		}
+
+		protected override void OnDeserialized(StreamingContext streamingContext)
+		{
+			base.OnDeserialized(streamingContext);
+			Init();
+		}
+
+		private void Init()
+		{
+			CreateDefaultAdorners();
 		}
 
 		protected void ConfigurePreparedFilters()

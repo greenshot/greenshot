@@ -51,12 +51,17 @@ namespace Greenshot.Addon.Editor.Drawing
 
 		public ObfuscateContainer(Surface parent) : base(parent)
 		{
+			Init();
 		}
 
-		[OnDeserialized]
-		private void OnDeserialized(StreamingContext context)
+		protected override void OnDeserialized(StreamingContext context)
 		{
+			Init();
+		}
+		
+		private void Init() {
 			ConfigurePreparedFilters();
+			CreateDefaultAdorners();
 		}
 	}
 }

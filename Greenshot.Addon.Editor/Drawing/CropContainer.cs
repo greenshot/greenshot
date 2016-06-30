@@ -20,6 +20,7 @@
  */
 
 using System.Drawing;
+using System.Runtime.Serialization;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces.Drawing;
 
@@ -33,11 +34,23 @@ namespace Greenshot.Addon.Editor.Drawing
 	{
 		public CropContainer(Surface parent) : base(parent)
 		{
+			Init();
+		}
+
+		protected override void OnDeserialized(StreamingContext streamingContext)
+		{
+			base.OnDeserialized(streamingContext);
+			Init();
+		}
+
+		private void Init()
+		{
+			CreateDefaultAdorners();
 		}
 
 		public override void Invalidate()
 		{
-			_parent.Invalidate();
+			_parent?.Invalidate();
 		}
 
 		/// <summary>
@@ -54,6 +67,10 @@ namespace Greenshot.Addon.Editor.Drawing
 
 		public override void Draw(Graphics g, RenderMode rm)
 		{
+			if (_parent == null)
+			{
+				return;
+			}
 			using (Brush cropBrush = new SolidBrush(Color.FromArgb(100, 150, 150, 100)))
 			{
 				Rectangle cropRectangle = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();

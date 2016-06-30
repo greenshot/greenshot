@@ -22,6 +22,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Runtime.Serialization;
 using Greenshot.Addon.Editor.Helpers;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces.Drawing;
@@ -100,6 +101,22 @@ namespace Greenshot.Addon.Editor.Drawing
 
 		public RectangleContainer(Surface parent) : base(parent)
 		{
+			Init();
+		}
+
+		/// <summary>
+		/// Do some logic to make sure all field are initiated correctly
+		/// </summary>
+		/// <param name="streamingContext">StreamingContext</param>
+		protected override void OnDeserialized(StreamingContext streamingContext)
+		{
+			base.OnDeserialized(streamingContext);
+			Init();
+		}
+
+		private void Init()
+		{
+			CreateDefaultAdorners();
 		}
 
 

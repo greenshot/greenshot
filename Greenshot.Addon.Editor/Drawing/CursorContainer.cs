@@ -23,6 +23,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Windows.Forms;
 using Greenshot.Addon.Interfaces.Drawing;
 using Dapplo.Log.Facade;
@@ -41,6 +42,18 @@ namespace Greenshot.Addon.Editor.Drawing
 
 		public CursorContainer(Surface parent) : base(parent)
 		{
+			Init();
+		}
+
+		protected override void OnDeserialized(StreamingContext streamingContext)
+		{
+			base.OnDeserialized(streamingContext);
+			Init();
+		}
+
+		private void Init()
+		{
+			CreateDefaultAdorners();
 		}
 
 		public CursorContainer(Surface parent, string filename) : base(parent)

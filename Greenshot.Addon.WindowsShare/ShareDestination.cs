@@ -28,6 +28,7 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using Windows.Storage.Streams;
+using Dapplo.Log.Facade;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
@@ -42,7 +43,7 @@ namespace Greenshot.Addon.WindowsShare
 	public sealed class ShareDestination : AbstractDestination
 	{
 		private const string ShareDesignation = "Share";
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(ShareDestination));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly BitmapSource ShareIcon;
 
 		static ShareDestination()
@@ -111,14 +112,14 @@ namespace Greenshot.Addon.WindowsShare
 						var dataTransferManagerHelper = new DataTransferManagerHelper(handle);
 						dataTransferManagerHelper.DataTransferManager.TargetApplicationChosen += (dtm, args) =>
 						{
-							Log.Debug("Exported to {0}", args.ApplicationName);
+							Log.Debug().WriteLine("Exported to {0}", args.ApplicationName);
 						};
 						dataTransferManagerHelper.DataTransferManager.DataRequested += (sender, args) =>
 						{
 							var deferral = args.Request.GetDeferral();
 							args.Request.Data.OperationCompleted += (dp, eventArgs) =>
 							{
-								Log.Debug("OperationCompleted: {0}", eventArgs.Operation);
+								Log.Debug().WriteLine("OperationCompleted: {0}", eventArgs.Operation);
 							};
 							var dataPackage = args.Request.Data;
 							dataPackage.Properties.Title = "Share";
@@ -128,7 +129,7 @@ namespace Greenshot.Addon.WindowsShare
 							dataPackage.SetBitmap(imageRandomAccessStreamReference);
 							dataPackage.Destroyed += (dp, o) =>
 							{
-								Log.Debug("Destroyed.");
+								Log.Debug().WriteLine("Destroyed.");
 							};
 							deferral.Complete();
 						};
@@ -144,14 +145,14 @@ namespace Greenshot.Addon.WindowsShare
 				returnValue.Text = "Share cancelled.";
 				returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
-				Log.Information(tcEx.Message);
+				Log.Info().WriteLine(tcEx.Message);
 			}
 			catch (Exception e)
 			{
 				returnValue.Text = "Share failed.";
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
-				Log.Warning(e, "Share export failed");
+				Log.Warn().WriteLine(e, "Share export failed");
 			}
 			return returnValue;
         }

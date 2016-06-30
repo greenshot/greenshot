@@ -47,6 +47,12 @@ namespace Greenshot.Addon.Editor.Drawing
 		{
 			parent.AddStepLabel(this);
 			InitContent();
+			Init();
+		}
+
+		private void Init()
+		{
+			CreateDefaultAdorners();
 		}
 
 		[Field(FieldTypes.COUNTER_START)]
@@ -94,9 +100,9 @@ namespace Greenshot.Addon.Editor.Drawing
 		/// Restore values that don't serialize
 		/// </summary>
 		/// <param name="context"></param>
-		[OnDeserialized]
-		private void SetValuesOnDeserialized(StreamingContext context)
+		protected override void OnDeserialized(StreamingContext context)
 		{
+			Init();
 			_stringFormat = new StringFormat();
 			_stringFormat.Alignment = StringAlignment.Center;
 			_stringFormat.LineAlignment = StringAlignment.Center;
@@ -108,15 +114,16 @@ namespace Greenshot.Addon.Editor.Drawing
 		/// <param name="newParent"></param>
 		protected override void SwitchParent(Surface newParent)
 		{
-			if (Parent != null)
+			if (newParent == Parent)
 			{
-				((Surface) Parent).RemoveStepLabel(this);
+				return;
+			}
+			if (Parent != null) {
+				((Surface)Parent).RemoveStepLabel(this);
 			}
 			base.SwitchParent(newParent);
-			if (newParent != null)
-			{
-				var surface = (Surface) Parent;
-				surface?.AddStepLabel(this);
+			if (newParent != null) {
+				((Surface)Parent).AddStepLabel(this);
 			}
 		}
 

@@ -47,20 +47,20 @@
       <HintPath>..\packages\Dapplo.Config.0.3.38\lib\net45\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.HttpExtensions, Version=0.5.20.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.HttpExtensions.0.5.20\lib\net45\Dapplo.HttpExtensions.dll</HintPath>
+    <Reference Include="Dapplo.HttpExtensions, Version=0.5.23.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.HttpExtensions.0.5.23\lib\net45\Dapplo.HttpExtensions.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.InterfaceImpl, Version=0.1.26.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.InterfaceImpl.0.1.26\lib\net45\Dapplo.InterfaceImpl.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Log.Facade, Version=0.4.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Log.Facade.0.4.8\lib\net45\Dapplo.Log.Facade.dll</HintPath>
+    <Reference Include="Dapplo.Log.Facade, Version=0.5.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Log.Facade.0.5.3\lib\net45\Dapplo.Log.Facade.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Utils, Version=0.1.45.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Utils.0.1.45\lib\net45\Dapplo.Utils.dll</HintPath>
+    <Reference Include="Dapplo.Utils, Version=0.1.49.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Utils.0.1.49\lib\net45\Dapplo.Utils.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.Windows, Version=0.1.27.0, Culture=neutral, processorArchitecture=MSIL">
@@ -106,6 +106,10 @@
     <Compile Include="Controls\ToolStripNumericUpDown.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Drawing\Adorners\AbstractAdorner.cs" />
+    <Compile Include="Drawing\Adorners\MoveAdorner.cs" />
+    <Compile Include="Drawing\Adorners\ResizeAdorner.cs" />
+    <Compile Include="Drawing\Adorners\TargetAdorner.cs" />
     <Compile Include="Drawing\ArrowContainer.cs" />
     <Compile Include="Drawing\CropContainer.cs" />
     <Compile Include="Drawing\CursorContainer.cs" />
@@ -132,9 +136,6 @@
     <Compile Include="Drawing\Filters\MagnifierFilter.cs" />
     <Compile Include="Drawing\Filters\PixelizationFilter.cs" />
     <Compile Include="Drawing\FreehandContainer.cs" />
-    <Compile Include="Drawing\Gripper.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Drawing\HighlightContainer.cs" />
     <Compile Include="Drawing\IconContainer.cs" />
     <Compile Include="Drawing\ImageContainer.cs" />
@@ -182,10 +183,11 @@
     <Compile Include="Helpers\ToolStripItemEndisabler.cs" />
     <Compile Include="IEditorConfiguration.cs" />
     <Compile Include="Memento\AddElementMemento.cs" />
+    <Compile Include="Memento\AddElementsMemento.cs" />
     <Compile Include="Memento\ChangeFieldHolderMemento.cs" />
     <Compile Include="Memento\DeleteElementMemento.cs" />
+    <Compile Include="Memento\DeleteElementsMemento.cs" />
     <Compile Include="Memento\DrawableContainerBoundsChangeMemento.cs" />
-    <Compile Include="Memento\IMemento.cs" />
     <Compile Include="Memento\SurfaceBackgroundChangeMemento.cs" />
     <Compile Include="Memento\TextChangeMemento.cs" />
     <Compile Include="Helpers\Objects.cs" />

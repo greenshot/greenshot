@@ -23,6 +23,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
+using Greenshot.Addon.Editor.Drawing.Adorners;
 using Greenshot.Addon.Editor.Helpers;
 using Greenshot.Addon.Interfaces.Drawing;
 
@@ -89,26 +90,15 @@ namespace Greenshot.Addon.Editor.Drawing
 			Init();
 		}
 
-		[OnDeserialized]
-		private void OnDeserialized(StreamingContext context)
+		protected override void OnDeserialized(StreamingContext context)
 		{
-			InitGrippers();
-			DoLayout();
 			Init();
 		}
 
 		protected void Init()
 		{
-			if (Grippers != null)
-			{
-				foreach (int index in new[]
-				{
-					1, 2, 3, 5, 6, 7
-				})
-				{
-					Grippers[index].Enabled = false;
-				}
-			}
+			Adorners.Add(new MoveAdorner(this, Positions.TopLeft));
+			Adorners.Add(new MoveAdorner(this, Positions.BottomRight));
 		}
 
 		public override void Draw(Graphics graphics, RenderMode rm)

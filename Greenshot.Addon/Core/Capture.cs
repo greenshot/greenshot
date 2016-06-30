@@ -227,7 +227,7 @@ namespace Greenshot.Addon.Core
 		/// Crops the capture to the specified rectangle (with Bitmap coordinates!)
 		/// </summary>
 		/// <param name="cropRectangle">Rectangle with bitmap coordinates</param>
-		public bool Crop(Rectangle cropRectangle)
+		public bool ApplyCrop(Rectangle cropRectangle)
 		{
 			Log.Debug().WriteLine("Cropping to: {0}", cropRectangle);
 			if (ImageHelper.Crop(ref _image, ref cropRectangle))

@@ -109,15 +109,14 @@ EndSelection:<<<<<<<4
 		private static string GetClipboardOwner()
 		{
 			string owner = null;
-			try
-			{
+			try {
 				IntPtr hWnd = User32.GetClipboardOwner();
-				if (hWnd != IntPtr.Zero)
-				{
-					int pid;
-					User32.GetWindowThreadProcessId(hWnd, out pid);
-					using (Process me = Process.GetCurrentProcess())
+				if (hWnd != IntPtr.Zero) {
+					try
 					{
+						int pid;
+						User32.GetWindowThreadProcessId(hWnd, out pid);
+						using (Process me = Process.GetCurrentProcess())
 						using (Process ownerProcess = Process.GetProcessById(pid))
 						{
 							// Exclude myself
@@ -136,11 +135,16 @@ EndSelection:<<<<<<<4
 							}
 						}
 					}
+					catch(Exception e)
+					{
+						Log.Warn().WriteLine(e, "Non critical error: Couldn't get clipboard process, trying to use the title.");
+						StringBuilder title = new StringBuilder(260, 260);
+						User32.GetWindowText(hWnd, title, title.Capacity);
+						owner = title.ToString();
+					}
 				}
-			}
-			catch (Exception e)
-			{
-				Log.Warn().WriteLine("Non critical error: Couldn't get clipboard owner.", e);
+			} catch (Exception e) {
+				Log.Warn().WriteLine(e, "Non critical error: Couldn't get clipboard owner.");
 			}
 			return owner;
 		}
@@ -153,41 +157,33 @@ EndSelection:<<<<<<<4
 		/// <param name="copy"></param>
 		private static void SetDataObject(IDataObject ido, bool copy)
 		{
-			lock (clipboardLockObject)
-			{
-				int retryCount = 5;
-				while (retryCount >= 0)
+			lock (clipboardLockObject) {
+				// Clear first, this seems to solve some issues
+				try
 				{
-					try
+					Clipboard.Clear();
+				}
+				catch (Exception clearException)
+				{
+					Log.Warn().WriteLine(clearException.Message);
+				}
+				try
+				{
+					// For BUG-1935 this was changed from looping ourselfs, or letting MS retry...
+					Clipboard.SetDataObject(ido, copy, 15, 200);
+				}
+				catch (Exception clipboardSetException)
+				{
+					string messageText = null;
+					string clipboardOwner = GetClipboardOwner();
+					if (clipboardOwner != null)
 					{
-						PluginUtils.Host.MainMenu.Invoke(new Action(() => Clipboard.SetDataObject(ido, copy)), null);
-						break;
+						messageText = string.Format(language.ClipboardInuse, clipboardOwner);
 					}
-					catch (Exception ee)
-					{
-						if (retryCount == 0)
-						{
-							string messageText = null;
-							string clipboardOwner = GetClipboardOwner();
-							if (clipboardOwner != null)
-							{
-								messageText = string.Format(language.ClipboardInuse, clipboardOwner);
-							}
-							else
-							{
-								messageText = language.ClipboardError;
-							}
-							Log.Error().WriteLine(ee, messageText);
-						}
-						else
-						{
-							Thread.Sleep(100);
-						}
+					else {
+						messageText = string.Format(language.ClipboardError, clipboardOwner);
 					}
-					finally
-					{
-						--retryCount;
-					}
+					Log.Error().WriteLine(clipboardSetException, messageText);
 				}
 			}
 		}

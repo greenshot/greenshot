@@ -26,6 +26,8 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Greenshot.Addon.Interfaces.Drawing
@@ -262,6 +264,7 @@ namespace Greenshot.Addon.Interfaces.Drawing
 		ISurface Parent
 		{
 			get;
+			set;
 		}
 
 		bool Selected
@@ -314,6 +317,8 @@ namespace Greenshot.Addon.Interfaces.Drawing
 			get;
 		}
 
+		void ApplyBounds(RectangleF newBounds);
+
 		bool HasFilters
 		{
 			get;
@@ -332,8 +337,6 @@ namespace Greenshot.Addon.Interfaces.Drawing
 
 		void AlignToParent(HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment);
 		bool ClickableAt(int x, int y);
-		void HideGrippers();
-		void ShowGrippers();
 		void MoveBy(int x, int y);
 		void Transform(Matrix matrix);
 		bool HandleMouseDown(int x, int y);
@@ -346,6 +349,53 @@ namespace Greenshot.Addon.Interfaces.Drawing
 		{
 			get;
 		}
+
+		/// <summary>
+		/// Available adorners for the DrawableContainer
+		/// </summary>
+		IList<IAdorner> Adorners { get; }
+	}
+
+	public interface IDrawableContainerList : IList<IDrawableContainer>, IDisposable
+	{
+		Guid ParentID
+		{
+			get;
+		}
+
+		bool Selected
+		{
+			get;
+			set;
+		}
+
+		ISurface Parent
+		{
+			get;
+			set;
+		}
+		EditStatus Status
+		{
+			get;
+			set;
+		}
+		void MakeBoundsChangeUndoable(bool allowMerge);
+		void Transform(Matrix matrix);
+		void MoveBy(int dx, int dy);
+		bool ClickableAt(int x, int y);
+		IDrawableContainer ClickableElementAt(int x, int y);
+		void OnDoubleClick();
+		bool HasIntersectingFilters(Rectangle clipRectangle);
+		bool IntersectsWith(Rectangle clipRectangle);
+		void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode, Rectangle clipRectangle);
+		void Invalidate();
+		void PullElementsToTop(IDrawableContainerList elements);
+		bool CanPushDown(IDrawableContainerList elements);
+		void PullElementsUp(IDrawableContainerList elements);
+		bool CanPullUp(IDrawableContainerList elements);
+		void PushElementsDown(IDrawableContainerList elements);
+		void PushElementsToBottom(IDrawableContainerList elements);
+		Task ShowContextMenuAsync(MouseEventArgs e, ISurface surface, CancellationToken token = default(CancellationToken));
 	}
 
 	public interface ITextContainer : IDrawableContainer

@@ -44,38 +44,30 @@ namespace Greenshot.Addon.Editor.Drawing
 		private Point _storedTargetGripperLocation;
 
 		/// <summary>
-		/// Store the current location of the target gripper
+		/// Store the current location of the target adorner
 		/// </summary>
 		/// <param name="context"></param>
 		[OnSerializing]
 		private void SetValuesOnSerializing(StreamingContext context)
 		{
-			if (TargetGripper != null)
-			{
-				_storedTargetGripperLocation = TargetGripper.Location;
+			if (TargetAdorner != null) {
+				_storedTargetGripperLocation = TargetAdorner.Location;
 			}
 		}
 
 		/// <summary>
-		/// Restore the target gripper
+		/// Restore the target adorner
 		/// </summary>
 		/// <param name="context"></param>
-		[OnDeserialized]
-		private void SetValuesOnDeserialized(StreamingContext context)
+		protected override void OnDeserialized(StreamingContext context)
 		{
-			InitTargetGripper(Color.Green, _storedTargetGripperLocation);
+			InitAdorner(Color.Green, _storedTargetGripperLocation);
 		}
-
 		#endregion
+
 
 		public SpeechbubbleContainer(Surface parent) : base(parent)
 		{
-		}
-
-		protected override void TargetGripperMove(int absX, int absY)
-		{
-			base.TargetGripperMove(absX, absY);
-			Invalidate();
 		}
 
 		/// <summary>
@@ -84,10 +76,9 @@ namespace Greenshot.Addon.Editor.Drawing
 		/// <returns>true if the surface doesn't need to handle the event</returns>
 		public override bool HandleMouseDown(int mouseX, int mouseY)
 		{
-			if (TargetGripper == null)
-			{
+			if (TargetAdorner == null) {
 				_initialGripperPoint = new Point(mouseX, mouseY);
-				InitTargetGripper(Color.Green, _initialGripperPoint);
+				InitAdorner(Color.Green, new Point(mouseX, mouseY));
 			}
 			return base.HandleMouseDown(mouseX, mouseY);
 		}
@@ -112,10 +103,9 @@ namespace Greenshot.Addon.Editor.Drawing
 			var newGripperLocation = _initialGripperPoint;
 			newGripperLocation.Offset(xOffset, yOffset);
 
-			if (TargetGripper.Location != newGripperLocation)
-			{
+			if (TargetAdorner.Location != newGripperLocation) {
 				Invalidate();
-				TargetGripperMove(newGripperLocation.X, newGripperLocation.Y);
+				TargetAdorner.Location = newGripperLocation;
 				Invalidate();
 			}
 			return returnValue;
@@ -185,7 +175,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		{
 			var rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
 
-			var tailLength = GeometryHelper.Distance2D(rect.Left + (rect.Width/2), rect.Top + (rect.Height/2), TargetGripper.Left, TargetGripper.Top);
+			var tailLength = GeometryHelper.Distance2D(rect.Left + (rect.Width / 2), rect.Top + (rect.Height / 2), TargetAdorner.Location.X, TargetAdorner.Location.Y);
 			var tailWidth = (Math.Abs(rect.Width) + Math.Abs(rect.Height))/20;
 
 			// This should fix a problem with the tail being to wide
@@ -197,11 +187,11 @@ namespace Greenshot.Addon.Editor.Drawing
 			tail.AddLine(tailWidth, 0, 0, -tailLength);
 			tail.CloseFigure();
 
-			var tailAngle = 90 + (int) GeometryHelper.Angle2D(rect.Left + (rect.Width/2), rect.Top + (rect.Height/2), TargetGripper.Left, TargetGripper.Top);
+			var tailAngle = 90 + (int)GeometryHelper.Angle2D(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2, TargetAdorner.Location.X, TargetAdorner.Location.Y);
 
 			using (var tailMatrix = new Matrix())
 			{
-				tailMatrix.Translate(rect.Left + (rect.Width/2), rect.Top + (rect.Height/2));
+				tailMatrix.Translate(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
 				tailMatrix.Rotate(tailAngle);
 				tail.Transform(tailMatrix);
 			}
@@ -216,7 +206,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		/// <param name="renderMode"></param>
 		public override void Draw(Graphics graphics, RenderMode renderMode)
 		{
-			if (TargetGripper == null)
+			if (TargetAdorner == null)
 			{
 				return;
 			}

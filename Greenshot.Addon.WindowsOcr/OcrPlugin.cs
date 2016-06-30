@@ -25,6 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Dapplo.Addons;
+using Dapplo.Log.Facade;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 
@@ -37,10 +38,17 @@ namespace Greenshot.Addon.WindowsOcr
 	[StartupAction]
     public class OcrPlugin : IGreenshotPlugin, IStartupAction
 	{
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(OcrPlugin));
+		private static readonly LogSource Log = new LogSource();
 
 		[Import]
 		private IServiceLocator ServiceLocator
+		{
+			get;
+			set;
+		}
+
+		[Import]
+		private IServiceExporter ServiceExporter
 		{
 			get;
 			set;
@@ -63,12 +71,12 @@ namespace Greenshot.Addon.WindowsOcr
 				WindowsRuntimeMarshal.GetActivationFactory(typeof(DataTransferManager));
 				var ocrDestination = new OcrDestination();
 				ServiceLocator.FillImports(ocrDestination);
-				ServiceLocator.Export<IDestination>(ocrDestination);
+				ServiceExporter.Export<IDestination>(ocrDestination);
 			}
 			catch
 			{
 				// Ignore
-				Log.Information("Windows.Ocr disabled.");
+				Log.Info().WriteLine("Windows.Ocr disabled.");
 			}			
 			return Task.FromResult(true);
 		}

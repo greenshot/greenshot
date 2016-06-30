@@ -26,6 +26,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
+using Dapplo.Log.Facade;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
@@ -38,7 +39,7 @@ namespace Greenshot.Addon.WindowsOcr
 	public sealed class OcrDestination : AbstractDestination
 	{
 		private const string OcrDesignation = "Ocr";
-		private static readonly Serilog.ILogger Log = Serilog.Log.Logger.ForContext(typeof(OcrDestination));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly System.Windows.Media.Imaging.BitmapSource OcrIcon;
 
 		static OcrDestination()
@@ -71,7 +72,7 @@ namespace Greenshot.Addon.WindowsOcr
 			var languages = OcrEngine.AvailableRecognizerLanguages;
 			foreach (var language in languages)
 			{
-				Log.Information("Found language {0} {1}", language.NativeName, language.LanguageTag);
+				Log.Info().WriteLine("Found language {0} {1}", language.NativeName, language.LanguageTag);
 			}
 		}
 
@@ -105,14 +106,14 @@ namespace Greenshot.Addon.WindowsOcr
 				returnValue.Text = "Share cancelled.";
 				returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
-				Log.Information(tcEx.Message);
+				Log.Info().WriteLine(tcEx.Message);
 			}
 			catch (Exception e)
 			{
 				returnValue.Text = "Share failed.";
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
-				Log.Warning(e, "Share export failed");
+				Log.Warn().WriteLine(e, "Share export failed");
 			}
 			return returnValue;
         }

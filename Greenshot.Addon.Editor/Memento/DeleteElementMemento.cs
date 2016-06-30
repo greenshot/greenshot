@@ -38,15 +38,6 @@ namespace Greenshot.Addon.Editor.Memento
 			_drawableContainer = drawableContainer;
 		}
 
-		public string ActionDescription
-		{
-			get
-			{
-				//return LangKey.editor_deleteelement;
-				return "";
-			}
-		}
-
 		public bool Merge(IMemento otherMemento)
 		{
 			return false;

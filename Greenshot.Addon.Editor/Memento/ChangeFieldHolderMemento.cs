@@ -20,6 +20,7 @@
  */
 
 using System;
+using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Drawing;
 
 namespace Greenshot.Addon.Editor.Memento
@@ -50,14 +51,6 @@ namespace Greenshot.Addon.Editor.Memento
 		{
 			//if (disposing) { }
 			fieldHolder = null;
-		}
-
-		public string ActionDescription
-		{
-			get
-			{
-				return "";
-			}
 		}
 
 		public bool Merge(IMemento otherMemento)

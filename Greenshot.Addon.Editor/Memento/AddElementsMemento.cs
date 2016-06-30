@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Greenshot.Addon.Editor.Drawing;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Drawing;
 
@@ -27,24 +28,32 @@ namespace Greenshot.Addon.Editor.Memento
 	/// <summary>
 	/// The AddElementMemento makes it possible to undo adding an element
 	/// </summary>
-	public class AddElementMemento : IMemento
+	public class AddElementsMemento : IMemento
 	{
-		private IDrawableContainer _drawableContainer;
+		private IDrawableContainerList _containerList;
 		private ISurface _surface;
 
-		public AddElementMemento(ISurface surface, IDrawableContainer drawableContainer)
+		public AddElementsMemento(ISurface surface, IDrawableContainerList containerList)
 		{
 			_surface = surface;
-			_drawableContainer = drawableContainer;
+			_containerList = containerList;
 		}
 
-		public void Dispose() {
+		public void Dispose()
+		{
 			Dispose(true);
 		}
 
-		protected virtual void Dispose(bool disposing) {
-			//if (disposing) { }
-			_drawableContainer = null;
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				if (_containerList != null)
+				{
+					_containerList.Dispose();
+				}
+			}
+			_containerList = null;
 			_surface = null;
 		}
 
@@ -55,16 +64,15 @@ namespace Greenshot.Addon.Editor.Memento
 
 		public IMemento Restore()
 		{
-			// Before
-			_drawableContainer.Invalidate();
 			// Store the selected state, as it's overwritten by the RemoveElement
+			bool selected = _containerList.Selected;
 
-			var oldState = new DeleteElementMemento(_surface, _drawableContainer);
-			_surface.RemoveElement(_drawableContainer, false);
-			_drawableContainer.Selected = true;
+			var oldState = new DeleteElementsMemento(_surface, _containerList);
 
-			// After
-			_drawableContainer.Invalidate();
+			_surface.RemoveElements(_containerList, false);
+
+			// After, so everything is gone
+			_surface.Invalidate();
 			return oldState;
 		}
 	}

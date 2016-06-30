@@ -88,23 +88,10 @@ namespace Greenshot.Addon.Editor.Drawing
 		/// </summary>
 		public FreehandContainer(Surface parent) : base(parent)
 		{
-			Init();
 			Width = parent.Width;
 			Height = parent.Height;
 			Top = 0;
 			Left = 0;
-		}
-
-		protected void Init()
-		{
-			if (Grippers != null)
-			{
-				for (int i = 0; i < Grippers.Length; i++)
-				{
-					Grippers[i].Enabled = false;
-					Grippers[i].Visible = false;
-				}
-			}
 		}
 
 		public override void Transform(Matrix matrix)
@@ -117,14 +104,11 @@ namespace Greenshot.Addon.Editor.Drawing
 			RecalculatePath();
 		}
 
-		[OnDeserialized]
-		private void OnDeserialized(StreamingContext context)
+		protected override void OnDeserialized(StreamingContext context)
 		{
-			InitGrippers();
-			DoLayout();
-			Init();
 			RecalculatePath();
 		}
+
 
 		/// <summary>
 		/// This Dispose is called from the Dispose and the Destructor.
@@ -324,19 +308,6 @@ namespace Greenshot.Addon.Editor.Drawing
 		public override int GetHashCode()
 		{
 			return _freehandPath.GetHashCode();
-		}
-
-		/// <summary>
-		/// This is overriden to prevent the grippers to be modified.
-		/// Might not be the best way...
-		/// </summary>
-		protected override void DoLayout()
-		{
-		}
-
-		public override void ShowGrippers()
-		{
-			ResumeLayout();
 		}
 
 		public override bool ClickableAt(int x, int y)

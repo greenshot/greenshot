@@ -200,9 +200,13 @@ namespace Greenshot.Addon.Editor.Drawing
 			Init();
 		}
 
-		[OnDeserialized]
-		private void OnDeserialized(StreamingContext context)
-		{
+
+		/// <summary>
+		/// Do some logic to make sure all field are initiated correctly
+		/// </summary>
+		/// <param name="streamingContext">StreamingContext</param>
+		protected override void OnDeserialized(StreamingContext streamingContext) {
+			base.OnDeserialized(streamingContext);
 			Init();
 		}
 
@@ -235,9 +239,12 @@ namespace Greenshot.Addon.Editor.Drawing
 			{
 				Trimming = StringTrimming.EllipsisWord
 			};
+
 			CreateTextBox();
+
 			UpdateFormat();
 			UpdateTextBoxFormat();
+
 			PropertyChanged += TextContainer_PropertyChanged;
 		}
 
@@ -310,8 +317,11 @@ namespace Greenshot.Addon.Editor.Drawing
 
 		private void ShowTextBox()
 		{
-			_parent.KeysLocked = true;
-			_parent.Controls.Add(_textBox);
+			if (_parent != null)
+			{
+				_parent.KeysLocked = true;
+				_parent.Controls.Add(_textBox);
+			}
 			EnsureTextBoxContrast();
 			_textBox.Show();
 			_textBox.Focus();
@@ -406,6 +416,7 @@ namespace Greenshot.Addon.Editor.Drawing
 							}
 						}
 					}
+					_font?.Dispose();
 					_font = new Font(fam, _fontSize, fs, GraphicsUnit.Pixel);
 					_textBox.Font = _font;
 				}

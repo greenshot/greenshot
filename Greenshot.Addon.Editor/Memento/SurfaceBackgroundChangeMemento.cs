@@ -48,14 +48,6 @@ namespace Greenshot.Addon.Editor.Memento
 			return false;
 		}
 
-		public string ActionDescription
-		{
-			get
-			{
-				//return LangKey.editor_crop;
-				return "";
-			}
-		}
 
 		public IMemento Restore()
 		{

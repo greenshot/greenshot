@@ -19,43 +19,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Drawing;
-using System.Windows.Forms;
+using System;
 
-namespace Greenshot.Addon.Editor.Drawing
+namespace Greenshot.Addon.Interfaces
 {
 	/// <summary>
-	/// Grippers are the dragable edges of our containers
+	/// Description of IMemento.
 	/// </summary>
-	public class Gripper : Label
+	public interface IMemento : IDisposable
 	{
 		/// <summary>
-		/// Constants for anchor/gripper position:
-		/// 0 1 2
-		/// 7   3
-		/// 6 5 4
+		/// Restores target to the state memorized by this memento.
 		/// </summary>
-		public const int POSITION_TOP_LEFT = 0;
+		/// <returns>
+		/// A memento of the state before restoring
+		/// </returns>
+		IMemento Restore();
 
-		public const int POSITION_TOP_CENTER = 1;
-		public const int POSITION_TOP_RIGHT = 2;
-		public const int POSITION_MIDDLE_RIGHT = 3;
-		public const int POSITION_BOTTOM_RIGHT = 4;
-		public const int POSITION_BOTTOM_CENTER = 5;
-		public const int POSITION_BOTTOM_LEFT = 6;
-		public const int POSITION_MIDDLE_LEFT = 7;
-
-		public int Position
-		{
-			get;
-			set;
-		}
-
-		public Gripper()
-		{
-			Width = 5;
-			Height = 5;
-			BackColor = Color.Black;
-		}
+		/// <summary>
+		/// Try to merge the current memento with another, preventing loads of items on the stack
+		/// </summary>
+		/// <param name="other">The memento to try to merge with</param>
+		/// <returns></returns>
+		bool Merge(IMemento other);
 	}
 }
