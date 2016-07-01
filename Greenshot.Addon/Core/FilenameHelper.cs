@@ -42,7 +42,7 @@ namespace Greenshot.Addon.Core
 		// The parameter format is a single alpha followed by the value belonging to the parameter, e.g. :
 		// ${capturetime:d"yyyy-MM-dd HH_mm_ss"}
 		private static readonly Regex VAR_REGEXP = new Regex(@"\${(?<variable>[^:}]+)[:]?(?<parameters>[^}]*)}", RegexOptions.Compiled);
-
+		private static readonly Regex CMD_VAR_REGEXP = new Regex(@"%(?<variable>[^%]+)%", RegexOptions.Compiled);
 		private static readonly Regex SPLIT_REGEXP = new Regex(";(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", RegexOptions.Compiled);
 		private const int MAX_TITLE_LENGTH = 80;
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
@@ -51,7 +51,7 @@ namespace Greenshot.Addon.Core
 		/// <summary>
 		/// Remove invalid characters from the fully qualified filename
 		/// </summary>
-		/// <param name="fullpath">string with the full path to a file</param>
+		/// <param name="fullPath">string with the full path to a file</param>
 		/// <returns>string with the full path to a file, without invalid characters</returns>
 		public static string MakeFQFilenameSafe(string fullPath)
 		{
@@ -64,7 +64,7 @@ namespace Greenshot.Addon.Core
 		/// <summary>
 		/// Remove invalid characters from the filename
 		/// </summary>
-		/// <param name="fullpath">string with the full path to a file</param>
+		/// <param name="filename">string with the full path to a file</param>
 		/// <returns>string with the full path to a file, without invalid characters</returns>
 		public static string MakeFilenameSafe(string filename)
 		{
@@ -82,7 +82,7 @@ namespace Greenshot.Addon.Core
 		/// <summary>
 		/// Remove invalid characters from the path
 		/// </summary>
-		/// <param name="fullpath">string with the full path to a file</param>
+		/// <param name="path">string with the full path to a file</param>
 		/// <returns>string with the full path to a file, without invalid characters</returns>
 		public static string MakePathSafe(string path)
 		{
@@ -482,6 +482,50 @@ namespace Greenshot.Addon.Core
 			return replaceValue;
 		}
 
+		/// <summary>
+		/// "Simply" fill the pattern with environment variables
+		/// </summary>
+		/// <param name="pattern">String with pattern %var%</param>
+		/// <param name="filenameSafeMode">true to make sure everything is filenamesafe</param>
+		/// <returns>Filled string</returns>
+		public static string FillCmdVariables(string pattern, bool filenameSafeMode)
+		{
+			IDictionary processVars = null;
+			IDictionary userVars = null;
+			IDictionary machineVars = null;
+			try
+			{
+				processVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Process);
+			}
+			catch (Exception e)
+			{
+				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.Process", e);
+			}
+
+			try
+			{
+				userVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
+			}
+			catch (Exception e)
+			{
+				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.User", e);
+			}
+
+			try
+			{
+				machineVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Machine);
+			}
+			catch (Exception e)
+			{
+				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.Machine", e);
+			}
+
+			return CMD_VAR_REGEXP.Replace(pattern,
+				delegate (Match m) {
+					return MatchVarEvaluator(m, null, processVars, userVars, machineVars, filenameSafeMode);
+				}
+			);
+		}
 		/// <summary>
 		/// "Simply" fill the pattern with environment variables
 		/// </summary>

@@ -21,6 +21,7 @@
 
 using Dapplo.Config.Ini;
 using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Core;
 
 namespace Greenshot.Addon.ExternalCommand
 {
@@ -33,6 +34,14 @@ namespace Greenshot.Addon.ExternalCommand
 			Name = commando;
 			Commandline = ExternalCommandConfiguration.Commandline[commando];
 			Arguments = ExternalCommandConfiguration.Argument[commando];
+
+			// Fix variables
+			Commandline = FilenameHelper.FillVariables(Commandline, true);
+			Commandline = FilenameHelper.FillCmdVariables(Commandline, true);
+
+			Arguments = FilenameHelper.FillVariables(Arguments, false);
+			Arguments = FilenameHelper.FillCmdVariables(Arguments, false);
+
 			RunInbackground = ExternalCommandConfiguration.RunInbackground[commando];
 			// TODO: Make configurable
 			Format = OutputFormat.png;

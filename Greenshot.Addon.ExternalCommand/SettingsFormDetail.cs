@@ -25,6 +25,7 @@ using System.IO;
 using System.Windows.Forms;
 using Dapplo.Config.Ini;
 using Dapplo.Log.Facade;
+using Greenshot.Addon.Core;
 
 namespace Greenshot.Addon.ExternalCommand
 {
@@ -93,8 +94,9 @@ namespace Greenshot.Addon.ExternalCommand
 			{
 				initialPath = Path.GetDirectoryName(textBox_commandline.Text);
 			}
-			catch
+			catch (Exception ex)
 			{
+				Log.Warn().WriteLine(ex, "Can't get the initial path via {0}", textBox_commandline.Text);
 			}
 			if (initialPath != null && Directory.Exists(initialPath))
 			{
@@ -138,13 +140,24 @@ namespace Greenshot.Addon.ExternalCommand
 			// Is the command available?
 			if (!string.IsNullOrEmpty(textBox_commandline.Text) && !File.Exists(textBox_commandline.Text))
 			{
-				buttonOk.Enabled = false;
-				textBox_commandline.BackColor = Color.Red;
+				// Added this to be more flexible, using the Greenshot var format
+				string cmdPath = FilenameHelper.FillVariables(textBox_commandline.Text, true);
+				// And also replace the "DOS" Variables
+				cmdPath = FilenameHelper.FillCmdVariables(cmdPath, true);
+				// Is the command available?
+				if (!File.Exists(cmdPath))
+				{
+					buttonOk.Enabled = false;
+					textBox_commandline.BackColor = Color.Red;
+				}
 			}
 			// Are the arguments in a valid format? 
 			try
 			{
-				ProcessStarter.FormatArguments(textBox_arguments.Text, string.Empty);
+				string arguments = FilenameHelper.FillVariables(textBox_arguments.Text, false);
+				arguments = FilenameHelper.FillCmdVariables(arguments, false);
+
+				ProcessStarter.FormatArguments(arguments, string.Empty);
 			}
 			catch
 			{

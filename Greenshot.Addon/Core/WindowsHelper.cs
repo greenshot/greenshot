@@ -820,8 +820,10 @@ namespace Greenshot.Addon.Core
 						Rectangle windowRect = Rectangle.Empty;
 						if (Dwm.IsDwmEnabled)
 						{
-							if (GetExtendedFrameBounds(out windowRect) && Environment.OSVersion.Version.Major == 10)
+							if (GetExtendedFrameBounds(out windowRect) && Environment.OSVersion.IsWindows10())
 							{
+								_lastWindowRectangleRetrieveTime = now;
+								_previousWindowRectangle = windowRect;
 								// DWM does it corectly, just return the window rectangle we just gotten.
 								return windowRect;
 							}
@@ -1054,6 +1056,11 @@ namespace Greenshot.Addon.Core
 				if (!Maximised)
 				{
 					doesCaptureFit = GetVisibleLocation(out formLocation);
+				}
+				else if (!Environment.OSVersion.IsWindows8OrLater())
+				{
+					GetBorderSize(out borderSize);
+					formLocation = new Point(windowRectangle.X - borderSize.Width, windowRectangle.Y - borderSize.Height);
 				}
 
 				tempForm.Location = formLocation;
