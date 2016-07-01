@@ -824,22 +824,31 @@ namespace Greenshot.Addon.Core
 							{
 								_lastWindowRectangleRetrieveTime = now;
 								_previousWindowRectangle = windowRect;
-								// DWM does it corectly, just return the window rectangle we just gotten.
+
+								// Somehow DWM doesn't calculate it corectly, there is a 1 pixel border around the capture
+								// Remove this border, currently it's fixed but TODO: Make it depend on the OS?
+								windowRect.Inflate(-1, -1);
 								return windowRect;
 							}
 						}
 
 						if (windowRect.IsEmpty)
 						{
-							GetWindowRect(out windowRect);
+							if (GetWindowRect(out windowRect))
+							{
+								Win32Error error = Win32.GetLastErrorCode();
+								Log.Warn().WriteLine("Couldn't retrieve the windows rectangle: {0}", Win32.GetMessage(error));
+							}
 						}
 
 						// Correction for maximized windows, only if it's not an app
 						if (!HasParent && !IsApp && Maximised)
 						{
 							Size size;
-							GetBorderSize(out size);
-							windowRect = new Rectangle(windowRect.X + size.Width, windowRect.Y + size.Height, windowRect.Width - (2*size.Width), windowRect.Height - (2*size.Height));
+							if (GetBorderSize(out size))
+							{
+								windowRect = new Rectangle(windowRect.X + size.Width, windowRect.Y + size.Height, windowRect.Width - (2 * size.Width), windowRect.Height - (2 * size.Height));
+							}
 						}
 						_lastWindowRectangleRetrieveTime = now;
 						// Try to return something valid, by getting returning the previous size if the window doesn't have a Rectangle anymore
@@ -891,7 +900,11 @@ namespace Greenshot.Addon.Core
 			get
 			{
 				Rectangle clientRect;
-				GetClientRect(out clientRect);
+				if (GetClientRect(out clientRect))
+				{
+					Win32Error error = Win32.GetLastErrorCode();
+					Log.Warn().WriteLine("Couldn't retrieve the windows client rectangle: {0}", Win32.GetMessage(error));
+				}
 				return clientRect;
 			}
 		}
@@ -1071,11 +1084,8 @@ namespace Greenshot.Addon.Core
 				if (Maximised)
 				{
 					// Correct capture size for maximized window by offsetting the X,Y with the border size
-					captureRectangle.X += borderSize.Width;
-					captureRectangle.Y += borderSize.Height;
 					// and subtracting the border from the size (2 times, as we move right/down for the capture without resizing)
-					captureRectangle.Width -= 2*borderSize.Width;
-					captureRectangle.Height -= 2*borderSize.Height;
+					captureRectangle.Inflate(borderSize.Width, borderSize.Height);
 				}
 				else if (autoMode)
 				{
