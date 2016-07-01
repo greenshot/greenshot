@@ -171,16 +171,16 @@ Name: {group}\Readme.txt; Filename: {app}\readme.txt; WorkingDir: {app}
 Name: {group}\License.txt; Filename: {app}\license.txt; WorkingDir: {app}
 [Languages]
 Name: en; MessagesFile: compiler:Default.isl
-Name: cn; MessagesFile: compiler:Languages\ChineseSimplified.isl
+Name: cn; MessagesFile: Languages\ChineseSimplified.isl
 Name: de; MessagesFile: compiler:Languages\German.isl
 Name: es; MessagesFile: compiler:Languages\Spanish.isl
 Name: fi; MessagesFile: compiler:Languages\Finnish.isl
 Name: fr; MessagesFile: compiler:Languages\French.isl
 Name: nl; MessagesFile: compiler:Languages\Dutch.isl
-Name: lt; MessagesFile: compiler:Languages\Latvian.isl
-Name: nn; MessagesFile: compiler:Languages\NorwegianNynorsk.isl
+Name: lt; MessagesFile: Languages\Latvian.isl
+Name: nn; MessagesFile: Languages\NorwegianNynorsk.isl
 Name: sr; MessagesFile: compiler:Languages\SerbianCyrillic.isl
-Name: sv; MessagesFile: compiler:Languages\Swedish.isl
+Name: sv; MessagesFile: Languages\Swedish.isl
 Name: uk; MessagesFile: compiler:Languages\Ukrainian.isl
 
 [Tasks]
