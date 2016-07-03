@@ -119,6 +119,15 @@ namespace Greenshot.Configuration {
 			}
 		}
 
+		public void ResetEditorPlacement()
+		{
+			WindowNormalPosition = new Rectangle(100, 100, 400, 400);
+			WindowMaxPosition = new Point(-1,-1);
+			WindowMinPosition = new Point(-1, -1);
+			WindowPlacementFlags = 0;
+			ShowWindowCommand = ShowWindowCommand.Normal;
+		}
+
 		public WindowPlacement GetEditorPlacement() {
 			WindowPlacement placement = WindowPlacement.Default;
 			placement.NormalPosition = new RECT(WindowNormalPosition);

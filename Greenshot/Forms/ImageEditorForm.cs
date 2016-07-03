@@ -77,7 +77,7 @@ namespace Greenshot {
 			get {
 				try {
 					EditorList.Sort(delegate(IImageEditor e1, IImageEditor e2) {
-						return String.Compare(e1.Surface.CaptureDetails.Title, e2.Surface.CaptureDetails.Title, StringComparison.Ordinal);
+						return string.Compare(e1.Surface.CaptureDetails.Title, e2.Surface.CaptureDetails.Title, StringComparison.Ordinal);
 					});
 				} catch(Exception ex) {
 					LOG.Warn("Sorting of editors failed.", ex);
@@ -104,6 +104,14 @@ namespace Greenshot {
 			};
 
 			// Make sure the editor is placed on the same location as the last editor was on close
+			// But only if this still exists, else it will be reset (BUG-1812
+			WindowPlacement editorWindowPlacement = EditorConfiguration.GetEditorPlacement();
+			Rectangle screenbounds = WindowCapture.GetScreenBounds();
+			if (!screenbounds.Contains(editorWindowPlacement.NormalPosition))
+			{
+				EditorConfiguration.ResetEditorPlacement();
+			}
+			// ReSharper disable once UnusedVariable
 			WindowDetails thisForm = new WindowDetails(Handle)
 			{
 				WindowPlacement = EditorConfiguration.GetEditorPlacement()
@@ -145,7 +153,10 @@ namespace Greenshot {
 			panel1.Height = 10;
 			panel1.Width = 10;
 			_surface = newSurface as Surface;
-			panel1.Controls.Add(_surface);
+			if (_surface != null)
+			{
+				panel1.Controls.Add(_surface);
+			}
 			Image backgroundForTransparency = GreenshotResources.getImage("Checkerboard.Image");
 			if (_surface != null)
 			{
@@ -375,9 +386,6 @@ namespace Greenshot {
 						// Change title
 						Text = eventArgs.Surface.LastSaveFullPath + " - " + Language.GetString(LangKey.editor_title);
 						break;
-					case SurfaceMessageTyp.Error:
-					case SurfaceMessageTyp.Info:
-					case SurfaceMessageTyp.UploadedUri:
 					default:
 						// Put the event message on the status label
 						updateStatusLabel(dateTime + " - " + eventArgs.Message);
