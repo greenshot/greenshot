@@ -641,17 +641,39 @@ namespace GreenshotPlugin.Core {
 			IList<MemoryStream> encodedImages = new List<MemoryStream>();
 			foreach (var image in images)
 			{
-				var imageStream = new MemoryStream();
-				// Always size to 256x256, first make sure the image is 32bpp
-				using (var clonedImage = ImageHelper.Clone(image, PixelFormat.Format32bppArgb))
+				// Pick the best fit
+				var sizes = new[] { 16, 32, 48 };
+				int size = 256;
+				foreach (var possibleSize in sizes)
 				{
-					using (var resizedImage = ImageHelper.ResizeImage(clonedImage, true, true, Color.Empty, 256, 256, null))
+					if (image.Width <= possibleSize && image.Height <= possibleSize)
 					{
-						resizedImage.Save(imageStream, ImageFormat.Png);
-						imageSizes.Add(resizedImage.Size);
+						size = possibleSize;
+						break;
 					}
-
 				}
+				var imageStream = new MemoryStream();
+				if (image.Width == size && image.Height == size)
+				{
+					using (var clonedImage = ImageHelper.Clone(image, PixelFormat.Format32bppArgb))
+					{
+						clonedImage.Save(imageStream, ImageFormat.Png);
+						imageSizes.Add(new Size(size, size));
+					}
+				}
+				else
+				{
+					// Resize to the specified size, first make sure the image is 32bpp
+					using (var clonedImage = ImageHelper.Clone(image, PixelFormat.Format32bppArgb))
+					{
+						using (var resizedImage = ImageHelper.ResizeImage(clonedImage, true, true, Color.Empty, size, size, null))
+						{
+							resizedImage.Save(imageStream, ImageFormat.Png);
+							imageSizes.Add(resizedImage.Size);
+						}
+					}
+				}
+
 				imageStream.Seek(0, SeekOrigin.Begin);
 				encodedImages.Add(imageStream);
 			}
