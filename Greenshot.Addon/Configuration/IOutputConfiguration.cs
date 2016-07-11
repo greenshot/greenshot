@@ -33,7 +33,8 @@ namespace Greenshot.Addon.Configuration
 		gif,
 		jpg,
 		tiff,
-		greenshot
+		greenshot,
+		ico
 	}
 
 	/// <summary>

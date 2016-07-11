@@ -111,6 +111,8 @@ Source: {#GreenshotDir}\bin\Release\Plugins\GreenshotExternalCommandPlugin\Green
 Source: {#GreenshotDir}\bin\Release\Languages\Plugins\GreenshotExternalCommandPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotExternalCommandPlugin; Components: plugins\externalcommand; Flags: overwritereadonly ignoreversion replacesameversion;
 ;App Share Plugin
 Source: {#GreenshotDir}\bin\Release\Plugins\GreenshotWindowsSharePlugin\GreenshotWindowsSharePlugin.gsp; DestDir: {app}\Plugins\GreenshotWindowsSharePlugin; Components: plugins\appshare; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+;Windows OCR Plugin
+Source: {#GreenshotDir}\bin\Release\Plugins\GreenshotWindowsOcrPlugin\GreenshotWindowsOcrPlugin.gsp; DestDir: {app}\Plugins\GreenshotWindowsOcrPlugin; Components: plugins\winocr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 
 [Setup]
 ; changes associations is used when the installer installs new extensions, it clears the explorer icon cache
@@ -157,7 +159,7 @@ Root: HKLM32; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: 
 ; HKEY_LOCAL_USER - for current user only
 Root: HKCU; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: {app}\{#ExeName}.exe; Permissions: users-modify; Flags: uninsdeletevalue noerror; Tasks: startup; Check: IsRegularUser
 ; HKEY_LOCAL_MACHINE - for all users
-Root: HKLM; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: {app}\{#ExeName}.exe; Permissions: users-modify; Flags: uninsdeletevalue noerror; Tasks: startup; Check: not IsRegularUser
+Root: HKLM; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: {app}\{#ExeName}.exe; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Tasks: startup; Check: not IsRegularUser
 ; Register our own filetype for admin
 Root: HKLM; Subkey: Software\Classes\.greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot"; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
 Root: HKLM; Subkey: Software\Classes\Greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
@@ -210,6 +212,7 @@ en.language=Additional languages
 en.ocr=OCR plug-in (needs Microsoft Office Document Imaging (MODI))
 en.office=Microsoft Office plug-in
 en.appshare=Windows 10 App Share
+en.winocr=Windows 10 OCR
 en.optimize=Optimizing performance, this may take a while.
 en.startgreenshot=Start {#ExeName}
 en.startup=Start {#ExeName} with Windows start
@@ -350,6 +353,7 @@ Name: "greenshot"; Description: "Greenshot"; Types: default full compact custom;
 Name: "plugins\editor"; Description: {cm:editor}; Types: default full compact custom; Flags: fixed 
 Name: "plugins\office"; Description: {cm:office}; Types: default full custom; Flags: disablenouninstallwarning
 Name: "plugins\appshare"; Description: {cm:appshare}; Types: default full custom; Flags: disablenouninstallwarning 
+Name: "plugins\winocr"; Description: {cm:winocr}; Types: default full custom; Flags: disablenouninstallwarning 
 Name: "plugins\ocr"; Description: {cm:ocr}; Types: default full custom; Flags: disablenouninstallwarning 
 Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disablenouninstallwarning 
 Name: "plugins\imgur"; Description: {cm:imgur}; Types: default full custom; Flags: disablenouninstallwarning 

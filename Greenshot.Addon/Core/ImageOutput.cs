@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -38,6 +39,7 @@ using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Plugin;
 using Encoder = System.Drawing.Imaging.Encoder;
 using Dapplo.Log.Facade;
+using Size = System.Drawing.Size;
 
 namespace Greenshot.Addon.Core
 {
@@ -50,7 +52,7 @@ namespace Greenshot.Addon.Core
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		private static readonly int PROPERTY_TAG_SOFTWARE_USED = 0x0131;
-		private static Cache<string, string> tmpFileCache = new Cache<string, string>(10*60*60, RemoveExpiredTmpFile);
+		private static readonly Cache<string, string> TmpFileCache = new Cache<string, string>(10*60*60, RemoveExpiredTmpFile);
 
 		/// <summary>
 		/// Creates a PropertyItem (Metadata) to store with the image.
@@ -101,9 +103,9 @@ namespace Greenshot.Addon.Core
 			bool disposeImage = CreateImageFromCapture(capture, outputSettings, out imageToSave);
 			SaveToStream(imageToSave, capture, stream, outputSettings);
 			// cleanup if needed
-			if (disposeImage && imageToSave != null)
+			if (disposeImage)
 			{
-				imageToSave.Dispose();
+				imageToSave?.Dispose();
 			}
 		}
 
@@ -141,6 +143,9 @@ namespace Greenshot.Addon.Core
 						break;
 					case OutputFormat.tiff:
 						imageFormat = ImageFormat.Tiff;
+						break;
+					case OutputFormat.ico:
+						imageFormat = ImageFormat.Icon;
 						break;
 					default:
 						imageFormat = ImageFormat.Png;
@@ -196,6 +201,11 @@ namespace Greenshot.Addon.Core
 					{
 						throw new ApplicationException("No JPG encoder found, this should not happen.");
 					}
+				} else if (Equals(imageFormat, ImageFormat.Icon)) {
+					// FEATURE-916: Added Icon support
+					var images = new List<Image>();
+					images.Add(imageToSave);
+					WriteIcon(stream, images);
 				}
 				else
 				{
@@ -287,12 +297,14 @@ namespace Greenshot.Addon.Core
 					Log.Debug().WriteLine("Starting : {0}", conf.OptimizePNGCommand);
 				}
 
-				ProcessStartInfo processStartInfo = new ProcessStartInfo(conf.OptimizePNGCommand);
-				processStartInfo.Arguments = string.Format(conf.OptimizePNGCommandArguments, tmpFileName);
-				processStartInfo.CreateNoWindow = true;
-				processStartInfo.RedirectStandardOutput = true;
-				processStartInfo.RedirectStandardError = true;
-				processStartInfo.UseShellExecute = false;
+				ProcessStartInfo processStartInfo = new ProcessStartInfo(conf.OptimizePNGCommand)
+				{
+					Arguments = string.Format(conf.OptimizePNGCommandArguments, tmpFileName),
+					CreateNoWindow = true,
+					RedirectStandardOutput = true,
+					RedirectStandardError = true,
+					UseShellExecute = false
+				};
 				using (Process process = Process.Start(processStartInfo))
 				{
 					if (process != null)
@@ -504,7 +516,6 @@ namespace Greenshot.Addon.Core
 		/// <param name="fullPath"></param>
 		/// <param name="allowOverwrite"></param>
 		/// <param name="outputSettings"></param>
-		/// <param name="copyPathToClipboard"></param>
 		/// <returns>Full save path</returns>
 		public static string Save(ICapture surface, string fullPath, bool allowOverwrite, SurfaceOutputSettings outputSettings)
 		{
@@ -627,7 +638,7 @@ namespace Greenshot.Addon.Core
 		public static string SaveNamedTmpFile(ICapture surface, ICaptureDetails captureDetails, SurfaceOutputSettings outputSettings)
 		{
 			string pattern = conf.OutputFileFilenamePattern;
-			if (pattern == null || string.IsNullOrEmpty(pattern.Trim()))
+			if (string.IsNullOrEmpty(pattern?.Trim()))
 			{
 				pattern = "greenshot ${capturetime}";
 			}
@@ -645,7 +656,7 @@ namespace Greenshot.Addon.Core
 			try
 			{
 				tmpFile = Save(surface, tmpFile, true, outputSettings);
-				tmpFileCache.Add(tmpFile, tmpFile);
+				TmpFileCache.Add(tmpFile, tmpFile);
 			}
 			catch (Exception e)
 			{
@@ -671,7 +682,7 @@ namespace Greenshot.Addon.Core
 				if (File.Exists(tmpfile))
 				{
 					File.Delete(tmpfile);
-					tmpFileCache.Remove(tmpfile);
+					TmpFileCache.Remove(tmpfile);
 				}
 				return true;
 			}
@@ -704,7 +715,7 @@ namespace Greenshot.Addon.Core
 			try
 			{
 				tmpFullPath = Save(surface, tmpFullPath, true, outputSettings);
-				tmpFileCache.Add(tmpFullPath, tmpFullPath);
+				TmpFileCache.Add(tmpFullPath, tmpFullPath);
 			}
 			catch (Exception)
 			{
@@ -718,14 +729,14 @@ namespace Greenshot.Addon.Core
 		/// </summary>	
 		public static void RemoveTmpFiles()
 		{
-			foreach (string tmpFile in tmpFileCache.Elements)
+			foreach (string tmpFile in TmpFileCache.Elements)
 			{
 				if (File.Exists(tmpFile))
 				{
 					Log.Debug().WriteLine("Removing old temp file {0}", tmpFile);
 					File.Delete(tmpFile);
 				}
-				tmpFileCache.Remove(tmpFile);
+				TmpFileCache.Remove(tmpFile);
 			}
 		}
 
@@ -743,5 +754,78 @@ namespace Greenshot.Addon.Core
 				File.Delete(path);
 			}
 		}
+
+
+		#region Icon
+
+		/// <summary>
+		/// Write the images to the stream as icon
+		/// Every image is resized to 256x256 (but the content maintains the aspect ratio)
+		/// </summary>
+		/// <param name="stream">Stream to write to</param>
+		/// <param name="images">List of images</param>
+		public static void WriteIcon(Stream stream, IList<Image> images)
+		{
+			var binaryWriter = new BinaryWriter(stream);
+			//
+			// ICONDIR structure
+			//
+			binaryWriter.Write((short)0); // reserved
+			binaryWriter.Write((short)1); // image type (icon)
+			binaryWriter.Write((short)images.Count); // number of images
+
+			var imageSizes = new List<Size>();
+			IList<MemoryStream> encodedImages = new List<MemoryStream>();
+			foreach (var image in images)
+			{
+				var imageStream = new MemoryStream();
+				// Always size to 256x256, first make sure the image is 32bpp
+				using (var clonedImage = ImageHelper.Clone(image, PixelFormat.Format32bppArgb))
+				{
+					using (var resizedImage = ImageHelper.ResizeImage(clonedImage, true, true, Color.Empty, 256, 256, null))
+					{
+						resizedImage.Save(imageStream, ImageFormat.Png);
+						imageSizes.Add(resizedImage.Size);
+					}
+
+				}
+				imageStream.Seek(0, SeekOrigin.Begin);
+				encodedImages.Add(imageStream);
+			}
+
+			//
+			// ICONDIRENTRY structure
+			//
+			const int iconDirSize = 6;
+			const int iconDirEntrySize = 16;
+
+			var offset = iconDirSize + (images.Count * iconDirEntrySize);
+			for (int i = 0; i < images.Count; i++)
+			{
+				var imageSize = imageSizes[i];
+				// Write the width / height, 0 means 256
+				binaryWriter.Write(imageSize.Width == 256 ? (byte)0 : (byte)imageSize.Width);
+				binaryWriter.Write(imageSize.Height == 256 ? (byte)0 : (byte)imageSize.Height);
+				binaryWriter.Write((byte)0); // no pallete
+				binaryWriter.Write((byte)0); // reserved
+				binaryWriter.Write((short)0); // no color planes
+				binaryWriter.Write((short)32); // 32 bpp
+				binaryWriter.Write((int)encodedImages[i].Length); // image data length
+				binaryWriter.Write(offset);
+				offset += (int)encodedImages[i].Length;
+			}
+
+			binaryWriter.Flush();
+			//
+			// Write image data
+			//
+			foreach (var encodedImage in encodedImages)
+			{
+				encodedImage.WriteTo(stream);
+				encodedImage.Dispose();
+			}
+		}
+		#endregion
+
 	}
 }
