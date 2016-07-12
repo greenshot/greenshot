@@ -379,7 +379,7 @@
     <None Include="Lib\log4net.dll" />
     <None Include="log4net-debug.xml" />
     <None Include="log4net-portable.xml">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="log4net.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>

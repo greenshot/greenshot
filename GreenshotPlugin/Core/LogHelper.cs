@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
@@ -32,47 +33,44 @@ using log4net.Util;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
-	/// Description of LogHelper.
+	/// Initialize the logger
 	/// </summary>
 	public class LogHelper {
-		private const string LOG4NET_FILE = "log4net.xml";
-		private const string LOG4NET_PORTABLE_FILE = "log4net-portable.xml";
-		private static bool isLog4NetConfigured;
+		private static bool _isLog4NetConfigured;
 		private const string INIT_MESSAGE = "Greenshot initialization of log system failed";
-		public static bool isInitialized {
+
+		public static bool IsInitialized {
 			get {
-				return isLog4NetConfigured;
+				return _isLog4NetConfigured;
 			}
 		}
 
 		// Initialize Log4J
 		public static string InitializeLog4NET() {
 			// Setup log4j, currently the file is called log4net.xml
-			string pafLog4NetFilename = Path.Combine(Application.StartupPath, @"App\Greenshot\" + LOG4NET_PORTABLE_FILE);
-			string log4netFilename = Path.Combine(Application.StartupPath, LOG4NET_FILE);
-			
-			if (File.Exists(log4netFilename)) {
-				try {
-					XmlConfigurator.Configure(new FileInfo(log4netFilename)); 
-					isLog4NetConfigured = true;
-				} catch (Exception ex) {
-					MessageBox.Show(ex.Message, INIT_MESSAGE, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-				}
-			} else if (File.Exists(pafLog4NetFilename)) {
-				try {
-					XmlConfigurator.Configure(new FileInfo(pafLog4NetFilename)); 
-					isLog4NetConfigured = true;
-				} catch (Exception ex) {
-					MessageBox.Show(ex.Message, INIT_MESSAGE, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			foreach (var logName in new[] { "log4net.xml" , @"App\Greenshot\log4net-portable.xml"})
+			{
+				string log4NetFilename = Path.Combine(Application.StartupPath, logName);
+				if (File.Exists(log4NetFilename))
+				{
+					try
+					{
+						XmlConfigurator.Configure(new FileInfo(log4NetFilename));
+						_isLog4NetConfigured = true;
+					}
+					catch (Exception ex)
+					{
+						MessageBox.Show(ex.Message, INIT_MESSAGE, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+					}
 				}
 			}
-
-			if (!isLog4NetConfigured) {
+			// Fallback
+			if (!_isLog4NetConfigured) {
 				try {
 					Assembly assembly = typeof(LogHelper).Assembly;
 					using (Stream stream = assembly.GetManifestResourceStream("GreenshotPlugin.log4net-embedded.xml")) {
 						XmlConfigurator.Configure(stream);
-						isLog4NetConfigured = true;
+						_isLog4NetConfigured = true;
 						IniConfig.ForceIniInStartupPath();
 					}
 				} catch (Exception ex){
@@ -80,7 +78,7 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 
-			if (isLog4NetConfigured) {
+			if (_isLog4NetConfigured) {
 				// Get the logfile name
 				try {
 					if (((Hierarchy)LogManager.GetRepository()).Root.Appenders.Count > 0) {
@@ -100,7 +98,7 @@ namespace GreenshotPlugin.Core {
 	/// A simple helper class to support the logging to the AppData location
 	/// </summary>
 	public class SpecialFolderPatternConverter : PatternConverter {
-		override protected void Convert(TextWriter writer, object state) {
+		protected override void Convert(TextWriter writer, object state) {
 			Environment.SpecialFolder specialFolder = (Environment.SpecialFolder)Enum.Parse(typeof(Environment.SpecialFolder), Option, true);
 			writer.Write(Environment.GetFolderPath(specialFolder));
 		}

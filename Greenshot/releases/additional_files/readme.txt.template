@@ -17,6 +17,7 @@ Fixed:
 * BUG-1890: Slight cropping around window on Windows 10
 * BUG-1892: Greenshot saves blank JPG file with reduce colors
 * BUG-1898: Specify GPLv3 in the license text
+* BUG-1910: Error occurs after adding 10+ text boxes with arrows
 * BUG-1918: Speechbubble issue: Artifacts appeared when shadow is on and transparency is used
 * BUG-1933: Greenshot Installer sets bad registry key permission
 * BUG-1935: Delay when pasting and ShapeShifter from FlameFusion is running
@@ -24,19 +25,16 @@ Fixed:
 * BUG-1945: Failure starting Greenshot at system startup
 * BUG-1949: Can't delete Imgur upload
 * BUG-1965: Activation border around window is visible in the capture
-* FEATURE-916: Added icon as possible format to save with (image is sized to 256x256)
-* FEATURE-919: Allow adding of space around screenshot
-* FEATURE-945:Added environment variables resolving to the external command
+* BUG-1991: Greenshot portable (PAF) uses wrong log configuration
+* FEATURE-916: Added ico file format
+* FEATURE-919: Allow adding of space around screenshot (use Ctrl + / Ctrl -)
+* FEATURE-945: Added environment variables resolving to the external command
 * FEATURE-949: Updated to Inno-Setup 5.5.9 for improved installer security
 
 Open issues planned for this version:
 BUG-1872: OneDrive prevents Greenshot hotkeys from working
 BUG-1908: External Command plugin should check for possible default-commands at startup
-BUG-1910: Error occurs after adding 10+ text boxes with arrows
 FEATURE-912: [Storage Location] Define directory pattern
-
-Known issues:
-* TextContainer (the thing in the editor that can add text to your capture) can throw exceptions.
 
 
 1.2.8.12-cab854b RELEASE

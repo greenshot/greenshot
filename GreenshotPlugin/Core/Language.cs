@@ -61,7 +61,7 @@ namespace GreenshotPlugin.Core {
 				LOG.Warn("IniConfig hasn't been initialized yet! (Design mode?)");
 				IniConfig.Init("greenshot", "greenshot");
 			}
-			if (!LogHelper.isInitialized) {
+			if (!LogHelper.IsInitialized) {
 				LOG.Warn("Log4net hasn't been initialized yet! (Design mode?)");
 				LogHelper.InitializeLog4NET();
 			}

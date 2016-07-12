@@ -104,7 +104,7 @@ Function PackagePortable {
 		"$sourcebase\Greenshot.exe.config",
 		"$sourcebase\GreenshotPlugin.dll",
 		"$sourcebase\log4net.dll",
-		"$sourcebase\log4net.xml",
+		"$sourcebase\log4net-portable.xml",
 		"$destbase\additional_files\*.txt" ) | foreach { Copy-Item $_ "$destbase\portabletmp\App\Greenshot\" }
 
 	Copy-Item -Path "$sourcebase\Languages\help-en-US.html" -Destination "$destbase\portabletmp\help.html"
@@ -170,7 +170,6 @@ Function PackageZip {
 		"$sourcebase\Greenshot.exe.config",
 		"$sourcebase\GreenshotPlugin.dll",
 		"$sourcebase\log4net.dll",
-		"$sourcebase\log4net.xml",
 		"$destbase\additional_files\*.txt" ) | foreach { Copy-Item $_ "$destzip\" }
 
 	$zipOutput = "$(get-location)\zip"
