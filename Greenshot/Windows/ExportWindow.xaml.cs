@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using GongSolutions.Wpf.DragDrop;
 using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
@@ -165,6 +166,11 @@ namespace Greenshot.Windows
 
 		public void DragCancelled()
 		{
+		}
+
+		public bool TryCatchOccurredException(Exception exception)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

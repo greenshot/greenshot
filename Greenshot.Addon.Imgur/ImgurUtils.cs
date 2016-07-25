@@ -181,7 +181,7 @@ namespace Greenshot.Addon.Imgur
 			{
 				using (var response = await client.GetAsync(imgurInfo.SmallSquare, token).ConfigureAwait(false))
 				{
-					await response.HandleErrorAsync(token: token).ConfigureAwait(false);
+					await response.HandleErrorAsync().ConfigureAwait(false);
 					using (var stream = await response.GetAsAsync<MemoryStream>(token).ConfigureAwait(false))
 					{
 						using (var tmpImage = Image.FromStream(stream))
@@ -215,7 +215,7 @@ namespace Greenshot.Addon.Imgur
 				{
 					return null;
 				}
-				await response.HandleErrorAsync(token).ConfigureAwait(false);
+				await response.HandleErrorAsync().ConfigureAwait(false);
 				imageJson = await response.GetAsAsync<dynamic>(token).ConfigureAwait(false);
 			}
 
@@ -278,7 +278,7 @@ namespace Greenshot.Addon.Imgur
 				var response = await client.DeleteAsync(deleteUri, token).ConfigureAwait(false);
 				if (response.StatusCode != HttpStatusCode.NotFound && response.StatusCode != HttpStatusCode.BadRequest)
 				{
-					await response.HandleErrorAsync(token).ConfigureAwait(false);
+					await response.HandleErrorAsync().ConfigureAwait(false);
 				}
 				responseString = await response.GetAsAsync<string>(token).ConfigureAwait(false);
 				Log.Info().WriteLine("Delete result: {0}", responseString);
@@ -303,7 +303,7 @@ namespace Greenshot.Addon.Imgur
 			using (var client = HttpClientFactory.Create(creditsUri))
 			{
 				var response = await client.GetAsync(creditsUri, token).ConfigureAwait(false);
-				await response.HandleErrorAsync(token).ConfigureAwait(false);
+				await response.HandleErrorAsync().ConfigureAwait(false);
 				var creditsJson = await response.GetAsAsync<dynamic>(token).ConfigureAwait(false);
 				if (creditsJson != null && creditsJson.ContainsKey("data"))
 				{
