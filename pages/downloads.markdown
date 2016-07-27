@@ -15,6 +15,7 @@ tags: menu
 	<tr>
 		<td>
 			{% for asset in latestRelease.assets %}
+			{{ asset.name }}
 				{% if asset.name contains 'RELEASE.exe' %}
 					<a href="{{ asset.browser_download_url }}" class="cta" title="Download the latest stable version of Greenshot" rel="nofollow" style="display:table-cell">Latest version</a>
 				{% endif %}
