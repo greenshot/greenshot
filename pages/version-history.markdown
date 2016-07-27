@@ -19,3 +19,4 @@ You'll find everything below.
 		- [{{ asset.name }}]({{ asset.browser_download_url }}) ({{ latestRelease.created_at | date_to_string %}})
  	{% endfor %}
 {% endfor %}
+ 
