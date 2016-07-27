@@ -7,19 +7,18 @@ permalink: /downloads/
 comments: []
 tags: menu
 ---
-{% assign latestRelease = site.github.releases | first %}
-<!-- TODO retrieve downloadable files -->
+{% assign latestRelease = site.github.releases | where:"prerelease",false | first %}
 <div class="two-col left-box">
 <h2>Download the latest stable release</h2>
 
 <table class="cta-button">
 	<tr>
 		<td>
-	{% for asset in latestRelease.assets %}
-		{% if asset.name contains 'RELEASE.exe' %}
-			<a href="{{ asset.browser_download_url }}" class="cta" title="Download the latest stable version of Greenshot" rel="nofollow" style="display:table-cell">Latest version</a>
-		{% endif %}
-	{% endfor %}
+			{% for asset in latestRelease.assets %}
+				{% if asset.name contains 'RELEASE.exe' %}
+					<a href="{{ asset.browser_download_url }}" class="cta" title="Download the latest stable version of Greenshot" rel="nofollow" style="display:table-cell">Latest version</a>
+				{% endif %}
+			{% endfor %}
 		</td>
 	</tr>
 	<tr>
