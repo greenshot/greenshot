@@ -7,7 +7,7 @@ permalink: /downloads/
 comments: []
 tags: menu
 ---
-{% assign latestRelease = site.github.releases | where:"prerelease",false | first %}
+{% assign latestRelease = site.github.releases | where:"prerelease","false" | first %}
 <div class="two-col left-box">
 <h2>Download the latest stable release</h2>
 
