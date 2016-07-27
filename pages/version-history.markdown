@@ -15,7 +15,7 @@ You'll find everything below.
 
 {% for release in site.github.releases %}
 **{{ release.name }}**
-
+<!-- prerelease:{{ release.prerelease}} -->
 	{% for asset in release.assets %}
 - [{{ asset.name }}]({{ asset.browser_download_url }}) ({{ asset.created_at | date_to_string %}})
  	{% endfor %}
