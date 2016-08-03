@@ -44,6 +44,7 @@ using System.Windows.Forms;
 using Dapplo.Utils;
 using Timer = System.Timers.Timer;
 using Dapplo.Log.Facade;
+using Dapplo.Utils.Resolving;
 
 namespace Greenshot.Forms
 {
@@ -139,21 +140,23 @@ namespace Greenshot.Forms
 
 			UpdateUi();
 
+			AssemblyResolver.Extensions.Add("gsp");
+
 			if (PortableHelper.IsPortable)
 			{
 				var pafPath = Path.Combine(Application.StartupPath, $@"App\{ApplicationName}");
-				GreenshotStart.Bootstrapper.Add(pafPath, "*.gsp");
+				GreenshotStart.Bootstrapper.AddScanDirectory(pafPath);
 			}
 			else
 			{
 				var pluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
-				GreenshotStart.Bootstrapper.Add(pluginPath, "*.gsp");
+				GreenshotStart.Bootstrapper.AddScanDirectory(pluginPath);
 
 				var applicationPath = Path.GetDirectoryName(Application.ExecutablePath);
-				GreenshotStart.Bootstrapper.Add(applicationPath, "*.gsp");
+				GreenshotStart.Bootstrapper.AddScanDirectory(applicationPath);
 			}
 			// The GreenshotPlugin assembly needs to be added manually!
-			GreenshotStart.Bootstrapper.Add(typeof(ICoreConfiguration).Assembly);
+			GreenshotStart.Bootstrapper.FindAndLoadAssemblies("Greenshot.Addon*");
 
 			UiContext.RunOn(
 				// this will use current synchronization context
