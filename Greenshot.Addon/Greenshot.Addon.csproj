@@ -93,8 +93,8 @@
       <HintPath>..\packages\Dapplo.Log.Facade.0.5.4\lib\net45\Dapplo.Log.Facade.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Utils, Version=0.1.99.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Utils.0.1.99\lib\net45\Dapplo.Utils.dll</HintPath>
+    <Reference Include="Dapplo.Utils, Version=0.1.107.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Utils.0.1.107\lib\net45\Dapplo.Utils.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.Windows, Version=0.1.28.0, Culture=neutral, processorArchitecture=MSIL">
@@ -102,7 +102,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="GongSolutions.Wpf.DragDrop, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\gong-wpf-dragdrop.1.0.0-ALPHA015\lib\net40\GongSolutions.Wpf.DragDrop.dll</HintPath>
+      <HintPath>..\packages\gong-wpf-dragdrop.1.0.0-ALPHA017\lib\net40\GongSolutions.Wpf.DragDrop.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
