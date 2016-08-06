@@ -8,6 +8,8 @@ categories: []
 tags: []
 comments: []
 ---
+<div class="pull-right">{% include help-nav.html %}</div>
+
 <!-- 
 Note to translator: uncomment entry below to have your effort honored 
 -->

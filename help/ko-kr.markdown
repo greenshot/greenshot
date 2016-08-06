@@ -8,6 +8,8 @@ categories: []
 tags: []
 comments: []
 ---
+<div class="pull-right">{% include help-nav.html %}</div>
+
 <small>Version 1.0 translated by yongdoria dot gmail.com</small>
 
 <h2>목차</h2>

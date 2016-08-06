@@ -8,6 +8,8 @@ categories: []
 tags: []
 comments: []
 ---
+<div class="pull-right">{% include help-nav.html %}</div>
+
 Version 0.8 
 <small>Spanish translation of help content by Alejandro de G&aacute;rate 
 &lt;alex_degarate AT yahoo DOT com&gt; </small>

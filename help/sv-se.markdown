@@ -8,6 +8,8 @@ categories: []
 tags: []
 comments: []
 ---
+<div class="pull-right">{% include help-nav.html %}</div>
+
 <small>Version 1.0 - Svensk översättning av hjälpinnehållet av Torsten Augustsson</small>
 
 <h2>Innehåll</h2>

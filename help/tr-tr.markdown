@@ -8,6 +8,8 @@ categories: []
 tags: []
 comments: []
 ---
+<div class="pull-right">{% include help-nav.html %}</div>
+
 <small>Version 0.8 Yardım içeriğini Türkçe'ye çeviren Kaya Zeren</small>
 
 <h2>İçindekiler</h2>

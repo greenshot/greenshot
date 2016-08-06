@@ -8,6 +8,8 @@ categories: []
 tags: []
 comments: []
 ---
+<div class="pull-right">{% include help-nav.html %}</div>
+
 <h2>Содержание</h2>
 <ol>
 <li><a href="#screenshot">Создание экранных снимков</a></li>

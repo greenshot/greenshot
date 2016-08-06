@@ -8,6 +8,8 @@ categories: []
 tags: []
 comments: []
 ---
+<div class="pull-right">{% include help-nav.html %}</div>
+
 <small>Version 0.8 Nederlanse vertaling van de help door Jurjen Ladenius</small>
 
 <h2>Inhoud</h2>

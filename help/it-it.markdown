@@ -8,6 +8,8 @@ categories: []
 tags: []
 comments: []
 ---
+<div class="pull-right">{% include help-nav.html %}</div>
+
 <small>Versione 1.0<!-- - English translation of help content by YOUR_NAME--></small>
 
 <h2>Contenuti</h2>

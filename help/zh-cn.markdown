@@ -8,6 +8,8 @@ categories: []
 tags: []
 comments: []
 ---
+<div class="pull-right">{% include help-nav.html %}</div>
+
 <small>版本 1.0 简体中文翻译：uralhan</small>
 
 <h2>内容</h2>

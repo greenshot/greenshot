@@ -8,6 +8,8 @@ categories: []
 tags: []
 comments: []
 ---
+<div class="pull-right">{% include help-nav.html %}</div>
+
 <small>Version 1.0.2 RC2 - Norsk omsetjing av Ivar Barstad</small>
 
 <h2>Innhald</h2>
