@@ -69,13 +69,12 @@ nav {
 	position:absolute;
 	right:0;
 	bottom:0;
-	width:100%;
 	text-align: right;
 }
 
 nav ul {
 	margin: 0;
-	padding: 0 0 0 137px;
+	padding: 0 0 0 127px;
 }
 
 nav li {
