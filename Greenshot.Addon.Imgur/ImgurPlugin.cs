@@ -37,7 +37,8 @@ namespace Greenshot.Addon.Imgur
 	/// This is the ImgurPlugin code
 	/// </summary>
 	[Plugin("Imgur", Configurable = true)]
-	[StartupAction, ShutdownAction]
+	[StartupAction(StartupOrder = (int)GreenshotStartupOrder.Addon)]
+	[ShutdownAction]
 	public class ImgurPlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{
 		private ComponentResourceManager _resources;

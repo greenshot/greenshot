@@ -21,26 +21,24 @@
 
 using System;
 using System.ComponentModel.Composition;
+using Caliburn.Micro;
 using Greenshot.Addon.Interfaces;
 
 namespace Greenshot.Services
 {
 	/// <summary>
-	/// This is the notification center
-	/// All uploads, save etc go through here
+	/// This is the notification center, all uploads, save etc go through here
 	/// If code needs to do something with this information, register the OnNotification
 	/// </summary>
 	[Export(typeof(INotificationCenter))]
 	public class NotificationCenter : INotificationCenter
 	{
-		public event EventHandler<INotification> OnNotification;
+		[Import]
+		private IEventAggregator EventAggregator { get; set; }
 
 		public void Notify(object sender, INotification notification)
 		{
-			if (OnNotification != null)
-			{
-				OnNotification.Invoke(sender, notification);
-			}
+			EventAggregator.PublishOnUIThread(notification);
 		}
 	}
 }

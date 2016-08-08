@@ -23,6 +23,7 @@ using System.ComponentModel.Composition;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Addons;
+using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Office.Destinations;
@@ -33,7 +34,7 @@ namespace Greenshot.Addon.Office
 	/// This is the OfficePlugin which takes care of exporting the different office destinations
 	/// </summary>
 	[Plugin("Office", Configurable = false)]
-	[StartupAction]
+	[StartupAction(StartupOrder = (int)GreenshotStartupOrder.Addon)]
 	public class OfficePlugin : IGreenshotPlugin, IStartupAction
 	{
 		[Import]

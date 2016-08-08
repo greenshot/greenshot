@@ -37,7 +37,7 @@ namespace Greenshot.Addon.Box
 	/// This is the Box base code
 	/// </summary>
 	[Plugin("Box", Configurable = true)]
-	[StartupAction]
+	[StartupAction(StartupOrder = (int)GreenshotStartupOrder.Addon)]
 	public class BoxPlugin : IConfigurablePlugin, IStartupAction
 	{
 		private readonly ComponentResourceManager _resources = new ComponentResourceManager(typeof(BoxPlugin));

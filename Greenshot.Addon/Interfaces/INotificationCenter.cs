@@ -26,8 +26,6 @@ namespace Greenshot.Addon.Interfaces
 
 	public interface INotificationCenter
 	{
-		event EventHandler<INotification> OnNotification;
-
 		void Notify(object sender, INotification notification);
 	}
 }

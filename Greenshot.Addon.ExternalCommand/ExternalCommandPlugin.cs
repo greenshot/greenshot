@@ -40,7 +40,7 @@ namespace Greenshot.Addon.ExternalCommand
 	/// An Plugin to run commands after an image was written
 	/// </summary>
 	[Plugin("External command", Configurable = true)]
-	[StartupAction]
+	[StartupAction(StartupOrder = (int)GreenshotStartupOrder.Addon)]
 	public class ExternalCommandPlugin : IConfigurablePlugin, IStartupAction
 	{
 		private static readonly LogSource Log = new LogSource();

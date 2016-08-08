@@ -37,7 +37,8 @@ namespace Greenshot.Addon.Flickr
 	/// This is the Flickr base code
 	/// </summary>
 	[Plugin("Flickr", Configurable = true)]
-	[StartupAction, ShutdownAction]
+	[StartupAction(StartupOrder = (int)GreenshotStartupOrder.Addon)]
+	[ShutdownAction]
 	public class FlickrPlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{
 		private ComponentResourceManager _resources;

@@ -37,7 +37,7 @@ namespace Greenshot.Addon.Dropbox
 	/// This is the Dropbox Plugin
 	/// </summary>
 	[Plugin("Dropbox", Configurable = true)]
-	[StartupAction]
+	[StartupAction(StartupOrder = (int)GreenshotStartupOrder.Addon)]
 	public class DropboxPlugin : IConfigurablePlugin, IStartupAction
 	{
 		public static PluginAttribute Attributes;

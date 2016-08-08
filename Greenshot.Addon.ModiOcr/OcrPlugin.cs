@@ -31,6 +31,7 @@ using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Dapplo.Log.Facade;
+using Greenshot.Addon.Core;
 
 namespace Greenshot.Addon.ModiOcr
 {
@@ -38,8 +39,8 @@ namespace Greenshot.Addon.ModiOcr
 	/// OCR Plugin Greenshot
 	/// </summary>
 	[Plugin("OCR", Configurable = true)]
-	[StartupAction]
-    public class OcrPlugin : IConfigurablePlugin, IStartupAction
+	[StartupAction(StartupOrder = (int)GreenshotStartupOrder.Addon)]
+	public class OcrPlugin : IConfigurablePlugin, IStartupAction
 	{
 		private static readonly LogSource Log = new LogSource();
 		private static readonly string OcrCommand = Path.Combine(Path.GetDirectoryName(typeof(OcrPlugin).Assembly.Location), "ModiOcrCommand.exe");

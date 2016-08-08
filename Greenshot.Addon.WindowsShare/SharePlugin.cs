@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Dapplo.Addons;
 using Dapplo.Log.Facade;
+using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 
@@ -35,8 +36,8 @@ namespace Greenshot.Addon.WindowsShare
 	/// Share Plugin Greenshot
 	/// </summary>
 	[Plugin("Share")]
-	[StartupAction]
-    public class SharePlugin : IGreenshotPlugin, IStartupAction
+	[StartupAction(StartupOrder = (int)GreenshotStartupOrder.Addon)]
+	public class SharePlugin : IGreenshotPlugin, IStartupAction
 	{
 		private static readonly LogSource Log = new LogSource();
 

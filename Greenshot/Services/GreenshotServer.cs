@@ -32,16 +32,17 @@ using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
 using System.ServiceModel.Channels;
 using Greenshot.Addon.Configuration;
-using System.ComponentModel.Composition;
 using Dapplo.Utils;
 using Dapplo.Log.Facade;
+using Greenshot.Addon.Core;
 
 namespace Greenshot.Services
 {
 	/// <summary>
 	/// This startup/shutdown action starts the Greenshot "server", which allows to open files etc.
 	/// </summary>
-	[StartupAction, ShutdownAction]
+	[StartupAction(StartupOrder = (int)GreenshotStartupOrder.Addon)]
+	[ShutdownAction]
 	[ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
 	public class GreenshotServer : IGreenshotContract, IStartupAction, IShutdownAction, IErrorHandler, IDispatchMessageInspector, IEndpointBehavior
 	{

@@ -37,8 +37,9 @@ namespace Greenshot.Addon.Photobucket
 	/// This is the GreenshotPhotobucketPlugin base code
 	/// </summary>
 	[Plugin("Photobucket", Configurable = true)]
-	[StartupAction]
-    public class PhotobucketPlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
+	[StartupAction(StartupOrder = (int)GreenshotStartupOrder.Addon)]
+	[ShutdownAction]
+	public class PhotobucketPlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{
 		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _itemPlugInConfig;

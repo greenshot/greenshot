@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Addons;
 using Dapplo.Utils;
+using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Jira.Forms;
@@ -37,7 +38,7 @@ namespace Greenshot.Addon.Jira
 	/// </summary>
 	[Plugin("Jira", Configurable = true)]
 	[Export(typeof(JiraPlugin))]
-	[StartupAction]
+	[StartupAction(StartupOrder = (int)GreenshotStartupOrder.Addon)]
 	public class JiraPlugin : IConfigurablePlugin, IStartupAction
 	{
 		private JiraMonitor _jiraMonitor;

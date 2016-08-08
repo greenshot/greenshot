@@ -39,7 +39,8 @@ namespace Greenshot.Addon.Confluence
 	/// This is the ConfluencePlugin base code
 	/// </summary>
 	[Plugin("Confluence", Configurable = true)]
-	[StartupAction, ShutdownAction]
+	[StartupAction(StartupOrder = (int)GreenshotStartupOrder.Addon)]
+	[ShutdownAction]
 	public class ConfluencePlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{
 		private static readonly LogSource Log = new LogSource();

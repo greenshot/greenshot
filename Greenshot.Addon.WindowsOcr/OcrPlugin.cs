@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Dapplo.Addons;
 using Dapplo.Log.Facade;
+using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 
@@ -35,8 +36,8 @@ namespace Greenshot.Addon.WindowsOcr
 	/// Ocr Plugin Greenshot
 	/// </summary>
 	[Plugin("Ocr")]
-	[StartupAction]
-    public class OcrPlugin : IGreenshotPlugin, IStartupAction
+	[StartupAction(StartupOrder = (int)GreenshotStartupOrder.Addon)]
+	public class OcrPlugin : IGreenshotPlugin, IStartupAction
 	{
 		private static readonly LogSource Log = new LogSource();
 

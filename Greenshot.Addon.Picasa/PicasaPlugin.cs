@@ -38,7 +38,8 @@ namespace Greenshot.Addon.Picasa
 	/// This is the Picasa base code
 	/// </summary>
 	[Plugin("Picasa", Configurable=true)]
-	[StartupAction]
+	[StartupAction(StartupOrder = (int)GreenshotStartupOrder.Addon)]
+	[ShutdownAction]
 	public class PicasaPlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{
 		private static readonly LogSource Log = new LogSource();

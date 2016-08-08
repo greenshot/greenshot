@@ -253,6 +253,7 @@ namespace Greenshot.Addon.Core
 		/// <param name="item"></param>
 		public static void AddToContextMenu(IGreenshotHost host, ToolStripMenuItem item)
 		{
+			return;
 			// Here we can hang ourselves to the main context menu!
 			var contextMenu = host.MainMenu;
 			bool addedItem = false;
