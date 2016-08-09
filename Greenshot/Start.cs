@@ -1,13 +1,19 @@
 ﻿using System;
 using System.Windows;
 using Dapplo.CaliburnMicro;
+using Dapplo.Config.Language;
 using Dapplo.Log.Facade;
 using Dapplo.Log.Loggers;
 using Dapplo.Utils.Resolving;
+using Greenshot.Addon.Configuration;
+using Dapplo.Config.Support;
 
 namespace Greenshot
 {
-	public class Start
+	/// <summary>
+	/// This class contains the code to start Greenshot
+	/// </summary>
+	public static class Start
 	{
 		private const string MutexId = "F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08";
 
@@ -29,7 +35,14 @@ namespace Greenshot
 
 			var application = new Dapplication("Greenshot", MutexId)
 			{
-				ShutdownMode = ShutdownMode.OnExplicitShutdown
+				ShutdownMode = ShutdownMode.OnExplicitShutdown,
+				// Don't allow the application to run multiple times
+				OnAlreadyRunning = () =>
+				{
+					var greenshotLanguage = LanguageLoader.Current.Get<IGreenshotLanguage>();
+					MessageBox.Show(greenshotLanguage.TranslationOrDefault(x => x.ErrorMultipleinstances), "Greenshot", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+					Application.Current.Shutdown();
+				}
 			};
 
 			// Set .gsp as the Greenshot plugin extension

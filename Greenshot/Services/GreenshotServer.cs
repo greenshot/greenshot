@@ -63,6 +63,9 @@ namespace Greenshot.Services
 		/// </summary>
 		public static string EndPoint => $"{PipeBaseEndpoint}{Identity}";
 
+		/// <summary>
+		/// Defines if the server is started
+		/// </summary>
 		public bool IsStarted
 		{
 			get;
@@ -77,42 +80,36 @@ namespace Greenshot.Services
 		public Task StartAsync(CancellationToken token = default(CancellationToken))
 		{
 			Log.Debug().WriteLine("Starting Greenshot server");
-			return Task.Factory.StartNew(
-				// this will use current synchronization context
-				() =>
+			return Task.Run(() => {
+				try
 				{
-					try
-					{
-						_host = new ServiceHost(this, new[] { new Uri(PipeBaseEndpoint) });
-						Log.Debug().WriteLine("Starting Greenshot server with endpoints:");
+					_host = new ServiceHost(this, new Uri(PipeBaseEndpoint));
+					Log.Debug().WriteLine("Starting Greenshot server with endpoints:");
 
-						// Add ServiceMetadataBehavior
-						_host.Description.Behaviors.Add(new ServiceMetadataBehavior { HttpsGetEnabled = false });
+					// Add ServiceMetadataBehavior
+					_host.Description.Behaviors.Add(new ServiceMetadataBehavior { HttpsGetEnabled = false });
 
-						// Our IGreenshotContract endpoint:
-						var serviceEndpointGreenshotContract = _host.AddServiceEndpoint(typeof(IGreenshotContract), new NetNamedPipeBinding(), EndPoint);
-						Log.Debug().WriteLine("Added endpoint: address=\"{4:l}\", contract=\"{0:l}\", contractNamespace=\"{1:l}\", binding=\"{2:l}_{0:l}\", bindingNamespace=\"{3:l}\"", serviceEndpointGreenshotContract.Contract.Name, serviceEndpointGreenshotContract.Contract.Namespace, serviceEndpointGreenshotContract.Binding.Name, serviceEndpointGreenshotContract.Binding.Namespace, serviceEndpointGreenshotContract.ListenUri.AbsoluteUri);
+					// Our IGreenshotContract endpoint:
+					var serviceEndpointGreenshotContract = _host.AddServiceEndpoint(typeof(IGreenshotContract), new NetNamedPipeBinding(), EndPoint);
+					Log.Debug().WriteLine("Added endpoint: address=\"{4:l}\", contract=\"{0:l}\", contractNamespace=\"{1:l}\", binding=\"{2:l}_{0:l}\", bindingNamespace=\"{3:l}\"", serviceEndpointGreenshotContract.Contract.Name, serviceEndpointGreenshotContract.Contract.Namespace, serviceEndpointGreenshotContract.Binding.Name, serviceEndpointGreenshotContract.Binding.Namespace, serviceEndpointGreenshotContract.ListenUri.AbsoluteUri);
 
-						// Add error / request logging
-						serviceEndpointGreenshotContract.EndpointBehaviors.Add(this);
+					// Add error / request logging
+					serviceEndpointGreenshotContract.EndpointBehaviors.Add(this);
 
-						// The MetadataExchangeBindings endpoint
-						var serviceEndpointMex = _host.AddServiceEndpoint(ServiceMetadataBehavior.MexContractName, MetadataExchangeBindings.CreateMexNamedPipeBinding(), EndPoint + "/mex");
-						Log.Debug().WriteLine("Added endpoint: address=\"{4}\", contract=\"{0}\", contractNamespace=\"{1}\", binding=\"{2}\", bindingNamespace=\"{3}\"", serviceEndpointMex.Contract.Name, serviceEndpointMex.Contract.Namespace, serviceEndpointMex.Binding.Name, serviceEndpointMex.Binding.Namespace, serviceEndpointMex.ListenUri.AbsoluteUri);
-						_host.Open();
-						IsStarted = true;
-						Log.Debug().WriteLine("Started Greenshot server");
-					}
-					catch (Exception ex)
-					{
-						Log.Error().WriteLine(ex, "Couldn't create Greenshot server");
-						throw;
-					}
-				},
-				token,
-				TaskCreationOptions.None,
-				TaskScheduler.FromCurrentSynchronizationContext()
-			);
+					// The MetadataExchangeBindings endpoint
+					var serviceEndpointMex = _host.AddServiceEndpoint(ServiceMetadataBehavior.MexContractName, MetadataExchangeBindings.CreateMexNamedPipeBinding(), EndPoint + "/mex");
+					Log.Debug().WriteLine("Added endpoint: address=\"{4}\", contract=\"{0}\", contractNamespace=\"{1}\", binding=\"{2}\", bindingNamespace=\"{3}\"", serviceEndpointMex.Contract.Name, serviceEndpointMex.Contract.Namespace, serviceEndpointMex.Binding.Name, serviceEndpointMex.Binding.Namespace, serviceEndpointMex.ListenUri.AbsoluteUri);
+					_host.Open();
+					IsStarted = true;
+					Log.Debug().WriteLine("Started Greenshot server");
+				}
+				catch (Exception ex)
+				{
+					Log.Error().WriteLine(ex, "Couldn't create Greenshot server");
+					throw;
+				}
+			},
+			token);
 		}
 
 		/// <summary>

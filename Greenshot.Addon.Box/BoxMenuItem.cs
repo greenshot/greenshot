@@ -11,7 +11,7 @@ namespace Greenshot.Addon.Box
 	/// This will add an extry for the exit to the context menu
 	/// </summary>
 	[Export("systray", typeof(IMenuItem))]
-	public sealed class BoxMenuItem : MenuItem, IPartImportsSatisfiedNotification
+	public sealed class BoxMenuItem : MenuItem
 	{
 
 		[Import]
@@ -28,18 +28,15 @@ namespace Greenshot.Addon.Box
 			set;
 		}
 
-		public void OnImportsSatisfied()
+		public override void Initialize()
 		{
 			Id = "Box";
-			UiContext.RunOn(() =>
+			// automatically update the DisplayName
+			this.BindDisplayName(BoxLanguage, nameof(IBoxLanguage.SettingsTitle));
+			Icon = new PackIconMaterial
 			{
-				// automatically update the DisplayName
-				this.BindDisplayName(BoxLanguage, nameof(IBoxLanguage.SettingsTitle));
-				Icon = new PackIconMaterial
-				{
-					Kind = PackIconMaterialKind.Box
-				};
-			});
+				Kind = PackIconMaterialKind.Box
+			};
 		}
 
 		public override void Click(IMenuItem clickedItem)

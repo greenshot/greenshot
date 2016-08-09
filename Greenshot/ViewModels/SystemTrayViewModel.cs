@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.IO;
 using System.Linq;
 using Caliburn.Micro;
 using Dapplo.CaliburnMicro.Menu;
@@ -11,6 +12,10 @@ using Greenshot.Addon.Interfaces;
 using Greenshot.Views;
 using MahApps.Metro.IconPacks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using MenuItem = Dapplo.CaliburnMicro.Menu.MenuItem;
 
 namespace Greenshot.ViewModels
 {
@@ -31,34 +36,77 @@ namespace Greenshot.ViewModels
 		public void OnImportsSatisfied()
 		{
 			EventAggregator.Subscribe(this);
+		}
+
+		private RenderTargetBitmap Render(Visual v)
+		{
+			// new a drawing visual and get its context
+			DrawingVisual dv = new DrawingVisual();
+			using (var dc = dv.RenderOpen())
+			{
+				// generate a visual brush by input, and paint
+				VisualBrush vb = new VisualBrush(v);
+				dc.DrawRectangle(vb, null, new Rect(0, 0, 16, 16));
+			}
+			var rtb = new RenderTargetBitmap(100,100,96d, 96d, PixelFormats.Pbgra32);
+			rtb.Render(dv);
+			return rtb;
+		}
+
+		public WriteableBitmap SaveAsWriteableBitmap(FrameworkElement frameworkElement)
+		{
+			if (frameworkElement == null) return null;
+
+			// Save current canvas transform
+			Transform transform = frameworkElement.LayoutTransform;
+			// reset current transform (in case it is scaled or rotated)
+			frameworkElement.LayoutTransform = null;
+
+			frameworkElement.Width = 500;
+			frameworkElement.Height = 500;
+			// Get the size of canvas
+			Size size = new Size(100, 100);
+			// Measure and arrange the surface
+			// VERY IMPORTANT
+			frameworkElement.Measure(size);
+			frameworkElement.Arrange(new Rect(new Point(), size));
+			frameworkElement.UpdateLayout();
+
+			// Create a render bitmap and push the surface to it
+			RenderTargetBitmap renderBitmap = new RenderTargetBitmap(
+			  (int)size.Width,
+			  (int)size.Height,
+			  96d,
+			  96d,
+			  PixelFormats.Pbgra32);
+			renderBitmap.Render(frameworkElement);
+
+			//Restore previously saved layout
+			frameworkElement.LayoutTransform = transform;
+
+			//create and return a new WriteableBitmap using the RenderTargetBitmap
+			return new WriteableBitmap(renderBitmap);
 
 		}
 
 		protected override void OnActivate()
 		{
-			var items = ContextMenuItems.ToList();
-			items.Add(new MenuItem
-			{
-				IsSeparator = true,
-				Id = "Y_Separator"
-			});
-			items.Add(new MenuItem
-			{
-				Id = "Y_Exit",
-				Icon = new PackIconMaterial
-				{
-					Kind = PackIconMaterialKind.ExitToApp
-				},
-				ClickAction = item => Application.Current.Shutdown()
-			});
-			ConfigureMenuItems(items);
-
 			// TODO: This doesn't work??
 			var logo = new GreenshotLogo();
-			SetIcon(logo);
+
+			var dv = Render(logo);
+			var encoder = new PngBitmapEncoder();
+			encoder.Frames.Add(BitmapFrame.Create(dv));
+			using (var filestream = new FileStream(@"c:\LocalData\test.png", FileMode.Create))
+			{
+				encoder.Save(filestream);
+			}
+
+			//SetIcon(logo);
 
 			base.OnActivate();
 
+			BuildSystrayContextMenu();
 			// Check if the user wan't to see the tray icon
 			if (!CoreConfiguration.HideTrayicon)
 			{
@@ -68,6 +116,33 @@ namespace Greenshot.ViewModels
 			{
 				Log.Info().WriteLine("System tray is disabled.");
 			}
+		}
+
+		/// <summary>
+		/// builds the context menu for the system tray, this should be called from the UI thread!
+		/// </summary>
+		private void BuildSystrayContextMenu()
+		{
+			var items = ContextMenuItems.ToList();
+			if (items.Count > 0)
+			{
+				items.Add(new MenuItem
+				{
+					IsSeparator = true,
+					Id = "Y_Separator"
+				});
+			}
+			items.Add(new MenuItem
+			{
+				Id = "Y_Exit",
+				Icon = new PackIconModern
+				{
+					Kind = PackIconModernKind.AxisXLetter,
+					Foreground = Brushes.DarkRed
+				},
+				ClickAction = item => Application.Current.Shutdown()
+			});
+			ConfigureMenuItems(items);
 		}
 
 		public override void Click()
