@@ -1,7 +1,29 @@
-﻿using System.Collections.Generic;
+﻿/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2016  Thomas Braun, Jens Klingen, Robin Krom
+ * 
+ * For more information see: http://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub: https://github.com/greenshot
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.IO;
 using System.Linq;
+using System.Windows;
+using System.Windows.Media;
 using Caliburn.Micro;
 using Dapplo.CaliburnMicro.Menu;
 using Dapplo.CaliburnMicro.NotifyIconWpf;
@@ -9,20 +31,21 @@ using Dapplo.CaliburnMicro.NotifyIconWpf.ViewModels;
 using Dapplo.Log.Facade;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Interfaces;
-using Greenshot.Views;
 using MahApps.Metro.IconPacks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using MenuItem = Dapplo.CaliburnMicro.Menu.MenuItem;
+using Dapplo.CaliburnMicro.Extensions;
+using Dapplo.Utils;
 
-namespace Greenshot.ViewModels
+namespace Greenshot.Ui.ViewModels
 {
+	/// <summary>
+	/// This contains all the logic for the system-tray, which is the icon, context-menu and notification messages.
+	/// </summary>
 	[Export(typeof(ITrayIconViewModel))]
 	public class SystemTrayViewModel : TrayIconViewModel, IHandle<INotification>, IPartImportsSatisfiedNotification
 	{
 		private static readonly LogSource Log = new LogSource();
+		private readonly Disposables _disposables = new Disposables();
 
 		[ImportMany("systray", typeof(IMenuItem))]
 		private IEnumerable<IMenuItem> ContextMenuItems { get; set; }
@@ -33,76 +56,36 @@ namespace Greenshot.ViewModels
 		[Import]
 		private ICoreConfiguration CoreConfiguration { get; set; }
 
+		[Import]
+		private IGreenshotLanguage GreenshotLanguage { get; set; }
+
+		/// <summary>Called when a part's imports have been satisfied and it is safe to use.</summary>
 		public void OnImportsSatisfied()
 		{
+			// Subscribe "this" as handler for INotification events
 			EventAggregator.Subscribe(this);
 		}
 
-		private RenderTargetBitmap Render(Visual v)
+		/// <summary>Called when deactivating.</summary>
+		/// <param name="close">Inidicates whether this instance will be closed.</param>
+		protected override void OnDeactivate(bool close)
 		{
-			// new a drawing visual and get its context
-			DrawingVisual dv = new DrawingVisual();
-			using (var dc = dv.RenderOpen())
-			{
-				// generate a visual brush by input, and paint
-				VisualBrush vb = new VisualBrush(v);
-				dc.DrawRectangle(vb, null, new Rect(0, 0, 16, 16));
-			}
-			var rtb = new RenderTargetBitmap(100,100,96d, 96d, PixelFormats.Pbgra32);
-			rtb.Render(dv);
-			return rtb;
+			base.OnDeactivate(close);
+			_disposables.Dispose();
 		}
 
-		public WriteableBitmap SaveAsWriteableBitmap(FrameworkElement frameworkElement)
-		{
-			if (frameworkElement == null) return null;
-
-			// Save current canvas transform
-			Transform transform = frameworkElement.LayoutTransform;
-			// reset current transform (in case it is scaled or rotated)
-			frameworkElement.LayoutTransform = null;
-
-			frameworkElement.Width = 500;
-			frameworkElement.Height = 500;
-			// Get the size of canvas
-			Size size = new Size(100, 100);
-			// Measure and arrange the surface
-			// VERY IMPORTANT
-			frameworkElement.Measure(size);
-			frameworkElement.Arrange(new Rect(new Point(), size));
-			frameworkElement.UpdateLayout();
-
-			// Create a render bitmap and push the surface to it
-			RenderTargetBitmap renderBitmap = new RenderTargetBitmap(
-			  (int)size.Width,
-			  (int)size.Height,
-			  96d,
-			  96d,
-			  PixelFormats.Pbgra32);
-			renderBitmap.Render(frameworkElement);
-
-			//Restore previously saved layout
-			frameworkElement.LayoutTransform = transform;
-
-			//create and return a new WriteableBitmap using the RenderTargetBitmap
-			return new WriteableBitmap(renderBitmap);
-
-		}
-
+		/// <summary>Called when activating.</summary>
 		protected override void OnActivate()
 		{
-			// TODO: This doesn't work??
-			var logo = new GreenshotLogo();
-
-			var dv = Render(logo);
-			var encoder = new PngBitmapEncoder();
-			encoder.Frames.Add(BitmapFrame.Create(dv));
-			using (var filestream = new FileStream(@"c:\LocalData\test.png", FileMode.Create))
+			var brushConverter = new BrushConverter();
+			var logo = new PackIconGreenshot
 			{
-				encoder.Save(filestream);
-			}
+				Kind = PackIconKindGreenshot.Greenshot,
+				Foreground = brushConverter.ConvertFromString("#FF9AFF00") as SolidColorBrush,
+				Background = brushConverter.ConvertFromString("#FF3D3D3D") as SolidColorBrush
+			};
 
-			//SetIcon(logo);
+			SetIcon(logo);
 
 			base.OnActivate();
 
@@ -132,19 +115,26 @@ namespace Greenshot.ViewModels
 					Id = "Y_Separator"
 				});
 			}
-			items.Add(new MenuItem
+			var exitMenuItem = new MenuItem
 			{
-				Id = "Y_Exit",
+				Id = "Z_Exit",
 				Icon = new PackIconModern
 				{
-					Kind = PackIconModernKind.AxisXLetter,
+					Kind = PackIconModernKind.Close,
 					Foreground = Brushes.DarkRed
 				},
 				ClickAction = item => Application.Current.Shutdown()
-			});
+			};
+			items.Add(exitMenuItem);
+
+			_disposables.Add(exitMenuItem.BindDisplayName(GreenshotLanguage, nameof(IGreenshotLanguage.ContextmenuExit)));
 			ConfigureMenuItems(items);
+			items.ApplyIconMargin(new Thickness(2));
 		}
 
+		/// <summary>
+		/// Implementation for the left-click on the icon
+		/// </summary>
 		public override void Click()
 		{
 			Log.Info().WriteLine("System tray was clicked.");
@@ -162,11 +152,16 @@ namespace Greenshot.ViewModels
 			}
 		}
 
+		/// <summary>
+		/// Handle INotification messages
+		/// </summary>
+		/// <param name="notification"></param>
 		public void Handle(INotification notification)
 		{
 			// Check if the user wants to see notifications
 			if (!CoreConfiguration.ShowTrayNotification)
 			{
+				// Ignore, user doesn't want to be disturbed
 				return;
 			}
 

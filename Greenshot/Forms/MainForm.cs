@@ -1425,7 +1425,6 @@ namespace Greenshot.Forms
 				Log.Error().WriteLine("Error storing configuration!", e);
 			}
 
-
 			// make the icon invisible otherwise it stays even after exit!!
 			if (notifyIcon != null)
 			{
