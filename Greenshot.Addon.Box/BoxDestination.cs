@@ -21,21 +21,18 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.Composition;
-using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media.Imaging;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.OAuth;
 using Greenshot.Addon.Core;
-using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Windows;
 using Dapplo.Log.Facade;
+using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Addon.Box
 {
@@ -44,17 +41,7 @@ namespace Greenshot.Addon.Box
 	{
 		private const string BoxDesignation = "Box";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly BitmapSource BoxIcon;
 		private OAuth2Settings _oauth2Settings;
-
-		static BoxDestination()
-		{
-			var resources = new ComponentResourceManager(typeof(BoxPlugin));
-			using (var boxImage = (Bitmap)resources.GetObject("Box"))
-			{
-				BoxIcon = boxImage.ToBitmapSource();
-			}
-		}
 
 		[Import]
 		private IBoxConfiguration BoxConfiguration
@@ -79,7 +66,10 @@ namespace Greenshot.Addon.Box
 			Designation = BoxDesignation;
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
 			Text = BoxLanguage.UploadMenuItem;
-			Icon = BoxIcon;
+			Icon = new PackIconMaterial
+			{
+				Kind = PackIconMaterialKind.Box
+			};
 
 			_oauth2Settings = new OAuth2Settings
 			{

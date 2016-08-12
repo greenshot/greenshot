@@ -33,6 +33,7 @@ using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Dapplo.Log.Facade;
+using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Addon.ModiOcr
 {
@@ -71,7 +72,11 @@ namespace Greenshot.Addon.ModiOcr
 			Designation = OcrDesignation;
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
 			Text = OcrDesignation;
-			Icon = OcrIcon;
+			Icon = new PackIconModern
+			{
+				// TODO: Search for icon
+				Kind = PackIconModernKind.BookOpenText
+			};
 		}
 
 		private async Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))

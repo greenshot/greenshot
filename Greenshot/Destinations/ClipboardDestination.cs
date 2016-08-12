@@ -23,13 +23,12 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.ComponentModel.Composition;
-using System.Windows.Media.Imaging;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
-using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Dapplo.Log.Facade;
+using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Destinations
 {
@@ -41,14 +40,7 @@ namespace Greenshot.Destinations
 	{
 		private const string ClipboardDesignation = "Clipboard";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly BitmapSource ClipboardIcon;
-		static ClipboardDestination()
-		{
-			using (var clipboardIcon = GreenshotResources.GetImage("Clipboard.Image"))
-			{
-				ClipboardIcon = clipboardIcon.ToBitmapSource();
-			}
-        }
+
 		[Import]
 		private ICoreConfiguration CoreConfiguration
 		{
@@ -69,7 +61,10 @@ namespace Greenshot.Destinations
 			Text = GreenshotLanguage.SettingsDestinationClipboard;
 			Designation = ClipboardDesignation;
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
-			Icon = ClipboardIcon;
+			Icon = new PackIconModern
+			{
+				Kind = PackIconModernKind.Clipboard
+			};
 		}
 
 		private Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))

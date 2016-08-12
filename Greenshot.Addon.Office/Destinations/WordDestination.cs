@@ -36,6 +36,7 @@ using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Office.OfficeExport;
 using Dapplo.Log.Facade;
+using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Addon.Office.Destinations
 {
@@ -91,7 +92,10 @@ namespace Greenshot.Addon.Office.Destinations
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, null);
 			Text = Text = $"Export to {WordDesignation}";
 			Designation = WordDesignation;
-			Icon = ApplicationIcon;
+			Icon = new PackIconModern
+			{
+				Kind = PackIconModernKind.OfficeWord
+			};
 		}
 
 		/// <summary>
@@ -107,7 +111,10 @@ namespace Greenshot.Addon.Office.Destinations
 			{
 				return WordExporter.GetWordDocuments().OrderBy(x => x).Select(caption => new WordDestination
 				{
-					Icon = DocumentIcon,
+					Icon = new PackIconModern
+					{
+						Kind = PackIconModernKind.PageWord
+					},
 					Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, caption),
 					Text = caption,
 					OfficeConfiguration = OfficeConfiguration,

@@ -28,10 +28,10 @@ using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
 using Dapplo.Log.Facade;
 using Greenshot.Addon.Core;
-using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
+using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Addon.WindowsOcr
 {
@@ -40,16 +40,6 @@ namespace Greenshot.Addon.WindowsOcr
 	{
 		private const string OcrDesignation = "Ocr";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly System.Windows.Media.Imaging.BitmapSource OcrIcon;
-
-		static OcrDestination()
-		{
-			string exePath = PluginUtils.GetExePath("EXPLORER.EXE");
-			if (exePath != null && File.Exists(exePath))
-			{
-				OcrIcon = PluginUtils.GetCachedExeIcon(exePath, 0).ToBitmapSource();
-			}
-		}
 
 		[Import]
 		private IGreenshotHost GreenshotHost
@@ -67,7 +57,11 @@ namespace Greenshot.Addon.WindowsOcr
 			Designation = OcrDesignation;
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
 			Text = OcrDesignation;
-			Icon = OcrIcon;
+			Icon = new PackIconModern
+			{
+				// TODO: Search icon
+				Kind = PackIconModernKind.BookOpenText
+			};
 
 			var languages = OcrEngine.AvailableRecognizerLanguages;
 			foreach (var language in languages)

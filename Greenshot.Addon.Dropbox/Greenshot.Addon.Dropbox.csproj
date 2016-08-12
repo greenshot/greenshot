@@ -76,8 +76,8 @@
       <HintPath>..\packages\Dapplo.Log.Facade.0.5.4\lib\net45\Dapplo.Log.Facade.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Utils, Version=0.1.111.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Utils.0.1.111\lib\net45\Dapplo.Utils.dll</HintPath>
+    <Reference Include="Dapplo.Utils, Version=0.1.112.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Utils.0.1.112\lib\net45\Dapplo.Utils.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="MahApps.Metro.IconPacks, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -122,12 +122,8 @@
     </Compile>
     <Compile Include="IDropboxLanguage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="DropboxPlugin.resx">
-      <DependentUpon>DropboxPlugin.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Dropbox.gif" />
     <Content Include="Languages\language_dropboxplugin-cs-CZ.xml" />
     <Content Include="Languages\language_dropboxplugin-de-DE.xml" />
     <Content Include="Languages\language_dropboxplugin-fr-FR.xml" />

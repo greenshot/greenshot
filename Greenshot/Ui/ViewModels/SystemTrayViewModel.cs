@@ -35,6 +35,7 @@ using MahApps.Metro.IconPacks;
 using MenuItem = Dapplo.CaliburnMicro.Menu.MenuItem;
 using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.Utils;
+using Greenshot.Addon.Ui;
 
 namespace Greenshot.Ui.ViewModels
 {

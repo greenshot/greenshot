@@ -21,27 +21,24 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.Composition;
-using System.Drawing;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media.Imaging;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.OAuth;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Dropbox.Entities;
-using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
 using Dapplo.Utils;
 using Dapplo.Log.Facade;
+using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Addon.Dropbox
 {
@@ -52,19 +49,8 @@ namespace Greenshot.Addon.Dropbox
 		private static readonly LogSource Log = new LogSource();
 		private static readonly Uri DropboxApiUri = new Uri("https://api.dropbox.com");
 		private static readonly Uri DropboxContentUri = new Uri("https://content.dropboxapi.com/2/files/upload");
-		private static readonly BitmapSource DropboxIcon;
 		private OAuth2Settings _oAuth2Settings;
 		private IHttpBehaviour _oAuthHttpBehaviour;
-
-		static DropboxDestination()
-		{
-			var resources = new ComponentResourceManager(typeof(DropboxPlugin));
-			using (var dropboxImage = (Bitmap) resources.GetObject("Dropbox"))
-			{
-				DropboxIcon = dropboxImage.ToBitmapSource();
-			}
-
-		}
 
 		[Import]
 		private IDropboxConfiguration DropboxConfiguration
@@ -89,7 +75,10 @@ namespace Greenshot.Addon.Dropbox
 			Designation = DropboxDesignation;
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
 			Text = DropboxLanguage.UploadMenuItem;
-			Icon = DropboxIcon;
+			Icon = new PackIconMaterial
+			{
+				Kind = PackIconMaterialKind.Dropbox
+			};
 
 			_oAuth2Settings = new OAuth2Settings
 			{

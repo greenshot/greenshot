@@ -25,17 +25,16 @@ using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
 using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Editor.Drawing;
 using Greenshot.Addon.Editor.Forms;
-using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Forms;
 using Dapplo.Log.Facade;
+using Greenshot.Addon.Ui;
 
 namespace Greenshot.Addon.Editor
 {
@@ -47,7 +46,6 @@ namespace Greenshot.Addon.Editor
 	{
 		private const string EditorDesignation = "Editor";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly BitmapSource GreenshotIcon = GreenshotResources.GetGreenshotIcon().ToBitmapSource();
 
 		[Import]
 		private IEditorConfiguration EditorConfiguration
@@ -69,7 +67,10 @@ namespace Greenshot.Addon.Editor
 			Text = GreenshotLanguage.SettingsDestinationEditor;
 			Designation = EditorDesignation;
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, null, token);
-			Icon = GreenshotIcon;
+			Icon = new PackIconGreenshot
+			{
+				Kind = PackIconKindGreenshot.Greenshot
+			};
 		}
 
 		/// <summary>
@@ -87,7 +88,10 @@ namespace Greenshot.Addon.Editor
 				{
 					Text = openEditor.Surface.CaptureDetails.Title,
 					Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, openEditor, exportToken),
-					Icon = GreenshotIcon,
+					Icon = new PackIconGreenshot
+					{
+						Kind = PackIconKindGreenshot.Greenshot
+					},
 					EditorConfiguration = EditorConfiguration,
 					GreenshotLanguage = GreenshotLanguage
 				}).ToList();

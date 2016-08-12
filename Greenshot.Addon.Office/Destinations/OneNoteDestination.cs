@@ -25,15 +25,14 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
 using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
-using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Office.OfficeExport;
 using Dapplo.Log.Facade;
+using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Addon.Office.Destinations
 {
@@ -45,7 +44,6 @@ namespace Greenshot.Addon.Office.Destinations
 	{
 		public const string OneNoteDesignation = "OneNote";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly BitmapSource ApplicationIcon;
 		
 		static OneNoteDestination()
 		{
@@ -53,7 +51,6 @@ namespace Greenshot.Addon.Office.Destinations
 			if (exePath != null && File.Exists(exePath))
 			{
 				WindowDetails.AddProcessToExcludeFromFreeze("onenote");
-				ApplicationIcon = PluginUtils.GetCachedExeIcon(exePath, 0).ToBitmapSource();
 				IsActive = true;
 			}
 		}
@@ -87,7 +84,10 @@ namespace Greenshot.Addon.Office.Destinations
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, null);
 			Text = Text = $"Export to {OneNoteDesignation}";
 			Designation = OneNoteDesignation;
-			Icon = ApplicationIcon;
+			Icon = new PackIconModern
+			{
+				Kind = PackIconModernKind.OfficeOnenote
+			};
 		}
 
 		/// <summary>
@@ -103,7 +103,10 @@ namespace Greenshot.Addon.Office.Destinations
 			{
 				return OneNoteExporter.GetPages().OrderBy(x => x.DisplayName).Select(page => new OneNoteDestination
 				{
-					Icon = ApplicationIcon,
+					Icon = new PackIconModern
+					{
+						Kind = PackIconModernKind.PageOnenote
+					},
 					Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, page),
 					Text = page.DisplayName,
 					OfficeConfiguration = OfficeConfiguration,

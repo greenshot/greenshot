@@ -19,22 +19,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Log.Facade;
 using Greenshot.Addon.Core;
-using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using System.ComponentModel.Composition;
 using System.Threading;
 using System.Threading.Tasks;
+using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Addon.ExternalCommand
 {
 	[Destination("ExternalCommand"), PartNotDiscoverable]
 	public sealed class ExternalCommandDestination : AbstractDestination
 	{
-		private static readonly LogSource Log = new LogSource();
 		private readonly CommandSettings _settings;
 
 		[Import]
@@ -65,7 +63,14 @@ namespace Greenshot.Addon.ExternalCommand
 			Designation = _settings.Name;
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
 			Text = _settings.Name;
-			Icon = PluginUtils.GetCachedExeIcon(_settings.Commandline, 0).ToBitmapSource();
+			// TODO: Set Icon
+
+			Icon = new PackIconModern
+			{
+				Kind = PackIconModernKind.App
+			};
+
+			//Icon = PluginUtils.GetCachedExeIcon(_settings.Commandline, 0).ToBitmapSource();
 		}
 
 		private async Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))

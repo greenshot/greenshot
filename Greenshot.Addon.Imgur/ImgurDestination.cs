@@ -21,23 +21,20 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.Composition;
-using System.Drawing;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media.Imaging;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.OAuth;
 using Greenshot.Addon.Core;
-using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
 using Dapplo.Log.Facade;
+using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Addon.Imgur
 {
@@ -46,18 +43,7 @@ namespace Greenshot.Addon.Imgur
 	{
 		private const string ImgurDesignation = "Imgur";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly BitmapSource ImgurIcon;
 		private OAuth2Settings _oauth2Settings;
-
-		static ImgurDestination()
-		{
-			var resources = new ComponentResourceManager(typeof(ImgurPlugin));
-			using (var imgurImage = (Bitmap) resources.GetObject("Imgur"))
-			{
-				ImgurIcon = imgurImage.ToBitmapSource();
-			}
-
-		}
 
 		[Import]
 		private IImgurConfiguration ImgurConfiguration
@@ -82,7 +68,11 @@ namespace Greenshot.Addon.Imgur
 			Designation = ImgurDesignation;
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
 			Text = ImgurLanguage.UploadMenuItem;
-			Icon = ImgurIcon;
+			Icon = new PackIconMaterial
+			{
+				// TODO: Find icon
+				Kind = PackIconMaterialKind.MusicNoteHalf
+			};
 
 			_oauth2Settings = new OAuth2Settings
 			{

@@ -76,8 +76,8 @@
       <HintPath>..\packages\Dapplo.Log.Facade.0.5.4\lib\net45\Dapplo.Log.Facade.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Utils, Version=0.1.111.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Utils.0.1.111\lib\net45\Dapplo.Utils.dll</HintPath>
+    <Reference Include="Dapplo.Utils, Version=0.1.112.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Utils.0.1.112\lib\net45\Dapplo.Utils.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="MahApps.Metro.IconPacks, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -103,7 +103,6 @@
     <Compile Include="BoxDestination.cs" />
     <Compile Include="BoxMenuItem.cs" />
     <Compile Include="IBoxConfiguration.cs" />
-    <Compile Include="BoxPlugin.cs" />
     <Compile Include="BoxUtils.cs" />
     <Compile Include="Forms\BoxForm.cs">
       <SubType>Form</SubType>
@@ -116,14 +115,8 @@
     </Compile>
     <Compile Include="IBoxLanguage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="BoxPlugin.resx">
-      <DependentUpon>BoxPlugin.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Resources\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="Languages\language_boxplugin-fr-FR.xml" />
     <Content Include="Languages\language_boxplugin-id-ID.xml" />
@@ -138,7 +131,6 @@
     <Content Include="Languages\language_boxplugin-uk-UA.xml" />
     <Content Include="Languages\language_boxplugin-zh-CN.xml" />
     <Content Include="Languages\language_boxplugin-zh-TW.xml" />
-    <None Include="box.png" />
     <Content Include="Languages\language_boxplugin-cs-CZ.xml" />
     <Content Include="Languages\language_boxplugin-de-DE.xml" />
     <Content Include="Languages\language_boxplugin-en-US.xml" />

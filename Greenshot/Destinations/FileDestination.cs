@@ -23,19 +23,18 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.ComponentModel.Composition;
-using System.Windows.Media.Imaging;
 using System.IO;
 using System.Windows;
 using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Controls;
 using Greenshot.Addon.Core;
-using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Forms;
 using Dapplo.Log.Facade;
+using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Destinations
 {
@@ -47,14 +46,7 @@ namespace Greenshot.Destinations
 	{
 		private const string FileDesignation = "File";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly BitmapSource FileIcon;
-		static FileDestination()
-		{
-			using (var fileIcon = GreenshotResources.GetImage("Save.Image"))
-			{
-				FileIcon = fileIcon.ToBitmapSource();
-			}
-        }
+
 		[Import]
 		private ICoreConfiguration CoreConfiguration
 		{
@@ -75,7 +67,10 @@ namespace Greenshot.Destinations
 			Text = GreenshotLanguage.SettingsDestinationFile;
 			Designation = FileDesignation;
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
-			Icon = FileIcon;
+			Icon = new PackIconModern
+			{
+				Kind = PackIconModernKind.Save
+			};
 		}
 
 		private async Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))

@@ -25,17 +25,16 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
 using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
-using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Office.OfficeExport;
 using System.Linq;
 using Dapplo.Log.Facade;
+using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Addon.Office.Destinations
 {
@@ -47,9 +46,6 @@ namespace Greenshot.Addon.Office.Destinations
 	{
 		public const string OutlookDesignation = "Outlook";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly BitmapSource MeetingIcon;
-		private static readonly BitmapSource MailIcon;
-		private static readonly BitmapSource ApplicationIcon;
 		
 		static OutlookDestination()
 		{
@@ -57,12 +53,6 @@ namespace Greenshot.Addon.Office.Destinations
 			if (exePath != null && File.Exists(exePath))
 			{
 				WindowDetails.AddProcessToExcludeFromFreeze("outlook");
-				ApplicationIcon = PluginUtils.GetCachedExeIcon(exePath, 0).ToBitmapSource();
-				MeetingIcon = PluginUtils.GetCachedExeIcon(exePath, 2).ToBitmapSource();
-				using (var mailIcon = GreenshotResources.GetImage("Email.Image"))
-				{
-					MailIcon = mailIcon.ToBitmapSource();
-				}
 				IsActive = true;
 			}
 		}
@@ -96,7 +86,10 @@ namespace Greenshot.Addon.Office.Destinations
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, null);
 			Text = Text = $"Export to {OutlookDesignation}";
 			Designation = OutlookDesignation;
-			Icon = ApplicationIcon;
+			Icon = new PackIconModern
+			{
+				Kind = PackIconModernKind.OfficeOutlook
+			};
 		}
 
 		/// <summary>
@@ -112,7 +105,14 @@ namespace Greenshot.Addon.Office.Destinations
 			{
 				return OutlookExporter.RetrievePossibleTargets().OrderBy(x => x.Key).Select(inspectorCaption => new OutlookDestination
 				{
-					Icon = Microsoft.Office.Interop.Outlook.OlObjectClass.olAppointment.Equals(inspectorCaption.Value) ? MeetingIcon : MailIcon,
+					Icon = Microsoft.Office.Interop.Outlook.OlObjectClass.olAppointment.Equals(inspectorCaption.Value) ?
+						new PackIconModern
+					{
+						Kind = PackIconModernKind.OfficeOutlook
+					} : new PackIconModern
+					{
+						Kind = PackIconModernKind.EmailOutlook
+					},
 					Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, inspectorCaption.Key),
 					Text = inspectorCaption.Key,
 					OfficeConfiguration = OfficeConfiguration,

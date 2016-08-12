@@ -36,6 +36,7 @@ using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
 using Greenshot.Addon.WindowsShare.Native;
+using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Addon.WindowsShare
 {
@@ -44,16 +45,6 @@ namespace Greenshot.Addon.WindowsShare
 	{
 		private const string ShareDesignation = "Share";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly BitmapSource ShareIcon;
-
-		static ShareDestination()
-		{
-			string exePath = PluginUtils.GetExePath("EXPLORER.EXE");
-			if (exePath != null && File.Exists(exePath))
-			{
-				ShareIcon = PluginUtils.GetCachedExeIcon(exePath, 0).ToBitmapSource();
-			}
-		}
 
 		/// <summary>
 		/// Setup
@@ -64,7 +55,10 @@ namespace Greenshot.Addon.WindowsShare
 			Designation = ShareDesignation;
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
 			Text = ShareDesignation;
-			Icon = ShareIcon;
+			Icon = new PackIconModern
+			{
+				Kind = PackIconModernKind.Share
+			};
 		}
 
 		private async Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))

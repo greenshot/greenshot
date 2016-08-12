@@ -42,6 +42,7 @@ using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
 using Dapplo.Utils;
 using Dapplo.Log.Facade;
+using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Addon.Photobucket
 {
@@ -50,20 +51,9 @@ namespace Greenshot.Addon.Photobucket
 	{
 		private const string PhotobucketDesignation = "Photobucket";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly BitmapSource PhotobucketIcon;
 		private static readonly Uri PhotobucketApiUri = new Uri("http://api.photobucket.com");
 		private OAuth1Settings _oAuthSettings;
 		private OAuth1HttpBehaviour _oAuthHttpBehaviour;
-
-		static PhotobucketDestination()
-		{
-			var resources = new ComponentResourceManager(typeof(PhotobucketPlugin));
-			using (var photobucketImage = (Bitmap) resources.GetObject("Photobucket"))
-			{
-				PhotobucketIcon = photobucketImage.ToBitmapSource();
-			}
-
-		}
 
 		[Import]
 		private IPhotobucketConfiguration PhotobucketConfiguration
@@ -88,7 +78,10 @@ namespace Greenshot.Addon.Photobucket
 			Designation = PhotobucketDesignation;
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, "0", token);
 			Text = PhotobucketLanguage.UploadMenuItem;
-			Icon = PhotobucketIcon;
+			Icon = new PackIconMaterial
+			{
+				Kind = PackIconMaterialKind.Camera
+			};
 
 			_oAuthSettings = new OAuth1Settings
 			{

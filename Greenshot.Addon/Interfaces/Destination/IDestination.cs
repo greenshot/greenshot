@@ -24,7 +24,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Media;
+using System.Windows.Controls;
 
 namespace Greenshot.Addon.Interfaces.Destination
 {
@@ -66,7 +66,7 @@ namespace Greenshot.Addon.Interfaces.Destination
 		/// This is the icon which is shown everywhere where the destination can be seen.
 		/// Two known locations are the settings and the destination picker.
 		/// </summary>
-		ImageSource Icon
+		Control Icon
 		{
 			get;
 		}
@@ -74,10 +74,10 @@ namespace Greenshot.Addon.Interfaces.Destination
 		/// <summary>
 		/// This will be called before the item is shown, so it can update it's children etc.
 		/// </summary>
-		/// <param name="caller"></param>
-		/// <param name="token"></param>
+		/// <param name="caller">IExportContext</param>
+		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Task</returns>
-		Task RefreshAsync(IExportContext caller, CancellationToken token = default(CancellationToken));
+		Task RefreshAsync(IExportContext caller, CancellationToken cancellationToken = default(CancellationToken));
 
 		/// <summary>
 		/// Export a capture

@@ -21,43 +21,22 @@
 
 using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.ComponentModel.Composition;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Media;
+using System.Windows.Controls;
+using Caliburn.Micro;
 
 namespace Greenshot.Addon.Interfaces.Destination
 {
 	/// <summary>
 	/// A simple base implementation for the IDestination
 	/// </summary>
-	public abstract class AbstractDestination : IDestination, IExportContext, IPartImportsSatisfiedNotification
+	public abstract class AbstractDestination : PropertyChangedBase, IDestination, IExportContext
 	{
 		private string _text;
 		private string _shortcut;
 		private bool _isEnabled = true;
-		private ImageSource _icon;
-
-		public event PropertyChangedEventHandler PropertyChanged;
-
-		/// <summary>
-		/// Simple OnPropertyChanged implementation
-		/// </summary>
-		/// <param name="propertyName"></param>
-		private void OnPropertyChanged([CallerMemberName] string propertyName = null)
-		{
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-		}
-
-		/// <summary>
-		/// Call initialize after all imports are inserted
-		/// </summary>
-		public virtual void OnImportsSatisfied()
-		{
-			Initialize();
-		}
+		private Control _icon;
 
 		/// <summary>
 		/// Override, this will be called when all imports are available.
@@ -66,17 +45,29 @@ namespace Greenshot.Addon.Interfaces.Destination
 		{
 		}
 
-		public virtual async Task RefreshAsync(IExportContext caller, CancellationToken token = default(CancellationToken))
+		/// <summary>
+		/// This will be called before the item is shown, so it can update it's children etc.
+		/// </summary>
+		/// <param name="caller">IExportContext</param>
+		/// <param name="cancellationToken">CancellationToken</param>
+		/// <returns>Task</returns>
+		public virtual async Task RefreshAsync(IExportContext caller, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			await Task.Yield();
 		}
 
+		/// <summary>
+		/// This is the technical name of the destination, used for excluding or storing the configuration
+		/// </summary>
 		public virtual string Designation
 		{
 			get;
 			protected set;
 		}
 
+		/// <summary>
+		/// If the entry needs a shortcut in the destination picker, it can be set with this value
+		/// </summary>
 		public virtual string Shortcut
 		{
 			get
@@ -87,12 +78,15 @@ namespace Greenshot.Addon.Interfaces.Destination
 			{
 				if (value != _shortcut)
 				{
+					NotifyOfPropertyChange(nameof(Shortcut));
 					_shortcut = value;
-					OnPropertyChanged();
 				}
 			}
 		}
 
+		/// <summary>
+		/// This is the name of the destination in the settings and destination picker
+		/// </summary>
 		public virtual string Text
 		{
 			get
@@ -104,11 +98,14 @@ namespace Greenshot.Addon.Interfaces.Destination
 				if (value != _text)
 				{
 					_text = value;
-					OnPropertyChanged();
+					NotifyOfPropertyChange(nameof(Text));
 				}
 			}
 		}
 
+		/// <summary>
+		/// When set to false, the entry is disabled in the destination picker
+		/// </summary>
 		public virtual bool IsEnabled
 		{
 			get
@@ -120,12 +117,16 @@ namespace Greenshot.Addon.Interfaces.Destination
 				if (value != _isEnabled)
 				{
 					_isEnabled = value;
-					OnPropertyChanged();
+					NotifyOfPropertyChange(nameof(IsEnabled));
 				}
 			}
 		}
 
-		public virtual ImageSource Icon
+		/// <summary>
+		/// This is the icon which is shown everywhere where the destination can be seen.
+		/// Two known locations are the settings and the destination picker.
+		/// </summary>
+		public virtual Control Icon
 		{
 			get
 			{
@@ -136,17 +137,23 @@ namespace Greenshot.Addon.Interfaces.Destination
 				if (!Equals(value, _icon))
 				{
 					_icon = value;
-					OnPropertyChanged();
+					NotifyOfPropertyChange(nameof(Icon));
 				}
 			}
 		}
 
+		/// <summary>
+		/// Export a capture
+		/// </summary>
 		public virtual Func<IExportContext, ICapture, CancellationToken, Task<INotification>> Export
 		{
 			get;
 			protected set;
 		}
 
+		/// <summary>
+		/// This is a collection of child destinations, shown in the destination picker
+		/// </summary>
 		public virtual ObservableCollection<IDestination> Children
 		{
 			get;

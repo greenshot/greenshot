@@ -23,17 +23,15 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.ComponentModel.Composition;
-using System.Windows.Media.Imaging;
 using System.Drawing.Printing;
 using Greenshot.Helpers;
 using System.Linq;
 using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
-using Greenshot.Addon.Core;
-using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Dapplo.Log.Facade;
+using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Destinations
 {
@@ -45,14 +43,7 @@ namespace Greenshot.Destinations
 	{
 		private const string PrinterDesignation = "Printer";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly BitmapSource PrinterIcon;
-		static PrinterDestination()
-		{
-			using (var printerIcon = GreenshotResources.GetImage("Printer.Image"))
-			{
-				PrinterIcon = printerIcon.ToBitmapSource();
-			}
-        }
+
 		[Import]
 		private ICoreConfiguration CoreConfiguration
 		{
@@ -73,7 +64,11 @@ namespace Greenshot.Destinations
 			Text = GreenshotLanguage.SettingsDestinationPrinter;
 			Designation = PrinterDesignation;
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, null, token);
-			Icon = PrinterIcon;
+			Icon = new PackIconModern
+			{
+				Kind = PackIconModernKind.Printer
+			};
+
 		}
 
 		/// <summary>
@@ -102,7 +97,10 @@ namespace Greenshot.Destinations
 					{
 						Text = printer,
 						Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, printer, exportToken),
-						Icon = PrinterIcon,
+						Icon = new PackIconModern
+						{
+							Kind = PackIconModernKind.Printer
+						},
 						CoreConfiguration = CoreConfiguration,
 						GreenshotLanguage = GreenshotLanguage
 					}).ToList();

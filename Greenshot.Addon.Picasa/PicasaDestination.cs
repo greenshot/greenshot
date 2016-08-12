@@ -20,18 +20,15 @@
  */
 
 using System;
-using System.ComponentModel;
 using System.ComponentModel.Composition;
-using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media.Imaging;
-using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Windows;
 using Dapplo.Log.Facade;
+using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Addon.Picasa
 {
@@ -40,17 +37,6 @@ namespace Greenshot.Addon.Picasa
 	{
 		private const string PicasaDesignation = "Picasa";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly BitmapSource PicasaIcon;
-
-		static PicasaDestination()
-		{
-			var resources = new ComponentResourceManager(typeof(PicasaPlugin));
-			using (var picasaImage = (Bitmap) resources.GetObject("Picasa"))
-			{
-				PicasaIcon = picasaImage.ToBitmapSource();
-			}
-
-		}
 
 		[Import]
 		private IPicasaConfiguration PicasaConfiguration
@@ -75,7 +61,10 @@ namespace Greenshot.Addon.Picasa
 			Designation = PicasaDesignation;
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
 			Text = PicasaLanguage.UploadMenuItem;
-			Icon = PicasaIcon;
+			Icon = new PackIconModern
+			{
+				Kind = PackIconModernKind.SocialPicasa
+			};
 		}
 
 		private async Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))

@@ -20,25 +20,22 @@
  */
 
 using System;
-using System.ComponentModel;
 using System.ComponentModel.Composition;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
 using Dapplo.HttpExtensions;
 using Dapplo.Utils;
 using Greenshot.Addon.Core;
-using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
 using Dapplo.Log.Facade;
+using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Addon.Jira
 {
@@ -105,15 +102,10 @@ namespace Greenshot.Addon.Jira
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, null, token);
 			Text = JiraLanguage.UploadMenuItem;
 
-			var resources = new ComponentResourceManager(typeof(JiraPlugin));
-			// Make sure this runs on the UI
-			UiContext.RunOn(() =>
+			Icon = new PackIconMaterial
 			{
-				using (var jiraLogo = (Bitmap)resources.GetObject("Jira"))
-				{
-					Icon = jiraLogo.ToBitmapSource();
-				}
-			}).Wait();
+				Kind = PackIconMaterialKind.Jira
+			};
 		}
 
 		private void UpdateChildren()

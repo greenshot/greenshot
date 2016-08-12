@@ -21,27 +21,24 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.Composition;
-using System.Drawing;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media.Imaging;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.Listener;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Utils.Extensions;
 using Greenshot.Addon.Core;
-using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
 using Dapplo.Utils;
 using Dapplo.Log.Facade;
+using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Addon.Flickr
 {
@@ -51,18 +48,7 @@ namespace Greenshot.Addon.Flickr
 		private const string FlickrDesignation = "Flickr";
 		private static readonly LogSource Log = new LogSource();
 		private static readonly Uri FlickrOAuthUri = new Uri("https://api.flickr.com/services/oauth");
-		private static readonly BitmapSource FlickrIcon;
 		private OAuth1HttpBehaviour _oAuthHttpBehaviour;
-
-		static FlickrDestination()
-		{
-			var resources = new ComponentResourceManager(typeof(FlickrPlugin));
-			using (var flickrImage = (Bitmap) resources.GetObject("flickr"))
-			{
-				FlickrIcon = flickrImage.ToBitmapSource();
-			}
-
-		}
 
 		[Import]
 		private IFlickrConfiguration FlickrConfiguration
@@ -87,7 +73,10 @@ namespace Greenshot.Addon.Flickr
 			Designation = FlickrDesignation;
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
 			Text = FlickrLanguage.UploadMenuItem;
-			Icon = FlickrIcon;
+			Icon = new PackIconFontAwesome
+			{
+				Kind = PackIconFontAwesomeKind.Flickr
+			};
 
 			var oAuthSettings = new OAuth1Settings
 			{

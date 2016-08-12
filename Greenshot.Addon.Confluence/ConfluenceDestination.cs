@@ -23,15 +23,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Media.Imaging;
 using Dapplo.Confluence.Entities;
 using Dapplo.HttpExtensions;
 using Dapplo.Utils;
@@ -43,6 +40,7 @@ using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
 using Dapplo.Log.Facade;
+using Greenshot.Addon.Ui;
 
 namespace Greenshot.Addon.Confluence
 {
@@ -51,23 +49,6 @@ namespace Greenshot.Addon.Confluence
 	{
 		private const string ConfluenceDesignation = "Confluence";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly BitmapSource ConfluenceIcon;
-
-		static ConfluenceDestination()
-		{
-			var confluenceIconUri = new Uri("/Greenshot.Addon.Confluence;component/Images/Confluence.ico", UriKind.Relative);
-			var streamResourceInfo = Application.GetResourceStream(confluenceIconUri);
-			if (streamResourceInfo != null)
-			{
-				using (var iconStream = streamResourceInfo.Stream)
-				{
-					using (var tmpImage = (Bitmap)Image.FromStream(iconStream))
-					{
-						ConfluenceIcon = tmpImage.ToBitmapSource();
-					}
-				}
-			}
-		}
 
 		[Import]
 		private IConfluenceConfiguration ConfluenceConfiguration
@@ -92,7 +73,10 @@ namespace Greenshot.Addon.Confluence
 			Designation = ConfluenceDesignation;
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, null, token);
 			Text = ConfluenceLanguage.UploadMenuItem;
-			Icon = ConfluenceIcon;
+			Icon = new PackIconGreenshot
+			{
+				Kind = PackIconKindGreenshot.Confluence
+			};
 		}
 
 		/// <summary>
@@ -109,7 +93,10 @@ namespace Greenshot.Addon.Confluence
 				var pages = await ConfluenceUtils.GetCurrentPages(token);
 				return pages.OrderBy(x => x.Title).Select(currentPage => new ConfluenceDestination
 				{
-					Icon = ConfluenceIcon,
+					Icon = new PackIconGreenshot
+					{
+						Kind = PackIconKindGreenshot.Confluence
+					},
 					Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, currentPage, exportToken),
 					Text = currentPage.Title,
 					ConfluenceConfiguration = ConfluenceConfiguration,

@@ -93,8 +93,8 @@
       <HintPath>..\packages\Dapplo.Log.Facade.0.5.4\lib\net45\Dapplo.Log.Facade.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Utils, Version=0.1.111.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Utils.0.1.111\lib\net45\Dapplo.Utils.dll</HintPath>
+    <Reference Include="Dapplo.Utils, Version=0.1.112.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Utils.0.1.112\lib\net45\Dapplo.Utils.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.Windows, Version=0.1.28.0, Culture=neutral, processorArchitecture=MSIL">
@@ -294,6 +294,7 @@
     <Compile Include="Interfaces\Drawing\Container.cs" />
     <Compile Include="Interfaces\Forms\ImageEditor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Ui\PackIconGreenshot.cs" />
     <Compile Include="Windows\PleaseWaitWindow.xaml.cs">
       <DependentUpon>PleaseWaitWindow.xaml</DependentUpon>
     </Compile>

@@ -96,8 +96,8 @@
       <HintPath>..\packages\Dapplo.Log.Loggers.0.5.4\lib\net45\Dapplo.Log.Loggers.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Utils, Version=0.1.111.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Utils.0.1.111\lib\net45\Dapplo.Utils.dll</HintPath>
+    <Reference Include="Dapplo.Utils, Version=0.1.112.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Utils.0.1.112\lib\net45\Dapplo.Utils.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.Windows, Version=0.1.28.0, Culture=neutral, processorArchitecture=MSIL">
@@ -151,7 +151,6 @@
     </Compile>
     <Compile Include="Controls\ContextMenuToolStripProfessionalRenderer.cs" />
     <Compile Include="Ui\ConfigureUiStartupAction.cs" />
-    <Compile Include="Ui\PackIconGreenshot.cs" />
     <Compile Include="Destinations\EmailDestination.cs" />
     <Compile Include="Destinations\FileDestination.cs" />
     <Compile Include="Destinations\FileWithDialogDestination.cs" />
@@ -267,8 +266,8 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="Ui\GreenshotResourceDirectory.xaml">
-      <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Windows\AboutWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

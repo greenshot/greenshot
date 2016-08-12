@@ -26,16 +26,15 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
 using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
-using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Office.OfficeExport;
 using Dapplo.Log.Facade;
+using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Addon.Office.Destinations
 {
@@ -47,8 +46,6 @@ namespace Greenshot.Addon.Office.Destinations
 	{
 		public const string ExcelDesignation = "Excel";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly BitmapSource WorkbookIcon;
-		private static readonly BitmapSource ApplicationIcon;
 
 		static ExcelDestination()
 		{
@@ -56,8 +53,6 @@ namespace Greenshot.Addon.Office.Destinations
 			if (exePath != null && File.Exists(exePath))
 			{
 				WindowDetails.AddProcessToExcludeFromFreeze("excel");
-				ApplicationIcon = PluginUtils.GetCachedExeIcon(exePath, 0).ToBitmapSource();
-				WorkbookIcon = PluginUtils.GetCachedExeIcon(exePath, 1).ToBitmapSource();
 				IsActive = true;
 			}
 		}
@@ -91,7 +86,10 @@ namespace Greenshot.Addon.Office.Destinations
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, null);
 			Text = Text = $"Export to {ExcelDesignation}";
 			Designation = ExcelDesignation;
-			Icon = ApplicationIcon;
+			Icon = new PackIconModern
+			{
+				Kind = PackIconModernKind.OfficeExcel
+			};
 		}
 
 		/// <summary>
@@ -107,7 +105,11 @@ namespace Greenshot.Addon.Office.Destinations
 			{
 				return ExcelExporter.GetWorkbooks().OrderBy(x => x).Select(workbook => new ExcelDestination
 				{
-					Icon = WorkbookIcon,
+					Icon = new PackIconModern
+					{
+						Kind = PackIconModernKind.PageExcel
+					},
+
 					Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, workbook),
 					Text = workbook,
 					OfficeConfiguration = OfficeConfiguration,

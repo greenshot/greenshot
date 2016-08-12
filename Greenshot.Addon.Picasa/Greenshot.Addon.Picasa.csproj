@@ -76,8 +76,8 @@
       <HintPath>..\packages\Dapplo.Log.Facade.0.5.4\lib\net45\Dapplo.Log.Facade.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Utils, Version=0.1.111.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Utils.0.1.111\lib\net45\Dapplo.Utils.dll</HintPath>
+    <Reference Include="Dapplo.Utils, Version=0.1.112.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Utils.0.1.112\lib\net45\Dapplo.Utils.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="MahApps.Metro.IconPacks, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -116,10 +116,6 @@
     <Compile Include="PicasaPlugin.cs" />
     <Compile Include="PicasaUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="PicasaPlugin.resx">
-      <DependentUpon>PicasaPlugin.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Languages\language_picasaplugin-cs-CZ.xml" />
@@ -133,7 +129,6 @@
     <Content Include="Languages\language_picasaplugin-sr-Cyrl-RS.xml" />
     <Content Include="Languages\language_picasaplugin-sv-SE.xml" />
     <Content Include="Languages\language_picasaplugin-zh-TW.xml" />
-    <Content Include="Picasa.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Addon\Greenshot.Addon.csproj">

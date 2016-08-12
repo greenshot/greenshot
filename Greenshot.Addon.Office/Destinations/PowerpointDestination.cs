@@ -25,17 +25,16 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
 using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
-using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Office.OfficeExport;
 using System.Linq;
 using Dapplo.Log.Facade;
+using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Addon.Office.Destinations
 {
@@ -47,8 +46,6 @@ namespace Greenshot.Addon.Office.Destinations
 	{
 		public const string PowerpointDesignation = "Powerpoint";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly BitmapSource PresentationIcon;
-		private static readonly BitmapSource ApplicationIcon;
 		
 		static PowerpointDestination()
 		{
@@ -56,8 +53,6 @@ namespace Greenshot.Addon.Office.Destinations
 			if (exePath != null && File.Exists(exePath))
 			{
 				WindowDetails.AddProcessToExcludeFromFreeze("POWERPNT");
-				ApplicationIcon = PluginUtils.GetCachedExeIcon(exePath, 0).ToBitmapSource();
-				PresentationIcon = PluginUtils.GetCachedExeIcon(exePath, 1).ToBitmapSource();
 				IsActive = true;
 			}
 		}
@@ -91,7 +86,10 @@ namespace Greenshot.Addon.Office.Destinations
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, null);
 			Text = Text = $"Export to {PowerpointDesignation}";
 			Designation = PowerpointDesignation;
-			Icon = ApplicationIcon;
+			Icon = new PackIconModern
+			{
+				Kind = PackIconModernKind.OfficePowerpoint
+			};
 		}
 
 		/// <summary>
@@ -107,7 +105,10 @@ namespace Greenshot.Addon.Office.Destinations
 			{
 				return PowerpointExporter.GetPowerpointPresentations().OrderBy(x => x).Select(presentation => new PowerpointDestination
 				{
-					Icon = PresentationIcon,
+					Icon = new PackIconModern
+					{
+						Kind = PackIconModernKind.PagePowerpoint
+					},
 					Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, presentation),
 					Text = presentation,
 					OfficeConfiguration = OfficeConfiguration,

@@ -32,6 +32,7 @@ using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using System.Collections.ObjectModel;
 using Dapplo.Log.Facade;
+using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Destinations
 {
@@ -82,6 +83,11 @@ namespace Greenshot.Destinations
 			Export = async (exportContext, capture, token) => await UiContext.RunOn(async () => await ShowExport(capture, token), token);
 			Text = GreenshotLanguage.SettingsDestinationPicker;
 			Designation = PickerDesignation;
+			Icon = new PackIconModern
+			{
+				Kind = PackIconModernKind.List
+			};
+
 			_destinationsCache = null;
 		}
 

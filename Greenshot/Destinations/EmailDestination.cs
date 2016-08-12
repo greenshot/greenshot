@@ -23,15 +23,13 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.ComponentModel.Composition;
-using System.Windows.Media.Imaging;
 using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
-using Greenshot.Addon.Core;
-using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Helpers;
 using Dapplo.Log.Facade;
+using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Destinations
 {
@@ -43,14 +41,6 @@ namespace Greenshot.Destinations
 	{
 		private const string EmailDesignation = "Email";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly BitmapSource EmailIcon;
-		static EmailDestination()
-		{
-			using (var emailIcon = GreenshotResources.GetImage("Email.Image"))
-			{
-				EmailIcon = emailIcon.ToBitmapSource();
-			}
-        }
 
 		[Import]
 		private IGreenshotLanguage GreenshotLanguage
@@ -65,7 +55,10 @@ namespace Greenshot.Destinations
 			Text = GreenshotLanguage.SettingsDestinationEmail;
 			Designation = EmailDesignation;
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
-			Icon = EmailIcon;
+			Icon = new PackIconModern
+			{
+				Kind = PackIconModernKind.Email
+			};
 		}
 
 		private async Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))

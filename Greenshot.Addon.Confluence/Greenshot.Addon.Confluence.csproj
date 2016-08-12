@@ -82,8 +82,8 @@
       <HintPath>..\packages\Dapplo.Log.Facade.0.5.4\lib\net45\Dapplo.Log.Facade.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Utils, Version=0.1.111.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Utils.0.1.111\lib\net45\Dapplo.Utils.dll</HintPath>
+    <Reference Include="Dapplo.Utils, Version=0.1.112.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Utils.0.1.112\lib\net45\Dapplo.Utils.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="MahApps.Metro.IconPacks, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -142,7 +142,6 @@
     <Compile Include="Support\TranslationData.cs" />
     <Compile Include="Support\TranslationManager.cs" />
     <None Include="packages.config" />
-    <Resource Include="Images\Confluence.ico" />
     <None Include="Languages\language_confluenceplugin-de-DE.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
@@ -184,6 +183,10 @@
       <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
       <Name>GreenshotPlugin</Name>
       <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Greenshot\Greenshot.csproj">
+      <Project>{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}</Project>
+      <Name>Greenshot</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
