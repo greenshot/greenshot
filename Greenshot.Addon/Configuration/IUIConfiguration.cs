@@ -21,6 +21,7 @@
 
 using System.ComponentModel;
 using System.Drawing;
+using Dapplo.CaliburnMicro.Metro;
 using Dapplo.InterfaceImpl.Extensions;
 
 namespace Greenshot.Addon.Configuration
@@ -174,5 +175,9 @@ namespace Greenshot.Addon.Configuration
 			get;
 			set;
 		}
+
+		Themes Theme { get; set; }
+		ThemeAccents ThemeAccent { get; set; }
+
 	}
 }

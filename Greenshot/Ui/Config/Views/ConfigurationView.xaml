@@ -1,0 +1,49 @@
+﻿<mahapps:MetroWindow x:Class="Greenshot.Ui.Config.Views.ConfigurationView"
+					xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+					xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+					xmlns:cal="http://www.caliburnproject.org"
+					xmlns:mahapps="http://metro.mahapps.com/winfx/xaml/controls"
+					Width="500" Height="400">
+	<mahapps:MetroWindow.Resources>
+		<BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+	</mahapps:MetroWindow.Resources>
+	<mahapps:MetroWindow.RightWindowCommands>
+		<mahapps:WindowCommands>
+			<Button x:Name="Login" Content="Login" cal:Message.Attach="[Event Click] = [Action Login()]" />
+			<Button x:Name="Dialog" Content="Dialog" cal:Message.Attach="[Event Click] = [Action Dialog()]" />
+		</mahapps:WindowCommands>
+	</mahapps:MetroWindow.RightWindowCommands>
+
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*" />
+			<RowDefinition Height="30" />
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="200" />
+			<ColumnDefinition Width="*" />
+		</Grid.ColumnDefinitions>
+		<StackPanel Grid.Column="0">
+			<TextBox x:Name="Filter" mahapps:TextBoxHelper.ClearTextButton="True" mahapps:TextBoxHelper.Watermark="{Binding ConfigTranslations.Filter}"/>
+			<TreeView x:Name="TreeItems"
+				cal:Message.Attach="[Event SelectedItemChanged] = [Action ActivateChildView($this.SelectedItem)]" >
+				<TreeView.ItemContainerStyle>
+					<Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource {x:Type TreeViewItem}}">
+						<Setter Property="IsEnabled" Value="{Binding IsEnabled}" />
+						<Setter Property="Visibility" Value="{Binding IsVisible,  Converter={StaticResource BooleanToVisibility} }" />
+					</Style>
+				</TreeView.ItemContainerStyle>
+				<TreeView.ItemTemplate>
+					<HierarchicalDataTemplate ItemsSource="{Binding ChildNodes}">
+						<Label Content="{Binding DisplayName}" />
+					</HierarchicalDataTemplate>
+				</TreeView.ItemTemplate>
+			</TreeView>
+		</StackPanel>
+		<ContentControl x:Name="ActiveItem" Grid.Column="1" Grid.Row="0" />
+		<UniformGrid Grid.Column="1" Grid.Row="1" Rows="1" Columns="2">
+			<Button x:Name="Cancel" Content="{Binding CoreTranslations.Cancel}" />
+			<Button x:Name="Ok" Content="{Binding CoreTranslations.Ok}" />
+		</UniformGrid>
+	</Grid>
+</mahapps:MetroWindow>

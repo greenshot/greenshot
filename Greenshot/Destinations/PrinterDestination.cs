@@ -68,7 +68,6 @@ namespace Greenshot.Destinations
 			{
 				Kind = PackIconModernKind.Printer
 			};
-
 		}
 
 		/// <summary>

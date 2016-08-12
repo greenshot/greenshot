@@ -67,7 +67,7 @@ namespace Greenshot.Addon.Configuration
 		IUiConfiguration, ICaptureConfiguration, IMiscConfiguration,
 		IUpdateConfiguration, IHotkeyConfiguration,
 		// Ini-Framework
-		IIniSection<ICoreConfiguration>, INotifyPropertyChanged, ITagging<ICoreConfiguration>, IWriteProtectProperties<ICoreConfiguration>
+		IIniSection<ICoreConfiguration>, INotifyPropertyChanged, ITagging<ICoreConfiguration>, IWriteProtectProperties<ICoreConfiguration>, ITransactionalProperties
 	{
 		[Description("Which destinations? Possible options (more might be added by plugins) are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail, Picker"), DefaultValue("Picker")]
 		IList<string> OutputDestinations

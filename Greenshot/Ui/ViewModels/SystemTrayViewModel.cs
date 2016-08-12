@@ -36,6 +36,7 @@ using MenuItem = Dapplo.CaliburnMicro.Menu.MenuItem;
 using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.Utils;
 using Greenshot.Addon.Ui;
+using Greenshot.Ui.Config.ViewModels;
 
 namespace Greenshot.Ui.ViewModels
 {
@@ -59,6 +60,13 @@ namespace Greenshot.Ui.ViewModels
 
 		[Import]
 		private IGreenshotLanguage GreenshotLanguage { get; set; }
+
+		[Import]
+		public ConfigurationViewModel ConfigurationViewModel { get; set; }
+
+
+		[Import]
+		public IWindowManager WindowManager { get; set; }
 
 		/// <summary>Called when a part's imports have been satisfied and it is safe to use.</summary>
 		public void OnImportsSatisfied()
@@ -115,6 +123,11 @@ namespace Greenshot.Ui.ViewModels
 					IsSeparator = true,
 					Id = "Y_Separator"
 				});
+				items.Add(new MenuItem
+				{
+					IsSeparator = true,
+					Id = "W_Separator"
+				});
 			}
 			var exitMenuItem = new MenuItem
 			{
@@ -126,9 +139,29 @@ namespace Greenshot.Ui.ViewModels
 				},
 				ClickAction = item => Application.Current.Shutdown()
 			};
-			items.Add(exitMenuItem);
 
 			_disposables.Add(exitMenuItem.BindDisplayName(GreenshotLanguage, nameof(IGreenshotLanguage.ContextmenuExit)));
+			items.Add(exitMenuItem);
+
+			var configurationMenuItem = new MenuItem
+			{
+				Id = "X_Configure",
+				Icon = new PackIconModern
+				{
+					Kind = PackIconModernKind.Settings
+				},
+				ClickAction = item =>
+				{
+					if (!ConfigurationViewModel.IsActive)
+					{
+						WindowManager.ShowDialog(ConfigurationViewModel);
+					}
+				}
+			};
+
+			_disposables.Add(configurationMenuItem.BindDisplayName(GreenshotLanguage, nameof(IGreenshotLanguage.SettingsTitle)));
+			items.Add(configurationMenuItem);
+
 			ConfigureMenuItems(items);
 			items.ApplyIconMargin(new Thickness(2));
 		}
