@@ -56,8 +56,18 @@ Function PrepareCertificate() {
 	$decodedContentBytes = [System.Convert]::FromBase64String($env:Certificate)
 	$decodedContentBytes | set-content "greenshot.pfx" -encoding byte
 	
-	$certutilArguments = @('-f', '-p', $env:CertificatePassword, '-importpfx', "greenshot.pfx")
-	Start-Process -wait -PassThru certutil -ArgumentList $certutilArguments -NoNewWindow
+	$certutilArguments = @('-p', $env:CertificatePassword, '-importpfx', "greenshot.pfx")
+	Start-Process -wait certutil -ArgumentList $certutilArguments -NoNewWindow
+}
+
+# Sign the specify file
+Function SignWithCertificate($filename) {
+	Write-Host "Signing $filename" 
+	$signSha1Arguments = @('sign', '/debug',          '/sm', '/fd', 'sha1'  , '/tr', 'http://time.certum.pl', '/td', 'sha1'  , $filename)
+	$signSha256Arguments = @('sign', '/debug', '/as', '/sm', '/fd', 'sha256', '/tr', 'http://time.certum.pl', '/td', 'sha256', $filename)
+
+	Start-Process -wait $env:SignTool -ArgumentList $signSha1Arguments -NoNewWindow
+	Start-Process -wait $env:SignTool -ArgumentList $signSha256Arguments -NoNewWindow
 }
 
 # Sign the file with Signtool before they are packed in the installer / .zip etc
@@ -65,13 +75,8 @@ Function SignBinaryFilesBeforeBuildingInstaller() {
 	$sourcebase = "$(get-location)\Greenshot\bin\Release"
 
 	$INCLUDE=@("*.exe", "*.gsp", "*.dll")
-	Get-ChildItem -Path "$sourcebase" -Recurse -Include $INCLUDE | foreach {
-		Write-Host "Signing $_" 
-		$signSha1Arguments = @('sign',          '/fd ', 'sha1'  , '/a', '/tr', 'http://time.certum.pl', '/td', 'sha1'  , $_)
-		$signSha256Arguments = @('sign', '/as', '/fd ', 'sha256', '/a', '/tr', 'http://time.certum.pl', '/td', 'sha256', $_)
-	
-		Start-Process -wait -PassThru $env:SignTool -ArgumentList $signSha1Arguments -NoNewWindow
-		Start-Process -wait -PassThru $env:SignTool -ArgumentList $signSha256Arguments -NoNewWindow
+	Get-ChildItem -Path "$sourcebase" -Recurse -Include $INCLUDE -Exclude "log4net.dll" | foreach {
+		SignWithCertificate($_)
 	}
 }
 
@@ -162,6 +167,13 @@ Function PackagePortable {
 	}
 	Start-Sleep -m 1500
 	Remove-Item "$destbase\portabletmp" -Recurse -Confirm:$false
+
+	# sign the .paf.exe
+	$pafFiles = @("*.paf.exe")
+	Get-ChildItem -Path "$destbase" -Recurse -Include $pafFiles | foreach {
+		SignWithCertificate($_)
+	}
+
 	return
 }
 
@@ -316,17 +328,17 @@ echo "Preparing certificate"
 PrepareCertificate
 
 echo "Signing executables"
-SignBinaryFilesBeforeBuildingInstaller
+#SignBinaryFilesBeforeBuildingInstaller
 
 echo "Generating Installer"
-PackageInstaller
+#PackageInstaller
 
 echo "Generating ZIP"
-PackageZip
+#PackageZip
 
 echo "Generating Portable"
 PackagePortable
 
 echo "Generating Debug Symbols ZIP"
-PackageDbgSymbolsZip
+#PackageDbgSymbolsZip
 
