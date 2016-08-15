@@ -45,7 +45,7 @@ before_build:
 - nuget restore
 - ps: .\prebuild.ps1
 - ps: [System.Convert]::FromBase64String($env:CertificatePassword) | set-content "greenshot.pfx" -encoding byte
-- ps: $psw = ConvertTo-SecureString $env:my_secure_var -AsPlainText
+- ps: $psw = ConvertTo-SecureString $env:CertificatePassword -AsPlainText
 - ps: Import-PfxCertificate -FilePath Greenshot.pfx -CertStoreLocation cert:\CurrentUser\My -Password $psw
 build:
   project: greenshot.sln
