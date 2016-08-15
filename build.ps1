@@ -55,7 +55,7 @@ Function MD5($filename) {
 Function PrepareCertificate() {
 	$decodedContentBytes = [System.Convert]::FromBase64String($env:Certificate)
 	$decodedContentBytes | set-content "greenshot.pfx" -encoding byte
-	certutil -f -p $env:CertificatePassword -importpfx "greenshot.pfx"
+	certutil -p "$env:CertificatePassword" -importpfx -f "greenshot.pfx" NoExport
 }
 
 # Sign the file with Signtool before they are packed in the installer / .zip etc
