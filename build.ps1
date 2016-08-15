@@ -55,6 +55,7 @@ Function MD5($filename) {
 Function PrepareCertificate() {
 	$decodedContentBytes = [System.Convert]::FromBase64String($env:Certificate)
 	$decodedContentBytes | set-content "greenshot.pfx" -encoding byte
+	certutil -f -p $env:CertificatePassword -importpfx "greenshot.pfx"
 }
 
 # Sign the file with Signtool before they are packed in the installer / .zip etc
@@ -64,8 +65,8 @@ Function SignBinaryFilesBeforeBuildingInstaller() {
 	$INCLUDE=@("*.exe", "*.gsp", "*.dll")
 	Get-ChildItem -Path "$sourcebase" -Recurse -Include $INCLUDE | foreach {
 		Write-Host "Signing $_" 
-		$signSha1Arguments = @('sign', '/fd ', 'sha1', '/a', '/f', "$(get-location)\Greenshot.pfx", '/p', $env:CertificatePassword, '/tr', 'http://time.certum.pl', '/td', 'sha1', $_)
-		$signSha256Arguments = @('sign', '/as', '/fd ', 'sha256', '/a', '/f', "$(get-location)\Greenshot.pfx", '/p', $env:CertificatePassword, '/tr', 'http://time.certum.pl', '/td', 'sha256', $_)
+		$signSha1Arguments = @('sign',          '/fd ', 'sha1'  , '/a', '/tr', 'http://time.certum.pl', '/td', 'sha1'  , $_)
+		$signSha256Arguments = @('sign', '/as', '/fd ', 'sha256', '/a', '/tr', 'http://time.certum.pl', '/td', 'sha256', $_)
 	
 		Start-Process -wait -PassThru $env:SignTool -ArgumentList $signSha1Arguments -NoNewWindow
 		Start-Process -wait -PassThru $env:SignTool -ArgumentList $signSha256Arguments -NoNewWindow
@@ -269,7 +270,7 @@ Function PackageInstaller {
 	$innoSetup = "$(get-location)\packages\Tools.InnoSetup.5.5.9\tools\ISCC.exe"
 	$innoSetupFile = "$(get-location)\greenshot\releases\innosetup\setup.iss"
 	Write-Host "Starting $innoSetup $innoSetupFile"
-	$arguments = @("/SSignTool=""$env:SignTool `$p""", $innoSetupFile)
+	$arguments = @("/Qp /SSignTool=""$env:SignTool `$p""", $innoSetupFile)
 	$setupResult = Start-Process -wait -PassThru "$innoSetup" -ArgumentList $arguments -NoNewWindow -RedirectStandardOutput "$setupOutput.log" -RedirectStandardError "$setupOutput.error"
 	Write-Host "Log output:"
 	Get-Content "$setupOutput.log"| Write-Host

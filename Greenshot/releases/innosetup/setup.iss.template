@@ -128,9 +128,9 @@ OutputDir=..\
 PrivilegesRequired=none
 SetupIconFile=..\..\icons\applicationIcon\icon.ico
 ; Create a SHA1 signature
-SignTool=SignTool sign /debug /fd sha1 /a /f ..\..\..\Greenshot.pfx /p %CertificatePassword% /tr http://time.certum.pl /td sha1 $f
+SignTool=SignTool sign /debug /fd sha1 /a /tr http://time.certum.pl /td sha1 $f
 ; Append a SHA256 to the previous SHA1 signature (this is what as does)
-SignTool=SignTool sign /as /debug /fd sha256 /a /f ..\..\..\Greenshot.pfx /p %CertificatePassword% /a /tr http://time.certum.pl /td sha256 $f
+SignTool=SignTool sign /debug /as /fd sha256 /a /tr http://time.certum.pl /td sha256 $f
 SignedUninstaller=yes
 UninstallDisplayIcon={app}\{#ExeName}.exe
 Uninstallable=true
