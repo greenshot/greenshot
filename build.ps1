@@ -55,17 +55,17 @@ Function MD5($filename) {
 Function PrepareCertificate() {
 	$decodedContentBytes = [System.Convert]::FromBase64String($env:Certificate)
 	$decodedContentBytes | set-content "greenshot.pfx" -encoding byte
-	$certutilArguments = @('-p', $env:CertificatePassword, '-importpfx', "greenshot.pfx")
-	Start-Process -wait certutil -ArgumentList $certutilArguments -NoNewWindow
+	#$certutilArguments = @('-p', $env:CertificatePassword, '-importpfx', "greenshot.pfx")
+	#Start-Process -wait certutil -ArgumentList $certutilArguments -NoNewWindow
 	
-	#Import-PfxCertificate –FilePath "greenshot.pfx" "cert:\localMachine\my" -Password "$env:CertificatePassword"
+	Import-PfxCertificate –FilePath "greenshot.pfx" -CertStoreLocation Cert:\CurrentUser\My -Password $env:CertificatePassword
 }
 
 # Sign the specify file
 Function SignWithCertificate($filename) {
 	Write-Host "Signing $filename" 
-	$signSha1Arguments = @('sign', '/debug',          '/sm', '/fd', 'sha1'  , '/tr', 'http://time.certum.pl', '/td', 'sha1'  , $filename)
-	$signSha256Arguments = @('sign', '/debug', '/as', '/sm', '/fd', 'sha256', '/tr', 'http://time.certum.pl', '/td', 'sha256', $filename)
+	$signSha1Arguments = @('sign', '/debug',          '/fd', 'sha1'  , '/tr', 'http://time.certum.pl', '/td', 'sha1'  , $filename)
+	$signSha256Arguments = @('sign', '/debug', '/as', '/fd', 'sha256', '/tr', 'http://time.certum.pl', '/td', 'sha256', $filename)
 
 	Start-Process -wait $env:SignTool -ArgumentList $signSha1Arguments -NoNewWindow
 	Start-Process -wait $env:SignTool -ArgumentList $signSha256Arguments -NoNewWindow
