@@ -46,4 +46,4 @@ Function FillCredentials {
 FillCredentials
 
 # Write the certificate to a file
-[System.Convert]::FromBase64String($env:CertificatePassword) | set-content "greenshot.pfx" -encoding byte
+[System.Convert]::FromBase64String($env:Certificate) | set-content "greenshot.pfx" -encoding byte
