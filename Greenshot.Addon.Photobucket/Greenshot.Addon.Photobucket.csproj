@@ -112,7 +112,6 @@
     </Compile>
     <Compile Include="PhotobucketDestination.cs" />
     <Compile Include="PhotobucketInfo.cs" />
-    <Compile Include="PhotobucketPlugin.cs" />
     <Compile Include="IPhotobucketConfiguration.cs" />
     <Compile Include="IPhotobucketLanguage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

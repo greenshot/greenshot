@@ -27,8 +27,6 @@ using Caliburn.Micro;
 using Dapplo.CaliburnMicro;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
-using Dapplo.CaliburnMicro.Translations;
-using Dapplo.Log.Facade;
 using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using MahApps.Metro.Controls.Dialogs;
@@ -42,7 +40,6 @@ namespace Greenshot.Ui.Config.ViewModels
 	[Export]
 	public class ConfigurationViewModel : Config<IConfigScreen>, IHaveIcon
 	{
-		private static readonly LogSource Log = new LogSource();
 		private readonly Disposables _disposables = new Disposables();
 
 		//[Import]

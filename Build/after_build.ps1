@@ -96,6 +96,26 @@ Function MD5Checksums {
 		}
 }
 
+# Sign the specify file
+Function SignWithCertificate($filename) {
+	Write-Host "Signing $filename" 
+	$signSha1Arguments = @('sign', '/debug',          '/fd', 'sha1'  , '/tr', 'http://time.certum.pl', '/td', 'sha1'  , $filename)
+	$signSha256Arguments = @('sign', '/debug', '/as', '/fd', 'sha256', '/tr', 'http://time.certum.pl', '/td', 'sha256', $filename)
+
+	Start-Process -wait $env:SignTool -ArgumentList $signSha1Arguments -NoNewWindow
+	Start-Process -wait $env:SignTool -ArgumentList $signSha256Arguments -NoNewWindow
+}
+
+# Sign the file with Signtool before they are packed in the installer / .zip etc
+Function SignBinaryFilesBeforeBuildingInstaller() {
+	$sourcebase = "$(get-location)\Greenshot\bin\Release"
+
+	$INCLUDE=@("*.exe", "*.gsp", "*.dll")
+	Get-ChildItem -Path "$sourcebase" -Recurse -Include $INCLUDE -Exclude "log4net.dll" | foreach {
+		SignWithCertificate($_)
+	}
+}
+
 # This function creates the paf.exe
 Function PackagePortable {
 	# Only remove the paf we are going to create, to prevent adding but keeping the history
@@ -155,6 +175,12 @@ Function PackagePortable {
 	}
 	Start-Sleep -m 1500
 	Remove-Item "$destbase\portabletmp" -Recurse -Confirm:$false
+	
+	# sign the .paf.exe
+	$pafFiles = @("*.paf.exe")
+	Get-ChildItem -Path "$destbase" -Recurse -Include $pafFiles | foreach {
+		SignWithCertificate($_)
+	}
 	return
 }
 
@@ -265,9 +291,9 @@ Function PackageDbgSymbolsZip {
 Function PackageInstaller {
 	$setupOutput = "$destbase\setup"
 	$innoSetup = "$(get-location)\packages\Tools.InnoSetup.5.5.9\tools\ISCC.exe"
-	$innoSetupFile = "$builddir\innosetup\setup.iss"
+	$arguments = @("/Qp /SSignTool=""$env:SignTool `$p""", "$builddir\innosetup\setup.iss")
 	Write-Host "Starting $innoSetup $innoSetupFile"
-	$setupResult = Start-Process -wait -PassThru "$innoSetup" -ArgumentList "$innoSetupFile" -NoNewWindow -RedirectStandardOutput "$setupOutput.log" -RedirectStandardError "$setupOutput.error"
+	$setupResult = Start-Process -wait -PassThru "$innoSetup" -ArgumentList $arguments -NoNewWindow -RedirectStandardOutput "$setupOutput.log" -RedirectStandardError "$setupOutput.error"
 	Write-Host "Log output:"
 	Get-Content "$setupOutput.log"| Write-Host
 	if ($setupResult.ExitCode -ne 0) {
@@ -279,6 +305,9 @@ Function PackageInstaller {
 }
 
 FillTemplates
+
+echo "Signing executables"
+SignBinaryFilesBeforeBuildingInstaller
 
 echo "Generating MD5"
 MD5Checksums | Set-Content "$sourcebase\checksum.MD5" -encoding UTF8
