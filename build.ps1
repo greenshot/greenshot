@@ -23,8 +23,19 @@
 ################################################################
 
 $version=$env:APPVEYOR_BUILD_VERSION
+if ( !$version ) {
+	$version = "1.3.0.0"
+}
+
 $buildType=$env:build_type
+if ( !$buildType ) {
+	$buildType = "local"
+}
+
 $gitcommit=$env:APPVEYOR_REPO_COMMIT
+if ( !$gitcommit ) {
+	$gitcommit = "abcdefghijklmnopqrstuvwxy"
+}
 $gitcommit=$gitcommit.SubString(0, [math]::Min($gitcommit.Length, 7))
 $detailversion=$version + '-' + $gitcommit + " " + $buildType
 $release=(([version]$version).build) % 2 -eq 1
@@ -38,6 +49,27 @@ Function MD5($filename) {
 	$MD5CryptoServiceProvider = new-object -TypeName System.Security.Cryptography.MD5CryptoServiceProvider
 	$hash = $MD5CryptoServiceProvider.ComputeHash($fileStream)
 	return [System.BitConverter]::ToString($hash) -replace "-", ""
+}
+
+# Write the certificate to the file system, so signtool can use it
+Function PrepareCertificate() {
+	$decodedContentBytes = [System.Convert]::FromBase64String($env:Certificate)
+	$decodedContentBytes | set-content "greenshot.pfx" -encoding byte
+}
+
+# Sign the file with Signtool before they are packed in the installer / .zip etc
+Function SignBinaryFilesBeforeBuildingInstaller() {
+	$sourcebase = "$(get-location)\Greenshot\bin\Release"
+
+	$INCLUDE=@("*.exe", "*.gsp", "*.dll")
+	Get-ChildItem -Path "$sourcebase" -Recurse -Include $INCLUDE | foreach {
+		Write-Host "Signing $_" 
+		$signSha1Arguments = @('sign', '/fd ', 'sha1', '/a', '/f', "$(get-location)\Greenshot.pfx", '/p', $env:CertificatePassword, '/tr', 'http://time.certum.pl', '/td', 'sha1', $_)
+		$signSha256Arguments = @('sign', '/as', '/fd ', 'sha256', '/a', '/f', "$(get-location)\Greenshot.pfx", '/p', $env:CertificatePassword, '/tr', 'http://time.certum.pl', '/td', 'sha256', $_)
+	
+		Start-Process -wait -PassThru $env:SignTool -ArgumentList $signSha1Arguments -NoNewWindow
+		Start-Process -wait -PassThru $env:SignTool -ArgumentList $signSha256Arguments -NoNewWindow
+	}
 }
 
 # Fill the templates
@@ -237,7 +269,8 @@ Function PackageInstaller {
 	$innoSetup = "$(get-location)\packages\Tools.InnoSetup.5.5.9\tools\ISCC.exe"
 	$innoSetupFile = "$(get-location)\greenshot\releases\innosetup\setup.iss"
 	Write-Host "Starting $innoSetup $innoSetupFile"
-	$setupResult = Start-Process -wait -PassThru "$innoSetup" -ArgumentList "$innoSetupFile" -NoNewWindow -RedirectStandardOutput "$setupOutput.log" -RedirectStandardError "$setupOutput.error"
+	$arguments = @("/SSignTool=""$env:SignTool `$p""", $innoSetupFile)
+	$setupResult = Start-Process -wait -PassThru "$innoSetup" -ArgumentList $arguments -NoNewWindow -RedirectStandardOutput "$setupOutput.log" -RedirectStandardError "$setupOutput.error"
 	Write-Host "Log output:"
 	Get-Content "$setupOutput.log"| Write-Host
 	if ($setupResult.ExitCode -ne 0) {
@@ -274,8 +307,13 @@ Function TagCode {
 FillTemplates
 
 echo "Generating MD5"
-
 MD5Checksums | Set-Content "$(get-location)\Greenshot\bin\Release\checksum.MD5" -encoding UTF8
+
+echo "Preparing certificate"
+PrepareCertificate
+
+echo "Signing executables"
+SignBinaryFilesBeforeBuildingInstaller
 
 echo "Generating Installer"
 PackageInstaller

@@ -30,6 +30,7 @@ Fixed:
 * FEATURE-919: Allow adding of space around screenshot (use Ctrl + / Ctrl -)
 * FEATURE-945: Added environment variables resolving to the external command
 * FEATURE-949: Updated to Inno-Setup 5.5.9 for improved installer security
+* FEATURE-958: Added code-signing of Greenshot and the installer, this should help preventing security issues
 
 Open issues planned for this version:
 BUG-1872: OneDrive prevents Greenshot hotkeys from working
