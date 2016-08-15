@@ -36,6 +36,7 @@ $gitcommit=$env:APPVEYOR_REPO_COMMIT
 if ( !$gitcommit ) {
 	$gitcommit = "abcdefghijklmnopqrstuvwxy"
 }
+
 $gitcommit=$gitcommit.SubString(0, [math]::Min($gitcommit.Length, 7))
 $detailversion=$version + '-' + $gitcommit + " " + $buildType
 $release=(([version]$version).build) % 2 -eq 1
@@ -49,16 +50,6 @@ Function MD5($filename) {
 	$MD5CryptoServiceProvider = new-object -TypeName System.Security.Cryptography.MD5CryptoServiceProvider
 	$hash = $MD5CryptoServiceProvider.ComputeHash($fileStream)
 	return [System.BitConverter]::ToString($hash) -replace "-", ""
-}
-
-# Write the certificate to the file system, so signtool can use it
-Function PrepareCertificate() {
-	$decodedContentBytes = [System.Convert]::FromBase64String($env:Certificate)
-	$decodedContentBytes | set-content "greenshot.pfx" -encoding byte
-	#$certutilArguments = @('-p', $env:CertificatePassword, '-importpfx', "greenshot.pfx")
-	#Start-Process -wait certutil -ArgumentList $certutilArguments -NoNewWindow
-	$secureString = ConvertTo-SecureString $env:CertificatePassword -AsPlainText -Force
-	Import-PfxCertificate -FilePath .\Greenshot.pfx -CertStoreLocation Cert:\CurrentUser\My -Password $secureString
 }
 
 # Sign the specify file
@@ -324,9 +315,6 @@ FillTemplates
 
 echo "Generating MD5"
 MD5Checksums | Set-Content "$(get-location)\Greenshot\bin\Release\checksum.MD5" -encoding UTF8
-
-echo "Preparing certificate"
-PrepareCertificate
 
 echo "Signing executables"
 SignBinaryFilesBeforeBuildingInstaller
