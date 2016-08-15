@@ -313,11 +313,11 @@ Function TagCode {
 
 FillTemplates
 
-echo "Generating MD5"
-MD5Checksums | Set-Content "$(get-location)\Greenshot\bin\Release\checksum.MD5" -encoding UTF8
-
 echo "Signing executables"
 SignBinaryFilesBeforeBuildingInstaller
+
+echo "Generating MD5"
+MD5Checksums | Set-Content "$(get-location)\Greenshot\bin\Release\checksum.MD5" -encoding UTF8
 
 echo "Generating Installer"
 PackageInstaller
