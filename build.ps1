@@ -57,6 +57,8 @@ Function PrepareCertificate() {
 	$decodedContentBytes | set-content "greenshot.pfx" -encoding byte
 	
 	$certutilArguments = @('-p', $env:CertificatePassword, '-importpfx', "greenshot.pfx")
+	Import-PfxCertificate –FilePath C:\mypfx.pfx cert:\localMachine\my -Password $env:CertificatePassword
+	
 	Start-Process -wait certutil -ArgumentList $certutilArguments -NoNewWindow
 }
 
@@ -328,17 +330,17 @@ echo "Preparing certificate"
 PrepareCertificate
 
 echo "Signing executables"
-#SignBinaryFilesBeforeBuildingInstaller
+SignBinaryFilesBeforeBuildingInstaller
 
 echo "Generating Installer"
-#PackageInstaller
+PackageInstaller
 
 echo "Generating ZIP"
-#PackageZip
+PackageZip
 
 echo "Generating Portable"
 PackagePortable
 
 echo "Generating Debug Symbols ZIP"
-#PackageDbgSymbolsZip
+PackageDbgSymbolsZip
 
