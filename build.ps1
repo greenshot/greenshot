@@ -55,11 +55,10 @@ Function MD5($filename) {
 Function PrepareCertificate() {
 	$decodedContentBytes = [System.Convert]::FromBase64String($env:Certificate)
 	$decodedContentBytes | set-content "greenshot.pfx" -encoding byte
-	
 	$certutilArguments = @('-p', $env:CertificatePassword, '-importpfx', "greenshot.pfx")
-	Import-PfxCertificate –FilePath C:\mypfx.pfx cert:\localMachine\my -Password $env:CertificatePassword
-	
 	Start-Process -wait certutil -ArgumentList $certutilArguments -NoNewWindow
+	
+	#Import-PfxCertificate –FilePath "greenshot.pfx" "cert:\localMachine\my" -Password "$env:CertificatePassword"
 }
 
 # Sign the specify file
