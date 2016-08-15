@@ -58,7 +58,7 @@ Function PrepareCertificate() {
 	#$certutilArguments = @('-p', $env:CertificatePassword, '-importpfx', "greenshot.pfx")
 	#Start-Process -wait certutil -ArgumentList $certutilArguments -NoNewWindow
 	
-	Import-PfxCertificate –FilePath "greenshot.pfx" -CertStoreLocation Cert:\CurrentUser\My -Password $env:CertificatePassword
+	Get-ChildItem -Path "greenshot.pfx" | Import-PfxCertificate -CertStoreLocation Cert:\CurrentUser\My -Password $env:CertificatePassword
 }
 
 # Sign the specify file
