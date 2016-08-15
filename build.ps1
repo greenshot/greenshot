@@ -57,8 +57,8 @@ Function PrepareCertificate() {
 	$decodedContentBytes | set-content "greenshot.pfx" -encoding byte
 	#$certutilArguments = @('-p', $env:CertificatePassword, '-importpfx', "greenshot.pfx")
 	#Start-Process -wait certutil -ArgumentList $certutilArguments -NoNewWindow
-	
-	Import-PfxCertificate -FilePath .\Greenshot.pfx -CertStoreLocation Cert:\CurrentUser\My -Password $env:CertificatePassword
+	$psw = ConvertTo-SecureString $env:CertificatePassword -AsPlainText
+	Import-PfxCertificate -FilePath .\Greenshot.pfx -CertStoreLocation Cert:\CurrentUser\My -Password $env:psw
 }
 
 # Sign the specify file
