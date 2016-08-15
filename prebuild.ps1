@@ -47,3 +47,9 @@ FillCredentials
 
 # Write the certificate to a file
 [System.Convert]::FromBase64String($env:Certificate) | set-content "greenshot.pfx" -encoding byte
+# Import it
+Import-PfxCertificate -FilePath .\Greenshot.pfx -CertStoreLocation Cert:\CurrentUser\My -Password $env:CertificatePassword
+
+# Alternative
+# $certutilArguments = @('-f','-p', $env:CertificatePassword, '-importpfx', "greenshot.pfx")
+# Start-Process -wait certutil -ArgumentList $certutilArguments -NoNewWindow
