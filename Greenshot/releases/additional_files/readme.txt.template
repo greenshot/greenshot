@@ -26,6 +26,7 @@ Fixed:
 * BUG-1949: Can't delete Imgur upload
 * BUG-1965: Activation border around window is visible in the capture
 * BUG-1991: Greenshot portable (PAF) uses wrong log configuration
+* BUG-2011: Editor issues when the font is gone or broken
 * FEATURE-916: Added ico file format
 * FEATURE-919: Allow adding of space around screenshot (use Ctrl + / Ctrl -)
 * FEATURE-945: Added environment variables resolving to the external command
