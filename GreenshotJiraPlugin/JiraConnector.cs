@@ -42,11 +42,6 @@ namespace GreenshotJiraPlugin {
 		private JiraApi _jiraApi;
 
 		public void Dispose() {
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected void Dispose(bool disposing) {
 			if (_jiraApi != null)
 			{
 				Task.Run(async () => await Logout()).Wait();
@@ -57,10 +52,6 @@ namespace GreenshotJiraPlugin {
 			_url = Config.Url.Replace(DefaultPostfix, "");
 			_timeout = Config.Timeout;
 			_jiraApi = new JiraApi(new Uri(_url));
-		}
-
-		~JiraConnector() {
-			Dispose(false);
 		}
 
 		/// <summary>

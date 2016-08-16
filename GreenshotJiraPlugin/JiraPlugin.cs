@@ -32,7 +32,6 @@ namespace GreenshotJiraPlugin {
 	/// </summary>
 	public class JiraPlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraPlugin));
-		private PluginAttribute _jiraPluginAttributes;
 		private JiraConnector _jiraConnector;
 		private JiraConfiguration _config;
 		private static JiraPlugin _instance;
@@ -51,20 +50,10 @@ namespace GreenshotJiraPlugin {
 			}
 		}
 
-		public static JiraPlugin Instance {
-			get {
-				return _instance;
-			}
-		}
+		public static JiraPlugin Instance => _instance;
 
 		public JiraPlugin() {
 			_instance = this;
-		}
-		
-		public PluginAttribute JiraPluginAttributes {
-			get {
-				return _jiraPluginAttributes;
-			}
 		}
 
 		public IEnumerable<IDestination> Destinations() {
@@ -76,12 +65,8 @@ namespace GreenshotJiraPlugin {
 		}
 
 		//Needed for a fail-fast
-		public JiraConnector CurrentJiraConnector {
-			get {
-				return _jiraConnector;
-			}
-		}
-		
+		public JiraConnector CurrentJiraConnector => _jiraConnector;
+
 		public JiraConnector JiraConnector {
 			get {
 				if (_jiraConnector == null) {
@@ -98,8 +83,6 @@ namespace GreenshotJiraPlugin {
 		/// <param name="myAttributes">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
 		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
-			_jiraPluginAttributes = myAttributes;
-
 			// Register configuration (don't need the configuration itself)
 			_config = IniConfig.GetIniSection<JiraConfiguration>();
 			return true;

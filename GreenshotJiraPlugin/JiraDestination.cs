@@ -52,11 +52,7 @@ namespace GreenshotJiraPlugin {
 			_jira = jira;
 		}
 
-		public override string Designation {
-			get {
-				return "Jira";
-			}
-		}
+		public override string Designation => "Jira";
 
 		private string FormatUpload(Issue jira) {
 			return Designation + " - " + jira.Key + ": " + jira.Fields.Summary.Substring(0, Math.Min(20, jira.Fields.Summary.Length));
@@ -72,17 +68,10 @@ namespace GreenshotJiraPlugin {
 			}
 		}
 		
-		public override bool isActive {
-			get {
-				return base.isActive && !string.IsNullOrEmpty(Config.Url);
-			}
-		}
+		public override bool isActive => base.isActive && !string.IsNullOrEmpty(Config.Url);
 
-		public override bool isDynamic {
-			get {
-				return true;
-			}
-		}
+		public override bool isDynamic => true;
+
 		public override Image DisplayIcon {
 			get {
 				var resources = new ComponentResourceManager(typeof(JiraPlugin));
