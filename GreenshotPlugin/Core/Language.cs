@@ -474,7 +474,7 @@ namespace GreenshotPlugin.Core {
 			if (key == null) {
 				return false;
 			}
-			return hasKey(prefix + "." + key.ToString());
+			return hasKey(prefix + "." + key);
 		}
 
 		/// <summary>
@@ -534,7 +534,7 @@ namespace GreenshotPlugin.Core {
 
 		public static string Translate(object key) {
 			string typename = key.GetType().Name;
-			string enumKey = typename + "." + key.ToString();
+			string enumKey = typename + "." + key;
 			if (hasKey(enumKey)) {
 				return GetString(enumKey);
 			}
@@ -563,7 +563,7 @@ namespace GreenshotPlugin.Core {
 			if (key == null) {
 				return null;
 			}
-			return GetString(prefix + "." + key.ToString());
+			return GetString(prefix + "." + key);
 		}
 
 		/// <summary>
@@ -596,6 +596,7 @@ namespace GreenshotPlugin.Core {
 		/// Get the resource for key, format with with string.format an supply the parameters
 		/// </summary>
 		/// <param name="key"></param>
+		/// <param name="param"></param>
 		/// <returns>formatted resource or a "string ###key### not found"</returns>
 		public static string GetFormattedString(Enum key, object param) {
 			return GetFormattedString(key.ToString(), param);
@@ -604,7 +605,9 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Get the resource for prefix.key, format with with string.format an supply the parameters
 		/// </summary>
+		/// <param name="prefix"></param>
 		/// <param name="key"></param>
+		/// <param name="param"></param>
 		/// <returns>formatted resource or a "string ###prefix.key### not found"</returns>
 		public static string GetFormattedString(string prefix, Enum key, object param) {
 			return GetFormattedString(prefix, key.ToString(), param);
@@ -613,7 +616,9 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Get the resource for prefix.key, format with with string.format an supply the parameters
 		/// </summary>
+		/// <param name="prefix"></param>
 		/// <param name="key"></param>
+		/// <param name="param"></param>
 		/// <returns>formatted resource or a "string ###prefix.key### not found"</returns>
 		public static string GetFormattedString(string prefix, string key, object param) {
 			return GetFormattedString(prefix + "." + key, param);
@@ -623,6 +628,7 @@ namespace GreenshotPlugin.Core {
 		/// Get the resource for key, format with with string.format an supply the parameters
 		/// </summary>
 		/// <param name="key"></param>
+		/// <param name="param"></param>
 		/// <returns>formatted resource or a "string ###key### not found"</returns>
 		public static string GetFormattedString(string key, object param) {
 			string returnValue;

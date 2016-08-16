@@ -21,7 +21,7 @@
 
 using GreenshotPlugin.Controls;
 
-namespace GreenshotJiraPlugin {
+namespace GreenshotJiraPlugin.Forms {
 	public class JiraFormBase : GreenshotForm {
 	}
 }

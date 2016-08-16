@@ -23,7 +23,6 @@ using Greenshot.Configuration;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
-using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Drawing;
 using log4net;
 using System.Collections.Generic;

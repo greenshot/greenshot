@@ -34,7 +34,7 @@ namespace Greenshot.Interop.Office {
 		/// <summary>
 		/// Get all currently opened workbooks
 		/// </summary>
-		/// <returns>List<string> with names of the workbooks</returns>
+		/// <returns>List of string with names of the workbooks</returns>
 		public static List<string> GetWorkbooks() {
 			List<string> currentWorkbooks = new List<string>();
 			using (IExcelApplication excelApplication = GetExcelApplication()) {

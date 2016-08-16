@@ -48,7 +48,7 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Remove invalid characters from the fully qualified filename
 		/// </summary>
-		/// <param name="fullpath">string with the full path to a file</param>
+		/// <param name="fullPath">string with the full path to a file</param>
 		/// <returns>string with the full path to a file, without invalid characters</returns>
 		public static string MakeFQFilenameSafe(string fullPath) {
 			string path = MakePathSafe(Path.GetDirectoryName(fullPath));
@@ -60,7 +60,7 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Remove invalid characters from the filename
 		/// </summary>
-		/// <param name="fullpath">string with the full path to a file</param>
+		/// <param name="filename">string with the full path to a file</param>
 		/// <returns>string with the full path to a file, without invalid characters</returns>
 		public static string MakeFilenameSafe(string filename) {
 			// Make the filename save!
@@ -121,6 +121,7 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// This method will be called by the regexp.replace as a MatchEvaluator delegate!
 		/// Will delegate this to the MatchVarEvaluatorInternal and catch any exceptions
+		/// </summary>
 		/// <param name="match">What are we matching?</param>
 		/// <param name="captureDetails">The detail, can be null</param>
 		/// <param name="processVars">Variables from the process</param>
@@ -141,6 +142,10 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="match">What are we matching?</param>
 		/// <param name="captureDetails">The detail, can be null</param>
+		/// <param name="processVars"></param>
+		/// <param name="userVars"></param>
+		/// <param name="machineVars"></param>
+		/// <param name="filenameSafeMode"></param>
 		/// <returns></returns>
 		private static string MatchVarEvaluatorInternal(Match match, ICaptureDetails captureDetails, IDictionary processVars, IDictionary userVars, IDictionary machineVars, bool filenameSafeMode) {
 			// some defaults

@@ -19,12 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotJiraPlugin {
+namespace GreenshotJiraPlugin.Forms {
 	/// <summary>
 	/// Description of PasswordRequestForm.
 	/// </summary>
 	public partial class SettingsForm : JiraFormBase {
-		public SettingsForm(JiraConfiguration config) :base () {
+		public SettingsForm()
+		{
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//

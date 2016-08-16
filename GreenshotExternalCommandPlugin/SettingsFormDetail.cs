@@ -47,7 +47,7 @@ namespace ExternalCommand {
 				textBox_name.Text = commando;
 				textBox_commandline.Text = config.commandlines[commando];
 				textBox_arguments.Text = config.arguments[commando];
-				_commandIndex = config.commands.FindIndex(delegate(string s) { return s == commando; });
+				_commandIndex = config.Commands.FindIndex(delegate(string s) { return s == commando; });
 			} else {
 				textBox_arguments.Text = "\"{0}\"";
 			}
@@ -59,13 +59,13 @@ namespace ExternalCommand {
 			string commandLine = textBox_commandline.Text;
 			string arguments = textBox_arguments.Text;
 			if(_commando != null) {
-				config.commands[_commandIndex] = commandName;
+				config.Commands[_commandIndex] = commandName;
 				config.commandlines.Remove(_commando);
 				config.commandlines.Add(commandName, commandLine);
 				config.arguments.Remove(_commando);
 				config.arguments.Add(commandName, arguments);
 			} else {
-				config.commands.Add(commandName);
+				config.Commands.Add(commandName);
 				config.commandlines.Add(commandName, commandLine);
 				config.arguments.Add(commandName, arguments);
 			}
@@ -112,7 +112,7 @@ namespace ExternalCommand {
 				buttonOk.Enabled = false;
 			}
 			// Check if commandname is unique
-			if(_commando == null && !string.IsNullOrEmpty(textBox_name.Text) && config.commands.Contains(textBox_name.Text)) {
+			if(_commando == null && !string.IsNullOrEmpty(textBox_name.Text) && config.Commands.Contains(textBox_name.Text)) {
 				buttonOk.Enabled = false;
 				textBox_name.BackColor = Color.Red;
 			}

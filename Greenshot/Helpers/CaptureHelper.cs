@@ -209,7 +209,7 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Make Capture for region
 		/// </summary>
-		/// <param name="filename">filename</param>
+		/// <param name="region">Rectangle</param>
 		private void MakeCapture(Rectangle region) {
 			_captureRect = region;
 			MakeCapture();

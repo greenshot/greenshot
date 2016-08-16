@@ -8,26 +8,25 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Jira
+using System;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Web.Services;
+using System.Web.Services.Protocols;
+using System.Xml.Serialization;
+
+namespace GreenshotJiraPlugin.Web_References.JiraSoap
 {
-    using System.Diagnostics;
-    using System.Web.Services;
-    using System.ComponentModel;
-    using System.Web.Services.Protocols;
-    using System;
-    using System.Xml.Serialization;
-    
-    
-    /// <remarks/>
+	/// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Web.Services.WebServiceBindingAttribute(Name="jirasoapservice-v2SoapBinding", Namespace="http://jira/rpc/soap/jirasoapservice-v2")]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteRoleActor))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteFieldValue))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteCustomFieldValue))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemotePermissionMapping))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(AbstractRemoteEntity))]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [WebServiceBinding(Name="jirasoapservice-v2SoapBinding", Namespace="http://jira/rpc/soap/jirasoapservice-v2")]
+    [SoapInclude(typeof(RemoteRoleActor))]
+    [SoapInclude(typeof(RemoteFieldValue))]
+    [SoapInclude(typeof(RemoteCustomFieldValue))]
+    [SoapInclude(typeof(RemotePermissionMapping))]
+    [SoapInclude(typeof(AbstractRemoteEntity))]
     public partial class JiraSoapServiceService : System.Web.Services.Protocols.SoapHttpClientProtocol
     {
         
@@ -38,8 +37,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getCommentReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getCommentReturn")]
         public RemoteComment getComment(string in0, long in1)
         {
             object[] results = this.Invoke("getComment", new object[] {
@@ -64,8 +63,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getServerInfoReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getServerInfoReturn")]
         public RemoteServerInfo getServerInfo(string in0)
         {
             object[] results = this.Invoke("getServerInfo", new object[] {
@@ -88,8 +87,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getGroupReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getGroupReturn")]
         public RemoteGroup getGroup(string in0, string in1)
         {
             object[] results = this.Invoke("getGroup", new object[] {
@@ -114,8 +113,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("loginReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("loginReturn")]
         public string login(string in0, string in1)
         {
             object[] results = this.Invoke("login", new object[] {
@@ -140,8 +139,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getUserReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getUserReturn")]
         public RemoteUser getUser(string in0, string in1)
         {
             object[] results = this.Invoke("getUser", new object[] {
@@ -166,8 +165,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getIssueReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getIssueReturn")]
         public RemoteIssue getIssue(string in0, string in1)
         {
             object[] results = this.Invoke("getIssue", new object[] {
@@ -192,8 +191,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getVersionsReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getVersionsReturn")]
         public RemoteVersion[] getVersions(string in0, string in1)
         {
             object[] results = this.Invoke("getVersions", new object[] {
@@ -218,8 +217,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getComponentsReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getComponentsReturn")]
         public RemoteComponent[] getComponents(string in0, string in1)
         {
             object[] results = this.Invoke("getComponents", new object[] {
@@ -244,8 +243,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("createGroupReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("createGroupReturn")]
         public RemoteGroup createGroup(string in0, string in1, RemoteUser in2)
         {
             object[] results = this.Invoke("createGroup", new object[] {
@@ -272,8 +271,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("createUserReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("createUserReturn")]
         public RemoteUser createUser(string in0, string in1, string in2, string in3, string in4)
         {
             object[] results = this.Invoke("createUser", new object[] {
@@ -304,8 +303,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("createIssueReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("createIssueReturn")]
         public RemoteIssue createIssue(string in0, RemoteIssue in1)
         {
             object[] results = this.Invoke("createIssue", new object[] {
@@ -330,8 +329,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("updateIssueReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("updateIssueReturn")]
         public RemoteIssue updateIssue(string in0, string in1, RemoteFieldValue[] in2)
         {
             object[] results = this.Invoke("updateIssue", new object[] {
@@ -358,7 +357,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void deleteIssue(string in0, string in1)
         {
             this.Invoke("deleteIssue", new object[] {
@@ -381,8 +380,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getAvailableActionsReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getAvailableActionsReturn")]
         public RemoteNamedObject[] getAvailableActions(string in0, string in1)
         {
             object[] results = this.Invoke("getAvailableActions", new object[] {
@@ -407,8 +406,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getSubTaskIssueTypesReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getSubTaskIssueTypesReturn")]
         public RemoteIssueType[] getSubTaskIssueTypes(string in0)
         {
             object[] results = this.Invoke("getSubTaskIssueTypes", new object[] {
@@ -431,8 +430,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getConfigurationReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getConfigurationReturn")]
         public RemoteConfiguration getConfiguration(string in0)
         {
             object[] results = this.Invoke("getConfiguration", new object[] {
@@ -455,8 +454,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("createProjectReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("createProjectReturn")]
         public RemoteProject createProject(string in0, string in1, string in2, string in3, string in4, string in5, RemotePermissionScheme in6, RemoteScheme in7, RemoteScheme in8)
         {
             object[] results = this.Invoke("createProject", new object[] {
@@ -495,8 +494,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("updateProjectReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("updateProjectReturn")]
         public RemoteProject updateProject(string in0, RemoteProject in1)
         {
             object[] results = this.Invoke("updateProject", new object[] {
@@ -521,8 +520,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getProjectByKeyReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getProjectByKeyReturn")]
         public RemoteProject getProjectByKey(string in0, string in1)
         {
             object[] results = this.Invoke("getProjectByKey", new object[] {
@@ -547,7 +546,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void removeAllRoleActorsByProject(string in0, RemoteProject in1)
         {
             this.Invoke("removeAllRoleActorsByProject", new object[] {
@@ -570,8 +569,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getPrioritiesReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getPrioritiesReturn")]
         public RemotePriority[] getPriorities(string in0)
         {
             object[] results = this.Invoke("getPriorities", new object[] {
@@ -594,8 +593,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getResolutionsReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getResolutionsReturn")]
         public RemoteResolution[] getResolutions(string in0)
         {
             object[] results = this.Invoke("getResolutions", new object[] {
@@ -618,8 +617,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getIssueTypesReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getIssueTypesReturn")]
         public RemoteIssueType[] getIssueTypes(string in0)
         {
             object[] results = this.Invoke("getIssueTypes", new object[] {
@@ -642,8 +641,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getStatusesReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getStatusesReturn")]
         public RemoteStatus[] getStatuses(string in0)
         {
             object[] results = this.Invoke("getStatuses", new object[] {
@@ -666,8 +665,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getIssueTypesForProjectReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getIssueTypesForProjectReturn")]
         public RemoteIssueType[] getIssueTypesForProject(string in0, string in1)
         {
             object[] results = this.Invoke("getIssueTypesForProject", new object[] {
@@ -692,8 +691,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getProjectRolesReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getProjectRolesReturn")]
         public RemoteProjectRole[] getProjectRoles(string in0)
         {
             object[] results = this.Invoke("getProjectRoles", new object[] {
@@ -716,8 +715,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getProjectRoleReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getProjectRoleReturn")]
         public RemoteProjectRole getProjectRole(string in0, long in1)
         {
             object[] results = this.Invoke("getProjectRole", new object[] {
@@ -742,8 +741,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getProjectRoleActorsReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getProjectRoleActorsReturn")]
         public RemoteProjectRoleActors getProjectRoleActors(string in0, RemoteProjectRole in1, RemoteProject in2)
         {
             object[] results = this.Invoke("getProjectRoleActors", new object[] {
@@ -770,8 +769,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getDefaultRoleActorsReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getDefaultRoleActorsReturn")]
         public RemoteRoleActors getDefaultRoleActors(string in0, RemoteProjectRole in1)
         {
             object[] results = this.Invoke("getDefaultRoleActors", new object[] {
@@ -796,7 +795,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void removeAllRoleActorsByNameAndType(string in0, string in1, string in2)
         {
             this.Invoke("removeAllRoleActorsByNameAndType", new object[] {
@@ -821,7 +820,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void deleteProjectRole(string in0, RemoteProjectRole in1, bool in2)
         {
             this.Invoke("deleteProjectRole", new object[] {
@@ -846,7 +845,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void updateProjectRole(string in0, RemoteProjectRole in1)
         {
             this.Invoke("updateProjectRole", new object[] {
@@ -869,8 +868,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("createProjectRoleReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("createProjectRoleReturn")]
         public RemoteProjectRole createProjectRole(string in0, RemoteProjectRole in1)
         {
             object[] results = this.Invoke("createProjectRole", new object[] {
@@ -895,8 +894,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("isProjectRoleNameUniqueReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("isProjectRoleNameUniqueReturn")]
         public bool isProjectRoleNameUnique(string in0, string in1)
         {
             object[] results = this.Invoke("isProjectRoleNameUnique", new object[] {
@@ -921,7 +920,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void addActorsToProjectRole(string in0, string[] in1, RemoteProjectRole in2, RemoteProject in3, string in4)
         {
             this.Invoke("addActorsToProjectRole", new object[] {
@@ -950,7 +949,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void removeActorsFromProjectRole(string in0, string[] in1, RemoteProjectRole in2, RemoteProject in3, string in4)
         {
             this.Invoke("removeActorsFromProjectRole", new object[] {
@@ -979,7 +978,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void addDefaultActorsToProjectRole(string in0, string[] in1, RemoteProjectRole in2, string in3)
         {
             this.Invoke("addDefaultActorsToProjectRole", new object[] {
@@ -1006,7 +1005,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void removeDefaultActorsFromProjectRole(string in0, string[] in1, RemoteProjectRole in2, string in3)
         {
             this.Invoke("removeDefaultActorsFromProjectRole", new object[] {
@@ -1033,8 +1032,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getAssociatedNotificationSchemesReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getAssociatedNotificationSchemesReturn")]
         public RemoteScheme[] getAssociatedNotificationSchemes(string in0, RemoteProjectRole in1)
         {
             object[] results = this.Invoke("getAssociatedNotificationSchemes", new object[] {
@@ -1059,8 +1058,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getAssociatedPermissionSchemesReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getAssociatedPermissionSchemesReturn")]
         public RemoteScheme[] getAssociatedPermissionSchemes(string in0, RemoteProjectRole in1)
         {
             object[] results = this.Invoke("getAssociatedPermissionSchemes", new object[] {
@@ -1085,7 +1084,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void deleteProject(string in0, string in1)
         {
             this.Invoke("deleteProject", new object[] {
@@ -1108,8 +1107,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getProjectByIdReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getProjectByIdReturn")]
         public RemoteProject getProjectById(string in0, long in1)
         {
             object[] results = this.Invoke("getProjectById", new object[] {
@@ -1134,8 +1133,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getCustomFieldsReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getCustomFieldsReturn")]
         public RemoteField[] getCustomFields(string in0)
         {
             object[] results = this.Invoke("getCustomFields", new object[] {
@@ -1158,8 +1157,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getCommentsReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getCommentsReturn")]
         public RemoteComment[] getComments(string in0, string in1)
         {
             object[] results = this.Invoke("getComments", new object[] {
@@ -1184,8 +1183,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getFavouriteFiltersReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getFavouriteFiltersReturn")]
         public RemoteFilter[] getFavouriteFilters(string in0)
         {
             object[] results = this.Invoke("getFavouriteFilters", new object[] {
@@ -1208,7 +1207,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void releaseVersion(string in0, string in1, RemoteVersion in2)
         {
             this.Invoke("releaseVersion", new object[] {
@@ -1233,7 +1232,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void archiveVersion(string in0, string in1, string in2, bool in3)
         {
             this.Invoke("archiveVersion", new object[] {
@@ -1260,8 +1259,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getFieldsForEditReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getFieldsForEditReturn")]
         public RemoteField[] getFieldsForEdit(string in0, string in1)
         {
             object[] results = this.Invoke("getFieldsForEdit", new object[] {
@@ -1286,8 +1285,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getSubTaskIssueTypesForProjectReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getSubTaskIssueTypesForProjectReturn")]
         public RemoteIssueType[] getSubTaskIssueTypesForProject(string in0, string in1)
         {
             object[] results = this.Invoke("getSubTaskIssueTypesForProject", new object[] {
@@ -1312,7 +1311,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void addUserToGroup(string in0, RemoteGroup in1, RemoteUser in2)
         {
             this.Invoke("addUserToGroup", new object[] {
@@ -1337,7 +1336,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void removeUserFromGroup(string in0, RemoteGroup in1, RemoteUser in2)
         {
             this.Invoke("removeUserFromGroup", new object[] {
@@ -1362,8 +1361,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getSecurityLevelReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getSecurityLevelReturn")]
         public RemoteSecurityLevel getSecurityLevel(string in0, string in1)
         {
             object[] results = this.Invoke("getSecurityLevel", new object[] {
@@ -1388,8 +1387,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("logoutReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("logoutReturn")]
         public bool logout(string in0)
         {
             object[] results = this.Invoke("logout", new object[] {
@@ -1412,7 +1411,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void addComment(string in0, string in1, RemoteComment in2)
         {
             this.Invoke("addComment", new object[] {
@@ -1437,8 +1436,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getProjectWithSchemesByIdReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getProjectWithSchemesByIdReturn")]
         public RemoteProject getProjectWithSchemesById(string in0, long in1)
         {
             object[] results = this.Invoke("getProjectWithSchemesById", new object[] {
@@ -1463,8 +1462,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getSecurityLevelsReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getSecurityLevelsReturn")]
         public RemoteSecurityLevel[] getSecurityLevels(string in0, string in1)
         {
             object[] results = this.Invoke("getSecurityLevels", new object[] {
@@ -1489,8 +1488,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getProjectAvatarsReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getProjectAvatarsReturn")]
         public RemoteAvatar[] getProjectAvatars(string in0, string in1, bool in2)
         {
             object[] results = this.Invoke("getProjectAvatars", new object[] {
@@ -1517,7 +1516,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void setProjectAvatar(string in0, string in1, long in2)
         {
             this.Invoke("setProjectAvatar", new object[] {
@@ -1542,8 +1541,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getProjectAvatarReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getProjectAvatarReturn")]
         public RemoteAvatar getProjectAvatar(string in0, string in1)
         {
             object[] results = this.Invoke("getProjectAvatar", new object[] {
@@ -1568,7 +1567,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void deleteProjectAvatar(string in0, long in1)
         {
             this.Invoke("deleteProjectAvatar", new object[] {
@@ -1591,8 +1590,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getNotificationSchemesReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getNotificationSchemesReturn")]
         public RemoteScheme[] getNotificationSchemes(string in0)
         {
             object[] results = this.Invoke("getNotificationSchemes", new object[] {
@@ -1615,8 +1614,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getPermissionSchemesReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getPermissionSchemesReturn")]
         public RemotePermissionScheme[] getPermissionSchemes(string in0)
         {
             object[] results = this.Invoke("getPermissionSchemes", new object[] {
@@ -1639,8 +1638,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getAllPermissionsReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getAllPermissionsReturn")]
         public RemotePermission[] getAllPermissions(string in0)
         {
             object[] results = this.Invoke("getAllPermissions", new object[] {
@@ -1663,8 +1662,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("createPermissionSchemeReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("createPermissionSchemeReturn")]
         public RemotePermissionScheme createPermissionScheme(string in0, string in1, string in2)
         {
             object[] results = this.Invoke("createPermissionScheme", new object[] {
@@ -1691,8 +1690,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("addPermissionToReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("addPermissionToReturn")]
         public RemotePermissionScheme addPermissionTo(string in0, RemotePermissionScheme in1, RemotePermission in2, RemoteEntity in3)
         {
             object[] results = this.Invoke("addPermissionTo", new object[] {
@@ -1721,8 +1720,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("deletePermissionFromReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("deletePermissionFromReturn")]
         public RemotePermissionScheme deletePermissionFrom(string in0, RemotePermissionScheme in1, RemotePermission in2, RemoteEntity in3)
         {
             object[] results = this.Invoke("deletePermissionFrom", new object[] {
@@ -1751,7 +1750,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void deletePermissionScheme(string in0, string in1)
         {
             this.Invoke("deletePermissionScheme", new object[] {
@@ -1774,8 +1773,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("createIssueWithSecurityLevelReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("createIssueWithSecurityLevelReturn")]
         public RemoteIssue createIssueWithSecurityLevel(string in0, RemoteIssue in1, long in2)
         {
             object[] results = this.Invoke("createIssueWithSecurityLevel", new object[] {
@@ -1802,8 +1801,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("addAttachmentsToIssueReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("addAttachmentsToIssueReturn")]
         public bool addAttachmentsToIssue(string in0, string in1, string[] in2, sbyte[] in3)
         {
             object[] results = this.Invoke("addAttachmentsToIssue", new object[] {
@@ -1832,8 +1831,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getAttachmentsFromIssueReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getAttachmentsFromIssueReturn")]
         public RemoteAttachment[] getAttachmentsFromIssue(string in0, string in1)
         {
             object[] results = this.Invoke("getAttachmentsFromIssue", new object[] {
@@ -1858,8 +1857,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("hasPermissionToEditCommentReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("hasPermissionToEditCommentReturn")]
         public bool hasPermissionToEditComment(string in0, RemoteComment in1)
         {
             object[] results = this.Invoke("hasPermissionToEditComment", new object[] {
@@ -1884,8 +1883,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("editCommentReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("editCommentReturn")]
         public RemoteComment editComment(string in0, RemoteComment in1)
         {
             object[] results = this.Invoke("editComment", new object[] {
@@ -1910,8 +1909,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getFieldsForActionReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getFieldsForActionReturn")]
         public RemoteField[] getFieldsForAction(string in0, string in1, string in2)
         {
             object[] results = this.Invoke("getFieldsForAction", new object[] {
@@ -1938,8 +1937,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("progressWorkflowActionReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("progressWorkflowActionReturn")]
         public RemoteIssue progressWorkflowAction(string in0, string in1, string in2, RemoteFieldValue[] in3)
         {
             object[] results = this.Invoke("progressWorkflowAction", new object[] {
@@ -1968,8 +1967,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getIssueByIdReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getIssueByIdReturn")]
         public RemoteIssue getIssueById(string in0, string in1)
         {
             object[] results = this.Invoke("getIssueById", new object[] {
@@ -1994,8 +1993,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("addWorklogWithNewRemainingEstimateReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("addWorklogWithNewRemainingEstimateReturn")]
         public RemoteWorklog addWorklogWithNewRemainingEstimate(string in0, string in1, RemoteWorklog in2, string in3)
         {
             object[] results = this.Invoke("addWorklogWithNewRemainingEstimate", new object[] {
@@ -2024,8 +2023,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("addWorklogAndAutoAdjustRemainingEstimateReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("addWorklogAndAutoAdjustRemainingEstimateReturn")]
         public RemoteWorklog addWorklogAndAutoAdjustRemainingEstimate(string in0, string in1, RemoteWorklog in2)
         {
             object[] results = this.Invoke("addWorklogAndAutoAdjustRemainingEstimate", new object[] {
@@ -2052,8 +2051,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("addWorklogAndRetainRemainingEstimateReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("addWorklogAndRetainRemainingEstimateReturn")]
         public RemoteWorklog addWorklogAndRetainRemainingEstimate(string in0, string in1, RemoteWorklog in2)
         {
             object[] results = this.Invoke("addWorklogAndRetainRemainingEstimate", new object[] {
@@ -2080,7 +2079,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void deleteWorklogWithNewRemainingEstimate(string in0, string in1, string in2)
         {
             this.Invoke("deleteWorklogWithNewRemainingEstimate", new object[] {
@@ -2105,7 +2104,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void deleteWorklogAndAutoAdjustRemainingEstimate(string in0, string in1)
         {
             this.Invoke("deleteWorklogAndAutoAdjustRemainingEstimate", new object[] {
@@ -2128,7 +2127,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void deleteWorklogAndRetainRemainingEstimate(string in0, string in1)
         {
             this.Invoke("deleteWorklogAndRetainRemainingEstimate", new object[] {
@@ -2151,7 +2150,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void updateWorklogWithNewRemainingEstimate(string in0, RemoteWorklog in1, string in2)
         {
             this.Invoke("updateWorklogWithNewRemainingEstimate", new object[] {
@@ -2176,7 +2175,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void updateWorklogAndAutoAdjustRemainingEstimate(string in0, RemoteWorklog in1)
         {
             this.Invoke("updateWorklogAndAutoAdjustRemainingEstimate", new object[] {
@@ -2199,7 +2198,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void updateWorklogAndRetainRemainingEstimate(string in0, RemoteWorklog in1)
         {
             this.Invoke("updateWorklogAndRetainRemainingEstimate", new object[] {
@@ -2222,8 +2221,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getWorklogsReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getWorklogsReturn")]
         public RemoteWorklog[] getWorklogs(string in0, string in1)
         {
             object[] results = this.Invoke("getWorklogs", new object[] {
@@ -2248,8 +2247,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("hasPermissionToCreateWorklogReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("hasPermissionToCreateWorklogReturn")]
         public bool hasPermissionToCreateWorklog(string in0, string in1)
         {
             object[] results = this.Invoke("hasPermissionToCreateWorklog", new object[] {
@@ -2274,8 +2273,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("hasPermissionToDeleteWorklogReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("hasPermissionToDeleteWorklogReturn")]
         public bool hasPermissionToDeleteWorklog(string in0, string in1)
         {
             object[] results = this.Invoke("hasPermissionToDeleteWorklog", new object[] {
@@ -2300,8 +2299,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("hasPermissionToUpdateWorklogReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("hasPermissionToUpdateWorklogReturn")]
         public bool hasPermissionToUpdateWorklog(string in0, string in1)
         {
             object[] results = this.Invoke("hasPermissionToUpdateWorklog", new object[] {
@@ -2326,8 +2325,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getResolutionDateByKeyReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getResolutionDateByKeyReturn")]
         public System.DateTime getResolutionDateByKey(string in0, string in1)
         {
             object[] results = this.Invoke("getResolutionDateByKey", new object[] {
@@ -2352,8 +2351,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getResolutionDateByIdReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getResolutionDateByIdReturn")]
         public System.DateTime getResolutionDateById(string in0, long in1)
         {
             object[] results = this.Invoke("getResolutionDateById", new object[] {
@@ -2378,8 +2377,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getIssueCountForFilterReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getIssueCountForFilterReturn")]
         public long getIssueCountForFilter(string in0, string in1)
         {
             object[] results = this.Invoke("getIssueCountForFilter", new object[] {
@@ -2404,8 +2403,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getIssuesFromTextSearchReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getIssuesFromTextSearchReturn")]
         public RemoteIssue[] getIssuesFromTextSearch(string in0, string in1)
         {
             object[] results = this.Invoke("getIssuesFromTextSearch", new object[] {
@@ -2430,8 +2429,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getIssuesFromTextSearchWithProjectReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getIssuesFromTextSearchWithProjectReturn")]
         public RemoteIssue[] getIssuesFromTextSearchWithProject(string in0, string[] in1, string in2, int in3)
         {
             object[] results = this.Invoke("getIssuesFromTextSearchWithProject", new object[] {
@@ -2460,8 +2459,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getIssuesFromJqlSearchReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getIssuesFromJqlSearchReturn")]
         public RemoteIssue[] getIssuesFromJqlSearch(string in0, string in1, int in2)
         {
             object[] results = this.Invoke("getIssuesFromJqlSearch", new object[] {
@@ -2488,7 +2487,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void deleteUser(string in0, string in1)
         {
             this.Invoke("deleteUser", new object[] {
@@ -2511,8 +2510,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("updateGroupReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("updateGroupReturn")]
         public RemoteGroup updateGroup(string in0, RemoteGroup in1)
         {
             object[] results = this.Invoke("updateGroup", new object[] {
@@ -2537,7 +2536,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void deleteGroup(string in0, string in1, string in2)
         {
             this.Invoke("deleteGroup", new object[] {
@@ -2562,7 +2561,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void refreshCustomFields(string in0)
         {
             this.Invoke("refreshCustomFields", new object[] {
@@ -2583,8 +2582,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getSavedFiltersReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getSavedFiltersReturn")]
         public RemoteFilter[] getSavedFilters(string in0)
         {
             object[] results = this.Invoke("getSavedFilters", new object[] {
@@ -2607,8 +2606,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("addBase64EncodedAttachmentsToIssueReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("addBase64EncodedAttachmentsToIssueReturn")]
         public bool addBase64EncodedAttachmentsToIssue(string in0, string in1, string[] in2, string[] in3)
         {
             object[] results = this.Invoke("addBase64EncodedAttachmentsToIssue", new object[] {
@@ -2637,8 +2636,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("createProjectFromObjectReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("createProjectFromObjectReturn")]
         public RemoteProject createProjectFromObject(string in0, RemoteProject in1)
         {
             object[] results = this.Invoke("createProjectFromObject", new object[] {
@@ -2663,8 +2662,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getSecuritySchemesReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getSecuritySchemesReturn")]
         public RemoteScheme[] getSecuritySchemes(string in0)
         {
             object[] results = this.Invoke("getSecuritySchemes", new object[] {
@@ -2687,8 +2686,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("addVersionReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("addVersionReturn")]
         public RemoteVersion addVersion(string in0, string in1, RemoteVersion in2)
         {
             object[] results = this.Invoke("addVersion", new object[] {
@@ -2715,8 +2714,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getIssuesFromFilterReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getIssuesFromFilterReturn")]
         public RemoteIssue[] getIssuesFromFilter(string in0, string in1)
         {
             object[] results = this.Invoke("getIssuesFromFilter", new object[] {
@@ -2741,8 +2740,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getIssuesFromFilterWithLimitReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getIssuesFromFilterWithLimitReturn")]
         public RemoteIssue[] getIssuesFromFilterWithLimit(string in0, string in1, int in2, int in3)
         {
             object[] results = this.Invoke("getIssuesFromFilterWithLimit", new object[] {
@@ -2771,8 +2770,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getIssuesFromTextSearchWithLimitReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getIssuesFromTextSearchWithLimitReturn")]
         public RemoteIssue[] getIssuesFromTextSearchWithLimit(string in0, string in1, int in2, int in3)
         {
             object[] results = this.Invoke("getIssuesFromTextSearchWithLimit", new object[] {
@@ -2801,8 +2800,8 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
-        [return: System.Xml.Serialization.SoapElementAttribute("getProjectsNoSchemesReturn")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [return: SoapElement("getProjectsNoSchemesReturn")]
         public RemoteProject[] getProjectsNoSchemes(string in0)
         {
             object[] results = this.Invoke("getProjectsNoSchemes", new object[] {
@@ -2825,7 +2824,7 @@ namespace Jira
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
+        [SoapRpcMethod("", RequestNamespace="http://soap.rpc.jira.atlassian.com", ResponseNamespace="http://jira/rpc/soap/jirasoapservice-v2")]
         public void setNewProjectAvatar(string in0, string in1, string in2, string in3)
         {
             this.Invoke("setNewProjectAvatar", new object[] {
@@ -2854,583 +2853,583 @@ namespace Jira
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteComment
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string author;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string body;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public System.Nullable<System.DateTime> created;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string groupLevel;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string id;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string roleLevel;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string updateAuthor;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public System.Nullable<System.DateTime> updated;
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteWorklogImpl))]
+    [SoapInclude(typeof(RemoteWorklogImpl))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteWorklog
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string author;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string comment;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public System.Nullable<System.DateTime> created;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string groupLevel;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string id;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string roleLevelId;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public System.Nullable<System.DateTime> startDate;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string timeSpent;
         
         /// <remarks/>
         public long timeSpentInSeconds;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string updateAuthor;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public System.Nullable<System.DateTime> updated;
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://service.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://service.soap.rpc.jira.atlassian.com")]
     public partial class RemoteWorklogImpl : RemoteWorklog
     {
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteAvatar
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string base64Data;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string contentType;
         
         /// <remarks/>
         public long id;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string owner;
         
         /// <remarks/>
         public bool system;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string type;
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteRoleActor
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string descriptor;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string parameter;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public RemoteProjectRole projectRole;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string type;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public RemoteUser[] users;
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteProjectRole
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string description;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public System.Nullable<long> id;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string name;
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteUser : RemoteEntity
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string email;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string fullname;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string name;
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteGroup))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteUser))]
+    [SoapInclude(typeof(RemoteGroup))]
+    [SoapInclude(typeof(RemoteUser))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteEntity
     {
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteGroup : RemoteEntity
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string name;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public RemoteUser[] users;
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteProjectRoleActors))]
+    [SoapInclude(typeof(RemoteProjectRoleActors))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteRoleActors
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public RemoteProjectRole projectRole;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public RemoteRoleActor[] roleActors;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public RemoteUser[] users;
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteProjectRoleActors : RemoteRoleActors
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public RemoteProject project;
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteProject : AbstractNamedRemoteEntity
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string description;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public RemoteScheme issueSecurityScheme;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string key;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string lead;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public RemoteScheme notificationScheme;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public RemotePermissionScheme permissionScheme;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string projectUrl;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string url;
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemotePermissionScheme))]
+    [SoapInclude(typeof(RemotePermissionScheme))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteScheme
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string description;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public System.Nullable<long> id;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string name;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string type;
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemotePermissionScheme : RemoteScheme
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public RemotePermissionMapping[] permissionMappings;
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemotePermissionMapping
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public RemotePermission permission;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public RemoteEntity[] remoteEntities;
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemotePermission
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string name;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public System.Nullable<long> permission;
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteSecurityLevel))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteFilter))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteField))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteProject))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(AbstractRemoteConstant))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteStatus))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteResolution))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemotePriority))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteIssueType))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteNamedObject))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteComponent))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteVersion))]
+    [SoapInclude(typeof(RemoteSecurityLevel))]
+    [SoapInclude(typeof(RemoteFilter))]
+    [SoapInclude(typeof(RemoteField))]
+    [SoapInclude(typeof(RemoteProject))]
+    [SoapInclude(typeof(AbstractRemoteConstant))]
+    [SoapInclude(typeof(RemoteStatus))]
+    [SoapInclude(typeof(RemoteResolution))]
+    [SoapInclude(typeof(RemotePriority))]
+    [SoapInclude(typeof(RemoteIssueType))]
+    [SoapInclude(typeof(RemoteNamedObject))]
+    [SoapInclude(typeof(RemoteComponent))]
+    [SoapInclude(typeof(RemoteVersion))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public abstract partial class AbstractNamedRemoteEntity : AbstractRemoteEntity
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string name;
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteAttachment))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteIssue))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(AbstractNamedRemoteEntity))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteSecurityLevel))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteFilter))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteField))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteProject))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(AbstractRemoteConstant))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteStatus))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteResolution))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemotePriority))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteIssueType))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteNamedObject))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteComponent))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteVersion))]
+    [SoapInclude(typeof(RemoteAttachment))]
+    [SoapInclude(typeof(RemoteIssue))]
+    [SoapInclude(typeof(AbstractNamedRemoteEntity))]
+    [SoapInclude(typeof(RemoteSecurityLevel))]
+    [SoapInclude(typeof(RemoteFilter))]
+    [SoapInclude(typeof(RemoteField))]
+    [SoapInclude(typeof(RemoteProject))]
+    [SoapInclude(typeof(AbstractRemoteConstant))]
+    [SoapInclude(typeof(RemoteStatus))]
+    [SoapInclude(typeof(RemoteResolution))]
+    [SoapInclude(typeof(RemotePriority))]
+    [SoapInclude(typeof(RemoteIssueType))]
+    [SoapInclude(typeof(RemoteNamedObject))]
+    [SoapInclude(typeof(RemoteComponent))]
+    [SoapInclude(typeof(RemoteVersion))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public abstract partial class AbstractRemoteEntity
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string id;
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteAttachment : AbstractRemoteEntity
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string author;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public System.Nullable<System.DateTime> created;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string filename;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public System.Nullable<long> filesize;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string mimetype;
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteIssue : AbstractRemoteEntity
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public RemoteVersion[] affectsVersions;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string assignee;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string[] attachmentNames;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public RemoteComponent[] components;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public System.Nullable<System.DateTime> created;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public RemoteCustomFieldValue[] customFieldValues;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string description;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public System.Nullable<System.DateTime> duedate;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string environment;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public RemoteVersion[] fixVersions;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string key;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string priority;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string project;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string reporter;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string resolution;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string status;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string summary;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string type;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public System.Nullable<System.DateTime> updated;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public System.Nullable<long> votes;
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteVersion : AbstractNamedRemoteEntity
     {
         
@@ -3438,161 +3437,161 @@ namespace Jira
         public bool archived;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public System.Nullable<System.DateTime> releaseDate;
         
         /// <remarks/>
         public bool released;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public System.Nullable<long> sequence;
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteComponent : AbstractNamedRemoteEntity
     {
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteCustomFieldValue
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string customfieldId;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string key;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string[] values;
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteSecurityLevel : AbstractNamedRemoteEntity
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string description;
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteFilter : AbstractNamedRemoteEntity
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string author;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string description;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string project;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string xml;
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteField : AbstractNamedRemoteEntity
     {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteStatus))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteResolution))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemotePriority))]
-    [System.Xml.Serialization.SoapIncludeAttribute(typeof(RemoteIssueType))]
+    [SoapInclude(typeof(RemoteStatus))]
+    [SoapInclude(typeof(RemoteResolution))]
+    [SoapInclude(typeof(RemotePriority))]
+    [SoapInclude(typeof(RemoteIssueType))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public abstract partial class AbstractRemoteConstant : AbstractNamedRemoteEntity
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string description;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string icon;
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteStatus : AbstractRemoteConstant
     {
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteResolution : AbstractRemoteConstant
     {
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemotePriority : AbstractRemoteConstant
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string color;
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteIssueType : AbstractRemoteConstant
     {
         
@@ -3602,20 +3601,20 @@ namespace Jira
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteNamedObject : AbstractNamedRemoteEntity
     {
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteConfiguration
     {
         
@@ -3652,71 +3651,71 @@ namespace Jira
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteFieldValue
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string id;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string[] values;
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteTimeInfo
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string serverTime;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string timeZoneId;
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("SharpDevelop", "3.2.0.5777")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.SoapTypeAttribute(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
+    [Serializable()]
+    [DebuggerStepThrough()]
+    [DesignerCategory("code")]
+    [SoapType(Namespace="http://beans.soap.rpc.jira.atlassian.com")]
     public partial class RemoteServerInfo
     {
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string baseUrl;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public System.Nullable<System.DateTime> buildDate;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string buildNumber;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string edition;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public RemoteTimeInfo serverTime;
         
         /// <remarks/>
-        [System.Xml.Serialization.SoapElementAttribute(IsNullable=true)]
+        [SoapElement(IsNullable=true)]
         public string version;
     }
 }

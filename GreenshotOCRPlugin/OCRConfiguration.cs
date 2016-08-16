@@ -27,10 +27,10 @@ namespace GreenshotOCR {
 	[IniSection("OCR", Description="Greenshot OCR Plugin configuration")]
 	public class OCRConfiguration : IniSection {
 		[IniProperty("Language", Description="Language for OCR", DefaultValue="miLANG_ENGLISH")]
-		public string Language;
+		public string Language { get; set; }
 		[IniProperty("orientimage", Description="Orient image?", DefaultValue="true")]
-		public bool Orientimage;
+		public bool Orientimage { get; set; }
 		[IniProperty("straightenImage", Description="Straighten image?", DefaultValue="true")]
-		public bool StraightenImage;
+		public bool StraightenImage { get; set; }
 	}
 }

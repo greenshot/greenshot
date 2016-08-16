@@ -26,7 +26,6 @@ using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -154,9 +153,8 @@ namespace GreenshotPlugin.Core {
 	/// Main code is taken from vbAccelerator, location:
 	/// http://www.vbaccelerator.com/home/NET/Code/Libraries/Windows/Enumerating_Windows/article.asp
 	/// but a LOT of changes/enhancements were made to adapt it for Greenshot.
-	/// <summary>
-	/// Provides details about a Window returned by the 
-	/// enumeration
+	///
+	/// Provides details about a Window returned by the  enumeration
 	/// </summary>
 	public class WindowDetails : IEquatable<WindowDetails>{
 		private const string METRO_WINDOWS_CLASS = "Windows.UI.Core.CoreWindow"; // Windows 10 uses ApplicationFrameWindow
@@ -167,15 +165,21 @@ namespace GreenshotPlugin.Core {
 		private static readonly CoreConfiguration Conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private static readonly List<IntPtr> IgnoreHandles = new List<IntPtr>();
 		private static readonly List<string> ExcludeProcessesFromFreeze = new List<string>();
-		private static readonly IAppVisibility appVisibility;
+		private static readonly IAppVisibility AppVisibility;
 		
 		static WindowDetails() {
-			try {
+			try
+			{
 				// Only try to instantiate when Windows 8 or later.
-				if (Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 2) {
-					appVisibility = COMWrapper.CreateInstance<IAppVisibility>();					
+				if (Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 2)
+				{
+					AppVisibility = COMWrapper.CreateInstance<IAppVisibility>();
 				}
-			} catch {}
+			}
+			catch (Exception ex)
+			{
+				LOG.WarnFormat("Couldn't create instance of IAppVisibility: {0}", ex.Message);
+			}
 		}
 
 		public static void AddProcessToExcludeFromFreeze(string processname) {
@@ -529,7 +533,7 @@ namespace GreenshotPlugin.Core {
 		/// This method will find the child window according to a path of classnames.
 		/// Usually used for finding a certain "content" window like for the IE Browser
 		/// </summary>
-		/// <param name="classnames">List<string> with classname "path"</param>
+		/// <param name="classnames">List of string with classname "path"</param>
 		/// <param name="allowSkip">true allows the search to skip a classname of the path</param>
 		/// <returns>WindowDetails if found</returns>
 		public WindowDetails FindPath(List<string> classnames, bool allowSkip) {
@@ -695,8 +699,8 @@ namespace GreenshotPlugin.Core {
 								RECT rect = new RECT(screen.Bounds);
 								IntPtr monitor = User32.MonitorFromRect(ref rect, User32.MONITOR_DEFAULTTONULL);
 								if (monitor != IntPtr.Zero) {
-									if (appVisibility != null) {
-										MONITOR_APP_VISIBILITY monitorAppVisibility = appVisibility.GetAppVisibilityOnMonitor(monitor);
+									if (AppVisibility != null) {
+										MONITOR_APP_VISIBILITY monitorAppVisibility = AppVisibility.GetAppVisibilityOnMonitor(monitor);
 										//LOG.DebugFormat("App {0} visible: {1} on {2}", Text, monitorAppVisibility, screen.Bounds);
 										if (monitorAppVisibility == MONITOR_APP_VISIBILITY.MAV_APP_VISIBLE) {
 											return true;
@@ -1395,7 +1399,7 @@ namespace GreenshotPlugin.Core {
 			Rectangle windowRect = WindowRectangle;
 			// Start the capture
 			Exception exceptionOccured = null;
-			Image returnImage = null;
+			Image returnImage;
 			using (Region region = GetRegion()) {
 				PixelFormat pixelFormat = PixelFormat.Format24bppRgb;
 				// Only use 32 bpp ARGB when the window has a region
@@ -1446,7 +1450,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="hWnd">The Window Handle</param>
 		public WindowDetails(IntPtr hWnd) {
-			this._hWnd = hWnd;
+			_hWnd = hWnd;
 		}
 		
 		/// <summary>
@@ -1455,7 +1459,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>WindowDetails of the current window</returns>
 		public static WindowDetails GetActiveWindow() {
 			IntPtr hWnd = User32.GetForegroundWindow();
-			if (hWnd != null && hWnd != IntPtr.Zero) {
+			if (hWnd != IntPtr.Zero) {
 				if (IgnoreHandles.Contains(hWnd)) {
 					return GetDesktopWindow();
 				}
@@ -1499,7 +1503,7 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Get all the top level windows
 		/// </summary>
-		/// <returns>List<WindowDetails> with all the top level windows</returns>
+		/// <returns>List of WindowDetails with all the top level windows</returns>
 		public static List<WindowDetails> GetAllWindows() {
 			return GetAllWindows(null);
 		}
@@ -1582,7 +1586,7 @@ namespace GreenshotPlugin.Core {
 		public static List<WindowDetails> GetMetroApps() {
 			List<WindowDetails> metroApps = new List<WindowDetails>();
 			// if the appVisibility != null we have Windows 8.
-			if (appVisibility == null) {
+			if (AppVisibility == null) {
 				return metroApps;
 			}
 			//string[] wcs = {"ImmersiveGutter", "Snapped Desktop", "ImmersiveBackgroundWindow","ImmersiveLauncher","Windows.UI.Core.CoreWindow","ApplicationManager_ImmersiveShellWindow","SearchPane","MetroGhostWindow","EdgeUiInputWndClass", "NativeHWNDHost", "Shell_CharmWindow"};
@@ -1712,7 +1716,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns></returns>
 		public static WindowDetails GetAppLauncher() {
 			// Only if Windows 8 (or higher)
-			if (appVisibility == null) {
+			if (AppVisibility == null) {
 				return null;
 			}
 			IntPtr appLauncher = User32.FindWindow(METRO_APPLAUNCHER_CLASS, null);
@@ -1728,8 +1732,8 @@ namespace GreenshotPlugin.Core {
 		/// <returns></returns>
 		public static bool IsAppLauncherVisible {
 			get {
-				if (appVisibility != null) {
-					return appVisibility.IsLauncherVisible;
+				if (AppVisibility != null) {
+					return AppVisibility.IsLauncherVisible;
 				}
 				return false;
 			}

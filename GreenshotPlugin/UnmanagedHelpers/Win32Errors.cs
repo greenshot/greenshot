@@ -22,9 +22,6 @@ using System;
 using System.Runtime.InteropServices;
 using System.Text;
 
-/// <summary>
-/// Win32 error codes
-/// </summary>
 namespace GreenshotPlugin.UnmanagedHelpers {
     /// <summary>
     /// A Win32 error code.

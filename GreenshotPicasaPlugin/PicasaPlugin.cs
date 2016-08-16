@@ -33,12 +33,12 @@ namespace GreenshotPicasaPlugin {
 	/// This is the Picasa base code
 	/// </summary>
 	public class PicasaPlugin : IGreenshotPlugin {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PicasaPlugin));
-		private static PicasaConfiguration config;
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(PicasaPlugin));
+		private static PicasaConfiguration _config;
 		public static PluginAttribute Attributes;
-		private IGreenshotHost host;
-		private ComponentResourceManager resources;
-		private ToolStripMenuItem itemPlugInRoot;
+		private IGreenshotHost _host;
+		private ComponentResourceManager _resources;
+		private ToolStripMenuItem _itemPlugInRoot;
 
 		public void Dispose() {
 			Dispose(true);
@@ -47,9 +47,9 @@ namespace GreenshotPicasaPlugin {
 
 		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
-				if (itemPlugInRoot != null) {
-					itemPlugInRoot.Dispose();
-					itemPlugInRoot = null;
+				if (_itemPlugInRoot != null) {
+					_itemPlugInRoot.Dispose();
+					_itemPlugInRoot = null;
 				}
 			}
 		}
@@ -69,36 +69,35 @@ namespace GreenshotPicasaPlugin {
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
-		/// <param name="pluginAttribute">My own attributes</param>
+		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
+		/// <param name="myAttributes">My own attributes</param>
 		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
-			host = (IGreenshotHost)pluginHost;
+			_host = pluginHost;
 			Attributes = myAttributes;
 
 			// Get configuration
-			config = IniConfig.GetIniSection<PicasaConfiguration>();
-			resources = new ComponentResourceManager(typeof(PicasaPlugin));
+			_config = IniConfig.GetIniSection<PicasaConfiguration>();
+			_resources = new ComponentResourceManager(typeof(PicasaPlugin));
 
-			itemPlugInRoot = new ToolStripMenuItem();
-			itemPlugInRoot.Text = Language.GetString("picasa", LangKey.Configure);
-			itemPlugInRoot.Tag = host;
-			itemPlugInRoot.Image = (Image)resources.GetObject("Picasa");
-			itemPlugInRoot.Click += new EventHandler(ConfigMenuClick);
-			PluginUtils.AddToContextMenu(host, itemPlugInRoot);
-			Language.LanguageChanged += new LanguageChangedHandler(OnLanguageChanged);
+			_itemPlugInRoot = new ToolStripMenuItem();
+			_itemPlugInRoot.Text = Language.GetString("picasa", LangKey.Configure);
+			_itemPlugInRoot.Tag = _host;
+			_itemPlugInRoot.Image = (Image)_resources.GetObject("Picasa");
+			_itemPlugInRoot.Click += ConfigMenuClick;
+			PluginUtils.AddToContextMenu(_host, _itemPlugInRoot);
+			Language.LanguageChanged += OnLanguageChanged;
 			return true;
 		}
 
 		public void OnLanguageChanged(object sender, EventArgs e) {
-			if (itemPlugInRoot != null) {
-				itemPlugInRoot.Text = Language.GetString("picasa", LangKey.Configure);
+			if (_itemPlugInRoot != null) {
+				_itemPlugInRoot.Text = Language.GetString("picasa", LangKey.Configure);
 			}
 		}
 
 		public virtual void Shutdown() {
-			LOG.Debug("Picasa Plugin shutdown.");
-			Language.LanguageChanged -= new LanguageChangedHandler(OnLanguageChanged);
+			Log.Debug("Picasa Plugin shutdown.");
+			Language.LanguageChanged -= OnLanguageChanged;
 			//host.OnImageEditorOpen -= new OnImageEditorOpenHandler(ImageEditorOpened);
 		}
 
@@ -106,17 +105,7 @@ namespace GreenshotPicasaPlugin {
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
 		public virtual void Configure() {
-			config.ShowConfigDialog();
-		}
-
-		/// <summary>
-		/// This will be called when Greenshot is shutting down
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		public void Closing(object sender, FormClosingEventArgs e) {
-			LOG.Debug("Application closing, de-registering Picasa Plugin!");
-			Shutdown();
+			_config.ShowConfigDialog();
 		}
 
 		public void ConfigMenuClick(object sender, EventArgs eventArgs) {
@@ -124,24 +113,24 @@ namespace GreenshotPicasaPlugin {
 		}
 
 		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl) {
-			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality);
+			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality);
 			try {
 				string url = null;
 				new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("picasa", LangKey.communication_wait), 
-					delegate() {
-						string filename = Path.GetFileName(FilenameHelper.GetFilename(config.UploadFormat, captureDetails));
-						string contentType = "image/" + config.UploadFormat.ToString();
+					delegate
+					{
+						string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
 						url = PicasaUtils.UploadToPicasa(surfaceToUpload, outputSettings, captureDetails.Title, filename);
 					}
 				);
 				uploadUrl = url;
 
-				if (uploadUrl != null && config.AfterUploadLinkToClipBoard) {
+				if (uploadUrl != null && _config.AfterUploadLinkToClipBoard) {
 					ClipboardHelper.SetClipboardData(uploadUrl);
 				}
 				return true;
 			} catch (Exception e) {
-				LOG.Error("Error uploading.", e);
+				Log.Error("Error uploading.", e);
 				MessageBox.Show(Language.GetString("picasa", LangKey.upload_failure) + " " + e.Message);
 			}
 			uploadUrl = null;

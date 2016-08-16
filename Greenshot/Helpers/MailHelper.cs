@@ -35,7 +35,7 @@ namespace Greenshot.Helpers {
 	/// <summary>
 	/// Author: Andrew Baker
 	/// Datum: 10.03.2006
-	/// Available from: http://www.vbusers.com/codecsharp/codeget.asp?ThreadID=71&PostID=1
+	/// Available from <a href="http://www.vbusers.com/codecsharp/codeget.asp?ThreadID=71&PostID=1">here</a>
 	/// </summary>
 	#region Public MapiMailMessage Class
 

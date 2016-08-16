@@ -58,7 +58,7 @@ namespace GreenshotConfluencePlugin {
 				LOG.Debug("Loading pages for page: " + page.Title);
 				(new Thread(() => {
 					Dispatcher.BeginInvoke(DispatcherPriority.Normal, (ThreadStart)(() => {ShowBusy.Visibility = Visibility.Visible;}));
-					List<Confluence.Page> pages = confluenceConnector.getPageChildren(page);
+					List<Confluence.Page> pages = confluenceConnector.GetPageChildren(page);
 					Dispatcher.BeginInvoke(DispatcherPriority.Normal, (ThreadStart)(() => {
 						foreach(Confluence.Page childPage in pages) {
 							LOG.Debug("Adding page: " + childPage.Title);
@@ -105,7 +105,7 @@ namespace GreenshotConfluencePlugin {
 		
 						// Get homepage
 						try {
-							Confluence.Page page = confluenceConnector.getSpaceHomepage(space);
+							Confluence.Page page = confluenceConnector.GetSpaceHomepage(space);
 							TreeViewItem pageTreeViewItem = new TreeViewItem();
 							pageTreeViewItem.Header = page.Title;
 							pageTreeViewItem.Tag = page;

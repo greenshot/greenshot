@@ -18,9 +18,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
+
 using Greenshot.Drawing;
-using Greenshot.Configuration;
 
 namespace Greenshot.Memento {
 	/// <summary>

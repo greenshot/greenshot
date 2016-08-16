@@ -21,7 +21,6 @@
 
 using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
-using Greenshot.Plugin.Drawing.Adorners;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;

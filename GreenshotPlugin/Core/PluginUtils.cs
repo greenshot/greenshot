@@ -156,6 +156,7 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Helper method to add a MenuItem to the File MenuItem of an ImageEditor
 		/// </summary>
+		/// <param name="imageEditor"></param>
 		/// <param name="image">Image to display in the menu</param>
 		/// <param name="text">Text to display in the menu</param>
 		/// <param name="tag">The TAG value</param>
@@ -215,8 +216,8 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Helper method to add a plugin MenuItem to the Greenshot context menu
 		/// </summary>
-		/// <param name="imageEditor"></param>
-		/// <param name="item"></param>
+		/// <param name="host">IGreenshotHost</param>
+		/// <param name="item">ToolStripMenuItem</param>
 		public static void AddToContextMenu(IGreenshotHost host, ToolStripMenuItem item) {
 			// Here we can hang ourselves to the main context menu!
 			ContextMenuStrip contextMenu = host.MainMenu;

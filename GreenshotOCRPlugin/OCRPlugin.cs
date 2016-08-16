@@ -94,9 +94,8 @@ namespace GreenshotOCR {
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
-		/// <param name="pluginAttribute">My own attributes</param>
+		/// <param name="greenshotHost">Use the IGreenshotPluginHost interface to register events</param>
+		/// <param name="myAttributes">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
 		public virtual bool Initialize(IGreenshotHost greenshotHost, PluginAttribute myAttributes) {
 			LOG.Debug("Initialize called of " + myAttributes.Name);

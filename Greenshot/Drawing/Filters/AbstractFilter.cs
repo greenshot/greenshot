@@ -25,12 +25,12 @@ using System.Drawing;
 using Greenshot.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
 
-/// <summary>
-/// Graphical filter which can be added to DrawableContainer.
-/// Subclasses should fulfill INotifyPropertyChanged contract, i.e. call
-/// OnPropertyChanged whenever a public property has been changed.
-/// </summary>
 namespace Greenshot.Drawing.Filters {
+	/// <summary>
+	/// Graphical filter which can be added to DrawableContainer.
+	/// Subclasses should fulfill INotifyPropertyChanged contract, i.e. call
+	/// OnPropertyChanged whenever a public property has been changed.
+	/// </summary>
 	[Serializable()]
 	public abstract class AbstractFilter : AbstractFieldHolder, IFilter {
 		

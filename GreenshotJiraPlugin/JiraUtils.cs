@@ -22,15 +22,14 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Greenshot.IniFile;
 using GreenshotPlugin.Core;
-using Jira;
 
 namespace GreenshotJiraPlugin {
 	/// <summary>
 	/// Description of JiraUtils.
 	/// </summary>
-	public class JiraUtils {
-		private static readonly Regex JIRA_KEY_REGEX = new Regex(@"/browse/([A-Z0-9]+\-[0-9]+)");
-		private static readonly JiraConfiguration config = IniConfig.GetIniSection<JiraConfiguration>();
+	public static class JiraUtils {
+		private static readonly Regex JiraKeyRegex = new Regex(@"/browse/([A-Z0-9]+\-[0-9]+)");
+		private static readonly JiraConfiguration Config = IniConfig.GetIniSection<JiraConfiguration>();
 
 		public static List<JiraIssue> GetCurrentJiras() {
 			// Make sure we suppress the login
@@ -39,24 +38,30 @@ namespace GreenshotJiraPlugin {
 				if (url == null) {
 					continue;
 				}
-				MatchCollection jiraKeyMatch = JIRA_KEY_REGEX.Matches(url);
-				if (jiraKeyMatch != null && jiraKeyMatch.Count > 0) {
+				MatchCollection jiraKeyMatch = JiraKeyRegex.Matches(url);
+				if (jiraKeyMatch.Count > 0) {
 					string jiraKey = jiraKeyMatch[0].Groups[1].Value;
 					jirakeys.Add(jiraKey);
 				}
 			}
-			if (!string.IsNullOrEmpty(config.LastUsedJira) && !jirakeys.Contains(config.LastUsedJira)) {
-				jirakeys.Add(config.LastUsedJira);
+			if (!string.IsNullOrEmpty(Config.LastUsedJira) && !jirakeys.Contains(Config.LastUsedJira)) {
+				jirakeys.Add(Config.LastUsedJira);
 			}
 			if (jirakeys.Count > 0) {
 				List<JiraIssue> jiraIssues = new List<JiraIssue>();
 				foreach(string jiraKey in jirakeys) {
-					try {
-						JiraIssue issue = JiraPlugin.Instance.JiraConnector.getIssue(jiraKey);
-						if (issue != null) {
+					try
+					{
+						JiraIssue issue = JiraPlugin.Instance.JiraConnector.GetIssue(jiraKey);
+						if (issue != null)
+						{
 							jiraIssues.Add(issue);
 						}
-					} catch {}
+					}
+					catch
+					{
+						
+					}
 				}
 				if (jiraIssues.Count > 0) {
 					return jiraIssues;

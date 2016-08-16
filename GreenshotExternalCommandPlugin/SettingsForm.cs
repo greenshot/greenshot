@@ -56,7 +56,7 @@ namespace ExternalCommand {
 		void ButtonDeleteClick(object sender, EventArgs e) {
 			foreach(ListViewItem item in listView1.SelectedItems) {
 				string commando = item.Tag as string;
-				config.commands.Remove(commando);
+				config.Commands.Remove(commando);
 				config.commandlines.Remove(commando);
 				config.arguments.Remove(commando);
 			}
@@ -65,12 +65,12 @@ namespace ExternalCommand {
 
 		void UpdateView() {
 			listView1.Items.Clear();
-			if(config.commands != null) {
+			if(config.Commands != null) {
 				listView1.ListViewItemSorter = new ListviewComparer();
 				ImageList imageList = new ImageList();
 				listView1.SmallImageList = imageList;
 				int imageNr = 0;
-				foreach(string commando in config.commands) {
+				foreach(string commando in config.Commands) {
 					ListViewItem item = null;
 					Image iconForExe = IconCache.IconForCommand(commando);
 					if(iconForExe != null) {

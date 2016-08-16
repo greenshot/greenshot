@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -26,27 +27,27 @@ using System.IO;
 using System.Windows.Forms;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
+using GreenshotJiraPlugin.Forms;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using Jira;
 
 namespace GreenshotJiraPlugin {
 	/// <summary>
 	/// Description of JiraDestination.
 	/// </summary>
 	public class JiraDestination : AbstractDestination {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraDestination));
-		private static readonly JiraConfiguration config = IniConfig.GetIniSection<JiraConfiguration>();
-		private readonly JiraPlugin jiraPlugin = null;
-		private readonly JiraIssue jira = null;
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraDestination));
+		private static readonly JiraConfiguration Config = IniConfig.GetIniSection<JiraConfiguration>();
+		private readonly JiraPlugin _jiraPlugin;
+		private readonly JiraIssue _jira;
 		
 		public JiraDestination(JiraPlugin jiraPlugin) {
-			this.jiraPlugin = jiraPlugin;
+			_jiraPlugin = jiraPlugin;
 		}
 
 		public JiraDestination(JiraPlugin jiraPlugin, JiraIssue jira) {
-			this.jiraPlugin = jiraPlugin;
-			this.jira = jira;
+			_jiraPlugin = jiraPlugin;
+			_jira = jira;
 		}
 
 		public override string Designation {
@@ -60,18 +61,18 @@ namespace GreenshotJiraPlugin {
 		}
 
 		public override string Description {
-			get {
-				if (jira == null) {
+			get
+			{
+				if (_jira == null) {
 					return Language.GetString("jira", LangKey.upload_menu_item);
-				} else {
-					return FormatUpload(jira);
 				}
+				return FormatUpload(_jira);
 			}
 		}
 		
 		public override bool isActive {
 			get {
-				return base.isActive && !string.IsNullOrEmpty(config.Url);
+				return base.isActive && !string.IsNullOrEmpty(Config.Url);
 			}
 		}
 
@@ -82,36 +83,36 @@ namespace GreenshotJiraPlugin {
 		}
 		public override Image DisplayIcon {
 			get {
-				ComponentResourceManager resources = new ComponentResourceManager(typeof(JiraPlugin));
+				var resources = new ComponentResourceManager(typeof(JiraPlugin));
 				return (Image)resources.GetObject("Jira");
 			}
 		}
 
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			if (JiraPlugin.Instance.CurrentJiraConnector == null || !JiraPlugin.Instance.CurrentJiraConnector.isLoggedIn) {
+			if (JiraPlugin.Instance.CurrentJiraConnector == null || !JiraPlugin.Instance.CurrentJiraConnector.IsLoggedIn) {
 				yield break;
 			}
 			List<JiraIssue> issues = JiraUtils.GetCurrentJiras();
 			if (issues != null) {
-				foreach(JiraIssue jiraIssue in issues) {
-					yield return new JiraDestination(jiraPlugin, jiraIssue);
+				foreach(var jiraIssue in issues) {
+					yield return new JiraDestination(_jiraPlugin, jiraIssue);
 				}
 			}
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surfaceToUpload, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
-			string filename = Path.GetFileName(FilenameHelper.GetFilename(config.UploadFormat, captureDetails));
-			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
-			if (jira != null) {
+			string filename = Path.GetFileName(FilenameHelper.GetFilename(Config.UploadFormat, captureDetails));
+			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(Config.UploadFormat, Config.UploadJpegQuality, Config.UploadReduceColors);
+			if (_jira != null) {
 				try {
 					// Run upload in the background
 					new PleaseWaitForm().ShowAndWait(Description, Language.GetString("jira", LangKey.communication_wait),
-						delegate() {
-							jiraPlugin.JiraConnector.addAttachment(jira.Key, filename, new SurfaceContainer(surfaceToUpload, outputSettings, filename));
+						delegate {
+							_jiraPlugin.JiraConnector.AddAttachment(_jira.Key, filename, new SurfaceContainer(surfaceToUpload, outputSettings, filename));
 						}
 					);
-					LOG.Debug("Uploaded to Jira.");
+					Log.Debug("Uploaded to Jira.");
 					exportInformation.ExportMade = true;
 					// TODO: This can't work:
 					exportInformation.Uri = surfaceToUpload.UploadURL;
@@ -119,19 +120,19 @@ namespace GreenshotJiraPlugin {
 					MessageBox.Show(Language.GetString("jira", LangKey.upload_failure) + " " + e.Message);
 				}
 			} else {
-				JiraForm jiraForm = new JiraForm(jiraPlugin.JiraConnector);
-				if (jiraPlugin.JiraConnector.isLoggedIn) {
-					jiraForm.setFilename(filename);
+				JiraForm jiraForm = new JiraForm(_jiraPlugin.JiraConnector);
+				if (_jiraPlugin.JiraConnector.IsLoggedIn) {
+					jiraForm.SetFilename(filename);
 					DialogResult result = jiraForm.ShowDialog();
 					if (result == DialogResult.OK) {
 						try {
 							// Run upload in the background
 							new PleaseWaitForm().ShowAndWait(Description, Language.GetString("jira", LangKey.communication_wait),
-								delegate() {
-									jiraForm.upload(new SurfaceContainer(surfaceToUpload, outputSettings, filename));
+								delegate {
+									jiraForm.Upload(new SurfaceContainer(surfaceToUpload, outputSettings, filename));
 								}
 							);
-							LOG.Debug("Uploaded to Jira.");
+							Log.Debug("Uploaded to Jira.");
 							exportInformation.ExportMade = true;
 							// TODO: This can't work:
 							exportInformation.Uri = surfaceToUpload.UploadURL;

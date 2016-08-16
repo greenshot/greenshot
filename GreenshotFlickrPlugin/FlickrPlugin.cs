@@ -111,16 +111,6 @@ namespace GreenshotFlickrPlugin
 			_config.ShowConfigDialog();
 		}
 
-		/// <summary>
-		/// This will be called when Greenshot is shutting down
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		public void Closing(object sender, FormClosingEventArgs e) {
-			LOG.Debug("Application closing, de-registering Flickr Plugin!");
-			Shutdown();
-		}
-	
 		public void ConfigMenuClick(object sender, EventArgs eventArgs) {
 			_config.ShowConfigDialog();
 		}

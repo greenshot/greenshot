@@ -299,14 +299,17 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Return a menu item
 		/// </summary>
+		/// <param name="menu"></param>
+		/// <param name="addDynamics"></param>
 		/// <param name="destinationClickHandler"></param>
 		/// <returns>ToolStripMenuItem</returns>
 		public virtual ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler) {
-			ToolStripMenuItem basisMenuItem;
-			basisMenuItem = new ToolStripMenuItem(Description);
-			basisMenuItem.Image = DisplayIcon;
-			basisMenuItem.Tag = this;
-			basisMenuItem.Text = Description;
+			var basisMenuItem = new ToolStripMenuItem(Description)
+			{
+				Image = DisplayIcon,
+				Tag = this,
+				Text = Description
+			};
 			AddTagEvents(basisMenuItem, menu, Description);
 			basisMenuItem.Click -= destinationClickHandler;
 			basisMenuItem.Click += destinationClickHandler;		

@@ -709,20 +709,20 @@ namespace GreenshotPlugin.Core {
 		/// And additionally a signature is added.
 		/// </summary>
 		/// <param name="method">Method (POST,PUT,GET)</param>
-		/// <param name="requestURL">Url to call</param>
-		/// <param name="parameters">IDictionary<string, string></param>
-		private void Sign(HTTPMethod method, string requestURL, IDictionary<string, object> parameters) {
+		/// <param name="requestUrl">Url to call</param>
+		/// <param name="parameters">IDictionary of string and string</param>
+		private void Sign(HTTPMethod method, string requestUrl, IDictionary<string, object> parameters) {
 			if (parameters == null) {
-				throw new ArgumentNullException("parameters");
+				throw new ArgumentNullException(nameof(parameters));
 			}
 			// Build the signature base
 			StringBuilder signatureBase = new StringBuilder();
 
 			// Add Method to signature base
-			signatureBase.Append(method.ToString()).Append("&");
+			signatureBase.Append(method).Append("&");
 
 			// Add normalized URL
-			Uri url = new Uri(requestURL);
+			Uri url = new Uri(requestUrl);
 			string normalizedUrl = string.Format(CultureInfo.InvariantCulture, "{0}://{1}", url.Scheme, url.Host);
 			if (!((url.Scheme == "http" && url.Port == 80) || (url.Scheme == "https" && url.Port == 443))) {
 				normalizedUrl += ":" + url.Port;
@@ -747,7 +747,7 @@ namespace GreenshotPlugin.Core {
 					break;
 			}
 			parameters.Add(OAUTH_CONSUMER_KEY_KEY, _consumerKey);
-			if (CallbackUrl != null && RequestTokenUrl != null && requestURL.StartsWith(RequestTokenUrl)) {
+			if (CallbackUrl != null && RequestTokenUrl != null && requestUrl.StartsWith(RequestTokenUrl)) {
 				parameters.Add(OAUTH_CALLBACK_KEY, CallbackUrl);
 			}
 			if (!string.IsNullOrEmpty(Verifier)) {
@@ -810,7 +810,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>Response from server</returns>
 		private string MakeRequest(HTTPMethod method, string requestURL, IDictionary<string, string> headers, IDictionary<string, object> parameters, IBinaryContainer postData) {
 			if (parameters == null) {
-				throw new ArgumentNullException("parameters");
+				throw new ArgumentNullException(nameof(parameters));
 			}
 			IDictionary<string, object> requestParameters;
 			// Add oAuth values as HTTP headers, if this is allowed
@@ -1085,7 +1085,6 @@ Greenshot received information from CloudServiceName. You can close this browser
 		/// <summary>
 		/// Generate an OAuth 2 Token by using the supplied code
 		/// </summary>
-		/// <param name="code">Code to get the RefreshToken</param>
 		/// <param name="settings">OAuth2Settings to update with the information that was retrieved</param>
 		public static void GenerateRefreshToken(OAuth2Settings settings) {
 			IDictionary<string, object> data = new Dictionary<string, object>();

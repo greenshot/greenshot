@@ -75,7 +75,7 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Method to get all the destinations from the plugins
 		/// </summary>
-		/// <returns>List<IDestination></returns>
+		/// <returns>List of IDestination</returns>
 		private static List<IDestination> GetPluginDestinations() {
 			List<IDestination> destinations = new List<IDestination>();
 			foreach (PluginAttribute pluginAttribute in PluginHelper.Instance.Plugins.Keys) {
@@ -130,6 +130,7 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// A simple helper method which will call ExportCapture for the destination with the specified designation
 		/// </summary>
+		/// <param name="manuallyInitiated"></param>
 		/// <param name="designation"></param>
 		/// <param name="surface"></param>
 		/// <param name="captureDetails"></param>

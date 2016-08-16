@@ -30,19 +30,19 @@ namespace GreenshotDropboxPlugin {
 	[IniSection("Dropbox", Description = "Greenshot Dropbox Plugin configuration")]
 	public class DropboxPluginConfiguration : IniSection {
 		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
-		public OutputFormat UploadFormat;
+		public OutputFormat UploadFormat { get; set; }
 
 		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
-		public int UploadJpegQuality;
+		public int UploadJpegQuality { get; set; }
 
 		[IniProperty("AfterUploadLinkToClipBoard", Description = "After upload send Dropbox link to clipboard.", DefaultValue = "true")]
-		public bool AfterUploadLinkToClipBoard;
+		public bool AfterUploadLinkToClipBoard { get; set; }
 
 		[IniProperty("DropboxToken", Description = "The Dropbox token", Encrypted = true, ExcludeIfNull = true)]
-		public string DropboxToken;
+		public string DropboxToken { get; set; }
 		[IniProperty("DropboxTokenSecret", Description = "The Dropbox token secret", Encrypted = true, ExcludeIfNull = true)]
-		public string DropboxTokenSecret;
-	
+		public string DropboxTokenSecret { get; set; }
+
 		/// <summary>
 		/// A form for token
 		/// </summary>

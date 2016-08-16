@@ -89,11 +89,11 @@ namespace Greenshot.IniFile {
 		/// <summary>
 		/// Initialize the ini config
 		/// </summary>
-		/// <param name="applicationName"></param>
+		/// <param name="appName"></param>
 		/// <param name="configName"></param>
-		public static void Init(string appName, string confName) {
+		public static void Init(string appName, string configName) {
 			applicationName = appName;
-			configName = confName;
+			IniConfig.configName = configName;
 			Reload();
 		}
 
@@ -320,7 +320,7 @@ namespace Greenshot.IniFile {
 		/// <param name="sectionName"></param>
 		/// <returns></returns>
 		public static IniSection GetIniSection(string sectionName) {
-			IniSection returnValue = null;
+			IniSection returnValue;
 			sectionMap.TryGetValue(sectionName, out returnValue);
 			return returnValue;
 		}
@@ -369,11 +369,10 @@ namespace Greenshot.IniFile {
 		/// </summary>
 		/// <param name="section"></param>
 		/// <returns></returns>
-		public static Dictionary<string, string> PropertiesForSection(IniSection section) {
-			Type iniSectionType = section.GetType();
+		public static IDictionary<string, string> PropertiesForSection(IniSection section) {
 			string sectionName = section.IniSectionAttribute.Name;
 			// Get the properties for the section
-			Dictionary<string, string> properties = null;
+			IDictionary<string, string> properties;
 			if (sections.ContainsKey(sectionName)) {
 				properties = sections[sectionName];
 			} else {

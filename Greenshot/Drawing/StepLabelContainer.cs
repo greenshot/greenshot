@@ -34,7 +34,7 @@ namespace Greenshot.Drawing {
 	/// To make sure that deleting recalculates, we check the location before every draw.
 	/// </summary>
 	[Serializable]
-	public class StepLabelContainer : DrawableContainer {
+	public sealed class StepLabelContainer : DrawableContainer {
 		[NonSerialized]
 		private StringFormat _stringFormat = new StringFormat();
 
@@ -103,7 +103,7 @@ namespace Greenshot.Drawing {
 			}
 			base.SwitchParent(newParent);
 			if (newParent != null) {
-				((Surface)Parent).AddStepLabel(this);
+				((Surface)Parent)?.AddStepLabel(this);
 			}
 		}
 
@@ -207,8 +207,8 @@ namespace Greenshot.Drawing {
 				EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
 			}
 			using (FontFamily fam = new FontFamily(FontFamily.GenericSansSerif.Name)) {
-				using (Font _font = new Font(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel)) {
-					TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, _font);
+				using (Font font = new Font(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel)) {
+					TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, font);
 				}
 			}
 		}

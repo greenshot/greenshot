@@ -28,7 +28,7 @@ namespace Greenshot.Drawing.Fields
 {
 	/// <summary>
 	/// Basic IFieldHolderWithChildren implementation. Similar to IFieldHolder,
-	/// but has a List<IFieldHolder> of children.
+	/// but has a List of IFieldHolder for children.
 	/// Field values are passed to and from children as well.
 	/// </summary>
 	[Serializable()]

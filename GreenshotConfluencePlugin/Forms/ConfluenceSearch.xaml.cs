@@ -77,7 +77,7 @@ namespace GreenshotConfluencePlugin {
 		void doSearch() {
 			string spaceKey = (string)SpaceComboBox.SelectedValue;
 			config.SearchSpaceKey = spaceKey;
-			List<Confluence.Page> searchResult = ConfluencePlugin.ConfluenceConnector.searchPages(searchText.Text, spaceKey);
+			List<Confluence.Page> searchResult = ConfluencePlugin.ConfluenceConnector.SearchPages(searchText.Text, spaceKey);
 			pages.Clear();
 			foreach(Confluence.Page page in searchResult) {
 				pages.Add(page);

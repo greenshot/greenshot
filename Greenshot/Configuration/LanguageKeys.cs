@@ -19,7 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Greenshot.Configuration {
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum LangKey {
 		none,
 		about_bugs,

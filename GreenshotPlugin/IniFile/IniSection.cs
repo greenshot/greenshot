@@ -120,7 +120,7 @@ namespace Greenshot.IniFile {
 		/// Fill the section with the supplied properties
 		/// </summary>
 		/// <param name="properties"></param>
-		public void Fill(Dictionary<string, string> properties) {
+		public void Fill(IDictionary<string, string> properties) {
 			Type iniSectionType = GetType();
 
 			// Iterate over the members and create IniValueContainers

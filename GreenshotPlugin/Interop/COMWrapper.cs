@@ -45,12 +45,12 @@ namespace Greenshot.Interop {
 		/// <summary>
 		/// Holds reference to the actual COM object which is wrapped by this proxy
 		/// </summary>
-		private object _COMObject;
+		private readonly object _comObject;
 
 		/// <summary>
 		/// Type of the COM object, set on constructor after getting the COM reference
 		/// </summary>
-		private readonly Type _COMType;
+		private readonly Type _comType;
 
 		/// <summary>
 		/// The type of which method calls are intercepted and executed on the COM object.
@@ -64,33 +64,33 @@ namespace Greenshot.Interop {
 
 		#endregion
 		[DllImport("ole32.dll")]
-		static extern int ProgIDFromCLSID([In] ref Guid clsid, [MarshalAs(UnmanagedType.LPWStr)] out string lplpszProgID);
+		static extern int ProgIDFromCLSID([In] ref Guid clsid, [MarshalAs(UnmanagedType.LPWStr)] out string lplpszProgId);
 		// Converts failure HRESULTs to exceptions:
 		[DllImport("oleaut32", PreserveSig=false)]
-		static extern void GetActiveObject(ref Guid rclsid, IntPtr pvReserved, [MarshalAs(UnmanagedType.IUnknown)] out Object ppunk);
+		static extern void GetActiveObject(ref Guid rclsid, IntPtr pvReserved, [MarshalAs(UnmanagedType.IUnknown)] out object ppunk);
 
 		#region Construction
 
 		/// <summary>
 		/// Gets a COM object and returns the transparent proxy which intercepts all calls to the object
 		/// </summary>
-		/// <param name="T">Interface which defines the method and properties to intercept</param>
+		/// <typeparam name="T">Interface which defines the method and properties to intercept</typeparam>
 		/// <returns>Transparent proxy to the real proxy for the object</returns>
-		/// <remarks>The <paramref name="type"/> must be an interface decorated with the <see cref="ComProgIdAttribute"/>attribute.</remarks>
+		/// <remarks>T must be an interface decorated with the <see cref="ComProgIdAttribute"/>attribute.</remarks>
 		public static T GetInstance<T>() {
 			Type type = typeof(T);
 			if (null == type) {
-				throw new ArgumentNullException("type");
+				throw new ArgumentNullException(nameof(T));
 			}
 			if (!type.IsInterface) {
-				throw new ArgumentException("The specified type must be an interface.", "type");
+				throw new ArgumentException("The specified type must be an interface.", nameof(T));
 			}
 
-			ComProgIdAttribute progIDAttribute = ComProgIdAttribute.GetAttribute(type);
-			if (null == progIDAttribute || null == progIDAttribute.Value || 0 == progIDAttribute.Value.Length) {
-				throw new ArgumentException("The specified type must define a ComProgId attribute.", "type");
+			var progIdAttribute = ComProgIdAttribute.GetAttribute(type);
+			if (string.IsNullOrEmpty(progIdAttribute?.Value)) {
+				throw new ArgumentException("The specified type must define a ComProgId attribute.", nameof(T));
 			}
-			string progId = progIDAttribute.Value;
+			string progId = progIdAttribute.Value;
 
 			object comObject = null;
 
@@ -100,18 +100,18 @@ namespace Greenshot.Interop {
 				int result = ProgIDFromCLSID(ref guid, out progId);
 				if (result != 0) {
 					// Restore progId, as it's overwritten
-					progId = progIDAttribute.Value;
+					progId = progIdAttribute.Value;
 
 					try {
 						GetActiveObject(ref guid, IntPtr.Zero, out comObject);
 					} catch (Exception) {
-						LOG.WarnFormat("Error {0} getting instance for class id {1}", result, progIDAttribute.Value);
+						LOG.WarnFormat("Error {0} getting instance for class id {1}", result, progIdAttribute.Value);
 					}
 					if (comObject == null) {
-						LOG.WarnFormat("Error {0} getting progId {1}", result, progIDAttribute.Value);
+						LOG.WarnFormat("Error {0} getting progId {1}", result, progIdAttribute.Value);
 					}
 				} else {
-					LOG.InfoFormat("Mapped {0} to progId {1}", progIDAttribute.Value, progId);
+					LOG.InfoFormat("Mapped {0} to progId {1}", progIdAttribute.Value, progId);
 				}
 			}
 
@@ -124,16 +124,16 @@ namespace Greenshot.Interop {
 					} else if (comE.ErrorCode == CO_E_CLASSSTRING) {
 						LOG.WarnFormat("Unknown progId {0}", progId);
 					} else {
-						LOG.Warn("Error getting active object for " + progIDAttribute.Value, comE);
+						LOG.Warn("Error getting active object for " + progIdAttribute.Value, comE);
 					}
 				} catch (Exception e) {
-					LOG.Warn("Error getting active object for " + progIDAttribute.Value, e);
+					LOG.Warn("Error getting active object for " + progIdAttribute.Value, e);
 				}
 			}
 
 			if (comObject != null) {
 				if (comObject is IDispatch) {
-					COMWrapper wrapper = new COMWrapper(comObject, type, progIDAttribute.Value);
+					COMWrapper wrapper = new COMWrapper(comObject, type, progIdAttribute.Value);
 					return (T)wrapper.GetTransparentProxy();
 				} else {
 					return (T)comObject;
@@ -149,17 +149,17 @@ namespace Greenshot.Interop {
 		public static T CreateInstance<T>() {
 			Type type = typeof(T);
 			if (null == type) {
-				throw new ArgumentNullException("type");
+				throw new ArgumentNullException(nameof(T));
 			}
 			if (!type.IsInterface) {
-				throw new ArgumentException("The specified type must be an interface.", "type");
+				throw new ArgumentException("The specified type must be an interface.", nameof(T));
 			}
 
-			ComProgIdAttribute progIDAttribute = ComProgIdAttribute.GetAttribute(type);
-			if (null == progIDAttribute || null == progIDAttribute.Value || 0 == progIDAttribute.Value.Length) {
-				throw new ArgumentException("The specified type must define a ComProgId attribute.", "type");
+			ComProgIdAttribute progIdAttribute = ComProgIdAttribute.GetAttribute(type);
+			if (string.IsNullOrEmpty(progIdAttribute?.Value)) {
+				throw new ArgumentException("The specified type must define a ComProgId attribute.", nameof(T));
 			}
-			string progId = progIDAttribute.Value;
+			string progId = progIdAttribute.Value;
 			Type comType = null;
 			if (progId.StartsWith("clsid:")) {
 				Guid guid = new Guid(progId.Substring(6));
@@ -197,26 +197,26 @@ namespace Greenshot.Interop {
 		/// Gets or creates a COM object and returns the transparent proxy which intercepts all calls to the object
 		/// The ComProgId can be a normal ComProgId or a GUID prefixed with "clsid:"
 		/// </summary>
-		/// <param name="type">Interface which defines the method and properties to intercept</param>
+		/// <typeparam name="T">Interface which defines the method and properties to intercept</typeparam>
 		/// <returns>Transparent proxy to the real proxy for the object</returns>
-		/// <remarks>The <paramref name="type"/> must be an interface decorated with the <see cref="ComProgIdAttribute"/>attribute.</remarks>
+		/// <remarks>T must be an interface decorated with the <see cref="ComProgIdAttribute"/>attribute.</remarks>
 		public static T GetOrCreateInstance<T>() {
 			Type type = typeof(T);
 			if (null == type) {
-				throw new ArgumentNullException("type");
+				throw new ArgumentNullException(nameof(T));
 			}
 			if (!type.IsInterface) {
-				throw new ArgumentException("The specified type must be an interface.", "type");
+				throw new ArgumentException("The specified type must be an interface.", nameof(T));
 			}
 
-			ComProgIdAttribute progIDAttribute = ComProgIdAttribute.GetAttribute(type);
-			if (null == progIDAttribute || null == progIDAttribute.Value || 0 == progIDAttribute.Value.Length) {
-				throw new ArgumentException("The specified type must define a ComProgId attribute.", "type");
+			var progIdAttribute = ComProgIdAttribute.GetAttribute(type);
+			if (string.IsNullOrEmpty(progIdAttribute?.Value)) {
+				throw new ArgumentException("The specified type must define a ComProgId attribute.", nameof(T));
 			}
 
 			object comObject = null;
 			Type comType = null;
-			string progId = progIDAttribute.Value;
+			string progId = progIdAttribute.Value;
 			Guid guid = Guid.Empty;
 
 			// Convert from clsid to Prog ID, if needed
@@ -225,17 +225,17 @@ namespace Greenshot.Interop {
 				int result = ProgIDFromCLSID(ref guid, out progId);
 				if (result != 0) {
 					// Restore progId, as it's overwritten
-					progId = progIDAttribute.Value;
+					progId = progIdAttribute.Value;
 					try {
 						GetActiveObject(ref guid, IntPtr.Zero, out comObject);
 					} catch (Exception) {
-						LOG.WarnFormat("Error {0} getting instance for class id {1}", result, progIDAttribute.Value);
+						LOG.WarnFormat("Error {0} getting instance for class id {1}", result, progIdAttribute.Value);
 					}
 					if (comObject == null) {
-						LOG.WarnFormat("Error {0} getting progId {1}", result, progIDAttribute.Value);
+						LOG.WarnFormat("Error {0} getting progId {1}", result, progIdAttribute.Value);
 					}
 				} else {
-					LOG.InfoFormat("Mapped {0} to progId {1}", progIDAttribute.Value, progId);
+					LOG.InfoFormat("Mapped {0} to progId {1}", progIdAttribute.Value, progId);
 				}
 			}
 
@@ -283,7 +283,7 @@ namespace Greenshot.Interop {
 			}
 			if (comObject != null) {
 				if (comObject is IDispatch) {
-					COMWrapper wrapper = new COMWrapper(comObject, type, progIDAttribute.Value);
+					COMWrapper wrapper = new COMWrapper(comObject, type, progIdAttribute.Value);
 					return (T)wrapper.GetTransparentProxy();
 				} else {
 					return (T)comObject;
@@ -295,16 +295,16 @@ namespace Greenshot.Interop {
 		/// <summary>
 		/// Wrap a com object as COMWrapper
 		/// </summary>
+		/// <typeparam name="T">Interface which defines the method and properties to intercept</typeparam>
 		/// <param name="comObject">An object to intercept</param>
-		/// <param name="T">Interface which defines the method and properties to intercept</param>
 		/// <returns>Transparent proxy to the real proxy for the object</returns>
 		public static T Wrap<T>(object comObject) {
 			Type type = typeof (T);
 			if (null == comObject) {
-				throw new ArgumentNullException("comObject");
+				throw new ArgumentNullException(nameof(comObject));
 			}
 			if (null == type) {
-				throw new ArgumentNullException("type");
+				throw new ArgumentNullException(nameof(T));
 			}
 
 			COMWrapper wrapper = new COMWrapper(comObject, type, type.FullName);
@@ -316,13 +316,14 @@ namespace Greenshot.Interop {
 		/// </summary>
 		/// <param name="comObject">An object to intercept</param>
 		/// <param name="type">Interface which defines the method and properties to intercept</param>
+		/// <param name="targetName"></param>
 		/// <returns>Transparent proxy to the real proxy for the object</returns>
 		private static object Wrap(object comObject, Type type, string targetName) {
 			if (null == comObject) {
-				throw new ArgumentNullException("comObject");
+				throw new ArgumentNullException(nameof(comObject));
 			}
 			if (null == type) {
-				throw new ArgumentNullException("type");
+				throw new ArgumentNullException(nameof(type));
 			}
 
 			COMWrapper wrapper = new COMWrapper(comObject, type, targetName);
@@ -338,9 +339,10 @@ namespace Greenshot.Interop {
 		/// <param name="type">
 		/// The interface type to impersonate.
 		/// </param>
+		/// <param name="targetName"></param>
 		private COMWrapper(object comObject, Type type, string targetName) : base(type) {
-			_COMObject = comObject;
-			_COMType = comObject.GetType();
+			_comObject = comObject;
+			_comType = comObject.GetType();
 			_interceptType = type;
 			_targetName = targetName;
 		}
@@ -374,24 +376,22 @@ namespace Greenshot.Interop {
 		/// <see cref="IDisposable"/> interface.
 		/// </param>
 		private void Dispose(bool disposing) {
-			if (null != _COMObject) {
+			if (null != _comObject) {
 				LOG.DebugFormat("Disposing {0}", _interceptType);
-				if (Marshal.IsComObject(_COMObject)) {
+				if (Marshal.IsComObject(_comObject)) {
 					try {
 						int count;
 						do {
-							count = Marshal.ReleaseComObject(_COMObject);
+							count = Marshal.ReleaseComObject(_comObject);
 							LOG.DebugFormat("RCW count for {0} now is {1}", _interceptType, count);
 						} while (count > 0);
 					} catch (Exception ex) {
-						LOG.WarnFormat("Problem releasing COM object {0}", _COMType);
+						LOG.WarnFormat("Problem releasing COM object {0}", _comType);
 						LOG.Warn("Error: ", ex);
 					}
 				} else {
-					LOG.WarnFormat("{0} is not a COM object", _COMType);
+					LOG.WarnFormat("{0} is not a COM object", _comType);
 				}
-
-				_COMObject = null;
 			}
 		}
 
@@ -416,7 +416,7 @@ namespace Greenshot.Interop {
 		/// The hash code of the wrapped object.
 		/// </returns>
 		public override int GetHashCode() {
-			return _COMObject.GetHashCode();
+			return _comObject.GetHashCode();
 		}
 
 		/// <summary>
@@ -432,7 +432,7 @@ namespace Greenshot.Interop {
 			if (null != value && RemotingServices.IsTransparentProxy(value)) {
 				COMWrapper wrapper = RemotingServices.GetRealProxy(value) as COMWrapper;
 				if (null != wrapper) {
-					return _COMObject == wrapper._COMObject;
+					return _comObject == wrapper._comObject;
 				}
 			}
 
@@ -453,7 +453,7 @@ namespace Greenshot.Interop {
 		/// </exception>
 		private static Type GetByValType(Type byRefType) {
 			if (null == byRefType) {
-				throw new ArgumentNullException("byRefType");
+				throw new ArgumentNullException(nameof(byRefType));
 			}
 
 			if (byRefType.IsByRef) {
@@ -466,97 +466,6 @@ namespace Greenshot.Interop {
 		}
 
 		#endregion
-
-		/// <summary>
-		/// Use this static method to cast a wrapped proxy to a new wrapper proxy of the supplied type.
-		/// In English, use this to cast you base "COM" interface to a specialized interface.
-		/// E.G. Outlook Item -> MailItem
-		/// </summary>
-		/// <typeparam name="T">the type you want to cast to</typeparam>
-		/// <param name="wrapperProxy">The wrapper interface, e.g. something you got back from calling GetItem</param>
-		/// <returns>A new wrapper proxy for the specified type</returns>
-		public static T Cast<T>(object wrapperProxy) {
-			if (wrapperProxy == null) {
-				return default(T);
-			}
-
-			Type newType = typeof(T);
-			COMWrapper oldWrapper = RemotingServices.GetRealProxy(wrapperProxy) as COMWrapper;
-			if (oldWrapper == null) {
-				throw new ArgumentException("wrapper proxy was no COMWrapper");
-			}
-			if (oldWrapper._interceptType.IsAssignableFrom(newType)) {
-				COMWrapper newWrapper = new COMWrapper(oldWrapper._COMObject, newType, oldWrapper._targetName);
-				return (T)newWrapper.GetTransparentProxy();
-			}
-			throw new InvalidCastException(string.Format("{0} is not assignable from {1}", oldWrapper._interceptType, newType));
-		}
-
-		/// <summary>
-		/// Returns the "com" type of the wrapperproxy, making it possible to perform reflection on it.
-		/// </summary>
-		/// <param name="wrapperProxy">wrapperProxy to get the type from</param>
-		/// <returns>Type</returns>
-		public static Type GetUnderlyingTypeForWrapper(object wrapperProxy) {
-			Type returnType = null;
-			COMWrapper wrapper = RemotingServices.GetRealProxy(wrapperProxy) as COMWrapper;
-			if (wrapper != null) {
-				IDispatch dispatch = wrapper._COMObject as IDispatch;
-				if (dispatch != null) {
-					int result = dispatch.GetTypeInfo(0, 0, out returnType);
-					if (result != 0) {
-						LOG.DebugFormat("GetTypeInfo : 0x{0} ({1})", result.ToString("X"), result);
-					}
-				}
-			}
-			return returnType;
-		}
-
-		/// <summary>
-		/// Return the Type of a IDispatch
-		/// </summary>
-		/// <param name="dispatch">IDispatch to get the type object for</param>
-		/// <returns>Type of the IDispatch</returns>
-		public static Type GetUnderlyingType(IDispatch dispatch) {
-			Type returnType = null;
-			if (dispatch != null) {
-				int result = dispatch.GetTypeInfo(0, 0, out returnType);
-				if (result != 0) {
-					LOG.DebugFormat("GetTypeInfo : 0x{0} ({1})", result.ToString("X"), result);
-				}
-			}
-			return returnType;
-		}
-
-		/// <summary>
-		/// Dump the Type-Information for the Type to the log, this uses reflection
-		/// </summary>
-		/// <param name="type">Type to inspect</param>
-		public static void DumpTypeInfo(Type type) {
-			LOG.InfoFormat("Type information for Type with name: {0}", type.Name);
-			try {
-				foreach (MemberInfo memberInfo in type.GetMembers()) {
-					LOG.InfoFormat("Member: {0};", memberInfo);
-				}
-			} catch (Exception memberException) {
-				LOG.Error(memberException);
-			}
-			try {
-				foreach (PropertyInfo propertyInfo in type.GetProperties()) {
-					LOG.InfoFormat("Property: {0};", propertyInfo);
-				}
-			} catch (Exception propertyException) {
-				LOG.Error(propertyException);
-			}
-			try {
-				foreach (FieldInfo fieldInfo in type.GetFields()) {
-					LOG.InfoFormat("Field: {0};", fieldInfo);
-				}
-			} catch (Exception fieldException) {
-				LOG.Error(fieldException);
-			}
-			LOG.InfoFormat("Type information end.");
-		}
 
 		/// <summary>
 		/// Intercept method calls 
@@ -605,14 +514,14 @@ namespace Greenshot.Interop {
 			} else if (1 == argCount && typeof(void) == returnType && (methodName.StartsWith("add_") || methodName.StartsWith("remove_"))) {
 				bool removeHandler = methodName.StartsWith("remove_");
 				methodName = methodName.Substring(removeHandler ? 7 : 4);
-
+				// TODO: Something is missing here
 				Delegate handler = callMessage.InArgs[0] as Delegate;
 				if (null == handler) {
-					return new ReturnMessage(new ArgumentNullException("handler"), callMessage);
+					return new ReturnMessage(new ArgumentNullException(nameof(handler)), callMessage);
 				}
 			} else {
-				var invokeObject = _COMObject;
-				var invokeType = _COMType;
+				var invokeObject = _comObject;
+				var invokeType = _comType;
 
 				object[] args;
 				ParameterInfo parameter;
@@ -661,7 +570,7 @@ namespace Greenshot.Interop {
 							wrapper = RemotingServices.GetRealProxy(args[i]) as COMWrapper;
 							if (null != wrapper) {
 								originalArgs[i] = wrapper;
-								args[i] = wrapper._COMObject;
+								args[i] = wrapper._comObject;
 							}
 						} else if (0 != outArgsCount && argModifiers[0][i]) {
 							byValType = GetByValType(parameters[i].ParameterType);
@@ -755,7 +664,7 @@ namespace Greenshot.Interop {
 						} else if (byValType.IsInterface) {
 							if (Marshal.IsComObject(arg)) {
 								wrapper = originalArgs[i];
-								if (null != wrapper && wrapper._COMObject != arg) {
+								if (null != wrapper && wrapper._comObject != arg) {
 									wrapper.Dispose();
 									wrapper = null;
 								}

@@ -21,7 +21,6 @@
 using Greenshot.Core;
 using Greenshot.Memento;
 using Greenshot.Plugin.Drawing;
-using GreenshotPlugin.Interfaces.Drawing;
 using System;
 using System.Drawing;
 using System.IO;
@@ -207,6 +206,7 @@ namespace Greenshot.Plugin
 		/// </summary>
 		/// <param name="container">IDrawableContainer</param>
 		/// <param name="invalidate">false to skip invalidation</param>
+		/// <param name="generateEvents">false to skip event generation</param>
 		void SelectElement(IDrawableContainer container, bool invalidate = true, bool generateEvents = true);
 		/// <summary>
 		/// Is the supplied container "on" the surface?

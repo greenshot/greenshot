@@ -229,9 +229,8 @@ namespace Greenshot.IniFile {
 		/// Set the value to the value in the ini file, or default
 		/// </summary>
 		/// <returns></returns>
-		public void SetValueFromProperties(Dictionary<string, string> properties) {
+		public void SetValueFromProperties(IDictionary<string, string> properties) {
 			string propertyName = attributes.Name;
-			string defaultValue = attributes.DefaultValue;
 			string propertyValue = null;
 			if (properties.ContainsKey(propertyName) && properties[propertyName] != null) {
 				propertyValue = containingIniSection.PreCheckValue(propertyName, properties[propertyName]);
@@ -273,7 +272,7 @@ namespace Greenshot.IniFile {
 				object dictionary = Activator.CreateInstance(valueType);
 				MethodInfo addMethodInfo = valueType.GetMethod("Add");
 				bool addedElements = false;
-				Dictionary<string, string> properties = IniConfig.PropertiesForSection(containingIniSection);
+				IDictionary<string, string> properties = IniConfig.PropertiesForSection(containingIniSection);
 				foreach (string key in properties.Keys) {
 					if (key != null && key.StartsWith(propertyName + ".")) {
 						// What "key" do we need to store it under?
@@ -354,6 +353,7 @@ namespace Greenshot.IniFile {
 		/// </summary>
 		/// <param name="valueType">Type to convert tp</param>
 		/// <param name="valueString">string to convert from</param>
+		/// <param name="separator"></param>
 		/// <returns>Value</returns>
 		private static object ConvertStringToValueType(Type valueType, string valueString, string separator) {
 			if (valueString == null) {
@@ -460,7 +460,8 @@ namespace Greenshot.IniFile {
 					}
 				}
 				return stringBuilder.ToString();
-			} else if (valueType == typeof(object)) {
+			}
+			if (valueType == typeof(object)) {
 				// object to String, this is the hardest
 				// Format will be "FQTypename[,Assemblyname]:Value"
 
@@ -478,12 +479,11 @@ namespace Greenshot.IniFile {
 				if (assemblyName.StartsWith("Green")) {
 					assemblyName = assemblyName.Substring(0, assemblyName.IndexOf(','));
 				}
-				return String.Format("{0},{1}:{2}", valueTypeName, assemblyName, ourValue);
-			} else {
-				TypeConverter converter = TypeDescriptor.GetConverter(valueType);
-				if (converter != null) {
-					return converter.ConvertToInvariantString(valueObject);
-				}
+				return string.Format("{0},{1}:{2}", valueTypeName, assemblyName, ourValue);
+			}
+			TypeConverter converter = TypeDescriptor.GetConverter(valueType);
+			if (converter != null) {
+				return converter.ConvertToInvariantString(valueObject);
 			}
 			// All other types
 			return valueObject.ToString();

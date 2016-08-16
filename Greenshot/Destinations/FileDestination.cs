@@ -114,7 +114,7 @@ namespace Greenshot.Destinations {
 			}
 			// Don't overwrite filename if no output is made
 			if (outputMade) {
-				exportInformation.ExportMade = outputMade;
+				exportInformation.ExportMade = true;
 				exportInformation.Filepath = fullPath;
 				if (captureDetails != null)
 				{

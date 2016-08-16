@@ -25,37 +25,37 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
-/// <summary>
-/// The following code comes from: http://www.developerfusion.com/code/4693/using-the-credential-management-api/
-/// and is slightly modified so it works for us.
-/// As the "Stored usernames and passwords" which can be accessed by: Start-> Run and type "Control keymgr.dll"
-/// doesn't show all credentials use the tool here: http://www.microsoft.com/indonesia/msdn/credmgmt.aspx
-/// The following code is an example for a login, it will call the Authenticate with user/password
-/// which should return true if the login worked, false if not.
-///		private static bool Login(string system, string name) {
-///			try {
-///				CredentialsDialog dialog = new CredentialsDialog(system);
-///				dialog.Name = name;
-///				while (dialog.Show(dialog.Name) == DialogResult.OK) {
-///					if (Authenticate(dialog.Name, dialog.Password)) {
-///						if (dialog.SaveChecked) dialog.Confirm(true);
-///						return true;
-///					} else {
-///						try {
-///							dialog.Confirm(false);
-///						} catch (ApplicationException) {
-///							// exception handling ...
-///						}
-///						dialog.IncorrectPassword = true;
-///					}
-///				}
-///			} catch (ApplicationException) {
-///				// exception handling ...
-///			}
-///			return false;
-///		}
-/// </summary>
 namespace GreenshotPlugin.Core {
+	/// <summary>
+	/// The following code comes from: http://www.developerfusion.com/code/4693/using-the-credential-management-api/
+	/// and is slightly modified so it works for us.
+	/// As the "Stored usernames and passwords" which can be accessed by: Start-> Run and type "Control keymgr.dll"
+	/// doesn't show all credentials use the tool here: http://www.microsoft.com/indonesia/msdn/credmgmt.aspx
+	/// The following code is an example for a login, it will call the Authenticate with user/password
+	/// which should return true if the login worked, false if not.
+	///		private static bool Login(string system, string name) {
+	///			try {
+	///				CredentialsDialog dialog = new CredentialsDialog(system);
+	///				dialog.Name = name;
+	///				while (dialog.Show(dialog.Name) == DialogResult.OK) {
+	///					if (Authenticate(dialog.Name, dialog.Password)) {
+	///						if (dialog.SaveChecked) dialog.Confirm(true);
+	///						return true;
+	///					} else {
+	///						try {
+	///							dialog.Confirm(false);
+	///						} catch (ApplicationException) {
+	///							// exception handling ...
+	///						}
+	///						dialog.IncorrectPassword = true;
+	///					}
+	///				}
+	///			} catch (ApplicationException) {
+	///				// exception handling ...
+	///			}
+	///			return false;
+	///		}
+	/// </summary>
 	/// <summary>Encapsulates dialog functionality from the Credential Management API.</summary>
 	public sealed class CredentialsDialog {
 		[DllImport("gdi32.dll", SetLastError=true)]

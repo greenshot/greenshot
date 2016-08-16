@@ -35,35 +35,35 @@ namespace Greenshot.Configuration {
 	[IniSection("Editor", Description="Greenshot editor configuration")]
 	public class EditorConfiguration : IniSection {
 		[IniProperty("RecentColors", Separator="|", Description="Last used colors")]
-		public List<Color> RecentColors;
+		public List<Color> RecentColors { get; set; }
 
 		[IniProperty("LastFieldValue", Separator="|", Description="Field values, make sure the last used settings are re-used")]
-		public Dictionary<string, object> LastUsedFieldValues;
+		public Dictionary<string, object> LastUsedFieldValues { get; set; }
 
 		[IniProperty("MatchSizeToCapture", Description="Match the editor window size to the capture", DefaultValue="True")]
-		public bool MatchSizeToCapture;
+		public bool MatchSizeToCapture { get; set; }
 		[IniProperty("WindowPlacementFlags", Description="Placement flags", DefaultValue="0")]
-		public WindowPlacementFlags WindowPlacementFlags;
+		public WindowPlacementFlags WindowPlacementFlags { get; set; }
 		[IniProperty("WindowShowCommand", Description="Show command", DefaultValue="Normal")]
-		public ShowWindowCommand ShowWindowCommand;
+		public ShowWindowCommand ShowWindowCommand { get; set; }
 		[IniProperty("WindowMinPosition", Description="Position of minimized window", DefaultValue="-1,-1")]
-		public Point WindowMinPosition;
+		public Point WindowMinPosition { get; set; }
 		[IniProperty("WindowMaxPosition", Description="Position of maximized window", DefaultValue="-1,-1")]
-		public Point WindowMaxPosition;
+		public Point WindowMaxPosition { get; set; }
 		[IniProperty("WindowNormalPosition", Description="Position of normal window", DefaultValue="100,100,400,400")]
-		public Rectangle WindowNormalPosition;
+		public Rectangle WindowNormalPosition { get; set; }
 		[IniProperty("ReuseEditor", Description = "Reuse already open editor", DefaultValue = "false")]
-		public bool ReuseEditor;
+		public bool ReuseEditor { get; set; }
 		[IniProperty("FreehandSensitivity", Description = "The smaller this number, the less smoothing is used. Decrease for detailed drawing, e.g. when using a pen. Increase for smoother lines. e.g. when you want to draw a smooth line.", DefaultValue = "3")]
-		public int FreehandSensitivity;
+		public int FreehandSensitivity { get; set; }
 		[IniProperty("SuppressSaveDialogAtClose", Description="Suppressed the 'do you want to save' dialog when closing the editor.", DefaultValue="False")]
-		public bool SuppressSaveDialogAtClose;
+		public bool SuppressSaveDialogAtClose { get; set; }
 
 		[IniProperty("DropShadowEffectSettings", Description = "Settings for the drop shadow effect.")]
-		public DropShadowEffect DropShadowEffectSettings;
+		public DropShadowEffect DropShadowEffectSettings { get; set; }
 
 		[IniProperty("TornEdgeEffectSettings", Description = "Settings for the torn edge effect.")]
-		public TornEdgeEffect TornEdgeEffectSettings;
+		public TornEdgeEffect TornEdgeEffectSettings { get; set; }
 
 		public override void AfterLoad() {
 			base.AfterLoad();

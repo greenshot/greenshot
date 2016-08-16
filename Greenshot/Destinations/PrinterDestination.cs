@@ -35,7 +35,7 @@ namespace Greenshot.Destinations {
 	/// </summary>
 	public class PrinterDestination : AbstractDestination {
 		public const string DESIGNATION = "Printer";
-		public string printerName;
+		public readonly string printerName;
 
 		public PrinterDestination() {
 		}
@@ -85,7 +85,7 @@ namespace Greenshot.Destinations {
 		/// <summary>
 		/// Create destinations for all the installed printers
 		/// </summary>
-		/// <returns>IEnumerable<IDestination></returns>
+		/// <returns>IEnumerable of IDestination</returns>
 		public override IEnumerable<IDestination> DynamicDestinations() {
 			PrinterSettings settings = new PrinterSettings();
 			string defaultPrinter = settings.PrinterName;
@@ -117,7 +117,7 @@ namespace Greenshot.Destinations {
 		/// <returns>ExportInformation</returns>
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
-			PrinterSettings printerSettings = null;
+			PrinterSettings printerSettings;
 			if (!string.IsNullOrEmpty(printerName)) {
 				using (PrintHelper printHelper = new PrintHelper(surface, captureDetails)) {
 					printerSettings = printHelper.PrintTo(printerName);

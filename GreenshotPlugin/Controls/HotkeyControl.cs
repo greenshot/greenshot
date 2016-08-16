@@ -457,7 +457,6 @@ namespace GreenshotPlugin.Controls {
 		/// <summary>
 		/// Register a hotkey
 		/// </summary>
-		/// <param name="hWnd">The window which will get the event</param>
 		/// <param name="modifierKeyCode">The modifier, e.g.: Modifiers.CTRL, Modifiers.NONE or Modifiers.ALT</param>
 		/// <param name="virtualKeyCode">The virtual key code</param>
 		/// <param name="handler">A HotKeyHandler, this will be called to handle the hotkey press</param>

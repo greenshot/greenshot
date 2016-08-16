@@ -235,7 +235,7 @@ namespace Greenshot {
 		#endregion
 
 		private void PipetteUsed(object sender, PipetteUsedArgs e) {
-			Color = e.color;
+			Color = e.Color;
 		}
 	}
 }

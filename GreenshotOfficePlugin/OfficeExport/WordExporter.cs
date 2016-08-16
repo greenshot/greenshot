@@ -69,7 +69,7 @@ namespace Greenshot.Interop.Office {
 		/// <param name="wordApplication"></param>
 		/// <param name="wordDocument"></param>
 		/// <param name="tmpFile"></param>
-		/// <param name="adress">link for the image</param>
+		/// <param name="address">link for the image</param>
 		/// <param name="tooltip">tooltip of the image</param>
 		/// <returns></returns>
 		internal static bool InsertIntoExistingDocument(IWordApplication wordApplication, IWordDocument wordDocument, string tmpFile, string address, string tooltip) {

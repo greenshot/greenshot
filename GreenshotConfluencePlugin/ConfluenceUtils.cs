@@ -50,14 +50,14 @@ namespace GreenshotConfluencePlugin {
 					try {
 						bool pageDouble = false;
 						foreach(Confluence.Page page in pages) {
-							if (page.id == pageId) {
+							if (page.Id == pageId) {
 								pageDouble = true;
 								LOG.DebugFormat("Skipping double page with ID {0}", pageId);
 								break;
 							}
 						}
 						if (!pageDouble) {
-							Confluence.Page page = ConfluencePlugin.ConfluenceConnector.getPage(pageId);
+							Confluence.Page page = ConfluencePlugin.ConfluenceConnector.GetPage(pageId);
 							LOG.DebugFormat("Adding page {0}", page.Title);
 							pages.Add(page);
 						}
@@ -89,7 +89,7 @@ namespace GreenshotConfluencePlugin {
 								}
 							}
 							if (!pageDouble) {
-								Confluence.Page page = ConfluencePlugin.ConfluenceConnector.getPage(space, title);
+								Confluence.Page page = ConfluencePlugin.ConfluenceConnector.GetPage(space, title);
 								LOG.DebugFormat("Adding page {0}", page.Title);
 								pages.Add(page);
 								

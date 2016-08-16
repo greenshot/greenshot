@@ -304,7 +304,7 @@ EndSelection:<<<<<<<4
 		/// Returned images must be disposed by the calling code!
 		/// </summary>
 		/// <param name="dataObject"></param>
-		/// <returns>IEnumerable<Image></returns>
+		/// <returns>IEnumerable of Image</returns>
 		public static IEnumerable<Image> GetImages(IDataObject dataObject) {
 			// Get single image, this takes the "best" match
 			Image singleImage = GetImage(dataObject);
@@ -708,7 +708,7 @@ EndSelection:<<<<<<<4
 		/// <summary>
 		/// Retrieve a list of all formats currently on the clipboard
 		/// </summary>
-		/// <returns>List<string> with the current formats</returns>
+		/// <returns>List of strings with the current formats</returns>
 		public static List<string> GetFormats() {
 			return GetFormats(GetDataObject());
 		}
@@ -716,7 +716,7 @@ EndSelection:<<<<<<<4
 		/// <summary>
 		/// Retrieve a list of all formats currently in the IDataObject
 		/// </summary>
-		/// <returns>List<string> with the current formats</returns>
+		/// <returns>List of string with the current formats</returns>
 		public static List<string> GetFormats(IDataObject dataObj) {
 			string[] formats = null;
 
@@ -733,7 +733,6 @@ EndSelection:<<<<<<<4
 		/// <summary>
 		/// Check if there is currently something in the dataObject which has the supplied format
 		/// </summary>
-		/// <param name="dataObject">IDataObject</param>
 		/// <param name="format">string with format</param>
 		/// <returns>true if one the format is found</returns>
 		public static bool ContainsFormat(string format) {
@@ -743,6 +742,7 @@ EndSelection:<<<<<<<4
 		/// <summary>
 		/// Check if there is currently something on the clipboard which has the supplied format
 		/// </summary>
+		/// <param name="dataObject">IDataObject</param>
 		/// <param name="format">string with format</param>
 		/// <returns>true if one the format is found</returns>
 		public static bool ContainsFormat(IDataObject dataObject, string format) {

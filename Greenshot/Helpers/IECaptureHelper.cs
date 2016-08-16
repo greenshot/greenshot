@@ -125,7 +125,7 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Gets a list of all IE Windows & tabs with the captions of the instances
 		/// </summary>
-		/// <returns>List<KeyValuePair<WindowDetails, string>></returns>
+		/// <returns>List with KeyValuePair of WindowDetails and string</returns>
 		public static List<KeyValuePair<WindowDetails, string>> GetBrowserTabs() {
 			List<IntPtr> ieHandleList = new List<IntPtr>();
 			Dictionary<WindowDetails, List<string>> browserWindows = new Dictionary<WindowDetails, List<string>>();
@@ -217,7 +217,6 @@ namespace Greenshot.Helpers {
 		///  or return the first if none is supplied.
 		/// </summary>
 		/// <param name="browserWindow">The WindowDetails to get the IHTMLDocument2 for</param>
-		/// <param name="document2">Ref to the IHTMLDocument2 to return</param>
 		/// <returns>The WindowDetails to which the IHTMLDocument2 belongs</returns>
 		private static DocumentContainer CreateDocumentContainer(WindowDetails browserWindow) {
 			DocumentContainer returnDocumentContainer = null;
@@ -587,8 +586,9 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// This method takes the actual capture of the document (frame)
 		/// </summary>
-		/// <param name="documentContainer"></param>
+		/// <param name="documentContainer">DocumentContainer</param>
 		/// <param name="contentWindowDetails">Needed for referencing the location of the frame</param>
+		/// <param name="graphicsTarget">Graphics</param>
 		/// <returns>Bitmap with the capture</returns>
 		private static void DrawDocument(DocumentContainer documentContainer, WindowDetails contentWindowDetails, Graphics graphicsTarget) {
 			documentContainer.SetAttribute("scroll", 1);

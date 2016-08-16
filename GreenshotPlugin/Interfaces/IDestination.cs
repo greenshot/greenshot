@@ -139,7 +139,7 @@ namespace Greenshot.Plugin {
 		/// Return a menu item
 		/// </summary>
 		/// <param name="addDynamics">Resolve the dynamic destinations too?</param>
-		/// <param name="ContextMenuStrip">The menu for which the item is created</param>
+		/// <param name="menu">The menu for which the item is created</param>
 		/// <param name="destinationClickHandler">Handler which is called when clicked</param>
 		/// <returns>ToolStripMenuItem</returns>
 		ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler);

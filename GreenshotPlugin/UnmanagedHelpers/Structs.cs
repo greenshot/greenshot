@@ -64,7 +64,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			return new Point(X, Y);
 		}
 
-		override public string ToString() {
+		public override string ToString() {
 			return X + "," + Y;
 		}
 	}

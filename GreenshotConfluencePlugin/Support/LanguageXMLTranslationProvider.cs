@@ -34,20 +34,5 @@ namespace TranslationByMarkupExtension {
         }
 
         #endregion
-
-        #region ITranslationProvider Members
-
-        /// <summary>
-        /// See <see cref="ITranslationProvider.AvailableLanguages" />
-        /// </summary>
-        /*public IEnumerable<CultureInfo> Languages {
-            get {
-				foreach (LanguageFile supportedLanguage in Language.SupportedLanguages) {
-            		yield return new CultureInfo(supportedLanguage.Ietf);
-            	}
-            }
-        }*/
-
-        #endregion
     }
 }

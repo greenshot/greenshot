@@ -27,15 +27,13 @@ using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using System.IO;
-/// <summary>
-/// Create to fix the sometimes wrongly played sample, especially after first start from IDE
-/// See: http://www.codeproject.com/KB/audio-video/soundplayerbug.aspx?msg=2487569
-/// </summary>
+
 using log4net;
 
 namespace Greenshot.Helpers {
 	/// <summary>
-	/// Description of SoundHelper.
+	/// Create to fix the sometimes wrongly played sample, especially after first start from IDE
+	/// See: http://www.codeproject.com/KB/audio-video/soundplayerbug.aspx?msg=2487569
 	/// </summary>
 	public static class SoundHelper {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(SoundHelper));

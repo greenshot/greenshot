@@ -18,21 +18,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Globalization;
 using System.Windows.Forms;
-
+using Greenshot.IniFile;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
-using Jira;
 
-namespace GreenshotJiraPlugin {
+namespace GreenshotJiraPlugin.Forms {
 	public partial class JiraForm : Form {
-		private readonly JiraConnector jiraConnector;
-		private JiraIssue selectedIssue;
-		private readonly GreenshotColumnSorter columnSorter;
-		private readonly JiraConfiguration config = IniConfig.GetIniSection<JiraConfiguration>();
+		private readonly JiraConnector _jiraConnector;
+		private JiraIssue _selectedIssue;
+		private readonly GreenshotColumnSorter _columnSorter;
+		private readonly JiraConfiguration _config = IniConfig.GetIniSection<JiraConfiguration>();
 
 		public JiraForm(JiraConnector jiraConnector) {
 			InitializeComponent();
@@ -40,90 +39,90 @@ namespace GreenshotJiraPlugin {
 			AcceptButton = uploadButton;
 			CancelButton = cancelButton;
 
-			initializeComponentText();
+			InitializeComponentText();
 
-			columnSorter = new GreenshotColumnSorter();
-			jiraListView.ListViewItemSorter = columnSorter;
+			_columnSorter = new GreenshotColumnSorter();
+			jiraListView.ListViewItemSorter = _columnSorter;
 
-			this.jiraConnector = jiraConnector;
+			_jiraConnector = jiraConnector;
 
-			changeModus(false);
+			ChangeModus(false);
 			try {
-				if (!jiraConnector.isLoggedIn) {
-					jiraConnector.login();
+				if (!jiraConnector.IsLoggedIn) {
+					jiraConnector.Login();
 				}
 			} catch (Exception e) {
 				MessageBox.Show(Language.GetFormattedString("jira", LangKey.login_error, e.Message));
 			}
 			uploadButton.Enabled = false;
-			updateForm();
+			UpdateForm();
 		}
 
-		private void initializeComponentText() {
+		private void InitializeComponentText() {
 			label_jirafilter.Text = Language.GetString("jira", LangKey.label_jirafilter);
 			label_comment.Text = Language.GetString("jira", LangKey.label_comment);
 			label_filename.Text = Language.GetString("jira", LangKey.label_filename);
 		}
 
-		private void updateForm() {
-			if (jiraConnector.isLoggedIn) {
-				JiraFilter[] filters = jiraConnector.getFilters();
+		private void UpdateForm() {
+			if (_jiraConnector.IsLoggedIn) {
+				JiraFilter[] filters = _jiraConnector.GetFilters();
 				if (filters.Length > 0) {
 					foreach (JiraFilter filter in filters) {
 						jiraFilterBox.Items.Add(filter);
 					}
 					jiraFilterBox.SelectedIndex = 0;
 				}
-				changeModus(true);
-				if (config.LastUsedJira != null) {
-					selectedIssue = jiraConnector.getIssue(config.LastUsedJira);
-					if (selectedIssue != null) {
-						jiraKey.Text = config.LastUsedJira;
+				ChangeModus(true);
+				if (_config.LastUsedJira != null) {
+					_selectedIssue = _jiraConnector.GetIssue(_config.LastUsedJira);
+					if (_selectedIssue != null) {
+						jiraKey.Text = _config.LastUsedJira;
 						uploadButton.Enabled = true;
 					}
 				}
 			}
 		}
 
-		private void changeModus(bool enabled) {
+		private void ChangeModus(bool enabled) {
 			jiraFilterBox.Enabled = enabled;
 			jiraListView.Enabled = enabled;
 			jiraFilenameBox.Enabled = enabled;
 			jiraCommentBox.Enabled = enabled;
 		}
 
-		public void setFilename(string filename) {
+		public void SetFilename(string filename) {
 			jiraFilenameBox.Text = filename;
 		}
 
-		public void setComment(string comment) {
+		public void SetComment(string comment) {
 			jiraCommentBox.Text = comment;
 		}
 
-		public JiraIssue getJiraIssue() {
-			return selectedIssue;
+		public JiraIssue GetJiraIssue() {
+			return _selectedIssue;
 		}
 
-		public void upload(IBinaryContainer attachment) {
-			config.LastUsedJira = selectedIssue.Key;
-			jiraConnector.addAttachment(selectedIssue.Key, jiraFilenameBox.Text, attachment);
-			if (jiraCommentBox.Text != null && jiraCommentBox.Text.Length > 0) {
-				jiraConnector.addComment(selectedIssue.Key, jiraCommentBox.Text);
+		public void Upload(IBinaryContainer attachment) {
+			_config.LastUsedJira = _selectedIssue.Key;
+			_jiraConnector.AddAttachment(_selectedIssue.Key, jiraFilenameBox.Text, attachment);
+			if (!string.IsNullOrEmpty(jiraCommentBox.Text)) {
+				_jiraConnector.AddComment(_selectedIssue.Key, jiraCommentBox.Text);
 			}
 		}
 
-		public void logout() {
-			jiraConnector.logout();
+		public void Logout() {
+			_jiraConnector.Logout();
 		}
 
 		private void selectJiraToolStripMenuItem_Click(object sender, EventArgs e) {
 			ToolStripMenuItem clickedItem = (ToolStripMenuItem)sender;
-			selectedIssue = (JiraIssue)clickedItem.Tag;
-			jiraKey.Text = selectedIssue.Key;
+			_selectedIssue = (JiraIssue)clickedItem.Tag;
+			jiraKey.Text = _selectedIssue.Key;
 		}
 
 		private void jiraFilterBox_SelectedIndexChanged(object sender, EventArgs e) {
-			if (jiraConnector.isLoggedIn) {
+			if (_jiraConnector.IsLoggedIn) {
 				JiraIssue[] issues = null;
 				uploadButton.Enabled = false;
 				JiraFilter filter = (JiraFilter)jiraFilterBox.SelectedItem;
@@ -133,7 +132,7 @@ namespace GreenshotJiraPlugin {
 				// Run upload in the background
 				new PleaseWaitForm().ShowAndWait(JiraPlugin.Instance.JiraPluginAttributes.Name, Language.GetString("jira", LangKey.communication_wait),
 					delegate() {
-						issues = jiraConnector.getIssuesForFilter(filter.Id);
+						issues = _jiraConnector.GetIssuesForFilter(filter.Id);
 					}
 				);
 				jiraListView.BeginUpdate();
@@ -145,8 +144,10 @@ namespace GreenshotJiraPlugin {
 						jiraListView.Columns.Add(Language.GetString("jira", column));
 					}
 					foreach (JiraIssue issue in issues) {
-						ListViewItem item = new ListViewItem(issue.Key);
-						item.Tag = issue;
+						ListViewItem item = new ListViewItem(issue.Key)
+						{
+							Tag = issue
+						};
 						item.SubItems.Add(issue.Created.Value.ToString("d", DateTimeFormatInfo.InvariantInfo));
 						item.SubItems.Add(issue.Assignee);
 						item.SubItems.Add(issue.Reporter);
@@ -164,8 +165,8 @@ namespace GreenshotJiraPlugin {
 
 		private void jiraListView_SelectedIndexChanged(object sender, EventArgs e) {
 			if (jiraListView.SelectedItems != null && jiraListView.SelectedItems.Count > 0) {
-				selectedIssue = (JiraIssue)jiraListView.SelectedItems[0].Tag;
-				jiraKey.Text = selectedIssue.Key;
+				_selectedIssue = (JiraIssue)jiraListView.SelectedItems[0].Tag;
+				jiraKey.Text = _selectedIssue.Key;
 				uploadButton.Enabled = true;
 			} else {
 				uploadButton.Enabled = false;
@@ -174,17 +175,17 @@ namespace GreenshotJiraPlugin {
 
 		private void jiraListView_ColumnClick(object sender, ColumnClickEventArgs e) {
 			// Determine if clicked column is already the column that is being sorted.
-			if (e.Column == columnSorter.SortColumn) {
+			if (e.Column == _columnSorter.SortColumn) {
 				// Reverse the current sort direction for this column.
-				if (columnSorter.Order == SortOrder.Ascending) {
-					columnSorter.Order = SortOrder.Descending;
+				if (_columnSorter.Order == SortOrder.Ascending) {
+					_columnSorter.Order = SortOrder.Descending;
 				} else {
-					columnSorter.Order = SortOrder.Ascending;
+					_columnSorter.Order = SortOrder.Ascending;
 				}
 			} else {
 				// Set the column number that is to be sorted; default to ascending.
-				columnSorter.SortColumn = e.Column;
-				columnSorter.Order = SortOrder.Ascending;
+				_columnSorter.SortColumn = e.Column;
+				_columnSorter.Order = SortOrder.Ascending;
 			}
 
 			// Perform the sort with these new sort options.
@@ -196,8 +197,8 @@ namespace GreenshotJiraPlugin {
 			uploadButton.Enabled = false;
 			int dashIndex = jiranumber.IndexOf('-');
 			if (dashIndex > 0 && jiranumber.Length > dashIndex+1) {
-				selectedIssue = jiraConnector.getIssue(jiraKey.Text);
-				if (selectedIssue != null) {
+				_selectedIssue = _jiraConnector.GetIssue(jiraKey.Text);
+				if (_selectedIssue != null) {
 					uploadButton.Enabled = true;
 				}
 			}

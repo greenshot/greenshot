@@ -68,8 +68,8 @@ namespace GreenshotConfluencePlugin {
 					CreateConfluenceConntector();
 				}
 				try {
-					if (_confluenceConnector != null && !_confluenceConnector.isLoggedIn) {
-						_confluenceConnector.login();
+					if (_confluenceConnector != null && !_confluenceConnector.IsLoggedIn) {
+						_confluenceConnector.Login();
 					}
 				} catch (Exception e) {
 					MessageBox.Show(Language.GetFormattedString("confluence", LangKey.login_error, e.Message));
@@ -112,7 +112,7 @@ namespace GreenshotConfluencePlugin {
 		public virtual void Shutdown() {
 			LOG.Debug("Confluence Plugin shutdown.");
 			if (_confluenceConnector != null) {
-				_confluenceConnector.logout();
+				_confluenceConnector.Logout();
 				_confluenceConnector = null;
 			}
 		}
@@ -131,8 +131,8 @@ namespace GreenshotConfluencePlugin {
 				IniConfig.Save();
 				if (_confluenceConnector != null) {
 					if (!url.Equals(_config.Url)) {
-						if (_confluenceConnector.isLoggedIn) {
-							_confluenceConnector.logout();
+						if (_confluenceConnector.IsLoggedIn) {
+							_confluenceConnector.Logout();
 						}
 						_confluenceConnector = null;
 					}

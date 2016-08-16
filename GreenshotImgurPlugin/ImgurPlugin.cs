@@ -35,13 +35,13 @@ namespace GreenshotImgurPlugin {
 	/// This is the ImgurPlugin code
 	/// </summary>
 	public class ImgurPlugin : IGreenshotPlugin {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurPlugin));
-		private static ImgurConfiguration config;
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ImgurPlugin));
+		private static ImgurConfiguration _config;
 		public static PluginAttribute Attributes;
-		private IGreenshotHost host;
-		private ComponentResourceManager resources;
-		private ToolStripMenuItem historyMenuItem = null;
-		private ToolStripMenuItem itemPlugInConfig;
+		private IGreenshotHost _host;
+		private ComponentResourceManager _resources;
+		private ToolStripMenuItem _historyMenuItem;
+		private ToolStripMenuItem _itemPlugInConfig;
 
 		public void Dispose() {
 			Dispose(true);
@@ -50,13 +50,13 @@ namespace GreenshotImgurPlugin {
 
 		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
-				if (historyMenuItem != null) {
-					historyMenuItem.Dispose();
-					historyMenuItem = null;
+				if (_historyMenuItem != null) {
+					_historyMenuItem.Dispose();
+					_historyMenuItem = null;
 				}
-				if (itemPlugInConfig != null) {
-					itemPlugInConfig.Dispose();
-					itemPlugInConfig = null;
+				if (_itemPlugInConfig != null) {
+					_itemPlugInConfig.Dispose();
+					_itemPlugInConfig = null;
 				}
 			}
 		}
@@ -75,114 +75,112 @@ namespace GreenshotImgurPlugin {
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
-		/// <param name="pluginAttribute">My own attributes</param>
+		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
+		/// <param name="myAttributes">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
 		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
-			host = (IGreenshotHost)pluginHost;
+			_host = pluginHost;
 			Attributes = myAttributes;
 
 			// Get configuration
-			config = IniConfig.GetIniSection<ImgurConfiguration>();
-			resources = new ComponentResourceManager(typeof(ImgurPlugin));
-			
-			ToolStripMenuItem itemPlugInRoot = new ToolStripMenuItem("Imgur");
-			itemPlugInRoot.Image = (Image)resources.GetObject("Imgur");
+			_config = IniConfig.GetIniSection<ImgurConfiguration>();
+			_resources = new ComponentResourceManager(typeof(ImgurPlugin));
 
-			historyMenuItem = new ToolStripMenuItem(Language.GetString("imgur", LangKey.history));
-			historyMenuItem.Tag = host;
-			historyMenuItem.Click += delegate {
+			ToolStripMenuItem itemPlugInRoot = new ToolStripMenuItem("Imgur")
+			{
+				Image = (Image) _resources.GetObject("Imgur")
+			};
+
+			_historyMenuItem = new ToolStripMenuItem(Language.GetString("imgur", LangKey.history))
+			{
+				Tag = _host
+			};
+			_historyMenuItem.Click += delegate {
 				ImgurHistory.ShowHistory();
 			};
-			itemPlugInRoot.DropDownItems.Add(historyMenuItem);
+			itemPlugInRoot.DropDownItems.Add(_historyMenuItem);
 
-			itemPlugInConfig = new ToolStripMenuItem(Language.GetString("imgur", LangKey.configure));
-			itemPlugInConfig.Tag = host;
-			itemPlugInConfig.Click += delegate {
-				config.ShowConfigDialog();
+			_itemPlugInConfig = new ToolStripMenuItem(Language.GetString("imgur", LangKey.configure))
+			{
+				Tag = _host
 			};
-			itemPlugInRoot.DropDownItems.Add(itemPlugInConfig);
+			_itemPlugInConfig.Click += delegate {
+				_config.ShowConfigDialog();
+			};
+			itemPlugInRoot.DropDownItems.Add(_itemPlugInConfig);
 
-			PluginUtils.AddToContextMenu(host, itemPlugInRoot);
-			Language.LanguageChanged += new LanguageChangedHandler(OnLanguageChanged);
+			PluginUtils.AddToContextMenu(_host, itemPlugInRoot);
+			Language.LanguageChanged += OnLanguageChanged;
 
 			// retrieve history in the background
-			Thread backgroundTask = new Thread (new ThreadStart(CheckHistory));
-			backgroundTask.Name = "Imgur History";
-			backgroundTask.IsBackground = true;
+			Thread backgroundTask = new Thread(CheckHistory)
+			{
+				Name = "Imgur History",
+				IsBackground = true
+			};
 			backgroundTask.SetApartmentState(ApartmentState.STA);
 			backgroundTask.Start();
 			return true;
 		}
 
 		public void OnLanguageChanged(object sender, EventArgs e) {
-			if (itemPlugInConfig != null) {
-				itemPlugInConfig.Text = Language.GetString("imgur", LangKey.configure);
+			if (_itemPlugInConfig != null) {
+				_itemPlugInConfig.Text = Language.GetString("imgur", LangKey.configure);
 			}
-			if (historyMenuItem != null) {
-				historyMenuItem.Text = Language.GetString("imgur", LangKey.history);
+			if (_historyMenuItem != null) {
+				_historyMenuItem.Text = Language.GetString("imgur", LangKey.history);
 			}
 		}
 
 		private void CheckHistory() {
 			try {
 				ImgurUtils.LoadHistory();
-				host.GreenshotForm.BeginInvoke((MethodInvoker)delegate {
-					if (config.ImgurUploadHistory.Count > 0) {
-						historyMenuItem.Enabled = true;
+				_host.GreenshotForm.BeginInvoke((MethodInvoker)delegate {
+					if (_config.ImgurUploadHistory.Count > 0) {
+						_historyMenuItem.Enabled = true;
 					} else {
-						historyMenuItem.Enabled = false;
+						_historyMenuItem.Enabled = false;
 					}
 				});
 			} catch (Exception ex) {
-				LOG.Error("Error loading history", ex);
-			};
+				Log.Error("Error loading history", ex);
+			}
 		}
 
 		public virtual void Shutdown() {
-			LOG.Debug("Imgur Plugin shutdown.");
-			Language.LanguageChanged -= new LanguageChangedHandler(OnLanguageChanged);
+			Log.Debug("Imgur Plugin shutdown.");
+			Language.LanguageChanged -= OnLanguageChanged;
 		}
 
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
 		public virtual void Configure() {
-			config.ShowConfigDialog();
+			_config.ShowConfigDialog();
 		}
 
 		/// <summary>
-		/// This will be called when Greenshot is shutting down
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		public void Closing(object sender, FormClosingEventArgs e) {
-			LOG.Debug("Application closing, de-registering Imgur Plugin!");
-			Shutdown();
-		}
-		
-		/// <summary>
 		/// Upload the capture to imgur
 		/// </summary>
-		/// <param name="captureDetails"></param>
-		/// <param name="image"></param>
-		/// <param name="uploadURL">out string for the url</param>
+		/// <param name="captureDetails">ICaptureDetails</param>
+		/// <param name="surfaceToUpload">ISurface</param>
+		/// <param name="uploadUrl">out string for the url</param>
 		/// <returns>true if the upload succeeded</returns>
-		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadURL) {
-			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
+		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl) {
+			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, _config.UploadReduceColors);
 			try {
-				string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(config.FilenamePattern, config.UploadFormat, captureDetails));
+				string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(_config.FilenamePattern, _config.UploadFormat, captureDetails));
 				ImgurInfo imgurInfo = null;
 
 				// Run upload in the background
 				new PleaseWaitForm().ShowAndWait("Imgur plug-in", Language.GetString("imgur", LangKey.communication_wait),
-					delegate() {
+					delegate
+					{
 						imgurInfo = ImgurUtils.UploadToImgur(surfaceToUpload, outputSettings, captureDetails.Title, filename);
-						if (imgurInfo != null && config.AnonymousAccess) {
-							LOG.InfoFormat("Storing imgur upload for hash {0} and delete hash {1}", imgurInfo.Hash, imgurInfo.DeleteHash);
-							config.ImgurUploadHistory.Add(imgurInfo.Hash, imgurInfo.DeleteHash);
-							config.runtimeImgurHistory.Add(imgurInfo.Hash, imgurInfo);
+						if (imgurInfo != null && _config.AnonymousAccess) {
+							Log.InfoFormat("Storing imgur upload for hash {0} and delete hash {1}", imgurInfo.Hash, imgurInfo.DeleteHash);
+							_config.ImgurUploadHistory.Add(imgurInfo.Hash, imgurInfo.DeleteHash);
+							_config.runtimeImgurHistory.Add(imgurInfo.Hash, imgurInfo);
 							CheckHistory();
 						}
 					}
@@ -195,34 +193,34 @@ namespace GreenshotImgurPlugin {
 					}
 					IniConfig.Save();
 
-					if (config.UsePageLink)
+					if (_config.UsePageLink)
 					{
-						uploadURL = imgurInfo.Page;
+						uploadUrl = imgurInfo.Page;
 					}
 					else
 					{
-						uploadURL = imgurInfo.Original;
+						uploadUrl = imgurInfo.Original;
 					}
-					if (!string.IsNullOrEmpty(uploadURL) && config.CopyLinkToClipboard)
+					if (!string.IsNullOrEmpty(uploadUrl) && _config.CopyLinkToClipboard)
 					{
 						try
 						{
-							ClipboardHelper.SetClipboardData(uploadURL);
+							ClipboardHelper.SetClipboardData(uploadUrl);
 
 						}
 						catch (Exception ex)
 						{
-							LOG.Error("Can't write to clipboard: ", ex);
-							uploadURL = null;
+							Log.Error("Can't write to clipboard: ", ex);
+							uploadUrl = null;
 						}
 					}
 					return true;
 				}
 			} catch (Exception e) {
-				LOG.Error("Error uploading.", e);
+				Log.Error("Error uploading.", e);
 				MessageBox.Show(Language.GetString("imgur", LangKey.upload_failure) + " " + e.Message);
 			}
-			uploadURL = null;
+			uploadUrl = null;
 			return false;
 		}
 	}

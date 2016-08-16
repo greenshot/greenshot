@@ -31,30 +31,21 @@ namespace GreenshotBoxPlugin {
 	[IniSection("Box", Description = "Greenshot Box Plugin configuration")]
 	public class BoxConfiguration : IniSection {
 		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
-		public OutputFormat UploadFormat;
+		public OutputFormat UploadFormat { get; set; }
 
 		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
-		public int UploadJpegQuality;
+		public int UploadJpegQuality { get; set; }
 
 		[IniProperty("AfterUploadLinkToClipBoard", Description = "After upload send Box link to clipboard.", DefaultValue = "true")]
-		public bool AfterUploadLinkToClipBoard;
+		public bool AfterUploadLinkToClipBoard { get; set; }
 
 		[IniProperty("UseSharedLink", Description = "Use the shared link, instead of the private, on the clipboard", DefaultValue = "True")]
-		public bool UseSharedLink {
-			get;
-			set;
-		}
+		public bool UseSharedLink { get; set; }
 		[IniProperty("FolderId", Description = "Folder ID to upload to, only change if you know what you are doing!", DefaultValue = "0")]
-		public string FolderId {
-			get;
-			set;
-		}
+		public string FolderId { get; set; }
 
 		[IniProperty("RefreshToken", Description = "Box authorization refresh Token", Encrypted = true)]
-		public string RefreshToken {
-			get;
-			set;
-		}
+		public string RefreshToken { get; set; }
 
 		/// <summary>
 		/// Not stored

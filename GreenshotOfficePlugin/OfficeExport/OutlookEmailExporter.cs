@@ -49,7 +49,7 @@ namespace Greenshot.Interop.Office {
 		/// <summary>
 		/// A method to retrieve all inspectors which can act as an export target
 		/// </summary>
-		/// <returns>List<string> with inspector captions (window title)</returns>
+		/// <returns>List of strings with inspector captions (window title)</returns>
 		public static IDictionary<string, OlObjectClass> RetrievePossibleTargets() {
 			IDictionary<string, OlObjectClass> inspectorCaptions = new SortedDictionary<string, OlObjectClass>();
 			try {
@@ -76,7 +76,6 @@ namespace Greenshot.Interop.Office {
 						if (inspectors != null && inspectors.Count > 0) {
 							for (int i = 1; i <= inspectors.Count; i++) {
 								using (IInspector inspector = outlookApplication.Inspectors[i]) {
-									string inspectorCaption = inspector.Caption;
 									using (IItem currentItem = inspector.CurrentItem) {
 										if (canExportToInspector(currentItem)) {
 											OlObjectClass currentItemClass = currentItem.Class;
@@ -328,13 +327,20 @@ namespace Greenshot.Interop.Office {
 			LOG.Debug("Finished!");
 			return true;
 		}
+
 		/// <summary>
 		/// Export image to a new email
 		/// </summary>
 		/// <param name="outlookApplication"></param>
+		/// <param name="format"></param>
 		/// <param name="tmpFile"></param>
-		/// <param name="captureDetails"></param>
-		private static void ExportToNewEmail(IOutlookApplication outlookApplication, EmailFormat format, string tmpFile, string subject, string attachmentName, string to, string CC, string BCC, string url) {
+		/// <param name="subject"></param>
+		/// <param name="attachmentName"></param>
+		/// <param name="to"></param>
+		/// <param name="cc"></param>
+		/// <param name="bcc"></param>
+		/// <param name="url"></param>
+		private static void ExportToNewEmail(IOutlookApplication outlookApplication, EmailFormat format, string tmpFile, string subject, string attachmentName, string to, string cc, string bcc, string url) {
 			using (IItem newItem = outlookApplication.CreateItem(OlItemType.olMailItem)) {
 				if (newItem == null) {
 					return;
@@ -345,11 +351,11 @@ namespace Greenshot.Interop.Office {
 				if (!string.IsNullOrEmpty(to)) {
 					newMail.To = to;
 				}
-				if (!string.IsNullOrEmpty(CC)) {
-					newMail.CC = CC;
+				if (!string.IsNullOrEmpty(cc)) {
+					newMail.CC = cc;
 				}
-				if (!string.IsNullOrEmpty(BCC)) {
-					newMail.BCC = BCC;
+				if (!string.IsNullOrEmpty(bcc)) {
+					newMail.BCC = bcc;
 				}
 				newMail.BodyFormat = OlBodyFormat.olFormatHTML;
 				string bodyString = null;
@@ -362,7 +368,8 @@ namespace Greenshot.Interop.Office {
 				switch (format) {
 					case EmailFormat.Text:
 						// Create the attachment (and dispose the COM object after using)
-						using (IAttachment attachment = newMail.Attachments.Add(tmpFile, OlAttachmentType.olByValue, 1, attachmentName)) {
+						using (newMail.Attachments.Add(tmpFile, OlAttachmentType.olByValue, 1, attachmentName))
+						{
 							newMail.BodyFormat = OlBodyFormat.olFormatPlain;
 							if (bodyString == null) {
 								bodyString = "";
@@ -433,14 +440,21 @@ namespace Greenshot.Interop.Office {
 		/// <summary>
 		/// Helper method to create an outlook mail item with attachment
 		/// </summary>
-		/// <param name="tmpfile">The file to send, do not delete the file right away!</param>
+		/// <param name="format"></param>
+		/// <param name="tmpFile">The file to send, do not delete the file right away!</param>
+		/// <param name="subject"></param>
+		/// <param name="attachmentName"></param>
+		/// <param name="to"></param>
+		/// <param name="cc"></param>
+		/// <param name="bcc"></param>
+		/// <param name="url"></param>
 		/// <returns>true if it worked, false if not</returns>
-		public static bool ExportToOutlook(EmailFormat format, string tmpFile, string subject, string attachmentName, string to, string CC, string BCC, string url) {
+		public static bool ExportToOutlook(EmailFormat format, string tmpFile, string subject, string attachmentName, string to, string cc, string bcc, string url) {
 			bool exported = false;
 			try {
 				using (IOutlookApplication outlookApplication = GetOrCreateOutlookApplication()) {
 					if (outlookApplication != null) {
-						ExportToNewEmail(outlookApplication, format, tmpFile, subject, attachmentName, to, CC, BCC, url);
+						ExportToNewEmail(outlookApplication, format, tmpFile, subject, attachmentName, to, cc, bcc, url);
 						exported = true;
 					}
 				}

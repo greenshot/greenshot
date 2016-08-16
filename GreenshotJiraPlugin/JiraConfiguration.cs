@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System.Windows.Forms;
+
 using Greenshot.IniFile;
 using GreenshotPlugin.Core;
 
@@ -28,35 +28,22 @@ namespace GreenshotJiraPlugin {
 	/// </summary>
 	[IniSection("Jira", Description="Greenshot Jira Plugin configuration")]
 	public class JiraConfiguration : IniSection {
-		public const string DEFAULT_PREFIX = "http://";
-		private const string DEFAULT_URL = DEFAULT_PREFIX + "jira" + Jira.JiraConnector.DEFAULT_POSTFIX;
+		public const string DefaultPrefix = "http://";
+		private const string DefaultUrl = DefaultPrefix + "jira" + JiraConnector.DefaultPostfix;
 
-		[IniProperty("Url", Description="Url to Jira system, including wsdl.", DefaultValue=DEFAULT_URL)]
-		public string Url;
+		[IniProperty("Url", Description="Url to Jira system, including wsdl.", DefaultValue=DefaultUrl)]
+		public string Url { get; set; }
 		[IniProperty("Timeout", Description="Session timeout in minutes", DefaultValue="30")]
-		public int Timeout;
-		
+		public int Timeout { get; set; }
+
 		[IniProperty("LastUsedJira", Description="Last used Jira")]
-		public string LastUsedJira;
+		public string LastUsedJira { get; set; }
 
 		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
-		public OutputFormat UploadFormat;
+		public OutputFormat UploadFormat { get; set; }
 		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
-		public int UploadJpegQuality;
+		public int UploadJpegQuality { get; set; }
 		[IniProperty("UploadReduceColors", Description="Reduce color amount of the uploaded image to 256", DefaultValue="False")]
-		public bool UploadReduceColors;
-
-		/// <summary>
-		/// A form for username/password
-		/// </summary>
-		/// <returns>bool true if OK was pressed, false if cancel</returns>
-		public bool ShowConfigDialog() {
-			SettingsForm settingsForm = new SettingsForm(this);
-			DialogResult result = settingsForm.ShowDialog();
-			if (result == DialogResult.OK) {
-				return true;
-			}
-			return false;
-		}
+		public bool UploadReduceColors { get; set; }
 	}
 }

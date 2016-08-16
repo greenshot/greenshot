@@ -31,34 +31,34 @@ namespace ExternalCommand {
 	[IniSection("ExternalCommand", Description="Greenshot ExternalCommand Plugin configuration")]
 	public class ExternalCommandConfiguration : IniSection {
 		[IniProperty("Commands", Description="The commands that are available.")]
-		public List<string> commands;
+		public List<string> Commands { get; set; }
 
 		[IniProperty("RedirectStandardError", Description = "Redirect the standard error of all external commands, used to output as warning to the greenshot.log.", DefaultValue = "true")]
-		public bool RedirectStandardError;
+		public bool RedirectStandardError { get; set; }
 
 		[IniProperty("RedirectStandardOutput", Description = "Redirect the standard output of all external commands, used for different other functions (more below).", DefaultValue = "true")]
-		public bool RedirectStandardOutput;
+		public bool RedirectStandardOutput { get; set; }
 
 		[IniProperty("ShowStandardOutputInLog", Description = "Depends on 'RedirectStandardOutput': Show standard output of all external commands to the Greenshot log, this can be usefull for debugging.", DefaultValue = "false")]
-		public bool ShowStandardOutputInLog;
+		public bool ShowStandardOutputInLog { get; set; }
 
 		[IniProperty("ParseForUri", Description = "Depends on 'RedirectStandardOutput': Parse the output and take the first found URI, if a URI is found than clicking on the notify bubble goes there.", DefaultValue = "true")]
-		public bool ParseOutputForUri;
+		public bool ParseOutputForUri { get; set; }
 
 		[IniProperty("OutputToClipboard", Description = "Depends on 'RedirectStandardOutput': Place the standard output on the clipboard.", DefaultValue = "false")]
-		public bool OutputToClipboard;
+		public bool OutputToClipboard { get; set; }
 
 		[IniProperty("UriToClipboard", Description = "Depends on 'RedirectStandardOutput' & 'ParseForUri': If an URI is found in the standard input, place it on the clipboard. (This overwrites the output from OutputToClipboard setting.)", DefaultValue = "true")]
-		public bool UriToClipboard;
+		public bool UriToClipboard { get; set; }
 
 		[IniProperty("Commandline", Description="The commandline for the output command.")]
-		public Dictionary<string, string> commandlines;
+		public Dictionary<string, string> commandlines { get; set; }
 
 		[IniProperty("Argument", Description="The arguments for the output command.")]
-		public Dictionary<string, string> arguments;
+		public Dictionary<string, string> arguments { get; set; }
 
 		[IniProperty("RunInbackground", Description = "Should the command be started in the background.")]
-		public Dictionary<string, bool> runInbackground;
+		public Dictionary<string, bool> runInbackground { get; set; }
 
 		private const string MSPAINT = "MS Paint";
 		private static readonly string paintPath;

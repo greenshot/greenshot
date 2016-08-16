@@ -30,7 +30,7 @@ using Greenshot.Core;
 namespace Greenshot.Plugin {
 	[Serializable]
 	[AttributeUsage(AttributeTargets.Assembly, Inherited = false, AllowMultiple = false)]
-	sealed public class PluginAttribute : Attribute, IComparable {
+	public sealed class PluginAttribute : Attribute, IComparable {
 		public string Name {
 			get;
 			set;
@@ -173,10 +173,13 @@ namespace Greenshot.Plugin {
 		NotifyIcon NotifyIcon {
 			get;
 		}
+
 		/// <summary>
 		/// Create a Thumbnail
 		/// </summary>
 		/// <param name="image">Image of which we need a Thumbnail</param>
+		/// <param name="width"></param>
+		/// <param name="height"></param>
 		/// <returns>Image with Thumbnail</returns>
 		Image GetThumbnail(Image image, int width, int height);
 		
@@ -191,14 +194,14 @@ namespace Greenshot.Plugin {
 		/// <summary>
 		/// Get a destination by it's designation
 		/// </summary>
-		/// <param name="destination"></param>
+		/// <param name="designation"></param>
 		/// <returns>IDestination</returns>
 		IDestination GetDestination(string designation);
 
 		/// <summary>
 		/// Get a list of all available destinations
 		/// </summary>
-		/// <returns>List<IDestination></returns>
+		/// <returns>List of IDestination</returns>
 		List<IDestination> GetAllDestinations();
 
 		/// <summary>

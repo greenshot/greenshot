@@ -46,7 +46,7 @@ namespace Greenshot.Drawing
 	/// <summary>
 	/// Description of Surface.
 	/// </summary>
-	public class Surface : Control, ISurface
+	public sealed class Surface : Control, ISurface
 	{
 		private static ILog LOG = LogManager.GetLogger(typeof(Surface));
 		public static int Count = 0;
@@ -1609,6 +1609,7 @@ namespace Greenshot.Drawing
 		/// <param name="elementToRemove">Element to remove</param>
 		/// <param name="makeUndoable">flag specifying if the remove needs to be undoable</param>
 		/// <param name="invalidate">flag specifying if an surface invalidate needs to be called</param>
+		/// <param name="generateEvents">false to skip event generation</param>
 		public void RemoveElement(IDrawableContainer elementToRemove, bool makeUndoable = true, bool invalidate = true, bool generateEvents = true)
 		{
 			DeselectElement(elementToRemove, generateEvents);
@@ -1639,7 +1640,6 @@ namespace Greenshot.Drawing
 		/// </summary>
 		/// <param name="elementsToAdd">DrawableContainerList</param>
 		/// <param name="makeUndoable">true if the adding should be undoable</param>
-		/// <param name="invalidate">true if invalidate needs to be called</param>
 		public void AddElements(IDrawableContainerList elementsToAdd, bool makeUndoable = true)
 		{
 			// fix potential issues with iterating a changing list
@@ -1901,7 +1901,8 @@ namespace Greenshot.Drawing
 		/// <summary>
 		/// Deselect the specified element
 		/// </summary>
-		/// <param name="container"></param>
+		/// <param name="container">IDrawableContainerList</param>
+		/// <param name="generateEvents">false to skip event generation</param>
 		public void DeselectElement(IDrawableContainer container, bool generateEvents = true)
 		{
 			container.Selected = false;
@@ -1909,8 +1910,7 @@ namespace Greenshot.Drawing
 			FieldAggregator.UnbindElement(container);
 			if (generateEvents && _movingElementChanged != null)
 			{
-				SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs();
-				eventArgs.Elements = selectedElements;
+				SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs {Elements = selectedElements};
 				_movingElementChanged(this, eventArgs);
 			}
 		}
@@ -1918,7 +1918,7 @@ namespace Greenshot.Drawing
 		/// <summary>
 		/// Deselect the specified elements
 		/// </summary>
-		/// <param name="container"></param>
+		/// <param name="elements">IDrawableContainerList</param>
 		public void DeselectElements(IDrawableContainerList elements)
 		{
 			if (elements.Count == 0)
@@ -1951,6 +1951,8 @@ namespace Greenshot.Drawing
 		/// Select the supplied element
 		/// </summary>
 		/// <param name="container"></param>
+		/// <param name="invalidate">false to skip invalidation</param>
+		/// <param name="generateEvents">false to skip event generation</param>
 		public void SelectElement(IDrawableContainer container, bool invalidate = true, bool generateEvents = true)
 		{
 			if (!selectedElements.Contains(container))

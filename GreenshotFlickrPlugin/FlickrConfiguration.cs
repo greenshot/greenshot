@@ -34,36 +34,36 @@ namespace GreenshotFlickrPlugin {
 	[IniSection("Flickr", Description = "Greenshot Flickr Plugin configuration")]
 	public class FlickrConfiguration : IniSection {
 		[IniProperty("flickrIsPublic", Description = "IsPublic.", DefaultValue = "true")]
-		public bool IsPublic;
+		public bool IsPublic { get; set; }
 
 		[IniProperty("flickrIsFamily", Description = "IsFamily.", DefaultValue = "true")]
-		public bool IsFamily;
+		public bool IsFamily { get; set; }
 
 		[IniProperty("flickrIsFriend", Description = "IsFriend.", DefaultValue = "true")]
-		public bool IsFriend;
+		public bool IsFriend { get; set; }
 
 		[IniProperty("SafetyLevel", Description = "Safety level", DefaultValue = "Safe")]
-		public SafetyLevel SafetyLevel;
+		public SafetyLevel SafetyLevel { get; set; }
 
 		[IniProperty("HiddenFromSearch", Description = "Hidden from search", DefaultValue = "false")]
-		public bool HiddenFromSearch;
-	   
+		public bool HiddenFromSearch { get; set; }
+
 		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
-		public OutputFormat UploadFormat;
+		public OutputFormat UploadFormat { get; set; }
 
 		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
-		public int UploadJpegQuality;
+		public int UploadJpegQuality { get; set; }
 
 		[IniProperty("AfterUploadLinkToClipBoard", Description = "After upload send flickr link to clipboard.", DefaultValue = "true")]
-		public bool AfterUploadLinkToClipBoard;
+		public bool AfterUploadLinkToClipBoard { get; set; }
 
 		[IniProperty("UsePageLink", Description = "Use pagelink instead of direct link on the clipboard", DefaultValue = "False")]
-		public bool UsePageLink;
-		
+		public bool UsePageLink { get; set; }
+
 		[IniProperty("FlickrToken", Description = "The Flickr token", Encrypted = true, ExcludeIfNull = true)]
-		public string FlickrToken;
+		public string FlickrToken { get; set; }
 		[IniProperty("FlickrTokenSecret", Description = "The Flickr token secret", Encrypted = true, ExcludeIfNull = true)]
-		public string FlickrTokenSecret;
+		public string FlickrTokenSecret { get; set; }
 
 		/// <summary>
 		/// A form for token

@@ -29,14 +29,13 @@ namespace GreenshotPicasaPlugin {
 	[IniSection("Picasa", Description = "Greenshot Picasa Plugin configuration")]
 	public class PicasaConfiguration : IniSection {
 		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
-		public OutputFormat UploadFormat;
+		public OutputFormat UploadFormat { get; set; }
 
 		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
-		public int UploadJpegQuality;
+		public int UploadJpegQuality { get; set; }
 
 		[IniProperty("AfterUploadLinkToClipBoard", Description = "After upload send Picasa link to clipboard.", DefaultValue = "true")]
-		public bool AfterUploadLinkToClipBoard;
-
+		public bool AfterUploadLinkToClipBoard { get; set; }
 		[IniProperty("AddFilename", Description = "Is the filename passed on to Picasa", DefaultValue = "False")]
 		public bool AddFilename {
 			get;

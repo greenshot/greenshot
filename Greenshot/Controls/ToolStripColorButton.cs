@@ -35,16 +35,16 @@ namespace Greenshot.Controls {
 			set;
 		}
 
-		private Color selectedColor = Color.Transparent;
+		private Color _selectedColor = Color.Transparent;
 		
 		public ToolStripColorButton() {
 			Click+= ColorButtonClick;
 		}
 
 		public Color SelectedColor {
-			get {return selectedColor;}
+			get {return _selectedColor;}
 			set {
-				selectedColor = value;
+				_selectedColor = value;
 
 				Brush brush;
 				if(value != Color.Transparent) {

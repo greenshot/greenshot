@@ -200,12 +200,11 @@ namespace Greenshot.Forms {
 		}
 		
 			
-		// <summary>
+		/// <summary>
 		/// adds an item to the select list
 		/// </summary>
 		/// <param name="label">the label to be displayed</param>
 		/// <param name="image">the icon to be displayed</param>
-		/// <param name="selected">whether the item is initially selected</param>
 		/// <param name="isChecked">whether the item is initially checked</param>
 		public void AddItem(string label, Image image, bool isChecked) {
 			AddItem(label, image, null, isChecked);

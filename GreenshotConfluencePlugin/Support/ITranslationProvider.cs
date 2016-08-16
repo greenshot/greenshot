@@ -6,11 +6,5 @@
         /// <param name="key">The key.</param>
         /// <returns></returns>
         object Translate(string key);
-
-        /// <summary>
-        /// Gets the available languages.
-        /// </summary>
-        /// <value>The available languages.</value>
-        //IEnumerable<CultureInfo> Languages { get; }
     }
 }

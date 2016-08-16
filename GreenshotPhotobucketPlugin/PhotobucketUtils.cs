@@ -142,7 +142,7 @@ namespace GreenshotPhotobucketPlugin {
 		/// <summary>
 		/// Get list of photobucket albums
 		/// </summary>
-		/// <returns>List<string></returns>
+		/// <returns>List of string</returns>
 		public static List<string> RetrievePhotobucketAlbums() {
 			if (albumsCache != null) {
 				return albumsCache;

@@ -23,21 +23,19 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
-using Jira;
 using System;
+using GreenshotJiraPlugin.Forms;
 
 namespace GreenshotJiraPlugin {
 	/// <summary>
 	/// This is the JiraPlugin base code
 	/// </summary>
 	public class JiraPlugin : IGreenshotPlugin {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraPlugin));
-		private PluginAttribute jiraPluginAttributes;
-		private IGreenshotHost host;
-		private JiraConnector jiraConnector = null;
-		private JiraConfiguration config = null;
-		private ComponentResourceManager resources;
-		private static JiraPlugin instance = null;
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraPlugin));
+		private PluginAttribute _jiraPluginAttributes;
+		private JiraConnector _jiraConnector;
+		private JiraConfiguration _config;
+		private static JiraPlugin _instance;
 
 		public void Dispose() {
 			Dispose(true);
@@ -46,26 +44,26 @@ namespace GreenshotJiraPlugin {
 
 		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
-				if (jiraConnector != null) {
-					jiraConnector.Dispose();
-					jiraConnector = null;
+				if (_jiraConnector != null) {
+					_jiraConnector.Dispose();
+					_jiraConnector = null;
 				}
 			}
 		}
 
 		public static JiraPlugin Instance {
 			get {
-				return instance;
+				return _instance;
 			}
 		}
 
 		public JiraPlugin() {
-			instance = this;
+			_instance = this;
 		}
 		
 		public PluginAttribute JiraPluginAttributes {
 			get {
-				return jiraPluginAttributes;
+				return _jiraPluginAttributes;
 			}
 		}
 
@@ -80,40 +78,38 @@ namespace GreenshotJiraPlugin {
 		//Needed for a fail-fast
 		public JiraConnector CurrentJiraConnector {
 			get {
-				return jiraConnector;
+				return _jiraConnector;
 			}
 		}
 		
 		public JiraConnector JiraConnector {
 			get {
-				if (jiraConnector == null) {
-					jiraConnector = new JiraConnector(true);
+				if (_jiraConnector == null) {
+					_jiraConnector = new JiraConnector(true);
 				}
-				return jiraConnector;
+				return _jiraConnector;
 			}
 		}
 
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
-		/// <param name="pluginAttribute">My own attributes</param>
+		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
+		/// <param name="myAttributes">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
 		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
-			host = (IGreenshotHost)pluginHost;
-			jiraPluginAttributes = myAttributes;
+			_jiraPluginAttributes = myAttributes;
 
 			// Register configuration (don't need the configuration itself)
-			config = IniConfig.GetIniSection<JiraConfiguration>();
-			resources = new ComponentResourceManager(typeof(JiraPlugin));
+			_config = IniConfig.GetIniSection<JiraConfiguration>();
+			new ComponentResourceManager(typeof(JiraPlugin));
 			return true;
 		}
 
 		public virtual void Shutdown() {
-			LOG.Debug("Jira Plugin shutdown.");
-			if (jiraConnector != null) {
-				jiraConnector.logout();
+			Log.Debug("Jira Plugin shutdown.");
+			if (_jiraConnector != null) {
+				_jiraConnector.Logout();
 			}
 		}
 
@@ -121,16 +117,31 @@ namespace GreenshotJiraPlugin {
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
 		public virtual void Configure() {
-			string url = config.Url;
-			if (config.ShowConfigDialog()) {
+			string url = _config.Url;
+			if (ShowConfigDialog()) {
 				// check for re-login
-				if (jiraConnector != null && jiraConnector.isLoggedIn && !string.IsNullOrEmpty(url)) {
-					if (!url.Equals(config.Url)) {
-						jiraConnector.logout();
-						jiraConnector.login();
+				if (_jiraConnector != null && _jiraConnector.IsLoggedIn && !string.IsNullOrEmpty(url)) {
+					if (!url.Equals(_config.Url)) {
+						_jiraConnector.Logout();
+						_jiraConnector.Login();
 					}
 				}
 			}
+		}
+
+		/// <summary>
+		/// A form for username/password
+		/// </summary>
+		/// <returns>bool true if OK was pressed, false if cancel</returns>
+		private bool ShowConfigDialog()
+		{
+			var settingsForm = new SettingsForm();
+			var result = settingsForm.ShowDialog();
+			if (result == DialogResult.OK)
+			{
+				return true;
+			}
+			return false;
 		}
 
 		/// <summary>
@@ -139,7 +150,7 @@ namespace GreenshotJiraPlugin {
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		public void Closing(object sender, FormClosingEventArgs e) {
-			LOG.Debug("Application closing, calling logout of jira!");
+			Log.Debug("Application closing, calling logout of jira!");
 			Shutdown();
 		}
 	}

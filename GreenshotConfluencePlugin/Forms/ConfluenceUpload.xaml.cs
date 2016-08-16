@@ -29,56 +29,56 @@ namespace GreenshotConfluencePlugin {
 	/// Interaction logic for ConfluenceUpload.xaml
 	/// </summary>
 	public partial class ConfluenceUpload : Window {
-		private Page pickerPage = null;
+		private Page _pickerPage;
 		public Page PickerPage {
 			get {
-				if (pickerPage == null) {
+				if (_pickerPage == null) {
 					List<Confluence.Page> pages = ConfluenceUtils.GetCurrentPages();
 					if (pages != null && pages.Count > 0) {
-						pickerPage = new ConfluencePagePicker(this, pages);
+						_pickerPage = new ConfluencePagePicker(this, pages);
 					}
 				}
-				return pickerPage;
+				return _pickerPage;
 			}
 		}
 
-		private Page searchPage = null;
+		private Page _searchPage;
 		public Page SearchPage {
 			get {
-				if (searchPage == null) {
-					searchPage = new ConfluenceSearch(this);
+				if (_searchPage == null) {
+					_searchPage = new ConfluenceSearch(this);
 				}
-				return searchPage;
+				return _searchPage;
 			}
 		}
 
-		private Page browsePage = null;
+		private Page _browsePage;
 		public Page BrowsePage {
 			get {
-				if (browsePage == null) {
-					browsePage = new ConfluenceTreePicker(this);
+				if (_browsePage == null) {
+					_browsePage = new ConfluenceTreePicker(this);
 				}
-				return browsePage;
+				return _browsePage;
 			}
 		}
 
-		private Confluence.Page selectedPage = null;
+		private Confluence.Page _selectedPage;
 		public Confluence.Page SelectedPage {
 			get {
-				return selectedPage;
+				return _selectedPage;
 			}
 			set {
-				selectedPage = value;
-				if (selectedPage != null) {
+				_selectedPage = value;
+				if (_selectedPage != null) {
 					Upload.IsEnabled = true;
 				} else {
 					Upload.IsEnabled = false;
 				}
-				isOpenPageSelected = false;
+				IsOpenPageSelected = false;
 			}
 		}
 
-		public bool isOpenPageSelected {
+		public bool IsOpenPageSelected {
 			get;
 			set;
 		}
@@ -87,39 +87,39 @@ namespace GreenshotConfluencePlugin {
 			set;
 		}
 		
-		private static DateTime lastLoad = DateTime.Now;
-		private static List<Confluence.Space> spaces;
+		private static DateTime _lastLoad = DateTime.Now;
+		private static List<Confluence.Space> _spaces;
 		public List<Confluence.Space> Spaces {
 			get {
-				updateSpaces();
-				while (spaces == null) {
+				UpdateSpaces();
+				while (_spaces == null) {
 					Thread.Sleep(300);
 				}
-				return spaces;
+				return _spaces;
 			}
 		}
 
 		public ConfluenceUpload(string filename) {
 			Filename = filename;
 			InitializeComponent();
-			this.DataContext = this;
-			updateSpaces();
+			DataContext = this;
+			UpdateSpaces();
 			if (PickerPage == null) {
 				PickerTab.Visibility = Visibility.Collapsed;
 				SearchTab.IsSelected = true;
 			}
 		}
 		
-		void updateSpaces() {
-			if (spaces != null && DateTime.Now.AddMinutes(-60).CompareTo(lastLoad) > 0) {
+		void UpdateSpaces() {
+			if (_spaces != null && DateTime.Now.AddMinutes(-60).CompareTo(_lastLoad) > 0) {
 				// Reset
-				spaces = null;
+				_spaces = null;
 			}
 			// Check if load is needed
-			if (spaces == null) {
+			if (_spaces == null) {
 				(new Thread(() => {
-				     spaces = ConfluencePlugin.ConfluenceConnector.getSpaceSummaries();
-				     lastLoad = DateTime.Now;
+				     _spaces = ConfluencePlugin.ConfluenceConnector.GetSpaceSummaries();
+				     _lastLoad = DateTime.Now;
 				  }) { Name = "Loading spaces for confluence"}).Start();
 			}
 		}

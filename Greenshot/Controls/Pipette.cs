@@ -30,22 +30,22 @@ namespace Greenshot.Controls {
 	/// This code was supplied by Hi-Coder as a patch for Greenshot
 	/// Needed some modifications to be stable.
 	/// </summary>
-	public class Pipette : Label, IMessageFilter, IDisposable {
-		private MovableShowColorForm movableShowColorForm;
-		private bool dragging;
+	public sealed class Pipette : Label, IMessageFilter, IDisposable {
+		private MovableShowColorForm _movableShowColorForm;
+		private bool _dragging;
 		private Cursor _cursor;
 		private readonly Bitmap _image;
-		private const int VK_ESC = 27;
+		private const int VkEsc = 27;
 
 		public event EventHandler<PipetteUsedArgs> PipetteUsed;
 
 		public Pipette() {
 			BorderStyle = BorderStyle.FixedSingle;
-			dragging = false;
+			_dragging = false;
 			_image = (Bitmap)new ComponentResourceManager(typeof(ColorDialog)).GetObject("pipette.Image");
 			Image = _image;
-			_cursor = CreateCursor((Bitmap)_image, 1, 14);
-			movableShowColorForm = new MovableShowColorForm();
+			_cursor = CreateCursor(_image, 1, 14);
+			_movableShowColorForm = new MovableShowColorForm();
 			Application.AddMessageFilter(this);
 		}
 
@@ -58,13 +58,12 @@ namespace Greenshot.Controls {
 		/// <returns>Cursor</returns>
 		private static Cursor CreateCursor(Bitmap bitmap, int hotspotX, int hotspotY) {
 			using (SafeIconHandle iconHandle = new SafeIconHandle( bitmap.GetHicon())) {
-				IntPtr icon;
-				IconInfo iconInfo = new IconInfo();
+				IconInfo iconInfo;
 				User32.GetIconInfo(iconHandle, out iconInfo);
 				iconInfo.xHotspot = hotspotX;
 				iconInfo.yHotspot = hotspotY;
 				iconInfo.fIcon = false;
-				icon = User32.CreateIconIndirect(ref iconInfo);
+				var icon = User32.CreateIconIndirect(ref iconInfo);
 				return new Cursor(icon);
 			}
 		}
@@ -85,11 +84,11 @@ namespace Greenshot.Controls {
 				if (_cursor != null) {
 					_cursor.Dispose();
 				}
-				if (movableShowColorForm != null) {
-					movableShowColorForm.Dispose();
+				if (_movableShowColorForm != null) {
+					_movableShowColorForm.Dispose();
 				}
 			}
-			movableShowColorForm = null;
+			_movableShowColorForm = null;
 			_cursor = null;
 			base.Dispose(disposing);
 		}
@@ -101,7 +100,7 @@ namespace Greenshot.Controls {
 		protected override void OnMouseDown(MouseEventArgs e) {
 			if (e.Button == MouseButtons.Left) {
 				User32.SetCapture(Handle);
-				movableShowColorForm.MoveTo(PointToScreen(new Point(e.X, e.Y)));
+				_movableShowColorForm.MoveTo(PointToScreen(new Point(e.X, e.Y)));
 			}
 			base.OnMouseDown(e);
 		}
@@ -117,7 +116,7 @@ namespace Greenshot.Controls {
 				User32.ReleaseCapture();
 				if (PipetteUsed != null)
 				{
-					PipetteUsed(this, new PipetteUsedArgs(movableShowColorForm.color));
+					PipetteUsed(this, new PipetteUsedArgs(_movableShowColorForm.color));
 				}
 			}
 			base.OnMouseUp(e);
@@ -128,10 +127,10 @@ namespace Greenshot.Controls {
 		/// </summary>
 		/// <param name="e">MouseEventArgs</param>
 		protected override void OnMouseMove(MouseEventArgs e) {
-			if (dragging) {
+			if (_dragging) {
 				//display the form on the right side of the cursor by default;
 				Point zp = PointToScreen(new Point(e.X, e.Y));
-				movableShowColorForm.MoveTo(zp);
+				_movableShowColorForm.MoveTo(zp);
 			}
 			base.OnMouseMove(e);
 		}
@@ -142,16 +141,16 @@ namespace Greenshot.Controls {
 		/// <param name="e"></param>
 		protected override void OnMouseCaptureChanged(EventArgs e) {
 			if (Capture) {
-				dragging = true;
+				_dragging = true;
 				Image = null;
 				Cursor c = _cursor;
 				Cursor = c;
-				movableShowColorForm.Visible = true;
+				_movableShowColorForm.Visible = true;
 			} else {
-				dragging = false;
+				_dragging = false;
 				Image = _image;
 				Cursor = Cursors.Arrow;
-				movableShowColorForm.Visible = false;
+				_movableShowColorForm.Visible = false;
 			}
 			Update();
 			base.OnMouseCaptureChanged(e);
@@ -160,9 +159,9 @@ namespace Greenshot.Controls {
 		#region IMessageFilter Members
 
 		public bool PreFilterMessage(ref Message m) {
-			if (dragging) {
+			if (_dragging) {
 				if (m.Msg == (int)WindowsMessages.WM_CHAR) {
-					if ((int)m.WParam == VK_ESC) {
+					if ((int)m.WParam == VkEsc) {
 						User32.ReleaseCapture();
 					}
 				}
@@ -174,10 +173,10 @@ namespace Greenshot.Controls {
 	}
 
 	public class PipetteUsedArgs : EventArgs {
-		public Color color;
+		public Color Color;
 
 		public PipetteUsedArgs(Color c) {
-			color = c;
+			Color = c;
 		}
 	}
 }

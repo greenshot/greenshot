@@ -114,7 +114,8 @@ namespace Greenshot {
 		/// with the items from the enumeration
 		/// </summary>
 		/// <param name="comboBox">ComboBox to populate</param>
-		/// <param name="enumeration">Enum to populate with</param>
+		/// <param name="availableValues"></param>
+		/// <param name="selectedValue"></param>
 		private void PopulateComboBox<ET>(ComboBox comboBox, ET[] availableValues, ET selectedValue) where ET : struct {
 			comboBox.Items.Clear();
 			foreach(ET enumValue in availableValues) {

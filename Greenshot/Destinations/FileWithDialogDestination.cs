@@ -26,14 +26,12 @@ using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Greenshot.IniFile;
-using log4net;
 
 namespace Greenshot.Destinations {
 	/// <summary>
 	/// Description of FileWithDialog.
 	/// </summary>
 	public class FileWithDialogDestination : AbstractDestination {
-		private static ILog LOG = LogManager.GetLogger(typeof(FileWithDialogDestination));
 		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		public const string DESIGNATION = "FileDialog";
 
@@ -69,9 +67,8 @@ namespace Greenshot.Destinations {
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
-			string savedTo = null;
 			// Bug #2918756 don't overwrite path if SaveWithDialog returns null!
-			savedTo = ImageOutput.SaveWithDialog(surface, captureDetails);
+			var savedTo = ImageOutput.SaveWithDialog(surface, captureDetails);
 			if (savedTo != null) {
 				exportInformation.ExportMade = true;
 				exportInformation.Filepath = savedTo;

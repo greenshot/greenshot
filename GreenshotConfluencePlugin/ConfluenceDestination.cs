@@ -102,7 +102,7 @@ namespace GreenshotConfluencePlugin {
 		}
 		
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			if (ConfluencePlugin.ConfluenceConnectorNoLogin == null || !ConfluencePlugin.ConfluenceConnectorNoLogin.isLoggedIn) {
+			if (ConfluencePlugin.ConfluenceConnectorNoLogin == null || !ConfluencePlugin.ConfluenceConnectorNoLogin.IsLoggedIn) {
 				yield break;
 			}
 			List<Page> currentPages = ConfluenceUtils.GetCurrentPages();
@@ -117,7 +117,7 @@ namespace GreenshotConfluencePlugin {
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			// force password check to take place before the pages load
-			if (!ConfluencePlugin.ConfluenceConnector.isLoggedIn) {
+			if (!ConfluencePlugin.ConfluenceConnector.IsLoggedIn) {
 				return exportInformation;
 			}
 
@@ -129,7 +129,7 @@ namespace GreenshotConfluencePlugin {
 				Nullable<bool> dialogResult = confluenceUpload.ShowDialog();
 				if (dialogResult.HasValue && dialogResult.Value) {
 					selectedPage = confluenceUpload.SelectedPage;
-					if (confluenceUpload.isOpenPageSelected) {
+					if (confluenceUpload.IsOpenPageSelected) {
 						openPage = false;
 					}
 					filename = confluenceUpload.Filename;
@@ -164,7 +164,7 @@ namespace GreenshotConfluencePlugin {
 			try {
 				new PleaseWaitForm().ShowAndWait(Description, Language.GetString("confluence", LangKey.communication_wait),
 					delegate() {
-						ConfluencePlugin.ConfluenceConnector.addAttachment(page.id, "image/" + config.UploadFormat.ToString().ToLower(), null, filename, new SurfaceContainer(surfaceToUpload, outputSettings, filename));
+						ConfluencePlugin.ConfluenceConnector.AddAttachment(page.Id, "image/" + config.UploadFormat.ToString().ToLower(), null, filename, new SurfaceContainer(surfaceToUpload, outputSettings, filename));
 					}
 				);
 				LOG.Debug("Uploaded to Confluence.");

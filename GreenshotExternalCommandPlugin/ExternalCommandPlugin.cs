@@ -55,7 +55,7 @@ namespace ExternalCommand {
 		}
 
 		public IEnumerable<IDestination> Destinations() {
-			foreach(string command in config.commands) {
+			foreach(string command in config.Commands) {
 				yield return new ExternalCommandDestination(command);
 			}
 		}
@@ -96,15 +96,14 @@ namespace ExternalCommand {
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
-		/// <param name="pluginAttribute">My own attributes</param>
+		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
+		/// <param name="myAttributes">My own attributes</param>
 		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
 			LOG.DebugFormat("Initialize called of {0}", myAttributes.Name);
 
 			List<string> commandsToDelete = new List<string>();
 			// Check configuration
-			foreach(string command in config.commands) {
+			foreach(string command in config.Commands) {
 				if (!isCommandValid(command)) {
 					commandsToDelete.Add(command);
 				}
@@ -115,18 +114,17 @@ namespace ExternalCommand {
 				config.runInbackground.Remove(command);
 				config.commandlines.Remove(command);
 				config.arguments.Remove(command);
-				config.commands.Remove(command);
+				config.Commands.Remove(command);
 			}
 
 			_host = pluginHost;
 			_myAttributes = myAttributes;
 
 
-			_itemPlugInRoot = new ToolStripMenuItem();
-			_itemPlugInRoot.Tag = _host;
+			_itemPlugInRoot = new ToolStripMenuItem {Tag = _host};
 			OnIconSizeChanged(this, new PropertyChangedEventArgs("IconSize"));
 			OnLanguageChanged(this, null);
-			_itemPlugInRoot.Click += new EventHandler(ConfigMenuClick);
+			_itemPlugInRoot.Click += ConfigMenuClick;
 
 			PluginUtils.AddToContextMenu(_host, _itemPlugInRoot);
 			Language.LanguageChanged += OnLanguageChanged;

@@ -31,7 +31,7 @@ namespace Greenshot.Controls {
 	/// </summary>
 	public class ColorButton : Button, IGreenshotLanguageBindable {
 		public event PropertyChangedEventHandler PropertyChanged;
-		private Color selectedColor = Color.White;
+		private Color _selectedColor = Color.White;
 
 		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
 		public string LanguageKey {
@@ -44,9 +44,9 @@ namespace Greenshot.Controls {
 		}
 
 		public Color SelectedColor {
-			get {return selectedColor;}
+			get {return _selectedColor;}
 			set {
-				selectedColor = value;
+				_selectedColor = value;
 
 				Brush brush;
 				if(value != Color.Transparent) {
