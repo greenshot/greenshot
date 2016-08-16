@@ -149,29 +149,29 @@ namespace GreenshotJiraPlugin {
 		public async Task<IList<Filter>> GetFavoriteFiltersAsync()
 		{
 			await CheckCredentials();
-			return await _jiraApi.GetFavoriteFiltersAsync();
+			return await _jiraApi.GetFavoriteFiltersAsync().ConfigureAwait(false);
 		}
 
 		public async Task<Issue> GetIssueAsync(string issueKey)
 		{
 			await CheckCredentials();
-			return await _jiraApi.GetIssueAsync(issueKey);
+			return await _jiraApi.GetIssueAsync(issueKey).ConfigureAwait(false);
 		}
 		public async Task<Attachment> AttachAsync<TContent>(string issueKey, TContent content, string filename, string contentType = null, CancellationToken cancellationToken = default(CancellationToken)) where TContent : class
 		{
-			await CheckCredentials();
-			return await _jiraApi.AttachAsync(issueKey, content, filename, contentType, cancellationToken);
+			await CheckCredentials().ConfigureAwait(false);
+			return await _jiraApi.AttachAsync(issueKey, content, filename, contentType, cancellationToken).ConfigureAwait(false);
 		}
 
 		public async Task AddCommentAsync(string issueKey, string body, string visibility = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			await CheckCredentials();
-			await _jiraApi.AddCommentAsync(issueKey, body, visibility, cancellationToken);
+			await _jiraApi.AddCommentAsync(issueKey, body, visibility, cancellationToken).ConfigureAwait(false);
 		}
 		public async Task<SearchResult> SearchAsync(string jql, int maxResults = 20, IList<string> fields = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			await CheckCredentials();
-			return await _jiraApi.SearchAsync(jql, maxResults, fields, cancellationToken);
+			return await _jiraApi.SearchAsync(jql, maxResults, fields, cancellationToken).ConfigureAwait(false);
 		}
 
 		public Uri JiraBaseUri => _jiraApi.JiraBaseUri;

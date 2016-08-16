@@ -57,7 +57,7 @@ namespace GreenshotJiraPlugin {
 				foreach(string jiraKey in jirakeys) {
 					try
 					{
-						var issue = await JiraPlugin.Instance.JiraConnector.GetIssueAsync(jiraKey);
+						var issue = await JiraPlugin.Instance.JiraConnector.GetIssueAsync(jiraKey).ConfigureAwait(false);
 						if (issue != null)
 						{
 							jiraIssues.Add(issue);
