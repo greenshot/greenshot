@@ -18,8 +18,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Dapplo.Jira.Entities;
 using Greenshot.IniFile;
 using GreenshotPlugin.Core;
 
@@ -30,15 +34,16 @@ namespace GreenshotJiraPlugin {
 	public static class JiraUtils {
 		private static readonly Regex JiraKeyRegex = new Regex(@"/browse/([A-Z0-9]+\-[0-9]+)");
 		private static readonly JiraConfiguration Config = IniConfig.GetIniSection<JiraConfiguration>();
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraUtils));
 
-		public static List<JiraIssue> GetCurrentJiras() {
+		public static async Task<IList<Issue>> GetCurrentJirasAsync() {
 			// Make sure we suppress the login
-			List<string> jirakeys = new List<string>();
+			var jirakeys = new List<string>();
 			foreach(string url in IEHelper.GetIEUrls()) {
 				if (url == null) {
 					continue;
 				}
-				MatchCollection jiraKeyMatch = JiraKeyRegex.Matches(url);
+				var jiraKeyMatch = JiraKeyRegex.Matches(url);
 				if (jiraKeyMatch.Count > 0) {
 					string jiraKey = jiraKeyMatch[0].Groups[1].Value;
 					jirakeys.Add(jiraKey);
@@ -48,19 +53,19 @@ namespace GreenshotJiraPlugin {
 				jirakeys.Add(Config.LastUsedJira);
 			}
 			if (jirakeys.Count > 0) {
-				List<JiraIssue> jiraIssues = new List<JiraIssue>();
+				var jiraIssues = new List<Issue>();
 				foreach(string jiraKey in jirakeys) {
 					try
 					{
-						JiraIssue issue = JiraPlugin.Instance.JiraConnector.GetIssue(jiraKey);
+						var issue = await JiraPlugin.Instance.JiraConnector.GetIssueAsync(jiraKey);
 						if (issue != null)
 						{
 							jiraIssues.Add(issue);
 						}
 					}
-					catch
+					catch (Exception ex)
 					{
-						
+						Log.Error(ex);
 					}
 				}
 				if (jiraIssues.Count > 0) {

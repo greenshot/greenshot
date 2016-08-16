@@ -22,14 +22,19 @@
 using System;
 using System.Globalization;
 using System.Windows.Forms;
+using Dapplo.Jira.Entities;
 using Greenshot.IniFile;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace GreenshotJiraPlugin.Forms {
 	public partial class JiraForm : Form {
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraForm));
 		private readonly JiraConnector _jiraConnector;
-		private JiraIssue _selectedIssue;
+		private Issue _selectedIssue;
 		private readonly GreenshotColumnSorter _columnSorter;
 		private readonly JiraConfiguration _config = IniConfig.GetIniSection<JiraConfiguration>();
 
@@ -47,41 +52,52 @@ namespace GreenshotJiraPlugin.Forms {
 			_jiraConnector = jiraConnector;
 
 			ChangeModus(false);
-			try {
-				if (!jiraConnector.IsLoggedIn) {
-					jiraConnector.Login();
+
+			uploadButton.Enabled = false;
+			Load += OnLoad;
+		}
+
+		private async void OnLoad(object sender, EventArgs eventArgs)
+		{
+			try
+			{
+				if (!_jiraConnector.IsLoggedIn)
+				{
+					await _jiraConnector.Login();
 				}
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				MessageBox.Show(Language.GetFormattedString("jira", LangKey.login_error, e.Message));
 			}
-			uploadButton.Enabled = false;
-			UpdateForm();
+			if (_jiraConnector.IsLoggedIn)
+			{
+				var filters = await _jiraConnector.GetFavoriteFiltersAsync();
+				if (filters.Count > 0)
+				{
+					foreach (var filter in filters)
+					{
+						jiraFilterBox.Items.Add(filter);
+					}
+					jiraFilterBox.SelectedIndex = 0;
+				}
+				ChangeModus(true);
+				if (_config.LastUsedJira != null)
+				{
+					_selectedIssue = await _jiraConnector.GetIssueAsync(_config.LastUsedJira);
+					if (_selectedIssue != null)
+					{
+						jiraKey.Text = _config.LastUsedJira;
+						uploadButton.Enabled = true;
+					}
+				}
+			}
 		}
 
 		private void InitializeComponentText() {
 			label_jirafilter.Text = Language.GetString("jira", LangKey.label_jirafilter);
 			label_comment.Text = Language.GetString("jira", LangKey.label_comment);
 			label_filename.Text = Language.GetString("jira", LangKey.label_filename);
-		}
-
-		private void UpdateForm() {
-			if (_jiraConnector.IsLoggedIn) {
-				JiraFilter[] filters = _jiraConnector.GetFilters();
-				if (filters.Length > 0) {
-					foreach (JiraFilter filter in filters) {
-						jiraFilterBox.Items.Add(filter);
-					}
-					jiraFilterBox.SelectedIndex = 0;
-				}
-				ChangeModus(true);
-				if (_config.LastUsedJira != null) {
-					_selectedIssue = _jiraConnector.GetIssue(_config.LastUsedJira);
-					if (_selectedIssue != null) {
-						jiraKey.Text = _config.LastUsedJira;
-						uploadButton.Enabled = true;
-					}
-				}
-			}
 		}
 
 		private void ChangeModus(bool enabled) {
@@ -99,59 +115,67 @@ namespace GreenshotJiraPlugin.Forms {
 			jiraCommentBox.Text = comment;
 		}
 
-		public JiraIssue GetJiraIssue() {
+		public Issue GetJiraIssue() {
 			return _selectedIssue;
 		}
 
-		public void Upload(IBinaryContainer attachment) {
+		public async Task UploadAsync(IBinaryContainer attachment) {
 			_config.LastUsedJira = _selectedIssue.Key;
-			_jiraConnector.AddAttachment(_selectedIssue.Key, jiraFilenameBox.Text, attachment);
-			if (!string.IsNullOrEmpty(jiraCommentBox.Text)) {
-				_jiraConnector.AddComment(_selectedIssue.Key, jiraCommentBox.Text);
+			using (var memoryStream = new MemoryStream())
+			{
+				attachment.WriteToStream(memoryStream);
+				memoryStream.Seek(0, SeekOrigin.Begin);
+				await _jiraConnector.AttachAsync(_selectedIssue.Key, memoryStream, jiraFilenameBox.Text, attachment.ContentType);
 			}
-		}
 
-		public void Logout() {
-			_jiraConnector.Logout();
+			if (!string.IsNullOrEmpty(jiraCommentBox.Text)) {
+				await _jiraConnector.AddCommentAsync(_selectedIssue.Key, jiraCommentBox.Text);
+			}
 		}
 
 		private void selectJiraToolStripMenuItem_Click(object sender, EventArgs e) {
 			ToolStripMenuItem clickedItem = (ToolStripMenuItem)sender;
-			_selectedIssue = (JiraIssue)clickedItem.Tag;
+			_selectedIssue = (Issue)clickedItem.Tag;
 			jiraKey.Text = _selectedIssue.Key;
 		}
 
-		private void jiraFilterBox_SelectedIndexChanged(object sender, EventArgs e) {
+		private async void jiraFilterBox_SelectedIndexChanged(object sender, EventArgs e) {
 			if (_jiraConnector.IsLoggedIn) {
-				JiraIssue[] issues = null;
+
 				uploadButton.Enabled = false;
-				JiraFilter filter = (JiraFilter)jiraFilterBox.SelectedItem;
+				var filter = (Filter)jiraFilterBox.SelectedItem;
 				if (filter == null) {
 					return;
 				}
-				// Run upload in the background
-				new PleaseWaitForm().ShowAndWait(JiraPlugin.Instance.JiraPluginAttributes.Name, Language.GetString("jira", LangKey.communication_wait),
-					delegate() {
-						issues = _jiraConnector.GetIssuesForFilter(filter.Id);
-					}
-				);
+				IList<Issue> issues = null;
+				try
+				{
+					var searchResult = await _jiraConnector.SearchAsync(filter.Jql);
+					issues = searchResult.Issues;
+				}
+				catch (Exception ex)
+				{
+					Log.Error(ex);
+					MessageBox.Show(this, ex.Message, "Error in filter", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				}
+
 				jiraListView.BeginUpdate();
 				jiraListView.Items.Clear();
-				if (issues.Length > 0) {
+				if (issues?.Count > 0) {
 					jiraListView.Columns.Clear();
 					LangKey[] columns = { LangKey.column_id, LangKey.column_created, LangKey.column_assignee, LangKey.column_reporter, LangKey.column_summary };
 					foreach (LangKey column in columns) {
 						jiraListView.Columns.Add(Language.GetString("jira", column));
 					}
-					foreach (JiraIssue issue in issues) {
-						ListViewItem item = new ListViewItem(issue.Key)
+					foreach (var issue in issues) {
+						var item = new ListViewItem(issue.Key)
 						{
 							Tag = issue
 						};
-						item.SubItems.Add(issue.Created.Value.ToString("d", DateTimeFormatInfo.InvariantInfo));
-						item.SubItems.Add(issue.Assignee);
-						item.SubItems.Add(issue.Reporter);
-						item.SubItems.Add(issue.Summary);
+						item.SubItems.Add(issue.Fields.Created.ToString("d", DateTimeFormatInfo.InvariantInfo));
+						item.SubItems.Add(issue.Fields.Assignee?.DisplayName);
+						item.SubItems.Add(issue.Fields.Reporter?.DisplayName);
+						item.SubItems.Add(issue.Fields.Summary);
 						jiraListView.Items.Add(item);
 					}
 					for (int i = 0; i < columns.Length; i++) {
@@ -164,8 +188,8 @@ namespace GreenshotJiraPlugin.Forms {
 		}
 
 		private void jiraListView_SelectedIndexChanged(object sender, EventArgs e) {
-			if (jiraListView.SelectedItems != null && jiraListView.SelectedItems.Count > 0) {
-				_selectedIssue = (JiraIssue)jiraListView.SelectedItems[0].Tag;
+			if (jiraListView.SelectedItems.Count > 0) {
+				_selectedIssue = (Issue)jiraListView.SelectedItems[0].Tag;
 				jiraKey.Text = _selectedIssue.Key;
 				uploadButton.Enabled = true;
 			} else {
@@ -192,12 +216,12 @@ namespace GreenshotJiraPlugin.Forms {
 			jiraListView.Sort();
 		}
 
-		void JiraKeyTextChanged(object sender, EventArgs e) {
+		private async void JiraKeyTextChanged(object sender, EventArgs e) {
 			string jiranumber = jiraKey.Text;
 			uploadButton.Enabled = false;
 			int dashIndex = jiranumber.IndexOf('-');
 			if (dashIndex > 0 && jiranumber.Length > dashIndex+1) {
-				_selectedIssue = _jiraConnector.GetIssue(jiraKey.Text);
+				_selectedIssue = await _jiraConnector.GetIssueAsync(jiraKey.Text);
 				if (_selectedIssue != null) {
 					uploadButton.Enabled = true;
 				}
