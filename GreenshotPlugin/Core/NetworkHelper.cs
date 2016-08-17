@@ -555,6 +555,8 @@ namespace GreenshotPlugin.Core {
 		string ToBase64String(Base64FormattingOptions formattingOptions);
 		byte[] ToByteArray();
 		void Upload(HttpWebRequest webRequest);
+
+		string ContentType { get; }
 	}
 
 	/// <summary>
@@ -634,6 +636,8 @@ namespace GreenshotPlugin.Core {
 				WriteToStream(requestStream);
 			}
 		}
+
+		public string ContentType => _contentType;
 	}
 
 	/// <summary>
@@ -686,7 +690,7 @@ namespace GreenshotPlugin.Core {
 				boundary,
 				name,
 				_fileName ?? name,
-				"image/" + _outputSettings.Format);
+				ContentType);
 
 			formDataStream.Write(Encoding.UTF8.GetBytes(header), 0, Encoding.UTF8.GetByteCount(header));
 			ImageOutput.SaveToStream(_bitmap, null, formDataStream, _outputSettings);
@@ -711,6 +715,8 @@ namespace GreenshotPlugin.Core {
 				WriteToStream(requestStream);
 			}
 		}
+
+		public string ContentType => "image/" + _outputSettings.Format;
 	}
 
 	/// <summary>
@@ -763,7 +769,7 @@ namespace GreenshotPlugin.Core {
 				boundary,
 				name,
 				_fileName ?? name,
-				"image/" + _outputSettings.Format);
+				ContentType);
 
 			formDataStream.Write(Encoding.UTF8.GetBytes(header), 0, Encoding.UTF8.GetByteCount(header));
 			ImageOutput.SaveToStream(_surface, formDataStream, _outputSettings);			
@@ -783,10 +789,12 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="webRequest"></param>
 		public void Upload(HttpWebRequest webRequest) {
-			webRequest.ContentType = "image/" + _outputSettings.Format.ToString();
+			webRequest.ContentType = ContentType;
 			using (var requestStream = webRequest.GetRequestStream()) {
 				WriteToStream(requestStream);
 			}
 		}
+
+		public string ContentType => "image/" + _outputSettings.Format;
 	}
 }

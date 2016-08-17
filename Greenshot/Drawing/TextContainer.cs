@@ -383,7 +383,7 @@ namespace Greenshot.Drawing
 					_font = newFont;
 					_textBox.Font = _font;
 				}
-				catch (Exception ex2)
+				catch (Exception)
 				{
 					// When this happens... the PC is broken
 					ex.Data.Add("fontFamily", fontFamily);

@@ -29,10 +29,11 @@ namespace GreenshotJiraPlugin {
 	[IniSection("Jira", Description="Greenshot Jira Plugin configuration")]
 	public class JiraConfiguration : IniSection {
 		public const string DefaultPrefix = "http://";
-		private const string DefaultUrl = DefaultPrefix + "jira" + JiraConnector.DefaultPostfix;
+		private const string DefaultUrl = DefaultPrefix + "jira";
 
-		[IniProperty("Url", Description="Url to Jira system, including wsdl.", DefaultValue=DefaultUrl)]
+		[IniProperty("Url", Description="Base url to Jira system, without anything else", DefaultValue=DefaultUrl)]
 		public string Url { get; set; }
+
 		[IniProperty("Timeout", Description="Session timeout in minutes", DefaultValue="30")]
 		public int Timeout { get; set; }
 
