@@ -24,6 +24,8 @@ using Greenshot.IniFile;
 using Greenshot.Plugin;
 using System;
 using System.Threading.Tasks;
+using Dapplo.HttpExtensions.ContentConverter;
+using Dapplo.Log.Facade;
 using GreenshotJiraPlugin.Forms;
 
 namespace GreenshotJiraPlugin {
@@ -67,14 +69,7 @@ namespace GreenshotJiraPlugin {
 		//Needed for a fail-fast
 		public JiraConnector CurrentJiraConnector => _jiraConnector;
 
-		public JiraConnector JiraConnector {
-			get {
-				if (_jiraConnector == null) {
-					_jiraConnector = new JiraConnector();
-				}
-				return _jiraConnector;
-			}
-		}
+		public JiraConnector JiraConnector => _jiraConnector ?? (_jiraConnector = new JiraConnector());
 
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
@@ -85,6 +80,7 @@ namespace GreenshotJiraPlugin {
 		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
 			// Register configuration (don't need the configuration itself)
 			_config = IniConfig.GetIniSection<JiraConfiguration>();
+			LogSettings.RegisterDefaultLogger<Log4NetLogger>();
 			return true;
 		}
 

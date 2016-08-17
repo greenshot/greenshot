@@ -29,6 +29,7 @@ using GreenshotPlugin.Core;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Dapplo.Jira;
 
 namespace GreenshotJiraPlugin.Forms {
 	public partial class JiraForm : Form {
@@ -111,10 +112,6 @@ namespace GreenshotJiraPlugin.Forms {
 			jiraFilenameBox.Text = filename;
 		}
 
-		public void SetComment(string comment) {
-			jiraCommentBox.Text = comment;
-		}
-
 		public Issue GetJiraIssue() {
 			return _selectedIssue;
 		}
@@ -133,13 +130,7 @@ namespace GreenshotJiraPlugin.Forms {
 			}
 		}
 
-		private void selectJiraToolStripMenuItem_Click(object sender, EventArgs e) {
-			ToolStripMenuItem clickedItem = (ToolStripMenuItem)sender;
-			_selectedIssue = (Issue)clickedItem.Tag;
-			jiraKey.Text = _selectedIssue.Key;
-		}
-
-		private async void jiraFilterBox_SelectedIndexChanged(object sender, EventArgs e) {
+		private async void JiraFilterBox_SelectedIndexChanged(object sender, EventArgs e) {
 			if (_jiraConnector.IsLoggedIn) {
 
 				uploadButton.Enabled = false;
@@ -150,7 +141,8 @@ namespace GreenshotJiraPlugin.Forms {
 				IList<Issue> issues = null;
 				try
 				{
-					var searchResult = await _jiraConnector.SearchAsync(filter.Jql);
+					JiraConfig.ExpandSearch = new[] { "*all" };
+					var searchResult = await _jiraConnector.SearchAsync(filter.Jql, fields: new [] { "summary,reporter,assignee,created"});
 					issues = searchResult.Issues;
 				}
 				catch (Exception ex)
@@ -187,7 +179,7 @@ namespace GreenshotJiraPlugin.Forms {
 			}
 		}
 
-		private void jiraListView_SelectedIndexChanged(object sender, EventArgs e) {
+		private void JiraListView_SelectedIndexChanged(object sender, EventArgs e) {
 			if (jiraListView.SelectedItems.Count > 0) {
 				_selectedIssue = (Issue)jiraListView.SelectedItems[0].Tag;
 				jiraKey.Text = _selectedIssue.Key;
@@ -197,15 +189,11 @@ namespace GreenshotJiraPlugin.Forms {
 			}
 		}
 
-		private void jiraListView_ColumnClick(object sender, ColumnClickEventArgs e) {
+		private void JiraListView_ColumnClick(object sender, ColumnClickEventArgs e) {
 			// Determine if clicked column is already the column that is being sorted.
 			if (e.Column == _columnSorter.SortColumn) {
 				// Reverse the current sort direction for this column.
-				if (_columnSorter.Order == SortOrder.Ascending) {
-					_columnSorter.Order = SortOrder.Descending;
-				} else {
-					_columnSorter.Order = SortOrder.Ascending;
-				}
+				_columnSorter.Order = _columnSorter.Order == SortOrder.Ascending ? SortOrder.Descending : SortOrder.Ascending;
 			} else {
 				// Set the column number that is to be sorted; default to ascending.
 				_columnSorter.SortColumn = e.Column;

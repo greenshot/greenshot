@@ -16,6 +16,7 @@ Fixed:
 * BUG-1887: hang on exit - hang time proportional to number of objects
 * BUG-1890: Slight cropping around window on Windows 10
 * BUG-1892: Greenshot saves blank JPG file with reduce colors
+* BUG-1896: Greenshot doesn't support the new Jira API, SOAP is deprecated.
 * BUG-1898: Specify GPLv3 in the license text
 * BUG-1910: Error occurs after adding 10+ text boxes with arrows
 * BUG-1918: Speechbubble issue: Artifacts appeared when shadow is on and transparency is used

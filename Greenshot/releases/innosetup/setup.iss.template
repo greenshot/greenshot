@@ -348,7 +348,7 @@ Name: "custom"; Description: "{code:CustomInstall}"; Flags: iscustom
 Name: "greenshot"; Description: "Greenshot"; Types: default full compact custom; Flags: fixed
 Name: "plugins\office"; Description: {cm:office}; Types: default full custom; Flags: disablenouninstallwarning 
 Name: "plugins\ocr"; Description: {cm:ocr}; Types: default full custom; Flags: disablenouninstallwarning 
-Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disablenouninstallwarning 
+Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disablenouninstallwarning Check: hasDotNet45OrHigher()
 Name: "plugins\imgur"; Description: {cm:imgur}; Types: default full custom; Flags: disablenouninstallwarning 
 Name: "plugins\confluence"; Description: {cm:confluence}; Types: full custom; Flags: disablenouninstallwarning; Check: hasDotNet35FullOrHigher()
 Name: "plugins\externalcommand"; Description: {cm:externalcommand}; Types: default full custom; Flags: disablenouninstallwarning 
@@ -580,6 +580,11 @@ end;
 function hasDotNet35FullOrHigher() : boolean;
 begin
 	Result := netfxinstalled(NetFX35, '') or netfxinstalled(NetFX40Full, '');
+end;
+
+function hasDotNet45OrHigher() : boolean;
+begin
+	Result := netfxinstalled(NetFX4x, '');
 end;
 
 function getNGENPath(argument: String) : String;

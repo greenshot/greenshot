@@ -67,7 +67,7 @@ namespace GreenshotJiraPlugin.Forms {
 			this.jiraFilterBox.Name = "jiraFilterBox";
 			this.jiraFilterBox.Size = new System.Drawing.Size(604, 21);
 			this.jiraFilterBox.TabIndex = 5;
-			this.jiraFilterBox.SelectedIndexChanged += new System.EventHandler(this.jiraFilterBox_SelectedIndexChanged);
+			this.jiraFilterBox.SelectedIndexChanged += new System.EventHandler(this.JiraFilterBox_SelectedIndexChanged);
 			// 
 			// label_jirafilter
 			// 
@@ -112,8 +112,8 @@ namespace GreenshotJiraPlugin.Forms {
 			this.jiraListView.TabIndex = 4;
 			this.jiraListView.UseCompatibleStateImageBehavior = false;
 			this.jiraListView.View = System.Windows.Forms.View.Details;
-			this.jiraListView.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.jiraListView_ColumnClick);
-			this.jiraListView.SelectedIndexChanged += new System.EventHandler(this.jiraListView_SelectedIndexChanged);
+			this.jiraListView.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.JiraListView_ColumnClick);
+			this.jiraListView.SelectedIndexChanged += new System.EventHandler(this.JiraListView_SelectedIndexChanged);
 			// 
 			// jiraFilenameBox
 			// 
