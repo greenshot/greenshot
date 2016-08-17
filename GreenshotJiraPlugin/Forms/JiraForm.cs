@@ -141,7 +141,7 @@ namespace GreenshotJiraPlugin.Forms {
 				IList<Issue> issues = null;
 				try
 				{
-					var searchResult = await _jiraConnector.SearchAsync(filter.Jql, fields: new [] { "summary,reporter,assignee,created"});
+					var searchResult = await _jiraConnector.SearchAsync(filter.Jql, fields: new [] { "summary", "reporter", "assignee", "created" });
 					issues = searchResult.Issues;
 				}
 				catch (Exception ex)
