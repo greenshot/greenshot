@@ -26,11 +26,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
-using System.Windows.Media.Imaging;
 using Windows.Storage.Streams;
 using Dapplo.Log.Facade;
 using Greenshot.Addon.Core;
-using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
@@ -149,6 +147,6 @@ namespace Greenshot.Addon.WindowsShare
 				Log.Warn().WriteLine(e, "Share export failed");
 			}
 			return returnValue;
-        }
+		}
 	}
 }

@@ -146,7 +146,7 @@ namespace Greenshot.Helpers
 			var rssFiles = new Dictionary<string, IDictionary<string, SourceforgeFile>>();
 
 
-			var feed = await Rssfeed.GetAsAsync<SyndicationFeed>(token: token).ConfigureAwait(false);
+			var feed = await Rssfeed.GetAsAsync<SyndicationFeed>(token).ConfigureAwait(false);
 
 			if (feed == null)
 			{
