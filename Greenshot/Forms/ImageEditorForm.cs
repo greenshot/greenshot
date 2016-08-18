@@ -839,13 +839,13 @@ namespace Greenshot {
 						RedoToolStripMenuItemClick(sender, e);
 						break;
 					case Keys.Q:	// Dropshadow Ctrl + Q
-						AddDropshadowToolStripMenuItemClick(sender, e);
+						AddDropshadowToolStripMenuItemMouseUp(sender, new MouseEventArgs(MouseButtons.Left, 0, 0, 0, 0));
 						break;
 					case Keys.B:	// Border Ctrl + B
 						AddBorderToolStripMenuItemClick(sender, e);
 						break;
 					case Keys.T:	// Torn edge Ctrl + T
-						TornEdgesToolStripMenuItemClick(sender, e);
+						TornEdgesToolStripMenuItemMouseUp(sender, new MouseEventArgs(MouseButtons.Left, 0, 0, 0, 0));
 						break;
 					case Keys.I:	// Invert Ctrl + I
 						InvertToolStripMenuItemClick(sender, e);
@@ -1345,16 +1345,31 @@ namespace Greenshot {
 		/// This is used when the dropshadow button is used
 		/// </summary>
 		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void AddDropshadowToolStripMenuItemClick(object sender, EventArgs e) {
-			DropShadowEffect dropShadowEffect = EditorConfiguration.DropShadowEffectSettings;
-			// TODO: Use the dropshadow settings form to make it possible to change the default values
-			DialogResult result = new DropShadowSettingsForm(dropShadowEffect).ShowDialog(this);
-			if (result == DialogResult.OK) {
+		/// <param name="e">MouseEventArgs</param>
+		private void AddDropshadowToolStripMenuItemMouseUp(object sender, MouseEventArgs e)
+		{
+			var dropShadowEffect = EditorConfiguration.DropShadowEffectSettings;
+			bool apply;
+			switch (e.Button)
+			{
+				case MouseButtons.Left:
+					apply = true;
+					break;
+				case MouseButtons.Right:
+					var result = new DropShadowSettingsForm(dropShadowEffect).ShowDialog(this);
+					apply = result == DialogResult.OK;
+					break;
+				default:
+					return;
+			}
+		
+			if (apply)
+			{
 				_surface.ApplyBitmapEffect(dropShadowEffect);
 				UpdateUndoRedoSurfaceDependencies();
 			}
 		}
+
 
 		/// <summary>
 		/// Open the resize settings from, and resize if ok was pressed
@@ -1362,9 +1377,8 @@ namespace Greenshot {
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		private void BtnResizeClick(object sender, EventArgs e) {
-			ResizeEffect resizeEffect = new ResizeEffect(_surface.Image.Width, _surface.Image.Height, true);
-			// TODO: Use the Resize SettingsForm to make it possible to change the default values
-			DialogResult result = new ResizeSettingsForm(resizeEffect).ShowDialog(this);
+			var resizeEffect = new ResizeEffect(_surface.Image.Width, _surface.Image.Height, true);
+			var result = new ResizeSettingsForm(resizeEffect).ShowDialog(this);
 			if (result == DialogResult.OK) {
 				_surface.ApplyBitmapEffect(resizeEffect);
 				UpdateUndoRedoSurfaceDependencies();
@@ -1372,15 +1386,29 @@ namespace Greenshot {
 		}
 
 		/// <summary>
-		/// Call the torn edge effect
+		/// This is used when the torn-edge button is used
 		/// </summary>
 		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void TornEdgesToolStripMenuItemClick(object sender, EventArgs e) {
-			TornEdgeEffect tornEdgeEffect = EditorConfiguration.TornEdgeEffectSettings;
-			// TODO: Use the dropshadow settings form to make it possible to change the default values
-			DialogResult result = new TornEdgeSettingsForm(tornEdgeEffect).ShowDialog(this);
-			if (result == DialogResult.OK) {
+		/// <param name="e">MouseEventArgs</param>
+		private void TornEdgesToolStripMenuItemMouseUp(object sender, MouseEventArgs e)
+		{
+			var tornEdgeEffect = EditorConfiguration.TornEdgeEffectSettings;
+			bool apply;
+			switch (e.Button)
+			{
+				case MouseButtons.Left:
+					apply = true;
+					break;
+				case MouseButtons.Right:
+					var result = new TornEdgeSettingsForm(tornEdgeEffect).ShowDialog(this);
+					apply = result == DialogResult.OK;
+					break;
+				default:
+					return;
+			}
+
+			if (apply)
+			{
 				_surface.ApplyBitmapEffect(tornEdgeEffect);
 				UpdateUndoRedoSurfaceDependencies();
 			}

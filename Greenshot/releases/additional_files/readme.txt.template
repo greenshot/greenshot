@@ -10,6 +10,7 @@ All details to our tickets can be found here: https://greenshot.atlassian.net
 @DETAILVERSION@
 
 Fixed:
+* BUG-1762: Dropshadow & tornedge prompts for settings every time (now left mouse applies, right shows settings)
 * BUG-1812: Opening the editor after removing a monitor shows it outside the visible screen.
 * BUG-1876: Already running message, multi user environment
 * BUG-1884: OCR has trailing blank spaces
