@@ -118,13 +118,9 @@ namespace GreenshotJiraPlugin.Forms {
 
 		public async Task UploadAsync(IBinaryContainer attachment) {
 			_config.LastUsedJira = _selectedIssue.Key;
-			using (var memoryStream = new MemoryStream())
-			{
-				attachment.WriteToStream(memoryStream);
-				memoryStream.Seek(0, SeekOrigin.Begin);
-				await _jiraConnector.AttachAsync(_selectedIssue.Key, memoryStream, jiraFilenameBox.Text, attachment.ContentType);
-			}
-
+			attachment.Filename = jiraFilenameBox.Text;
+			await _jiraConnector.AttachAsync(_selectedIssue.Key, attachment);
+			
 			if (!string.IsNullOrEmpty(jiraCommentBox.Text)) {
 				await _jiraConnector.AddCommentAsync(_selectedIssue.Key, jiraCommentBox.Text);
 			}
@@ -141,8 +137,7 @@ namespace GreenshotJiraPlugin.Forms {
 				IList<Issue> issues = null;
 				try
 				{
-					var searchResult = await _jiraConnector.SearchAsync(filter.Jql, fields: new [] { "summary", "reporter", "assignee", "created" });
-					issues = searchResult.Issues;
+					issues = await _jiraConnector.SearchAsync(filter);
 				}
 				catch (Exception ex)
 				{

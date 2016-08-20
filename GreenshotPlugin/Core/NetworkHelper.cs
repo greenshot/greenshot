@@ -557,6 +557,7 @@ namespace GreenshotPlugin.Core {
 		void Upload(HttpWebRequest webRequest);
 
 		string ContentType { get; }
+		string Filename { get; set; }
 	}
 
 	/// <summary>
@@ -564,7 +565,6 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public class ByteContainer : IBinaryContainer {
 		private readonly byte[] _file;
-		private readonly string _fileName;
 		private readonly string _contentType;
 		private readonly int _fileSize;
 		public ByteContainer(byte[] file) : this(file, null) {
@@ -575,7 +575,7 @@ namespace GreenshotPlugin.Core {
 		}
 		public ByteContainer(byte[] file, string filename, string contenttype, int filesize) {
 			_file = file;
-			_fileName = filename;
+			Filename = filename;
 			_contentType = contenttype;
 			_fileSize = filesize == 0 ? file.Length : filesize;
 		}
@@ -607,7 +607,7 @@ namespace GreenshotPlugin.Core {
 			string header = string.Format("--{0}\r\nContent-Disposition: form-data; name=\"{1}\"; filename=\"{2}\";\r\nContent-Type: {3}\r\n\r\n",
 				boundary,
 				name,
-				_fileName ?? name,
+				Filename ?? name,
 				_contentType ?? "application/octet-stream");
 
 			formDataStream.Write(Encoding.UTF8.GetBytes(header), 0, Encoding.UTF8.GetByteCount(header));
@@ -638,6 +638,7 @@ namespace GreenshotPlugin.Core {
 		}
 
 		public string ContentType => _contentType;
+		public string Filename { get; set; }
 	}
 
 	/// <summary>
@@ -646,12 +647,11 @@ namespace GreenshotPlugin.Core {
 	public class BitmapContainer : IBinaryContainer {
 		private readonly Bitmap _bitmap;
 		private readonly SurfaceOutputSettings _outputSettings;
-		private readonly string _fileName;
 
 		public BitmapContainer(Bitmap bitmap, SurfaceOutputSettings outputSettings, string filename) {
 			_bitmap = bitmap;
 			_outputSettings = outputSettings;
-			_fileName = filename;
+			Filename = filename;
 		}
 
 		/// <summary>
@@ -689,7 +689,7 @@ namespace GreenshotPlugin.Core {
 			string header = string.Format("--{0}\r\nContent-Disposition: form-data; name=\"{1}\"; filename=\"{2}\";\r\nContent-Type: {3}\r\n\r\n",
 				boundary,
 				name,
-				_fileName ?? name,
+				Filename ?? name,
 				ContentType);
 
 			formDataStream.Write(Encoding.UTF8.GetBytes(header), 0, Encoding.UTF8.GetByteCount(header));
@@ -717,6 +717,8 @@ namespace GreenshotPlugin.Core {
 		}
 
 		public string ContentType => "image/" + _outputSettings.Format;
+
+		public string Filename { get; set; }
 	}
 
 	/// <summary>
@@ -725,12 +727,11 @@ namespace GreenshotPlugin.Core {
 	public class SurfaceContainer : IBinaryContainer {
 		private readonly ISurface _surface;
 		private readonly SurfaceOutputSettings _outputSettings;
-		private readonly string _fileName;
 
 		public SurfaceContainer(ISurface surface, SurfaceOutputSettings outputSettings, string filename) {
 			_surface = surface;
 			_outputSettings = outputSettings;
-			_fileName = filename;
+			Filename = filename;
 		}
 
 		/// <summary>
@@ -768,7 +769,7 @@ namespace GreenshotPlugin.Core {
 			string header = string.Format("--{0}\r\nContent-Disposition: form-data; name=\"{1}\"; filename=\"{2}\";\r\nContent-Type: {3}\r\n\r\n",
 				boundary,
 				name,
-				_fileName ?? name,
+				Filename ?? name,
 				ContentType);
 
 			formDataStream.Write(Encoding.UTF8.GetBytes(header), 0, Encoding.UTF8.GetByteCount(header));
@@ -796,5 +797,6 @@ namespace GreenshotPlugin.Core {
 		}
 
 		public string ContentType => "image/" + _outputSettings.Format;
+		public string Filename { get; set; }
 	}
 }

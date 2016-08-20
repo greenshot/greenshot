@@ -41,30 +41,27 @@ namespace GreenshotJiraPlugin {
 		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraDestination));
 		private static readonly JiraConfiguration Config = IniConfig.GetIniSection<JiraConfiguration>();
 		private readonly JiraPlugin _jiraPlugin;
-		private readonly Issue _jira;
+		private readonly Issue _jiraIssue;
 		
 		public JiraDestination(JiraPlugin jiraPlugin) {
 			_jiraPlugin = jiraPlugin;
 		}
 
-		public JiraDestination(JiraPlugin jiraPlugin, Issue jira) {
+		public JiraDestination(JiraPlugin jiraPlugin, Issue jiraIssue) {
 			_jiraPlugin = jiraPlugin;
-			_jira = jira;
+			_jiraIssue = jiraIssue;
 		}
 
 		public override string Designation => "Jira";
 
-		private string FormatUpload(Issue jira) {
-			return Designation + " - " + jira.Key + ": " + jira.Fields.Summary.Substring(0, Math.Min(20, jira.Fields.Summary.Length));
-		}
-
 		public override string Description {
 			get
 			{
-				if (_jira == null) {
+				if (_jiraIssue?.Fields?.Summary == null) {
 					return Language.GetString("jira", LangKey.upload_menu_item);
 				}
-				return FormatUpload(_jira);
+				// Format the title of this destination
+				return Designation + " - " + _jiraIssue.Key + ": " + _jiraIssue.Fields.Summary.Substring(0, Math.Min(20, _jiraIssue.Fields.Summary.Length));
 			}
 		}
 		
@@ -73,9 +70,19 @@ namespace GreenshotJiraPlugin {
 		public override bool isDynamic => true;
 
 		public override Image DisplayIcon {
-			get {
-				var resources = new ComponentResourceManager(typeof(JiraPlugin));
-				return (Image)resources.GetObject("Jira");
+			get
+			{
+				Image displayIcon = null;
+				if (_jiraIssue != null && JiraPlugin.Instance.CurrentJiraConnector != null)
+				{
+					displayIcon = JiraPlugin.Instance.CurrentJiraConnector.GetIssueTypeBitmapAsync(_jiraIssue).Result;
+				}
+				if (displayIcon == null)
+				{
+					var resources = new ComponentResourceManager(typeof(JiraPlugin));
+					displayIcon = (Image)resources.GetObject("Jira");
+				}
+				return displayIcon;
 			}
 		}
 
@@ -95,23 +102,18 @@ namespace GreenshotJiraPlugin {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			string filename = Path.GetFileName(FilenameHelper.GetFilename(Config.UploadFormat, captureDetails));
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(Config.UploadFormat, Config.UploadJpegQuality, Config.UploadReduceColors);
-			if (_jira != null) {
+			if (_jiraIssue != null) {
 				try {
 					// Run upload in the background
 					new PleaseWaitForm().ShowAndWait(Description, Language.GetString("jira", LangKey.communication_wait),
 						async () =>
 						{
 							var surfaceContainer = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
-							using (var memoryStream = new MemoryStream())
-							{
-								surfaceContainer.WriteToStream(memoryStream);
-								memoryStream.Seek(0, SeekOrigin.Begin);
-								await _jiraPlugin.JiraConnector.AttachAsync(_jira.Key, memoryStream, filename, surfaceContainer.ContentType);
-							}
-							surfaceToUpload.UploadURL = _jiraPlugin.JiraConnector.JiraBaseUri.AppendSegments("browse", _jira.Key).AbsoluteUri;
+							await _jiraPlugin.JiraConnector.AttachAsync(_jiraIssue.Key, surfaceContainer);
+							surfaceToUpload.UploadURL = _jiraPlugin.JiraConnector.JiraBaseUri.AppendSegments("browse", _jiraIssue.Key).AbsoluteUri;
 						}
 					);
-					Log.DebugFormat("Uploaded to Jira {0}", _jira.Key);
+					Log.DebugFormat("Uploaded to Jira {0}", _jiraIssue.Key);
 					exportInformation.ExportMade = true;
 					exportInformation.Uri = surfaceToUpload.UploadURL;
 				} catch (Exception e) {
