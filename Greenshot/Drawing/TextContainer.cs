@@ -205,6 +205,10 @@ namespace Greenshot.Drawing
 
 		void TextContainer_FieldChanged(object sender, FieldChangedEventArgs e)
 		{
+			if (_textBox == null)
+			{
+				return;
+			}
 			if (_textBox.Visible)
 			{
 				_textBox.Invalidate();
@@ -225,7 +229,7 @@ namespace Greenshot.Drawing
 			}
 			UpdateTextBoxFormat();
 
-			if (_textBox != null && _textBox.Visible)
+			if (_textBox.Visible)
 			{
 				_textBox.Invalidate();
 			}
@@ -360,6 +364,10 @@ namespace Greenshot.Drawing
 		/// </summary>
 		protected void UpdateFormat()
 		{
+			if (_textBox == null)
+			{
+				return;
+			}
 			string fontFamily = GetFieldValueAsString(FieldType.FONT_FAMILY);
 			bool fontBold = GetFieldValueAsBool(FieldType.FONT_BOLD);
 			bool fontItalic = GetFieldValueAsBool(FieldType.FONT_ITALIC);
@@ -441,7 +449,7 @@ namespace Greenshot.Drawing
 			{
 				return;
 			}
-			StringAlignment alignment = (StringAlignment)GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
+			var alignment = (StringAlignment)GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
 			switch (alignment)
 			{
 				case StringAlignment.Near:
@@ -455,7 +463,7 @@ namespace Greenshot.Drawing
 					break;
 			}
 
-			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
+			var lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
 			_textBox.ForeColor = lineColor;
 		}
 
