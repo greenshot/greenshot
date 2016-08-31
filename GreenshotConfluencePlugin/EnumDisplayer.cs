@@ -66,10 +66,11 @@ namespace GreenshotConfluencePlugin {
 					string displayKey = GetDisplayKeyValue(a);
 					object enumValue = field.GetValue(null);
 					
-					string displayString = null;
+					string displayString;
 					if (displayKey != null && Language.hasKey(displayKey)) {
 						displayString = Language.GetString(displayKey);
-					} if (displayKey != null) {
+					}
+					if (displayKey != null) {
 						displayString = displayKey;
 					} else {
 						displayString = enumValue.ToString();

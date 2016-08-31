@@ -62,7 +62,7 @@ namespace GreenshotPlugin.Core {
 		private readonly IAccessible accessible;
 		private Accessible[] Children {
 			get {
-				int num = 0;
+				int num;
 				object[] res = GetAccessibleChildren(accessible, out num);
 				if (res == null) {
 					return new Accessible[0];

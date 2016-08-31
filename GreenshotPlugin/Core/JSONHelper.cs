@@ -62,9 +62,8 @@ namespace GreenshotPlugin.Core {
 				int index = 0;
 				IDictionary<string, object> value = ParseValue(charArray, ref index, ref success) as IDictionary<string, object>;
 				return value;
-			} else {
-				return null;
 			}
+			return null;
 		}
 
 		protected static IDictionary<string, object> ParseObject(char[] json, ref int index, ref bool success) {

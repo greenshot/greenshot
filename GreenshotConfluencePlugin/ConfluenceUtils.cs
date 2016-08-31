@@ -37,7 +37,7 @@ namespace GreenshotConfluencePlugin {
 			Regex pageIdRegex = new Regex(@"pageId=(\d+)");
 			Regex spacePageRegex = new Regex(@"\/display\/([^\/]+)\/([^#]+)");
 			foreach(string browserurl in GetBrowserUrls()) {
-				string url = null;
+				string url;
 				try {
 					url = Uri.UnescapeDataString(browserurl).Replace("+", " ");
 				} catch {

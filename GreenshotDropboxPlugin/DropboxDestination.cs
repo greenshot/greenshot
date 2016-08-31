@@ -54,13 +54,13 @@ namespace GreenshotDropboxPlugin {
 		
 		public override ExportInformation ExportCapture(bool manually, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
-			string uploadURL = null;
-			bool uploaded = plugin.Upload(captureDetails, surface, out uploadURL);
+			string uploadUrl;
+			bool uploaded = plugin.Upload(captureDetails, surface, out uploadUrl);
 			if (uploaded) {
-				exportInformation.Uri = uploadURL;
+				exportInformation.Uri = uploadUrl;
 				exportInformation.ExportMade = true;
 				if (config.AfterUploadLinkToClipBoard) {
-					ClipboardHelper.SetClipboardData(uploadURL);
+					ClipboardHelper.SetClipboardData(uploadUrl);
 				}
 			}
 			ProcessExport(exportInformation, surface);

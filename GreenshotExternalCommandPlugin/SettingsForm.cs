@@ -71,7 +71,7 @@ namespace ExternalCommand {
 				listView1.SmallImageList = imageList;
 				int imageNr = 0;
 				foreach(string commando in config.Commands) {
-					ListViewItem item = null;
+					ListViewItem item;
 					Image iconForExe = IconCache.IconForCommand(commando);
 					if(iconForExe != null) {
 						imageList.Images.Add(iconForExe);
