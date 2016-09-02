@@ -37,7 +37,8 @@ namespace GreenshotJiraPlugin.Forms {
 		private readonly JiraConnector _jiraConnector;
 		private Issue _selectedIssue;
 		private readonly GreenshotColumnSorter _columnSorter;
-		private readonly JiraConfiguration _config = IniConfig.GetIniSection<JiraConfiguration>();
+		private static readonly JiraConfiguration JiraConfig = IniConfig.GetIniSection<JiraConfiguration>();
+		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 
 		public JiraForm(JiraConnector jiraConnector) {
 			InitializeComponent();
@@ -83,12 +84,12 @@ namespace GreenshotJiraPlugin.Forms {
 					jiraFilterBox.SelectedIndex = 0;
 				}
 				ChangeModus(true);
-				if (_config.LastUsedJira != null)
+				if (JiraConfig.LastUsedJira != null)
 				{
-					_selectedIssue = await _jiraConnector.GetIssueAsync(_config.LastUsedJira);
+					_selectedIssue = await _jiraConnector.GetIssueAsync(JiraConfig.LastUsedJira);
 					if (_selectedIssue != null)
 					{
-						jiraKey.Text = _config.LastUsedJira;
+						jiraKey.Text = JiraConfig.LastUsedJira;
 						uploadButton.Enabled = true;
 					}
 				}
@@ -117,7 +118,7 @@ namespace GreenshotJiraPlugin.Forms {
 		}
 
 		public async Task UploadAsync(IBinaryContainer attachment) {
-			_config.LastUsedJira = _selectedIssue.Key;
+			JiraConfig.LastUsedJira = _selectedIssue.Key;
 			attachment.Filename = jiraFilenameBox.Text;
 			await _jiraConnector.AttachAsync(_selectedIssue.Key, attachment);
 			
@@ -145,31 +146,50 @@ namespace GreenshotJiraPlugin.Forms {
 					MessageBox.Show(this, ex.Message, "Error in filter", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				}
 
-				jiraListView.BeginUpdate();
 				jiraListView.Items.Clear();
 				if (issues?.Count > 0) {
 					jiraListView.Columns.Clear();
-					LangKey[] columns = { LangKey.column_id, LangKey.column_created, LangKey.column_assignee, LangKey.column_reporter, LangKey.column_summary };
-					foreach (LangKey column in columns) {
-						jiraListView.Columns.Add(Language.GetString("jira", column));
-					}
-					foreach (var issue in issues) {
-						var item = new ListViewItem(issue.Key)
+					LangKey[] columns = { LangKey.column_issueType, LangKey.column_id, LangKey.column_created, LangKey.column_assignee, LangKey.column_reporter, LangKey.column_summary };
+					foreach (LangKey column in columns)
+					{
+						string translation;
+						if (!Language.TryGetString("jira", column, out translation))
 						{
-							Tag = issue
+							translation = "";
+						}
+						jiraListView.Columns.Add(translation);
+					}
+					var imageList = new ImageList {
+						ImageSize = CoreConfig.IconSize
+					};
+					jiraListView.SmallImageList = imageList;
+					jiraListView.LargeImageList = imageList;
+
+					foreach (var issue in issues) {
+						var issueIcon = await _jiraConnector.GetIssueTypeBitmapAsync(issue);
+						imageList.Images.Add(issueIcon);
+
+						var item = new ListViewItem
+						{
+							Tag = issue,
+							ImageIndex = imageList.Images.Count - 1
 						};
+						item.SubItems.Add(issue.Key);
 						item.SubItems.Add(issue.Fields.Created.ToString("d", DateTimeFormatInfo.InvariantInfo));
 						item.SubItems.Add(issue.Fields.Assignee?.DisplayName);
 						item.SubItems.Add(issue.Fields.Reporter?.DisplayName);
 						item.SubItems.Add(issue.Fields.Summary);
 						jiraListView.Items.Add(item);
+						for (int i = 0; i < columns.Length; i++)
+						{
+							jiraListView.AutoResizeColumn(i, ColumnHeaderAutoResizeStyle.ColumnContent);
+						}
+						jiraListView.Invalidate();
+						jiraListView.Update();
 					}
-					for (int i = 0; i < columns.Length; i++) {
-						jiraListView.AutoResizeColumn(i, ColumnHeaderAutoResizeStyle.ColumnContent);
-					}
+
+					jiraListView.Refresh();
 				}
-				jiraListView.EndUpdate();
-				jiraListView.Refresh();
 			}
 		}
 

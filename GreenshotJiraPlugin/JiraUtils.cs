@@ -66,6 +66,11 @@ namespace GreenshotJiraPlugin {
 					catch (Exception ex)
 					{
 						Log.Error(ex);
+						// Remove issue from the last used jira config, as it caused an issue (probably not there)
+						if (Config.LastUsedJira == jiraKey)
+						{
+							Config.LastUsedJira = null;
+						}
 					}
 				}
 				if (jiraIssues.Count > 0) {

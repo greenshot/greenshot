@@ -532,6 +532,19 @@ namespace GreenshotPlugin.Core {
 			return resources.TryGetValue(prefix + "." + key, out languageString);
 		}
 
+		/// <summary>
+		/// TryGet method which combines hasKey & GetString
+		/// </summary>
+		/// <param name="prefix">string with prefix</param>
+		/// <param name="key">Enum with key</param>
+		/// <param name="languageString">out string</param>
+		/// <returns></returns>
+		public static bool TryGetString(string prefix, Enum key, out string languageString)
+		{
+			return resources.TryGetValue(prefix + "." + key, out languageString);
+		}
+
+
 		public static string Translate(object key) {
 			string typename = key.GetType().Name;
 			string enumKey = typename + "." + key;

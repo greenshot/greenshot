@@ -31,7 +31,7 @@ namespace GreenshotJiraPlugin
 	/// <summary>
 	/// This is the bach for the IssueType bitmaps
 	/// </summary>
-	public class IssueTypeBitmapCache : AsyncMemoryCache<Issue, Bitmap>
+	public class IssueTypeBitmapCache : AsyncMemoryCache<IssueType, Bitmap>
 	{
 		private readonly JiraApi _jiraApi;
 
@@ -42,9 +42,14 @@ namespace GreenshotJiraPlugin
 			ExpireTimeSpan = TimeSpan.FromHours(1);
 		}
 
-		protected override async Task<Bitmap> CreateAsync(Issue issue, CancellationToken cancellationToken = new CancellationToken())
+		protected override string CreateKey(IssueType keyObject)
 		{
-			return await _jiraApi.GetUriContentAsync<Bitmap>(issue.Fields.IssueType.IconUri, cancellationToken).ConfigureAwait(false);
+			return keyObject.Name;
+		}
+
+		protected override async Task<Bitmap> CreateAsync(IssueType issueType, CancellationToken cancellationToken = new CancellationToken())
+		{
+			return await _jiraApi.GetUriContentAsync<Bitmap>(issueType.IconUri, cancellationToken).ConfigureAwait(false);
 		}
 	}
 }

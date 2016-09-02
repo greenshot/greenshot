@@ -24,9 +24,11 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.HttpExtensions;
 using Dapplo.Jira;
 using Dapplo.Jira.Entities;
 using Greenshot.IniFile;
@@ -38,7 +40,8 @@ namespace GreenshotJiraPlugin {
 	/// </summary>
 	public class JiraConnector : IDisposable {
 		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraConnector));
-		private static readonly JiraConfiguration Config = IniConfig.GetIniSection<JiraConfiguration>();
+		private static readonly JiraConfiguration JiraConfig = IniConfig.GetIniSection<JiraConfiguration>();
+		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 		// Used to remove the wsdl information from the old SOAP Uri
 		public const string DefaultPostfix = "/rpc/soap/jirasoapservice-v2?wsdl";
 		private DateTimeOffset _loggedInTime = DateTimeOffset.MinValue;
@@ -48,6 +51,26 @@ namespace GreenshotJiraPlugin {
 		private string _url;
 		private JiraApi _jiraApi;
 		private IssueTypeBitmapCache _issueTypeBitmapCache;
+		private static readonly SvgBitmapHttpContentConverter SvgBitmapHttpContentConverterInstance = new SvgBitmapHttpContentConverter();
+
+		static JiraConnector()
+		{
+			if (HttpExtensionsGlobals.HttpContentConverters.All(x => x.GetType() != typeof(SvgBitmapHttpContentConverter)))
+			{
+				HttpExtensionsGlobals.HttpContentConverters.Add(SvgBitmapHttpContentConverterInstance);
+			}
+			SvgBitmapHttpContentConverterInstance.Width = CoreConfig.IconSize.Width;
+			SvgBitmapHttpContentConverterInstance.Height = CoreConfig.IconSize.Height;
+			CoreConfig.PropertyChanged += (sender, args) =>
+			{
+				if (args.PropertyName == nameof(CoreConfig.IconSize))
+				{
+					SvgBitmapHttpContentConverterInstance.Width = CoreConfig.IconSize.Width;
+					SvgBitmapHttpContentConverterInstance.Height = CoreConfig.IconSize.Height;
+				}
+			};
+
+		}
 
 		public void Dispose() {
 			if (_jiraApi != null)
@@ -56,9 +79,10 @@ namespace GreenshotJiraPlugin {
 			}
 		}
 
-		public JiraConnector() {
-			_url = Config.Url.Replace(DefaultPostfix, "");
-			_timeout = Config.Timeout;
+		public JiraConnector()
+		{
+			_url = JiraConfig.Url.Replace(DefaultPostfix, "");
+			_timeout = JiraConfig.Timeout;
 		}
 
 		/// <summary>
@@ -86,7 +110,7 @@ namespace GreenshotJiraPlugin {
 			{
 				loginInfo = await _jiraApi.StartSessionAsync(user, password);
 				// Worked, store the url in the configuration
-				Config.Url = _url;
+				JiraConfig.Url = _url;
 				IniConfig.Save();
 			}
 			catch (Exception)
@@ -177,7 +201,14 @@ namespace GreenshotJiraPlugin {
 		public async Task<Issue> GetIssueAsync(string issueKey)
 		{
 			await CheckCredentials();
-			return await _jiraApi.GetIssueAsync(issueKey).ConfigureAwait(false);
+			try
+			{
+				return await _jiraApi.GetIssueAsync(issueKey).ConfigureAwait(false);
+			}
+			catch
+			{
+				return null;
+			}
 		}
 
 		/// <summary>
@@ -185,7 +216,6 @@ namespace GreenshotJiraPlugin {
 		/// </summary>
 		/// <param name="issueKey"></param>
 		/// <param name="content">IBinaryContainer</param>
-		/// <param name="filename"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
 		public async Task AttachAsync(string issueKey, IBinaryContainer content, CancellationToken cancellationToken = default(CancellationToken))
@@ -221,7 +251,7 @@ namespace GreenshotJiraPlugin {
 		public async Task<IList<Issue>> SearchAsync(Filter filter, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			await CheckCredentials();
-			var searchResult = await _jiraApi.SearchAsync(filter.Jql, 20, new[] { "summary", "reporter", "assignee", "created" }, cancellationToken).ConfigureAwait(false);
+			var searchResult = await _jiraApi.SearchAsync(filter.Jql, 20, new[] { "summary", "reporter", "assignee", "created", "issuetype" }, cancellationToken).ConfigureAwait(false);
 			return searchResult.Issues;
 		}
 
@@ -233,7 +263,7 @@ namespace GreenshotJiraPlugin {
 		/// <returns>Bitmap</returns>
 		public async Task<Bitmap> GetIssueTypeBitmapAsync(Issue issue, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return await _issueTypeBitmapCache.GetOrCreateAsync(issue, cancellationToken).ConfigureAwait(false);
+			return await _issueTypeBitmapCache.GetOrCreateAsync(issue.Fields.IssueType, cancellationToken).ConfigureAwait(false);
 		}
 
 		public Uri JiraBaseUri => _jiraApi.JiraBaseUri;
