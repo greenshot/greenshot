@@ -24,7 +24,6 @@ using Greenshot.IniFile;
 using Greenshot.Plugin;
 using System;
 using System.Threading.Tasks;
-using Dapplo.HttpExtensions.ContentConverter;
 using Dapplo.Log.Facade;
 using GreenshotJiraPlugin.Forms;
 
