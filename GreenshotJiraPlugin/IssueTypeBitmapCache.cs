@@ -39,7 +39,7 @@ namespace GreenshotJiraPlugin
 		{
 			_jiraApi = jiraApi;
 			// Set the expire timeout to an hour
-			ExpireTimeSpan = TimeSpan.FromHours(1);
+			ExpireTimeSpan = TimeSpan.FromHours(4);
 		}
 
 		protected override string CreateKey(IssueType keyObject)

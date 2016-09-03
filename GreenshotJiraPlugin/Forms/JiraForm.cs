@@ -27,9 +27,8 @@ using Greenshot.IniFile;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using System.Collections.Generic;
-using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
-using Dapplo.Jira;
 
 namespace GreenshotJiraPlugin.Forms {
 	public partial class JiraForm : Form {
@@ -84,14 +83,11 @@ namespace GreenshotJiraPlugin.Forms {
 					jiraFilterBox.SelectedIndex = 0;
 				}
 				ChangeModus(true);
-				if (JiraConfig.LastUsedJira != null)
+				if (_jiraConnector.Monitor.RecentJiras.Any())
 				{
-					_selectedIssue = await _jiraConnector.GetIssueAsync(JiraConfig.LastUsedJira);
-					if (_selectedIssue != null)
-					{
-						jiraKey.Text = JiraConfig.LastUsedJira;
-						uploadButton.Enabled = true;
-					}
+					_selectedIssue = _jiraConnector.Monitor.RecentJiras.First().JiraIssue;
+					jiraKey.Text = _selectedIssue.Key;
+					uploadButton.Enabled = true;
 				}
 			}
 		}
@@ -118,7 +114,6 @@ namespace GreenshotJiraPlugin.Forms {
 		}
 
 		public async Task UploadAsync(IBinaryContainer attachment) {
-			JiraConfig.LastUsedJira = _selectedIssue.Key;
 			attachment.Filename = jiraFilenameBox.Text;
 			await _jiraConnector.AttachAsync(_selectedIssue.Key, attachment);
 			

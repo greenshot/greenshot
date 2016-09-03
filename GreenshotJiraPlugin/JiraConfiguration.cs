@@ -37,13 +37,12 @@ namespace GreenshotJiraPlugin {
 		[IniProperty("Timeout", Description="Session timeout in minutes", DefaultValue="30")]
 		public int Timeout { get; set; }
 
-		[IniProperty("LastUsedJira", Description="Last used Jira")]
-		public string LastUsedJira { get; set; }
-
 		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
 		public OutputFormat UploadFormat { get; set; }
+
 		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
 		public int UploadJpegQuality { get; set; }
+
 		[IniProperty("UploadReduceColors", Description="Reduce color amount of the uploaded image to 256", DefaultValue="False")]
 		public bool UploadReduceColors { get; set; }
 	}

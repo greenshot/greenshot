@@ -196,7 +196,7 @@ namespace GreenshotJiraPlugin
 					return;
 				}
 				// We detected an unknown JIRA, so add it to our list
-				currentJiraDetails = new JiraDetails()
+				currentJiraDetails = new JiraDetails
 				{
 					Id = jiraId,
 					ProjectKey = projectKey
