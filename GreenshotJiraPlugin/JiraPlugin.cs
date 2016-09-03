@@ -33,9 +33,9 @@ namespace GreenshotJiraPlugin {
 	/// </summary>
 	public class JiraPlugin : IGreenshotPlugin {
 		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraPlugin));
-		private JiraConnector _jiraConnector;
 		private JiraConfiguration _config;
 		private static JiraPlugin _instance;
+		private JiraConnector _jiraConnector;
 
 		public void Dispose() {
 			Dispose(true);
@@ -44,9 +44,9 @@ namespace GreenshotJiraPlugin {
 
 		protected void Dispose(bool disposing) {
 			if (disposing) {
-				if (_jiraConnector != null) {
-					_jiraConnector.Dispose();
-					_jiraConnector = null;
+				if (JiraConnector != null) {
+					JiraConnector.Dispose();
+					JiraConnector = null;
 				}
 			}
 		}
@@ -66,9 +66,23 @@ namespace GreenshotJiraPlugin {
 		}
 
 		//Needed for a fail-fast
-		public JiraConnector CurrentJiraConnector => _jiraConnector;
+		public JiraConnector CurrentJiraConnector => JiraConnector;
 
-		public JiraConnector JiraConnector => _jiraConnector ?? (_jiraConnector = new JiraConnector());
+		public JiraConnector JiraConnector
+		{
+			get
+			{
+				lock (_instance)
+				{
+					if (_jiraConnector == null)
+					{
+						JiraConnector = new JiraConnector();
+					}
+				}
+				return _jiraConnector;
+			}
+			private set { _jiraConnector = value; }
+		}
 
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
@@ -80,14 +94,15 @@ namespace GreenshotJiraPlugin {
 			// Register configuration (don't need the configuration itself)
 			_config = IniConfig.GetIniSection<JiraConfiguration>();
 			LogSettings.RegisterDefaultLogger<Log4NetLogger>();
+
 			return true;
 		}
 
 		public void Shutdown() {
 			Log.Debug("Jira Plugin shutdown.");
-			if (_jiraConnector != null)
+			if (JiraConnector != null)
 			{
-				Task.Run(async () => await _jiraConnector.Logout());
+				Task.Run(async () => await JiraConnector.LogoutAsync());
 			}
 		}
 
@@ -98,12 +113,12 @@ namespace GreenshotJiraPlugin {
 			string url = _config.Url;
 			if (ShowConfigDialog()) {
 				// check for re-login
-				if (_jiraConnector != null && _jiraConnector.IsLoggedIn && !string.IsNullOrEmpty(url)) {
+				if (JiraConnector != null && JiraConnector.IsLoggedIn && !string.IsNullOrEmpty(url)) {
 					if (!url.Equals(_config.Url)) {
 						Task.Run(async () =>
 						{
-							await _jiraConnector.Logout();
-							await _jiraConnector.Login();
+							await JiraConnector.LogoutAsync();
+							await JiraConnector.LoginAsync();
 						});
 					}
 				}

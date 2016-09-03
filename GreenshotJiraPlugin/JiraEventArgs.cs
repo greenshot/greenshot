@@ -3,7 +3,7 @@
  * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ * The Greenshot project is hosted on GitHub: https://github.com/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,36 +20,21 @@
  */
 
 using System;
-using System.Drawing;
-using System.Threading;
-using System.Threading.Tasks;
-using Dapplo.Jira;
-using Dapplo.Jira.Entities;
 
 namespace GreenshotJiraPlugin
 {
-	/// <summary>
-	/// This is the bach for the IssueType bitmaps
-	/// </summary>
-	public class IssueTypeBitmapCache : AsyncMemoryCache<IssueType, Bitmap>
+	public class JiraEventArgs : EventArgs
 	{
-		private readonly JiraApi _jiraApi;
-
-		public IssueTypeBitmapCache(JiraApi jiraApi)
+		public JiraEventTypes EventType
 		{
-			_jiraApi = jiraApi;
-			// Set the expire timeout to an hour
-			ExpireTimeSpan = TimeSpan.FromHours(4);
+			get;
+			set;
 		}
 
-		protected override string CreateKey(IssueType keyObject)
+		public JiraDetails Details
 		{
-			return keyObject.Name;
-		}
-
-		protected override async Task<Bitmap> CreateAsync(IssueType issueType, CancellationToken cancellationToken = new CancellationToken())
-		{
-			return await _jiraApi.GetUriContentAsync<Bitmap>(issueType.IconUri, cancellationToken).ConfigureAwait(false);
+			get;
+			set;
 		}
 	}
 }

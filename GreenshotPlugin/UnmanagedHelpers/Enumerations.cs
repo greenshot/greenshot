@@ -112,7 +112,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		WS_EX_LAYOUTRTL    = 0x00400000, // Right to left mirroring
 		WS_EX_COMPOSITED       = 0x02000000,
 		WS_EX_NOACTIVATE       = 0x08000000
-    }
+	}
 
 	[Flags]
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -202,38 +202,38 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	public enum SYSCOLOR
 	{
-        SCROLLBAR = 0,
-        BACKGROUND = 1,
-        DESKTOP = 1,
-        ACTIVECAPTION = 2,
-        INACTIVECAPTION = 3,
-        MENU = 4,
-        WINDOW = 5,
-        WINDOWFRAME = 6,
-        MENUTEXT = 7,
-        WINDOWTEXT = 8,
-        CAPTIONTEXT = 9,
-        ACTIVEBORDER = 10,
-        INACTIVEBORDER = 11,
-        APPWORKSPACE = 12,
-        HIGHLIGHT = 13,
-        HIGHLIGHTTEXT = 14,
-        BTNFACE = 15,
-        THREEDFACE = 15,
-        BTNSHADOW = 16,
-        THREEDSHADOW = 16,
-        GRAYTEXT = 17,
-        BTNTEXT = 18,
-        INACTIVECAPTIONTEXT = 19,
-        BTNHIGHLIGHT = 20,
-        TREEDHIGHLIGHT = 20,
-        THREEDHILIGHT = 20,
-        BTNHILIGHT = 20,
-        THREEDDKSHADOW = 21,
-        THREEDLIGHT = 22,
-        INFOTEXT = 23,
-        INFOBK = 24
-    }
+		SCROLLBAR = 0,
+		BACKGROUND = 1,
+		DESKTOP = 1,
+		ACTIVECAPTION = 2,
+		INACTIVECAPTION = 3,
+		MENU = 4,
+		WINDOW = 5,
+		WINDOWFRAME = 6,
+		MENUTEXT = 7,
+		WINDOWTEXT = 8,
+		CAPTIONTEXT = 9,
+		ACTIVEBORDER = 10,
+		INACTIVEBORDER = 11,
+		APPWORKSPACE = 12,
+		HIGHLIGHT = 13,
+		HIGHLIGHTTEXT = 14,
+		BTNFACE = 15,
+		THREEDFACE = 15,
+		BTNSHADOW = 16,
+		THREEDSHADOW = 16,
+		GRAYTEXT = 17,
+		BTNTEXT = 18,
+		INACTIVECAPTIONTEXT = 19,
+		BTNHIGHLIGHT = 20,
+		TREEDHIGHLIGHT = 20,
+		THREEDHILIGHT = 20,
+		BTNHILIGHT = 20,
+		THREEDDKSHADOW = 21,
+		THREEDLIGHT = 22,
+		INFOTEXT = 23,
+		INFOBK = 24
+	}
 	/// <summary>
 	/// Flags used with the Windows API (User32.dll):GetSystemMetrics(SystemMetric smIndex)
 	///  
@@ -642,12 +642,12 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		DWMWA_FORCE_ICONIC_REPRESENTATION,
 		DWMWA_FLIP3D_POLICY,
 		DWMWA_EXTENDED_FRAME_BOUNDS, // This is the one we need for retrieving the Window size since Windows Vista
-        DWMWA_HAS_ICONIC_BITMAP,        // Since Windows 7
-        DWMWA_DISALLOW_PEEK,            // Since Windows 7
-        DWMWA_EXCLUDED_FROM_PEEK,       // Since Windows 7
-        DWMWA_CLOAK,                    // Since Windows 8
-        DWMWA_CLOAKED,                  // Since Windows 8
-        DWMWA_FREEZE_REPRESENTATION,    // Since Windows 8
+		DWMWA_HAS_ICONIC_BITMAP,        // Since Windows 7
+		DWMWA_DISALLOW_PEEK,            // Since Windows 7
+		DWMWA_EXCLUDED_FROM_PEEK,       // Since Windows 7
+		DWMWA_CLOAK,                    // Since Windows 8
+		DWMWA_CLOAKED,                  // Since Windows 8
+		DWMWA_FREEZE_REPRESENTATION,    // Since Windows 8
 		DWMWA_LAST
 	}
 
@@ -987,199 +987,199 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		Synchronize = 0x00100000
 	}
 
-    /// <summary>
-    /// See: http://msdn.microsoft.com/en-us/library/aa909766.aspx
-    /// </summary>
-    [Flags]
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public enum SoundFlags
-    {
-        SND_SYNC = 0x0000,			// play synchronously (default)
-        SND_ASYNC = 0x0001,			// play asynchronously
-        SND_NODEFAULT = 0x0002,		// silence (!default) if sound not found
-        SND_MEMORY = 0x0004,		// pszSound points to a memory file
-        SND_LOOP = 0x0008,			// loop the sound until next sndPlaySound
-        SND_NOSTOP = 0x0010,		// don't stop any currently playing sound
-        SND_NOWAIT = 0x00002000,	// don't wait if the driver is busy
-        SND_ALIAS = 0x00010000,		// name is a registry alias
-        SND_ALIAS_ID = 0x00110000,	// alias is a predefined id
-        SND_FILENAME = 0x00020000,	// name is file name
-    }
-    
+	/// <summary>
+	/// See: http://msdn.microsoft.com/en-us/library/aa909766.aspx
+	/// </summary>
+	[Flags]
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
+	public enum SoundFlags
+	{
+		SND_SYNC = 0x0000,			// play synchronously (default)
+		SND_ASYNC = 0x0001,			// play asynchronously
+		SND_NODEFAULT = 0x0002,		// silence (!default) if sound not found
+		SND_MEMORY = 0x0004,		// pszSound points to a memory file
+		SND_LOOP = 0x0008,			// loop the sound until next sndPlaySound
+		SND_NOSTOP = 0x0010,		// don't stop any currently playing sound
+		SND_NOWAIT = 0x00002000,	// don't wait if the driver is busy
+		SND_ALIAS = 0x00010000,		// name is a registry alias
+		SND_ALIAS_ID = 0x00110000,	// alias is a predefined id
+		SND_FILENAME = 0x00020000,	// name is file name
+	}
+	
 	/// <summary>
 	/// Used by GDI32.GetDeviceCaps
 	/// See: http://msdn.microsoft.com/en-us/library/windows/desktop/dd144877%28v=vs.85%29.aspx
 	/// </summary>
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	public enum DeviceCaps {
-        /// <summary>
-        /// Device driver version
-        /// </summary>
-        DRIVERVERSION = 0,
-        /// <summary>
-        /// Device classification
-        /// </summary>
-        TECHNOLOGY = 2,
-        /// <summary>
-        /// Horizontal size in millimeters
-        /// </summary>
-        HORZSIZE = 4,
-        /// <summary>
-        /// Vertical size in millimeters
-        /// </summary>
-        VERTSIZE = 6,
-        /// <summary>
-        /// Horizontal width in pixels
-        /// </summary>
-        HORZRES = 8,
-        /// <summary>
-        /// Vertical height in pixels
-        /// </summary>
-        VERTRES = 10,
-        /// <summary>
-        /// Number of bits per pixel
-        /// </summary>
-        BITSPIXEL = 12,
-        /// <summary>
-        /// Number of planes
-        /// </summary>
-        PLANES = 14,
-        /// <summary>
-        /// Number of brushes the device has
-        /// </summary>
-        NUMBRUSHES = 16,
-        /// <summary>
-        /// Number of pens the device has
-        /// </summary>
-        NUMPENS = 18,
-        /// <summary>
-        /// Number of markers the device has
-        /// </summary>
-        NUMMARKERS = 20,
-        /// <summary>
-        /// Number of fonts the device has
-        /// </summary>
-        NUMFONTS = 22,
-        /// <summary>
-        /// Number of colors the device supports
-        /// </summary>
-        NUMCOLORS = 24,
-        /// <summary>
-        /// Size required for device descriptor
-        /// </summary>
-        PDEVICESIZE = 26,
-        /// <summary>
-        /// Curve capabilities
-        /// </summary>
-        CURVECAPS = 28,
-        /// <summary>
-        /// Line capabilities
-        /// </summary>
-        LINECAPS = 30,
-        /// <summary>
-        /// Polygonal capabilities
-        /// </summary>
-        POLYGONALCAPS = 32,
-        /// <summary>
-        /// Text capabilities
-        /// </summary>
-        TEXTCAPS = 34,
-        /// <summary>
-        /// Clipping capabilities
-        /// </summary>
-        CLIPCAPS = 36,
-        /// <summary>
-        /// Bitblt capabilities
-        /// </summary>
-        RASTERCAPS = 38,
-        /// <summary>
-        /// Length of the X leg
-        /// </summary>
-        ASPECTX = 40,
-        /// <summary>
-        /// Length of the Y leg
-        /// </summary>
-        ASPECTY = 42,
-        /// <summary>
-        /// Length of the hypotenuse
-        /// </summary>
-        ASPECTXY = 44,
-        /// <summary>
-        /// Shading and Blending caps
-        /// </summary>
-        SHADEBLENDCAPS = 45,
+		/// <summary>
+		/// Device driver version
+		/// </summary>
+		DRIVERVERSION = 0,
+		/// <summary>
+		/// Device classification
+		/// </summary>
+		TECHNOLOGY = 2,
+		/// <summary>
+		/// Horizontal size in millimeters
+		/// </summary>
+		HORZSIZE = 4,
+		/// <summary>
+		/// Vertical size in millimeters
+		/// </summary>
+		VERTSIZE = 6,
+		/// <summary>
+		/// Horizontal width in pixels
+		/// </summary>
+		HORZRES = 8,
+		/// <summary>
+		/// Vertical height in pixels
+		/// </summary>
+		VERTRES = 10,
+		/// <summary>
+		/// Number of bits per pixel
+		/// </summary>
+		BITSPIXEL = 12,
+		/// <summary>
+		/// Number of planes
+		/// </summary>
+		PLANES = 14,
+		/// <summary>
+		/// Number of brushes the device has
+		/// </summary>
+		NUMBRUSHES = 16,
+		/// <summary>
+		/// Number of pens the device has
+		/// </summary>
+		NUMPENS = 18,
+		/// <summary>
+		/// Number of markers the device has
+		/// </summary>
+		NUMMARKERS = 20,
+		/// <summary>
+		/// Number of fonts the device has
+		/// </summary>
+		NUMFONTS = 22,
+		/// <summary>
+		/// Number of colors the device supports
+		/// </summary>
+		NUMCOLORS = 24,
+		/// <summary>
+		/// Size required for device descriptor
+		/// </summary>
+		PDEVICESIZE = 26,
+		/// <summary>
+		/// Curve capabilities
+		/// </summary>
+		CURVECAPS = 28,
+		/// <summary>
+		/// Line capabilities
+		/// </summary>
+		LINECAPS = 30,
+		/// <summary>
+		/// Polygonal capabilities
+		/// </summary>
+		POLYGONALCAPS = 32,
+		/// <summary>
+		/// Text capabilities
+		/// </summary>
+		TEXTCAPS = 34,
+		/// <summary>
+		/// Clipping capabilities
+		/// </summary>
+		CLIPCAPS = 36,
+		/// <summary>
+		/// Bitblt capabilities
+		/// </summary>
+		RASTERCAPS = 38,
+		/// <summary>
+		/// Length of the X leg
+		/// </summary>
+		ASPECTX = 40,
+		/// <summary>
+		/// Length of the Y leg
+		/// </summary>
+		ASPECTY = 42,
+		/// <summary>
+		/// Length of the hypotenuse
+		/// </summary>
+		ASPECTXY = 44,
+		/// <summary>
+		/// Shading and Blending caps
+		/// </summary>
+		SHADEBLENDCAPS = 45,
 
-        /// <summary>
-        /// Logical pixels inch in X
-        /// </summary>
-        LOGPIXELSX = 88,
-        /// <summary>
-        /// Logical pixels inch in Y
-        /// </summary>
-        LOGPIXELSY = 90,
+		/// <summary>
+		/// Logical pixels inch in X
+		/// </summary>
+		LOGPIXELSX = 88,
+		/// <summary>
+		/// Logical pixels inch in Y
+		/// </summary>
+		LOGPIXELSY = 90,
 
-        /// <summary>
-        /// Number of entries in physical palette
-        /// </summary>
-        SIZEPALETTE = 104,
-        /// <summary>
-        /// Number of reserved entries in palette
-        /// </summary>
-        NUMRESERVED = 106,
-        /// <summary>
-        /// Actual color resolution
-        /// </summary>
-        COLORRES = 108,
+		/// <summary>
+		/// Number of entries in physical palette
+		/// </summary>
+		SIZEPALETTE = 104,
+		/// <summary>
+		/// Number of reserved entries in palette
+		/// </summary>
+		NUMRESERVED = 106,
+		/// <summary>
+		/// Actual color resolution
+		/// </summary>
+		COLORRES = 108,
 
-        // Printing related DeviceCaps. These replace the appropriate Escapes
-        /// <summary>
-        /// Physical Width in device units
-        /// </summary>
-        PHYSICALWIDTH = 110,
-        /// <summary>
-        /// Physical Height in device units
-        /// </summary>
-        PHYSICALHEIGHT = 111,
-        /// <summary>
-        /// Physical Printable Area x margin
-        /// </summary>
-        PHYSICALOFFSETX = 112,
-        /// <summary>
-        /// Physical Printable Area y margin
-        /// </summary>
-        PHYSICALOFFSETY = 113,
-        /// <summary>
-        /// Scaling factor x
-        /// </summary>
-        SCALINGFACTORX = 114,
-        /// <summary>
-        /// Scaling factor y
-        /// </summary>
-        SCALINGFACTORY = 115,
+		// Printing related DeviceCaps. These replace the appropriate Escapes
+		/// <summary>
+		/// Physical Width in device units
+		/// </summary>
+		PHYSICALWIDTH = 110,
+		/// <summary>
+		/// Physical Height in device units
+		/// </summary>
+		PHYSICALHEIGHT = 111,
+		/// <summary>
+		/// Physical Printable Area x margin
+		/// </summary>
+		PHYSICALOFFSETX = 112,
+		/// <summary>
+		/// Physical Printable Area y margin
+		/// </summary>
+		PHYSICALOFFSETY = 113,
+		/// <summary>
+		/// Scaling factor x
+		/// </summary>
+		SCALINGFACTORX = 114,
+		/// <summary>
+		/// Scaling factor y
+		/// </summary>
+		SCALINGFACTORY = 115,
 
-        /// <summary>
-        /// Current vertical refresh rate of the display device (for displays only) in Hz
-        /// </summary>
-        VREFRESH = 116,
-        /// <summary>
-        /// Horizontal width of entire desktop in pixels
-        /// </summary>
-        DESKTOPVERTRES = 117,
-        /// <summary>
-        /// Vertical height of entire desktop in pixels
-        /// </summary>
-        DESKTOPHORZRES = 118,
-        /// <summary>
-        /// Preferred blt alignment
-        /// </summary>
-        BLTALIGNMENT = 119
-    }
+		/// <summary>
+		/// Current vertical refresh rate of the display device (for displays only) in Hz
+		/// </summary>
+		VREFRESH = 116,
+		/// <summary>
+		/// Horizontal width of entire desktop in pixels
+		/// </summary>
+		DESKTOPVERTRES = 117,
+		/// <summary>
+		/// Vertical height of entire desktop in pixels
+		/// </summary>
+		DESKTOPHORZRES = 118,
+		/// <summary>
+		/// Preferred blt alignment
+		/// </summary>
+		BLTALIGNMENT = 119
+	}
 
 	/// <summary>
 	/// Used for User32.SetWinEventHook
 	/// See: http://msdn.microsoft.com/en-us/library/windows/desktop/dd373640%28v=vs.85%29.aspx
 	/// </summary>
-	[SuppressMessage("ReSharper", "InconsistentNaming")]
+	[SuppressMessage("ReSharper", "InconsistentNaming"), Flags]
 	public enum WinEventHookFlags
 	{
 		WINEVENT_SKIPOWNTHREAD = 1,

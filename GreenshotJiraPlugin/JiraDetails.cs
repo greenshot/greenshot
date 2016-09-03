@@ -3,7 +3,7 @@
  * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ * The Greenshot project is hosted on GitHub: https://github.com/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,36 +20,52 @@
  */
 
 using System;
-using System.Drawing;
-using System.Threading;
-using System.Threading.Tasks;
-using Dapplo.Jira;
 using Dapplo.Jira.Entities;
 
 namespace GreenshotJiraPlugin
 {
-	/// <summary>
-	/// This is the bach for the IssueType bitmaps
-	/// </summary>
-	public class IssueTypeBitmapCache : AsyncMemoryCache<IssueType, Bitmap>
+	public class JiraDetails : IComparable<JiraDetails>
 	{
-		private readonly JiraApi _jiraApi;
-
-		public IssueTypeBitmapCache(JiraApi jiraApi)
+		public JiraDetails()
 		{
-			_jiraApi = jiraApi;
-			// Set the expire timeout to an hour
-			ExpireTimeSpan = TimeSpan.FromHours(4);
+			FirstSeenAt = SeenAt = DateTimeOffset.Now;
 		}
 
-		protected override string CreateKey(IssueType keyObject)
+		public string ProjectKey
 		{
-			return keyObject.Name;
+			get;
+			set;
 		}
 
-		protected override async Task<Bitmap> CreateAsync(IssueType issueType, CancellationToken cancellationToken = new CancellationToken())
+		public string Id
 		{
-			return await _jiraApi.GetUriContentAsync<Bitmap>(issueType.IconUri, cancellationToken).ConfigureAwait(false);
+			get;
+			set;
+		}
+
+		public string JiraKey => ProjectKey + "-" + Id;
+
+		public Issue JiraIssue
+		{
+			get;
+			set;
+		}
+
+		public DateTimeOffset FirstSeenAt
+		{
+			get;
+			private set;
+		}
+
+		public DateTimeOffset SeenAt
+		{
+			get;
+			set;
+		}
+
+		public int CompareTo(JiraDetails other)
+		{
+			return SeenAt.CompareTo(other.SeenAt);
 		}
 	}
 }
