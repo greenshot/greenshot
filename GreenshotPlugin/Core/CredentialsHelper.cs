@@ -59,10 +59,10 @@ namespace GreenshotPlugin.Core {
 	/// <summary>Encapsulates dialog functionality from the Credential Management API.</summary>
 	public sealed class CredentialsDialog {
 		[DllImport("gdi32.dll", SetLastError=true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool DeleteObject(IntPtr hObject);
+		[return: MarshalAs(UnmanagedType.Bool)]
+		private static extern bool DeleteObject(IntPtr hObject);
 
-        /// <summary>The only valid bitmap height (in pixels) of a user-defined banner.</summary>
+		/// <summary>The only valid bitmap height (in pixels) of a user-defined banner.</summary>
 		private const int ValidBannerHeight = 60;
 
 		/// <summary>The only valid bitmap width (in pixels) of a user-defined banner.</summary>
@@ -102,65 +102,25 @@ namespace GreenshotPlugin.Core {
 			Banner = banner;
 		}
 
-		private bool _alwaysDisplay;
 		/// <summary>
 		/// Gets or sets if the dialog will be shown even if the credentials
 		/// can be returned from an existing credential in the credential manager.
 		/// </summary>
-		public bool AlwaysDisplay {
-			get {
-				return _alwaysDisplay;
-			}
-			set {
-				_alwaysDisplay = value;
-			}
-		}
+		public bool AlwaysDisplay { get; set; }
 
-		private bool _excludeCertificates = true;
 		/// <summary>Gets or sets if the dialog is populated with name/password only.</summary>
-		public bool ExcludeCertificates {
-			get {
-				return _excludeCertificates;
-			}
-			set {
-				_excludeCertificates = value;
-			}
-		}
+		public bool ExcludeCertificates { get; set; } = true;
 
-		private bool _persist = true;
 		/// <summary>Gets or sets if the credentials are to be persisted in the credential manager.</summary>
-		public bool Persist {
-			get {
-				return _persist;
-			}
-			set {
-				_persist = value;
-			}
-		}
+		public bool Persist { get; set; } = true;
 
-		private bool _incorrectPassword;
 		/// <summary>Gets or sets if the incorrect password balloontip needs to be shown. Introduced AFTER Windows XP</summary>Gets></summary>
-		public bool IncorrectPassword {
-			get {
-				return _incorrectPassword;
-			}
-			set {
-				_incorrectPassword = value;
-			}
-		}
+		public bool IncorrectPassword { get; set; }
 
-		private bool _keepName;
 		/// <summary>Gets or sets if the name is read-only.</summary>
-		public bool KeepName {
-			get {
-				return _keepName;
-			}
-			set {
-				_keepName = value;
-			}
-		}
+		public bool KeepName { get; set; }
 
-		private string _name = String.Empty;
+		private string _name = string.Empty;
 		/// <summary>Gets or sets the name for the credentials.</summary>
 		public string Name {
 			get {
@@ -169,18 +129,18 @@ namespace GreenshotPlugin.Core {
 			set {
 				if (value != null) {
 					if (value.Length > CREDUI.MAX_USERNAME_LENGTH) {
-						string message = String.Format(
+						string message = string.Format(
 							Thread.CurrentThread.CurrentUICulture,
 							"The name has a maximum length of {0} characters.",
 							CREDUI.MAX_USERNAME_LENGTH);
-						throw new ArgumentException(message, "Name");
+						throw new ArgumentException(message, nameof(Name));
 					}
 				}
 				_name = value;
 			}
 		}
 
-		private string _password = String.Empty;
+		private string _password = string.Empty;
 		/// <summary>Gets or sets the password for the credentials.</summary>
 		public string Password {
 			get {
@@ -189,41 +149,25 @@ namespace GreenshotPlugin.Core {
 			set {
 				if (value != null) {
 					if (value.Length > CREDUI.MAX_PASSWORD_LENGTH) {
-						string message = String.Format(
+						string message = string.Format(
 							Thread.CurrentThread.CurrentUICulture,
 							"The password has a maximum length of {0} characters.",
 							CREDUI.MAX_PASSWORD_LENGTH);
-						throw new ArgumentException(message, "Password");
+						throw new ArgumentException(message, nameof(Password));
 					}
 				}
 				_password = value;
 			}
 		}
 
-		private bool _saveChecked;
 		/// <summary>Gets or sets if the save checkbox status.</summary>
-		public bool SaveChecked {
-			get {
-				return _saveChecked;
-			}
-			set {
-				_saveChecked = value;
-			}
-		}
+		public bool SaveChecked { get; set; }
 
-		private bool _saveDisplayed = true;
 		/// <summary>Gets or sets if the save checkbox is displayed.</summary>
 		/// <remarks>This value only has effect if Persist is true.</remarks>
-		public bool SaveDisplayed {
-			get {
-				return _saveDisplayed;
-			}
-			set {
-				_saveDisplayed = value;
-			}
-		}
+		public bool SaveDisplayed { get; set; } = true;
 
-		private string _target = String.Empty;
+		private string _target = string.Empty;
 		/// <summary>Gets or sets the name of the target for the credentials, typically a server name.</summary>
 		public string Target {
 			get {
@@ -232,18 +176,19 @@ namespace GreenshotPlugin.Core {
 			set {
 				if (value == null) {
 					throw new ArgumentException("The target cannot be a null value.", "Target");
-				} else if (value.Length > CREDUI.MAX_GENERIC_TARGET_LENGTH) {
-					string message = String.Format(
+				}
+				if (value.Length > CREDUI.MAX_GENERIC_TARGET_LENGTH) {
+					string message = string.Format(
 						Thread.CurrentThread.CurrentUICulture,
 						"The target has a maximum length of {0} characters.",
 						CREDUI.MAX_GENERIC_TARGET_LENGTH);
-					throw new ArgumentException(message, "Target");
+					throw new ArgumentException(message, nameof(Target));
 				}
 				_target = value;
 			}
 		}
 
-		private string _caption = String.Empty;
+		private string _caption = string.Empty;
 		/// <summary>Gets or sets the caption of the dialog.</summary>
 		/// <remarks>A null value will cause a system default caption to be used.</remarks>
 		public string Caption {
@@ -253,18 +198,18 @@ namespace GreenshotPlugin.Core {
 			set {
 				if (value != null) {
 					if (value.Length > CREDUI.MAX_CAPTION_LENGTH) {
-						string message = String.Format(
+						string message = string.Format(
 							Thread.CurrentThread.CurrentUICulture,
 							"The caption has a maximum length of {0} characters.",
 							CREDUI.MAX_CAPTION_LENGTH);
-						throw new ArgumentException(message, "Caption");
+						throw new ArgumentException(message, nameof(Caption));
 					}
 				}
 				_caption = value;
 			}
 		}
 
-		private string _message = String.Empty;
+		private string _message = string.Empty;
 		/// <summary>Gets or sets the message of the dialog.</summary>
 		/// <remarks>A null value will cause a system default message to be used.</remarks>
 		public string Message {
@@ -274,11 +219,11 @@ namespace GreenshotPlugin.Core {
 			set {
 				if (value != null) {
 					if (value.Length > CREDUI.MAX_MESSAGE_LENGTH) {
-						string message = String.Format(
+						string message = string.Format(
 							Thread.CurrentThread.CurrentUICulture,
 							"The message has a maximum length of {0} characters.",
 							CREDUI.MAX_MESSAGE_LENGTH);
-						throw new ArgumentException(message, "Message");
+						throw new ArgumentException(message, nameof(Message));
 					}
 				}
 				_message = value;
@@ -295,10 +240,10 @@ namespace GreenshotPlugin.Core {
 			set {
 				if (value != null) {
 					if (value.Width != ValidBannerWidth) {
-						throw new ArgumentException("The banner image width must be 320 pixels.", "Banner");
+						throw new ArgumentException("The banner image width must be 320 pixels.", nameof(Banner));
 					}
 					if (value.Height != ValidBannerHeight) {
-						throw new ArgumentException("The banner image height must be 60 pixels.", "Banner");
+						throw new ArgumentException("The banner image height must be 60 pixels.", nameof(Banner));
 					}
 				}
 				_banner = value;

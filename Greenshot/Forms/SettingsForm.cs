@@ -295,7 +295,7 @@ namespace Greenshot {
 		private void UpdateClipboardFormatDescriptions() {
 			foreach(ListViewItem item in listview_clipboardformats.Items) {
 				ClipboardFormat cf = (ClipboardFormat) item.Tag;
-			    item.Text = Language.Translate(cf);
+				item.Text = Language.Translate(cf);
 			}
 		}
 
@@ -592,12 +592,12 @@ namespace Greenshot {
 			CheckDestinationSettings();
 		}
 
-        protected override void OnFieldsFilled() {
-            // the color radio button is not actually bound to a setting, but checked when monochrome/grayscale are not checked
-            if(!radioBtnGrayScale.Checked && !radioBtnMonochrome.Checked) {
-                radioBtnColorPrint.Checked = true;
-            }
-        }
+		protected override void OnFieldsFilled() {
+			// the color radio button is not actually bound to a setting, but checked when monochrome/grayscale are not checked
+			if(!radioBtnGrayScale.Checked && !radioBtnMonochrome.Checked) {
+				radioBtnColorPrint.Checked = true;
+			}
+		}
 
 		/// <summary>
 		/// Set the enable state of the expert settings

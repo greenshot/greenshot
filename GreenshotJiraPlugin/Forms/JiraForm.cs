@@ -65,7 +65,7 @@ namespace GreenshotJiraPlugin.Forms {
 			{
 				if (!_jiraConnector.IsLoggedIn)
 				{
-					await _jiraConnector.Login();
+					await _jiraConnector.LoginAsync();
 				}
 			}
 			catch (Exception e)

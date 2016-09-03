@@ -47,12 +47,13 @@ namespace GreenshotJiraPlugin {
 		private DateTimeOffset _loggedInTime = DateTimeOffset.MinValue;
 		private bool _loggedIn;
 		private readonly int _timeout;
-		private readonly object _lock = new object();
-		private string _url;
 		private JiraApi _jiraApi;
 		private IssueTypeBitmapCache _issueTypeBitmapCache;
 		private static readonly SvgBitmapHttpContentConverter SvgBitmapHttpContentConverterInstance = new SvgBitmapHttpContentConverter();
 
+		/// <summary>
+		/// Initialize some basic stuff, in the case the SVG to bitmap converter
+		/// </summary>
 		static JiraConnector()
 		{
 			if (HttpExtensionsGlobals.HttpContentConverters.All(x => x.GetType() != typeof(SvgBitmapHttpContentConverter)))
@@ -72,46 +73,48 @@ namespace GreenshotJiraPlugin {
 
 		}
 
+		/// <summary>
+		/// Dispose, logout the users
+		/// </summary>
 		public void Dispose() {
 			if (_jiraApi != null)
 			{
-				Task.Run(async () => await Logout()).Wait();
+				Task.Run(async () => await LogoutAsync()).Wait();
 			}
 		}
 
+		/// <summary>
+		/// Constructor
+		/// </summary>
 		public JiraConnector()
 		{
-			_url = JiraConfig.Url.Replace(DefaultPostfix, "");
+			JiraConfig.Url = JiraConfig.Url.Replace(DefaultPostfix, "");
 			_timeout = JiraConfig.Timeout;
 		}
+
+		/// <summary>
+		/// Access the jira monitor
+		/// </summary>
+		public JiraMonitor Monitor { get; private set; }
 
 		/// <summary>
 		/// Internal login which catches the exceptions
 		/// </summary>
 		/// <returns>true if login was done sucessfully</returns>
-		private async Task<bool> DoLogin(string user, string password)
+		private async Task<bool> DoLoginAsync(string user, string password)
 		{
-			lock (_lock)
+			if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(password))
 			{
-				if (_url.EndsWith("wsdl"))
-				{
-					_url = _url.Replace(DefaultPostfix, "");
-				}
-				if (_jiraApi == null)
-				{
-					// recreate the service with the new url
-					_jiraApi = new JiraApi(new Uri(_url));
-					_issueTypeBitmapCache = new IssueTypeBitmapCache(_jiraApi);
-				}
+				return false;
 			}
-
+			_jiraApi = new JiraApi(new Uri(JiraConfig.Url));
+			_issueTypeBitmapCache = new IssueTypeBitmapCache(_jiraApi);
+			Monitor = new JiraMonitor();
+			await Monitor.AddJiraInstanceAsync(_jiraApi);
 			LoginInfo loginInfo;
 			try
 			{
 				loginInfo = await _jiraApi.StartSessionAsync(user, password);
-				// Worked, store the url in the configuration
-				JiraConfig.Url = _url;
-				IniConfig.Save();
 			}
 			catch (Exception)
 			{
@@ -120,17 +123,21 @@ namespace GreenshotJiraPlugin {
 			return loginInfo != null;
 		}
 		
-		public async Task Login() {
-			await Logout();
+		/// <summary>
+		/// Use the credentials dialog, this will show if there are not correct credentials.
+		/// If there are credentials, call the real login.
+		/// </summary>
+		/// <returns>Task</returns>
+		public async Task LoginAsync() {
+			await LogoutAsync();
 			try {
 				// Get the system name, so the user knows where to login to
-				string systemName = _url.Replace(DefaultPostfix,"");
-				var credentialsDialog = new CredentialsDialog(systemName)
+				var credentialsDialog = new CredentialsDialog(JiraConfig.Url)
 				{
 					Name = null
 				};
 				while (credentialsDialog.Show(credentialsDialog.Name) == DialogResult.OK) {
-					if (await DoLogin(credentialsDialog.Name, credentialsDialog.Password)) {
+					if (await DoLoginAsync(credentialsDialog.Name, credentialsDialog.Password)) {
 						if (credentialsDialog.SaveChecked) {
 							credentialsDialog.Confirm(true);
 						}
@@ -159,9 +166,10 @@ namespace GreenshotJiraPlugin {
 		/// <summary>
 		/// End the session, if there was one
 		/// </summary>
-		public async Task Logout() {
+		public async Task LogoutAsync() {
 			if (_jiraApi != null && _loggedIn)
 			{
+				Monitor.Dispose();
 				await _jiraApi.EndSessionAsync();
 				_loggedIn = false;
 			}
@@ -172,14 +180,14 @@ namespace GreenshotJiraPlugin {
 		/// Do not use ConfigureAwait to call this, as it will move await from the UI thread.
 		/// </summary>
 		/// <returns></returns>
-		private async Task CheckCredentials() {
+		private async Task CheckCredentialsAsync() {
 			if (_loggedIn) {
 				if (_loggedInTime.AddMinutes(_timeout-1).CompareTo(DateTime.Now) < 0) {
-					await Logout();
-					await Login();
+					await LogoutAsync();
+					await LoginAsync();
 				}
 			} else {
-				await Login();
+				await LoginAsync();
 			}
 		}
 
@@ -189,7 +197,7 @@ namespace GreenshotJiraPlugin {
 		/// <returns>List with filters</returns>
 		public async Task<IList<Filter>> GetFavoriteFiltersAsync()
 		{
-			await CheckCredentials();
+			await CheckCredentialsAsync();
 			return await _jiraApi.GetFavoriteFiltersAsync().ConfigureAwait(false);
 		}
 
@@ -200,7 +208,7 @@ namespace GreenshotJiraPlugin {
 		/// <returns>Issue</returns>
 		public async Task<Issue> GetIssueAsync(string issueKey)
 		{
-			await CheckCredentials();
+			await CheckCredentialsAsync();
 			try
 			{
 				return await _jiraApi.GetIssueAsync(issueKey).ConfigureAwait(false);
@@ -220,7 +228,7 @@ namespace GreenshotJiraPlugin {
 		/// <returns></returns>
 		public async Task AttachAsync(string issueKey, IBinaryContainer content, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			await CheckCredentials();
+			await CheckCredentialsAsync();
 			using (var memoryStream = new MemoryStream())
 			{
 				content.WriteToStream(memoryStream);
@@ -238,7 +246,7 @@ namespace GreenshotJiraPlugin {
 		/// <param name="cancellationToken">CancellationToken</param>
 		public async Task AddCommentAsync(string issueKey, string body, string visibility = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			await CheckCredentials();
+			await CheckCredentialsAsync();
 			await _jiraApi.AddCommentAsync(issueKey, body, visibility, cancellationToken).ConfigureAwait(false);
 		}
 
@@ -250,7 +258,7 @@ namespace GreenshotJiraPlugin {
 		/// <returns></returns>
 		public async Task<IList<Issue>> SearchAsync(Filter filter, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			await CheckCredentials();
+			await CheckCredentialsAsync();
 			var searchResult = await _jiraApi.SearchAsync(filter.Jql, 20, new[] { "summary", "reporter", "assignee", "created", "issuetype" }, cancellationToken).ConfigureAwait(false);
 			return searchResult.Issues;
 		}
@@ -266,8 +274,14 @@ namespace GreenshotJiraPlugin {
 			return await _issueTypeBitmapCache.GetOrCreateAsync(issue.Fields.IssueType, cancellationToken).ConfigureAwait(false);
 		}
 
+		/// <summary>
+		/// Get the base uri
+		/// </summary>
 		public Uri JiraBaseUri => _jiraApi.JiraBaseUri;
 
+		/// <summary>
+		/// Is the user "logged in?
+		/// </summary>
 		public bool IsLoggedIn => _loggedIn;
 	}
 }

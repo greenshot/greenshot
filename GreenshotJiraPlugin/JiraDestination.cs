@@ -61,7 +61,7 @@ namespace GreenshotJiraPlugin {
 					return Language.GetString("jira", LangKey.upload_menu_item);
 				}
 				// Format the title of this destination
-				return Designation + " - " + _jiraIssue.Key + ": " + _jiraIssue.Fields.Summary.Substring(0, Math.Min(20, _jiraIssue.Fields.Summary.Length));
+				return _jiraIssue.Key + ": " + _jiraIssue.Fields.Summary.Substring(0, Math.Min(20, _jiraIssue.Fields.Summary.Length));
 			}
 		}
 		
@@ -86,15 +86,15 @@ namespace GreenshotJiraPlugin {
 			}
 		}
 
-		public override IEnumerable<IDestination> DynamicDestinations() {
-			if (JiraPlugin.Instance.CurrentJiraConnector == null || !JiraPlugin.Instance.CurrentJiraConnector.IsLoggedIn) {
+		public override IEnumerable<IDestination> DynamicDestinations()
+		{
+			var jiraConnector = JiraPlugin.Instance.CurrentJiraConnector;
+			if (jiraConnector == null || !jiraConnector.IsLoggedIn) {
 				yield break;
 			}
-			var issues = JiraUtils.GetCurrentJirasAsync().Result;
-			if (issues != null) {
-				foreach(var jiraIssue in issues) {
-					yield return new JiraDestination(_jiraPlugin, jiraIssue);
-				}
+			foreach(var jiraDetails in jiraConnector.Monitor.RecentJiras)
+			{
+				yield return new JiraDestination(_jiraPlugin,jiraDetails.JiraIssue);
 			}
 		}
 

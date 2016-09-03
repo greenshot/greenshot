@@ -78,12 +78,19 @@
     <Compile Include="Forms\SettingsForm.Designer.cs">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Hooking\TitleChangeEventArgs.cs" />
+    <Compile Include="Hooking\TitleChangeEventDelegate.cs" />
+    <Compile Include="Hooking\WindowsEventHook.cs" />
+    <Compile Include="Hooking\WindowsTitleMonitor.cs" />
     <Compile Include="IssueTypeBitmapCache.cs" />
     <Compile Include="JiraConnector.cs" />
     <Compile Include="JiraConfiguration.cs" />
     <Compile Include="JiraDestination.cs" />
+    <Compile Include="JiraDetails.cs" />
+    <Compile Include="JiraEventArgs.cs" />
+    <Compile Include="JiraEventTypes.cs" />
+    <Compile Include="JiraMonitor.cs" />
     <Compile Include="JiraPlugin.cs" />
-    <Compile Include="JiraUtils.cs" />
     <Compile Include="LanguageKeys.cs" />
     <Compile Include="Log4NetLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
