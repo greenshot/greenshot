@@ -40,7 +40,7 @@ namespace Greenshot.Forms {
 	/// <summary>
 	/// The capture form is used to select a part of the capture
 	/// </summary>
-	public partial class CaptureForm : AnimatingForm {
+	public sealed partial class CaptureForm : AnimatingForm {
 		private enum FixMode {None, Initiated, Horizontal, Vertical};
 
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(CaptureForm));
@@ -74,6 +74,7 @@ namespace Greenshot.Forms {
 		private RectangleAnimator _zoomAnimator;
 		private readonly bool _isZoomerTransparent = Conf.ZoomerOpacity < 1;
 		private bool _isCtrlPressed;
+		private bool _showDebugInfo;
 
 		/// <summary>
 		/// Property to access the selected capture rectangle
@@ -108,9 +109,9 @@ namespace Greenshot.Forms {
 		protected override CreateParams CreateParams {
 			[SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
 			get {
-				CreateParams cp = base.CreateParams;
-				cp.ExStyle |= 0x02000000;
-				return cp;
+				CreateParams createParams = base.CreateParams;
+				createParams.ExStyle |= 0x02000000;
+				return createParams;
 			}
 		}
 
@@ -263,6 +264,14 @@ namespace Greenshot.Forms {
 						Invalidate();
 					}
 					break;
+				case Keys.D:
+					if (_captureMode == CaptureMode.Window)
+					{
+						// Toggle debug
+						_showDebugInfo = !_showDebugInfo;
+						Invalidate();
+					}
+					break;
 				case Keys.Space:
 					// Toggle capture mode
 					switch (_captureMode) {
@@ -394,7 +403,7 @@ namespace Greenshot.Forms {
 		/// </summary>
 		/// <param name="animator"></param>
 		/// <returns></returns>
-		bool isAnimating(IAnimator animator) {
+		private bool IsAnimating(IAnimator animator) {
 			if (animator == null) {
 				return false;
 			}
@@ -408,7 +417,7 @@ namespace Greenshot.Forms {
 			Point lastPos = _cursorPos;
 			_cursorPos = _mouseMovePos;
 
-			if (_selectedCaptureWindow != null && lastPos.Equals(_cursorPos) && !isAnimating(_zoomAnimator) && !isAnimating(_windowAnimator)) {
+			if (_selectedCaptureWindow != null && lastPos.Equals(_cursorPos) && !IsAnimating(_zoomAnimator) && !IsAnimating(_windowAnimator)) {
 				return;
 			}
 
@@ -515,8 +524,8 @@ namespace Greenshot.Forms {
 			// always animate the Window area through to the last frame, so we see the fade-in/out untill the end
 			// Using a safety "offset" to make sure the text is invalidated too
 			const int safetySize = 30;
-			// Check if the 
-			if (isAnimating(_windowAnimator)) {
+			// Check if the animation needs to be drawn
+			if (IsAnimating(_windowAnimator)) {
 				invalidateRectangle = _windowAnimator.Current;
 				invalidateRectangle.Inflate(safetySize, safetySize);
 				Invalidate(invalidateRectangle);
@@ -524,12 +533,12 @@ namespace Greenshot.Forms {
 				invalidateRectangle.Inflate(safetySize, safetySize);
 				Invalidate(invalidateRectangle);
 				// Check if this was the last of the windows animations in the normal region capture.
-				if (_captureMode != CaptureMode.Window && !isAnimating(_windowAnimator)) {
+				if (_captureMode != CaptureMode.Window && !IsAnimating(_windowAnimator)) {
 					Invalidate();
 				}
 			}
 
-			if (_zoomAnimator != null && (isAnimating(_zoomAnimator) || _captureMode != CaptureMode.Window)) {
+			if (_zoomAnimator != null && (IsAnimating(_zoomAnimator) || _captureMode != CaptureMode.Window)) {
 				// Make sure we invalidate the old zoom area
 				invalidateRectangle = _zoomAnimator.Current;
 				invalidateRectangle.Offset(lastPos);
@@ -540,11 +549,7 @@ namespace Greenshot.Forms {
 				}
 				// The following logic is not needed, next always returns the current if there are no frames left
 				// but it makes more sense if we want to change something in the logic
-				if (isAnimating(_zoomAnimator)) {
-					invalidateRectangle = _zoomAnimator.Next();
-				} else {
-					invalidateRectangle = _zoomAnimator.Current;
-				}
+				invalidateRectangle = IsAnimating(_zoomAnimator) ? _zoomAnimator.Next() : _zoomAnimator.Current;
 				invalidateRectangle.Offset(_cursorPos);
 				Invalidate(invalidateRectangle);
 			}
@@ -709,12 +714,12 @@ namespace Greenshot.Forms {
 				graphics.DrawIcon(_capture.Cursor, _capture.CursorLocation.X, _capture.CursorLocation.Y);
 			}
 
-			if (_mouseDown || _captureMode == CaptureMode.Window || isAnimating(_windowAnimator)) {
+			if (_mouseDown || _captureMode == CaptureMode.Window || IsAnimating(_windowAnimator)) {
 				_captureRect.Intersect(new Rectangle(Point.Empty, _capture.ScreenBounds.Size)); // crop what is outside the screen
 				
 				Rectangle fixedRect;
 				//if (captureMode == CaptureMode.Window) {
-				if (isAnimating(_windowAnimator)) {
+				if (IsAnimating(_windowAnimator)) {
 					// Use the animator
 					fixedRect = _windowAnimator.Current;
 				} else {
@@ -725,7 +730,7 @@ namespace Greenshot.Forms {
 				//if (capture.CaptureDetails.CaptureMode == CaptureMode.Video) {
 				//	graphics.FillRectangle(RedOverlayBrush, fixedRect);
 				//} else {
-					graphics.FillRectangle(GreenOverlayBrush, fixedRect);
+				graphics.FillRectangle(GreenOverlayBrush, fixedRect);
 				//}
 				graphics.DrawRectangle(OverlayPen, fixedRect);
 				
@@ -796,12 +801,12 @@ namespace Greenshot.Forms {
 					// When capturing a Region we need to add 1 to the height/width for correction
 					string sizeText;
 					if (_captureMode == CaptureMode.Region) {
-							// correct the GUI width to real width for the shown size
-							sizeText = _captureRect.Width + 1 + " x " + (_captureRect.Height + 1);
+						// correct the GUI width to real width for the shown size
+						sizeText = _captureRect.Width + 1 + " x " + (_captureRect.Height + 1);
 					} else {
 						sizeText = _captureRect.Width + " x " + _captureRect.Height;
 					}
-					
+
 					// Calculate the scaled font size.
 					SizeF extent = graphics.MeasureString( sizeText, sizeFont );
 					float hRatio = _captureRect.Height / (extent.Height * 2);
@@ -818,6 +823,13 @@ namespace Greenshot.Forms {
 						using (Font newSizeFont = new Font(FontFamily.GenericSansSerif, newSize, FontStyle.Bold)) {
 							PointF sizeLocation = new PointF(fixedRect.X + _captureRect.Width / 2 - extent.Width / 2, fixedRect.Y + _captureRect.Height / 2 - newSizeFont.GetHeight() / 2);
 							graphics.DrawString(sizeText, newSizeFont, Brushes.LightSeaGreen, sizeLocation);
+
+							if (_showDebugInfo && _selectedCaptureWindow != null)
+							{
+								string title = string.Format("#{0:X}{1}{2}", _selectedCaptureWindow.Handle.ToInt64(), _selectedCaptureWindow.Text.Length > 0 ? " - ": "", _selectedCaptureWindow.Text);
+								PointF debugLocation = new PointF(fixedRect.X, fixedRect.Y);
+								graphics.DrawString(title, sizeFont, Brushes.DarkOrange, debugLocation);
+							}
 						}
 					}
 				}
@@ -848,7 +860,7 @@ namespace Greenshot.Forms {
 			}
 
 			// Zoom
-			if (_zoomAnimator != null && (isAnimating(_zoomAnimator) || _captureMode != CaptureMode.Window)) {
+			if (_zoomAnimator != null && (IsAnimating(_zoomAnimator) || _captureMode != CaptureMode.Window)) {
 				const int zoomSourceWidth = 25;
 				const int zoomSourceHeight = 25;
 				

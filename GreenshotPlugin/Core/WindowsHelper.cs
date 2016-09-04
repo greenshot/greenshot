@@ -1625,7 +1625,7 @@ namespace GreenshotPlugin.Core {
 			{
 				return false;
 			}
-			// Skip everything which is not rendered normally.
+			// Skip everything which is not rendered "normally", trying to fix 
 			if (!window.IsApp && (exWindowStyle & ExtendedWindowStyleFlags.WS_EX_NOREDIRECTIONBITMAP) != 0)
 			{
 				return false;
@@ -1637,6 +1637,7 @@ namespace GreenshotPlugin.Core {
 			}
 			return window.Visible || window.Iconic;
 		}
+
 		/// <summary>
 		/// Get all the top level windows
 		/// </summary>
