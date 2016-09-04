@@ -826,7 +826,7 @@ namespace Greenshot.Forms {
 
 							if (_showDebugInfo && _selectedCaptureWindow != null)
 							{
-								string title = string.Format("#{0:X}{1}{2}", _selectedCaptureWindow.Handle.ToInt64(), _selectedCaptureWindow.Text.Length > 0 ? " - ": "", _selectedCaptureWindow.Text);
+								string title = string.Format("#{0:X} - {1}", _selectedCaptureWindow.Handle.ToInt64(), _selectedCaptureWindow.Text.Length > 0 ? _selectedCaptureWindow.Text : _selectedCaptureWindow.Process.ProcessName);
 								PointF debugLocation = new PointF(fixedRect.X, fixedRect.Y);
 								graphics.DrawString(title, sizeFont, Brushes.DarkOrange, debugLocation);
 							}

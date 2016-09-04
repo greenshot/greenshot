@@ -140,10 +140,11 @@ namespace GreenshotPlugin.Core {
 	/// Provides details about a Window returned by the  enumeration
 	/// </summary>
 	public class WindowDetails : IEquatable<WindowDetails>{
-		private const string MetroWindowsClass = "Windows.UI.Core.CoreWindow"; // Windows 10 uses ApplicationFrameWindow
+		private const string MetroWindowsClass = "Windows.UI.Core.CoreWindow"; //Used for Windows 8(.1)
+		private const string FramedAppClass = "ApplicationFrameWindow"; // Windows 10 uses ApplicationFrameWindow
 		private const string MetroApplauncherClass = "ImmersiveLauncher";
 		private const string MetroGutterClass = "ImmersiveGutter";
-		private static readonly IList<string> IgnoreClasses = new List<string>(new[] { "Progman", "XLMAIN", "Button", "Dwm" }); //"MS-SDIa"
+		private static readonly IList<string> IgnoreClasses = new List<string>(new[] { "Progman", "Button", "Dwm" }); //"MS-SDIa"
 
 		private static readonly ILog Log = LogManager.GetLogger(typeof(WindowDetails));
 		private static readonly CoreConfiguration Conf = IniConfig.GetIniSection<CoreConfiguration>();
@@ -186,6 +187,12 @@ namespace GreenshotPlugin.Core {
 		/// For Windows 10 most normal code works, as it's hosted inside "ApplicationFrameWindow"
 		/// </summary>
 		public bool IsApp => MetroWindowsClass.Equals(ClassName);
+
+		/// <summary>
+		/// This checks if the window is a Windows 10 App
+		/// For Windows 10 apps are hosted inside "ApplicationFrameWindow"
+		/// </summary>
+		public bool IsWin10App => FramedAppClass.Equals(ClassName);
 
 		/// <summary>
 		/// Check if the window is the metro gutter (sizeable separator)
@@ -843,7 +850,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="p">Point with the coordinates to check</param>
 		/// <returns>true if the point lies within</returns>
 		public bool Contains(Point p) {
-			return WindowRectangle.Contains(Cursor.Position);
+			return WindowRectangle.Contains(p);
 		}
 
 		/// <summary>
@@ -1484,6 +1491,13 @@ namespace GreenshotPlugin.Core {
 			if (!Contains(point)) {
 				return null;
 			}
+			var rect = WindowRectangle;
+			// If the mouse it at the edge, take the whole window
+			if (rect.X == point.X || rect.Y == point.Y || rect.Right == point.X || rect.Bottom == point.Y)
+			{
+				return this;
+			}
+			// Look into the child windows
 			foreach(var childWindow in Children) {
 				if (childWindow.Contains(point)) {
 					return childWindow.FindChildUnderPoint(point);
@@ -1509,15 +1523,15 @@ namespace GreenshotPlugin.Core {
 		/// <param name="window"></param>
 		/// <param name="screenBounds"></param>
 		/// <returns></returns>
-		private static bool IsVisibleTopLevel(WindowDetails window, Rectangle screenBounds)
+		private static bool IsVisible(WindowDetails window, Rectangle screenBounds)
 		{
-			// Ignore windows without title
-			if (window.Text.Length == 0)
+			// Ignore invisible
+			if (!window.Visible)
 			{
 				return false;
 			}
-			// Ignore invisible
-			if (!window.Visible)
+			// Ignore minizied
+			if (window.Iconic)
 			{
 				return false;
 			}
@@ -1525,13 +1539,20 @@ namespace GreenshotPlugin.Core {
 			{
 				return false;
 			}
-			// Windows without size
-			Rectangle windowRect = window.WindowRectangle;
+			// On windows which are visible on the screen
+			var windowRect = window.WindowRectangle;
 			windowRect.Intersect(screenBounds);
-			if (windowRect.Size.IsEmpty)
+			if (windowRect.IsEmpty)
 			{
 				return false;
 			}
+			// Skip everything which is not rendered "normally", trying to fix BUG-2017
+			var exWindowStyle = window.ExtendedWindowStyle;
+			if (!window.IsApp && !window.IsWin10App && (exWindowStyle & ExtendedWindowStyleFlags.WS_EX_NOREDIRECTIONBITMAP) != 0)
+			{
+				return false;
+			}
+
 			return true;
 		}
 
@@ -1542,14 +1563,14 @@ namespace GreenshotPlugin.Core {
 		public static IEnumerable<WindowDetails> GetVisibleWindows() {
 			Rectangle screenBounds = WindowCapture.GetScreenBounds();
 			foreach(var window in GetMetroApps()) {
-				if (IsVisibleTopLevel(window, screenBounds))
+				if (IsVisible(window, screenBounds))
 				{
 					yield return window;
 				}
 			}
 			foreach (var window in GetAllWindows())
 			{
-				if (IsVisibleTopLevel(window, screenBounds))
+				if (IsVisible(window, screenBounds))
 				{
 					yield return window;
 				}
@@ -1625,8 +1646,8 @@ namespace GreenshotPlugin.Core {
 			{
 				return false;
 			}
-			// Skip everything which is not rendered "normally", trying to fix 
-			if (!window.IsApp && (exWindowStyle & ExtendedWindowStyleFlags.WS_EX_NOREDIRECTIONBITMAP) != 0)
+			// Skip everything which is not rendered "normally", trying to fix BUG-2017
+			if (!window.IsApp && !window.IsWin10App && (exWindowStyle & ExtendedWindowStyleFlags.WS_EX_NOREDIRECTIONBITMAP) != 0)
 			{
 				return false;
 			}
