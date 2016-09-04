@@ -40,19 +40,10 @@ namespace GreenshotPlugin.Core {
 	/// EnumWindows wrapper for .NET
 	/// </summary>
 	public class WindowsEnumerator {
-		#region Member Variables
-		private List<WindowDetails> items;
-		#endregion
-
 		/// <summary>
-		/// Returns the collection of windows returned by
-		/// GetWindows
+		/// Returns the collection of windows returned by GetWindows
 		/// </summary>
-		public List<WindowDetails> Items {
-			get {
-				return items;
-			}
-		}
+		public IList<WindowDetails> Items { get; private set; }
 
 		/// <summary>
 		/// Gets all top level windows on the system.
@@ -66,34 +57,31 @@ namespace GreenshotPlugin.Core {
 		/// Gets all child windows of the specified window
 		/// </summary>
 		/// <param name="parent">Window Handle to get children for</param>
-		public WindowsEnumerator GetWindows(WindowDetails parent) {
-			if (parent != null) {
-				GetWindows(parent.Handle, null);
-			} else {
-				GetWindows(IntPtr.Zero, null);
-			}
+		public WindowsEnumerator GetWindows(WindowDetails parent)
+		{
+			GetWindows(parent?.Handle ?? IntPtr.Zero, null);
 			return this;
 		}
-		
+
 		/// <summary>
 		/// Gets all child windows of the specified window
 		/// </summary>
 		/// <param name="hWndParent">Window Handle to get children for</param>
 		/// <param name="classname">Window Classname to copy, use null to copy all</param>
 		public WindowsEnumerator GetWindows(IntPtr hWndParent, string classname) {
-			items = new List<WindowDetails>();
-			List<WindowDetails> windows = new List<WindowDetails>();
+			Items = new List<WindowDetails>();
+			IList<WindowDetails> windows = new List<WindowDetails>();
 			User32.EnumChildWindows(hWndParent, WindowEnum, IntPtr.Zero);
 
 			bool hasParent = !IntPtr.Zero.Equals(hWndParent);
 			string parentText = null;
 			if (hasParent) {
-				StringBuilder title = new StringBuilder(260, 260);
+				var title = new StringBuilder(260, 260);
 				User32.GetWindowText(hWndParent, title, title.Capacity);
 				parentText = title.ToString();
 			}
 
-			foreach (WindowDetails window in items) {
+			foreach (var window in Items) {
 				if (hasParent) {
 					window.Text = parentText;
 					window.ParentHandle = hWndParent;
@@ -102,7 +90,7 @@ namespace GreenshotPlugin.Core {
 					windows.Add(window);
 				}
 			}
-			items = windows;
+			Items = windows;
 			return this;
 		}
 
@@ -113,13 +101,14 @@ namespace GreenshotPlugin.Core {
 		/// <param name="hWnd">Window Handle</param>
 		/// <param name="lParam">Application defined value</param>
 		/// <returns>1 to continue enumeration, 0 to stop</returns>
-		private int WindowEnum(IntPtr hWnd, int lParam) {
+		private int WindowEnum(IntPtr hWnd, int lParam)
+		{
 			if (OnWindowEnum(hWnd)) {
 				return 1;
-			} else {
-				return 0;
 			}
+			return 0;
 		}
+
 		#endregion
 
 		/// <summary>
@@ -134,16 +123,10 @@ namespace GreenshotPlugin.Core {
 		/// <returns>True to continue enumeration, False to stop</returns>
 		protected virtual bool OnWindowEnum(IntPtr hWnd) {
 			if (!WindowDetails.IsIgnoreHandle(hWnd)) {
-				items.Add(new WindowDetails(hWnd));
+				Items.Add(new WindowDetails(hWnd));
 			}
 			return true;
 		}
-
-		#region Constructor, Dispose
-		public WindowsEnumerator() {
-			// nothing to do
-		}
-		#endregion
 	}
 	#endregion EnumWindows
 
@@ -157,14 +140,15 @@ namespace GreenshotPlugin.Core {
 	/// Provides details about a Window returned by the  enumeration
 	/// </summary>
 	public class WindowDetails : IEquatable<WindowDetails>{
-		private const string METRO_WINDOWS_CLASS = "Windows.UI.Core.CoreWindow"; // Windows 10 uses ApplicationFrameWindow
-		private const string METRO_APPLAUNCHER_CLASS = "ImmersiveLauncher";
-		private const string METRO_GUTTER_CLASS = "ImmersiveGutter";
-		
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(WindowDetails));
+		private const string MetroWindowsClass = "Windows.UI.Core.CoreWindow"; // Windows 10 uses ApplicationFrameWindow
+		private const string MetroApplauncherClass = "ImmersiveLauncher";
+		private const string MetroGutterClass = "ImmersiveGutter";
+		private static readonly IList<string> IgnoreClasses = new List<string>(new[] { "Progman", "XLMAIN", "Button", "Dwm" }); //"MS-SDIa"
+
+		private static readonly ILog Log = LogManager.GetLogger(typeof(WindowDetails));
 		private static readonly CoreConfiguration Conf = IniConfig.GetIniSection<CoreConfiguration>();
-		private static readonly List<IntPtr> IgnoreHandles = new List<IntPtr>();
-		private static readonly List<string> ExcludeProcessesFromFreeze = new List<string>();
+		private static readonly IList<IntPtr> IgnoreHandles = new List<IntPtr>();
+		private static readonly IList<string> ExcludeProcessesFromFreeze = new List<string>();
 		private static readonly IAppVisibility AppVisibility;
 		
 		static WindowDetails() {
@@ -178,7 +162,7 @@ namespace GreenshotPlugin.Core {
 			}
 			catch (Exception ex)
 			{
-				LOG.WarnFormat("Couldn't create instance of IAppVisibility: {0}", ex.Message);
+				Log.WarnFormat("Couldn't create instance of IAppVisibility: {0}", ex.Message);
 			}
 		}
 
@@ -192,7 +176,7 @@ namespace GreenshotPlugin.Core {
 			return IgnoreHandles.Contains(handle);
 		}
 
-		private List<WindowDetails> _childWindows;
+		private IList<WindowDetails> _childWindows;
 		private IntPtr _parentHandle = IntPtr.Zero;
 		private WindowDetails _parent;
 		private bool _frozen;
@@ -201,37 +185,22 @@ namespace GreenshotPlugin.Core {
 		/// This checks if the window is a Windows 8 App
 		/// For Windows 10 most normal code works, as it's hosted inside "ApplicationFrameWindow"
 		/// </summary>
-		public bool IsApp {
-			get {
-				return METRO_WINDOWS_CLASS.Equals(ClassName);
-			}
-		}
-		
-		public bool IsGutter {
-			get {
-				return METRO_GUTTER_CLASS.Equals(ClassName);
-			}
-		}
-		
-		public bool IsAppLauncher {
-			get {
-				return METRO_APPLAUNCHER_CLASS.Equals(ClassName);
-			}
-		}
+		public bool IsApp => MetroWindowsClass.Equals(ClassName);
+
+		/// <summary>
+		/// Check if the window is the metro gutter (sizeable separator)
+		/// </summary>
+		public bool IsGutter => MetroGutterClass.Equals(ClassName);
+
+		/// <summary>
+		/// Test if this window is for the App-Launcher
+		/// </summary>
+		public bool IsAppLauncher => MetroApplauncherClass.Equals(ClassName);
 
 		/// <summary>
 		/// Check if this window is the window of a metro app
 		/// </summary>
-		public bool IsMetroApp {
-			get {
-				return IsAppLauncher || IsApp;
-			}
-		}
-
-		/// <summary>
-		/// The window handle.
-		/// </summary>
-		private readonly IntPtr _hWnd = IntPtr.Zero;
+		public bool IsMetroApp => IsAppLauncher || IsApp;
 
 		/// <summary>
 		/// To allow items to be compared, the hash code
@@ -247,6 +216,11 @@ namespace GreenshotPlugin.Core {
 			return Equals(right as WindowDetails);
 		}
 
+		/// <summary>
+		/// Compare two windows details
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
 		public bool Equals(WindowDetails other) {
 			if (ReferenceEquals(other, null)) {
 				return false;
@@ -262,19 +236,28 @@ namespace GreenshotPlugin.Core {
 			return other.Handle == Handle;
 		}
 
-		public bool HasChildren {
-			get {
-				return (_childWindows != null) && (_childWindows.Count > 0);
-			}
-		}
-		
+		/// <summary>
+		/// Check if the window has children
+		/// </summary>
+		public bool HasChildren => (_childWindows != null) && (_childWindows.Count > 0);
+
+		/// <summary>
+		/// Freeze information updates
+		/// </summary>
 		public void FreezeDetails() {
 			_frozen = true;
 		}
+
+		/// <summary>
+		/// Make the information update again.
+		/// </summary>
 		public void UnfreezeDetails() {
 			_frozen = false;
 		}
 
+		/// <summary>
+		/// Get the file path to the exe for the process which owns this window
+		/// </summary>
 		public string ProcessPath {
 			get {
 				if (Handle == IntPtr.Zero) {
@@ -295,14 +278,14 @@ namespace GreenshotPlugin.Core {
 		public Image DisplayIcon {
 			get {
 				try {
-					using (Icon appIcon = GetAppIcon(Handle)) {
+					using (var appIcon = GetAppIcon(Handle)) {
 						if (appIcon != null) {
 							return appIcon.ToBitmap();
 						}
 					}
 				} catch (Exception ex) {
-					LOG.WarnFormat("Couldn't get icon for window {0} due to: {1}", Text, ex.Message);
-					LOG.Warn(ex);
+					Log.WarnFormat("Couldn't get icon for window {0} due to: {1}", Text, ex.Message);
+					Log.Warn(ex);
 				}
 				if (IsMetroApp) {
 					// No method yet to get the metro icon
@@ -311,8 +294,8 @@ namespace GreenshotPlugin.Core {
 				try {
 					return PluginUtils.GetCachedExeIcon(ProcessPath, 0);
 				} catch (Exception ex) {
-					LOG.WarnFormat("Couldn't get icon for window {0} due to: {1}", Text, ex.Message);
-					LOG.Warn(ex);
+					Log.WarnFormat("Couldn't get icon for window {0} due to: {1}", Text, ex.Message);
+					Log.Warn(ex);
 				}
 				return null;
 			}
@@ -324,27 +307,27 @@ namespace GreenshotPlugin.Core {
 		/// <param name="hwnd"></param>
 		/// <returns></returns>
 		private static Icon GetAppIcon(IntPtr hwnd) {
-			IntPtr ICON_SMALL = IntPtr.Zero;
-			IntPtr ICON_BIG = new IntPtr(1);
-			IntPtr ICON_SMALL2 = new IntPtr(2);
+			IntPtr iconSmall = IntPtr.Zero;
+			IntPtr iconBig = new IntPtr(1);
+			IntPtr iconSmall2 = new IntPtr(2);
 
 			IntPtr iconHandle;
 			if (Conf.UseLargeIcons) {
-				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_BIG, IntPtr.Zero);
+				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, iconBig, IntPtr.Zero);
 				if (iconHandle == IntPtr.Zero) {
 					iconHandle = User32.GetClassLongWrapper(hwnd, (int)ClassLongIndex.GCL_HICON);
 				}
 			} else {
-				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_SMALL2, IntPtr.Zero);
+				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, iconSmall2, IntPtr.Zero);
 			}
 			if (iconHandle == IntPtr.Zero) {
-				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_SMALL, IntPtr.Zero);
+				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, iconSmall, IntPtr.Zero);
 			}
 			if (iconHandle == IntPtr.Zero) {
 				iconHandle = User32.GetClassLongWrapper(hwnd, (int)ClassLongIndex.GCL_HICONSM);
 			}
 			if (iconHandle == IntPtr.Zero) {
-				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, ICON_BIG, IntPtr.Zero);
+				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, iconBig, IntPtr.Zero);
 			}
 			if (iconHandle == IntPtr.Zero) {
 				iconHandle = User32.GetClassLongWrapper(hwnd, (int)ClassLongIndex.GCL_HICON);
@@ -375,7 +358,7 @@ namespace GreenshotPlugin.Core {
 			IgnoreHandles.Remove(ignoreHandle);
 		}
 
-		public List<WindowDetails> Children {
+		public IList<WindowDetails> Children {
 			get {
 				if (_childWindows == null) {
 					 GetChildren();
@@ -391,8 +374,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="titlePattern">The regexp to look for in the title</param>
 		/// <param name="classnamePattern">The regexp to look for in the classname</param>
 		/// <returns>List WindowDetails with all the found windows</returns>
-		private static List<WindowDetails> FindWindow(List<WindowDetails> windows, string titlePattern, string classnamePattern) {
-			List<WindowDetails> foundWindows = new List<WindowDetails>();
+		private static IEnumerable<WindowDetails> FindWindow(IList<WindowDetails> windows, string titlePattern, string classnamePattern) {
 			Regex titleRegexp = null;
 			Regex classnameRegexp = null;
 			
@@ -405,12 +387,11 @@ namespace GreenshotPlugin.Core {
 
 			foreach(WindowDetails window in windows) {
 				if (titleRegexp != null && titleRegexp.IsMatch(window.Text)) {
-					foundWindows.Add(window);
+					yield return window;
 				} else if (classnameRegexp != null && classnameRegexp.IsMatch(window.ClassName)) {
-					foundWindows.Add(window);
+					yield return window;
 				}
 			}
-			return foundWindows;
 		}
 		
 		/// <summary>
@@ -471,7 +452,7 @@ namespace GreenshotPlugin.Core {
 		/// Retrieve all the children, this only stores the children internally.
 		/// One should normally use the getter "Children"
 		/// </summary>
-		public List<WindowDetails> GetChildren() {
+		public IList<WindowDetails> GetChildren() {
 			if (_childWindows == null) {
 				return GetChildren(0);
 			}
@@ -482,14 +463,15 @@ namespace GreenshotPlugin.Core {
 		/// Retrieve all the children, this only stores the children internally, use the "Children" property for the value
 		/// </summary>
 		/// <param name="levelsToGo">Specify how many levels we go in</param>
-		public List<WindowDetails> GetChildren(int levelsToGo) {
-			if (_childWindows == null) {
-				_childWindows = new List<WindowDetails>();
-				foreach(WindowDetails childWindow in new WindowsEnumerator().GetWindows(_hWnd, null).Items) {
-					_childWindows.Add(childWindow);
-					if (levelsToGo > 0) {
-						childWindow.GetChildren(levelsToGo-1);
-					}
+		public IList<WindowDetails> GetChildren(int levelsToGo) {
+			if (_childWindows != null)
+			{
+				return _childWindows;
+			}
+			_childWindows = new WindowsEnumerator().GetWindows(Handle, null).Items;
+			foreach(var childWindow in _childWindows) {
+				if (levelsToGo > 0) {
+					childWindow.GetChildren(levelsToGo-1);
 				}
 			}
 			return _childWindows;
@@ -501,7 +483,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="titlePattern">The regexp to look for in the title</param>
 		/// <param name="classnamePattern">The regexp to look for in the classname</param>
 		/// <returns>List WindowDetails with all the found windows, or an empty list</returns>
-		public List<WindowDetails> FindChildren(string titlePattern, string classnamePattern) {
+		public IEnumerable<WindowDetails> FindChildren(string titlePattern, string classnamePattern) {
 			return FindWindow(Children, titlePattern, classnamePattern);
 		}
 		
@@ -511,22 +493,23 @@ namespace GreenshotPlugin.Core {
 		/// <param name="classnames">List string with classnames</param>
 		/// <param name="index">The index in the list to look for</param>
 		/// <returns>WindowDetails if a match was found</returns>
-		private WindowDetails FindPath(List<string> classnames, int index) {
-			WindowDetails resultWindow = null;
-			List<WindowDetails> foundWindows = FindChildren(null, classnames[index]);
+		private WindowDetails FindPath(IList<string> classnames, int index) {
 			if (index == classnames.Count - 1) {
-				if (foundWindows.Count > 0) {
-					resultWindow = foundWindows[0];
+				foreach (var foundWindow in FindChildren(null, classnames[index]))
+				{
+					return foundWindow;
 				}
 			} else {
-				foreach(WindowDetails foundWindow in foundWindows) {
-					resultWindow = foundWindow.FindPath(classnames, index+1);
-					if (resultWindow != null) {
-						break;
+				foreach(var foundWindow in FindChildren(null, classnames[index]))
+				{
+					var resultWindow = foundWindow.FindPath(classnames, index+1);
+					if (resultWindow != null)
+					{
+						return resultWindow;
 					}
 				}
 			}
-			return resultWindow;
+			return null;
 		}
 
 		/// <summary>
@@ -536,9 +519,9 @@ namespace GreenshotPlugin.Core {
 		/// <param name="classnames">List of string with classname "path"</param>
 		/// <param name="allowSkip">true allows the search to skip a classname of the path</param>
 		/// <returns>WindowDetails if found</returns>
-		public WindowDetails FindPath(List<string> classnames, bool allowSkip) {
+		public WindowDetails FindPath(IList<string> classnames, bool allowSkip) {
 			int index = 0;
-			WindowDetails resultWindow = FindPath(classnames, index++);
+			var resultWindow = FindPath(classnames, index++);
 			if (resultWindow == null && allowSkip) {
 				while(resultWindow == null && index < classnames.Count) {
 					resultWindow = FindPath(classnames, index);
@@ -558,14 +541,14 @@ namespace GreenshotPlugin.Core {
 				return windowDetails;
 			}
 			// First loop through this level
-			foreach(WindowDetails child in windowDetails.Children) {
+			foreach(var child in windowDetails.Children) {
 				if (classnamePattern.IsMatch(child.ClassName)) {
 					return child;
 				}
 			}
 			// Go into all children
-			foreach(WindowDetails child in windowDetails.Children) {
-				WindowDetails deepWindow = DeepScan(child, classnamePattern);
+			foreach(var child in windowDetails.Children) {
+				var deepWindow = DeepScan(child, classnamePattern);
 				if (deepWindow != null) {
 					return deepWindow;
 				}
@@ -579,23 +562,21 @@ namespace GreenshotPlugin.Core {
 		/// <param name="gwCommand">The GetWindowCommand to use</param>
 		/// <returns>null if nothing found, otherwise the WindowDetails instance of the "child"</returns>
 		public WindowDetails GetWindow(GetWindowCommand gwCommand) {
-			IntPtr tmphWnd = User32.GetWindow(Handle, gwCommand);
+			var tmphWnd = User32.GetWindow(Handle, gwCommand);
 			if (IntPtr.Zero == tmphWnd) {
 				return null;
 			}
-			WindowDetails windowDetails = new WindowDetails(tmphWnd);
-			windowDetails._parent = this;
+			var windowDetails = new WindowDetails(tmphWnd)
+			{
+				_parent = this
+			};
 			return windowDetails;
 		}
 
 		/// <summary>
 		/// Gets the window's handle
 		/// </summary>
-		public IntPtr Handle {
-			get {
-				return _hWnd;
-			}
-		}
+		public IntPtr Handle { get; }
 
 		private string _text;
 		/// <summary>
@@ -607,8 +588,8 @@ namespace GreenshotPlugin.Core {
 			}
 			get {
 				if (_text == null) {
-					StringBuilder title = new StringBuilder(260, 260);
-					User32.GetWindowText(_hWnd, title, title.Capacity);
+					var title = new StringBuilder(260, 260);
+					User32.GetWindowText(Handle, title, title.Capacity);
 					_text = title.ToString();
 				}
 				return _text;
@@ -619,14 +600,7 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Gets the window's class name.
 		/// </summary>
-		public string ClassName {
-			get {
-				if (_className == null) {
-					_className = GetClassName(_hWnd);
-				}
-				return _className;
-			}
-		}
+		public string ClassName => _className ?? (_className = GetClassName(Handle));
 
 		/// <summary>
 		/// Gets/Sets whether the window is iconic (mimimized) or not.
@@ -636,13 +610,13 @@ namespace GreenshotPlugin.Core {
 				if (IsMetroApp) {
 					return !Visible;
 				}
-				return User32.IsIconic(_hWnd) || Location.X <= -32000;
+				return User32.IsIconic(Handle) || Location.X <= -32000;
 			}
 			set {
 				if (value) {
-					User32.SendMessage(_hWnd,  (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_MINIMIZE, IntPtr.Zero);
+					User32.SendMessage(Handle,  (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_MINIMIZE, IntPtr.Zero);
 				} else {
-					User32.SendMessage(_hWnd,  (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_RESTORE, IntPtr.Zero);
+					User32.SendMessage(Handle,  (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_RESTORE, IntPtr.Zero);
 				}
 			}
 		}
@@ -656,7 +630,7 @@ namespace GreenshotPlugin.Core {
 				{
 					if (Visible) {
 						Rectangle windowRectangle = WindowRectangle;
-						foreach (Screen screen in Screen.AllScreens) {
+						foreach (var screen in Screen.AllScreens) {
 							if (screen.Bounds.Contains(windowRectangle)) {
 								if (windowRectangle.Equals(screen.Bounds)) {
 									return true;
@@ -666,13 +640,13 @@ namespace GreenshotPlugin.Core {
 					}
 					return false;
 				}
-				return User32.IsZoomed(_hWnd);
+				return User32.IsZoomed(Handle);
 			}
 			set {
 				if (value) {
-					User32.SendMessage(_hWnd, (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_MAXIMIZE, IntPtr.Zero);
+					User32.SendMessage(Handle, (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_MAXIMIZE, IntPtr.Zero);
 				} else {
-					User32.SendMessage(_hWnd, (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_MINIMIZE, IntPtr.Zero);
+					User32.SendMessage(Handle, (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_MINIMIZE, IntPtr.Zero);
 				}
 			}
 		}
@@ -722,7 +696,7 @@ namespace GreenshotPlugin.Core {
 				if (IsAppLauncher) {
 					return IsAppLauncherVisible;
 				}
-				return User32.IsWindowVisible(_hWnd);
+				return User32.IsWindowVisible(Handle);
 			}
 		}
 		
@@ -746,12 +720,9 @@ namespace GreenshotPlugin.Core {
 				try {
 					int processId;
 					User32.GetWindowThreadProcessId(Handle, out processId);
-					Process process = Process.GetProcessById(processId);
-					if (process != null) {
-						return process;
-					}
+					return Process.GetProcessById(processId);
 				} catch (Exception ex) {
-					LOG.Warn(ex);
+					Log.Warn(ex);
 				}
 				return null;
 			}
@@ -805,7 +776,7 @@ namespace GreenshotPlugin.Core {
 							if (GetWindowRect(out windowRect))
 							{
 								Win32Error error = Win32.GetLastErrorCode();
-								LOG.WarnFormat("Couldn't retrieve the windows rectangle: {0}", Win32.GetMessage(error));
+								Log.WarnFormat("Couldn't retrieve the windows rectangle: {0}", Win32.GetMessage(error));
 							}
 						}
 	
@@ -860,7 +831,7 @@ namespace GreenshotPlugin.Core {
 				if (GetClientRect(out clientRect))
 				{
 					Win32Error error = Win32.GetLastErrorCode();
-					LOG.WarnFormat("Couldn't retrieve the client rectangle for {0}, error: {1}", Text, Win32.GetMessage(error));
+					Log.WarnFormat("Couldn't retrieve the client rectangle for {0}, error: {1}", Text, Win32.GetMessage(error));
 				}
 				return clientRect;
 			}
@@ -881,11 +852,12 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		public void Restore() {
 			if (Iconic) {
-				User32.SendMessage(_hWnd, (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_RESTORE, IntPtr.Zero);
+				User32.SendMessage(Handle, (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_RESTORE, IntPtr.Zero);
 			}
-			User32.BringWindowToTop(_hWnd);
-			User32.SetForegroundWindow(_hWnd);
+			User32.BringWindowToTop(Handle);
+			User32.SetForegroundWindow(Handle);
 			// Make sure windows has time to perform the action
+			// TODO: this is BAD practice!
 			while(Iconic) {
 				Application.DoEvents();
 			}
@@ -896,10 +868,10 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		public WindowStyleFlags WindowStyle {
 			get {
-				return (WindowStyleFlags)User32.GetWindowLongWrapper(_hWnd, (int)WindowLongIndex.GWL_STYLE);
+				return (WindowStyleFlags)User32.GetWindowLongWrapper(Handle, (int)WindowLongIndex.GWL_STYLE);
 			}
 			set {
-				User32.SetWindowLongWrapper(_hWnd, (int)WindowLongIndex.GWL_STYLE, new IntPtr((long)value));
+				User32.SetWindowLongWrapper(Handle, (int)WindowLongIndex.GWL_STYLE, new IntPtr((long)value));
 			}
 		}
 
@@ -908,7 +880,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		public WindowPlacement WindowPlacement {
 			get {
-				WindowPlacement placement = WindowPlacement.Default;
+				var placement = WindowPlacement.Default;
 				User32.GetWindowPlacement(Handle, ref placement);
 				return placement;
 			}
@@ -922,10 +894,10 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		public ExtendedWindowStyleFlags ExtendedWindowStyle {
 			get {
-				return (ExtendedWindowStyleFlags)User32.GetWindowLongWrapper(_hWnd, (int)WindowLongIndex.GWL_EXSTYLE);
+				return (ExtendedWindowStyleFlags)User32.GetWindowLongWrapper(Handle, (int)WindowLongIndex.GWL_EXSTYLE);
 			}
 			set {
-				User32.SetWindowLongWrapper(_hWnd, (int)WindowLongIndex.GWL_EXSTYLE, new IntPtr((uint)value));
+				User32.SetWindowLongWrapper(Handle, (int)WindowLongIndex.GWL_EXSTYLE, new IntPtr((uint)value));
 			}
 		}
 
@@ -1084,7 +1056,7 @@ namespace GreenshotPlugin.Core {
 								}
 							}
 						} catch (Exception e) {
-							LOG.Debug("Exception: ", e);
+							Log.Debug("Exception: ", e);
 							// Some problem occurred, cleanup and make a normal capture
 							if (capturedBitmap != null) {
 								capturedBitmap.Dispose();
@@ -1121,7 +1093,7 @@ namespace GreenshotPlugin.Core {
 							if (Conf.WindowCaptureRemoveCorners && !Maximised && (ExtendedWindowStyle & ExtendedWindowStyleFlags.WS_EX_TOOLWINDOW) == 0) {
 								// Remove corners
 								if (!Image.IsAlphaPixelFormat(capturedBitmap.PixelFormat)) {
-									LOG.Debug("Changing pixelformat to Alpha for the RemoveCorners");
+									Log.Debug("Changing pixelformat to Alpha for the RemoveCorners");
 									Bitmap tmpBitmap = ImageHelper.Clone(capturedBitmap, PixelFormat.Format32bppArgb);
 									capturedBitmap.Dispose();
 									capturedBitmap = tmpBitmap;
@@ -1192,20 +1164,21 @@ namespace GreenshotPlugin.Core {
 								Color c0 = blackBuffer.GetColorAt(x, y);
 								Color c1 = whiteBuffer.GetColorAt(x, y);
 								// Calculate alpha as double in range 0-1
-								double alpha = (c0.R - c1.R + 255) / 255d;
-								if (alpha == 1) {
-									// Alpha == 1 means no change!
+								int alpha = c0.R - c1.R + 255;
+								if (alpha == 255) {
+									// Alpha == 255 means no change!
 									targetBuffer.SetColorAt(x, y, c0);
 								} else if (alpha == 0) {
 									// Complete transparency, use transparent pixel
 									targetBuffer.SetColorAt(x, y, Color.Transparent);
 								} else {
 									// Calculate original color
-									byte originalAlpha = (byte)Math.Min(255, alpha * 255);
+									byte originalAlpha = (byte)Math.Min(255, alpha);
+									var alphaFactor = alpha/255d;
 									//LOG.DebugFormat("Alpha {0} & c0 {1} & c1 {2}", alpha, c0, c1);
-									byte originalRed = (byte)Math.Min(255, c0.R / alpha);
-									byte originalGreen = (byte)Math.Min(255, c0.G / alpha);
-									byte originalBlue = (byte)Math.Min(255, c0.B / alpha);
+									byte originalRed = (byte)Math.Min(255, c0.R / alphaFactor);
+									byte originalGreen = (byte)Math.Min(255, c0.G / alphaFactor);
+									byte originalBlue = (byte)Math.Min(255, c0.B / alphaFactor);
 									Color originalColor = Color.FromArgb(originalAlpha, originalRed, originalGreen, originalBlue);
 									//Color originalColor = Color.FromArgb(originalAlpha, originalRed, c0.G, c0.B);
 									targetBuffer.SetColorAt(x, y, originalColor);
@@ -1240,14 +1213,10 @@ namespace GreenshotPlugin.Core {
 		/// <param name="rectangle">out Rectangle</param>
 		/// <returns>bool true if it worked</returns>		
 		private bool GetClientRect(out Rectangle rectangle) {
-			WindowInfo windowInfo = new WindowInfo();
+			var windowInfo = new WindowInfo();
 			// Get the Window Info for this window
 			bool result = User32.GetWindowInfo(Handle, ref windowInfo);
-			if (result) {
-				rectangle = windowInfo.rcClient.ToRectangle();
-			} else {
-				rectangle = Rectangle.Empty;
-			}
+			rectangle = result ? windowInfo.rcClient.ToRectangle() : Rectangle.Empty;
 			return result;
 		}
 		
@@ -1257,14 +1226,10 @@ namespace GreenshotPlugin.Core {
 		/// <param name="rectangle">out Rectangle</param>
 		/// <returns>bool true if it worked</returns>		
 		private bool GetWindowRect(out Rectangle rectangle) {
-			WindowInfo windowInfo = new WindowInfo();
+			var windowInfo = new WindowInfo();
 			// Get the Window Info for this window
 			bool result = User32.GetWindowInfo(Handle, ref windowInfo);
-			if (result) {
-				rectangle = windowInfo.rcWindow.ToRectangle();
-			} else {
-				rectangle = Rectangle.Empty;
-			}
+			rectangle = result ? windowInfo.rcWindow.ToRectangle() : Rectangle.Empty;
 			return result;
 		}
 
@@ -1274,14 +1239,10 @@ namespace GreenshotPlugin.Core {
 		/// <param name="size">out Size</param>
 		/// <returns>bool true if it worked</returns>	
 		private bool GetBorderSize(out Size size) {
-			WindowInfo windowInfo = new WindowInfo();
+			var windowInfo = new WindowInfo();
 			// Get the Window Info for this window
 			bool result = User32.GetWindowInfo(Handle, ref windowInfo);
-			if (result) {
-				size = new Size((int)windowInfo.cxWindowBorders, (int)windowInfo.cyWindowBorders);
-			} else {
-				size = Size.Empty;
-			}
+			size = result ? new Size((int)windowInfo.cxWindowBorders, (int)windowInfo.cyWindowBorders) : Size.Empty;
 			return result;
 		}
 		
@@ -1339,14 +1300,14 @@ namespace GreenshotPlugin.Core {
 			using (Process proc = Process.GetProcessById(ProcessId)) {
 				string processName = proc.ProcessName;
 				if (!CanFreezeOrUnfreeze(processName)) {
-					LOG.DebugFormat("Not freezing {0}", processName);
+					Log.DebugFormat("Not freezing {0}", processName);
 					return false;
 				}
 				if (!CanFreezeOrUnfreeze(Text)) {
-					LOG.DebugFormat("Not freezing {0}", processName);
+					Log.DebugFormat("Not freezing {0}", processName);
 					return false;
 				}
-				LOG.DebugFormat("Freezing process: {0}", processName);
+				Log.DebugFormat("Freezing process: {0}", processName);
 
 
 				foreach (ProcessThread pT in proc.Threads) {
@@ -1370,14 +1331,14 @@ namespace GreenshotPlugin.Core {
 			using (Process proc = Process.GetProcessById(ProcessId)) {
 				string processName = proc.ProcessName;
 				if (!CanFreezeOrUnfreeze(processName)) {
-					LOG.DebugFormat("Not unfreezing {0}", processName);
+					Log.DebugFormat("Not unfreezing {0}", processName);
 					return;
 				}
 				if (!CanFreezeOrUnfreeze(Text)) {
-					LOG.DebugFormat("Not unfreezing {0}", processName);
+					Log.DebugFormat("Not unfreezing {0}", processName);
 					return;
 				}
-				LOG.DebugFormat("Unfreezing process: {0}", processName);
+				Log.DebugFormat("Unfreezing process: {0}", processName);
 
 				foreach (ProcessThread pT in proc.Threads) {
 					IntPtr pOpenThread = Kernel32.OpenThread(ThreadAccess.SUSPEND_RESUME, false, (uint)pT.Id);
@@ -1408,8 +1369,8 @@ namespace GreenshotPlugin.Core {
 				}
 				returnImage = new Bitmap(windowRect.Width, windowRect.Height, pixelFormat);
 				using (Graphics graphics = Graphics.FromImage(returnImage)) {
-					using (SafeDeviceContextHandle graphicsDC = graphics.GetSafeDeviceContext()) {
-						bool printSucceeded = User32.PrintWindow(Handle, graphicsDC.DangerousGetHandle(), 0x0);
+					using (SafeDeviceContextHandle graphicsDc = graphics.GetSafeDeviceContext()) {
+						bool printSucceeded = User32.PrintWindow(Handle, graphicsDc.DangerousGetHandle(), 0x0);
 						if (!printSucceeded) {
 							// something went wrong, most likely a "0x80004005" (Acess Denied) when using UAC
 							exceptionOccured = User32.CreateWin32Exception("PrintWindow");
@@ -1428,15 +1389,13 @@ namespace GreenshotPlugin.Core {
 
 			// Return null if error
 			if (exceptionOccured != null) {
-				LOG.ErrorFormat("Error calling print window: {0}", exceptionOccured.Message);
-				if (returnImage != null) {
-					returnImage.Dispose();
-				}
+				Log.ErrorFormat("Error calling print window: {0}", exceptionOccured.Message);
+				returnImage.Dispose();
 				return null;
 			}
 			if (!HasParent && Maximised) {
-				LOG.Debug("Correcting for maximalization");
-				Size borderSize = Size.Empty;
+				Log.Debug("Correcting for maximalization");
+				Size borderSize;
 				GetBorderSize(out borderSize);
 				Rectangle borderRectangle = new Rectangle(borderSize.Width, borderSize.Height, windowRect.Width - (2 * borderSize.Width), windowRect.Height - (2 * borderSize.Height));
 				ImageHelper.Crop(ref returnImage, ref borderRectangle);
@@ -1450,7 +1409,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="hWnd">The Window Handle</param>
 		public WindowDetails(IntPtr hWnd) {
-			_hWnd = hWnd;
+			Handle = hWnd;
 		}
 		
 		/// <summary>
@@ -1486,7 +1445,7 @@ namespace GreenshotPlugin.Core {
 						}
 					}
 				} catch (Exception ex) {
-					LOG.Warn(ex);
+					Log.Warn(ex);
 				}
 				return false;
 			}
@@ -1504,7 +1463,7 @@ namespace GreenshotPlugin.Core {
 		/// Get all the top level windows
 		/// </summary>
 		/// <returns>List of WindowDetails with all the top level windows</returns>
-		public static List<WindowDetails> GetAllWindows() {
+		public static IList<WindowDetails> GetAllWindows() {
 			return GetAllWindows(null);
 		}
 
@@ -1512,7 +1471,7 @@ namespace GreenshotPlugin.Core {
 		/// Get all the top level windows, with matching classname
 		/// </summary>
 		/// <returns>List WindowDetails with all the top level windows</returns>
-		public static List<WindowDetails> GetAllWindows(string classname) {
+		public static IList<WindowDetails> GetAllWindows(string classname) {
 			return new WindowsEnumerator().GetWindows(IntPtr.Zero, classname).Items;
 		}
 
@@ -1525,7 +1484,7 @@ namespace GreenshotPlugin.Core {
 			if (!Contains(point)) {
 				return null;
 			}
-			foreach(WindowDetails childWindow in Children) {
+			foreach(var childWindow in Children) {
 				if (childWindow.Contains(point)) {
 					return childWindow.FindChildUnderPoint(point);
 				}
@@ -1539,43 +1498,62 @@ namespace GreenshotPlugin.Core {
 		/// <param name="hWnd">IntPtr with the windows handle</param>
 		/// <returns>String with ClassName</returns>
 		public static string GetClassName(IntPtr hWnd) {
-			StringBuilder classNameBuilder = new StringBuilder(260, 260);
+			var classNameBuilder = new StringBuilder(260, 260);
 			User32.GetClassName(hWnd, classNameBuilder, classNameBuilder.Capacity);
 			return classNameBuilder.ToString();
+		}
+
+		/// <summary>
+		/// Helper method to decide if a top level window is visible
+		/// </summary>
+		/// <param name="window"></param>
+		/// <param name="screenBounds"></param>
+		/// <returns></returns>
+		private static bool IsVisibleTopLevel(WindowDetails window, Rectangle screenBounds)
+		{
+			// Ignore windows without title
+			if (window.Text.Length == 0)
+			{
+				return false;
+			}
+			// Ignore invisible
+			if (!window.Visible)
+			{
+				return false;
+			}
+			if (IgnoreClasses.Contains(window.ClassName))
+			{
+				return false;
+			}
+			// Windows without size
+			Rectangle windowRect = window.WindowRectangle;
+			windowRect.Intersect(screenBounds);
+			if (windowRect.Size.IsEmpty)
+			{
+				return false;
+			}
+			return true;
 		}
 
 		/// <summary>
 		/// Get all the visible top level windows
 		/// </summary>
 		/// <returns>List WindowDetails with all the visible top level windows</returns>
-		public static List<WindowDetails> GetVisibleWindows() {
-			List<WindowDetails> windows = new List<WindowDetails>();
+		public static IEnumerable<WindowDetails> GetVisibleWindows() {
 			Rectangle screenBounds = WindowCapture.GetScreenBounds();
-			List<WindowDetails> allWindows = GetMetroApps();
-			allWindows.AddRange(GetAllWindows());
-			foreach(WindowDetails window in allWindows) {
-				// Ignore windows without title
-				if (window.Text.Length == 0) {
-					continue;
+			foreach(var window in GetMetroApps()) {
+				if (IsVisibleTopLevel(window, screenBounds))
+				{
+					yield return window;
 				}
-				// Ignore invisible
-				if (!window.Visible) {
-					continue;
-				}
-				// Ignore some classes
-				List<string> ignoreClasses = new List<string>(new[] { "Progman", "XLMAIN", "Button", "Dwm" }); //"MS-SDIa"
-				if (ignoreClasses.Contains(window.ClassName)) {
-					continue;
-				}
-				// Windows without size
-				Rectangle windowRect = window.WindowRectangle;
-				windowRect.Intersect(screenBounds);
-				if (windowRect.Size.IsEmpty) {
-					continue;
-				}
-				windows.Add(window);
 			}
-			return windows;
+			foreach (var window in GetAllWindows())
+			{
+				if (IsVisibleTopLevel(window, screenBounds))
+				{
+					yield return window;
+				}
+			}
 		}
 
 		/// <summary>
@@ -1583,11 +1561,11 @@ namespace GreenshotPlugin.Core {
 		/// These are all Windows with Classname "Windows.UI.Core.CoreWindow"
 		/// </summary>
 		/// <returns>List WindowDetails with visible metro apps</returns>
-		public static List<WindowDetails> GetMetroApps() {
-			List<WindowDetails> metroApps = new List<WindowDetails>();
+		public static IEnumerable<WindowDetails> GetMetroApps() {
 			// if the appVisibility != null we have Windows 8.
-			if (AppVisibility == null) {
-				return metroApps;
+			if (AppVisibility == null)
+			{
+				yield break;
 			}
 			//string[] wcs = {"ImmersiveGutter", "Snapped Desktop", "ImmersiveBackgroundWindow","ImmersiveLauncher","Windows.UI.Core.CoreWindow","ApplicationManager_ImmersiveShellWindow","SearchPane","MetroGhostWindow","EdgeUiInputWndClass", "NativeHWNDHost", "Shell_CharmWindow"};
 			//List<WindowDetails> specials = new List<WindowDetails>();
@@ -1602,61 +1580,83 @@ namespace GreenshotPlugin.Core {
 			//		wcHandle = User32.FindWindowEx(IntPtr.Zero, wcHandle, null, null);
 			//	};
 			//}
-			IntPtr nextHandle = User32.FindWindow(METRO_WINDOWS_CLASS, null);
+			IntPtr nextHandle = User32.FindWindow(MetroWindowsClass, null);
 			while (nextHandle != IntPtr.Zero) {
-				WindowDetails metroApp = new WindowDetails(nextHandle);
-				metroApps.Add(metroApp);
+				var metroApp = new WindowDetails(nextHandle);
+				yield return metroApp;
 				// Check if we have a gutter!
 				if (metroApp.Visible && !metroApp.Maximised) {
-					IntPtr gutterHandle = User32.FindWindow(METRO_GUTTER_CLASS, null);
+					var gutterHandle = User32.FindWindow(MetroGutterClass, null);
 					if (gutterHandle != IntPtr.Zero) {
-						metroApps.Add(new WindowDetails(gutterHandle));
+						yield return new WindowDetails(gutterHandle);
 					}
 				}
-				nextHandle = User32.FindWindowEx(IntPtr.Zero, nextHandle, METRO_WINDOWS_CLASS, null);
-			};
-			
-			return metroApps;
+				nextHandle = User32.FindWindowEx(IntPtr.Zero, nextHandle, MetroWindowsClass, null);
+			}
 		}
 
+		/// <summary>
+		/// Check if the window is a top level
+		/// </summary>
+		/// <param name="window">WindowDetails</param>
+		/// <returns>bool</returns>
+		private static bool IsTopLevel(WindowDetails window)
+		{
+			// Ignore windows without title
+			if (window.Text.Length == 0)
+			{
+				return false;
+			}
+			if (IgnoreClasses.Contains(window.ClassName))
+			{
+				return false;
+			}
+			// Windows without size
+			if (window.WindowRectangle.Size.IsEmpty)
+			{
+				return false;
+			}
+			if (window.HasParent)
+			{
+				return false;
+			}
+			var exWindowStyle = window.ExtendedWindowStyle;
+			if ((exWindowStyle & ExtendedWindowStyleFlags.WS_EX_TOOLWINDOW) != 0)
+			{
+				return false;
+			}
+			// Skip everything which is not rendered normally.
+			if (!window.IsApp && (exWindowStyle & ExtendedWindowStyleFlags.WS_EX_NOREDIRECTIONBITMAP) != 0)
+			{
+				return false;
+			}
+			// Skip preview windows, like the one from Firefox
+			if ((window.WindowStyle & WindowStyleFlags.WS_VISIBLE) == 0)
+			{
+				return false;
+			}
+			return window.Visible || window.Iconic;
+		}
 		/// <summary>
 		/// Get all the top level windows
 		/// </summary>
 		/// <returns>List WindowDetails with all the top level windows</returns>
-		public static List<WindowDetails> GetTopLevelWindows() {
-			List<WindowDetails> windows = new List<WindowDetails>();
-			var possibleTopLevelWindows = GetMetroApps();
-			possibleTopLevelWindows.AddRange(GetAllWindows());
-			foreach (WindowDetails window in possibleTopLevelWindows) {
-				// Ignore windows without title
-				if (window.Text.Length == 0) {
-					continue;
+		public static IEnumerable<WindowDetails> GetTopLevelWindows() {
+			foreach (var possibleTopLevel in GetMetroApps())
+			{
+				if (IsTopLevel(possibleTopLevel))
+				{
+					yield return possibleTopLevel;
 				}
-				// Ignore some classes
-				List<string> ignoreClasses = new List<string>(new[] { "Progman", "XLMAIN", "Button", "Dwm" }); //"MS-SDIa"
-				if (ignoreClasses.Contains(window.ClassName)) {
-					continue;
-				}
-				// Windows without size
-				if (window.WindowRectangle.Size.IsEmpty) {
-					continue;
-				}
-				if (window.HasParent) {
-					continue;
-				}
-				if ((window.ExtendedWindowStyle & ExtendedWindowStyleFlags.WS_EX_TOOLWINDOW) != 0) {
-					continue;
-				}
-				// Skip preview windows, like the one from Firefox
-				if ((window.WindowStyle & WindowStyleFlags.WS_VISIBLE) == 0) {
-					continue;
-				}
-				if (!window.Visible && !window.Iconic) {
-					continue;
-				}
-				windows.Add(window);
 			}
-			return windows;
+
+			foreach (var possibleTopLevel in GetAllWindows())
+			{
+				if (IsTopLevel(possibleTopLevel))
+				{
+					yield return possibleTopLevel;
+				}
+			}
 		}
 
 		/// <summary>
@@ -1666,7 +1666,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns></returns>
 		public static WindowDetails GetLinkedWindow(WindowDetails windowToLinkTo) {
 			int processIdSelectedWindow = windowToLinkTo.ProcessId;
-			foreach(WindowDetails window in GetAllWindows()) {
+			foreach(var window in GetAllWindows()) {
 				// Ignore windows without title
 				if (window.Text.Length == 0) {
 					continue;
@@ -1689,7 +1689,7 @@ namespace GreenshotPlugin.Core {
 				}
 
 				if (window.ProcessId == processIdSelectedWindow) {
-					LOG.InfoFormat("Found window {0} belonging to same process as the window {1}", window.Text, windowToLinkTo.Text);
+					Log.InfoFormat("Found window {0} belonging to same process as the window {1}", window.Text, windowToLinkTo.Text);
 					return window;
 				}
 			}
@@ -1701,10 +1701,11 @@ namespace GreenshotPlugin.Core {
 		/// One should preferably call "GetVisibleWindows" for the oldWindows.
 		/// </summary>
 		/// <param name="oldWindows">List WindowDetails with old windows</param>
-		public static void ActiveNewerWindows(List<WindowDetails> oldWindows) {
-			List<WindowDetails> windowsAfter = GetVisibleWindows();
-			foreach(WindowDetails window in windowsAfter) {
-				if (!oldWindows.Contains(window)) {
+		public static void ActiveNewerWindows(IEnumerable<WindowDetails> oldWindows)
+		{
+			var oldWindowsList = new List<WindowDetails>(oldWindows);
+			foreach(var window in GetVisibleWindows()) {
+				if (!oldWindowsList.Contains(window)) {
 					window.ToForeground();
 				}
 			}
@@ -1719,7 +1720,7 @@ namespace GreenshotPlugin.Core {
 			if (AppVisibility == null) {
 				return null;
 			}
-			IntPtr appLauncher = User32.FindWindow(METRO_APPLAUNCHER_CLASS, null);
+			IntPtr appLauncher = User32.FindWindow(MetroApplauncherClass, null);
 			if (appLauncher != IntPtr.Zero) {
 				return new WindowDetails (appLauncher);
 			}

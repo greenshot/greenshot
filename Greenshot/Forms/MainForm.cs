@@ -488,7 +488,7 @@ namespace Greenshot {
 			{
 				return;
 			}
-            base.WndProc(ref m);
+			base.WndProc(ref m);
 		}
 
 		#region hotkeys
@@ -726,7 +726,7 @@ namespace Greenshot {
 
 			var now = DateTime.Now;
 			if ((now.Month == 12 && now.Day > 19 && now.Day < 27) || // christmas
-			    (now.Month ==  3 && now.Day > 13 && now.Day < 21)) { // birthday
+				(now.Month ==  3 && now.Day > 13 && now.Day < 21)) { // birthday
 				var resources = new ComponentResourceManager(typeof(MainForm));
 					contextmenu_donate.Image = (Image)resources.GetObject("contextmenu_present.Image");
 			}
@@ -814,7 +814,7 @@ namespace Greenshot {
 					} else if(screen.Bounds.Left != allScreensBounds.Left && screen.Bounds.Right == allScreensBounds.Right) {
 						deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_right);
 					}
-                    captureScreenItem = new ToolStripMenuItem(deviceAlignment);
+					captureScreenItem = new ToolStripMenuItem(deviceAlignment);
 					captureScreenItem.Click += delegate {
 						BeginInvoke((MethodInvoker)delegate {
 							CaptureHelper.CaptureRegion(false, screenToCapture.Bounds);
@@ -879,8 +879,7 @@ namespace Greenshot {
 			// check if thumbnailPreview is enabled and DWM is enabled
 			bool thumbnailPreview = _conf.ThumnailPreview && DWM.IsDwmEnabled();
 
-			List<WindowDetails> windows = WindowDetails.GetTopLevelWindows();
-			foreach(WindowDetails window in windows) {
+			foreach(WindowDetails window in WindowDetails.GetTopLevelWindows()) {
 
 				string title = window.Text;
 				if (title != null) {
@@ -1203,7 +1202,7 @@ namespace Greenshot {
 			LOG.Error("Exception caught in the UnhandledException handler.");
 			LOG.Error(exceptionText);
 			if (exceptionText != null && exceptionText.Contains("InputLanguageChangedEventArgs"))
-            {
+			{
 				// Ignore for BUG-1809
 				return;
 			}
@@ -1214,7 +1213,7 @@ namespace Greenshot {
 			Exception exceptionToLog = e.Exception;
 			string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
 			LOG.Error("Exception caught in the ThreadException handler.");
-            LOG.Error(exceptionText);
+			LOG.Error(exceptionText);
 			if (exceptionText != null && exceptionText.Contains("InputLanguageChangedEventArgs"))
 			{
 				// Ignore for BUG-1809
@@ -1275,18 +1274,18 @@ namespace Greenshot {
 			switch (clickAction) {
 				case ClickActions.OPEN_LAST_IN_EXPLORER:
 					string path = null;
-                    if (!string.IsNullOrEmpty(_conf.OutputFileAsFullpath)) {
-                        string lastFilePath = Path.GetDirectoryName(_conf.OutputFileAsFullpath);
-                        if (!string.IsNullOrEmpty(lastFilePath) && Directory.Exists(lastFilePath)) {
-                            path = lastFilePath;
-					    }
-                    }
-                    if (path == null) {
-                        string configPath = FilenameHelper.FillVariables(_conf.OutputFilePath, false);
-                        if (Directory.Exists(configPath)) {
-                            path = configPath;
-                        }
-                    }
+					if (!string.IsNullOrEmpty(_conf.OutputFileAsFullpath)) {
+						string lastFilePath = Path.GetDirectoryName(_conf.OutputFileAsFullpath);
+						if (!string.IsNullOrEmpty(lastFilePath) && Directory.Exists(lastFilePath)) {
+							path = lastFilePath;
+						}
+					}
+					if (path == null) {
+						string configPath = FilenameHelper.FillVariables(_conf.OutputFilePath, false);
+						if (Directory.Exists(configPath)) {
+							path = configPath;
+						}
+					}
 
 					if (path != null) {
 						try {

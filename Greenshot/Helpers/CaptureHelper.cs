@@ -471,7 +471,7 @@ namespace Greenshot.Helpers {
 		private void RetrieveWindowDetails() {
 			LOG.Debug("start RetrieveWindowDetails");
 			// Start Enumeration of "active" windows
-			List<WindowDetails> allWindows = WindowDetails.GetMetroApps();
+			List<WindowDetails> allWindows = new List<WindowDetails>(WindowDetails.GetMetroApps());
 			allWindows.AddRange(WindowDetails.GetAllWindows());
 			foreach (WindowDetails window in allWindows) {
 				// Window should be visible and not ourselves

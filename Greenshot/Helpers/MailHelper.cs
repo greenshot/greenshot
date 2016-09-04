@@ -71,19 +71,19 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Helper Method for creating an Email with Image Attachment
 		/// </summary>
-		/// <param name="image">The image to send</param>
+		/// <param name="surface">The image to send</param>
 		/// <param name="captureDetails">ICaptureDetails</param>
 		public static void SendImage(ISurface surface, ICaptureDetails captureDetails) {
 			string tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings());
 
 			if (tmpFile != null) {
 				// Store the list of currently active windows, so we can make sure we show the email window later!
-				List<WindowDetails> windowsBefore = WindowDetails.GetVisibleWindows();
-				bool isEmailSend = false;
+				var windowsBefore = WindowDetails.GetVisibleWindows();
+				//bool isEmailSend = false;
 				//if (EmailConfigHelper.HasOutlook() && (conf.OutputEMailFormat == EmailFormat.OUTLOOK_HTML || conf.OutputEMailFormat == EmailFormat.OUTLOOK_TXT)) {
 				//	isEmailSend = OutlookExporter.ExportToOutlook(tmpFile, captureDetails);
 				//}
-				if (!isEmailSend && EmailConfigHelper.HasMAPI()) {
+				if (/*!isEmailSend &&*/ EmailConfigHelper.HasMAPI()) {
 					// Fallback to MAPI
 					// Send the email
 					SendImage(tmpFile, captureDetails.Title);
