@@ -40,7 +40,7 @@ namespace Greenshot.Drawing {
 	[Serializable]
 	public class DrawableContainerList : List<IDrawableContainer>, IDrawableContainerList
 	{
-		private static readonly ComponentResourceManager editorFormResources = new ComponentResourceManager(typeof(ImageEditorForm));
+		private static readonly ComponentResourceManager EditorFormResources = new ComponentResourceManager(typeof(ImageEditorForm));
 
 		public Guid ParentID {
 			get;
@@ -50,8 +50,8 @@ namespace Greenshot.Drawing {
 		public DrawableContainerList() {
 		}
 
-		public DrawableContainerList(Guid parentID) {
-			ParentID = parentID;
+		public DrawableContainerList(Guid parentId) {
+			ParentID = parentId;
 		}
 		
 		public EditStatus Status {
@@ -327,10 +327,11 @@ namespace Greenshot.Drawing {
 		/// Pulls one or several elements up to the topmost level(s) in hierarchy (z-index).
 		/// </summary>
 		/// <param name="elements">of elements to pull to top</param>
-		public void PullElementsToTop(IDrawableContainerList elements) {
+		public void PullElementsToTop(IDrawableContainerList elements)
+		{
 			var dcs = ToArray();
-			for(int i=0; i<dcs.Length; i++) {
-				var dc = dcs[i];
+			foreach (var dc in dcs)
+			{
 				if (!elements.Contains(dc)) {
 					continue;
 				}
@@ -339,7 +340,7 @@ namespace Greenshot.Drawing {
 				Parent.Modified = true;
 			}
 		}
-		
+
 		/// <summary>
 		/// Indicates whether the given list of elements can be pushed down, 
 		/// i.e. whether there is at least one unselected element lower in hierarchy
@@ -462,27 +463,31 @@ namespace Greenshot.Drawing {
 			menu.Items.Add(item);
 
 			// Copy
-			item = new ToolStripMenuItem(Language.GetString(LangKey.editor_copytoclipboard));
-			item.Image = ((Image)(editorFormResources.GetObject("copyToolStripMenuItem.Image")));
+			item = new ToolStripMenuItem(Language.GetString(LangKey.editor_copytoclipboard))
+			{
+				Image = (Image) EditorFormResources.GetObject("copyToolStripMenuItem.Image")
+			};
 			item.Click += delegate {
 				ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), this);
 			};
 			menu.Items.Add(item);
 
 			// Cut
-			item = new ToolStripMenuItem(Language.GetString(LangKey.editor_cuttoclipboard));
-			item.Image = ((Image)(editorFormResources.GetObject("btnCut.Image")));
+			item = new ToolStripMenuItem(Language.GetString(LangKey.editor_cuttoclipboard))
+			{
+				Image = (Image) EditorFormResources.GetObject("btnCut.Image")
+			};
 			item.Click += delegate {
 				ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), this);
-				surface.RemoveElements(this, true);
+				surface.RemoveElements(this);
 			};
 			menu.Items.Add(item);
 
 			// Delete
 			item = new ToolStripMenuItem(Language.GetString(LangKey.editor_deleteelement));
-			item.Image = ((Image)(editorFormResources.GetObject("removeObjectToolStripMenuItem.Image")));
+			item.Image = (Image)EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image");
 			item.Click += delegate {
-				surface.RemoveElements(this, true);
+				surface.RemoveElements(this);
 			};
 			menu.Items.Add(item);
 
@@ -552,7 +557,7 @@ namespace Greenshot.Drawing {
 		}
 
 		#region IDisposable Support
-		private bool _disposedValue = false; // To detect redundant calls
+		private bool _disposedValue; // To detect redundant calls
 
 		protected virtual void Dispose(bool disposing)
 		{

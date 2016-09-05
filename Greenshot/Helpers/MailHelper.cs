@@ -135,7 +135,6 @@ namespace Greenshot.Helpers {
 		private string _subject;
 		private string _body;
 		private RecipientCollection _recipientCollection;
-		private readonly List<string> _files;
 		private readonly ManualResetEvent _manualResetEvent;
 
 		#endregion Member Variables
@@ -146,7 +145,7 @@ namespace Greenshot.Helpers {
 		/// Creates a blank mail message.
 		/// </summary>
 		public MapiMailMessage() {
-			_files = new List<string>();
+			Files = new List<string>();
 			_recipientCollection = new RecipientCollection();
 			_manualResetEvent = new ManualResetEvent(false);
 		}
@@ -206,11 +205,7 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Gets the file list for this mail message.
 		/// </summary>
-		public List<string> Files {
-			get {
-				return _files;
-			}
-		}
+		public List<string> Files { get; }
 
 		#endregion Public Properties
 
@@ -255,9 +250,9 @@ namespace Greenshot.Helpers {
 		/// Sends the mail message.
 		/// </summary>
 		private void _ShowMail() {
-			MAPIHelperInterop.MapiMessage message = new MAPIHelperInterop.MapiMessage();
+			var message = new MapiHelperInterop.MapiMessage();
 
-			using (RecipientCollection.InteropRecipientCollection interopRecipients = _recipientCollection.GetInteropRepresentation()) {
+			using (var interopRecipients = _recipientCollection.GetInteropRepresentation()) {
 				message.Subject = _subject;
 				message.NoteText = _body;
 
@@ -265,7 +260,7 @@ namespace Greenshot.Helpers {
 				message.RecipientCount = _recipientCollection.Count;
 
 				// Check if we need to add attachments
-				if (_files.Count > 0) {
+				if (Files.Count > 0) {
 					// Add attachments
 					message.Files = _AllocAttachments(out message.FileCount);
 				}
@@ -275,25 +270,29 @@ namespace Greenshot.Helpers {
 
 				const int MAPI_DIALOG = 0x8;
 				//const int MAPI_LOGON_UI = 0x1;
-				int error = MAPIHelperInterop.MAPISendMail(IntPtr.Zero, IntPtr.Zero, message, MAPI_DIALOG, 0);
+				int error = MapiHelperInterop.MAPISendMail(IntPtr.Zero, IntPtr.Zero, message, MAPI_DIALOG, 0);
 
-				if (_files.Count > 0) {
+				if (Files.Count > 0) {
 					// Deallocate the files
 					_DeallocFiles(message);
 				}
 				MAPI_CODES errorCode = (MAPI_CODES)Enum.ToObject(typeof(MAPI_CODES), error);
 
 				// Check for error
-				if (errorCode != MAPI_CODES.SUCCESS && errorCode != MAPI_CODES.USER_ABORT) {
-					string errorText = GetMapiError(errorCode);
-					LOG.Error("Error sending MAPI Email. Error: " + errorText + " (code = " + errorCode + ").");
-					MessageBox.Show(errorText, "Mail (MAPI) destination", MessageBoxButtons.OK, MessageBoxIcon.Error);
-					// Recover from bad settings, show again
-					if (errorCode == MAPI_CODES.INVALID_RECIPS) {
-						_recipientCollection = new RecipientCollection();
-						_ShowMail();
-					}
+				if (errorCode == MAPI_CODES.SUCCESS || errorCode == MAPI_CODES.USER_ABORT)
+				{
+					return;
 				}
+				string errorText = GetMapiError(errorCode);
+				LOG.Error("Error sending MAPI Email. Error: " + errorText + " (code = " + errorCode + ").");
+				MessageBox.Show(errorText, "Mail (MAPI) destination", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				// Recover from bad settings, show again
+				if (errorCode != MAPI_CODES.INVALID_RECIPS)
+				{
+					return;
+				}
+				_recipientCollection = new RecipientCollection();
+				_ShowMail();
 			}
 		}
 
@@ -301,7 +300,7 @@ namespace Greenshot.Helpers {
 		/// Deallocates the files in a message.
 		/// </summary>
 		/// <param name="message">The message to deallocate the files from.</param>
-		private void _DeallocFiles(MAPIHelperInterop.MapiMessage message) {
+		private void _DeallocFiles(MapiHelperInterop.MapiMessage message) {
 			if (message.Files != IntPtr.Zero) {
 				Type fileDescType = typeof(MapiFileDescriptor);
 				int fsize = Marshal.SizeOf(fileDescType);
@@ -325,29 +324,31 @@ namespace Greenshot.Helpers {
 		/// <returns></returns>
 		private IntPtr _AllocAttachments(out int fileCount) {
 			fileCount = 0;
-			if (_files == null) {
+			if (Files == null) {
 				return IntPtr.Zero;
 			}
-			if ((_files.Count <= 0) || (_files.Count > 100)) {
+			if ((Files.Count <= 0) || (Files.Count > 100)) {
 				return IntPtr.Zero;
 			}
 
 			Type atype = typeof(MapiFileDescriptor);
 			int asize = Marshal.SizeOf(atype);
-			IntPtr ptra = Marshal.AllocHGlobal(_files.Count * asize);
+			IntPtr ptra = Marshal.AllocHGlobal(Files.Count * asize);
 
-			MapiFileDescriptor mfd = new MapiFileDescriptor();
-			mfd.position = -1;
+			MapiFileDescriptor mfd = new MapiFileDescriptor
+			{
+				position = -1
+			};
 			IntPtr runptr = ptra;
-			for (int i = 0; i < _files.Count; i++) {
-				string path = _files[i] as string;
+			for (int i = 0; i < Files.Count; i++) {
+				string path = Files[i];
 				mfd.name = Path.GetFileName(path);
 				mfd.path = path;
 				Marshal.StructureToPtr(mfd, runptr, false);
 				runptr = new IntPtr(runptr.ToInt64() + asize);
 			}
 
-			fileCount = _files.Count;
+			fileCount = Files.Count;
 			return ptra;
 		}
 
@@ -480,13 +481,13 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Internal class for calling MAPI APIs
 		/// </summary>
-		internal class MAPIHelperInterop {
+		internal class MapiHelperInterop {
 			#region Constructors
 
 			/// <summary>
 			/// Private constructor.
 			/// </summary>
-			private MAPIHelperInterop() {
+			private MapiHelperInterop() {
 				// Intenationally blank
 			}
 
@@ -599,8 +600,8 @@ namespace Greenshot.Helpers {
 		/// Returns an interop representation of a recepient.
 		/// </summary>
 		/// <returns></returns>
-		internal MapiMailMessage.MAPIHelperInterop.MapiRecipDesc GetInteropRepresentation() {
-			MapiMailMessage.MAPIHelperInterop.MapiRecipDesc interop = new MapiMailMessage.MAPIHelperInterop.MapiRecipDesc();
+		internal MapiMailMessage.MapiHelperInterop.MapiRecipDesc GetInteropRepresentation() {
+			MapiMailMessage.MapiHelperInterop.MapiRecipDesc interop = new MapiMailMessage.MapiHelperInterop.MapiRecipDesc();
 
 			if (DisplayName == null) {
 				interop.Name = Address;
@@ -699,13 +700,13 @@ namespace Greenshot.Helpers {
 				}
 
 				// allocate enough memory to hold all recipients
-				int size = Marshal.SizeOf(typeof(MapiMailMessage.MAPIHelperInterop.MapiRecipDesc));
+				int size = Marshal.SizeOf(typeof(MapiMailMessage.MapiHelperInterop.MapiRecipDesc));
 				_handle = Marshal.AllocHGlobal(_count * size);
 
 				// place all interop recipients into the memory just allocated
 				IntPtr ptr = _handle;
 				foreach (Recipient native in outer) {
-					MapiMailMessage.MAPIHelperInterop.MapiRecipDesc interop = native.GetInteropRepresentation();
+					MapiMailMessage.MapiHelperInterop.MapiRecipDesc interop = native.GetInteropRepresentation();
 
 					// stick it in the memory block
 					Marshal.StructureToPtr(interop, ptr, false);
@@ -732,7 +733,7 @@ namespace Greenshot.Helpers {
 			/// </summary>
 			public void Dispose() {
 				if (_handle != IntPtr.Zero) {
-					Type type = typeof(MapiMailMessage.MAPIHelperInterop.MapiRecipDesc);
+					Type type = typeof(MapiMailMessage.MapiHelperInterop.MapiRecipDesc);
 					int size = Marshal.SizeOf(type);
 
 					// destroy all the structures in the memory area

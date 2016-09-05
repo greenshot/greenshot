@@ -135,6 +135,7 @@ Function PackagePortable {
 	@( "$sourcebase\checksum.MD5",
 		"$sourcebase\Greenshot.exe.config",
 		"$sourcebase\GreenshotPlugin.dll",
+		"$sourcebase\LinqBridge.dll",
 		"$sourcebase\log4net.dll",
 		"$sourcebase\log4net-portable.xml",
 		"$destbase\additional_files\*.txt" ) | foreach { Copy-Item $_ "$destbase\portabletmp\App\Greenshot\" }
@@ -208,6 +209,7 @@ Function PackageZip {
 		"$sourcebase\Greenshot.exe",
 		"$sourcebase\Greenshot.exe.config",
 		"$sourcebase\GreenshotPlugin.dll",
+		"$sourcebase\LinqBridge.dll",
 		"$sourcebase\log4net.dll",
 		"$destbase\additional_files\*.txt" ) | foreach { Copy-Item $_ "$destzip\" }
 

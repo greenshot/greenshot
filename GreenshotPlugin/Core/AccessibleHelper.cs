@@ -165,7 +165,7 @@ namespace GreenshotPlugin.Core {
 						}
 					}
 				}
-				return String.Empty;
+				return string.Empty;
 			}
 		}
 
@@ -201,7 +201,7 @@ namespace GreenshotPlugin.Core {
 						}
 					}
 				}
-				return String.Empty;
+				return string.Empty;
 			}
 		}
 
@@ -217,6 +217,7 @@ namespace GreenshotPlugin.Core {
 					}
 				}
 	
+				// TODO: Why again?
 				if (captionList.Count > 0) {
 					captionList.RemoveAt(captionList.Count - 1);
 				}
@@ -226,10 +227,8 @@ namespace GreenshotPlugin.Core {
 		}
 	
 		
-		public List<string> IETabUrls {
+		public IEnumerable<string> IETabUrls {
 			get {
-				var urlList = new List<string>();
-	
 				foreach (Accessible accessor in Children) {
 					foreach (var child in accessor.Children) {
 						foreach (var tab in child.Children) {
@@ -238,14 +237,12 @@ namespace GreenshotPlugin.Core {
 							if (!string.IsNullOrEmpty(description)) {
 								if (description.Contains(Environment.NewLine)) {
 									var url = description.Substring(description.IndexOf(Environment.NewLine)).Trim();
-									urlList.Add(url);
+									yield return url;
 								}
 							}
 						}
 					}
 				}
-	
-				return urlList;
 			}
 		}
 		

@@ -94,8 +94,8 @@ namespace Confluence {
 	public class ConfluenceConnector : IDisposable {
 		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ConfluenceConnector));
 		private const string AuthFailedExceptionName = "com.atlassian.confluence.rpc.AuthenticationFailedException";
-        private const string V2Failed = "AXIS";
-        private static readonly ConfluenceConfiguration Config = IniConfig.GetIniSection<ConfluenceConfiguration>();
+		private const string V2Failed = "AXIS";
+		private static readonly ConfluenceConfiguration Config = IniConfig.GetIniSection<ConfluenceConfiguration>();
 		private string _credentials;
 		private DateTime _loggedInTime = DateTime.Now;
 		private bool _loggedIn;
@@ -123,17 +123,17 @@ namespace Confluence {
 
 		public ConfluenceConnector(string url, int timeout) {
 			_timeout = timeout;
-            Init(url);
+			Init(url);
 		}
 
-        private void Init(string url) {
-            _url = url;
-	        _confluence = new ConfluenceSoapServiceService
-	        {
-		        Url = url,
-		        Proxy = NetworkHelper.CreateProxy(new Uri(url))
-	        };
-        }
+		private void Init(string url) {
+			_url = url;
+			_confluence = new ConfluenceSoapServiceService
+			{
+				Url = url,
+				Proxy = NetworkHelper.CreateProxy(new Uri(url))
+			};
+		}
 
 		~ConfluenceConnector() {
 			Dispose(false);
@@ -149,11 +149,11 @@ namespace Confluence {
 				_loggedInTime = DateTime.Now;
 				_loggedIn = true;
 			} catch (Exception e) {
-                // Check if confluence-v2 caused an error, use v1 instead
-                if (e.Message.Contains(V2Failed) && _url.Contains("v2")) {
-                    Init(_url.Replace("v2", "v1"));
-                    return DoLogin(user, password);
-                }
+				// Check if confluence-v2 caused an error, use v1 instead
+				if (e.Message.Contains(V2Failed) && _url.Contains("v2")) {
+					Init(_url.Replace("v2", "v1"));
+					return DoLogin(user, password);
+				}
 				// check if auth failed
 				if (e.Message.Contains(AuthFailedExceptionName)) {
 					return false;
@@ -173,7 +173,7 @@ namespace Confluence {
 			try {
 				// Get the system name, so the user knows where to login to
 				string systemName = _url.Replace(ConfluenceConfiguration.DEFAULT_POSTFIX1,"");
-                systemName = systemName.Replace(ConfluenceConfiguration.DEFAULT_POSTFIX2, "");
+				systemName = systemName.Replace(ConfluenceConfiguration.DEFAULT_POSTFIX2, "");
 				CredentialsDialog dialog = new CredentialsDialog(systemName)
 				{
 					Name = null
@@ -274,49 +274,40 @@ namespace Confluence {
 			return new Page(page);
 		}
 
-		public List<Space> GetSpaceSummaries() {
+		public IEnumerable<Space> GetSpaceSummaries() {
 			CheckCredentials();
 			RemoteSpaceSummary [] spaces = _confluence.getSpaces(_credentials);
-			List<Space> returnSpaces = new List<Space>();
 			foreach(RemoteSpaceSummary space in spaces) {
-				returnSpaces.Add(new Space(space));
+				yield return new Space(space);
 			}
-			returnSpaces.Sort((x, y) => string.CompareOrdinal(x.Name, y.Name));
-			return returnSpaces;
 		}
 		
-		public List<Page> GetPageChildren(Page parentPage) {
+		public IEnumerable<Page> GetPageChildren(Page parentPage) {
 			CheckCredentials();
 			List<Page> returnPages = new List<Page>();
 			RemotePageSummary[] pages = _confluence.getChildren(_credentials, parentPage.Id);
 			foreach(RemotePageSummary page in pages) {
-				returnPages.Add(new Page(page));
+				yield return new Page(page);
 			}
-			returnPages.Sort((x, y) => string.CompareOrdinal(x.Title, y.Title));
-			return returnPages;
 		}
 
-		public List<Page> GetPageSummaries(Space space) {
+		public IEnumerable<Page> GetPageSummaries(Space space) {
 			CheckCredentials();
-			List<Page> returnPages = new List<Page>();
 			RemotePageSummary[] pages = _confluence.getPages(_credentials, space.Key);
 			foreach(RemotePageSummary page in pages) {
-				returnPages.Add(new Page(page));
+				yield return new Page(page);
 			}
-			returnPages.Sort((x, y) => string.CompareOrdinal(x.Title, y.Title));
-			return returnPages;
 		}
 		
-		public List<Page> SearchPages(string query, string space) {
+		public IEnumerable<Page> SearchPages(string query, string space) {
 			CheckCredentials();
-			List<Page> results = new List<Page>();
-			foreach(RemoteSearchResult searchResult in _confluence.search(_credentials, query, 20)) {
+			foreach(var searchResult in _confluence.search(_credentials, query, 20)) {
 				Log.DebugFormat("Got result of type {0}", searchResult.type);
-				if ("page".Equals(searchResult.type)) {
-					results.Add(new Page(searchResult, space));
+				if ("page".Equals(searchResult.type))
+				{
+					yield return new Page(searchResult, space);
 				}
 			}
-			return results;
 		}
 	}
 }

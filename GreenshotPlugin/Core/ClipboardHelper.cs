@@ -25,6 +25,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -257,8 +258,8 @@ EndSelection:<<<<<<<4
 					|| dataObject.GetDataPresent(FORMAT_GIF)) {
 					return true;
 				}
-				List<string> imageFiles = GetImageFilenames(dataObject);
-				if (imageFiles != null && imageFiles.Count > 0) {
+				var imageFiles = GetImageFilenames(dataObject);
+				if (imageFiles.Any()) {
 					return true;
 				}
 				if (dataObject.GetDataPresent(FORMAT_FILECONTENTS)) {
@@ -315,19 +316,16 @@ EndSelection:<<<<<<<4
 				yield return singleImage;
 			} else {
 				// check if files are supplied
-				List<string> imageFiles = GetImageFilenames(dataObject);
-				if (imageFiles != null) {
-					foreach (string imageFile in imageFiles) {
-						Image returnImage = null;
-						try {
-							returnImage = ImageHelper.LoadImage(imageFile);
-						} catch (Exception streamImageEx) {
-							Log.Error("Problem retrieving Image from clipboard.", streamImageEx);
-						}
-						if (returnImage != null) {
-							Log.InfoFormat("Got image from clipboard with size {0} and format {1}", returnImage.Size, returnImage.PixelFormat);
-							yield return returnImage;
-						}
+				foreach (string imageFile in GetImageFilenames(dataObject)) {
+					Image returnImage = null;
+					try {
+						returnImage = ImageHelper.LoadImage(imageFile);
+					} catch (Exception streamImageEx) {
+						Log.Error("Problem retrieving Image from clipboard.", streamImageEx);
+					}
+					if (returnImage != null) {
+						Log.InfoFormat("Got image from clipboard with size {0} and format {1}", returnImage.Size, returnImage.PixelFormat);
+						yield return returnImage;
 					}
 				}
 			}
@@ -818,22 +816,21 @@ EndSelection:<<<<<<<4
 		/// </summary>
 		/// <param name="dataObject">IDataObject</param>
 		/// <returns></returns>
-		public static List<string> GetImageFilenames(IDataObject dataObject) {
-			List<string> filenames = new List<string>();
+		public static IEnumerable<string> GetImageFilenames(IDataObject dataObject) {
 			string[] dropFileNames = (string[]) dataObject.GetData(DataFormats.FileDrop);
-			try {
-				if (dropFileNames != null && dropFileNames.Length > 0) {
-					foreach (string filename in dropFileNames) {
-						string ext = Path.GetExtension(filename).ToLower();
-						if ((ext == ".jpg") || (ext == ".jpeg") || (ext == ".tiff") || (ext == ".gif") || (ext == ".png") || (ext == ".bmp") || (ext == ".ico") || (ext == ".wmf")) {
-							filenames.Add(filename);
-						}
+			if (dropFileNames != null && dropFileNames.Length > 0) {
+				foreach (string filename in dropFileNames) {
+					if (string.IsNullOrEmpty(filename))
+					{
+						continue;
+					}
+					string ext = Path.GetExtension(filename).ToLower().Substring(1);
+					if (ImageHelper.StreamConverters.ContainsKey(ext))
+					{
+						yield return filename;
 					}
 				}
-			} catch (Exception ex) {
-				Log.Warn("Ignoring an issue with getting the dropFilenames from the clipboard: ", ex);
 			}
-			return filenames;
 		}
 
 		/// <summary>

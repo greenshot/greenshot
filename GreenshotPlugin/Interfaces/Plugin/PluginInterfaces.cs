@@ -75,16 +75,15 @@ namespace Greenshot.Plugin {
 	public delegate void HotKeyHandler();
 
 	public class SurfaceOutputSettings {
-		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-		private bool reduceColors;
-		private bool disableReduceColors;
-		private readonly List<IEffect> effects = new List<IEffect>();
+		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+		private bool _reduceColors;
+		private bool _disableReduceColors;
 
 		public SurfaceOutputSettings() {
-			disableReduceColors = false;
-			Format = conf.OutputFileFormat;
-			JPGQuality = conf.OutputFileJpegQuality;
-			ReduceColors = conf.OutputFileReduceColors;
+			_disableReduceColors = false;
+			Format = CoreConfig.OutputFileFormat;
+			JPGQuality = CoreConfig.OutputFileJpegQuality;
+			ReduceColors = CoreConfig.OutputFileReduceColors;
 		}
 
 		public SurfaceOutputSettings(OutputFormat format) : this() {
@@ -121,11 +120,7 @@ namespace Greenshot.Plugin {
 			set;
 		}
 
-		public List<IEffect> Effects {
-			get {
-				return effects;
-			}
-		}
+		public List<IEffect> Effects { get; } = new List<IEffect>();
 
 		public bool ReduceColors {
 				get {
@@ -133,10 +128,10 @@ namespace Greenshot.Plugin {
 					if (OutputFormat.gif.Equals(Format)) {
 						return true;
 					}
-					return reduceColors;
+					return _reduceColors;
 				}
 				set {
-					reduceColors = value;
+					_reduceColors = value;
 				}
 		}
 
@@ -145,12 +140,12 @@ namespace Greenshot.Plugin {
 		/// </summary>
 		public bool DisableReduceColors {
 			get {
-				return disableReduceColors;
+				return _disableReduceColors;
 			}
 			set {
 				// Quantizing os needed when output format is gif as this has only 256 colors!
 				if (!OutputFormat.gif.Equals(Format)) {
-					disableReduceColors = value;
+					_disableReduceColors = value;
 				}
 			}
 		}

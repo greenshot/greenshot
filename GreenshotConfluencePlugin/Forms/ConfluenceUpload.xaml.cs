@@ -20,6 +20,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -88,8 +89,8 @@ namespace GreenshotConfluencePlugin {
 		}
 		
 		private static DateTime _lastLoad = DateTime.Now;
-		private static List<Confluence.Space> _spaces;
-		public List<Confluence.Space> Spaces {
+		private static IList<Confluence.Space> _spaces;
+		public IList<Confluence.Space> Spaces {
 			get {
 				UpdateSpaces();
 				while (_spaces == null) {
@@ -118,7 +119,7 @@ namespace GreenshotConfluencePlugin {
 			// Check if load is needed
 			if (_spaces == null) {
 				(new Thread(() => {
-				     _spaces = ConfluencePlugin.ConfluenceConnector.GetSpaceSummaries();
+				     _spaces = ConfluencePlugin.ConfluenceConnector.GetSpaceSummaries().OrderBy(s => s.Name).ToList();
 				     _lastLoad = DateTime.Now;
 				  }) { Name = "Loading spaces for confluence"}).Start();
 			}

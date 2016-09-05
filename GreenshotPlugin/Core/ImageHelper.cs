@@ -372,7 +372,7 @@ namespace GreenshotPlugin.Core {
 			// Fixed lock problem Bug #3431881
 			using (Stream imageFileStream = File.OpenRead(filename))
 			{
-				fileImage = FromStream(imageFileStream);
+				fileImage = FromStream(imageFileStream, Path.GetExtension(filename));
 			}
 			if (fileImage != null)
 			{
@@ -380,7 +380,6 @@ namespace GreenshotPlugin.Core {
 			}
 			return fileImage;
 		}
-
 
 		/// <summary>
 		/// Based on: http://www.codeproject.com/KB/cs/IconExtractor.aspx

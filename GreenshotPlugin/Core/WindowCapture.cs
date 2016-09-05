@@ -80,30 +80,26 @@ namespace GreenshotPlugin.Core {
 			set;
 		}
 
-		private List<IDestination> _captureDestinations = new List<IDestination>();
-		public List<IDestination> CaptureDestinations {
-			get {return _captureDestinations;}
-			set {_captureDestinations = value;}
-		}
+		public List<IDestination> CaptureDestinations { get; set; } = new List<IDestination>();
 
 		public void ClearDestinations() {
-			_captureDestinations.Clear();
+			CaptureDestinations.Clear();
 		}		
 
 		public void RemoveDestination(IDestination destination) {
-			if (_captureDestinations.Contains(destination)) {
-				_captureDestinations.Remove(destination);
+			if (CaptureDestinations.Contains(destination)) {
+				CaptureDestinations.Remove(destination);
 			}
 		}
 
 		public void AddDestination(IDestination captureDestination) {
-			if (!_captureDestinations.Contains(captureDestination)) {
-				_captureDestinations.Add(captureDestination);
+			if (!CaptureDestinations.Contains(captureDestination)) {
+				CaptureDestinations.Add(captureDestination);
 			}
 		}
 
 		public bool HasDestination(string designation) {
-			foreach(IDestination destination in _captureDestinations) {
+			foreach(IDestination destination in CaptureDestinations) {
 				if (designation.Equals(destination.Designation)) {
 					return true;
 				}
