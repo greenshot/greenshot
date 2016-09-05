@@ -390,41 +390,13 @@ namespace GreenshotPlugin.Core {
 			if (string.IsNullOrEmpty(fullPath)) {
 				return null;
 			}
-			Image fileImage;
 			LOG.InfoFormat("Loading image from file {0}", fullPath);
 			// Fixed lock problem Bug #3431881
 			using (Stream surfaceFileStream = File.OpenRead(fullPath)) {
-				// And fixed problem that the bitmap stream is disposed... by Cloning the image
-				// This also ensures the bitmap is correctly created
-
-				// We create a copy of the bitmap, so everything else can be disposed
-				surfaceFileStream.Position = 0;
-				using (Image tmpImage = Image.FromStream(surfaceFileStream, true, true)) {
-					LOG.DebugFormat("Loaded {0} with Size {1}x{2} and PixelFormat {3}", fullPath, tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
-					fileImage = ImageHelper.Clone(tmpImage);
-				}
-				// Start at -14 read "GreenshotXX.YY" (XX=Major, YY=Minor)
-				const int markerSize = 14;
-				surfaceFileStream.Seek(-markerSize, SeekOrigin.End);
-				string greenshotMarker;
-				using (StreamReader streamReader = new StreamReader(surfaceFileStream)) {
-					greenshotMarker = streamReader.ReadToEnd();
-					if (!greenshotMarker.StartsWith("Greenshot")) {
-						throw new ArgumentException(string.Format("{0} is not a Greenshot file!", fullPath));
-					}
-					LOG.InfoFormat("Greenshot file format: {0}", greenshotMarker);
-					const int filesizeLocation = 8 + markerSize;
-					surfaceFileStream.Seek(-filesizeLocation, SeekOrigin.End);
-					using (BinaryReader reader = new BinaryReader(surfaceFileStream)) {
-						long bytesWritten = reader.ReadInt64();
-						surfaceFileStream.Seek(-(bytesWritten + filesizeLocation), SeekOrigin.End);
-						returnSurface.LoadElementsFromStream(surfaceFileStream);
-					}
-				}
+				returnSurface = ImageHelper.LoadGreenshotSurface(surfaceFileStream, returnSurface);
 			}
-			if (fileImage != null) {
-				returnSurface.Image = fileImage;
-				LOG.InfoFormat("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", fullPath, fileImage.Width, fileImage.Height, fileImage.PixelFormat, fileImage.HorizontalResolution, fileImage.VerticalResolution);
+			if (returnSurface != null) {
+				LOG.InfoFormat("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", fullPath, returnSurface.Image.Width, returnSurface.Image.Height, returnSurface.Image.PixelFormat, returnSurface.Image.HorizontalResolution, returnSurface.Image.VerticalResolution);
 			}
 			return returnSurface;
 		}

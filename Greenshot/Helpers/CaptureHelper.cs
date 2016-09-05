@@ -549,8 +549,8 @@ namespace Greenshot.Helpers {
 						MessageBox.Show(string.Format("{0}\r\nexplorer.exe {1}", errorMessage, surface.LastSaveFullPath), "explorer.exe", MessageBoxButtons.OK, MessageBoxIcon.Error);
 					}
 				}
-			} else if (surface != null && !string.IsNullOrEmpty(surface.UploadURL)) {
-				Process.Start(surface.UploadURL);
+			} else if (surface != null && !string.IsNullOrEmpty(surface.UploadUrl)) {
+				Process.Start(surface.UploadUrl);
 			}
 			LOG.DebugFormat("Deregistering the BalloonTipClicked");
 			RemoveEventHandler(sender, e);

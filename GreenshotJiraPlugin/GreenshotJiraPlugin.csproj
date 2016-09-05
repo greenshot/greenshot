@@ -95,6 +95,7 @@
     <Compile Include="Log4NetLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SvgBitmapHttpContentConverter.cs" />
+    <Compile Include="SvgImage.cs" />
     <None Include="Languages\language_jiraplugin-de-DE.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

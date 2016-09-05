@@ -436,7 +436,7 @@ namespace Greenshot.Drawing
 		/// <summary>
 		/// Property for accessing the URL to which the surface was recently uploaded
 		/// </summary>
-		public string UploadURL
+		public string UploadUrl
 		{
 			get;
 			set;

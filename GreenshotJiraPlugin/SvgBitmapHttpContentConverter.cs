@@ -22,7 +22,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,8 +32,6 @@ using Dapplo.HttpExtensions.Support;
 using Dapplo.Log.Facade;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using GreenshotPlugin.Core;
-using Svg;
 
 namespace GreenshotJiraPlugin
 {
@@ -86,12 +83,12 @@ namespace GreenshotJiraPlugin
 			using (var memoryStream = (MemoryStream) await StreamHttpContentConverter.Instance.ConvertFromHttpContentAsync(typeof(MemoryStream), httpContent, cancellationToken).ConfigureAwait(false))
 			{
 				Log.Debug().WriteLine("Creating a Bitmap from the SVG.");
-				var bitmap = ImageHelper.CreateEmpty(Width, Height, PixelFormat.Format32bppArgb, Color.Transparent, 96, 96);
-				var svgDoc = SvgDocument.Open<SvgDocument>(memoryStream);
-				svgDoc.Width = Width;
-				svgDoc.Height = Height;
-				svgDoc.Draw(bitmap);
-				return bitmap;
+				var svgImage = new SvgImage(memoryStream)
+				{
+					Height = Height,
+					Width = Width
+				};
+				return svgImage.Image;
 			}
 		}
 

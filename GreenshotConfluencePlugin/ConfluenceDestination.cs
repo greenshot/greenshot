@@ -36,11 +36,12 @@ namespace GreenshotConfluencePlugin {
 	/// Description of ConfluenceDestination.
 	/// </summary>
 	public class ConfluenceDestination : AbstractDestination {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceDestination));
-		private static readonly ConfluenceConfiguration config = IniConfig.GetIniSection<ConfluenceConfiguration>();
-		private static readonly CoreConfiguration coreConfig = IniConfig.GetIniSection<CoreConfiguration>();
-		private static readonly Image confluenceIcon = null;
-		private readonly Page page;
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ConfluenceDestination));
+		private static readonly ConfluenceConfiguration ConfluenceConfig = IniConfig.GetIniSection<ConfluenceConfiguration>();
+		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly Image ConfluenceIcon;
+		private readonly Page _page;
+
 		public static bool IsInitialized {
 			get;
 			private set;
@@ -49,14 +50,14 @@ namespace GreenshotConfluencePlugin {
 			IsInitialized = false;
 			try {
 				Uri confluenceIconUri = new Uri("/GreenshotConfluencePlugin;component/Images/Confluence.ico", UriKind.Relative);
-				using (Stream iconStream = Application.GetResourceStream(confluenceIconUri).Stream) {
-					using (Image tmpImage = Image.FromStream(iconStream)) {
-						confluenceIcon = ImageHelper.Clone(tmpImage);
-					}
+				using (Stream iconStream = Application.GetResourceStream(confluenceIconUri)?.Stream)
+				{
+					// TODO: Check what to do with the IImage
+					ConfluenceIcon = ImageHelper.FromStream(iconStream);
 				}
 				IsInitialized = true;
 			} catch (Exception ex) {
-				LOG.ErrorFormat("Problem in the confluence static initializer: {0}", ex.Message);
+				Log.ErrorFormat("Problem in the confluence static initializer: {0}", ex.Message);
 			}
 		}
 		
@@ -64,7 +65,7 @@ namespace GreenshotConfluencePlugin {
 		}
 
 		public ConfluenceDestination(Page page) {
-			this.page = page;
+			_page = page;
 		}
 		
 		public override string Designation {
@@ -75,10 +76,10 @@ namespace GreenshotConfluencePlugin {
 
 		public override string Description {
 			get {
-				if (page == null) {
+				if (_page == null) {
 					return Language.GetString("confluence", LangKey.upload_menu_item);
 				} else {
-					return Language.GetString("confluence", LangKey.upload_menu_item) + ": \"" + page.Title + "\"";
+					return Language.GetString("confluence", LangKey.upload_menu_item) + ": \"" + _page.Title + "\"";
 				}
 			}
 		}
@@ -91,13 +92,13 @@ namespace GreenshotConfluencePlugin {
 		
 		public override bool isActive {
 			get {
-				return base.isActive && !string.IsNullOrEmpty(config.Url);
+				return base.isActive && !string.IsNullOrEmpty(ConfluenceConfig.Url);
 			}
 		}
 
 		public override Image DisplayIcon {
 			get {
-				return confluenceIcon;
+				return ConfluenceIcon;
 			}
 		}
 		
@@ -121,9 +122,9 @@ namespace GreenshotConfluencePlugin {
 				return exportInformation;
 			}
 
-			Page selectedPage = page;
-			bool openPage = (page == null) && config.OpenPageAfterUpload;
-			string filename = FilenameHelper.GetFilenameWithoutExtensionFromPattern(coreConfig.OutputFileFilenamePattern, captureDetails);
+			Page selectedPage = _page;
+			bool openPage = (_page == null) && ConfluenceConfig.OpenPageAfterUpload;
+			string filename = FilenameHelper.GetFilenameWithoutExtensionFromPattern(CoreConfig.OutputFileFilenamePattern, captureDetails);
 			if (selectedPage == null) {
 				ConfluenceUpload confluenceUpload = new ConfluenceUpload(filename);
 				Nullable<bool> dialogResult = confluenceUpload.ShowDialog();
@@ -135,18 +136,23 @@ namespace GreenshotConfluencePlugin {
 					filename = confluenceUpload.Filename;
 				}
 			}
-			string extension = "." + config.UploadFormat;
+			string extension = "." + ConfluenceConfig.UploadFormat;
 			if (!filename.ToLower().EndsWith(extension)) {
 				filename = filename + extension;
 			}
 			if (selectedPage != null) {
 				string errorMessage;
-				bool uploaded = upload(surface, selectedPage, filename, out errorMessage);
+				bool uploaded = Upload(surface, selectedPage, filename, out errorMessage);
 				if (uploaded) {
 					if (openPage) {
-						try {
+						try
+						{
 							Process.Start(selectedPage.Url);
-						} catch { }
+						}
+						catch
+						{
+							// Ignore
+						}
 					}
 					exportInformation.ExportMade = true;
 					exportInformation.Uri = selectedPage.Url;
@@ -158,31 +164,33 @@ namespace GreenshotConfluencePlugin {
 			return exportInformation;
 		}
 
-		private bool upload(ISurface surfaceToUpload, Page page, string filename, out string errorMessage) {
-			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
+		private bool Upload(ISurface surfaceToUpload, Page page, string filename, out string errorMessage) {
+			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(ConfluenceConfig.UploadFormat, ConfluenceConfig.UploadJpegQuality, ConfluenceConfig.UploadReduceColors);
 			errorMessage = null;
 			try {
 				new PleaseWaitForm().ShowAndWait(Description, Language.GetString("confluence", LangKey.communication_wait),
-					delegate() {
-						ConfluencePlugin.ConfluenceConnector.AddAttachment(page.Id, "image/" + config.UploadFormat.ToString().ToLower(), null, filename, new SurfaceContainer(surfaceToUpload, outputSettings, filename));
+					delegate {
+						ConfluencePlugin.ConfluenceConnector.AddAttachment(page.Id, "image/" + ConfluenceConfig.UploadFormat.ToString().ToLower(), null, filename, new SurfaceContainer(surfaceToUpload, outputSettings, filename));
 					}
 				);
-				LOG.Debug("Uploaded to Confluence.");
-				if (config.CopyWikiMarkupForImageToClipboard) {
-					int retryCount = 2;
-					while (retryCount >= 0) {
-						try {
-							Clipboard.SetText("!" + filename + "!");
-							break;
-						} catch (Exception ee) {
-							if (retryCount == 0) {
-								LOG.Error(ee);
-							} else {
-								Thread.Sleep(100);
-							}
-						} finally {
-							--retryCount;
+				Log.Debug("Uploaded to Confluence.");
+				if (!ConfluenceConfig.CopyWikiMarkupForImageToClipboard)
+				{
+					return true;
+				}
+				int retryCount = 2;
+				while (retryCount >= 0) {
+					try {
+						Clipboard.SetText("!" + filename + "!");
+						break;
+					} catch (Exception ee) {
+						if (retryCount == 0) {
+							Log.Error(ee);
+						} else {
+							Thread.Sleep(100);
 						}
+					} finally {
+						--retryCount;
 					}
 				}
 				return true;

@@ -123,7 +123,7 @@ namespace GreenshotPlugin.Core {
 		public void ProcessExport(ExportInformation exportInformation, ISurface surface) {
 			if (exportInformation != null && exportInformation.ExportMade) {
 				if (!string.IsNullOrEmpty(exportInformation.Uri)) {
-					surface.UploadURL = exportInformation.Uri;
+					surface.UploadUrl = exportInformation.Uri;
 					surface.SendMessageEvent(this, SurfaceMessageTyp.UploadedUri, Language.GetFormattedString("exported_to", exportInformation.DestinationDescription));
 				} else if (!string.IsNullOrEmpty(exportInformation.Filepath)) {
 					surface.LastSaveFullPath = exportInformation.Filepath;

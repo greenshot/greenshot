@@ -23,9 +23,13 @@ using System.Windows.Forms;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using System;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Threading.Tasks;
 using Dapplo.Log.Facade;
 using GreenshotJiraPlugin.Forms;
+using GreenshotPlugin.Core;
+using Svg;
 
 namespace GreenshotJiraPlugin {
 	/// <summary>
@@ -94,6 +98,21 @@ namespace GreenshotJiraPlugin {
 			// Register configuration (don't need the configuration itself)
 			_config = IniConfig.GetIniSection<JiraConfiguration>();
 			LogSettings.RegisterDefaultLogger<Log4NetLogger>();
+
+			// Add a SVG converter, although it doesn't fit to the Jira plugin there is currently no other way
+			ImageHelper.StreamConverters["svg"] = (stream, s) =>
+			{
+				stream.Position = 0;
+				try
+				{
+					return SvgImage.FromStream(stream).Image;
+				}
+				catch (Exception ex)
+				{
+					Log.Error("Can't load SVG", ex);
+				}
+				return null;
+			};
 
 			return true;
 		}

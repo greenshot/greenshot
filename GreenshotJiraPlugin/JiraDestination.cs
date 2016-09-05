@@ -118,12 +118,12 @@ namespace GreenshotJiraPlugin {
 						{
 							var surfaceContainer = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
 							await _jiraPlugin.JiraConnector.AttachAsync(_jiraIssue.Key, surfaceContainer);
-							surfaceToUpload.UploadURL = _jiraPlugin.JiraConnector.JiraBaseUri.AppendSegments("browse", _jiraIssue.Key).AbsoluteUri;
+							surfaceToUpload.UploadUrl = _jiraPlugin.JiraConnector.JiraBaseUri.AppendSegments("browse", _jiraIssue.Key).AbsoluteUri;
 						}
 					);
 					Log.DebugFormat("Uploaded to Jira {0}", _jiraIssue.Key);
 					exportInformation.ExportMade = true;
-					exportInformation.Uri = surfaceToUpload.UploadURL;
+					exportInformation.Uri = surfaceToUpload.UploadUrl;
 				} catch (Exception e) {
 					MessageBox.Show(Language.GetString("jira", LangKey.upload_failure) + " " + e.Message);
 				}
@@ -133,7 +133,7 @@ namespace GreenshotJiraPlugin {
 				var dialogResult = jiraForm.ShowDialog();
 				if (dialogResult == DialogResult.OK) {
 					try {
-						surfaceToUpload.UploadURL = _jiraPlugin.JiraConnector.JiraBaseUri.AppendSegments("browse", jiraForm.GetJiraIssue().Key).AbsoluteUri;
+						surfaceToUpload.UploadUrl = _jiraPlugin.JiraConnector.JiraBaseUri.AppendSegments("browse", jiraForm.GetJiraIssue().Key).AbsoluteUri;
 						// Run upload in the background
 						new PleaseWaitForm().ShowAndWait(Description, Language.GetString("jira", LangKey.communication_wait),
 							async () =>
@@ -143,7 +143,7 @@ namespace GreenshotJiraPlugin {
 						);
 						Log.DebugFormat("Uploaded to Jira {0}", jiraForm.GetJiraIssue().Key);
 						exportInformation.ExportMade = true;
-						exportInformation.Uri = surfaceToUpload.UploadURL;
+						exportInformation.Uri = surfaceToUpload.UploadUrl;
 					} catch(Exception e) {
 						MessageBox.Show(Language.GetString("jira", LangKey.upload_failure) + " " + e.Message);
 					}

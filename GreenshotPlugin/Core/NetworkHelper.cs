@@ -25,7 +25,6 @@ using log4net;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Net;
@@ -91,9 +90,9 @@ namespace GreenshotPlugin.Core {
 						{
 							if (responseStream != null)
 							{
-								using (Image image = Image.FromStream(responseStream))
+								using (Image image = ImageHelper.FromStream(responseStream))
 								{
-									return (image.Height > 16 && image.Width > 16) ? new Bitmap(image, 16, 16) : new Bitmap(image);
+									return image.Height > 16 && image.Width > 16 ? new Bitmap(image, 16, 16) : new Bitmap(image);
 								}
 							}
 						}
@@ -130,43 +129,60 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="url">Of an image</param>
 		/// <returns>Bitmap</returns>
-		public static Image DownloadImage(string url) {
-			try {
-				string content;
-				using (MemoryStream memoryStream = GetAsMemoryStream(url)) {
-					try {
-						using (Image image = Image.FromStream(memoryStream)) {
-							return ImageHelper.Clone(image, PixelFormat.Format32bppArgb);
-						}
-					} catch (Exception) {
+		public static Image DownloadImage(string url)
+		{
+			StringBuilder extensions = new StringBuilder();
+			foreach (var extension in ImageHelper.StreamConverters.Keys)
+			{
+				if (string.IsNullOrEmpty(extension))
+				{
+					continue;
+				}
+				extensions.AppendFormat(@"\.{0}|", extension);
+			}
+			extensions.Length--;
+			
+			var imageUrlRegex = new Regex($@"(http|https)://.*(?<extension>{extensions})");
+			var match = imageUrlRegex.Match(url);
+			try
+			{
+				using (var memoryStream = GetAsMemoryStream(url))
+				{
+					try
+					{
+						return ImageHelper.FromStream(memoryStream, match.Success ? match.Groups["extension"]?.Value : null);
+					}
+					catch (Exception)
+					{
 						// If we arrive here, the image loading didn't work, try to see if the response has a http(s) URL to an image and just take this instead.
-						using (StreamReader streamReader = new StreamReader(memoryStream, Encoding.UTF8, true)) {
+						string content;
+						using (StreamReader streamReader = new StreamReader(memoryStream, Encoding.UTF8, true))
+						{
 							content = streamReader.ReadLine();
 						}
-						if (!string.IsNullOrEmpty(content))
+						if (string.IsNullOrEmpty(content))
 						{
-							Regex imageUrlRegex = new Regex(@"(http|https)://.*(\.png|\.gif|\.jpg|\.tiff|\.jpeg|\.bmp)");
-							Match match = imageUrlRegex.Match(content);
-							if (match.Success)
-							{
-								using (MemoryStream memoryStream2 = GetAsMemoryStream(match.Value))
-								{
-									using (Image image = Image.FromStream(memoryStream2))
-									{
-										return ImageHelper.Clone(image, PixelFormat.Format32bppArgb);
-									}
-								}
-							}
+							throw;
 						}
-						throw;
+						match = imageUrlRegex.Match(content);
+						if (!match.Success)
+						{
+							throw;
+						}
+						using (var memoryStream2 = GetAsMemoryStream(match.Value))
+						{
+							return ImageHelper.FromStream(memoryStream2, match.Groups["extension"]?.Value);
+						}
 					}
 				}
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				LOG.Error("Problem downloading the image from: " + url, e);
 			}
 			return null;
 		}
-		
+
 		/// <summary>
 		/// Helper method to create a web request with a lot of default settings
 		/// </summary>
@@ -347,7 +363,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="webRequest">HttpWebRequest to write the multipart form data to</param>
 		/// <param name="postParameters">Parameters to include in the multipart form data</param>
 		public static void WriteMultipartFormData(HttpWebRequest webRequest, IDictionary<string, object> postParameters) {
-			string boundary = String.Format("----------{0:N}", Guid.NewGuid());
+			string boundary = string.Format("----------{0:N}", Guid.NewGuid());
 			webRequest.ContentType = "multipart/form-data; boundary=" + boundary;
 			using (Stream formDataStream = webRequest.GetRequestStream()) {
 				WriteMultipartFormData(formDataStream, boundary, postParameters);
@@ -360,7 +376,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="response">HttpListenerResponse</param>
 		/// <param name="postParameters">Parameters to include in the multipart form data</param>
 		public static void WriteMultipartFormData(HttpListenerResponse response, IDictionary<string, object> postParameters) {
-			string boundary = String.Format("----------{0:N}", Guid.NewGuid());
+			string boundary = string.Format("----------{0:N}", Guid.NewGuid());
 			response.ContentType = "multipart/form-data; boundary=" + boundary;
 			WriteMultipartFormData(response.OutputStream, boundary, postParameters);
 		}
@@ -474,7 +490,7 @@ namespace GreenshotPlugin.Core {
 			string responseData = null;
 			HttpWebResponse response = null;
 			bool isHttpError = false;
-            try {
+			try {
 				response = (HttpWebResponse)webRequest.GetResponse();
 				LOG.InfoFormat("Response status: {0}", response.StatusCode);
 				isHttpError = (int)response.StatusCode >= 300;

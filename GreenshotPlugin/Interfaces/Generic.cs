@@ -226,7 +226,7 @@ namespace Greenshot.Plugin
 			get;
 			set;
 		}
-		string UploadURL
+		string UploadUrl
 		{
 			get;
 			set;

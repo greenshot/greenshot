@@ -36,7 +36,7 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable] 
 	public class ImageContainer : DrawableContainer, IImageContainer {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(ImageContainer));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ImageContainer));
 
 		private Image image;
 
@@ -80,7 +80,7 @@ namespace Greenshot.Drawing {
 
 		protected void BitmapContainer_OnFieldChanged(object sender, FieldChangedEventArgs e) {
 			if (sender.Equals(this)) {
-				if (e.Field.FieldType == FieldType.SHADOW) {
+				if (FieldType.SHADOW.Equals(e.Field.FieldType)) {
 					ChangeShadowField();
 				}
 			}
@@ -140,15 +140,11 @@ namespace Greenshot.Drawing {
 		}
 
 		private void DisposeImage() {
-			if (image != null) {
-				image.Dispose();
-			}
+			image?.Dispose();
 			image = null;
 		}
 		private void DisposeShadow() {
-			if (_shadowBitmap != null) {
-				_shadowBitmap.Dispose();
-			}
+			_shadowBitmap?.Dispose();
 			_shadowBitmap = null;
 		}
 
@@ -162,10 +158,11 @@ namespace Greenshot.Drawing {
 			int rotateAngle = CalculateAngle(matrix);
 			// we currently assume only one transformation has been made.
 			if (rotateAngle != 0) {
-				LOG.DebugFormat("Rotating element with {0} degrees.", rotateAngle);
+				Log.DebugFormat("Rotating element with {0} degrees.", rotateAngle);
 				DisposeShadow();
 				using (var tmpMatrix = new Matrix()) {
-					using (Image tmpImage = image) {
+					using (image)
+					{
 						image = ImageHelper.ApplyEffect(image, new RotateEffect(rotateAngle), tmpMatrix);
 					}
 				}
@@ -178,14 +175,16 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="filename"></param>
 		public void Load(string filename) {
-			if (File.Exists(filename)) {
-				// Always make sure ImageHelper.LoadBitmap results are disposed some time,
-				// as we close the bitmap internally, we need to do it afterwards
-				using (Image tmpImage = ImageHelper.LoadImage(filename)) {
-					Image = tmpImage;
-				}
-				LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
+			if (!File.Exists(filename))
+			{
+				return;
 			}
+			// Always make sure ImageHelper.LoadBitmap results are disposed some time,
+			// as we close the bitmap internally, we need to do it afterwards
+			using (var tmpImage = ImageHelper.LoadImage(filename)) {
+				Image = tmpImage;
+			}
+			Log.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
 		}
 
 		/// <summary>
@@ -222,16 +221,8 @@ namespace Greenshot.Drawing {
 			}
 		}
 
-		public override bool HasDefaultSize {
-			get {
-				return true;
-			}
-		}
+		public override bool HasDefaultSize => true;
 
-		public override Size DefaultSize {
-			get {
-				return image.Size;
-			}
-		}
+		public override Size DefaultSize => image.Size;
 	}
 }

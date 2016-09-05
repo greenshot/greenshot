@@ -42,6 +42,9 @@
     <Compile Include="Core\CaptureHandler.cs" />
     <Compile Include="Core\EventDelay.cs" />
     <Compile Include="Core\FastBitmap.cs" />
+    <Compile Include="Core\Func.cs" />
+    <Compile Include="Core\IImage.cs" />
+    <Compile Include="Core\ImageWrapper.cs" />
     <Compile Include="Core\OperatingSystemExtensions.cs" />
     <Compile Include="Core\WmInputLangChangeRequestFilter.cs" />
     <Compile Include="GlobalSuppressions.cs" />
