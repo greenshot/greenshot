@@ -81,6 +81,7 @@ namespace GreenshotJiraPlugin {
 			{
 				Task.Run(async () => await LogoutAsync()).Wait();
 			}
+			FavIcon?.Dispose();
 		}
 
 		/// <summary>
@@ -96,6 +97,8 @@ namespace GreenshotJiraPlugin {
 		/// Access the jira monitor
 		/// </summary>
 		public JiraMonitor Monitor { get; private set; }
+
+		public Bitmap FavIcon { get; private set; }
 
 		/// <summary>
 		/// Internal login which catches the exceptions
@@ -115,6 +118,17 @@ namespace GreenshotJiraPlugin {
 				loginInfo = await _jiraApi.StartSessionAsync(user, password);
 				Monitor = new JiraMonitor();
 				await Monitor.AddJiraInstanceAsync(_jiraApi);
+
+				var favIconUri = _jiraApi.JiraBaseUri.AppendSegments("favicon.ico");
+				try
+				{
+					FavIcon = await _jiraApi.GetUriContentAsync<Bitmap>(favIconUri);
+				}
+				catch (Exception ex)
+				{
+					Log.WarnFormat("Couldn't load favicon from {0}", favIconUri);
+					Log.Warn("Exception details: ", ex);
+				}
 			}
 			catch (Exception)
 			{

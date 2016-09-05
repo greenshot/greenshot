@@ -73,9 +73,17 @@ namespace GreenshotJiraPlugin {
 			get
 			{
 				Image displayIcon = null;
-				if (_jiraIssue != null && JiraPlugin.Instance.CurrentJiraConnector != null)
+				var jiraConnector = JiraPlugin.Instance.CurrentJiraConnector;
+				if (jiraConnector  != null)
 				{
-					displayIcon = JiraPlugin.Instance.CurrentJiraConnector.GetIssueTypeBitmapAsync(_jiraIssue).Result;
+					if (_jiraIssue != null)
+					{
+						displayIcon = jiraConnector.GetIssueTypeBitmapAsync(_jiraIssue).Result;
+					}
+					else
+					{
+						displayIcon = jiraConnector.FavIcon;
+					}
 				}
 				if (displayIcon == null)
 				{
