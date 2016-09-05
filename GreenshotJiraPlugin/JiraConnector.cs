@@ -109,12 +109,12 @@ namespace GreenshotJiraPlugin {
 			}
 			_jiraApi = new JiraApi(new Uri(JiraConfig.Url));
 			_issueTypeBitmapCache = new IssueTypeBitmapCache(_jiraApi);
-			Monitor = new JiraMonitor();
-			await Monitor.AddJiraInstanceAsync(_jiraApi);
 			LoginInfo loginInfo;
 			try
 			{
 				loginInfo = await _jiraApi.StartSessionAsync(user, password);
+				Monitor = new JiraMonitor();
+				await Monitor.AddJiraInstanceAsync(_jiraApi);
 			}
 			catch (Exception)
 			{
