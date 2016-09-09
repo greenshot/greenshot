@@ -21,12 +21,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Dapplo.Addons;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
@@ -46,7 +44,6 @@ namespace Greenshot.Addon.ExternalCommand
 		private static readonly LogSource Log = new LogSource();
 		private const string MsPaint = "MS Paint";
 		private const string PaintDotNet = "Paint.NET";
-		private ToolStripMenuItem _itemPlugInRoot;
 
 		[Import]
 		private IGreenshotHost GreenshotHost
@@ -92,20 +89,6 @@ namespace Greenshot.Addon.ExternalCommand
 
 		public void Dispose()
 		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				if (_itemPlugInRoot != null)
-				{
-					_itemPlugInRoot.Dispose();
-					_itemPlugInRoot = null;
-				}
-			}
 		}
 
 		/// <summary>
@@ -150,75 +133,35 @@ namespace Greenshot.Addon.ExternalCommand
 			// Make sure the defaults are set
 			//iniConfig.AfterLoad<IExternalCommandConfiguration>(AfterLoad);
 
-			IList<string> commandsToDelete = new List<string>();
-			// Check configuration
-			foreach (string command in ExternalCommandConfiguration.Commands)
+			return Task.Run(() =>
 			{
-				if (!IsCommandValid(command))
+				IList<string> commandsToDelete = new List<string>();
+				// Check configuration
+				foreach (string command in ExternalCommandConfiguration.Commands)
 				{
-					commandsToDelete.Add(command);
-				}
-			}
-
-			// cleanup
-			foreach (string command in commandsToDelete)
-			{
-				ExternalCommandConfiguration.RunInbackground.Remove(command);
-				ExternalCommandConfiguration.Commandline.Remove(command);
-				ExternalCommandConfiguration.Argument.Remove(command);
-				ExternalCommandConfiguration.Commands.Remove(command);
-			}
-
-			foreach (string command in ExternalCommandConfiguration.Commands)
-			{
-				var settings = new CommandSettings(command);
-				var externalCommandDestination = new ExternalCommandDestination(settings);
-				ServiceLocator.FillImports(externalCommandDestination);
-				ServiceExporter.Export<IDestination>(externalCommandDestination);
-			}
-
-			_itemPlugInRoot = new ToolStripMenuItem();
-			_itemPlugInRoot.Tag = GreenshotHost;
-			OnIconSizeChanged(this, new PropertyChangedEventArgs("IconSize"));
-			OnExternalCommandLanguageChanged(this, null);
-			_itemPlugInRoot.Click += (sender, eventArgs) => Configure();
-
-			PluginUtils.AddToContextMenu(GreenshotHost, _itemPlugInRoot);
-			ExternalCommandLanguage.PropertyChanged += OnExternalCommandLanguageChanged;
-			CoreConfiguration.PropertyChanged += OnIconSizeChanged;
-			return Task.FromResult(true);
-		}
-
-		/// <summary>
-		/// Fix icon reference
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void OnIconSizeChanged(object sender, PropertyChangedEventArgs e)
-		{
-			if (e.PropertyName == "IconSize")
-			{
-				try
-				{
-					string exePath = PluginUtils.GetExePath("cmd.exe");
-					if (exePath != null && File.Exists(exePath))
+					if (!IsCommandValid(command))
 					{
-						_itemPlugInRoot.Image = PluginUtils.GetCachedExeIcon(exePath, 0);
+						commandsToDelete.Add(command);
 					}
 				}
-				catch (Exception ex)
-				{
-					Log.Warn().WriteLine(ex, "Couldn't get the cmd.exe image");
-				}
-			}
-		}
 
-		private void OnExternalCommandLanguageChanged(object sender, EventArgs e)
-		{
-			if (_itemPlugInRoot != null)
-			{
-				_itemPlugInRoot.Text = ExternalCommandLanguage.ContextmenuConfigure;
-			}
+				// cleanup
+				foreach (string command in commandsToDelete)
+				{
+					ExternalCommandConfiguration.RunInbackground.Remove(command);
+					ExternalCommandConfiguration.Commandline.Remove(command);
+					ExternalCommandConfiguration.Argument.Remove(command);
+					ExternalCommandConfiguration.Commands.Remove(command);
+				}
+
+				foreach (string command in ExternalCommandConfiguration.Commands)
+				{
+					var settings = new CommandSettings(command);
+					var externalCommandDestination = new ExternalCommandDestination(settings);
+					ServiceLocator.FillImports(externalCommandDestination);
+					ServiceExporter.Export<IDestination>(externalCommandDestination);
+				}
+			}, token);
 		}
 
 		/// <summary>

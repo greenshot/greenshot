@@ -30,11 +30,10 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Dapplo.Config.Ini;
 using Dapplo.HttpExtensions;
-using Dapplo.HttpExtensions.OAuth;
+using Dapplo.HttpExtensions.Extensions;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Plugin;
-using Dapplo.Utils;
 using Dapplo.Log.Facade;
 
 namespace Greenshot.Addon.Flickr
@@ -99,7 +98,11 @@ namespace Greenshot.Addon.Flickr
 						{
 							Name = "\"photo\"", FileName = "\"" + filename + "\"",
 						};
-						var response = await FlickrUploadUri.OAuth1PostAsync<XDocument>(streamContent, signedParameters, token);
+						HttpBehaviour.Current.AddConfig(new HttpRequestMessageConfiguration
+						{
+							Properties = signedParameters
+						});
+						var response = await FlickrUploadUri.PostAsync<XDocument>(streamContent, token);
 						photoId = (from element in response.Root.Elements()
 									where element.Name == "photoid"
 									select element.Value).First();
@@ -113,7 +116,11 @@ namespace Greenshot.Addon.Flickr
 					{"format", "json"},
 					{"nojsoncallback", "1"}
 				};
-				var photoInfo = await FlickrGetInfoUrl.OAuth1PostAsync<dynamic>(signedParameters, token);
+				HttpBehaviour.Current.AddConfig(new HttpRequestMessageConfiguration
+				{
+					Properties = signedParameters
+				});
+				var photoInfo = await FlickrGetInfoUrl.PostAsync<dynamic>(signedParameters, token);
 				if (Config.UsePageLink)
 				{
 					return photoInfo.photo.urls.url[0]._content;

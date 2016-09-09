@@ -3,10 +3,10 @@ using System.Windows;
 using Dapplo.CaliburnMicro;
 using Dapplo.Config.Language;
 using Dapplo.Log.Facade;
-using Dapplo.Log.Loggers;
 using Dapplo.Utils.Resolving;
 using Greenshot.Addon.Configuration;
 using Dapplo.Config.Support;
+using Dapplo.Log.LogFile;
 
 namespace Greenshot
 {

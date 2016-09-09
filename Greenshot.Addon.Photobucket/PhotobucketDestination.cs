@@ -21,28 +21,24 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.Composition;
-using System.Drawing;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media.Imaging;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.OAuth;
-using Dapplo.Utils.Extensions;
 using Greenshot.Addon.Core;
-using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
-using Dapplo.Utils;
 using Dapplo.Log.Facade;
 using MahApps.Metro.IconPacks;
+using Dapplo.HttpExtensions.Extensions;
+using Dapplo.Utils;
 
 namespace Greenshot.Addon.Photobucket
 {
@@ -181,7 +177,7 @@ namespace Greenshot.Addon.Photobucket
 			catch (TaskCanceledException tcEx)
 			{
 				returnValue.Text = string.Format(PhotobucketLanguage.UploadFailure, PhotobucketDesignation);
-                returnValue.NotificationType = NotificationTypes.Cancel;
+				returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
 				Log.Info().WriteLine(tcEx.Message);
 			}
@@ -194,7 +190,7 @@ namespace Greenshot.Addon.Photobucket
 				MessageBox.Show(PhotobucketLanguage.UploadFailure + " " + e.Message, PhotobucketDesignation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			return returnValue;
-        }
+		}
 
 		/// <summary>
 		/// Do the actual upload to Photobucket
@@ -210,12 +206,12 @@ namespace Greenshot.Addon.Photobucket
 			// Use UploadProgress
 			oAuthHttpBehaviour.UploadProgress = (percent) =>
 			{
-				UiContext.RunOn(() => progress.Report((int)(percent * 100)));
+				UiContext.RunOn(() => progress.Report((int)(percent * 100)), token);
 			};
 			_oAuthHttpBehaviour.MakeCurrent();
 			if (PhotobucketConfiguration.Username == null || PhotobucketConfiguration.SubDomain == null)
 			{
-				await PhotobucketApiUri.AppendSegments("users").ExtendQuery("format", "json").OAuth1GetAsAsync<dynamic>(cancellationToken: token);
+				await PhotobucketApiUri.AppendSegments("users").ExtendQuery("format", "json").GetAsAsync<dynamic>(token);
 			}
 			if (PhotobucketConfiguration.Album == null)
 			{
@@ -223,9 +219,8 @@ namespace Greenshot.Addon.Photobucket
 			}
 			var uploadUri = PhotobucketApiUri.AppendSegments("album", PhotobucketConfiguration.Album, "upload");
 
-			var signedParameters = new Dictionary<string, object>();
+			var signedParameters = new Dictionary<string, object> {{"type", "image"}};
 			// add type
-			signedParameters.Add("type", "image");
 			// add title
 			if (title != null)
 			{
@@ -250,9 +245,13 @@ namespace Greenshot.Addon.Photobucket
 						FileName = "\"" + filename + "\"",
 					};
 
+					HttpBehaviour.Current.AddConfig(new HttpRequestMessageConfiguration
+					{
+						Properties = signedParameters
+					});
 					try
 					{							
-						responseString = await uploadUri.OAuth1PostAsync<string>(streamContent, signedParameters, token);
+						responseString = await uploadUri.PostAsync<string>(streamContent, token);
 					}
 					catch (Exception ex)
 					{
