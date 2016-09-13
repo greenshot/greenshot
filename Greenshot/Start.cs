@@ -6,7 +6,10 @@ using Dapplo.Log.Facade;
 using Dapplo.Utils.Resolving;
 using Greenshot.Addon.Configuration;
 using Dapplo.Config.Support;
+#if !DEBUG
 using Dapplo.Log.LogFile;
+#endif
+using Dapplo.Log.Loggers;
 
 namespace Greenshot
 {

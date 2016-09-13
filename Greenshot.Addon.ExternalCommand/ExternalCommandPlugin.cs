@@ -115,12 +115,12 @@ namespace Greenshot.Addon.ExternalCommand
 				Log.Warn().WriteLine("Found missing commandline for {0}", command);
 				return false;
 			}
-			if (!File.Exists(ExternalCommandConfiguration.Commandline[command]))
+			if (File.Exists(ExternalCommandConfiguration.Commandline[command]))
 			{
-				Log.Warn().WriteLine("Found 'invalid' commandline {0} for command {1}", ExternalCommandConfiguration.Commandline[command], command);
-				return false;
+				return true;
 			}
-			return true;
+			Log.Warn().WriteLine("Found 'invalid' commandline {0} for command {1}", ExternalCommandConfiguration.Commandline[command], command);
+			return false;
 		}
 
 		/// <summary>

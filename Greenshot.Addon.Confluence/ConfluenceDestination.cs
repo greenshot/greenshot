@@ -207,6 +207,6 @@ namespace Greenshot.Addon.Confluence
 			}
 
 			return returnValue;
-        }
+		}
 	}
 }
