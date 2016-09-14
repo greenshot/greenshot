@@ -1910,7 +1910,7 @@ namespace Greenshot.Drawing
 			FieldAggregator.UnbindElement(container);
 			if (generateEvents && _movingElementChanged != null)
 			{
-				SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs {Elements = selectedElements};
+				var eventArgs = new SurfaceElementEventArgs {Elements = selectedElements};
 				_movingElementChanged(this, eventArgs);
 			}
 		}

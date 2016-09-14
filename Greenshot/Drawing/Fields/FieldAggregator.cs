@@ -153,7 +153,7 @@ namespace Greenshot.Drawing.Fields
 		{
 			ClearFields();
 			internalUpdateRunning = true;
-			foreach (Field field in FindCommonFields())
+			foreach (var field in FindCommonFields())
 			{
 				SetFieldValue(field.FieldType, field.Value);
 			}

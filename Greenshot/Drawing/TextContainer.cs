@@ -56,7 +56,8 @@ namespace Greenshot.Drawing
 		/// The StringFormat object is not serializable!!
 		/// </summary>
 		[NonSerialized]
-		StringFormat _stringFormat = new StringFormat();
+		private StringFormat _stringFormat = new StringFormat();
+
 		public StringFormat StringFormat => _stringFormat;
 
 		// Although the name is wrong, we can't change it due to file serialization
@@ -172,8 +173,13 @@ namespace Greenshot.Drawing
 			Height = textSize.Height + lineThickness;
 		}
 
-		void TextContainer_PropertyChanged(object sender, PropertyChangedEventArgs e)
+		private void TextContainer_PropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
+			if (_textBox == null)
+			{
+				return;
+			}
+
 			if (_textBox.Visible)
 			{
 				_textBox.Invalidate();
@@ -203,7 +209,7 @@ namespace Greenshot.Drawing
 			}
 		}
 
-		void TextContainer_FieldChanged(object sender, FieldChangedEventArgs e)
+		private void TextContainer_FieldChanged(object sender, FieldChangedEventArgs e)
 		{
 			if (_textBox == null)
 			{
@@ -467,7 +473,7 @@ namespace Greenshot.Drawing
 			_textBox.ForeColor = lineColor;
 		}
 
-		void textBox_KeyDown(object sender, KeyEventArgs e)
+		private void textBox_KeyDown(object sender, KeyEventArgs e)
 		{
 			// ESC and Enter/Return (w/o Shift) hide text editor
 			if (e.KeyCode == Keys.Escape || ((e.KeyCode == Keys.Return || e.KeyCode == Keys.Enter) && e.Modifiers == Keys.None))
@@ -477,7 +483,7 @@ namespace Greenshot.Drawing
 			}
 		}
 
-		void textBox_LostFocus(object sender, EventArgs e)
+		private void textBox_LostFocus(object sender, EventArgs e)
 		{
 			// next change will be made undoable
 			makeUndoable = true;

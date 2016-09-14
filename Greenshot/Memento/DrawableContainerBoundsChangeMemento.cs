@@ -80,7 +80,7 @@ namespace Greenshot.Memento
 			var other = otherMemento as DrawableContainerBoundsChangeMemento;
 			if (other != null)
 			{
-				if (Objects.CompareLists<IDrawableContainer>(listOfdrawableContainer, other.listOfdrawableContainer))
+				if (ObjectExtensions.CompareLists<IDrawableContainer>(listOfdrawableContainer, other.listOfdrawableContainer))
 				{
 					// Lists are equal, as we have the state already we can ignore the new memento
 					return true;
