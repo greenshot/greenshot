@@ -467,12 +467,12 @@ namespace Greenshot {
 				LOG.Warn("Problem checking registry, ignoring for now: ", e);
 			}
 		}
-		
-		void Settings_cancelClick(object sender, EventArgs e) {
+
+		private void Settings_cancelClick(object sender, EventArgs e) {
 			DialogResult = DialogResult.Cancel;
 		}
-		
-		void Settings_okayClick(object sender, EventArgs e) {
+
+		private void Settings_okayClick(object sender, EventArgs e) {
 			if (CheckSettings()) {
 				HotkeyControl.UnregisterHotkeys();
 				SaveSettings();
@@ -486,8 +486,8 @@ namespace Greenshot {
 				tabcontrol.SelectTab(tab_output);
 			}
 		}
-		
-		void BrowseClick(object sender, EventArgs e) {
+
+		private void BrowseClick(object sender, EventArgs e) {
 			// Get the storage location and replace the environment variables
 			folderBrowserDialog1.SelectedPath = FilenameHelper.FillVariables(textbox_storagelocation.Text, false);
 			if (folderBrowserDialog1.ShowDialog() == DialogResult.OK) {
@@ -497,28 +497,28 @@ namespace Greenshot {
 				}
 			}
 		}
-		
-		void TrackBarJpegQualityScroll(object sender, EventArgs e) {
+
+		private void TrackBarJpegQualityScroll(object sender, EventArgs e) {
 			textBoxJpegQuality.Text = trackBarJpegQuality.Value.ToString(CultureInfo.InvariantCulture);
 		}
 
-		
-		void BtnPatternHelpClick(object sender, EventArgs e) {
+
+		private void BtnPatternHelpClick(object sender, EventArgs e) {
 			string filenamepatternText = Language.GetString(LangKey.settings_message_filenamepattern);
 			// Convert %NUM% to ${NUM} for old language files!
 			filenamepatternText = Regex.Replace(filenamepatternText, "%([a-zA-Z_0-9]+)%", @"${$1}");
 			MessageBox.Show(filenamepatternText, Language.GetString(LangKey.settings_filenamepattern));
 		}
-		
-		void Listview_pluginsSelectedIndexChanged(object sender, EventArgs e) {
+
+		private void Listview_pluginsSelectedIndexChanged(object sender, EventArgs e) {
 			button_pluginconfigure.Enabled = PluginHelper.Instance.isSelectedItemConfigurable(listview_plugins);
 		}
-		
-		void Button_pluginconfigureClick(object sender, EventArgs e) {
+
+		private void Button_pluginconfigureClick(object sender, EventArgs e) {
 			PluginHelper.Instance.ConfigureSelectedItem(listview_plugins);
 		}
 
-		void Combobox_languageSelectedIndexChanged(object sender, EventArgs e) {
+		private void Combobox_languageSelectedIndexChanged(object sender, EventArgs e) {
 			// Get the combobox values BEFORE changing the language
 			//EmailFormat selectedEmailFormat = GetSelected<EmailFormat>(combobox_emailformat);
 			WindowCaptureMode selectedWindowCaptureMode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
@@ -536,8 +536,8 @@ namespace Greenshot {
 			//SetEmailFormat(selectedEmailFormat);
 			SetWindowCaptureMode(selectedWindowCaptureMode);
 		}
-		
-		void Combobox_window_capture_modeSelectedIndexChanged(object sender, EventArgs e) {
+
+		private void Combobox_window_capture_modeSelectedIndexChanged(object sender, EventArgs e) {
 			int windowsVersion = Environment.OSVersion.Version.Major;
 			WindowCaptureMode mode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
 			if (windowsVersion >= 6) {
@@ -553,7 +553,7 @@ namespace Greenshot {
 		/// <summary>
 		/// Check the destination settings
 		/// </summary>
-		void CheckDestinationSettings() {
+		private void CheckDestinationSettings() {
 			bool clipboardDestinationChecked = false;
 			bool pickerSelected = checkbox_picker.Checked;
 			bool destinationsEnabled = true;
@@ -588,7 +588,7 @@ namespace Greenshot {
 			}
 		}
 
-		void DestinationsCheckStateChanged(object sender, EventArgs e) {
+		private void DestinationsCheckStateChanged(object sender, EventArgs e) {
 			CheckDestinationSettings();
 		}
 

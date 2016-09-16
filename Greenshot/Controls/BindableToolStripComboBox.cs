@@ -41,7 +41,7 @@ namespace Greenshot.Controls {
 			SelectedIndexChanged += BindableToolStripComboBox_SelectedIndexChanged;
 		}
 
-		void BindableToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e) {
+		private void BindableToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e) {
 			if(PropertyChanged != null) {
 				PropertyChanged(this, new PropertyChangedEventArgs("SelectedItem"));
 				

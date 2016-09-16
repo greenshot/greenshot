@@ -34,8 +34,7 @@ namespace Greenshot.Drawing.Fields
 	[Serializable()]
 	public abstract class AbstractFieldHolderWithChildren : AbstractFieldHolder
 	{
-
-		FieldChangedEventHandler fieldChangedEventHandler;
+		private FieldChangedEventHandler fieldChangedEventHandler;
 
 		[NonSerialized]
 		private EventHandler childrenChanged;

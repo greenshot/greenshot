@@ -200,8 +200,8 @@ namespace GreenshotImgurPlugin {
 			listview_imgur_uploads.Sort();
 		}
 
-		
-		void ImgurHistoryFormClosing(object sender, FormClosingEventArgs e)
+
+		private void ImgurHistoryFormClosing(object sender, FormClosingEventArgs e)
 		{
 			_instance = null;
 		}

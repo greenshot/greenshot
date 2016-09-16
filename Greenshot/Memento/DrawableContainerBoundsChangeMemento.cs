@@ -31,9 +31,9 @@ namespace Greenshot.Memento
 	/// </summary>
 	public class DrawableContainerBoundsChangeMemento : IMemento
 	{
-		List<Point> points = new List<Point>();
-		List<Size> sizes = new List<Size>();
-		IDrawableContainerList listOfdrawableContainer;
+		private List<Point> points = new List<Point>();
+		private List<Size> sizes = new List<Size>();
+		private IDrawableContainerList listOfdrawableContainer;
 
 		private void StoreBounds()
 		{

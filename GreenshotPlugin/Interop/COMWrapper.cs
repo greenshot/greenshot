@@ -64,10 +64,10 @@ namespace Greenshot.Interop {
 
 		#endregion
 		[DllImport("ole32.dll")]
-		static extern int ProgIDFromCLSID([In] ref Guid clsid, [MarshalAs(UnmanagedType.LPWStr)] out string lplpszProgId);
+		private static extern int ProgIDFromCLSID([In] ref Guid clsid, [MarshalAs(UnmanagedType.LPWStr)] out string lplpszProgId);
 		// Converts failure HRESULTs to exceptions:
 		[DllImport("oleaut32", PreserveSig=false)]
-		static extern void GetActiveObject(ref Guid rclsid, IntPtr pvReserved, [MarshalAs(UnmanagedType.IUnknown)] out object ppunk);
+		private static extern void GetActiveObject(ref Guid rclsid, IntPtr pvReserved, [MarshalAs(UnmanagedType.IUnknown)] out object ppunk);
 
 		#region Construction
 

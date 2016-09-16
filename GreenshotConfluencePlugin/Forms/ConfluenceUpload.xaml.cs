@@ -110,8 +110,8 @@ namespace GreenshotConfluencePlugin {
 				SearchTab.IsSelected = true;
 			}
 		}
-		
-		void UpdateSpaces() {
+
+		private void UpdateSpaces() {
 			if (_spaces != null && DateTime.Now.AddMinutes(-60).CompareTo(_lastLoad) > 0) {
 				// Reset
 				_spaces = null;
@@ -125,7 +125,7 @@ namespace GreenshotConfluencePlugin {
 			}
 		}
 
-		void Upload_Click(object sender, RoutedEventArgs e) {
+		private void Upload_Click(object sender, RoutedEventArgs e) {
 			DialogResult = true;
 		}
 	}

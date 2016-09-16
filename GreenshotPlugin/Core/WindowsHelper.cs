@@ -780,7 +780,7 @@ namespace GreenshotPlugin.Core {
 						}
 
 						if (windowRect.IsEmpty) {
-							if (GetWindowRect(out windowRect))
+							if (!GetWindowRect(out windowRect))
 							{
 								Win32Error error = Win32.GetLastErrorCode();
 								Log.WarnFormat("Couldn't retrieve the windows rectangle: {0}", Win32.GetMessage(error));

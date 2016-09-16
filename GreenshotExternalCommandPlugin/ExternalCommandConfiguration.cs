@@ -52,28 +52,85 @@ namespace ExternalCommand {
 		public bool UriToClipboard { get; set; }
 
 		[IniProperty("Commandline", Description="The commandline for the output command.")]
-		public Dictionary<string, string> commandlines { get; set; }
+		public Dictionary<string, string> Commandline { get; set; }
 
 		[IniProperty("Argument", Description="The arguments for the output command.")]
-		public Dictionary<string, string> arguments { get; set; }
+		public Dictionary<string, string> Argument { get; set; }
 
 		[IniProperty("RunInbackground", Description = "Should the command be started in the background.")]
-		public Dictionary<string, bool> runInbackground { get; set; }
+		public Dictionary<string, bool> RunInbackground { get; set; }
 
-		private const string MSPAINT = "MS Paint";
-		private static readonly string paintPath;
-		private static readonly bool hasPaint = false;
+		[IniProperty("DeletedBuildInCommands", Description = "If a build in command was deleted manually, it should not be recreated.")]
+		public List<string> DeletedBuildInCommands { get; set; }
 
-		private const string PAINTDOTNET = "Paint.NET";
-		private static readonly string paintDotNetPath;
-		private static readonly bool hasPaintDotNet = false;
+		private const string MsPaint = "MS Paint";
+		private static readonly string PaintPath;
+		private static readonly bool HasPaint;
+
+		private const string PaintDotNet = "Paint.NET";
+		private static readonly string PaintDotNetPath;
+		private static readonly bool HasPaintDotNet;
 		static ExternalCommandConfiguration() {
 			try {
-				paintPath = PluginUtils.GetExePath("pbrush.exe");
-				hasPaint = !string.IsNullOrEmpty(paintPath) && File.Exists(paintPath);
-				paintDotNetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"Paint.NET\PaintDotNet.exe");
-				hasPaintDotNet = !string.IsNullOrEmpty(paintDotNetPath) && File.Exists(paintDotNetPath);
+				PaintPath = PluginUtils.GetExePath("pbrush.exe");
+				HasPaint = !string.IsNullOrEmpty(PaintPath) && File.Exists(PaintPath);
 			} catch {
+				// Ignore
+			}
+			try
+			{
+				PaintDotNetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"Paint.NET\PaintDotNet.exe");
+				HasPaintDotNet = !string.IsNullOrEmpty(PaintDotNetPath) && File.Exists(PaintDotNetPath);
+			}
+			catch
+			{
+				// Ignore
+			}
+		}
+
+		/// <summary>
+		/// Delete the configuration for the specified command
+		/// </summary>
+		/// <param name="command">string with command</param>
+		public void Delete(string command)
+		{
+			if (string.IsNullOrEmpty(command))
+			{
+				return;
+			}
+			Commands.Remove(command);
+			Commandline.Remove(command);
+			Argument.Remove(command);
+			RunInbackground.Remove(command);
+			if (MsPaint.Equals(command) || PaintDotNet.Equals(command))
+			{
+				if (!DeletedBuildInCommands.Contains(command))
+				{
+					DeletedBuildInCommands.Add(command);
+				}
+			}
+		}
+
+		public override void AfterLoad()
+		{
+			base.AfterLoad();
+
+			// Check if we need to add MsPaint
+			if (HasPaint && !Commands.Contains(MsPaint) && !DeletedBuildInCommands.Contains(MsPaint))
+			{
+				Commands.Add(MsPaint);
+				Commandline.Add(MsPaint, PaintPath);
+				Argument.Add(MsPaint, "\"{0}\"");
+				RunInbackground.Add(MsPaint, true);
+			}
+
+			// Check if we need to add Paint.NET
+			if (HasPaintDotNet && !Commands.Contains(PaintDotNet) && !DeletedBuildInCommands.Contains(PaintDotNet))
+			{
+				Commands.Add(PaintDotNet);
+				Commandline.Add(PaintDotNet, PaintDotNetPath);
+				Argument.Add(PaintDotNet, "\"{0}\"");
+				RunInbackground.Add(PaintDotNet, true);
 			}
 		}
 
@@ -84,42 +141,16 @@ namespace ExternalCommand {
 		/// <returns>object with the default value for the supplied property</returns>
 		public override object GetDefault(string property) {
 			switch(property) {
-				case "Commands":
-					List<string> commandDefaults = new List<string>();
-					if (hasPaintDotNet) {
-						commandDefaults.Add(PAINTDOTNET);
-					}
-					if (hasPaint) {
-						commandDefaults.Add(MSPAINT);
-					}
-					return commandDefaults; 
-				case "Commandline":
-					Dictionary<string, string> commandlineDefaults = new Dictionary<string, string>();
-					if (hasPaintDotNet) {
-						commandlineDefaults.Add(PAINTDOTNET, paintDotNetPath);
-					}
-					if (hasPaint) {
-						commandlineDefaults.Add(MSPAINT, paintPath);
-					}
-					return commandlineDefaults; 
-				case "Argument":
-					Dictionary<string, string> argumentDefaults = new Dictionary<string, string>();
-					if (hasPaintDotNet) {
-						argumentDefaults.Add(PAINTDOTNET, "\"{0}\"");
-					}
-					if (hasPaint) {
-						argumentDefaults.Add(MSPAINT, "\"{0}\"");
-					}
-					return argumentDefaults;
-				case "RunInbackground":
-					Dictionary<string, bool> runInBackground = new Dictionary<string, bool>();
-					if (hasPaintDotNet) {
-						runInBackground.Add(PAINTDOTNET, true);
-					}
-					if (hasPaint) {
-						runInBackground.Add(MSPAINT, true);
-					}
-					return runInBackground;
+				case nameof(DeletedBuildInCommands):
+					return new List<string>();
+				case nameof(Commands):
+					return new List<string>();
+				case nameof(Commandline):
+					return new Dictionary<string, string>();
+				case nameof(Argument):
+					return new Dictionary<string, string>();
+				case nameof(RunInbackground):
+					return new Dictionary<string, bool>();
 			}
 			return null;
 		}

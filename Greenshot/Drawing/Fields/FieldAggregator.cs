@@ -47,7 +47,7 @@ namespace Greenshot.Drawing.Fields
 		private IDrawableContainerList boundContainers;
 		private bool internalUpdateRunning = false;
 
-		enum Status { IDLE, BINDING, UPDATING };
+		private enum Status { IDLE, BINDING, UPDATING };
 
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(FieldAggregator));
 		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();

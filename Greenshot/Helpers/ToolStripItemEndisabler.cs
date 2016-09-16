@@ -29,7 +29,7 @@ namespace Greenshot.Helpers {
 	/// </summary>
 	public static class ToolStripItemEndisabler {
 		[Flags]
-		enum PropagationMode {NONE=0, CHILDREN=1, ANCESTORS=2};
+		private enum PropagationMode {NONE=0, CHILDREN=1, ANCESTORS=2};
 		
 		/// <summary>
 		/// Enables all of a ToolStrip's children (recursively),

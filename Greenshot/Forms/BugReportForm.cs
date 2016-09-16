@@ -37,8 +37,8 @@ namespace Greenshot.Forms {
 		public BugReportForm(string bugText) : this() {
 			textBoxDescription.Text = bugText;
 		}
-		
-		void LinkLblBugsLinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+
+		private void LinkLblBugsLinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
 			openLink((LinkLabel)sender);
 		}
 

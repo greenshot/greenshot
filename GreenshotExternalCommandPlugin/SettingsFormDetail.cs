@@ -45,8 +45,8 @@ namespace ExternalCommand {
 
 			if(commando != null) {
 				textBox_name.Text = commando;
-				textBox_commandline.Text = config.commandlines[commando];
-				textBox_arguments.Text = config.arguments[commando];
+				textBox_commandline.Text = config.Commandline[commando];
+				textBox_arguments.Text = config.Argument[commando];
 				_commandIndex = config.Commands.FindIndex(delegate(string s) { return s == commando; });
 			} else {
 				textBox_arguments.Text = "\"{0}\"";
@@ -54,25 +54,25 @@ namespace ExternalCommand {
 			OkButtonState();
 		}
 
-		void ButtonOkClick(object sender, EventArgs e) {
+		private void ButtonOkClick(object sender, EventArgs e) {
 			string commandName = textBox_name.Text;
 			string commandLine = textBox_commandline.Text;
 			string arguments = textBox_arguments.Text;
 			if(_commando != null) {
 				config.Commands[_commandIndex] = commandName;
-				config.commandlines.Remove(_commando);
-				config.commandlines.Add(commandName, commandLine);
-				config.arguments.Remove(_commando);
-				config.arguments.Add(commandName, arguments);
+				config.Commandline.Remove(_commando);
+				config.Commandline.Add(commandName, commandLine);
+				config.Argument.Remove(_commando);
+				config.Argument.Add(commandName, arguments);
 			} else {
 				config.Commands.Add(commandName);
-				config.commandlines.Add(commandName, commandLine);
-				config.arguments.Add(commandName, arguments);
+				config.Commandline.Add(commandName, commandLine);
+				config.Argument.Add(commandName, arguments);
 			}
 		}
 
-		void Button3Click(object sender, EventArgs e) {
-			OpenFileDialog openFileDialog = new OpenFileDialog
+		private void Button3Click(object sender, EventArgs e) {
+			var openFileDialog = new OpenFileDialog
 			{
 				Filter = "Executables (*.exe, *.bat, *.com)|*.exe; *.bat; *.com|All files (*)|*",
 				FilterIndex = 1,
@@ -106,7 +106,7 @@ namespace ExternalCommand {
 			buttonOk.Enabled = true;
 			textBox_name.BackColor = Color.White;
 			textBox_commandline.BackColor = Color.White;
-            textBox_arguments.BackColor = Color.White;
+			textBox_arguments.BackColor = Color.White;
 			// Is there a text in the name field
 			if(string.IsNullOrEmpty(textBox_name.Text)) {
 				buttonOk.Enabled = false;
@@ -136,17 +136,17 @@ namespace ExternalCommand {
 			}
 			// Are the arguments in a valid format? 
 			try
-            {
+			{
 				string arguments = FilenameHelper.FillVariables(textBox_arguments.Text, false);
 				arguments = FilenameHelper.FillCmdVariables(arguments, false);
 
 				ExternalCommandDestination.FormatArguments(arguments, string.Empty);
-            }
-            catch
-            {
-                buttonOk.Enabled = false;
-                textBox_arguments.BackColor = Color.Red;
-            }  
+			}
+			catch
+			{
+				buttonOk.Enabled = false;
+				textBox_arguments.BackColor = Color.Red;
+			}  
 		}
 
 		private void textBox_name_TextChanged(object sender, EventArgs e) {
@@ -157,10 +157,10 @@ namespace ExternalCommand {
 			OkButtonState();
 		}
 
-        private void textBox_arguments_TextChanged(object sender, EventArgs e)
-        {
-            OkButtonState();
-        }
+		private void textBox_arguments_TextChanged(object sender, EventArgs e)
+		{
+			OkButtonState();
+		}
 
 	}
 }

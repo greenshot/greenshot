@@ -53,8 +53,8 @@ namespace GreenshotOCR {
 				index++;
 			}
 		}
-		
-		void ButtonOKClick(object sender, EventArgs e) {
+
+		private void ButtonOKClick(object sender, EventArgs e) {
 			string selectedString = (string) comboBox_languages.SelectedItem;
 			if (selectedString != null) {
 				config.Language = selectedString.ToUpper();

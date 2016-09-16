@@ -1169,7 +1169,7 @@ namespace Greenshot.Drawing
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void SurfaceMouseDown(object sender, MouseEventArgs e)
+		private void SurfaceMouseDown(object sender, MouseEventArgs e)
 		{
 
 			// Handle Adorners
@@ -1261,7 +1261,7 @@ namespace Greenshot.Drawing
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void SurfaceMouseUp(object sender, MouseEventArgs e)
+		private void SurfaceMouseUp(object sender, MouseEventArgs e)
 		{
 
 			// Handle Adorners
@@ -1350,7 +1350,7 @@ namespace Greenshot.Drawing
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void SurfaceMouseMove(object sender, MouseEventArgs e)
+		private void SurfaceMouseMove(object sender, MouseEventArgs e)
 		{
 			// Handle Adorners
 			var adorner = FindActiveAdorner(e);
@@ -1417,7 +1417,7 @@ namespace Greenshot.Drawing
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void SurfaceDoubleClick(object sender, MouseEventArgs e)
+		private void SurfaceDoubleClick(object sender, MouseEventArgs e)
 		{
 			selectedElements.OnDoubleClick();
 			selectedElements.Invalidate();
@@ -1459,7 +1459,7 @@ namespace Greenshot.Drawing
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="paintEventArgs">PaintEventArgs</param>
-		void SurfacePaint(object sender, PaintEventArgs paintEventArgs)
+		private void SurfacePaint(object sender, PaintEventArgs paintEventArgs)
 		{
 			Graphics targetGraphics = paintEventArgs.Graphics;
 			Rectangle clipRectangle = paintEventArgs.ClipRectangle;

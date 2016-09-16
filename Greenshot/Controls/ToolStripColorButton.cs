@@ -65,7 +65,7 @@ namespace Greenshot.Controls {
 			}
 		}
 
-		void ColorButtonClick(object sender, EventArgs e) {
+		private void ColorButtonClick(object sender, EventArgs e) {
 			ColorDialog colorDialog = ColorDialog.GetInstance();
 			colorDialog.Color = SelectedColor;
 			// Using the parent to make sure the dialog doesn't show on another window

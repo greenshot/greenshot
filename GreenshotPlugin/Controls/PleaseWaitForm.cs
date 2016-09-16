@@ -115,7 +115,7 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void CancelButtonClick(object sender, EventArgs e) {
+		private void CancelButtonClick(object sender, EventArgs e) {
 			LOG.DebugFormat("Cancel clicked on {0}", _title);
 			cancelButton.Enabled = false;
 			_waitFor.Abort();

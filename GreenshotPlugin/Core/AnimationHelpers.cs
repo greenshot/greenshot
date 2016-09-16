@@ -519,7 +519,7 @@ namespace GreenshotPlugin.Core {
 			throw new NotImplementedException();
 		}
 
-		static class Sine {
+		private static class Sine {
 			public static double EaseIn(double s) {
 				return Math.Sin(s * (Math.PI / 2) - (Math.PI / 2)) + 1;
 			}
@@ -531,7 +531,7 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		static class Power {
+		private static class Power {
 			public static double EaseIn(double s, int power) {
 				return Math.Pow(s, power);
 			}

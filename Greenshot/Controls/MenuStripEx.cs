@@ -29,7 +29,7 @@ namespace Greenshot.Controls {
 	public class MenuStripEx : MenuStrip {
 		private const int WM_MOUSEACTIVATE = 0x21;
 
-		enum NativeConstants : uint {
+		private enum NativeConstants : uint {
 			MA_ACTIVATE = 1,
 			MA_ACTIVATEANDEAT = 2,
 		}

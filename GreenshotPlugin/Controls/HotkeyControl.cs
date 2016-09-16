@@ -201,7 +201,7 @@ namespace GreenshotPlugin.Controls {
 		/// Fires when a key is pushed down. Here, we'll want to update the text in the box
 		/// to notify the user what combination is currently pressed.
 		/// </summary>
-		void HotkeyControl_KeyDown(object sender, KeyEventArgs e) {
+		private void HotkeyControl_KeyDown(object sender, KeyEventArgs e) {
 			// Clear the current hotkey
 			if (e.KeyCode == Keys.Back || e.KeyCode == Keys.Delete) {
 				ResetHotkey();
@@ -217,7 +217,7 @@ namespace GreenshotPlugin.Controls {
 		/// Fires when all keys are released. If the current hotkey isn't valid, reset it.
 		/// Otherwise, do nothing and keep the text and hotkey as it was.
 		/// </summary>
-		void HotkeyControl_KeyUp(object sender, KeyEventArgs e) {
+		private void HotkeyControl_KeyUp(object sender, KeyEventArgs e) {
 			// Somehow the PrintScreen only comes as a keyup, therefore we handle it here.
 			if (e.KeyCode == Keys.PrintScreen) {
 				_modifiers = e.Modifiers;
@@ -235,7 +235,7 @@ namespace GreenshotPlugin.Controls {
 		/// Prevents the letter/whatever entered to show up in the TextBox
 		/// Without this, a "A" key press would appear as "aControl, Alt + A"
 		/// </summary>
-		void HotkeyControl_KeyPress(object sender, KeyPressEventArgs e) {
+		private void HotkeyControl_KeyPress(object sender, KeyPressEventArgs e) {
 			e.Handled = true;
 		}
 

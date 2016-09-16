@@ -78,8 +78,8 @@ namespace Greenshot.Forms {
 				Close();
 			}
 		}
-		
-		void BtnOKClick(object sender, EventArgs e) {
+
+		private void BtnOKClick(object sender, EventArgs e) {
 			properOkPressed = true;
 			// Fix for Bug #3431100 
 			Language.CurrentLanguage = SelectedLanguage;

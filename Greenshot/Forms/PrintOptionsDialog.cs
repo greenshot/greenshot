@@ -34,9 +34,9 @@ namespace Greenshot.Forms {
 			InitializeComponent();
 			checkbox_dontaskagain.Checked = false;
 		}
-		
-		
-		void Button_okClick(object sender, EventArgs e) {
+
+
+		private void Button_okClick(object sender, EventArgs e) {
 			// update config
 			coreConfiguration.OutputPrintPromptOptions = !checkbox_dontaskagain.Checked;
 			IniConfig.Save();

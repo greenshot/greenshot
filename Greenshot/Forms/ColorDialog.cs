@@ -165,7 +165,8 @@ namespace Greenshot {
 		#endregion
 
 		#region textbox event handlers
-		void TextBoxHexadecimalTextChanged(object sender, EventArgs e) {
+
+		private void TextBoxHexadecimalTextChanged(object sender, EventArgs e) {
 			if (_updateInProgress) {
 				return;
 			}
@@ -188,7 +189,7 @@ namespace Greenshot {
 			PreviewColor(opaqueColor, textBox);
 		}
 
-		void TextBoxRGBTextChanged(object sender, EventArgs e) {
+		private void TextBoxRGBTextChanged(object sender, EventArgs e) {
 			if (_updateInProgress) {
 				return;
 			}
@@ -196,11 +197,11 @@ namespace Greenshot {
 			PreviewColor(Color.FromArgb(GetColorPartIntFromString(textBoxAlpha.Text), GetColorPartIntFromString(textBoxRed.Text), GetColorPartIntFromString(textBoxGreen.Text), GetColorPartIntFromString(textBoxBlue.Text)), textBox);
 		}
 
-		void TextBoxGotFocus(object sender, EventArgs e) {
+		private void TextBoxGotFocus(object sender, EventArgs e) {
 			textBoxHtmlColor.SelectAll();
 		}
 
-		void TextBoxKeyDown(object sender, KeyEventArgs e) {
+		private void TextBoxKeyDown(object sender, KeyEventArgs e) {
 			if (e.KeyCode == Keys.Return || e.KeyCode == Keys.Enter) {
 				AddToRecentColors(colorPanel.BackColor);
 			}
@@ -208,15 +209,17 @@ namespace Greenshot {
 		#endregion
 
 		#region button event handlers
-		void ColorButtonClick(object sender, EventArgs e) {
+
+		private void ColorButtonClick(object sender, EventArgs e) {
 			Button b = (Button)sender;
 			PreviewColor(b.BackColor, b);
 		}
 
-		void BtnTransparentClick(object sender, EventArgs e) {
+		private void BtnTransparentClick(object sender, EventArgs e) {
 			ColorButtonClick(sender, e);
 		}
-		void BtnApplyClick(object sender, EventArgs e) {
+
+		private void BtnApplyClick(object sender, EventArgs e) {
 			DialogResult = DialogResult.OK;
 			Hide();
 			AddToRecentColors(colorPanel.BackColor);

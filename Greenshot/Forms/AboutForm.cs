@@ -116,7 +116,7 @@ namespace Greenshot {
 		// 18 19 20 21 22 23
 
 		// The order in which we draw the dots & flow the collors.
-		readonly List<int> flowOrder = new List<int>() { 4, 3, 2, 1, 0, 5, 6, 7, 8, 9, 10, 14, 15, 18, 19, 20, 21, 22, 23, 16, 17, 13, 12, 11 };
+		private readonly List<int> flowOrder = new List<int>() { 4, 3, 2, 1, 0, 5, 6, 7, 8, 9, 10, 14, 15, 18, 19, 20, 21, 22, 23, 16, 17, 13, 12, 11 };
 
 		/// <summary>
 		/// Cleanup all the allocated resources
@@ -211,7 +211,7 @@ namespace Greenshot {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void LinkLabelClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+		private void LinkLabelClicked(object sender, LinkLabelLinkClickedEventArgs e) {
 			LinkLabel linkLabel = sender as LinkLabel;
 			if (linkLabel != null) {
 				try {

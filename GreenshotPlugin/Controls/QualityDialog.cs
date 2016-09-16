@@ -48,8 +48,8 @@ namespace GreenshotPlugin.Controls {
 			textBoxJpegQuality.Text = Settings.JPGQuality.ToString();
 			ToFront = true;
 		}
-		
-		void Button_okClick(object sender, EventArgs e) {
+
+		private void Button_okClick(object sender, EventArgs e) {
 			Settings.JPGQuality = trackBarJpegQuality.Value;
 			Settings.ReduceColors = checkBox_reduceColors.Checked;
 			if (checkbox_dontaskagain.Checked) {
@@ -59,8 +59,8 @@ namespace GreenshotPlugin.Controls {
 				IniConfig.Save();
 			}
 		}
-		
-		void TrackBarJpegQualityScroll(object sender, EventArgs e) {
+
+		private void TrackBarJpegQualityScroll(object sender, EventArgs e) {
 			textBoxJpegQuality.Text = trackBarJpegQuality.Value.ToString();
 		}
 	}

@@ -92,8 +92,8 @@ namespace GreenshotPlugin.Controls {
 			_shouldClose = true;
 			Application.DoEvents();
 		}
-		
-		void BackgroundFormFormClosing(object sender, FormClosingEventArgs e) {
+
+		private void BackgroundFormFormClosing(object sender, FormClosingEventArgs e) {
 			timer_checkforclose.Stop();
 		}
 	}

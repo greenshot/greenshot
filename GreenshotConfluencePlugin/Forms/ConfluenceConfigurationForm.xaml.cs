@@ -38,8 +38,8 @@ namespace GreenshotConfluencePlugin {
 			this.config = config;
 			InitializeComponent();
 		}
-		
-		void Button_OK_Click(object sender, RoutedEventArgs e) {
+
+		private void Button_OK_Click(object sender, RoutedEventArgs e) {
 			DialogResult = true;
 		}
 	}

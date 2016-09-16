@@ -25,14 +25,14 @@ using GreenshotInterop.Interop;
 namespace GreenshotPlugin.Controls {
 	public class ExtendedWebBrowser : WebBrowser {
 		protected class ExtendedWebBrowserSite : WebBrowserSite, IOleCommandTarget {
-			const int OLECMDID_SHOWSCRIPTERROR = 40;
-			const int OLECMDID_SHOWMESSAGE = 41;
+			private const int OLECMDID_SHOWSCRIPTERROR = 40;
+			private const int OLECMDID_SHOWMESSAGE = 41;
 
-			static readonly Guid CGID_DocHostCommandHandler = new Guid("F38BC242-B950-11D1-8918-00C04FC2C836");
+			private static readonly Guid CGID_DocHostCommandHandler = new Guid("F38BC242-B950-11D1-8918-00C04FC2C836");
 
-			const int S_OK = 0;
-			const int OLECMDERR_E_NOTSUPPORTED = (-2147221248);
-			const int OLECMDERR_E_UNKNOWNGROUP = (-2147221244);
+			private const int S_OK = 0;
+			private const int OLECMDERR_E_NOTSUPPORTED = (-2147221248);
+			private const int OLECMDERR_E_UNKNOWNGROUP = (-2147221244);
 
 			public ExtendedWebBrowserSite(WebBrowser wb) : base(wb) {
 			}

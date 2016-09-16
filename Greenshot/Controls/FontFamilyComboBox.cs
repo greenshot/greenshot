@@ -53,7 +53,7 @@ namespace Greenshot.Controls {
 			}
 		}
 
-		void ComboBox_DrawItem(object sender, DrawItemEventArgs e) {
+		private void ComboBox_DrawItem(object sender, DrawItemEventArgs e) {
 			// DrawBackground handles drawing the background (i.e,. hot-tracked v. not)
 			// It uses the system colors (Bluish, and and white, by default)
 			// same as calling e.Graphics.FillRectangle ( SystemBrushes.Highlight, e.Bounds );
@@ -108,7 +108,7 @@ namespace Greenshot.Controls {
 			}
 		}
 
-		void BindableToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e) {
+		private void BindableToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e) {
 			if (PropertyChanged != null) {
 				PropertyChanged(this, new PropertyChangedEventArgs("Text"));
 				PropertyChanged(this, new PropertyChangedEventArgs("FontFamily"));

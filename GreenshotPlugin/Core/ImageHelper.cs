@@ -490,7 +490,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>Bitmap</returns>
 		public static Image ApplyEffect(Image sourceImage, IEffect effect, Matrix matrix)
 		{
-			List<IEffect> effects = new List<IEffect> { effect };
+			var effects = new List<IEffect> { effect };
 			return ApplyEffects(sourceImage, effects, matrix);
 		}
 
@@ -501,13 +501,13 @@ namespace GreenshotPlugin.Core {
 		/// <param name="effects">List of IEffect</param>
 		/// <param name="matrix"></param>
 		/// <returns>Bitmap</returns>
-		public static Image ApplyEffects(Image sourceImage, List<IEffect> effects, Matrix matrix)
+		public static Image ApplyEffects(Image sourceImage, IEnumerable<IEffect> effects, Matrix matrix)
 		{
-			Image currentImage = sourceImage;
+			var currentImage = sourceImage;
 			bool disposeImage = false;
-			foreach (IEffect effect in effects)
+			foreach (var effect in effects)
 			{
-				Image tmpImage = effect.Apply(currentImage, matrix);
+				var tmpImage = effect.Apply(currentImage, matrix);
 				if (tmpImage != null)
 				{
 					if (disposeImage)
@@ -515,7 +515,6 @@ namespace GreenshotPlugin.Core {
 						currentImage.Dispose();
 					}
 					currentImage = tmpImage;
-					tmpImage = null;
 					// Make sure the "new" image is disposed
 					disposeImage = true;
 				}
@@ -549,7 +548,7 @@ namespace GreenshotPlugin.Core {
 		public static Image CreateTornEdge(Image sourceImage, int toothHeight, int horizontalToothRange, int verticalToothRange, bool[] edges)
 		{
 			Image returnImage = CreateEmpty(sourceImage.Width, sourceImage.Height, PixelFormat.Format32bppArgb, Color.Empty, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
-			using (GraphicsPath path = new GraphicsPath())
+			using (var path = new GraphicsPath())
 			{
 				Random random = new Random();
 				int horizontalRegions = (int)Math.Round((float)sourceImage.Width / horizontalToothRange);

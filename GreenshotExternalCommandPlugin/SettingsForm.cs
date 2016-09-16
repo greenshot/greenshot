@@ -29,8 +29,7 @@ namespace ExternalCommand {
 	/// Description of SettingsForm.
 	/// </summary>
 	public partial class SettingsForm : ExternalCommandForm {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SettingsForm));
-		private static readonly ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
+		private static readonly ExternalCommandConfiguration ExternalCommandConfig = IniConfig.GetIniSection<ExternalCommandConfiguration>();
 
 		public SettingsForm() {
 			//
@@ -42,35 +41,34 @@ namespace ExternalCommand {
 			UpdateView();
 		}
 
-		void ButtonOkClick(object sender, EventArgs e) {
+		private void ButtonOkClick(object sender, EventArgs e) {
 			IniConfig.Save();
 		}
 
-		void ButtonAddClick(object sender, EventArgs e) {
-			SettingsFormDetail form = new SettingsFormDetail(null);
+		private void ButtonAddClick(object sender, EventArgs e) {
+			var form = new SettingsFormDetail(null);
 			form.ShowDialog();
 
 			UpdateView();
 		}
 
-		void ButtonDeleteClick(object sender, EventArgs e) {
+		private void ButtonDeleteClick(object sender, EventArgs e) {
 			foreach(ListViewItem item in listView1.SelectedItems) {
 				string commando = item.Tag as string;
-				config.Commands.Remove(commando);
-				config.commandlines.Remove(commando);
-				config.arguments.Remove(commando);
+
+				ExternalCommandConfig.Delete(commando);
 			}
 			UpdateView();
 		}
 
-		void UpdateView() {
+		private void UpdateView() {
 			listView1.Items.Clear();
-			if(config.Commands != null) {
+			if(ExternalCommandConfig.Commands != null) {
 				listView1.ListViewItemSorter = new ListviewComparer();
 				ImageList imageList = new ImageList();
 				listView1.SmallImageList = imageList;
 				int imageNr = 0;
-				foreach(string commando in config.Commands) {
+				foreach(string commando in ExternalCommandConfig.Commands) {
 					ListViewItem item;
 					Image iconForExe = IconCache.IconForCommand(commando);
 					if(iconForExe != null) {
@@ -87,15 +85,15 @@ namespace ExternalCommand {
 			button_edit.Enabled = listView1.SelectedItems.Count > 0;
 		}
 
-		void ListView1ItemSelectionChanged(object sender, EventArgs e) {
+		private void ListView1ItemSelectionChanged(object sender, EventArgs e) {
 			button_edit.Enabled = listView1.SelectedItems.Count > 0;
 		}
 
-		void ButtonEditClick(object sender, EventArgs e) {
+		private void ButtonEditClick(object sender, EventArgs e) {
 			ListView1DoubleClick(sender, e);
 		}
 
-		void ListView1DoubleClick(object sender, EventArgs e) {
+		private void ListView1DoubleClick(object sender, EventArgs e) {
 			// Safety check for bug #1484
 			bool selectionActive = listView1.SelectedItems.Count > 0;
 			if(!selectionActive) {
@@ -104,7 +102,7 @@ namespace ExternalCommand {
 			}
 			string commando = listView1.SelectedItems[0].Tag as string;
 
-			SettingsFormDetail form = new SettingsFormDetail(commando);
+			var form = new SettingsFormDetail(commando);
 			form.ShowDialog();
 
 			UpdateView();
@@ -120,12 +118,9 @@ namespace ExternalCommand {
 				return (0);
 			}
 
-			ListViewItem l1 = (ListViewItem)x;
-			ListViewItem l2 = (ListViewItem)y;
-			if(l2 == null) {
-				return 1;
-			}
-			return l1.Text.CompareTo(l2.Text);
+			var l1 = (ListViewItem)x;
+			var l2 = (ListViewItem)y;
+			return string.Compare(l1.Text, l2.Text, StringComparison.Ordinal);
 		}
 	}
 }

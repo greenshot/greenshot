@@ -155,7 +155,7 @@ namespace Greenshot.Helpers {
 			return ret;
 		}
 
-		void DrawImageForPrint(object sender, PrintPageEventArgs e) {
+		private void DrawImageForPrint(object sender, PrintPageEventArgs e) {
 			
 
 			// Create the output settins

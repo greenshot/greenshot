@@ -71,10 +71,10 @@ namespace ExternalCommand {
 
 			
 			if (_presetCommand != null) {
-				if (!config.runInbackground.ContainsKey(_presetCommand)) {
-					config.runInbackground.Add(_presetCommand, true);
+				if (!config.RunInbackground.ContainsKey(_presetCommand)) {
+					config.RunInbackground.Add(_presetCommand, true);
 				}
-				bool runInBackground = config.runInbackground[_presetCommand];
+				bool runInBackground = config.RunInbackground[_presetCommand];
 				string fullPath = captureDetails.Filename;
 				if (fullPath == null) {
 					fullPath = ImageOutput.SaveNamedTmpFile(surface, captureDetails, outputSettings);
@@ -139,7 +139,7 @@ namespace ExternalCommand {
 			} catch (Exception ex) {				
 				exportInformation.ExportMade = false;
 				exportInformation.ErrorMessage = ex.Message;
-                LOG.WarnFormat("Error calling external command: {0} ", exportInformation.ErrorMessage);
+				LOG.WarnFormat("Error calling external command: {0} ", exportInformation.ErrorMessage);
 			}
 		}
 
@@ -158,13 +158,13 @@ namespace ExternalCommand {
 				try {
 					return CallExternalCommand(commando, fullPath, "runas", out output, out error);
 				} catch {
-					w32ex.Data.Add("commandline", config.commandlines[_presetCommand]);
-					w32ex.Data.Add("arguments", config.arguments[_presetCommand]);
+					w32ex.Data.Add("commandline", config.Commandline[_presetCommand]);
+					w32ex.Data.Add("arguments", config.Argument[_presetCommand]);
 					throw;
 				}
 			} catch (Exception ex) {
-				ex.Data.Add("commandline", config.commandlines[_presetCommand]);
-				ex.Data.Add("arguments", config.arguments[_presetCommand]);
+				ex.Data.Add("commandline", config.Commandline[_presetCommand]);
+				ex.Data.Add("arguments", config.Argument[_presetCommand]);
 				throw;
 			}
 		}
@@ -179,8 +179,8 @@ namespace ExternalCommand {
 		/// <param name="error"></param>
 		/// <returns></returns>
 		private int CallExternalCommand(string commando, string fullPath, string verb, out string output, out string error) {
-			string commandline = config.commandlines[commando];
-			string arguments = config.arguments[commando];
+			string commandline = config.Commandline[commando];
+			string arguments = config.Argument[commando];
 			output = null;
 			error = null;
 			if (!string.IsNullOrEmpty(commandline)) {
@@ -227,9 +227,9 @@ namespace ExternalCommand {
 			return -1;
 		}
 
-        public static string FormatArguments(string arguments, string fullpath)
-        {
-            return string.Format(arguments, fullpath);
-        }
-    }
+		public static string FormatArguments(string arguments, string fullpath)
+		{
+			return string.Format(arguments, fullpath);
+		}
+	}
 }

@@ -33,11 +33,11 @@ namespace ExternalCommand {
 		public static Image IconForCommand(string commandName) {
 			Image icon = null;
 			if (commandName != null) {
-				if (config.commandlines.ContainsKey(commandName) && File.Exists(config.commandlines[commandName])) {
+				if (config.Commandline.ContainsKey(commandName) && File.Exists(config.Commandline[commandName])) {
 					try {
-						icon = PluginUtils.GetCachedExeIcon(config.commandlines[commandName], 0);
+						icon = PluginUtils.GetCachedExeIcon(config.Commandline[commandName], 0);
 					} catch (Exception ex) {
-						LOG.Warn("Problem loading icon for " + config.commandlines[commandName], ex);
+						LOG.Warn("Problem loading icon for " + config.Commandline[commandName], ex);
 					}
 				}
 			}

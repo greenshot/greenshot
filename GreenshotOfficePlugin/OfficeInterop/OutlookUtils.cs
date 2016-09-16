@@ -22,7 +22,7 @@ using System;
 using System.Runtime.InteropServices;
 
 namespace Greenshot.Interop.Office {
-	enum PT : uint {
+	internal enum PT : uint {
 		PT_UNSPECIFIED = 0,	/* (Reserved for interface use) type doesn't matter to caller */
 		PT_NULL = 1,	/* NULL property value */
 		PT_I2 = 2,	/* Signed 16-bit value */
@@ -470,7 +470,7 @@ namespace Greenshot.Interop.Office {
 		[ComImport()]
 		[Guid(IID_IMAPIProp)]
 		[InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIUnknown)]
-		interface IMessage : IMAPIProp {
+		private interface IMessage : IMAPIProp {
 			[return: MarshalAs(UnmanagedType.I4)]
 			[PreserveSig]
 			int GetAttachmentTable();
@@ -558,7 +558,7 @@ namespace Greenshot.Interop.Office {
 		[ComImport()]
 		[Guid(IID_IMAPIProp)]
 		[InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIUnknown)]
-		interface IMAPIProp {
+		private interface IMAPIProp {
 			[return: MarshalAs(UnmanagedType.I4)]
 			[PreserveSig]
 			int GetLastError();

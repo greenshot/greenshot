@@ -90,7 +90,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 
     public static class Win32 {
 		[DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-		static extern uint FormatMessage(uint dwFlags, IntPtr lpSource, uint dwMessageId, uint dwLanguageId, [Out] StringBuilder lpBuffer, int nSize, IntPtr Arguments);
+		private static extern uint FormatMessage(uint dwFlags, IntPtr lpSource, uint dwMessageId, uint dwLanguageId, [Out] StringBuilder lpBuffer, int nSize, IntPtr Arguments);
     	
 		[DllImport("kernel32.dll")]
 		public static extern void SetLastError(uint dwErrCode);

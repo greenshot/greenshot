@@ -185,7 +185,7 @@ namespace Greenshot.Forms {
 		/// <summary>
 		/// Create an animation for the zoomer, depending on if it's active or not.
 		/// </summary>
-		void InitializeZoomer(bool isOn) {
+		private void InitializeZoomer(bool isOn) {
 			if (isOn) {
 				// Initialize the zoom with a invalid position
 				_zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(int.MaxValue, int.MaxValue, 0, 0), FramesForMillis(1000), EasingType.Quintic, EasingMode.EaseOut);
@@ -196,7 +196,8 @@ namespace Greenshot.Forms {
 		}
 
 		#region key handling		
-		void CaptureFormKeyUp(object sender, KeyEventArgs e) {
+
+		private void CaptureFormKeyUp(object sender, KeyEventArgs e) {
 			switch(e.KeyCode) {
 				case Keys.ShiftKey:
 					_fixMode = FixMode.None;
@@ -212,7 +213,7 @@ namespace Greenshot.Forms {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void CaptureFormKeyDown(object sender, KeyEventArgs e) {
+		private void CaptureFormKeyDown(object sender, KeyEventArgs e) {
 			int step = _isCtrlPressed ? 10 : 1;
 
 			switch (e.KeyCode) {
@@ -319,7 +320,7 @@ namespace Greenshot.Forms {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void OnMouseDown(object sender, MouseEventArgs e) {
+		private void OnMouseDown(object sender, MouseEventArgs e) {
 			if (e.Button == MouseButtons.Left) {
 				HandleMouseDown();
 			}
@@ -360,7 +361,7 @@ namespace Greenshot.Forms {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void OnMouseUp(object sender, MouseEventArgs e) {
+		private void OnMouseUp(object sender, MouseEventArgs e) {
 			if (_mouseDown) {
 				HandleMouseUp();
 			}
@@ -392,7 +393,7 @@ namespace Greenshot.Forms {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void OnMouseMove(object sender, MouseEventArgs e) {
+		private void OnMouseMove(object sender, MouseEventArgs e) {
 			// Make sure the mouse coordinates are fixed, when pressing shift
 			_mouseMovePos = FixMouseCoordinates(User32.GetCursorLocation());
 			_mouseMovePos = WindowCapture.GetLocationRelativeToScreenBounds(_mouseMovePos);
@@ -704,7 +705,7 @@ namespace Greenshot.Forms {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void OnPaint(object sender, PaintEventArgs e) {
+		private void OnPaint(object sender, PaintEventArgs e) {
 			Graphics graphics = e.Graphics;
 			Rectangle clipRectangle = e.ClipRectangle;
 			//graphics.BitBlt((Bitmap)buffer, Point.Empty);

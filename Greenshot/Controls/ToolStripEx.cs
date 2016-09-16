@@ -26,10 +26,10 @@ namespace Greenshot.Controls {
 	/// This is an extension of the default ToolStrip and allows us to click it even when the form doesn't have focus.
 	/// See: http://blogs.msdn.com/b/rickbrew/archive/2006/01/09/511003.aspx
 	/// </summary>
-	class ToolStripEx : ToolStrip {
+	internal class ToolStripEx : ToolStrip {
 		private const int WM_MOUSEACTIVATE = 0x21;
 
-		enum NativeConstants : uint {
+		private enum NativeConstants : uint {
 			MA_ACTIVATE = 1,
 			MA_ACTIVATEANDEAT = 2,
 		}

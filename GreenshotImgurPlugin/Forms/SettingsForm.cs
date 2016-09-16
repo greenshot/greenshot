@@ -41,8 +41,8 @@ namespace GreenshotImgurPlugin {
 				historyButton.Enabled = false;
 			}
 		}
-		
-		void ButtonHistoryClick(object sender, EventArgs e) {
+
+		private void ButtonHistoryClick(object sender, EventArgs e) {
 			ImgurHistory.ShowHistory();
 		}
 	}

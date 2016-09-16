@@ -32,7 +32,7 @@ namespace Greenshot {
 			AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 		}
 
-		static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args) {
+		private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args) {
 			Assembly ayResult = null;
 			string sShortAssemblyName = args.Name.Split(',')[0];
 			Assembly[] ayAssemblies = AppDomain.CurrentDomain.GetAssemblies();

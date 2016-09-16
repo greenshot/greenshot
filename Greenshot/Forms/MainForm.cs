@@ -648,24 +648,26 @@ namespace Greenshot {
 		
 		
 		#region mainform events
-		void MainFormFormClosing(object sender, FormClosingEventArgs e) {
+
+		private void MainFormFormClosing(object sender, FormClosingEventArgs e) {
 			LOG.DebugFormat("Mainform closing, reason: {0}", e.CloseReason);
 			_instance = null;
 			Exit();
 		}
 
-		void MainFormActivated(object sender, EventArgs e) {
+		private void MainFormActivated(object sender, EventArgs e) {
 			Hide();
 			ShowInTaskbar = false;
 		}
 		#endregion
 
 		#region key handlers
-		void CaptureRegion() {
+
+		private void CaptureRegion() {
 			CaptureHelper.CaptureRegion(true);
 		}
 
-		void CaptureFile() {
+		private void CaptureFile() {
 			var openFileDialog = new OpenFileDialog();
 			openFileDialog.Filter = "Image files (*.greenshot, *.png, *.jpg, *.gif, *.bmp, *.ico, *.tiff, *.wmf)|*.greenshot; *.png; *.jpg; *.jpeg; *.gif; *.bmp; *.ico; *.tiff; *.tif; *.wmf";
 			if (openFileDialog.ShowDialog() == DialogResult.OK) {
@@ -675,21 +677,21 @@ namespace Greenshot {
 			}
 		}
 
-		void CaptureFullScreen() {
+		private void CaptureFullScreen() {
 			CaptureHelper.CaptureFullscreen(true, _conf.ScreenCaptureMode);
 		}
 
-		void CaptureLastRegion() {
+		private void CaptureLastRegion() {
 			CaptureHelper.CaptureLastRegion(true);
 		}
 
-		void CaptureIE() {
+		private void CaptureIE() {
 			if (_conf.IECapture) {
 				CaptureHelper.CaptureIE(true, null);
 			}
 		}
 
-		void CaptureWindow() {
+		private void CaptureWindow() {
 			if (_conf.CaptureWindowsInteractive) {
 				CaptureHelper.CaptureWindowInteractive(true);
 			} else {
@@ -700,7 +702,8 @@ namespace Greenshot {
 
 
 		#region contextmenu
-		void ContextMenuOpening(object sender, CancelEventArgs e)	{
+
+		private void ContextMenuOpening(object sender, CancelEventArgs e)	{
 			contextmenu_captureclipboard.Enabled = ClipboardHelper.ContainsImage();
 			contextmenu_capturelastregion.Enabled = coreConfiguration.LastCapturedRegion != Rectangle.Empty;
 
@@ -735,8 +738,8 @@ namespace Greenshot {
 					contextmenu_donate.Image = (Image)resources.GetObject("contextmenu_present.Image");
 			}
 		}
-		
-		void ContextMenuClosing(object sender, EventArgs e) {
+
+		private void ContextMenuClosing(object sender, EventArgs e) {
 			contextmenu_captureiefromlist.DropDownItems.Clear();
 			contextmenu_capturewindowfromlist.DropDownItems.Clear();
 			CleanupThumbnail();
@@ -745,7 +748,7 @@ namespace Greenshot {
 		/// <summary>
 		/// Build a selectable list of IE tabs when we enter the menu item
 		/// </summary>
-		void CaptureIEMenuDropDownOpening(object sender, EventArgs e) {
+		private void CaptureIEMenuDropDownOpening(object sender, EventArgs e) {
 			if (!_conf.IECapture) {
 				return;
 			}
@@ -903,43 +906,43 @@ namespace Greenshot {
 			}
 		}
 
-		void CaptureAreaToolStripMenuItemClick(object sender, EventArgs e) {
+		private void CaptureAreaToolStripMenuItemClick(object sender, EventArgs e) {
 			BeginInvoke((MethodInvoker)delegate {
 				CaptureHelper.CaptureRegion(false);
 			});
 		}
 
-		void CaptureClipboardToolStripMenuItemClick(object sender, EventArgs e) {
+		private void CaptureClipboardToolStripMenuItemClick(object sender, EventArgs e) {
 			BeginInvoke((MethodInvoker)delegate {
 				CaptureHelper.CaptureClipboard();
 			});
 		}
-		
-		void OpenFileToolStripMenuItemClick(object sender, EventArgs e) {
+
+		private void OpenFileToolStripMenuItemClick(object sender, EventArgs e) {
 			BeginInvoke((MethodInvoker)delegate {
 				CaptureFile();
 			});
 		}
 
-		void CaptureFullScreenToolStripMenuItemClick(object sender, EventArgs e) {
+		private void CaptureFullScreenToolStripMenuItemClick(object sender, EventArgs e) {
 			BeginInvoke((MethodInvoker)delegate {
 				CaptureHelper.CaptureFullscreen(false, _conf.ScreenCaptureMode);
 			});
 		}
-		
-		void Contextmenu_capturelastregionClick(object sender, EventArgs e) {
+
+		private void Contextmenu_capturelastregionClick(object sender, EventArgs e) {
 			BeginInvoke((MethodInvoker)delegate {
 				CaptureHelper.CaptureLastRegion(false);
 			});
 		}
-		
-		void Contextmenu_capturewindow_Click(object sender,EventArgs e) {
+
+		private void Contextmenu_capturewindow_Click(object sender,EventArgs e) {
 			BeginInvoke((MethodInvoker)delegate {
 				CaptureHelper.CaptureWindowInteractive(false);
 			});
 		}
 
-		void Contextmenu_capturewindowfromlist_Click(object sender,EventArgs e) {
+		private void Contextmenu_capturewindowfromlist_Click(object sender,EventArgs e) {
 			ToolStripMenuItem clickedItem = (ToolStripMenuItem)sender;
 			BeginInvoke((MethodInvoker)delegate {
 				try {
@@ -950,12 +953,12 @@ namespace Greenshot {
 				}
 			});
 		}
-		
-		void Contextmenu_captureie_Click(object sender, EventArgs e) {
+
+		private void Contextmenu_captureie_Click(object sender, EventArgs e) {
 			CaptureIE();
 		}
 
-		void Contextmenu_captureiefromlist_Click(object sender, EventArgs e) {
+		private void Contextmenu_captureiefromlist_Click(object sender, EventArgs e) {
 			if (!_conf.IECapture) {
 				LOG.InfoFormat("IE Capture is disabled.");
 				return;
@@ -985,7 +988,7 @@ namespace Greenshot {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void Contextmenu_donateClick(object sender, EventArgs e) {
+		private void Contextmenu_donateClick(object sender, EventArgs e) {
 			BeginInvoke((MethodInvoker)delegate {
 				Process.Start("http://getgreenshot.org/support/");
 			});
@@ -996,7 +999,7 @@ namespace Greenshot {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void Contextmenu_settingsClick(object sender, EventArgs e) {
+		private void Contextmenu_settingsClick(object sender, EventArgs e) {
 			BeginInvoke((MethodInvoker)delegate {
 				ShowSetting();
 			});
@@ -1026,7 +1029,7 @@ namespace Greenshot {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void Contextmenu_aboutClick(object sender, EventArgs e) {
+		private void Contextmenu_aboutClick(object sender, EventArgs e) {
 			ShowAbout();
 		}
 
@@ -1049,7 +1052,7 @@ namespace Greenshot {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void Contextmenu_helpClick(object sender, EventArgs e) {
+		private void Contextmenu_helpClick(object sender, EventArgs e) {
 			HelpFileLoader.LoadHelp();
 		}
 		
@@ -1058,7 +1061,7 @@ namespace Greenshot {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void Contextmenu_exitClick(object sender, EventArgs e) {
+		private void Contextmenu_exitClick(object sender, EventArgs e) {
 			 Exit();
 		}
 
@@ -1150,8 +1153,8 @@ namespace Greenshot {
 				contextmenu_quicksettings.DropDownItems.Add(selectList);
 			}
 		}
-		
-		void QuickSettingCaptureModeChanged(object sender, EventArgs e) {
+
+		private void QuickSettingCaptureModeChanged(object sender, EventArgs e) {
 			ToolStripMenuSelectListItem item = ((ItemCheckedChangedEventArgs)e).Item;
 			WindowCaptureMode windowsCaptureMode = (WindowCaptureMode)item.Data;
 			if (item.Checked) {
@@ -1159,7 +1162,7 @@ namespace Greenshot {
 			}
 		}
 
-		void QuickSettingBoolItemChanged(object sender, EventArgs e) {
+		private void QuickSettingBoolItemChanged(object sender, EventArgs e) {
 			ToolStripMenuSelectListItem item = ((ItemCheckedChangedEventArgs)e).Item;
 			IniValue iniValue = item.Data as IniValue;
 			if (iniValue != null) {
@@ -1168,7 +1171,7 @@ namespace Greenshot {
 			}
 		}
 
-		void QuickSettingDestinationChanged(object sender, EventArgs e) {
+		private void QuickSettingDestinationChanged(object sender, EventArgs e) {
 			ToolStripMenuSelectListItem item = ((ItemCheckedChangedEventArgs)e).Item;
 			IDestination selectedDestination = (IDestination)item.Data;
 			if (item.Checked) {
