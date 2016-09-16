@@ -25,6 +25,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -611,6 +612,28 @@ namespace Greenshot {
 		}
 
 		/// <summary>
+		/// Check if OneDrive is blocking hotkeys
+		/// </summary>
+		/// <returns>true if onedrive has hotkeys turned on</returns>
+		private static bool IsOneDriveBlockingHotkey()
+		{
+			if (!Environment.OSVersion.IsWindows10())
+			{
+				return false;
+			}
+			var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+			var oneDriveSettingsPath = Path.Combine(localAppData, @"Microsoft\OneDrive\settings\Personal");
+
+			var oneDriveSettingsFile = Directory.GetFiles(oneDriveSettingsPath, "*_screenshot.dat").FirstOrDefault();
+			if (!File.Exists(oneDriveSettingsFile))
+			{
+				return false;
+			}
+			var screenshotSetting = File.ReadAllLines(oneDriveSettingsFile).Skip(1).Take(1).First();
+			return "2".Equals(screenshotSetting);
+		}
+
+		/// <summary>
 		/// Displays a dialog for the user to choose how to handle hotkey registration failures: 
 		/// retry (allowing to shut down the conflicting application before),
 		/// ignore (not registering the conflicting hotkey and resetting the respective config to "None", i.e. not trying to register it again on next startup)
@@ -620,7 +643,9 @@ namespace Greenshot {
 		/// <returns></returns>
 		private static bool HandleFailedHotkeyRegistration(string failedKeys) {
 			bool success = false;
-			DialogResult dr = MessageBox.Show(Instance, Language.GetFormattedString(LangKey.warning_hotkeys, failedKeys), Language.GetString(LangKey.warning), MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Exclamation);
+			var warningTitle = Language.GetString(LangKey.warning);
+			var message = string.Format(Language.GetString(LangKey.warning_hotkeys), failedKeys, IsOneDriveBlockingHotkey() ? " (OneDrive)": "");
+			DialogResult dr = MessageBox.Show(Instance, message, warningTitle, MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Exclamation);
 			if (dr == DialogResult.Retry) {
 				LOG.DebugFormat("Re-trying to register hotkeys");
 				HotkeyControl.UnregisterHotkeys();

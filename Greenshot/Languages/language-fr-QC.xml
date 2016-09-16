@@ -251,7 +251,7 @@ ${hostname} Nom d'hôte du PC</resource>
 		<resource name="wait_ie_capture">Veuillez patienter pendant que la page dans Internet Explorer est capturée...</resource>
 		<resource name="warning">Avertissement</resource>
 		<resource name="warning_hotkeys">Un ou plusieurs raccourcis clavier n'ont pu êtres enregistrés. Il n'est donc pas possible d'utiliser les raccourcis clavier de Greenshot.
-Ce problème est probablement dû à un autre outil qui utilise les mêmes raccourcis clavier.
+Ce problème est probablement dû à un autre outil{1} qui utilise les mêmes raccourcis clavier.
 Veuillez désactiver ce(s) logiciel(s) utilisant le bouton Impr.écran. Vous pouvez également utiliser Greenshot au moyen de son menu contextuel.</resource>
 		<resource name="WindowCaptureMode.Aero">Utiliser les couleurs personnalisées</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Conserver la transparence</resource>

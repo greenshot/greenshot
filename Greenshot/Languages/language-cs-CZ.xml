@@ -273,7 +273,7 @@ Například: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} vytvoří ve výchozím úlo�
 		<resource name="update_found">K dispozici je novější verze Greenshot! Přejete si stáhnout Greenshot {0}?</resource>
 		<resource name="wait_ie_capture">Počkejte prosím než bude zachycena stránka v aplikaci Internet Explorer...</resource>	
 		<resource name="warning">Upozornění</resource>
-		<resource name="warning_hotkeys">Klávesovou(é) zkratku(y) "{0}" nelze použít. Tento problém je pravděpodobně způsoben jiným programem používajícím tytéž klávesové zkratky! Můžete změnit nastavení klávesových zkratek, deaktivovat je nebo změnit nastavení softwaru využívajícího shodné klávesové zkratky.
+		<resource name="warning_hotkeys">Klávesovou(é) zkratku(y) "{0}" nelze použít. Tento problém je pravděpodobně způsoben jiným programem{1} používajícím tytéž klávesové zkratky! Můžete změnit nastavení klávesových zkratek, deaktivovat je nebo změnit nastavení softwaru využívajícího shodné klávesové zkratky.
 
 Všechny funkce Greenshotu jsou stále dostupné přímo z místní nabídky bez použití klávesové zkratky.</resource>
 		<resource name="WindowCaptureMode.Aero">Použít vlastní barvu</resource>

@@ -275,7 +275,7 @@ time, e.g. 11_58_32 (plus extension defined in the settings)</resource>
 		<resource name="update_found">A newer version of Greenshot is available! Do you want to download Greenshot {0}?</resource>
 		<resource name="wait_ie_capture">Please wait while the page in Internet Explorer is captured...</resource>
 		<resource name="warning">Warning</resource>
-		<resource name="warning_hotkeys">The hotkey(s) "{0}" could not be registered. This problem is probably caused by another tool claiming usage of the same hotkey(s)! You could either change your hotkey settings or deactivate/change the software making use of the hotkey(s).
+		<resource name="warning_hotkeys">The hotkey(s) "{0}" could not be registered. This problem is probably caused by another tool{1} claiming usage of the same hotkey(s)! You could either change your hotkey settings or deactivate/change the software making use of the hotkey(s).
 
 All Greenshot features still work directly from the tray icon context menu without hotkeys.</resource>
 		<resource name="WindowCaptureMode.Aero">Use custom color</resource>

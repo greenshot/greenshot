@@ -648,7 +648,7 @@ namespace GreenshotPlugin.Core {
 			if (!resources.TryGetValue(key, out returnValue)) {
 				return "string ###" + key + "### not found";
 			}
-			return String.Format(returnValue, param);
+			return string.Format(returnValue, param);
 		}
 	}
 

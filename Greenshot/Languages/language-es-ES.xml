@@ -255,7 +255,7 @@ presente, ejemplo: 11_58_32 (más la extension definida en la configuración)</r
 		<resource name="update_found">Hay una nueva versión de Greenshot disponible, ¿quieres descargar {0}?</resource>
 		<resource name="wait_ie_capture">Por favor, espera a que se termine de capturar la página en Internet Explorer...</resource>
 		<resource name="warning">Atención</resource>
-		<resource name="warning_hotkeys">No se ha podido registrar la tecla rápida "{0}". Probablemente el problema es que alguna otra aplicación también quiere hacerse con esa combinación de teclas. Hay dos posibles soluciones: cambiar la tecla rápida en Greenshot, o desactivar/cambiar la configuración del otro programa que usa esta tecla rápida.
+		<resource name="warning_hotkeys">No se ha podido registrar la tecla rápida "{0}". Probablemente el problema es que alguna otra aplicación{1} también quiere hacerse con esa combinación de teclas. Hay dos posibles soluciones: cambiar la tecla rápida en Greenshot, o desactivar/cambiar la configuración del otro programa que usa esta tecla rápida.
 
 A pesar de esto, se sigue pudiendo utilizar todas las características de Greenshot directamente desde el menú contextual del icono en la bandeja del sistema.</resource>
 		<resource name="WindowCaptureMode.Aero">Usar color personalizado</resource>

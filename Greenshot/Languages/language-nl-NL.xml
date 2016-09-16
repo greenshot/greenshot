@@ -248,7 +248,7 @@ genereert een directorie voor de huidige dag in uw standaard opslag lokatie, b.v
 		<resource name="update_found">Er is een nieuwere versie van Greenshot beschikbaar! Wilt U Greenshot {0} downloaden?</resource>
 		<resource name="wait_ie_capture">Wacht terwijl de Internet Explorer pagina wordt vastgelegd...</resource>
 		<resource name="warning">Waarschuwing</resource>
-		<resource name="warning_hotkeys">De hotkeys "{0}" kunnen niet geregistreerd worden. Dit probleem komt waarschijnlijk doordat een andere applicatie deze hotkeys al gebruikt. U kunt de hotkeys instellingen van Greenshot veranderen of de andere applicatie stoppen/veranderen.
+		<resource name="warning_hotkeys">De hotkeys "{0}" kunnen niet geregistreerd worden. Dit probleem komt waarschijnlijk doordat een andere applicatie{1} deze hotkeys al gebruikt. U kunt de hotkeys instellingen van Greenshot veranderen of de andere applicatie stoppen/veranderen.
 
 Alle Greenshot functies werken ook over het context menu.</resource>
 		<resource name="WindowCaptureMode.Aero">Eigen kleur</resource>

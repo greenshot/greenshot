@@ -248,7 +248,7 @@ vil lage ei mappe med dagens dato (f.eks. 2012-09-11) der fila blir lagra med ti
 		<resource name="update_found">Ein nyare versjon av skjermknipsaren er tilgjengeleg! Vil du laste ned Greenshot {0}?</resource>
 		<resource name="wait_ie_capture">Ver venleg og vent medan Internet Explorer-sida blir knipsa...</resource>
 		<resource name="warning">Åtvaring!</resource>
-		<resource name="warning_hotkeys">Snøggtasten/-ane "{0}" kunne ikkje brukast. Sannsynlegvis er den/dei alt i bruk av eit anna program. Du kan anten endre snøggtasten/-ane eller deaktivere/endre dei i det andre verktøyet.
+		<resource name="warning_hotkeys">Snøggtasten/-ane "{0}" kunne ikkje brukast. Sannsynlegvis er den/dei alt i bruk av eit anna program{1}. Du kan anten endre snøggtasten/-ane eller deaktivere/endre dei i det andre verktøyet.
 
 Alle Greenshot-funksjonar er likevel tilgjengeleg via høgreklikkmenyen i varslingsfeltet nedst til høgre på skjermen.</resource>
 		<resource name="WindowCaptureMode.Aero">Bruk eigendefinert farge</resource>

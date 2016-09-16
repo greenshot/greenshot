@@ -297,7 +297,7 @@ en cours, par exemple 11_58_32 (plus l'extension définie dans les paramètres)<
 		<resource name="update_found">Une nouvelle version de Greenshot est disponible ! Voulez-vous télécharger Greenshot {0} ?</resource>
 		<resource name="wait_ie_capture">Veuillez patienter pendant la capture de la page Internet Explorer...</resource>
 		<resource name="warning">Avertissement</resource>
-		<resource name="warning_hotkeys">Le(s) raccourci(s) clavier "{0}" n'a pu être enregistré. Ce problème est probablement dû à un autre outil qui utilise le(s) même(s) raccourci(s) clavier. Vous pouvez soit modifier vos raccourcis clavier soit désactiver/modifier le logiciel utilisant le(s) raccourci(s).
+		<resource name="warning_hotkeys">Le(s) raccourci(s) clavier "{0}" n'a pu être enregistré. Ce problème est probablement dû à un autre outil{1} qui utilise le(s) même(s) raccourci(s) clavier. Vous pouvez soit modifier vos raccourcis clavier soit désactiver/modifier le logiciel utilisant le(s) raccourci(s).
 
 Toutes les fonctionnalités de Greenshot se lancent aussi directement depuis le menu contextuel de l'icône de la zone de notifications système.</resource>
 		<resource name="WindowCaptureMode.Aero">Utiliser une couleur personnalisée</resource>

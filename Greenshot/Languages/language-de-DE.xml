@@ -278,7 +278,7 @@ Verwendung durch Greenshot reserviert werden, bis das Programm geschlossen wird.
 		<resource name="wait_ie_capture">Bitte warten Sie, während die Seite im Internet Explorer abfotografiert wird...</resource>
 		<resource name="warning">Hinweis</resource>
 		<resource name="warning_hotkeys">Die globale Tastenkombination "{0}" konnte nicht aktiviert werden.
-Vermutlich wurde dieselbe Tastenkombination bereits von einem anderen Programm reserviert. 
+Vermutlich wurde dieselbe Tastenkombination bereits von einem anderen Programm{1} reserviert. 
 Sie können die Tastenkombinationen für Greenshot ändern, oder das Programm, das die Tastenkombination verwendet, deaktivieren.
 
 Sie können aber auch alle Greenshot-Funktionen über das Kontextmenü des Greenshot-Icons im Infobereich verwenden.</resource>

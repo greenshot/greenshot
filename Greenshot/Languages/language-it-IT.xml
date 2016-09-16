@@ -279,7 +279,7 @@ corrente, es: 11_58_32 (più l'estensione definita nelle impostazioni)</resource
 	<resource name="update_found">Una nuova versione di Greenshot è ora disponibile! Vuoi scaricare Greenshot {0}?</resource>
 	<resource name="wait_ie_capture">Attendere prego, finchè la pagina di Internet Explorer viene catturata...</resource>
 	<resource name="warning">Attenzione</resource>
-	<resource name="warning_hotkeys">La registrazione della/e scorciatoie di tastiera "{0}" non è andata a buon fine. Questo problema è causato probabilmente da un altro software che richiede l'uso delle stesse scorciatoie di tastiera. E' possibile però variare le impostazioni delle scorciatoie, oppure disattivare il software. 
+	<resource name="warning_hotkeys">La registrazione della/e scorciatoie di tastiera "{0}" non è andata a buon fine. Questo problema è causato probabilmente da un altro software{1} che richiede l'uso delle stesse scorciatoie di tastiera. E' possibile però variare le impostazioni delle scorciatoie, oppure disattivare il software. 
 
 In alternativa alle scorciatoie di tastiera, tutte le funzioni di Greenshot sono comunque disponibili dal menù visualizzabile con tasto destro del mouse sull'icona G nella barra.</resource>
 	<resource name="WindowCaptureMode.Aero">Usa colori personalizzati</resource>

@@ -284,7 +284,7 @@ na podstawie bieżącego czasu, np. 11-58-32 (plus rozszerzenie zdefiniowane w u
 		<resource name="wait_ie_capture">Proszę czekać aż strona Internet Explorera zostanie przechwycona...</resource>
 		<resource name="warning">Ostrzeżenie</resource>
 		<resource name="warning_hotkeys">Nie udało się zarejestrować jednego lub kilku skrótów klawiaturowych. Z tego powodu używanie skrótów klawiaturowych Greenshota może nie być możliwe.
-Przyczyną problemu może być wykorzystywanie tych samych skrótów klawiaturowych przez inną aplikację.
+Przyczyną problemu może być wykorzystywanie tych samych skrótów klawiaturowych przez inną aplikację{1}.
 Proszę wyłączyć oprogramowanie korzystające z klawisza Print. Możliwe jest również zwyczajne korzystanie ze wszystkich funkcji Greenshota za pomocą menu kontekstowego ikony w obszarze powiadomień na pasku zadań.</resource>
 		<resource name="WindowCaptureMode.Aero">Używaj własnego koloru</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Bez przezroczystości</resource>

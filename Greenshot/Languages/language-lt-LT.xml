@@ -183,7 +183,7 @@ bus perimti Greenshot programos, kai ji yra paleista.</resource>
 		<resource name="settings_waittime">Išlaikymas prieš fotografuojant (ms)</resource>
 		<resource name="tooltip_firststart">Spauskite dešiniu pelės klavišu arba spauskite "PrintScreen".</resource>
 		<resource name="warning">Dėmesio</resource>
-		<resource name="warning_hotkeys">Ne visi numatyti mygtukai priskirti. Tikėtina, kad jie priskirti kitai programai.
+		<resource name="warning_hotkeys">Ne visi numatyti mygtukai priskirti. Tikėtina, kad jie priskirti kitai programai{1}.
 Kad mygtuką Print (PrintScreen) ir jo derinius naudotų Greenshot, reikia uždaryti kitas programas,
 kurios naudoja šiuos mygtukus. Arba galima naudoti komandas iš Greenshot programos kontekstinio meniu.</resource>
 	</resources>
