@@ -39,9 +39,8 @@ namespace Greenshot.Helpers {
 	[Serializable()]
 	public class CopyDataTransport {
 		private readonly List<KeyValuePair<CommandEnum, string>> _commands;
-		public List<KeyValuePair<CommandEnum, string>> Commands {
-			get {return _commands;}
-		}
+		public List<KeyValuePair<CommandEnum, string>> Commands => _commands;
+
 		public CopyDataTransport() {
 			_commands = new List<KeyValuePair<CommandEnum, string>>();
 		}
@@ -100,9 +99,9 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <param name="m">The Windows Message information.</param>
 		protected override void WndProc (ref Message m ) {
-			if (m.Msg == WM_COPYDATA) {
-				COPYDATASTRUCT cds = new COPYDATASTRUCT();
-				cds = (COPYDATASTRUCT) Marshal.PtrToStructure(m.LParam, typeof(COPYDATASTRUCT));
+			if (m.Msg == WM_COPYDATA)
+			{
+				var cds = (COPYDATASTRUCT) Marshal.PtrToStructure(m.LParam, typeof(COPYDATASTRUCT));
 				if (cds.cbData > 0) {
 					byte[] data = new byte[cds.cbData];				
 					Marshal.Copy(cds.lpData, data, 0, cds.cbData);
@@ -120,9 +119,7 @@ namespace Greenshot.Helpers {
 				// WM_DESTROY fires before OnHandleChanged and is
 				// a better place to ensure that we've cleared 
 				// everything up.
-				if (_channels != null) {
-					_channels.OnHandleChange();
-				}
+				_channels?.OnHandleChange();
 				base.OnHandleChange();
 			}
 			base.WndProc(ref m);
@@ -134,10 +131,7 @@ namespace Greenshot.Helpers {
 		/// <param name="e">The data which has been received.</param>
 		protected void OnCopyDataReceived(CopyDataReceivedEventArgs e)
 		{
-			if (CopyDataReceived != null)
-			{
-				CopyDataReceived(this, e);
-			}
+			CopyDataReceived?.Invoke(this, e);
 		}
 
 		/// <summary>
@@ -149,20 +143,14 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		protected override void OnHandleChange () {
 			// need to clear up everything we had set.
-			if (_channels != null) {
-				_channels.OnHandleChange();
-			}
+			_channels?.OnHandleChange();
 			base.OnHandleChange();
 		}
 
 		/// <summary>
 		/// Gets the collection of channels.
 		/// </summary>
-		public CopyDataChannels Channels {
-			get {
-				return _channels;
-			}
-		}
+		public CopyDataChannels Channels => _channels;
 
 		public void Dispose() {
 			Dispose(true);
@@ -204,7 +192,7 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Gets the channel name that this data was sent on.
 		/// </summary>
-		public string ChannelName { get; } = "";
+		public string ChannelName { get; }
 
 		/// <summary>
 		/// Gets the data object which was sent.
@@ -274,11 +262,8 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Returns the CopyDataChannel for the specified channelName
 		/// </summary>
-		public CopyDataChannel this[string channelName] {
-			get {
-				return (CopyDataChannel) Dictionary[channelName];
-			}
-		}
+		public CopyDataChannel this[string channelName] => (CopyDataChannel) Dictionary[channelName];
+
 		/// <summary>
 		/// Adds a new channel on which this application can send and
 		/// receive messages.
@@ -320,7 +305,7 @@ namespace Greenshot.Helpers {
 		/// <param name="key">The channelName</param>
 		/// <param name="data">The CopyDataChannel object which has
 		/// just been removed</param>
-		protected override void OnRemoveComplete ( Object key , Object data ) {
+		protected override void OnRemoveComplete ( object key , object data ) {
 			( (CopyDataChannel) data).Dispose();
 			OnRemove(key, data);
 		}

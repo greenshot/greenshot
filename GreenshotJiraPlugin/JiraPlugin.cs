@@ -23,13 +23,10 @@ using System.Windows.Forms;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using System;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Threading.Tasks;
 using Dapplo.Log.Facade;
 using GreenshotJiraPlugin.Forms;
 using GreenshotPlugin.Core;
-using Svg;
 
 namespace GreenshotJiraPlugin {
 	/// <summary>

@@ -84,9 +84,7 @@ namespace Greenshot.Controls {
 				if (_cursor != null) {
 					_cursor.Dispose();
 				}
-				if (_movableShowColorForm != null) {
-					_movableShowColorForm.Dispose();
-				}
+				_movableShowColorForm?.Dispose();
 			}
 			_movableShowColorForm = null;
 			_cursor = null;
@@ -114,10 +112,7 @@ namespace Greenshot.Controls {
 			{
 				//Release Capture should consume MouseUp when canceled with the escape key 
 				User32.ReleaseCapture();
-				if (PipetteUsed != null)
-				{
-					PipetteUsed(this, new PipetteUsedArgs(_movableShowColorForm.color));
-				}
+				PipetteUsed?.Invoke(this, new PipetteUsedArgs(_movableShowColorForm.color));
 			}
 			base.OnMouseUp(e);
 		}

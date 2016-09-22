@@ -31,8 +31,8 @@ namespace ExternalCommand {
 	/// Description of SettingsFormDetail.
 	/// </summary>
 	public partial class SettingsFormDetail : ExternalCommandForm {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SettingsFormDetail));
-		private static readonly ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(SettingsFormDetail));
+		private static readonly ExternalCommandConfiguration ExternalCommandConfig = IniConfig.GetIniSection<ExternalCommandConfiguration>();
 
 		private readonly string _commando;
 		private readonly int _commandIndex;
@@ -45,9 +45,9 @@ namespace ExternalCommand {
 
 			if(commando != null) {
 				textBox_name.Text = commando;
-				textBox_commandline.Text = config.Commandline[commando];
-				textBox_arguments.Text = config.Argument[commando];
-				_commandIndex = config.Commands.FindIndex(delegate(string s) { return s == commando; });
+				textBox_commandline.Text = ExternalCommandConfig.Commandline[commando];
+				textBox_arguments.Text = ExternalCommandConfig.Argument[commando];
+				_commandIndex = ExternalCommandConfig.Commands.FindIndex(s => s == commando);
 			} else {
 				textBox_arguments.Text = "\"{0}\"";
 			}
@@ -59,15 +59,15 @@ namespace ExternalCommand {
 			string commandLine = textBox_commandline.Text;
 			string arguments = textBox_arguments.Text;
 			if(_commando != null) {
-				config.Commands[_commandIndex] = commandName;
-				config.Commandline.Remove(_commando);
-				config.Commandline.Add(commandName, commandLine);
-				config.Argument.Remove(_commando);
-				config.Argument.Add(commandName, arguments);
+				ExternalCommandConfig.Commands[_commandIndex] = commandName;
+				ExternalCommandConfig.Commandline.Remove(_commando);
+				ExternalCommandConfig.Commandline.Add(commandName, commandLine);
+				ExternalCommandConfig.Argument.Remove(_commando);
+				ExternalCommandConfig.Argument.Add(commandName, arguments);
 			} else {
-				config.Commands.Add(commandName);
-				config.Commandline.Add(commandName, commandLine);
-				config.Argument.Add(commandName, arguments);
+				ExternalCommandConfig.Commands.Add(commandName);
+				ExternalCommandConfig.Commandline.Add(commandName, commandLine);
+				ExternalCommandConfig.Argument.Add(commandName, arguments);
 			}
 		}
 
@@ -86,8 +86,8 @@ namespace ExternalCommand {
 			}
 			catch (Exception ex)
 			{
-				LOG.WarnFormat("Can't get the initial path via {0}", textBox_commandline.Text);
-				LOG.Warn("Exception: ", ex);
+				Log.WarnFormat("Can't get the initial path via {0}", textBox_commandline.Text);
+				Log.Warn("Exception: ", ex);
 			}
 			if(initialPath != null && Directory.Exists(initialPath)) {
 				openFileDialog.InitialDirectory = initialPath;
@@ -95,7 +95,7 @@ namespace ExternalCommand {
 				initialPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
 				openFileDialog.InitialDirectory = initialPath;
 			}
-			LOG.DebugFormat("Starting OpenFileDialog at {0}", initialPath);
+			Log.DebugFormat("Starting OpenFileDialog at {0}", initialPath);
 			if(openFileDialog.ShowDialog() == DialogResult.OK) {
 				textBox_commandline.Text = openFileDialog.FileName;
 			}
@@ -112,7 +112,7 @@ namespace ExternalCommand {
 				buttonOk.Enabled = false;
 			}
 			// Check if commandname is unique
-			if(_commando == null && !string.IsNullOrEmpty(textBox_name.Text) && config.Commands.Contains(textBox_name.Text)) {
+			if(_commando == null && !string.IsNullOrEmpty(textBox_name.Text) && ExternalCommandConfig.Commands.Contains(textBox_name.Text)) {
 				buttonOk.Enabled = false;
 				textBox_name.BackColor = Color.Red;
 			}

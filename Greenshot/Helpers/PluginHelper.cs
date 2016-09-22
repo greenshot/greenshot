@@ -35,42 +35,31 @@ namespace Greenshot.Helpers {
 	/// </summary>
 	[Serializable]
 	public class PluginHelper : IGreenshotHost {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(PluginHelper));
-		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ILog Log = LogManager.GetLogger(typeof(PluginHelper));
+		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 
-		private static readonly string pluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),Application.ProductName);
-		private static readonly string applicationPath = Path.GetDirectoryName(Application.ExecutablePath);
-		private static readonly string pafPath =  Path.Combine(Application.StartupPath, @"App\Greenshot");
+		private static readonly string PluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),Application.ProductName);
+		private static readonly string ApplicationPath = Path.GetDirectoryName(Application.ExecutablePath);
+		private static readonly string PafPath =  Path.Combine(Application.StartupPath, @"App\Greenshot");
 		private static readonly IDictionary<PluginAttribute, IGreenshotPlugin> plugins = new SortedDictionary<PluginAttribute, IGreenshotPlugin>();
 		private static readonly PluginHelper instance = new PluginHelper();
-		public static PluginHelper Instance {
-			get {
-				return instance;
-			}
-		}
+
+		public static PluginHelper Instance => instance;
 
 		private PluginHelper() {
 			PluginUtils.Host = this;
 		}
 		
-		public Form GreenshotForm {
-			get {
-				return MainForm.Instance;
-			}
-		}
+		public Form GreenshotForm => MainForm.Instance;
 
-		public NotifyIcon NotifyIcon {
-			get {
-				return MainForm.Instance.NotifyIcon;
-			}
-		}
+		public NotifyIcon NotifyIcon => MainForm.Instance.NotifyIcon;
 
 		public bool HasPlugins() {
 			return plugins != null && plugins.Count > 0;
 		}
 
 		public void Shutdown() {
-			foreach(IGreenshotPlugin plugin in plugins.Values) {
+			foreach(var plugin in plugins.Values) {
 				plugin.Shutdown();
 				plugin.Dispose();
 			}
@@ -79,42 +68,49 @@ namespace Greenshot.Helpers {
 
 		// Add plugins to the Listview
 		public void FillListview(ListView listview) {
-			foreach(PluginAttribute pluginAttribute in plugins.Keys) {
-				ListViewItem item = new ListViewItem(pluginAttribute.Name);
+			foreach(var pluginAttribute in plugins.Keys) {
+				var item = new ListViewItem(pluginAttribute.Name)
+				{
+					Tag = pluginAttribute
+				};
 				item.SubItems.Add(pluginAttribute.Version);
 				item.SubItems.Add(pluginAttribute.CreatedBy);
 				item.SubItems.Add(pluginAttribute.DllFile);
-				item.Tag = pluginAttribute;
 				listview.Items.Add(item);
 			}
 		}
 		
-		public bool isSelectedItemConfigurable(ListView listview) {
-			if (listview.SelectedItems.Count > 0) {
-				PluginAttribute pluginAttribute = (PluginAttribute)listview.SelectedItems[0].Tag;
-				if (pluginAttribute != null) {
-					return pluginAttribute.Configurable;
-				}
+		public bool IsSelectedItemConfigurable(ListView listview) {
+			if (listview.SelectedItems.Count <= 0)
+			{
+				return false;
 			}
-			return false;
+			var pluginAttribute = (PluginAttribute)listview.SelectedItems[0].Tag;
+			return pluginAttribute != null && pluginAttribute.Configurable;
 		}
 		
 		public void ConfigureSelectedItem(ListView listview) {
-			if (listview.SelectedItems.Count > 0) {
-				PluginAttribute pluginAttribute = (PluginAttribute)listview.SelectedItems[0].Tag;
-				if (pluginAttribute != null) {
-					IGreenshotPlugin plugin = plugins[pluginAttribute];
-					plugin.Configure();
-				}
+			if (listview.SelectedItems.Count <= 0)
+			{
+				return;
 			}
+			var pluginAttribute = (PluginAttribute)listview.SelectedItems[0].Tag;
+			if (pluginAttribute == null)
+			{
+				return;
+			}
+			var plugin = plugins[pluginAttribute];
+			plugin.Configure();
 		}
 
 		#region Implementation of IGreenshotPluginHost
-		
+
 		/// <summary>
 		/// Create a Thumbnail
 		/// </summary>
 		/// <param name="image">Image of which we need a Thumbnail</param>
+		/// <param name="width">Thumbnail width</param>
+		/// <param name="height">Thumbnail height</param>
 		/// <returns>Image with Thumbnail</returns>
 		public Image GetThumbnail(Image image, int width, int height) {
 			return image.GetThumbnailImage(width, height,  ThumbnailCallback, IntPtr.Zero);
@@ -128,15 +124,9 @@ namespace Greenshot.Helpers {
 			return true;
 		}
 
-		public ContextMenuStrip MainMenu {
-			get {
-				return MainForm.Instance.MainMenu;
-			}
-		}
-		
-		public IDictionary<PluginAttribute, IGreenshotPlugin> Plugins {
-			get {return plugins;}
-		}
+		public ContextMenuStrip MainMenu => MainForm.Instance.MainMenu;
+
+		public IDictionary<PluginAttribute, IGreenshotPlugin> Plugins => plugins;
 
 		public IDestination GetDestination(string designation) {
 			return DestinationHelper.GetDestination(designation);
@@ -161,7 +151,7 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Use the supplied image, and handle it as if it's captured.
 		/// </summary>
-		/// <param name="imageToImport">Image to handle</param>
+		/// <param name="captureToImport">Image to handle</param>
 		public void ImportCapture(ICapture captureToImport) {
 			MainForm.Instance.BeginInvoke((MethodInvoker)delegate {
 				CaptureHelper.ImportCapture(captureToImport);
@@ -173,10 +163,14 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <returns></returns>
 		public ICapture GetCapture(Image imageToCapture) {
-			Capture capture = new Capture(imageToCapture);
-			capture.CaptureDetails = new CaptureDetails();
-			capture.CaptureDetails.CaptureMode = CaptureMode.Import;
-			capture.CaptureDetails.Title = "Imported";
+			var capture = new Capture(imageToCapture)
+			{
+				CaptureDetails = new CaptureDetails
+				{
+					CaptureMode = CaptureMode.Import,
+					Title = "Imported"
+				}
+			};
 			return capture;
 		}
 		#endregion
@@ -220,9 +214,8 @@ namespace Greenshot.Helpers {
 						pluginFiles.Add(pluginFile);
 					}
 				} catch (UnauthorizedAccessException) {
-					return;
 				} catch (Exception ex) {
-					LOG.Error("Error loading plugin: ", ex);
+					Log.Error("Error loading plugin: ", ex);
 				}
 			}
 		}
@@ -234,10 +227,10 @@ namespace Greenshot.Helpers {
 			List<string> pluginFiles = new List<string>();
 
 			if (IniConfig.IsPortable) {
-				findPluginsOnPath(pluginFiles, pafPath);
+				findPluginsOnPath(pluginFiles, PafPath);
 			} else {
-				findPluginsOnPath(pluginFiles, pluginPath);
-				findPluginsOnPath(pluginFiles, applicationPath);
+				findPluginsOnPath(pluginFiles, PluginPath);
+				findPluginsOnPath(pluginFiles, ApplicationPath);
 			}
 
 			Dictionary<string, PluginAttribute> tmpAttributes = new Dictionary<string, PluginAttribute>();
@@ -277,36 +270,36 @@ namespace Greenshot.Helpers {
 						}
 
 						if (checkPluginAttribute != null) {
-							LOG.WarnFormat("Duplicate plugin {0} found", pluginAttribute.Name);
+							Log.WarnFormat("Duplicate plugin {0} found", pluginAttribute.Name);
 							if (isNewer(pluginAttribute.Version, checkPluginAttribute.Version)) {
 								// Found is newer
 								tmpAttributes[pluginAttribute.Name] = pluginAttribute;
 								tmpAssemblies[pluginAttribute.Name] = assembly;
-								LOG.InfoFormat("Loading the newer plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
+								Log.InfoFormat("Loading the newer plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
 							} else {
-								LOG.InfoFormat("Skipping (as the duplicate is newer or same version) the plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
+								Log.InfoFormat("Skipping (as the duplicate is newer or same version) the plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
 							}
 							continue;
 						}
-						if (conf.ExcludePlugins != null && conf.ExcludePlugins.Contains(pluginAttribute.Name)) {
-							LOG.WarnFormat("Exclude list: {0}", conf.ExcludePlugins.ToArray());
-							LOG.WarnFormat("Skipping the excluded plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
+						if (CoreConfig.ExcludePlugins != null && CoreConfig.ExcludePlugins.Contains(pluginAttribute.Name)) {
+							Log.WarnFormat("Exclude list: {0}", CoreConfig.ExcludePlugins.ToArray());
+							Log.WarnFormat("Skipping the excluded plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
 							continue;
 						}
-						if (conf.IncludePlugins != null && conf.IncludePlugins.Count > 0 && !conf.IncludePlugins.Contains(pluginAttribute.Name)) {
+						if (CoreConfig.IncludePlugins != null && CoreConfig.IncludePlugins.Count > 0 && !CoreConfig.IncludePlugins.Contains(pluginAttribute.Name)) {
 							// Whitelist is set
-							LOG.WarnFormat("Include list: {0}", conf.IncludePlugins.ToArray());
-							LOG.WarnFormat("Skipping the not included plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
+							Log.WarnFormat("Include list: {0}", CoreConfig.IncludePlugins.ToArray());
+							Log.WarnFormat("Skipping the not included plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
 							continue;
 						}
-						LOG.InfoFormat("Loading the plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
+						Log.InfoFormat("Loading the plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
 						tmpAttributes[pluginAttribute.Name] = pluginAttribute;
 						tmpAssemblies[pluginAttribute.Name] = assembly;
 					} else {
-						LOG.ErrorFormat("Can't find the needed Plugin Attribute ({0}) in the assembly of the file \"{1}\", skipping this file.", typeof(PluginAttribute), pluginFile);
+						Log.ErrorFormat("Can't find the needed Plugin Attribute ({0}) in the assembly of the file \"{1}\", skipping this file.", typeof(PluginAttribute), pluginFile);
 					}
 				} catch (Exception e) {
-					LOG.Warn("Can't load file: " + pluginFile, e);
+					Log.Warn("Can't load file: " + pluginFile, e);
 				}
 			}
 			foreach(string pluginName in tmpAttributes.Keys) {
@@ -315,7 +308,7 @@ namespace Greenshot.Helpers {
 					Assembly assembly = tmpAssemblies[pluginName];
 					Type entryType = assembly.GetType(pluginAttribute.EntryType);
 					if (entryType == null) {
-						LOG.ErrorFormat("Can't find the in the PluginAttribute referenced type {0} in \"{1}\"", pluginAttribute.EntryType, pluginAttribute.DllFile);
+						Log.ErrorFormat("Can't find the in the PluginAttribute referenced type {0} in \"{1}\"", pluginAttribute.EntryType, pluginAttribute.DllFile);
 						continue;
 					}
 					try {
@@ -324,16 +317,16 @@ namespace Greenshot.Helpers {
 							if (plugin.Initialize(this, pluginAttribute)) {
 								plugins.Add(pluginAttribute, plugin);
 							} else {
-								LOG.InfoFormat("Plugin {0} not initialized!", pluginAttribute.Name);
+								Log.InfoFormat("Plugin {0} not initialized!", pluginAttribute.Name);
 							}
 						} else {
-							LOG.ErrorFormat("Can't create an instance of the in the PluginAttribute referenced type {0} from \"{1}\"", pluginAttribute.EntryType, pluginAttribute.DllFile);
+							Log.ErrorFormat("Can't create an instance of the in the PluginAttribute referenced type {0} from \"{1}\"", pluginAttribute.EntryType, pluginAttribute.DllFile);
 						}
 					} catch(Exception e) {
-						LOG.Error("Can't load Plugin: " + pluginAttribute.Name, e);
+						Log.Error("Can't load Plugin: " + pluginAttribute.Name, e);
 					}
 				} catch(Exception e) {
-					LOG.Error("Can't load Plugin: " + pluginName, e);
+					Log.Error("Can't load Plugin: " + pluginName, e);
 				}
 			}
 		}

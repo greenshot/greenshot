@@ -29,7 +29,7 @@ namespace GreenshotImgurPlugin
 	/// </summary>
 	public class ImgurInfo : IDisposable
 	{
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurInfo));
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ImgurInfo));
 
 		public string Hash
 		{
@@ -37,13 +37,13 @@ namespace GreenshotImgurPlugin
 			set;
 		}
 
-		private string deleteHash;
+		private string _deleteHash;
 		public string DeleteHash
 		{
-			get { return deleteHash; }
+			get { return _deleteHash; }
 			set
 			{
-				deleteHash = value;
+				_deleteHash = value;
 				DeletePage = "https://imgur.com/delete/" + value;
 			}
 		}
@@ -96,22 +96,15 @@ namespace GreenshotImgurPlugin
 			set;
 		}
 
-		private Image image;
+		private Image _image;
 		public Image Image
 		{
-			get { return image; }
+			get { return _image; }
 			set
 			{
-				if (image != null)
-				{
-					image.Dispose();
-				}
-				image = value;
+				_image?.Dispose();
+				_image = value;
 			}
-		}
-
-		public ImgurInfo()
-		{
 		}
 
 		/// <summary>
@@ -133,16 +126,13 @@ namespace GreenshotImgurPlugin
 		{
 			if (disposing)
 			{
-				if (image != null)
-				{
-					image.Dispose();
-				}
+				_image?.Dispose();
 			}
-			image = null;
+			_image = null;
 		}
 		public static ImgurInfo ParseResponse(string response)
 		{
-			LOG.Debug(response);
+			Log.Debug(response);
 			// This is actually a hack for BUG-1695
 			// The problem is the (C) sign, we send it HTML encoded "&reg;" to Imgur and get it HTML encoded in the XML back 
 			// Added all the encodings I found quickly, I guess these are not all... but it should fix the issue for now.
@@ -161,34 +151,34 @@ namespace GreenshotImgurPlugin
 				XmlNodeList nodes = doc.GetElementsByTagName("id");
 				if (nodes.Count > 0)
 				{
-					imgurInfo.Hash = nodes.Item(0).InnerText;
+					imgurInfo.Hash = nodes.Item(0)?.InnerText;
 				}
 				nodes = doc.GetElementsByTagName("hash");
 				if (nodes.Count > 0)
 				{
-					imgurInfo.Hash = nodes.Item(0).InnerText;
+					imgurInfo.Hash = nodes.Item(0)?.InnerText;
 				}
 				nodes = doc.GetElementsByTagName("deletehash");
 				if (nodes.Count > 0)
 				{
-					imgurInfo.DeleteHash = nodes.Item(0).InnerText;
+					imgurInfo.DeleteHash = nodes.Item(0)?.InnerText;
 				}
 				nodes = doc.GetElementsByTagName("type");
 				if (nodes.Count > 0)
 				{
-					imgurInfo.ImageType = nodes.Item(0).InnerText;
+					imgurInfo.ImageType = nodes.Item(0)?.InnerText;
 				}
 				nodes = doc.GetElementsByTagName("title");
 				if (nodes.Count > 0)
 				{
-					imgurInfo.Title = nodes.Item(0).InnerText;
+					imgurInfo.Title = nodes.Item(0)?.InnerText;
 				}
 				nodes = doc.GetElementsByTagName("datetime");
 				if (nodes.Count > 0)
 				{
 					// Version 3 has seconds since Epoch
 					double secondsSince;
-					if (double.TryParse(nodes.Item(0).InnerText, out secondsSince))
+					if (double.TryParse(nodes.Item(0)?.InnerText, out secondsSince))
 					{
 						var epoch = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
 						imgurInfo.Timestamp = epoch.AddSeconds(secondsSince).DateTime;
@@ -197,37 +187,30 @@ namespace GreenshotImgurPlugin
 				nodes = doc.GetElementsByTagName("original");
 				if (nodes.Count > 0)
 				{
-					imgurInfo.Original = nodes.Item(0).InnerText.Replace("http:", "https:");
+					imgurInfo.Original = nodes.Item(0)?.InnerText.Replace("http:", "https:");
 				}
 				// Version 3 API only has Link
 				nodes = doc.GetElementsByTagName("link");
 				if (nodes.Count > 0)
 				{
-					imgurInfo.Original = nodes.Item(0).InnerText.Replace("http:", "https:");
+					imgurInfo.Original = nodes.Item(0)?.InnerText.Replace("http:", "https:");
 				}
 				nodes = doc.GetElementsByTagName("imgur_page");
 				if (nodes.Count > 0)
 				{
-					imgurInfo.Page = nodes.Item(0).InnerText.Replace("http:", "https:");
+					imgurInfo.Page = nodes.Item(0)?.InnerText.Replace("http:", "https:");
 				}
 				else
 				{
 					// Version 3 doesn't have a page link in the response
-					imgurInfo.Page = string.Format("https://imgur.com/{0}", imgurInfo.Hash);
+					imgurInfo.Page = $"https://imgur.com/{imgurInfo.Hash}";
 				}
 				nodes = doc.GetElementsByTagName("small_square");
-				if (nodes.Count > 0)
-				{
-					imgurInfo.SmallSquare = nodes.Item(0).InnerText;
-				}
-				else
-				{
-					imgurInfo.SmallSquare = string.Format("http://i.imgur.com/{0}s.png",imgurInfo.Hash);
-				}
+				imgurInfo.SmallSquare = nodes.Count > 0 ? nodes.Item(0)?.InnerText : $"http://i.imgur.com/{imgurInfo.Hash}s.png";
 			}
 			catch (Exception e)
 			{
-				LOG.ErrorFormat("Could not parse Imgur response due to error {0}, response was: {1}", e.Message, response);
+				Log.ErrorFormat("Could not parse Imgur response due to error {0}, response was: {1}", e.Message, response);
 			}
 			return imgurInfo;
 		}

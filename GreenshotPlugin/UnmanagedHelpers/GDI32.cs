@@ -168,7 +168,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	public class SafeCompatibleDCHandle : SafeDCHandle {
 		[DllImport("gdi32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool DeleteDC(IntPtr hDC);
+		private static extern bool DeleteDC(IntPtr hDC);
 
 		/// <summary>
 		/// Needed for marshalling return values
@@ -367,7 +367,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			// V5
 			bV5RedMask = (uint)255 << 16;
 			bV5GreenMask = (uint)255 << 8;
-			bV5BlueMask = (uint)255;
+			bV5BlueMask = 255;
 			bV5AlphaMask = (uint)255 << 24;
 			bV5CSType = 1934772034; // sRGB
 			bV5Endpoints = new CIEXYZTRIPLE

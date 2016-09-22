@@ -20,8 +20,8 @@
  */
 using System;
 namespace GreenshotPlugin.Core {
-    public static class EnumerationExtensions {
-        public static bool Has<T>(this Enum type, T value) {
+	public static class EnumerationExtensions {
+		public static bool Has<T>(this Enum type, T value) {
 			Type underlyingType = Enum.GetUnderlyingType(value.GetType());
 			try {
 				if (underlyingType == typeof(int)) {
@@ -29,23 +29,31 @@ namespace GreenshotPlugin.Core {
 				} else if (underlyingType == typeof(uint)) {
 					return (((uint)(object)type & (uint)(object)value) == (uint)(object)value);
 				}
-			} catch {
-			}    
+			}
+			catch
+			{
+				// ignored
+			}
 			return false;
-        }
+		}
 
-        public static bool Is<T>(this Enum type, T value) {
+		public static bool Is<T>(this Enum type, T value) {
 			Type underlyingType = Enum.GetUnderlyingType(value.GetType());
-			try {
+			try
+			{
 				if (underlyingType == typeof(int)) {
 					return (int)(object)type == (int)(object)value;
-				} else if (underlyingType == typeof(uint)) {
+				}
+				if (underlyingType == typeof(uint)) {
 					return (uint)(object)type == (uint)(object)value;
 				}
-			} catch {
-			}    
+			}
+			catch
+			{
+				// ignored
+			}
 			return false;
-        }
+		}
 
 		/// <summary>
 		/// Add a flag to an enum
@@ -53,19 +61,21 @@ namespace GreenshotPlugin.Core {
 		/// <param name="type"></param>
 		/// <param name="value"></param>
 		/// <returns></returns>
-        public static T Add<T>(this Enum type, T value) {
+		public static T Add<T>(this Enum type, T value) {
 			Type underlyingType = Enum.GetUnderlyingType(value.GetType());
-			try {
+			try
+			{
 				if (underlyingType == typeof(int)) {
 					return (T)(object)(((int)(object)type | (int)(object)value));
-				} else if (underlyingType == typeof(uint)) {
+				}
+				if (underlyingType == typeof(uint)) {
 					return (T)(object)(((uint)(object)type | (uint)(object)value));
 				}
 			} catch(Exception ex) {
-				throw new ArgumentException(string.Format("Could not append value '{0}' to enumerated type '{1}'.", value, typeof(T).Name), ex);
+				throw new ArgumentException($"Could not append value '{value}' to enumerated type '{typeof(T).Name}'.", ex);
 			}    
-			throw new ArgumentException(string.Format("Could not append value '{0}' to enumerated type '{1}'.", value, typeof(T).Name));
-        }
+			throw new ArgumentException($"Could not append value '{value}' to enumerated type '{typeof(T).Name}'.");
+		}
 
 		/// <summary>
 		/// Remove a flag from an enum type
@@ -73,18 +83,20 @@ namespace GreenshotPlugin.Core {
 		/// <param name="type"></param>
 		/// <param name="value"></param>
 		/// <returns></returns>
-        public static T Remove<T>(this Enum type, T value) {
+		public static T Remove<T>(this Enum type, T value) {
 			Type underlyingType = Enum.GetUnderlyingType(value.GetType());
-			try {
+			try
+			{
 				if (underlyingType == typeof(int)) {
 					return (T)(object)(((int)(object)type & ~(int)(object)value));
-				} else if (underlyingType == typeof(uint)) {
+				}
+				if (underlyingType == typeof(uint)) {
 					return (T)(object)(((uint)(object)type & ~(uint)(object)value));
 				}
 			} catch(Exception ex) {
-				throw new ArgumentException(string.Format("Could not remove value '{0}' from enumerated type '{1}'.", value, typeof(T).Name), ex);
+				throw new ArgumentException($"Could not remove value '{value}' from enumerated type '{typeof(T).Name}'.", ex);
 			}    
-			throw new ArgumentException(string.Format("Could not remove value '{0}' from enumerated type '{1}'.", value, typeof(T).Name));
-        }
-    }
+			throw new ArgumentException($"Could not remove value '{value}' from enumerated type '{typeof(T).Name}'.");
+		}
+	}
 }

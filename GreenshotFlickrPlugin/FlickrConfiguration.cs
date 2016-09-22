@@ -70,7 +70,7 @@ namespace GreenshotFlickrPlugin {
 		/// </summary>
 		/// <returns>bool true if OK was pressed, false if cancel</returns>
 		public bool ShowConfigDialog() {
-			DialogResult result = new SettingsForm(this).ShowDialog();
+			DialogResult result = new SettingsForm().ShowDialog();
 			if (result == DialogResult.OK) {
 				return true;
 			}

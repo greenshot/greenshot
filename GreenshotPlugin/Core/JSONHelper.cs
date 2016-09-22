@@ -7,7 +7,7 @@ The above copyright notice and this permission notice shall be included in all c
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-using System;
+
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
@@ -173,12 +173,11 @@ namespace GreenshotPlugin.Core {
 
 		protected static string ParseString(char[] json, ref int index, ref bool success) {
 			StringBuilder s = new StringBuilder(BUILDER_CAPACITY);
-			char c;
 
 			EatWhitespace(json, ref index);
 
 			// "
-			c = json[index++];
+			var c = json[index++];
 
 			bool complete = false;
 			while (!complete) {
@@ -218,11 +217,11 @@ namespace GreenshotPlugin.Core {
 						if (remainingLength >= 4) {
 							// parse the 32 bit hex into an integer codepoint
 							uint codePoint;
-							if (!(success = UInt32.TryParse(new string(json, index, 4), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out codePoint))) {
+							if (!(success = uint.TryParse(new string(json, index, 4), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out codePoint))) {
 								return "";
 							}
 							// convert the integer codepoint to a unicode char and add to string
-							s.Append(Char.ConvertFromUtf32((int)codePoint));
+							s.Append(char.ConvertFromUtf32((int)codePoint));
 							// skip 4 chars
 							index += 4;
 						} else {
@@ -251,7 +250,7 @@ namespace GreenshotPlugin.Core {
 			int charLength = (lastIndex - index) + 1;
 
 			double number;
-			success = Double.TryParse(new string(json, index, charLength), NumberStyles.Any, CultureInfo.InvariantCulture, out number);
+			success = double.TryParse(new string(json, index, charLength), NumberStyles.Any, CultureInfo.InvariantCulture, out number);
 
 			index = lastIndex + 1;
 			return number;

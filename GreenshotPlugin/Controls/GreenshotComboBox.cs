@@ -83,7 +83,7 @@ namespace GreenshotPlugin.Controls {
 
 			foreach (Enum enumValue in availableValues) {
 				string enumKey = enumTypeName + "." + enumValue;
-				if (Language.hasKey(enumKey)) {
+				if (Language.HasKey(enumKey)) {
 					string translation = Language.GetString(enumTypeName + "." + enumValue);
 					if (translation.Equals(selectedValue)) {
 						returnValue = enumValue;

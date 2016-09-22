@@ -383,12 +383,12 @@ namespace Greenshot.Drawing
 								Rectangle drawingRect = new Rectangle(Bounds.Location, Bounds.Size);
 								drawingRect.Intersect(clipRectangle);
 								if(filter is MagnifierFilter) {
-                                    // quick&dirty bugfix, because MagnifierFilter behaves differently when drawn only partially
-                                    // what we should actually do to resolve this is add a better magnifier which is not that special
-                                    filter.Apply(graphics, bmp, Bounds, renderMode);
-                                } else {
-                                    filter.Apply(graphics, bmp, drawingRect, renderMode);
-                                }
+									// quick&dirty bugfix, because MagnifierFilter behaves differently when drawn only partially
+									// what we should actually do to resolve this is add a better magnifier which is not that special
+									filter.Apply(graphics, bmp, Bounds, renderMode);
+								} else {
+									filter.Apply(graphics, bmp, drawingRect, renderMode);
+								}
 							}
 						}
 					}
@@ -517,7 +517,7 @@ namespace Greenshot.Drawing
 		/// <param name="e"></param>
 		public void HandleFieldChanged(object sender, FieldChangedEventArgs e) {
 			LOG.DebugFormat("Field {0} changed", e.Field.FieldType);
-			if (e.Field.FieldType == FieldType.SHADOW) {
+			if (Equals(e.Field.FieldType, FieldType.SHADOW)) {
 				accountForShadowChange = true;
 			}
 		}

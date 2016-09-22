@@ -29,65 +29,49 @@ using log4net;
 
 namespace GreenshotPlugin.Core {
 	public class RssFile {
-		private readonly string _file;
-		public string File {
-			get {return _file;}
-		}
+		public string File { get; }
 		private readonly DateTime _pubdate;
-		public DateTime Pubdate {
-			get {return _pubdate;}
-		}
-		private readonly string _link;
-		public string Link {
-			get {return _link;}
-		}
-		private Version _version;
-		public Version Version {
-			get {return _version;}
-			set {
-				_version = value;
-			}
-		}
-		private string _language;
-		public string Language {
-			get {return _language;}
-			set {_language = value;}
-		}
+		public DateTime Pubdate => _pubdate;
 
-		public bool isExe {
+		public string Link { get; }
+		public Version Version { get; set; }
+
+		public string Language { get; set; }
+
+		public bool IsExe {
 			get {
-				if (_file != null) {
-					return _file.ToLower().EndsWith(".exe");
+				if (File != null) {
+					return File.ToLower().EndsWith(".exe");
 				}
 				return false;
 			}
 		}
 
-		public bool isUnstable {
+		public bool IsUnstable {
 			get {
-				if (_file != null) {
-					return _file.ToLower().Contains("unstable");
+				if (File != null) {
+					return File.ToLower().Contains("unstable");
 				}
 				return false;
 			}
 		}
 
-		public bool isReleaseCandidate {
+		public bool IsReleaseCandidate {
 			get {
-				if (_file != null) {
-					return Regex.IsMatch(_file.ToLower(), "rc[0-9]+");
+				if (File != null) {
+					return Regex.IsMatch(File.ToLower(), "rc[0-9]+");
 				}
 				return false;
 			}
 		}
 
 		public RssFile(string file, string pubdate, string link) {
-			_file = file;
+			File = file;
 			if (!DateTime.TryParse(pubdate, out _pubdate))
 			{
 				DateTime.TryParseExact(pubdate.Replace(" UT", ""), "ddd, dd MMM yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out _pubdate);
 			}
-			_link = link;
+			Link = link;
 		}
 	}
 
@@ -95,16 +79,16 @@ namespace GreenshotPlugin.Core {
 	/// Description of RssHelper.
 	/// </summary>
 	public class RssHelper {
-		private static ILog LOG = LogManager.GetLogger(typeof(RssHelper));
-		private const string RSSFEED = "http://getgreenshot.org/project-feed/";
+		private static readonly ILog Log = LogManager.GetLogger(typeof(RssHelper));
+		private const string Rssfeed = "http://getgreenshot.org/project-feed/";
 
 		/// <summary>
 		/// This is using the HTTP HEAD Method to check if the RSS Feed is modified after the supplied date
 		/// </summary>
 		/// <param name="updateTime">DateTime</param>
 		/// <returns>true if the feed is newer</returns>
-		public static bool IsRSSModifiedAfter(DateTime updateTime) {
-			DateTime lastModified = NetworkHelper.GetLastModified(new Uri(RSSFEED));
+		public static bool IsRssModifiedAfter(DateTime updateTime) {
+			DateTime lastModified = NetworkHelper.GetLastModified(new Uri(Rssfeed));
 			if (lastModified == DateTime.MinValue)
 			{
 				// Time could not be read, just take now and add one hour to it.
@@ -118,17 +102,17 @@ namespace GreenshotPlugin.Core {
 		/// Read the Greenshot RSS feed, so we can use this information to check for updates
 		/// </summary>
 		/// <returns>List with RssFile(s)</returns>
-		public static IList<RssFile> readRSS() {
+		public static IList<RssFile> ReadRss() {
 			XmlDocument rssDoc = new XmlDocument();
 			try {
-				HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(RSSFEED);
+				HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(Rssfeed);
 				XmlTextReader rssReader = new XmlTextReader(webRequest.GetResponse().GetResponseStream());
 	
 				// Load the XML content into a XmlDocument
 				rssDoc.Load(rssReader);
 			} catch (Exception wE) {
-				LOG.WarnFormat("Problem reading RSS from {0}", RSSFEED);
-				LOG.Warn(wE.Message);
+				Log.WarnFormat("Problem reading RSS from {0}", Rssfeed);
+				Log.Warn(wE.Message);
 				return null;
 			}
 			
@@ -143,7 +127,7 @@ namespace GreenshotPlugin.Core {
 			}
 
 			if (nodeRss == null) {
-				LOG.Debug("No RSS Feed!");
+				Log.Debug("No RSS Feed!");
 				return null;
 			}
 
@@ -158,7 +142,7 @@ namespace GreenshotPlugin.Core {
 			}
 			
 			if (nodeChannel == null) {
-				LOG.Debug("No channel in RSS feed!");
+				Log.Debug("No channel in RSS feed!");
 				return null;
 			}
 
@@ -168,41 +152,49 @@ namespace GreenshotPlugin.Core {
 			for (int i = 0; i < nodeChannel.ChildNodes.Count; i++) {
 				// If it is the item tag, then it has children tags which we will add as items to the ListView
 
-				if (nodeChannel.ChildNodes[i].Name == "item") {
-					XmlNode nodeItem = nodeChannel.ChildNodes[i];
-					string link = nodeItem["link"].InnerText;
-					string pubdate = nodeItem["pubDate"].InnerText;
-					try {
-						Match match= Regex.Match(Uri.UnescapeDataString(link), @"^.*\/(Greenshot.+)\/download$");
-						if (match.Success) {
-							string file = match.Groups[1].Value;
+				if (nodeChannel.ChildNodes[i].Name != "item")
+				{
+					continue;
+				}
+				XmlNode nodeItem = nodeChannel.ChildNodes[i];
+				string link = nodeItem["link"]?.InnerText;
+				string pubdate = nodeItem["pubDate"]?.InnerText;
+				try {
+					if (link == null)
+					{
+						continue;
+					}
+					Match match = Regex.Match(Uri.UnescapeDataString(link), @"^.*\/(Greenshot.+)\/download$");
+					if (!match.Success)
+					{
+						continue;
+					}
+					string file = match.Groups[1].Value;
 
-							RssFile rssFile = new RssFile(file, pubdate, link);
-							if (file.EndsWith(".exe") ||file.EndsWith(".zip")) {
-								string version = Regex.Replace(file, @".*[a-zA-Z_]\-", "");
-								version = version.Replace(@"\-[a-zA-Z]+.*","");
-								version = Regex.Replace(version, @"\.exe$", "");
-								version = Regex.Replace(version, @"\.zip$", "");
-								version = Regex.Replace(version, @"RC[0-9]+", "");
-								if (version.Trim().Length > 0) {
-									version = version.Replace('-','.');
-									version = version.Replace(',','.');
-									version = Regex.Replace(version, @"^[a-zA-Z_]*\.", "");
-									version = Regex.Replace(version, @"\.[a-zA-Z_]*$", "");
+					RssFile rssFile = new RssFile(file, pubdate, link);
+					if (file.EndsWith(".exe") ||file.EndsWith(".zip")) {
+						string version = Regex.Replace(file, @".*[a-zA-Z_]\-", "");
+						version = version.Replace(@"\-[a-zA-Z]+.*","");
+						version = Regex.Replace(version, @"\.exe$", "");
+						version = Regex.Replace(version, @"\.zip$", "");
+						version = Regex.Replace(version, @"RC[0-9]+", "");
+						if (version.Trim().Length > 0) {
+							version = version.Replace('-','.');
+							version = version.Replace(',','.');
+							version = Regex.Replace(version, @"^[a-zA-Z_]*\.", "");
+							version = Regex.Replace(version, @"\.[a-zA-Z_]*$", "");
 
-									try {
-										rssFile.Version = new Version(version);
-									} catch (Exception) {
-										LOG.DebugFormat("Found invalid version {0} in file {1}", version, file);
-									}
-								}
-								rssFiles.Add(rssFile);
+							try {
+								rssFile.Version = new Version(version);
+							} catch (Exception) {
+								Log.DebugFormat("Found invalid version {0} in file {1}", version, file);
 							}
 						}
-					} catch (Exception ex) {
-						LOG.WarnFormat("Couldn't read RSS entry for: {0}", nodeChannel["title"].InnerText);
-						LOG.Warn("Reason: ", ex);
+						rssFiles.Add(rssFile);
 					}
+				} catch (Exception ex) {
+					Log.WarnFormat("Couldn't read RSS entry for: {0}", nodeChannel["title"]?.InnerText);
+					Log.Warn("Reason: ", ex);
 				}
 			}
 			

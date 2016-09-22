@@ -30,8 +30,8 @@ namespace Greenshot.Memento
 	public class ChangeFieldHolderMemento : IMemento
 	{
 		private IDrawableContainer _drawableContainer;
-		private IField _fieldToBeChanged;
-		private object _oldValue;
+		private readonly IField _fieldToBeChanged;
+		private readonly object _oldValue;
 
 		public ChangeFieldHolderMemento(IDrawableContainer drawableContainer, IField fieldToBeChanged)
 		{
@@ -49,10 +49,7 @@ namespace Greenshot.Memento
 		{
 			if (disposing)
 			{
-				if (_drawableContainer != null)
-				{
-					_drawableContainer.Dispose();
-				}
+				_drawableContainer?.Dispose();
 			}
 			_drawableContainer = null;
 		}

@@ -20,7 +20,6 @@
  */
 using System.ComponentModel;
 using System.Drawing;
-using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 
@@ -29,25 +28,15 @@ namespace GreenshotImgurPlugin  {
 	/// Description of ImgurDestination.
 	/// </summary>
 	public class ImgurDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurDestination));
-		private static ImgurConfiguration config = IniConfig.GetIniSection<ImgurConfiguration>();
-		private readonly ImgurPlugin plugin = null;
+		private readonly ImgurPlugin _plugin;
 
 		public ImgurDestination(ImgurPlugin plugin) {
-			this.plugin = plugin;
+			_plugin = plugin;
 		}
 		
-		public override string Designation {
-			get {
-				return "Imgur";
-			}
-		}
+		public override string Designation => "Imgur";
 
-		public override string Description {
-			get {
-				return Language.GetString("imgur", LangKey.upload_menu_item);
-			}
-		}
+		public override string Description => Language.GetString("imgur", LangKey.upload_menu_item);
 
 		public override Image DisplayIcon {
 			get {
@@ -59,7 +48,7 @@ namespace GreenshotImgurPlugin  {
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			string uploadUrl;
-			exportInformation.ExportMade = plugin.Upload(captureDetails, surface, out uploadUrl);
+			exportInformation.ExportMade = _plugin.Upload(captureDetails, surface, out uploadUrl);
 			exportInformation.Uri = uploadUrl;
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

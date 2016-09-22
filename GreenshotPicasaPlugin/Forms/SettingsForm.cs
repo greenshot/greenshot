@@ -24,7 +24,8 @@ namespace GreenshotPicasaPlugin {
 	/// </summary>
 	public partial class SettingsForm : PicasaForm {
 
-		public SettingsForm(PicasaConfiguration config) : base() {
+		public SettingsForm()
+		{
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//

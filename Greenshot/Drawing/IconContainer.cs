@@ -32,7 +32,7 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable] 
 	public class IconContainer : DrawableContainer, IIconContainer {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(IconContainer));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(IconContainer));
 
 		protected Icon icon;
 
@@ -57,9 +57,7 @@ namespace Greenshot.Drawing {
 
 		public Icon Icon {
 			set {
-				if (icon != null) {
-					icon.Dispose();
-				}
+				icon?.Dispose();
 				icon = (Icon)value.Clone();
 				Width = value.Width;
 				Height = value.Height;
@@ -72,10 +70,9 @@ namespace Greenshot.Drawing {
 		 * When disposing==true all non-managed resources should be freed too!
 		 */
 		protected override void Dispose(bool disposing) {
-			if (disposing) {
-				if (icon != null) {
-					icon.Dispose();
-				}
+			if (disposing)
+			{
+				icon?.Dispose();
 			}
 			icon = null;
 			base.Dispose(disposing);
@@ -85,7 +82,7 @@ namespace Greenshot.Drawing {
 			if (File.Exists(filename)) {
 				using (Icon fileIcon = new Icon(filename)) {
 					Icon = fileIcon;
-					LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
+					Log.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
 				}
 			}
 		}
@@ -100,16 +97,8 @@ namespace Greenshot.Drawing {
 			}
 		}
 
-		public override bool HasDefaultSize {
-			get {
-				return true;
-			}
-		}
+		public override bool HasDefaultSize => true;
 
-		public override Size DefaultSize {
-			get {
-				return icon.Size;
-			}
-		}
+		public override Size DefaultSize => icon.Size;
 	}
 }

@@ -40,6 +40,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
+using GreenshotPlugin.Effects;
 
 namespace Greenshot.Drawing
 {
@@ -48,9 +49,9 @@ namespace Greenshot.Drawing
 	/// </summary>
 	public sealed class Surface : Control, ISurface
 	{
-		private static ILog LOG = LogManager.GetLogger(typeof(Surface));
-		public static int Count = 0;
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(Surface));
+		public static int Count;
+		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
 		// Property to identify the Surface ID
 		private Guid _uniqueId = Guid.NewGuid();
@@ -277,11 +278,6 @@ namespace Greenshot.Drawing
 		private IDrawableContainer _cursorContainer;
 
 		/// <summary>
-		/// the capture details, needed with serialization
-		/// </summary>
-		private ICaptureDetails _captureDetails;
-
-		/// <summary>
 		/// the modified flag specifies if the surface has had modifications after the last export.
 		/// Initial state is modified, as "it's not saved"
 		/// After serialization this should actually be "false" (the surface came from a stream)
@@ -325,31 +321,19 @@ namespace Greenshot.Drawing
 		/// <summary>
 		/// The cursor container has it's own accessor so we can find and remove this (when needed)
 		/// </summary>
-		public IDrawableContainer CursorContainer
-		{
-			get
-			{
-				return _cursorContainer;
-			}
-		}
+		public IDrawableContainer CursorContainer => _cursorContainer;
 
 		/// <summary>
 		/// A simple getter to ask if this surface has a cursor
 		/// </summary>
-		public bool HasCursor
-		{
-			get
-			{
-				return _cursorContainer != null;
-			}
-		}
+		public bool HasCursor => _cursorContainer != null;
 
 		/// <summary>
 		/// A simple helper method to remove the cursor from the surface
 		/// </summary>
 		public void RemoveCursor()
 		{
-			RemoveElement(_cursorContainer, true);
+			RemoveElement(_cursorContainer);
 			_cursorContainer = null;
 		}
 
@@ -409,8 +393,10 @@ namespace Greenshot.Drawing
 				_drawingMode = value;
 				if (_drawingModeChanged != null)
 				{
-					SurfaceDrawingModeEventArgs eventArgs = new SurfaceDrawingModeEventArgs();
-					eventArgs.DrawingMode = _drawingMode;
+					SurfaceDrawingModeEventArgs eventArgs = new SurfaceDrawingModeEventArgs
+					{
+						DrawingMode = _drawingMode
+					};
 					_drawingModeChanged.Invoke(this, eventArgs);
 				}
 				DeselectAllElements();
@@ -445,22 +431,12 @@ namespace Greenshot.Drawing
 		/// <summary>
 		/// Property for accessing the capture details
 		/// </summary>
-		public ICaptureDetails CaptureDetails
-		{
-			get
-			{
-				return _captureDetails;
-			}
-			set
-			{
-				_captureDetails = value;
-			}
-		}
+		public ICaptureDetails CaptureDetails { get; set; }
 
 		/// <summary>
 		/// Base Surface constructor
 		/// </summary>
-		public Surface() : base()
+		public Surface()
 		{
 			_fieldAggregator = new FieldAggregator(this);
 			Count++;
@@ -537,7 +513,7 @@ namespace Greenshot.Drawing
 			// Make sure the image is NOT disposed, we took the reference directly into ourselves
 			((Capture)capture).NullImage();
 
-			_captureDetails = capture.CaptureDetails;
+			CaptureDetails = capture.CaptureDetails;
 		}
 
 		protected override void Dispose(bool disposing)
@@ -615,46 +591,22 @@ namespace Greenshot.Drawing
 		/// <summary>
 		/// Returns if the surface can do a undo
 		/// </summary>
-		public bool CanUndo
-		{
-			get
-			{
-				return _undoStack.Count > 0;
-			}
-		}
+		public bool CanUndo => _undoStack.Count > 0;
 
 		/// <summary>
 		/// Returns if the surface can do a redo
 		/// </summary>
-		public bool CanRedo
-		{
-			get
-			{
-				return _redoStack.Count > 0;
-			}
-		}
+		public bool CanRedo => _redoStack.Count > 0;
 
 		/// <summary>
 		/// Get the language key for the undo action
 		/// </summary>
-		public LangKey UndoActionLanguageKey
-		{
-			get
-			{
-				return LangKey.none;
-			}
-		}
+		public LangKey UndoActionLanguageKey => LangKey.none;
 
 		/// <summary>
 		/// Get the language key for redo action
 		/// </summary>
-		public LangKey RedoActionLanguageKey
-		{
-			get
-			{
-				return LangKey.none;
-			}
-		}
+		public LangKey RedoActionLanguageKey => LangKey.none;
 
 		/// <summary>
 		/// Make an action undo-able
@@ -722,9 +674,7 @@ namespace Greenshot.Drawing
 				IDrawableContainerList loadedElements = (IDrawableContainerList)binaryRead.Deserialize(streamRead);
 				loadedElements.Parent = this;
 				// Make sure the steplabels are sorted accoring to their number
-				_stepLabels.Sort(delegate (StepLabelContainer p1, StepLabelContainer p2) {
-					return p1.Number.CompareTo(p2.Number);
-				});
+				_stepLabels.Sort((p1, p2) => p1.Number.CompareTo(p2.Number));
 				DeselectAllElements();
 				AddElements(loadedElements);
 				SelectElements(loadedElements);
@@ -799,10 +749,12 @@ namespace Greenshot.Drawing
 		#region Plugin interface implementations
 		public IImageContainer AddImageContainer(Image image, int x, int y)
 		{
-			ImageContainer bitmapContainer = new ImageContainer(this);
-			bitmapContainer.Image = image;
-			bitmapContainer.Left = x;
-			bitmapContainer.Top = y;
+			ImageContainer bitmapContainer = new ImageContainer(this)
+			{
+				Image = image,
+				Left = x,
+				Top = y
+			};
 			AddElement(bitmapContainer);
 			return bitmapContainer;
 		}
@@ -818,10 +770,12 @@ namespace Greenshot.Drawing
 		}
 		public IIconContainer AddIconContainer(Icon icon, int x, int y)
 		{
-			IconContainer iconContainer = new IconContainer(this);
-			iconContainer.Icon = icon;
-			iconContainer.Left = x;
-			iconContainer.Top = y;
+			IconContainer iconContainer = new IconContainer(this)
+			{
+				Icon = icon,
+				Left = x,
+				Top = y
+			};
 			AddElement(iconContainer);
 			return iconContainer;
 		}
@@ -836,10 +790,12 @@ namespace Greenshot.Drawing
 		}
 		public ICursorContainer AddCursorContainer(Cursor cursor, int x, int y)
 		{
-			CursorContainer cursorContainer = new CursorContainer(this);
-			cursorContainer.Cursor = cursor;
-			cursorContainer.Left = x;
-			cursorContainer.Top = y;
+			CursorContainer cursorContainer = new CursorContainer(this)
+			{
+				Cursor = cursor,
+				Left = x,
+				Top = y
+			};
 			AddElement(cursorContainer);
 			return cursorContainer;
 		}
@@ -855,8 +811,7 @@ namespace Greenshot.Drawing
 
 		public ITextContainer AddTextContainer(string text, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment, FontFamily family, float size, bool italic, bool bold, bool shadow, int borderSize, Color color, Color fillColor)
 		{
-			TextContainer textContainer = new TextContainer(this);
-			textContainer.Text = text;
+			TextContainer textContainer = new TextContainer(this) {Text = text};
 			textContainer.SetFieldValue(FieldType.FONT_FAMILY, family.Name);
 			textContainer.SetFieldValue(FieldType.FONT_BOLD, bold);
 			textContainer.SetFieldValue(FieldType.FONT_ITALIC, italic);
@@ -1069,10 +1024,12 @@ namespace Greenshot.Drawing
 		{
 			if (_surfaceMessage != null)
 			{
-				SurfaceMessageEventArgs eventArgs = new SurfaceMessageEventArgs();
-				eventArgs.Message = message;
-				eventArgs.MessageType = messageType;
-				eventArgs.Surface = this;
+				var eventArgs = new SurfaceMessageEventArgs
+				{
+					Message = message,
+					MessageType = messageType,
+					Surface = this
+				};
 				_surfaceMessage(source, eventArgs);
 			}
 		}
@@ -1133,10 +1090,7 @@ namespace Greenshot.Drawing
 			{
 				_elements.Transform(matrix);
 			}
-			if (_surfaceSizeChanged != null)
-			{
-				_surfaceSizeChanged(this, null);
-			}
+			_surfaceSizeChanged?.Invoke(this, null);
 			Invalidate();
 		}
 		/// <summary>
@@ -1196,8 +1150,7 @@ namespace Greenshot.Drawing
 					IDrawableContainer rightClickedContainer = _elements.ClickableElementAt(_mouseStart.X, _mouseStart.Y);
 					if (rightClickedContainer != null)
 					{
-						selectedList = new DrawableContainerList(ID);
-						selectedList.Add(rightClickedContainer);
+						selectedList = new DrawableContainerList(ID) {rightClickedContainer};
 					}
 				}
 				if (selectedList != null && selectedList.Count > 0)
@@ -1231,7 +1184,10 @@ namespace Greenshot.Drawing
 				// if a new element has been drawn, set location and register it
 				if (_drawingElement != null)
 				{
-					_drawingElement.Status = _undrawnElement.DefaultEditMode;
+					if (_undrawnElement != null)
+					{
+						_drawingElement.Status = _undrawnElement.DefaultEditMode;
+					}
 					if (!_drawingElement.HandleMouseDown(_mouseStart.X, _mouseStart.Y))
 					{
 						_drawingElement.Left = _mouseStart.X;
@@ -1362,14 +1318,7 @@ namespace Greenshot.Drawing
 
 			Point currentMouse = e.Location;
 
-			if (DrawingMode != DrawingModes.None)
-			{
-				Cursor = Cursors.Cross;
-			}
-			else
-			{
-				Cursor = Cursors.Default;
-			}
+			Cursor = DrawingMode != DrawingModes.None ? Cursors.Cross : Cursors.Default;
 
 			if (_mouseDown)
 			{
@@ -1597,8 +1546,7 @@ namespace Greenshot.Drawing
 			Invalidate();
 			if (_movingElementChanged != null)
 			{
-				SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs();
-				eventArgs.Elements = cloned;
+				SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs {Elements = cloned};
 				_movingElementChanged(this, eventArgs);
 			}
 		}
@@ -1663,13 +1611,7 @@ namespace Greenshot.Drawing
 		/// Returns if this surface has selected elements
 		/// </summary>
 		/// <returns></returns>
-		public bool HasSelectedElements
-		{
-			get
-			{
-				return (selectedElements != null && selectedElements.Count > 0);
-			}
-		}
+		public bool HasSelectedElements => (selectedElements != null && selectedElements.Count > 0);
 
 		/// <summary>
 		/// Remove all the selected elements
@@ -1764,29 +1706,14 @@ namespace Greenshot.Drawing
 				if (dcs != null)
 				{
 					// Make element(s) only move 10,10 if the surface is the same
-					Point moveOffset;
 					bool isSameSurface = (dcs.ParentID == _uniqueId);
 					dcs.Parent = this;
-					if (isSameSurface)
-					{
-						moveOffset = new Point(10, 10);
-					}
-					else
-					{
-						moveOffset = Point.Empty;
-					}
+					var moveOffset = isSameSurface ? new Point(10, 10) : Point.Empty;
 					// Here a fix for bug #1475, first calculate the bounds of the complete IDrawableContainerList
 					Rectangle drawableContainerListBounds = Rectangle.Empty;
-					foreach (IDrawableContainer element in dcs)
+					foreach (var element in dcs)
 					{
-						if (drawableContainerListBounds == Rectangle.Empty)
-						{
-							drawableContainerListBounds = element.DrawingBounds;
-						}
-						else
-						{
-							drawableContainerListBounds = Rectangle.Union(drawableContainerListBounds, element.DrawingBounds);
-						}
+						drawableContainerListBounds = drawableContainerListBounds == Rectangle.Empty ? element.DrawingBounds : Rectangle.Union(drawableContainerListBounds, element.DrawingBounds);
 					}
 					// And find a location inside the target surface to paste to
 					bool containersCanFit = drawableContainerListBounds.Width < Bounds.Width && drawableContainerListBounds.Height < Bounds.Height;
@@ -1797,15 +1724,7 @@ namespace Greenshot.Drawing
 						if (!Bounds.Contains(containersLocation))
 						{
 							// Easy fix for same surface
-							if (isSameSurface)
-							{
-								moveOffset = new Point(-10, -10);
-							}
-							else
-							{
-								// For different surface, which is most likely smaller, we move to "10,10"
-								moveOffset = new Point(-drawableContainerListBounds.Location.X + 10, -drawableContainerListBounds.Location.Y + 10);
-							}
+							moveOffset = isSameSurface ? new Point(-10, -10) : new Point(-drawableContainerListBounds.Location.X + 10, -drawableContainerListBounds.Location.Y + 10);
 						}
 					}
 					else
@@ -1932,8 +1851,10 @@ namespace Greenshot.Drawing
 			}
 			if (_movingElementChanged != null)
 			{
-				SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs();
-				eventArgs.Elements = selectedElements;
+				SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs
+				{
+					Elements = selectedElements
+				};
 				_movingElementChanged(this, eventArgs);
 			}
 			Invalidate();
@@ -1962,8 +1883,10 @@ namespace Greenshot.Drawing
 				FieldAggregator.BindElement(container);
 				if (generateEvents && _movingElementChanged != null)
 				{
-					SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs();
-					eventArgs.Elements = selectedElements;
+					SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs
+					{
+						Elements = selectedElements
+					};
 					_movingElementChanged(this, eventArgs);
 				}
 				if (invalidate)
@@ -1988,14 +1911,14 @@ namespace Greenshot.Drawing
 		public void SelectElements(IDrawableContainerList elements)
 		{
 			SuspendLayout();
-			foreach (DrawableContainer element in elements)
+			foreach (var drawableContainer in elements)
 			{
+				var element = (DrawableContainer) drawableContainer;
 				SelectElement(element, false, false);
 			}
 			if (_movingElementChanged != null)
 			{
-				SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs();
-				eventArgs.Elements = selectedElements;
+				SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs {Elements = selectedElements};
 				_movingElementChanged(this, eventArgs);
 			}
 			ResumeLayout();
@@ -2070,13 +1993,7 @@ namespace Greenshot.Drawing
 		/// <summary>
 		/// Property for accessing the elements on the surface
 		/// </summary>
-		public IDrawableContainerList Elements
-		{
-			get
-			{
-				return _elements;
-			}
-		}
+		public IDrawableContainerList Elements => _elements;
 
 		/// <summary>
 		/// pulls selected elements up one level in hierarchy

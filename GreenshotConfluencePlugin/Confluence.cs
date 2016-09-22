@@ -222,19 +222,17 @@ namespace Confluence {
 			}
 		}
 
-		public bool IsLoggedIn {
-			get {
-				return _loggedIn;
-			}
-		}
-		
+		public bool IsLoggedIn => _loggedIn;
+
 		public void AddAttachment(long pageId, string mime, string comment, string filename, IBinaryContainer image) {
 			CheckCredentials();
-			RemoteAttachment attachment = new RemoteAttachment();
 			// Comment is ignored, see: http://jira.atlassian.com/browse/CONF-9395
-			attachment.comment = comment;
-			attachment.fileName = filename;
-			attachment.contentType = mime;
+			var attachment = new RemoteAttachment
+			{
+				comment = comment,
+				fileName = filename,
+				contentType = mime
+			};
 			_confluence.addAttachment(_credentials, pageId, attachment, image.ToByteArray());
 		}
 		
@@ -284,7 +282,6 @@ namespace Confluence {
 		
 		public IEnumerable<Page> GetPageChildren(Page parentPage) {
 			CheckCredentials();
-			List<Page> returnPages = new List<Page>();
 			RemotePageSummary[] pages = _confluence.getChildren(_credentials, parentPage.Id);
 			foreach(RemotePageSummary page in pages) {
 				yield return new Page(page);

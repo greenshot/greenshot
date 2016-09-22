@@ -84,15 +84,15 @@ namespace GreenshotConfluencePlugin {
 			}
 		}
 
-		public override bool isDynamic {
+		public override bool IsDynamic {
 			get {
 				return true;
 			}
 		}
 		
-		public override bool isActive {
+		public override bool IsActive {
 			get {
-				return base.isActive && !string.IsNullOrEmpty(ConfluenceConfig.Url);
+				return base.IsActive && !string.IsNullOrEmpty(ConfluenceConfig.Url);
 			}
 		}
 
@@ -127,7 +127,7 @@ namespace GreenshotConfluencePlugin {
 			string filename = FilenameHelper.GetFilenameWithoutExtensionFromPattern(CoreConfig.OutputFileFilenamePattern, captureDetails);
 			if (selectedPage == null) {
 				ConfluenceUpload confluenceUpload = new ConfluenceUpload(filename);
-				Nullable<bool> dialogResult = confluenceUpload.ShowDialog();
+				bool? dialogResult = confluenceUpload.ShowDialog();
 				if (dialogResult.HasValue && dialogResult.Value) {
 					selectedPage = confluenceUpload.SelectedPage;
 					if (confluenceUpload.IsOpenPageSelected) {

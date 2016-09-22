@@ -33,16 +33,16 @@ namespace GreenshotOfficePlugin {
 	/// Description of EmailDestination.
 	/// </summary>
 	public class WordDestination : AbstractDestination {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordDestination));
-		private const int ICON_APPLICATION = 0;
-		private const int ICON_DOCUMENT = 1;
-		private static readonly string exePath = null;
-		private readonly string documentCaption = null;
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(WordDestination));
+		private const int IconApplication = 0;
+		private const int IconDocument = 1;
+		private static readonly string ExePath;
+		private readonly string _documentCaption;
 
 		static WordDestination() {
-			exePath = PluginUtils.GetExePath("WINWORD.EXE");
-			if (exePath != null && !File.Exists(exePath)) {
-				exePath = null;
+			ExePath = PluginUtils.GetExePath("WINWORD.EXE");
+			if (ExePath != null && !File.Exists(ExePath)) {
+				ExePath = null;
 			}
 		}
 		
@@ -51,51 +51,20 @@ namespace GreenshotOfficePlugin {
 		}
 
 		public WordDestination(string wordCaption) {
-			documentCaption = wordCaption;
+			_documentCaption = wordCaption;
 		}
 
-		public override string Designation {
-			get {
-				return "Word";
-			}
-		}
+		public override string Designation => "Word";
 
-		public override string Description {
-			get {
-				if (documentCaption == null) {
-					return "Microsoft Word";
-				} else {
-					return documentCaption;
-				}
-			}
-		}
+		public override string Description => _documentCaption ?? "Microsoft Word";
 
-		public override int Priority {
-			get {
-				return 4;
-			}
-		}
-		
-		public override bool isDynamic {
-			get {
-				return true;
-			}
-		}
+		public override int Priority => 4;
 
-		public override bool isActive {
-			get {
-				return base.isActive && exePath != null;
-			}
-		}
+		public override bool IsDynamic => true;
 
-		public override Image DisplayIcon {
-			get {
-				if (!string.IsNullOrEmpty(documentCaption)) {
-					return PluginUtils.GetCachedExeIcon(exePath, ICON_DOCUMENT);
-				}
-				return PluginUtils.GetCachedExeIcon(exePath, ICON_APPLICATION);
-			}
-		}
+		public override bool IsActive => base.IsActive && ExePath != null;
+
+		public override Image DisplayIcon => PluginUtils.GetCachedExeIcon(ExePath, !string.IsNullOrEmpty(_documentCaption) ? IconDocument : IconApplication);
 
 		public override IEnumerable<IDestination> DynamicDestinations() {
 			foreach (string wordCaption in WordExporter.GetWordDocuments()) {
@@ -109,26 +78,28 @@ namespace GreenshotOfficePlugin {
 			if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$")) {
 				tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
 			}
-			if (documentCaption != null) {
+			if (_documentCaption != null) {
 				try {
-					WordExporter.InsertIntoExistingDocument(documentCaption, tmpFile);
+					WordExporter.InsertIntoExistingDocument(_documentCaption, tmpFile);
 					exportInformation.ExportMade = true;
 				} catch (Exception) {
 					try {
-						WordExporter.InsertIntoExistingDocument(documentCaption, tmpFile);
+						WordExporter.InsertIntoExistingDocument(_documentCaption, tmpFile);
 						exportInformation.ExportMade = true;
 					} catch (Exception ex) {
-						LOG.Error(ex);
+						Log.Error(ex);
 						// TODO: Change to general logic in ProcessExport
 						surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetFormattedString("destination_exportfailed", Description));
 					}
 				}
 			} else {
 				if (!manuallyInitiated) {
-					List<string> documents = WordExporter.GetWordDocuments();
+					var documents = WordExporter.GetWordDocuments();
 					if (documents != null && documents.Count > 0) {
-						List<IDestination> destinations = new List<IDestination>();
-						destinations.Add(new WordDestination());
+						var destinations = new List<IDestination>
+						{
+							new WordDestination()
+						};
 						foreach (string document in documents) {
 							destinations.Add(new WordDestination(document));
 						}
@@ -145,7 +116,7 @@ namespace GreenshotOfficePlugin {
 						WordExporter.InsertIntoNewDocument(tmpFile, null, null);
 						exportInformation.ExportMade = true;
 					} catch (Exception ex) {
-						LOG.Error(ex);
+						Log.Error(ex);
 						// TODO: Change to general logic in ProcessExport
 						surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetFormattedString("destination_exportfailed", Description));
 					}

@@ -352,7 +352,7 @@ EndSelection:<<<<<<<4
 					retrieveFormats = new[] { FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_17, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JFIF, DataFormats.Tiff, DataFormats.Dib, FORMAT_BITMAP, FORMAT_FILECONTENTS, FORMAT_GIF };
 				}
 				foreach (string currentFormat in retrieveFormats) {
-					if (formats.Contains(currentFormat)) {
+					if (formats != null && formats.Contains(currentFormat)) {
 						Log.InfoFormat("Found {0}, trying to retrieve.", currentFormat);
 						returnImage = GetImageForFormat(currentFormat, dataObject);
 					} else {
@@ -385,54 +385,57 @@ EndSelection:<<<<<<<4
 				if (format == FORMAT_17 || format == DataFormats.Dib) {
 					Log.Info("Found DIB stream, trying to process it.");
 					try {
-						byte[] dibBuffer = new byte[imageStream.Length];
-						imageStream.Read(dibBuffer, 0, dibBuffer.Length);
-						BITMAPINFOHEADER infoHeader = BinaryStructHelper.FromByteArray<BITMAPINFOHEADER>(dibBuffer);
-						if (!infoHeader.IsDibV5) {
-							Log.InfoFormat("Using special DIB <v5 format reader with biCompression {0}", infoHeader.biCompression);
-							int fileHeaderSize = Marshal.SizeOf(typeof(BITMAPFILEHEADER));
-							uint infoHeaderSize = infoHeader.biSize;
-							int fileSize = (int)(fileHeaderSize + infoHeader.biSize + infoHeader.biSizeImage);
+						if (imageStream != null)
+						{
+							byte[] dibBuffer = new byte[imageStream.Length];
+							imageStream.Read(dibBuffer, 0, dibBuffer.Length);
+							BITMAPINFOHEADER infoHeader = BinaryStructHelper.FromByteArray<BITMAPINFOHEADER>(dibBuffer);
+							if (!infoHeader.IsDibV5) {
+								Log.InfoFormat("Using special DIB <v5 format reader with biCompression {0}", infoHeader.biCompression);
+								int fileHeaderSize = Marshal.SizeOf(typeof(BITMAPFILEHEADER));
+								uint infoHeaderSize = infoHeader.biSize;
+								int fileSize = (int)(fileHeaderSize + infoHeader.biSize + infoHeader.biSizeImage);
 
-							BITMAPFILEHEADER fileHeader = new BITMAPFILEHEADER
-							{
-								bfType = BITMAPFILEHEADER.BM,
-								bfSize = fileSize,
-								bfReserved1 = 0,
-								bfReserved2 = 0,
-								bfOffBits = (int) (fileHeaderSize + infoHeaderSize + infoHeader.biClrUsed*4)
-							};
-
-							byte[] fileHeaderBytes = BinaryStructHelper.ToByteArray(fileHeader);
-
-							using (MemoryStream bitmapStream = new MemoryStream()) {
-								bitmapStream.Write(fileHeaderBytes, 0, fileHeaderSize);
-								bitmapStream.Write(dibBuffer, 0, dibBuffer.Length);
-								bitmapStream.Seek(0, SeekOrigin.Begin);
-								var image = ImageHelper.FromStream(bitmapStream);
-								if (image != null)
+								BITMAPFILEHEADER fileHeader = new BITMAPFILEHEADER
 								{
-									return image;
+									bfType = BITMAPFILEHEADER.BM,
+									bfSize = fileSize,
+									bfReserved1 = 0,
+									bfReserved2 = 0,
+									bfOffBits = (int) (fileHeaderSize + infoHeaderSize + infoHeader.biClrUsed*4)
+								};
+
+								byte[] fileHeaderBytes = BinaryStructHelper.ToByteArray(fileHeader);
+
+								using (MemoryStream bitmapStream = new MemoryStream()) {
+									bitmapStream.Write(fileHeaderBytes, 0, fileHeaderSize);
+									bitmapStream.Write(dibBuffer, 0, dibBuffer.Length);
+									bitmapStream.Seek(0, SeekOrigin.Begin);
+									var image = ImageHelper.FromStream(bitmapStream);
+									if (image != null)
+									{
+										return image;
+									}
 								}
-							}
-						} else {
-							Log.Info("Using special DIBV5 / Format17 format reader");
-							// CF_DIBV5
-							IntPtr gcHandle = IntPtr.Zero;
-							try {
-								GCHandle handle = GCHandle.Alloc(dibBuffer, GCHandleType.Pinned);
-								gcHandle = GCHandle.ToIntPtr(handle);
-								return
-									new Bitmap(infoHeader.biWidth, infoHeader.biHeight,
-										-(int)(infoHeader.biSizeImage / infoHeader.biHeight),
-										infoHeader.biBitCount == 32?PixelFormat.Format32bppArgb: PixelFormat.Format24bppRgb,
-										new IntPtr(handle.AddrOfPinnedObject().ToInt32() + infoHeader.OffsetToPixels + (infoHeader.biHeight - 1) * (int)(infoHeader.biSizeImage / infoHeader.biHeight))
-									);
-							} catch (Exception ex) {
-								Log.Error("Problem retrieving Format17 from clipboard.", ex);
-							} finally {
-								if (gcHandle == IntPtr.Zero) {
-									GCHandle.FromIntPtr(gcHandle).Free();
+							} else {
+								Log.Info("Using special DIBV5 / Format17 format reader");
+								// CF_DIBV5
+								IntPtr gcHandle = IntPtr.Zero;
+								try {
+									GCHandle handle = GCHandle.Alloc(dibBuffer, GCHandleType.Pinned);
+									gcHandle = GCHandle.ToIntPtr(handle);
+									return
+										new Bitmap(infoHeader.biWidth, infoHeader.biHeight,
+											-(int)(infoHeader.biSizeImage / infoHeader.biHeight),
+											infoHeader.biBitCount == 32?PixelFormat.Format32bppArgb: PixelFormat.Format24bppRgb,
+											new IntPtr(handle.AddrOfPinnedObject().ToInt32() + infoHeader.OffsetToPixels + (infoHeader.biHeight - 1) * (int)(infoHeader.biSizeImage / infoHeader.biHeight))
+										);
+								} catch (Exception ex) {
+									Log.Error("Problem retrieving Format17 from clipboard.", ex);
+								} finally {
+									if (gcHandle == IntPtr.Zero) {
+										GCHandle.FromIntPtr(gcHandle).Free();
+									}
 								}
 							}
 						}
@@ -454,7 +457,7 @@ EndSelection:<<<<<<<4
 					}
 				}
 			} catch (Exception streamImageEx) {
-				Log.Error(string.Format("Problem retrieving {0} from clipboard.", format), streamImageEx);
+				Log.Error($"Problem retrieving {format} from clipboard.", streamImageEx);
 			}
 			return null;
 		}
@@ -495,10 +498,10 @@ EndSelection:<<<<<<<4
 			utf8EncodedHtmlString= utf8EncodedHtmlString.Replace("${file}", filename.Replace("\\","/"));
 			StringBuilder sb=new StringBuilder();
 			sb.Append(utf8EncodedHtmlString);
-			sb.Replace("<<<<<<<1", (utf8EncodedHtmlString.IndexOf("<HTML>") + "<HTML>".Length).ToString("D8"));
-			sb.Replace("<<<<<<<2", (utf8EncodedHtmlString.IndexOf("</HTML>")).ToString("D8"));
-			sb.Replace("<<<<<<<3", (utf8EncodedHtmlString.IndexOf("<!--StartFragment -->")+"<!--StartFragment -->".Length).ToString("D8"));
-			sb.Replace("<<<<<<<4", (utf8EncodedHtmlString.IndexOf("<!--EndFragment -->")).ToString("D8"));
+			sb.Replace("<<<<<<<1", (utf8EncodedHtmlString.IndexOf("<HTML>", StringComparison.Ordinal) + "<HTML>".Length).ToString("D8"));
+			sb.Replace("<<<<<<<2", (utf8EncodedHtmlString.IndexOf("</HTML>", StringComparison.Ordinal)).ToString("D8"));
+			sb.Replace("<<<<<<<3", (utf8EncodedHtmlString.IndexOf("<!--StartFragment -->", StringComparison.Ordinal)+"<!--StartFragment -->".Length).ToString("D8"));
+			sb.Replace("<<<<<<<4", (utf8EncodedHtmlString.IndexOf("<!--EndFragment -->", StringComparison.Ordinal)).ToString("D8"));
 			return sb.ToString(); 
 		}
 
@@ -510,13 +513,14 @@ EndSelection:<<<<<<<4
 			utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${data}", Convert.ToBase64String(pngStream.GetBuffer(),0, (int)pngStream.Length));
 			StringBuilder sb=new StringBuilder();
 			sb.Append(utf8EncodedHtmlString);
-			sb.Replace("<<<<<<<1", (utf8EncodedHtmlString.IndexOf("<HTML>") + "<HTML>".Length).ToString("D8"));
-			sb.Replace("<<<<<<<2", (utf8EncodedHtmlString.IndexOf("</HTML>")).ToString("D8"));
-			sb.Replace("<<<<<<<3", (utf8EncodedHtmlString.IndexOf("<!--StartFragment -->")+"<!--StartFragment -->".Length).ToString("D8"));
-			sb.Replace("<<<<<<<4", (utf8EncodedHtmlString.IndexOf("<!--EndFragment -->")).ToString("D8"));
+			sb.Replace("<<<<<<<1", (utf8EncodedHtmlString.IndexOf("<HTML>", StringComparison.Ordinal) + "<HTML>".Length).ToString("D8"));
+			sb.Replace("<<<<<<<2", (utf8EncodedHtmlString.IndexOf("</HTML>", StringComparison.Ordinal)).ToString("D8"));
+			sb.Replace("<<<<<<<3", (utf8EncodedHtmlString.IndexOf("<!--StartFragment -->", StringComparison.Ordinal)+"<!--StartFragment -->".Length).ToString("D8"));
+			sb.Replace("<<<<<<<4", (utf8EncodedHtmlString.IndexOf("<!--EndFragment -->", StringComparison.Ordinal)).ToString("D8"));
 			return sb.ToString(); 
 		}
 
+		private const int BITMAPFILEHEADER_LENGTH = 14;
 		/// <summary>
 		/// Set an Image to the clipboard
 		/// This method will place images to the clipboard depending on the ClipboardFormats setting.
@@ -526,7 +530,6 @@ EndSelection:<<<<<<<4
 		/// When pasting a Dib in PP 2003 the Bitmap is somehow shifted left!
 		/// For this problem the user should not use the direct paste (=Dib), but select Bitmap
 		/// </summary>
-		private const int BITMAPFILEHEADER_LENGTH = 14;
 		public static void SetClipboardData(ISurface surface) {
 			DataObject dataObject = new DataObject();
 
@@ -553,8 +556,8 @@ EndSelection:<<<<<<<4
 						// Set the PNG stream
 						dataObject.SetData(FORMAT_PNG, false, pngStream);
 					}
-				} catch (Exception pngEX) {
-					Log.Error("Error creating PNG for the Clipboard.", pngEX);
+				} catch (Exception pngEx) {
+					Log.Error("Error creating PNG for the Clipboard.", pngEx);
 				}
 
 				try {
@@ -650,20 +653,10 @@ EndSelection:<<<<<<<4
 					// Place the DataObject to the clipboard
 					SetDataObject(dataObject, true);
 				}
-				
-				if (pngStream != null) {
-					pngStream.Dispose();
-					pngStream = null;
-				}
 
-				if (dibStream != null) {
-					dibStream.Dispose();
-					dibStream = null;
-				}
-				if (dibV5Stream != null) {
-					dibV5Stream.Dispose();
-					dibV5Stream = null;
-				}
+				pngStream?.Dispose();
+				dibStream?.Dispose();
+				dibV5Stream?.Dispose();
 				// cleanup if needed
 				if (disposeImage) {
 					imageToSave?.Dispose();

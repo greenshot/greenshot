@@ -43,13 +43,25 @@
     <Compile Include="Controls\GreenshotRadioButton.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Effects\AdjustEffect.cs" />
+    <Compile Include="Effects\BorderEffect.cs" />
     <Compile Include="Core\CaptureHandler.cs" />
+    <Compile Include="Core\EffectConverter.cs" />
     <Compile Include="Core\EventDelay.cs" />
     <Compile Include="Core\FastBitmap.cs" />
     <Compile Include="Core\Func.cs" />
+    <Compile Include="Effects\GrayscaleEffect.cs" />
+    <Compile Include="Effects\IEffect.cs" />
     <Compile Include="Core\IImage.cs" />
     <Compile Include="Core\ImageWrapper.cs" />
+    <Compile Include="Effects\InvertEffect.cs" />
+    <Compile Include="Effects\MonochromeEffect.cs" />
     <Compile Include="Core\OperatingSystemExtensions.cs" />
+    <Compile Include="Effects\ReduceColorsEffect.cs" />
+    <Compile Include="Effects\ResizeCanvasEffect.cs" />
+    <Compile Include="Effects\ResizeEffect.cs" />
+    <Compile Include="Effects\RotateEffect.cs" />
+    <Compile Include="Effects\TornEdgeEffect.cs" />
     <Compile Include="Core\WmInputLangChangeRequestFilter.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="IEInterop\IHTMLBodyElement.cs" />
@@ -172,7 +184,7 @@
     <Compile Include="Core\ClipboardHelper.cs" />
     <Compile Include="Core\CoreConfiguration.cs" />
     <Compile Include="Core\CredentialsHelper.cs" />
-    <Compile Include="Core\Effects.cs" />
+    <Compile Include="Effects\DropShadowEffect.cs" />
     <Compile Include="Core\StringExtensions.cs" />
     <Compile Include="Core\FilenameHelper.cs" />
     <Compile Include="Core\ImageOutput.cs" />

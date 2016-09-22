@@ -31,22 +31,22 @@ namespace Greenshot.IniFile {
 	/// A container to be able to pass the value from a IniSection around.
 	/// </summary>
 	public class IniValue {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(IniValue));
-		private readonly PropertyInfo propertyInfo;
-		private readonly FieldInfo fieldInfo;
-		private readonly IniSection containingIniSection;
-		private readonly IniPropertyAttribute attributes;
+		private static readonly ILog Log = LogManager.GetLogger(typeof(IniValue));
+		private readonly PropertyInfo _propertyInfo;
+		private readonly FieldInfo _fieldInfo;
+		private readonly IniSection _containingIniSection;
+		private readonly IniPropertyAttribute _attributes;
 
 		public IniValue(IniSection containingIniSection, PropertyInfo propertyInfo, IniPropertyAttribute iniPropertyAttribute) {
-			this.containingIniSection = containingIniSection;
-			this.propertyInfo = propertyInfo;
-			attributes = iniPropertyAttribute;
+			_containingIniSection = containingIniSection;
+			_propertyInfo = propertyInfo;
+			_attributes = iniPropertyAttribute;
 		}
 
 		public IniValue(IniSection containingIniSection, FieldInfo fieldInfo, IniPropertyAttribute iniPropertyAttribute) {
-			this.containingIniSection = containingIniSection;
-			this.fieldInfo = fieldInfo;
-			attributes = iniPropertyAttribute;
+			_containingIniSection = containingIniSection;
+			_fieldInfo = fieldInfo;
+			_attributes = iniPropertyAttribute;
 		}
 		
 		/// <summary>
@@ -54,14 +54,14 @@ namespace Greenshot.IniFile {
 		/// </summary>
 		public bool IsFixed {
 			get {
-				if (attributes != null) {
-					return attributes.FixedValue;
+				if (_attributes != null) {
+					return _attributes.FixedValue;
 				}
 				return false;
 			}
 			set {
-				if (attributes != null) {
-					attributes.FixedValue = value;
+				if (_attributes != null) {
+					_attributes.FixedValue = value;
 				}
 			}
 		}
@@ -71,14 +71,14 @@ namespace Greenshot.IniFile {
 		/// </summary>
 		public bool IsExpert {
 			get {
-				if (attributes != null) {
-					return attributes.Expert;
+				if (_attributes != null) {
+					return _attributes.Expert;
 				}
 				return false;
 			}
 			set {
-				if (attributes != null) {
-					attributes.Expert = value;
+				if (_attributes != null) {
+					_attributes.Expert = value;
 				}
 			}
 		}
@@ -87,65 +87,49 @@ namespace Greenshot.IniFile {
 		/// <summary>
 		/// Return true when the value is can be changed by the GUI
 		/// </summary>
-		public bool IsEditable {
-			get {
-				return !IsFixed;
-			}
-		}
+		public bool IsEditable => !IsFixed;
 
 		/// <summary>
 		/// Return true when the value is visible in the GUI
 		/// </summary>
-		public bool IsVisible {
-			get {
-				return !IsExpert;
-			}
-		}
+		public bool IsVisible => !IsExpert;
 
 		public MemberInfo MemberInfo {
-			get {
-				if (propertyInfo == null) {
-					return fieldInfo;
-				} else {
-					return propertyInfo;
+			get
+			{
+				if (_propertyInfo == null) {
+					return _fieldInfo;
 				}
+				return _propertyInfo;
 			}
 		}
 
 		/// <summary>
 		/// Returns the IniSection this value is contained in
 		/// </summary>
-		public IniSection ContainingIniSection {
-			get {
-				return containingIniSection;
-			}
-		}
-		
+		public IniSection ContainingIniSection => _containingIniSection;
+
 		/// <summary>
 		/// Get the in the ini file defined attributes
 		/// </summary>
-		public IniPropertyAttribute Attributes {
-			get {
-				return attributes;
-			}
-		}
-		
+		public IniPropertyAttribute Attributes => _attributes;
+
 		/// <summary>
 		/// Get the value for this IniValue
 		/// </summary>
 		public object Value {
-			get {
-				if (propertyInfo == null) {
-					return fieldInfo.GetValue(containingIniSection);
-				} else {
-					return propertyInfo.GetValue(containingIniSection, null);					
+			get
+			{
+				if (_propertyInfo == null) {
+					return _fieldInfo.GetValue(_containingIniSection);
 				}
+				return _propertyInfo.GetValue(_containingIniSection, null);
 			}
 			set {
-				if (propertyInfo == null) {
-					fieldInfo.SetValue(containingIniSection, value);
+				if (_propertyInfo == null) {
+					_fieldInfo.SetValue(_containingIniSection, value);
 				} else {
-					propertyInfo.SetValue(containingIniSection, value, null);
+					_propertyInfo.SetValue(_containingIniSection, value, null);
 				}
 			}
 		}
@@ -155,13 +139,9 @@ namespace Greenshot.IniFile {
 		/// </summary>
 		public Type ValueType {
 			get {
-				Type valueType = null;
-				if (propertyInfo == null) {
-					valueType = fieldInfo.FieldType;
-				} else {
-					valueType = propertyInfo.PropertyType;
-				}
-				if (valueType.IsGenericType && valueType.GetGenericTypeDefinition().Equals(typeof(Nullable<>))) {
+				var valueType = _propertyInfo?.PropertyType ?? _fieldInfo.FieldType;
+				var genericTypeDefinition = valueType.GetGenericTypeDefinition();
+				if (genericTypeDefinition != null && (valueType.IsGenericType && genericTypeDefinition == typeof(Nullable<>))) {
 					// We are dealing with a generic type that is nullable
 					valueType = Nullable.GetUnderlyingType(valueType);
 				}
@@ -178,29 +158,29 @@ namespace Greenshot.IniFile {
 			object myValue = Value;
 			Type valueType = ValueType;
 			if (myValue == null) {
-				if (attributes.ExcludeIfNull) {
+				if (_attributes.ExcludeIfNull) {
 					return;
 				}
-				if (attributes.DefaultValue != null) {
-					myValue = attributes.DefaultValue;
+				if (_attributes.DefaultValue != null) {
+					myValue = _attributes.DefaultValue;
 					valueType = typeof(string);
 				} else {
-					myValue = containingIniSection.GetDefault(attributes.Name);
+					myValue = _containingIniSection.GetDefault(_attributes.Name);
 					if (myValue != null) {
 						valueType = myValue.GetType();
 					}
 				}
 			}
 			if (myValue == null) {
-				if (attributes.ExcludeIfNull) {
+				if (_attributes.ExcludeIfNull) {
 					return;
 				}
 			}
 			if (!onlyProperties) {
-				writer.WriteLine("; {0}", attributes.Description);
+				writer.WriteLine("; {0}", _attributes.Description);
 			}
 			if (myValue == null) {
-				writer.WriteLine("{0}=", attributes.Name);
+				writer.WriteLine("{0}=", _attributes.Name);
 				return;
 			}
 			if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) {
@@ -218,10 +198,10 @@ namespace Greenshot.IniFile {
 					var key = current.Invoke(enumerator, null);
 					var valueObject = item.GetValue(myValue, new[] { key });
 					// Write to ini file!
-					writer.WriteLine("{0}.{1}={2}", attributes.Name, ConvertValueToString(valueType1, key, attributes.Separator), ConvertValueToString(valueType2, valueObject, attributes.Separator));
+					writer.WriteLine("{0}.{1}={2}", _attributes.Name, ConvertValueToString(valueType1, key, _attributes.Separator), ConvertValueToString(valueType2, valueObject, _attributes.Separator));
 				}
 			} else {
-				writer.WriteLine("{0}={1}", attributes.Name, ConvertValueToString(valueType, myValue, attributes.Separator));
+				writer.WriteLine("{0}={1}", _attributes.Name, ConvertValueToString(valueType, myValue, _attributes.Separator));
 			}
 		}
 
@@ -230,10 +210,10 @@ namespace Greenshot.IniFile {
 		/// </summary>
 		/// <returns></returns>
 		public void SetValueFromProperties(IDictionary<string, string> properties) {
-			string propertyName = attributes.Name;
+			string propertyName = _attributes.Name;
 			string propertyValue = null;
 			if (properties.ContainsKey(propertyName) && properties[propertyName] != null) {
-				propertyValue = containingIniSection.PreCheckValue(propertyName, properties[propertyName]);
+				propertyValue = _containingIniSection.PreCheckValue(propertyName, properties[propertyName]);
 			}
 			UseValueOrDefault(propertyValue);
 		}
@@ -244,23 +224,23 @@ namespace Greenshot.IniFile {
 		/// <param name="propertyValue"></param>
 		public void UseValueOrDefault(string propertyValue) {
 			Type valueType = ValueType;
-			string propertyName = attributes.Name;
-			string defaultValue = attributes.DefaultValue;
+			string propertyName = _attributes.Name;
+			string defaultValue = _attributes.DefaultValue;
 			bool defaultUsed = false;
-			object defaultValueFromConfig = containingIniSection.GetDefault(propertyName);
+			object defaultValueFromConfig = _containingIniSection.GetDefault(propertyName);
 
 			if (string.IsNullOrEmpty(propertyValue)) {
 				if (defaultValue != null && defaultValue.Trim().Length != 0) {
 					propertyValue = defaultValue;
 					defaultUsed = true;
 				} else if (defaultValueFromConfig != null) {
-					LOG.DebugFormat("Default for Property {0} implemented!", propertyName);
+					Log.DebugFormat("Default for Property {0} implemented!", propertyName);
 				} else {
-					if (attributes.ExcludeIfNull) {
+					if (_attributes.ExcludeIfNull) {
 						Value = null;
 						return;
 					}
-					LOG.DebugFormat("Property {0} has no value or default value!", propertyName);
+					Log.DebugFormat("Property {0} has no value or default value!", propertyName);
 				}
 			}
 			// Now set the value
@@ -272,7 +252,7 @@ namespace Greenshot.IniFile {
 				object dictionary = Activator.CreateInstance(valueType);
 				MethodInfo addMethodInfo = valueType.GetMethod("Add");
 				bool addedElements = false;
-				IDictionary<string, string> properties = IniConfig.PropertiesForSection(containingIniSection);
+				IDictionary<string, string> properties = IniConfig.PropertiesForSection(_containingIniSection);
 				foreach (string key in properties.Keys) {
 					if (key != null && key.StartsWith(propertyName + ".")) {
 						// What "key" do we need to store it under?
@@ -281,15 +261,15 @@ namespace Greenshot.IniFile {
 						object newValue1 = null;
 						object newValue2 = null;
 						try {
-							newValue1 = ConvertStringToValueType(type1, subPropertyName, attributes.Separator);
+							newValue1 = ConvertStringToValueType(type1, subPropertyName, _attributes.Separator);
 						} catch (Exception ex) {
-							LOG.Warn(ex);
+							Log.Warn(ex);
 							//LOG.Error("Problem converting " + subPropertyName + " to type " + type1.FullName, e);
 						}
 						try {
-							newValue2 = ConvertStringToValueType(type2, stringValue, attributes.Separator);
+							newValue2 = ConvertStringToValueType(type2, stringValue, _attributes.Separator);
 						} catch (Exception ex) {
-							LOG.Warn(ex);
+							Log.Warn(ex);
 							//LOG.Error("Problem converting " + stringValue + " to type " + type2.FullName, e);
 						}
 						addMethodInfo.Invoke(dictionary, new[] { newValue1, newValue2 });
@@ -300,31 +280,33 @@ namespace Greenshot.IniFile {
 				if (addedElements) {
 					Value = dictionary;
 					return;
-				} else if (defaultValueFromConfig != null) {
+				}
+				if (defaultValueFromConfig != null) {
 					Value = defaultValueFromConfig;
 					return;
 				}
 			} else if (!string.IsNullOrEmpty(propertyValue)) {
-				if (valueType.IsGenericType && valueType.GetGenericTypeDefinition().Equals(typeof(Nullable<>))) {
+				var genericTypeDefinition = valueType.GetGenericTypeDefinition();
+				if (genericTypeDefinition != null && (valueType.IsGenericType && genericTypeDefinition == typeof(Nullable<>))) {
 					// We are dealing with a generic type that is nullable
 					valueType = Nullable.GetUnderlyingType(valueType);
 				}
-				object newValue = null;
+				object newValue;
 				try {
-					newValue = ConvertStringToValueType(valueType, propertyValue, attributes.Separator);
+					newValue = ConvertStringToValueType(valueType, propertyValue, _attributes.Separator);
 				} catch (Exception ex1) {
 					newValue = null;
 					if (!defaultUsed) {
 						try {
-							LOG.WarnFormat("Problem '{0}' while converting {1} to type {2} trying fallback...", ex1.Message, propertyValue, valueType.FullName);
-							newValue = ConvertStringToValueType(valueType, defaultValue, attributes.Separator);
+							Log.WarnFormat("Problem '{0}' while converting {1} to type {2} trying fallback...", ex1.Message, propertyValue, valueType.FullName);
+							newValue = ConvertStringToValueType(valueType, defaultValue, _attributes.Separator);
 							ContainingIniSection.IsDirty = true;
-							LOG.InfoFormat("Used default value {0} for property {1}", defaultValue, propertyName);
+							Log.InfoFormat("Used default value {0} for property {1}", defaultValue, propertyName);
 						} catch (Exception ex2) {
-							LOG.Warn("Problem converting fallback value " + defaultValue + " to type " + valueType.FullName, ex2);
+							Log.Warn("Problem converting fallback value " + defaultValue + " to type " + valueType.FullName, ex2);
 						}
 					} else {
-						LOG.Warn("Problem converting " + propertyValue + " to type " + valueType.FullName, ex1);
+						Log.Warn("Problem converting " + propertyValue + " to type " + valueType.FullName, ex1);
 					}
 				}
 				Value = newValue;
@@ -340,7 +322,7 @@ namespace Greenshot.IniFile {
 				try {
 					Value = Activator.CreateInstance(ValueType);
 				} catch (Exception) {
-					LOG.WarnFormat("Couldn't create instance of {0} for {1}, using default value.", ValueType.FullName, attributes.Name);
+					Log.WarnFormat("Couldn't create instance of {0} for {1}, using default value.", ValueType.FullName, _attributes.Name);
 					Value = default(ValueType);
 				}
 			} else {
@@ -371,18 +353,18 @@ namespace Greenshot.IniFile {
 				object list = Activator.CreateInstance(valueType);
 				// Logic for List<>
 				string[] arrayValues = valueString.Split(new[] { arraySeparator }, StringSplitOptions.None);
-				if (arrayValues == null || arrayValues.Length == 0) {
+				if (arrayValues.Length == 0) {
 					return list;
 				}
 				MethodInfo addMethodInfo = valueType.GetMethod("Add");
 
 				foreach (string arrayValue in arrayValues) {
-					if (arrayValue != null && arrayValue.Length > 0) {
+					if (!string.IsNullOrEmpty(arrayValue)) {
 						object newValue = null;
 						try {
 							newValue = ConvertStringToValueType(valueType.GetGenericArguments()[0], arrayValue, separator);
 						} catch (Exception ex) {
-							LOG.Warn("Problem converting " + arrayValue + " to type " + valueType.FullName, ex);
+							Log.Warn("Problem converting " + arrayValue + " to type " + valueType.FullName, ex);
 						}
 						if (newValue != null) {
 							addMethodInfo.Invoke(list, new[] { newValue });
@@ -394,7 +376,7 @@ namespace Greenshot.IniFile {
 			//LOG.Debug("No convertor for " + fieldType.ToString());
 			if (valueType == typeof(object) && valueString.Length > 0) {
 				//LOG.Debug("Parsing: " + valueString);
-				string[] values = valueString.Split(new[] { ':' });
+				string[] values = valueString.Split(':');
 				//LOG.Debug("Type: " + values[0]);
 				//LOG.Debug("Value: " + values[1]);
 				Type fieldTypeForValue = Type.GetType(values[0], true);
@@ -402,25 +384,7 @@ namespace Greenshot.IniFile {
 				return ConvertStringToValueType(fieldTypeForValue, values[1], separator);
 			}
 			TypeConverter converter = TypeDescriptor.GetConverter(valueType);
-			if (converter != null) {
-				return converter.ConvertFromInvariantString(valueString);
-			} else if (valueType.IsEnum) {
-				if (valueString.Length > 0) {
-					try {
-						return Enum.Parse(valueType, valueString);
-					} catch (ArgumentException) {
-						//LOG.InfoFormat("Couldn't match {0} to {1}, trying case-insentive match", valueString, fieldType);
-						foreach (Enum enumValue in Enum.GetValues(valueType)) {
-							if (enumValue.ToString().Equals(valueString, StringComparison.InvariantCultureIgnoreCase)) {
-								//LOG.Info("Match found...");
-								return enumValue;
-							}
-						}
-						throw;
-					}
-				}
-			}
-			return null;
+			return converter.ConvertFromInvariantString(valueString);
 		}
 
 		/// <summary>
@@ -428,7 +392,7 @@ namespace Greenshot.IniFile {
 		/// </summary>
 		/// <returns>string representation of this</returns>
 		public override string ToString() {
-			return ConvertValueToString(ValueType, Value, attributes.Separator);
+			return ConvertValueToString(ValueType, Value, _attributes.Separator);
 		}
 
 		/// <summary>
@@ -479,14 +443,10 @@ namespace Greenshot.IniFile {
 				if (assemblyName.StartsWith("Green")) {
 					assemblyName = assemblyName.Substring(0, assemblyName.IndexOf(','));
 				}
-				return string.Format("{0},{1}:{2}", valueTypeName, assemblyName, ourValue);
+				return $"{valueTypeName},{assemblyName}:{ourValue}";
 			}
 			TypeConverter converter = TypeDescriptor.GetConverter(valueType);
-			if (converter != null) {
-				return converter.ConvertToInvariantString(valueObject);
-			}
-			// All other types
-			return valueObject.ToString();
+			return converter.ConvertToInvariantString(valueObject);
 		}
 	}
 }

@@ -34,8 +34,6 @@ namespace Greenshot.Helpers {
 		/// <param name="y2">The point on the y-axis of the second point</param>
 		/// <returns></returns>
 		public static int Distance2D(int x1, int y1, int x2, int y2) {
-			//Our end result
-			int result = 0;
 			//Take x2-x1, then square it
 			double part1 = Math.Pow(x2 - x1, 2);
 			//Take y2-y1, then square it
@@ -43,9 +41,7 @@ namespace Greenshot.Helpers {
 			//Add both of the parts together
 			double underRadical = part1 + part2;
 			//Get the square root of the parts
-			result = (int)Math.Sqrt(underRadical);
-			//Return our result
-			return result;
+			return (int)Math.Sqrt(underRadical);
 		}
 		
 		/// <summary>

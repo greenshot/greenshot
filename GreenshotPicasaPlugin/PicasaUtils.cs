@@ -30,7 +30,7 @@ namespace GreenshotPicasaPlugin {
 	/// </summary>
 	public static class PicasaUtils {
 		private const string PicasaScope = "https://picasaweb.google.com/data/";
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PicasaUtils));
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(PicasaUtils));
 		private static readonly PicasaConfiguration Config = IniConfig.GetIniSection<PicasaConfiguration>();
 		private const string AuthUrl = "https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={ClientId}&redirect_uri={RedirectUrl}&state={State}&scope=" + PicasaScope;
 		private const string TokenUrl = "https://www.googleapis.com/oauth2/v3/token";
@@ -46,18 +46,20 @@ namespace GreenshotPicasaPlugin {
 		/// <returns>PicasaResponse</returns>
 		public static string UploadToPicasa(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename) {
 			// Fill the OAuth2Settings
-			OAuth2Settings settings = new OAuth2Settings();
-			settings.AuthUrlPattern = AuthUrl;
-			settings.TokenUrl = TokenUrl;
-			settings.CloudServiceName = "Picasa";
-			settings.ClientId = PicasaCredentials.ClientId;
-			settings.ClientSecret = PicasaCredentials.ClientSecret;
-			settings.AuthorizeMode = OAuth2AuthorizeMode.LocalServer;
+			var settings = new OAuth2Settings
+			{
+				AuthUrlPattern = AuthUrl,
+				TokenUrl = TokenUrl,
+				CloudServiceName = "Picasa",
+				ClientId = PicasaCredentials.ClientId,
+				ClientSecret = PicasaCredentials.ClientSecret,
+				AuthorizeMode = OAuth2AuthorizeMode.LocalServer,
+				RefreshToken = Config.RefreshToken,
+				AccessToken = Config.AccessToken,
+				AccessTokenExpires = Config.AccessTokenExpires
+			};
 
 			// Copy the settings from the config, which is kept in memory and on the disk
-			settings.RefreshToken = Config.RefreshToken;
-			settings.AccessToken = Config.AccessToken;
-			settings.AccessTokenExpires = Config.AccessTokenExpires;
 
 			try {
 				var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.POST, string.Format(UploadUrl, Config.UploadUser, Config.UploadAlbum), settings);
@@ -108,7 +110,7 @@ namespace GreenshotPicasaPlugin {
 					return url;
 				}
 			} catch(Exception e) {
-				LOG.ErrorFormat("Could not parse Picasa response due to error {0}, response was: {1}", e.Message, response);
+				Log.ErrorFormat("Could not parse Picasa response due to error {0}, response was: {1}", e.Message, response);
 			}
 			return null;
 		}

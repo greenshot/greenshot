@@ -316,13 +316,9 @@ namespace Greenshot.Interop {
 		/// </returns>
 		public override IMessage Invoke(IMessage myMessage) {
 			IMethodCallMessage callMessage = myMessage as IMethodCallMessage;
-			if (null == callMessage) {
-				//LOG.DebugFormat("Message type not implemented: {0}", myMessage.GetType().ToString());
-				return null;
-			}
 
-			MethodInfo method = callMessage.MethodBase as MethodInfo;
-			if (null == method) {
+			MethodInfo method = callMessage?.MethodBase as MethodInfo;
+			if (method == null) {
 				//LOG.DebugFormat("Unrecognized Invoke call: {0}", callMessage.MethodBase.ToString());
 				return null;
 			}
@@ -336,18 +332,8 @@ namespace Greenshot.Interop {
 			BindingFlags flags = BindingFlags.InvokeMethod;
 			int argCount = callMessage.ArgCount;
 
-			object invokeObject;
-			Type invokeType;
-			Type byValType;
-
-			object[] args;
-			object arg;
-			COMWrapper[] originalArgs;
-			COMWrapper wrapper;
-
 			ParameterModifier[] argModifiers = null;
 			ParameterInfo[] parameters = null;
-			ParameterInfo parameter;
 
 			if ("Dispose" == methodName && 0 == argCount && typeof(void) == returnType) {
 				Dispose();
@@ -365,9 +351,11 @@ namespace Greenshot.Interop {
 					return new ReturnMessage(new ArgumentNullException(nameof(handler)), callMessage);
 				}
 			} else {
-				invokeObject = _comObject;
-				invokeType = _comType;
+				var invokeObject = _comObject;
+				var invokeType = _comType;
 
+				ParameterInfo parameter;
+				object[] args;
 				if (methodName.StartsWith("get_")) {
 					// Property Get
 					methodName = methodName.Substring(4);
@@ -401,6 +389,9 @@ namespace Greenshot.Interop {
 				}
 
 				// Un-wrap wrapped COM objects before passing to the method
+				COMWrapper[] originalArgs;
+				COMWrapper wrapper;
+				Type byValType;
 				if (null == args || 0 == args.Length) {
 					originalArgs = null;
 				} else {
@@ -412,7 +403,7 @@ namespace Greenshot.Interop {
 								originalArgs[i] = wrapper;
 								args[i] = wrapper._comObject;
 							}
-						} else if (0 != outArgsCount && argModifiers[0][i]) {
+						} else if (argModifiers != null && (0 != outArgsCount && argModifiers[0][i])) {
 							byValType = GetByValType(parameters[i].ParameterType);
 							if (byValType.IsInterface) {
 								// If we're passing a COM object by reference, and
@@ -453,42 +444,48 @@ namespace Greenshot.Interop {
 
 				// Handle out args
 				if (0 != outArgsCount) {
-					outArgs = new object[args.Length];
-					for (int i = 0; i < parameters.Length; i++) {
-						if (!argModifiers[0][i]) {
-							continue;
-						}
-
-						arg = args[i];
-						if (null == arg) {
-							continue;
-						}
-
-						parameter = parameters[i];
-						wrapper = null;
-
-						byValType = GetByValType(parameter.ParameterType);
-						if (typeof(decimal) == byValType) {
-							if (arg is CurrencyWrapper) {
-								arg = ((CurrencyWrapper)arg).WrappedObject;
+					if (args != null && parameters != null)
+					{
+						outArgs = new object[args.Length];
+						for (int i = 0; i < parameters.Length; i++) {
+							if (argModifiers != null && !argModifiers[0][i]) {
+								continue;
 							}
-						} else if (byValType.IsEnum) {
-							arg = Enum.Parse(byValType, arg.ToString());
-						} else if (byValType.IsInterface) {
-							if (Marshal.IsComObject(arg)) {
-								wrapper = originalArgs[i];
-								if (null != wrapper && wrapper._comObject != arg) {
-									wrapper.Dispose();
-									wrapper = null;
-								}
 
-								if (null == wrapper) {
-									wrapper = new COMWrapper(arg, byValType);
-								}
-								arg = wrapper.GetTransparentProxy();
+							var arg = args[i];
+							if (null == arg) {
+								continue;
 							}
+
+							parameter = parameters[i];
+							wrapper = null;
+
+							byValType = GetByValType(parameter.ParameterType);
+							if (typeof(decimal) == byValType) {
+								if (arg is CurrencyWrapper) {
+									arg = ((CurrencyWrapper)arg).WrappedObject;
+								}
+							} else if (byValType.IsEnum) {
+								arg = Enum.Parse(byValType, arg.ToString());
+							} else if (byValType.IsInterface) {
+								if (Marshal.IsComObject(arg)) {
+									if (originalArgs != null)
+									{
+										wrapper = originalArgs[i];
+									}
+									if (null != wrapper && wrapper._comObject != arg) {
+										wrapper.Dispose();
+										wrapper = null;
+									}
+
+									if (null == wrapper) {
+										wrapper = new COMWrapper(arg, byValType);
+									}
+									arg = wrapper.GetTransparentProxy();
+								}
+							}
+							outArgs[i] = arg;
 						}
-						outArgs[i] = arg;
 					}
 				}
 			}

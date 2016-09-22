@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 
@@ -27,6 +28,7 @@ namespace Greenshot.Drawing {
 	/// TODO: currently this is only used in the capture form, we might move this code directly to there!
 	/// </summary>
 	public abstract class RoundedRectangle {
+		[Flags]
 	    public enum RectangleCorners {
 	      None = 0, TopLeft = 1, TopRight = 2, 
 	      BottomLeft = 4, BottomRight = 8,

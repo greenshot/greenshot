@@ -37,16 +37,12 @@ namespace GreenshotPlugin.Core {
 	/// </summary>
 	public class LogHelper {
 		private static bool _isLog4NetConfigured;
-		private const string INIT_MESSAGE = "Greenshot initialization of log system failed";
+		private const string InitMessage = "Greenshot initialization of log system failed";
 
-		public static bool IsInitialized {
-			get {
-				return _isLog4NetConfigured;
-			}
-		}
+		public static bool IsInitialized => _isLog4NetConfigured;
 
 		// Initialize Log4J
-		public static string InitializeLog4NET() {
+		public static string InitializeLog4Net() {
 			// Setup log4j, currently the file is called log4net.xml
 			foreach (var logName in new[] { "log4net.xml" , @"App\Greenshot\log4net-portable.xml"})
 			{
@@ -60,7 +56,7 @@ namespace GreenshotPlugin.Core {
 					}
 					catch (Exception ex)
 					{
-						MessageBox.Show(ex.Message, INIT_MESSAGE, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+						MessageBox.Show(ex.Message, InitMessage, MessageBoxButtons.OK, MessageBoxIcon.Warning);
 					}
 				}
 			}
@@ -74,7 +70,7 @@ namespace GreenshotPlugin.Core {
 						IniConfig.ForceIniInStartupPath();
 					}
 				} catch (Exception ex){
-					MessageBox.Show(ex.Message, INIT_MESSAGE, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+					MessageBox.Show(ex.Message, InitMessage, MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				}
 			}
 
@@ -82,13 +78,19 @@ namespace GreenshotPlugin.Core {
 				// Get the logfile name
 				try {
 					if (((Hierarchy)LogManager.GetRepository()).Root.Appenders.Count > 0) {
-						foreach (IAppender appender in ((Hierarchy)LogManager.GetRepository()).Root.Appenders) {
-							if (appender is FileAppender) {
-								return ((FileAppender)appender).File;
+						foreach (IAppender appender in ((Hierarchy)LogManager.GetRepository()).Root.Appenders)
+						{
+							var fileAppender = appender as FileAppender;
+							if (fileAppender != null) {
+								return fileAppender.File;
 							}
 						}
 					}
-				} catch {}
+				}
+				catch
+				{
+					// ignored
+				}
 			}
 			return null;
 		}

@@ -253,8 +253,8 @@ namespace Greenshot.Interop.Office {
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.outlook.propertyaccessor_members.aspx
 	public interface IPropertyAccessor : ICommon {
-		void SetProperty(string SchemaName, Object Value);
-		Object GetProperty(string SchemaName);
+		void SetProperty(string SchemaName, object Value);
+		object GetProperty(string SchemaName);
 	}
 
 	// Schema definitions for the MAPI properties
@@ -363,7 +363,7 @@ namespace Greenshot.Interop.Office {
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.outlook._application.inspectors.aspx
 	public interface IInspectors : ICommon, ICollection, IEnumerable {
 		// Use index + 1!!
-		IInspector this[Object Index] {
+		IInspector this[object Index] {
 			get;
 		}
 	}
@@ -374,7 +374,7 @@ namespace Greenshot.Interop.Office {
 	/// </summary>
 	public interface IExplorers : ICommon, ICollection, IEnumerable {
 		// Use index + 1!!
-		IExplorer this[Object Index] {
+		IExplorer this[object Index] {
 			get;
 		}
 	}

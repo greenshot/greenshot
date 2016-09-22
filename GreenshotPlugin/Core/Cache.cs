@@ -30,11 +30,11 @@ namespace GreenshotPlugin.Core {
 	/// <typeparam name="TK">Type of key</typeparam>
 	/// <typeparam name="TV">Type of value</typeparam>
 	public class Cache<TK, TV> {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(Cache<TK, TV>));
-		private readonly IDictionary<TK, TV> internalCache = new Dictionary<TK, TV>();
-		private readonly object lockObject = new object();
-		private readonly int secondsToExpire = 10;
-		private readonly CacheObjectExpired expiredCallback;
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Cache<TK, TV>));
+		private readonly IDictionary<TK, TV> _internalCache = new Dictionary<TK, TV>();
+		private readonly object _lockObject = new object();
+		private readonly int _secondsToExpire = 10;
+		private readonly CacheObjectExpired _expiredCallback;
 		public delegate void CacheObjectExpired(TK key, TV cacheValue);
 
 		/// <summary>
@@ -47,7 +47,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="expiredCallback"></param>
 		public Cache(CacheObjectExpired expiredCallback) : this() {
-			this.expiredCallback = expiredCallback;
+			_expiredCallback = expiredCallback;
 		}
 
 		/// <summary>
@@ -55,7 +55,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="secondsToExpire"></param>
 		public Cache(int secondsToExpire) : this() {
-			this.secondsToExpire = secondsToExpire;
+			_secondsToExpire = secondsToExpire;
 		}
 
 		/// <summary>
@@ -64,7 +64,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="secondsToExpire"></param>
 		/// <param name="expiredCallback"></param>
 		public Cache(int secondsToExpire, CacheObjectExpired expiredCallback) : this(expiredCallback) {
-			this.secondsToExpire = secondsToExpire;
+			_secondsToExpire = secondsToExpire;
 		}
 
 		/// <summary>
@@ -74,9 +74,9 @@ namespace GreenshotPlugin.Core {
 			get {
 				List<TV> elements = new List<TV>();
 
-				lock (lockObject)
+				lock (_lockObject)
 				{
-					foreach (TV element in internalCache.Values) {
+					foreach (TV element in _internalCache.Values) {
 						elements.Add(element);
 					}
 				}
@@ -94,9 +94,9 @@ namespace GreenshotPlugin.Core {
 		public TV this[TK key] {
 			get {
 				TV result = default(TV);
-				lock (lockObject) {
-					if (internalCache.ContainsKey(key)) {
-						result = internalCache[key];
+				lock (_lockObject) {
+					if (_internalCache.ContainsKey(key)) {
+						result = _internalCache[key];
 					}
 				}
 				return result;
@@ -110,9 +110,9 @@ namespace GreenshotPlugin.Core {
 		/// <returns>true if the cache contains the key</returns>
 		public bool Contains(TK key)
 		{
-			lock (lockObject)
+			lock (_lockObject)
 			{
-				return internalCache.ContainsKey(key);
+				return _internalCache.ContainsKey(key);
 			}
 		}
 
@@ -130,28 +130,26 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="key"></param>
 		/// <param name="value"></param>
-		/// <param name="secondsToExpire?">optional value for the seconds to expire</param>
+		/// <param name="secondsToExpire">optional value for the seconds to expire</param>
 		public void Add(TK key, TV value, int? secondsToExpire) {
-			lock (lockObject) {
-				var cachedItem = new CachedItem(key, value, secondsToExpire.HasValue ? secondsToExpire.Value : this.secondsToExpire);
+			lock (_lockObject) {
+				var cachedItem = new CachedItem(key, value, secondsToExpire ?? _secondsToExpire);
 				cachedItem.Expired += delegate(TK cacheKey, TV cacheValue) {
-					if (internalCache.ContainsKey(cacheKey)) {
-						LOG.DebugFormat("Expiring object with Key: {0}", cacheKey);
-						if (expiredCallback != null) {
-							expiredCallback(cacheKey, cacheValue);
-						}
+					if (_internalCache.ContainsKey(cacheKey)) {
+						Log.DebugFormat("Expiring object with Key: {0}", cacheKey);
+						_expiredCallback?.Invoke(cacheKey, cacheValue);
 						Remove(cacheKey);
 					} else {
-						LOG.DebugFormat("Expired old object with Key: {0}", cacheKey);
+						Log.DebugFormat("Expired old object with Key: {0}", cacheKey);
 					}
 				};
 
-				if (internalCache.ContainsKey(key)) {
-					internalCache[key] = value;
-					LOG.DebugFormat("Updated item with Key: {0}", key);
+				if (_internalCache.ContainsKey(key)) {
+					_internalCache[key] = value;
+					Log.DebugFormat("Updated item with Key: {0}", key);
 				} else {
-					internalCache.Add(key, cachedItem);
-					LOG.DebugFormat("Added item with Key: {0}", key);
+					_internalCache.Add(key, cachedItem);
+					Log.DebugFormat("Added item with Key: {0}", key);
 				}
 			}
 		}
@@ -161,12 +159,12 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="key"></param>
 		public void Remove(TK key) {
-			lock (lockObject) {
-				if (!internalCache.ContainsKey(key)) {
-					throw new ApplicationException(String.Format("An object with key ‘{0}’ does not exists in cache", key));
+			lock (_lockObject) {
+				if (!_internalCache.ContainsKey(key)) {
+					throw new ApplicationException($"An object with key ‘{key}’ does not exists in cache");
 				}
-				internalCache.Remove(key);
-				LOG.DebugFormat("Removed item with Key: {0}", key);
+				_internalCache.Remove(key);
+				Log.DebugFormat("Removed item with Key: {0}", key);
 			}
 		}
 
@@ -175,27 +173,29 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		private class CachedItem {
 			public event CacheObjectExpired Expired;
-			private readonly int secondsToExpire;
+			private readonly int _secondsToExpire;
 			private readonly Timer _timerEvent;
 
 			public CachedItem(TK key, TV item, int secondsToExpire) {
 				if (key == null) {
-					throw new ArgumentNullException("key is not valid");
+					throw new ArgumentNullException(nameof(key));
 				}
 				Key = key;
 				Item = item;
-				this.secondsToExpire = secondsToExpire;
-				if (secondsToExpire > 0) {
-					_timerEvent = new Timer(secondsToExpire * 1000) { AutoReset = false };
-					_timerEvent.Elapsed += timerEvent_Elapsed;
-					_timerEvent.Start();
+				_secondsToExpire = secondsToExpire;
+				if (secondsToExpire <= 0)
+				{
+					return;
 				}
+				_timerEvent = new Timer(secondsToExpire * 1000) { AutoReset = false };
+				_timerEvent.Elapsed += timerEvent_Elapsed;
+				_timerEvent.Start();
 			}
 
 			private void ExpireNow() {
 				_timerEvent.Stop();
-				if (secondsToExpire > 0 && Expired != null) {
-					Expired(Key, Item);
+				if (_secondsToExpire > 0) {
+					Expired?.Invoke(Key, Item);
 				}
 			}
 

@@ -287,9 +287,7 @@ namespace GreenshotPlugin.Core {
 				}
 				if (_iconSize != newSize) {
 					_iconSize = value;
-					if (PropertyChanged != null) {
-						PropertyChanged(this, new PropertyChangedEventArgs("IconSize"));
-					}
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IconSize"));
 				}
 			}
 		}
@@ -317,18 +315,14 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		public bool UseLargeIcons {
-			get {
-				return IconSize.Width >= 32 || IconSize.Height >= 32;
-			}
-		}
+		public bool UseLargeIcons => IconSize.Width >= 32 || IconSize.Height >= 32;
 
 		/// <summary>
 		/// A helper method which returns true if the supplied experimental feature is enabled
 		/// </summary>
 		/// <param name="experimentalFeature"></param>
 		/// <returns></returns>
-		public bool isExperimentalFeatureEnabled(string experimentalFeature) {
+		public bool IsExperimentalFeatureEnabled(string experimentalFeature) {
 			return (ExperimentalFeatures != null && ExperimentalFeatures.Contains(experimentalFeature));
 		}
 
@@ -367,23 +361,11 @@ namespace GreenshotPlugin.Core {
 				case "DWMBackgroundColor":
 					return Color.Transparent;
 				case "ActiveTitleFixes":
-					List<string> activeDefaults = new List<string>();
-					activeDefaults.Add("Firefox");
-					activeDefaults.Add("IE");
-					activeDefaults.Add("Chrome");
-					return activeDefaults; 
+					return new List<string> {"Firefox", "IE", "Chrome"};
 				case "TitleFixMatcher":
-					Dictionary<string, string> matcherDefaults = new Dictionary<string, string>();
-					matcherDefaults.Add("Firefox", " - Mozilla Firefox.*");
-					matcherDefaults.Add("IE", " - (Microsoft|Windows) Internet Explorer.*");
-					matcherDefaults.Add("Chrome", " - Google Chrome.*");
-					return matcherDefaults; 
+					return new Dictionary<string, string> {{"Firefox", " - Mozilla Firefox.*"}, {"IE", " - (Microsoft|Windows) Internet Explorer.*"}, {"Chrome", " - Google Chrome.*"}};
 				case "TitleFixReplacer":
-					Dictionary<string, string> replacerDefaults = new Dictionary<string, string>();
-					replacerDefaults.Add("Firefox", "");
-					replacerDefaults.Add("IE", "");
-					replacerDefaults.Add("Chrome", "");
-					return replacerDefaults; 
+					return new Dictionary<string, string> {{"Firefox", ""}, {"IE", ""}, {"Chrome", ""}};
 			}
 			return null;
 		}
@@ -417,7 +399,10 @@ namespace GreenshotPlugin.Core {
 			try {
 				// Store version, this can be used later to fix settings after an update
 				LastSaveWithVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
-			} catch {
+			}
+			catch
+			{
+				// ignored
 			}
 		}
 
@@ -432,8 +417,10 @@ namespace GreenshotPlugin.Core {
 				try {
 					// Store version, this can be used later to fix settings after an update
 					LastSaveWithVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
-				} catch {
-
+				}
+				catch
+				{
+					// ignored
 				}
 				// Disable the AutoReduceColors as it causes issues with Mozzila applications and some others
 				OutputFileAutoReduceColors = false;
@@ -465,10 +452,7 @@ namespace GreenshotPlugin.Core {
 
 			// Make sure we have clipboard formats, otherwise a paste doesn't make sense!
 			if (ClipboardFormats == null || ClipboardFormats.Count == 0) {
-				ClipboardFormats = new List<ClipboardFormat>();
-				ClipboardFormats.Add(ClipboardFormat.PNG);
-				ClipboardFormats.Add(ClipboardFormat.HTML);
-				ClipboardFormats.Add(ClipboardFormat.DIB);
+				ClipboardFormats = new List<ClipboardFormat> {ClipboardFormat.PNG, ClipboardFormat.HTML, ClipboardFormat.DIB};
 			}
 
 			// Make sure the lists are lowercase, to speedup the check

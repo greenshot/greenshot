@@ -58,7 +58,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public const int MONITOR_DEFAULTTONULL = 0;
 		public const int MONITOR_DEFAULTTOPRIMARY = 1;
 		public const int MONITOR_DEFAULTTONEAREST = 2;
-		public const Int32 CURSOR_SHOWING = 0x00000001;
+		public const int CURSOR_SHOWING = 0x00000001;
 
 		#region DllImports
 		[DllImport("user32", SetLastError = true)]
@@ -382,7 +382,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// <summary>
 	/// A WindowDC SafeHandle implementation
 	/// </summary>
-	public class SafeWindowDCHandle : SafeHandleZeroOrMinusOneIsInvalid {
+	public class SafeWindowDcHandle : SafeHandleZeroOrMinusOneIsInvalid {
 		[DllImport("user32", SetLastError = true)]
 		private static extern IntPtr GetWindowDC(IntPtr hWnd);
 		[DllImport("user32", SetLastError = true)]
@@ -393,12 +393,12 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// <summary>
 		/// Needed for marshalling return values
 		/// </summary>
-		public SafeWindowDCHandle() : base(true)
+		public SafeWindowDcHandle() : base(true)
 		{
 		}
 
 		[SecurityCritical]
-		public SafeWindowDCHandle(IntPtr hWnd, IntPtr preexistingHandle) : base(true) {
+		public SafeWindowDcHandle(IntPtr hWnd, IntPtr preexistingHandle) : base(true) {
 			_hWnd = hWnd;
 			SetHandle(preexistingHandle);
 		}
@@ -409,10 +409,10 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			return returnValue;
 		}
 
-		public static SafeWindowDCHandle FromDesktop() {
+		public static SafeWindowDcHandle FromDesktop() {
 			IntPtr hWndDesktop = User32.GetDesktopWindow();
 			IntPtr hDCDesktop = GetWindowDC(hWndDesktop);
-			return new SafeWindowDCHandle(hWndDesktop, hDCDesktop);
+			return new SafeWindowDcHandle(hWndDesktop, hDCDesktop);
 		}
 	}
 }

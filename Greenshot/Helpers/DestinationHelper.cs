@@ -31,9 +31,9 @@ namespace Greenshot.Helpers {
 	/// Description of DestinationHelper.
 	/// </summary>
 	public static class DestinationHelper {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(DestinationHelper));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(DestinationHelper));
 		private static readonly Dictionary<string, IDestination> RegisteredDestinations = new Dictionary<string, IDestination>();
-		private static readonly CoreConfiguration coreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 
 		/// Initialize the destinations		
 		static DestinationHelper() {
@@ -47,15 +47,15 @@ namespace Greenshot.Helpers {
 					try {
 						destination = (IDestination)Activator.CreateInstance(destinationType);
 					} catch (Exception e) {
-						LOG.ErrorFormat("Can't create instance of {0}", destinationType);
-						LOG.Error(e);
+						Log.ErrorFormat("Can't create instance of {0}", destinationType);
+						Log.Error(e);
 						continue;
 					}
-					if (destination.isActive) {
-						LOG.DebugFormat("Found destination {0} with designation {1}", destinationType.Name, destination.Designation);
+					if (destination.IsActive) {
+						Log.DebugFormat("Found destination {0} with designation {1}", destinationType.Name, destination.Designation);
 						RegisterDestination(destination);
 					} else {
-						LOG.DebugFormat("Ignoring destination {0} with designation {1}", destinationType.Name, destination.Designation);
+						Log.DebugFormat("Ignoring destination {0} with designation {1}", destinationType.Name, destination.Designation);
 					}
 				}
 			}
@@ -66,7 +66,7 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <param name="destination"></param>
 		public static void RegisterDestination(IDestination destination) {
-			if (coreConfig.ExcludeDestinations == null || !coreConfig.ExcludeDestinations.Contains(destination.Designation)) {
+			if (CoreConfig.ExcludeDestinations == null || !CoreConfig.ExcludeDestinations.Contains(destination.Designation)) {
 				// don't test the key, an exception should happen wenn it's not unique
 				RegisteredDestinations.Add(destination.Designation, destination);
 			}
@@ -82,13 +82,13 @@ namespace Greenshot.Helpers {
 				IGreenshotPlugin plugin = PluginHelper.Instance.Plugins[pluginAttribute];
 				try {
 					foreach (IDestination destination in plugin.Destinations()) {
-						if (coreConfig.ExcludeDestinations == null || !coreConfig.ExcludeDestinations.Contains(destination.Designation)) {
+						if (CoreConfig.ExcludeDestinations == null || !CoreConfig.ExcludeDestinations.Contains(destination.Designation)) {
 							destinations.Add(destination);
 						}
 					}
 				} catch (Exception ex) {
-					LOG.ErrorFormat("Couldn't get destinations from the plugin {0}", pluginAttribute.Name);
-					LOG.Error(ex);
+					Log.ErrorFormat("Couldn't get destinations from the plugin {0}", pluginAttribute.Name);
+					Log.Error(ex);
 				}
 			}
 			destinations.Sort();
@@ -136,7 +136,7 @@ namespace Greenshot.Helpers {
 		/// <param name="captureDetails"></param>
 		public static ExportInformation ExportCapture(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails) {
 			IDestination destination = GetDestination(designation);
-			if (destination != null && destination.isActive) {
+			if (destination != null && destination.IsActive) {
 				return destination.ExportCapture(manuallyInitiated, surface, captureDetails);
 			}
 			return null;

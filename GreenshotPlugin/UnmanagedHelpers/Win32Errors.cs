@@ -103,10 +103,10 @@ namespace GreenshotPlugin.UnmanagedHelpers {
             int error = (int)errorCode;
 
             if ((error & 0x80000000) == 0x80000000) {
-            	return (long)error;
+            	return error;
             }
 
-            return (long)(0x80070000 | (uint)(error & 0xffff));
+            return 0x80070000 | (uint)(error & 0xffff);
         }
 
         public static string GetMessage(Win32Error errorCode) {

@@ -27,28 +27,13 @@ namespace GreenshotPhotobucketPlugin
 	/// Description of PhotobucketInfo.
 	/// </summary>
 	public class PhotobucketInfo {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PhotobucketInfo));
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(PhotobucketInfo));
 
-		private string original;
-		public string Original {
-			get {return original;}
-			set {original = value;}
-		}
+		public string Original { get; set; }
 
-		private string page;
-		public string Page {
-			get {return page;}
-			set {page = value;}
-		}
+		public string Page { get; set; }
 
-		private string thumbnail;
-		public string Thumbnail {
-			get {return thumbnail;}
-			set {thumbnail = value;}
-		}
-
-		public PhotobucketInfo() {
-		}
+		public string Thumbnail { get; set; }
 
 		/// <summary>
 		/// Parse the upload response
@@ -56,28 +41,27 @@ namespace GreenshotPhotobucketPlugin
 		/// <param name="response">XML</param>
 		/// <returns>PhotobucketInfo object</returns>
 		public static PhotobucketInfo FromUploadResponse(string response) {
-			LOG.Debug(response);
-			PhotobucketInfo PhotobucketInfo = new PhotobucketInfo();
+			Log.Debug(response);
+			PhotobucketInfo photobucketInfo = new PhotobucketInfo();
 			try {
 				XmlDocument doc = new XmlDocument();
 				doc.LoadXml(response);
-				XmlNodeList nodes;
-				nodes = doc.GetElementsByTagName("url");
+				var nodes = doc.GetElementsByTagName("url");
 				if(nodes.Count > 0) {
-					PhotobucketInfo.Original = nodes.Item(0).InnerText;
+					photobucketInfo.Original = nodes.Item(0)?.InnerText;
 				}
 				nodes = doc.GetElementsByTagName("browseurl");
 				if(nodes.Count > 0) {
-					PhotobucketInfo.Page = nodes.Item(0).InnerText;
+					photobucketInfo.Page = nodes.Item(0)?.InnerText;
 				}
 				nodes = doc.GetElementsByTagName("thumb");
 				if(nodes.Count > 0) {
-					PhotobucketInfo.Thumbnail = nodes.Item(0).InnerText;
+					photobucketInfo.Thumbnail = nodes.Item(0)?.InnerText;
 				}
 			} catch(Exception e) {
-				LOG.ErrorFormat("Could not parse Photobucket response due to error {0}, response was: {1}", e.Message, response);
+				Log.ErrorFormat("Could not parse Photobucket response due to error {0}, response was: {1}", e.Message, response);
 			}
-			return PhotobucketInfo;
+			return photobucketInfo;
 		}
 	}
 }

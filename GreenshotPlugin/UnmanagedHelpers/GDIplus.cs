@@ -92,7 +92,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// GDIplus Helpers
 	/// </summary>
 	public static class GDIplus {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(GDIplus));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(GDIplus));
 
 		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true)]
 		private static extern int GdipBitmapApplyEffect(IntPtr bitmap, IntPtr effect, ref RECT rectOfInterest, bool useAuxData, IntPtr auxData, int auxDataSize);
@@ -170,15 +170,12 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// This accounts for the "bug" I reported here: http://social.technet.microsoft.com/Forums/en/w8itprogeneral/thread/99ddbe9d-556d-475a-8bab-84e25aa13a2c
 		/// </summary>
 		/// <param name="radius"></param>
-		/// <returns></returns>
+		/// <returns>false if blur is not possible</returns>
 		public static bool IsBlurPossible(int radius) {
 			if (!_isBlurEnabled) {
 				return false;
 			}
-			if (Environment.OSVersion.Version.Minor >= 2 && radius < 20) {
-				return false;
-			}
-			return true;
+			return Environment.OSVersion.Version.Minor < 2 || radius >= 20;
 		}
 
 		/// <summary>
@@ -197,18 +194,24 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			IntPtr hEffect = IntPtr.Zero;
 
 			try {
+				// Create the GDI+ BlurEffect, using the Guid
+				int status = GdipCreateEffect(BlurEffectGuid, out hEffect);
+				if (status != 0)
+				{
+					return false;
+				}
 				// Create a BlurParams struct and set the values
-				BlurParams blurParams = new BlurParams();
-				blurParams.Radius = radius;
-				blurParams.ExpandEdges = expandEdges;
+				var blurParams = new BlurParams
+				{
+					Radius = radius,
+					ExpandEdges = expandEdges
+				};
 
 				// Allocate space in unmanaged memory
 				hBlurParams = Marshal.AllocHGlobal(Marshal.SizeOf(blurParams));
 				// Copy the structure to the unmanaged memory
 				Marshal.StructureToPtr(blurParams, hBlurParams, false);
 
-				// Create the GDI+ BlurEffect, using the Guid
-				int status = GdipCreateEffect(BlurEffectGuid, out hEffect);
 
 				// Set the blurParams to the effect
 				GdipSetEffectParameters(hEffect, hBlurParams, (uint)Marshal.SizeOf(blurParams));
@@ -226,7 +229,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 				return true;
 			} catch (Exception ex) {
 				_isBlurEnabled = false;
-				LOG.Error("Problem using GdipBitmapApplyEffect: ", ex);
+				Log.Error("Problem using GdipBitmapApplyEffect: ", ex);
 				return false;
 			} finally {
 				try {
@@ -240,7 +243,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 					}
 				} catch (Exception ex) {
 					_isBlurEnabled = false;
-					LOG.Error("Problem cleaning up ApplyBlur: ", ex);
+					Log.Error("Problem cleaning up ApplyBlur: ", ex);
 				}
 			}
 		}
@@ -258,19 +261,25 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			IntPtr hEffect = IntPtr.Zero;
 
 			try {
+				// Create the GDI+ BlurEffect, using the Guid
+				int status = GdipCreateEffect(BlurEffectGuid, out hEffect);
+				if (status != 0)
+				{
+					return false;
+				}
+
 				// Create a BlurParams struct and set the values
-				BlurParams blurParams = new BlurParams();
-				blurParams.Radius = radius;
+				var blurParams = new BlurParams
+				{
+					Radius = radius,
+					ExpandEdges = false
+				};
 				//blurParams.Padding = radius;
-				blurParams.ExpandEdges = false;
 
 				// Allocate space in unmanaged memory
 				hBlurParams = Marshal.AllocHGlobal(Marshal.SizeOf(blurParams));
 				// Copy the structure to the unmanaged memory
 				Marshal.StructureToPtr(blurParams, hBlurParams, true);
-
-				// Create the GDI+ BlurEffect, using the Guid
-				int status = GdipCreateEffect(BlurEffectGuid, out hEffect);
 
 				// Set the blurParams to the effect
 				GdipSetEffectParameters(hEffect, hBlurParams, (uint)Marshal.SizeOf(blurParams));
@@ -283,15 +292,15 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 				IntPtr hAttributes = GetNativeImageAttributes(imageAttributes);
 
 				// Create a RECT from the Rectangle
-				RECTF sourceRECF = new RECTF(source);
+				RECTF sourceRecf = new RECTF(source);
 				// Apply the effect to the bitmap in the specified area
-				GdipDrawImageFX(hGraphics, hBitmap, ref sourceRECF, hMatrix, hEffect, hAttributes, GpUnit.UnitPixel);
+				GdipDrawImageFX(hGraphics, hBitmap, ref sourceRecf, hMatrix, hEffect, hAttributes, GpUnit.UnitPixel);
 
 				// Everything worked, return true
 				return true;
 			} catch (Exception ex) {
 				_isBlurEnabled = false;
-				LOG.Error("Problem using GdipDrawImageFX: ", ex);
+				Log.Error("Problem using GdipDrawImageFX: ", ex);
 				return false;
 			} finally {
 				try {
@@ -305,7 +314,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 					}
 				} catch (Exception ex) {
 					_isBlurEnabled = false;
-					LOG.Error("Problem cleaning up DrawWithBlur: ", ex);
+					Log.Error("Problem cleaning up DrawWithBlur: ", ex);
 				}
 			}
 		}

@@ -26,6 +26,7 @@ using Greenshot.Drawing.Fields;
 using GreenshotPlugin.UnmanagedHelpers;
 using Greenshot.IniFile;
 using Greenshot.Core;
+using GreenshotPlugin.Effects;
 using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Configuration {
@@ -99,9 +100,10 @@ namespace Greenshot.Configuration {
 			} else {
 				LastUsedFieldValues.Add(requestedField, fieldValue);
 			}
-			Field returnField = new Field(fieldType, requestingType);
-			returnField.Value = fieldValue;
-			return returnField;
+			return new Field(fieldType, requestingType)
+			{
+				Value = fieldValue
+			};
 		}
 
 		public void UpdateLastFieldValue(IField field)

@@ -337,7 +337,6 @@ namespace GreenshotPlugin.Core {
 				using (IFastBitmap src = FastBitmap.Create(sourceBitmap)) {
 					IFastBitmapWithBlend srcBlend = src as IFastBitmapWithBlend;
 					Dictionary<Color, byte> lookup = new Dictionary<Color, byte>();
-					byte bestMatch;
 					for (int y = 0; y < src.Height; y++) {
 						for (int x = 0; x < src.Width; x++) {
 							Color color;
@@ -349,6 +348,7 @@ namespace GreenshotPlugin.Core {
 							}
 
 							// Check if we already matched the color
+							byte bestMatch;
 							if (!lookup.ContainsKey(color)) {
 								// If not we need to find the best match
 
@@ -678,5 +678,5 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 		}
-    }
+	}
 }

@@ -98,7 +98,7 @@ namespace GreenshotImgurPlugin {
 			SettingsForm settingsForm = null;
 
 			new PleaseWaitForm().ShowAndWait(ImgurPlugin.Attributes.Name, Language.GetString("imgur", LangKey.communication_wait), 
-				delegate() {
+				delegate {
 					settingsForm = new SettingsForm(this);
 				}
 			);

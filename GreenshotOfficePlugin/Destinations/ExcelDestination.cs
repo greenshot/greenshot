@@ -32,18 +32,17 @@ namespace GreenshotOfficePlugin {
 	/// Description of PowerpointDestination.
 	/// </summary>
 	public class ExcelDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExcelDestination));
-		private const int ICON_APPLICATION = 0;
-		private const int ICON_WORKBOOK = 1;
-		private static readonly string exePath = null;
-		private readonly string workbookName = null;
+		private const int IconApplication = 0;
+		private const int IconWorkbook = 1;
+		private static readonly string ExePath;
+		private readonly string _workbookName;
 
 		static ExcelDestination() {
-			exePath = PluginUtils.GetExePath("EXCEL.EXE");
-			if (exePath != null && File.Exists(exePath)) {
+			ExePath = PluginUtils.GetExePath("EXCEL.EXE");
+			if (ExePath != null && File.Exists(ExePath)) {
 				WindowDetails.AddProcessToExcludeFromFreeze("excel");
 			} else {
-				exePath = null;
+				ExePath = null;
 			}
 		}
 
@@ -51,51 +50,20 @@ namespace GreenshotOfficePlugin {
 		}
 
 		public ExcelDestination(string workbookName) {
-			this.workbookName = workbookName;
+			_workbookName = workbookName;
 		}
 
-		public override string Designation {
-			get {
-				return "Excel";
-			}
-		}
+		public override string Designation => "Excel";
 
-		public override string Description {
-			get {
-				if (workbookName == null) {
-					return "Microsoft Excel";
-				} else {
-					return workbookName;
-				}
-			}
-		}
+		public override string Description => _workbookName ?? "Microsoft Excel";
 
-		public override int Priority {
-			get {
-				return 5;
-			}
-		}
-		
-		public override bool isDynamic {
-			get {
-				return true;
-			}
-		}
+		public override int Priority => 5;
 
-		public override bool isActive {
-			get {
-				return base.isActive && exePath != null;
-			}
-		}
+		public override bool IsDynamic => true;
 
-		public override Image DisplayIcon {
-			get {
-				if (!string.IsNullOrEmpty(workbookName)) {
-					return PluginUtils.GetCachedExeIcon(exePath, ICON_WORKBOOK);
-				}
-				return PluginUtils.GetCachedExeIcon(exePath, ICON_APPLICATION);
-			}
-		}
+		public override bool IsActive => base.IsActive && ExePath != null;
+
+		public override Image DisplayIcon => PluginUtils.GetCachedExeIcon(ExePath, !string.IsNullOrEmpty(_workbookName) ? IconWorkbook : IconApplication);
 
 		public override IEnumerable<IDestination> DynamicDestinations() {
 			foreach (string workbookName in ExcelExporter.GetWorkbooks()) {
@@ -111,8 +79,8 @@ namespace GreenshotOfficePlugin {
 				imageFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
 				createdFile = true;
 			}
-			if (workbookName != null) {
-				ExcelExporter.InsertIntoExistingWorkbook(workbookName, imageFile, surface.Image.Size);
+			if (_workbookName != null) {
+				ExcelExporter.InsertIntoExistingWorkbook(_workbookName, imageFile, surface.Image.Size);
 			} else {
 				ExcelExporter.InsertIntoNewWorkbook(imageFile, surface.Image.Size);
 			}

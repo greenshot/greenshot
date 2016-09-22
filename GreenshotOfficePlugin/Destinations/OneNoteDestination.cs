@@ -32,8 +32,8 @@ namespace GreenshotOfficePlugin {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordDestination));
 		private const int ICON_APPLICATION = 0;
 		public const string DESIGNATION = "OneNote";
-		private static readonly string exePath = null;
-		private readonly OneNotePage page = null;
+		private static readonly string exePath;
+		private readonly OneNotePage page;
 
 		static OneNoteDestination() {
 			exePath = PluginUtils.GetExePath("ONENOTE.EXE");
@@ -74,15 +74,15 @@ namespace GreenshotOfficePlugin {
 			}
 		}
 		
-		public override bool isDynamic {
+		public override bool IsDynamic {
 			get {
 				return true;
 			}
 		}
 
-		public override bool isActive {
+		public override bool IsActive {
 			get {
-				return base.isActive && exePath != null;
+				return base.IsActive && exePath != null;
 			}
 		}
 

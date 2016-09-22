@@ -36,10 +36,10 @@ namespace Greenshot.Helpers {
 	/// See: http://www.codeproject.com/KB/audio-video/soundplayerbug.aspx?msg=2487569
 	/// </summary>
 	public static class SoundHelper {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(SoundHelper));
-        private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ILog Log = LogManager.GetLogger(typeof(SoundHelper));
+		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 		private static GCHandle? _gcHandle;
-	    private static byte[] _soundBuffer;
+		private static byte[] _soundBuffer;
 		
 		public static void Initialize() {
 			if (_gcHandle == null) {
@@ -47,49 +47,49 @@ namespace Greenshot.Helpers {
 					ResourceManager resources = new ResourceManager("Greenshot.Sounds", Assembly.GetExecutingAssembly());
 					_soundBuffer = (byte[])resources.GetObject("camera");
 
-					if (conf.NotificationSound != null && conf.NotificationSound.EndsWith(".wav")) {
+					if (CoreConfig.NotificationSound != null && CoreConfig.NotificationSound.EndsWith(".wav")) {
 						try {
-							if (File.Exists(conf.NotificationSound)) {
-								_soundBuffer = File.ReadAllBytes(conf.NotificationSound);
+							if (File.Exists(CoreConfig.NotificationSound)) {
+								_soundBuffer = File.ReadAllBytes(CoreConfig.NotificationSound);
 							}
 						} catch (Exception ex) {
-							LOG.WarnFormat("couldn't load {0}: {1}", conf.NotificationSound, ex.Message);
+							Log.WarnFormat("couldn't load {0}: {1}", CoreConfig.NotificationSound, ex.Message);
 						}
 					}
 					// Pin sound so it can't be moved by the Garbage Collector, this was the cause for the bad sound
 					_gcHandle = GCHandle.Alloc(_soundBuffer, GCHandleType.Pinned);
 				} catch (Exception e) {
-					LOG.Error("Error initializing.", e);
+					Log.Error("Error initializing.", e);
 				}
 			}
 		}
 		
 		public static void Play() {
-            if (_soundBuffer != null) {
-                //Thread playSoundThread = new Thread(delegate() {
-                SoundFlags flags = SoundFlags.SND_ASYNC | SoundFlags.SND_MEMORY | SoundFlags.SND_NOWAIT | SoundFlags.SND_NOSTOP;
-                try {
-                    WinMM.PlaySound(_gcHandle.Value.AddrOfPinnedObject(), (UIntPtr)0, (uint)flags);
-                } catch (Exception e) {
-                    LOG.Error("Error in play.", e);
-                }
-                //});
-                //playSoundThread.Name = "Play camera sound";
-                //playSoundThread.IsBackground = true;
-                //playSoundThread.Start();
-            }
-	    }
+			if (_soundBuffer != null) {
+				//Thread playSoundThread = new Thread(delegate() {
+				SoundFlags flags = SoundFlags.SND_ASYNC | SoundFlags.SND_MEMORY | SoundFlags.SND_NOWAIT | SoundFlags.SND_NOSTOP;
+				try {
+					if (_gcHandle != null) WinMM.PlaySound(_gcHandle.Value.AddrOfPinnedObject(), (UIntPtr)0, (uint)flags);
+				} catch (Exception e) {
+					Log.Error("Error in play.", e);
+				}
+				//});
+				//playSoundThread.Name = "Play camera sound";
+				//playSoundThread.IsBackground = true;
+				//playSoundThread.Start();
+			}
+		}
 
-	    public static void Deinitialize() {
-	    	try {
+		public static void Deinitialize() {
+			try {
 				if (_gcHandle != null) {
-					WinMM.PlaySound((byte[])null, (UIntPtr)0, (uint)0);
+					WinMM.PlaySound(null, (UIntPtr)0, 0);
 					_gcHandle.Value.Free();
 					_gcHandle = null;
 				}
-	    	} catch (Exception e) {
-	    		LOG.Error("Error in deinitialize.", e);
-	    	}
-	    }
+			} catch (Exception e) {
+				Log.Error("Error in deinitialize.", e);
+			}
+		}
 	}
 }

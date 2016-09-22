@@ -37,17 +37,17 @@ namespace GreenshotPlugin.Controls {
 	/// See: http://www.codeproject.com/KB/buttons/hotkeycontrol.aspx
 	/// But is modified to fit in Greenshot, and have localized support
 	/// </summary>
-	public class HotkeyControl : GreenshotTextBox {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(HotkeyControl));
+	public sealed class HotkeyControl : GreenshotTextBox {
+		private static readonly ILog Log = LogManager.GetLogger(typeof(HotkeyControl));
 
-		private static readonly EventDelay eventDelay = new EventDelay(TimeSpan.FromMilliseconds(600).Ticks);
-		private static readonly bool isWindows7OrOlder = Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 1;
+		private static readonly EventDelay EventDelay = new EventDelay(TimeSpan.FromMilliseconds(600).Ticks);
+		private static readonly bool IsWindows7OrOlder = Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 1;
 
 		// Holds the list of hotkeys
-		private static readonly IDictionary<int, HotKeyHandler> keyHandlers = new Dictionary<int, HotKeyHandler>();
-		private static int hotKeyCounter = 1;
+		private static readonly IDictionary<int, HotKeyHandler> KeyHandlers = new Dictionary<int, HotKeyHandler>();
+		private static int _hotKeyCounter = 1;
 		private const uint WM_HOTKEY = 0x312;
-		private static IntPtr hotkeyHWND;
+		private static IntPtr _hotkeyHwnd;
 		
 //		static HotkeyControl() {
 //			StringBuilder keyName = new StringBuilder();
@@ -96,20 +96,20 @@ namespace GreenshotPlugin.Controls {
 
 		// ArrayLists used to enforce the use of proper modifiers.
 		// Shift+A isn't a valid hotkey, for instance, as it would screw up when the user is typing.
-		private readonly ArrayList needNonShiftModifier;
-		private readonly ArrayList needNonAltGrModifier;
+		private readonly ArrayList _needNonShiftModifier;
+		private readonly ArrayList _needNonAltGrModifier;
 
-		private readonly ContextMenu dummy = new ContextMenu();
+		private readonly ContextMenu _dummy = new ContextMenu();
 
 		/// <summary>
 		/// Used to make sure that there is no right-click menu available
 		/// </summary>
 		public override ContextMenu ContextMenu {
 			get {
-				return dummy;
+				return _dummy;
 			}
 			set {
-				base.ContextMenu = dummy;
+				base.ContextMenu = _dummy;
 			}
 		}
 
@@ -130,7 +130,7 @@ namespace GreenshotPlugin.Controls {
 		/// Creates a new HotkeyControl
 		/// </summary>
 		public HotkeyControl() {
-			ContextMenu = dummy; // Disable right-clicking
+			ContextMenu = _dummy; // Disable right-clicking
 			Text = "None";
 
 			// Handle events that occurs when keys are pressed
@@ -139,8 +139,8 @@ namespace GreenshotPlugin.Controls {
 			KeyDown += HotkeyControl_KeyDown;
 
 			// Fill the ArrayLists that contain all invalid hotkey combinations
-			needNonShiftModifier = new ArrayList();
-			needNonAltGrModifier = new ArrayList();
+			_needNonShiftModifier = new ArrayList();
+			_needNonAltGrModifier = new ArrayList();
 			PopulateModifierLists();
 		}
 
@@ -151,41 +151,41 @@ namespace GreenshotPlugin.Controls {
 		private void PopulateModifierLists() {
 			// Shift + 0 - 9, A - Z
 			for (Keys k = Keys.D0; k <= Keys.Z; k++) {
-				needNonShiftModifier.Add((int)k);
+				_needNonShiftModifier.Add((int)k);
 			}
 
 			// Shift + Numpad keys
 			for (Keys k = Keys.NumPad0; k <= Keys.NumPad9; k++) {
-				needNonShiftModifier.Add((int)k);
+				_needNonShiftModifier.Add((int)k);
 			}
 
 			// Shift + Misc (,;<./ etc)
 			for (Keys k = Keys.Oem1; k <= Keys.OemBackslash; k++) {
-				needNonShiftModifier.Add((int)k);
+				_needNonShiftModifier.Add((int)k);
 			}
 
 			// Shift + Space, PgUp, PgDn, End, Home
 			for (Keys k = Keys.Space; k <= Keys.Home; k++) {
-				needNonShiftModifier.Add((int)k);
+				_needNonShiftModifier.Add((int)k);
 			}
 
 			// Misc keys that we can't loop through
-			needNonShiftModifier.Add((int)Keys.Insert);
-			needNonShiftModifier.Add((int)Keys.Help);
-			needNonShiftModifier.Add((int)Keys.Multiply);
-			needNonShiftModifier.Add((int)Keys.Add);
-			needNonShiftModifier.Add((int)Keys.Subtract);
-			needNonShiftModifier.Add((int)Keys.Divide);
-			needNonShiftModifier.Add((int)Keys.Decimal);
-			needNonShiftModifier.Add((int)Keys.Return);
-			needNonShiftModifier.Add((int)Keys.Escape);
-			needNonShiftModifier.Add((int)Keys.NumLock);
-			needNonShiftModifier.Add((int)Keys.Scroll);
-			needNonShiftModifier.Add((int)Keys.Pause);
+			_needNonShiftModifier.Add((int)Keys.Insert);
+			_needNonShiftModifier.Add((int)Keys.Help);
+			_needNonShiftModifier.Add((int)Keys.Multiply);
+			_needNonShiftModifier.Add((int)Keys.Add);
+			_needNonShiftModifier.Add((int)Keys.Subtract);
+			_needNonShiftModifier.Add((int)Keys.Divide);
+			_needNonShiftModifier.Add((int)Keys.Decimal);
+			_needNonShiftModifier.Add((int)Keys.Return);
+			_needNonShiftModifier.Add((int)Keys.Escape);
+			_needNonShiftModifier.Add((int)Keys.NumLock);
+			_needNonShiftModifier.Add((int)Keys.Scroll);
+			_needNonShiftModifier.Add((int)Keys.Pause);
 
 			// Ctrl+Alt + 0 - 9
 			for (Keys k = Keys.D0; k <= Keys.D9; k++) {
-				needNonAltGrModifier.Add((int)k);
+				_needNonAltGrModifier.Add((int)k);
 			}
 		}
 
@@ -205,7 +205,6 @@ namespace GreenshotPlugin.Controls {
 			// Clear the current hotkey
 			if (e.KeyCode == Keys.Back || e.KeyCode == Keys.Delete) {
 				ResetHotkey();
-				return;
 			} else {
 				_modifiers = e.Modifiers;
 				_hotkey = e.KeyCode;
@@ -227,7 +226,6 @@ namespace GreenshotPlugin.Controls {
 
 			if (_hotkey == Keys.None && ModifierKeys == Keys.None) {
 				ResetHotkey();
-				return;
 			}
 		}
 
@@ -302,17 +300,10 @@ namespace GreenshotPlugin.Controls {
 		}
 
 		/// <summary>
-		/// Helper function
-		/// </summary>
-		private void Redraw() {
-			Redraw(false);
-		}
-
-		/// <summary>
 		/// Redraws the TextBox when necessary.
 		/// </summary>
 		/// <param name="bCalledProgramatically">Specifies whether this function was called by the Hotkey/HotkeyModifiers properties or by the user.</param>
-		private void Redraw(bool bCalledProgramatically) {
+		private void Redraw(bool bCalledProgramatically = false) {
 			// No hotkey set
 			if (_hotkey == Keys.None) {
 				Text = "";
@@ -328,10 +319,10 @@ namespace GreenshotPlugin.Controls {
 			// Only validate input if it comes from the user
 			if (bCalledProgramatically == false) {
 				// No modifier or shift only, AND a hotkey that needs another modifier
-				if ((_modifiers == Keys.Shift || _modifiers == Keys.None) && needNonShiftModifier.Contains((int)_hotkey)) {
+				if ((_modifiers == Keys.Shift || _modifiers == Keys.None) && _needNonShiftModifier.Contains((int)_hotkey)) {
 					if (_modifiers == Keys.None) {
 						// Set Ctrl+Alt as the modifier unless Ctrl+Alt+<key> won't work...
-						if (needNonAltGrModifier.Contains((int)_hotkey) == false) {
+						if (_needNonAltGrModifier.Contains((int)_hotkey) == false) {
 							_modifiers = Keys.Alt | Keys.Control;
 						} else {
 							// ... in that case, use Shift+Alt instead.
@@ -346,7 +337,7 @@ namespace GreenshotPlugin.Controls {
 					}
 				}
 				// Check all Ctrl+Alt keys
-				if ((_modifiers == (Keys.Alt | Keys.Control)) && needNonAltGrModifier.Contains((int)_hotkey)) {
+				if ((_modifiers == (Keys.Alt | Keys.Control)) && _needNonAltGrModifier.Contains((int)_hotkey)) {
 					// Ctrl+Alt+4 etc won't work; reset hotkey and tell the user
 					_hotkey = Keys.None;
 					Text = "";
@@ -373,7 +364,7 @@ namespace GreenshotPlugin.Controls {
 		}
 
 		public static string HotkeyToString(Keys modifierKeyCode, Keys virtualKeyCode) {
-			return HotkeyModifiersToString(modifierKeyCode) + virtualKeyCode.ToString();
+			return HotkeyModifiersToString(modifierKeyCode) + virtualKeyCode;
 		}
 
 		public static string HotkeyModifiersToString(Keys modifierKeyCode) {
@@ -446,8 +437,8 @@ namespace GreenshotPlugin.Controls {
 			return key;
 		}
 
-		public static void RegisterHotkeyHWND(IntPtr hWnd) {
-			hotkeyHWND = hWnd;
+		public static void RegisterHotkeyHwnd(IntPtr hWnd) {
+			_hotkeyHwnd = hWnd;
 		}
 
 		public static int RegisterHotKey(string hotkey, HotKeyHandler handler) {
@@ -463,7 +454,7 @@ namespace GreenshotPlugin.Controls {
 		/// <returns>the hotkey number, -1 if failed</returns>
 		public static int RegisterHotKey(Keys modifierKeyCode, Keys virtualKeyCode, HotKeyHandler handler) {
 			if (virtualKeyCode == Keys.None) {
-				LOG.Warn("Trying to register a Keys.none hotkey, ignoring");
+				Log.Warn("Trying to register a Keys.none hotkey, ignoring");
 				return 0;
 			}
 			// Convert Modifiers to fit HKM_SETHOTKEY
@@ -481,37 +472,37 @@ namespace GreenshotPlugin.Controls {
 				modifiers |= (uint)Modifiers.WIN;
 			}
 			// Disable repeating hotkey for Windows 7 and beyond, as described in #1559
-			if (isWindows7OrOlder) {
+			if (IsWindows7OrOlder) {
 				modifiers |= (uint)Modifiers.NO_REPEAT;
 			}
-			if (RegisterHotKey(hotkeyHWND, hotKeyCounter, modifiers, (uint)virtualKeyCode)) {
-				keyHandlers.Add(hotKeyCounter, handler);
-				return hotKeyCounter++;
+			if (RegisterHotKey(_hotkeyHwnd, _hotKeyCounter, modifiers, (uint)virtualKeyCode)) {
+				KeyHandlers.Add(_hotKeyCounter, handler);
+				return _hotKeyCounter++;
 			} else {
-				LOG.Warn(String.Format("Couldn't register hotkey modifier {0} virtualKeyCode {1}", modifierKeyCode, virtualKeyCode));
+				Log.Warn($"Couldn't register hotkey modifier {modifierKeyCode} virtualKeyCode {virtualKeyCode}");
 				return -1;
 			}
 		}
 		
 		public static void UnregisterHotkeys() {
-			foreach(int hotkey in keyHandlers.Keys) {
-				UnregisterHotKey(hotkeyHWND, hotkey);
+			foreach(int hotkey in KeyHandlers.Keys) {
+				UnregisterHotKey(_hotkeyHwnd, hotkey);
 			}
 			// Remove all key handlers
-			keyHandlers.Clear();
+			KeyHandlers.Clear();
 		}
 
 		public static void UnregisterHotkey(int hotkey) {
 			bool removeHotkey = false;
-			foreach(int availableHotkey in keyHandlers.Keys) {
+			foreach(int availableHotkey in KeyHandlers.Keys) {
 				if (availableHotkey == hotkey) {
-					UnregisterHotKey(hotkeyHWND, hotkey);
+					UnregisterHotKey(_hotkeyHwnd, hotkey);
 					removeHotkey = true;
 				}
 			}
 			if (removeHotkey) {
 				// Remove key handler
-				keyHandlers.Remove(hotkey);
+				KeyHandlers.Remove(hotkey);
 			}
 		}		
 
@@ -523,11 +514,11 @@ namespace GreenshotPlugin.Controls {
 		public static bool HandleMessages(ref Message m) {
 			if (m.Msg == WM_HOTKEY) {
 				// Call handler
-				if (isWindows7OrOlder) {
-					keyHandlers[(int)m.WParam]();
+				if (IsWindows7OrOlder) {
+					KeyHandlers[(int)m.WParam]();
 				} else {
-					if (eventDelay.Check()) {
-						keyHandlers[(int)m.WParam]();
+					if (EventDelay.Check()) {
+						KeyHandlers[(int)m.WParam]();
 					}
 				}
 				return true;
@@ -537,10 +528,10 @@ namespace GreenshotPlugin.Controls {
 
 		public static string GetKeyName(Keys givenKey) {
 			StringBuilder keyName = new StringBuilder();
-			const uint NUMPAD = 55;
+			const uint numpad = 55;
 
 			Keys virtualKey = givenKey;
-			string keyString = "";
+			string keyString;
 			// Make VC's to real keys
 			switch(virtualKey) {
 				case Keys.Alt:
@@ -553,17 +544,17 @@ namespace GreenshotPlugin.Controls {
 					virtualKey = Keys.LShiftKey;
 					break;
 				case Keys.Multiply:
-					GetKeyNameText(NUMPAD << 16, keyName, 100);
+					GetKeyNameText(numpad << 16, keyName, 100);
 					keyString = keyName.ToString().Replace("*","").Trim().ToLower();
-					if (keyString.IndexOf("(") >= 0) {
+					if (keyString.IndexOf("(", StringComparison.Ordinal) >= 0) {
 						return "* " + keyString;
 					}
 					keyString = keyString.Substring(0,1).ToUpper() + keyString.Substring(1).ToLower();
 					return keyString + " *";
 				case Keys.Divide:
-					GetKeyNameText(NUMPAD << 16, keyName, 100);
+					GetKeyNameText(numpad << 16, keyName, 100);
 					keyString = keyName.ToString().Replace("*","").Trim().ToLower();
-					if (keyString.IndexOf("(") >= 0) {
+					if (keyString.IndexOf("(", StringComparison.Ordinal) >= 0) {
 						return "/ " + keyString;
 					}
 					keyString = keyString.Substring(0,1).ToUpper() + keyString.Substring(1).ToLower();
@@ -578,7 +569,7 @@ namespace GreenshotPlugin.Controls {
 				case Keys.End: case Keys.Home:
 				case Keys.Insert: case Keys.Delete:
 				case Keys.NumLock:
-					LOG.Debug("Modifying Extended bit");
+					Log.Debug("Modifying Extended bit");
 					scanCode |= 0x100; // set extended bit
 					break;
 				case Keys.PrintScreen: // PrintScreen

@@ -54,9 +54,6 @@ namespace GreenshotPicasaPlugin {
 			}
 		}
 
-		public PicasaPlugin() {
-		}
-
 		public IEnumerable<IDestination> Destinations() {
 			yield return new PicasaDestination(this);
 		}
@@ -79,10 +76,12 @@ namespace GreenshotPicasaPlugin {
 			_config = IniConfig.GetIniSection<PicasaConfiguration>();
 			_resources = new ComponentResourceManager(typeof(PicasaPlugin));
 
-			_itemPlugInRoot = new ToolStripMenuItem();
-			_itemPlugInRoot.Text = Language.GetString("picasa", LangKey.Configure);
-			_itemPlugInRoot.Tag = _host;
-			_itemPlugInRoot.Image = (Image)_resources.GetObject("Picasa");
+			_itemPlugInRoot = new ToolStripMenuItem
+			{
+				Text = Language.GetString("picasa", LangKey.Configure),
+				Tag = _host,
+				Image = (Image) _resources.GetObject("Picasa")
+			};
 			_itemPlugInRoot.Click += ConfigMenuClick;
 			PluginUtils.AddToContextMenu(_host, _itemPlugInRoot);
 			Language.LanguageChanged += OnLanguageChanged;

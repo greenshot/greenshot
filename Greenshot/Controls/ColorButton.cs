@@ -72,14 +72,16 @@ namespace Greenshot.Controls {
 			colorDialog.Color = SelectedColor;
 			// Using the parent to make sure the dialog doesn't show on another window
 			colorDialog.ShowDialog(Parent.Parent);
-			if (colorDialog.DialogResult != DialogResult.Cancel) {
-				if (!colorDialog.Color.Equals(SelectedColor)) {
-					SelectedColor = colorDialog.Color;
-					if(PropertyChanged != null) {
-						PropertyChanged(this, new PropertyChangedEventArgs("SelectedColor"));
-					}
-				}
+			if (colorDialog.DialogResult == DialogResult.Cancel)
+			{
+				return;
 			}
+			if (colorDialog.Color.Equals(SelectedColor))
+			{
+				return;
+			}
+			SelectedColor = colorDialog.Color;
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedColor"));
 		}
 	}
 }

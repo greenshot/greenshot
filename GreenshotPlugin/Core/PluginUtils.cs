@@ -36,13 +36,13 @@ namespace GreenshotPlugin.Core {
 	/// Description of PluginUtils.
 	/// </summary>
 	public static class PluginUtils {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(PluginUtils));
-		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-		private const string PATH_KEY = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
-		private static readonly IDictionary<string, Image> exeIconCache = new Dictionary<string, Image>();
+		private static readonly ILog Log = LogManager.GetLogger(typeof(PluginUtils));
+		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+		private const string PathKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
+		private static readonly IDictionary<string, Image> ExeIconCache = new Dictionary<string, Image>();
 
 		static PluginUtils() {
-			conf.PropertyChanged += OnIconSizeChanged;
+			CoreConfig.PropertyChanged += OnIconSizeChanged;
 		}
 
 		/// <summary>
@@ -61,16 +61,15 @@ namespace GreenshotPlugin.Core {
 		private static void OnIconSizeChanged(object sender, PropertyChangedEventArgs e) {
 			if (e.PropertyName == "IconSize") {
 				List<Image> cachedImages = new List<Image>();
-				lock (exeIconCache) {
-					foreach (string key in exeIconCache.Keys) {
-						cachedImages.Add(exeIconCache[key]);
+				lock (ExeIconCache) {
+					foreach (string key in ExeIconCache.Keys) {
+						cachedImages.Add(ExeIconCache[key]);
 					}
-					exeIconCache.Clear();
+					ExeIconCache.Clear();
 				}
-				foreach (Image cachedImage in cachedImages) {
-					if (cachedImage != null) {
-						cachedImage.Dispose();
-					}
+				foreach (Image cachedImage in cachedImages)
+				{
+					cachedImage?.Dispose();
 				}
 
 			}
@@ -82,7 +81,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="exeName">e.g. cmd.exe</param>
 		/// <returns>Path to file</returns>
 		public static string GetExePath(string exeName) {
-			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(PATH_KEY + exeName, false)) {
+			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(PathKey + exeName, false)) {
 				if (key != null) {
 					// "" is the default key, which should point to the requested location
 					return (string)key.GetValue("");
@@ -91,11 +90,11 @@ namespace GreenshotPlugin.Core {
 			foreach (string pathEntry in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(';')) {
 				try {
 					string path = pathEntry.Trim();
-					if (!String.IsNullOrEmpty(path) && File.Exists(path = Path.Combine(path, exeName))) {
+					if (!string.IsNullOrEmpty(path) && File.Exists(path = Path.Combine(path, exeName))) {
 						return Path.GetFullPath(path);
 					}
 				} catch (Exception) {
-					LOG.WarnFormat("Problem with path entry '{0}'.", pathEntry);
+					Log.WarnFormat("Problem with path entry '{0}'.", pathEntry);
 				}
 			}
 			return null;
@@ -108,18 +107,22 @@ namespace GreenshotPlugin.Core {
 		/// <param name="index">index of the icon</param>
 		/// <returns>Bitmap with the icon or null if something happended</returns>
 		public static Image GetCachedExeIcon(string path, int index) {
-			string cacheKey = string.Format("{0}:{1}", path, index);
+			string cacheKey = $"{path}:{index}";
 			Image returnValue;
-			lock (exeIconCache)
+			lock (ExeIconCache)
 			{
-				if (!exeIconCache.TryGetValue(cacheKey, out returnValue)) {
-					lock (exeIconCache) {
-						if (!exeIconCache.TryGetValue(cacheKey, out returnValue)) {
-							returnValue = GetExeIcon(path, index);
-							if (returnValue != null) {
-								exeIconCache.Add(cacheKey, returnValue);
-							}
-						}
+				if (ExeIconCache.TryGetValue(cacheKey, out returnValue))
+				{
+					return returnValue;
+				}
+				lock (ExeIconCache) {
+					if (ExeIconCache.TryGetValue(cacheKey, out returnValue))
+					{
+						return returnValue;
+					}
+					returnValue = GetExeIcon(path, index);
+					if (returnValue != null) {
+						ExeIconCache.Add(cacheKey, returnValue);
 					}
 				}
 			}
@@ -137,18 +140,18 @@ namespace GreenshotPlugin.Core {
 				return null;
 			}
 			try {
-				using (Icon appIcon = ImageHelper.ExtractAssociatedIcon(path, index, conf.UseLargeIcons)) {
+				using (Icon appIcon = ImageHelper.ExtractAssociatedIcon(path, index, CoreConfig.UseLargeIcons)) {
 					if (appIcon != null) {
 						return appIcon.ToBitmap();
 					}
 				}
-				using (Icon appIcon = Shell32.GetFileIcon(path, conf.UseLargeIcons ? Shell32.IconSize.Large : Shell32.IconSize.Small, false)) {
+				using (Icon appIcon = Shell32.GetFileIcon(path, CoreConfig.UseLargeIcons ? Shell32.IconSize.Large : Shell32.IconSize.Small, false)) {
 					if (appIcon != null) {
 						return appIcon.ToBitmap();
 					}
 				}
 			} catch (Exception exIcon) {
-				LOG.Error("error retrieving icon: ", exIcon);
+				Log.Error("error retrieving icon: ", exIcon);
 			}
 			return null;
 		}
@@ -163,10 +166,12 @@ namespace GreenshotPlugin.Core {
 		/// <param name="shortcutKeys">Keys which can be used as shortcut</param>
 		/// <param name="handler">The onclick handler</param>
 		public static void AddToFileMenu(IImageEditor imageEditor, Image image, string text, object tag, Keys? shortcutKeys, EventHandler handler) {
-			ToolStripMenuItem item = new ToolStripMenuItem();
-			item.Image = image;
-			item.Text = text;
-			item.Tag = tag;
+			var item = new ToolStripMenuItem
+			{
+				Image = image,
+				Text = text,
+				Tag = tag
+			};
 			if (shortcutKeys.HasValue) {
 				item.ShortcutKeys = shortcutKeys.Value;
 			}
@@ -228,9 +233,11 @@ namespace GreenshotPlugin.Core {
 				if (contextMenu.Items[i].GetType() == typeof(ToolStripSeparator)) {
 					// Check if we need to add a new separator, which is done if the first found has a Tag with the value "PluginsAreAddedBefore"
 					if ("PluginsAreAddedBefore".Equals(contextMenu.Items[i].Tag)) {
-						ToolStripSeparator separator = new ToolStripSeparator();
-						separator.Tag = "PluginsAreAddedAfter";
-						separator.Size = new Size(305, 6);
+						var separator = new ToolStripSeparator
+						{
+							Tag = "PluginsAreAddedAfter",
+							Size = new Size(305, 6)
+						};
 						contextMenu.Items.Insert(i, separator);
 					} else if (!"PluginsAreAddedAfter".Equals(contextMenu.Items[i].Tag)) {
 						continue;

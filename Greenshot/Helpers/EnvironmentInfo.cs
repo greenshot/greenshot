@@ -62,7 +62,7 @@ namespace Greenshot.Helpers
 			if (IniConfig.IsPortable) {
 					environment.Append(" Portable");
 			}
-			environment.Append(" (" + OSInfo.Bits + " bit)");
+			environment.Append(" (" + OsInfo.Bits + " bit)");
 
 			if (newline)
 			{
@@ -98,7 +98,7 @@ namespace Greenshot.Helpers
 				{
 					environment.Append(", ");
 				}
-				environment.Append(string.Format("OS: {0} {1} {2} (x{3})  {4}", OSInfo.Name, OSInfo.Edition, OSInfo.ServicePack, OSInfo.Bits, OSInfo.VersionString));
+				environment.Append(string.Format("OS: {0} {1} {2} (x{3})  {4}", OsInfo.Name, OsInfo.Edition, OsInfo.ServicePack, OsInfo.Bits, OsInfo.VersionString));
 				if (newline)
 				{
 					environment.AppendLine();
@@ -152,9 +152,9 @@ namespace Greenshot.Helpers
 
 			StringBuilder report = new StringBuilder();
 
-			report.AppendLine("Exception: " + ex.GetType().ToString());
+			report.AppendLine("Exception: " + ex.GetType());
 			report.AppendLine("Message: " + ex.Message);
-			if (ex.Data != null && ex.Data.Count > 0)
+			if (ex.Data.Count > 0)
 			{
 				report.AppendLine();
 				report.AppendLine("Additional Information:");
@@ -207,7 +207,7 @@ namespace Greenshot.Helpers
 	/// Provides detailed information about the host operating system.
 	/// Code is available at: http://www.csharp411.com/determine-windows-version-and-edition-with-c/
 	/// </summary>
-	public static class OSInfo
+	public static class OsInfo
 	{
 		#region BITS
 		/// <summary>
@@ -261,16 +261,7 @@ namespace Greenshot.Helpers
 						}
 						else if (productType == VER_NT_SERVER)
 						{
-							if ((suiteMask & VER_SUITE_ENTERPRISE) != 0)
-							{
-								// Windows NT 4.0 Server Enterprise
-								edition = "Enterprise Server";
-							}
-							else
-							{
-								// Windows NT 4.0 Server
-								edition = "Standard Server";
-							}
+							edition = (suiteMask & VER_SUITE_ENTERPRISE) != 0 ? "Enterprise Server" : "Standard Server";
 						}
 					}
 					#endregion VERSION 4
@@ -470,7 +461,7 @@ namespace Greenshot.Helpers
 		#endregion EDITION
 
 		#region NAME
-		private static string s_Name;
+		private static string _name;
 		/// <summary>
 		/// Gets the name of the operating system running on this computer.
 		/// </summary>
@@ -478,16 +469,18 @@ namespace Greenshot.Helpers
 		{
 			get
 			{
-				if (s_Name != null)
+				if (_name != null)
 				{
-					return s_Name;  //***** RETURN *****//
+					return _name;  //***** RETURN *****//
 				}
 
 				string name = "unknown";
 
 				OperatingSystem osVersion = Environment.OSVersion;
-				OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX();
-				osVersionInfo.dwOSVersionInfoSize = Marshal.SizeOf(typeof(OSVERSIONINFOEX));
+				OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX
+				{
+					dwOSVersionInfoSize = Marshal.SizeOf(typeof(OSVERSIONINFOEX))
+				};
 
 				if (GetVersionEx(ref osVersionInfo))
 				{
@@ -514,14 +507,7 @@ namespace Greenshot.Helpers
 										}
 										break;
 									case 10:
-										if (csdVersion == "A")
-										{
-											name = "Windows 98 Second Edition";
-										}
-										else
-										{
-											name = "Windows 98";
-										}
+										name = csdVersion == "A" ? "Windows 98 Second Edition" : "Windows 98";
 										break;
 									case 90:
 										name = "Windows Me";
@@ -629,7 +615,7 @@ namespace Greenshot.Helpers
 					}
 				}
 
-				s_Name = name;
+				_name = name;
 				return name;
 			}
 		}
@@ -735,9 +721,11 @@ namespace Greenshot.Helpers
 			get
 			{
 				string servicePack = string.Empty;
-				OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX();
+				OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX
+				{
+					dwOSVersionInfoSize = Marshal.SizeOf(typeof(OSVERSIONINFOEX))
+				};
 
-				osVersionInfo.dwOSVersionInfoSize = Marshal.SizeOf(typeof(OSVERSIONINFOEX));
 
 				if (GetVersionEx(ref osVersionInfo))
 				{
@@ -754,13 +742,8 @@ namespace Greenshot.Helpers
 		/// <summary>
 		/// Gets the build version number of the operating system running on this computer.
 		/// </summary>
-		public static int BuildVersion
-		{
-			get
-			{
-				return Environment.OSVersion.Version.Build;
-			}
-		}
+		public static int BuildVersion => Environment.OSVersion.Version.Build;
+
 		#endregion BUILD
 
 		#region FULL

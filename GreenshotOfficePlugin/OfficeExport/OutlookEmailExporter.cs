@@ -33,18 +33,18 @@ namespace Greenshot.Interop.Office {
 	/// Outlook exporter has all the functionality to export to outlook
 	/// </summary>
 	public class OutlookEmailExporter {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OutlookEmailExporter));
-		private static readonly OfficeConfiguration conf = IniConfig.GetIniSection<OfficeConfiguration>();
-		private static readonly string SIGNATURE_PATH = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Microsoft\Signatures");
-		private static Version outlookVersion = null;
-		private static string currentUser = null;
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(OutlookEmailExporter));
+		private static readonly OfficeConfiguration OfficeConfig = IniConfig.GetIniSection<OfficeConfiguration>();
+		private static readonly string SignaturePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Microsoft\Signatures");
+		private static Version _outlookVersion;
+		private static string _currentUser;
 
 		// The signature key can be found at:
 		// HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging Subsystem\Profiles\<DefaultProfile>\9375CFF0413111d3B88A00104B2A6676\<xxxx> [New Signature]
-		private const string PROFILES_KEY = @"Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging Subsystem\Profiles\";
-		private const string ACCOUNT_KEY = "9375CFF0413111d3B88A00104B2A6676";
-		private const string NEW_SIGNATURE_VALUE = "New Signature";
-		private const string DEFAULT_PROFILE_VALUE = "DefaultProfile";
+		private const string ProfilesKey = @"Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging Subsystem\Profiles\";
+		private const string AccountKey = "9375CFF0413111d3B88A00104B2A6676";
+		private const string NewSignatureValue = "New Signature";
+		private const string DefaultProfileValue = "DefaultProfile";
 
 		/// <summary>
 		/// A method to retrieve all inspectors which can act as an export target
@@ -58,12 +58,12 @@ namespace Greenshot.Interop.Office {
 						return null;
 					}
 
-					if (outlookVersion.Major >= (int)OfficeVersion.OFFICE_2013) {
+					if (_outlookVersion.Major >= (int)OfficeVersion.OFFICE_2013) {
 						// Check inline "panel" for Outlook 2013
 						using (var activeExplorer = outlookApplication.ActiveExplorer()) {
 							if (activeExplorer != null) {
 								using (var inlineResponse = activeExplorer.ActiveInlineResponse) {
-									if (canExportToInspector(inlineResponse)) {
+									if (CanExportToInspector(inlineResponse)) {
 										OlObjectClass currentItemClass = inlineResponse.Class;
 										inspectorCaptions.Add(activeExplorer.Caption, currentItemClass);
 									}
@@ -77,7 +77,7 @@ namespace Greenshot.Interop.Office {
 							for (int i = 1; i <= inspectors.Count; i++) {
 								using (IInspector inspector = outlookApplication.Inspectors[i]) {
 									using (IItem currentItem = inspector.CurrentItem) {
-										if (canExportToInspector(currentItem)) {
+										if (CanExportToInspector(currentItem)) {
 											OlObjectClass currentItemClass = currentItem.Class;
 											inspectorCaptions.Add(inspector.Caption, currentItemClass);
 										}
@@ -88,7 +88,7 @@ namespace Greenshot.Interop.Office {
 					}
 				}
 			} catch (Exception ex) {
-				LOG.Warn("Problem retrieving word destinations, ignoring: ", ex);
+				Log.Warn("Problem retrieving word destinations, ignoring: ", ex);
 			}
 			return inspectorCaptions;
 		}
@@ -98,29 +98,28 @@ namespace Greenshot.Interop.Office {
 		/// </summary>
 		/// <param name="currentItem">the Item to check</param>
 		/// <returns></returns>
-		private static bool canExportToInspector(IItem currentItem) {
+		private static bool CanExportToInspector(IItem currentItem) {
 			try {
 				if (currentItem != null) {
 					OlObjectClass currentItemClass = currentItem.Class;
 					if (OlObjectClass.olMail.Equals(currentItemClass)) {
 						MailItem mailItem = (MailItem)currentItem;
 						//MailItem mailItem = COMWrapper.Cast<MailItem>(currentItem);
-						LOG.DebugFormat("Mail sent: {0}", mailItem.Sent);
+						Log.DebugFormat("Mail sent: {0}", mailItem.Sent);
 						if (!mailItem.Sent) {
 							return true;
 						}
-					} else if (outlookVersion.Major >= (int)OfficeVersion.OFFICE_2010 && conf.OutlookAllowExportInMeetings && OlObjectClass.olAppointment.Equals(currentItemClass)) {
+					} else if (_outlookVersion.Major >= (int)OfficeVersion.OFFICE_2010 && OfficeConfig.OutlookAllowExportInMeetings && OlObjectClass.olAppointment.Equals(currentItemClass)) {
 						//AppointmentItem appointmentItem = COMWrapper.Cast<AppointmentItem>(currentItem);
 						AppointmentItem appointmentItem = (AppointmentItem)currentItem;
-						if (string.IsNullOrEmpty(appointmentItem.Organizer) || (currentUser != null && currentUser.Equals(appointmentItem.Organizer))) {
+						if (string.IsNullOrEmpty(appointmentItem.Organizer) || (_currentUser != null && _currentUser.Equals(appointmentItem.Organizer))) {
 							return true;
-						} else {
-							LOG.DebugFormat("Not exporting, as organizer is {1} and currentuser {2}", appointmentItem.Organizer, currentUser);
 						}
+						Log.DebugFormat("Not exporting, as organizer is {0} and currentuser {1}", appointmentItem.Organizer, _currentUser);
 					}
 				}
 			} catch (Exception ex) {
-				LOG.WarnFormat("Couldn't process item due to: {0}", ex.Message);
+				Log.WarnFormat("Couldn't process item due to: {0}", ex.Message);
 			}
 			return false;
 		}
@@ -138,7 +137,7 @@ namespace Greenshot.Interop.Office {
 				if (outlookApplication == null) {
 					return false;
 				}
-				if (outlookVersion.Major >= (int)OfficeVersion.OFFICE_2013) {
+				if (_outlookVersion.Major >= (int)OfficeVersion.OFFICE_2013) {
 					// Check inline "panel" for Outlook 2013
 					using (var activeExplorer = outlookApplication.ActiveExplorer()) {
 						if (activeExplorer == null) {
@@ -148,11 +147,11 @@ namespace Greenshot.Interop.Office {
 						if (currentCaption.StartsWith(inspectorCaption)) {
 							using (var inlineResponse = activeExplorer.ActiveInlineResponse) {
 								using (IItem currentItem = activeExplorer.ActiveInlineResponse) {
-									if (canExportToInspector(inlineResponse)) {
+									if (CanExportToInspector(inlineResponse)) {
 										try {
 											return ExportToInspector(activeExplorer, currentItem, tmpFile, attachmentName);
 										} catch (Exception exExport) {
-											LOG.Error("Export to " + currentCaption + " failed.", exExport);
+											Log.Error("Export to " + currentCaption + " failed.", exExport);
 										}
 									}
 								}
@@ -165,17 +164,17 @@ namespace Greenshot.Interop.Office {
 					if (inspectors == null || inspectors.Count == 0) {
 						return false;
 					}
-					LOG.DebugFormat("Got {0} inspectors to check", inspectors.Count);
+					Log.DebugFormat("Got {0} inspectors to check", inspectors.Count);
 					for (int i = 1; i <= inspectors.Count; i++) {
 						using (IInspector inspector = outlookApplication.Inspectors[i]) {
 							string currentCaption = inspector.Caption;
 							if (currentCaption.StartsWith(inspectorCaption)) {
 								using (IItem currentItem = inspector.CurrentItem) {
-									if (canExportToInspector(currentItem)) {
+									if (CanExportToInspector(currentItem)) {
 										try {
 											return ExportToInspector(inspector, currentItem, tmpFile, attachmentName);
 										} catch (Exception exExport) {
-											LOG.Error("Export to " + currentCaption + " failed.", exExport);
+											Log.Error("Export to " + currentCaption + " failed.", exExport);
 										}
 									}
 								}
@@ -190,21 +189,21 @@ namespace Greenshot.Interop.Office {
 		/// <summary>
 		/// Export the file to the supplied inspector
 		/// </summary>
-		/// <param name="inspector">Inspector</param>
+		/// <param name="inspectorOrExplorer">ICommonExplorer</param>
 		/// <param name="currentItem">Item</param>
 		/// <param name="tmpFile"></param>
 		/// <param name="attachmentName"></param>
 		/// <returns></returns>
 		private static bool ExportToInspector(ICommonExplorer inspectorOrExplorer, IItem currentItem, string tmpFile, string attachmentName) {
 			if (currentItem == null) {
-				LOG.Warn("No current item.");
+				Log.Warn("No current item.");
 				return false;
 			}
 			OlObjectClass itemClass = currentItem.Class;
 			bool isMail = OlObjectClass.olMail.Equals(itemClass);
 			bool isAppointment = OlObjectClass.olAppointment.Equals(itemClass);
 			if (!isMail && !isAppointment) {
-				LOG.Warn("Item is no mail or appointment.");
+				Log.Warn("Item is no mail or appointment.");
 				return false;
 			}
 			MailItem mailItem = null;
@@ -213,7 +212,7 @@ namespace Greenshot.Interop.Office {
 					//mailItem = COMWrapper.Cast<MailItem>(currentItem);
 					mailItem = (MailItem)currentItem;
 					if (mailItem.Sent) {
-						LOG.WarnFormat("Item already sent, can't export to {0}", currentItem.Subject);
+						Log.WarnFormat("Item already sent, can't export to {0}", currentItem.Subject);
 						return false;
 					}
 				}
@@ -230,41 +229,46 @@ namespace Greenshot.Interop.Office {
 					// http://msdn.microsoft.com/en-us/library/dd492012%28v=office.12%29.aspx
 					// Earlier versions of Outlook also supported an Inspector.HTMLEditor object property, but since Internet Explorer is no longer the rendering engine for HTML messages and posts, HTMLEditor is no longer supported.
 					IWordDocument wordDocument = null;
-					if (inspectorOrExplorer is IExplorer) {
-						var explorer = inspectorOrExplorer as IExplorer;
+					var explorer = inspectorOrExplorer as IExplorer;
+					if (explorer != null) {
 						wordDocument = explorer.ActiveInlineResponseWordEditor;
-					} else if (inspectorOrExplorer is IInspector) {
-						var inspector = inspectorOrExplorer as IInspector;
-						if (inspector.IsWordMail()) {
-							wordDocument = inspector.WordEditor;
+					}
+					else
+					{
+						var inspector1 = inspectorOrExplorer as IInspector;
+						if (inspector1 != null) {
+							var inspector = inspector1;
+							if (inspector.IsWordMail()) {
+								wordDocument = inspector.WordEditor;
+							}
 						}
 					}
 					if (wordDocument != null) {
 						try {
 							if (WordExporter.InsertIntoExistingDocument(wordDocument.Application, wordDocument, tmpFile, null, null)) {
-								LOG.Info("Inserted into Wordmail");
+								Log.Info("Inserted into Wordmail");
 								wordDocument.Dispose();
 								return true;
 							}
 						} catch (Exception exportException) {
-							LOG.Error("Error exporting to the word editor, trying to do it via another method", exportException);
+							Log.Error("Error exporting to the word editor, trying to do it via another method", exportException);
 						}
 					} else if (isAppointment) {
-						LOG.Info("Can't export to an appointment if no word editor is used");
+						Log.Info("Can't export to an appointment if no word editor is used");
 						return false;
 					} else {
-						LOG.Info("Trying export for outlook < 2007.");
+						Log.Info("Trying export for outlook < 2007.");
 					}
 				}
 				// Only use mailitem as it should be filled!!
-				LOG.InfoFormat("Item '{0}' has format: {1}", mailItem.Subject, mailItem.BodyFormat);
+				Log.InfoFormat("Item '{0}' has format: {1}", mailItem?.Subject, mailItem?.BodyFormat);
 
-				string contentID;
-				if (outlookVersion.Major >= (int)OfficeVersion.OFFICE_2007) {
-					contentID = Guid.NewGuid().ToString();
+				string contentId;
+				if (_outlookVersion.Major >= (int)OfficeVersion.OFFICE_2007) {
+					contentId = Guid.NewGuid().ToString();
 				} else {
-					LOG.Info("Older Outlook (<2007) found, using filename as contentid.");
-					contentID = Path.GetFileName(tmpFile);
+					Log.Info("Older Outlook (<2007) found, using filename as contentid.");
+					contentId = Path.GetFileName(tmpFile);
 				}
 
 				// Use this to change the format, it will probably lose the current selection.
@@ -274,7 +278,7 @@ namespace Greenshot.Interop.Office {
 				//}
 
 				bool inlinePossible = false;
-				if (inspectorOrExplorer is IInspector && OlBodyFormat.olFormatHTML.Equals(mailItem.BodyFormat)) {
+				if (inspectorOrExplorer is IInspector && OlBodyFormat.olFormatHTML.Equals(mailItem?.BodyFormat)) {
 					// if html we can try to inline it
 					// The following might cause a security popup... can't ignore it.
 					try {
@@ -285,46 +289,46 @@ namespace Greenshot.Interop.Office {
 								IHTMLTxtRange range = selection.createRange();
 								if (range != null) {
 									// First paste, than attach (otherwise the range is wrong!)
-									range.pasteHTML("<BR/><IMG border=0 hspace=0 alt=\"" + attachmentName + "\" align=baseline src=\"cid:" + contentID + "\"><BR/>");
+									range.pasteHTML("<BR/><IMG border=0 hspace=0 alt=\"" + attachmentName + "\" align=baseline src=\"cid:" + contentId + "\"><BR/>");
 									inlinePossible = true;
 								} else {
-									LOG.DebugFormat("No range for '{0}'", inspectorOrExplorer.Caption);
+									Log.DebugFormat("No range for '{0}'", inspectorOrExplorer.Caption);
 								}
 							} else {
-								LOG.DebugFormat("No selection for '{0}'", inspectorOrExplorer.Caption);
+								Log.DebugFormat("No selection for '{0}'", inspectorOrExplorer.Caption);
 							}
 						} else {
-							LOG.DebugFormat("No HTML editor for '{0}'", inspectorOrExplorer.Caption);
+							Log.DebugFormat("No HTML editor for '{0}'", inspectorOrExplorer.Caption);
 						}
 					} catch (Exception e) {
 						// Continue with non inline image
-						LOG.Warn("Error pasting HTML, most likely due to an ACCESS_DENIED as the user clicked no.", e);
+						Log.Warn("Error pasting HTML, most likely due to an ACCESS_DENIED as the user clicked no.", e);
 					}
 				}
 
 				// Create the attachment (if inlined the attachment isn't visible as attachment!)
 				using (IAttachment attachment = mailItem.Attachments.Add(tmpFile, OlAttachmentType.olByValue, inlinePossible ? 0 : 1, attachmentName)) {
-					if (outlookVersion.Major >= (int)OfficeVersion.OFFICE_2007) {
+					if (_outlookVersion.Major >= (int)OfficeVersion.OFFICE_2007) {
 						// Add the content id to the attachment, this only works for Outlook >= 2007
 						try {
 							IPropertyAccessor propertyAccessor = attachment.PropertyAccessor;
-							propertyAccessor.SetProperty(PropTag.ATTACHMENT_CONTENT_ID, contentID);
+							propertyAccessor.SetProperty(PropTag.ATTACHMENT_CONTENT_ID, contentId);
 						} catch {
 							// Ignore
 						}
 					}
 				}
 			} catch (Exception ex) {
-				LOG.WarnFormat("Problem while trying to add attachment to Item '{0}' : {1}", inspectorOrExplorer.Caption, ex);
+				Log.WarnFormat("Problem while trying to add attachment to Item '{0}' : {1}", inspectorOrExplorer.Caption, ex);
 				return false;
 			}
 			try {
 				inspectorOrExplorer.Activate();
 			} catch (Exception ex) {
-				LOG.Warn("Problem activating inspector/explorer: ", ex);
+				Log.Warn("Problem activating inspector/explorer: ", ex);
 				return false;
 			}
-			LOG.Debug("Finished!");
+			Log.Debug("Finished!");
 			return true;
 		}
 
@@ -363,7 +367,7 @@ namespace Greenshot.Interop.Office {
 				try {
 					bodyString = GetOutlookSignature(format);
 				} catch (Exception e) {
-					LOG.Error("Problem reading signature!", e);
+					Log.Error("Problem reading signature!", e);
 				}
 				switch (format) {
 					case EmailFormat.Text:
@@ -377,20 +381,19 @@ namespace Greenshot.Interop.Office {
 							newMail.Body = bodyString;
 						}
 						break;
-					case EmailFormat.HTML:
 					default:
-						string contentID = Path.GetFileName(tmpFile);
+						string contentId = Path.GetFileName(tmpFile);
 						// Create the attachment (and dispose the COM object after using)
 						using (IAttachment attachment = newMail.Attachments.Add(tmpFile, OlAttachmentType.olByValue, 0, attachmentName)) {
 							// add content ID to the attachment
-							if (outlookVersion.Major >= (int)OfficeVersion.OFFICE_2007) {
+							if (_outlookVersion.Major >= (int)OfficeVersion.OFFICE_2007) {
 								try {
-									contentID = Guid.NewGuid().ToString();
+									contentId = Guid.NewGuid().ToString();
 									IPropertyAccessor propertyAccessor = attachment.PropertyAccessor;
-									propertyAccessor.SetProperty(PropTag.ATTACHMENT_CONTENT_ID, contentID);
+									propertyAccessor.SetProperty(PropTag.ATTACHMENT_CONTENT_ID, contentId);
 								} catch {
-									LOG.Info("Error working with the PropertyAccessor, using filename as contentid");
-									contentID = Path.GetFileName(tmpFile);
+									Log.Info("Error working with the PropertyAccessor, using filename as contentid");
+									contentId = Path.GetFileName(tmpFile);
 								}
 							}
 						}
@@ -399,22 +402,19 @@ namespace Greenshot.Interop.Office {
 						string href = "";
 						string hrefEnd = "";
 						if (!string.IsNullOrEmpty(url)) {
-							href = string.Format("<A HREF=\"{0}\">", url);
+							href = $"<A HREF=\"{url}\">";
 							hrefEnd = "</A>";
 						}
-						string htmlImgEmbedded = string.Format("<BR/>{0}<IMG border=0 hspace=0 alt=\"{1}\" align=baseline src=\"cid:{2}\">{3}<BR/>", href, attachmentName, contentID, hrefEnd);
-						string fallbackBody = string.Format("<HTML><BODY>{0}</BODY></HTML>", htmlImgEmbedded);
+						string htmlImgEmbedded = $"<BR/>{href}<IMG border=0 hspace=0 alt=\"{attachmentName}\" align=baseline src=\"cid:{contentId}\">{hrefEnd}<BR/>";
+						string fallbackBody = $"<HTML><BODY>{htmlImgEmbedded}</BODY></HTML>";
 						if (bodyString == null) {
 							bodyString = fallbackBody;
 						} else {
 							int bodyIndex = bodyString.IndexOf("<body", StringComparison.CurrentCultureIgnoreCase);
-							if (bodyIndex >= 0) {
-								bodyIndex = bodyString.IndexOf(">", bodyIndex) + 1;
-								if (bodyIndex >= 0) {
-									bodyString = bodyString.Insert(bodyIndex, htmlImgEmbedded);
-								} else {
-									bodyString = fallbackBody;
-								}
+							if (bodyIndex >= 0)
+							{
+								bodyIndex = bodyString.IndexOf(">", bodyIndex, StringComparison.Ordinal) + 1;
+								bodyString = bodyIndex >= 0 ? bodyString.Insert(bodyIndex, htmlImgEmbedded) : fallbackBody;
 							} else {
 								bodyString = fallbackBody;
 							}
@@ -460,7 +460,7 @@ namespace Greenshot.Interop.Office {
 				}
 				return exported;
 			} catch (Exception e) {
-				LOG.Error("Error while creating an outlook mail item: ", e);
+				Log.Error("Error while creating an outlook mail item: ", e);
 			}
 			return exported;
 		}
@@ -470,45 +470,47 @@ namespace Greenshot.Interop.Office {
 		/// </summary>
 		/// <returns></returns>
 		private static string GetOutlookSignature(EmailFormat format) {
-			using (RegistryKey profilesKey = Registry.CurrentUser.OpenSubKey(PROFILES_KEY, false)) {
+			using (RegistryKey profilesKey = Registry.CurrentUser.OpenSubKey(ProfilesKey, false)) {
 				if (profilesKey == null) {
 					return null;
 				}
-				string defaultProfile = (string)profilesKey.GetValue(DEFAULT_PROFILE_VALUE);
-				LOG.DebugFormat("defaultProfile={0}", defaultProfile);
-				using (RegistryKey profileKey = profilesKey.OpenSubKey(defaultProfile + @"\" + ACCOUNT_KEY, false)) {
-					if (profilesKey == null) {
-						return null;
-					}
-					string[] numbers = profileKey.GetSubKeyNames();
-					foreach (string number in numbers) {
-						LOG.DebugFormat("Found subkey {0}", number);
-						using (RegistryKey numberKey = profileKey.OpenSubKey(number, false)) {
-							byte[] val = (byte[])numberKey.GetValue(NEW_SIGNATURE_VALUE);
-							if (val == null) {
-								continue;
-							}
-							string signatureName = "";
-							foreach (byte b in val) {
-								if (b != 0) {
-									signatureName += (char)b;
+				string defaultProfile = (string)profilesKey.GetValue(DefaultProfileValue);
+				Log.DebugFormat("defaultProfile={0}", defaultProfile);
+				using (RegistryKey profileKey = profilesKey.OpenSubKey(defaultProfile + @"\" + AccountKey, false)) {
+					if (profileKey != null)
+					{
+						string[] numbers = profileKey.GetSubKeyNames();
+						foreach (string number in numbers) {
+							Log.DebugFormat("Found subkey {0}", number);
+							using (RegistryKey numberKey = profileKey.OpenSubKey(number, false)) {
+								if (numberKey != null)
+								{
+									byte[] val = (byte[])numberKey.GetValue(NewSignatureValue);
+									if (val == null) {
+										continue;
+									}
+									string signatureName = "";
+									foreach (byte b in val) {
+										if (b != 0) {
+											signatureName += (char)b;
+										}
+									}
+									Log.DebugFormat("Found email signature: {0}", signatureName);
+									string extension;
+									switch (format) {
+										case EmailFormat.Text:
+											extension = ".txt";
+											break;
+										default:
+											extension = ".htm";
+											break;
+									}
+									string signatureFile = Path.Combine(SignaturePath, signatureName + extension);
+									if (File.Exists(signatureFile)) {
+										Log.DebugFormat("Found email signature file: {0}", signatureFile);
+										return File.ReadAllText(signatureFile, Encoding.Default);
+									}
 								}
-							}
-							LOG.DebugFormat("Found email signature: {0}", signatureName);
-							string extension;
-							switch (format) {
-								case EmailFormat.Text:
-									extension = ".txt";
-									break;
-								case EmailFormat.HTML:
-								default:
-									extension = ".htm";
-									break;
-							}
-							string signatureFile = Path.Combine(SIGNATURE_PATH, signatureName + extension);
-							if (File.Exists(signatureFile)) {
-								LOG.DebugFormat("Found email signature file: {0}", signatureFile);
-								return File.ReadAllText(signatureFile, Encoding.Default);
 							}
 						}
 					}
@@ -522,25 +524,25 @@ namespace Greenshot.Interop.Office {
 		/// </summary>
 		/// <param name="outlookApplication"></param>
 		private static void InitializeVariables(IOutlookApplication outlookApplication) {
-			if (outlookApplication == null || outlookVersion != null) {
+			if (outlookApplication == null || _outlookVersion != null) {
 				return;
 			}
 			try {
-				outlookVersion = new Version(outlookApplication.Version);
-				LOG.InfoFormat("Using Outlook {0}", outlookVersion);
+				_outlookVersion = new Version(outlookApplication.Version);
+				Log.InfoFormat("Using Outlook {0}", _outlookVersion);
 			} catch (Exception exVersion) {
-				LOG.Error(exVersion);
-				LOG.Warn("Assuming outlook version 1997.");
-				outlookVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
+				Log.Error(exVersion);
+				Log.Warn("Assuming outlook version 1997.");
+				_outlookVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
 			}
 			// Preventing retrieval of currentUser if Outlook is older than 2007
-			if (outlookVersion.Major >= (int)OfficeVersion.OFFICE_2007) {
+			if (_outlookVersion.Major >= (int)OfficeVersion.OFFICE_2007) {
 				try {
 					INameSpace mapiNamespace = outlookApplication.GetNameSpace("MAPI");
-					currentUser = mapiNamespace.CurrentUser.Name;
-					LOG.InfoFormat("Current user: {0}", currentUser);
-				} catch (Exception exNS) {
-					LOG.Error(exNS);
+					_currentUser = mapiNamespace.CurrentUser.Name;
+					Log.InfoFormat("Current user: {0}", _currentUser);
+				} catch (Exception exNs) {
+					Log.Error(exNs);
 				}
 			}
 		}

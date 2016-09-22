@@ -24,7 +24,6 @@ using Greenshot.IniFile;
 using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Interfaces.Drawing;
-using log4net;
 using System.Collections.Generic;
 using System.ComponentModel;
 
@@ -41,26 +40,25 @@ namespace Greenshot.Drawing.Fields
 	///    Properties that do not apply for ALL selected elements are null (or 0 respectively)
 	///    If the property values of the selected elements differ, the value of the last bound element wins.
 	/// </summary>
-	public class FieldAggregator : AbstractFieldHolder
+	public sealed class FieldAggregator : AbstractFieldHolder
 	{
 
-		private IDrawableContainerList boundContainers;
-		private bool internalUpdateRunning = false;
+		private readonly IDrawableContainerList _boundContainers;
+		private bool _internalUpdateRunning;
 
-		private enum Status { IDLE, BINDING, UPDATING };
-
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(FieldAggregator));
-		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+		private static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
 
 		public FieldAggregator(ISurface parent)
 		{
-			foreach (FieldType fieldType in FieldType.Values)
+			foreach (var fieldType in FieldType.Values)
 			{
-				Field field = new Field(fieldType, GetType());
+				var field = new Field(fieldType, GetType());
 				AddField(field);
 			}
-			boundContainers = new DrawableContainerList();
-			boundContainers.Parent = parent;
+			_boundContainers = new DrawableContainerList
+			{
+				Parent = parent
+			};
 		}
 
 		public override void AddField(IField field)
@@ -71,7 +69,7 @@ namespace Greenshot.Drawing.Fields
 
 		public void BindElements(IDrawableContainerList dcs)
 		{
-			foreach (DrawableContainer dc in dcs)
+			foreach (var dc in dcs)
 			{
 				BindElement(dc);
 			}
@@ -80,14 +78,15 @@ namespace Greenshot.Drawing.Fields
 		public void BindElement(IDrawableContainer dc)
 		{
 			DrawableContainer container = dc as DrawableContainer;
-			if (container != null && !boundContainers.Contains(container))
+			if (container == null || _boundContainers.Contains(container))
 			{
-				boundContainers.Add(container);
-				container.ChildrenChanged += delegate {
-					UpdateFromBoundElements();
-				};
-				UpdateFromBoundElements();
+				return;
 			}
+			_boundContainers.Add(container);
+			container.ChildrenChanged += delegate {
+				UpdateFromBoundElements();
+			};
+			UpdateFromBoundElements();
 		}
 
 		public void BindAndUpdateElement(IDrawableContainer dc)
@@ -103,8 +102,8 @@ namespace Greenshot.Drawing.Fields
 			{
 				return;
 			}
-			internalUpdateRunning = true;
-			foreach (Field field in GetFields())
+			_internalUpdateRunning = true;
+			foreach (var field in GetFields())
 			{
 				if (container.HasField(field.FieldType) && field.HasValue)
 				{
@@ -112,14 +111,14 @@ namespace Greenshot.Drawing.Fields
 					container.SetFieldValue(field.FieldType, field.Value);
 				}
 			}
-			internalUpdateRunning = false;
+			_internalUpdateRunning = false;
 		}
 
 		public void UnbindElement(IDrawableContainer dc)
 		{
-			if (boundContainers.Contains(dc))
+			if (_boundContainers.Contains(dc))
 			{
-				boundContainers.Remove(dc);
+				_boundContainers.Remove(dc);
 				UpdateFromBoundElements();
 			}
 		}
@@ -127,7 +126,7 @@ namespace Greenshot.Drawing.Fields
 		public void Clear()
 		{
 			ClearFields();
-			boundContainers.Clear();
+			_boundContainers.Clear();
 			UpdateFromBoundElements();
 		}
 
@@ -136,12 +135,12 @@ namespace Greenshot.Drawing.Fields
 		/// </summary>
 		private void ClearFields()
 		{
-			internalUpdateRunning = true;
-			foreach (Field field in GetFields())
+			_internalUpdateRunning = true;
+			foreach (var field in GetFields())
 			{
 				field.Value = null;
 			}
-			internalUpdateRunning = false;
+			_internalUpdateRunning = false;
 		}
 
 		/// <summary>
@@ -152,27 +151,27 @@ namespace Greenshot.Drawing.Fields
 		private void UpdateFromBoundElements()
 		{
 			ClearFields();
-			internalUpdateRunning = true;
+			_internalUpdateRunning = true;
 			foreach (var field in FindCommonFields())
 			{
 				SetFieldValue(field.FieldType, field.Value);
 			}
-			internalUpdateRunning = false;
+			_internalUpdateRunning = false;
 		}
 
 		private IList<IField> FindCommonFields()
 		{
 			IList<IField> returnFields = null;
-			if (boundContainers.Count > 0)
+			if (_boundContainers.Count > 0)
 			{
 				// take all fields from the least selected container...
-				DrawableContainer leastSelectedContainer = boundContainers[boundContainers.Count - 1] as DrawableContainer;
+				DrawableContainer leastSelectedContainer = _boundContainers[_boundContainers.Count - 1] as DrawableContainer;
 				if (leastSelectedContainer != null)
 				{
 					returnFields = leastSelectedContainer.GetFields();
-					for (int i = 0; i < boundContainers.Count - 1; i++)
+					for (int i = 0; i < _boundContainers.Count - 1; i++)
 					{
-						DrawableContainer dc = boundContainers[i] as DrawableContainer;
+						DrawableContainer dc = _boundContainers[i] as DrawableContainer;
 						if (dc != null)
 						{
 							IList<IField> fieldsToRemove = new List<IField>();
@@ -184,7 +183,7 @@ namespace Greenshot.Drawing.Fields
 									fieldsToRemove.Add(field);
 								}
 							}
-							foreach (IField field in fieldsToRemove)
+							foreach (var field in fieldsToRemove)
 							{
 								returnFields.Remove(field);
 							}
@@ -192,31 +191,30 @@ namespace Greenshot.Drawing.Fields
 					}
 				}
 			}
-			if (returnFields == null)
-			{
-				returnFields = new List<IField>();
-			}
-			return returnFields;
+			return returnFields ?? new List<IField>();
 		}
 
 		public void OwnPropertyChanged(object sender, PropertyChangedEventArgs ea)
 		{
 			IField field = (IField)sender;
-			if (!internalUpdateRunning && field.Value != null)
+			if (_internalUpdateRunning || field.Value == null)
 			{
-				foreach (DrawableContainer drawableContainer in boundContainers)
+				return;
+			}
+			foreach (var drawableContainer1 in _boundContainers)
+			{
+				var drawableContainer = (DrawableContainer) drawableContainer1;
+				if (!drawableContainer.HasField(field.FieldType))
 				{
-					if (drawableContainer.HasField(field.FieldType))
-					{
-						IField drawableContainerField = drawableContainer.GetField(field.FieldType);
-						// Notify before change, so we can e.g. invalidate the area
-						drawableContainer.BeforeFieldChange(drawableContainerField, field.Value);
-
-						drawableContainerField.Value = field.Value;
-						// update last used from DC field, so that scope is honored
-						editorConfiguration.UpdateLastFieldValue(drawableContainerField);
-					}
+					continue;
 				}
+				IField drawableContainerField = drawableContainer.GetField(field.FieldType);
+				// Notify before change, so we can e.g. invalidate the area
+				drawableContainer.BeforeFieldChange(drawableContainerField, field.Value);
+
+				drawableContainerField.Value = field.Value;
+				// update last used from DC field, so that scope is honored
+				EditorConfig.UpdateLastFieldValue(drawableContainerField);
 			}
 		}
 

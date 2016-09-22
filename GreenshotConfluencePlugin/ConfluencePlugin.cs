@@ -124,7 +124,7 @@ namespace GreenshotConfluencePlugin {
 			ConfluenceConfiguration clonedConfig = _config.Clone();
 			ConfluenceConfigurationForm configForm = new ConfluenceConfigurationForm(clonedConfig);
 			string url = _config.Url;
-			Nullable<bool> dialogResult = configForm.ShowDialog();
+			bool? dialogResult = configForm.ShowDialog();
 			if (dialogResult.HasValue && dialogResult.Value) {
 				// copy the new object to the old...
 				clonedConfig.CloneTo(_config);

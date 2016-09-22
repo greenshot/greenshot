@@ -114,7 +114,7 @@ namespace GreenshotPlugin.Core {
 		/// <summary>Gets or sets if the credentials are to be persisted in the credential manager.</summary>
 		public bool Persist { get; set; } = true;
 
-		/// <summary>Gets or sets if the incorrect password balloontip needs to be shown. Introduced AFTER Windows XP</summary>Gets></summary>
+		/// <summary>Gets or sets if the incorrect password balloontip needs to be shown. Introduced AFTER Windows XP</summary>
 		public bool IncorrectPassword { get; set; }
 
 		/// <summary>Gets or sets if the name is read-only.</summary>
@@ -127,14 +127,12 @@ namespace GreenshotPlugin.Core {
 				return _name;
 			}
 			set {
-				if (value != null) {
-					if (value.Length > CREDUI.MAX_USERNAME_LENGTH) {
-						string message = string.Format(
-							Thread.CurrentThread.CurrentUICulture,
-							"The name has a maximum length of {0} characters.",
-							CREDUI.MAX_USERNAME_LENGTH);
-						throw new ArgumentException(message, nameof(Name));
-					}
+				if (value?.Length > CredUi.MAX_USERNAME_LENGTH) {
+					string message = string.Format(
+						Thread.CurrentThread.CurrentUICulture,
+						"The name has a maximum length of {0} characters.",
+						CredUi.MAX_USERNAME_LENGTH);
+					throw new ArgumentException(message, nameof(Name));
 				}
 				_name = value;
 			}
@@ -147,14 +145,12 @@ namespace GreenshotPlugin.Core {
 				return _password;
 			}
 			set {
-				if (value != null) {
-					if (value.Length > CREDUI.MAX_PASSWORD_LENGTH) {
-						string message = string.Format(
-							Thread.CurrentThread.CurrentUICulture,
-							"The password has a maximum length of {0} characters.",
-							CREDUI.MAX_PASSWORD_LENGTH);
-						throw new ArgumentException(message, nameof(Password));
-					}
+				if (value?.Length > CredUi.MAX_PASSWORD_LENGTH) {
+					string message = string.Format(
+						Thread.CurrentThread.CurrentUICulture,
+						"The password has a maximum length of {0} characters.",
+						CredUi.MAX_PASSWORD_LENGTH);
+					throw new ArgumentException(message, nameof(Password));
 				}
 				_password = value;
 			}
@@ -175,13 +171,13 @@ namespace GreenshotPlugin.Core {
 			}
 			set {
 				if (value == null) {
-					throw new ArgumentException("The target cannot be a null value.", "Target");
+					throw new ArgumentException("The target cannot be a null value.", nameof(Target));
 				}
-				if (value.Length > CREDUI.MAX_GENERIC_TARGET_LENGTH) {
+				if (value.Length > CredUi.MAX_GENERIC_TARGET_LENGTH) {
 					string message = string.Format(
 						Thread.CurrentThread.CurrentUICulture,
 						"The target has a maximum length of {0} characters.",
-						CREDUI.MAX_GENERIC_TARGET_LENGTH);
+						CredUi.MAX_GENERIC_TARGET_LENGTH);
 					throw new ArgumentException(message, nameof(Target));
 				}
 				_target = value;
@@ -196,14 +192,12 @@ namespace GreenshotPlugin.Core {
 				return _caption;
 			}
 			set {
-				if (value != null) {
-					if (value.Length > CREDUI.MAX_CAPTION_LENGTH) {
-						string message = string.Format(
-							Thread.CurrentThread.CurrentUICulture,
-							"The caption has a maximum length of {0} characters.",
-							CREDUI.MAX_CAPTION_LENGTH);
-						throw new ArgumentException(message, nameof(Caption));
-					}
+				if (value?.Length > CredUi.MAX_CAPTION_LENGTH) {
+					string message = string.Format(
+						Thread.CurrentThread.CurrentUICulture,
+						"The caption has a maximum length of {0} characters.",
+						CredUi.MAX_CAPTION_LENGTH);
+					throw new ArgumentException(message, nameof(Caption));
 				}
 				_caption = value;
 			}
@@ -217,14 +211,12 @@ namespace GreenshotPlugin.Core {
 				return _message;
 			}
 			set {
-				if (value != null) {
-					if (value.Length > CREDUI.MAX_MESSAGE_LENGTH) {
-						string message = string.Format(
-							Thread.CurrentThread.CurrentUICulture,
-							"The message has a maximum length of {0} characters.",
-							CREDUI.MAX_MESSAGE_LENGTH);
-						throw new ArgumentException(message, nameof(Message));
-					}
+				if (value?.Length > CredUi.MAX_MESSAGE_LENGTH) {
+					string message = string.Format(
+						Thread.CurrentThread.CurrentUICulture,
+						"The message has a maximum length of {0} characters.",
+						CredUi.MAX_MESSAGE_LENGTH);
+					throw new ArgumentException(message, nameof(Message));
 				}
 				_message = value;
 			}
@@ -331,11 +323,11 @@ namespace GreenshotPlugin.Core {
 		/// <summary>Confirmation action to be applied.</summary>
 		/// <param name="value">True if the credentials should be persisted.</param>
 		public void Confirm(bool value) {
-			switch (CREDUI.CredUIConfirmCredentials(Target, value)) {
-				case CREDUI.ReturnCodes.NO_ERROR:
+			switch (CredUi.CredUIConfirmCredentials(Target, value)) {
+				case CredUi.ReturnCodes.NO_ERROR:
 					break;
 			   
-				case CREDUI.ReturnCodes.ERROR_INVALID_PARAMETER:
+				case CredUi.ReturnCodes.ERROR_INVALID_PARAMETER:
 					// for some reason, this is encountered when credentials are overwritten
 					break;
 			   
@@ -351,26 +343,26 @@ namespace GreenshotPlugin.Core {
 		/// </remarks>
 		private DialogResult ShowDialog(IWin32Window owner) {
 			// set the api call parameters
-			StringBuilder name = new StringBuilder(CREDUI.MAX_USERNAME_LENGTH);
+			StringBuilder name = new StringBuilder(CredUi.MAX_USERNAME_LENGTH);
 			name.Append(Name);
 
-			StringBuilder password = new StringBuilder(CREDUI.MAX_PASSWORD_LENGTH);
+			StringBuilder password = new StringBuilder(CredUi.MAX_PASSWORD_LENGTH);
 			password.Append(Password);
 
 			int saveChecked = Convert.ToInt32(SaveChecked);
 
-			CREDUI.INFO info = GetInfo(owner);
-			CREDUI.FLAGS flags = GetFlags();
+			CredUi.INFO info = GetInfo(owner);
+			CredUi.CredFlags credFlags = GetFlags();
 
 			// make the api call
-			CREDUI.ReturnCodes code = CREDUI.CredUIPromptForCredentials(
+			CredUi.ReturnCodes code = CredUi.CredUIPromptForCredentials(
 				ref info,
 				Target,
 				IntPtr.Zero, 0,
-				name, CREDUI.MAX_USERNAME_LENGTH,
-				password, CREDUI.MAX_PASSWORD_LENGTH,
+				name, CredUi.MAX_USERNAME_LENGTH,
+				password, CredUi.MAX_PASSWORD_LENGTH,
 				ref saveChecked,
-				flags
+				credFlags
 			);
 
 			// clean up resources
@@ -388,8 +380,8 @@ namespace GreenshotPlugin.Core {
 
 		/// <summary>Returns the info structure for dialog display settings.</summary>
 		/// <param name="owner">The System.Windows.Forms.IWin32Window the dialog will display in front of.</param>
-		private CREDUI.INFO GetInfo(IWin32Window owner) {
-			CREDUI.INFO info = new CREDUI.INFO();
+		private CredUi.INFO GetInfo(IWin32Window owner) {
+			CredUi.INFO info = new CredUi.INFO();
 			if (owner != null) info.hwndParent = owner.Handle;
 			info.pszCaptionText = Caption;
 			info.pszMessageText = Message;
@@ -401,61 +393,61 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>Returns the flags for dialog display options.</summary>
-		private CREDUI.FLAGS GetFlags() {
-			CREDUI.FLAGS flags = CREDUI.FLAGS.GENERIC_CREDENTIALS;
+		private CredUi.CredFlags GetFlags() {
+			CredUi.CredFlags credFlags = CredUi.CredFlags.GENERIC_CREDENTIALS;
 
 			if (IncorrectPassword) {
-				flags = flags | CREDUI.FLAGS.INCORRECT_PASSWORD;
+				credFlags = credFlags | CredUi.CredFlags.INCORRECT_PASSWORD;
 			}
 
 			if (AlwaysDisplay) {
-				flags = flags | CREDUI.FLAGS.ALWAYS_SHOW_UI;
+				credFlags = credFlags | CredUi.CredFlags.ALWAYS_SHOW_UI;
 			}
 
 			if (ExcludeCertificates) {
-				flags = flags | CREDUI.FLAGS.EXCLUDE_CERTIFICATES;
+				credFlags = credFlags | CredUi.CredFlags.EXCLUDE_CERTIFICATES;
 			}
 
 			if (Persist) {
-				flags = flags | CREDUI.FLAGS.EXPECT_CONFIRMATION;
+				credFlags = credFlags | CredUi.CredFlags.EXPECT_CONFIRMATION;
 				if (SaveDisplayed) {
-					flags = flags | CREDUI.FLAGS.SHOW_SAVE_CHECK_BOX;
+					credFlags = credFlags | CredUi.CredFlags.SHOW_SAVE_CHECK_BOX;
 				} else {
-					flags = flags | CREDUI.FLAGS.PERSIST;
+					credFlags = credFlags | CredUi.CredFlags.PERSIST;
 				}
 			} else {
-				flags = flags | CREDUI.FLAGS.DO_NOT_PERSIST;
+				credFlags = credFlags | CredUi.CredFlags.DO_NOT_PERSIST;
 			}
 
 			if (KeepName) {
-				flags = flags | CREDUI.FLAGS.KEEP_USERNAME;
+				credFlags = credFlags | CredUi.CredFlags.KEEP_USERNAME;
 			}
 
-			return flags;
+			return credFlags;
 		}
 	   
 		/// <summary>Returns a DialogResult from the specified code.</summary>
 		/// <param name="code">The credential return code.</param>
-		private DialogResult GetDialogResult(CREDUI.ReturnCodes code) {
+		private DialogResult GetDialogResult(CredUi.ReturnCodes code) {
 			DialogResult result;
 			switch (code) {
-				case CREDUI.ReturnCodes.NO_ERROR:
+				case CredUi.ReturnCodes.NO_ERROR:
 					result = DialogResult.OK;
 					break;
-				case CREDUI.ReturnCodes.ERROR_CANCELLED:
+				case CredUi.ReturnCodes.ERROR_CANCELLED:
 					result = DialogResult.Cancel;
 					break;
-				case CREDUI.ReturnCodes.ERROR_NO_SUCH_LOGON_SESSION:
+				case CredUi.ReturnCodes.ERROR_NO_SUCH_LOGON_SESSION:
 					throw new ApplicationException("No such logon session.");
-				case CREDUI.ReturnCodes.ERROR_NOT_FOUND:
+				case CredUi.ReturnCodes.ERROR_NOT_FOUND:
 					throw new ApplicationException("Not found.");
-				case CREDUI.ReturnCodes.ERROR_INVALID_ACCOUNT_NAME:
+				case CredUi.ReturnCodes.ERROR_INVALID_ACCOUNT_NAME:
 					throw new ApplicationException("Invalid account name.");
-				case CREDUI.ReturnCodes.ERROR_INSUFFICIENT_BUFFER:
+				case CredUi.ReturnCodes.ERROR_INSUFFICIENT_BUFFER:
 					throw new ApplicationException("Insufficient buffer.");
-				case CREDUI.ReturnCodes.ERROR_INVALID_PARAMETER:
+				case CredUi.ReturnCodes.ERROR_INVALID_PARAMETER:
 					throw new ApplicationException("Invalid parameter.");
-				case CREDUI.ReturnCodes.ERROR_INVALID_FLAGS:
+				case CredUi.ReturnCodes.ERROR_INVALID_FLAGS:
 					throw new ApplicationException("Invalid flags.");
 				default:
 					throw new ApplicationException("Unknown credential result encountered.");
@@ -464,10 +456,7 @@ namespace GreenshotPlugin.Core {
 		}
 	}
 
-	internal sealed class CREDUI {
-		private CREDUI() {
-		}
-
+	internal static class CredUi {
 		/// <summary>http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/authentication_constants.asp</summary>
 		public const int MAX_MESSAGE_LENGTH		= 100;
 		public const int MAX_CAPTION_LENGTH		= 100;
@@ -481,7 +470,8 @@ namespace GreenshotPlugin.Core {
 		/// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnnetsec/html/dpapiusercredentials.asp
 		/// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/creduipromptforcredentials.asp
 		/// </summary>
-		[Flags] public enum FLAGS {
+		[Flags]
+		public enum CredFlags {
 			INCORRECT_PASSWORD		  = 0x1,
 			DO_NOT_PERSIST			  = 0x2,
 			REQUEST_ADMINISTRATOR	  = 0x4,
@@ -540,7 +530,7 @@ namespace GreenshotPlugin.Core {
 			StringBuilder password,
 			int maxPassword,
 			ref int iSave,
-			FLAGS flags
+			CredFlags credFlags
 		);
 
 		/// <summary>

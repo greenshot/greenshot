@@ -33,8 +33,8 @@ namespace GreenshotPlugin.Core {
 	/// Description of AbstractDestination.
 	/// </summary>
 	public abstract class AbstractDestination : IDestination {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(AbstractDestination));
-		private static readonly CoreConfiguration configuration = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ILog Log = LogManager.GetLogger(typeof(AbstractDestination));
+		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 		
 		public virtual int CompareTo(object obj) {
 			IDestination other = obj as IDestination;
@@ -42,7 +42,7 @@ namespace GreenshotPlugin.Core {
 				return 1;
 			}
 			if (Priority == other.Priority) {
-				return Description.CompareTo(other.Description);
+				return String.Compare(Description, other.Description, StringComparison.Ordinal);
 			}
 			return Priority - other.Priority;
 		}
@@ -55,23 +55,11 @@ namespace GreenshotPlugin.Core {
 			get;
 		}
 
-		public virtual int Priority {
-			get {
-				return 10;
-			}
-		}
-		
-		public virtual Image DisplayIcon {
-			get {
-				return null;
-			}
-		}
+		public virtual int Priority => 10;
 
-		public virtual Keys EditorShortcutKeys {
-			get {
-				return Keys.None;
-			}
-		}
+		public virtual Image DisplayIcon => null;
+
+		public virtual Keys EditorShortcutKeys => Keys.None;
 
 		public virtual IEnumerable<IDestination> DynamicDestinations() {
 			yield break;
@@ -86,27 +74,15 @@ namespace GreenshotPlugin.Core {
 			//if (disposing) {}
 		}
 
-		public virtual bool isDynamic {
-			get {
-				return false;
-			}
-		}
+		public virtual bool IsDynamic => false;
 
-		public virtual bool useDynamicsOnly {
-			get {
-				return false;
-			}
-		}
+		public virtual bool UseDynamicsOnly => false;
 
-		public virtual bool isLinkable {
-			get {
-				return false;
-			}
-		}
+		public virtual bool IsLinkable => false;
 
-		public virtual bool isActive {
+		public virtual bool IsActive {
 			get {
-				if (configuration.ExcludeDestinations != null && configuration.ExcludeDestinations.Contains(Designation)) {
+				if (CoreConfig.ExcludeDestinations != null && CoreConfig.ExcludeDestinations.Contains(Designation)) {
 					return false;
 				}
 				return true;
@@ -132,7 +108,7 @@ namespace GreenshotPlugin.Core {
 					surface.SendMessageEvent(this, SurfaceMessageTyp.Info, Language.GetFormattedString("exported_to", exportInformation.DestinationDescription));
 				}
 				surface.Modified = false;
-			} else if (exportInformation != null && !string.IsNullOrEmpty(exportInformation.ErrorMessage)) {
+			} else if (!string.IsNullOrEmpty(exportInformation?.ErrorMessage)) {
 				surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetFormattedString("exported_to_error", exportInformation.DestinationDescription) + " " + exportInformation.ErrorMessage);
 			}
 		}
@@ -149,12 +125,14 @@ namespace GreenshotPlugin.Core {
 		/// <param name="tagValue">Value for the tag</param>
 		private void AddTagEvents(ToolStripMenuItem menuItem, ContextMenuStrip menu, string tagValue) {
 			if (menuItem != null && menu != null) {
-				menuItem.MouseDown += delegate(object source, MouseEventArgs eventArgs) {
-					LOG.DebugFormat("Setting tag to '{0}'", tagValue);
+				menuItem.MouseDown += delegate
+				{
+					Log.DebugFormat("Setting tag to '{0}'", tagValue);
 					menu.Tag = tagValue;
 				};
-				menuItem.MouseUp += delegate(object source, MouseEventArgs eventArgs) {
-					LOG.Debug("Deleting tag");
+				menuItem.MouseUp += delegate
+				{
+					Log.Debug("Deleting tag");
 					menu.Tag = null;
 				};
 			}
@@ -171,19 +149,21 @@ namespace GreenshotPlugin.Core {
 		public ExportInformation ShowPickerMenu(bool addDynamics, ISurface surface, ICaptureDetails captureDetails, IEnumerable<IDestination> destinations) {
 			// Generate an empty ExportInformation object, for when nothing was selected.
 			ExportInformation exportInformation = new ExportInformation(Designation, Language.GetString("settings_destination_picker"));
-			ContextMenuStrip menu = new ContextMenuStrip();
-			menu.ImageScalingSize = configuration.IconSize;
-			menu.Tag = null;
+			var menu = new ContextMenuStrip
+			{
+				ImageScalingSize = CoreConfig.IconSize,
+				Tag = null
+			};
 
 			menu.Closing += delegate(object source, ToolStripDropDownClosingEventArgs eventArgs) {
-				LOG.DebugFormat("Close reason: {0}", eventArgs.CloseReason);
+				Log.DebugFormat("Close reason: {0}", eventArgs.CloseReason);
 				switch (eventArgs.CloseReason) {
 					case ToolStripDropDownCloseReason.AppFocusChange:
 						if (menu.Tag == null) {
 							// Do not allow the close if the tag is not set, this means the user clicked somewhere else.
 							eventArgs.Cancel = true;
 						} else {
-							LOG.DebugFormat("Letting the menu 'close' as the tag is set to '{0}'", menu.Tag);
+							Log.DebugFormat("Letting the menu 'close' as the tag is set to '{0}'", menu.Tag);
 						}
 						break;
 					case ToolStripDropDownCloseReason.ItemClicked:
@@ -202,7 +182,8 @@ namespace GreenshotPlugin.Core {
 						break;
 				}
 			};
-			menu.MouseEnter += delegate(object source, EventArgs eventArgs) {
+			menu.MouseEnter += delegate
+			{
 				// in case the menu has been unfocused, focus again so that dropdown menus will still open on mouseenter
 				if(!menu.ContainsFocus) menu.Focus();
 			};
@@ -211,10 +192,7 @@ namespace GreenshotPlugin.Core {
 				ToolStripMenuItem item = destination.GetMenuItem(addDynamics, menu,
 					delegate(object sender, EventArgs e) {
 						ToolStripMenuItem toolStripMenuItem = sender as ToolStripMenuItem;
-						if (toolStripMenuItem == null) {
-							return;
-						}
-						IDestination clickedDestination = (IDestination)toolStripMenuItem.Tag;
+						IDestination clickedDestination = (IDestination) toolStripMenuItem?.Tag;
 						if (clickedDestination == null) {
 							return;
 						}
@@ -222,7 +200,7 @@ namespace GreenshotPlugin.Core {
 						// Export
 						exportInformation = clickedDestination.ExportCapture(true, surface, captureDetails);
 						if (exportInformation != null && exportInformation.ExportMade) {
-							LOG.InfoFormat("Export to {0} success, closing menu", exportInformation.DestinationDescription);
+							Log.InfoFormat("Export to {0} success, closing menu", exportInformation.DestinationDescription);
 							// close menu if the destination wasn't the editor
 							menu.Close();
 
@@ -232,7 +210,7 @@ namespace GreenshotPlugin.Core {
 								surface = null;
 							}
 						} else {
-							LOG.Info("Export cancelled or failed, showing menu again");
+							Log.Info("Export cancelled or failed, showing menu again");
 
 							// Make sure a click besides the menu don't close it.
 							menu.Tag = null;
@@ -248,8 +226,10 @@ namespace GreenshotPlugin.Core {
 			}
 			// Close
 			menu.Items.Add(new ToolStripSeparator());
-			ToolStripMenuItem closeItem = new ToolStripMenuItem(Language.GetString("editor_close"));
-			closeItem.Image = GreenshotResources.getImage("Close.Image");
+			ToolStripMenuItem closeItem = new ToolStripMenuItem(Language.GetString("editor_close"))
+			{
+				Image = GreenshotResources.getImage("Close.Image")
+			};
 			closeItem.Click += delegate {
 				// This menu entry is the close itself, we can dispose the surface
 				menu.Close();
@@ -314,7 +294,7 @@ namespace GreenshotPlugin.Core {
 			basisMenuItem.Click -= destinationClickHandler;
 			basisMenuItem.Click += destinationClickHandler;		
 
-			if (isDynamic && addDynamics) {
+			if (IsDynamic && addDynamics) {
 				basisMenuItem.DropDownOpening += delegate
 				{
 					if (basisMenuItem.DropDownItems.Count == 0) {
@@ -323,21 +303,21 @@ namespace GreenshotPlugin.Core {
 						try {
 							subDestinations.AddRange(DynamicDestinations());
 						} catch (Exception ex) {
-							LOG.ErrorFormat("Skipping {0}, due to the following error: {1}", Description, ex.Message);
+							Log.ErrorFormat("Skipping {0}, due to the following error: {1}", Description, ex.Message);
 						}
 						if (subDestinations.Count > 0) {
-							ToolStripMenuItem destinationMenuItem = null;
-
-							if (useDynamicsOnly && subDestinations.Count == 1) {
+							if (UseDynamicsOnly && subDestinations.Count == 1) {
 								basisMenuItem.Tag = subDestinations[0];
 								basisMenuItem.Text = subDestinations[0].Description;
 								basisMenuItem.Click -= destinationClickHandler;
 								basisMenuItem.Click += destinationClickHandler;
 							} else {
 								foreach (IDestination subDestination in subDestinations) {
-									destinationMenuItem = new ToolStripMenuItem(subDestination.Description);
-									destinationMenuItem.Tag = subDestination;
-									destinationMenuItem.Image = subDestination.DisplayIcon;
+									var destinationMenuItem = new ToolStripMenuItem(subDestination.Description)
+									{
+										Tag = subDestination,
+										Image = subDestination.DisplayIcon
+									};
 									destinationMenuItem.Click += destinationClickHandler;
 									AddTagEvents(destinationMenuItem, menu, subDestination.Description);
 									basisMenuItem.DropDownItems.Add(destinationMenuItem);

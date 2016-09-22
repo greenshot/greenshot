@@ -43,7 +43,7 @@ namespace Greenshot.Forms {
 	public sealed partial class CaptureForm : AnimatingForm {
 		private enum FixMode {None, Initiated, Horizontal, Vertical};
 
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(CaptureForm));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(CaptureForm));
 		private static readonly CoreConfiguration Conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private static readonly Brush GreenOverlayBrush = new SolidBrush(Color.FromArgb(50, Color.MediumSeaGreen));
 		private static readonly Pen OverlayPen = new Pen(Color.FromArgb(50, Color.Black));
@@ -79,29 +79,17 @@ namespace Greenshot.Forms {
 		/// <summary>
 		/// Property to access the selected capture rectangle
 		/// </summary>
-		public Rectangle CaptureRectangle {
-			get {
-				return _captureRect;
-			}
-		}
+		public Rectangle CaptureRectangle => _captureRect;
 
 		/// <summary>
 		/// Property to access the used capture mode
 		/// </summary>
-		public CaptureMode UsedCaptureMode {
-			get {
-				return _captureMode;
-			}
-		}
+		public CaptureMode UsedCaptureMode => _captureMode;
 
 		/// <summary>
 		/// Get the selected window
 		/// </summary>
-		public WindowDetails SelectedCaptureWindow {
-			get {
-				return _selectedCaptureWindow;
-			}
-		}
+		public WindowDetails SelectedCaptureWindow => _selectedCaptureWindow;
 
 		/// <summary>
 		/// This should prevent childs to draw backgrounds
@@ -117,11 +105,11 @@ namespace Greenshot.Forms {
 
 		private void ClosedHandler(object sender, EventArgs e) {
 			_currentForm = null;
-			LOG.Debug("Remove CaptureForm from currentForm");
+			Log.Debug("Remove CaptureForm from currentForm");
 		}
 
 		private void ClosingHandler(object sender, EventArgs e) {
-			LOG.Debug("Closing captureform");
+			Log.Debug("Closing captureform");
 			WindowDetails.UnregisterIgnoreHandle(Handle);
 		}
 
@@ -132,7 +120,7 @@ namespace Greenshot.Forms {
 		/// <param name="windows"></param>
 		public CaptureForm(ICapture capture, List<WindowDetails> windows) {
 			if (_currentForm != null) {
-				LOG.Warn("Found currentForm, Closing already opened CaptureForm");
+				Log.Warn("Found currentForm, Closing already opened CaptureForm");
 				_currentForm.Close();
 				_currentForm = null;
 				Application.DoEvents();
@@ -190,8 +178,10 @@ namespace Greenshot.Forms {
 				// Initialize the zoom with a invalid position
 				_zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(int.MaxValue, int.MaxValue, 0, 0), FramesForMillis(1000), EasingType.Quintic, EasingMode.EaseOut);
 				VerifyZoomAnimation(_cursorPos, false);
-			} else if (_zoomAnimator != null) {
-				_zoomAnimator.ChangeDestination(new Rectangle(Point.Empty, Size.Empty), FramesForMillis(1000));
+			}
+			else
+			{
+				_zoomAnimator?.ChangeDestination(new Rectangle(Point.Empty, Size.Empty), FramesForMillis(1000));
 			}
 		}
 
@@ -441,16 +431,14 @@ namespace Greenshot.Forms {
 			Point cursorPosition = Cursor.Position;
 			_selectedCaptureWindow = null;
 			lock (_windows) {
-				foreach (WindowDetails window in _windows) {
-					if (window.Contains(cursorPosition)) {
-						// Only go over the children if we are in window mode
-						if (CaptureMode.Window == _captureMode) {
-							_selectedCaptureWindow = window.FindChildUnderPoint(cursorPosition);
-						} else {
-							_selectedCaptureWindow = window;
-						}
-						break;
+				foreach (var window in _windows) {
+					if (!window.Contains(cursorPosition))
+					{
+						continue;
 					}
+					// Only go over the children if we are in window mode
+					_selectedCaptureWindow = CaptureMode.Window == _captureMode ? window.FindChildUnderPoint(cursorPosition) : window;
+					break;
 				}
 			}
 
@@ -619,8 +607,10 @@ namespace Greenshot.Forms {
 
 			if (_isZoomerTransparent) {
 				//create a color matrix object to change the opacy
-				ColorMatrix opacyMatrix = new ColorMatrix();
-				opacyMatrix.Matrix33 = Conf.ZoomerOpacity;
+				ColorMatrix opacyMatrix = new ColorMatrix
+				{
+					Matrix33 = Conf.ZoomerOpacity
+				};
 				attributes = new ImageAttributes();
 				attributes.SetColorMatrix(opacyMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 			} else {
@@ -695,9 +685,7 @@ namespace Greenshot.Forms {
 				// Horizontal middle + 1 to right
 				graphics.DrawRectangle(pen, destinationRectangle.X + halfWidthEnd + 2 * padding, drawAtHeight, halfWidthEnd - 2 * padding - 1, pixelThickness);
 			}
-			if (attributes != null) {
-				attributes.Dispose();
-			}
+			attributes?.Dispose();
 		}
 
 		/// <summary>
@@ -717,15 +705,8 @@ namespace Greenshot.Forms {
 
 			if (_mouseDown || _captureMode == CaptureMode.Window || IsAnimating(_windowAnimator)) {
 				_captureRect.Intersect(new Rectangle(Point.Empty, _capture.ScreenBounds.Size)); // crop what is outside the screen
-				
-				Rectangle fixedRect;
-				//if (captureMode == CaptureMode.Window) {
-				if (IsAnimating(_windowAnimator)) {
-					// Use the animator
-					fixedRect = _windowAnimator.Current;
-				} else {
-					fixedRect = _captureRect;
-				}
+
+				var fixedRect = IsAnimating(_windowAnimator) ? _windowAnimator.Current : _captureRect;
 
 				// TODO: enable when the screen capture code works reliable
 				//if (capture.CaptureDetails.CaptureMode == CaptureMode.Video) {
@@ -827,7 +808,7 @@ namespace Greenshot.Forms {
 
 							if (_showDebugInfo && _selectedCaptureWindow != null)
 							{
-								string title = string.Format("#{0:X} - {1}", _selectedCaptureWindow.Handle.ToInt64(), _selectedCaptureWindow.Text.Length > 0 ? _selectedCaptureWindow.Text : _selectedCaptureWindow.Process.ProcessName);
+								string title = $"#{_selectedCaptureWindow.Handle.ToInt64():X} - {(_selectedCaptureWindow.Text.Length > 0 ? _selectedCaptureWindow.Text : _selectedCaptureWindow.Process.ProcessName)}";
 								PointF debugLocation = new PointF(fixedRect.X, fixedRect.Y);
 								graphics.DrawString(title, sizeFont, Brushes.DarkOrange, debugLocation);
 							}

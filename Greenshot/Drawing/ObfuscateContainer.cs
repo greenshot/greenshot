@@ -52,7 +52,7 @@ namespace Greenshot.Drawing {
 		
 		protected void ObfuscateContainer_OnFieldChanged(object sender, FieldChangedEventArgs e) {
 			if(sender.Equals(this)) {
-				if(e.Field.FieldType == FieldType.PREPARED_FILTER_OBFUSCATE) {
+				if(Equals(e.Field.FieldType, FieldType.PREPARED_FILTER_OBFUSCATE)) {
 					ConfigurePreparedFilters();
 				}
 			}

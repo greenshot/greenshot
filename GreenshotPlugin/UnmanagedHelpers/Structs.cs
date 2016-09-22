@@ -30,10 +30,12 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public SIZE(Size size) : this(size.Width, size.Height) {
 			
 		}
+
 		public SIZE(int width, int height) {
 			Width = width;
 			Height = height;
 		}
+
 		public Size ToSize() {
 			return new Size(Width, Height);
 		}
@@ -82,11 +84,11 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public RECT(Rectangle rectangle)
 			: this(rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Bottom) {
 		}
-		public RECT(int Left, int Top, int Right, int Bottom) {
-			_Left = Left;
-			_Top = Top;
-			_Right = Right;
-			_Bottom = Bottom;
+		public RECT(int left, int top, int right, int bottom) {
+			_Left = left;
+			_Top = top;
+			_Right = right;
+			_Bottom = bottom;
 		}
 
 		public int X {
@@ -172,17 +174,17 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			}
 		}
 
-		public static implicit operator Rectangle(RECT Rectangle) {
-			return new Rectangle(Rectangle.Left, Rectangle.Top, Rectangle.Width, Rectangle.Height);
+		public static implicit operator Rectangle(RECT rectangle) {
+			return new Rectangle(rectangle.Left, rectangle.Top, rectangle.Width, rectangle.Height);
 		}
-		public static implicit operator RECT(Rectangle Rectangle) {
-			return new RECT(Rectangle.Left, Rectangle.Top, Rectangle.Right, Rectangle.Bottom);
+		public static implicit operator RECT(Rectangle rectangle) {
+			return new RECT(rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Bottom);
 		}
-		public static bool operator ==(RECT Rectangle1, RECT Rectangle2) {
-			return Rectangle1.Equals(Rectangle2);
+		public static bool operator ==(RECT rectangle1, RECT rectangle2) {
+			return rectangle1.Equals(rectangle2);
 		}
-		public static bool operator !=(RECT Rectangle1, RECT Rectangle2) {
-			return !Rectangle1.Equals(Rectangle2);
+		public static bool operator !=(RECT rectangle1, RECT rectangle2) {
+			return !rectangle1.Equals(rectangle2);
 		}
 
 		public override string ToString() {
@@ -193,8 +195,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			return ToString().GetHashCode();
 		}
 
-		public bool Equals(RECT Rectangle) {
-			return Rectangle.Left == _Left && Rectangle.Top == _Top && Rectangle.Right == _Right && Rectangle.Bottom == _Bottom;
+		public bool Equals(RECT rectangle) {
+			return rectangle.Left == _Left && rectangle.Top == _Top && rectangle.Right == _Right && rectangle.Bottom == _Bottom;
 		}
 
 		public Rectangle ToRectangle() {
@@ -313,7 +315,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// The structure for the WindowInfo
 	/// See: http://msdn.microsoft.com/en-us/library/windows/desktop/ms632610%28v=vs.85%29.aspx
 	/// </summary>
-	[StructLayout(LayoutKind.Sequential), Serializable()]
+	[StructLayout(LayoutKind.Sequential), Serializable]
 	public struct WindowInfo {
 		public uint cbSize;
 		public RECT rcWindow;
@@ -326,8 +328,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public ushort atomWindowType;
 		public ushort wCreatorVersion;
 		// Allows automatic initialization of "cbSize" with "new WINDOWINFO(null/true/false)".
-		public WindowInfo(Boolean? filler) : this() {
-			cbSize = (UInt32)(Marshal.SizeOf(typeof(WindowInfo)));
+		public WindowInfo(bool? filler) : this() {
+			cbSize = (uint)(Marshal.SizeOf(typeof(WindowInfo)));
 		}
 	}
 
@@ -383,8 +385,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 
 	[StructLayout(LayoutKind.Sequential)]
 	public struct CursorInfo {
-		public Int32 cbSize;
-		public Int32 flags;
+		public int cbSize;
+		public int flags;
 		public IntPtr hCursor;
 		public POINT ptScreenPos;
 	}
@@ -392,8 +394,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	[StructLayout(LayoutKind.Sequential)]
 	public struct IconInfo {
 		public bool fIcon;
-		public Int32 xHotspot;
-		public Int32 yHotspot;
+		public int xHotspot;
+		public int yHotspot;
 		public IntPtr hbmMask;
 		public IntPtr hbmColor;
 	}

@@ -24,13 +24,9 @@ using System.Windows.Forms;
 namespace Greenshot.Helpers {
 	public class WindowWrapper : IWin32Window {
 		public WindowWrapper(IntPtr handle) {
-			_hwnd = handle;
+			Handle = handle;
 		}
 	
-		public IntPtr Handle {
-			get { return _hwnd; }
-		}
-	
-		private readonly IntPtr _hwnd;
+		public IntPtr Handle { get; }
 	}
 }

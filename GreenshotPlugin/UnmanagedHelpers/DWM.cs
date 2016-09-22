@@ -148,11 +148,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static Color ColorizationColor {
 			get {
 				using (RegistryKey key = Registry.CurrentUser.OpenSubKey(COLORIZATION_COLOR_KEY, false)) {
-					if (key != null) {
-						object dwordValue = key.GetValue("ColorizationColor");
-						if (dwordValue != null) {
-							return Color.FromArgb((Int32)dwordValue);
-						}
+					object dwordValue = key?.GetValue("ColorizationColor");
+					if (dwordValue != null) {
+						return Color.FromArgb((int)dwordValue);
 					}
 				}
 				return Color.White;

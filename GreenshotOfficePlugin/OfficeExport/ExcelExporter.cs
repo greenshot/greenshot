@@ -22,14 +22,11 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Drawing;
-using GreenshotOfficePlugin;
-using Greenshot.IniFile;
 
 namespace Greenshot.Interop.Office {
 	public class ExcelExporter {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExcelExporter));
-		private static readonly OfficeConfiguration officeConfiguration = IniConfig.GetIniSection<OfficeConfiguration>();
-		private static Version excelVersion;
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ExcelExporter));
+		private static Version _excelVersion;
 
 		/// <summary>
 		/// Get all currently opened workbooks
@@ -60,6 +57,7 @@ namespace Greenshot.Interop.Office {
 		/// </summary>
 		/// <param name="workbookName"></param>
 		/// <param name="tmpFile"></param>
+		/// <param name="imageSize"></param>
 		public static void InsertIntoExistingWorkbook(string workbookName, string tmpFile, Size imageSize) {
 			using (IExcelApplication excelApplication = GetExcelApplication()) {
 				if (excelApplication == null) {
@@ -147,16 +145,16 @@ namespace Greenshot.Interop.Office {
 		/// </summary>
 		/// <param name="excelApplication"></param>
 		private static void InitializeVariables(IExcelApplication excelApplication) {
-			if (excelApplication == null || excelVersion != null) {
+			if (excelApplication == null || _excelVersion != null) {
 				return;
 			}
 			try {
-				excelVersion = new Version(excelApplication.Version);
-				LOG.InfoFormat("Using Excel {0}", excelVersion);
+				_excelVersion = new Version(excelApplication.Version);
+				Log.InfoFormat("Using Excel {0}", _excelVersion);
 			} catch (Exception exVersion) {
-				LOG.Error(exVersion);
-				LOG.Warn("Assuming Excel version 1997.");
-				excelVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
+				Log.Error(exVersion);
+				Log.Warn("Assuming Excel version 1997.");
+				_excelVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
 			}
 		}
 	}

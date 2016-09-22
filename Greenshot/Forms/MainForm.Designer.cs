@@ -162,7 +162,7 @@ namespace Greenshot {
 			// 
 			this.contextmenu_captureiefromlist.Name = "contextmenu_captureiefromlist";
 			this.contextmenu_captureiefromlist.Size = new System.Drawing.Size(170, 22);
-			this.contextmenu_captureiefromlist.DropDownOpening += new System.EventHandler(this.CaptureIEMenuDropDownOpening);
+			this.contextmenu_captureiefromlist.DropDownOpening += new System.EventHandler(this.CaptureIeMenuDropDownOpening);
 			// 
 			// toolStripOtherSourcesSeparator
 			// 

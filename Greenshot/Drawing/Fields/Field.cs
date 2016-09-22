@@ -47,10 +47,7 @@ namespace Greenshot.Drawing.Fields
 				if (!Equals(_myValue, value))
 				{
 					_myValue = value;
-					if (PropertyChanged != null)
-					{
-						PropertyChanged(this, new PropertyChangedEventArgs("Value"));
-					}
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Value"));
 				}
 			}
 		}
@@ -93,10 +90,7 @@ namespace Greenshot.Drawing.Fields
 		/// <summary>
 		/// Returns true if this field holds a value other than null.
 		/// </summary>
-		public bool HasValue
-		{
-			get { return Value != null; }
-		}
+		public bool HasValue => Value != null;
 
 		/// <summary>
 		/// Creates a flat clone of this Field. The fields value itself is not cloned.
@@ -104,9 +98,7 @@ namespace Greenshot.Drawing.Fields
 		/// <returns></returns>
 		public Field Clone()
 		{
-			Field ret = new Field(FieldType, Scope);
-			ret.Value = Value;
-			return ret;
+			return new Field(FieldType, Scope) {Value = Value};
 		}
 
 		public override int GetHashCode()
@@ -123,7 +115,7 @@ namespace Greenshot.Drawing.Fields
 
 		public override bool Equals(object obj)
 		{
-			Field other = obj as Field;
+			var other = obj as Field;
 			if (other == null)
 			{
 				return false;

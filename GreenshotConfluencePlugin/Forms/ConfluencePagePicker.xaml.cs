@@ -26,12 +26,12 @@ namespace GreenshotConfluencePlugin {
 	/// <summary>
 	/// Interaction logic for ConfluencePagePicker.xaml
 	/// </summary>
-	public partial class ConfluencePagePicker : System.Windows.Controls.Page {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluencePagePicker));
-		private readonly ConfluenceUpload confluenceUpload = null;
+	public partial class ConfluencePagePicker
+	{
+		private readonly ConfluenceUpload _confluenceUpload;
 
 		public ConfluencePagePicker(ConfluenceUpload confluenceUpload, List<Page> pagesToPick) {
-			this.confluenceUpload = confluenceUpload;
+			_confluenceUpload = confluenceUpload;
 			DataContext = pagesToPick;
 			InitializeComponent();
 		}
@@ -42,11 +42,11 @@ namespace GreenshotConfluencePlugin {
 
 		private void SelectionChanged() {
 			if (PageListView.HasItems && PageListView.SelectedItems.Count > 0) {
-				confluenceUpload.SelectedPage = (Page)PageListView.SelectedItem;
+				_confluenceUpload.SelectedPage = (Page)PageListView.SelectedItem;
 				// Make sure the uploader knows we selected an already opened page
-				confluenceUpload.IsOpenPageSelected = true;
+				_confluenceUpload.IsOpenPageSelected = true;
 			} else {
-				confluenceUpload.SelectedPage = null;
+				_confluenceUpload.SelectedPage = null;
 			}
 		}
 

@@ -26,7 +26,7 @@ namespace GreenshotBoxPlugin {
 	/// Description of PasswordRequestForm.
 	/// </summary>
 	public partial class SettingsForm : BoxForm {
-		public SettingsForm(BoxConfiguration config) {
+		public SettingsForm() {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//

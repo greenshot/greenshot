@@ -196,12 +196,12 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// </summary>
 		/// <param name="filePath">The path to the file that contains an image.</param>
 		/// <returns>The System.Drawing.Icon representation of the image contained in the specified file.</returns>
-		public static Icon ExtractAssociatedIcon(String filePath) {
+		public static Icon ExtractAssociatedIcon(string filePath) {
 			int index = 0;
 
 			Uri uri;
 			if (filePath == null) {
-				throw new ArgumentException(String.Format("'{0}' is not valid for '{1}'", "null", "filePath"), "filePath");
+				throw new ArgumentException("Null is not valid for filePath", nameof(filePath));
 			}
 			try {
 				uri = new Uri(filePath);

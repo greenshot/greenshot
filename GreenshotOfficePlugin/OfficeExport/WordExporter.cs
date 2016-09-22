@@ -25,16 +25,16 @@ using Greenshot.IniFile;
 
 namespace Greenshot.Interop.Office {
 	public class WordExporter {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordExporter));
-		private static Version wordVersion = null;
-		private static readonly OfficeConfiguration config = IniConfig.GetIniSection<OfficeConfiguration>();
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(WordExporter));
+		private static Version _wordVersion;
+		private static readonly OfficeConfiguration OfficeConfig = IniConfig.GetIniSection<OfficeConfiguration>();
 
 		/// <summary>
 		/// Check if the used version is higher than Office 2003
 		/// </summary>
 		/// <returns></returns>
-		private static bool isAfter2003() {
-			return wordVersion.Major > (int)OfficeVersion.OFFICE_2003;
+		private static bool IsAfter2003() {
+			return _wordVersion.Major > (int)OfficeVersion.OFFICE_2003;
 		}
 
 		/// <summary>
@@ -77,11 +77,14 @@ namespace Greenshot.Interop.Office {
 			// Solution: Make sure the selected document is active, otherwise the insert will be made in a different document!
 			try {
 				wordDocument.Activate();
-			} catch {
+			}
+			catch
+			{
+				// ignored
 			}
 			using (ISelection selection = wordApplication.Selection) {
 				if (selection == null) {
-					LOG.InfoFormat("No selection to insert {0} into found.", tmpFile);
+					Log.InfoFormat("No selection to insert {0} into found.", tmpFile);
 					return false;
 				}
 				// Add Picture
@@ -96,7 +99,7 @@ namespace Greenshot.Interop.Office {
 								hyperlinks.Add(shape, screentip, Type.Missing, screentip, Type.Missing, Type.Missing);
 							}
 						} catch (Exception e) {
-							LOG.WarnFormat("Couldn't add hyperlink for image: {0}", e.Message);
+							Log.WarnFormat("Couldn't add hyperlink for image: {0}", e.Message);
 						}
 					}
 				}
@@ -110,19 +113,21 @@ namespace Greenshot.Interop.Office {
 						}
 					}
 				} catch (Exception e) {
-					if (e.InnerException != null) {
-						LOG.WarnFormat("Couldn't set zoom to 100, error: {0}", e.InnerException.Message);
-					} else {
-						LOG.WarnFormat("Couldn't set zoom to 100, error: {0}", e.Message);
-					}
+					Log.WarnFormat("Couldn't set zoom to 100, error: {0}", e.InnerException?.Message ?? e.Message);
 				}
 				try {
 					wordApplication.Activate();
-				} catch {
+				}
+				catch
+				{
+					// ignored
 				}
 				try {
 					wordDocument.Activate();
-				} catch {
+				}
+				catch
+				{
+					// ignored
 				}
 				return true;
 			}
@@ -138,7 +143,7 @@ namespace Greenshot.Interop.Office {
 			using (IInlineShapes shapes = selection.InlineShapes) {
 				IInlineShape shape = shapes.AddPicture(tmpFile, false, true, Type.Missing);
 				// Lock aspect ratio
-				if (config.WordLockAspectRatio) {
+				if (OfficeConfig.WordLockAspectRatio) {
 					shape.LockAspectRatio = MsoTriState.msoTrue;
 				}
 				selection.InsertAfter("\r\n");
@@ -174,18 +179,24 @@ namespace Greenshot.Interop.Office {
 											hyperlinks.Add(shape, screentip, Type.Missing, screentip, Type.Missing, Type.Missing);
 										}
 									} catch (Exception e) {
-										LOG.WarnFormat("Couldn't add hyperlink for image: {0}", e.Message);
+										Log.WarnFormat("Couldn't add hyperlink for image: {0}", e.Message);
 									}
 								}
 							}
 						}
 						try {
 							wordDocument.Activate();
-						} catch {
+						}
+						catch
+						{
+							// ignored
 						}
 						try {
 							wordDocument.ActiveWindow.Activate();
-						} catch {
+						}
+						catch
+						{
+							// ignored
 						}
 					}
 				}
@@ -209,7 +220,7 @@ namespace Greenshot.Interop.Office {
 								if (document.ReadOnly) {
 									continue;
 								}
-								if (isAfter2003()) {
+								if (IsAfter2003()) {
 									if (document.Final) {
 										continue;
 									}
@@ -222,7 +233,7 @@ namespace Greenshot.Interop.Office {
 					}
 				}
 			} catch (Exception ex) {
-				LOG.Warn("Problem retrieving word destinations, ignoring: ", ex);
+				Log.Warn("Problem retrieving word destinations, ignoring: ", ex);
 			}
 			openDocuments.Sort();
 			return openDocuments;
@@ -253,16 +264,16 @@ namespace Greenshot.Interop.Office {
 		/// </summary>
 		/// <param name="wordApplication"></param>
 		private static void InitializeVariables(IWordApplication wordApplication) {
-			if (wordApplication == null || wordVersion != null) {
+			if (wordApplication == null || _wordVersion != null) {
 				return;
 			}
 			try {
-				wordVersion = new Version(wordApplication.Version);
-				LOG.InfoFormat("Using Word {0}", wordVersion);
+				_wordVersion = new Version(wordApplication.Version);
+				Log.InfoFormat("Using Word {0}", _wordVersion);
 			} catch (Exception exVersion) {
-				LOG.Error(exVersion);
-				LOG.Warn("Assuming Word version 1997.");
-				wordVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
+				Log.Error(exVersion);
+				Log.Warn("Assuming Word version 1997.");
+				_wordVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
 			}
 		}
 	}

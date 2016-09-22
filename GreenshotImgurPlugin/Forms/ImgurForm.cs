@@ -26,7 +26,5 @@ namespace GreenshotImgurPlugin {
 	/// This class is needed for design-time resolving of the language files
 	/// </summary>
 	public class ImgurForm : GreenshotForm {
-		public ImgurForm() : base() {
-		}
 	}
 }

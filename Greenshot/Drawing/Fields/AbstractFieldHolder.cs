@@ -20,6 +20,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.Serialization;
 
@@ -37,52 +38,55 @@ namespace Greenshot.Drawing.Fields
 	public abstract class AbstractFieldHolder : IFieldHolder
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(AbstractFieldHolder));
-		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+		private static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
+		private readonly IDictionary<IField, PropertyChangedEventHandler> _handlers = new Dictionary<IField, PropertyChangedEventHandler>();
 
 		/// <summary>
 		/// called when a field's value has changed
 		/// </summary>
 		[NonSerialized]
-		private FieldChangedEventHandler fieldChanged;
+		private FieldChangedEventHandler _fieldChanged;
+
 		public event FieldChangedEventHandler FieldChanged
 		{
-			add { fieldChanged += value; }
-			remove { fieldChanged -= value; }
+			add { _fieldChanged += value; }
+			remove { _fieldChanged -= value; }
 		}
 
 		// we keep two Collections of our fields, dictionary for quick access, list for serialization
 		// this allows us to use default serialization
 		[NonSerialized]
-		private IDictionary<IFieldType, IField> fieldsByType = new Dictionary<IFieldType, IField>();
-		private IList<IField> fields = new List<IField>();
-
-		public AbstractFieldHolder() { }
+		private IDictionary<IFieldType, IField> _fieldsByType = new Dictionary<IFieldType, IField>();
+		private readonly IList<IField> fields = new List<IField>();
 
 		[OnDeserialized]
 		private void OnDeserialized(StreamingContext context)
 		{
-			fieldsByType = new Dictionary<IFieldType, IField>();
+			_fieldsByType = new Dictionary<IFieldType, IField>();
 			// listen to changing properties
-			foreach (Field field in fields)
+			foreach (var field in fields)
 			{
 				field.PropertyChanged += delegate {
-					if (fieldChanged != null)
-					{
-						fieldChanged(this, new FieldChangedEventArgs(field));
-					}
+					_fieldChanged?.Invoke(this, new FieldChangedEventArgs(field));
 				};
-				fieldsByType[field.FieldType] = field;
+				_fieldsByType[field.FieldType] = field;
 			}
 		}
 
 		public void AddField(Type requestingType, IFieldType fieldType, object fieldValue)
 		{
-			AddField(editorConfiguration.CreateField(requestingType, fieldType, fieldValue));
+			AddField(EditorConfig.CreateField(requestingType, fieldType, fieldValue));
 		}
 
 		public virtual void AddField(IField field)
 		{
-			if (fieldsByType != null && fieldsByType.ContainsKey(field.FieldType))
+			fields.Add(field);
+			if (_fieldsByType == null)
+			{
+				return;
+			}
+
+			if (_fieldsByType.ContainsKey(field.FieldType))
 			{
 				if (LOG.IsDebugEnabled)
 				{
@@ -90,21 +94,21 @@ namespace Greenshot.Drawing.Fields
 				}
 			}
 
-			fields.Add(field);
-			fieldsByType[field.FieldType] = field;
-			field.PropertyChanged += delegate { if (fieldChanged != null) fieldChanged(this, new FieldChangedEventArgs(field)); };
+			_fieldsByType[field.FieldType] = field;
+
+			_handlers[field] = (sender, args) =>
+			{
+				_fieldChanged?.Invoke(this, new FieldChangedEventArgs(field));
+			};
+			field.PropertyChanged += _handlers[field];
 		}
 
 		public void RemoveField(IField field)
 		{
 			fields.Remove(field);
-			fieldsByType.Remove(field.FieldType);
-			field.PropertyChanged -= delegate {
-				if (fieldChanged != null)
-				{
-					fieldChanged(this, new FieldChangedEventArgs(field));
-				}
-			};
+			_fieldsByType.Remove(field.FieldType);
+			field.PropertyChanged -= _handlers[field];
+			_handlers.Remove(field);
 		}
 
 		public IList<IField> GetFields()
@@ -117,7 +121,7 @@ namespace Greenshot.Drawing.Fields
 		{
 			try
 			{
-				return fieldsByType[fieldType];
+				return _fieldsByType[fieldType];
 			}
 			catch (KeyNotFoundException e)
 			{
@@ -169,19 +173,19 @@ namespace Greenshot.Drawing.Fields
 
 		public bool HasField(IFieldType fieldType)
 		{
-			return fieldsByType.ContainsKey(fieldType);
+			return _fieldsByType.ContainsKey(fieldType);
 		}
 
 		public bool HasFieldValue(IFieldType fieldType)
 		{
-			return HasField(fieldType) && fieldsByType[fieldType].HasValue;
+			return HasField(fieldType) && _fieldsByType[fieldType].HasValue;
 		}
 
 		public void SetFieldValue(IFieldType fieldType, object value)
 		{
 			try
 			{
-				fieldsByType[fieldType].Value = value;
+				_fieldsByType[fieldType].Value = value;
 			}
 			catch (KeyNotFoundException e)
 			{
@@ -191,10 +195,7 @@ namespace Greenshot.Drawing.Fields
 
 		protected void OnFieldChanged(object sender, FieldChangedEventArgs e)
 		{
-			if (fieldChanged != null)
-			{
-				fieldChanged(sender, e);
-			}
+			_fieldChanged?.Invoke(sender, e);
 		}
 	}
 }

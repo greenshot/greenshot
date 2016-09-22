@@ -65,9 +65,9 @@ namespace GreenshotJiraPlugin {
 			}
 		}
 		
-		public override bool isActive => base.isActive && !string.IsNullOrEmpty(Config.Url);
+		public override bool IsActive => base.IsActive && !string.IsNullOrEmpty(Config.Url);
 
-		public override bool isDynamic => true;
+		public override bool IsDynamic => true;
 
 		public override Image DisplayIcon {
 			get

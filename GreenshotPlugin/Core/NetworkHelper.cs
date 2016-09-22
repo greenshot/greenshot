@@ -47,7 +47,7 @@ namespace GreenshotPlugin.Core {
 	/// Description of NetworkHelper.
 	/// </summary>
 	public static class NetworkHelper {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(NetworkHelper));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(NetworkHelper));
 		private static readonly CoreConfiguration Config = IniConfig.GetIniSection<CoreConfiguration>();
 
 		static NetworkHelper() {
@@ -60,7 +60,7 @@ namespace GreenshotPlugin.Core {
 			}
 			catch (Exception ex)
 			{
-				LOG.Warn("An error has occured while allowing self-signed certificates:", ex);
+				Log.Warn("An error has occured while allowing self-signed certificates:", ex);
 			}
 		}
 
@@ -99,7 +99,7 @@ namespace GreenshotPlugin.Core {
 					}
 				}
 			} catch (Exception e) {
-				LOG.Error("Problem downloading the FavIcon from: " + baseUri, e);
+				Log.Error("Problem downloading the FavIcon from: " + baseUri, e);
 			}
 			return null;
 		}
@@ -114,9 +114,7 @@ namespace GreenshotPlugin.Core {
 			using (HttpWebResponse response = (HttpWebResponse)request.GetResponse()) {
 				MemoryStream memoryStream = new MemoryStream();
 				using (Stream responseStream = response.GetResponseStream()) {
-					if (responseStream != null) {
-						responseStream.CopyTo(memoryStream);
-					}
+					responseStream?.CopyTo(memoryStream);
 					// Make sure it can be used directly
 					memoryStream.Seek(0, SeekOrigin.Begin);
 				}
@@ -178,7 +176,7 @@ namespace GreenshotPlugin.Core {
 			}
 			catch (Exception e)
 			{
-				LOG.Error("Problem downloading the image from: " + url, e);
+				Log.Error("Problem downloading the image from: " + url, e);
 			}
 			return null;
 		}
@@ -246,21 +244,21 @@ namespace GreenshotPlugin.Core {
 				proxyToUse = WebRequest.DefaultWebProxy;
 				if (proxyToUse != null) {
 					proxyToUse.Credentials = CredentialCache.DefaultCredentials;
-					if (LOG.IsDebugEnabled) {
+					if (Log.IsDebugEnabled) {
 						// check the proxy for the Uri
 						if (!proxyToUse.IsBypassed(uri)) {
 							Uri proxyUri = proxyToUse.GetProxy(uri);
 							if (proxyUri != null) {
-								LOG.Debug("Using proxy: " + proxyUri + " for " + uri);
+								Log.Debug("Using proxy: " + proxyUri + " for " + uri);
 							} else {
-								LOG.Debug("No proxy found!");
+								Log.Debug("No proxy found!");
 							}
 						} else {
-							LOG.Debug("Proxy bypass for: " + uri);
+							Log.Debug("Proxy bypass for: " + uri);
 						}
 					}
 				} else {
-					LOG.Debug("No proxy found!");
+					Log.Debug("No proxy found!");
 				}
 			}
 			return proxyToUse;
@@ -350,7 +348,7 @@ namespace GreenshotPlugin.Core {
 
 			StringBuilder sb = new StringBuilder();
 			foreach(string key in queryParameters.Keys) {
-				sb.AppendFormat(CultureInfo.InvariantCulture, "{0}={1}&", key, UrlEncode(string.Format("{0}",queryParameters[key])));
+				sb.AppendFormat(CultureInfo.InvariantCulture, "{0}={1}&", key, UrlEncode($"{queryParameters[key]}"));
 			}
 			sb.Remove(sb.Length-1,1);
 
@@ -363,7 +361,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="webRequest">HttpWebRequest to write the multipart form data to</param>
 		/// <param name="postParameters">Parameters to include in the multipart form data</param>
 		public static void WriteMultipartFormData(HttpWebRequest webRequest, IDictionary<string, object> postParameters) {
-			string boundary = string.Format("----------{0:N}", Guid.NewGuid());
+			string boundary = $"----------{Guid.NewGuid():N}";
 			webRequest.ContentType = "multipart/form-data; boundary=" + boundary;
 			using (Stream formDataStream = webRequest.GetRequestStream()) {
 				WriteMultipartFormData(formDataStream, boundary, postParameters);
@@ -376,7 +374,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="response">HttpListenerResponse</param>
 		/// <param name="postParameters">Parameters to include in the multipart form data</param>
 		public static void WriteMultipartFormData(HttpListenerResponse response, IDictionary<string, object> postParameters) {
-			string boundary = string.Format("----------{0:N}", Guid.NewGuid());
+			string boundary = $"----------{Guid.NewGuid():N}";
 			response.ContentType = "multipart/form-data; boundary=" + boundary;
 			WriteMultipartFormData(response.OutputStream, boundary, postParameters);
 		}
@@ -398,14 +396,11 @@ namespace GreenshotPlugin.Core {
 
 				needsClrf = true;
 
-				if (param.Value is IBinaryContainer) {
-					IBinaryContainer binaryParameter = (IBinaryContainer)param.Value;
-					binaryParameter.WriteFormDataToStream(boundary, param.Key, formDataStream);
+				var binaryContainer = param.Value as IBinaryContainer;
+				if (binaryContainer != null) {
+					binaryContainer.WriteFormDataToStream(boundary, param.Key, formDataStream);
 				} else {
-					string postData = string.Format("--{0}\r\nContent-Disposition: form-data; name=\"{1}\"\r\n\r\n{2}",
-						boundary,
-						param.Key,
-						param.Value);
+					string postData = $"--{boundary}\r\nContent-Disposition: form-data; name=\"{param.Key}\"\r\n\r\n{param.Value}";
 					formDataStream.Write(Encoding.UTF8.GetBytes(postData), 0, Encoding.UTF8.GetByteCount(postData));
 				}
 			}
@@ -435,12 +430,12 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="response">WebResponse</param>
 		private static void DebugHeaders(WebResponse response) {
-			if (!LOG.IsDebugEnabled) {
+			if (!Log.IsDebugEnabled) {
 				return;
 			}
-			LOG.DebugFormat("Debug information on the response from {0} :", response.ResponseUri);
+			Log.DebugFormat("Debug information on the response from {0} :", response.ResponseUri);
 			foreach (string key in response.Headers.AllKeys) {
-				LOG.DebugFormat("Reponse-header: {0}={1}", key, response.Headers[key]);
+				Log.DebugFormat("Reponse-header: {0}={1}", key, response.Headers[key]);
 			}
 		}
 
@@ -492,17 +487,17 @@ namespace GreenshotPlugin.Core {
 			bool isHttpError = false;
 			try {
 				response = (HttpWebResponse)webRequest.GetResponse();
-				LOG.InfoFormat("Response status: {0}", response.StatusCode);
+				Log.InfoFormat("Response status: {0}", response.StatusCode);
 				isHttpError = (int)response.StatusCode >= 300;
 				if (isHttpError)
 				{
-					LOG.ErrorFormat("HTTP error {0}", response.StatusCode);
+					Log.ErrorFormat("HTTP error {0}", response.StatusCode);
 				}
 				DebugHeaders(response);
 				responseData = GetResponseAsString(response);
 				if (isHttpError)
 				{
-					LOG.ErrorFormat("HTTP response {0}", responseData);
+					Log.ErrorFormat("HTTP response {0}", responseData);
 				}
 			}
 			catch (WebException e) {
@@ -510,15 +505,15 @@ namespace GreenshotPlugin.Core {
 				HttpStatusCode statusCode = HttpStatusCode.Unused;
 				if (response != null) {
 					statusCode = response.StatusCode;
-					LOG.ErrorFormat("HTTP error {0}", statusCode);
+					Log.ErrorFormat("HTTP error {0}", statusCode);
 					string errorContent = GetResponseAsString(response);
 					if (alsoReturnContentOnError)
 					{
 						return errorContent;
 					}
-					LOG.ErrorFormat("Content: {0}", errorContent);
+					Log.ErrorFormat("Content: {0}", errorContent);
 				}
-				LOG.Error("WebException: ", e);
+				Log.Error("WebException: ", e);
 				if (statusCode == HttpStatusCode.Unauthorized)
 				{
 					throw new UnauthorizedAccessException(e.Message);
@@ -531,7 +526,7 @@ namespace GreenshotPlugin.Core {
 				{
 					if (isHttpError)
 					{
-						LOG.ErrorFormat("HTTP error {0} with content: {1}", response.StatusCode, responseData);
+						Log.ErrorFormat("HTTP error {0} with content: {1}", response.StatusCode, responseData);
 					}
 					response.Close();
 				}
@@ -550,12 +545,12 @@ namespace GreenshotPlugin.Core {
 				webRequest.Method = HTTPMethod.HEAD.ToString();
 				using (HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse())
 				{
-					LOG.DebugFormat("RSS feed was updated at {0}", webResponse.LastModified);
+					Log.DebugFormat("RSS feed was updated at {0}", webResponse.LastModified);
 					return webResponse.LastModified;
 				}
 			} catch (Exception wE) {
-				LOG.WarnFormat("Problem requesting HTTP - HEAD on uri {0}", uri);
-				LOG.Warn(wE.Message);
+				Log.WarnFormat("Problem requesting HTTP - HEAD on uri {0}", uri);
+				Log.Warn(wE.Message);
 				// Pretend it is old
 				return DateTime.MinValue;
 			}
@@ -620,11 +615,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="formDataStream">Stream to write to</param>
 		public void WriteFormDataToStream(string boundary, string name, Stream formDataStream) {
 			// Add just the first part of this param, since we will write the file data directly to the Stream
-			string header = string.Format("--{0}\r\nContent-Disposition: form-data; name=\"{1}\"; filename=\"{2}\";\r\nContent-Type: {3}\r\n\r\n",
-				boundary,
-				name,
-				Filename ?? name,
-				_contentType ?? "application/octet-stream");
+			string header = $"--{boundary}\r\nContent-Disposition: form-data; name=\"{name}\"; filename=\"{Filename ?? name}\";\r\nContent-Type: {_contentType ?? "application/octet-stream"}\r\n\r\n";
 
 			formDataStream.Write(Encoding.UTF8.GetBytes(header), 0, Encoding.UTF8.GetByteCount(header));
 
@@ -702,11 +693,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="formDataStream">Stream to write to</param>
 		public void WriteFormDataToStream(string boundary, string name, Stream formDataStream) {
 			// Add just the first part of this param, since we will write the file data directly to the Stream
-			string header = string.Format("--{0}\r\nContent-Disposition: form-data; name=\"{1}\"; filename=\"{2}\";\r\nContent-Type: {3}\r\n\r\n",
-				boundary,
-				name,
-				Filename ?? name,
-				ContentType);
+			string header = $"--{boundary}\r\nContent-Disposition: form-data; name=\"{name}\"; filename=\"{Filename ?? name}\";\r\nContent-Type: {ContentType}\r\n\r\n";
 
 			formDataStream.Write(Encoding.UTF8.GetBytes(header), 0, Encoding.UTF8.GetByteCount(header));
 			ImageOutput.SaveToStream(_bitmap, null, formDataStream, _outputSettings);
@@ -782,11 +769,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="formDataStream">Stream to write to</param>
 		public void WriteFormDataToStream(string boundary, string name, Stream formDataStream) {
 			// Add just the first part of this param, since we will write the file data directly to the Stream
-			string header = string.Format("--{0}\r\nContent-Disposition: form-data; name=\"{1}\"; filename=\"{2}\";\r\nContent-Type: {3}\r\n\r\n",
-				boundary,
-				name,
-				Filename ?? name,
-				ContentType);
+			string header = $"--{boundary}\r\nContent-Disposition: form-data; name=\"{name}\"; filename=\"{Filename ?? name}\";\r\nContent-Type: {ContentType}\r\n\r\n";
 
 			formDataStream.Write(Encoding.UTF8.GetBytes(header), 0, Encoding.UTF8.GetByteCount(header));
 			ImageOutput.SaveToStream(_surface, formDataStream, _outputSettings);			

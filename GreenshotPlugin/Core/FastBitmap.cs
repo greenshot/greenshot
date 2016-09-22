@@ -22,7 +22,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using log4net;
 
 namespace GreenshotPlugin.Core {
 
@@ -285,9 +284,7 @@ namespace GreenshotPlugin.Core {
 	/// <summary>
 	/// The base class for the fast bitmap implementation
 	/// </summary>
-	public abstract unsafe class FastBitmap : IFastBitmap, IFastBitmapWithClip, IFastBitmapWithOffset {
-		private static ILog _log = LogManager.GetLogger(typeof(FastBitmap));
-
+	public abstract unsafe class FastBitmap : IFastBitmapWithClip, IFastBitmapWithOffset {
 		protected const int PixelformatIndexA = 3;
 		protected const int PixelformatIndexR = 2;
 		protected const int PixelformatIndexG = 1;
@@ -298,7 +295,7 @@ namespace GreenshotPlugin.Core {
 		public const int ColorIndexB = 2;
 		public const int ColorIndexA = 3;
 
-		protected Rectangle Area = Rectangle.Empty;
+		protected Rectangle Area;
 		/// <summary>
 		/// If this is set to true, the bitmap will be disposed when disposing the IFastBitmap
 		/// </summary>
@@ -354,7 +351,7 @@ namespace GreenshotPlugin.Core {
 				case PixelFormat.Format32bppPArgb:
 					return new Fast32ArgbBitmap(source, area);
 				default:
-					throw new NotSupportedException(string.Format("Not supported Pixelformat {0}", source.PixelFormat));
+					throw new NotSupportedException($"Not supported Pixelformat {source.PixelFormat}");
 			}
 		}
 
@@ -396,9 +393,12 @@ namespace GreenshotPlugin.Core {
 		public static IFastBitmap CreateCloneOf(Image source, PixelFormat pixelFormat, Rectangle area) {
 			Bitmap destination = ImageHelper.CloneArea(source, area, pixelFormat);
 			FastBitmap fastBitmap = Create(destination) as FastBitmap;
-			fastBitmap.NeedsDispose = true;
-			fastBitmap.Left = area.Left;
-			fastBitmap.Top = area.Top;
+			if (fastBitmap != null)
+			{
+				fastBitmap.NeedsDispose = true;
+				fastBitmap.Left = area.Left;
+				fastBitmap.Top = area.Top;
+			}
 			return fastBitmap;
 		}
 
@@ -529,20 +529,12 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Return the right of the fastbitmap
 		/// </summary>
-		public int Right {
-			get {
-				return Left + Width;
-			}
-		}
+		public int Right => Left + Width;
 
 		/// <summary>
 		/// Return the bottom of the fastbitmap
 		/// </summary>
-		public int Bottom {
-			get {
-				return Top + Height;
-			}
-		}
+		public int Bottom => Top + Height;
 
 		/// <summary>
 		/// Returns the underlying bitmap, unlocks it and prevents that it will be disposed
@@ -555,11 +547,7 @@ namespace GreenshotPlugin.Core {
 			return Bitmap;
 		}
 
-		public virtual bool HasAlphaChannel {
-			get {
-				return false;
-			}
-		}
+		public virtual bool HasAlphaChannel => false;
 
 		/// <summary>
 		/// Destructor
@@ -600,14 +588,16 @@ namespace GreenshotPlugin.Core {
 		/// Lock the bitmap so we have direct access to the memory
 		/// </summary>
 		public void Lock() {
-			if (Width > 0 && Height > 0 && !BitsLocked) {
-				BmData = Bitmap.LockBits(Area, ImageLockMode.ReadWrite, Bitmap.PixelFormat);
-				BitsLocked = true;
-
-				IntPtr scan0 = BmData.Scan0;
-				Pointer = (byte*)(void*)scan0;
-				Stride = BmData.Stride;
+			if (Width <= 0 || Height <= 0 || BitsLocked)
+			{
+				return;
 			}
+			BmData = Bitmap.LockBits(Area, ImageLockMode.ReadWrite, Bitmap.PixelFormat);
+			BitsLocked = true;
+
+			IntPtr scan0 = BmData.Scan0;
+			Pointer = (byte*)(void*)scan0;
+			Stride = BmData.Stride;
 		}
 
 		/// <summary>
@@ -635,7 +625,6 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="graphics"></param>
 		/// <param name="destinationRect"></param>
-		/// <param name="destination"></param>
 		public void DrawTo(Graphics graphics, Rectangle destinationRect) {
 			// Make sure this.bitmap is unlocked, if it was locked
 			bool isLocked = BitsLocked;
@@ -944,11 +933,7 @@ namespace GreenshotPlugin.Core {
 	/// This is the implementation of the IFastBitmap for 32 bit images with Alpha
 	/// </summary>
 	public unsafe class Fast32ArgbBitmap : FastBitmap, IFastBitmapWithBlend {
-		public override bool HasAlphaChannel {
-			get {
-				return true;
-			}
-		}
+		public override bool HasAlphaChannel => true;
 
 		public Color BackgroundBlendColor {
 			get;

@@ -84,9 +84,11 @@ namespace Greenshot.Drawing {
 		protected override void OnDeserialized(StreamingContext context)
 		{
 			Init();
-			_stringFormat = new StringFormat();
-			_stringFormat.Alignment = StringAlignment.Center;
-			_stringFormat.LineAlignment = StringAlignment.Center;
+			_stringFormat = new StringFormat
+			{
+				Alignment = StringAlignment.Center,
+				LineAlignment = StringAlignment.Center
+			};
 		}
 
 		/// <summary>
@@ -98,20 +100,14 @@ namespace Greenshot.Drawing {
 			{
 				return;
 			}
-			if (Parent != null) {
-				((Surface)Parent).RemoveStepLabel(this);
-			}
+			((Surface) Parent)?.RemoveStepLabel(this);
 			base.SwitchParent(newParent);
 			if (newParent != null) {
 				((Surface)Parent)?.AddStepLabel(this);
 			}
 		}
 
-		public override Size DefaultSize {
-			get {
-				return new Size(30, 30);
-			}
-		}
+		public override Size DefaultSize => new Size(30, 30);
 
 		public override bool InitContent() {
 			_defaultEditMode = EditStatus.IDLE;
@@ -148,14 +144,13 @@ namespace Greenshot.Drawing {
 			if (!disposing) {
 				return;
 			}
-			if (Parent != null)
+			((Surface) Parent)?.RemoveStepLabel(this);
+			if (_stringFormat == null)
 			{
-				((Surface)Parent).RemoveStepLabel(this);
+				return;
 			}
-			if (_stringFormat != null) {
-				_stringFormat.Dispose();
-				_stringFormat = null;
-			}
+			_stringFormat.Dispose();
+			_stringFormat = null;
 		}
 
 		public override bool HandleMouseMove(int x, int y) {

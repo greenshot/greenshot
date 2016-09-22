@@ -680,12 +680,10 @@ namespace GreenshotPlugin.Core {
 								RECT rect = new RECT(screen.Bounds);
 								IntPtr monitor = User32.MonitorFromRect(ref rect, User32.MONITOR_DEFAULTTONULL);
 								if (monitor != IntPtr.Zero) {
-									if (AppVisibility != null) {
-										MONITOR_APP_VISIBILITY monitorAppVisibility = AppVisibility.GetAppVisibilityOnMonitor(monitor);
-										//LOG.DebugFormat("App {0} visible: {1} on {2}", Text, monitorAppVisibility, screen.Bounds);
-										if (monitorAppVisibility == MONITOR_APP_VISIBILITY.MAV_APP_VISIBLE) {
-											return true;
-										}
+									MONITOR_APP_VISIBILITY? monitorAppVisibility = AppVisibility?.GetAppVisibilityOnMonitor(monitor);
+									//LOG.DebugFormat("App {0} visible: {1} on {2}", Text, monitorAppVisibility, screen.Bounds);
+									if (monitorAppVisibility == MONITOR_APP_VISIBILITY.MAV_APP_VISIBLE) {
+										return true;
 									}
 								}
 							} else {

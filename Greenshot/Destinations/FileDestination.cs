@@ -35,60 +35,40 @@ namespace Greenshot.Destinations {
 	/// Description of FileSaveAsDestination.
 	/// </summary>
 	public class FileDestination : AbstractDestination {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(FileDestination));
-		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ILog Log = LogManager.GetLogger(typeof(FileDestination));
+		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 		public const string DESIGNATION = "FileNoDialog";
 
-		public override string Designation {
-			get {
-				return DESIGNATION;
-			}
-		}
+		public override string Designation => DESIGNATION;
 
-		public override string Description {
-			get {
-				return Language.GetString(LangKey.quicksettings_destination_file);
-			}
-		}
+		public override string Description => Language.GetString(LangKey.quicksettings_destination_file);
 
-		public override int Priority {
-			get {
-				return 0;
-			}
-		}
+		public override int Priority => 0;
 
-		public override Keys EditorShortcutKeys {
-			get {
-				return Keys.Control | Keys.S;
-			}
-		}
-		
-		public override Image DisplayIcon {
-			get {
-				return GreenshotResources.getImage("Save.Image");
-			}
-		}
+		public override Keys EditorShortcutKeys => Keys.Control | Keys.S;
+
+		public override Image DisplayIcon => GreenshotResources.getImage("Save.Image");
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			bool outputMade;
-            bool overwrite;
-            string fullPath;
+			bool overwrite;
+			string fullPath;
 			// Get output settings from the configuration
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings();
 
-			if (captureDetails != null && captureDetails.Filename != null) {
-                // As we save a pre-selected file, allow to overwrite.
-                overwrite = true;
-                LOG.InfoFormat("Using previous filename");
-                fullPath = captureDetails.Filename;
+			if (captureDetails?.Filename != null) {
+				// As we save a pre-selected file, allow to overwrite.
+				overwrite = true;
+				Log.InfoFormat("Using previous filename");
+				fullPath = captureDetails.Filename;
 				outputSettings.Format = ImageOutput.FormatForFilename(fullPath);
-            } else {
-                fullPath = CreateNewFilename(captureDetails);
-                // As we generate a file, the configuration tells us if we allow to overwrite
-                overwrite = conf.OutputFileAllowOverwrite;
-            }
-			if (conf.OutputFilePromptQuality) {
+			} else {
+				fullPath = CreateNewFilename(captureDetails);
+				// As we generate a file, the configuration tells us if we allow to overwrite
+				overwrite = CoreConfig.OutputFileAllowOverwrite;
+			}
+			if (CoreConfig.OutputFilePromptQuality) {
 				QualityDialog qualityDialog = new QualityDialog(outputSettings);
 				qualityDialog.ShowDialog();
 			}
@@ -96,16 +76,16 @@ namespace Greenshot.Destinations {
 			// Catching any exception to prevent that the user can't write in the directory.
 			// This is done for e.g. bugs #2974608, #2963943, #2816163, #2795317, #2789218, #3004642
 			try {
-				ImageOutput.Save(surface, fullPath, overwrite, outputSettings, conf.OutputFileCopyPathToClipboard);
+				ImageOutput.Save(surface, fullPath, overwrite, outputSettings, CoreConfig.OutputFileCopyPathToClipboard);
 				outputMade = true;
 			} catch (ArgumentException ex1) {
 				// Our generated filename exists, display 'save-as'
-				LOG.InfoFormat("Not overwriting: {0}", ex1.Message);
+				Log.InfoFormat("Not overwriting: {0}", ex1.Message);
 				// when we don't allow to overwrite present a new SaveWithDialog
 				fullPath = ImageOutput.SaveWithDialog(surface, captureDetails);
 				outputMade = fullPath != null;
 			} catch (Exception ex2) {
-				LOG.Error("Error saving screenshot!", ex2);
+				Log.Error("Error saving screenshot!", ex2);
 				// Show the problem
 				MessageBox.Show(Language.GetString(LangKey.error_save), Language.GetString(LangKey.error));
 				// when save failed we present a SaveWithDialog
@@ -120,7 +100,7 @@ namespace Greenshot.Destinations {
 				{
 					captureDetails.Filename = fullPath;
 				}
-				conf.OutputFileAsFullpath = fullPath;
+				CoreConfig.OutputFileAsFullpath = fullPath;
 			}
 
 			ProcessExport(exportInformation, surface);
@@ -129,18 +109,18 @@ namespace Greenshot.Destinations {
 
 		private static string CreateNewFilename(ICaptureDetails captureDetails) {
 			string fullPath;
-			LOG.InfoFormat("Creating new filename");
-			string pattern = conf.OutputFileFilenamePattern;
+			Log.InfoFormat("Creating new filename");
+			string pattern = CoreConfig.OutputFileFilenamePattern;
 			if (string.IsNullOrEmpty(pattern)) {
 				pattern = "greenshot ${capturetime}";
 			}
-			string filename = FilenameHelper.GetFilenameFromPattern(pattern, conf.OutputFileFormat, captureDetails);
-			string filepath = FilenameHelper.FillVariables(conf.OutputFilePath, false);
+			string filename = FilenameHelper.GetFilenameFromPattern(pattern, CoreConfig.OutputFileFormat, captureDetails);
+			string filepath = FilenameHelper.FillVariables(CoreConfig.OutputFilePath, false);
 			try {
 				fullPath = Path.Combine(filepath, filename);
 			} catch (ArgumentException) {
 				// configured filename or path not valid, show error message...
-				LOG.InfoFormat("Generated path or filename not valid: {0}, {1}", filepath, filename);
+				Log.InfoFormat("Generated path or filename not valid: {0}, {1}", filepath, filename);
 
 				MessageBox.Show(Language.GetString(LangKey.error_save_invalid_chars), Language.GetString(LangKey.error));
 				// ... lets get the pattern fixed....

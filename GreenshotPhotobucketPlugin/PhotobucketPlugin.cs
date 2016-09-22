@@ -55,9 +55,6 @@ namespace GreenshotPhotobucketPlugin {
 			}
 		}
 
-		public PhotobucketPlugin() {
-		}
-
 		public IEnumerable<IDestination> Destinations() {
 			yield return new PhotobucketDestination(this, null);
 		}

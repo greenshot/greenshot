@@ -57,7 +57,7 @@ namespace Greenshot.Drawing {
 			if (!sender.Equals(this)) {
 				return;
 			}
-			if (e.Field.FieldType == FieldType.PREPARED_FILTER_HIGHLIGHT) {
+			if (Equals(e.Field.FieldType, FieldType.PREPARED_FILTER_HIGHLIGHT)) {
 				ConfigurePreparedFilters();
 			}
 		}
@@ -72,12 +72,16 @@ namespace Greenshot.Drawing {
 					Add(new HighlightFilter(this));
 					break;
 				case PreparedFilter.AREA_HIGHLIGHT:
-					AbstractFilter bf = new BrightnessFilter(this);
-					bf.Invert = true;
-					Add(bf);
-					bf = new BlurFilter(this);
-					bf.Invert = true;
-					Add(bf);
+					var brightnessFilter = new BrightnessFilter(this)
+					{
+						Invert = true
+					};
+					Add(brightnessFilter);
+					var blurFilter = new BlurFilter(this)
+					{
+						Invert = true
+					};
+					Add(blurFilter);
 					break;
 				case PreparedFilter.GRAYSCALE:
 					AbstractFilter f = new GrayscaleFilter(this);

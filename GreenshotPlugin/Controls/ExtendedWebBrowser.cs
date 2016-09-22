@@ -59,8 +59,5 @@ namespace GreenshotPlugin.Controls {
 		protected override WebBrowserSiteBase CreateWebBrowserSiteBase() {
 			return new ExtendedWebBrowserSite(this);
 		}
-
-		public ExtendedWebBrowser() {
-		}
 	}
 }

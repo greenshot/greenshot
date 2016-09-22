@@ -29,6 +29,7 @@ using Greenshot.IniFile;
 using GreenshotPlugin.UnmanagedHelpers;
 using Greenshot.Core;
 using Greenshot.Plugin;
+using GreenshotPlugin.Effects;
 using log4net;
 
 namespace GreenshotPlugin.Core {

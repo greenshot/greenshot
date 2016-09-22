@@ -95,7 +95,6 @@ namespace GreenshotConfluencePlugin {
 								pages.Add(page);
 								
 							}
-							continue;
 						} catch (Exception ex) {
 							// Preventing security problems
 							LOG.DebugFormat("Couldn't get page details for space {0} / title {1}", space, title);
@@ -133,7 +132,7 @@ namespace GreenshotConfluencePlugin {
 					if (pattern.ProgrammaticName != "ValuePatternIdentifiers.Pattern") {
 						continue;
 					}
-					string url = (docElement.GetCurrentPattern(pattern) as ValuePattern).Current.Value.ToString();
+					string url = (docElement.GetCurrentPattern(pattern) as ValuePattern).Current.Value;
 					if (!string.IsNullOrEmpty(url)) {
 						urls.Add(url);
 						break;

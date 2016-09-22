@@ -37,7 +37,7 @@ namespace GreenshotFlickrPlugin
 	/// This is the Flickr base code
 	/// </summary>
 	public class FlickrPlugin : IGreenshotPlugin {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(FlickrPlugin));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(FlickrPlugin));
 		private static FlickrConfiguration _config;
 		public static PluginAttribute Attributes;
 		private IGreenshotHost _host;
@@ -83,10 +83,12 @@ namespace GreenshotFlickrPlugin
 			_config = IniConfig.GetIniSection<FlickrConfiguration>();
 			_resources = new ComponentResourceManager(typeof(FlickrPlugin));
 
-			_itemPlugInConfig = new ToolStripMenuItem();
-			_itemPlugInConfig.Text = Language.GetString("flickr", LangKey.Configure);
-			_itemPlugInConfig.Tag = _host;
-			_itemPlugInConfig.Image = (Image)_resources.GetObject("flickr");
+			_itemPlugInConfig = new ToolStripMenuItem
+			{
+				Text = Language.GetString("flickr", LangKey.Configure),
+				Tag = _host,
+				Image = (Image) _resources.GetObject("flickr")
+			};
 			_itemPlugInConfig.Click += ConfigMenuClick;
 
 			PluginUtils.AddToContextMenu(_host, _itemPlugInConfig);
@@ -101,7 +103,7 @@ namespace GreenshotFlickrPlugin
 		}
 
 		public virtual void Shutdown() {
-			LOG.Debug("Flickr Plugin shutdown.");
+			Log.Debug("Flickr Plugin shutdown.");
 		}
 
 		/// <summary>
@@ -137,7 +139,7 @@ namespace GreenshotFlickrPlugin
 				}
 				return true;
 			} catch (Exception e) {
-				LOG.Error("Error uploading.", e);
+				Log.Error("Error uploading.", e);
 				MessageBox.Show(Language.GetString("flickr", LangKey.upload_failure) + " " + e.Message);
 			}
 			return false;

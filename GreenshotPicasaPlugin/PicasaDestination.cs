@@ -19,31 +19,19 @@
  */
 using System.ComponentModel;
 using System.Drawing;
-using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 
 namespace GreenshotPicasaPlugin {
 	public class PicasaDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PicasaDestination));
-		private static PicasaConfiguration config = IniConfig.GetIniSection<PicasaConfiguration>();
-
-		private readonly PicasaPlugin plugin = null;
+		private readonly PicasaPlugin _plugin;
 		public PicasaDestination(PicasaPlugin plugin) {
-			this.plugin = plugin;
+			_plugin = plugin;
 		}
 		
-		public override string Designation {
-			get {
-				return "Picasa";
-			}
-		}
+		public override string Designation => "Picasa";
 
-		public override string Description {
-			get {
-				return Language.GetString("picasa", LangKey.upload_menu_item);
-			}
-		}
+		public override string Description => Language.GetString("picasa", LangKey.upload_menu_item);
 
 		public override Image DisplayIcon {
 			get {
@@ -55,7 +43,7 @@ namespace GreenshotPicasaPlugin {
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			string uploadUrl;
-			bool uploaded = plugin.Upload(captureDetails, surface, out uploadUrl);
+			bool uploaded = _plugin.Upload(captureDetails, surface, out uploadUrl);
 			if (uploaded) {
 				exportInformation.ExportMade = true;
 				exportInformation.Uri = uploadUrl;

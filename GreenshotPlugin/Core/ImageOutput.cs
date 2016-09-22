@@ -167,7 +167,6 @@ namespace GreenshotPlugin.Core {
 								AddTag(nonAlphaImage);
 								nonAlphaImage.Save(targetStream, imageCodec, parameters);
 								nonAlphaImage.Dispose();
-								nonAlphaImage = null;
 							}
 							else
 							{
@@ -205,7 +204,6 @@ namespace GreenshotPlugin.Core {
 					}
 					if (needsDispose) {
 						imageToSave.Dispose();
-						imageToSave = null;
 					}
 				}
 
@@ -221,7 +219,7 @@ namespace GreenshotPlugin.Core {
 						using (BinaryWriter writer = new BinaryWriter(tmpStream)) {
 							writer.Write(bytesWritten);
 							Version v = Assembly.GetExecutingAssembly().GetName().Version;
-							byte[] marker = Encoding.ASCII.GetBytes(String.Format("Greenshot{0:00}.{1:00}", v.Major, v.Minor));
+							byte[] marker = Encoding.ASCII.GetBytes($"Greenshot{v.Major:00}.{v.Minor:00}");
 							writer.Write(marker);
 							tmpStream.WriteTo(stream);
 						}
@@ -407,7 +405,7 @@ namespace GreenshotPlugin.Core {
 		/// Saves image to specific path with specified quality
 		/// </summary>
 		public static void Save(ISurface surface, string fullPath, bool allowOverwrite, SurfaceOutputSettings outputSettings, bool copyPathToClipboard) {
-			fullPath = FilenameHelper.MakeFQFilenameSafe(fullPath);
+			fullPath = FilenameHelper.MakeFqFilenameSafe(fullPath);
 			string path = Path.GetDirectoryName(fullPath);
 
 			// check whether path exists - if not create it
@@ -549,7 +547,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="destinationPath"></param>
 		/// <returns></returns>
 		public static string SaveToTmpFile(ISurface surface, SurfaceOutputSettings outputSettings, string destinationPath) {
-			string tmpFile = Path.GetRandomFileName() + "." + outputSettings.Format.ToString();
+			string tmpFile = Path.GetRandomFileName() + "." + outputSettings.Format;
 			// Prevent problems with "other characters", which could cause problems
 			tmpFile = Regex.Replace(tmpFile, @"[^\d\w\.]", "");
 			if (destinationPath == null) {

@@ -129,7 +129,7 @@ namespace Greenshot.Drawing.Fields.Binding {
 						targetPropertyInfo.SetValue(targetObject, bValue, null);
 					}
 				} catch (Exception e) {
-					throw new MemberAccessException("Could not set property '"+targetProperty+"' to '"+bValue+"' ["+(bValue!=null?bValue.GetType().Name:"")+"] on "+targetObject+". Probably other type than expected, IBindingCoverter to the rescue.", e);
+					throw new MemberAccessException("Could not set property '"+targetProperty+"' to '"+bValue+"' ["+(bValue?.GetType().Name ?? "")+"] on "+targetObject+". Probably other type than expected, IBindingCoverter to the rescue.", e);
 				}
 				
 			}

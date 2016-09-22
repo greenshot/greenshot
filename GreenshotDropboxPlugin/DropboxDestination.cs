@@ -23,27 +23,19 @@ using System.Drawing;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+
 namespace GreenshotDropboxPlugin {
 	internal class DropboxDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(DropboxDestination));
-		private static readonly DropboxPluginConfiguration config = IniConfig.GetIniSection<DropboxPluginConfiguration>();
+		private static readonly DropboxPluginConfiguration DropboxConfig = IniConfig.GetIniSection<DropboxPluginConfiguration>();
 
-		private readonly DropboxPlugin plugin = null;
+		private readonly DropboxPlugin _plugin;
 		public DropboxDestination(DropboxPlugin plugin) {
-			this.plugin = plugin;
+			_plugin = plugin;
 		}
 		
-		public override string Designation {
-			get {
-				return "Dropbox";
-			}
-		}
+		public override string Designation => "Dropbox";
 
-		public override string Description {
-			get {
-				return Language.GetString("dropbox", LangKey.upload_menu_item);
-			}
-		}
+		public override string Description => Language.GetString("dropbox", LangKey.upload_menu_item);
 
 		public override Image DisplayIcon {
 			get {
@@ -55,11 +47,11 @@ namespace GreenshotDropboxPlugin {
 		public override ExportInformation ExportCapture(bool manually, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			string uploadUrl;
-			bool uploaded = plugin.Upload(captureDetails, surface, out uploadUrl);
+			bool uploaded = _plugin.Upload(captureDetails, surface, out uploadUrl);
 			if (uploaded) {
 				exportInformation.Uri = uploadUrl;
 				exportInformation.ExportMade = true;
-				if (config.AfterUploadLinkToClipBoard) {
+				if (DropboxConfig.AfterUploadLinkToClipBoard) {
 					ClipboardHelper.SetClipboardData(uploadUrl);
 				}
 			}

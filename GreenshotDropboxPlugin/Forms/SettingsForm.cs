@@ -20,16 +20,12 @@
  */
 
 using GreenshotDropboxPlugin.Forms;
-using Greenshot.IniFile;
 
 namespace GreenshotDropboxPlugin {
 	/// <summary>
 	/// Description of PasswordRequestForm.
 	/// </summary>
 	public partial class SettingsForm : DropboxForm {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SettingsForm));
-		private static DropboxPluginConfiguration config = IniConfig.GetIniSection<DropboxPluginConfiguration>();
-
 		public SettingsForm() {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.

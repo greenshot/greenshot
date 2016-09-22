@@ -55,9 +55,6 @@ namespace GreenshotDropboxPlugin {
 			}
 		}
 
-		public DropboxPlugin() {
-		}
-
 		public IEnumerable<IDestination> Destinations() {
 			yield return new DropboxDestination(this);
 		}
@@ -123,7 +120,8 @@ namespace GreenshotDropboxPlugin {
 			try {
 				string dropboxUrl = null;
 				new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("dropbox", LangKey.communication_wait), 
-					delegate() {
+					delegate
+					{
 						string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
 						dropboxUrl = DropboxUtils.UploadToDropbox(surfaceToUpload, outputSettings, filename);
 					}

@@ -20,7 +20,6 @@
  */
 using System.Drawing;
 using System.IO;
-using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 
@@ -29,23 +28,11 @@ namespace GreenshotOCR {
 	/// Description of OCRDestination.
 	/// </summary>
 	public class OCRDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OCRDestination));
-		private static OCRConfiguration config = IniConfig.GetIniSection<OCRConfiguration>();
-		private const int MIN_WIDTH = 130;
-		private const int MIN_HEIGHT = 130;
-		private readonly OcrPlugin plugin;
+		private readonly OcrPlugin _plugin;
 		
-		public override string Designation {
-			get {
-				return "OCR";
-			}
-		}
+		public override string Designation => "OCR";
 
-		public override string Description {
-			get {
-				return "OCR";
-			}
-		}
+		public override string Description => "OCR";
 
 		public override Image DisplayIcon {
 			get {
@@ -58,12 +45,14 @@ namespace GreenshotOCR {
 		}
 
 		public OCRDestination(OcrPlugin plugin) {
-			this.plugin = plugin;
+			_plugin = plugin;
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(Designation, Description);
-			exportInformation.ExportMade = plugin.DoOCR(surface) != null;
+			ExportInformation exportInformation = new ExportInformation(Designation, Description)
+			{
+				ExportMade = _plugin.DoOcr(surface) != null
+			};
 			return exportInformation;
 		}
 	}

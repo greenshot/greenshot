@@ -25,75 +25,28 @@ using System.Windows.Forms;
 
 namespace Greenshot.Plugin {
 	public class ExportInformation {
-		private string uri;
-		private string filepath;
-
-		private bool exportMade;
-		private readonly string destinationDesignation;
-		private string destinationDescription;
-
-		private string errorMessage;
-
 		public ExportInformation(string destinationDesignation, string destinationDescription) {
-			this.destinationDesignation = destinationDesignation;
-			this.destinationDescription = destinationDescription;
+			DestinationDesignation = destinationDesignation;
+			DestinationDescription = destinationDescription;
 		}
 		public ExportInformation(string destinationDesignation, string destinationDescription, bool exportMade): this(destinationDesignation, destinationDescription) {
-			this.exportMade = exportMade;
+			ExportMade = exportMade;
 		}
 
-		public string DestinationDesignation {
-			get {
-				return destinationDesignation;
-			}
-		}
-		public string DestinationDescription {
-			get {
-				return destinationDescription;
-			}
-			set {
-				destinationDescription = value;
-			}
-		}
+		public string DestinationDesignation { get; }
+
+		public string DestinationDescription { get; set; }
 
 		/// <summary>
 		/// Set to true to specify if the export worked.
 		/// </summary>
-		public bool ExportMade {
-			get {
-				return exportMade;
-			}
-			set {
-				exportMade = value;
-			}
-		}
+		public bool ExportMade { get; set; }
 
-		public string Uri {
-			get {
-				return uri;
-			}
-			set {
-				uri = value;
-			}
-		}
+		public string Uri { get; set; }
 
-		public string ErrorMessage {
-			get {
-				return errorMessage;
-			}
-			set {
-				errorMessage = value;
-			}
-		}
+		public string ErrorMessage { get; set; }
 
-		public string Filepath {
-			get {
-				return filepath;
-			}
-			set {
-				filepath = value;
-			}
-		}
+		public string Filepath { get; set; }
 	}
 
 	/// <summary>
@@ -131,7 +84,7 @@ namespace Greenshot.Plugin {
 		/// <summary>
 		/// Returns if the destination is active
 		/// </summary>
-		bool isActive {
+		bool IsActive {
 			get;
 		}
 
@@ -159,21 +112,21 @@ namespace Greenshot.Plugin {
 		/// <summary>
 		/// Returns true if this destination can be dynamic
 		/// </summary>
-		bool isDynamic {
+		bool IsDynamic {
 			get;
 		}
 
 		/// <summary>
 		/// Returns if the destination is active
 		/// </summary>
-		bool useDynamicsOnly {
+		bool UseDynamicsOnly {
 			get;
 		}
 
 		/// <summary>
 		/// Returns true if this destination returns a link
 		/// </summary>
-		bool isLinkable {
+		bool IsLinkable {
 			get;
 		}
 

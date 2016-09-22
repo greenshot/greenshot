@@ -26,6 +26,7 @@ using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Interfaces.Drawing;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
@@ -321,47 +322,47 @@ namespace Greenshot.Drawing
 			UpdateFormat();
 		}
 
-		private Font CreateFont(string fontFamily, bool fontBold, bool fontItalic, float fontSize)
+		private Font CreateFont(string fontFamilyName, bool fontBold, bool fontItalic, float fontSize)
 		{
-			FontStyle fs = FontStyle.Regular;
+			FontStyle fontStyle = FontStyle.Regular;
 
 			bool hasStyle = false;
-			using (FontFamily fam = new FontFamily(fontFamily))
+			using (var fontFamily = new FontFamily(fontFamilyName))
 			{
-				bool boldAvailable = fam.IsStyleAvailable(FontStyle.Bold);
+				bool boldAvailable = fontFamily.IsStyleAvailable(FontStyle.Bold);
 				if (fontBold && boldAvailable)
 				{
-					fs |= FontStyle.Bold;
+					fontStyle |= FontStyle.Bold;
 					hasStyle = true;
 				}
 
-				bool italicAvailable = fam.IsStyleAvailable(FontStyle.Italic);
+				bool italicAvailable = fontFamily.IsStyleAvailable(FontStyle.Italic);
 				if (fontItalic && italicAvailable)
 				{
-					fs |= FontStyle.Italic;
+					fontStyle |= FontStyle.Italic;
 					hasStyle = true;
 				}
 
 				if (!hasStyle)
 				{
-					bool regularAvailable = fam.IsStyleAvailable(FontStyle.Regular);
+					bool regularAvailable = fontFamily.IsStyleAvailable(FontStyle.Regular);
 					if (regularAvailable)
 					{
-						fs = FontStyle.Regular;
+						fontStyle = FontStyle.Regular;
 					}
 					else
 					{
 						if (boldAvailable)
 						{
-							fs = FontStyle.Bold;
+							fontStyle = FontStyle.Bold;
 						}
 						else if (italicAvailable)
 						{
-							fs = FontStyle.Italic;
+							fontStyle = FontStyle.Italic;
 						}
 					}
 				}
-				return new Font(fam, fontSize, fs, GraphicsUnit.Pixel);
+				return new Font(fontFamily, fontSize, fontStyle, GraphicsUnit.Pixel);
 			}
 		}
 
@@ -400,7 +401,7 @@ namespace Greenshot.Drawing
 				catch (Exception)
 				{
 					// When this happens... the PC is broken
-					ex.Data.Add("fontFamily", fontFamily);
+					ex.Data.Add("fontFamilyName", fontFamily);
 					ex.Data.Add("fontBold", fontBold);
 					ex.Data.Add("fontItalic", fontItalic);
 					ex.Data.Add("fontSize", fontSize);
@@ -534,6 +535,14 @@ namespace Greenshot.Drawing
 		/// <param name="font"></param>
 		public static void DrawText(Graphics graphics, Rectangle drawingRectange, int lineThickness, Color fontColor, bool drawShadow, StringFormat stringFormat, string text, Font font)
 		{
+#if DEBUG
+			Debug.Assert(font != null);
+#else
+			if (font == null)
+			{
+				return;
+			}
+#endif
 			int textOffset = lineThickness > 0 ? (int)Math.Ceiling(lineThickness / 2d) : 0;
 			// draw shadow before anything else
 			if (drawShadow)

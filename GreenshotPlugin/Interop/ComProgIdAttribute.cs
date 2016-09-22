@@ -24,10 +24,8 @@ namespace Greenshot.Interop {
 	/// <summary>
 	/// An attribute to specifiy the ProgID of the COM class to create. (As suggested by Kristen Wegner)
 	/// </summary>
-	[AttributeUsage(AttributeTargets.Interface, Inherited = false, AllowMultiple = false)]
+	[AttributeUsage(AttributeTargets.Interface)]
 	public sealed class ComProgIdAttribute : Attribute {
-		private readonly string _value;
-
 		/// <summary>
 		/// Extracts the attribute from the specified type.
 		/// </summary>
@@ -42,24 +40,26 @@ namespace Greenshot.Interop {
 		/// </exception>
 		public static ComProgIdAttribute GetAttribute(Type interfaceType) {
 			if (null == interfaceType) {
-				throw new ArgumentNullException("interfaceType");
+				throw new ArgumentNullException(nameof(interfaceType));
 			}
 
 			Type attributeType = typeof(ComProgIdAttribute);
 			object[] attributes = interfaceType.GetCustomAttributes(attributeType, false);
 
-			if (null == attributes || 0 == attributes.Length) {
+			if (0 == attributes.Length)
+			{
 				Type[] interfaces = interfaceType.GetInterfaces();
-				for (int i = 0; i < interfaces.Length; i++) {
-					interfaceType = interfaces[i];
+				foreach (Type t in interfaces)
+				{
+					interfaceType = t;
 					attributes = interfaceType.GetCustomAttributes(attributeType, false);
-					if (null != attributes && 0 != attributes.Length) {
+					if (0 != attributes.Length) {
 						break;
 					}
 				}
 			}
 
-			if (null == attributes || 0 == attributes.Length) {
+			if (0 == attributes.Length) {
 				return null;
 			}
 			return (ComProgIdAttribute)attributes[0];
@@ -68,14 +68,12 @@ namespace Greenshot.Interop {
 		/// <summary>Constructor</summary>
 		/// <param name="value">The COM ProgID.</param>
 		public ComProgIdAttribute(string value) {
-			_value = value;
+			Value = value;
 		}
 
 		/// <summary>
 		/// Returns the COM ProgID
 		/// </summary>
-		public string Value {
-			get { return _value; }
-		}
+		public string Value { get; }
 	}
 }

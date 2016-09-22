@@ -41,8 +41,9 @@ namespace Greenshot.Controls {
 			CheckedChanged += BindableToolStripButton_CheckedChanged;
 		}
 
-		private void BindableToolStripButton_CheckedChanged(object sender, EventArgs e) {
-			if(PropertyChanged != null) PropertyChanged(this, new PropertyChangedEventArgs("Checked"));
+		private void BindableToolStripButton_CheckedChanged(object sender, EventArgs e)
+		{
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Checked"));
 		}
 	}
 }

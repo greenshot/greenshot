@@ -24,23 +24,19 @@ namespace Greenshot.IniFile {
 	/// <summary>
 	/// Attribute for telling that this class is linked to a section in the ini-configuration
 	/// </summary>
-	[AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+	[AttributeUsage(AttributeTargets.Class)]
 	public class IniSectionAttribute : Attribute {
-		private string name;
 		public IniSectionAttribute(string name) {
-			this.name = name;
+			Name = name;
 		}
 		public string Description;
-		public string Name {
-			get { return name; }
-			set { name = value; }
-		}
+		public string Name { get; set; }
 	}
 
 	/// <summary>
 	/// Attribute for telling that a field is linked to a property in the ini-configuration selection
 	/// </summary>
-	[AttributeUsage(AttributeTargets.Field|AttributeTargets.Property, AllowMultiple = false)]
+	[AttributeUsage(AttributeTargets.Field|AttributeTargets.Property)]
 	public class IniPropertyAttribute : Attribute {
 		public IniPropertyAttribute() {
 			Separator = ",";

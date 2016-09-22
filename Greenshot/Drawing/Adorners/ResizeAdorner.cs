@@ -168,7 +168,6 @@ namespace Greenshot.Drawing.Adorners
 		public override void Paint(PaintEventArgs paintEventArgs)
 		{
 			Graphics targetGraphics = paintEventArgs.Graphics;
-			Rectangle clipRectangle = paintEventArgs.ClipRectangle;
 
 			var bounds = Bounds;
 			GraphicsState state = targetGraphics.Save();

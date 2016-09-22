@@ -23,13 +23,10 @@ using System;
 namespace GreenshotPlugin.Core {
 	[AttributeUsage(AttributeTargets.Field)]
 	public sealed class DisplayKeyAttribute : Attribute {
-		private readonly string value;
-		public string Value {
-		  get { return value; }
-		}
-		
+		public string Value { get; }
+
 		public DisplayKeyAttribute(string v) {
-		  value = v;
+		  Value = v;
 		}
 		
 		public DisplayKeyAttribute() {

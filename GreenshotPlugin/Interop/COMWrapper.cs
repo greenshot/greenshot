@@ -34,7 +34,7 @@ namespace Greenshot.Interop {
 	/// Wraps a late-bound COM server.
 	/// </summary>
 	public sealed class COMWrapper : RealProxy, IDisposable, IRemotingTypeInfo {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(COMWrapper));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(COMWrapper));
 		private const int MK_E_UNAVAILABLE = -2147221021;
 		private const int CO_E_CLASSSTRING = -2147221005;
 		public const int RPC_E_CALL_REJECTED = unchecked((int)0x80010001);
@@ -105,13 +105,13 @@ namespace Greenshot.Interop {
 					try {
 						GetActiveObject(ref guid, IntPtr.Zero, out comObject);
 					} catch (Exception) {
-						LOG.WarnFormat("Error {0} getting instance for class id {1}", result, progIdAttribute.Value);
+						Log.WarnFormat("Error {0} getting instance for class id {1}", result, progIdAttribute.Value);
 					}
 					if (comObject == null) {
-						LOG.WarnFormat("Error {0} getting progId {1}", result, progIdAttribute.Value);
+						Log.WarnFormat("Error {0} getting progId {1}", result, progIdAttribute.Value);
 					}
 				} else {
-					LOG.InfoFormat("Mapped {0} to progId {1}", progIdAttribute.Value, progId);
+					Log.InfoFormat("Mapped {0} to progId {1}", progIdAttribute.Value, progId);
 				}
 			}
 
@@ -120,14 +120,14 @@ namespace Greenshot.Interop {
 					comObject = Marshal.GetActiveObject(progId);
 				} catch (COMException comE) {
 					if (comE.ErrorCode == MK_E_UNAVAILABLE) {
-						LOG.DebugFormat("No current instance of {0} object available.", progId);
+						Log.DebugFormat("No current instance of {0} object available.", progId);
 					} else if (comE.ErrorCode == CO_E_CLASSSTRING) {
-						LOG.WarnFormat("Unknown progId {0}", progId);
+						Log.WarnFormat("Unknown progId {0}", progId);
 					} else {
-						LOG.Warn("Error getting active object for " + progIdAttribute.Value, comE);
+						Log.Warn("Error getting active object for " + progIdAttribute.Value, comE);
 					}
 				} catch (Exception e) {
-					LOG.Warn("Error getting active object for " + progIdAttribute.Value, e);
+					Log.Warn("Error getting active object for " + progIdAttribute.Value, e);
 				}
 			}
 
@@ -166,13 +166,13 @@ namespace Greenshot.Interop {
 				try {
 					comType = Type.GetTypeFromCLSID(guid);
 				} catch (Exception ex) {
-					LOG.WarnFormat("Error {1} type for {0}", progId, ex.Message);
+					Log.WarnFormat("Error {1} type for {0}", progId, ex.Message);
 				}
 			} else {
 				try {
 					comType = Type.GetTypeFromProgID(progId, true);
 				} catch (Exception ex) {
-					LOG.WarnFormat("Error {1} type for {0}", progId, ex.Message);
+					Log.WarnFormat("Error {1} type for {0}", progId, ex.Message);
 				}
 			}
 			object comObject = null;
@@ -180,10 +180,10 @@ namespace Greenshot.Interop {
 				try {
 					comObject = Activator.CreateInstance(comType);
 					if (comObject != null) {
-						LOG.DebugFormat("Created new instance of {0} object.", progId);
+						Log.DebugFormat("Created new instance of {0} object.", progId);
 					}
 				} catch (Exception e) {
-					LOG.WarnFormat("Error {1} creating object for {0}", progId, e.Message);
+					Log.WarnFormat("Error {1} creating object for {0}", progId, e.Message);
 					throw;
 				}
 			}
@@ -229,13 +229,13 @@ namespace Greenshot.Interop {
 					try {
 						GetActiveObject(ref guid, IntPtr.Zero, out comObject);
 					} catch (Exception) {
-						LOG.WarnFormat("Error {0} getting instance for class id {1}", result, progIdAttribute.Value);
+						Log.WarnFormat("Error {0} getting instance for class id {1}", result, progIdAttribute.Value);
 					}
 					if (comObject == null) {
-						LOG.WarnFormat("Error {0} getting progId {1}", result, progIdAttribute.Value);
+						Log.WarnFormat("Error {0} getting progId {1}", result, progIdAttribute.Value);
 					}
 				} else {
-					LOG.InfoFormat("Mapped {0} to progId {1}", progIdAttribute.Value, progId);
+					Log.InfoFormat("Mapped {0} to progId {1}", progIdAttribute.Value, progId);
 				}
 			}
 
@@ -245,15 +245,15 @@ namespace Greenshot.Interop {
 						comObject = Marshal.GetActiveObject(progId);
 					} catch (COMException comE) {
 						if (comE.ErrorCode == MK_E_UNAVAILABLE) {
-							LOG.DebugFormat("No current instance of {0} object available.", progId);
+							Log.DebugFormat("No current instance of {0} object available.", progId);
 						} else if (comE.ErrorCode == CO_E_CLASSSTRING) {
-							LOG.WarnFormat("Unknown progId {0} (application not installed)", progId);
+							Log.WarnFormat("Unknown progId {0} (application not installed)", progId);
 							return default(T);
 						} else {
-							LOG.Warn("Error getting active object for " + progId, comE);
+							Log.Warn("Error getting active object for " + progId, comE);
 						}
 					} catch (Exception e) {
-						LOG.Warn("Error getting active object for " + progId, e);
+						Log.Warn("Error getting active object for " + progId, e);
 					}
 				}
 			}
@@ -266,7 +266,7 @@ namespace Greenshot.Interop {
 					if (Guid.Empty != guid) {
 						comType = Type.GetTypeFromCLSID(guid);
 					} else {
-						LOG.Warn("Error type for " + progId, ex);
+						Log.Warn("Error type for " + progId, ex);
 					}
 				}
 				
@@ -274,10 +274,10 @@ namespace Greenshot.Interop {
 					try {
 						comObject = Activator.CreateInstance(comType);
 						if (comObject != null) {
-							LOG.DebugFormat("Created new instance of {0} object.", progId);
+							Log.DebugFormat("Created new instance of {0} object.", progId);
 						}
 					} catch (Exception e) {
-						LOG.Warn("Error creating object for " + progId, e);
+						Log.Warn("Error creating object for " + progId, e);
 					}
 				}
 			}
@@ -356,7 +356,7 @@ namespace Greenshot.Interop {
 		/// sure that the COM object is still cleaned up.
 		/// </summary>
 		~COMWrapper() {
-			LOG.DebugFormat("Finalize {0}", _interceptType);
+			Log.DebugFormat("Finalize {0}", _interceptType);
 			Dispose(false);
 		}
 
@@ -377,20 +377,20 @@ namespace Greenshot.Interop {
 		/// </param>
 		private void Dispose(bool disposing) {
 			if (null != _comObject) {
-				LOG.DebugFormat("Disposing {0}", _interceptType);
+				Log.DebugFormat("Disposing {0}", _interceptType);
 				if (Marshal.IsComObject(_comObject)) {
 					try {
 						int count;
 						do {
 							count = Marshal.ReleaseComObject(_comObject);
-							LOG.DebugFormat("RCW count for {0} now is {1}", _interceptType, count);
+							Log.DebugFormat("RCW count for {0} now is {1}", _interceptType, count);
 						} while (count > 0);
 					} catch (Exception ex) {
-						LOG.WarnFormat("Problem releasing COM object {0}", _comType);
-						LOG.Warn("Error: ", ex);
+						Log.WarnFormat("Problem releasing COM object {0}", _comType);
+						Log.Warn("Error: ", ex);
 					}
 				} else {
-					LOG.WarnFormat("{0} is not a COM object", _comType);
+					Log.WarnFormat("{0} is not a COM object", _comType);
 				}
 			}
 		}
@@ -479,13 +479,13 @@ namespace Greenshot.Interop {
 		public override IMessage Invoke(IMessage myMessage) {
 			IMethodCallMessage callMessage = myMessage as IMethodCallMessage;
 			if (null == callMessage) {
-				LOG.DebugFormat("Message type not implemented: {0}", myMessage.GetType());
+				Log.DebugFormat("Message type not implemented: {0}", myMessage.GetType());
 				return null;
 			}
 
 			MethodInfo method = callMessage.MethodBase as MethodInfo;
 			if (null == method) {
-				LOG.DebugFormat("Unrecognized Invoke call: {0}", callMessage.MethodBase);
+				Log.DebugFormat("Unrecognized Invoke call: {0}", callMessage.MethodBase);
 				return null;
 			}
 
@@ -598,7 +598,7 @@ namespace Greenshot.Interop {
 						break;
 					} catch (InvalidComObjectException icoEx) {
 						// Should assist BUG-1616 and others
-						LOG.WarnFormat("COM object {0} has been separated from its underlying RCW cannot be used. The COM object was released while it was still in use on another thread.", _interceptType.FullName);
+						Log.WarnFormat("COM object {0} has been separated from its underlying RCW cannot be used. The COM object was released while it was still in use on another thread.", _interceptType.FullName);
 						return new ReturnMessage(icoEx, callMessage);
 					} catch (Exception ex) {
 						// Test for rejected

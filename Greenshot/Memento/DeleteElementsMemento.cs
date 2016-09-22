@@ -46,10 +46,7 @@ namespace Greenshot.Memento
 		{
 			if (disposing)
 			{
-				if (_containerList != null)
-				{
-					_containerList.Dispose();
-				}
+				_containerList?.Dispose();
 			}
 			_containerList = null;
 			_surface = null;

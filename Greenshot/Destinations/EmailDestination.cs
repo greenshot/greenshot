@@ -32,77 +32,57 @@ namespace Greenshot.Destinations {
 	/// Description of EmailDestination.
 	/// </summary>
 	public class EmailDestination : AbstractDestination {
-		private static readonly Image mailIcon = GreenshotResources.getImage("Email.Image");
-		private static bool isActiveFlag;
-		private static string mapiClient;
+		private static readonly Image MailIcon = GreenshotResources.getImage("Email.Image");
+		private static bool _isActiveFlag;
+		private static string _mapiClient;
 		public const string DESIGNATION = "EMail";
 
 		static EmailDestination() {
 			// Logic to decide what email implementation we use
-			if (EmailConfigHelper.HasMAPI()) {
-				isActiveFlag = true;
-				mapiClient = EmailConfigHelper.GetMapiClient();
-				if (!string.IsNullOrEmpty(mapiClient)) {
+			if (EmailConfigHelper.HasMapi()) {
+				_isActiveFlag = true;
+				_mapiClient = EmailConfigHelper.GetMapiClient();
+				if (!string.IsNullOrEmpty(_mapiClient)) {
 					// Active as we have a mapi client, can be disabled later
-					isActiveFlag = true;
+					_isActiveFlag = true;
 				}
 			}
 		}
 
-		public EmailDestination() {
-			
-		}
-
-		public override string Designation {
-			get {
-				return DESIGNATION;
-			}
-		}
+		public override string Designation => DESIGNATION;
 
 		public override string Description {
 			get {
 				// Make sure there is some kind of "mail" name
-				if (mapiClient == null) {
-					mapiClient = Language.GetString(LangKey.editor_email);
+				if (_mapiClient == null) {
+					_mapiClient = Language.GetString(LangKey.editor_email);
 				}
-				return mapiClient;
+				return _mapiClient;
 			}
 		}
 
-		public override int Priority {
-			get {
-				return 3;
-			}
-		}
+		public override int Priority => 3;
 
-		public override bool isActive {
+		public override bool IsActive {
 			get {
-				if (isActiveFlag) {
+				if (_isActiveFlag) {
 					// Disable if the office plugin is installed and the client is outlook
 					// TODO: Change this! It always creates an exception, as the plugin has not been loaded the type is not there :(
 					Type outlookdestination = Type.GetType("GreenshotOfficePlugin.OutlookDestination,GreenshotOfficePlugin");
 					if (outlookdestination != null) {
-						if (mapiClient.ToLower().Contains("microsoft outlook")) {
-							isActiveFlag = false;
+						if (_mapiClient.ToLower().Contains("microsoft outlook")) {
+							_isActiveFlag = false;
 						}
 					}
 				}
-				return base.isActive && isActiveFlag;
+				return base.IsActive && _isActiveFlag;
 			}
 		}
 
-		public override Keys EditorShortcutKeys {
-			get {
-				return Keys.Control | Keys.E;
-			}
-		}
+		public override Keys EditorShortcutKeys => Keys.Control | Keys.E;
 
-		public override Image DisplayIcon {
-			get {
-				return mailIcon;
-			}
-		}
-		
+		public override Image DisplayIcon => MailIcon;
+
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			MapiMailMessage.SendImage(surface, captureDetails);

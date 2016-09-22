@@ -28,9 +28,9 @@ namespace Greenshot.Interop {
 		IntPtr QueryInterface(ref Guid riid);
 
 		[PreserveSig]
-		UInt32 AddRef();
+		uint AddRef();
 
 		[PreserveSig]
-		UInt32 Release();
+		uint Release();
 	}
 }

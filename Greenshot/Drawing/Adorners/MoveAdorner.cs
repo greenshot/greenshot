@@ -45,13 +45,7 @@ namespace Greenshot.Drawing.Adorners
 		/// <summary>
 		/// Returns the cursor for when the mouse is over the adorner
 		/// </summary>
-		public override Cursor Cursor
-		{
-			get
-			{
-				return Cursors.SizeAll;
-			}
-		}
+		public override Cursor Cursor => Cursors.SizeAll;
 
 		/// <summary>
 		/// Handle the mouse down
@@ -147,7 +141,6 @@ namespace Greenshot.Drawing.Adorners
 		public override void Paint(PaintEventArgs paintEventArgs)
 		{
 			Graphics targetGraphics = paintEventArgs.Graphics;
-			Rectangle clipRectangle = paintEventArgs.ClipRectangle;
 
 			var bounds = Bounds;
 			GraphicsState state = targetGraphics.Save();

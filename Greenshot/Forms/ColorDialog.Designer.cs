@@ -144,7 +144,7 @@ namespace Greenshot {
 			this.textBoxRed.TabIndex = 2;
 			this.textBoxRed.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			this.textBoxRed.Click += new System.EventHandler(this.TextBoxGotFocus);
-			this.textBoxRed.TextChanged += new System.EventHandler(this.TextBoxRGBTextChanged);
+			this.textBoxRed.TextChanged += new System.EventHandler(this.TextBoxRgbTextChanged);
 			this.textBoxRed.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
 			this.textBoxRed.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
 			// 
@@ -156,7 +156,7 @@ namespace Greenshot {
 			this.textBoxGreen.TabIndex = 3;
 			this.textBoxGreen.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			this.textBoxGreen.Click += new System.EventHandler(this.TextBoxGotFocus);
-			this.textBoxGreen.TextChanged += new System.EventHandler(this.TextBoxRGBTextChanged);
+			this.textBoxGreen.TextChanged += new System.EventHandler(this.TextBoxRgbTextChanged);
 			this.textBoxGreen.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
 			this.textBoxGreen.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
 			// 
@@ -168,7 +168,7 @@ namespace Greenshot {
 			this.textBoxBlue.TabIndex = 4;
 			this.textBoxBlue.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			this.textBoxBlue.Click += new System.EventHandler(this.TextBoxGotFocus);
-			this.textBoxBlue.TextChanged += new System.EventHandler(this.TextBoxRGBTextChanged);
+			this.textBoxBlue.TextChanged += new System.EventHandler(this.TextBoxRgbTextChanged);
 			this.textBoxBlue.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
 			this.textBoxBlue.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
 			// 
@@ -189,7 +189,7 @@ namespace Greenshot {
 			this.textBoxAlpha.TabIndex = 5;
 			this.textBoxAlpha.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			this.textBoxAlpha.Click += new System.EventHandler(this.TextBoxGotFocus);
-			this.textBoxAlpha.TextChanged += new System.EventHandler(this.TextBoxRGBTextChanged);
+			this.textBoxAlpha.TextChanged += new System.EventHandler(this.TextBoxRgbTextChanged);
 			this.textBoxAlpha.GotFocus += new System.EventHandler(this.TextBoxGotFocus);
 			this.textBoxAlpha.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxKeyDown);
 			// 

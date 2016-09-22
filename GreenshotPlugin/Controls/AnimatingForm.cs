@@ -29,7 +29,7 @@ namespace GreenshotPlugin.Controls {
 	/// Extend this Form to have the possibility for animations on your form
 	/// </summary>
 	public class AnimatingForm : GreenshotForm {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(AnimatingForm));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(AnimatingForm));
 		private const int DEFAULT_VREFRESH = 60;
 		private int _vRefresh;
 		private Timer _timer;
@@ -49,7 +49,7 @@ namespace GreenshotPlugin.Controls {
 			get {
 				if (_vRefresh == 0) {
 					// get te hDC of the desktop to get the VREFRESH
-					using (SafeWindowDCHandle desktopHandle = SafeWindowDCHandle.FromDesktop()) {
+					using (SafeWindowDcHandle desktopHandle = SafeWindowDcHandle.FromDesktop()) {
 						_vRefresh = GDI32.GetDeviceCaps(desktopHandle, DeviceCaps.VREFRESH);
 					}
 				}
@@ -65,11 +65,7 @@ namespace GreenshotPlugin.Controls {
 		/// <summary>
 		/// Check if we are in a Terminal Server session OR need to optimize for RDP / remote desktop connections
 		/// </summary>
-		protected bool IsTerminalServerSession {
-			get {
-				return !coreConfiguration.DisableRDPOptimizing && (coreConfiguration.OptimizeForRDP || SystemInformation.TerminalServerSession);
-			}
-		}
+		protected bool IsTerminalServerSession => !coreConfiguration.DisableRDPOptimizing && (coreConfiguration.OptimizeForRDP || SystemInformation.TerminalServerSession);
 
 		/// <summary>
 		/// Calculate the amount of frames that an animation takes
@@ -89,19 +85,22 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		protected AnimatingForm() {
 			Load += delegate {
-				if (EnableAnimation) {
-					_timer = new Timer();
-					_timer.Interval = 1000 / VRefresh;
-					_timer.Tick += timer_Tick;
-					_timer.Start();
+				if (!EnableAnimation)
+				{
+					return;
 				}
+				_timer = new Timer
+				{
+					Interval = 1000/VRefresh
+				};
+				_timer.Tick += timer_Tick;
+				_timer.Start();
 			};
 
 			// Unregister at close
-			FormClosing += delegate {
-				if (_timer != null) {
-					_timer.Stop();
-				}
+			FormClosing += delegate
+			{
+				_timer?.Stop();
 			};
 		}
 
@@ -114,7 +113,7 @@ namespace GreenshotPlugin.Controls {
 			try {
 				Animate();
 			} catch (Exception ex) {
-				LOG.Warn("An exception occured while animating:", ex);
+				Log.Warn("An exception occured while animating:", ex);
 			}
 		}
 

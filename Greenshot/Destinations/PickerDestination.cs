@@ -24,36 +24,20 @@ using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Greenshot.Helpers;
-using Greenshot.IniFile;
-using log4net;
 
 namespace Greenshot.Destinations {
 	/// <summary>
 	/// The PickerDestination shows a context menu with all possible destinations, so the user can "pick" one
 	/// </summary>
 	public class PickerDestination : AbstractDestination {
-		private static ILog LOG = LogManager.GetLogger(typeof(PickerDestination));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		public const string DESIGNATION = "Picker";
 
-		public override string Designation {
-			get {
-				return DESIGNATION;
-			}
-		}
+		public override string Designation => DESIGNATION;
 
-		public override string Description {
-			get {
-				return Language.GetString(LangKey.settings_destination_picker);
-			}
-		}
+		public override string Description => Language.GetString(LangKey.settings_destination_picker);
 
-		public override int Priority {
-			get {
-				return 1;
-			}
-		}
-		
+		public override int Priority => 1;
+
 
 		/// <summary>
 		/// Export the capture with the destination picker
@@ -68,7 +52,7 @@ namespace Greenshot.Destinations {
 				if ("Picker".Equals(destination.Designation)) {
 					continue;
 				}
-				if (!destination.isActive) {
+				if (!destination.IsActive) {
 					continue;
 				}
 				destinations.Add(destination);

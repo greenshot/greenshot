@@ -61,9 +61,6 @@ namespace GreenshotImgurPlugin {
 			}
 		}
 
-		public ImgurPlugin() {
-		}
-
 		public IEnumerable<IDestination> Destinations() {
 			yield return new ImgurDestination(this);
 		}

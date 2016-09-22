@@ -46,10 +46,7 @@ namespace Greenshot.Memento
 		{
 			if (disposing)
 			{
-				if (_containerList != null)
-				{
-					_containerList.Dispose();
-				}
+				_containerList?.Dispose();
 			}
 			_containerList = null;
 			_surface = null;
@@ -62,9 +59,6 @@ namespace Greenshot.Memento
 
 		public IMemento Restore()
 		{
-			// Store the selected state, as it's overwritten by the RemoveElement
-			bool selected = _containerList.Selected;
-
 			var oldState = new DeleteElementsMemento(_surface, _containerList);
 
 			_surface.RemoveElements(_containerList, false);

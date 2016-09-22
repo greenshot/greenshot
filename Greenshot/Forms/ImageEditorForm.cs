@@ -19,8 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.IO;
+using System.Threading;
+using System.Windows.Forms;
 using Greenshot.Configuration;
-using Greenshot.Core;
 using Greenshot.Destinations;
 using Greenshot.Drawing;
 using Greenshot.Drawing.Fields;
@@ -33,26 +40,19 @@ using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Effects;
 using GreenshotPlugin.Interfaces.Drawing;
 using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.IO;
-using System.Threading;
-using System.Windows.Forms;
 
 namespace Greenshot {
 	/// <summary>
 	/// Description of ImageEditorForm.
 	/// </summary>
 	public partial class ImageEditorForm : BaseForm, IImageEditor {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(ImageEditorForm));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ImageEditorForm));
 		private static readonly EditorConfiguration EditorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
-		private static readonly List<string> IgnoreDestinations = new List<string>() { PickerDestination.DESIGNATION, EditorDestination.DESIGNATION };
+		private static readonly List<string> IgnoreDestinations = new List<string> { PickerDestination.DESIGNATION, EditorDestination.DESIGNATION };
 		private static readonly List<IImageEditor> EditorList = new List<IImageEditor>();
 
 		private Surface _surface;
@@ -69,18 +69,14 @@ namespace Greenshot {
 		/// <summary>
 		/// An Implementation for the IImageEditor, this way Plugins have access to the HWND handles wich can be used with Win32 API calls.
 		/// </summary>
-		public IWin32Window WindowHandle {
-			get { return this; }
-		}
+		public IWin32Window WindowHandle => this;
 
 		public static List<IImageEditor> Editors {
 			get {
 				try {
-					EditorList.Sort(delegate(IImageEditor e1, IImageEditor e2) {
-						return string.Compare(e1.Surface.CaptureDetails.Title, e2.Surface.CaptureDetails.Title, StringComparison.Ordinal);
-					});
+					EditorList.Sort((e1, e2) => string.Compare(e1.Surface.CaptureDetails.Title, e2.Surface.CaptureDetails.Title, StringComparison.Ordinal));
 				} catch(Exception ex) {
-					LOG.Warn("Sorting of editors failed.", ex);
+					Log.Warn("Sorting of editors failed.", ex);
 				}
 				return EditorList;
 			}
@@ -104,7 +100,7 @@ namespace Greenshot {
 			};
 
 			// Make sure the editor is placed on the same location as the last editor was on close
-			// But only if this still exists, else it will be reset (BUG-1812
+			// But only if this still exists, else it will be reset (BUG-1812)
 			WindowPlacement editorWindowPlacement = EditorConfiguration.GetEditorPlacement();
 			Rectangle screenbounds = WindowCapture.GetScreenBounds();
 			if (!screenbounds.Contains(editorWindowPlacement.NormalPosition))
@@ -132,11 +128,13 @@ namespace Greenshot {
 		/// Remove the current surface
 		/// </summary>
 		private void RemoveSurface() {
-			if (_surface != null) {
-				panel1.Controls.Remove(_surface);
-				_surface.Dispose();
-				_surface = null;
+			if (_surface == null)
+			{
+				return;
 			}
+			panel1.Controls.Remove(_surface);
+			_surface.Dispose();
+			_surface = null;
 		}
 
 		/// <summary>
@@ -174,7 +172,7 @@ namespace Greenshot {
 				BindFieldControls();
 				RefreshEditorControls();
 				// Fix title
-				if (_surface != null && _surface.CaptureDetails != null && _surface.CaptureDetails.Title != null) {
+				if (_surface?.CaptureDetails?.Title != null) {
 					Text = _surface.CaptureDetails.Title + " - " + Language.GetString(LangKey.editor_title);
 				}
 			}
@@ -249,7 +247,7 @@ namespace Greenshot {
 					if (destination.Priority <= 2) {
 						continue;
 					}
-					if (!destination.isActive) {
+					if (!destination.IsActive) {
 						continue;
 					}
 					if (destination.DisplayIcon == null) {
@@ -258,15 +256,15 @@ namespace Greenshot {
 					try {
 						AddDestinationButton(destination);
 					} catch (Exception addingException) {
-						LOG.WarnFormat("Problem adding destination {0}", destination.Designation);
-						LOG.Warn("Exception: ", addingException);
+						Log.WarnFormat("Problem adding destination {0}", destination.Designation);
+						Log.Warn("Exception: ", addingException);
 					}
 				}
 			});
 		}
 
 		private void AddDestinationButton(IDestination toolstripDestination) {
-			if (toolstripDestination.isDynamic) {
+			if (toolstripDestination.IsDynamic) {
 				ToolStripSplitButton destinationButton = new ToolStripSplitButton
 				{
 					DisplayStyle = ToolStripItemDisplayStyle.Image,
@@ -302,9 +300,11 @@ namespace Greenshot {
 						subDestinations.Sort();
 						foreach(IDestination subDestination in subDestinations) {
 							IDestination closureFixedDestination = subDestination;
-							ToolStripMenuItem destinationMenuItem = new ToolStripMenuItem(closureFixedDestination.Description);
-							destinationMenuItem.Tag = closureFixedDestination;
-							destinationMenuItem.Image = closureFixedDestination.DisplayIcon;
+							ToolStripMenuItem destinationMenuItem = new ToolStripMenuItem(closureFixedDestination.Description)
+							{
+								Tag = closureFixedDestination,
+								Image = closureFixedDestination.DisplayIcon
+							};
 							destinationMenuItem.Click += delegate {
 								closureFixedDestination.ExportCapture(true, _surface, _surface.CaptureDetails);
 							};
@@ -351,7 +351,7 @@ namespace Greenshot {
 				if (IgnoreDestinations.Contains(destination.Designation)) {
 					continue;
 				}
-				if (!destination.isActive) {
+				if (!destination.IsActive) {
 					continue;
 				}
 				
@@ -375,20 +375,20 @@ namespace Greenshot {
 		/// <param name="eventArgs"></param>
 		private void SurfaceMessageReceived(object sender, SurfaceMessageEventArgs eventArgs) {
 			if (InvokeRequired) {
-				Invoke(new SurfaceMessageReceivedThreadSafeDelegate(SurfaceMessageReceived), new object[] { sender, eventArgs });
+				Invoke(new SurfaceMessageReceivedThreadSafeDelegate(SurfaceMessageReceived), sender, eventArgs);
 			} else {
 				string dateTime = DateTime.Now.ToLongTimeString();
 				// TODO: Fix that we only open files, like in the tooltip
 				switch (eventArgs.MessageType) {
 					case SurfaceMessageTyp.FileSaved:
 						// Put the event message on the status label and attach the context menu
-						updateStatusLabel(dateTime + " - " + eventArgs.Message, fileSavedStatusContextMenu);
+						UpdateStatusLabel(dateTime + " - " + eventArgs.Message, fileSavedStatusContextMenu);
 						// Change title
 						Text = eventArgs.Surface.LastSaveFullPath + " - " + Language.GetString(LangKey.editor_title);
 						break;
 					default:
 						// Put the event message on the status label
-						updateStatusLabel(dateTime + " - " + eventArgs.Message);
+						UpdateStatusLabel(dateTime + " - " + eventArgs.Message);
 						break;
 				}
 			}
@@ -434,7 +434,7 @@ namespace Greenshot {
 			if (fullpath == null) {
 				return;
 			}
-			updateStatusLabel(Language.GetFormattedString(LangKey.editor_imagesaved, fullpath), fileSavedStatusContextMenu);
+			UpdateStatusLabel(Language.GetFormattedString(LangKey.editor_imagesaved, fullpath), fileSavedStatusContextMenu);
 			Text = Path.GetFileName(fullpath) + " - " + Language.GetString(LangKey.editor_title);
 		}
 
@@ -489,10 +489,8 @@ namespace Greenshot {
 			return _surface.GetImageForExport();
 		}
 		
-		public ICaptureDetails CaptureDetails {
-			get { return _surface.CaptureDetails; }
-		}
-		
+		public ICaptureDetails CaptureDetails => _surface.CaptureDetails;
+
 		public ToolStripMenuItem GetPluginMenuItem() {
 			return pluginToolStripMenuItem;
 		}
@@ -902,7 +900,7 @@ namespace Greenshot {
 					if (IgnoreDestinations.Contains(destination.Designation)) {
 						continue;
 					}
-					if (!destination.isActive) {
+					if (!destination.IsActive) {
 						continue;
 					}
 
@@ -943,9 +941,9 @@ namespace Greenshot {
 			redoToolStripMenuItem.Enabled = canRedo;
 			string redoAction = "";
 			if (canRedo) {
-                if (_surface.RedoActionLanguageKey != LangKey.none) {
-                    redoAction = Language.GetString(_surface.RedoActionLanguageKey);
-                }
+				if (_surface.RedoActionLanguageKey != LangKey.none) {
+					redoAction = Language.GetString(_surface.RedoActionLanguageKey);
+				}
 			}
 			string redoText = Language.GetFormattedString(LangKey.editor_redo, redoAction);
 			btnRedo.Text = redoText;
@@ -981,23 +979,18 @@ namespace Greenshot {
 		#endregion
 		
 		#region status label handling
-		private void updateStatusLabel(string text, ContextMenuStrip contextMenu) {
+		private void UpdateStatusLabel(string text, ContextMenuStrip contextMenu = null) {
 			statusLabel.Text = text;
 			statusStrip1.ContextMenuStrip = contextMenu;
 		}
-		
-		private void updateStatusLabel(string text) {
-			updateStatusLabel(text, null);
-		}
+
 		private void ClearStatusLabel() {
-			updateStatusLabel(null, null);
+			UpdateStatusLabel(null);
 		}
 
 		private void StatusLabelClicked(object sender, MouseEventArgs e) {
 			ToolStrip ss = (StatusStrip)((ToolStripStatusLabel)sender).Owner;
-			if(ss.ContextMenuStrip != null) {
-				ss.ContextMenuStrip.Show(ss, e.X, e.Y);
-			}
+			ss.ContextMenuStrip?.Show(ss, e.X, e.Y);
 		}
 
 		private void CopyPathMenuItemClick(object sender, EventArgs e) {
@@ -1005,14 +998,19 @@ namespace Greenshot {
 		}
 
 		private void OpenDirectoryMenuItemClick(object sender, EventArgs e) {
-			ProcessStartInfo psi = new ProcessStartInfo("explorer")
+			var path = Path.GetDirectoryName(_surface.LastSaveFullPath);
+			if (path == null)
 			{
-				Arguments = Path.GetDirectoryName(_surface.LastSaveFullPath),
+				return;
+			}
+			var processStartInfo = new ProcessStartInfo("explorer")
+			{
+				Arguments = path,
 				UseShellExecute = false
 			};
-			using (Process p = new Process()) {
-				p.StartInfo = psi;
-				p.Start();
+			using (var process = new Process()) {
+				process.StartInfo = processStartInfo;
+				process.Start();
 			}
 		}
 		#endregion
@@ -1082,16 +1080,16 @@ namespace Greenshot {
 		/// </summary>
 		private void RefreshEditorControls() {
 			int stepLabels = _surface.CountStepLabels(null);
-		    Image icon;
+			Image icon;
 			if (stepLabels <= 20) {
-			    icon = (Image)resources.GetObject(string.Format("btnStepLabel{0:00}.Image", stepLabels));
+				icon = (Image)resources.GetObject($"btnStepLabel{stepLabels:00}.Image");
 			} else {
-			    icon = (Image)resources.GetObject("btnStepLabel20+.Image");
+				icon = (Image)resources.GetObject("btnStepLabel20+.Image");
 			}
-            btnStepLabel.Image = icon;
-            addCounterToolStripMenuItem.Image = icon;
+			btnStepLabel.Image = icon;
+			addCounterToolStripMenuItem.Image = icon;
 
-		    FieldAggregator props = _surface.FieldAggregator;
+			FieldAggregator props = _surface.FieldAggregator;
 			// if a confirmable element is selected, we must disable most of the controls
 			// since we demand confirmation or cancel for confirmable element
 			if (props.HasFieldValue(FieldType.FLAGS) && ((FieldFlag)props.GetFieldValue(FieldType.FLAGS) & FieldFlag.CONFIRMABLE) == FieldFlag.CONFIRMABLE)
@@ -1156,33 +1154,51 @@ namespace Greenshot {
 				fontItalicButton.Checked = _originalItalicCheckState;
 			}
 			
-            FontFamily fam = fontFamilyComboBox.FontFamily;
-           
-            bool boldAvailable = fam.IsStyleAvailable(FontStyle.Bold);
-            if(!boldAvailable) {
-            	_originalBoldCheckState = fontBoldButton.Checked;
-            	fontBoldButton.Checked = false;
-            }
-            fontBoldButton.Enabled = boldAvailable;
-           
-            bool italicAvailable = fam.IsStyleAvailable(FontStyle.Italic);
-            if(!italicAvailable) fontItalicButton.Checked = false;
-            fontItalicButton.Enabled = italicAvailable;
-           
-            bool regularAvailable = fam.IsStyleAvailable(FontStyle.Regular);
-            if(!regularAvailable) {
-                if(boldAvailable) {
-                    fontBoldButton.Checked = true;
-                } else if(italicAvailable) {
-                    fontItalicButton.Checked = true;
-                }
-            }
-        }
+			var fontFamily = fontFamilyComboBox.FontFamily;
+		   
+			bool boldAvailable = fontFamily.IsStyleAvailable(FontStyle.Bold);
+			if (fontBoldButton != null)
+			{
+				if (!boldAvailable)
+				{
+					_originalBoldCheckState = fontBoldButton.Checked;
+					fontBoldButton.Checked = false;
+				}
+				fontBoldButton.Enabled = boldAvailable;
+			}
+
+			bool italicAvailable = fontFamily.IsStyleAvailable(FontStyle.Italic);
+			if (fontItalicButton != null)
+			{
+				if (!italicAvailable)
+				{
+					fontItalicButton.Checked = false;
+				}
+				fontItalicButton.Enabled = italicAvailable;
+			}
+
+			bool regularAvailable = fontFamily.IsStyleAvailable(FontStyle.Regular);
+			if (regularAvailable)
+			{
+				return;
+			}
+			if (boldAvailable) {
+				if (fontBoldButton != null)
+				{
+					fontBoldButton.Checked = true;
+				}
+			} else if(italicAvailable) {
+				if (fontItalicButton != null)
+				{
+					fontItalicButton.Checked = true;
+				}
+			}
+		}
 
 		private void FieldAggregatorFieldChanged(object sender, FieldChangedEventArgs e) {
 			// in addition to selection, deselection of elements, we need to
 			// refresh toolbar if prepared filter mode is changed
-			if(e.Field.FieldType == FieldType.PREPARED_FILTER_HIGHLIGHT) {
+			if(Equals(e.Field.FieldType, FieldType.PREPARED_FILTER_HIGHLIGHT)) {
 				RefreshFieldControls();
 			}
 		}
@@ -1204,9 +1220,11 @@ namespace Greenshot {
 		}
 
 		private void SaveElementsToolStripMenuItemClick(object sender, EventArgs e) {
-			SaveFileDialog saveFileDialog = new SaveFileDialog();
-			saveFileDialog.Filter = "Greenshot templates (*.gst)|*.gst";
-			saveFileDialog.FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(coreConfiguration.OutputFileFilenamePattern, _surface.CaptureDetails);
+			SaveFileDialog saveFileDialog = new SaveFileDialog
+			{
+				Filter = "Greenshot templates (*.gst)|*.gst",
+				FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(coreConfiguration.OutputFileFilenamePattern, _surface.CaptureDetails)
+			};
 			DialogResult dialogResult = saveFileDialog.ShowDialog();
 			if(dialogResult.Equals(DialogResult.OK)) {
 				using (Stream streamWrite = File.OpenWrite(saveFileDialog.FileName)) {
@@ -1216,8 +1234,10 @@ namespace Greenshot {
 		}
 
 		private void LoadElementsToolStripMenuItemClick(object sender, EventArgs e) {
-			OpenFileDialog openFileDialog = new OpenFileDialog();
-			openFileDialog.Filter = "Greenshot templates (*.gst)|*.gst";
+			OpenFileDialog openFileDialog = new OpenFileDialog
+			{
+				Filter = "Greenshot templates (*.gst)|*.gst"
+			};
 			if (openFileDialog.ShowDialog() == DialogResult.OK) {
 				using (Stream streamRead = File.OpenRead(openFileDialog.FileName)) {
 					_surface.LoadElementsFromStream(streamRead);
@@ -1228,22 +1248,26 @@ namespace Greenshot {
 
 		private void DestinationToolStripMenuItemClick(object sender, EventArgs e) {
 			IDestination clickedDestination = null;
-			if (sender is Control) {
-				Control clickedControl = sender as Control;
+			var control = sender as Control;
+			if (control != null) {
+				Control clickedControl = control;
 				if (clickedControl.ContextMenuStrip != null) {
 					clickedControl.ContextMenuStrip.Show(Cursor.Position);
 					return;
 				}
 				clickedDestination = (IDestination)clickedControl.Tag;
-			} else if (sender is ToolStripMenuItem) {
-				ToolStripMenuItem clickedMenuItem = sender as ToolStripMenuItem;
-				clickedDestination = (IDestination)clickedMenuItem.Tag;
 			}
-			if (clickedDestination != null) {
-				ExportInformation exportInformation = clickedDestination.ExportCapture(true, _surface, _surface.CaptureDetails);
-				if (exportInformation != null && exportInformation.ExportMade) {
-					_surface.Modified = false;
+			else
+			{
+				var item = sender as ToolStripMenuItem;
+				if (item != null) {
+					ToolStripMenuItem clickedMenuItem = item;
+					clickedDestination = (IDestination)clickedMenuItem.Tag;
 				}
+			}
+			ExportInformation exportInformation = clickedDestination?.ExportCapture(true, _surface, _surface.CaptureDetails);
+			if (exportInformation != null && exportInformation.ExportMade) {
+				_surface.Modified = false;
 			}
 		}
 		
@@ -1284,7 +1308,7 @@ namespace Greenshot {
 				windowToCapture = CaptureHelper.SelectCaptureWindow(windowToCapture);
 				if (windowToCapture != null) {
 					capture = CaptureHelper.CaptureWindow(windowToCapture, capture, coreConfiguration.WindowCaptureMode);
-					if (capture != null && capture.CaptureDetails != null && capture.Image != null) {
+					if (capture?.CaptureDetails != null && capture.Image != null) {
 						((Bitmap)capture.Image).SetResolution(capture.CaptureDetails.DpiX, capture.CaptureDetails.DpiY);
 						_surface.AddImageContainer((Bitmap)capture.Image, 100, 100);
 					}
@@ -1292,11 +1316,9 @@ namespace Greenshot {
 					WindowDetails.ToForeground(Handle);
 				}
 
-				if (capture!= null) {
-					capture.Dispose();
-				}
+				capture?.Dispose();
 			} catch (Exception exception) {
-				LOG.Error(exception);
+				Log.Error(exception);
 			}
 		}
 
@@ -1440,17 +1462,13 @@ namespace Greenshot {
 		}
 
 		private void ImageEditorFormResize(object sender, EventArgs e) {
-			if (Surface == null || Surface.Image == null || panel1 == null) {
+			if (Surface?.Image == null || panel1 == null) {
 				return;
 			}
 			Size imageSize = Surface.Image.Size;
 			Size currentClientSize = panel1.ClientSize;
 			var canvas = Surface as Control;
-			if (canvas == null)
-			{
-				return;
-			}
-			Panel panel = (Panel)canvas.Parent;
+			Panel panel = (Panel) canvas?.Parent;
 			if (panel == null) {
 				return;
 			}

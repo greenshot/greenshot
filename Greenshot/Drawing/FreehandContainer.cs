@@ -34,7 +34,7 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable] 
 	public class FreehandContainer : DrawableContainer {
-		private static readonly float [] POINT_OFFSET = new float[]{0.5f, 0.25f, 0.75f};
+		private static readonly float [] PointOffset = {0.5f, 0.25f, 0.75f};
 
 		[NonSerialized]
 		private GraphicsPath freehandPath = new GraphicsPath();
@@ -77,10 +77,9 @@ namespace Greenshot.Drawing {
 		/// <param name="disposing">When disposing==true all non-managed resources should be freed too!</param>
 		protected override void Dispose(bool disposing) {
 			base.Dispose(disposing);
-			if (disposing) {
-				if (freehandPath != null) {
-					freehandPath.Dispose();
-				}
+			if (disposing)
+			{
+				freehandPath?.Dispose();
 			}
 			freehandPath = null;
 		}
@@ -133,9 +132,7 @@ namespace Greenshot.Drawing {
 		private void RecalculatePath() {
 			isRecalculated = true;
 			// Dispose the previous path, if we have one
-			if (freehandPath != null) {
-				freehandPath.Dispose();
-			}
+			freehandPath?.Dispose();
 			freehandPath = new GraphicsPath();
 
 			// Here we can put some cleanup... like losing all the uninteresting  points.
@@ -143,7 +140,7 @@ namespace Greenshot.Drawing {
 				int index = 0;
 				while ((capturePoints.Count - 1) % 3 != 0) {
 					// duplicate points, first at 50% than 25% than 75%
-					capturePoints.Insert((int)(capturePoints.Count*POINT_OFFSET[index]), capturePoints[(int)(capturePoints.Count*POINT_OFFSET[index++])]);
+					capturePoints.Insert((int)(capturePoints.Count*PointOffset[index]), capturePoints[(int)(capturePoints.Count*PointOffset[index++])]);
 				}
 				freehandPath.AddBeziers(capturePoints.ToArray());
 			} else if (capturePoints.Count == 2) {
@@ -228,9 +225,9 @@ namespace Greenshot.Drawing {
 		/// <returns></returns>
 		public override bool Equals(object obj) {
 			bool ret = false;
-			if(obj != null && GetType().Equals(obj.GetType())) {
+			if(obj != null && GetType() == obj.GetType()) {
 				FreehandContainer other = obj as FreehandContainer;
-				if(freehandPath.Equals(other.freehandPath)) {
+				if(other != null && freehandPath.Equals(other.freehandPath)) {
 					ret = true;
 				}
 			}

@@ -43,8 +43,7 @@ namespace Greenshot {
 	/// Description of SettingsForm.
 	/// </summary>
 	public partial class SettingsForm : BaseForm {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(SettingsForm));
-		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+		private static readonly ILog Log = LogManager.GetLogger(typeof(SettingsForm));
 		private readonly ToolTip _toolTip = new ToolTip();
 		private bool _inHotkey;
 
@@ -59,11 +58,7 @@ namespace Greenshot {
 			base.OnLoad(e);
 
 			// Fix for Vista/XP differences
-			if (Environment.OSVersion.Version.Major >= 6) {
-				trackBarJpegQuality.BackColor = SystemColors.Window;
-			} else {
-				trackBarJpegQuality.BackColor = SystemColors.Control;
-			}
+			trackBarJpegQuality.BackColor = Environment.OSVersion.Version.Major >= 6 ? SystemColors.Window : SystemColors.Control;
 
 			// This makes it possible to still capture the settings screen
 			fullscreen_hotkeyControl.Enter += EnterHotkeyControl;
@@ -78,7 +73,7 @@ namespace Greenshot {
 			lastregion_hotkeyControl.Leave += LeaveHotkeyControl;
 
 			DisplayPluginTab();
-			UpdateUI();
+			UpdateUi();
 			ExpertSettingsEnableState(false);
 			DisplaySettings();
 			CheckSettings();
@@ -116,9 +111,9 @@ namespace Greenshot {
 		/// <param name="comboBox">ComboBox to populate</param>
 		/// <param name="availableValues"></param>
 		/// <param name="selectedValue"></param>
-		private void PopulateComboBox<ET>(ComboBox comboBox, ET[] availableValues, ET selectedValue) where ET : struct {
+		private void PopulateComboBox<TEnum>(ComboBox comboBox, TEnum[] availableValues, TEnum selectedValue) where TEnum : struct {
 			comboBox.Items.Clear();
-			foreach(ET enumValue in availableValues) {
+			foreach(TEnum enumValue in availableValues) {
 				comboBox.Items.Add(Language.Translate(enumValue));
 			}
 			comboBox.SelectedItem = Language.Translate(selectedValue);
@@ -130,13 +125,13 @@ namespace Greenshot {
 		/// </summary>
 		/// <param name="comboBox">Combobox to get the value from</param>
 		/// <returns>The generics value of the combobox</returns>
-		private ET GetSelected<ET>(ComboBox comboBox) {
-			string enumTypeName = typeof(ET).Name;
+		private TEnum GetSelected<TEnum>(ComboBox comboBox) {
+			string enumTypeName = typeof(TEnum).Name;
 			string selectedValue = comboBox.SelectedItem as string;
-			ET[] availableValues = (ET[])Enum.GetValues(typeof(ET));
-			ET returnValue = availableValues[0];
-			foreach(ET enumValue in availableValues) {
-				string translation = Language.GetString(enumTypeName + "." + enumValue.ToString());
+			TEnum[] availableValues = (TEnum[])Enum.GetValues(typeof(TEnum));
+			TEnum returnValue = availableValues[0];
+			foreach(TEnum enumValue in availableValues) {
+				string translation = Language.GetString(enumTypeName + "." + enumValue);
 				if (translation.Equals(selectedValue)) {
 					returnValue = enumValue;
 					break;
@@ -196,7 +191,7 @@ namespace Greenshot {
 		/// <summary>
 		/// Update the UI to reflect the language and other text settings
 		/// </summary>
-		private void UpdateUI() {
+		private void UpdateUi() {
 			if (coreConfiguration.HideExpertSettings) {
 				tabcontrol.Controls.Remove(tab_expert);
 			}
@@ -229,14 +224,13 @@ namespace Greenshot {
 			return CheckFilenamePattern() && CheckStorageLocationPath();
 		}
 
-		private bool CheckFilenamePattern() { 
-			bool settingsOk = true;
+		private bool CheckFilenamePattern() {
 			string filename = FilenameHelper.GetFilenameFromPattern(textbox_screenshotname.Text, coreConfiguration.OutputFileFormat, null);
 			// we allow dynamically created subfolders, need to check for them, too
 			string[] pathParts = filename.Split(Path.DirectorySeparatorChar);
 
 			string filenamePart = pathParts[pathParts.Length-1];
-			settingsOk = FilenameHelper.IsFilenameValid(filenamePart);
+			var settingsOk = FilenameHelper.IsFilenameValid(filenamePart);
 
 			for (int i = 0; settingsOk && i<pathParts.Length-1; i++) {
 				settingsOk = FilenameHelper.IsDirectoryNameValid(pathParts[i]);
@@ -248,10 +242,7 @@ namespace Greenshot {
 		}
 
 		private bool CheckStorageLocationPath() {
-			bool settingsOk = true;
-			if(!Directory.Exists(FilenameHelper.FillVariables(textbox_storagelocation.Text, false))) {
-				settingsOk = false;
-			} 
+			bool settingsOk = Directory.Exists(FilenameHelper.FillVariables(textbox_storagelocation.Text, false)); 
 			DisplayTextBoxValidity(textbox_storagelocation, settingsOk);
 			return settingsOk;
 		}
@@ -259,11 +250,7 @@ namespace Greenshot {
 		private void DisplayTextBoxValidity(GreenshotTextBox textbox, bool valid) {
 			if (valid) { 
 				// "Added" feature #3547158
-				if (Environment.OSVersion.Version.Major >= 6) {
-					textbox.BackColor = SystemColors.Window;
-				} else {
-					textbox.BackColor = SystemColors.Control;
-				}
+				textbox.BackColor = Environment.OSVersion.Version.Major >= 6 ? SystemColors.Window : SystemColors.Control;
 			} else { 
 				textbox.BackColor = Color.Red;
 			}
@@ -464,7 +451,7 @@ namespace Greenshot {
 					}
 				}
 			} catch (Exception e) {
-				LOG.Warn("Problem checking registry, ignoring for now: ", e);
+				Log.Warn("Problem checking registry, ignoring for now: ", e);
 			}
 		}
 
@@ -480,7 +467,7 @@ namespace Greenshot {
 				MainForm.RegisterHotkeys();
 
 				// Make sure the current language & settings are reflected in the Main-context menu
-				MainForm.Instance.UpdateUI();
+				MainForm.Instance.UpdateUi();
 				DialogResult = DialogResult.OK;
 			} else {
 				tabcontrol.SelectTab(tab_output);
@@ -511,7 +498,7 @@ namespace Greenshot {
 		}
 
 		private void Listview_pluginsSelectedIndexChanged(object sender, EventArgs e) {
-			button_pluginconfigure.Enabled = PluginHelper.Instance.isSelectedItemConfigurable(listview_plugins);
+			button_pluginconfigure.Enabled = PluginHelper.Instance.IsSelectedItemConfigurable(listview_plugins);
 		}
 
 		private void Button_pluginconfigureClick(object sender, EventArgs e) {
@@ -523,11 +510,11 @@ namespace Greenshot {
 			//EmailFormat selectedEmailFormat = GetSelected<EmailFormat>(combobox_emailformat);
 			WindowCaptureMode selectedWindowCaptureMode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
 			if (combobox_language.SelectedItem != null) {
-				LOG.Debug("Setting language to: " + (string)combobox_language.SelectedValue);
+				Log.Debug("Setting language to: " + (string)combobox_language.SelectedValue);
 				Language.CurrentLanguage = (string)combobox_language.SelectedValue;
 			}
 			// Reflect language changes to the settings form
-			UpdateUI();
+			UpdateUi();
 
 			// Reflect Language changes form
 			ApplyLanguage();
@@ -652,7 +639,7 @@ namespace Greenshot {
 				return 1;
 			}
 			if (firstDestination != null && firstDestination.Priority == secondDestination.Priority) {
-				return firstDestination.Description.CompareTo(secondDestination.Description);
+				return string.Compare(firstDestination.Description, secondDestination.Description, StringComparison.Ordinal);
 			}
 			if (firstDestination != null) {
 				return firstDestination.Priority - secondDestination.Priority;

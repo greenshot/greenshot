@@ -72,10 +72,9 @@ namespace Greenshot.Drawing.Filters {
 
 		public abstract void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode);
 		
-		protected void OnPropertyChanged(string propertyName) {
-			if (propertyChanged != null) {
-				propertyChanged(this, new PropertyChangedEventArgs(propertyName));
-			}
+		protected void OnPropertyChanged(string propertyName)
+		{
+			propertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 	}
 }

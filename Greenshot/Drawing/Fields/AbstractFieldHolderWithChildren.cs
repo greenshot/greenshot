@@ -34,7 +34,7 @@ namespace Greenshot.Drawing.Fields
 	[Serializable()]
 	public abstract class AbstractFieldHolderWithChildren : AbstractFieldHolder
 	{
-		private FieldChangedEventHandler fieldChangedEventHandler;
+		private readonly FieldChangedEventHandler _fieldChangedEventHandler;
 
 		[NonSerialized]
 		private EventHandler childrenChanged;
@@ -48,7 +48,7 @@ namespace Greenshot.Drawing.Fields
 
 		public AbstractFieldHolderWithChildren()
 		{
-			fieldChangedEventHandler = OnFieldChanged;
+			_fieldChangedEventHandler = OnFieldChanged;
 		}
 
 		[OnDeserialized()]
@@ -57,28 +57,28 @@ namespace Greenshot.Drawing.Fields
 			// listen to changing properties
 			foreach (IFieldHolder fieldHolder in Children)
 			{
-				fieldHolder.FieldChanged += fieldChangedEventHandler;
+				fieldHolder.FieldChanged += _fieldChangedEventHandler;
 			}
-			if (childrenChanged != null) childrenChanged(this, EventArgs.Empty);
+			childrenChanged?.Invoke(this, EventArgs.Empty);
 		}
 
 		public void AddChild(IFieldHolder fieldHolder)
 		{
 			Children.Add(fieldHolder);
-			fieldHolder.FieldChanged += fieldChangedEventHandler;
-			if (childrenChanged != null) childrenChanged(this, EventArgs.Empty);
+			fieldHolder.FieldChanged += _fieldChangedEventHandler;
+			childrenChanged?.Invoke(this, EventArgs.Empty);
 		}
 
 		public void RemoveChild(IFieldHolder fieldHolder)
 		{
 			Children.Remove(fieldHolder);
-			fieldHolder.FieldChanged -= fieldChangedEventHandler;
-			if (childrenChanged != null) childrenChanged(this, EventArgs.Empty);
+			fieldHolder.FieldChanged -= _fieldChangedEventHandler;
+			childrenChanged?.Invoke(this, EventArgs.Empty);
 		}
 
 		public new IList<IField> GetFields()
 		{
-			List<IField> ret = new List<IField>();
+			var ret = new List<IField>();
 			ret.AddRange(base.GetFields());
 			foreach (IFieldHolder fh in Children)
 			{

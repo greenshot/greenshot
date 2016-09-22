@@ -76,7 +76,7 @@ namespace Greenshot.Destinations {
 			}
 		}
 
-		public override bool isDynamic {
+		public override bool IsDynamic {
 			get {
 				return true;
 			}

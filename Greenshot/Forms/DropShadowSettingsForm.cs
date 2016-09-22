@@ -21,14 +21,14 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Greenshot.Core;
+using GreenshotPlugin.Effects;
 
 namespace Greenshot.Forms {
 	public partial class DropShadowSettingsForm : BaseForm {
-		private readonly DropShadowEffect effect;
+		private readonly DropShadowEffect _effect;
 
 		public DropShadowSettingsForm(DropShadowEffect effect) {
-			this.effect = effect;
+			_effect = effect;
 			InitializeComponent();
 			ShowSettings();
 		}
@@ -37,16 +37,16 @@ namespace Greenshot.Forms {
 		/// Apply the settings from the effect to the view
 		/// </summary>
 		private void ShowSettings() {
-			trackBar1.Value = (int)(effect.Darkness * 40);
-			offsetX.Value = effect.ShadowOffset.X;
-			offsetY.Value = effect.ShadowOffset.Y;
-			thickness.Value = effect.ShadowSize;
+			trackBar1.Value = (int)(_effect.Darkness * 40);
+			offsetX.Value = _effect.ShadowOffset.X;
+			offsetY.Value = _effect.ShadowOffset.Y;
+			thickness.Value = _effect.ShadowSize;
 		}
 
 		private void ButtonOK_Click(object sender, EventArgs e) {
-			effect.Darkness = (float)trackBar1.Value / (float)40;
-			effect.ShadowOffset = new Point((int)offsetX.Value, (int)offsetY.Value);
-			effect.ShadowSize = (int)thickness.Value;
+			_effect.Darkness = trackBar1.Value / (float)40;
+			_effect.ShadowOffset = new Point((int)offsetX.Value, (int)offsetY.Value);
+			_effect.ShadowSize = (int)thickness.Value;
 			DialogResult = DialogResult.OK;
 		}
 	}
