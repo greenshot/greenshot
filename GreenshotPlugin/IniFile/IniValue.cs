@@ -140,8 +140,13 @@ namespace Greenshot.IniFile {
 		public Type ValueType {
 			get {
 				var valueType = _propertyInfo?.PropertyType ?? _fieldInfo.FieldType;
+				if (!valueType.IsGenericType)
+				{
+					return valueType;
+				}
 				var genericTypeDefinition = valueType.GetGenericTypeDefinition();
-				if (genericTypeDefinition != null && (valueType.IsGenericType && genericTypeDefinition == typeof(Nullable<>))) {
+				if (genericTypeDefinition != null && genericTypeDefinition == typeof(Nullable<>))
+				{
 					// We are dealing with a generic type that is nullable
 					valueType = Nullable.GetUnderlyingType(valueType);
 				}
@@ -286,8 +291,8 @@ namespace Greenshot.IniFile {
 					return;
 				}
 			} else if (!string.IsNullOrEmpty(propertyValue)) {
-				var genericTypeDefinition = valueType.GetGenericTypeDefinition();
-				if (genericTypeDefinition != null && (valueType.IsGenericType && genericTypeDefinition == typeof(Nullable<>))) {
+				if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(Nullable<>))
+				{
 					// We are dealing with a generic type that is nullable
 					valueType = Nullable.GetUnderlyingType(valueType);
 				}
