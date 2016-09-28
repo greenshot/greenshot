@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using Greenshot.Plugin;
+using GreenshotPlugin.Core;
 
 namespace GreenshotWin10Plugin
 {
@@ -48,9 +49,18 @@ namespace GreenshotWin10Plugin
 			throw new NotImplementedException();
 		}
 
+		/// <summary>
+		/// yields the windows 10 destinations if Windows 10 is detected
+		/// </summary>
+		/// <returns>IEnumerable with the destinations</returns>
 		public IEnumerable<IDestination> Destinations()
 		{
+			if (!Environment.OSVersion.IsWindows10())
+			{
+				yield break;
+			}
 			yield return new Win10OcrDestination();
+			yield return new Win10ShareDestination();
 		}
 
 		public IEnumerable<IProcessor> Processors()

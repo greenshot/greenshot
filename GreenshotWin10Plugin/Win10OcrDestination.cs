@@ -39,6 +39,9 @@ namespace GreenshotWin10Plugin
 		public override string Designation { get; } = "OCR";
 		public override string Description { get; } = "Windows 10 OCR";
 
+		/// <summary>
+		/// Constructor, this is only debug information
+		/// </summary>
 		public Win10OcrDestination()
 		{
 			var languages = OcrEngine.AvailableRecognizerLanguages;
@@ -58,7 +61,7 @@ namespace GreenshotWin10Plugin
 		/// <returns>ExportInformation</returns>
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
-			ExportInformation exportInformation = new ExportInformation(Designation, Description);
+			var exportInformation = new ExportInformation(Designation, Description);
 			try
 			{
 				var text = Task.Run(async () =>
@@ -76,7 +79,13 @@ namespace GreenshotWin10Plugin
 						return ocrResult.Text;
 					}
 				}).Result;
-				ClipboardHelper.SetClipboardData(text);
+
+				// Check if we found text
+				if (!string.IsNullOrWhiteSpace(text))
+				{
+					// Place the OCR text on the 
+					ClipboardHelper.SetClipboardData(text);
+				}
 				exportInformation.ExportMade = true;
 			}
 			catch (Exception ex)
