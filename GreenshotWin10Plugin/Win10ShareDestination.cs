@@ -20,12 +20,15 @@
  */
 
 using System;
+using System.IO;
 using Windows.Storage.Streams;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotWin10Plugin.Native;
 using System.Threading.Tasks;
+using Windows.Storage;
 using Color = Windows.UI.Color;
+using System.Collections.Generic;
 
 namespace GreenshotWin10Plugin
 {
@@ -95,6 +98,28 @@ namespace GreenshotWin10Plugin
 							Log.DebugFormat("Trying to share with {0}", args.ApplicationName);
 							applicationName = args.ApplicationName;
 						};
+						var filename = FilenameHelper.GetFilename(OutputFormat.png, captureDetails);
+						var storageFile = await StorageFile.CreateStreamedFileAsync(filename, async streamedFileDataRequest =>
+						{
+							Log.DebugFormat("Creating deferred file {0}", filename);
+							try
+							{
+								using (var deferredStream = streamedFileDataRequest.AsStreamForWrite())
+								{
+									await imageStream.CopyToAsync(deferredStream);
+									await imageStream.FlushAsync();
+								}
+								// Signal that the stream is ready
+								streamedFileDataRequest.Dispose();
+							}
+							catch (Exception)
+							{
+								streamedFileDataRequest.FailAndClose(StreamedFileFailureMode.Incomplete);
+							}
+							// Signal transfer ready
+							taskCompletionSource.TrySetResult(applicationName);
+						}, imageRandomAccessStreamReference);
+
 						dataTransferManagerHelper.DataTransferManager.DataRequested += (sender, args) =>
 						{
 							var deferral = args.Request.GetDeferral();
@@ -110,11 +135,11 @@ namespace GreenshotWin10Plugin
 							dataPackage.Properties.Thumbnail = thumbnailRandomAccessStreamReference;
 							dataPackage.Properties.Square30x30Logo = logoRandomAccessStreamReference;
 							dataPackage.Properties.LogoBackgroundColor = Color.FromArgb(0xff, 0x3d, 0x3d, 0x3d);
-							dataPackage.SetBitmap(imageRandomAccessStreamReference);
+							dataPackage.SetStorageItems(new List<IStorageItem> { storageFile });
+							//dataPackage.SetBitmap(imageRandomAccessStreamReference);
 							dataPackage.Destroyed += (dp, o) =>
 							{
 								Log.Debug("Destroyed.");
-								taskCompletionSource.TrySetCanceled();
 							};
 							deferral.Complete();
 						};
