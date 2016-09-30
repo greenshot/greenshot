@@ -369,7 +369,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			bV5GreenMask = (uint)255 << 8;
 			bV5BlueMask = 255;
 			bV5AlphaMask = (uint)255 << 24;
-			bV5CSType = 1934772034; // sRGB
+			bV5CSType = 0x73524742; // LCS_sRGB
 			bV5Endpoints = new CIEXYZTRIPLE
 			{
 				ciexyzBlue = new CIEXYZ(0),
