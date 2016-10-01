@@ -101,6 +101,7 @@ namespace GreenshotWin10Plugin
 						var filename = FilenameHelper.GetFilename(OutputFormat.png, captureDetails);
 						var storageFile = await StorageFile.CreateStreamedFileAsync(filename, async streamedFileDataRequest =>
 						{
+							// Information on how was found here: https://socialeboladev.wordpress.com/2013/03/15/how-to-use-createstreamedfileasync/
 							Log.DebugFormat("Creating deferred file {0}", filename);
 							try
 							{
@@ -116,7 +117,7 @@ namespace GreenshotWin10Plugin
 							{
 								streamedFileDataRequest.FailAndClose(StreamedFileFailureMode.Incomplete);
 							}
-							// Signal transfer ready
+							// Signal transfer ready to the await down below
 							taskCompletionSource.TrySetResult(applicationName);
 						}, imageRandomAccessStreamReference);
 

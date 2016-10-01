@@ -53,10 +53,21 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <Compile Include="Modi\ICommon.cs" />
+    <Compile Include="Modi\CompressionLevel.cs" />
     <Compile Include="ComProgIdAttribute.cs" />
     <Compile Include="COMWrapper.cs" />
-    <Compile Include="IDispatch.cs" />
-    <Compile Include="ModiInterop.cs" />
+    <Compile Include="Modi\FileFormat.cs" />
+    <Compile Include="Modi\IDispatch.cs" />
+    <Compile Include="Modi\IMiRect.cs" />
+    <Compile Include="Modi\IImage.cs" />
+    <Compile Include="Modi\IMiRects.cs" />
+    <Compile Include="Modi\IImages.cs" />
+    <Compile Include="Modi\ILayout.cs" />
+    <Compile Include="Modi\IDocument.cs" />
+    <Compile Include="Modi\ModiLanguage.cs" />
+    <Compile Include="Modi\IWord.cs" />
+    <Compile Include="Modi\IWords.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

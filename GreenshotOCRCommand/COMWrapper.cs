@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Remoting;
@@ -79,13 +80,16 @@ namespace Greenshot.Interop {
 			try {
 				comObject = Marshal.GetActiveObject(progId);
 			} catch (COMException comE) {
-				if (comE.ErrorCode == MK_E_UNAVAILABLE) {
-					//LOG.DebugFormat("No current instance of {0} object available.", progId);
-				} else if (comE.ErrorCode == CO_E_CLASSSTRING) {
-					//LOG.WarnFormat("Unknown progId {0}", progId);
+				if (comE.ErrorCode == MK_E_UNAVAILABLE)
+				{
+					Debug.WriteLine($"No current instance of {progId} object available.");
 				}
-			} catch (Exception) {
-				//LOG.Warn("Error getting active object for " + progId, e);
+				else if (comE.ErrorCode == CO_E_CLASSSTRING)
+				{
+					Debug.WriteLine($"Unknown progId {progId}");
+				}
+			} catch (Exception ex) {
+				Debug.WriteLine($"Error getting active object for {progId} {ex.Message}");
 			}
 
 			if (comObject != null) {
@@ -123,30 +127,32 @@ namespace Greenshot.Interop {
 			try {
 				comObject = Marshal.GetActiveObject(progId);
 			} catch (COMException comE) {
-				if (comE.ErrorCode == MK_E_UNAVAILABLE) {
-					//LOG.DebugFormat("No current instance of {0} object available.", progId);
-				} else if (comE.ErrorCode == CO_E_CLASSSTRING) {
-					//LOG.WarnFormat("Unknown progId {0} (application not installed)", progId);
-					return default(T);
+				if (comE.ErrorCode == MK_E_UNAVAILABLE)
+				{
+					Debug.WriteLine($"No current instance of {progId} object available.");
 				}
-			} catch (Exception) {
-				//LOG.Warn("Error getting active object for " + progId, e);
+				else if (comE.ErrorCode == CO_E_CLASSSTRING)
+				{
+					Debug.WriteLine($"Unknown progId {progId}");
+				}
+			} catch (Exception ex) {
+				Debug.WriteLine($"Error getting active object for {progId} {ex.Message}");
 			}
 			// Did we get the current instance? If not, try to create a new
 			if (comObject == null) {
 				try {
 					comType = Type.GetTypeFromProgID(progId, true);
 				} catch (Exception) {
-					//LOG.Warn("Error type for " + progId, ex);
+					Debug.WriteLine($"Error getting type for {progId}");
 				}
 				if (comType != null) {
 					try {
 						comObject = Activator.CreateInstance(comType);
 						if (comObject != null) {
-							//LOG.DebugFormat("Created new instance of {0} object.", progId);
+							Debug.WriteLine($"Created new instance of {progId} object.");
 						}
-					} catch (Exception) {
-						//LOG.Warn("Error creating object for " + progId, e);
+					} catch (Exception ex) {
+						Debug.WriteLine($"Error creating object for {progId} {ex.Message}");
 					}
 				}
 			}
@@ -225,9 +231,9 @@ namespace Greenshot.Interop {
 						while (Marshal.ReleaseComObject(_comObject) > 0)
 						{
 						}
-					} catch (Exception) {
-						//LOG.WarnFormat("Problem releasing {0}", _COMType);
-						//LOG.Warn("Error: ", ex);
+					} catch (Exception ex) {
+						Debug.WriteLine($"Problem releasing {_comType}");
+						Debug.WriteLine("Error: " + ex);
 					}
 				}
 			}
@@ -318,8 +324,12 @@ namespace Greenshot.Interop {
 			IMethodCallMessage callMessage = myMessage as IMethodCallMessage;
 
 			MethodInfo method = callMessage?.MethodBase as MethodInfo;
-			if (method == null) {
-				//LOG.DebugFormat("Unrecognized Invoke call: {0}", callMessage.MethodBase.ToString());
+			if (method == null)
+			{
+				if (callMessage != null)
+				{
+					Debug.WriteLine($"Unrecognized Invoke call: {callMessage.MethodBase}");
+				}
 				return null;
 			}
 
