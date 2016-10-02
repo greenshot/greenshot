@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("GreenshotWin10Plugin")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("A plug-in for Windows 10 only functionality")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Greenshot")]
 [assembly: AssemblyProduct("GreenshotWin10Plugin")]
