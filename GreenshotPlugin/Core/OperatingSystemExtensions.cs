@@ -39,6 +39,16 @@ namespace GreenshotPlugin.Core
 		}
 
 		/// <summary>
+		/// Test if the current OS is Windows 10 or later
+		/// </summary>
+		/// <param name="operatingSystem">OperatingSystem from Environment.OSVersion</param>
+		/// <returns>true if we are running on Windows 10 or later</returns>
+		public static bool IsWindows10OrLater(this OperatingSystem operatingSystem)
+		{
+			return operatingSystem.Version.Major >= 10;
+		}
+
+		/// <summary>
 		/// Test if the current OS is Windows 8(.1)
 		/// </summary>
 		/// <param name="operatingSystem">OperatingSystem from Environment.OSVersion</param>

@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Color = Windows.UI.Color;
 using System.Collections.Generic;
+using System.Drawing;
 
 namespace GreenshotWin10Plugin
 {
@@ -39,8 +40,13 @@ namespace GreenshotWin10Plugin
 	{
 		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(Win10ShareDestination));
 
-		public override string Designation { get; } = "Share";
+		public override string Designation { get; } = "WIN10Share";
 		public override string Description { get; } = "Windows 10 share";
+
+		/// <summary>
+		/// Icon for the App-share, the icon was found via: http://help4windows.com/windows_8_shell32_dll.shtml
+		/// </summary>
+		public override Image DisplayIcon => PluginUtils.GetCachedExeIcon(FilenameHelper.FillCmdVariables(@"%windir%\system32\shell32.dll"), 238);
 
 		/// <summary>
 		/// Share the screenshot with a windows app

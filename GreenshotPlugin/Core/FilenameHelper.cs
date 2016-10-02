@@ -406,7 +406,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="pattern">String with pattern %var%</param>
 		/// <param name="filenameSafeMode">true to make sure everything is filenamesafe</param>
 		/// <returns>Filled string</returns>
-		public static string FillCmdVariables(string pattern, bool filenameSafeMode)
+		public static string FillCmdVariables(string pattern, bool filenameSafeMode = true)
 		{
 			IDictionary processVars = null;
 			IDictionary userVars = null;

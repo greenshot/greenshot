@@ -101,8 +101,8 @@ Source: ..\..\bin\Release\Languages\Plugins\GreenshotConfluencePlugin\*; DestDir
 ;ExternalCommand Plugin
 Source: ..\..\bin\Release\Plugins\GreenshotExternalCommandPlugin\GreenshotExternalCommandPlugin.gsp; DestDir: {app}\Plugins\GreenshotExternalCommandPlugin; Components: plugins\externalcommand; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\Plugins\GreenshotExternalCommandPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotExternalCommandPlugin; Components: plugins\externalcommand; Flags: overwritereadonly ignoreversion replacesameversion;
-;Network Import Plugin
-;Source: ..\..\bin\Release\Plugins\GreenshotNetworkImportPlugin\*; DestDir: {app}\Plugins\GreenshotNetworkImportPlugin; Components: plugins\networkimport; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+;Win 10 Plugin
+Source: ..\..\bin\Release\Plugins\GreenshotWin10Plugin\GreenshotWin10Plugin.gsp; DestDir: {app}\Plugins\GreenshotWin10Plugin; Components: plugins\win10; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 [Setup]
 ; changes associations is used when the installer installs new extensions, it clears the explorer icon cache
 ChangesAssociations=yes
@@ -211,6 +211,7 @@ de.ocr=OCR Plug-in (benötigt Microsoft Office Document Imaging (MODI))
 de.optimize=Optimierung der Leistung, kann etwas dauern.
 de.startgreenshot={#ExeName} starten
 de.startup={#ExeName} starten wenn Windows hochfährt
+de.win10=Windows 10 Plug-in
 
 en.confluence=Confluence plug-in
 en.default=Default installation
@@ -223,6 +224,7 @@ en.ocr=OCR plug-in (needs Microsoft Office Document Imaging (MODI))
 en.optimize=Optimizing performance, this may take a while.
 en.startgreenshot=Start {#ExeName}
 en.startup=Start {#ExeName} with Windows start
+en.win10=Windows 10 plug-in
 
 es.confluence=Extensión para Confluence
 es.default=${default}
@@ -234,6 +236,7 @@ es.ocr=Extensión para OCR (necesita Microsoft Office Document Imaging (MODI))
 es.optimize=Optimizando rendimiento; por favor, espera.
 es.startgreenshot=Lanzar {#ExeName}
 es.startup=Lanzar {#ExeName} al iniciarse Windows
+es.win10=Extensión para Windows 10 
 
 fi.confluence=Confluence-liitännäinen
 fi.default=${default}
@@ -246,6 +249,7 @@ fi.ocr=OCR-liitännäinen (Tarvitaan: Microsoft Office Document Imaging (MODI))
 fi.optimize=Optimoidaan suorituskykyä, tämä voi kestää hetken.
 fi.startgreenshot=Käynnistä {#ExeName}
 fi.startup=Käynnistä {#ExeName} Windowsin käynnistyessä
+fi.win10=Windows 10-liitännäinen
 
 fr.confluence=Greffon Confluence
 fr.default=${default}
@@ -258,6 +262,7 @@ fr.ocr=Greffon OCR (nécessite Document Imaging de Microsoft Office [MODI])
 fr.optimize=Optimisation des performances, Ceci peut prendre un certain temps.
 fr.startgreenshot=Démarrer {#ExeName}
 fr.startup=Lancer {#ExeName} au démarrage de Windows
+fr.win10=Greffon Windows 10 
 
 lt.confluence=Confluence spraudnis
 lt.default=${default}
@@ -270,6 +275,7 @@ lt.ocr=OCR spraudnis (nepieciešams Microsoft Office Document Imaging (MODI))
 lt.optimize=Uzlaboju veikstpēju, tas prasīs kādu laiciņu.
 lt.startgreenshot=Palaist {#ExeName}
 lt.startup=Palaist {#ExeName} uzsākot darbus
+lt.win10=Windows 10 spraudnis
 
 nl.confluence=Confluence plug-in
 nl.default=Default installation
@@ -282,6 +288,7 @@ nl.ocr=OCR plug-in (heeft Microsoft Office Document Imaging (MODI) nodig)
 nl.optimize=Prestaties verbeteren, kan even duren.
 nl.startgreenshot=Start {#ExeName}
 nl.startup=Start {#ExeName} wanneer Windows opstart
+nl.win10=Windows 10 plug-in
 
 nn.confluence=Confluence-tillegg
 nn.default=Default installation 
@@ -294,6 +301,7 @@ nn.ocr=OCR-tillegg (krev Microsoft Office Document Imaging (MODI))
 nn.optimize=Optimaliserar ytelse, dette kan ta litt tid...
 nn.startgreenshot=Start {#ExeName}
 nn.startup=Start {#ExeName} når Windows startar
+nn.win10=Windows 10 Tillegg
 
 sr.confluence=Прикључак за Конфлуенс
 sr.default=${default}
@@ -305,6 +313,7 @@ sr.ocr=OCR прикључак (захтева Microsoft Office Document Imaging 
 sr.optimize=Оптимизујем перформансе…
 sr.startgreenshot=Покрени Гриншот
 sr.startup=Покрени програм са системом
+sr.win10=Прикључак за Windows 10
 
 sv.startup=Starta {#ExeName} med Windows
 sv.startgreenshot=Starta {#ExeName}
@@ -315,6 +324,7 @@ sv.ocr=OCR-insticksprogram (kräver Microsoft Office Document Imaging (MODI))
 sv.imgur=Imgur-insticksprogram (Se: http://imgur.com)
 sv.language=Ytterligare språk
 sv.optimize=Optimerar prestanda, detta kan ta en stund.
+sv.win10=Windows 10-insticksprogram
 
 uk.confluence=Плагін Confluence
 uk.default=${default}
@@ -326,6 +336,7 @@ uk.ocr=Плагін OCR (потребує Microsoft Office Document Imaging (MOD
 uk.optimize=Оптимізація продуктивності, це може забрати час.
 uk.startgreenshot=Запустити {#ExeName}
 uk.startup=Запускати {#ExeName} під час запуску Windows
+uk.win10=Плагін Windows 10
 
 cn.confluence=Confluence插件
 cn.default=${default}
@@ -337,7 +348,7 @@ cn.ocr=OCR插件(需要Microsoft Office Document Imaging (MODI)的支持)
 cn.optimize=正在优化性能，这可能需要一点时间。
 cn.startgreenshot=启动{#ExeName}
 cn.startup=让{#ExeName}随Windows一起启动
-
+cn.win10=Windows 10插件
 
 [Types]
 Name: "default"; Description: "{cm:default}"
@@ -359,6 +370,7 @@ Name: "plugins\dropbox"; Description: "Dropbox Plugin"; Types: full custom; Flag
 Name: "plugins\flickr"; Description: "Flickr Plugin"; Types: full custom; Flags: disablenouninstallwarning 
 Name: "plugins\picasa"; Description: "Picasa Plugin"; Types: full custom; Flags: disablenouninstallwarning 
 Name: "plugins\photobucket"; Description: "Photobucket Plugin"; Types: full custom; Flags: disablenouninstallwarning 
+Name: "plugins\win10"; Description: "Windows 10 Plugin"; Types: full custom; Flags: disablenouninstallwarning; Check: IsWindows10OrNewer() 
 Name: "languages"; Description: {cm:language}; Types: full custom; Flags: disablenouninstallwarning
 Name: "languages\arSY"; Description: "العربية"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('d')
 Name: "languages\csCZ"; Description: "Ceština"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
@@ -615,6 +627,21 @@ begin
 		dotnetfx35sp1();
 	end;
 	Result := true;
+end;
+
+function IsWindowsVersionOrNewer(Major, Minor: Integer): Boolean;
+var
+  Version: TWindowsVersion;
+begin
+  GetWindowsVersionEx(Version);
+  Result :=
+    (Version.Major > Major) or
+    ((Version.Major = Major) and (Version.Minor >= Minor));
+end;
+
+function IsWindows10OrNewer: Boolean;
+begin
+  Result := IsWindowsVersionOrNewer(10, 0);
 end;
 [Run]
 Filename: "{code:getNGENPath}\ngen.exe"; Parameters: "install ""{app}\{#ExeName}.exe"""; StatusMsg: "{cm:optimize}"; Flags: runhidden runasoriginaluser

@@ -99,9 +99,10 @@ namespace GreenshotPlugin.Core {
 			}
 			return null;
 		}
-		
+
 		/// <summary>
-		/// Get icon for executable, from the cache
+		/// Get icon from resource files, from the cache.
+		/// Examples can be found here: https://diymediahome.org/windows-icons-reference-list-with-details-locations-images/
 		/// </summary>
 		/// <param name="path">path to the exe or dll</param>
 		/// <param name="index">index of the icon</param>

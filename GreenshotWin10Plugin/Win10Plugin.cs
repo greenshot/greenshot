@@ -55,7 +55,7 @@ namespace GreenshotWin10Plugin
 		/// <returns>IEnumerable with the destinations</returns>
 		public IEnumerable<IDestination> Destinations()
 		{
-			if (!Environment.OSVersion.IsWindows10())
+			if (!Environment.OSVersion.IsWindows10OrLater())
 			{
 				yield break;
 			}

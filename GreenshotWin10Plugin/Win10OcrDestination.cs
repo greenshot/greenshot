@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
@@ -36,8 +37,13 @@ namespace GreenshotWin10Plugin
 	{
 		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(Win10OcrDestination));
 
-		public override string Designation { get; } = "OCR";
+		public override string Designation { get; } = "WIN10OCR";
 		public override string Description { get; } = "Windows 10 OCR";
+
+		/// <summary>
+		/// Icon for the OCR function, the icon was found via: http://help4windows.com/windows_8_imageres_dll.shtml
+		/// </summary>
+		public override Image DisplayIcon=> PluginUtils.GetCachedExeIcon(FilenameHelper.FillCmdVariables(@"%windir%\system32\imageres.dll"), 97);
 
 		/// <summary>
 		/// Constructor, this is only debug information
@@ -49,7 +55,6 @@ namespace GreenshotWin10Plugin
 			{
 				Log.DebugFormat("Found language {0} {1}", language.NativeName, language.LanguageTag);
 			}
-
 		}
 
 		/// <summary>
