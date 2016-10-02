@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("A plug-in for Windows 10 only functionality")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Greenshot")]
-[assembly: AssemblyProduct("GreenshotWin10Plugin")]
+[assembly: AssemblyProduct("Windown 10 Plug-in")]
 [assembly: AssemblyCopyright("Copyright © Greenshot 2007-2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
