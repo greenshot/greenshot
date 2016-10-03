@@ -33,6 +33,7 @@ Source: ..\..\Languages\*de-DE*; Excludes: "*installer*,*website*"; DestDir: {ap
 
 ; Additional language files
 Source: ..\..\Languages\*ar-SY*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\arSY; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*ca-CA*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\caCA; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*cs-CZ*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\csCZ; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*da-DK*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\daDK; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*de-x-franconia*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\dexfranconia; Flags: overwritereadonly ignoreversion replacesameversion;
@@ -373,6 +374,7 @@ Name: "plugins\photobucket"; Description: "Photobucket Plugin"; Types: full cust
 Name: "plugins\win10"; Description: "Windows 10 Plugin"; Types: default full custom; Flags: disablenouninstallwarning; Check: IsWindows10OrNewer() 
 Name: "languages"; Description: {cm:language}; Types: full custom; Flags: disablenouninstallwarning
 Name: "languages\arSY"; Description: "العربية"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('d')
+Name: "languages\caCA"; Description: "Català"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\csCZ"; Description: "Ceština"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\daDK"; Description: "Dansk"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\dexfranconia"; Description: "Frängisch (Deutsch)"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')

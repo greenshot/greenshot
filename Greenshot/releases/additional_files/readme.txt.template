@@ -43,9 +43,16 @@ Added features:
 * FEATURE-946 Updated to Inno-Setup 5.5.9 for improved installer security
 * FEATURE-958 Greenshot is now using code signing certificates
 
-Open issues planned for this version:
-BUG-1872: OneDrive prevents Greenshot hotkeys from working
-FEATURE-912: [Storage Location] Define directory pattern
+Added translation:
+* Català by Gabriel Guix.
+
+Additionally we added some code quality measures, since build 87, which should reduce the number of problems.
+
+An experimental plug-in was added which adds functionality which only works with Windows 10:
+1) Sharing screenshots with Windows 10 apps
+2) Exporting the text via Windows 10 OCR to the clipboard
+We don't know if this will be in the final release of 1.2.9, this depends on the stability of this functionality.
+It will only be installed when the target system is running with Windows 10, and if the default or full installation is selected, for custom you will need to manually select it.
 
 
 1.2.8.12-cab854b RELEASE
