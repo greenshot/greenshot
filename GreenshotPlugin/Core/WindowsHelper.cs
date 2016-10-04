@@ -833,7 +833,7 @@ namespace GreenshotPlugin.Core {
 		public Rectangle ClientRectangle {
 			get {
 				Rectangle clientRect;
-				if (GetClientRect(out clientRect))
+				if (!GetClientRect(out clientRect))
 				{
 					Win32Error error = Win32.GetLastErrorCode();
 					Log.WarnFormat("Couldn't retrieve the client rectangle for {0}, error: {1}", Text, Win32.GetMessage(error));
