@@ -96,10 +96,14 @@ Function FillTemplates {
 # Create the MD5 checksum file
 Function MD5Checksums {
 	echo "MD5 Checksums:"
-	$currentMD5 = MD5("$(get-location)\Greenshot\bin\Release\Greenshot.exe")
-	echo "Greenshot.exe : $currentMD5"
-	$currentMD5 = MD5("$(get-location)\Greenshot\bin\Release\GreenshotPlugin.dll")
-	echo "GreenshotPlugin.dll : $currentMD5"
+	$sourcebase = "$(get-location)\Greenshot\bin\Release"
+
+	$INCLUDE=@("*.exe", "*.gsp", "*.dll")
+	Get-ChildItem -Path "$sourcebase" -Recurse -Include $INCLUDE | foreach {
+		$currentMD5 = MD5($_.fullname)
+		$name = $_.Name
+		echo "$name : $currentMD5"
+	}
 }
 
 # This function creates the paf.exe
@@ -318,6 +322,7 @@ FillTemplates
 echo "Signing executables"
 SignBinaryFilesBeforeBuildingInstaller
 
+# This must be after the signing, otherwise they would be different.
 echo "Generating MD5"
 MD5Checksums | Set-Content "$(get-location)\Greenshot\bin\Release\checksum.MD5" -encoding UTF8
 
