@@ -120,15 +120,21 @@ namespace Greenshot.Ui.ViewModels
 			{
 				items.Add(new MenuItem
 				{
-					IsSeparator = true,
+					Style = MenuItemStyles.Default,
 					Id = "Y_Separator"
 				});
 				items.Add(new MenuItem
 				{
-					IsSeparator = true,
+					Style = MenuItemStyles.Default,
 					Id = "W_Separator"
 				});
 			}
+			items.Add(new MenuItem
+			{
+				Style = MenuItemStyles.Title,
+				Id = "A_Title",
+				DisplayName = "Greenshot"
+			});
 			var exitMenuItem = new MenuItem
 			{
 				Id = "Z_Exit",
