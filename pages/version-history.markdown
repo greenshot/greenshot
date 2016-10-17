@@ -17,7 +17,7 @@ You'll find everything below.
 **{{ release.name }}**
 
 	{% for asset in release.assets %}
-- [{{ asset.name }}]({{ asset.browser_download_url }}) ({{ asset.created_at | date_to_string %}})
+- [{{ asset.name }}]({{ asset.browser_download_url }}) ({{ asset.created_at | date_to_string }})
  	{% endfor %}
 {% endfor %}
  

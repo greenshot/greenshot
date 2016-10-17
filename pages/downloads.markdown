@@ -24,7 +24,7 @@ tags: menu
 	<tr>
 		<td class="cta-description">
 		{% if latest_release %}
-			{{ latest_release.name }}<br>{{ latest_release.created_at | date_to_string %}}
+			{{ latest_release.name }}<br>{{ latest_release.created_at | date_to_string }}
 		{% endif %}
 		</td>
 	</tr>
