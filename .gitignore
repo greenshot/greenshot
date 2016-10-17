@@ -2,3 +2,5 @@
 /*.lock
 **/*.*~
 import-wp.sh
+.jekyll-metadata
+Gemfile.lock

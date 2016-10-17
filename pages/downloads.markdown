@@ -3,9 +3,11 @@ layout: page
 status: publish
 published: true
 title: Downloads
+menu: Downloads
 permalink: /downloads/
+categories: []
 comments: []
-tags: menu
+tags: []
 ---
 {% assign latest_release = site.github.releases | where:"prerelease",false | where:"draft",false | first %}
 <div class="two-col left-box">

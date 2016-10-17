@@ -19,16 +19,17 @@
 		<a href="/" class="logo"><img src="/assets/greenshot-logo.png"></a>
 		<nav>
 			<ul>
-				{% for availablepage in site.pages %}
-					{% if availablepage.tags contains "menu" %}
+				{% for availablepage in site.pages %}{% if availablepage.menu %}
 					<li>
-						<a {% if page.url == availablepage.url %}class="active"{% endif %} href="{{ availablepage.url }}">{{ availablepage.title }}</a>
+						<a {% if page.url == availablepage.url %}class="active"{% endif %} href="{{ availablepage.url }}">{{ availablepage.menu }}</a>
 					</li>
-					{% endif %}
-				{% endfor %}
+				{% endif %}{% endfor %}
 			</ul>
 		</nav>
 		<div class="servicelinks">
+			Report a <a href="https://greenshot.atlassian.net/browse/BUG">bug</a> &middot; 
+			Suggest a <a href="https://greenshot.atlassian.net/browse/FEATURE">feature</a> &middot;
+ 			Ask a <a href="https://greenshot.atlassian.net/browse/SUPPORT">support question</a> &middot;
 			<a href="/sitemap/">sitemap</a> &middot;
 			<a href="/impressum/">impressum</a>
 		</div>

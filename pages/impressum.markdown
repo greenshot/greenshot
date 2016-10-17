@@ -3,6 +3,9 @@ layout: page
 title: Impressum
 permalink: /impressum/
 metarobots: noindex,nofollow
+categories: []
+comments: []
+tags: []
 ---
 <p><a href="http://en.wikipedia.org/wiki/Impressum" target="_blank" style="color:#999999">What is this?</a></p>
 <p>Information in accordance with §5 TMG (Telemedia Act - Germany)</p>

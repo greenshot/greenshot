@@ -3,9 +3,10 @@ layout: page
 status: publish
 published: true
 title: Help
+menu: Help
 permalink: /help/
 categories: []
-tags: menu
+tags: []
 comments: []
 ---
 <div class="pull-right">{% include help-nav.html %}</div>
