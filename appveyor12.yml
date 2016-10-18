@@ -70,7 +70,7 @@ deploy:
   prerelease: true
   draft: true
   on:
-    build_type: UNSTABLE
+    build_type: /^(RC|UNSTABLE).*/
 - provider: GitHub
   tag: Greenshot-$(build_type)-$(APPVEYOR_BUILD_VERSION)
   auth_token:
