@@ -512,18 +512,21 @@ namespace GreenshotPlugin.Controls {
 		/// <param name="m"></param>
 		/// <returns>true if the message was handled</returns>
 		public static bool HandleMessages(ref Message m) {
-			if (m.Msg == WM_HOTKEY) {
-				// Call handler
-				if (IsWindows7OrOlder) {
-					KeyHandlers[(int)m.WParam]();
-				} else {
-					if (EventDelay.Check()) {
-						KeyHandlers[(int)m.WParam]();
-					}
-				}
+			if (m.Msg != WM_HOTKEY)
+			{
+				return false;
+			}
+			// Call handler
+			if (!IsWindows7OrOlder && !EventDelay.Check())
+			{
 				return true;
 			}
-			return false;
+			HotKeyHandler handler;
+			if (KeyHandlers.TryGetValue((int)m.WParam, out handler))
+			{
+				handler();
+			}
+			return true;
 		}
 
 		public static string GetKeyName(Keys givenKey) {
