@@ -1,4 +1,4 @@
 greenshot.github.io
 ================
 
-the www.getgreenshot.org page, as Github page.
+the http://getgreenshot.org page, as Github page.
