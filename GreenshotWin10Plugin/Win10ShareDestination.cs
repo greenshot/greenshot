@@ -73,6 +73,7 @@ namespace GreenshotWin10Plugin
 						// Create capture for export
 						ImageOutput.SaveToStream(surface, imageStream, new SurfaceOutputSettings());
 						imageStream.Position = 0;
+						Log.Info("Created RandomAccessStreamReference for the image");
 						var imageRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(imageStream);
 						RandomAccessStreamReference thumbnailRandomAccessStreamReference;
 						RandomAccessStreamReference logoRandomAccessStreamReference;
@@ -85,6 +86,7 @@ namespace GreenshotWin10Plugin
 								ImageOutput.SaveToStream(thumbnail, null, thumbnailStream, new SurfaceOutputSettings());
 								thumbnailStream.Position = 0;
 								thumbnailRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(thumbnailStream);
+								Log.Info("Created RandomAccessStreamReference for the thumbnail");
 							}
 						}
 						// Create logo
@@ -95,13 +97,14 @@ namespace GreenshotWin10Plugin
 								ImageOutput.SaveToStream(logoThumbnail, null, logoStream, new SurfaceOutputSettings());
 								logoStream.Position = 0;
 								logoRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(logoStream);
+								Log.Info("Created RandomAccessStreamReference for the logo");
 							}
 						}
 						string applicationName = null;
 						var dataTransferManagerHelper = new DataTransferManagerHelper(handle);
 						dataTransferManagerHelper.DataTransferManager.TargetApplicationChosen += (dtm, args) =>
 						{
-							Log.DebugFormat("Trying to share with {0}", args.ApplicationName);
+							Log.InfoFormat("Trying to share with {0}", args.ApplicationName);
 							applicationName = args.ApplicationName;
 						};
 						var filename = FilenameHelper.GetFilename(OutputFormat.png, captureDetails);
@@ -113,8 +116,8 @@ namespace GreenshotWin10Plugin
 							{
 								using (var deferredStream = streamedFileDataRequest.AsStreamForWrite())
 								{
-									await imageStream.CopyToAsync(deferredStream);
-									await imageStream.FlushAsync();
+									await imageStream.CopyToAsync(deferredStream).ConfigureAwait(false);
+									await imageStream.FlushAsync().ConfigureAwait(false);
 								}
 								// Signal that the stream is ready
 								streamedFileDataRequest.Dispose();
@@ -125,8 +128,8 @@ namespace GreenshotWin10Plugin
 							}
 							// Signal transfer ready to the await down below
 							taskCompletionSource.TrySetResult(applicationName);
-						}, imageRandomAccessStreamReference);
-
+						}, imageRandomAccessStreamReference).AsTask().ConfigureAwait(false);
+						
 						dataTransferManagerHelper.DataTransferManager.DataRequested += (sender, args) =>
 						{
 							var deferral = args.Request.GetDeferral();
@@ -143,7 +146,7 @@ namespace GreenshotWin10Plugin
 							dataPackage.Properties.Square30x30Logo = logoRandomAccessStreamReference;
 							dataPackage.Properties.LogoBackgroundColor = Color.FromArgb(0xff, 0x3d, 0x3d, 0x3d);
 							dataPackage.SetStorageItems(new List<IStorageItem> { storageFile });
-							//dataPackage.SetBitmap(imageRandomAccessStreamReference);
+							dataPackage.SetBitmap(imageRandomAccessStreamReference);
 							dataPackage.Destroyed += (dp, o) =>
 							{
 								Log.Debug("Destroyed.");
@@ -151,7 +154,7 @@ namespace GreenshotWin10Plugin
 							deferral.Complete();
 						};
 						dataTransferManagerHelper.ShowShareUi();
-						return await taskCompletionSource.Task;
+						return await taskCompletionSource.Task.ConfigureAwait(false);
 					}
 				}).Result;
 				if (string.IsNullOrWhiteSpace(exportTarget))

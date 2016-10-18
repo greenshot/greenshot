@@ -25,8 +25,13 @@ using Windows.ApplicationModel.DataTransfer;
 
 namespace GreenshotWin10Plugin.Native
 {
+	/// <summary>
+	/// Wraps the interop for calling the ShareUI
+	/// </summary>
 	public class DataTransferManagerHelper
 	{
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(DataTransferManagerHelper));
+
 		private const string DataTransferManagerId = "a5caee9b-8708-49d1-8d36-67d25a8da00c";
 		private readonly IDataTransferManagerInterOp _dataTransferManagerInterOp;
 		private readonly IntPtr _windowHandle;
@@ -48,7 +53,11 @@ namespace GreenshotWin10Plugin.Native
 			_windowHandle = handle;
 			var riid = new Guid(DataTransferManagerId);
 			DataTransferManager dataTransferManager;
-			_dataTransferManagerInterOp.GetForWindow(_windowHandle, riid, out dataTransferManager);
+			var hresult = _dataTransferManagerInterOp.GetForWindow(_windowHandle, riid, out dataTransferManager);
+			if (hresult != 0)
+			{
+				Log.WarnFormat("HResult for GetForWindow: {0}", hresult);
+			}
 			DataTransferManager = dataTransferManager;
 		}
 
@@ -57,7 +66,15 @@ namespace GreenshotWin10Plugin.Native
 		/// </summary>
 		public void ShowShareUi()
 		{
-			_dataTransferManagerInterOp.ShowShareUIForWindow(_windowHandle);
+			var hresult = _dataTransferManagerInterOp.ShowShareUIForWindow(_windowHandle);
+			if (hresult != 0)
+			{
+				Log.WarnFormat("HResult for ShowShareUIForWindow: {0}", hresult);
+			}
+			else
+			{
+				Log.Debug("ShowShareUIForWindow called");
+			}
 		}
 	}
 
