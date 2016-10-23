@@ -7,7 +7,7 @@ menu: Downloads
 permalink: /downloads/
 categories: []
 comments: []
-tags: []
+tags: [uses_alerts]
 ---
 {% assign latest_release = site.github.releases | where:"prerelease",false | where:"draft",false | first %}
 <div class="two-col left-box">
@@ -31,8 +31,9 @@ tags: []
 		</td>
 	</tr>
 </table>
-<p class="pull-right">
-	In most cases, the latest stable version will be the best choice for you: it has been thoroughly tested and is already used by myriads of people around the world. However, if you are looking for the latest unstable version, need an older version or the ZIP distribution, you will find everything you need in the <a href="/version-history/" title="Download other versions of Greenshot">version history</a>.
+
+<p class="alert alert-info">
+	<i class="fa fa-info-circle"></i> In most cases, the latest stable version will be the best choice for you: it has been thoroughly tested by the community and is already used by myriads of people around the world. However, if you are looking for the latest unstable version, need an older version or the ZIP distribution, you will find everything you need in the <a href="/version-history/" title="Download other versions of Greenshot">version history</a>.
 </p>
 
 
