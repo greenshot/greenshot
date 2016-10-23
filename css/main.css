@@ -190,6 +190,11 @@ a.cta:hover {
 	text-align: center;
 }
 
+.alert {
+	border-width: 0 0 0 5px !important;
+	border-radius: 0 !important;
+}
+
 .body-ad {
 	display: inline-block;
 	width: 180px;
