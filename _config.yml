@@ -11,8 +11,7 @@ github_username: greenshot
 googleplus: 108405649004966849465
 openhub_project: greenshot
 
-# TODO change to index,follow before going live, also remove robots.txt
-metarobots: noindex, nofollow
+metarobots: index,follow
 
 collections:
   faqs:
