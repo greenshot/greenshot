@@ -3,14 +3,10 @@ layout: post
 status: publish
 published: true
 title: ! 'Release candidate 1 for 1.2.9'
-
-
 tags:
 - 1.2
 - bugfix
 - release
-
-
 ---
 <p>Today we present you the first release candidate for Greenshot 1.2.9 which should fix a lot of issues with 1.2.8 and add some new features.</p>
 <p>One of the most significant changes is that from this version onwards we sign Greenshot with a code signing certificate.
