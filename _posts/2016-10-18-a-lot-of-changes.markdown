@@ -21,7 +21,7 @@ We will write a separate blog on what we things we do to keep Greenshot secure w
 <li>Imgur upload gives 403 errors</li>
 <li>Jira API doesn't work anymore</li>
 </ul>
-<p>As always you can download it from our <a href="/downloads/" title="Downloads">downloads </a>page. By the way: please be sure to always download Greenshot from our official website</strong>, which is <a href="http://getgreenshot.org/">http://getgreenshot.org/</a>. A lot of platforms offer downloads of free and open source software as well, but there have been several cases of installer files being corrupted or bundled with malware. So: <strong>always get greenshot from getgreenshot.org</strong> :) </p>
+<p>As always you can download it from our <a href="/downloads/" title="Downloads">downloads </a>page. By the way: please be sure to always download Greenshot from our <strong>official website</strong>, which is <a href="http://getgreenshot.org/">http://getgreenshot.org/</a>. A lot of platforms offer downloads of free and open source software as well, but there have been several cases of installer files being corrupted or bundled with malware. So: <strong>always get greenshot from getgreenshot.org</strong> :) </p>
 <p>Here is the complete changelog for the 1.2.9 release candidate 1:</p>
 
 	All details to our tickets can be found here: https://greenshot.atlassian.net
