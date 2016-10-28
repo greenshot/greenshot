@@ -48,6 +48,8 @@ namespace Greenshot.Ui.ViewModels
 	{
 		private static readonly LogSource Log = new LogSource();
 		private readonly Disposables _disposables = new Disposables();
+		private readonly BrushConverter _brushConverter = new BrushConverter();
+
 
 		[ImportMany("systray", typeof(IMenuItem))]
 		private IEnumerable<IMenuItem> ContextMenuItems { get; set; }
@@ -86,12 +88,11 @@ namespace Greenshot.Ui.ViewModels
 		/// <summary>Called when activating.</summary>
 		protected override void OnActivate()
 		{
-			var brushConverter = new BrushConverter();
 			var logo = new PackIconGreenshot
 			{
 				Kind = PackIconKindGreenshot.Greenshot,
-				Foreground = brushConverter.ConvertFromString("#FF9AFF00") as SolidColorBrush,
-				Background = brushConverter.ConvertFromString("#FF3D3D3D") as SolidColorBrush
+				Foreground = _brushConverter.ConvertFromString("#FF9AFF00") as SolidColorBrush,
+				Background = _brushConverter.ConvertFromString("#FF3D3D3D") as SolidColorBrush
 			};
 
 			SetIcon(logo);
@@ -133,6 +134,12 @@ namespace Greenshot.Ui.ViewModels
 			{
 				Style = MenuItemStyles.Title,
 				Id = "A_Title",
+				Icon = new PackIconGreenshot
+				{
+					Kind = PackIconKindGreenshot.Greenshot,
+					Foreground = _brushConverter.ConvertFromString("#FF9AFF00") as SolidColorBrush,
+					Background = _brushConverter.ConvertFromString("#FF3D3D3D") as SolidColorBrush
+				},
 				DisplayName = "Greenshot"
 			});
 			var exitMenuItem = new MenuItem
@@ -154,7 +161,9 @@ namespace Greenshot.Ui.ViewModels
 				Id = "X_Configure",
 				Icon = new PackIconModern
 				{
-					Kind = PackIconModernKind.Settings
+					Kind = PackIconModernKind.Cog,
+					Spin = true,
+					SpinDuration = 3
 				},
 				ClickAction = item =>
 				{

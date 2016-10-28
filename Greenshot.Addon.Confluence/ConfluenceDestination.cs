@@ -40,7 +40,6 @@ using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
 using Dapplo.Log.Facade;
-using Greenshot.Addon.Ui;
 
 namespace Greenshot.Addon.Confluence
 {
@@ -73,9 +72,9 @@ namespace Greenshot.Addon.Confluence
 			Designation = ConfluenceDesignation;
 			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, null, token);
 			Text = ConfluenceLanguage.UploadMenuItem;
-			Icon = new PackIconGreenshot
+			Icon = new PackIconAtlassian
 			{
-				Kind = PackIconKindGreenshot.Confluence
+				Kind = PackIconKindAtlassian.Confluence
 			};
 		}
 
@@ -93,9 +92,9 @@ namespace Greenshot.Addon.Confluence
 				var pages = await ConfluenceUtils.GetCurrentPages(token);
 				return pages.OrderBy(x => x.Title).Select(currentPage => new ConfluenceDestination
 				{
-					Icon = new PackIconGreenshot
+					Icon = new PackIconAtlassian
 					{
-						Kind = PackIconKindGreenshot.Confluence
+						Kind = PackIconKindAtlassian.Confluence
 					},
 					Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, currentPage, exportToken),
 					Text = currentPage.Title,
