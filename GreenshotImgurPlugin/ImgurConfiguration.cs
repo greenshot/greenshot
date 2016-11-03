@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,47 +32,45 @@ namespace GreenshotImgurPlugin {
 	/// </summary>
 	[IniSection("Imgur", Description="Greenshot Imgur Plugin configuration")]
 	public class ImgurConfiguration : IniSection {
-		[IniProperty("ImgurApiUrl", Description="Url to Imgur system.", DefaultValue= "http://api.imgur.com/2")]
-		public string ImgurApiUrl;
 		[IniProperty("ImgurApi3Url", Description = "Url to Imgur system.", DefaultValue = "https://api.imgur.com/3")]
-		public string ImgurApi3Url;
+		public string ImgurApi3Url { get; set; }
 
 		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
-		public OutputFormat UploadFormat;
+		public OutputFormat UploadFormat { get; set; }
 		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
-		public int UploadJpegQuality;
+		public int UploadJpegQuality { get; set; }
 		[IniProperty("UploadReduceColors", Description="Reduce color amount of the uploaded image to 256", DefaultValue="False")]
-		public bool UploadReduceColors;
+		public bool UploadReduceColors { get; set; }
 		[IniProperty("CopyLinkToClipboard", Description = "Copy the link, which one is controlled by the UsePageLink, on the clipboard", DefaultValue = "True")]
-		public bool CopyLinkToClipboard;
+		public bool CopyLinkToClipboard { get; set; }
 		[IniProperty("UsePageLink", Description = "Use pagelink instead of direct link on the clipboard", DefaultValue = "False")]
-		public bool UsePageLink;
+		public bool UsePageLink { get; set; }
 		[IniProperty("AnonymousAccess", Description = "Use anonymous access to Imgur", DefaultValue="true")]
-		public bool AnonymousAccess;
+		public bool AnonymousAccess { get; set; }
 
 		[IniProperty("RefreshToken", Description = "Imgur refresh Token", Encrypted = true, ExcludeIfNull = true)]
-		public string RefreshToken;
+		public string RefreshToken { get; set; }
 
 		/// <summary>
 		/// AccessToken, not stored
 		/// </summary>
-		public string AccessToken;
+		public string AccessToken { get; set; }
 
 		/// <summary>
 		/// AccessTokenExpires, not stored
 		/// </summary>
-		public DateTimeOffset AccessTokenExpires;
+		public DateTimeOffset AccessTokenExpires { get; set; }
 
 		[IniProperty("AddTitle", Description = "Is the title passed on to Imgur", DefaultValue = "False")]
-		public bool AddTitle;
+		public bool AddTitle { get; set; }
 		[IniProperty("AddFilename", Description = "Is the filename passed on to Imgur", DefaultValue = "False")]
-		public bool AddFilename;
+		public bool AddFilename { get; set; }
 		[IniProperty("FilenamePattern", Description = "Filename for the Imgur upload", DefaultValue = "${capturetime:d\"yyyyMMdd-HHmm\"}")]
-		public string FilenamePattern;
+		public string FilenamePattern { get; set; }
 
 		[IniProperty("ImgurUploadHistory", Description="Imgur upload history (ImgurUploadHistory.hash=deleteHash)")]
-		public Dictionary<string, string> ImgurUploadHistory;
-		
+		public Dictionary<string, string> ImgurUploadHistory { get; set; }
+
 		// Not stored, only run-time!
 		public Dictionary<string, ImgurInfo> runtimeImgurHistory = new Dictionary<string, ImgurInfo>();
 		public int Credits {
@@ -100,7 +98,7 @@ namespace GreenshotImgurPlugin {
 			SettingsForm settingsForm = null;
 
 			new PleaseWaitForm().ShowAndWait(ImgurPlugin.Attributes.Name, Language.GetString("imgur", LangKey.communication_wait), 
-				delegate() {
+				delegate {
 					settingsForm = new SettingsForm(this);
 				}
 			);

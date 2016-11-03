@@ -19,12 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Controls;
-
-namespace GreenshotImgurPlugin {
-	/// <summary>
-	/// This class is needed for design-time resolving of the language files
-	/// </summary>
-	public class ImgurForm : GreenshotForm {
-	}
+namespace GreenshotPlugin.Core
+{
+	public delegate TResult Func<out TResult>();
+	public delegate TResult Func<in T, out TResult>(T arg);
+	public delegate TResult Func<in T1, in T2, out TResult>(T1 arg1, T2 arg2);
+	public delegate TResult Func<in T1, in T2, in T3, out TResult>(T1 arg1, T2 arg2, T3 arg3);
+	public delegate TResult Func<in T1, in T2, in T3, in T4, out TResult>(T1 arg1, T2 arg2, T3 arg3, T4 arg4);
 }

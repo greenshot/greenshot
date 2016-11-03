@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@
  */
 using System.ComponentModel;
 using System.Drawing;
-using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 
@@ -29,25 +28,15 @@ namespace GreenshotImgurPlugin  {
 	/// Description of ImgurDestination.
 	/// </summary>
 	public class ImgurDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurDestination));
-		private static ImgurConfiguration config = IniConfig.GetIniSection<ImgurConfiguration>();
-		private ImgurPlugin plugin = null;
+		private readonly ImgurPlugin _plugin;
 
 		public ImgurDestination(ImgurPlugin plugin) {
-			this.plugin = plugin;
+			_plugin = plugin;
 		}
 		
-		public override string Designation {
-			get {
-				return "Imgur";
-			}
-		}
+		public override string Designation => "Imgur";
 
-		public override string Description {
-			get {
-				return Language.GetString("imgur", LangKey.upload_menu_item);
-			}
-		}
+		public override string Description => Language.GetString("imgur", LangKey.upload_menu_item);
 
 		public override Image DisplayIcon {
 			get {
@@ -57,10 +46,10 @@ namespace GreenshotImgurPlugin  {
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-			string uploadURL = null;
-			exportInformation.ExportMade = plugin.Upload(captureDetails, surface, out uploadURL);
-			exportInformation.Uri = uploadURL;
+			ExportInformation exportInformation = new ExportInformation(Designation, Description);
+			string uploadUrl;
+			exportInformation.ExportMade = _plugin.Upload(captureDetails, surface, out uploadUrl);
+			exportInformation.Uri = uploadUrl;
 			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}

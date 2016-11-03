@@ -41,10 +41,6 @@ namespace GreenshotPlugin.Core {
 		public string Link {
 			get {return _link;}
 		}
-		private readonly string _directLink;
-		public string DirectLink {
-			get {return _directLink;}
-		}
 		private Version _version;
 		public Version Version {
 			get {return _version;}
@@ -85,11 +81,10 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		public SourceforgeFile(string file, string pubdate, string link, string directLink) {
+		public SourceforgeFile(string file, string pubdate, string link) {
 			this._file = file;
 			DateTime.TryParse(pubdate, out _pubdate);
 			this._link = link;
-			this._directLink = directLink;
 		}
 	}
 	/// <summary>
@@ -180,9 +175,6 @@ namespace GreenshotPlugin.Core {
 							string subdir = match.Groups[2].Value;
 							string type = match.Groups[3].Value;
 							string file = match.Groups[4].Value;
-							// !!! Change this to the mirror !!!
-							string mirror = "kent";
-							string directLink = Uri.EscapeUriString("http://"+mirror+".dl.sourceforge.net/project/"+project+"/"+subdir+"/"+type+"/"+file);
 							Dictionary<string, SourceforgeFile> filesForType;
 							if (rssFiles.ContainsKey(type)) {
 								filesForType = rssFiles[type];
@@ -190,7 +182,7 @@ namespace GreenshotPlugin.Core {
 								filesForType = new Dictionary<string, SourceforgeFile>();
 								rssFiles.Add(type, filesForType);
 							}
-							SourceforgeFile rssFile = new SourceforgeFile(file, pubdate, sfLink, directLink);
+							SourceforgeFile rssFile = new SourceforgeFile(file, pubdate, sfLink);
 							if (file.EndsWith(".exe") ||file.EndsWith(".zip")) {
 								string version = Regex.Replace(file, @".*[a-zA-Z_]\-", "");
 								version = version.Replace(@"\-[a-zA-Z]+.*","");

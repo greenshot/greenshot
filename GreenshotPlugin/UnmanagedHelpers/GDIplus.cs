@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,9 +21,7 @@
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using System.Security;
 using log4net;
-using Microsoft.Win32.SafeHandles;
 using System.Reflection;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -94,7 +92,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// GDIplus Helpers
 	/// </summary>
 	public static class GDIplus {
-		private static ILog LOG = LogManager.GetLogger(typeof(GDIplus));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(GDIplus));
 
 		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true)]
 		private static extern int GdipBitmapApplyEffect(IntPtr bitmap, IntPtr effect, ref RECT rectOfInterest, bool useAuxData, IntPtr auxData, int auxDataSize);
@@ -107,7 +105,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		private static extern int GdipCreateEffect(Guid guid, out IntPtr effect);
 		[DllImport("gdiplus.dll", SetLastError = true, ExactSpelling = true)]
 		private static extern int GdipDeleteEffect(IntPtr effect);
-		private static Guid BlurEffectGuid = new Guid("{633C80A4-1843-482B-9EF2-BE2834C5FDD4}");
+		private static readonly Guid BlurEffectGuid = new Guid("{633C80A4-1843-482B-9EF2-BE2834C5FDD4}");
 
 		// Constant "FieldInfo" for getting the nativeImage from the Bitmap
 		private static readonly FieldInfo FIELD_INFO_NATIVE_IMAGE = typeof(Bitmap).GetField("nativeImage", BindingFlags.GetField | BindingFlags.Instance | BindingFlags.NonPublic);
@@ -118,7 +116,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		// Constant "FieldInfo" for getting the nativeImageAttributes from the ImageAttributes
 		private static readonly FieldInfo FIELD_INFO_NATIVE_IMAGEATTRIBUTES = typeof(ImageAttributes).GetField("nativeImageAttributes", BindingFlags.GetField | BindingFlags.Instance | BindingFlags.NonPublic);
 
-		private static bool isBlurEnabled = Environment.OSVersion.Version.Major >= 6;
+		private static bool _isBlurEnabled = Environment.OSVersion.Version.Major >= 6;
 		/// <summary>
 		/// Get the nativeImage field from the bitmap
 		/// </summary>
@@ -172,14 +170,12 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// This accounts for the "bug" I reported here: http://social.technet.microsoft.com/Forums/en/w8itprogeneral/thread/99ddbe9d-556d-475a-8bab-84e25aa13a2c
 		/// </summary>
 		/// <param name="radius"></param>
-		/// <returns></returns>
-		public static bool isBlurPossible(int radius) {
-			if (!isBlurEnabled) {
-				return false;
-			} else if (Environment.OSVersion.Version.Minor >= 2 && radius < 20) {
+		/// <returns>false if blur is not possible</returns>
+		public static bool IsBlurPossible(int radius) {
+			if (!_isBlurEnabled) {
 				return false;
 			}
-			return true;
+			return Environment.OSVersion.Version.Minor < 2 || radius >= 20;
 		}
 
 		/// <summary>
@@ -191,25 +187,31 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// <param name="expandEdges">bool true if the edges are expanded with the radius</param>
 		/// <returns>false if there is no GDI+ available or an exception occured</returns>
 		public static bool ApplyBlur(Bitmap destinationBitmap, Rectangle area, int radius, bool expandEdges) {
-			if (!isBlurPossible(radius)) {
+			if (!IsBlurPossible(radius)) {
 				return false;
 			}
 			IntPtr hBlurParams = IntPtr.Zero;
 			IntPtr hEffect = IntPtr.Zero;
 
 			try {
+				// Create the GDI+ BlurEffect, using the Guid
+				int status = GdipCreateEffect(BlurEffectGuid, out hEffect);
+				if (status != 0)
+				{
+					return false;
+				}
 				// Create a BlurParams struct and set the values
-				BlurParams blurParams = new BlurParams();
-				blurParams.Radius = radius;
-				blurParams.ExpandEdges = expandEdges;
+				var blurParams = new BlurParams
+				{
+					Radius = radius,
+					ExpandEdges = expandEdges
+				};
 
 				// Allocate space in unmanaged memory
 				hBlurParams = Marshal.AllocHGlobal(Marshal.SizeOf(blurParams));
 				// Copy the structure to the unmanaged memory
 				Marshal.StructureToPtr(blurParams, hBlurParams, false);
 
-				// Create the GDI+ BlurEffect, using the Guid
-				int status = GdipCreateEffect(BlurEffectGuid, out hEffect);
 
 				// Set the blurParams to the effect
 				GdipSetEffectParameters(hEffect, hBlurParams, (uint)Marshal.SizeOf(blurParams));
@@ -226,8 +228,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 				// Everything worked, return true
 				return true;
 			} catch (Exception ex) {
-				isBlurEnabled = false;
-				LOG.Error("Problem using GdipBitmapApplyEffect: ", ex);
+				_isBlurEnabled = false;
+				Log.Error("Problem using GdipBitmapApplyEffect: ", ex);
 				return false;
 			} finally {
 				try {
@@ -240,8 +242,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 						Marshal.FreeHGlobal(hBlurParams);
 					}
 				} catch (Exception ex) {
-					isBlurEnabled = false;
-					LOG.Error("Problem cleaning up ApplyBlur: ", ex);
+					_isBlurEnabled = false;
+					Log.Error("Problem cleaning up ApplyBlur: ", ex);
 				}
 			}
 		}
@@ -251,7 +253,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// </summary>
 		/// <returns>false if there is no GDI+ available or an exception occured</returns>
 		public static bool DrawWithBlur(Graphics graphics, Bitmap image, Rectangle source, Matrix transform, ImageAttributes imageAttributes, int radius, bool expandEdges) {
-			if (!isBlurPossible(radius)) {
+			if (!IsBlurPossible(radius)) {
 				return false;
 			}
 
@@ -259,19 +261,25 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 			IntPtr hEffect = IntPtr.Zero;
 
 			try {
+				// Create the GDI+ BlurEffect, using the Guid
+				int status = GdipCreateEffect(BlurEffectGuid, out hEffect);
+				if (status != 0)
+				{
+					return false;
+				}
+
 				// Create a BlurParams struct and set the values
-				BlurParams blurParams = new BlurParams();
-				blurParams.Radius = radius;
+				var blurParams = new BlurParams
+				{
+					Radius = radius,
+					ExpandEdges = false
+				};
 				//blurParams.Padding = radius;
-				blurParams.ExpandEdges = false;
 
 				// Allocate space in unmanaged memory
 				hBlurParams = Marshal.AllocHGlobal(Marshal.SizeOf(blurParams));
 				// Copy the structure to the unmanaged memory
 				Marshal.StructureToPtr(blurParams, hBlurParams, true);
-
-				// Create the GDI+ BlurEffect, using the Guid
-				int status = GdipCreateEffect(BlurEffectGuid, out hEffect);
 
 				// Set the blurParams to the effect
 				GdipSetEffectParameters(hEffect, hBlurParams, (uint)Marshal.SizeOf(blurParams));
@@ -284,15 +292,15 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 				IntPtr hAttributes = GetNativeImageAttributes(imageAttributes);
 
 				// Create a RECT from the Rectangle
-				RECTF sourceRECF = new RECTF(source);
+				RECTF sourceRecf = new RECTF(source);
 				// Apply the effect to the bitmap in the specified area
-				GdipDrawImageFX(hGraphics, hBitmap, ref sourceRECF, hMatrix, hEffect, hAttributes, GpUnit.UnitPixel);
+				GdipDrawImageFX(hGraphics, hBitmap, ref sourceRecf, hMatrix, hEffect, hAttributes, GpUnit.UnitPixel);
 
 				// Everything worked, return true
 				return true;
 			} catch (Exception ex) {
-				isBlurEnabled = false;
-				LOG.Error("Problem using GdipDrawImageFX: ", ex);
+				_isBlurEnabled = false;
+				Log.Error("Problem using GdipDrawImageFX: ", ex);
 				return false;
 			} finally {
 				try {
@@ -305,8 +313,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 						Marshal.FreeHGlobal(hBlurParams);
 					}
 				} catch (Exception ex) {
-					isBlurEnabled = false;
-					LOG.Error("Problem cleaning up DrawWithBlur: ", ex);
+					_isBlurEnabled = false;
+					Log.Error("Problem cleaning up DrawWithBlur: ", ex);
 				}
 			}
 		}

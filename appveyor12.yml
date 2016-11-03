@@ -67,12 +67,14 @@ deploy:
   auth_token:
     secure: 4sYcNGg7byBFtR7EkJHS8d3H3qP0u0LodlJWCV7g/4jEyv3vvVxqzh19zZ6Zgrf1
   prerelease: true
+  draft: true
   on:
     build_type: UNSTABLE
 - provider: GitHub
   tag: Greenshot-$(build_type)-$(APPVEYOR_BUILD_VERSION)
   auth_token:
     secure: 4sYcNGg7byBFtR7EkJHS8d3H3qP0u0LodlJWCV7g/4jEyv3vvVxqzh19zZ6Zgrf1
+  draft: true
   on:
     build_type: RELEASE
 notifications:

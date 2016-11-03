@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ namespace GreenshotImgurPlugin {
 	/// Description of ImgurUtils.
 	/// </summary>
 	public static class ImgurUtils {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ImgurUtils));
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ImgurUtils));
 		private const string SmallUrlPattern = "http://i.imgur.com/{0}s.jpg";
 		private static readonly ImgurConfiguration Config = IniConfig.GetIniSection<ImgurConfiguration>();
 		private const string AuthUrlPattern = "https://api.imgur.com/oauth2/authorize?response_type=code&client_id={ClientId}&redirect_uri={RedirectUrl}&state={State}";
@@ -64,7 +64,7 @@ namespace GreenshotImgurPlugin {
 						RetrieveImgurThumbnail(imgurInfo);
 						Config.runtimeImgurHistory.Add(hash, imgurInfo);
 					} else {
-						LOG.DebugFormat("Deleting not found ImgUr {0} from config.", hash);
+						Log.DebugFormat("Deleting not found ImgUr {0} from config.", hash);
 						Config.ImgurUploadHistory.Remove(hash);
 						saveNeeded = true;
 					}
@@ -74,16 +74,16 @@ namespace GreenshotImgurPlugin {
 						HttpWebResponse response = ((HttpWebResponse)wE.Response);
 						// Image no longer available
 						if (response.StatusCode == HttpStatusCode.Redirect) {
-							LOG.InfoFormat("ImgUr image for hash {0} is no longer available", hash);
+							Log.InfoFormat("ImgUr image for hash {0} is no longer available", hash);
 							Config.ImgurUploadHistory.Remove(hash);
 							redirected = true;
 						}
 					}
 					if (!redirected) {
-						LOG.Error("Problem loading ImgUr history for hash " + hash, wE);
+						Log.Error("Problem loading ImgUr history for hash " + hash, wE);
 					}
 				} catch (Exception e) {
-					LOG.Error("Problem loading ImgUr history for hash " + hash, e);
+					Log.Error("Problem loading ImgUr history for hash " + hash, e);
 				}
 			}
 			if (saveNeeded) {
@@ -119,7 +119,7 @@ namespace GreenshotImgurPlugin {
 			if (filename != null && Config.AddFilename) {
 				otherParameters.Add("name", filename);
 			}
-			string responseString;
+			string responseString = null;
 			if (Config.AnonymousAccess) {
 				// add key, we only use the other parameters for the AnonymousAccess
 				//otherParameters.Add("key", IMGUR_ANONYMOUS_API_KEY);
@@ -133,32 +133,40 @@ namespace GreenshotImgurPlugin {
 						ImageOutput.SaveToStream(surfaceToUpload, requestStream, outputSettings);
 					}
 		
-					using (WebResponse response = webRequest.GetResponse()) {
-						using (StreamReader reader = new StreamReader(response.GetResponseStream(), true)) {
-							responseString = reader.ReadToEnd();
-						}
+					using (WebResponse response = webRequest.GetResponse())
+					{
 						LogRateLimitInfo(response);
+						var responseStream = response.GetResponseStream();
+						if (responseStream != null)
+						{
+							using (StreamReader reader = new StreamReader(responseStream, true))
+							{
+								responseString = reader.ReadToEnd();
+							}
+						}
 					}
 				} catch (Exception ex) {
-					LOG.Error("Upload to imgur gave an exeption: ", ex);
+					Log.Error("Upload to imgur gave an exeption: ", ex);
 					throw;
 				}
 			} else {
 
-				var oauth2Settings = new OAuth2Settings();
-				oauth2Settings.AuthUrlPattern = AuthUrlPattern;
-				oauth2Settings.TokenUrl = TokenUrl;
-				oauth2Settings.RedirectUrl = "https://imgur.com";
-				oauth2Settings.CloudServiceName = "Imgur";
-				oauth2Settings.ClientId = ImgurCredentials.CONSUMER_KEY;
-				oauth2Settings.ClientSecret = ImgurCredentials.CONSUMER_SECRET;
-				oauth2Settings.AuthorizeMode = OAuth2AuthorizeMode.EmbeddedBrowser;
-				oauth2Settings.BrowserSize = new Size(680, 880);
+				var oauth2Settings = new OAuth2Settings
+				{
+					AuthUrlPattern = AuthUrlPattern,
+					TokenUrl = TokenUrl,
+					RedirectUrl = "https://imgur.com",
+					CloudServiceName = "Imgur",
+					ClientId = ImgurCredentials.CONSUMER_KEY,
+					ClientSecret = ImgurCredentials.CONSUMER_SECRET,
+					AuthorizeMode = OAuth2AuthorizeMode.EmbeddedBrowser,
+					BrowserSize = new Size(680, 880),
+					RefreshToken = Config.RefreshToken,
+					AccessToken = Config.AccessToken,
+					AccessTokenExpires = Config.AccessTokenExpires
+				};
 
 				// Copy the settings from the config, which is kept in memory and on the disk
-				oauth2Settings.RefreshToken = Config.RefreshToken;
-				oauth2Settings.AccessToken = Config.AccessToken;
-				oauth2Settings.AccessTokenExpires = Config.AccessTokenExpires;
 
 				try
 				{
@@ -179,6 +187,10 @@ namespace GreenshotImgurPlugin {
 					IniConfig.Save();
 				}
 			}
+			if (string.IsNullOrEmpty(responseString))
+			{
+				return null;
+			}
 			return ImgurInfo.ParseResponse(responseString);
 		}
 
@@ -188,19 +200,20 @@ namespace GreenshotImgurPlugin {
 		/// <param name="imgurInfo"></param>
 		public static void RetrieveImgurThumbnail(ImgurInfo imgurInfo) {
 			if (imgurInfo.SmallSquare == null) {
-				LOG.Warn("Imgur URL was null, not retrieving thumbnail.");
+				Log.Warn("Imgur URL was null, not retrieving thumbnail.");
 				return;
 			}
-			LOG.InfoFormat("Retrieving Imgur image for {0} with url {1}", imgurInfo.Hash, imgurInfo.SmallSquare);
+			Log.InfoFormat("Retrieving Imgur image for {0} with url {1}", imgurInfo.Hash, imgurInfo.SmallSquare);
 			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(string.Format(SmallUrlPattern, imgurInfo.Hash), HTTPMethod.GET);
 			webRequest.ServicePoint.Expect100Continue = false;
-			SetClientId(webRequest);
+			// Not for getting the thumbnail, in anonymous modus
+			//SetClientId(webRequest);
 			using (WebResponse response = webRequest.GetResponse()) {
 				LogRateLimitInfo(response);
 				Stream responseStream = response.GetResponseStream();
 				if (responseStream != null)
 				{
-					imgurInfo.Image = Image.FromStream(responseStream);
+					imgurInfo.Image = ImageHelper.FromStream(responseStream);
 				}
 			}
 		}
@@ -212,17 +225,22 @@ namespace GreenshotImgurPlugin {
 		/// <param name="deleteHash"></param>
 		/// <returns>ImgurInfo</returns>
 		public static ImgurInfo RetrieveImgurInfo(string hash, string deleteHash) {
-			string url = Config.ImgurApiUrl + "/image/" + hash;
-			LOG.InfoFormat("Retrieving Imgur info for {0} with url {1}", hash, url);
+			string url = Config.ImgurApi3Url + "/image/" + hash + ".xml";
+			Log.InfoFormat("Retrieving Imgur info for {0} with url {1}", hash, url);
 			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url, HTTPMethod.GET);
 			webRequest.ServicePoint.Expect100Continue = false;
 			SetClientId(webRequest);
-			string responseString;
+			string responseString = null;
 			try {
 				using (WebResponse response = webRequest.GetResponse()) {
 					LogRateLimitInfo(response);
-					using (StreamReader reader = new StreamReader(response.GetResponseStream(), true)) {
-						responseString = reader.ReadToEnd();
+					var responseStream = response.GetResponseStream();
+					if (responseStream != null)
+					{
+						using (StreamReader reader = new StreamReader(responseStream, true))
+						{
+							responseString = reader.ReadToEnd();
+						}
 					}
 				}
 			} catch (WebException wE) {
@@ -233,9 +251,13 @@ namespace GreenshotImgurPlugin {
 				}
 				throw;
 			}
-			LOG.Debug(responseString);
-			ImgurInfo imgurInfo = ImgurInfo.ParseResponse(responseString);
-			imgurInfo.DeleteHash = deleteHash;
+			ImgurInfo imgurInfo = null;
+			if (responseString != null)
+			{
+				Log.Debug(responseString);
+				imgurInfo = ImgurInfo.ParseResponse(responseString);
+				imgurInfo.DeleteHash = deleteHash;
+			}
 			return imgurInfo;
 		}
 
@@ -244,21 +266,26 @@ namespace GreenshotImgurPlugin {
 		/// </summary>
 		/// <param name="imgurInfo"></param>
 		public static void DeleteImgurImage(ImgurInfo imgurInfo) {
-			LOG.InfoFormat("Deleting Imgur image for {0}", imgurInfo.DeleteHash);
+			Log.InfoFormat("Deleting Imgur image for {0}", imgurInfo.DeleteHash);
 			
 			try {
-				string url = Config.ImgurApiUrl + "/delete/" + imgurInfo.DeleteHash;
-				HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url, HTTPMethod.GET);
+				string url = Config.ImgurApi3Url + "/image/" + imgurInfo.DeleteHash + ".xml";
+				HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url, HTTPMethod.DELETE);
 				webRequest.ServicePoint.Expect100Continue = false;
 				SetClientId(webRequest);
-				string responseString;
+				string responseString = null;
 				using (WebResponse response = webRequest.GetResponse()) {
 					LogRateLimitInfo(response);
-					using (StreamReader reader = new StreamReader(response.GetResponseStream(), true)) {
-						responseString = reader.ReadToEnd();
+					var responseStream = response.GetResponseStream();
+					if (responseStream != null)
+					{
+						using (StreamReader reader = new StreamReader(responseStream, true))
+						{
+							responseString = reader.ReadToEnd();
+						}
 					}
 				}
-				LOG.InfoFormat("Delete result: {0}", responseString);
+				Log.InfoFormat("Delete result: {0}", responseString);
 			} catch (WebException wE) {
 				// Allow "Bad request" this means we already deleted it
 				if (wE.Status == WebExceptionStatus.ProtocolError) {
@@ -280,7 +307,7 @@ namespace GreenshotImgurPlugin {
 		/// <param name="key"></param>
 		private static void LogHeader(IDictionary<string, string> nameValues, string key) {
 			if (nameValues.ContainsKey(key)) {
-				LOG.InfoFormat("key={0}", nameValues[key]);
+				Log.InfoFormat("key={0}", nameValues[key]);
 			}
 		}
 

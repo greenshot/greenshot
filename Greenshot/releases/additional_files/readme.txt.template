@@ -7,7 +7,16 @@ CHANGE LOG:
 
 All details to our tickets can be found here: https://greenshot.atlassian.net
 
+
 @DETAILVERSION@
+
+Changes for this release:
+This has Imgur improvements for the newer API version, this is a backport from Greenshot 1.2.9
+With the move to a new hosting platform, we also noticed our update checks are way to often, this needed to be reduced.
+
+
+
+1.2.8.12-cab854b RELEASE
 
 There were some major issues with the authenticated (non anonymous) uploads to Imgur.
 After contacting Imgur they told us that their old API was deprecated or disabled, unfortunately this was not communicated.
