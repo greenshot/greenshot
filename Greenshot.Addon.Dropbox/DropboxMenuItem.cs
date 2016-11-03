@@ -1,8 +1,6 @@
 ﻿using System.ComponentModel.Composition;
-using Caliburn.Micro;
 using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.CaliburnMicro.Menu;
-using Dapplo.Utils;
 using Greenshot.Addon.Dropbox.Forms;
 using MahApps.Metro.IconPacks;
 

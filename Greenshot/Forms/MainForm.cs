@@ -45,6 +45,7 @@ using Dapplo.Utils;
 using Timer = System.Timers.Timer;
 using Dapplo.Log.Facade;
 using Dapplo.Utils.Resolving;
+using Greenshot;
 
 namespace Greenshot.Forms
 {
@@ -68,7 +69,7 @@ namespace Greenshot.Forms
 
 		public static void Start(Arguments arguments)
 		{
-			Application.ThreadException += (s, e) => GreenshotStart.ShowException(e.Exception);
+			//Application.ThreadException += (s, e) => GreenshotStart.ShowException(e.Exception);
 
 			// From here on we continue starting Greenshot
 			Application.EnableVisualStyles();
@@ -145,35 +146,22 @@ namespace Greenshot.Forms
 			if (PortableHelper.IsPortable)
 			{
 				var pafPath = Path.Combine(Application.StartupPath, $@"App\{ApplicationName}");
-				GreenshotStart.Bootstrapper.AddScanDirectory(pafPath);
+				//GreenshotStart.Bootstrapper.AddScanDirectory(pafPath);
 			}
 			else
 			{
 				var pluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
-				GreenshotStart.Bootstrapper.AddScanDirectory(pluginPath);
+				//GreenshotStart.Bootstrapper.AddScanDirectory(pluginPath);
 
 				var applicationPath = Path.GetDirectoryName(Application.ExecutablePath);
-				GreenshotStart.Bootstrapper.AddScanDirectory(applicationPath);
+				//GreenshotStart.Bootstrapper.AddScanDirectory(applicationPath);
 			}
 			// The GreenshotPlugin assembly needs to be added manually!
-			GreenshotStart.Bootstrapper.FindAndLoadAssemblies("Greenshot.Addon*");
+			//GreenshotStart.Bootstrapper.FindAndLoadAssemblies("Greenshot.Addon*");
 
-			UiContext.RunOn(
-				// this will use current synchronization context
-				async () =>
-				{
-					// Initialize the bootstrapper, so we can export
-					await GreenshotStart.Bootstrapper.InitializeAsync();
-
-					// Notify icon
-					GreenshotStart.Bootstrapper.Export(notifyIcon);
-
-					// Run!
-					await GreenshotStart.Bootstrapper.RunAsync();
-				}).Wait();
 
 			// Check destinations, remove all that don't exist
-			var destinations = GreenshotStart.Bootstrapper.GetExports<IDestination, IDestinationMetadata>();
+			var destinations = Greenshot.Start.Dapplication.Bootstrapper.GetExports<IDestination, IDestinationMetadata>();
 			foreach (var destination in coreConfiguration.OutputDestinations.ToArray())
 			{
 				if (destinations.Count(x => x.Value.Designation == destination) == 0)
@@ -690,7 +678,7 @@ namespace Greenshot.Forms
 			}
 			var allScreensBounds = WindowCapture.GetScreenBounds();
 
-			var captureScreenItem = new ToolStripMenuItem(language.ContextmenuCapturefullscreenAll);
+			var captureScreenItem = new ToolStripMenuItem(language.ContextmenuCaptureFullScreenAll);
 			captureScreenItem.Click += (item, eventArgs) =>
 			{
 				Task.Run(async () => await CaptureHelper.CaptureFullscreenAsync(false, ScreenCaptureMode.FullScreen).ConfigureAwait(false));
@@ -701,19 +689,19 @@ namespace Greenshot.Forms
 				var deviceAlignment = "";
 				if (display.Bounds.Top == allScreensBounds.Top && display.Bounds.Bottom != allScreensBounds.Bottom)
 				{
-					deviceAlignment += " " + language.ContextmenuCapturefullscreenTop;
+					deviceAlignment += " " + language.ContextmenuCaptureFullScreenTop;
 				}
 				else if (display.Bounds.Top != allScreensBounds.Top && display.Bounds.Bottom == allScreensBounds.Bottom)
 				{
-					deviceAlignment += " " + language.ContextmenuCapturefullscreenBottom;
+					deviceAlignment += " " + language.ContextmenuCaptureFullScreenBottom;
 				}
 				if (display.Bounds.Left == allScreensBounds.Left && display.Bounds.Right != allScreensBounds.Right)
 				{
-					deviceAlignment += " " + language.ContextmenuCapturefullscreenLeft;
+					deviceAlignment += " " + language.ContextmenuCaptureFullScreenLeft;
 				}
 				else if (display.Bounds.Left != allScreensBounds.Left && display.Bounds.Right == allScreensBounds.Right)
 				{
-					deviceAlignment += " " + language.ContextmenuCapturefullscreenRight;
+					deviceAlignment += " " + language.ContextmenuCaptureFullScreenRight;
 				}
 				captureScreenItem = new ToolStripMenuItem(deviceAlignment);
 				captureScreenItem.Click += (item, eventArgs) =>
@@ -1273,7 +1261,7 @@ namespace Greenshot.Forms
 				case ClickActions.OpenLastInEditor:
 					if (File.Exists(coreConfiguration.OutputFileAsFullpath))
 					{
-						var editor = GreenshotStart.Bootstrapper.GetExports<IDestination>().Where(x => x.Value.Designation == BuildInDestinationEnum.Editor.ToString()).Select(x => x.Value).First();
+						var editor = Greenshot.Start.Dapplication.Bootstrapper.GetExports<IDestination>().Where(x => x.Value.Designation == BuildInDestinationEnum.Editor.ToString()).Select(x => x.Value).First();
 						await CaptureHelper.CaptureFileAsync(coreConfiguration.OutputFileAsFullpath, editor, token);
 					}
 					break;
@@ -1393,7 +1381,7 @@ namespace Greenshot.Forms
 			{
 				Task.Run(async () =>
 				{
-					await GreenshotStart.Bootstrapper.ShutdownAsync();
+					await Greenshot.Start.Dapplication.Bootstrapper.StopAsync();
 				}).Wait();
 				
 			}

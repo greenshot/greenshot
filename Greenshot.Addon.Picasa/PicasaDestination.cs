@@ -91,7 +91,7 @@ namespace Greenshot.Addon.Picasa
 			catch (TaskCanceledException tcEx)
 			{
 				returnValue.Text = string.Format(PicasaLanguage.UploadFailure, PicasaDesignation);
-                returnValue.NotificationType = NotificationTypes.Cancel;
+				returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
 				Log.Info().WriteLine(tcEx.Message);
 			}
@@ -104,6 +104,6 @@ namespace Greenshot.Addon.Picasa
 				MessageBox.Show(PicasaLanguage.UploadFailure + " " + e.Message, PicasaDesignation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			return returnValue;
-        }
+		}
 	}
 }

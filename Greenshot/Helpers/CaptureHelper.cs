@@ -292,13 +292,6 @@ namespace Greenshot.Helpers
 			Log.Debug().WriteLine("Starting MakeCaptureAsync");
 			Task<IList<WindowDetails>> retrieveWindowDetailsTask = null;
 
-			// This fixes a problem when a balloon is still visible and a capture needs to be taken
-			// forcefully removes the balloon!
-			if (!CoreConfiguration.HideTrayicon)
-			{
-				MainForm.Instance.NotifyIcon.Visible = false;
-				MainForm.Instance.NotifyIcon.Visible = true;
-			}
 			Log.Debug().WriteLine("Capturing with mode {0} and using Cursor {1}", _captureMode, _captureMouseCursor);
 			_capture.CaptureDetails.CaptureMode = _captureMode;
 
@@ -580,7 +573,7 @@ namespace Greenshot.Helpers
 			{
 				// Force children retrieval, sometimes windows close on losing focus and this is solved by caching
 				int goLevelDeep = CoreConfiguration.WindowCaptureAllChildLocations ? 20 : 3;
-                var visibleWindows = from window in WindowDetails.GetMetroApps().Concat(WindowDetails.GetAllWindows())
+				var visibleWindows = from window in WindowDetails.GetMetroApps().Concat(WindowDetails.GetAllWindows())
 					where window.Visible && (window.WindowRectangle.Width != 0 && window.WindowRectangle.Height != 0)
 					select window;
 
@@ -599,8 +592,8 @@ namespace Greenshot.Helpers
 
 		private void AddConfiguredDestination()
 		{
-			IEnumerable<IDestination> destinations = GreenshotStart.Bootstrapper.GetExports<IDestination>().Where(x => CoreConfiguration.OutputDestinations.Contains(x.Value.Designation)).Select(x => x.Value);
-            foreach (var destination in destinations)
+			IEnumerable<IDestination> destinations = Start.Dapplication.Bootstrapper.GetExports<IDestination>().Where(x => CoreConfiguration.OutputDestinations.Contains(x.Value.Designation)).Select(x => x.Value);
+			foreach (var destination in destinations)
 			{
 				_capture.CaptureDetails.AddDestination(destination);
 			}
@@ -1092,10 +1085,12 @@ namespace Greenshot.Helpers
 		{
 			// Workaround for proble with DPI retrieval, the FromHwnd activates the window...
 			var previouslyActiveWindow = WindowDetails.GetActiveWindow();
+
 			await UiContext.RunOn(() =>
 			{
 				// Workaround for changed DPI settings in Windows 7
-				using (var graphics = Graphics.FromHwnd(MainForm.Instance.Handle))
+				// TODO: Check why I wrote Windows 7, and if the DesktopWindow works just like MainForm.Instance
+				using (var graphics = Graphics.FromHwnd(User32.GetDesktopWindow()))
 				{
 					_capture.CaptureDetails.DpiX = graphics.DpiX;
 					_capture.CaptureDetails.DpiY = graphics.DpiY;

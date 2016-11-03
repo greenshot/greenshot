@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.ComponentModel.Composition;
 using Caliburn.Micro;
 using Greenshot.Addon.Interfaces;
@@ -28,7 +27,8 @@ namespace Greenshot.Services
 {
 	/// <summary>
 	/// This is the notification center, all uploads, save etc go through here
-	/// If code needs to do something with this information, register the OnNotification
+	/// If code needs to do something with this information, register the OnNotification.
+	/// This can e.g. be used for Toasts in Windows 10
 	/// </summary>
 	[Export(typeof(INotificationCenter))]
 	public class NotificationCenter : INotificationCenter

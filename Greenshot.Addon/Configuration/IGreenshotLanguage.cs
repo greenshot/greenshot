@@ -147,52 +147,52 @@ namespace Greenshot.Addon.Configuration
 			get;
 		}
 
-		string ContextmenuCapturearea
+		string ContextmenuCaptureArea
 		{
 			get;
 		}
 
-		string ContextmenuCaptureclipboard
+		string ContextmenuCaptureClipboard
 		{
 			get;
 		}
 
-		string ContextmenuCapturefullscreen
+		string ContextmenuCaptureFullScreen
 		{
 			get;
 		}
 
-		string ContextmenuCapturefullscreenAll
+		string ContextmenuCaptureFullScreenAll
 		{
 			get;
 		}
 
-		string ContextmenuCapturefullscreenLeft
+		string ContextmenuCaptureFullScreenLeft
 		{
 			get;
 		}
 
-		string ContextmenuCapturefullscreenTop
+		string ContextmenuCaptureFullScreenTop
 		{
 			get;
 		}
 
-		string ContextmenuCapturefullscreenRight
+		string ContextmenuCaptureFullScreenRight
 		{
 			get;
 		}
 
-		string ContextmenuCapturefullscreenBottom
+		string ContextmenuCaptureFullScreenBottom
 		{
 			get;
 		}
 
-		string ContextmenuCapturelastregion
+		string ContextmenuCaptureLastRegion
 		{
 			get;
 		}
 
-		string ContextmenuCapturewindow
+		string ContextmenuCaptureWindow
 		{
 			get;
 		}
@@ -238,7 +238,7 @@ namespace Greenshot.Addon.Configuration
 		}
 
 		[DefaultValue("Error")]
-        string Error
+		string Error
 		{
 			get;
 		}

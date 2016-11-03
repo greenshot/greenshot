@@ -22,22 +22,12 @@
 using Dapplo.Addons.Bootstrapper;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
-using Dapplo.Config.Support;
 using Dapplo.Log.Facade;
-using Dapplo.Windows.Native;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
-using Greenshot.Addon.Extensions;
-using Greenshot.Forms;
 using Greenshot.Helpers;
-using System;
-using System.Diagnostics;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
-using Dapplo.HttpExtensions;
-
 using Dapplo.Log.Loggers;
 
 #if !DEBUG
@@ -56,21 +46,15 @@ namespace Greenshot
 		private const string MutexId = "F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08";
 		public static string LogFileLocation = null;
 		public const string ApplicationName = "Greenshot";
-		private static readonly ApplicationBootstrapper GreenshotBootstrapper = new ApplicationBootstrapper(ApplicationName, MutexId);
 		protected static IniConfig iniConfig;
 		protected static IGreenshotLanguage language;
 		protected static ICoreConfiguration coreConfiguration;
 
 
-		public static ApplicationBootstrapper Bootstrapper => GreenshotBootstrapper;
-
 		public static void Start(string[] args)
 		{
 			// Set the Thread name, is better than "1"
 			Thread.CurrentThread.Name = ApplicationName;
-			// Handle exceptions
-			TaskScheduler.UnobservedTaskException += (s, e) => ShowException(e.Exception);
-			AppDomain.CurrentDomain.UnhandledException += (s, e) => ShowException(e.ExceptionObject as Exception);
 
 			// Read arguments
 			var arguments = new Arguments(args);
@@ -114,132 +98,9 @@ namespace Greenshot
 				// Read configuration & languages
 				languageLoader.CorrectMissingTranslations();
 				language = await LanguageLoader.Current.RegisterAndGetAsync<IGreenshotLanguage>();
-				// Read the http configuration and set it to the framework
-				HttpExtensionsGlobals.HttpSettings = await iniConfig.RegisterAndGetAsync<INetworkConfiguration>();
-
-#if !DEBUG
-				// Read the log configuration and set it to the framework
-				var logConfiguration = await iniConfig.RegisterAndGetAsync<ILogConfiguration>();
-				LogSettings.RegisterDefaultLogger<FileLogger>(LogLevels.Verbose, logConfiguration);
-#endif
 
 			}).Wait();
 
-			// Log the startup
-			Log.Info().WriteLine("Starting: {0}", EnvironmentInfo.EnvironmentToString(false));
-
-			try
-			{
-				// Fix for Bug 2495900, Multi-user Environment
-				// check whether there's an local instance running already
-				if (!GreenshotBootstrapper.IsMutexLocked)
-				{
-					// Other instance is running, call a Greenshot client or exit etc
-
-					if (arguments.FilesToOpen.Count > 0)
-					{
-						GreenshotClient.OpenFiles(arguments.FilesToOpen);
-					}
-
-					if (arguments.IsExit)
-					{
-						GreenshotClient.Exit();
-					}
-
-					ShowOtherInstances();
-					GreenshotBootstrapper.Dispose();
-					return;
-				}
-
-				if (!string.IsNullOrWhiteSpace(arguments.Language))
-				{
-					// Set language
-					coreConfiguration.Language = arguments.Language;
-				}
-
-				MainForm.Start(arguments);
-			}
-			catch (Exception ex)
-			{
-				Log.Error().WriteLine(ex, "Exception in startup.");
-				ShowException(ex);
-			}
-		}
-
-		/// <summary>
-		/// Log and display any unhandled exceptions
-		/// </summary>
-		/// <param name="exception">Exception</param>
-		public static void ShowException(Exception exception)
-		{
-			if (exception != null)
-			{
-				var exceptionText = EnvironmentInfo.BuildReport(exception);
-				Log.Error().WriteLine(EnvironmentInfo.ExceptionToString(exception));
-				new BugReportForm(exceptionText).ShowDialog();
-			}
-		}
-
-		/// <summary>
-		/// Helper method to show the other running instances
-		/// </summary>
-		private static void ShowOtherInstances()
-		{
-			var instanceInfo = new StringBuilder();
-			var matchedThisProcess = false;
-			var index = 1;
-			int currentProcessId;
-			using (var currentProcess = Process.GetCurrentProcess())
-			{
-				currentProcessId = currentProcess.Id;
-			}
-			foreach (var greenshotProcess in Process.GetProcessesByName(ApplicationName))
-			{
-				try
-				{
-					instanceInfo.Append(index++ + ": ").AppendLine(Kernel32.GetProcessPath(greenshotProcess.Id));
-					if (currentProcessId == greenshotProcess.Id)
-					{
-						matchedThisProcess = true;
-					}
-				}
-				catch (Exception ex)
-				{
-					Log.Debug().WriteLine(ex, "Problem retrieving process path of a running Greenshot instance");
-				}
-				greenshotProcess.Dispose();
-			}
-			if (!matchedThisProcess)
-			{
-				using (var currentProcess = Process.GetCurrentProcess())
-				{
-					instanceInfo.Append(index + ": ").AppendLine(Kernel32.GetProcessPath(currentProcess.Id));
-				}
-			}
-
-			// A dirty fix to make sure the messagebox is visible as a Greenshot window on the taskbar
-			var dummyWindow = new Window
-			{
-				ShowInTaskbar = true,
-				WindowStartupLocation = WindowStartupLocation.Manual,
-				Left = int.MinValue,
-				Top = int.MinValue,
-				SizeToContent = SizeToContent.Manual,
-				ResizeMode = ResizeMode.NoResize,
-				Width = 0,
-				Height = 0,
-				Icon = GreenshotResources.GetGreenshotImage().ToBitmapSource()
-			};
-			try
-			{
-				dummyWindow.Show();
-				// Make sure the language files are loaded, so we can show the error message "Greenshot is already running" in the right language.
-				MessageBox.Show(dummyWindow, language.TranslationOrDefault(t => t.ErrorMultipleinstances) + "\r\n" + instanceInfo, language.TranslationOrDefault(t => t.Error), MessageBoxButton.OK, MessageBoxImage.Exclamation);
-			}
-			finally
-			{
-				dummyWindow.Close();
-			}
 		}
 	}
 }

@@ -30,6 +30,9 @@ using Dapplo.CaliburnMicro.Metro;
 
 namespace Greenshot.Ui
 {
+	/// <summary>
+	/// Initialize the UI for the startup
+	/// </summary>
 	[StartupAction(StartupOrder = (int)CaliburnStartOrder.Bootstrapper + 1)]
 	public class ConfigureUiStartupAction : IStartupAction
 	{

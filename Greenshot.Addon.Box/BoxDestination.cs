@@ -134,6 +134,6 @@ namespace Greenshot.Addon.Box
 				MessageBox.Show(BoxLanguage.UploadFailure + " " + e.Message, BoxDesignation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			return returnValue;
-        }
+		}
 	}
 }

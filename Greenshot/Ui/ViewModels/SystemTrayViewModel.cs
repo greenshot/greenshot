@@ -25,6 +25,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using Caliburn.Micro;
+using Dapplo.CaliburnMicro.Behaviors;
 using Dapplo.CaliburnMicro.Menu;
 using Dapplo.CaliburnMicro.NotifyIconWpf;
 using Dapplo.CaliburnMicro.NotifyIconWpf.ViewModels;
@@ -53,6 +54,9 @@ namespace Greenshot.Ui.ViewModels
 
 		[ImportMany("systray", typeof(IMenuItem))]
 		private IEnumerable<IMenuItem> ContextMenuItems { get; set; }
+
+		[ImportMany("systray", typeof(IMenuItemProvider))]
+		private IEnumerable<IMenuItemProvider> ContextMenuItemProviders { get; set; }
 
 		[Import]
 		private IEventAggregator EventAggregator { get; set; }
@@ -95,7 +99,8 @@ namespace Greenshot.Ui.ViewModels
 				Background = _brushConverter.ConvertFromString("#FF3D3D3D") as SolidColorBrush
 			};
 
-			SetIcon(logo);
+			// Use behavior to set the icon
+			IconBehavior.SetIcon(TrayIcon as FrameworkElement, logo);
 
 			base.OnActivate();
 
@@ -116,7 +121,9 @@ namespace Greenshot.Ui.ViewModels
 		/// </summary>
 		private void BuildSystrayContextMenu()
 		{
-			var items = ContextMenuItems.ToList();
+			var items = new List<IMenuItem>();
+			items.AddRange(ContextMenuItems);
+			items.AddRange(ContextMenuItemProviders.SelectMany(contextMenuItemProvider => contextMenuItemProvider.ProvideMenuItems()));
 			if (items.Count > 0)
 			{
 				items.Add(new MenuItem
@@ -142,6 +149,13 @@ namespace Greenshot.Ui.ViewModels
 				},
 				DisplayName = "Greenshot"
 			});
+
+			items.Add(new MenuItem
+			{
+				Style = MenuItemStyles.Separator,
+				Id = "C_Separator"
+			});
+
 			var exitMenuItem = new MenuItem
 			{
 				Id = "Z_Exit",
