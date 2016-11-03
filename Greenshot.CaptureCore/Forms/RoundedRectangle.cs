@@ -22,7 +22,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 
-namespace Greenshot.Helpers
+namespace Greenshot.CaptureCore.Forms
 {
 	/// <summary>
 	/// TODO: currently this is only used in the capture form, we might move this code directly to there!

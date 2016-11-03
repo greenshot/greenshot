@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Addons.Bootstrapper;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using Dapplo.Log.Facade;

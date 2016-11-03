@@ -27,11 +27,11 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 
 [assembly: AssemblyTitle("Greenshot")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Greenshot is a windows screenshot tool")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Greenshot")]
 [assembly: AssemblyProduct("Greenshot")]
-[assembly: AssemblyCopyright("")]
+[assembly: AssemblyCopyright("Copyright © Greenshot 2007-2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

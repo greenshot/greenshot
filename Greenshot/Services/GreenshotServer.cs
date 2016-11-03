@@ -35,6 +35,7 @@ using Greenshot.Addon.Configuration;
 using Dapplo.Utils;
 using Dapplo.Log.Facade;
 using Greenshot.Addon.Core;
+using Greenshot.CaptureCore;
 
 namespace Greenshot.Services
 {

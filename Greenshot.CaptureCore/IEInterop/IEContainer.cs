@@ -19,18 +19,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using mshtml;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using Greenshot.Addon.Core;
-using SHDocVw;
-using IServiceProvider = Greenshot.Interop.IServiceProvider;
 using Dapplo.Log.Facade;
+using Greenshot.Addon.Core;
+using mshtml;
+using SHDocVw;
+using IServiceProvider = Greenshot.CaptureCore.Interop.IServiceProvider;
 
-namespace Greenshot.Helpers.IEInterop
+namespace Greenshot.CaptureCore.IEInterop
 {
 	public class DocumentContainer
 	{

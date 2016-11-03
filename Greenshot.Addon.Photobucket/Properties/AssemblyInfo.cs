@@ -32,7 +32,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Greenshot")]
 [assembly: AssemblyProduct("Photobucket Plugin")]
-[assembly: AssemblyCopyright("Copyright (C) 2007-2016")]
+[assembly: AssemblyCopyright("Copyright © Greenshot 2007-2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

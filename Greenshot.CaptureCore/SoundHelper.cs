@@ -19,16 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
 using System;
 using System.IO;
 using System.Media;
-using System.Reflection;
-using System.Resources;
-using Greenshot.Addon.Configuration;
+using Dapplo.Config.Ini;
 using Dapplo.Log.Facade;
+using Dapplo.Utils.Embedded;
+using Greenshot.Addon.Configuration;
 
-namespace Greenshot.Helpers
+namespace Greenshot.CaptureCore
 {
 	/// <summary>
 	/// Soundhelper
@@ -57,12 +56,10 @@ namespace Greenshot.Helpers
 						return;
 					}
 				}
-				
-				var resources = new ResourceManager("Greenshot.Sounds", Assembly.GetExecutingAssembly());
 
 				_soundPlayer = new SoundPlayer
 				{
-					Stream = new MemoryStream((byte[]) resources.GetObject("camera"))
+					Stream = typeof(SoundHelper).Assembly.GetEmbeddedResourceAsStream("camera.wav")
 				};
 			}
 			catch (Exception e)

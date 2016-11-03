@@ -19,10 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using Greenshot.Forms;
-using Dapplo.Windows.Native;
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -32,17 +28,19 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
+using Dapplo.Log.Facade;
 using Dapplo.Utils;
+using Dapplo.Windows.Native;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
-using Greenshot.Addon.Editor.Drawing;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
-using Greenshot.Windows;
-using Dapplo.Log.Facade;
+using Greenshot.CaptureCore.Forms;
+using Greenshot.CaptureCore.Views;
 
-namespace Greenshot.Helpers
+namespace Greenshot.CaptureCore
 {
 	/// <summary>
 	/// CaptureHelper contains all the capture logic 
@@ -592,101 +590,10 @@ namespace Greenshot.Helpers
 
 		private void AddConfiguredDestination()
 		{
-			IEnumerable<IDestination> destinations = Start.Dapplication.Bootstrapper.GetExports<IDestination>().Where(x => CoreConfiguration.OutputDestinations.Contains(x.Value.Designation)).Select(x => x.Value);
+			var destinations = Enumerable.Empty<IDestination>(); //Start.Dapplication.Bootstrapper.GetExports<IDestination>().Where(x => CoreConfiguration.OutputDestinations.Contains(x.Value.Designation)).Select(x => x.Value);
 			foreach (var destination in destinations)
 			{
 				_capture.CaptureDetails.AddDestination(destination);
-			}
-		}
-
-		/// <summary>
-		/// If a balloon tip is show for a taken capture, this handles the click on it
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void OpenCaptureOnClick(object sender, EventArgs e)
-		{
-			var eventArgs = MainForm.Instance.NotifyIcon.Tag as SurfaceMessageEventArgs;
-			if (eventArgs == null)
-			{
-				Log.Warn().WriteLine("OpenCaptureOnClick called without SurfaceMessageEventArgs");
-				RemoveEventHandler(sender, e);
-				return;
-			}
-			var storedAtLocation = eventArgs.Capture?.CaptureDetails?.StoredAt;
-			if (storedAtLocation == null)
-			{
-				Log.Warn().WriteLine("OpenCaptureOnClick called without CaptureDetails or StoredAt");
-				RemoveEventHandler(sender, e);
-				return;
-			}
-			if (storedAtLocation.Scheme == "file")
-			{
-				var localPath = Path.GetDirectoryName(storedAtLocation.LocalPath);
-
-				string windowsPath = Environment.GetEnvironmentVariable("SYSTEMROOT");
-				if (windowsPath != null)
-				{
-					string explorerPath = Path.Combine(windowsPath, "explorer.exe");
-					if (File.Exists(explorerPath))
-					{
-						var psi = new ProcessStartInfo(explorerPath)
-						{
-							Arguments = Path.GetDirectoryName(localPath),
-							UseShellExecute = false
-						};
-						using (var process = new Process())
-						{
-							process.StartInfo = psi;
-							process.Start();
-						}
-					}
-				}
-			}
-			else
-			{
-				Process.Start(storedAtLocation.ToString());
-			}
-			Log.Debug().WriteLine("Deregistering the BalloonTipClicked");
-			RemoveEventHandler(sender, e);
-		}
-
-		private void RemoveEventHandler(object sender, EventArgs e)
-		{
-			MainForm.Instance.NotifyIcon.BalloonTipClicked -= OpenCaptureOnClick;
-			MainForm.Instance.NotifyIcon.BalloonTipClosed -= RemoveEventHandler;
-			MainForm.Instance.NotifyIcon.Tag = null;
-		}
-
-		/// <summary>
-		/// This is the SufraceMessageEvent receiver, currently unused.
-		/// TODO: This functionality should be in the NotificationCenter
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="eventArgs"></param>
-		private void SurfaceMessageReceived(object sender, SurfaceMessageEventArgs eventArgs)
-		{
-			if (string.IsNullOrEmpty(eventArgs?.Message))
-			{
-				return;
-			}
-			switch (eventArgs.MessageType)
-			{
-				case SurfaceMessageTyp.Error:
-					MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Error);
-					break;
-				case SurfaceMessageTyp.Info:
-					MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Info);
-					break;
-				case SurfaceMessageTyp.FileSaved:
-				case SurfaceMessageTyp.UploadedUri:
-					// Show a balloon and register an event handler to open the "capture" for if someone clicks the balloon.
-					MainForm.Instance.NotifyIcon.BalloonTipClicked += OpenCaptureOnClick;
-					MainForm.Instance.NotifyIcon.BalloonTipClosed += RemoveEventHandler;
-					// Store for later usage
-					MainForm.Instance.NotifyIcon.Tag = eventArgs;
-					MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", eventArgs.Message, ToolTipIcon.Info);
-					break;
 			}
 		}
 
@@ -1118,7 +1025,8 @@ namespace Greenshot.Helpers
 					// Make sure the form is hidden after showing, even if an exception occurs, so all errors will be shown
 					try
 					{
-						result = captureForm.ShowDialog(MainForm.Instance);
+						//result = captureForm.ShowDialog(MainForm.Instance);
+						result = captureForm.ShowDialog();
 					}
 					finally
 					{

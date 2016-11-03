@@ -37,9 +37,9 @@ namespace Greenshot.Forms
 	public class ToolStripMenuSelectList : ToolStripMenuItem
 	{
 		private static ICoreConfiguration coreConfiguration = IniConfig.Current.Get<ICoreConfiguration>();
-		private bool multiCheckAllowed = false;
-		private bool updateInProgress = false;
-		private static Image defaultImage;
+		private readonly bool _multiCheckAllowed;
+		private bool _updateInProgress;
+		private static Image _defaultImage;
 
 		/// <summary>
 		/// Occurs when one of the list's child element's Checked state changes.
@@ -56,16 +56,13 @@ namespace Greenshot.Forms
 		{
 			Identifier = identifier;
 			CheckOnClick = false;
-			multiCheckAllowed = allowMultiCheck;
-			if (defaultImage == null || defaultImage.Size != coreConfiguration.IconSize)
+			_multiCheckAllowed = allowMultiCheck;
+			if (_defaultImage == null || _defaultImage.Size != coreConfiguration.IconSize)
 			{
-				if (defaultImage != null)
-				{
-					defaultImage.Dispose();
-				}
-				defaultImage = ImageHelper.CreateEmpty(coreConfiguration.IconSize.Width, coreConfiguration.IconSize.Height, PixelFormat.Format32bppArgb, Color.Transparent, 96f, 96f);
+				_defaultImage?.Dispose();
+				_defaultImage = ImageHelper.CreateEmpty(coreConfiguration.IconSize.Width, coreConfiguration.IconSize.Height, PixelFormat.Format32bppArgb, Color.Transparent, 96f, 96f);
 			}
-			Image = defaultImage;
+			Image = _defaultImage;
 		}
 
 		public ToolStripMenuSelectList() : this(null, false)
@@ -83,7 +80,7 @@ namespace Greenshot.Forms
 		{
 			get
 			{
-				IEnumerator items = DropDownItems.GetEnumerator();
+				var items = DropDownItems.GetEnumerator();
 				while (items.MoveNext())
 				{
 					ToolStripMenuSelectListItem tsmi = (ToolStripMenuSelectListItem) items.Current;
@@ -99,14 +96,14 @@ namespace Greenshot.Forms
 				IEnumerator items = DropDownItems.GetEnumerator();
 				while (items.MoveNext())
 				{
-					ToolStripMenuSelectListItem tsmi = (ToolStripMenuSelectListItem) items.Current;
-					if (!multiCheckAllowed && !tsmi.Equals(value))
+					var toolStripMenuSelectListItem = (ToolStripMenuSelectListItem) items.Current;
+					if (!_multiCheckAllowed && !toolStripMenuSelectListItem.Equals(value))
 					{
-						tsmi.Checked = false;
+						toolStripMenuSelectListItem.Checked = false;
 					}
-					else if (tsmi.Equals(value))
+					else if (toolStripMenuSelectListItem.Equals(value))
 					{
-						tsmi.Checked = true;
+						toolStripMenuSelectListItem.Checked = true;
 					}
 				}
 			}
@@ -119,21 +116,21 @@ namespace Greenshot.Forms
 		{
 			get
 			{
-				List<ToolStripMenuSelectListItem> sel = new List<ToolStripMenuSelectListItem>();
-				IEnumerator items = DropDownItems.GetEnumerator();
+				var toolStripMenuSelectListItems = new List<ToolStripMenuSelectListItem>();
+				var items = DropDownItems.GetEnumerator();
 				while (items.MoveNext())
 				{
-					ToolStripMenuSelectListItem tsmi = (ToolStripMenuSelectListItem) items.Current;
-					if (tsmi.Checked)
+					var toolStripMenuSelectListItem = (ToolStripMenuSelectListItem) items.Current;
+					if (toolStripMenuSelectListItem.Checked)
 					{
-						sel.Add(tsmi);
+						toolStripMenuSelectListItems.Add(toolStripMenuSelectListItem);
 					}
 				}
-				return sel.ToArray();
+				return toolStripMenuSelectListItems.ToArray();
 			}
 			set
 			{
-				if (!multiCheckAllowed)
+				if (!_multiCheckAllowed)
 				{
 					throw new ArgumentException("Writing to checkedItems is only allowed in multi-check mode. Either set allowMultiCheck to true or use set SelectedItem instead of SelectedItems.");
 				}
@@ -141,24 +138,24 @@ namespace Greenshot.Forms
 				IEnumerator sel = value.GetEnumerator();
 				while (items.MoveNext())
 				{
-					ToolStripMenuSelectListItem tsmi = (ToolStripMenuSelectListItem) items.Current;
+					var toolStripMenuSelectListItem = (ToolStripMenuSelectListItem) items.Current;
 					while (sel.MoveNext())
 					{
-						if (tsmi.Equals(sel.Current))
+						if (toolStripMenuSelectListItem.Equals(sel.Current))
 						{
-							tsmi.Checked = true;
+							toolStripMenuSelectListItem.Checked = true;
 						}
 						else
 						{
-							tsmi.Checked = false;
+							toolStripMenuSelectListItem.Checked = false;
 						}
-						if (!multiCheckAllowed && !tsmi.Equals(sel.Current))
+						if (!_multiCheckAllowed && !toolStripMenuSelectListItem.Equals(sel.Current))
 						{
-							tsmi.Checked = false;
+							toolStripMenuSelectListItem.Checked = false;
 						}
-						else if (tsmi.Equals(value))
+						else if (toolStripMenuSelectListItem.Equals(value))
 						{
-							tsmi.Checked = true;
+							toolStripMenuSelectListItem.Checked = true;
 						}
 					}
 				}
@@ -167,22 +164,19 @@ namespace Greenshot.Forms
 
 		private void ItemCheckStateChanged(object sender, EventArgs e)
 		{
-			if (updateInProgress)
+			if (_updateInProgress)
 			{
 				return;
 			}
-			ToolStripMenuSelectListItem tsmi = (ToolStripMenuSelectListItem) sender;
-			updateInProgress = true;
-			if (tsmi.Checked && !multiCheckAllowed)
+			var toolStripMenuSelectListItem = (ToolStripMenuSelectListItem) sender;
+			_updateInProgress = true;
+			if (toolStripMenuSelectListItem.Checked && !_multiCheckAllowed)
 			{
 				UncheckAll();
-				tsmi.Checked = true;
+				toolStripMenuSelectListItem.Checked = true;
 			}
-			updateInProgress = false;
-			if (CheckedChanged != null)
-			{
-				CheckedChanged(this, new ItemCheckedChangedEventArgs(tsmi));
-			}
+			_updateInProgress = false;
+			CheckedChanged?.Invoke(this, new ItemCheckedChangedEventArgs(toolStripMenuSelectListItem));
 		}
 
 		/// <summary>
@@ -194,24 +188,26 @@ namespace Greenshot.Forms
 		/// <param name="isChecked">whether the item is initially checked</param>
 		public void AddItem(string label, Image image, Object data, bool isChecked)
 		{
-			ToolStripMenuSelectListItem newItem = new ToolStripMenuSelectListItem();
-			newItem.Text = label;
 			if (image == null)
 			{
-				image = defaultImage;
+				image = _defaultImage;
 			}
-			newItem.DisplayStyle = ToolStripItemDisplayStyle.Text;
-			newItem.Image = image;
-			newItem.CheckOnClick = true;
+			ToolStripMenuSelectListItem newItem = new ToolStripMenuSelectListItem
+			{
+				Text = label,
+				DisplayStyle = ToolStripItemDisplayStyle.Text,
+				Image = image,
+				CheckOnClick = true,
+				Data = data
+			};
 			newItem.CheckStateChanged += ItemCheckStateChanged;
-			newItem.Data = data;
 			if (isChecked)
 			{
-				if (!multiCheckAllowed)
+				if (!_multiCheckAllowed)
 				{
-					updateInProgress = true;
+					_updateInProgress = true;
 					UncheckAll();
-					updateInProgress = false;
+					_updateInProgress = false;
 				}
 				newItem.Checked = isChecked;
 			}

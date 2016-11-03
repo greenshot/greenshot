@@ -38,7 +38,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Accessibility" />
     <Reference Include="Caliburn.Micro, Version=3.0.1.0, Culture=neutral, PublicKeyToken=8e5891231f2ed21f, processorArchitecture=MSIL">
       <HintPath>..\packages\Caliburn.Micro.Core.3.0.1\lib\net45\Caliburn.Micro.dll</HintPath>
       <Private>True</Private>
@@ -51,7 +50,6 @@
       <HintPath>..\packages\Caliburn.Micro.3.0.1\lib\net45\Caliburn.Micro.Platform.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="CustomMarshalers" />
     <Reference Include="Dapplo.Addons, Version=0.3.87.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Addons.0.3.87\lib\net45\Dapplo.Addons.dll</HintPath>
       <Private>True</Private>
@@ -60,16 +58,16 @@
       <HintPath>..\packages\Dapplo.Addons.Bootstrapper.0.3.87\lib\net45\Dapplo.Addons.Bootstrapper.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.CaliburnMicro, Version=0.2.33.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.CaliburnMicro.0.2.33\lib\net45\Dapplo.CaliburnMicro.dll</HintPath>
+    <Reference Include="Dapplo.CaliburnMicro, Version=0.2.34.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.CaliburnMicro.0.2.34\lib\net45\Dapplo.CaliburnMicro.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.CaliburnMicro.Metro, Version=0.2.33.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.CaliburnMicro.Metro.0.2.33\lib\net45\Dapplo.CaliburnMicro.Metro.dll</HintPath>
+    <Reference Include="Dapplo.CaliburnMicro.Metro, Version=0.2.34.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.CaliburnMicro.Metro.0.2.34\lib\net45\Dapplo.CaliburnMicro.Metro.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.CaliburnMicro.NotifyIconWpf, Version=0.2.33.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.CaliburnMicro.NotifyIconWpf.0.2.33\lib\net45\Dapplo.CaliburnMicro.NotifyIconWpf.dll</HintPath>
+    <Reference Include="Dapplo.CaliburnMicro.NotifyIconWpf, Version=0.2.34.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.CaliburnMicro.NotifyIconWpf.0.2.34\lib\net45\Dapplo.CaliburnMicro.NotifyIconWpf.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.Config, Version=0.3.54.0, Culture=neutral, processorArchitecture=MSIL">
@@ -120,20 +118,13 @@
       <HintPath>..\packages\MahApps.Metro.IconPacks.1.6.0\lib\net45\MahApps.Metro.IconPacks.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.mshtml, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <HintPath>lib\Microsoft.mshtml.dll</HintPath>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.ServiceModel" />
-    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\MahApps.Metro.1.3.0\lib\net45\System.Windows.Interactivity.dll</HintPath>
@@ -160,12 +151,6 @@
     <Compile Include="Destinations\PickerDestination.cs" />
     <Compile Include="Forms\BaseForm.cs">
       <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\CaptureForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\CaptureForm.Designer.cs">
-      <DependentUpon>CaptureForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\LanguageDialog.cs">
       <SubType>Form</SubType>
@@ -202,13 +187,8 @@
     </Compile>
     <Compile Include="GreenshotStart.cs" />
     <Compile Include="Helpers\PluginHelper.cs" />
-    <Compile Include="Helpers\RoundedRectangle.cs" />
     <Compile Include="Helpers\SourceForgeHelper.cs" />
     <Compile Include="Helpers\WmInputLangChangeRequestFilter.cs" />
-    <Compile Include="Interop\IDispatch.cs" />
-    <Compile Include="Interop\IOleWindow.cs" />
-    <Compile Include="Interop\IServiceProvider.cs" />
-    <Compile Include="Interop\IUnknown.cs" />
     <Compile Include="Services\NotificationCenter.cs" />
     <Compile Include="Start.cs" />
     <Compile Include="Ui\Config\ConfigIds.cs" />
@@ -219,27 +199,20 @@
     <Compile Include="Windows\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\FlashlightWindow.xaml.cs">
-      <DependentUpon>FlashlightWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Windows\ExportWindow.xaml.cs">
       <DependentUpon>ExportWindow.xaml</DependentUpon>
     </Compile>
     <None Include="App.config" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Helpers\Arguments.cs" />
-    <Compile Include="Helpers\CaptureHelper.cs" />
     <Compile Include="Helpers\GreenshotClient.cs" />
     <Compile Include="Services\GreenshotServer.cs" />
-    <Compile Include="Helpers\IECaptureHelper.cs" />
-    <Compile Include="Helpers\IEInterop\IEContainer.cs" />
     <Compile Include="Processors\TitleFixProcessor.cs" />
     <Compile Include="Helpers\WindowWrapper.cs" />
     <Compile Include="Helpers\UpdateHelper.cs" />
     <Compile Include="Helpers\EnvironmentInfo.cs" />
     <Compile Include="Helpers\MailHelper.cs" />
     <Compile Include="Helpers\PrintHelper.cs" />
-    <Compile Include="Helpers\SoundHelper.cs" />
     <Compile Include="Helpers\StartupHelper.cs" />
     <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
@@ -247,7 +220,6 @@
     <EmbeddedResource Include="Forms\SettingsForm.resx">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Sounds.resx" />
     <None Include="greenshot.manifest" />
     <None Include="Lib\Microsoft.mshtml.dll" />
     <None Include="packages.config" />
@@ -259,14 +231,13 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Greenshot.Addon.Editor\Greenshot.Addon.Editor.csproj">
-      <Project>{a9d7b3e5-6e59-488c-9e8b-ad240b246a0e}</Project>
-      <Name>GreenshotEditorPlugin</Name>
-      <Private>False</Private>
-    </ProjectReference>
     <ProjectReference Include="..\Greenshot.Addon\Greenshot.Addon.csproj">
       <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
       <Name>GreenshotPlugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Greenshot.CaptureCore\Greenshot.CaptureCore.csproj">
+      <Project>{d477ed98-6e61-4017-8fc1-a4c10fa08958}</Project>
+      <Name>Greenshot.CaptureCore</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -286,25 +257,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Windows\FlashlightWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Windows\ExportWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <COMReference Include="SHDocVw">
-      <Guid>{EAB22AC0-30C1-11CF-A7EB-0000C05BAE0B}</Guid>
-      <VersionMajor>1</VersionMajor>
-      <VersionMinor>1</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Ui\Views\" />

@@ -32,6 +32,7 @@ using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.CaptureCore;
 
 namespace Greenshot.Helpers
 {

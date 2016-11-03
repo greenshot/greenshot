@@ -46,6 +46,7 @@ using Timer = System.Timers.Timer;
 using Dapplo.Log.Facade;
 using Dapplo.Utils.Resolving;
 using Greenshot;
+using Greenshot.CaptureCore;
 
 namespace Greenshot.Forms
 {

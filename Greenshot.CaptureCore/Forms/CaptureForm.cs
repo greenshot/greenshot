@@ -19,10 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Config.Ini;
-using Dapplo.Windows.Desktop;
-using Dapplo.Windows.Native;
-using Greenshot.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -33,19 +29,22 @@ using System.Security.Permissions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Config.Ini;
+using Dapplo.Log.Facade;
+using Dapplo.Windows.Desktop;
+using Dapplo.Windows.Native;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Controls;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
-using Dapplo.Log.Facade;
 
-namespace Greenshot.Forms
+namespace Greenshot.CaptureCore.Forms
 {
 	/// <summary>
 	/// The capture form is used to select a part of the capture
 	/// </summary>
-	public partial class CaptureForm : AnimatingForm
+	public sealed partial class CaptureForm : AnimatingForm
 	{
 		private enum FixMode
 		{
@@ -90,13 +89,7 @@ namespace Greenshot.Forms
 		/// <summary>
 		/// Property to access the selected capture rectangle
 		/// </summary>
-		public Rectangle CaptureRectangle
-		{
-			get
-			{
-				return _captureRect;
-			}
-		}
+		public Rectangle CaptureRectangle => _captureRect;
 
 		/// <summary>
 		/// Property to access the used capture mode
@@ -368,8 +361,8 @@ namespace Greenshot.Forms
 		/// <summary>
 		/// The mousedown handler of the capture form
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
+		/// <param name="sender">object</param>
+		/// <param name="e">MouseEventArgs</param>
 		private void OnMouseDown(object sender, MouseEventArgs e)
 		{
 			if (e.Button == MouseButtons.Left)
@@ -436,7 +429,7 @@ namespace Greenshot.Forms
 		private Point FixMouseCoordinates(System.Windows.Point currentMousePoint)
 		{
 			var currentMouse = new Point((int)currentMousePoint.X, (int)currentMousePoint.Y);
-            if (_fixMode == FixMode.Initiated)
+			if (_fixMode == FixMode.Initiated)
 			{
 				if (_previousMousePos.X != currentMouse.X)
 				{
@@ -830,19 +823,10 @@ namespace Greenshot.Forms
 			{
 				_captureRect.Intersect(new Rectangle(Point.Empty, _capture.ScreenBounds.Size)); // crop what is outside the screen
 
-				Rectangle fixedRect;
 				//if (captureMode == CaptureMode.Window) {
-				if (IsAnimating(_windowAnimator))
-				{
-					// Use the animator
-					fixedRect = _windowAnimator.Current;
-				}
-				else
-				{
-					fixedRect = _captureRect;
-				}
+				var fixedRect = IsAnimating(_windowAnimator) ? _windowAnimator.Current : _captureRect;
 
-				// TODO: enable when the screen capture code works reliable
+				// TODO: enable when the video screen capture code works reliable
 				//if (capture.CaptureDetails.CaptureMode == CaptureMode.Video) {
 				//	graphics.FillRectangle(RedOverlayBrush, fixedRect);
 				//} else {
@@ -872,41 +856,40 @@ namespace Greenshot.Forms
 					Size measureHeight = TextRenderer.MeasureText(captureHeight, rulerFont);
 					int hSpace = measureWidth.Width + 3;
 					int vSpace = measureHeight.Height + 3;
-					Brush bgBrush = new SolidBrush(Color.FromArgb(200, 217, 240, 227));
-					Pen rulerPen = new Pen(Color.SeaGreen);
-
-					// horizontal ruler
-					if (fixedRect.Width > hSpace + 3)
+					using (Brush bgBrush = new SolidBrush(Color.FromArgb(200, 217, 240, 227)))
+					using (Pen rulerPen = new Pen(Color.SeaGreen))
 					{
-						using (GraphicsPath p = RoundedRectangle.Create2(fixedRect.X + (fixedRect.Width/2 - hSpace/2) + 3, fixedRect.Y - dist - 7, measureWidth.Width - 3, measureWidth.Height, 3))
+						// horizontal ruler
+						if (fixedRect.Width > hSpace + 3)
 						{
-							graphics.FillPath(bgBrush, p);
-							graphics.DrawPath(rulerPen, p);
-							graphics.DrawString(captureWidth, rulerFont, rulerPen.Brush, fixedRect.X + (fixedRect.Width/2 - hSpace/2) + 3, fixedRect.Y - dist - 7);
-							graphics.DrawLine(rulerPen, fixedRect.X, fixedRect.Y - dist, fixedRect.X + (fixedRect.Width/2 - hSpace/2), fixedRect.Y - dist);
-							graphics.DrawLine(rulerPen, fixedRect.X + (fixedRect.Width/2 + hSpace/2), fixedRect.Y - dist, fixedRect.X + fixedRect.Width, fixedRect.Y - dist);
-							graphics.DrawLine(rulerPen, fixedRect.X, fixedRect.Y - dist - 3, fixedRect.X, fixedRect.Y - dist + 3);
-							graphics.DrawLine(rulerPen, fixedRect.X + fixedRect.Width, fixedRect.Y - dist - 3, fixedRect.X + fixedRect.Width, fixedRect.Y - dist + 3);
+							using (GraphicsPath p = RoundedRectangle.Create2(fixedRect.X + (fixedRect.Width / 2 - hSpace / 2) + 3, fixedRect.Y - dist - 7, measureWidth.Width - 3, measureWidth.Height, 3))
+							{
+								graphics.FillPath(bgBrush, p);
+								graphics.DrawPath(rulerPen, p);
+								graphics.DrawString(captureWidth, rulerFont, rulerPen.Brush, fixedRect.X + (fixedRect.Width / 2 - hSpace / 2) + 3, fixedRect.Y - dist - 7);
+								graphics.DrawLine(rulerPen, fixedRect.X, fixedRect.Y - dist, fixedRect.X + (fixedRect.Width / 2 - hSpace / 2), fixedRect.Y - dist);
+								graphics.DrawLine(rulerPen, fixedRect.X + (fixedRect.Width / 2 + hSpace / 2), fixedRect.Y - dist, fixedRect.X + fixedRect.Width, fixedRect.Y - dist);
+								graphics.DrawLine(rulerPen, fixedRect.X, fixedRect.Y - dist - 3, fixedRect.X, fixedRect.Y - dist + 3);
+								graphics.DrawLine(rulerPen, fixedRect.X + fixedRect.Width, fixedRect.Y - dist - 3, fixedRect.X + fixedRect.Width, fixedRect.Y - dist + 3);
+							}
 						}
-					}
 
-					// vertical ruler
-					if (fixedRect.Height > vSpace + 3)
-					{
-						using (GraphicsPath p = RoundedRectangle.Create2(fixedRect.X - measureHeight.Width + 1, fixedRect.Y + (fixedRect.Height/2 - vSpace/2) + 2, measureHeight.Width - 3, measureHeight.Height - 1, 3))
+						// vertical ruler
+						if (fixedRect.Height > vSpace + 3)
 						{
-							graphics.FillPath(bgBrush, p);
-							graphics.DrawPath(rulerPen, p);
-							graphics.DrawString(captureHeight, rulerFont, rulerPen.Brush, fixedRect.X - measureHeight.Width + 1, fixedRect.Y + (fixedRect.Height/2 - vSpace/2) + 2);
-							graphics.DrawLine(rulerPen, fixedRect.X - dist, fixedRect.Y, fixedRect.X - dist, fixedRect.Y + (fixedRect.Height/2 - vSpace/2));
-							graphics.DrawLine(rulerPen, fixedRect.X - dist, fixedRect.Y + (fixedRect.Height/2 + vSpace/2), fixedRect.X - dist, fixedRect.Y + fixedRect.Height);
-							graphics.DrawLine(rulerPen, fixedRect.X - dist - 3, fixedRect.Y, fixedRect.X - dist + 3, fixedRect.Y);
-							graphics.DrawLine(rulerPen, fixedRect.X - dist - 3, fixedRect.Y + fixedRect.Height, fixedRect.X - dist + 3, fixedRect.Y + fixedRect.Height);
+							using (GraphicsPath p = RoundedRectangle.Create2(fixedRect.X - measureHeight.Width + 1, fixedRect.Y + (fixedRect.Height/2 - vSpace/2) + 2, measureHeight.Width - 3, measureHeight.Height - 1, 3))
+							{
+								graphics.FillPath(bgBrush, p);
+								graphics.DrawPath(rulerPen, p);
+								graphics.DrawString(captureHeight, rulerFont, rulerPen.Brush, fixedRect.X - measureHeight.Width + 1, fixedRect.Y + (fixedRect.Height/2 - vSpace/2) + 2);
+								graphics.DrawLine(rulerPen, fixedRect.X - dist, fixedRect.Y, fixedRect.X - dist, fixedRect.Y + (fixedRect.Height/2 - vSpace/2));
+								graphics.DrawLine(rulerPen, fixedRect.X - dist, fixedRect.Y + (fixedRect.Height/2 + vSpace/2), fixedRect.X - dist, fixedRect.Y + fixedRect.Height);
+								graphics.DrawLine(rulerPen, fixedRect.X - dist - 3, fixedRect.Y, fixedRect.X - dist + 3, fixedRect.Y);
+								graphics.DrawLine(rulerPen, fixedRect.X - dist - 3, fixedRect.Y + fixedRect.Height, fixedRect.X - dist + 3, fixedRect.Y + fixedRect.Height);
+							}
 						}
-					}
 
-					rulerPen.Dispose();
-					bgBrush.Dispose();
+					}
 				}
 
 				// Display size of selected rectangle

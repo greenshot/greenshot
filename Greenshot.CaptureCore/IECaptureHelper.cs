@@ -25,21 +25,21 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
-using Greenshot.Helpers.IEInterop;
-using Dapplo.Windows.Native;
-using mshtml;
 using System.Threading;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
+using Dapplo.Log.Facade;
 using Dapplo.Windows.Enums;
+using Dapplo.Windows.Native;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Controls;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
-using Greenshot.Interop;
-using Dapplo.Log.Facade;
+using Greenshot.CaptureCore.IEInterop;
+using Greenshot.CaptureCore.Interop;
+using mshtml;
 
-namespace Greenshot.Helpers
+namespace Greenshot.CaptureCore
 {
 	/// <summary>
 	/// The code for this helper comes from: http://www.codeproject.com/KB/graphics/IECapture.aspx

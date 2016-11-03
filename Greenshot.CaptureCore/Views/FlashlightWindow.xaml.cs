@@ -20,13 +20,12 @@
  */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using Dapplo.Utils;
 using Greenshot.Addon.Extensions;
 
-namespace Greenshot.Windows
+namespace Greenshot.CaptureCore.Views
 {
 	/// <summary>
 	/// This class helps to show the flash after taking a capture
