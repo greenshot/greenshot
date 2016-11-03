@@ -3,19 +3,15 @@ permalink: project-feed/
 ---
 <?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0">
-  <channel>
-    <title>Greenshot</title>
-    <link>https://getgreenshot.org</link>
-    <description>Greenshot update feed</description>
-    {% for release in site.github.releases %}
-      {% for asset in release.assets %}
-        <item>
-          <title>{{asset.name}}</title>
-          <link>{{asset.browser_download_url}}</link>
-          <pubDate>{{asset.created_at | date_to_rfc822}}</pubDate>
-          <description>{{asset.label}}</description>
-        </item>
-      {% endfor %}
-    {% endfor %}
-  </channel>
+	<channel>
+		<title>Greenshot</title>
+		<link>https://getgreenshot.org</link>
+		<description>Greenshot update feed</description>{% for release in site.github.releases %}{% for asset in release.assets %}{% if asset.name contains '-INSTALLER' %}
+			<item>
+				<title>{{asset.name}}</title>
+				<link>{{asset.browser_download_url}}</link>
+				<pubDate>{{asset.created_at | date_to_rfc822}}</pubDate>
+				<description>{{asset.label}}</description>
+			</item>{% endif %}{% endfor %}{% endfor %}
+	</channel>
 </rss>
