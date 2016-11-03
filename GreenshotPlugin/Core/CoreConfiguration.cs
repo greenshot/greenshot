@@ -174,7 +174,7 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("ExcludeDestinations", Description = "Comma separated list of destinations which should be disabled.")]
 		public List<string> ExcludeDestinations { get; set; }
 
-		[IniProperty("UpdateCheckInterval", Description="How many days between every update check? (0=no checks)", DefaultValue="1")]
+		[IniProperty("UpdateCheckInterval", Description="How many days between every update check? (0=no checks)", DefaultValue="14")]
 		public int UpdateCheckInterval { get; set; }
 		[IniProperty("LastUpdateCheck", Description="Last update check")]
 		public DateTime LastUpdateCheck { get; set; }
@@ -424,6 +424,12 @@ namespace GreenshotPlugin.Core {
 				}
 				// Disable the AutoReduceColors as it causes issues with Mozzila applications and some others
 				OutputFileAutoReduceColors = false;
+			}
+
+			// Fix for excessive feed checking
+			if (UpdateCheckInterval <= 7 && LastSaveWithVersion.StartsWith("1.2"))
+			{
+				UpdateCheckInterval = 14;
 			}
 
 			// Enable OneNote if upgrading from 1.1
