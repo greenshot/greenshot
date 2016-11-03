@@ -39,6 +39,7 @@ namespace Greenshot.Drawing.Fields
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(AbstractFieldHolder));
 		private static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
+		[NonSerialized]
 		private readonly IDictionary<IField, PropertyChangedEventHandler> _handlers = new Dictionary<IField, PropertyChangedEventHandler>();
 
 		/// <summary>
