@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using Greenshot.Configuration;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
@@ -40,6 +41,7 @@ namespace Greenshot.Drawing.Fields
 	///    Properties that do not apply for ALL selected elements are null (or 0 respectively)
 	///    If the property values of the selected elements differ, the value of the last bound element wins.
 	/// </summary>
+	[Serializable]
 	public sealed class FieldAggregator : AbstractFieldHolder
 	{
 

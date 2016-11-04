@@ -1006,7 +1006,7 @@ namespace Greenshot {
 		/// <param name="e"></param>
 		private void Contextmenu_donateClick(object sender, EventArgs e) {
 			BeginInvoke((MethodInvoker)delegate {
-				Process.Start("http://getgreenshot.org/support/");
+				Process.Start("http://getgreenshot.org/support/?version=" + Assembly.GetEntryAssembly().GetName().Version);
 			});
 		}
 		

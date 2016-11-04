@@ -35,6 +35,8 @@ Fixed bugs:
 * BUG-1991 Greenshot portable (PAF) uses wrong log configuration
 * BUG-1992 OutputFilePath setting is wrong config used on a different system
 * BUG-2011 Editor issues when the font is gone or broken
+* BUG-2043 Fixed an issue which occured after wakeup from sleep
+* BUG-2059 Reduce the update check interval
 
 Added features:
 * FEATURE-916 Added icon save format (capture will be resized to 16x16, 32x32, 48x48 or 256x256)

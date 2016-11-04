@@ -19,6 +19,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System.Reflection;
+
 namespace Greenshot {
 	partial class AboutForm {
 		/// <summary>
@@ -114,7 +116,7 @@ namespace Greenshot {
 			this.linkLblBugs.Size = new System.Drawing.Size(465, 23);
 			this.linkLblBugs.TabIndex = 8;
 			this.linkLblBugs.TabStop = true;
-			this.linkLblBugs.Text = "http://getgreenshot.org/tickets/";
+			this.linkLblBugs.Text = "http://getgreenshot.org/tickets/?version=" + Assembly.GetEntryAssembly().GetName().Version;
 			this.linkLblBugs.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabelClicked);
 			// 
 			// lblBugs
@@ -132,7 +134,7 @@ namespace Greenshot {
 			this.linkLblDonations.Size = new System.Drawing.Size(465, 23);
 			this.linkLblDonations.TabIndex = 10;
 			this.linkLblDonations.TabStop = true;
-			this.linkLblDonations.Text = "http://getgreenshot.org/support/";
+			this.linkLblDonations.Text = "http://getgreenshot.org/support/?version=" + Assembly.GetEntryAssembly().GetName().Version;
 			this.linkLblDonations.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabelClicked);
 			// 
 			// lblDonations

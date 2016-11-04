@@ -31,9 +31,10 @@ namespace Greenshot.Drawing.Fields
 	/// but has a List of IFieldHolder for children.
 	/// Field values are passed to and from children as well.
 	/// </summary>
-	[Serializable()]
+	[Serializable]
 	public abstract class AbstractFieldHolderWithChildren : AbstractFieldHolder
 	{
+		[NonSerialized]
 		private readonly FieldChangedEventHandler _fieldChangedEventHandler;
 
 		[NonSerialized]
