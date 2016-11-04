@@ -6,68 +6,10 @@ categories: []
 comments: []
 tags: [uses_alerts]
 ---
-{% assign latest_release = site.github.releases | where:"prerelease",false | where:"draft",false | first %}
-<div id="currentVersion" class="alert alert-success collapse" role="alert">
-<i class="fa fa-check-circle"></i> You just installed the most recent version of Greenshot.
-</div>
-<div id="oldVersion" class="alert alert-danger collapse" role="alert">
-<i class="fa fa-exclamation-triangle"></i> <strong>The version you just installed is an older Greenshot version.</strong><br/>
-You might want to download the newest version, which is {{ latest_release.tag_name }}, from <a href="/downloads/">here</a>. Make sure to always get Greenshot from <a href="http://getgreenshot.org/">getgreenshot.org</a>.
-</div>
+{% include version-check.html %}
+
 <p>
 <strong>We are happy that you installed Greenshot. If you like it, please consider to support the development of this open source screenshot tool with a donation.</strong></p>
 {% include donate.html %}
 
-<script>
-// The following checks if the passed version in the URL is lower or equal to the known release.
-// Depending on the outcome, it will show a warning or a positive message.
 
-// Return 1 if a > b
-// Return -1 if a < b
-// Return 0 if a == b
-function compareVersion(a, b) {
-    if (a === b) {
-       return 0;
-    }
-
-    var a_components = a.split(".");
-    var b_components = b.split(".");
-
-    var len = Math.min(a_components.length, b_components.length);
-
-    // loop while the components are equal
-    for (var i = 0; i < len; i++) {
-        // A bigger than B
-        if (parseInt(a_components[i]) > parseInt(b_components[i])) {
-            return 1;
-        }
-
-        // B bigger than A
-        if (parseInt(a_components[i]) < parseInt(b_components[i])) {
-            return -1;
-        }
-    }
-
-    // If one's a prefix of the other, the longer one is greater.
-    if (a_components.length > b_components.length) {
-        return 1;
-    }
-
-    if (a_components.length < b_components.length) {
-        return -1;
-    }
-
-    // Otherwise they are the same.
-    return 0;
-}
-
-var installedVersion = /version=([^&]+)/.exec(location)[1];
-var greenshotTag = {% if latest_release.tag_name %}"{{ latest_release.tag_name }}"{% else %}"Greenshot-Test-1.2.8.12"{% endif %};
-var releaseVersion = /.*(\d+\.\d+\.\d+\.\d+)/.exec(greenshotTag)[1];
-var compare=compareVersion(releaseVersion, installedVersion);
-if (compare >= 1) {
-	jQuery('#oldVersion').slideToggle();
-} else if (compare == 0) {
-	jQuery('#currentVersion').slideToggle();
-}
-</script>
