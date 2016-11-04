@@ -2,13 +2,13 @@
 layout: post
 status: publish
 published: true
-title: ! 'Release candidate 1 for 1.2.9'
+title: ! 'Release candidate 2 for 1.2.9'
 tags:
 - 1.2
 - bugfix
 - release
 ---
-<p>Today we present you the first release candidate for Greenshot 1.2.9 which should fix a lot of issues with 1.2.8 and add some new features.</p>
+<p>Today we present you the second release candidate for Greenshot 1.2.9 which should fix a lot of issues with 1.2.8 and add some new features.</p>
 <p>One of the most significant changes is that from this version onwards we sign Greenshot with a code signing certificate.
 This should helps personal users and companies to feel more secure knowing the installed software is really from us.
 We will write a separate blog on what we things we do to keep Greenshot secure without adware, malware and viruser.</p>
@@ -22,7 +22,7 @@ We will write a separate blog on what we things we do to keep Greenshot secure w
 
 	All details to our tickets can be found here: https://greenshot.atlassian.net
 
-	1.2.9.97-f1d7072 RC1
+	1.2.9.98-8690a6b RC2
 
 	This is a release candidate for the coming release of Greenshot.
 	**Testing is not finished, use at your own risk...**
@@ -50,6 +50,8 @@ We will write a separate blog on what we things we do to keep Greenshot secure w
 	* BUG-1991 Greenshot portable (PAF) uses wrong log configuration
 	* BUG-1992 OutputFilePath setting is wrong config used on a different system
 	* BUG-2011 Editor issues when the font is gone or broken
+	* BUG-2043 Fixed an issue which occured after wakeup from sleep
+	* BUG-2059 Reduce the update check interval
 
 	Added features:
 	* FEATURE-916 Added icon save format (capture will be resized to 16x16, 32x32, 48x48 or 256x256)
@@ -58,6 +60,6 @@ We will write a separate blog on what we things we do to keep Greenshot secure w
 	* FEATURE-946 Updated to Inno-Setup 5.5.9 for improved installer security
 	* FEATURE-958 Greenshot is now using code signing certificates
 
-	Added or modified translation:
+	Added or changed translation:
 	* Català by Gabriel Guix.
 	* Nederlands by Stephan Paternotte

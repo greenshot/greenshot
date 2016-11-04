@@ -1,9 +1,9 @@
 {% assign latest_release = site.github.releases | where:"prerelease",false | where:"draft",false | first %}
 <div id="currentVersion" class="alert alert-success collapse" role="alert">
-<i class="fa fa-check-circle"></i> You just installed the most recent version of Greenshot.
+<i class="fa fa-check-circle"></i> You are using the most recent version of Greenshot.
 </div>
 <div id="oldVersion" class="alert alert-danger collapse" role="alert">
-<i class="fa fa-exclamation-triangle"></i> <strong>The version you just installed is an older Greenshot version.</strong><br/>
+<i class="fa fa-exclamation-triangle"></i> <strong>You are not using the newest Greenshot version.</strong><br/>
 You might want to download the newest version, which is {{ latest_release.tag_name }}, from <a href="/downloads/">here</a>. Make sure to always get Greenshot from <a href="http://getgreenshot.org/">getgreenshot.org</a>.
 </div>
 
