@@ -25,7 +25,7 @@ Südliche Auffahrtsallee 32<br><br />
 <p>
 <strong>Support</strong><br><br />
 If you need help with Greenshot, please have a look at our <a href="/faq/">FAQ</a> and <a href="/help">help</a> pages first.<br><br />
-If you still need to get in touch, you can <a href="http://sourceforge.net/p/greenshot/bugs/" target="_blank" rel="nofollow">report a bug</a>, <a href="http://sourceforge.net/p/greenshot/feature-requests/" target="_blank" rel="nofollow">suggest a feature</a>, <a href="https://sourceforge.net/p/greenshot/support-requests/" rel="nofollow">ask for assistance</a> or <a href="http://sourceforge.net/p/greenshot/discussion/676082/" target="_blank" rel="nofollow">discuss with the developers and other users</a>. (Try the search - maybe your issue has already been adressed in there.)</p>
+If you still need to get in touch, you can <a href="https://greenshot.atlassian.net/browse/BUG" target="_blank" rel="nofollow">report a bug</a>, <a href="https://greenshot.atlassian.net/browse/FEATURE" target="_blank" rel="nofollow">suggest a feature</a> or <a href="https://greenshot.atlassian.net/browse/SUPPORT" rel="nofollow">ask for assistance</a>. (Try the search - maybe your issue has already been adressed in there.)</p>
 <p>
 <strong>Contact:</strong> <br><br />
 E-Mail: <a href='mailto:getgreenshot@gmail.com'>getgreenshot@gmail.com</a> (Note: if you are looking for support, you should rather use the links above.)</p>
