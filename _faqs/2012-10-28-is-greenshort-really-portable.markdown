@@ -3,7 +3,7 @@ layout: faq
 status: publish
 published: true
 title: Is Greenshot really portable?
-# override permalink for to keep old URLs intact
+# override permalink for to keep old URL (with typo :-/) intact
 permalink: /faq/is-greenshort-really-portable/
 categories: []
 tags: []
