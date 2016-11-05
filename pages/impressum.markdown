@@ -31,8 +31,8 @@ If you still need to get in touch, you can <a href="http://sourceforge.net/p/gre
 E-Mail: <a href='mailto:getgreenshot@gmail.com'>getgreenshot@gmail.com</a> (Note: if you are looking for support, you should rather use the links above.)</p>
 <p><strong>Responsible for content according to § 55 paragraph 2 RStV (Interstate Broadcasting Treaty - Germany)</strong><br><br />
 Jens Klingen<br><br />
-Südliche Auffahrtsallee 32<br><br />
-80639 München</p>
+Markgrafenstr. 4<br><br />
+91207 Lauf</p>
 <h2>Liability exclusion: </h2>
 <p>
 <strong>Liability for content</strong><br><br><br />
