@@ -2,7 +2,9 @@
 layout: faq
 status: publish
 published: true
-title: Is Greenshort really portable?
+title: Is Greenshot really portable?
+# override permalink for to keep old URLs intact
+permalink: /faq/is-greenshort-really-portable/
 categories: []
 tags: []
 
