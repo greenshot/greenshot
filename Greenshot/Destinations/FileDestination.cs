@@ -33,7 +33,7 @@ using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Forms;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Destinations

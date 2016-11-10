@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Dapplo.CaliburnMicro;
-
-namespace Greenshot.Addon.Core
+﻿namespace Greenshot.Addon.Core
 {
 	public enum GreenshotStartupOrder
 	{

@@ -26,7 +26,7 @@ using System.Timers;
 using Dapplo.Windows.Enums;
 using Dapplo.Windows.Native;
 using Dapplo.Windows.SafeHandles;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 
 namespace Greenshot.Addon.Controls
 {

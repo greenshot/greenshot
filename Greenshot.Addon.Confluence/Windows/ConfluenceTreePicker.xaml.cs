@@ -25,7 +25,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Dapplo.Config.Ini;
 using Dapplo.Confluence.Entities;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 
 namespace Greenshot.Addon.Confluence.Windows
 {

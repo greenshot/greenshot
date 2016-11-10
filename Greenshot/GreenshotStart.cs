@@ -21,7 +21,7 @@
 
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Helpers;

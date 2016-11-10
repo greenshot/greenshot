@@ -42,7 +42,7 @@ using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Drawing;
 using Greenshot.Addon.Interfaces.Forms;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 using Greenshot.Addon.Interfaces.Destination;
 
 namespace Greenshot.Addon.Editor.Forms

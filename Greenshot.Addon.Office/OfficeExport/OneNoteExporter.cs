@@ -29,7 +29,7 @@ using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Plugin;
 using OneNote = Microsoft.Office.Interop.OneNote;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 
 namespace Greenshot.Addon.Office.OfficeExport
 {

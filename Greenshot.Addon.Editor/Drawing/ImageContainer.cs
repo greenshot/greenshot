@@ -26,7 +26,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces.Drawing;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 
 namespace Greenshot.Addon.Editor.Drawing
 {

@@ -19,14 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.ComponentModel.Composition;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Addons;
 using Dapplo.HttpExtensions;
-using Dapplo.Log.Facade;
-using Dapplo.Log.LogFile;
+using Dapplo.Log;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Configuration;

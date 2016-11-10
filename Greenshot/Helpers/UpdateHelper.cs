@@ -30,7 +30,7 @@ using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Extensions;
 using Greenshot.Forms;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 
 namespace Greenshot.Helpers
 {

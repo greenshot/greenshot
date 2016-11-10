@@ -30,7 +30,7 @@ using Dapplo.Config.Ini;
 using Greenshot.Addon.Controls;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Windows;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 
 namespace Greenshot.Addon.Imgur.Forms
 {

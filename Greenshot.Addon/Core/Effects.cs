@@ -28,7 +28,7 @@ using System.Globalization;
 using System.Text;
 using Dapplo.Config.Language;
 using Greenshot.Addon.Configuration;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 
 namespace Greenshot.Addon.Core
 {

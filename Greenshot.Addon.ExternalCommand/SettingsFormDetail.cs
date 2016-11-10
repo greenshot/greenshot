@@ -24,7 +24,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Dapplo.Config.Ini;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 using Greenshot.Addon.Core;
 
 namespace Greenshot.Addon.ExternalCommand

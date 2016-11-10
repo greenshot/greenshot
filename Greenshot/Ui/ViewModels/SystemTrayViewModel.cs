@@ -22,6 +22,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Windows;
 using System.Windows.Media;
 using Caliburn.Micro;
@@ -29,13 +30,12 @@ using Dapplo.CaliburnMicro.Behaviors;
 using Dapplo.CaliburnMicro.Menu;
 using Dapplo.CaliburnMicro.NotifyIconWpf;
 using Dapplo.CaliburnMicro.NotifyIconWpf.ViewModels;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Interfaces;
 using MahApps.Metro.IconPacks;
 using MenuItem = Dapplo.CaliburnMicro.Menu.MenuItem;
 using Dapplo.CaliburnMicro.Extensions;
-using Dapplo.Utils;
 using Greenshot.Addon.Ui;
 using Greenshot.Ui.Config.ViewModels;
 
@@ -48,7 +48,10 @@ namespace Greenshot.Ui.ViewModels
 	public class SystemTrayViewModel : TrayIconViewModel, IHandle<INotification>, IPartImportsSatisfiedNotification
 	{
 		private static readonly LogSource Log = new LogSource();
-		private readonly Disposables _disposables = new Disposables();
+		/// <summary>
+		/// Here all disposables are registered, so we can clean the up
+		/// </summary>
+		private CompositeDisposable _disposables;
 		private readonly BrushConverter _brushConverter = new BrushConverter();
 
 
@@ -92,6 +95,9 @@ namespace Greenshot.Ui.ViewModels
 		/// <summary>Called when activating.</summary>
 		protected override void OnActivate()
 		{
+			// Prepare disposables
+			_disposables?.Dispose();
+			_disposables = new CompositeDisposable();
 			var logo = new PackIconGreenshot
 			{
 				Kind = PackIconKindGreenshot.Greenshot,
@@ -167,7 +173,9 @@ namespace Greenshot.Ui.ViewModels
 				ClickAction = item => Application.Current.Shutdown()
 			};
 
-			_disposables.Add(exitMenuItem.BindDisplayName(GreenshotLanguage, nameof(IGreenshotLanguage.ContextmenuExit)));
+			var binding = GreenshotLanguage.CreateBinding(exitMenuItem, nameof(IGreenshotLanguage.ContextmenuExit));
+			_disposables.Add(binding);
+
 			items.Add(exitMenuItem);
 
 			var configurationMenuItem = new MenuItem
@@ -188,7 +196,7 @@ namespace Greenshot.Ui.ViewModels
 				}
 			};
 
-			_disposables.Add(configurationMenuItem.BindDisplayName(GreenshotLanguage, nameof(IGreenshotLanguage.SettingsTitle)));
+			binding.AddDisplayNameBinding(configurationMenuItem, nameof(IGreenshotLanguage.SettingsTitle));
 			items.Add(configurationMenuItem);
 
 			ConfigureMenuItems(items);

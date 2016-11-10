@@ -37,7 +37,7 @@ using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
 using Dapplo.Utils;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Addon.Flickr

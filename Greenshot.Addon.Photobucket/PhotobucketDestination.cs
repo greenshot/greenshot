@@ -35,7 +35,7 @@ using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 using MahApps.Metro.IconPacks;
 using Dapplo.HttpExtensions.Extensions;
 using Dapplo.Utils;
@@ -245,7 +245,7 @@ namespace Greenshot.Addon.Photobucket
 						FileName = "\"" + filename + "\"",
 					};
 
-					HttpBehaviour.Current.AddConfig(new HttpRequestMessageConfiguration
+					HttpBehaviour.Current.SetConfig(new HttpRequestMessageConfiguration
 					{
 						Properties = signedParameters
 					});

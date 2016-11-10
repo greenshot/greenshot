@@ -20,7 +20,7 @@
  */
 
 using Dapplo.Config.Ini;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;

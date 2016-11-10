@@ -21,7 +21,7 @@
 
 using System.Collections.Generic;
 using Dapplo.Confluence.Entities;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 
 namespace Greenshot.Addon.Confluence.Windows
 {

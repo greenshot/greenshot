@@ -33,7 +33,7 @@ using Greenshot.Addon.Editor.Memento;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Drawing;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 using Greenshot.Addon.Editor.Drawing.Adorners;
 
 namespace Greenshot.Addon.Editor.Drawing

@@ -21,10 +21,9 @@
 
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System;
 using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.CaliburnMicro.Menu;
-using Dapplo.Utils;
-using Dapplo.Utils.Extensions;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Controls;
 using Greenshot.CaptureCore;
@@ -40,7 +39,6 @@ namespace Greenshot.Ui
 	public class SystemTrayCaptureItems : IMenuItemProvider
 	{
 		private const string IdPrefix = "B_";
-		private readonly Disposables _disposables = new Disposables();
 
 		[Import]
 		private ICoreConfiguration CoreConfiguration { get; set; }
@@ -84,9 +82,11 @@ namespace Greenshot.Ui
 						await CaptureHelper.CaptureRegionAsync(false).ConfigureAwait(false);
 					}
 				};
-				// change the HotKeyHint when either the hotkey changes, or the language
-				_disposables.Add(CoreConfiguration.OnPropertyChanged(s => menuItem.HotKeyHint = HotkeyControl.GetLocalizedHotkeyStringFromString(CoreConfiguration.RegionHotkey), $"({nameof(CoreConfiguration.Language)}|{nameof(CoreConfiguration.RegionHotkey)}"));
-				_disposables.Add(menuItem.BindDisplayName(GreenshotLanguage, nameof(IGreenshotLanguage.ContextmenuCaptureArea)));
+
+				// Update HotKeyHint when the language or hotkey changes
+				CoreConfiguration.OnPropertyChanged($"({nameof(CoreConfiguration.Language)}|{nameof(CoreConfiguration.RegionHotkey)}").Subscribe(s => menuItem.HotKeyHint = HotkeyControl.GetLocalizedHotkeyStringFromString(CoreConfiguration.RegionHotkey));
+				// Update the title of this menu item when the translation changes
+				GreenshotLanguage.CreateBinding(menuItem, nameof(IGreenshotLanguage.ContextmenuCaptureArea));
 				return menuItem;
 
 			}
@@ -111,9 +111,12 @@ namespace Greenshot.Ui
 						await CaptureHelper.CaptureWindowInteractiveAsync(false).ConfigureAwait(false);
 					}
 				};
-				// change the HotKeyHint when either the hotkey changes, or the language
-				_disposables.Add(CoreConfiguration.OnPropertyChanged(s => menuItem.HotKeyHint = HotkeyControl.GetLocalizedHotkeyStringFromString(CoreConfiguration.WindowHotkey), $"({nameof(CoreConfiguration.Language)}|{nameof(CoreConfiguration.WindowHotkey)}"));
-				_disposables.Add(menuItem.BindDisplayName(GreenshotLanguage, nameof(IGreenshotLanguage.ContextmenuCaptureWindow)));
+
+				// Update HotKeyHint when the language or hotkey changes
+				CoreConfiguration.OnPropertyChanged($"({nameof(CoreConfiguration.Language)}|{nameof(CoreConfiguration.WindowHotkey)}").Subscribe(s => menuItem.HotKeyHint = HotkeyControl.GetLocalizedHotkeyStringFromString(CoreConfiguration.WindowHotkey));
+				// Update the title of this menu item when the translation changes
+				GreenshotLanguage.CreateBinding(menuItem, nameof(IGreenshotLanguage.ContextmenuCaptureWindow));
+
 				return menuItem;
 
 			}
@@ -139,9 +142,11 @@ namespace Greenshot.Ui
 						await CaptureHelper.CaptureFullscreenAsync(false, ScreenCaptureMode.FullScreen).ConfigureAwait(false);
 					}
 				};
-				// change the HotKeyHint when either the hotkey changes, or the language
-				_disposables.Add(CoreConfiguration.OnPropertyChanged(s => menuItem.HotKeyHint = HotkeyControl.GetLocalizedHotkeyStringFromString(CoreConfiguration.FullscreenHotkey), $"({nameof(CoreConfiguration.Language)}|{nameof(CoreConfiguration.FullscreenHotkey)}"));
-				_disposables.Add(menuItem.BindDisplayName(GreenshotLanguage, nameof(IGreenshotLanguage.ContextmenuCaptureFullScreenAll)));
+
+				// Update HotKeyHint when the language or hotkey changes
+				CoreConfiguration.OnPropertyChanged($"({nameof(CoreConfiguration.Language)}|{nameof(CoreConfiguration.FullscreenHotkey)}").Subscribe(s => menuItem.HotKeyHint = HotkeyControl.GetLocalizedHotkeyStringFromString(CoreConfiguration.FullscreenHotkey));
+				// Update the title of this menu item when the translation changes
+				GreenshotLanguage.CreateBinding(menuItem, nameof(IGreenshotLanguage.ContextmenuCaptureFullScreenAll));
 				return menuItem;
 
 			}

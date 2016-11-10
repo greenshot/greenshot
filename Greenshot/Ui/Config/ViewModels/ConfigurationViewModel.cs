@@ -27,10 +27,10 @@ using Caliburn.Micro;
 using Dapplo.CaliburnMicro;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
-using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using MahApps.Metro.Controls.Dialogs;
 using MahApps.Metro.IconPacks;
+using System.Reactive.Disposables;
 
 namespace Greenshot.Ui.Config.ViewModels
 {
@@ -40,7 +40,10 @@ namespace Greenshot.Ui.Config.ViewModels
 	[Export]
 	public class ConfigurationViewModel : Config<IConfigScreen>, IHaveIcon
 	{
-		private readonly Disposables _disposables = new Disposables();
+		/// <summary>
+		/// Here all disposables are registered, so we can clean the up
+		/// </summary>
+		private CompositeDisposable _disposables;
 
 		//[Import]
 		//public ICoreTranslations CoreTranslations { get; set; }
@@ -90,8 +93,15 @@ namespace Greenshot.Ui.Config.ViewModels
 
 		protected override void OnActivate()
 		{
+			// Prepare disposables
+			_disposables?.Dispose();
+			_disposables = new CompositeDisposable();
+
 			// automatically update the DisplayName
-			_disposables.Add(this.BindDisplayName(GreenshotLanguage, nameof(IGreenshotLanguage.SettingsTitle)));
+			var greenshotLanguageBinding = GreenshotLanguage.CreateBinding(this, nameof(IGreenshotLanguage.SettingsTitle));
+
+			// Make sure the greenshotLanguageBinding is disposed when this is no longer active
+			_disposables.Add(greenshotLanguageBinding);
 
 			base.OnActivate();
 		}

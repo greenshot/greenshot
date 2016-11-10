@@ -33,7 +33,7 @@ using Greenshot.Addon.Editor.Forms;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Forms;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 using Greenshot.Addon.Ui;
 
 namespace Greenshot.Addon.Editor

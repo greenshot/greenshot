@@ -31,7 +31,7 @@ using Greenshot.Addon.Confluence.Support;
 using Greenshot.Addon.Confluence.Windows;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces.Plugin;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 
 namespace Greenshot.Addon.Confluence
 {

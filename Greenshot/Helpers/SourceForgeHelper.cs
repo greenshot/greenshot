@@ -27,7 +27,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.HttpExtensions;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 
 namespace Greenshot.Helpers
 {

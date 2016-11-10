@@ -38,7 +38,7 @@ using Greenshot.Addon.Controls;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Plugin;
 using Encoder = System.Drawing.Imaging.Encoder;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 using Size = System.Drawing.Size;
 
 namespace Greenshot.Addon.Core

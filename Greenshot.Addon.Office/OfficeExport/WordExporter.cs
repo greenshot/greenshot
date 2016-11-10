@@ -26,7 +26,7 @@ using Dapplo.Config.Ini;
 using Microsoft.Office.Core;
 using Version = System.Version;
 using Word = Microsoft.Office.Interop.Word;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 
 namespace Greenshot.Addon.Office.OfficeExport
 {

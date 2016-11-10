@@ -2,11 +2,11 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
 using System.Linq;
+using System.Reactive.Disposables;
 using Caliburn.Micro;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.CaliburnMicro.Metro;
-using Dapplo.Utils;
 using Dapplo.Utils.Extensions;
 using Greenshot.Addon.Configuration;
 
@@ -15,7 +15,10 @@ namespace Greenshot.Ui.Config.ViewModels
 	[Export(typeof(IConfigScreen))]
 	public sealed class ThemeConfigViewModel : ConfigScreen
 	{
-		private readonly Disposables _disposables = new Disposables();
+		/// <summary>
+		/// Here all disposables are registered, so we can clean the up
+		/// </summary>
+		private CompositeDisposable _disposables;
 
 		/// <summary>
 		/// The avaible themes
@@ -38,6 +41,10 @@ namespace Greenshot.Ui.Config.ViewModels
 
 		public override void Initialize(IConfig config)
 		{
+			// Prepare disposables
+			_disposables?.Dispose();
+			_disposables = new CompositeDisposable();
+
 			AvailableThemeAccents.Clear();
 			foreach (var themeAccent in Enum.GetValues(typeof(ThemeAccents)).Cast<ThemeAccents>())
 			{
@@ -58,8 +65,12 @@ namespace Greenshot.Ui.Config.ViewModels
 			// Make sure Commit/Rollback is called on the IUiConfiguration
 			config.Register(CoreConfiguration);
 
+
 			// automatically update the DisplayName
-			_disposables.Add(this.BindDisplayName(GreenshotLanguage, nameof(IGreenshotLanguage.SettingsTitle)));
+			var greenshotLanguageBinding = GreenshotLanguage.CreateBinding(this, nameof(IGreenshotLanguage.SettingsTitle));
+
+			// Make sure the greenshotLanguageBinding is disposed when this is no longer active
+			_disposables.Add(greenshotLanguageBinding);
 
 			base.Initialize(config);
 		}

@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 using Greenshot.Addon.Core;
 using mshtml;
 using SHDocVw;

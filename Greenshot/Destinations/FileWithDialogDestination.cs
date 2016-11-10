@@ -28,7 +28,7 @@ using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Destinations

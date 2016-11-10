@@ -30,7 +30,7 @@ using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Interfaces.Destination;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 
 namespace Greenshot.Addon.ExternalCommand
 {

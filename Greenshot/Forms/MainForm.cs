@@ -25,7 +25,6 @@ using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Controls;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
-using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Helpers;
 using Greenshot.Windows;
@@ -43,9 +42,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Utils;
 using Timer = System.Timers.Timer;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 using Dapplo.Utils.Resolving;
-using Greenshot;
 using Greenshot.CaptureCore;
 
 namespace Greenshot.Forms

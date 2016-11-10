@@ -5,7 +5,7 @@ using System.Threading;
 using System.Windows;
 using Dapplo.CaliburnMicro;
 using Dapplo.Config.Language;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 using Dapplo.Utils.Resolving;
 using Greenshot.Addon.Configuration;
 using Dapplo.Config.Support;

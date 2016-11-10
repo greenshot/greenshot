@@ -34,10 +34,9 @@ using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Controls;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
-using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Helpers;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 
 namespace Greenshot.Forms
 {

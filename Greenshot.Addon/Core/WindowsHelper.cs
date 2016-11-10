@@ -38,7 +38,7 @@ using Dapplo.Windows.Structs;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Extensions;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 
 namespace Greenshot.Addon.Core
 {

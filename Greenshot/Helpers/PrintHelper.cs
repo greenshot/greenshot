@@ -31,7 +31,7 @@ using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Plugin;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 
 namespace Greenshot.Helpers
 {

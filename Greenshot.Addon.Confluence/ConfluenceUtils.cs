@@ -28,7 +28,7 @@ using System.Threading.Tasks;
 using System.Windows.Automation;
 using Dapplo.Confluence.Entities;
 using Greenshot.Addon.Core;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 
 namespace Greenshot.Addon.Confluence
 {

@@ -30,7 +30,8 @@ namespace Greenshot.Addon.Dropbox
 		{
 			Id = "Dropbox";
 			// automatically update the DisplayName
-			this.BindDisplayName(DropboxLanguage, nameof(IDropboxLanguage.SettingsTitle));
+
+			DropboxLanguage.CreateBinding(this, nameof(IDropboxLanguage.SettingsTitle));
 			Icon = new PackIconMaterial
 			{
 				Kind = PackIconMaterialKind.Dropbox

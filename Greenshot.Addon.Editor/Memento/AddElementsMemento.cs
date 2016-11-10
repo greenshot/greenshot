@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Addon.Editor.Drawing;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Drawing;
 

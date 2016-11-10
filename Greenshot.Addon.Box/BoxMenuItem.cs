@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.Composition;
 using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.CaliburnMicro.Menu;
-using Dapplo.Utils;
 using Greenshot.Addon.Box.Forms;
 using MahApps.Metro.IconPacks;
 
@@ -32,7 +31,7 @@ namespace Greenshot.Addon.Box
 		{
 			Id = "Box";
 			// automatically update the DisplayName
-			this.BindDisplayName(BoxLanguage, nameof(IBoxLanguage.SettingsTitle));
+			BoxLanguage.CreateBinding(this, nameof(IBoxLanguage.SettingsTitle));
 			Icon = new PackIconMaterial
 			{
 				Kind = PackIconMaterialKind.Box

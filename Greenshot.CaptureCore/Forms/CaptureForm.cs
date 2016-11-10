@@ -30,7 +30,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Config.Ini;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Native;
 using Greenshot.Addon.Configuration;

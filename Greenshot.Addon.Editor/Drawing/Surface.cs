@@ -39,7 +39,7 @@ using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Drawing;
 using Greenshot.Addon.Windows;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 
 namespace Greenshot.Addon.Editor.Drawing
 {

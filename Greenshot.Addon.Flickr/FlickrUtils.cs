@@ -34,7 +34,7 @@ using Dapplo.HttpExtensions.Extensions;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Plugin;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 
 namespace Greenshot.Addon.Flickr
 {
@@ -98,7 +98,7 @@ namespace Greenshot.Addon.Flickr
 						{
 							Name = "\"photo\"", FileName = "\"" + filename + "\"",
 						};
-						HttpBehaviour.Current.AddConfig(new HttpRequestMessageConfiguration
+						HttpBehaviour.Current.SetConfig(new HttpRequestMessageConfiguration
 						{
 							Properties = signedParameters
 						});
@@ -116,7 +116,7 @@ namespace Greenshot.Addon.Flickr
 					{"format", "json"},
 					{"nojsoncallback", "1"}
 				};
-				HttpBehaviour.Current.AddConfig(new HttpRequestMessageConfiguration
+				HttpBehaviour.Current.SetConfig(new HttpRequestMessageConfiguration
 				{
 					Properties = signedParameters
 				});

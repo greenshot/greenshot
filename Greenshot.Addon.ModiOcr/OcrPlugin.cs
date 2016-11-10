@@ -30,7 +30,7 @@ using Dapplo.Addons;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 using Greenshot.Addon.Core;
 
 namespace Greenshot.Addon.ModiOcr

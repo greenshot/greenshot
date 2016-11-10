@@ -25,7 +25,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Config.Language;
 using Greenshot.Addon.Core;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 
 namespace Greenshot.Forms
 {

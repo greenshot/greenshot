@@ -27,13 +27,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Addons;
 using Greenshot.Addon.Interfaces;
-using Greenshot.Helpers;
 using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
 using System.ServiceModel.Channels;
 using Greenshot.Addon.Configuration;
 using Dapplo.Utils;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 using Greenshot.Addon.Core;
 using Greenshot.CaptureCore;
 
