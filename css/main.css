@@ -28,6 +28,8 @@ header, footer {
 	top:10px;
 	right:0;
 	z-index:50;
+	width: 80%;
+	height: 90px;
 }
 
 header .content-wrapper {
@@ -253,6 +255,11 @@ nav ul {
 	
 	nav, .header-ad, .servicelinks {
 		right: 200px;
+	}
+	
+	.header-ad {
+		width: 728px;
+		height: 90px;
 	}
 	
 	.content-wrapper {
