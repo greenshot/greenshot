@@ -29,6 +29,11 @@ header, footer {
 	right:0;
 	z-index:50;
 	width: 80%;
+	height: auto;
+}
+
+.header-ad .adsbygoogle {
+	width: 100%;
 	height: 90px;
 }
 
@@ -259,7 +264,7 @@ nav ul {
 	
 	.header-ad {
 		width: 728px;
-		height: 90px;
+		height: auto;
 	}
 	
 	.content-wrapper {
