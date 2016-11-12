@@ -16,7 +16,7 @@
 			</script>
 		</div>
 		<a href="/" class="logo"><img src="/assets/greenshot-logo.png"></a>
-		<nav>
+		<nav class="desktop">
 			<ul>
 				{% for availablepage in site.pages %}{% if availablepage.menu %}
 					<li>
@@ -32,6 +32,19 @@
 			<a href="/sitemap/">sitemap</a> &middot;
 			<a href="/impressum/">impressum</a>
 		</div>
+		<nav class="mobile">
+			<ul>
+				{% assign nav_counter = 0 %}
+				{% for availablepage in site.pages %}{% if availablepage.menu %}
+					<li>
+						<a {% if page.url == availablepage.url %}class="active"{% endif %} href="{{ availablepage.url }}">{{ availablepage.menu }}</a>
+					</li>
+					{% assign nav_counter = nav_counter | plus: 1 %}
+					{% if nav_counter == 4 %}
+						<br>
+					{% endif %}
+				{% endif %}{% endfor %}
+			</ul>
+		</nav>
 	</div>
-	
 </header>

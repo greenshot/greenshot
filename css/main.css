@@ -62,14 +62,7 @@ a.slidesjs-navigation {
 }
 
 main .content-wrapper {
-	margin-top: 50px;
-}
-
-nav {
-	position:absolute;
-	right:0;
-	bottom:0;
-	text-align: right;
+	margin-top: 150px;
 }
 
 nav ul {
@@ -175,6 +168,11 @@ a.cta:hover {
 	background-color:#6cb711;
 }
 
+.cta-button {
+	float: left;
+	margin-top: 10px;
+}
+
 .cta-aside {
 	font-family: 'Bangers', cursive;
 	font-size: 2em;
@@ -198,6 +196,56 @@ a.cta:hover {
 .body-ad {
 	display: inline-block;
 	width: 180px;
+}
+
+.desktop {
+	display: none;
+}
+
+nav {
+	position: absolute;
+	top:225px;
+	background-color: #3d3d3d;
+	width: 100%;
+}
+
+nav ul {
+	margin: 0;
+	padding: 0;
+}
+
+@media only screen and (min-width: 840px) {
+	.mobile {
+		display: none;
+	}
+	.desktop {
+		display: inherit;
+	}
+	
+	
+	nav {
+		position:absolute;
+		right:0;
+		bottom:0;
+		text-align: right;
+		top:auto;
+		background-color: transparent;
+		width: auto;
+	}
+	
+	main .content-wrapper {
+		margin-top: 50px;
+	}
+	
+	nav ul {
+		margin: 0;
+		padding: 0 0 0 127px;
+	}
+	
+	.right-cta {
+		margin-left: 20px;
+	}
+	
 }
 
 
