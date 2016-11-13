@@ -71,15 +71,15 @@ namespace Greenshot.Addon.Configuration
 			set;
 		}
 
-		[Description("Play a camera sound after taking a capture."), DefaultValue(false), Tag(ConfigTags.LanguageKey, "settings_playsound")]
-		bool PlayCameraSound
+		[Description("Show a notification from the systray when a capture is taken."), DefaultValue(true), Tag(ConfigTags.LanguageKey, "settings_shownotify")]
+		bool ShowTrayNotification
 		{
 			get;
 			set;
 		}
 
-		[Description("Show a notification from the systray when a capture is taken."), DefaultValue(true), Tag(ConfigTags.LanguageKey, "settings_shownotify")]
-		bool ShowTrayNotification
+		[Description("Play a camera sound after taking a capture."), DefaultValue(false), Tag(ConfigTags.LanguageKey, "settings_playsound")]
+		bool PlayCameraSound
 		{
 			get;
 			set;
@@ -143,20 +143,6 @@ namespace Greenshot.Addon.Configuration
 
 		[Description("Specify what action is made if the tray icon is double clicked"), DefaultValue(ClickActions.OpenLastInExplorer)]
 		ClickActions DoubleClickAction
-		{
-			get;
-			set;
-		}
-
-		[Description("Sets if the zoomer is enabled"), DefaultValue(true)]
-		bool ZoomerEnabled
-		{
-			get;
-			set;
-		}
-
-		[Description("Specify the transparency for the zoomer, from 0-1 (where 1 is no transparency and 0 is complete transparent. An usefull setting would be 0.7)"), DefaultValue(1)]
-		float ZoomerOpacity
 		{
 			get;
 			set;

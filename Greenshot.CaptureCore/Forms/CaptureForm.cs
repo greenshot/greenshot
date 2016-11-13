@@ -29,7 +29,6 @@ using System.Security.Permissions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Dapplo.Config.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Native;
@@ -55,21 +54,13 @@ namespace Greenshot.CaptureCore.Forms
 		};
 
 		private static readonly LogSource Log = new LogSource();
-		private static readonly ICoreConfiguration Conf = IniConfig.Current.Get<ICoreConfiguration>();
-		private static readonly Brush GreenOverlayBrush = new SolidBrush(Color.FromArgb(50, Color.MediumSeaGreen));
-		private static readonly Pen OverlayPen = new Pen(Color.FromArgb(50, Color.Black));
 		private static CaptureForm _currentForm;
-		private static readonly Brush BackgroundBrush;
 
-		/// <summary>
-		/// Initialize the background brush
-		/// </summary>
-		static CaptureForm()
-		{
-			Image backgroundForTransparency = GreenshotResources.GetImage("Checkerboard.Image");
-			BackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
-		}
+		private readonly Brush _areaOverlayBrush;
+		private readonly Pen _areaOverlayPen;
+		private readonly Brush _backgroundBrush;
 
+		private readonly ICropConfiguration _cropConfiguration;
 		private int _mX;
 		private int _mY;
 		private Point _mouseMovePos;
@@ -83,8 +74,27 @@ namespace Greenshot.CaptureCore.Forms
 		private FixMode _fixMode = FixMode.None;
 		private RectangleAnimator _windowAnimator;
 		private RectangleAnimator _zoomAnimator;
-		private readonly bool _isZoomerTransparent = Conf.ZoomerOpacity < 1;
 		private bool _isCtrlPressed;
+
+		/// <summary>
+		/// Disposes resources used by the form.
+		/// </summary>
+		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				if (components != null)
+				{
+					components.Dispose();
+				}
+				_areaOverlayBrush?.Dispose();
+				_areaOverlayPen?.Dispose();
+				_backgroundBrush?.Dispose();
+
+	}
+			base.Dispose(disposing);
+		}
 
 		/// <summary>
 		/// Property to access the selected capture rectangle
@@ -155,8 +165,15 @@ namespace Greenshot.CaptureCore.Forms
 		/// </summary>
 		/// <param name="capture"></param>
 		/// <param name="retrieveWindowsTask"></param>
-		public CaptureForm(ICapture capture, Task<IList<WindowDetails>> retrieveWindowsTask)
+		/// <param name="cropConfiguration">ICropConfiguration with the configuration for the cropper</param>
+		public CaptureForm(ICapture capture, Task<IList<WindowDetails>> retrieveWindowsTask, ICropConfiguration cropConfiguration)
 		{
+			_cropConfiguration = cropConfiguration;
+			Image backgroundForTransparency = GreenshotResources.GetImage("Checkerboard.Image");
+			_backgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
+			_areaOverlayBrush = new SolidBrush(cropConfiguration.CropAreaColor);
+			_areaOverlayPen = new Pen(Color.FromArgb(50, Color.Black));
+
 			if (_currentForm != null)
 			{
 				Log.Warn().WriteLine("Found currentForm, Closing already opened CaptureForm");
@@ -212,7 +229,7 @@ namespace Greenshot.CaptureCore.Forms
 			ToFront = true;
 			TopMost = true;
 			// Set the zoomer animation
-			InitializeZoomer(Conf.ZoomerEnabled);
+			InitializeZoomer(_cropConfiguration.ZoomerEnabled);
 		}
 
 		/// <summary>
@@ -303,8 +320,8 @@ namespace Greenshot.CaptureCore.Forms
 					if (UsedCaptureMode == CaptureMode.Region)
 					{
 						// Toggle zoom
-						Conf.ZoomerEnabled = !Conf.ZoomerEnabled;
-						InitializeZoomer(Conf.ZoomerEnabled);
+						_cropConfiguration.ZoomerEnabled = !_cropConfiguration.ZoomerEnabled;
+						InitializeZoomer(_cropConfiguration.ZoomerEnabled);
 						Invalidate();
 					}
 					break;
@@ -328,7 +345,7 @@ namespace Greenshot.CaptureCore.Forms
 							// "Fade out" window
 							_windowAnimator.ChangeDestination(new Rectangle(_cursorPos, Size.Empty), FramesForMillis(700));
 							// Fade in zoom
-							InitializeZoomer(Conf.ZoomerEnabled);
+							InitializeZoomer(_cropConfiguration.ZoomerEnabled);
 							_captureRect = Rectangle.Empty;
 							Invalidate();
 							break;
@@ -620,7 +637,7 @@ namespace Greenshot.CaptureCore.Forms
 				invalidateRectangle.Offset(lastPos);
 				Invalidate(invalidateRectangle);
 				// Only verify if we are really showing the zoom, not the outgoing animation
-				if (Conf.ZoomerEnabled && UsedCaptureMode != CaptureMode.Window)
+				if (_cropConfiguration.ZoomerEnabled && UsedCaptureMode != CaptureMode.Window)
 				{
 					VerifyZoomAnimation(_cursorPos, false);
 				}
@@ -709,12 +726,12 @@ namespace Greenshot.CaptureCore.Forms
 			}
 			ImageAttributes attributes;
 
-			if (_isZoomerTransparent)
+			if (_cropConfiguration.ZoomerOpacity < 1)
 			{
 				//create a color matrix object to change the opacy
 				var opacyMatrix = new ColorMatrix
 				{
-					Matrix33 = Conf.ZoomerOpacity
+					Matrix33 = _cropConfiguration.ZoomerOpacity
 				};
 				attributes = new ImageAttributes();
 				attributes.SetColorMatrix(opacyMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
@@ -733,9 +750,9 @@ namespace Greenshot.CaptureCore.Forms
 			{
 				path.AddEllipse(destinationRectangle);
 				graphics.SetClip(path);
-				if (!_isZoomerTransparent)
+				if (! (_cropConfiguration.ZoomerOpacity < 1))
 				{
-					graphics.FillRectangle(BackgroundBrush, destinationRectangle);
+					graphics.FillRectangle(_backgroundBrush, destinationRectangle);
 					graphics.DrawImage(_capture.Image, destinationRectangle, sourceRectangle, GraphicsUnit.Pixel);
 				}
 				else
@@ -743,7 +760,7 @@ namespace Greenshot.CaptureCore.Forms
 					graphics.DrawImage(_capture.Image, destinationRectangle, sourceRectangle.X, sourceRectangle.Y, sourceRectangle.Width, sourceRectangle.Height, GraphicsUnit.Pixel, attributes);
 				}
 			}
-			int alpha = (int) (255*Conf.ZoomerOpacity);
+			int alpha = (int) (255* _cropConfiguration.ZoomerOpacity);
 			Color opacyWhite = Color.FromArgb(alpha, 255, 255, 255);
 			Color opacyBlack = Color.FromArgb(alpha, 0, 0, 0);
 
@@ -830,9 +847,9 @@ namespace Greenshot.CaptureCore.Forms
 				//if (capture.CaptureDetails.CaptureMode == CaptureMode.Video) {
 				//	graphics.FillRectangle(RedOverlayBrush, fixedRect);
 				//} else {
-				graphics.FillRectangle(GreenOverlayBrush, fixedRect);
+				graphics.FillRectangle(_areaOverlayBrush, fixedRect);
 				//}
-				graphics.DrawRectangle(OverlayPen, fixedRect);
+				graphics.DrawRectangle(_areaOverlayPen, fixedRect);
 
 				// rulers
 				const int dist = 8;

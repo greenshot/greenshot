@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
@@ -56,10 +57,7 @@ namespace Greenshot.Ui.ViewModels
 
 
 		[ImportMany("systray", typeof(IMenuItem))]
-		private IEnumerable<IMenuItem> ContextMenuItems { get; set; }
-
-		[ImportMany("systray", typeof(IMenuItemProvider))]
-		private IEnumerable<IMenuItemProvider> ContextMenuItemProviders { get; set; }
+		private IEnumerable<Lazy<IMenuItem>> ContextMenuItems { get; set; }
 
 		[Import]
 		private IEventAggregator EventAggregator { get; set; }
@@ -128,8 +126,7 @@ namespace Greenshot.Ui.ViewModels
 		private void BuildSystrayContextMenu()
 		{
 			var items = new List<IMenuItem>();
-			items.AddRange(ContextMenuItems);
-			items.AddRange(ContextMenuItemProviders.SelectMany(contextMenuItemProvider => contextMenuItemProvider.ProvideMenuItems()));
+			items.AddRange(ContextMenuItems.Select(x => x.Value));
 			if (items.Count > 0)
 			{
 				items.Add(new MenuItem

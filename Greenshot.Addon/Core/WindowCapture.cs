@@ -75,7 +75,7 @@ namespace Greenshot.Addon.Core
 		public static Point GetCursorLocationRelativeToScreenBounds()
 		{
 			var cursorLocation = User32.GetCursorLocation();
-            return GetLocationRelativeToScreenBounds(new Point((int)cursorLocation.X, (int)cursorLocation.Y));
+			return GetLocationRelativeToScreenBounds(new Point((int)cursorLocation.X, (int)cursorLocation.Y));
 		}
 
 		/// <summary>

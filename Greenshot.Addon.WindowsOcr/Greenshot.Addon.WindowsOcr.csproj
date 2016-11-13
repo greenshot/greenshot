@@ -25,35 +25,43 @@
       <HintPath>..\packages\Caliburn.Micro.3.0.1\lib\net45\Caliburn.Micro.Platform.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Addons, Version=0.3.87.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Addons.0.3.87\lib\net45\Dapplo.Addons.dll</HintPath>
+    <Reference Include="Dapplo.Addons, Version=0.3.88.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Addons.0.3.88\lib\net45\Dapplo.Addons.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Config, Version=0.3.54.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Config.0.3.54\lib\net45\Dapplo.Config.dll</HintPath>
+    <Reference Include="Dapplo.Config, Version=0.4.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Config.0.4.2\lib\net45\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.InterfaceImpl, Version=0.1.37.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.InterfaceImpl.0.1.37\lib\net45\Dapplo.InterfaceImpl.dll</HintPath>
+    <Reference Include="Dapplo.InterfaceImpl, Version=0.2.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.InterfaceImpl.0.2.5\lib\net45\Dapplo.InterfaceImpl.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Dapplo.Log, Version=1.0.22.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Log.1.0.22\lib\net45\Dapplo.Log.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.Log.Facade, Version=0.5.4.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Log.Facade.0.5.4\lib\net45\Dapplo.Log.Facade.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Utils, Version=0.1.122.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Utils.0.1.122\lib\net45\Dapplo.Utils.dll</HintPath>
+    <Reference Include="Dapplo.Utils, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Utils.1.0.128\lib\net45\Dapplo.Utils.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="MahApps.Metro.IconPacks, Version=1.6.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MahApps.Metro.IconPacks.1.6.0\lib\net45\MahApps.Metro.IconPacks.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Caliburn.Micro.3.0.1\lib\net45\System.Windows.Interactivity.dll</HintPath>
       <Private>True</Private>

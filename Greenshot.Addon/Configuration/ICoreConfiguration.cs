@@ -31,6 +31,7 @@ using Dapplo.Config.Ini;
 using Dapplo.InterfaceImpl.Extensions;
 using Greenshot.Addon.Core;
 using Dapplo.Log;
+using Greenshot.Addon.Configuration;
 
 namespace Greenshot.Addon.Configuration
 {
@@ -64,8 +65,9 @@ namespace Greenshot.Addon.Configuration
 	public interface ICoreConfiguration :
 		// Importing other configuration interfaces, so the file doesn't get to big
 		IOutputConfiguration, IPrinterConfiguration,
-		IUiConfiguration, ICaptureConfiguration, IMiscConfiguration,
+		IUiConfiguration, IMiscConfiguration,
 		IUpdateConfiguration, IHotkeyConfiguration,
+		ICaptureConfiguration, ICropConfiguration,
 		// Ini-Framework
 		IIniSection<ICoreConfiguration>, INotifyPropertyChanged, ITagging<ICoreConfiguration>, IWriteProtectProperties<ICoreConfiguration>, ITransactionalProperties
 	{
@@ -143,19 +145,13 @@ namespace Greenshot.Addon.Configuration
 		{
 			switch (property)
 			{
-				case "PluginWhitelist":
-				case "PluginBacklist":
-					return new List<string>();
-				case "OutputFileAsFullpath":
+				case nameof(ICoreConfiguration.OutputFileAsFullpath):
 					if (PortableHelper.IsPortable)
 					{
 						return Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots\dummy.png");
 					}
-					else
-					{
-						return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dummy.png");
-					}
-				case "OutputFilePath":
+					return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dummy.png");
+				case nameof(ICoreConfiguration.OutputFilePath):
 					if (PortableHelper.IsPortable)
 					{
 						string pafOutputFilePath = Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots");
@@ -178,26 +174,30 @@ namespace Greenshot.Addon.Configuration
 						}
 					}
 					return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-				case "DWMBackgroundColor":
+				case nameof(ICoreConfiguration.DWMBackgroundColor):
 					return Color.Transparent;
-				case "ActiveTitleFixes":
+				case nameof(ICoreConfiguration.ActiveTitleFixes):
 					IList<string> activeDefaults = new List<string>();
 					activeDefaults.Add("Firefox");
 					activeDefaults.Add("IE");
 					activeDefaults.Add("Chrome");
 					return activeDefaults;
-				case "TitleFixMatcher":
+				case nameof(ICoreConfiguration.TitleFixMatcher):
 					IDictionary<string, string> matcherDefaults = new Dictionary<string, string>();
 					matcherDefaults.Add("Firefox", " - Mozilla Firefox.*");
 					matcherDefaults.Add("IE", " - (Microsoft|Windows) Internet Explorer.*");
 					matcherDefaults.Add("Chrome", " - Google Chrome.*");
 					return matcherDefaults;
-				case "TitleFixReplacer":
+				case nameof(ICoreConfiguration.TitleFixReplacer):
 					IDictionary<string, string> replacerDefaults = new Dictionary<string, string>();
 					replacerDefaults.Add("Firefox", "");
 					replacerDefaults.Add("IE", "");
 					replacerDefaults.Add("Chrome", "");
 					return replacerDefaults;
+				case nameof(ICropConfiguration.CropAreaColor):
+					return Color.FromArgb(50, Color.MediumSeaGreen);
+				case nameof(ICropConfiguration.CropAreaLinesColor):
+					return Color.FromArgb(50, Color.Black);
 			}
 			return null;
 		}

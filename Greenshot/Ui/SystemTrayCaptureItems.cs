@@ -35,8 +35,7 @@ namespace Greenshot.Ui
 	/// This class contains all the "capture" menu items for the context-menu in the system tray
 	/// 
 	/// </summary>
-	[Export("systray", typeof(IMenuItemProvider))]
-	public class SystemTrayCaptureItems : IMenuItemProvider
+	public class SystemTrayCaptureItems
 	{
 		private const string IdPrefix = "B_";
 
@@ -46,16 +45,6 @@ namespace Greenshot.Ui
 		[Import]
 		private IGreenshotLanguage GreenshotLanguage { get; set; }
 
-		/// <summary>
-		/// Provide the menu items for the context menu
-		/// </summary>
-		/// <returns></returns>
-		public IEnumerable<IMenuItem> ProvideMenuItems()
-		{
-			yield return CaptureArea;
-			yield return CaptureWindow;
-			yield return CaptureScreen;
-		}
 
 		//contextmenu_capturearea.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(coreConfiguration.RegionHotkey);
 		//contextmenu_capturelastregion.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(coreConfiguration.LastregionHotkey);
@@ -66,6 +55,7 @@ namespace Greenshot.Ui
 		/// <summary>
 		/// Region capture menu-item
 		/// </summary>
+		[Export("systray", typeof(IMenuItem))]
 		private MenuItem CaptureArea
 		{
 			get
@@ -95,6 +85,7 @@ namespace Greenshot.Ui
 		/// <summary>
 		/// Window capture menu-item
 		/// </summary>
+		[Export("systray", typeof(IMenuItem))]
 		private MenuItem CaptureWindow
 		{
 			get
@@ -125,6 +116,7 @@ namespace Greenshot.Ui
 		/// <summary>
 		/// Screen capture menu-item
 		/// </summary>
+		[Export("systray", typeof(IMenuItem))]
 		private MenuItem CaptureScreen
 		{
 			get

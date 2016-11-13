@@ -1019,7 +1019,7 @@ namespace Greenshot.CaptureCore
 			bool isOk = false;
 			await UiContext.RunOn(() =>
 			{
-				using (var captureForm = new CaptureForm(_capture, retrieveWindowsTask))
+				using (var captureForm = new CaptureForm(_capture, retrieveWindowsTask, CoreConfiguration))
 				{
 					DialogResult result;
 					// Make sure the form is hidden after showing, even if an exception occurs, so all errors will be shown
