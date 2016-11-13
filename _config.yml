@@ -4,7 +4,7 @@ title: Greenshot
 description: Greenshot - a free screenshot tool optimized for productivity
 baseurl: ""
 # TODO change URL to getgreenshot.org
-url: http://greenshot.github.io
+url: http://getgreenshot.org
 twitter_username: greenshot_tool
 github_username: greenshot
 #facebook: Greenshot.Tool
@@ -20,6 +20,9 @@ collections:
   posts:
     output: true
     permalink: /:year/:month/:day/:title/ 
+  screenshots:
+    output: true
+    permallink: /screenshots/:title/
 
 defaults:
   scope:
