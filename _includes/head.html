@@ -8,7 +8,7 @@
     <meta name="description" content="{% if page.metadescription %}{{ page.metadescription }}{% else %}{{ site.description }}{% endif %}"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="{{ '/css/main.css' | prepend: site.baseurl }}">
+    <link rel="stylesheet" href="{{ '/css/main.css?v=2' | prepend: site.baseurl }}">
 
     {% if page.tags contains "uses_alerts" %}
     <link rel="stylesheet" href="{{ '/css/alerts.css' | prepend: site.baseurl }}">
