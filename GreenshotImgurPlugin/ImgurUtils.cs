@@ -46,7 +46,7 @@ namespace GreenshotImgurPlugin {
 				return;
 			}
 			// Load the ImUr history
-			List<string> hashes = new List<string>();
+			IList<string> hashes = new List<string>();
 			foreach(string hash in Config.ImgurUploadHistory.Keys) {
 				hashes.Add(hash);
 			}
@@ -62,7 +62,7 @@ namespace GreenshotImgurPlugin {
 					ImgurInfo imgurInfo = RetrieveImgurInfo(hash, Config.ImgurUploadHistory[hash]);
 					if (imgurInfo != null) {
 						RetrieveImgurThumbnail(imgurInfo);
-						Config.runtimeImgurHistory.Add(hash, imgurInfo);
+						Config.runtimeImgurHistory[hash] = imgurInfo;
 					} else {
 						Log.DebugFormat("Deleting not found ImgUr {0} from config.", hash);
 						Config.ImgurUploadHistory.Remove(hash);
@@ -113,11 +113,11 @@ namespace GreenshotImgurPlugin {
 			IDictionary<string, object> otherParameters = new Dictionary<string, object>();
 			// add title
 			if (title != null && Config.AddTitle) {
-				otherParameters.Add("title", title);
+				otherParameters["title"]= title;
 			}
 			// add filename
 			if (filename != null && Config.AddFilename) {
-				otherParameters.Add("name", filename);
+				otherParameters["name"] = filename;
 			}
 			string responseString = null;
 			if (Config.AnonymousAccess) {
@@ -171,7 +171,7 @@ namespace GreenshotImgurPlugin {
 				try
 				{
 					var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.POST, Config.ImgurApi3Url + "/upload.xml", oauth2Settings);
-					otherParameters.Add("image", new SurfaceContainer(surfaceToUpload, outputSettings, filename));
+					otherParameters["image"] = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
 
 					NetworkHelper.WriteMultipartFormData(webRequest, otherParameters);
 
@@ -307,7 +307,7 @@ namespace GreenshotImgurPlugin {
 		/// <param name="key"></param>
 		private static void LogHeader(IDictionary<string, string> nameValues, string key) {
 			if (nameValues.ContainsKey(key)) {
-				Log.InfoFormat("key={0}", nameValues[key]);
+				Log.InfoFormat("{0}={1}", key, nameValues[key]);
 			}
 		}
 

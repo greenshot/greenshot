@@ -12,7 +12,7 @@ All details to our tickets can be found here: https://greenshot.atlassian.net
 This is a release candidate for the coming release of Greenshot.
 **Testing is not finished, use at your own risk...**
 
-Changes for the following reported tickets were added since 1.2.8.12:
+Changes for the following reported tickets were added since 1.2.8.14:
 
 Fixed bugs:
 * BUG-1762 Dropshadow & tornedge prompts for settings every time
@@ -22,6 +22,7 @@ Fixed bugs:
 * BUG-1887 Editor hangs on exit - hang time proportional to number of objects
 * BUG-1890 Slight cropping around window on Windows 10
 * BUG-1892 Greenshot saves blank JPG file with reduce colors
+* BUG-1894 Imgur remote server error 429
 * BUG-1896 JIRA Plugin doesn't work with JIRA Server v7.0
 * BUG-1898 Specify GPLv3 in the license text
 * BUG-1908 External Command, add commands at startup
@@ -50,41 +51,14 @@ Added translation:
 * Nederlands by Stephan Paternotte
 
 
-1.2.8.12-cab854b RELEASE
+1.2.8.14-b7c8384 RELEASE
 
-There were some major issues with the authenticated (non anonymous) uploads to Imgur.
-After contacting Imgur they told us that their old API was deprecated or disabled, unfortunately this was not communicated.
-Although we are working hard on Greenshot 1.3, where we changed most of the Imgur code already, we can't release it.
-We did see a need to fix the imgur uploads, so in this release we quickly updated the Imgur API.
-This should resolve a lot of tickets that were reported to us.
-
-Additionally our website http://getgreenshot.org is hosted by sourceforge and they seem to have a lot of stability problems.
-Due to these problems a bug in the Greenshot update check manifested itself and causes Greenshot to get slow or even stop responding.
-In this version we fix the bug in the update check, and we are also working on a solution for the instability with our website.
-
-Here is the list of chances:
-
-This is a pre-release for the comming bug-fix release of Greenshot.
-
-This version has changes, compared to 1.2.8.12, for the following reported tickets:
-
-* BUG-1884: OCR has trailing blank spaces|
-* BUG-1890: Slight cropping around window on Windows 10|
-* BUG-1892: Greenshot saves blank JPG file with reduce colors|
-* BUG-1898: Specify GPLv3 in the license text|
-* BUG-1918: Speechbubble issue: Artifacts appeared when shadow is on and transparency is used|
-* BUG-1933: Greenshot Installer sets bad registry key permission|
-* BUG-1935: Delay when pasting and ShapeShifter from FlameFusion is running|
-* BUG-1941: Error when creating speech bubble|
-* BUG-1945: Failure starting Greenshot at system startup|
-* BUG-1949: Can't delete Imgur upload
-* BUG-1965: Activation border around window is visible in the capture
-* FEATURE-945: Added environment variables to the external command
-
-Testing is not finished, use at your own risk...
+Changes for this release:
+This has Imgur improvements for the newer API version, this is a backport from Greenshot 1.2.9
+With the move to a new hosting platform, we also noticed our update checks are way to often, this needed to be reduced.
 
 
-1.2.8.12 Release 
+1.2.8.12-cab854b Release 
 
 Bugs Resolved:
 
