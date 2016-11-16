@@ -353,6 +353,20 @@ namespace Greenshot.IniFile {
 				return null;
 			}
 
+			// The following makes the enum string values a bit less restrictive
+			if (valueType.IsEnum)
+			{
+				string searchingEnumString = valueString.Replace("_", "").ToLowerInvariant();
+				foreach (var possibleValue in Enum.GetValues(valueType))
+				{
+					var possibleString = possibleValue.ToString().Replace("_", "").ToLowerInvariant();
+					if (possibleString.Equals(searchingEnumString))
+					{
+						return possibleValue;
+					}
+				}
+			}
+
 			if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(List<>)) {
 				string arraySeparator = separator;
 				object list = Activator.CreateInstance(valueType);

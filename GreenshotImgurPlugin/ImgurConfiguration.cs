@@ -23,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using Greenshot.IniFile;
-using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 
 namespace GreenshotImgurPlugin {
@@ -95,18 +94,9 @@ namespace GreenshotImgurPlugin {
 		/// </summary>
 		/// <returns>bool true if OK was pressed, false if cancel</returns>
 		public bool ShowConfigDialog() {
-			SettingsForm settingsForm = null;
-
-			new PleaseWaitForm().ShowAndWait(ImgurPlugin.Attributes.Name, Language.GetString("imgur", LangKey.communication_wait), 
-				delegate {
-					settingsForm = new SettingsForm(this);
-				}
-			);
+			SettingsForm settingsForm = new SettingsForm();
 			DialogResult result = settingsForm.ShowDialog();
-			if (result == DialogResult.OK) {
-				return true;
-			}
-			return false;
+			return result == DialogResult.OK;
 		}
 	}
 }

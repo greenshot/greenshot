@@ -46,7 +46,7 @@ Added features:
 * FEATURE-946 Updated to Inno-Setup 5.5.9 for improved installer security
 * FEATURE-958 Greenshot is now using code signing certificates
 
-Added translation:
+Added or changed translation:
 * Català by Gabriel Guix.
 * Nederlands by Stephan Paternotte
 
