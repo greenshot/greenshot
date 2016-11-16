@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Windows;
@@ -67,7 +68,7 @@ namespace Greenshot.Ui.Config.ViewModels
 		///     Get all settings controls, these are the items that are displayed.
 		/// </summary>
 		[ImportMany]
-		public override IEnumerable<IConfigScreen> ConfigScreens { get; set; }
+		public override IEnumerable<Lazy<IConfigScreen>> ConfigScreens { get; set; }
 
 		/// <summary>
 		///     Used to show a "normal" dialog

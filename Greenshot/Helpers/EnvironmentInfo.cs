@@ -100,7 +100,7 @@ namespace Greenshot.Helpers
 				{
 					environment.Append(", ");
 				}
-				environment.Append(String.Format("OS: {0} {1} {2} (x{3})  {4}", OSInfo.Name, OSInfo.Edition, OSInfo.ServicePack, OSInfo.Bits, OSInfo.VersionString));
+				environment.Append(string.Format("OS: {0} {1} {2} (x{3})  {4}", OSInfo.Name, OSInfo.Edition, OSInfo.ServicePack, OSInfo.Bits, OSInfo.VersionString));
 				if (newline)
 				{
 					environment.AppendLine();
@@ -110,7 +110,7 @@ namespace Greenshot.Helpers
 					environment.Append(", ");
 				}
 				// Get some important information for fixing GDI related Problems
-				environment.AppendFormat("GDI object count: {0}", User32.GetGuiResourcesGDICount());
+				environment.AppendFormat("GDI object count: {0}", User32.GetGuiResourcesGdiCount());
 				if (newline)
 				{
 					environment.AppendLine();
@@ -247,11 +247,13 @@ namespace Greenshot.Helpers
 					return s_Edition; //***** RETURN *****//
 				}
 
-				string edition = String.Empty;
+				string edition = string.Empty;
 
 				OperatingSystem osVersion = Environment.OSVersion;
-				OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX();
-				osVersionInfo.dwOSVersionInfoSize = Marshal.SizeOf(typeof (OSVERSIONINFOEX));
+				OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX
+				{
+					dwOSVersionInfoSize = Marshal.SizeOf(typeof(OSVERSIONINFOEX))
+				};
 
 				if (GetVersionEx(ref osVersionInfo))
 				{
@@ -271,16 +273,7 @@ namespace Greenshot.Helpers
 						}
 						else if (productType == VER_NT_SERVER)
 						{
-							if ((suiteMask & VER_SUITE_ENTERPRISE) != 0)
-							{
-								// Windows NT 4.0 Server Enterprise
-								edition = "Enterprise Server";
-							}
-							else
-							{
-								// Windows NT 4.0 Server
-								edition = "Standard Server";
-							}
+							edition = (suiteMask & VER_SUITE_ENTERPRISE) != 0 ? "Enterprise Server" : "Standard Server";
 						}
 					}
 						#endregion VERSION 4
@@ -291,16 +284,7 @@ namespace Greenshot.Helpers
 					{
 						if (productType == VER_NT_WORKSTATION)
 						{
-							if ((suiteMask & VER_SUITE_PERSONAL) != 0)
-							{
-								// Windows XP Home Edition
-								edition = "Home";
-							}
-							else
-							{
-								// Windows XP / Windows 2000 Professional
-								edition = "Professional";
-							}
+							edition = (suiteMask & VER_SUITE_PERSONAL) != 0 ? "Home" : "Professional";
 						}
 						else if (productType == VER_NT_SERVER)
 						{
@@ -765,7 +749,7 @@ namespace Greenshot.Helpers
 		{
 			get
 			{
-				string servicePack = String.Empty;
+				string servicePack = string.Empty;
 				OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX();
 
 				osVersionInfo.dwOSVersionInfoSize = Marshal.SizeOf(typeof (OSVERSIONINFOEX));

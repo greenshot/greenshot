@@ -566,7 +566,7 @@ EndSelection:<<<<<<<4
 		{
 			if (ContainsText(dataObject))
 			{
-				return (String) dataObject.GetData(DataFormats.Text);
+				return (string) dataObject.GetData(DataFormats.Text);
 			}
 			return null;
 		}
@@ -841,7 +841,7 @@ EndSelection:<<<<<<<4
 		/// </summary>
 		/// <param name="type">Type</param>
 		/// <param name="obj">object</param>
-		public static void SetClipboardData(Type type, Object obj)
+		public static void SetClipboardData(Type type, object obj)
 		{
 			DataFormats.Format format = DataFormats.GetFormat(type.FullName);
 
@@ -875,7 +875,7 @@ EndSelection:<<<<<<<4
 			}
 			if (formats != null)
 			{
-				Log.Debug().WriteLine("Got clipboard formats: {0}", String.Join(",", formats));
+				Log.Debug().WriteLine("Got clipboard formats: {0}", string.Join(",", formats));
 				return new List<string>(formats);
 			}
 			return new List<string>();
@@ -948,7 +948,7 @@ EndSelection:<<<<<<<4
 		/// </summary>
 		/// <param name="type">Type to get</param>
 		/// <returns>object from clipboard</returns>
-		public static Object GetClipboardData(Type type)
+		public static object GetClipboardData(Type type)
 		{
 			string format = type.FullName;
 			return GetClipboardData(format);
@@ -960,7 +960,7 @@ EndSelection:<<<<<<<4
 		/// <param name="dataObj">IDataObject</param>
 		/// <param name="type">Type to get</param>
 		/// <returns>object from IDataObject</returns>
-		public static Object GetFromDataObject(IDataObject dataObj, Type type)
+		public static object GetFromDataObject(IDataObject dataObj, Type type)
 		{
 			if (type != null)
 			{
@@ -1005,7 +1005,7 @@ EndSelection:<<<<<<<4
 		/// <param name="dataObj">IDataObject</param>
 		/// <param name="format">format to get</param>
 		/// <returns>object from IDataObject</returns>
-		public static Object GetFromDataObject(IDataObject dataObj, string format)
+		public static object GetFromDataObject(IDataObject dataObj, string format)
 		{
 			if (dataObj != null)
 			{
@@ -1026,7 +1026,7 @@ EndSelection:<<<<<<<4
 		/// </summary>
 		/// <param name="format">format to get</param>
 		/// <returns>object from clipboard</returns>
-		public static Object GetClipboardData(string format)
+		public static object GetClipboardData(string format)
 		{
 			return GetFromDataObject(GetDataObject(), format);
 		}

@@ -47,7 +47,7 @@ namespace Greenshot.Addon.Confluence.Support
 			manager.LanguageChanged += OnLanguageChanged;
 		}
 
-		protected override void StopListening(Object source)
+		protected override void StopListening(object source)
 		{
 			var manager = (TranslationManager) source;
 			manager.LanguageChanged -= OnLanguageChanged;

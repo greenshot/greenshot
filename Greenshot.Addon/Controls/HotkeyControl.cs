@@ -570,7 +570,7 @@ namespace Greenshot.Addon.Controls
 			}
 			else
 			{
-				Log.Warn().WriteLine(String.Format("Couldn't register hotkey modifier {0} virtualKeyCode {1}", modifierKeyCode, virtualKeyCode));
+				Log.Warn().WriteLine(string.Format("Couldn't register hotkey modifier {0} virtualKeyCode {1}", modifierKeyCode, virtualKeyCode));
 				return -1;
 			}
 		}

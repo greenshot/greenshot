@@ -1730,7 +1730,7 @@ namespace Greenshot.Addon.Core
 		/// </summary>
 		/// <param name="hWnd">IntPtr with the windows handle</param>
 		/// <returns>String with ClassName</returns>
-		public static String GetClassName(IntPtr hWnd)
+		public static string GetClassName(IntPtr hWnd)
 		{
 			var classNameBuilder = new StringBuilder(260, 260);
 			User32.GetClassName(hWnd, classNameBuilder, classNameBuilder.Capacity);

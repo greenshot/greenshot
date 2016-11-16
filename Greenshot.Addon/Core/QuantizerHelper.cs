@@ -674,7 +674,7 @@ namespace Greenshot.Addon.Core
 		/// <summary>
 		/// Cuts a cube with another one.
 		/// </summary>
-		private Boolean Cut(WuColorCube first, WuColorCube second)
+		private bool Cut(WuColorCube first, WuColorCube second)
 		{
 			int direction;
 

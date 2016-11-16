@@ -87,7 +87,7 @@ namespace Greenshot.Helpers
 		/// Return the RUN key value of the local machine
 		/// </summary>
 		/// <returns>the RUN key value of the local machine</returns>
-		public static Object GetRunAllValue()
+		public static object GetRunAllValue()
 		{
 			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(Runkey, false))
 			{
@@ -122,7 +122,7 @@ namespace Greenshot.Helpers
 		/// Return the RUN key value of the current user
 		/// </summary>
 		/// <returns>the RUN key value of the current user</returns>
-		public static Object GetRunUserValue()
+		public static object GetRunUserValue()
 		{
 			using (RegistryKey key = Registry.CurrentUser.OpenSubKey(Runkey, false))
 			{
@@ -176,7 +176,7 @@ namespace Greenshot.Helpers
 		/// <returns>true if there is a run key</returns>
 		public static bool HasRunUser()
 		{
-			Object runValue = null;
+			object runValue = null;
 			try
 			{
 				runValue = GetRunUserValue();

@@ -220,7 +220,7 @@ namespace Greenshot.Addon.Controls
 			string text = textBox.Text.Replace("#", "");
 			int i = 0;
 			Color c;
-			if (Int32.TryParse(text, NumberStyles.AllowHexSpecifier, Thread.CurrentThread.CurrentCulture, out i))
+			if (int.TryParse(text, NumberStyles.AllowHexSpecifier, Thread.CurrentThread.CurrentCulture, out i))
 			{
 				c = Color.FromArgb(i);
 			}
@@ -293,7 +293,7 @@ namespace Greenshot.Addon.Controls
 		private int GetColorPartIntFromString(string s)
 		{
 			int ret = 0;
-			Int32.TryParse(s, out ret);
+			int.TryParse(s, out ret);
 			if (ret < 0)
 			{
 				ret = 0;

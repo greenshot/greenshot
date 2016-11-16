@@ -10,8 +10,8 @@
         <shell:WindowChrome ResizeBorderThickness="0" CaptionHeight="20" NonClientFrameEdges="None" GlassFrameThickness="-1" CornerRadius="0"/>
     </shell:WindowChrome.WindowChrome>
     <Window.Resources>
-        <Image x:Key="MenuItemImage" Source="{Binding Icon}" Width="16" Height="16" x:Shared="false"></Image>
-        <Style x:Key="DynamicMenuItemStyle" TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}" x:Shared="False">
+        <Image x:Key="MenuItemImage" Source="{Binding Icon}" Width="16" Height="16" x:Shared="false" />
+	    <Style x:Key="DynamicMenuItemStyle" TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}" x:Shared="False">
             <EventSetter Event="Click" Handler="OnClick" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
             <Setter Property="Header" Value="{Binding Text}"/>
@@ -62,4 +62,6 @@
         </Grid>
     </StackPanel>
 </Window>
+
+
 

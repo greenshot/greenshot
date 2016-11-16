@@ -188,7 +188,7 @@ namespace Greenshot.Addon.Core
 			{
 				if (!internalCache.ContainsKey(key))
 				{
-					throw new ApplicationException(String.Format("An object with key ‘{0}’ does not exists in cache", key));
+					throw new ApplicationException(string.Format("An object with key ‘{0}’ does not exists in cache", key));
 				}
 				internalCache.Remove(key);
 				Log.Debug().WriteLine("Removed item with Key: {0}", key);

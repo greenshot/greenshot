@@ -307,7 +307,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 				{
 					return page2.IsCurrentlyViewed.CompareTo(page1.IsCurrentlyViewed);
 				}
-				return String.Compare(page1.DisplayName, page2.DisplayName, StringComparison.Ordinal);
+				return string.Compare(page1.DisplayName, page2.DisplayName, StringComparison.Ordinal);
 			});
 			return pages;
 		}

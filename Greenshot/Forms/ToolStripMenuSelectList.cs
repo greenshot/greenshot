@@ -186,7 +186,7 @@ namespace Greenshot.Forms
 		/// <param name="image">the icon to be displayed</param>
 		/// <param name="data">the data to be returned when an item is queried</param>
 		/// <param name="isChecked">whether the item is initially checked</param>
-		public void AddItem(string label, Image image, Object data, bool isChecked)
+		public void AddItem(string label, Image image, object data, bool isChecked)
 		{
 			if (image == null)
 			{
@@ -229,7 +229,7 @@ namespace Greenshot.Forms
 		/// </summary>
 		/// <param name="label">the label to be displayed</param>
 		/// <param name="data">the data to be returned when an item is queried</param>
-		public void AddItem(string label, Object data)
+		public void AddItem(string label, object data)
 		{
 			AddItem(label, null, data, false);
 		}
@@ -262,7 +262,7 @@ namespace Greenshot.Forms
 		/// <param name="label">the label to be displayed</param>
 		/// <param name="data">the data to be returned when an item is queried</param>
 		/// <param name="isChecked">whether the item is initially checked</param>
-		public void AddItem(string label, Object data, bool isChecked)
+		public void AddItem(string label, object data, bool isChecked)
 		{
 			AddItem(label, null, data, isChecked);
 		}

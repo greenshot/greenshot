@@ -100,7 +100,7 @@ namespace Greenshot.Addon.Core
 				try
 				{
 					string path = pathEntry.Trim();
-					if (!String.IsNullOrEmpty(path) && File.Exists(path = Path.Combine(path, exeName)))
+					if (!string.IsNullOrEmpty(path) && File.Exists(path = Path.Combine(path, exeName)))
 					{
 						return Path.GetFullPath(path);
 					}
