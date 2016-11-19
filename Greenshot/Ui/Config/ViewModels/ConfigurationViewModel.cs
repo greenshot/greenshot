@@ -32,6 +32,8 @@ using Greenshot.Addon.Configuration;
 using MahApps.Metro.Controls.Dialogs;
 using MahApps.Metro.IconPacks;
 using System.Reactive.Disposables;
+using System;
+using Dapplo.CaliburnMicro.Translations;
 
 namespace Greenshot.Ui.Config.ViewModels
 {
@@ -46,6 +48,7 @@ namespace Greenshot.Ui.Config.ViewModels
 		/// </summary>
 		private CompositeDisposable _disposables;
 
+		/// The following should work some day, importing translations from different packages
 		//[Import]
 		//public ICoreTranslations CoreTranslations { get; set; }
 

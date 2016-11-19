@@ -20,12 +20,13 @@
  */
 
 using System.ComponentModel;
+using Dapplo.CaliburnMicro.Translations;
 using Dapplo.Config.Language;
 
 namespace Greenshot.Addon.Configuration
 {
 	[Language("Core")]
-	public interface IGreenshotLanguage : ILanguage, INotifyPropertyChanged, IEditorLanguage
+	public interface IGreenshotLanguage : ILanguage, INotifyPropertyChanged, IEditorLanguage, IConfigTranslations, ICoreTranslations
 	{
 		string AboutBugs
 		{

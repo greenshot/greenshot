@@ -96,15 +96,15 @@ namespace Greenshot.Ui.ViewModels
 			// Prepare disposables
 			_disposables?.Dispose();
 			_disposables = new CompositeDisposable();
-			var logo = new PackIconGreenshot
+
+			// Use behavior to set the icon
+			var taskbarIcon = TrayIcon as FrameworkElement;
+			taskbarIcon?.SetCurrentValue(FrameworkElementIcon.ValueProperty, new PackIconGreenshot
 			{
 				Kind = PackIconKindGreenshot.Greenshot,
 				Foreground = _brushConverter.ConvertFromString("#FF9AFF00") as SolidColorBrush,
 				Background = _brushConverter.ConvertFromString("#FF3D3D3D") as SolidColorBrush
-			};
-
-			// Use behavior to set the icon
-			IconBehavior.SetIcon(TrayIcon as FrameworkElement, logo);
+			});
 
 			base.OnActivate();
 
