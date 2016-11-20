@@ -26,7 +26,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
@@ -110,6 +110,6 @@ namespace Greenshot.Addon.WindowsOcr
 				Log.Warn().WriteLine(e, "Share export failed");
 			}
 			return returnValue;
-        }
+		}
 	}
 }

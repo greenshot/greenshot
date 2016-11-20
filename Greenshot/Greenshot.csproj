@@ -86,10 +86,6 @@
       <HintPath>..\packages\Dapplo.Log.1.0.22\lib\net45\Dapplo.Log.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Log.Facade, Version=0.5.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Log.Facade.0.5.4\lib\net45\Dapplo.Log.Facade.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Dapplo.Log.LogFile, Version=1.0.22.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Log.LogFile.1.0.22\lib\net45\Dapplo.Log.LogFile.dll</HintPath>
       <Private>True</Private>

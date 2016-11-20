@@ -25,7 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Dapplo.Addons;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
