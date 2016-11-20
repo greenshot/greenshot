@@ -1,7 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:converter="clr-namespace:MahApps.Metro.IconPacks.Converter;assembly=MahApps.Metro.IconPacks"
-                    xmlns:ui="clr-namespace:Greenshot.Addon.Ui;assembly=Greenshot.Addon">
+					xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+					xmlns:converter="clr-namespace:MahApps.Metro.IconPacks.Converter;assembly=MahApps.Metro.IconPacks"
+					xmlns:ui="clr-namespace:Greenshot.Addon.Ui;assembly=Greenshot.Addon">
 	<Style x:Key="MahApps.Metro.Styles.PackIconGreenshot" TargetType="{x:Type ui:PackIconGreenshot}">
 		<Setter Property="Height" Value="16" />
 		<Setter Property="Width" Value="16" />
@@ -17,16 +17,16 @@
 				<ControlTemplate TargetType="{x:Type ui:PackIconGreenshot}">
 					<Grid>
 						<Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+								BorderBrush="{TemplateBinding BorderBrush}"
+								BorderThickness="{TemplateBinding BorderThickness}"
+								SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
 						<Grid Margin="{TemplateBinding BorderThickness}">
 							<Viewbox Margin="{TemplateBinding Padding}">
 								<Canvas Width="16" Height="16" ClipToBounds="True">
 									<Path Fill="{TemplateBinding Foreground}"
-                                      Data="{Binding Data, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay, Converter={converter:NullToUnsetValueConverter}}"
-                                      SnapsToDevicePixels="True"
-                                      UseLayoutRounding="False" />
+									  Data="{Binding Data, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay, Converter={converter:NullToUnsetValueConverter}}"
+									  SnapsToDevicePixels="True"
+									  UseLayoutRounding="False" />
 								</Canvas>
 							</Viewbox>
 						</Grid>

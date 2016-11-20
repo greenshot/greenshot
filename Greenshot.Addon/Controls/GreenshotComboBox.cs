@@ -1,23 +1,23 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.ComponentModel;
@@ -25,61 +25,50 @@ using System.Windows.Forms;
 using Dapplo.Config.Language;
 using Greenshot.Addon.Extensions;
 
+#endregion
+
 namespace Greenshot.Addon.Controls
 {
 	public class GreenshotComboBox : ComboBox, IGreenshotConfigBindable, IGreenshotLanguageBindable
 	{
-		private Type _enumType = null;
-		private Enum _selectedEnum = null;
-
-		[Category("Greenshot"), DefaultValue("Core"), Description("Specifies the Ini-Section to map this control with.")]
-		public string SectionName
-		{
-			get;
-			set;
-		} = "Core";
-
-		[Category("Greenshot"), DefaultValue(null), Description("Specifies the property name to map the configuration.")]
-		public string PropertyName
-		{
-			get;
-			set;
-		}
-
-		[Category("Greenshot"), DefaultValue("Core"), Description("Specifies module for the language file to use when displaying the translation.")]
-		public string LanguageModule
-		{
-			get;
-			set;
-		}
-
-
-		public string LanguageKey
-		{
-			get;
-			set;
-		}
+		private Type _enumType;
+		private Enum _selectedEnum;
 
 		public GreenshotComboBox()
 		{
-			SelectedIndexChanged += delegate
-			{
-				StoreSelectedEnum();
-			};
+			SelectedIndexChanged += delegate { StoreSelectedEnum(); };
 		}
 
-		public void SetValue(Enum currentValue)
+		[Category("Greenshot")]
+		[DefaultValue("Core")]
+		[Description("Specifies the Ini-Section to map this control with.")]
+		public string SectionName { get; set; } = "Core";
+
+		[Category("Greenshot")]
+		[DefaultValue(null)]
+		[Description("Specifies the property name to map the configuration.")]
+		public string PropertyName { get; set; }
+
+		[Category("Greenshot")]
+		[DefaultValue("Core")]
+		[Description("Specifies module for the language file to use when displaying the translation.")]
+		public string LanguageModule { get; set; }
+
+
+		public string LanguageKey { get; set; }
+
+		/// <summary>
+		///     Get the selected enum value from the combobox, uses generics
+		/// </summary>
+		/// <returns>The enum value of the combobox</returns>
+		public Enum GetSelectedEnum()
 		{
-			if (currentValue != null)
-			{
-				_selectedEnum = currentValue;
-				SelectedItem = LanguageLoader.Current.Translate(currentValue, LanguageModule);
-			}
+			return _selectedEnum;
 		}
 
 		/// <summary>
-		/// This is a method to popululate the ComboBox
-		/// with the items from the enumeration
+		///     This is a method to popululate the ComboBox
+		///     with the items from the enumeration
 		/// </summary>
 		/// <param name="enumType">TEnum to populate with</param>
 		public void Populate(Type enumType)
@@ -96,8 +85,17 @@ namespace Greenshot.Addon.Controls
 			}
 		}
 
+		public void SetValue(Enum currentValue)
+		{
+			if (currentValue != null)
+			{
+				_selectedEnum = currentValue;
+				SelectedItem = LanguageLoader.Current.Translate(currentValue, LanguageModule);
+			}
+		}
+
 		/// <summary>
-		/// Store the selected value internally
+		///     Store the selected value internally
 		/// </summary>
 		private void StoreSelectedEnum()
 		{
@@ -116,7 +114,7 @@ namespace Greenshot.Addon.Controls
 
 			foreach (var enumValue in availableValues)
 			{
-				string enumKey = enumTypeName + "." + enumValue.ToString();
+				string enumKey = enumTypeName + "." + enumValue;
 				string translation = LanguageLoader.Current.Translate(enumValue, LanguageModule);
 				if (translation.Equals(selectedValue))
 				{
@@ -124,15 +122,6 @@ namespace Greenshot.Addon.Controls
 				}
 			}
 			_selectedEnum = (Enum) returnValue;
-		}
-
-		/// <summary>
-		/// Get the selected enum value from the combobox, uses generics
-		/// </summary>
-		/// <returns>The enum value of the combobox</returns>
-		public Enum GetSelectedEnum()
-		{
-			return _selectedEnum;
 		}
 	}
 }

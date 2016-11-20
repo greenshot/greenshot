@@ -1,23 +1,23 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.ComponentModel;
@@ -25,18 +25,21 @@ using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Config.Language;
 using Greenshot.Addon.Configuration;
-using Greenshot.Addon.Core;
+using Greenshot.Core.Configuration;
+using Greenshot.Core.Gfx;
+
+#endregion
 
 namespace Greenshot.Addon.Editor.Forms
 {
 	/// <summary>
-	/// A form to set the resize settings
+	///     A form to set the resize settings
 	/// </summary>
 	public partial class ResizeSettingsForm : BaseForm
 	{
 		private static readonly IEditorLanguage Language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 
-		private ResizeEffect _effect;
+		private readonly ResizeEffect _effect;
 		private readonly string _valuePercent;
 		private double _newWidth, _newHeight;
 
@@ -65,7 +68,7 @@ namespace Greenshot.Addon.Editor.Forms
 
 		private void buttonOK_Click(object sender, EventArgs e)
 		{
-			if (_newWidth != _effect.Width || _newHeight != _effect.Height)
+			if ((_newWidth != _effect.Width) || (_newHeight != _effect.Height))
 			{
 				_effect.Width = (int) _newWidth;
 				_effect.Height = (int) _newHeight;
@@ -74,37 +77,20 @@ namespace Greenshot.Addon.Editor.Forms
 			}
 		}
 
-		private bool validate(object sender)
+		/// <summary>
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void combobox_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			TextBox textbox = sender as TextBox;
-			if (textbox != null)
+			if (validate(textbox_width))
 			{
-				double numberEntered;
-				if (!double.TryParse(textbox.Text, out numberEntered))
-				{
-					textbox.BackColor = Color.Red;
-					return false;
-				}
-				else
-				{
-					textbox.BackColor = Color.White;
-				}
+				DisplayWidth();
 			}
-			return true;
-		}
-
-		private void DisplayWidth()
-		{
-			double displayValue;
-			if (_valuePercent.Equals(combobox_width.SelectedItem))
+			if (validate(textbox_height))
 			{
-				displayValue = (_newWidth/_effect.Width)*100d;
+				DisplayHeight();
 			}
-			else
-			{
-				displayValue = _newWidth;
-			}
-			textbox_width.Text = ((int) displayValue).ToString();
 		}
 
 		private void DisplayHeight()
@@ -112,13 +98,27 @@ namespace Greenshot.Addon.Editor.Forms
 			double displayValue;
 			if (_valuePercent.Equals(combobox_height.SelectedItem))
 			{
-				displayValue = (_newHeight/_effect.Height)*100d;
+				displayValue = _newHeight/_effect.Height*100d;
 			}
 			else
 			{
 				displayValue = _newHeight;
 			}
 			textbox_height.Text = ((int) displayValue).ToString();
+		}
+
+		private void DisplayWidth()
+		{
+			double displayValue;
+			if (_valuePercent.Equals(combobox_width.SelectedItem))
+			{
+				displayValue = _newWidth/_effect.Width*100d;
+			}
+			else
+			{
+				displayValue = _newWidth;
+			}
+			textbox_width.Text = ((int) displayValue).ToString();
 		}
 
 		private void textbox_KeyUp(object sender, KeyEventArgs e)
@@ -128,7 +128,7 @@ namespace Greenshot.Addon.Editor.Forms
 				return;
 			}
 			TextBox textbox = sender as TextBox;
-			if (textbox == null || textbox.Text.Length == 0)
+			if ((textbox == null) || (textbox.Text.Length == 0))
 			{
 				return;
 			}
@@ -160,16 +160,16 @@ namespace Greenshot.Addon.Editor.Forms
 				if (isPercent)
 				{
 					percent = double.Parse(textbox_width.Text);
-					_newWidth = (_effect.Width/100d)*percent;
+					_newWidth = _effect.Width/100d*percent;
 				}
 				else
 				{
 					_newWidth = double.Parse(textbox_width.Text);
-					percent = (double.Parse(textbox_width.Text)/_effect.Width)*100d;
+					percent = double.Parse(textbox_width.Text)/_effect.Width*100d;
 				}
 				if (checkbox_aspectratio.Checked)
 				{
-					_newHeight = (_effect.Height/100d)*percent;
+					_newHeight = _effect.Height/100d*percent;
 					DisplayHeight();
 				}
 			}
@@ -178,16 +178,16 @@ namespace Greenshot.Addon.Editor.Forms
 				if (isPercent)
 				{
 					percent = double.Parse(textbox_height.Text);
-					_newHeight = (_effect.Height/100d)*percent;
+					_newHeight = _effect.Height/100d*percent;
 				}
 				else
 				{
 					_newHeight = double.Parse(textbox_height.Text);
-					percent = (double.Parse(textbox_height.Text)/_effect.Height)*100d;
+					percent = double.Parse(textbox_height.Text)/_effect.Height*100d;
 				}
 				if (checkbox_aspectratio.Checked)
 				{
-					_newWidth = (_effect.Width/100d)*percent;
+					_newWidth = _effect.Width/100d*percent;
 					DisplayWidth();
 				}
 			}
@@ -198,21 +198,20 @@ namespace Greenshot.Addon.Editor.Forms
 			validate(sender);
 		}
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void combobox_SelectedIndexChanged(object sender, EventArgs e)
+		private bool validate(object sender)
 		{
-			if (validate(textbox_width))
+			TextBox textbox = sender as TextBox;
+			if (textbox != null)
 			{
-				DisplayWidth();
+				double numberEntered;
+				if (!double.TryParse(textbox.Text, out numberEntered))
+				{
+					textbox.BackColor = Color.Red;
+					return false;
+				}
+				textbox.BackColor = Color.White;
 			}
-			if (validate(textbox_height))
-			{
-				DisplayHeight();
-			}
+			return true;
 		}
 	}
 }

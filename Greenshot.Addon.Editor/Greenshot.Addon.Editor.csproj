@@ -83,8 +83,8 @@
       <HintPath>..\packages\Dapplo.Utils.1.0.128\lib\net45\Dapplo.Utils.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Windows, Version=0.1.29.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.0.1.29\lib\net45\Dapplo.Windows.dll</HintPath>
+    <Reference Include="Dapplo.Windows, Version=0.1.30.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.0.1.30\lib\net45\Dapplo.Windows.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="MahApps.Metro.IconPacks, Version=1.6.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -251,6 +251,14 @@
       <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
       <Name>GreenshotPlugin</Name>
       <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Greenshot.CaptureCore\Greenshot.CaptureCore.csproj">
+      <Project>{d477ed98-6e61-4017-8fc1-a4c10fa08958}</Project>
+      <Name>Greenshot.CaptureCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Greenshot.Core\Greenshot.Core.csproj">
+      <Project>{dbcaf4bc-a008-4080-b508-28ac76280b03}</Project>
+      <Name>Greenshot.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

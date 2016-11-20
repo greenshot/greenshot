@@ -1,36 +1,38 @@
-/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Config.Language;
-using Greenshot.Addon.Core;
 using Dapplo.Log;
+using Greenshot.Addon.Core;
+
+#endregion
 
 namespace Greenshot.Forms
 {
 	/// <summary>
-	/// Description of LanguageDialog.
+	///     Description of LanguageDialog.
 	/// </summary>
 	public partial class LanguageDialog : Form
 	{
@@ -49,20 +51,17 @@ namespace Greenshot.Forms
 			FormClosing += PreventFormClose;
 		}
 
-		private void PreventFormClose(object sender, FormClosingEventArgs e)
-		{
-			if (!_properOkPressed)
-			{
-				e.Cancel = true;
-			}
-		}
-
 		public string SelectedLanguage
 		{
-			get
-			{
-				return comboBoxLanguage.SelectedValue.ToString();
-			}
+			get { return comboBoxLanguage.SelectedValue.ToString(); }
+		}
+
+		private async void BtnOkClick(object sender, EventArgs e)
+		{
+			_properOkPressed = true;
+			// Fix for Bug #3431100 
+			await LanguageLoader.Current.ChangeLanguageAsync(SelectedLanguage);
+			Close();
 		}
 
 		protected async void FormLoad(object sender, EventArgs e)
@@ -97,14 +96,6 @@ namespace Greenshot.Forms
 			}
 		}
 
-		private async void BtnOkClick(object sender, EventArgs e)
-		{
-			_properOkPressed = true;
-			// Fix for Bug #3431100 
-			await LanguageLoader.Current.ChangeLanguageAsync(SelectedLanguage);
-			Close();
-		}
-
 		public static LanguageDialog GetInstance()
 		{
 			if (_uniqueInstance == null)
@@ -112,6 +103,14 @@ namespace Greenshot.Forms
 				_uniqueInstance = new LanguageDialog();
 			}
 			return _uniqueInstance;
+		}
+
+		private void PreventFormClose(object sender, FormClosingEventArgs e)
+		{
+			if (!_properOkPressed)
+			{
+				e.Cancel = true;
+			}
 		}
 	}
 }

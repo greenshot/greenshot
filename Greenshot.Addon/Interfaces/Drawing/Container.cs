@@ -1,23 +1,23 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Collections.Generic;
@@ -30,6 +30,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+#endregion
+
 namespace Greenshot.Addon.Interfaces.Drawing
 {
 	[Serializable]
@@ -37,7 +39,7 @@ namespace Greenshot.Addon.Interfaces.Drawing
 	{
 		EDIT,
 		EXPORT
-	};
+	}
 
 	[Serializable]
 	public enum EditStatus
@@ -47,7 +49,7 @@ namespace Greenshot.Addon.Interfaces.Drawing
 		MOVING,
 		RESIZING,
 		IDLE
-	};
+	}
 
 	[Serializable]
 	public enum ArrowHeadCombination
@@ -56,10 +58,10 @@ namespace Greenshot.Addon.Interfaces.Drawing
 		START_POINT,
 		END_POINT,
 		BOTH
-	};
+	}
 
 	/// <summary>
-	/// This is used to mark the fields that are important for the editor in the container
+	///     This is used to mark the fields that are important for the editor in the container
 	/// </summary>
 	[Serializable]
 	public enum FieldTypes
@@ -86,7 +88,8 @@ namespace Greenshot.Addon.Interfaces.Drawing
 		COUNTER_START
 	}
 
-	[Flags, Serializable]
+	[Flags]
+	[Serializable]
 	public enum ElementFlag
 	{
 		NONE = 0,
@@ -95,101 +98,51 @@ namespace Greenshot.Addon.Interfaces.Drawing
 	}
 
 	/// <summary>
-	/// Attribute for telling that a property is a field-property, meaning it is linked to a changable value for the editor
+	///     Attribute for telling that a property is a field-property, meaning it is linked to a changable value for the editor
 	/// </summary>
-	[Serializable, AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+	[Serializable]
+	[AttributeUsage(AttributeTargets.Property)]
 	public class FieldAttribute : Attribute
 	{
-		private readonly FieldTypes _fieldType;
-		private string _scope;
+		[NonSerialized] private PropertyInfo _linkedProperty;
 
-		[NonSerialized]
-		private PropertyInfo _linkedProperty;
+		private string _scope;
 
 		public FieldAttribute(FieldTypes fieldType)
 		{
-			_fieldType = fieldType;
+			FieldType = fieldType;
 		}
 
 		/// <summary>
-		/// FieldType of this FieldAttribute
+		///     FieldType of this FieldAttribute
 		/// </summary>
-		public FieldTypes FieldType => _fieldType;
+		public FieldTypes FieldType { get; }
 
 		/// <summary>
-		/// Scope of the field, default is set to the Type of the class
-		/// </summary>
-		public string Scope
-		{
-			get
-			{
-				return _scope;
-			}
-			set
-			{
-				_scope = value;
-			}
-		}
-
-		/// <summary>
-		/// Helper method to get the property info for this attribute
-		/// </summary>
-		/// <param name="typeForAttribute"></param>
-		private void Reflect(Type typeForAttribute)
-		{
-			if (_linkedProperty == null)
-			{
-				foreach (var propertyInfo in typeForAttribute.GetProperties(BindingFlags.Public | BindingFlags.Instance))
-				{
-					foreach (var attribute in propertyInfo.GetCustomAttributes(true))
-					{
-						var fieldAttribute = attribute as FieldAttribute;
-						if (fieldAttribute != null && fieldAttribute.FieldType == _fieldType)
-						{
-							_linkedProperty = propertyInfo;
-							return;
-						}
-					}
-				}
-			}
-		}
-
-		/// <summary>
-		/// This is used for caching the Reflection and should only be set from the InitializeFields
+		///     This is used for caching the Reflection and should only be set from the InitializeFields
 		/// </summary>
 		public PropertyInfo LinkedProperty
 		{
-			private get
-			{
-				return _linkedProperty;
-			}
-			set
-			{
-				_linkedProperty = value;
-			}
+			private get { return _linkedProperty; }
+			set { _linkedProperty = value; }
 		}
 
 		/// <summary>
-		/// Return the type of the property this attribute is linked to.
+		///     Return the type of the property this attribute is linked to.
 		/// </summary>
 		public Type PropertyType => LinkedProperty.PropertyType;
 
 		/// <summary>
-		/// Change the field value on the IFieldHolder
+		///     Scope of the field, default is set to the Type of the class
 		/// </summary>
-		/// <param name="target">IFieldHolder</param>
-		/// <param name="value">value to set</param>
-		public void SetValue(IFieldHolder target, object value)
+		public string Scope
 		{
-			Reflect(target.GetType());
-			if (LinkedProperty.CanWrite)
-			{
-				LinkedProperty.SetValue(target, value, null);
-			}
+			get { return _scope; }
+			set { _scope = value; }
 		}
 
 		/// <summary>
-		/// Get the field value from the IFieldHolder, this is needed for serialization
+		///     Get the field value from the IFieldHolder, this is needed for serialization
 		/// </summary>
 		/// <param name="target">IFieldHolder</param>
 		/// <returns>value</returns>
@@ -202,12 +155,50 @@ namespace Greenshot.Addon.Interfaces.Drawing
 			}
 			return null;
 		}
+
+		/// <summary>
+		///     Helper method to get the property info for this attribute
+		/// </summary>
+		/// <param name="typeForAttribute"></param>
+		private void Reflect(Type typeForAttribute)
+		{
+			if (_linkedProperty == null)
+			{
+				foreach (var propertyInfo in typeForAttribute.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+				{
+					foreach (var attribute in propertyInfo.GetCustomAttributes(true))
+					{
+						var fieldAttribute = attribute as FieldAttribute;
+						if ((fieldAttribute != null) && (fieldAttribute.FieldType == FieldType))
+						{
+							_linkedProperty = propertyInfo;
+							return;
+						}
+					}
+				}
+			}
+		}
+
+		/// <summary>
+		///     Change the field value on the IFieldHolder
+		/// </summary>
+		/// <param name="target">IFieldHolder</param>
+		/// <param name="value">value to set</param>
+		public void SetValue(IFieldHolder target, object value)
+		{
+			Reflect(target.GetType());
+			if (LinkedProperty.CanWrite)
+			{
+				LinkedProperty.SetValue(target, value, null);
+			}
+		}
 	}
 
 	/// <summary>
-	/// Attribute for telling that a container has a certain meaning to the editor
+	///     Attribute for telling that a container has a certain meaning to the editor
 	/// </summary>
-	[Serializable, AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+	[Serializable]
+	[AttributeUsage(AttributeTargets.Class)]
 	public class FlagAttribute : Attribute
 	{
 		public FlagAttribute(ElementFlag flag)
@@ -216,240 +207,145 @@ namespace Greenshot.Addon.Interfaces.Drawing
 		}
 
 		/// <summary>
-		/// Flag for the element
+		///     Flag for the element
 		/// </summary>
 		public ElementFlag Flag { get; }
 	}
 
 	/// <summary>
-	/// All elements that have "fields" that need to be bound in the editor must implement this interface
+	///     All elements that have "fields" that need to be bound in the editor must implement this interface
 	/// </summary>
 	public interface IFieldHolder : INotifyPropertyChanged
 	{
-		IDictionary<FieldTypes, FieldAttribute> FieldAttributes
-		{
-			get;
-		}
+		IDictionary<FieldTypes, FieldAttribute> FieldAttributes { get; }
 
-		ElementFlag Flag
-		{
-			get;
-		}
+		ElementFlag Flag { get; }
 
 		void Invalidate();
 	}
 
 	/// <summary>
-	/// The IFilter is an interface for all our filters like blur etc.
+	///     The IFilter is an interface for all our filters like blur etc.
 	/// </summary>
 	public interface IFilter : IFieldHolder
 	{
-		IDrawableContainer Parent
-		{
-			get;
-			set;
-		}
+		bool Invert { get; set; }
+
+		IDrawableContainer Parent { get; set; }
 
 		void Apply(Graphics graphics, Bitmap bmp, Rectangle rect, RenderMode renderMode);
-
-		bool Invert
-		{
-			get;
-			set;
-		}
 	}
 
 	public interface IDrawableContainer : IFieldHolder, IDisposable
 	{
-		ISurface Parent
-		{
-			get;
-			set;
-		}
-
-		bool Selected
-		{
-			get;
-			set;
-		}
-
-		int Left
-		{
-			get;
-			set;
-		}
-
-		int Top
-		{
-			get;
-			set;
-		}
-
-		int Width
-		{
-			get;
-			set;
-		}
-
-		int Height
-		{
-			get;
-			set;
-		}
-
-		Point Location
-		{
-			get;
-		}
-
-		Size Size
-		{
-			get;
-		}
-
-		Rectangle Bounds
-		{
-			get;
-		}
-
-		Rectangle DrawingBounds
-		{
-			get;
-		}
-
-		void ApplyBounds(RectangleF newBounds);
-
-		bool HasFilters
-		{
-			get;
-		}
-
-		List<IFilter> Filters
-		{
-			get;
-		}
-
-		EditStatus Status
-		{
-			get;
-			set;
-		}
-
-		void AlignToParent(HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment);
-		bool ClickableAt(int x, int y);
-		void MoveBy(int x, int y);
-		void Transform(Matrix matrix);
-		bool HandleMouseDown(int x, int y);
-		void HandleMouseUp(int x, int y);
-		bool HandleMouseMove(int x, int y);
-		bool InitContent();
-		void MakeBoundsChangeUndoable(bool allowMerge);
-
-		EditStatus DefaultEditMode
-		{
-			get;
-		}
-
 		/// <summary>
-		/// Available adorners for the DrawableContainer
+		///     Available adorners for the DrawableContainer
 		/// </summary>
 		IList<IAdorner> Adorners { get; }
+
+		Rectangle Bounds { get; }
+
+		EditStatus DefaultEditMode { get; }
+
+		Rectangle DrawingBounds { get; }
+
+		List<IFilter> Filters { get; }
+
+		bool HasFilters { get; }
+
+		int Height { get; set; }
+
+		int Left { get; set; }
+
+		Point Location { get; }
+
+		ISurface Parent { get; set; }
+
+		bool Selected { get; set; }
+
+		Size Size { get; }
+
+		EditStatus Status { get; set; }
+
+		int Top { get; set; }
+
+		int Width { get; set; }
+
+		void AlignToParent(HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment);
+
+		void ApplyBounds(RectangleF newBounds);
+		bool ClickableAt(int x, int y);
+		bool HandleMouseDown(int x, int y);
+		bool HandleMouseMove(int x, int y);
+		void HandleMouseUp(int x, int y);
+		bool InitContent();
+		void MakeBoundsChangeUndoable(bool allowMerge);
+		void MoveBy(int x, int y);
+		void Transform(Matrix matrix);
 	}
 
 	public interface IDrawableContainerList : IList<IDrawableContainer>, IDisposable
 	{
-		Guid ParentID
-		{
-			get;
-		}
+		ISurface Parent { get; set; }
 
-		bool Selected
-		{
-			get;
-			set;
-		}
+		Guid ParentID { get; }
 
-		ISurface Parent
-		{
-			get;
-			set;
-		}
-		EditStatus Status
-		{
-			get;
-			set;
-		}
-		void MakeBoundsChangeUndoable(bool allowMerge);
-		void Transform(Matrix matrix);
-		void MoveBy(int dx, int dy);
+		bool Selected { get; set; }
+
+		EditStatus Status { get; set; }
+
+		bool CanPullUp(IDrawableContainerList elements);
+		bool CanPushDown(IDrawableContainerList elements);
 		bool ClickableAt(int x, int y);
 		IDrawableContainer ClickableElementAt(int x, int y);
-		void OnDoubleClick();
+		void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode, Rectangle clipRectangle);
 		bool HasIntersectingFilters(Rectangle clipRectangle);
 		bool IntersectsWith(Rectangle clipRectangle);
-		void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode, Rectangle clipRectangle);
 		void Invalidate();
+		void MakeBoundsChangeUndoable(bool allowMerge);
+		void MoveBy(int dx, int dy);
+		void OnDoubleClick();
 		void PullElementsToTop(IDrawableContainerList elements);
-		bool CanPushDown(IDrawableContainerList elements);
 		void PullElementsUp(IDrawableContainerList elements);
-		bool CanPullUp(IDrawableContainerList elements);
 		void PushElementsDown(IDrawableContainerList elements);
 		void PushElementsToBottom(IDrawableContainerList elements);
 		Task ShowContextMenuAsync(MouseEventArgs e, ISurface surface, CancellationToken token = default(CancellationToken));
+		void Transform(Matrix matrix);
 	}
 
 	public interface ITextContainer : IDrawableContainer
 	{
-		string Text
-		{
-			get;
-			set;
-		}
+		string Text { get; set; }
+
+		void ChangeText(string newText, bool allowUndoable);
 
 		void FitToText();
-		void ChangeText(string newText, bool allowUndoable);
 	}
 
 	public interface IImageContainer : IDrawableContainer
 	{
-		Image Image
-		{
-			get;
-			set;
-		}
+		Image Image { get; set; }
 
 		void Load(string filename);
 	}
 
 	public interface ICursorContainer : IDrawableContainer
 	{
-		Cursor Cursor
-		{
-			get;
-			set;
-		}
+		Cursor Cursor { get; set; }
 
 		void Load(string filename);
 	}
 
 	public interface IIconContainer : IDrawableContainer
 	{
-		Icon Icon
-		{
-			get;
-			set;
-		}
+		Icon Icon { get; set; }
 
 		void Load(string filename);
 	}
 
 	public interface IMetafileContainer : IDrawableContainer
 	{
-		Metafile Metafile
-		{
-			get;
-			set;
-		}
+		Metafile Metafile { get; set; }
 
 		void Load(string filename);
 	}

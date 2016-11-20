@@ -1,23 +1,23 @@
-/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.ComponentModel.Composition;
@@ -26,48 +26,38 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Addons;
 using Dapplo.Confluence;
+using Dapplo.Log;
 using Greenshot.Addon.Confluence.Model;
 using Greenshot.Addon.Confluence.Support;
 using Greenshot.Addon.Confluence.Windows;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces.Plugin;
-using Dapplo.Log;
+
+#endregion
 
 namespace Greenshot.Addon.Confluence
 {
 	/// <summary>
-	/// This is the ConfluencePlugin base code
+	///     This is the ConfluencePlugin base code
 	/// </summary>
 	[Plugin("Confluence", Configurable = true)]
-	[StartupAction(StartupOrder = (int)GreenshotStartupOrder.Addon)]
+	[StartupAction(StartupOrder = (int) GreenshotStartupOrder.Addon)]
 	[ShutdownAction]
 	public class ConfluencePlugin : IConfigurablePlugin, IStartupAction, IShutdownAction
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static ConfluenceApi _confluenceApi;
+
+		public static ConfluenceApi ConfluenceAPI { get; private set; }
+
+		[Import]
+		public IConfluenceConfiguration ConfluenceConfiguration { get; set; }
+
+		[Import]
+		public IConfluenceLanguage ConfluenceLanguage { get; set; }
 
 		public static ConfluencePlugin Instance { get; private set; }
 
-		[Import]
-		public IConfluenceConfiguration ConfluenceConfiguration
-		{
-			get;
-			set;
-		}
-
-		[Import]
-		public IConfluenceLanguage ConfluenceLanguage
-		{
-			get;
-			set;
-		}
-
-		public ConfluenceModel Model
-		{
-			get;
-		} = new ConfluenceModel();
-
-		public static ConfluenceApi ConfluenceAPI => _confluenceApi;
+		public ConfluenceModel Model { get; } = new ConfluenceModel();
 
 		public void Dispose()
 		{
@@ -75,13 +65,41 @@ namespace Greenshot.Addon.Confluence
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing)
+		/// <summary>
+		///     Implementation of the IPlugin.Configure
+		/// </summary>
+		public void Configure()
 		{
-			//if (disposing) {}
+			var oldConfig = new
+			{
+				Url = ConfluenceConfiguration.RestUrl
+			};
+
+			var configForm = new ConfluenceConfigurationForm();
+			var dialogResult = configForm.ShowDialog();
+			if (!dialogResult.HasValue || !dialogResult.Value)
+			{
+				return;
+			}
+			var newConfig = new
+			{
+				Url = ConfluenceConfiguration.RestUrl
+			};
+			if (!newConfig.Equals(oldConfig))
+			{
+				ConfluenceAPI = null;
+			}
+		}
+
+		public Task ShutdownAsync(CancellationToken token = default(CancellationToken))
+		{
+			Log.Debug().WriteLine("Confluence Plugin shutdown.");
+			ConfluenceAPI = null;
+			return Task.FromResult(true);
 		}
 
 		/// <summary>
-		/// Initialize
+		///     Initialize
 		/// </summary>
 		/// <param name="token"></param>
 		public async Task StartAsync(CancellationToken token = new CancellationToken())
@@ -98,12 +116,12 @@ namespace Greenshot.Addon.Confluence
 				Log.Error().WriteLine("Problem in ConfluencePlugin.Initialize: {0}", ex.Message);
 				return;
 			}
-			_confluenceApi = await GetConfluenceApiAsync(token);
-			if (_confluenceApi != null)
+			ConfluenceAPI = await GetConfluenceApiAsync(token);
+			if (ConfluenceAPI != null)
 			{
 				Log.Info().WriteLine("Loading spaces");
 				// Store the task, so the compiler doesn't complain but do not wait so the task runs in the background
-				var ignoringTask = _confluenceApi.GetSpacesAsync(token).ContinueWith(async spacesTask =>
+				var ignoringTask = ConfluenceAPI.GetSpacesAsync(token).ContinueWith(async spacesTask =>
 				{
 					var spaces = await spacesTask;
 					foreach (var space in spaces)
@@ -123,11 +141,9 @@ namespace Greenshot.Addon.Confluence
 			}
 		}
 
-		public Task ShutdownAsync(CancellationToken token = default(CancellationToken))
+		protected virtual void Dispose(bool disposing)
 		{
-			Log.Debug().WriteLine("Confluence Plugin shutdown.");
-			_confluenceApi = null;
-			return Task.FromResult(true);
+			//if (disposing) {}
 		}
 
 		private async Task<ConfluenceApi> GetConfluenceApiAsync(CancellationToken token = default(CancellationToken))
@@ -185,32 +201,6 @@ namespace Greenshot.Addon.Confluence
 				Log.Error().WriteLine("Problem using the credentials dialog", e);
 			}
 			return confluenceApi;
-		}
-
-		/// <summary>
-		/// Implementation of the IPlugin.Configure
-		/// </summary>
-		public void Configure()
-		{
-			var oldConfig = new
-			{
-				Url = ConfluenceConfiguration.RestUrl
-			};
-
-			var configForm = new ConfluenceConfigurationForm();
-			var dialogResult = configForm.ShowDialog();
-			if (!dialogResult.HasValue || !dialogResult.Value)
-			{
-				return;
-			}
-			var newConfig = new
-			{
-				Url = ConfluenceConfiguration.RestUrl
-			};
-			if (!newConfig.Equals(oldConfig))
-			{
-				_confluenceApi = null;
-			}
 		}
 	}
 }

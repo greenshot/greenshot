@@ -1,23 +1,23 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.ComponentModel.Composition;
@@ -27,19 +27,21 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Addons;
+using Dapplo.Log;
+using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
-using Dapplo.Log;
-using Greenshot.Addon.Core;
+
+#endregion
 
 namespace Greenshot.Addon.ModiOcr
 {
 	/// <summary>
-	/// OCR Plugin Greenshot
+	///     OCR Plugin Greenshot
 	/// </summary>
 	[Plugin("OCR", Configurable = true)]
-	[StartupAction(StartupOrder = (int)GreenshotStartupOrder.Addon)]
+	[StartupAction(StartupOrder = (int) GreenshotStartupOrder.Addon)]
 	public class OcrPlugin : IConfigurablePlugin, IStartupAction
 	{
 		private static readonly LogSource Log = new LogSource();
@@ -47,25 +49,13 @@ namespace Greenshot.Addon.ModiOcr
 		private ToolStripMenuItem _ocrMenuItem = new ToolStripMenuItem();
 
 		[Import]
-		private IOcrConfiguration OcrConfiguration
-		{
-			get;
-			set;
-		}
+		private IOcrConfiguration OcrConfiguration { get; set; }
 
 		[Import]
-		private IServiceLocator ServiceLocator
-		{
-			get;
-			set;
-		}
+		private IServiceExporter ServiceExporter { get; set; }
 
 		[Import]
-		private IServiceExporter ServiceExporter
-		{
-			get;
-			set;
-		}
+		private IServiceLocator ServiceLocator { get; set; }
 
 		public void Dispose()
 		{
@@ -73,20 +63,26 @@ namespace Greenshot.Addon.ModiOcr
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing)
+		/// <summary>
+		///     Implementation of the IPlugin.Configure
+		/// </summary>
+		public void Configure()
 		{
-			if (disposing)
+			if (!HasModi())
 			{
-				if (_ocrMenuItem != null)
-				{
-					_ocrMenuItem.Dispose();
-					_ocrMenuItem = null;
-				}
+				MessageBox.Show("Greenshot OCR", "Sorry, is seems that Microsoft Office Document Imaging (MODI) is not installed, therefor the OCR Plugin cannot work.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+				return;
+			}
+			var settingsForm = new SettingsForm(Enum.GetNames(typeof(ModiLanguage)), OcrConfiguration);
+			DialogResult result = settingsForm.ShowDialog();
+			if (result == DialogResult.OK)
+			{
+				// "Re"set hotkeys
 			}
 		}
 
 		/// <summary>
-		/// Initialize
+		///     Initialize
 		/// </summary>
 		/// <param name="token"></param>
 		public Task StartAsync(CancellationToken token = new CancellationToken())
@@ -102,30 +98,24 @@ namespace Greenshot.Addon.ModiOcr
 				ServiceLocator.FillImports(ocrDestination);
 				ServiceExporter.Export<IDestination>(ocrDestination);
 			}
-			
+
 			return Task.FromResult(true);
 		}
 
-		/// <summary>
-		/// Implementation of the IPlugin.Configure
-		/// </summary>
-		public void Configure()
+		protected virtual void Dispose(bool disposing)
 		{
-			if (!HasModi())
+			if (disposing)
 			{
-				MessageBox.Show("Greenshot OCR", "Sorry, is seems that Microsoft Office Document Imaging (MODI) is not installed, therefor the OCR Plugin cannot work.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-				return;
-			}
-			var settingsForm = new SettingsForm(Enum.GetNames(typeof (ModiLanguage)), OcrConfiguration);
-			DialogResult result = settingsForm.ShowDialog();
-			if (result == DialogResult.OK)
-			{
-				// "Re"set hotkeys
+				if (_ocrMenuItem != null)
+				{
+					_ocrMenuItem.Dispose();
+					_ocrMenuItem = null;
+				}
 			}
 		}
 
 		/// <summary>
-		/// Check if MODI is installed and available
+		///     Check if MODI is installed and available
 		/// </summary>
 		/// <returns></returns>
 		private bool HasModi()

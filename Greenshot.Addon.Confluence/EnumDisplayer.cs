@@ -1,6 +1,24 @@
-﻿using Dapplo.Config.Language;
-using Dapplo.Log;
-using Greenshot.Addon.Extensions;
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,27 +26,32 @@ using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Reflection;
 using System.Windows.Data;
+using Dapplo.Config.Language;
+using Dapplo.Log;
+using Greenshot.Addon.Extensions;
+
+#endregion
 
 namespace Greenshot.Addon.Confluence
 {
 	/// <summary>
-	/// Use this to make it possible to display translated enum values.
-	/// Start with:
-	/// <code>
+	///     Use this to make it possible to display translated enum values.
+	///     Start with:
+	///     <code>
 	/// &lt;confluence:EnumDisplayer Type="{x:Type gsconfig:OutputFormat}" LanguageModule="Core" x:Key="outputFormats" /&gt;
 	/// </code>
-	/// A combobox could have:
-	/// <code>
+	///     A combobox could have:
+	///     <code>
 	/// &lt;ComboBox ItemsSource="{Binding Source={StaticResource outputFormats},Path=DisplayNames}" SelectedValue="{Binding UploadFormat, Converter={StaticResource outputFormats}}" /&gt;
 	/// </code>
 	/// </summary>
 	public class EnumDisplayer : IValueConverter
 	{
 		private static readonly LogSource Log = new LogSource();
-
-		private Type _type;
 		private readonly IDictionary<object, string> _displayValues = new Dictionary<object, string>();
 		private readonly IDictionary<string, object> _reverseValues = new Dictionary<string, object>();
+
+		private Type _type;
 
 		public EnumDisplayer()
 		{
@@ -43,34 +66,6 @@ namespace Greenshot.Addon.Confluence
 			Type = type;
 		}
 
-		/// <summary>
-		/// Specify the Type of the enum
-		/// </summary>
-		public Type Type
-		{
-			get
-			{
-				return _type;
-			}
-			set
-			{
-				if (!value.IsEnum)
-				{
-					throw new ArgumentException("parameter is not an Enumerated type", "value");
-				}
-				_type = value;
-			}
-		}
-
-		/// <summary>
-		/// Specify from what language module the translation needs to be retrieved
-		/// </summary>
-		public string LanguageModule
-		{
-			get;
-			set;
-		} = "Core";
-
 		public ReadOnlyCollection<string> DisplayNames
 		{
 			get
@@ -78,7 +73,7 @@ namespace Greenshot.Addon.Confluence
 				var fields = _type.GetFields(BindingFlags.Public | BindingFlags.Static);
 				foreach (var field in fields)
 				{
-					var displayAttributes = (DisplayAttribute[])field.GetCustomAttributes(typeof(DisplayAttribute), false);
+					var displayAttributes = (DisplayAttribute[]) field.GetCustomAttributes(typeof(DisplayAttribute), false);
 
 					string displayKey = GetDisplayKeyValue(displayAttributes);
 					object enumValue = field.GetValue(null);
@@ -103,13 +98,25 @@ namespace Greenshot.Addon.Confluence
 			}
 		}
 
-		private string GetDisplayKeyValue(DisplayAttribute[] displayKeyAttributes)
+		/// <summary>
+		///     Specify from what language module the translation needs to be retrieved
+		/// </summary>
+		public string LanguageModule { get; set; } = "Core";
+
+		/// <summary>
+		///     Specify the Type of the enum
+		/// </summary>
+		public Type Type
 		{
-			if (displayKeyAttributes == null || displayKeyAttributes.Length == 0)
+			get { return _type; }
+			set
 			{
-				return null;
+				if (!value.IsEnum)
+				{
+					throw new ArgumentException("parameter is not an Enumerated type", "value");
+				}
+				_type = value;
 			}
-			return displayKeyAttributes[0].GetName();
 		}
 
 		object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -122,6 +129,15 @@ namespace Greenshot.Addon.Confluence
 		{
 			var key = value as string;
 			return _reverseValues.ContainsKey(key) ? _reverseValues[key] : null;
+		}
+
+		private string GetDisplayKeyValue(DisplayAttribute[] displayKeyAttributes)
+		{
+			if ((displayKeyAttributes == null) || (displayKeyAttributes.Length == 0))
+			{
+				return null;
+			}
+			return displayKeyAttributes[0].GetName();
 		}
 	}
 }

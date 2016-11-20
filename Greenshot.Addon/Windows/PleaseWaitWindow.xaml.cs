@@ -1,23 +1,23 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.ComponentModel;
@@ -30,34 +30,38 @@ using Dapplo.Windows.Native;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 
+#endregion
+
 namespace Greenshot.Addon.Windows
 {
 	/// <summary>
-	/// Interaction logic for PleaseWaitWindow.xaml
+	///     Interaction logic for PleaseWaitWindow.xaml
 	/// </summary>
 	public partial class PleaseWaitWindow : Window, IProgress<int>, INotifyPropertyChanged, IDisposable
 	{
-		public event PropertyChangedEventHandler PropertyChanged;
-		private int _progressValue;
-		private bool _isIndeterminate = true;
 		private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-		private string _text;
 		private Brush _color = Brushes.Green;
+		private bool _isIndeterminate = true;
+		private int _progressValue;
+		private string _text;
 
-		public CancellationToken Token
+		private PleaseWaitWindow()
 		{
-			get
+			DataContext = this;
+			InitializeComponent();
+			Icon = GreenshotResources.GetGreenshotIcon().ToBitmapSource();
+			Loaded += (sender, eArgs) =>
 			{
-				return _cancellationTokenSource.Token;
-			}
+				WindowStartupLocation = WindowStartupLocation.Manual;
+				var cursor = User32.GetCursorLocation();
+				Left = cursor.X - Width/2;
+				Top = cursor.Y - Height/2;
+			};
 		}
 
 		public Brush Color
 		{
-			get
-			{
-				return _color;
-			}
+			get { return _color; }
 			set
 			{
 				if (!Equals(_color, value))
@@ -68,31 +72,9 @@ namespace Greenshot.Addon.Windows
 			}
 		}
 
-		public string Text
-		{
-			get
-			{
-				return _text;
-			}
-			set
-			{
-				if (_text != value)
-				{
-					_text = value;
-					if (PropertyChanged != null)
-					{
-						PropertyChanged(this, new PropertyChangedEventArgs("Text"));
-					}
-				}
-			}
-		}
-
 		public bool IsIndeterminate
 		{
-			get
-			{
-				return _isIndeterminate;
-			}
+			get { return _isIndeterminate; }
 			set
 			{
 				if (_isIndeterminate != value)
@@ -108,10 +90,7 @@ namespace Greenshot.Addon.Windows
 
 		public int ProgressValue
 		{
-			get
-			{
-				return _progressValue;
-			}
+			get { return _progressValue; }
 			set
 			{
 				if (_progressValue != value)
@@ -126,8 +105,46 @@ namespace Greenshot.Addon.Windows
 			}
 		}
 
+		public string Text
+		{
+			get { return _text; }
+			set
+			{
+				if (_text != value)
+				{
+					_text = value;
+					if (PropertyChanged != null)
+					{
+						PropertyChanged(this, new PropertyChangedEventArgs("Text"));
+					}
+				}
+			}
+		}
+
+		public CancellationToken Token
+		{
+			get { return _cancellationTokenSource.Token; }
+		}
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		public void Report(int value)
+		{
+			if (!Dispatcher.CheckAccess())
+			{
+				Dispatcher.Invoke(() => Report(value));
+				return;
+			}
+			ProgressValue = value;
+		}
+
+		private void Button_Click(object sender, RoutedEventArgs e)
+		{
+			_cancellationTokenSource.Cancel();
+		}
+
 		/// <summary>
-		/// Create and show a Please-Wait window, which will allow us to terminate the upload
+		///     Create and show a Please-Wait window, which will allow us to terminate the upload
 		/// </summary>
 		/// <param name="title">title of the window</param>
 		/// <param name="text">text for the window</param>
@@ -165,35 +182,6 @@ namespace Greenshot.Addon.Windows
 				}
 			}
 			return result;
-		}
-
-		private PleaseWaitWindow()
-		{
-			DataContext = this;
-			InitializeComponent();
-			Icon = GreenshotResources.GetGreenshotIcon().ToBitmapSource();
-			Loaded += (sender, eArgs) =>
-			{
-				WindowStartupLocation = WindowStartupLocation.Manual;
-				var cursor = User32.GetCursorLocation();
-				Left = cursor.X - (Width/2);
-				Top = cursor.Y - (Height/2);
-			};
-		}
-
-		public void Report(int value)
-		{
-			if (!Dispatcher.CheckAccess())
-			{
-				Dispatcher.Invoke(() => Report(value));
-				return;
-			}
-			ProgressValue = value;
-		}
-
-		private void Button_Click(object sender, RoutedEventArgs e)
-		{
-			_cancellationTokenSource.Cancel();
 		}
 
 		#region IDisposable Support

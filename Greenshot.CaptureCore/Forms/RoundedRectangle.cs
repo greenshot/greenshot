@@ -1,31 +1,33 @@
-/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System.Drawing;
 using System.Drawing.Drawing2D;
 
+#endregion
+
 namespace Greenshot.CaptureCore.Forms
 {
 	/// <summary>
-	/// TODO: currently this is only used in the capture form, we might move this code directly to there!
+	///     TODO: currently this is only used in the capture form, we might move this code directly to there!
 	/// </summary>
 	public static class RoundedRectangle
 	{
@@ -37,22 +39,6 @@ namespace Greenshot.CaptureCore.Forms
 			BottomLeft = 4,
 			BottomRight = 8,
 			All = TopLeft | TopRight | BottomLeft | BottomRight
-		}
-
-		public static GraphicsPath Create2(int x, int y, int width, int height, int radius)
-		{
-			GraphicsPath gp = new GraphicsPath();
-			gp.AddLine(x + radius, y, x + width - (radius*2), y); // Line
-			gp.AddArc(x + width - (radius*2), y, radius*2, radius*2, 270, 90); // Corner
-			gp.AddLine(x + width, y + radius, x + width, y + height - (radius*2)); // Line
-			gp.AddArc(x + width - (radius*2), y + height - (radius*2), radius*2, radius*2, 0, 90); // Corner
-			gp.AddLine(x + width - (radius*2), y + height, x + radius, y + height); // Line
-			gp.AddArc(x, y + height - (radius*2), radius*2, radius*2, 90, 90); // Corner
-			gp.AddLine(x, y + height - (radius*2), x, y + radius); // Line
-			gp.AddArc(x, y, radius*2, radius*2, 180, 90); // Corner
-			gp.CloseFigure();
-
-			return gp;
 		}
 
 		public static GraphicsPath Create(int x, int y, int width, int height, int radius, RectangleCorners corners)
@@ -153,6 +139,22 @@ namespace Greenshot.CaptureCore.Forms
 		public static GraphicsPath Create(Rectangle rect)
 		{
 			return Create(rect.X, rect.Y, rect.Width, rect.Height);
+		}
+
+		public static GraphicsPath Create2(int x, int y, int width, int height, int radius)
+		{
+			GraphicsPath gp = new GraphicsPath();
+			gp.AddLine(x + radius, y, x + width - radius*2, y); // Line
+			gp.AddArc(x + width - radius*2, y, radius*2, radius*2, 270, 90); // Corner
+			gp.AddLine(x + width, y + radius, x + width, y + height - radius*2); // Line
+			gp.AddArc(x + width - radius*2, y + height - radius*2, radius*2, radius*2, 0, 90); // Corner
+			gp.AddLine(x + width - radius*2, y + height, x + radius, y + height); // Line
+			gp.AddArc(x, y + height - radius*2, radius*2, radius*2, 90, 90); // Corner
+			gp.AddLine(x, y + height - radius*2, x, y + radius); // Line
+			gp.AddArc(x, y, radius*2, radius*2, 180, 90); // Corner
+			gp.CloseFigure();
+
+			return gp;
 		}
 	}
 }

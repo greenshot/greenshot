@@ -224,6 +224,14 @@
       <Project>{5b924697-4dcd-4f98-85f1-105cb84b7341}</Project>
       <Name>Greenshot.Addon</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Greenshot.CaptureCore\Greenshot.CaptureCore.csproj">
+      <Project>{d477ed98-6e61-4017-8fc1-a4c10fa08958}</Project>
+      <Name>Greenshot.CaptureCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Greenshot.Core\Greenshot.Core.csproj">
+      <Project>{dbcaf4bc-a008-4080-b508-28ac76280b03}</Project>
+      <Name>Greenshot.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"

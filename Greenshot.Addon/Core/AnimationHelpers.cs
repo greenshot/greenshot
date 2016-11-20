@@ -1,106 +1,83 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Dapplo.Log;
+#region Usings
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Dapplo.Log;
+
+#endregion
 
 namespace Greenshot.Addon.Core
 {
 	/// <summary>
-	/// Helper interface for passing base type
+	///     Helper interface for passing base type
 	/// </summary>
 	public interface IAnimator
 	{
 		/// <summary>
-		/// Is there a next frame?
+		///     Current frame number
 		/// </summary>
-		bool hasNext
-		{
-			get;
-		}
+		int CurrentFrameNr { get; }
 
 		/// <summary>
-		/// The amount of frames
+		///     The amount of frames
 		/// </summary>
-		int Frames
-		{
-			get;
-		}
+		int Frames { get; }
 
 		/// <summary>
-		/// Current frame number
+		///     Is there a next frame?
 		/// </summary>
-		int CurrentFrameNr
-		{
-			get;
-		}
+		bool hasNext { get; }
 	}
 
 	/// <summary>
-	/// This class is used to store a animation leg
+	///     This class is used to store a animation leg
 	/// </summary>
 	internal class AnimationLeg<T>
 	{
-		public T Destination
-		{
-			get;
-			set;
-		}
+		public T Destination { get; set; }
 
-		public int Frames
-		{
-			get;
-			set;
-		}
+		public EasingMode EasingMode { get; set; }
 
-		public EasingType EasingType
-		{
-			get;
-			set;
-		}
+		public EasingType EasingType { get; set; }
 
-		public EasingMode EasingMode
-		{
-			get;
-			set;
-		}
+		public int Frames { get; set; }
 	}
 
 	/// <summary>
-	/// Base class for the animation logic, this only implements Properties and a constructor
+	///     Base class for the animation logic, this only implements Properties and a constructor
 	/// </summary>
 	/// <typeparam name="T">Type for the animation, like Point/Rectangle/Size</typeparam>
 	public abstract class AnimatorBase<T> : IAnimator
 	{
-		protected T first;
-		protected T last;
+		private readonly Queue<AnimationLeg<T>> queue = new Queue<AnimationLeg<T>>();
 		protected T current;
-		private Queue<AnimationLeg<T>> queue = new Queue<AnimationLeg<T>>();
+		protected int currentFrameNr;
+		protected T first;
 		protected int frames;
-		protected int currentFrameNr = 0;
+		protected T last;
 
 		/// <summary>
-		/// Constructor
+		///     Constructor
 		/// </summary>
 		/// <param name="first"></param>
 		/// <param name="last"></param>
@@ -118,51 +95,45 @@ namespace Greenshot.Addon.Core
 		}
 
 		/// <summary>
-		/// The amount of frames
+		///     Get the current (previous) frame object
 		/// </summary>
-		public int Frames
+		public virtual T Current
+		{
+			get { return current; }
+		}
+
+		/// <summary>
+		///     The EasingMode to use for the animation
+		/// </summary>
+		public EasingMode EasingMode { get; set; }
+
+		/// <summary>
+		///     The EasingType to use for the animation
+		/// </summary>
+		public EasingType EasingType { get; set; }
+
+		/// <summary>
+		///     Get the easing value, which is from 0-1 and depends on the frame
+		/// </summary>
+		protected double EasingValue
 		{
 			get
 			{
-				return frames;
+				switch (EasingMode)
+				{
+					case EasingMode.EaseOut:
+						return Easing.EaseOut(currentFrameNr/(double) frames, EasingType);
+					case EasingMode.EaseInOut:
+						return Easing.EaseInOut(currentFrameNr/(double) frames, EasingType);
+					case EasingMode.EaseIn:
+					default:
+						return Easing.EaseIn(currentFrameNr/(double) frames, EasingType);
+				}
 			}
 		}
 
 		/// <summary>
-		/// Current frame number
-		/// </summary>
-		public int CurrentFrameNr
-		{
-			get
-			{
-				return currentFrameNr;
-			}
-		}
-
-		/// <summary>
-		/// First animation value
-		/// </summary>
-		public T First
-		{
-			get
-			{
-				return first;
-			}
-		}
-
-		/// <summary>
-		/// Last animation value, of this "leg"
-		/// </summary>
-		public T Last
-		{
-			get
-			{
-				return last;
-			}
-		}
-
-		/// <summary>
-		/// Final animation value, this is including the legs
+		///     Final animation value, this is including the legs
 		/// </summary>
 		public T Final
 		{
@@ -177,127 +148,23 @@ namespace Greenshot.Addon.Core
 		}
 
 		/// <summary>
-		/// This restarts the current animation and changes the last frame
+		///     First animation value
 		/// </summary>
-		/// <param name="newDestination"></param>
-		public void ChangeDestination(T newDestination)
+		public T First
 		{
-			ChangeDestination(newDestination, frames);
+			get { return first; }
 		}
 
 		/// <summary>
-		/// This restarts the current animation and changes the last frame
+		///     Last animation value, of this "leg"
 		/// </summary>
-		/// <param name="newDestination"></param>
-		/// <param name="frames"></param>
-		public void ChangeDestination(T newDestination, int frames)
+		public T Last
 		{
-			queue.Clear();
-			first = current;
-			currentFrameNr = 0;
-			this.frames = frames;
-			last = newDestination;
+			get { return last; }
 		}
 
 		/// <summary>
-		/// Queue the destination, it will be used to continue at the last frame
-		/// All values will stay the same
-		/// </summary>
-		/// <param name="queuedDestination"></param>
-		public void QueueDestinationLeg(T queuedDestination)
-		{
-			QueueDestinationLeg(queuedDestination, Frames, EasingType, EasingMode);
-		}
-
-		/// <summary>
-		/// Queue the destination, it will be used to continue at the last frame
-		/// </summary>
-		/// <param name="queuedDestination"></param>
-		/// <param name="frames"></param>
-		public void QueueDestinationLeg(T queuedDestination, int frames)
-		{
-			QueueDestinationLeg(queuedDestination, frames, EasingType, EasingMode);
-		}
-
-		/// <summary>
-		/// Queue the destination, it will be used to continue at the last frame
-		/// </summary>
-		/// <param name="queuedDestination"></param>
-		/// <param name="frames"></param>
-		/// <param name="easingType">EasingType</param>
-		public void QueueDestinationLeg(T queuedDestination, int frames, EasingType easingType)
-		{
-			QueueDestinationLeg(queuedDestination, frames, easingType, EasingMode);
-		}
-
-		/// <summary>
-		/// Queue the destination, it will be used to continue at the last frame
-		/// </summary>
-		/// <param name="queuedDestination"></param>
-		/// <param name="frames"></param>
-		/// <param name="easingType"></param>
-		/// <param name="easingMode"></param>
-		public void QueueDestinationLeg(T queuedDestination, int frames, EasingType easingType, EasingMode easingMode)
-		{
-			AnimationLeg<T> leg = new AnimationLeg<T>();
-			leg.Destination = queuedDestination;
-			leg.Frames = frames;
-			leg.EasingType = easingType;
-			leg.EasingMode = easingMode;
-			queue.Enqueue(leg);
-		}
-
-		/// <summary>
-		/// The EasingType to use for the animation
-		/// </summary>
-		public EasingType EasingType
-		{
-			get;
-			set;
-		}
-
-		/// <summary>
-		/// The EasingMode to use for the animation
-		/// </summary>
-		public EasingMode EasingMode
-		{
-			get;
-			set;
-		}
-
-		/// <summary>
-		/// Get the easing value, which is from 0-1 and depends on the frame
-		/// </summary>
-		protected double EasingValue
-		{
-			get
-			{
-				switch (EasingMode)
-				{
-					case EasingMode.EaseOut:
-						return Easing.EaseOut((double) currentFrameNr/(double) frames, EasingType);
-					case EasingMode.EaseInOut:
-						return Easing.EaseInOut((double) currentFrameNr/(double) frames, EasingType);
-					case EasingMode.EaseIn:
-					default:
-						return Easing.EaseIn((double) currentFrameNr/(double) frames, EasingType);
-				}
-			}
-		}
-
-		/// <summary>
-		/// Get the current (previous) frame object
-		/// </summary>
-		public virtual T Current
-		{
-			get
-			{
-				return current;
-			}
-		}
-
-		/// <summary>
-		/// Returns if there are any frame left, and if this is the case than the frame is increased.
+		///     Returns if there are any frame left, and if this is the case than the frame is increased.
 		/// </summary>
 		public virtual bool NextFrame
 		{
@@ -324,7 +191,23 @@ namespace Greenshot.Addon.Core
 		}
 
 		/// <summary>
-		/// Are there more frames to animate?
+		///     The amount of frames
+		/// </summary>
+		public int Frames
+		{
+			get { return frames; }
+		}
+
+		/// <summary>
+		///     Current frame number
+		/// </summary>
+		public int CurrentFrameNr
+		{
+			get { return currentFrameNr; }
+		}
+
+		/// <summary>
+		///     Are there more frames to animate?
 		/// </summary>
 		public virtual bool hasNext
 		{
@@ -339,14 +222,85 @@ namespace Greenshot.Addon.Core
 		}
 
 		/// <summary>
-		/// Get the next animation frame value object
+		///     This restarts the current animation and changes the last frame
+		/// </summary>
+		/// <param name="newDestination"></param>
+		public void ChangeDestination(T newDestination)
+		{
+			ChangeDestination(newDestination, frames);
+		}
+
+		/// <summary>
+		///     This restarts the current animation and changes the last frame
+		/// </summary>
+		/// <param name="newDestination"></param>
+		/// <param name="frames"></param>
+		public void ChangeDestination(T newDestination, int frames)
+		{
+			queue.Clear();
+			first = current;
+			currentFrameNr = 0;
+			this.frames = frames;
+			last = newDestination;
+		}
+
+		/// <summary>
+		///     Get the next animation frame value object
 		/// </summary>
 		/// <returns></returns>
 		public abstract T Next();
+
+		/// <summary>
+		///     Queue the destination, it will be used to continue at the last frame
+		///     All values will stay the same
+		/// </summary>
+		/// <param name="queuedDestination"></param>
+		public void QueueDestinationLeg(T queuedDestination)
+		{
+			QueueDestinationLeg(queuedDestination, Frames, EasingType, EasingMode);
+		}
+
+		/// <summary>
+		///     Queue the destination, it will be used to continue at the last frame
+		/// </summary>
+		/// <param name="queuedDestination"></param>
+		/// <param name="frames"></param>
+		public void QueueDestinationLeg(T queuedDestination, int frames)
+		{
+			QueueDestinationLeg(queuedDestination, frames, EasingType, EasingMode);
+		}
+
+		/// <summary>
+		///     Queue the destination, it will be used to continue at the last frame
+		/// </summary>
+		/// <param name="queuedDestination"></param>
+		/// <param name="frames"></param>
+		/// <param name="easingType">EasingType</param>
+		public void QueueDestinationLeg(T queuedDestination, int frames, EasingType easingType)
+		{
+			QueueDestinationLeg(queuedDestination, frames, easingType, EasingMode);
+		}
+
+		/// <summary>
+		///     Queue the destination, it will be used to continue at the last frame
+		/// </summary>
+		/// <param name="queuedDestination"></param>
+		/// <param name="frames"></param>
+		/// <param name="easingType"></param>
+		/// <param name="easingMode"></param>
+		public void QueueDestinationLeg(T queuedDestination, int frames, EasingType easingType, EasingMode easingMode)
+		{
+			AnimationLeg<T> leg = new AnimationLeg<T>();
+			leg.Destination = queuedDestination;
+			leg.Frames = frames;
+			leg.EasingType = easingType;
+			leg.EasingMode = easingMode;
+			queue.Enqueue(leg);
+		}
 	}
 
 	/// <summary>
-	/// Implementation of the RectangleAnimator
+	///     Implementation of the RectangleAnimator
 	/// </summary>
 	public class RectangleAnimator : AnimatorBase<Rectangle>
 	{
@@ -365,7 +319,7 @@ namespace Greenshot.Addon.Core
 		}
 
 		/// <summary>
-		/// Calculate the next frame object
+		///     Calculate the next frame object
 		/// </summary>
 		/// <returns>Rectangle</returns>
 		public override Rectangle Next()
@@ -389,7 +343,7 @@ namespace Greenshot.Addon.Core
 	}
 
 	/// <summary>
-	/// Implementation of the ColorAnimator
+	///     Implementation of the ColorAnimator
 	/// </summary>
 	public class ColorAnimator : AnimatorBase<Color>
 	{
@@ -408,7 +362,7 @@ namespace Greenshot.Addon.Core
 		}
 
 		/// <summary>
-		/// Calculate the next frame values
+		///     Calculate the next frame values
 		/// </summary>
 		/// <returns>Color</returns>
 		public override Color Next()
@@ -431,7 +385,7 @@ namespace Greenshot.Addon.Core
 	}
 
 	/// <summary>
-	/// Easing logic, to make the animations more "fluent"
+	///     Easing logic, to make the animations more "fluent"
 	/// </summary>
 	public static class Easing
 	{
@@ -439,9 +393,9 @@ namespace Greenshot.Addon.Core
 
 		public static double Ease(double linearStep, double acceleration, EasingType type)
 		{
-			double easedStep = acceleration > 0 ? EaseIn(linearStep, type) : acceleration < 0 ? EaseOut(linearStep, type) : (double) linearStep;
+			double easedStep = acceleration > 0 ? EaseIn(linearStep, type) : acceleration < 0 ? EaseOut(linearStep, type) : linearStep;
 			// Lerp:
-			return ((easedStep - linearStep)*Math.Abs(acceleration) + linearStep);
+			return (easedStep - linearStep)*Math.Abs(acceleration) + linearStep;
 		}
 
 		public static double EaseIn(double linearStep, EasingType type)
@@ -462,28 +416,6 @@ namespace Greenshot.Addon.Core
 					return Power.EaseIn(linearStep, 4);
 				case EasingType.Quintic:
 					return Power.EaseIn(linearStep, 5);
-			}
-			throw new NotImplementedException();
-		}
-
-		public static double EaseOut(double linearStep, EasingType type)
-		{
-			switch (type)
-			{
-				case EasingType.Step:
-					return linearStep < 0.5 ? 0 : 1;
-				case EasingType.Linear:
-					return linearStep;
-				case EasingType.Sine:
-					return Sine.EaseOut(linearStep);
-				case EasingType.Quadratic:
-					return Power.EaseOut(linearStep, 2);
-				case EasingType.Cubic:
-					return Power.EaseOut(linearStep, 3);
-				case EasingType.Quartic:
-					return Power.EaseOut(linearStep, 4);
-				case EasingType.Quintic:
-					return Power.EaseOut(linearStep, 5);
 			}
 			throw new NotImplementedException();
 		}
@@ -515,21 +447,43 @@ namespace Greenshot.Addon.Core
 			throw new NotImplementedException();
 		}
 
+		public static double EaseOut(double linearStep, EasingType type)
+		{
+			switch (type)
+			{
+				case EasingType.Step:
+					return linearStep < 0.5 ? 0 : 1;
+				case EasingType.Linear:
+					return linearStep;
+				case EasingType.Sine:
+					return Sine.EaseOut(linearStep);
+				case EasingType.Quadratic:
+					return Power.EaseOut(linearStep, 2);
+				case EasingType.Cubic:
+					return Power.EaseOut(linearStep, 3);
+				case EasingType.Quartic:
+					return Power.EaseOut(linearStep, 4);
+				case EasingType.Quintic:
+					return Power.EaseOut(linearStep, 5);
+			}
+			throw new NotImplementedException();
+		}
+
 		private static class Sine
 		{
 			public static double EaseIn(double s)
 			{
-				return Math.Sin(s*(Math.PI/2) - (Math.PI/2)) + 1;
+				return Math.Sin(s*(Math.PI/2) - Math.PI/2) + 1;
+			}
+
+			public static double EaseInOut(double s)
+			{
+				return Math.Sin(s*Math.PI - Math.PI/2 + 1)/2;
 			}
 
 			public static double EaseOut(double s)
 			{
 				return Math.Sin(s*(Math.PI/2));
-			}
-
-			public static double EaseInOut(double s)
-			{
-				return Math.Sin(s*Math.PI - (Math.PI/2) + 1)/2;
 			}
 		}
 
@@ -540,12 +494,6 @@ namespace Greenshot.Addon.Core
 				return Math.Pow(s, power);
 			}
 
-			public static double EaseOut(double s, int power)
-			{
-				var sign = power%2 == 0 ? -1 : 1;
-				return sign*(Math.Pow(s - 1, power) + sign);
-			}
-
 			public static double EaseInOut(double s, int power)
 			{
 				s *= 2;
@@ -554,13 +502,19 @@ namespace Greenshot.Addon.Core
 					return EaseIn(s, power)/2;
 				}
 				var sign = power%2 == 0 ? -1 : 1;
-				return (sign/2.0*(Math.Pow(s - 2, power) + sign*2));
+				return sign/2.0*(Math.Pow(s - 2, power) + sign*2);
+			}
+
+			public static double EaseOut(double s, int power)
+			{
+				var sign = power%2 == 0 ? -1 : 1;
+				return sign*(Math.Pow(s - 1, power) + sign);
 			}
 		}
 	}
 
 	/// <summary>
-	/// This defines the way the animation works
+	///     This defines the way the animation works
 	/// </summary>
 	public enum EasingType
 	{

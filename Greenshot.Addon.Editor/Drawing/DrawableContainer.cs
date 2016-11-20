@@ -1,23 +1,23 @@
-/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Collections.Generic;
@@ -26,6 +26,8 @@ using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
 using Dapplo.Config.Ini;
+using Dapplo.Log;
+using Greenshot.Addon.Editor.Drawing.Adorners;
 using Greenshot.Addon.Editor.Drawing.Fields;
 using Greenshot.Addon.Editor.Drawing.Filters;
 using Greenshot.Addon.Editor.Helpers;
@@ -33,281 +35,74 @@ using Greenshot.Addon.Editor.Memento;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Drawing;
-using Dapplo.Log;
-using Greenshot.Addon.Editor.Drawing.Adorners;
+
+#endregion
 
 namespace Greenshot.Addon.Editor.Drawing
 {
 	/// <summary>
-	/// represents a rectangle, ellipse, label or whatever. Can contain filters, too.
-	/// serializable for clipboard support
-	/// Subclasses should fulfill INotifyPropertyChanged contract, i.e. call
-	/// OnPropertyChanged whenever a public property has been changed.
+	///     represents a rectangle, ellipse, label or whatever. Can contain filters, too.
+	///     serializable for clipboard support
+	///     Subclasses should fulfill INotifyPropertyChanged contract, i.e. call
+	///     OnPropertyChanged whenever a public property has been changed.
 	/// </summary>
 	[Serializable]
 	public abstract class DrawableContainer : AbstractFieldHolder, IDrawableContainer
 	{
-		private static readonly LogSource Log = new LogSource();
-		protected static readonly IEditorConfiguration EditorConfig = IniConfig.Current.Get<IEditorConfiguration>();
-		private bool isMadeUndoable;
 		private const int M11 = 0;
 		private const int M12 = 1;
 		private const int M21 = 2;
 		private const int M22 = 3;
-
-		[OnDeserialized]
-		private void OnDeserializedInit(StreamingContext context)
-		{
-			_adorners = new List<IAdorner>();
-			OnDeserialized(context);
-		}
+		private static readonly LogSource Log = new LogSource();
+		protected static readonly IEditorConfiguration EditorConfig = IniConfig.Current.Get<IEditorConfiguration>();
 
 		/// <summary>
-		/// Override to implement your own deserialization logic, like initializing properties which are not serialized
+		///     List of available Adorners
 		/// </summary>
-		/// <param name="streamingContext"></param>
-		protected virtual void OnDeserialized(StreamingContext streamingContext)
-		{
-		}
+		[NonSerialized] private IList<IAdorner> _adorners = new List<IAdorner>();
 
 		/// <summary>
-		/// The public accessible Dispose
-		/// Will call the GarbageCollector to SuppressFinalize, preventing being cleaned twice
+		///     "workbench" rectangle - used for calculatoing bounds during resizing (to be applied to this DrawableContainer
+		///     afterwards)
 		/// </summary>
-		public void Dispose() {
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+		[NonSerialized] protected RectangleF _boundsAfterResize = RectangleF.Empty;
 
-		protected virtual void Dispose(bool disposing) {
-			// Do nothing, this is overriden
-		}
+		/// <summary>
+		///     will store current bounds of this DrawableContainer before starting a resize
+		/// </summary>
+		[NonSerialized] protected Rectangle _boundsBeforeResize = Rectangle.Empty;
 
-		~DrawableContainer() {
-			Dispose(false);
-		}
+		[NonSerialized] private EditStatus _defaultEditMode = EditStatus.DRAWING;
 
-		[NonSerialized]
-		private EditStatus _defaultEditMode = EditStatus.DRAWING;
+		private int _height;
 
-		public EditStatus DefaultEditMode
-		{
-			get
-			{
-				return _defaultEditMode;
-			}
-			protected set
-			{
-				_defaultEditMode = value;
-			}
-		}
-
-		[NonSerialized]
-		private bool _isMadeUndoable;
-
-		private readonly List<IFilter> _filters = new List<IFilter>();
-
-		public List<IFilter> Filters
-		{
-			get
-			{
-				return _filters;
-			}
-		}
-
-		[NonSerialized]
-		internal Surface _parent;
-
-		public ISurface Parent
-		{
-			get
-			{
-				return _parent;
-			}
-			set
-			{
-				SwitchParent((Surface) value);
-			}
-		}
-
-		[NonSerialized]
-		private TargetAdorner _targetAdorner;
-		public TargetAdorner TargetAdorner {
-			get {
-				return _targetAdorner;
-			}
-		}
-
-		[NonSerialized]
-		private bool _selected;
-
-		public bool Selected
-		{
-			get
-			{
-				return _selected;
-			}
-			set
-			{
-				_selected = value;
-				OnPropertyChanged("Selected");
-			}
-		}
-
-		[NonSerialized]
-		private EditStatus _status = EditStatus.UNDRAWN;
-
-		public EditStatus Status
-		{
-			get
-			{
-				return _status;
-			}
-			set
-			{
-				_status = value;
-			}
-		}
+		[NonSerialized] private bool _isMadeUndoable;
 
 
 		private int _left;
 
-		public int Left
-		{
-			get
-			{
-				return _left;
-			}
-			set
-			{
-				_left = value;
-			}
-		}
+		[NonSerialized] internal Surface _parent;
+
+		[NonSerialized] private bool _selected;
+
+		[NonSerialized] private EditStatus _status = EditStatus.UNDRAWN;
+
+		[NonSerialized] private TargetAdorner _targetAdorner;
 
 		private int _top;
 
-		public int Top
-		{
-			get
-			{
-				return _top;
-			}
-			set
-			{
-				if (value != _top)
-				{
-					_top = value;
-				}
-			}
-		}
-
 		private int _width;
-
-		public int Width
-		{
-			get
-			{
-				return _width;
-			}
-			set
-			{
-				if (value != _width)
-				{
-					_width = value;
-				}
-			}
-		}
-
-		private int _height;
-
-		public int Height
-		{
-			get
-			{
-				return _height;
-			}
-			set
-			{
-				if (value != _height)
-				{
-					_height = value;
-				}
-			}
-		}
-
-		public Point Location
-		{
-			get
-			{
-				return new Point(_left, _top);
-			}
-		}
-
-		public Size Size
-		{
-			get
-			{
-				return new Size(_width, _height);
-			}
-		}
+		private bool isMadeUndoable;
 
 		/// <summary>
-		/// List of available Adorners
-		/// </summary>
-		[NonSerialized]
-		private IList<IAdorner> _adorners = new List<IAdorner>();
-		public IList<IAdorner> Adorners
-		{
-			get
-			{
-				return _adorners;
-			}
-		}
-
-		/// <summary>
-		/// will store current bounds of this DrawableContainer before starting a resize
-		/// </summary>
-		[NonSerialized]
-		protected Rectangle _boundsBeforeResize = Rectangle.Empty;
-
-		/// <summary>
-		/// "workbench" rectangle - used for calculatoing bounds during resizing (to be applied to this DrawableContainer afterwards)
-		/// </summary>
-		[NonSerialized]
-		protected RectangleF _boundsAfterResize = RectangleF.Empty;
-
-		public Rectangle Bounds
-		{
-			get
-			{
-				return new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
-			}
-			set
-			{
-				Left = Round(value.Left);
-				Top = Round(value.Top);
-				Width = Round(value.Width);
-				Height = Round(value.Height);
-			}
-		}
-
-		public virtual void ApplyBounds(RectangleF newBounds)
-		{
-			Left = Round(newBounds.Left);
-			Top = Round(newBounds.Top);
-			Width = Round(newBounds.Width);
-			Height = Round(newBounds.Height);
-		}
-
-		/// <summary>
-		/// Don't allow default constructor!
+		///     Don't allow default constructor!
 		/// </summary>
 		private DrawableContainer()
 		{
 		}
 
 		/// <summary>
-		/// a drawable container is always linked to a surface
+		///     a drawable container is always linked to a surface
 		/// </summary>
 		/// <param name="parent"></param>
 		public DrawableContainer(Surface parent)
@@ -316,27 +111,37 @@ namespace Greenshot.Addon.Editor.Drawing
 			InitFieldAttributes();
 		}
 
-		public void Add(IFilter filter)
+		public virtual bool CanRotate
 		{
-			_filters.Add(filter);
+			get { return true; }
 		}
 
-		public void Remove(IFilter filter)
+		public virtual Size DefaultSize
 		{
-			_filters.Remove(filter);
+			get { throw new NotSupportedException("Object doesn't have a default size"); }
 		}
 
-		private int Round(float f)
+		public virtual bool HasContextMenu
 		{
-			if (float.IsPositiveInfinity(f) || f > int.MaxValue/2)
+			get { return true; }
+		}
+
+		public virtual bool HasDefaultSize
+		{
+			get { return false; }
+		}
+
+		private bool HasShadow
+		{
+			get
 			{
-				return int.MaxValue/2;
+				FieldAttribute fieldAttribute;
+				if (FieldAttributes.TryGetValue(FieldTypes.SHADOW, out fieldAttribute))
+				{
+					return (bool) fieldAttribute.GetValue(this);
+				}
+				return false;
 			}
-			if (float.IsNegativeInfinity(f) || f < int.MinValue/2)
-			{
-				return int.MinValue/2;
-			}
-			return (int) Math.Round(f);
 		}
 
 		private int InternalLineThickness
@@ -352,17 +157,126 @@ namespace Greenshot.Addon.Editor.Drawing
 			}
 		}
 
-		private bool HasShadow
+		public TargetAdorner TargetAdorner
 		{
-			get
+			get { return _targetAdorner; }
+		}
+
+		/// <summary>
+		///     The public accessible Dispose
+		///     Will call the GarbageCollector to SuppressFinalize, preventing being cleaned twice
+		/// </summary>
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		public EditStatus DefaultEditMode
+		{
+			get { return _defaultEditMode; }
+			protected set { _defaultEditMode = value; }
+		}
+
+		public List<IFilter> Filters { get; } = new List<IFilter>();
+
+		public ISurface Parent
+		{
+			get { return _parent; }
+			set { SwitchParent((Surface) value); }
+		}
+
+		public bool Selected
+		{
+			get { return _selected; }
+			set
 			{
-				FieldAttribute fieldAttribute;
-				if (FieldAttributes.TryGetValue(FieldTypes.SHADOW, out fieldAttribute))
-				{
-					return (bool) fieldAttribute.GetValue(this);
-				}
-				return false;
+				_selected = value;
+				OnPropertyChanged("Selected");
 			}
+		}
+
+		public EditStatus Status
+		{
+			get { return _status; }
+			set { _status = value; }
+		}
+
+		public int Left
+		{
+			get { return _left; }
+			set { _left = value; }
+		}
+
+		public int Top
+		{
+			get { return _top; }
+			set
+			{
+				if (value != _top)
+				{
+					_top = value;
+				}
+			}
+		}
+
+		public int Width
+		{
+			get { return _width; }
+			set
+			{
+				if (value != _width)
+				{
+					_width = value;
+				}
+			}
+		}
+
+		public int Height
+		{
+			get { return _height; }
+			set
+			{
+				if (value != _height)
+				{
+					_height = value;
+				}
+			}
+		}
+
+		public Point Location
+		{
+			get { return new Point(_left, _top); }
+		}
+
+		public Size Size
+		{
+			get { return new Size(_width, _height); }
+		}
+
+		public IList<IAdorner> Adorners
+		{
+			get { return _adorners; }
+		}
+
+		public Rectangle Bounds
+		{
+			get { return new Rectangle(Left, Top, Width, Height).MakeGuiRectangle(); }
+			set
+			{
+				Left = Round(value.Left);
+				Top = Round(value.Top);
+				Width = Round(value.Width);
+				Height = Round(value.Height);
+			}
+		}
+
+		public virtual void ApplyBounds(RectangleF newBounds)
+		{
+			Left = Round(newBounds.Left);
+			Top = Round(newBounds.Top);
+			Width = Round(newBounds.Width);
+			Height = Round(newBounds.Height);
 		}
 
 		public virtual Rectangle DrawingBounds
@@ -415,7 +329,7 @@ namespace Greenshot.Addon.Editor.Drawing
 			}
 			if (horizontalAlignment == HorizontalAlignment.Center)
 			{
-				Left = (_parent.Width/2) - (Width/2) - lineThickness/2;
+				Left = _parent.Width/2 - Width/2 - lineThickness/2;
 			}
 
 			if (verticalAlignment == VerticalAlignment.TOP)
@@ -428,7 +342,7 @@ namespace Greenshot.Addon.Editor.Drawing
 			}
 			if (verticalAlignment == VerticalAlignment.CENTER)
 			{
-				Top = (_parent.Height/2) - (Height/2) - lineThickness/2;
+				Top = _parent.Height/2 - Height/2 - lineThickness/2;
 			}
 		}
 
@@ -437,23 +351,157 @@ namespace Greenshot.Addon.Editor.Drawing
 			return true;
 		}
 
-		public virtual void OnDoubleClick()
+		public bool HasFilters
+		{
+			get { return Filters.Count > 0; }
+		}
+
+		public virtual bool ClickableAt(int x, int y)
+		{
+			Rectangle r = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
+			r.Inflate(5, 5);
+			return r.Contains(x, y);
+		}
+
+		/// <summary>
+		///     Make a following bounds change on this drawablecontainer undoable!
+		/// </summary>
+		/// <param name="allowMerge">true means allow the moves to be merged</param>
+		public void MakeBoundsChangeUndoable(bool allowMerge)
+		{
+			if (_parent != null)
+			{
+				_parent.MakeUndoable(new DrawableContainerBoundsChangeMemento(this), allowMerge);
+			}
+		}
+
+		public void MoveBy(int dx, int dy)
+		{
+			Left += dx;
+			Top += dy;
+		}
+
+		/// <summary>
+		///     A handler for the MouseDown, used if you don't want the surface to handle this for you
+		/// </summary>
+		/// <param name="x">current mouse x</param>
+		/// <param name="y">current mouse y</param>
+		/// <returns>true if the event is handled, false if the surface needs to handle it</returns>
+		public virtual bool HandleMouseDown(int x, int y)
+		{
+			Left = _boundsBeforeResize.X = x;
+			Top = _boundsBeforeResize.Y = y;
+			return true;
+		}
+
+		/// <summary>
+		///     A handler for the MouseMove, used if you don't want the surface to handle this for you
+		/// </summary>
+		/// <param name="x">current mouse x</param>
+		/// <param name="y">current mouse y</param>
+		/// <returns>true if the event is handled, false if the surface needs to handle it</returns>
+		public virtual bool HandleMouseMove(int x, int y)
+		{
+			Invalidate();
+
+			// reset "workrbench" rectangle to current bounds
+			_boundsAfterResize.X = _boundsBeforeResize.Left;
+			_boundsAfterResize.Y = _boundsBeforeResize.Top;
+			_boundsAfterResize.Width = x - _boundsAfterResize.Left;
+			_boundsAfterResize.Height = y - _boundsAfterResize.Top;
+
+			ScaleHelper.Scale(_boundsBeforeResize, x, y, ref _boundsAfterResize, GetAngleRoundProcessor());
+
+			// apply scaled bounds to this DrawableContainer
+			ApplyBounds(_boundsAfterResize);
+
+			Invalidate();
+			return true;
+		}
+
+		/// <summary>
+		///     A handler for the MouseUp
+		/// </summary>
+		/// <param name="x">current mouse x</param>
+		/// <param name="y">current mouse y</param>
+		public virtual void HandleMouseUp(int x, int y)
 		{
 		}
 
 		/// <summary>
-		/// Initialize a target gripper
+		///     This method is called on a DrawableContainers when:
+		///     1) The capture on the surface is modified in such a way, that the elements would not be placed correctly.
+		///     2) Currently not implemented: an element needs to be moved, scaled or rotated.
+		///     This basis implementation makes sure the coordinates of the element, including the TargetGripper, is correctly
+		///     rotated/scaled/translated.
+		///     But this implementation doesn't take care of any changes to the content!!
 		/// </summary>
-		protected void InitAdorner(Color gripperColor, Point location) {
-			_targetAdorner = new TargetAdorner(this, location);
-			Adorners.Add(_targetAdorner);
+		/// <param name="matrix"></param>
+		public virtual void Transform(Matrix matrix)
+		{
+			if (matrix == null)
+			{
+				return;
+			}
+			Point topLeft = new Point(Left, Top);
+			Point bottomRight = new Point(Left + Width, Top + Height);
+			Point[] points = {topLeft, bottomRight};
+			matrix.TransformPoints(points);
+
+			Left = points[0].X;
+			Top = points[0].Y;
+			Width = points[1].X - points[0].X;
+			Height = points[1].Y - points[0].Y;
+		}
+
+		public void Add(IFilter filter)
+		{
+			Filters.Add(filter);
 		}
 
 		/// <summary>
-		/// Create the default adorners for a rectangle based container
+		///     Retrieve the rotation angle from the matrix
 		/// </summary>
+		/// <param name="matrix"></param>
+		/// <returns></returns>
+		public static int CalculateAngle(Matrix matrix)
+		{
+			const int M11 = 0;
+			const int M21 = 2;
+			var radians = Math.Atan2(matrix.Elements[M21], matrix.Elements[M11]);
+			return (int) -Math.Round(radians*180/Math.PI);
+		}
 
-		protected void CreateDefaultAdorners() {
+		/// <summary>
+		///     Retrieve the X scale from the matrix
+		/// </summary>
+		/// <param name="matrix"></param>
+		/// <returns></returns>
+		public static float CalculateScaleX(Matrix matrix)
+		{
+			return matrix.Elements[M11];
+		}
+
+		/// <summary>
+		///     Retrieve the Y scale from the matrix
+		/// </summary>
+		/// <param name="matrix"></param>
+		/// <returns></returns>
+		public static float CalculateScaleY(Matrix matrix)
+		{
+			return matrix.Elements[M22];
+		}
+
+		public virtual bool Contains(int x, int y)
+		{
+			return Bounds.Contains(x, y);
+		}
+
+		/// <summary>
+		///     Create the default adorners for a rectangle based container
+		/// </summary>
+		protected void CreateDefaultAdorners()
+		{
 			if (Adorners.Count > 0)
 			{
 				Log.Warn().WriteLine("Adorners are already defined!");
@@ -469,12 +517,9 @@ namespace Greenshot.Addon.Editor.Drawing
 			Adorners.Add(new ResizeAdorner(this, Positions.MiddleRight));
 		}
 
-		public bool HasFilters
+		protected virtual void Dispose(bool disposing)
 		{
-			get
-			{
-				return Filters.Count > 0;
-			}
+			// Do nothing, this is overriden
 		}
 
 		public abstract void Draw(Graphics graphics, RenderMode renderMode);
@@ -489,7 +534,7 @@ namespace Greenshot.Addon.Editor.Drawing
 				}
 				else
 				{
-					if (clipRectangle.Width != 0 && clipRectangle.Height != 0)
+					if ((clipRectangle.Width != 0) && (clipRectangle.Height != 0))
 					{
 						foreach (IFilter filter in Filters)
 						{
@@ -519,18 +564,6 @@ namespace Greenshot.Addon.Editor.Drawing
 			Draw(graphics, renderMode);
 		}
 
-		public virtual bool Contains(int x, int y)
-		{
-			return Bounds.Contains(x, y);
-		}
-
-		public virtual bool ClickableAt(int x, int y)
-		{
-			Rectangle r = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
-			r.Inflate(5, 5);
-			return r.Contains(x, y);
-		}
-
 		protected void DrawSelectionBorder(Graphics g, Rectangle rect)
 		{
 			using (Pen pen = new Pen(Color.MediumSeaGreen))
@@ -544,75 +577,86 @@ namespace Greenshot.Addon.Editor.Drawing
 			}
 		}
 
+		// drawablecontainers are regarded equal if they are of the same type and their bounds are equal. this should be sufficient.
+		public override bool Equals(object obj)
+		{
+			bool ret = false;
+			if ((obj != null) && (GetType() == obj.GetType()))
+			{
+				DrawableContainer other = obj as DrawableContainer;
+				if ((other != null) && (_left == other._left) && (_top == other._top) && (_width == other._width) && (_height == other._height))
+				{
+					ret = true;
+				}
+			}
+			return ret;
+		}
+
+		~DrawableContainer()
+		{
+			Dispose(false);
+		}
+
+		protected virtual ScaleHelper.IDoubleProcessor GetAngleRoundProcessor()
+		{
+			return ScaleHelper.ShapeAngleRoundBehavior.Instance;
+		}
+
+		public override int GetHashCode()
+		{
+			return _left.GetHashCode() ^ _top.GetHashCode() ^ _width.GetHashCode() ^ _height.GetHashCode() ^ fieldAttributes.GetHashCode();
+		}
+
+		/// <summary>
+		///     Initialize a target gripper
+		/// </summary>
+		protected void InitAdorner(Color gripperColor, Point location)
+		{
+			_targetAdorner = new TargetAdorner(this, location);
+			Adorners.Add(_targetAdorner);
+		}
+
+		/// <summary>
+		///     Override to implement your own deserialization logic, like initializing properties which are not serialized
+		/// </summary>
+		/// <param name="streamingContext"></param>
+		protected virtual void OnDeserialized(StreamingContext streamingContext)
+		{
+		}
+
+		[OnDeserialized]
+		private void OnDeserializedInit(StreamingContext context)
+		{
+			_adorners = new List<IAdorner>();
+			OnDeserialized(context);
+		}
+
+		public virtual void OnDoubleClick()
+		{
+		}
+
+		public void Remove(IFilter filter)
+		{
+			Filters.Remove(filter);
+		}
+
 		public void ResizeTo(int width, int height, int anchorPosition)
 		{
 			Width = width;
 			Height = height;
 		}
 
-		/// <summary>
-		/// Make a following bounds change on this drawablecontainer undoable!
-		/// </summary>
-		/// <param name="allowMerge">true means allow the moves to be merged</param>
-		public void MakeBoundsChangeUndoable(bool allowMerge)
+		private int Round(float f)
 		{
-			if (_parent != null)
+			if (float.IsPositiveInfinity(f) || (f > int.MaxValue/2))
 			{
-				_parent.MakeUndoable(new DrawableContainerBoundsChangeMemento(this), allowMerge);
+				return int.MaxValue/2;
 			}
-		}
-
-		public void MoveBy(int dx, int dy)
-		{
-			Left += dx;
-			Top += dy;
-		}
-
-		/// <summary>
-		/// A handler for the MouseDown, used if you don't want the surface to handle this for you
-		/// </summary>
-		/// <param name="x">current mouse x</param>
-		/// <param name="y">current mouse y</param>
-		/// <returns>true if the event is handled, false if the surface needs to handle it</returns>
-		public virtual bool HandleMouseDown(int x, int y)
-		{
-			Left = _boundsBeforeResize.X = x;
-			Top = _boundsBeforeResize.Y = y;
-			return true;
-		}
-
-		/// <summary>
-		/// A handler for the MouseMove, used if you don't want the surface to handle this for you
-		/// </summary>
-		/// <param name="x">current mouse x</param>
-		/// <param name="y">current mouse y</param>
-		/// <returns>true if the event is handled, false if the surface needs to handle it</returns>
-		public virtual bool HandleMouseMove(int x, int y)
-		{
-			Invalidate();
-
-			// reset "workrbench" rectangle to current bounds
-			_boundsAfterResize.X = _boundsBeforeResize.Left;
-			_boundsAfterResize.Y = _boundsBeforeResize.Top;
-			_boundsAfterResize.Width = x - _boundsAfterResize.Left;
-			_boundsAfterResize.Height = y - _boundsAfterResize.Top;
-
-			ScaleHelper.Scale(_boundsBeforeResize, x, y, ref _boundsAfterResize, GetAngleRoundProcessor());
-
-			// apply scaled bounds to this DrawableContainer
-			ApplyBounds(_boundsAfterResize);
-
-			Invalidate();
-			return true;
-		}
-
-		/// <summary>
-		/// A handler for the MouseUp
-		/// </summary>
-		/// <param name="x">current mouse x</param>
-		/// <param name="y">current mouse y</param>
-		public virtual void HandleMouseUp(int x, int y)
-		{
+			if (float.IsNegativeInfinity(f) || (f < int.MinValue/2))
+			{
+				return int.MinValue/2;
+			}
+			return (int) Math.Round(f);
 		}
 
 		protected virtual void SwitchParent(Surface newParent)
@@ -627,121 +671,6 @@ namespace Greenshot.Addon.Editor.Drawing
 			foreach (IFilter filter in Filters)
 			{
 				filter.Parent = this;
-			}
-		}
-
-		// drawablecontainers are regarded equal if they are of the same type and their bounds are equal. this should be sufficient.
-		public override bool Equals(object obj)
-		{
-			bool ret = false;
-			if (obj != null && GetType() == obj.GetType())
-			{
-				DrawableContainer other = obj as DrawableContainer;
-				if (other != null && (_left == other._left && _top == other._top && _width == other._width && _height == other._height))
-				{
-					ret = true;
-				}
-			}
-			return ret;
-		}
-
-		public override int GetHashCode()
-		{
-			return _left.GetHashCode() ^ _top.GetHashCode() ^ _width.GetHashCode() ^ _height.GetHashCode() ^ fieldAttributes.GetHashCode();
-		}
-
-		public virtual bool CanRotate
-		{
-			get
-			{
-				return true;
-			}
-		}
-
-		/// <summary>
-		/// Retrieve the Y scale from the matrix
-		/// </summary>
-		/// <param name="matrix"></param>
-		/// <returns></returns>
-		public static float CalculateScaleY(Matrix matrix)
-		{
-			return matrix.Elements[M22];
-		}
-
-		/// <summary>
-		/// Retrieve the X scale from the matrix
-		/// </summary>
-		/// <param name="matrix"></param>
-		/// <returns></returns>
-		public static float CalculateScaleX(Matrix matrix)
-		{
-			return matrix.Elements[M11];
-		}
-
-		/// <summary>
-		/// Retrieve the rotation angle from the matrix
-		/// </summary>
-		/// <param name="matrix"></param>
-		/// <returns></returns>
-		public static int CalculateAngle(Matrix matrix)
-		{
-			const int M11 = 0;
-			const int M21 = 2;
-			var radians = Math.Atan2(matrix.Elements[M21], matrix.Elements[M11]);
-			return (int) -Math.Round(radians*180/Math.PI);
-		}
-
-		/// <summary>
-		/// This method is called on a DrawableContainers when:
-		/// 1) The capture on the surface is modified in such a way, that the elements would not be placed correctly.
-		/// 2) Currently not implemented: an element needs to be moved, scaled or rotated.
-		/// This basis implementation makes sure the coordinates of the element, including the TargetGripper, is correctly rotated/scaled/translated.
-		/// But this implementation doesn't take care of any changes to the content!!
-		/// </summary>
-		/// <param name="matrix"></param>
-		public virtual void Transform(Matrix matrix)
-		{
-			if (matrix == null)
-			{
-				return;
-			}
-			Point topLeft = new Point(Left, Top);
-			Point bottomRight = new Point(Left + Width, Top + Height);
-			Point[] points = new[] { topLeft, bottomRight };
-			matrix.TransformPoints(points);
-
-			Left = points[0].X;
-			Top = points[0].Y;
-			Width = points[1].X - points[0].X;
-			Height = points[1].Y - points[0].Y;
-		}
-
-		protected virtual ScaleHelper.IDoubleProcessor GetAngleRoundProcessor()
-		{
-			return ScaleHelper.ShapeAngleRoundBehavior.Instance;
-		}
-
-		public virtual bool HasContextMenu
-		{
-			get
-			{
-				return true;
-			}
-		}
-
-		public virtual bool HasDefaultSize
-		{
-			get
-			{
-				return false;
-			}
-		}
-
-		public virtual Size DefaultSize
-		{
-			get
-			{
-				throw new NotSupportedException("Object doesn't have a default size");
 			}
 		}
 	}

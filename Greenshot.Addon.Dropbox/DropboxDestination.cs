@@ -1,23 +1,23 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom,
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Collections.Generic;
@@ -30,15 +30,17 @@ using System.Threading.Tasks;
 using System.Windows;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.OAuth;
+using Dapplo.Log;
+using Dapplo.Utils;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Dropbox.Entities;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
-using Dapplo.Utils;
-using Dapplo.Log;
 using MahApps.Metro.IconPacks;
+
+#endregion
 
 namespace Greenshot.Addon.Dropbox
 {
@@ -53,53 +55,10 @@ namespace Greenshot.Addon.Dropbox
 		private IHttpBehaviour _oAuthHttpBehaviour;
 
 		[Import]
-		private IDropboxConfiguration DropboxConfiguration
-		{
-			get;
-			set;
-		}
+		private IDropboxConfiguration DropboxConfiguration { get; set; }
 
 		[Import]
-		private IDropboxLanguage DropboxLanguage
-		{
-			get;
-			set;
-		}
-
-		/// <summary>
-		/// Setup
-		/// </summary>
-		protected override void Initialize()
-		{
-			base.Initialize();
-			Designation = DropboxDesignation;
-			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
-			Text = DropboxLanguage.UploadMenuItem;
-			Icon = new PackIconMaterial
-			{
-				Kind = PackIconMaterialKind.Dropbox
-			};
-
-			_oAuth2Settings = new OAuth2Settings
-			{
-				AuthorizationUri = DropboxApiUri.
-					AppendSegments("1","oauth2", "authorize").
-					ExtendQuery(new Dictionary<string, string>{
-								{ "response_type", "code"},
-								{ "client_id", "{ClientId}" },
-								{ "redirect_uri", "{RedirectUrl}" },
-								{ "state", "{State}"}
-					}),
-				TokenUrl = DropboxApiUri.AppendSegments("1","oauth2", "token"),
-				CloudServiceName = "Dropbox",
-				ClientId = DropboxConfiguration.ClientId,
-				ClientSecret = DropboxConfiguration.ClientSecret,
-				AuthorizeMode = AuthorizeModes.LocalhostServer,
-				RedirectUrl = "http://localhost:47336",
-				Token = DropboxConfiguration
-			};
-			_oAuthHttpBehaviour = OAuth2HttpBehaviourFactory.Create(_oAuth2Settings);
-		}
+		private IDropboxLanguage DropboxLanguage { get; set; }
 
 		private async Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))
 		{
@@ -136,12 +95,11 @@ namespace Greenshot.Addon.Dropbox
 						ClipboardHelper.SetClipboardData(url);
 					}
 				}
-
 			}
 			catch (TaskCanceledException tcEx)
 			{
 				returnValue.Text = string.Format(DropboxLanguage.UploadFailure, DropboxDesignation);
-                returnValue.NotificationType = NotificationTypes.Cancel;
+				returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
 				Log.Info().WriteLine(tcEx.Message);
 			}
@@ -154,10 +112,46 @@ namespace Greenshot.Addon.Dropbox
 				MessageBox.Show(DropboxLanguage.UploadFailure + " " + e.Message, DropboxDesignation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			return returnValue;
-        }
+		}
 
 		/// <summary>
-		/// Upload the HttpContent to dropbox
+		///     Setup
+		/// </summary>
+		protected override void Initialize()
+		{
+			base.Initialize();
+			Designation = DropboxDesignation;
+			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
+			Text = DropboxLanguage.UploadMenuItem;
+			Icon = new PackIconMaterial
+			{
+				Kind = PackIconMaterialKind.Dropbox
+			};
+
+			_oAuth2Settings = new OAuth2Settings
+			{
+				AuthorizationUri = DropboxApiUri.
+					AppendSegments("1", "oauth2", "authorize").
+					ExtendQuery(new Dictionary<string, string>
+					{
+						{"response_type", "code"},
+						{"client_id", "{ClientId}"},
+						{"redirect_uri", "{RedirectUrl}"},
+						{"state", "{State}"}
+					}),
+				TokenUrl = DropboxApiUri.AppendSegments("1", "oauth2", "token"),
+				CloudServiceName = "Dropbox",
+				ClientId = DropboxConfiguration.ClientId,
+				ClientSecret = DropboxConfiguration.ClientSecret,
+				AuthorizeMode = AuthorizeModes.LocalhostServer,
+				RedirectUrl = "http://localhost:47336",
+				Token = DropboxConfiguration
+			};
+			_oAuthHttpBehaviour = OAuth2HttpBehaviourFactory.Create(_oAuth2Settings);
+		}
+
+		/// <summary>
+		///     Upload the HttpContent to dropbox
 		/// </summary>
 		/// <param name="filename">Name of the file</param>
 		/// <param name="content">HttpContent</param>
@@ -165,12 +159,9 @@ namespace Greenshot.Addon.Dropbox
 		/// <returns>Url as string</returns>
 		private async Task<string> UploadAsync(string filename, HttpContent content, IProgress<int> progress, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			var oAuthHttpBehaviour =_oAuthHttpBehaviour.ShallowClone();
+			var oAuthHttpBehaviour = _oAuthHttpBehaviour.ShallowClone();
 			// Use UploadProgress
-			oAuthHttpBehaviour.UploadProgress = (percent) =>
-			{
-				UiContext.RunOn(() => progress.Report((int)(percent * 100)));
-			};
+			oAuthHttpBehaviour.UploadProgress = percent => { UiContext.RunOn(() => progress.Report((int) (percent*100))); };
 			oAuthHttpBehaviour.MakeCurrent();
 
 			// Build the upload content together
@@ -197,7 +188,7 @@ namespace Greenshot.Addon.Dropbox
 			uploadContent.Headers.Add("Dropbox-API-Arg", minifiedJson);
 
 			// Post everything, and return the upload reply or an error
-			var response = await DropboxContentUri.PostAsync<HttpResponse<UploadReply,Error>>(uploadContent, cancellationToken);
+			var response = await DropboxContentUri.PostAsync<HttpResponse<UploadReply, Error>>(uploadContent, cancellationToken);
 
 			if (response.HasError)
 			{

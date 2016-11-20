@@ -1,23 +1,23 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Collections.Generic;
@@ -26,19 +26,21 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
+#endregion
+
 namespace Greenshot.Addon.Editor.Helpers
 {
 	public static class Objects
 	{
 		/// <summary>
-		/// Perform a deep Copy of the object.
+		///     Perform a deep Copy of the object.
 		/// </summary>
 		/// <typeparam name="T">The type of object being copied.</typeparam>
 		/// <param name="source">The object instance to copy.</param>
 		/// <returns>The copied object.</returns>
 		public static T Clone<T>(this T source)
 		{
-			if (!typeof (T).IsSerializable)
+			if (!typeof(T).IsSerializable)
 			{
 				throw new ArgumentException("The type must be serializable.", "source");
 			}
@@ -61,7 +63,7 @@ namespace Greenshot.Addon.Editor.Helpers
 
 		public static void CloneTo<T>(this T source, T destination)
 		{
-			Type type = typeof (T);
+			Type type = typeof(T);
 			FieldInfo[] myObjectFields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
 
 			foreach (FieldInfo fi in myObjectFields)

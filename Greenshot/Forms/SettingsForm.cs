@@ -1,23 +1,23 @@
-/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016  Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Collections;
@@ -29,19 +29,23 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Dapplo.Config.Language;
+using Dapplo.Log;
 using Dapplo.Windows.Native;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Controls;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces.Destination;
+using Greenshot.Core.Enumerations;
+using Greenshot.Core.Extensions;
 using Greenshot.Helpers;
-using Dapplo.Log;
+
+#endregion
 
 namespace Greenshot.Forms
 {
 	/// <summary>
-	/// Description of SettingsForm.
+	///     Description of SettingsForm.
 	/// </summary>
 	public partial class SettingsForm : BaseForm
 	{
@@ -58,216 +62,91 @@ namespace Greenshot.Forms
 			ManualStoreFields = true;
 		}
 
-		protected override void OnLoad(EventArgs e)
+		private void BrowseClick(object sender, EventArgs e)
 		{
-			base.OnLoad(e);
-
-			// Fix for Vista/XP differences
-			if (Environment.OSVersion.IsWindowsVistaOrLater())
+			// Get the storage location and replace the environment variables
+			folderBrowserDialog1.SelectedPath = FilenameHelper.FillVariables(textbox_storagelocation.Text, false);
+			if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
 			{
-				trackBarJpegQuality.BackColor = SystemColors.Window;
-			}
-			else
-			{
-				trackBarJpegQuality.BackColor = SystemColors.Control;
-			}
-
-			// This makes it possible to still capture the settings screen
-			fullscreen_hotkeyControl.Enter += EnterHotkeyControl;
-			fullscreen_hotkeyControl.Leave += LeaveHotkeyControl;
-			window_hotkeyControl.Enter += EnterHotkeyControl;
-			window_hotkeyControl.Leave += LeaveHotkeyControl;
-			region_hotkeyControl.Enter += EnterHotkeyControl;
-			region_hotkeyControl.Leave += LeaveHotkeyControl;
-			ie_hotkeyControl.Enter += EnterHotkeyControl;
-			ie_hotkeyControl.Leave += LeaveHotkeyControl;
-			lastregion_hotkeyControl.Enter += EnterHotkeyControl;
-			lastregion_hotkeyControl.Leave += LeaveHotkeyControl;
-
-			DisplayPluginTab();
-			UpdateUi();
-			ExpertSettingsEnableState(false);
-			DisplaySettings();
-			CheckSettings();
-		}
-
-		private void EnterHotkeyControl(object sender, EventArgs e)
-		{
-			HotkeyControl.UnregisterHotkeys();
-			_inHotkey = true;
-		}
-
-		private void LeaveHotkeyControl(object sender, EventArgs e)
-		{
-			MainForm.RegisterHotkeys();
-			_inHotkey = false;
-		}
-
-		protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
-		{
-			switch (keyData)
-			{
-				case Keys.Escape:
-					if (!_inHotkey)
-					{
-						DialogResult = DialogResult.Cancel;
-					}
-					else
-					{
-						return base.ProcessCmdKey(ref msg, keyData);
-					}
-					break;
-				default:
-					return base.ProcessCmdKey(ref msg, keyData);
-			}
-			return true;
-		}
-
-		/// <summary>
-		/// This is a method to populate the ComboBox
-		/// with the items from the enumeration
-		/// </summary>
-		/// <param name="comboBox">ComboBox to populate</param>
-		/// <param name="availableValues">Enum to populate with</param>
-		/// <param name="selectedValue"></param>
-		private void PopulateComboBox<T>(ComboBox comboBox, IEnumerable<T> availableValues, T selectedValue) where T : struct
-		{
-			comboBox.Items.Clear();
-			foreach (var enumValue in availableValues)
-			{
-				var translation = language[enumValue.GetType().Name + "." + enumValue];
-				comboBox.Items.Add(translation);
-			}
-			comboBox.SelectedItem = language[selectedValue.GetType().Name + "." + selectedValue];
-		}
-
-
-		/// <summary>
-		/// Get the selected enum value from the combobox, uses generics
-		/// </summary>
-		/// <param name="comboBox">Combobox to get the value from</param>
-		/// <returns>The generics value of the combobox</returns>
-		private static T GetSelected<T>(ComboBox comboBox)
-		{
-			string enumTypeName = typeof (T).Name;
-			string selectedValue = comboBox.SelectedItem as string;
-			var availableValues = (T[]) Enum.GetValues(typeof (T));
-			var returnValue = availableValues[0];
-			foreach (var enumValue in availableValues)
-			{
-				string translation = language[enumTypeName + "." + enumValue];
-				if (translation.Equals(selectedValue))
+				// Only change if there is a change, otherwise we might overwrite the environment variables
+				if ((folderBrowserDialog1.SelectedPath != null) && !folderBrowserDialog1.SelectedPath.Equals(FilenameHelper.FillVariables(textbox_storagelocation.Text, false)))
 				{
-					returnValue = enumValue;
+					textbox_storagelocation.Text = folderBrowserDialog1.SelectedPath;
+				}
+			}
+		}
+
+
+		private void BtnPatternHelpClick(object sender, EventArgs e)
+		{
+			string filenamepatternText = language.SettingsMessageFilenamepattern;
+			// Convert %NUM% to ${NUM} for old language files!
+			filenamepatternText = Regex.Replace(filenamepatternText, "%([a-zA-Z_0-9]+)%", @"${$1}");
+			MessageBox.Show(filenamepatternText, language.SettingsFilenamepattern);
+		}
+
+		private void Button_pluginconfigureClick(object sender, EventArgs e)
+		{
+			PluginHelper.Instance.ConfigureSelectedItem(listview_plugins);
+		}
+
+		/// <summary>
+		///     Called if the "I know what I am doing" on the settings form is changed
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void checkbox_enableexpert_CheckedChanged(object sender, EventArgs e)
+		{
+			CheckBox checkBox = sender as CheckBox;
+			if (checkBox != null)
+			{
+				ExpertSettingsEnableState(checkBox.Checked);
+			}
+		}
+
+		/// <summary>
+		///     Check the destination settings
+		/// </summary>
+		private void CheckDestinationSettings()
+		{
+			bool clipboardDestinationChecked = false;
+			bool pickerSelected = checkbox_picker.Checked;
+			bool destinationsEnabled = !coreConfiguration.IsWriteProtected(x => x.OutputDestinations);
+			listview_destinations.Enabled = destinationsEnabled;
+
+			foreach (int index in listview_destinations.CheckedIndices)
+			{
+				ListViewItem item = listview_destinations.Items[index];
+				var destinationFromTag = item.Tag as IDestination;
+				if ((destinationFromTag != null) && destinationFromTag.Designation.Equals(BuildInDestinationEnum.Clipboard.ToString()))
+				{
+					clipboardDestinationChecked = true;
 					break;
 				}
 			}
-			return returnValue;
-		}
 
-		private void SetWindowCaptureMode(WindowCaptureMode selectedWindowCaptureMode)
-		{
-			WindowCaptureMode[] availableModes;
-			if (!Dwm.IsDwmEnabled)
+			if (pickerSelected)
 			{
-				// Remove DWM from configuration, as DWM is disabled!
-				if (coreConfiguration.WindowCaptureMode == WindowCaptureMode.Aero || coreConfiguration.WindowCaptureMode == WindowCaptureMode.AeroTransparent)
+				listview_destinations.Enabled = false;
+				foreach (int index in listview_destinations.CheckedIndices)
 				{
-					coreConfiguration.WindowCaptureMode = WindowCaptureMode.GDI;
+					ListViewItem item = listview_destinations.Items[index];
+					item.Checked = false;
 				}
-				availableModes = new[]
-				{
-					WindowCaptureMode.Auto, WindowCaptureMode.Screen, WindowCaptureMode.GDI
-				};
 			}
 			else
 			{
-				availableModes = new[]
+				// Prevent multiple clipboard settings at once, see bug #3435056
+				if (clipboardDestinationChecked)
 				{
-					WindowCaptureMode.Auto, WindowCaptureMode.Screen, WindowCaptureMode.GDI, WindowCaptureMode.Aero, WindowCaptureMode.AeroTransparent
-				};
-			}
-			PopulateComboBox(combobox_window_capture_mode, availableModes, selectedWindowCaptureMode);
-		}
-
-		private void DisplayPluginTab()
-		{
-			if (!PluginHelper.Instance.HasPlugins())
-			{
-				tabcontrol.TabPages.Remove(tab_plugins);
-			}
-			else
-			{
-				// Draw the Plugin listview
-				listview_plugins.BeginUpdate();
-				listview_plugins.Items.Clear();
-				listview_plugins.Columns.Clear();
-				string[] columns =
-				{
-					language.SettingsPluginsName, language.SettingsPluginsVersion, language.SettingsPluginsCreatedby, language.SettingsPluginsDllpath
-				};
-				foreach (string column in columns)
-				{
-					listview_plugins.Columns.Add(column);
+					checkbox_copypathtoclipboard.Checked = false;
+					checkbox_copypathtoclipboard.Enabled = false;
 				}
-				PluginHelper.Instance.FillListview(listview_plugins);
-				// Maximize Column size!
-				for (int i = 0; i < listview_plugins.Columns.Count; i++)
+				else
 				{
-					listview_plugins.AutoResizeColumn(i, ColumnHeaderAutoResizeStyle.ColumnContent);
-					int width = listview_plugins.Columns[i].Width;
-					listview_plugins.AutoResizeColumn(i, ColumnHeaderAutoResizeStyle.HeaderSize);
-					if (width > listview_plugins.Columns[i].Width)
-					{
-						listview_plugins.Columns[i].Width = width;
-					}
+					checkbox_copypathtoclipboard.Enabled = true;
 				}
-				listview_plugins.EndUpdate();
-				listview_plugins.Refresh();
-
-				// Disable the configure button, it will be enabled when a plugin is selected AND isConfigurable
-				button_pluginconfigure.Enabled = false;
 			}
-		}
-
-		/// <summary>
-		/// Update the UI to reflect the language and other text settings
-		/// </summary>
-		private void UpdateUi()
-		{
-			if (coreConfiguration.HideExpertSettings)
-			{
-				tabcontrol.Controls.Remove(tab_expert);
-			}
-			_toolTip.SetToolTip(label_language, language.SettingsTooltipLanguage);
-			_toolTip.SetToolTip(label_storagelocation, language.SettingsTooltipStoragelocation);
-			_toolTip.SetToolTip(label_screenshotname, language.SettingsTooltipFilenamepattern);
-			_toolTip.SetToolTip(label_primaryimageformat, language.SettingsTooltipPrimaryimageformat);
-
-			// Removing, otherwise we keep getting the event multiple times!
-			combobox_language.SelectedIndexChanged -= Combobox_languageSelectedIndexChanged;
-
-			// Initialize the Language ComboBox
-			combobox_language.DisplayMember = "Value";
-			combobox_language.ValueMember = "Key";
-			// Set datasource last to prevent problems
-			// See: http://www.codeproject.com/KB/database/scomlistcontrolbinding.aspx?fid=111644
-			combobox_language.DataSource = LanguageLoader.Current.AvailableLanguages.ToList();
-			if (LanguageLoader.Current.CurrentLanguage != null)
-			{
-				combobox_language.SelectedValue = LanguageLoader.Current.CurrentLanguage;
-			}
-
-			// Delaying the SelectedIndexChanged events untill all is initiated
-			combobox_language.SelectedIndexChanged += Combobox_languageSelectedIndexChanged;
-			UpdateDestinationDescriptions();
-			UpdateClipboardFormatDescriptions();
-		}
-
-		// Check the settings and somehow visibly mark when something is incorrect
-		private bool CheckSettings()
-		{
-			return CheckFilenamePattern() && CheckStorageLocationPath();
 		}
 
 		private bool CheckFilenamePattern()
@@ -279,7 +158,7 @@ namespace Greenshot.Forms
 			string filenamePart = pathParts[pathParts.Length - 1];
 			bool settingsOk = FilenameHelper.IsFilenameValid(filenamePart);
 
-			for (int i = 0; (settingsOk && i < pathParts.Length - 1); i++)
+			for (int i = 0; settingsOk && (i < pathParts.Length - 1); i++)
 			{
 				settingsOk = FilenameHelper.IsDirectoryNameValid(pathParts[i]);
 			}
@@ -287,6 +166,12 @@ namespace Greenshot.Forms
 			DisplayTextBoxValidity(textbox_screenshotname, settingsOk);
 
 			return settingsOk;
+		}
+
+		// Check the settings and somehow visibly mark when something is incorrect
+		private bool CheckSettings()
+		{
+			return CheckFilenamePattern() && CheckStorageLocationPath();
 		}
 
 		private bool CheckStorageLocationPath()
@@ -300,65 +185,50 @@ namespace Greenshot.Forms
 			return settingsOk;
 		}
 
-		private void DisplayTextBoxValidity(GreenshotTextBox textbox, bool valid)
+		private async void Combobox_languageSelectedIndexChanged(object sender, EventArgs e)
 		{
-			if (valid)
+			// Get the combobox values BEFORE changing the language
+			//EmailFormat selectedEmailFormat = GetSelected<EmailFormat>(combobox_emailformat);
+			WindowCaptureMode selectedWindowCaptureMode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
+			if (combobox_language.SelectedItem != null)
 			{
-				// "Added" feature #3547158
-				if (Environment.OSVersion.Version.Major >= 6)
-				{
-					textbox.BackColor = SystemColors.Window;
-				}
-				else
-				{
-					textbox.BackColor = SystemColors.Control;
-				}
+				Log.Debug().WriteLine("Setting language to: {0}", combobox_language.SelectedValue);
+				await LanguageLoader.Current.ChangeLanguageAsync((string) combobox_language.SelectedValue);
 			}
-			else
-			{
-				textbox.BackColor = Color.Red;
-			}
+			// Reflect language changes to the settings form
+			UpdateUi();
+
+			// Reflect Language changes form
+			ApplyLanguage();
+
+			// Update the email & windows capture mode
+			//SetEmailFormat(selectedEmailFormat);
+			SetWindowCaptureMode(selectedWindowCaptureMode);
 		}
 
-		private void FilenamePatternChanged(object sender, EventArgs e)
+		private void Combobox_window_capture_modeSelectedIndexChanged(object sender, EventArgs e)
 		{
-			CheckFilenamePattern();
+			int windowsVersion = Environment.OSVersion.Version.Major;
+			WindowCaptureMode mode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
+			if (Environment.OSVersion.IsWindowsVistaOrLater())
+			{
+				switch (mode)
+				{
+					case WindowCaptureMode.Aero:
+						colorButton_window_background.Visible = true;
+						return;
+				}
+			}
+			colorButton_window_background.Visible = false;
 		}
 
-		private void StorageLocationChanged(object sender, EventArgs e)
+		private void DestinationsCheckStateChanged(object sender, EventArgs e)
 		{
-			CheckStorageLocationPath();
+			CheckDestinationSettings();
 		}
 
 		/// <summary>
-		/// Show all destination descriptions in the current language
-		/// </summary>
-		private void UpdateDestinationDescriptions()
-		{
-			foreach (ListViewItem item in listview_destinations.Items)
-			{
-				var destinationFromTag = item.Tag as IDestination;
-				if (destinationFromTag != null)
-				{
-					item.Text = destinationFromTag.Text;
-				}
-			}
-		}
-
-		/// <summary>
-		/// Show all clipboard format descriptions in the current language
-		/// </summary>
-		private void UpdateClipboardFormatDescriptions()
-		{
-			foreach (ListViewItem item in listview_clipboardformats.Items)
-			{
-				ClipboardFormat cf = (ClipboardFormat) item.Tag;
-				item.Text = language[cf.GetType().Name + "." + cf];
-			}
-		}
-
-		/// <summary>
-		/// Build the view with all the destinations
+		///     Build the view with all the destinations
 		/// </summary>
 		private void DisplayDestinations()
 		{
@@ -413,12 +283,52 @@ namespace Greenshot.Forms
 			listview_destinations.Enabled = destinationsEnabled;
 		}
 
+		private void DisplayPluginTab()
+		{
+			if (!PluginHelper.Instance.HasPlugins())
+			{
+				tabcontrol.TabPages.Remove(tab_plugins);
+			}
+			else
+			{
+				// Draw the Plugin listview
+				listview_plugins.BeginUpdate();
+				listview_plugins.Items.Clear();
+				listview_plugins.Columns.Clear();
+				string[] columns =
+				{
+					language.SettingsPluginsName, language.SettingsPluginsVersion, language.SettingsPluginsCreatedby, language.SettingsPluginsDllpath
+				};
+				foreach (string column in columns)
+				{
+					listview_plugins.Columns.Add(column);
+				}
+				PluginHelper.Instance.FillListview(listview_plugins);
+				// Maximize Column size!
+				for (int i = 0; i < listview_plugins.Columns.Count; i++)
+				{
+					listview_plugins.AutoResizeColumn(i, ColumnHeaderAutoResizeStyle.ColumnContent);
+					int width = listview_plugins.Columns[i].Width;
+					listview_plugins.AutoResizeColumn(i, ColumnHeaderAutoResizeStyle.HeaderSize);
+					if (width > listview_plugins.Columns[i].Width)
+					{
+						listview_plugins.Columns[i].Width = width;
+					}
+				}
+				listview_plugins.EndUpdate();
+				listview_plugins.Refresh();
+
+				// Disable the configure button, it will be enabled when a plugin is selected AND isConfigurable
+				button_pluginconfigure.Enabled = false;
+			}
+		}
+
 		private void DisplaySettings()
 		{
 			colorButton_window_background.SelectedColor = coreConfiguration.DWMBackgroundColor;
 
 			// Expert mode, the clipboard formats
-			foreach (ClipboardFormat clipboardFormat in Enum.GetValues(typeof (ClipboardFormat)))
+			foreach (ClipboardFormat clipboardFormat in Enum.GetValues(typeof(ClipboardFormat)))
 			{
 				var translation = LanguageLoader.Current.Translate(clipboardFormat);
 				var item = listview_clipboardformats.Items.Add(translation);
@@ -481,8 +391,177 @@ namespace Greenshot.Forms
 
 			numericUpDown_daysbetweencheck.Value = coreConfiguration.UpdateCheckInterval;
 			numericUpDown_daysbetweencheck.Enabled = !coreConfiguration.IsWriteProtected(x => x.UpdateCheckInterval);
-			numericUpdownIconSize.Value = (coreConfiguration.IconSize.Width/16)*16;
+			numericUpdownIconSize.Value = coreConfiguration.IconSize.Width/16*16;
 			CheckDestinationSettings();
+		}
+
+		private void DisplayTextBoxValidity(GreenshotTextBox textbox, bool valid)
+		{
+			if (valid)
+			{
+				// "Added" feature #3547158
+				if (Environment.OSVersion.Version.Major >= 6)
+				{
+					textbox.BackColor = SystemColors.Window;
+				}
+				else
+				{
+					textbox.BackColor = SystemColors.Control;
+				}
+			}
+			else
+			{
+				textbox.BackColor = Color.Red;
+			}
+		}
+
+		private void EnterHotkeyControl(object sender, EventArgs e)
+		{
+			HotkeyControl.UnregisterHotkeys();
+			_inHotkey = true;
+		}
+
+		/// <summary>
+		///     Set the enable state of the expert settings
+		/// </summary>
+		/// <param name="state"></param>
+		private void ExpertSettingsEnableState(bool state)
+		{
+			listview_clipboardformats.Enabled = state;
+			checkbox_autoreducecolors.Enabled = state;
+			checkbox_optimizeforrdp.Enabled = state;
+			checkbox_thumbnailpreview.Enabled = state;
+			textbox_footerpattern.Enabled = state;
+			textbox_counter.Enabled = state;
+			checkbox_suppresssavedialogatclose.Enabled = state;
+			checkbox_checkunstableupdates.Enabled = state;
+			checkbox_minimizememoryfootprint.Enabled = state;
+			checkbox_reuseeditor.Enabled = state;
+		}
+
+		private void FilenamePatternChanged(object sender, EventArgs e)
+		{
+			CheckFilenamePattern();
+		}
+
+
+		/// <summary>
+		///     Get the selected enum value from the combobox, uses generics
+		/// </summary>
+		/// <param name="comboBox">Combobox to get the value from</param>
+		/// <returns>The generics value of the combobox</returns>
+		private static T GetSelected<T>(ComboBox comboBox)
+		{
+			string enumTypeName = typeof(T).Name;
+			string selectedValue = comboBox.SelectedItem as string;
+			var availableValues = (T[]) Enum.GetValues(typeof(T));
+			var returnValue = availableValues[0];
+			foreach (var enumValue in availableValues)
+			{
+				string translation = language[enumTypeName + "." + enumValue];
+				if (translation.Equals(selectedValue))
+				{
+					returnValue = enumValue;
+					break;
+				}
+			}
+			return returnValue;
+		}
+
+		private void LeaveHotkeyControl(object sender, EventArgs e)
+		{
+			MainForm.RegisterHotkeys();
+			_inHotkey = false;
+		}
+
+		private void Listview_pluginsSelectedIndexChanged(object sender, EventArgs e)
+		{
+			button_pluginconfigure.Enabled = PluginHelper.Instance.IsSelectedItemConfigurable(listview_plugins);
+		}
+
+		protected override void OnFieldsFilled()
+		{
+			// the color radio button is not actually bound to a setting, but checked when monochrome/grayscale are not checked
+			if (!radioBtnGrayScale.Checked && !radioBtnMonochrome.Checked)
+			{
+				radioBtnColorPrint.Checked = true;
+			}
+		}
+
+		protected override void OnLoad(EventArgs e)
+		{
+			base.OnLoad(e);
+
+			// Fix for Vista/XP differences
+			if (Environment.OSVersion.IsWindowsVistaOrLater())
+			{
+				trackBarJpegQuality.BackColor = SystemColors.Window;
+			}
+			else
+			{
+				trackBarJpegQuality.BackColor = SystemColors.Control;
+			}
+
+			// This makes it possible to still capture the settings screen
+			fullscreen_hotkeyControl.Enter += EnterHotkeyControl;
+			fullscreen_hotkeyControl.Leave += LeaveHotkeyControl;
+			window_hotkeyControl.Enter += EnterHotkeyControl;
+			window_hotkeyControl.Leave += LeaveHotkeyControl;
+			region_hotkeyControl.Enter += EnterHotkeyControl;
+			region_hotkeyControl.Leave += LeaveHotkeyControl;
+			ie_hotkeyControl.Enter += EnterHotkeyControl;
+			ie_hotkeyControl.Leave += LeaveHotkeyControl;
+			lastregion_hotkeyControl.Enter += EnterHotkeyControl;
+			lastregion_hotkeyControl.Leave += LeaveHotkeyControl;
+
+			DisplayPluginTab();
+			UpdateUi();
+			ExpertSettingsEnableState(false);
+			DisplaySettings();
+			CheckSettings();
+		}
+
+		/// <summary>
+		///     This is a method to populate the ComboBox
+		///     with the items from the enumeration
+		/// </summary>
+		/// <param name="comboBox">ComboBox to populate</param>
+		/// <param name="availableValues">Enum to populate with</param>
+		/// <param name="selectedValue"></param>
+		private void PopulateComboBox<T>(ComboBox comboBox, IEnumerable<T> availableValues, T selectedValue) where T : struct
+		{
+			comboBox.Items.Clear();
+			foreach (var enumValue in availableValues)
+			{
+				var translation = language[enumValue.GetType().Name + "." + enumValue];
+				comboBox.Items.Add(translation);
+			}
+			comboBox.SelectedItem = language[selectedValue.GetType().Name + "." + selectedValue];
+		}
+
+		protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+		{
+			switch (keyData)
+			{
+				case Keys.Escape:
+					if (!_inHotkey)
+					{
+						DialogResult = DialogResult.Cancel;
+					}
+					else
+					{
+						return base.ProcessCmdKey(ref msg, keyData);
+					}
+					break;
+				default:
+					return base.ProcessCmdKey(ref msg, keyData);
+			}
+			return true;
+		}
+
+		private void radiobutton_CheckedChanged(object sender, EventArgs e)
+		{
+			combobox_window_capture_mode.Enabled = radiobuttonWindowCapture.Checked;
 		}
 
 		private void SaveSettings()
@@ -525,7 +604,7 @@ namespace Greenshot.Forms
 				ListViewItem item = listview_destinations.Items[index];
 
 				var destinationFromTag = item.Tag as IDestination;
-				if (item.Checked && destinationFromTag != null)
+				if (item.Checked && (destinationFromTag != null))
 				{
 					destinations.Add(destinationFromTag.Designation);
 				}
@@ -591,18 +670,34 @@ namespace Greenshot.Forms
 			}
 		}
 
-		private void BrowseClick(object sender, EventArgs e)
+		private void SetWindowCaptureMode(WindowCaptureMode selectedWindowCaptureMode)
 		{
-			// Get the storage location and replace the environment variables
-			folderBrowserDialog1.SelectedPath = FilenameHelper.FillVariables(textbox_storagelocation.Text, false);
-			if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+			WindowCaptureMode[] availableModes;
+			if (!Dwm.IsDwmEnabled)
 			{
-				// Only change if there is a change, otherwise we might overwrite the environment variables
-				if (folderBrowserDialog1.SelectedPath != null && !folderBrowserDialog1.SelectedPath.Equals(FilenameHelper.FillVariables(textbox_storagelocation.Text, false)))
+				// Remove DWM from configuration, as DWM is disabled!
+				if ((coreConfiguration.WindowCaptureMode == WindowCaptureMode.Aero) || (coreConfiguration.WindowCaptureMode == WindowCaptureMode.AeroTransparent))
 				{
-					textbox_storagelocation.Text = folderBrowserDialog1.SelectedPath;
+					coreConfiguration.WindowCaptureMode = WindowCaptureMode.GDI;
 				}
+				availableModes = new[]
+				{
+					WindowCaptureMode.Auto, WindowCaptureMode.Screen, WindowCaptureMode.GDI
+				};
 			}
+			else
+			{
+				availableModes = new[]
+				{
+					WindowCaptureMode.Auto, WindowCaptureMode.Screen, WindowCaptureMode.GDI, WindowCaptureMode.Aero, WindowCaptureMode.AeroTransparent
+				};
+			}
+			PopulateComboBox(combobox_window_capture_mode, availableModes, selectedWindowCaptureMode);
+		}
+
+		private void StorageLocationChanged(object sender, EventArgs e)
+		{
+			CheckStorageLocationPath();
 		}
 
 		private void TrackBarJpegQualityScroll(object sender, EventArgs e)
@@ -610,156 +705,65 @@ namespace Greenshot.Forms
 			textBoxJpegQuality.Text = trackBarJpegQuality.Value.ToString(CultureInfo.InvariantCulture);
 		}
 
-
-		private void BtnPatternHelpClick(object sender, EventArgs e)
+		/// <summary>
+		///     Show all clipboard format descriptions in the current language
+		/// </summary>
+		private void UpdateClipboardFormatDescriptions()
 		{
-			string filenamepatternText = language.SettingsMessageFilenamepattern;
-			// Convert %NUM% to ${NUM} for old language files!
-			filenamepatternText = Regex.Replace(filenamepatternText, "%([a-zA-Z_0-9]+)%", @"${$1}");
-			MessageBox.Show(filenamepatternText, language.SettingsFilenamepattern);
-		}
-
-		private void Listview_pluginsSelectedIndexChanged(object sender, EventArgs e)
-		{
-			button_pluginconfigure.Enabled = PluginHelper.Instance.IsSelectedItemConfigurable(listview_plugins);
-		}
-
-		private void Button_pluginconfigureClick(object sender, EventArgs e)
-		{
-			PluginHelper.Instance.ConfigureSelectedItem(listview_plugins);
-		}
-
-		private async void Combobox_languageSelectedIndexChanged(object sender, EventArgs e)
-		{
-			// Get the combobox values BEFORE changing the language
-			//EmailFormat selectedEmailFormat = GetSelected<EmailFormat>(combobox_emailformat);
-			WindowCaptureMode selectedWindowCaptureMode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
-			if (combobox_language.SelectedItem != null)
+			foreach (ListViewItem item in listview_clipboardformats.Items)
 			{
-				Log.Debug().WriteLine("Setting language to: {0}", combobox_language.SelectedValue);
-				await LanguageLoader.Current.ChangeLanguageAsync((string) combobox_language.SelectedValue);
+				ClipboardFormat cf = (ClipboardFormat) item.Tag;
+				item.Text = language[cf.GetType().Name + "." + cf];
 			}
-			// Reflect language changes to the settings form
-			UpdateUi();
-
-			// Reflect Language changes form
-			ApplyLanguage();
-
-			// Update the email & windows capture mode
-			//SetEmailFormat(selectedEmailFormat);
-			SetWindowCaptureMode(selectedWindowCaptureMode);
-		}
-
-		private void Combobox_window_capture_modeSelectedIndexChanged(object sender, EventArgs e)
-		{
-			int windowsVersion = Environment.OSVersion.Version.Major;
-			WindowCaptureMode mode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
-			if (Environment.OSVersion.IsWindowsVistaOrLater())
-			{
-				switch (mode)
-				{
-					case WindowCaptureMode.Aero:
-						colorButton_window_background.Visible = true;
-						return;
-				}
-			}
-			colorButton_window_background.Visible = false;
 		}
 
 		/// <summary>
-		/// Check the destination settings
+		///     Show all destination descriptions in the current language
 		/// </summary>
-		private void CheckDestinationSettings()
+		private void UpdateDestinationDescriptions()
 		{
-			bool clipboardDestinationChecked = false;
-			bool pickerSelected = checkbox_picker.Checked;
-			bool destinationsEnabled = !coreConfiguration.IsWriteProtected(x => x.OutputDestinations);
-			listview_destinations.Enabled = destinationsEnabled;
-
-			foreach (int index in listview_destinations.CheckedIndices)
+			foreach (ListViewItem item in listview_destinations.Items)
 			{
-				ListViewItem item = listview_destinations.Items[index];
 				var destinationFromTag = item.Tag as IDestination;
-				if (destinationFromTag != null && destinationFromTag.Designation.Equals(BuildInDestinationEnum.Clipboard.ToString()))
+				if (destinationFromTag != null)
 				{
-					clipboardDestinationChecked = true;
-					break;
+					item.Text = destinationFromTag.Text;
 				}
-			}
-
-			if (pickerSelected)
-			{
-				listview_destinations.Enabled = false;
-				foreach (int index in listview_destinations.CheckedIndices)
-				{
-					ListViewItem item = listview_destinations.Items[index];
-					item.Checked = false;
-				}
-			}
-			else
-			{
-				// Prevent multiple clipboard settings at once, see bug #3435056
-				if (clipboardDestinationChecked)
-				{
-					checkbox_copypathtoclipboard.Checked = false;
-					checkbox_copypathtoclipboard.Enabled = false;
-				}
-				else
-				{
-					checkbox_copypathtoclipboard.Enabled = true;
-				}
-			}
-		}
-
-		private void DestinationsCheckStateChanged(object sender, EventArgs e)
-		{
-			CheckDestinationSettings();
-		}
-
-		protected override void OnFieldsFilled()
-		{
-			// the color radio button is not actually bound to a setting, but checked when monochrome/grayscale are not checked
-			if (!radioBtnGrayScale.Checked && !radioBtnMonochrome.Checked)
-			{
-				radioBtnColorPrint.Checked = true;
 			}
 		}
 
 		/// <summary>
-		/// Set the enable state of the expert settings
+		///     Update the UI to reflect the language and other text settings
 		/// </summary>
-		/// <param name="state"></param>
-		private void ExpertSettingsEnableState(bool state)
+		private void UpdateUi()
 		{
-			listview_clipboardformats.Enabled = state;
-			checkbox_autoreducecolors.Enabled = state;
-			checkbox_optimizeforrdp.Enabled = state;
-			checkbox_thumbnailpreview.Enabled = state;
-			textbox_footerpattern.Enabled = state;
-			textbox_counter.Enabled = state;
-			checkbox_suppresssavedialogatclose.Enabled = state;
-			checkbox_checkunstableupdates.Enabled = state;
-			checkbox_minimizememoryfootprint.Enabled = state;
-			checkbox_reuseeditor.Enabled = state;
-		}
-
-		/// <summary>
-		/// Called if the "I know what I am doing" on the settings form is changed
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void checkbox_enableexpert_CheckedChanged(object sender, EventArgs e)
-		{
-			CheckBox checkBox = sender as CheckBox;
-			if (checkBox != null)
+			if (coreConfiguration.HideExpertSettings)
 			{
-				ExpertSettingsEnableState(checkBox.Checked);
+				tabcontrol.Controls.Remove(tab_expert);
 			}
-		}
+			_toolTip.SetToolTip(label_language, language.SettingsTooltipLanguage);
+			_toolTip.SetToolTip(label_storagelocation, language.SettingsTooltipStoragelocation);
+			_toolTip.SetToolTip(label_screenshotname, language.SettingsTooltipFilenamepattern);
+			_toolTip.SetToolTip(label_primaryimageformat, language.SettingsTooltipPrimaryimageformat);
 
-		private void radiobutton_CheckedChanged(object sender, EventArgs e)
-		{
-			combobox_window_capture_mode.Enabled = radiobuttonWindowCapture.Checked;
+			// Removing, otherwise we keep getting the event multiple times!
+			combobox_language.SelectedIndexChanged -= Combobox_languageSelectedIndexChanged;
+
+			// Initialize the Language ComboBox
+			combobox_language.DisplayMember = "Value";
+			combobox_language.ValueMember = "Key";
+			// Set datasource last to prevent problems
+			// See: http://www.codeproject.com/KB/database/scomlistcontrolbinding.aspx?fid=111644
+			combobox_language.DataSource = LanguageLoader.Current.AvailableLanguages.ToList();
+			if (LanguageLoader.Current.CurrentLanguage != null)
+			{
+				combobox_language.SelectedValue = LanguageLoader.Current.CurrentLanguage;
+			}
+
+			// Delaying the SelectedIndexChanged events untill all is initiated
+			combobox_language.SelectedIndexChanged += Combobox_languageSelectedIndexChanged;
+			UpdateDestinationDescriptions();
+			UpdateClipboardFormatDescriptions();
 		}
 	}
 
@@ -786,7 +790,7 @@ namespace Greenshot.Forms
 			{
 				return 1;
 			}
-			if (firstDestination != null && firstDestination.IsEnabled == secondDestination.IsEnabled)
+			if ((firstDestination != null) && (firstDestination.IsEnabled == secondDestination.IsEnabled))
 			{
 				return string.Compare(firstDestination.Text, secondDestination.Text, StringComparison.Ordinal);
 			}

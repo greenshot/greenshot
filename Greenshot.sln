@@ -42,6 +42,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Addon.WindowsOcr"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.CaptureCore", "Greenshot.CaptureCore\Greenshot.CaptureCore.csproj", "{D477ED98-6E61-4017-8FC1-A4C10FA08958}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Core", "Greenshot.Core\Greenshot.Core.csproj", "{DBCAF4BC-A008-4080-B508-28AC76280B03}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -194,6 +196,14 @@ Global
 		{D477ED98-6E61-4017-8FC1-A4C10FA08958}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D477ED98-6E61-4017-8FC1-A4C10FA08958}.Release|x86.ActiveCfg = Release|Any CPU
 		{D477ED98-6E61-4017-8FC1-A4C10FA08958}.Release|x86.Build.0 = Release|Any CPU
+		{DBCAF4BC-A008-4080-B508-28AC76280B03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBCAF4BC-A008-4080-B508-28AC76280B03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBCAF4BC-A008-4080-B508-28AC76280B03}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DBCAF4BC-A008-4080-B508-28AC76280B03}.Debug|x86.Build.0 = Debug|Any CPU
+		{DBCAF4BC-A008-4080-B508-28AC76280B03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBCAF4BC-A008-4080-B508-28AC76280B03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBCAF4BC-A008-4080-B508-28AC76280B03}.Release|x86.ActiveCfg = Release|Any CPU
+		{DBCAF4BC-A008-4080-B508-28AC76280B03}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

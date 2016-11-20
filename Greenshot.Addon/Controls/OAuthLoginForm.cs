@@ -1,45 +1,44 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using Greenshot.Addon.Core;
 using Dapplo.HttpExtensions;
 using Dapplo.Log;
+using Dapplo.Windows.Native;
+using Greenshot.Addon.Core;
+
+#endregion
 
 namespace Greenshot.Addon.Controls
 {
 	/// <summary>
-	/// The OAuthLoginForm is used to allow the user to authorize Greenshot with an "Oauth" application
+	///     The OAuthLoginForm is used to allow the user to authorize Greenshot with an "Oauth" application
 	/// </summary>
 	public sealed partial class OAuthLoginForm : Form
 	{
 		private static readonly LogSource Log = new LogSource();
 		private readonly string _callbackUrl;
-
-		public IDictionary<string, string> CallbackParameters { get; set; }
-
-		public bool IsOk => DialogResult == DialogResult.OK;
 
 		public OAuthLoginForm(string browserTitle, Size size, Uri authorizationLink, string callbackUrl)
 		{
@@ -58,15 +57,9 @@ namespace Greenshot.Addon.Controls
 			_browser.Navigate(authorizationLink);
 		}
 
-		/// <summary>
-		/// Make sure the form is visible
-		/// </summary>
-		/// <param name="e">EventArgs</param>
-		protected override void OnShown(EventArgs e)
-		{
-			base.OnShown(e);
-			WindowDetails.ToForeground(Handle);
-		}
+		public IDictionary<string, string> CallbackParameters { get; set; }
+
+		public bool IsOk => DialogResult == DialogResult.OK;
 
 		private void Browser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
 		{
@@ -74,16 +67,16 @@ namespace Greenshot.Addon.Controls
 			CheckUrl();
 		}
 
-		private void Browser_Navigating(object sender, WebBrowserNavigatingEventArgs e)
-		{
-			Log.Debug().WriteLine("Navigating to url: {0}", _browser.Url);
-			_addressTextBox.Text = e.Url.ToString();
-		}
-
 		private void Browser_Navigated(object sender, WebBrowserNavigatedEventArgs e)
 		{
 			Log.Debug().WriteLine("Navigated to url: {0}", _browser.Url);
 			CheckUrl();
+		}
+
+		private void Browser_Navigating(object sender, WebBrowserNavigatingEventArgs e)
+		{
+			Log.Debug().WriteLine("Navigating to url: {0}", _browser.Url);
+			_addressTextBox.Text = e.Url.ToString();
 		}
 
 		private void CheckUrl()
@@ -94,6 +87,16 @@ namespace Greenshot.Addon.Controls
 			}
 			CallbackParameters = _browser.Url.QueryToDictionary();
 			DialogResult = DialogResult.OK;
+		}
+
+		/// <summary>
+		///     Make sure the form is visible
+		/// </summary>
+		/// <param name="e">EventArgs</param>
+		protected override void OnShown(EventArgs e)
+		{
+			base.OnShown(e);
+			User32.SetForegroundWindow(Handle);
 		}
 	}
 }

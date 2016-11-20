@@ -1,55 +1,57 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Dapplo.Log;
+#region Usings
+
 using System;
 using System.Collections.Generic;
 using System.Timers;
+using Dapplo.Log;
+
+#endregion
 
 namespace Greenshot.Addon.Core
 {
 	/// <summary>
-	/// Cache class 
+	///     Cache class
 	/// </summary>
 	/// <typeparam name="TK">Type of key</typeparam>
 	/// <typeparam name="TV">Type of value</typeparam>
 	public class Cache<TK, TV>
 	{
-		private static readonly LogSource Log = new LogSource();
-		private IDictionary<TK, TV> internalCache = new Dictionary<TK, TV>();
-		private object lockObject = new object();
-		private int secondsToExpire = 10;
-		private CacheObjectExpired expiredCallback = null;
-
 		public delegate void CacheObjectExpired(TK key, TV cacheValue);
 
+		private static readonly LogSource Log = new LogSource();
+		private readonly CacheObjectExpired expiredCallback;
+		private readonly IDictionary<TK, TV> internalCache = new Dictionary<TK, TV>();
+		private readonly object lockObject = new object();
+		private readonly int secondsToExpire = 10;
+
 		/// <summary>
-		/// Initialize the cache
+		///     Initialize the cache
 		/// </summary>
 		public Cache()
 		{
 		}
 
 		/// <summary>
-		/// Initialize the cache
+		///     Initialize the cache
 		/// </summary>
 		/// <param name="expiredCallback"></param>
 		public Cache(CacheObjectExpired expiredCallback) : this()
@@ -58,7 +60,7 @@ namespace Greenshot.Addon.Core
 		}
 
 		/// <summary>
-		/// Initialize the cache with a expire setting
+		///     Initialize the cache with a expire setting
 		/// </summary>
 		/// <param name="secondsToExpire"></param>
 		public Cache(int secondsToExpire) : this()
@@ -67,7 +69,7 @@ namespace Greenshot.Addon.Core
 		}
 
 		/// <summary>
-		/// Initialize the cache with a expire setting
+		///     Initialize the cache with a expire setting
 		/// </summary>
 		/// <param name="secondsToExpire"></param>
 		/// <param name="expiredCallback"></param>
@@ -77,7 +79,7 @@ namespace Greenshot.Addon.Core
 		}
 
 		/// <summary>
-		/// Enumerable for the values in the cache
+		///     Enumerable for the values in the cache
 		/// </summary>
 		public IEnumerable<TV> Elements
 		{
@@ -97,7 +99,7 @@ namespace Greenshot.Addon.Core
 		}
 
 		/// <summary>
-		/// Get the value by key from the cache
+		///     Get the value by key from the cache
 		/// </summary>
 		/// <param name="key"></param>
 		/// <returns></returns>
@@ -118,17 +120,7 @@ namespace Greenshot.Addon.Core
 		}
 
 		/// <summary>
-		/// Contains
-		/// </summary>
-		/// <param name="key"></param>
-		/// <returns>true if the cache contains the key</returns>
-		public bool Contains(TK key)
-		{
-			return internalCache.ContainsKey(key);
-		}
-
-		/// <summary>
-		/// Add a value to the cache
+		///     Add a value to the cache
 		/// </summary>
 		/// <param name="key"></param>
 		/// <param name="value"></param>
@@ -138,7 +130,7 @@ namespace Greenshot.Addon.Core
 		}
 
 		/// <summary>
-		/// Add a value to the cache
+		///     Add a value to the cache
 		/// </summary>
 		/// <param name="key"></param>
 		/// <param name="value"></param>
@@ -179,7 +171,17 @@ namespace Greenshot.Addon.Core
 		}
 
 		/// <summary>
-		/// Remove item from cache
+		///     Contains
+		/// </summary>
+		/// <param name="key"></param>
+		/// <returns>true if the cache contains the key</returns>
+		public bool Contains(TK key)
+		{
+			return internalCache.ContainsKey(key);
+		}
+
+		/// <summary>
+		///     Remove item from cache
 		/// </summary>
 		/// <param name="key"></param>
 		public void Remove(TK key)
@@ -196,13 +198,12 @@ namespace Greenshot.Addon.Core
 		}
 
 		/// <summary>
-		/// A cache item
+		///     A cache item
 		/// </summary>
 		private class CachedItem
 		{
-			public event CacheObjectExpired Expired;
-			private int secondsToExpire;
 			private readonly Timer _timerEvent;
+			private readonly int secondsToExpire;
 
 			public CachedItem(TK key, TV item, int secondsToExpire)
 			{
@@ -224,35 +225,29 @@ namespace Greenshot.Addon.Core
 				}
 			}
 
+			public TV Item { get; }
+
+			public TK Key { get; }
+
+			public event CacheObjectExpired Expired;
+
 			private void ExpireNow()
 			{
 				_timerEvent.Stop();
-				if (secondsToExpire > 0 && Expired != null)
+				if ((secondsToExpire > 0) && (Expired != null))
 				{
 					Expired(Key, Item);
 				}
 			}
 
-			private void timerEvent_Elapsed(object sender, ElapsedEventArgs e)
-			{
-				ExpireNow();
-			}
-
-			public TK Key
-			{
-				get;
-				private set;
-			}
-
-			public TV Item
-			{
-				get;
-				private set;
-			}
-
 			public static implicit operator TV(CachedItem a)
 			{
 				return a.Item;
+			}
+
+			private void timerEvent_Elapsed(object sender, ElapsedEventArgs e)
+			{
+				ExpireNow();
 			}
 		}
 	}

@@ -1,23 +1,23 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Collections;
@@ -26,14 +26,19 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Dapplo.Config.Ini;
+using Dapplo.Log;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Interfaces;
-using Dapplo.Log;
+using Greenshot.Core.Configuration;
+
+#endregion
 
 namespace Greenshot.Addon.Core
 {
 	public static class FilenameHelper
 	{
+		private const int MAX_TITLE_LENGTH = 80;
+		private const string UNSAFE_REPLACEMENT = "_";
 		private static readonly LogSource Log = new LogSource();
 		// Specify the regular expression for the filename formatting:
 		// Starting with ${
@@ -44,25 +49,221 @@ namespace Greenshot.Addon.Core
 		private static readonly Regex VAR_REGEXP = new Regex(@"\${(?<variable>[^:}]+)[:]?(?<parameters>[^}]*)}", RegexOptions.Compiled);
 		private static readonly Regex CMD_VAR_REGEXP = new Regex(@"%(?<variable>[^%]+)%", RegexOptions.Compiled);
 		private static readonly Regex SPLIT_REGEXP = new Regex(";(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", RegexOptions.Compiled);
-		private const int MAX_TITLE_LENGTH = 80;
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
-		private const string UNSAFE_REPLACEMENT = "_";
 
 		/// <summary>
-		/// Remove invalid characters from the fully qualified filename
+		///     "Simply" fill the pattern with environment variables
 		/// </summary>
-		/// <param name="fullPath">string with the full path to a file</param>
-		/// <returns>string with the full path to a file, without invalid characters</returns>
-		public static string MakeFQFilenameSafe(string fullPath)
+		/// <param name="pattern">String with pattern %var%</param>
+		/// <param name="filenameSafeMode">true to make sure everything is filenamesafe</param>
+		/// <returns>Filled string</returns>
+		public static string FillCmdVariables(string pattern, bool filenameSafeMode)
 		{
-			string path = MakePathSafe(Path.GetDirectoryName(fullPath));
-			string filename = MakeFilenameSafe(Path.GetFileName(fullPath));
-			// Make the fullpath again and return
-			return Path.Combine(path, filename);
+			IDictionary processVars = null;
+			IDictionary userVars = null;
+			IDictionary machineVars = null;
+			try
+			{
+				processVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Process);
+			}
+			catch (Exception e)
+			{
+				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.Process", e);
+			}
+
+			try
+			{
+				userVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
+			}
+			catch (Exception e)
+			{
+				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.User", e);
+			}
+
+			try
+			{
+				machineVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Machine);
+			}
+			catch (Exception e)
+			{
+				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.Machine", e);
+			}
+
+			return CMD_VAR_REGEXP.Replace(pattern,
+				delegate(Match m) { return MatchVarEvaluator(m, null, processVars, userVars, machineVars, filenameSafeMode); }
+			);
 		}
 
 		/// <summary>
-		/// Remove invalid characters from the filename
+		///     Fill the pattern wit the supplied details
+		/// </summary>
+		/// <param name="pattern">Pattern</param>
+		/// <param name="captureDetails">CaptureDetails, can be null</param>
+		/// <param name="filenameSafeMode">Should the result be made "filename" safe?</param>
+		/// <returns>Filled pattern</returns>
+		public static string FillPattern(string pattern, ICaptureDetails captureDetails, bool filenameSafeMode)
+		{
+			IDictionary processVars = null;
+			IDictionary userVars = null;
+			IDictionary machineVars = null;
+			try
+			{
+				processVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Process);
+			}
+			catch (Exception e)
+			{
+				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.Process", e);
+			}
+
+			try
+			{
+				userVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
+			}
+			catch (Exception e)
+			{
+				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.User", e);
+			}
+
+			try
+			{
+				machineVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Machine);
+			}
+			catch (Exception e)
+			{
+				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.Machine", e);
+			}
+
+			try
+			{
+				return VAR_REGEXP.Replace(pattern, delegate(Match m) { return MatchVarEvaluator(m, captureDetails, processVars, userVars, machineVars, filenameSafeMode); });
+			}
+			catch (Exception e)
+			{
+				// adding additional data for bug tracking
+				if (captureDetails != null)
+				{
+					e.Data.Add("title", captureDetails.Title);
+				}
+				e.Data.Add("pattern", pattern);
+				throw;
+			}
+		}
+
+		/// <summary>
+		///     "Simply" fill the pattern with environment variables
+		/// </summary>
+		/// <param name="pattern">String with pattern ${var}</param>
+		/// <param name="filenameSafeMode">true to make sure everything is filenamesafe</param>
+		/// <returns>Filled string</returns>
+		public static string FillVariables(string pattern, bool filenameSafeMode)
+		{
+			IDictionary processVars = null;
+			IDictionary userVars = null;
+			IDictionary machineVars = null;
+			try
+			{
+				processVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Process);
+			}
+			catch (Exception e)
+			{
+				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.Process", e);
+			}
+
+			try
+			{
+				userVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
+			}
+			catch (Exception e)
+			{
+				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.User", e);
+			}
+
+			try
+			{
+				machineVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Machine);
+			}
+			catch (Exception e)
+			{
+				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.Machine", e);
+			}
+
+			return VAR_REGEXP.Replace(pattern, delegate(Match m) { return MatchVarEvaluator(m, null, processVars, userVars, machineVars, filenameSafeMode); });
+		}
+
+		/// <summary>
+		///     Return a filename for the current image format (png,jpg etc) with the default file pattern
+		///     that is specified in the configuration
+		/// </summary>
+		/// <param name="format">A string with the format</param>
+		/// <returns>The filename which should be used to save the image</returns>
+		public static string GetFilename(OutputFormat format, ICaptureDetails captureDetails)
+		{
+			string pattern = conf.OutputFileFilenamePattern;
+			if ((pattern == null) || string.IsNullOrEmpty(pattern.Trim()))
+			{
+				pattern = "greenshot ${capturetime}";
+			}
+			return GetFilenameFromPattern(pattern, format, captureDetails);
+		}
+
+		public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat)
+		{
+			return GetFilenameFromPattern(pattern, imageFormat, null);
+		}
+
+		public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat, ICaptureDetails captureDetails)
+		{
+			return FillPattern(pattern, captureDetails, true) + "." + imageFormat.ToString().ToLower();
+		}
+
+		public static string GetFilenameWithoutExtensionFromPattern(string pattern)
+		{
+			return GetFilenameWithoutExtensionFromPattern(pattern, null);
+		}
+
+		public static string GetFilenameWithoutExtensionFromPattern(string pattern, ICaptureDetails captureDetails)
+		{
+			return FillPattern(pattern, captureDetails, true);
+		}
+
+		/// <summary>
+		///     Checks whether a directory name is valid in the current file system
+		/// </summary>
+		/// <param name="directoryName">directory name (not path!)</param>
+		/// <returns>true if directory name is valid</returns>
+		public static bool IsDirectoryNameValid(string directoryName)
+		{
+			var forbiddenChars = Path.GetInvalidPathChars();
+			foreach (var forbiddenChar in forbiddenChars)
+			{
+				if ((directoryName == null) || directoryName.Contains(forbiddenChar.ToString()))
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+
+		/// <summary>
+		///     Checks whether a filename is valid in the current file system
+		/// </summary>
+		/// <param name="filename">name of the file</param>
+		/// <returns>true if filename is valid</returns>
+		public static bool IsFilenameValid(string filename)
+		{
+			var forbiddenChars = Path.GetInvalidFileNameChars();
+			foreach (var forbiddenChar in forbiddenChars)
+			{
+				if ((filename == null) || filename.Contains(forbiddenChar.ToString()))
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+
+		/// <summary>
+		///     Remove invalid characters from the filename
 		/// </summary>
 		/// <param name="filename">string with the full path to a file</param>
 		/// <returns>string with the full path to a file, without invalid characters</returns>
@@ -80,7 +281,20 @@ namespace Greenshot.Addon.Core
 		}
 
 		/// <summary>
-		/// Remove invalid characters from the path
+		///     Remove invalid characters from the fully qualified filename
+		/// </summary>
+		/// <param name="fullPath">string with the full path to a file</param>
+		/// <returns>string with the full path to a file, without invalid characters</returns>
+		public static string MakeFQFilenameSafe(string fullPath)
+		{
+			string path = MakePathSafe(Path.GetDirectoryName(fullPath));
+			string filename = MakeFilenameSafe(Path.GetFileName(fullPath));
+			// Make the fullpath again and return
+			return Path.Combine(path, filename);
+		}
+
+		/// <summary>
+		///     Remove invalid characters from the path
 		/// </summary>
 		/// <param name="path">string with the full path to a file</param>
 		/// <returns>string with the full path to a file, without invalid characters</returns>
@@ -97,52 +311,16 @@ namespace Greenshot.Addon.Core
 			return path;
 		}
 
-		public static string GetFilenameWithoutExtensionFromPattern(string pattern)
-		{
-			return GetFilenameWithoutExtensionFromPattern(pattern, null);
-		}
-
-		public static string GetFilenameWithoutExtensionFromPattern(string pattern, ICaptureDetails captureDetails)
-		{
-			return FillPattern(pattern, captureDetails, true);
-		}
-
-		public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat)
-		{
-			return GetFilenameFromPattern(pattern, imageFormat, null);
-		}
-
-		public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat, ICaptureDetails captureDetails)
-		{
-			return FillPattern(pattern, captureDetails, true) + "." + imageFormat.ToString().ToLower();
-		}
 
 		/// <summary>
-		/// Return a filename for the current image format (png,jpg etc) with the default file pattern
-		/// that is specified in the configuration
-		/// </summary>
-		/// <param name="format">A string with the format</param>
-		/// <returns>The filename which should be used to save the image</returns>
-		public static string GetFilename(OutputFormat format, ICaptureDetails captureDetails)
-		{
-			string pattern = conf.OutputFileFilenamePattern;
-			if (pattern == null || string.IsNullOrEmpty(pattern.Trim()))
-			{
-				pattern = "greenshot ${capturetime}";
-			}
-			return GetFilenameFromPattern(pattern, format, captureDetails);
-		}
-
-
-		/// <summary>
-		/// This method will be called by the regexp.replace as a MatchEvaluator delegate!
-		/// Will delegate this to the MatchVarEvaluatorInternal and catch any exceptions
-		/// <param name="match">What are we matching?</param>
-		/// <param name="captureDetails">The detail, can be null</param>
-		/// <param name="processVars">Variables from the process</param>
-		/// <param name="userVars">Variables from the user</param>
-		/// <param name="machineVars">Variables from the machine</param>
-		/// <returns>string with the match replacement</returns>
+		///     This method will be called by the regexp.replace as a MatchEvaluator delegate!
+		///     Will delegate this to the MatchVarEvaluatorInternal and catch any exceptions
+		///     <param name="match">What are we matching?</param>
+		///     <param name="captureDetails">The detail, can be null</param>
+		///     <param name="processVars">Variables from the process</param>
+		///     <param name="userVars">Variables from the user</param>
+		///     <param name="machineVars">Variables from the machine</param>
+		///     <returns>string with the match replacement</returns>
 		private static string MatchVarEvaluator(Match match, ICaptureDetails captureDetails, IDictionary processVars, IDictionary userVars, IDictionary machineVars, bool filenameSafeMode)
 		{
 			try
@@ -157,7 +335,7 @@ namespace Greenshot.Addon.Core
 		}
 
 		/// <summary>
-		/// This method will be called by the regexp.replace as a MatchEvaluator delegate!
+		///     This method will be called by the regexp.replace as a MatchEvaluator delegate!
 		/// </summary>
 		/// <param name="match">What are we matching?</param>
 		/// <param name="captureDetails">The detail, can be null</param>
@@ -175,7 +353,7 @@ namespace Greenshot.Addon.Core
 			string variable = match.Groups["variable"].Value;
 			string parameters = match.Groups["parameters"].Value;
 
-			if (parameters != null && parameters.Length > 0)
+			if ((parameters != null) && (parameters.Length > 0))
 			{
 				string[] parms = SPLIT_REGEXP.Split(parameters);
 				foreach (string parameter in parms)
@@ -184,10 +362,7 @@ namespace Greenshot.Addon.Core
 					{
 						// Padding p<width>[,pad-character]
 						case "p":
-							string[] padParams = parameter.Substring(1).Split(new char[]
-							{
-								','
-							});
+							string[] padParams = parameter.Substring(1).Split(',');
 							try
 							{
 								padWidth = int.Parse(padParams[0]);
@@ -204,11 +379,8 @@ namespace Greenshot.Addon.Core
 						// replace
 						// r<old string>,<new string>
 						case "r":
-							string[] replaceParameters = parameter.Substring(1).Split(new char[]
-							{
-								','
-							});
-							if (replaceParameters != null && replaceParameters.Length == 2)
+							string[] replaceParameters = parameter.Substring(1).Split(',');
+							if ((replaceParameters != null) && (replaceParameters.Length == 2))
 							{
 								replacements.Add(replaceParameters[0], replaceParameters[1]);
 							}
@@ -230,10 +402,7 @@ namespace Greenshot.Addon.Core
 						// s<start>[,length]
 						case "s":
 							string range = parameter.Substring(1);
-							string[] rangelist = range.Split(new char[]
-							{
-								','
-							});
+							string[] rangelist = range.Split(',');
 							if (rangelist.Length > 0)
 							{
 								try
@@ -260,7 +429,7 @@ namespace Greenshot.Addon.Core
 					}
 				}
 			}
-			if (processVars != null && processVars.Contains(variable))
+			if ((processVars != null) && processVars.Contains(variable))
 			{
 				replaceValue = (string) processVars[variable];
 				if (filenameSafeMode)
@@ -268,7 +437,7 @@ namespace Greenshot.Addon.Core
 					replaceValue = MakeFilenameSafe(replaceValue);
 				}
 			}
-			else if (userVars != null && userVars.Contains(variable))
+			else if ((userVars != null) && userVars.Contains(variable))
 			{
 				replaceValue = (string) userVars[variable];
 				if (filenameSafeMode)
@@ -276,7 +445,7 @@ namespace Greenshot.Addon.Core
 					replaceValue = MakeFilenameSafe(replaceValue);
 				}
 			}
-			else if (machineVars != null && machineVars.Contains(variable))
+			else if ((machineVars != null) && machineVars.Contains(variable))
 			{
 				replaceValue = (string) machineVars[variable];
 				if (filenameSafeMode)
@@ -284,7 +453,7 @@ namespace Greenshot.Addon.Core
 					replaceValue = MakeFilenameSafe(replaceValue);
 				}
 			}
-			else if (captureDetails != null && captureDetails.MetaData != null && captureDetails.MetaData.ContainsKey(variable))
+			else if ((captureDetails != null) && (captureDetails.MetaData != null) && captureDetails.MetaData.ContainsKey(variable))
 			{
 				replaceValue = captureDetails.MetaData[variable];
 				if (filenameSafeMode)
@@ -437,7 +606,7 @@ namespace Greenshot.Addon.Core
 			}
 
 			// do substring
-			if (replaceValue != null && startIndex != 0 || endIndex != 0)
+			if (((replaceValue != null) && (startIndex != 0)) || (endIndex != 0))
 			{
 				if (startIndex < 0)
 				{
@@ -447,7 +616,7 @@ namespace Greenshot.Addon.Core
 				{
 					endIndex = replaceValue.Length + endIndex;
 				}
-				if (endIndex != 0 && replaceValue.Length >= (startIndex + endIndex))
+				if ((endIndex != 0) && (replaceValue.Length >= startIndex + endIndex))
 				{
 					try
 					{
@@ -480,188 +649,6 @@ namespace Greenshot.Addon.Core
 				}
 			}
 			return replaceValue;
-		}
-
-		/// <summary>
-		/// "Simply" fill the pattern with environment variables
-		/// </summary>
-		/// <param name="pattern">String with pattern %var%</param>
-		/// <param name="filenameSafeMode">true to make sure everything is filenamesafe</param>
-		/// <returns>Filled string</returns>
-		public static string FillCmdVariables(string pattern, bool filenameSafeMode)
-		{
-			IDictionary processVars = null;
-			IDictionary userVars = null;
-			IDictionary machineVars = null;
-			try
-			{
-				processVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Process);
-			}
-			catch (Exception e)
-			{
-				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.Process", e);
-			}
-
-			try
-			{
-				userVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
-			}
-			catch (Exception e)
-			{
-				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.User", e);
-			}
-
-			try
-			{
-				machineVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Machine);
-			}
-			catch (Exception e)
-			{
-				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.Machine", e);
-			}
-
-			return CMD_VAR_REGEXP.Replace(pattern,
-				delegate (Match m) {
-					return MatchVarEvaluator(m, null, processVars, userVars, machineVars, filenameSafeMode);
-				}
-			);
-		}
-		/// <summary>
-		/// "Simply" fill the pattern with environment variables
-		/// </summary>
-		/// <param name="pattern">String with pattern ${var}</param>
-		/// <param name="filenameSafeMode">true to make sure everything is filenamesafe</param>
-		/// <returns>Filled string</returns>
-		public static string FillVariables(string pattern, bool filenameSafeMode)
-		{
-			IDictionary processVars = null;
-			IDictionary userVars = null;
-			IDictionary machineVars = null;
-			try
-			{
-				processVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Process);
-			}
-			catch (Exception e)
-			{
-				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.Process", e);
-			}
-
-			try
-			{
-				userVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
-			}
-			catch (Exception e)
-			{
-				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.User", e);
-			}
-
-			try
-			{
-				machineVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Machine);
-			}
-			catch (Exception e)
-			{
-				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.Machine", e);
-			}
-
-			return VAR_REGEXP.Replace(pattern, new MatchEvaluator(delegate(Match m)
-			{
-				return MatchVarEvaluator(m, null, processVars, userVars, machineVars, filenameSafeMode);
-			}));
-		}
-
-		/// <summary>
-		/// Fill the pattern wit the supplied details
-		/// </summary>
-		/// <param name="pattern">Pattern</param>
-		/// <param name="captureDetails">CaptureDetails, can be null</param>
-		/// <param name="filenameSafeMode">Should the result be made "filename" safe?</param>
-		/// <returns>Filled pattern</returns>
-		public static string FillPattern(string pattern, ICaptureDetails captureDetails, bool filenameSafeMode)
-		{
-			IDictionary processVars = null;
-			IDictionary userVars = null;
-			IDictionary machineVars = null;
-			try
-			{
-				processVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Process);
-			}
-			catch (Exception e)
-			{
-				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.Process", e);
-			}
-
-			try
-			{
-				userVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
-			}
-			catch (Exception e)
-			{
-				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.User", e);
-			}
-
-			try
-			{
-				machineVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Machine);
-			}
-			catch (Exception e)
-			{
-				Log.Error().WriteLine("Error retrieving EnvironmentVariableTarget.Machine", e);
-			}
-
-			try
-			{
-				return VAR_REGEXP.Replace(pattern, new MatchEvaluator(delegate(Match m)
-				{
-					return MatchVarEvaluator(m, captureDetails, processVars, userVars, machineVars, filenameSafeMode);
-				}));
-			}
-			catch (Exception e)
-			{
-				// adding additional data for bug tracking
-				if (captureDetails != null)
-				{
-					e.Data.Add("title", captureDetails.Title);
-				}
-				e.Data.Add("pattern", pattern);
-				throw;
-			}
-		}
-
-		/// <summary>
-		/// Checks whether a directory name is valid in the current file system
-		/// </summary>
-		/// <param name="directoryName">directory name (not path!)</param>
-		/// <returns>true if directory name is valid</returns>
-		public static bool IsDirectoryNameValid(string directoryName)
-		{
-			var forbiddenChars = Path.GetInvalidPathChars();
-			foreach (var forbiddenChar in forbiddenChars)
-			{
-				if (directoryName == null || directoryName.Contains(forbiddenChar.ToString()))
-				{
-					return false;
-				}
-			}
-			return true;
-		}
-
-		/// <summary>
-		/// Checks whether a filename is valid in the current file system
-		/// </summary>
-		/// <param name="filename">name of the file</param>
-		/// <returns>true if filename is valid</returns>
-		public static bool IsFilenameValid(string filename)
-		{
-			var forbiddenChars = Path.GetInvalidFileNameChars();
-			foreach (var forbiddenChar in forbiddenChars)
-			{
-				if (filename == null || filename.Contains(forbiddenChar.ToString()))
-				{
-					return false;
-				}
-			}
-			return true;
 		}
 	}
 }

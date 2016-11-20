@@ -1,23 +1,23 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Collections.Generic;
@@ -31,6 +31,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Confluence.Entities;
 using Dapplo.HttpExtensions;
+using Dapplo.Log;
 using Dapplo.Utils;
 using Greenshot.Addon.Confluence.Windows;
 using Greenshot.Addon.Core;
@@ -39,7 +40,8 @@ using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
-using Dapplo.Log;
+
+#endregion
 
 namespace Greenshot.Addon.Confluence
 {
@@ -50,65 +52,10 @@ namespace Greenshot.Addon.Confluence
 		private static readonly LogSource Log = new LogSource();
 
 		[Import]
-		private IConfluenceConfiguration ConfluenceConfiguration
-		{
-			get;
-			set;
-		}
+		private IConfluenceConfiguration ConfluenceConfiguration { get; set; }
 
 		[Import]
-		private IConfluenceLanguage ConfluenceLanguage
-		{
-			get;
-			set;
-		}
-
-		/// <summary>
-		/// Setup
-		/// </summary>
-		protected override void Initialize()
-		{
-			base.Initialize();
-			Designation = ConfluenceDesignation;
-			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, null, token);
-			Text = ConfluenceLanguage.UploadMenuItem;
-			Icon = new PackIconAtlassian
-			{
-				Kind = PackIconKindAtlassian.Confluence
-			};
-		}
-
-		/// <summary>
-		/// Load the current documents to export to
-		/// </summary>
-		/// <param name="caller1"></param>
-		/// <param name="token"></param>
-		/// <returns>Task</returns>
-		public override async Task RefreshAsync(IExportContext caller1, CancellationToken token = default(CancellationToken))
-		{
-			Children.Clear();
-			await Task.Run(async () =>
-			{
-				var pages = await ConfluenceUtils.GetCurrentPages(token);
-				return pages.OrderBy(x => x.Title).Select(currentPage => new ConfluenceDestination
-				{
-					Icon = new PackIconAtlassian
-					{
-						Kind = PackIconKindAtlassian.Confluence
-					},
-					Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, currentPage, exportToken),
-					Text = currentPage.Title,
-					ConfluenceConfiguration = ConfluenceConfiguration,
-					ConfluenceLanguage = ConfluenceLanguage
-				}).ToList();
-			}, token).ContinueWith(async destinations =>
-			{
-				foreach (var confluenceDestination in await destinations)
-				{
-					Children.Add(confluenceDestination);
-				}
-			}, token, TaskContinuationOptions.None, UiContext.UiTaskScheduler).ConfigureAwait(false);
-		}
+		private IConfluenceLanguage ConfluenceLanguage { get; set; }
 
 		private async Task<INotification> ExportCaptureAsync(ICapture capture, Content page, CancellationToken token = default(CancellationToken))
 		{
@@ -134,7 +81,7 @@ namespace Greenshot.Addon.Confluence
 			}
 
 			string extension = "." + ConfluenceConfiguration.UploadFormat;
-			if (filename != null && !filename.ToLower().EndsWith(extension))
+			if ((filename != null) && !filename.ToLower().EndsWith(extension))
 			{
 				filename = filename + extension;
 			}
@@ -148,10 +95,7 @@ namespace Greenshot.Addon.Confluence
 					{
 						var httpBehaviour = HttpBehaviour.Current.ShallowClone();
 						// Use UploadProgress
-						httpBehaviour.UploadProgress = (percent) =>
-						{
-							UiContext.RunOn(() => progress.Report((int)(percent * 100)));
-						};
+						httpBehaviour.UploadProgress = percent => { UiContext.RunOn(() => progress.Report((int) (percent*100))); };
 						httpBehaviour.MakeCurrent();
 						using (var stream = new MemoryStream())
 						{
@@ -206,6 +150,53 @@ namespace Greenshot.Addon.Confluence
 			}
 
 			return returnValue;
+		}
+
+		/// <summary>
+		///     Setup
+		/// </summary>
+		protected override void Initialize()
+		{
+			base.Initialize();
+			Designation = ConfluenceDesignation;
+			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, null, token);
+			Text = ConfluenceLanguage.UploadMenuItem;
+			Icon = new PackIconAtlassian
+			{
+				Kind = PackIconKindAtlassian.Confluence
+			};
+		}
+
+		/// <summary>
+		///     Load the current documents to export to
+		/// </summary>
+		/// <param name="caller1"></param>
+		/// <param name="token"></param>
+		/// <returns>Task</returns>
+		public override async Task RefreshAsync(IExportContext caller1, CancellationToken token = default(CancellationToken))
+		{
+			Children.Clear();
+			await Task.Run(async () =>
+			{
+				var pages = await ConfluenceUtils.GetCurrentPages(token);
+				return pages.OrderBy(x => x.Title).Select(currentPage => new ConfluenceDestination
+				{
+					Icon = new PackIconAtlassian
+					{
+						Kind = PackIconKindAtlassian.Confluence
+					},
+					Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, currentPage, exportToken),
+					Text = currentPage.Title,
+					ConfluenceConfiguration = ConfluenceConfiguration,
+					ConfluenceLanguage = ConfluenceLanguage
+				}).ToList();
+			}, token).ContinueWith(async destinations =>
+			{
+				foreach (var confluenceDestination in await destinations)
+				{
+					Children.Add(confluenceDestination);
+				}
+			}, token, TaskContinuationOptions.None, UiContext.UiTaskScheduler).ConfigureAwait(false);
 		}
 	}
 }

@@ -1,28 +1,53 @@
-﻿using System;
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
+
+using System;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Windows;
 using Dapplo.CaliburnMicro;
+using Dapplo.Config.Converters;
 using Dapplo.Config.Language;
-using Dapplo.Log;
-using Dapplo.Utils.Resolving;
-using Greenshot.Addon.Configuration;
 using Dapplo.Config.Support;
-#if !DEBUG
-using Dapplo.Log.LogFile;
-#endif
+using Dapplo.Log;
 using Dapplo.Log.Loggers;
+using Dapplo.Utils.Resolving;
 using Dapplo.Windows.Native;
+using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Forms;
 using Greenshot.Helpers;
 
+#if !DEBUG
+using Dapplo.Log.LogFile;
+#endif
+
+#endregion
+
 namespace Greenshot
 {
 	/// <summary>
-	/// This class contains the code to start Greenshot
+	///     This class contains the code to start Greenshot
 	/// </summary>
 	public static class Start
 	{
@@ -30,11 +55,12 @@ namespace Greenshot
 		private const string ApplicationName = "Greenshot";
 
 		public static Dapplication Dapplication { get; set; }
+
 		/// <summary>
 		///     Start the application
 		/// </summary>
 		[STAThread]
-		public static void Main(string [] args)
+		public static void Main(string[] args)
 		{
 #if DEBUG
 			LogSettings.RegisterDefaultLogger<TraceLogger>(LogLevels.Verbose);
@@ -64,8 +90,8 @@ namespace Greenshot
 			// TODO: Use the correct directory
 
 			// Initialize the string encryption, TODO: Move "credentials" to build server / yaml
-			Dapplo.Config.Converters.StringEncryptionTypeConverter.RgbIv = "dlgjowejgogkklwj";
-			Dapplo.Config.Converters.StringEncryptionTypeConverter.RgbKey = "lsjvkwhvwujkagfauguwcsjgu2wueuff";
+			StringEncryptionTypeConverter.RgbIv = "dlgjowejgogkklwj";
+			StringEncryptionTypeConverter.RgbKey = "lsjvkwhvwujkagfauguwcsjgu2wueuff";
 
 			// Set the Thread name, is better than "1"
 			Thread.CurrentThread.Name = ApplicationName;
@@ -74,7 +100,8 @@ namespace Greenshot
 			{
 				ShutdownMode = ShutdownMode.OnExplicitShutdown,
 				// Don't allow the application to run multiple times
-				OnAlreadyRunning = () => {
+				OnAlreadyRunning = () =>
+				{
 					// Other instance is running, call a Greenshot client or exit etc
 					if (arguments.FilesToOpen.Count > 0)
 					{
@@ -90,26 +117,13 @@ namespace Greenshot
 					ShowOtherInstances();
 				},
 				// Handle AppDomain exception
-				OnUnhandledAppDomainException = (exception, isTerminating) =>
-				{
-					ShowException(exception);
-				},
+				OnUnhandledAppDomainException = (exception, isTerminating) => { ShowException(exception); },
 				// Handle the unhandled dispatcher exceptions
-				OnUnhandledDispatcherException = (exception) =>
-				{
-					ShowException(exception);
-				},
+				OnUnhandledDispatcherException = exception => { ShowException(exception); },
 				// Handle the unhandled exceptions
-				OnUnhandledException = (exception) =>
-				{
-					ShowException(exception);
-				},
+				OnUnhandledException = exception => { ShowException(exception); },
 				// Handle the unhandled task exceptions
-				OnUnhandledTaskException = (exception) =>
-				{
-					ShowException(exception);
-				}
-
+				OnUnhandledTaskException = exception => { ShowException(exception); }
 			};
 
 			// Set .gsp as the Greenshot plugin extension
@@ -137,7 +151,7 @@ namespace Greenshot
 
 
 		/// <summary>
-		/// Log and display any unhandled exceptions
+		///     Log and display any unhandled exceptions
 		/// </summary>
 		/// <param name="exception">Exception</param>
 		public static void ShowException(Exception exception)
@@ -152,7 +166,7 @@ namespace Greenshot
 
 
 		/// <summary>
-		/// Helper method to show the other running instances
+		///     Helper method to show the other running instances
 		/// </summary>
 		private static void ShowOtherInstances()
 		{

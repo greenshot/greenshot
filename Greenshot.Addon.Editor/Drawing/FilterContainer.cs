@@ -1,23 +1,23 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Drawing;
@@ -28,10 +28,12 @@ using Greenshot.Addon.Editor.Helpers;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces.Drawing;
 
+#endregion
+
 namespace Greenshot.Addon.Editor.Drawing
 {
 	/// <summary>
-	/// empty container for filter-only elements
+	///     empty container for filter-only elements
 	/// </summary>
 	[Serializable]
 	public abstract class FilterContainer : DrawableContainer
@@ -44,33 +46,25 @@ namespace Greenshot.Addon.Editor.Drawing
 			AREA_HIGHLIGHT,
 			GRAYSCALE,
 			MAGNIFICATION
-		};
-
-		private int _lineThickness;
-
-		[Field(FieldTypes.LINE_THICKNESS)]
-		public int LineThickness
-		{
-			get
-			{
-				return _lineThickness;
-			}
-			set
-			{
-				_lineThickness = value;
-				OnFieldPropertyChanged(FieldTypes.LINE_THICKNESS);
-			}
 		}
 
 		private Color _lineColor = Color.Red;
 
+		private int _lineThickness;
+
+		private bool _shadow;
+
+		public FilterContainer(Surface parent) : base(parent)
+		{
+			Init();
+		}
+
+		public abstract PreparedFilter Filter { get; set; }
+
 		[Field(FieldTypes.LINE_COLOR)]
 		public Color LineColor
 		{
-			get
-			{
-				return _lineColor;
-			}
+			get { return _lineColor; }
 			set
 			{
 				_lineColor = value;
@@ -78,42 +72,26 @@ namespace Greenshot.Addon.Editor.Drawing
 			}
 		}
 
-		private bool _shadow;
+		[Field(FieldTypes.LINE_THICKNESS)]
+		public int LineThickness
+		{
+			get { return _lineThickness; }
+			set
+			{
+				_lineThickness = value;
+				OnFieldPropertyChanged(FieldTypes.LINE_THICKNESS);
+			}
+		}
 
 		[Field(FieldTypes.SHADOW)]
 		public bool Shadow
 		{
-			get
-			{
-				return _shadow;
-			}
+			get { return _shadow; }
 			set
 			{
 				_shadow = value;
 				OnFieldPropertyChanged(FieldTypes.SHADOW);
 			}
-		}
-
-		public abstract PreparedFilter Filter
-		{
-			get;
-			set;
-		}
-
-		public FilterContainer(Surface parent) : base(parent)
-		{
-			Init();
-		}
-
-		protected override void OnDeserialized(StreamingContext streamingContext)
-		{
-			base.OnDeserialized(streamingContext);
-			Init();
-		}
-
-		private void Init()
-		{
-			CreateDefaultAdorners();
 		}
 
 		protected void ConfigurePreparedFilters()
@@ -151,7 +129,7 @@ namespace Greenshot.Addon.Editor.Drawing
 
 		public override void Draw(Graphics graphics, RenderMode rm)
 		{
-			bool lineVisible = (_lineThickness > 0 && ColorHelper.IsVisible(_lineColor));
+			bool lineVisible = (_lineThickness > 0) && ColorHelper.IsVisible(_lineColor);
 			var state = graphics.Save();
 			if (lineVisible)
 			{
@@ -173,7 +151,7 @@ namespace Greenshot.Addon.Editor.Drawing
 							Rectangle shadowRect = new Rectangle(Left + currentStep, Top + currentStep, Width, Height).MakeGuiRectangle();
 							graphics.DrawRectangle(shadowPen, shadowRect);
 							currentStep++;
-							alpha = alpha - (basealpha/steps);
+							alpha = alpha - basealpha/steps;
 						}
 					}
 				}
@@ -187,6 +165,17 @@ namespace Greenshot.Addon.Editor.Drawing
 				}
 				graphics.Restore(state);
 			}
+		}
+
+		private void Init()
+		{
+			CreateDefaultAdorners();
+		}
+
+		protected override void OnDeserialized(StreamingContext streamingContext)
+		{
+			base.OnDeserialized(streamingContext);
+			Init();
 		}
 	}
 }

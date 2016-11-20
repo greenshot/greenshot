@@ -1,23 +1,23 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Collections.Generic;
@@ -26,105 +26,60 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Addons;
+using Dapplo.Log;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
-using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Interfaces.Destination;
-using Dapplo.Log;
+using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.Core;
+
+#endregion
 
 namespace Greenshot.Addon.ExternalCommand
 {
 	/// <summary>
-	/// An Plugin to run commands after an image was written
+	///     An Plugin to run commands after an image was written
 	/// </summary>
 	[Plugin("External command", Configurable = true)]
-	[StartupAction(StartupOrder = (int)GreenshotStartupOrder.Addon)]
+	[StartupAction(StartupOrder = (int) GreenshotStartupOrder.Addon)]
 	public class ExternalCommandPlugin : IConfigurablePlugin, IStartupAction
 	{
-		private static readonly LogSource Log = new LogSource();
 		private const string MsPaint = "MS Paint";
 		private const string PaintDotNet = "Paint.NET";
+		private static readonly LogSource Log = new LogSource();
 
 		[Import]
-		private IGreenshotHost GreenshotHost
-		{
-			get;
-			set;
-		}
+		private ICoreConfiguration CoreConfiguration { get; set; }
 
 		[Import]
-		private IServiceExporter ServiceExporter
-		{
-			get;
-			set;
-		}
+		private IExternalCommandConfiguration ExternalCommandConfiguration { get; set; }
 
 		[Import]
-		private IServiceLocator ServiceLocator
-		{
-			get;
-			set;
-		}
+		private IExternalCommandLanguage ExternalCommandLanguage { get; set; }
 
 		[Import]
-		private IExternalCommandLanguage ExternalCommandLanguage
-		{
-			get;
-			set;
-		}
+		private IGreenshotHost GreenshotHost { get; set; }
 
 		[Import]
-		private ICoreConfiguration CoreConfiguration
-		{
-			get;
-			set;
-		}
+		private IServiceExporter ServiceExporter { get; set; }
 
 		[Import]
-		private IExternalCommandConfiguration ExternalCommandConfiguration
-		{
-			get;
-			set;
-		}
+		private IServiceLocator ServiceLocator { get; set; }
 
 		public void Dispose()
 		{
 		}
 
 		/// <summary>
-		/// Check and eventually fix the command settings
+		///     Implementation of the IPlugin.Configure
 		/// </summary>
-		/// <param name="command"></param>
-		/// <returns>false if the command is not correctly configured</returns>
-		private bool IsCommandValid(string command)
+		public void Configure()
 		{
-			if (!ExternalCommandConfiguration.RunInbackground.ContainsKey(command))
-			{
-				Log.Warn().WriteLine("Found missing runInbackground for {0}", command);
-				// Fix it
-				ExternalCommandConfiguration.RunInbackground.Add(command, true);
-			}
-			if (!ExternalCommandConfiguration.Argument.ContainsKey(command))
-			{
-				Log.Warn().WriteLine("Found missing argument for {0}", command);
-				// Fix it
-				ExternalCommandConfiguration.Argument.Add(command, "{0}");
-			}
-			if (!ExternalCommandConfiguration.Commandline.ContainsKey(command))
-			{
-				Log.Warn().WriteLine("Found missing commandline for {0}", command);
-				return false;
-			}
-			if (File.Exists(ExternalCommandConfiguration.Commandline[command]))
-			{
-				return true;
-			}
-			Log.Warn().WriteLine("Found 'invalid' commandline {0} for command {1}", ExternalCommandConfiguration.Commandline[command], command);
-			return false;
+			new SettingsForm().ShowDialog();
 		}
 
 		/// <summary>
-		/// Initialize
+		///     Initialize
 		/// </summary>
 		/// <param name="token"></param>
 		public Task StartAsync(CancellationToken token = new CancellationToken())
@@ -165,19 +120,10 @@ namespace Greenshot.Addon.ExternalCommand
 		}
 
 		/// <summary>
-		/// Implementation of the IPlugin.Configure
-		/// </summary>
-		public void Configure()
-		{
-			new SettingsForm().ShowDialog();
-		}
-
-		/// <summary>
-		/// Fix the properties
-		/// 
-		/// TODO: Fix for BUG-1908: Store a flag were can see if the user has manually removed one of the defaults.
-		/// This way we can always check for Paint.NET (or other defaults) and add them, unless they are removed manually.
-		/// Another possible way to fix this bug, is to have a wizard... or a way to download settings.
+		///     Fix the properties
+		///     TODO: Fix for BUG-1908: Store a flag were can see if the user has manually removed one of the defaults.
+		///     This way we can always check for Paint.NET (or other defaults) and add them, unless they are removed manually.
+		///     Another possible way to fix this bug, is to have a wizard... or a way to download settings.
 		/// </summary>
 		private void AfterLoad(IExternalCommandConfiguration config)
 		{
@@ -204,7 +150,7 @@ namespace Greenshot.Addon.ExternalCommand
 
 				try
 				{
-					var paintPath = PluginUtils.GetExePath("pbrush.exe");
+					var paintPath = PathHelper.GetExePath("pbrush.exe");
 					var hasPaint = !string.IsNullOrEmpty(paintPath) && File.Exists(paintPath);
 					if (hasPaint && !config.Commands.Contains(MsPaint))
 					{
@@ -219,6 +165,38 @@ namespace Greenshot.Addon.ExternalCommand
 					// ignored
 				}
 			}
+		}
+
+		/// <summary>
+		///     Check and eventually fix the command settings
+		/// </summary>
+		/// <param name="command"></param>
+		/// <returns>false if the command is not correctly configured</returns>
+		private bool IsCommandValid(string command)
+		{
+			if (!ExternalCommandConfiguration.RunInbackground.ContainsKey(command))
+			{
+				Log.Warn().WriteLine("Found missing runInbackground for {0}", command);
+				// Fix it
+				ExternalCommandConfiguration.RunInbackground.Add(command, true);
+			}
+			if (!ExternalCommandConfiguration.Argument.ContainsKey(command))
+			{
+				Log.Warn().WriteLine("Found missing argument for {0}", command);
+				// Fix it
+				ExternalCommandConfiguration.Argument.Add(command, "{0}");
+			}
+			if (!ExternalCommandConfiguration.Commandline.ContainsKey(command))
+			{
+				Log.Warn().WriteLine("Found missing commandline for {0}", command);
+				return false;
+			}
+			if (File.Exists(ExternalCommandConfiguration.Commandline[command]))
+			{
+				return true;
+			}
+			Log.Warn().WriteLine("Found 'invalid' commandline {0} for command {1}", ExternalCommandConfiguration.Commandline[command], command);
+			return false;
 		}
 	}
 }

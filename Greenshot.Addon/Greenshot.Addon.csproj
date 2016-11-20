@@ -101,8 +101,8 @@
       <HintPath>..\packages\Dapplo.Utils.1.0.128\lib\net45\Dapplo.Utils.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Windows, Version=0.1.29.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.0.1.29\lib\net45\Dapplo.Windows.dll</HintPath>
+    <Reference Include="Dapplo.Windows, Version=0.1.30.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.0.1.30\lib\net45\Dapplo.Windows.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="GongSolutions.Wpf.DragDrop, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -160,12 +160,10 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Configuration\ICropConfiguration.cs" />
-    <Compile Include="Configuration\IEditorLanguage.cs" />
+    <Compile Include="Configuration\ClickActions.cs" />
+    <Compile Include="Configuration\ICoreConfiguration.cs" />
     <Compile Include="Configuration\IGreenshotLanguage.cs" />
-    <Compile Include="Configuration\IHotkeyConfiguration.cs" />
-    <Compile Include="Configuration\INetworkConfiguration.cs" />
-    <Compile Include="Configuration\IUpdateConfiguration.cs" />
+    <Compile Include="Configuration\IUiConfiguration.cs" />
     <Compile Include="Controls\AnimatedGreenshotLogo.xaml.cs">
       <DependentUpon>AnimatedGreenshotLogo.xaml</DependentUpon>
     </Compile>
@@ -181,6 +179,9 @@
     <Compile Include="Controls\GreenshotRadioButton.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Controls\HotkeyControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Controls\MovableShowColorForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -193,21 +194,11 @@
     <Compile Include="Core\Accessible.cs" />
     <Compile Include="Core\AsyncCommand.cs" />
     <Compile Include="Core\BuildInDestinationEnum.cs" />
-    <Compile Include="Core\Capture.cs" />
-    <Compile Include="Core\CaptureDetails.cs" />
-    <Compile Include="Core\CaptureHandler.cs" />
     <Compile Include="Core\GreenshotStartupOrder.cs" />
     <Compile Include="Core\HelpFileLoader.cs" />
-    <Compile Include="Extensions\OperatingSystemExtensions.cs" />
     <Compile Include="Extensions\BitmapExtensions.cs" />
     <Compile Include="Extensions\ControlExtensions.cs" />
     <Compile Include="Core\EventDelay.cs" />
-    <Compile Include="Core\FastBitmap.cs" />
-    <Compile Include="Configuration\ICaptureConfiguration.cs" />
-    <Compile Include="Configuration\IMiscConfiguration.cs" />
-    <Compile Include="Configuration\IOutputConfiguration.cs" />
-    <Compile Include="Configuration\IPrinterConfiguration.cs" />
-    <Compile Include="Configuration\IUiConfiguration.cs" />
     <Compile Include="Core\PortableHelper.cs" />
     <Compile Include="Extensions\LanguageLoaderExtensions.cs" />
     <Compile Include="Extensions\ProcessExtensions.cs" />
@@ -272,9 +263,6 @@
     <Compile Include="Controls\GreenshotToolStripMenuItem.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\HotkeyControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Controls\BackgroundForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -305,26 +293,16 @@
       <DependentUpon>QualityDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\SaveImageFileDialog.cs" />
-    <Compile Include="Controls\ThumbnailForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="Core\AnimationHelpers.cs" />
     <Compile Include="Core\BinaryStructHelper.cs" />
     <Compile Include="Core\Cache.cs" />
     <Compile Include="Core\ClipboardHelper.cs" />
-    <Compile Include="Configuration\ICoreConfiguration.cs" />
     <Compile Include="Core\CredentialsHelper.cs" />
-    <Compile Include="Core\Effects.cs" />
     <Compile Include="Core\FilenameHelper.cs" />
     <Compile Include="Core\ImageOutput.cs" />
     <Compile Include="Core\InterfaceUtils.cs" />
     <Compile Include="Core\GreenshotResources.cs" />
-    <Compile Include="Core\IEHelper.cs" />
-    <Compile Include="Core\ImageHelper.cs" />
     <Compile Include="Core\PluginUtils.cs" />
-    <Compile Include="Core\QuantizerHelper.cs" />
-    <Compile Include="Core\WindowCapture.cs" />
-    <Compile Include="Core\WindowsHelper.cs" />
     <Compile Include="Interfaces\Drawing\Container.cs" />
     <Compile Include="Interfaces\Forms\ImageEditor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -349,5 +327,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Greenshot.Core\Greenshot.Core.csproj">
+      <Project>{dbcaf4bc-a008-4080-b508-28ac76280b03}</Project>
+      <Name>Greenshot.Core</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

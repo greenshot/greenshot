@@ -1,30 +1,32 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 using System.ComponentModel.Composition;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
+using Dapplo.Log;
 using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Controls;
@@ -33,13 +35,15 @@ using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Forms;
-using Dapplo.Log;
 using MahApps.Metro.IconPacks;
+using MessageBox = System.Windows.MessageBox;
+
+#endregion
 
 namespace Greenshot.Destinations
 {
 	/// <summary>
-	/// Description of FileDestination.
+	///     Description of FileDestination.
 	/// </summary>
 	[Destination(FileDesignation, 3)]
 	public sealed class FileDestination : AbstractDestination
@@ -48,29 +52,46 @@ namespace Greenshot.Destinations
 		private static readonly LogSource Log = new LogSource();
 
 		[Import]
-		private ICoreConfiguration CoreConfiguration
-		{
-			get;
-			set;
-		}
+		private ICoreConfiguration CoreConfiguration { get; set; }
 
 		[Import]
-		private IGreenshotLanguage GreenshotLanguage
-		{
-			get;
-			set;
-		}
+		private IGreenshotLanguage GreenshotLanguage { get; set; }
 
-		protected override void Initialize()
+		private string CreateNewFilename(ICaptureDetails captureDetails)
 		{
-			base.Initialize();
-			Text = GreenshotLanguage.SettingsDestinationFile;
-			Designation = FileDesignation;
-			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
-			Icon = new PackIconModern
+			string fullPath;
+			Log.Info().WriteLine("Creating new filename");
+			string pattern = CoreConfiguration.OutputFileFilenamePattern;
+			if (string.IsNullOrEmpty(pattern))
 			{
-				Kind = PackIconModernKind.Save
-			};
+				pattern = "greenshot ${capturetime}";
+			}
+			string filename = FilenameHelper.GetFilenameFromPattern(pattern, CoreConfiguration.OutputFileFormat, captureDetails);
+			string filepath = FilenameHelper.FillVariables(CoreConfiguration.OutputFilePath, false);
+			try
+			{
+				fullPath = Path.Combine(filepath, filename);
+			}
+			catch (ArgumentException)
+			{
+				// configured filename or path not valid, show error message...
+				Log.Info().WriteLine("Generated path or filename not valid: {0}, {1}", filepath, filename);
+
+				MessageBox.Show(GreenshotLanguage.ErrorSaveInvalidChars, GreenshotLanguage.Error, MessageBoxButton.OK, MessageBoxImage.Error);
+				// ... lets get the pattern fixed....
+				var dialogResult = new SettingsForm().ShowDialog();
+				if (dialogResult == DialogResult.OK)
+				{
+					// ... OK -> then try again:
+					fullPath = CreateNewFilename(captureDetails);
+				}
+				else
+				{
+					// ... cancelled.
+					fullPath = null;
+				}
+			}
+			return fullPath;
 		}
 
 		private async Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))
@@ -128,55 +149,29 @@ namespace Greenshot.Destinations
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
 				returnValue.Text = GreenshotLanguage.ErrorSave;
-            }
+			}
 			if (!string.IsNullOrEmpty(fullPath))
 			{
 				capture.CaptureDetails.Filename = fullPath;
-                returnValue.ImageLocation = new Uri("file://" + fullPath);
+				returnValue.ImageLocation = new Uri("file://" + fullPath);
 				if (CoreConfiguration.OutputFileCopyPathToClipboard)
 				{
 					ClipboardHelper.SetClipboardData(fullPath);
 				}
-
 			}
 			return returnValue;
 		}
 
-		private string CreateNewFilename(ICaptureDetails captureDetails)
+		protected override void Initialize()
 		{
-			string fullPath;
-			Log.Info().WriteLine("Creating new filename");
-			string pattern = CoreConfiguration.OutputFileFilenamePattern;
-			if (string.IsNullOrEmpty(pattern))
+			base.Initialize();
+			Text = GreenshotLanguage.SettingsDestinationFile;
+			Designation = FileDesignation;
+			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
+			Icon = new PackIconModern
 			{
-				pattern = "greenshot ${capturetime}";
-			}
-			string filename = FilenameHelper.GetFilenameFromPattern(pattern, CoreConfiguration.OutputFileFormat, captureDetails);
-			string filepath = FilenameHelper.FillVariables(CoreConfiguration.OutputFilePath, false);
-			try
-			{
-				fullPath = Path.Combine(filepath, filename);
-			}
-			catch (ArgumentException)
-			{
-				// configured filename or path not valid, show error message...
-				Log.Info().WriteLine("Generated path or filename not valid: {0}, {1}", filepath, filename);
-
-				MessageBox.Show(GreenshotLanguage.ErrorSaveInvalidChars, GreenshotLanguage.Error, MessageBoxButton.OK, MessageBoxImage.Error);
-				// ... lets get the pattern fixed....
-				var dialogResult = new SettingsForm().ShowDialog();
-				if (dialogResult == System.Windows.Forms.DialogResult.OK)
-				{
-					// ... OK -> then try again:
-					fullPath = CreateNewFilename(captureDetails);
-				}
-				else
-				{
-					// ... cancelled.
-					fullPath = null;
-				}
-			}
-			return fullPath;
+				Kind = PackIconModernKind.Save
+			};
 		}
 	}
 }

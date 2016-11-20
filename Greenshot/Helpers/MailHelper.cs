@@ -1,25 +1,24 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Dapplo.Config.Ini;
+#region Usings
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -27,33 +26,65 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Config.Ini;
+using Dapplo.Log;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.Core;
 using Microsoft.Win32;
-using Dapplo.Log;
+
+#endregion
 
 namespace Greenshot.Helpers
 {
 	/// <summary>
-	/// Author: Andrew Baker
-	/// Datum: 10.03.2006
-	/// Available from <a href="http://www.vbusers.com/codecsharp/codeget.asp?ThreadID=71&PostID=1">here</a>
+	///     Author: Andrew Baker
+	///     Datum: 10.03.2006
+	///     Available from <a href="http://www.vbusers.com/codecsharp/codeget.asp?ThreadID=71&PostID=1">here</a>
 	/// </summary>
-
-	#region Public MapiMailMessage Class
-
 	/// <summary>
-	/// Represents an email message to be sent through MAPI.
+	///     Represents an email message to be sent through MAPI.
 	/// </summary>
 	public class MapiMailMessage : IDisposable
 	{
-		private static readonly LogSource Log = new LogSource();
-		private static readonly ICoreConfiguration Conf = IniConfig.Current.Get<ICoreConfiguration>();
+		#region Enums
+
+		/// <summary>
+		///     Specifies the valid RecipientTypes for a Recipient.
+		/// </summary>
+		public enum RecipientType
+		{
+			/// <summary>
+			///     Recipient will be in the TO list.
+			/// </summary>
+			To = 1,
+
+			/// <summary>
+			///     Recipient will be in the CC list.
+			/// </summary>
+			CC = 2,
+
+			/// <summary>
+			///     Recipient will be in the BCC list.
+			/// </summary>
+			BCC = 3
+		}
+
+		#endregion Enums
+
 		private const string MapiClientKey = @"SOFTWARE\Clients\Mail";
 		private const string MapiLocationKey = @"SOFTWARE\Microsoft\Windows Messaging Subsystem";
 		private const string MapiKey = @"MAPI";
+		private static readonly LogSource Log = new LogSource();
+		private static readonly ICoreConfiguration Conf = IniConfig.Current.Get<ICoreConfiguration>();
+
+		#region Member Variables
+
+		private readonly ManualResetEvent _manualResetEvent;
+
+		#endregion Member Variables
 
 		public static string GetMapiClient()
 		{
@@ -61,12 +92,12 @@ namespace Greenshot.Helpers
 			{
 				if (key != null)
 				{
-					return (string)key.GetValue("");
+					return (string) key.GetValue("");
 				}
 			}
 			using (var key = Registry.LocalMachine.OpenSubKey(MapiClientKey, false))
 			{
-				return (string)key?.GetValue("");
+				return (string) key?.GetValue("");
 			}
 		}
 
@@ -83,7 +114,7 @@ namespace Greenshot.Helpers
 		}
 
 		/// <summary>
-		/// Helper Method for creating an Email with Attachment
+		///     Helper Method for creating an Email with Attachment
 		/// </summary>
 		/// <param name="fullPath">Path to file</param>
 		/// <param name="title"></param>
@@ -94,15 +125,15 @@ namespace Greenshot.Helpers
 				message.Files.Add(fullPath);
 				if (!string.IsNullOrEmpty(Conf.MailApiTo))
 				{
-					message._recipientCollection.Add(new Recipient(Conf.MailApiTo, RecipientType.To));
+					message.Recipients.Add(new Recipient(Conf.MailApiTo, RecipientType.To));
 				}
 				if (!string.IsNullOrEmpty(Conf.MailApiCC))
 				{
-					message._recipientCollection.Add(new Recipient(Conf.MailApiCC, RecipientType.CC));
+					message.Recipients.Add(new Recipient(Conf.MailApiCC, RecipientType.CC));
 				}
 				if (!string.IsNullOrEmpty(Conf.MailApiBCC))
 				{
-					message._recipientCollection.Add(new Recipient(Conf.MailApiBCC, RecipientType.BCC));
+					message.Recipients.Add(new Recipient(Conf.MailApiBCC, RecipientType.BCC));
 				}
 				message.ShowDialog();
 			}
@@ -110,7 +141,7 @@ namespace Greenshot.Helpers
 
 
 		/// <summary>
-		/// Helper Method for creating an Email with Image Attachment
+		///     Helper Method for creating an Email with Image Attachment
 		/// </summary>
 		/// <param name="surface">The image to send</param>
 		/// <param name="captureDetails">ICaptureDetails</param>
@@ -141,78 +172,100 @@ namespace Greenshot.Helpers
 		[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
 		private class MapiFileDescriptor
 		{
-			public int reserved = 0;
 			public int flags = 0;
-			public int position = 0;
-			public string path = null;
-			public string name = null;
+			public string name;
+			public string path;
+			public int position;
+			public int reserved = 0;
 			public IntPtr type = IntPtr.Zero;
 		}
 
 		#endregion Private MapiFileDescriptor Class
 
-		#region Enums
+		#region Private MapiHelperInterop Class
 
 		/// <summary>
-		/// Specifies the valid RecipientTypes for a Recipient.
+		///     Internal class for calling MAPI APIs
 		/// </summary>
-		public enum RecipientType
+		internal class MapiHelperInterop
 		{
-			/// <summary>
-			/// Recipient will be in the TO list.
-			/// </summary>
-			To = 1,
+			#region Constructors
 
 			/// <summary>
-			/// Recipient will be in the CC list.
+			///     Private constructor.
 			/// </summary>
-			CC = 2,
+			private MapiHelperInterop()
+			{
+				// Intenationally blank
+			}
 
-			/// <summary>
-			/// Recipient will be in the BCC list.
-			/// </summary>
-			BCC = 3
-		};
+			#endregion Constructors
 
-		#endregion Enums
+			#region Structs
 
-		#region Member Variables
+			[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
+			public class MapiMessage
+			{
+				public string ConversationID = null;
+				public string DateReceived = null;
+				public int FileCount;
+				public IntPtr Files = IntPtr.Zero;
+				public int Flags = 0;
+				public string MessageType = null;
+				public string NoteText;
+				public IntPtr Originator = IntPtr.Zero;
+				public int RecipientCount;
+				public IntPtr Recipients = IntPtr.Zero;
+				public int Reserved = 0;
+				public string Subject;
+			}
 
-		private string _subject;
-		private string _body;
-		private RecipientCollection _recipientCollection;
-		private readonly List<string> _files;
-		private readonly ManualResetEvent _manualResetEvent;
+			[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
+			public class MapiRecipDesc
+			{
+				public string Address;
+				public int eIDSize = 0;
+				public IntPtr EntryID = IntPtr.Zero;
+				public string Name;
+				public int RecipientClass;
+				public int Reserved = 0;
+			}
 
-		#endregion Member Variables
+			[DllImport("MAPI32.DLL", SetLastError = true, CharSet = CharSet.Ansi)]
+			public static extern int MAPISendMail(IntPtr session, IntPtr hwnd, MapiMessage message, int flg, int rsv);
+
+			#endregion Structs
+		}
+
+		#endregion Private MapiHelperInterop Class
 
 		#region Constructors
 
 		/// <summary>
-		/// Creates a blank mail message.
+		///     Creates a blank mail message.
 		/// </summary>
 		public MapiMailMessage()
 		{
-			_files = new List<string>();
-			_recipientCollection = new RecipientCollection();
+			Files = new List<string>();
+			Recipients = new RecipientCollection();
 			_manualResetEvent = new ManualResetEvent(false);
 		}
 
 		/// <summary>
-		/// Creates a new mail message with the specified subject.
+		///     Creates a new mail message with the specified subject.
 		/// </summary>
 		public MapiMailMessage(string subject) : this()
 		{
-			_subject = subject;
+			Subject = subject;
 		}
 
 		/// <summary>
-		/// Creates a new mail message with the specified subject and body.
+		///     Creates a new mail message with the specified subject and body.
 		/// </summary>
 		public MapiMailMessage(string subject, string body) : this()
 		{
-			_subject = subject;
-			_body = body;
+			Subject = subject;
+			Body = body;
 		}
 
 		#endregion Constructors
@@ -220,63 +273,31 @@ namespace Greenshot.Helpers
 		#region Public Properties
 
 		/// <summary>
-		/// Gets or sets the subject of this mail message.
+		///     Gets or sets the subject of this mail message.
 		/// </summary>
-		public string Subject
-		{
-			get
-			{
-				return _subject;
-			}
-			set
-			{
-				_subject = value;
-			}
-		}
+		public string Subject { get; set; }
 
 		/// <summary>
-		/// Gets or sets the body of this mail message.
+		///     Gets or sets the body of this mail message.
 		/// </summary>
-		public string Body
-		{
-			get
-			{
-				return _body;
-			}
-			set
-			{
-				_body = value;
-			}
-		}
+		public string Body { get; set; }
 
 		/// <summary>
-		/// Gets the recipient list for this mail message.
+		///     Gets the recipient list for this mail message.
 		/// </summary>
-		public RecipientCollection Recipients
-		{
-			get
-			{
-				return _recipientCollection;
-			}
-		}
+		public RecipientCollection Recipients { get; private set; }
 
 		/// <summary>
-		/// Gets the file list for this mail message.
+		///     Gets the file list for this mail message.
 		/// </summary>
-		public List<string> Files
-		{
-			get
-			{
-				return _files;
-			}
-		}
+		public List<string> Files { get; }
 
 		#endregion Public Properties
 
 		#region Public Methods
 
 		/// <summary>
-		/// Displays the mail message dialog asynchronously.
+		///     Displays the mail message dialog asynchronously.
 		/// </summary>
 		public void ShowDialog()
 		{
@@ -315,22 +336,22 @@ namespace Greenshot.Helpers
 		}
 
 		/// <summary>
-		/// Sends the mail message.
+		///     Sends the mail message.
 		/// </summary>
 		private void _ShowMail()
 		{
 			MapiHelperInterop.MapiMessage message = new MapiHelperInterop.MapiMessage();
 
-			using (RecipientCollection.InteropRecipientCollection interopRecipients = _recipientCollection.GetInteropRepresentation())
+			using (RecipientCollection.InteropRecipientCollection interopRecipients = Recipients.GetInteropRepresentation())
 			{
-				message.Subject = _subject;
-				message.NoteText = _body;
+				message.Subject = Subject;
+				message.NoteText = Body;
 
 				message.Recipients = interopRecipients.Handle;
-				message.RecipientCount = _recipientCollection.Count;
+				message.RecipientCount = Recipients.Count;
 
 				// Check if we need to add attachments
-				if (_files.Count > 0)
+				if (Files.Count > 0)
 				{
 					// Add attachments
 					message.Files = _AllocAttachments(out message.FileCount);
@@ -343,15 +364,15 @@ namespace Greenshot.Helpers
 				//const int MAPI_LOGON_UI = 0x1;
 				int error = MapiHelperInterop.MAPISendMail(IntPtr.Zero, IntPtr.Zero, message, MAPI_DIALOG, 0);
 
-				if (_files.Count > 0)
+				if (Files.Count > 0)
 				{
 					// Deallocate the files
 					_DeallocFiles(message);
 				}
-				MAPI_CODES errorCode = (MAPI_CODES) Enum.ToObject(typeof (MAPI_CODES), error);
+				MAPI_CODES errorCode = (MAPI_CODES) Enum.ToObject(typeof(MAPI_CODES), error);
 
 				// Check for error
-				if (errorCode != MAPI_CODES.SUCCESS && errorCode != MAPI_CODES.USER_ABORT)
+				if ((errorCode != MAPI_CODES.SUCCESS) && (errorCode != MAPI_CODES.USER_ABORT))
 				{
 					string errorText = GetMapiError(errorCode);
 					Log.Error().WriteLine("Error sending MAPI Email. Error: {0} (code = {1}).", errorText, errorCode);
@@ -359,7 +380,7 @@ namespace Greenshot.Helpers
 					// Recover from bad settings, show again
 					if (errorCode == MAPI_CODES.INVALID_RECIPS)
 					{
-						_recipientCollection = new RecipientCollection();
+						Recipients = new RecipientCollection();
 						_ShowMail();
 					}
 				}
@@ -367,14 +388,14 @@ namespace Greenshot.Helpers
 		}
 
 		/// <summary>
-		/// Deallocates the files in a message.
+		///     Deallocates the files in a message.
 		/// </summary>
 		/// <param name="message">The message to deallocate the files from.</param>
 		private void _DeallocFiles(MapiHelperInterop.MapiMessage message)
 		{
 			if (message.Files != IntPtr.Zero)
 			{
-				Type fileDescType = typeof (MapiFileDescriptor);
+				Type fileDescType = typeof(MapiFileDescriptor);
 				int fsize = Marshal.SizeOf(fileDescType);
 
 				// Get the ptr to the files
@@ -391,39 +412,39 @@ namespace Greenshot.Helpers
 		}
 
 		/// <summary>
-		/// Allocates the file attachments
+		///     Allocates the file attachments
 		/// </summary>
 		/// <param name="fileCount"></param>
 		/// <returns></returns>
 		private IntPtr _AllocAttachments(out int fileCount)
 		{
 			fileCount = 0;
-			if (_files == null)
+			if (Files == null)
 			{
 				return IntPtr.Zero;
 			}
-			if ((_files.Count <= 0) || (_files.Count > 100))
+			if ((Files.Count <= 0) || (Files.Count > 100))
 			{
 				return IntPtr.Zero;
 			}
 
-			Type atype = typeof (MapiFileDescriptor);
+			Type atype = typeof(MapiFileDescriptor);
 			int asize = Marshal.SizeOf(atype);
-			IntPtr ptra = Marshal.AllocHGlobal(_files.Count*asize);
+			IntPtr ptra = Marshal.AllocHGlobal(Files.Count*asize);
 
 			MapiFileDescriptor mfd = new MapiFileDescriptor();
 			mfd.position = -1;
 			IntPtr runptr = ptra;
-			for (int i = 0; i < _files.Count; i++)
+			for (int i = 0; i < Files.Count; i++)
 			{
-				string path = _files[i] as string;
+				string path = Files[i];
 				mfd.name = Path.GetFileName(path);
 				mfd.path = path;
 				Marshal.StructureToPtr(mfd, runptr, false);
 				runptr = new IntPtr(runptr.ToInt64() + asize);
 			}
 
-			fileCount = _files.Count;
+			fileCount = Files.Count;
 			return ptra;
 		}
 
@@ -460,7 +481,7 @@ namespace Greenshot.Helpers
 		}
 
 		/// <summary>
-		/// Logs any Mapi errors.
+		///     Logs any Mapi errors.
 		/// </summary>
 		private string GetMapiError(MAPI_CODES errorCode)
 		{
@@ -554,137 +575,19 @@ namespace Greenshot.Helpers
 		}
 
 		#endregion Private Methods
-
-		#region Private MapiHelperInterop Class
-
-		/// <summary>
-		/// Internal class for calling MAPI APIs
-		/// </summary>
-		internal class MapiHelperInterop
-		{
-			#region Constructors
-
-			/// <summary>
-			/// Private constructor.
-			/// </summary>
-			private MapiHelperInterop()
-			{
-				// Intenationally blank
-			}
-
-			#endregion Constructors
-
-			#region Structs
-
-			[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
-			public class MapiMessage
-			{
-				public int Reserved = 0;
-				public string Subject = null;
-				public string NoteText = null;
-				public string MessageType = null;
-				public string DateReceived = null;
-				public string ConversationID = null;
-				public int Flags = 0;
-				public IntPtr Originator = IntPtr.Zero;
-				public int RecipientCount = 0;
-				public IntPtr Recipients = IntPtr.Zero;
-				public int FileCount = 0;
-				public IntPtr Files = IntPtr.Zero;
-			}
-
-			[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
-			public class MapiRecipDesc
-			{
-				public int Reserved = 0;
-				public int RecipientClass = 0;
-				public string Name = null;
-				public string Address = null;
-				public int eIDSize = 0;
-				public IntPtr EntryID = IntPtr.Zero;
-			}
-
-			[DllImport("MAPI32.DLL", SetLastError = true, CharSet = CharSet.Ansi)]
-			public static extern int MAPISendMail(IntPtr session, IntPtr hwnd, MapiMessage message, int flg, int rsv);
-
-			#endregion Structs
-		}
-
-		#endregion Private MapiHelperInterop Class
 	}
-
-	#endregion Public MapiMailMessage Class
 
 	#region Public Recipient Class
 
 	/// <summary>
-	/// Represents a Recipient for a MapiMailMessage.
+	///     Represents a Recipient for a MapiMailMessage.
 	/// </summary>
 	public class Recipient
 	{
-		#region Public Properties
-
-		/// <summary>
-		/// The email address of this recipient.
-		/// </summary>
-		public string Address;
-
-		/// <summary>
-		/// The display name of this recipient.
-		/// </summary>
-		public string DisplayName;
-
-		/// <summary>
-		/// How the recipient will receive this message (To, CC, BCC).
-		/// </summary>
-		public MapiMailMessage.RecipientType RecipientType = MapiMailMessage.RecipientType.To;
-
-		#endregion Public Properties
-
-		#region Constructors
-
-		/// <summary>
-		/// Creates a new recipient with the specified address.
-		/// </summary>
-		public Recipient(string address)
-		{
-			Address = address;
-		}
-
-		/// <summary>
-		/// Creates a new recipient with the specified address and display name.
-		/// </summary>
-		public Recipient(string address, string displayName)
-		{
-			Address = address;
-			DisplayName = displayName;
-		}
-
-		/// <summary>
-		/// Creates a new recipient with the specified address and recipient type.
-		/// </summary>
-		public Recipient(string address, MapiMailMessage.RecipientType recipientType)
-		{
-			Address = address;
-			RecipientType = recipientType;
-		}
-
-		/// <summary>
-		/// Creates a new recipient with the specified address, display name and recipient type.
-		/// </summary>
-		public Recipient(string address, string displayName, MapiMailMessage.RecipientType recipientType)
-		{
-			Address = address;
-			DisplayName = displayName;
-			RecipientType = recipientType;
-		}
-
-		#endregion Constructors
-
 		#region Internal Methods
 
 		/// <summary>
-		/// Returns an interop representation of a recepient.
+		///     Returns an interop representation of a recepient.
 		/// </summary>
 		/// <returns></returns>
 		internal MapiMailMessage.MapiHelperInterop.MapiRecipDesc GetInteropRepresentation()
@@ -707,6 +610,65 @@ namespace Greenshot.Helpers
 		}
 
 		#endregion Internal Methods
+
+		#region Public Properties
+
+		/// <summary>
+		///     The email address of this recipient.
+		/// </summary>
+		public string Address;
+
+		/// <summary>
+		///     The display name of this recipient.
+		/// </summary>
+		public string DisplayName;
+
+		/// <summary>
+		///     How the recipient will receive this message (To, CC, BCC).
+		/// </summary>
+		public MapiMailMessage.RecipientType RecipientType = MapiMailMessage.RecipientType.To;
+
+		#endregion Public Properties
+
+		#region Constructors
+
+		/// <summary>
+		///     Creates a new recipient with the specified address.
+		/// </summary>
+		public Recipient(string address)
+		{
+			Address = address;
+		}
+
+		/// <summary>
+		///     Creates a new recipient with the specified address and display name.
+		/// </summary>
+		public Recipient(string address, string displayName)
+		{
+			Address = address;
+			DisplayName = displayName;
+		}
+
+		/// <summary>
+		///     Creates a new recipient with the specified address and recipient type.
+		/// </summary>
+		public Recipient(string address, MapiMailMessage.RecipientType recipientType)
+		{
+			Address = address;
+			RecipientType = recipientType;
+		}
+
+		/// <summary>
+		///     Creates a new recipient with the specified address, display name and recipient type.
+		/// </summary>
+		public Recipient(string address, string displayName, MapiMailMessage.RecipientType recipientType)
+		{
+			Address = address;
+			DisplayName = displayName;
+			RecipientType = recipientType;
+		}
+
+		#endregion Constructors
 	}
 
 	#endregion Public Recipient Class
@@ -714,12 +676,20 @@ namespace Greenshot.Helpers
 	#region Public RecipientCollection Class
 
 	/// <summary>
-	/// Represents a colleciton of recipients for a mail message.
+	///     Represents a colleciton of recipients for a mail message.
 	/// </summary>
 	public class RecipientCollection : CollectionBase
 	{
 		/// <summary>
-		/// Adds the specified recipient to this collection.
+		///     Returns the recipient stored in this collection at the specified index.
+		/// </summary>
+		public Recipient this[int index]
+		{
+			get { return (Recipient) List[index]; }
+		}
+
+		/// <summary>
+		///     Adds the specified recipient to this collection.
 		/// </summary>
 		public void Add(Recipient value)
 		{
@@ -727,7 +697,7 @@ namespace Greenshot.Helpers
 		}
 
 		/// <summary>
-		/// Adds a new recipient with the specified address to this collection.
+		///     Adds a new recipient with the specified address to this collection.
 		/// </summary>
 		public void Add(string address)
 		{
@@ -735,7 +705,7 @@ namespace Greenshot.Helpers
 		}
 
 		/// <summary>
-		/// Adds a new recipient with the specified address and display name to this collection.
+		///     Adds a new recipient with the specified address and display name to this collection.
 		/// </summary>
 		public void Add(string address, string displayName)
 		{
@@ -743,7 +713,7 @@ namespace Greenshot.Helpers
 		}
 
 		/// <summary>
-		/// Adds a new recipient with the specified address and recipient type to this collection.
+		///     Adds a new recipient with the specified address and recipient type to this collection.
 		/// </summary>
 		public void Add(string address, MapiMailMessage.RecipientType recipientType)
 		{
@@ -751,22 +721,11 @@ namespace Greenshot.Helpers
 		}
 
 		/// <summary>
-		/// Adds a new recipient with the specified address, display name and recipient type to this collection.
+		///     Adds a new recipient with the specified address, display name and recipient type to this collection.
 		/// </summary>
 		public void Add(string address, string displayName, MapiMailMessage.RecipientType recipientType)
 		{
 			Add(new Recipient(address, displayName, recipientType));
-		}
-
-		/// <summary>
-		/// Returns the recipient stored in this collection at the specified index.
-		/// </summary>
-		public Recipient this[int index]
-		{
-			get
-			{
-				return (Recipient) List[index];
-			}
 		}
 
 		internal InteropRecipientCollection GetInteropRepresentation()
@@ -775,13 +734,12 @@ namespace Greenshot.Helpers
 		}
 
 		/// <summary>
-		/// Struct which contains an interop representation of a colleciton of recipients.
+		///     Struct which contains an interop representation of a colleciton of recipients.
 		/// </summary>
 		internal struct InteropRecipientCollection : IDisposable
 		{
 			#region Member Variables
 
-			private IntPtr _handle;
 			private int _count;
 
 			#endregion Member Variables
@@ -789,7 +747,7 @@ namespace Greenshot.Helpers
 			#region Constructors
 
 			/// <summary>
-			/// Default constructor for creating InteropRecipientCollection.
+			///     Default constructor for creating InteropRecipientCollection.
 			/// </summary>
 			/// <param name="outer"></param>
 			public InteropRecipientCollection(RecipientCollection outer)
@@ -798,16 +756,16 @@ namespace Greenshot.Helpers
 
 				if (_count == 0)
 				{
-					_handle = IntPtr.Zero;
+					Handle = IntPtr.Zero;
 					return;
 				}
 
 				// allocate enough memory to hold all recipients
-				int size = Marshal.SizeOf(typeof (MapiMailMessage.MapiHelperInterop.MapiRecipDesc));
-				_handle = Marshal.AllocHGlobal(_count*size);
+				int size = Marshal.SizeOf(typeof(MapiMailMessage.MapiHelperInterop.MapiRecipDesc));
+				Handle = Marshal.AllocHGlobal(_count*size);
 
 				// place all interop recipients into the memory just allocated
-				IntPtr ptr = _handle;
+				IntPtr ptr = Handle;
 				foreach (Recipient native in outer)
 				{
 					MapiMailMessage.MapiHelperInterop.MapiRecipDesc interop = native.GetInteropRepresentation();
@@ -822,30 +780,24 @@ namespace Greenshot.Helpers
 
 			#region Public Properties
 
-			public IntPtr Handle
-			{
-				get
-				{
-					return _handle;
-				}
-			}
+			public IntPtr Handle { get; private set; }
 
 			#endregion Public Properties
 
 			#region Public Methods
 
 			/// <summary>
-			/// Disposes of resources.
+			///     Disposes of resources.
 			/// </summary>
 			public void Dispose()
 			{
-				if (_handle != IntPtr.Zero)
+				if (Handle != IntPtr.Zero)
 				{
-					Type type = typeof (MapiMailMessage.MapiHelperInterop.MapiRecipDesc);
+					Type type = typeof(MapiMailMessage.MapiHelperInterop.MapiRecipDesc);
 					int size = Marshal.SizeOf(type);
 
 					// destroy all the structures in the memory area
-					IntPtr ptr = _handle;
+					IntPtr ptr = Handle;
 					for (int i = 0; i < _count; i++)
 					{
 						Marshal.DestroyStructure(ptr, type);
@@ -853,9 +805,9 @@ namespace Greenshot.Helpers
 					}
 
 					// free the memory
-					Marshal.FreeHGlobal(_handle);
+					Marshal.FreeHGlobal(Handle);
 
-					_handle = IntPtr.Zero;
+					Handle = IntPtr.Zero;
 					_count = 0;
 				}
 			}

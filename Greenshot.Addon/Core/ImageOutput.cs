@@ -1,23 +1,23 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Collections.Generic;
@@ -30,21 +30,25 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Windows;
+using System.Windows.Forms;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
+using Dapplo.Log;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Controls;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.Core.Configuration;
+using Greenshot.Core.Gfx;
 using Encoder = System.Drawing.Imaging.Encoder;
-using Dapplo.Log;
-using Size = System.Drawing.Size;
+using MessageBox = System.Windows.MessageBox;
+
+#endregion
 
 namespace Greenshot.Addon.Core
 {
 	/// <summary>
-	/// Description of ImageOutput.
+	///     Description of ImageOutput.
 	/// </summary>
 	public static class ImageOutput
 	{
@@ -55,9 +59,11 @@ namespace Greenshot.Addon.Core
 		private static readonly Cache<string, string> TmpFileCache = new Cache<string, string>(10*60*60, RemoveExpiredTmpFile);
 
 		/// <summary>
-		/// Creates a PropertyItem (Metadata) to store with the image.
-		/// For the possible ID's see: http://msdn.microsoft.com/de-de/library/system.drawing.imaging.propertyitem.id(v=vs.80).aspx
-		/// This code uses Reflection to create a PropertyItem, although it's not adviced it's not as stupid as having a image in the project so we can read a PropertyItem from that!
+		///     Creates a PropertyItem (Metadata) to store with the image.
+		///     For the possible ID's see:
+		///     http://msdn.microsoft.com/de-de/library/system.drawing.imaging.propertyitem.id(v=vs.80).aspx
+		///     This code uses Reflection to create a PropertyItem, although it's not adviced it's not as stupid as having a image
+		///     in the project so we can read a PropertyItem from that!
 		/// </summary>
 		/// <param name="id">ID</param>
 		/// <param name="text">Text</param>
@@ -67,7 +73,7 @@ namespace Greenshot.Addon.Core
 			PropertyItem propertyItem = null;
 			try
 			{
-				ConstructorInfo ci = typeof (PropertyItem).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public, null, new Type[]
+				ConstructorInfo ci = typeof(PropertyItem).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public, null, new Type[]
 				{
 				}, null);
 				propertyItem = (PropertyItem) ci.Invoke(null);
@@ -89,10 +95,274 @@ namespace Greenshot.Addon.Core
 			return propertyItem;
 		}
 
+		/// <summary>
+		///     Remove a tmpfile which was created by SaveNamedTmpFile
+		///     Used e.g. by the email export
+		/// </summary>
+		/// <param name="tmpfile"></param>
+		/// <returns>true if it worked</returns>
+		public static bool DeleteNamedTmpFile(string tmpfile)
+		{
+			Log.Debug().WriteLine("Deleting TMP File: {0}", tmpfile);
+			try
+			{
+				if (File.Exists(tmpfile))
+				{
+					File.Delete(tmpfile);
+					TmpFileCache.Remove(tmpfile);
+				}
+				return true;
+			}
+			catch (Exception ex)
+			{
+				Log.Warn().WriteLine(ex, "Error deleting tmp file: {0}", tmpfile);
+			}
+			return false;
+		}
+
+		/// <summary>
+		///     Cleanup handler for expired tempfiles
+		/// </summary>
+		/// <param name="filekey"></param>
+		/// <param name="filename"></param>
+		private static void RemoveExpiredTmpFile(string filekey, object filename)
+		{
+			string path = filename as string;
+			if ((path != null) && File.Exists(path))
+			{
+				Log.Debug().WriteLine("Removing expired file {0}", path);
+				File.Delete(path);
+			}
+		}
+
+		/// <summary>
+		///     Cleanup all created tmpfiles
+		/// </summary>
+		public static void RemoveTmpFiles()
+		{
+			foreach (string tmpFile in TmpFileCache.Elements)
+			{
+				if (File.Exists(tmpFile))
+				{
+					Log.Debug().WriteLine("Removing old temp file {0}", tmpFile);
+					File.Delete(tmpFile);
+				}
+				TmpFileCache.Remove(tmpFile);
+			}
+		}
+
+		/// <summary>
+		///     Create a tmpfile which has the name like in the configured pattern.
+		///     Used e.g. by the email export
+		/// </summary>
+		/// <param name="surface"></param>
+		/// <param name="captureDetails"></param>
+		/// <param name="outputSettings"></param>
+		/// <returns>Path to image file</returns>
+		public static string SaveNamedTmpFile(ICapture surface, ICaptureDetails captureDetails, SurfaceOutputSettings outputSettings)
+		{
+			string pattern = conf.OutputFileFilenamePattern;
+			if (string.IsNullOrEmpty(pattern?.Trim()))
+			{
+				pattern = "greenshot ${capturetime}";
+			}
+			string filename = FilenameHelper.GetFilenameFromPattern(pattern, outputSettings.Format, captureDetails);
+			// Prevent problems with "other characters", which causes a problem in e.g. Outlook 2007 or break our HTML
+			filename = Regex.Replace(filename, @"[^\d\w\.]", "_");
+			// Remove multiple "_"
+			filename = Regex.Replace(filename, @"_+", "_");
+			string tmpFile = Path.Combine(Path.GetTempPath(), filename);
+
+			Log.Debug().WriteLine("Creating TMP File: {0}", tmpFile);
+
+			// Catching any exception to prevent that the user can't write in the directory.
+			// This is done for e.g. bugs #2974608, #2963943, #2816163, #2795317, #2789218
+			try
+			{
+				tmpFile = Save(surface, tmpFile, true, outputSettings);
+				TmpFileCache.Add(tmpFile, tmpFile);
+			}
+			catch (Exception e)
+			{
+				// Show the problem
+				MessageBox.Show(e.Message, "Error");
+				// when save failed we present a SaveWithDialog
+				tmpFile = SaveWithDialog(surface, captureDetails);
+			}
+			return tmpFile;
+		}
+
+		/// <summary>
+		///     Helper method to create a temp image file
+		/// </summary>
+		/// <param name="surface"></param>
+		/// <param name="outputSettings"></param>
+		/// <param name="destinationPath"></param>
+		/// <returns></returns>
+		public static string SaveToTmpFile(ICapture surface, SurfaceOutputSettings outputSettings, string destinationPath)
+		{
+			string tmpFile = Path.GetRandomFileName() + "." + outputSettings.Format;
+			// Prevent problems with "other characters", which could cause problems
+			tmpFile = Regex.Replace(tmpFile, @"[^\d\w\.]", "");
+			if (destinationPath == null)
+			{
+				destinationPath = Path.GetTempPath();
+			}
+			string tmpFullPath = Path.Combine(destinationPath, tmpFile);
+			Log.Debug().WriteLine("Creating TMP File : {0}", tmpFullPath);
+
+			try
+			{
+				tmpFullPath = Save(surface, tmpFullPath, true, outputSettings);
+				TmpFileCache.Add(tmpFullPath, tmpFullPath);
+			}
+			catch (Exception)
+			{
+				return null;
+			}
+			return tmpFullPath;
+		}
+
+		#region save-as
+
+		/// <summary>
+		///     Save with showing a dialog
+		/// </summary>
+		/// <param name="surface"></param>
+		/// <param name="captureDetails"></param>
+		/// <returns>Path to filename</returns>
+		public static string SaveWithDialog(ICapture surface, ICaptureDetails captureDetails)
+		{
+			string returnValue = null;
+			using (var saveImageFileDialog = new SaveImageFileDialog(captureDetails))
+			{
+				var dialogResult = saveImageFileDialog.ShowDialog();
+				if (dialogResult.Equals(DialogResult.OK))
+				{
+					try
+					{
+						string fileNameWithExtension = saveImageFileDialog.FileNameWithExtension;
+						var outputSettings = new SurfaceOutputSettings(FormatForFilename(fileNameWithExtension));
+						if (conf.OutputFilePromptQuality)
+						{
+							var qualityDialog = new QualityDialog(outputSettings);
+							qualityDialog.ShowDialog();
+						}
+						// TODO: For now we always overwrite, should be changed
+						returnValue = Save(surface, fileNameWithExtension, true, outputSettings);
+						if (conf.OutputFileCopyPathToClipboard)
+						{
+							ClipboardHelper.SetClipboardData(returnValue);
+						}
+					}
+					catch (ExternalException)
+					{
+						MessageBox.Show(string.Format(language.ErrorNowriteaccess, saveImageFileDialog.FileName).Replace(@"\\", @"\"), language.Error);
+					}
+				}
+			}
+			return returnValue;
+		}
+
+		#endregion
+
+		#region Icon
+
+		/// <summary>
+		///     Write the images to the stream as icon
+		///     Every image is resized to 256x256 (but the content maintains the aspect ratio)
+		/// </summary>
+		/// <param name="stream">Stream to write to</param>
+		/// <param name="images">List of images</param>
+		public static void WriteIcon(Stream stream, IList<Image> images)
+		{
+			var binaryWriter = new BinaryWriter(stream);
+			//
+			// ICONDIR structure
+			//
+			binaryWriter.Write((short) 0); // reserved
+			binaryWriter.Write((short) 1); // image type (icon)
+			binaryWriter.Write((short) images.Count); // number of images
+
+			var imageSizes = new List<Size>();
+			var encodedImages = new List<MemoryStream>();
+			foreach (var image in images)
+			{
+				// Pick the best fit
+				var sizes = new[] {16, 32, 48};
+				int size = 256;
+				foreach (var possibleSize in sizes)
+				{
+					if ((image.Width <= possibleSize) && (image.Height <= possibleSize))
+					{
+						size = possibleSize;
+						break;
+					}
+				}
+				var imageStream = new MemoryStream();
+				if ((image.Width == size) && (image.Height == size))
+				{
+					using (var clonedImage = ImageHelper.Clone(image, PixelFormat.Format32bppArgb))
+					{
+						clonedImage.Save(imageStream, ImageFormat.Png);
+						imageSizes.Add(new Size(size, size));
+					}
+				}
+				else
+				{
+					// Resize to the specified size, first make sure the image is 32bpp
+					using (var clonedImage = ImageHelper.Clone(image, PixelFormat.Format32bppArgb))
+					{
+						using (var resizedImage = ImageHelper.ResizeImage(clonedImage, true, true, Color.Empty, size, size, null))
+						{
+							resizedImage.Save(imageStream, ImageFormat.Png);
+							imageSizes.Add(resizedImage.Size);
+						}
+					}
+				}
+				imageStream.Seek(0, SeekOrigin.Begin);
+				encodedImages.Add(imageStream);
+			}
+
+			//
+			// ICONDIRENTRY structure
+			//
+			const int iconDirSize = 6;
+			const int iconDirEntrySize = 16;
+
+			var offset = iconDirSize + images.Count*iconDirEntrySize;
+			for (int i = 0; i < images.Count; i++)
+			{
+				var imageSize = imageSizes[i];
+				// Write the width / height, 0 means 256
+				binaryWriter.Write(imageSize.Width == 256 ? (byte) 0 : (byte) imageSize.Width);
+				binaryWriter.Write(imageSize.Height == 256 ? (byte) 0 : (byte) imageSize.Height);
+				binaryWriter.Write((byte) 0); // no pallete
+				binaryWriter.Write((byte) 0); // reserved
+				binaryWriter.Write((short) 0); // no color planes
+				binaryWriter.Write((short) 32); // 32 bpp
+				binaryWriter.Write((int) encodedImages[i].Length); // image data length
+				binaryWriter.Write(offset);
+				offset += (int) encodedImages[i].Length;
+			}
+
+			binaryWriter.Flush();
+			//
+			// Write image data
+			//
+			foreach (var encodedImage in encodedImages)
+			{
+				encodedImage.WriteTo(stream);
+				encodedImage.Dispose();
+			}
+		}
+
+		#endregion
+
 		#region save
 
 		/// <summary>
-		/// Saves ISurface to stream with specified output settings
+		///     Saves ISurface to stream with specified output settings
 		/// </summary>
 		/// <param name="capture">ICapture to save</param>
 		/// <param name="stream">Stream to save to</param>
@@ -110,9 +380,9 @@ namespace Greenshot.Addon.Core
 		}
 
 		/// <summary>
-		/// Saves image to stream with specified quality
-		/// To prevent problems with GDI version of before Windows 7:
-		/// the stream is checked if it's seekable and if needed a MemoryStream as "cache" is used.
+		///     Saves image to stream with specified quality
+		///     To prevent problems with GDI version of before Windows 7:
+		///     the stream is checked if it's seekable and if needed a MemoryStream as "cache" is used.
 		/// </summary>
 		/// <param name="imageToSave">image to save</param>
 		/// <param name="capture">capture for the elements, needed if the greenshot format is used</param>
@@ -122,7 +392,7 @@ namespace Greenshot.Addon.Core
 		{
 			bool useMemoryStream = false;
 			MemoryStream memoryStream = null;
-			if (outputSettings.Format == OutputFormat.greenshot && capture == null)
+			if ((outputSettings.Format == OutputFormat.greenshot) && (capture == null))
 			{
 				throw new ArgumentException("Surface needs to be se when using OutputFormat.Greenshot");
 			}
@@ -201,7 +471,9 @@ namespace Greenshot.Addon.Core
 					{
 						throw new ApplicationException("No JPG encoder found, this should not happen.");
 					}
-				} else if (Equals(imageFormat, ImageFormat.Icon)) {
+				}
+				else if (Equals(imageFormat, ImageFormat.Icon))
+				{
 					// FEATURE-916: Added Icon support
 					var images = new List<Image>();
 					images.Add(imageToSave);
@@ -264,7 +536,8 @@ namespace Greenshot.Addon.Core
 		}
 
 		/// <summary>
-		/// Write the passed Image to a tmp-file and call an external process, than read the file back and write it to the targetStream
+		///     Write the passed Image to a tmp-file and call an external process, than read the file back and write it to the
+		///     targetStream
 		/// </summary>
 		/// <param name="imageToProcess">Image to pass to the external process</param>
 		/// <param name="targetStream">stream to write the processed image to</param>
@@ -343,7 +616,7 @@ namespace Greenshot.Addon.Core
 		}
 
 		/// <summary>
-		/// Create an image from a surface with the settings from the output settings applied
+		///     Create an image from a surface with the settings from the output settings applied
 		/// </summary>
 		/// <param name="capture"></param>
 		/// <param name="outputSettings"></param>
@@ -354,7 +627,7 @@ namespace Greenshot.Addon.Core
 			bool disposeImage = false;
 
 			// TODO: Check no elements
-			if (outputSettings.Format == OutputFormat.greenshot || outputSettings.SaveBackgroundOnly)
+			if ((outputSettings.Format == OutputFormat.greenshot) || outputSettings.SaveBackgroundOnly)
 			{
 				// We save the image of the surface, this should not be disposed
 				imageToSave = capture.Image;
@@ -372,7 +645,7 @@ namespace Greenshot.Addon.Core
 				return disposeImage;
 			}
 			Image tmpImage;
-			if (outputSettings.Effects != null && outputSettings.Effects.Count > 0)
+			if ((outputSettings.Effects != null) && (outputSettings.Effects.Count > 0))
 			{
 				// apply effects, if there are any
 				using (Matrix matrix = new Matrix())
@@ -402,7 +675,7 @@ namespace Greenshot.Addon.Core
 				{
 					int colorCount = quantizer.GetColorCount();
 					Log.Info().WriteLine("Image with format {0} has {1} colors", imageToSave.PixelFormat, colorCount);
-					if (!outputSettings.ReduceColors && colorCount >= 256)
+					if (!outputSettings.ReduceColors && (colorCount >= 256))
 					{
 						return disposeImage;
 					}
@@ -432,7 +705,7 @@ namespace Greenshot.Addon.Core
 		}
 
 		/// <summary>
-		/// Add the greenshot property!
+		///     Add the greenshot property!
 		/// </summary>
 		/// <param name="imageToSave"></param>
 		private static void AddTag(Image imageToSave)
@@ -453,7 +726,7 @@ namespace Greenshot.Addon.Core
 		}
 
 		/// <summary>
-		/// Load a Greenshot surface
+		///     Load a Greenshot surface
 		/// </summary>
 		/// <param name="fullPath"></param>
 		/// <param name="returnSurface"></param>
@@ -510,7 +783,7 @@ namespace Greenshot.Addon.Core
 		}
 
 		/// <summary>
-		/// Saves image to specific path with specified quality
+		///     Saves image to specific path with specified quality
 		/// </summary>
 		/// <param name="surface"></param>
 		/// <param name="fullPath"></param>
@@ -531,7 +804,7 @@ namespace Greenshot.Addon.Core
 		}
 
 		/// <summary>
-		/// Check the supplied path, an if overwrite is neeeded
+		///     Check the supplied path, an if overwrite is neeeded
 		/// </summary>
 		/// <param name="fullPath"></param>
 		/// <param name="allowOverwrite"></param>
@@ -562,7 +835,7 @@ namespace Greenshot.Addon.Core
 		}
 
 		/// <summary>
-		/// Get the OutputFormat for a filename
+		///     Get the OutputFormat for a filename
 		/// </summary>
 		/// <param name="fullPath">filename (can be a complete path)</param>
 		/// <returns>OutputFormat</returns>
@@ -573,7 +846,7 @@ namespace Greenshot.Addon.Core
 			OutputFormat format = OutputFormat.png;
 			try
 			{
-				format = (OutputFormat) Enum.Parse(typeof (OutputFormat), extension.ToLower());
+				format = (OutputFormat) Enum.Parse(typeof(OutputFormat), extension.ToLower());
 			}
 			catch (ArgumentException ae)
 			{
@@ -583,272 +856,5 @@ namespace Greenshot.Addon.Core
 		}
 
 		#endregion
-
-		#region save-as
-
-		/// <summary>
-		/// Save with showing a dialog
-		/// </summary>
-		/// <param name="surface"></param>
-		/// <param name="captureDetails"></param>
-		/// <returns>Path to filename</returns>
-		public static string SaveWithDialog(ICapture surface, ICaptureDetails captureDetails)
-		{
-			string returnValue = null;
-			using (var saveImageFileDialog = new SaveImageFileDialog(captureDetails))
-			{
-				var dialogResult = saveImageFileDialog.ShowDialog();
-				if (dialogResult.Equals(System.Windows.Forms.DialogResult.OK))
-				{
-					try
-					{
-						string fileNameWithExtension = saveImageFileDialog.FileNameWithExtension;
-						var outputSettings = new SurfaceOutputSettings(FormatForFilename(fileNameWithExtension));
-						if (conf.OutputFilePromptQuality)
-						{
-							var qualityDialog = new QualityDialog(outputSettings);
-							qualityDialog.ShowDialog();
-						}
-						// TODO: For now we always overwrite, should be changed
-						returnValue = Save(surface, fileNameWithExtension, true, outputSettings);
-						if (conf.OutputFileCopyPathToClipboard)
-						{
-							ClipboardHelper.SetClipboardData(returnValue);
-						}
-					}
-					catch (ExternalException)
-					{
-						MessageBox.Show(string.Format(language.ErrorNowriteaccess, saveImageFileDialog.FileName).Replace(@"\\", @"\"), language.Error);
-					}
-				}
-			}
-			return returnValue;
-		}
-
-		#endregion
-
-		/// <summary>
-		/// Create a tmpfile which has the name like in the configured pattern.
-		/// Used e.g. by the email export
-		/// </summary>
-		/// <param name="surface"></param>
-		/// <param name="captureDetails"></param>
-		/// <param name="outputSettings"></param>
-		/// <returns>Path to image file</returns>
-		public static string SaveNamedTmpFile(ICapture surface, ICaptureDetails captureDetails, SurfaceOutputSettings outputSettings)
-		{
-			string pattern = conf.OutputFileFilenamePattern;
-			if (string.IsNullOrEmpty(pattern?.Trim()))
-			{
-				pattern = "greenshot ${capturetime}";
-			}
-			string filename = FilenameHelper.GetFilenameFromPattern(pattern, outputSettings.Format, captureDetails);
-			// Prevent problems with "other characters", which causes a problem in e.g. Outlook 2007 or break our HTML
-			filename = Regex.Replace(filename, @"[^\d\w\.]", "_");
-			// Remove multiple "_"
-			filename = Regex.Replace(filename, @"_+", "_");
-			string tmpFile = Path.Combine(Path.GetTempPath(), filename);
-
-			Log.Debug().WriteLine("Creating TMP File: {0}", tmpFile);
-
-			// Catching any exception to prevent that the user can't write in the directory.
-			// This is done for e.g. bugs #2974608, #2963943, #2816163, #2795317, #2789218
-			try
-			{
-				tmpFile = Save(surface, tmpFile, true, outputSettings);
-				TmpFileCache.Add(tmpFile, tmpFile);
-			}
-			catch (Exception e)
-			{
-				// Show the problem
-				MessageBox.Show(e.Message, "Error");
-				// when save failed we present a SaveWithDialog
-				tmpFile = SaveWithDialog(surface, captureDetails);
-			}
-			return tmpFile;
-		}
-
-		/// <summary>
-		/// Remove a tmpfile which was created by SaveNamedTmpFile
-		/// Used e.g. by the email export
-		/// </summary>
-		/// <param name="tmpfile"></param>
-		/// <returns>true if it worked</returns>
-		public static bool DeleteNamedTmpFile(string tmpfile)
-		{
-			Log.Debug().WriteLine("Deleting TMP File: {0}", tmpfile);
-			try
-			{
-				if (File.Exists(tmpfile))
-				{
-					File.Delete(tmpfile);
-					TmpFileCache.Remove(tmpfile);
-				}
-				return true;
-			}
-			catch (Exception ex)
-			{
-				Log.Warn().WriteLine(ex, "Error deleting tmp file: {0}", tmpfile);
-			}
-			return false;
-		}
-
-		/// <summary>
-		/// Helper method to create a temp image file
-		/// </summary>
-		/// <param name="surface"></param>
-		/// <param name="outputSettings"></param>
-		/// <param name="destinationPath"></param>
-		/// <returns></returns>
-		public static string SaveToTmpFile(ICapture surface, SurfaceOutputSettings outputSettings, string destinationPath)
-		{
-			string tmpFile = Path.GetRandomFileName() + "." + outputSettings.Format.ToString();
-			// Prevent problems with "other characters", which could cause problems
-			tmpFile = Regex.Replace(tmpFile, @"[^\d\w\.]", "");
-			if (destinationPath == null)
-			{
-				destinationPath = Path.GetTempPath();
-			}
-			string tmpFullPath = Path.Combine(destinationPath, tmpFile);
-			Log.Debug().WriteLine("Creating TMP File : {0}", tmpFullPath);
-
-			try
-			{
-				tmpFullPath = Save(surface, tmpFullPath, true, outputSettings);
-				TmpFileCache.Add(tmpFullPath, tmpFullPath);
-			}
-			catch (Exception)
-			{
-				return null;
-			}
-			return tmpFullPath;
-		}
-
-		/// <summary>
-		/// Cleanup all created tmpfiles
-		/// </summary>	
-		public static void RemoveTmpFiles()
-		{
-			foreach (string tmpFile in TmpFileCache.Elements)
-			{
-				if (File.Exists(tmpFile))
-				{
-					Log.Debug().WriteLine("Removing old temp file {0}", tmpFile);
-					File.Delete(tmpFile);
-				}
-				TmpFileCache.Remove(tmpFile);
-			}
-		}
-
-		/// <summary>
-		/// Cleanup handler for expired tempfiles
-		/// </summary>
-		/// <param name="filekey"></param>
-		/// <param name="filename"></param>
-		private static void RemoveExpiredTmpFile(string filekey, object filename)
-		{
-			string path = filename as string;
-			if (path != null && File.Exists(path))
-			{
-				Log.Debug().WriteLine("Removing expired file {0}", path);
-				File.Delete(path);
-			}
-		}
-
-
-		#region Icon
-
-		/// <summary>
-		/// Write the images to the stream as icon
-		/// Every image is resized to 256x256 (but the content maintains the aspect ratio)
-		/// </summary>
-		/// <param name="stream">Stream to write to</param>
-		/// <param name="images">List of images</param>
-		public static void WriteIcon(Stream stream, IList<Image> images)
-		{
-			var binaryWriter = new BinaryWriter(stream);
-			//
-			// ICONDIR structure
-			//
-			binaryWriter.Write((short)0); // reserved
-			binaryWriter.Write((short)1); // image type (icon)
-			binaryWriter.Write((short)images.Count); // number of images
-
-			var imageSizes = new List<Size>();
-			var encodedImages = new List<MemoryStream>();
-			foreach (var image in images)
-			{
-				// Pick the best fit
-				var sizes = new[]{16, 32, 48};
-				int size = 256;
-				foreach (var possibleSize in sizes)
-				{
-					if (image.Width <= possibleSize && image.Height <= possibleSize)
-					{
-						size = possibleSize;
-						break;
-					}
-				}
-				var imageStream = new MemoryStream();
-				if (image.Width == size && image.Height == size)
-				{
-					using (var clonedImage = ImageHelper.Clone(image, PixelFormat.Format32bppArgb))
-					{
-						clonedImage.Save(imageStream, ImageFormat.Png);
-						imageSizes.Add(new Size(size, size));
-					}
-				}
-				else
-				{
-					// Resize to the specified size, first make sure the image is 32bpp
-					using (var clonedImage = ImageHelper.Clone(image, PixelFormat.Format32bppArgb))
-					{
-
-						using (var resizedImage = ImageHelper.ResizeImage(clonedImage, true, true, Color.Empty, size, size, null))
-						{
-							resizedImage.Save(imageStream, ImageFormat.Png);
-							imageSizes.Add(resizedImage.Size);
-						}
-
-					}
-				}
-				imageStream.Seek(0, SeekOrigin.Begin);
-				encodedImages.Add(imageStream);
-			}
-
-			//
-			// ICONDIRENTRY structure
-			//
-			const int iconDirSize = 6;
-			const int iconDirEntrySize = 16;
-
-			var offset = iconDirSize + (images.Count * iconDirEntrySize);
-			for (int i = 0; i < images.Count; i++)
-			{
-				var imageSize = imageSizes[i];
-				// Write the width / height, 0 means 256
-				binaryWriter.Write(imageSize.Width == 256 ? (byte)0 : (byte)imageSize.Width);
-				binaryWriter.Write(imageSize.Height == 256 ? (byte)0 : (byte)imageSize.Height);
-				binaryWriter.Write((byte)0); // no pallete
-				binaryWriter.Write((byte)0); // reserved
-				binaryWriter.Write((short)0); // no color planes
-				binaryWriter.Write((short)32); // 32 bpp
-				binaryWriter.Write((int)encodedImages[i].Length); // image data length
-				binaryWriter.Write(offset);
-				offset += (int)encodedImages[i].Length;
-			}
-
-			binaryWriter.Flush();
-			//
-			// Write image data
-			//
-			foreach (var encodedImage in encodedImages)
-			{
-				encodedImage.WriteTo(stream);
-				encodedImage.Dispose();
-			}
-		}
-		#endregion
-
 	}
 }

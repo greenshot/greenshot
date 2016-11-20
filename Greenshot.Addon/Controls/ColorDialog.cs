@@ -1,23 +1,23 @@
-/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Collections.Generic;
@@ -27,23 +27,21 @@ using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 
+#endregion
+
 namespace Greenshot.Addon.Controls
 {
 	/// <summary>
-	/// Description of ColorDialog.
+	///     Description of ColorDialog.
 	/// </summary>
 	public partial class ColorDialog : GreenshotForm
 	{
 		private static ColorDialog uniqueInstance;
 
-		/// <summary>
-		/// This is a bit of a hack, but assign the list of Colors for the RecentColors to this property
-		/// </summary>
-		public static IList<Color> RecentColors
-		{
-			get;
-			set;
-		}
+		private readonly List<Button> _colorButtons = new List<Button>();
+		private readonly List<Button> _recentColorButtons = new List<Button>();
+		private readonly ToolTip _toolTip = new ToolTip();
+		private bool _updateInProgress;
 
 		private ColorDialog()
 		{
@@ -55,6 +53,36 @@ namespace Greenshot.Addon.Controls
 			UpdateRecentColorsButtonRow();
 		}
 
+		public Color Color
+		{
+			get { return colorPanel.BackColor; }
+			set { PreviewColor(value, this); }
+		}
+
+		/// <summary>
+		///     This is a bit of a hack, but assign the list of Colors for the RecentColors to this property
+		/// </summary>
+		public static IList<Color> RecentColors { get; set; }
+
+		#region helper functions
+
+		private int GetColorPartIntFromString(string s)
+		{
+			int ret = 0;
+			int.TryParse(s, out ret);
+			if (ret < 0)
+			{
+				ret = 0;
+			}
+			else if (ret > 255)
+			{
+				ret = 255;
+			}
+			return ret;
+		}
+
+		#endregion
+
 		public static ColorDialog GetInstance()
 		{
 			if (uniqueInstance == null)
@@ -64,21 +92,9 @@ namespace Greenshot.Addon.Controls
 			return uniqueInstance;
 		}
 
-		private readonly List<Button> _colorButtons = new List<Button>();
-		private readonly List<Button> _recentColorButtons = new List<Button>();
-		private readonly ToolTip _toolTip = new ToolTip();
-		private bool _updateInProgress = false;
-
-		public Color Color
+		private void PipetteUsed(object sender, PipetteUsedArgs e)
 		{
-			get
-			{
-				return colorPanel.BackColor;
-			}
-			set
-			{
-				PreviewColor(value, this);
-			}
+			Color = e.color;
 		}
 
 		#region user interface generation
@@ -166,7 +182,7 @@ namespace Greenshot.Addon.Controls
 		{
 			if (RecentColors != null)
 			{
-				for (int i = 0; i < RecentColors.Count && i < 12; i++)
+				for (int i = 0; (i < RecentColors.Count) && (i < 12); i++)
 				{
 					_recentColorButtons[i].BackColor = RecentColors[i];
 					_recentColorButtons[i].Enabled = true;
@@ -182,7 +198,7 @@ namespace Greenshot.Addon.Controls
 			{
 				textBoxHtmlColor.Text = ColorTranslator.ToHtml(colorToPreview);
 			}
-			if (trigger != textBoxRed && trigger != textBoxGreen && trigger != textBoxBlue && trigger != textBoxAlpha)
+			if ((trigger != textBoxRed) && (trigger != textBoxGreen) && (trigger != textBoxBlue) && (trigger != textBoxAlpha))
 			{
 				textBoxRed.Text = colorToPreview.R.ToString();
 				textBoxGreen.Text = colorToPreview.G.ToString();
@@ -229,7 +245,7 @@ namespace Greenshot.Addon.Controls
 				KnownColor knownColor;
 				try
 				{
-					knownColor = (KnownColor) Enum.Parse(typeof (KnownColor), text, true);
+					knownColor = (KnownColor) Enum.Parse(typeof(KnownColor), text, true);
 					c = Color.FromKnownColor(knownColor);
 				}
 				catch (Exception)
@@ -258,7 +274,7 @@ namespace Greenshot.Addon.Controls
 
 		private void TextBoxKeyDown(object sender, KeyEventArgs e)
 		{
-			if (e.KeyCode == Keys.Return || e.KeyCode == Keys.Enter)
+			if ((e.KeyCode == Keys.Return) || (e.KeyCode == Keys.Enter))
 			{
 				AddToRecentColors(colorPanel.BackColor);
 			}
@@ -287,29 +303,5 @@ namespace Greenshot.Addon.Controls
 		}
 
 		#endregion
-
-		#region helper functions
-
-		private int GetColorPartIntFromString(string s)
-		{
-			int ret = 0;
-			int.TryParse(s, out ret);
-			if (ret < 0)
-			{
-				ret = 0;
-			}
-			else if (ret > 255)
-			{
-				ret = 255;
-			}
-			return ret;
-		}
-
-		#endregion
-
-		private void PipetteUsed(object sender, PipetteUsedArgs e)
-		{
-			Color = e.color;
-		}
 	}
 }

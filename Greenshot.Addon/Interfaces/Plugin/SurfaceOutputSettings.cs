@@ -1,37 +1,39 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System.Collections.Generic;
 using Dapplo.Config.Ini;
 using Greenshot.Addon.Configuration;
-using Greenshot.Addon.Core;
+using Greenshot.Core.Configuration;
+using Greenshot.Core.Gfx;
+
+#endregion
 
 namespace Greenshot.Addon.Interfaces.Plugin
 {
 	public class SurfaceOutputSettings
 	{
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
-		private bool reduceColors;
 		private bool disableReduceColors;
-		private List<IEffect> effects = new List<IEffect>();
+		private bool reduceColors;
 
 		public SurfaceOutputSettings()
 		{
@@ -56,40 +58,27 @@ namespace Greenshot.Addon.Interfaces.Plugin
 			ReduceColors = reduceColors;
 		}
 
-		public SurfaceOutputSettings PreventGreenshotFormat()
+		/// <summary>
+		///     Disable the reduce colors option, this overrules the enabling
+		/// </summary>
+		public bool DisableReduceColors
 		{
-			if (Format == OutputFormat.greenshot)
+			get { return disableReduceColors; }
+			set
 			{
-				Format = OutputFormat.png;
-			}
-			return this;
-		}
-
-		public OutputFormat Format
-		{
-			get;
-			set;
-		}
-
-		public int JPGQuality
-		{
-			get;
-			set;
-		}
-
-		public bool SaveBackgroundOnly
-		{
-			get;
-			set;
-		}
-
-		public List<IEffect> Effects
-		{
-			get
-			{
-				return effects;
+				// Quantizing os needed when output format is gif as this has only 256 colors!
+				if (!OutputFormat.gif.Equals(Format))
+				{
+					disableReduceColors = value;
+				}
 			}
 		}
+
+		public List<IEffect> Effects { get; } = new List<IEffect>();
+
+		public OutputFormat Format { get; set; }
+
+		public int JPGQuality { get; set; }
 
 		public bool ReduceColors
 		{
@@ -102,29 +91,18 @@ namespace Greenshot.Addon.Interfaces.Plugin
 				}
 				return reduceColors;
 			}
-			set
-			{
-				reduceColors = value;
-			}
+			set { reduceColors = value; }
 		}
 
-		/// <summary>
-		/// Disable the reduce colors option, this overrules the enabling
-		/// </summary>
-		public bool DisableReduceColors
+		public bool SaveBackgroundOnly { get; set; }
+
+		public SurfaceOutputSettings PreventGreenshotFormat()
 		{
-			get
+			if (Format == OutputFormat.greenshot)
 			{
-				return disableReduceColors;
+				Format = OutputFormat.png;
 			}
-			set
-			{
-				// Quantizing os needed when output format is gif as this has only 256 colors!
-				if (!OutputFormat.gif.Equals(Format))
-				{
-					disableReduceColors = value;
-				}
-			}
+			return this;
 		}
 	}
 }

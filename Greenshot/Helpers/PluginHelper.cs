@@ -1,25 +1,24 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Greenshot.Forms;
+#region Usings
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
@@ -27,54 +26,43 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.CaptureCore;
+using Greenshot.Core.Enumerations;
+using Greenshot.Forms;
+
+#endregion
 
 namespace Greenshot.Helpers
 {
 	/// <summary>
-	/// The PluginHelper takes care of all plugin related functionality
+	///     The PluginHelper takes care of all plugin related functionality
 	/// </summary>
 	[Export(typeof(IGreenshotHost))]
 	public class PluginHelper : IGreenshotHost
 	{
-		public static PluginHelper Instance
-		{
-			set;
-			get;
-		}
-
 		public PluginHelper()
 		{
 			PluginUtils.Host = this;
 			Instance = this;
 		}
 
+		public static PluginHelper Instance { set; get; }
+
 		[ImportMany(AllowRecomposition = true)]
-		public IEnumerable<Lazy<IGreenshotPlugin, IGreenshotPluginMetadata>> Plugins
-		{
-			get;
-			set;
-		} 
+		public IEnumerable<Lazy<IGreenshotPlugin, IGreenshotPluginMetadata>> Plugins { get; set; }
 
 		public Form GreenshotForm
 		{
-			get
-			{
-				return MainForm.Instance;
-			}
+			get { return MainForm.Instance; }
 		}
 
 		public NotifyIcon NotifyIcon
 		{
-			get
-			{
-				return MainForm.Instance.NotifyIcon;
-			}
+			get { return MainForm.Instance.NotifyIcon; }
 		}
 
 		public void ShowAbout()
@@ -87,11 +75,16 @@ namespace Greenshot.Helpers
 			MainForm.Instance.ShowSetting();
 		}
 
-		public bool HasPlugins()
+		public void ConfigureSelectedItem(ListView listview)
 		{
-			var plugins = Plugins;
-
-			return (plugins != null && plugins.Any());
+			if (listview.SelectedItems.Count > 0)
+			{
+				var plugin = listview.SelectedItems[0].Tag as IConfigurablePlugin;
+				if (plugin != null)
+				{
+					plugin.Configure();
+				}
+			}
 		}
 
 		// Add plugins to the Listview
@@ -113,6 +106,13 @@ namespace Greenshot.Helpers
 			}
 		}
 
+		public bool HasPlugins()
+		{
+			var plugins = Plugins;
+
+			return (plugins != null) && plugins.Any();
+		}
+
 		public bool IsSelectedItemConfigurable(ListView listview)
 		{
 			if (listview.SelectedItems.Count > 0)
@@ -123,42 +123,24 @@ namespace Greenshot.Helpers
 			return false;
 		}
 
-		public void ConfigureSelectedItem(ListView listview)
-		{
-			if (listview.SelectedItems.Count > 0)
-			{
-				var plugin = listview.SelectedItems[0].Tag as IConfigurablePlugin;
-				if (plugin != null)
-				{
-					plugin.Configure();
-				}
-			}
-		}
-
 		#region Implementation of IGreenshotPluginHost
 
 		public ContextMenuStrip MainMenu
 		{
-			get
-			{
-				return MainForm.Instance.MainMenu;
-			}
+			get { return MainForm.Instance.MainMenu; }
 		}
 
 		/// <summary>
-		/// Use the supplied image, and handle it as if it's captured.
+		///     Use the supplied image, and handle it as if it's captured.
 		/// </summary>
 		/// <param name="captureToImport">Capture to handle</param>
 		public void ImportCapture(ICapture captureToImport)
 		{
-			MainForm.Instance.InvokeAsync(async () =>
-			{
-				await CaptureHelper.ImportCaptureAsync(captureToImport).ConfigureAwait(false);
-			});
+			MainForm.Instance.InvokeAsync(async () => { await CaptureHelper.ImportCaptureAsync(captureToImport).ConfigureAwait(false); });
 		}
 
 		/// <summary>
-		/// Get an ICapture object, so the plugin can modify this
+		///     Get an ICapture object, so the plugin can modify this
 		/// </summary>
 		/// <returns></returns>
 		public ICapture GetCapture(Image imageToCapture)
@@ -167,7 +149,7 @@ namespace Greenshot.Helpers
 			{
 				CaptureDetails = new CaptureDetails
 				{
-					CaptureMode = CaptureMode.Import, Title = "Imported"
+					CaptureMode = CaptureModes.Import, Title = "Imported"
 				}
 			};
 			return capture;

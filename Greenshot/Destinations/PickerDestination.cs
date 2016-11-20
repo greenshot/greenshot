@@ -1,43 +1,45 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
 using System.Linq;
-using System.Threading.Tasks;
-using Greenshot.Windows;
 using System.Threading;
+using System.Threading.Tasks;
+using Dapplo.Log;
 using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
-using System.Collections.ObjectModel;
-using Dapplo.Log;
+using Greenshot.Windows;
 using MahApps.Metro.IconPacks;
+
+#endregion
 
 namespace Greenshot.Destinations
 {
 	/// <summary>
-	/// The PickerDestination shows a context menu with all possible destinations, so the user can "pick" one
+	///     The PickerDestination shows a context menu with all possible destinations, so the user can "pick" one
 	/// </summary>
 	[Destination(PickerDesignation)]
 	public sealed class PickerDestination : AbstractDestination
@@ -48,34 +50,19 @@ namespace Greenshot.Destinations
 		private ObservableCollection<IDestination> _destinationsCache;
 
 		[Import]
-		private ICoreConfiguration CoreConfiguration
-		{
-			get;
-			set;
-		}
-
-		[Import]
-		private IGreenshotLanguage GreenshotLanguage
-		{
-			get;
-			set;
-		}
-
-		[Import]
-		private ExportFactory<ExportWindow> ExportWindowFactory
-		{
-			get;
-			set;
-		} 
+		private ICoreConfiguration CoreConfiguration { get; set; }
 
 		[ImportMany(AllowRecomposition = true)]
-		private IEnumerable<Lazy<IDestination, IDestinationMetadata>> Destinations
-		{
-			get;
+		private IEnumerable<Lazy<IDestination, IDestinationMetadata>> Destinations { get;
 			// Needed for importing
 			// ReSharper disable once UnusedAutoPropertyAccessor.Local
-			set;
-		}
+			set; }
+
+		[Import]
+		private ExportFactory<ExportWindow> ExportWindowFactory { get; set; }
+
+		[Import]
+		private IGreenshotLanguage GreenshotLanguage { get; set; }
 
 		protected override void Initialize()
 		{
@@ -128,7 +115,7 @@ namespace Greenshot.Destinations
 					try
 					{
 						exportResult = await exportWindow.SelectedDestination.Export(this, capture, token);
-						if (token.IsCancellationRequested || exportResult.NotificationType == NotificationTypes.Success)
+						if (token.IsCancellationRequested || (exportResult.NotificationType == NotificationTypes.Success))
 						{
 							return exportResult;
 						}
@@ -145,8 +132,7 @@ namespace Greenshot.Destinations
 						//	Text = ex.Message
 						//};
 					}
-				}
-				while (exportResult != null && exportResult.NotificationType != NotificationTypes.Cancel);
+				} while ((exportResult != null) && (exportResult.NotificationType != NotificationTypes.Cancel));
 				exportWindow.Close();
 			}
 			return new Notification
