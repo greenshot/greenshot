@@ -50,6 +50,7 @@
 			/**********************************************/
 
 			.header-wrapper {
+				margin-bottom:20px;
 				background-color: #3d3d3d;
 				padding-top: 1em;
 				box-sizing: border-box;
@@ -95,9 +96,11 @@
 			}
 			
 			.servicelinks {
+				position:absolute;
+				right:0;
+				margin-bottom:20px;
+				width: 100%;
 				box-sizing:border-box;
-				width: 1150px;
-				margin:0 auto;
 				padding-right:200px;
 				text-align: right;
 				font-size:12px;
@@ -249,6 +252,7 @@
 					padding: 0 1em;
 				}
 				
+				.servicelinks,
 				nav {
 					padding-right: 0;
 				}
