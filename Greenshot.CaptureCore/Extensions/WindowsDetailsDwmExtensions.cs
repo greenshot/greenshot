@@ -28,9 +28,9 @@ using Dapplo.Log;
 using Dapplo.Windows.Enums;
 using Dapplo.Windows.Native;
 using Dapplo.Windows.Structs;
-using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Core;
+using Greenshot.Core.Configuration;
 using Greenshot.Core.Enumerations;
 using Greenshot.Core.Extensions;
 using Greenshot.Core.Gfx;
@@ -45,7 +45,7 @@ namespace Greenshot.CaptureCore.Extensions
 	public static class WindowsDetailsDwmExtensions
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static readonly ICoreConfiguration Conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly ICaptureConfiguration Conf = IniConfig.Current.GetSubSection<ICaptureConfiguration>();
 
 		/// <summary>
 		///     Capture DWM Window

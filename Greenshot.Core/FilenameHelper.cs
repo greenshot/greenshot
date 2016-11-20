@@ -27,7 +27,6 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Dapplo.Config.Ini;
 using Dapplo.Log;
-using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Core.Configuration;
 
@@ -50,7 +49,7 @@ namespace Greenshot.Addon.Core
 		private static readonly Regex VAR_REGEXP = new Regex(@"\${(?<variable>[^:}]+)[:]?(?<parameters>[^}]*)}", RegexOptions.Compiled);
 		private static readonly Regex CMD_VAR_REGEXP = new Regex(@"%(?<variable>[^%]+)%", RegexOptions.Compiled);
 		private static readonly Regex SPLIT_REGEXP = new Regex(";(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", RegexOptions.Compiled);
-		//private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly IOutputConfiguration conf = IniConfig.Current.GetSubSection<IOutputConfiguration>();
 
 		/// <summary>
 		///     "Simply" fill the pattern with environment variables

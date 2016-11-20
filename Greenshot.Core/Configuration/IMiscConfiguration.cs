@@ -21,12 +21,13 @@
 
 using System.Collections.Generic;
 using System.ComponentModel;
+using Dapplo.Config.Ini;
 
 #endregion
 
 namespace Greenshot.Core.Configuration
 {
-	public interface IMiscConfiguration
+	public interface IMiscConfiguration : ISubSection
 	{
 		[Description("The fixes that are active.")]
 		IList<string> ActiveTitleFixes { get; set; }

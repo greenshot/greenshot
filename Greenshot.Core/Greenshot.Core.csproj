@@ -32,8 +32,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapplo.Config, Version=0.4.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Config.0.4.2\lib\net45\Dapplo.Config.dll</HintPath>
+    <Reference Include="Dapplo.Config, Version=0.4.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Config.0.4.3\lib\net45\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.HttpExtensions, Version=0.6.7.0, Culture=neutral, processorArchitecture=MSIL">
@@ -97,6 +97,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClipboardHelper.cs" />
     <Compile Include="Configuration\ICaptureConfiguration.cs" />
     <Compile Include="Configuration\ICropConfiguration.cs" />
     <Compile Include="Configuration\IEditorLanguage.cs" />
@@ -106,6 +107,7 @@
     <Compile Include="Configuration\IOutputConfiguration.cs" />
     <Compile Include="Configuration\IPrinterConfiguration.cs" />
     <Compile Include="Configuration\IImageConfiguration.cs" />
+    <Compile Include="Configuration\IUiConfiguration.cs" />
     <Compile Include="Configuration\IUpdateConfiguration.cs" />
     <Compile Include="Enumerations\CaptureModes.cs" />
     <Compile Include="Enumerations\ClipboardFormats.cs" />
@@ -134,6 +136,8 @@
     <Compile Include="Gfx\TornEdgeEffect.cs" />
     <Compile Include="Gfx\Wu\WuColorCube.cs" />
     <Compile Include="IconHelper.cs" />
+    <Compile Include="Interfaces\BuildInDestinations.cs" />
+    <Compile Include="Interfaces\ClickActions.cs" />
     <Compile Include="Interfaces\ExportInformation.cs" />
     <Compile Include="Interfaces\ICapture.cs" />
     <Compile Include="Interfaces\ICaptureDetails.cs" />

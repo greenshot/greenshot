@@ -19,31 +19,20 @@
 
 #region Usings
 
-using System.ComponentModel;
-using System.Drawing;
+using Dapplo.CaliburnMicro.Metro;
 using Dapplo.Config.Ini;
 
 #endregion
 
-namespace Greenshot.Core.Configuration
+namespace Greenshot.Addon.Configuration
 {
 	/// <summary>
 	///     This interface represents all the UI settings
 	/// </summary>
-	public interface ICropConfiguration : ISubSection
+	public interface IUxConfiguration : ISubSection
 	{
-		[Description("Color of the area selection")]
-		Color CropAreaColor { get; set; }
 
-		[Description("Color of the area selection lines")]
-		Color CropAreaLinesColor { get; set; }
-
-		[Description("Sets if the zoomer is enabled")]
-		[DefaultValue(true)]
-		bool ZoomerEnabled { get; set; }
-
-		[Description("Specify the transparency for the zoomer, from 0-1 (where 1 is no transparency and 0 is complete transparent. An usefull setting would be 0.7)")]
-		[DefaultValue(1)]
-		float ZoomerOpacity { get; set; }
+		Themes Theme { get; set; }
+		ThemeAccents ThemeAccent { get; set; }
 	}
 }

@@ -38,7 +38,7 @@ namespace Greenshot.Core.Configuration
 	/// <summary>
 	///     Configuration used for the update check
 	/// </summary>
-	public interface IUpdateConfiguration
+	public interface IUpdateConfiguration : ISubSection
 	{
 		[Description("What kind of build is this, injected to the DefaultValue during the build.")]
 		[IniPropertyBehavior(Read = false, Write = false)]

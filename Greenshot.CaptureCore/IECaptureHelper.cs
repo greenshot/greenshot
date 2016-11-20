@@ -39,6 +39,7 @@ using Greenshot.CaptureCore.Extensions;
 using Greenshot.CaptureCore.IEInterop;
 using Greenshot.CaptureCore.Interop;
 using Greenshot.Core;
+using Greenshot.Core.Configuration;
 using Greenshot.Core.Enumerations;
 using Greenshot.Core.Gfx;
 using mshtml;
@@ -56,8 +57,8 @@ namespace Greenshot.CaptureCore
 	public static class IECaptureHelper
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static readonly ICoreConfiguration configuration = IniConfig.Current.Get<ICoreConfiguration>();
-		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
+		private static readonly ICaptureConfiguration CaptureConfiguration = IniConfig.Current.GetSubSection<ICaptureConfiguration>();
+		//private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 
 		// Helper method to activate a certain IE Tab
 		public static void ActivateIETab(WindowDetails ieWindowDetails, int tabIndex)
@@ -97,7 +98,7 @@ namespace Greenshot.CaptureCore
 				windowToCapture = WindowDetails.GetActiveWindow();
 			}
 
-			bool isScreenCapture = configuration.IECaptureMode == WindowCaptureMode.Screen;
+			bool isScreenCapture = CaptureConfiguration.IECaptureMode == WindowCaptureMode.Screen;
 			WindowDetails topWindow = null;
 			Point oldTopWindowLocation = Point.Empty;
 
@@ -525,7 +526,7 @@ namespace Greenshot.CaptureCore
 					var viewPortSize = new Size(viewportWidth, viewportHeight);
 					var clientRectangle = new Rectangle(documentContainer.SourceLocation, viewPortSize);
 					Image fragment;
-					if (configuration.IECaptureMode == WindowCaptureMode.Screen)
+					if (CaptureConfiguration.IECaptureMode == WindowCaptureMode.Screen)
 					{
 						// TODO: Task.Delay??
 						Thread.Sleep(20);
@@ -609,7 +610,7 @@ namespace Greenshot.CaptureCore
 								browserWindows.Add(ieWindow, accessible.IETabCaptions);
 							}
 						}
-						else if ((configuration.WindowClassesToCheckForIE != null) && configuration.WindowClassesToCheckForIE.Contains(ieWindow.ClassName))
+						else if ((CaptureConfiguration.WindowClassesToCheckForIE != null) && CaptureConfiguration.WindowClassesToCheckForIE.Contains(ieWindow.ClassName))
 						{
 							var singleWindowText = new List<string>();
 							try
@@ -745,7 +746,7 @@ namespace Greenshot.CaptureCore
 			{
 				return true;
 			}
-			if ((configuration.WindowClassesToCheckForIE != null) && configuration.WindowClassesToCheckForIE.Contains(someWindow.ClassName))
+			if ((CaptureConfiguration.WindowClassesToCheckForIE != null) && CaptureConfiguration.WindowClassesToCheckForIE.Contains(someWindow.ClassName))
 			{
 				return someWindow.GetChild("Internet Explorer_Server") != null;
 			}

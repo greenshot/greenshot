@@ -20,6 +20,7 @@
 #region Usings
 
 using System.ComponentModel;
+using Dapplo.Config.Ini;
 using Dapplo.InterfaceImpl.Extensions;
 using Greenshot.Core.Enumerations;
 
@@ -30,7 +31,7 @@ namespace Greenshot.Core.Configuration
 	/// <summary>
 	///     This interface represents all the printer settings
 	/// </summary>
-	public interface IPrinterConfiguration
+	public interface IPrinterConfiguration : ISubSection
 	{
 		[Description("Allow growing the picture for fitting on paper?")]
 		[DefaultValue(false)]

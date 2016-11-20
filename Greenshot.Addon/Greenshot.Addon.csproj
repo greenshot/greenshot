@@ -81,8 +81,8 @@
       <HintPath>..\packages\Dapplo.CaliburnMicro.Metro.0.2.42\lib\net45\Dapplo.CaliburnMicro.Metro.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Config, Version=0.4.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Config.0.4.2\lib\net45\Dapplo.Config.dll</HintPath>
+    <Reference Include="Dapplo.Config, Version=0.4.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Config.0.4.3\lib\net45\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.HttpExtensions, Version=0.6.7.0, Culture=neutral, processorArchitecture=MSIL">
@@ -161,12 +161,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractDestination.cs" />
-    <Compile Include="Configuration\ClickActions.cs" />
     <Compile Include="Configuration\ICoreConfiguration.cs" />
     <Compile Include="Configuration\IGreenshotLanguage.cs" />
-    <Compile Include="Configuration\IUiConfiguration.cs" />
+    <Compile Include="Configuration\IUxConfiguration.cs" />
     <Compile Include="Core\AsyncCommand.cs" />
-    <Compile Include="Core\BuildInDestinations.cs" />
     <Compile Include="Core\GreenshotStartupOrder.cs" />
     <Compile Include="Core\HelpFileLoader.cs" />
     <Compile Include="Extensions\BitmapExtensions.cs" />
@@ -179,7 +177,6 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Core\BinaryStructHelper.cs" />
     <Compile Include="Core\Cache.cs" />
-    <Compile Include="Core\ClipboardHelper.cs" />
     <Compile Include="Core\CredentialsHelper.cs" />
     <Compile Include="Core\ImageOutput.cs" />
     <Compile Include="Core\InterfaceUtils.cs" />

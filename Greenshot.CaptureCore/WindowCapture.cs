@@ -33,8 +33,8 @@ using Dapplo.Windows.Enums;
 using Dapplo.Windows.Native;
 using Dapplo.Windows.SafeHandles;
 using Dapplo.Windows.Structs;
-using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Interfaces;
+using Greenshot.Core.Configuration;
 using Greenshot.Core.Gfx;
 
 #endregion
@@ -47,7 +47,7 @@ namespace Greenshot.CaptureCore
 	public static class WindowCapture
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static readonly ICoreConfiguration Configuration = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly ICaptureConfiguration CaptureConfiguration = IniConfig.Current.GetSubSection<ICaptureConfiguration>();
 
 		/// <summary>
 		///     This method will capture the current Cursor by using User32 Code
@@ -328,12 +328,12 @@ namespace Greenshot.CaptureCore
 		{
 			if (process != null)
 			{
-				if ((Configuration.NoDWMCaptureForProduct != null) && (Configuration.NoDWMCaptureForProduct.Count > 0))
+				if ((CaptureConfiguration.NoDWMCaptureForProduct != null) && (CaptureConfiguration.NoDWMCaptureForProduct.Count > 0))
 				{
 					try
 					{
 						string productName = process.MainModule.FileVersionInfo.ProductName;
-						if ((productName != null) && Configuration.NoDWMCaptureForProduct.Contains(productName.ToLower()))
+						if ((productName != null) && CaptureConfiguration.NoDWMCaptureForProduct.Contains(productName.ToLower()))
 						{
 							return false;
 						}
@@ -356,12 +356,12 @@ namespace Greenshot.CaptureCore
 		{
 			if (process != null)
 			{
-				if ((Configuration.NoGDICaptureForProduct != null) && (Configuration.NoGDICaptureForProduct.Count > 0))
+				if ((CaptureConfiguration.NoGDICaptureForProduct != null) && (CaptureConfiguration.NoGDICaptureForProduct.Count > 0))
 				{
 					try
 					{
 						string productName = process.MainModule.FileVersionInfo.ProductName;
-						if ((productName != null) && Configuration.NoGDICaptureForProduct.Contains(productName.ToLower()))
+						if ((productName != null) && CaptureConfiguration.NoGDICaptureForProduct.Contains(productName.ToLower()))
 						{
 							return false;
 						}

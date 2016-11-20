@@ -21,6 +21,7 @@
 
 using System.Collections.Generic;
 using System.ComponentModel;
+using Dapplo.Config.Ini;
 
 #endregion
 
@@ -43,7 +44,7 @@ namespace Greenshot.Core.Configuration
 	/// <summary>
 	///     This interface represents all the output settings
 	/// </summary>
-	public interface IOutputConfiguration
+	public interface IOutputConfiguration : ISubSection
 	{
 		[Description("Which destinations? Possible options (more might be added by plugins) are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail, Picker")]
 		[DefaultValue("Picker")]

@@ -47,7 +47,8 @@ namespace Greenshot.Addon.Configuration
 		IOutputConfiguration, IPrinterConfiguration,
 		IUiConfiguration, IMiscConfiguration,
 		IUpdateConfiguration, IHotkeyConfiguration,
-		ICaptureConfiguration, ICropConfiguration, IImageConfiguration,
+		ICaptureConfiguration, ICropConfiguration,
+		IImageConfiguration, IUxConfiguration,
 		// Ini-Framework
 		IIniSection<ICoreConfiguration>, INotifyPropertyChanged, ITagging<ICoreConfiguration>, IWriteProtectProperties<ICoreConfiguration>, ITransactionalProperties
 	{
@@ -259,7 +260,7 @@ namespace Greenshot.Addon.Configuration
 						}
 					}
 					return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-				case nameof(ICoreConfiguration.DWMBackgroundColor):
+				case nameof(ICaptureConfiguration.DWMBackgroundColor):
 					return Color.Transparent;
 				case nameof(ICoreConfiguration.ActiveTitleFixes):
 					IList<string> activeDefaults = new List<string>();

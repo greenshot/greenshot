@@ -58,7 +58,11 @@ namespace Greenshot.CaptureCore
 	public class CaptureHelper : IDisposable
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static readonly ICoreConfiguration CoreConfiguration = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly ICaptureConfiguration CaptureConfiguration = IniConfig.Current.GetSubSection<ICaptureConfiguration>();
+		private static readonly ICropConfiguration CropConfiguration = IniConfig.Current.GetSubSection<ICropConfiguration>();
+		private static readonly IMiscConfiguration MiscConfiguration = IniConfig.Current.GetSubSection<IMiscConfiguration>();
+		private static readonly IUiConfiguration UiConfiguration = IniConfig.Current.GetSubSection<IUiConfiguration>();
+		private static readonly IImageConfiguration ImageConfiguration = IniConfig.Current.GetSubSection<IImageConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		private readonly bool _captureMouseCursor;
 		private ICapture _capture;
@@ -104,7 +108,7 @@ namespace Greenshot.CaptureCore
 
 		private void AddConfiguredDestination()
 		{
-			var destinations = Enumerable.Empty<IDestination>(); //Start.Dapplication.Bootstrapper.GetExports<IDestination>().Where(x => CoreConfiguration.OutputDestinations.Contains(x.Value.Designation)).Select(x => x.Value);
+			var destinations = Enumerable.Empty<IDestination>(); //Start.Dapplication.Bootstrapper.GetExports<IDestination>().Where(x => CaptureConfiguration.OutputDestinations.Contains(x.Value.Designation)).Select(x => x.Value);
 			foreach (var destination in destinations)
 			{
 				_capture.CaptureDetails.AddDestination(destination);
@@ -164,8 +168,8 @@ namespace Greenshot.CaptureCore
 			}
 			_captureRect = SelectedCaptureWindow.WindowRectangle;
 			// Fix for Bug #3430560 
-			CoreConfiguration.LastCapturedRegion = _captureRect;
-			bool returnValue = CaptureWindow(SelectedCaptureWindow, _capture, CoreConfiguration.WindowCaptureMode) != null;
+			CaptureConfiguration.LastCapturedRegion = _captureRect;
+			bool returnValue = CaptureWindow(SelectedCaptureWindow, _capture, CaptureConfiguration.WindowCaptureMode) != null;
 			return returnValue;
 		}
 
@@ -271,7 +275,7 @@ namespace Greenshot.CaptureCore
 				// 3) Otherwise use GDI (Screen might be also okay but might lose content)
 				if (isAutoMode)
 				{
-					if (CoreConfiguration.IECapture && IECaptureHelper.IsIEWindow(windowToCapture))
+					if (CaptureConfiguration.IECapture && IECaptureHelper.IsIEWindow(windowToCapture))
 					{
 						try
 						{
@@ -501,7 +505,7 @@ namespace Greenshot.CaptureCore
 			bool isOk = false;
 			await UiContext.RunOn(() =>
 			{
-				using (var captureForm = new CaptureForm(_capture, retrieveWindowsTask, CoreConfiguration))
+				using (var captureForm = new CaptureForm(_capture, retrieveWindowsTask, CropConfiguration))
 				{
 					DialogResult result;
 					// Make sure the form is hidden after showing, even if an exception occurs, so all errors will be shown
@@ -540,7 +544,7 @@ namespace Greenshot.CaptureCore
 					// Important here is that the location needs to be offsetted back to screen coordinates!
 					Rectangle tmpRectangle = _captureRect;
 					tmpRectangle.Offset(_capture.ScreenBounds.Location.X, _capture.ScreenBounds.Location.Y);
-					CoreConfiguration.LastCapturedRegion = tmpRectangle;
+					CaptureConfiguration.LastCapturedRegion = tmpRectangle;
 					await HandleCaptureAsync(token);
 				}
 			}
@@ -565,7 +569,7 @@ namespace Greenshot.CaptureCore
 			SelectedCaptureWindow = null;
 			_capture = null;
 			// Empty working set after capturing
-			if (CoreConfiguration.MinimizeWorkingSetSize)
+			if (MiscConfiguration.MinimizeWorkingSetSize)
 			{
 				PsAPI.EmptyWorkingSet();
 			}
@@ -578,11 +582,11 @@ namespace Greenshot.CaptureCore
 		private async Task DoCaptureFeedbackAsync()
 		{
 			var tasks = new List<Task>();
-			if (CoreConfiguration.PlayCameraSound)
+			if (UiConfiguration.PlayCameraSound)
 			{
 				tasks.Add(Task.Run(() => SoundHelper.Play()));
 			}
-			if (CoreConfiguration.ShowFlash)
+			if (UiConfiguration.ShowFlash)
 			{
 				var bounds = new Rect(_captureRect.X, _captureRect.Y, _captureRect.Width, _captureRect.Height);
 				tasks.Add(FlashlightWindow.Flash(bounds));
@@ -620,7 +624,7 @@ namespace Greenshot.CaptureCore
 
 			// TODO:
 			// Register notify events if this is wanted			
-			//if (CoreConfiguration.ShowTrayNotification && !CoreConfiguration.HideTrayicon)
+			//if (CaptureConfiguration.ShowTrayNotification && !CaptureConfiguration.HideTrayicon)
 
 			// TODO:
 			// Let the processors do their job
@@ -775,20 +779,20 @@ namespace Greenshot.CaptureCore
 			}
 
 			// Delay for the Context menu
-			if (CoreConfiguration.CaptureDelay > 0)
+			if (CaptureConfiguration.CaptureDelay > 0)
 			{
-				await Task.Delay(CoreConfiguration.CaptureDelay, token).ConfigureAwait(false);
+				await Task.Delay(CaptureConfiguration.CaptureDelay, token).ConfigureAwait(false);
 			}
 			else
 			{
-				CoreConfiguration.CaptureDelay = 0;
+				CaptureConfiguration.CaptureDelay = 0;
 			}
 
 			// Capture Mousecursor if we are not loading from file or clipboard, only show when needed
 			if ((_captureMode != CaptureModes.File) && (_captureMode != CaptureModes.Clipboard))
 			{
 				_capture = WindowCapture.CaptureCursor(_capture);
-				_capture.CursorVisible = _captureMouseCursor && CoreConfiguration.CaptureMousepointer;
+				_capture.CursorVisible = _captureMouseCursor && CaptureConfiguration.CaptureMousepointer;
 			}
 
 			switch (_captureMode)
@@ -842,9 +846,9 @@ namespace Greenshot.CaptureCore
 							}
 							break;
 						case ScreenCaptureMode.Fixed:
-							if ((CoreConfiguration.ScreenToCapture > 0) && (CoreConfiguration.ScreenToCapture <= User32.AllDisplays().Count))
+							if ((CaptureConfiguration.ScreenToCapture > 0) && (CaptureConfiguration.ScreenToCapture <= User32.AllDisplays().Count))
 							{
-								_capture = WindowCapture.CaptureRectangle(_capture, User32.AllDisplays()[CoreConfiguration.ScreenToCapture].BoundsRectangle);
+								_capture = WindowCapture.CaptureRectangle(_capture, User32.AllDisplays()[CaptureConfiguration.ScreenToCapture].BoundsRectangle);
 								captureTaken = true;
 							}
 							break;
@@ -912,7 +916,7 @@ namespace Greenshot.CaptureCore
 						}
 						try
 						{
-							fileImage = ImageHelper.LoadImage(filename, CoreConfiguration.ProcessEXIFOrientation);
+							fileImage = ImageHelper.LoadImage(filename, ImageConfiguration.ProcessEXIFOrientation);
 						}
 						catch (Exception e)
 						{
@@ -951,14 +955,14 @@ namespace Greenshot.CaptureCore
 					}
 					break;
 				case CaptureModes.LastRegion:
-					if (!CoreConfiguration.LastCapturedRegion.IsEmpty)
+					if (!CaptureConfiguration.LastCapturedRegion.IsEmpty)
 					{
-						_capture = WindowCapture.CaptureRectangle(_capture, CoreConfiguration.LastCapturedRegion);
+						_capture = WindowCapture.CaptureRectangle(_capture, CaptureConfiguration.LastCapturedRegion);
 
 						// Set capture title, fixing bug #3569703
 						foreach (var window in WindowDetails.GetVisibleWindows())
 						{
-							var estimatedLocation = new Point(CoreConfiguration.LastCapturedRegion.X + CoreConfiguration.LastCapturedRegion.Width/2, CoreConfiguration.LastCapturedRegion.Y + CoreConfiguration.LastCapturedRegion.Height/2);
+							var estimatedLocation = new Point(CaptureConfiguration.LastCapturedRegion.X + CaptureConfiguration.LastCapturedRegion.Width/2, CaptureConfiguration.LastCapturedRegion.Y + CaptureConfiguration.LastCapturedRegion.Height/2);
 							if (!window.Contains(estimatedLocation))
 							{
 								continue;
@@ -1024,7 +1028,7 @@ namespace Greenshot.CaptureCore
 			return await Task.Run(() =>
 			{
 				// Force children retrieval, sometimes windows close on losing focus and this is solved by caching
-				int goLevelDeep = CoreConfiguration.WindowCaptureAllChildLocations ? 20 : 3;
+				int goLevelDeep = CaptureConfiguration.WindowCaptureAllChildLocations ? 20 : 3;
 				var visibleWindows = from window in WindowDetails.GetMetroApps().Concat(WindowDetails.GetAllWindows())
 					where window.Visible && (window.WindowRectangle.Width != 0) && (window.WindowRectangle.Height != 0)
 					select window;

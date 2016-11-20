@@ -20,18 +20,19 @@
 #region Usings
 
 using System.ComponentModel;
-using Dapplo.CaliburnMicro.Metro;
+using Dapplo.Config.Ini;
 using Dapplo.InterfaceImpl.Extensions;
+using Greenshot.Addon.Configuration;
 using Greenshot.Core.Enumerations;
 
 #endregion
 
-namespace Greenshot.Addon.Configuration
+namespace Greenshot.Core.Configuration
 {
 	/// <summary>
 	///     This interface represents all the UI settings
 	/// </summary>
-	public interface IUiConfiguration
+	public interface IUiConfiguration : ISubSection
 	{
 		[Description("Enable/disable the access to the quick settings, can only be changed manually in this .ini")]
 		[DefaultValue(false)]
@@ -52,7 +53,6 @@ namespace Greenshot.Addon.Configuration
 		[Description("Disable the trayicon, can only be changed manually in this .ini")]
 		[DefaultValue(false)]
 		bool HideTrayicon { get; set; }
-
 
 		[Description("Is this the first time launch?")]
 		[DefaultValue(true)]
@@ -91,9 +91,6 @@ namespace Greenshot.Addon.Configuration
 		[DefaultValue(true)]
 		[Tag(ConfigTags.LanguageKey, "settings_shownotify")]
 		bool ShowTrayNotification { get; set; }
-
-		Themes Theme { get; set; }
-		ThemeAccents ThemeAccent { get; set; }
 
 		[Description("Enable/disable thumbnail previews")]
 		[DefaultValue(true)]

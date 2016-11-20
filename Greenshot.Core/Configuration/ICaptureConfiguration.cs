@@ -22,6 +22,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using Dapplo.Config.Ini;
 using Greenshot.Core.Enumerations;
 
 #endregion
@@ -31,7 +32,7 @@ namespace Greenshot.Core.Configuration
 	/// <summary>
 	///     This interface represents all the capture settings
 	/// </summary>
-	public interface ICaptureConfiguration
+	public interface ICaptureConfiguration : ISubSection
 	{
 		[Description("Capture delay in millseconds.")]
 		[DefaultValue(100)]

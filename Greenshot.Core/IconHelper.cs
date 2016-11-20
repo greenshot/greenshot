@@ -43,7 +43,7 @@ namespace Greenshot.Core
 		private static readonly LogSource Log = new LogSource();
 
 		private static readonly IDictionary<string, Bitmap> ExeIconCache = new Dictionary<string, Bitmap>();
-		private static readonly IImageConfiguration ImageConfiguration = IniConfig.Current.Get<IImageConfiguration>();
+		private static readonly IImageConfiguration ImageConfiguration = IniConfig.Current.GetSubSection<IImageConfiguration>();
 
 		static IconHelper()
 		{

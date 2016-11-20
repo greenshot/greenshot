@@ -26,6 +26,7 @@ using Dapplo.Config.Ini;
 using Dapplo.Log;
 using Dapplo.Utils.Embedded;
 using Greenshot.Addon.Configuration;
+using Greenshot.Core.Configuration;
 
 #endregion
 
@@ -39,7 +40,7 @@ namespace Greenshot.CaptureCore
 	public static class SoundHelper
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private static readonly IUiConfiguration conf = IniConfig.Current.GetSubSection<IUiConfiguration>();
 		private static SoundPlayer _soundPlayer;
 
 		public static void Deinitialize()

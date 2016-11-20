@@ -21,6 +21,7 @@
 
 using System.Collections.Generic;
 using System.ComponentModel;
+using Dapplo.Config.Ini;
 
 #endregion
 
@@ -29,7 +30,7 @@ namespace Greenshot.Core.Configuration
 	/// <summary>
 	///     The configuration for the hotkeys
 	/// </summary>
-	public interface IHotkeyConfiguration
+	public interface IHotkeyConfiguration : ISubSection
 	{
 		[Description("Hotkey for starting the fullscreen capture")]
 		[DefaultValue("Ctrl + PrintScreen")]
