@@ -53,9 +53,6 @@ namespace Greenshot.Addon.Jira
 		private JiraMonitor _jiraMonitor;
 
 		[Import]
-		private IGreenshotHost GreenshotHost { get; set; }
-
-		[Import]
 		private IJiraConfiguration JiraConfiguration { get; set; }
 
 		[Import]
@@ -178,7 +175,6 @@ namespace Greenshot.Addon.Jira
 					Text = FormatUpload(jiraDetails),
 					JiraLanguage = JiraLanguage,
 					JiraConfiguration = JiraConfiguration,
-					GreenshotHost = GreenshotHost,
 					// DO NOT set the JiraMonitor property on the children
 					_jiraMonitor = _jiraMonitor
 				}).ToList();

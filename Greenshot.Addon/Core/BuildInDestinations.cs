@@ -19,7 +19,7 @@
 
 namespace Greenshot.Addon.Core
 {
-	public enum BuildInDestinationEnum
+	public enum BuildInDestinations
 	{
 		Clipboard,
 		Editor,

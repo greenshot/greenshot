@@ -197,6 +197,7 @@
     <Compile Include="Drawing\RectangleContainer.cs" />
     <Compile Include="Drawing\SurfaceEvents.cs" />
     <Compile Include="EditorDestination.cs" />
+    <Compile Include="Extensions\SurfaceExtensions.cs" />
     <Compile Include="Forms\DropShadowSettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -235,6 +236,27 @@
     </Compile>
     <Compile Include="Helpers\ToolStripItemEndisabler.cs" />
     <Compile Include="IEditorConfiguration.cs" />
+    <Compile Include="Interfaces\Drawing\ArrowHeadCombination.cs" />
+    <Compile Include="Interfaces\Drawing\EditStatus.cs" />
+    <Compile Include="Interfaces\Drawing\ElementFlag.cs" />
+    <Compile Include="Interfaces\Drawing\FieldAttribute.cs" />
+    <Compile Include="Interfaces\Drawing\FieldTypes.cs" />
+    <Compile Include="Interfaces\Drawing\FlagAttribute.cs" />
+    <Compile Include="Interfaces\Drawing\IAdorner.cs" />
+    <Compile Include="Interfaces\Drawing\ICursorContainer.cs" />
+    <Compile Include="Interfaces\Drawing\IDrawableContainer.cs" />
+    <Compile Include="Interfaces\Drawing\IDrawableContainerList.cs" />
+    <Compile Include="Interfaces\Drawing\IFieldHolder.cs" />
+    <Compile Include="Interfaces\Drawing\IFilter.cs" />
+    <Compile Include="Interfaces\Drawing\IIconContainer.cs" />
+    <Compile Include="Interfaces\Drawing\IImageContainer.cs" />
+    <Compile Include="Interfaces\Drawing\IMetafileContainer.cs" />
+    <Compile Include="Interfaces\Drawing\ITextContainer.cs" />
+    <Compile Include="Interfaces\Drawing\Positions.cs" />
+    <Compile Include="Interfaces\Drawing\RenderMode.cs" />
+    <Compile Include="Interfaces\IImageEditor.cs" />
+    <Compile Include="Interfaces\IMemento.cs" />
+    <Compile Include="Interfaces\ISurface.cs" />
     <Compile Include="Memento\AddElementMemento.cs" />
     <Compile Include="Memento\AddElementsMemento.cs" />
     <Compile Include="Memento\ChangeFieldHolderMemento.cs" />

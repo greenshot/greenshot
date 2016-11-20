@@ -19,6 +19,7 @@
 
 #region Usings
 
+using System.Collections.Generic;
 using System.ComponentModel;
 
 #endregion
@@ -44,6 +45,32 @@ namespace Greenshot.Core.Configuration
 	/// </summary>
 	public interface IOutputConfiguration
 	{
+		[Description("Which destinations? Possible options (more might be added by plugins) are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail, Picker")]
+		[DefaultValue("Picker")]
+		IList<string> OutputDestinations { get; set; }
+
+		[Description("If the target file already exists True will make Greenshot always overwrite and False will display a 'Save-As' dialog.")]
+		[DefaultValue(true)]
+		bool OutputFileAllowOverwrite { get; set; }
+
+		[Description("SaveAs Full path?")]
+		string OutputFileAsFullpath { get; set; }
+
+		[Description("When saving a screenshot, copy the path to the clipboard?")]
+		[DefaultValue(true)]
+		bool OutputFileCopyPathToClipboard { get; set; }
+
+		[Description("Filename pattern for screenshot.")]
+		[DefaultValue("${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}-${title}")]
+		string OutputFileFilenamePattern { get; set; }
+
+		[Description("The number for the ${NUM} in the filename pattern, is increased automatically after each save.")]
+		[DefaultValue(1)]
+		uint OutputFileIncrementingNumber { get; set; }
+
+		[Description("Output file path.")]
+		string OutputFilePath { get; set; }
+
 		[Description("Optional command to execute on a temporary PNG file, the command should overwrite the file and Greenshot will read it back. Note: this command is also executed when uploading PNG's!")]
 		[DefaultValue("")]
 		string OptimizePNGCommand { get; set; }

@@ -631,7 +631,7 @@ namespace Greenshot.CaptureCore
 
 			foreach (var destination in captureDetails.CaptureDestinations)
 			{
-				if (destination.Designation == BuildInDestinationEnum.Picker.ToString())
+				if (destination.Designation == BuildInDestinations.Picker.ToString())
 				{
 					// TODO: Caller?
 					await destination.Export(null, _capture, token);
@@ -652,7 +652,7 @@ namespace Greenshot.CaptureCore
 				// or use the file that was written
 				foreach (var destination in captureDetails.CaptureDestinations)
 				{
-					if (BuildInDestinationEnum.Picker.ToString().Equals(destination.Designation))
+					if (BuildInDestinations.Picker.ToString().Equals(destination.Designation))
 					{
 						continue;
 					}
@@ -660,7 +660,7 @@ namespace Greenshot.CaptureCore
 
 					// TODO: Caller?
 					var notification = await destination.Export(null, _capture, token);
-					if (BuildInDestinationEnum.Editor.ToString().Equals(notification.Source) && (notification.NotificationType == NotificationTypes.Success))
+					if (BuildInDestinations.Editor.ToString().Equals(notification.Source) && (notification.NotificationType == NotificationTypes.Success))
 					{
 						canDisposeSurface = false;
 					}
@@ -874,17 +874,17 @@ namespace Greenshot.CaptureCore
 						_capture.CaptureDetails.Title = "Clipboard";
 						_capture.CaptureDetails.AddMetaData("source", "Clipboard");
 						// Force Editor, keep picker
-						if (_capture.CaptureDetails.HasDestination(BuildInDestinationEnum.Picker.ToString()))
+						if (_capture.CaptureDetails.HasDestination(BuildInDestinations.Picker.ToString()))
 						{
 							_capture.CaptureDetails.ClearDestinations();
 							// TODO: add editor & Picker
-							//_capture.CaptureDetails.AddDestination(LegacyDestinationHelper.GetLegacyDestination(BuildInDestinationEnum.Editor.ToString()));
+							//_capture.CaptureDetails.AddDestination(LegacyDestinationHelper.GetLegacyDestination(BuildInDestinations.Editor.ToString()));
 						}
 						else
 						{
 							_capture.CaptureDetails.ClearDestinations();
 							// TODO: add editor
-							//_capture.CaptureDetails.AddDestination(LegacyDestinationHelper.GetLegacyDestination(BuildInDestinationEnum.Editor.ToString()));
+							//_capture.CaptureDetails.AddDestination(LegacyDestinationHelper.GetLegacyDestination(BuildInDestinations.Editor.ToString()));
 						}
 						await HandleCaptureAsync(token).ConfigureAwait(false);
 					}
@@ -901,7 +901,7 @@ namespace Greenshot.CaptureCore
 							if (filename.ToLower().EndsWith("." + OutputFormat.greenshot))
 							{
 								// TODO: Fix
-								// await LegacyDestinationHelper.GetLegacyDestination(BuildInDestinationEnum.Editor.ToString()).ExportCaptureAsync(true, _capture, token);
+								// await LegacyDestinationHelper.GetLegacyDestination(BuildInDestinations.Editor.ToString()).ExportCaptureAsync(true, _capture, token);
 								break;
 							}
 						}
@@ -934,18 +934,18 @@ namespace Greenshot.CaptureCore
 							_capture = new Capture(fileImage);
 						}
 						// Force Editor, keep picker, this is currently the only usefull destination
-						if (_capture.CaptureDetails.HasDestination(BuildInDestinationEnum.Picker.ToString()))
+						if (_capture.CaptureDetails.HasDestination(BuildInDestinations.Picker.ToString()))
 						{
 							_capture.CaptureDetails.ClearDestinations();
 							// TODO: Add picker & editor
-							//_capture.CaptureDetails.AddDestination(LegacyDestinationHelper.GetLegacyDestination(BuildInDestinationEnum.Editor.ToString()));
-							//_capture.CaptureDetails.AddDestination(LegacyDestinationHelper.GetLegacyDestination(BuildInDestinationEnum.Picker.ToString()));
+							//_capture.CaptureDetails.AddDestination(LegacyDestinationHelper.GetLegacyDestination(BuildInDestinations.Editor.ToString()));
+							//_capture.CaptureDetails.AddDestination(LegacyDestinationHelper.GetLegacyDestination(BuildInDestinations.Picker.ToString()));
 						}
 						else
 						{
 							_capture.CaptureDetails.ClearDestinations();
 							// TODO: Add editor
-							//_capture.CaptureDetails.AddDestination(LegacyDestinationHelper.GetLegacyDestination(BuildInDestinationEnum.Editor.ToString()));
+							//_capture.CaptureDetails.AddDestination(LegacyDestinationHelper.GetLegacyDestination(BuildInDestinations.Editor.ToString()));
 						}
 						await HandleCaptureAsync(token).ConfigureAwait(false);
 					}

@@ -64,7 +64,7 @@ namespace Greenshot.Addon.Editor.Forms
 
 		private static readonly List<string> ignoreDestinations = new List<string>
 		{
-			BuildInDestinationEnum.Picker.ToString(), BuildInDestinationEnum.Editor.ToString()
+			BuildInDestinations.Picker.ToString(), BuildInDestinations.Editor.ToString()
 		};
 
 		private static readonly List<IImageEditor> editorList = new List<IImageEditor>();
@@ -997,10 +997,10 @@ namespace Greenshot.Addon.Editor.Forms
 
 		private async Task SaveAsync()
 		{
-			string destinationDesignation = BuildInDestinationEnum.FileNoDialog.ToString();
+			string destinationDesignation = BuildInDestinations.FileNoDialog.ToString();
 			if (_surface.LastSaveFullPath == null)
 			{
-				destinationDesignation = BuildInDestinationEnum.FileDialog.ToString();
+				destinationDesignation = BuildInDestinations.FileDialog.ToString();
 			}
 			await Task.Yield();
 			// TODO: Fix
@@ -1015,7 +1015,7 @@ namespace Greenshot.Addon.Editor.Forms
 		private void BtnClipboardClick(object sender, EventArgs e)
 		{
 			// TODO: Fix
-			// await LegacyDestinationHelper.ExportCaptureAsync(true, BuildInDestinationEnum.Clipboard.ToString(), _surface);
+			// await LegacyDestinationHelper.ExportCaptureAsync(true, BuildInDestinations.Clipboard.ToString(), _surface);
 		}
 
 		private void BtnPrintClick(object sender, EventArgs e)
@@ -1024,7 +1024,7 @@ namespace Greenshot.Addon.Editor.Forms
 			this.InvokeAsync(() =>
 			{
 				// TODO: Fix
-				// await LegacyDestinationHelper.ExportCaptureAsync(true, BuildInDestinationEnum.Printer.ToString(), _surface);
+				// await LegacyDestinationHelper.ExportCaptureAsync(true, BuildInDestinations.Printer.ToString(), _surface);
 			});
 		}
 

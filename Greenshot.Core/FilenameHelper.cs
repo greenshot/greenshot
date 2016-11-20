@@ -37,9 +37,10 @@ namespace Greenshot.Addon.Core
 {
 	public static class FilenameHelper
 	{
+		private static readonly LogSource Log = new LogSource();
+
 		private const int MAX_TITLE_LENGTH = 80;
 		private const string UNSAFE_REPLACEMENT = "_";
-		private static readonly LogSource Log = new LogSource();
 		// Specify the regular expression for the filename formatting:
 		// Starting with ${
 		// than the varname, which ends with a : or }
@@ -49,7 +50,7 @@ namespace Greenshot.Addon.Core
 		private static readonly Regex VAR_REGEXP = new Regex(@"\${(?<variable>[^:}]+)[:]?(?<parameters>[^}]*)}", RegexOptions.Compiled);
 		private static readonly Regex CMD_VAR_REGEXP = new Regex(@"%(?<variable>[^%]+)%", RegexOptions.Compiled);
 		private static readonly Regex SPLIT_REGEXP = new Regex(";(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", RegexOptions.Compiled);
-		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		//private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 
 		/// <summary>
 		///     "Simply" fill the pattern with environment variables

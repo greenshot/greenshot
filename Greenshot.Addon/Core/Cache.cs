@@ -35,13 +35,12 @@ namespace Greenshot.Addon.Core
 	/// <typeparam name="TV">Type of value</typeparam>
 	public class Cache<TK, TV>
 	{
-		public delegate void CacheObjectExpired(TK key, TV cacheValue);
-
 		private static readonly LogSource Log = new LogSource();
-		private readonly CacheObjectExpired expiredCallback;
-		private readonly IDictionary<TK, TV> internalCache = new Dictionary<TK, TV>();
-		private readonly object lockObject = new object();
-		private readonly int secondsToExpire = 10;
+
+		private readonly Action<TK,TV> _expiredCallback;
+		private readonly IDictionary<TK, TV> _internalCache = new Dictionary<TK, TV>();
+		private readonly object _lockObject = new object();
+		private readonly int _secondsToExpire = 10;
 
 		/// <summary>
 		///     Initialize the cache
@@ -54,9 +53,9 @@ namespace Greenshot.Addon.Core
 		///     Initialize the cache
 		/// </summary>
 		/// <param name="expiredCallback"></param>
-		public Cache(CacheObjectExpired expiredCallback) : this()
+		public Cache(Action<TK, TV> expiredCallback) : this()
 		{
-			this.expiredCallback = expiredCallback;
+			_expiredCallback = expiredCallback;
 		}
 
 		/// <summary>
@@ -65,7 +64,7 @@ namespace Greenshot.Addon.Core
 		/// <param name="secondsToExpire"></param>
 		public Cache(int secondsToExpire) : this()
 		{
-			this.secondsToExpire = secondsToExpire;
+			_secondsToExpire = secondsToExpire;
 		}
 
 		/// <summary>
@@ -73,9 +72,9 @@ namespace Greenshot.Addon.Core
 		/// </summary>
 		/// <param name="secondsToExpire"></param>
 		/// <param name="expiredCallback"></param>
-		public Cache(int secondsToExpire, CacheObjectExpired expiredCallback) : this(expiredCallback)
+		public Cache(int secondsToExpire, Action<TK, TV> expiredCallback) : this(expiredCallback)
 		{
-			this.secondsToExpire = secondsToExpire;
+			_secondsToExpire = secondsToExpire;
 		}
 
 		/// <summary>
@@ -87,7 +86,7 @@ namespace Greenshot.Addon.Core
 			{
 				List<TV> elements = new List<TV>();
 
-				foreach (TV element in internalCache.Values)
+				foreach (TV element in _internalCache.Values)
 				{
 					elements.Add(element);
 				}
@@ -108,11 +107,11 @@ namespace Greenshot.Addon.Core
 			get
 			{
 				TV result = default(TV);
-				lock (lockObject)
+				lock (_lockObject)
 				{
-					if (internalCache.ContainsKey(key))
+					if (_internalCache.ContainsKey(key))
 					{
-						result = internalCache[key];
+						result = _internalCache[key];
 					}
 				}
 				return result;
@@ -134,21 +133,18 @@ namespace Greenshot.Addon.Core
 		/// </summary>
 		/// <param name="key"></param>
 		/// <param name="value"></param>
-		/// <param name="secondsToExpire?">optional value for the seconds to expire</param>
+		/// <param name="secondsToExpire">optional value for the seconds to expire</param>
 		public void Add(TK key, TV value, int? secondsToExpire)
 		{
-			lock (lockObject)
+			lock (_lockObject)
 			{
-				var cachedItem = new CachedItem(key, value, secondsToExpire.HasValue ? secondsToExpire.Value : this.secondsToExpire);
-				cachedItem.Expired += delegate(TK cacheKey, TV cacheValue)
+				var cachedItem = new CachedItem(key, value, secondsToExpire ?? _secondsToExpire);
+				cachedItem.Expired += (cacheKey, cacheValue) =>
 				{
-					if (internalCache.ContainsKey(cacheKey))
+					if (_internalCache.ContainsKey(cacheKey))
 					{
 						Log.Debug().WriteLine("Expiring object with Key: {0}", cacheKey);
-						if (expiredCallback != null)
-						{
-							expiredCallback(cacheKey, cacheValue);
-						}
+						_expiredCallback?.Invoke(cacheKey, cacheValue);
 						Remove(cacheKey);
 					}
 					else
@@ -157,14 +153,14 @@ namespace Greenshot.Addon.Core
 					}
 				};
 
-				if (internalCache.ContainsKey(key))
+				if (_internalCache.ContainsKey(key))
 				{
-					internalCache[key] = value;
+					_internalCache[key] = value;
 					Log.Debug().WriteLine("Updated item with Key: {0}", key);
 				}
 				else
 				{
-					internalCache.Add(key, cachedItem);
+					_internalCache.Add(key, cachedItem);
 					Log.Debug().WriteLine("Added item with Key: {0}", key);
 				}
 			}
@@ -177,7 +173,7 @@ namespace Greenshot.Addon.Core
 		/// <returns>true if the cache contains the key</returns>
 		public bool Contains(TK key)
 		{
-			return internalCache.ContainsKey(key);
+			return _internalCache.ContainsKey(key);
 		}
 
 		/// <summary>
@@ -186,13 +182,13 @@ namespace Greenshot.Addon.Core
 		/// <param name="key"></param>
 		public void Remove(TK key)
 		{
-			lock (lockObject)
+			lock (_lockObject)
 			{
-				if (!internalCache.ContainsKey(key))
+				if (!_internalCache.ContainsKey(key))
 				{
-					throw new ApplicationException(string.Format("An object with key ‘{0}’ does not exists in cache", key));
+					throw new ApplicationException($"An object with key ‘{key}’ does not exists in cache");
 				}
-				internalCache.Remove(key);
+				_internalCache.Remove(key);
 				Log.Debug().WriteLine("Removed item with Key: {0}", key);
 			}
 		}
@@ -209,7 +205,7 @@ namespace Greenshot.Addon.Core
 			{
 				if (key == null)
 				{
-					throw new ArgumentNullException("key is not valid");
+					throw new ArgumentNullException(nameof(key));
 				}
 				Key = key;
 				Item = item;
@@ -229,14 +225,14 @@ namespace Greenshot.Addon.Core
 
 			public TK Key { get; }
 
-			public event CacheObjectExpired Expired;
+			public event Action<TK, TV> Expired;
 
 			private void ExpireNow()
 			{
 				_timerEvent.Stop();
-				if ((secondsToExpire > 0) && (Expired != null))
+				if ((secondsToExpire > 0))
 				{
-					Expired(Key, Item);
+					Expired?.Invoke(Key, Item);
 				}
 			}
 

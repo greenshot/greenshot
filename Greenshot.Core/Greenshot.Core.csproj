@@ -114,6 +114,8 @@
     <Compile Include="Enumerations\ScreenCaptureMode.cs" />
     <Compile Include="Enumerations\WindowCaptureMode.cs" />
     <Compile Include="Extensions\OperatingSystemExtensions.cs" />
+    <Compile Include="Extensions\RectangleExtensions.cs" />
+    <Compile Include="FilenameHelper.cs" />
     <Compile Include="Gfx\AdjustEffect.cs" />
     <Compile Include="Gfx\BorderEffect.cs" />
     <Compile Include="Gfx\EffectConverter.cs" />
@@ -132,16 +134,30 @@
     <Compile Include="Gfx\TornEdgeEffect.cs" />
     <Compile Include="Gfx\Wu\WuColorCube.cs" />
     <Compile Include="IconHelper.cs" />
+    <Compile Include="Interfaces\ExportInformation.cs" />
+    <Compile Include="Interfaces\ICapture.cs" />
+    <Compile Include="Interfaces\ICaptureDetails.cs" />
+    <Compile Include="Interfaces\IDestination.cs" />
+    <Compile Include="Interfaces\IExportContext.cs" />
+    <Compile Include="Interfaces\IGreenshotContract.cs" />
+    <Compile Include="Interfaces\INotification.cs" />
+    <Compile Include="Interfaces\NotificationTypes.cs" />
+    <Compile Include="Interfaces\Plugin\IConfigurablePlugin.cs" />
+    <Compile Include="Interfaces\Plugin\IGreenshotHost.cs" />
+    <Compile Include="Interfaces\Plugin\IGreenshotPlugin.cs" />
+    <Compile Include="Interfaces\Plugin\IGreenshotPluginMetadata.cs" />
+    <Compile Include="Interfaces\Plugin\PluginAttribute.cs" />
+    <Compile Include="Interfaces\SourceTypes.cs" />
     <Compile Include="PathHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScreenHelper.cs" />
+    <Compile Include="SurfaceOutputSettings.cs" />
     <Compile Include="WindowsEnumerator.cs" />
     <Compile Include="WindowsHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

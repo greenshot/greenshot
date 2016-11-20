@@ -26,26 +26,6 @@ using System;
 namespace Greenshot.Addon.Interfaces
 {
 	/// <summary>
-	///     Type of notifications
-	/// </summary>
-	public enum NotificationTypes
-	{
-		Cancel,
-		Success,
-		Fail
-	}
-
-	/// <summary>
-	///     Something to differenciate the sources
-	/// </summary>
-	public enum SourceTypes
-	{
-		Destination,
-		Plugin,
-		Service
-	}
-
-	/// <summary>
 	///     The interface for the notification object
 	/// </summary>
 	public interface INotification

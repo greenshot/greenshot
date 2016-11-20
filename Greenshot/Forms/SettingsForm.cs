@@ -118,7 +118,7 @@ namespace Greenshot.Forms
 			{
 				ListViewItem item = listview_destinations.Items[index];
 				var destinationFromTag = item.Tag as IDestination;
-				if ((destinationFromTag != null) && destinationFromTag.Designation.Equals(BuildInDestinationEnum.Clipboard.ToString()))
+				if ((destinationFromTag != null) && destinationFromTag.Designation.Equals(BuildInDestinations.Clipboard.ToString()))
 				{
 					clipboardDestinationChecked = true;
 					break;
@@ -250,7 +250,7 @@ namespace Greenshot.Forms
 					//imageList.Images.Add(destinationImage.ToBitmap());
 					imageNr++;
 				}
-				if (BuildInDestinationEnum.Picker.ToString().Equals(currentDestination.Designation))
+				if (BuildInDestinations.Picker.ToString().Equals(currentDestination.Designation))
 				{
 					checkbox_picker.Checked = coreConfiguration.OutputDestinations.Contains(currentDestination.Designation);
 					checkbox_picker.Text = currentDestination.Text;
@@ -597,7 +597,7 @@ namespace Greenshot.Forms
 			List<string> destinations = new List<string>();
 			if (checkbox_picker.Checked)
 			{
-				destinations.Add(BuildInDestinationEnum.Picker.ToString());
+				destinations.Add(BuildInDestinations.Picker.ToString());
 			}
 			foreach (int index in listview_destinations.CheckedIndices)
 			{

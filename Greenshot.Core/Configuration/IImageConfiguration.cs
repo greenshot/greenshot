@@ -21,7 +21,6 @@
 
 using System.ComponentModel;
 using System.Drawing;
-using Dapplo.Config.Ini;
 
 #endregion
 
@@ -30,7 +29,7 @@ namespace Greenshot.Core.Configuration
 	/// <summary>
 	///     This interface represents all the image specific settings
 	/// </summary>
-	public interface IImageConfiguration : IIniSection, INotifyPropertyChanged
+	public interface IImageConfiguration
 	{
 		[Description("Defines the size of the icons (e.g. for the buttons in the editor), default value 16,16 anything bigger will cause scaling")]
 		[DefaultValue("16,16")]

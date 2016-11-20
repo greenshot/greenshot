@@ -20,8 +20,6 @@
 #region Usings
 
 using System.Collections.Generic;
-using Dapplo.Config.Ini;
-using Greenshot.Addon.Configuration;
 using Greenshot.Core.Configuration;
 using Greenshot.Core.Gfx;
 
@@ -31,24 +29,26 @@ namespace Greenshot.Addon.Interfaces.Plugin
 {
 	public class SurfaceOutputSettings
 	{
-		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
-		private bool disableReduceColors;
-		private bool reduceColors;
+		private bool _disableReduceColors;
+		private bool _reduceColors;
 
-		public SurfaceOutputSettings()
+		public SurfaceOutputSettings(IOutputConfiguration outputConfiguration = null)
 		{
-			disableReduceColors = false;
-			Format = conf.OutputFileFormat;
-			JPGQuality = conf.OutputFileJpegQuality;
-			ReduceColors = conf.OutputFileReduceColors;
+			_disableReduceColors = false;
+			if (outputConfiguration != null)
+			{
+				Format = outputConfiguration.OutputFileFormat;
+				JPGQuality = outputConfiguration.OutputFileJpegQuality;
+				ReduceColors = outputConfiguration.OutputFileReduceColors;
+			}
 		}
 
-		public SurfaceOutputSettings(OutputFormat format) : this()
+		public SurfaceOutputSettings(OutputFormat format, IOutputConfiguration outputConfiguration = null) : this(outputConfiguration)
 		{
 			Format = format;
 		}
 
-		public SurfaceOutputSettings(OutputFormat format, int quality) : this(format)
+		public SurfaceOutputSettings(OutputFormat format, int quality, IOutputConfiguration outputConfiguration = null) : this(format, outputConfiguration)
 		{
 			JPGQuality = quality;
 		}
@@ -63,22 +63,22 @@ namespace Greenshot.Addon.Interfaces.Plugin
 		/// </summary>
 		public bool DisableReduceColors
 		{
-			get { return disableReduceColors; }
+			get { return _disableReduceColors; }
 			set
 			{
 				// Quantizing os needed when output format is gif as this has only 256 colors!
 				if (!OutputFormat.gif.Equals(Format))
 				{
-					disableReduceColors = value;
+					_disableReduceColors = value;
 				}
 			}
 		}
 
 		public List<IEffect> Effects { get; } = new List<IEffect>();
 
-		public OutputFormat Format { get; set; }
+		public OutputFormat Format { get; set; } = OutputFormat.png;
 
-		public int JPGQuality { get; set; }
+		public int JPGQuality { get; set; } = 80;
 
 		public bool ReduceColors
 		{
@@ -89,9 +89,9 @@ namespace Greenshot.Addon.Interfaces.Plugin
 				{
 					return true;
 				}
-				return reduceColors;
+				return _reduceColors;
 			}
-			set { reduceColors = value; }
+			set { _reduceColors = value; }
 		}
 
 		public bool SaveBackgroundOnly { get; set; }

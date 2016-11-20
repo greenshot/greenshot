@@ -140,6 +140,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Accessible.cs" />
     <Compile Include="Capture.cs" />
     <Compile Include="CaptureDetails.cs" />
     <Compile Include="CaptureHandler.cs" />
@@ -174,13 +175,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Greenshot.Addon\Greenshot.Addon.csproj">
-      <Project>{5b924697-4dcd-4f98-85f1-105cb84b7341}</Project>
-      <Name>Greenshot.Addon</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Greenshot.Core\Greenshot.Core.csproj">
       <Project>{dbcaf4bc-a008-4080-b508-28ac76280b03}</Project>
       <Name>Greenshot.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Greenshot.Legacy\Greenshot.Legacy.csproj">
+      <Project>{3f069a88-ec9a-4f71-a7cc-60df87f402e1}</Project>
+      <Name>Greenshot.Legacy</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

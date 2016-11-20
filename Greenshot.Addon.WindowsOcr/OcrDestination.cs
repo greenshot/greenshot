@@ -44,9 +44,6 @@ namespace Greenshot.Addon.WindowsOcr
 		private const string OcrDesignation = "Ocr";
 		private static readonly LogSource Log = new LogSource();
 
-		[Import]
-		private IGreenshotHost GreenshotHost { get; set; }
-
 		private async Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))
 		{
 			var returnValue = new Notification

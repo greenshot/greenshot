@@ -20,8 +20,6 @@
 #region Usings
 
 using System;
-using Dapplo.Config.Ini;
-using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Core.Configuration;
 
@@ -34,10 +32,11 @@ namespace Greenshot.Addon.Controls
 	/// </summary>
 	public partial class QualityDialog : GreenshotForm
 	{
-		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+		private readonly IOutputConfiguration _outputConfiguration;
 
-		public QualityDialog(SurfaceOutputSettings outputSettings)
+		public QualityDialog(SurfaceOutputSettings outputSettings, IOutputConfiguration outputConfiguration = null)
 		{
+			_outputConfiguration = outputConfiguration;
 			Settings = outputSettings;
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
@@ -58,11 +57,11 @@ namespace Greenshot.Addon.Controls
 		{
 			Settings.JPGQuality = trackBarJpegQuality.Value;
 			Settings.ReduceColors = checkBox_reduceColors.Checked;
-			if (checkbox_dontaskagain.Checked)
+			if (checkbox_dontaskagain.Checked && _outputConfiguration != null)
 			{
-				conf.OutputFileJpegQuality = Settings.JPGQuality;
-				conf.OutputFilePromptQuality = false;
-				conf.OutputFileReduceColors = Settings.ReduceColors;
+				_outputConfiguration.OutputFileJpegQuality = Settings.JPGQuality;
+				_outputConfiguration.OutputFilePromptQuality = false;
+				_outputConfiguration.OutputFileReduceColors = Settings.ReduceColors;
 			}
 		}
 

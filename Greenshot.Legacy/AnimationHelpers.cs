@@ -69,12 +69,7 @@ namespace Greenshot.Addon.Core
 	/// <typeparam name="T">Type for the animation, like Point/Rectangle/Size</typeparam>
 	public abstract class AnimatorBase<T> : IAnimator
 	{
-		private readonly Queue<AnimationLeg<T>> queue = new Queue<AnimationLeg<T>>();
-		protected T current;
-		protected int currentFrameNr;
-		protected T first;
-		protected int frames;
-		protected T last;
+		private readonly Queue<AnimationLeg<T>> _queue = new Queue<AnimationLeg<T>>();
 
 		/// <summary>
 		///     Constructor
@@ -86,10 +81,10 @@ namespace Greenshot.Addon.Core
 		/// <param name="easingMode"></param>
 		public AnimatorBase(T first, T last, int frames, EasingType easingType, EasingMode easingMode)
 		{
-			this.first = first;
-			this.last = last;
-			this.frames = frames;
-			current = first;
+			First = first;
+			Last = last;
+			Frames = frames;
+			Current = first;
 			EasingType = easingType;
 			EasingMode = easingMode;
 		}
@@ -99,7 +94,7 @@ namespace Greenshot.Addon.Core
 		/// </summary>
 		public virtual T Current
 		{
-			get { return current; }
+			get; protected set;
 		}
 
 		/// <summary>
@@ -122,12 +117,12 @@ namespace Greenshot.Addon.Core
 				switch (EasingMode)
 				{
 					case EasingMode.EaseOut:
-						return Easing.EaseOut(currentFrameNr/(double) frames, EasingType);
+						return Easing.EaseOut(CurrentFrameNr/(double)Frames, EasingType);
 					case EasingMode.EaseInOut:
-						return Easing.EaseInOut(currentFrameNr/(double) frames, EasingType);
+						return Easing.EaseInOut(CurrentFrameNr/(double)Frames, EasingType);
 					case EasingMode.EaseIn:
 					default:
-						return Easing.EaseIn(currentFrameNr/(double) frames, EasingType);
+						return Easing.EaseIn(CurrentFrameNr/(double)Frames, EasingType);
 				}
 			}
 		}
@@ -139,29 +134,23 @@ namespace Greenshot.Addon.Core
 		{
 			get
 			{
-				if (queue.Count == 0)
+				if (_queue.Count == 0)
 				{
-					return last;
+					return Last;
 				}
-				return queue.ToArray()[queue.Count - 1].Destination;
+				return _queue.ToArray()[_queue.Count - 1].Destination;
 			}
 		}
 
 		/// <summary>
 		///     First animation value
 		/// </summary>
-		public T First
-		{
-			get { return first; }
-		}
+		public T First { get; protected set; }
 
 		/// <summary>
 		///     Last animation value, of this "leg"
 		/// </summary>
-		public T Last
-		{
-			get { return last; }
-		}
+		public T Last { get; protected set; }
 
 		/// <summary>
 		///     Returns if there are any frame left, and if this is the case than the frame is increased.
@@ -170,18 +159,18 @@ namespace Greenshot.Addon.Core
 		{
 			get
 			{
-				if (currentFrameNr < frames)
+				if (CurrentFrameNr < Frames)
 				{
-					currentFrameNr++;
+					CurrentFrameNr++;
 					return true;
 				}
-				if (queue.Count > 0)
+				if (_queue.Count > 0)
 				{
-					first = current;
-					currentFrameNr = 0;
-					AnimationLeg<T> nextLeg = queue.Dequeue();
-					last = nextLeg.Destination;
-					frames = nextLeg.Frames;
+					First = Current;
+					CurrentFrameNr = 0;
+					AnimationLeg<T> nextLeg = _queue.Dequeue();
+					Last = nextLeg.Destination;
+					Frames = nextLeg.Frames;
 					EasingType = nextLeg.EasingType;
 					EasingMode = nextLeg.EasingMode;
 					return true;
@@ -193,18 +182,12 @@ namespace Greenshot.Addon.Core
 		/// <summary>
 		///     The amount of frames
 		/// </summary>
-		public int Frames
-		{
-			get { return frames; }
-		}
+		public int Frames { get; protected set; }
 
 		/// <summary>
 		///     Current frame number
 		/// </summary>
-		public int CurrentFrameNr
-		{
-			get { return currentFrameNr; }
-		}
+		public int CurrentFrameNr { get; protected set; }
 
 		/// <summary>
 		///     Are there more frames to animate?
@@ -213,11 +196,11 @@ namespace Greenshot.Addon.Core
 		{
 			get
 			{
-				if (currentFrameNr < frames)
+				if (CurrentFrameNr < Frames)
 				{
 					return true;
 				}
-				return queue.Count > 0;
+				return _queue.Count > 0;
 			}
 		}
 
@@ -227,7 +210,7 @@ namespace Greenshot.Addon.Core
 		/// <param name="newDestination"></param>
 		public void ChangeDestination(T newDestination)
 		{
-			ChangeDestination(newDestination, frames);
+			ChangeDestination(newDestination, Frames);
 		}
 
 		/// <summary>
@@ -237,11 +220,11 @@ namespace Greenshot.Addon.Core
 		/// <param name="frames"></param>
 		public void ChangeDestination(T newDestination, int frames)
 		{
-			queue.Clear();
-			first = current;
-			currentFrameNr = 0;
-			this.frames = frames;
-			last = newDestination;
+			_queue.Clear();
+			First = Current;
+			CurrentFrameNr = 0;
+			Frames = frames;
+			Last = newDestination;
 		}
 
 		/// <summary>
@@ -295,7 +278,7 @@ namespace Greenshot.Addon.Core
 			leg.Frames = frames;
 			leg.EasingType = easingType;
 			leg.EasingMode = easingMode;
-			queue.Enqueue(leg);
+			_queue.Enqueue(leg);
 		}
 	}
 
@@ -327,18 +310,18 @@ namespace Greenshot.Addon.Core
 			if (NextFrame)
 			{
 				double easingValue = EasingValue;
-				double dx = last.X - first.X;
-				double dy = last.Y - first.Y;
+				double dx = Last.X - First.X;
+				double dy = Last.Y - First.Y;
 
-				int x = first.X + (int) (easingValue*dx);
-				int y = first.Y + (int) (easingValue*dy);
-				double dw = last.Width - first.Width;
-				double dh = last.Height - first.Height;
-				int width = first.Width + (int) (easingValue*dw);
-				int height = first.Height + (int) (easingValue*dh);
-				current = new Rectangle(x, y, width, height);
+				int x = First.X + (int) (easingValue*dx);
+				int y = First.Y + (int) (easingValue*dy);
+				double dw = Last.Width - First.Width;
+				double dh = Last.Height - First.Height;
+				int width = First.Width + (int) (easingValue*dw);
+				int height = First.Height + (int) (easingValue*dh);
+				Current = new Rectangle(x, y, width, height);
 			}
-			return current;
+			return Current;
 		}
 	}
 
@@ -370,17 +353,17 @@ namespace Greenshot.Addon.Core
 			if (NextFrame)
 			{
 				double easingValue = EasingValue;
-				double da = last.A - first.A;
-				double dr = last.R - first.R;
-				double dg = last.G - first.G;
-				double db = last.B - first.B;
-				int a = first.A + (int) (easingValue*da);
-				int r = first.R + (int) (easingValue*dr);
-				int g = first.G + (int) (easingValue*dg);
-				int b = first.B + (int) (easingValue*db);
-				current = Color.FromArgb(a, r, g, b);
+				double da = Last.A - First.A;
+				double dr = Last.R - First.R;
+				double dg = Last.G - First.G;
+				double db = Last.B - First.B;
+				int a = First.A + (int) (easingValue*da);
+				int r = First.R + (int) (easingValue*dr);
+				int g = First.G + (int) (easingValue*dg);
+				int b = First.B + (int) (easingValue*db);
+				Current = Color.FromArgb(a, r, g, b);
 			}
-			return current;
+			return Current;
 		}
 	}
 

@@ -20,16 +20,11 @@
 #region Usings
 
 using System;
-using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Interop;
 using System.Windows.Media;
-using Dapplo.Windows.Native;
-using Greenshot.Addon.Core;
-using Greenshot.Core;
 
 #endregion
 
@@ -37,50 +32,6 @@ namespace Greenshot.Addon.Extensions
 {
 	public static class ControlExtensions
 	{
-		/// <summary>
-		///     Very simple extention which makes it easier to call BeginInvoke on a control with a lambda
-		/// </summary>
-		/// <param name="control"></param>
-		/// <param name="action">Lambda</param>
-		/// <param name="cancellationToken"></param>
-		public static Task<T> InvokeAsync<T>(this Control control, Func<T> action, CancellationToken cancellationToken = default(CancellationToken))
-		{
-			var taskCompletionSource = new TaskCompletionSource<T>();
-			if (cancellationToken != default(CancellationToken))
-			{
-				cancellationToken.Register(taskCompletionSource.SetCanceled);
-			}
-
-			control.BeginInvoke(new Action(() =>
-			{
-				var result = action();
-				taskCompletionSource.SetResult(result);
-			}));
-			return taskCompletionSource.Task;
-		}
-
-		/// <summary>
-		///     Very simple extention which makes it easier to call BeginInvoke on a control with a lambda
-		/// </summary>
-		/// <param name="control"></param>
-		/// <param name="action">Lambda</param>
-		/// <param name="cancellationToken"></param>
-		public static Task InvokeAsync(this Control control, Action action, CancellationToken cancellationToken = default(CancellationToken))
-		{
-			var taskCompletionSource = new TaskCompletionSource<bool>();
-			if (cancellationToken != default(CancellationToken))
-			{
-				cancellationToken.Register(taskCompletionSource.SetCanceled);
-			}
-
-			control.BeginInvoke(new Action(() =>
-			{
-				action();
-				taskCompletionSource.SetResult(true);
-			}));
-			return taskCompletionSource.Task;
-		}
-
 		/// <summary>
 		///     Extension to call show, than await for the hide of a WPF Window
 		/// </summary>
@@ -112,33 +63,6 @@ namespace Greenshot.Addon.Extensions
 					window.IsVisibleChanged -= visibilityHandler;
 				}
 			}
-		}
-
-		/// <summary>
-		///     This method will show the supplied context menu at the mouse cursor, also makes sure it has focus and it's not
-		///     visible in the taskbar.
-		/// </summary>
-		/// <param name="toolStripDropDown"></param>
-		public static void ShowAtCursor(this ToolStripDropDown toolStripDropDown)
-		{
-			// find a suitable location
-			var location = Cursor.Position;
-			var rectangle = new Rectangle(location, toolStripDropDown.Size);
-
-			rectangle.Intersect(ScreenHelper.GetScreenBounds());
-			if (rectangle.Height < toolStripDropDown.Height)
-			{
-				location.Offset(-40, -(rectangle.Height - toolStripDropDown.Height));
-			}
-			else
-			{
-				location.Offset(-40, -10);
-			}
-
-			// This prevents the problem that the context menu shows in the task-bar
-			User32.SetForegroundWindow(PluginUtils.Host.NotifyIcon.ContextMenuStrip.Handle);
-			toolStripDropDown.Show(location);
-			toolStripDropDown.Focus();
 		}
 
 		/// <summary>
@@ -214,42 +138,6 @@ namespace Greenshot.Addon.Extensions
 				}
 			}
 			return Matrix.Identity;
-		}
-
-		/// <summary>
-		///     Waits asynchronously for the Toolstrip to close
-		/// </summary>
-		/// <param name="toolStripDropDown">The ToolStripDropDown to wait for cancellation.</param>
-		/// <param name="cancellationToken">A cancellation token. If invoked, the task will return immediately as canceled.</param>
-		/// <returns>A Task representing waiting for the ToolStripDropDown to close.</returns>
-		public static Task WaitForClosedAsync(this ToolStripDropDown toolStripDropDown, CancellationToken cancellationToken = default(CancellationToken))
-		{
-			var taskCompletionSource = new TaskCompletionSource<object>();
-			toolStripDropDown.Closed += (sender, args) => taskCompletionSource.TrySetResult(null);
-			if (cancellationToken != default(CancellationToken))
-			{
-				cancellationToken.Register(taskCompletionSource.SetCanceled);
-			}
-
-			return taskCompletionSource.Task;
-		}
-
-		/// <summary>
-		///     Waits asynchronously for the Toolstrip to close
-		/// </summary>
-		/// <param name="form">The form to wait for cancellation.</param>
-		/// <param name="cancellationToken">A cancellation token. If invoked, the task will return immediately as canceled.</param>
-		/// <returns>A Task representing waiting for the ToolStripDropDown to close.</returns>
-		public static Task WaitForClosedAsync(this Form form, CancellationToken cancellationToken = default(CancellationToken))
-		{
-			var taskCompletionSource = new TaskCompletionSource<object>();
-			form.Closed += (sender, args) => taskCompletionSource.TrySetResult(null);
-			if (cancellationToken != default(CancellationToken))
-			{
-				cancellationToken.Register(taskCompletionSource.SetCanceled);
-			}
-
-			return taskCompletionSource.Task;
 		}
 
 		/// <summary>

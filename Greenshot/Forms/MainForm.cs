@@ -133,7 +133,7 @@ namespace Greenshot.Forms
 			// we should have at least one!
 			if (coreConfiguration.OutputDestinations.Count == 0)
 			{
-				coreConfiguration.OutputDestinations.Add(BuildInDestinationEnum.Editor.ToString());
+				coreConfiguration.OutputDestinations.Add(BuildInDestinations.Editor.ToString());
 			}
 
 			if (coreConfiguration.DisableQuickSettings)
@@ -435,7 +435,7 @@ namespace Greenshot.Forms
 				case ClickActions.OpenLastInEditor:
 					if (File.Exists(coreConfiguration.OutputFileAsFullpath))
 					{
-						var editor = Greenshot.Start.Dapplication.Bootstrapper.GetExports<IDestination>().Where(x => x.Value.Designation == BuildInDestinationEnum.Editor.ToString()).Select(x => x.Value).First();
+						var editor = Greenshot.Start.Dapplication.Bootstrapper.GetExports<IDestination>().Where(x => x.Value.Designation == BuildInDestinations.Editor.ToString()).Select(x => x.Value).First();
 						await CaptureHelper.CaptureFileAsync(coreConfiguration.OutputFileAsFullpath, editor, token);
 					}
 					break;
@@ -1385,7 +1385,7 @@ namespace Greenshot.Forms
 			var selectedDestination = (IDestination) item.Data;
 			if (item.Checked)
 			{
-				if (selectedDestination.Designation.Equals(BuildInDestinationEnum.Picker.ToString()))
+				if (selectedDestination.Designation.Equals(BuildInDestinations.Picker.ToString()))
 				{
 					// If the item is the destination picker, remove all others
 					coreConfiguration.OutputDestinations.Clear();
@@ -1393,7 +1393,7 @@ namespace Greenshot.Forms
 				else
 				{
 					// If the item is not the destination picker, remove the picker
-					coreConfiguration.OutputDestinations.Remove(BuildInDestinationEnum.Picker.ToString());
+					coreConfiguration.OutputDestinations.Remove(BuildInDestinations.Picker.ToString());
 				}
 				// Checked an item, add if the destination is not yet selected
 				if (!coreConfiguration.OutputDestinations.Contains(selectedDestination.Designation))
@@ -1412,7 +1412,7 @@ namespace Greenshot.Forms
 			// Check if something was selected, if not make the picker the default
 			if ((coreConfiguration.OutputDestinations == null) || (coreConfiguration.OutputDestinations.Count == 0))
 			{
-				coreConfiguration.OutputDestinations.Add(BuildInDestinationEnum.Picker.ToString());
+				coreConfiguration.OutputDestinations.Add(BuildInDestinations.Picker.ToString());
 			}
 
 			// Rebuild the quick settings menu with the new settings.

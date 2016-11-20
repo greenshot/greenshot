@@ -223,6 +223,27 @@ namespace Greenshot.Addon.Core
 			return tmpFullPath;
 		}
 
+		/// <summary>
+		///     Saves image to specific path with specified quality
+		/// </summary>
+		/// <param name="surface"></param>
+		/// <param name="fullPath"></param>
+		/// <param name="allowOverwrite"></param>
+		/// <param name="outputSettings"></param>
+		/// <returns>Full save path</returns>
+		public static string Save(ICapture surface, string fullPath, bool allowOverwrite, SurfaceOutputSettings outputSettings)
+		{
+			fullPath = CheckFullPath(fullPath, allowOverwrite);
+			Log.Debug().WriteLine("Saving surface to {0}", fullPath);
+			// Create the stream and call SaveToStream
+			using (var stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
+			{
+				SaveToStream(surface, stream, outputSettings);
+			}
+
+			return fullPath;
+		}
+
 		#region save-as
 
 		/// <summary>
@@ -234,7 +255,7 @@ namespace Greenshot.Addon.Core
 		public static string SaveWithDialog(ICapture surface, ICaptureDetails captureDetails)
 		{
 			string returnValue = null;
-			using (var saveImageFileDialog = new SaveImageFileDialog(captureDetails))
+			using (var saveImageFileDialog = new SaveImageFileDialog(conf,captureDetails))
 			{
 				var dialogResult = saveImageFileDialog.ShowDialog();
 				if (dialogResult.Equals(DialogResult.OK))
@@ -725,83 +746,6 @@ namespace Greenshot.Addon.Core
 			}
 		}
 
-		/// <summary>
-		///     Load a Greenshot surface
-		/// </summary>
-		/// <param name="fullPath"></param>
-		/// <param name="returnSurface"></param>
-		/// <returns></returns>
-		public static ISurface LoadGreenshotSurface(string fullPath, ISurface returnSurface)
-		{
-			if (string.IsNullOrEmpty(fullPath))
-			{
-				return null;
-			}
-			Image fileImage;
-			Log.Info().WriteLine("Loading image from file {0}", fullPath);
-			// Fixed lock problem Bug #3431881
-			using (Stream surfaceFileStream = File.OpenRead(fullPath))
-			{
-				// And fixed problem that the bitmap stream is disposed... by Cloning the image
-				// This also ensures the bitmap is correctly created
-
-				// We create a copy of the bitmap, so everything else can be disposed
-				surfaceFileStream.Position = 0;
-				using (Image tmpImage = Image.FromStream(surfaceFileStream, true, true))
-				{
-					Log.Debug().WriteLine("Loaded {0} with Size {1}x{2} and PixelFormat {3}", fullPath, tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
-					fileImage = ImageHelper.Clone(tmpImage);
-				}
-				// Start at -14 read "GreenshotXX.YY" (XX=Major, YY=Minor)
-				const int markerSize = 14;
-				surfaceFileStream.Seek(-markerSize, SeekOrigin.End);
-				string greenshotMarker;
-				using (StreamReader streamReader = new StreamReader(surfaceFileStream))
-				{
-					greenshotMarker = streamReader.ReadToEnd();
-					if (!greenshotMarker.StartsWith("Greenshot"))
-					{
-						throw new ArgumentException(string.Format("{0} is not a Greenshot file!", fullPath));
-					}
-					Log.Info().WriteLine("Greenshot file format: {0}", greenshotMarker);
-					const int filesizeLocation = 8 + markerSize;
-					surfaceFileStream.Seek(-filesizeLocation, SeekOrigin.End);
-					using (BinaryReader reader = new BinaryReader(surfaceFileStream))
-					{
-						long bytesWritten = reader.ReadInt64();
-						surfaceFileStream.Seek(-(bytesWritten + filesizeLocation), SeekOrigin.End);
-						returnSurface.LoadElementsFromStream(surfaceFileStream);
-					}
-				}
-			}
-			if (fileImage != null)
-			{
-				returnSurface.Image = fileImage;
-				Log.Info().WriteLine("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", fullPath, fileImage.Width, fileImage.Height, fileImage.PixelFormat, fileImage.HorizontalResolution, fileImage.VerticalResolution);
-			}
-			return returnSurface;
-		}
-
-		/// <summary>
-		///     Saves image to specific path with specified quality
-		/// </summary>
-		/// <param name="surface"></param>
-		/// <param name="fullPath"></param>
-		/// <param name="allowOverwrite"></param>
-		/// <param name="outputSettings"></param>
-		/// <returns>Full save path</returns>
-		public static string Save(ICapture surface, string fullPath, bool allowOverwrite, SurfaceOutputSettings outputSettings)
-		{
-			fullPath = CheckFullPath(fullPath, allowOverwrite);
-			Log.Debug().WriteLine("Saving surface to {0}", fullPath);
-			// Create the stream and call SaveToStream
-			using (var stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
-			{
-				SaveToStream(surface, stream, outputSettings);
-			}
-
-			return fullPath;
-		}
 
 		/// <summary>
 		///     Check the supplied path, an if overwrite is neeeded
