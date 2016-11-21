@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
-namespace Greenshot.Addon.Interfaces.Drawing
+namespace Greenshot.Addon.Editor.Interfaces.Drawing
 {
 	public interface IDrawableContainer : IFieldHolder, IDisposable
 	{

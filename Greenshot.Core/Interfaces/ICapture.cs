@@ -26,7 +26,7 @@ using System.Windows.Forms;
 
 #endregion
 
-namespace Greenshot.Addon.Interfaces
+namespace Greenshot.Core.Interfaces
 {
 	/// <summary>
 	///     The interface to the Capture object, so Plugins can use it.

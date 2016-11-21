@@ -29,6 +29,7 @@ using System.Windows.Data;
 using Dapplo.Config.Language;
 using Dapplo.Log;
 using Greenshot.Addon.Extensions;
+using Greenshot.Core.Extensions;
 
 #endregion
 

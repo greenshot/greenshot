@@ -32,19 +32,21 @@ using System.Windows.Forms;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using Dapplo.Log;
+using Dapplo.Utils;
 using Dapplo.Windows.Enums;
 using Dapplo.Windows.Native;
 using Dapplo.Windows.Structs;
-using Greenshot.Addon.Configuration;
-using Greenshot.Addon.Interfaces;
-using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.CaptureCore.Extensions;
+using Greenshot.Core;
 using Greenshot.Core.Configuration;
 using Greenshot.Core.Enumerations;
 using Greenshot.Core.Gfx;
+using Greenshot.Core.Interfaces;
+using Greenshot.Core.Utils;
 
 #endregion
 
-namespace Greenshot.Addon.Core
+namespace Greenshot.CaptureCore
 {
 	/// <summary>
 	///     Description of ClipboardHelper.
@@ -100,12 +102,13 @@ EndSelection:<<<<<<<4
 		///     When pasting a Dib in PP 2003 the Bitmap is somehow shifted left!
 		///     For this problem the user should not use the direct paste (=Dib), but select Bitmap
 		/// </summary>
-		private const int BITMAPFILEHEADER_LENGTH = 14;
+		private const int BitmapfileheaderLength = 14;
 
 		private static readonly LogSource Log = new LogSource();
-		private static readonly object clipboardLockObject = new object();
-		private static readonly ICoreConfiguration config = IniConfig.Current.Get<ICoreConfiguration>();
-		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
+		private static readonly object ClipboardLockObject = new object();
+		private static readonly IImageConfiguration ImageConfiguration = IniConfig.Current.GetSubSection<IImageConfiguration>();
+		private static readonly IMiscConfiguration MiscConfiguration = IniConfig.Current.GetSubSection<IMiscConfiguration>();
+		private static readonly ICoreTranslations CoreTranslations = LanguageLoader.Current.GetPart<ICoreTranslations>();
 		private static readonly string FORMAT_FILECONTENTS = "FileContents";
 		private static readonly string FORMAT_PNG = "PNG";
 		private static readonly string FORMAT_PNG_OFFICEART = "PNG+Office Art";
@@ -117,7 +120,7 @@ EndSelection:<<<<<<<4
 		private static readonly string FORMAT_BITMAP = "System.Drawing.Bitmap";
 		//private static readonly string FORMAT_HTML = "HTML Format";
 
-		private static IntPtr nextClipboardViewer = IntPtr.Zero;
+		private static IntPtr _nextClipboardViewer = IntPtr.Zero;
 
 		/// <summary>
 		///     Helper method so get the bitmap bytes
@@ -246,7 +249,7 @@ EndSelection:<<<<<<<4
 						MemoryStream imageStream = dataObject.GetData(FORMAT_FILECONTENTS) as MemoryStream;
 						if (isValidStream(imageStream))
 						{
-							using (Image tmpImage = Image.FromStream(imageStream))
+							using (Image.FromStream(imageStream))
 							{
 								// If we get here, there is an image
 								return true;
@@ -255,6 +258,7 @@ EndSelection:<<<<<<<4
 					}
 					catch (Exception)
 					{
+						// ignored
 					}
 				}
 			}
@@ -329,7 +333,7 @@ EndSelection:<<<<<<<4
 						using (Process ownerProcess = Process.GetProcessById(pid))
 						{
 							// Exclude myself
-							if ((ownerProcess != null) && (me.Id != ownerProcess.Id))
+							if (me.Id != ownerProcess.Id)
 							{
 								// Get Process Name
 								owner = ownerProcess.ProcessName;
@@ -340,6 +344,7 @@ EndSelection:<<<<<<<4
 								}
 								catch (Exception)
 								{
+									// ignored
 								}
 							}
 						}
@@ -365,14 +370,14 @@ EndSelection:<<<<<<<4
 		/// </summary>
 		public static IDataObject GetDataObject()
 		{
-			lock (clipboardLockObject)
+			lock (ClipboardLockObject)
 			{
 				int retryCount = 2;
 				while (retryCount >= 0)
 				{
 					try
 					{
-						return (IDataObject) PluginUtils.Host.MainMenu.Invoke(new Func<IDataObject>(() => { return InternalGetDataObject(); }), null);
+						return UiContext.RunOn(InternalGetDataObject).Result;
 					}
 					catch (Exception ee)
 					{
@@ -382,11 +387,11 @@ EndSelection:<<<<<<<4
 							string clipboardOwner = GetClipboardOwner();
 							if (clipboardOwner != null)
 							{
-								messageText = string.Format(language.ClipboardInuse, clipboardOwner);
+								messageText = string.Format(CoreTranslations.ClipboardInuse, clipboardOwner);
 							}
 							else
 							{
-								messageText = language.ClipboardError;
+								messageText = CoreTranslations.ClipboardError;
 							}
 							Log.Error().WriteLine(ee, messageText);
 						}
@@ -558,7 +563,7 @@ EndSelection:<<<<<<<4
 					{
 						Log.Debug().WriteLine("Couldn't find format {0}.", currentFormat);
 					}
-					if ((returnImage != null) && config.ProcessEXIFOrientation)
+					if ((returnImage != null) && ImageConfiguration.ProcessEXIFOrientation)
 					{
 						ImageHelper.Orientate(returnImage);
 						return returnImage;
@@ -616,7 +621,7 @@ EndSelection:<<<<<<<4
 				// TODO: add "HTML Format" support here...
 				return clipboardObject as Image;
 			}
-			if (config.EnableSpecialDIBClipboardReader)
+			if (MiscConfiguration.EnableSpecialDIBClipboardReader)
 			{
 				if ((format == FORMAT_17) || (format == DataFormats.Dib))
 				{
@@ -735,7 +740,7 @@ EndSelection:<<<<<<<4
 						Image returnImage = null;
 						try
 						{
-							returnImage = ImageHelper.LoadImage(imageFile, config.ProcessEXIFOrientation);
+							returnImage = ImageHelper.LoadImage(imageFile, ImageConfiguration.ProcessEXIFOrientation);
 						}
 						catch (Exception streamImageEx)
 						{
@@ -826,11 +831,11 @@ EndSelection:<<<<<<<4
 			{
 				SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
 				// Create the image which is going to be saved so we don't create it multiple times
-				disposeImage = ImageOutput.CreateImageFromCapture(capture, outputSettings, out imageToSave);
+				disposeImage = capture.CreateImageFromCapture(outputSettings, out imageToSave);
 				try
 				{
 					// Create PNG stream
-					if (config.ClipboardFormats.Contains(ClipboardFormat.PNG))
+					if (MiscConfiguration.ClipboardFormats.Contains(ClipboardFormat.PNG))
 					{
 						pngStream = new MemoryStream();
 						// PNG works for e.g. Powerpoint
@@ -848,7 +853,7 @@ EndSelection:<<<<<<<4
 
 				try
 				{
-					if (config.ClipboardFormats.Contains(ClipboardFormat.DIB))
+					if (MiscConfiguration.ClipboardFormats.Contains(ClipboardFormat.DIB))
 					{
 						using (MemoryStream tmpBmpStream = new MemoryStream())
 						{
@@ -858,7 +863,7 @@ EndSelection:<<<<<<<4
 
 							dibStream = new MemoryStream();
 							// Copy the source, but skip the "BITMAPFILEHEADER" which has a size of 14
-							dibStream.Write(tmpBmpStream.GetBuffer(), BITMAPFILEHEADER_LENGTH, (int) tmpBmpStream.Length - BITMAPFILEHEADER_LENGTH);
+							dibStream.Write(tmpBmpStream.GetBuffer(), BitmapfileheaderLength, (int) tmpBmpStream.Length - BitmapfileheaderLength);
 						}
 
 						// Set the DIB to the clipboard DataObject
@@ -873,7 +878,7 @@ EndSelection:<<<<<<<4
 				// CF_DibV5
 				try
 				{
-					if (config.ClipboardFormats.Contains(ClipboardFormat.DIBV5))
+					if (MiscConfiguration.ClipboardFormats.Contains(ClipboardFormat.DIBV5))
 					{
 						// Create the stream for the clipboard
 						dibV5Stream = new MemoryStream();
@@ -912,13 +917,13 @@ EndSelection:<<<<<<<4
 				}
 
 				// Set the HTML
-				if (config.ClipboardFormats.Contains(ClipboardFormat.HTML))
+				if (MiscConfiguration.ClipboardFormats.Contains(ClipboardFormat.HTML))
 				{
-					string tmpFile = ImageOutput.SaveToTmpFile(capture, new SurfaceOutputSettings(OutputFormat.png, 100, false), null);
+					string tmpFile = capture.SaveToTmpFile(new SurfaceOutputSettings(OutputFormat.png, 100, false), null);
 					string html = getHTMLString(capture, tmpFile);
 					dataObject.SetText(html, TextDataFormat.Html);
 				}
-				else if (config.ClipboardFormats.Contains(ClipboardFormat.HTMLDATAURL))
+				else if (MiscConfiguration.ClipboardFormats.Contains(ClipboardFormat.HTMLDATAURL))
 				{
 					string html;
 					using (MemoryStream tmpPNGStream = new MemoryStream())
@@ -934,7 +939,7 @@ EndSelection:<<<<<<<4
 						}
 						else
 						{
-							ImageOutput.SaveToStream(capture, tmpPNGStream, pngOutputSettings);
+							capture.SaveToStream(tmpPNGStream, pngOutputSettings);
 						}
 						html = getHTMLDataURLString(capture, tmpPNGStream);
 					}
@@ -945,7 +950,7 @@ EndSelection:<<<<<<<4
 			{
 				// we need to use the SetDataOject before the streams are closed otherwise the buffer will be gone!
 				// Check if Bitmap is wanted
-				if (config.ClipboardFormats.Contains(ClipboardFormat.BITMAP))
+				if (MiscConfiguration.ClipboardFormats.Contains(ClipboardFormat.BITMAP))
 				{
 					dataObject.SetImage(imageToSave);
 					// Place the DataObject to the clipboard
@@ -1005,7 +1010,7 @@ EndSelection:<<<<<<<4
 		/// <param name="copy"></param>
 		private static void SetDataObject(IDataObject ido, bool copy)
 		{
-			lock (clipboardLockObject)
+			lock (ClipboardLockObject)
 			{
 				// Clear first, this seems to solve some issues
 				try
@@ -1027,11 +1032,11 @@ EndSelection:<<<<<<<4
 					string clipboardOwner = GetClipboardOwner();
 					if (clipboardOwner != null)
 					{
-						messageText = string.Format(language.ClipboardInuse, clipboardOwner);
+						messageText = string.Format(CoreTranslations.ClipboardInuse, clipboardOwner);
 					}
 					else
 					{
-						messageText = string.Format(language.ClipboardError, clipboardOwner);
+						messageText = string.Format(CoreTranslations.ClipboardError, clipboardOwner);
 					}
 					Log.Error().WriteLine(clipboardSetException, messageText);
 				}

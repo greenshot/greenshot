@@ -30,12 +30,14 @@ using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Editor.Drawing;
+using Greenshot.Addon.Editor.Extensions;
 using Greenshot.Addon.Editor.Forms;
+using Greenshot.Addon.Editor.Interfaces;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
-using Greenshot.Addon.Interfaces.Forms;
 using Greenshot.Addon.Ui;
 using Greenshot.Core.Configuration;
+using Greenshot.Core.Interfaces;
 
 #endregion
 
@@ -80,7 +82,7 @@ namespace Greenshot.Addon.Editor
 					{
 						// Only a file, create a surface from the filename and continue!
 						surface = new Surface();
-						surface = ImageOutput.LoadGreenshotSurface(capture.CaptureDetails.Filename, surface);
+						surface = SurfaceExtensions.LoadGreenshotSurface(capture.CaptureDetails.Filename, surface);
 						surface.CaptureDetails = capture.CaptureDetails;
 					}
 					else

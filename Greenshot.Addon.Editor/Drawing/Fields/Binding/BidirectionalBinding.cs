@@ -21,7 +21,7 @@
 
 using System.ComponentModel;
 using System.Reflection;
-using Greenshot.Addon.Interfaces.Drawing;
+using Greenshot.Addon.Editor.Interfaces.Drawing;
 
 #endregion
 

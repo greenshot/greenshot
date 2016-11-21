@@ -31,10 +31,7 @@ using Dapplo.Config.Language;
 using Dapplo.Log;
 using Dapplo.Windows.Enums;
 using Dapplo.Windows.Native;
-using Greenshot.Addon.Configuration;
-using Greenshot.Addon.Controls;
-using Greenshot.Addon.Core;
-using Greenshot.Addon.Interfaces;
+using Greenshot.CaptureCore.Configuration;
 using Greenshot.CaptureCore.Extensions;
 using Greenshot.CaptureCore.IEInterop;
 using Greenshot.CaptureCore.Interop;
@@ -42,6 +39,8 @@ using Greenshot.Core;
 using Greenshot.Core.Configuration;
 using Greenshot.Core.Enumerations;
 using Greenshot.Core.Gfx;
+using Greenshot.Core.Interfaces;
+using Greenshot.Legacy.Controls;
 using mshtml;
 
 #endregion
@@ -58,7 +57,7 @@ namespace Greenshot.CaptureCore
 	{
 		private static readonly LogSource Log = new LogSource();
 		private static readonly ICaptureConfiguration CaptureConfiguration = IniConfig.Current.GetSubSection<ICaptureConfiguration>();
-		//private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
+		private static readonly ICaptureTranslations CaptureTranslations = LanguageLoader.Current.GetPart<ICaptureTranslations>();
 
 		// Helper method to activate a certain IE Tab
 		public static void ActivateIETab(WindowDetails ieWindowDetails, int tabIndex)
@@ -126,7 +125,7 @@ namespace Greenshot.CaptureCore
 			if (!isScreenCapture)
 			{
 				// TODO: Use PleaseWaitWindow
-				backgroundForm = new BackgroundForm(language.ContextmenuCaptureie, language.WaitIeCapture);
+				backgroundForm = new BackgroundForm(CaptureTranslations.ContextmenuCaptureie, CaptureTranslations.WaitIeCapture);
 				backgroundForm.Show();
 			}
 			//BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(language.GetString(IGreenshotLanguage.contextmenu_captureie), language.GetString(IGreenshotLanguage.wait_ie_capture));

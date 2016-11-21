@@ -32,6 +32,7 @@ using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Office.OfficeExport;
 using Greenshot.Core;
+using Greenshot.Core.Interfaces;
 using MahApps.Metro.IconPacks;
 
 #endregion

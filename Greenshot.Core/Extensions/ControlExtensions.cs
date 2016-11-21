@@ -28,7 +28,7 @@ using System.Windows.Media;
 
 #endregion
 
-namespace Greenshot.Addon.Extensions
+namespace Greenshot.Core.Extensions
 {
 	public static class ControlExtensions
 	{

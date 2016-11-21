@@ -22,6 +22,7 @@
 using System.Collections.Generic;
 using System.ServiceModel;
 using Greenshot.Addon.Interfaces;
+using Greenshot.Core.Interfaces;
 using Greenshot.Services;
 
 #endregion

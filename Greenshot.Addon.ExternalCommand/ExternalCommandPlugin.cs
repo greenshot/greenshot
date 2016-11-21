@@ -29,9 +29,9 @@ using Dapplo.Addons;
 using Dapplo.Log;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
-using Greenshot.Addon.Interfaces.Destination;
-using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Core;
+using Greenshot.Core.Interfaces;
+using Greenshot.Core.Interfaces.Plugin;
 
 #endregion
 
@@ -42,7 +42,7 @@ namespace Greenshot.Addon.ExternalCommand
 	/// </summary>
 	[Plugin("External command", Configurable = true)]
 	[StartupAction(StartupOrder = (int) GreenshotStartupOrder.Addon)]
-	public class ExternalCommandPlugin : IConfigurablePlugin, IStartupAction
+	public class ExternalCommandPlugin : IStartupAction
 	{
 		private const string MsPaint = "MS Paint";
 		private const string PaintDotNet = "Paint.NET";
@@ -56,9 +56,6 @@ namespace Greenshot.Addon.ExternalCommand
 
 		[Import]
 		private IExternalCommandLanguage ExternalCommandLanguage { get; set; }
-
-		[Import]
-		private IGreenshotHost GreenshotHost { get; set; }
 
 		[Import]
 		private IServiceExporter ServiceExporter { get; set; }
@@ -138,9 +135,9 @@ namespace Greenshot.Addon.ExternalCommand
 					if (hasPaintDotNet && !config.Commands.Contains(PaintDotNet))
 					{
 						config.Commands.Add(PaintDotNet);
-						config.Commandline.Add(PaintDotNet, paintDotNetPath);
-						config.Argument.Add(PaintDotNet, "\"{0}\"");
-						config.RunInbackground.Add(PaintDotNet, true);
+						config.Commandline[PaintDotNet] = paintDotNetPath;
+						config.Argument[PaintDotNet] = "\"{0}\"";
+						config.RunInbackground[PaintDotNet] = true;
 					}
 				}
 				catch
@@ -155,9 +152,9 @@ namespace Greenshot.Addon.ExternalCommand
 					if (hasPaint && !config.Commands.Contains(MsPaint))
 					{
 						config.Commands.Add(MsPaint);
-						config.Commandline.Add(MsPaint, paintPath);
-						config.Argument.Add(MsPaint, "\"{0}\"");
-						config.RunInbackground.Add(MsPaint, true);
+						config.Commandline[MsPaint] = paintPath;
+						config.Argument[MsPaint] = "\"{0}\"";
+						config.RunInbackground[MsPaint] = true;
 					}
 				}
 				catch

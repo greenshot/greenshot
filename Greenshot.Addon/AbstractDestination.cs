@@ -25,10 +25,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using Caliburn.Micro;
+using Greenshot.Core.Interfaces;
 
 #endregion
 
-namespace Greenshot.Addon.Interfaces.Destination
+namespace Greenshot.Addon
 {
 	/// <summary>
 	///     A simple base implementation for the IDestination

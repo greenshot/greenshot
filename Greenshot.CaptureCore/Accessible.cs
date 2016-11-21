@@ -26,7 +26,7 @@ using Accessibility;
 
 #endregion
 
-namespace Greenshot.Addon.Core
+namespace Greenshot.CaptureCore
 {
 	/// <summary>
 	///     See:

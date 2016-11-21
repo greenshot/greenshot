@@ -27,14 +27,14 @@ using System.Text;
 using System.Windows.Forms;
 using Dapplo.Config.Ini;
 using Dapplo.Log;
-using Greenshot.Addon.Configuration;
-using Greenshot.Addon.Core;
 using Greenshot.Core;
+using Greenshot.Core.Configuration;
 using Greenshot.Core.Extensions;
+using Greenshot.Core.Utils;
 
 #endregion
 
-namespace Greenshot.Addon.Controls
+namespace Greenshot.Legacy.Controls
 {
 	/// <summary>
 	///     A simple control that allows the user to select pretty much any valid hotkey combination
@@ -64,8 +64,8 @@ namespace Greenshot.Addon.Controls
 
 		private const uint WM_HOTKEY = 0x312;
 		private static readonly LogSource Log = new LogSource();
-		private static readonly ICoreConfiguration coreConfiguration = IniConfig.Current.Get<ICoreConfiguration>();
-		private static readonly EventDelay eventDelay = new EventDelay(TimeSpan.FromMilliseconds(600).Ticks);
+		private static readonly IHotkeyConfiguration HotkeyConfiguration = IniConfig.Current.GetSubSection<IHotkeyConfiguration>();
+		private static readonly EventDelay EventDelay = new EventDelay(TimeSpan.FromMilliseconds(600).Ticks);
 		private static readonly bool IsWindows7OrOlder = Environment.OSVersion.IsWindows7OrLater();
 
 		// Holds the list of hotkeys
@@ -159,13 +159,13 @@ namespace Greenshot.Addon.Controls
 		{
 			get
 			{
-				var processList = coreConfiguration.IgnoreHotkeyProcessList;
+				var processList = HotkeyConfiguration.IgnoreHotkeyProcessList;
 				if ((processList != null) && (processList.Count > 0))
 				{
 					var currentProcessPath = WindowDetails.GetActiveWindow().ProcessPath;
 					if (!string.IsNullOrEmpty(currentProcessPath))
 					{
-						var shouldIgnore = coreConfiguration.IgnoreHotkeyProcessList.Contains(currentProcessPath.ToLowerInvariant());
+						var shouldIgnore = HotkeyConfiguration.IgnoreHotkeyProcessList.Contains(currentProcessPath.ToLowerInvariant());
 						return shouldIgnore;
 					}
 				}
@@ -287,7 +287,7 @@ namespace Greenshot.Addon.Controls
 					}
 					else
 					{
-						if (eventDelay.Check())
+						if (EventDelay.Check())
 						{
 							KeyHandlers[(int) m.WParam]();
 						}

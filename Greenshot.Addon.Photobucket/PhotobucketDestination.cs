@@ -36,9 +36,13 @@ using Dapplo.Utils;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
-using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
 using MahApps.Metro.IconPacks;
+using Greenshot.Addon.Extensions;
+using Greenshot.CaptureCore;
+using Greenshot.CaptureCore.Extensions;
+using Greenshot.Core;
+using Greenshot.Core.Interfaces;
 
 #endregion
 
@@ -226,7 +230,7 @@ namespace Greenshot.Addon.Photobucket
 			// Add image
 			using (var stream = new MemoryStream())
 			{
-				ImageOutput.SaveToStream(surfaceToUpload, stream, outputSettings);
+				surfaceToUpload.SaveToStream(stream, outputSettings);
 				stream.Position = 0;
 				using (var streamContent = new StreamContent(stream))
 				{

@@ -1,4 +1,4 @@
-﻿namespace Greenshot.Addon.Interfaces
+﻿namespace Greenshot.Core.Interfaces
 {
 	/// <summary>
 	///     Something to differenciate the sources

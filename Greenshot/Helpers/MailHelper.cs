@@ -30,9 +30,11 @@ using Dapplo.Config.Ini;
 using Dapplo.Log;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
-using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.CaptureCore.Extensions;
 using Greenshot.Core;
+using Greenshot.Core.Interfaces;
 using Microsoft.Win32;
 
 #endregion
@@ -147,7 +149,7 @@ namespace Greenshot.Helpers
 		/// <param name="captureDetails">ICaptureDetails</param>
 		public static void SendImage(ICapture surface, ICaptureDetails captureDetails)
 		{
-			string tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings());
+			string tmpFile = surface.SaveNamedTmpFile(captureDetails, new SurfaceOutputSettings());
 
 			if (tmpFile != null)
 			{

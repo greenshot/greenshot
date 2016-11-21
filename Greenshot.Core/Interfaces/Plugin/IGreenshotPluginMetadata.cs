@@ -23,7 +23,7 @@ using System.ComponentModel;
 
 #endregion
 
-namespace Greenshot.Addon.Interfaces.Plugin
+namespace Greenshot.Core.Interfaces.Plugin
 {
 	/// <summary>
 	///     Meta-data belonging to the PluginAttribute, which makes it possible to specify type-safe meta-data.

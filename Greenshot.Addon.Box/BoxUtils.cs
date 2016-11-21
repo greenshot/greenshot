@@ -31,7 +31,10 @@ using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Utils;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
-using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.Addon.Extensions;
+using Greenshot.CaptureCore.Extensions;
+using Greenshot.Core;
+using Greenshot.Core.Interfaces;
 
 #endregion
 
@@ -77,7 +80,7 @@ namespace Greenshot.Addon.Box
 					Name = "\"parent_id\""
 				};
 				multiPartContent.Add(parentIdContent);
-				ImageOutput.SaveToStream(capture, stream, outputSettings);
+				capture.SaveToStream(stream, outputSettings);
 				stream.Position = 0;
 				dynamic response;
 

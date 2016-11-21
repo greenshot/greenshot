@@ -26,10 +26,12 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
+using Greenshot.Addon.Editor.Interfaces;
+using Greenshot.Addon.Editor.Interfaces.Drawing;
 using Greenshot.Addon.Editor.Memento;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
-using Greenshot.Addon.Interfaces.Drawing;
+using Greenshot.Core.Extensions;
 
 #endregion
 

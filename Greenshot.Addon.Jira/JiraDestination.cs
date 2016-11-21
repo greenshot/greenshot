@@ -33,9 +33,12 @@ using Dapplo.Utils;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
-using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
 using MahApps.Metro.IconPacks;
+using Greenshot.Addon.Extensions;
+using Greenshot.CaptureCore.Extensions;
+using Greenshot.Core;
+using Greenshot.Core.Interfaces;
 
 #endregion
 
@@ -103,7 +106,7 @@ namespace Greenshot.Addon.Jira
 						httpBehaviour.MakeCurrent();
 						using (var stream = new MemoryStream())
 						{
-							ImageOutput.SaveToStream(capture, stream, outputSettings);
+							capture.SaveToStream(stream, outputSettings);
 							stream.Position = 0;
 							using (var streamContent = new StreamContent(stream))
 							{

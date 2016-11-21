@@ -23,7 +23,7 @@ using System.Windows.Forms;
 
 #endregion
 
-namespace Greenshot.Addon.Interfaces.Forms
+namespace Greenshot.Addon.Editor.Interfaces
 {
 	/// <summary>
 	///     The IImageEditor is the Interface that the Greenshot ImageEditor has to implement

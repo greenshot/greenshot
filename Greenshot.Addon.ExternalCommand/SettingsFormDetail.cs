@@ -26,6 +26,7 @@ using System.Windows.Forms;
 using Dapplo.Config.Ini;
 using Dapplo.Log;
 using Greenshot.Addon.Core;
+using Greenshot.Core;
 
 #endregion
 

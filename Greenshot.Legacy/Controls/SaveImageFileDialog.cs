@@ -24,13 +24,13 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Dapplo.Log;
-using Greenshot.Addon.Core;
-using Greenshot.Addon.Interfaces;
+using Greenshot.Core;
 using Greenshot.Core.Configuration;
+using Greenshot.Core.Interfaces;
 
 #endregion
 
-namespace Greenshot.Addon.Controls
+namespace Greenshot.Legacy.Controls
 {
 	/// <summary>
 	///     Custom dialog for saving images, wraps SaveFileDialog.

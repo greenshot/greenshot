@@ -24,8 +24,9 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Runtime.Serialization;
+using Greenshot.Addon.Editor.Interfaces.Drawing;
 using Greenshot.Addon.Extensions;
-using Greenshot.Addon.Interfaces.Drawing;
+using Greenshot.Core.Extensions;
 
 #endregion
 

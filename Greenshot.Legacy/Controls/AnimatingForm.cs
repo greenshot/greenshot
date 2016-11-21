@@ -24,21 +24,24 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Forms;
+using Dapplo.Config.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Enums;
 using Dapplo.Windows.Native;
 using Dapplo.Windows.SafeHandles;
+using Greenshot.Core.Configuration;
 using Timer = System.Timers.Timer;
 
 #endregion
 
-namespace Greenshot.Addon.Controls
+namespace Greenshot.Legacy.Controls
 {
 	/// <summary>
 	///     Extend this Form to have the possibility for animations on your form
 	/// </summary>
 	public class AnimatingForm : GreenshotForm
 	{
+		private static readonly IUiConfiguration UiConfiguration = IniConfig.Current.GetSubSection<IUiConfiguration>();
 		private const int DefaultVrefresh = 60;
 		private static readonly LogSource Log = new LogSource();
 		private Timer _timer;
@@ -84,7 +87,7 @@ namespace Greenshot.Addon.Controls
 		/// </summary>
 		protected bool IsTerminalServerSession
 		{
-			get { return coreConfiguration.OptimizeForRdp || SystemInformation.TerminalServerSession; }
+			get { return UiConfiguration.OptimizeForRdp || SystemInformation.TerminalServerSession; }
 		}
 
 		/// <summary>

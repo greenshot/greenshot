@@ -21,7 +21,7 @@ using Dapplo.Config.Ini;
 
 namespace Greenshot.Core.Configuration
 {
-	public interface IEditorLanguage : ISubSection
+	public interface IEditorLanguage : IIniSubSection
 	{
 		string EditorAlignBottom { get; }
 

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Greenshot.Addon.Interfaces.Drawing
+namespace Greenshot.Addon.Editor.Interfaces.Drawing
 {
 	/// <summary>
 	///     This is used to mark the fields that are important for the editor in the container

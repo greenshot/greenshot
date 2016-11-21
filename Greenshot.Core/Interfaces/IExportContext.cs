@@ -23,7 +23,7 @@ using System;
 
 #endregion
 
-namespace Greenshot.Addon.Interfaces.Destination
+namespace Greenshot.Core.Interfaces
 {
 	/// <summary>
 	///     This interface can be used to specify the caller for the destination

@@ -25,12 +25,13 @@ using System.Drawing.Drawing2D;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Greenshot.Addon.Interfaces.Drawing;
+using Greenshot.Addon.Editor.Interfaces.Drawing;
 using Greenshot.Core.Gfx;
+using Greenshot.Core.Interfaces;
 
 #endregion
 
-namespace Greenshot.Addon.Interfaces
+namespace Greenshot.Addon.Editor.Interfaces
 {
 	/// <summary>
 	///     Alignment Enums for possitioning

@@ -26,7 +26,7 @@ using Dapplo.Log;
 
 #endregion
 
-namespace Greenshot.Addon.Core
+namespace Greenshot.Legacy
 {
 	/// <summary>
 	///     Helper interface for passing base type

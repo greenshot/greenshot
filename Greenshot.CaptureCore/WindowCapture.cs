@@ -33,9 +33,9 @@ using Dapplo.Windows.Enums;
 using Dapplo.Windows.Native;
 using Dapplo.Windows.SafeHandles;
 using Dapplo.Windows.Structs;
-using Greenshot.Addon.Interfaces;
 using Greenshot.Core.Configuration;
 using Greenshot.Core.Gfx;
+using Greenshot.Core.Interfaces;
 
 #endregion
 

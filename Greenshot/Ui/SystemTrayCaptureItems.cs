@@ -27,6 +27,7 @@ using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Controls;
 using Greenshot.CaptureCore;
 using Greenshot.Core.Enumerations;
+using Greenshot.Legacy.Controls;
 using MahApps.Metro.IconPacks;
 
 #endregion

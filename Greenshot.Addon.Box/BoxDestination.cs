@@ -32,6 +32,8 @@ using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Windows;
+using Greenshot.CaptureCore;
+using Greenshot.Core.Interfaces;
 using MahApps.Metro.IconPacks;
 
 #endregion

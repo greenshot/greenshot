@@ -21,6 +21,7 @@
 
 using System;
 using System.ComponentModel.Composition;
+using Greenshot.Core.Interfaces;
 
 #endregion
 

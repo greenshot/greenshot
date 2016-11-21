@@ -29,7 +29,7 @@ namespace Greenshot.Addon.Configuration
 	/// <summary>
 	///     This interface represents all the UI settings
 	/// </summary>
-	public interface IUxConfiguration : ISubSection
+	public interface IUxConfiguration : IIniSubSection
 	{
 
 		Themes Theme { get; set; }

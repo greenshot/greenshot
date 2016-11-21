@@ -31,10 +31,12 @@ using Greenshot.Addon.Editor.Drawing.Adorners;
 using Greenshot.Addon.Editor.Drawing.Fields;
 using Greenshot.Addon.Editor.Drawing.Filters;
 using Greenshot.Addon.Editor.Helpers;
+using Greenshot.Addon.Editor.Interfaces;
+using Greenshot.Addon.Editor.Interfaces.Drawing;
 using Greenshot.Addon.Editor.Memento;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
-using Greenshot.Addon.Interfaces.Drawing;
+using Greenshot.Core.Extensions;
 
 #endregion
 

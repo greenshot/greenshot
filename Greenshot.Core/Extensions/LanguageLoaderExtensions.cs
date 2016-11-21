@@ -23,7 +23,7 @@ using Dapplo.Config.Language;
 
 #endregion
 
-namespace Greenshot.Addon.Extensions
+namespace Greenshot.Core.Extensions
 {
 	/// <summary>
 	///     Extensions to support with the LanguageLoader

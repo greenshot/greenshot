@@ -36,6 +36,7 @@ using Dapplo.Log;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Ui;
+using Greenshot.Core.Interfaces;
 using Greenshot.Ui.Config.ViewModels;
 using MahApps.Metro.IconPacks;
 

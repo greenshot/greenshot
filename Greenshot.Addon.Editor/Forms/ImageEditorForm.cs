@@ -39,15 +39,19 @@ using Greenshot.Addon.Core;
 using Greenshot.Addon.Editor.Drawing;
 using Greenshot.Addon.Editor.Drawing.Fields.Binding;
 using Greenshot.Addon.Editor.Helpers;
+using Greenshot.Addon.Editor.Interfaces;
+using Greenshot.Addon.Editor.Interfaces.Drawing;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
-using Greenshot.Addon.Interfaces.Drawing;
-using Greenshot.Addon.Interfaces.Forms;
 using Greenshot.CaptureCore;
 using Greenshot.Core;
 using Greenshot.Core.Configuration;
 using Greenshot.Core.Gfx;
+using Greenshot.Core.Interfaces;
+using Greenshot.Legacy;
+using Greenshot.Legacy.Controls;
+using Greenshot.Legacy.Extensions;
 
 #endregion
 
@@ -59,15 +63,18 @@ namespace Greenshot.Addon.Editor.Forms
 	public partial class ImageEditorForm : BaseForm, IImageEditor
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static readonly IEditorConfiguration editorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
-		private static readonly IEditorLanguage editorLanguage = LanguageLoader.Current.Get<IGreenshotLanguage>();
-
-		private static readonly List<string> ignoreDestinations = new List<string>
+		private static readonly IEditorConfiguration EditorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
+		private static readonly IEditorLanguage EditorLanguage = LanguageLoader.Current.Get<IGreenshotLanguage>();
+		private static readonly IMiscConfiguration MiscConfiguration = IniConfig.Current.GetSubSection<IMiscConfiguration>();
+		private static readonly IUiConfiguration UiConfiguration = IniConfig.Current.GetSubSection<IUiConfiguration>();
+		
+		private static readonly IOutputConfiguration OutputConfiguration = IniConfig.Current.GetSubSection<IOutputConfiguration>();
+		private static readonly List<string> IgnoreDestinations = new List<string>
 		{
 			BuildInDestinations.Picker.ToString(), BuildInDestinations.Editor.ToString()
 		};
 
-		private static readonly List<IImageEditor> editorList = new List<IImageEditor>();
+		private static readonly List<IImageEditor> EditorList = new List<IImageEditor>();
 
 		private static readonly string[] SupportedClipboardFormats =
 		{
@@ -86,7 +93,7 @@ namespace Greenshot.Addon.Editor.Forms
 
 		public ImageEditorForm(ISurface iSurface, bool outputMade)
 		{
-			editorList.Add(this);
+			EditorList.Add(this);
 
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
@@ -158,13 +165,13 @@ namespace Greenshot.Addon.Editor.Forms
 			{
 				try
 				{
-					editorList.Sort((e1, e2) => string.Compare(e1.Surface.CaptureDetails.Title, e2.Surface.CaptureDetails.Title, StringComparison.Ordinal));
+					EditorList.Sort((e1, e2) => string.Compare(e1.Surface.CaptureDetails.Title, e2.Surface.CaptureDetails.Title, StringComparison.Ordinal));
 				}
 				catch (Exception ex)
 				{
 					Log.Warn().WriteLine(ex, "Sorting of editors failed.");
 				}
-				return editorList;
+				return EditorList;
 			}
 		}
 
@@ -172,10 +179,7 @@ namespace Greenshot.Addon.Editor.Forms
 		///     An Implementation for the IImageEditor, this way Plugins have access to the HWND handles wich can be used with
 		///     Win32 API calls.
 		/// </summary>
-		public IWin32Window WindowHandle
-		{
-			get { return this; }
-		}
+		public IWin32Window WindowHandle => this;
 
 		public ISurface Surface
 		{
@@ -194,7 +198,7 @@ namespace Greenshot.Addon.Editor.Forms
 		/// </summary>
 		private async Task AddDropshadowToolStripMenuItemClickAsync(CancellationToken token = default(CancellationToken))
 		{
-			var dropShadowEffect = editorConfiguration.DropShadowEffectSettings;
+			var dropShadowEffect = EditorConfiguration.DropShadowEffectSettings;
 			var result = new DropShadowSettingsForm(dropShadowEffect).ShowDialog(this);
 			if (result == DialogResult.OK)
 			{
@@ -210,15 +214,15 @@ namespace Greenshot.Addon.Editor.Forms
 
 		private void AutoCropToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			if (editorConfiguration.AutoCropDifference < 0)
+			if (EditorConfiguration.AutoCropDifference < 0)
 			{
-				editorConfiguration.AutoCropDifference = 0;
+				EditorConfiguration.AutoCropDifference = 0;
 			}
-			if (editorConfiguration.AutoCropDifference > 255)
+			if (EditorConfiguration.AutoCropDifference > 255)
 			{
-				editorConfiguration.AutoCropDifference = 255;
+				EditorConfiguration.AutoCropDifference = 255;
 			}
-			if (_surface.AutoCrop(editorConfiguration.AutoCropDifference))
+			if (_surface.AutoCrop(EditorConfiguration.AutoCropDifference))
 			{
 				RefreshFieldControls();
 			}
@@ -313,7 +317,7 @@ namespace Greenshot.Addon.Editor.Forms
 				{
 					// TODO:
 					//capture = CaptureHelper.CaptureWindow(windowToCapture, capture, coreConfiguration.WindowCaptureMode);
-					if ((capture != null) && (capture.CaptureDetails != null) && (capture.Image != null))
+					if (capture.CaptureDetails != null && (capture.Image != null))
 					{
 						((Bitmap) capture.Image).SetResolution(capture.CaptureDetails.DpiX, capture.CaptureDetails.DpiY);
 						_surface.AddImageContainer((Bitmap) capture.Image, 100, 100);
@@ -322,10 +326,7 @@ namespace Greenshot.Addon.Editor.Forms
 					WindowDetails.ToForeground(Handle);
 				}
 
-				if (capture != null)
-				{
-					capture.Dispose();
-				}
+				capture.Dispose();
 			}
 			catch (Exception exception)
 			{
@@ -336,9 +337,10 @@ namespace Greenshot.Addon.Editor.Forms
 		private async void DestinationToolStripMenuItemClickAsync(object sender, EventArgs e)
 		{
 			IDestination clickedDestination = null;
-			if (sender is Control)
+			var control = sender as Control;
+			if (control != null)
 			{
-				Control clickedControl = sender as Control;
+				Control clickedControl = control;
 				if (clickedControl.ContextMenuStrip != null)
 				{
 					clickedControl.ContextMenuStrip.Show(Cursor.Position);
@@ -346,18 +348,23 @@ namespace Greenshot.Addon.Editor.Forms
 				}
 				clickedDestination = (IDestination) clickedControl.Tag;
 			}
-			else if (sender is ToolStripMenuItem)
+			else
 			{
-				ToolStripMenuItem clickedMenuItem = sender as ToolStripMenuItem;
-				clickedDestination = (IDestination) clickedMenuItem.Tag;
-			}
-			if (clickedDestination != null)
-			{
-				var exportInformation = await clickedDestination.Export(null, new Capture(_surface.Image), default(CancellationToken));
-				if (exportInformation.NotificationType == NotificationTypes.Success)
+				var item = sender as ToolStripMenuItem;
+				if (item != null)
 				{
-					_surface.Modified = false;
+					ToolStripMenuItem clickedMenuItem = item;
+					clickedDestination = (IDestination) clickedMenuItem.Tag;
 				}
+			}
+			if (clickedDestination == null)
+			{
+				return;
+			}
+			var exportInformation = await clickedDestination.Export(null, new Capture(_surface.Image), default(CancellationToken));
+			if (exportInformation.NotificationType == NotificationTypes.Success)
+			{
+				_surface.Modified = false;
 			}
 		}
 
@@ -383,7 +390,7 @@ namespace Greenshot.Addon.Editor.Forms
 			// Add the destinations
 			foreach (IDestination destination in new IDestination[] {})
 			{
-				if (ignoreDestinations.Contains(destination.Designation))
+				if (IgnoreDestinations.Contains(destination.Designation))
 				{
 					continue;
 				}
@@ -471,11 +478,11 @@ namespace Greenshot.Addon.Editor.Forms
 		private static WindowPlacement GetEditorPlacement()
 		{
 			WindowPlacement placement = WindowPlacement.Default;
-			placement.NormalPosition = new RECT(editorConfiguration.WindowNormalPosition);
-			placement.MaxPosition = new POINT(editorConfiguration.WindowMaxPosition);
-			placement.MinPosition = new POINT(editorConfiguration.WindowMinPosition);
-			placement.ShowCmd = editorConfiguration.ShowWindowCommand;
-			placement.Flags = editorConfiguration.WindowPlacementFlags;
+			placement.NormalPosition = new RECT(EditorConfiguration.WindowNormalPosition);
+			placement.MaxPosition = new POINT(EditorConfiguration.WindowMaxPosition);
+			placement.MinPosition = new POINT(EditorConfiguration.WindowMinPosition);
+			placement.ShowCmd = EditorConfiguration.ShowWindowCommand;
+			placement.Flags = EditorConfiguration.WindowPlacementFlags;
 			return placement;
 		}
 
@@ -495,7 +502,7 @@ namespace Greenshot.Addon.Editor.Forms
 
 		private void ImageEditorFormResize(object sender, EventArgs e)
 		{
-			if ((Surface == null) || (Surface.Image == null) || (surfacePanel == null))
+			if (Surface?.Image == null || (surfacePanel == null))
 			{
 				return;
 			}
@@ -548,8 +555,10 @@ namespace Greenshot.Addon.Editor.Forms
 
 		private void LoadElementsToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			OpenFileDialog openFileDialog = new OpenFileDialog();
-			openFileDialog.Filter = "Greenshot templates (*.gst)|*.gst";
+			OpenFileDialog openFileDialog = new OpenFileDialog
+			{
+				Filter = "Greenshot templates (*.gst)|*.gst"
+			};
 			if (openFileDialog.ShowDialog() == DialogResult.OK)
 			{
 				using (Stream streamRead = File.OpenRead(openFileDialog.FileName))
@@ -600,7 +609,7 @@ namespace Greenshot.Addon.Editor.Forms
 			Image icon;
 			if (stepLabels <= 20)
 			{
-				icon = (Image) resources.GetObject(string.Format("btnStepLabel{0:00}.Image", stepLabels));
+				icon = (Image) resources.GetObject($"btnStepLabel{stepLabels:00}.Image");
 			}
 			else
 			{
@@ -713,9 +722,11 @@ namespace Greenshot.Addon.Editor.Forms
 
 		private void SaveElementsToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			SaveFileDialog saveFileDialog = new SaveFileDialog();
-			saveFileDialog.Filter = "Greenshot templates (*.gst)|*.gst";
-			saveFileDialog.FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(coreConfiguration.OutputFileFilenamePattern, _surface.CaptureDetails);
+			SaveFileDialog saveFileDialog = new SaveFileDialog
+			{
+				Filter = "Greenshot templates (*.gst)|*.gst",
+				FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(OutputConfiguration.OutputFileFilenamePattern, _surface.CaptureDetails)
+			};
 			DialogResult dialogResult = saveFileDialog.ShowDialog();
 			if (dialogResult.Equals(DialogResult.OK))
 			{
@@ -736,11 +747,11 @@ namespace Greenshot.Addon.Editor.Forms
 		/// </summary>
 		public static void SetEditorPlacement(WindowPlacement placement)
 		{
-			editorConfiguration.WindowNormalPosition = placement.NormalPosition.ToRectangle();
-			editorConfiguration.WindowMaxPosition = placement.MaxPosition.ToSystemDrawingPoint();
-			editorConfiguration.WindowMinPosition = placement.MinPosition.ToSystemDrawingPoint();
-			editorConfiguration.ShowWindowCommand = placement.ShowCmd;
-			editorConfiguration.WindowPlacementFlags = placement.Flags;
+			EditorConfiguration.WindowNormalPosition = placement.NormalPosition.ToRectangle();
+			EditorConfiguration.WindowMaxPosition = placement.MaxPosition.ToSystemDrawingPoint();
+			EditorConfiguration.WindowMinPosition = placement.MinPosition.ToSystemDrawingPoint();
+			EditorConfiguration.ShowWindowCommand = placement.ShowCmd;
+			EditorConfiguration.WindowPlacementFlags = placement.Flags;
 		}
 
 		public void SetImagePath(string fullpath)
@@ -756,8 +767,8 @@ namespace Greenshot.Addon.Editor.Forms
 			{
 				return;
 			}
-			UpdateStatusLabel(string.Format(editorLanguage.EditorImagesaved, fullpath), fileSavedStatusContextMenu);
-			Text = Path.GetFileName(fullpath) + " - " + editorLanguage.EditorTitle;
+			UpdateStatusLabel(string.Format(EditorLanguage.EditorImagesaved, fullpath), fileSavedStatusContextMenu);
+			Text = Path.GetFileName(fullpath) + " - " + EditorLanguage.EditorTitle;
 		}
 
 		/// <summary>
@@ -793,9 +804,9 @@ namespace Greenshot.Addon.Editor.Forms
 			BindFieldControls();
 			RefreshEditorControls();
 			// Fix title
-			if ((_surface.CaptureDetails != null) && (_surface.CaptureDetails.Title != null))
+			if (_surface.CaptureDetails?.Title != null)
 			{
-				Text = _surface.CaptureDetails.Title + " - " + editorLanguage.EditorTitle;
+				Text = _surface.CaptureDetails.Title + " - " + EditorLanguage.EditorTitle;
 			}
 			WindowDetails.ToForeground(Handle);
 		}
@@ -810,7 +821,7 @@ namespace Greenshot.Addon.Editor.Forms
 			Rectangle cropRectangle;
 			using (Image tmpImage = Surface.GetImageForExport())
 			{
-				cropRectangle = ImageHelper.FindAutoCropRectangle(tmpImage, editorConfiguration.AutoCropDifference);
+				cropRectangle = ImageHelper.FindAutoCropRectangle(tmpImage, EditorConfiguration.AutoCropDifference);
 			}
 			if (_surface.IsCropPossible(ref cropRectangle))
 			{
@@ -884,7 +895,7 @@ namespace Greenshot.Addon.Editor.Forms
 						// Put the event message on the status label and attach the context menu
 						UpdateStatusLabel(dateTime + " - " + eventArgs.Message, fileSavedStatusContextMenu);
 						// Change title
-						Text = eventArgs.Capture.CaptureDetails.StoredAt + " - " + editorLanguage.EditorTitle;
+						Text = eventArgs.Capture.CaptureDetails.StoredAt + " - " + EditorLanguage.EditorTitle;
 						break;
 					default:
 						// Put the event message on the status label
@@ -901,7 +912,7 @@ namespace Greenshot.Addon.Editor.Forms
 		/// <param name="e"></param>
 		private void SurfaceSizeChanged(object sender, EventArgs e)
 		{
-			if (editorConfiguration.MatchSizeToCapture)
+			if (EditorConfiguration.MatchSizeToCapture)
 			{
 				// Set editor's initial size to the size of the surface plus the size of the chrome
 				Size imageSize = Surface.Image.Size;
@@ -933,7 +944,7 @@ namespace Greenshot.Addon.Editor.Forms
 		/// <param name="token"></param>
 		private async Task TornEdgesToolStripMenuItemClickAsync(CancellationToken token = default(CancellationToken))
 		{
-			var tornEdgeEffect = editorConfiguration.TornEdgeEffectSettings;
+			var tornEdgeEffect = EditorConfiguration.TornEdgeEffectSettings;
 			var result = new TornEdgeSettingsForm(tornEdgeEffect).ShowDialog(this);
 			if (result == DialogResult.OK)
 			{
@@ -945,10 +956,10 @@ namespace Greenshot.Addon.Editor.Forms
 		private void UpdateUI()
 		{
 			// Disable access to the settings, for feature #3521446
-			preferencesToolStripMenuItem.Visible = !coreConfiguration.DisableSettings;
-			toolStripSeparator12.Visible = !coreConfiguration.DisableSettings;
-			toolStripSeparator11.Visible = !coreConfiguration.DisableSettings;
-			btnSettings.Visible = !coreConfiguration.DisableSettings;
+			preferencesToolStripMenuItem.Visible = !UiConfiguration.DisableSettings;
+			toolStripSeparator12.Visible = !UiConfiguration.DisableSettings;
+			toolStripSeparator11.Visible = !UiConfiguration.DisableSettings;
+			btnSettings.Visible = !UiConfiguration.DisableSettings;
 
 			// Make sure Double-buffer is enabled
 			SetStyle(ControlStyles.DoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
@@ -1276,12 +1287,14 @@ namespace Greenshot.Addon.Editor.Forms
 
 		private void AboutToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			PluginUtils.Host.ShowAbout();
+			// TODO: Show about
+			//PluginUtils.Host.ShowAbout();
 		}
 
 		private void PreferencesToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			PluginUtils.Host.ShowSettings();
+			// TODO: Show settings
+			//PluginUtils.Host.ShowSettings();
 		}
 
 		private void BtnSettingsClick(object sender, EventArgs e)
@@ -1306,7 +1319,7 @@ namespace Greenshot.Addon.Editor.Forms
 
 		private async void ImageEditorFormFormClosingAsync(object sender, FormClosingEventArgs e)
 		{
-			if (_surface.Modified && !editorConfiguration.SuppressSaveDialogAtClose)
+			if (_surface.Modified && !EditorConfiguration.SuppressSaveDialogAtClose)
 			{
 				// Make sure the editor is visible
 				WindowDetails.ToForeground(Handle);
@@ -1317,7 +1330,7 @@ namespace Greenshot.Addon.Editor.Forms
 				{
 					buttons = MessageBoxButtons.YesNo;
 				}
-				DialogResult result = MessageBox.Show(editorLanguage.EditorCloseOnSave, editorLanguage.EditorCloseOnSaveTitle, buttons, MessageBoxIcon.Question);
+				DialogResult result = MessageBox.Show(EditorLanguage.EditorCloseOnSave, EditorLanguage.EditorCloseOnSaveTitle, buttons, MessageBoxIcon.Question);
 				if (result.Equals(DialogResult.Cancel))
 				{
 					e.Cancel = true;
@@ -1338,12 +1351,12 @@ namespace Greenshot.Addon.Editor.Forms
 			SetEditorPlacement(new WindowDetails(Handle).WindowPlacement);
 
 			// remove from the editor list
-			editorList.Remove(this);
+			EditorList.Remove(this);
 
 			_surface.Dispose();
 
 			GC.Collect();
-			if (coreConfiguration.MinimizeWorkingSetSize)
+			if (MiscConfiguration.MinimizeWorkingSetSize)
 			{
 				PsAPI.EmptyWorkingSet();
 			}
@@ -1474,7 +1487,7 @@ namespace Greenshot.Addon.Editor.Forms
 				// This also fixes bugs #3526974 & #3527020
 				foreach (var destination in new IDestination[] {})
 				{
-					if (ignoreDestinations.Contains(destination.Designation))
+					if (IgnoreDestinations.Contains(destination.Designation))
 					{
 						continue;
 					}
@@ -1514,7 +1527,7 @@ namespace Greenshot.Addon.Editor.Forms
 			btnUndo.Enabled = canUndo;
 			undoToolStripMenuItem.Enabled = canUndo;
 			// TODO: Include redo action
-			string undoText = string.Format(editorLanguage.EditorUndo, "");
+			string undoText = string.Format(EditorLanguage.EditorUndo, "");
 			btnUndo.Text = undoText;
 			undoToolStripMenuItem.Text = undoText;
 
@@ -1522,7 +1535,7 @@ namespace Greenshot.Addon.Editor.Forms
 			btnRedo.Enabled = canRedo;
 			redoToolStripMenuItem.Enabled = canRedo;
 			// TODO: Include redo action
-			string redoText = string.Format(editorLanguage.EditorRedo, "");
+			string redoText = string.Format(EditorLanguage.EditorRedo, "");
 			btnRedo.Text = redoText;
 			redoToolStripMenuItem.Text = redoText;
 		}

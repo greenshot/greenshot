@@ -28,7 +28,7 @@ using Greenshot.Core;
 
 #endregion
 
-namespace Greenshot.Addon.Extensions
+namespace Greenshot.Legacy.Extensions
 {
 	public static class ControlExtensions
 	{

@@ -28,6 +28,7 @@ using Dapplo.Log;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Windows;
+using Greenshot.Core.Interfaces;
 using MahApps.Metro.IconPacks;
 
 #endregion

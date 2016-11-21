@@ -35,7 +35,8 @@ using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
 using Greenshot.CaptureCore;
 using Greenshot.Core.Enumerations;
-using Greenshot.Forms;
+using System.Windows;
+using Greenshot.Core.Interfaces;
 
 #endregion
 
@@ -58,10 +59,7 @@ namespace Greenshot.Services
 		/// </summary>
 		public static string EndPoint => $"{PipeBaseEndpoint}{Identity}";
 
-		private static string Identity
-		{
-			get { return WindowsIdentity.GetCurrent()?.User?.Value; }
-		}
+		private static string Identity => WindowsIdentity.GetCurrent().User?.Value;
 
 		/// <summary>
 		///     Defines if the server is started
@@ -134,7 +132,7 @@ namespace Greenshot.Services
 		/// </summary>
 		public void Exit()
 		{
-			MainForm.Instance.Exit();
+			Application.Current.Shutdown();
 		}
 
 		/// <summary>

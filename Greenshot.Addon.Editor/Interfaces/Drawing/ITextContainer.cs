@@ -1,4 +1,4 @@
-﻿namespace Greenshot.Addon.Interfaces.Drawing
+﻿namespace Greenshot.Addon.Editor.Interfaces.Drawing
 {
 	public interface ITextContainer : IDrawableContainer
 	{

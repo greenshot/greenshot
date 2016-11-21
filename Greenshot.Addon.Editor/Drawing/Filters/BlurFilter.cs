@@ -22,7 +22,7 @@
 using System;
 using System.Drawing;
 using Dapplo.Windows.Native;
-using Greenshot.Addon.Interfaces.Drawing;
+using Greenshot.Addon.Editor.Interfaces.Drawing;
 using Greenshot.Core.Gfx;
 
 #endregion

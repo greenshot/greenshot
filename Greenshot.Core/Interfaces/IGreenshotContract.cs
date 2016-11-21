@@ -23,7 +23,7 @@ using System.ServiceModel;
 
 #endregion
 
-namespace Greenshot.Addon.Interfaces
+namespace Greenshot.Core.Interfaces
 {
 	/// <summary>
 	///     This interface specifies the interface to Greenshot 1.3+, and is used by Greenshot itself but can also be used from

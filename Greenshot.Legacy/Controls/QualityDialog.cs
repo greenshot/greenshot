@@ -20,12 +20,12 @@
 #region Usings
 
 using System;
-using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.Core;
 using Greenshot.Core.Configuration;
 
 #endregion
 
-namespace Greenshot.Addon.Controls
+namespace Greenshot.Legacy.Controls
 {
 	/// <summary>
 	///     Description of JpegQualityDialog.

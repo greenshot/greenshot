@@ -2,9 +2,9 @@
 using System.IO;
 using Dapplo.Log;
 using Greenshot.Addon.Interfaces;
-using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Core.Gfx;
 using System.Drawing;
+using Greenshot.Addon.Editor.Interfaces;
 
 namespace Greenshot.Addon.Editor.Extensions
 {

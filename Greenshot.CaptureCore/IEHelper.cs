@@ -20,7 +20,6 @@
 #region Usings
 
 using System.Collections.Generic;
-using Greenshot.Addon.Core;
 using Greenshot.Core;
 using Microsoft.Win32;
 

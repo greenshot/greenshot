@@ -20,6 +20,7 @@
 #region Usings
 
 using System;
+using Greenshot.Core.Interfaces;
 
 #endregion
 

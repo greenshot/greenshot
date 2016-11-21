@@ -34,9 +34,10 @@ using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
-using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Office.OfficeExport;
+using Greenshot.CaptureCore.Extensions;
 using Greenshot.Core;
+using Greenshot.Core.Interfaces;
 using MahApps.Metro.IconPacks;
 
 #endregion
@@ -90,7 +91,7 @@ namespace Greenshot.Addon.Office.Destinations
 			string tmpFile = capture.CaptureDetails.Filename;
 			if ((tmpFile == null) || capture.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
 			{
-				tmpFile = ImageOutput.SaveNamedTmpFile(capture, capture.CaptureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
+				tmpFile = capture.SaveNamedTmpFile(capture.CaptureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
 			}
 			try
 			{

@@ -22,13 +22,18 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using Dapplo.Config.Ini;
+using Greenshot.Core.Enumerations;
 
 #endregion
 
 namespace Greenshot.Core.Configuration
 {
-	public interface IMiscConfiguration : ISubSection
+	public interface IMiscConfiguration : IIniSubSection
 	{
+		[Description("Specify which formats we copy on the clipboard? Options are: PNG, HTML, HTMLDATAURL and DIB")]
+		[DefaultValue("PNG,DIB")]
+		IList<ClipboardFormat> ClipboardFormats { get; set; }
+
 		[Description("The fixes that are active.")]
 		IList<string> ActiveTitleFixes { get; set; }
 

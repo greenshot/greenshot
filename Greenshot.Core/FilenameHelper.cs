@@ -27,12 +27,12 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Dapplo.Config.Ini;
 using Dapplo.Log;
-using Greenshot.Addon.Interfaces;
 using Greenshot.Core.Configuration;
+using Greenshot.Core.Interfaces;
 
 #endregion
 
-namespace Greenshot.Addon.Core
+namespace Greenshot.Core
 {
 	public static class FilenameHelper
 	{

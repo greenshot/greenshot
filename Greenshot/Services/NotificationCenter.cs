@@ -22,6 +22,7 @@
 using System.ComponentModel.Composition;
 using Caliburn.Micro;
 using Greenshot.Addon.Interfaces;
+using Greenshot.Core.Interfaces;
 
 #endregion
 

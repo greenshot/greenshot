@@ -38,8 +38,12 @@ using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
-using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
+using Greenshot.CaptureCore;
+using Greenshot.CaptureCore.Extensions;
+using Greenshot.Core;
+using Greenshot.Core.Extensions;
+using Greenshot.Core.Interfaces;
 
 #endregion
 
@@ -99,7 +103,7 @@ namespace Greenshot.Addon.Confluence
 						httpBehaviour.MakeCurrent();
 						using (var stream = new MemoryStream())
 						{
-							ImageOutput.SaveToStream(capture, stream, outputSettings);
+							capture.SaveToStream(stream, outputSettings);
 							stream.Position = 0;
 							using (var streamContent = new StreamContent(stream))
 							{

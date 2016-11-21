@@ -25,9 +25,9 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Windows.Forms;
 using Dapplo.Log;
-using Greenshot.Addon.Interfaces;
 using Greenshot.Core;
 using Greenshot.Core.Gfx;
+using Greenshot.Core.Interfaces;
 
 #endregion
 

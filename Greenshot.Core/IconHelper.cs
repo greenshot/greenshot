@@ -43,12 +43,12 @@ namespace Greenshot.Core
 		private static readonly LogSource Log = new LogSource();
 
 		private static readonly IDictionary<string, Bitmap> ExeIconCache = new Dictionary<string, Bitmap>();
-		private static readonly IImageConfiguration ImageConfiguration = IniConfig.Current.GetSubSection<IImageConfiguration>();
+		private static readonly IUiConfiguration UiConfiguration = IniConfig.Current.GetSubSection<IUiConfiguration>();
 
 		static IconHelper()
 		{
-			ImageConfiguration.PropertyChanged += OnIconSizeChanged;
-			OnIconSizeChanged(ImageConfiguration, new PropertyChangedEventArgs(nameof(IImageConfiguration.IconSize)));
+			UiConfiguration.PropertyChanged += OnIconSizeChanged;
+			OnIconSizeChanged(UiConfiguration, new PropertyChangedEventArgs(nameof(IUiConfiguration.IconSize)));
 		}
 
 		public static bool UseLargeIcons { get; set; }
@@ -121,11 +121,11 @@ namespace Greenshot.Core
 		/// <param name="e"></param>
 		private static void OnIconSizeChanged(object sender, PropertyChangedEventArgs e)
 		{
-			if (e.PropertyName != nameof(IImageConfiguration.IconSize))
+			if (e.PropertyName != nameof(IUiConfiguration.IconSize))
 			{
 				return;
 			}
-			UseLargeIcons = (ImageConfiguration.IconSize.Width >= 32) || (ImageConfiguration.IconSize.Height >= 32);
+			UseLargeIcons = (UiConfiguration.IconSize.Width >= 32) || (UiConfiguration.IconSize.Height >= 32);
 			var cachedImages = new List<Image>();
 			lock (ExeIconCache)
 			{

@@ -31,6 +31,8 @@ using Dapplo.Log;
 using Greenshot.Addon.Controls;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Windows;
+using Greenshot.CaptureCore;
+using Greenshot.Legacy.Controls;
 
 #endregion
 
@@ -42,15 +44,15 @@ namespace Greenshot.Addon.Imgur.Forms
 	public partial class ImgurHistory : ImgurForm
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static readonly IImgurConfiguration config = IniConfig.Current.Get<IImgurConfiguration>();
+		private static readonly IImgurConfiguration ImgurConfiguration = IniConfig.Current.Get<IImgurConfiguration>();
 
-		private static readonly string[] _columns =
+		private static readonly string[] Columns =
 		{
 			"hash", "title", "deleteHash", "Date"
 		};
 
-		private static readonly ImgurHistory instance = new ImgurHistory();
-		private readonly GreenshotColumnSorter columnSorter;
+		private static readonly ImgurHistory Instance = new ImgurHistory();
+		private readonly GreenshotColumnSorter _columnSorter;
 
 		private ImgurHistory()
 		{
@@ -62,23 +64,23 @@ namespace Greenshot.Addon.Imgur.Forms
 			AcceptButton = finishedButton;
 			CancelButton = finishedButton;
 			// Init sorting
-			columnSorter = new GreenshotColumnSorter();
-			listview_imgur_uploads.ListViewItemSorter = columnSorter;
-			columnSorter.SortColumn = 3;
-			columnSorter.Order = SortOrder.Descending;
+			_columnSorter = new GreenshotColumnSorter();
+			listview_imgur_uploads.ListViewItemSorter = _columnSorter;
+			_columnSorter.SortColumn = 3;
+			_columnSorter.Order = SortOrder.Descending;
 			ApplyLanguage();
 			ClearWindow();
 			Shown += async (sender, eventArgs) =>
 			{
-				Text = imgurLanguage.History + " Loading...";
+				Text = ImgurLanguage.History + " Loading...";
 				BeginRedrawWindow();
 				ClearWindow();
 				EndRedrawWindow();
 				await LoadHistory();
 				await ImgurUtils.RetrieveImgurCredits();
-				if (config.Credits > 0)
+				if (ImgurConfiguration.Credits > 0)
 				{
-					Text = imgurLanguage.History + " (" + config.Credits + " credits)";
+					Text = ImgurLanguage.History + " (" + ImgurConfiguration.Credits + " credits)";
 				}
 			};
 		}
@@ -86,13 +88,15 @@ namespace Greenshot.Addon.Imgur.Forms
 		private void AddImgurItem(ImageInfo imgurInfo)
 		{
 			listview_imgur_uploads.BeginUpdate();
-			var item = new ListViewItem(imgurInfo.Id);
-			item.Tag = imgurInfo;
+			var item = new ListViewItem(imgurInfo.Id)
+			{
+				Tag = imgurInfo
+			};
 			item.SubItems.Add(imgurInfo.Title);
 			item.SubItems.Add(imgurInfo.DeleteHash);
 			item.SubItems.Add(imgurInfo.Timestamp.ToString("yyyy-MM-dd HH:mm:ss", DateTimeFormatInfo.InvariantInfo));
 			listview_imgur_uploads.Items.Add(item);
-			for (int i = 0; i < _columns.Length; i++)
+			for (int i = 0; i < Columns.Length; i++)
 			{
 				listview_imgur_uploads.Columns[i].Width = -2;
 			}
@@ -113,11 +117,11 @@ namespace Greenshot.Addon.Imgur.Forms
 
 		private void ClearHistoryButtonClick(object sender, EventArgs e)
 		{
-			var result = MessageBox.Show(imgurLanguage.ClearQuestion, "Imgur", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+			var result = MessageBox.Show(ImgurLanguage.ClearQuestion, "Imgur", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 			if (result == DialogResult.Yes)
 			{
-				config.RuntimeImgurHistory.Clear();
-				config.ImgurUploadHistory.Clear();
+				ImgurConfiguration.RuntimeImgurHistory.Clear();
+				ImgurConfiguration.ImgurUploadHistory.Clear();
 				Redraw();
 			}
 		}
@@ -127,7 +131,7 @@ namespace Greenshot.Addon.Imgur.Forms
 			BeginRedrawWindow();
 			listview_imgur_uploads.Items.Clear();
 			listview_imgur_uploads.Columns.Clear();
-			foreach (var column in _columns)
+			foreach (var column in Columns)
 			{
 				listview_imgur_uploads.Columns.Add(column);
 			}
@@ -137,19 +141,12 @@ namespace Greenshot.Addon.Imgur.Forms
 		private void ClipboardButtonClick(object sender, EventArgs e)
 		{
 			var links = new StringBuilder();
-			if ((listview_imgur_uploads.SelectedItems != null) && (listview_imgur_uploads.SelectedItems.Count > 0))
+			if ((listview_imgur_uploads.SelectedItems.Count > 0))
 			{
 				for (int i = 0; i < listview_imgur_uploads.SelectedItems.Count; i++)
 				{
 					var imgurInfo = (ImageInfo) listview_imgur_uploads.SelectedItems[i].Tag;
-					if (config.UsePageLink)
-					{
-						links.AppendLine(imgurInfo.Page.AbsoluteUri);
-					}
-					else
-					{
-						links.AppendLine(imgurInfo.Original.AbsoluteUri);
-					}
+					links.AppendLine(ImgurConfiguration.UsePageLink ? imgurInfo.Page.AbsoluteUri : imgurInfo.Original.AbsoluteUri);
 				}
 			}
 			ClipboardHelper.SetClipboardData(links.ToString());
@@ -157,18 +154,18 @@ namespace Greenshot.Addon.Imgur.Forms
 
 		private async void DeleteButtonClick(object sender, EventArgs e)
 		{
-			if ((listview_imgur_uploads.SelectedItems != null) && (listview_imgur_uploads.SelectedItems.Count > 0))
+			if ((listview_imgur_uploads.SelectedItems.Count > 0))
 			{
 				for (int i = 0; i < listview_imgur_uploads.SelectedItems.Count; i++)
 				{
 					var imgurInfo = (ImageInfo) listview_imgur_uploads.SelectedItems[i].Tag;
-					var result = MessageBox.Show(string.Format(imgurLanguage.DeleteQuestion, imgurInfo.Title), string.Format(imgurLanguage.DeleteTitle, imgurInfo.Id), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+					var result = MessageBox.Show(string.Format(ImgurLanguage.DeleteQuestion, imgurInfo.Title), string.Format(ImgurLanguage.DeleteTitle, imgurInfo.Id), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 					if (result == DialogResult.Yes)
 					{
 						// Should fix Bug #3378699 
 						pictureBox1.Image = null;
 
-						await PleaseWaitWindow.CreateAndShowAsync("Imgur plug-in", imgurLanguage.CommunicationWait, async (progress, pleaseWaitToken) => { return await ImgurUtils.DeleteImgurImageAsync(imgurInfo, pleaseWaitToken); });
+						await PleaseWaitWindow.CreateAndShowAsync("Imgur plug-in", ImgurLanguage.CommunicationWait, async (progress, pleaseWaitToken) => { return await ImgurUtils.DeleteImgurImageAsync(imgurInfo, pleaseWaitToken); });
 
 						imgurInfo.Dispose();
 					}
@@ -187,23 +184,16 @@ namespace Greenshot.Addon.Imgur.Forms
 		private void listview_imgur_uploads_ColumnClick(object sender, ColumnClickEventArgs e)
 		{
 			// Determine if clicked column is already the column that is being sorted.
-			if (e.Column == columnSorter.SortColumn)
+			if (e.Column == _columnSorter.SortColumn)
 			{
 				// Reverse the current sort direction for this column.
-				if (columnSorter.Order == SortOrder.Ascending)
-				{
-					columnSorter.Order = SortOrder.Descending;
-				}
-				else
-				{
-					columnSorter.Order = SortOrder.Ascending;
-				}
+				_columnSorter.Order = _columnSorter.Order == SortOrder.Ascending ? SortOrder.Descending : SortOrder.Ascending;
 			}
 			else
 			{
 				// Set the column number that is to be sorted; default to ascending.
-				columnSorter.SortColumn = e.Column;
-				columnSorter.Order = SortOrder.Ascending;
+				_columnSorter.SortColumn = e.Column;
+				_columnSorter.Order = SortOrder.Ascending;
 			}
 
 			// Perform the sort with these new sort options.
@@ -213,7 +203,7 @@ namespace Greenshot.Addon.Imgur.Forms
 		private void Listview_imgur_uploadsSelectedIndexChanged(object sender, EventArgs e)
 		{
 			pictureBox1.Image = null;
-			if ((listview_imgur_uploads.SelectedItems != null) && (listview_imgur_uploads.SelectedItems.Count > 0))
+			if ((listview_imgur_uploads.SelectedItems.Count > 0))
 			{
 				deleteButton.Enabled = true;
 				openButton.Enabled = true;
@@ -241,28 +231,28 @@ namespace Greenshot.Addon.Imgur.Forms
 			bool saveNeeded = false;
 
 			// Load the ImUr history
-			foreach (string hash in config.ImgurUploadHistory.Keys)
+			foreach (string hash in ImgurConfiguration.ImgurUploadHistory.Keys)
 			{
-				if (config.RuntimeImgurHistory.ContainsKey(hash))
+				if (ImgurConfiguration.RuntimeImgurHistory.ContainsKey(hash))
 				{
 					// Already loaded, only add it to the view
-					AddImgurItem(config.RuntimeImgurHistory[hash]);
+					AddImgurItem(ImgurConfiguration.RuntimeImgurHistory[hash]);
 					continue;
 				}
 				try
 				{
-					var imgurInfo = await ImgurUtils.RetrieveImgurInfoAsync(hash, config.ImgurUploadHistory[hash]);
+					var imgurInfo = await ImgurUtils.RetrieveImgurInfoAsync(hash, ImgurConfiguration.ImgurUploadHistory[hash], token);
 					if (imgurInfo != null)
 					{
-						await ImgurUtils.RetrieveImgurThumbnailAsync(imgurInfo);
-						config.RuntimeImgurHistory.Add(hash, imgurInfo);
+						await ImgurUtils.RetrieveImgurThumbnailAsync(imgurInfo, token);
+						ImgurConfiguration.RuntimeImgurHistory.Add(hash, imgurInfo);
 						// Already loaded, only add it to the view
 						AddImgurItem(imgurInfo);
 					}
 					else
 					{
 						Log.Debug().WriteLine("Deleting not found ImgUr {0} from config.", hash);
-						config.ImgurUploadHistory.Remove(hash);
+						ImgurConfiguration.ImgurUploadHistory.Remove(hash);
 						saveNeeded = true;
 					}
 				}
@@ -280,7 +270,7 @@ namespace Greenshot.Addon.Imgur.Forms
 
 		private void OpenButtonClick(object sender, EventArgs e)
 		{
-			if ((listview_imgur_uploads.SelectedItems != null) && (listview_imgur_uploads.SelectedItems.Count > 0))
+			if ((listview_imgur_uploads.SelectedItems.Count > 0))
 			{
 				for (int i = 0; i < listview_imgur_uploads.SelectedItems.Count; i++)
 				{
@@ -297,7 +287,7 @@ namespace Greenshot.Addon.Imgur.Forms
 		{
 			BeginRedrawWindow();
 			ClearWindow();
-			foreach (var imgurInfo in config.RuntimeImgurHistory.Values)
+			foreach (var imgurInfo in ImgurConfiguration.RuntimeImgurHistory.Values)
 			{
 				AddImgurItem(imgurInfo);
 			}
@@ -306,7 +296,7 @@ namespace Greenshot.Addon.Imgur.Forms
 
 		public static void ShowHistory()
 		{
-			instance.ShowDialog();
+			Instance.ShowDialog();
 		}
 	}
 }

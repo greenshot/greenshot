@@ -20,18 +20,14 @@
 #region Usings
 
 using System;
-using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using Dapplo.Log;
 using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
-using Greenshot.Addon.Extensions;
 using Greenshot.Core.Configuration;
-using Greenshot.Forms;
 
 #endregion
 
@@ -69,12 +65,13 @@ namespace Greenshot.Helpers
 					await ProcessRssInfoAsync(currentVersion).ConfigureAwait(false);
 					if (_latestGreenshot != null)
 					{
-						await MainForm.Instance.InvokeAsync(() =>
-						{
-							MainForm.Instance.NotifyIcon.BalloonTipClicked += HandleBalloonTipClick;
-							MainForm.Instance.NotifyIcon.BalloonTipClosed += CleanupBalloonTipClick;
-							MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", string.Format(language.UpdateFound, "'" + _latestGreenshot.File + "'"), ToolTipIcon.Info);
-						});
+						// TODO: Notify
+						//await MainForm.Instance.InvokeAsync(() =>
+						//{
+						//	MainForm.Instance.NotifyIcon.BalloonTipClicked += HandleBalloonTipClick;
+						//	MainForm.Instance.NotifyIcon.BalloonTipClosed += CleanupBalloonTipClick;
+						//	MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", string.Format(language.UpdateFound, "'" + _latestGreenshot.File + "'"), ToolTipIcon.Info);
+						//});
 					}
 					conf.LastUpdateCheck = DateTimeOffset.Now;
 				}
@@ -85,33 +82,33 @@ namespace Greenshot.Helpers
 			}
 		}
 
-		private static void CleanupBalloonTipClick(object sender, EventArgs e)
-		{
-			MainForm.Instance.NotifyIcon.BalloonTipClicked -= HandleBalloonTipClick;
-			MainForm.Instance.NotifyIcon.BalloonTipClosed -= CleanupBalloonTipClick;
-		}
+		//private static void CleanupBalloonTipClick(object sender, EventArgs e)
+		//{
+		//	MainForm.Instance.NotifyIcon.BalloonTipClicked -= HandleBalloonTipClick;
+		//	MainForm.Instance.NotifyIcon.BalloonTipClosed -= CleanupBalloonTipClick;
+		//}
 
-		private static void HandleBalloonTipClick(object sender, EventArgs e)
-		{
-			try
-			{
-				if (_latestGreenshot != null)
-				{
-					// "Direct" download link
-					// Process.Start(latestGreenshot.Link);
-					// Go to getgreenshot.org
-					Process.Start(_downloadLink);
-				}
-			}
-			catch (Exception)
-			{
-				MessageBox.Show(string.Format(language.ErrorOpenlink, _downloadLink), language.Error);
-			}
-			finally
-			{
-				CleanupBalloonTipClick(sender, e);
-			}
-		}
+		//private static void HandleBalloonTipClick(object sender, EventArgs e)
+		//{
+		//	try
+		//	{
+		//		if (_latestGreenshot != null)
+		//		{
+		//			// "Direct" download link
+		//			// Process.Start(latestGreenshot.Link);
+		//			// Go to getgreenshot.org
+		//			Process.Start(_downloadLink);
+		//		}
+		//	}
+		//	catch (Exception)
+		//	{
+		//		MessageBox.Show(string.Format(language.ErrorOpenlink, _downloadLink), language.Error);
+		//	}
+		//	finally
+		//	{
+		//		CleanupBalloonTipClick(sender, e);
+		//	}
+		//}
 
 		/// <summary>
 		///     Is an update check needed?

@@ -17,13 +17,33 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace Greenshot.Addon.Interfaces.Plugin
+#region Usings
+
+using System;
+
+#endregion
+
+namespace Greenshot.Core.Utils
 {
-	public interface IConfigurablePlugin : IGreenshotPlugin
+	public class EventDelay
 	{
-		/// <summary>
-		///     Open the Configuration Form, will/should not be called before handshaking is done
-		/// </summary>
-		void Configure();
+		private readonly long _waitTime;
+		private long _lastCheck;
+
+		public EventDelay(long ticks)
+		{
+			_waitTime = ticks;
+		}
+
+		public bool Check()
+		{
+			lock (this)
+			{
+				var now = DateTime.Now.Ticks;
+				var isPassed = now - _lastCheck > _waitTime;
+				_lastCheck = now;
+				return isPassed;
+			}
+		}
 	}
 }

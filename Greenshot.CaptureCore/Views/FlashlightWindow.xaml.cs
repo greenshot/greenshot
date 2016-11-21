@@ -23,7 +23,7 @@ using System;
 using System.Threading.Tasks;
 using System.Windows;
 using Dapplo.Utils;
-using Greenshot.Addon.Extensions;
+using Greenshot.Core.Extensions;
 
 #endregion
 

@@ -30,13 +30,12 @@ using Dapplo.Config.Language;
 using Dapplo.InterfaceImpl.Extensions;
 using Dapplo.Log;
 using Dapplo.Windows.Native;
-using Greenshot.Addon.Configuration;
-using Greenshot.Addon.Core;
-using Greenshot.Addon.Extensions;
+using Greenshot.Core.Configuration;
+using Greenshot.Core.Extensions;
 
 #endregion
 
-namespace Greenshot.Addon.Controls
+namespace Greenshot.Legacy.Controls
 {
 	/// <summary>
 	///     This form is used for automatically binding the elements of the form to the language
@@ -45,8 +44,8 @@ namespace Greenshot.Addon.Controls
 	{
 		private static readonly LogSource Log = new LogSource();
 		protected static readonly IniConfig iniConfig = IniConfig.Current;
-		protected static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
-		protected static readonly ICoreConfiguration coreConfiguration = IniConfig.Current.Get<ICoreConfiguration>();
+		protected static readonly ILanguage language = (ILanguage)LanguageLoader.Current.GetPart<ICoreTranslations>();
+
 		private static readonly IDictionary<Type, FieldInfo[]> ReflectionCache = new Dictionary<Type, FieldInfo[]>();
 		private IDictionary<string, Control> _designTimeControls;
 		private IDictionary<string, ToolStripItem> _designTimeToolStripItems;
@@ -230,15 +229,7 @@ namespace Greenshot.Addon.Controls
 		/// </summary>
 		protected void ApplyLanguage(Control applyTo, string languageModule, string languageKey)
 		{
-			if (!string.IsNullOrEmpty(languageKey))
-			{
-				applyTo.Text = LanguageLoader.Current.Translate(languageKey, languageModule);
-			}
-			else
-			{
-				// Fallback to control name!
-				applyTo.Text = LanguageLoader.Current.Translate(applyTo.Name, languageModule);
-			}
+			applyTo.Text = LanguageLoader.Current.Translate(!string.IsNullOrEmpty(languageKey) ? languageKey : applyTo.Name, languageModule);
 		}
 
 		private void ClearChangeNotifications()
@@ -273,16 +264,8 @@ namespace Greenshot.Addon.Controls
 			foreach (FieldInfo field in GetCachedFields(GetType()))
 			{
 				var controlObject = field.GetValue(this);
-				if (controlObject == null)
-				{
-					continue;
-				}
 				var configBindable = controlObject as IGreenshotConfigBindable;
-				if (configBindable == null)
-				{
-					continue;
-				}
-				if (!string.IsNullOrEmpty(configBindable.SectionName) && !string.IsNullOrEmpty(configBindable.PropertyName))
+				if (!string.IsNullOrEmpty(configBindable?.SectionName) && !string.IsNullOrEmpty(configBindable.PropertyName))
 				{
 					IIniSection section;
 					if (!iniConfig.TryGet(configBindable.SectionName, out section))
@@ -327,13 +310,10 @@ namespace Greenshot.Addon.Controls
 							var hotkeyControl = controlObject as HotkeyControl;
 							if (hotkeyControl != null)
 							{
-								if (iniValue.Value != null)
+								string hotkeyValue = (string) iniValue.Value;
+								if (!string.IsNullOrEmpty(hotkeyValue))
 								{
-									string hotkeyValue = (string) iniValue.Value;
-									if (!string.IsNullOrEmpty(hotkeyValue))
-									{
-										hotkeyControl.SetHotkey(hotkeyValue);
-									}
+									hotkeyControl.SetHotkey(hotkeyValue);
 								}
 								hotkeyControl.Enabled = !writeProtected;
 								continue;
@@ -409,7 +389,7 @@ namespace Greenshot.Addon.Controls
 
 		private void OnComponentAdded(object sender, ComponentEventArgs ce)
 		{
-			if ((ce.Component != null) && (ce.Component.Site != null))
+			if (ce.Component?.Site != null)
 			{
 				var control = ce.Component as Control;
 				if (control != null)
@@ -423,16 +403,20 @@ namespace Greenshot.Addon.Controls
 						_designTimeControls[control.Name] = control;
 					}
 				}
-				else if (ce.Component is ToolStripItem)
+				else
 				{
-					var item = ce.Component as ToolStripItem;
-					if (!_designTimeControls.ContainsKey(item.Name))
+					var stripItem = ce.Component as ToolStripItem;
+					if (stripItem != null)
 					{
-						_designTimeToolStripItems.Add(item.Name, item);
-					}
-					else
-					{
-						_designTimeToolStripItems[item.Name] = item;
+						var item = stripItem;
+						if (!_designTimeControls.ContainsKey(item.Name))
+						{
+							_designTimeToolStripItems.Add(item.Name, item);
+						}
+						else
+						{
+							_designTimeToolStripItems[item.Name] = item;
+						}
 					}
 				}
 			}
@@ -445,7 +429,7 @@ namespace Greenshot.Addon.Controls
 		/// <param name="ce"></param>
 		private void OnComponentChanged(object sender, ComponentChangedEventArgs ce)
 		{
-			if ((ce.Component != null) && (((IComponent) ce.Component).Site != null) && (ce.Member != null))
+			if (((IComponent) ce.Component)?.Site != null && (ce.Member != null))
 			{
 				if ("LanguageKey".Equals(ce.Member.Name))
 				{
@@ -554,12 +538,8 @@ namespace Greenshot.Addon.Controls
 			foreach (FieldInfo field in GetCachedFields(GetType()))
 			{
 				var controlObject = field.GetValue(this);
-				if (controlObject == null)
-				{
-					continue;
-				}
 				var configBindable = controlObject as IGreenshotConfigBindable;
-				if ((configBindable == null) || string.IsNullOrEmpty(configBindable.PropertyName))
+				if (string.IsNullOrEmpty(configBindable?.PropertyName))
 				{
 					continue;
 				}

@@ -25,8 +25,9 @@ using System.Threading.Tasks;
 using Dapplo.Addons;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces.Destination;
-using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Office.Destinations;
+using Greenshot.Core.Interfaces;
+using Greenshot.Core.Interfaces.Plugin;
 
 #endregion
 

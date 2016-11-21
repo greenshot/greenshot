@@ -34,10 +34,14 @@ using Dapplo.Log;
 using Dapplo.Utils;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Dropbox.Entities;
+using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
-using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
+using Greenshot.CaptureCore;
+using Greenshot.CaptureCore.Extensions;
+using Greenshot.Core;
+using Greenshot.Core.Interfaces;
 using MahApps.Metro.IconPacks;
 
 #endregion
@@ -77,7 +81,7 @@ namespace Greenshot.Addon.Dropbox
 					string filename = Path.GetFileName(FilenameHelper.GetFilename(DropboxConfiguration.UploadFormat, capture.CaptureDetails));
 					using (var stream = new MemoryStream())
 					{
-						ImageOutput.SaveToStream(capture, stream, outputSettings);
+						capture.SaveToStream(stream, outputSettings);
 						stream.Position = 0;
 						using (var streamContent = new StreamContent(stream))
 						{

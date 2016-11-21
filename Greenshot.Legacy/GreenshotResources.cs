@@ -24,7 +24,7 @@ using System.Drawing;
 
 #endregion
 
-namespace Greenshot.Addon.Core
+namespace Greenshot.Legacy
 {
 	/// <summary>
 	///     Centralized storage of the icons & bitmaps

@@ -26,10 +26,10 @@ using Dapplo.Config.Ini;
 using Dapplo.Windows.Enums;
 using Dapplo.Windows.Native;
 using Dapplo.Windows.Structs;
-using Greenshot.Addon.Configuration;
-using Greenshot.Addon.Controls;
 using Greenshot.Core;
+using Greenshot.Core.Configuration;
 using Greenshot.Core.Enumerations;
+using Greenshot.Legacy.Controls;
 
 #endregion
 
@@ -40,12 +40,11 @@ namespace Greenshot.CaptureCore.Forms
 	///     capture.
 	///     Didn't make it completely "generic" yet, but at least most logic is in here so we don't have it in the mainform.
 	/// </summary>
-	public class ThumbnailForm : FormWithoutActivation
+	public sealed class ThumbnailForm : FormWithoutActivation
 	{
-		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
-		private Rectangle parentMenuBounds = Rectangle.Empty;
+		private static readonly ICaptureConfiguration CaptureConfiguration = IniConfig.Current.GetSubSection<ICaptureConfiguration>();
 
-		private IntPtr thumbnailHandle = IntPtr.Zero;
+		private IntPtr _thumbnailHandle = IntPtr.Zero;
 
 		public ThumbnailForm()
 		{
@@ -53,9 +52,9 @@ namespace Greenshot.CaptureCore.Forms
 			FormBorderStyle = FormBorderStyle.None;
 			TopMost = false;
 			Enabled = false;
-			if ((conf.WindowCaptureMode == WindowCaptureMode.Auto) || (conf.WindowCaptureMode == WindowCaptureMode.Aero))
+			if ((CaptureConfiguration.WindowCaptureMode == WindowCaptureMode.Auto) || (CaptureConfiguration.WindowCaptureMode == WindowCaptureMode.Aero))
 			{
-				BackColor = Color.FromArgb(255, conf.DWMBackgroundColor.R, conf.DWMBackgroundColor.G, conf.DWMBackgroundColor.B);
+				BackColor = Color.FromArgb(255, CaptureConfiguration.DWMBackgroundColor.R, CaptureConfiguration.DWMBackgroundColor.G, CaptureConfiguration.DWMBackgroundColor.B);
 			}
 			else
 			{
@@ -94,11 +93,11 @@ namespace Greenshot.CaptureCore.Forms
 		{
 			UnregisterThumbnail();
 
-			Dwm.DwmRegisterThumbnail(Handle, window.Handle, out thumbnailHandle);
-			if (thumbnailHandle != IntPtr.Zero)
+			Dwm.DwmRegisterThumbnail(Handle, window.Handle, out _thumbnailHandle);
+			if (_thumbnailHandle != IntPtr.Zero)
 			{
 				SIZE sourceSize;
-				int hresult = Dwm.DwmQueryThumbnailSourceSize(thumbnailHandle, out sourceSize);
+				int hresult = Dwm.DwmQueryThumbnailSourceSize(_thumbnailHandle, out sourceSize);
 				if ((hresult != 0) || sourceSize.IsEmpty())
 				{
 					UnregisterThumbnail();
@@ -120,7 +119,7 @@ namespace Greenshot.CaptureCore.Forms
 				props.Visible = true;
 				props.SourceClientAreaOnly = false;
 				props.Destination = new RECT(0, 0, thumbnailWidth, thumbnailHeight);
-				Dwm.DwmUpdateThumbnailProperties(thumbnailHandle, ref props);
+				Dwm.DwmUpdateThumbnailProperties(_thumbnailHandle, ref props);
 				if (parentControl != null)
 				{
 					AlignToControl(parentControl);
@@ -140,10 +139,10 @@ namespace Greenshot.CaptureCore.Forms
 
 		private void UnregisterThumbnail()
 		{
-			if (thumbnailHandle != IntPtr.Zero)
+			if (_thumbnailHandle != IntPtr.Zero)
 			{
-				Dwm.DwmUnregisterThumbnail(thumbnailHandle);
-				thumbnailHandle = IntPtr.Zero;
+				Dwm.DwmUnregisterThumbnail(_thumbnailHandle);
+				_thumbnailHandle = IntPtr.Zero;
 			}
 		}
 	}

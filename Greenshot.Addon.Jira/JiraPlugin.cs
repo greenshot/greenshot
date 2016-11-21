@@ -28,8 +28,9 @@ using Dapplo.Addons;
 using Dapplo.Utils;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces.Destination;
-using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Jira.Forms;
+using Greenshot.Core.Interfaces;
+using Greenshot.Core.Interfaces.Plugin;
 
 #endregion
 
@@ -41,12 +42,9 @@ namespace Greenshot.Addon.Jira
 	[Plugin("Jira", Configurable = true)]
 	[Export(typeof(JiraPlugin))]
 	[StartupAction(StartupOrder = (int) GreenshotStartupOrder.Addon)]
-	public class JiraPlugin : IConfigurablePlugin, IStartupAction
+	public class JiraPlugin : IStartupAction
 	{
 		private JiraDestination _jiraDestination;
-
-		[Import]
-		private IGreenshotHost GreenshotHost { get; set; }
 
 		[Import]
 		private IJiraConfiguration JiraConfiguration { get; set; }

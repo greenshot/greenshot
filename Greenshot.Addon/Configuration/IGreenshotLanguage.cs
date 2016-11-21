@@ -20,8 +20,8 @@
 #region Usings
 
 using System.ComponentModel;
-using Dapplo.CaliburnMicro.Translations;
 using Dapplo.Config.Language;
+using Greenshot.CaptureCore.Configuration;
 using Greenshot.Core.Configuration;
 
 #endregion
@@ -29,7 +29,7 @@ using Greenshot.Core.Configuration;
 namespace Greenshot.Addon.Configuration
 {
 	[Language("Core")]
-	public interface IGreenshotLanguage : ILanguage, INotifyPropertyChanged, IEditorLanguage, IConfigTranslations, ICoreTranslations
+	public interface IGreenshotLanguage : ILanguage, INotifyPropertyChanged, IEditorLanguage, ICaptureTranslations, ICoreTranslations, Dapplo.CaliburnMicro.Translations.IConfigTranslations, Dapplo.CaliburnMicro.Translations.ICoreTranslations
 	{
 		string AboutBugs { get; }
 
@@ -53,10 +53,6 @@ namespace Greenshot.Addon.Configuration
 
 		string BugreportTitle { get; }
 
-		string ClipboardError { get; }
-
-		string ClipboardInuse { get; }
-
 		string ColorpickerAlpha { get; }
 
 		string ColorpickerApply { get; }
@@ -79,28 +75,6 @@ namespace Greenshot.Addon.Configuration
 
 		string ContextmenuAbout { get; }
 
-		string ContextmenuCaptureArea { get; }
-
-		string ContextmenuCaptureClipboard { get; }
-
-		string ContextmenuCaptureFullScreen { get; }
-
-		string ContextmenuCaptureFullScreenAll { get; }
-
-		string ContextmenuCaptureFullScreenBottom { get; }
-
-		string ContextmenuCaptureFullScreenLeft { get; }
-
-		string ContextmenuCaptureFullScreenRight { get; }
-
-		string ContextmenuCaptureFullScreenTop { get; }
-
-		string ContextmenuCaptureie { get; }
-
-		string ContextmenuCaptureLastRegion { get; }
-
-		string ContextmenuCaptureWindow { get; }
-
 		string ContextmenuDonate { get; }
 
 		string ContextmenuExit { get; }
@@ -117,15 +91,8 @@ namespace Greenshot.Addon.Configuration
 
 		string DestinationExportFailed { get; }
 
-		[DefaultValue("Error")]
-		string Error { get; }
-
 		[DefaultValue("An instance of Greenshot is already running.")]
 		string ErrorMultipleinstances { get; }
-
-		string ErrorNowriteaccess { get; }
-
-		string ErrorOpenfile { get; }
 
 		[DefaultValue("Could not open link '{0}'.")]
 		string ErrorOpenlink { get; }
@@ -283,8 +250,6 @@ namespace Greenshot.Addon.Configuration
 		string TooltipFirststart { get; }
 
 		string UpdateFound { get; }
-
-		string WaitIeCapture { get; }
 
 		string Warning { get; }
 

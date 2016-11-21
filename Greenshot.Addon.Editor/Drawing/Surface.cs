@@ -37,13 +37,16 @@ using Dapplo.Log;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Editor.Helpers;
+using Greenshot.Addon.Editor.Interfaces;
+using Greenshot.Addon.Editor.Interfaces.Drawing;
 using Greenshot.Addon.Editor.Memento;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
-using Greenshot.Addon.Interfaces.Drawing;
 using Greenshot.Addon.Windows;
 using Greenshot.CaptureCore;
+using Greenshot.Core.Extensions;
 using Greenshot.Core.Gfx;
+using Greenshot.Core.Interfaces;
 
 #endregion
 

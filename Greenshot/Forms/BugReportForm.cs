@@ -22,7 +22,10 @@
 using System;
 using System.Diagnostics;
 using System.Windows.Forms;
+using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
 using Dapplo.Config.Support;
+using Greenshot.Addon.Configuration;
 
 #endregion
 
@@ -30,6 +33,7 @@ namespace Greenshot.Forms
 {
 	public partial class BugReportForm : BaseForm
 	{
+		private static readonly IGreenshotLanguage GreenshotLanguage = LanguageLoader.Current.Get<IGreenshotLanguage>();
 		private BugReportForm()
 		{
 			//
@@ -58,7 +62,7 @@ namespace Greenshot.Forms
 			}
 			catch (Exception)
 			{
-				MessageBox.Show(string.Format(language.TranslationOrDefault(t => t.ErrorOpenlink), link.Text), language.TranslationOrDefault(t => t.Error));
+				MessageBox.Show(string.Format(GreenshotLanguage.TranslationOrDefault(t => t.ErrorOpenlink), link.Text), GreenshotLanguage.TranslationOrDefault(t => t.Error));
 			}
 		}
 	}

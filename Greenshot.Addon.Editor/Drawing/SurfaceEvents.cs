@@ -21,8 +21,9 @@
 
 using System;
 using System.Collections.Generic;
+using Greenshot.Addon.Editor.Interfaces.Drawing;
 using Greenshot.Addon.Interfaces;
-using Greenshot.Addon.Interfaces.Drawing;
+using Greenshot.Core.Interfaces;
 
 #endregion
 

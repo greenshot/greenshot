@@ -25,6 +25,7 @@ using Dapplo.Config.Ini;
 using Dapplo.Log;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Interfaces;
+using Greenshot.Core.Interfaces;
 
 #endregion
 

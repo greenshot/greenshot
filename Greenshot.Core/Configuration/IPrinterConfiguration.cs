@@ -31,7 +31,7 @@ namespace Greenshot.Core.Configuration
 	/// <summary>
 	///     This interface represents all the printer settings
 	/// </summary>
-	public interface IPrinterConfiguration : ISubSection
+	public interface IPrinterConfiguration : IIniSubSection
 	{
 		[Description("Allow growing the picture for fitting on paper?")]
 		[DefaultValue(false)]

@@ -21,6 +21,7 @@
 
 using Dapplo.Config.Language;
 using Greenshot.Addon.Controls;
+using Greenshot.Legacy.Controls;
 
 #endregion
 
@@ -31,6 +32,6 @@ namespace Greenshot.Addon.Imgur.Forms
 	/// </summary>
 	public class ImgurForm : GreenshotForm
 	{
-		protected static readonly IImgurLanguage imgurLanguage = LanguageLoader.Current.Get<IImgurLanguage>();
+		protected static readonly IImgurLanguage ImgurLanguage = LanguageLoader.Current.Get<IImgurLanguage>();
 	}
 }

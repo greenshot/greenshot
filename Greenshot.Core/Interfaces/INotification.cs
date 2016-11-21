@@ -23,7 +23,7 @@ using System;
 
 #endregion
 
-namespace Greenshot.Addon.Interfaces
+namespace Greenshot.Core.Interfaces
 {
 	/// <summary>
 	///     The interface for the notification object

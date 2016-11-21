@@ -23,7 +23,7 @@ using System.Windows.Forms;
 
 #endregion
 
-namespace Greenshot.Addon.Controls
+namespace Greenshot.Legacy.Controls
 {
 	/// <summary>
 	///     FormWithoutActivation is exactly like a normal form, but doesn't activate (steal focus)

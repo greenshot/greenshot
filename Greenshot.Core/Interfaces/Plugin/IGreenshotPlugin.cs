@@ -23,7 +23,7 @@ using System;
 
 #endregion
 
-namespace Greenshot.Addon.Interfaces.Plugin
+namespace Greenshot.Core.Interfaces.Plugin
 {
 	public interface IGreenshotPlugin : IDisposable
 	{

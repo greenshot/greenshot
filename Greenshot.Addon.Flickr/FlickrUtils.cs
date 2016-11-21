@@ -34,7 +34,10 @@ using Dapplo.HttpExtensions.Extensions;
 using Dapplo.Log;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
-using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.Addon.Extensions;
+using Greenshot.CaptureCore.Extensions;
+using Greenshot.Core;
+using Greenshot.Core.Interfaces;
 
 #endregion
 
@@ -91,7 +94,7 @@ namespace Greenshot.Addon.Flickr
 				string photoId;
 				using (var stream = new MemoryStream())
 				{
-					ImageOutput.SaveToStream(surfaceToUpload, stream, outputSettings);
+					surfaceToUpload.SaveToStream(stream, outputSettings);
 					stream.Position = 0;
 					using (var streamContent = new StreamContent(stream))
 					{

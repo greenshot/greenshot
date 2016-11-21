@@ -24,7 +24,7 @@ using System.Runtime.InteropServices;
 
 #endregion
 
-namespace Greenshot.Addon.Core
+namespace Greenshot.Core.Utils
 {
 	/// <summary>
 	///     A helper class which does the mashalling for structs

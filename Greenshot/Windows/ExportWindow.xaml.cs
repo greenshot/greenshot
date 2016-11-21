@@ -33,8 +33,10 @@ using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
-using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.CaptureCore.Extensions;
+using Greenshot.Core;
 using Greenshot.Core.Configuration;
+using Greenshot.Core.Interfaces;
 
 #endregion
 
@@ -128,7 +130,7 @@ namespace Greenshot.Windows
 			{
 				// Save image as BMP
 				var bmpOutputSettings = new SurfaceOutputSettings(OutputFormat.bmp, 100, false);
-				ImageOutput.SaveToStream(_capture, tmpBmpStream, bmpOutputSettings);
+				_capture.SaveToStream(tmpBmpStream, bmpOutputSettings);
 
 				dibStream = new MemoryStream();
 				// Copy the source, but skip the "BITMAPFILEHEADER" which has a size of 14

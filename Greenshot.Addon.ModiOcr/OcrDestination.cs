@@ -31,10 +31,12 @@ using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
-using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.CaptureCore;
+using Greenshot.CaptureCore.Extensions;
 using Greenshot.Core;
 using Greenshot.Core.Configuration;
 using Greenshot.Core.Gfx;
+using Greenshot.Core.Interfaces;
 using MahApps.Metro.IconPacks;
 
 #endregion
@@ -97,7 +99,7 @@ namespace Greenshot.Addon.ModiOcr
 				IEffect effect = new ResizeCanvasEffect(addedWidth/2, addedWidth/2, addedHeight/2, addedHeight/2);
 				outputSettings.Effects.Add(effect);
 			}
-			string filePath = ImageOutput.SaveToTmpFile(capture, outputSettings, null);
+			string filePath = capture.SaveToTmpFile(outputSettings, null);
 
 			Log.Debug().WriteLine("Saved tmp file to: {0}", filePath);
 

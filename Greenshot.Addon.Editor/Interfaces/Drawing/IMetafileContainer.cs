@@ -1,6 +1,6 @@
 ﻿using System.Drawing.Imaging;
 
-namespace Greenshot.Addon.Interfaces.Drawing
+namespace Greenshot.Addon.Editor.Interfaces.Drawing
 {
 	public interface IMetafileContainer : IDrawableContainer
 	{

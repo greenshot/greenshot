@@ -28,13 +28,19 @@ using System.Windows;
 using System.Windows.Forms;
 using Dapplo.Log;
 using Dapplo.Utils;
+using Greenshot.Addon;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Controls;
 using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
-using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.CaptureCore;
+using Greenshot.CaptureCore.Extensions;
+using Greenshot.Core;
+using Greenshot.Core.Interfaces;
 using Greenshot.Forms;
+using Greenshot.Legacy.Controls;
 using MahApps.Metro.IconPacks;
 using MessageBox = System.Windows.MessageBox;
 
@@ -79,7 +85,8 @@ namespace Greenshot.Destinations
 
 				MessageBox.Show(GreenshotLanguage.ErrorSaveInvalidChars, GreenshotLanguage.Error, MessageBoxButton.OK, MessageBoxImage.Error);
 				// ... lets get the pattern fixed....
-				var dialogResult = new SettingsForm().ShowDialog();
+				// TODO: Open settings
+				var dialogResult = DialogResult.Cancel;//new SettingsForm().ShowDialog();
 				if (dialogResult == DialogResult.OK)
 				{
 					// ... OK -> then try again:
@@ -134,14 +141,14 @@ namespace Greenshot.Destinations
 			try
 			{
 				var outputPath = fullPath;
-				await UiContext.RunOn(() => fullPath = ImageOutput.Save(capture, outputPath, overwrite, outputSettings), token);
+				await UiContext.RunOn(() => fullPath = capture.Save(outputPath, overwrite, outputSettings), token);
 			}
 			catch (ArgumentException ex1)
 			{
 				// Our generated filename exists, display 'save-as'
 				Log.Info().WriteLine("Not overwriting: {0}", ex1.Message);
 				// when we don't allow to overwrite present a new SaveWithDialog
-				fullPath = ImageOutput.SaveWithDialog(capture, capture.CaptureDetails);
+				fullPath = capture.SaveWithDialog(capture.CaptureDetails);
 			}
 			catch (Exception e)
 			{

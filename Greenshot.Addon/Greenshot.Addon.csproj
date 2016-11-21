@@ -52,7 +52,6 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>
-    <Reference Include="Accessibility" />
     <Reference Include="Caliburn.Micro, Version=3.0.1.0, Culture=neutral, PublicKeyToken=8e5891231f2ed21f, processorArchitecture=MSIL">
       <HintPath>..\packages\Caliburn.Micro.Core.3.0.1\lib\net45\Caliburn.Micro.dll</HintPath>
       <Private>True</Private>
@@ -65,24 +64,24 @@
       <HintPath>..\packages\Caliburn.Micro.3.0.1\lib\net45\Caliburn.Micro.Platform.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Addons, Version=0.3.89.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Addons.0.3.89\lib\net45\Dapplo.Addons.dll</HintPath>
+    <Reference Include="Dapplo.Addons, Version=0.3.90.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Addons.0.3.90\lib\net45\Dapplo.Addons.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Addons.Bootstrapper, Version=0.3.89.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Addons.Bootstrapper.0.3.89\lib\net45\Dapplo.Addons.Bootstrapper.dll</HintPath>
+    <Reference Include="Dapplo.Addons.Bootstrapper, Version=0.3.90.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Addons.Bootstrapper.0.3.90\lib\net45\Dapplo.Addons.Bootstrapper.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.CaliburnMicro, Version=0.2.42.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.CaliburnMicro.0.2.42\lib\net45\Dapplo.CaliburnMicro.dll</HintPath>
+    <Reference Include="Dapplo.CaliburnMicro, Version=0.2.43.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.CaliburnMicro.0.2.43\lib\net45\Dapplo.CaliburnMicro.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.CaliburnMicro.Metro, Version=0.2.42.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.CaliburnMicro.Metro.0.2.42\lib\net45\Dapplo.CaliburnMicro.Metro.dll</HintPath>
+    <Reference Include="Dapplo.CaliburnMicro.Metro, Version=0.2.43.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.CaliburnMicro.Metro.0.2.43\lib\net45\Dapplo.CaliburnMicro.Metro.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Config, Version=0.4.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Config.0.4.3\lib\net45\Dapplo.Config.dll</HintPath>
+    <Reference Include="Dapplo.Config, Version=0.4.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Config.0.4.4\lib\net45\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.HttpExtensions, Version=0.6.7.0, Culture=neutral, processorArchitecture=MSIL">
@@ -164,23 +163,19 @@
     <Compile Include="Configuration\ICoreConfiguration.cs" />
     <Compile Include="Configuration\IGreenshotLanguage.cs" />
     <Compile Include="Configuration\IUxConfiguration.cs" />
+    <Compile Include="Controls\AnimatedGreenshotLogo.xaml.cs">
+      <DependentUpon>AnimatedGreenshotLogo.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Core\AsyncCommand.cs" />
     <Compile Include="Core\GreenshotStartupOrder.cs" />
     <Compile Include="Core\HelpFileLoader.cs" />
     <Compile Include="Extensions\BitmapExtensions.cs" />
-    <Compile Include="Core\EventDelay.cs" />
     <Compile Include="Core\PortableHelper.cs" />
-    <Compile Include="Extensions\ControlExtensions.cs" />
-    <Compile Include="Extensions\LanguageLoaderExtensions.cs" />
     <Compile Include="Extensions\ProcessExtensions.cs" />
     <Compile Include="Extensions\SizeExtentions.cs" />
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="Core\BinaryStructHelper.cs" />
-    <Compile Include="Core\Cache.cs" />
     <Compile Include="Core\CredentialsHelper.cs" />
-    <Compile Include="Core\ImageOutput.cs" />
     <Compile Include="Core\InterfaceUtils.cs" />
-    <Compile Include="Core\PluginUtils.cs" />
     <Compile Include="Interfaces\Destination\DestinationAttribute.cs" />
     <Compile Include="Interfaces\Destination\DestinationMetadataAttribute.cs" />
     <Compile Include="Interfaces\Destination\IDestinationMetadata.cs" />
@@ -191,6 +186,10 @@
     <Compile Include="Windows\PleaseWaitWindow.xaml.cs">
       <DependentUpon>PleaseWaitWindow.xaml</DependentUpon>
     </Compile>
+    <Page Include="Controls\AnimatedGreenshotLogo.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Windows\PleaseWaitWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -20,6 +20,7 @@
 #region Usings
 
 using Greenshot.Addon.Controls;
+using Greenshot.Legacy.Controls;
 
 #endregion
 

@@ -23,7 +23,7 @@ using System;
 
 #endregion
 
-namespace Greenshot.Addon.Interfaces
+namespace Greenshot.Addon.Editor.Interfaces
 {
 	/// <summary>
 	///     Description of IMemento.

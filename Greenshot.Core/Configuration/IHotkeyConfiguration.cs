@@ -30,7 +30,7 @@ namespace Greenshot.Core.Configuration
 	/// <summary>
 	///     The configuration for the hotkeys
 	/// </summary>
-	public interface IHotkeyConfiguration : ISubSection
+	public interface IHotkeyConfiguration : IIniSubSection
 	{
 		[Description("Hotkey for starting the fullscreen capture")]
 		[DefaultValue("Ctrl + PrintScreen")]

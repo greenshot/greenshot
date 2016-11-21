@@ -33,7 +33,10 @@ using Dapplo.Log;
 using Dapplo.Utils;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
-using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.Addon.Extensions;
+using Greenshot.CaptureCore.Extensions;
+using Greenshot.Core;
+using Greenshot.Core.Interfaces;
 
 #endregion
 
@@ -136,7 +139,7 @@ namespace Greenshot.Addon.Picasa
 			var uploadUri = new Uri("https://picasaweb.google.com/data/feed/api/user").AppendSegments(PicasaConfiguration.UploadUser, "albumid", PicasaConfiguration.UploadAlbum);
 			using (var stream = new MemoryStream())
 			{
-				ImageOutput.SaveToStream(capture, stream, outputSettings);
+				capture.SaveToStream(stream, outputSettings);
 				stream.Position = 0;
 				using (var content = new StreamContent(stream))
 				{

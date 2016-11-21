@@ -30,12 +30,8 @@ namespace Greenshot.Core.Configuration
 	/// <summary>
 	///     This interface represents all the image specific settings
 	/// </summary>
-	public interface IImageConfiguration : ISubSection, INotifyPropertyChanged
+	public interface IImageConfiguration : IIniSubSection, INotifyPropertyChanged
 	{
-		[Description("Defines the size of the icons (e.g. for the buttons in the editor), default value 16,16 anything bigger will cause scaling")]
-		[DefaultValue("16,16")]
-		Size IconSize { get; set; }
-
 		[Description("When reading images from files or clipboard, use the EXIF information to correct the orientation")]
 		[DefaultValue(true)]
 		bool ProcessEXIFOrientation { get; set; }

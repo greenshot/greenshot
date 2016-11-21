@@ -21,12 +21,11 @@
 
 using System;
 using System.Collections.Generic;
-using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Core.Enumerations;
 
 #endregion
 
-namespace Greenshot.Addon.Interfaces
+namespace Greenshot.Core.Interfaces
 {
 	/// <summary>
 	///     Details for the capture, like the window title and date/time etc.

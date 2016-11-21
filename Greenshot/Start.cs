@@ -37,6 +37,7 @@ using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Forms;
 using Greenshot.Helpers;
+using Greenshot.Legacy;
 
 #if !DEBUG
 using Dapplo.Log.LogFile;
@@ -63,7 +64,7 @@ namespace Greenshot
 		public static void Main(string[] args)
 		{
 #if DEBUG
-			LogSettings.RegisterDefaultLogger<TraceLogger>(LogLevels.Verbose);
+			LogSettings.RegisterDefaultLogger<DebugLogger>(LogLevels.Verbose);
 #else
 			LogSettings.RegisterDefaultLogger<ForwardingLogger>(LogLevels.Verbose);
 #endif
@@ -134,7 +135,8 @@ namespace Greenshot
 
 			// Load the assemblies Dapplo.CaliburnMicro, Dapplo.CaliburnMicro.NotifyIconWpf, Dapplo.CaliburnMicro.Metro
 			Dapplication.Bootstrapper.FindAndLoadAssemblies("Dapplo.Caliburn*");
-
+			Dapplication.Bootstrapper.FindAndLoadAssemblies("Greenshot.CaptureCore");
+			Dapplication.Bootstrapper.FindAndLoadAssemblies("Greenshot.Core");
 			Dapplication.Bootstrapper.FindAndLoadAssemblies("Greenshot.Addon*");
 
 

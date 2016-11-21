@@ -22,6 +22,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Greenshot.Addon.Editor.Interfaces;
 using Greenshot.Addon.Interfaces;
 
 #endregion

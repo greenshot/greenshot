@@ -30,9 +30,12 @@ using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
-using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.CaptureCore.Extensions;
+using Greenshot.Core;
 using Greenshot.Core.Configuration;
+using Greenshot.Core.Extensions;
 using Greenshot.Core.Gfx;
+using Greenshot.Core.Interfaces;
 using Greenshot.Forms;
 
 #endregion
@@ -123,7 +126,7 @@ namespace Greenshot.Helpers
 			ApplyEffects(printOutputSettings);
 
 			Image image;
-			bool disposeImage = ImageOutput.CreateImageFromCapture(_surface, printOutputSettings, out image);
+			bool disposeImage = _surface.CreateImageFromCapture(printOutputSettings, out image);
 			try
 			{
 				ContentAlignment alignment = conf.OutputPrintCenter ? ContentAlignment.MiddleCenter : ContentAlignment.TopLeft;

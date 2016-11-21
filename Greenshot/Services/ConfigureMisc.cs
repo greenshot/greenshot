@@ -68,8 +68,8 @@ namespace Greenshot.Services
 		public Task StartAsync(CancellationToken token = default(CancellationToken))
 		{
 #if !DEBUG
-// Read the log configuration and set it to the framework
-				LogSettings.RegisterDefaultLogger<FileLogger>(LogLevels.Verbose, LogConfiguration);
+			// Read the log configuration and set it to the framework
+			LogSettings.RegisterDefaultLogger<FileLogger>(LogLevels.Verbose, LogConfiguration);
 #endif
 
 			Log.Debug().WriteLine("Configuring misc settings");

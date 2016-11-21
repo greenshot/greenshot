@@ -26,7 +26,7 @@ using Dapplo.Log;
 
 #endregion
 
-namespace Greenshot.Addon.Core
+namespace Greenshot.Core.Utils
 {
 	/// <summary>
 	///     Cache class

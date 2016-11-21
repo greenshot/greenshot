@@ -31,12 +31,14 @@ using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
-using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Office.OfficeExport;
 using Greenshot.Core;
 using MahApps.Metro.IconPacks;
 using Microsoft.Office.Interop.Outlook;
 using Exception = System.Exception;
+using Greenshot.Addon.Extensions;
+using Greenshot.CaptureCore.Extensions;
+using Greenshot.Core.Interfaces;
 
 #endregion
 
@@ -86,7 +88,7 @@ namespace Greenshot.Addon.Office.Destinations
 			string tmpFile = capture.CaptureDetails.Filename;
 			if ((tmpFile == null) || capture.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
 			{
-				tmpFile = ImageOutput.SaveNamedTmpFile(capture, capture.CaptureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
+				tmpFile = capture.SaveNamedTmpFile(capture.CaptureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
 			}
 			else
 			{

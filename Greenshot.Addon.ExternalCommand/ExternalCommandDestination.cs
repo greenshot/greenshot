@@ -23,9 +23,12 @@ using System.ComponentModel.Composition;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
-using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.CaptureCore.Extensions;
+using Greenshot.Core;
+using Greenshot.Core.Interfaces;
 using MahApps.Metro.IconPacks;
 
 #endregion
@@ -64,7 +67,7 @@ namespace Greenshot.Addon.ExternalCommand
 			string fullPath = capture.CaptureDetails.Filename;
 			if (fullPath == null)
 			{
-				fullPath = ImageOutput.SaveNamedTmpFile(capture, capture.CaptureDetails, outputSettings);
+				fullPath = capture.SaveNamedTmpFile(capture.CaptureDetails, outputSettings);
 			}
 
 			await ProcessStarter.CallExternalCommandAsync(_settings, returnValue, fullPath, token);

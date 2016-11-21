@@ -29,7 +29,7 @@ using System.Windows.Forms;
 
 #endregion
 
-namespace Greenshot.Addon.Controls
+namespace Greenshot.Legacy.Controls
 {
 	/// <summary>
 	///     Description of ColorDialog.

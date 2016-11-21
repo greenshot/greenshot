@@ -32,7 +32,7 @@ namespace Greenshot.Core.Configuration
 	/// <summary>
 	///     This interface represents all the capture settings
 	/// </summary>
-	public interface ICaptureConfiguration : ISubSection
+	public interface ICaptureConfiguration : IIniSubSection
 	{
 		[Description("Capture delay in millseconds.")]
 		[DefaultValue(100)]

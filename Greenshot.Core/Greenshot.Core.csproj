@@ -32,8 +32,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapplo.Config, Version=0.4.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Config.0.4.3\lib\net45\Dapplo.Config.dll</HintPath>
+    <Reference Include="Dapplo.Config, Version=0.4.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Config.0.4.4\lib\net45\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.HttpExtensions, Version=0.6.7.0, Culture=neutral, processorArchitecture=MSIL">
@@ -97,8 +97,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClipboardHelper.cs" />
     <Compile Include="Configuration\ICaptureConfiguration.cs" />
+    <Compile Include="Configuration\ICoreTranslations.cs" />
     <Compile Include="Configuration\ICropConfiguration.cs" />
     <Compile Include="Configuration\IEditorLanguage.cs" />
     <Compile Include="Configuration\IHotkeyConfiguration.cs" />
@@ -109,12 +109,15 @@
     <Compile Include="Configuration\IImageConfiguration.cs" />
     <Compile Include="Configuration\IUiConfiguration.cs" />
     <Compile Include="Configuration\IUpdateConfiguration.cs" />
+    <Compile Include="Configuration\OutputFormat.cs" />
     <Compile Include="Enumerations\CaptureModes.cs" />
     <Compile Include="Enumerations\ClipboardFormats.cs" />
     <Compile Include="Enumerations\ConfigTags.cs" />
     <Compile Include="Enumerations\ExifOrientations.cs" />
     <Compile Include="Enumerations\ScreenCaptureMode.cs" />
     <Compile Include="Enumerations\WindowCaptureMode.cs" />
+    <Compile Include="Extensions\ControlExtensions.cs" />
+    <Compile Include="Extensions\LanguageLoaderExtensions.cs" />
     <Compile Include="Extensions\OperatingSystemExtensions.cs" />
     <Compile Include="Extensions\RectangleExtensions.cs" />
     <Compile Include="FilenameHelper.cs" />
@@ -136,6 +139,7 @@
     <Compile Include="Gfx\TornEdgeEffect.cs" />
     <Compile Include="Gfx\Wu\WuColorCube.cs" />
     <Compile Include="IconHelper.cs" />
+    <Compile Include="ImageOutput.cs" />
     <Compile Include="Interfaces\BuildInDestinations.cs" />
     <Compile Include="Interfaces\ClickActions.cs" />
     <Compile Include="Interfaces\ExportInformation.cs" />
@@ -146,8 +150,6 @@
     <Compile Include="Interfaces\IGreenshotContract.cs" />
     <Compile Include="Interfaces\INotification.cs" />
     <Compile Include="Interfaces\NotificationTypes.cs" />
-    <Compile Include="Interfaces\Plugin\IConfigurablePlugin.cs" />
-    <Compile Include="Interfaces\Plugin\IGreenshotHost.cs" />
     <Compile Include="Interfaces\Plugin\IGreenshotPlugin.cs" />
     <Compile Include="Interfaces\Plugin\IGreenshotPluginMetadata.cs" />
     <Compile Include="Interfaces\Plugin\PluginAttribute.cs" />
@@ -156,6 +158,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScreenHelper.cs" />
     <Compile Include="SurfaceOutputSettings.cs" />
+    <Compile Include="Utils\BinaryStructHelper.cs" />
+    <Compile Include="Utils\Cache.cs" />
+    <Compile Include="Utils\EventDelay.cs" />
     <Compile Include="WindowsEnumerator.cs" />
     <Compile Include="WindowsHelper.cs" />
   </ItemGroup>

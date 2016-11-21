@@ -25,7 +25,6 @@ using System.Media;
 using Dapplo.Config.Ini;
 using Dapplo.Log;
 using Dapplo.Utils.Embedded;
-using Greenshot.Addon.Configuration;
 using Greenshot.Core.Configuration;
 
 #endregion

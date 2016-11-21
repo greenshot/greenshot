@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Greenshot.Addon.Interfaces.Drawing
+namespace Greenshot.Addon.Editor.Interfaces.Drawing
 {
 	[Flags]
 	[Serializable]

@@ -34,6 +34,7 @@ using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Helpers;
+using Greenshot.Legacy;
 
 #endregion
 

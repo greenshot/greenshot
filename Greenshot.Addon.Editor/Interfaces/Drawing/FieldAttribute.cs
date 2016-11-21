@@ -24,7 +24,7 @@ using System.Reflection;
 
 #endregion
 
-namespace Greenshot.Addon.Interfaces.Drawing
+namespace Greenshot.Addon.Editor.Interfaces.Drawing
 {
 	/// <summary>
 	///     Attribute for telling that a property is a field-property, meaning it is linked to a changable value for the editor

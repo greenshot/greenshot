@@ -28,12 +28,12 @@ using Dapplo.Log;
 using Dapplo.Windows.Enums;
 using Dapplo.Windows.Native;
 using Dapplo.Windows.Structs;
-using Greenshot.Addon.Interfaces;
 using Greenshot.Core;
 using Greenshot.Core.Configuration;
 using Greenshot.Core.Enumerations;
 using Greenshot.Core.Extensions;
 using Greenshot.Core.Gfx;
+using Greenshot.Core.Interfaces;
 
 #endregion
 

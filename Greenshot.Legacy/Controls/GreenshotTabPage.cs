@@ -24,7 +24,7 @@ using System.Windows.Forms;
 
 #endregion
 
-namespace Greenshot.Addon.Controls
+namespace Greenshot.Legacy.Controls
 {
 	public class GreenshotTabPage : TabPage, IGreenshotLanguageBindable
 	{

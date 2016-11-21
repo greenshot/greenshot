@@ -24,7 +24,7 @@ using System.ComponentModel.Composition;
 
 #endregion
 
-namespace Greenshot.Addon.Interfaces.Plugin
+namespace Greenshot.Core.Interfaces.Plugin
 {
 	[MetadataAttribute]
 	[AttributeUsage(AttributeTargets.Class, Inherited = false)]

@@ -30,8 +30,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapplo.Config, Version=0.4.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Config.0.4.3\lib\net45\Dapplo.Config.dll</HintPath>
+    <Reference Include="Dapplo.Config, Version=0.4.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Config.0.4.4\lib\net45\Dapplo.Config.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.InterfaceImpl, Version=0.2.5.0, Culture=neutral, processorArchitecture=MSIL">
@@ -46,12 +46,35 @@
       <HintPath>..\packages\Dapplo.Utils.1.0.128\lib\net45\Dapplo.Utils.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Dapplo.Windows, Version=0.1.30.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.0.1.30\lib\net45\Dapplo.Windows.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Reactive.Core, Version=3.0.1000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Reactive.Core.3.1.0\lib\net45\System.Reactive.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces, Version=3.0.1000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Reactive.Interfaces.3.1.0\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Reactive.Linq, Version=3.0.1000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Reactive.Linq.3.1.0\lib\net45\System.Reactive.Linq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.0.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
@@ -63,9 +86,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AnimationHelpers.cs" />
-    <Compile Include="Controls\AnimatedGreenshotLogo.xaml.cs">
-      <DependentUpon>AnimatedGreenshotLogo.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Controls\AnimatingForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -138,12 +158,6 @@
     <Compile Include="Controls\MovableShowColorForm.Designer.cs">
       <DependentUpon>MovableShowColorForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\OAuthLoginForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Controls\OAuthLoginForm.Designer.cs">
-      <DependentUpon>OAuthLoginForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Controls\Pipette.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -157,12 +171,6 @@
     <Compile Include="Extensions\ControlExtensions.cs" />
     <Compile Include="GreenshotResources.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Page Include="Controls\AnimatedGreenshotLogo.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Controls\ColorDialog.resx">

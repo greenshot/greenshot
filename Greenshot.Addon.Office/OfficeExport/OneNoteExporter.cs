@@ -26,9 +26,12 @@ using System.Runtime.InteropServices;
 using System.Xml;
 using Dapplo.Log;
 using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
-using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.CaptureCore.Extensions;
+using Greenshot.Core;
 using Greenshot.Core.Configuration;
+using Greenshot.Core.Interfaces;
 using Microsoft.Office.Interop.OneNote;
 
 #endregion
@@ -100,7 +103,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 			using (var pngStream = new MemoryStream())
 			{
 				var pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
-				ImageOutput.SaveToStream(surfaceToUpload, pngStream, pngOutputSettings);
+				surfaceToUpload.SaveToStream(pngStream, pngOutputSettings);
 				string base64String = Convert.ToBase64String(pngStream.GetBuffer());
 				string imageXmlStr = string.Format(XmlImageContent, base64String, surfaceToUpload.Image.Width, surfaceToUpload.Image.Height);
 				string pageChangesXml = string.Format(XmlOutline, imageXmlStr, page.Id, OnenoteNamespace2010, page.Name);

@@ -32,13 +32,13 @@ using System.Windows.Forms;
 using Dapplo.Log;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Native;
-using Greenshot.Addon.Controls;
-using Greenshot.Addon.Core;
-using Greenshot.Addon.Extensions;
-using Greenshot.Addon.Interfaces;
 using Greenshot.Core;
 using Greenshot.Core.Configuration;
 using Greenshot.Core.Enumerations;
+using Greenshot.Core.Extensions;
+using Greenshot.Core.Interfaces;
+using Greenshot.Legacy;
+using Greenshot.Legacy.Controls;
 
 #endregion
 

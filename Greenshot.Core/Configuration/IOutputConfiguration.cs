@@ -28,23 +28,9 @@ using Dapplo.Config.Ini;
 namespace Greenshot.Core.Configuration
 {
 	/// <summary>
-	///     Supporting output formats
-	/// </summary>
-	public enum OutputFormat
-	{
-		png,
-		bmp,
-		gif,
-		jpg,
-		tiff,
-		greenshot,
-		ico
-	}
-
-	/// <summary>
 	///     This interface represents all the output settings
 	/// </summary>
-	public interface IOutputConfiguration : ISubSection
+	public interface IOutputConfiguration : IIniSubSection
 	{
 		[Description("Which destinations? Possible options (more might be added by plugins) are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail, Picker")]
 		[DefaultValue("Picker")]

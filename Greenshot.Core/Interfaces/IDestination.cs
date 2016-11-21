@@ -28,7 +28,7 @@ using System.Windows.Controls;
 
 #endregion
 
-namespace Greenshot.Addon.Interfaces.Destination
+namespace Greenshot.Core.Interfaces
 {
 	public interface IDestination : INotifyPropertyChanged
 	{

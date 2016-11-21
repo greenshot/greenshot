@@ -21,6 +21,8 @@
 
 using System;
 using System.Windows.Forms;
+using Dapplo.Config.Ini;
+using Greenshot.Core.Configuration;
 
 #endregion
 
@@ -31,6 +33,7 @@ namespace Greenshot.Forms
 	/// </summary>
 	public partial class PrintOptionsDialog : BaseForm
 	{
+		private static readonly IPrinterConfiguration PrinterConfiguration = IniConfig.Current.GetSubSection<IPrinterConfiguration>();
 		public PrintOptionsDialog()
 		{
 			//
@@ -44,7 +47,7 @@ namespace Greenshot.Forms
 		private void Button_okClick(object sender, EventArgs e)
 		{
 			// update config
-			coreConfiguration.OutputPrintPromptOptions = !checkbox_dontaskagain.Checked;
+			PrinterConfiguration.OutputPrintPromptOptions = !checkbox_dontaskagain.Checked;
 			DialogResult = DialogResult.OK;
 		}
 

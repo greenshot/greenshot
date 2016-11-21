@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Addon.Controls
+namespace Greenshot.Legacy.Controls
 {
     partial class MovableShowColorForm
     {

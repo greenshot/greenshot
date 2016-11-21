@@ -27,7 +27,7 @@ using Dapplo.Windows.SafeHandles;
 
 #endregion
 
-namespace Greenshot.Addon.Controls
+namespace Greenshot.Legacy.Controls
 {
 	/// <summary>
 	///     This code was supplied by Hi-Coder as a patch for Greenshot

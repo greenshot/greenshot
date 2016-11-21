@@ -52,10 +52,6 @@ namespace Greenshot.Addon.Configuration
 		// Ini-Framework
 		IIniSection<ICoreConfiguration>, INotifyPropertyChanged, ITagging<ICoreConfiguration>, IWriteProtectProperties<ICoreConfiguration>, ITransactionalProperties
 	{
-		[Description("Specify which formats we copy on the clipboard? Options are: PNG, HTML, HTMLDATAURL and DIB")]
-		[DefaultValue("PNG,DIB")]
-		IList<ClipboardFormat> ClipboardFormats { get; set; }
-
 	}
 
 	/// <summary>

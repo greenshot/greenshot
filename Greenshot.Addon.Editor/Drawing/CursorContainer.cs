@@ -26,7 +26,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
 using Dapplo.Log;
-using Greenshot.Addon.Interfaces.Drawing;
+using Greenshot.Addon.Editor.Interfaces.Drawing;
 
 #endregion
 

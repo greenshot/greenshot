@@ -23,7 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using Greenshot.Addon.Editor.Helpers;
-using Greenshot.Addon.Interfaces.Drawing;
+using Greenshot.Addon.Editor.Interfaces.Drawing;
 using Greenshot.Core.Gfx;
 
 #endregion

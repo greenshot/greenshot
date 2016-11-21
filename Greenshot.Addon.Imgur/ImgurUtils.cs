@@ -34,9 +34,12 @@ using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
 using Dapplo.Utils;
 using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
-using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.CaptureCore.Extensions;
+using Greenshot.Core;
 using Greenshot.Core.Gfx;
+using Greenshot.Core.Interfaces;
 
 #endregion
 
@@ -70,7 +73,7 @@ namespace Greenshot.Addon.Imgur
 
 			using (var imageStream = new MemoryStream())
 			{
-				ImageOutput.SaveToStream(surfaceToUpload, imageStream, outputSettings);
+				surfaceToUpload.SaveToStream(imageStream, outputSettings);
 				imageStream.Position = 0;
 				using (var content = new StreamContent(imageStream))
 				{
@@ -101,7 +104,7 @@ namespace Greenshot.Addon.Imgur
 			var oauthHttpBehaviour = OAuth2HttpBehaviourFactory.Create(oAuth2Settings, localBehaviour);
 			using (var imageStream = new MemoryStream())
 			{
-				ImageOutput.SaveToStream(surfaceToUpload, imageStream, outputSettings);
+				surfaceToUpload.SaveToStream(imageStream, outputSettings);
 				imageStream.Position = 0;
 				using (var content = new StreamContent(imageStream))
 				{

@@ -25,10 +25,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Log;
 using Dapplo.Utils;
+using Greenshot.Addon;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
+using Greenshot.CaptureCore.Extensions;
+using Greenshot.Core.Interfaces;
 using MahApps.Metro.IconPacks;
 
 #endregion
@@ -63,7 +67,7 @@ namespace Greenshot.Destinations
 			try
 			{
 				string savedTo = null;
-				await UiContext.RunOn(() => savedTo = ImageOutput.SaveWithDialog(capture, capture.CaptureDetails), token);
+				await UiContext.RunOn(() => savedTo = capture.SaveWithDialog(capture.CaptureDetails), token);
 
 				// Bug #2918756 don't overwrite path if SaveWithDialog returns null!
 				if (savedTo != null)

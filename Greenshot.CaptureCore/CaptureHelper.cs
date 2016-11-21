@@ -34,10 +34,6 @@ using Dapplo.Config.Language;
 using Dapplo.Log;
 using Dapplo.Utils;
 using Dapplo.Windows.Native;
-using Greenshot.Addon.Configuration;
-using Greenshot.Addon.Core;
-using Greenshot.Addon.Interfaces;
-using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.CaptureCore.Extensions;
 using Greenshot.CaptureCore.Forms;
 using Greenshot.CaptureCore.Views;
@@ -45,6 +41,7 @@ using Greenshot.Core;
 using Greenshot.Core.Configuration;
 using Greenshot.Core.Enumerations;
 using Greenshot.Core.Gfx;
+using Greenshot.Core.Interfaces;
 using MessageBox = System.Windows.Forms.MessageBox;
 using Point = System.Drawing.Point;
 
@@ -63,7 +60,7 @@ namespace Greenshot.CaptureCore
 		private static readonly IMiscConfiguration MiscConfiguration = IniConfig.Current.GetSubSection<IMiscConfiguration>();
 		private static readonly IUiConfiguration UiConfiguration = IniConfig.Current.GetSubSection<IUiConfiguration>();
 		private static readonly IImageConfiguration ImageConfiguration = IniConfig.Current.GetSubSection<IImageConfiguration>();
-		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
+		private static readonly ICoreTranslations CoreTranslations = LanguageLoader.Current.GetPart<ICoreTranslations>();
 		private readonly bool _captureMouseCursor;
 		private ICapture _capture;
 		private CaptureModes _captureMode;
@@ -912,7 +909,7 @@ namespace Greenshot.CaptureCore
 						catch (Exception e)
 						{
 							Log.Error().WriteLine(e.Message, e);
-							MessageBox.Show(string.Format(language.ErrorOpenfile, filename));
+							MessageBox.Show(string.Format(CoreTranslations.ErrorOpenfile, filename));
 						}
 						try
 						{
@@ -921,7 +918,7 @@ namespace Greenshot.CaptureCore
 						catch (Exception e)
 						{
 							Log.Error().WriteLine(e.Message, e);
-							MessageBox.Show(string.Format(language.ErrorOpenfile, filename));
+							MessageBox.Show(string.Format(CoreTranslations.ErrorOpenfile, filename));
 						}
 					}
 					if (fileImage != null)

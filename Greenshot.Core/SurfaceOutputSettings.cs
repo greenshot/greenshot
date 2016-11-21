@@ -25,7 +25,7 @@ using Greenshot.Core.Gfx;
 
 #endregion
 
-namespace Greenshot.Addon.Interfaces.Plugin
+namespace Greenshot.Core
 {
 	public class SurfaceOutputSettings
 	{

@@ -20,10 +20,11 @@
 #region Usings
 
 using System.ComponentModel;
+using System.Drawing;
 using Dapplo.Config.Ini;
 using Dapplo.InterfaceImpl.Extensions;
-using Greenshot.Addon.Configuration;
 using Greenshot.Core.Enumerations;
+using Greenshot.Core.Interfaces;
 
 #endregion
 
@@ -32,7 +33,7 @@ namespace Greenshot.Core.Configuration
 	/// <summary>
 	///     This interface represents all the UI settings
 	/// </summary>
-	public interface IUiConfiguration : ISubSection
+	public interface IUiConfiguration : IIniSubSection, INotifyPropertyChanged
 	{
 		[Description("Enable/disable the access to the quick settings, can only be changed manually in this .ini")]
 		[DefaultValue(false)]
@@ -95,5 +96,9 @@ namespace Greenshot.Core.Configuration
 		[Description("Enable/disable thumbnail previews")]
 		[DefaultValue(true)]
 		bool ThumnailPreview { get; set; }
+
+		[Description("Defines the size of the icons (e.g. for the buttons in the editor), default value 16,16 anything bigger will cause scaling")]
+		[DefaultValue("16,16")]
+		Size IconSize { get; set; }
 	}
 }

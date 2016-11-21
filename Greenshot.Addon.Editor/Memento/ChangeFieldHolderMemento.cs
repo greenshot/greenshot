@@ -20,8 +20,9 @@
 #region Usings
 
 using System;
+using Greenshot.Addon.Editor.Interfaces;
+using Greenshot.Addon.Editor.Interfaces.Drawing;
 using Greenshot.Addon.Interfaces;
-using Greenshot.Addon.Interfaces.Drawing;
 
 #endregion
 

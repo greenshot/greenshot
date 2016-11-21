@@ -22,7 +22,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using Greenshot.Addon.Interfaces.Drawing;
+using Greenshot.Addon.Editor.Interfaces.Drawing;
 
 #endregion
 

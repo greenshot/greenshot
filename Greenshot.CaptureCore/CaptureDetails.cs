@@ -22,9 +22,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Greenshot.Addon.Interfaces;
-using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Core.Enumerations;
+using Greenshot.Core.Interfaces;
 
 #endregion
 

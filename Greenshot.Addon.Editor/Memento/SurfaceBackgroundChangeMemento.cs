@@ -21,6 +21,7 @@
 
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using Greenshot.Addon.Editor.Interfaces;
 using Greenshot.Addon.Interfaces;
 
 #endregion

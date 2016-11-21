@@ -30,7 +30,7 @@ namespace Greenshot.Core.Configuration
 	/// <summary>
 	///     This interface represents all the UI settings
 	/// </summary>
-	public interface ICropConfiguration : ISubSection
+	public interface ICropConfiguration : IIniSubSection
 	{
 		[Description("Color of the area selection")]
 		Color CropAreaColor { get; set; }

@@ -20,6 +20,7 @@
  */
 
 using Greenshot.Addon.Controls;
+using Greenshot.Legacy.Controls;
 
 namespace Greenshot.Addon.Photobucket.Forms {
 	partial class SettingsForm {
