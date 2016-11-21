@@ -27,10 +27,12 @@ using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
 using Dapplo.Log;
-using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
-using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.CaptureCore;
+using Greenshot.CaptureCore.Extensions;
+using Greenshot.Core;
+using Greenshot.Core.Interfaces;
 using MahApps.Metro.IconPacks;
 
 #endregion
@@ -59,7 +61,7 @@ namespace Greenshot.Addon.WindowsOcr
 				var ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages();
 				using (var imageStream = new MemoryStream())
 				{
-					ImageOutput.SaveToStream(capture, imageStream, new SurfaceOutputSettings());
+					capture.SaveToStream(imageStream, new SurfaceOutputSettings());
 					imageStream.Position = 0;
 
 					var decoder = await BitmapDecoder.CreateAsync(imageStream.AsRandomAccessStream());

@@ -54,7 +54,7 @@ namespace Greenshot.Core.Gfx
 
 		public Image Apply(Image sourceImage, Matrix matrix)
 		{
-			using (WuQuantizer quantizer = new WuQuantizer((Bitmap) sourceImage))
+			using (var quantizer = new WuQuantizer((Bitmap) sourceImage))
 			{
 				int colorCount = quantizer.GetColorCount();
 				if (colorCount > Colors)

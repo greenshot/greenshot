@@ -28,13 +28,14 @@ using System.Windows;
 using System.Windows.Interop;
 using Windows.Storage.Streams;
 using Dapplo.Log;
-using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
-using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
 using Greenshot.Addon.WindowsShare.Native;
+using Greenshot.CaptureCore.Extensions;
+using Greenshot.Core;
 using Greenshot.Core.Gfx;
+using Greenshot.Core.Interfaces;
 using MahApps.Metro.IconPacks;
 
 #endregion
@@ -65,7 +66,7 @@ namespace Greenshot.Addon.WindowsShare
 					RandomAccessStreamReference imageRandomAccessStreamReference;
 					using (var imageStream = new MemoryStream())
 					{
-						ImageOutput.SaveToStream(capture, imageStream, new SurfaceOutputSettings());
+						capture.SaveToStream(imageStream, new SurfaceOutputSettings());
 						imageStream.Position = 0;
 						imageRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(imageStream.AsRandomAccessStream());
 					}

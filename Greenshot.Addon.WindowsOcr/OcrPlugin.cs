@@ -27,8 +27,8 @@ using Windows.ApplicationModel.DataTransfer;
 using Dapplo.Addons;
 using Dapplo.Log;
 using Greenshot.Addon.Core;
-using Greenshot.Addon.Interfaces.Destination;
-using Greenshot.Addon.Interfaces.Plugin;
+using Greenshot.Core.Interfaces;
+using Greenshot.Core.Interfaces.Plugin;
 
 #endregion
 
