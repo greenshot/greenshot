@@ -29,25 +29,22 @@ namespace GreenshotPlugin.Controls {
 	/// <summary>
 	/// The OAuthLoginForm is used to allow the user to authorize Greenshot with an "Oauth" application
 	/// </summary>
-	public partial class OAuthLoginForm : Form {
+	public sealed partial class OAuthLoginForm : Form {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(OAuthLoginForm));
 		private readonly string _callbackUrl;
 		private IDictionary<string, string> _callbackParameters;
 		
-		public IDictionary<string, string> CallbackParameters {
-			get {
-				return _callbackParameters;
-			}
-		}
-		
-		public bool IsOk {
-			get {
-				return DialogResult == DialogResult.OK;
-			}
-		}
-		
+		public IDictionary<string, string> CallbackParameters => _callbackParameters;
+
+		public bool IsOk => DialogResult == DialogResult.OK;
+
 		public OAuthLoginForm(string browserTitle, Size size, string authorizationLink, string callbackUrl) {
 			_callbackUrl = callbackUrl;
+			// Fix for BUG-2071
+			if (callbackUrl.EndsWith("/"))
+			{
+				_callbackUrl = callbackUrl.Substring(0, callbackUrl.Length - 1);
+			}
 			InitializeComponent();
 			ClientSize = size;
 			Icon = GreenshotResources.getGreenshotIcon();
