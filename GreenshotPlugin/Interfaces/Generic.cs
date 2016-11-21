@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using Greenshot.Core;
+
 using Greenshot.Memento;
 using Greenshot.Plugin.Drawing;
 using System;
@@ -110,6 +110,8 @@ namespace Greenshot.Plugin
 		event SurfaceMessageEventHandler SurfaceMessage;
 		event SurfaceDrawingModeEventHandler DrawingModeChanged;
 		event SurfaceElementEventHandler MovingElementChanged;
+
+		int CounterStart { get; set; }
 
 		/// <summary>
 		/// Unique ID of the Surface

@@ -25,7 +25,6 @@ using Greenshot.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
 using System.Drawing.Drawing2D;
-using Greenshot.Core;
 using log4net;
 using System.Runtime.Serialization;
 using GreenshotPlugin.Effects;

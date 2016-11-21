@@ -20,7 +20,6 @@
  */
 
 using Greenshot.Configuration;
-using Greenshot.Core;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.IniFile;
@@ -87,6 +86,7 @@ namespace Greenshot.Drawing
 				_movingElementChanged -= value;
 			}
 		}
+
 		[NonSerialized]
 		private SurfaceDrawingModeEventHandler _drawingModeChanged;
 		public event SurfaceDrawingModeEventHandler DrawingModeChanged
@@ -228,6 +228,11 @@ namespace Greenshot.Drawing
 		/// </summary>
 		private readonly List<StepLabelContainer> _stepLabels = new List<StepLabelContainer>();
 
+		/// <summary>
+		///     This value is used to start counting the step labels
+		/// </summary>
+		private int _counterStart = 1;
+
 		public void AddStepLabel(StepLabelContainer stepLabel)
 		{
 			if (!_stepLabels.Contains(stepLabel))
@@ -235,9 +240,26 @@ namespace Greenshot.Drawing
 				_stepLabels.Add(stepLabel);
 			}
 		}
+
 		public void RemoveStepLabel(StepLabelContainer stepLabel)
 		{
 			_stepLabels.Remove(stepLabel);
+		}
+
+		/// <summary>
+		///     The start value of the counter objects
+		/// </summary>
+		public int CounterStart
+		{
+			get { return _counterStart; }
+			set
+			{
+				if (_counterStart != value)
+				{
+					_counterStart = value;
+					Invalidate();
+				}
+			}
 		}
 
 		/// <summary>
@@ -247,7 +269,7 @@ namespace Greenshot.Drawing
 		/// <returns>number of steplabels before the supplied container</returns>
 		public int CountStepLabels(IDrawableContainer stopAtContainer)
 		{
-			int number = 1;
+			int number = CounterStart;
 			foreach (var possibleThis in _stepLabels)
 			{
 				if (possibleThis.Equals(stopAtContainer))

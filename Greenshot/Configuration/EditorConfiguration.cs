@@ -25,7 +25,6 @@ using System.Drawing;
 using Greenshot.Drawing.Fields;
 using GreenshotPlugin.UnmanagedHelpers;
 using Greenshot.IniFile;
-using Greenshot.Core;
 using GreenshotPlugin.Effects;
 using GreenshotPlugin.Interfaces.Drawing;
 

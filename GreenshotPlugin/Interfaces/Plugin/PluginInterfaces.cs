@@ -25,7 +25,6 @@ using System.Windows.Forms;
 
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
-using Greenshot.Core;
 using GreenshotPlugin.Effects;
 
 namespace Greenshot.Plugin {

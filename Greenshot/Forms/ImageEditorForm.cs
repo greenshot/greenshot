@@ -1033,8 +1033,9 @@ namespace Greenshot {
 			new BidirectionalBinding(previewQualityUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.PREVIEW_QUALITY), "Value", DecimalDoublePercentageConverter.GetInstance(), NotNullValidator.GetInstance());
 			new BidirectionalBinding(obfuscateModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_OBFUSCATE), "Value");
 			new BidirectionalBinding(highlightModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_HIGHLIGHT), "Value");
+			new BidirectionalBinding(counterUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.COUNTER_START), "Value", DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance());
 		}
-		
+
 		/// <summary>
 		/// shows/hides field controls (2nd toolbar on top) depending on fields of selected elements
 		/// </summary>
@@ -1058,6 +1059,7 @@ namespace Greenshot {
 				textHorizontalAlignmentButton.Visible = props.HasFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
 				textVerticalAlignmentButton.Visible = props.HasFieldValue(FieldType.TEXT_VERTICAL_ALIGNMENT);
 				shadowButton.Visible = props.HasFieldValue(FieldType.SHADOW);
+				counterLabel.Visible = counterUpDown.Visible = props.HasFieldValue(FieldType.COUNTER_START);
 				btnConfirm.Visible = btnCancel.Visible = props.HasFieldValue(FieldType.FLAGS)
 					&& ((FieldFlag)props.GetFieldValue(FieldType.FLAGS) & FieldFlag.CONFIRMABLE) == FieldFlag.CONFIRMABLE;
 

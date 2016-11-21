@@ -51,8 +51,9 @@ namespace Greenshot.Drawing.Fields
 		public static readonly IFieldType PREPARED_FILTER_OBFUSCATE = new FieldType("PREPARED_FILTER_OBFUSCATE");
 		public static readonly IFieldType PREPARED_FILTER_HIGHLIGHT = new FieldType("PREPARED_FILTER_HIGHLIGHT");
 		public static readonly IFieldType FLAGS = new FieldType("FLAGS");
-
-		public static IFieldType[] Values = new IFieldType[]{
+		public static readonly IFieldType COUNTER_START = new FieldType("COUNTER_START");
+		
+		public static IFieldType[] Values = {
 			ARROWHEADS,
 			BLUR_RADIUS,
 			BRIGHTNESS,
@@ -72,7 +73,8 @@ namespace Greenshot.Drawing.Fields
 			SHADOW,
 			PREPARED_FILTER_OBFUSCATE,
 			PREPARED_FILTER_HIGHLIGHT,
-			FLAGS
+			FLAGS,
+			COUNTER_START
 		};
 
 		public string Name
