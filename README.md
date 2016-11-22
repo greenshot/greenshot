@@ -16,35 +16,30 @@ and a lot more options simplyfying creation of and work with screenshots every d
 Being easy to understand and configurable, Greenshot is an efficient tool for project managers, software developers, technical writers, testers and anyone else creating screenshots.
 
 
-[If you find that Greenshot saves you a lot of time and/or money, you are very welcome to support the development of this screenshot software.](http://getgreenshot.org/support-greenshot/)
+[If you find that Greenshot saves you a lot of time and/or money, you are very welcome to support the development of this screenshot software.](https://getgreenshot.org/support/)
 
 
 About this repository
 ---------------------
-This repository has all the sources of Greenshot, but we have multiple branches of which two should be important to know about:
+This repository has all the sources of Greenshot, but we have multiple branches of which three should be important to know about:
 
-**1.1**
-Greenshot 1.1.x can be found in the 1.1 branch, this is obsolee
+**develop**
+This is the future of Greenshot, currrently highly unstable but the only place to develop new functionality.
 
-**1.2**
-Greenshot 1.2.x can be found in the 1.2 branch, this is the current release.
+**master**
+Is the current release, in our case 1.2.8.84
 
-**1.3**
-Greenshot 1.3.x can be found in the 1.3 branch, this branch will be coming soon.
-With 1.3 we upgraded the .NET Framework Greenshot uses, from 2.0 to 4.5 (and newer), to solve some installation issues and some bugs.
-We had to release a 1.3, as Greenshot 2 takes longer as planned and we couldn't fix some issues in 1.2
-1.3 is a "dying" branch, as we want to change a lot of the underlying application for 2.0 and most of Greenshot will need to be rewritten.
-Still pull request with fixes or **small** changes are very welcome!
+**feature/1.2.9**
+Greenshot 1.2.9, which has the state of being a release candidate 
 
-You can find the latest release and unstable builds [here](https://github.com/greenshot/greenshot/releases)
 
-Current build status 1.3 branch: [![Build status](https://ci.appveyor.com/api/projects/status/xfqbi6xxd1b34gd0/branch/1.3?svg=true)](https://ci.appveyor.com/project/Greenshot/greenshot-mlwxt/branch/1.3)
+You can find the latest release and unstable builds [here](http://getgreenshot.org/version-history/)
 
 
 Developing for Greenshot
 ------------------------
-We develop Greenshot with Visual Studio 2012 and tested our solution on Visual Studio Professional 2012.
-It should be possible to compile Greenshot directly after a checkout, eventually Visual Studio needs to upgrade the solution.
+We develop Greenshot with Visual Studio 2015 and tested our solution on Visual Studio Professional 2015.
+It should be possible to compile Greenshot directly after a checkout, when a nuget package restore is made.
 What doesn't work are the plug-in for cloud storage (like Box, Dropbox, Imgur, Picasa and Photobucket) as these need "API keys".
 These keys are not in our Greenshot repository, if you want to develop on one of the plug-ins you will need to create you own keys by registering with theses services as a developer.
 I will add a description here later to explain how include your API keys so you can develop.
