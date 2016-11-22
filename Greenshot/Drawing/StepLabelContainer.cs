@@ -49,19 +49,9 @@ namespace Greenshot.Drawing {
 			Init();
 		}
 
-		private void UpdateCounterOnFieldChanged(object sender, FieldChangedEventArgs fieldChangedEventArgs)
-		{
-			if (Equals(fieldChangedEventArgs.Field.FieldType, FieldType.COUNTER_START))
-			{
-				Parent.CounterStart = (int)fieldChangedEventArgs.Field.Value;
-			}
-		}
-
 		private void Init()
 		{
 			CreateDefaultAdorners();
-			FieldChanged -= UpdateCounterOnFieldChanged;
-			FieldChanged += UpdateCounterOnFieldChanged;
 		}
 
 		#region Number serializing
@@ -113,10 +103,6 @@ namespace Greenshot.Drawing {
 			}
 			((Surface) Parent)?.RemoveStepLabel(this);
 			base.SwitchParent(newParent);
-			if (Parent != null)
-			{
-				Parent.CounterStart = GetFieldValueAsInt(FieldType.COUNTER_START);
-			}
 			if (newParent != null) {
 				((Surface)Parent)?.AddStepLabel(this);
 			}
@@ -150,7 +136,7 @@ namespace Greenshot.Drawing {
 		protected override void InitializeFields() {
 			AddField(GetType(), FieldType.FILL_COLOR, Color.DarkRed);
 			AddField(GetType(), FieldType.LINE_COLOR, Color.White);
-			AddField(GetType(), FieldType.COUNTER_START, 1);
+			AddField(GetType(), FieldType.FLAGS, FieldFlag.COUNTER);
 		}
 
 		/// <summary>

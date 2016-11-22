@@ -33,6 +33,7 @@ using GreenshotPlugin.Interfaces.Drawing;
 using log4net;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -46,7 +47,7 @@ namespace Greenshot.Drawing
 	/// <summary>
 	/// Description of Surface.
 	/// </summary>
-	public sealed class Surface : Control, ISurface
+	public sealed class Surface : Control, ISurface, INotifyPropertyChanged
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(Surface));
 		public static int Count;
@@ -54,6 +55,11 @@ namespace Greenshot.Drawing
 
 		// Property to identify the Surface ID
 		private Guid _uniqueId = Guid.NewGuid();
+
+		/// <summary>
+		///     This value is used to start counting the step labels
+		/// </summary>
+		private int _counterStart = 1;
 
 		/// <summary>
 		/// The GUID of the surface
@@ -73,6 +79,20 @@ namespace Greenshot.Drawing
 		/// <summary>
 		/// Event handlers (do not serialize!)
 		/// </summary>
+		[NonSerialized]
+		private PropertyChangedEventHandler _propertyChanged;
+		public event PropertyChangedEventHandler PropertyChanged
+		{
+			add
+			{
+				_propertyChanged += value;
+			}
+			remove
+			{
+				_propertyChanged -= value;
+			}
+		}
+
 		[NonSerialized]
 		private SurfaceElementEventHandler _movingElementChanged;
 		public event SurfaceElementEventHandler MovingElementChanged
@@ -228,11 +248,6 @@ namespace Greenshot.Drawing
 		/// </summary>
 		private readonly List<StepLabelContainer> _stepLabels = new List<StepLabelContainer>();
 
-		/// <summary>
-		///     This value is used to start counting the step labels
-		/// </summary>
-		private int _counterStart = 1;
-
 		public void AddStepLabel(StepLabelContainer stepLabel)
 		{
 			if (!_stepLabels.Contains(stepLabel))
@@ -254,9 +269,10 @@ namespace Greenshot.Drawing
 			get { return _counterStart; }
 			set
 			{
-				if (_counterStart != value)
+				if (_propertyChanged != null && _counterStart != value)
 				{
 					_counterStart = value;
+					_propertyChanged(this, new PropertyChangedEventArgs("CounterStart"));
 					Invalidate();
 				}
 			}

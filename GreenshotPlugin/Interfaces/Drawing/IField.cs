@@ -28,7 +28,8 @@ namespace GreenshotPlugin.Interfaces.Drawing
 	public enum FieldFlag
 	{
 		NONE = 0,
-		CONFIRMABLE = 1
+		CONFIRMABLE = 1,
+		COUNTER = 2
 	}
 	public interface IFieldType
 	{
