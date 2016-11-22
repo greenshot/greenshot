@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Taqbaylit" ietf="kab-DZ" version="1.0.0" languagegroup="">
+	<resources>
+		<resource name="browse_pages">Inig</resource>
+		<resource name="CANCEL">Sefsex</resource>
+		<resource name="copy_wikimarkup">Nɣel Wikimarkup ɣef afus</resource>
+		<resource name="filename">Afaylu</resource>
+		<resource name="include_person_spaces">Seddu imeḍqan idiganen deg unagi akked tunigin</resource>
+		<resource name="label_password">Awal uffir</resource>
+		<resource name="label_timeout">Akud n uṛaǧu</resource>
+		<resource name="label_url">Tansa Url</resource>
+		<resource name="label_user">Aseqdac</resource>
+		<resource name="loading">Aggway n isefka n Confluence, Rǧu ma ulac aɣilif...</resource>
+		<resource name="login_error">Teḍra-d tuccḍa deg usesteb : {0}</resource>
+		<resource name="login_title">Sekcem ma ulac aɣilif, isefka yinek n usesteb confluence</resource>
+		<resource name="OK">Ih</resource>
+		<resource name="open_page_after_upload">Ldi asebter ticki yemmed usali</resource>
+		<resource name="open_pages">Ldi isebtar</resource>
+		<resource name="plugin_settings">Iɣewwaṛen n Confluence</resource>
+		<resource name="search">Nadi</resource>
+		<resource name="search_pages">Nadi deg isebtar</resource>
+		<resource name="search_text">Nadi aḍris</resource>
+		<resource name="upload">Sali</resource>
+		<resource name="upload_failure">Teḍra-d tuccḍa  deg usali ɣer Confluence :</resource>
+		<resource name="upload_format">Sali amasal</resource>
+		<resource name="upload_menu_item">Sali ɣef Confluence</resource>
+		<resource name="upload_success">Tugna tuli ɣer Confluence !</resource>
+	</resources>
+</language>
