@@ -1,82 +1,99 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 using Dapplo.Config.Ini;
-using Greenshot.Addon.Interfaces.Drawing;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
+using Greenshot.Addon.Editor.Interfaces.Drawing;
+
+#endregion
 
 namespace Greenshot.Addon.Editor.Drawing.Fields
 {
 	/// <summary>
-	/// Basic IFieldHolder implementation, providing access to a set of fields
+	///     Basic IFieldHolder implementation, providing access to a set of fields
 	/// </summary>
 	[Serializable]
 	public abstract class AbstractFieldHolder : IFieldHolder
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static IEditorConfiguration editorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
+		private static readonly IEditorConfiguration editorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
 
 		protected IDictionary<FieldTypes, FieldAttribute> fieldAttributes = new Dictionary<FieldTypes, FieldAttribute>();
 
+		[NonSerialized] private PropertyChangedEventHandler propertyChanged;
+
 		/// <summary>
-		/// Store the field attributes for this element
+		///     Store the field attributes for this element
 		/// </summary>
 		public IDictionary<FieldTypes, FieldAttribute> FieldAttributes
 		{
-			get
-			{
-				return fieldAttributes;
-			}
+			get { return fieldAttributes; }
 		}
 
 		/// <summary>
-		/// Get the flag of this element
+		///     Get the flag of this element
 		/// </summary>
-		public ElementFlag Flag
-		{
-			get;
-			private set;
-		}
-
-		[NonSerialized]
-		private PropertyChangedEventHandler propertyChanged;
+		public ElementFlag Flag { get; private set; }
 
 		public event PropertyChangedEventHandler PropertyChanged
 		{
-			add
-			{
-				propertyChanged += value;
-			}
-			remove
-			{
-				propertyChanged -= value;
-			}
+			add { propertyChanged += value; }
+			remove { propertyChanged -= value; }
 		}
 
 		/// <summary>
-		/// Initializes all the fields in "this", using the editor configuration for caching and writing default values
+		///     Every field holder should invalidate when a PropertyChanged event is generated, therefor it needs to implement this
+		/// </summary>
+		public abstract void Invalidate();
+
+		/// <summary>
+		///     Get the default value from the field, check if we have cached it and if not store it in the cache
+		/// </summary>
+		/// <param name="fieldAttribute"></param>
+		/// <returns>object</returns>
+		private object CreateCachedValue(FieldAttribute fieldAttribute, object defaultValue)
+		{
+			string key = string.Format("{0}-{1}", fieldAttribute.Scope, fieldAttribute.FieldType);
+			var converter = TypeDescriptor.GetConverter(fieldAttribute.PropertyType);
+			if (editorConfiguration.LastUsedFieldValues.ContainsKey(key))
+			{
+				string cachedValue = editorConfiguration.LastUsedFieldValues[key];
+				if (converter.CanConvertFrom(typeof(string)))
+				{
+					defaultValue = converter.ConvertFromInvariantString(cachedValue);
+				}
+			}
+			else
+			{
+				editorConfiguration.LastUsedFieldValues.Add(key, converter.ConvertToInvariantString(defaultValue));
+			}
+			return defaultValue;
+		}
+
+		/// <summary>
+		///     Initializes all the fields in "this", using the editor configuration for caching and writing default values
 		/// </summary>
 		protected void InitFieldAttributes()
 		{
@@ -125,51 +142,13 @@ namespace Greenshot.Addon.Editor.Drawing.Fields
 		}
 
 		/// <summary>
-		/// Get the default value from the field, check if we have cached it and if not store it in the cache
-		/// </summary>
-		/// <param name="fieldAttribute"></param>
-		/// <returns>object</returns>
-		private object CreateCachedValue(FieldAttribute fieldAttribute, object defaultValue)
-		{
-			string key = string.Format("{0}-{1}", fieldAttribute.Scope, fieldAttribute.FieldType);
-			var converter = TypeDescriptor.GetConverter(fieldAttribute.PropertyType);
-			if (editorConfiguration.LastUsedFieldValues.ContainsKey(key))
-			{
-				string cachedValue = editorConfiguration.LastUsedFieldValues[key];
-				if (converter.CanConvertFrom(typeof (string)))
-				{
-					defaultValue = converter.ConvertFromInvariantString(cachedValue);
-				}
-			}
-			else
-			{
-				editorConfiguration.LastUsedFieldValues.Add(key, converter.ConvertToInvariantString(defaultValue));
-			}
-			return defaultValue;
-		}
-
-		/// <summary>
-		/// Update the value in the cache
-		/// </summary>
-		/// <param name="fieldAttribute"></param>
-		private void UpdateCachedValue(FieldAttribute fieldAttribute)
-		{
-			string key = string.Format("{0}-{1}", fieldAttribute.Scope, fieldAttribute.FieldType);
-			if (editorConfiguration.LastUsedFieldValues.ContainsKey(key))
-			{
-				var converter = TypeDescriptor.GetConverter(fieldAttribute.PropertyType);
-				editorConfiguration.LastUsedFieldValues[key] = converter.ConvertToInvariantString(fieldAttribute.GetValue(this));
-			}
-		}
-
-		/// <summary>
-		/// Call this to propegate the changed event and update the editor configuration
+		///     Call this to propegate the changed event and update the editor configuration
 		/// </summary>
 		/// <param name="fieldType"></param>
 		protected void OnFieldPropertyChanged(FieldTypes fieldType)
 		{
 			FieldAttribute fieldAttribute = FieldAttributes[fieldType];
-			if (fieldAttribute != null && fieldAttribute.FieldType != FieldTypes.COUNTER_START)
+			if ((fieldAttribute != null) && (fieldAttribute.FieldType != FieldTypes.COUNTER_START))
 			{
 				UpdateCachedValue(fieldAttribute);
 			}
@@ -177,7 +156,7 @@ namespace Greenshot.Addon.Editor.Drawing.Fields
 		}
 
 		/// <summary>
-		/// Call this to send an PropertyChanged event
+		///     Call this to send an PropertyChanged event
 		/// </summary>
 		/// <param name="propertyName"></param>
 		protected void OnPropertyChanged(string propertyName)
@@ -190,8 +169,17 @@ namespace Greenshot.Addon.Editor.Drawing.Fields
 		}
 
 		/// <summary>
-		/// Every field holder should invalidate when a PropertyChanged event is generated, therefor it needs to implement this
+		///     Update the value in the cache
 		/// </summary>
-		public abstract void Invalidate();
+		/// <param name="fieldAttribute"></param>
+		private void UpdateCachedValue(FieldAttribute fieldAttribute)
+		{
+			string key = string.Format("{0}-{1}", fieldAttribute.Scope, fieldAttribute.FieldType);
+			if (editorConfiguration.LastUsedFieldValues.ContainsKey(key))
+			{
+				var converter = TypeDescriptor.GetConverter(fieldAttribute.PropertyType);
+				editorConfiguration.LastUsedFieldValues[key] = converter.ConvertToInvariantString(fieldAttribute.GetValue(this));
+			}
+		}
 	}
 }

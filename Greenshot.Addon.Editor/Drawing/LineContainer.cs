@@ -1,23 +1,23 @@
-/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Drawing;
@@ -25,43 +25,35 @@ using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
 using Greenshot.Addon.Editor.Drawing.Adorners;
 using Greenshot.Addon.Editor.Helpers;
-using Greenshot.Addon.Interfaces.Drawing;
+using Greenshot.Addon.Editor.Interfaces.Drawing;
+
+#endregion
 
 namespace Greenshot.Addon.Editor.Drawing
 {
 	/// <summary>
-	/// Description of LineContainer.
+	///     Description of LineContainer.
 	/// </summary>
 	[Serializable]
 	public class LineContainer : DrawableContainer
 	{
 		public static readonly int MaxClickDistanceTolerance = 10;
 
+		private Color _lineColor = Color.Red;
+
 		private int _lineThickness = 2;
 
-		[Field(FieldTypes.LINE_THICKNESS)]
-		public int LineThickness
-		{
-			get
-			{
-				return _lineThickness;
-			}
-			set
-			{
-				_lineThickness = value;
-				OnFieldPropertyChanged(FieldTypes.LINE_THICKNESS);
-			}
-		}
+		private bool _shadow;
 
-		private Color _lineColor = Color.Red;
+		public LineContainer(Surface parent) : base(parent)
+		{
+			Init();
+		}
 
 		[Field(FieldTypes.LINE_COLOR)]
 		public Color LineColor
 		{
-			get
-			{
-				return _lineColor;
-			}
+			get { return _lineColor; }
 			set
 			{
 				_lineColor = value;
@@ -69,15 +61,21 @@ namespace Greenshot.Addon.Editor.Drawing
 			}
 		}
 
-		private bool _shadow;
+		[Field(FieldTypes.LINE_THICKNESS)]
+		public int LineThickness
+		{
+			get { return _lineThickness; }
+			set
+			{
+				_lineThickness = value;
+				OnFieldPropertyChanged(FieldTypes.LINE_THICKNESS);
+			}
+		}
 
 		[Field(FieldTypes.SHADOW)]
 		public bool Shadow
 		{
-			get
-			{
-				return _shadow;
-			}
+			get { return _shadow; }
 			set
 			{
 				_shadow = value;
@@ -85,20 +83,22 @@ namespace Greenshot.Addon.Editor.Drawing
 			}
 		}
 
-		public LineContainer(Surface parent) : base(parent)
+		public override bool ClickableAt(int x, int y)
 		{
-			Init();
-		}
-
-		protected override void OnDeserialized(StreamingContext context)
-		{
-			Init();
-		}
-
-		protected void Init()
-		{
-			Adorners.Add(new MoveAdorner(this, Positions.TopLeft));
-			Adorners.Add(new MoveAdorner(this, Positions.BottomRight));
+			int lineWidth = _lineThickness + 5;
+			if (_lineThickness > 0)
+			{
+				using (var pen = new Pen(Color.White))
+				{
+					pen.Width = lineWidth;
+					using (var path = new GraphicsPath())
+					{
+						path.AddLine(Left, Top, Left + Width, Top + Height);
+						return path.IsOutlineVisible(x, y, pen);
+					}
+				}
+			}
+			return false;
 		}
 
 		public override void Draw(Graphics graphics, RenderMode rm)
@@ -124,7 +124,7 @@ namespace Greenshot.Addon.Editor.Drawing
 							graphics.DrawLine(shadowCapPen, Left + currentStep, Top + currentStep, Left + currentStep + Width, Top + currentStep + Height);
 
 							currentStep++;
-							alpha = alpha - (basealpha/steps);
+							alpha = alpha - basealpha/steps;
 						}
 					}
 				}
@@ -136,30 +136,20 @@ namespace Greenshot.Addon.Editor.Drawing
 			}
 		}
 
-		public override bool ClickableAt(int x, int y)
-		{
-			int lineWidth = _lineThickness + 5;
-			if (_lineThickness > 0)
-			{
-				using (var pen = new Pen(Color.White))
-				{
-					pen.Width = lineWidth;
-					using (var path = new GraphicsPath())
-					{
-						path.AddLine(Left, Top, Left + Width, Top + Height);
-						return path.IsOutlineVisible(x, y, pen);
-					}
-				}
-			}
-			else
-			{
-				return false;
-			}
-		}
-
 		protected override ScaleHelper.IDoubleProcessor GetAngleRoundProcessor()
 		{
 			return ScaleHelper.LineAngleRoundBehavior.Instance;
+		}
+
+		protected void Init()
+		{
+			Adorners.Add(new MoveAdorner(this, Positions.TopLeft));
+			Adorners.Add(new MoveAdorner(this, Positions.BottomRight));
+		}
+
+		protected override void OnDeserialized(StreamingContext context)
+		{
+			Init();
 		}
 	}
 }

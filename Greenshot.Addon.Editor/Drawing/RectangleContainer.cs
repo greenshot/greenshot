@@ -1,81 +1,59 @@
-/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
 using Greenshot.Addon.Editor.Helpers;
+using Greenshot.Addon.Editor.Interfaces.Drawing;
 using Greenshot.Addon.Extensions;
-using Greenshot.Addon.Interfaces.Drawing;
+using Greenshot.Core.Extensions;
+
+#endregion
 
 namespace Greenshot.Addon.Editor.Drawing
 {
 	/// <summary>
-	/// Represents a rectangular shape on the Surface
+	///     Represents a rectangular shape on the Surface
 	/// </summary>
 	[Serializable]
 	public class RectangleContainer : DrawableContainer
 	{
-		protected int _lineThickness = 2;
-
-		[Field(FieldTypes.LINE_THICKNESS)]
-		public int LineThickness
-		{
-			get
-			{
-				return _lineThickness;
-			}
-			set
-			{
-				_lineThickness = value;
-				OnFieldPropertyChanged(FieldTypes.LINE_THICKNESS);
-			}
-		}
+		protected Color _fillColor = Color.Transparent;
 
 		protected Color _lineColor = Color.Red;
+		protected int _lineThickness = 2;
 
-		[Field(FieldTypes.LINE_COLOR)]
-		public Color LineColor
+		protected bool _shadow = true;
+
+		public RectangleContainer(Surface parent) : base(parent)
 		{
-			get
-			{
-				return _lineColor;
-			}
-			set
-			{
-				_lineColor = value;
-				OnFieldPropertyChanged(FieldTypes.LINE_COLOR);
-			}
+			Init();
 		}
-
-		protected Color _fillColor = Color.Transparent;
 
 		[Field(FieldTypes.FILL_COLOR)]
 		public Color FillColor
 		{
-			get
-			{
-				return _fillColor;
-			}
+			get { return _fillColor; }
 			set
 			{
 				_fillColor = value;
@@ -83,15 +61,32 @@ namespace Greenshot.Addon.Editor.Drawing
 			}
 		}
 
-		protected bool _shadow = true;
+		[Field(FieldTypes.LINE_COLOR)]
+		public Color LineColor
+		{
+			get { return _lineColor; }
+			set
+			{
+				_lineColor = value;
+				OnFieldPropertyChanged(FieldTypes.LINE_COLOR);
+			}
+		}
+
+		[Field(FieldTypes.LINE_THICKNESS)]
+		public int LineThickness
+		{
+			get { return _lineThickness; }
+			set
+			{
+				_lineThickness = value;
+				OnFieldPropertyChanged(FieldTypes.LINE_THICKNESS);
+			}
+		}
 
 		[Field(FieldTypes.SHADOW)]
 		public bool Shadow
 		{
-			get
-			{
-				return _shadow;
-			}
+			get { return _shadow; }
 			set
 			{
 				_shadow = value;
@@ -99,24 +94,10 @@ namespace Greenshot.Addon.Editor.Drawing
 			}
 		}
 
-		public RectangleContainer(Surface parent) : base(parent)
+		public override bool ClickableAt(int x, int y)
 		{
-			Init();
-		}
-
-		/// <summary>
-		/// Do some logic to make sure all field are initiated correctly
-		/// </summary>
-		/// <param name="streamingContext">StreamingContext</param>
-		protected override void OnDeserialized(StreamingContext streamingContext)
-		{
-			base.OnDeserialized(streamingContext);
-			Init();
-		}
-
-		private void Init()
-		{
-			CreateDefaultAdorners();
+			Rectangle rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
+			return RectangleClickableAt(rect, _lineThickness, _fillColor, x, y);
 		}
 
 
@@ -128,7 +109,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		}
 
 		/// <summary>
-		/// This method can also be used from other containers, if the right values are passed!
+		///     This method can also be used from other containers, if the right values are passed!
 		/// </summary>
 		/// <param name="rect"></param>
 		/// <param name="graphics"></param>
@@ -144,7 +125,7 @@ namespace Greenshot.Addon.Editor.Drawing
 			graphics.CompositingQuality = CompositingQuality.HighQuality;
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
 
-			bool lineVisible = (lineThickness > 0 && ColorHelper.IsVisible(lineColor));
+			bool lineVisible = (lineThickness > 0) && ColorHelper.IsVisible(lineColor);
 			if (shadow && (lineVisible || ColorHelper.IsVisible(fillColor)))
 			{
 				//draw shadow first
@@ -160,7 +141,7 @@ namespace Greenshot.Addon.Editor.Drawing
 						Rectangle shadowRect = new Rectangle(rect.Left + currentStep, rect.Top + currentStep, rect.Width, rect.Height).MakeGuiRectangle();
 						graphics.DrawRectangle(shadowPen, shadowRect);
 						currentStep++;
-						alpha = alpha - (basealpha/steps);
+						alpha = alpha - basealpha/steps;
 					}
 				}
 			}
@@ -184,10 +165,19 @@ namespace Greenshot.Addon.Editor.Drawing
 			}
 		}
 
-		public override bool ClickableAt(int x, int y)
+		private void Init()
 		{
-			Rectangle rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
-			return RectangleClickableAt(rect, _lineThickness, _fillColor, x, y);
+			CreateDefaultAdorners();
+		}
+
+		/// <summary>
+		///     Do some logic to make sure all field are initiated correctly
+		/// </summary>
+		/// <param name="streamingContext">StreamingContext</param>
+		protected override void OnDeserialized(StreamingContext streamingContext)
+		{
+			base.OnDeserialized(streamingContext);
+			Init();
 		}
 
 		public static bool RectangleClickableAt(Rectangle rect, int lineThickness, Color fillColor, int x, int y)

@@ -52,3 +52,11 @@ Function FillEnvirommentInConfig {
 }
 
 FillEnvirommentInConfig
+
+
+# Write the certificate to a file
+[System.Convert]::FromBase64String($env:Certificate) | set-content "greenshot.pfx" -encoding byte
+# Decode password to secure string
+$password = ConvertTo-SecureString $env:CertificatePassword -AsPlainText -Force
+# Import pfx
+Import-PfxCertificate -FilePath .\Greenshot.pfx -CertStoreLocation Cert:\CurrentUser\My -Password $password

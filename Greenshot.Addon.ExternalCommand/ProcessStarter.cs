@@ -1,35 +1,39 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Dapplo.Config.Ini;
-using Dapplo.Log.Facade;
-using Greenshot.Addon.Core;
-using Greenshot.Addon.Extensions;
-using Greenshot.Addon.Interfaces;
+#region Usings
+
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.Config.Ini;
+using Dapplo.Log;
+using Greenshot.Addon.Core;
+using Greenshot.Addon.Extensions;
+using Greenshot.Addon.Interfaces;
+using Greenshot.CaptureCore;
+using Greenshot.Core.Interfaces;
+
+#endregion
 
 namespace Greenshot.Addon.ExternalCommand
 {
@@ -41,8 +45,8 @@ namespace Greenshot.Addon.ExternalCommand
 
 
 		/// <summary>
-		/// Wrapper method for the background and normal call, this does all the logic:
-		/// Call the external command, parse for URI, place to clipboard and set the export information
+		///     Wrapper method for the background and normal call, this does all the logic:
+		///     Call the external command, parse for URI, place to clipboard and set the export information
 		/// </summary>
 		/// <param name="commandSettings">CommandSettings</param>
 		/// <param name="notification">Notification</param>
@@ -95,7 +99,7 @@ namespace Greenshot.Addon.ExternalCommand
 		}
 
 		/// <summary>
-		/// Wrapper to retry with a runas
+		///     Wrapper to retry with a runas
 		/// </summary>
 		/// <param name="commando"></param>
 		/// <param name="fullPath"></param>
@@ -133,7 +137,7 @@ namespace Greenshot.Addon.ExternalCommand
 		}
 
 		/// <summary>
-		/// The actual executing code for the external command
+		///     The actual executing code for the external command
 		/// </summary>
 		/// <param name="commando"></param>
 		/// <param name="fullPath"></param>
@@ -174,7 +178,7 @@ namespace Greenshot.Addon.ExternalCommand
 						if (ExternalCommandConfiguration.RedirectStandardOutput)
 						{
 							var output = process.StandardOutput.ReadToEnd();
-							if (ExternalCommandConfiguration.ShowStandardOutputInLog && output.Trim().Length > 0)
+							if (ExternalCommandConfiguration.ShowStandardOutputInLog && (output.Trim().Length > 0))
 							{
 								result.StandardOutput = output;
 								Log.Info().WriteLine("Output:\n{0}", output);

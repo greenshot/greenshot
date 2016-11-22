@@ -1,35 +1,37 @@
-/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Greenshot.Addon.Editor.Interfaces.Drawing;
 using Greenshot.Addon.Extensions;
-using Greenshot.Addon.Interfaces.Drawing;
-using ContentAlignment = System.Drawing.ContentAlignment;
+using Greenshot.Core.Extensions;
+
+#endregion
 
 namespace Greenshot.Addon.Editor.Helpers
 {
 	/// <summary>
-	/// Offers a few helper functions for scaling/aligning an element with another element
+	///     Offers a few helper functions for scaling/aligning an element with another element
 	/// </summary>
 	public static class ScaleHelper
 	{
@@ -37,159 +39,30 @@ namespace Greenshot.Addon.Editor.Helpers
 		public enum ScaleOptions
 		{
 			/// <summary>
-			/// Default scale behavior.
+			///     Default scale behavior.
 			/// </summary>
 			Default = 0x00,
 
 			/// <summary>
-			/// Scale a rectangle in two our four directions, mirrored at it's center coordinates
+			///     Scale a rectangle in two our four directions, mirrored at it's center coordinates
 			/// </summary>
 			Centered = 0x01,
 
 			/// <summary>
-			/// Scale a rectangle maintaining it's aspect ratio
+			///     Scale a rectangle maintaining it's aspect ratio
 			/// </summary>
 			Rational = 0x02
 		}
 
 		/// <summary>
-		/// calculates the Size an element must be resized to, in order to fit another element, keeping aspect ratio
-		/// </summary>
-		/// <param name="currentSize">the size of the element to be resized</param>
-		/// <param name="targetSize">the target size of the element</param>
-		/// <param name="crop">in case the aspect ratio of currentSize and targetSize differs: shall the scaled size fit into targetSize (i.e. that one of its dimensions is smaller - false) or vice versa (true)</param>
-		/// <returns>a new SizeF object indicating the width and height the element should be scaled to</returns>
-		public static SizeF GetScaledSize(SizeF currentSize, SizeF targetSize, bool crop)
-		{
-			float wFactor = targetSize.Width/currentSize.Width;
-			float hFactor = targetSize.Height/currentSize.Height;
-
-			float factor = crop ? Math.Max(wFactor, hFactor) : Math.Min(wFactor, hFactor);
-			return new SizeF(currentSize.Width*factor, currentSize.Height*factor);
-		}
-
-		/// <summary>
-		/// calculates the Rectangle an element must be resized an positioned to, in ordder to fit another element, keeping aspect ratio
-		/// </summary>
-		/// <param name="currentRect">the rectangle of the element to be resized/repositioned</param>
-		/// <param name="targetRect">the target size/position of the element</param>
-		/// <param name="crop">in case the aspect ratio of currentSize and targetSize differs: shall the scaled size fit into targetSize (i.e. that one of its dimensions is smaller - false) or vice versa (true)</param>
-		/// <param name="alignment">the System.Drawing.ContentAlignment value indicating how the element is to be aligned should the width or height differ from targetSize</param>
-		/// <returns>a new RectangleF object indicating the width and height the element should be scaled to and the position that should be applied to it for proper alignment</returns>
-		public static RectangleF GetScaledRectangle(RectangleF currentRect, RectangleF targetRect, bool crop, ContentAlignment alignment)
-		{
-			SizeF newSize = currentRect.Size.Scale(targetRect.Size, crop);
-			RectangleF newRect = new RectangleF(new Point(0, 0), newSize);
-			return newRect.Align(targetRect, alignment);
-		}
-
-		public static void Scale(ref RectangleF originalRectangle, Positions resizeHandlePosition, PointF resizeHandleCoords)
-		{
-			Scale(ref originalRectangle, resizeHandlePosition, resizeHandleCoords, null);
-		}
-
-		/// <summary>
-		/// Calculates target size of a given rectangle scaled by dragging one of its handles (corners)
-		/// </summary>
-		/// <param name="originalRectangle">bounds of the current rectangle, scaled values will be written to this reference</param>
-		/// <param name="resizeHandlePosition">position of the handle/ardorner being used for resized, see constants in Positions</param>
-		/// <param name="resizeHandleCoords">coordinates of the used handle/adorner</param>
-		/// <param name="options">ScaleOptions to use when scaling</param>
-		public static void Scale(ref RectangleF originalRectangle, Positions resizeHandlePosition, PointF resizeHandleCoords, ScaleOptions? options)
-		{
-			if (options == null)
-			{
-				options = GetScaleOptions();
-			}
-
-			if ((options & ScaleOptions.Rational) == ScaleOptions.Rational)
-			{
-				AdjustCoordsForRationalScale(originalRectangle, resizeHandlePosition, ref resizeHandleCoords);
-			}
-
-			if ((options & ScaleOptions.Centered) == ScaleOptions.Centered)
-			{
-				// store center coordinates of rectangle
-				float rectCenterX = originalRectangle.Left + originalRectangle.Width/2;
-				float rectCenterY = originalRectangle.Top + originalRectangle.Height/2;
-				// scale rectangle using handle coordinates
-				ScaleInternal(ref originalRectangle, resizeHandlePosition, resizeHandleCoords);
-				// mirror handle coordinates via rectangle center coordinates
-				resizeHandleCoords.X -= 2*(resizeHandleCoords.X - rectCenterX);
-				resizeHandleCoords.Y -= 2*(resizeHandleCoords.Y - rectCenterY);
-				// scale again with opposing handle and mirrored coordinates
-				resizeHandlePosition = (Positions)((((int)resizeHandlePosition) + 4) % 8);
-				ScaleInternal(ref originalRectangle, resizeHandlePosition, resizeHandleCoords);
-			}
-			else
-			{
-				ScaleInternal(ref originalRectangle, resizeHandlePosition, resizeHandleCoords);
-			}
-		}
-
-		/// <summary>
-		/// Calculates target size of a given rectangle scaled by dragging one of its handles (corners)
-		/// </summary>
-		/// <param name="originalRectangle">bounds of the current rectangle, scaled values will be written to this reference</param>
-		/// <param name="resizeHandlePosition">position of the handle/gripper being used for resized, see constants in Gripper.cs, e.g. Gripper.POSITION_TOP_LEFT</param>
-		/// <param name="resizeHandleCoords">coordinates of the used handle/gripper</param>
-		private static void ScaleInternal(ref RectangleF originalRectangle, Positions resizeHandlePosition, PointF resizeHandleCoords)
-		{
-			switch (resizeHandlePosition)
-			{
-				case Positions.TopLeft:
-					originalRectangle.Width = originalRectangle.Left + originalRectangle.Width - resizeHandleCoords.X;
-					originalRectangle.Height = originalRectangle.Top + originalRectangle.Height - resizeHandleCoords.Y;
-					originalRectangle.X = resizeHandleCoords.X;
-					originalRectangle.Y = resizeHandleCoords.Y;
-					break;
-
-				case Positions.TopCenter:
-					originalRectangle.Height = originalRectangle.Top + originalRectangle.Height - resizeHandleCoords.Y;
-					originalRectangle.Y = resizeHandleCoords.Y;
-					break;
-
-				case Positions.TopRight:
-					originalRectangle.Width = resizeHandleCoords.X - originalRectangle.Left;
-					originalRectangle.Height = originalRectangle.Top + originalRectangle.Height - resizeHandleCoords.Y;
-					originalRectangle.Y = resizeHandleCoords.Y;
-					break;
-
-				case Positions.MiddleLeft:
-					originalRectangle.Width = originalRectangle.Left + originalRectangle.Width - resizeHandleCoords.X;
-					originalRectangle.X = resizeHandleCoords.X;
-					break;
-
-				case Positions.MiddleRight:
-					originalRectangle.Width = resizeHandleCoords.X - originalRectangle.Left;
-					break;
-
-				case Positions.BottomLeft:
-					originalRectangle.Width = originalRectangle.Left + originalRectangle.Width - resizeHandleCoords.X;
-					originalRectangle.Height = resizeHandleCoords.Y - originalRectangle.Top;
-					originalRectangle.X = resizeHandleCoords.X;
-					break;
-
-				case Positions.BottomCenter:
-					originalRectangle.Height = resizeHandleCoords.Y - originalRectangle.Top;
-					break;
-
-				case Positions.BottomRight:
-					originalRectangle.Width = resizeHandleCoords.X - originalRectangle.Left;
-					originalRectangle.Height = resizeHandleCoords.Y - originalRectangle.Top;
-					break;
-
-				default:
-					throw new ArgumentException("Position cannot be handled: " + resizeHandlePosition);
-			}
-		}
-
-		/// <summary>
-		/// Adjusts resizeHandleCoords so that aspect ratio is kept after resizing a given rectangle with provided arguments
+		///     Adjusts resizeHandleCoords so that aspect ratio is kept after resizing a given rectangle with provided arguments
 		/// </summary>
 		/// <param name="originalRectangle">bounds of the current rectangle</param>
 		/// <param name="resizeHandlePosition">position of the handle/gripper being used for resized, see Positions</param>
-		/// <param name="resizeHandleCoords">coordinates of the used handle/gripper, adjusted coordinates will be written to this reference</param>
+		/// <param name="resizeHandleCoords">
+		///     coordinates of the used handle/gripper, adjusted coordinates will be written to this
+		///     reference
+		/// </param>
 		private static void AdjustCoordsForRationalScale(RectangleF originalRectangle, Positions resizeHandlePosition, ref PointF resizeHandleCoords)
 		{
 			float originalRatio = originalRectangle.Width/originalRectangle.Height;
@@ -256,6 +129,111 @@ namespace Greenshot.Addon.Editor.Helpers
 			}
 		}
 
+		/// <summary>
+		///     calculates the Rectangle an element must be resized an positioned to, in ordder to fit another element, keeping
+		///     aspect ratio
+		/// </summary>
+		/// <param name="currentRect">the rectangle of the element to be resized/repositioned</param>
+		/// <param name="targetRect">the target size/position of the element</param>
+		/// <param name="crop">
+		///     in case the aspect ratio of currentSize and targetSize differs: shall the scaled size fit into
+		///     targetSize (i.e. that one of its dimensions is smaller - false) or vice versa (true)
+		/// </param>
+		/// <param name="alignment">
+		///     the System.Drawing.ContentAlignment value indicating how the element is to be aligned should
+		///     the width or height differ from targetSize
+		/// </param>
+		/// <returns>
+		///     a new RectangleF object indicating the width and height the element should be scaled to and the position that
+		///     should be applied to it for proper alignment
+		/// </returns>
+		public static RectangleF GetScaledRectangle(RectangleF currentRect, RectangleF targetRect, bool crop, ContentAlignment alignment)
+		{
+			SizeF newSize = currentRect.Size.Scale(targetRect.Size, crop);
+			RectangleF newRect = new RectangleF(new Point(0, 0), newSize);
+			return newRect.Align(targetRect, alignment);
+		}
+
+		/// <summary>
+		///     calculates the Size an element must be resized to, in order to fit another element, keeping aspect ratio
+		/// </summary>
+		/// <param name="currentSize">the size of the element to be resized</param>
+		/// <param name="targetSize">the target size of the element</param>
+		/// <param name="crop">
+		///     in case the aspect ratio of currentSize and targetSize differs: shall the scaled size fit into
+		///     targetSize (i.e. that one of its dimensions is smaller - false) or vice versa (true)
+		/// </param>
+		/// <returns>a new SizeF object indicating the width and height the element should be scaled to</returns>
+		public static SizeF GetScaledSize(SizeF currentSize, SizeF targetSize, bool crop)
+		{
+			float wFactor = targetSize.Width/currentSize.Width;
+			float hFactor = targetSize.Height/currentSize.Height;
+
+			float factor = crop ? Math.Max(wFactor, hFactor) : Math.Min(wFactor, hFactor);
+			return new SizeF(currentSize.Width*factor, currentSize.Height*factor);
+		}
+
+		/// <returns>the current ScaleOptions depending on modifier keys held down</returns>
+		public static ScaleOptions GetScaleOptions()
+		{
+			bool anchorAtCenter = (Control.ModifierKeys & Keys.Control) != 0;
+			bool maintainAspectRatio = (Control.ModifierKeys & Keys.Shift) != 0;
+			ScaleOptions opts = ScaleOptions.Default;
+			if (anchorAtCenter)
+			{
+				opts |= ScaleOptions.Centered;
+			}
+			if (maintainAspectRatio)
+			{
+				opts |= ScaleOptions.Rational;
+			}
+			return opts;
+		}
+
+		public static void Scale(ref RectangleF originalRectangle, Positions resizeHandlePosition, PointF resizeHandleCoords)
+		{
+			Scale(ref originalRectangle, resizeHandlePosition, resizeHandleCoords, null);
+		}
+
+		/// <summary>
+		///     Calculates target size of a given rectangle scaled by dragging one of its handles (corners)
+		/// </summary>
+		/// <param name="originalRectangle">bounds of the current rectangle, scaled values will be written to this reference</param>
+		/// <param name="resizeHandlePosition">position of the handle/ardorner being used for resized, see constants in Positions</param>
+		/// <param name="resizeHandleCoords">coordinates of the used handle/adorner</param>
+		/// <param name="options">ScaleOptions to use when scaling</param>
+		public static void Scale(ref RectangleF originalRectangle, Positions resizeHandlePosition, PointF resizeHandleCoords, ScaleOptions? options)
+		{
+			if (options == null)
+			{
+				options = GetScaleOptions();
+			}
+
+			if ((options & ScaleOptions.Rational) == ScaleOptions.Rational)
+			{
+				AdjustCoordsForRationalScale(originalRectangle, resizeHandlePosition, ref resizeHandleCoords);
+			}
+
+			if ((options & ScaleOptions.Centered) == ScaleOptions.Centered)
+			{
+				// store center coordinates of rectangle
+				float rectCenterX = originalRectangle.Left + originalRectangle.Width/2;
+				float rectCenterY = originalRectangle.Top + originalRectangle.Height/2;
+				// scale rectangle using handle coordinates
+				ScaleInternal(ref originalRectangle, resizeHandlePosition, resizeHandleCoords);
+				// mirror handle coordinates via rectangle center coordinates
+				resizeHandleCoords.X -= 2*(resizeHandleCoords.X - rectCenterX);
+				resizeHandleCoords.Y -= 2*(resizeHandleCoords.Y - rectCenterY);
+				// scale again with opposing handle and mirrored coordinates
+				resizeHandlePosition = (Positions) (((int) resizeHandlePosition + 4)%8);
+				ScaleInternal(ref originalRectangle, resizeHandlePosition, resizeHandleCoords);
+			}
+			else
+			{
+				ScaleInternal(ref originalRectangle, resizeHandlePosition, resizeHandleCoords);
+			}
+		}
+
 		public static void Scale(Rectangle boundsBeforeResize, int cursorX, int cursorY, ref RectangleF boundsAfterResize)
 		{
 			Scale(boundsBeforeResize, cursorX, cursorY, ref boundsAfterResize, null);
@@ -299,21 +277,64 @@ namespace Greenshot.Addon.Editor.Helpers
 			}
 		}
 
-		/// <returns>the current ScaleOptions depending on modifier keys held down</returns>
-		public static ScaleOptions GetScaleOptions()
+		/// <summary>
+		///     Calculates target size of a given rectangle scaled by dragging one of its handles (corners)
+		/// </summary>
+		/// <param name="originalRectangle">bounds of the current rectangle, scaled values will be written to this reference</param>
+		/// <param name="resizeHandlePosition">
+		///     position of the handle/gripper being used for resized, see constants in Gripper.cs,
+		///     e.g. Gripper.POSITION_TOP_LEFT
+		/// </param>
+		/// <param name="resizeHandleCoords">coordinates of the used handle/gripper</param>
+		private static void ScaleInternal(ref RectangleF originalRectangle, Positions resizeHandlePosition, PointF resizeHandleCoords)
 		{
-			bool anchorAtCenter = (Control.ModifierKeys & Keys.Control) != 0;
-			bool maintainAspectRatio = ((Control.ModifierKeys & Keys.Shift) != 0);
-			ScaleOptions opts = ScaleOptions.Default;
-			if (anchorAtCenter)
+			switch (resizeHandlePosition)
 			{
-				opts |= ScaleOptions.Centered;
+				case Positions.TopLeft:
+					originalRectangle.Width = originalRectangle.Left + originalRectangle.Width - resizeHandleCoords.X;
+					originalRectangle.Height = originalRectangle.Top + originalRectangle.Height - resizeHandleCoords.Y;
+					originalRectangle.X = resizeHandleCoords.X;
+					originalRectangle.Y = resizeHandleCoords.Y;
+					break;
+
+				case Positions.TopCenter:
+					originalRectangle.Height = originalRectangle.Top + originalRectangle.Height - resizeHandleCoords.Y;
+					originalRectangle.Y = resizeHandleCoords.Y;
+					break;
+
+				case Positions.TopRight:
+					originalRectangle.Width = resizeHandleCoords.X - originalRectangle.Left;
+					originalRectangle.Height = originalRectangle.Top + originalRectangle.Height - resizeHandleCoords.Y;
+					originalRectangle.Y = resizeHandleCoords.Y;
+					break;
+
+				case Positions.MiddleLeft:
+					originalRectangle.Width = originalRectangle.Left + originalRectangle.Width - resizeHandleCoords.X;
+					originalRectangle.X = resizeHandleCoords.X;
+					break;
+
+				case Positions.MiddleRight:
+					originalRectangle.Width = resizeHandleCoords.X - originalRectangle.Left;
+					break;
+
+				case Positions.BottomLeft:
+					originalRectangle.Width = originalRectangle.Left + originalRectangle.Width - resizeHandleCoords.X;
+					originalRectangle.Height = resizeHandleCoords.Y - originalRectangle.Top;
+					originalRectangle.X = resizeHandleCoords.X;
+					break;
+
+				case Positions.BottomCenter:
+					originalRectangle.Height = resizeHandleCoords.Y - originalRectangle.Top;
+					break;
+
+				case Positions.BottomRight:
+					originalRectangle.Width = resizeHandleCoords.X - originalRectangle.Left;
+					originalRectangle.Height = resizeHandleCoords.Y - originalRectangle.Top;
+					break;
+
+				default:
+					throw new ArgumentException("Position cannot be handled: " + resizeHandlePosition);
 			}
-			if (maintainAspectRatio)
-			{
-				opts |= ScaleOptions.Rational;
-			}
-			return opts;
 		}
 
 		public interface IDoubleProcessor
@@ -351,7 +372,7 @@ namespace Greenshot.Addon.Editor.Helpers
 
 		public class FixedAngleRoundBehavior : IDoubleProcessor
 		{
-			private double fixedAngle;
+			private readonly double fixedAngle;
 
 			public FixedAngleRoundBehavior(double fixedAngle)
 			{
@@ -363,7 +384,5 @@ namespace Greenshot.Addon.Editor.Helpers
 				return fixedAngle;
 			}
 		}
-
-
 	}
 }

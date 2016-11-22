@@ -1,23 +1,23 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom,
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.IO;
@@ -28,15 +28,20 @@ using System.Threading.Tasks;
 using Dapplo.Config.Ini;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.OAuth;
+using Dapplo.Utils;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Interfaces;
-using Greenshot.Addon.Interfaces.Plugin;
-using Dapplo.Utils;
+using Greenshot.Addon.Extensions;
+using Greenshot.CaptureCore.Extensions;
+using Greenshot.Core;
+using Greenshot.Core.Interfaces;
+
+#endregion
 
 namespace Greenshot.Addon.Box
 {
 	/// <summary>
-	/// Description of ImgurUtils.
+	///     Description of ImgurUtils.
 	/// </summary>
 	public static class BoxUtils
 	{
@@ -45,8 +50,9 @@ namespace Greenshot.Addon.Box
 		private static readonly Uri FilesUri = new Uri("https://www.box.com/api/2.0/files/");
 
 		/// <summary>
-		/// Do the actual upload to Box
-		/// For more details on the available parameters, see: http://developers.box.net/w/page/12923951/ApiFunction_Upload%20and%20Download
+		///     Do the actual upload to Box
+		///     For more details on the available parameters, see:
+		///     http://developers.box.net/w/page/12923951/ApiFunction_Upload%20and%20Download
 		/// </summary>
 		/// <param name="oAuth2Settings">OAuth2Settings</param>
 		/// <param name="capture">ICapture</param>
@@ -60,10 +66,7 @@ namespace Greenshot.Addon.Box
 
 			var oauthHttpBehaviour = HttpBehaviour.Current.ShallowClone();
 			// Use UploadProgress
-			oauthHttpBehaviour.UploadProgress = (percent) =>
-			{
-				UiContext.RunOn(() => progress.Report((int)(percent * 100)));
-			};
+			oauthHttpBehaviour.UploadProgress = percent => { UiContext.RunOn(() => progress.Report((int) (percent*100))); };
 
 			oauthHttpBehaviour.OnHttpMessageHandlerCreated = httpMessageHandler => new OAuth2HttpMessageHandler(oAuth2Settings, oauthHttpBehaviour, httpMessageHandler);
 
@@ -77,7 +80,7 @@ namespace Greenshot.Addon.Box
 					Name = "\"parent_id\""
 				};
 				multiPartContent.Add(parentIdContent);
-				ImageOutput.SaveToStream(capture, stream, outputSettings);
+				capture.SaveToStream(stream, outputSettings);
 				stream.Position = 0;
 				dynamic response;
 
@@ -94,7 +97,7 @@ namespace Greenshot.Addon.Box
 					response = await UploadFileUri.PostAsync<dynamic>(multiPartContent, cancellationToken);
 				}
 
-				if (response == null || !response.ContainsKey("total_count"))
+				if ((response == null) || !response.ContainsKey("total_count"))
 				{
 					return null;
 				}

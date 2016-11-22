@@ -6,7 +6,7 @@
              Background="#FF3D3D3D">
 	<Viewbox HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
 		<Canvas Width="430" Height="520" ClipToBounds="True">
-			<Rectangle xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Width="520" Height="520" Fill="#FF3D3D3D" />
+			<Rectangle Width="520" Height="520" Fill="#FF3D3D3D" />
 			<Ellipse Width="60" Height="60" Canvas.Left="364" Canvas.Top="195" Fill="#FF8AFF00" Name="L1C1" />
 			<Ellipse Width="60" Height="60" Canvas.Left="296" Canvas.Top="169" Fill="#FF8AFF00" Name="L1C2" />
 			<Ellipse Width="60" Height="60" Canvas.Left="228" Canvas.Top="143" Fill="#FF8AFF00" Name="L1C3" />

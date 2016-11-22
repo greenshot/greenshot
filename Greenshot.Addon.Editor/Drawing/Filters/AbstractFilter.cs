@@ -1,28 +1,30 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Drawing;
 using Greenshot.Addon.Editor.Drawing.Fields;
-using Greenshot.Addon.Interfaces.Drawing;
+using Greenshot.Addon.Editor.Interfaces.Drawing;
+
+#endregion
 
 /// <summary>
 /// Graphical filter which can be added to DrawableContainer.
@@ -37,12 +39,17 @@ namespace Greenshot.Addon.Editor.Drawing.Filters
 	{
 		private bool invert;
 
+		[NonSerialized] protected IDrawableContainer parent;
+
+		public AbstractFilter(DrawableContainer parent)
+		{
+			this.parent = parent;
+			InitFieldAttributes();
+		}
+
 		public bool Invert
 		{
-			get
-			{
-				return invert;
-			}
+			get { return invert; }
 			set
 			{
 				invert = value;
@@ -50,25 +57,10 @@ namespace Greenshot.Addon.Editor.Drawing.Filters
 			}
 		}
 
-		[NonSerialized]
-		protected IDrawableContainer parent;
-
 		public IDrawableContainer Parent
 		{
-			get
-			{
-				return parent;
-			}
-			set
-			{
-				parent = value;
-			}
-		}
-
-		public AbstractFilter(DrawableContainer parent) : base()
-		{
-			this.parent = parent;
-			InitFieldAttributes();
+			get { return parent; }
+			set { parent = value; }
 		}
 
 		public abstract void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode);

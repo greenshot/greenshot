@@ -1,47 +1,50 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.Composition;
-using System.Drawing;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media.Imaging;
 using Dapplo.HttpExtensions;
+using Dapplo.HttpExtensions.Extensions;
 using Dapplo.HttpExtensions.OAuth;
-using Dapplo.Utils.Extensions;
+using Dapplo.Log;
+using Dapplo.Utils;
 using Greenshot.Addon.Core;
-using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
-using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Windows;
-using Dapplo.Utils;
-using Dapplo.Log.Facade;
+using MahApps.Metro.IconPacks;
+using Greenshot.Addon.Extensions;
+using Greenshot.CaptureCore;
+using Greenshot.CaptureCore.Extensions;
+using Greenshot.Core;
+using Greenshot.Core.Interfaces;
+
+#endregion
 
 namespace Greenshot.Addon.Photobucket
 {
@@ -50,100 +53,15 @@ namespace Greenshot.Addon.Photobucket
 	{
 		private const string PhotobucketDesignation = "Photobucket";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly BitmapSource PhotobucketIcon;
 		private static readonly Uri PhotobucketApiUri = new Uri("http://api.photobucket.com");
-		private OAuth1Settings _oAuthSettings;
 		private OAuth1HttpBehaviour _oAuthHttpBehaviour;
-
-		static PhotobucketDestination()
-		{
-			var resources = new ComponentResourceManager(typeof(PhotobucketPlugin));
-			using (var photobucketImage = (Bitmap) resources.GetObject("Photobucket"))
-			{
-				PhotobucketIcon = photobucketImage.ToBitmapSource();
-			}
-
-		}
+		private OAuth1Settings _oAuthSettings;
 
 		[Import]
-		private IPhotobucketConfiguration PhotobucketConfiguration
-		{
-			get;
-			set;
-		}
+		private IPhotobucketConfiguration PhotobucketConfiguration { get; set; }
 
 		[Import]
-		private IPhotobucketLanguage PhotobucketLanguage
-		{
-			get;
-			set;
-		}
-
-		/// <summary>
-		/// Setup
-		/// </summary>
-		protected override void Initialize()
-		{
-			base.Initialize();
-			Designation = PhotobucketDesignation;
-			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, "0", token);
-			Text = PhotobucketLanguage.UploadMenuItem;
-			Icon = PhotobucketIcon;
-
-			_oAuthSettings = new OAuth1Settings
-			{
-				Token = PhotobucketConfiguration,
-				ClientId = PhotobucketConfiguration.ClientId,
-				ClientSecret = PhotobucketConfiguration.ClientSecret,
-				CloudServiceName = "Photo bucket",
-				EmbeddedBrowserWidth = 1010,
-				EmbeddedBrowserHeight = 400,
-				AuthorizeMode = AuthorizeModes.EmbeddedBrowser,
-				TokenUrl = PhotobucketApiUri.AppendSegments("login", "request"),
-				TokenMethod = HttpMethod.Post,
-				AccessTokenUrl = PhotobucketApiUri.AppendSegments("login","access"),
-				AccessTokenMethod = HttpMethod.Post,
-				AuthorizationUri = PhotobucketApiUri.AppendSegments("apilogin", "login")
-				 .ExtendQuery(new Dictionary<string, string>{
-						{ OAuth1Parameters.Token.EnumValueOf(), "{RequestToken}"},
-						{ OAuth1Parameters.Callback.EnumValueOf(), "{RedirectUrl}"}
-				 }),
-				RedirectUrl = "http://getgreenshot.org",
-				CheckVerifier = false,
-			};
-			var oAuthHttpBehaviour = OAuth1HttpBehaviourFactory.Create(_oAuthSettings);
-			// Store the leftover values
-			oAuthHttpBehaviour.OnAccessTokenValues = values =>
-			{
-				if (values != null && values.ContainsKey("subdomain"))
-				{
-					PhotobucketConfiguration.SubDomain = values["subdomain"];
-				}
-				if (values != null && values.ContainsKey("username"))
-				{
-					PhotobucketConfiguration.Username = values["username"];
-				}
-			};
-
-			oAuthHttpBehaviour.BeforeSend = httpRequestMessage =>
-			{
-				if (PhotobucketConfiguration.SubDomain != null)
-				{
-					var uriBuilder = new UriBuilder(httpRequestMessage.RequestUri)
-					{
-						Host = PhotobucketConfiguration.SubDomain
-					};
-					httpRequestMessage.RequestUri = uriBuilder.Uri;
-				}
-			};
-			// Reset the OAuth token if there is no subdomain, without this we need to request it again.
-			if (PhotobucketConfiguration.SubDomain == null || PhotobucketConfiguration.Username == null)
-			{
-				PhotobucketConfiguration.OAuthToken = null;
-				PhotobucketConfiguration.OAuthTokenSecret = null;
-			}
-			_oAuthHttpBehaviour = oAuthHttpBehaviour;
-		}
+		private IPhotobucketLanguage PhotobucketLanguage { get; set; }
 
 		private async Task<INotification> ExportCaptureAsync(ICapture capture, string album, CancellationToken token = default(CancellationToken))
 		{
@@ -188,7 +106,7 @@ namespace Greenshot.Addon.Photobucket
 			catch (TaskCanceledException tcEx)
 			{
 				returnValue.Text = string.Format(PhotobucketLanguage.UploadFailure, PhotobucketDesignation);
-                returnValue.NotificationType = NotificationTypes.Cancel;
+				returnValue.NotificationType = NotificationTypes.Cancel;
 				returnValue.ErrorText = tcEx.Message;
 				Log.Info().WriteLine(tcEx.Message);
 			}
@@ -201,11 +119,81 @@ namespace Greenshot.Addon.Photobucket
 				MessageBox.Show(PhotobucketLanguage.UploadFailure + " " + e.Message, PhotobucketDesignation, MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			return returnValue;
-        }
+		}
 
 		/// <summary>
-		/// Do the actual upload to Photobucket
-		/// For more details on the available parameters, see: http://api.Photobucket.com/resources_anon
+		///     Setup
+		/// </summary>
+		protected override void Initialize()
+		{
+			base.Initialize();
+			Designation = PhotobucketDesignation;
+			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, "0", token);
+			Text = PhotobucketLanguage.UploadMenuItem;
+			Icon = new PackIconMaterial
+			{
+				Kind = PackIconMaterialKind.Camera
+			};
+
+			_oAuthSettings = new OAuth1Settings
+			{
+				Token = PhotobucketConfiguration,
+				ClientId = PhotobucketConfiguration.ClientId,
+				ClientSecret = PhotobucketConfiguration.ClientSecret,
+				CloudServiceName = "Photo bucket",
+				EmbeddedBrowserWidth = 1010,
+				EmbeddedBrowserHeight = 400,
+				AuthorizeMode = AuthorizeModes.EmbeddedBrowser,
+				TokenUrl = PhotobucketApiUri.AppendSegments("login", "request"),
+				TokenMethod = HttpMethod.Post,
+				AccessTokenUrl = PhotobucketApiUri.AppendSegments("login", "access"),
+				AccessTokenMethod = HttpMethod.Post,
+				AuthorizationUri = PhotobucketApiUri.AppendSegments("apilogin", "login")
+					.ExtendQuery(new Dictionary<string, string>
+					{
+						{OAuth1Parameters.Token.EnumValueOf(), "{RequestToken}"},
+						{OAuth1Parameters.Callback.EnumValueOf(), "{RedirectUrl}"}
+					}),
+				RedirectUrl = "http://getgreenshot.org",
+				CheckVerifier = false
+			};
+			var oAuthHttpBehaviour = OAuth1HttpBehaviourFactory.Create(_oAuthSettings);
+			// Store the leftover values
+			oAuthHttpBehaviour.OnAccessTokenValues = values =>
+			{
+				if ((values != null) && values.ContainsKey("subdomain"))
+				{
+					PhotobucketConfiguration.SubDomain = values["subdomain"];
+				}
+				if ((values != null) && values.ContainsKey("username"))
+				{
+					PhotobucketConfiguration.Username = values["username"];
+				}
+			};
+
+			oAuthHttpBehaviour.BeforeSend = httpRequestMessage =>
+			{
+				if (PhotobucketConfiguration.SubDomain != null)
+				{
+					var uriBuilder = new UriBuilder(httpRequestMessage.RequestUri)
+					{
+						Host = PhotobucketConfiguration.SubDomain
+					};
+					httpRequestMessage.RequestUri = uriBuilder.Uri;
+				}
+			};
+			// Reset the OAuth token if there is no subdomain, without this we need to request it again.
+			if ((PhotobucketConfiguration.SubDomain == null) || (PhotobucketConfiguration.Username == null))
+			{
+				PhotobucketConfiguration.OAuthToken = null;
+				PhotobucketConfiguration.OAuthTokenSecret = null;
+			}
+			_oAuthHttpBehaviour = oAuthHttpBehaviour;
+		}
+
+		/// <summary>
+		///     Do the actual upload to Photobucket
+		///     For more details on the available parameters, see: http://api.Photobucket.com/resources_anon
 		/// </summary>
 		/// <returns>PhotobucketResponse</returns>
 		public async Task<PhotobucketInfo> UploadToPhotobucket(ICapture surfaceToUpload, SurfaceOutputSettings outputSettings, string albumPath, string title, string filename, IProgress<int> progress = null, CancellationToken token = default(CancellationToken))
@@ -215,14 +203,11 @@ namespace Greenshot.Addon.Photobucket
 			var oAuthHttpBehaviour = _oAuthHttpBehaviour.ShallowClone();
 
 			// Use UploadProgress
-			oAuthHttpBehaviour.UploadProgress = (percent) =>
-			{
-				UiContext.RunOn(() => progress.Report((int)(percent * 100)));
-			};
+			oAuthHttpBehaviour.UploadProgress = percent => { UiContext.RunOn(() => progress.Report((int) (percent*100)), token); };
 			_oAuthHttpBehaviour.MakeCurrent();
-			if (PhotobucketConfiguration.Username == null || PhotobucketConfiguration.SubDomain == null)
+			if ((PhotobucketConfiguration.Username == null) || (PhotobucketConfiguration.SubDomain == null))
 			{
-				await PhotobucketApiUri.AppendSegments("users").ExtendQuery("format", "json").OAuth1GetAsAsync<dynamic>(cancellationToken: token);
+				await PhotobucketApiUri.AppendSegments("users").ExtendQuery("format", "json").GetAsAsync<dynamic>(token);
 			}
 			if (PhotobucketConfiguration.Album == null)
 			{
@@ -230,9 +215,8 @@ namespace Greenshot.Addon.Photobucket
 			}
 			var uploadUri = PhotobucketApiUri.AppendSegments("album", PhotobucketConfiguration.Album, "upload");
 
-			var signedParameters = new Dictionary<string, object>();
+			var signedParameters = new Dictionary<string, object> {{"type", "image"}};
 			// add type
-			signedParameters.Add("type", "image");
 			// add title
 			if (title != null)
 			{
@@ -246,7 +230,7 @@ namespace Greenshot.Addon.Photobucket
 			// Add image
 			using (var stream = new MemoryStream())
 			{
-				ImageOutput.SaveToStream(surfaceToUpload, stream, outputSettings);
+				surfaceToUpload.SaveToStream(stream, outputSettings);
 				stream.Position = 0;
 				using (var streamContent = new StreamContent(stream))
 				{
@@ -254,12 +238,16 @@ namespace Greenshot.Addon.Photobucket
 					streamContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
 					{
 						Name = "\"uploadfile\"",
-						FileName = "\"" + filename + "\"",
+						FileName = "\"" + filename + "\""
 					};
 
+					HttpBehaviour.Current.SetConfig(new HttpRequestMessageConfiguration
+					{
+						Properties = signedParameters
+					});
 					try
-					{							
-						responseString = await uploadUri.OAuth1PostAsync<string>(streamContent, signedParameters, token);
+					{
+						responseString = await uploadUri.PostAsync<string>(streamContent, token);
 					}
 					catch (Exception ex)
 					{
@@ -278,6 +266,5 @@ namespace Greenshot.Addon.Photobucket
 			Log.Debug().WriteLine("Upload to Photobucket was finished");
 			return photobucketInfo;
 		}
-
 	}
 }

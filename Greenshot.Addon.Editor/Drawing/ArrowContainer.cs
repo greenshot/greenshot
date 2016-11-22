@@ -1,48 +1,51 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using Greenshot.Addon.Interfaces.Drawing;
+using Greenshot.Addon.Editor.Interfaces.Drawing;
+
+#endregion
 
 namespace Greenshot.Addon.Editor.Drawing
 {
 	/// <summary>
-	/// Description of LineContainer.
+	///     Description of LineContainer.
 	/// </summary>
-	[Serializable()]
+	[Serializable]
 	public class ArrowContainer : LineContainer
 	{
 		private static readonly AdjustableArrowCap ARROW_CAP = new AdjustableArrowCap(4, 6);
 
 		private ArrowHeadCombination arrowHeads = ArrowHeadCombination.END_POINT;
 
+		public ArrowContainer(Surface parent) : base(parent)
+		{
+		}
+
 		[Field(FieldTypes.ARROWHEADS)]
 		public ArrowHeadCombination ArrowHeads
 		{
-			get
-			{
-				return arrowHeads;
-			}
+			get { return arrowHeads; }
 			set
 			{
 				arrowHeads = value;
@@ -50,8 +53,46 @@ namespace Greenshot.Addon.Editor.Drawing
 			}
 		}
 
-		public ArrowContainer(Surface parent) : base(parent)
+		public override Rectangle DrawingBounds
 		{
+			get
+			{
+				if (LineThickness > 0)
+				{
+					using (Pen pen = new Pen(Color.White))
+					{
+						pen.Width = LineThickness;
+						SetArrowHeads(arrowHeads, pen);
+						using (GraphicsPath path = new GraphicsPath())
+						{
+							path.AddLine(Left, Top, Left + Width, Top + Height);
+							Rectangle drawingBounds = Rectangle.Round(path.GetBounds(new Matrix(), pen));
+							drawingBounds.Inflate(2, 2);
+							return drawingBounds;
+						}
+					}
+				}
+				return Rectangle.Empty;
+			}
+		}
+
+		public override bool ClickableAt(int x, int y)
+		{
+			int lineWidth = LineThickness + 10;
+			if (LineThickness > 0)
+			{
+				using (Pen pen = new Pen(Color.White))
+				{
+					pen.Width = lineWidth;
+					SetArrowHeads(arrowHeads, pen);
+					using (GraphicsPath path = new GraphicsPath())
+					{
+						path.AddLine(Left, Top, Left + Width, Top + Height);
+						return path.IsOutlineVisible(x, y, pen);
+					}
+				}
+			}
+			return false;
 		}
 
 		public override void Draw(Graphics graphics, RenderMode rm)
@@ -80,7 +121,7 @@ namespace Greenshot.Addon.Editor.Drawing
 								graphics.DrawLine(shadowCapPen, Left + currentStep, Top + currentStep, Left + currentStep + Width, Top + currentStep + Height);
 
 								currentStep++;
-								alpha = alpha - (basealpha/steps);
+								alpha = alpha - basealpha/steps;
 							}
 						}
 					}
@@ -95,61 +136,13 @@ namespace Greenshot.Addon.Editor.Drawing
 
 		private void SetArrowHeads(ArrowHeadCombination heads, Pen pen)
 		{
-			if (heads == ArrowHeadCombination.BOTH || heads == ArrowHeadCombination.START_POINT)
+			if ((heads == ArrowHeadCombination.BOTH) || (heads == ArrowHeadCombination.START_POINT))
 			{
 				pen.CustomStartCap = ARROW_CAP;
 			}
-			if (heads == ArrowHeadCombination.BOTH || heads == ArrowHeadCombination.END_POINT)
+			if ((heads == ArrowHeadCombination.BOTH) || (heads == ArrowHeadCombination.END_POINT))
 			{
 				pen.CustomEndCap = ARROW_CAP;
-			}
-		}
-
-		public override Rectangle DrawingBounds
-		{
-			get
-			{
-				if (LineThickness > 0)
-				{
-					using (Pen pen = new Pen(Color.White))
-					{
-						pen.Width = LineThickness;
-						SetArrowHeads(arrowHeads, pen);
-						using (GraphicsPath path = new GraphicsPath())
-						{
-							path.AddLine(Left, Top, Left + Width, Top + Height);
-							Rectangle drawingBounds = Rectangle.Round(path.GetBounds(new Matrix(), pen));
-							drawingBounds.Inflate(2, 2);
-							return drawingBounds;
-						}
-					}
-				}
-				else
-				{
-					return Rectangle.Empty;
-				}
-			}
-		}
-
-		public override bool ClickableAt(int x, int y)
-		{
-			int lineWidth = LineThickness + 10;
-			if (LineThickness > 0)
-			{
-				using (Pen pen = new Pen(Color.White))
-				{
-					pen.Width = lineWidth;
-					SetArrowHeads(arrowHeads, pen);
-					using (GraphicsPath path = new GraphicsPath())
-					{
-						path.AddLine(Left, Top, Left + Width, Top + Height);
-						return path.IsOutlineVisible(x, y, pen);
-					}
-				}
-			}
-			else
-			{
-				return false;
 			}
 		}
 	}

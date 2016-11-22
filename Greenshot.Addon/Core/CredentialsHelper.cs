@@ -1,93 +1,110 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Greenshot.Addon.Extensions;
+#region Usings
+
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using Greenshot.Core.Extensions;
+
+#endregion
 
 namespace Greenshot.Addon.Core
 {
 	/// <summary>
-	/// Encapsulates dialog functionality from the Credential Management API.
-	/// The following code comes from: http://www.developerfusion.com/code/4693/using-the-credential-management-api/
-	/// and is slightly modified so it works for us.
-	/// As the "Stored usernames and passwords" which can be accessed by: Start-> Run and type "Control keymgr.dll"
-	/// doesn't show all credentials use the tool here: http://www.microsoft.com/indonesia/msdn/credmgmt.aspx
-	/// The following code is an example for a login, it will call the Authenticate with user/password
-	/// which should return true if the login worked, false if not.
-	///		private static bool Login(string system, string name) {
-	///			try {
-	///				CredentialsDialog dialog = new CredentialsDialog(system);
-	///				dialog.Name = name;
-	///				while (dialog.Show(dialog.Name) == DialogResult.OK) {
-	///					if (Authenticate(dialog.Name, dialog.Password)) {
-	///						if (dialog.SaveChecked) dialog.Confirm(true);
-	///						return true;
-	///					} else {
-	///						try {
-	///							dialog.Confirm(false);
-	///						} catch (ApplicationException) {
-	///							// exception handling ...
-	///						}
-	///						dialog.IncorrectPassword = true;
-	///					}
-	///				}
-	///			} catch (ApplicationException) {
-	///				// exception handling ...
-	///			}
-	///			return false;
-	///		}
+	///     Encapsulates dialog functionality from the Credential Management API.
+	///     The following code comes from: http://www.developerfusion.com/code/4693/using-the-credential-management-api/
+	///     and is slightly modified so it works for us.
+	///     As the "Stored usernames and passwords" which can be accessed by: Start-> Run and type "Control keymgr.dll"
+	///     doesn't show all credentials use the tool here: http://www.microsoft.com/indonesia/msdn/credmgmt.aspx
+	///     The following code is an example for a login, it will call the Authenticate with user/password
+	///     which should return true if the login worked, false if not.
+	///     private static bool Login(string system, string name) {
+	///     try {
+	///     CredentialsDialog dialog = new CredentialsDialog(system);
+	///     dialog.Name = name;
+	///     while (dialog.Show(dialog.Name) == DialogResult.OK) {
+	///     if (Authenticate(dialog.Name, dialog.Password)) {
+	///     if (dialog.SaveChecked) dialog.Confirm(true);
+	///     return true;
+	///     } else {
+	///     try {
+	///     dialog.Confirm(false);
+	///     } catch (ApplicationException) {
+	///     // exception handling ...
+	///     }
+	///     dialog.IncorrectPassword = true;
+	///     }
+	///     }
+	///     } catch (ApplicationException) {
+	///     // exception handling ...
+	///     }
+	///     return false;
+	///     }
 	/// </summary>
 	public sealed class CredentialsDialog
 	{
-		[DllImport("gdi32.dll", SetLastError = true)]
-		private static extern bool DeleteObject(IntPtr hObject);
-
 		/// <summary>The only valid bitmap height (in pixels) of a user-defined banner.</summary>
 		private const int ValidBannerHeight = 60;
 
 		/// <summary>The only valid bitmap width (in pixels) of a user-defined banner.</summary>
 		private const int ValidBannerWidth = 320;
 
-		/// <summary>Initializes a new instance of the <see cref="T:SecureCredentialsLibrary.CredentialsDialog"/> class
-		/// with the specified target.</summary>
+		private Image _banner;
+
+		private string _caption = string.Empty;
+
+		private string _message = string.Empty;
+
+		private string _name = string.Empty;
+
+		private string _password = string.Empty;
+
+		private string _target = string.Empty;
+
+		/// <summary>
+		///     Initializes a new instance of the <see cref="T:SecureCredentialsLibrary.CredentialsDialog" /> class
+		///     with the specified target.
+		/// </summary>
 		/// <param name="target">The name of the target for the credentials, typically a server name.</param>
 		public CredentialsDialog(string target) : this(target, null)
 		{
 		}
 
-		/// <summary>Initializes a new instance of the <see cref="T:SecureCredentialsLibrary.CredentialsDialog"/> class
-		/// with the specified target and caption.</summary>
+		/// <summary>
+		///     Initializes a new instance of the <see cref="T:SecureCredentialsLibrary.CredentialsDialog" /> class
+		///     with the specified target and caption.
+		/// </summary>
 		/// <param name="target">The name of the target for the credentials, typically a server name.</param>
 		/// <param name="caption">The caption of the dialog (null will cause a system default title to be used).</param>
 		public CredentialsDialog(string target, string caption) : this(target, caption, null)
 		{
 		}
 
-		/// <summary>Initializes a new instance of the <see cref="T:SecureCredentialsLibrary.CredentialsDialog"/> class
-		/// with the specified target, caption and message.</summary>
+		/// <summary>
+		///     Initializes a new instance of the <see cref="T:SecureCredentialsLibrary.CredentialsDialog" /> class
+		///     with the specified target, caption and message.
+		/// </summary>
 		/// <param name="target">The name of the target for the credentials, typically a server name.</param>
 		/// <param name="caption">The caption of the dialog (null will cause a system default title to be used).</param>
 		/// <param name="message">The message of the dialog (null will cause a system default message to be used).</param>
@@ -95,8 +112,10 @@ namespace Greenshot.Addon.Core
 		{
 		}
 
-		/// <summary>Initializes a new instance of the <see cref="T:SecureCredentialsLibrary.CredentialsDialog"/> class
-		/// with the specified target, caption, message and banner.</summary>
+		/// <summary>
+		///     Initializes a new instance of the <see cref="T:SecureCredentialsLibrary.CredentialsDialog" /> class
+		///     with the specified target, caption, message and banner.
+		/// </summary>
 		/// <param name="target">The name of the target for the credentials, typically a server name.</param>
 		/// <param name="caption">The caption of the dialog (null will cause a system default title to be used).</param>
 		/// <param name="message">The message of the dialog (null will cause a system default message to be used).</param>
@@ -110,146 +129,16 @@ namespace Greenshot.Addon.Core
 		}
 
 		/// <summary>
-		/// Gets or sets if the dialog will be shown even if the credentials
-		/// can be returned from an existing credential in the credential manager.
+		///     Gets or sets if the dialog will be shown even if the credentials
+		///     can be returned from an existing credential in the credential manager.
 		/// </summary>
 		public bool AlwaysDisplay { get; set; }
-
-		/// <summary>Gets or sets if the dialog is populated with name/password only.</summary>
-		public bool ExcludeCertificates { get; set; } = true;
-
-		/// <summary>Gets or sets if the credentials are to be persisted in the credential manager.</summary>
-		public bool Persist { get; set; } = true;
-
-		/// <summary>Gets or sets if the incorrect password balloontip needs to be shown. Introduced AFTER Windows XP</summary>
-		public bool IncorrectPassword { get; set; }
-
-		/// <summary>Gets or sets if the name is read-only.</summary>
-		public bool KeepName { get; set; }
-
-		private string _name = string.Empty;
-
-		/// <summary>Gets or sets the name for the credentials.</summary>
-		public string Name
-		{
-			get
-			{
-				return _name;
-			}
-			set
-			{
-				if (value?.Length > CREDUI.MAX_USERNAME_LENGTH)
-				{
-					string message = string.Format(Thread.CurrentThread.CurrentUICulture, "The name has a maximum length of {0} characters.", CREDUI.MAX_USERNAME_LENGTH);
-					throw new ArgumentException(message, nameof(Name));
-				}
-				_name = value;
-			}
-		}
-
-		private string _password = string.Empty;
-
-		/// <summary>Gets or sets the password for the credentials.</summary>
-		public string Password
-		{
-			get
-			{
-				return _password;
-			}
-			set
-			{
-				if (value?.Length > CREDUI.MAX_PASSWORD_LENGTH)
-				{
-					string message = string.Format(Thread.CurrentThread.CurrentUICulture, "The password has a maximum length of {0} characters.", CREDUI.MAX_PASSWORD_LENGTH);
-					throw new ArgumentException(message, nameof(Password));
-				}
-				_password = value;
-			}
-		}
-
-		/// <summary>Gets or sets if the save checkbox status.</summary>
-		public bool SaveChecked { get; set; }
-
-		/// <summary>Gets or sets if the save checkbox is displayed.</summary>
-		/// <remarks>This value only has effect if Persist is true.</remarks>
-		public bool SaveDisplayed { get; set; } = true;
-
-		private string _target = string.Empty;
-
-		/// <summary>Gets or sets the name of the target for the credentials, typically a server name.</summary>
-		public string Target
-		{
-			get
-			{
-				return _target;
-			}
-			set
-			{
-				if (value == null)
-				{
-					throw new ArgumentException("The target cannot be a null value.", nameof(Target));
-				}
-				if (value.Length > CREDUI.MAX_GENERIC_TARGET_LENGTH)
-				{
-					string message = string.Format(Thread.CurrentThread.CurrentUICulture, "The target has a maximum length of {0} characters.", CREDUI.MAX_GENERIC_TARGET_LENGTH);
-					throw new ArgumentException(message, nameof(Target));
-				}
-				_target = value;
-			}
-		}
-
-		private string _caption = string.Empty;
-
-		/// <summary>Gets or sets the caption of the dialog.</summary>
-		/// <remarks>A null value will cause a system default caption to be used.</remarks>
-		public string Caption
-		{
-			get
-			{
-				return _caption;
-			}
-			set
-			{
-				if (value?.Length > CREDUI.MAX_CAPTION_LENGTH)
-				{
-					string message = string.Format(Thread.CurrentThread.CurrentUICulture, "The caption has a maximum length of {0} characters.", CREDUI.MAX_CAPTION_LENGTH);
-					throw new ArgumentException(message, nameof(Caption));
-				}
-				_caption = value;
-			}
-		}
-
-		private string _message = string.Empty;
-
-		/// <summary>Gets or sets the message of the dialog.</summary>
-		/// <remarks>A null value will cause a system default message to be used.</remarks>
-		public string Message
-		{
-			get
-			{
-				return _message;
-			}
-			set
-			{
-				if (value?.Length > CREDUI.MAX_MESSAGE_LENGTH)
-				{
-					string message = string.Format(Thread.CurrentThread.CurrentUICulture, "The message has a maximum length of {0} characters.", CREDUI.MAX_MESSAGE_LENGTH);
-					throw new ArgumentException(message, nameof(Message));
-				}
-				_message = value;
-			}
-		}
-
-		private Image _banner;
 
 		/// <summary>Gets or sets the image to display on the dialog.</summary>
 		/// <remarks>A null value will cause a system default image to be used.</remarks>
 		public Image Banner
 		{
-			get
-			{
-				return _banner;
-			}
+			get { return _banner; }
 			set
 			{
 				if (value != null)
@@ -265,6 +154,222 @@ namespace Greenshot.Addon.Core
 				}
 				_banner = value;
 			}
+		}
+
+		/// <summary>Gets or sets the caption of the dialog.</summary>
+		/// <remarks>A null value will cause a system default caption to be used.</remarks>
+		public string Caption
+		{
+			get { return _caption; }
+			set
+			{
+				if (value?.Length > CREDUI.MAX_CAPTION_LENGTH)
+				{
+					string message = string.Format(Thread.CurrentThread.CurrentUICulture, "The caption has a maximum length of {0} characters.", CREDUI.MAX_CAPTION_LENGTH);
+					throw new ArgumentException(message, nameof(Caption));
+				}
+				_caption = value;
+			}
+		}
+
+		/// <summary>Gets or sets if the dialog is populated with name/password only.</summary>
+		public bool ExcludeCertificates { get; set; } = true;
+
+		/// <summary>Gets or sets if the incorrect password balloontip needs to be shown. Introduced AFTER Windows XP</summary>
+		public bool IncorrectPassword { get; set; }
+
+		/// <summary>Gets or sets if the name is read-only.</summary>
+		public bool KeepName { get; set; }
+
+		/// <summary>Gets or sets the message of the dialog.</summary>
+		/// <remarks>A null value will cause a system default message to be used.</remarks>
+		public string Message
+		{
+			get { return _message; }
+			set
+			{
+				if (value?.Length > CREDUI.MAX_MESSAGE_LENGTH)
+				{
+					string message = string.Format(Thread.CurrentThread.CurrentUICulture, "The message has a maximum length of {0} characters.", CREDUI.MAX_MESSAGE_LENGTH);
+					throw new ArgumentException(message, nameof(Message));
+				}
+				_message = value;
+			}
+		}
+
+		/// <summary>Gets or sets the name for the credentials.</summary>
+		public string Name
+		{
+			get { return _name; }
+			set
+			{
+				if (value?.Length > CREDUI.MAX_USERNAME_LENGTH)
+				{
+					string message = string.Format(Thread.CurrentThread.CurrentUICulture, "The name has a maximum length of {0} characters.", CREDUI.MAX_USERNAME_LENGTH);
+					throw new ArgumentException(message, nameof(Name));
+				}
+				_name = value;
+			}
+		}
+
+		/// <summary>Gets or sets the password for the credentials.</summary>
+		public string Password
+		{
+			get { return _password; }
+			set
+			{
+				if (value?.Length > CREDUI.MAX_PASSWORD_LENGTH)
+				{
+					string message = string.Format(Thread.CurrentThread.CurrentUICulture, "The password has a maximum length of {0} characters.", CREDUI.MAX_PASSWORD_LENGTH);
+					throw new ArgumentException(message, nameof(Password));
+				}
+				_password = value;
+			}
+		}
+
+		/// <summary>Gets or sets if the credentials are to be persisted in the credential manager.</summary>
+		public bool Persist { get; set; } = true;
+
+		/// <summary>Gets or sets if the save checkbox status.</summary>
+		public bool SaveChecked { get; set; }
+
+		/// <summary>Gets or sets if the save checkbox is displayed.</summary>
+		/// <remarks>This value only has effect if Persist is true.</remarks>
+		public bool SaveDisplayed { get; set; } = true;
+
+		/// <summary>Gets or sets the name of the target for the credentials, typically a server name.</summary>
+		public string Target
+		{
+			get { return _target; }
+			set
+			{
+				if (value == null)
+				{
+					throw new ArgumentException("The target cannot be a null value.", nameof(Target));
+				}
+				if (value.Length > CREDUI.MAX_GENERIC_TARGET_LENGTH)
+				{
+					string message = string.Format(Thread.CurrentThread.CurrentUICulture, "The target has a maximum length of {0} characters.", CREDUI.MAX_GENERIC_TARGET_LENGTH);
+					throw new ArgumentException(message, nameof(Target));
+				}
+				_target = value;
+			}
+		}
+
+		/// <summary>Confirmation action to be applied.</summary>
+		/// <param name="value">True if the credentials should be persisted.</param>
+		public void Confirm(bool value)
+		{
+			switch (CREDUI.CredUIConfirmCredentials(Target, value))
+			{
+				case CREDUI.ReturnCodes.NO_ERROR:
+					break;
+
+				case CREDUI.ReturnCodes.ERROR_INVALID_PARAMETER:
+					// for some reason, this is encountered when credentials are overwritten
+					break;
+
+				default:
+					throw new ApplicationException("Credential confirmation failed.");
+			}
+		}
+
+		[DllImport("gdi32.dll", SetLastError = true)]
+		private static extern bool DeleteObject(IntPtr hObject);
+
+		/// <summary>Returns a DialogResult from the specified code.</summary>
+		/// <param name="code">The credential return code.</param>
+		private DialogResult GetDialogResult(CREDUI.ReturnCodes code)
+		{
+			DialogResult result;
+			switch (code)
+			{
+				case CREDUI.ReturnCodes.NO_ERROR:
+					result = DialogResult.OK;
+					break;
+				case CREDUI.ReturnCodes.ERROR_CANCELLED:
+					result = DialogResult.Cancel;
+					break;
+				case CREDUI.ReturnCodes.ERROR_NO_SUCH_LOGON_SESSION:
+					throw new ApplicationException("No such logon session.");
+				case CREDUI.ReturnCodes.ERROR_NOT_FOUND:
+					throw new ApplicationException("Not found.");
+				case CREDUI.ReturnCodes.ERROR_INVALID_ACCOUNT_NAME:
+					throw new ApplicationException("Invalid account name.");
+				case CREDUI.ReturnCodes.ERROR_INSUFFICIENT_BUFFER:
+					throw new ApplicationException("Insufficient buffer.");
+				case CREDUI.ReturnCodes.ERROR_INVALID_PARAMETER:
+					throw new ApplicationException("Invalid parameter.");
+				case CREDUI.ReturnCodes.ERROR_INVALID_FLAGS:
+					throw new ApplicationException("Invalid flags.");
+				default:
+					throw new ApplicationException("Unknown credential result encountered.");
+			}
+			return result;
+		}
+
+		/// <summary>Returns the flags for dialog display options.</summary>
+		private CREDUI.FLAGS GetFlags()
+		{
+			CREDUI.FLAGS flags = CREDUI.FLAGS.GENERIC_CREDENTIALS;
+
+			if (IncorrectPassword)
+			{
+				flags = flags | CREDUI.FLAGS.INCORRECT_PASSWORD;
+			}
+
+			if (AlwaysDisplay)
+			{
+				flags = flags | CREDUI.FLAGS.ALWAYS_SHOW_UI;
+			}
+
+			if (ExcludeCertificates)
+			{
+				flags = flags | CREDUI.FLAGS.EXCLUDE_CERTIFICATES;
+			}
+
+			if (Persist)
+			{
+				flags = flags | CREDUI.FLAGS.EXPECT_CONFIRMATION;
+				if (SaveDisplayed)
+				{
+					flags = flags | CREDUI.FLAGS.SHOW_SAVE_CHECK_BOX;
+				}
+				else
+				{
+					flags = flags | CREDUI.FLAGS.PERSIST;
+				}
+			}
+			else
+			{
+				flags = flags | CREDUI.FLAGS.DO_NOT_PERSIST;
+			}
+
+			if (KeepName)
+			{
+				flags = flags | CREDUI.FLAGS.KEEP_USERNAME;
+			}
+
+			return flags;
+		}
+
+		/// <summary>Returns the info structure for dialog display settings.</summary>
+		/// <param name="owner">The System.Windows.Forms.IWin32Window the dialog will display in front of.</param>
+		private CREDUI.INFO GetInfo(IWin32Window owner)
+		{
+			CREDUI.INFO info = new CREDUI.INFO();
+			if (owner != null)
+			{
+				info.hwndParent = owner.Handle;
+			}
+			info.pszCaptionText = Caption;
+			info.pszMessageText = Message;
+			if (Banner != null)
+			{
+				info.hbmBanner = new Bitmap(Banner, ValidBannerWidth, ValidBannerHeight).GetHbitmap();
+			}
+			info.cbSize = Marshal.SizeOf(info);
+			return info;
 		}
 
 		/// <summary>Shows the credentials dialog.</summary>
@@ -355,28 +460,10 @@ namespace Greenshot.Addon.Core
 			return ShowDialog(owner);
 		}
 
-		/// <summary>Confirmation action to be applied.</summary>
-		/// <param name="value">True if the credentials should be persisted.</param>
-		public void Confirm(bool value)
-		{
-			switch (CREDUI.CredUIConfirmCredentials(Target, value))
-			{
-				case CREDUI.ReturnCodes.NO_ERROR:
-					break;
-
-				case CREDUI.ReturnCodes.ERROR_INVALID_PARAMETER:
-					// for some reason, this is encountered when credentials are overwritten
-					break;
-
-				default:
-					throw new ApplicationException("Credential confirmation failed.");
-			}
-		}
-
 		/// <summary>Returns a DialogResult indicating the user action.</summary>
 		/// <param name="owner">The System.Windows.Forms.IWin32Window the dialog will display in front of.</param>
 		/// <remarks>
-		/// Sets the name, password and SaveChecked accessors to the state of the dialog as it was dismissed by the user.
+		///     Sets the name, password and SaveChecked accessors to the state of the dialog as it was dismissed by the user.
 		/// </remarks>
 		private DialogResult ShowDialog(IWin32Window owner)
 		{
@@ -408,118 +495,14 @@ namespace Greenshot.Addon.Core
 
 			return GetDialogResult(code);
 		}
-
-		/// <summary>Returns the info structure for dialog display settings.</summary>
-		/// <param name="owner">The System.Windows.Forms.IWin32Window the dialog will display in front of.</param>
-		private CREDUI.INFO GetInfo(IWin32Window owner)
-		{
-			CREDUI.INFO info = new CREDUI.INFO();
-			if (owner != null)
-			{
-				info.hwndParent = owner.Handle;
-			}
-			info.pszCaptionText = Caption;
-			info.pszMessageText = Message;
-			if (Banner != null)
-			{
-				info.hbmBanner = new Bitmap(Banner, ValidBannerWidth, ValidBannerHeight).GetHbitmap();
-			}
-			info.cbSize = Marshal.SizeOf(info);
-			return info;
-		}
-
-		/// <summary>Returns the flags for dialog display options.</summary>
-		private CREDUI.FLAGS GetFlags()
-		{
-			CREDUI.FLAGS flags = CREDUI.FLAGS.GENERIC_CREDENTIALS;
-
-			if (IncorrectPassword)
-			{
-				flags = flags | CREDUI.FLAGS.INCORRECT_PASSWORD;
-			}
-
-			if (AlwaysDisplay)
-			{
-				flags = flags | CREDUI.FLAGS.ALWAYS_SHOW_UI;
-			}
-
-			if (ExcludeCertificates)
-			{
-				flags = flags | CREDUI.FLAGS.EXCLUDE_CERTIFICATES;
-			}
-
-			if (Persist)
-			{
-				flags = flags | CREDUI.FLAGS.EXPECT_CONFIRMATION;
-				if (SaveDisplayed)
-				{
-					flags = flags | CREDUI.FLAGS.SHOW_SAVE_CHECK_BOX;
-				}
-				else
-				{
-					flags = flags | CREDUI.FLAGS.PERSIST;
-				}
-			}
-			else
-			{
-				flags = flags | CREDUI.FLAGS.DO_NOT_PERSIST;
-			}
-
-			if (KeepName)
-			{
-				flags = flags | CREDUI.FLAGS.KEEP_USERNAME;
-			}
-
-			return flags;
-		}
-
-		/// <summary>Returns a DialogResult from the specified code.</summary>
-		/// <param name="code">The credential return code.</param>
-		private DialogResult GetDialogResult(CREDUI.ReturnCodes code)
-		{
-			DialogResult result;
-			switch (code)
-			{
-				case CREDUI.ReturnCodes.NO_ERROR:
-					result = DialogResult.OK;
-					break;
-				case CREDUI.ReturnCodes.ERROR_CANCELLED:
-					result = DialogResult.Cancel;
-					break;
-				case CREDUI.ReturnCodes.ERROR_NO_SUCH_LOGON_SESSION:
-					throw new ApplicationException("No such logon session.");
-				case CREDUI.ReturnCodes.ERROR_NOT_FOUND:
-					throw new ApplicationException("Not found.");
-				case CREDUI.ReturnCodes.ERROR_INVALID_ACCOUNT_NAME:
-					throw new ApplicationException("Invalid account name.");
-				case CREDUI.ReturnCodes.ERROR_INSUFFICIENT_BUFFER:
-					throw new ApplicationException("Insufficient buffer.");
-				case CREDUI.ReturnCodes.ERROR_INVALID_PARAMETER:
-					throw new ApplicationException("Invalid parameter.");
-				case CREDUI.ReturnCodes.ERROR_INVALID_FLAGS:
-					throw new ApplicationException("Invalid flags.");
-				default:
-					throw new ApplicationException("Unknown credential result encountered.");
-			}
-			return result;
-		}
 	}
 
 	internal static class CREDUI
 	{
-		/// <summary>http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/authentication_constants.asp</summary>
-		public const int MAX_MESSAGE_LENGTH = 100;
-
-		public const int MAX_CAPTION_LENGTH = 100;
-		public const int MAX_GENERIC_TARGET_LENGTH = 100;
-		public const int MAX_DOMAIN_TARGET_LENGTH = 100;
-		public const int MAX_USERNAME_LENGTH = 100;
-		public const int MAX_PASSWORD_LENGTH = 100;
-
 		/// <summary>
-		/// http://www.pinvoke.net/default.aspx/Enums.CREDUI_FLAGS
-		/// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnnetsec/html/dpapiusercredentials.asp
-		/// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/creduipromptforcredentials.asp
+		///     http://www.pinvoke.net/default.aspx/Enums.CREDUI_FLAGS
+		///     http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnnetsec/html/dpapiusercredentials.asp
+		///     http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/creduipromptforcredentials.asp
 		/// </summary>
 		[Flags]
 		public enum FLAGS
@@ -540,7 +523,7 @@ namespace Greenshot.Addon.Core
 			EXPECT_CONFIRMATION = 0x20000,
 			GENERIC_CREDENTIALS = 0x40000,
 			USERNAME_TARGET_CREDENTIALS = 0x80000,
-			KEEP_USERNAME = 0x100000,
+			KEEP_USERNAME = 0x100000
 		}
 
 		/// <summary>http://www.pinvoke.net/default.aspx/Enums.CredUIReturnCodes</summary>
@@ -556,36 +539,43 @@ namespace Greenshot.Addon.Core
 			ERROR_INVALID_ACCOUNT_NAME = 1315
 		}
 
+		/// <summary>http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/authentication_constants.asp</summary>
+		public const int MAX_MESSAGE_LENGTH = 100;
+
+		public const int MAX_CAPTION_LENGTH = 100;
+		public const int MAX_GENERIC_TARGET_LENGTH = 100;
+		public const int MAX_DOMAIN_TARGET_LENGTH = 100;
+		public const int MAX_USERNAME_LENGTH = 100;
+		public const int MAX_PASSWORD_LENGTH = 100;
+
 		/// <summary>
-		/// http://www.pinvoke.net/default.aspx/Structures.CREDUI_INFO
-		/// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/credui_info.asp
+		///     http://www.pinvoke.net/default.aspx/credui.CredUIConfirmCredentials
+		///     http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/creduiconfirmcredentials.asp
+		/// </summary>
+		[DllImport("credui.dll", CharSet = CharSet.Unicode)]
+		public static extern ReturnCodes CredUIConfirmCredentials(string targetName, bool confirm);
+
+		/// <summary>
+		///     http://www.pinvoke.net/default.aspx/credui.CredUIPromptForCredentialsW
+		///     http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/creduipromptforcredentials.asp
+		/// </summary>
+		[DllImport("credui", CharSet = CharSet.Unicode)]
+		public static extern ReturnCodes CredUIPromptForCredentials(ref INFO creditUR, string targetName, IntPtr reserved1, int iError, StringBuilder userName, int maxUserName, StringBuilder password, int maxPassword, ref int iSave, FLAGS flags);
+
+		/// <summary>
+		///     http://www.pinvoke.net/default.aspx/Structures.CREDUI_INFO
+		///     http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/credui_info.asp
 		/// </summary>
 		public struct INFO
 		{
 			public int cbSize;
 			public IntPtr hwndParent;
 
-			[MarshalAs(UnmanagedType.LPWStr)]
-			public string pszMessageText;
+			[MarshalAs(UnmanagedType.LPWStr)] public string pszMessageText;
 
-			[MarshalAs(UnmanagedType.LPWStr)]
-			public string pszCaptionText;
+			[MarshalAs(UnmanagedType.LPWStr)] public string pszCaptionText;
 
 			public IntPtr hbmBanner;
 		}
-
-		/// <summary>
-		/// http://www.pinvoke.net/default.aspx/credui.CredUIPromptForCredentialsW
-		/// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/creduipromptforcredentials.asp
-		/// </summary>
-		[DllImport("credui", CharSet = CharSet.Unicode)]
-		public static extern ReturnCodes CredUIPromptForCredentials(ref INFO creditUR, string targetName, IntPtr reserved1, int iError, StringBuilder userName, int maxUserName, StringBuilder password, int maxPassword, ref int iSave, FLAGS flags);
-
-		/// <summary>
-		/// http://www.pinvoke.net/default.aspx/credui.CredUIConfirmCredentials
-		/// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/creduiconfirmcredentials.asp
-		/// </summary>
-		[DllImport("credui.dll", CharSet = CharSet.Unicode)]
-		public static extern ReturnCodes CredUIConfirmCredentials(string targetName, bool confirm);
 	}
 }

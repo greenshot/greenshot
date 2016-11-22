@@ -1,56 +1,117 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
-using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
+using Dapplo.Log;
 using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
-using Greenshot.Addon.Extensions;
-using Greenshot.Forms;
-using Dapplo.Log.Facade;
+using Greenshot.Core.Configuration;
+
+#endregion
 
 namespace Greenshot.Helpers
 {
 	/// <summary>
-	/// Description of RssFeedHelper.
+	///     Description of RssFeedHelper.
 	/// </summary>
 	public static class UpdateHelper
 	{
+		private const string StableDownloadLink = "http://getgreenshot.org/downloads/";
+		private const string VersionHistoryLink = "http://getgreenshot.org/version-history/";
 		private static readonly LogSource Log = new LogSource();
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly IGreenshotLanguage language = LanguageLoader.Current.Get<IGreenshotLanguage>();
-		private const string StableDownloadLink = "http://getgreenshot.org/downloads/";
-		private const string VersionHistoryLink = "http://getgreenshot.org/version-history/";
 		private static readonly AsyncLock _asyncLock = new AsyncLock();
 		private static SourceforgeFile _latestGreenshot;
 		private static SourceforgeFile _currentGreenshot;
 		private static string _downloadLink = StableDownloadLink;
 
 		/// <summary>
-		/// Is an update check needed?
+		///     Read the RSS feed to see if there is a Greenshot update
+		/// </summary>
+		public static async Task CheckAndAskForUpdate()
+		{
+			using (await _asyncLock.LockAsync().ConfigureAwait(false))
+			{
+				Version currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
+				// Test like this:
+				// currentVersion = new Version("0.8.1.1198");
+
+				try
+				{
+					_latestGreenshot = null;
+					await ProcessRssInfoAsync(currentVersion).ConfigureAwait(false);
+					if (_latestGreenshot != null)
+					{
+						// TODO: Notify
+						//await MainForm.Instance.InvokeAsync(() =>
+						//{
+						//	MainForm.Instance.NotifyIcon.BalloonTipClicked += HandleBalloonTipClick;
+						//	MainForm.Instance.NotifyIcon.BalloonTipClosed += CleanupBalloonTipClick;
+						//	MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", string.Format(language.UpdateFound, "'" + _latestGreenshot.File + "'"), ToolTipIcon.Info);
+						//});
+					}
+					conf.LastUpdateCheck = DateTimeOffset.Now;
+				}
+				catch (Exception e)
+				{
+					Log.Error().WriteLine("An error occured while checking for updates, the error will be ignored: ", e);
+				}
+			}
+		}
+
+		//private static void CleanupBalloonTipClick(object sender, EventArgs e)
+		//{
+		//	MainForm.Instance.NotifyIcon.BalloonTipClicked -= HandleBalloonTipClick;
+		//	MainForm.Instance.NotifyIcon.BalloonTipClosed -= CleanupBalloonTipClick;
+		//}
+
+		//private static void HandleBalloonTipClick(object sender, EventArgs e)
+		//{
+		//	try
+		//	{
+		//		if (_latestGreenshot != null)
+		//		{
+		//			// "Direct" download link
+		//			// Process.Start(latestGreenshot.Link);
+		//			// Go to getgreenshot.org
+		//			Process.Start(_downloadLink);
+		//		}
+		//	}
+		//	catch (Exception)
+		//	{
+		//		MessageBox.Show(string.Format(language.ErrorOpenlink, _downloadLink), language.Error);
+		//	}
+		//	finally
+		//	{
+		//		CleanupBalloonTipClick(sender, e);
+		//	}
+		//}
+
+		/// <summary>
+		///     Is an update check needed?
 		/// </summary>
 		/// <returns>bool true if yes</returns>
 		public static async Task<bool> IsUpdateCheckNeeded()
@@ -79,67 +140,6 @@ namespace Greenshot.Helpers
 				}
 			}
 			return true;
-		}
-
-		/// <summary>
-		/// Read the RSS feed to see if there is a Greenshot update
-		/// </summary>
-		public static async Task CheckAndAskForUpdate()
-		{
-			using (await _asyncLock.LockAsync().ConfigureAwait(false))
-			{
-				Version currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
-				// Test like this:
-				// currentVersion = new Version("0.8.1.1198");
-
-				try
-				{
-					_latestGreenshot = null;
-					await ProcessRssInfoAsync(currentVersion).ConfigureAwait(false);
-					if (_latestGreenshot != null)
-					{
-						await MainForm.Instance.InvokeAsync(() =>
-						{
-							MainForm.Instance.NotifyIcon.BalloonTipClicked += HandleBalloonTipClick;
-							MainForm.Instance.NotifyIcon.BalloonTipClosed += CleanupBalloonTipClick;
-							MainForm.Instance.NotifyIcon.ShowBalloonTip(10000, "Greenshot", string.Format(language.UpdateFound, "'" + _latestGreenshot.File + "'"), ToolTipIcon.Info);
-						});
-					}
-					conf.LastUpdateCheck = DateTimeOffset.Now;
-				}
-				catch (Exception e)
-				{
-					Log.Error().WriteLine("An error occured while checking for updates, the error will be ignored: ", e);
-				}
-			}
-		}
-
-		private static void CleanupBalloonTipClick(object sender, EventArgs e)
-		{
-			MainForm.Instance.NotifyIcon.BalloonTipClicked -= HandleBalloonTipClick;
-			MainForm.Instance.NotifyIcon.BalloonTipClosed -= CleanupBalloonTipClick;
-		}
-
-		private static void HandleBalloonTipClick(object sender, EventArgs e)
-		{
-			try
-			{
-				if (_latestGreenshot != null)
-				{
-					// "Direct" download link
-					// Process.Start(latestGreenshot.Link);
-					// Go to getgreenshot.org
-					Process.Start(_downloadLink);
-				}
-			}
-			catch (Exception)
-			{
-				MessageBox.Show(string.Format(language.ErrorOpenlink, _downloadLink), language.Error);
-			}
-			finally
-			{
-				CleanupBalloonTipClick(sender, e);
-			}
 		}
 
 		private static async Task ProcessRssInfoAsync(Version currentVersion)
@@ -188,7 +188,7 @@ namespace Greenshot.Helpers
 						// the current version is a release AND check unstable is turned off.
 						if (rssFile.IsReleaseCandidate)
 						{
-							if (conf.BuildState == BuildStates.RELEASE && !conf.CheckForUnstable)
+							if ((conf.BuildState == BuildStates.RELEASE) && !conf.CheckForUnstable)
 							{
 								continue;
 							}
@@ -199,7 +199,7 @@ namespace Greenshot.Helpers
 						if (versionCompare > 0)
 						{
 							Log.Debug().WriteLine("Found newer Greenshot '{0}' with version {1} published at {2} : {3}", file, rssFile.Version, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
-							if (_latestGreenshot == null || rssFile.Version.CompareTo(_latestGreenshot.Version) > 0)
+							if ((_latestGreenshot == null) || (rssFile.Version.CompareTo(_latestGreenshot.Version) > 0))
 							{
 								_latestGreenshot = rssFile;
 								if (rssFile.IsReleaseCandidate || rssFile.IsUnstable)

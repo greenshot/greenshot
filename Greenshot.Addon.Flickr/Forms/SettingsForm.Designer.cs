@@ -20,6 +20,7 @@
  */
 
 using Greenshot.Addon.Controls;
+using Greenshot.Legacy.Controls;
 
 namespace Greenshot.Addon.Flickr.Forms {
 	partial class SettingsForm {
@@ -88,7 +89,7 @@ namespace Greenshot.Addon.Flickr.Forms {
 			// combobox_uploadimageformat
 			// 
 			this.combobox_uploadimageformat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.combobox_uploadimageformat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.combobox_uploadimageformat.FormattingEnabled = true;
 			this.combobox_uploadimageformat.Location = new System.Drawing.Point(174, 6);
@@ -153,7 +154,7 @@ namespace Greenshot.Addon.Flickr.Forms {
 			// combobox_safetyLevel
 			// 
 			this.combobox_safetyLevel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.combobox_safetyLevel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.combobox_safetyLevel.FormattingEnabled = true;
 			this.combobox_safetyLevel.Location = new System.Drawing.Point(174, 33);
@@ -226,12 +227,12 @@ namespace Greenshot.Addon.Flickr.Forms {
 		private GreenshotLabel label_upload_format;
 		private GreenshotButton buttonCancel;
 		private GreenshotButton buttonOK;
-        private GreenshotCheckBox checkBoxPublic;
-        private GreenshotCheckBox checkBoxFamily;
-        private GreenshotCheckBox checkBoxFriend;
-        private GreenshotLabel label_SafetyLevel;
+		private GreenshotCheckBox checkBoxPublic;
+		private GreenshotCheckBox checkBoxFamily;
+		private GreenshotCheckBox checkBoxFriend;
+		private GreenshotLabel label_SafetyLevel;
 		private GreenshotComboBox combobox_safetyLevel;
-        private GreenshotLabel label_AfterUpload;
-        private GreenshotCheckBox checkboxAfterUploadLinkToClipBoard;
+		private GreenshotLabel label_AfterUpload;
+		private GreenshotCheckBox checkboxAfterUploadLinkToClipBoard;
 	}
 }

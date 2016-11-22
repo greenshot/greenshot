@@ -1,24 +1,23 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#region Usings
 
 using System;
 using System.Collections.Generic;
@@ -27,51 +26,25 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.HttpExtensions;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
+
+#endregion
 
 namespace Greenshot.Helpers
 {
 	public class SourceforgeFile
 	{
-		public string File
+		public SourceforgeFile(string file, DateTimeOffset pubdate, string link, string directLink)
 		{
-			get;
+			File = file;
+			Pubdate = pubdate;
+			Link = link;
+			DirectLink = directLink;
 		}
 
-		public DateTimeOffset Pubdate
-		{
-			get;
-		}
+		public string DirectLink { get; }
 
-		public string Link
-		{
-			get;
-		}
-
-		public string DirectLink
-		{
-			get;
-		}
-
-		public Version Version
-		{
-			get;
-			set;
-		}
-
-		private string _language;
-
-		public string Language
-		{
-			get
-			{
-				return _language;
-			}
-			set
-			{
-				_language = value;
-			}
-		}
+		public string File { get; }
 
 		public bool IsExe
 		{
@@ -80,18 +53,6 @@ namespace Greenshot.Helpers
 				if (File != null)
 				{
 					return File.ToLower().EndsWith(".exe");
-				}
-				return false;
-			}
-		}
-
-		public bool IsUnstable
-		{
-			get
-			{
-				if (File != null)
-				{
-					return File.ToLower().Contains("unstable");
 				}
 				return false;
 			}
@@ -109,17 +70,29 @@ namespace Greenshot.Helpers
 			}
 		}
 
-		public SourceforgeFile(string file, DateTimeOffset pubdate, string link, string directLink)
+		public bool IsUnstable
 		{
-			File = file;
-			Pubdate = pubdate;
-			Link = link;
-			DirectLink = directLink;
+			get
+			{
+				if (File != null)
+				{
+					return File.ToLower().Contains("unstable");
+				}
+				return false;
+			}
 		}
+
+		public string Language { get; set; }
+
+		public string Link { get; }
+
+		public DateTimeOffset Pubdate { get; }
+
+		public Version Version { get; set; }
 	}
 
 	/// <summary>
-	/// Description of SourceForgeHelper.
+	///     Description of SourceForgeHelper.
 	/// </summary>
 	public class SourceForgeHelper
 	{
@@ -127,7 +100,7 @@ namespace Greenshot.Helpers
 		private static readonly Uri Rssfeed = new Uri("http://getgreenshot.org/project-feed/");
 
 		/// <summary>
-		/// This is using the HTTP HEAD Method to check if the RSS Feed is modified after the supplied date
+		///     This is using the HTTP HEAD Method to check if the RSS Feed is modified after the supplied date
 		/// </summary>
 		/// <param name="updateTime">DateTime</param>
 		/// <returns>true if the feed is newer</returns>
@@ -138,7 +111,7 @@ namespace Greenshot.Helpers
 		}
 
 		/// <summary>
-		/// Read the Greenshot RSS feed, so we can use this information to check for updates
+		///     Read the Greenshot RSS feed, so we can use this information to check for updates
 		/// </summary>
 		/// <returns>Dictionary&lt;string, Dictionary&lt;string, RssFile&gt;&gt; with files and their RssFile "description"</returns>
 		public static async Task<IDictionary<string, IDictionary<string, SourceforgeFile>>> ReadRssAsync(CancellationToken token = default(CancellationToken))
@@ -146,7 +119,7 @@ namespace Greenshot.Helpers
 			var rssFiles = new Dictionary<string, IDictionary<string, SourceforgeFile>>();
 
 
-			var feed = await Rssfeed.GetAsAsync<SyndicationFeed>(token: token).ConfigureAwait(false);
+			var feed = await Rssfeed.GetAsAsync<SyndicationFeed>(token).ConfigureAwait(false);
 
 			if (feed == null)
 			{

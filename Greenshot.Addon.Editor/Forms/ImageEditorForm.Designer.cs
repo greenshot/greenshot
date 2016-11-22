@@ -22,7 +22,8 @@
 using Greenshot.Addon.Controls;
 using Greenshot.Addon.Editor.Controls;
 using Greenshot.Addon.Editor.Drawing;
-using Greenshot.Addon.Interfaces.Drawing;
+using Greenshot.Addon.Editor.Interfaces.Drawing;
+using Greenshot.Legacy.Controls;
 
 namespace Greenshot.Addon.Editor.Forms
 {
@@ -295,7 +296,7 @@ namespace Greenshot.Addon.Editor.Forms
 			// toolsToolStrip
 			// 
 			this.toolsToolStrip.ClickThrough = true;
-			this.toolsToolStrip.ImageScalingSize = coreConfiguration.IconSize;
+			this.toolsToolStrip.ImageScalingSize = UiConfiguration.IconSize;
 			this.toolsToolStrip.Dock = System.Windows.Forms.DockStyle.None;
 			this.toolsToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.toolsToolStrip.Renderer = new Controls.CustomToolStripProfessionalRenderer();
@@ -523,7 +524,7 @@ namespace Greenshot.Addon.Editor.Forms
 			// menuStrip1
 			// 
 			this.menuStrip1.ClickThrough = true;
-			this.menuStrip1.ImageScalingSize = coreConfiguration.IconSize;
+			this.menuStrip1.ImageScalingSize = UiConfiguration.IconSize;
 			this.menuStrip1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.menuStrip1.Stretch = true;
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -852,7 +853,7 @@ namespace Greenshot.Addon.Editor.Forms
 			// destinationsToolStrip
 			// 
 			this.destinationsToolStrip.ClickThrough = true;
-			this.destinationsToolStrip.ImageScalingSize = coreConfiguration.IconSize;
+			this.destinationsToolStrip.ImageScalingSize = UiConfiguration.IconSize;
 			this.destinationsToolStrip.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.destinationsToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.destinationsToolStrip.Name = "toolStrip1";
@@ -1008,10 +1009,10 @@ namespace Greenshot.Addon.Editor.Forms
 			// 
 			this.propertiesToolStrip.AutoSize = false;
 			this.propertiesToolStrip.ClickThrough = true;
-			this.propertiesToolStrip.ImageScalingSize = coreConfiguration.IconSize;
+			this.propertiesToolStrip.ImageScalingSize = UiConfiguration.IconSize;
 			this.propertiesToolStrip.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.propertiesToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-			this.propertiesToolStrip.MinimumSize = new System.Drawing.Size(150, coreConfiguration.IconSize.Height + 10);
+			this.propertiesToolStrip.MinimumSize = new System.Drawing.Size(150, UiConfiguration.IconSize.Height + 10);
 			this.propertiesToolStrip.Name = "propertiesToolStrip";
 			this.propertiesToolStrip.Stretch = true;
 			this.propertiesToolStrip.TabIndex = 2;

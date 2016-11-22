@@ -1,23 +1,23 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Collections.Generic;
@@ -28,34 +28,30 @@ using System.Threading.Tasks;
 using Dapplo.Config.Ini;
 using Dapplo.Jira;
 using Dapplo.Jira.Entities;
+using Dapplo.Log;
 using Dapplo.Windows;
-using Greenshot.Addon.Configuration;
-using Dapplo.Log.Facade;
+using Greenshot.Core.Configuration;
+
+#endregion
 
 namespace Greenshot.Addon.Jira
 {
-
 	/// <summary>
-	/// This class will monitor all _jira activity by registering for title changes
-	/// It keeps a list of the last "accessed" jiras, and makes it easy to upload to one.
-	/// Make sure this is instanciated on the UI thread!
+	///     This class will monitor all _jira activity by registering for title changes
+	///     It keeps a list of the last "accessed" jiras, and makes it easy to upload to one.
+	///     Make sure this is instanciated on the UI thread!
 	/// </summary>
 	public class JiraMonitor : IDisposable
 	{
 		private static readonly LogSource Log = new LogSource();
 		private static readonly INetworkConfiguration NetworkConfig = IniConfig.Current.Get<INetworkConfiguration>();
-		private readonly Regex _jiraKeyPattern = new Regex(@"[A-Z][A-Z0-9]+\-[0-9]+");
-		private readonly WindowsTitleMonitor _monitor;
 		private readonly IList<JiraApi> _jiraInstances = new List<JiraApi>();
-		private readonly IDictionary<string, JiraApi> _projectJiraApiMap = new Dictionary<string, JiraApi>();
+		private readonly Regex _jiraKeyPattern = new Regex(@"[A-Z][A-Z0-9]+\-[0-9]+");
 		private readonly IDictionary<Uri, ServerInfo> _jiraServerInfos = new Dictionary<Uri, ServerInfo>();
 		private readonly int _maxEntries;
+		private readonly WindowsTitleMonitor _monitor;
+		private readonly IDictionary<string, JiraApi> _projectJiraApiMap = new Dictionary<string, JiraApi>();
 		private IDictionary<string, JiraDetails> _recentJiras = new Dictionary<string, JiraDetails>();
-
-		/// <summary>
-		/// Register to this event to get events when new jira issues are detected
-		/// </summary>
-		public event EventHandler<JiraEventArgs> JiraEvent;
 
 		public JiraMonitor(int maxEntries = 40)
 		{
@@ -64,59 +60,21 @@ namespace Greenshot.Addon.Jira
 			_monitor.TitleChangeEvent += monitor_TitleChangeEvent;
 		}
 
-		#region Dispose
-
 		/// <summary>
-		/// Dispose
-		/// </summary>
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		/// <summary>
-		/// Dispose all managed resources
-		/// </summary>
-		/// <param name="disposing">when true is passed all managed resources are disposed.</param>
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				// free managed resources
-				_monitor.TitleChangeEvent -= monitor_TitleChangeEvent;
-				_monitor.Dispose();
-			}
-			// free native resources if there are any.
-		}
-
-		#endregion
-
-		/// <summary>
-		/// Retrieve the API belonging to a JiraDetails
-		/// </summary>
-		/// <param name="jiraDetails"></param>
-		/// <returns>JiraAPI</returns>
-		public JiraApi GetJiraApiForKey(JiraDetails jiraDetails)
-		{
-			return _projectJiraApiMap[jiraDetails.ProjectKey];
-		}
-
-		/// <summary>
-		/// Get the "list" of recently seen Jiras
-		/// </summary>
-		public IEnumerable<JiraDetails> RecentJiras =>
-			(from jiraDetails in _recentJiras.Values
-			orderby jiraDetails.SeenAt descending
-			select jiraDetails);
-
-		/// <summary>
-		/// Check if this monitor has active instances
+		///     Check if this monitor has active instances
 		/// </summary>
 		public bool HasJiraInstances => _jiraInstances.Count > 0;
 
 		/// <summary>
-		/// Add an instance of a JIRA system
+		///     Get the "list" of recently seen Jiras
+		/// </summary>
+		public IEnumerable<JiraDetails> RecentJiras =>
+			from jiraDetails in _recentJiras.Values
+			orderby jiraDetails.SeenAt descending
+			select jiraDetails;
+
+		/// <summary>
+		///     Add an instance of a JIRA system
 		/// </summary>
 		/// <param name="uri"></param>
 		/// <param name="username"></param>
@@ -148,32 +106,8 @@ namespace Greenshot.Addon.Jira
 		}
 
 		/// <summary>
-		/// This method will update details, like the title, and send an event to registed listeners of the JiraEvent
-		/// </summary>
-		/// <param name="jiraDetails">Contains the jira key to retrieve the title (XYZ-1234)</param>
-		/// <returns>Task</returns>
-		private async Task DetectedNewJiraIssueAsync(JiraDetails jiraDetails)
-		{
-			try
-			{
-				JiraApi jiraApi;
-				if (_projectJiraApiMap.TryGetValue(jiraDetails.ProjectKey, out jiraApi))
-				{
-					var issue = await jiraApi.GetIssueAsync(jiraDetails.JiraKey).ConfigureAwait(false);
-					jiraDetails.Title = issue.Fields.Summary;
-				}
-				// Send event
-				JiraEvent?.Invoke(this, new JiraEventArgs { Details = jiraDetails, EventType = JiraEventTypes.DetectedNewJiraIssue });
-			}
-			catch (Exception ex)
-			{
-				Log.Warn().WriteLine("Couldn't retrieve JIRA title: {0}", ex.Message);
-			}
-		}
-
-		/// <summary>
-		/// Try to make the title as clean as possible, this is a quick indicator of the jira title
-		/// Later the title will be retrieved from the Jira system itself
+		///     Try to make the title as clean as possible, this is a quick indicator of the jira title
+		///     Later the title will be retrieved from the Jira system itself
 		/// </summary>
 		/// <param name="jiraApi"></param>
 		/// <param name="windowTitle"></param>
@@ -191,7 +125,46 @@ namespace Greenshot.Addon.Jira
 		}
 
 		/// <summary>
-		/// Handle title changes, check for JIRA
+		///     This method will update details, like the title, and send an event to registed listeners of the JiraEvent
+		/// </summary>
+		/// <param name="jiraDetails">Contains the jira key to retrieve the title (XYZ-1234)</param>
+		/// <returns>Task</returns>
+		private async Task DetectedNewJiraIssueAsync(JiraDetails jiraDetails)
+		{
+			try
+			{
+				JiraApi jiraApi;
+				if (_projectJiraApiMap.TryGetValue(jiraDetails.ProjectKey, out jiraApi))
+				{
+					var issue = await jiraApi.GetIssueAsync(jiraDetails.JiraKey).ConfigureAwait(false);
+					jiraDetails.Title = issue.Fields.Summary;
+				}
+				// Send event
+				JiraEvent?.Invoke(this, new JiraEventArgs {Details = jiraDetails, EventType = JiraEventTypes.DetectedNewJiraIssue});
+			}
+			catch (Exception ex)
+			{
+				Log.Warn().WriteLine("Couldn't retrieve JIRA title: {0}", ex.Message);
+			}
+		}
+
+		/// <summary>
+		///     Retrieve the API belonging to a JiraDetails
+		/// </summary>
+		/// <param name="jiraDetails"></param>
+		/// <returns>JiraAPI</returns>
+		public JiraApi GetJiraApiForKey(JiraDetails jiraDetails)
+		{
+			return _projectJiraApiMap[jiraDetails.ProjectKey];
+		}
+
+		/// <summary>
+		///     Register to this event to get events when new jira issues are detected
+		/// </summary>
+		public event EventHandler<JiraEventArgs> JiraEvent;
+
+		/// <summary>
+		///     Handle title changes, check for JIRA
 		/// </summary>
 		/// <param name="eventArgs"></param>
 		private void monitor_TitleChangeEvent(TitleChangeEventArgs eventArgs)
@@ -224,13 +197,13 @@ namespace Greenshot.Addon.Jira
 						currentJiraDetails.SeenAt = DateTimeOffset.Now;
 
 						// Notify the order change
-						JiraEvent?.Invoke(this, new JiraEventArgs { Details = currentJiraDetails, EventType = JiraEventTypes.OrderChanged });
+						JiraEvent?.Invoke(this, new JiraEventArgs {Details = currentJiraDetails, EventType = JiraEventTypes.OrderChanged});
 						// Nothing else to do
 
 						return;
 					}
 					// We detected an unknown JIRA, so add it to our list
-					currentJiraDetails = new JiraDetails()
+					currentJiraDetails = new JiraDetails
 					{
 						Id = jiraId, ProjectKey = projectKey, Title = CleanWindowTitle(jiraApi, jiraKey, windowTitle) // Try to make it as clean as possible, although we retrieve the issue title later
 					};
@@ -255,5 +228,33 @@ namespace Greenshot.Addon.Jira
 				}
 			}
 		}
+
+		#region Dispose
+
+		/// <summary>
+		///     Dispose
+		/// </summary>
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		/// <summary>
+		///     Dispose all managed resources
+		/// </summary>
+		/// <param name="disposing">when true is passed all managed resources are disposed.</param>
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				// free managed resources
+				_monitor.TitleChangeEvent -= monitor_TitleChangeEvent;
+				_monitor.Dispose();
+			}
+			// free native resources if there are any.
+		}
+
+		#endregion
 	}
 }

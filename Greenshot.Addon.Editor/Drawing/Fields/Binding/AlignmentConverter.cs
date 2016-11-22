@@ -1,34 +1,37 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016  Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Greenshot.Addon.Editor.Interfaces;
 using Greenshot.Addon.Interfaces;
+
+#endregion
 
 namespace Greenshot.Addon.Editor.Drawing.Fields.Binding
 {
 	/// <summary>
-	/// Converting horizontal alignment to its StringAlignment representation and vice versa.
-	/// Beware: there's currently no RTL support.
+	///     Converting horizontal alignment to its StringAlignment representation and vice versa.
+	///     Beware: there's currently no RTL support.
 	/// </summary>
 	public class HorizontalAlignmentConverter : AbstractBindingConverter<HorizontalAlignment, StringAlignment>
 	{
@@ -75,7 +78,7 @@ namespace Greenshot.Addon.Editor.Drawing.Fields.Binding
 	}
 
 	/// <summary>
-	/// Converting vertical alignment to its StringAlignment representation and vice versa.
+	///     Converting vertical alignment to its StringAlignment representation and vice versa.
 	/// </summary>
 	public class VerticalAlignmentConverter : AbstractBindingConverter<VerticalAlignment, StringAlignment>
 	{

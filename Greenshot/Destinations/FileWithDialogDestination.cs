@@ -1,77 +1,58 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
+using System.ComponentModel.Composition;
 using System.Threading;
 using System.Threading.Tasks;
-using System.ComponentModel.Composition;
-using System.Windows.Media.Imaging;
+using Dapplo.Log;
 using Dapplo.Utils;
+using Greenshot.Addon;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
-using Dapplo.Log.Facade;
+using Greenshot.CaptureCore.Extensions;
+using Greenshot.Core.Interfaces;
+using MahApps.Metro.IconPacks;
+
+#endregion
 
 namespace Greenshot.Destinations
 {
 	/// <summary>
-	/// Description of FileWithDialogDestination.
+	///     Description of FileWithDialogDestination.
 	/// </summary>
 	[Destination(FileWithDialogDesignation, 3)]
 	public sealed class FileWithDialogDestination : AbstractDestination
 	{
 		private const string FileWithDialogDesignation = "FileWithDialog";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly BitmapSource FileWithDialogIcon;
-		static FileWithDialogDestination()
-		{
-			using (var fileWithDialogIcon = GreenshotResources.GetImage("Save.Image"))
-			{
-				FileWithDialogIcon = fileWithDialogIcon.ToBitmapSource();
-			}
-        }
-		[Import]
-		private ICoreConfiguration CoreConfiguration
-		{
-			get;
-			set;
-		}
 
 		[Import]
-		private IGreenshotLanguage GreenshotLanguage
-		{
-			get;
-			set;
-		}
+		private ICoreConfiguration CoreConfiguration { get; set; }
 
-		protected override void Initialize()
-		{
-			base.Initialize();
-			Text = GreenshotLanguage.SettingsDestinationFileas;
-			Designation = FileWithDialogDesignation;
-			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
-			Icon = FileWithDialogIcon;
-		}
+		[Import]
+		private IGreenshotLanguage GreenshotLanguage { get; set; }
 
 		private async Task<INotification> ExportCaptureAsync(ICapture capture, CancellationToken token = default(CancellationToken))
 		{
@@ -86,7 +67,7 @@ namespace Greenshot.Destinations
 			try
 			{
 				string savedTo = null;
-				await UiContext.RunOn(() => savedTo = ImageOutput.SaveWithDialog(capture, capture.CaptureDetails), token);
+				await UiContext.RunOn(() => savedTo = capture.SaveWithDialog(capture.CaptureDetails), token);
 
 				// Bug #2918756 don't overwrite path if SaveWithDialog returns null!
 				if (savedTo != null)
@@ -107,9 +88,21 @@ namespace Greenshot.Destinations
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
 				returnValue.Text = GreenshotLanguage.EditorCancel;
-            }
+			}
 
 			return returnValue;
+		}
+
+		protected override void Initialize()
+		{
+			base.Initialize();
+			Text = GreenshotLanguage.SettingsDestinationFileas;
+			Designation = FileWithDialogDesignation;
+			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, token);
+			Icon = new PackIconModern
+			{
+				Kind = PackIconModernKind.Save
+			};
 		}
 	}
 }

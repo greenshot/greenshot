@@ -1,0 +1,11 @@
+﻿<UserControl x:Class="Greenshot.Ui.Config.Views.ThemeConfigView"
+			xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+	<StackPanel>
+		<DockPanel>
+			<Label x:Name="ConfigTranslations_Theme" Width="50" />
+			<ComboBox ItemsSource="{Binding AvailableThemes}" SelectedValuePath="Item1" DisplayMemberPath="Item2" SelectedValue="{Binding Theme}"/>
+			<ComboBox ItemsSource="{Binding AvailableThemeAccents}" SelectedValuePath="Item1" DisplayMemberPath="Item2" SelectedValue="{Binding ThemeAccent}"/>
+		</DockPanel>
+	</StackPanel>
+</UserControl>

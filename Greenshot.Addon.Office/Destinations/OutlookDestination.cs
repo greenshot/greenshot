@@ -1,131 +1,79 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
+#region Usings
+
 using System.ComponentModel.Composition;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
+using Dapplo.Log;
 using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
-using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
-using Greenshot.Addon.Interfaces.Plugin;
 using Greenshot.Addon.Office.OfficeExport;
-using System.Linq;
-using Dapplo.Log.Facade;
+using Greenshot.Core;
+using MahApps.Metro.IconPacks;
+using Microsoft.Office.Interop.Outlook;
+using Exception = System.Exception;
+using Greenshot.Addon.Extensions;
+using Greenshot.CaptureCore.Extensions;
+using Greenshot.Core.Interfaces;
+
+#endregion
 
 namespace Greenshot.Addon.Office.Destinations
 {
 	/// <summary>
-	/// Description of OutlookDestination.
+	///     Description of OutlookDestination.
 	/// </summary>
-	[Destination(OutlookDesignation), PartNotDiscoverable]
+	[Destination(OutlookDesignation)]
+	[PartNotDiscoverable]
 	public sealed class OutlookDestination : AbstractDestination
 	{
 		public const string OutlookDesignation = "Outlook";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly BitmapSource MeetingIcon;
-		private static readonly BitmapSource MailIcon;
-		private static readonly BitmapSource ApplicationIcon;
-		
+
 		static OutlookDestination()
 		{
-			var exePath = PluginUtils.GetExePath("Outlook.EXE");
-			if (exePath != null && File.Exists(exePath))
+			var exePath = PathHelper.GetExePath("Outlook.EXE");
+			if ((exePath != null) && File.Exists(exePath))
 			{
 				WindowDetails.AddProcessToExcludeFromFreeze("outlook");
-				ApplicationIcon = PluginUtils.GetCachedExeIcon(exePath, 0).ToBitmapSource();
-				MeetingIcon = PluginUtils.GetCachedExeIcon(exePath, 2).ToBitmapSource();
-				using (var mailIcon = GreenshotResources.GetImage("Email.Image"))
-				{
-					MailIcon = mailIcon.ToBitmapSource();
-				}
 				IsActive = true;
 			}
 		}
 
-		/// <summary>
-		/// Tells if the destination can be used
-		/// </summary>
-		public static bool IsActive
-		{
-			get;
-			private set;
-		}
-
 		[Import]
-		private IOfficeConfiguration OfficeConfiguration
-		{
-			get;
-			set;
-		}
-
-		[Import]
-		private IGreenshotLanguage GreenshotLanguage
-		{
-			get;
-			set;
-		}
-
-		protected override void Initialize()
-		{
-			base.Initialize();
-			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, null);
-			Text = Text = $"Export to {OutlookDesignation}";
-			Designation = OutlookDesignation;
-			Icon = ApplicationIcon;
-		}
+		private IGreenshotLanguage GreenshotLanguage { get; set; }
 
 		/// <summary>
-		/// Load the current documents to export to
+		///     Tells if the destination can be used
 		/// </summary>
-		/// <param name="caller1"></param>
-		/// <param name="token"></param>
-		/// <returns>Task</returns>
-		public override async Task RefreshAsync(IExportContext caller1, CancellationToken token = default(CancellationToken))
-		{
-			Children.Clear();
-			await Task.Run(() =>
-			{
-				return OutlookExporter.RetrievePossibleTargets().OrderBy(x => x.Key).Select(inspectorCaption => new OutlookDestination
-				{
-					Icon = Microsoft.Office.Interop.Outlook.OlObjectClass.olAppointment.Equals(inspectorCaption.Value) ? MeetingIcon : MailIcon,
-					Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, inspectorCaption.Key),
-					Text = inspectorCaption.Key,
-					OfficeConfiguration = OfficeConfiguration,
-					GreenshotLanguage = GreenshotLanguage
-				}).ToList();
-			}, token).ContinueWith(async destinations =>
-			{
-				foreach (var oneNoteDestination in await destinations)
-				{
-					Children.Add(oneNoteDestination);
-				}
-			}, token, TaskContinuationOptions.None, UiContext.UiTaskScheduler).ConfigureAwait(false);
-		}
+		public static bool IsActive { get; private set; }
+
+		[Import]
+		private IOfficeConfiguration OfficeConfiguration { get; set; }
 
 		private Task<INotification> ExportCaptureAsync(ICapture capture, string inspectorCaption)
 		{
@@ -138,9 +86,9 @@ namespace Greenshot.Addon.Office.Destinations
 			};
 			// Outlook logic
 			string tmpFile = capture.CaptureDetails.Filename;
-			if (tmpFile == null || capture.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
+			if ((tmpFile == null) || capture.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
 			{
-				tmpFile = ImageOutput.SaveNamedTmpFile(capture, capture.CaptureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
+				tmpFile = capture.SaveNamedTmpFile(capture.CaptureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
 			}
 			else
 			{
@@ -181,6 +129,53 @@ namespace Greenshot.Addon.Office.Destinations
 				return Task.FromResult(returnValue);
 			}
 			return Task.FromResult(returnValue);
+		}
+
+		protected override void Initialize()
+		{
+			base.Initialize();
+			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, null);
+			Text = Text = $"Export to {OutlookDesignation}";
+			Designation = OutlookDesignation;
+			Icon = new PackIconModern
+			{
+				Kind = PackIconModernKind.OfficeOutlook
+			};
+		}
+
+		/// <summary>
+		///     Load the current documents to export to
+		/// </summary>
+		/// <param name="caller1"></param>
+		/// <param name="token"></param>
+		/// <returns>Task</returns>
+		public override async Task RefreshAsync(IExportContext caller1, CancellationToken token = default(CancellationToken))
+		{
+			Children.Clear();
+			await Task.Run(() =>
+			{
+				return OutlookExporter.RetrievePossibleTargets().OrderBy(x => x.Key).Select(inspectorCaption => new OutlookDestination
+				{
+					Icon = OlObjectClass.olAppointment.Equals(inspectorCaption.Value) ?
+						new PackIconModern
+						{
+							Kind = PackIconModernKind.OfficeOutlook
+						} : new PackIconModern
+						{
+							Kind = PackIconModernKind.EmailOutlook
+						},
+					Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, inspectorCaption.Key),
+					Text = inspectorCaption.Key,
+					OfficeConfiguration = OfficeConfiguration,
+					GreenshotLanguage = GreenshotLanguage
+				}).ToList();
+			}, token).ContinueWith(async destinations =>
+			{
+				foreach (var oneNoteDestination in await destinations)
+				{
+					Children.Add(oneNoteDestination);
+				}
+			}, token, TaskContinuationOptions.None, UiContext.UiTaskScheduler).ConfigureAwait(false);
 		}
 	}
 }

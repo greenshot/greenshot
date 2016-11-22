@@ -1,23 +1,23 @@
-/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Collections.Generic;
@@ -32,27 +32,27 @@ using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Editor.Forms;
 using Greenshot.Addon.Editor.Helpers;
+using Greenshot.Addon.Editor.Interfaces;
+using Greenshot.Addon.Editor.Interfaces.Drawing;
 using Greenshot.Addon.Editor.Memento;
 using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
-using Greenshot.Addon.Interfaces.Drawing;
+using Greenshot.CaptureCore;
+using Greenshot.Core.Configuration;
+using Greenshot.Legacy.Extensions;
+
+#endregion
 
 namespace Greenshot.Addon.Editor.Drawing
 {
 	/// <summary>
-	/// Dispatches most of a DrawableContainer's public properties and methods to a list of DrawableContainers.
+	///     Dispatches most of a DrawableContainer's public properties and methods to a list of DrawableContainers.
 	/// </summary>
 	[Serializable]
 	public class DrawableContainerList : List<IDrawableContainer>, IDrawableContainerList
 	{
-		private static readonly ComponentResourceManager editorFormResources = new ComponentResourceManager(typeof (ImageEditorForm));
+		private static readonly ComponentResourceManager editorFormResources = new ComponentResourceManager(typeof(ImageEditorForm));
 		private static readonly IEditorLanguage Language = LanguageLoader.Current.Get<IGreenshotLanguage>();
-
-		public Guid ParentID
-		{
-			get;
-			private set;
-		}
 
 		public DrawableContainerList()
 		{
@@ -63,12 +63,11 @@ namespace Greenshot.Addon.Editor.Drawing
 			ParentID = parentID;
 		}
 
+		public Guid ParentID { get; private set; }
+
 		public EditStatus Status
 		{
-			get
-			{
-				return this[Count - 1].Status;
-			}
+			get { return this[Count - 1].Status; }
 			set
 			{
 				foreach (var dc in this)
@@ -78,19 +77,9 @@ namespace Greenshot.Addon.Editor.Drawing
 			}
 		}
 
-		public List<IDrawableContainer> AsIDrawableContainerList()
-		{
-			List<IDrawableContainer> interfaceList = new List<IDrawableContainer>();
-			foreach (IDrawableContainer container in this)
-			{
-				interfaceList.Add(container);
-			}
-			return interfaceList;
-		}
-
 		/// <summary>
-		/// Gets or sets the selection status of the elements.
-		/// If several elements are in the list, true is only returned when all elements are selected.
+		///     Gets or sets the selection status of the elements.
+		///     If several elements are in the list, true is only returned when all elements are selected.
 		/// </summary>
 		public bool Selected
 		{
@@ -113,8 +102,8 @@ namespace Greenshot.Addon.Editor.Drawing
 		}
 
 		/// <summary>
-		/// Gets or sets the parent control of the elements in the list.
-		/// If there are several elements, the parent control of the last added is returned.
+		///     Gets or sets the parent control of the elements in the list.
+		///     If there are several elements, the parent control of the last added is returned.
 		/// </summary>
 		public ISurface Parent
 		{
@@ -138,12 +127,12 @@ namespace Greenshot.Addon.Editor.Drawing
 		}
 
 		/// <summary>
-		/// Make a following bounds change on this containerlist undoable!
+		///     Make a following bounds change on this containerlist undoable!
 		/// </summary>
 		/// <param name="allowMerge">true means allow the moves to be merged</param>
 		public void MakeBoundsChangeUndoable(bool allowMerge)
 		{
-			if (Count > 0 && Parent != null)
+			if ((Count > 0) && (Parent != null))
 			{
 				var clone = new DrawableContainerList();
 				clone.AddRange(this);
@@ -152,7 +141,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		}
 
 		/// <summary>
-		/// Apply matrix to all elements
+		///     Apply matrix to all elements
 		/// </summary>
 		public void Transform(Matrix matrix)
 		{
@@ -174,7 +163,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		}
 
 		/// <summary>
-		/// Moves all elements in the list by the given amount of pixels.
+		///     Moves all elements in the list by the given amount of pixels.
 		/// </summary>
 		/// <param name="dx">pixels to move horizontally</param>
 		/// <param name="dy">pixels to move vertically</param>
@@ -202,7 +191,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		}
 
 		/// <summary>
-		/// Indicates whether on of the elements is clickable at the given location
+		///     Indicates whether on of the elements is clickable at the given location
 		/// </summary>
 		/// <param name="x">x coordinate to be checked</param>
 		/// <param name="y">y coordinate to be checked</param>
@@ -218,7 +207,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		}
 
 		/// <summary>
-		/// retrieves the topmost element being clickable at the given location
+		///     retrieves the topmost element being clickable at the given location
 		/// </summary>
 		/// <param name="x">x coordinate to be checked</param>
 		/// <param name="y">y coordinate to be checked</param>
@@ -236,7 +225,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		}
 
 		/// <summary>
-		/// Dispatches OnDoubleClick to all elements in the list.
+		///     Dispatches OnDoubleClick to all elements in the list.
 		/// </summary>
 		public void OnDoubleClick()
 		{
@@ -248,7 +237,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		}
 
 		/// <summary>
-		/// Check if there are any intersecting filters, if so we need to redraw more
+		///     Check if there are any intersecting filters, if so we need to redraw more
 		/// </summary>
 		/// <param name="clipRectangle"></param>
 		/// <returns>true if an filter intersects</returns>
@@ -256,7 +245,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		{
 			foreach (var dc in this)
 			{
-				if (dc.DrawingBounds.IntersectsWith(clipRectangle) && dc.HasFilters && dc.Status == EditStatus.IDLE)
+				if (dc.DrawingBounds.IntersectsWith(clipRectangle) && dc.HasFilters && (dc.Status == EditStatus.IDLE))
 				{
 					return true;
 				}
@@ -265,7 +254,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		}
 
 		/// <summary>
-		/// Check if any of the drawableContainers are inside the rectangle
+		///     Check if any of the drawableContainers are inside the rectangle
 		/// </summary>
 		/// <param name="clipRectangle"></param>
 		/// <returns></returns>
@@ -282,7 +271,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		}
 
 		/// <summary>
-		/// Triggers all elements in the list ot be redrawn.
+		///     Triggers all elements in the list ot be redrawn.
 		/// </summary>
 		/// <param name="g">the to the bitmap related Graphics object</param>
 		/// <param name="bitmap">Bitmap to draw</param>
@@ -309,7 +298,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		}
 
 		/// <summary>
-		/// Invalidate the bounds of all the DC's in this list
+		///     Invalidate the bounds of all the DC's in this list
 		/// </summary>
 		public void Invalidate()
 		{
@@ -326,14 +315,14 @@ namespace Greenshot.Addon.Editor.Drawing
 		}
 
 		/// <summary>
-		/// Indicates whether the given list of elements can be pulled up, 
-		/// i.e. whether there is at least one unselected element higher in hierarchy
+		///     Indicates whether the given list of elements can be pulled up,
+		///     i.e. whether there is at least one unselected element higher in hierarchy
 		/// </summary>
 		/// <param name="elements">list of elements to pull up</param>
 		/// <returns>true if the elements could be pulled up</returns>
 		public bool CanPullUp(IDrawableContainerList elements)
 		{
-			if (elements.Count == 0 || elements.Count == Count)
+			if ((elements.Count == 0) || (elements.Count == Count))
 			{
 				return false;
 			}
@@ -348,7 +337,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		}
 
 		/// <summary>
-		/// Pulls one or several elements up one level in hierarchy (z-index).
+		///     Pulls one or several elements up one level in hierarchy (z-index).
 		/// </summary>
 		/// <param name="elements">list of elements to pull up</param>
 		public void PullElementsUp(IDrawableContainerList elements)
@@ -360,7 +349,7 @@ namespace Greenshot.Addon.Editor.Drawing
 				{
 					continue;
 				}
-				if (Count > (i + 1) && !elements.Contains(this[i + 1]))
+				if ((Count > i + 1) && !elements.Contains(this[i + 1]))
 				{
 					SwapElements(i, i + 1);
 				}
@@ -368,7 +357,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		}
 
 		/// <summary>
-		/// Pulls one or several elements up to the topmost level(s) in hierarchy (z-index).
+		///     Pulls one or several elements up to the topmost level(s) in hierarchy (z-index).
 		/// </summary>
 		/// <param name="elements">of elements to pull to top</param>
 		public void PullElementsToTop(IDrawableContainerList elements)
@@ -388,14 +377,14 @@ namespace Greenshot.Addon.Editor.Drawing
 		}
 
 		/// <summary>
-		/// Indicates whether the given list of elements can be pushed down, 
-		/// i.e. whether there is at least one unselected element lower in hierarchy
+		///     Indicates whether the given list of elements can be pushed down,
+		///     i.e. whether there is at least one unselected element lower in hierarchy
 		/// </summary>
 		/// <param name="elements">list of elements to push down</param>
 		/// <returns>true if the elements could be pushed down</returns>
 		public bool CanPushDown(IDrawableContainerList elements)
 		{
-			if (elements.Count == 0 || elements.Count == Count)
+			if ((elements.Count == 0) || (elements.Count == Count))
 			{
 				return false;
 			}
@@ -410,7 +399,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		}
 
 		/// <summary>
-		/// Pushes one or several elements down one level in hierarchy (z-index).
+		///     Pushes one or several elements down one level in hierarchy (z-index).
 		/// </summary>
 		/// <param name="elements">list of elements to push down</param>
 		public void PushElementsDown(IDrawableContainerList elements)
@@ -430,7 +419,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		}
 
 		/// <summary>
-		/// Pushes one or several elements down to the bottommost level(s) in hierarchy (z-index).
+		///     Pushes one or several elements down to the bottommost level(s) in hierarchy (z-index).
 		/// </summary>
 		/// <param name="elements">of elements to push to bottom</param>
 		public void PushElementsToBottom(IDrawableContainerList elements)
@@ -449,26 +438,41 @@ namespace Greenshot.Addon.Editor.Drawing
 			}
 		}
 
-		/// <summary>
-		/// swaps two elements in hierarchy (z-index), 
-		/// checks both indices to be in range
-		/// </summary>
-		/// <param name="index1">index of the 1st element</param>
-		/// <param name="index2">index of the 2nd element</param>
-		private void SwapElements(int index1, int index2)
+		public virtual async Task ShowContextMenuAsync(MouseEventArgs e, ISurface surface, CancellationToken token = default(CancellationToken))
 		{
-			if (index1 < 0 || index1 >= Count || index2 < 0 || index2 >= Count || index1 == index2)
+			if (!(surface is Surface))
 			{
 				return;
 			}
-			var dc = this[index1];
-			this[index1] = this[index2];
-			this[index2] = dc;
-			Parent.Modified = true;
+
+			bool hasMenu = false;
+			foreach (var drawableContainer in this)
+			{
+				var container = (DrawableContainer) drawableContainer;
+				if (!container.HasContextMenu)
+				{
+					continue;
+				}
+				hasMenu = true;
+				break;
+			}
+			if (hasMenu)
+			{
+				using (var menu = new ContextMenuStrip())
+				{
+					AddContextMenuItems(menu, surface);
+					if (menu.Items.Count > 0)
+					{
+						// TODO: cast should be somehow avoided
+						menu.Show((Surface) surface, e.Location);
+						await menu.WaitForClosedAsync(token);
+					}
+				}
+			}
 		}
 
 		/// <summary>
-		/// Add items to a context menu for the selected item
+		///     Add items to a context menu for the selected item
 		/// </summary>
 		/// <param name="menu"></param>
 		/// <param name="surface"></param>
@@ -531,16 +535,13 @@ namespace Greenshot.Addon.Editor.Drawing
 
 			// Copy
 			item = new ToolStripMenuItem(Language.EditorCopytoclipboard);
-			item.Image = ((Image) (editorFormResources.GetObject("copyToolStripMenuItem.Image")));
-			item.Click += delegate
-			{
-				ClipboardHelper.SetClipboardData(typeof (IDrawableContainerList), this);
-			};
+			item.Image = (Image) editorFormResources.GetObject("copyToolStripMenuItem.Image");
+			item.Click += delegate { ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), this); };
 			menu.Items.Add(item);
 
 			// Cut
 			item = new ToolStripMenuItem(Language.EditorCuttoclipboard);
-			item.Image = ((Image) (editorFormResources.GetObject("btnCut.Image")));
+			item.Image = (Image) editorFormResources.GetObject("btnCut.Image");
 			item.Click += delegate
 			{
 				ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), this);
@@ -550,11 +551,8 @@ namespace Greenshot.Addon.Editor.Drawing
 
 			// Delete
 			item = new ToolStripMenuItem(Language.EditorDeleteelement);
-			item.Image = ((Image) (editorFormResources.GetObject("removeObjectToolStripMenuItem.Image")));
-			item.Click += delegate
-			{
-				surface.RemoveElements(this, true);
-			};
+			item.Image = (Image) editorFormResources.GetObject("removeObjectToolStripMenuItem.Image");
+			item.Click += delegate { surface.RemoveElements(this, true); };
 			menu.Items.Add(item);
 
 			// Reset
@@ -592,41 +590,37 @@ namespace Greenshot.Addon.Editor.Drawing
 			}
 		}
 
-		public virtual async Task ShowContextMenuAsync(MouseEventArgs e, ISurface surface, CancellationToken token = default(CancellationToken))
+		public List<IDrawableContainer> AsIDrawableContainerList()
 		{
-			if (!(surface is Surface))
+			List<IDrawableContainer> interfaceList = new List<IDrawableContainer>();
+			foreach (IDrawableContainer container in this)
+			{
+				interfaceList.Add(container);
+			}
+			return interfaceList;
+		}
+
+		/// <summary>
+		///     swaps two elements in hierarchy (z-index),
+		///     checks both indices to be in range
+		/// </summary>
+		/// <param name="index1">index of the 1st element</param>
+		/// <param name="index2">index of the 2nd element</param>
+		private void SwapElements(int index1, int index2)
+		{
+			if ((index1 < 0) || (index1 >= Count) || (index2 < 0) || (index2 >= Count) || (index1 == index2))
 			{
 				return;
 			}
-
-			bool hasMenu = false;
-			foreach (var drawableContainer in this)
-			{
-				var container = (DrawableContainer) drawableContainer;
-				if (!container.HasContextMenu)
-				{
-					continue;
-				}
-				hasMenu = true;
-				break;
-			}
-			if (hasMenu)
-			{
-				using (var menu = new ContextMenuStrip())
-				{
-					AddContextMenuItems(menu, surface);
-					if (menu.Items.Count > 0)
-					{
-						// TODO: cast should be somehow avoided
-						menu.Show((Surface)surface, e.Location);
-						await menu.WaitForClosedAsync(token);
-					}
-				}
-			}
+			var dc = this[index1];
+			this[index1] = this[index2];
+			this[index2] = dc;
+			Parent.Modified = true;
 		}
 
 		#region IDisposable Support
-		private bool _disposedValue = false; // To detect redundant calls
+
+		private bool _disposedValue; // To detect redundant calls
 
 		protected virtual void Dispose(bool disposing)
 		{
@@ -650,6 +644,7 @@ namespace Greenshot.Addon.Editor.Drawing
 			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
 			Dispose(true);
 		}
+
 		#endregion
 	}
 }

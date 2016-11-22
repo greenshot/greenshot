@@ -1,71 +1,59 @@
-/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Dapplo.Config.Ini;
+#region Usings
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
+using Dapplo.Config.Ini;
 using Greenshot.Addon.Configuration;
-using Greenshot.Addon.Core;
+using Greenshot.Core.Gfx;
+
+#endregion
 
 namespace Greenshot.Forms
 {
 	/// <summary>
-	/// the ToolStripMenuSelectList makes it possible to have a single or multi-check menu
+	///     the ToolStripMenuSelectList makes it possible to have a single or multi-check menu
 	/// </summary>
 	public class ToolStripMenuSelectList : ToolStripMenuItem
 	{
-		private static ICoreConfiguration coreConfiguration = IniConfig.Current.Get<ICoreConfiguration>();
-		private bool multiCheckAllowed = false;
-		private bool updateInProgress = false;
-		private static Image defaultImage;
-
-		/// <summary>
-		/// Occurs when one of the list's child element's Checked state changes.
-		/// </summary>
-		public new event EventHandler CheckedChanged;
-
-		public object Identifier
-		{
-			get;
-			private set;
-		}
+		private static readonly ICoreConfiguration coreConfiguration = IniConfig.Current.Get<ICoreConfiguration>();
+		private static Image _defaultImage;
+		private readonly bool _multiCheckAllowed;
+		private bool _updateInProgress;
 
 		public ToolStripMenuSelectList(object identifier, bool allowMultiCheck)
 		{
 			Identifier = identifier;
 			CheckOnClick = false;
-			multiCheckAllowed = allowMultiCheck;
-			if (defaultImage == null || defaultImage.Size != coreConfiguration.IconSize)
+			_multiCheckAllowed = allowMultiCheck;
+			if ((_defaultImage == null) || (_defaultImage.Size != coreConfiguration.IconSize))
 			{
-				if (defaultImage != null)
-				{
-					defaultImage.Dispose();
-				}
-				defaultImage = ImageHelper.CreateEmpty(coreConfiguration.IconSize.Width, coreConfiguration.IconSize.Height, PixelFormat.Format32bppArgb, Color.Transparent, 96f, 96f);
+				_defaultImage?.Dispose();
+				_defaultImage = ImageHelper.CreateEmpty(coreConfiguration.IconSize.Width, coreConfiguration.IconSize.Height, PixelFormat.Format32bppArgb, Color.Transparent, 96f, 96f);
 			}
-			Image = defaultImage;
+			Image = _defaultImage;
 		}
 
 		public ToolStripMenuSelectList() : this(null, false)
@@ -77,13 +65,13 @@ namespace Greenshot.Forms
 		}
 
 		/// <summary>
-		/// gets or sets the currently checked item
+		///     gets or sets the currently checked item
 		/// </summary>
 		public ToolStripMenuSelectListItem CheckedItem
 		{
 			get
 			{
-				IEnumerator items = DropDownItems.GetEnumerator();
+				var items = DropDownItems.GetEnumerator();
 				while (items.MoveNext())
 				{
 					ToolStripMenuSelectListItem tsmi = (ToolStripMenuSelectListItem) items.Current;
@@ -99,41 +87,41 @@ namespace Greenshot.Forms
 				IEnumerator items = DropDownItems.GetEnumerator();
 				while (items.MoveNext())
 				{
-					ToolStripMenuSelectListItem tsmi = (ToolStripMenuSelectListItem) items.Current;
-					if (!multiCheckAllowed && !tsmi.Equals(value))
+					var toolStripMenuSelectListItem = (ToolStripMenuSelectListItem) items.Current;
+					if (!_multiCheckAllowed && !toolStripMenuSelectListItem.Equals(value))
 					{
-						tsmi.Checked = false;
+						toolStripMenuSelectListItem.Checked = false;
 					}
-					else if (tsmi.Equals(value))
+					else if (toolStripMenuSelectListItem.Equals(value))
 					{
-						tsmi.Checked = true;
+						toolStripMenuSelectListItem.Checked = true;
 					}
 				}
 			}
 		}
 
 		/// <summary>
-		/// gets or sets the currently checked items
+		///     gets or sets the currently checked items
 		/// </summary>
 		public ToolStripMenuSelectListItem[] CheckedItems
 		{
 			get
 			{
-				List<ToolStripMenuSelectListItem> sel = new List<ToolStripMenuSelectListItem>();
-				IEnumerator items = DropDownItems.GetEnumerator();
+				var toolStripMenuSelectListItems = new List<ToolStripMenuSelectListItem>();
+				var items = DropDownItems.GetEnumerator();
 				while (items.MoveNext())
 				{
-					ToolStripMenuSelectListItem tsmi = (ToolStripMenuSelectListItem) items.Current;
-					if (tsmi.Checked)
+					var toolStripMenuSelectListItem = (ToolStripMenuSelectListItem) items.Current;
+					if (toolStripMenuSelectListItem.Checked)
 					{
-						sel.Add(tsmi);
+						toolStripMenuSelectListItems.Add(toolStripMenuSelectListItem);
 					}
 				}
-				return sel.ToArray();
+				return toolStripMenuSelectListItems.ToArray();
 			}
 			set
 			{
-				if (!multiCheckAllowed)
+				if (!_multiCheckAllowed)
 				{
 					throw new ArgumentException("Writing to checkedItems is only allowed in multi-check mode. Either set allowMultiCheck to true or use set SelectedItem instead of SelectedItems.");
 				}
@@ -141,77 +129,61 @@ namespace Greenshot.Forms
 				IEnumerator sel = value.GetEnumerator();
 				while (items.MoveNext())
 				{
-					ToolStripMenuSelectListItem tsmi = (ToolStripMenuSelectListItem) items.Current;
+					var toolStripMenuSelectListItem = (ToolStripMenuSelectListItem) items.Current;
 					while (sel.MoveNext())
 					{
-						if (tsmi.Equals(sel.Current))
+						if (toolStripMenuSelectListItem.Equals(sel.Current))
 						{
-							tsmi.Checked = true;
+							toolStripMenuSelectListItem.Checked = true;
 						}
 						else
 						{
-							tsmi.Checked = false;
+							toolStripMenuSelectListItem.Checked = false;
 						}
-						if (!multiCheckAllowed && !tsmi.Equals(sel.Current))
+						if (!_multiCheckAllowed && !toolStripMenuSelectListItem.Equals(sel.Current))
 						{
-							tsmi.Checked = false;
+							toolStripMenuSelectListItem.Checked = false;
 						}
-						else if (tsmi.Equals(value))
+						else if (toolStripMenuSelectListItem.Equals(value))
 						{
-							tsmi.Checked = true;
+							toolStripMenuSelectListItem.Checked = true;
 						}
 					}
 				}
 			}
 		}
 
-		private void ItemCheckStateChanged(object sender, EventArgs e)
-		{
-			if (updateInProgress)
-			{
-				return;
-			}
-			ToolStripMenuSelectListItem tsmi = (ToolStripMenuSelectListItem) sender;
-			updateInProgress = true;
-			if (tsmi.Checked && !multiCheckAllowed)
-			{
-				UncheckAll();
-				tsmi.Checked = true;
-			}
-			updateInProgress = false;
-			if (CheckedChanged != null)
-			{
-				CheckedChanged(this, new ItemCheckedChangedEventArgs(tsmi));
-			}
-		}
+		public object Identifier { get; private set; }
 
 		/// <summary>
-		/// adds an item to the select list
+		///     adds an item to the select list
 		/// </summary>
 		/// <param name="label">the label to be displayed</param>
 		/// <param name="image">the icon to be displayed</param>
 		/// <param name="data">the data to be returned when an item is queried</param>
 		/// <param name="isChecked">whether the item is initially checked</param>
-		public void AddItem(string label, Image image, Object data, bool isChecked)
+		public void AddItem(string label, Image image, object data, bool isChecked)
 		{
-			ToolStripMenuSelectListItem newItem = new ToolStripMenuSelectListItem();
-			newItem.Text = label;
 			if (image == null)
 			{
-				image = defaultImage;
+				image = _defaultImage;
 			}
-			newItem.DisplayStyle = ToolStripItemDisplayStyle.Text;
-			newItem.Image = image;
-			newItem.CheckOnClick = true;
+			ToolStripMenuSelectListItem newItem = new ToolStripMenuSelectListItem
+			{
+				Text = label,
+				DisplayStyle = ToolStripItemDisplayStyle.Text,
+				Image = image,
+				CheckOnClick = true,
+				Data = data
+			};
 			newItem.CheckStateChanged += ItemCheckStateChanged;
-			newItem.Data = data;
 			if (isChecked)
 			{
-				if (!multiCheckAllowed)
+				if (!_multiCheckAllowed)
 				{
-					updateInProgress = true;
+					_updateInProgress = true;
 					UncheckAll();
-					updateInProgress = false;
+					_updateInProgress = false;
 				}
 				newItem.Checked = isChecked;
 			}
@@ -219,7 +191,7 @@ namespace Greenshot.Forms
 		}
 
 		/// <summary>
-		/// adds an item to the select list
+		///     adds an item to the select list
 		/// </summary>
 		/// <param name="label">the label to be displayed</param>
 		/// <param name="image">the icon to be displayed</param>
@@ -229,17 +201,17 @@ namespace Greenshot.Forms
 		}
 
 		/// <summary>
-		/// adds an item to the select list
+		///     adds an item to the select list
 		/// </summary>
 		/// <param name="label">the label to be displayed</param>
 		/// <param name="data">the data to be returned when an item is queried</param>
-		public void AddItem(string label, Object data)
+		public void AddItem(string label, object data)
 		{
 			AddItem(label, null, data, false);
 		}
 
 		/// <summary>
-		/// adds an item to the select list
+		///     adds an item to the select list
 		/// </summary>
 		/// <param name="label">the label to be displayed</param>
 		public void AddItem(string label)
@@ -261,18 +233,18 @@ namespace Greenshot.Forms
 		}
 
 		/// <summary>
-		/// adds an item to the select list
+		///     adds an item to the select list
 		/// </summary>
 		/// <param name="label">the label to be displayed</param>
 		/// <param name="data">the data to be returned when an item is queried</param>
 		/// <param name="isChecked">whether the item is initially checked</param>
-		public void AddItem(string label, Object data, bool isChecked)
+		public void AddItem(string label, object data, bool isChecked)
 		{
 			AddItem(label, null, data, isChecked);
 		}
 
 		/// <summary>
-		/// adds an item to the select list
+		///     adds an item to the select list
 		/// </summary>
 		/// <param name="label">the label to be displayed</param>
 		/// <param name="isChecked">whether the item is initially checked</param>
@@ -282,7 +254,29 @@ namespace Greenshot.Forms
 		}
 
 		/// <summary>
-		/// unchecks all items of the list
+		///     Occurs when one of the list's child element's Checked state changes.
+		/// </summary>
+		public new event EventHandler CheckedChanged;
+
+		private void ItemCheckStateChanged(object sender, EventArgs e)
+		{
+			if (_updateInProgress)
+			{
+				return;
+			}
+			var toolStripMenuSelectListItem = (ToolStripMenuSelectListItem) sender;
+			_updateInProgress = true;
+			if (toolStripMenuSelectListItem.Checked && !_multiCheckAllowed)
+			{
+				UncheckAll();
+				toolStripMenuSelectListItem.Checked = true;
+			}
+			_updateInProgress = false;
+			CheckedChanged?.Invoke(this, new ItemCheckedChangedEventArgs(toolStripMenuSelectListItem));
+		}
+
+		/// <summary>
+		///     unchecks all items of the list
 		/// </summary>
 		public void UncheckAll()
 		{
@@ -295,32 +289,24 @@ namespace Greenshot.Forms
 	}
 
 	/// <summary>
-	/// Event class for the CheckedChanged event in the ToolStripMenuSelectList
+	///     Event class for the CheckedChanged event in the ToolStripMenuSelectList
 	/// </summary>
 	public class ItemCheckedChangedEventArgs : EventArgs
 	{
-		public ToolStripMenuSelectListItem Item
-		{
-			get;
-			set;
-		}
-
 		public ItemCheckedChangedEventArgs(ToolStripMenuSelectListItem item)
 		{
 			Item = item;
 		}
+
+		public ToolStripMenuSelectListItem Item { get; set; }
 	}
 
 	/// <summary>
-	/// Wrapper around the ToolStripMenuItem, which can contain an object
-	/// Also the Checked property hides the normal checked property so we can render our own check
+	///     Wrapper around the ToolStripMenuItem, which can contain an object
+	///     Also the Checked property hides the normal checked property so we can render our own check
 	/// </summary>
 	public class ToolStripMenuSelectListItem : ToolStripMenuItem
 	{
-		public object Data
-		{
-			get;
-			set;
-		}
+		public object Data { get; set; }
 	}
 }

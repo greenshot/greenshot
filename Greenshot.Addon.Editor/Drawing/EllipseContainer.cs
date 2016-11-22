@@ -1,80 +1,58 @@
-/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using Greenshot.Addon.Editor.Helpers;
+using Greenshot.Addon.Editor.Interfaces.Drawing;
 using Greenshot.Addon.Extensions;
-using Greenshot.Addon.Interfaces.Drawing;
+using Greenshot.Core.Extensions;
+
+#endregion
 
 namespace Greenshot.Addon.Editor.Drawing
 {
 	/// <summary>
-	/// Description of EllipseContainer.
+	///     Description of EllipseContainer.
 	/// </summary>
 	[Serializable]
 	public class EllipseContainer : DrawableContainer
 	{
-		private int _lineThickness = 2;
-
-		[Field(FieldTypes.LINE_THICKNESS)]
-		public int LineThickness
-		{
-			get
-			{
-				return _lineThickness;
-			}
-			set
-			{
-				_lineThickness = value;
-				OnFieldPropertyChanged(FieldTypes.LINE_THICKNESS);
-			}
-		}
+		private Color _fillColor = Color.Transparent;
 
 		private Color _lineColor = Color.Red;
+		private int _lineThickness = 2;
 
-		[Field(FieldTypes.LINE_COLOR)]
-		public Color LineColor
+		private bool _shadow = true;
+
+		public EllipseContainer(Surface parent) : base(parent)
 		{
-			get
-			{
-				return _lineColor;
-			}
-			set
-			{
-				_lineColor = value;
-				OnFieldPropertyChanged(FieldTypes.LINE_COLOR);
-			}
+			CreateDefaultAdorners();
 		}
-
-		private Color _fillColor = Color.Transparent;
 
 		[Field(FieldTypes.FILL_COLOR)]
 		public Color FillColor
 		{
-			get
-			{
-				return _fillColor;
-			}
+			get { return _fillColor; }
 			set
 			{
 				_fillColor = value;
@@ -82,15 +60,32 @@ namespace Greenshot.Addon.Editor.Drawing
 			}
 		}
 
-		private bool _shadow = true;
+		[Field(FieldTypes.LINE_COLOR)]
+		public Color LineColor
+		{
+			get { return _lineColor; }
+			set
+			{
+				_lineColor = value;
+				OnFieldPropertyChanged(FieldTypes.LINE_COLOR);
+			}
+		}
+
+		[Field(FieldTypes.LINE_THICKNESS)]
+		public int LineThickness
+		{
+			get { return _lineThickness; }
+			set
+			{
+				_lineThickness = value;
+				OnFieldPropertyChanged(FieldTypes.LINE_THICKNESS);
+			}
+		}
 
 		[Field(FieldTypes.SHADOW)]
 		public bool Shadow
 		{
-			get
-			{
-				return _shadow;
-			}
+			get { return _shadow; }
 			set
 			{
 				_shadow = value;
@@ -98,9 +93,16 @@ namespace Greenshot.Addon.Editor.Drawing
 			}
 		}
 
-		public EllipseContainer(Surface parent) : base(parent)
+		public override bool ClickableAt(int x, int y)
 		{
-			CreateDefaultAdorners();
+			Rectangle rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
+			int lineWidth = _lineThickness + 10;
+			return EllipseClickableAt(rect, lineWidth, _fillColor, x, y);
+		}
+
+		public override bool Contains(int x, int y)
+		{
+			return EllipseContains(this, x, y);
 		}
 
 		public override void Draw(Graphics graphics, RenderMode renderMode)
@@ -114,7 +116,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		}
 
 		/// <summary>
-		/// This allows another container to draw an ellipse
+		///     This allows another container to draw an ellipse
 		/// </summary>
 		/// <param name="rect"></param>
 		/// <param name="graphics"></param>
@@ -125,7 +127,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		/// <param name="shadow"></param>
 		public static void DrawEllipse(Rectangle rect, Graphics graphics, RenderMode renderMode, int lineThickness, Color lineColor, Color fillColor, bool shadow)
 		{
-			bool lineVisible = (lineThickness > 0 && ColorHelper.IsVisible(lineColor));
+			bool lineVisible = (lineThickness > 0) && ColorHelper.IsVisible(lineColor);
 			// draw _shadow before anything else
 			if (shadow && (lineVisible || ColorHelper.IsVisible(fillColor)))
 			{
@@ -162,33 +164,6 @@ namespace Greenshot.Addon.Editor.Drawing
 			}
 		}
 
-		public override bool Contains(int x, int y)
-		{
-			return EllipseContains(this, x, y);
-		}
-
-		/// <summary>
-		/// Allow the code to be used externally
-		/// </summary>
-		/// <param name="caller"></param>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <returns></returns>
-		public static bool EllipseContains(DrawableContainer caller, int x, int y)
-		{
-			double xDistanceFromCenter = x - (caller.Left + caller.Width/2);
-			double yDistanceFromCenter = y - (caller.Top + caller.Height/2);
-			// ellipse: x^2/a^2 + y^2/b^2 = 1
-			return Math.Pow(xDistanceFromCenter, 2)/Math.Pow(caller.Width/2, 2) + Math.Pow(yDistanceFromCenter, 2)/Math.Pow(caller.Height/2, 2) < 1;
-		}
-
-		public override bool ClickableAt(int x, int y)
-		{
-			Rectangle rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
-			int lineWidth = _lineThickness + 10;
-			return EllipseClickableAt(rect, lineWidth, _fillColor, x, y);
-		}
-
 		public static bool EllipseClickableAt(Rectangle rect, int lineThickness, Color fillColor, int x, int y)
 		{
 			// If we clicked inside the rectangle and it's visible we are clickable at.
@@ -213,6 +188,21 @@ namespace Greenshot.Addon.Editor.Drawing
 				}
 			}
 			return false;
+		}
+
+		/// <summary>
+		///     Allow the code to be used externally
+		/// </summary>
+		/// <param name="caller"></param>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <returns></returns>
+		public static bool EllipseContains(DrawableContainer caller, int x, int y)
+		{
+			double xDistanceFromCenter = x - (caller.Left + caller.Width/2);
+			double yDistanceFromCenter = y - (caller.Top + caller.Height/2);
+			// ellipse: x^2/a^2 + y^2/b^2 = 1
+			return Math.Pow(xDistanceFromCenter, 2)/Math.Pow(caller.Width/2, 2) + Math.Pow(yDistanceFromCenter, 2)/Math.Pow(caller.Height/2, 2) < 1;
 		}
 	}
 }

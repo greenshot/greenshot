@@ -1,23 +1,23 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2012  Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Drawing;
@@ -25,45 +25,21 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Runtime.Serialization;
 using Greenshot.Addon.Editor.Helpers;
+using Greenshot.Addon.Editor.Interfaces.Drawing;
 using Greenshot.Addon.Extensions;
-using Greenshot.Addon.Interfaces.Drawing;
+using Greenshot.Core.Extensions;
+
+#endregion
 
 namespace Greenshot.Addon.Editor.Drawing
 {
 	/// <summary>
-	/// Description of SpeechbubbleContainer.
+	///     Description of SpeechbubbleContainer.
 	/// </summary>
 	[Serializable]
 	public class SpeechbubbleContainer : TextContainer
 	{
 		private Point _initialGripperPoint;
-
-		#region TargetGripper serializing code
-
-		// Only used for serializing the TargetGripper location
-		private Point _storedTargetGripperLocation;
-
-		/// <summary>
-		/// Store the current location of the target adorner
-		/// </summary>
-		/// <param name="context"></param>
-		[OnSerializing]
-		private void SetValuesOnSerializing(StreamingContext context)
-		{
-			if (TargetAdorner != null) {
-				_storedTargetGripperLocation = TargetAdorner.Location;
-			}
-		}
-
-		/// <summary>
-		/// Restore the target adorner
-		/// </summary>
-		/// <param name="context"></param>
-		protected override void OnDeserialized(StreamingContext context)
-		{
-			InitAdorner(Color.Green, _storedTargetGripperLocation);
-		}
-		#endregion
 
 
 		public SpeechbubbleContainer(Surface parent) : base(parent)
@@ -71,48 +47,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		}
 
 		/// <summary>
-		/// Called from Surface (the _parent) when the drawing begins (mouse-down)
-		/// </summary>
-		/// <returns>true if the surface doesn't need to handle the event</returns>
-		public override bool HandleMouseDown(int mouseX, int mouseY)
-		{
-			if (TargetAdorner == null) {
-				_initialGripperPoint = new Point(mouseX, mouseY);
-				InitAdorner(Color.Green, new Point(mouseX, mouseY));
-			}
-			return base.HandleMouseDown(mouseX, mouseY);
-		}
-
-		/// <summary>
-		/// Overriding the HandleMouseMove will help us to make sure the tail is always visible.
-		/// Should fix BUG-1682
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <returns>base.HandleMouseMove</returns>
-		public override bool HandleMouseMove(int x, int y)
-		{
-			var returnValue = base.HandleMouseMove(x, y);
-
-			var leftAligned = _boundsAfterResize.Right - _boundsAfterResize.Left >= 0;
-			var topAligned = _boundsAfterResize.Bottom - _boundsAfterResize.Top >= 0;
-
-			var xOffset = leftAligned ? -20 : 20;
-			var yOffset = topAligned ? -20 : 20;
-
-			var newGripperLocation = _initialGripperPoint;
-			newGripperLocation.Offset(xOffset, yOffset);
-
-			if (TargetAdorner.Location != newGripperLocation) {
-				Invalidate();
-				TargetAdorner.Location = newGripperLocation;
-				Invalidate();
-			}
-			return returnValue;
-		}
-
-		/// <summary>
-		/// The DrawingBound should be so close as possible to the shape, so we don't invalidate to much.
+		///     The DrawingBound should be so close as possible to the shape, so we don't invalidate to much.
 		/// </summary>
 		public override Rectangle DrawingBounds
 		{
@@ -133,8 +68,46 @@ namespace Greenshot.Addon.Editor.Drawing
 			}
 		}
 
+		public override bool ClickableAt(int x, int y)
+		{
+			return Contains(x, y);
+		}
+
+		public override bool Contains(int x, int y)
+		{
+			if (base.Contains(x, y))
+			{
+				return true;
+			}
+			var clickedPoint = new Point(x, y);
+			if (Status != EditStatus.UNDRAWN)
+			{
+				using (var pen = new Pen(_lineColor, _lineThickness))
+				{
+					using (var bubblePath = CreateBubble(_lineThickness))
+					{
+						bubblePath.Widen(pen);
+						if (bubblePath.IsVisible(clickedPoint))
+						{
+							return true;
+						}
+					}
+					using (var tailPath = CreateTail())
+					{
+						tailPath.Widen(pen);
+						if (tailPath.IsVisible(clickedPoint))
+						{
+							return true;
+						}
+					}
+				}
+			}
+
+			return false;
+		}
+
 		/// <summary>
-		/// Helper method to create the bubble GraphicsPath, so we can also calculate the bounds
+		///     Helper method to create the bubble GraphicsPath, so we can also calculate the bounds
 		/// </summary>
 		/// <param name="lineThickness"></param>
 		/// <returns></returns>
@@ -168,14 +141,14 @@ namespace Greenshot.Addon.Editor.Drawing
 		}
 
 		/// <summary>
-		/// Helper method to create the tail of the bubble, so we can also calculate the bounds
+		///     Helper method to create the tail of the bubble, so we can also calculate the bounds
 		/// </summary>
 		/// <returns></returns>
 		private GraphicsPath CreateTail()
 		{
 			var rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
 
-			var tailLength = GeometryHelper.Distance2D(rect.Left + (rect.Width / 2), rect.Top + (rect.Height / 2), TargetAdorner.Location.X, TargetAdorner.Location.Y);
+			var tailLength = GeometryHelper.Distance2D(rect.Left + rect.Width/2, rect.Top + rect.Height/2, TargetAdorner.Location.X, TargetAdorner.Location.Y);
 			var tailWidth = (Math.Abs(rect.Width) + Math.Abs(rect.Height))/20;
 
 			// This should fix a problem with the tail being to wide
@@ -187,11 +160,11 @@ namespace Greenshot.Addon.Editor.Drawing
 			tail.AddLine(tailWidth, 0, 0, -tailLength);
 			tail.CloseFigure();
 
-			var tailAngle = 90 + (int)GeometryHelper.Angle2D(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2, TargetAdorner.Location.X, TargetAdorner.Location.Y);
+			var tailAngle = 90 + (int) GeometryHelper.Angle2D(rect.Left + rect.Width/2, rect.Top + rect.Height/2, TargetAdorner.Location.X, TargetAdorner.Location.Y);
 
 			using (var tailMatrix = new Matrix())
 			{
-				tailMatrix.Translate(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
+				tailMatrix.Translate(rect.Left + rect.Width/2, rect.Top + rect.Height/2);
 				tailMatrix.Rotate(tailAngle);
 				tail.Transform(tailMatrix);
 			}
@@ -200,7 +173,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		}
 
 		/// <summary>
-		/// This is to draw the actual container
+		///     This is to draw the actual container
 		/// </summary>
 		/// <param name="graphics"></param>
 		/// <param name="renderMode"></param>
@@ -216,10 +189,10 @@ namespace Greenshot.Addon.Editor.Drawing
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
 			graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
 
-			var lineVisible = (_lineThickness > 0 && ColorHelper.IsVisible(_lineColor));
+			var lineVisible = (_lineThickness > 0) && ColorHelper.IsVisible(_lineColor);
 			var rect = new Rectangle(Left, Top, Width, Height).MakeGuiRectangle();
 
-			if (Selected && renderMode == RenderMode.EDIT)
+			if (Selected && (renderMode == RenderMode.EDIT))
 			{
 				DrawSelectionBorder(graphics, rect);
 			}
@@ -272,7 +245,7 @@ namespace Greenshot.Addon.Editor.Drawing
 									graphics.Restore(stateBeforeClip);
 								}
 								currentStep++;
-								alpha = alpha - (basealpha/steps);
+								alpha = alpha - basealpha/steps;
 							}
 						}
 					}
@@ -339,42 +312,76 @@ namespace Greenshot.Addon.Editor.Drawing
 			DrawText(graphics, rect, _lineThickness, _lineColor, _shadow, StringFormat, Text, Font);
 		}
 
-		public override bool Contains(int x, int y)
+		/// <summary>
+		///     Called from Surface (the _parent) when the drawing begins (mouse-down)
+		/// </summary>
+		/// <returns>true if the surface doesn't need to handle the event</returns>
+		public override bool HandleMouseDown(int mouseX, int mouseY)
 		{
-			if (base.Contains(x, y))
+			if (TargetAdorner == null)
 			{
-				return true;
+				_initialGripperPoint = new Point(mouseX, mouseY);
+				InitAdorner(Color.Green, new Point(mouseX, mouseY));
 			}
-			var clickedPoint = new Point(x, y);
-			if (Status != EditStatus.UNDRAWN)
-			{
-				using (var pen = new Pen(_lineColor, _lineThickness))
-				{
-					using (var bubblePath = CreateBubble(_lineThickness))
-					{
-						bubblePath.Widen(pen);
-						if (bubblePath.IsVisible(clickedPoint))
-						{
-							return true;
-						}
-					}
-					using (var tailPath = CreateTail())
-					{
-						tailPath.Widen(pen);
-						if (tailPath.IsVisible(clickedPoint))
-						{
-							return true;
-						}
-					}
-				}
-			}
-
-			return false;
+			return base.HandleMouseDown(mouseX, mouseY);
 		}
 
-		public override bool ClickableAt(int x, int y)
+		/// <summary>
+		///     Overriding the HandleMouseMove will help us to make sure the tail is always visible.
+		///     Should fix BUG-1682
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <returns>base.HandleMouseMove</returns>
+		public override bool HandleMouseMove(int x, int y)
 		{
-			return Contains(x, y);
+			var returnValue = base.HandleMouseMove(x, y);
+
+			var leftAligned = _boundsAfterResize.Right - _boundsAfterResize.Left >= 0;
+			var topAligned = _boundsAfterResize.Bottom - _boundsAfterResize.Top >= 0;
+
+			var xOffset = leftAligned ? -20 : 20;
+			var yOffset = topAligned ? -20 : 20;
+
+			var newGripperLocation = _initialGripperPoint;
+			newGripperLocation.Offset(xOffset, yOffset);
+
+			if (TargetAdorner.Location != newGripperLocation)
+			{
+				Invalidate();
+				TargetAdorner.Location = newGripperLocation;
+				Invalidate();
+			}
+			return returnValue;
 		}
+
+		#region TargetGripper serializing code
+
+		// Only used for serializing the TargetGripper location
+		private Point _storedTargetGripperLocation;
+
+		/// <summary>
+		///     Store the current location of the target adorner
+		/// </summary>
+		/// <param name="context"></param>
+		[OnSerializing]
+		private void SetValuesOnSerializing(StreamingContext context)
+		{
+			if (TargetAdorner != null)
+			{
+				_storedTargetGripperLocation = TargetAdorner.Location;
+			}
+		}
+
+		/// <summary>
+		///     Restore the target adorner
+		/// </summary>
+		/// <param name="context"></param>
+		protected override void OnDeserialized(StreamingContext context)
+		{
+			InitAdorner(Color.Green, _storedTargetGripperLocation);
+		}
+
+		#endregion
 	}
 }

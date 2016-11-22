@@ -1,36 +1,38 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Runtime.Serialization;
-using Greenshot.Addon.Interfaces.Drawing;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
+using Greenshot.Addon.Editor.Interfaces.Drawing;
+
+#endregion
 
 namespace Greenshot.Addon.Editor.Drawing
 {
 	/// <summary>
-	/// Description of IconContainer.
+	///     Description of IconContainer.
 	/// </summary>
 	[Serializable]
 	public class IconContainer : DrawableContainer, IIconContainer
@@ -44,20 +46,19 @@ namespace Greenshot.Addon.Editor.Drawing
 			Init();
 		}
 
-		protected override void OnDeserialized(StreamingContext streamingContext)
-		{
-			base.OnDeserialized(streamingContext);
-			Init();
-		}
-
-		private void Init()
-		{
-			CreateDefaultAdorners();
-		}
-
 		public IconContainer(Surface parent, string filename) : base(parent)
 		{
 			Load(filename);
+		}
+
+		public override Size DefaultSize
+		{
+			get { return _icon.Size; }
+		}
+
+		public override bool HasDefaultSize
+		{
+			get { return true; }
 		}
 
 		public Icon Icon
@@ -72,28 +73,7 @@ namespace Greenshot.Addon.Editor.Drawing
 				Width = value.Width;
 				Height = value.Height;
 			}
-			get
-			{
-				return _icon;
-			}
-		}
-
-		/**
-		 * This Dispose is called from the Dispose and the Destructor.
-		 * When disposing==true all non-managed resources should be freed too!
-		 */
-
-		protected override void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				if (_icon != null)
-				{
-					_icon.Dispose();
-				}
-			}
-			_icon = null;
-			base.Dispose(disposing);
+			get { return _icon; }
 		}
 
 		public void Load(string filename)
@@ -106,6 +86,24 @@ namespace Greenshot.Addon.Editor.Drawing
 					Log.Debug().WriteLine("Loaded file: {0} with resolution: {1},{2}", filename, Height, Width);
 				}
 			}
+		}
+
+		/**
+	     * This Dispose is called from the Dispose and the Destructor.
+	     * When disposing==true all non-managed resources should be freed too!
+	     */
+
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				if (_icon != null)
+				{
+					_icon.Dispose();
+				}
+			}
+			_icon = null;
+			base.Dispose(disposing);
 		}
 
 		public override void Draw(Graphics graphics, RenderMode rm)
@@ -122,20 +120,15 @@ namespace Greenshot.Addon.Editor.Drawing
 			}
 		}
 
-		public override bool HasDefaultSize
+		private void Init()
 		{
-			get
-			{
-				return true;
-			}
+			CreateDefaultAdorners();
 		}
 
-		public override Size DefaultSize
+		protected override void OnDeserialized(StreamingContext streamingContext)
 		{
-			get
-			{
-				return _icon.Size;
-			}
+			base.OnDeserialized(streamingContext);
+			Init();
 		}
 	}
 }

@@ -1,23 +1,23 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.ComponentModel.Composition;
@@ -25,80 +25,38 @@ using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
+using Dapplo.Log;
 using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Editor.Drawing;
+using Greenshot.Addon.Editor.Extensions;
 using Greenshot.Addon.Editor.Forms;
-using Greenshot.Addon.Extensions;
+using Greenshot.Addon.Editor.Interfaces;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
-using Greenshot.Addon.Interfaces.Forms;
-using Dapplo.Log.Facade;
+using Greenshot.Addon.Ui;
+using Greenshot.Core.Configuration;
+using Greenshot.Core.Interfaces;
+
+#endregion
 
 namespace Greenshot.Addon.Editor
 {
 	/// <summary>
-	/// Description of EditorDestination.
+	///     Description of EditorDestination.
 	/// </summary>
 	[Destination(EditorDesignation, 1)]
 	public sealed class EditorDestination : AbstractDestination
 	{
 		private const string EditorDesignation = "Editor";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly BitmapSource GreenshotIcon = GreenshotResources.GetGreenshotIcon().ToBitmapSource();
 
 		[Import]
-		private IEditorConfiguration EditorConfiguration
-		{
-			get;
-			set;
-		}
+		private IEditorConfiguration EditorConfiguration { get; set; }
 
 		[Import]
-		private IGreenshotLanguage GreenshotLanguage
-		{
-			get;
-			set;
-		}
-
-		protected override void Initialize()
-		{
-			base.Initialize();
-			Text = GreenshotLanguage.SettingsDestinationEditor;
-			Designation = EditorDesignation;
-			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, null, token);
-			Icon = GreenshotIcon;
-		}
-
-		/// <summary>
-		/// Load the current editors to export to
-		/// </summary>
-		/// <param name="caller1"></param>
-		/// <param name="token"></param>
-		/// <returns>Task</returns>
-		public override async Task RefreshAsync(IExportContext caller1, CancellationToken token = default(CancellationToken))
-		{
-			Children.Clear();
-			await Task.Run(() =>
-			{
-				return ImageEditorForm.Editors.Select(openEditor => new EditorDestination
-				{
-					Text = openEditor.Surface.CaptureDetails.Title,
-					Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, openEditor, exportToken),
-					Icon = GreenshotIcon,
-					EditorConfiguration = EditorConfiguration,
-					GreenshotLanguage = GreenshotLanguage
-				}).ToList();
-			}, token).ContinueWith(async destinations =>
-			{
-				foreach (var editorDestination in await destinations)
-				{
-					Children.Add(editorDestination);
-				}
-			}, token, TaskContinuationOptions.None, UiContext.UiTaskScheduler).ConfigureAwait(false);
-		}
+		private IGreenshotLanguage GreenshotLanguage { get; set; }
 
 		private async Task<INotification> ExportCaptureAsync(ICapture capture, IImageEditor editor, CancellationToken token = default(CancellationToken))
 		{
@@ -120,11 +78,11 @@ namespace Greenshot.Addon.Editor
 				if (editor == null)
 				{
 					ISurface surface;
-					if (capture == null && capture.CaptureDetails.Filename != null && capture.CaptureDetails.Filename.ToLower().EndsWith("." + OutputFormat.greenshot))
+					if ((capture == null) && (capture.CaptureDetails.Filename != null) && capture.CaptureDetails.Filename.ToLower().EndsWith("." + OutputFormat.greenshot))
 					{
 						// Only a file, create a surface from the filename and continue!
 						surface = new Surface();
-						surface = ImageOutput.LoadGreenshotSurface(capture.CaptureDetails.Filename, surface);
+						surface = SurfaceExtensions.LoadGreenshotSurface(capture.CaptureDetails.Filename, surface);
 						surface.CaptureDetails = capture.CaptureDetails;
 					}
 					else
@@ -188,6 +146,49 @@ namespace Greenshot.Addon.Editor
 				capture.Modified = modified;
 				return returnValue;
 			}, token);
+		}
+
+		protected override void Initialize()
+		{
+			base.Initialize();
+			Text = GreenshotLanguage.SettingsDestinationEditor;
+			Designation = EditorDesignation;
+			Export = async (exportContext, capture, token) => await ExportCaptureAsync(capture, null, token);
+			Icon = new PackIconGreenshot
+			{
+				Kind = PackIconKindGreenshot.Greenshot
+			};
+		}
+
+		/// <summary>
+		///     Load the current editors to export to
+		/// </summary>
+		/// <param name="caller1"></param>
+		/// <param name="token"></param>
+		/// <returns>Task</returns>
+		public override async Task RefreshAsync(IExportContext caller1, CancellationToken token = default(CancellationToken))
+		{
+			Children.Clear();
+			await Task.Run(() =>
+			{
+				return ImageEditorForm.Editors.Select(openEditor => new EditorDestination
+				{
+					Text = openEditor.Surface.CaptureDetails.Title,
+					Export = async (caller, capture, exportToken) => await ExportCaptureAsync(capture, openEditor, exportToken),
+					Icon = new PackIconGreenshot
+					{
+						Kind = PackIconKindGreenshot.Greenshot
+					},
+					EditorConfiguration = EditorConfiguration,
+					GreenshotLanguage = GreenshotLanguage
+				}).ToList();
+			}, token).ContinueWith(async destinations =>
+			{
+				foreach (var editorDestination in await destinations)
+				{
+					Children.Add(editorDestination);
+				}
+			}, token, TaskContinuationOptions.None, UiContext.UiTaskScheduler).ConfigureAwait(false);
 		}
 	}
 }

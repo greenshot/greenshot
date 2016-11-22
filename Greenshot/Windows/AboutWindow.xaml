@@ -19,7 +19,6 @@
 			<ColumnDefinition Width="130" />
 			<ColumnDefinition Width="*" />
 		</Grid.ColumnDefinitions>
-
 		<Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Stretch" Height="100"
 				VerticalAlignment="Top" Background="White" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2">
 			<StackPanel>

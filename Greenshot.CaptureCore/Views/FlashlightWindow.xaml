@@ -1,0 +1,23 @@
+﻿<Window x:Class="Greenshot.CaptureCore.Views.FlashlightWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="GreenshotFlash" ShowInTaskbar="False" ResizeMode="NoResize"
+        WindowStyle="None" AllowsTransparency="True" Topmost="True">
+	<Window.Background>
+		<SolidColorBrush Color="Transparent"/>
+	</Window.Background>
+	<Window.Triggers>
+		<EventTrigger RoutedEvent="FrameworkElement.Loaded">
+			<BeginStoryboard>
+				<Storyboard Storyboard.TargetProperty="Background.(SolidColorBrush.Color)" Completed="Storyboard_Completed">
+					<ColorAnimation To="White" Duration="0:0:0.100"/>
+					<ColorAnimation To="Transparent" Duration="0:0:0.800" BeginTime="0:0:0.100">
+						<ColorAnimation.EasingFunction>
+							<ExponentialEase EasingMode="EaseOut"/>
+						</ColorAnimation.EasingFunction>
+					</ColorAnimation>
+				</Storyboard>
+			</BeginStoryboard>
+		</EventTrigger>
+	</Window.Triggers>
+</Window>
