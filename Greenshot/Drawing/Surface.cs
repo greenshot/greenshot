@@ -269,12 +269,14 @@ namespace Greenshot.Drawing
 			get { return _counterStart; }
 			set
 			{
-				if (_propertyChanged != null && _counterStart != value)
+				if (_counterStart == value)
 				{
-					_counterStart = value;
-					_propertyChanged(this, new PropertyChangedEventArgs("CounterStart"));
-					Invalidate();
+					return;
 				}
+
+				_counterStart = value;
+				Invalidate();
+				_propertyChanged?.Invoke(this, new PropertyChangedEventArgs("CounterStart"));
 			}
 		}
 

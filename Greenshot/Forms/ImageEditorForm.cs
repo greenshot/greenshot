@@ -207,6 +207,8 @@ namespace Greenshot {
 			// Workaround: for the MouseWheel event which doesn't get to the panel
 			MouseWheel += PanelMouseWheel;
 
+			// Make sure the value is set correctly when starting
+			counterUpDown.Value = Surface.CounterStart;
 			ApplyLanguage();
 		}
 

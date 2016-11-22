@@ -111,6 +111,9 @@ namespace Greenshot.Plugin
 		event SurfaceDrawingModeEventHandler DrawingModeChanged;
 		event SurfaceElementEventHandler MovingElementChanged;
 
+		/// <summary>
+		/// Start valueof the step-labels (counts)
+		/// </summary>
 		int CounterStart { get; set; }
 
 		/// <summary>

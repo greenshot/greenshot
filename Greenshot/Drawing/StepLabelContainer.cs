@@ -57,6 +57,8 @@ namespace Greenshot.Drawing {
 		#region Number serializing
 		// Used to store the number of this label, so when deserializing it can be placed back to the StepLabels list in the right location
 		private int _number;
+		// Used to store the counter start of the Surface, as the surface is NOT stored.
+		private int _counterStart = 1;
 		public int Number {
 			get {
 				return _number;
@@ -74,6 +76,7 @@ namespace Greenshot.Drawing {
 		private void SetValuesOnSerializing(StreamingContext context) {
 			if (Parent != null) {
 				Number = ((Surface)Parent).CountStepLabels(this);
+				_counterStart = ((Surface) Parent).CounterStart;
 			}
 		}
 		#endregion
@@ -90,6 +93,7 @@ namespace Greenshot.Drawing {
 				Alignment = StringAlignment.Center,
 				LineAlignment = StringAlignment.Center
 			};
+
 		}
 
 		/// <summary>
@@ -103,10 +107,13 @@ namespace Greenshot.Drawing {
 			}
 			((Surface) Parent)?.RemoveStepLabel(this);
 			base.SwitchParent(newParent);
-			if (newParent != null) {
-				((Surface)Parent)?.AddStepLabel(this);
+			if (newParent == null)
+			{
+				return;
 			}
-
+			// Make sure the counter start is restored (this unfortunately happens multiple times... -> hack)
+			newParent.CounterStart = _counterStart;
+			newParent.AddStepLabel(this);
 		}
 
 		public override Size DefaultSize => new Size(30, 30);
