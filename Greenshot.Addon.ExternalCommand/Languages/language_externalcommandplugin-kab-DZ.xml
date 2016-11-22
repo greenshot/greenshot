@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Taqbaylit" ietf="kab-DZ" version="1.0.0">
+  <resources>
+  <resource name="contextmenu_configure">
+    Tawila n tludna tizɣaṛayin
+  </resource>
+  <resource name="settings_title">
+  		Tawila n tladna tazɣarayt
+	</resource>
+	<resource name="settings_detail_title">
+  		Tawila n tladna
+	</resource>
+	<resource name="settings_new">
+  		Amaynut
+	</resource>
+	<resource name="settings_delete">
+  		Kkes
+	</resource>
+	<resource name="settings_edit">
+  		Ẓreg
+	</resource>
+    <resource name="label_name">
+      Isem
+    </resource>
+    <resource name="label_command">
+      Taladna
+    </resource>
+    <resource name="label_argument">
+      Tiɣira
+    </resource>
+    <resource name="label_information">
+      {0} d isem n ufaylu n tuṭṭfa yinek n ugdil
+    </resource>
+  </resources>
+</language>
