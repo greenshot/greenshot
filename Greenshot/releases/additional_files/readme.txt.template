@@ -41,6 +41,7 @@ Fixed bugs:
 * BUG-2071 Authentication not completing with Box.com
 
 Added features:
+* FEATURE-863 The start value of the counters can now be changed
 * FEATURE-916 Added icon save format (capture will be resized to 16x16, 32x32, 48x48 or 256x256)
 * FEATURE-919 Added a way to increase the editor canvas size (use Ctrl + / Ctrl -)
 * FEATURE-945 Added environment variables resolving to the external command plugin
