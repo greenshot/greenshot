@@ -13,7 +13,7 @@ permalink: project-feed/
 			<pubDate>{{asset.created_at | date_to_rfc822}}</pubDate>
 			<description>{{asset.label}}</description>
 		</item>{% break %}{% endif %}{% endfor %}{% endif %}{% endfor %}
-		{% for release in site.github.releases %}{% if release.draft == false %}{% for asset in release.assets %}{% if and asset.name contains 'Greenshot-INSTALLER' and asset.name contains 'RELEASE'%}<item>
+		{% for release in site.github.releases %}{% if release.draft == false %}{% for asset in release.assets %}{% if asset.name contains 'Greenshot-INSTALLER' and asset.name contains 'RELEASE'%}<item>
 			<title>{{asset.name}}</title>
 			<link>{{asset.browser_download_url}}</link>
 			<pubDate>{{asset.created_at | date_to_rfc822}}</pubDate>
