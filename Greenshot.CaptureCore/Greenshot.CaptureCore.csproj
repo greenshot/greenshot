@@ -141,6 +141,7 @@
     <Compile Include="Capture.cs" />
     <Compile Include="CaptureDetails.cs" />
     <Compile Include="CaptureHandler.cs" />
+    <Compile Include="CaptureWindow.cs" />
     <Compile Include="CaptureHelper.cs" />
     <Compile Include="ClipboardHelper.cs" />
     <Compile Include="Configuration\ICaptureTranslations.cs" />

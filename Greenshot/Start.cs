@@ -25,6 +25,7 @@ using System.Text;
 using System.Threading;
 using System.Windows;
 using Dapplo.CaliburnMicro;
+using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.Config.Converters;
 using Dapplo.Config.Language;
 using Dapplo.Config.Support;
@@ -35,6 +36,7 @@ using Dapplo.Windows.Native;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
+using Greenshot.Addon.Ui;
 using Greenshot.Forms;
 using Greenshot.Helpers;
 using Greenshot.Legacy;
@@ -215,7 +217,8 @@ namespace Greenshot
 				ResizeMode = ResizeMode.NoResize,
 				Width = 0,
 				Height = 0,
-				Icon = GreenshotResources.GetGreenshotImage().ToBitmapSource()
+				// TODO: Fix icon, this is black... :(
+				Icon = new PackIconGreenshot().ToBitmapSource()
 			};
 			try
 			{

@@ -39,6 +39,11 @@ namespace Greenshot.Addon.Extensions
 		/// <returns>BitmapSource</returns>
 		public static BitmapSource ToBitmapSource(this Bitmap bitmap)
 		{
+			if (bitmap == null)
+			{
+				throw new ArgumentNullException(nameof(bitmap));
+			}
+
 			using (var hBitmap = new SafeHBitmapHandle(bitmap.GetHbitmap()))
 			{
 				return Imaging.CreateBitmapSourceFromHBitmap(hBitmap.DangerousGetHandle(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());

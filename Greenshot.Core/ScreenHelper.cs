@@ -79,5 +79,31 @@ namespace Greenshot.Core
 			}
 			return new Rectangle(left, top, right + Math.Abs(left), bottom + Math.Abs(top));
 		}
+
+		/// <summary>
+		/// Set the DPI value of the specified bitmap
+		/// </summary>
+		/// <returns>SizeF with DpiX & DpiY</returns>
+		private static SizeF ScreenDpi()
+		{
+			// Workaround for proble with DPI retrieval, the FromHwnd activates the window...
+			var previouslyActiveWindow = WindowDetails.GetActiveWindow();
+
+			try
+			{
+				// Workaround for changed DPI settings in Windows 7
+				// TODO: Check why I wrote Windows 7, and if the DesktopWindow works just like MainForm.Instance
+				using (var graphics = Graphics.FromHwnd(User32.GetDesktopWindow()))
+				{
+					return new SizeF(graphics.DpiX, graphics.DpiY);
+				}
+			}
+			finally
+			{
+				// Set previouslyActiveWindow as foreground window
+				previouslyActiveWindow?.ToForeground();
+			}
+		}
+
 	}
 }

@@ -253,6 +253,7 @@
     <Compile Include="Interfaces\IImageEditor.cs" />
     <Compile Include="Interfaces\IMemento.cs" />
     <Compile Include="Interfaces\ISurface.cs" />
+    <Compile Include="Interfaces\VerticalAlignment.cs" />
     <Compile Include="Memento\AddElementMemento.cs" />
     <Compile Include="Memento\AddElementsMemento.cs" />
     <Compile Include="Memento\ChangeFieldHolderMemento.cs" />
