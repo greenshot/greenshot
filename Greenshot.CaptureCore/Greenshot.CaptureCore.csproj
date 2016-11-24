@@ -158,7 +158,7 @@
     <Compile Include="Forms\ThumbnailForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="IECaptureHelper.cs" />
+    <Compile Include="CaptureInternetExplorer.cs" />
     <Compile Include="IEHelper.cs" />
     <Compile Include="IEInterop\IEContainer.cs" />
     <Compile Include="Interop\IDispatch.cs" />

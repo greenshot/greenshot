@@ -26,6 +26,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using Dapplo.Log;
@@ -53,11 +54,15 @@ namespace Greenshot.CaptureCore
 	///     On top I modified it to use the already available code in Greenshot.
 	///     Many thanks to all the people who contributed here!
 	/// </summary>
-	public static class IECaptureHelper
+	public class CaptureInternetExplorer
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static readonly ICaptureConfiguration CaptureConfiguration = IniConfig.Current.GetSubSection<ICaptureConfiguration>();
-		private static readonly ICaptureTranslations CaptureTranslations = LanguageLoader.Current.GetPart<ICaptureTranslations>();
+
+		public IIECaptureConfiguration IeCaptureConfiguration
+		{
+			get;
+			set;
+		}
 
 		// Helper method to activate a certain IE Tab
 		public static void ActivateIETab(WindowDetails ieWindowDetails, int tabIndex)
@@ -77,27 +82,17 @@ namespace Greenshot.CaptureCore
 		/// <summary>
 		///     Here the logic for capturing the IE Content is located
 		/// </summary>
-		/// <param name="capture">ICapture where the capture needs to be stored</param>
-		/// <returns>ICapture with the content (if any)</returns>
-		public static ICapture CaptureIE(ICapture capture)
-		{
-			return CaptureIE(capture, WindowDetails.GetActiveWindow());
-		}
-
-		/// <summary>
-		///     Here the logic for capturing the IE Content is located
-		/// </summary>
-		/// <param name="capture">ICapture where the capture needs to be stored</param>
 		/// <param name="windowToCapture">window to use</param>
 		/// <returns>ICapture with the content (if any)</returns>
-		public static ICapture CaptureIE(ICapture capture, WindowDetails windowToCapture)
+		public async Task<ICapture> CaptureIE(WindowDetails windowToCapture)
 		{
+			ICapture capture = new Capture();
 			if (windowToCapture == null)
 			{
 				windowToCapture = WindowDetails.GetActiveWindow();
 			}
 
-			bool isScreenCapture = CaptureConfiguration.IECaptureMode == WindowCaptureMode.Screen;
+			bool isScreenCapture = IeCaptureConfiguration.IECaptureMode == WindowCaptureMode.Screen;
 			WindowDetails topWindow = null;
 			Point oldTopWindowLocation = Point.Empty;
 
@@ -119,14 +114,11 @@ namespace Greenshot.CaptureCore
 				}
 			}
 
-			// Show backgroundform after retrieving the active window..
-			BackgroundForm backgroundForm = null;
+			// TODO: Use PleaseWaitWindow
 			// do not show the please wait when we capture from the screen
 			if (!isScreenCapture)
 			{
-				// TODO: Use PleaseWaitWindow
-				backgroundForm = new BackgroundForm(CaptureTranslations.ContextmenuCaptureie, CaptureTranslations.WaitIeCapture);
-				backgroundForm.Show();
+				// Start feedback
 			}
 			//BackgroundForm backgroundForm = BackgroundForm.ShowAndWait(language.GetString(IGreenshotLanguage.contextmenu_captureie), language.GetString(IGreenshotLanguage.wait_ie_capture));
 			DocumentContainer documentContainer = null;
@@ -157,7 +149,7 @@ namespace Greenshot.CaptureCore
 				try
 				{
 					Size pageSize = PrepareCapture(documentContainer, capture);
-					returnBitmap = CapturePage(documentContainer, pageSize);
+					returnBitmap = await CapturePage(documentContainer, pageSize);
 				}
 				catch (Exception captureException)
 				{
@@ -205,14 +197,7 @@ namespace Greenshot.CaptureCore
 					// The URL is available unter "document2.url" and can be used to enhance the meta-data etc.
 					capture.CaptureDetails.AddMetaData("url", documentContainer.Url);
 					// Store the title of the page
-					if (documentContainer.Name != null)
-					{
-						capture.CaptureDetails.Title = documentContainer.Name;
-					}
-					else
-					{
-						capture.CaptureDetails.Title = windowToCapture.Text;
-					}
+					capture.CaptureDetails.Title = documentContainer.Name ?? windowToCapture.Text;
 				}
 				catch (Exception ex)
 				{
@@ -267,15 +252,7 @@ namespace Greenshot.CaptureCore
 			}
 			finally
 			{
-				if (documentContainer != null)
-				{
-					documentContainer.Dispose();
-				}
-				if (backgroundForm != null)
-				{
-					// Always close the background form
-					backgroundForm.CloseDialog();
-				}
+				documentContainer?.Dispose();
 				if ((topWindow != null) && !topWindow.Maximised)
 				{
 					topWindow.Location = oldTopWindowLocation;
@@ -290,7 +267,7 @@ namespace Greenshot.CaptureCore
 		/// <param name="documentContainer">The document wrapped in a container</param>
 		/// <param name="pageSize"></param>
 		/// <returns>Bitmap with the page content as an image</returns>
-		private static Bitmap CapturePage(DocumentContainer documentContainer, Size pageSize)
+		private async Task<Bitmap> CapturePage(DocumentContainer documentContainer, Size pageSize)
 		{
 			var contentWindowDetails = documentContainer.ContentWindow;
 
@@ -304,7 +281,7 @@ namespace Greenshot.CaptureCore
 				graphicsTarget.Clear(clearColor);
 
 				// Get the base document & draw it
-				DrawDocument(documentContainer, contentWindowDetails, graphicsTarget);
+				await DrawDocument(documentContainer, contentWindowDetails, graphicsTarget);
 
 				// Loop over the frames and clear their source area so we don't see any artefacts
 				foreach (var frameDocument in documentContainer.Frames)
@@ -317,7 +294,7 @@ namespace Greenshot.CaptureCore
 				// Loop over the frames and capture their content
 				foreach (var frameDocument in documentContainer.Frames)
 				{
-					DrawDocument(frameDocument, contentWindowDetails, graphicsTarget);
+					await DrawDocument(frameDocument, contentWindowDetails, graphicsTarget);
 				}
 			}
 
@@ -330,7 +307,7 @@ namespace Greenshot.CaptureCore
 		/// </summary>
 		/// <param name="browserWindow">The WindowDetails to get the IHTMLDocument2 for</param>
 		/// <returns>The WindowDetails to which the IHTMLDocument2 belongs</returns>
-		private static DocumentContainer CreateDocumentContainer(WindowDetails browserWindow)
+		private DocumentContainer CreateDocumentContainer(WindowDetails browserWindow)
 		{
 			DocumentContainer returnDocumentContainer = null;
 			WindowDetails returnWindow = null;
@@ -376,10 +353,7 @@ namespace Greenshot.CaptureCore
 					// Get the content window handle for the shellWindow.Document
 					IOleWindow oleWindow = (IOleWindow) document2;
 					IntPtr contentWindowHandle = IntPtr.Zero;
-					if (oleWindow != null)
-					{
-						oleWindow.GetWindow(out contentWindowHandle);
-					}
+					oleWindow?.GetWindow(out contentWindowHandle);
 
 					if (contentWindowHandle != IntPtr.Zero)
 					{
@@ -471,7 +445,7 @@ namespace Greenshot.CaptureCore
 		/// <param name="contentWindowDetails">Needed for referencing the location of the frame</param>
 		/// <param name="graphicsTarget"></param>
 		/// <returns>Bitmap with the capture</returns>
-		private static void DrawDocument(DocumentContainer documentContainer, WindowDetails contentWindowDetails, Graphics graphicsTarget)
+		private async Task DrawDocument(DocumentContainer documentContainer, WindowDetails contentWindowDetails, Graphics graphicsTarget)
 		{
 			documentContainer.SetAttribute("scroll", 1);
 
@@ -525,10 +499,9 @@ namespace Greenshot.CaptureCore
 					var viewPortSize = new Size(viewportWidth, viewportHeight);
 					var clientRectangle = new Rectangle(documentContainer.SourceLocation, viewPortSize);
 					Image fragment;
-					if (CaptureConfiguration.IECaptureMode == WindowCaptureMode.Screen)
+					if (IeCaptureConfiguration.IECaptureMode == WindowCaptureMode.Screen)
 					{
-						// TODO: Task.Delay??
-						Thread.Sleep(20);
+						await Task.Delay(30);
 						fragment = contentWindowDetails.CaptureFromScreen();
 					}
 					else
@@ -588,7 +561,7 @@ namespace Greenshot.CaptureCore
 		///     Gets a list of all IE Windows & tabs with the captions of the instances
 		/// </summary>
 		/// <returns>List of KeyValuePair with WindowDetails and string</returns>
-		public static List<KeyValuePair<WindowDetails, string>> GetBrowserTabs()
+		public List<KeyValuePair<WindowDetails, string>> GetBrowserTabs()
 		{
 			var ieHandleList = new List<IntPtr>();
 			var browserWindows = new Dictionary<WindowDetails, List<string>>();
@@ -609,7 +582,7 @@ namespace Greenshot.CaptureCore
 								browserWindows.Add(ieWindow, accessible.IETabCaptions);
 							}
 						}
-						else if ((CaptureConfiguration.WindowClassesToCheckForIE != null) && CaptureConfiguration.WindowClassesToCheckForIE.Contains(ieWindow.ClassName))
+						else if ((IeCaptureConfiguration.WindowClassesToCheckForIE != null) && IeCaptureConfiguration.WindowClassesToCheckForIE.Contains(ieWindow.ClassName))
 						{
 							var singleWindowText = new List<string>();
 							try
@@ -706,7 +679,7 @@ namespace Greenshot.CaptureCore
 		///     Get Windows displaying an IE
 		/// </summary>
 		/// <returns>IEnumerable WindowDetails</returns>
-		public static IEnumerable<WindowDetails> GetIEWindows()
+		public IEnumerable<WindowDetails> GetIEWindows()
 		{
 			foreach (var possibleIEWindow in WindowDetails.GetAllWindows())
 			{
@@ -729,7 +702,7 @@ namespace Greenshot.CaptureCore
 		///     Simple check if IE is running
 		/// </summary>
 		/// <returns>bool</returns>
-		public static bool IsIERunning()
+		public bool IsIERunning()
 		{
 			return GetIEWindows().Any();
 		}
@@ -739,13 +712,13 @@ namespace Greenshot.CaptureCore
 		/// </summary>
 		/// <param name="someWindow"></param>
 		/// <returns></returns>
-		public static bool IsIEWindow(WindowDetails someWindow)
+		public bool IsIEWindow(WindowDetails someWindow)
 		{
 			if ("IEFrame".Equals(someWindow.ClassName))
 			{
 				return true;
 			}
-			if ((CaptureConfiguration.WindowClassesToCheckForIE != null) && CaptureConfiguration.WindowClassesToCheckForIE.Contains(someWindow.ClassName))
+			if ((IeCaptureConfiguration.WindowClassesToCheckForIE != null) && IeCaptureConfiguration.WindowClassesToCheckForIE.Contains(someWindow.ClassName))
 			{
 				return someWindow.GetChild("Internet Explorer_Server") != null;
 			}
@@ -758,7 +731,7 @@ namespace Greenshot.CaptureCore
 		/// <param name="someWindow">WindowDetails to check</param>
 		/// <param name="minimumPercentage">min percentage</param>
 		/// <returns></returns>
-		public static bool IsMostlyIEWindow(WindowDetails someWindow, int minimumPercentage)
+		public bool IsMostlyIEWindow(WindowDetails someWindow, int minimumPercentage)
 		{
 			var ieWindow = someWindow.GetChild("Internet Explorer_Server");
 			if (ieWindow != null)

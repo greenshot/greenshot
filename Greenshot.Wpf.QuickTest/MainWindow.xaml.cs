@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using Dapplo.Config.Ini;
 using Greenshot.CaptureCore;
 using Greenshot.Core.Enumerations;
 
@@ -9,8 +10,15 @@ namespace Greenshot.Wpf.QuickTest
 	/// </summary>
 	public partial class MainWindow : Window
 	{
+		private readonly IniConfig _iniConfig = new IniConfig("GreenshotQuickTest", "greenshot-test");
 		public MainWindow()
 		{
+
+			Loaded += async (sender, args) =>
+			{
+				await _iniConfig.RegisterAndGetAsync<ITestConfiguration>();
+
+			};
 			InitializeComponent();
 		}
 
@@ -22,6 +30,8 @@ namespace Greenshot.Wpf.QuickTest
 				CaptureCursor = false,
 				IeCapture = true
 			};
+
+
 
 			var capture = await captureWindow.CaptureActive();
 			MessageBox.Show(capture.CaptureDetails.Title);

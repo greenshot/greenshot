@@ -47,7 +47,7 @@ namespace Greenshot.Addon.Configuration
 		IOutputConfiguration, IPrinterConfiguration,
 		IUiConfiguration, IMiscConfiguration,
 		IUpdateConfiguration, IHotkeyConfiguration,
-		ICaptureConfiguration, ICropConfiguration,
+		ICaptureConfiguration, IIECaptureConfiguration, ICropConfiguration,
 		IImageConfiguration, IUxConfiguration,
 		// Ini-Framework
 		IIniSection<ICoreConfiguration>, INotifyPropertyChanged, ITagging<ICoreConfiguration>, IWriteProtectProperties<ICoreConfiguration>, ITransactionalProperties

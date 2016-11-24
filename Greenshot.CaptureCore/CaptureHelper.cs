@@ -272,22 +272,6 @@ namespace Greenshot.CaptureCore
 				// 3) Otherwise use GDI (Screen might be also okay but might lose content)
 				if (isAutoMode)
 				{
-					if (CaptureConfiguration.IECapture && IECaptureHelper.IsIEWindow(windowToCapture))
-					{
-						try
-						{
-							var ieCapture = IECaptureHelper.CaptureIE(captureForWindow, windowToCapture);
-							if (ieCapture != null)
-							{
-								return ieCapture;
-							}
-						}
-						catch (Exception ex)
-						{
-							Log.Warn().WriteLine("Problem capturing IE, skipping to normal capture. Exception message was: {0}", ex.Message);
-						}
-					}
-
 					// Take default screen
 					windowCaptureMode = WindowCaptureMode.Screen;
 
@@ -818,12 +802,12 @@ namespace Greenshot.CaptureCore
 					await HandleCaptureAsync(token).ConfigureAwait(false);
 					break;
 				case CaptureModes.IE:
-					if (IECaptureHelper.CaptureIE(_capture, SelectedCaptureWindow) != null)
-					{
-						_capture.CaptureDetails.AddMetaData("source", "Internet Explorer");
-						await SetDpi().ConfigureAwait(false);
-						await HandleCaptureAsync(token).ConfigureAwait(false);
-					}
+					//if (IECaptureHelper.CaptureIE(_capture, SelectedCaptureWindow) != null)
+					//{
+					//	_capture.CaptureDetails.AddMetaData("source", "Internet Explorer");
+					//	await SetDpi().ConfigureAwait(false);
+					//	await HandleCaptureAsync(token).ConfigureAwait(false);
+					//}
 					break;
 				case CaptureModes.FullScreen:
 					// Check how we need to capture the screen

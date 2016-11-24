@@ -93,6 +93,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\IIECaptureConfiguration.cs" />
     <Compile Include="Configuration\ICaptureConfiguration.cs" />
     <Compile Include="Configuration\ICoreTranslations.cs" />
     <Compile Include="Configuration\ICropConfiguration.cs" />

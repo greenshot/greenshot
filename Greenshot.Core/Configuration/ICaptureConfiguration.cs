@@ -49,18 +49,6 @@ namespace Greenshot.Core.Configuration
 		[Description("The background color for a DWM window capture.")]
 		Color DWMBackgroundColor { get; set; }
 
-		[Description("Enable/disable IE capture")]
-		[DefaultValue(true)]
-		bool IECapture { get; set; }
-
-		[Description("The capture mode used to capture IE (Screen, GDI).")]
-		[DefaultValue(WindowCaptureMode.Screen)]
-		WindowCaptureMode IECaptureMode { get; set; }
-
-		[Description("Enable/disable IE field capture, very slow but will make it possible to annotate the fields of a capture in the editor.")]
-		[DefaultValue(false)]
-		bool IEFieldCapture { get; set; }
-
 		[Description("The last used region, for reuse in the capture last region")]
 		Rectangle LastCapturedRegion { get; set; }
 
@@ -92,10 +80,6 @@ namespace Greenshot.Core.Configuration
 		[Description("Remove the corners from a window capture")]
 		[DefaultValue(true)]
 		bool WindowCaptureRemoveCorners { get; set; }
-
-		[Description("Comma separated list of Window-Classes which need to be checked for a IE instance!")]
-		[DefaultValue("AfxFrameOrView70,IMWindowClass")]
-		IList<string> WindowClassesToCheckForIE { get; set; }
 
 		[Description("The cutshape which is used to remove the window corners, is mirrorred for all corners")]
 		[DefaultValue("5,3,2,1,1")]

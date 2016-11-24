@@ -111,7 +111,7 @@ namespace Greenshot.CaptureCore
 				return null;
 			}
 
-			return Capture(windowToCapture);
+			return await Capture(windowToCapture);
 		}
 
 		/// <summary>
@@ -186,7 +186,7 @@ namespace Greenshot.CaptureCore
 		/// </summary>
 		/// <param name="windowToCapture">Window to capture</param>
 		/// <returns>ICapture</returns>
-		public ICapture Capture(WindowDetails windowToCapture)
+		public async Task<ICapture> Capture(WindowDetails windowToCapture)
 		{
 			ICapture resultCapture = new Capture();
 			if (windowToCapture == null)
@@ -208,19 +208,26 @@ namespace Greenshot.CaptureCore
 				// 3) Otherwise use GDI (Screen might be also okay but might lose content)
 				if (isAutoMode)
 				{
-					if (IeCapture && IECaptureHelper.IsIEWindow(windowToCapture))
+					if (IeCapture)
 					{
-						try
+						var captureIe = new CaptureInternetExplorer()
 						{
-							var ieCapture = IECaptureHelper.CaptureIE(resultCapture, windowToCapture);
-							if (ieCapture != null)
+							IeCaptureConfiguration = IniConfig.Current.GetSubSection<IIECaptureConfiguration>()
+						};
+						if (captureIe.IsIEWindow(windowToCapture))
+						{
+							try
 							{
-								return ieCapture;
+								var ieCapture = await captureIe.CaptureIE(windowToCapture);
+								if (ieCapture != null)
+								{
+									return ieCapture;
+								}
 							}
-						}
-						catch (Exception ex)
-						{
-							Log.Warn().WriteLine("Problem capturing IE, skipping to normal capture. Exception message was: {0}", ex.Message);
+							catch (Exception ex)
+							{
+								Log.Warn().WriteLine("Problem capturing IE, skipping to normal capture. Exception message was: {0}", ex.Message);
+							}
 						}
 					}
 
