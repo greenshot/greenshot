@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Taqbaylit" ietf="kab-DZ" version="1.0.0" languagegroup="">
+	<resources>
+		<resource name="language">Tutlayt i OCR</resource>
+		<resource name="orient_image">Wehhi tugna</resource>
+		<resource name="straighten_image">Seggwem  tugna</resource>
+	</resources>
+</language>
