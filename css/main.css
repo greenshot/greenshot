@@ -218,6 +218,18 @@
 				float: right;
 			}
 			
+			.ad-skyscraper .ad-skyscraper-wrapper {
+				width: 160px;
+				height: 600px;
+				display: inline-block;
+			}
+			
+			.ad-skyscraper .ad-skyscraper-text {
+				text-align: right;
+				color: #3d3d3d;
+				font-size: 10px;
+			}
+			
 			.ad-leaderboard {
 				display: inline-block;
 				margin-bottom: 3em;
@@ -266,9 +278,12 @@
 					width: 100%;
 					text-align: center;
 				}
-				.ad-skyscraper img {
+				.ad-skyscraper .ad-skyscraper-wrapper {
 					width: 400px;
 					height: 300px;
+				}
+				.ad-skyscraper .ad-skyscraper-text {
+					text-align: center;
 				}
 				
 			}
@@ -286,7 +301,7 @@
 				.cta-button-right .aside {
 					float: right;
 				}
-				.ad-skyscraper img {
+				.ad-skyscraper .ad-skyscraper-wrapper {
 					width: 80%;
 				}
 			}
