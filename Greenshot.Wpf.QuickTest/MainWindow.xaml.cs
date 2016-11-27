@@ -1,9 +1,9 @@
 ﻿using System.Windows;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
+using Dapplo.Log;
+using Dapplo.Log.Loggers;
 using Greenshot.CaptureCore;
-using Greenshot.CaptureCore.Forms;
-using Greenshot.Core.Configuration;
 using Greenshot.Core.Enumerations;
 
 namespace Greenshot.Wpf.QuickTest
@@ -18,7 +18,7 @@ namespace Greenshot.Wpf.QuickTest
 
 		public MainWindow()
 		{
-
+			LogSettings.RegisterDefaultLogger<DebugLogger>(LogLevels.Verbose);
 			Loaded += async (sender, args) =>
 			{
 				await _iniConfig.RegisterAndGetAsync<ITestConfiguration>();
@@ -52,7 +52,9 @@ namespace Greenshot.Wpf.QuickTest
 
 			var cropCapture = new CropCapture();
 			var capture = captureScreen.CaptureActiveScreen();
-			cropCapture.Crop(capture);
+			var windowsTask = captureScreen.RetrieveAllWindows();
+
+			cropCapture.Crop(capture, windowsTask);
 
 			// TODO: Show it
 		}

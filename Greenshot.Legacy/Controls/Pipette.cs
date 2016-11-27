@@ -36,22 +36,22 @@ namespace Greenshot.Legacy.Controls
 	///     This code was supplied by Hi-Coder as a patch for Greenshot
 	///     Needed some modifications to be stable.
 	/// </summary>
-	public class Pipette : Label, IMessageFilter, IDisposable
+	public sealed class Pipette : Label, IMessageFilter, IDisposable
 	{
-		private const int VK_ESC = 27;
+		private const int VkEsc = 27;
 		private readonly Bitmap _image;
 		private Cursor _cursor;
-		private bool dragging;
-		private MovableShowColorForm movableShowColorForm;
+		private bool _dragging;
+		private MovableShowColorForm _movableShowColorForm;
 
 		public Pipette()
 		{
 			BorderStyle = BorderStyle.FixedSingle;
-			dragging = false;
+			_dragging = false;
 			_image = (Bitmap) new ComponentResourceManager(typeof(ColorDialog)).GetObject("pipette.Image");
 			Image = _image;
 			_cursor = CreateCursor(_image, 1, 14);
-			movableShowColorForm = new MovableShowColorForm();
+			_movableShowColorForm = new MovableShowColorForm();
 			Application.AddMessageFilter(this);
 		}
 
@@ -67,11 +67,11 @@ namespace Greenshot.Legacy.Controls
 
 		public bool PreFilterMessage(ref Message m)
 		{
-			if (dragging)
+			if (_dragging)
 			{
 				if (m.Msg == (int) WindowsMessages.WM_CHAR)
 				{
-					if ((int) m.WParam == VK_ESC)
+					if ((int) m.WParam == VkEsc)
 					{
 						User32.ReleaseCapture();
 					}
@@ -93,13 +93,12 @@ namespace Greenshot.Legacy.Controls
 		{
 			using (SafeIconHandle iconHandle = new SafeIconHandle(bitmap.GetHicon()))
 			{
-				IntPtr icon;
-				IconInfo iconInfo = new IconInfo();
+				IconInfo iconInfo;
 				User32.GetIconInfo(iconHandle, out iconInfo);
 				iconInfo.xHotspot = hotspotX;
 				iconInfo.yHotspot = hotspotY;
 				iconInfo.fIcon = false;
-				icon = User32.CreateIconIndirect(ref iconInfo);
+				var icon = User32.CreateIconIndirect(ref iconInfo);
 				return new Cursor(icon);
 			}
 		}
@@ -116,12 +115,9 @@ namespace Greenshot.Legacy.Controls
 				{
 					_cursor.Dispose();
 				}
-				if (movableShowColorForm != null)
-				{
-					movableShowColorForm.Dispose();
-				}
+				_movableShowColorForm?.Dispose();
 			}
-			movableShowColorForm = null;
+			_movableShowColorForm = null;
 			_cursor = null;
 			base.Dispose(disposing);
 		}
@@ -134,18 +130,18 @@ namespace Greenshot.Legacy.Controls
 		{
 			if (Capture)
 			{
-				dragging = true;
+				_dragging = true;
 				Image = null;
 				Cursor c = _cursor;
 				Cursor = c;
-				movableShowColorForm.Visible = true;
+				_movableShowColorForm.Visible = true;
 			}
 			else
 			{
-				dragging = false;
+				_dragging = false;
 				Image = _image;
 				Cursor = Cursors.Arrow;
-				movableShowColorForm.Visible = false;
+				_movableShowColorForm.Visible = false;
 			}
 			Update();
 			base.OnMouseCaptureChanged(e);
@@ -160,7 +156,7 @@ namespace Greenshot.Legacy.Controls
 			if (e.Button == MouseButtons.Left)
 			{
 				User32.SetCapture(Handle);
-				movableShowColorForm.MoveTo(PointToScreen(new Point(e.X, e.Y)));
+				_movableShowColorForm.MoveTo(PointToScreen(new Point(e.X, e.Y)));
 			}
 			base.OnMouseDown(e);
 		}
@@ -171,11 +167,11 @@ namespace Greenshot.Legacy.Controls
 		/// <param name="e">MouseEventArgs</param>
 		protected override void OnMouseMove(MouseEventArgs e)
 		{
-			if (dragging)
+			if (_dragging)
 			{
 				//display the form on the right side of the cursor by default;
 				Point zp = PointToScreen(new Point(e.X, e.Y));
-				movableShowColorForm.MoveTo(zp);
+				_movableShowColorForm.MoveTo(zp);
 			}
 			base.OnMouseMove(e);
 		}
@@ -190,7 +186,7 @@ namespace Greenshot.Legacy.Controls
 			{
 				//Release Capture should consume MouseUp when canceled with the escape key 
 				User32.ReleaseCapture();
-				PipetteUsed(this, new PipetteUsedArgs(movableShowColorForm.color));
+				PipetteUsed?.Invoke(this, new PipetteUsedArgs(_movableShowColorForm.color));
 			}
 			base.OnMouseUp(e);
 		}
@@ -200,11 +196,13 @@ namespace Greenshot.Legacy.Controls
 
 	public class PipetteUsedArgs : EventArgs
 	{
-		public Color color;
+		public Color Color
+		{
+			get; set; }
 
 		public PipetteUsedArgs(Color c)
 		{
-			color = c;
+			Color = c;
 		}
 	}
 }

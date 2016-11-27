@@ -32,11 +32,17 @@ namespace Greenshot.Core.Configuration
 	/// </summary>
 	public interface ICropConfiguration : IIniSubSection
 	{
-		[Description("Color of the area selection")]
+		[Description("Color of the area selection"), DefaultValue(typeof(Color), "#503CB371")]
 		Color CropAreaColor { get; set; }
 
-		[Description("Color of the area selection lines")]
+		[Description("Color of the area selection lines"), DefaultValue(typeof(Color), "#C8D9F0E3")]
 		Color CropAreaLinesColor { get; set; }
+
+		[Description("Color of the ruler lines"), DefaultValue(typeof(Color), "SeaGreen")]
+		Color CropRulerLinesColor { get; set; }
+
+		[Description("Area of the ruler"), DefaultValue(typeof(Color), "LightSeaGreen")]
+		Color CropRulerAreaColor { get; set; }
 
 		[Description("Sets if the zoomer is enabled")]
 		[DefaultValue(true)]

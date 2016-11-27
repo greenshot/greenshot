@@ -47,6 +47,10 @@
       <HintPath>..\packages\Dapplo.Log.1.0.22\lib\net45\Dapplo.Log.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Dapplo.Log.Loggers, Version=1.0.22.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Log.Loggers.1.0.22\lib\net45\Dapplo.Log.Loggers.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Dapplo.Utils, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Utils.1.0.128\lib\net45\Dapplo.Utils.dll</HintPath>
       <Private>True</Private>

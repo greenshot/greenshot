@@ -91,14 +91,17 @@ namespace Greenshot.CaptureCore.Forms
 				Log.Warn().WriteLine("Found currentForm, Closing already opened CaptureForm");
 				_currentForm.Close();
 				_currentForm = null;
-				Application.DoEvents();
 			}
 			_currentForm = this;
 
-			// Await windows retrieval outside UI
+			// Assign windows retrieval outside UI
 			if (retrieveWindowsTask != null)
 			{
-				Task.Run(async () => _windows = await _retrieveWindowsTask.ConfigureAwait(true));
+				Task.Run(async () =>
+				{
+					_windows = await _retrieveWindowsTask.ConfigureAwait(true);
+					Log.Info().WriteLine("Found {0} windows", _windows.Count);
+				});
 			}
 
 			// Enable the AnimatingForm
@@ -150,20 +153,6 @@ namespace Greenshot.CaptureCore.Forms
 		public Rectangle CaptureRectangle => _captureRect;
 
 		/// <summary>
-		///     This should prevent childs to draw backgrounds
-		/// </summary>
-		protected override CreateParams CreateParams
-		{
-			[SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
-			get
-			{
-				CreateParams cp = base.CreateParams;
-				cp.ExStyle |= 0x02000000;
-				return cp;
-			}
-		}
-
-		/// <summary>
 		///     Get the selected window
 		/// </summary>
 		public WindowDetails SelectedCaptureWindow { get; private set; }
@@ -172,6 +161,20 @@ namespace Greenshot.CaptureCore.Forms
 		///     Property to access the used capture mode
 		/// </summary>
 		public CaptureModes UsedCaptureMode { get; private set; }
+
+		/// <summary>
+		///     This should prevent childs to draw backgrounds
+		/// </summary>
+		protected override CreateParams CreateParams
+		{
+			[SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
+			get
+			{
+				var createParams = base.CreateParams;
+				createParams.ExStyle |= 0x02000000;
+				return createParams;
+			}
+		}
 
 		private void ClosedHandler(object sender, EventArgs e)
 		{
@@ -322,8 +325,7 @@ namespace Greenshot.CaptureCore.Forms
 					break;
 				case Keys.Space:
 					// Toggle capture mode
-					switch (UsedCaptureMode)
-					{
+					  switch (UsedCaptureMode) {
 						case CaptureModes.Region:
 							// Set the window capture mode
 							UsedCaptureMode = CaptureModes.Window;
@@ -875,8 +877,8 @@ namespace Greenshot.CaptureCore.Forms
 					Size measureHeight = TextRenderer.MeasureText(captureHeight, rulerFont);
 					int hSpace = measureWidth.Width + 3;
 					int vSpace = measureHeight.Height + 3;
-					using (Brush bgBrush = new SolidBrush(Color.FromArgb(200, 217, 240, 227)))
-					using (Pen rulerPen = new Pen(Color.SeaGreen))
+					using (Brush bgBrush = new SolidBrush(_cropConfiguration.CropAreaColor))
+					using (Pen rulerPen = new Pen(_cropConfiguration.CropRulerLinesColor))
 					{
 						// horizontal ruler
 						if (fixedRect.Width > hSpace + 3)
@@ -941,10 +943,11 @@ namespace Greenshot.CaptureCore.Forms
 							newSize = 20;
 						}
 						// Draw the size.
+						using (var brush = new SolidBrush(_cropConfiguration.CropRulerAreaColor))
 						using (Font newSizeFont = new Font(FontFamily.GenericSansSerif, newSize, FontStyle.Bold))
 						{
 							PointF sizeLocation = new PointF(fixedRect.X + _captureRect.Width/2 - extent.Width/2, fixedRect.Y + _captureRect.Height/2 - newSizeFont.GetHeight()/2);
-							graphics.DrawString(sizeText, newSizeFont, Brushes.LightSeaGreen, sizeLocation);
+							graphics.DrawString(sizeText, newSizeFont, brush, sizeLocation);
 						}
 					}
 				}
@@ -953,7 +956,7 @@ namespace Greenshot.CaptureCore.Forms
 			{
 				if (!IsTerminalServerSession)
 				{
-					using (Pen pen = new Pen(Color.LightSeaGreen))
+					using (Pen pen = new Pen(_cropConfiguration.CropRulerAreaColor))
 					{
 						pen.DashStyle = DashStyle.Dot;
 						Rectangle screenBounds = _capture.ScreenBounds;
@@ -967,11 +970,11 @@ namespace Greenshot.CaptureCore.Forms
 						Size xySize = TextRenderer.MeasureText(xy, f);
 						using (GraphicsPath gp = RoundedRectangle.Create2(_cursorPos.X + 5, _cursorPos.Y + 5, xySize.Width - 3, xySize.Height, 3))
 						{
-							using (Brush bgBrush = new SolidBrush(Color.FromArgb(200, 217, 240, 227)))
+							using (Brush bgBrush = new SolidBrush(_cropConfiguration.CropAreaLinesColor))
 							{
 								graphics.FillPath(bgBrush, gp);
 							}
-							using (Pen pen = new Pen(Color.SeaGreen))
+							using (Pen pen = new Pen(_cropConfiguration.CropRulerLinesColor))
 							{
 								graphics.DrawPath(pen, gp);
 								Point coordinatePosition = new Point(_cursorPos.X + 5, _cursorPos.Y + 5);

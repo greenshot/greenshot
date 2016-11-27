@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using Dapplo.Log;
 using Dapplo.Windows.Native;
 using Dapplo.Windows.SafeHandles;
@@ -16,6 +19,9 @@ using Greenshot.Core.Interfaces;
 
 namespace Greenshot.CaptureCore
 {
+	/// <summary>
+	/// Logic to capture the screen
+	/// </summary>
 	public class CaptureScreen
 	{
 		private static readonly LogSource Log = new LogSource();
@@ -38,21 +44,20 @@ namespace Greenshot.CaptureCore
 		public ICapture CaptureActiveScreen()
 		{
 			ICapture capture = new Capture();
-			if (CaptureCursor)
-			{
-				var cursorInfo = _captureCursor.Capture(ScreenHelper.GetScreenBounds().Location);
-				capture.CursorLocation = cursorInfo.Location;
-				capture.Cursor = cursorInfo.Cursor;
-				capture.CursorVisible = true;
-			}
+			var cursorInfo = _captureCursor.Capture(capture.ScreenBounds.Location);
+			capture.CursorLocation = cursorInfo.Location;
+			capture.Cursor = cursorInfo.Cursor;
+			capture.CursorVisible = CaptureCursor;
+			capture.CaptureDetails.CaptureMode = CaptureModes.Region;
 			var mouseLocation = User32.GetCursorLocation();
 			foreach (var display in User32.AllDisplays())
 			{
-				if (display.Bounds.Contains(mouseLocation))
+				if (!display.Bounds.Contains(mouseLocation))
 				{
-					capture.Image = Capture<Bitmap>(display.BoundsRectangle);
-					return capture;
+					continue;
 				}
+				capture.Image = Capture<Bitmap>(display.BoundsRectangle);
+				return capture;
 			}
 			return null;
 		}
@@ -231,6 +236,43 @@ namespace Greenshot.CaptureCore
 			{
 				return capturedBitmap.ToBitmapSource() as TResult;
 			}
+		}
+
+		/// <summary>
+		///     Pre-Initialization for CaptureWithFeedback, this will get all the windows before we change anything
+		/// </summary>
+		/// <param name="depth">How many children deep do we go</param>
+		/// <param name="token"></param>
+		public async Task<IList<WindowDetails>> RetrieveAllWindows(int depth = 20, CancellationToken token = default(CancellationToken))
+		{
+			var result = new List<WindowDetails>();
+			var appLauncherWindow = WindowDetails.GetAppLauncher();
+			if ((appLauncherWindow != null) && appLauncherWindow.Visible)
+			{
+				result.Add(appLauncherWindow);
+			}
+			return await Task.Run(() =>
+			{
+				// Force children retrieval, sometimes windows close on losing focus and this is solved by caching
+				var visibleWindows = from window in WindowDetails.GetMetroApps().Concat(WindowDetails.GetAllWindows())
+									 where window.Visible && (window.WindowRectangle.Width != 0) && (window.WindowRectangle.Height != 0)
+									 select window;
+
+				// Start Enumeration of "active" windows
+				foreach (var window in visibleWindows)
+				{
+					if (token.IsCancellationRequested)
+					{
+						break;
+					}
+					// Make sure the details are retrieved once
+					window.FreezeDetails();
+
+					window.GetChildren(depth);
+					result.Add(window);
+				}
+				return result;
+			}, token).ConfigureAwait(false);
 		}
 
 	}

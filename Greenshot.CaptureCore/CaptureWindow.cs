@@ -20,30 +20,18 @@
 #region Usings
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Forms;
 using Dapplo.Config.Ini;
-using Dapplo.Config.Language;
 using Dapplo.Log;
-using Dapplo.Utils;
 using Dapplo.Windows.Native;
 using Greenshot.CaptureCore.Extensions;
-using Greenshot.CaptureCore.Forms;
-using Greenshot.CaptureCore.Views;
 using Greenshot.Core;
 using Greenshot.Core.Configuration;
 using Greenshot.Core.Enumerations;
 using Greenshot.Core.Gfx;
 using Greenshot.Core.Interfaces;
-using MessageBox = System.Windows.Forms.MessageBox;
-using Point = System.Drawing.Point;
 
 #endregion
 
@@ -55,6 +43,7 @@ namespace Greenshot.CaptureCore
 	public class CaptureWindow
 	{
 		private static readonly LogSource Log = new LogSource();
+		private readonly CaptureCursor _captureCursor = new CaptureCursor();
 
 		/// <summary>
 		/// Specify if the cursor should be captured
@@ -111,7 +100,7 @@ namespace Greenshot.CaptureCore
 				return null;
 			}
 
-			return await CaptureAsync(windowToCapture);
+			return await CaptureAsync(windowToCapture).ConfigureAwait(false);
 		}
 
 		/// <summary>
@@ -188,13 +177,18 @@ namespace Greenshot.CaptureCore
 		/// <returns>ICapture</returns>
 		public async Task<ICapture> CaptureAsync(WindowDetails windowToCapture)
 		{
-			ICapture resultCapture = new Capture();
 			if (windowToCapture == null)
 			{
 				throw new ArgumentNullException();
 			}
+			ICapture resultCapture = new Capture();
 			// TODO: Do we need this?
 			windowToCapture.Reset();
+
+			var cursor = _captureCursor.Capture(resultCapture.ScreenBounds.Location);
+			resultCapture.CursorLocation = cursor.Location;
+			resultCapture.Cursor = cursor.Cursor;
+			resultCapture.CursorVisible = CaptureCursor;
 
 			var windowRectangle = windowToCapture.WindowRectangle;
 
@@ -218,7 +212,7 @@ namespace Greenshot.CaptureCore
 						{
 							try
 							{
-								var ieCapture = await captureIe.CaptureIEAsync(windowToCapture);
+								var ieCapture = await captureIe.CaptureIEAsync(windowToCapture).ConfigureAwait(false);
 								if (ieCapture != null)
 								{
 									return ieCapture;
@@ -237,7 +231,6 @@ namespace Greenshot.CaptureCore
 				Log.Info().WriteLine("Capturing window with mode {0}", captureMode);
 				bool captureTaken = false;
 
-				resultCapture.ScreenBounds = ScreenHelper.GetScreenBounds();
 				windowRectangle.Intersect(resultCapture.ScreenBounds);
 
 				// Try to capture
@@ -406,40 +399,5 @@ namespace Greenshot.CaptureCore
 			}
 			return false;
 		}
-
-
-		/// <summary>
-		///     Pre-Initialization for CaptureWithFeedback, this will get all the windows before we change anything
-		/// </summary>
-		/// <param name="depth">How many children deep do we go</param>
-		/// <param name="token"></param>
-		private async Task<IList<WindowDetails>> PrepareForCaptureWithFeedbackAsync(int depth = 20, CancellationToken token = default(CancellationToken))
-		{
-			var result = new List<WindowDetails>();
-			var appLauncherWindow = WindowDetails.GetAppLauncher();
-			if ((appLauncherWindow != null) && appLauncherWindow.Visible)
-			{
-				result.Add(appLauncherWindow);
-			}
-			return await Task.Run(() =>
-			{
-				// Force children retrieval, sometimes windows close on losing focus and this is solved by caching
-				var visibleWindows = from window in WindowDetails.GetMetroApps().Concat(WindowDetails.GetAllWindows())
-					where window.Visible && (window.WindowRectangle.Width != 0) && (window.WindowRectangle.Height != 0)
-					select window;
-
-				// Start Enumeration of "active" windows
-				foreach (var window in visibleWindows)
-				{
-					// Make sure the details are retrieved once
-					window.FreezeDetails();
-
-					window.GetChildren(depth);
-					result.Add(window);
-				}
-				return result;
-			}, token).ConfigureAwait(false);
-		}
-
 	}
 }

@@ -36,7 +36,7 @@ namespace Greenshot.Legacy.Controls
 	/// </summary>
 	public partial class ColorDialog : GreenshotForm
 	{
-		private static ColorDialog uniqueInstance;
+		private static ColorDialog _uniqueInstance;
 
 		private readonly List<Button> _colorButtons = new List<Button>();
 		private readonly List<Button> _recentColorButtons = new List<Button>();
@@ -66,7 +66,7 @@ namespace Greenshot.Legacy.Controls
 
 		#region helper functions
 
-		private int GetColorPartIntFromString(string s)
+		private static int GetColorPartIntFromString(string s)
 		{
 			int ret = 0;
 			int.TryParse(s, out ret);
@@ -85,16 +85,12 @@ namespace Greenshot.Legacy.Controls
 
 		public static ColorDialog GetInstance()
 		{
-			if (uniqueInstance == null)
-			{
-				uniqueInstance = new ColorDialog();
-			}
-			return uniqueInstance;
+			return _uniqueInstance ?? (_uniqueInstance = new ColorDialog());
 		}
 
 		private void PipetteUsed(object sender, PipetteUsedArgs e)
 		{
-			Color = e.color;
+			Color = e.Color;
 		}
 
 		#region user interface generation

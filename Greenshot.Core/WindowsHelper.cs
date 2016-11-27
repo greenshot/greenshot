@@ -1376,6 +1376,7 @@ namespace Greenshot.Core
 			// Make sure windows has time to perform the action
 			while (Iconic)
 			{
+				// TODO: Change to async
 				Application.DoEvents();
 			}
 		}
