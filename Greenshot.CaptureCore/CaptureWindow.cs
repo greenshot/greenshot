@@ -75,7 +75,7 @@ namespace Greenshot.CaptureCore
 		/// Capture the current active window
 		/// </summary>
 		/// <returns></returns>
-		public async Task<ICapture> CaptureActive()
+		public async Task<ICapture> CaptureActiveAsync()
 		{
 			Log.Debug().WriteLine("Starting to capture the active window.");
 
@@ -111,7 +111,7 @@ namespace Greenshot.CaptureCore
 				return null;
 			}
 
-			return await Capture(windowToCapture);
+			return await CaptureAsync(windowToCapture);
 		}
 
 		/// <summary>
@@ -186,7 +186,7 @@ namespace Greenshot.CaptureCore
 		/// </summary>
 		/// <param name="windowToCapture">Window to capture</param>
 		/// <returns>ICapture</returns>
-		public async Task<ICapture> Capture(WindowDetails windowToCapture)
+		public async Task<ICapture> CaptureAsync(WindowDetails windowToCapture)
 		{
 			ICapture resultCapture = new Capture();
 			if (windowToCapture == null)
@@ -218,7 +218,7 @@ namespace Greenshot.CaptureCore
 						{
 							try
 							{
-								var ieCapture = await captureIe.CaptureIE(windowToCapture);
+								var ieCapture = await captureIe.CaptureIEAsync(windowToCapture);
 								if (ieCapture != null)
 								{
 									return ieCapture;

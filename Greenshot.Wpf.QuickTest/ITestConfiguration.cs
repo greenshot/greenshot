@@ -4,7 +4,7 @@ using Greenshot.Core.Configuration;
 namespace Greenshot.Wpf.QuickTest
 {
 	[IniSection("Test")]
-	public interface ITestConfiguration : IIniSection, IIECaptureConfiguration, ICaptureConfiguration
+	public interface ITestConfiguration : IIniSection, IIECaptureConfiguration, ICaptureConfiguration, ICropConfiguration, IUiConfiguration
 	{
 	}
 }

@@ -47,10 +47,10 @@ namespace Greenshot.CaptureCore.Forms
 	/// <summary>
 	///     The capture form is used to select a part of the capture
 	/// </summary>
-	public sealed partial class CaptureForm : AnimatingForm
+	public sealed partial class CropForm : AnimatingForm
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static CaptureForm _currentForm;
+		private static CropForm _currentForm;
 
 		private readonly Brush _areaOverlayBrush;
 		private readonly Pen _areaOverlayPen;
@@ -78,7 +78,7 @@ namespace Greenshot.CaptureCore.Forms
 		/// <param name="capture"></param>
 		/// <param name="retrieveWindowsTask"></param>
 		/// <param name="cropConfiguration">ICropConfiguration with the configuration for the cropper</param>
-		public CaptureForm(ICapture capture, Task<IList<WindowDetails>> retrieveWindowsTask, ICropConfiguration cropConfiguration)
+		public CropForm(ICapture capture, Task<IList<WindowDetails>> retrieveWindowsTask, ICropConfiguration cropConfiguration)
 		{
 			_cropConfiguration = cropConfiguration;
 			Image backgroundForTransparency = GreenshotResources.GetImage("Checkerboard.Image");
@@ -829,10 +829,13 @@ namespace Greenshot.CaptureCore.Forms
 			//graphics.BitBlt((Bitmap)buffer, Point.Empty);
 			graphics.DrawImageUnscaled(_capture.Image, Point.Empty);
 			// Only draw Cursor if it's (partly) visible
-			Rectangle cursorBounds = new Rectangle(_capture.CursorLocation, _capture.Cursor.Size);
-			if ((_capture.Cursor != null) && _capture.CursorVisible && clipRectangle.IntersectsWith(cursorBounds))
+			if (_capture.Cursor != null)
 			{
-				_capture.Cursor.DrawStretched(graphics, cursorBounds);
+				Rectangle cursorBounds = new Rectangle(_capture.CursorLocation, _capture.Cursor.Size);
+				if (_capture.CursorVisible && clipRectangle.IntersectsWith(cursorBounds))
+				{
+					_capture.Cursor.DrawStretched(graphics, cursorBounds);
+				}
 			}
 
 			if (_mouseDown || (UsedCaptureMode == CaptureModes.Window) || IsAnimating(_windowAnimator))

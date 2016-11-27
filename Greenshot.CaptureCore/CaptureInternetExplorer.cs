@@ -84,7 +84,7 @@ namespace Greenshot.CaptureCore
 		/// </summary>
 		/// <param name="windowToCapture">window to use</param>
 		/// <returns>ICapture with the content (if any)</returns>
-		public async Task<ICapture> CaptureIE(WindowDetails windowToCapture)
+		public async Task<ICapture> CaptureIEAsync(WindowDetails windowToCapture)
 		{
 			ICapture capture = new Capture();
 			if (windowToCapture == null)
@@ -149,7 +149,7 @@ namespace Greenshot.CaptureCore
 				try
 				{
 					Size pageSize = PrepareCapture(documentContainer, capture);
-					returnBitmap = await CapturePage(documentContainer, pageSize);
+					returnBitmap = await CapturePageAsync(documentContainer, pageSize);
 				}
 				catch (Exception captureException)
 				{
@@ -267,7 +267,7 @@ namespace Greenshot.CaptureCore
 		/// <param name="documentContainer">The document wrapped in a container</param>
 		/// <param name="pageSize"></param>
 		/// <returns>Bitmap with the page content as an image</returns>
-		private async Task<Bitmap> CapturePage(DocumentContainer documentContainer, Size pageSize)
+		private async Task<Bitmap> CapturePageAsync(DocumentContainer documentContainer, Size pageSize)
 		{
 			var contentWindowDetails = documentContainer.ContentWindow;
 
@@ -281,7 +281,7 @@ namespace Greenshot.CaptureCore
 				graphicsTarget.Clear(clearColor);
 
 				// Get the base document & draw it
-				await DrawDocument(documentContainer, contentWindowDetails, graphicsTarget);
+				await DrawDocumentAsync(documentContainer, contentWindowDetails, graphicsTarget);
 
 				// Loop over the frames and clear their source area so we don't see any artefacts
 				foreach (var frameDocument in documentContainer.Frames)
@@ -294,7 +294,7 @@ namespace Greenshot.CaptureCore
 				// Loop over the frames and capture their content
 				foreach (var frameDocument in documentContainer.Frames)
 				{
-					await DrawDocument(frameDocument, contentWindowDetails, graphicsTarget);
+					await DrawDocumentAsync(frameDocument, contentWindowDetails, graphicsTarget);
 				}
 			}
 
@@ -445,7 +445,7 @@ namespace Greenshot.CaptureCore
 		/// <param name="contentWindowDetails">Needed for referencing the location of the frame</param>
 		/// <param name="graphicsTarget"></param>
 		/// <returns>Bitmap with the capture</returns>
-		private async Task DrawDocument(DocumentContainer documentContainer, WindowDetails contentWindowDetails, Graphics graphicsTarget)
+		private async Task DrawDocumentAsync(DocumentContainer documentContainer, WindowDetails contentWindowDetails, Graphics graphicsTarget)
 		{
 			documentContainer.SetAttribute("scroll", 1);
 

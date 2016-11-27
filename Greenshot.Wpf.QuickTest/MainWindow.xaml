@@ -7,6 +7,7 @@
         mc:Ignorable="d"
         Title="Capture test" Height="100" Width="300">
     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Button Content="Capture window" Click="ButtonBase_OnClick"></Button>
-    </StackPanel>
+        <Button Content="Capture window" Click="WindowButton_OnClick" Name="WindowButton"></Button>
+		<Button Content="Capture screen" Click="ScreenButton_OnClick" Name="ScreenButton"></Button>
+	</StackPanel>
 </Window>

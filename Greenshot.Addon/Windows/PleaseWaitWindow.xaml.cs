@@ -29,6 +29,7 @@ using System.Windows.Media;
 using Dapplo.Windows.Native;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
+using Greenshot.Core.Extensions;
 using Greenshot.Legacy;
 
 #endregion

@@ -36,6 +36,7 @@ using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.CaptureCore.Extensions;
 using Greenshot.Core;
 using Greenshot.Core.Configuration;
+using Greenshot.Core.Extensions;
 using Greenshot.Core.Interfaces;
 
 #endregion

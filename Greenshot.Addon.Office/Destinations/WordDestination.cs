@@ -37,6 +37,7 @@ using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Office.OfficeExport;
 using Greenshot.CaptureCore.Extensions;
 using Greenshot.Core;
+using Greenshot.Core.Extensions;
 using Greenshot.Core.Interfaces;
 using MahApps.Metro.IconPacks;
 

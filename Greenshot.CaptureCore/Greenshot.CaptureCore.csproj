@@ -139,20 +139,24 @@
   <ItemGroup>
     <Compile Include="Accessible.cs" />
     <Compile Include="Capture.cs" />
+    <Compile Include="CaptureCursor.cs" />
     <Compile Include="CaptureDetails.cs" />
     <Compile Include="CaptureHandler.cs" />
+    <Compile Include="CaptureScreen.cs" />
     <Compile Include="CaptureWindow.cs" />
     <Compile Include="CaptureHelper.cs" />
     <Compile Include="ClipboardHelper.cs" />
     <Compile Include="Configuration\ICaptureTranslations.cs" />
+    <Compile Include="CropCapture.cs" />
+    <Compile Include="CursorInfo.cs" />
     <Compile Include="Extensions\CaptureExtensions.cs" />
     <Compile Include="Extensions\WindowsDetailsDwmExtensions.cs" />
     <Compile Include="Extensions\WindowsDetailsGdiExtensions.cs" />
-    <Compile Include="Forms\CaptureForm.cs">
+    <Compile Include="Forms\CropForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\CaptureForm.Designer.cs">
-      <DependentUpon>CaptureForm.cs</DependentUpon>
+    <Compile Include="Forms\CropForm.Designer.cs">
+      <DependentUpon>CropForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\RoundedRectangle.cs" />
     <Compile Include="Forms\ThumbnailForm.cs">

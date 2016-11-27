@@ -1,6 +1,9 @@
 ﻿using System.Windows;
 using Dapplo.Config.Ini;
+using Dapplo.Config.Language;
 using Greenshot.CaptureCore;
+using Greenshot.CaptureCore.Forms;
+using Greenshot.Core.Configuration;
 using Greenshot.Core.Enumerations;
 
 namespace Greenshot.Wpf.QuickTest
@@ -11,18 +14,22 @@ namespace Greenshot.Wpf.QuickTest
 	public partial class MainWindow : Window
 	{
 		private readonly IniConfig _iniConfig = new IniConfig("GreenshotQuickTest", "greenshot-test");
+		private readonly LanguageLoader _languageLoader = new LanguageLoader("GreenshotQuickTest");
+
 		public MainWindow()
 		{
 
 			Loaded += async (sender, args) =>
 			{
 				await _iniConfig.RegisterAndGetAsync<ITestConfiguration>();
+				await _languageLoader.RegisterAndGetAsync<ITestTranslations>();
+
 
 			};
 			InitializeComponent();
 		}
 
-		private async void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+		private async void WindowButton_OnClick(object sender, RoutedEventArgs e)
 		{
 			var captureWindow = new CaptureWindow
 			{
@@ -31,10 +38,23 @@ namespace Greenshot.Wpf.QuickTest
 				IeCapture = true
 			};
 
+			var capture = await captureWindow.CaptureActiveAsync();
+			// TODO: Show it
+		}
 
+		private void ScreenButton_OnClick(object sender, RoutedEventArgs e)
+		{
+			var captureScreen = new CaptureScreen
+			{
+				Mode = ScreenCaptureMode.Auto,
+				CaptureCursor = true,
+			};
 
-			var capture = await captureWindow.CaptureActive();
-			MessageBox.Show(capture.CaptureDetails.Title);
+			var cropCapture = new CropCapture();
+			var capture = captureScreen.CaptureActiveScreen();
+			cropCapture.Crop(capture);
+
+			// TODO: Show it
 		}
 	}
 }

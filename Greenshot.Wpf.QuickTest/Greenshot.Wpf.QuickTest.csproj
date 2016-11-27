@@ -79,6 +79,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ITestConfiguration.cs" />
+    <Compile Include="ITestTranslations.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -120,6 +121,10 @@
     <ProjectReference Include="..\Greenshot.Core\Greenshot.Core.csproj">
       <Project>{dbcaf4bc-a008-4080-b508-28ac76280b03}</Project>
       <Name>Greenshot.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Greenshot.Legacy\Greenshot.Legacy.csproj">
+      <Project>{3f069a88-ec9a-4f71-a7cc-60df87f402e1}</Project>
+      <Name>Greenshot.Legacy</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -486,7 +486,7 @@ namespace Greenshot.CaptureCore
 			bool isOk = false;
 			await UiContext.RunOn(() =>
 			{
-				using (var captureForm = new CaptureForm(_capture, retrieveWindowsTask, CropConfiguration))
+				using (var captureForm = new CropForm(_capture, retrieveWindowsTask, CropConfiguration))
 				{
 					DialogResult result;
 					// Make sure the form is hidden after showing, even if an exception occurs, so all errors will be shown
@@ -802,7 +802,7 @@ namespace Greenshot.CaptureCore
 					await HandleCaptureAsync(token).ConfigureAwait(false);
 					break;
 				case CaptureModes.IE:
-					//if (IECaptureHelper.CaptureIE(_capture, SelectedCaptureWindow) != null)
+					//if (IECaptureHelper.CaptureIEAsync(_capture, SelectedCaptureWindow) != null)
 					//{
 					//	_capture.CaptureDetails.AddMetaData("source", "Internet Explorer");
 					//	await SetDpi().ConfigureAwait(false);

@@ -87,7 +87,7 @@ namespace Greenshot.Legacy.Controls
 		/// </summary>
 		protected bool IsTerminalServerSession
 		{
-			get { return UiConfiguration.OptimizeForRdp || SystemInformation.TerminalServerSession; }
+			get { return UiConfiguration?.OptimizeForRdp == true || SystemInformation.TerminalServerSession; }
 		}
 
 		/// <summary>

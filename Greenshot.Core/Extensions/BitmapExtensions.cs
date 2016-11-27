@@ -28,7 +28,7 @@ using Dapplo.Windows.SafeHandles;
 
 #endregion
 
-namespace Greenshot.Addon.Extensions
+namespace Greenshot.Core.Extensions
 {
 	public static class BitmapExtensions
 	{

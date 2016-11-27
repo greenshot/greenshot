@@ -113,6 +113,7 @@
     <Compile Include="Enumerations\ExifOrientations.cs" />
     <Compile Include="Enumerations\ScreenCaptureMode.cs" />
     <Compile Include="Enumerations\WindowCaptureMode.cs" />
+    <Compile Include="Extensions\BitmapExtensions.cs" />
     <Compile Include="Extensions\ControlExtensions.cs" />
     <Compile Include="Extensions\LanguageLoaderExtensions.cs" />
     <Compile Include="Extensions\OperatingSystemExtensions.cs" />

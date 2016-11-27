@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 namespace Greenshot.CaptureCore.Forms {
-	partial class CaptureForm {
+	partial class CropForm {
 		/// <summary>
 		/// Designer variable used to keep track of non-visual components.
 		/// </summary>

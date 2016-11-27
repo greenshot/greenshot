@@ -33,6 +33,7 @@ using Dapplo.Log;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
+using Greenshot.Core.Extensions;
 using Greenshot.Helpers;
 using Greenshot.Legacy;
 

@@ -165,7 +165,6 @@
     <Compile Include="Core\AsyncCommand.cs" />
     <Compile Include="Core\GreenshotStartupOrder.cs" />
     <Compile Include="Core\HelpFileLoader.cs" />
-    <Compile Include="Extensions\BitmapExtensions.cs" />
     <Compile Include="Core\PortableHelper.cs" />
     <Compile Include="Extensions\ProcessExtensions.cs" />
     <Compile Include="Extensions\SizeExtentions.cs" />

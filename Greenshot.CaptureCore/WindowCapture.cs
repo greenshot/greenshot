@@ -67,7 +67,7 @@ namespace Greenshot.CaptureCore
 			{
 				if ((cursorInfo.flags & CursorInfoFlags.CURSOR_SHOWING) == CursorInfoFlags.CURSOR_SHOWING)
 				{
-					using (Cursor cursor = new Cursor(cursorInfo.hCursor))
+					using (var cursor = new Cursor(cursorInfo.hCursor))
 					{
 						capture.Cursor = cursor;
 						var cursorLocation = User32.GetCursorLocation();
