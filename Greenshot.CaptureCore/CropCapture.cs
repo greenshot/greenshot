@@ -5,6 +5,7 @@ using Greenshot.Core;
 using Greenshot.Core.Configuration;
 using Greenshot.Core.Interfaces;
 using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace Greenshot.CaptureCore
 {
@@ -16,7 +17,11 @@ namespace Greenshot.CaptureCore
 
 			using (var cropFrom = new CropForm(capture, getWindowsTask, cropConfiguration))
 			{
-				cropFrom.ShowDialog();
+				// Show the screen, and if the result is "OK" crop the capture by applying it.
+				if (cropFrom.ShowDialog() == DialogResult.OK)
+				{
+					capture.ApplyCrop(cropFrom.CaptureRectangle);
+				}
 			}
 		}
 	}

@@ -211,10 +211,7 @@ namespace Greenshot.CaptureCore.Forms
 		{
 			if (disposing)
 			{
-				if (components != null)
-				{
-					components.Dispose();
-				}
+				components?.Dispose();
 				_areaOverlayBrush?.Dispose();
 				_areaOverlayPen?.Dispose();
 				_backgroundBrush?.Dispose();
