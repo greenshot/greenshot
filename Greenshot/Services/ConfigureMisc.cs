@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using Dapplo.Addons;
 using Dapplo.HttpExtensions;
 using Dapplo.Log;
+using Dapplo.Log.LogFile;
 using Greenshot.Addon.Core;
 using Greenshot.Configuration;
 using Greenshot.Core.Configuration;

@@ -32,7 +32,10 @@ using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.CaptureCore;
 using Greenshot.CaptureCore.Extensions;
 using Greenshot.Core;
+using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
+using Greenshot.Legacy.Extensions;
+using Greenshot.Legacy.Utils;
 using MahApps.Metro.IconPacks;
 
 #endregion
@@ -52,7 +55,7 @@ namespace Greenshot.Addon.WindowsOcr
 			{
 				NotificationType = NotificationTypes.Success,
 				Source = OcrDesignation,
-				SourceType = SourceTypes.Destination,
+				NotificationSourceType = NotificationSourceTypes.Destination,
 				Text = OcrDesignation
 			};
 

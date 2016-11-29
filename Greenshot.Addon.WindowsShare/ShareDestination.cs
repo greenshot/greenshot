@@ -35,8 +35,10 @@ using Greenshot.Addon.WindowsShare.Native;
 using Greenshot.CaptureCore.Extensions;
 using Greenshot.Core;
 using Greenshot.Core.Gfx;
+using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
 using MahApps.Metro.IconPacks;
+using Greenshot.Legacy.Extensions;
 
 #endregion
 
@@ -55,7 +57,7 @@ namespace Greenshot.Addon.WindowsShare
 			{
 				NotificationType = NotificationTypes.Success,
 				Source = ShareDesignation,
-				SourceType = SourceTypes.Destination,
+				NotificationSourceType = NotificationSourceTypes.Destination,
 				Text = ShareDesignation
 			};
 

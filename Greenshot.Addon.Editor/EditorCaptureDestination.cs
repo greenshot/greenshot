@@ -40,7 +40,7 @@ using Greenshot.Legacy.Extensions;
 namespace Greenshot.Addon.Editor
 {
 	/// <summary>
-	///     Description of EditorDestination.
+	///     The EditorCaptureDestination will export the capture to the editor
 	/// </summary>
 	[Destination(BuildInDestinations.Editor, 1)]
 	public sealed class EditorCaptureDestination : ICaptureDestination
