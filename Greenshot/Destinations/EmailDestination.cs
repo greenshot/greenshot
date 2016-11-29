@@ -29,6 +29,7 @@ using Greenshot.Addon;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
+using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
 using Greenshot.Helpers;
 using MahApps.Metro.IconPacks;
@@ -55,7 +56,7 @@ namespace Greenshot.Destinations
 			{
 				NotificationType = NotificationTypes.Success,
 				Source = EmailDesignation,
-				SourceType = SourceTypes.Destination,
+				NotificationSourceType = NotificationSourceTypes.Destination,
 				Text = Text
 			};
 

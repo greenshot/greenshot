@@ -17,16 +17,22 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace Greenshot.Core.Interfaces
 {
 	/// <summary>
-	///     Type of notifications
+	/// This interface describes a source for taking captures
 	/// </summary>
-	public enum NotificationTypes
+	public interface ICaptureSource : ICaptureModule
 	{
-		Undefined,
-		Cancel,
-		Success,
-		Fail
+		/// <summary>
+		/// Have the source take a capture
+		/// </summary>
+		/// <param name="captureFlow">ICaptureFlow which is the context</param>
+		/// <param name="cancellationToken"></param>
+		/// <returns>ICapture</returns>
+		Task TakeCaptureAsync(ICaptureFlow captureFlow, CancellationToken cancellationToken = default(CancellationToken));
 	}
 }

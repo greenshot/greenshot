@@ -35,6 +35,7 @@ using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Windows;
 using Greenshot.CaptureCore;
 using Greenshot.Core;
+using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
 using MahApps.Metro.IconPacks;
 
@@ -61,7 +62,7 @@ namespace Greenshot.Addon.Imgur
 			{
 				NotificationType = NotificationTypes.Success,
 				Source = ImgurDesignation,
-				SourceType = SourceTypes.Destination,
+				NotificationSourceType = NotificationSourceTypes.Destination,
 				Text = string.Format(ImgurLanguage.UploadSuccess, ImgurDesignation)
 			};
 			var outputSettings = new SurfaceOutputSettings(ImgurConfiguration.UploadFormat, ImgurConfiguration.UploadJpegQuality, ImgurConfiguration.UploadReduceColors);

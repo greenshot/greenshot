@@ -17,57 +17,58 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#region Usings
-
 using System;
-
-#endregion
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Greenshot.Core.Interfaces
 {
 	/// <summary>
-	///     The interface for the notification object
+	/// This interface describes the flow a capture takes: from source, via processor, to destination
+	/// The flow itself takes care of calling the CaptureSource, CaptureProcessor and CaptureDestination inside the ExecuteAsync
 	/// </summary>
-	public interface INotification
+	public interface ICaptureFlow : ICaptureModule
 	{
 		/// <summary>
-		///     Details for an error
+		/// The current state
 		/// </summary>
-		string ErrorText { get; set; }
+		CaptureFlowStates State { get; }
 
 		/// <summary>
-		///     When something is exported, this is where it went
+		/// Execute the capture flow.
 		/// </summary>
-		Uri ImageLocation { get; set; }
+		/// <param name="cancellationToken">CancellationToken</param>
+		/// <returns>Task</returns>
+		Task ExecuteAsync(CancellationToken cancellationToken = default(CancellationToken));
 
 		/// <summary>
-		///     Notification type
+		/// Progress of the flow
 		/// </summary>
-		NotificationTypes NotificationType { get; set; }
+		IProgress<int> Progress { get; set; }
 
 		/// <summary>
-		///     What is the source of the notification
+		/// This is the notification center which should be used by the destinations
 		/// </summary>
-		string Source { get; set; }
+		INotificationCenter NotificationCenter { get; }
 
 		/// <summary>
-		///     What is the source type of the notification
+		/// Defines the CaptureSource, which takes the capture
 		/// </summary>
-		NotificationSourceTypes NotificationSourceType { get; set; }
+		ICaptureSource CaptureSource { get; set; }
 
 		/// <summary>
-		///     A translated description of what kind of notification
+		/// Defines the CaptureProcessor, which optionally processes the capture
 		/// </summary>
-		string Text { get; set; }
+		ICaptureProcessor CaptureProcessor { get; set; }
 
 		/// <summary>
-		///     The location of a thumbnail, if any
+		/// Defines the CaptureDestination, which exports the capture
 		/// </summary>
-		Uri ThumbnailLocation { get; set; }
+		ICaptureDestination CaptureDestination { get; set; }
 
 		/// <summary>
-		///     When was the notification
+		/// Contains the capture of this flow
 		/// </summary>
-		DateTimeOffset Timestamp { get; set; }
+		ICapture Capture { get; set; }
 	}
 }

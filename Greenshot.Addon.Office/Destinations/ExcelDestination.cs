@@ -36,6 +36,7 @@ using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Office.OfficeExport;
 using Greenshot.CaptureCore.Extensions;
 using Greenshot.Core;
+using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
 using MahApps.Metro.IconPacks;
 
@@ -80,7 +81,7 @@ namespace Greenshot.Addon.Office.Destinations
 			{
 				NotificationType = NotificationTypes.Success,
 				Source = ExcelDesignation,
-				SourceType = SourceTypes.Destination,
+				NotificationSourceType = NotificationSourceTypes.Destination,
 				Text = $"Exported to {ExcelDesignation}"
 			};
 			bool createdFile = false;

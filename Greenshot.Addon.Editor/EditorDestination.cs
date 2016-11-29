@@ -37,6 +37,7 @@ using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Ui;
 using Greenshot.Core.Configuration;
+using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
 
 #endregion
@@ -64,7 +65,7 @@ namespace Greenshot.Addon.Editor
 			{
 				NotificationType = NotificationTypes.Success,
 				Source = EditorDesignation,
-				SourceType = SourceTypes.Destination,
+				NotificationSourceType = NotificationSourceTypes.CaptureDestination,
 				Text = Text
 			};
 

@@ -33,6 +33,7 @@ using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Windows;
 using Greenshot.CaptureCore;
+using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
 using MahApps.Metro.IconPacks;
 
@@ -59,7 +60,7 @@ namespace Greenshot.Addon.Box
 			{
 				NotificationType = NotificationTypes.Success,
 				Source = BoxDesignation,
-				SourceType = SourceTypes.Destination,
+				NotificationSourceType = NotificationSourceTypes.Destination,
 				Text = string.Format(BoxLanguage.UploadSuccess, BoxDesignation)
 			};
 			try

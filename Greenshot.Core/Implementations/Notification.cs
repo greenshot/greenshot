@@ -17,16 +17,34 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace Greenshot.Core.Interfaces
+#region Usings
+
+using System;
+using Greenshot.Core.Interfaces;
+
+#endregion
+
+namespace Greenshot.Core.Implementations
 {
 	/// <summary>
-	///     Type of notifications
+	///     Implementation of the INotification interface
 	/// </summary>
-	public enum NotificationTypes
+	public class Notification : INotification
 	{
-		Undefined,
-		Cancel,
-		Success,
-		Fail
+		public string ErrorText { get; set; }
+
+		public Uri ImageLocation { get; set; }
+
+		public NotificationTypes NotificationType { get; set; } = NotificationTypes.Undefined;
+
+		public string Source { get; set; }
+
+		public NotificationSourceTypes NotificationSourceType { get; set; } = NotificationSourceTypes.Undefined;
+
+		public string Text { get; set; }
+
+		public Uri ThumbnailLocation { get; set; }
+
+		public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.Now;
 	}
 }

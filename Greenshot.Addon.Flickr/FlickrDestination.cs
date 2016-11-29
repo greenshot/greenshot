@@ -39,6 +39,7 @@ using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Windows;
 using Greenshot.CaptureCore;
 using Greenshot.Core;
+using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
 using MahApps.Metro.IconPacks;
 
@@ -66,7 +67,7 @@ namespace Greenshot.Addon.Flickr
 			{
 				NotificationType = NotificationTypes.Success,
 				Source = FlickrDesignation,
-				SourceType = SourceTypes.Destination,
+				NotificationSourceType = NotificationSourceTypes.Destination,
 				Text = string.Format(FlickrLanguage.UploadSuccess, FlickrDesignation)
 			};
 			var outputSettings = new SurfaceOutputSettings(FlickrConfiguration.UploadFormat, FlickrConfiguration.UploadJpegQuality, false);

@@ -142,12 +142,12 @@
     <Compile Include="CaptureCursor.cs" />
     <Compile Include="CaptureDetails.cs" />
     <Compile Include="CaptureHandler.cs" />
-    <Compile Include="CaptureScreen.cs" />
-    <Compile Include="CaptureWindow.cs" />
+    <Compile Include="ScreenCaptureSource.cs" />
+    <Compile Include="WindowCaptureSource.cs" />
     <Compile Include="CaptureHelper.cs" />
     <Compile Include="ClipboardHelper.cs" />
     <Compile Include="Configuration\ICaptureTranslations.cs" />
-    <Compile Include="CropCapture.cs" />
+    <Compile Include="CropScreenCaptureProcessor.cs" />
     <Compile Include="CursorInfo.cs" />
     <Compile Include="Extensions\CaptureExtensions.cs" />
     <Compile Include="Extensions\WindowsDetailsDwmExtensions.cs" />
@@ -162,7 +162,7 @@
     <Compile Include="Forms\ThumbnailForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="CaptureInternetExplorer.cs" />
+    <Compile Include="InternetExplorerCaptureSource.cs" />
     <Compile Include="IEHelper.cs" />
     <Compile Include="IEInterop\IEContainer.cs" />
     <Compile Include="Interop\IDispatch.cs" />

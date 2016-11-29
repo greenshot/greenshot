@@ -17,12 +17,22 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Greenshot.Core.Interfaces;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Greenshot.Addon.Interfaces
+namespace Greenshot.Core.Interfaces
 {
-	public interface INotificationCenter
+	/// <summary>
+	/// The IProcessor interface specifies functionality which can "process" a capture
+	/// </summary>
+	public interface ICaptureProcessor : ICaptureModule
 	{
-		void Notify(object sender, INotification notification);
+		/// <summary>
+		/// Take a capture and process it
+		/// </summary>
+		/// <param name="captureFlow">ICaptureFlow</param>
+		/// <param name="cancellationToken">CancellationToken</param>
+		/// <returns>Task </returns>
+		Task ProcessCaptureAsync(ICaptureFlow captureFlow, CancellationToken cancellationToken = default(CancellationToken));
 	}
 }

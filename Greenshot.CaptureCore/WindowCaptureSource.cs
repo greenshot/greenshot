@@ -22,6 +22,7 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Config.Ini;
 using Dapplo.Log;
@@ -38,9 +39,9 @@ using Greenshot.Core.Interfaces;
 namespace Greenshot.CaptureCore
 {
 	/// <summary>
-	///     All logic specific to capture windows
+	///     ICaptureSource implementation for capturing windows
 	/// </summary>
-	public class CaptureWindow
+	public class WindowCaptureSource : ICaptureSource
 	{
 		private static readonly LogSource Log = new LogSource();
 		private readonly CaptureCursor _captureCursor = new CaptureCursor();
@@ -64,7 +65,7 @@ namespace Greenshot.CaptureCore
 		/// Capture the current active window
 		/// </summary>
 		/// <returns></returns>
-		public async Task<ICapture> CaptureActiveAsync()
+		public async Task<ICapture> CaptureActiveAsync(CancellationToken cancellationToken = default(CancellationToken))
 		{
 			Log.Debug().WriteLine("Starting to capture the active window.");
 
@@ -87,7 +88,7 @@ namespace Greenshot.CaptureCore
 				// Restore the window making sure it's visible, and responding (TOAD / Excel)
 				windowToCapture.Restore();
 				// Await the animation of maximizing the wiEndow
-				await Task.Delay(300).ConfigureAwait(false);
+				await Task.Delay(300, cancellationToken).ConfigureAwait(false);
 			}
 
 			// Some applications like Excel and TOAD have weird behaviour, and the window selected is not the one that is visible!
@@ -100,7 +101,7 @@ namespace Greenshot.CaptureCore
 				return null;
 			}
 
-			return await CaptureAsync(windowToCapture).ConfigureAwait(false);
+			return await CaptureAsync(windowToCapture, cancellationToken).ConfigureAwait(false);
 		}
 
 		/// <summary>
@@ -170,12 +171,14 @@ namespace Greenshot.CaptureCore
 
 			return windowCaptureMode;
 		}
+
 		/// <summary>
 		///     Capture the supplied Window
 		/// </summary>
 		/// <param name="windowToCapture">Window to capture</param>
+		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>ICapture</returns>
-		public async Task<ICapture> CaptureAsync(WindowDetails windowToCapture)
+		public async Task<ICapture> CaptureAsync(WindowDetails windowToCapture, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			if (windowToCapture == null)
 			{
@@ -204,7 +207,7 @@ namespace Greenshot.CaptureCore
 				{
 					if (IeCapture)
 					{
-						var captureIe = new CaptureInternetExplorer()
+						var captureIe = new InternetExplorerCaptureSource()
 						{
 							IeCaptureConfiguration = IniConfig.Current.GetSubSection<IIECaptureConfiguration>()
 						};
@@ -212,7 +215,8 @@ namespace Greenshot.CaptureCore
 						{
 							try
 							{
-								var ieCapture = await captureIe.CaptureIEAsync(windowToCapture).ConfigureAwait(false);
+								captureIe.IeWindowDetails = windowToCapture;
+								var ieCapture = await captureIe.CaptureIeAsync(cancellationToken).ConfigureAwait(false);
 								if (ieCapture != null)
 								{
 									return ieCapture;
@@ -398,6 +402,15 @@ namespace Greenshot.CaptureCore
 				return true;
 			}
 			return false;
+		}
+
+		/// <inheritdoc />
+		public string Name { get; } = nameof(WindowCaptureSource);
+
+		public async Task TakeCaptureAsync(ICaptureFlow captureFlow, CancellationToken cancellationToken = new CancellationToken())
+		{
+			captureFlow.Capture = await CaptureActiveAsync(cancellationToken);
+
 		}
 	}
 }

@@ -49,23 +49,31 @@ using mshtml;
 namespace Greenshot.CaptureCore
 {
 	/// <summary>
-	///     The code for this helper comes from: http://www.codeproject.com/KB/graphics/IECapture.aspx
+	///     The initial code for this comes from: http://www.codeproject.com/KB/graphics/IECapture.aspx
 	///     The code is modified with some of the suggestions in different comments and there still were leaks which I fixed.
 	///     On top I modified it to use the already available code in Greenshot.
-	///     Many thanks to all the people who contributed here!
+	///     Many thanks to all the people who contributed there!
 	/// </summary>
-	public class CaptureInternetExplorer
+	public class InternetExplorerCaptureSource : ICaptureSource
 	{
 		private static readonly LogSource Log = new LogSource();
 
+		/// <summary>
+		/// Configuration to use
+		/// </summary>
 		public IIECaptureConfiguration IeCaptureConfiguration
 		{
 			get;
 			set;
 		}
 
+		/// <summary>
+		/// Specify the IeWindowDetails
+		/// </summary>
+		public WindowDetails IeWindowDetails { get; set; }
+
 		// Helper method to activate a certain IE Tab
-		public static void ActivateIETab(WindowDetails ieWindowDetails, int tabIndex)
+		private static void ActivateIeTab(WindowDetails ieWindowDetails, int tabIndex)
 		{
 			var directUiWindowDetails = IEHelper.GetDirectUI(ieWindowDetails);
 			if (directUiWindowDetails != null)
@@ -82,14 +90,14 @@ namespace Greenshot.CaptureCore
 		/// <summary>
 		///     Here the logic for capturing the IE Content is located
 		/// </summary>
-		/// <param name="windowToCapture">window to use</param>
+		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>ICapture with the content (if any)</returns>
-		public async Task<ICapture> CaptureIEAsync(WindowDetails windowToCapture)
+		public async Task<ICapture> CaptureIeAsync(CancellationToken cancellationToken = default(CancellationToken))
 		{
 			ICapture capture = new Capture();
-			if (windowToCapture == null)
+			if (IeWindowDetails == null)
 			{
-				windowToCapture = WindowDetails.GetActiveWindow();
+				IeWindowDetails = WindowDetails.GetActiveWindow();
 			}
 
 			bool isScreenCapture = IeCaptureConfiguration.IECaptureMode == WindowCaptureMode.Screen;
@@ -99,7 +107,7 @@ namespace Greenshot.CaptureCore
 			// Check if we capture from the screen, if this is the case we need to make sure the window is visible.
 			if (isScreenCapture)
 			{
-				topWindow = windowToCapture;
+				topWindow = IeWindowDetails;
 				while (topWindow.HasParent)
 				{
 					topWindow = topWindow.GetParent();
@@ -125,7 +133,7 @@ namespace Greenshot.CaptureCore
 			try
 			{
 				//Get IHTMLDocument2 for the current active window
-				documentContainer = CreateDocumentContainer(windowToCapture);
+				documentContainer = CreateDocumentContainer(IeWindowDetails);
 
 				// Nothing found
 				if (documentContainer == null)
@@ -149,7 +157,7 @@ namespace Greenshot.CaptureCore
 				try
 				{
 					Size pageSize = PrepareCapture(documentContainer, capture);
-					returnBitmap = await CapturePageAsync(documentContainer, pageSize);
+					returnBitmap = await CapturePageAsync(documentContainer, pageSize, cancellationToken);
 				}
 				catch (Exception captureException)
 				{
@@ -197,7 +205,7 @@ namespace Greenshot.CaptureCore
 					// The URL is available unter "document2.url" and can be used to enhance the meta-data etc.
 					capture.CaptureDetails.AddMetaData("url", documentContainer.Url);
 					// Store the title of the page
-					capture.CaptureDetails.Title = documentContainer.Name ?? windowToCapture.Text;
+					capture.CaptureDetails.Title = documentContainer.Name ?? IeWindowDetails.Text;
 				}
 				catch (Exception ex)
 				{
@@ -266,8 +274,9 @@ namespace Greenshot.CaptureCore
 		/// </summary>
 		/// <param name="documentContainer">The document wrapped in a container</param>
 		/// <param name="pageSize"></param>
+		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Bitmap with the page content as an image</returns>
-		private async Task<Bitmap> CapturePageAsync(DocumentContainer documentContainer, Size pageSize)
+		private async Task<Bitmap> CapturePageAsync(DocumentContainer documentContainer, Size pageSize, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			var contentWindowDetails = documentContainer.ContentWindow;
 
@@ -281,7 +290,7 @@ namespace Greenshot.CaptureCore
 				graphicsTarget.Clear(clearColor);
 
 				// Get the base document & draw it
-				await DrawDocumentAsync(documentContainer, contentWindowDetails, graphicsTarget);
+				await DrawDocumentAsync(documentContainer, contentWindowDetails, graphicsTarget, cancellationToken);
 
 				// Loop over the frames and clear their source area so we don't see any artefacts
 				foreach (var frameDocument in documentContainer.Frames)
@@ -294,7 +303,7 @@ namespace Greenshot.CaptureCore
 				// Loop over the frames and capture their content
 				foreach (var frameDocument in documentContainer.Frames)
 				{
-					await DrawDocumentAsync(frameDocument, contentWindowDetails, graphicsTarget);
+					await DrawDocumentAsync(frameDocument, contentWindowDetails, graphicsTarget, cancellationToken);
 				}
 			}
 
@@ -444,8 +453,9 @@ namespace Greenshot.CaptureCore
 		/// <param name="documentContainer"></param>
 		/// <param name="contentWindowDetails">Needed for referencing the location of the frame</param>
 		/// <param name="graphicsTarget"></param>
+		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Bitmap with the capture</returns>
-		private async Task DrawDocumentAsync(DocumentContainer documentContainer, WindowDetails contentWindowDetails, Graphics graphicsTarget)
+		private async Task DrawDocumentAsync(DocumentContainer documentContainer, WindowDetails contentWindowDetails, Graphics graphicsTarget, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			documentContainer.SetAttribute("scroll", 1);
 
@@ -501,7 +511,7 @@ namespace Greenshot.CaptureCore
 					Image fragment;
 					if (IeCaptureConfiguration.IECaptureMode == WindowCaptureMode.Screen)
 					{
-						await Task.Delay(30);
+						await Task.Delay(30, cancellationToken);
 						fragment = contentWindowDetails.CaptureFromScreen();
 					}
 					else
@@ -848,6 +858,13 @@ namespace Greenshot.CaptureCore
 				pageHeight = Math.Min(pageHeight, short.MaxValue);
 			}
 			return new Size(pageWidth, pageHeight);
+		}
+
+		public string Name { get; } = nameof(InternetExplorerCaptureSource);
+
+		public async Task TakeCaptureAsync(ICaptureFlow captureFlow, CancellationToken cancellationToken = new CancellationToken())
+		{
+			await CaptureIeAsync(cancellationToken: cancellationToken);
 		}
 	}
 }

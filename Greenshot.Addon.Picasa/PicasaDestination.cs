@@ -28,6 +28,7 @@ using Dapplo.Log;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Windows;
+using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
 using MahApps.Metro.IconPacks;
 
@@ -53,7 +54,7 @@ namespace Greenshot.Addon.Picasa
 			{
 				NotificationType = NotificationTypes.Success,
 				Source = PicasaDesignation,
-				SourceType = SourceTypes.Destination,
+				NotificationSourceType = NotificationSourceTypes.Destination,
 				Text = string.Format(PicasaLanguage.UploadSuccess, PicasaDesignation)
 			};
 			try

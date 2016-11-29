@@ -17,16 +17,22 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace Greenshot.Core.Interfaces
 {
 	/// <summary>
-	///     Type of notifications
+	/// This interface defines the capture destination, which takes care of exporting a capture.
 	/// </summary>
-	public enum NotificationTypes
+	public interface ICaptureDestination : ICaptureModule
 	{
-		Undefined,
-		Cancel,
-		Success,
-		Fail
+		/// <summary>
+		/// Export the capture, as specified in the capture flow
+		/// </summary>
+		/// <param name="captureFlow">ICaptureFlow which contains a context for the export</param>
+		/// <param name="cancellationToken">CancellationToken</param>
+		/// <returns>Task</returns>
+		Task ExportCaptureAsync(ICaptureFlow captureFlow, CancellationToken cancellationToken = default(CancellationToken));
 	}
 }

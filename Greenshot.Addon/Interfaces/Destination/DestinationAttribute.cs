@@ -37,6 +37,10 @@ namespace Greenshot.Addon.Interfaces.Destination
 			Order = order;
 		}
 
+		public DestinationAttribute(object destinationEnum, int order = int.MaxValue) : this(destinationEnum.ToString(), order)
+		{
+		}
+
 		public string Name { get; set; }
 
 		/// <summary>

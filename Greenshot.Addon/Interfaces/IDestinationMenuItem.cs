@@ -17,16 +17,18 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace Greenshot.Core.Interfaces
+#region Usings
+
+using Dapplo.CaliburnMicro.Menu;
+
+#endregion
+
+namespace Greenshot.Addon.Interfaces
 {
 	/// <summary>
-	///     Type of notifications
+	/// Defines the entries which show destinations
 	/// </summary>
-	public enum NotificationTypes
+	public interface IDestinationMenuItem : IMenuItem
 	{
-		Undefined,
-		Cancel,
-		Success,
-		Fail
 	}
 }

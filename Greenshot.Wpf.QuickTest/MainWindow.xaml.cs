@@ -6,6 +6,7 @@ using Dapplo.Log.Loggers;
 using Greenshot.CaptureCore;
 using Greenshot.Core.Enumerations;
 using Greenshot.Core.Extensions;
+using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
 
 namespace Greenshot.Wpf.QuickTest
@@ -47,40 +48,44 @@ namespace Greenshot.Wpf.QuickTest
 		}
 		private async void WindowButton_OnClick(object sender, RoutedEventArgs e)
 		{
-			var captureWindow = new CaptureWindow
+			WindowButton.IsEnabled = false;
+			var flow = new SimpleCaptureFlow
 			{
-				Mode = WindowCaptureMode.Auto,
-				CaptureCursor = false,
-				IeCapture = true
+				CaptureSource = new WindowCaptureSource
+				{
+					Mode = WindowCaptureMode.Auto,
+					CaptureCursor = false,
+					IeCapture = true
+				}
 			};
+			await flow.ExecuteAsync();
 
-			var capture = await captureWindow.CaptureActiveAsync();
-			ShowCapture(capture);
+			ShowCapture(flow.Capture);
+			WindowButton.IsEnabled = true;
 		}
 
-		private void ScreenButton_OnClick(object sender, RoutedEventArgs e)
+		private async void ScreenButton_OnClick(object sender, RoutedEventArgs e)
 		{
-			// Create the capture screen object, with settings
-			var captureScreen = new CaptureScreen
+			ScreenButton.IsEnabled = false;
+
+			var flow = new SimpleCaptureFlow
 			{
-				Mode = ScreenCaptureMode.Auto,
-				CaptureCursor = true,
+				// Get a capture of the "active" screen, that is the one with the mouse cursor.
+				// The capture contains all the information, like the bitmap/mouse cursor/location of the mouse and some meta data.
+				CaptureSource = new ScreenCaptureSource
+				{
+					Mode = ScreenCaptureMode.Auto,
+					CaptureCursor = true,
+				},
+				// Have the user crop the screen
+				CaptureProcessor = new CropScreenCaptureProcessor()
 			};
-
-			// Get a capture of the "active" screen, that is the one with the mouse cursor.
-			// The capture contains all the information, like the bitmap/mouse cursor/location of the mouse and some meta data.
-			var capture = captureScreen.CaptureActiveScreen();
-
-			// Get all windows, this is needed to allow an interactive windows capture
-			var windowsTask = captureScreen.RetrieveAllWindows();
-
-			// Create the crop-capture, which shows the capture so a region can be selected
-			var cropCapture = new CropCapture();
-			// Do the cropping (if an area is selected)
-			cropCapture.Crop(capture, windowsTask);
+			await flow.ExecuteAsync();
 
 			// Show the (cropped) capture, by getting the image and placing it into the UI
-			ShowCapture(capture);
+			ShowCapture(flow.Capture);
+			ScreenButton.IsEnabled = true;
+
 		}
 	}
 }

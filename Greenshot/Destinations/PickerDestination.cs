@@ -32,6 +32,7 @@ using Greenshot.Addon;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
+using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
 using Greenshot.Windows;
 using MahApps.Metro.IconPacks;
@@ -141,7 +142,7 @@ namespace Greenshot.Destinations
 			{
 				NotificationType = NotificationTypes.Cancel,
 				Source = PickerDesignation,
-				SourceType = SourceTypes.Destination,
+				NotificationSourceType = NotificationSourceTypes.Destination,
 				Text = "Cancelled"
 			};
 		}

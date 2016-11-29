@@ -22,7 +22,7 @@ namespace Greenshot.CaptureCore
 	/// <summary>
 	/// Logic to capture the screen
 	/// </summary>
-	public class CaptureScreen
+	public class ScreenCaptureSource : ICaptureSource
 	{
 		private static readonly LogSource Log = new LogSource();
 		private readonly CaptureCursor _captureCursor = new CaptureCursor();
@@ -275,5 +275,14 @@ namespace Greenshot.CaptureCore
 			}, token).ConfigureAwait(false);
 		}
 
+		/// <inheritdoc />
+		public string Name { get; } = nameof(ScreenCaptureSource);
+
+		/// <inheritdoc />
+		public Task TakeCaptureAsync(ICaptureFlow captureFlow, CancellationToken cancellationToken = new CancellationToken())
+		{
+			captureFlow.Capture = CaptureActiveScreen();
+			return Task.FromResult(true);
+		}
 	}
 }

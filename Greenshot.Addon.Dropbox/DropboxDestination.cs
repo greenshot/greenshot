@@ -41,6 +41,7 @@ using Greenshot.Addon.Windows;
 using Greenshot.CaptureCore;
 using Greenshot.CaptureCore.Extensions;
 using Greenshot.Core;
+using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
 using MahApps.Metro.IconPacks;
 
@@ -70,7 +71,7 @@ namespace Greenshot.Addon.Dropbox
 			{
 				NotificationType = NotificationTypes.Success,
 				Source = DropboxDesignation,
-				SourceType = SourceTypes.Destination,
+				NotificationSourceType = NotificationSourceTypes.Destination,
 				Text = string.Format(DropboxLanguage.UploadSuccess, DropboxDesignation)
 			};
 			var outputSettings = new SurfaceOutputSettings(DropboxConfiguration.UploadFormat, DropboxConfiguration.UploadJpegQuality, false);

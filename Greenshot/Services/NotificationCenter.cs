@@ -39,8 +39,10 @@ namespace Greenshot.Services
 		[Import]
 		private IEventAggregator EventAggregator { get; set; }
 
+		/// <inheritdoc />
 		public void Notify(object sender, INotification notification)
 		{
+			// For now, just public it on the UI thread, where a subscription can be active
 			EventAggregator.PublishOnUIThread(notification);
 		}
 	}

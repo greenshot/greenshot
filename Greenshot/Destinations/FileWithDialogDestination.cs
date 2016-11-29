@@ -32,6 +32,7 @@ using Greenshot.Addon.Extensions;
 using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.CaptureCore.Extensions;
+using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
 using MahApps.Metro.IconPacks;
 
@@ -60,7 +61,7 @@ namespace Greenshot.Destinations
 			{
 				NotificationType = NotificationTypes.Success,
 				Source = FileWithDialogDesignation,
-				SourceType = SourceTypes.Destination,
+				NotificationSourceType = NotificationSourceTypes.Destination,
 				Text = Text
 			};
 

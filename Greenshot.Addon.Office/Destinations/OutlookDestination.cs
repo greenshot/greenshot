@@ -38,6 +38,7 @@ using Microsoft.Office.Interop.Outlook;
 using Exception = System.Exception;
 using Greenshot.Addon.Extensions;
 using Greenshot.CaptureCore.Extensions;
+using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
 
 #endregion
@@ -81,7 +82,7 @@ namespace Greenshot.Addon.Office.Destinations
 			{
 				NotificationType = NotificationTypes.Success,
 				Source = OutlookDesignation,
-				SourceType = SourceTypes.Destination,
+				NotificationSourceType = NotificationSourceTypes.Destination,
 				Text = $"Exported to {OutlookDesignation}"
 			};
 			// Outlook logic

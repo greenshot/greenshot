@@ -43,6 +43,7 @@ using Greenshot.CaptureCore;
 using Greenshot.CaptureCore.Extensions;
 using Greenshot.Core;
 using Greenshot.Core.Extensions;
+using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
 
 #endregion
@@ -67,7 +68,7 @@ namespace Greenshot.Addon.Confluence
 			{
 				NotificationType = NotificationTypes.Success,
 				Source = ConfluenceDesignation,
-				SourceType = SourceTypes.Destination,
+				NotificationSourceType = NotificationSourceTypes.Destination,
 				Text = string.Format(ConfluenceLanguage.UploadSuccess, ConfluenceDesignation)
 			};
 

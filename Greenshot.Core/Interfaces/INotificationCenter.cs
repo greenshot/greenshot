@@ -20,13 +20,15 @@
 namespace Greenshot.Core.Interfaces
 {
 	/// <summary>
-	///     Type of notifications
+	/// This is the definition of the INotificationCenter, which can be used to notify of errors and success etc.
 	/// </summary>
-	public enum NotificationTypes
+	public interface INotificationCenter
 	{
-		Undefined,
-		Cancel,
-		Success,
-		Fail
+		/// <summary>
+		/// If something wants a notification to be send out, this will be called
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="notification"></param>
+		void Notify(object sender, INotification notification);
 	}
 }

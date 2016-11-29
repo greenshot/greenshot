@@ -174,8 +174,7 @@
     <Compile Include="Interfaces\Destination\DestinationAttribute.cs" />
     <Compile Include="Interfaces\Destination\DestinationMetadataAttribute.cs" />
     <Compile Include="Interfaces\Destination\IDestinationMetadata.cs" />
-    <Compile Include="Interfaces\INotificationCenter.cs" />
-    <Compile Include="Interfaces\Notification.cs" />
+    <Compile Include="Interfaces\IDestinationMenuItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Ui\PackIconGreenshot.cs" />
     <Compile Include="Windows\PleaseWaitWindow.xaml.cs">

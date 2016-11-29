@@ -295,6 +295,7 @@ namespace Greenshot.CaptureCore.Forms
 				case Keys.Escape:
 					// Cancel
 					DialogResult = DialogResult.Cancel;
+					Close();
 					break;
 				case Keys.M:
 					// Toggle mouse cursor
@@ -352,6 +353,7 @@ namespace Greenshot.CaptureCore.Forms
 					if (UsedCaptureMode == CaptureModes.Window)
 					{
 						DialogResult = DialogResult.OK;
+						Close();
 					}
 					else if (!_mouseDown)
 					{
@@ -401,6 +403,7 @@ namespace Greenshot.CaptureCore.Forms
 			{
 				// Go and process the capture
 				DialogResult = DialogResult.OK;
+				Close();
 			}
 			else if ((_captureRect.Height > 0) && (_captureRect.Width > 0))
 			{
@@ -412,6 +415,7 @@ namespace Greenshot.CaptureCore.Forms
 				}
 				// Go and process the capture
 				DialogResult = DialogResult.OK;
+				Close();
 			}
 			else
 			{

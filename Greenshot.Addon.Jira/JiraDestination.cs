@@ -38,6 +38,7 @@ using MahApps.Metro.IconPacks;
 using Greenshot.Addon.Extensions;
 using Greenshot.CaptureCore.Extensions;
 using Greenshot.Core;
+using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
 
 #endregion
@@ -86,7 +87,7 @@ namespace Greenshot.Addon.Jira
 			{
 				NotificationType = NotificationTypes.Success,
 				Source = JiraDesignation,
-				SourceType = SourceTypes.Destination,
+				NotificationSourceType = NotificationSourceTypes.Destination,
 				Text = string.Format(JiraLanguage.UploadSuccess, JiraDesignation)
 			};
 

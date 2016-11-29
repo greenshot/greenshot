@@ -42,6 +42,7 @@ using Greenshot.Addon.Extensions;
 using Greenshot.CaptureCore;
 using Greenshot.CaptureCore.Extensions;
 using Greenshot.Core;
+using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
 
 #endregion
@@ -69,7 +70,7 @@ namespace Greenshot.Addon.Photobucket
 			{
 				NotificationType = NotificationTypes.Success,
 				Source = PhotobucketDesignation,
-				SourceType = SourceTypes.Destination,
+				NotificationSourceType = NotificationSourceTypes.Destination,
 				Text = string.Format(PhotobucketLanguage.UploadSuccess, PhotobucketDesignation)
 			};
 

@@ -20,13 +20,18 @@
 namespace Greenshot.Core.Interfaces
 {
 	/// <summary>
-	///     Type of notifications
+	///     Something to differenciate the sources
 	/// </summary>
-	public enum NotificationTypes
+	public enum NotificationSourceTypes
 	{
 		Undefined,
-		Cancel,
-		Success,
-		Fail
+		/// <summary>
+		/// LEGACY!!
+		/// </summary>
+		Destination,
+		CaptureFlow,
+		CaptureSource,
+		CaptureProcessor,
+		CaptureDestination
 	}
 }

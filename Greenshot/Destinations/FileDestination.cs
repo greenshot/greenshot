@@ -38,6 +38,7 @@ using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.CaptureCore;
 using Greenshot.CaptureCore.Extensions;
 using Greenshot.Core;
+using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
 using Greenshot.Forms;
 using Greenshot.Legacy.Controls;
@@ -107,7 +108,7 @@ namespace Greenshot.Destinations
 			{
 				NotificationType = NotificationTypes.Success,
 				Source = FileDesignation,
-				SourceType = SourceTypes.Destination,
+				NotificationSourceType = NotificationSourceTypes.Destination,
 				Text = Text
 			};
 

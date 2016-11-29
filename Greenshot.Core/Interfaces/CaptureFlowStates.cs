@@ -17,34 +17,36 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#region Usings
-
-using System;
-using Greenshot.Core.Interfaces;
-
-#endregion
-
-namespace Greenshot.Addon.Interfaces
+namespace Greenshot.Core.Interfaces
 {
 	/// <summary>
-	///     Implementation of the INotification interface
+	/// Defines the state a captureflow has
 	/// </summary>
-	public class Notification : INotification
+	public enum CaptureFlowStates
 	{
-		public string ErrorText { get; set; }
-
-		public Uri ImageLocation { get; set; }
-
-		public NotificationTypes NotificationType { get; set; }
-
-		public string Source { get; set; }
-
-		public SourceTypes SourceType { get; set; }
-
-		public string Text { get; set; }
-
-		public Uri ThumbnailLocation { get; set; }
-
-		public DateTimeOffset Timestamp { get; set; }
+		/// <summary>
+		/// Just initialized, not executed
+		/// </summary>
+		Init,
+		/// <summary>
+		/// Taking the capture
+		/// </summary>
+		TakingCapture,
+		/// <summary>
+		/// Processing the capture
+		/// </summary>
+		ProcessingCapture,
+		/// <summary>
+		/// Exporting the capture
+		/// </summary>
+		ExportingCapture,
+		/// <summary>
+		/// Finished
+		/// </summary>
+		Success,
+		/// <summary>
+		/// Failed
+		/// </summary>
+		Failed
 	}
 }

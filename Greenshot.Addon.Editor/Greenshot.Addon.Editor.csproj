@@ -192,6 +192,7 @@
     <Compile Include="Drawing\ObfuscateContainer.cs" />
     <Compile Include="Drawing\RectangleContainer.cs" />
     <Compile Include="Drawing\SurfaceEvents.cs" />
+    <Compile Include="EditorCaptureDestination.cs" />
     <Compile Include="EditorDestination.cs" />
     <Compile Include="Extensions\SurfaceExtensions.cs" />
     <Compile Include="Forms\DropShadowSettingsForm.cs">

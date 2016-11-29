@@ -38,6 +38,7 @@ using Greenshot.Addon.Office.OfficeExport;
 using Greenshot.CaptureCore.Extensions;
 using Greenshot.Core;
 using Greenshot.Core.Extensions;
+using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
 using MahApps.Metro.IconPacks;
 
@@ -86,7 +87,7 @@ namespace Greenshot.Addon.Office.Destinations
 			{
 				NotificationType = NotificationTypes.Success,
 				Source = WordDesignation,
-				SourceType = SourceTypes.Destination,
+				NotificationSourceType = NotificationSourceTypes.Destination,
 				Text = $"Exported to {WordDesignation}"
 			};
 			string tmpFile = capture.CaptureDetails.Filename;

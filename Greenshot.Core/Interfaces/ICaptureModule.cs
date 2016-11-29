@@ -20,13 +20,10 @@
 namespace Greenshot.Core.Interfaces
 {
 	/// <summary>
-	///     Type of notifications
+	/// Make sure that every capture module, CaptureSource/CaptureProcessor/CaptureDestination has a name
 	/// </summary>
-	public enum NotificationTypes
+	public interface ICaptureModule
 	{
-		Undefined,
-		Cancel,
-		Success,
-		Fail
+		string Name { get; }
 	}
 }

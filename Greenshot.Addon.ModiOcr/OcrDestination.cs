@@ -37,6 +37,7 @@ using Greenshot.Core;
 using Greenshot.Core.Configuration;
 using Greenshot.Core.Extensions;
 using Greenshot.Core.Gfx;
+using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
 using MahApps.Metro.IconPacks;
 
@@ -163,7 +164,7 @@ namespace Greenshot.Addon.ModiOcr
 			{
 				NotificationType = NotificationTypes.Success,
 				Source = OcrDesignation,
-				SourceType = SourceTypes.Destination,
+				NotificationSourceType = NotificationSourceTypes.Destination,
 				Text = OcrDesignation
 			};
 			try

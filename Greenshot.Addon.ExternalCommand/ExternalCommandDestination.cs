@@ -28,6 +28,7 @@ using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.CaptureCore.Extensions;
 using Greenshot.Core;
+using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
 using MahApps.Metro.IconPacks;
 
@@ -58,7 +59,7 @@ namespace Greenshot.Addon.ExternalCommand
 			{
 				NotificationType = NotificationTypes.Success,
 				Source = _settings.Name,
-				SourceType = SourceTypes.Destination,
+				NotificationSourceType = NotificationSourceTypes.Destination,
 				Text = $"Exported to {_settings.Name}"
 			};
 
