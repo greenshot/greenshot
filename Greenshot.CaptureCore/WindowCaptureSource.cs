@@ -211,7 +211,7 @@ namespace Greenshot.CaptureCore
 						{
 							IeCaptureConfiguration = IniConfig.Current.GetSubSection<IIECaptureConfiguration>()
 						};
-						if (captureIe.IsIEWindow(windowToCapture))
+						if (captureIe.IsIeWindow(windowToCapture))
 						{
 							try
 							{

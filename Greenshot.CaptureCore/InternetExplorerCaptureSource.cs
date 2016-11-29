@@ -43,6 +43,7 @@ using Greenshot.Core.Gfx;
 using Greenshot.Core.Interfaces;
 using Greenshot.Legacy.Controls;
 using mshtml;
+using Microsoft.Win32;
 
 #endregion
 
@@ -57,6 +58,8 @@ namespace Greenshot.CaptureCore
 	public class InternetExplorerCaptureSource : ICaptureSource
 	{
 		private static readonly LogSource Log = new LogSource();
+		// Internet explorer Registry key
+		private const string IeKey = @"Software\Microsoft\Internet Explorer";
 
 		/// <summary>
 		/// Configuration to use
@@ -75,7 +78,7 @@ namespace Greenshot.CaptureCore
 		// Helper method to activate a certain IE Tab
 		private static void ActivateIeTab(WindowDetails ieWindowDetails, int tabIndex)
 		{
-			var directUiWindowDetails = IEHelper.GetDirectUI(ieWindowDetails);
+			var directUiWindowDetails = GetDirectUi(ieWindowDetails);
 			if (directUiWindowDetails != null)
 			{
 				// Bring window to the front
@@ -122,7 +125,7 @@ namespace Greenshot.CaptureCore
 				}
 			}
 
-			// TODO: Use PleaseWaitWindow
+			// TODO: Use PleaseWaitWindow??
 			// do not show the please wait when we capture from the screen
 			if (!isScreenCapture)
 			{
@@ -311,6 +314,51 @@ namespace Greenshot.CaptureCore
 		}
 
 		/// <summary>
+		///     Find the DirectUI window for MSAA (Accessible)
+		/// </summary>
+		/// <param name="browserWindowDetails">The browser WindowDetails</param>
+		/// <returns>WindowDetails for the DirectUI window</returns>
+		private static WindowDetails GetDirectUi(WindowDetails browserWindowDetails)
+		{
+			if (browserWindowDetails == null)
+			{
+				return null;
+			}
+			WindowDetails windowDetails = browserWindowDetails;
+			// Since IE 9 the TabBandClass is less deep!
+			if (IeVersion < 9)
+			{
+				windowDetails = windowDetails.GetChild("CommandBarClass");
+				windowDetails = windowDetails?.GetChild("ReBarWindow32");
+			}
+			windowDetails = windowDetails?.GetChild("TabBandClass");
+			windowDetails = windowDetails?.GetChild("DirectUIHWND");
+			return windowDetails;
+		}
+
+		/// <summary>
+		///     Helper method to get the IE version
+		/// </summary>
+		/// <returns>Version</returns>
+		private static int IeVersion
+		{
+			get
+			{
+				int version = 7;
+				// Seeing if IE 9 is used, here we need another offset!
+				using (var ieKey = Registry.LocalMachine.OpenSubKey(IeKey, false))
+				{
+					object versionKey = ieKey?.GetValue("Version");
+					if (versionKey != null)
+					{
+						int.TryParse(versionKey.ToString().Substring(0, 1), out version);
+					}
+				}
+				return version;
+			}
+		}
+
+		/// <summary>
 		///     Helper method which will retrieve the IHTMLDocument2 for the supplied window,
 		///     or return the first if none is supplied.
 		/// </summary>
@@ -326,15 +374,15 @@ namespace Greenshot.CaptureCore
 			IHTMLDocument2 alternativeReturnDocument2 = null;
 
 			// Find the IE windows
-			foreach (var ieWindow in GetIEWindows())
+			foreach (var ieWindow in GetIeWindows())
 			{
 				Log.Debug().WriteLine("Processing {0} - {1}", ieWindow.ClassName, ieWindow.Text);
 
 				Accessible ieAccessible = null;
-				var directUIWD = IEHelper.GetDirectUI(ieWindow);
-				if (directUIWD != null)
+				var directUiWd = GetDirectUi(ieWindow);
+				if (directUiWd != null)
 				{
-					ieAccessible = new Accessible(directUIWD.Handle);
+					ieAccessible = new Accessible(directUiWd.Handle);
 				}
 				if (ieAccessible == null)
 				{
@@ -577,7 +625,7 @@ namespace Greenshot.CaptureCore
 			var browserWindows = new Dictionary<WindowDetails, List<string>>();
 
 			// Find the IE windows
-			foreach (var ieWindow in GetIEWindows())
+			foreach (var ieWindow in GetIeWindows())
 			{
 				try
 				{
@@ -585,10 +633,10 @@ namespace Greenshot.CaptureCore
 					{
 						if ("IEFrame".Equals(ieWindow.ClassName))
 						{
-							var directUIWD = IEHelper.GetDirectUI(ieWindow);
-							if (directUIWD != null)
+							var directUiWd = GetDirectUi(ieWindow);
+							if (directUiWd != null)
 							{
-								var accessible = new Accessible(directUIWD.Handle);
+								var accessible = new Accessible(directUiWd.Handle);
 								browserWindows.Add(ieWindow, accessible.IETabCaptions);
 							}
 						}
@@ -657,7 +705,7 @@ namespace Greenshot.CaptureCore
 				return null;
 			}
 
-			IHTMLDocument2 document2 = null;
+			IHTMLDocument2 document2;
 			uint windowMessage = User32.RegisterWindowMessage("WM_HTML_GETOBJECT");
 			if (windowMessage == 0)
 			{
@@ -689,21 +737,21 @@ namespace Greenshot.CaptureCore
 		///     Get Windows displaying an IE
 		/// </summary>
 		/// <returns>IEnumerable WindowDetails</returns>
-		public IEnumerable<WindowDetails> GetIEWindows()
+		public IEnumerable<WindowDetails> GetIeWindows()
 		{
-			foreach (var possibleIEWindow in WindowDetails.GetAllWindows())
+			foreach (var possibleIeWindow in WindowDetails.GetAllWindows())
 			{
-				if (possibleIEWindow.Text.Length == 0)
+				if (possibleIeWindow.Text.Length == 0)
 				{
 					continue;
 				}
-				if (possibleIEWindow.ClientRectangle.IsEmpty)
+				if (possibleIeWindow.ClientRectangle.IsEmpty)
 				{
 					continue;
 				}
-				if (IsIEWindow(possibleIEWindow))
+				if (IsIeWindow(possibleIeWindow))
 				{
-					yield return possibleIEWindow;
+					yield return possibleIeWindow;
 				}
 			}
 		}
@@ -712,9 +760,9 @@ namespace Greenshot.CaptureCore
 		///     Simple check if IE is running
 		/// </summary>
 		/// <returns>bool</returns>
-		public bool IsIERunning()
+		public bool IsIeRunning()
 		{
-			return GetIEWindows().Any();
+			return GetIeWindows().Any();
 		}
 
 		/// <summary>
@@ -722,7 +770,7 @@ namespace Greenshot.CaptureCore
 		/// </summary>
 		/// <param name="someWindow"></param>
 		/// <returns></returns>
-		public bool IsIEWindow(WindowDetails someWindow)
+		public bool IsIeWindow(WindowDetails someWindow)
 		{
 			if ("IEFrame".Equals(someWindow.ClassName))
 			{
@@ -741,7 +789,7 @@ namespace Greenshot.CaptureCore
 		/// <param name="someWindow">WindowDetails to check</param>
 		/// <param name="minimumPercentage">min percentage</param>
 		/// <returns></returns>
-		public bool IsMostlyIEWindow(WindowDetails someWindow, int minimumPercentage)
+		public bool IsMostlyIeWindow(WindowDetails someWindow, int minimumPercentage)
 		{
 			var ieWindow = someWindow.GetChild("Internet Explorer_Server");
 			if (ieWindow != null)
@@ -756,6 +804,39 @@ namespace Greenshot.CaptureCore
 				}
 			}
 			return false;
+		}
+
+		/// <summary>
+		///     Return an IEnumerable with the currently opened IE urls
+		/// </summary>
+		/// <returns></returns>
+		public static IEnumerable<string> GetIeUrls()
+		{
+			var urls = new List<string>();
+			// Find the IE window
+			foreach (var ieWindow in WindowDetails.GetAllWindows("IEFrame"))
+			{
+				var directUiWd = GetDirectUi(ieWindow);
+				if (directUiWd == null)
+				{
+					continue;
+				}
+				var ieAccessible = new Accessible(directUiWd.Handle);
+				var ieUrls = ieAccessible.IETabUrls;
+				if ((ieUrls == null) || (ieUrls.Count <= 0))
+				{
+					continue;
+				}
+				foreach (string url in ieUrls)
+				{
+					if (urls.Contains(url))
+					{
+						continue;
+					}
+					urls.Add(url);
+					yield return url;
+				}
+			}
 		}
 
 		/// <summary>

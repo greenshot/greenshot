@@ -4,12 +4,11 @@
 		xmlns:gsconfig="clr-namespace:Greenshot.Addon.Configuration;assembly=Greenshot.Addon"
 		xmlns:support="clr-namespace:Greenshot.Addon.Confluence.Support"
 		xmlns:confluence="clr-namespace:Greenshot.Addon.Confluence"
-		xmlns:configuration="clr-namespace:Greenshot.Addon.Configuration;assembly=Greenshot.Core"
-		xmlns:configuration1="clr-namespace:Greenshot.Core.Configuration;assembly=Greenshot.Core"
+		xmlns:configuration="clr-namespace:Greenshot.Core.Configuration;assembly=Greenshot.Core"
 		Title="{support:Translate plugin_settings}" SizeToContent="WidthAndHeight" ResizeMode="NoResize"
-		Icon="/Greenshot.Addon.Confluence;component/Images/Confluence.ico">
+		>
 	<Window.Resources>
-		<confluence:EnumDisplayer Type="{x:Type configuration1:OutputFormat}" LanguageModule="Core" x:Key="outputFormats" />
+		<confluence:EnumDisplayer Type="{x:Type configuration:OutputFormat}" LanguageModule="Core" x:Key="outputFormats" />
 	</Window.Resources>
 
 	<StackPanel>

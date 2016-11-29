@@ -163,7 +163,6 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="InternetExplorerCaptureSource.cs" />
-    <Compile Include="IEHelper.cs" />
     <Compile Include="IEInterop\IEContainer.cs" />
     <Compile Include="Interop\IDispatch.cs" />
     <Compile Include="Interop\IOleWindow.cs" />

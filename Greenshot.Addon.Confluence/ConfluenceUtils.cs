@@ -38,7 +38,7 @@ namespace Greenshot.Addon.Confluence
 	/// <summary>
 	///     Confluence utils are to support the confluence plugin with retrieving the current confluence pages.
 	/// </summary>
-	public class ConfluenceUtils
+	public static class ConfluenceUtils
 	{
 		private static readonly LogSource Log = new LogSource();
 		private static readonly Regex PageIdRegex = new Regex(@"pageId=(\d+)", RegexOptions.Compiled);
@@ -89,7 +89,7 @@ namespace Greenshot.Addon.Confluence
 				}
 			}
 
-			foreach (string url in IEHelper.GetIEUrls())
+			foreach (string url in InternetExplorerCaptureSource.GetIeUrls())
 			{
 				urls.Add(url);
 			}
