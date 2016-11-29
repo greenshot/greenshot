@@ -35,6 +35,7 @@ using Greenshot.Addon.Interfaces;
 using Greenshot.CaptureCore.Extensions;
 using Greenshot.Core;
 using Greenshot.Core.Interfaces;
+using Greenshot.Legacy.Extensions;
 using Microsoft.Win32;
 
 #endregion

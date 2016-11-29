@@ -42,6 +42,8 @@ using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
 using Greenshot.Forms;
 using Greenshot.Legacy.Controls;
+using Greenshot.Legacy.Extensions;
+using Greenshot.Legacy.Utils;
 using MahApps.Metro.IconPacks;
 using MessageBox = System.Windows.MessageBox;
 

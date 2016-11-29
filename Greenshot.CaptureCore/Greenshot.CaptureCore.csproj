@@ -140,16 +140,15 @@
     <Compile Include="Accessible.cs" />
     <Compile Include="Capture.cs" />
     <Compile Include="CaptureCursor.cs" />
+    <Compile Include="CaptureDestinations\ClipboardCaptureDestination.cs" />
     <Compile Include="CaptureDetails.cs" />
     <Compile Include="CaptureHandler.cs" />
     <Compile Include="ScreenCaptureSource.cs" />
     <Compile Include="WindowCaptureSource.cs" />
     <Compile Include="CaptureHelper.cs" />
-    <Compile Include="ClipboardHelper.cs" />
     <Compile Include="Configuration\ICaptureTranslations.cs" />
     <Compile Include="CropScreenCaptureProcessor.cs" />
     <Compile Include="CursorInfo.cs" />
-    <Compile Include="Extensions\CaptureExtensions.cs" />
     <Compile Include="Extensions\WindowsDetailsDwmExtensions.cs" />
     <Compile Include="Extensions\WindowsDetailsGdiExtensions.cs" />
     <Compile Include="Forms\CropForm.cs">

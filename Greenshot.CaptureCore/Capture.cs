@@ -202,7 +202,7 @@ namespace Greenshot.CaptureCore
 
 		public Image GetImageForExport()
 		{
-			// TODO: Draw mousecursor
+			// TODO: Draw mousecursor??
 			return ImageHelper.Clone(Image);
 		}
 

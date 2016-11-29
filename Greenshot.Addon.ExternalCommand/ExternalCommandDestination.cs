@@ -30,6 +30,7 @@ using Greenshot.CaptureCore.Extensions;
 using Greenshot.Core;
 using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
+using Greenshot.Legacy.Extensions;
 using MahApps.Metro.IconPacks;
 
 #endregion

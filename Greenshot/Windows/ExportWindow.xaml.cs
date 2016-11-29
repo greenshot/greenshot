@@ -38,6 +38,7 @@ using Greenshot.Core;
 using Greenshot.Core.Configuration;
 using Greenshot.Core.Extensions;
 using Greenshot.Core.Interfaces;
+using Greenshot.Legacy.Extensions;
 
 #endregion
 

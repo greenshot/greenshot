@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
 using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using Dapplo.Log;
@@ -14,7 +16,7 @@ namespace Greenshot.Wpf.QuickTest
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml
 	/// </summary>
-	public partial class MainWindow : Window
+	public partial class MainWindow : Window, ICaptureDestination
 	{
 		// Make sure an Ini-Config is created
 		private readonly IniConfig _iniConfig = new IniConfig("GreenshotQuickTest", "greenshot-test");
@@ -56,11 +58,12 @@ namespace Greenshot.Wpf.QuickTest
 					Mode = WindowCaptureMode.Auto,
 					CaptureCursor = false,
 					IeCapture = true
-				}
+				},
+				// Show the (cropped) capture, by getting the image and placing it into the UI
+				CaptureDestination = this
 			};
 			await flow.ExecuteAsync();
 
-			ShowCapture(flow.Capture);
 			WindowButton.IsEnabled = true;
 		}
 
@@ -78,14 +81,19 @@ namespace Greenshot.Wpf.QuickTest
 					CaptureCursor = true,
 				},
 				// Have the user crop the screen
-				CaptureProcessor = new CropScreenCaptureProcessor()
+				CaptureProcessor = new CropScreenCaptureProcessor(),
+				// Show the (cropped) capture, by getting the image and placing it into the UI
+				CaptureDestination = this
 			};
 			await flow.ExecuteAsync();
-
-			// Show the (cropped) capture, by getting the image and placing it into the UI
-			ShowCapture(flow.Capture);
 			ScreenButton.IsEnabled = true;
 
+		}
+
+		public Task ExportCaptureAsync(ICaptureFlow captureFlow, CancellationToken cancellationToken = new CancellationToken())
+		{
+			ShowCapture(captureFlow.Capture);
+			return Task.FromResult(true);
 		}
 	}
 }

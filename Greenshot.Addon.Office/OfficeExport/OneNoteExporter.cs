@@ -32,6 +32,7 @@ using Greenshot.CaptureCore.Extensions;
 using Greenshot.Core;
 using Greenshot.Core.Configuration;
 using Greenshot.Core.Interfaces;
+using Greenshot.Legacy.Extensions;
 using Microsoft.Office.Interop.OneNote;
 
 #endregion

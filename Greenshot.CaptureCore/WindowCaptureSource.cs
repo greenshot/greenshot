@@ -322,7 +322,7 @@ namespace Greenshot.CaptureCore
 						case WindowCaptureMode.AeroTransparent:
 							if (windowToCapture.IsMetroApp || WindowCapture.IsDwmAllowed(process))
 							{
-								tmpCapture = windowToCapture.CaptureDwmWindow(resultCapture, captureMode, isAutoMode);
+								tmpCapture = await windowToCapture.CaptureDwmWindowAsync(resultCapture, captureMode, isAutoMode, cancellationToken);
 							}
 							if (tmpCapture != null)
 							{

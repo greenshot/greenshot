@@ -40,6 +40,7 @@ using Greenshot.CaptureCore.Extensions;
 using Greenshot.Core;
 using Greenshot.Core.Gfx;
 using Greenshot.Core.Interfaces;
+using Greenshot.Legacy.Extensions;
 
 #endregion
 

@@ -167,6 +167,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Destinations\ExcelCaptureDestination.cs" />
     <Compile Include="Destinations\OneNoteDestination.cs" />
     <Compile Include="Destinations\PowerpointDestination.cs" />
     <Compile Include="Destinations\OutlookDestination.cs" />

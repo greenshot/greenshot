@@ -39,6 +39,8 @@ using Greenshot.Core.Extensions;
 using Greenshot.Core.Gfx;
 using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
+using Greenshot.Legacy.Extensions;
+using Greenshot.Legacy.Utils;
 using MahApps.Metro.IconPacks;
 
 #endregion

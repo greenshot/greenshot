@@ -22,6 +22,8 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Config.Ini;
 using Dapplo.Log;
@@ -54,10 +56,11 @@ namespace Greenshot.CaptureCore.Extensions
 		/// <param name="capture">Capture to fill</param>
 		/// <param name="windowCaptureMode">Wanted WindowCaptureMode</param>
 		/// <param name="autoMode">True if auto modus is used</param>
+		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>ICapture with the capture</returns>
-		public static ICapture CaptureDwmWindow(this WindowDetails window, ICapture capture, WindowCaptureMode windowCaptureMode, bool autoMode)
+		public static async Task<ICapture> CaptureDwmWindowAsync(this WindowDetails window, ICapture capture, WindowCaptureMode windowCaptureMode, bool autoMode, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			capture.Image = window.DwmCapture(windowCaptureMode, autoMode, capture.ScreenBounds);
+			capture.Image = await window.DwmCaptureAsync(windowCaptureMode, autoMode, capture.ScreenBounds, cancellationToken);
 			// Make sure the capture location is the location of the window, not the copy
 			capture.Location = window.Location;
 
@@ -71,9 +74,10 @@ namespace Greenshot.CaptureCore.Extensions
 		/// <param name="window">WindowDetails for the window to capture</param>
 		/// <param name="windowCaptureMode">Wanted WindowCaptureMode</param>
 		/// <param name="autoMode">True if auto modus is used</param>
-		/// <param name="screenbounds"></param>
+		/// <param name="screenbounds">Rectangle for the screen bounds</param>
+		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>ICapture with the capture</returns>
-		public static Bitmap DwmCapture(this WindowDetails window, WindowCaptureMode windowCaptureMode, bool autoMode, Rectangle screenbounds)
+		public static async Task<Bitmap> DwmCaptureAsync(this WindowDetails window, WindowCaptureMode windowCaptureMode, bool autoMode, Rectangle screenbounds, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			IntPtr thumbnailHandle = IntPtr.Zero;
 			Form tempForm = null;
@@ -173,7 +177,8 @@ namespace Greenshot.CaptureCore.Extensions
 						tempForm.BackColor = Color.White;
 						// Make sure everything is visible
 						tempForm.Refresh();
-						Application.DoEvents();
+						// Make sure the UI can draw changes
+						await Task.Delay(100, cancellationToken);
 
 						try
 						{
@@ -189,8 +194,8 @@ namespace Greenshot.CaptureCore.Extensions
 									window.ToForeground();
 								}
 								// Make sure all changes are processed and visible
-								Application.DoEvents();
-								using (Bitmap blackBitmap = WindowCapture.CaptureRectangle(captureRectangle))
+								await Task.Delay(100, cancellationToken);
+								using (var blackBitmap = WindowCapture.CaptureRectangle(captureRectangle))
 								{
 									capturedBitmap = ImageHelper.ApplyTransparency(blackBitmap, whiteBitmap);
 								}
@@ -229,7 +234,7 @@ namespace Greenshot.CaptureCore.Extensions
 							window.ToForeground();
 						}
 						// Make sure all changes are processed and visible
-						Application.DoEvents();
+						await Task.Delay(100, cancellationToken);
 						// Capture from the screen
 						capturedBitmap = WindowCapture.CaptureRectangle(captureRectangle);
 					}
@@ -289,7 +294,7 @@ namespace Greenshot.CaptureCore.Extensions
 		/// <param name="image">The bitmap to remove the corners from.</param>
 		private static void RemoveCorners(Bitmap image)
 		{
-			using (IFastBitmap fastBitmap = FastBitmap.Create(image))
+			using (var fastBitmap = FastBitmap.Create(image))
 			{
 				for (int y = 0; y < Conf.WindowCornerCutShape.Count; y++)
 				{

@@ -42,6 +42,7 @@ using Greenshot.Core.Configuration;
 using Greenshot.Core.Enumerations;
 using Greenshot.Core.Gfx;
 using Greenshot.Core.Interfaces;
+using Greenshot.Legacy.Utils;
 using MessageBox = System.Windows.Forms.MessageBox;
 using Point = System.Drawing.Point;
 
@@ -166,7 +167,7 @@ namespace Greenshot.CaptureCore
 			_captureRect = SelectedCaptureWindow.WindowRectangle;
 			// Fix for Bug #3430560 
 			CaptureConfiguration.LastCapturedRegion = _captureRect;
-			bool returnValue = CaptureWindow(SelectedCaptureWindow, _capture, CaptureConfiguration.WindowCaptureMode) != null;
+			bool returnValue = CaptureWindowAsync(SelectedCaptureWindow, _capture, CaptureConfiguration.WindowCaptureMode) != null;
 			return returnValue;
 		}
 
@@ -250,8 +251,9 @@ namespace Greenshot.CaptureCore
 		/// <param name="windowToCapture">Window to capture</param>
 		/// <param name="captureForWindow">The capture to store the details</param>
 		/// <param name="windowCaptureMode">What WindowCaptureMode to use</param>
-		/// <returns></returns>
-		public static ICapture CaptureWindow(WindowDetails windowToCapture, ICapture captureForWindow, WindowCaptureMode windowCaptureMode)
+		/// <param name="cancellationToken">CancellationToken</param>
+		/// <returns>ICapture</returns>
+		public static async Task<ICapture> CaptureWindowAsync(WindowDetails windowToCapture, ICapture captureForWindow, WindowCaptureMode windowCaptureMode, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			if (captureForWindow == null)
 			{
@@ -405,7 +407,7 @@ namespace Greenshot.CaptureCore
 						case WindowCaptureMode.AeroTransparent:
 							if (windowToCapture.IsMetroApp || WindowCapture.IsDwmAllowed(process))
 							{
-								tmpCapture = windowToCapture.CaptureDwmWindow(captureForWindow, windowCaptureMode, isAutoMode);
+								tmpCapture = await windowToCapture.CaptureDwmWindowAsync(captureForWindow, windowCaptureMode, isAutoMode, cancellationToken);
 							}
 							if (tmpCapture != null)
 							{

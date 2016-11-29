@@ -36,17 +36,17 @@ using Dapplo.Utils;
 using Dapplo.Windows.Enums;
 using Dapplo.Windows.Native;
 using Dapplo.Windows.Structs;
-using Greenshot.CaptureCore.Extensions;
 using Greenshot.Core;
 using Greenshot.Core.Configuration;
 using Greenshot.Core.Enumerations;
 using Greenshot.Core.Gfx;
 using Greenshot.Core.Interfaces;
 using Greenshot.Core.Utils;
+using Greenshot.Legacy.Extensions;
 
 #endregion
 
-namespace Greenshot.CaptureCore
+namespace Greenshot.Legacy.Utils
 {
 	/// <summary>
 	///     Description of ClipboardHelper.
@@ -56,7 +56,7 @@ namespace Greenshot.CaptureCore
 		// Template for the HTML Text on the clipboard
 		// see: http://msdn.microsoft.com/en-us/library/ms649015%28v=vs.85%29.aspx
 		// or:  http://msdn.microsoft.com/en-us/library/Aa767917.aspx
-		private const string HTML_CLIPBOARD_STRING = @"Version:0.9
+		private const string HtmlClipboardString = @"Version:0.9
 StartHTML:<<<<<<<1
 EndHTML:<<<<<<<2
 StartFragment:<<<<<<<3
@@ -74,7 +74,7 @@ EndSelection:<<<<<<<4
 <!--EndFragment -->
 </BODY>
 </HTML>";
-		private const string HTML_CLIPBOARD_BASE64_STRING = @"Version:0.9
+		private const string HtmlClipboardBase64String = @"Version:0.9
 StartHTML:<<<<<<<1
 EndHTML:<<<<<<<2
 StartFragment:<<<<<<<3
@@ -109,18 +109,16 @@ EndSelection:<<<<<<<4
 		private static readonly IImageConfiguration ImageConfiguration = IniConfig.Current.GetSubSection<IImageConfiguration>();
 		private static readonly IMiscConfiguration MiscConfiguration = IniConfig.Current.GetSubSection<IMiscConfiguration>();
 		private static readonly ICoreTranslations CoreTranslations = LanguageLoader.Current.GetPart<ICoreTranslations>();
-		private static readonly string FORMAT_FILECONTENTS = "FileContents";
-		private static readonly string FORMAT_PNG = "PNG";
-		private static readonly string FORMAT_PNG_OFFICEART = "PNG+Office Art";
-		private static readonly string FORMAT_17 = "Format17";
-		private static readonly string FORMAT_JPG = "JPG";
-		private static readonly string FORMAT_JFIF = "JFIF";
-		private static readonly string FORMAT_JFIF_OFFICEART = "JFIF+Office Art";
-		private static readonly string FORMAT_GIF = "GIF";
-		private static readonly string FORMAT_BITMAP = "System.Drawing.Bitmap";
+		private const string FormatFilecontents = "FileContents";
+		private const string FormatPng = "PNG";
+		private const string FormatPngOfficeart = "PNG+Office Art";
+		private const string Format17 = "Format17";
+		private const string FormatJpg = "JPG";
+		private const string FormatJfif = "JFIF";
+		private const string FormatJfifOfficeart = "JFIF+Office Art";
+		private const string FormatGif = "GIF";
+		private const string FormatBitmap = "System.Drawing.Bitmap";
 		//private static readonly string FORMAT_HTML = "HTML Format";
-
-		private static IntPtr _nextClipboardViewer = IntPtr.Zero;
 
 		/// <summary>
 		///     Helper method so get the bitmap bytes
@@ -153,9 +151,8 @@ EndSelection:<<<<<<<4
 		}
 
 		/// <summary>
-		///     Check if there is currently something in the dataObject which has the supplied format
+		///     Check if there is currently something on the clipboard which has the supplied format
 		/// </summary>
-		/// <param name="dataObject">IDataObject</param>
 		/// <param name="format">string with format</param>
 		/// <returns>true if one the format is found</returns>
 		public static bool ContainsFormat(string format)
@@ -167,8 +164,9 @@ EndSelection:<<<<<<<4
 		}
 
 		/// <summary>
-		///     Check if there is currently something on the clipboard which has the supplied format
+		///     Check if there is currently something in the dataObject which has the supplied format
 		/// </summary>
+		/// <param name="dataObject">IDataObject</param>
 		/// <param name="format">string with format</param>
 		/// <returns>true if one the format is found</returns>
 		public static bool ContainsFormat(IDataObject dataObject, string format)
@@ -198,7 +196,7 @@ EndSelection:<<<<<<<4
 		public static bool ContainsFormat(IDataObject dataObject, string[] formats)
 		{
 			bool formatFound = false;
-			List<string> currentFormats = GetFormats(dataObject);
+			var currentFormats = GetFormats(dataObject);
 			if ((currentFormats == null) || (currentFormats.Count == 0) || (formats == null) || (formats.Length == 0))
 			{
 				return false;
@@ -233,7 +231,7 @@ EndSelection:<<<<<<<4
 		{
 			if (dataObject != null)
 			{
-				if (dataObject.GetDataPresent(DataFormats.Bitmap) || dataObject.GetDataPresent(DataFormats.Dib) || dataObject.GetDataPresent(DataFormats.Tiff) || dataObject.GetDataPresent(DataFormats.EnhancedMetafile) || dataObject.GetDataPresent(FORMAT_PNG) || dataObject.GetDataPresent(FORMAT_17) || dataObject.GetDataPresent(FORMAT_JPG) || dataObject.GetDataPresent(FORMAT_GIF))
+				if (dataObject.GetDataPresent(DataFormats.Bitmap) || dataObject.GetDataPresent(DataFormats.Dib) || dataObject.GetDataPresent(DataFormats.Tiff) || dataObject.GetDataPresent(DataFormats.EnhancedMetafile) || dataObject.GetDataPresent(FormatPng) || dataObject.GetDataPresent(Format17) || dataObject.GetDataPresent(FormatJpg) || dataObject.GetDataPresent(FormatGif))
 				{
 					return true;
 				}
@@ -242,12 +240,12 @@ EndSelection:<<<<<<<4
 				{
 					return true;
 				}
-				if (dataObject.GetDataPresent(FORMAT_FILECONTENTS))
+				if (dataObject.GetDataPresent(FormatFilecontents))
 				{
 					try
 					{
-						MemoryStream imageStream = dataObject.GetData(FORMAT_FILECONTENTS) as MemoryStream;
-						if (isValidStream(imageStream))
+						MemoryStream imageStream = dataObject.GetData(FormatFilecontents) as MemoryStream;
+						if (IsValidStream(imageStream))
 						{
 							using (Image.FromStream(imageStream))
 							{
@@ -383,20 +381,13 @@ EndSelection:<<<<<<<4
 					{
 						if (retryCount == 0)
 						{
-							string messageText = null;
 							string clipboardOwner = GetClipboardOwner();
-							if (clipboardOwner != null)
-							{
-								messageText = string.Format(CoreTranslations.ClipboardInuse, clipboardOwner);
-							}
-							else
-							{
-								messageText = CoreTranslations.ClipboardError;
-							}
+							var messageText = clipboardOwner != null ? string.Format(CoreTranslations.ClipboardInuse, clipboardOwner) : CoreTranslations.ClipboardError;
 							Log.Error().WriteLine(ee, messageText);
 						}
 						else
 						{
+							// TODO: Async?
 							Thread.Sleep(100);
 						}
 					}
@@ -410,32 +401,25 @@ EndSelection:<<<<<<<4
 		}
 
 		/// <summary>
-		///     Retrieve a list of all formats currently on the clipboard
+		///     Retrieve a list of all formats currently in the IDataObject, or the clipboard
 		/// </summary>
-		/// <returns>List<string> with the current formats</returns>
-		public static List<string> GetFormats()
+		/// <param name="dataObj">IDataObject for the clipboard or whatever, if null is passed the clipboard is used</param>
+		/// <returns>IList of string with the current formats</returns>
+		public static IList<string> GetFormats(IDataObject dataObj = null)
 		{
-			return GetFormats(GetDataObject());
-		}
-
-		/// <summary>
-		///     Retrieve a list of all formats currently in the IDataObject
-		/// </summary>
-		/// <returns>List<string> with the current formats</returns>
-		public static List<string> GetFormats(IDataObject dataObj)
-		{
+			dataObj = dataObj ?? GetDataObject();
 			string[] formats = null;
 
 			if (dataObj != null)
 			{
 				formats = dataObj.GetFormats();
 			}
-			if (formats != null)
+			if (formats == null)
 			{
-				Log.Debug().WriteLine("Got clipboard formats: {0}", string.Join(",", formats));
-				return new List<string>(formats);
+				return new List<string>();
 			}
-			return new List<string>();
+			Log.Debug().WriteLine("Got clipboard formats: {0}", string.Join(",", formats));
+			return new List<string>(formats);
 		}
 
 		/// <summary>
@@ -475,34 +459,34 @@ EndSelection:<<<<<<<4
 			return null;
 		}
 
-		private static string getHTMLDataURLString(ICapture capture, MemoryStream pngStream)
+		private static string GetHtmlDataUrlString(ICapture capture, MemoryStream pngStream)
 		{
-			string utf8EncodedHTMLString = Encoding.GetEncoding(0).GetString(Encoding.UTF8.GetBytes(HTML_CLIPBOARD_BASE64_STRING));
-			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${width}", capture.Image.Width.ToString());
-			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${height}", capture.Image.Height.ToString());
-			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${format}", "png");
-			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${data}", Convert.ToBase64String(pngStream.GetBuffer(), 0, (int) pngStream.Length));
+			string utf8EncodedHtmlString = Encoding.GetEncoding(0).GetString(Encoding.UTF8.GetBytes(HtmlClipboardBase64String));
+			utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${width}", capture.Image.Width.ToString());
+			utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${height}", capture.Image.Height.ToString());
+			utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${format}", "png");
+			utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${data}", Convert.ToBase64String(pngStream.GetBuffer(), 0, (int) pngStream.Length));
 			StringBuilder sb = new StringBuilder();
-			sb.Append(utf8EncodedHTMLString);
-			sb.Replace("<<<<<<<1", (utf8EncodedHTMLString.IndexOf("<HTML>") + "<HTML>".Length).ToString("D8"));
-			sb.Replace("<<<<<<<2", utf8EncodedHTMLString.IndexOf("</HTML>").ToString("D8"));
-			sb.Replace("<<<<<<<3", (utf8EncodedHTMLString.IndexOf("<!--StartFragment -->") + "<!--StartFragment -->".Length).ToString("D8"));
-			sb.Replace("<<<<<<<4", utf8EncodedHTMLString.IndexOf("<!--EndFragment -->").ToString("D8"));
+			sb.Append(utf8EncodedHtmlString);
+			sb.Replace("<<<<<<<1", (utf8EncodedHtmlString.IndexOf("<HTML>", StringComparison.Ordinal) + "<HTML>".Length).ToString("D8"));
+			sb.Replace("<<<<<<<2", utf8EncodedHtmlString.IndexOf("</HTML>", StringComparison.Ordinal).ToString("D8"));
+			sb.Replace("<<<<<<<3", (utf8EncodedHtmlString.IndexOf("<!--StartFragment -->", StringComparison.Ordinal) + "<!--StartFragment -->".Length).ToString("D8"));
+			sb.Replace("<<<<<<<4", utf8EncodedHtmlString.IndexOf("<!--EndFragment -->", StringComparison.Ordinal).ToString("D8"));
 			return sb.ToString();
 		}
 
-		private static string getHTMLString(ICapture capture, string filename)
+		private static string GetHtmlString(ICapture capture, string filename)
 		{
-			string utf8EncodedHTMLString = Encoding.GetEncoding(0).GetString(Encoding.UTF8.GetBytes(HTML_CLIPBOARD_STRING));
-			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${width}", capture.Image.Width.ToString());
-			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${height}", capture.Image.Height.ToString());
-			utf8EncodedHTMLString = utf8EncodedHTMLString.Replace("${file}", filename.Replace("\\", "/"));
+			string utf8EncodedHtmlString = Encoding.GetEncoding(0).GetString(Encoding.UTF8.GetBytes(HtmlClipboardString));
+			utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${width}", capture.Image.Width.ToString());
+			utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${height}", capture.Image.Height.ToString());
+			utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${file}", filename.Replace("\\", "/"));
 			StringBuilder sb = new StringBuilder();
-			sb.Append(utf8EncodedHTMLString);
-			sb.Replace("<<<<<<<1", (utf8EncodedHTMLString.IndexOf("<HTML>") + "<HTML>".Length).ToString("D8"));
-			sb.Replace("<<<<<<<2", utf8EncodedHTMLString.IndexOf("</HTML>").ToString("D8"));
-			sb.Replace("<<<<<<<3", (utf8EncodedHTMLString.IndexOf("<!--StartFragment -->") + "<!--StartFragment -->".Length).ToString("D8"));
-			sb.Replace("<<<<<<<4", utf8EncodedHTMLString.IndexOf("<!--EndFragment -->").ToString("D8"));
+			sb.Append(utf8EncodedHtmlString);
+			sb.Replace("<<<<<<<1", (utf8EncodedHtmlString.IndexOf("<HTML>", StringComparison.Ordinal) + "<HTML>".Length).ToString("D8"));
+			sb.Replace("<<<<<<<2", utf8EncodedHtmlString.IndexOf("</HTML>", StringComparison.Ordinal).ToString("D8"));
+			sb.Replace("<<<<<<<3", (utf8EncodedHtmlString.IndexOf("<!--StartFragment -->", StringComparison.Ordinal) + "<!--StartFragment -->".Length).ToString("D8"));
+			sb.Replace("<<<<<<<4", utf8EncodedHtmlString.IndexOf("<!--EndFragment -->", StringComparison.Ordinal).ToString("D8"));
 			return sb.ToString();
 		}
 
@@ -536,20 +520,20 @@ EndSelection:<<<<<<<4
 
 				// Found a weird bug, where PNG's from Outlook 2010 are clipped
 				// So I build some special logik to get the best format:
-				if ((formats != null) && formats.Contains(FORMAT_PNG_OFFICEART) && formats.Contains(DataFormats.Dib))
+				if ((formats != null) && formats.Contains(FormatPngOfficeart) && formats.Contains(DataFormats.Dib))
 				{
 					// Outlook ??
 					Log.Info().WriteLine("Most likely the current clipboard contents come from Outlook, as this has a problem with PNG and others we place the DIB format to the front...");
 					retrieveFormats = new[]
 					{
-						DataFormats.Dib, FORMAT_BITMAP, FORMAT_FILECONTENTS, FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JFIF, DataFormats.Tiff, FORMAT_GIF
+						DataFormats.Dib, FormatBitmap, FormatFilecontents, FormatPngOfficeart, FormatPng, FormatJfifOfficeart, FormatJpg, FormatJfif, DataFormats.Tiff, FormatGif
 					};
 				}
 				else
 				{
 					retrieveFormats = new[]
 					{
-						FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_17, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JFIF, DataFormats.Tiff, DataFormats.Dib, FORMAT_BITMAP, FORMAT_FILECONTENTS, FORMAT_GIF
+						FormatPngOfficeart, FormatPng, Format17, FormatJfifOfficeart, FormatJpg, FormatJfif, DataFormats.Tiff, DataFormats.Dib, FormatBitmap, FormatFilecontents, FormatGif
 					};
 				}
 				foreach (string currentFormat in retrieveFormats)
@@ -616,14 +600,14 @@ EndSelection:<<<<<<<4
 		{
 			object clipboardObject = GetFromDataObject(dataObject, format);
 			MemoryStream imageStream = clipboardObject as MemoryStream;
-			if (!isValidStream(imageStream))
+			if (!IsValidStream(imageStream))
 			{
 				// TODO: add "HTML Format" support here...
 				return clipboardObject as Image;
 			}
 			if (MiscConfiguration.EnableSpecialDIBClipboardReader)
 			{
-				if ((format == FORMAT_17) || (format == DataFormats.Dib))
+				if ((format == Format17) || (format == DataFormats.Dib))
 				{
 					Log.Info().WriteLine("Found DIB stream, trying to process it.");
 					try
@@ -788,7 +772,7 @@ EndSelection:<<<<<<<4
 		/// </summary>
 		/// <param name="memoryStream"></param>
 		/// <returns></returns>
-		private static bool isValidStream(MemoryStream memoryStream)
+		private static bool IsValidStream(MemoryStream memoryStream)
 		{
 			return (memoryStream != null) && (memoryStream.Length > 0);
 		}
@@ -817,7 +801,7 @@ EndSelection:<<<<<<<4
 
 		public static void SetClipboardData(ICapture capture)
 		{
-			DataObject dataObject = new DataObject();
+			var dataObject = new DataObject();
 
 			// This will work for Office and most other applications
 			//ido.SetData(DataFormats.Bitmap, true, image);
@@ -843,12 +827,12 @@ EndSelection:<<<<<<<4
 						ImageOutput.SaveToStream(imageToSave, null, pngStream, pngOutputSettings);
 						pngStream.Seek(0, SeekOrigin.Begin);
 						// Set the PNG stream
-						dataObject.SetData(FORMAT_PNG, false, pngStream);
+						dataObject.SetData(FormatPng, false, pngStream);
 					}
 				}
-				catch (Exception pngEX)
+				catch (Exception pngEx)
 				{
-					Log.Error().WriteLine(pngEX, "Error creating PNG for the Clipboard.");
+					Log.Error().WriteLine(pngEx, "Error creating PNG for the Clipboard.");
 				}
 
 				try
@@ -884,9 +868,11 @@ EndSelection:<<<<<<<4
 						dibV5Stream = new MemoryStream();
 
 						// Create the BITMAPINFOHEADER
-						BITMAPINFOHEADER header = new BITMAPINFOHEADER(imageToSave.Width, imageToSave.Height, 32);
+						BITMAPINFOHEADER header = new BITMAPINFOHEADER(imageToSave.Width, imageToSave.Height, 32)
+						{
+							biCompression = BI_COMPRESSION.BI_BITFIELDS
+						};
 						// Make sure we have BI_BITFIELDS, this seems to be normal for Format17?
-						header.biCompression = BI_COMPRESSION.BI_BITFIELDS;
 						// Create a byte[] to write
 						byte[] headerBytes = BinaryStructHelper.ToByteArray(header);
 						// Write the BITMAPINFOHEADER to the stream
@@ -908,7 +894,7 @@ EndSelection:<<<<<<<4
 						dibV5Stream.Write(bitmapBytes, 0, bitmapBytes.Length);
 
 						// Set the DIBv5 to the clipboard DataObject
-						dataObject.SetData(FORMAT_17, true, dibV5Stream);
+						dataObject.SetData(Format17, true, dibV5Stream);
 					}
 				}
 				catch (Exception dibEx)
@@ -920,28 +906,30 @@ EndSelection:<<<<<<<4
 				if (MiscConfiguration.ClipboardFormats.Contains(ClipboardFormat.HTML))
 				{
 					string tmpFile = capture.SaveToTmpFile(new SurfaceOutputSettings(OutputFormat.png, 100, false), null);
-					string html = getHTMLString(capture, tmpFile);
+					string html = GetHtmlString(capture, tmpFile);
 					dataObject.SetText(html, TextDataFormat.Html);
 				}
 				else if (MiscConfiguration.ClipboardFormats.Contains(ClipboardFormat.HTMLDATAURL))
 				{
 					string html;
-					using (MemoryStream tmpPNGStream = new MemoryStream())
+					using (MemoryStream tmpPngStream = new MemoryStream())
 					{
-						SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
-						// Do not allow to reduce the colors, some applications dislike 256 color images
+						SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false)
+						{
+							// Do not allow to reduce the colors, some applications dislike 256 color images
+							DisableReduceColors = true
+						};
 						// reported with bug #3594681
-						pngOutputSettings.DisableReduceColors = true;
 						// Check if we can use the previously used image
 						if (imageToSave.PixelFormat != PixelFormat.Format8bppIndexed)
 						{
-							ImageOutput.SaveToStream(imageToSave, capture, tmpPNGStream, pngOutputSettings);
+							ImageOutput.SaveToStream(imageToSave, capture, tmpPngStream, pngOutputSettings);
 						}
 						else
 						{
-							capture.SaveToStream(tmpPNGStream, pngOutputSettings);
+							capture.SaveToStream(tmpPngStream, pngOutputSettings);
 						}
-						html = getHTMLDataURLString(capture, tmpPNGStream);
+						html = GetHtmlDataUrlString(capture, tmpPngStream);
 					}
 					dataObject.SetText(html, TextDataFormat.Html);
 				}
@@ -979,9 +967,9 @@ EndSelection:<<<<<<<4
 					dibV5Stream = null;
 				}
 				// cleanup if needed
-				if (disposeImage && (imageToSave != null))
+				if (disposeImage)
 				{
-					imageToSave.Dispose();
+					imageToSave?.Dispose();
 				}
 			}
 		}
@@ -1028,16 +1016,8 @@ EndSelection:<<<<<<<4
 				}
 				catch (Exception clipboardSetException)
 				{
-					string messageText = null;
 					string clipboardOwner = GetClipboardOwner();
-					if (clipboardOwner != null)
-					{
-						messageText = string.Format(CoreTranslations.ClipboardInuse, clipboardOwner);
-					}
-					else
-					{
-						messageText = string.Format(CoreTranslations.ClipboardError, clipboardOwner);
-					}
+					var messageText = clipboardOwner != null ? string.Format(CoreTranslations.ClipboardInuse, clipboardOwner) : CoreTranslations.ClipboardError;
 					Log.Error().WriteLine(clipboardSetException, messageText);
 				}
 			}

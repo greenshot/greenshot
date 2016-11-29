@@ -228,6 +228,10 @@
       <Project>{dbcaf4bc-a008-4080-b508-28ac76280b03}</Project>
       <Name>Greenshot.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Greenshot.Legacy\Greenshot.Legacy.csproj">
+      <Project>{3f069a88-ec9a-4f71-a7cc-60df87f402e1}</Project>
+      <Name>Greenshot.Legacy</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"

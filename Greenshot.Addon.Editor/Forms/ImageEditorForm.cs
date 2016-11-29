@@ -52,6 +52,7 @@ using Greenshot.Core.Interfaces;
 using Greenshot.Legacy;
 using Greenshot.Legacy.Controls;
 using Greenshot.Legacy.Extensions;
+using Greenshot.Legacy.Utils;
 
 #endregion
 

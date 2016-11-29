@@ -33,6 +33,7 @@ using Greenshot.Addon.Interfaces;
 using Greenshot.CaptureCore;
 using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
+using Greenshot.Legacy.Utils;
 
 #endregion
 

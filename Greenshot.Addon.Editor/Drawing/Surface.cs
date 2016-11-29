@@ -47,6 +47,7 @@ using Greenshot.CaptureCore;
 using Greenshot.Core.Extensions;
 using Greenshot.Core.Gfx;
 using Greenshot.Core.Interfaces;
+using Greenshot.Legacy.Utils;
 
 #endregion
 
@@ -59,7 +60,7 @@ namespace Greenshot.Addon.Editor.Drawing
 	{
 		private static readonly LogSource Log = new LogSource();
 		private static readonly IGreenshotLanguage EditorLanguage = LanguageLoader.Current.Get<IGreenshotLanguage>();
-		public static int Count;
+		public static int Count { get; set; }
 
 		/// <summary>
 		///     all elements on the surface, needed with serialization
@@ -785,7 +786,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		{
 			IDataObject clipboard = ClipboardHelper.GetDataObject();
 
-			List<string> formats = ClipboardHelper.GetFormats(clipboard);
+			var formats = ClipboardHelper.GetFormats(clipboard);
 			if ((formats == null) || (formats.Count == 0))
 			{
 				return;
