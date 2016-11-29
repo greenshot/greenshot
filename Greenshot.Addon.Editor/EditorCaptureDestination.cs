@@ -42,16 +42,14 @@ namespace Greenshot.Addon.Editor
 	/// <summary>
 	///     The EditorCaptureDestination will export the capture to the editor
 	/// </summary>
-	[Destination(BuildInDestinations.Editor, 1)]
 	public sealed class EditorCaptureDestination : ICaptureDestination
 	{
 		private static readonly LogSource Log = new LogSource();
 
-		[Import]
-		private IEditorConfiguration EditorConfiguration { get; set; }
+		public IEditorConfiguration EditorConfiguration { get; set; }
 
 		/// <summary>
-		/// The editor, if 
+		/// The editor, if we want to reuse.
 		/// </summary>
 		public IImageEditor Editor { get; set; }
 

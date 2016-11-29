@@ -5,11 +5,14 @@ using Dapplo.Config.Ini;
 using Dapplo.Config.Language;
 using Dapplo.Log;
 using Dapplo.Log.Loggers;
+using Greenshot.Addon.Configuration;
 using Greenshot.CaptureCore;
 using Greenshot.Core.Enumerations;
 using Greenshot.Core.Extensions;
 using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
+using Greenshot.Addon.Editor;
+using Greenshot.Core.Configuration;
 
 namespace Greenshot.Wpf.QuickTest
 {
@@ -28,8 +31,11 @@ namespace Greenshot.Wpf.QuickTest
 			LogSettings.RegisterDefaultLogger<DebugLogger>(LogLevels.Verbose);
 			Loaded += async (sender, args) =>
 			{
+				// Manually initialize the configuration for now
 				await _iniConfig.RegisterAndGetAsync<ITestConfiguration>();
+				await _iniConfig.RegisterAndGetAsync<IEditorConfiguration>();
 				await _languageLoader.RegisterAndGetAsync<ITestTranslations>();
+				await _languageLoader.RegisterAndGetAsync<IGreenshotLanguage>();
 
 
 			};
@@ -90,6 +96,41 @@ namespace Greenshot.Wpf.QuickTest
 
 		}
 
+		private async void ScreenEditButton_OnClick(object sender, RoutedEventArgs e)
+		{
+			ScreenButton.IsEnabled = false;
+
+			var flow = new SimpleCaptureFlow
+			{
+				// Get a capture of the "active" screen, that is the one with the mouse cursor.
+				// The capture contains all the information, like the bitmap/mouse cursor/location of the mouse and some meta data.
+				CaptureSource = new ScreenCaptureSource
+				{
+					Mode = ScreenCaptureMode.Auto,
+					CaptureCursor = true,
+				},
+				// Have the user crop the screen
+				CaptureProcessor = new CropScreenCaptureProcessor(),
+				// Show the capture in the editor
+				CaptureDestination = new EditorCaptureDestination
+				{
+					EditorConfiguration = IniConfig.Current.Get<IEditorConfiguration>()
+				}
+			};
+			await flow.ExecuteAsync();
+
+			// Now take the capture manually
+			ShowCapture(flow.Capture);
+
+			ScreenButton.IsEnabled = true;
+		}
+		
+		/// <summary>
+		/// EXample implementation of the CaptureDestination
+		/// </summary>
+		/// <param name="captureFlow"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns>Task</returns>
 		public Task ExportCaptureAsync(ICaptureFlow captureFlow, CancellationToken cancellationToken = new CancellationToken())
 		{
 			ShowCapture(captureFlow.Capture);

@@ -17,6 +17,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.ComponentModel;
 using Dapplo.Config.Ini;
 
 namespace Greenshot.Core.Configuration
@@ -165,6 +166,7 @@ namespace Greenshot.Core.Configuration
 
 		string EditorPrint { get; }
 
+		[DefaultValue("Redo")]
 		string EditorRedo { get; }
 
 		string EditorResetsize { get; }
@@ -193,6 +195,7 @@ namespace Greenshot.Core.Configuration
 
 		string EditorTornEdge { get; }
 
+		[DefaultValue("Undo")]
 		string EditorUndo { get; }
 
 		string EditorUponelevel { get; }
