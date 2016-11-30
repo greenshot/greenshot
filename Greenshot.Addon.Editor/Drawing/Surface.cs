@@ -36,6 +36,7 @@ using Dapplo.HttpExtensions;
 using Dapplo.Log;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
+using Greenshot.Addon.Editor.Configuration;
 using Greenshot.Addon.Editor.Helpers;
 using Greenshot.Addon.Editor.Interfaces;
 using Greenshot.Addon.Editor.Interfaces.Drawing;
@@ -59,7 +60,7 @@ namespace Greenshot.Addon.Editor.Drawing
 	public class Surface : Control, ISurface, INotifyPropertyChanged
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static readonly IGreenshotLanguage EditorLanguage = LanguageLoader.Current.Get<IGreenshotLanguage>();
+		private static readonly IEditorLanguage EditorLanguage = LanguageLoader.Current.Get<IEditorLanguage>();
 		public static int Count { get; set; }
 
 		/// <summary>

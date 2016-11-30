@@ -177,7 +177,7 @@ namespace Greenshot.Legacy.Controls
 				// Set title of the form
 				if (!string.IsNullOrEmpty(LanguageKey))
 				{
-					Text = language[LanguageKey];
+					Text = LanguageLoader.Current.Translate(LanguageKey, LanguageModule);
 				}
 
 				// Reset the text values for all GreenshotControls

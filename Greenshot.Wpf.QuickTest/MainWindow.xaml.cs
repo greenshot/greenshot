@@ -12,6 +12,7 @@ using Greenshot.Core.Extensions;
 using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
 using Greenshot.Addon.Editor;
+using Greenshot.Addon.Editor.Configuration;
 
 namespace Greenshot.Wpf.QuickTest
 {

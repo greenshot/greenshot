@@ -29,6 +29,7 @@ using Dapplo.Log;
 using Dapplo.Utils;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
+using Greenshot.Addon.Editor.Configuration;
 using Greenshot.Addon.Editor.Drawing;
 using Greenshot.Addon.Editor.Extensions;
 using Greenshot.Addon.Editor.Forms;

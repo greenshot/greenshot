@@ -30,6 +30,7 @@ using System.Windows.Forms;
 using Dapplo.Config.Language;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
+using Greenshot.Addon.Editor.Configuration;
 using Greenshot.Addon.Editor.Forms;
 using Greenshot.Addon.Editor.Helpers;
 using Greenshot.Addon.Editor.Interfaces;
@@ -53,7 +54,7 @@ namespace Greenshot.Addon.Editor.Drawing
 	public class DrawableContainerList : List<IDrawableContainer>, IDrawableContainerList
 	{
 		private static readonly ComponentResourceManager editorFormResources = new ComponentResourceManager(typeof(ImageEditorForm));
-		private static readonly IEditorLanguage Language = LanguageLoader.Current.Get<IGreenshotLanguage>();
+		private static readonly IEditorLanguage Language = LanguageLoader.Current.Get<IEditorLanguage>();
 
 		public DrawableContainerList()
 		{

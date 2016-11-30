@@ -1,531 +1,103 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-
 <language>
 	<resources prefix="Core">
-		<resource name="about_translation">
-			Traducere în limba română - Radu Mogoș
-		</resource>
-		<resource name="application_title">
-			Greenshot - aplicația pentru capturi de ecran revoluționară
-		</resource>
-		<resource name="editor_drawrectangle">
-			Desenează dreptunghi (R)
-		</resource>
-		<resource name="editor_save">
-			Salvează
-		</resource>
-		<resource name="contextmenu_settings">
-			Preferințe...
-		</resource>
-		<resource name="settings_storagelocation">
-			Locație stocare
-		</resource>
-		<resource name="settings_title">
-			Setări
-		</resource>
-		<resource name="settings_tooltip_storagelocation">
-			Locația unde capturile sunt salvate de obicei (lasă nedefinit pentru a salva pe desktop)
-		</resource>
-		<resource name="settings_language">
-			Limba
-		</resource>
-		<resource name="settings_filenamepattern">
-			Tipar fișier
-		</resource>
-		<resource name="settings_tooltip_language">
-			Limbă interfață Greenshot (necesită repornire)
-		</resource>
-		<resource name="settings_tooltip_filenamepattern">
-			Model folosit pentru generarea numelor de fișiere când salvați capturile
-		</resource>
-		<resource name="settings_primaryimageformat">
-			Format imagine
-		</resource>
-		<resource name="settings_tooltip_primaryimageformat">
-			Format imagine folosit de obicei
-		</resource>
-		<resource name="contextmenu_capturearea">
-			Captează regiune
-		</resource>
-		<resource name="contextmenu_capturelastregion">
-			Captează ultima regiune
-		</resource>
-		<resource name="contextmenu_exit">
-			Ieșire
-		</resource>
-		<resource name="settings_visualization">
-			Efecte
-		</resource>
-		<resource name="settings_playsound">
-			Cîntă un sunet
-		</resource>
-		<resource name="settings_showflashlight">
-			Arată blitz
-		</resource>
-		<resource name="error">
-			Eroare
-		</resource>
-		<resource name="error_nowriteaccess">
-			Nu pot salva fișier la {0}.
-			Verificați vă rog dacă aveți drepturi de scriere în locația respectivă.
-		</resource>
-		<resource name="contextmenu_capturefullscreen">
-			Captează tot ecranul
-		</resource>
-		<resource name="editor_cuttoclipboard">
-			Taie
-		</resource>
-		<resource name="editor_copytoclipboard">
-			Copie
-		</resource>
-		<resource name="editor_pastefromclipboard">
-			Lipește
-		</resource>
-		<resource name="about_title">
-			Despre Greenshot
-		</resource>
-		<resource name="about_license">
-			Copyright (C) 2007-2010 Thomas Braun, Jens Klingen, Robin Krom
-			Greenshot nu vine cu ABSOLUT NICI O GARANȚIE. Acesta este un program gratuit si puteți să-l distribuiți sub anumite condiții.
-			Detalii despre licența GNU General Public License:
-		</resource>
-		<resource name="error_openlink">
-			Nu pot deschide link.
-		</resource>
-		<resource name="error_save">
-			Nu pot salva captura, vă rog folosiți o altă locație.
-		</resource>
-		<resource name="about_icons">
-			Pictograme din setul de icoane Fugue al lui Yusuke Kamiyamane (Creative Commons Attribution 3.0 license)
-		</resource>
-		<resource name="about_host">
-			Greenshot e hostat de sourceforge.net la
-		</resource>
-		<resource name="about_bugs">
-			Raportați bug-uri la
-		</resource>
-		<resource name="about_donations">
-			Dacă vă place Greenshot, sunteți bineveniți să vă arătați suportul:
-		</resource>
-		<resource name="editor_imagesaved">
-			Imagine salvată la {0}.
-		</resource>
-		<resource name="editor_storedtoclipboard">
-			Imagine stocată în clipboard.
-		</resource>
-		<resource name="editor_saveas">
-			Salvează ca...
-		</resource>
-		<resource name="editor_file">
-			Fișier
-		</resource>
-		<resource name="editor_edit">
-			Editare
-		</resource>
-		<resource name="editor_object">
-			Obiect
-		</resource>
-		<resource name="editor_drawellipse">
-			Desenează elipsă (E)
-		</resource>
-		<resource name="editor_drawtextbox">
-			Adaugă câmp de text (T)
-		</resource>
-		<resource name="editor_deleteelement">
-			Șterge
-		</resource>
-		<resource name="editor_selectall">
-			Selectează tot
-		</resource>
-		<resource name="editor_copyimagetoclipboard">
-			Copie imagine în clipboard
-		</resource>
-		<resource name="contextmenu_capturewindow">
-			Captează fereastră
-		</resource>
-		<resource name="editor_duplicate">
-			Duplică elementul selectat
-		</resource>
-		<resource name="contextmenu_help">
-			Ajutor
-		</resource>
-		<resource name="contextmenu_about">
-			Despre Greenshot
-		</resource>
-		<resource name="editor_title">
-			Greenshot editor de imagini
-		</resource>
-		<resource name="settings_applicationsettings">
-			Setări Aplicație
-		</resource>
-		<resource name="settings_preferredfilesettings">
-			Setări salvare fișier preferate
-		</resource>
-		<resource name="settings_skipimageeditor">
-			Nu folosi editorul de imagini
-		</resource>
-		<resource name="settings_registerhotkeys">
-			Definește tastele pentru scurtături
-		</resource>
-		<resource name="settings_tooltip_registerhotkeys">
-			Definește dacă scurtăturile Prnt, Ctrl + Print, Alt + Prnt sunt rezervate să fie folosite de Greenshot la pornire, pînă când programul este oprit.
-		</resource>
-		<resource name="editor_senttoprinter">
-			Imprimarea a fost trimisă la '{0}'.
-		</resource>
-		<resource name="editor_print">
-			Imprimă
-		</resource>
-		<resource name="help_title">
-			Ajutor Greenshot
-		</resource>
-		<resource name="settings_jpegsettings">
-			Setări JPEG
-		</resource>
-		<resource name="settings_jpegquality">
-			Calitate JPEG
-		</resource>
-		<resource name="settings_alwaysshowjpegqualitydialog">
-			Specifică calitatea JPEG de fiecare dată când o imagine JPEG este salvată.
-		</resource>
-		<resource name="jpegqualitydialog_title">
-			Calitage Greenshot JPEG
-		</resource>
-		<resource name="jpegqualitydialog_choosejpegquality">
-			Alegeți calitatea imaginii JPEG.
-		</resource>
-		<resource name="jpegqualitydialog_dontaskagain">
-			Definește ca și calitate JPEG standard și nu mă mai întreba
-		</resource>
-		<resource name="editor_forecolor">
-			Culoare linie
-		</resource>
-		<resource name="editor_backcolor">
-			Culoare umplere
-		</resource>
-		<resource name="editor_thickness">
-			Grosime linie
-		</resource>
-		<resource name="colorpicker_title">
-			Selecția de culori
-		</resource>
-		<resource name="colorpicker_apply">
-			Aplică
-		</resource>
-		<resource name="colorpicker_transparent">
-			Transparent
-		</resource>
-		<resource name="colorpicker_htmlcolor">
-			Culoare HTML
-		</resource>
-		<resource name="colorpicker_red">
-			Roșu
-		</resource>
-		<resource name="colorpicker_green">
-			Verde
-		</resource>
-		<resource name="colorpicker_blue">
-			Albastru
-		</resource>
-		<resource name="colorpicker_alpha">
-			Alfa
-		</resource>
-		<resource name="colorpicker_recentcolors">
-			Culori utilizate recent
-		</resource>
-		<resource name="editor_close">
-			Închide
-		</resource>
-		<resource name="warning">
-			Atenție
-		</resource>
-		<resource name="warning_hotkeys">
-			Una sau mai multe taste pentru scurtături nu a putut fi înregistrată. De aceea, s-ar putea să nu fie posibil să utilizați scurtăturile definite în Greenshot.
-			Această problemă e probabil cauzată de alt program ce folosește aceleași scurtături.
-			Vă rugăm să dezactivați aplicația ce folosește tasta Print. Puteți de asemenea folosi toate funcționalitățile Greenshot făcând click pe pictograma aplicației din tray.
-		</resource>
-		<resource name="settings_destination_editor">
-			Deschide în editor imagini
-		</resource>
-		<resource name="settings_destination_printer">
-			Trimite la imprimantă
-		</resource>
-		<resource name="settings_destination_file">
-			Salvează direct (folosind setările de mai jos)
-		</resource>
-		<resource name="settings_destination_clipboard">
-			Copie în clipboard
-		</resource>
-		<resource name="editor_drawline">
-			Desenează linie (L)
-		</resource>
-		<resource name="settings_destination">
-			Destinație captură
-		</resource>
-		<resource name="editor_drawarrow">
-			Desenează săgeată (A)
-		</resource>
-		<resource name="editor_arrowheads">
-			Cap săgeată
-		</resource>
-		<resource name="editor_arrowheads_start">
-			Punct start
-		</resource>
-		<resource name="editor_arrowheads_end">
-			Punct stop
-		</resource>
-		<resource name="editor_arrowheads_both">
-			Ambele
-		</resource>
-		<resource name="editor_arrowheads_none">
-			Niciunul
-		</resource>
-		<resource name="editor_obfuscate_mode">
-			Mod obfuscare
-		</resource>
-		<resource name="editor_highlight_mode">
-			Mod subliniere
-		</resource>
-		<resource name="error_multipleinstances">
-			Greenshot deja rulează.
-		</resource>
-		<resource name="settings_autostartshortcut">
-			Pornește Greenshot odată cu Windows
-		</resource>
-		<resource name="clipboard_inuse">
-			Greenshot nu a putut salva datele în clipboard deoarece procesul {0} a blocat accesul.
-		</resource>
-		<resource name="print_error">
-			O eroare a intervenit în timp ce încercam imprimarea.
-		</resource>
-		<resource name="printoptions_title">
-			Opțiuni imprimare Greenshot
-		</resource>
-		<resource name="printoptions_allowcenter">
-			Centrează imprimarea pe pagină
-		</resource>
-		<resource name="printoptions_allowenlarge">
-			Mărește imaginea imprimată cât dimensiunea hîrtiei
-		</resource>
-		<resource name="printoptions_allowrotate">
-			Rotește imaginea imprimată să se potrivească orientării paginii
-		</resource>
-		<resource name="printoptions_allowshrink">
-			Micește imaginea imprimată cât dimensiunea hîrtiei
-		</resource>
-		<resource name="printoptions_dontaskagain">
-			Salvează opțiunile ca standard și nu mă mai întreba
-		</resource>
-		<resource name="settings_alwaysshowprintoptionsdialog">
-			Arată dialogul cu opțiunile de imprimare de fiecare dată când imprimați
-		</resource>
-		<resource name="settings_printoptions">
-			Opțiuni imprimare
-		</resource>
-		<resource name="settings_output">
-			Rezultat
-		</resource>
-		<resource name="settings_general">
-			General
-		</resource>
-		<resource name="editor_clipboardfailed">
-			Eroare în timpul accesării clipboard. Vă rog reîncercați.
-		</resource>
-		<resource name="editor_bold">
-			Îngroșat
-		</resource>
-		<resource name="editor_italic">
-			Italic
-		</resource>
-		<resource name="editor_arrange">
-			Aranjează
-		</resource>
-		<resource name="editor_fontsize">
-			Mărime
-		</resource>
-		<resource name="editor_uptotop">
-			Pînă la început
-		</resource>
-		<resource name="editor_uponelevel">
-			Sus un nivel
-		</resource>
-		<resource name="editor_downonelevel">
-			Jos un nivel
-		</resource>
-		<resource name="editor_downtobottom">
-			Pînă la capăt
-		</resource>
-		<resource name="contextmenu_quicksettings">
-			Preferințe rapide
-		</resource>
-		<resource name="bugreport_title">
-			Eroare
-		</resource>
-		<resource name="bugreport_info">
-			Ne pare rău, a intervenit o eroare.
-
-			Partea bună este că ne puteți ajuta să scăpăm de ea adăugând un raport de bug.
-			Vizitați url-ul dem ai jos, creați un nou raport de bug si copiați textul erorii în descriere.
-
-			Vă rugăm adăugați informații folositoare și adăugați orice alte informații considerați că ne-ar putea ajuta să reproducem eroarea.
-			Am aprecia dacă ați verifica și dacă nu cumva acest bug a fost raportat deja de altcineva. (Puteți folosi căutarea pentru a găsi ce s-a raportat deja.) Vă mulțumim :)
-		</resource>
-		<resource name="bugreport_cancel">
-			Închide
-		</resource>
-		<resource name="settings_copypathtoclipboard">
-			Copie cale fișier în clipboard de fiecare dată când o imagine este salvată.
-		</resource>
-		<resource name="editor_copypathtoclipboard">
-			Copie calea în clipboard
-		</resource>
-		<resource name="settings_message_filenamepattern">
-			Următoarele variabile vor fi înlocuite automat:
-			%YYYY% an, 4 cifre
-			%MM% luna, 2 cifre
-			%DD% ziua, 2 cifre
-			%hh% ora, 2 cifre
-			%mm% minut, 2cifre
-			%ss% secundă, 2 cifre
-			%NUM% număr incrementare, 6 cifre
-			%title% Titlu Fereastra
-			%user% Utilizator Windows
-			%domain% Domeniu Windows
-			%hostname% Nume PC
-
-			Greenshot poate de asemenea crea directoare automat, folosiți simbolul slash (\) pentru a separa directoare și fișiere.
-			Exemplu: Textul %YYYY%-%MM%-%DD%\%hh%-%mm%-%ss%
-			va genera un director pentru ziua curentă în locația de stocare standard, ex. 2008-06-29, iar numele fișierului de captură va conține
-			timpul curent, ex. 11_58_32 (plus extensia fișierului definită în setări)
-		</resource>
-		<resource name="editor_cursortool">
-			Unealta de selecție (ESC)
-		</resource>
-		<resource name="settings_destination_fileas">
-			Salvează ca (afișează dialog)
-		</resource>
-		<resource name="quicksettings_destination_file">
-			Salvează direct (folosind setările deja definite)
-		</resource>
-		<resource name="editor_opendirinexplorer">
-			Deschide director in Windows Explorer
-		</resource>
-		<resource name="printoptions_timestamp">
-			Data/Ora imprimării în partea de jos a paginii
-		</resource>
-		<resource name="editor_drawhighlighter">
-			Evidențiază (H)
-		</resource>
-		<resource name="editor_obfuscate_blur">
-			Încețoșat
-		</resource>
-		<resource name="editor_obfuscate_pixelize">
-			Pixelat
-		</resource>
-		<resource name="editor_highlight_area">
-			Evidențiază zona
-		</resource>
-		<resource name="editor_highlight_text">
-			Evidențieză text
-		</resource>
-		<resource name="editor_highlight_grayscale">
-			Gri
-		</resource>
-		<resource name="editor_highlight_magnify">
-			Mărește
-		</resource>
-		<resource name="editor_pixel_size">
-			Mărime pixel
-		</resource>
-		<resource name="editor_obfuscate">
-			Obfuscare (O)
-		</resource>
-		<resource name="editor_blur_radius">
-			Rază încețoșare
-		</resource>
-		<resource name="editor_brightness">
-			Luminozitate
-		</resource>
-		<resource name="editor_preview_quality">
-			Previezualizare calitate
-		</resource>
-		<resource name="editor_magnification_factor">
-			Factor de mărire
-		</resource>
-		<resource name="editor_shadow">
-			Umbră
-		</resource>
-		<resource name="editor_image_shadow">
-			Umbră
-		</resource>
-		<resource name="editor_confirm">
-			Confirmare
-		</resource>
-		<resource name="editor_cancel">
-			Anulare
-		</resource>
-		<resource name="editor_crop">
-			Taie (C)
-		</resource>
-		<resource name="contextmenu_captureclipboard">
-			Deschide imaginea din clipboard
-		</resource>
-		<resource name="clipboard_error">
-			O eroare a avut loc în timpul salvării în clipboard.
-		</resource>
-		<resource name="config_unauthorizedaccess_write">
-			Nu pot salva fișierul de configurație al aplicației Greenshot. Verificați vă rog permisiile pentru '{0}'.
-		</resource>
-		<resource name="settings_printer">
-			Imprimantă
-		</resource>
-		<resource name="settings_capture">
-			Captură
-		</resource>
-		<resource name="settings_capture_mousepointer">
-			Captează cursor mouse
-		</resource>
-		<resource name="contextmenu_openfile">
-			Deschide imagine din fișier
-		</resource>
-		<resource name="error_openfile">
-			Fișierul "{0}" nu a putut fi deschis.
-		</resource>
-		<resource name="editor_close_on_save">
-			Doriți să salvați captura?
-		</resource>
-		<resource name="editor_close_on_save_title">
-			Salvați imaginea?
-		</resource>
-		<resource name="settings_capture_windows_interactive">
-			Folosiți metoda interactivă de captură a ferestrei
-		</resource>
-		<resource name="settings_capture_window_full">
-			Captează fereastra chiar dacă e acoperită
-		</resource>
-		<resource name="settings_capture_window_content">
-			Captează conținut doar de către aplicațiile suportate
-		</resource>
-		<resource name="settings_destination_email">
-			E-Mail
-		</resource>
-		<resource name="editor_email">
-			E-Mail
-		</resource>
-		<resource name="editor_load_objects">
-			Încarcă obiecte din fișier
-		</resource>
-		<resource name="editor_save_objects">
-			Salvează obiectele în fișier
-		</resource>
-		<resource name="settings_waittime">
-			Milisecunde de așteptat înaintea capturii
-		</resource>
-		<resource name="tooltip_firststart">
-			Click dreapta aici sau apăsați tasta Print.
-		</resource>
-		<resource name="contextmenu_donate">
-			Ajutați Greenshot
-		</resource>
+		<resource name="about_bugs">Raportați bug-uri la</resource>
+		<resource name="about_donations">Dacă vă place Greenshot, sunteți bineveniți să vă arătați suportul:</resource>
+		<resource name="about_host">Greenshot e hostat de sourceforge.net la</resource>
+		<resource name="about_icons">Pictograme din setul de icoane Fugue al lui Yusuke Kamiyamane (Creative Commons Attribution 3.0 license)</resource>
+		<resource name="about_license">Copyright (C) 2007-2010 Thomas Braun, Jens Klingen, Robin Krom	Greenshot nu vine cu ABSOLUT NICI O GARANȚIE. Acesta este un program gratuit si puteți să-l distribuiți sub anumite condiții.	Detalii despre licența GNU General Public License:</resource>
+		<resource name="about_title">Despre Greenshot</resource>
+		<resource name="about_translation">Traducere în limba română - Radu Mogoș</resource>
+		<resource name="application_title">Greenshot - aplicația pentru capturi de ecran revoluționară</resource>
+		<resource name="bugreport_cancel">Închide</resource>
+		<resource name="bugreport_info">Ne pare rău, a intervenit o eroare.	Partea bună este că ne puteți ajuta să scăpăm de ea adăugând un raport de bug.	Vizitați url-ul dem ai jos, creați un nou raport de bug si copiați textul erorii în descriere.	Vă rugăm adăugați informații folositoare și adăugați orice alte informații considerați că ne-ar putea ajuta să reproducem eroarea.	Am aprecia dacă ați verifica și dacă nu cumva acest bug a fost raportat deja de altcineva. (Puteți folosi căutarea pentru a găsi ce s-a raportat deja.) Vă mulțumim :)</resource>
+		<resource name="bugreport_title">Eroare</resource>
+		<resource name="clipboard_error">O eroare a avut loc în timpul salvării în clipboard.</resource>
+		<resource name="clipboard_inuse">Greenshot nu a putut salva datele în clipboard deoarece procesul {0} a blocat accesul.</resource>
+		<resource name="colorpicker_alpha">Alfa</resource>
+		<resource name="colorpicker_apply">Aplică</resource>
+		<resource name="colorpicker_blue">Albastru</resource>
+		<resource name="colorpicker_green">Verde</resource>
+		<resource name="colorpicker_htmlcolor">Culoare HTML</resource>
+		<resource name="colorpicker_recentcolors">Culori utilizate recent</resource>
+		<resource name="colorpicker_red">Roșu</resource>
+		<resource name="colorpicker_title">Selecția de culori</resource>
+		<resource name="colorpicker_transparent">Transparent</resource>
+		<resource name="config_unauthorizedaccess_write">Nu pot salva fișierul de configurație al aplicației Greenshot. Verificați vă rog permisiile pentru '{0}'.</resource>
+		<resource name="contextmenu_about">Despre Greenshot</resource>
+		<resource name="contextmenu_capturearea">Captează regiune</resource>
+		<resource name="contextmenu_captureclipboard">Deschide imaginea din clipboard</resource>
+		<resource name="contextmenu_capturefullscreen">Captează tot ecranul</resource>
+		<resource name="contextmenu_capturelastregion">Captează ultima regiune</resource>
+		<resource name="contextmenu_capturewindow">Captează fereastră</resource>
+		<resource name="contextmenu_donate">Ajutați Greenshot</resource>
+		<resource name="contextmenu_exit">Ieșire</resource>
+		<resource name="contextmenu_help">Ajutor</resource>
+		<resource name="contextmenu_openfile">Deschide imagine din fișier</resource>
+		<resource name="contextmenu_quicksettings">Preferințe rapide</resource>
+		<resource name="contextmenu_settings">Preferințe...</resource>
+		<resource name="error">Eroare</resource>
+		<resource name="error_multipleinstances">Greenshot deja rulează.</resource>
+		<resource name="error_nowriteaccess">Nu pot salva fișier la {0}.	Verificați vă rog dacă aveți drepturi de scriere în locația respectivă.</resource>
+		<resource name="error_openfile">Fișierul "{0}" nu a putut fi deschis.</resource>
+		<resource name="error_openlink">Nu pot deschide link.</resource>
+		<resource name="error_save">Nu pot salva captura, vă rog folosiți o altă locație.</resource>
+		<resource name="help_title">Ajutor Greenshot</resource>
+		<resource name="jpegqualitydialog_choosejpegquality">Alegeți calitatea imaginii JPEG.</resource>
+		<resource name="jpegqualitydialog_dontaskagain">Definește ca și calitate JPEG standard și nu mă mai întreba</resource>
+		<resource name="jpegqualitydialog_title">Calitage Greenshot JPEG</resource>
+		<resource name="print_error">O eroare a intervenit în timp ce încercam imprimarea.</resource>
+		<resource name="printoptions_allowcenter">Centrează imprimarea pe pagină</resource>
+		<resource name="printoptions_allowenlarge">Mărește imaginea imprimată cât dimensiunea hîrtiei</resource>
+		<resource name="printoptions_allowrotate">Rotește imaginea imprimată să se potrivească orientării paginii</resource>
+		<resource name="printoptions_allowshrink">Micește imaginea imprimată cât dimensiunea hîrtiei</resource>
+		<resource name="printoptions_dontaskagain">Salvează opțiunile ca standard și nu mă mai întreba</resource>
+		<resource name="printoptions_timestamp">Data/Ora imprimării în partea de jos a paginii</resource>
+		<resource name="printoptions_title">Opțiuni imprimare Greenshot</resource>
+		<resource name="quicksettings_destination_file">Salvează direct (folosind setările deja definite)</resource>
+		<resource name="settings_alwaysshowjpegqualitydialog">Specifică calitatea JPEG de fiecare dată când o imagine JPEG este salvată.</resource>
+		<resource name="settings_alwaysshowprintoptionsdialog">Arată dialogul cu opțiunile de imprimare de fiecare dată când imprimați</resource>
+		<resource name="settings_applicationsettings">Setări Aplicație</resource>
+		<resource name="settings_autostartshortcut">Pornește Greenshot odată cu Windows</resource>
+		<resource name="settings_capture">Captură</resource>
+		<resource name="settings_capture_mousepointer">Captează cursor mouse</resource>
+		<resource name="settings_capture_window_content">Captează conținut doar de către aplicațiile suportate</resource>
+		<resource name="settings_capture_window_full">Captează fereastra chiar dacă e acoperită</resource>
+		<resource name="settings_capture_windows_interactive">Folosiți metoda interactivă de captură a ferestrei</resource>
+		<resource name="settings_copypathtoclipboard">Copie cale fișier în clipboard de fiecare dată când o imagine este salvată.</resource>
+		<resource name="settings_destination">Destinație captură</resource>
+		<resource name="settings_destination_clipboard">Copie în clipboard</resource>
+		<resource name="settings_destination_editor">Deschide în editor imagini</resource>
+		<resource name="settings_destination_email">E-Mail</resource>
+		<resource name="settings_destination_file">Salvează direct (folosind setările de mai jos)</resource>
+		<resource name="settings_destination_fileas">Salvează ca (afișează dialog)</resource>
+		<resource name="settings_destination_printer">Trimite la imprimantă</resource>
+		<resource name="settings_filenamepattern">Tipar fișier</resource>
+		<resource name="settings_general">General</resource>
+		<resource name="settings_jpegquality">Calitate JPEG</resource>
+		<resource name="settings_jpegsettings">Setări JPEG</resource>
+		<resource name="settings_language">Limba</resource>
+		<resource name="settings_message_filenamepattern">Următoarele variabile vor fi înlocuite automat:	%YYYY% an, 4 cifre	%MM% luna, 2 cifre	%DD% ziua, 2 cifre	%hh% ora, 2 cifre	%mm% minut, 2cifre	%ss% secundă, 2 cifre	%NUM% număr incrementare, 6 cifre	%title% Titlu Fereastra	%user% Utilizator Windows	%domain% Domeniu Windows	%hostname% Nume PC	Greenshot poate de asemenea crea directoare automat, folosiți simbolul slash (\) pentru a separa directoare și fișiere.	Exemplu: Textul %YYYY%-%MM%-%DD%\%hh%-%mm%-%ss%	va genera un director pentru ziua curentă în locația de stocare standard, ex. 2008-06-29, iar numele fișierului de captură va conține	timpul curent, ex. 11_58_32 (plus extensia fișierului definită în setări)</resource>
+		<resource name="settings_output">Rezultat</resource>
+		<resource name="settings_playsound">Cîntă un sunet</resource>
+		<resource name="settings_preferredfilesettings">Setări salvare fișier preferate</resource>
+		<resource name="settings_primaryimageformat">Format imagine</resource>
+		<resource name="settings_printer">Imprimantă</resource>
+		<resource name="settings_printoptions">Opțiuni imprimare</resource>
+		<resource name="settings_registerhotkeys">Definește tastele pentru scurtături</resource>
+		<resource name="settings_showflashlight">Arată blitz</resource>
+		<resource name="settings_skipimageeditor">Nu folosi editorul de imagini</resource>
+		<resource name="settings_storagelocation">Locație stocare</resource>
+		<resource name="settings_title">Setări</resource>
+		<resource name="settings_tooltip_filenamepattern">Model folosit pentru generarea numelor de fișiere când salvați capturile</resource>
+		<resource name="settings_tooltip_language">Limbă interfață Greenshot (necesită repornire)</resource>
+		<resource name="settings_tooltip_primaryimageformat">Format imagine folosit de obicei</resource>
+		<resource name="settings_tooltip_registerhotkeys">Definește dacă scurtăturile Prnt, Ctrl + Print, Alt + Prnt sunt rezervate să fie folosite de Greenshot la pornire, pînă când programul este oprit.</resource>
+		<resource name="settings_tooltip_storagelocation">Locația unde capturile sunt salvate de obicei (lasă nedefinit pentru a salva pe desktop)</resource>
+		<resource name="settings_visualization">Efecte</resource>
+		<resource name="settings_waittime">Milisecunde de așteptat înaintea capturii</resource>
+		<resource name="tooltip_firststart">Click dreapta aici sau apăsați tasta Print.</resource>
+		<resource name="warning">Atenție</resource>
+		<resource name="warning_hotkeys">Una sau mai multe taste pentru scurtături nu a putut fi înregistrată. De aceea, s-ar putea să nu fie posibil să utilizați scurtăturile definite în Greenshot.	Această problemă e probabil cauzată de alt program ce folosește aceleași scurtături.	Vă rugăm să dezactivați aplicația ce folosește tasta Print. Puteți de asemenea folosi toate funcționalitățile Greenshot făcând click pe pictograma aplicației din tray.</resource>
 	</resources>
 </language>

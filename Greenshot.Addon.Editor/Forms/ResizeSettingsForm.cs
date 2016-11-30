@@ -25,6 +25,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Config.Language;
 using Greenshot.Addon.Configuration;
+using Greenshot.Addon.Editor.Configuration;
 using Greenshot.Core.Configuration;
 using Greenshot.Core.Gfx;
 
@@ -37,7 +38,7 @@ namespace Greenshot.Addon.Editor.Forms
 	/// </summary>
 	public partial class ResizeSettingsForm : BaseForm
 	{
-		private static readonly IEditorLanguage Language = LanguageLoader.Current.Get<IGreenshotLanguage>();
+		private static readonly IEditorLanguage Language = LanguageLoader.Current.Get<IEditorLanguage>();
 
 		private readonly ResizeEffect _effect;
 		private readonly string _valuePercent;

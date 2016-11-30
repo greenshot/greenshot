@@ -27,6 +27,7 @@ using System.Runtime.Serialization;
 using System.Windows.Forms;
 using Dapplo.Config.Ini;
 using Dapplo.Log;
+using Greenshot.Addon.Editor.Configuration;
 using Greenshot.Addon.Editor.Drawing.Adorners;
 using Greenshot.Addon.Editor.Drawing.Fields;
 using Greenshot.Addon.Editor.Drawing.Filters;

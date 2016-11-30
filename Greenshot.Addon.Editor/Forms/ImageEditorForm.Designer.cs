@@ -334,6 +334,7 @@ namespace Greenshot.Addon.Editor.Forms
 			this.btnCursor.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnCursor.Image = ((System.Drawing.Image)(resources.GetObject("btnCursor.Image")));
 			this.btnCursor.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnCursor.LanguageModule = "editor";
 			this.btnCursor.LanguageKey = "editor_cursortool";
 			this.btnCursor.Name = "btnCursor";
 			this.btnCursor.Click += new System.EventHandler(this.BtnCursorClick);
@@ -1060,6 +1061,7 @@ namespace Greenshot.Addon.Editor.Forms
 									this.blurToolStripMenuItem});
 			this.obfuscateModeButton.Image = ((System.Drawing.Image)(resources.GetObject("obfuscateModeButton.Image")));
 			this.obfuscateModeButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.obfuscateModeButton.LanguageModule = "editor";
 			this.obfuscateModeButton.LanguageKey = "editor_obfuscate_mode";
 			this.obfuscateModeButton.Name = "obfuscateModeButton";
 			this.obfuscateModeButton.SelectedTag = FilterContainer.PreparedFilter.BLUR;
@@ -1068,6 +1070,7 @@ namespace Greenshot.Addon.Editor.Forms
 			// pixelizeToolStripMenuItem
 			// 
 			this.pixelizeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("pixelizeToolStripMenuItem.Image")));
+			this.pixelizeToolStripMenuItem.LanguageModule = "editor";
 			this.pixelizeToolStripMenuItem.LanguageKey = "editor_obfuscate_pixelize";
 			this.pixelizeToolStripMenuItem.Name = "pixelizeToolStripMenuItem";
 			this.pixelizeToolStripMenuItem.Tag = FilterContainer.PreparedFilter.PIXELIZE;
@@ -1075,6 +1078,7 @@ namespace Greenshot.Addon.Editor.Forms
 			// blurToolStripMenuItem
 			// 
 			this.blurToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("blurToolStripMenuItem.Image")));
+			this.blurToolStripMenuItem.LanguageModule = "editor";
 			this.blurToolStripMenuItem.LanguageKey = "editor_obfuscate_blur";
 			this.blurToolStripMenuItem.Name = "blurToolStripMenuItem";
 			this.blurToolStripMenuItem.Tag = FilterContainer.PreparedFilter.BLUR;
@@ -1089,6 +1093,7 @@ namespace Greenshot.Addon.Editor.Forms
 									this.magnifyMenuItem});
 			this.highlightModeButton.Image = ((System.Drawing.Image)(resources.GetObject("highlightModeButton.Image")));
 			this.highlightModeButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.highlightModeButton.LanguageModule = "editor";
 			this.highlightModeButton.LanguageKey = "editor_highlight_mode";
 			this.highlightModeButton.Name = "highlightModeButton";
 			this.highlightModeButton.SelectedTag = FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT;
@@ -1097,6 +1102,7 @@ namespace Greenshot.Addon.Editor.Forms
 			// textHighlightMenuItem
 			// 
 			this.textHighlightMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("textHighlightMenuItem.Image")));
+			this.textHighlightMenuItem.LanguageModule = "editor";
 			this.textHighlightMenuItem.LanguageKey = "editor_highlight_text";
 			this.textHighlightMenuItem.Name = "textHighlightMenuItem";
 			this.textHighlightMenuItem.Tag = FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT;
@@ -1104,6 +1110,7 @@ namespace Greenshot.Addon.Editor.Forms
 			// areaHighlightMenuItem
 			// 
 			this.areaHighlightMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("areaHighlightMenuItem.Image")));
+			this.areaHighlightMenuItem.LanguageModule = "editor";
 			this.areaHighlightMenuItem.LanguageKey = "editor_highlight_area";
 			this.areaHighlightMenuItem.Name = "areaHighlightMenuItem";
 			this.areaHighlightMenuItem.Tag = FilterContainer.PreparedFilter.AREA_HIGHLIGHT;
@@ -1111,6 +1118,7 @@ namespace Greenshot.Addon.Editor.Forms
 			// grayscaleHighlightMenuItem
 			// 
 			this.grayscaleHighlightMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("grayscaleHighlightMenuItem.Image")));
+			this.grayscaleHighlightMenuItem.LanguageModule = "editor";
 			this.grayscaleHighlightMenuItem.LanguageKey = "editor_highlight_grayscale";
 			this.grayscaleHighlightMenuItem.Name = "grayscaleHighlightMenuItem";
 			this.grayscaleHighlightMenuItem.Tag = FilterContainer.PreparedFilter.GRAYSCALE;
@@ -1118,6 +1126,7 @@ namespace Greenshot.Addon.Editor.Forms
 			// magnifyMenuItem
 			// 
 			this.magnifyMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("magnifyMenuItem.Image")));
+			this.magnifyMenuItem.LanguageModule = "editor";
 			this.magnifyMenuItem.LanguageKey = "editor_highlight_magnify";
 			this.magnifyMenuItem.Name = "magnifyMenuItem";
 			this.magnifyMenuItem.Tag = FilterContainer.PreparedFilter.MAGNIFICATION;
@@ -1127,6 +1136,7 @@ namespace Greenshot.Addon.Editor.Forms
 			this.btnFillColor.BackColor = System.Drawing.Color.Transparent;
 			this.btnFillColor.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnFillColor.Image = ((System.Drawing.Image)(resources.GetObject("btnFillColor.Image")));
+			this.btnFillColor.LanguageModule = "editor";
 			this.btnFillColor.LanguageKey = "editor_backcolor";
 			this.btnFillColor.Name = "btnFillColor";
 			this.btnFillColor.SelectedColor = System.Drawing.Color.Transparent;
@@ -1136,12 +1146,14 @@ namespace Greenshot.Addon.Editor.Forms
 			this.btnLineColor.BackColor = System.Drawing.Color.Transparent;
 			this.btnLineColor.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnLineColor.Image = ((System.Drawing.Image)(resources.GetObject("btnLineColor.Image")));
+			this.btnLineColor.LanguageModule = "editor";
 			this.btnLineColor.LanguageKey = "editor_forecolor";
 			this.btnLineColor.Name = "btnLineColor";
 			this.btnLineColor.SelectedColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(222)))), ((int)(((byte)(250)))));
 			// 
 			// lineThicknessLabel
 			// 
+			this.lineThicknessLabel.LanguageModule = "editor";
 			this.lineThicknessLabel.LanguageKey = "editor_thickness";
 			this.lineThicknessLabel.Name = "lineThicknessLabel";
 			// 
@@ -1175,6 +1187,7 @@ namespace Greenshot.Addon.Editor.Forms
 			// 
 			// counterLabel
 			// 
+			this.counterLabel.LanguageModule = "editor";
 			this.counterLabel.LanguageKey = "editor_counter_startvalue";
 			this.counterLabel.Name = "counterLabel";
 			// 
@@ -1204,6 +1217,7 @@ namespace Greenshot.Addon.Editor.Forms
 			// 
 			// fontSizeLabel
 			// 
+			this.fontSizeLabel.LanguageModule = "editor";
 			this.fontSizeLabel.LanguageKey = "editor_fontsize";
 			this.fontSizeLabel.Name = "fontSizeLabel";
 			// 
@@ -1242,6 +1256,7 @@ namespace Greenshot.Addon.Editor.Forms
 			this.fontBoldButton.Image = ((System.Drawing.Image)(resources.GetObject("fontBoldButton.Image")));
 			this.fontBoldButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.fontBoldButton.LanguageKey = "editor_bold";
+			this.fontBoldButton.LanguageModule = "editor";
 			this.fontBoldButton.Name = "fontBoldButton";
 			this.fontBoldButton.Text = "Bold";
 			this.fontBoldButton.Click += new System.EventHandler(this.FontBoldButtonClick);
@@ -1253,6 +1268,7 @@ namespace Greenshot.Addon.Editor.Forms
 			this.fontItalicButton.Image = ((System.Drawing.Image)(resources.GetObject("fontItalicButton.Image")));
 			this.fontItalicButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.fontItalicButton.LanguageKey = "editor_italic";
+			this.fontItalicButton.LanguageModule = "editor";
 			this.fontItalicButton.Name = "fontItalicButton";
 			this.fontItalicButton.Text = "Italic";
 			this.fontItalicButton.Click += new System.EventHandler(this.FontItalicButtonClick);
@@ -1266,6 +1282,7 @@ namespace Greenshot.Addon.Editor.Forms
 			this.textVerticalAlignmentButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.textVerticalAlignmentButton.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignMiddle.Image")));
 			this.textVerticalAlignmentButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.textVerticalAlignmentButton.LanguageModule = "editor";
 			this.textVerticalAlignmentButton.LanguageKey = "editor_align_vertical";
 			this.textVerticalAlignmentButton.Name = "textVerticalAlignmentButton";
 			this.textVerticalAlignmentButton.SelectedTag = System.Drawing.StringAlignment.Center;
@@ -1275,6 +1292,7 @@ namespace Greenshot.Addon.Editor.Forms
 			// 
 			this.alignTopToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
 			this.alignTopToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignTop.Image")));
+			this.alignTopToolStripMenuItem.LanguageModule = "editor";
 			this.alignTopToolStripMenuItem.LanguageKey = "editor_align_top";
 			this.alignTopToolStripMenuItem.Name = "alignTopToolStripMenuItem";
 			this.alignTopToolStripMenuItem.Tag = System.Drawing.StringAlignment.Near;
@@ -1283,6 +1301,7 @@ namespace Greenshot.Addon.Editor.Forms
 			// 
 			this.alignMiddleToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
 			this.alignMiddleToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignMiddle.Image")));
+			this.alignMiddleToolStripMenuItem.LanguageModule = "editor";
 			this.alignMiddleToolStripMenuItem.LanguageKey = "editor_align_middle";
 			this.alignMiddleToolStripMenuItem.Name = "alignMiddleToolStripMenuItem";
 			this.alignMiddleToolStripMenuItem.Tag = System.Drawing.StringAlignment.Center;
@@ -1291,12 +1310,14 @@ namespace Greenshot.Addon.Editor.Forms
 			// 
 			this.alignBottomToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
 			this.alignBottomToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignBottom.Image")));
+			this.alignBottomToolStripMenuItem.LanguageModule = "editor";
 			this.alignBottomToolStripMenuItem.LanguageKey = "editor_align_bottom";
 			this.alignBottomToolStripMenuItem.Name = "alignBottomToolStripMenuItem";
 			this.alignBottomToolStripMenuItem.Tag = System.Drawing.StringAlignment.Far;
 			// 
 			// blurRadiusLabel
 			// 
+			this.blurRadiusLabel.LanguageModule = "editor";
 			this.blurRadiusLabel.LanguageKey = "editor_blur_radius";
 			this.blurRadiusLabel.Name = "blurRadiusLabel";
 			this.blurRadiusLabel.Text = "Blur radius";
@@ -1331,6 +1352,7 @@ namespace Greenshot.Addon.Editor.Forms
 			// 
 			// brightnessLabel
 			// 
+			this.brightnessLabel.LanguageModule = "editor";
 			this.brightnessLabel.LanguageKey = "editor_brightness";
 			this.brightnessLabel.Name = "brightnessLabel";
 			this.brightnessLabel.Text = "Brightness";
@@ -1365,6 +1387,7 @@ namespace Greenshot.Addon.Editor.Forms
 			// 
 			// magnificationFactorLabel
 			// 
+			this.magnificationFactorLabel.LanguageModule = "editor";
 			this.magnificationFactorLabel.LanguageKey = "editor_magnification_factor";
 			this.magnificationFactorLabel.Name = "magnificationFactorLabel";
 			this.magnificationFactorLabel.Tag = FilterContainer.PreparedFilter.MAGNIFICATION;
@@ -1399,6 +1422,7 @@ namespace Greenshot.Addon.Editor.Forms
 			// 
 			// pixelSizeLabel
 			// 
+			this.pixelSizeLabel.LanguageModule = "editor";
 			this.pixelSizeLabel.LanguageKey = "editor_pixel_size";
 			this.pixelSizeLabel.Name = "pixelSizeLabel";
 			// 
@@ -1432,6 +1456,7 @@ namespace Greenshot.Addon.Editor.Forms
 			// 
 			// arrowHeadsLabel
 			// 
+			this.arrowHeadsLabel.LanguageModule = "editor";
 			this.arrowHeadsLabel.LanguageKey = "editor_pixel_size";
 			this.arrowHeadsLabel.Name = "arrowHeadsLabel";
 			// 
@@ -1445,11 +1470,13 @@ namespace Greenshot.Addon.Editor.Forms
 									this.arrowHeadNoneMenuItem});
 			this.arrowHeadsDropDownButton.Image = ((System.Drawing.Image)(resources.GetObject("arrowHeadsDropDownButton.Image")));
 			this.arrowHeadsDropDownButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.arrowHeadsDropDownButton.LanguageModule = "editor";
 			this.arrowHeadsDropDownButton.LanguageKey = "editor_arrowheads";
 			this.arrowHeadsDropDownButton.Name = "arrowHeadsDropDownButton";
 			// 
 			// arrowHeadStartMenuItem
 			// 
+			this.arrowHeadStartMenuItem.LanguageModule = "editor";
 			this.arrowHeadStartMenuItem.LanguageKey = "editor_arrowheads_start";
 			this.arrowHeadStartMenuItem.Name = "arrowHeadStartMenuItem";
 			this.arrowHeadStartMenuItem.Tag = ArrowHeadCombination.START_POINT;
@@ -1457,6 +1484,7 @@ namespace Greenshot.Addon.Editor.Forms
 			// 
 			// arrowHeadEndMenuItem
 			// 
+			this.arrowHeadEndMenuItem.LanguageModule = "editor";
 			this.arrowHeadEndMenuItem.LanguageKey = "editor_arrowheads_end";
 			this.arrowHeadEndMenuItem.Name = "arrowHeadEndMenuItem";
 			this.arrowHeadEndMenuItem.Tag = ArrowHeadCombination.END_POINT;
@@ -1464,6 +1492,7 @@ namespace Greenshot.Addon.Editor.Forms
 			// 
 			// arrowHeadBothMenuItem
 			// 
+			this.arrowHeadNoneMenuItem.LanguageModule = "editor";
 			this.arrowHeadBothMenuItem.LanguageKey = "editor_arrowheads_both";
 			this.arrowHeadBothMenuItem.Name = "arrowHeadBothMenuItem";
 			this.arrowHeadBothMenuItem.Tag = ArrowHeadCombination.BOTH;
@@ -1471,6 +1500,7 @@ namespace Greenshot.Addon.Editor.Forms
 			// 
 			// arrowHeadNoneMenuItem
 			// 
+			this.arrowHeadNoneMenuItem.LanguageModule = "editor";
 			this.arrowHeadNoneMenuItem.LanguageKey = "editor_arrowheads_none";
 			this.arrowHeadNoneMenuItem.Name = "arrowHeadNoneMenuItem";
 			this.arrowHeadNoneMenuItem.Tag = ArrowHeadCombination.NONE;
@@ -1482,6 +1512,7 @@ namespace Greenshot.Addon.Editor.Forms
 			this.shadowButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.shadowButton.Image = ((System.Drawing.Image)(resources.GetObject("shadowButton.Image")));
 			this.shadowButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.shadowButton.LanguageModule = "editor";
 			this.shadowButton.LanguageKey = "editor_shadow";
 			this.shadowButton.Name = "shadowButton";
 			// 
@@ -1498,6 +1529,7 @@ namespace Greenshot.Addon.Editor.Forms
 			this.btnConfirm.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnConfirm.Image = ((System.Drawing.Image)(resources.GetObject("btnConfirm.Image")));
 			this.btnConfirm.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnConfirm.LanguageModule = "editor";
 			this.btnConfirm.LanguageKey = "editor_confirm";
 			this.btnConfirm.Name = "btnConfirm";
 			this.btnConfirm.Text = "Confirm";
@@ -1508,6 +1540,7 @@ namespace Greenshot.Addon.Editor.Forms
 			this.btnCancel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnCancel.Image = ((System.Drawing.Image)(resources.GetObject("btnCancel.Image")));
 			this.btnCancel.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnCancel.LanguageModule = "editor";
 			this.btnCancel.LanguageKey = "editor_cancel";
 			this.btnCancel.Name = "btnCancel";
 			this.btnCancel.Text = "Cancel";
@@ -1520,6 +1553,7 @@ namespace Greenshot.Addon.Editor.Forms
 			// closeToolStripMenuItem
 			// 
 			this.closeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("closeToolStripMenuItem.Image")));
+			this.closeToolStripMenuItem.LanguageModule = "editor";
 			this.closeToolStripMenuItem.LanguageKey = "editor_close";
 			this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
 			this.closeToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
@@ -1534,12 +1568,14 @@ namespace Greenshot.Addon.Editor.Forms
 			// 
 			// copyPathMenuItem
 			// 
+			this.copyPathMenuItem.LanguageModule = "editor";
 			this.copyPathMenuItem.LanguageKey = "editor_copypathtoclipboard";
 			this.copyPathMenuItem.Name = "copyPathMenuItem";
 			this.copyPathMenuItem.Click += new System.EventHandler(this.CopyPathMenuItemClick);
 			// 
 			// openDirectoryMenuItem
 			// 
+			this.openDirectoryMenuItem.LanguageModule = "editor";
 			this.openDirectoryMenuItem.LanguageKey = "editor_opendirinexplorer";
 			this.openDirectoryMenuItem.Name = "openDirectoryMenuItem";
 			this.openDirectoryMenuItem.Click += new System.EventHandler(this.OpenDirectoryMenuItemClick);
@@ -1553,6 +1589,7 @@ namespace Greenshot.Addon.Editor.Forms
 			this.textHorizontalAlignmentButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.textHorizontalAlignmentButton.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignCenter.Image")));
 			this.textHorizontalAlignmentButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.textHorizontalAlignmentButton.LanguageModule = "editor";
 			this.textHorizontalAlignmentButton.LanguageKey = "editor_align_horizontal";
 			this.textHorizontalAlignmentButton.Name = "textHorizontalAlignmentButton";
 			this.textHorizontalAlignmentButton.SelectedTag = System.Drawing.StringAlignment.Center;
@@ -1562,6 +1599,7 @@ namespace Greenshot.Addon.Editor.Forms
 			// 
 			this.alignLeftToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
 			this.alignLeftToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignLeft.Image")));
+			this.alignLeftToolStripMenuItem.LanguageModule = "editor";
 			this.alignLeftToolStripMenuItem.LanguageKey = "editor_align_left";
 			this.alignLeftToolStripMenuItem.Name = "alignLeftToolStripMenuItem";
 			this.alignLeftToolStripMenuItem.Tag = System.Drawing.StringAlignment.Near;
@@ -1570,6 +1608,7 @@ namespace Greenshot.Addon.Editor.Forms
 			// 
 			this.alignCenterToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
 			this.alignCenterToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignCenter.Image")));
+			this.alignCenterToolStripMenuItem.LanguageModule = "editor";
 			this.alignCenterToolStripMenuItem.LanguageKey = "editor_align_center";
 			this.alignCenterToolStripMenuItem.Name = "alignCenterToolStripMenuItem";
 			this.alignCenterToolStripMenuItem.Tag = System.Drawing.StringAlignment.Center;
@@ -1578,6 +1617,7 @@ namespace Greenshot.Addon.Editor.Forms
 			// 
 			this.alignRightToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
 			this.alignRightToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignRight.Image")));
+			this.alignRightToolStripMenuItem.LanguageModule = "editor";
 			this.alignRightToolStripMenuItem.LanguageKey = "editor_align_right";
 			this.alignRightToolStripMenuItem.Name = "alignRightToolStripMenuItem";
 			this.alignRightToolStripMenuItem.Tag = System.Drawing.StringAlignment.Far;
@@ -1589,6 +1629,7 @@ namespace Greenshot.Addon.Editor.Forms
 			this.ClientSize = new System.Drawing.Size(785, 485);
 			this.Controls.Add(this.topToolStripContainer);
 			this.KeyPreview = true;
+			this.LanguageModule = "editor";
 			this.LanguageKey = "editor_title";
 			this.Name = "ImageEditorForm";
 			this.Activated += new System.EventHandler(this.ImageEditorFormActivated);

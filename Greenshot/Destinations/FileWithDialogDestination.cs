@@ -81,7 +81,7 @@ namespace Greenshot.Destinations
 				else
 				{
 					returnValue.NotificationType = NotificationTypes.Cancel;
-					returnValue.Text = GreenshotLanguage.EditorCancel;
+					returnValue.Text = GreenshotLanguage.Cancel;
 				}
 			}
 			catch (Exception e)
@@ -89,7 +89,7 @@ namespace Greenshot.Destinations
 				Log.Error().WriteLine(e, "Save as gave an exception");
 				returnValue.NotificationType = NotificationTypes.Fail;
 				returnValue.ErrorText = e.Message;
-				returnValue.Text = GreenshotLanguage.EditorCancel;
+				returnValue.Text = GreenshotLanguage.Cancel;
 			}
 
 			return returnValue;

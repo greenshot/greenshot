@@ -25,6 +25,7 @@ using System.ComponentModel;
 using System.Reflection;
 using Dapplo.Config.Ini;
 using Dapplo.Log;
+using Greenshot.Addon.Editor.Configuration;
 using Greenshot.Addon.Editor.Interfaces.Drawing;
 
 #endregion

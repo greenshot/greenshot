@@ -26,6 +26,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Log;
+using Greenshot.Addon.Editor.Configuration;
 using Greenshot.Addon.Editor.Drawing;
 using Greenshot.Addon.Editor.Extensions;
 using Greenshot.Addon.Editor.Forms;

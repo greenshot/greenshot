@@ -97,7 +97,6 @@
     <Compile Include="Configuration\ICaptureConfiguration.cs" />
     <Compile Include="Configuration\ICoreTranslations.cs" />
     <Compile Include="Configuration\ICropConfiguration.cs" />
-    <Compile Include="Configuration\IEditorLanguage.cs" />
     <Compile Include="Configuration\IHotkeyConfiguration.cs" />
     <Compile Include="Configuration\IMiscConfiguration.cs" />
     <Compile Include="Configuration\INetworkConfiguration.cs" />

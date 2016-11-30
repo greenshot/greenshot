@@ -7,7 +7,7 @@ namespace Greenshot.Wpf.QuickTest
 	/// This actually only makes sure tsome of the sub-ini configuration modules can be found
 	/// </summary>
 	[IniSection("Test")]
-	public interface ITestConfiguration : IIniSection, IIECaptureConfiguration, ICaptureConfiguration, ICropConfiguration, IUiConfiguration
+	public interface ITestConfiguration : IIniSection, IIECaptureConfiguration, IMiscConfiguration, ICaptureConfiguration, ICropConfiguration, IUiConfiguration
 	{
 	}
 }

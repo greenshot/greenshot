@@ -36,6 +36,7 @@ using Dapplo.Windows.Structs;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Controls;
 using Greenshot.Addon.Core;
+using Greenshot.Addon.Editor.Configuration;
 using Greenshot.Addon.Editor.Drawing;
 using Greenshot.Addon.Editor.Drawing.Fields.Binding;
 using Greenshot.Addon.Editor.Helpers;
@@ -65,10 +66,9 @@ namespace Greenshot.Addon.Editor.Forms
 	{
 		private static readonly LogSource Log = new LogSource();
 		private static readonly IEditorConfiguration EditorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
-		private static readonly IEditorLanguage EditorLanguage = LanguageLoader.Current.Get<IGreenshotLanguage>();
+		private static readonly IEditorLanguage EditorLanguage = LanguageLoader.Current.Get<IEditorLanguage>();
 		private static readonly IMiscConfiguration MiscConfiguration = IniConfig.Current.GetSubSection<IMiscConfiguration>();
 		private static readonly IUiConfiguration UiConfiguration = IniConfig.Current.GetSubSection<IUiConfiguration>();
-		
 		private static readonly IOutputConfiguration OutputConfiguration = IniConfig.Current.GetSubSection<IOutputConfiguration>();
 		private static readonly List<string> IgnoreDestinations = new List<string>
 		{

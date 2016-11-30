@@ -20,6 +20,7 @@
 #region Usings
 
 using Dapplo.Config.Language;
+using Dapplo.Log;
 
 #endregion
 
@@ -30,6 +31,8 @@ namespace Greenshot.Core.Extensions
 	/// </summary>
 	public static class LanguageLoaderExtensions
 	{
+		private static readonly LogSource Log = new LogSource()
+			;
 		/// <summary>
 		///     Get the translation from the language loader for a module and key
 		/// </summary>
@@ -53,7 +56,11 @@ namespace Greenshot.Core.Extensions
 					languageModule = "Core";
 				}
 			}
-			return LanguageLoader.Current[languageModule][languageKey];
+			if (LanguageLoader.Current[languageModule] == null)
+			{
+				Log.Warn().WriteLine("Couldn't find translation {0}.{1}", languageModule, languageKey);
+			}
+			return LanguageLoader.Current[languageModule]?[languageKey];
 		}
 
 		/// <summary>

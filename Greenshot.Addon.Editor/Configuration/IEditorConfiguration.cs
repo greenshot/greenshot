@@ -29,7 +29,7 @@ using Greenshot.Core.Gfx;
 
 #endregion
 
-namespace Greenshot.Addon.Editor
+namespace Greenshot.Addon.Editor.Configuration
 {
 	/// <summary>
 	///     Description of CoreConfiguration.

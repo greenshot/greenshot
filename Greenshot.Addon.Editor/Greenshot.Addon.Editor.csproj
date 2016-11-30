@@ -59,8 +59,8 @@
       <HintPath>..\packages\Dapplo.Addons.Bootstrapper.0.3.90\lib\net45\Dapplo.Addons.Bootstrapper.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.CaliburnMicro, Version=0.2.45.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.CaliburnMicro.0.2.45\lib\net45\Dapplo.CaliburnMicro.dll</HintPath>
+    <Reference Include="Dapplo.CaliburnMicro, Version=0.2.46.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.CaliburnMicro.0.2.46\lib\net45\Dapplo.CaliburnMicro.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.Config, Version=0.4.4.0, Culture=neutral, processorArchitecture=MSIL">
@@ -130,6 +130,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\IEditorLanguage.cs" />
     <Compile Include="Controls\BindableToolStripButton.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -232,7 +233,7 @@
       <DependentUpon>ImageEditorForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\ToolStripItemEndisabler.cs" />
-    <Compile Include="IEditorConfiguration.cs" />
+    <Compile Include="Configuration\IEditorConfiguration.cs" />
     <Compile Include="Interfaces\Drawing\ArrowHeadCombination.cs" />
     <Compile Include="Interfaces\Drawing\EditStatus.cs" />
     <Compile Include="Interfaces\Drawing\ElementFlag.cs" />
@@ -297,6 +298,7 @@
     <PostBuildEvent>mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"
 copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName)" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)\*.gsp"
 copy "$(ProjectDir)bin\$(Configuration)\$(ProjectName).pdb" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)\"
-</PostBuildEvent>
+mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\Plugins\$(ProjectName)"
+copy "$(ProjectDir)Languages\*.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\Plugins\$(ProjectName)\"</PostBuildEvent>
   </PropertyGroup>
 </Project>

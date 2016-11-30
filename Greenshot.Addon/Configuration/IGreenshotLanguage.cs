@@ -29,7 +29,7 @@ using Greenshot.Core.Configuration;
 namespace Greenshot.Addon.Configuration
 {
 	[Language("Core")]
-	public interface IGreenshotLanguage : ILanguage, INotifyPropertyChanged, IEditorLanguage, ICaptureTranslations, ICoreTranslations, Dapplo.CaliburnMicro.Translations.IConfigTranslations, Dapplo.CaliburnMicro.Translations.ICoreTranslations
+	public interface IGreenshotLanguage : ILanguage, INotifyPropertyChanged, ICaptureTranslations, ICoreTranslations, Dapplo.CaliburnMicro.Translations.IConfigTranslations, Dapplo.CaliburnMicro.Translations.ICoreTranslations
 	{
 		string AboutBugs { get; }
 
@@ -254,5 +254,7 @@ namespace Greenshot.Addon.Configuration
 		string Warning { get; }
 
 		string WarningHotkeys { get; }
+
+		string SettingsDestinationEditor { get; }
 	}
 }
