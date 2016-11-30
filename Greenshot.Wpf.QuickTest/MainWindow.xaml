@@ -7,9 +7,9 @@
 		mc:Ignorable="d"
 		Title="Capture test" SizeToContent="WidthAndHeight">
 	<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300">
-		<Button Content="Capture window" Click="WindowButton_OnClick" Name="WindowButton" Height="20" Width="100"></Button>
-		<Button Content="Capture screen" Click="ScreenButton_OnClick" Name="ScreenButton" Height="20" Width="100"></Button>
-		<Button Content="Capture screen and edit" Click="ScreenEditButton_OnClick" Name="ScreenEditButton" Height="20" Width="100"></Button>
+		<Button Content="Capture window" Click="WindowButton_OnClick" Name="WindowButton" Height="20" Width="140"></Button>
+		<Button Content="Capture screen" Click="ScreenButton_OnClick" Name="ScreenButton" Height="20" Width="140"></Button>
+		<Button Content="Capture screen and edit" Click="ScreenEditButton_OnClick" Name="ScreenEditButton" Height="20" Width="140"></Button>
 		<Image Name="CapturedImage" Height="Auto" Width="300"></Image>
 	</StackPanel>
 	

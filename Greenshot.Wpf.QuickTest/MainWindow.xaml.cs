@@ -12,7 +12,6 @@ using Greenshot.Core.Extensions;
 using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
 using Greenshot.Addon.Editor;
-using Greenshot.Core.Configuration;
 
 namespace Greenshot.Wpf.QuickTest
 {
@@ -29,6 +28,8 @@ namespace Greenshot.Wpf.QuickTest
 		public MainWindow()
 		{
 			LogSettings.RegisterDefaultLogger<DebugLogger>(LogLevels.Verbose);
+
+			// Initialize some async stuff
 			Loaded += async (sender, args) =>
 			{
 				// Manually initialize the configuration for now
@@ -36,8 +37,6 @@ namespace Greenshot.Wpf.QuickTest
 				await _iniConfig.RegisterAndGetAsync<IEditorConfiguration>();
 				await _languageLoader.RegisterAndGetAsync<ITestTranslations>();
 				await _languageLoader.RegisterAndGetAsync<IGreenshotLanguage>();
-
-
 			};
 			InitializeComponent();
 		}
@@ -54,6 +53,10 @@ namespace Greenshot.Wpf.QuickTest
 				CapturedImage.Source = image.ToBitmapSource();
 			}
 		}
+
+		/// <summary>
+		/// Capture a window, and show the result
+		/// </summary>
 		private async void WindowButton_OnClick(object sender, RoutedEventArgs e)
 		{
 			WindowButton.IsEnabled = false;
@@ -73,6 +76,9 @@ namespace Greenshot.Wpf.QuickTest
 			WindowButton.IsEnabled = true;
 		}
 
+		/// <summary>
+		/// Capture the screen, and show the cropped result
+		/// </summary>
 		private async void ScreenButton_OnClick(object sender, RoutedEventArgs e)
 		{
 			ScreenButton.IsEnabled = false;
@@ -96,9 +102,12 @@ namespace Greenshot.Wpf.QuickTest
 
 		}
 
+		/// <summary>
+		/// Capture the screen, and show it in the editor
+		/// </summary>
 		private async void ScreenEditButton_OnClick(object sender, RoutedEventArgs e)
 		{
-			ScreenButton.IsEnabled = false;
+			ScreenEditButton.IsEnabled = false;
 
 			var flow = new SimpleCaptureFlow
 			{
@@ -111,7 +120,7 @@ namespace Greenshot.Wpf.QuickTest
 				},
 				// Have the user crop the screen
 				CaptureProcessor = new CropScreenCaptureProcessor(),
-				// Show the capture in the editor
+				// Show the capture in the editor (currently the editor is a destination, which actually when you think about it doesn't fit.. it's a processor)
 				CaptureDestination = new EditorCaptureDestination
 				{
 					EditorConfiguration = IniConfig.Current.Get<IEditorConfiguration>()
@@ -122,14 +131,14 @@ namespace Greenshot.Wpf.QuickTest
 			// Now take the capture manually
 			ShowCapture(flow.Capture);
 
-			ScreenButton.IsEnabled = true;
+			ScreenEditButton.IsEnabled = true;
 		}
-		
+
 		/// <summary>
-		/// EXample implementation of the CaptureDestination
+		/// Example implementation of the CaptureDestination
 		/// </summary>
-		/// <param name="captureFlow"></param>
-		/// <param name="cancellationToken"></param>
+		/// <param name="captureFlow">ICaptureFlow which is calling this export</param>
+		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Task</returns>
 		public Task ExportCaptureAsync(ICaptureFlow captureFlow, CancellationToken cancellationToken = new CancellationToken())
 		{
