@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Taqbaylit" ietf="kab-DZ" version="0.8.0">
+  <resources>
+	<resource name="upload_menu_item">
+		Sali ɣer Photobucket
+	</resource>
+	<resource name="settings_title">
+		Iɣewwaṛen n Photobucket
+	</resource>
+	<resource name="label_use_proxy">
+		Seqdec apṛuksi
+	</resource>
+	<resource name="upload_success">
+		Tugna tuli akken iwata ɣer Photobucket !
+	</resource>
+	<resource name="upload_failure">
+		Teḍra-d tuccḍa deg usali ɣer Photobucket:
+	</resource>
+	<resource name="label_upload_format">
+		Amasal n tugna
+	</resource>
+	<resource name="upload_wait">
+		Asali ɣer Photobucket, Ṛǧu ma ulac aɣilif...
+	</resource>
+	<resource name="configure">
+    Swel Photobucket
+  </resource>
+  </resources>
+</language>
