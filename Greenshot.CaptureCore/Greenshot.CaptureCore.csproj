@@ -143,8 +143,8 @@
     <Compile Include="CaptureDestinations\ClipboardCaptureDestination.cs" />
     <Compile Include="CaptureDetails.cs" />
     <Compile Include="CaptureHandler.cs" />
-    <Compile Include="ScreenCaptureSource.cs" />
-    <Compile Include="WindowCaptureSource.cs" />
+    <Compile Include="CaptureSources\ScreenCaptureSource.cs" />
+    <Compile Include="CaptureSources\WindowCaptureSource.cs" />
     <Compile Include="CaptureHelper.cs" />
     <Compile Include="Configuration\ICaptureTranslations.cs" />
     <Compile Include="CropScreenCaptureProcessor.cs" />
@@ -161,7 +161,7 @@
     <Compile Include="Forms\ThumbnailForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="InternetExplorerCaptureSource.cs" />
+    <Compile Include="CaptureSources\InternetExplorerCaptureSource.cs" />
     <Compile Include="IEInterop\IEContainer.cs" />
     <Compile Include="Interop\IDispatch.cs" />
     <Compile Include="Interop\IOleWindow.cs" />

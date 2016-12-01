@@ -27,12 +27,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapplo.Config.Ini;
-using Dapplo.Config.Language;
 using Dapplo.Log;
 using Dapplo.Windows.Enums;
 using Dapplo.Windows.Native;
-using Greenshot.CaptureCore.Configuration;
 using Greenshot.CaptureCore.Extensions;
 using Greenshot.CaptureCore.IEInterop;
 using Greenshot.CaptureCore.Interop;
@@ -41,13 +38,12 @@ using Greenshot.Core.Configuration;
 using Greenshot.Core.Enumerations;
 using Greenshot.Core.Gfx;
 using Greenshot.Core.Interfaces;
-using Greenshot.Legacy.Controls;
 using mshtml;
 using Microsoft.Win32;
 
 #endregion
 
-namespace Greenshot.CaptureCore
+namespace Greenshot.CaptureCore.CaptureSources
 {
 	/// <summary>
 	///     The initial code for this comes from: http://www.codeproject.com/KB/graphics/IECapture.aspx

@@ -36,7 +36,7 @@ using Greenshot.Core.Interfaces;
 
 #endregion
 
-namespace Greenshot.CaptureCore
+namespace Greenshot.CaptureCore.CaptureSources
 {
 	/// <summary>
 	///     ICaptureSource implementation for capturing windows

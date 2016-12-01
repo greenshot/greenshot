@@ -17,7 +17,7 @@ using Greenshot.Core.Extensions;
 using Greenshot.Core.Gfx;
 using Greenshot.Core.Interfaces;
 
-namespace Greenshot.CaptureCore
+namespace Greenshot.CaptureCore.CaptureSources
 {
 	/// <summary>
 	/// Logic to capture the screen
