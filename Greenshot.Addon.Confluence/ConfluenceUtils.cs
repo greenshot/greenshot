@@ -29,6 +29,7 @@ using System.Windows.Automation;
 using Dapplo.Confluence.Entities;
 using Dapplo.Log;
 using Greenshot.CaptureCore;
+using Greenshot.CaptureCore.CaptureSources;
 using Greenshot.Core;
 
 #endregion

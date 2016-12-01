@@ -13,6 +13,7 @@ using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
 using Greenshot.Addon.Editor;
 using Greenshot.Addon.Editor.Configuration;
+using Greenshot.CaptureCore.CaptureProcessors;
 using Greenshot.CaptureCore.CaptureSources;
 
 namespace Greenshot.Wpf.QuickTest
