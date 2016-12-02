@@ -1354,7 +1354,8 @@ namespace Greenshot.Addon.Editor.Forms
 			// remove from the editor list
 			EditorList.Remove(this);
 
-			_surface.Dispose();
+			// TODO: Do we need to dispose, or leave the capture flow to do this?
+			//_surface.Dispose();
 
 			GC.Collect();
 			if (MiscConfiguration.MinimizeWorkingSetSize)

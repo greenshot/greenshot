@@ -6,7 +6,6 @@ using Dapplo.Config.Language;
 using Dapplo.Log;
 using Dapplo.Log.Loggers;
 using Greenshot.Addon.Configuration;
-using Greenshot.CaptureCore;
 using Greenshot.Core.Enumerations;
 using Greenshot.Core.Extensions;
 using Greenshot.Core.Implementations;

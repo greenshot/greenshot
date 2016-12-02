@@ -54,7 +54,7 @@ namespace Greenshot.Addon.Editor
 		/// </summary>
 		public IImageEditor Editor { get; set; }
 
-		public Task ExportCaptureAsync(ICaptureFlow captureFlow, CancellationToken cancellationToken = new CancellationToken())
+		public async Task ExportCaptureAsync(ICaptureFlow captureFlow, CancellationToken cancellationToken = new CancellationToken())
 		{
 			// Make sure we collect the garbage before opening the screenshot
 			GC.Collect();
@@ -93,6 +93,7 @@ namespace Greenshot.Addon.Editor
 						openedEditor.Surface = surface;
 						reusedEditor = true;
 						Editor = openedEditor;
+						captureFlow.Capture = surface;
 						break;
 					}
 				}
@@ -113,7 +114,7 @@ namespace Greenshot.Addon.Editor
 			}
 			else
 			{
-				using (Image image = capture.GetImageForExport())
+				using (var image = capture.GetImageForExport())
 				{
 					Editor.Surface.AddImageContainer(image, 10, 10);
 				}
@@ -123,7 +124,17 @@ namespace Greenshot.Addon.Editor
 
 			var editor = Editor as Form;
 
-			return editor.WaitForClosedAsync(cancellationToken: cancellationToken);
+			if (editor == null)
+			{
+				throw new InvalidOperationException("This should not happen...");
+			}
+			await editor.WaitForClosedAsync(cancellationToken);
+
+			// TODO: What do we need to dispose??
+			if (Editor.Surface.Modified)
+			{
+				captureFlow.Capture = Editor.Surface;
+			}
 		}
 
 		public string Name => BuildInDestinations.Editor.ToString();
