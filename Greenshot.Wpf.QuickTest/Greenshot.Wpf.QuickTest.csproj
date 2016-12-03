@@ -74,7 +74,7 @@
     </Reference>
     <Reference Include="Dapplo.CaliburnMicro, Version=0.2.47.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.CaliburnMicro.0.2.47\lib\net45\Dapplo.CaliburnMicro.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.Config, Version=0.4.4.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Config.0.4.4\lib\net45\Dapplo.Config.dll</HintPath>
@@ -239,6 +239,11 @@ foreach (var item in filesToCleanup)
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Fody.1.29.4\build\dotnet\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.1.29.4\build\dotnet\Fody.targets'))" />
   </Target>
+  <PropertyGroup>
+    <PostBuildEvent>mkdir "$(SolutionDir)Greenshot.Wpf.QuickTest\bin\$(Configuration)\Languages\"
+copy "$(SolutionDir)Greenshot.Addon.Editor\Languages\*.xml" "$(SolutionDir)Greenshot.Wpf.QuickTest\bin\$(Configuration)\Languages\"
+</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
