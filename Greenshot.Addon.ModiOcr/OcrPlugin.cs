@@ -30,9 +30,7 @@ using Dapplo.Addons;
 using Dapplo.Log;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Extensions;
-using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Core.Interfaces;
-using Greenshot.Core.Interfaces.Plugin;
 
 #endregion
 
@@ -41,13 +39,11 @@ namespace Greenshot.Addon.ModiOcr
 	/// <summary>
 	///     OCR Plugin Greenshot
 	/// </summary>
-	[Plugin("OCR", Configurable = true)]
 	[StartupAction(StartupOrder = (int) GreenshotStartupOrder.Addon)]
 	public class OcrPlugin : IStartupAction
 	{
 		private static readonly LogSource Log = new LogSource();
 		private static readonly string OcrCommand = Path.Combine(Path.GetDirectoryName(typeof(OcrPlugin).Assembly.Location), "ModiOcrCommand.exe");
-		private ToolStripMenuItem _ocrMenuItem = new ToolStripMenuItem();
 
 		[Import]
 		private IOcrConfiguration OcrConfiguration { get; set; }
@@ -58,18 +54,12 @@ namespace Greenshot.Addon.ModiOcr
 		[Import]
 		private IServiceLocator ServiceLocator { get; set; }
 
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
 		/// <summary>
 		///     Implementation of the IPlugin.Configure
 		/// </summary>
-		public void Configure()
+		public async Task Configure()
 		{
-			if (!HasModi())
+			if (! await HasModiAsync())
 			{
 				MessageBox.Show("Greenshot OCR", "Sorry, is seems that Microsoft Office Document Imaging (MODI) is not installed, therefor the OCR Plugin cannot work.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 				return;
@@ -86,9 +76,9 @@ namespace Greenshot.Addon.ModiOcr
 		///     Initialize
 		/// </summary>
 		/// <param name="token"></param>
-		public Task StartAsync(CancellationToken token = new CancellationToken())
+		public async Task StartAsync(CancellationToken token = new CancellationToken())
 		{
-			if (!HasModi())
+			if (! await HasModiAsync(token))
 			{
 				Log.Warn().WriteLine("No MODI found!");
 			}
@@ -99,27 +89,13 @@ namespace Greenshot.Addon.ModiOcr
 				ServiceLocator.FillImports(ocrDestination);
 				ServiceExporter.Export<IDestination>(ocrDestination);
 			}
-
-			return Task.FromResult(true);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				if (_ocrMenuItem != null)
-				{
-					_ocrMenuItem.Dispose();
-					_ocrMenuItem = null;
-				}
-			}
 		}
 
 		/// <summary>
 		///     Check if MODI is installed and available
 		/// </summary>
 		/// <returns></returns>
-		private bool HasModi()
+		private async Task<bool> HasModiAsync(CancellationToken cancellationToken = default(CancellationToken))
 		{
 			try
 			{
@@ -127,7 +103,7 @@ namespace Greenshot.Addon.ModiOcr
 				{
 					if (process != null)
 					{
-						Task.Run(async () => await process.WaitForExitAsync()).Wait();
+						await process.WaitForExitAsync(cancellationToken);
 						return process.ExitCode == 0;
 					}
 				}

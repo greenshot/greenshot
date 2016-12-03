@@ -614,7 +614,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		///     This returns the image "result" of this surface, with all the elements rendered on it.
 		/// </summary>
 		/// <returns></returns>
-		public Image GetImageForExport()
+		public Image Flatten()
 		{
 			return GetImage(RenderMode.EXPORT);
 		}
@@ -1063,7 +1063,7 @@ namespace Greenshot.Addon.Editor.Drawing
 		public bool AutoCrop(int autoCropDifference)
 		{
 			Rectangle cropRectangle;
-			using (Image tmpImage = GetImageForExport())
+			using (Image tmpImage = Flatten())
 			{
 				cropRectangle = ImageHelper.FindAutoCropRectangle(tmpImage, autoCropDifference);
 			}

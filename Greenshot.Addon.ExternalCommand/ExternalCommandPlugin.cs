@@ -31,7 +31,6 @@ using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Core;
 using Greenshot.Core;
 using Greenshot.Core.Interfaces;
-using Greenshot.Core.Interfaces.Plugin;
 
 #endregion
 
@@ -40,7 +39,6 @@ namespace Greenshot.Addon.ExternalCommand
 	/// <summary>
 	///     An Plugin to run commands after an image was written
 	/// </summary>
-	[Plugin("External command", Configurable = true)]
 	[StartupAction(StartupOrder = (int) GreenshotStartupOrder.Addon)]
 	public class ExternalCommandPlugin : IStartupAction
 	{
@@ -62,10 +60,6 @@ namespace Greenshot.Addon.ExternalCommand
 
 		[Import]
 		private IServiceLocator ServiceLocator { get; set; }
-
-		public void Dispose()
-		{
-		}
 
 		/// <summary>
 		///     Implementation of the IPlugin.Configure

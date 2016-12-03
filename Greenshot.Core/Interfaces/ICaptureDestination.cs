@@ -30,9 +30,9 @@ namespace Greenshot.Core.Interfaces
 		/// <summary>
 		/// Export the capture, as specified in the capture flow
 		/// </summary>
-		/// <param name="captureFlow">ICaptureFlow which contains a context for the export</param>
+		/// <param name="captureContext">ICaptureContext which contains a context for the export</param>
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Task</returns>
-		Task ExportCaptureAsync(ICaptureFlow captureFlow, CancellationToken cancellationToken = default(CancellationToken));
+		Task ExportCaptureAsync(ICaptureContext captureContext, CancellationToken cancellationToken = default(CancellationToken));
 	}
 }

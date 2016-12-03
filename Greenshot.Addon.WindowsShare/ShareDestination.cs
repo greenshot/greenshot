@@ -28,11 +28,9 @@ using System.Windows;
 using System.Windows.Interop;
 using Windows.Storage.Streams;
 using Dapplo.Log;
-using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Windows;
 using Greenshot.Addon.WindowsShare.Native;
-using Greenshot.CaptureCore.Extensions;
 using Greenshot.Core;
 using Greenshot.Core.Gfx;
 using Greenshot.Core.Implementations;
@@ -76,7 +74,7 @@ namespace Greenshot.Addon.WindowsShare
 					RandomAccessStreamReference thumbnailRandomAccessStreamReference;
 					using (var thumbnailStream = new MemoryStream())
 					{
-						using (var tmpImageForThumbnail = capture.GetImageForExport())
+						using (var tmpImageForThumbnail = capture.Flatten())
 						{
 							using (var thumbnail = ImageHelper.CreateThumbnail(tmpImageForThumbnail, 240, 160))
 							{

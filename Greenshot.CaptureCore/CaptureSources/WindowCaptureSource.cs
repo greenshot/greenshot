@@ -407,9 +407,9 @@ namespace Greenshot.CaptureCore.CaptureSources
 		/// <inheritdoc />
 		public string Name { get; } = nameof(WindowCaptureSource);
 
-		public async Task TakeCaptureAsync(ICaptureFlow captureFlow, CancellationToken cancellationToken = new CancellationToken())
+		public async Task TakeCaptureAsync(ICaptureContext captureContext, CancellationToken cancellationToken = new CancellationToken())
 		{
-			captureFlow.Capture = await CaptureActiveAsync(cancellationToken);
+			captureContext.Capture = await CaptureActiveAsync(cancellationToken);
 
 		}
 	}

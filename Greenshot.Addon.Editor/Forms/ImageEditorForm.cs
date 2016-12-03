@@ -820,7 +820,7 @@ namespace Greenshot.Addon.Editor.Forms
 		private void ShrinkCanvasToolStripMenuItemClick(object sender, EventArgs e)
 		{
 			Rectangle cropRectangle;
-			using (Image tmpImage = Surface.GetImageForExport())
+			using (Image tmpImage = Surface.Flatten())
 			{
 				cropRectangle = ImageHelper.FindAutoCropRectangle(tmpImage, EditorConfiguration.AutoCropDifference);
 			}

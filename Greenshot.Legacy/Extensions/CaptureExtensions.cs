@@ -186,7 +186,7 @@ namespace Greenshot.Legacy.Extensions
 			else
 			{
 				// We create the export image of the surface to save
-				imageToSave = capture.GetImageForExport();
+				imageToSave = capture.Flatten();
 				disposeImage = true;
 			}
 

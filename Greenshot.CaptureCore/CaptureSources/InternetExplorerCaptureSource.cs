@@ -939,9 +939,10 @@ namespace Greenshot.CaptureCore.CaptureSources
 
 		public string Name { get; } = nameof(InternetExplorerCaptureSource);
 
-		public async Task TakeCaptureAsync(ICaptureFlow captureFlow, CancellationToken cancellationToken = new CancellationToken())
+		/// <inheritdoc />
+		public async Task TakeCaptureAsync(ICaptureContext captureContext, CancellationToken cancellationToken = new CancellationToken())
 		{
-			await CaptureIeAsync(cancellationToken: cancellationToken);
+			await CaptureIeAsync(cancellationToken);
 		}
 	}
 }

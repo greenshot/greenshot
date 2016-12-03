@@ -92,9 +92,9 @@ namespace Greenshot.CaptureCore
 			set
 			{
 				_image?.Dispose();
-				_image = value;
 				if (value != null)
 				{
+					// Check if we support the pixel format
 					if (value.PixelFormat.Equals(PixelFormat.Format8bppIndexed) || value.PixelFormat.Equals(PixelFormat.Format1bppIndexed) || value.PixelFormat.Equals(PixelFormat.Format4bppIndexed))
 					{
 						Log.Debug().WriteLine("Converting Bitmap to PixelFormat.Format32bppArgb as we don't support: {0}", value.PixelFormat);
@@ -109,10 +109,15 @@ namespace Greenshot.CaptureCore
 							value.Dispose();
 						}
 					}
+					else
+					{
+						_image = value;
+					}
 					Log.Debug().WriteLine("Image is set with the following specifications: {0} - {1}", _image.Size, _image.PixelFormat);
 				}
 				else
 				{
+					_image = null;
 					Log.Debug().WriteLine("Image is removed.");
 				}
 			}
@@ -200,7 +205,7 @@ namespace Greenshot.CaptureCore
 			_cursorLocation.Offset(x, y);
 		}
 
-		public Image GetImageForExport()
+		public Image Flatten()
 		{
 			// TODO: Draw mousecursor??
 			return ImageHelper.Clone(Image);

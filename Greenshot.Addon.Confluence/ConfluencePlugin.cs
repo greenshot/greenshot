@@ -31,7 +31,6 @@ using Greenshot.Addon.Confluence.Model;
 using Greenshot.Addon.Confluence.Support;
 using Greenshot.Addon.Confluence.Windows;
 using Greenshot.Addon.Core;
-using Greenshot.Core.Interfaces.Plugin;
 
 #endregion
 
@@ -40,7 +39,6 @@ namespace Greenshot.Addon.Confluence
 	/// <summary>
 	///     This is the ConfluencePlugin base code
 	/// </summary>
-	[Plugin("Confluence", Configurable = true)]
 	[StartupAction(StartupOrder = (int) GreenshotStartupOrder.Addon)]
 	[ShutdownAction]
 	public class ConfluencePlugin : IStartupAction, IShutdownAction

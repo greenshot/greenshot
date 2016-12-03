@@ -24,21 +24,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Addons;
 using Greenshot.Addon.Core;
-using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Office.Destinations;
 using Greenshot.Core.Interfaces;
-using Greenshot.Core.Interfaces.Plugin;
 
 #endregion
 
 namespace Greenshot.Addon.Office
 {
 	/// <summary>
-	///     This is the OfficePlugin which takes care of exporting the different office destinations
+	///     This takes care of exporting the different office destinations
 	/// </summary>
-	[Plugin("Office", Configurable = false)]
 	[StartupAction(StartupOrder = (int) GreenshotStartupOrder.Addon)]
-	public class OfficePlugin : IGreenshotPlugin, IStartupAction
+	public class OfficeDestinationExporter : IStartupAction
 	{
 		[Import]
 		private IOfficeConfiguration OfficeConfiguration { get; set; }
@@ -48,11 +45,6 @@ namespace Greenshot.Addon.Office
 
 		[Import]
 		private IServiceLocator ServiceLocator { get; set; }
-
-		public void Dispose()
-		{
-			// Nothing to dispose
-		}
 
 		/// <summary>
 		///     Export all destinations

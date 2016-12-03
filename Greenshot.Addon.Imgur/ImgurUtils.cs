@@ -317,7 +317,7 @@ namespace Greenshot.Addon.Imgur
 			{
 				Config.ImgurUploadHistory.Add(imageInfo.Id, imageInfo.DeleteHash);
 				Config.RuntimeImgurHistory.Add(imageInfo.Id, imageInfo);
-				using (var tmpImage = surfaceToUpload.GetImageForExport())
+				using (var tmpImage = surfaceToUpload.Flatten())
 				{
 					imageInfo.Image = ImageHelper.CreateThumbnail(tmpImage, 90, 90);
 				}

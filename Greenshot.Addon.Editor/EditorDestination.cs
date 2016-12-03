@@ -131,7 +131,7 @@ namespace Greenshot.Addon.Editor
 				{
 					try
 					{
-						using (Image image = capture.GetImageForExport())
+						using (Image image = capture.Flatten())
 						{
 							editor.Surface.AddImageContainer(image, 10, 10);
 						}

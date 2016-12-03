@@ -177,7 +177,7 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="IOfficeConfiguration.cs" />
     <Compile Include="OfficeExport\OfficeVersion.cs" />
-    <Compile Include="OfficePlugin.cs" />
+    <Compile Include="OfficeDestinationExporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="OfficeExport\ExcelExporter.cs" />
     <Compile Include="OfficeExport\OneNoteExporter.cs" />

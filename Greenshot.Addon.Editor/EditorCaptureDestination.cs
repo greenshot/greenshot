@@ -20,7 +20,6 @@
 #region Usings
 
 using System;
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,7 +30,6 @@ using Greenshot.Addon.Editor.Drawing;
 using Greenshot.Addon.Editor.Extensions;
 using Greenshot.Addon.Editor.Forms;
 using Greenshot.Addon.Editor.Interfaces;
-using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Core.Configuration;
 using Greenshot.Core.Interfaces;
 using Greenshot.Legacy.Extensions;
@@ -54,13 +52,14 @@ namespace Greenshot.Addon.Editor
 		/// </summary>
 		public IImageEditor Editor { get; set; }
 
-		public Task ExportCaptureAsync(ICaptureFlow captureFlow, CancellationToken cancellationToken = new CancellationToken())
+		/// <inheritdoc />
+		public async Task ExportCaptureAsync(ICaptureContext captureContext, CancellationToken cancellationToken = new CancellationToken())
 		{
 			// Make sure we collect the garbage before opening the screenshot
 			GC.Collect();
 			GC.WaitForPendingFinalizers();
 
-			var capture = captureFlow.Capture;
+			var capture = captureContext.Capture;
 			if (capture == null)
 			{
 				throw new ArgumentNullException(nameof(capture));
@@ -113,7 +112,7 @@ namespace Greenshot.Addon.Editor
 			}
 			else
 			{
-				using (Image image = capture.GetImageForExport())
+				using (Image image = capture.Flatten())
 				{
 					Editor.Surface.AddImageContainer(image, 10, 10);
 				}
@@ -123,7 +122,7 @@ namespace Greenshot.Addon.Editor
 
 			var editor = Editor as Form;
 
-			return editor.WaitForClosedAsync(cancellationToken: cancellationToken);
+			await editor.WaitForClosedAsync(cancellationToken);
 		}
 
 		public string Name => BuildInDestinations.Editor.ToString();

@@ -69,9 +69,9 @@ namespace Greenshot.CaptureCore.CaptureProcessors
 		public string Name { get; } = nameof(CropScreenCaptureProcessor);
 
 		/// <inheritdoc />
-		public async Task ProcessCaptureAsync(ICaptureFlow captureFlow, CancellationToken cancellationToken = new CancellationToken())
+		public async Task ProcessCaptureAsync(ICaptureContext captureContext, CancellationToken cancellationToken = new CancellationToken())
 		{
-			await CropAsync(captureFlow.Capture, null, cancellationToken);
+			await CropAsync(captureContext.Capture, null, cancellationToken);
 		}
 	}
 }

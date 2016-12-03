@@ -25,9 +25,10 @@ namespace Greenshot.Core.Interfaces
 {
 	/// <summary>
 	/// This interface describes the flow a capture takes: from source, via processor, to destination
-	/// The flow itself takes care of calling the CaptureSource, CaptureProcessor and CaptureDestination inside the ExecuteAsync
+	/// The flow itself takes care of calling the CaptureSource, CaptureProcessor and CaptureDestination
+	/// inside the ExecuteAsync and passing the ICaptureContext
 	/// </summary>
-	public interface ICaptureFlow : ICaptureModule
+	public interface ICaptureFlow : ICaptureModule, ICaptureContext
 	{
 		/// <summary>
 		/// The current state
@@ -65,10 +66,5 @@ namespace Greenshot.Core.Interfaces
 		/// Defines the CaptureDestination, which exports the capture
 		/// </summary>
 		ICaptureDestination CaptureDestination { get; set; }
-
-		/// <summary>
-		/// Contains the capture of this flow
-		/// </summary>
-		ICapture Capture { get; set; }
 	}
 }

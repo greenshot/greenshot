@@ -28,18 +28,16 @@ using Dapplo.Addons;
 using Dapplo.Log;
 using Greenshot.Addon.Core;
 using Greenshot.Core.Interfaces;
-using Greenshot.Core.Interfaces.Plugin;
 
 #endregion
 
-namespace Greenshot.Addon.WindowsOcr
+namespace Greenshot.Addon.WindowsShare
 {
 	/// <summary>
-	///     Ocr Plugin Greenshot
+	///     Export the Share destination, if Windows 10 is used
 	/// </summary>
-	[Plugin("Ocr")]
 	[StartupAction(StartupOrder = (int) GreenshotStartupOrder.Addon)]
-	public class OcrPlugin : IGreenshotPlugin, IStartupAction
+	public class ShareDestinationExporter : IStartupAction
 	{
 		private static readonly LogSource Log = new LogSource();
 
@@ -48,11 +46,6 @@ namespace Greenshot.Addon.WindowsOcr
 
 		[Import]
 		private IServiceLocator ServiceLocator { get; set; }
-
-		public void Dispose()
-		{
-		}
-
 
 		/// <summary>
 		///     Export the destination if the factory can be created
@@ -64,14 +57,15 @@ namespace Greenshot.Addon.WindowsOcr
 			{
 				// Only export if the factory can be intiated
 				WindowsRuntimeMarshal.GetActivationFactory(typeof(DataTransferManager));
-				var ocrDestination = new OcrDestination();
-				ServiceLocator.FillImports(ocrDestination);
-				ServiceExporter.Export<IDestination>(ocrDestination);
+				var shareDestination = new ShareDestination();
+				ServiceLocator.FillImports(shareDestination);
+
+				ServiceExporter.Export<IDestination>(shareDestination);
 			}
 			catch
 			{
 				// Ignore
-				Log.Info().WriteLine("Windows.Ocr disabled.");
+				Log.Info().WriteLine("Share button disabled.");
 			}
 			return Task.FromResult(true);
 		}

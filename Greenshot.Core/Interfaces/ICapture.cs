@@ -68,7 +68,7 @@ namespace Greenshot.Core.Interfaces
 		///     Don't forget to call image.Dispose() when finished!!!
 		/// </summary>
 		/// <returns>Bitmap</returns>
-		Image GetImageForExport();
+		Image Flatten();
 
 		void LoadElementsFromStream(Stream stream);
 

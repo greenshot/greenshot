@@ -41,10 +41,10 @@ namespace Greenshot.CaptureCore.CaptureDestinations
 
 		public string Name { get; } = nameof(ClipboardCaptureDestination);
 
-		public Task ExportCaptureAsync(ICaptureFlow captureFlow, CancellationToken cancellationToken = new CancellationToken())
+		public Task ExportCaptureAsync(ICaptureContext captureContext, CancellationToken cancellationToken = new CancellationToken())
 		{
 			// TODO: Make the output format configurable
-			ClipboardHelper.SetClipboardData(captureFlow.Capture);
+			ClipboardHelper.SetClipboardData(captureContext.Capture);
 
 			return Task.FromResult(true);
 		}

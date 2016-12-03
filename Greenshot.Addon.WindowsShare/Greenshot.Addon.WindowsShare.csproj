@@ -96,7 +96,7 @@
     <Compile Include="Native\DataTransferManagerHelper.cs" />
     <Compile Include="Native\IDataTransferManagerInterOp.cs" />
     <Compile Include="ShareDestination.cs" />
-    <Compile Include="SharePlugin.cs" />
+    <Compile Include="ShareDestinationExporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

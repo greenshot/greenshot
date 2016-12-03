@@ -30,9 +30,9 @@ namespace Greenshot.Core.Interfaces
 		/// <summary>
 		/// Take a capture and process it
 		/// </summary>
-		/// <param name="captureFlow">ICaptureFlow</param>
+		/// <param name="captureContext">ICaptureFlow</param>
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Task </returns>
-		Task ProcessCaptureAsync(ICaptureFlow captureFlow, CancellationToken cancellationToken = default(CancellationToken));
+		Task ProcessCaptureAsync(ICaptureContext captureContext, CancellationToken cancellationToken = default(CancellationToken));
 	}
 }

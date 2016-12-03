@@ -6,7 +6,6 @@ using Dapplo.Config.Language;
 using Dapplo.Log;
 using Dapplo.Log.Loggers;
 using Greenshot.Addon.Configuration;
-using Greenshot.CaptureCore;
 using Greenshot.Core.Enumerations;
 using Greenshot.Core.Extensions;
 using Greenshot.Core.Implementations;
@@ -15,6 +14,7 @@ using Greenshot.Addon.Editor;
 using Greenshot.Addon.Editor.Configuration;
 using Greenshot.CaptureCore.CaptureProcessors;
 using Greenshot.CaptureCore.CaptureSources;
+using Greenshot.Core.Gfx;
 
 namespace Greenshot.Wpf.QuickTest
 {
@@ -51,7 +51,7 @@ namespace Greenshot.Wpf.QuickTest
 		private void ShowCapture(ICapture capture)
 		{
 			// Show the (cropped) capture, by getting the image and placing it into the UI
-			using (var image = capture.GetImageForExport())
+			using (var image = capture.Flatten())
 			{
 				CapturedImage.Source = image.ToBitmapSource();
 			}
@@ -63,6 +63,9 @@ namespace Greenshot.Wpf.QuickTest
 		private async void WindowButton_OnClick(object sender, RoutedEventArgs e)
 		{
 			WindowButton.IsEnabled = false;
+
+			var effectCaptureProcessor = new EffectCaptureProcessor();
+			effectCaptureProcessor.Add(new DropShadowEffect());
 			var flow = new SimpleCaptureFlow
 			{
 				CaptureSource = new WindowCaptureSource
@@ -71,6 +74,8 @@ namespace Greenshot.Wpf.QuickTest
 					CaptureCursor = false,
 					IeCapture = true
 				},
+				// Apply drop shadow
+				CaptureProcessor = effectCaptureProcessor,
 				// Show the (cropped) capture, by getting the image and placing it into the UI
 				CaptureDestination = this
 			};
@@ -140,12 +145,12 @@ namespace Greenshot.Wpf.QuickTest
 		/// <summary>
 		/// Example implementation of the CaptureDestination
 		/// </summary>
-		/// <param name="captureFlow">ICaptureFlow which is calling this export</param>
+		/// <param name="captureContext">ICaptureContext which needs to be send to it's destinationt</param>
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Task</returns>
-		public Task ExportCaptureAsync(ICaptureFlow captureFlow, CancellationToken cancellationToken = new CancellationToken())
+		public Task ExportCaptureAsync(ICaptureContext captureContext, CancellationToken cancellationToken = new CancellationToken())
 		{
-			ShowCapture(captureFlow.Capture);
+			ShowCapture(captureContext.Capture);
 			return Task.FromResult(true);
 		}
 	}

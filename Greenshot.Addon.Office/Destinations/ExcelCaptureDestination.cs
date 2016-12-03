@@ -23,7 +23,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Addon.Office.OfficeExport;
-using Greenshot.CaptureCore.Extensions;
 using Greenshot.Core;
 using Greenshot.Core.Interfaces;
 using Greenshot.Legacy.Extensions;
@@ -45,10 +44,10 @@ namespace Greenshot.Addon.Office.Destinations
 		public string Workbook { get; set; }
 
 
-		public Task ExportCaptureAsync(ICaptureFlow captureFlow, CancellationToken cancellationToken = new CancellationToken())
+		public Task ExportCaptureAsync(ICaptureContext captureContext, CancellationToken cancellationToken = new CancellationToken())
 		{
 			bool createdFile = false;
-			var capture = captureFlow.Capture;
+			var capture = captureContext.Capture;
 			string imageFile = capture.CaptureDetails.Filename;
 			try
 			{

@@ -163,7 +163,7 @@
     <Compile Include="JiraDestination.cs" />
     <Compile Include="JiraDetails.cs" />
     <Compile Include="JiraMonitor.cs" />
-    <Compile Include="JiraPlugin.cs" />
+    <Compile Include="JiraMonitorStartup.cs" />
     <Compile Include="IJiraLanguage.cs" />
     <Compile Include="JiraEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

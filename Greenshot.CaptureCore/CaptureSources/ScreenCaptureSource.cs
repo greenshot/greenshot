@@ -279,9 +279,9 @@ namespace Greenshot.CaptureCore.CaptureSources
 		public string Name { get; } = nameof(ScreenCaptureSource);
 
 		/// <inheritdoc />
-		public Task TakeCaptureAsync(ICaptureFlow captureFlow, CancellationToken cancellationToken = new CancellationToken())
+		public Task TakeCaptureAsync(ICaptureContext captureContext, CancellationToken cancellationToken = new CancellationToken())
 		{
-			captureFlow.Capture = CaptureActiveScreen();
+			captureContext.Capture = CaptureActiveScreen();
 			return Task.FromResult(true);
 		}
 	}

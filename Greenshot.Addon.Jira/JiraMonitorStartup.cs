@@ -27,22 +27,18 @@ using System.Windows.Forms;
 using Dapplo.Addons;
 using Dapplo.Utils;
 using Greenshot.Addon.Core;
-using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Jira.Forms;
 using Greenshot.Core.Interfaces;
-using Greenshot.Core.Interfaces.Plugin;
 
 #endregion
 
 namespace Greenshot.Addon.Jira
 {
 	/// <summary>
-	///     This is the JiraPlugin base code
+	///     This starts the jira monitor at startup
 	/// </summary>
-	[Plugin("Jira", Configurable = true)]
-	[Export(typeof(JiraPlugin))]
 	[StartupAction(StartupOrder = (int) GreenshotStartupOrder.Addon)]
-	public class JiraPlugin : IStartupAction
+	public class JiraMonitorStartup : IStartupAction
 	{
 		private JiraDestination _jiraDestination;
 
