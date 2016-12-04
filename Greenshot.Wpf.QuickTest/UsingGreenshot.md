@@ -12,7 +12,8 @@ Dependencies & Technologies
 Before we can describe how one can add functionality to, or use functionality from Greenshot you should first know about what projects Greenshot uses.
 
 Internally Greenshot uses the following technologies:
-1. .NET Framework 4.5.x (for Windows), anything before 4.5 would make things very complicated due to the lack of async / Task
+
+1. Windows .NET Framework 4.5.x, anything before 4.5 would make things very complicated due to the lack of async / Task
 2. Managed Extensions Framework (MEF) - Until Greenshot 1.2.8 the code was very much like a bole of spaghetti, entangled functionality with the ocasional meatbal. Due to the complexity of the code, it was decided to make everything more modular and move the parts with functionality which is not a code Greenshot feature into separate open source project with completely rewritten code. Although this is still work in progress, by making the code more modular things are getting more flexible and easier to maintain. Although there are many good IOC or dependency injection frameworks, we decided to work with the which comes with the .NET Framework itself.
 MEF allows us to load in the dependencies and compose addons into our application, the addons can add functionality on many different places.
 3. Windows Presentation Framework (WPF) for the UI
