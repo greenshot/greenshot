@@ -21,7 +21,7 @@
 
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Dapplo.Config.Ini;
+using Dapplo.Ini;
 using Dapplo.Log;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Interfaces;

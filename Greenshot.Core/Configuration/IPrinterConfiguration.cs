@@ -20,7 +20,7 @@
 #region Usings
 
 using System.ComponentModel;
-using Dapplo.Config.Ini;
+using Dapplo.Ini;
 using Dapplo.InterfaceImpl.Extensions;
 using Greenshot.Core.Enumerations;
 

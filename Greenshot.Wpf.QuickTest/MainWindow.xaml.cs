@@ -1,8 +1,8 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using Dapplo.Config.Ini;
-using Dapplo.Config.Language;
+using Dapplo.Ini;
+using Dapplo.Language;
 using Dapplo.Log;
 using Dapplo.Log.Loggers;
 using Greenshot.Addon.Configuration;

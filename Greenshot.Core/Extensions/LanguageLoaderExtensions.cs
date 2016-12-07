@@ -19,7 +19,7 @@
 
 #region Usings
 
-using Dapplo.Config.Language;
+using Dapplo.Language;
 using Dapplo.Log;
 
 #endregion

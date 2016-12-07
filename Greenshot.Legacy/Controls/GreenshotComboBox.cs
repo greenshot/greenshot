@@ -22,7 +22,7 @@
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
-using Dapplo.Config.Language;
+using Dapplo.Language;
 using Greenshot.Core.Extensions;
 
 #endregion

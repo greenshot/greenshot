@@ -1,4 +1,4 @@
-﻿using Dapplo.Config.Ini;
+﻿using Dapplo.Ini;
 using Greenshot.Core.Configuration;
 
 namespace Greenshot.Wpf.QuickTest

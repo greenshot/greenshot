@@ -20,7 +20,7 @@
 #region Usings
 
 using System.ComponentModel;
-using Dapplo.Config.Language;
+using Dapplo.Language;
 
 #endregion
 

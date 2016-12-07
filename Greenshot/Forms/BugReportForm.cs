@@ -22,9 +22,7 @@
 using System;
 using System.Diagnostics;
 using System.Windows.Forms;
-using Dapplo.Config.Ini;
-using Dapplo.Config.Language;
-using Dapplo.Config.Support;
+using Dapplo.Language;
 using Greenshot.Addon.Configuration;
 
 #endregion

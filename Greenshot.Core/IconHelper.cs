@@ -25,7 +25,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using Dapplo.Config.Ini;
+using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Native;
 using Greenshot.Core.Configuration;

@@ -23,7 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
-using Dapplo.Config.Ini;
+using Dapplo.Ini;
 using Dapplo.Log;
 using Greenshot.Addon.Editor.Configuration;
 using Greenshot.Addon.Editor.Interfaces.Drawing;

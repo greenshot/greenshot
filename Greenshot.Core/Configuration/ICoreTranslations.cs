@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel;
-using Dapplo.Config.Language;
+using Dapplo.Language;
 
 namespace Greenshot.Core.Configuration
 {

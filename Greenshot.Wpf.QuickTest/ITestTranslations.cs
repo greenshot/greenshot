@@ -1,4 +1,4 @@
-﻿using Dapplo.Config.Language;
+﻿using Dapplo.Language;
 using Greenshot.Core.Configuration;
 
 namespace Greenshot.Wpf.QuickTest

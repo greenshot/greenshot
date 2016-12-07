@@ -20,7 +20,7 @@
 #region Usings
 
 using System.Windows;
-using Dapplo.Config.Ini;
+using Dapplo.Ini;
 
 #endregion
 

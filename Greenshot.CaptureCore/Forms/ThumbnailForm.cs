@@ -22,7 +22,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Dapplo.Config.Ini;
+using Dapplo.Ini;
 using Dapplo.Windows.Enums;
 using Dapplo.Windows.Native;
 using Dapplo.Windows.Structs;

@@ -23,7 +23,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using Dapplo.Config.Ini;
+using Dapplo.Ini;
 using Dapplo.Confluence.Entities;
 using Dapplo.Log;
 

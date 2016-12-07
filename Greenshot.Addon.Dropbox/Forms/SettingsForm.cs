@@ -19,7 +19,7 @@
 
 #region Usings
 
-using Dapplo.Config.Ini;
+using Dapplo.Ini;
 
 #endregion
 

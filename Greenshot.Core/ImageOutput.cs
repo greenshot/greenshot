@@ -27,7 +27,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Reflection;
 using System.Text;
-using Dapplo.Config.Ini;
+using Dapplo.Ini;
 using Dapplo.Log;
 using Greenshot.Core.Configuration;
 using Greenshot.Core.Gfx;

@@ -22,7 +22,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Dapplo.Config.Ini;
+using Dapplo.Ini;
 using Greenshot.CaptureCore.Forms;
 using Greenshot.Core;
 using Greenshot.Core.Configuration;

@@ -19,7 +19,7 @@
 
 #region Usings
 
-using Dapplo.Config.Ini;
+using Dapplo.Ini;
 using Greenshot.Addon.Core;
 using Greenshot.Core;
 using Greenshot.Core.Configuration;

@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
-using Dapplo.Config.Ini;
+using Dapplo.Ini;
 using Dapplo.Log;
 using mshtml;
 using Microsoft.Office.Interop.Outlook;

@@ -21,7 +21,7 @@
 
 using System.ComponentModel;
 using System.Drawing;
-using Dapplo.Config.Ini;
+using Dapplo.Ini;
 using Dapplo.InterfaceImpl.Extensions;
 using Greenshot.Core.Enumerations;
 using Greenshot.Core.Interfaces;

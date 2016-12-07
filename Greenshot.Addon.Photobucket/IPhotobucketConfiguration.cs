@@ -20,8 +20,8 @@
 #region Usings
 
 using System.ComponentModel;
-using Dapplo.Config.Converters;
-using Dapplo.Config.Ini;
+using Dapplo.Ini.Converters;
+using Dapplo.Ini;
 using Dapplo.HttpExtensions.OAuth;
 using Greenshot.Core.Configuration;
 

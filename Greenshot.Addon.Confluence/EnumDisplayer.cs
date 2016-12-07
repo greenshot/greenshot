@@ -26,7 +26,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Reflection;
 using System.Windows.Data;
-using Dapplo.Config.Language;
+using Dapplo.Language;
 using Dapplo.Log;
 using Greenshot.Addon.Extensions;
 using Greenshot.Core.Extensions;

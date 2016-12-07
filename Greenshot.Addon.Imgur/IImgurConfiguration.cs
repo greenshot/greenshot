@@ -21,7 +21,7 @@
 
 using System.Collections.Generic;
 using System.ComponentModel;
-using Dapplo.Config.Ini;
+using Dapplo.Ini;
 using Dapplo.HttpExtensions.OAuth;
 using Greenshot.Core.Configuration;
 

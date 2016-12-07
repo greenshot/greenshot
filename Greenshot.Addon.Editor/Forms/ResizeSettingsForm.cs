@@ -23,7 +23,7 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using Dapplo.Config.Language;
+using Dapplo.Language;
 using Greenshot.Addon.Configuration;
 using Greenshot.Addon.Editor.Configuration;
 using Greenshot.Core.Configuration;

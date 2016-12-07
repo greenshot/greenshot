@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.Serialization;
-using Dapplo.Config.Ini;
+using Dapplo.Ini;
 using Dapplo.Windows.Enums;
 using Greenshot.Core.Gfx;
 

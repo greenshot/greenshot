@@ -20,7 +20,7 @@
 #region Usings
 
 using Dapplo.CaliburnMicro.Metro;
-using Dapplo.Config.Ini;
+using Dapplo.Ini;
 
 #endregion
 

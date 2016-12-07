@@ -22,7 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using Dapplo.Config.Ini;
+using Dapplo.Ini;
 using Dapplo.Log;
 using Microsoft.Office.Core;
 using Microsoft.Office.Interop.Word;

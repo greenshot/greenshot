@@ -23,7 +23,7 @@ using System;
 using System.Collections;
 using System.Drawing;
 using System.Windows.Forms;
-using Dapplo.Config.Ini;
+using Dapplo.Ini;
 using Greenshot.Core;
 
 #endregion

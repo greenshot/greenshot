@@ -21,7 +21,7 @@
 
 using System;
 using System.ComponentModel;
-using Dapplo.Config.Ini;
+using Dapplo.Ini;
 
 #endregion
 

@@ -24,7 +24,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapplo.Config.Ini;
+using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Native;
 using Greenshot.CaptureCore.Extensions;

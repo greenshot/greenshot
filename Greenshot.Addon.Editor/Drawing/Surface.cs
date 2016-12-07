@@ -31,7 +31,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Dapplo.Config.Language;
+using Dapplo.Language;
 using Dapplo.HttpExtensions;
 using Dapplo.Log;
 using Greenshot.Addon.Configuration;

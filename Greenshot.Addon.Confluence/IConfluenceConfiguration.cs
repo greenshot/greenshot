@@ -20,7 +20,7 @@
 #region Usings
 
 using System.ComponentModel;
-using Dapplo.Config.Ini;
+using Dapplo.Ini;
 using Greenshot.Core.Configuration;
 
 #endregion

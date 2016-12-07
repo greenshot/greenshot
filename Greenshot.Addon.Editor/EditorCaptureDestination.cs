@@ -123,6 +123,7 @@ namespace Greenshot.Addon.Editor
 			var editor = Editor as Form;
 
 			await editor.WaitForClosedAsync(cancellationToken);
+			captureContext.Capture = Editor.Surface;
 		}
 
 		public string Name => BuildInDestinations.Editor.ToString();

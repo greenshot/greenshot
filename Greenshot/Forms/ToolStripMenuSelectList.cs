@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
-using Dapplo.Config.Ini;
+using Dapplo.Ini;
 using Greenshot.Addon.Configuration;
 using Greenshot.Core.Gfx;
 

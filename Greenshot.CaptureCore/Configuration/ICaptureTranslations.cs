@@ -1,4 +1,4 @@
-﻿using Dapplo.Config.Language;
+﻿using Dapplo.Language;
 
 namespace Greenshot.CaptureCore.Configuration
 {

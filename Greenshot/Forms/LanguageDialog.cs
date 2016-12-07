@@ -23,7 +23,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using Dapplo.Config.Language;
+using Dapplo.Language;
 using Dapplo.Log;
 using Greenshot.Addon.Core;
 using Greenshot.Legacy;

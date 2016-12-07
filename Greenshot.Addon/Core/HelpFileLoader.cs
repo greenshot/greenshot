@@ -26,7 +26,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapplo.Config.Language;
+using Dapplo.Language;
 using Dapplo.HttpExtensions;
 using Dapplo.Log;
 using Dapplo.Utils;

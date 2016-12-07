@@ -19,7 +19,7 @@
 
 #region Usings
 
-using Dapplo.Config.Language;
+using Dapplo.Language;
 using Greenshot.Addon.Controls;
 using Greenshot.Legacy.Controls;
 

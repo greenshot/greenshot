@@ -22,7 +22,7 @@
 using System;
 using System.IO;
 using System.Media;
-using Dapplo.Config.Ini;
+using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Utils.Embedded;
 using Greenshot.Core.Configuration;

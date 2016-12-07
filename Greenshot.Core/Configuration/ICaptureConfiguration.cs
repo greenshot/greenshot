@@ -22,7 +22,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using Dapplo.Config.Ini;
+using Dapplo.Ini;
 using Greenshot.Core.Enumerations;
 
 #endregion
