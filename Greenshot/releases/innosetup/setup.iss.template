@@ -652,7 +652,7 @@ Filename: "{app}\{#ExeName}.exe"; Description: "{cm:startgreenshot}"; Parameters
 Filename: "http://getgreenshot.org/thank-you/?language={language}&version={#Version}"; Flags: shellexec runasoriginaluser
 
 [InstallDelete]
-Name: {app}; Type: filesandordirs;
+Name: {app}; Type: dirifempty;
 
 [UninstallRun]
 Filename: "{code:GetNGENPath}\ngen.exe"; Parameters: "uninstall ""{app}\{#ExeName}.exe"""; StatusMsg: "Cleanup"; Flags: runhidden
