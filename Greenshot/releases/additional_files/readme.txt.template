@@ -9,11 +9,6 @@ All details to our tickets can be found here: https://greenshot.atlassian.net
 
 @DETAILVERSION@
 
-This is a release candidate for the coming release of Greenshot.
-**Testing is not finished, use at your own risk...**
-
-Changes for the following reported tickets were added since 1.2.8.14:
-
 Fixed bugs:
 * BUG-1762 Dropshadow & tornedge prompts for settings every time
 * BUG-1812 Editor opens outside the screen
@@ -38,6 +33,7 @@ Fixed bugs:
 * BUG-2011 Editor issues when the font is gone or broken
 * BUG-2043 Fixed an issue which occured after wakeup from sleep
 * BUG-2059 Reduce the update check interval
+* BUG-2070 Installing Greenshot deletes everything in the target directory
 * BUG-2071 Authentication not completing with Box.com
 
 Added features:
