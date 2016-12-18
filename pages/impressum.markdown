@@ -20,8 +20,8 @@ tags: []
 <p>Greenshot and getgreenshot.org are brought to you by Thomas Braun, Jens Klingen and Robin Krom<br></p>
 <p> <strong>Represented by: </strong><br><br />
 Jens Klingen<br><br />
-Südliche Auffahrtsallee 32<br><br />
-80639 München</p>
+Markgrafenstr. 4<br><br />
+91207 Lauf</p>
 <p>
 <strong>Support</strong><br><br />
 If you need help with Greenshot, please have a look at our <a href="/faq/">FAQ</a> and <a href="/help">help</a> pages first.<br><br />
