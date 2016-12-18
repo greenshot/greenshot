@@ -18,7 +18,7 @@ Especially business users might be happy to hear that Greenshot's installer is d
 
 (By the way, if you want to make sure you are using the original version, you should never download Greenshot from anywhere else than from our website. Just keep in mind: always get Greenshot from getgreenshot.org.)
 
-You see, this release has things to offer for anyone - you can see the full changelog below. So just go ahead, download and "unwrap" our gift and have a great time.
+You see, this release has things to offer for anyone - you can see the full changelog below. So just go ahead, <a href ="/downloads/">download</a> and "unwrap" our gift and have a great time.
 
 Yours with best wishes,
 
