@@ -14,6 +14,7 @@ tags: []
 <li>our Facebook page at <a href="https://www.facebook.com/Greenshot.Tool" target="_blank">https://www.facebook.com/Greenshot.Tool</a></li>
 <li>our Google+ page at <a href="https://plus.google.com/108405649004966849465/" target="_blank">https://plus.google.com/108405649004966849465/</a></li>
 <li>our Twitter page at <a href="http://twitter.com/greenshot_tool" target="_blank">http://twitter.com/greenshot_tool</a></li>
+<li>our GitHub page at <a href="https://github.com/greenshot/greenshot/" target="_blank">https://github.com/greenshot/greenshot/</a></li>
 <li>our SourceForge page at <a href="https://sourceforge.net/projects/greenshot/" target="_blank">https://sourceforge.net/projects/greenshot/</a></li>
 <li>our Flattr page at <a href="https://flattr.com/thing/30384/" target="_blank">https://flattr.com/thing/30384/</a></li>
 </ul>
