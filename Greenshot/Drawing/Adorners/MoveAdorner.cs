@@ -150,7 +150,14 @@ namespace Greenshot.Drawing.Adorners
 			targetGraphics.PixelOffsetMode = PixelOffsetMode.Half;
 			targetGraphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 
-			targetGraphics.FillRectangle(Brushes.Black, bounds.X, bounds.Y, bounds.Width , bounds.Height);
+			try
+			{
+				targetGraphics.FillRectangle(Brushes.Black, bounds.X, bounds.Y, bounds.Width, bounds.Height);
+			}
+			catch
+			{
+				// Ignore, BUG-2065
+			}
 			targetGraphics.Restore(state);
 		}
 	}
