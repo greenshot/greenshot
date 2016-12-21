@@ -43,6 +43,16 @@
 			.clearfix:after { content: " "; display: table; }
 			.clearfix:after { clear: both; }
 			.clearfix       { *zoom: 1; }
+			
+			/* wordpress theme compatibility */
+			img.alignleft {
+				float: left;
+				padding: 4px 10px 4px 0;	
+			}
+			img.alignright {
+				float: right;
+				padding: 4px 0 4px 10px;			
+			}
 
 
 			/**********************************************/
