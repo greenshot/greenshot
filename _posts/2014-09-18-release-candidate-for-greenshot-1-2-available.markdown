@@ -10,7 +10,7 @@ tags:
 
 ---
 <p>We have just uploaded the first release candidate for Greenshot 1.2. It fixes some bugs of the prior version, but, far more important, adds some features that have been requested very often... most notably, the Greenshot 1.2 editor will finally draw speech bubbles / callouts, auto-incrementing labels and offer the possibility to resize the screenshot.</p>
-<p>As usual, the disclaimer: "release candidate" means that this version has not gone through extensive testing yet. It might be buggy, so if you do not like surprises, we suggest to stick with version 1.1 until we have ironed out all issues and publish the stable release of version 1.2. In case you encounter any problems with the release candidate, please <a href=/tickets/">file a bug report</a> - thanks a lot.</p>
+<p>As usual, the disclaimer: "release candidate" means that this version has not gone through extensive testing yet. It might be buggy, so if you do not like surprises, we suggest to stick with version 1.1 until we have ironed out all issues and publish the stable release of version 1.2. In case you encounter any problems with the release candidate, please <a href="/tickets/">file a bug report</a> - thanks a lot.</p>
 <p>And, as usal, here is the complete change log - you can download the release candidate (version 1.2.1.2-RC1 - installer, ZIP or PortableApps version) from our <a href="/version-history/">version history</a>:<br />
 <code><br />
 All details to our tickets can be found here: https://greenshot.atlassian.net</p>
