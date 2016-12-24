@@ -9,6 +9,20 @@ All details to our tickets can be found here: https://greenshot.atlassian.net
 
 @DETAILVERSION@
 
+* BUG-2065 Overflow Error
+* BUG-2079 Problem with authentication in JIRA plugin
+* BUG-2080 Exception when opening the context menu
+* FEATURE-992 Open Greenshot in foreground
+* FEATURE-995 Setting to paste new images inside greenshot based on cursor location
+* FEATURE-998 Open Last Capture File should select/jump to the file
+* FEATURE-1000 Active OK-button in Greenshot quality
+
+Added or changed translation:
+* Nederlands by Stephan Paternotte
+
+
+1.2.9.104-3721c10 RELEASE
+
 Fixed bugs:
 * BUG-1762 Dropshadow & tornedge prompts for settings every time
 * BUG-1812 Editor opens outside the screen
