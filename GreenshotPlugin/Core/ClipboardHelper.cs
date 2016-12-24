@@ -811,19 +811,14 @@ EndSelection:<<<<<<<4
 		/// <returns></returns>
 		public static IEnumerable<string> GetImageFilenames(IDataObject dataObject) {
 			string[] dropFileNames = (string[]) dataObject.GetData(DataFormats.FileDrop);
-			if (dropFileNames != null && dropFileNames.Length > 0) {
-				foreach (string filename in dropFileNames) {
-					if (string.IsNullOrEmpty(filename))
-					{
-						continue;
-					}
-					string ext = Path.GetExtension(filename).ToLower().Substring(1);
-					if (ImageHelper.StreamConverters.ContainsKey(ext))
-					{
-						yield return filename;
-					}
-				}
+			if (dropFileNames != null && dropFileNames.Length > 0)
+			{
+				return dropFileNames.Where(filename => !string.IsNullOrEmpty(filename))
+					.Where(Path.HasExtension)
+					.Select(filename => Path.GetExtension(filename).ToLowerInvariant())
+					.Where(ext => ImageHelper.StreamConverters.Keys.Contains(ext));
 			}
+			return Enumerable.Empty<string>();
 		}
 
 		/// <summary>
