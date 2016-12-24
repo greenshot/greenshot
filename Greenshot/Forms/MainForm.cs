@@ -1304,8 +1304,8 @@ namespace Greenshot {
 		private void NotifyIconClick(ClickActions clickAction) {
 			switch (clickAction) {
 				case ClickActions.OPEN_LAST_IN_EXPLORER:
-					string path = null;
-					if (!string.IsNullOrEmpty(_conf.OutputFileAsFullpath)) {
+					string path = _conf.OutputFileAsFullpath;
+					if (!File.Exists(path)) {
 						string lastFilePath = Path.GetDirectoryName(_conf.OutputFileAsFullpath);
 						if (!string.IsNullOrEmpty(lastFilePath) && Directory.Exists(lastFilePath)) {
 							path = lastFilePath;
@@ -1320,7 +1320,22 @@ namespace Greenshot {
 
 					if (path != null) {
 						try {
-							using (Process.Start(path)) {}
+							// Check if path is a directory
+							if (Directory.Exists(path))
+							{
+								using (Process.Start(path))
+								{
+								}
+							}
+							// Check if path is a file
+							else if (File.Exists(path))
+							{
+								// Start the explorer process and select the file
+								using (var explorer = Process.Start("explorer.exe", $"/select,\"{path}\""))
+								{
+									explorer?.WaitForInputIdle(500);
+								}
+							}
 						} catch (Exception ex) {
 							// Make sure we show what we tried to open in the exception
 							ex.Data.Add("path", path);
