@@ -427,7 +427,7 @@ namespace GreenshotPlugin.Core {
 			}
 
 			// Fix for excessive feed checking
-			if (UpdateCheckInterval <= 7 && LastSaveWithVersion.StartsWith("1.2"))
+			if (UpdateCheckInterval != 0 && UpdateCheckInterval <= 7 && LastSaveWithVersion.StartsWith("1.2"))
 			{
 				UpdateCheckInterval = 14;
 			}
