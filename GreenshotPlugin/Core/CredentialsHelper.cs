@@ -322,17 +322,17 @@ namespace GreenshotPlugin.Core {
 
 		/// <summary>Confirmation action to be applied.</summary>
 		/// <param name="value">True if the credentials should be persisted.</param>
-		public void Confirm(bool value) {
-			switch (CredUi.CredUIConfirmCredentials(Target, value)) {
+		public void Confirm(bool value)
+		{
+			var confirmResult = CredUi.CredUIConfirmCredentials(Target, value);
+			switch (confirmResult) {
 				case CredUi.ReturnCodes.NO_ERROR:
 					break;
-			   
 				case CredUi.ReturnCodes.ERROR_INVALID_PARAMETER:
 					// for some reason, this is encountered when credentials are overwritten
 					break;
-			   
 				default:
-					throw new ApplicationException("Credential confirmation failed.");
+					throw new ApplicationException($"Credential confirmation failed: {confirmResult}");
 			}
 		}
 

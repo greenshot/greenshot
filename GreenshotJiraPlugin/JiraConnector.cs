@@ -159,6 +159,7 @@ namespace GreenshotJiraPlugin {
 						_loggedInTime = DateTime.Now;
 						return;
 					}
+					// Login failed, confirm this
 					try {
 						credentialsDialog.Confirm(false);
 					} catch (ApplicationException e) {
