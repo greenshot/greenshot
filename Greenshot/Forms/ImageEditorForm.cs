@@ -176,6 +176,7 @@ namespace Greenshot {
 					Text = _surface.CaptureDetails.Title + " - " + Language.GetString(LangKey.editor_title);
 				}
 			}
+			Activate();
 			WindowDetails.ToForeground(Handle);
 		}
 

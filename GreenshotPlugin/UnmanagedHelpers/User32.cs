@@ -62,6 +62,8 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 
 		#region DllImports
 		[DllImport("user32", SetLastError = true)]
+		public static extern bool keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);
+		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool IsWindowVisible(IntPtr hWnd);
 		[DllImport("user32", SetLastError = true)]

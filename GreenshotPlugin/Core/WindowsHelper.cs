@@ -1254,7 +1254,25 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// Set the window as foreground window
 		/// </summary>
-		public static void ToForeground(IntPtr handle) {
+		public static void ToForeground(IntPtr handle)
+		{
+
+			// Do nothing if the window is already in the foreground
+			if (User32.GetForegroundWindow() == handle)
+			{
+				return;
+			}
+
+			const byte ALT = 0xA4;
+			const int EXTENDEDKEY = 0x1;
+			const int KEYUP = 0x2;
+
+			// Simulate an "ALT" key press.
+			User32.keybd_event(ALT, 0x45, EXTENDEDKEY | 0, 0);
+			// Simulate an "ALT" key release.
+			User32.keybd_event(ALT, 0x45, EXTENDEDKEY | KEYUP, 0);
+
+			// Show window in forground.
 			User32.SetForegroundWindow(handle);
 		}
 
