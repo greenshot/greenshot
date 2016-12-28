@@ -1715,6 +1715,7 @@ namespace Greenshot.Drawing
 					}
 					_cropContainer.Dispose();
 					_cropContainer = null;
+					break;
 				}
 			}
 		}
@@ -1726,7 +1727,7 @@ namespace Greenshot.Drawing
 		{
 			IDataObject clipboard = ClipboardHelper.GetDataObject();
 
-			List<string> formats = ClipboardHelper.GetFormats(clipboard);
+			var formats = ClipboardHelper.GetFormats(clipboard);
 			if (formats == null || formats.Count == 0)
 			{
 				return;
@@ -1817,6 +1818,15 @@ namespace Greenshot.Drawing
 			{
 				int x = 10;
 				int y = 10;
+
+				// FEATURE-995: Added a check for the current mouse cursor location, to paste the image on that location.
+				var mousePos = PointToClient(MousePosition);
+				if (Bounds.Contains(mousePos))
+				{
+					x = mousePos.X;
+					y = mousePos.Y;
+				}
+
 				foreach (Image clipboardImage in ClipboardHelper.GetImages(clipboard))
 				{
 					if (clipboardImage != null)
