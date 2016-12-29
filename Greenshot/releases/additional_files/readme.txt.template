@@ -10,7 +10,6 @@ All details to our tickets can be found here: https://greenshot.atlassian.net
 @DETAILVERSION@
 
 * BUG-2065 Overflow Error
-* BUG-2079 Problem with authentication in JIRA plugin
 * BUG-2080 Exception when opening the context menu
 * BUG-2089 Greenshot crashes when hotkey registration fails and OneDrive is not installed
 * BUG-2091 Greenshot .zip version has wrong log configuration
