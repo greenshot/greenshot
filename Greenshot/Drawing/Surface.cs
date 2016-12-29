@@ -1820,11 +1820,11 @@ namespace Greenshot.Drawing
 				int y = 10;
 
 				// FEATURE-995: Added a check for the current mouse cursor location, to paste the image on that location.
-				var mousePos = PointToClient(MousePosition);
-				if (Bounds.Contains(mousePos))
+				var mousePositionOnControl = PointToClient(MousePosition);
+				if (ClientRectangle.Contains(mousePositionOnControl))
 				{
-					x = mousePos.X;
-					y = mousePos.Y;
+					x = mousePositionOnControl.X;
+					y = mousePositionOnControl.Y;
 				}
 
 				foreach (Image clipboardImage in ClipboardHelper.GetImages(clipboard))
