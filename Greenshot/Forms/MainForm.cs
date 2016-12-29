@@ -616,7 +616,10 @@ namespace Greenshot {
 			}
 			var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 			var oneDriveSettingsPath = Path.Combine(localAppData, @"Microsoft\OneDrive\settings\Personal");
-
+			if (!Directory.Exists(oneDriveSettingsPath))
+			{
+				return false;
+			}
 			var oneDriveSettingsFile = Directory.GetFiles(oneDriveSettingsPath, "*_screenshot.dat").FirstOrDefault();
 			if (!File.Exists(oneDriveSettingsFile))
 			{
