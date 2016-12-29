@@ -215,7 +215,7 @@ Function PackageZip {
 		"$sourcebase\GreenshotPlugin.dll",
 		"$sourcebase\LinqBridge.dll",
 		"$sourcebase\log4net.dll",
-		"$sourcebase\log4net-zip.xml"
+		"$(get-location)\Greenshot\log4net-zip.xml"
 		"$destbase\additional_files\*.txt" ) | foreach { Copy-Item $_ "$destzip\" }
 
 	Rename-Item "$destzip\log4net-zip.xml" "$destzip\log4net.xml"
