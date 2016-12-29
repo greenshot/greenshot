@@ -215,8 +215,11 @@ Function PackageZip {
 		"$sourcebase\GreenshotPlugin.dll",
 		"$sourcebase\LinqBridge.dll",
 		"$sourcebase\log4net.dll",
+		"$sourcebase\log4net-zip.xml"
 		"$destbase\additional_files\*.txt" ) | foreach { Copy-Item $_ "$destzip\" }
 
+	Rename-Item "$destzip\log4net-zip.xml" "$destzip\log4net.xml"
+		
 	$zipOutput = "$(get-location)\zip"
 	$zip7 = "$(get-location)\greenshot\tools\7zip\7za.exe"
 	$arguments = @('a', '-mx9', '-tzip', '-r', "$destbase\Greenshot-NO-INSTALLER-$fileversion.zip", "$destzip\*")
