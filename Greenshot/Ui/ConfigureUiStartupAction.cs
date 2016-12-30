@@ -21,8 +21,6 @@
 
 using System;
 using System.ComponentModel.Composition;
-using System.Threading;
-using System.Threading.Tasks;
 using Caliburn.Micro;
 using Dapplo.Addons;
 using Dapplo.CaliburnMicro;
@@ -41,7 +39,7 @@ namespace Greenshot.Ui
 		[Import(typeof(IWindowManager))]
 		private MetroWindowManager MetroWindowManager { get; set; }
 
-		public Task StartAsync(CancellationToken token = new CancellationToken())
+		public void Start()
 		{
 			var demoUri = new Uri("pack://application:,,,/Greenshot;component/Ui/GreenshotResourceDirectory.xaml", UriKind.RelativeOrAbsolute);
 			MetroWindowManager.AddResourceDictionary(demoUri);
@@ -49,7 +47,6 @@ namespace Greenshot.Ui
 			// TODO: add theme support later
 			// MetroWindowManager.ChangeTheme(CoreConfiguration.Theme);
 			// MetroWindowManager.ChangeThemeAccent(CoreConfiguration.ThemeAccent);
-			return Task.FromResult(true);
 		}
 	}
 }

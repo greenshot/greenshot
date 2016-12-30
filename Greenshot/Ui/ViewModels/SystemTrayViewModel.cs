@@ -34,7 +34,6 @@ using Dapplo.CaliburnMicro.NotifyIconWpf;
 using Dapplo.CaliburnMicro.NotifyIconWpf.ViewModels;
 using Dapplo.Log;
 using Greenshot.Addon.Configuration;
-using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Ui;
 using Greenshot.Core.Interfaces;
 using Greenshot.Ui.Config.ViewModels;
@@ -159,7 +158,7 @@ namespace Greenshot.Ui.ViewModels
 				ClickAction = item => Application.Current.Shutdown()
 			};
 
-			var binding = GreenshotLanguage.CreateBinding(exitMenuItem, nameof(IGreenshotLanguage.ContextmenuExit));
+			var binding = GreenshotLanguage.CreateDisplayNameBinding(exitMenuItem, nameof(IGreenshotLanguage.ContextmenuExit));
 			_disposables.Add(binding);
 
 			items.Add(exitMenuItem);

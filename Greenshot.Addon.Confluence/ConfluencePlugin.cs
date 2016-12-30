@@ -41,11 +41,11 @@ namespace Greenshot.Addon.Confluence
 	/// </summary>
 	[StartupAction(StartupOrder = (int) GreenshotStartupOrder.Addon)]
 	[ShutdownAction]
-	public class ConfluencePlugin : IStartupAction, IShutdownAction
+	public class ConfluencePlugin : IAsyncStartupAction, IShutdownAction
 	{
 		private static readonly LogSource Log = new LogSource();
 
-		public static ConfluenceApi ConfluenceAPI { get; private set; }
+		public static IConfluenceClient ConfluenceClient { get; private set; }
 
 		[Import]
 		public IConfluenceConfiguration ConfluenceConfiguration { get; set; }
@@ -85,15 +85,14 @@ namespace Greenshot.Addon.Confluence
 			};
 			if (!newConfig.Equals(oldConfig))
 			{
-				ConfluenceAPI = null;
+				ConfluenceClient = null;
 			}
 		}
 
-		public Task ShutdownAsync(CancellationToken token = default(CancellationToken))
+		public void Shutdown()
 		{
 			Log.Debug().WriteLine("Confluence Plugin shutdown.");
-			ConfluenceAPI = null;
-			return Task.FromResult(true);
+			ConfluenceClient = null;
 		}
 
 		/// <summary>
@@ -114,12 +113,12 @@ namespace Greenshot.Addon.Confluence
 				Log.Error().WriteLine("Problem in ConfluencePlugin.Initialize: {0}", ex.Message);
 				return;
 			}
-			ConfluenceAPI = await GetConfluenceApiAsync(token);
-			if (ConfluenceAPI != null)
+			ConfluenceClient = await GetConfluenceApiAsync(token);
+			if (ConfluenceClient != null)
 			{
 				Log.Info().WriteLine("Loading spaces");
 				// Store the task, so the compiler doesn't complain but do not wait so the task runs in the background
-				var ignoringTask = ConfluenceAPI.GetSpacesAsync(token).ContinueWith(async spacesTask =>
+				var ignoringTask = ConfluenceClient.GetSpacesAsync(token).ContinueWith(async spacesTask =>
 				{
 					var spaces = await spacesTask;
 					foreach (var space in spaces)
@@ -144,9 +143,9 @@ namespace Greenshot.Addon.Confluence
 			//if (disposing) {}
 		}
 
-		private async Task<ConfluenceApi> GetConfluenceApiAsync(CancellationToken token = default(CancellationToken))
+		private async Task<IConfluenceClient> GetConfluenceApiAsync(CancellationToken token = default(CancellationToken))
 		{
-			ConfluenceApi confluenceApi = null;
+			IConfluenceClient confluenceApi = null;
 			if (string.IsNullOrEmpty(ConfluenceConfiguration.RestUrl))
 			{
 				return null;
@@ -160,7 +159,7 @@ namespace Greenshot.Addon.Confluence
 				};
 				while (dialog.Show(dialog.Name) == DialogResult.OK)
 				{
-					confluenceApi = new ConfluenceApi(new Uri(ConfluenceConfiguration.RestUrl));
+					confluenceApi = Dapplo.Confluence.ConfluenceClient.Create(new Uri(ConfluenceConfiguration.RestUrl));
 					confluenceApi.SetBasicAuthentication(dialog.Name, dialog.Password);
 					try
 					{

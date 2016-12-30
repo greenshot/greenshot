@@ -20,8 +20,6 @@
 #region Usings
 
 using System.ComponentModel.Composition;
-using System.Threading;
-using System.Threading.Tasks;
 using Dapplo.Addons;
 using Greenshot.Addon.Core;
 using Greenshot.Addon.Office.Destinations;
@@ -49,9 +47,7 @@ namespace Greenshot.Addon.Office
 		/// <summary>
 		///     Export all destinations
 		/// </summary>
-		/// <param name="token"></param>
-		/// <returns></returns>
-		public Task StartAsync(CancellationToken token = default(CancellationToken))
+		public void Start()
 		{
 			if (WordDestination.IsActive)
 			{
@@ -83,7 +79,6 @@ namespace Greenshot.Addon.Office
 				ServiceLocator.FillImports(oneNoteDestination);
 				ServiceExporter.Export<IDestination>(oneNoteDestination);
 			}
-			return Task.FromResult(true);
 		}
 	}
 }

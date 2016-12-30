@@ -23,8 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using Dapplo.Addons;
 using Dapplo.Log;
 using Greenshot.Addon.Configuration;
@@ -72,42 +70,38 @@ namespace Greenshot.Addon.ExternalCommand
 		/// <summary>
 		///     Initialize
 		/// </summary>
-		/// <param name="token"></param>
-		public Task StartAsync(CancellationToken token = new CancellationToken())
+		public void Start()
 		{
 			AfterLoad(ExternalCommandConfiguration);
 			// Make sure the defaults are set
 			//iniConfig.AfterLoad<IExternalCommandConfiguration>(AfterLoad);
 
-			return Task.Run(() =>
+			IList<string> commandsToDelete = new List<string>();
+			// Check configuration
+			foreach (string command in ExternalCommandConfiguration.Commands)
 			{
-				IList<string> commandsToDelete = new List<string>();
-				// Check configuration
-				foreach (string command in ExternalCommandConfiguration.Commands)
+				if (!IsCommandValid(command))
 				{
-					if (!IsCommandValid(command))
-					{
-						commandsToDelete.Add(command);
-					}
+					commandsToDelete.Add(command);
 				}
+			}
 
-				// cleanup
-				foreach (string command in commandsToDelete)
-				{
-					ExternalCommandConfiguration.RunInbackground.Remove(command);
-					ExternalCommandConfiguration.Commandline.Remove(command);
-					ExternalCommandConfiguration.Argument.Remove(command);
-					ExternalCommandConfiguration.Commands.Remove(command);
-				}
+			// cleanup
+			foreach (string command in commandsToDelete)
+			{
+				ExternalCommandConfiguration.RunInbackground.Remove(command);
+				ExternalCommandConfiguration.Commandline.Remove(command);
+				ExternalCommandConfiguration.Argument.Remove(command);
+				ExternalCommandConfiguration.Commands.Remove(command);
+			}
 
-				foreach (string command in ExternalCommandConfiguration.Commands)
-				{
-					var settings = new CommandSettings(command);
-					var externalCommandDestination = new ExternalCommandDestination(settings);
-					ServiceLocator.FillImports(externalCommandDestination);
-					ServiceExporter.Export<IDestination>(externalCommandDestination);
-				}
-			}, token);
+			foreach (string command in ExternalCommandConfiguration.Commands)
+			{
+				var settings = new CommandSettings(command);
+				var externalCommandDestination = new ExternalCommandDestination(settings);
+				ServiceLocator.FillImports(externalCommandDestination);
+				ServiceExporter.Export<IDestination>(externalCommandDestination);
+			}
 		}
 
 		/// <summary>

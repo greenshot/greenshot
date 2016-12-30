@@ -34,19 +34,15 @@ using Dapplo.HttpExtensions;
 using Dapplo.Log;
 using Dapplo.Utils;
 using Greenshot.Addon.Confluence.Windows;
-using Greenshot.Addon.Core;
-using Greenshot.Addon.Extensions;
-using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Windows;
-using Greenshot.CaptureCore;
-using Greenshot.CaptureCore.Extensions;
 using Greenshot.Core;
 using Greenshot.Core.Extensions;
 using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
 using Greenshot.Legacy.Extensions;
 using Greenshot.Legacy.Utils;
+using Dapplo.Confluence;
 
 #endregion
 
@@ -96,7 +92,7 @@ namespace Greenshot.Addon.Confluence
 			{
 				try
 				{
-					var confluenceApi = ConfluencePlugin.ConfluenceAPI;
+					var confluenceClient = ConfluencePlugin.ConfluenceClient;
 					// Run upload in the background
 					await PleaseWaitWindow.CreateAndShowAsync(ConfluenceDesignation, ConfluenceLanguage.CommunicationWait, async (progress, pleaseWaitToken) =>
 					{
@@ -111,13 +107,13 @@ namespace Greenshot.Addon.Confluence
 							using (var streamContent = new StreamContent(stream))
 							{
 								streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
-								return await confluenceApi.AttachAsync(page.Id, streamContent, filename, "Added via Greenshot", "image/" + outputSettings.Format, pleaseWaitToken);
+								return await confluenceClient.AttachAsync(page.Id, streamContent, filename, "Added via Greenshot", "image/" + outputSettings.Format, pleaseWaitToken);
 							}
 						}
 					}, token);
 
 					Log.Debug().WriteLine("Uploaded to Confluence.");
-					var exportedUri = confluenceApi.ConfluenceApiBaseUri.AppendSegments("pages", "viewpage.action").ExtendQuery(new Dictionary<string, object>
+					var exportedUri = confluenceClient.Plugins.ConfluenceUri.AppendSegments("pages", "viewpage.action").ExtendQuery(new Dictionary<string, object>
 					{
 						{
 							"pageId", page.Id

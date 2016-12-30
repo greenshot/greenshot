@@ -24,7 +24,6 @@ using System.ComponentModel.Composition;
 using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.CaliburnMicro.Menu;
 using Greenshot.Addon.Configuration;
-using Greenshot.Addon.Controls;
 using Greenshot.CaptureCore;
 using Greenshot.Core.Enumerations;
 using Greenshot.Legacy.Controls;
@@ -69,7 +68,7 @@ namespace Greenshot.Ui
 				// Update HotKeyHint when the language or hotkey changes
 				CoreConfiguration.OnPropertyChanged($"({nameof(CoreConfiguration.Language)}|{nameof(CoreConfiguration.RegionHotkey)}").Subscribe(s => menuItem.HotKeyHint = HotkeyControl.GetLocalizedHotkeyStringFromString(CoreConfiguration.RegionHotkey));
 				// Update the title of this menu item when the translation changes
-				GreenshotLanguage.CreateBinding(menuItem, nameof(IGreenshotLanguage.ContextmenuCaptureArea));
+				GreenshotLanguage.CreateDisplayNameBinding(menuItem, nameof(IGreenshotLanguage.ContextmenuCaptureArea));
 				return menuItem;
 			}
 		}
@@ -96,7 +95,7 @@ namespace Greenshot.Ui
 				// Update HotKeyHint when the language or hotkey changes
 				CoreConfiguration.OnPropertyChanged($"({nameof(CoreConfiguration.Language)}|{nameof(CoreConfiguration.FullscreenHotkey)}").Subscribe(s => menuItem.HotKeyHint = HotkeyControl.GetLocalizedHotkeyStringFromString(CoreConfiguration.FullscreenHotkey));
 				// Update the title of this menu item when the translation changes
-				GreenshotLanguage.CreateBinding(menuItem, nameof(IGreenshotLanguage.ContextmenuCaptureFullScreenAll));
+				GreenshotLanguage.CreateDisplayNameBinding(menuItem, nameof(IGreenshotLanguage.ContextmenuCaptureFullScreenAll));
 				return menuItem;
 			}
 		}
@@ -122,7 +121,7 @@ namespace Greenshot.Ui
 				// Update HotKeyHint when the language or hotkey changes
 				CoreConfiguration.OnPropertyChanged($"({nameof(CoreConfiguration.Language)}|{nameof(CoreConfiguration.WindowHotkey)}").Subscribe(s => menuItem.HotKeyHint = HotkeyControl.GetLocalizedHotkeyStringFromString(CoreConfiguration.WindowHotkey));
 				// Update the title of this menu item when the translation changes
-				GreenshotLanguage.CreateBinding(menuItem, nameof(IGreenshotLanguage.ContextmenuCaptureWindow));
+				GreenshotLanguage.CreateDisplayNameBinding(menuItem, nameof(IGreenshotLanguage.ContextmenuCaptureWindow));
 
 				return menuItem;
 			}

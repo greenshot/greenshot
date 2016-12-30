@@ -40,7 +40,7 @@ namespace Greenshot.Addon.ModiOcr
 	///     OCR Plugin Greenshot
 	/// </summary>
 	[StartupAction(StartupOrder = (int) GreenshotStartupOrder.Addon)]
-	public class OcrPlugin : IStartupAction
+	public class OcrPlugin : IAsyncStartupAction
 	{
 		private static readonly LogSource Log = new LogSource();
 		private static readonly string OcrCommand = Path.Combine(Path.GetDirectoryName(typeof(OcrPlugin).Assembly.Location), "ModiOcrCommand.exe");

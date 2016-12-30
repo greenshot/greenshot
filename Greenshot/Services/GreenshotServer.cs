@@ -26,13 +26,10 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
-using System.Threading;
-using System.Threading.Tasks;
 using Dapplo.Addons;
 using Dapplo.Log;
 using Dapplo.Utils;
 using Greenshot.Addon.Core;
-using Greenshot.Addon.Interfaces;
 using Greenshot.CaptureCore;
 using Greenshot.Core.Enumerations;
 using System.Windows;
@@ -69,60 +66,49 @@ namespace Greenshot.Services
 		/// <summary>
 		///     IShutdownAction entry, This stops the Greenshot server
 		/// </summary>
-		/// <param name="token"></param>
-		/// <returns>Task</returns>
-		public async Task ShutdownAsync(CancellationToken token = default(CancellationToken))
+		public void Shutdown()
 		{
 			Log.Debug().WriteLine("Stopping Greenshot server");
-			await Task.Run(() =>
+			if (_host != null)
 			{
-				if (_host != null)
-				{
-					_host.Close();
-					_host = null;
-				}
-			}, token).ConfigureAwait(false);
+				_host.Close();
+				_host = null;
+			}
 		}
 
 		/// <summary>
 		///     IStartupAction entry for starting
 		/// </summary>
-		/// <param name="token"></param>
-		/// <returns></returns>
-		public Task StartAsync(CancellationToken token = default(CancellationToken))
+		public void Start()
 		{
 			Log.Debug().WriteLine("Starting Greenshot server");
-			return Task.Run(() =>
-				{
-					try
-					{
-						_host = new ServiceHost(this, new Uri(PipeBaseEndpoint));
-						Log.Debug().WriteLine("Starting Greenshot server with endpoints:");
+			try
+			{
+				_host = new ServiceHost(this, new Uri(PipeBaseEndpoint));
+				Log.Debug().WriteLine("Starting Greenshot server with endpoints:");
 
-						// Add ServiceMetadataBehavior
-						_host.Description.Behaviors.Add(new ServiceMetadataBehavior {HttpsGetEnabled = false});
+				// Add ServiceMetadataBehavior
+				_host.Description.Behaviors.Add(new ServiceMetadataBehavior {HttpsGetEnabled = false});
 
-						// Our IGreenshotContract endpoint:
-						var serviceEndpointGreenshotContract = _host.AddServiceEndpoint(typeof(IGreenshotContract), new NetNamedPipeBinding(), EndPoint);
-						Log.Debug().WriteLine("Added endpoint: address=\"{4:l}\", contract=\"{0:l}\", contractNamespace=\"{1:l}\", binding=\"{2:l}_{0:l}\", bindingNamespace=\"{3:l}\"", serviceEndpointGreenshotContract.Contract.Name, serviceEndpointGreenshotContract.Contract.Namespace, serviceEndpointGreenshotContract.Binding.Name, serviceEndpointGreenshotContract.Binding.Namespace, serviceEndpointGreenshotContract.ListenUri.AbsoluteUri);
+				// Our IGreenshotContract endpoint:
+				var serviceEndpointGreenshotContract = _host.AddServiceEndpoint(typeof(IGreenshotContract), new NetNamedPipeBinding(), EndPoint);
+				Log.Debug().WriteLine("Added endpoint: address=\"{4:l}\", contract=\"{0:l}\", contractNamespace=\"{1:l}\", binding=\"{2:l}_{0:l}\", bindingNamespace=\"{3:l}\"", serviceEndpointGreenshotContract.Contract.Name, serviceEndpointGreenshotContract.Contract.Namespace, serviceEndpointGreenshotContract.Binding.Name, serviceEndpointGreenshotContract.Binding.Namespace, serviceEndpointGreenshotContract.ListenUri.AbsoluteUri);
 
-						// Add error / request logging
-						serviceEndpointGreenshotContract.EndpointBehaviors.Add(this);
+				// Add error / request logging
+				serviceEndpointGreenshotContract.EndpointBehaviors.Add(this);
 
-						// The MetadataExchangeBindings endpoint
-						var serviceEndpointMex = _host.AddServiceEndpoint(ServiceMetadataBehavior.MexContractName, MetadataExchangeBindings.CreateMexNamedPipeBinding(), EndPoint + "/mex");
-						Log.Debug().WriteLine("Added endpoint: address=\"{4}\", contract=\"{0}\", contractNamespace=\"{1}\", binding=\"{2}\", bindingNamespace=\"{3}\"", serviceEndpointMex.Contract.Name, serviceEndpointMex.Contract.Namespace, serviceEndpointMex.Binding.Name, serviceEndpointMex.Binding.Namespace, serviceEndpointMex.ListenUri.AbsoluteUri);
-						_host.Open();
-						IsStarted = true;
-						Log.Debug().WriteLine("Started Greenshot server");
-					}
-					catch (Exception ex)
-					{
-						Log.Error().WriteLine(ex, "Couldn't create Greenshot server");
-						throw;
-					}
-				},
-				token);
+				// The MetadataExchangeBindings endpoint
+				var serviceEndpointMex = _host.AddServiceEndpoint(ServiceMetadataBehavior.MexContractName, MetadataExchangeBindings.CreateMexNamedPipeBinding(), EndPoint + "/mex");
+				Log.Debug().WriteLine("Added endpoint: address=\"{4}\", contract=\"{0}\", contractNamespace=\"{1}\", binding=\"{2}\", bindingNamespace=\"{3}\"", serviceEndpointMex.Contract.Name, serviceEndpointMex.Contract.Namespace, serviceEndpointMex.Binding.Name, serviceEndpointMex.Binding.Namespace, serviceEndpointMex.ListenUri.AbsoluteUri);
+				_host.Open();
+				IsStarted = true;
+				Log.Debug().WriteLine("Started Greenshot server");
+			}
+			catch (Exception ex)
+			{
+				Log.Error().WriteLine(ex, "Couldn't create Greenshot server");
+				throw;
+			}
 		}
 
 		#region IGreenshotContract

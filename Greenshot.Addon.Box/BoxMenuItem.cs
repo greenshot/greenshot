@@ -50,7 +50,7 @@ namespace Greenshot.Addon.Box
 		{
 			Id = "Box";
 			// automatically update the DisplayName
-			BoxLanguage.CreateBinding(this, nameof(IBoxLanguage.SettingsTitle));
+			BoxLanguage.CreateDisplayNameBinding(this, nameof(IBoxLanguage.SettingsTitle));
 			Icon = new PackIconMaterial
 			{
 				Kind = PackIconMaterialKind.Box

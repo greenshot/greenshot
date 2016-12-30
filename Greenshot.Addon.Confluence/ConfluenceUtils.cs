@@ -26,6 +26,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Automation;
+using Dapplo.Confluence;
 using Dapplo.Confluence.Entities;
 using Dapplo.Log;
 using Greenshot.CaptureCore;
@@ -132,7 +133,7 @@ namespace Greenshot.Addon.Confluence
 						}
 						if (!pageDouble)
 						{
-							var page = await ConfluencePlugin.ConfluenceAPI.GetContentAsync(contentId, token).ConfigureAwait(false);
+							var page = await ConfluencePlugin.ConfluenceClient.GetContentAsync(contentId, token).ConfigureAwait(false);
 							Log.Debug().WriteLine("Adding page {0}", page.Title);
 							pages.Add(page);
 						}
@@ -169,7 +170,7 @@ namespace Greenshot.Addon.Confluence
 							}
 							if (!pageDouble)
 							{
-								var contentList = await ConfluencePlugin.ConfluenceAPI.GetContentByTitleAsync(space, title, 0, 20, token).ConfigureAwait(false);
+								var contentList = await ConfluencePlugin.ConfluenceClient.GetContentByTitleAsync(space, title, 0, 20, token).ConfigureAwait(false);
 								if ((contentList != null) && (contentList.Results.Count > 0))
 								{
 									var content = contentList.Results.First();
@@ -211,7 +212,7 @@ namespace Greenshot.Addon.Confluence
 							}
 							if (!pageDouble)
 							{
-								var contentList = await ConfluencePlugin.ConfluenceAPI.GetContentByTitleAsync(space, title, 0, 20, token).ConfigureAwait(false);
+								var contentList = await ConfluencePlugin.ConfluenceClient.GetContentByTitleAsync(space, title, 0, 20, token).ConfigureAwait(false);
 								if ((contentList != null) && (contentList.Results.Count > 0))
 								{
 									var content = contentList.Results.First();

@@ -20,12 +20,9 @@
 #region Usings
 
 using System.ComponentModel.Composition;
-using System.Threading;
-using System.Threading.Tasks;
 using Dapplo.Addons;
 using Dapplo.HttpExtensions;
 using Dapplo.Log;
-using Dapplo.Log.LogFile;
 using Greenshot.Addon.Core;
 using Greenshot.Configuration;
 using Greenshot.Core.Configuration;
@@ -53,20 +50,15 @@ namespace Greenshot.Services
 		/// <summary>
 		///     IShutdownAction entry, this cleans up some stuff
 		/// </summary>
-		/// <param name="token"></param>
-		/// <returns>Task</returns>
-		public async Task ShutdownAsync(CancellationToken token = default(CancellationToken))
+		public void Shutdown()
 		{
 			Log.Debug().WriteLine("Cleaning up");
-			await Task.Run(() => { }, token).ConfigureAwait(false);
 		}
 
 		/// <summary>
 		///     IStartupAction entry for starting
 		/// </summary>
-		/// <param name="token"></param>
-		/// <returns></returns>
-		public Task StartAsync(CancellationToken token = default(CancellationToken))
+		public void Start()
 		{
 #if !DEBUG
 			// Read the log configuration and set it to the framework
@@ -74,12 +66,7 @@ namespace Greenshot.Services
 #endif
 
 			Log.Debug().WriteLine("Configuring misc settings");
-			return Task.Run(() =>
-				{
-					// Read the http configuration and set it to the framework
-					HttpExtensionsGlobals.HttpSettings = NetworkConfiguration;
-				},
-				token);
+			HttpExtensionsGlobals.HttpSettings = NetworkConfiguration;
 		}
 	}
 }

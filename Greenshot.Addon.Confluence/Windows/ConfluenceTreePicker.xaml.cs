@@ -26,6 +26,7 @@ using System.Windows.Controls;
 using Dapplo.Ini;
 using Dapplo.Confluence.Entities;
 using Dapplo.Log;
+using Dapplo.Confluence;
 
 #endregion
 
@@ -66,7 +67,7 @@ namespace Greenshot.Addon.Confluence.Windows
 				// ReSharper disable once UnusedVariable
 				var loadPageTask = Task.Factory.StartNew(async () =>
 				{
-					var page = await ConfluencePlugin.ConfluenceAPI.GetContentAsync(space.Id);
+					var page = await ConfluencePlugin.ConfluenceClient.GetContentAsync(space.Id);
 					if (page != null)
 					{
 						var pageTreeViewItem = new TreeViewItem
@@ -102,7 +103,7 @@ namespace Greenshot.Addon.Confluence.Windows
 				Log.Debug().WriteLine("Loading pages for page: {0}", page.Title);
 				Task.Factory.StartNew(async () =>
 				{
-					var pages = await ConfluencePlugin.ConfluenceAPI.GetChildrenAsync(page.Id);
+					var pages = await ConfluencePlugin.ConfluenceClient.GetChildrenAsync(page.Id);
 					foreach (var childPage in pages)
 					{
 						Log.Debug().WriteLine("Adding page: {0}", childPage.Title);

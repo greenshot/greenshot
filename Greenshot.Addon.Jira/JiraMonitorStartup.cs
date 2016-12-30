@@ -38,7 +38,7 @@ namespace Greenshot.Addon.Jira
 	///     This starts the jira monitor at startup
 	/// </summary>
 	[StartupAction(StartupOrder = (int) GreenshotStartupOrder.Addon)]
-	public class JiraMonitorStartup : IStartupAction
+	public class JiraMonitorStartup : IAsyncStartupAction
 	{
 		private JiraDestination _jiraDestination;
 
@@ -126,7 +126,7 @@ namespace Greenshot.Addon.Jira
 
 		private bool _disposedValue; // To detect redundant calls
 
-		protected virtual void Dispose(bool disposing)
+		protected void Dispose(bool disposing)
 		{
 			if (!_disposedValue)
 			{

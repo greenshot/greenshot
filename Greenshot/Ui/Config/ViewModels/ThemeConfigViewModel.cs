@@ -99,7 +99,7 @@ namespace Greenshot.Ui.Config.ViewModels
 
 
 			// automatically update the DisplayName
-			var greenshotLanguageBinding = GreenshotLanguage.CreateBinding(this, nameof(IGreenshotLanguage.SettingsTitle));
+			var greenshotLanguageBinding = GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.SettingsTitle));
 
 			// Make sure the greenshotLanguageBinding is disposed when this is no longer active
 			_disposables.Add(greenshotLanguageBinding);
