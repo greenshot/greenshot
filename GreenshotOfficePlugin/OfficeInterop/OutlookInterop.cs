@@ -289,7 +289,9 @@ namespace Greenshot.Interop.Office {
 		}
 	}
 
-	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.outlook.inspector_members.aspx
+	/// <summary>
+	/// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.outlook.inspector_members.aspx
+	/// </summary>
 	public interface IInspector : ICommonExplorer {
 		IItem CurrentItem {
 			get;

@@ -1256,7 +1256,6 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		public static void ToForeground(IntPtr handle)
 		{
-
 			// Do nothing if the window is already in the foreground
 			if (User32.GetForegroundWindow() == handle)
 			{

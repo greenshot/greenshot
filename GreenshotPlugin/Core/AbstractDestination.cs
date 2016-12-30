@@ -152,7 +152,8 @@ namespace GreenshotPlugin.Core {
 			var menu = new ContextMenuStrip
 			{
 				ImageScalingSize = CoreConfig.IconSize,
-				Tag = null
+				Tag = null,
+				TopLevel = true
 			};
 
 			menu.Closing += delegate(object source, ToolStripDropDownClosingEventArgs eventArgs) {

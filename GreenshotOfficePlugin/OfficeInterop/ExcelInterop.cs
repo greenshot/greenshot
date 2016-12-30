@@ -37,13 +37,21 @@ namespace Greenshot.Interop.Office {
 		string Version {
 			get;
 		}
+
+		/// <summary>
+		/// Returns an Integer indicating the top-level window handle of the Microsoft Excel window.
+		/// </summary>
+		int Hwnd
+		{
+			get;
+		}
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel.workbooks.aspx
 	public interface IWorkbooks : ICommon, ICollection {
 		IWorkbook Add(object template);
 		// Use index + 1!!
-		IWorkbook this[object Index] {
+		IWorkbook this[object index] {
 			get;
 		}
 	}
@@ -76,14 +84,14 @@ namespace Greenshot.Interop.Office {
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel.iworksheets_members.aspx
-	public interface IWorksheets : ICommon, ICollection {
+	public interface IWorksheets : ICollection {
 		// Use index + 1!!
-		IWorksheet this[object Index] {
+		IWorksheet this[object index] {
 			get;
 		}
 	}
 
-	public interface IPictures : ICommon, ICollection {
+	public interface IPictures : ICollection {
 		// Use index + 1!!
 		//IPicture this[object Index] { get; }
 		void Insert(string file);

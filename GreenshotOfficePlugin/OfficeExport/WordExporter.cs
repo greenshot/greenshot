@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using GreenshotOfficePlugin;
 using Greenshot.IniFile;
+using GreenshotPlugin.Core;
 
 namespace Greenshot.Interop.Office {
 	public class WordExporter {
@@ -123,7 +124,15 @@ namespace Greenshot.Interop.Office {
 					// ignored
 				}
 				try {
-					wordDocument.Activate();
+					using (var activeWindow = wordDocument.ActiveWindow)
+					{
+						activeWindow.Activate();
+						int hWnd = activeWindow.Hwnd;
+						if (hWnd > 0)
+						{
+							WindowDetails.ToForeground(new IntPtr(hWnd));
+						}
+					}
 				}
 				catch
 				{
@@ -192,7 +201,15 @@ namespace Greenshot.Interop.Office {
 							// ignored
 						}
 						try {
-							wordDocument.ActiveWindow.Activate();
+							using (var activeWindow = wordDocument.ActiveWindow)
+							{
+								activeWindow.Activate();
+								int hWnd = activeWindow.Hwnd;
+								if (hWnd > 0)
+								{
+									WindowDetails.ToForeground(new IntPtr(hWnd));
+								}
+							}
 						}
 						catch
 						{

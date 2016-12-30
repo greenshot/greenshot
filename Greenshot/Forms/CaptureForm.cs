@@ -300,6 +300,10 @@ namespace Greenshot.Forms {
 						HandleMouseUp();
 					}
 					break;
+				case Keys.F:
+					ToFront = !ToFront;
+					TopMost = !TopMost;
+					break;
 			}
 		}
 		#endregion

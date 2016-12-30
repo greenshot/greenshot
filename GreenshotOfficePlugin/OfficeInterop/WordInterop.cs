@@ -60,6 +60,11 @@ namespace Greenshot.Interop.Office {
 		string Caption {
 			get;
 		}
+
+		/// <summary>
+		/// Returns an Integer (int in C#) that indicates the window handle of the specified window
+		/// </summary>
+		int Hwnd { get; }
 	}
 
 	/// <summary>

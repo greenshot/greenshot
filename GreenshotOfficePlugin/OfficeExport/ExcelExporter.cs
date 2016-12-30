@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Drawing;
+using GreenshotPlugin.Core;
 
 namespace Greenshot.Interop.Office {
 	public class ExcelExporter {
@@ -71,6 +72,11 @@ namespace Greenshot.Interop.Office {
 							}
 						}
 					}
+				}
+				int hWnd = excelApplication.Hwnd;
+				if (hWnd > 0)
+				{
+					WindowDetails.ToForeground(new IntPtr(hWnd));
 				}
 			}
 		}
