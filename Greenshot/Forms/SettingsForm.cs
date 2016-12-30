@@ -46,6 +46,7 @@ namespace Greenshot {
 		private static readonly ILog Log = LogManager.GetLogger(typeof(SettingsForm));
 		private readonly ToolTip _toolTip = new ToolTip();
 		private bool _inHotkey;
+		private int _daysbetweencheckPreviousValue;
 
 		public SettingsForm() {
 			InitializeComponent();
@@ -71,12 +72,47 @@ namespace Greenshot {
 			ie_hotkeyControl.Leave += LeaveHotkeyControl;
 			lastregion_hotkeyControl.Enter += EnterHotkeyControl;
 			lastregion_hotkeyControl.Leave += LeaveHotkeyControl;
+			// Changes for BUG-2077
+			numericUpDown_daysbetweencheck.ValueChanged += NumericUpDownDaysbetweencheckOnValueChanged;
 
+			_daysbetweencheckPreviousValue = (int) numericUpDown_daysbetweencheck.Value;
 			DisplayPluginTab();
 			UpdateUi();
 			ExpertSettingsEnableState(false);
 			DisplaySettings();
 			CheckSettings();
+		}
+
+		/// <summary>
+		/// This makes sure the check cannot be set to 1-6
+		/// </summary>
+		/// <param name="sender">object</param>
+		/// <param name="eventArgs">EventArgs</param>
+		private void NumericUpDownDaysbetweencheckOnValueChanged(object sender, EventArgs eventArgs)
+		{
+			int currentValue = (int)numericUpDown_daysbetweencheck.Value;
+
+			// Check if we can into the forbidden range
+			if (currentValue > 0 && currentValue < 7)
+			{
+				if (_daysbetweencheckPreviousValue <= currentValue)
+				{
+					numericUpDown_daysbetweencheck.Value = 7;
+				}
+				else
+				{
+					numericUpDown_daysbetweencheck.Value = 0;
+				}
+			}
+			if ((int)numericUpDown_daysbetweencheck.Value < 0)
+			{
+				numericUpDown_daysbetweencheck.Value = 0;
+			}
+			if ((int)numericUpDown_daysbetweencheck.Value > 365)
+			{
+				numericUpDown_daysbetweencheck.Value = 365;
+			}
+			_daysbetweencheckPreviousValue = (int)numericUpDown_daysbetweencheck.Value;
 		}
 
 		private void EnterHotkeyControl(object sender, EventArgs e) {

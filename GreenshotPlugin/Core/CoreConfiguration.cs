@@ -431,9 +431,13 @@ namespace GreenshotPlugin.Core {
 			{
 				UpdateCheckInterval = 14;
 			}
+			if (UpdateCheckInterval > 365)
+			{
+				UpdateCheckInterval = 365;
+			}
 
 			// Enable OneNote if upgrading from 1.1
-			if(ExcludeDestinations != null && ExcludeDestinations.Contains("OneNote")) {
+			if (ExcludeDestinations != null && ExcludeDestinations.Contains("OneNote")) {
 				if(LastSaveWithVersion != null && LastSaveWithVersion.StartsWith("1.1")) {
 					ExcludeDestinations.Remove("OneNote");
 				} else {

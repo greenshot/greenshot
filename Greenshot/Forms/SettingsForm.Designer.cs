@@ -506,6 +506,8 @@ namespace Greenshot {
 			this.numericUpDown_daysbetweencheck.Size = new System.Drawing.Size(57, 20);
 			this.numericUpDown_daysbetweencheck.TabIndex = 8;
 			this.numericUpDown_daysbetweencheck.ThousandsSeparator = true;
+			this.numericUpDown_daysbetweencheck.Minimum = 0;
+			this.numericUpDown_daysbetweencheck.Maximum = 365;
 			// 
 			// label_checkperiod
 			// 
