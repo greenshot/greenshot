@@ -3,8 +3,7 @@ layout: post
 status: publish
 published: true
 title: ! 'Latest bugfix release resolves problems with Imgur upload and performance'
-
-
+release_version: 1.2.8.12
 tags:
 - 1.2
 - bugfix

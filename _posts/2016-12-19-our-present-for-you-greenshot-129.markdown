@@ -2,6 +2,7 @@
 layout: post
 status: publish
 published: true
+release_version: 1.2.9.103
 title: ! 'Our present for you: Greenshot 1.2.9 brings a lot of improvements and fixes'
 tags:
 - 1.2

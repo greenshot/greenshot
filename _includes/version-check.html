@@ -1,9 +1,21 @@
 {% assign latest_release = site.github.releases | where:"prerelease",false | where:"draft",false | first %}
+
+<script language="JavaScript">
+var release_blog_posts = new Array();
+{% for post in site.posts %}
+{% if post.release_version %}
+release_blog_posts["{{post.release_version}}"] = "{{post.url}}";
+{% endif %}
+{% endfor %}
+</script>
+
 <div id="currentVersion" class="alert alert-success collapse" role="alert">
-<i class="fa fa-check-circle"></i> You are using the most recent version of Greenshot.
+<i class="fa fa-check-circle"></i> You installed the most recent version of Greenshot.
+<div id="blogPost1" class="collapse">You can read more about this version <a id="blog1" href="">here</a>.</div>
 </div>
 <div id="oldVersion" class="alert alert-danger collapse" role="alert">
 <i class="fa fa-exclamation-triangle"></i> <strong>You are not using the newest Greenshot version.</strong><br/>
+<div id="blogPost2" class="collapse">You can read more about the Greenshot version you installed <a id="blog2" href="">here</a>.</div>
 You might want to download the newest version, which is {{ latest_release.tag_name }}, from <a href="/downloads/">here</a>. Make sure to always get Greenshot from <a href="http://getgreenshot.org/">getgreenshot.org</a>.
 </div>
 
@@ -55,9 +67,16 @@ function compareVersion(a, b) {
 }
 
 var installedVersion = /version=([^&]+)/.exec(location)[1];
-var greenshotTag = {% if latest_release.tag_name %}"{{ latest_release.tag_name }}"{% else %}"Greenshot-Test-1.2.8.12"{% endif %};
+var greenshotTag = {% if latest_release.tag_name %}"{{ latest_release.tag_name }}"{% else %}"Greenshot-Test-1.2.9.112"{% endif %};
 var releaseVersion = /.*(\d+\.\d+\.\d+\.\d+)/.exec(greenshotTag)[1];
 var compare=compareVersion(releaseVersion, installedVersion);
+var matchingBlogPost = release_blog_posts[installedVersion];
+if (matchingBlogPost) {
+	jQuery('#blog1').prop("href", matchingBlogPost);
+	jQuery('#blogPost1').slideToggle();
+	jQuery('#blog2').prop("href", matchingBlogPost);
+	jQuery('#blogPost2').slideToggle();
+}
 if (compare >= 1) {
 	jQuery('#oldVersion').slideToggle();
 } else if (compare == 0) {

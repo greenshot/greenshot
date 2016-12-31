@@ -3,8 +3,7 @@ layout: post
 status: publish
 published: true
 title: ! 'New Bugfix Release with an Important Change for Picasa Users'
-
-
+release_version: 1.2.6.7
 tags:
 - 1.2
 - bugfix
