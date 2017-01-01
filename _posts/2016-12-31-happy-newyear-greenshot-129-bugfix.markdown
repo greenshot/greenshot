@@ -9,13 +9,13 @@ tags:
 - bugfix
 - release
 ---
-So the year 2016 has come to an end, to celebrate the start of a brand new year we have a little present for you:
-We bring you a bugfix release for the bugs found in Greenshot 1.2.9.103 (released at the 19th of december).
+On the 19th of December 2016 we released Greenshot 1.2.9.103 as an early christmas present.
+We invested over 500 hours of development time in that version, with that much time there were bound to be a few bugs in there.
+Today at the end of the year we bring you a bugfix release, which should solve most reported bugs and even bring a few small features, you can see the full changelog below.
 
-You can see the full changelog below. So just go ahead, [download](/downloads/) the last Greenshot release for 2016 and have a great 2017!
+So if you didn't already, just go ahead and [download](/downloads/) 1.2.9.112 the last Greenshot release for the year 2016!
 
-Yours with best wishes for 2017,
-
+We hope to bring you a lot more Greenshot in 2017 and wish everybody a happy and healthy 2017,
 the Greenshot team
 
 
