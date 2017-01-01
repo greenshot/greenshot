@@ -1,9 +1,9 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,54 +19,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Windows.Forms;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
-using Jira;
 using System;
+using System.Threading.Tasks;
+using Dapplo.Log.Facade;
+using GreenshotJiraPlugin.Forms;
+using GreenshotPlugin.Core;
+using log4net;
 
 namespace GreenshotJiraPlugin {
 	/// <summary>
 	/// This is the JiraPlugin base code
 	/// </summary>
 	public class JiraPlugin : IGreenshotPlugin {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(JiraPlugin));
-		private PluginAttribute jiraPluginAttributes;
-		private IGreenshotHost host;
-		private JiraConnector jiraConnector = null;
-		private JiraConfiguration config = null;
-		private ComponentResourceManager resources;
-		private static JiraPlugin instance = null;
+		private static readonly ILog Log = LogManager.GetLogger(typeof(JiraPlugin));
+		private JiraConfiguration _config;
+		private static JiraPlugin _instance;
+		private JiraConnector _jiraConnector;
 
 		public void Dispose() {
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing) {
+		protected void Dispose(bool disposing) {
 			if (disposing) {
-				if (jiraConnector != null) {
-					jiraConnector.Dispose();
-					jiraConnector = null;
+				if (JiraConnector != null) {
+					JiraConnector.Dispose();
+					JiraConnector = null;
 				}
 			}
 		}
 
-		public static JiraPlugin Instance {
-			get {
-				return instance;
-			}
-		}
+		public static JiraPlugin Instance => _instance;
 
 		public JiraPlugin() {
-			instance = this;
-		}
-		
-		public PluginAttribute JiraPluginAttributes {
-			get {
-				return jiraPluginAttributes;
-			}
+			_instance = this;
 		}
 
 		public IEnumerable<IDestination> Destinations() {
@@ -78,69 +68,118 @@ namespace GreenshotJiraPlugin {
 		}
 
 		//Needed for a fail-fast
-		public JiraConnector CurrentJiraConnector {
-			get {
-				return jiraConnector;
-			}
-		}
-		
-		public JiraConnector JiraConnector {
-			get {
-				if (jiraConnector == null) {
-					jiraConnector = new JiraConnector(true);
+		public JiraConnector CurrentJiraConnector => JiraConnector;
+
+		public JiraConnector JiraConnector
+		{
+			get
+			{
+				lock (_instance)
+				{
+					if (_jiraConnector == null)
+					{
+						JiraConnector = new JiraConnector();
+					}
 				}
-				return jiraConnector;
+				return _jiraConnector;
 			}
+			private set { _jiraConnector = value; }
 		}
 
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
-		/// <param name="pluginAttribute">My own attributes</param>
+		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
+		/// <param name="myAttributes">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
-			this.host = (IGreenshotHost)pluginHost;
-			jiraPluginAttributes = myAttributes;
-
+		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
 			// Register configuration (don't need the configuration itself)
-			config = IniConfig.GetIniSection<JiraConfiguration>();
-			resources = new ComponentResourceManager(typeof(JiraPlugin));
+			_config = IniConfig.GetIniSection<JiraConfiguration>();
+
+			// Make sure the loggin is enable for the corect level.
+			if (Log.IsDebugEnabled)
+			{
+				LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Verbose);
+			}
+			else if (Log.IsInfoEnabled)
+			{
+				LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Info);
+			}
+			else if (Log.IsWarnEnabled)
+			{
+				LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Warn);
+			}
+			else if (Log.IsErrorEnabled)
+			{
+				LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Error);
+			}
+			else if (Log.IsErrorEnabled)
+			{
+				LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Error);
+			}
+			else
+			{
+				LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Fatal);
+			}
+
+			// Add a SVG converter, although it doesn't fit to the Jira plugin there is currently no other way
+			ImageHelper.StreamConverters["svg"] = (stream, s) =>
+			{
+				stream.Position = 0;
+				try
+				{
+					return SvgImage.FromStream(stream).Image;
+				}
+				catch (Exception ex)
+				{
+					Log.Error("Can't load SVG", ex);
+				}
+				return null;
+			};
+
 			return true;
 		}
 
-		public virtual void Shutdown() {
-			LOG.Debug("Jira Plugin shutdown.");
-			if (jiraConnector != null) {
-				jiraConnector.logout();
+		public void Shutdown() {
+			Log.Debug("Jira Plugin shutdown.");
+			if (JiraConnector != null)
+			{
+				Task.Run(async () => await JiraConnector.LogoutAsync());
 			}
 		}
 
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure() {
-			string url = config.Url;
-			if (config.ShowConfigDialog()) {
+		public void Configure() {
+			string url = _config.Url;
+			if (ShowConfigDialog()) {
 				// check for re-login
-				if (jiraConnector != null && jiraConnector.isLoggedIn && !string.IsNullOrEmpty(url)) {
-					if (!url.Equals(config.Url)) {
-						jiraConnector.logout();
-						jiraConnector.login();
+				if (JiraConnector != null && JiraConnector.IsLoggedIn && !string.IsNullOrEmpty(url)) {
+					if (!url.Equals(_config.Url)) {
+						Task.Run(async () =>
+						{
+							await JiraConnector.LogoutAsync();
+							await JiraConnector.LoginAsync();
+						});
 					}
 				}
 			}
 		}
 
 		/// <summary>
-		/// This will be called when Greenshot is shutting down
+		/// A form for username/password
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		public void Closing(object sender, FormClosingEventArgs e) {
-			LOG.Debug("Application closing, calling logout of jira!");
-			Shutdown();
+		/// <returns>bool true if OK was pressed, false if cancel</returns>
+		private bool ShowConfigDialog()
+		{
+			var settingsForm = new SettingsForm();
+			var result = settingsForm.ShowDialog();
+			if (result == DialogResult.OK)
+			{
+				return true;
+			}
+			return false;
 		}
 	}
 }

@@ -1,9 +1,9 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@
 using System;
 using System.Windows.Forms;
 using Greenshot.IniFile;
-using GreenshotPlugin.Core;
 
 namespace Greenshot.Forms {
 	/// <summary>
@@ -35,9 +34,9 @@ namespace Greenshot.Forms {
 			InitializeComponent();
 			checkbox_dontaskagain.Checked = false;
 		}
-		
-		
-		void Button_okClick(object sender, EventArgs e) {
+
+
+		private void Button_okClick(object sender, EventArgs e) {
 			// update config
 			coreConfiguration.OutputPrintPromptOptions = !checkbox_dontaskagain.Checked;
 			IniConfig.Save();

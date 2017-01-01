@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,8 +25,10 @@ using Greenshot.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
 using System.Drawing.Drawing2D;
-using Greenshot.Core;
 using log4net;
+using System.Runtime.Serialization;
+using GreenshotPlugin.Effects;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -34,7 +36,7 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable] 
 	public class ImageContainer : DrawableContainer, IImageContainer {
-		private static ILog LOG = LogManager.GetLogger(typeof(ImageContainer));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ImageContainer));
 
 		private Image image;
 
@@ -58,6 +60,18 @@ namespace Greenshot.Drawing {
 
 		public ImageContainer(Surface parent) : base(parent) {
 			FieldChanged += BitmapContainer_OnFieldChanged;
+			Init();
+		}
+
+		protected override void OnDeserialized(StreamingContext streamingContext)
+		{
+			base.OnDeserialized(streamingContext);
+			Init();
+		}
+
+		private void Init()
+		{
+			CreateDefaultAdorners();
 		}
 
 		protected override void InitializeFields() {
@@ -66,7 +80,7 @@ namespace Greenshot.Drawing {
 
 		protected void BitmapContainer_OnFieldChanged(object sender, FieldChangedEventArgs e) {
 			if (sender.Equals(this)) {
-				if (e.Field.FieldType == FieldType.SHADOW) {
+				if (FieldType.SHADOW.Equals(e.Field.FieldType)) {
 					ChangeShadowField();
 				}
 			}
@@ -126,15 +140,11 @@ namespace Greenshot.Drawing {
 		}
 
 		private void DisposeImage() {
-			if (image != null) {
-				image.Dispose();
-			}
+			image?.Dispose();
 			image = null;
 		}
 		private void DisposeShadow() {
-			if (_shadowBitmap != null) {
-				_shadowBitmap.Dispose();
-			}
+			_shadowBitmap?.Dispose();
 			_shadowBitmap = null;
 		}
 
@@ -148,10 +158,11 @@ namespace Greenshot.Drawing {
 			int rotateAngle = CalculateAngle(matrix);
 			// we currently assume only one transformation has been made.
 			if (rotateAngle != 0) {
-				LOG.DebugFormat("Rotating element with {0} degrees.", rotateAngle);
+				Log.DebugFormat("Rotating element with {0} degrees.", rotateAngle);
 				DisposeShadow();
 				using (var tmpMatrix = new Matrix()) {
-					using (Image tmpImage = image) {
+					using (image)
+					{
 						image = ImageHelper.ApplyEffect(image, new RotateEffect(rotateAngle), tmpMatrix);
 					}
 				}
@@ -164,14 +175,16 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="filename"></param>
 		public void Load(string filename) {
-			if (File.Exists(filename)) {
-				// Always make sure ImageHelper.LoadBitmap results are disposed some time,
-				// as we close the bitmap internally, we need to do it afterwards
-				using (Image tmpImage = ImageHelper.LoadImage(filename)) {
-					Image = tmpImage;
-				}
-				LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
+			if (!File.Exists(filename))
+			{
+				return;
 			}
+			// Always make sure ImageHelper.LoadBitmap results are disposed some time,
+			// as we close the bitmap internally, we need to do it afterwards
+			using (var tmpImage = ImageHelper.LoadImage(filename)) {
+				Image = tmpImage;
+			}
+			Log.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
 		}
 
 		/// <summary>
@@ -208,16 +221,8 @@ namespace Greenshot.Drawing {
 			}
 		}
 
-		public override bool HasDefaultSize {
-			get {
-				return true;
-			}
-		}
+		public override bool HasDefaultSize => true;
 
-		public override Size DefaultSize {
-			get {
-				return image.Size;
-			}
-		}
+		public override Size DefaultSize => image.Size;
 	}
 }

@@ -1,9 +1,9 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
  */
 
 using Greenshot.Configuration;
+using Greenshot.Drawing.Adorners;
 using Greenshot.Drawing.Fields;
 using Greenshot.Drawing.Filters;
 using Greenshot.Helpers;
@@ -27,15 +28,19 @@ using Greenshot.IniFile;
 using Greenshot.Memento;
 using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
+using Greenshot.Plugin.Drawing.Adorners;
+using GreenshotPlugin.Interfaces.Drawing;
 using log4net;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Runtime.Serialization;
 using System.Windows.Forms;
 
-namespace Greenshot.Drawing {
+namespace Greenshot.Drawing
+{
 	/// <summary>
 	/// represents a rectangle, ellipse, label or whatever. Can contain filters, too.
 	/// serializable for clipboard support
@@ -46,12 +51,23 @@ namespace Greenshot.Drawing {
 	public abstract class DrawableContainer : AbstractFieldHolderWithChildren, IDrawableContainer {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(DrawableContainer));
 		protected static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
-		private bool isMadeUndoable;
 		private const int M11 = 0;
-		private const int M12 = 1;
-		private const int M21 = 2;
 		private const int M22 = 3;
 
+		[OnDeserialized]
+		private void OnDeserializedInit(StreamingContext context)
+		{
+			_adorners = new List<IAdorner>();
+			OnDeserialized(context);
+		}
+
+		/// <summary>
+		/// Override to implement your own deserialization logic, like initializing properties which are not serialized
+		/// </summary>
+		/// <param name="streamingContext"></param>
+		protected virtual void OnDeserialized(StreamingContext streamingContext)
+		{
+		}
 
 		protected EditStatus _defaultEditMode = EditStatus.DRAWING;
 		public EditStatus DefaultEditMode {
@@ -73,19 +89,7 @@ namespace Greenshot.Drawing {
 			if (!disposing) {
 				return;
 			}
-			if (_grippers != null) {
-				for (int i = 0; i < _grippers.Length; i++) {
-					if (_grippers[i] == null) {
-						continue;
-					}
-					_grippers[i].Dispose();
-					_grippers[i] = null;
-				}
-				_grippers = null;
-			}
-
-			FieldAggregator aggProps = _parent.FieldAggregator;
-			aggProps.UnbindElement(this);
+			_parent?.FieldAggregator?.UnbindElement(this);
 		}
 
 		~DrawableContainer() {
@@ -99,7 +103,7 @@ namespace Greenshot.Drawing {
 			remove{ _propertyChanged -= value; }
 		}
 		
-		public List<IFilter> Filters {
+		public IList<IFilter> Filters {
 			get {
 				List<IFilter> ret = new List<IFilter>();
 				foreach(IFieldHolder c in Children) {
@@ -117,16 +121,12 @@ namespace Greenshot.Drawing {
 			get { return _parent; }
 			set { SwitchParent((Surface)value); }
 		}
-		[NonSerialized]
-		protected Gripper[] _grippers;
-		private bool layoutSuspended;
 
 		[NonSerialized]
-		private Gripper _targetGripper;
-
-		public Gripper TargetGripper {
+		private TargetAdorner _targetAdorner;
+		public TargetAdorner TargetAdorner {
 			get {
-				return _targetGripper;
+				return _targetAdorner;
 			}
 		}
 
@@ -160,7 +160,6 @@ namespace Greenshot.Drawing {
 					return;
 				}
 				left = value;
-				DoLayout();
 			}
 		}
 		
@@ -172,7 +171,6 @@ namespace Greenshot.Drawing {
 					return;
 				}
 				top = value;
-				DoLayout();
 			}
 		}
 		
@@ -184,7 +182,6 @@ namespace Greenshot.Drawing {
 					return;
 				}
 				width = value;
-				DoLayout();
 			}
 		}
 		
@@ -196,7 +193,6 @@ namespace Greenshot.Drawing {
 					return;
 				}
 				height = value;
-				DoLayout();
 			}
 		}
 		
@@ -217,6 +213,19 @@ namespace Greenshot.Drawing {
 			set {
 				width = value.Width;
 				height = value.Height;
+			}
+		}
+
+		/// <summary>
+		/// List of available Adorners
+		/// </summary>
+		[NonSerialized]
+		private IList<IAdorner> _adorners = new List<IAdorner>();
+		public IList<IAdorner> Adorners
+		{
+			get
+			{
+				return _adorners;
 			}
 		}
 
@@ -248,7 +257,6 @@ namespace Greenshot.Drawing {
 		public DrawableContainer(Surface parent) {
 			InitializeFields();
 			_parent = parent;
-			InitControls();
 		}
 
 		public void Add(IFilter filter) {
@@ -291,12 +299,15 @@ namespace Greenshot.Drawing {
 
 		public virtual void Invalidate() {
 			if (Status != EditStatus.UNDRAWN) {
-				_parent.Invalidate(DrawingBounds);
+				_parent?.Invalidate(DrawingBounds);
 			}
 		}
 		
 		public void AlignToParent(HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment) {
-			
+			if (_parent == null)
+			{
+				return;
+			}
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 			if (horizontalAlignment == HorizontalAlignment.Left) {
 				Left = lineThickness/2;
@@ -322,188 +333,35 @@ namespace Greenshot.Drawing {
 		public virtual bool InitContent() { return true; }
 		
 		public virtual void OnDoubleClick() {}
-		
-		private void InitControls() {
-			InitGrippers();
-			
-			DoLayout();
-		}
-
-		/// <summary>
-		/// Move the TargetGripper around, confined to the surface to solve BUG-1682
-		/// </summary>
-		/// <param name="newX"></param>
-		/// <param name="newY"></param>
-		protected virtual void TargetGripperMove(int newX, int newY) {
-			Point newGripperLocation = new Point(newX, newY);
-			Rectangle surfaceBounds = new Rectangle(0, 0, _parent.Width, _parent.Height);
-			// Check if gripper inside the parent (surface), if not we need to move it inside
-			// This was made for BUG-1682
-			if (!surfaceBounds.Contains(newGripperLocation)) {
-				if (newGripperLocation.X > surfaceBounds.Right) {
-					newGripperLocation.X = surfaceBounds.Right - 5;
-				}
-				if (newGripperLocation.X < surfaceBounds.Left) {
-					newGripperLocation.X = surfaceBounds.Left;
-				}
-				if (newGripperLocation.Y > surfaceBounds.Bottom) {
-					newGripperLocation.Y = surfaceBounds.Bottom - 5;
-				}
-				if (newGripperLocation.Y < surfaceBounds.Top) {
-					newGripperLocation.Y = surfaceBounds.Top;
-				}
-			}
-
-			_targetGripper.Left = newGripperLocation.X;
-			_targetGripper.Top = newGripperLocation.Y;
-		}
 
 		/// <summary>
 		/// Initialize a target gripper
 		/// </summary>
-		protected void InitTargetGripper(Color gripperColor, Point location) {
-			_targetGripper = new Gripper {
-				Cursor = Cursors.SizeAll,
-				BackColor = gripperColor,
-				Visible = false,
-				Parent = _parent,
-				Location = location
-			};
-			_targetGripper.MouseDown += GripperMouseDown;
-			_targetGripper.MouseUp += GripperMouseUp;
-			_targetGripper.MouseMove += GripperMouseMove;
-			if (_parent != null) {
-				_parent.Controls.Add(_targetGripper); // otherwise we'll attach them in switchParent
-			}
+		protected void InitAdorner(Color gripperColor, Point location) {
+			_targetAdorner = new TargetAdorner(this, location);
+			Adorners.Add(_targetAdorner);
 		}
 
-		protected void InitGrippers() {
-			
-			_grippers = new Gripper[8];
-			for(int i=0; i<_grippers.Length; i++) {
-				_grippers[i] = new Gripper();
-				_grippers[i].Position = i;
-				_grippers[i].MouseDown += GripperMouseDown;
-				_grippers[i].MouseUp += GripperMouseUp;
-				_grippers[i].MouseMove += GripperMouseMove;
-				_grippers[i].Visible = false;
-				_grippers[i].Parent = _parent;
-			}
-			_grippers[Gripper.POSITION_TOP_CENTER].Cursor = Cursors.SizeNS;
-			_grippers[Gripper.POSITION_MIDDLE_RIGHT].Cursor = Cursors.SizeWE;
-			_grippers[Gripper.POSITION_BOTTOM_CENTER].Cursor = Cursors.SizeNS;
-			_grippers[Gripper.POSITION_MIDDLE_LEFT].Cursor = Cursors.SizeWE;
-			if (_parent != null) {
-				_parent.Controls.AddRange(_grippers); // otherwise we'll attach them in switchParent
-			}
-		}
-		
-		public void SuspendLayout() {
-			layoutSuspended = true;
-		}
-		
-		public void ResumeLayout() {
-			layoutSuspended = false;
-			DoLayout();
-		}
-		
-		protected virtual void DoLayout() {
-			if (_grippers == null) {
-				return;
-			}
-			if (!layoutSuspended) {
-				int[] xChoords = {Left-2,Left+Width/2-2,Left+Width-2};
-				int[] yChoords = {Top-2,Top+Height/2-2,Top+Height-2};
+		/// <summary>
+		/// Create the default adorners for a rectangle based container
+		/// </summary>
 
-				_grippers[Gripper.POSITION_TOP_LEFT].Left = xChoords[0]; _grippers[Gripper.POSITION_TOP_LEFT].Top = yChoords[0];
-				_grippers[Gripper.POSITION_TOP_CENTER].Left = xChoords[1]; _grippers[Gripper.POSITION_TOP_CENTER].Top = yChoords[0];
-				_grippers[Gripper.POSITION_TOP_RIGHT].Left = xChoords[2]; _grippers[Gripper.POSITION_TOP_RIGHT].Top = yChoords[0];
-				_grippers[Gripper.POSITION_MIDDLE_RIGHT].Left = xChoords[2]; _grippers[Gripper.POSITION_MIDDLE_RIGHT].Top = yChoords[1];
-				_grippers[Gripper.POSITION_BOTTOM_RIGHT].Left = xChoords[2]; _grippers[Gripper.POSITION_BOTTOM_RIGHT].Top = yChoords[2];
-				_grippers[Gripper.POSITION_BOTTOM_CENTER].Left = xChoords[1]; _grippers[Gripper.POSITION_BOTTOM_CENTER].Top = yChoords[2];
-				_grippers[Gripper.POSITION_BOTTOM_LEFT].Left = xChoords[0]; _grippers[Gripper.POSITION_BOTTOM_LEFT].Top = yChoords[2];
-				_grippers[Gripper.POSITION_MIDDLE_LEFT].Left = xChoords[0]; _grippers[Gripper.POSITION_MIDDLE_LEFT].Top = yChoords[1];
-				
-				if((_grippers[Gripper.POSITION_TOP_LEFT].Left < _grippers[Gripper.POSITION_BOTTOM_RIGHT].Left && _grippers[Gripper.POSITION_TOP_LEFT].Top < _grippers[Gripper.POSITION_BOTTOM_RIGHT].Top) ||
-					_grippers[Gripper.POSITION_TOP_LEFT].Left > _grippers[Gripper.POSITION_BOTTOM_RIGHT].Left && _grippers[Gripper.POSITION_TOP_LEFT].Top > _grippers[Gripper.POSITION_BOTTOM_RIGHT].Top) {
-					_grippers[Gripper.POSITION_TOP_LEFT].Cursor = Cursors.SizeNWSE;
-					_grippers[Gripper.POSITION_TOP_RIGHT].Cursor = Cursors.SizeNESW;
-					_grippers[Gripper.POSITION_BOTTOM_RIGHT].Cursor = Cursors.SizeNWSE;
-					_grippers[Gripper.POSITION_BOTTOM_LEFT].Cursor = Cursors.SizeNESW;
-				} else if((_grippers[Gripper.POSITION_TOP_LEFT].Left > _grippers[Gripper.POSITION_BOTTOM_RIGHT].Left && _grippers[Gripper.POSITION_TOP_LEFT].Top < _grippers[Gripper.POSITION_BOTTOM_RIGHT].Top) ||
-					_grippers[Gripper.POSITION_TOP_LEFT].Left < _grippers[Gripper.POSITION_BOTTOM_RIGHT].Left && _grippers[Gripper.POSITION_TOP_LEFT].Top > _grippers[Gripper.POSITION_BOTTOM_RIGHT].Top) {
-					_grippers[Gripper.POSITION_TOP_LEFT].Cursor = Cursors.SizeNESW;
-					_grippers[Gripper.POSITION_TOP_RIGHT].Cursor = Cursors.SizeNWSE;
-					_grippers[Gripper.POSITION_BOTTOM_RIGHT].Cursor = Cursors.SizeNESW;
-					_grippers[Gripper.POSITION_BOTTOM_LEFT].Cursor = Cursors.SizeNWSE;
-				} else if (_grippers[Gripper.POSITION_TOP_LEFT].Left == _grippers[Gripper.POSITION_BOTTOM_RIGHT].Left) {
-					_grippers[Gripper.POSITION_TOP_LEFT].Cursor = Cursors.SizeNS;
-					_grippers[Gripper.POSITION_BOTTOM_RIGHT].Cursor = Cursors.SizeNS;
-				} else if (_grippers[Gripper.POSITION_TOP_LEFT].Top == _grippers[Gripper.POSITION_BOTTOM_RIGHT].Top) {
-					_grippers[Gripper.POSITION_TOP_LEFT].Cursor = Cursors.SizeWE;
-					_grippers[Gripper.POSITION_BOTTOM_RIGHT].Cursor = Cursors.SizeWE;
-				}
+		protected void CreateDefaultAdorners() {
+			if (Adorners.Count > 0)
+			{
+				LOG.Warn("Adorners are already defined!");
 			}
-		}
-		
-		private void GripperMouseDown(object sender, MouseEventArgs e) {
-			Gripper originatingGripper = (Gripper)sender;
-			if (originatingGripper != _targetGripper) {
-				Status = EditStatus.RESIZING;
-				_boundsBeforeResize = new Rectangle(left, top, width, height);
-				_boundsAfterResize = new RectangleF(_boundsBeforeResize.Left, _boundsBeforeResize.Top, _boundsBeforeResize.Width, _boundsBeforeResize.Height);
-			} else {
-				Status = EditStatus.MOVING;
-			}
-			isMadeUndoable = false;
+			// Create the GripperAdorners
+			Adorners.Add(new ResizeAdorner(this, Positions.TopLeft));
+			Adorners.Add(new ResizeAdorner(this, Positions.TopCenter));
+			Adorners.Add(new ResizeAdorner(this, Positions.TopRight));
+			Adorners.Add(new ResizeAdorner(this, Positions.BottomLeft));
+			Adorners.Add(new ResizeAdorner(this, Positions.BottomCenter));
+			Adorners.Add(new ResizeAdorner(this, Positions.BottomRight));
+			Adorners.Add(new ResizeAdorner(this, Positions.MiddleLeft));
+			Adorners.Add(new ResizeAdorner(this, Positions.MiddleRight));
 		}
 
-		private void GripperMouseUp(object sender, MouseEventArgs e) {
-			Gripper originatingGripper = (Gripper)sender;
-			if (originatingGripper != _targetGripper) {
-				_boundsBeforeResize = Rectangle.Empty;
-				_boundsAfterResize = RectangleF.Empty;
-				isMadeUndoable = false;
-			}
-			Status = EditStatus.IDLE;
-			Invalidate();
-		}
-		
-		private void GripperMouseMove(object sender, MouseEventArgs e) {
-			Invalidate();
-			Gripper originatingGripper = (Gripper)sender;
-			int absX = originatingGripper.Left + e.X;
-			int absY = originatingGripper.Top + e.Y;
-			if (originatingGripper == _targetGripper && Status.Equals(EditStatus.MOVING)) {
-				TargetGripperMove(absX, absY);
-			} else if (Status.Equals(EditStatus.RESIZING)) {
-				// check if we already made this undoable
-				if (!isMadeUndoable) {
-					// don't allow another undo until we are finished with this move
-					isMadeUndoable = true;
-					// Make undo-able
-					MakeBoundsChangeUndoable(false);
-				}
-				
-				SuspendLayout();
-				
-				// reset "workbench" rectangle to current bounds
-				_boundsAfterResize.X = _boundsBeforeResize.X;
-				_boundsAfterResize.Y = _boundsBeforeResize.Y;
-				_boundsAfterResize.Width = _boundsBeforeResize.Width;
-				_boundsAfterResize.Height = _boundsBeforeResize.Height;
-
-				// calculate scaled rectangle
-				ScaleHelper.Scale(ref _boundsAfterResize, originatingGripper.Position, new PointF(absX, absY), ScaleHelper.GetScaleOptions());
-
-				// apply scaled bounds to this DrawableContainer
-				ApplyBounds(_boundsAfterResize);
-	            
-				ResumeLayout();
-			}
-			Invalidate();
-		}
-				
 		public bool hasFilters {
 			get {
 				return Filters.Count > 0;
@@ -525,12 +383,12 @@ namespace Greenshot.Drawing {
 								Rectangle drawingRect = new Rectangle(Bounds.Location, Bounds.Size);
 								drawingRect.Intersect(clipRectangle);
 								if(filter is MagnifierFilter) {
-                                    // quick&dirty bugfix, because MagnifierFilter behaves differently when drawn only partially
-                                    // what we should actually do to resolve this is add a better magnifier which is not that special
-                                    filter.Apply(graphics, bmp, Bounds, renderMode);
-                                } else {
-                                    filter.Apply(graphics, bmp, drawingRect, renderMode);
-                                }
+									// quick&dirty bugfix, because MagnifierFilter behaves differently when drawn only partially
+									// what we should actually do to resolve this is add a better magnifier which is not that special
+									filter.Apply(graphics, bmp, Bounds, renderMode);
+								} else {
+									filter.Apply(graphics, bmp, drawingRect, renderMode);
+								}
 							}
 						}
 					}
@@ -558,43 +416,10 @@ namespace Greenshot.Drawing {
 			}
 		}
 		
-		public virtual void ShowGrippers() {
-			if (_grippers != null) {
-				for (int i = 0; i < _grippers.Length; i++) {
-					if (_grippers[i].Enabled) {
-						_grippers[i].Show();
-					} else {
-						_grippers[i].Hide();
-					}
-				}
-			}
-			if (_targetGripper != null) {
-				if (_targetGripper.Enabled) {
-					_targetGripper.Show();
-				} else {
-					_targetGripper.Hide();
-				}
-			}
-			ResumeLayout();
-		}
-		
-		public virtual void HideGrippers() {
-			SuspendLayout();
-			if (_grippers != null) {
-				for (int i = 0; i < _grippers.Length; i++) {
-					_grippers[i].Hide();
-				}
-			}
-			if (_targetGripper != null) {
-				_targetGripper.Hide();
-			}
-		}
-		
+
 		public void ResizeTo(int width, int height, int anchorPosition) {
-			SuspendLayout();
 			Width = width;
 			Height = height;
-			ResumeLayout();
 		}
 
 		/// <summary>
@@ -606,10 +431,8 @@ namespace Greenshot.Drawing {
 		}
 		
 		public void MoveBy(int dx, int dy) {
-			SuspendLayout();
 			Left += dx;
 			Top += dy;
-			ResumeLayout();
 		}
 		
 		/// <summary>
@@ -632,7 +455,6 @@ namespace Greenshot.Drawing {
 		/// <returns>true if the event is handled, false if the surface needs to handle it</returns>
 		public virtual bool HandleMouseMove(int x, int y) {
 			Invalidate();
-			SuspendLayout();
 			
 			// reset "workrbench" rectangle to current bounds
 			_boundsAfterResize.X = _boundsBeforeResize.Left;
@@ -645,7 +467,6 @@ namespace Greenshot.Drawing {
 			// apply scaled bounds to this DrawableContainer
 			ApplyBounds(_boundsAfterResize);
 			
-			ResumeLayout();
 			Invalidate();
 			return true;
 		}
@@ -659,47 +480,16 @@ namespace Greenshot.Drawing {
 		}
 		
 		protected virtual void SwitchParent(Surface newParent) {
-			// Target gripper
-			if (_parent != null && _targetGripper != null) {
-				_parent.Controls.Remove(_targetGripper);
+			if (newParent == Parent)
+			{
+				return;
 			}
-			// Normal grippers
-			if (_parent != null && _grippers != null) {
-				for (int i=0; i<_grippers.Length; i++) {
-					_parent.Controls.Remove(_grippers[i]);
-				}
-			} else if (_grippers == null) {
-				InitControls();
-			}
-			_parent = newParent;
-			// Target gripper
-			if (_parent != null && _targetGripper != null) {
-				_parent.Controls.Add(_targetGripper);
-			}
-			// Normal grippers
-			if (_grippers != null) {
-				_parent.Controls.AddRange(_grippers);				
-			}
+			_parent?.FieldAggregator?.UnbindElement(this);
 
+			_parent = newParent;
 			foreach(IFilter filter in Filters) {
 				filter.Parent = this;
 			}
-		}
-		
-		// drawablecontainers are regarded equal if they are of the same type and their bounds are equal. this should be sufficient.
-		public override bool Equals(object obj) {
-			bool ret = false;
-			if (obj != null && GetType() == obj.GetType()) {
-				DrawableContainer other = obj as DrawableContainer;
-				if (other != null && left==other.left && top==other.top && width==other.width && height==other.height) {
-					ret = true;
-				}
-			}
-			return ret;
-		}
-		
-		public override int GetHashCode() {
-			return left.GetHashCode() ^ top.GetHashCode() ^ width.GetHashCode() ^ height.GetHashCode() ^ GetFields().GetHashCode();
 		}
 		
 		protected void OnPropertyChanged(string propertyName) {
@@ -715,8 +505,8 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="fieldToBeChanged">The field to be changed</param>
 		/// <param name="newValue">The new value</param>
-		public virtual void BeforeFieldChange(Field fieldToBeChanged, object newValue) {
-			_parent.MakeUndoable(new ChangeFieldHolderMemento(this, fieldToBeChanged), true);
+		public virtual void BeforeFieldChange(IField fieldToBeChanged, object newValue) {
+			_parent?.MakeUndoable(new ChangeFieldHolderMemento(this, fieldToBeChanged), true);
 			Invalidate();
 		}
 		
@@ -727,10 +517,9 @@ namespace Greenshot.Drawing {
 		/// <param name="e"></param>
 		public void HandleFieldChanged(object sender, FieldChangedEventArgs e) {
 			LOG.DebugFormat("Field {0} changed", e.Field.FieldType);
-			if (e.Field.FieldType == FieldType.SHADOW) {
+			if (Equals(e.Field.FieldType, FieldType.SHADOW)) {
 				accountForShadowChange = true;
 			}
-			Invalidate();
 		}
 
 		/// <summary>
@@ -775,26 +564,16 @@ namespace Greenshot.Drawing {
 			if (matrix == null) {
 				return;
 			}
-			SuspendLayout();
 			Point topLeft = new Point(Left, Top);
 			Point bottomRight = new Point(Left + Width, Top + Height);
-			Point[] points;
-			if (TargetGripper != null) {
-				points = new[] {topLeft, bottomRight, TargetGripper.Location};
-
-			} else {
-				points = new[] { topLeft, bottomRight };
-			}
+			Point[] points = new[] { topLeft, bottomRight };
 			matrix.TransformPoints(points);
 
 			Left = points[0].X;
 			Top = points[0].Y;
 			Width = points[1].X - points[0].X;
 			Height = points[1].Y - points[0].Y;
-			if (TargetGripper != null) {
-				TargetGripper.Location = points[points.Length-1];
-			}
-			ResumeLayout();
+
 		}
 
 		protected virtual ScaleHelper.IDoubleProcessor GetAngleRoundProcessor() {

@@ -1,9 +1,9 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Windows.Forms;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
@@ -29,7 +28,7 @@ namespace GreenshotPlugin.Controls {
 	/// Description of JpegQualityDialog.
 	/// </summary>
 	public partial class QualityDialog : GreenshotForm {
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		public SurfaceOutputSettings Settings {
 			get;
 			set;
@@ -49,8 +48,8 @@ namespace GreenshotPlugin.Controls {
 			textBoxJpegQuality.Text = Settings.JPGQuality.ToString();
 			ToFront = true;
 		}
-		
-		void Button_okClick(object sender, EventArgs e) {
+
+		private void Button_okClick(object sender, EventArgs e) {
 			Settings.JPGQuality = trackBarJpegQuality.Value;
 			Settings.ReduceColors = checkBox_reduceColors.Checked;
 			if (checkbox_dontaskagain.Checked) {
@@ -60,8 +59,8 @@ namespace GreenshotPlugin.Controls {
 				IniConfig.Save();
 			}
 		}
-		
-		void TrackBarJpegQualityScroll(object sender, EventArgs e) {
+
+		private void TrackBarJpegQualityScroll(object sender, EventArgs e) {
 			textBoxJpegQuality.Text = trackBarJpegQuality.Value.ToString();
 		}
 	}

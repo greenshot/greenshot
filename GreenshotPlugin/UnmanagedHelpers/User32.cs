@@ -1,9 +1,9 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,12 +58,14 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public const int MONITOR_DEFAULTTONULL = 0;
 		public const int MONITOR_DEFAULTTOPRIMARY = 1;
 		public const int MONITOR_DEFAULTTONEAREST = 2;
-		public const Int32 CURSOR_SHOWING = 0x00000001;
+		public const int CURSOR_SHOWING = 0x00000001;
 
 		#region DllImports
 		[DllImport("user32", SetLastError = true)]
+		public static extern bool keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);
+		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
-		public extern static bool IsWindowVisible(IntPtr hWnd);
+		public static extern bool IsWindowVisible(IntPtr hWnd);
 		[DllImport("user32", SetLastError = true)]
 		public static extern int GetWindowThreadProcessId(IntPtr hWnd, out int processId);
 		[DllImport("user32", SetLastError = true)]
@@ -75,9 +77,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("user32", SetLastError = true)]
 		public static extern int ShowWindow(IntPtr hWnd, ShowWindowCommand nCmdShow);
 		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
-		public extern static int GetWindowText(IntPtr hWnd, StringBuilder lpString, int cch);
+		public static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int cch);
 		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
-		public extern static int GetWindowTextLength(IntPtr hWnd);
+		public static extern int GetWindowTextLength(IntPtr hWnd);
 		[DllImport("user32", SetLastError = true)]
 		public static extern uint GetSysColor(int nIndex);
 		[DllImport("user32", SetLastError = true)]
@@ -98,12 +100,12 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static extern bool SetWindowPlacement(IntPtr hWnd, [In] ref WindowPlacement lpwndpl);
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
-		public extern static bool IsIconic(IntPtr hWnd);
+		public static extern bool IsIconic(IntPtr hWnd);
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
-		public extern static bool IsZoomed(IntPtr hwnd);
+		public static extern bool IsZoomed(IntPtr hwnd);
 		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
-		public extern static int GetClassName (IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
+		public static extern int GetClassName (IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
 		[DllImport("user32", SetLastError = true)]
 		public static extern uint GetClassLong(IntPtr hWnd, int nIndex);
 		[DllImport("user32", SetLastError = true, EntryPoint = "GetClassLongPtr")]
@@ -111,15 +113,15 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool PrintWindow(IntPtr hwnd, IntPtr hDC, uint nFlags);
-		[DllImport("user32", SetLastError=true)]
-		public extern static IntPtr SendMessage(IntPtr hWnd, uint wMsg, IntPtr wParam, IntPtr lParam);
+		[DllImport("user32", CharSet=CharSet.Unicode, SetLastError=true)]
+		public static extern IntPtr SendMessage(IntPtr hWnd, uint wMsg, IntPtr wParam, IntPtr lParam);
 		[DllImport("user32", SetLastError = true)]
-		public extern static IntPtr SendMessage(IntPtr hWnd, uint wMsg, IntPtr wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
+		public static extern IntPtr SendMessage(IntPtr hWnd, uint wMsg, IntPtr wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
 		[DllImport("user32", SetLastError = true, EntryPoint = "GetWindowLong")]
-		public extern static int GetWindowLong(IntPtr hwnd, int index);
+		public static extern int GetWindowLong(IntPtr hwnd, int index);
 		[DllImport("user32", SetLastError = true, EntryPoint = "GetWindowLongPtr")]
-		public extern static IntPtr GetWindowLongPtr(IntPtr hwnd, int nIndex);
-		[DllImport("user32", SetLastError = true)]
+		public static extern IntPtr GetWindowLongPtr(IntPtr hwnd, int nIndex);
+		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
 		public static extern int SetWindowLong(IntPtr hWnd, int index, int styleFlags);
 		[DllImport("user32", SetLastError = true, EntryPoint = "SetWindowLongPtr")]
 		public static extern IntPtr SetWindowLongPtr(IntPtr hWnd, int index, IntPtr styleFlags);
@@ -131,17 +133,17 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool GetWindowInfo(IntPtr hwnd, ref WindowInfo pwi);
 		[DllImport("user32", SetLastError = true)]
-		public extern static int EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+		public static extern int EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
 		[DllImport("user32", SetLastError = true)]
-		public extern static int EnumChildWindows(IntPtr hWndParent, EnumWindowsProc lpEnumFunc, IntPtr lParam);
+		public static extern int EnumChildWindows(IntPtr hWndParent, EnumWindowsProc lpEnumFunc, IntPtr lParam);
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool GetScrollInfo(IntPtr hwnd, int fnBar, ref SCROLLINFO lpsi);
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
-		public static extern bool ShowScrollBar(IntPtr hwnd, ScrollBarDirection scrollBar, bool show);
+		public static extern bool ShowScrollBar(IntPtr hwnd, ScrollBarDirection scrollBar, [MarshalAs(UnmanagedType.Bool)] bool show);
 		[DllImport("user32", SetLastError = true)]
-		public static extern int SetScrollPos(IntPtr hWnd, Orientation nBar, int nPos, bool bRedraw);
+		public static extern int SetScrollPos(IntPtr hWnd, Orientation nBar, int nPos, [MarshalAs(UnmanagedType.Bool)] bool bRedraw);
 		[DllImport("user32", SetLastError = true)]
 		public static extern RegionResult GetWindowRgn(IntPtr hWnd, SafeHandle hRgn);
 		[DllImport("user32", SetLastError = true)]
@@ -187,7 +189,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern uint RegisterWindowMessage(string lpString);
 		[DllImport("user32", SetLastError = true, CharSet = CharSet.Unicode)]
-		public static extern IntPtr SendMessageTimeout(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam, SendMessageTimeoutFlags fuFlags, uint uTimeout, out UIntPtr lpdwResult);
+		public static extern IntPtr SendMessageTimeout(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam, SendMessageTimeoutFlags fuFlags, uint uTimeout, out UIntPtr lpdwResult);
 		[DllImport("user32", SetLastError = true)]
 		private static extern bool GetPhysicalCursorPos(out POINT cursorLocation);
 		[DllImport("user32", SetLastError=true)]
@@ -359,8 +361,15 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// A SafeHandle class implementation for the hIcon
 	/// </summary>
 	public class SafeIconHandle : SafeHandleZeroOrMinusOneIsInvalid {
-		private SafeIconHandle() : base(true) {
+
+		/// <summary>
+		/// Needed for marshalling return values
+		/// </summary>
+		[SecurityCritical]
+		public SafeIconHandle() : base(true)
+		{
 		}
+
 
 		public SafeIconHandle(IntPtr hIcon) : base(true) {
 			SetHandle(hIcon);
@@ -375,33 +384,37 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 	/// <summary>
 	/// A WindowDC SafeHandle implementation
 	/// </summary>
-	public class SafeWindowDCHandle : SafeHandleZeroOrMinusOneIsInvalid {
+	public class SafeWindowDcHandle : SafeHandleZeroOrMinusOneIsInvalid {
 		[DllImport("user32", SetLastError = true)]
 		private static extern IntPtr GetWindowDC(IntPtr hWnd);
 		[DllImport("user32", SetLastError = true)]
 		private static extern bool ReleaseDC(IntPtr hWnd, IntPtr hDC);
 
-		private IntPtr hWnd;
-		[SecurityCritical]
-		private SafeWindowDCHandle() : base(true) {
+		private readonly IntPtr _hWnd;
+
+		/// <summary>
+		/// Needed for marshalling return values
+		/// </summary>
+		public SafeWindowDcHandle() : base(true)
+		{
 		}
 
 		[SecurityCritical]
-		public SafeWindowDCHandle(IntPtr hWnd, IntPtr preexistingHandle) : base(true) {
-			this.hWnd = hWnd;
+		public SafeWindowDcHandle(IntPtr hWnd, IntPtr preexistingHandle) : base(true) {
+			_hWnd = hWnd;
 			SetHandle(preexistingHandle);
 		}
 
 		[SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode=true)]
 		protected override bool ReleaseHandle() {
-			bool returnValue = ReleaseDC(hWnd, handle);
+			bool returnValue = ReleaseDC(_hWnd, handle);
 			return returnValue;
 		}
 
-		public static SafeWindowDCHandle fromDesktop() {
+		public static SafeWindowDcHandle FromDesktop() {
 			IntPtr hWndDesktop = User32.GetDesktopWindow();
 			IntPtr hDCDesktop = GetWindowDC(hWndDesktop);
-			return new SafeWindowDCHandle(hWndDesktop, hDCDesktop);
+			return new SafeWindowDcHandle(hWndDesktop, hDCDesktop);
 		}
 	}
 }

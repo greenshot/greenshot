@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ namespace GreenshotBoxPlugin {
 	/// Description of ImgurUtils.
 	/// </summary>
 	public static class BoxUtils {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BoxUtils));
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(BoxUtils));
 		private static readonly BoxConfiguration Config = IniConfig.GetIniSection<BoxConfiguration>();
 		private const string UploadFileUri = "https://upload.box.com/api/2.0/files/content";
 		private const string FilesUri = "https://www.box.com/api/2.0/files/{0}";
@@ -66,21 +66,23 @@ namespace GreenshotBoxPlugin {
 		public static string UploadToBox(SurfaceContainer image, string title, string filename) {
 
 			// Fill the OAuth2Settings
-			OAuth2Settings settings = new OAuth2Settings();
+			var settings = new OAuth2Settings
+			{
+				AuthUrlPattern = "https://app.box.com/api/oauth2/authorize?client_id={ClientId}&response_type=code&state={State}&redirect_uri={RedirectUrl}",
+				TokenUrl = "https://api.box.com/oauth2/token",
+				CloudServiceName = "Box",
+				ClientId = BoxCredentials.ClientId,
+				ClientSecret = BoxCredentials.ClientSecret,
+				RedirectUrl = "https://www.box.com/home/",
+				BrowserSize = new Size(1060, 600),
+				AuthorizeMode = OAuth2AuthorizeMode.EmbeddedBrowser,
+				RefreshToken = Config.RefreshToken,
+				AccessToken = Config.AccessToken,
+				AccessTokenExpires = Config.AccessTokenExpires
+			};
 
-			settings.AuthUrlPattern = "https://app.box.com/api/oauth2/authorize?client_id={ClientId}&response_type=code&state={State}&redirect_uri={RedirectUrl}";
-			settings.TokenUrl = "https://api.box.com/oauth2/token";
-			settings.CloudServiceName = "Box";
-			settings.ClientId = BoxCredentials.ClientId;
-			settings.ClientSecret = BoxCredentials.ClientSecret;
-			settings.RedirectUrl = "https://www.box.com/home/";
-			settings.BrowserSize = new Size(1060, 600);
-			settings.AuthorizeMode = OAuth2AuthorizeMode.EmbeddedBrowser;
 
 			// Copy the settings from the config, which is kept in memory and on the disk
-			settings.RefreshToken = Config.RefreshToken;
-			settings.AccessToken = Config.AccessToken;
-			settings.AccessTokenExpires = Config.AccessTokenExpires;
 
 			try {
 				var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.POST, UploadFileUri, settings);
@@ -92,17 +94,17 @@ namespace GreenshotBoxPlugin {
 
 				var response = NetworkHelper.GetResponseAsString(webRequest);
 
-				LOG.DebugFormat("Box response: {0}", response);
+				Log.DebugFormat("Box response: {0}", response);
 
 				var upload = JsonSerializer.Deserialize<Upload>(response);
-				if (upload == null || upload.Entries == null || upload.Entries.Count == 0) return null;
+				if (upload?.Entries == null || upload.Entries.Count == 0) return null;
 
 				if (Config.UseSharedLink) {
 					string filesResponse = HttpPut(string.Format(FilesUri, upload.Entries[0].Id), "{\"shared_link\": {\"access\": \"open\"}}", settings);
 					var file = JsonSerializer.Deserialize<FileEntry>(filesResponse);
 					return file.SharedLink.Url;
 				}
-				return string.Format("http://www.box.com/files/0/f/0/1/f_{0}", upload.Entries[0].Id);
+				return $"http://www.box.com/files/0/f/0/1/f_{upload.Entries[0].Id}";
 			} finally {
 				// Copy the settings back to the config, so they are stored.
 				Config.RefreshToken = settings.RefreshToken;

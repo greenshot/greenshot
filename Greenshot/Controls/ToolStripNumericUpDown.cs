@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,16 +34,13 @@ namespace Greenshot.Controls {
 		{
 		}
 		
-		public NumericUpDown NumericUpDown
-		{
-			get {return Control as NumericUpDown;}
-		}
-		
+		public NumericUpDown NumericUpDown => Control as NumericUpDown;
+
 		public decimal Value
-        {
-            get { return NumericUpDown.Value; }
-            set { NumericUpDown.Value = value;}
-        }
+		{
+			get { return NumericUpDown.Value; }
+			set { NumericUpDown.Value = value;}
+		}
 		public decimal Minimum {
 			get { return NumericUpDown.Minimum; }
 			set { NumericUpDown.Minimum = value; }
@@ -74,8 +71,9 @@ namespace Greenshot.Controls {
 			NumericUpDown.ValueChanged -= _valueChanged;
 		}
 		
-		private void _valueChanged(object sender, EventArgs e) {
-			if(PropertyChanged != null) PropertyChanged(this, new PropertyChangedEventArgs("Value"));
+		private void _valueChanged(object sender, EventArgs e)
+		{
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Value"));
 		}
 	}
 }

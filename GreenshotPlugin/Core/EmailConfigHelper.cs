@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,38 +26,32 @@ namespace GreenshotPlugin.Core {
 	/// Description of EmailConfigHelper.
 	/// </summary>
 	public static class EmailConfigHelper {
-		private const string OUTLOOK_PATH_KEY = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\OUTLOOK.EXE";
-		private const string MAPI_CLIENT_KEY = @"SOFTWARE\Clients\Mail";
-		private const string MAPI_LOCATION_KEY = @"SOFTWARE\Microsoft\Windows Messaging Subsystem";
-		private const string MAPI_KEY = @"MAPI";
+		private const string OutlookPathKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\OUTLOOK.EXE";
+		private const string MapiClientKey = @"SOFTWARE\Clients\Mail";
+		private const string MapiLocationKey = @"SOFTWARE\Microsoft\Windows Messaging Subsystem";
+		private const string MapiKey = @"MAPI";
 
 		public static string GetMapiClient() {
-			using (RegistryKey key = Registry.CurrentUser.OpenSubKey(MAPI_CLIENT_KEY, false)) {
+			using (RegistryKey key = Registry.CurrentUser.OpenSubKey(MapiClientKey, false)) {
 				if (key != null) {
 					return (string)key.GetValue("");
 				} 
 			}
-			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(MAPI_CLIENT_KEY, false)) {
-				if (key != null) {
-					return (string)key.GetValue("");
-				} else {
-					return null;
-				}
+			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(MapiClientKey, false))
+			{
+				return (string) key?.GetValue("");
 			}
 		}
 
-		public static bool HasMAPI() {
-			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(MAPI_LOCATION_KEY, false)) {
-				if (key != null) {
-					return "1".Equals(key.GetValue(MAPI_KEY, "0"));
-				} else {
-					return false;
-				}
+		public static bool HasMapi() {
+			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(MapiLocationKey, false))
+			{
+				return key != null && "1".Equals(key.GetValue(MapiKey, "0"));
 			}
 		}
 		
 		public static string GetOutlookExePath() {
-			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(OUTLOOK_PATH_KEY, false)) {
+			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(OutlookPathKey, false)) {
 				if (key != null) {
 					// "" is the default key, which should point to the outlook location
 					return (string)key.GetValue("");

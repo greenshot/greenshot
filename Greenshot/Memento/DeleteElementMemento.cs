@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using Greenshot.Configuration;
 using Greenshot.Drawing;
 using Greenshot.Plugin.Drawing;
 
@@ -29,7 +28,7 @@ namespace Greenshot.Memento {
 	/// </summary>
 	public class DeleteElementMemento : IMemento  {
 		private IDrawableContainer drawableContainer;
-		private Surface surface;
+		private readonly Surface surface;
 
 		public DeleteElementMemento(Surface surface, IDrawableContainer drawableContainer) {
 			this.surface = surface;
@@ -47,13 +46,6 @@ namespace Greenshot.Memento {
 					drawableContainer.Dispose();
 					drawableContainer = null;
 				}
-			}
-		}
-
-		public LangKey ActionLanguageKey {
-			get {
-				//return LangKey.editor_deleteelement;
-				return LangKey.none;
 			}
 		}
 

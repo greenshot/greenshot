@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,15 +26,13 @@ using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Greenshot.IniFile;
-using log4net;
 
 namespace Greenshot.Destinations {
 	/// <summary>
 	/// Description of FileWithDialog.
 	/// </summary>
 	public class FileWithDialogDestination : AbstractDestination {
-		private static ILog LOG = LogManager.GetLogger(typeof(FileWithDialogDestination));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		public const string DESIGNATION = "FileDialog";
 
 		public override string Designation {
@@ -69,9 +67,8 @@ namespace Greenshot.Destinations {
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
-			string savedTo = null;
 			// Bug #2918756 don't overwrite path if SaveWithDialog returns null!
-			savedTo = ImageOutput.SaveWithDialog(surface, captureDetails);
+			var savedTo = ImageOutput.SaveWithDialog(surface, captureDetails);
 			if (savedTo != null) {
 				exportInformation.ExportMade = true;
 				exportInformation.Filepath = savedTo;

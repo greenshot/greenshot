@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,15 +41,19 @@ namespace Greenshot.Controls {
 			}
 		}
 
-		public FontFamilyComboBox() : base() {
-			ComboBox.DataSource = FontFamily.Families;
-			ComboBox.DisplayMember = "Name";
-			SelectedIndexChanged += BindableToolStripComboBox_SelectedIndexChanged;
-			ComboBox.DrawMode = DrawMode.OwnerDrawFixed;
-			ComboBox.DrawItem += ComboBox_DrawItem;
+		public FontFamilyComboBox()
+		{
+			if (ComboBox != null)
+			{
+				ComboBox.DataSource = FontFamily.Families;
+				ComboBox.DisplayMember = "Name";
+				SelectedIndexChanged += BindableToolStripComboBox_SelectedIndexChanged;
+				ComboBox.DrawMode = DrawMode.OwnerDrawFixed;
+				ComboBox.DrawItem += ComboBox_DrawItem;
+			}
 		}
 
-		void ComboBox_DrawItem(object sender, DrawItemEventArgs e) {
+		private void ComboBox_DrawItem(object sender, DrawItemEventArgs e) {
 			// DrawBackground handles drawing the background (i.e,. hot-tracked v. not)
 			// It uses the system colors (Bluish, and and white, by default)
 			// same as calling e.Graphics.FillRectangle ( SystemBrushes.Highlight, e.Bounds );
@@ -58,7 +62,7 @@ namespace Greenshot.Controls {
 			if (e.Index > -1) {
 				FontFamily fontFamily = Items[e.Index] as FontFamily;
 				FontStyle fontStyle = FontStyle.Regular;
-				if (!fontFamily.IsStyleAvailable(FontStyle.Regular)) {
+				if (fontFamily != null && !fontFamily.IsStyleAvailable(FontStyle.Regular)) {
 					if (fontFamily.IsStyleAvailable(FontStyle.Bold)) {
 						fontStyle = FontStyle.Bold;
 					} else if (fontFamily.IsStyleAvailable(FontStyle.Italic)) {
@@ -70,10 +74,16 @@ namespace Greenshot.Controls {
 					}
 				}
 				try {
-					DrawText(e.Graphics, fontFamily, fontStyle, e.Bounds, fontFamily.Name);
+					if (fontFamily != null)
+					{
+						DrawText(e.Graphics, fontFamily, fontStyle, e.Bounds, fontFamily.Name);
+					}
 				} catch {
 					// If the drawing failed, BUG-1770 seems to have a weird case that causes: Font 'Lucida Sans Typewriter' does not support style 'Regular' 
-					DrawText(e.Graphics, FontFamily.GenericSansSerif, FontStyle.Regular, e.Bounds, fontFamily.Name);
+					if (fontFamily != null)
+					{
+						DrawText(e.Graphics, FontFamily.GenericSansSerif, FontStyle.Regular, e.Bounds, fontFamily.Name);
+					}
 				}
 			}
 			// Uncomment this if you actually like the way the focus rectangle looks
@@ -89,7 +99,7 @@ namespace Greenshot.Controls {
 		/// <param name="bounds"></param>
 		/// <param name="text"></param>
 		private void DrawText(Graphics graphics, FontFamily fontFamily, FontStyle fontStyle, Rectangle bounds, string text) {
-			using (Font font = new Font(fontFamily, this.Font.Size + 5, fontStyle, GraphicsUnit.Pixel)) {
+			using (Font font = new Font(fontFamily, Font.Size + 5, fontStyle, GraphicsUnit.Pixel)) {
 				// Make sure the text is visible by centering it in the line
 				using (StringFormat stringFormat = new StringFormat()) {
 					stringFormat.LineAlignment = StringAlignment.Center;
@@ -98,7 +108,7 @@ namespace Greenshot.Controls {
 			}
 		}
 
-		void BindableToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e) {
+		private void BindableToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e) {
 			if (PropertyChanged != null) {
 				PropertyChanged(this, new PropertyChangedEventArgs("Text"));
 				PropertyChanged(this, new PropertyChangedEventArgs("FontFamily"));

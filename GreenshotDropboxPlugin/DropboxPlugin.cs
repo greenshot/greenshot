@@ -1,9 +1,9 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,12 +34,12 @@ namespace GreenshotDropboxPlugin {
 	/// This is the Dropbox base code
 	/// </summary>
 	public class DropboxPlugin : IGreenshotPlugin {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(DropboxPlugin));
-		private static DropboxPluginConfiguration config;
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(DropboxPlugin));
+		private static DropboxPluginConfiguration _config;
 		public static PluginAttribute Attributes;
-		private IGreenshotHost host;
-		private ComponentResourceManager resources;
-		private ToolStripMenuItem itemPlugInConfig;
+		private IGreenshotHost _host;
+		private ComponentResourceManager _resources;
+		private ToolStripMenuItem _itemPlugInConfig;
 
 		public void Dispose() {
 			Dispose(true);
@@ -48,14 +48,11 @@ namespace GreenshotDropboxPlugin {
 
 		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
-				if (itemPlugInConfig != null) {
-					itemPlugInConfig.Dispose();
-					itemPlugInConfig = null;
+				if (_itemPlugInConfig != null) {
+					_itemPlugInConfig.Dispose();
+					_itemPlugInConfig = null;
 				}
 			}
-		}
-
-		public DropboxPlugin() {
 		}
 
 		public IEnumerable<IDestination> Destinations() {
@@ -70,56 +67,48 @@ namespace GreenshotDropboxPlugin {
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="pluginAttribute">My own attributes</param>
+		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
+		/// <param name="myAttributes">My own attributes</param>
 		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
-			this.host = (IGreenshotHost)pluginHost;
+			_host = pluginHost;
 			Attributes = myAttributes;
 
 			// Register configuration (don't need the configuration itself)
-			config = IniConfig.GetIniSection<DropboxPluginConfiguration>();
-			resources = new ComponentResourceManager(typeof(DropboxPlugin));
+			_config = IniConfig.GetIniSection<DropboxPluginConfiguration>();
+			_resources = new ComponentResourceManager(typeof(DropboxPlugin));
 
-			itemPlugInConfig = new ToolStripMenuItem();
-			itemPlugInConfig.Text = Language.GetString("dropbox", LangKey.Configure);
-			itemPlugInConfig.Tag = host;
-			itemPlugInConfig.Click += new System.EventHandler(ConfigMenuClick);
-			itemPlugInConfig.Image = (Image)resources.GetObject("Dropbox");
+			_itemPlugInConfig = new ToolStripMenuItem
+			{
+				Text = Language.GetString("dropbox", LangKey.Configure),
+				Tag = _host,
+				Image = (Image)_resources.GetObject("Dropbox")
+			};
+			_itemPlugInConfig.Click += ConfigMenuClick;
 
-			PluginUtils.AddToContextMenu(host, itemPlugInConfig);
-			Language.LanguageChanged += new LanguageChangedHandler(OnLanguageChanged);
+			PluginUtils.AddToContextMenu(_host, _itemPlugInConfig);
+			Language.LanguageChanged += OnLanguageChanged;
 			return true;
 		}
 
 		public void OnLanguageChanged(object sender, EventArgs e) {
-			if (itemPlugInConfig != null) {
-				itemPlugInConfig.Text = Language.GetString("dropbox", LangKey.Configure);
+			if (_itemPlugInConfig != null) {
+				_itemPlugInConfig.Text = Language.GetString("dropbox", LangKey.Configure);
 			}
 		}
 
 		public virtual void Shutdown() {
-			LOG.Debug("Dropbox Plugin shutdown.");
+			Log.Debug("Dropbox Plugin shutdown.");
 		}
 
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
 		public virtual void Configure() {
-			config.ShowConfigDialog();
-		}
-
-		/// <summary>
-		/// This will be called when Greenshot is shutting down
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		public void Closing(object sender, FormClosingEventArgs e) {
-			LOG.Debug("Application closing, de-registering Dropbox Plugin!");
-			Shutdown();
+			_config.ShowConfigDialog();
 		}
 
 		public void ConfigMenuClick(object sender, EventArgs eventArgs) {
-			config.ShowConfigDialog();
+			_config.ShowConfigDialog();
 		}
 
 		/// <summary>
@@ -127,12 +116,13 @@ namespace GreenshotDropboxPlugin {
 		/// </summary>
 		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl) {
 			uploadUrl = null;
-			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, false);
+			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
 			try {
 				string dropboxUrl = null;
 				new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("dropbox", LangKey.communication_wait), 
-					delegate() {
-						string filename = Path.GetFileName(FilenameHelper.GetFilename(config.UploadFormat, captureDetails));
+					delegate
+					{
+						string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
 						dropboxUrl = DropboxUtils.UploadToDropbox(surfaceToUpload, outputSettings, filename);
 					}
 				);
@@ -142,7 +132,7 @@ namespace GreenshotDropboxPlugin {
 				uploadUrl = dropboxUrl;
 				return true;
 			} catch (Exception e) {
-				LOG.Error(e);
+				Log.Error(e);
 				MessageBox.Show(Language.GetString("dropbox", LangKey.upload_failure) + " " + e.Message);
 				return false;
 			}

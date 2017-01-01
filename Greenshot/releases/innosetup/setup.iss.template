@@ -18,7 +18,8 @@ Source: ..\..\bin\Release\Greenshot.exe; DestDir: {app}; Components: greenshot; 
 Source: ..\..\bin\Release\GreenshotPlugin.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 Source: ..\..\bin\Release\Greenshot.exe.config; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 Source: ..\..\bin\Release\log4net.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
-Source: ..\..\log4net.xml; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
+Source: ..\..\bin\Release\LinqBridge.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion 
+Source: ..\..\log4net.xml; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion 
 Source: ..\..\bin\Release\checksum.MD5; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 ;Source: ..\greenshot-defaults.ini; DestDir: {app}; Flags: overwritereadonly ignoreversion replacesameversion
 Source: ..\additional_files\installer.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
@@ -32,6 +33,7 @@ Source: ..\..\Languages\*de-DE*; Excludes: "*installer*,*website*"; DestDir: {ap
 
 ; Additional language files
 Source: ..\..\Languages\*ar-SY*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\arSY; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*ca-CA*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\caCA; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*cs-CZ*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\csCZ; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*da-DK*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\daDK; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*de-x-franconia*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\dexfranconia; Flags: overwritereadonly ignoreversion replacesameversion;
@@ -100,8 +102,8 @@ Source: ..\..\bin\Release\Languages\Plugins\GreenshotConfluencePlugin\*; DestDir
 ;ExternalCommand Plugin
 Source: ..\..\bin\Release\Plugins\GreenshotExternalCommandPlugin\GreenshotExternalCommandPlugin.gsp; DestDir: {app}\Plugins\GreenshotExternalCommandPlugin; Components: plugins\externalcommand; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: ..\..\bin\Release\Languages\Plugins\GreenshotExternalCommandPlugin\*; DestDir: {app}\Languages\Plugins\GreenshotExternalCommandPlugin; Components: plugins\externalcommand; Flags: overwritereadonly ignoreversion replacesameversion;
-;Network Import Plugin
-;Source: ..\..\bin\Release\Plugins\GreenshotNetworkImportPlugin\*; DestDir: {app}\Plugins\GreenshotNetworkImportPlugin; Components: plugins\networkimport; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+;Win 10 Plugin
+;Source: ..\..\bin\Release\Plugins\GreenshotWin10Plugin\GreenshotWin10Plugin.gsp; DestDir: {app}\Plugins\GreenshotWin10Plugin; Components: plugins\win10; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 [Setup]
 ; changes associations is used when the installer installs new extensions, it clears the explorer icon cache
 ChangesAssociations=yes
@@ -127,6 +129,11 @@ OutputBaseFilename={#ExeName}-INSTALLER-{#FileVersion}
 OutputDir=..\
 PrivilegesRequired=none
 SetupIconFile=..\..\icons\applicationIcon\icon.ico
+; Create a SHA1 signature
+SignTool=SignTool sign /debug /fd sha1 /tr http://time.certum.pl /td sha1 $f
+; Append a SHA256 to the previous SHA1 signature (this is what as does)
+SignTool=SignTool sign /debug /as /fd sha256 /tr http://time.certum.pl /td sha256 $f
+SignedUninstaller=yes
 UninstallDisplayIcon={app}\{#ExeName}.exe
 Uninstallable=true
 VersionInfoCompany={#ExeName}
@@ -143,16 +150,32 @@ Root: HKCU; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: no
 Root: HKLM; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: none; ValueName: {#ExeName}; Flags: deletevalue noerror;
 Root: HKCU32; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: none; ValueName: {#ExeName}; Flags: deletevalue noerror; Check: IsWin64()
 Root: HKLM32; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: none; ValueName: {#ExeName}; Flags: deletevalue noerror; Check: IsWin64()
+
+; delete filetype mappings
+; HKEY_LOCAL_USER - for current user only
+Root: HKCU; Subkey: Software\Classes\.greenshot; ValueType: none; ValueName: {#ExeName}; Flags: deletevalue noerror;
+Root: HKCU; Subkey: Software\Classes\Greenshot; ValueType: none; ValueName: {#ExeName}; Flags: deletevalue noerror;
+; HKEY_LOCAL_MACHINE - for all users when admin (with the noerror this doesn't matter)
+Root: HKLM; Subkey: Software\Classes\.greenshot; ValueType: none; ValueName: {#ExeName}; Flags: deletevalue noerror;
+Root: HKLM; Subkey: Software\Classes\Greenshot; ValueType: none; ValueName: {#ExeName}; Flags: deletevalue noerror;
+
 ; Create the startup entries if requested to do so
 ; HKEY_LOCAL_USER - for current user only
 Root: HKCU; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: {app}\{#ExeName}.exe; Permissions: users-modify; Flags: uninsdeletevalue noerror; Tasks: startup; Check: IsRegularUser
-; HKEY_LOCAL_MACHINE - for all users
-Root: HKLM; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: {app}\{#ExeName}.exe; Permissions: users-modify; Flags: uninsdeletevalue noerror; Tasks: startup; Check: not IsRegularUser
-; Register our own filetype for admin
-Root: HKLM; Subkey: Software\Classes\.greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot"; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
-Root: HKLM; Subkey: Software\Classes\Greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
-Root: HKLM; Subkey: Software\Classes\Greenshot\DefaultIcon; ValueType: string; ValueName: ""; ValueData: "{app}\Greenshot.EXE,0"; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
-Root: HKLM; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
+; HKEY_LOCAL_MACHINE - for all users when admin
+Root: HKLM; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: {app}\{#ExeName}.exe; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Tasks: startup; Check: not IsRegularUser
+
+; Register our own filetype for all users
+; HKEY_LOCAL_USER - for current user only
+Root: HKCU; Subkey: Software\Classes\.greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot"; Permissions: users-modify; Flags: uninsdeletevalue noerror; Check: IsRegularUser
+Root: HKCU; Subkey: Software\Classes\Greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Permissions: users-modify; Flags: uninsdeletevalue noerror; Check: IsRegularUser
+Root: HKCU; Subkey: Software\Classes\Greenshot\DefaultIcon; ValueType: string; ValueName: ""; ValueData: "{app}\Greenshot.EXE,0"; Permissions: users-modify; Flags: uninsdeletevalue noerror; Check: IsRegularUser
+Root: HKCU; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""; Permissions: users-modify; Flags: uninsdeletevalue noerror; Check: IsRegularUser
+; HKEY_LOCAL_MACHINE - for all users when admin
+Root: HKLM; Subkey: Software\Classes\.greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot"; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
+Root: HKLM; Subkey: Software\Classes\Greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
+Root: HKLM; Subkey: Software\Classes\Greenshot\DefaultIcon; ValueType: string; ValueName: ""; ValueData: "{app}\Greenshot.EXE,0"; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
+Root: HKLM; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
 
 [Icons]
 Name: {group}\{#ExeName}; Filename: {app}\{#ExeName}.exe; WorkingDir: {app}
@@ -161,16 +184,16 @@ Name: {group}\Readme.txt; Filename: {app}\readme.txt; WorkingDir: {app}
 Name: {group}\License.txt; Filename: {app}\license.txt; WorkingDir: {app}
 [Languages]
 Name: en; MessagesFile: compiler:Default.isl
-Name: cn; MessagesFile: compiler:Languages\ChineseSimplified.isl
+Name: cn; MessagesFile: Languages\ChineseSimplified.isl
 Name: de; MessagesFile: compiler:Languages\German.isl
 Name: es; MessagesFile: compiler:Languages\Spanish.isl
 Name: fi; MessagesFile: compiler:Languages\Finnish.isl
 Name: fr; MessagesFile: compiler:Languages\French.isl
 Name: nl; MessagesFile: compiler:Languages\Dutch.isl
-Name: lt; MessagesFile: compiler:Languages\Latvian.isl
-Name: nn; MessagesFile: compiler:Languages\NorwegianNynorsk.isl
+Name: lt; MessagesFile: Languages\Latvian.isl
+Name: nn; MessagesFile: Languages\NorwegianNynorsk.isl
 Name: sr; MessagesFile: compiler:Languages\SerbianCyrillic.isl
-Name: sv; MessagesFile: compiler:Languages\Swedish.isl
+Name: sv; MessagesFile: Languages\Swedish.isl
 Name: uk; MessagesFile: compiler:Languages\Ukrainian.isl
 
 [Tasks]
@@ -189,6 +212,7 @@ de.ocr=OCR Plug-in (benötigt Microsoft Office Document Imaging (MODI))
 de.optimize=Optimierung der Leistung, kann etwas dauern.
 de.startgreenshot={#ExeName} starten
 de.startup={#ExeName} starten wenn Windows hochfährt
+de.win10=Windows 10 Plug-in
 
 en.confluence=Confluence plug-in
 en.default=Default installation
@@ -201,6 +225,7 @@ en.ocr=OCR plug-in (needs Microsoft Office Document Imaging (MODI))
 en.optimize=Optimizing performance, this may take a while.
 en.startgreenshot=Start {#ExeName}
 en.startup=Start {#ExeName} with Windows start
+en.win10=Windows 10 plug-in
 
 es.confluence=Extensión para Confluence
 es.default=${default}
@@ -212,6 +237,7 @@ es.ocr=Extensión para OCR (necesita Microsoft Office Document Imaging (MODI))
 es.optimize=Optimizando rendimiento; por favor, espera.
 es.startgreenshot=Lanzar {#ExeName}
 es.startup=Lanzar {#ExeName} al iniciarse Windows
+es.win10=Extensión para Windows 10 
 
 fi.confluence=Confluence-liitännäinen
 fi.default=${default}
@@ -224,6 +250,7 @@ fi.ocr=OCR-liitännäinen (Tarvitaan: Microsoft Office Document Imaging (MODI))
 fi.optimize=Optimoidaan suorituskykyä, tämä voi kestää hetken.
 fi.startgreenshot=Käynnistä {#ExeName}
 fi.startup=Käynnistä {#ExeName} Windowsin käynnistyessä
+fi.win10=Windows 10-liitännäinen
 
 fr.confluence=Greffon Confluence
 fr.default=${default}
@@ -236,6 +263,7 @@ fr.ocr=Greffon OCR (nécessite Document Imaging de Microsoft Office [MODI])
 fr.optimize=Optimisation des performances, Ceci peut prendre un certain temps.
 fr.startgreenshot=Démarrer {#ExeName}
 fr.startup=Lancer {#ExeName} au démarrage de Windows
+fr.win10=Greffon Windows 10 
 
 lt.confluence=Confluence spraudnis
 lt.default=${default}
@@ -248,6 +276,7 @@ lt.ocr=OCR spraudnis (nepieciešams Microsoft Office Document Imaging (MODI))
 lt.optimize=Uzlaboju veikstpēju, tas prasīs kādu laiciņu.
 lt.startgreenshot=Palaist {#ExeName}
 lt.startup=Palaist {#ExeName} uzsākot darbus
+lt.win10=Windows 10 spraudnis
 
 nl.confluence=Confluence plug-in
 nl.default=Default installation
@@ -260,6 +289,7 @@ nl.ocr=OCR plug-in (heeft Microsoft Office Document Imaging (MODI) nodig)
 nl.optimize=Prestaties verbeteren, kan even duren.
 nl.startgreenshot=Start {#ExeName}
 nl.startup=Start {#ExeName} wanneer Windows opstart
+nl.win10=Windows 10 plug-in
 
 nn.confluence=Confluence-tillegg
 nn.default=Default installation 
@@ -272,6 +302,7 @@ nn.ocr=OCR-tillegg (krev Microsoft Office Document Imaging (MODI))
 nn.optimize=Optimaliserar ytelse, dette kan ta litt tid...
 nn.startgreenshot=Start {#ExeName}
 nn.startup=Start {#ExeName} når Windows startar
+nn.win10=Windows 10 Tillegg
 
 sr.confluence=Прикључак за Конфлуенс
 sr.default=${default}
@@ -283,6 +314,7 @@ sr.ocr=OCR прикључак (захтева Microsoft Office Document Imaging 
 sr.optimize=Оптимизујем перформансе…
 sr.startgreenshot=Покрени Гриншот
 sr.startup=Покрени програм са системом
+sr.win10=Прикључак за Windows 10
 
 sv.startup=Starta {#ExeName} med Windows
 sv.startgreenshot=Starta {#ExeName}
@@ -293,6 +325,7 @@ sv.ocr=OCR-insticksprogram (kräver Microsoft Office Document Imaging (MODI))
 sv.imgur=Imgur-insticksprogram (Se: http://imgur.com)
 sv.language=Ytterligare språk
 sv.optimize=Optimerar prestanda, detta kan ta en stund.
+sv.win10=Windows 10-insticksprogram
 
 uk.confluence=Плагін Confluence
 uk.default=${default}
@@ -304,6 +337,7 @@ uk.ocr=Плагін OCR (потребує Microsoft Office Document Imaging (MOD
 uk.optimize=Оптимізація продуктивності, це може забрати час.
 uk.startgreenshot=Запустити {#ExeName}
 uk.startup=Запускати {#ExeName} під час запуску Windows
+uk.win10=Плагін Windows 10
 
 cn.confluence=Confluence插件
 cn.default=${default}
@@ -315,7 +349,7 @@ cn.ocr=OCR插件(需要Microsoft Office Document Imaging (MODI)的支持)
 cn.optimize=正在优化性能，这可能需要一点时间。
 cn.startgreenshot=启动{#ExeName}
 cn.startup=让{#ExeName}随Windows一起启动
-
+cn.win10=Windows 10插件
 
 [Types]
 Name: "default"; Description: "{cm:default}"
@@ -327,7 +361,7 @@ Name: "custom"; Description: "{code:CustomInstall}"; Flags: iscustom
 Name: "greenshot"; Description: "Greenshot"; Types: default full compact custom; Flags: fixed
 Name: "plugins\office"; Description: {cm:office}; Types: default full custom; Flags: disablenouninstallwarning 
 Name: "plugins\ocr"; Description: {cm:ocr}; Types: default full custom; Flags: disablenouninstallwarning 
-Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disablenouninstallwarning 
+Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disablenouninstallwarning; Check: hasDotNet45OrHigher()
 Name: "plugins\imgur"; Description: {cm:imgur}; Types: default full custom; Flags: disablenouninstallwarning 
 Name: "plugins\confluence"; Description: {cm:confluence}; Types: full custom; Flags: disablenouninstallwarning; Check: hasDotNet35FullOrHigher()
 Name: "plugins\externalcommand"; Description: {cm:externalcommand}; Types: default full custom; Flags: disablenouninstallwarning 
@@ -337,8 +371,10 @@ Name: "plugins\dropbox"; Description: "Dropbox Plugin"; Types: full custom; Flag
 Name: "plugins\flickr"; Description: "Flickr Plugin"; Types: full custom; Flags: disablenouninstallwarning 
 Name: "plugins\picasa"; Description: "Picasa Plugin"; Types: full custom; Flags: disablenouninstallwarning 
 Name: "plugins\photobucket"; Description: "Photobucket Plugin"; Types: full custom; Flags: disablenouninstallwarning 
+;Name: "plugins\win10"; Description: "Windows 10 Plugin"; Types: default full custom; Flags: disablenouninstallwarning; Check: IsWindows10OrNewer() 
 Name: "languages"; Description: {cm:language}; Types: full custom; Flags: disablenouninstallwarning
 Name: "languages\arSY"; Description: "العربية"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('d')
+Name: "languages\caCA"; Description: "Català"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\csCZ"; Description: "Ceština"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\daDK"; Description: "Dansk"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\dexfranconia"; Description: "Frängisch (Deutsch)"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
@@ -561,6 +597,11 @@ begin
 	Result := netfxinstalled(NetFX35, '') or netfxinstalled(NetFX40Full, '');
 end;
 
+function hasDotNet45OrHigher() : boolean;
+begin
+	Result := netfxinstalled(NetFX4x, '');
+end;
+
 function getNGENPath(argument: String) : String;
 var
 	installPath: string;
@@ -589,6 +630,21 @@ begin
 	end;
 	Result := true;
 end;
+
+function IsWindowsVersionOrNewer(Major, Minor: Integer): Boolean;
+var
+  Version: TWindowsVersion;
+begin
+  GetWindowsVersionEx(Version);
+  Result :=
+    (Version.Major > Major) or
+    ((Version.Major = Major) and (Version.Minor >= Minor));
+end;
+
+function IsWindows10OrNewer: Boolean;
+begin
+  Result := IsWindowsVersionOrNewer(10, 0);
+end;
 [Run]
 Filename: "{code:getNGENPath}\ngen.exe"; Parameters: "install ""{app}\{#ExeName}.exe"""; StatusMsg: "{cm:optimize}"; Flags: runhidden runasoriginaluser
 Filename: "{code:getNGENPath}\ngen.exe"; Parameters: "install ""{app}\GreenshotPlugin.dll"""; StatusMsg: "{cm:optimize}"; Flags: runhidden runasoriginaluser
@@ -596,7 +652,7 @@ Filename: "{app}\{#ExeName}.exe"; Description: "{cm:startgreenshot}"; Parameters
 Filename: "http://getgreenshot.org/thank-you/?language={language}&version={#Version}"; Flags: shellexec runasoriginaluser
 
 [InstallDelete]
-Name: {app}; Type: filesandordirs;
+Name: {app}; Type: dirifempty;
 
 [UninstallRun]
 Filename: "{code:GetNGENPath}\ngen.exe"; Parameters: "uninstall ""{app}\{#ExeName}.exe"""; StatusMsg: "Cleanup"; Flags: runhidden

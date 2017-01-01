@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,13 +23,10 @@ using System;
 namespace GreenshotPlugin.Core {
 	[AttributeUsage(AttributeTargets.Field)]
 	public sealed class DisplayKeyAttribute : Attribute {
-		private readonly string value;
-		public string Value {
-		  get { return value; }
-		}
-		
+		public string Value { get; }
+
 		public DisplayKeyAttribute(string v) {
-		  value = v;
+		  Value = v;
 		}
 		
 		public DisplayKeyAttribute() {

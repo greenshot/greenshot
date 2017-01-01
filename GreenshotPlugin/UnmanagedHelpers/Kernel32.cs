@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,12 +58,14 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		[DllImport("kernel32", SetLastError = true)]
 		public static extern IntPtr OpenProcess(ProcessAccessFlags dwDesiredAccess, bool bInheritHandle, int dwProcessId);
 		[DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
+		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool QueryFullProcessImageName(IntPtr hProcess, uint dwFlags, StringBuilder lpExeName, ref uint lpdwSize);
 		[DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern uint QueryDosDevice(string lpDeviceName, StringBuilder lpTargetPath, uint uuchMax);
 		[DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern IntPtr GetModuleHandle(string lpModuleName);
 		[DllImport("kernel32", SetLastError = true)]
+		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool CloseHandle(IntPtr hObject);
 
 		/// <summary>

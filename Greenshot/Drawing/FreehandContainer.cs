@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
-using log4net;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -35,21 +34,19 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable] 
 	public class FreehandContainer : DrawableContainer {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(FreehandContainer));
-		private static readonly float [] POINT_OFFSET = new float[]{0.5f, 0.25f, 0.75f};
+		private static readonly float [] PointOffset = {0.5f, 0.25f, 0.75f};
 
 		[NonSerialized]
 		private GraphicsPath freehandPath = new GraphicsPath();
 		private Rectangle myBounds = Rectangle.Empty;
 		private Point lastMouse = Point.Empty;
-		private List<Point> capturePoints = new List<Point>();
-		private bool isRecalculated = false;
+		private readonly List<Point> capturePoints = new List<Point>();
+		private bool isRecalculated;
 		
 		/// <summary>
 		/// Constructor
 		/// </summary>
 		public FreehandContainer(Surface parent) : base(parent) {
-			Init();
 			Width = parent.Width;
 			Height = parent.Height;
 			Top = 0;
@@ -61,16 +58,6 @@ namespace Greenshot.Drawing {
 			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
 		}
 
-		
-		protected void Init() {
-			if (_grippers != null) {
-				for (int i = 0; i < _grippers.Length; i++) {
-					_grippers[i].Enabled = false;
-					_grippers[i].Visible = false;
-				}
-			}
-		}
-
 		public override void Transform(Matrix matrix) {
 			Point[] points = capturePoints.ToArray();
 
@@ -80,11 +67,7 @@ namespace Greenshot.Drawing {
 			RecalculatePath();
 		}
 		
-		[OnDeserialized]
-		private void OnDeserialized(StreamingContext context) {
-			InitGrippers();
-			DoLayout();
-			Init();
+		protected override void OnDeserialized(StreamingContext context) {
 			RecalculatePath();
 		}
 
@@ -94,10 +77,9 @@ namespace Greenshot.Drawing {
 		/// <param name="disposing">When disposing==true all non-managed resources should be freed too!</param>
 		protected override void Dispose(bool disposing) {
 			base.Dispose(disposing);
-			if (disposing) {
-				if (freehandPath != null) {
-					freehandPath.Dispose();
-				}
+			if (disposing)
+			{
+				freehandPath?.Dispose();
 			}
 			freehandPath = null;
 		}
@@ -119,7 +101,7 @@ namespace Greenshot.Drawing {
 		public override bool HandleMouseMove(int mouseX, int mouseY) {
 			Point previousPoint = capturePoints[capturePoints.Count-1];
 
-			if (GeometryHelper.Distance2D(previousPoint.X, previousPoint.Y, mouseX, mouseY) >= (2*EditorConfig.FreehandSensitivity)) {
+			if (GeometryHelper.Distance2D(previousPoint.X, previousPoint.Y, mouseX, mouseY) >= 2*EditorConfig.FreehandSensitivity) {
 				capturePoints.Add(new Point(mouseX, mouseY));
 			}
 			if (GeometryHelper.Distance2D(lastMouse.X, lastMouse.Y, mouseX, mouseY) >= EditorConfig.FreehandSensitivity) {
@@ -150,9 +132,7 @@ namespace Greenshot.Drawing {
 		private void RecalculatePath() {
 			isRecalculated = true;
 			// Dispose the previous path, if we have one
-			if (freehandPath != null) {
-				freehandPath.Dispose();
-			}
+			freehandPath?.Dispose();
 			freehandPath = new GraphicsPath();
 
 			// Here we can put some cleanup... like losing all the uninteresting  points.
@@ -160,7 +140,7 @@ namespace Greenshot.Drawing {
 				int index = 0;
 				while ((capturePoints.Count - 1) % 3 != 0) {
 					// duplicate points, first at 50% than 25% than 75%
-					capturePoints.Insert((int)(capturePoints.Count*POINT_OFFSET[index]), capturePoints[(int)(capturePoints.Count*POINT_OFFSET[index++])]);
+					capturePoints.Insert((int)(capturePoints.Count*PointOffset[index]), capturePoints[(int)(capturePoints.Count*PointOffset[index++])]);
 				}
 				freehandPath.AddBeziers(capturePoints.ToArray());
 			} else if (capturePoints.Count == 2) {
@@ -232,9 +212,9 @@ namespace Greenshot.Drawing {
 				if (!myBounds.IsEmpty) {
 					int lineThickness = Math.Max(10, GetFieldValueAsInt(FieldType.LINE_THICKNESS));
 					int safetymargin = 10;
-					return new Rectangle((myBounds.Left + Left) - (safetymargin+lineThickness), (myBounds.Top + Top) - (safetymargin+lineThickness), myBounds.Width + (2*(lineThickness+safetymargin)), myBounds.Height + (2*(lineThickness+safetymargin)));
+					return new Rectangle(myBounds.Left + Left - (safetymargin+lineThickness), myBounds.Top + Top - (safetymargin+lineThickness), myBounds.Width + 2*(lineThickness+safetymargin), myBounds.Height + 2*(lineThickness+safetymargin));
 				}
-				return new Rectangle(0, 0, _parent.Width, _parent.Height);
+				return new Rectangle(0, 0, _parent?.Width??0, _parent?.Height?? 0);
 			}
 		}
 
@@ -245,9 +225,9 @@ namespace Greenshot.Drawing {
 		/// <returns></returns>
 		public override bool Equals(object obj) {
 			bool ret = false;
-			if(obj != null && GetType().Equals(obj.GetType())) {
+			if(obj != null && GetType() == obj.GetType()) {
 				FreehandContainer other = obj as FreehandContainer;
-				if(freehandPath.Equals(other.freehandPath)) {
+				if(other != null && freehandPath.Equals(other.freehandPath)) {
 					ret = true;
 				}
 			}
@@ -256,17 +236,6 @@ namespace Greenshot.Drawing {
 
 		public override int GetHashCode() {
 			return freehandPath.GetHashCode();
-		}
-
-		/// <summary>
-		/// This is overriden to prevent the grippers to be modified.
-		/// Might not be the best way...
-		/// </summary>
-		protected override void DoLayout() {
-		}
-
-		public override void ShowGrippers() {
-			ResumeLayout();
 		}
 
 		public override bool ClickableAt(int x, int y) {

@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,13 +24,9 @@ using System.Windows.Forms;
 namespace Greenshot.Helpers {
 	public class WindowWrapper : IWin32Window {
 		public WindowWrapper(IntPtr handle) {
-			_hwnd = handle;
+			Handle = handle;
 		}
 	
-		public IntPtr Handle {
-			get { return _hwnd; }
-		}
-	
-		private IntPtr _hwnd;
+		public IntPtr Handle { get; }
 	}
 }

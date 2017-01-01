@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,7 +69,7 @@ namespace GreenshotPlugin.Controls {
 			this.textBoxJpegQuality.Name = "textBoxJpegQuality";
 			this.textBoxJpegQuality.ReadOnly = true;
 			this.textBoxJpegQuality.Size = new System.Drawing.Size(35, 20);
-			this.textBoxJpegQuality.TabIndex = 16;
+			this.textBoxJpegQuality.TabIndex = 4;
 			this.textBoxJpegQuality.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			// 
 			// trackBarJpegQuality
@@ -79,7 +79,7 @@ namespace GreenshotPlugin.Controls {
 			this.trackBarJpegQuality.Maximum = 100;
 			this.trackBarJpegQuality.Name = "trackBarJpegQuality";
 			this.trackBarJpegQuality.Size = new System.Drawing.Size(233, 45);
-			this.trackBarJpegQuality.TabIndex = 14;
+			this.trackBarJpegQuality.TabIndex = 3;
 			this.trackBarJpegQuality.TickFrequency = 10;
 			this.trackBarJpegQuality.Scroll += new System.EventHandler(this.TrackBarJpegQualityScroll);
 			// 
@@ -91,7 +91,7 @@ namespace GreenshotPlugin.Controls {
 			this.checkbox_dontaskagain.Name = "checkbox_dontaskagain";
 			this.checkbox_dontaskagain.LanguageKey = "qualitydialog_dontaskagain";
 			this.checkbox_dontaskagain.Size = new System.Drawing.Size(268, 37);
-			this.checkbox_dontaskagain.TabIndex = 17;
+			this.checkbox_dontaskagain.TabIndex = 5;
 			this.checkbox_dontaskagain.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkbox_dontaskagain.UseVisualStyleBackColor = true;
 			// 
@@ -101,7 +101,7 @@ namespace GreenshotPlugin.Controls {
 			this.button_ok.Location = new System.Drawing.Point(205, 149);
 			this.button_ok.Name = "button_ok";
 			this.button_ok.Size = new System.Drawing.Size(75, 23);
-			this.button_ok.TabIndex = 18;
+			this.button_ok.TabIndex = 1;
 			this.button_ok.LanguageKey = "OK";
 			this.button_ok.UseVisualStyleBackColor = true;
 			this.button_ok.Click += new System.EventHandler(this.Button_okClick);
@@ -112,7 +112,7 @@ namespace GreenshotPlugin.Controls {
 			this.checkBox_reduceColors.Location = new System.Drawing.Point(12, 11);
 			this.checkBox_reduceColors.Name = "checkBox_reduceColors";
 			this.checkBox_reduceColors.Size = new System.Drawing.Size(95, 17);
-			this.checkBox_reduceColors.TabIndex = 19;
+			this.checkBox_reduceColors.TabIndex = 2;
 			this.checkBox_reduceColors.Text = "settings_reducecolors";
 			this.checkBox_reduceColors.UseVisualStyleBackColor = true;
 			// 

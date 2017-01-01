@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,13 +34,13 @@ namespace GreenshotPlugin.Controls {
 	/// This form is used for automatically binding the elements of the form to the language
 	/// </summary>
 	public class GreenshotForm : Form, IGreenshotLanguageBindable {
-		private static ILog LOG = LogManager.GetLogger(typeof(GreenshotForm));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(GreenshotForm));
 		protected static CoreConfiguration coreConfiguration;
-		private static IDictionary<Type, FieldInfo[]> reflectionCache = new Dictionary<Type, FieldInfo[]>();
+		private static readonly IDictionary<Type, FieldInfo[]> reflectionCache = new Dictionary<Type, FieldInfo[]>();
 		private IComponentChangeService m_changeService;
-		private bool _isDesignModeLanguageSet = false;
-		private bool _applyLanguageManually = false;
-		private bool _storeFieldsManually = false;
+		private bool _isDesignModeLanguageSet;
+		private bool _applyLanguageManually;
+		private bool _storeFieldsManually;
 		private IDictionary<string, Control> _designTimeControls;
 		private IDictionary<string, ToolStripItem> _designTimeToolStripItems;
 
@@ -107,13 +107,16 @@ namespace GreenshotPlugin.Controls {
 					
 					// this "type"
 					Assembly currentAssembly = GetType().Assembly;
-					string assemblyPath = typeResService.GetPathOfAssembly(currentAssembly.GetName());
-					string assemblyDirectory = Path.GetDirectoryName(assemblyPath);
-					if (!Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\Greenshot\Languages\"))) {
-						Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\..\Greenshot\Languages\"));
-					}
-					if (!Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\Languages\"))) {
-						Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\..\Languages\"));
+					if (typeResService != null)
+					{
+						string assemblyPath = typeResService.GetPathOfAssembly(currentAssembly.GetName());
+						string assemblyDirectory = Path.GetDirectoryName(assemblyPath);
+						if (assemblyDirectory != null && !Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\Greenshot\Languages\"))) {
+							Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\..\Greenshot\Languages\"));
+						}
+						if (assemblyDirectory != null && !Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\Languages\"))) {
+							Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\..\Languages\"));
+						}
 					}
 				} catch (Exception ex) {
 					MessageBox.Show(ex.Message);
@@ -131,7 +134,10 @@ namespace GreenshotPlugin.Controls {
 					_isDesignModeLanguageSet = true;
 					try {
 						ApplyLanguage();
-					} catch (Exception) {
+					}
+					catch (Exception)
+					{
+						// ignored
 					}
 				}
 			}
@@ -210,16 +216,16 @@ namespace GreenshotPlugin.Controls {
 
 			// Clear our the component change events to prepare for re-siting.				
 			if (m_changeService != null) {
-				m_changeService.ComponentChanged -= new ComponentChangedEventHandler(OnComponentChanged);
-				m_changeService.ComponentAdded -= new ComponentEventHandler(OnComponentAdded);
+				m_changeService.ComponentChanged -= OnComponentChanged;
+				m_changeService.ComponentAdded -= OnComponentAdded;
 			}
 		}
 
 		private void RegisterChangeNotifications() {
 			// Register the event handlers for the IComponentChangeService events
 			if (m_changeService != null) {
-				m_changeService.ComponentChanged += new ComponentChangedEventHandler(OnComponentChanged);
-				m_changeService.ComponentAdded += new ComponentEventHandler(OnComponentAdded);
+				m_changeService.ComponentChanged += OnComponentChanged;
+				m_changeService.ComponentAdded += OnComponentAdded;
 			}
 		}
 
@@ -229,7 +235,7 @@ namespace GreenshotPlugin.Controls {
 		/// <param name="sender"></param>
 		/// <param name="ce"></param>
 		private void OnComponentChanged(object sender, ComponentChangedEventArgs ce) {
-			if (ce.Component != null && ((IComponent)ce.Component).Site != null && ce.Member != null) {
+			if (((IComponent) ce.Component)?.Site != null && ce.Member != null) {
 				if ("LanguageKey".Equals(ce.Member.Name)) {
 					Control control = ce.Component as Control;
 					if (control != null) {
@@ -249,7 +255,7 @@ namespace GreenshotPlugin.Controls {
 		}
 
 		private void OnComponentAdded(object sender, ComponentEventArgs ce) {
-			if (ce.Component != null && ((IComponent)ce.Component).Site != null) {
+			if (ce.Component?.Site != null) {
 				Control control = ce.Component as Control;
 				if (control != null) {
 					if (!_designTimeControls.ContainsKey(control.Name)) {
@@ -257,12 +263,17 @@ namespace GreenshotPlugin.Controls {
 					} else {
 						_designTimeControls[control.Name] = control;
 					}
-				} else if (ce.Component is ToolStripItem) {
-					ToolStripItem item = ce.Component as ToolStripItem;
-					if (!_designTimeControls.ContainsKey(item.Name)) {
-						_designTimeToolStripItems.Add(item.Name, item);
-					} else {
-						_designTimeToolStripItems[item.Name] = item;
+				}
+				else
+				{
+					var stripItem = ce.Component as ToolStripItem;
+					if (stripItem != null) {
+						ToolStripItem item = stripItem;
+						if (!_designTimeControls.ContainsKey(item.Name)) {
+							_designTimeToolStripItems.Add(item.Name, item);
+						} else {
+							_designTimeToolStripItems[item.Name] = item;
+						}
 					}
 				}
 			}
@@ -277,7 +288,7 @@ namespace GreenshotPlugin.Controls {
 		}
 
 		protected void ApplyLanguage(ToolStripItem applyTo, string languageKey) {
-			string langString = null;
+			string langString;
 			if (!string.IsNullOrEmpty(languageKey)) {
 				if (!Language.TryGetString(languageKey, out langString)) {
 					LOG.WarnFormat("Unknown language key '{0}' configured for control '{1}', this might be okay.", languageKey, applyTo.Name);
@@ -308,10 +319,12 @@ namespace GreenshotPlugin.Controls {
 			if (languageBindable == null) {
 				// check if it's a menu!
 				ToolStrip toolStrip = applyTo as ToolStrip;
-				if (toolStrip != null) {
-					foreach (ToolStripItem item in toolStrip.Items) {
-						ApplyLanguage(item);
-					}
+				if (toolStrip == null)
+				{
+					return;
+				}
+				foreach (ToolStripItem item in toolStrip.Items) {
+					ApplyLanguage(item);
 				}
 				return;
 			}
@@ -327,7 +340,7 @@ namespace GreenshotPlugin.Controls {
 					IniSection section = IniConfig.GetIniSection(configBindable.SectionName);
 					if (section != null) {
 						// Only update the language, so get the actual value and than repopulate
-						Enum currentValue = (Enum)comboxBox.GetSelectedEnum();
+						Enum currentValue = comboxBox.GetSelectedEnum();
 						comboxBox.Populate(section.Values[configBindable.PropertyName].ValueType);
 						comboxBox.SetValue(currentValue);
 					}
@@ -341,7 +354,7 @@ namespace GreenshotPlugin.Controls {
 		/// <param name="typeToGetFieldsFor"></param>
 		/// <returns></returns>
 		private static FieldInfo[] GetCachedFields(Type typeToGetFieldsFor) {
-			FieldInfo[] fields = null;
+			FieldInfo[] fields;
 			if (!reflectionCache.TryGetValue(typeToGetFieldsFor, out fields)) {
 				fields = typeToGetFieldsFor.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 				reflectionCache.Add(typeToGetFieldsFor, fields);
@@ -353,17 +366,17 @@ namespace GreenshotPlugin.Controls {
 		/// Apply all the language settings to the "Greenshot" Controls on this form
 		/// </summary>
 		protected void ApplyLanguage() {
-			string langString = null;
 			SuspendLayout();
 			try {
 				// Set title of the form
+				string langString;
 				if (!string.IsNullOrEmpty(LanguageKey) && Language.TryGetString(LanguageKey, out langString)) {
 					Text = langString;
 				}
 
 				// Reset the text values for all GreenshotControls
 				foreach (FieldInfo field in GetCachedFields(GetType())) {
-					Object controlObject = field.GetValue(this);
+					object controlObject = field.GetValue(this);
 					if (controlObject == null) {
 						LOG.DebugFormat("No value: {0}", field.Name);
 						continue;
@@ -398,7 +411,7 @@ namespace GreenshotPlugin.Controls {
 		/// Apply the language text to supplied control
 		/// </summary>
 		protected void ApplyLanguage(Control applyTo, string languageKey) {
-			string langString = null;
+			string langString;
 			if (!string.IsNullOrEmpty(languageKey)) {
 				if (!Language.TryGetString(languageKey, out langString)) {
 					LOG.WarnFormat("Wrong language key '{0}' configured for control '{1}'", languageKey, applyTo.Name);
@@ -422,18 +435,12 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		protected void FillFields() {
 			foreach (FieldInfo field in GetCachedFields(GetType())) {
-				Object controlObject = field.GetValue(this);
-				if (controlObject == null) {
-					continue;
-				}
+				var controlObject = field.GetValue(this);
 				IGreenshotConfigBindable configBindable = controlObject as IGreenshotConfigBindable;
-				if (configBindable == null) {
-					continue;
-				}
-				if (!string.IsNullOrEmpty(configBindable.SectionName) && !string.IsNullOrEmpty(configBindable.PropertyName)) {
+				if (!string.IsNullOrEmpty(configBindable?.SectionName) && !string.IsNullOrEmpty(configBindable.PropertyName)) {
 					IniSection section = IniConfig.GetIniSection(configBindable.SectionName);
 					if (section != null) {
-						IniValue iniValue = null;
+						IniValue iniValue;
 						if (!section.Values.TryGetValue(configBindable.PropertyName, out iniValue)) {
 							LOG.DebugFormat("Wrong property '{0}' configured for field '{1}'",configBindable.PropertyName,field.Name);
 							continue;
@@ -445,7 +452,7 @@ namespace GreenshotPlugin.Controls {
 							checkBox.Enabled = !iniValue.IsFixed;
 							continue;
 						}
-                        RadioButton radíoButton = controlObject as RadioButton;
+						RadioButton radíoButton = controlObject as RadioButton;
 						if (radíoButton != null) {
 							radíoButton.Checked = (bool)iniValue.Value;
 							radíoButton.Enabled = !iniValue.IsFixed;
@@ -473,16 +480,15 @@ namespace GreenshotPlugin.Controls {
 							comboxBox.Populate(iniValue.ValueType);
 							comboxBox.SetValue((Enum)iniValue.Value);
 							comboxBox.Enabled = !iniValue.IsFixed;
-							continue;
 						}
 					}
 				}
 			}
-            OnFieldsFilled();
+			OnFieldsFilled();
 		}
 
-        protected virtual void OnFieldsFilled() {
-        }
+		protected virtual void OnFieldsFilled() {
+		}
 
 		/// <summary>
 		/// Store all GreenshotControl values to the configuration
@@ -490,19 +496,13 @@ namespace GreenshotPlugin.Controls {
 		protected void StoreFields() {
 			bool iniDirty = false;
 			foreach (FieldInfo field in GetCachedFields(GetType())) {
-				Object controlObject = field.GetValue(this);
-				if (controlObject == null) {
-					continue;
-				}
+				var controlObject = field.GetValue(this);
 				IGreenshotConfigBindable configBindable = controlObject as IGreenshotConfigBindable;
-				if (configBindable == null) {
-					continue;
-				}
 
-				if (!string.IsNullOrEmpty(configBindable.SectionName) && !string.IsNullOrEmpty(configBindable.PropertyName)) {
+				if (!string.IsNullOrEmpty(configBindable?.SectionName) && !string.IsNullOrEmpty(configBindable.PropertyName)) {
 					IniSection section = IniConfig.GetIniSection(configBindable.SectionName);
 					if (section != null) {
-						IniValue iniValue = null;
+						IniValue iniValue;
 						if (!section.Values.TryGetValue(configBindable.PropertyName, out iniValue)) {
 							continue;
 						}
@@ -512,7 +512,7 @@ namespace GreenshotPlugin.Controls {
 							iniDirty = true;
 							continue;
 						}
-                        RadioButton radioButton = controlObject as RadioButton;
+						RadioButton radioButton = controlObject as RadioButton;
 						if (radioButton != null) {
 							iniValue.Value = radioButton.Checked;
 							iniDirty = true;
@@ -520,12 +520,12 @@ namespace GreenshotPlugin.Controls {
 						}
 						TextBox textBox = controlObject as TextBox;
 						if (textBox != null) {
-                            HotkeyControl hotkeyControl = controlObject as HotkeyControl;
-                            if (hotkeyControl != null) {
-                                iniValue.Value = hotkeyControl.ToString();
-                                iniDirty = true;
-                                continue;
-                            }
+							HotkeyControl hotkeyControl = controlObject as HotkeyControl;
+							if (hotkeyControl != null) {
+								iniValue.Value = hotkeyControl.ToString();
+								iniDirty = true;
+								continue;
+							}
 							iniValue.UseValueOrDefault(textBox.Text);
 							iniDirty = true;
 							continue;
@@ -534,7 +534,6 @@ namespace GreenshotPlugin.Controls {
 						if (comboxBox != null) {
 							iniValue.Value = comboxBox.GetSelectedEnum();
 							iniDirty = true;
-							continue;
 						}
 						
 					}

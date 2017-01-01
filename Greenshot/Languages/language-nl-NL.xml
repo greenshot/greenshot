@@ -1,143 +1,159 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Nederlands" ietf="nl-NL" version="1.0.2" languagegroup="1">
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Nederlands" ietf="nl-NL" version="1.0.4" languagegroup="1">
 	<resources>
 		<resource name="about_bugs">Meld problemen bij</resource>
-		<resource name="about_donations">Als U Greenshot goed vindt kunt U ons ondersteunen:</resource>
-		<resource name="about_host">Greenshot word gehost door sourceforge.net op</resource>
-		<resource name="about_icons">Iconen van de icon set van Yusuke Kamiyamane's Fugue (Creative Commons Attribution 3.0 license)</resource>
+		<resource name="about_donations">Als Greenshot u bevalt, wilt u ons misschien ondersteunen:</resource>
+		<resource name="about_host">Greenshot wordt uitgegeven door sourceforge.net op</resource>
+		<resource name="about_icons">Iconen afkomstig van Yusuke Kamiyamane's Fugue (Creative Commons Attribution 3.0 license)</resource>
 		<resource name="about_license">Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot komt zonder enige garantie! Dit is gratis software, en U kunt het distribueren onder bepaalde voorwaarden.
+Greenshot komt zonder enige garantie! Dit is gratis software en het staat u vrij het onder bepaalde voorwaarden te verspreiden.
 Details over de GNU General Public License:</resource>
 		<resource name="about_title">Over Greenshot</resource>
-		<resource name="about_translation">Nederlandse vertaling door Jurjen Ladenius en Thomas Smid</resource>
-		<resource name="application_title">Greenshot - de revolutionaire screenshot utility</resource>
+		<resource name="about_translation">Nederlandse vertaling door Jurjen Ladenius, Thomas Smid en Stephan Paternotte</resource>
+		<resource name="application_title">Greenshot - het revolutionaire schermopname-programma</resource>
 		<resource name="bugreport_cancel">Sluiten</resource>
-		<resource name="bugreport_info">Sorry, er is een onverwachte fout opgetreden.
-Het goede nieuws is dat U ons kan helpen om dit probleem op te lossen!
-Bezoek de onderstaande URL, maak een "bug report" aan en plak de inhoud van de volgende text in de probleembeschrijving.
-Het helpt nog meer als U beschrijft hoe het probleem tot stand is gekomen en ook gegevens over uw systeem geeft.
-We stellen het zeer op prijs als u eerst kijkt of dit probleem misschien al gemeld is! 
-Gebruik de zoekfunctie om bekende foutmeldingen snel te vinden. Hartelijk bedankt! ;-)</resource>
+		<resource name="bugreport_info">Er is een onverwachte fout opgetreden.
+
+Het goede nieuws is dat u ons kan helpen om dit probleem op te lossen!
+Bezoek de onderstaande URL, maak een "bug report" aan en kopieer de volgende tekst in de probleembeschrijving.
+
+Beschrijf als het kan hoe deze fout tot stand is gekomen en vermeld ook de specificaties van uw PC-systeem.
+Controleer ook even of dit probleem mogelijk al gemeld is! Gebruik de zoekfunctie om deze snel te vinden. Hartelijk bedankt! ;-)</resource>
 		<resource name="bugreport_title">Fout</resource>
 		<resource name="CANCEL">Annuleren</resource>
-		<resource name="clipboard_error">Tijdens het kopiëren naar het klembord is een onverwachte fout opgetreden.</resource>
-		<resource name="clipboard_inuse">Greenshot kon niet naar het klembord kopiëren omdat het proces {0} de actie geblokkeerd heeft.</resource>
-		<resource name="ClipboardFormat.DIB">Apparaat onafhankelijk beeld (DIB)</resource>
+		<resource name="clipboard_error">Een onverwachte fout is opgetreden bij het kopiëren naar het klembord.</resource>
+		<resource name="clipboard_inuse">Greenshot kon niet naar het klembord kopiëren vanwege een blokkade door het proces {0}.</resource>
+		<resource name="clipboard_noimage">Geen klembord-afbeelding gevonden.</resource>
+		<resource name="ClipboardFormat.BITMAP">Windows Bitmap</resource>
+		<resource name="ClipboardFormat.DIB">Device Independent Bitmap (DIB)</resource>
 		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">HTML met ingebouwde beelden</resource>
+		<resource name="ClipboardFormat.HTMLDATAURL">HTML met ingebedde afbeeldingen</resource>
 		<resource name="ClipboardFormat.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">Alpha</resource>
 		<resource name="colorpicker_apply">Toepassen</resource>
 		<resource name="colorpicker_blue">Blauw</resource>
 		<resource name="colorpicker_green">Groen</resource>
-		<resource name="colorpicker_htmlcolor">HTML kleur</resource>
-		<resource name="colorpicker_recentcolors">Pas gebruikte kleuren</resource>
+		<resource name="colorpicker_htmlcolor">HTML-kleur</resource>
+		<resource name="colorpicker_recentcolors">Onlangs gebruikte kleuren</resource>
 		<resource name="colorpicker_red">Rood</resource>
-		<resource name="colorpicker_title">Kleur kiezen</resource>
-		<resource name="colorpicker_transparent">Doorzichtig</resource>
-		<resource name="config_unauthorizedaccess_write">Kan het Greenshot configuratie bestand niet schrijven. Controleer de bestandstoegang voor '{0}'.</resource>
+		<resource name="colorpicker_title">Kleurenkiezer</resource>
+		<resource name="colorpicker_transparent">Transparant</resource>
+		<resource name="com_rejected">De bestemming {0} heeft Greenshot de toegang geweigerd. Sluit eventuele meldingsvensters en probeer het opnieuw.</resource>
+		<resource name="com_rejected_title">Greenshot is de toegang geweigerd</resource>
+		<resource name="config_unauthorizedaccess_write">Greenshot kan het configuratiebestand niet opslaan. Controleer de toegangsrechten voor '{0}'.</resource>
 		<resource name="contextmenu_about">Over Greenshot</resource>
-		<resource name="contextmenu_capturearea">Regio vastleggen</resource>
-		<resource name="contextmenu_captureclipboard">Laad beeld van het klembord</resource>
-		<resource name="contextmenu_capturefullscreen">Gehele beeldscherm vastleggen</resource>
+		<resource name="contextmenu_capturearea">Interactief kader</resource>
+		<resource name="contextmenu_captureclipboard">Afbeelding van het klembord laden</resource>
+		<resource name="contextmenu_capturefullscreen">Volledige schermopname</resource>
 		<resource name="contextmenu_capturefullscreen_all">alles</resource>
 		<resource name="contextmenu_capturefullscreen_bottom">onder</resource>
 		<resource name="contextmenu_capturefullscreen_left">links</resource>
 		<resource name="contextmenu_capturefullscreen_right">rechts</resource>
 		<resource name="contextmenu_capturefullscreen_top">boven</resource>
-		<resource name="contextmenu_captureie">Internet Explorer pagina vastleggen</resource>
-		<resource name="contextmenu_captureiefromlist">Internet Explorer pagina uit de lijst vastleggen</resource>
-		<resource name="contextmenu_capturelastregion">Laatst gebruikte regio vastleggen</resource>
-		<resource name="contextmenu_capturewindow">Window vastleggen</resource>
-		<resource name="contextmenu_capturewindowfromlist">Window uit de lijst vastleggen</resource>
+		<resource name="contextmenu_captureie">Internet Explorer vensteropname</resource>
+		<resource name="contextmenu_captureiefromlist">Internet Explorer vensteropname uit lijst</resource>
+		<resource name="contextmenu_capturelastregion">Laatste schermopname herhalen</resource>
+		<resource name="contextmenu_capturewindow">Vensteropname</resource>
+		<resource name="contextmenu_capturewindowfromlist">Vensteropname uit lijst</resource>
 		<resource name="contextmenu_donate">Greenshot ondersteunen</resource>
-		<resource name="contextmenu_exit">Exit</resource>
+		<resource name="contextmenu_exit">Afsluiten</resource>
 		<resource name="contextmenu_help">Help</resource>
-		<resource name="contextmenu_openfile">Open beeld uit bestand</resource>
-		<resource name="contextmenu_openrecentcapture">Open laatste screenshot locatie</resource>
+		<resource name="contextmenu_openfile">Afbeeldingsbestand openen</resource>
+		<resource name="contextmenu_openrecentcapture">Locatie laatste schermopname openen</resource>
 		<resource name="contextmenu_quicksettings">Snelle instellingen</resource>
-		<resource name="contextmenu_settings">Voorkeuren...</resource>
-		<resource name="editor_arrange">Aanpassen</resource>
-		<resource name="editor_arrowheads">Pijlkop</resource>
-		<resource name="editor_arrowheads_both">Beide</resource>
-		<resource name="editor_arrowheads_end">Eind punt</resource>
+		<resource name="contextmenu_settings">Voorkeuren…</resource>
+		<resource name="destination_exportfailed">Fout bij het exporteren naar {0}. Probeer het opnieuw.</resource>
+		<resource name="editor_align_bottom">Onder</resource>
+		<resource name="editor_align_center">Midden</resource>
+		<resource name="editor_align_horizontal">Horizontale uitlijning</resource>
+		<resource name="editor_align_left">Links</resource>
+		<resource name="editor_align_middle">Midden</resource>
+		<resource name="editor_align_right">Rechts</resource>
+		<resource name="editor_align_top">Boven</resource>
+		<resource name="editor_align_vertical">Verticale uitlijning</resource>
+		<resource name="editor_arrange">Schikken</resource>
+		<resource name="editor_arrowheads">Pijlpunt</resource>
+		<resource name="editor_arrowheads_both">Beiden</resource>
+		<resource name="editor_arrowheads_end">Eindpunt</resource>
 		<resource name="editor_arrowheads_none">Geen</resource>
-		<resource name="editor_arrowheads_start">Start punt</resource>
-		<resource name="editor_autocrop">Automatisch snijden</resource>
-		<resource name="editor_backcolor">Vul kleur</resource>
-		<resource name="editor_blur_radius">Onduidelijk maken radius</resource>
+		<resource name="editor_arrowheads_start">Startpunt</resource>
+		<resource name="editor_autocrop">Automatisch bijsnijden</resource>
+		<resource name="editor_backcolor">Vulkleur</resource>
+		<resource name="editor_blur_radius">Vervagingsradius</resource>
 		<resource name="editor_bold">Vet</resource>
 		<resource name="editor_border">Rand</resource>
 		<resource name="editor_brightness">Helderheid</resource>
 		<resource name="editor_cancel">Afbreken</resource>
-		<resource name="editor_clipboardfailed">Er is een fout opgetreden bij toegang naar het klembord. Probeer nogmaals, AUB.</resource>
+		<resource name="editor_clipboardfailed">Fout bij de toegang tot het klembord. Probeer het opnieuw.</resource>
 		<resource name="editor_close">Sluiten</resource>
-		<resource name="editor_close_on_save">Wilt U het beeld opslaan?</resource>
-		<resource name="editor_close_on_save_title">Beeld opslaan?</resource>
+		<resource name="editor_close_on_save">Wilt u de schermopname opslaan?</resource>
+		<resource name="editor_close_on_save_title">Afbeelding opslaan?</resource>
 		<resource name="editor_confirm">Bevestigen</resource>
-		<resource name="editor_copyimagetoclipboard">Beeld naar klembord kopiëren</resource>
-		<resource name="editor_copypathtoclipboard">Kopieer locatie naar het klembord</resource>
+		<resource name="editor_copyimagetoclipboard">Afbeelding naar klembord kopiëren</resource>
+		<resource name="editor_copypathtoclipboard">Locatie naar klembord kopiëren</resource>
 		<resource name="editor_copytoclipboard">Kopiëren</resource>
 		<resource name="editor_crop">Bijsnijden (C)</resource>
-		<resource name="editor_cursortool">Selectie gereedschap (ESC)</resource>
+		<resource name="editor_cursortool">Selectiegereedschap (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Knippen</resource>
 		<resource name="editor_deleteelement">Verwijderen</resource>
-		<resource name="editor_downonelevel">Een plaats omlaag</resource>
+		<resource name="editor_downonelevel">Een niveau omlaag</resource>
 		<resource name="editor_downtobottom">Helemaal naar beneden</resource>
-		<resource name="editor_drawarrow">Pijl tekenen (A)</resource>
-		<resource name="editor_drawellipse">Ellips tekenen (E)</resource>
-		<resource name="editor_drawfreehand">Losse hand tekenen (F)</resource>
+		<resource name="editor_drawarrow">Pijl (A)</resource>
+		<resource name="editor_drawellipse">Ellips (E)</resource>
+		<resource name="editor_drawfreehand">Vrije vorm (F)</resource>
 		<resource name="editor_drawhighlighter">Markeren (H)</resource>
-		<resource name="editor_drawline">Lijn tekenen (L)</resource>
-		<resource name="editor_drawrectangle">Rechthoek tekenen (R)</resource>
-		<resource name="editor_drawtextbox">Textbox toevoegen (T)</resource>
-		<resource name="editor_duplicate">Het geselekteerde element kopiëren</resource>
+		<resource name="editor_drawline">Lijn (L)</resource>
+		<resource name="editor_drawrectangle">Rechthoek (R)</resource>
+		<resource name="editor_drawtextbox">Tekstkader (T)</resource>
+		<resource name="editor_duplicate">Selectie dupliceren</resource>
 		<resource name="editor_edit">Bewerken</resource>
 		<resource name="editor_effects">Effecten</resource>
-		<resource name="editor_email">E-Mail</resource>
+		<resource name="editor_email">E-mail</resource>
 		<resource name="editor_file">Bestand</resource>
 		<resource name="editor_fontsize">Grootte</resource>
-		<resource name="editor_forecolor">Lijn kleur</resource>
+		<resource name="editor_forecolor">Lijnkleur</resource>
 		<resource name="editor_grayscale">Grijstinten</resource>
 		<resource name="editor_highlight_area">Gebied markeren</resource>
 		<resource name="editor_highlight_grayscale">Grijstinten</resource>
 		<resource name="editor_highlight_magnify">Vergroten</resource>
-		<resource name="editor_highlight_mode">Highlight mode</resource>
-		<resource name="editor_highlight_text">Text markeren</resource>
-		<resource name="editor_imagesaved">Beeld opgeslagen onder {0}.</resource>
+		<resource name="editor_highlight_mode">Markeringswijze</resource>
+		<resource name="editor_highlight_text">Tekst markeren</resource>
+		<resource name="editor_image_shadow">Schaduw</resource>
+		<resource name="editor_imagesaved">Afbeelding opgeslagen naar {0}.</resource>
 		<resource name="editor_insertwindow">Venster invoegen</resource>
 		<resource name="editor_invert">Omkeren</resource>
-		<resource name="editor_italic">Schuin</resource>
-		<resource name="editor_load_objects">Laad objecten uit bestand</resource>
+		<resource name="editor_italic">Cursief</resource>
+		<resource name="editor_load_objects">Objecten uit bestand laden</resource>
 		<resource name="editor_magnification_factor">Vergrotingsfactor</resource>
-		<resource name="editor_match_capture_size">Pas aan screenshot grootte aan</resource>
-		<resource name="editor_obfuscate">Onherkenbaar maken (O)</resource>
-		<resource name="editor_obfuscate_blur">Onduidelijk maken</resource>
-		<resource name="editor_obfuscate_mode">Verduisteringsmode</resource>
-		<resource name="editor_obfuscate_pixelize">Blokkig maken</resource>
+		<resource name="editor_match_capture_size">Grootte aanpassen aan schermopname</resource>
+		<resource name="editor_obfuscate">Maskeren (O)</resource>
+		<resource name="editor_obfuscate_blur">Vervagen</resource>
+		<resource name="editor_obfuscate_mode">Maskeringswijze</resource>
+		<resource name="editor_obfuscate_pixelize">Pixeleren</resource>
 		<resource name="editor_object">Object</resource>
-		<resource name="editor_opendirinexplorer">Directorie in Windows Explorer openen</resource>
+		<resource name="editor_opendirinexplorer">Map met Windows Verkenner openen</resource>
 		<resource name="editor_pastefromclipboard">Plakken</resource>
 		<resource name="editor_pixel_size">Pixelgrootte</resource>
-		<resource name="editor_preview_quality">Voorbeeld kwaliteit</resource>
-		<resource name="editor_print">Print</resource>
-		<resource name="editor_redo">Opnieuw uitvoeren {0}</resource>
-		<resource name="editor_resetsize">Grootte terugzetten</resource>
-		<resource name="editor_rotateccw">Roteer tegen de klok in</resource>
-		<resource name="editor_rotatecw">Roteer met de klok mee</resource>
+		<resource name="editor_preview_quality">Kwaliteit voorbeeld</resource>
+		<resource name="editor_print">Afdrukken</resource>
+		<resource name="editor_redo">Opnieuw {0}</resource>
+		<resource name="editor_resetsize">Afmetingen herstellen</resource>
+		<resource name="editor_resize_percent">Procent</resource>
+		<resource name="editor_resize_pixel">Pixels</resource>
+		<resource name="editor_rotateccw">Linksom roteren (Control + ,)</resource>
+		<resource name="editor_rotatecw">Rechtsom roteren (Control + .)</resource>
 		<resource name="editor_save">Opslaan</resource>
 		<resource name="editor_save_objects">Objecten in bestand opslaan</resource>
-		<resource name="editor_saveas">Opslaan als...</resource>
+		<resource name="editor_saveas">Opslaan als…</resource>
 		<resource name="editor_selectall">Alles selecteren</resource>
-		<resource name="editor_senttoprinter">Print opdracht is naar '{0}' gestuurt.</resource>
+		<resource name="editor_senttoprinter">Afdruktaak verzonden naar '{0}'.</resource>
 		<resource name="editor_shadow">Schaduw</resource>
-		<resource name="editor_image_shadow">Schaduw</resource>
-		<resource name="editor_storedtoclipboard">Beeld naar het klembord gekopieerd.</resource>
-		<resource name="editor_thickness">Lijn dikte</resource>
-		<resource name="editor_title">Greenshot beeld bewerking</resource>
-		<resource name="editor_torn_edge">Gescheurde randen</resource>
+		<resource name="editor_storedtoclipboard">Afbeelding opgeslagen op het klembord.</resource>
+		<resource name="editor_thickness">Lijndikte</resource>
+		<resource name="editor_title">Greenshot beeldbewerker</resource>
+		<resource name="editor_torn_edge">Rafelige randen</resource>
 		<resource name="editor_undo">Ongedaan maken {0}</resource>
-		<resource name="editor_uponelevel">Een plaats omhoog</resource>
+		<resource name="editor_uponelevel">Een niveau omhoog</resource>
 		<resource name="editor_uptotop">Helemaal omhoog</resource>
 		<resource name="EmailFormat.MAPI">MAPI client</resource>
 		<resource name="EmailFormat.OUTLOOK_HTML">Outlook met HTML</resource>
@@ -145,64 +161,71 @@ Gebruik de zoekfunctie om bekende foutmeldingen snel te vinden. Hartelijk bedank
 		<resource name="error">Fout</resource>
 		<resource name="error_multipleinstances">Greenshot is al gestart.</resource>
 		<resource name="error_nowriteaccess">Kan bestand niet opslaan naar {0}.
-Controleer AUB de schrijf permissies voor de locatie.</resource>
-		<resource name="error_openfile">Het bestand "{0}" kan niet gelezen worden.</resource>
-		<resource name="error_openlink">Kan link '{0}' niet openen.</resource>
-		<resource name="error_save">Kan screenshot niet opslaan, kies AUB een nieuwe locatie.</resource>
+Controleer de toegangsrechten voor de betreffende locatie.</resource>
+		<resource name="error_openfile">Het bestand "{0}" kon niet worden geopend.</resource>
+		<resource name="error_openlink">De snelkoppeling '{0}' kon niet worden geopend.</resource>
+		<resource name="error_save">De schermopname kon niet worden opgeslagen, kies een andere bestemming.</resource>
+		<resource name="error_save_invalid_chars">De bestandsnaam of bestemmingsmap is niet geldig. Corrigeer het bestandsnaampatroon en probeer het opnieuw.</resource>
 		<resource name="expertsettings">Expert</resource>
-		<resource name="expertsettings_autoreducecolors">Maak een 8-bit beeld als er minder als 256 kleuren zijn en het beeld is &gt; 8 bit.</resource>
-		<resource name="expertsettings_checkunstableupdates">Controleer bij updates ook op instabiele versies.</resource>
-		<resource name="expertsettings_clipboardformats">Klembord formaten</resource>
+		<resource name="expertsettings_autoreducecolors">Afbeeldingen met minder dan 256 kleuren tot 8 bit reduceren</resource>
+		<resource name="expertsettings_checkunstableupdates">Ook op test-versies controleren</resource>
+		<resource name="expertsettings_clipboardformats">Klembordformaten</resource>
 		<resource name="expertsettings_counter">Het ${NUM} nummer in de bestandsnaam</resource>
 		<resource name="expertsettings_enableexpert">Ik weet wat ik doe!</resource>
-		<resource name="expertsettings_footerpattern">Voetnoot onder print</resource>
-		<resource name="expertsettings_minimizememoryfootprint">Verminder het zichtbare geheugen gebruik, maakt Greenshot langzamer</resource>
-		<resource name="expertsettings_optimizeforrdp">Optimaliseer voor Remote Desktop gebruik</resource>
-		<resource name="expertsettings_suppresssavedialogatclose">Onderdruk de opslaan vraag bij het sluiten van de editor</resource>
-		<resource name="expertsettings_thumbnailpreview">Laat voorbeelden zien bij het vastleggen van Windows via het context menu</resource>
-		<resource name="exported_to">Exporteert naar: {0}</resource>
+		<resource name="expertsettings_footerpattern">Voetnoot bij het afdrukken</resource>
+		<resource name="expertsettings_minimizememoryfootprint">Geheugengebruik verminderen ten koste van snelheid (niet aangeraden).</resource>
+		<resource name="expertsettings_optimizeforrdp">Optimaliseren voor Remote Desktop gebruik</resource>
+		<resource name="expertsettings_reuseeditorifpossible">Beeldbewerker weer gebruiken</resource>
+		<resource name="expertsettings_suppresssavedialogatclose">Bij het sluiten van de beeldbewerker niet vragen om op te slaan</resource>
+		<resource name="expertsettings_thumbnailpreview">Schermvoorbeelden tonen in het context menu</resource>
+		<resource name="exported_to">Geëxporteerd: {0}</resource>
+		<resource name="exported_to_error">Er is een fout opgetreden bij het exporteren naar {0}:</resource>
 		<resource name="help_title">Greenshot Help</resource>
 		<resource name="hotkeys">Sneltoetsen</resource>
-		<resource name="jpegqualitydialog_choosejpegquality">Kies AUB de kwaliteit voor uw JPEG beeld.</resource>
-		<resource name="OK">Ok</resource>
-		<resource name="print_error">Er is een fout opgetreden tijdens het printen</resource>
-		<resource name="printoptions_allowcenter">Centreer afdruk op papier</resource>
-		<resource name="printoptions_allowenlarge">Vergroot afdruk en pas aan de papiergrootte aan</resource>
-		<resource name="printoptions_allowrotate">Roteer afdruk en pas aan het papier aan</resource>
-		<resource name="printoptions_allowshrink">Verklein afdruk en pas aan de papiergrootte aan</resource>
-		<resource name="printoptions_dontaskagain">Sla afdrukvoorkeuren op als standaard en vraag niet opnieuw</resource>
-		<resource name="printoptions_inverted">Kleuren omkeren</resource>
-		<resource name="printoptions_printgrayscale">Maak afdruk in grijstinten</resource>
-		<resource name="printoptions_timestamp">Datum / tijd onder aan de pagina printen</resource>
+		<resource name="jpegqualitydialog_choosejpegquality">Selecteer de JPEG-kwaliteit voor uw afbeelding.</resource>
+		<resource name="OK">OK</resource>
+		<resource name="print_error">Er is een fout opgetreden bij het afdrukken</resource>
+		<resource name="printoptions_allowcenter">Afdruk op het papier centreren</resource>
+		<resource name="printoptions_allowenlarge">Afdruk vergroten en aanpassen aan de papiergrootte</resource>
+		<resource name="printoptions_allowrotate">Afdruk roteren en aanpassen aan het papier</resource>
+		<resource name="printoptions_allowshrink">Afdruk verkleinen en aanpassen aan de papiergrootte</resource>
+		<resource name="printoptions_colors">Kleurinstellingen</resource>
+		<resource name="printoptions_dontaskagain">Instellingen opslaan als standaard en niet meer vragen</resource>
+		<resource name="printoptions_inverted">Afdrukken in negatief-kleuren</resource>
+		<resource name="printoptions_layout">Papieroriëntatie</resource>
+		<resource name="printoptions_printcolor">Kleurenafdruk</resource>
+		<resource name="printoptions_printgrayscale">Afdruk in grijstinten</resource>
+		<resource name="printoptions_printmonochrome">Zwart-witafdruk forceren</resource>
+		<resource name="printoptions_timestamp">Datum / tijd onderaan de pagina afdrukken</resource>
 		<resource name="printoptions_title">Greenshot afdrukvoorkeuren</resource>
-		<resource name="qualitydialog_dontaskagain">Opslaan met de standaard kwaliteit en niet meer vragen</resource>
+		<resource name="qualitydialog_dontaskagain">Opslaan met de standaardkwaliteit en niet meer vragen</resource>
 		<resource name="qualitydialog_title">Greenshot kwaliteit</resource>
-		<resource name="quicksettings_destination_file">Direct opslaan (met de standaard opslaan instellingen)</resource>
-		<resource name="settings_alwaysshowprintoptionsdialog">Toon afdrukvoorkeuren iedere keer wanneer een beeld wordt afdrukt</resource>
+		<resource name="quicksettings_destination_file">Direct opslaan (met de standaardinstellingen)</resource>
+		<resource name="settings_alwaysshowprintoptionsdialog">Afdrukvoorkeuren tonen wanneer een afbeelding wordt afgedrukt</resource>
 		<resource name="settings_alwaysshowqualitydialog">Vraag iedere keer dat een beeld opgeslagen wordt om de beeldkwaliteit</resource>
-		<resource name="settings_applicationsettings">Applicatie instellingen</resource>
-		<resource name="settings_autostartshortcut">Start Greenshot wanneer Windows opstart</resource>
-		<resource name="settings_capture">Vastleggen</resource>
-		<resource name="settings_capture_mousepointer">Muisaanwijzer vastleggen</resource>
-		<resource name="settings_capture_windows_interactive">Interactief windows (delen) vastleggen</resource>
-		<resource name="settings_checkperiod">Versie update controle interval in dagen (0=geen controle)</resource>
+		<resource name="settings_applicationsettings">Programmainstellingen</resource>
+		<resource name="settings_autostartshortcut">Greenshot met Windows opstarten</resource>
+		<resource name="settings_capture">Schermopname</resource>
+		<resource name="settings_capture_mousepointer">Muisaanwijzer opnemen</resource>
+		<resource name="settings_capture_windows_interactive">Interactieve schemopname</resource>
+		<resource name="settings_checkperiod">Controleren op nieuwe versies [dagen] (0=geen controle)</resource>
 		<resource name="settings_configureplugin">Instellingen</resource>
-		<resource name="settings_copypathtoclipboard">Bestandslocatie naar het klembord kopiëren als een beeld opgeslagen wordt</resource>
-		<resource name="settings_destination">Screenshot doel</resource>
-		<resource name="settings_destination_clipboard">Kopieer naar klembord</resource>
-		<resource name="settings_destination_editor">Open in beeld bewerken</resource>
-		<resource name="settings_destination_email">E-Mail</resource>
-		<resource name="settings_destination_file">Direct opslaan (gebruik de instellingen hieronder)</resource>
-		<resource name="settings_destination_fileas">Opslaan als (laat dialoog zien)</resource>
-		<resource name="settings_destination_picker">Dynamisch het doel kiezen</resource>
-		<resource name="settings_destination_printer">Stuur naar printer</resource>
-		<resource name="settings_editor">Beeld bewerken</resource>
+		<resource name="settings_copypathtoclipboard">Bestandslocatie naar het klembord kopiëren wanneer een afbeelding wordt opgeslagen</resource>
+		<resource name="settings_destination">Bestemming</resource>
+		<resource name="settings_destination_clipboard">Naar klembord</resource>
+		<resource name="settings_destination_editor">In beeldbewerker</resource>
+		<resource name="settings_destination_email">E-mail</resource>
+		<resource name="settings_destination_file">Direct opslaan (Onderstaande instellingen gebruiken)</resource>
+		<resource name="settings_destination_fileas">Opslaan als… (via dialoog)</resource>
+		<resource name="settings_destination_picker">Bestemming dynamisch kiezen</resource>
+		<resource name="settings_destination_printer">Naar printer</resource>
+		<resource name="settings_editor">Beeldbewerker</resource>
 		<resource name="settings_filenamepattern">Bestandsnaam patroon</resource>
 		<resource name="settings_general">Algemeen</resource>
-		<resource name="settings_iecapture">Internet Explorer vastleggen</resource>
-		<resource name="settings_jpegquality">JPEG kwaliteit</resource>
+		<resource name="settings_iecapture">Internet Explorer vensteropname</resource>
+		<resource name="settings_jpegquality">JPEG-kwaliteit</resource>
 		<resource name="settings_language">Taal</resource>
-		<resource name="settings_message_filenamepattern">De volgende variabelen worden automatisch vervangen in het ingestelde patroon:
+		<resource name="settings_message_filenamepattern">De volgende variabelen worden automatisch vervangen in het gedefinieerde patroon:
 ${YYYY} jaar, 4 cijfers
 ${MM} maand, 2 cijfers
 ${DD} dag, 2 cijfers
@@ -210,77 +233,84 @@ ${hh} uur, 2 cijfers
 ${mm} minuut, 2 cijfers
 ${ss} seconde, 2 cijfers
 ${NUM} oplopend nummer, 6 cijfers
-${title} venster titel
+${title} venstertitel
 ${user} Windows gebruikersnaam
 ${domain} Windows domein
-${hostname} PC naam
-U kunt ook Greenshot automatisch directories laten aanmaken door eenvoudig een backslash symbool (\) te gebruiken.
+${hostname} PC-naam
+
+U kunt ook Greenshot automatisch mappen laten aanmaken door eenvoudig een backslash symbool (\) te gebruiken.
 Voorbeeld: Het patroon ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-genereert een directorie voor de huidige dag in uw standaard opslag lokatie, b.v. 2008-06-29, de naam van het bestand heeft dan de tijd
+genereert een map voor de huidige dag in uw standaard opslaglocatie, b.v. 2008-06-29, de naam van het bestand bevat dan de tijd
 , b.v. 11-58-32 (plus de extensie zoals in de voorkeursinstellingen staat)</resource>
 		<resource name="settings_network">Netwerk en bijwerken</resource>
 		<resource name="settings_output">Uitvoer</resource>
-		<resource name="settings_playsound">Speel camera geluid</resource>
-		<resource name="settings_plugins">Uitbreidingen</resource>
+		<resource name="settings_playsound">Camerageluid afspelen</resource>
+		<resource name="settings_plugins">Plugins</resource>
+		<resource name="settings_plugins_createdby">Door</resource>
+		<resource name="settings_plugins_dllpath">DLL-pad</resource>
+		<resource name="settings_plugins_name">Naam</resource>
+		<resource name="settings_plugins_version">Versie</resource>
 		<resource name="settings_preferredfilesettings">Voorkeursinstellingen voor opslaan van bestanden</resource>
-		<resource name="settings_primaryimageformat">Beeld formaat</resource>
+		<resource name="settings_primaryimageformat">Afbeeldingsformaat</resource>
 		<resource name="settings_printer">Printer</resource>
-		<resource name="settings_printoptions">Afdrukvoorkeuren</resource>
-		<resource name="settings_qualitysettings">Kwaliteit instellingen</resource>
-		<resource name="settings_reducecolors">Verminder het aantal kleuren tot maximaal 256</resource>
-		<resource name="settings_registerhotkeys">Registreer Hotkeys</resource>
-		<resource name="settings_showflashlight">Toon flits</resource>
-		<resource name="settings_shownotify">Toon notificaties</resource>
-		<resource name="settings_zoom">Toon vergrootglas</resource>
-		<resource name="settings_storagelocation">Opslag locatie</resource>
+		<resource name="settings_printoptions">Afdrukinstellingen</resource>
+		<resource name="settings_qualitysettings">Kwaliteitsinstellingen</resource>
+		<resource name="settings_reducecolors">Kleuren verminderen tot maximaal 256</resource>
+		<resource name="settings_registerhotkeys">Sneltoetsen aanmelden</resource>
+		<resource name="settings_showflashlight">Flits tonen</resource>
+		<resource name="settings_shownotify">Meldingen weergeven</resource>
+		<resource name="settings_zoom">Vergrootglas weergeven</resource>
+		<resource name="settings_storagelocation">Opslaglocatie</resource>
 		<resource name="settings_title">Voorkeursinstellingen</resource>
-		<resource name="settings_tooltip_filenamepattern">Patroon voor het produceren van bestandsnamen van opgeslagen screenshots</resource>
+		<resource name="settings_tooltip_filenamepattern">Patroon voor het aanmaken van bestandsnamen bij het opslaan van schermopnamen</resource>
 		<resource name="settings_tooltip_language">Taal voor de Greenshot gebruikersinterface</resource>
-		<resource name="settings_tooltip_primaryimageformat">Standaard beeld formaat</resource>
-		<resource name="settings_tooltip_registerhotkeys">Definieert of the shortcuts Prnt, Ctrl + Print, Alt + Prnt door Greenshot gereserveerd worden.</resource>
-		<resource name="settings_tooltip_storagelocation">Locatie waar screenshots standaard opgeslagen worden (leeg laten voor de desktop)</resource>
-		<resource name="settings_usedefaultproxy">Gebruik de standaard systeem proxy</resource>
-		<resource name="settings_visualization">Effects</resource>
-		<resource name="settings_waittime">Milliseconden wachten voor vastleggen</resource>
-		<resource name="settings_window_capture_mode">Window vastleg mode</resource>
-		<resource name="settings_windowscapture">Window vastleggen</resource>
-		<resource name="tooltip_firststart">Klik hier met de rechter muis knop of druk op de {0} knop.</resource>
-		<resource name="update_found">Er is een nieuwere versie van Greenshot beschikbaar! Wilt U Greenshot {0} downloaden?</resource>
-		<resource name="wait_ie_capture">Wacht terwijl de Internet Explorer pagina wordt vastgelegd...</resource>
+		<resource name="settings_tooltip_primaryimageformat">Standaard afbeeldingsformaat</resource>
+		<resource name="settings_tooltip_registerhotkeys">Definieert of de sneltoetsen Prnt, Ctrl + Print, Alt + Prnt door Greenshot worden gereserveerd.</resource>
+		<resource name="settings_tooltip_storagelocation">Standaardlocatie waar schermopnamen worden opgeslagen (leeg laten voor het bureaublad)</resource>
+		<resource name="settings_usedefaultproxy">De standaard systeem proxy gebruiken</resource>
+		<resource name="settings_visualization">Effecten</resource>
+		<resource name="settings_waittime">Milliseconden vertraging voor schermopname</resource>
+		<resource name="settings_window_capture_mode">Vensteropname-modus</resource>
+		<resource name="settings_windowscapture">Vensteropname</resource>
+		<resource name="tooltip_firststart">Klik hier met de rechtermuisknop of druk op de {0} knop.</resource>
+		<resource name="update_found">Een nieuwe versie van Greenshot is beschikbaar! Wilt u Greenshot {0} downloaden?</resource>
+		<resource name="wait_ie_capture">Wacht terwijl de Internet Explorer pagina wordt vastgelegd…</resource>
 		<resource name="warning">Waarschuwing</resource>
-		<resource name="warning_hotkeys">De hotkeys "{0}" kunnen niet geregistreerd worden. Dit probleem komt waarschijnlijk doordat een andere applicatie deze hotkeys al gebruikt. U kunt de hotkeys instellingen van Greenshot veranderen of de andere applicatie stoppen/veranderen.
+		<resource name="warning_hotkeys">De sneltoetsen "{0}" kunnen worden aangemeld. Dit probleem komt waarschijnlijk doordat een ander programma deze al gebruikt. U kunt de sneltoetsinstellingen van Greenshot aanpassen of het andere programma stoppen/aanpassen.
 
-Alle Greenshot functies werken ook over het context menu.</resource>
-		<resource name="WindowCaptureMode.Aero">Eigen kleur</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">Met doorzichtigheid</resource>
+Alle Greenshot functies werken ook zonder sneltoetsen via het context menu.</resource>
+		<resource name="WindowCaptureMode.Aero">Aangepaste kleur</resource>
+		<resource name="WindowCaptureMode.AeroTransparent">Transparantie behouden</resource>
 		<resource name="WindowCaptureMode.Auto">Automatisch</resource>
-		<resource name="WindowCaptureMode.GDI">Standaard kleur</resource>
-		<resource name="WindowCaptureMode.Screen">Zoals zichtbaar</resource>
+		<resource name="WindowCaptureMode.GDI">Standaardkleur gebruiken</resource>
+		<resource name="WindowCaptureMode.Screen">Zoals weergegeven</resource>
 
 		<!-- 1.2 -->
-		<resource name="editor_dropshadow_darkness">Schaduw intensiteit</resource>
-		<resource name="editor_dropshadow_offset">Schaduw verspringing</resource>
-		<resource name="editor_dropshadow_settings">Schaduw</resource>
-		<resource name="editor_dropshadow_thickness">Schaduw dikte</resource>
-		<resource name="editor_tornedge_horizontaltoothrange">Horizontale tand afstand</resource>
-		<resource name="editor_tornedge_settings">Gescheurde kanten</resource>
-		<resource name="editor_tornedge_toothsize">Tand grootte</resource>
-		<resource name="editor_tornedge_verticaltoothrange">Vertikale tand afstand</resource>
-		<resource name="editor_tornedge_all">Alle kanten scheuren</resource>
+		<resource name="editor_dropshadow_darkness">Schaduw-intensiteit</resource>
+		<resource name="editor_dropshadow_offset">Schaduw-positie</resource>
+		<resource name="editor_dropshadow_settings">Schaduw instellingen</resource>
+		<resource name="editor_dropshadow_thickness">Schaduw-breedte</resource>
+
+		<resource name="editor_tornedge_horizontaltoothrange">Horizontale rafeling</resource>
+		<resource name="editor_tornedge_settings">Rafelige randen</resource>
+		<resource name="editor_tornedge_toothsize">Dikte rafeling</resource>
+		<resource name="editor_tornedge_verticaltoothrange">Verticale rafeling</resource>
+		<resource name="editor_tornedge_all">Alle randen rafelen</resource>
 		<resource name="editor_tornedge_left">Linkerkant</resource>
 		<resource name="editor_tornedge_right">Rechterkant</resource>
 		<resource name="editor_tornedge_top">Bovenkant</resource>
 		<resource name="editor_tornedge_bottom">Onderkant</resource>
 		<resource name="editor_tornedge_shadow">Schaduw</resource>
-
+		
 		<resource name="editor_counter">Teller toevoegen (I)</resource>
 		<resource name="editor_speechbubble">Tekstballon toevoegen (S)</resource>
 
-		<resource name="editor_resize">Grootte veranderen</resource>
-		<resource name="editor_resize_settings">Grootte veranderen</resource>
-		<resource name="editor_resize_aspectratio">Aspect ratio behouden</resource>
+		<resource name="editor_resize">Grootte</resource>
+		<resource name="editor_resize_settings">Vergrotingsinstellingen</resource>
+		<resource name="editor_resize_aspectratio">Verhouding behouden</resource>
 		<resource name="editor_resize_width">Breedte</resource>
 		<resource name="editor_resize_height">Hoogte</resource>
-		<resource name="settings_iconsize">Pictogram grootte</resource>
+		<resource name="settings_iconsize">Pictogramgrootte</resource>
+		
 	</resources>
 </language>

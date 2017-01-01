@@ -3,9 +3,9 @@
 	<resources>
 		<resource name="about_bugs">Veuillez rapporter les bogues à</resource>
 		<resource name="about_donations">Si vous aimez Greenshot, vous pouvez nous soutenir :</resource>
-		<resource name="about_host">Greenshot est hébergé par sourceforge.net à</resource>
+		<resource name="about_host">Greenshot est hébergé par GitHub à</resource>
 		<resource name="about_icons">Icônes provenant du lot d'icônes Fugue de Kamiyamane Yuusuke (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright © 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright © 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot vous est fourni SANS AUCUNE GARANTIE. C'est un logiciel gratuit que vous êtes libres de redistribuer sous certaines conditions.
 Détails de la GNU General Public License :</resource>
 		<resource name="about_title">À propos de Greenshot</resource>
@@ -142,12 +142,12 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_print">Imprimer</resource>
 		<resource name="editor_redo">Rétablir {0}</resource>
 		<resource name="editor_resetsize">Réinitialiser la taille</resource>
-		<resource name="editor_resize">Redimmensionner</resource>
+		<resource name="editor_resize">Redimensionner</resource>
 		<resource name="editor_resize_aspectratio">Maintenir le rapport L / H</resource>
 		<resource name="editor_resize_height">Hauteur</resource>
 		<resource name="editor_resize_percent">Pourcentage</resource>
 		<resource name="editor_resize_pixel">Pixels</resource>
-		<resource name="editor_resize_settings">Paramètres du redimmensionnement</resource>
+		<resource name="editor_resize_settings">Paramètres du redimensionnement</resource>
 		<resource name="editor_resize_width">Largeur</resource>
 		<resource name="editor_rotateccw">Tourner vers la gauche</resource>
 		<resource name="editor_rotatecw">Tourner vers la droite</resource>
@@ -297,7 +297,7 @@ en cours, par exemple 11_58_32 (plus l'extension définie dans les paramètres)<
 		<resource name="update_found">Une nouvelle version de Greenshot est disponible ! Voulez-vous télécharger Greenshot {0} ?</resource>
 		<resource name="wait_ie_capture">Veuillez patienter pendant la capture de la page Internet Explorer...</resource>
 		<resource name="warning">Avertissement</resource>
-		<resource name="warning_hotkeys">Le(s) raccourci(s) clavier "{0}" n'a pu être enregistré. Ce problème est probablement dû à un autre outil qui utilise le(s) même(s) raccourci(s) clavier. Vous pouvez soit modifier vos raccourcis clavier soit désactiver/modifier le logiciel utilisant le(s) raccourci(s).
+		<resource name="warning_hotkeys">Le(s) raccourci(s) clavier "{0}" n'a pu être enregistré. Ce problème est probablement dû à un autre outil{1} qui utilise le(s) même(s) raccourci(s) clavier. Vous pouvez soit modifier vos raccourcis clavier soit désactiver/modifier le logiciel utilisant le(s) raccourci(s).
 
 Toutes les fonctionnalités de Greenshot se lancent aussi directement depuis le menu contextuel de l'icône de la zone de notifications système.</resource>
 		<resource name="WindowCaptureMode.Aero">Utiliser une couleur personnalisée</resource>

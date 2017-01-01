@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,27 +23,19 @@ using System.Drawing;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-namespace GreenshotDropboxPlugin {
-	class DropboxDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(DropboxDestination));
-		private static DropboxPluginConfiguration config = IniConfig.GetIniSection<DropboxPluginConfiguration>();
 
-		private DropboxPlugin plugin = null;
+namespace GreenshotDropboxPlugin {
+	internal class DropboxDestination : AbstractDestination {
+		private static readonly DropboxPluginConfiguration DropboxConfig = IniConfig.GetIniSection<DropboxPluginConfiguration>();
+
+		private readonly DropboxPlugin _plugin;
 		public DropboxDestination(DropboxPlugin plugin) {
-			this.plugin = plugin;
+			_plugin = plugin;
 		}
 		
-		public override string Designation {
-			get {
-				return "Dropbox";
-			}
-		}
+		public override string Designation => "Dropbox";
 
-		public override string Description {
-			get {
-				return Language.GetString("dropbox", LangKey.upload_menu_item);
-			}
-		}
+		public override string Description => Language.GetString("dropbox", LangKey.upload_menu_item);
 
 		public override Image DisplayIcon {
 			get {
@@ -53,14 +45,14 @@ namespace GreenshotDropboxPlugin {
 		}
 		
 		public override ExportInformation ExportCapture(bool manually, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-			string uploadURL = null;
-			bool uploaded = plugin.Upload(captureDetails, surface, out uploadURL);
+			ExportInformation exportInformation = new ExportInformation(Designation, Description);
+			string uploadUrl;
+			bool uploaded = _plugin.Upload(captureDetails, surface, out uploadUrl);
 			if (uploaded) {
-				exportInformation.Uri = uploadURL;
+				exportInformation.Uri = uploadUrl;
 				exportInformation.ExportMade = true;
-				if (config.AfterUploadLinkToClipBoard) {
-					ClipboardHelper.SetClipboardData(uploadURL);
+				if (DropboxConfig.AfterUploadLinkToClipBoard) {
+					ClipboardHelper.SetClipboardData(uploadUrl);
 				}
 			}
 			ProcessExport(exportInformation, surface);

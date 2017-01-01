@@ -3,7 +3,7 @@
 	<resources>
 		<resource name="about_bugs">Veuillez rapporter les bogues à</resource>
 		<resource name="about_donations">Si vous aimez Greenshot, vous pouvez nous soutenir :</resource>
-		<resource name="about_host">Greenshot est hébergé par sourceforge.net à</resource>
+		<resource name="about_host">Greenshot est hébergé par GitHub à</resource>
 		<resource name="about_icons">Icônes provenant du lot d'icônes Fugue de Kamiyamane Yuusuke (Creative Commons Attribution 3.0 license)</resource>
 		<resource name="about_license">Copyright © 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot vous est fourni SANS AUCUNE GARANTIE. C'est un logiciel gratuit que vous êtes libres de redistribuer sous certaines conditions.
@@ -251,7 +251,7 @@ ${hostname} Nom d'hôte du PC</resource>
 		<resource name="wait_ie_capture">Veuillez patienter pendant que la page dans Internet Explorer est capturée...</resource>
 		<resource name="warning">Avertissement</resource>
 		<resource name="warning_hotkeys">Un ou plusieurs raccourcis clavier n'ont pu êtres enregistrés. Il n'est donc pas possible d'utiliser les raccourcis clavier de Greenshot.
-Ce problème est probablement dû à un autre outil qui utilise les mêmes raccourcis clavier.
+Ce problème est probablement dû à un autre outil{1} qui utilise les mêmes raccourcis clavier.
 Veuillez désactiver ce(s) logiciel(s) utilisant le bouton Impr.écran. Vous pouvez également utiliser Greenshot au moyen de son menu contextuel.</resource>
 		<resource name="WindowCaptureMode.Aero">Utiliser les couleurs personnalisées</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Conserver la transparence</resource>

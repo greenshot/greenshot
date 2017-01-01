@@ -1,9 +1,9 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,12 +34,12 @@ namespace GreenshotPhotobucketPlugin {
 	/// This is the GreenshotPhotobucketPlugin base code
 	/// </summary>
 	public class PhotobucketPlugin : IGreenshotPlugin {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PhotobucketPlugin));
-		private static PhotobucketConfiguration config;
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(PhotobucketPlugin));
+		private static PhotobucketConfiguration _config;
 		public static PluginAttribute Attributes;
-		private IGreenshotHost host;
-		private ComponentResourceManager resources;
-		private ToolStripMenuItem itemPlugInConfig;
+		private IGreenshotHost _host;
+		private ComponentResourceManager _resources;
+		private ToolStripMenuItem _itemPlugInConfig;
 
 		public void Dispose() {
 			Dispose(true);
@@ -48,14 +48,11 @@ namespace GreenshotPhotobucketPlugin {
 
 		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
-				if (itemPlugInConfig != null) {
-					itemPlugInConfig.Dispose();
-					itemPlugInConfig = null;
+				if (_itemPlugInConfig != null) {
+					_itemPlugInConfig.Dispose();
+					_itemPlugInConfig = null;
 				}
 			}
-		}
-
-		public PhotobucketPlugin() {
 		}
 
 		public IEnumerable<IDestination> Destinations() {
@@ -69,97 +66,89 @@ namespace GreenshotPhotobucketPlugin {
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
-		/// <param name="pluginAttribute">My own attributes</param>
+		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
+		/// <param name="myAttributes">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
 		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
-			this.host = (IGreenshotHost)pluginHost;
+			_host = pluginHost;
 			Attributes = myAttributes;
 
 			// Get configuration
-			config = IniConfig.GetIniSection<PhotobucketConfiguration>();
-			resources = new ComponentResourceManager(typeof(PhotobucketPlugin));
-			
-			itemPlugInConfig = new ToolStripMenuItem(Language.GetString("photobucket", LangKey.configure));
-			itemPlugInConfig.Tag = host;
-			itemPlugInConfig.Click += delegate {
-				config.ShowConfigDialog();
-			};
-			itemPlugInConfig.Image = (Image)resources.GetObject("Photobucket");
+			_config = IniConfig.GetIniSection<PhotobucketConfiguration>();
+			_resources = new ComponentResourceManager(typeof(PhotobucketPlugin));
 
-			PluginUtils.AddToContextMenu(host, itemPlugInConfig);
-			Language.LanguageChanged += new LanguageChangedHandler(OnLanguageChanged);
+			_itemPlugInConfig = new ToolStripMenuItem(Language.GetString("photobucket", LangKey.configure))
+			{
+				Tag = _host,
+				Image = (Image)_resources.GetObject("Photobucket")
+			};
+			_itemPlugInConfig.Click += delegate {
+				_config.ShowConfigDialog();
+			};
+
+			PluginUtils.AddToContextMenu(_host, _itemPlugInConfig);
+			Language.LanguageChanged += OnLanguageChanged;
 			return true;
 		}
 
 		public void OnLanguageChanged(object sender, EventArgs e) {
-			if (itemPlugInConfig != null) {
-				itemPlugInConfig.Text = Language.GetString("photobucket", LangKey.configure);
+			if (_itemPlugInConfig != null) {
+				_itemPlugInConfig.Text = Language.GetString("photobucket", LangKey.configure);
 			}
 		}
 
 		public virtual void Shutdown() {
-			LOG.Debug("Photobucket Plugin shutdown.");
-			Language.LanguageChanged -= new LanguageChangedHandler(OnLanguageChanged);
+			Log.Debug("Photobucket Plugin shutdown.");
+			Language.LanguageChanged -= OnLanguageChanged;
 		}
 
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
 		public virtual void Configure() {
-			config.ShowConfigDialog();
+			_config.ShowConfigDialog();
 		}
 
-		/// <summary>
-		/// This will be called when Greenshot is shutting down
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		public void Closing(object sender, FormClosingEventArgs e) {
-			LOG.Debug("Application closing, de-registering Photobucket Plugin!");
-			Shutdown();
-		}
-		
 		/// <summary>
 		/// Upload the capture to Photobucket
 		/// </summary>
 		/// <param name="captureDetails"></param>
 		/// <param name="surfaceToUpload">ISurface</param>
-		/// <param name="uploadURL">out string for the url</param>
+		/// <param name="albumPath">Path to the album</param>
+		/// <param name="uploadUrl">out string for the url</param>
 		/// <returns>true if the upload succeeded</returns>
-		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, string albumPath, out string uploadURL) {
-			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(config.UploadFormat, config.UploadJpegQuality, config.UploadReduceColors);
+		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, string albumPath, out string uploadUrl) {
+			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, _config.UploadReduceColors);
 			try {
-				string filename = Path.GetFileName(FilenameHelper.GetFilename(config.UploadFormat, captureDetails));
+				string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
 				PhotobucketInfo photobucketInfo = null;
 			
 				// Run upload in the background
 				new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("photobucket", LangKey.communication_wait), 
-					delegate() {
+					delegate {
 						photobucketInfo = PhotobucketUtils.UploadToPhotobucket(surfaceToUpload, outputSettings, albumPath, captureDetails.Title, filename);
 					}
 				);
 				// This causes an exeption if the upload failed :)
-				LOG.DebugFormat("Uploaded to Photobucket page: " + photobucketInfo.Page);
-				uploadURL = null;
+				Log.DebugFormat("Uploaded to Photobucket page: " + photobucketInfo.Page);
+				uploadUrl = null;
 				try {
-					if (config.UsePageLink) {
-						uploadURL = photobucketInfo.Page;
+					if (_config.UsePageLink) {
+						uploadUrl = photobucketInfo.Page;
 						Clipboard.SetText(photobucketInfo.Page);
 					} else {
-						uploadURL = photobucketInfo.Original;
+						uploadUrl = photobucketInfo.Original;
 						Clipboard.SetText(photobucketInfo.Original);
 					}
 				} catch (Exception ex) {
-					LOG.Error("Can't write to clipboard: ", ex);
+					Log.Error("Can't write to clipboard: ", ex);
 				}
 				return true;
 			} catch (Exception e) {
-				LOG.Error(e);
+				Log.Error(e);
 				MessageBox.Show(Language.GetString("photobucket", LangKey.upload_failure) + " " + e.Message);
 			}
-			uploadURL = null;
+			uploadUrl = null;
 			return false;
 		}
 	}

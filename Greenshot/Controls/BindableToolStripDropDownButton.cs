@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,9 +38,6 @@ namespace Greenshot.Controls {
 			set;
 		}
 
-		public BindableToolStripDropDownButton() {
-		}
-		
 		public object SelectedTag {
 			get { if(Tag==null && DropDownItems.Count>0) Tag=DropDownItems[0].Tag; return Tag; }
 			set { AdoptFromTag(value); }
@@ -51,7 +48,7 @@ namespace Greenshot.Controls {
 			if(Tag == null || !Tag.Equals(clickedItem.Tag)) {
 				Tag = clickedItem.Tag;   
 				Image = clickedItem.Image;
-				if(PropertyChanged != null) PropertyChanged(this, new PropertyChangedEventArgs("SelectedTag"));
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedTag"));
 			}
 			base.OnDropDownItemClicked(e);
 		}
@@ -66,7 +63,7 @@ namespace Greenshot.Controls {
 					}
 				}
 				Tag = tag;
-				if(PropertyChanged != null) PropertyChanged(this, new PropertyChangedEventArgs("SelectedTag"));
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedTag"));
 			}
 		}
 	}

@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,11 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Drawing;
 using System.Runtime.Serialization;
 
 using Greenshot.Drawing.Fields;
 using Greenshot.Drawing.Filters;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -43,8 +43,8 @@ namespace Greenshot.Drawing {
 			AddField(GetType(), FieldType.PREPARED_FILTER_HIGHLIGHT, PreparedFilter.TEXT_HIGHTLIGHT);
 		}
 
-		[OnDeserialized]
-		private void OnDeserialized(StreamingContext context) {
+		protected override void OnDeserialized(StreamingContext context)
+		{
 			Init();
 		}
 		
@@ -57,7 +57,7 @@ namespace Greenshot.Drawing {
 			if (!sender.Equals(this)) {
 				return;
 			}
-			if (e.Field.FieldType == FieldType.PREPARED_FILTER_HIGHLIGHT) {
+			if (Equals(e.Field.FieldType, FieldType.PREPARED_FILTER_HIGHLIGHT)) {
 				ConfigurePreparedFilters();
 			}
 		}
@@ -72,12 +72,16 @@ namespace Greenshot.Drawing {
 					Add(new HighlightFilter(this));
 					break;
 				case PreparedFilter.AREA_HIGHLIGHT:
-					AbstractFilter bf = new BrightnessFilter(this);
-					bf.Invert = true;
-					Add(bf);
-					bf = new BlurFilter(this);
-					bf.Invert = true;
-					Add(bf);
+					var brightnessFilter = new BrightnessFilter(this)
+					{
+						Invert = true
+					};
+					Add(brightnessFilter);
+					var blurFilter = new BlurFilter(this)
+					{
+						Invert = true
+					};
+					Add(blurFilter);
 					break;
 				case PreparedFilter.GRAYSCALE:
 					AbstractFilter f = new GrayscaleFilter(this);

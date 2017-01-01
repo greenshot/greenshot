@@ -27,8 +27,8 @@ using System.Drawing.Imaging;
 using System.IO;
 using Greenshot.IniFile;
 using GreenshotPlugin.UnmanagedHelpers;
-using Greenshot.Core;
 using Greenshot.Plugin;
+using GreenshotPlugin.Effects;
 using log4net;
 
 namespace GreenshotPlugin.Core {
@@ -690,7 +690,7 @@ namespace GreenshotPlugin.Core {
 			// By the central limit theorem, if applied 3 times on the same image, a box blur approximates the Gaussian kernel to within about 3%, yielding the same result as a quadratic convolution kernel.
 			// This might be true, but the GDI+ BlurEffect doesn't look the same, a 2x blur is more simular and we only make 2x Box-Blur.
 			// (Might also be a mistake in our blur, but for now it looks great)
-			if (fastBitmap.hasAlphaChannel)
+			if (fastBitmap.HasAlphaChannel)
 			{
 				BoxBlurHorizontalAlpha(fastBitmap, range);
 				BoxBlurVerticalAlpha(fastBitmap, range);
@@ -713,7 +713,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="range">Range must be odd!</param>
 		private static void BoxBlurHorizontal(IFastBitmap targetFastBitmap, int range)
 		{
-			if (targetFastBitmap.hasAlphaChannel)
+			if (targetFastBitmap.HasAlphaChannel)
 			{
 				throw new NotSupportedException("BoxBlurHorizontal should NOT be called for bitmaps with alpha channel");
 			}
@@ -732,9 +732,9 @@ namespace GreenshotPlugin.Core {
 					if (oldPixel >= targetFastBitmap.Left)
 					{
 						targetFastBitmap.GetColorAt(oldPixel, y, tmpColor);
-						r -= tmpColor[FastBitmap.COLOR_INDEX_R];
-						g -= tmpColor[FastBitmap.COLOR_INDEX_G];
-						b -= tmpColor[FastBitmap.COLOR_INDEX_B];
+						r -= tmpColor[FastBitmap.ColorIndexR];
+						g -= tmpColor[FastBitmap.ColorIndexG];
+						b -= tmpColor[FastBitmap.ColorIndexB];
 						hits--;
 					}
 
@@ -742,9 +742,9 @@ namespace GreenshotPlugin.Core {
 					if (newPixel < targetFastBitmap.Right)
 					{
 						targetFastBitmap.GetColorAt(newPixel, y, tmpColor);
-						r += tmpColor[FastBitmap.COLOR_INDEX_R];
-						g += tmpColor[FastBitmap.COLOR_INDEX_G];
-						b += tmpColor[FastBitmap.COLOR_INDEX_B];
+						r += tmpColor[FastBitmap.ColorIndexR];
+						g += tmpColor[FastBitmap.ColorIndexG];
+						b += tmpColor[FastBitmap.ColorIndexB];
 						hits++;
 					}
 
@@ -766,7 +766,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="range">Range must be odd!</param>
 		private static void BoxBlurHorizontalAlpha(IFastBitmap targetFastBitmap, int range)
 		{
-			if (!targetFastBitmap.hasAlphaChannel)
+			if (!targetFastBitmap.HasAlphaChannel)
 			{
 				throw new NotSupportedException("BoxBlurHorizontalAlpha should be called for bitmaps with alpha channel");
 			}
@@ -786,10 +786,10 @@ namespace GreenshotPlugin.Core {
 					if (oldPixel >= targetFastBitmap.Left)
 					{
 						targetFastBitmap.GetColorAt(oldPixel, y, tmpColor);
-						a -= tmpColor[FastBitmap.COLOR_INDEX_A];
-						r -= tmpColor[FastBitmap.COLOR_INDEX_R];
-						g -= tmpColor[FastBitmap.COLOR_INDEX_G];
-						b -= tmpColor[FastBitmap.COLOR_INDEX_B];
+						a -= tmpColor[FastBitmap.ColorIndexA];
+						r -= tmpColor[FastBitmap.ColorIndexR];
+						g -= tmpColor[FastBitmap.ColorIndexG];
+						b -= tmpColor[FastBitmap.ColorIndexB];
 						hits--;
 					}
 
@@ -797,10 +797,10 @@ namespace GreenshotPlugin.Core {
 					if (newPixel < targetFastBitmap.Right)
 					{
 						targetFastBitmap.GetColorAt(newPixel, y, tmpColor);
-						a += tmpColor[FastBitmap.COLOR_INDEX_A];
-						r += tmpColor[FastBitmap.COLOR_INDEX_R];
-						g += tmpColor[FastBitmap.COLOR_INDEX_G];
-						b += tmpColor[FastBitmap.COLOR_INDEX_B];
+						a += tmpColor[FastBitmap.ColorIndexA];
+						r += tmpColor[FastBitmap.ColorIndexR];
+						g += tmpColor[FastBitmap.ColorIndexG];
+						b += tmpColor[FastBitmap.ColorIndexB];
 						hits++;
 					}
 
@@ -823,7 +823,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="range">Range must be odd!</param>
 		private static void BoxBlurVertical(IFastBitmap targetFastBitmap, int range)
 		{
-			if (targetFastBitmap.hasAlphaChannel)
+			if (targetFastBitmap.HasAlphaChannel)
 			{
 				throw new NotSupportedException("BoxBlurVertical should NOT be called for bitmaps with alpha channel");
 			}
@@ -842,9 +842,9 @@ namespace GreenshotPlugin.Core {
 					if (oldPixel >= targetFastBitmap.Top)
 					{
 						targetFastBitmap.GetColorAt(x, oldPixel, tmpColor);
-						r -= tmpColor[FastBitmap.COLOR_INDEX_R];
-						g -= tmpColor[FastBitmap.COLOR_INDEX_G];
-						b -= tmpColor[FastBitmap.COLOR_INDEX_B];
+						r -= tmpColor[FastBitmap.ColorIndexR];
+						g -= tmpColor[FastBitmap.ColorIndexG];
+						b -= tmpColor[FastBitmap.ColorIndexB];
 						hits--;
 					}
 
@@ -852,9 +852,9 @@ namespace GreenshotPlugin.Core {
 					if (newPixel < targetFastBitmap.Bottom)
 					{
 						targetFastBitmap.GetColorAt(x, newPixel, tmpColor);
-						r += tmpColor[FastBitmap.COLOR_INDEX_R];
-						g += tmpColor[FastBitmap.COLOR_INDEX_G];
-						b += tmpColor[FastBitmap.COLOR_INDEX_B];
+						r += tmpColor[FastBitmap.ColorIndexR];
+						g += tmpColor[FastBitmap.ColorIndexG];
+						b += tmpColor[FastBitmap.ColorIndexB];
 						hits++;
 					}
 
@@ -878,7 +878,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="range">Range must be odd!</param>
 		private static void BoxBlurVerticalAlpha(IFastBitmap targetFastBitmap, int range)
 		{
-			if (!targetFastBitmap.hasAlphaChannel)
+			if (!targetFastBitmap.HasAlphaChannel)
 			{
 				throw new NotSupportedException("BoxBlurVerticalAlpha should be called for bitmaps with alpha channel");
 			}
@@ -899,10 +899,10 @@ namespace GreenshotPlugin.Core {
 					if (oldPixel >= targetFastBitmap.Top)
 					{
 						targetFastBitmap.GetColorAt(x, oldPixel, tmpColor);
-						a -= tmpColor[FastBitmap.COLOR_INDEX_A];
-						r -= tmpColor[FastBitmap.COLOR_INDEX_R];
-						g -= tmpColor[FastBitmap.COLOR_INDEX_G];
-						b -= tmpColor[FastBitmap.COLOR_INDEX_B];
+						a -= tmpColor[FastBitmap.ColorIndexA];
+						r -= tmpColor[FastBitmap.ColorIndexR];
+						g -= tmpColor[FastBitmap.ColorIndexG];
+						b -= tmpColor[FastBitmap.ColorIndexB];
 						hits--;
 					}
 
@@ -911,10 +911,10 @@ namespace GreenshotPlugin.Core {
 					{
 						//int colorg = pixels[index + newPixelOffset];
 						targetFastBitmap.GetColorAt(x, newPixel, tmpColor);
-						a += tmpColor[FastBitmap.COLOR_INDEX_A];
-						r += tmpColor[FastBitmap.COLOR_INDEX_R];
-						g += tmpColor[FastBitmap.COLOR_INDEX_G];
-						b += tmpColor[FastBitmap.COLOR_INDEX_B];
+						a += tmpColor[FastBitmap.ColorIndexA];
+						r += tmpColor[FastBitmap.ColorIndexR];
+						g += tmpColor[FastBitmap.ColorIndexG];
+						b += tmpColor[FastBitmap.ColorIndexB];
 						hits++;
 					}
 

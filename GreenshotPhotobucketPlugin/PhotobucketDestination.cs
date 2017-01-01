@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +21,6 @@
 using System.ComponentModel;
 using System.Collections.Generic;
 using System.Drawing;
-
-using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 
@@ -31,10 +29,8 @@ namespace GreenshotPhotobucketPlugin  {
 	/// Description of PhotobucketDestination.
 	/// </summary>
 	public class PhotobucketDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PhotobucketDestination));
-		private static PhotobucketConfiguration config = IniConfig.GetIniSection<PhotobucketConfiguration>();
-		private PhotobucketPlugin plugin = null;
-		private string albumPath = null;
+		private readonly PhotobucketPlugin _plugin;
+		private readonly string _albumPath;
 
 		/// <summary>
 		/// Create a Photobucket destination, which also has the path to the album in it
@@ -42,20 +38,16 @@ namespace GreenshotPhotobucketPlugin  {
 		/// <param name="plugin"></param>
 		/// <param name="albumPath">path to the album, null for default</param>
 		public PhotobucketDestination(PhotobucketPlugin plugin, string albumPath) {
-			this.plugin = plugin;
-			this.albumPath = albumPath;
+			_plugin = plugin;
+			_albumPath = albumPath;
 		}
 		
-		public override string Designation {
-			get {
-				return "Photobucket";
-			}
-		}
+		public override string Designation => "Photobucket";
 
 		public override string Description {
 			get {
-				if (albumPath != null) {
-					return albumPath;
+				if (_albumPath != null) {
+					return _albumPath;
 				}
 				return Language.GetString("photobucket", LangKey.upload_menu_item);
 			}
@@ -68,24 +60,23 @@ namespace GreenshotPhotobucketPlugin  {
 			}
 		}
 		
-		public override bool isDynamic {
-			get {
-				return true;
-			}
-		}
+		public override bool IsDynamic => true;
 
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			List<string> albums = null;
+			IList<string> albums = null;
 			try {
 				albums = PhotobucketUtils.RetrievePhotobucketAlbums();
-			} catch {
+			}
+			catch
+			{
+				// ignored
 			}
 
 			if (albums == null || albums.Count == 0) {
 				yield break;
 			}
 			foreach (string album in albums) {
-				yield return new PhotobucketDestination(plugin, album);
+				yield return new PhotobucketDestination(_plugin, album);
 			}
 		}
 
@@ -97,12 +88,12 @@ namespace GreenshotPhotobucketPlugin  {
 		/// <param name="captureDetails"></param>
 		/// <returns></returns>
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
-			string uploadURL = null;
-			bool uploaded = plugin.Upload(captureDetails, surface, albumPath, out uploadURL);
+			ExportInformation exportInformation = new ExportInformation(Designation, Description);
+			string uploadUrl;
+			bool uploaded = _plugin.Upload(captureDetails, surface, _albumPath, out uploadUrl);
 			if (uploaded) {
 				exportInformation.ExportMade = true;
-				exportInformation.Uri = uploadURL;
+				exportInformation.Uri = uploadUrl;
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

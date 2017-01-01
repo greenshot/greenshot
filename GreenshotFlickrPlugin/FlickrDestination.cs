@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,27 +22,17 @@ using System.ComponentModel;
 using System.Drawing;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using log4net;
 
 namespace GreenshotFlickrPlugin {
 	public class FlickrDestination : AbstractDestination {
-		private static ILog LOG = LogManager.GetLogger(typeof(FlickrDestination));
-		private FlickrPlugin plugin;
+		private readonly FlickrPlugin _plugin;
 		public FlickrDestination(FlickrPlugin plugin) {
-			this.plugin = plugin;
+			_plugin = plugin;
 		}
 
-		public override string Designation {
-			get {
-				return "Flickr";
-			}
-		}
+		public override string Designation => "Flickr";
 
-		public override string Description {
-			get {
-				return Language.GetString("flickr", LangKey.upload_menu_item);
-			}
-		}
+		public override string Description => Language.GetString("flickr", LangKey.upload_menu_item);
 
 		public override Image DisplayIcon {
 			get {
@@ -53,11 +43,11 @@ namespace GreenshotFlickrPlugin {
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
-			string uploadURL;
-			bool uploaded = plugin.Upload(captureDetails, surface, out uploadURL);
+			string uploadUrl;
+			bool uploaded = _plugin.Upload(captureDetails, surface, out uploadUrl);
 			if (uploaded) {
 				exportInformation.ExportMade = true;
-				exportInformation.Uri = uploadURL;
+				exportInformation.Uri = uploadUrl;
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,16 +18,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 
 namespace Greenshot.Interop {
 	/// <summary>
 	/// An attribute to specifiy the ProgID of the COM class to create. (As suggested by Kristen Wegner)
 	/// </summary>
-	[AttributeUsage(AttributeTargets.Interface, Inherited = false, AllowMultiple = false)]
+	[AttributeUsage(AttributeTargets.Interface)]
 	public sealed class ComProgIdAttribute : Attribute {
-		private string _value;
-
 		/// <summary>
 		/// Extracts the attribute from the specified type.
 		/// </summary>
@@ -42,24 +41,24 @@ namespace Greenshot.Interop {
 		/// </exception>
 		public static ComProgIdAttribute GetAttribute(Type interfaceType) {
 			if (null == interfaceType) {
-				throw new ArgumentNullException("interfaceType");
+				throw new ArgumentNullException(nameof(interfaceType));
 			}
 
 			Type attributeType = typeof(ComProgIdAttribute);
 			object[] attributes = interfaceType.GetCustomAttributes(attributeType, false);
 
-			if (null == attributes || 0 == attributes.Length) {
+			if (0 == attributes.Length) {
 				Type[] interfaces = interfaceType.GetInterfaces();
 				for (int i = 0; i < interfaces.Length; i++) {
 					interfaceType = interfaces[i];
 					attributes = interfaceType.GetCustomAttributes(attributeType, false);
-					if (null != attributes && 0 != attributes.Length) {
+					if (0 != attributes.Length) {
 						break;
 					}
 				}
 			}
 
-			if (null == attributes || 0 == attributes.Length) {
+			if (0 == attributes.Length) {
 				return null;
 			}
 			return (ComProgIdAttribute)attributes[0];
@@ -68,16 +67,12 @@ namespace Greenshot.Interop {
 		/// <summary>Constructor</summary>
 		/// <param name="value">The COM ProgID.</param>
 		public ComProgIdAttribute(string value) {
-			_value = value;
+			Value = value;
 		}
 
 		/// <summary>
 		/// Returns the COM ProgID
 		/// </summary>
-		public string Value {
-			get {
-				return _value;
-			}
-		}
+		public string Value { get; }
 	}
 }

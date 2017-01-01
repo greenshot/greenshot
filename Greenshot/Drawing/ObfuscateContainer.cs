@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ using System;
 using System.Runtime.Serialization;
 using Greenshot.Drawing.Fields;
 using Greenshot.Drawing.Filters;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -37,20 +38,21 @@ namespace Greenshot.Drawing {
 			base.InitializeFields();
 			AddField(GetType(), FieldType.PREPARED_FILTER_OBFUSCATE, PreparedFilter.PIXELIZE);
 		}
-		
-		[OnDeserialized]
-		private void OnDeserialized(StreamingContext context) {
+
+		protected override void OnDeserialized(StreamingContext context)
+		{
 			Init();
 		}
 		
 		private void Init() {
 			FieldChanged += ObfuscateContainer_OnFieldChanged;
 			ConfigurePreparedFilters();
+			CreateDefaultAdorners();
 		}	
 		
 		protected void ObfuscateContainer_OnFieldChanged(object sender, FieldChangedEventArgs e) {
 			if(sender.Equals(this)) {
-				if(e.Field.FieldType == FieldType.PREPARED_FILTER_OBFUSCATE) {
+				if(Equals(e.Field.FieldType, FieldType.PREPARED_FILTER_OBFUSCATE)) {
 					ConfigurePreparedFilters();
 				}
 			}

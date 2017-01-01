@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,75 +25,28 @@ using System.Windows.Forms;
 
 namespace Greenshot.Plugin {
 	public class ExportInformation {
-		private string uri = null;
-		private string filepath = null;
-
-		private bool exportMade = false;
-		private string destinationDesignation = null;
-		private string destinationDescription = null;
-
-		private string errorMessage = null;
-
 		public ExportInformation(string destinationDesignation, string destinationDescription) {
-			this.destinationDesignation = destinationDesignation;
-			this.destinationDescription = destinationDescription;
+			DestinationDesignation = destinationDesignation;
+			DestinationDescription = destinationDescription;
 		}
 		public ExportInformation(string destinationDesignation, string destinationDescription, bool exportMade): this(destinationDesignation, destinationDescription) {
-			this.exportMade = exportMade;
+			ExportMade = exportMade;
 		}
 
-		public string DestinationDesignation {
-			get {
-				return destinationDesignation;
-			}
-		}
-		public string DestinationDescription {
-			get {
-				return destinationDescription;
-			}
-			set {
-				destinationDescription = value;
-			}
-		}
+		public string DestinationDesignation { get; }
+
+		public string DestinationDescription { get; set; }
 
 		/// <summary>
 		/// Set to true to specify if the export worked.
 		/// </summary>
-		public bool ExportMade {
-			get {
-				return exportMade;
-			}
-			set {
-				exportMade = value;
-			}
-		}
+		public bool ExportMade { get; set; }
 
-		public string Uri {
-			get {
-				return uri;
-			}
-			set {
-				uri = value;
-			}
-		}
+		public string Uri { get; set; }
 
-		public string ErrorMessage {
-			get {
-				return errorMessage;
-			}
-			set {
-				errorMessage = value;
-			}
-		}
+		public string ErrorMessage { get; set; }
 
-		public string Filepath {
-			get {
-				return filepath;
-			}
-			set {
-				filepath = value;
-			}
-		}
+		public string Filepath { get; set; }
 	}
 
 	/// <summary>
@@ -131,7 +84,7 @@ namespace Greenshot.Plugin {
 		/// <summary>
 		/// Returns if the destination is active
 		/// </summary>
-		bool isActive {
+		bool IsActive {
 			get;
 		}
 
@@ -139,7 +92,7 @@ namespace Greenshot.Plugin {
 		/// Return a menu item
 		/// </summary>
 		/// <param name="addDynamics">Resolve the dynamic destinations too?</param>
-		/// <param name="ContextMenuStrip">The menu for which the item is created</param>
+		/// <param name="menu">The menu for which the item is created</param>
 		/// <param name="destinationClickHandler">Handler which is called when clicked</param>
 		/// <returns>ToolStripMenuItem</returns>
 		ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler);
@@ -159,21 +112,21 @@ namespace Greenshot.Plugin {
 		/// <summary>
 		/// Returns true if this destination can be dynamic
 		/// </summary>
-		bool isDynamic {
+		bool IsDynamic {
 			get;
 		}
 
 		/// <summary>
 		/// Returns if the destination is active
 		/// </summary>
-		bool useDynamicsOnly {
+		bool UseDynamicsOnly {
 			get;
 		}
 
 		/// <summary>
 		/// Returns true if this destination returns a link
 		/// </summary>
-		bool isLinkable {
+		bool IsLinkable {
 			get;
 		}
 

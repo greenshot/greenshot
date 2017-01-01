@@ -1,9 +1,9 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ namespace Greenshot.Drawing {
 	[Serializable()] 
 	public class EllipseContainer : DrawableContainer {
 		public EllipseContainer(Surface parent) : base(parent) {
+			CreateDefaultAdorners();
 		}
 
 		protected override void InitializeFields() {
@@ -59,12 +60,15 @@ namespace Greenshot.Drawing {
 		/// <summary>
 		/// This allows another container to draw an ellipse
 		/// </summary>
-		/// <param name="caller"></param>
+		/// <param name="rect"></param>
 		/// <param name="graphics"></param>
 		/// <param name="renderMode"></param>
+		/// <param name="lineThickness"></param>
+		/// <param name="lineColor"></param>
+		/// <param name="fillColor"></param>
+		/// <param name="shadow"></param>
 		public static void DrawEllipse(Rectangle rect, Graphics graphics, RenderMode renderMode, int lineThickness, Color lineColor, Color fillColor, bool shadow) {
-
-			bool lineVisible = (lineThickness > 0 && Colors.IsVisible(lineColor));
+			bool lineVisible = lineThickness > 0 && Colors.IsVisible(lineColor);
 			// draw shadow before anything else
 			if (shadow && (lineVisible || Colors.IsVisible(fillColor))) {
 				int basealpha = 100;

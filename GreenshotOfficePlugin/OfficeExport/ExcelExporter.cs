@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,24 +20,19 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Reflection;
-
-using Greenshot.Interop;
 using System.Drawing;
-using GreenshotOfficePlugin;
-using Greenshot.IniFile;
+using GreenshotPlugin.Core;
 
 namespace Greenshot.Interop.Office {
 	public class ExcelExporter {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExcelExporter));
-		private static readonly OfficeConfiguration officeConfiguration = IniConfig.GetIniSection<OfficeConfiguration>();
-		private static Version excelVersion;
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ExcelExporter));
+		private static Version _excelVersion;
 
 		/// <summary>
 		/// Get all currently opened workbooks
 		/// </summary>
-		/// <returns>List<string> with names of the workbooks</returns>
+		/// <returns>List of string with names of the workbooks</returns>
 		public static List<string> GetWorkbooks() {
 			List<string> currentWorkbooks = new List<string>();
 			using (IExcelApplication excelApplication = GetExcelApplication()) {
@@ -63,6 +58,7 @@ namespace Greenshot.Interop.Office {
 		/// </summary>
 		/// <param name="workbookName"></param>
 		/// <param name="tmpFile"></param>
+		/// <param name="imageSize"></param>
 		public static void InsertIntoExistingWorkbook(string workbookName, string tmpFile, Size imageSize) {
 			using (IExcelApplication excelApplication = GetExcelApplication()) {
 				if (excelApplication == null) {
@@ -76,6 +72,11 @@ namespace Greenshot.Interop.Office {
 							}
 						}
 					}
+				}
+				int hWnd = excelApplication.Hwnd;
+				if (hWnd > 0)
+				{
+					WindowDetails.ToForeground(new IntPtr(hWnd));
 				}
 			}
 		}
@@ -150,16 +151,16 @@ namespace Greenshot.Interop.Office {
 		/// </summary>
 		/// <param name="excelApplication"></param>
 		private static void InitializeVariables(IExcelApplication excelApplication) {
-			if (excelApplication == null || excelVersion != null) {
+			if (excelApplication == null || _excelVersion != null) {
 				return;
 			}
 			try {
-				excelVersion = new Version(excelApplication.Version);
-				LOG.InfoFormat("Using Excel {0}", excelVersion);
+				_excelVersion = new Version(excelApplication.Version);
+				Log.InfoFormat("Using Excel {0}", _excelVersion);
 			} catch (Exception exVersion) {
-				LOG.Error(exVersion);
-				LOG.Warn("Assuming Excel version 1997.");
-				excelVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
+				Log.Error(exVersion);
+				Log.Warn("Assuming Excel version 1997.");
+				_excelVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
 			}
 		}
 	}

@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,11 +21,11 @@
 
 using System.ComponentModel;
 using System.Drawing;
-
-using Greenshot.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
+using GreenshotPlugin.Interfaces.Drawing;
 
-namespace Greenshot.Drawing.Filters {
+namespace Greenshot.Drawing.Filters
+{
 	public interface IFilter : INotifyPropertyChanged, IFieldHolder {
 		DrawableContainer Parent {get; set; }
 		void Apply(Graphics graphics, Bitmap bmp, Rectangle rect, RenderMode renderMode);

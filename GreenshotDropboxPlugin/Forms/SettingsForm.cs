@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,20 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Windows.Forms;
 using GreenshotDropboxPlugin.Forms;
-using GreenshotPlugin.Core;
-using Greenshot.IniFile;
 
 namespace GreenshotDropboxPlugin {
 	/// <summary>
 	/// Description of PasswordRequestForm.
 	/// </summary>
 	public partial class SettingsForm : DropboxForm {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(SettingsForm));
-		private static DropboxPluginConfiguration config = IniConfig.GetIniSection<DropboxPluginConfiguration>();
-
 		public SettingsForm() {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.

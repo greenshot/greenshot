@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,11 +32,11 @@ namespace Greenshot.Destinations {
 	/// Description of EditorDestination.
 	/// </summary>
 	public class EditorDestination : AbstractDestination {
-		private static ILog LOG = LogManager.GetLogger(typeof(EditorDestination));
-		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(EditorDestination));
+		private static readonly EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
 		public const string DESIGNATION = "Editor";
-		private IImageEditor editor = null;
-		private static Image greenshotIcon = GreenshotResources.getGreenshotIcon().ToBitmap();
+		private readonly IImageEditor editor;
+		private static readonly Image greenshotIcon = GreenshotResources.getGreenshotIcon().ToBitmap();
 
 		public EditorDestination() {
 		}
@@ -66,7 +66,7 @@ namespace Greenshot.Destinations {
 			}
 		}
 
-		public override bool isDynamic {
+		public override bool IsDynamic {
 			get {
 				return true;
 			}
@@ -79,8 +79,8 @@ namespace Greenshot.Destinations {
 		}
 
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			foreach (IImageEditor editor in ImageEditorForm.Editors) {
-				yield return new EditorDestination(editor);
+			foreach (IImageEditor someEditor in ImageEditorForm.Editors) {
+				yield return new EditorDestination(someEditor);
 			}
 		}
 

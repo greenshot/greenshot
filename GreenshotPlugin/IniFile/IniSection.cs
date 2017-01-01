@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,9 +34,9 @@ namespace Greenshot.IniFile {
 		protected static ILog LOG = LogManager.GetLogger(typeof(IniSection));
 
 		[NonSerialized]
-		private IDictionary<string, IniValue> values = new Dictionary<string, IniValue>();
+		private readonly IDictionary<string, IniValue> values = new Dictionary<string, IniValue>();
 		[NonSerialized]
-		private IniSectionAttribute iniSectionAttribute = null;
+		private IniSectionAttribute iniSectionAttribute;
 		public IniSectionAttribute IniSectionAttribute {
 			get {
 				if (iniSectionAttribute == null) {
@@ -120,7 +120,7 @@ namespace Greenshot.IniFile {
 		/// Fill the section with the supplied properties
 		/// </summary>
 		/// <param name="properties"></param>
-		public void Fill(Dictionary<string, string> properties) {
+		public void Fill(IDictionary<string, string> properties) {
 			Type iniSectionType = GetType();
 
 			// Iterate over the members and create IniValueContainers

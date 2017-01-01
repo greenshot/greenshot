@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,17 +21,16 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Windows.Forms;
 
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
-using Greenshot.Core;
+using GreenshotPlugin.Effects;
 
 namespace Greenshot.Plugin {
 	[Serializable]
 	[AttributeUsage(AttributeTargets.Assembly, Inherited = false, AllowMultiple = false)]
-	sealed public class PluginAttribute : Attribute, IComparable {
+	public sealed class PluginAttribute : Attribute, IComparable {
 		public string Name {
 			get;
 			set;
@@ -76,16 +75,15 @@ namespace Greenshot.Plugin {
 	public delegate void HotKeyHandler();
 
 	public class SurfaceOutputSettings {
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-		private bool reduceColors;
-		private bool disableReduceColors;
-		private List<IEffect> effects = new List<IEffect>();
+		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+		private bool _reduceColors;
+		private bool _disableReduceColors;
 
 		public SurfaceOutputSettings() {
-			disableReduceColors = false;
-			Format = conf.OutputFileFormat;
-			JPGQuality = conf.OutputFileJpegQuality;
-			ReduceColors = conf.OutputFileReduceColors;
+			_disableReduceColors = false;
+			Format = CoreConfig.OutputFileFormat;
+			JPGQuality = CoreConfig.OutputFileJpegQuality;
+			ReduceColors = CoreConfig.OutputFileReduceColors;
 		}
 
 		public SurfaceOutputSettings(OutputFormat format) : this() {
@@ -122,11 +120,7 @@ namespace Greenshot.Plugin {
 			set;
 		}
 
-		public List<IEffect> Effects {
-			get {
-				return effects;
-			}
-		}
+		public List<IEffect> Effects { get; } = new List<IEffect>();
 
 		public bool ReduceColors {
 				get {
@@ -134,10 +128,10 @@ namespace Greenshot.Plugin {
 					if (OutputFormat.gif.Equals(Format)) {
 						return true;
 					}
-					return reduceColors;
+					return _reduceColors;
 				}
 				set {
-					reduceColors = value;
+					_reduceColors = value;
 				}
 		}
 
@@ -146,12 +140,12 @@ namespace Greenshot.Plugin {
 		/// </summary>
 		public bool DisableReduceColors {
 			get {
-				return disableReduceColors;
+				return _disableReduceColors;
 			}
 			set {
 				// Quantizing os needed when output format is gif as this has only 256 colors!
 				if (!OutputFormat.gif.Equals(Format)) {
-					disableReduceColors = value;
+					_disableReduceColors = value;
 				}
 			}
 		}
@@ -174,10 +168,13 @@ namespace Greenshot.Plugin {
 		NotifyIcon NotifyIcon {
 			get;
 		}
+
 		/// <summary>
 		/// Create a Thumbnail
 		/// </summary>
 		/// <param name="image">Image of which we need a Thumbnail</param>
+		/// <param name="width"></param>
+		/// <param name="height"></param>
 		/// <returns>Image with Thumbnail</returns>
 		Image GetThumbnail(Image image, int width, int height);
 		
@@ -192,14 +189,14 @@ namespace Greenshot.Plugin {
 		/// <summary>
 		/// Get a destination by it's designation
 		/// </summary>
-		/// <param name="destination"></param>
+		/// <param name="designation"></param>
 		/// <returns>IDestination</returns>
 		IDestination GetDestination(string designation);
 
 		/// <summary>
 		/// Get a list of all available destinations
 		/// </summary>
-		/// <returns>List<IDestination></returns>
+		/// <returns>List of IDestination</returns>
 		List<IDestination> GetAllDestinations();
 
 		/// <summary>

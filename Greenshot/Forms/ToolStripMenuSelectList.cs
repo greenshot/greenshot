@@ -1,9 +1,9 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,11 +31,11 @@ namespace Greenshot.Forms {
 	/// <summary>
 	/// the ToolStripMenuSelectList makes it possible to have a single or multi-check menu
 	/// </summary>
-	public class ToolStripMenuSelectList : ToolStripMenuItem {
-		private static CoreConfiguration coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
-		private bool multiCheckAllowed = false;
-		private bool updateInProgress = false;
-		private static Image defaultImage;
+	public sealed class ToolStripMenuSelectList : ToolStripMenuItem {
+		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+		private readonly bool _multiCheckAllowed;
+		private bool _updateInProgress;
+		private static Image _defaultImage;
 
 		/// <summary>
 		/// Occurs when one of the list's child element's Checked state changes.
@@ -49,14 +49,12 @@ namespace Greenshot.Forms {
 		public ToolStripMenuSelectList(object identifier, bool allowMultiCheck) {
 			Identifier = identifier;
 			CheckOnClick = false;
-			multiCheckAllowed = allowMultiCheck;
-			if (defaultImage == null || defaultImage.Size != coreConfiguration.IconSize) {
-				if (defaultImage != null) {
-					defaultImage.Dispose();
-				}
-				defaultImage = ImageHelper.CreateEmpty(coreConfiguration.IconSize.Width, coreConfiguration.IconSize.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb, Color.Transparent, 96f, 96f);
+			_multiCheckAllowed = allowMultiCheck;
+			if (_defaultImage == null || _defaultImage.Size != CoreConfig.IconSize) {
+				_defaultImage?.Dispose();
+				_defaultImage = ImageHelper.CreateEmpty(CoreConfig.IconSize.Width, CoreConfig.IconSize.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb, Color.Transparent, 96f, 96f);
 			}
-			Image = defaultImage;
+			Image = _defaultImage;
 		}
 		public ToolStripMenuSelectList() : this(null,false) {}
 		public ToolStripMenuSelectList(object identifier) : this(identifier,false) {}
@@ -70,7 +68,7 @@ namespace Greenshot.Forms {
 				IEnumerator items = DropDownItems.GetEnumerator();
 				while (items.MoveNext()) {
 					ToolStripMenuSelectListItem tsmi = (ToolStripMenuSelectListItem)items.Current;
-					if (tsmi.Checked) {
+					if (tsmi != null && tsmi.Checked) {
 						return tsmi;
 					}
 				}
@@ -80,9 +78,9 @@ namespace Greenshot.Forms {
 				IEnumerator items = DropDownItems.GetEnumerator();
 				while (items.MoveNext()) {
 					ToolStripMenuSelectListItem tsmi = (ToolStripMenuSelectListItem)items.Current;
-					if (!multiCheckAllowed && !tsmi.Equals(value)) {
+					if (tsmi != null && !_multiCheckAllowed && !tsmi.Equals(value)) {
 						tsmi.Checked = false;
-					} else if (tsmi.Equals(value)) {
+					} else if (tsmi != null && tsmi.Equals(value)) {
 						tsmi.Checked = true;
 					}
 				}
@@ -98,30 +96,31 @@ namespace Greenshot.Forms {
 				IEnumerator items = DropDownItems.GetEnumerator();
 				while(items.MoveNext()) {
 					ToolStripMenuSelectListItem tsmi = (ToolStripMenuSelectListItem)items.Current;
-					if (tsmi.Checked) {
+					if (tsmi != null && tsmi.Checked) {
 						sel.Add(tsmi);
 					}
 				}
 				return sel.ToArray();
 			}
 			set {
-				if (!multiCheckAllowed) {
+				if (!_multiCheckAllowed) {
 					throw new ArgumentException("Writing to checkedItems is only allowed in multi-check mode. Either set allowMultiCheck to true or use set SelectedItem instead of SelectedItems.");
 				}
 				IEnumerator items = DropDownItems.GetEnumerator();
 				IEnumerator sel = value.GetEnumerator();
 				while (items.MoveNext()) {
-					ToolStripMenuSelectListItem tsmi = (ToolStripMenuSelectListItem)items.Current;
-					while (sel.MoveNext()) {
-						if (tsmi.Equals(sel.Current)) {
-							tsmi.Checked = true;
-						} else {
-							tsmi.Checked = false;
-						}
-						if (!multiCheckAllowed && !tsmi.Equals(sel.Current)) {
-							tsmi.Checked = false;
-						} else if (tsmi.Equals(value)) {
-							tsmi.Checked = true;
+					var toolStripMenuSelectListItem = (ToolStripMenuSelectListItem)items.Current;
+					if (toolStripMenuSelectListItem == null)
+					{
+						continue;
+					}
+					while (sel.MoveNext())
+					{
+						toolStripMenuSelectListItem.Checked = toolStripMenuSelectListItem.Equals(sel.Current);
+						if (!_multiCheckAllowed && !toolStripMenuSelectListItem.Equals(sel.Current)) {
+							toolStripMenuSelectListItem.Checked = false;
+						} else if (toolStripMenuSelectListItem.Equals(value)) {
+							toolStripMenuSelectListItem.Checked = true;
 						}
 					}
 				}
@@ -129,19 +128,17 @@ namespace Greenshot.Forms {
 		}
 		
 		private void ItemCheckStateChanged(object sender, EventArgs e) {
-			if (updateInProgress) {
+			if (_updateInProgress) {
 				return;
 			}
-			ToolStripMenuSelectListItem tsmi = (ToolStripMenuSelectListItem)sender;
-			updateInProgress = true;
-			if (tsmi.Checked && !multiCheckAllowed) {
+			var toolStripMenuSelectListItem = (ToolStripMenuSelectListItem)sender;
+			_updateInProgress = true;
+			if (toolStripMenuSelectListItem.Checked && !_multiCheckAllowed) {
 				UncheckAll();
-				tsmi.Checked = true;
+				toolStripMenuSelectListItem.Checked = true;
 			}
-			updateInProgress = false;
-			if (CheckedChanged != null) {
-				CheckedChanged(this, new ItemCheckedChangedEventArgs(tsmi));
-			}
+			_updateInProgress = false;
+			CheckedChanged?.Invoke(this, new ItemCheckedChangedEventArgs(toolStripMenuSelectListItem));
 		}
 		
 		/// <summary>
@@ -151,26 +148,28 @@ namespace Greenshot.Forms {
 		/// <param name="image">the icon to be displayed</param>
 		/// <param name="data">the data to be returned when an item is queried</param>
 		/// <param name="isChecked">whether the item is initially checked</param>
-		public void AddItem(string label, Image image, Object data, bool isChecked) {
-			ToolStripMenuSelectListItem newItem = new ToolStripMenuSelectListItem();
-			newItem.Text = label;
+		public void AddItem(string label, Image image, object data, bool isChecked) {
+			var toolStripMenuSelectListItem = new ToolStripMenuSelectListItem
+			{
+				Text = label
+			};
 			if (image == null) {
-				image = defaultImage;
+				image = _defaultImage;
 			}
-			newItem.DisplayStyle = ToolStripItemDisplayStyle.Text;
-			newItem.Image = image;
-			newItem.CheckOnClick = true;
-			newItem.CheckStateChanged += ItemCheckStateChanged;
-			newItem.Data = data;
+			toolStripMenuSelectListItem.DisplayStyle = ToolStripItemDisplayStyle.Text;
+			toolStripMenuSelectListItem.Image = image;
+			toolStripMenuSelectListItem.CheckOnClick = true;
+			toolStripMenuSelectListItem.CheckStateChanged += ItemCheckStateChanged;
+			toolStripMenuSelectListItem.Data = data;
 			if (isChecked) {
-				if (!multiCheckAllowed) {
-					updateInProgress = true;
+				if (!_multiCheckAllowed) {
+					_updateInProgress = true;
 					UncheckAll();
-					updateInProgress = false;
+					_updateInProgress = false;
 				}
-				newItem.Checked = isChecked;
+				toolStripMenuSelectListItem.Checked = true;
 			}
-			DropDownItems.Add(newItem);
+			DropDownItems.Add(toolStripMenuSelectListItem);
 		}
 		
 		/// <summary>
@@ -187,7 +186,7 @@ namespace Greenshot.Forms {
 		/// </summary>
 		/// <param name="label">the label to be displayed</param>
 		/// <param name="data">the data to be returned when an item is queried</param>
-		public void AddItem(string label, Object data) {
+		public void AddItem(string label, object data) {
 			AddItem(label, null, data, false);
 		}
 		
@@ -200,12 +199,11 @@ namespace Greenshot.Forms {
 		}
 		
 			
-		// <summary>
+		/// <summary>
 		/// adds an item to the select list
 		/// </summary>
 		/// <param name="label">the label to be displayed</param>
 		/// <param name="image">the icon to be displayed</param>
-		/// <param name="selected">whether the item is initially selected</param>
 		/// <param name="isChecked">whether the item is initially checked</param>
 		public void AddItem(string label, Image image, bool isChecked) {
 			AddItem(label, image, null, isChecked);
@@ -217,7 +215,7 @@ namespace Greenshot.Forms {
 		/// <param name="label">the label to be displayed</param>
 		/// <param name="data">the data to be returned when an item is queried</param>
 		/// <param name="isChecked">whether the item is initially checked</param>
-		public void AddItem(string label, Object data, bool isChecked) {
+		public void AddItem(string label, object data, bool isChecked) {
 			AddItem(label, null, data, isChecked);
 		}
 		
@@ -235,8 +233,13 @@ namespace Greenshot.Forms {
 		/// </summary>
 		public void UncheckAll() {
 			IEnumerator items = DropDownItems.GetEnumerator();
-			while (items.MoveNext()) {
-				((ToolStripMenuSelectListItem)items.Current).Checked = false;
+			while (items.MoveNext())
+			{
+				var toolStripMenuSelectListItem = (ToolStripMenuSelectListItem)items.Current;
+				if (toolStripMenuSelectListItem != null)
+				{
+					toolStripMenuSelectListItem.Checked = false;
+				}
 			}
 		}
 	}

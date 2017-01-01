@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ namespace GreenshotPlugin.Core {
 	/// Description of InterfaceUtils.
 	/// </summary>
 	public static class InterfaceUtils {
-		private static ILog LOG = LogManager.GetLogger(typeof(InterfaceUtils));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(InterfaceUtils));
 
 		public static List<Type> GetSubclassesOf(Type type, bool excludeSystemTypes) {
 			List<Type> list = new List<Type>();

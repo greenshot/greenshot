@@ -1,9 +1,9 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ using System.Drawing.Drawing2D;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using Greenshot.Plugin.Drawing;
+using System.Runtime.Serialization;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -34,6 +35,22 @@ namespace Greenshot.Drawing {
 	public class RectangleContainer : DrawableContainer {
 
 		public RectangleContainer(Surface parent) : base(parent) {
+			Init();
+		}
+
+		/// <summary>
+		/// Do some logic to make sure all field are initiated correctly
+		/// </summary>
+		/// <param name="streamingContext">StreamingContext</param>
+		protected override void OnDeserialized(StreamingContext streamingContext)
+		{
+			base.OnDeserialized(streamingContext);
+			Init();
+		}
+
+		private void Init()
+		{
+			CreateDefaultAdorners();
 		}
 
 		protected override void InitializeFields() {
@@ -69,7 +86,7 @@ namespace Greenshot.Drawing {
 			graphics.CompositingQuality = CompositingQuality.HighQuality;
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
 
-			bool lineVisible = (lineThickness > 0 && Colors.IsVisible(lineColor));
+			bool lineVisible = lineThickness > 0 && Colors.IsVisible(lineColor);
 			if (shadow && (lineVisible || Colors.IsVisible(fillColor))) {
 				//draw shadow first
 				int basealpha = 100;
@@ -86,7 +103,7 @@ namespace Greenshot.Drawing {
 							rect.Height);
 						graphics.DrawRectangle(shadowPen, shadowRect);
 						currentStep++;
-						alpha = alpha - (basealpha / steps);
+						alpha = alpha - basealpha / steps;
 					}
 				}
 			}

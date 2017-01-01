@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,16 +18,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
+
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Windows.Forms;
-
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Greenshot.Interop.Office;
-using Greenshot.IniFile;
 using System.Text.RegularExpressions;
 
 namespace GreenshotOfficePlugin {
@@ -35,18 +32,17 @@ namespace GreenshotOfficePlugin {
 	/// Description of PowerpointDestination.
 	/// </summary>
 	public class ExcelDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExcelDestination));
-		private const int ICON_APPLICATION = 0;
-		private const int ICON_WORKBOOK = 1;
-		private static string exePath = null;
-		private string workbookName = null;
+		private const int IconApplication = 0;
+		private const int IconWorkbook = 1;
+		private static readonly string ExePath;
+		private readonly string _workbookName;
 
 		static ExcelDestination() {
-			exePath = PluginUtils.GetExePath("EXCEL.EXE");
-			if (exePath != null && File.Exists(exePath)) {
+			ExePath = PluginUtils.GetExePath("EXCEL.EXE");
+			if (ExePath != null && File.Exists(ExePath)) {
 				WindowDetails.AddProcessToExcludeFromFreeze("excel");
 			} else {
-				exePath = null;
+				ExePath = null;
 			}
 		}
 
@@ -54,51 +50,20 @@ namespace GreenshotOfficePlugin {
 		}
 
 		public ExcelDestination(string workbookName) {
-			this.workbookName = workbookName;
+			_workbookName = workbookName;
 		}
 
-		public override string Designation {
-			get {
-				return "Excel";
-			}
-		}
+		public override string Designation => "Excel";
 
-		public override string Description {
-			get {
-				if (workbookName == null) {
-					return "Microsoft Excel";
-				} else {
-					return workbookName;
-				}
-			}
-		}
+		public override string Description => _workbookName ?? "Microsoft Excel";
 
-		public override int Priority {
-			get {
-				return 5;
-			}
-		}
-		
-		public override bool isDynamic {
-			get {
-				return true;
-			}
-		}
+		public override int Priority => 5;
 
-		public override bool isActive {
-			get {
-				return base.isActive && exePath != null;
-			}
-		}
+		public override bool IsDynamic => true;
 
-		public override Image DisplayIcon {
-			get {
-				if (!string.IsNullOrEmpty(workbookName)) {
-					return PluginUtils.GetCachedExeIcon(exePath, ICON_WORKBOOK);
-				}
-				return PluginUtils.GetCachedExeIcon(exePath, ICON_APPLICATION);
-			}
-		}
+		public override bool IsActive => base.IsActive && ExePath != null;
+
+		public override Image DisplayIcon => PluginUtils.GetCachedExeIcon(ExePath, !string.IsNullOrEmpty(_workbookName) ? IconWorkbook : IconApplication);
 
 		public override IEnumerable<IDestination> DynamicDestinations() {
 			foreach (string workbookName in ExcelExporter.GetWorkbooks()) {
@@ -107,15 +72,15 @@ namespace GreenshotOfficePlugin {
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
+			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			bool createdFile = false;
 			string imageFile = captureDetails.Filename;
 			if (imageFile == null || surface.Modified || !Regex.IsMatch(imageFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$")) {
 				imageFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
 				createdFile = true;
 			}
-			if (workbookName != null) {
-				ExcelExporter.InsertIntoExistingWorkbook(workbookName, imageFile, surface.Image.Size);
+			if (_workbookName != null) {
+				ExcelExporter.InsertIntoExistingWorkbook(_workbookName, imageFile, surface.Image.Size);
 			} else {
 				ExcelExporter.InsertIntoNewWorkbook(imageFile, surface.Image.Size);
 			}

@@ -3,10 +3,10 @@
 # Assumes the installation of Microsoft .NET Framework 4.5
 ################################################################
 # Greenshot - a free and open source screenshot tool
-# Copyright (C) 2007-2014 Thomas Braun, Jens Klingen, Robin Krom
+# Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
 # 
 # For more information see: http://getgreenshot.org/
-# The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+# The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -44,3 +44,10 @@ Function FillCredentials {
 }
 
 FillCredentials
+
+# Write the certificate to a file
+[System.Convert]::FromBase64String($env:Certificate) | set-content "greenshot.pfx" -encoding byte
+# Decode password to secure string
+$password = ConvertTo-SecureString $env:CertificatePassword -AsPlainText -Force
+# Import pfx
+Import-PfxCertificate -FilePath .\Greenshot.pfx -CertStoreLocation Cert:\CurrentUser\My -Password $password

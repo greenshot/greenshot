@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Drawing;
 using System.Windows.Forms;
 using System.Threading;
 using GreenshotPlugin.Core;
@@ -30,9 +29,9 @@ namespace GreenshotPlugin.Controls {
 	/// Description of PleaseWaitForm.
 	/// </summary>
 	public partial class PleaseWaitForm : Form {
-		private static ILog LOG = LogManager.GetLogger(typeof(PleaseWaitForm));
-		private Thread waitFor = null;
-		private string title;
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(PleaseWaitForm));
+		private Thread _waitFor;
+		private string _title;
 		public PleaseWaitForm() {
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
@@ -61,7 +60,7 @@ namespace GreenshotPlugin.Controls {
 		/// <param name="text">The text in the form</param>
 		/// <param name="waitDelegate">delegate { with your code }</param>
 		public void ShowAndWait(string title, string text, ThreadStart waitDelegate) {
-			this.title = title;
+			_title = title;
 			Text = title;
 			label_pleasewait.Text = text;
 			cancelButton.Text = Language.GetString("CANCEL");
@@ -73,23 +72,29 @@ namespace GreenshotPlugin.Controls {
 			Exception threadException = null;
 			try {
 				// Wrap the passed delegate in a try/catch which makes it possible to save the exception
-				waitFor = new Thread(new ThreadStart(
-					delegate {
-						try {
-							waitDelegate.Invoke();
-						} catch (Exception ex) {
-							LOG.Error("invoke error:", ex);
-							threadException = ex;
-						}
-					})
-				);
-				waitFor.Name = title;
-				waitFor.IsBackground = true;
-				waitFor.SetApartmentState(ApartmentState.STA);
-				waitFor.Start();
+				_waitFor = new Thread(new ThreadStart(
+						delegate
+						{
+							try
+							{
+								waitDelegate.Invoke();
+							}
+							catch (Exception ex)
+							{
+								LOG.Error("invoke error:", ex);
+								threadException = ex;
+							}
+						})
+				)
+				{
+					Name = title,
+					IsBackground = true
+				};
+				_waitFor.SetApartmentState(ApartmentState.STA);
+				_waitFor.Start();
 	
 				// Wait until finished
-				while (!waitFor.Join(TimeSpan.FromMilliseconds(100))) {
+				while (!_waitFor.Join(TimeSpan.FromMilliseconds(100))) {
 					Application.DoEvents();
 				}
 				LOG.DebugFormat("Finished {0}", title);
@@ -110,10 +115,10 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void CancelButtonClick(object sender, EventArgs e) {
-			LOG.DebugFormat("Cancel clicked on {0}", title);
+		private void CancelButtonClick(object sender, EventArgs e) {
+			LOG.DebugFormat("Cancel clicked on {0}", _title);
 			cancelButton.Enabled = false;
-			waitFor.Abort();
+			_waitFor.Abort();
 		}
 	}
 }

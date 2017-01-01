@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,11 +33,11 @@ namespace GreenshotPlugin.Core {
 	/// Maybe move the basic Accessible functions to WindowDetails!?
 	/// </summary>
 	public class Accessible {
-		private static ILog LOG = LogManager.GetLogger(typeof(Accessible));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Accessible));
 
 		#region Interop
 		private static int AccessibleObjectFromWindow(IntPtr hWnd, OBJID idObject, ref IAccessible acc) {
-			Guid guid = new Guid("{618736e0-3c3d-11cf-810c-00aa00389b71}"); // IAccessible
+			var guid = new Guid("{618736e0-3c3d-11cf-810c-00aa00389b71}"); // IAccessible
 			object obj = null;
 			int num = AccessibleObjectFromWindow(hWnd, (uint)idObject, ref guid, ref obj);
 			acc = (IAccessible)obj;
@@ -59,10 +59,10 @@ namespace GreenshotPlugin.Core {
 
 		private const int IE_ACTIVE_TAB = 2097154;
 		private const int CHILDID_SELF = 0;
-		private IAccessible accessible;
+		private readonly IAccessible accessible;
 		private Accessible[] Children {
 			get {
-				int num = 0;
+				int num;
 				object[] res = GetAccessibleChildren(accessible, out num);
 				if (res == null) {
 					return new Accessible[0];
@@ -165,7 +165,7 @@ namespace GreenshotPlugin.Core {
 						}
 					}
 				}
-				return String.Empty;
+				return string.Empty;
 			}
 		}
 
@@ -201,7 +201,7 @@ namespace GreenshotPlugin.Core {
 						}
 					}
 				}
-				return String.Empty;
+				return string.Empty;
 			}
 		}
 
@@ -217,6 +217,7 @@ namespace GreenshotPlugin.Core {
 					}
 				}
 	
+				// TODO: Why again?
 				if (captionList.Count > 0) {
 					captionList.RemoveAt(captionList.Count - 1);
 				}
@@ -226,10 +227,8 @@ namespace GreenshotPlugin.Core {
 		}
 	
 		
-		public List<string> IETabUrls {
+		public IEnumerable<string> IETabUrls {
 			get {
-				var urlList = new List<string>();
-	
 				foreach (Accessible accessor in Children) {
 					foreach (var child in accessor.Children) {
 						foreach (var tab in child.Children) {
@@ -238,14 +237,12 @@ namespace GreenshotPlugin.Core {
 							if (!string.IsNullOrEmpty(description)) {
 								if (description.Contains(Environment.NewLine)) {
 									var url = description.Substring(description.IndexOf(Environment.NewLine)).Trim();
-									urlList.Add(url);
+									yield return url;
 								}
 							}
 						}
 					}
 				}
-	
-				return urlList;
 			}
 		}
 		

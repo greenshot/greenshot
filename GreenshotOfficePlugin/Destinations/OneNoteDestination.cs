@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,11 +29,11 @@ using System.IO;
 
 namespace GreenshotOfficePlugin {
 	public class OneNoteDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordDestination));
+		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordDestination));
 		private const int ICON_APPLICATION = 0;
 		public const string DESIGNATION = "OneNote";
-		private static string exePath = null;
-		private OneNotePage page = null;
+		private static readonly string exePath;
+		private readonly OneNotePage page;
 
 		static OneNoteDestination() {
 			exePath = PluginUtils.GetExePath("ONENOTE.EXE");
@@ -74,15 +74,15 @@ namespace GreenshotOfficePlugin {
 			}
 		}
 		
-		public override bool isDynamic {
+		public override bool IsDynamic {
 			get {
 				return true;
 			}
 		}
 
-		public override bool isActive {
+		public override bool IsActive {
 			get {
-				return base.isActive && exePath != null;
+				return base.IsActive && exePath != null;
 			}
 		}
 
@@ -99,7 +99,7 @@ namespace GreenshotOfficePlugin {
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
+			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 
 			if (page == null) {
 				try {

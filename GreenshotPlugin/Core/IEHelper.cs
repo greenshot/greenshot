@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,11 +36,9 @@ namespace GreenshotPlugin.Core {
 			int version = 7;
 			// Seeing if IE 9 is used, here we need another offset!
 			using (RegistryKey ieKey = Registry.LocalMachine.OpenSubKey(IE_KEY, false)) {
-				if (ieKey != null) {
-					 object versionKey = ieKey.GetValue("Version");
-					 if (versionKey != null) {
-						int.TryParse(versionKey.ToString().Substring(0,1), out version);
-					}
+				object versionKey = ieKey?.GetValue("Version");
+				if (versionKey != null) {
+					int.TryParse(versionKey.ToString().Substring(0,1), out version);
 				}
 			}
 			return version;
@@ -55,21 +53,15 @@ namespace GreenshotPlugin.Core {
 			if (browserWindowDetails == null) {
 				return null;
 			}
-			WindowDetails tmpWD = browserWindowDetails;
+			WindowDetails tmpWd = browserWindowDetails;
 			// Since IE 9 the TabBandClass is less deep!
 			if (IEVersion() < 9) {
-				tmpWD = tmpWD.GetChild("CommandBarClass");
-				if (tmpWD != null) {
-					tmpWD = tmpWD.GetChild("ReBarWindow32");
-				}
+				tmpWd = tmpWd.GetChild("CommandBarClass");
+				tmpWd = tmpWd?.GetChild("ReBarWindow32");
 			}
-			if (tmpWD != null) {
-				tmpWD = tmpWD.GetChild("TabBandClass");
-			}
-			if (tmpWD != null) {
-				tmpWD = tmpWD.GetChild("DirectUIHWND");
-			}
-			return tmpWD;
+			tmpWd = tmpWd?.GetChild("TabBandClass");
+			tmpWd = tmpWd?.GetChild("DirectUIHWND");
+			return tmpWd;
 		}
 		
 		/// <summary>
@@ -77,24 +69,17 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <returns></returns>
 		public static IEnumerable<string> GetIEUrls() {
-			List<string> urls = new List<string>();
 			// Find the IE window
 			foreach (WindowDetails ieWindow in WindowDetails.GetAllWindows("IEFrame")) {
 				WindowDetails directUIWD = GetDirectUI(ieWindow);
 				if (directUIWD != null) {
 					Accessible ieAccessible = new Accessible(directUIWD.Handle);
-					List<string> ieUrls = ieAccessible.IETabUrls;
-					if (ieUrls != null && ieUrls.Count > 0) {
-						foreach(string url in ieUrls) {
-							if (!urls.Contains(url)) {
-								urls.Add(url);
-							}
-						}
+					foreach(string url in ieAccessible.IETabUrls)
+					{
+						yield return url;
 					}
 				}
 			}
-
-			return urls;
 		}
 	}
 }

@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ namespace GreenshotFlickrPlugin {
 	/// </summary>
 	public class FlickrUtils {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(FlickrUtils));
-		private static FlickrConfiguration config = IniConfig.GetIniSection<FlickrConfiguration>();
+		private static readonly FlickrConfiguration config = IniConfig.GetIniSection<FlickrConfiguration>();
 		private const string FLICKR_API_BASE_URL = "https://api.flickr.com/services/";
 		private const string FLICKR_UPLOAD_URL = FLICKR_API_BASE_URL + "upload/";
 		// OAUTH
@@ -57,15 +57,17 @@ namespace GreenshotFlickrPlugin {
 		/// <param name="filename"></param>
 		/// <returns>url to image</returns>
 		public static string UploadToFlickr(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename) {
-			OAuthSession oAuth = new OAuthSession(FlickrCredentials.ConsumerKey, FlickrCredentials.ConsumerSecret);
-			oAuth.BrowserSize = new Size(520, 800);
-			oAuth.CheckVerifier = false;
-			oAuth.AccessTokenUrl = FLICKR_ACCESS_TOKEN_URL;
-			oAuth.AuthorizeUrl = FLICKR_AUTHORIZE_URL;
-			oAuth.RequestTokenUrl = FLICKR_REQUEST_TOKEN_URL;
-			oAuth.LoginTitle = "Flickr authorization";
-			oAuth.Token = config.FlickrToken;
-			oAuth.TokenSecret = config.FlickrTokenSecret;
+			var oAuth = new OAuthSession(FlickrCredentials.ConsumerKey, FlickrCredentials.ConsumerSecret)
+			{
+				BrowserSize = new Size(520, 800),
+				CheckVerifier = false,
+				AccessTokenUrl = FLICKR_ACCESS_TOKEN_URL,
+				AuthorizeUrl = FLICKR_AUTHORIZE_URL,
+				RequestTokenUrl = FLICKR_REQUEST_TOKEN_URL,
+				LoginTitle = "Flickr authorization",
+				Token = config.FlickrToken,
+				TokenSecret = config.FlickrTokenSecret
+			};
 			if (string.IsNullOrEmpty(oAuth.Token)) {
 				if (!oAuth.Authorize()) {
 					return null;
@@ -85,7 +87,7 @@ namespace GreenshotFlickrPlugin {
 				signedParameters.Add("is_public", config.IsPublic ? "1" : "0");
 				signedParameters.Add("is_friend", config.IsFriend ? "1" : "0");
 				signedParameters.Add("is_family", config.IsFamily ? "1" : "0");
-				signedParameters.Add("safety_level", string.Format("{0}", (int)config.SafetyLevel));
+				signedParameters.Add("safety_level", $"{(int) config.SafetyLevel}");
 				signedParameters.Add("hidden", config.HiddenFromSearch ? "1" : "2");
 				IDictionary<string, object> otherParameters = new Dictionary<string, object>();
 				otherParameters.Add("photo", new SurfaceContainer(surfaceToUpload, outputSettings, filename));
@@ -125,16 +127,13 @@ namespace GreenshotFlickrPlugin {
 					XmlNodeList nodes = doc.GetElementsByTagName("photo");
 					if (nodes.Count > 0) {
 						var item = nodes.Item(0);
-						if (item != null) {
-							if (item.Attributes != null) {
-								string farmId = item.Attributes["farm"].Value;
-								string serverId = item.Attributes["server"].Value;
-								string photoId = item.Attributes["id"].Value;
-								string secret = item.Attributes["secret"].Value;
-								return string.Format(FLICKR_FARM_URL, farmId, serverId, photoId, secret);
-							}
+						if (item?.Attributes != null) {
+							string farmId = item.Attributes["farm"].Value;
+							string serverId = item.Attributes["server"].Value;
+							string photoId = item.Attributes["id"].Value;
+							string secret = item.Attributes["secret"].Value;
+							return string.Format(FLICKR_FARM_URL, farmId, serverId, photoId, secret);
 						}
-
 					}
 				}
 			} catch (Exception ex) {

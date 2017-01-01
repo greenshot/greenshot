@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,6 @@ using System.Text;
 using log4net;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
-using System.Reflection;
 
 namespace GreenshotPlugin.Core {
 	public static class StringExtensions {
@@ -53,7 +52,7 @@ namespace GreenshotPlugin.Core {
 		/// <returns>Formatted string</returns>
 		public static string FormatWith(this string format, IFormatProvider provider, object source) {
 			if (format == null) {
-				throw new ArgumentNullException("format");
+				throw new ArgumentNullException(nameof(format));
 			}
 
 			IDictionary<string, object> properties = new Dictionary<string, object>();
@@ -81,11 +80,7 @@ namespace GreenshotPlugin.Core {
 				Group endGroup = m.Groups["end"];
 
 				object value;
-				if (properties.TryGetValue(propertyGroup.Value, out value)) {
-					values.Add(value);
-				} else {
-					values.Add(source);
-				}
+				values.Add(properties.TryGetValue(propertyGroup.Value, out value) ? value : source);
 				return new string('{', startGroup.Captures.Count) + (values.Count - 1) + formatGroup.Value + new string('}', endGroup.Captures.Count);
 			});
 
@@ -95,12 +90,12 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// A simply rijndael aes encryption, can be used to store passwords
 		/// </summary>
-		/// <param name="ClearText">the string to call upon</param>
+		/// <param name="clearText">the string to call upon</param>
 		/// <returns>an encryped string in base64 form</returns>
-		public static string Encrypt(this string ClearText) {
-			string returnValue = ClearText;
+		public static string Encrypt(this string clearText) {
+			string returnValue = clearText;
 			try {
-				byte[] clearTextBytes = Encoding.ASCII.GetBytes(ClearText);
+				byte[] clearTextBytes = Encoding.ASCII.GetBytes(clearText);
 				SymmetricAlgorithm rijn = SymmetricAlgorithm.Create();
 	
 				using (MemoryStream ms = new MemoryStream()) {
@@ -114,7 +109,7 @@ namespace GreenshotPlugin.Core {
 					}
 				}
 			} catch (Exception ex) {
-				LOG.ErrorFormat("Error encrypting, error: ", ex.Message);
+				LOG.ErrorFormat("Error encrypting, error: {0}", ex.Message);
 			}
 			return returnValue;
 		}
@@ -122,12 +117,12 @@ namespace GreenshotPlugin.Core {
 		/// <summary>
 		/// A simply rijndael aes decryption, can be used to store passwords
 		/// </summary>
-		/// <param name="EncryptedText">a base64 encoded rijndael encrypted string</param>
+		/// <param name="encryptedText">a base64 encoded rijndael encrypted string</param>
 		/// <returns>Decrypeted text</returns>
-		public static string Decrypt(this string EncryptedText) {
-			string returnValue = EncryptedText;
+		public static string Decrypt(this string encryptedText) {
+			string returnValue = encryptedText;
 			try {
-				byte[] encryptedTextBytes = Convert.FromBase64String(EncryptedText);
+				byte[] encryptedTextBytes = Convert.FromBase64String(encryptedText);
 				using (MemoryStream ms = new MemoryStream()) {
 					SymmetricAlgorithm rijn = SymmetricAlgorithm.Create();
 	
@@ -143,7 +138,7 @@ namespace GreenshotPlugin.Core {
 	
 				}
 			} catch (Exception ex) {
-				LOG.ErrorFormat("Error decrypting {0}, error: ", EncryptedText, ex.Message);
+				LOG.ErrorFormat("Error decrypting {0}, error: {1}", encryptedText, ex.Message);
 			}
 
 			return returnValue;

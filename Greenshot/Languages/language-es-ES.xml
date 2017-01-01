@@ -3,9 +3,9 @@
 	<resources>
 		<resource name="about_bugs">Por favor reporta errores a</resource>
 		<resource name="about_donations">Si te gusta Greenshot, te agradeceremos que nos ayudes:</resource>
-		<resource name="about_host">Greenshot está alojado en sourceforge.net en</resource>
+		<resource name="about_host">Greenshot está alojado en GitHub en</resource>
 		<resource name="about_icons">Iconos del conjunto de iconos Fugue de Yusuke Kamiyamane(Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot viene ABSOLUTAMENTE SIN GARANTIA. Este es software gratuito, y eres bienvenido a redistribuirlo bajo ciertas condiciones.
 Detalles acerca de la Licencia General Publica GNU:</resource>
 		<resource name="about_title">Acerca de Greenshot</resource>
@@ -255,7 +255,7 @@ presente, ejemplo: 11_58_32 (más la extension definida en la configuración)</r
 		<resource name="update_found">Hay una nueva versión de Greenshot disponible, ¿quieres descargar {0}?</resource>
 		<resource name="wait_ie_capture">Por favor, espera a que se termine de capturar la página en Internet Explorer...</resource>
 		<resource name="warning">Atención</resource>
-		<resource name="warning_hotkeys">No se ha podido registrar la tecla rápida "{0}". Probablemente el problema es que alguna otra aplicación también quiere hacerse con esa combinación de teclas. Hay dos posibles soluciones: cambiar la tecla rápida en Greenshot, o desactivar/cambiar la configuración del otro programa que usa esta tecla rápida.
+		<resource name="warning_hotkeys">No se ha podido registrar la tecla rápida "{0}". Probablemente el problema es que alguna otra aplicación{1} también quiere hacerse con esa combinación de teclas. Hay dos posibles soluciones: cambiar la tecla rápida en Greenshot, o desactivar/cambiar la configuración del otro programa que usa esta tecla rápida.
 
 A pesar de esto, se sigue pudiendo utilizar todas las características de Greenshot directamente desde el menú contextual del icono en la bandeja del sistema.</resource>
 		<resource name="WindowCaptureMode.Aero">Usar color personalizado</resource>

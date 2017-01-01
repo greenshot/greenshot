@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,16 +18,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-using System;
+
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Windows.Forms;
-
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Greenshot.Interop.Office;
-using Greenshot.IniFile;
 using System.Text.RegularExpressions;
 
 namespace GreenshotOfficePlugin {
@@ -35,19 +32,18 @@ namespace GreenshotOfficePlugin {
 	/// Description of PowerpointDestination.
 	/// </summary>
 	public class PowerpointDestination : AbstractDestination {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PowerpointDestination));
-		private const int ICON_APPLICATION = 0;
-		private const int ICON_PRESENTATION = 1;
+		private const int IconApplication = 0;
+		private const int IconPresentation = 1;
 
-		private static string exePath = null;
-		private string presentationName = null;
+		private static readonly string ExePath;
+		private readonly string _presentationName;
 		
 		static PowerpointDestination() {
-			exePath = PluginUtils.GetExePath("POWERPNT.EXE");
-			if (exePath != null && File.Exists(exePath)) {
+			ExePath = PluginUtils.GetExePath("POWERPNT.EXE");
+			if (ExePath != null && File.Exists(ExePath)) {
 				WindowDetails.AddProcessToExcludeFromFreeze("powerpnt");
 			} else {
-				exePath = null;
+				ExePath = null;
 			}
 		}
 
@@ -55,50 +51,34 @@ namespace GreenshotOfficePlugin {
 		}
 
 		public PowerpointDestination(string presentationName) {
-			this.presentationName = presentationName;
+			_presentationName = presentationName;
 		}
 
-		public override string Designation {
-			get {
-				return "Powerpoint";
-			}
-		}
+		public override string Designation => "Powerpoint";
 
 		public override string Description {
-			get {
-				if (presentationName == null) {
+			get
+			{
+				if (_presentationName == null) {
 					return "Microsoft Powerpoint";
-				} else {
-					return presentationName;
 				}
+				return _presentationName;
 			}
 		}
 
-		public override int Priority {
-			get {
-				return 4;
-			}
-		}
-		
-		public override bool isDynamic {
-			get {
-				return true;
-			}
-		}
+		public override int Priority => 4;
 
-		public override bool isActive {
-			get {
-				return base.isActive && exePath != null;
-			}
-		}
+		public override bool IsDynamic => true;
+
+		public override bool IsActive => base.IsActive && ExePath != null;
 
 		public override Image DisplayIcon {
 			get {
-				if (!string.IsNullOrEmpty(presentationName)) {
-					return PluginUtils.GetCachedExeIcon(exePath, ICON_PRESENTATION);
+				if (!string.IsNullOrEmpty(_presentationName)) {
+					return PluginUtils.GetCachedExeIcon(ExePath, IconPresentation);
 				}
 
-				return PluginUtils.GetCachedExeIcon(exePath, ICON_APPLICATION);
+				return PluginUtils.GetCachedExeIcon(ExePath, IconApplication);
 			}
 		}
 
@@ -109,21 +89,20 @@ namespace GreenshotOfficePlugin {
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(this.Designation, this.Description);
+			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			string tmpFile = captureDetails.Filename;
 			Size imageSize = Size.Empty;
 			if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$")) {
 				tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
 				imageSize = surface.Image.Size;
 			}
-			if (presentationName != null) {
-				exportInformation.ExportMade = PowerpointExporter.ExportToPresentation(presentationName, tmpFile, imageSize, captureDetails.Title);
+			if (_presentationName != null) {
+				exportInformation.ExportMade = PowerpointExporter.ExportToPresentation(_presentationName, tmpFile, imageSize, captureDetails.Title);
 			} else {
 				if (!manuallyInitiated) {
-					List<string> presentations = PowerpointExporter.GetPowerpointPresentations();
+					var presentations = PowerpointExporter.GetPowerpointPresentations();
 					if (presentations != null && presentations.Count > 0) {
-						List<IDestination> destinations = new List<IDestination>();
-						destinations.Add(new PowerpointDestination());
+						var destinations = new List<IDestination> {new PowerpointDestination()};
 						foreach (string presentation in presentations) {
 							destinations.Add(new PowerpointDestination(presentation));
 						}

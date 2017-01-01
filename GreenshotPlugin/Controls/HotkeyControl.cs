@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
@@ -36,17 +37,17 @@ namespace GreenshotPlugin.Controls {
 	/// See: http://www.codeproject.com/KB/buttons/hotkeycontrol.aspx
 	/// But is modified to fit in Greenshot, and have localized support
 	/// </summary>
-	public class HotkeyControl : GreenshotTextBox {
-		private static ILog LOG = LogManager.GetLogger(typeof(HotkeyControl));
+	public sealed class HotkeyControl : GreenshotTextBox {
+		private static readonly ILog Log = LogManager.GetLogger(typeof(HotkeyControl));
 
-		private static EventDelay eventDelay = new EventDelay(TimeSpan.FromMilliseconds(600).Ticks);
-		private static bool isWindows7OrOlder = Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 1;
+		private static readonly EventDelay EventDelay = new EventDelay(TimeSpan.FromMilliseconds(600).Ticks);
+		private static readonly bool IsWindows7OrOlder = Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 1;
 
 		// Holds the list of hotkeys
-		private static Dictionary<int, HotKeyHandler> keyHandlers = new Dictionary<int, HotKeyHandler>();
-		private static int hotKeyCounter = 1;
+		private static readonly IDictionary<int, HotKeyHandler> KeyHandlers = new Dictionary<int, HotKeyHandler>();
+		private static int _hotKeyCounter = 1;
 		private const uint WM_HOTKEY = 0x312;
-		private static IntPtr hotkeyHWND;
+		private static IntPtr _hotkeyHwnd;
 		
 //		static HotkeyControl() {
 //			StringBuilder keyName = new StringBuilder();
@@ -57,6 +58,7 @@ namespace GreenshotPlugin.Controls {
 //			}
 //		}
 
+		[SuppressMessage("ReSharper", "InconsistentNaming")]
 		public enum Modifiers : uint {
 			NONE = 0,
 			ALT = 1,
@@ -66,6 +68,7 @@ namespace GreenshotPlugin.Controls {
 			NO_REPEAT = 0x4000
 		}
 
+		[SuppressMessage("ReSharper", "InconsistentNaming")]
 		private enum MapType : uint {
 			MAPVK_VK_TO_VSC = 0, //The uCode parameter is a virtual-key code and is translated into a scan code. If it is a virtual-key code that does not distinguish between left- and right-hand keys, the left-hand scan code is returned. If there is no translation, the function returns 0.
 			MAPVK_VSC_TO_VK = 1, //The uCode parameter is a scan code and is translated into a virtual-key code that does not distinguish between left- and right-hand keys. If there is no translation, the function returns 0.
@@ -93,20 +96,20 @@ namespace GreenshotPlugin.Controls {
 
 		// ArrayLists used to enforce the use of proper modifiers.
 		// Shift+A isn't a valid hotkey, for instance, as it would screw up when the user is typing.
-		private ArrayList needNonShiftModifier = null;
-		private ArrayList needNonAltGrModifier = null;
+		private readonly ArrayList _needNonShiftModifier;
+		private readonly ArrayList _needNonAltGrModifier;
 
-		private ContextMenu dummy = new ContextMenu();
+		private readonly ContextMenu _dummy = new ContextMenu();
 
 		/// <summary>
 		/// Used to make sure that there is no right-click menu available
 		/// </summary>
 		public override ContextMenu ContextMenu {
 			get {
-				return dummy;
+				return _dummy;
 			}
 			set {
-				base.ContextMenu = dummy;
+				base.ContextMenu = _dummy;
 			}
 		}
 
@@ -127,17 +130,17 @@ namespace GreenshotPlugin.Controls {
 		/// Creates a new HotkeyControl
 		/// </summary>
 		public HotkeyControl() {
-			ContextMenu = dummy; // Disable right-clicking
+			ContextMenu = _dummy; // Disable right-clicking
 			Text = "None";
 
 			// Handle events that occurs when keys are pressed
-			KeyPress += new KeyPressEventHandler(HotkeyControl_KeyPress);
-			KeyUp += new KeyEventHandler(HotkeyControl_KeyUp);
-			KeyDown += new KeyEventHandler(HotkeyControl_KeyDown);
+			KeyPress += HotkeyControl_KeyPress;
+			KeyUp += HotkeyControl_KeyUp;
+			KeyDown += HotkeyControl_KeyDown;
 
 			// Fill the ArrayLists that contain all invalid hotkey combinations
-			needNonShiftModifier = new ArrayList();
-			needNonAltGrModifier = new ArrayList();
+			_needNonShiftModifier = new ArrayList();
+			_needNonAltGrModifier = new ArrayList();
 			PopulateModifierLists();
 		}
 
@@ -148,41 +151,41 @@ namespace GreenshotPlugin.Controls {
 		private void PopulateModifierLists() {
 			// Shift + 0 - 9, A - Z
 			for (Keys k = Keys.D0; k <= Keys.Z; k++) {
-				needNonShiftModifier.Add((int)k);
+				_needNonShiftModifier.Add((int)k);
 			}
 
 			// Shift + Numpad keys
 			for (Keys k = Keys.NumPad0; k <= Keys.NumPad9; k++) {
-				needNonShiftModifier.Add((int)k);
+				_needNonShiftModifier.Add((int)k);
 			}
 
 			// Shift + Misc (,;<./ etc)
 			for (Keys k = Keys.Oem1; k <= Keys.OemBackslash; k++) {
-				needNonShiftModifier.Add((int)k);
+				_needNonShiftModifier.Add((int)k);
 			}
 
 			// Shift + Space, PgUp, PgDn, End, Home
 			for (Keys k = Keys.Space; k <= Keys.Home; k++) {
-				needNonShiftModifier.Add((int)k);
+				_needNonShiftModifier.Add((int)k);
 			}
 
 			// Misc keys that we can't loop through
-			needNonShiftModifier.Add((int)Keys.Insert);
-			needNonShiftModifier.Add((int)Keys.Help);
-			needNonShiftModifier.Add((int)Keys.Multiply);
-			needNonShiftModifier.Add((int)Keys.Add);
-			needNonShiftModifier.Add((int)Keys.Subtract);
-			needNonShiftModifier.Add((int)Keys.Divide);
-			needNonShiftModifier.Add((int)Keys.Decimal);
-			needNonShiftModifier.Add((int)Keys.Return);
-			needNonShiftModifier.Add((int)Keys.Escape);
-			needNonShiftModifier.Add((int)Keys.NumLock);
-			needNonShiftModifier.Add((int)Keys.Scroll);
-			needNonShiftModifier.Add((int)Keys.Pause);
+			_needNonShiftModifier.Add((int)Keys.Insert);
+			_needNonShiftModifier.Add((int)Keys.Help);
+			_needNonShiftModifier.Add((int)Keys.Multiply);
+			_needNonShiftModifier.Add((int)Keys.Add);
+			_needNonShiftModifier.Add((int)Keys.Subtract);
+			_needNonShiftModifier.Add((int)Keys.Divide);
+			_needNonShiftModifier.Add((int)Keys.Decimal);
+			_needNonShiftModifier.Add((int)Keys.Return);
+			_needNonShiftModifier.Add((int)Keys.Escape);
+			_needNonShiftModifier.Add((int)Keys.NumLock);
+			_needNonShiftModifier.Add((int)Keys.Scroll);
+			_needNonShiftModifier.Add((int)Keys.Pause);
 
 			// Ctrl+Alt + 0 - 9
 			for (Keys k = Keys.D0; k <= Keys.D9; k++) {
-				needNonAltGrModifier.Add((int)k);
+				_needNonAltGrModifier.Add((int)k);
 			}
 		}
 
@@ -198,11 +201,10 @@ namespace GreenshotPlugin.Controls {
 		/// Fires when a key is pushed down. Here, we'll want to update the text in the box
 		/// to notify the user what combination is currently pressed.
 		/// </summary>
-		void HotkeyControl_KeyDown(object sender, KeyEventArgs e) {
+		private void HotkeyControl_KeyDown(object sender, KeyEventArgs e) {
 			// Clear the current hotkey
 			if (e.KeyCode == Keys.Back || e.KeyCode == Keys.Delete) {
 				ResetHotkey();
-				return;
 			} else {
 				_modifiers = e.Modifiers;
 				_hotkey = e.KeyCode;
@@ -214,7 +216,7 @@ namespace GreenshotPlugin.Controls {
 		/// Fires when all keys are released. If the current hotkey isn't valid, reset it.
 		/// Otherwise, do nothing and keep the text and hotkey as it was.
 		/// </summary>
-		void HotkeyControl_KeyUp(object sender, KeyEventArgs e) {
+		private void HotkeyControl_KeyUp(object sender, KeyEventArgs e) {
 			// Somehow the PrintScreen only comes as a keyup, therefore we handle it here.
 			if (e.KeyCode == Keys.PrintScreen) {
 				_modifiers = e.Modifiers;
@@ -224,7 +226,6 @@ namespace GreenshotPlugin.Controls {
 
 			if (_hotkey == Keys.None && ModifierKeys == Keys.None) {
 				ResetHotkey();
-				return;
 			}
 		}
 
@@ -232,7 +233,7 @@ namespace GreenshotPlugin.Controls {
 		/// Prevents the letter/whatever entered to show up in the TextBox
 		/// Without this, a "A" key press would appear as "aControl, Alt + A"
 		/// </summary>
-		void HotkeyControl_KeyPress(object sender, KeyPressEventArgs e) {
+		private void HotkeyControl_KeyPress(object sender, KeyPressEventArgs e) {
 			e.Handled = true;
 		}
 
@@ -299,17 +300,10 @@ namespace GreenshotPlugin.Controls {
 		}
 
 		/// <summary>
-		/// Helper function
-		/// </summary>
-		private void Redraw() {
-			Redraw(false);
-		}
-
-		/// <summary>
 		/// Redraws the TextBox when necessary.
 		/// </summary>
 		/// <param name="bCalledProgramatically">Specifies whether this function was called by the Hotkey/HotkeyModifiers properties or by the user.</param>
-		private void Redraw(bool bCalledProgramatically) {
+		private void Redraw(bool bCalledProgramatically = false) {
 			// No hotkey set
 			if (_hotkey == Keys.None) {
 				Text = "";
@@ -325,10 +319,10 @@ namespace GreenshotPlugin.Controls {
 			// Only validate input if it comes from the user
 			if (bCalledProgramatically == false) {
 				// No modifier or shift only, AND a hotkey that needs another modifier
-				if ((_modifiers == Keys.Shift || _modifiers == Keys.None) && needNonShiftModifier.Contains((int)_hotkey)) {
+				if ((_modifiers == Keys.Shift || _modifiers == Keys.None) && _needNonShiftModifier.Contains((int)_hotkey)) {
 					if (_modifiers == Keys.None) {
 						// Set Ctrl+Alt as the modifier unless Ctrl+Alt+<key> won't work...
-						if (needNonAltGrModifier.Contains((int)_hotkey) == false) {
+						if (_needNonAltGrModifier.Contains((int)_hotkey) == false) {
 							_modifiers = Keys.Alt | Keys.Control;
 						} else {
 							// ... in that case, use Shift+Alt instead.
@@ -343,7 +337,7 @@ namespace GreenshotPlugin.Controls {
 					}
 				}
 				// Check all Ctrl+Alt keys
-				if ((_modifiers == (Keys.Alt | Keys.Control)) && needNonAltGrModifier.Contains((int)_hotkey)) {
+				if ((_modifiers == (Keys.Alt | Keys.Control)) && _needNonAltGrModifier.Contains((int)_hotkey)) {
 					// Ctrl+Alt+4 etc won't work; reset hotkey and tell the user
 					_hotkey = Keys.None;
 					Text = "";
@@ -370,7 +364,7 @@ namespace GreenshotPlugin.Controls {
 		}
 
 		public static string HotkeyToString(Keys modifierKeyCode, Keys virtualKeyCode) {
-			return HotkeyModifiersToString(modifierKeyCode) + virtualKeyCode.ToString();
+			return HotkeyModifiersToString(modifierKeyCode) + virtualKeyCode;
 		}
 
 		public static string HotkeyModifiersToString(Keys modifierKeyCode) {
@@ -438,13 +432,13 @@ namespace GreenshotPlugin.Controls {
 				if (hotkey.LastIndexOf('+') > 0) {
 					hotkey = hotkey.Remove(0,hotkey.LastIndexOf('+')+1).Trim();
 				}
-				key = (Keys)Keys.Parse(typeof(Keys), hotkey);
+				key = (Keys)Enum.Parse(typeof(Keys), hotkey);
 			}
 			return key;
 		}
 
-		public static void RegisterHotkeyHWND(IntPtr hWnd) {
-			hotkeyHWND = hWnd;
+		public static void RegisterHotkeyHwnd(IntPtr hWnd) {
+			_hotkeyHwnd = hWnd;
 		}
 
 		public static int RegisterHotKey(string hotkey, HotKeyHandler handler) {
@@ -454,14 +448,13 @@ namespace GreenshotPlugin.Controls {
 		/// <summary>
 		/// Register a hotkey
 		/// </summary>
-		/// <param name="hWnd">The window which will get the event</param>
 		/// <param name="modifierKeyCode">The modifier, e.g.: Modifiers.CTRL, Modifiers.NONE or Modifiers.ALT</param>
 		/// <param name="virtualKeyCode">The virtual key code</param>
 		/// <param name="handler">A HotKeyHandler, this will be called to handle the hotkey press</param>
 		/// <returns>the hotkey number, -1 if failed</returns>
 		public static int RegisterHotKey(Keys modifierKeyCode, Keys virtualKeyCode, HotKeyHandler handler) {
 			if (virtualKeyCode == Keys.None) {
-				LOG.Warn("Trying to register a Keys.none hotkey, ignoring");
+				Log.Warn("Trying to register a Keys.none hotkey, ignoring");
 				return 0;
 			}
 			// Convert Modifiers to fit HKM_SETHOTKEY
@@ -479,37 +472,37 @@ namespace GreenshotPlugin.Controls {
 				modifiers |= (uint)Modifiers.WIN;
 			}
 			// Disable repeating hotkey for Windows 7 and beyond, as described in #1559
-			if (isWindows7OrOlder) {
+			if (IsWindows7OrOlder) {
 				modifiers |= (uint)Modifiers.NO_REPEAT;
 			}
-			if (RegisterHotKey(hotkeyHWND, hotKeyCounter, modifiers, (uint)virtualKeyCode)) {
-				keyHandlers.Add(hotKeyCounter, handler);
-				return hotKeyCounter++;
+			if (RegisterHotKey(_hotkeyHwnd, _hotKeyCounter, modifiers, (uint)virtualKeyCode)) {
+				KeyHandlers.Add(_hotKeyCounter, handler);
+				return _hotKeyCounter++;
 			} else {
-				LOG.Warn(String.Format("Couldn't register hotkey modifier {0} virtualKeyCode {1}", modifierKeyCode, virtualKeyCode));
+				Log.Warn($"Couldn't register hotkey modifier {modifierKeyCode} virtualKeyCode {virtualKeyCode}");
 				return -1;
 			}
 		}
 		
 		public static void UnregisterHotkeys() {
-			foreach(int hotkey in keyHandlers.Keys) {
-				UnregisterHotKey(hotkeyHWND, hotkey);
+			foreach(int hotkey in KeyHandlers.Keys) {
+				UnregisterHotKey(_hotkeyHwnd, hotkey);
 			}
 			// Remove all key handlers
-			keyHandlers.Clear();
+			KeyHandlers.Clear();
 		}
 
 		public static void UnregisterHotkey(int hotkey) {
 			bool removeHotkey = false;
-			foreach(int availableHotkey in keyHandlers.Keys) {
+			foreach(int availableHotkey in KeyHandlers.Keys) {
 				if (availableHotkey == hotkey) {
-					UnregisterHotKey(hotkeyHWND, hotkey);
+					UnregisterHotKey(_hotkeyHwnd, hotkey);
 					removeHotkey = true;
 				}
 			}
 			if (removeHotkey) {
 				// Remove key handler
-				keyHandlers.Remove(hotkey);
+				KeyHandlers.Remove(hotkey);
 			}
 		}		
 
@@ -519,26 +512,29 @@ namespace GreenshotPlugin.Controls {
 		/// <param name="m"></param>
 		/// <returns>true if the message was handled</returns>
 		public static bool HandleMessages(ref Message m) {
-			if (m.Msg == WM_HOTKEY) {
-				// Call handler
-				if (isWindows7OrOlder) {
-					keyHandlers[(int)m.WParam]();
-				} else {
-					if (eventDelay.Check()) {
-						keyHandlers[(int)m.WParam]();
-					}
-				}
+			if (m.Msg != WM_HOTKEY)
+			{
+				return false;
+			}
+			// Call handler
+			if (!IsWindows7OrOlder && !EventDelay.Check())
+			{
 				return true;
 			}
-			return false;
+			HotKeyHandler handler;
+			if (KeyHandlers.TryGetValue((int)m.WParam, out handler))
+			{
+				handler();
+			}
+			return true;
 		}
 
 		public static string GetKeyName(Keys givenKey) {
 			StringBuilder keyName = new StringBuilder();
-			const uint NUMPAD = 55;
+			const uint numpad = 55;
 
 			Keys virtualKey = givenKey;
-			string keyString = "";
+			string keyString;
 			// Make VC's to real keys
 			switch(virtualKey) {
 				case Keys.Alt:
@@ -551,17 +547,17 @@ namespace GreenshotPlugin.Controls {
 					virtualKey = Keys.LShiftKey;
 					break;
 				case Keys.Multiply:
-					GetKeyNameText(NUMPAD << 16, keyName, 100);
+					GetKeyNameText(numpad << 16, keyName, 100);
 					keyString = keyName.ToString().Replace("*","").Trim().ToLower();
-					if (keyString.IndexOf("(") >= 0) {
+					if (keyString.IndexOf("(", StringComparison.Ordinal) >= 0) {
 						return "* " + keyString;
 					}
 					keyString = keyString.Substring(0,1).ToUpper() + keyString.Substring(1).ToLower();
 					return keyString + " *";
 				case Keys.Divide:
-					GetKeyNameText(NUMPAD << 16, keyName, 100);
+					GetKeyNameText(numpad << 16, keyName, 100);
 					keyString = keyName.ToString().Replace("*","").Trim().ToLower();
-					if (keyString.IndexOf("(") >= 0) {
+					if (keyString.IndexOf("(", StringComparison.Ordinal) >= 0) {
 						return "/ " + keyString;
 					}
 					keyString = keyString.Substring(0,1).ToUpper() + keyString.Substring(1).ToLower();
@@ -576,7 +572,7 @@ namespace GreenshotPlugin.Controls {
 				case Keys.End: case Keys.Home:
 				case Keys.Insert: case Keys.Delete:
 				case Keys.NumLock:
-					LOG.Debug("Modifying Extended bit");
+					Log.Debug("Modifying Extended bit");
 					scanCode |= 0x100; // set extended bit
 					break;
 				case Keys.PrintScreen: // PrintScreen

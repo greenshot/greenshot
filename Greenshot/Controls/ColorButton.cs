@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ namespace Greenshot.Controls {
 	/// </summary>
 	public class ColorButton : Button, IGreenshotLanguageBindable {
 		public event PropertyChangedEventHandler PropertyChanged;
-		private Color selectedColor = Color.White;
+		private Color _selectedColor = Color.White;
 
 		[Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
 		public string LanguageKey {
@@ -44,9 +44,9 @@ namespace Greenshot.Controls {
 		}
 
 		public Color SelectedColor {
-			get {return selectedColor;}
+			get {return _selectedColor;}
 			set {
-				selectedColor = value;
+				_selectedColor = value;
 
 				Brush brush;
 				if(value != Color.Transparent) {
@@ -67,19 +67,21 @@ namespace Greenshot.Controls {
 			}
 		}
 
-		void ColorButtonClick(object sender, EventArgs e) {
+		private void ColorButtonClick(object sender, EventArgs e) {
 			ColorDialog colorDialog = ColorDialog.GetInstance();
 			colorDialog.Color = SelectedColor;
 			// Using the parent to make sure the dialog doesn't show on another window
 			colorDialog.ShowDialog(Parent.Parent);
-			if (colorDialog.DialogResult != DialogResult.Cancel) {
-				if (!colorDialog.Color.Equals(SelectedColor)) {
-					SelectedColor = colorDialog.Color;
-					if(PropertyChanged != null) {
-						PropertyChanged(this, new PropertyChangedEventArgs("SelectedColor"));
-					}
-				}
+			if (colorDialog.DialogResult == DialogResult.Cancel)
+			{
+				return;
 			}
+			if (colorDialog.Color.Equals(SelectedColor))
+			{
+				return;
+			}
+			SelectedColor = colorDialog.Color;
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedColor"));
 		}
 	}
 }

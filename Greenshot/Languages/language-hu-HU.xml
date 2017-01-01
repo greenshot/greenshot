@@ -3,7 +3,7 @@
 	<resources>
 		<resource name="about_bugs">Kérük a hibákat az alábbi helyen jelezzék</resource>
 		<resource name="about_donations">Ha szereted Greenshot -ot, akkor támogass minket:</resource>
-		<resource name="about_host">Greenshot kiszolgálója a sourceforge.net</resource>
+		<resource name="about_host">Greenshot kiszolgálója a GitHub</resource>
 		<resource name="about_icons">Az ikonokat Yusuke Kamiyamane's Fugue készítette (Creative Commons Attribution 3.0 license)</resource>
 		<resource name="about_license">Szerzői jog (C) 2007-2012 Thomas Braun, Jens Klingen, Robin Krom
 SEMMIFÉLE GARANCIA sincs a Greenshot -hoz. Ez egy ingyenes program, és hálásak vagyunk, hogy terjeszted bizonyos feltételekkel.
@@ -187,7 +187,7 @@ fájl mentése az aktuális dátummal és időponttal, a megadott tárolási hel
 		<resource name="tooltip_firststart">Jobb klikk ide vagy nyomja meg a PrinScrn gombot.</resource>
 		<resource name="warning">Figyelem</resource>
 		<resource name="warning_hotkeys">Egy vagy több gyors billentyű nincs regisztrálva. Ezért lehet az, hogy nem lehet használni.
-Ez a hiba akkor fordulhat elő, ha egy másik program használja.
+Ez a hiba akkor fordulhat elő, ha egy másik program{1} használja.
 Kapcsolja ki a szotvert és használja PrintScrn billentyűt. Egyszerűen használhatja a Greenshot -ot a tálca ikon helyi menüjéből.</resource>
 	</resources>
 </language>

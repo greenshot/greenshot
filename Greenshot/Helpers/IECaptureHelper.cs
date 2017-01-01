@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Greenshot.Configuration;
 using Greenshot.Helpers.IEInterop;
@@ -41,18 +42,18 @@ namespace Greenshot.Helpers {
 	/// On top I modified it to use the already available code in Greenshot.
 	/// Many thanks to all the people who contributed here!
 	/// </summary>
-	public static class IECaptureHelper {
-		private static ILog LOG = LogManager.GetLogger(typeof(IECaptureHelper));
-		private static readonly CoreConfiguration configuration = IniConfig.GetIniSection<CoreConfiguration>();
+	public static class IeCaptureHelper {
+		private static readonly ILog Log = LogManager.GetLogger(typeof(IeCaptureHelper));
+		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 
 		// Helper method to activate a certain IE Tab
-		public static void ActivateIETab(WindowDetails ieWindowDetails, int tabIndex) {
-			WindowDetails directUIWindowDetails = IEHelper.GetDirectUI(ieWindowDetails);
-			if(directUIWindowDetails != null) {
+		public static void ActivateIeTab(WindowDetails ieWindowDetails, int tabIndex) {
+			WindowDetails directUiWindowDetails = IEHelper.GetDirectUI(ieWindowDetails);
+			if(directUiWindowDetails != null) {
 				// Bring window to the front
 				ieWindowDetails.Restore();
 				// Get accessible
-				Accessible ieAccessible = new Accessible(directUIWindowDetails.Handle);
+				Accessible ieAccessible = new Accessible(directUiWindowDetails.Handle);
 				// Activate Tab
 				ieAccessible.ActivateIETab(tabIndex);
 			}
@@ -64,13 +65,13 @@ namespace Greenshot.Helpers {
 		/// <param name="someWindow">WindowDetails to check</param>
 		/// <param name="minimumPercentage">min percentage</param>
 		/// <returns></returns>
-		public static bool IsMostlyIEWindow(WindowDetails someWindow, int minimumPercentage) {
+		public static bool IsMostlyIeWindow(WindowDetails someWindow, int minimumPercentage) {
 			WindowDetails ieWindow = someWindow.GetChild("Internet Explorer_Server");
 			if (ieWindow != null) {
 				Rectangle wholeClient = someWindow.ClientRectangle;
 				Rectangle partClient = ieWindow.ClientRectangle;
-				int percentage = (int)(100*((float)(partClient.Width * partClient.Height)) / ((float)(wholeClient.Width * wholeClient.Height)));
-				LOG.InfoFormat("Window {0}, ie part {1}, percentage {2}", wholeClient, partClient, percentage);
+				int percentage = (int)(100*(float)(partClient.Width * partClient.Height) / (wholeClient.Width * wholeClient.Height));
+				Log.InfoFormat("Window {0}, ie part {1}, percentage {2}", wholeClient, partClient, percentage);
 				if (percentage > minimumPercentage) {
 					return true;
 				}
@@ -83,11 +84,11 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <param name="someWindow"></param>
 		/// <returns></returns>
-		public static bool IsIEWindow(WindowDetails someWindow) {
+		public static bool IsIeWindow(WindowDetails someWindow) {
 			if ("IEFrame".Equals(someWindow.ClassName)) {
 				return true;
 			}
-			if (configuration.WindowClassesToCheckForIE != null && configuration.WindowClassesToCheckForIE.Contains(someWindow.ClassName)) {
+			if (CoreConfig.WindowClassesToCheckForIE != null && CoreConfig.WindowClassesToCheckForIE.Contains(someWindow.ClassName)) {
 				return someWindow.GetChild("Internet Explorer_Server") != null;
 			}
 			return false;
@@ -97,16 +98,16 @@ namespace Greenshot.Helpers {
 		/// Get Windows displaying an IE
 		/// </summary>
 		/// <returns>IEnumerable WindowDetails</returns>
-		public static IEnumerable<WindowDetails> GetIEWindows() {
-			foreach (WindowDetails possibleIEWindow in WindowDetails.GetAllWindows()) {
-				if (possibleIEWindow.Text.Length == 0) {
+		public static IEnumerable<WindowDetails> GetIeWindows() {
+			foreach (var possibleIeWindow in WindowDetails.GetAllWindows()) {
+				if (possibleIeWindow.Text.Length == 0) {
 					continue;
 				}
-				if (possibleIEWindow.ClientRectangle.IsEmpty) {
+				if (possibleIeWindow.ClientRectangle.IsEmpty) {
 					continue;
 				}
-				if (IsIEWindow(possibleIEWindow)) {
-					yield return possibleIEWindow;
+				if (IsIeWindow(possibleIeWindow)) {
+					yield return possibleIeWindow;
 				}
 			}
 		}
@@ -115,56 +116,56 @@ namespace Greenshot.Helpers {
 		/// Simple check if IE is running
 		/// </summary>
 		/// <returns>bool</returns>
-		public static bool IsIERunning() {
-			foreach (WindowDetails ieWindow in GetIEWindows()) {
-				return true;
-			}
-			return false;
+		public static bool IsIeRunning()
+		{
+			return GetIeWindows().Any();
 		}
 
 		/// <summary>
 		/// Gets a list of all IE Windows & tabs with the captions of the instances
 		/// </summary>
-		/// <returns>List<KeyValuePair<WindowDetails, string>></returns>
+		/// <returns>List with KeyValuePair of WindowDetails and string</returns>
 		public static List<KeyValuePair<WindowDetails, string>> GetBrowserTabs() {
-			List<IntPtr> ieHandleList = new List<IntPtr>();
-			Dictionary<WindowDetails, List<string>> browserWindows = new Dictionary<WindowDetails, List<string>>();
+			var ieHandleList = new List<IntPtr>();
+			var browserWindows = new Dictionary<WindowDetails, List<string>>();
 
 			// Find the IE windows
-			foreach (WindowDetails ieWindow in GetIEWindows()) {
+			foreach (var ieWindow in GetIeWindows()) {
 				try {
-					if (!ieHandleList.Contains(ieWindow.Handle)) {
-						if ("IEFrame".Equals(ieWindow.ClassName)) {
-							WindowDetails directUIWD = IEHelper.GetDirectUI(ieWindow);
-							if (directUIWD != null) {
-								Accessible accessible = new Accessible(directUIWD.Handle);
-								browserWindows.Add(ieWindow, accessible.IETabCaptions);
-							}
-						} else if (configuration.WindowClassesToCheckForIE != null && configuration.WindowClassesToCheckForIE.Contains(ieWindow.ClassName)) {
-							List<string> singleWindowText = new List<string>();
-							try {
-								IHTMLDocument2 document2 = getHTMLDocument(ieWindow);
-								string title = document2.title;
-								Marshal.ReleaseComObject(document2);
-								if (string.IsNullOrEmpty(title)) {
-									singleWindowText.Add(ieWindow.Text);
-								} else {
-									singleWindowText.Add(ieWindow.Text + " - " + title);
-								}
-							} catch {
-								singleWindowText.Add(ieWindow.Text);
-							}
-							browserWindows.Add(ieWindow, singleWindowText);
-						}
-						ieHandleList.Add(ieWindow.Handle);
+					if (ieHandleList.Contains(ieWindow.Handle))
+					{
+						continue;
 					}
+					if ("IEFrame".Equals(ieWindow.ClassName)) {
+						var directUiwd = IEHelper.GetDirectUI(ieWindow);
+						if (directUiwd != null) {
+							var accessible = new Accessible(directUiwd.Handle);
+							browserWindows.Add(ieWindow, accessible.IETabCaptions);
+						}
+					} else if (CoreConfig.WindowClassesToCheckForIE != null && CoreConfig.WindowClassesToCheckForIE.Contains(ieWindow.ClassName)) {
+						var singleWindowText = new List<string>();
+						try {
+							var document2 = GetHtmlDocument(ieWindow);
+							string title = document2.title;
+							Marshal.ReleaseComObject(document2);
+							if (string.IsNullOrEmpty(title)) {
+								singleWindowText.Add(ieWindow.Text);
+							} else {
+								singleWindowText.Add(ieWindow.Text + " - " + title);
+							}
+						} catch {
+							singleWindowText.Add(ieWindow.Text);
+						}
+						browserWindows.Add(ieWindow, singleWindowText);
+					}
+					ieHandleList.Add(ieWindow.Handle);
 				} catch (Exception) {
-					LOG.Warn("Can't get Info from " + ieWindow.ClassName);
+					Log.Warn("Can't get Info from " + ieWindow.ClassName);
 				}
 			}
 
-			List<KeyValuePair<WindowDetails, string>> returnList = new List<KeyValuePair<WindowDetails, string>>();
-			foreach(WindowDetails windowDetails in browserWindows.Keys) {
+			var returnList = new List<KeyValuePair<WindowDetails, string>>();
+			foreach(var windowDetails in browserWindows.Keys) {
 				foreach(string tab in browserWindows[windowDetails]) {
 					returnList.Add(new KeyValuePair<WindowDetails, string>(windowDetails, tab));
 				}
@@ -177,36 +178,31 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <param name="mainWindow"></param>
 		/// <returns></returns>
-		private static IHTMLDocument2 getHTMLDocument(WindowDetails mainWindow) {
-			WindowDetails ieServer;
-			if ("Internet Explorer_Server".Equals(mainWindow.ClassName)) {
-				ieServer = mainWindow;
-			} else {
-				ieServer = mainWindow.GetChild("Internet Explorer_Server");
-			}
+		private static IHTMLDocument2 GetHtmlDocument(WindowDetails mainWindow) {
+			var ieServer = "Internet Explorer_Server".Equals(mainWindow.ClassName) ? mainWindow : mainWindow.GetChild("Internet Explorer_Server");
 			if (ieServer == null) {
-				LOG.WarnFormat("No Internet Explorer_Server for {0}", mainWindow.Text);
+				Log.WarnFormat("No Internet Explorer_Server for {0}", mainWindow.Text);
 				return null;
 			}
 
-			IHTMLDocument2 document2 = null;
 			uint windowMessage = User32.RegisterWindowMessage("WM_HTML_GETOBJECT");
 			if (windowMessage == 0) {
-				LOG.WarnFormat("Couldn't register WM_HTML_GETOBJECT");
+				Log.WarnFormat("Couldn't register WM_HTML_GETOBJECT");
 				return null;
 			}
 
-			LOG.DebugFormat("Trying WM_HTML_GETOBJECT on {0}", ieServer.ClassName);
+			Log.DebugFormat("Trying WM_HTML_GETOBJECT on {0}", ieServer.ClassName);
 			UIntPtr response;
 			User32.SendMessageTimeout(ieServer.Handle, windowMessage, IntPtr.Zero, IntPtr.Zero, SendMessageTimeoutFlags.SMTO_NORMAL, 5000, out response);
+			IHTMLDocument2 document2;
 			if (response != UIntPtr.Zero) {
 				document2 = (IHTMLDocument2)Accessible.ObjectFromLresult(response, typeof(IHTMLDocument).GUID, IntPtr.Zero);
 				if (document2 == null) {
-					LOG.Error("No IHTMLDocument2 found");
+					Log.Error("No IHTMLDocument2 found");
 					return null;
 				}
 			} else {
-				LOG.Error("No answer on WM_HTML_GETOBJECT.");
+				Log.Error("No answer on WM_HTML_GETOBJECT.");
 				return null;
 			}
 			return document2;
@@ -217,7 +213,6 @@ namespace Greenshot.Helpers {
 		///  or return the first if none is supplied.
 		/// </summary>
 		/// <param name="browserWindow">The WindowDetails to get the IHTMLDocument2 for</param>
-		/// <param name="document2">Ref to the IHTMLDocument2 to return</param>
 		/// <returns>The WindowDetails to which the IHTMLDocument2 belongs</returns>
 		private static DocumentContainer CreateDocumentContainer(WindowDetails browserWindow) {
 			DocumentContainer returnDocumentContainer = null;
@@ -228,28 +223,28 @@ namespace Greenshot.Helpers {
 			IHTMLDocument2 alternativeReturnDocument2 = null;
 
 			// Find the IE windows
-			foreach (WindowDetails ieWindow in GetIEWindows()) {
-				LOG.DebugFormat("Processing {0} - {1}", ieWindow.ClassName, ieWindow.Text);
+			foreach (WindowDetails ieWindow in GetIeWindows()) {
+				Log.DebugFormat("Processing {0} - {1}", ieWindow.ClassName, ieWindow.Text);
 				
 				Accessible ieAccessible = null;
-				WindowDetails directUIWD = IEHelper.GetDirectUI(ieWindow);
-				if (directUIWD != null) {
-					ieAccessible = new Accessible(directUIWD.Handle);
+				WindowDetails directUiwd = IEHelper.GetDirectUI(ieWindow);
+				if (directUiwd != null) {
+					ieAccessible = new Accessible(directUiwd.Handle);
 				}
 				if (ieAccessible == null) {
 					if (browserWindow != null) {
-						LOG.InfoFormat("Active Window is {0}", browserWindow.Text);
+						Log.InfoFormat("Active Window is {0}", browserWindow.Text);
 					}
 					if (!ieWindow.Equals(browserWindow)) {
-						LOG.WarnFormat("No ieAccessible for {0}", ieWindow.Text);
+						Log.WarnFormat("No ieAccessible for {0}", ieWindow.Text);
 						continue;
 					}
-					LOG.DebugFormat("No ieAccessible, but the active window is an IE window: {0}, ", ieWindow.Text);
+					Log.DebugFormat("No ieAccessible, but the active window is an IE window: {0}, ", ieWindow.Text);
 				}
 
 				try {
 					// Get the Document
-					IHTMLDocument2 document2 = getHTMLDocument(ieWindow);
+					IHTMLDocument2 document2 = GetHtmlDocument(ieWindow);
 					if (document2 == null) {
 						continue;
 					}
@@ -257,9 +252,7 @@ namespace Greenshot.Helpers {
 					// Get the content window handle for the shellWindow.Document
 					IOleWindow oleWindow = (IOleWindow)document2;
 					IntPtr contentWindowHandle = IntPtr.Zero;
-					if (oleWindow != null) {
-						oleWindow.GetWindow(out contentWindowHandle);
-					}
+					oleWindow?.GetWindow(out contentWindowHandle);
 
 					if (contentWindowHandle != IntPtr.Zero) {
 						// Get the HTMLDocument to check the hasFocus
@@ -267,7 +260,7 @@ namespace Greenshot.Helpers {
 						IHTMLDocument4 document4 = (IHTMLDocument4)document2;
 
 						if (document4.hasFocus()) {
-							LOG.DebugFormat("Matched focused document: {0}", document2.title);
+							Log.DebugFormat("Matched focused document: {0}", document2.title);
 							// Look no further, we got what we wanted!
 							returnDocument2 = document2;
 							returnWindow = new WindowDetails(contentWindowHandle);
@@ -280,7 +273,7 @@ namespace Greenshot.Helpers {
 								break;
 							}
 							if (ieAccessible != null && returnWindow == null && document2.title.Equals(ieAccessible.IEActiveTabCaption) ) {
-								LOG.DebugFormat("Title: {0}", document2.title);
+								Log.DebugFormat("Title: {0}", document2.title);
 								returnDocument2 = document2;
 								returnWindow = new WindowDetails(contentWindowHandle);
 							} else {
@@ -293,8 +286,8 @@ namespace Greenshot.Helpers {
 						}
 					}
 				} catch (Exception e) {
-					LOG.ErrorFormat("Major problem: Problem retrieving Document from {0}", ieWindow.Text);
-					LOG.Error(e);
+					Log.ErrorFormat("Major problem: Problem retrieving Document from {0}", ieWindow.Text);
+					Log.Error(e);
 				}
 			}
 
@@ -308,8 +301,8 @@ namespace Greenshot.Helpers {
 				try {
 					returnDocumentContainer = new DocumentContainer(returnDocument2, returnWindow);
 				} catch (Exception e) {
-					LOG.Error("Major problem: Problem retrieving Document.");
-					LOG.Error(e);
+					Log.Error("Major problem: Problem retrieving Document.");
+					Log.Error(e);
 				}
 			}
 
@@ -321,8 +314,8 @@ namespace Greenshot.Helpers {
 				try {
 					returnDocumentContainer = new DocumentContainer(alternativeReturnDocument2, alternativeReturnWindow);
 				} catch (Exception e) {
-					LOG.Error("Major problem: Problem retrieving Document.");
-					LOG.Error(e);
+					Log.Error("Major problem: Problem retrieving Document.");
+					Log.Error(e);
 				}
 			}
 			return returnDocumentContainer;
@@ -333,8 +326,8 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <param name="capture">ICapture where the capture needs to be stored</param>
 		/// <returns>ICapture with the content (if any)</returns>
-		public static ICapture CaptureIE(ICapture capture) {
-			return CaptureIE(capture, WindowDetails.GetActiveWindow());
+		public static ICapture CaptureIe(ICapture capture) {
+			return CaptureIe(capture, WindowDetails.GetActiveWindow());
 		}
 		/// <summary>
 		/// Here the logic for capturing the IE Content is located
@@ -342,7 +335,7 @@ namespace Greenshot.Helpers {
 		/// <param name="capture">ICapture where the capture needs to be stored</param>
 		/// <param name="windowToCapture">window to use</param>
 		/// <returns>ICapture with the content (if any)</returns>
-		public static ICapture CaptureIE(ICapture capture, WindowDetails windowToCapture) {
+		public static ICapture CaptureIe(ICapture capture, WindowDetails windowToCapture) {
 			if (windowToCapture == null) {
 				windowToCapture = WindowDetails.GetActiveWindow();
 			}
@@ -356,29 +349,29 @@ namespace Greenshot.Helpers {
 	
 				// Nothing found
 				if (documentContainer == null) {
-					LOG.Debug("Nothing to capture found");
+					Log.Debug("Nothing to capture found");
 					return null;
 				}
 
 				try {
-					LOG.DebugFormat("Window class {0}", documentContainer.ContentWindow.ClassName);
-					LOG.DebugFormat("Window location {0}", documentContainer.ContentWindow.Location);
+					Log.DebugFormat("Window class {0}", documentContainer.ContentWindow.ClassName);
+					Log.DebugFormat("Window location {0}", documentContainer.ContentWindow.Location);
 				} catch (Exception ex) {
-					LOG.Warn("Error while logging information.", ex);
+					Log.Warn("Error while logging information.", ex);
 				}
 
 				// bitmap to return
 				Bitmap returnBitmap = null;
 				try {
 					Size pageSize = PrepareCapture(documentContainer, capture);
-					returnBitmap = capturePage(documentContainer, capture, pageSize);
+					returnBitmap = CapturePage(documentContainer, pageSize);
 				} catch (Exception captureException) {
-					LOG.Error("Exception found, ignoring and returning nothing! Error was: ", captureException);
+					Log.Error("Exception found, ignoring and returning nothing! Error was: ", captureException);
 				}
 				// TODO: Enable when the elements are usable again.
 				// Capture the element on the page
 				//try {
-				//    if (configuration.IEFieldCapture && capture.CaptureDetails.HasDestination("Editor")) {
+				//    if (CoreConfig.IEFieldCapture && capture.CaptureDetails.HasDestination("Editor")) {
 				//        // clear the current elements, as they are for the window itself
 				//        capture.Elements.Clear();
 				//        CaptureElement documentCaptureElement = documentContainer.CreateCaptureElements(pageSize);
@@ -415,13 +408,9 @@ namespace Greenshot.Helpers {
 					// The URL is available unter "document2.url" and can be used to enhance the meta-data etc.
 					capture.CaptureDetails.AddMetaData("url", documentContainer.Url);
 					// Store the title of the page
-					if (documentContainer.Name != null) {
-						capture.CaptureDetails.Title = documentContainer.Name;
-					} else {
-						capture.CaptureDetails.Title = windowToCapture.Text;
-					}
+					capture.CaptureDetails.Title = documentContainer.Name ?? windowToCapture.Text;
 				} catch (Exception ex) {
-					LOG.Warn("Problems getting some attributes...", ex);
+					Log.Warn("Problems getting some attributes...", ex);
 				}
 
 				// Store the URL of the page
@@ -447,7 +436,7 @@ namespace Greenshot.Helpers {
 						}
 						capture.CaptureDetails.AddMetaData("URL_PORT", uri.Port.ToString());
 					} catch(Exception e) {
-						LOG.Warn("Exception when trying to use url in metadata "+documentContainer.Url,e);
+						Log.Warn("Exception when trying to use url in metadata "+documentContainer.Url,e);
 					}
 				}
 				try {
@@ -455,7 +444,7 @@ namespace Greenshot.Helpers {
 					capture.MoveMouseLocation(-documentContainer.ViewportRectangle.X, -documentContainer.ViewportRectangle.Y);
 					// Used to be: capture.MoveMouseLocation(-(capture.Location.X + documentContainer.CaptureOffset.X), -(capture.Location.Y + documentContainer.CaptureOffset.Y));
 				} catch (Exception ex) {
-					LOG.Warn("Error while correcting the mouse offset.", ex);
+					Log.Warn("Error while correcting the mouse offset.", ex);
 				}
 			} finally {
 				// Always close the background form
@@ -481,7 +470,7 @@ namespace Greenshot.Helpers {
 				movedFrame = false;
 				foreach(DocumentContainer currentFrame in documentContainer.Frames) {
 					foreach(DocumentContainer otherFrame in documentContainer.Frames) {
-						if (otherFrame.ID == currentFrame.ID) {
+						if (otherFrame.Id == currentFrame.Id) {
 							continue;
 						}
 						// check if we need to move
@@ -495,16 +484,16 @@ namespace Greenshot.Helpers {
 							
 							if ((horizalResize || horizalMove) && leftOf) {
 								// Current frame resized horizontally, so move other horizontally
-								LOG.DebugFormat("Moving Frame {0} horizontally to the right of {1}", otherFrame.Name, currentFrame.Name);
+								Log.DebugFormat("Moving Frame {0} horizontally to the right of {1}", otherFrame.Name, currentFrame.Name);
 								otherFrame.DestinationLeft = currentFrame.DestinationRight;
 								movedFrame = true;
 							} else if ((verticalResize || verticalMove) && belowOf){
 								// Current frame resized vertically, so move other vertically
-								LOG.DebugFormat("Moving Frame {0} vertically to the bottom of {1}", otherFrame.Name, currentFrame.Name);
+								Log.DebugFormat("Moving Frame {0} vertically to the bottom of {1}", otherFrame.Name, currentFrame.Name);
 								otherFrame.DestinationTop = currentFrame.DestinationBottom;
 								movedFrame = true;
 							} else {
-								LOG.DebugFormat("Frame {0} intersects with {1}", otherFrame.Name, currentFrame.Name);
+								Log.DebugFormat("Frame {0} intersects with {1}", otherFrame.Name, currentFrame.Name);
 							}
 						}
 					}
@@ -540,11 +529,11 @@ namespace Greenshot.Helpers {
 			
 			// Limit the size as the editor currently can't work with sizes > short.MaxValue
 			if (pageWidth > short.MaxValue) {
-				LOG.WarnFormat("Capture has a width of {0} which bigger than the maximum supported {1}, cutting width to the maxium.", pageWidth, short.MaxValue);
+				Log.WarnFormat("Capture has a width of {0} which bigger than the maximum supported {1}, cutting width to the maxium.", pageWidth, short.MaxValue);
 				pageWidth = Math.Min(pageWidth, short.MaxValue);
 			}
 			if (pageHeight > short.MaxValue) {
-				LOG.WarnFormat("Capture has a height of {0} which bigger than the maximum supported {1}, cutting height to the maxium", pageHeight, short.MaxValue);
+				Log.WarnFormat("Capture has a height of {0} which bigger than the maximum supported {1}, cutting height to the maxium", pageHeight, short.MaxValue);
 				pageHeight = Math.Min(pageHeight, short.MaxValue);
 			}
 			return new Size(pageWidth, pageHeight);
@@ -554,8 +543,9 @@ namespace Greenshot.Helpers {
 		/// Capture the actual page (document)
 		/// </summary>
 		/// <param name="documentContainer">The document wrapped in a container</param>
+		/// <param name="pageSize"></param>
 		/// <returns>Bitmap with the page content as an image</returns>
-		private static Bitmap capturePage(DocumentContainer documentContainer, ICapture capture, Size pageSize) {
+		private static Bitmap CapturePage(DocumentContainer documentContainer, Size pageSize) {
 			WindowDetails contentWindowDetails = documentContainer.ContentWindow;
 
 			//Create a target bitmap to draw into with the calculated page size
@@ -563,11 +553,11 @@ namespace Greenshot.Helpers {
 			using (Graphics graphicsTarget = Graphics.FromImage(returnBitmap)) {
 				// Clear the target with the backgroundcolor
 				Color clearColor = documentContainer.BackgroundColor;
-				LOG.DebugFormat("Clear color: {0}", clearColor);
+				Log.DebugFormat("Clear color: {0}", clearColor);
 				graphicsTarget.Clear(clearColor);
 
 				// Get the base document & draw it
-				drawDocument(documentContainer, contentWindowDetails, graphicsTarget);
+				DrawDocument(documentContainer, contentWindowDetails, graphicsTarget);
 				
 				// Loop over the frames and clear their source area so we don't see any artefacts
 				foreach(DocumentContainer frameDocument in documentContainer.Frames) {
@@ -577,7 +567,7 @@ namespace Greenshot.Helpers {
 				}
 				// Loop over the frames and capture their content
 				foreach(DocumentContainer frameDocument in documentContainer.Frames) {
-					drawDocument(frameDocument, contentWindowDetails, graphicsTarget);
+					DrawDocument(frameDocument, contentWindowDetails, graphicsTarget);
 				}
 			}
 			return returnBitmap;
@@ -586,17 +576,18 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// This method takes the actual capture of the document (frame)
 		/// </summary>
-		/// <param name="frameDocument"></param>
+		/// <param name="documentContainer">DocumentContainer</param>
 		/// <param name="contentWindowDetails">Needed for referencing the location of the frame</param>
+		/// <param name="graphicsTarget">Graphics</param>
 		/// <returns>Bitmap with the capture</returns>
-		private static void drawDocument(DocumentContainer documentContainer, WindowDetails contentWindowDetails, Graphics graphicsTarget) {
-			documentContainer.setAttribute("scroll", 1);
+		private static void DrawDocument(DocumentContainer documentContainer, WindowDetails contentWindowDetails, Graphics graphicsTarget) {
+			documentContainer.SetAttribute("scroll", 1);
 
 			//Get Browser Window Width & Height
 			int pageWidth = documentContainer.ScrollWidth;
 			int pageHeight = documentContainer.ScrollHeight;
 			if (pageWidth * pageHeight == 0) {
-				LOG.WarnFormat("Empty page for DocumentContainer {0}: {1}", documentContainer.Name, documentContainer.Url);
+				Log.WarnFormat("Empty page for DocumentContainer {0}: {1}", documentContainer.Name, documentContainer.Url);
 				return;
 			}
 
@@ -604,7 +595,7 @@ namespace Greenshot.Helpers {
 			int viewportWidth = documentContainer.ClientWidth;
 			int viewportHeight = documentContainer.ClientHeight;
 			if (viewportWidth * viewportHeight == 0) {
-				LOG.WarnFormat("Empty viewport for DocumentContainer {0}: {1}", documentContainer.Name, documentContainer.Url);
+				Log.WarnFormat("Empty viewport for DocumentContainer {0}: {1}", documentContainer.Name, documentContainer.Url);
 				return;
 			}
 
@@ -612,7 +603,7 @@ namespace Greenshot.Helpers {
 			int startLeft = documentContainer.ScrollLeft;
 			int startTop = documentContainer.ScrollTop;
 
-			LOG.DebugFormat("Capturing {4} with total size {0},{1} displayed with size {2},{3}", pageWidth, pageHeight, viewportWidth, viewportHeight, documentContainer.Name);
+			Log.DebugFormat("Capturing {4} with total size {0},{1} displayed with size {2},{3}", pageWidth, pageHeight, viewportWidth, viewportHeight, documentContainer.Name);
 
 			// Variable used for looping horizontally
 			int horizontalPage = 0;
@@ -621,14 +612,14 @@ namespace Greenshot.Helpers {
 			Point targetOffset = new Point();
 			
 			// Loop of the pages and make a copy of the visible viewport
-			while ((horizontalPage * viewportWidth) < pageWidth) {
+			while (horizontalPage * viewportWidth < pageWidth) {
 				// Scroll to location
 				documentContainer.ScrollLeft = viewportWidth * horizontalPage;
 				targetOffset.X = documentContainer.ScrollLeft;
 
 				// Variable used for looping vertically
 				int verticalPage = 0;
-				while ((verticalPage * viewportHeight) < pageHeight) {
+				while (verticalPage * viewportHeight < pageHeight) {
 					// Scroll to location
 					documentContainer.ScrollTop = viewportHeight * verticalPage;
 					//Shoot visible window
@@ -639,34 +630,34 @@ namespace Greenshot.Helpers {
 					Rectangle clientRectangle = new Rectangle(documentContainer.SourceLocation, viewPortSize);
 					Image fragment = contentWindowDetails.PrintWindow();
 					if (fragment != null) {
-						LOG.DebugFormat("Captured fragment size: {0}x{1}", fragment.Width, fragment.Height);
+						Log.DebugFormat("Captured fragment size: {0}x{1}", fragment.Width, fragment.Height);
 						try {
 							// cut all junk, due to IE "border" we need to remove some parts
 							Rectangle viewportRect = documentContainer.ViewportRectangle;
 							if (!viewportRect.IsEmpty) {
-								LOG.DebugFormat("Cropping to viewport: {0}", viewportRect);
+								Log.DebugFormat("Cropping to viewport: {0}", viewportRect);
 								ImageHelper.Crop(ref fragment, ref viewportRect);
 							}
-							LOG.DebugFormat("Cropping to clientRectangle: {0}", clientRectangle);
+							Log.DebugFormat("Cropping to clientRectangle: {0}", clientRectangle);
 							// Crop to clientRectangle
 							if (ImageHelper.Crop(ref fragment, ref clientRectangle)) {
 								Point targetLocation = new Point(documentContainer.DestinationLocation.X, documentContainer.DestinationLocation.Y);
-								LOG.DebugFormat("Fragment targetLocation is {0}", targetLocation);
+								Log.DebugFormat("Fragment targetLocation is {0}", targetLocation);
 								targetLocation.Offset(targetOffset);
-								LOG.DebugFormat("After offsetting the fragment targetLocation is {0}", targetLocation);
-								LOG.DebugFormat("Drawing fragment of size {0} to {1}", fragment.Size, targetLocation);
+								Log.DebugFormat("After offsetting the fragment targetLocation is {0}", targetLocation);
+								Log.DebugFormat("Drawing fragment of size {0} to {1}", fragment.Size, targetLocation);
 								graphicsTarget.DrawImage(fragment, targetLocation);
 								graphicsTarget.Flush();
 							} else {
 								// somehow we are capturing nothing!?
-								LOG.WarnFormat("Crop of {0} failed?", documentContainer.Name);
+								Log.WarnFormat("Crop of {0} failed?", documentContainer.Name);
 								break;
 							}
 						} finally {
 							fragment.Dispose();
 						}
 					} else {
-						LOG.WarnFormat("Capture of {0} failed!", documentContainer.Name);
+						Log.WarnFormat("Capture of {0} failed!", documentContainer.Name);
 					}
 					verticalPage++;
 				}

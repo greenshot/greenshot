@@ -3,7 +3,7 @@
  * Copyright (C) 2007-2012  Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Runtime.Serialization;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -34,7 +35,7 @@ namespace Greenshot.Drawing {
 	/// To make sure that deleting recalculates, we check the location before every draw.
 	/// </summary>
 	[Serializable]
-	public class StepLabelContainer : DrawableContainer {
+	public sealed class StepLabelContainer : DrawableContainer {
 		[NonSerialized]
 		private StringFormat _stringFormat = new StringFormat();
 
@@ -45,11 +46,19 @@ namespace Greenshot.Drawing {
 		public StepLabelContainer(Surface parent) : base(parent) {
 			parent.AddStepLabel(this);
 			InitContent();
+			Init();
+		}
+
+		private void Init()
+		{
+			CreateDefaultAdorners();
 		}
 
 		#region Number serializing
 		// Used to store the number of this label, so when deserializing it can be placed back to the StepLabels list in the right location
 		private int _number;
+		// Used to store the counter start of the Surface, as the surface is NOT stored.
+		private int _counterStart = 1;
 		public int Number {
 			get {
 				return _number;
@@ -67,6 +76,7 @@ namespace Greenshot.Drawing {
 		private void SetValuesOnSerializing(StreamingContext context) {
 			if (Parent != null) {
 				Number = ((Surface)Parent).CountStepLabels(this);
+				_counterStart = ((Surface) Parent).CounterStart;
 			}
 		}
 		#endregion
@@ -75,11 +85,15 @@ namespace Greenshot.Drawing {
 		/// Restore values that don't serialize
 		/// </summary>
 		/// <param name="context"></param>
-		[OnDeserialized]
-		private void SetValuesOnDeserialized(StreamingContext context) {
-			_stringFormat = new StringFormat();
-			_stringFormat.Alignment = StringAlignment.Center;
-			_stringFormat.LineAlignment = StringAlignment.Center;
+		protected override void OnDeserialized(StreamingContext context)
+		{
+			Init();
+			_stringFormat = new StringFormat
+			{
+				Alignment = StringAlignment.Center,
+				LineAlignment = StringAlignment.Center
+			};
+
 		}
 
 		/// <summary>
@@ -87,20 +101,22 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="newParent"></param>
 		protected override void SwitchParent(Surface newParent) {
-			if (Parent != null) {
-				((Surface)Parent).RemoveStepLabel(this);
+			if (newParent == Parent)
+			{
+				return;
 			}
+			((Surface) Parent)?.RemoveStepLabel(this);
 			base.SwitchParent(newParent);
-			if (newParent != null) {
-				((Surface)Parent).AddStepLabel(this);
+			if (newParent == null)
+			{
+				return;
 			}
+			// Make sure the counter start is restored (this unfortunately happens multiple times... -> hack)
+			newParent.CounterStart = _counterStart;
+			newParent.AddStepLabel(this);
 		}
 
-		public override Size DefaultSize {
-			get {
-				return new Size(30, 30);
-			}
-		}
+		public override Size DefaultSize => new Size(30, 30);
 
 		public override bool InitContent() {
 			_defaultEditMode = EditStatus.IDLE;
@@ -118,7 +134,7 @@ namespace Greenshot.Drawing {
 		/// This makes it possible for the label to be placed exactly in the middle of the pointer.
 		/// </summary>
 		public override bool HandleMouseDown(int mouseX, int mouseY) {
-			return base.HandleMouseDown(mouseX - (Width / 2), mouseY - (Height / 2));
+			return base.HandleMouseDown(mouseX - Width / 2, mouseY - Height / 2);
 		}
 
 		/// <summary>
@@ -127,6 +143,7 @@ namespace Greenshot.Drawing {
 		protected override void InitializeFields() {
 			AddField(GetType(), FieldType.FILL_COLOR, Color.DarkRed);
 			AddField(GetType(), FieldType.LINE_COLOR, Color.White);
+			AddField(GetType(), FieldType.FLAGS, FieldFlag.COUNTER);
 		}
 
 		/// <summary>
@@ -137,17 +154,19 @@ namespace Greenshot.Drawing {
 			if (!disposing) {
 				return;
 			}
-			((Surface)Parent).RemoveStepLabel(this);
-			if (_stringFormat != null) {
-				_stringFormat.Dispose();
-				_stringFormat = null;
+			((Surface) Parent)?.RemoveStepLabel(this);
+			if (_stringFormat == null)
+			{
+				return;
 			}
+			_stringFormat.Dispose();
+			_stringFormat = null;
 		}
 
 		public override bool HandleMouseMove(int x, int y) {
 			Invalidate();
-			Left = x - (Width / 2);
-			Top = y - (Height / 2);
+			Left = x - Width / 2;
+			Top = y - Height / 2;
 			Invalidate();
 			return true;
 		}
@@ -167,7 +186,7 @@ namespace Greenshot.Drawing {
 
 			int widthAfter = rect.Width;
 			int heightAfter = rect.Height;
-			float factor = (((float)widthAfter / widthBefore) + ((float)heightAfter / heightBefore)) / 2;
+			float factor = ((float)widthAfter / widthBefore + (float)heightAfter / heightBefore) / 2;
 
 			fontSize *= factor;
 		}
@@ -193,8 +212,8 @@ namespace Greenshot.Drawing {
 				EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
 			}
 			using (FontFamily fam = new FontFamily(FontFamily.GenericSansSerif.Name)) {
-				using (Font _font = new Font(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel)) {
-					TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, _font);
+				using (Font font = new Font(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel)) {
+					TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, font);
 				}
 			}
 		}

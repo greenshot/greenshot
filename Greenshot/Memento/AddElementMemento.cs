@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using Greenshot.Configuration;
 using Greenshot.Drawing;
 using Greenshot.Plugin.Drawing;
 
@@ -28,12 +27,12 @@ namespace Greenshot.Memento {
 	/// The AddElementMemento makes it possible to undo adding an element
 	/// </summary>
 	public class AddElementMemento : IMemento  {
-		private IDrawableContainer drawableContainer;
-		private Surface surface;
+		private IDrawableContainer _drawableContainer;
+		private Surface _surface;
 		
 		public AddElementMemento(Surface surface, IDrawableContainer drawableContainer) {
-			this.surface = surface;
-			this.drawableContainer = drawableContainer;
+			_surface = surface;
+			_drawableContainer = drawableContainer;
 		}
 
 		public void Dispose() {
@@ -43,14 +42,8 @@ namespace Greenshot.Memento {
 
 		protected virtual void Dispose(bool disposing) {
 			//if (disposing) { }
-			drawableContainer = null;
-			surface = null;
-		}
-
-		public LangKey ActionLanguageKey {
-			get {
-				return LangKey.none;
-			}
+			_drawableContainer = null;
+			_surface = null;
 		}
 
 		public bool Merge(IMemento otherMemento) {
@@ -59,16 +52,15 @@ namespace Greenshot.Memento {
 
 		public IMemento Restore() {
 			// Before
-			drawableContainer.Invalidate();
+			_drawableContainer.Invalidate();
 			// Store the selected state, as it's overwritten by the RemoveElement
-			bool selected = drawableContainer.Selected;
 
-			DeleteElementMemento oldState = new DeleteElementMemento(surface, drawableContainer);
-			surface.RemoveElement(drawableContainer, false);
-			drawableContainer.Selected = true;
+			DeleteElementMemento oldState = new DeleteElementMemento(_surface, _drawableContainer);
+			_surface.RemoveElement(_drawableContainer, false);
+			_drawableContainer.Selected = true;
 
 			// After
-			drawableContainer.Invalidate();
+			_drawableContainer.Invalidate();
 			return oldState;
 		}
 	}

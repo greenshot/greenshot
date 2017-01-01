@@ -3,10 +3,10 @@
 # Assumes the installation of Microsoft .NET Framework 4.5
 ################################################################
 # Greenshot - a free and open source screenshot tool
-# Copyright (C) 2007-2014 Thomas Braun, Jens Klingen, Robin Krom
+# Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
 # 
 # For more information see: http://getgreenshot.org/
-# The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+# The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,8 +23,20 @@
 ################################################################
 
 $version=$env:APPVEYOR_BUILD_VERSION
+if ( !$version ) {
+	$version = "1.3.0.0"
+}
+
 $buildType=$env:build_type
+if ( !$buildType ) {
+	$buildType = "local"
+}
+
 $gitcommit=$env:APPVEYOR_REPO_COMMIT
+if ( !$gitcommit ) {
+	$gitcommit = "abcdefghijklmnopqrstuvwxy"
+}
+
 $gitcommit=$gitcommit.SubString(0, [math]::Min($gitcommit.Length, 7))
 $detailversion=$version + '-' + $gitcommit + " " + $buildType
 $release=(([version]$version).build) % 2 -eq 1
@@ -38,6 +50,26 @@ Function MD5($filename) {
 	$MD5CryptoServiceProvider = new-object -TypeName System.Security.Cryptography.MD5CryptoServiceProvider
 	$hash = $MD5CryptoServiceProvider.ComputeHash($fileStream)
 	return [System.BitConverter]::ToString($hash) -replace "-", ""
+}
+
+# Sign the specify file
+Function SignWithCertificate($filename) {
+	Write-Host "Signing $filename" 
+	$signSha1Arguments = @('sign', '/debug',          '/fd', 'sha1'  , '/tr', 'http://time.certum.pl', '/td', 'sha1'  , $filename)
+	$signSha256Arguments = @('sign', '/debug', '/as', '/fd', 'sha256', '/tr', 'http://time.certum.pl', '/td', 'sha256', $filename)
+
+	Start-Process -wait $env:SignTool -ArgumentList $signSha1Arguments -NoNewWindow
+	Start-Process -wait $env:SignTool -ArgumentList $signSha256Arguments -NoNewWindow
+}
+
+# Sign the file with Signtool before they are packed in the installer / .zip etc
+Function SignBinaryFilesBeforeBuildingInstaller() {
+	$sourcebase = "$(get-location)\Greenshot\bin\Release"
+
+	$INCLUDE=@("*.exe", "*.gsp", "*.dll")
+	Get-ChildItem -Path "$sourcebase" -Recurse -Include $INCLUDE -Exclude "log4net.dll" | foreach {
+		SignWithCertificate($_)
+	}
 }
 
 # Fill the templates
@@ -64,10 +96,14 @@ Function FillTemplates {
 # Create the MD5 checksum file
 Function MD5Checksums {
 	echo "MD5 Checksums:"
-	$currentMD5 = MD5("$(get-location)\Greenshot\bin\Release\Greenshot.exe")
-	echo "Greenshot.exe : $currentMD5"
-	$currentMD5 = MD5("$(get-location)\Greenshot\bin\Release\GreenshotPlugin.dll")
-	echo "GreenshotPlugin.dll : $currentMD5"
+	$sourcebase = "$(get-location)\Greenshot\bin\Release"
+
+	$INCLUDE=@("*.exe", "*.gsp", "*.dll")
+	Get-ChildItem -Path "$sourcebase" -Recurse -Include $INCLUDE | foreach {
+		$currentMD5 = MD5($_.fullname)
+		$name = $_.Name
+		echo "$name : $currentMD5"
+	}
 }
 
 # This function creates the paf.exe
@@ -103,8 +139,9 @@ Function PackagePortable {
 	@( "$sourcebase\checksum.MD5",
 		"$sourcebase\Greenshot.exe.config",
 		"$sourcebase\GreenshotPlugin.dll",
+		"$sourcebase\LinqBridge.dll",
 		"$sourcebase\log4net.dll",
-		"$sourcebase\log4net.xml",
+		"$sourcebase\log4net-portable.xml",
 		"$destbase\additional_files\*.txt" ) | foreach { Copy-Item $_ "$destbase\portabletmp\App\Greenshot\" }
 
 	Copy-Item -Path "$sourcebase\Languages\help-en-US.html" -Destination "$destbase\portabletmp\help.html"
@@ -127,6 +164,13 @@ Function PackagePortable {
 	}
 	Start-Sleep -m 1500
 	Remove-Item "$destbase\portabletmp" -Recurse -Confirm:$false
+
+	# sign the .paf.exe
+	$pafFiles = @("*.paf.exe")
+	Get-ChildItem -Path "$destbase" -Recurse -Include $pafFiles | foreach {
+		SignWithCertificate($_)
+	}
+
 	return
 }
 
@@ -169,10 +213,13 @@ Function PackageZip {
 		"$sourcebase\Greenshot.exe",
 		"$sourcebase\Greenshot.exe.config",
 		"$sourcebase\GreenshotPlugin.dll",
+		"$sourcebase\LinqBridge.dll",
 		"$sourcebase\log4net.dll",
-		"$sourcebase\log4net.xml",
+		"$(get-location)\Greenshot\log4net-zip.xml"
 		"$destbase\additional_files\*.txt" ) | foreach { Copy-Item $_ "$destzip\" }
 
+	Rename-Item "$destzip\log4net-zip.xml" "$destzip\log4net.xml"
+		
 	$zipOutput = "$(get-location)\zip"
 	$zip7 = "$(get-location)\greenshot\tools\7zip\7za.exe"
 	$arguments = @('a', '-mx9', '-tzip', '-r', "$destbase\Greenshot-NO-INSTALLER-$fileversion.zip", "$destzip\*")
@@ -235,10 +282,11 @@ Function PackageDbgSymbolsZip {
 # This function creates the installer
 Function PackageInstaller {
 	$setupOutput = "$(get-location)\setup"
-	$innoSetup = "$(get-location)\greenshot\tools\innosetup\ISCC.exe"
+	$innoSetup = "$(get-location)\packages\Tools.InnoSetup.5.5.9\tools\ISCC.exe"
 	$innoSetupFile = "$(get-location)\greenshot\releases\innosetup\setup.iss"
 	Write-Host "Starting $innoSetup $innoSetupFile"
-	$setupResult = Start-Process -wait -PassThru "$innoSetup" -ArgumentList "$innoSetupFile" -NoNewWindow -RedirectStandardOutput "$setupOutput.log" -RedirectStandardError "$setupOutput.error"
+	$arguments = @("/Qp /SSignTool=""$env:SignTool `$p""", $innoSetupFile)
+	$setupResult = Start-Process -wait -PassThru "$innoSetup" -ArgumentList $arguments -NoNewWindow -RedirectStandardOutput "$setupOutput.log" -RedirectStandardError "$setupOutput.error"
 	Write-Host "Log output:"
 	Get-Content "$setupOutput.log"| Write-Host
 	if ($setupResult.ExitCode -ne 0) {
@@ -274,8 +322,11 @@ Function TagCode {
 
 FillTemplates
 
-echo "Generating MD5"
+echo "Signing executables"
+SignBinaryFilesBeforeBuildingInstaller
 
+# This must be after the signing, otherwise they would be different.
+echo "Generating MD5"
 MD5Checksums | Set-Content "$(get-location)\Greenshot\bin\Release\checksum.MD5" -encoding UTF8
 
 echo "Generating Installer"

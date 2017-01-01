@@ -25,7 +25,7 @@ namespace GreenshotImgurPlugin {
 	/// Description of PasswordRequestForm.
 	/// </summary>
 	public partial class SettingsForm : ImgurForm {
-		public SettingsForm(ImgurConfiguration config)
+		public SettingsForm()
 		{
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
@@ -34,9 +34,7 @@ namespace GreenshotImgurPlugin {
 			CancelButton = buttonCancel;
 			AcceptButton = buttonOK;
 			
-			ImgurUtils.LoadHistory();
-
-			historyButton.Enabled = config.runtimeImgurHistory.Count > 0;
+			historyButton.Enabled = ImgurUtils.IsHistoryLoadingNeeded();
 		}
 
 		private void ButtonHistoryClick(object sender, EventArgs e) {

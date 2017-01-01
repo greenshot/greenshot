@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,13 +21,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using Greenshot.Core;
+using GreenshotPlugin.Effects;
 
 //using Microsoft.Win32;
 
@@ -61,13 +60,11 @@ namespace GreenshotOCR {
 	/// OCR Plugin Greenshot
 	/// </summary>
 	public class OcrPlugin : IGreenshotPlugin {
-		private static log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OcrPlugin));
-		private const string CONFIG_FILENAME = "ocr-config.properties";
-		private string OCR_COMMAND;
-		private static IGreenshotHost host;
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(OcrPlugin));
+		private string _ocrCommand;
 		private static OCRConfiguration config;
-		private PluginAttribute myAttributes;
-		private ToolStripMenuItem ocrMenuItem = new ToolStripMenuItem();
+		private PluginAttribute _myAttributes;
+		private ToolStripMenuItem _ocrMenuItem = new ToolStripMenuItem();
 
 		public void Dispose() {
 			Dispose(true);
@@ -76,14 +73,12 @@ namespace GreenshotOCR {
 
 		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
-				if (ocrMenuItem != null) {
-					ocrMenuItem.Dispose();
-					ocrMenuItem = null;
+				if (_ocrMenuItem != null) {
+					_ocrMenuItem.Dispose();
+					_ocrMenuItem = null;
 				}
 			}
 		}
-
-		public OcrPlugin() { }
 
 		public IEnumerable<IDestination> Destinations() {
 			yield return new OCRDestination(this);
@@ -95,19 +90,22 @@ namespace GreenshotOCR {
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
-		/// <param name="pluginAttribute">My own attributes</param>
+		/// <param name="greenshotHost">Use the IGreenshotPluginHost interface to register events</param>
+		/// <param name="myAttributes">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
 		public virtual bool Initialize(IGreenshotHost greenshotHost, PluginAttribute myAttributes) {
-			LOG.Debug("Initialize called of " + myAttributes.Name);
-			host = greenshotHost;
-			this.myAttributes = myAttributes;
-			
-			OCR_COMMAND = Path.Combine(Path.GetDirectoryName(myAttributes.DllFile), "greenshotocrcommand.exe");
+			Log.Debug("Initialize called of " + myAttributes.Name);
+			_myAttributes = myAttributes;
 
-			if (!HasMODI()) {
-				LOG.Warn("No MODI found!");
+			var ocrDirectory = Path.GetDirectoryName(myAttributes.DllFile);
+			if (ocrDirectory == null)
+			{
+				return false;
+			}
+			_ocrCommand = Path.Combine(ocrDirectory, "greenshotocrcommand.exe");
+
+			if (!HasModi()) {
+				Log.Warn("No MODI found!");
 				return false;
 			}
 			// Load configuration
@@ -123,14 +121,14 @@ namespace GreenshotOCR {
 		/// Implementation of the IGreenshotPlugin.Shutdown
 		/// </summary>
 		public void Shutdown() {
-			LOG.Debug("Shutdown of " + myAttributes.Name);
+			Log.Debug("Shutdown of " + _myAttributes.Name);
 		}
 		
 		/// <summary>
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
 		public virtual void Configure() {
-			if (!HasMODI()) {
+			if (!HasModi()) {
 				MessageBox.Show("Sorry, is seems that Microsoft Office Document Imaging (MODI) is not installed, therefor the OCR Plugin cannot work.");
 				return;
 			}
@@ -143,87 +141,99 @@ namespace GreenshotOCR {
 		}
 
 
+		private const int MinWidth = 130;
+		private const int MinHeight = 130;
 		/// <summary>
 		/// Handling of the CaptureTaken "event" from the ICaptureHost
 		/// We do the OCR here!
 		/// </summary>
-		/// <param name="ImageOutputEventArgs">Has the Image and the capture details</param>
-		private const int MIN_WIDTH = 130;
-		private const int MIN_HEIGHT = 130;
-		public string DoOCR(ISurface surface) {
-			string filePath = null;
-			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(OutputFormat.bmp, 0, true);
-			outputSettings.ReduceColors = true;
+		/// <param name="surface">Has the Image and the capture details</param>
+		public string DoOcr(ISurface surface) {
+			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(OutputFormat.bmp, 0, true)
+			{
+				ReduceColors = true,
+				SaveBackgroundOnly = true
+			};
 			// We only want the background
-			outputSettings.SaveBackgroundOnly = true;
 			// Force Grayscale output
 			outputSettings.Effects.Add(new GrayscaleEffect());
 
 			// Also we need to check the size, resize if needed to 130x130 this is the minimum
-			if (surface.Image.Width < MIN_WIDTH || surface.Image.Height < MIN_HEIGHT) {
-				int addedWidth = MIN_WIDTH - surface.Image.Width;
+			if (surface.Image.Width < MinWidth || surface.Image.Height < MinHeight) {
+				int addedWidth = MinWidth - surface.Image.Width;
 				if (addedWidth < 0) {
 					addedWidth = 0;
 				}
-				int addedHeight = MIN_HEIGHT - surface.Image.Height;
+				int addedHeight = MinHeight - surface.Image.Height;
 				if (addedHeight < 0) {
 					addedHeight = 0;
 				}
 				IEffect effect = new ResizeCanvasEffect(addedWidth / 2, addedWidth / 2, addedHeight / 2, addedHeight / 2);
 				outputSettings.Effects.Add(effect);
 			}
-			filePath = ImageOutput.SaveToTmpFile(surface, outputSettings, null);
+			var filePath = ImageOutput.SaveToTmpFile(surface, outputSettings, null);
 
-			LOG.Debug("Saved tmp file to: " + filePath);
+			Log.Debug("Saved tmp file to: " + filePath);
 
 			string text = "";
 			try {
-				ProcessStartInfo processStartInfo = new ProcessStartInfo(OCR_COMMAND, "\"" + filePath + "\" " + config.Language + " " + config.Orientimage + " " + config.StraightenImage);
-				processStartInfo.CreateNoWindow = true;
-				processStartInfo.RedirectStandardOutput = true;
-				processStartInfo.UseShellExecute = false;
+				ProcessStartInfo processStartInfo = new ProcessStartInfo(_ocrCommand, "\"" + filePath + "\" " + config.Language + " " + config.Orientimage + " " + config.StraightenImage)
+				{
+					CreateNoWindow = true,
+					RedirectStandardOutput = true,
+					UseShellExecute = false
+				};
 				using (Process process = Process.Start(processStartInfo)) {
-					process.WaitForExit(30 * 1000);
-					if (process.ExitCode == 0) {
-						text = process.StandardOutput.ReadToEnd();
+					if (process != null)
+					{
+						process.WaitForExit(30 * 1000);
+						if (process.ExitCode == 0) {
+							text = process.StandardOutput.ReadToEnd();
+						}
 					}
 				}
 			} catch (Exception e) {
-				LOG.Error("Error while calling Microsoft Office Document Imaging (MODI) to OCR: ", e);
+				Log.Error("Error while calling Microsoft Office Document Imaging (MODI) to OCR: ", e);
 			} finally {
 				if (File.Exists(filePath)) {
-					LOG.Debug("Cleaning up tmp file: " + filePath);
+					Log.Debug("Cleaning up tmp file: " + filePath);
 					File.Delete(filePath);
 				}
 			}
 
-			if (text == null || text.Trim().Length == 0) {
-				LOG.Info("No text returned");
+			if (string.IsNullOrEmpty(text)) {
+				Log.Info("No text returned");
 				return null;
 			}
 
+			// For for BUG-1884:
+			text = text.Trim();
+
 			try {
-				LOG.DebugFormat("Pasting OCR Text to Clipboard: {0}", text);
+				Log.DebugFormat("Pasting OCR Text to Clipboard: {0}", text);
 				// Paste to Clipboard (the Plugin currently doesn't have access to the ClipboardHelper from Greenshot
 				IDataObject ido = new DataObject();
 				ido.SetData(DataFormats.Text, true, text);
 				Clipboard.SetDataObject(ido, true);
 			} catch (Exception e) {
-				LOG.Error("Problem pasting text to clipboard: ", e);
+				Log.Error("Problem pasting text to clipboard: ", e);
 			}
 			return text;
 		}
 
-		private bool HasMODI() {
+		private bool HasModi() {
 			try {
-				using (Process process = Process.Start(OCR_COMMAND, "-c")) {
-					process.WaitForExit();
-					return process.ExitCode == 0;
+				using (Process process = Process.Start(_ocrCommand, "-c")) {
+					if (process != null)
+					{
+						process.WaitForExit();
+						return process.ExitCode == 0;
+					}
 				}
 			} catch(Exception e) {
-				LOG.DebugFormat("Error trying to initiate MODI: {0}", e.Message);
+				Log.DebugFormat("Error trying to initiate MODI: {0}", e.Message);
 			}
-			LOG.InfoFormat("No Microsoft Office Document Imaging (MODI) found, disabling OCR");
+			Log.InfoFormat("No Microsoft Office Document Imaging (MODI) found, disabling OCR");
 			return false;
 		}
 	}

@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -130,7 +130,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// Helper method for an easy DWM check
 		/// </summary>
 		/// <returns>bool true if DWM is available AND active</returns>
-		public static bool isDWMEnabled() {
+		public static bool IsDwmEnabled() {
 			// According to: http://technet.microsoft.com/en-us/subscriptions/aa969538%28v=vs.85%29.aspx
 			// And: http://msdn.microsoft.com/en-us/library/windows/desktop/aa969510%28v=vs.85%29.aspx
 			// DMW is always enabled on Windows 8! So return true and save a check! ;-)
@@ -148,11 +148,9 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		public static Color ColorizationColor {
 			get {
 				using (RegistryKey key = Registry.CurrentUser.OpenSubKey(COLORIZATION_COLOR_KEY, false)) {
-					if (key != null) {
-						object dwordValue = key.GetValue("ColorizationColor");
-						if (dwordValue != null) {
-							return Color.FromArgb((Int32)dwordValue);
-						}
+					object dwordValue = key?.GetValue("ColorizationColor");
+					if (dwordValue != null) {
+						return Color.FromArgb((int)dwordValue);
 					}
 				}
 				return Color.White;

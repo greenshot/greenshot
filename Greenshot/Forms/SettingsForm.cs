@@ -1,9 +1,9 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016  Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,10 +43,10 @@ namespace Greenshot {
 	/// Description of SettingsForm.
 	/// </summary>
 	public partial class SettingsForm : BaseForm {
-		private static ILog LOG = LogManager.GetLogger(typeof(SettingsForm));
-		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+		private static readonly ILog Log = LogManager.GetLogger(typeof(SettingsForm));
 		private readonly ToolTip _toolTip = new ToolTip();
 		private bool _inHotkey;
+		private int _daysbetweencheckPreviousValue;
 
 		public SettingsForm() {
 			InitializeComponent();
@@ -59,11 +59,7 @@ namespace Greenshot {
 			base.OnLoad(e);
 
 			// Fix for Vista/XP differences
-			if (Environment.OSVersion.Version.Major >= 6) {
-				trackBarJpegQuality.BackColor = SystemColors.Window;
-			} else {
-				trackBarJpegQuality.BackColor = SystemColors.Control;
-			}
+			trackBarJpegQuality.BackColor = Environment.OSVersion.Version.Major >= 6 ? SystemColors.Window : SystemColors.Control;
 
 			// This makes it possible to still capture the settings screen
 			fullscreen_hotkeyControl.Enter += EnterHotkeyControl;
@@ -76,12 +72,47 @@ namespace Greenshot {
 			ie_hotkeyControl.Leave += LeaveHotkeyControl;
 			lastregion_hotkeyControl.Enter += EnterHotkeyControl;
 			lastregion_hotkeyControl.Leave += LeaveHotkeyControl;
+			// Changes for BUG-2077
+			numericUpDown_daysbetweencheck.ValueChanged += NumericUpDownDaysbetweencheckOnValueChanged;
 
+			_daysbetweencheckPreviousValue = (int) numericUpDown_daysbetweencheck.Value;
 			DisplayPluginTab();
-			UpdateUI();
+			UpdateUi();
 			ExpertSettingsEnableState(false);
 			DisplaySettings();
 			CheckSettings();
+		}
+
+		/// <summary>
+		/// This makes sure the check cannot be set to 1-6
+		/// </summary>
+		/// <param name="sender">object</param>
+		/// <param name="eventArgs">EventArgs</param>
+		private void NumericUpDownDaysbetweencheckOnValueChanged(object sender, EventArgs eventArgs)
+		{
+			int currentValue = (int)numericUpDown_daysbetweencheck.Value;
+
+			// Check if we can into the forbidden range
+			if (currentValue > 0 && currentValue < 7)
+			{
+				if (_daysbetweencheckPreviousValue <= currentValue)
+				{
+					numericUpDown_daysbetweencheck.Value = 7;
+				}
+				else
+				{
+					numericUpDown_daysbetweencheck.Value = 0;
+				}
+			}
+			if ((int)numericUpDown_daysbetweencheck.Value < 0)
+			{
+				numericUpDown_daysbetweencheck.Value = 0;
+			}
+			if ((int)numericUpDown_daysbetweencheck.Value > 365)
+			{
+				numericUpDown_daysbetweencheck.Value = 365;
+			}
+			_daysbetweencheckPreviousValue = (int)numericUpDown_daysbetweencheck.Value;
 		}
 
 		private void EnterHotkeyControl(object sender, EventArgs e) {
@@ -114,10 +145,11 @@ namespace Greenshot {
 		/// with the items from the enumeration
 		/// </summary>
 		/// <param name="comboBox">ComboBox to populate</param>
-		/// <param name="enumeration">Enum to populate with</param>
-		private void PopulateComboBox<ET>(ComboBox comboBox, ET[] availableValues, ET selectedValue) where ET : struct {
+		/// <param name="availableValues"></param>
+		/// <param name="selectedValue"></param>
+		private void PopulateComboBox<TEnum>(ComboBox comboBox, TEnum[] availableValues, TEnum selectedValue) where TEnum : struct {
 			comboBox.Items.Clear();
-			foreach(ET enumValue in availableValues) {
+			foreach(TEnum enumValue in availableValues) {
 				comboBox.Items.Add(Language.Translate(enumValue));
 			}
 			comboBox.SelectedItem = Language.Translate(selectedValue);
@@ -129,13 +161,13 @@ namespace Greenshot {
 		/// </summary>
 		/// <param name="comboBox">Combobox to get the value from</param>
 		/// <returns>The generics value of the combobox</returns>
-		private ET GetSelected<ET>(ComboBox comboBox) {
-			string enumTypeName = typeof(ET).Name;
+		private TEnum GetSelected<TEnum>(ComboBox comboBox) {
+			string enumTypeName = typeof(TEnum).Name;
 			string selectedValue = comboBox.SelectedItem as string;
-			ET[] availableValues = (ET[])Enum.GetValues(typeof(ET));
-			ET returnValue = availableValues[0];
-			foreach(ET enumValue in availableValues) {
-				string translation = Language.GetString(enumTypeName + "." + enumValue.ToString());
+			TEnum[] availableValues = (TEnum[])Enum.GetValues(typeof(TEnum));
+			TEnum returnValue = availableValues[0];
+			foreach(TEnum enumValue in availableValues) {
+				string translation = Language.GetString(enumTypeName + "." + enumValue);
 				if (translation.Equals(selectedValue)) {
 					returnValue = enumValue;
 					break;
@@ -146,7 +178,7 @@ namespace Greenshot {
 		
 		private void SetWindowCaptureMode(WindowCaptureMode selectedWindowCaptureMode) {
 			WindowCaptureMode[] availableModes;
-			if (!DWM.isDWMEnabled()) {
+			if (!DWM.IsDwmEnabled()) {
 				// Remove DWM from configuration, as DWM is disabled!
 				if (coreConfiguration.WindowCaptureMode == WindowCaptureMode.Aero || coreConfiguration.WindowCaptureMode == WindowCaptureMode.AeroTransparent) {
 					coreConfiguration.WindowCaptureMode = WindowCaptureMode.GDI;
@@ -195,7 +227,7 @@ namespace Greenshot {
 		/// <summary>
 		/// Update the UI to reflect the language and other text settings
 		/// </summary>
-		private void UpdateUI() {
+		private void UpdateUi() {
 			if (coreConfiguration.HideExpertSettings) {
 				tabcontrol.Controls.Remove(tab_expert);
 			}
@@ -228,16 +260,15 @@ namespace Greenshot {
 			return CheckFilenamePattern() && CheckStorageLocationPath();
 		}
 
-		private bool CheckFilenamePattern() { 
-			bool settingsOk = true;
+		private bool CheckFilenamePattern() {
 			string filename = FilenameHelper.GetFilenameFromPattern(textbox_screenshotname.Text, coreConfiguration.OutputFileFormat, null);
 			// we allow dynamically created subfolders, need to check for them, too
 			string[] pathParts = filename.Split(Path.DirectorySeparatorChar);
 
 			string filenamePart = pathParts[pathParts.Length-1];
-			settingsOk = FilenameHelper.IsFilenameValid(filenamePart);
+			var settingsOk = FilenameHelper.IsFilenameValid(filenamePart);
 
-			for (int i = 0; (settingsOk && i<pathParts.Length-1); i++) {
+			for (int i = 0; settingsOk && i<pathParts.Length-1; i++) {
 				settingsOk = FilenameHelper.IsDirectoryNameValid(pathParts[i]);
 			}
 
@@ -247,10 +278,7 @@ namespace Greenshot {
 		}
 
 		private bool CheckStorageLocationPath() {
-			bool settingsOk = true;
-			if(!Directory.Exists(FilenameHelper.FillVariables(textbox_storagelocation.Text, false))) {
-				settingsOk = false;
-			} 
+			bool settingsOk = Directory.Exists(FilenameHelper.FillVariables(textbox_storagelocation.Text, false)); 
 			DisplayTextBoxValidity(textbox_storagelocation, settingsOk);
 			return settingsOk;
 		}
@@ -258,11 +286,7 @@ namespace Greenshot {
 		private void DisplayTextBoxValidity(GreenshotTextBox textbox, bool valid) {
 			if (valid) { 
 				// "Added" feature #3547158
-				if (Environment.OSVersion.Version.Major >= 6) {
-					textbox.BackColor = SystemColors.Window;
-				} else {
-					textbox.BackColor = SystemColors.Control;
-				}
+				textbox.BackColor = Environment.OSVersion.Version.Major >= 6 ? SystemColors.Window : SystemColors.Control;
 			} else { 
 				textbox.BackColor = Color.Red;
 			}
@@ -294,7 +318,7 @@ namespace Greenshot {
 		private void UpdateClipboardFormatDescriptions() {
 			foreach(ListViewItem item in listview_clipboardformats.Items) {
 				ClipboardFormat cf = (ClipboardFormat) item.Tag;
-			    item.Text = Language.Translate(cf);
+				item.Text = Language.Translate(cf);
 			}
 		}
 
@@ -399,7 +423,7 @@ namespace Greenshot {
 			
 			numericUpDown_daysbetweencheck.Value = coreConfiguration.UpdateCheckInterval;
 			numericUpDown_daysbetweencheck.Enabled = !coreConfiguration.Values["UpdateCheckInterval"].IsFixed;
-			numericUpdownIconSize.Value = (coreConfiguration.IconSize.Width /16) * 16;
+			numericUpdownIconSize.Value = coreConfiguration.IconSize.Width /16 * 16;
 			CheckDestinationSettings();
 		}
 
@@ -444,7 +468,6 @@ namespace Greenshot {
 			coreConfiguration.DWMBackgroundColor = colorButton_window_background.SelectedColor;
 			coreConfiguration.UpdateCheckInterval = (int)numericUpDown_daysbetweencheck.Value;
 
-			Size previousValue = coreConfiguration.IconSize;
 			coreConfiguration.IconSize = new Size((int)numericUpdownIconSize.Value, (int)numericUpdownIconSize.Value);
 
 			try {
@@ -464,15 +487,15 @@ namespace Greenshot {
 					}
 				}
 			} catch (Exception e) {
-				LOG.Warn("Problem checking registry, ignoring for now: ", e);
+				Log.Warn("Problem checking registry, ignoring for now: ", e);
 			}
 		}
-		
-		void Settings_cancelClick(object sender, EventArgs e) {
+
+		private void Settings_cancelClick(object sender, EventArgs e) {
 			DialogResult = DialogResult.Cancel;
 		}
-		
-		void Settings_okayClick(object sender, EventArgs e) {
+
+		private void Settings_okayClick(object sender, EventArgs e) {
 			if (CheckSettings()) {
 				HotkeyControl.UnregisterHotkeys();
 				SaveSettings();
@@ -480,14 +503,14 @@ namespace Greenshot {
 				MainForm.RegisterHotkeys();
 
 				// Make sure the current language & settings are reflected in the Main-context menu
-				MainForm.Instance.UpdateUI();
+				MainForm.Instance.UpdateUi();
 				DialogResult = DialogResult.OK;
 			} else {
 				tabcontrol.SelectTab(tab_output);
 			}
 		}
-		
-		void BrowseClick(object sender, EventArgs e) {
+
+		private void BrowseClick(object sender, EventArgs e) {
 			// Get the storage location and replace the environment variables
 			folderBrowserDialog1.SelectedPath = FilenameHelper.FillVariables(textbox_storagelocation.Text, false);
 			if (folderBrowserDialog1.ShowDialog() == DialogResult.OK) {
@@ -497,37 +520,37 @@ namespace Greenshot {
 				}
 			}
 		}
-		
-		void TrackBarJpegQualityScroll(object sender, EventArgs e) {
+
+		private void TrackBarJpegQualityScroll(object sender, EventArgs e) {
 			textBoxJpegQuality.Text = trackBarJpegQuality.Value.ToString(CultureInfo.InvariantCulture);
 		}
 
-		
-		void BtnPatternHelpClick(object sender, EventArgs e) {
+
+		private void BtnPatternHelpClick(object sender, EventArgs e) {
 			string filenamepatternText = Language.GetString(LangKey.settings_message_filenamepattern);
 			// Convert %NUM% to ${NUM} for old language files!
 			filenamepatternText = Regex.Replace(filenamepatternText, "%([a-zA-Z_0-9]+)%", @"${$1}");
 			MessageBox.Show(filenamepatternText, Language.GetString(LangKey.settings_filenamepattern));
 		}
-		
-		void Listview_pluginsSelectedIndexChanged(object sender, EventArgs e) {
-			button_pluginconfigure.Enabled = PluginHelper.Instance.isSelectedItemConfigurable(listview_plugins);
+
+		private void Listview_pluginsSelectedIndexChanged(object sender, EventArgs e) {
+			button_pluginconfigure.Enabled = PluginHelper.Instance.IsSelectedItemConfigurable(listview_plugins);
 		}
-		
-		void Button_pluginconfigureClick(object sender, EventArgs e) {
+
+		private void Button_pluginconfigureClick(object sender, EventArgs e) {
 			PluginHelper.Instance.ConfigureSelectedItem(listview_plugins);
 		}
 
-		void Combobox_languageSelectedIndexChanged(object sender, EventArgs e) {
+		private void Combobox_languageSelectedIndexChanged(object sender, EventArgs e) {
 			// Get the combobox values BEFORE changing the language
 			//EmailFormat selectedEmailFormat = GetSelected<EmailFormat>(combobox_emailformat);
 			WindowCaptureMode selectedWindowCaptureMode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
 			if (combobox_language.SelectedItem != null) {
-				LOG.Debug("Setting language to: " + (string)combobox_language.SelectedValue);
+				Log.Debug("Setting language to: " + (string)combobox_language.SelectedValue);
 				Language.CurrentLanguage = (string)combobox_language.SelectedValue;
 			}
 			// Reflect language changes to the settings form
-			UpdateUI();
+			UpdateUi();
 
 			// Reflect Language changes form
 			ApplyLanguage();
@@ -536,8 +559,8 @@ namespace Greenshot {
 			//SetEmailFormat(selectedEmailFormat);
 			SetWindowCaptureMode(selectedWindowCaptureMode);
 		}
-		
-		void Combobox_window_capture_modeSelectedIndexChanged(object sender, EventArgs e) {
+
+		private void Combobox_window_capture_modeSelectedIndexChanged(object sender, EventArgs e) {
 			int windowsVersion = Environment.OSVersion.Version.Major;
 			WindowCaptureMode mode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
 			if (windowsVersion >= 6) {
@@ -553,7 +576,7 @@ namespace Greenshot {
 		/// <summary>
 		/// Check the destination settings
 		/// </summary>
-		void CheckDestinationSettings() {
+		private void CheckDestinationSettings() {
 			bool clipboardDestinationChecked = false;
 			bool pickerSelected = checkbox_picker.Checked;
 			bool destinationsEnabled = true;
@@ -588,16 +611,16 @@ namespace Greenshot {
 			}
 		}
 
-		void DestinationsCheckStateChanged(object sender, EventArgs e) {
+		private void DestinationsCheckStateChanged(object sender, EventArgs e) {
 			CheckDestinationSettings();
 		}
 
-        protected override void OnFieldsFilled() {
-            // the color radio button is not actually bound to a setting, but checked when monochrome/grayscale are not checked
-            if(!radioBtnGrayScale.Checked && !radioBtnMonochrome.Checked) {
-                radioBtnColorPrint.Checked = true;
-            }
-        }
+		protected override void OnFieldsFilled() {
+			// the color radio button is not actually bound to a setting, but checked when monochrome/grayscale are not checked
+			if(!radioBtnGrayScale.Checked && !radioBtnMonochrome.Checked) {
+				radioBtnColorPrint.Checked = true;
+			}
+		}
 
 		/// <summary>
 		/// Set the enable state of the expert settings
@@ -652,7 +675,7 @@ namespace Greenshot {
 				return 1;
 			}
 			if (firstDestination != null && firstDestination.Priority == secondDestination.Priority) {
-				return firstDestination.Description.CompareTo(secondDestination.Description);
+				return string.Compare(firstDestination.Description, secondDestination.Description, StringComparison.Ordinal);
 			}
 			if (firstDestination != null) {
 				return firstDestination.Priority - secondDestination.Priority;

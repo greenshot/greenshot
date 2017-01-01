@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,12 +33,12 @@ namespace ExternalCommand {
 	/// An Plugin to run commands after an image was written
 	/// </summary>
 	public class ExternalCommandPlugin : IGreenshotPlugin {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExternalCommandPlugin));
-		private static CoreConfiguration coreConfig = IniConfig.GetIniSection<CoreConfiguration>();
-		private static ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
-		private IGreenshotHost host;
-		private PluginAttribute myAttributes;
-		private ToolStripMenuItem itemPlugInRoot;
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ExternalCommandPlugin));
+		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ExternalCommandConfiguration ExternalCommandConfig = IniConfig.GetIniSection<ExternalCommandConfiguration>();
+		private IGreenshotHost _host;
+		private PluginAttribute _myAttributes;
+		private ToolStripMenuItem _itemPlugInRoot;
 
 		public void Dispose() {
 			Dispose(true);
@@ -47,18 +47,15 @@ namespace ExternalCommand {
 
 		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
-				if (itemPlugInRoot != null) {
-					itemPlugInRoot.Dispose();
-					itemPlugInRoot = null;
+				if (_itemPlugInRoot != null) {
+					_itemPlugInRoot.Dispose();
+					_itemPlugInRoot = null;
 				}
 			}
 		}
 
-		public ExternalCommandPlugin() {
-		}
-
 		public IEnumerable<IDestination> Destinations() {
-			foreach(string command in config.commands) {
+			foreach(string command in ExternalCommandConfig.Commands) {
 				yield return new ExternalCommandDestination(command);
 			}
 		}
@@ -72,23 +69,26 @@ namespace ExternalCommand {
 		/// </summary>
 		/// <param name="command"></param>
 		/// <returns>false if the command is not correctly configured</returns>
-		private bool isCommandValid(string command) {
-			if (!config.runInbackground.ContainsKey(command)) {
-				LOG.WarnFormat("Found missing runInbackground for {0}", command);
+		private bool IsCommandValid(string command) {
+			if (!ExternalCommandConfig.RunInbackground.ContainsKey(command)) {
+				Log.WarnFormat("Found missing runInbackground for {0}", command);
 				// Fix it
-				config.runInbackground.Add(command, true);
+				ExternalCommandConfig.RunInbackground.Add(command, true);
 			}
-			if (!config.arguments.ContainsKey(command)) {
-				LOG.WarnFormat("Found missing argument for {0}", command);
+			if (!ExternalCommandConfig.Argument.ContainsKey(command)) {
+				Log.WarnFormat("Found missing argument for {0}", command);
 				// Fix it
-				config.arguments.Add(command, "{0}");
+				ExternalCommandConfig.Argument.Add(command, "{0}");
 			}
-			if (!config.commandlines.ContainsKey(command)) {
-				LOG.WarnFormat("Found missing commandline for {0}", command);
+			if (!ExternalCommandConfig.Commandline.ContainsKey(command)) {
+				Log.WarnFormat("Found missing commandline for {0}", command);
 				return false;
 			}
-			if (!File.Exists(config.commandlines[command])) {
-				LOG.WarnFormat("Found 'invalid' commandline {0} for command {1}", config.commandlines[command], command);
+			string commandline = FilenameHelper.FillVariables(ExternalCommandConfig.Commandline[command], true);
+			commandline = FilenameHelper.FillCmdVariables(commandline, true);
+
+			if (!File.Exists(commandline)) {
+				Log.WarnFormat("Found 'invalid' commandline {0} for command {1}", ExternalCommandConfig.Commandline[command], command);
 				return false;
 			}
 			return true;
@@ -96,41 +96,36 @@ namespace ExternalCommand {
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="host">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="captureHost">Use the ICaptureHost interface to register in the MainContextMenu</param>
-		/// <param name="pluginAttribute">My own attributes</param>
+		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
+		/// <param name="myAttributes">My own attributes</param>
 		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
-			LOG.DebugFormat("Initialize called of {0}", myAttributes.Name);
+			Log.DebugFormat("Initialize called of {0}", myAttributes.Name);
 
 			List<string> commandsToDelete = new List<string>();
 			// Check configuration
-			foreach(string command in config.commands) {
-				if (!isCommandValid(command)) {
+			foreach(string command in ExternalCommandConfig.Commands) {
+				if (!IsCommandValid(command)) {
 					commandsToDelete.Add(command);
 				}
 			}
 
 			// cleanup
 			foreach (string command in commandsToDelete) {
-				config.runInbackground.Remove(command);
-				config.commandlines.Remove(command);
-				config.arguments.Remove(command);
-				config.commands.Remove(command);
+				ExternalCommandConfig.Delete(command);
 			}
 
-			this.host = pluginHost;
-			this.myAttributes = myAttributes;
+			_host = pluginHost;
+			_myAttributes = myAttributes;
 
 
-			itemPlugInRoot = new ToolStripMenuItem();
-			itemPlugInRoot.Tag = host;
+			_itemPlugInRoot = new ToolStripMenuItem {Tag = _host};
 			OnIconSizeChanged(this, new PropertyChangedEventArgs("IconSize"));
 			OnLanguageChanged(this, null);
-			itemPlugInRoot.Click += new System.EventHandler(ConfigMenuClick);
+			_itemPlugInRoot.Click += ConfigMenuClick;
 
-			PluginUtils.AddToContextMenu(host, itemPlugInRoot);
+			PluginUtils.AddToContextMenu(_host, _itemPlugInRoot);
 			Language.LanguageChanged += OnLanguageChanged;
-			coreConfig.PropertyChanged += OnIconSizeChanged;
+			CoreConfig.PropertyChanged += OnIconSizeChanged;
 			return true;
 		}
 
@@ -144,22 +139,22 @@ namespace ExternalCommand {
 				try {
 					string exePath = PluginUtils.GetExePath("cmd.exe");
 					if (exePath != null && File.Exists(exePath)) {
-						itemPlugInRoot.Image = PluginUtils.GetCachedExeIcon(exePath, 0);
+						_itemPlugInRoot.Image = PluginUtils.GetCachedExeIcon(exePath, 0);
 					}
 				} catch (Exception ex) {
-					LOG.Warn("Couldn't get the cmd.exe image", ex);
+					Log.Warn("Couldn't get the cmd.exe image", ex);
 				}
 			}
 		}
 
 		private void OnLanguageChanged(object sender, EventArgs e) {
-			if (itemPlugInRoot != null) {
-				itemPlugInRoot.Text = Language.GetString("externalcommand", "contextmenu_configure");
+			if (_itemPlugInRoot != null) {
+				_itemPlugInRoot.Text = Language.GetString("externalcommand", "contextmenu_configure");
 			}
 		}
 
 		public virtual void Shutdown() {
-			LOG.Debug("Shutdown of " + myAttributes.Name);
+			Log.Debug("Shutdown of " + _myAttributes.Name);
 		}
 
 		private void ConfigMenuClick(object sender, EventArgs eventArgs) {
@@ -170,7 +165,7 @@ namespace ExternalCommand {
 		/// Implementation of the IPlugin.Configure
 		/// </summary>
 		public virtual void Configure() {
-			LOG.Debug("Configure called");
+			Log.Debug("Configure called");
 			new SettingsForm().ShowDialog();
 		}
 	}

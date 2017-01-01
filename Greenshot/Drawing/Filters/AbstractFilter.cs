@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,13 +25,13 @@ using System.Drawing;
 using Greenshot.Drawing.Fields;
 using Greenshot.Plugin.Drawing;
 
-/// <summary>
-/// Graphical filter which can be added to DrawableContainer.
-/// Subclasses should fulfill INotifyPropertyChanged contract, i.e. call
-/// OnPropertyChanged whenever a public property has been changed.
-/// </summary>
 namespace Greenshot.Drawing.Filters {
-	[Serializable()]
+	/// <summary>
+	/// Graphical filter which can be added to DrawableContainer.
+	/// Subclasses should fulfill INotifyPropertyChanged contract, i.e. call
+	/// OnPropertyChanged whenever a public property has been changed.
+	/// </summary>
+	[Serializable]
 	public abstract class AbstractFilter : AbstractFieldHolder, IFilter {
 		
 		[NonSerialized]
@@ -41,7 +41,7 @@ namespace Greenshot.Drawing.Filters {
 			remove{ propertyChanged -= value; }
 		}
 		
-		private bool invert = false;
+		private bool invert;
 		public bool Invert {
 			get {
 				return invert;
@@ -72,10 +72,9 @@ namespace Greenshot.Drawing.Filters {
 
 		public abstract void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode);
 		
-		protected void OnPropertyChanged(string propertyName) {
-			if (propertyChanged != null) {
-				propertyChanged(this, new PropertyChangedEventArgs(propertyName));
-			}
+		protected void OnPropertyChanged(string propertyName)
+		{
+			propertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 	}
 }

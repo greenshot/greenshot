@@ -29,22 +29,37 @@ using Greenshot.IniFile;
 
 namespace GreenshotImgurPlugin {
 	/// <summary>
-	/// Description of ImgurHistory.
+	/// Imgur history form
 	/// </summary>
 	public sealed partial class ImgurHistory : ImgurForm {
 		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ImgurHistory));
 		private readonly GreenshotColumnSorter _columnSorter;
+		private static readonly object Lock = new object();
 		private static readonly ImgurConfiguration Config = IniConfig.GetIniSection<ImgurConfiguration>();
 		private static ImgurHistory _instance;
 		
 		public static void ShowHistory() {
-			// Make sure the history is loaded, will be done only once
-			ImgurUtils.LoadHistory();
-			if (_instance == null) {
-				_instance = new ImgurHistory();
+			lock (Lock)
+			{
+				if (ImgurUtils.IsHistoryLoadingNeeded())
+				{
+					// Run upload in the background
+					new PleaseWaitForm().ShowAndWait("Imgur " + Language.GetString("imgur", LangKey.history), Language.GetString("imgur", LangKey.communication_wait),
+						ImgurUtils.LoadHistory
+					);
+				}
+
+				// Make sure the history is loaded, will be done only once
+				if (_instance == null)
+				{
+					_instance = new ImgurHistory();
+				}
+				if (!_instance.Visible)
+				{
+					_instance.Show();
+				}
+				_instance.Redraw();
 			}
-			_instance.Show();
-			_instance.Redraw();
 		}
 		
 		private ImgurHistory() {

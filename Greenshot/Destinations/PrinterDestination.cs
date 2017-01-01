@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,18 +28,14 @@ using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Greenshot.Helpers;
-using Greenshot.IniFile;
-using log4net;
 
 namespace Greenshot.Destinations {
 	/// <summary>
 	/// Description of PrinterDestination.
 	/// </summary>
 	public class PrinterDestination : AbstractDestination {
-		private static ILog LOG = LogManager.GetLogger(typeof(PrinterDestination));
-		private static CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 		public const string DESIGNATION = "Printer";
-		public string printerName = null;
+		public readonly string printerName;
 
 		public PrinterDestination() {
 		}
@@ -80,7 +76,7 @@ namespace Greenshot.Destinations {
 			}
 		}
 
-		public override bool isDynamic {
+		public override bool IsDynamic {
 			get {
 				return true;
 			}
@@ -89,7 +85,7 @@ namespace Greenshot.Destinations {
 		/// <summary>
 		/// Create destinations for all the installed printers
 		/// </summary>
-		/// <returns>IEnumerable<IDestination></returns>
+		/// <returns>IEnumerable of IDestination</returns>
 		public override IEnumerable<IDestination> DynamicDestinations() {
 			PrinterSettings settings = new PrinterSettings();
 			string defaultPrinter = settings.PrinterName;
@@ -121,7 +117,7 @@ namespace Greenshot.Destinations {
 		/// <returns>ExportInformation</returns>
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
-			PrinterSettings printerSettings = null;
+			PrinterSettings printerSettings;
 			if (!string.IsNullOrEmpty(printerName)) {
 				using (PrintHelper printHelper = new PrintHelper(surface, captureDetails)) {
 					printerSettings = printHelper.PrintTo(printerName);

@@ -1,9 +1,9 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -152,6 +152,8 @@ namespace Greenshot {
 			this.btnLineColor = new Greenshot.Controls.ToolStripColorButton();
 			this.lineThicknessLabel = new GreenshotPlugin.Controls.GreenshotToolStripLabel();
 			this.lineThicknessUpDown = new Greenshot.Controls.ToolStripNumericUpDown();
+			this.counterLabel = new GreenshotPlugin.Controls.GreenshotToolStripLabel();
+			this.counterUpDown = new Greenshot.Controls.ToolStripNumericUpDown();
 			this.fontFamilyComboBox = new Greenshot.Controls.FontFamilyComboBox();
 			this.fontSizeLabel = new GreenshotPlugin.Controls.GreenshotToolStripLabel();
 			this.fontSizeUpDown = new Greenshot.Controls.ToolStripNumericUpDown();
@@ -464,13 +466,13 @@ namespace Greenshot {
 			// 
 			this.addDropshadowToolStripMenuItem.LanguageKey = "editor_image_shadow";
 			this.addDropshadowToolStripMenuItem.Name = "addDropshadowToolStripMenuItem";
-			this.addDropshadowToolStripMenuItem.Click += new System.EventHandler(this.AddDropshadowToolStripMenuItemClick);
+			this.addDropshadowToolStripMenuItem.MouseUp += AddDropshadowToolStripMenuItemMouseUp;
 			// 
 			// tornEdgesToolStripMenuItem
 			// 
 			this.tornEdgesToolStripMenuItem.LanguageKey = "editor_torn_edge";
 			this.tornEdgesToolStripMenuItem.Name = "tornEdgesToolStripMenuItem";
-			this.tornEdgesToolStripMenuItem.Click += new System.EventHandler(this.TornEdgesToolStripMenuItemClick);
+			this.tornEdgesToolStripMenuItem.MouseUp += TornEdgesToolStripMenuItemMouseUp;
 			// 
 			// grayscaleToolStripMenuItem
 			// 
@@ -1022,7 +1024,7 @@ namespace Greenshot {
 			this.propertiesToolStrip.Renderer = new CustomToolStripProfessionalRenderer();
 			this.propertiesToolStrip.BackColor = System.Drawing.SystemColors.Control;
 			this.propertiesToolStrip.OverflowButton.DropDown.BackColor = System.Drawing.SystemColors.Control;
-			this.propertiesToolStrip.Paint += propertiesToolStrip_Paint;
+			this.propertiesToolStrip.Paint += PropertiesToolStrip_Paint;
 			this.propertiesToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.obfuscateModeButton,
 									this.highlightModeButton,
@@ -1053,7 +1055,9 @@ namespace Greenshot {
 									this.toolStripSeparator,
 									this.toolStripSeparator10,
 									this.btnConfirm,
-									this.btnCancel});
+									this.btnCancel,
+									this.counterLabel,
+									this.counterUpDown});
 			// 
 			// obfuscateModeButton
 			// 
@@ -1142,6 +1146,23 @@ namespace Greenshot {
 			this.btnLineColor.LanguageKey = "editor_forecolor";
 			this.btnLineColor.Name = "btnLineColor";
 			this.btnLineColor.SelectedColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(222)))), ((int)(((byte)(250)))));
+			// 
+			// counterLabel
+			// 
+			this.counterLabel.LanguageKey = "editor_counter_startvalue";
+			this.counterLabel.Name = "counterLabel";
+			// 
+			// counterUpDown
+			// 
+			this.counterUpDown.DecimalPlaces = 0;
+			this.counterUpDown.Increment = 1;
+			this.counterUpDown.Maximum = 100;
+			this.counterUpDown.Minimum = 0;
+			this.counterUpDown.Name = "counterUpDown";
+			this.counterUpDown.Text = "1";
+			this.counterUpDown.Value = 1;
+			this.counterUpDown.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
+			this.counterUpDown.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
 			// 
 			// lineThicknessLabel
 			// 
@@ -1691,6 +1712,8 @@ namespace Greenshot {
 		private Greenshot.Controls.ToolStripEx propertiesToolStrip;
 		private GreenshotPlugin.Controls.GreenshotToolStripLabel lineThicknessLabel;
 		private Greenshot.Controls.ToolStripNumericUpDown lineThicknessUpDown;
+		private GreenshotPlugin.Controls.GreenshotToolStripLabel counterLabel;
+		private Greenshot.Controls.ToolStripNumericUpDown counterUpDown;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator14;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator15;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator16;
@@ -1736,7 +1759,7 @@ namespace Greenshot {
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem removeObjectToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem addTextBoxToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem addSpeechBubbleToolStripMenuItem;
-        private GreenshotPlugin.Controls.GreenshotToolStripMenuItem addCounterToolStripMenuItem;
+		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem addCounterToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem addEllipseToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem addRectangleToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem objectToolStripMenuItem;

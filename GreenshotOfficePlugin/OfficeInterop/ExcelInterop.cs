@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,13 +37,21 @@ namespace Greenshot.Interop.Office {
 		string Version {
 			get;
 		}
+
+		/// <summary>
+		/// Returns an Integer indicating the top-level window handle of the Microsoft Excel window.
+		/// </summary>
+		int Hwnd
+		{
+			get;
+		}
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel.workbooks.aspx
 	public interface IWorkbooks : ICommon, ICollection {
 		IWorkbook Add(object template);
 		// Use index + 1!!
-		IWorkbook this[object Index] {
+		IWorkbook this[object index] {
 			get;
 		}
 	}
@@ -76,14 +84,14 @@ namespace Greenshot.Interop.Office {
 	}
 
 	// See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel.iworksheets_members.aspx
-	public interface IWorksheets : ICommon, ICollection {
+	public interface IWorksheets : ICollection {
 		// Use index + 1!!
-		IWorksheet this[object Index] {
+		IWorksheet this[object index] {
 			get;
 		}
 	}
 
-	public interface IPictures : ICommon, ICollection {
+	public interface IPictures : ICollection {
 		// Use index + 1!!
 		//IPicture this[object Index] { get; }
 		void Insert(string file);

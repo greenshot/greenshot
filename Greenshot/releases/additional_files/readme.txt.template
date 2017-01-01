@@ -7,28 +7,77 @@ CHANGE LOG:
 
 All details to our tickets can be found here: https://greenshot.atlassian.net
 
-
 @DETAILVERSION@
+
+This is a bugfix release for the Greenshot 1.2.9.104-3721c10 RELEASE
+
+Bugs fixed:
+* BUG-2065 OverflowException in the editor
+* BUG-2077 It's not possible to disable the update check
+* BUG-2080 Exception when opening the context menu
+* BUG-2089 Greenshot crashes when hotkey registration fails and OneDrive is not installed
+* BUG-2091 Greenshot .zip version has wrong log configuration
+
+Features added:
+* FEATURE-992 When reusing the editor, it is not brought to the front
+* FEATURE-995 Paste images inside Greenshot editor to the current cursor location
+* FEATURE-998 Opening last capture in explorer should select/jump to the file
+* FEATURE-1000 Set default focus on the OK-button in the Greenshot quality dialog
+
+Translations modified:
+* Nederlands by Stephan Paternotte
+
+
+1.2.9.104-3721c10 RELEASE
+
+Fixed bugs:
+* BUG-1762 Dropshadow & tornedge prompts for settings every time
+* BUG-1812 Editor opens outside the screen
+* BUG-1876 Already running message, multi user environment
+* BUG-1884 OCR text has trailing blank spaces
+* BUG-1887 Editor hangs on exit - hang time proportional to number of objects
+* BUG-1890 Slight cropping around window on Windows 10
+* BUG-1892 Greenshot saves blank JPG file with reduce colors
+* BUG-1894 Imgur remote server error 429
+* BUG-1896 JIRA Plugin doesn't work with JIRA Server v7.0
+* BUG-1898 Specify GPLv3 in the license text
+* BUG-1908 External Command, add commands at startup
+* BUG-1918 Editor Speechbubble Artifacts when shadow and transparent
+* BUG-1933 Greenshot Installer sets bad registry key permission
+* BUG-1935 Delay when pasting and ShapeShifter from FlameFusion is running
+* BUG-1941 Error when creating a speech bubble in the editor
+* BUG-1945 Failure starting Greenshot at system startup
+* BUG-1949 Can't delete Imgur upload
+* BUG-1965 Activation border around window is visible in the capture
+* BUG-1991 Greenshot portable (PAF) uses wrong log configuration
+* BUG-1992 OutputFilePath setting is wrong config used on a different system
+* BUG-2011 Editor issues when the font is gone or broken
+* BUG-2043 Fixed an issue which occured after wakeup from sleep
+* BUG-2059 The default frequency of update checks is now reduced from every day to every 14 days
+* BUG-2070 Installing Greenshot deletes everything in the target directory
+* BUG-2071 Authentication not completing with Box.com
+
+Added features:
+* FEATURE-863 The start value of the counters can now be changed
+* FEATURE-916 Added icon save format (capture will be resized to 16x16, 32x32, 48x48 or 256x256)
+* FEATURE-919 Added a way to increase the editor canvas size (use Ctrl + / Ctrl -)
+* FEATURE-945 Added environment variables resolving to the external command plugin
+* FEATURE-946 Updated to Inno-Setup 5.5.9 for improved installer security
+* FEATURE-958 Greenshot is now using code signing certificates
+
+Added or changed translation:
+* Català by Gabriel Guix.
+* Nederlands by Stephan Paternotte
+
+
+1.2.8.14-b7c8384 RELEASE
 
 Changes for this release:
 This has Imgur improvements for the newer API version, this is a backport from Greenshot 1.2.9
 With the move to a new hosting platform, we also noticed our update checks are way to often, this needed to be reduced.
 
 
-
-1.2.8.12-cab854b RELEASE
-
-There were some major issues with the authenticated (non anonymous) uploads to Imgur.
-After contacting Imgur they told us that their old API was deprecated or disabled, unfortunately this was not communicated.
-Although we are working hard on Greenshot 1.3, where we changed most of the Imgur code already, we can't release it.
-We did see a need to fix the imgur uploads, so in this release we quickly updated the Imgur API.
-This should resolve a lot of tickets that were reported to us.
-
-Additionally our website http://getgreenshot.org is hosted by sourceforge and they seem to have a lot of stability problems.
-Due to these problems a bug in the Greenshot update check manifested itself and causes Greenshot to get slow or even stop responding.
-In this version we fix the bug in the update check, and we are also working on a solution for the instability with our website.
-
-Here is the list of chances:
+1.2.8.12-cab854b Release 
 
 Bugs Resolved:
 
@@ -38,7 +87,6 @@ BUG-1864: Imgur link wasn't copied to the clipboard
 
 Features:
 FEATURE-896: Use Imgur with HTTPS (with changing the Imgur API from V2 to V3 this was already required for the upload anyway.)
-
 
 
 1.2.7.2-342a506 RELEASE

@@ -1,9 +1,9 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace GreenshotJiraPlugin {
+namespace GreenshotJiraPlugin.Forms {
 	partial class JiraForm {
 		/// <summary>
 		/// Required designer variable.
@@ -67,7 +67,7 @@ namespace GreenshotJiraPlugin {
 			this.jiraFilterBox.Name = "jiraFilterBox";
 			this.jiraFilterBox.Size = new System.Drawing.Size(604, 21);
 			this.jiraFilterBox.TabIndex = 5;
-			this.jiraFilterBox.SelectedIndexChanged += new System.EventHandler(this.jiraFilterBox_SelectedIndexChanged);
+			this.jiraFilterBox.SelectedIndexChanged += new System.EventHandler(this.JiraFilterBox_SelectedIndexChanged);
 			// 
 			// label_jirafilter
 			// 
@@ -112,8 +112,8 @@ namespace GreenshotJiraPlugin {
 			this.jiraListView.TabIndex = 4;
 			this.jiraListView.UseCompatibleStateImageBehavior = false;
 			this.jiraListView.View = System.Windows.Forms.View.Details;
-			this.jiraListView.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.jiraListView_ColumnClick);
-			this.jiraListView.SelectedIndexChanged += new System.EventHandler(this.jiraListView_SelectedIndexChanged);
+			this.jiraListView.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.JiraListView_ColumnClick);
+			this.jiraListView.SelectedIndexChanged += new System.EventHandler(this.JiraListView_SelectedIndexChanged);
 			// 
 			// jiraFilenameBox
 			// 

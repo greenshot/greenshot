@@ -1,9 +1,9 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,8 +68,8 @@ namespace GreenshotConfluencePlugin {
 					CreateConfluenceConntector();
 				}
 				try {
-					if (_confluenceConnector != null && !_confluenceConnector.isLoggedIn) {
-						_confluenceConnector.login();
+					if (_confluenceConnector != null && !_confluenceConnector.IsLoggedIn) {
+						_confluenceConnector.Login();
 					}
 				} catch (Exception e) {
 					MessageBox.Show(Language.GetFormattedString("confluence", LangKey.login_error, e.Message));
@@ -112,7 +112,7 @@ namespace GreenshotConfluencePlugin {
 		public virtual void Shutdown() {
 			LOG.Debug("Confluence Plugin shutdown.");
 			if (_confluenceConnector != null) {
-				_confluenceConnector.logout();
+				_confluenceConnector.Logout();
 				_confluenceConnector = null;
 			}
 		}
@@ -124,15 +124,15 @@ namespace GreenshotConfluencePlugin {
 			ConfluenceConfiguration clonedConfig = _config.Clone();
 			ConfluenceConfigurationForm configForm = new ConfluenceConfigurationForm(clonedConfig);
 			string url = _config.Url;
-			Nullable<bool> dialogResult = configForm.ShowDialog();
+			bool? dialogResult = configForm.ShowDialog();
 			if (dialogResult.HasValue && dialogResult.Value) {
 				// copy the new object to the old...
 				clonedConfig.CloneTo(_config);
 				IniConfig.Save();
 				if (_confluenceConnector != null) {
 					if (!url.Equals(_config.Url)) {
-						if (_confluenceConnector.isLoggedIn) {
-							_confluenceConnector.logout();
+						if (_confluenceConnector.IsLoggedIn) {
+							_confluenceConnector.Logout();
 						}
 						_confluenceConnector = null;
 					}

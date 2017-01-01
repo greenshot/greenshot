@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,23 +24,19 @@ namespace Greenshot.IniFile {
 	/// <summary>
 	/// Attribute for telling that this class is linked to a section in the ini-configuration
 	/// </summary>
-	[AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+	[AttributeUsage(AttributeTargets.Class)]
 	public class IniSectionAttribute : Attribute {
-		private string name;
 		public IniSectionAttribute(string name) {
-			this.name = name;
+			Name = name;
 		}
 		public string Description;
-		public string Name {
-			get { return name; }
-			set { name = value; }
-		}
+		public string Name { get; set; }
 	}
 
 	/// <summary>
 	/// Attribute for telling that a field is linked to a property in the ini-configuration selection
 	/// </summary>
-	[AttributeUsage(AttributeTargets.Field|AttributeTargets.Property, AllowMultiple = false)]
+	[AttributeUsage(AttributeTargets.Field|AttributeTargets.Property)]
 	public class IniPropertyAttribute : Attribute {
 		public IniPropertyAttribute() {
 			Separator = ",";

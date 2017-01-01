@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ namespace Greenshot.Drawing.Filters {
 			int halfHeight = rect.Height / 2;
 			int newWidth = rect.Width / magnificationFactor;
 			int newHeight = rect.Height / magnificationFactor;
-			Rectangle source = new Rectangle(rect.X + halfWidth - (newWidth / 2), rect.Y + halfHeight - (newHeight / 2), newWidth, newHeight);
+			Rectangle source = new Rectangle(rect.X + halfWidth - newWidth / 2, rect.Y + halfHeight - newHeight / 2, newWidth, newHeight);
 			graphics.DrawImage(applyBitmap, rect, source, GraphicsUnit.Pixel);
 			graphics.Restore(state);
 		}

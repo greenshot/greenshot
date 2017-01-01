@@ -1,9 +1,9 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,8 +34,8 @@ namespace Greenshot {
 	/// Description of ColorDialog.
 	/// </summary>
 	public partial class ColorDialog : BaseForm {
-		private static ColorDialog uniqueInstance;
-		private static EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+		private static ColorDialog _uniqueInstance;
+		private static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
 
 		private ColorDialog() {
 			SuspendLayout();
@@ -47,17 +47,15 @@ namespace Greenshot {
 			UpdateRecentColorsButtonRow();
 		}
 
-		public static ColorDialog GetInstance() {
-			if (uniqueInstance == null) {
-				uniqueInstance = new ColorDialog();
-			}
-			return uniqueInstance;
+		public static ColorDialog GetInstance()
+		{
+			return _uniqueInstance ?? (_uniqueInstance = new ColorDialog());
 		}
 
 		private readonly List<Button> _colorButtons = new List<Button>();
 		private readonly List<Button> _recentColorButtons = new List<Button>();
 		private readonly ToolTip _toolTip = new ToolTip();
-		private bool _updateInProgress = false;
+		private bool _updateInProgress;
 
 		public Color Color {
 			get { return colorPanel.BackColor; }
@@ -108,13 +106,15 @@ namespace Greenshot {
 		}
 
 		private Button CreateColorButton(Color color, int x, int y, int w, int h) {
-			Button b = new Button();
-			b.BackColor = color;
+			Button b = new Button
+			{
+				BackColor = color,
+				FlatStyle = FlatStyle.Flat,
+				Location = new Point(x, y),
+				Size = new Size(w, h),
+				TabStop = false
+			};
 			b.FlatAppearance.BorderSize = 0;
-			b.FlatStyle = FlatStyle.Flat;
-			b.Location = new Point(x, y);
-			b.Size = new Size(w, h);
-			b.TabStop = false;
 			b.Click += ColorButtonClick;
 			_toolTip.SetToolTip(b, ColorTranslator.ToHtml(color) + " | R:" + color.R + ", G:" + color.G + ", B:" + color.B);
 			return b;
@@ -133,8 +133,8 @@ namespace Greenshot {
 
 		#region update user interface
 		private void UpdateRecentColorsButtonRow() {
-			for (int i = 0; i < editorConfiguration.RecentColors.Count && i < 12; i++) {
-				_recentColorButtons[i].BackColor = editorConfiguration.RecentColors[i];
+			for (int i = 0; i < EditorConfig.RecentColors.Count && i < 12; i++) {
+				_recentColorButtons[i].BackColor = EditorConfig.RecentColors[i];
 				_recentColorButtons[i].Enabled = true;
 			}
 		}
@@ -155,30 +155,31 @@ namespace Greenshot {
 		}
 
 		private void AddToRecentColors(Color c) {
-			editorConfiguration.RecentColors.Remove(c);
-			editorConfiguration.RecentColors.Insert(0, c);
-			if (editorConfiguration.RecentColors.Count > 12) {
-				editorConfiguration.RecentColors.RemoveRange(12, editorConfiguration.RecentColors.Count - 12);
+			EditorConfig.RecentColors.Remove(c);
+			EditorConfig.RecentColors.Insert(0, c);
+			if (EditorConfig.RecentColors.Count > 12) {
+				EditorConfig.RecentColors.RemoveRange(12, EditorConfig.RecentColors.Count - 12);
 			}
 			UpdateRecentColorsButtonRow();
 		}
 		#endregion
 
 		#region textbox event handlers
-		void TextBoxHexadecimalTextChanged(object sender, EventArgs e) {
+
+		private void TextBoxHexadecimalTextChanged(object sender, EventArgs e) {
 			if (_updateInProgress) {
 				return;
 			}
 			TextBox textBox = (TextBox)sender;
 			string text = textBox.Text.Replace("#", "");
-			int i = 0;
+			int i;
 			Color c;
-			if (Int32.TryParse(text, NumberStyles.AllowHexSpecifier, Thread.CurrentThread.CurrentCulture, out i)) {
+			if (int.TryParse(text, NumberStyles.AllowHexSpecifier, Thread.CurrentThread.CurrentCulture, out i)) {
 				c = Color.FromArgb(i);
 			} else {
-				KnownColor knownColor;
-				try {
-					knownColor = (KnownColor)Enum.Parse(typeof(KnownColor), text, true);
+				try
+				{
+					var knownColor = (KnownColor)Enum.Parse(typeof(KnownColor), text, true);
 					c = Color.FromKnownColor(knownColor);
 				} catch (Exception) {
 					return;
@@ -188,7 +189,7 @@ namespace Greenshot {
 			PreviewColor(opaqueColor, textBox);
 		}
 
-		void TextBoxRGBTextChanged(object sender, EventArgs e) {
+		private void TextBoxRgbTextChanged(object sender, EventArgs e) {
 			if (_updateInProgress) {
 				return;
 			}
@@ -196,11 +197,11 @@ namespace Greenshot {
 			PreviewColor(Color.FromArgb(GetColorPartIntFromString(textBoxAlpha.Text), GetColorPartIntFromString(textBoxRed.Text), GetColorPartIntFromString(textBoxGreen.Text), GetColorPartIntFromString(textBoxBlue.Text)), textBox);
 		}
 
-		void TextBoxGotFocus(object sender, EventArgs e) {
+		private void TextBoxGotFocus(object sender, EventArgs e) {
 			textBoxHtmlColor.SelectAll();
 		}
 
-		void TextBoxKeyDown(object sender, KeyEventArgs e) {
+		private void TextBoxKeyDown(object sender, KeyEventArgs e) {
 			if (e.KeyCode == Keys.Return || e.KeyCode == Keys.Enter) {
 				AddToRecentColors(colorPanel.BackColor);
 			}
@@ -208,15 +209,17 @@ namespace Greenshot {
 		#endregion
 
 		#region button event handlers
-		void ColorButtonClick(object sender, EventArgs e) {
+
+		private void ColorButtonClick(object sender, EventArgs e) {
 			Button b = (Button)sender;
 			PreviewColor(b.BackColor, b);
 		}
 
-		void BtnTransparentClick(object sender, EventArgs e) {
+		private void BtnTransparentClick(object sender, EventArgs e) {
 			ColorButtonClick(sender, e);
 		}
-		void BtnApplyClick(object sender, EventArgs e) {
+
+		private void BtnApplyClick(object sender, EventArgs e) {
 			DialogResult = DialogResult.OK;
 			Hide();
 			AddToRecentColors(colorPanel.BackColor);
@@ -225,17 +228,23 @@ namespace Greenshot {
 
 		#region helper functions
 		private int GetColorPartIntFromString(string s) {
-			int ret = 0;
-			Int32.TryParse(s, out ret);
-			if (ret < 0) ret = 0;
-			else if (ret > 255) ret = 255;
+			int ret;
+			int.TryParse(s, out ret);
+			if (ret < 0)
+			{
+				ret = 0;
+			}
+			else if (ret > 255)
+			{
+				ret = 255;
+			}
 			return ret;
 		}
 
 		#endregion
 
 		private void PipetteUsed(object sender, PipetteUsedArgs e) {
-			Color = e.color;
+			Color = e.Color;
 		}
 	}
 }

@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@ namespace GreenshotPlugin.Core {
 		/// Get a struct from a byte array
 		/// </summary>
 		/// <typeparam name="T">typeof struct</typeparam>
-		/// <param name="bytes">byte[]</param>
+		/// <param name="intPtr">Pointer to the structor to return</param>
 		/// <returns>struct</returns>
 		public static T FromIntPtr<T>(IntPtr intPtr) where T : struct {
 			object obj = Marshal.PtrToStructure(intPtr, typeof(T));

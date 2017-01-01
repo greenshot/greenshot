@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,9 +22,6 @@ using System;
 using System.Runtime.InteropServices;
 using System.Text;
 
-/// <summary>
-/// Win32 error codes
-/// </summary>
 namespace GreenshotPlugin.UnmanagedHelpers {
     /// <summary>
     /// A Win32 error code.
@@ -93,7 +90,7 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 
     public static class Win32 {
 		[DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-		static extern uint FormatMessage(uint dwFlags, IntPtr lpSource, uint dwMessageId, uint dwLanguageId, [Out] StringBuilder lpBuffer, int nSize, IntPtr Arguments);
+		private static extern uint FormatMessage(uint dwFlags, IntPtr lpSource, uint dwMessageId, uint dwLanguageId, [Out] StringBuilder lpBuffer, int nSize, IntPtr Arguments);
     	
 		[DllImport("kernel32.dll")]
 		public static extern void SetLastError(uint dwErrCode);
@@ -106,10 +103,10 @@ namespace GreenshotPlugin.UnmanagedHelpers {
             int error = (int)errorCode;
 
             if ((error & 0x80000000) == 0x80000000) {
-            	return (long)error;
+            	return error;
             }
 
-            return (long)(0x80070000 | (uint)(error & 0xffff));
+            return 0x80070000 | (uint)(error & 0xffff);
         }
 
         public static string GetMessage(Win32Error errorCode) {

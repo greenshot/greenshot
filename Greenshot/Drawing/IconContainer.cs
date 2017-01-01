@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ using System.IO;
 using Greenshot.Plugin.Drawing;
 using System.Drawing.Drawing2D;
 using log4net;
+using System.Runtime.Serialization;
 
 namespace Greenshot.Drawing {
 	/// <summary>
@@ -31,11 +32,23 @@ namespace Greenshot.Drawing {
 	/// </summary>
 	[Serializable] 
 	public class IconContainer : DrawableContainer, IIconContainer {
-		private static ILog LOG = LogManager.GetLogger(typeof(IconContainer));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(IconContainer));
 
 		protected Icon icon;
 
 		public IconContainer(Surface parent) : base(parent) {
+			Init();
+		}
+
+		protected override void OnDeserialized(StreamingContext streamingContext)
+		{
+			base.OnDeserialized(streamingContext);
+			Init();
+		}
+
+		private void Init()
+		{
+			CreateDefaultAdorners();
 		}
 
 		public IconContainer(Surface parent, string filename) : base(parent) {
@@ -44,9 +57,7 @@ namespace Greenshot.Drawing {
 
 		public Icon Icon {
 			set {
-				if (icon != null) {
-					icon.Dispose();
-				}
+				icon?.Dispose();
 				icon = (Icon)value.Clone();
 				Width = value.Width;
 				Height = value.Height;
@@ -59,10 +70,9 @@ namespace Greenshot.Drawing {
 		 * When disposing==true all non-managed resources should be freed too!
 		 */
 		protected override void Dispose(bool disposing) {
-			if (disposing) {
-				if (icon != null) {
-					icon.Dispose();
-				}
+			if (disposing)
+			{
+				icon?.Dispose();
 			}
 			icon = null;
 			base.Dispose(disposing);
@@ -72,7 +82,7 @@ namespace Greenshot.Drawing {
 			if (File.Exists(filename)) {
 				using (Icon fileIcon = new Icon(filename)) {
 					Icon = fileIcon;
-					LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
+					Log.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
 				}
 			}
 		}
@@ -87,16 +97,8 @@ namespace Greenshot.Drawing {
 			}
 		}
 
-		public override bool HasDefaultSize {
-			get {
-				return true;
-			}
-		}
+		public override bool HasDefaultSize => true;
 
-		public override Size DefaultSize {
-			get {
-				return icon.Size;
-			}
-		}
+		public override Size DefaultSize => icon.Size;
 	}
 }

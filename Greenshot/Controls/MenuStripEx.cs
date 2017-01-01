@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,14 +29,12 @@ namespace Greenshot.Controls {
 	public class MenuStripEx : MenuStrip {
 		private const int WM_MOUSEACTIVATE = 0x21;
 
-		enum NativeConstants : uint {
+		private enum NativeConstants : uint {
 			MA_ACTIVATE = 1,
 			MA_ACTIVATEANDEAT = 2,
-			MA_NOACTIVATE = 3,
-			MA_NOACTIVATEANDEAT = 4,
 		}
 
-		private bool clickThrough = false;
+		private bool _clickThrough;
 		/// <summary>
 		/// Gets or sets whether the ToolStripEx honors item clicks when its containing form does not have input focus.
 		/// </summary>
@@ -45,17 +43,17 @@ namespace Greenshot.Controls {
 		/// </remarks>
 		public bool ClickThrough {
 			get {
-				return clickThrough;
+				return _clickThrough;
 			}
 
 			set {
-				clickThrough = value;
+				_clickThrough = value;
 			}
 		}
 
 		protected override void WndProc(ref Message m) {
 			base.WndProc(ref m);
-			if (clickThrough && m.Msg == WM_MOUSEACTIVATE && m.Result == (IntPtr)NativeConstants.MA_ACTIVATEANDEAT) {
+			if (_clickThrough && m.Msg == WM_MOUSEACTIVATE && m.Result == (IntPtr)NativeConstants.MA_ACTIVATEANDEAT) {
 				m.Result = (IntPtr)NativeConstants.MA_ACTIVATE;
 			}
 		}

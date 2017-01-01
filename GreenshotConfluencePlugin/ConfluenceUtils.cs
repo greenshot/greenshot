@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Automation;
 
@@ -38,7 +38,7 @@ namespace GreenshotConfluencePlugin {
 			Regex pageIdRegex = new Regex(@"pageId=(\d+)");
 			Regex spacePageRegex = new Regex(@"\/display\/([^\/]+)\/([^#]+)");
 			foreach(string browserurl in GetBrowserUrls()) {
-				string url = null;
+				string url;
 				try {
 					url = Uri.UnescapeDataString(browserurl).Replace("+", " ");
 				} catch {
@@ -51,14 +51,14 @@ namespace GreenshotConfluencePlugin {
 					try {
 						bool pageDouble = false;
 						foreach(Confluence.Page page in pages) {
-							if (page.id == pageId) {
+							if (page.Id == pageId) {
 								pageDouble = true;
 								LOG.DebugFormat("Skipping double page with ID {0}", pageId);
 								break;
 							}
 						}
 						if (!pageDouble) {
-							Confluence.Page page = ConfluencePlugin.ConfluenceConnector.getPage(pageId);
+							Confluence.Page page = ConfluencePlugin.ConfluenceConnector.GetPage(pageId);
 							LOG.DebugFormat("Adding page {0}", page.Title);
 							pages.Add(page);
 						}
@@ -90,12 +90,11 @@ namespace GreenshotConfluencePlugin {
 								}
 							}
 							if (!pageDouble) {
-								Confluence.Page page = ConfluencePlugin.ConfluenceConnector.getPage(space, title);
+								Confluence.Page page = ConfluencePlugin.ConfluenceConnector.GetPage(space, title);
 								LOG.DebugFormat("Adding page {0}", page.Title);
 								pages.Add(page);
 								
 							}
-							continue;
 						} catch (Exception ex) {
 							// Preventing security problems
 							LOG.DebugFormat("Couldn't get page details for space {0} / title {1}", space, title);
@@ -133,7 +132,7 @@ namespace GreenshotConfluencePlugin {
 					if (pattern.ProgrammaticName != "ValuePatternIdentifiers.Pattern") {
 						continue;
 					}
-					string url = (docElement.GetCurrentPattern(pattern) as ValuePattern).Current.Value.ToString();
+					string url = (docElement.GetCurrentPattern(pattern) as ValuePattern).Current.Value;
 					if (!string.IsNullOrEmpty(url)) {
 						urls.Add(url);
 						break;
@@ -141,7 +140,7 @@ namespace GreenshotConfluencePlugin {
 				}
 			}
 
-			foreach(string url in IEHelper.GetIEUrls()) {
+			foreach(string url in IEHelper.GetIEUrls().Distinct()) {
 				urls.Add(url);
 			}
 

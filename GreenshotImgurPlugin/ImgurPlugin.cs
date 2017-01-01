@@ -23,7 +23,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
-using System.Threading;
 using System.Windows.Forms;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
@@ -75,7 +74,7 @@ namespace GreenshotImgurPlugin {
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="myAttributes">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
+		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
 			_host = pluginHost;
 			Attributes = myAttributes;
 
@@ -109,14 +108,8 @@ namespace GreenshotImgurPlugin {
 			PluginUtils.AddToContextMenu(_host, itemPlugInRoot);
 			Language.LanguageChanged += OnLanguageChanged;
 
-			// retrieve history in the background
-			Thread backgroundTask = new Thread(CheckHistory)
-			{
-				Name = "Imgur History",
-				IsBackground = true
-			};
-			backgroundTask.SetApartmentState(ApartmentState.STA);
-			backgroundTask.Start();
+			// Enable history if there are items available
+			UpdateHistoryMenuItem();
 			return true;
 		}
 
@@ -129,9 +122,8 @@ namespace GreenshotImgurPlugin {
 			}
 		}
 
-		private void CheckHistory() {
+		private void UpdateHistoryMenuItem() {
 			try {
-				ImgurUtils.LoadHistory();
 				_host.GreenshotForm.BeginInvoke((MethodInvoker)delegate {
 					if (_config.ImgurUploadHistory.Count > 0) {
 						_historyMenuItem.Enabled = true;
@@ -178,7 +170,7 @@ namespace GreenshotImgurPlugin {
 							Log.InfoFormat("Storing imgur upload for hash {0} and delete hash {1}", imgurInfo.Hash, imgurInfo.DeleteHash);
 							_config.ImgurUploadHistory.Add(imgurInfo.Hash, imgurInfo.DeleteHash);
 							_config.runtimeImgurHistory.Add(imgurInfo.Hash, imgurInfo);
-							CheckHistory();
+							UpdateHistoryMenuItem();
 						}
 					}
 				);

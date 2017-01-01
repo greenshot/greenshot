@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,10 +27,10 @@ namespace GreenshotOCR {
 	[IniSection("OCR", Description="Greenshot OCR Plugin configuration")]
 	public class OCRConfiguration : IniSection {
 		[IniProperty("Language", Description="Language for OCR", DefaultValue="miLANG_ENGLISH")]
-		public string Language;
+		public string Language { get; set; }
 		[IniProperty("orientimage", Description="Orient image?", DefaultValue="true")]
-		public bool Orientimage;
+		public bool Orientimage { get; set; }
 		[IniProperty("straightenImage", Description="Straighten image?", DefaultValue="true")]
-		public bool StraightenImage;
+		public bool StraightenImage { get; set; }
 	}
 }

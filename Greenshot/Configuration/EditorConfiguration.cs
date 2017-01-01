@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,8 @@ using System.Drawing;
 using Greenshot.Drawing.Fields;
 using GreenshotPlugin.UnmanagedHelpers;
 using Greenshot.IniFile;
-using Greenshot.Core;
+using GreenshotPlugin.Effects;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Configuration {
 	/// <summary>
@@ -34,35 +35,35 @@ namespace Greenshot.Configuration {
 	[IniSection("Editor", Description="Greenshot editor configuration")]
 	public class EditorConfiguration : IniSection {
 		[IniProperty("RecentColors", Separator="|", Description="Last used colors")]
-		public List<Color> RecentColors;
+		public List<Color> RecentColors { get; set; }
 
 		[IniProperty("LastFieldValue", Separator="|", Description="Field values, make sure the last used settings are re-used")]
-		public Dictionary<string, object> LastUsedFieldValues;
+		public Dictionary<string, object> LastUsedFieldValues { get; set; }
 
 		[IniProperty("MatchSizeToCapture", Description="Match the editor window size to the capture", DefaultValue="True")]
-		public bool MatchSizeToCapture;
+		public bool MatchSizeToCapture { get; set; }
 		[IniProperty("WindowPlacementFlags", Description="Placement flags", DefaultValue="0")]
-		public WindowPlacementFlags WindowPlacementFlags;
+		public WindowPlacementFlags WindowPlacementFlags { get; set; }
 		[IniProperty("WindowShowCommand", Description="Show command", DefaultValue="Normal")]
-		public ShowWindowCommand ShowWindowCommand;
+		public ShowWindowCommand ShowWindowCommand { get; set; }
 		[IniProperty("WindowMinPosition", Description="Position of minimized window", DefaultValue="-1,-1")]
-		public Point WindowMinPosition;
+		public Point WindowMinPosition { get; set; }
 		[IniProperty("WindowMaxPosition", Description="Position of maximized window", DefaultValue="-1,-1")]
-		public Point WindowMaxPosition;
+		public Point WindowMaxPosition { get; set; }
 		[IniProperty("WindowNormalPosition", Description="Position of normal window", DefaultValue="100,100,400,400")]
-		public Rectangle WindowNormalPosition;
+		public Rectangle WindowNormalPosition { get; set; }
 		[IniProperty("ReuseEditor", Description = "Reuse already open editor", DefaultValue = "false")]
-		public bool ReuseEditor;
+		public bool ReuseEditor { get; set; }
 		[IniProperty("FreehandSensitivity", Description = "The smaller this number, the less smoothing is used. Decrease for detailed drawing, e.g. when using a pen. Increase for smoother lines. e.g. when you want to draw a smooth line.", DefaultValue = "3")]
-		public int FreehandSensitivity;
+		public int FreehandSensitivity { get; set; }
 		[IniProperty("SuppressSaveDialogAtClose", Description="Suppressed the 'do you want to save' dialog when closing the editor.", DefaultValue="False")]
-		public bool SuppressSaveDialogAtClose;
+		public bool SuppressSaveDialogAtClose { get; set; }
 
 		[IniProperty("DropShadowEffectSettings", Description = "Settings for the drop shadow effect.")]
-		public DropShadowEffect DropShadowEffectSettings;
+		public DropShadowEffect DropShadowEffectSettings { get; set; }
 
 		[IniProperty("TornEdgeEffectSettings", Description = "Settings for the torn edge effect.")]
-		public TornEdgeEffect TornEdgeEffectSettings;
+		public TornEdgeEffect TornEdgeEffectSettings { get; set; }
 
 		public override void AfterLoad() {
 			base.AfterLoad();
@@ -73,9 +74,10 @@ namespace Greenshot.Configuration {
 
 		/// <param name="requestingType">Type of the class for which to create the field</param>
 		/// <param name="fieldType">FieldType of the field to construct</param>
-		/// <param name="scope">FieldType of the field to construct</param>
+		/// <param name="preferredDefaultValue"></param>
 		/// <returns>a new Field of the given fieldType, with the scope of it's value being restricted to the Type scope</returns>
-		public Field CreateField(Type requestingType, FieldType fieldType, object preferredDefaultValue) {
+		public IField CreateField(Type requestingType, IFieldType fieldType, object preferredDefaultValue)
+		{
 			string requestingTypeName = requestingType.Name;
 			string requestedField = requestingTypeName + "." + fieldType.Name;
 			object fieldValue = preferredDefaultValue;
@@ -97,12 +99,14 @@ namespace Greenshot.Configuration {
 			} else {
 				LastUsedFieldValues.Add(requestedField, fieldValue);
 			}
-			Field returnField = new Field(fieldType, requestingType);
-			returnField.Value = fieldValue;
-			return returnField;
+			return new Field(fieldType, requestingType)
+			{
+				Value = fieldValue
+			};
 		}
-		
-		public void UpdateLastFieldValue(Field field) {
+
+		public void UpdateLastFieldValue(IField field)
+		{
 			string requestedField = field.Scope + "." + field.FieldType.Name;
 			// Check if the configuration exists
 			if (LastUsedFieldValues == null) {
@@ -110,10 +114,19 @@ namespace Greenshot.Configuration {
 			}
 			// check if settings for the requesting type exist, if not create!
 			if (LastUsedFieldValues.ContainsKey(requestedField)) {
-				LastUsedFieldValues[requestedField] = field.myValue;
+				LastUsedFieldValues[requestedField] = field.Value;
 			} else {
-				LastUsedFieldValues.Add(requestedField, field.myValue);
+				LastUsedFieldValues.Add(requestedField, field.Value);
 			}
+		}
+
+		public void ResetEditorPlacement()
+		{
+			WindowNormalPosition = new Rectangle(100, 100, 400, 400);
+			WindowMaxPosition = new Point(-1,-1);
+			WindowMinPosition = new Point(-1, -1);
+			WindowPlacementFlags = 0;
+			ShowWindowCommand = ShowWindowCommand.Normal;
 		}
 
 		public WindowPlacement GetEditorPlacement() {

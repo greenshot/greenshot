@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ using System;
 using System.Runtime.InteropServices;
 
 namespace Greenshot.Interop.Office {
-	enum PT : uint {
+	internal enum PT : uint {
 		PT_UNSPECIFIED = 0,	/* (Reserved for interface use) type doesn't matter to caller */
 		PT_NULL = 1,	/* NULL property value */
 		PT_I2 = 2,	/* Signed 16-bit value */
@@ -470,7 +470,7 @@ namespace Greenshot.Interop.Office {
 		[ComImport()]
 		[Guid(IID_IMAPIProp)]
 		[InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIUnknown)]
-		interface IMessage : IMAPIProp {
+		private interface IMessage : IMAPIProp {
 			[return: MarshalAs(UnmanagedType.I4)]
 			[PreserveSig]
 			int GetAttachmentTable();
@@ -558,7 +558,7 @@ namespace Greenshot.Interop.Office {
 		[ComImport()]
 		[Guid(IID_IMAPIProp)]
 		[InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIUnknown)]
-		interface IMAPIProp {
+		private interface IMAPIProp {
 			[return: MarshalAs(UnmanagedType.I4)]
 			[PreserveSig]
 			int GetLastError();
@@ -601,11 +601,11 @@ namespace Greenshot.Interop.Office {
 			[FieldOffset(0)]
 			public uint propTag;
 			[FieldOffset(4)]
-			public uint alignPad;
+			public readonly uint alignPad;
 			[FieldOffset(8)]
 			public IntPtr Value;
 			[FieldOffset(8)]
-			public long filler;
+			public readonly long filler;
 		}
 
 		/// <summary>
@@ -770,7 +770,7 @@ namespace Greenshot.Interop.Office {
 				Marshal.FreeHGlobal(propValue.Value);
 				IMAPIProp mapiProp = (IMAPIProp)Marshal.GetTypedObjectForIUnknown(IUnknown, typeof(IMAPIProp));
 				return mapiProp.SaveChanges(4) == 0;
-			} catch (System.Exception ex) {
+			} catch (Exception ex) {
 				LOG.Error(ex);
 				return false;
 			} finally {

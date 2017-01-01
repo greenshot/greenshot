@@ -3,7 +3,7 @@
  * Copyright (C) 2007-2012  Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,17 +21,15 @@
 
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
-using Greenshot.Plugin;
 using Greenshot.Plugin.Drawing;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Runtime.Serialization;
-using System.Windows.Forms;
-using log4net;
 
-namespace Greenshot.Drawing {
+namespace Greenshot.Drawing
+{
 	/// <summary>
 	/// Description of SpeechbubbleContainer.
 	/// </summary>
@@ -50,8 +48,8 @@ namespace Greenshot.Drawing {
 		/// <param name="context"></param>
 		[OnSerializing]
 		private void SetValuesOnSerializing(StreamingContext context) {
-			if (TargetGripper != null) {
-				_storedTargetGripperLocation = TargetGripper.Location;
+			if (TargetAdorner != null) {
+				_storedTargetGripperLocation = TargetAdorner.Location;
 			}
 		}
 
@@ -59,9 +57,9 @@ namespace Greenshot.Drawing {
 		/// Restore the target gripper
 		/// </summary>
 		/// <param name="context"></param>
-		[OnDeserialized]
-		private void SetValuesOnDeserialized(StreamingContext context) {
-			InitTargetGripper(Color.Green, _storedTargetGripperLocation);
+		protected override void OnDeserialized(StreamingContext context)
+		{
+			InitAdorner(Color.Green, _storedTargetGripperLocation);
 		}
 		#endregion
 
@@ -90,9 +88,9 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <returns>true if the surface doesn't need to handle the event</returns>
 		public override bool HandleMouseDown(int mouseX, int mouseY) {
-			if (TargetGripper == null) {
+			if (TargetAdorner == null) {
 				_initialGripperPoint = new Point(mouseX, mouseY);
-				InitTargetGripper(Color.Green, new Point(mouseX, mouseY));
+				InitAdorner(Color.Green, new Point(mouseX, mouseY));
 			}
 			return base.HandleMouseDown(mouseX, mouseY);
 		}
@@ -116,9 +114,9 @@ namespace Greenshot.Drawing {
 			Point newGripperLocation = _initialGripperPoint;
 			newGripperLocation.Offset(xOffset, yOffset);
 			
-			if (TargetGripper.Location != newGripperLocation) {
+			if (TargetAdorner.Location != newGripperLocation) {
 				Invalidate();
-				TargetGripperMove(newGripperLocation.X, newGripperLocation.Y);
+				TargetAdorner.Location = newGripperLocation;
 				Invalidate();
 			}
 			return returnValue;
@@ -180,7 +178,7 @@ namespace Greenshot.Drawing {
 		private GraphicsPath CreateTail() {
 			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 
-			int tailLength = GeometryHelper.Distance2D(rect.Left + (rect.Width / 2), rect.Top + (rect.Height / 2), TargetGripper.Left, TargetGripper.Top);
+			int tailLength = GeometryHelper.Distance2D(rect.Left + (rect.Width / 2), rect.Top + (rect.Height / 2), TargetAdorner.Location.X, TargetAdorner.Location.Y);
 			int tailWidth = (Math.Abs(rect.Width) + Math.Abs(rect.Height)) / 20;
 
 			// This should fix a problem with the tail being to wide
@@ -192,10 +190,10 @@ namespace Greenshot.Drawing {
 			tail.AddLine(tailWidth, 0, 0, -tailLength);
 			tail.CloseFigure();
 
-			int tailAngle = 90 + (int)GeometryHelper.Angle2D(rect.Left + (rect.Width / 2), rect.Top + (rect.Height / 2), TargetGripper.Left, TargetGripper.Top);
+			int tailAngle = 90 + (int)GeometryHelper.Angle2D(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2, TargetAdorner.Location.X, TargetAdorner.Location.Y);
 
 			using (Matrix tailMatrix = new Matrix()) {
-				tailMatrix.Translate(rect.Left + (rect.Width / 2), rect.Top + (rect.Height / 2));
+				tailMatrix.Translate(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
 				tailMatrix.Rotate(tailAngle);
 				tail.Transform(tailMatrix);
 			}
@@ -209,7 +207,7 @@ namespace Greenshot.Drawing {
 		/// <param name="graphics"></param>
 		/// <param name="renderMode"></param>
 		public override void Draw(Graphics graphics, RenderMode renderMode) {
-			if (TargetGripper == null) {
+			if (TargetAdorner == null) {
 				return;
 			}
 			graphics.SmoothingMode = SmoothingMode.HighQuality;
@@ -223,7 +221,7 @@ namespace Greenshot.Drawing {
 			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 
-			bool lineVisible = (lineThickness > 0 && Colors.IsVisible(lineColor));
+			bool lineVisible = lineThickness > 0 && Colors.IsVisible(lineColor);
 			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 
 			if (Selected && renderMode == RenderMode.EDIT) {
@@ -253,7 +251,7 @@ namespace Greenshot.Drawing {
 							graphics.DrawPath(shadowPen, bubbleClone);
 						}
 						currentStep++;
-						alpha = alpha - (basealpha / steps);
+						alpha = alpha - basealpha / steps;
 					}
 				}
 			}

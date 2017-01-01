@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,8 +30,8 @@ namespace Greenshot.Helpers {
 	/// Description of ProcessorHelper.
 	/// </summary>
 	public static class ProcessorHelper {
-		private static ILog LOG = LogManager.GetLogger(typeof(ProcessorHelper));
-		private static Dictionary<string, IProcessor> RegisteredProcessors = new Dictionary<string, IProcessor>();
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(ProcessorHelper));
+		private static readonly Dictionary<string, IProcessor> RegisteredProcessors = new Dictionary<string, IProcessor>();
 
 		/// Initialize the Processors		
 		static ProcessorHelper() {

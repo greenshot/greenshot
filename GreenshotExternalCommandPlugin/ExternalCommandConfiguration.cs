@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,49 +31,106 @@ namespace ExternalCommand {
 	[IniSection("ExternalCommand", Description="Greenshot ExternalCommand Plugin configuration")]
 	public class ExternalCommandConfiguration : IniSection {
 		[IniProperty("Commands", Description="The commands that are available.")]
-		public List<string> commands;
+		public List<string> Commands { get; set; }
 
 		[IniProperty("RedirectStandardError", Description = "Redirect the standard error of all external commands, used to output as warning to the greenshot.log.", DefaultValue = "true")]
-		public bool RedirectStandardError;
+		public bool RedirectStandardError { get; set; }
 
 		[IniProperty("RedirectStandardOutput", Description = "Redirect the standard output of all external commands, used for different other functions (more below).", DefaultValue = "true")]
-		public bool RedirectStandardOutput;
+		public bool RedirectStandardOutput { get; set; }
 
 		[IniProperty("ShowStandardOutputInLog", Description = "Depends on 'RedirectStandardOutput': Show standard output of all external commands to the Greenshot log, this can be usefull for debugging.", DefaultValue = "false")]
-		public bool ShowStandardOutputInLog;
+		public bool ShowStandardOutputInLog { get; set; }
 
 		[IniProperty("ParseForUri", Description = "Depends on 'RedirectStandardOutput': Parse the output and take the first found URI, if a URI is found than clicking on the notify bubble goes there.", DefaultValue = "true")]
-		public bool ParseOutputForUri;
+		public bool ParseOutputForUri { get; set; }
 
 		[IniProperty("OutputToClipboard", Description = "Depends on 'RedirectStandardOutput': Place the standard output on the clipboard.", DefaultValue = "false")]
-		public bool OutputToClipboard;
+		public bool OutputToClipboard { get; set; }
 
 		[IniProperty("UriToClipboard", Description = "Depends on 'RedirectStandardOutput' & 'ParseForUri': If an URI is found in the standard input, place it on the clipboard. (This overwrites the output from OutputToClipboard setting.)", DefaultValue = "true")]
-		public bool UriToClipboard;
+		public bool UriToClipboard { get; set; }
 
 		[IniProperty("Commandline", Description="The commandline for the output command.")]
-		public Dictionary<string, string> commandlines;
+		public Dictionary<string, string> Commandline { get; set; }
 
 		[IniProperty("Argument", Description="The arguments for the output command.")]
-		public Dictionary<string, string> arguments;
+		public Dictionary<string, string> Argument { get; set; }
 
 		[IniProperty("RunInbackground", Description = "Should the command be started in the background.")]
-		public Dictionary<string, bool> runInbackground;
+		public Dictionary<string, bool> RunInbackground { get; set; }
 
-		private const string MSPAINT = "MS Paint";
-		private static string paintPath;
-		private static bool hasPaint = false;
+		[IniProperty("DeletedBuildInCommands", Description = "If a build in command was deleted manually, it should not be recreated.")]
+		public List<string> DeletedBuildInCommands { get; set; }
 
-		private const string PAINTDOTNET = "Paint.NET";
-		private static string paintDotNetPath;
-		private static bool hasPaintDotNet = false;
+		private const string MsPaint = "MS Paint";
+		private static readonly string PaintPath;
+		private static readonly bool HasPaint;
+
+		private const string PaintDotNet = "Paint.NET";
+		private static readonly string PaintDotNetPath;
+		private static readonly bool HasPaintDotNet;
 		static ExternalCommandConfiguration() {
 			try {
-				paintPath = PluginUtils.GetExePath("pbrush.exe");
-				hasPaint = !string.IsNullOrEmpty(paintPath) && File.Exists(paintPath);
-				paintDotNetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"Paint.NET\PaintDotNet.exe");
-				hasPaintDotNet = !string.IsNullOrEmpty(paintDotNetPath) && File.Exists(paintDotNetPath);
+				PaintPath = PluginUtils.GetExePath("pbrush.exe");
+				HasPaint = !string.IsNullOrEmpty(PaintPath) && File.Exists(PaintPath);
 			} catch {
+				// Ignore
+			}
+			try
+			{
+				PaintDotNetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"Paint.NET\PaintDotNet.exe");
+				HasPaintDotNet = !string.IsNullOrEmpty(PaintDotNetPath) && File.Exists(PaintDotNetPath);
+			}
+			catch
+			{
+				// Ignore
+			}
+		}
+
+		/// <summary>
+		/// Delete the configuration for the specified command
+		/// </summary>
+		/// <param name="command">string with command</param>
+		public void Delete(string command)
+		{
+			if (string.IsNullOrEmpty(command))
+			{
+				return;
+			}
+			Commands.Remove(command);
+			Commandline.Remove(command);
+			Argument.Remove(command);
+			RunInbackground.Remove(command);
+			if (MsPaint.Equals(command) || PaintDotNet.Equals(command))
+			{
+				if (!DeletedBuildInCommands.Contains(command))
+				{
+					DeletedBuildInCommands.Add(command);
+				}
+			}
+		}
+
+		public override void AfterLoad()
+		{
+			base.AfterLoad();
+
+			// Check if we need to add MsPaint
+			if (HasPaint && !Commands.Contains(MsPaint) && !DeletedBuildInCommands.Contains(MsPaint))
+			{
+				Commands.Add(MsPaint);
+				Commandline.Add(MsPaint, PaintPath);
+				Argument.Add(MsPaint, "\"{0}\"");
+				RunInbackground.Add(MsPaint, true);
+			}
+
+			// Check if we need to add Paint.NET
+			if (HasPaintDotNet && !Commands.Contains(PaintDotNet) && !DeletedBuildInCommands.Contains(PaintDotNet))
+			{
+				Commands.Add(PaintDotNet);
+				Commandline.Add(PaintDotNet, PaintDotNetPath);
+				Argument.Add(PaintDotNet, "\"{0}\"");
+				RunInbackground.Add(PaintDotNet, true);
 			}
 		}
 
@@ -84,42 +141,16 @@ namespace ExternalCommand {
 		/// <returns>object with the default value for the supplied property</returns>
 		public override object GetDefault(string property) {
 			switch(property) {
-				case "Commands":
-					List<string> commandDefaults = new List<string>();
-					if (hasPaintDotNet) {
-						commandDefaults.Add(PAINTDOTNET);
-					}
-					if (hasPaint) {
-						commandDefaults.Add(MSPAINT);
-					}
-					return commandDefaults; 
-				case "Commandline":
-					Dictionary<string, string> commandlineDefaults = new Dictionary<string, string>();
-					if (hasPaintDotNet) {
-						commandlineDefaults.Add(PAINTDOTNET, paintDotNetPath);
-					}
-					if (hasPaint) {
-						commandlineDefaults.Add(MSPAINT, paintPath);
-					}
-					return commandlineDefaults; 
-				case "Argument":
-					Dictionary<string, string> argumentDefaults = new Dictionary<string, string>();
-					if (hasPaintDotNet) {
-						argumentDefaults.Add(PAINTDOTNET, "\"{0}\"");
-					}
-					if (hasPaint) {
-						argumentDefaults.Add(MSPAINT, "\"{0}\"");
-					}
-					return argumentDefaults;
-				case "RunInbackground":
-					Dictionary<string, bool> runInBackground = new Dictionary<string, bool>();
-					if (hasPaintDotNet) {
-						runInBackground.Add(PAINTDOTNET, true);
-					}
-					if (hasPaint) {
-						runInBackground.Add(MSPAINT, true);
-					}
-					return runInBackground;
+				case nameof(DeletedBuildInCommands):
+					return new List<string>();
+				case nameof(Commands):
+					return new List<string>();
+				case nameof(Commandline):
+					return new Dictionary<string, string>();
+				case nameof(Argument):
+					return new Dictionary<string, string>();
+				case nameof(RunInbackground):
+					return new Dictionary<string, bool>();
 			}
 			return null;
 		}

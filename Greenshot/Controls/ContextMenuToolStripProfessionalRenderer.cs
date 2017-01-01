@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016  Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@
 using Greenshot.IniFile;
 using GreenshotPlugin.Core;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
 namespace Greenshot.Controls {
@@ -30,18 +29,16 @@ namespace Greenshot.Controls {
 	/// ToolStripProfessionalRenderer which draws the Check correctly when the icons are larger
 	/// </summary>
 	public class ContextMenuToolStripProfessionalRenderer : ToolStripProfessionalRenderer {
-		private static CoreConfiguration coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
-		private static Image scaledCheckbox;
+		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+		private static Image _scaledCheckbox;
 
 		protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs e) {
-			if (scaledCheckbox == null || scaledCheckbox.Size != coreConfiguration.IconSize) {
-				if (scaledCheckbox != null) {
-					scaledCheckbox.Dispose();
-				}
-				scaledCheckbox = ImageHelper.ResizeImage(e.Image, true, coreConfiguration.IconSize.Width, coreConfiguration.IconSize.Height, null);
+			if (_scaledCheckbox == null || _scaledCheckbox.Size != CoreConfig.IconSize) {
+				_scaledCheckbox?.Dispose();
+				_scaledCheckbox = ImageHelper.ResizeImage(e.Image, true, CoreConfig.IconSize.Width, CoreConfig.IconSize.Height, null);
 			}
 			Rectangle old = e.ImageRectangle;
-			ToolStripItemImageRenderEventArgs clone = new ToolStripItemImageRenderEventArgs(e.Graphics, e.Item, scaledCheckbox, new Rectangle(old.X, 0, old.Width, old.Height));
+			ToolStripItemImageRenderEventArgs clone = new ToolStripItemImageRenderEventArgs(e.Graphics, e.Item, _scaledCheckbox, new Rectangle(old.X, 0, old.Width, old.Height));
 			base.OnRenderItemCheck(clone);
 		}
 	}

@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using System.Reflection;
 
 namespace Greenshot {
 	partial class AboutForm {
@@ -104,7 +106,7 @@ namespace Greenshot {
 			this.linkLblHost.Size = new System.Drawing.Size(465, 23);
 			this.linkLblHost.TabIndex = 6;
 			this.linkLblHost.TabStop = true;
-			this.linkLblHost.Text = "http://sourceforge.net/projects/greenshot/";
+			this.linkLblHost.Text = "https://github.com/greenshot/greenshot";
 			this.linkLblHost.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabelClicked);
 			// 
 			// linkLblBugs
@@ -114,7 +116,7 @@ namespace Greenshot {
 			this.linkLblBugs.Size = new System.Drawing.Size(465, 23);
 			this.linkLblBugs.TabIndex = 8;
 			this.linkLblBugs.TabStop = true;
-			this.linkLblBugs.Text = "http://getgreenshot.org/tickets/";
+			this.linkLblBugs.Text = "http://getgreenshot.org/tickets/?version=" + Assembly.GetEntryAssembly().GetName().Version;
 			this.linkLblBugs.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabelClicked);
 			// 
 			// lblBugs
@@ -132,7 +134,7 @@ namespace Greenshot {
 			this.linkLblDonations.Size = new System.Drawing.Size(465, 23);
 			this.linkLblDonations.TabIndex = 10;
 			this.linkLblDonations.TabStop = true;
-			this.linkLblDonations.Text = "http://getgreenshot.org/support/";
+			this.linkLblDonations.Text = "http://getgreenshot.org/support/?version=" + Assembly.GetEntryAssembly().GetName().Version;
 			this.linkLblDonations.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabelClicked);
 			// 
 			// lblDonations

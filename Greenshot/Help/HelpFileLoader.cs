@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,21 +29,14 @@ namespace Greenshot.Help
 	/// <summary>
 	/// Description of HelpFileLoader.
 	/// </summary>
-	public sealed class HelpFileLoader
+	public static class HelpFileLoader
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof(HelpFileLoader));
 		
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(HelpFileLoader));
-		
-		private const string EXT_HELP_URL = @"http://getgreenshot.org/help/";
-		
-		private HelpFileLoader() {
-		}
-		
+		private const string ExtHelpUrl = @"http://getgreenshot.org/help/";
+
 		public static void LoadHelp() {
-			string uri = FindOnlineHelpUrl(Language.CurrentLanguage);
-			if(uri == null) {
-				uri = Language.HelpFilePath;
-			}
+			string uri = FindOnlineHelpUrl(Language.CurrentLanguage) ?? Language.HelpFilePath;
 			Process.Start(uri);			
 		}
 		
@@ -51,7 +44,7 @@ namespace Greenshot.Help
 		private static string FindOnlineHelpUrl(string currentIETF) {
 			string ret = null;
 			
-			string extHelpUrlForCurrrentIETF = EXT_HELP_URL;
+			string extHelpUrlForCurrrentIETF = ExtHelpUrl;
 			
 			if(!currentIETF.Equals("en-US")) {
 				extHelpUrlForCurrrentIETF += currentIETF.ToLower() + "/";
@@ -60,16 +53,16 @@ namespace Greenshot.Help
 			HttpStatusCode? httpStatusCode = GetHttpStatus(extHelpUrlForCurrrentIETF);
 			if(httpStatusCode == HttpStatusCode.OK) {
 				ret = extHelpUrlForCurrrentIETF;
-			} else if(httpStatusCode != null && !extHelpUrlForCurrrentIETF.Equals(EXT_HELP_URL)) {
-				LOG.DebugFormat("Localized online help not found at {0}, will try {1} as fallback", extHelpUrlForCurrrentIETF, EXT_HELP_URL);
-				httpStatusCode = GetHttpStatus(EXT_HELP_URL);
+			} else if(httpStatusCode != null && !extHelpUrlForCurrrentIETF.Equals(ExtHelpUrl)) {
+				Log.DebugFormat("Localized online help not found at {0}, will try {1} as fallback", extHelpUrlForCurrrentIETF, ExtHelpUrl);
+				httpStatusCode = GetHttpStatus(ExtHelpUrl);
 				if(httpStatusCode == HttpStatusCode.OK) {
-					ret = EXT_HELP_URL;
+					ret = ExtHelpUrl;
 				} else {
-					LOG.WarnFormat("{0} returned status {1}", EXT_HELP_URL, httpStatusCode);
+					Log.WarnFormat("{0} returned status {1}", ExtHelpUrl, httpStatusCode);
 				}
 			} else if(httpStatusCode == null){
-				LOG.Info("Internet connection does not seem to be available, will load help from file system.");
+				Log.Info("Internet connection does not seem to be available, will load help from file system.");
 			}
 			
 			return ret;
@@ -88,11 +81,7 @@ namespace Greenshot.Help
 					return res.StatusCode;
 				}
 			} catch (WebException e) {
-				if (e.Response != null)
-				{
-					return ((HttpWebResponse)e.Response).StatusCode;
-				}
-				return null;
+				return ((HttpWebResponse) e.Response)?.StatusCode;
 			}
 		}
 	}

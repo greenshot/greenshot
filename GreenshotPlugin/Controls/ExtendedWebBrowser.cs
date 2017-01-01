@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,22 +19,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows.Forms;
 using GreenshotInterop.Interop;
 
 namespace GreenshotPlugin.Controls {
 	public class ExtendedWebBrowser : WebBrowser {
 		protected class ExtendedWebBrowserSite : WebBrowserSite, IOleCommandTarget {
-			const int OLECMDID_SHOWSCRIPTERROR = 40;
-			const int OLECMDID_SHOWMESSAGE = 41;
+			private const int OLECMDID_SHOWSCRIPTERROR = 40;
+			private const int OLECMDID_SHOWMESSAGE = 41;
 
-			static Guid CGID_DocHostCommandHandler = new Guid("F38BC242-B950-11D1-8918-00C04FC2C836");
+			private static readonly Guid CGID_DocHostCommandHandler = new Guid("F38BC242-B950-11D1-8918-00C04FC2C836");
 
-			const int S_OK = 0;
-			const int OLECMDERR_E_NOTSUPPORTED = (-2147221248);
-			const int OLECMDERR_E_UNKNOWNGROUP = (-2147221244);
+			private const int S_OK = 0;
+			private const int OLECMDERR_E_NOTSUPPORTED = (-2147221248);
+			private const int OLECMDERR_E_UNKNOWNGROUP = (-2147221244);
 
 			public ExtendedWebBrowserSite(WebBrowser wb) : base(wb) {
 			}
@@ -60,9 +58,6 @@ namespace GreenshotPlugin.Controls {
 
 		protected override WebBrowserSiteBase CreateWebBrowserSiteBase() {
 			return new ExtendedWebBrowserSite(this);
-		}
-
-		public ExtendedWebBrowser() {
 		}
 	}
 }

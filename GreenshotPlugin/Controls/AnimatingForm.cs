@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,9 +21,7 @@
 
 using System;
 using System.Windows.Forms;
-using GreenshotPlugin.Core;
 using GreenshotPlugin.UnmanagedHelpers;
-using Greenshot.IniFile;
 using log4net;
 
 namespace GreenshotPlugin.Controls {
@@ -31,10 +29,10 @@ namespace GreenshotPlugin.Controls {
 	/// Extend this Form to have the possibility for animations on your form
 	/// </summary>
 	public class AnimatingForm : GreenshotForm {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(AnimatingForm));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(AnimatingForm));
 		private const int DEFAULT_VREFRESH = 60;
-		private int vRefresh = 0;
-		private Timer timer = null;
+		private int _vRefresh;
+		private Timer _timer;
 
 		/// <summary>
 		/// This flag specifies if any animation is used
@@ -49,29 +47,25 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		protected int VRefresh {
 			get {
-				if (vRefresh == 0) {
+				if (_vRefresh == 0) {
 					// get te hDC of the desktop to get the VREFRESH
-					using (SafeWindowDCHandle desktopHandle = SafeWindowDCHandle.fromDesktop()) {
-						vRefresh = GDI32.GetDeviceCaps(desktopHandle, DeviceCaps.VREFRESH);
+					using (SafeWindowDcHandle desktopHandle = SafeWindowDcHandle.FromDesktop()) {
+						_vRefresh = GDI32.GetDeviceCaps(desktopHandle, DeviceCaps.VREFRESH);
 					}
 				}
 				// A vertical refresh rate value of 0 or 1 represents the display hardware's default refresh rate.
 				// As there is currently no know way to get the default, we guess it.
-				if (vRefresh <= 1) {
-					vRefresh = DEFAULT_VREFRESH;
+				if (_vRefresh <= 1) {
+					_vRefresh = DEFAULT_VREFRESH;
 				}
-				return vRefresh;
+				return _vRefresh;
 			}
 		}
 
 		/// <summary>
 		/// Check if we are in a Terminal Server session OR need to optimize for RDP / remote desktop connections
 		/// </summary>
-		protected bool isTerminalServerSession {
-			get {
-				return coreConfiguration.OptimizeForRDP || SystemInformation.TerminalServerSession;
-			}
-		}
+		protected bool IsTerminalServerSession => !coreConfiguration.DisableRDPOptimizing && (coreConfiguration.OptimizeForRDP || SystemInformation.TerminalServerSession);
 
 		/// <summary>
 		/// Calculate the amount of frames that an animation takes
@@ -80,7 +74,7 @@ namespace GreenshotPlugin.Controls {
 		/// <returns>Number of frames, 1 if in Terminal Server Session</returns>
 		protected int FramesForMillis(int milliseconds) {
 			// If we are in a Terminal Server Session we return 1
-			if (isTerminalServerSession) {
+			if (IsTerminalServerSession) {
 				return 1;
 			}
 			return milliseconds / VRefresh;
@@ -91,19 +85,22 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		protected AnimatingForm() {
 			Load += delegate {
-				if (EnableAnimation) {
-					timer = new Timer();
-					timer.Interval = 1000 / VRefresh;
-					timer.Tick += new EventHandler(timer_Tick);
-					timer.Start();
+				if (!EnableAnimation)
+				{
+					return;
 				}
+				_timer = new Timer
+				{
+					Interval = 1000/VRefresh
+				};
+				_timer.Tick += timer_Tick;
+				_timer.Start();
 			};
 
 			// Unregister at close
-			FormClosing += delegate {
-				if (timer != null) {
-					timer.Stop();
-				}
+			FormClosing += delegate
+			{
+				_timer?.Stop();
 			};
 		}
 
@@ -112,11 +109,11 @@ namespace GreenshotPlugin.Controls {
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void timer_Tick(object sender, EventArgs e) {
+		private void timer_Tick(object sender, EventArgs e) {
 			try {
 				Animate();
 			} catch (Exception ex) {
-				LOG.Warn("An exception occured while animating:", ex);
+				Log.Warn("An exception occured while animating:", ex);
 			}
 		}
 

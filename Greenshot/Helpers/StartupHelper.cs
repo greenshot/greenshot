@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,12 +29,12 @@ namespace Greenshot.Helpers {
 	/// A helper class for the startup registry
 	/// </summary>
 	public static class StartupHelper {
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(StartupHelper));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(StartupHelper));
 
-		private const string RUNKEY6432 = @"Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Run";
-		private const string RUNKEY = @"Software\Microsoft\Windows\CurrentVersion\Run";
+		private const string RunKey6432 = @"Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Run";
+		private const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
 
-		private const string APPLICATIONNAME = "Greenshot";
+		private const string ApplicationName = "Greenshot";
 
 		private static string GetExecutablePath() {
 			return "\"" + Application.ExecutablePath + "\"";
@@ -46,7 +46,8 @@ namespace Greenshot.Helpers {
 		/// <returns>true if Greenshot can write key</returns>
 		public static bool CanWriteRunAll() {
 			try {
-				using (RegistryKey key = Registry.LocalMachine.OpenSubKey(RUNKEY, true)) {
+				using (Registry.LocalMachine.OpenSubKey(RunKey, true))
+				{
 				}
 			} catch {
 				return false;
@@ -60,7 +61,8 @@ namespace Greenshot.Helpers {
 		/// <returns>true if Greenshot can write key</returns>
 		public static bool CanWriteRunUser() {
 			try {
-				using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RUNKEY, true)) {
+				using (Registry.CurrentUser.OpenSubKey(RunKey, true))
+				{
 				}
 			} catch {
 				return false;
@@ -72,24 +74,27 @@ namespace Greenshot.Helpers {
 		/// Return the RUN key value of the local machine
 		/// </summary>
 		/// <returns>the RUN key value of the local machine</returns>
-		public static Object GetRunAllValue() {
-			using (RegistryKey key = Registry.LocalMachine.OpenSubKey(RUNKEY, false)) {
-				if (key != null) {
-					object runValue = key.GetValue(APPLICATIONNAME);
-					if (runValue != null) {
-						return runValue;
-					}
+		public static object GetRunAllValue()
+		{
+			using (var key = Registry.LocalMachine.OpenSubKey(RunKey, false))
+			{
+				object runValue = key?.GetValue(ApplicationName);
+				if (runValue != null)
+				{
+					return runValue;
 				}
 			}
 			// for 64-bit systems we need to check the 32-bit keys too
-			if (IntPtr.Size == 8) {
-				using (RegistryKey key = Registry.LocalMachine.OpenSubKey(RUNKEY6432, false)) {
-					if (key != null) {
-						object runValue = key.GetValue(APPLICATIONNAME);
-						if (runValue != null) {
-							return runValue;
-						}
-					}
+			if (IntPtr.Size != 8)
+			{
+				return null;
+			}
+			using (var key = Registry.LocalMachine.OpenSubKey(RunKey6432, false))
+			{
+				object runValue = key?.GetValue(ApplicationName);
+				if (runValue != null)
+				{
+					return runValue;
 				}
 			}
 			return null;
@@ -99,24 +104,22 @@ namespace Greenshot.Helpers {
 		/// Return the RUN key value of the current user
 		/// </summary>
 		/// <returns>the RUN key value of the current user</returns>
-		public static Object GetRunUserValue() {
-			using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RUNKEY, false)) {
-				if (key != null) {
-					object runValue = key.GetValue(APPLICATIONNAME);
-					if (runValue != null) {
-						return runValue;
-					}
+		public static object GetRunUserValue() {
+			using (var key = Registry.CurrentUser.OpenSubKey(RunKey, false)) {
+				object runValue = key?.GetValue(ApplicationName);
+				if (runValue != null) {
+					return runValue;
 				}
 			}
 			// for 64-bit systems we need to check the 32-bit keys too
-			if (IntPtr.Size == 8) {
-				using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RUNKEY6432, false)) {
-					if (key != null) {
-						object runValue = key.GetValue(APPLICATIONNAME);
-						if (runValue != null) {
-							return runValue;
-						}
-					}
+			if (IntPtr.Size != 8)
+			{
+				return null;
+			}
+			using (var key = Registry.CurrentUser.OpenSubKey(RunKey6432, false)) {
+				object runValue = key?.GetValue(ApplicationName);
+				if (runValue != null) {
+					return runValue;
 				}
 			}
 			return null;
@@ -130,7 +133,7 @@ namespace Greenshot.Helpers {
 			try {
 				return GetRunAllValue() != null;
 			} catch (Exception e) {
-				LOG.Error("Error retrieving RunAllValue", e);
+				Log.Error("Error retrieving RunAllValue", e);
 			}
 			return false;
 		}
@@ -140,11 +143,11 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <returns>true if there is a run key</returns>
 		public static bool HasRunUser() {
-			Object runValue = null;
+			object runValue = null;
 			try {
 				runValue = GetRunUserValue();
 			} catch (Exception e) {
-				LOG.Error("Error retrieving RunUserValue", e);
+				Log.Error("Error retrieving RunUserValue", e);
 			}
 			return runValue != null;
 		}
@@ -153,24 +156,29 @@ namespace Greenshot.Helpers {
 		/// Delete the RUN key for the localmachine ("ALL")
 		/// </summary>
 		public static void DeleteRunAll() {
-			if (HasRunAll()) {
-				try {
-					using (RegistryKey key = Registry.LocalMachine.OpenSubKey(RUNKEY, true)) {
-						key.DeleteValue(APPLICATIONNAME);
-					}
-				} catch (Exception e) {
-					LOG.Error("Error in deleteRunAll.", e);
+			if (!HasRunAll())
+			{
+				return;
+			}
+			try {
+				using (var key = Registry.LocalMachine.OpenSubKey(RunKey, true)) {
+					key?.DeleteValue(ApplicationName);
 				}
-				try {
-					// for 64-bit systems we need to delete the 32-bit keys too
-					if (IntPtr.Size == 8) {
-						using (RegistryKey key = Registry.LocalMachine.OpenSubKey(RUNKEY6432, false)) {
-							key.DeleteValue(APPLICATIONNAME);
-						}
-					}
-				} catch (Exception e) {
-					LOG.Error("Error in deleteRunAll.", e);
+			} catch (Exception e) {
+				Log.Error("Error in deleteRunAll.", e);
+			}
+			try
+			{
+				// for 64-bit systems we need to delete the 32-bit keys too
+				if (IntPtr.Size != 8)
+				{
+					return;
 				}
+				using (var key = Registry.LocalMachine.OpenSubKey(RunKey6432, false)) {
+					key?.DeleteValue(ApplicationName);
+				}
+			} catch (Exception e) {
+				Log.Error("Error in deleteRunAll.", e);
 			}
 		}
 
@@ -178,24 +186,29 @@ namespace Greenshot.Helpers {
 		/// Delete the RUN key for the current user
 		/// </summary>
 		public static void DeleteRunUser() {
-			if (HasRunUser()) {
-				try {
-					using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RUNKEY, true)) {
-						key.DeleteValue(APPLICATIONNAME);
-					}
-				} catch (Exception e) {
-					LOG.Error("Error in deleteRunUser.", e);
+			if (!HasRunUser())
+			{
+				return;
+			}
+			try {
+				using (var key = Registry.CurrentUser.OpenSubKey(RunKey, true)) {
+					key?.DeleteValue(ApplicationName);
 				}
-				try {
-					// for 64-bit systems we need to delete the 32-bit keys too
-					if (IntPtr.Size == 8) {
-						using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RUNKEY6432, false)) {
-							key.DeleteValue(APPLICATIONNAME);
-						}
-					}
-				} catch (Exception e) {
-					LOG.Error("Error in deleteRunUser.", e);
+			} catch (Exception e) {
+				Log.Error("Error in deleteRunUser.", e);
+			}
+			try
+			{
+				// for 64-bit systems we need to delete the 32-bit keys too
+				if (IntPtr.Size != 8)
+				{
+					return;
 				}
+				using (var key = Registry.CurrentUser.OpenSubKey(RunKey6432, false)) {
+					key?.DeleteValue(ApplicationName);
+				}
+			} catch (Exception e) {
+				Log.Error("Error in deleteRunUser.", e);
 			}
 		}
 
@@ -204,11 +217,12 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		public static void SetRunUser() {
 			try {
-				using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RUNKEY, true)) {
-					key.SetValue(APPLICATIONNAME, GetExecutablePath());
+				using (var key = Registry.CurrentUser.OpenSubKey(RunKey, true))
+				{
+					key?.SetValue(ApplicationName, GetExecutablePath());
 				}
 			} catch (Exception e) {
-				LOG.Error("Error in setRunUser.", e);
+				Log.Error("Error in setRunUser.", e);
 			}
 		}
 
@@ -221,19 +235,22 @@ namespace Greenshot.Helpers {
 				string lnkName = Path.GetFileNameWithoutExtension(Application.ExecutablePath) + ".lnk";
 				string startupPath = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
 				if (Directory.Exists(startupPath)) {
-					LOG.DebugFormat("Startup path: {0}", startupPath);
+					Log.DebugFormat("Startup path: {0}", startupPath);
 					if (File.Exists(Path.Combine(startupPath, lnkName))) {
 						return true;
 					}
 				}
 				string startupAll = Environment.GetEnvironmentVariable("ALLUSERSPROFILE") + @"\Microsoft\Windows\Start Menu\Programs\Startup";
 				if (Directory.Exists(startupAll)) {
-					LOG.DebugFormat("Startup all path: {0}", startupAll);
+					Log.DebugFormat("Startup all path: {0}", startupAll);
 					if (File.Exists(Path.Combine(startupAll, lnkName))) {
 						return true;
 					}
 				}
-			} catch {
+			}
+			catch
+			{
+				// ignored
 			}
 			return false;
 		}

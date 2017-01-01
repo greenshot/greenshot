@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,15 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Windows.Forms;
-using GreenshotPlugin.Core;
 
 namespace GreenshotOCR {
 	/// <summary>
 	/// Description of SettingsForm.
 	/// </summary>
-	public partial class SettingsForm : OCRForm {
-		private OCRConfiguration config;
+	public partial class SettingsForm : OcrForm {
+		private readonly OCRConfiguration config;
 
 		public SettingsForm(string [] languages, OCRConfiguration config) {
 			//
@@ -55,8 +53,8 @@ namespace GreenshotOCR {
 				index++;
 			}
 		}
-		
-		void ButtonOKClick(object sender, EventArgs e) {
+
+		private void ButtonOKClick(object sender, EventArgs e) {
 			string selectedString = (string) comboBox_languages.SelectedItem;
 			if (selectedString != null) {
 				config.Language = selectedString.ToUpper();

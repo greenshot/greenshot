@@ -1,9 +1,9 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,9 +28,9 @@ namespace Greenshot.Interop {
 		IntPtr QueryInterface(ref Guid riid);
 
 		[PreserveSig]
-		UInt32 AddRef();
+		uint AddRef();
 
 		[PreserveSig]
-		UInt32 Release();
+		uint Release();
 	}
 }
