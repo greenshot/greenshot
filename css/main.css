@@ -119,6 +119,26 @@
 			.servicelinks a {
 				color:#666;
 			}
+
+                        /* blog prev/next */
+			ul.pager {
+				list-style-type: none;
+				margin:0;
+				padding:0;
+			}
+			ul.pager i.fa {
+				font-family: 'FontAwesome'
+			}
+			ul.pager li.previous {
+				display:inline;
+			}
+			ul.pager li.next {
+				display:inline;
+				float:right
+			}
+			ul.pager a {
+				text-decoration: none;
+			}
 			
 			
 
