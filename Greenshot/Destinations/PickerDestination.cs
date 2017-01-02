@@ -30,7 +30,6 @@ using Dapplo.Log;
 using Dapplo.Utils;
 using Greenshot.Addon;
 using Greenshot.Addon.Configuration;
-using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;

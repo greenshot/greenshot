@@ -21,8 +21,6 @@
 
 using System.ComponentModel.Composition;
 using System.Runtime.InteropServices.WindowsRuntime;
-using System.Threading;
-using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Dapplo.Addons;
 using Dapplo.Log;
@@ -50,8 +48,7 @@ namespace Greenshot.Addon.WindowsShare
 		/// <summary>
 		///     Export the destination if the factory can be created
 		/// </summary>
-		/// <param name="token"></param>
-		public Task StartAsync(CancellationToken token = new CancellationToken())
+		public void Start()
 		{
 			try
 			{
@@ -67,7 +64,6 @@ namespace Greenshot.Addon.WindowsShare
 				// Ignore
 				Log.Info().WriteLine("Share button disabled.");
 			}
-			return Task.FromResult(true);
 		}
 	}
 }

@@ -30,13 +30,9 @@ using System.Threading.Tasks;
 using Dapplo.HttpExtensions;
 using Dapplo.Log;
 using Dapplo.Utils;
-using Greenshot.Addon.Core;
-using Greenshot.Addon.Interfaces;
 using Greenshot.Addon.Interfaces.Destination;
 using Greenshot.Addon.Windows;
 using MahApps.Metro.IconPacks;
-using Greenshot.Addon.Extensions;
-using Greenshot.CaptureCore.Extensions;
 using Greenshot.Core;
 using Greenshot.Core.Implementations;
 using Greenshot.Core.Interfaces;
@@ -113,7 +109,7 @@ namespace Greenshot.Addon.Jira
 							using (var streamContent = new StreamContent(stream))
 							{
 								streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/" + outputSettings.Format);
-								var attachment = await jiraApi.AttachAsync(jiraDetails.JiraKey, streamContent, filename, "image/" + outputSettings.Format, pleaseWaitToken);
+								var attachment = await jiraApi.Attachment.AttachAsync(jiraDetails.JiraKey, streamContent, filename, "image/" + outputSettings.Format, pleaseWaitToken);
 								return attachment.ContentUri;
 							}
 						}

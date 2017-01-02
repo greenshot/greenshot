@@ -136,7 +136,7 @@ namespace Greenshot.Addon.Jira
 				JiraApi jiraApi;
 				if (_projectJiraApiMap.TryGetValue(jiraDetails.ProjectKey, out jiraApi))
 				{
-					var issue = await jiraApi.GetIssueAsync(jiraDetails.JiraKey).ConfigureAwait(false);
+					var issue = await jiraApi.Issue.GetAsync(jiraDetails.JiraKey).ConfigureAwait(false);
 					jiraDetails.Title = issue.Fields.Summary;
 				}
 				// Send event

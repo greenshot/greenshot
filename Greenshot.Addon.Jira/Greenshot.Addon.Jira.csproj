@@ -88,8 +88,8 @@
       <HintPath>..\packages\Dapplo.InterfaceImpl.0.2.6\lib\net45\Dapplo.InterfaceImpl.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Jira, Version=0.2.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Jira.0.2.2\lib\net45\Dapplo.Jira.dll</HintPath>
+    <Reference Include="Dapplo.Jira, Version=0.3.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Jira.0.3.1\lib\net45\Dapplo.Jira.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.Language, Version=0.5.15.0, Culture=neutral, processorArchitecture=MSIL">
