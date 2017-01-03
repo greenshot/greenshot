@@ -40,11 +40,23 @@ namespace Greenshot.Core.Configuration
 	/// </summary>
 	public interface IUpdateConfiguration : IIniSubSection
 	{
-		[Description("What kind of build is this, injected to the DefaultValue during the build.")]
+		[Description("Is the update check enabled?")]
+		[DefaultValue(true)]
+		bool CheckForUpdates { get; set; }
+
+
+		[Description("How many days between every update check? (1-365)")]
+		[DefaultValue(7)]
+		int UpdateCheckInterval { get; set; }
+
+		[Description("Where does greenshot get it's update information?")]
+		[DefaultValue("https://getgreenshot.org/project_feed")]
+		Uri ProjectFeed { get; set; }
+
+		[Description("What kind of build is this, this is injected to the during the build.")]
 		[IniPropertyBehavior(Read = false, Write = false)]
 		[DefaultValue("@build_type@")]
 		BuildStates BuildState { get; set; }
-
 
 		[Description("Also check for unstable version updates")]
 		[DefaultValue(false)]
@@ -53,8 +65,5 @@ namespace Greenshot.Core.Configuration
 		[Description("Last update check")]
 		DateTimeOffset LastUpdateCheck { get; set; }
 
-		[Description("How many days between every update check? (0=no checks)")]
-		[DefaultValue(7)]
-		int UpdateCheckInterval { get; set; }
 	}
 }
