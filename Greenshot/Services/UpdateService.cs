@@ -31,6 +31,7 @@ using Dapplo.Log;
 using Greenshot.Addon.Core;
 using Greenshot.Core.Configuration;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
 #endregion
@@ -99,18 +100,27 @@ namespace Greenshot.Services
 			try
 			{
 				await UpdatedProjectFeedInfoAsync().ConfigureAwait(false);
+
+				if (_currentUpdateFeedInfo == null)
+				{
+					return;
+				}
+				if (_currentUpdateFeedInfo.ProjectFeedUri?.IsWellFormedOriginalString() == true)
+				{
+					UpdateConfiguration.ProjectFeed = _currentUpdateFeedInfo.ProjectFeedUri;
+				}
 				// TODO: Implement the check logic
 				var newerRelease = _currentUpdateFeedInfo?.Releases.OrderByDescending(artifact => artifact.Version).FirstOrDefault(artifact => artifact.Version > CurrentVersion);
 				if (newerRelease != null)
 				{
 					// We have a newer release
+					Log.Info().WriteLine("Found newer release {0}", newerRelease.Version);
 				}
 			}
 			catch (Exception ex)
 			{
 				Log.Error().WriteLine(ex, "Couldn't check the project feed.");
 			}
-
 		}
 
 		/// <summary>
@@ -127,33 +137,44 @@ namespace Greenshot.Services
 	/// <summary>
 	///     This describes a Greenshot artifact (exe)
 	/// </summary>
+	[DataContract]
 	public class Artifact
 	{
+		[DataMember(Name = "version")]
 		public Version Version { get; set; }
-
-		public string Title { get; set; }
-
+		[DataMember(Name = "blog_uri")]
 		public Uri BlogUri { get; set; }
 	}
 
 	/// <summary>
 	///     This describes a blog entry on our site
 	/// </summary>
+	[DataContract]
 	public class Blog
 	{
+		[DataMember(Name = "title")]
 		public string Title { get; set; }
-
+		[DataMember(Name = "blog_uri")]
 		public Uri BlogUri { get; set; }
 	}
 
 	/// <summary>
 	///     This is the container for the project feed with artifacts and blog entries
 	/// </summary>
+	[DataContract]
 	public class UpdateFeedInfo
 	{
+		[DataMember(Name = "project_feed")]
+		public Uri ProjectFeedUri { get; set; }
+		[DataMember(Name = "downloads")]
+		public Uri DownloadsUri { get; set; }
+		[DataMember(Name = "releases")]
 		public IEnumerable<Artifact> Releases { get; set; }
+		[DataMember(Name = "release_candidates")]
 		public IEnumerable<Artifact> ReleaseCandidates { get; set; }
+		[DataMember(Name = "betas")]
 		public IEnumerable<Artifact> Betas { get; set; }
+		[DataMember(Name = "blogs")]
 		public IEnumerable<Artifact> Blogs { get; set; }
 	}
 }

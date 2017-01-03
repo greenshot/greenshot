@@ -38,12 +38,13 @@ using Greenshot.Core.Enumerations;
 namespace Greenshot.Addon.Configuration
 {
 	/// <summary>
-	///     Description of CoreConfiguration.
+	///     The CoreConfiguration contains almost all configuration stuff for Greenshot itself, but not for the addons.
+	/// TODO: Move to Greenshot, use the IIniSubSection(s) instead
 	/// </summary>
 	[IniSection("Core")]
 	[Description("Greenshot core configuration")]
 	public interface ICoreConfiguration :
-		// Importing other configuration interfaces, so the file doesn't get to big
+		// Importing other configuration interfaces, so the file doesn't get too big
 		IOutputConfiguration, IPrinterConfiguration,
 		IUiConfiguration, IMiscConfiguration,
 		IUpdateConfiguration, IHotkeyConfiguration,
