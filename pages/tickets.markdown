@@ -11,8 +11,7 @@ tags: []
     ul.contact {
       margin:0;
       padding:0;
-        list-style-type:none;
-    
+      list-style-type:none;
     }
     ul.contact li {
       position:relative;
@@ -71,18 +70,14 @@ tags: []
     ul.contact .letsgo {
       position:absolute;
       z-index:2;
-    	right:20px;
+      right:20px;
       bottom:20px;
       font-family:"Bangers";
       font-size:24px;
-    }
-    
-    
+    }  
     </style>
-  
-	<p>
-    We really love to hear constructive feedback. But please don't expect an instant response. Since Greenshot is used by millions of people, it's not always possible to respond timely. We hope for your understanding. Before getting in touch, please have a look at our <a href="/faq/">FAQ</a> and <a href="/help/">help</a> pages, or browse bug reports and feature requests submitted by other users. This way, you might find an answer faster and at the same time save us some efforts we can instead put into Greenshot. Thanks a lot. <i class="fa fa-heart"></i>
-  </p>
+
+We really love to hear constructive feedback. But please don't expect an instant response. Since Greenshot is used by millions of people, it's not always possible to respond timely. We hope for your understanding. Before getting in touch, please have a look at our <a href="/faq/">FAQ</a> and <a href="/help/">help</a> pages, or browse bug reports and feature requests submitted by other users. This way, you might find an answer faster and at the same time save us some efforts we can instead put into Greenshot. Thanks a lot. <i class="fa fa-heart"></i>
   
   <ul class="contact">
     <li class="bug">
