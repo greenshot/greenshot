@@ -24,6 +24,7 @@
 			Também apreciaremos muito se você puder verificar se já não existe um reporte de erro para este problema. (Você pode usar a opção de busca para encontrar rapidamente.) Obrigado :)
 		</resource>
 		<resource name="bugreport_title">Erro</resource>
+		<resource name="CANCEL">Cancelar</resource>
 		<resource name="clipboard_error">Um erro inesperado ocorreu ao tentar escrever na área de transferência.</resource>
 		<resource name="clipboard_inuse">O Greenshot não conseguiu escrever na área de transferência porque o processo {0} bloqueou o acesso.</resource>
 		<resource name="colorpicker_alpha">Alfa</resource>
