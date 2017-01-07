@@ -1,8 +1,8 @@
 
 // Function called if AdBlock is detected
 function adBlockDetected() {
-    $('.ga-ldrbrd').append('<a href="/support-us/"><img src="/assets/bab-banner.png"></a>');
-    $('.ga-skscrpr').append('<a href="/support-us/"><img src="/assets/bab-skyscraper.png"></a>');
+    $('.ga-ldrbrd').append('<a href="/support/"><img src="/assets/bab-banner.png"></a>');
+    $('.ga-skscrpr').append('<a href="/support/"><img src="/assets/bab-skyscraper.png"></a>');
     $('.ga-skscrpr-wrapper').hide();
 }
 
