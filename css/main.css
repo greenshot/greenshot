@@ -243,31 +243,31 @@
 			/* ADS */
 			/**********************************************/
 
-			.ad-skyscraper {
+			.ga-skscrpr {
 				display: inline-block;
 				float: right;
 			}
 			
-			.ad-skyscraper .ad-skyscraper-wrapper {
+			.ga-skscrpr .ga-skscrpr-wrapper {
 				width: 160px;
 				height: 600px;
 				display: inline-block;
 			}
 			
-			.ad-skyscraper .ad-skyscraper-text {
+			.ga-skscrpr .ga-skscrpr-text {
 				text-align: right;
 				color: #3d3d3d;
 				font-size: 10px;
 			}
 			
-			.ad-leaderboard {
+			.ga-ldrbrd {
 				display: inline-block;
 				margin-bottom: 3em;
 				width: 100%;
 				max-width: 728px;
 			}
 			
-			.ad-leaderboard img {
+			.ga-ldrbrd img {
 				 width: 728px;
 				 height: 90px;
 			}
