@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Taqbaylit" ietf="kab-DZ" version="1.2.0.58" languagegroup="1">
+	<resources>
+		<resource name="about_bugs">Azen ibugen ar</resource>
+		<resource name="about_donations">Ma tḥemled Greenshot, Mudd-aɣ-d afus :</resource>
+		<resource name="about_host">Greenshot yezdeɣ di sourceforge.net di</resource>
+		<resource name="about_icons">Tignitin i d-yekkan seg uqettun n tignitin Fugue n Kamiyamane Yuusuke (Creative Commons Attribution 3.0 license)</resource>
+		<resource name="about_license">Copyright © 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+Greenshot yettunefk-d S WAR ṬMANA. d aseɣẓan ilelli i tzemreḍ ad tezuzreḍ s kra n tewtilin.
+Talqayt ɣef GNU General Public License :</resource>
+		<resource name="about_title">Ɣef Greenshot</resource>
+		<resource name="application_title">Greenshot - afecku ifazen n tuṭṭfa n ugdil</resource>
+		<resource name="bugreport_cancel">Mdel</resource>
+		<resource name="bugreport_info">Suref-aɣ, teḍra-d tuccḍa.
+
+Isali yelhan, c'est que vous pouvez nous aider à nous en débarrasser en remplissant un rapport de bogue.
+Veuillez visiter l'URL ci-dessous, créer un nouveau rapport de bogue et coller le contenu de cette zone de texte.
+
+Ajoutez un résumé compréhensible et des informations que vous jugez utiles à la reproduction du problème.
+De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si un rapport concernant ce problème existe déjà. (Vous pouvez utiliser l'outil de recherche pour les trouver rapidement.) Merci :)</resource>
+		<resource name="bugreport_title">Tuccḍa</resource>
+		<resource name="CANCEL">Sefsex</resource>
+		<resource name="clipboard_error">Une erreur inattendue a eu lieu lors de l'écriture vers le presse-papier.</resource>
+		<resource name="clipboard_inuse">Greenshot n'a pu écrire dans le presse-papier car le processus {0} en a bloqué l'accès.</resource>
+		<resource name="clipboard_noimage">Ur izmir ara ad d-yaf tugna ɣef afus.</resource>
+		<resource name="ClipboardFormat.BITMAP">Windows Bitmap</resource>
+		<resource name="ClipboardFormat.DIB">Format d'image indépendante du périphérique (DIB)</resource>
+		<resource name="ClipboardFormat.HTML">HTML</resource>
+		<resource name="ClipboardFormat.HTMLDATAURL">HTML s tugniwin s srid</resource>
+		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="colorpicker_alpha">Alpha</resource>
+		<resource name="colorpicker_apply">Appliquer</resource>
+		<resource name="colorpicker_blue">Amidadi</resource>
+		<resource name="colorpicker_green">Azegzaw</resource>
+		<resource name="colorpicker_htmlcolor">Ini HTML</resource>
+		<resource name="colorpicker_recentcolors">Initen ineggura</resource>
+		<resource name="colorpicker_red">Azeggaɣ</resource>
+		<resource name="colorpicker_title">Fren ini</resource>
+		<resource name="colorpicker_transparent">Transparent</resource>
+		<resource name="com_rejected">La destination {0} a refusé l'accès de Greenshot, une boîte de dialogue est probablement ouverte. Fermez la boîte de dialogue et essayez à nouveau.</resource>
+		<resource name="com_rejected_title">Accès de Greenshot refusé</resource>
+		<resource name="config_unauthorizedaccess_write">Impossible d'enregistrer le fichier de configuration de Greenshot. Veuillez vérifier les droits pour '{0}'.</resource>
+		<resource name="contextmenu_about">Ɣef Greenshot</resource>
+		<resource name="contextmenu_capturearea">Ṭṭef tamnaṭ</resource>
+		<resource name="contextmenu_captureclipboard">Ldi Tugna yellan Ɣef afus</resource>
+		<resource name="contextmenu_capturefullscreen">Ṭṭef akk agdil</resource>
+		<resource name="contextmenu_capturefullscreen_all">Akk</resource>
+		<resource name="contextmenu_capturefullscreen_bottom">akesser</resource>
+		<resource name="contextmenu_capturefullscreen_left">azelmaḍ</resource>
+		<resource name="contextmenu_capturefullscreen_right">ayeffus</resource>
+		<resource name="contextmenu_capturefullscreen_top">haut</resource>
+		<resource name="contextmenu_captureie">Ṭṭef Internet Explorer</resource>
+		<resource name="contextmenu_captureiefromlist">Ṭṭef Internet Explorer si tebdart agi</resource>
+		<resource name="contextmenu_capturelastregion">Ṭṭef tamnaṭ taneggarut</resource>
+		<resource name="contextmenu_capturewindow">Ṭṭef asfaylu urmid</resource>
+		<resource name="contextmenu_capturewindowfromlist">Ṭṭef asfaylu urmid si tebdart agi</resource>
+		<resource name="contextmenu_donate">Mudd afus i Greenshot</resource>
+		<resource name="contextmenu_exit">Ffeɣ</resource>
+		<resource name="contextmenu_help">Tallelt</resource>
+		<resource name="contextmenu_openfile">Ldi tugna seg ufaylu</resource>
+		<resource name="contextmenu_openrecentcapture">Ldi adig n usekles aneggaru</resource>
+		<resource name="contextmenu_quicksettings">Ismenyifen iruraden</resource>
+		<resource name="contextmenu_settings">Ismenyifen...</resource>
+		<resource name="destination_exportfailed">Tuccḍa deg usnirem ɣer {0}.Ma ulac aɣilif  ɛreḍ tikelt nniḍen.</resource>
+		<resource name="editor_align_bottom">D akesser</resource>
+		<resource name="editor_align_center">Di tlemmast</resource>
+		<resource name="editor_align_horizontal">Alignement horizontal</resource>
+		<resource name="editor_align_left">Reyyec s azelmaḍ</resource>
+		<resource name="editor_align_middle">Di tlemmast</resource>
+		<resource name="editor_align_right">Reyyec s ayeffus</resource>
+		<resource name="editor_align_top">D asawen</resource>
+		<resource name="editor_align_vertical">Areyyec ubdid</resource>
+		<resource name="editor_arrange">Suddes</resource>
+		<resource name="editor_arrowheads">Iqeṛṛa n ineccaben</resource>
+		<resource name="editor_arrowheads_both">I sin</resource>
+		<resource name="editor_arrowheads_end">Taneqqiṭ n tagara</resource>
+		<resource name="editor_arrowheads_none">Ula yiwen</resource>
+		<resource name="editor_arrowheads_start">Taneqqiṭ n tazwara</resource>
+		<resource name="editor_autocrop">Cadrage automatique</resource>
+		<resource name="editor_backcolor">Couleur de remplissage</resource>
+		<resource name="editor_blur_radius">Rayon du floutage</resource>
+		<resource name="editor_bold">Zur</resource>
+		<resource name="editor_border">Rnu leryuf</resource>
+		<resource name="editor_brightness">Luminosité</resource>
+		<resource name="editor_cancel">Sefsex</resource>
+		<resource name="editor_clipboardfailed">Une erreur s'est produite lors de l'accès au presse-papier. Veuillez réessayer.</resource>
+		<resource name="editor_close">Mdel</resource>
+		<resource name="editor_close_on_save">Voulez-vous enregistrer la capture d'écran ?</resource>
+		<resource name="editor_close_on_save_title">Sekles tugna?</resource>
+		<resource name="editor_confirm">Sentem</resource>
+		<resource name="editor_copyimagetoclipboard">Nɣel tugna ɣef afus</resource>
+		<resource name="editor_copypathtoclipboard">Nɣel abrid ɣef afus</resource>
+		<resource name="editor_copytoclipboard">Nɣel</resource>
+		<resource name="editor_counter">Rnu Amesmiḍan</resource>
+		<resource name="editor_crop">Recadrer (C)</resource>
+		<resource name="editor_cursortool">Afecku n ufran (ESC)</resource>
+		<resource name="editor_cuttoclipboard">Gzem</resource>
+		<resource name="editor_deleteelement">Kkes</resource>
+		<resource name="editor_downonelevel">Ṣub</resource>
+		<resource name="editor_downtobottom">Deg ugilal</resource>
+		<resource name="editor_drawarrow">Suneɣ aneccab (A)</resource>
+		<resource name="editor_drawellipse">Suneɣ taglayt (E)</resource>
+		<resource name="editor_drawfreehand">Suneɣ s ufus (F)</resource>
+		<resource name="editor_drawhighlighter">Derrer (H)</resource>
+		<resource name="editor_drawline">Suneɣ izirig (L)</resource>
+		<resource name="editor_drawrectangle">Suneɣ asrem(R)</resource>
+		<resource name="editor_drawtextbox">Rnu asfaylu n uḍris (T)</resource>
+		<resource name="editor_dropshadow_darkness">Opacité de l'ombre</resource>
+		<resource name="editor_dropshadow_offset">Décalage</resource>
+		<resource name="editor_dropshadow_settings">Iɣewwaṛen n tili</resource>
+		<resource name="editor_dropshadow_thickness">Tuzert n tili</resource>
+		<resource name="editor_duplicate">Dupliquer l'élément sélectionné</resource>
+		<resource name="editor_edit">Taẓrigt</resource>
+		<resource name="editor_effects">Effets</resource>
+		<resource name="editor_email">Courriel</resource>
+		<resource name="editor_file">Afaylu</resource>
+		<resource name="editor_fontsize">Teɣzi</resource>
+		<resource name="editor_forecolor">Ini n izirig</resource>
+		<resource name="editor_grayscale">Niveaux de gris</resource>
+		<resource name="editor_highlight_area">Surligner une zone</resource>
+		<resource name="editor_highlight_grayscale">Niveaux de gris</resource>
+		<resource name="editor_highlight_magnify">Agrandir</resource>
+		<resource name="editor_highlight_mode">Mode de surlignage</resource>
+		<resource name="editor_highlight_text">Surligner le texte</resource>
+		<resource name="editor_image_shadow">Ombre portée</resource>
+		<resource name="editor_imagesaved">Image enregistrée vers {0}.</resource>
+		<resource name="editor_insertwindow">Insérer une fenêtre</resource>
+		<resource name="editor_invert">Inverser les couleurs</resource>
+		<resource name="editor_italic">Uknan</resource>
+		<resource name="editor_load_objects">Sali-d tiɣawsiwin seg ufaylu</resource>
+		<resource name="editor_magnification_factor">Facteur de grossissement</resource>
+		<resource name="editor_match_capture_size">Adapter le format de capture</resource>
+		<resource name="editor_obfuscate">Brouiller (O)</resource>
+		<resource name="editor_obfuscate_blur">Flouter</resource>
+		<resource name="editor_obfuscate_mode">Mode de brouillage</resource>
+		<resource name="editor_obfuscate_pixelize">Pixéliser</resource>
+		<resource name="editor_object">Taɣawsa</resource>
+		<resource name="editor_opendirinexplorer">Ldi akaram n unaram Windows</resource>
+		<resource name="editor_pastefromclipboard">Sented</resource>
+		<resource name="editor_pixel_size">Taille de pixel</resource>
+		<resource name="editor_preview_quality">Qualité de prévisualisation</resource>
+		<resource name="editor_print">Siggez</resource>
+		<resource name="editor_redo">Err-d {0}</resource>
+		<resource name="editor_resetsize">Wennez teɣzi</resource>
+		<resource name="editor_resize">Redimmensionner</resource>
+		<resource name="editor_resize_aspectratio">Maintenir le rapport L / H</resource>
+		<resource name="editor_resize_height"><rir</resource>
+		<resource name="editor_resize_percent">Afmiḍi</resource>
+		<resource name="editor_resize_pixel">Ipiksilen</resource>
+		<resource name="editor_resize_settings">Paramètres du redimmensionnement</resource>
+		<resource name="editor_resize_width">Tahri</resource>
+		<resource name="editor_rotateccw">Zzi s azelmaḍ</resource>
+		<resource name="editor_rotatecw">Zzi s ayeffus</resource>
+		<resource name="editor_save">Sekles</resource>
+		<resource name="editor_save_objects">Sekles tiɣawsiwin deg ufaylu</resource>
+		<resource name="editor_saveas">Sekles s yisem...</resource>
+		<resource name="editor_selectall">Fren akk</resource>
+		<resource name="editor_senttoprinter">Tamhelt n usiggez tettwazen ɣer '{0}'.</resource>
+		<resource name="editor_shadow">Tili tettwarfed</resource>
+		<resource name="editor_speechbubble">tačuffiṭ n uḍris</resource>
+		<resource name="editor_storedtoclipboard">Tugna tetwasers ɣef afus.</resource>
+		<resource name="editor_thickness">Tuzert n izirig</resource>
+		<resource name="editor_title">Greenshot Amaẓrag n tugniwin</resource>
+		<resource name="editor_torn_edge">Leryuf qqeṛsen</resource>
+		<resource name="editor_tornedge_all">Seɣres akk idisan</resource>
+		<resource name="editor_tornedge_bottom">Snes aseɣres ukesser</resource>
+		<resource name="editor_tornedge_horizontaltoothrange">Aglawan : azilal n tuɣmas</resource>
+		<resource name="editor_tornedge_left">Snes aseɣres deg uzelmaḍ</resource>
+		<resource name="editor_tornedge_right">Snes aseɣres deg uyeffus</resource>
+		<resource name="editor_tornedge_settings">Aswel n leryuf</resource>
+		<resource name="editor_tornedge_shadow">Sefek tili</resource>
+		<resource name="editor_tornedge_toothsize">Teɣzi n tuɣmas</resource>
+		<resource name="editor_tornedge_top">Appliquer une déchirure en haut</resource>
+		<resource name="editor_tornedge_verticaltoothrange">Vertical : Intervalle des dents</resource>
+		<resource name="editor_undo">Sefsex {0}</resource>
+		<resource name="editor_uponelevel">Rfed</resource>
+		<resource name="editor_uptotop">Au premier plan</resource>
+		<resource name="EmailFormat.MAPI">Amsaɣ MAPI</resource>
+		<resource name="EmailFormat.OUTLOOK_HTML">Outlook avec HTML</resource>
+		<resource name="EmailFormat.OUTLOOK_TXT">Outlook avec texte</resource>
+		<resource name="error">Erreur</resource>
+		<resource name="error_multipleinstances">Une instance de Greenshot est déjà en cours d'exécution.</resource>
+		<resource name="error_nowriteaccess">Impossible d'enregistrer le fichier vers {0}.
+Veuillez vérifier l'accessibilité du répertoire de stockage.</resource>
+		<resource name="error_openfile">Le fichier "{0}" n'a pu être ouvert.</resource>
+		<resource name="error_openlink">Ne peut ouvrir le lien '{0}'.</resource>
+		<resource name="error_save">Impossible d'enregistrer la capture d'écran. Veuillez trouver un répertoire adéquat !</resource>
+		<resource name="error_save_invalid_chars">Le nom du répertoire ou le nom du fichier généré n'est pas valide. Corrigez le modèle de nom de fichier, puis essayez à nouveau.</resource>
+		<resource name="expertsettings">Expert</resource>
+		<resource name="expertsettings_autoreducecolors">Image en 8 bits si le nombre de couleurs est &lt; à 256 pour une image &gt; 8 bits</resource>
+		<resource name="expertsettings_checkunstableupdates">Vérifier les mises à jour instables</resource>
+		<resource name="expertsettings_clipboardformats">Formats du presse-papier</resource>
+		<resource name="expertsettings_counter">Nombre pour $(NUM) dans modèle nom de fichier</resource>
+		<resource name="expertsettings_enableexpert">Je sais ce que je fais !</resource>
+		<resource name="expertsettings_footerpattern">Modèle du pied de page</resource>
+		<resource name="expertsettings_minimizememoryfootprint">Empreinte mémoire minimisée, mais performances dégradées (non conseillé).</resource>
+		<resource name="expertsettings_optimizeforrdp">Optimisations pour l'utilisation avec le bureau à distance</resource>
+		<resource name="expertsettings_reuseeditorifpossible">Réutiliser l'éditeur si possible</resource>
+		<resource name="expertsettings_suppresssavedialogatclose">Supprimer la boîte de dialogue de sauvegarde lors de la fermeture de l'éditeur</resource>
+		<resource name="expertsettings_thumbnailpreview">Fenêtre de miniatures dans le menu contextuel (pour Windows Vista et Windows 7)</resource>
+		<resource name="exported_to">Yettusifeḍ ar : {0}</resource>
+		<resource name="exported_to_error">Une erreur s'est produite lors de l'exportation de {0} :</resource>
+		<resource name="help_title">Aide de Greenshot</resource>
+		<resource name="hotkeys">Raccourcis clavier</resource>
+		<resource name="jpegqualitydialog_choosejpegquality">Veuillez choisir la qualité de l'image JPEG.</resource>
+		<resource name="OK">Ok</resource>
+		<resource name="print_error">Une erreur s'est produite lors de l'impression.</resource>
+		<resource name="printoptions_allowcenter">Centrer sur la page</resource>
+		<resource name="printoptions_allowenlarge">Élargir aux dimensions de la page</resource>
+		<resource name="printoptions_allowrotate">Tourner l'impression selon l'orientation de la page</resource>
+		<resource name="printoptions_allowshrink">Réduire aux dimensions de la page</resource>
+		<resource name="printoptions_colors">Paramètres d'impression couleur</resource>
+		<resource name="printoptions_dontaskagain">Sekles iɣewwaṛen amzun d azalen imezwar, ur d-sutur ara tikelt nniḍen.</resource>
+		<resource name="printoptions_inverted">Imprimer en couleurs inversées</resource>
+		<resource name="printoptions_layout">Paramètres de mise en page</resource>
+		<resource name="printoptions_printcolor">Impression en couleur</resource>
+		<resource name="printoptions_printgrayscale">Forcer l'impression en niveaux de gris</resource>
+		<resource name="printoptions_printmonochrome">Forcer l'impression en noir/blanc</resource>
+		<resource name="printoptions_timestamp">Imprimer la date et l'heure dans le pied de page</resource>
+		<resource name="printoptions_title">Greenshot - Options d'impression</resource>
+		<resource name="qualitydialog_dontaskagain">Enregistrer en tant que qualité par défaut et ne plus le demander</resource>
+		<resource name="qualitydialog_title">Greenshot - Qualité</resource>
+		<resource name="quicksettings_destination_file">Selkes srid (seqdec iɣewwaṛen n tuffɣa)</resource>
+		<resource name="settings_alwaysshowprintoptionsdialog">Afficher systématiquement la boite de dialogue d'impression.</resource>
+		<resource name="settings_alwaysshowqualitydialog">Afficher la boîte de dialogue de qualité à chaque enregistrement</resource>
+		<resource name="settings_applicationsettings">Paramètres de l'application</resource>
+		<resource name="settings_autostartshortcut">Lancer Greenshot au démarrage de Windows</resource>
+		<resource name="settings_capture">Tuṭṭfa</resource>
+		<resource name="settings_capture_mousepointer">Capturer le pointeur de la souris</resource>
+		<resource name="settings_capture_windows_interactive">Utiliser le mode interactif de capture de fenêtre</resource>
+		<resource name="settings_checkperiod">Intervalle de vérification des m.à.j en jours (0=pas de vérification)</resource>
+		<resource name="settings_configureplugin">Swel</resource>
+		<resource name="settings_copypathtoclipboard">Copier le chemin vers le fichier dans le presse-papier à chaque sauvegarde</resource>
+		<resource name="settings_destination">Destination de la capture d'écran</resource>
+		<resource name="settings_destination_clipboard">Ɣef afus</resource>
+		<resource name="settings_destination_editor">Ldi deg umaẓrag n tugniwin</resource>
+		<resource name="settings_destination_email">Courriel</resource>
+		<resource name="settings_destination_file">Enregistrez directement (en utilisant les paramètres ci-dessous)</resource>
+		<resource name="settings_destination_fileas">Sekles s yisem (sken asfaylu n udiwenni)</resource>
+		<resource name="settings_destination_picker">Sélectionner la destination dynamiquement</resource>
+		<resource name="settings_destination_printer">Ar tsaggazt</resource>
+		<resource name="settings_editor">Amaẓrag</resource>
+		<resource name="settings_filenamepattern">Taneɣruft n ufaylu</resource>
+		<resource name="settings_general">Amatu</resource>
+		<resource name="settings_iconsize">Teɣzi n tignitin</resource>
+		<resource name="settings_iecapture">Capture d'Internet Explorer</resource>
+		<resource name="settings_jpegquality">Taɣara JPEG</resource>
+		<resource name="settings_language">Tutlayt</resource>
+		<resource name="settings_message_filenamepattern">Les variables suivantes seront automatiquement remplacées dans votre modèle :
+${YYYY} aseggass s 4
+${MM} aggur s 2 n izwilen
+${DD} jass s 2 n izwilen
+${hh} asrag s n 2 izwilen
+${mm} tisdatin s 2 n izwilen
+${ss} tasinin s 2 n izwilen
+${NUM} Incrément sur 6 n izwilen
+${title} Azwel n usfaylu
+${user} isem n useqdac Windows
+${domain} Taɣult Windows
+${hostname} Isem n usenneftaɣ n uselkim
+
+Vous pouvez aussi laisser Greenshot créer des répertoires dynamiquement, simplement en utilisant la barre oblique inversée (\) pour séparer les répertoires et les fichiers.
+Exemple : le modèle ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+créera un répertoire pour le jour en cours dans votre emplacement de stockage par défaut, par exemple 2008-06-29, le nom du fichier contenant la capture d'écran sera basé sur l'heure
+en cours, par exemple 11_58_32 (plus l'extension définie dans les paramètres)</resource>
+		<resource name="settings_network">Réseau et mises à jour</resource>
+		<resource name="settings_output">Tuffɣa</resource>
+		<resource name="settings_playsound">Jouer un son d'appareil photo</resource>
+		<resource name="settings_plugins">Isiɣzaf</resource>
+		<resource name="settings_plugins_createdby">Yerna-t</resource>
+		<resource name="settings_plugins_dllpath">Abrid DLL</resource>
+		<resource name="settings_plugins_name">Isem</resource>
+		<resource name="settings_plugins_version">Lqem</resource>
+		<resource name="settings_preferredfilesettings">Préférences d'enregistrement</resource>
+		<resource name="settings_primaryimageformat">Format d'image</resource>
+		<resource name="settings_printer">Imprimante</resource>
+		<resource name="settings_printoptions">Options d'impression</resource>
+		<resource name="settings_qualitysettings">Paramètres de qualité</resource>
+		<resource name="settings_reducecolors">Réduire le nombre de couleurs à 256 maximum</resource>
+		<resource name="settings_registerhotkeys">Enregistrer les raccourcis clavier</resource>
+		<resource name="settings_showflashlight">Faire flasher l'écran</resource>
+		<resource name="settings_shownotify">Afficher les notifications</resource>
+		<resource name="settings_storagelocation">Rép. de sauvegarde</resource>
+		<resource name="settings_title">Paramètres</resource>
+		<resource name="settings_tooltip_filenamepattern">Modèle utilisé pour générer les noms de fichier lors de la sauvegarde des captures d'écran</resource>
+		<resource name="settings_tooltip_language">Langue de l'interface utilisateur de Greenshot</resource>
+		<resource name="settings_tooltip_primaryimageformat">Format d'image par défaut</resource>
+		<resource name="settings_tooltip_registerhotkeys">Détermine si les raccourcis clavier Impr. écran, Ctrl+Impr. écran, Alt+Impr. écran sont réservés à Greenshot lorsqu'il est en cours d'exécution.</resource>
+		<resource name="settings_tooltip_storagelocation">Répertoire où sont stockés vos captures d'écran par défaut. (Laisser vide pour sauvegarder sur le bureau)</resource>
+		<resource name="settings_usedefaultproxy">Seqdec apṛuksi n unagraw amezwer</resource>
+		<resource name="settings_visualization">Effets</resource>
+		<resource name="settings_waittime">Millisecondes d'attente avant la capture</resource>
+		<resource name="settings_window_capture_mode">Mode de capture de fenêtre (style Aero)</resource>
+		<resource name="settings_windowscapture">Capture de la fenêtre active</resource>
+		<resource name="settings_zoom">Afficher la loupe</resource>
+		<resource name="tooltip_firststart">Cliquez droit ici ou appuyez sur la touche {0}.</resource>
+		<resource name="update_found">Une nouvelle version de Greenshot est disponible ! Voulez-vous télécharger Greenshot {0} ?</resource>
+		<resource name="wait_ie_capture">Veuillez patienter pendant la capture de la page Internet Explorer...</resource>
+		<resource name="warning">Avertissement</resource>
+		<resource name="warning_hotkeys">Le(s) raccourci(s) clavier "{0}" n'a pu être enregistré. Ce problème est probablement dû à un autre outil qui utilise le(s) même(s) raccourci(s) clavier. Vous pouvez soit modifier vos raccourcis clavier soit désactiver/modifier le logiciel utilisant le(s) raccourci(s).
+
+Toutes les fonctionnalités de Greenshot se lancent aussi directement depuis le menu contextuel de l'icône de la zone de notifications système.</resource>
+		<resource name="WindowCaptureMode.Aero">Utiliser une couleur personnalisée</resource>
+		<resource name="WindowCaptureMode.AeroTransparent">Préserver la transparence</resource>
+		<resource name="WindowCaptureMode.Auto">Awurman</resource>
+		<resource name="WindowCaptureMode.GDI">Seqdec ini amezwer</resource>
+		<resource name="WindowCaptureMode.Screen">Akken i d-yettban</resource>
+	</resources>
+</language>
