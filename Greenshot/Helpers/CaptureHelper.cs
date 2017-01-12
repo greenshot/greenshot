@@ -512,22 +512,14 @@ namespace Greenshot.Helpers {
 					string errorMessage = null;
 					var path = Path.GetDirectoryName(surface.LastSaveFullPath);
 					try {
-						if (path != null)
-						{
-							var processStartInfo = new ProcessStartInfo("explorer.exe")
-							{
-								Arguments = path,
-								UseShellExecute = false
-							};
-							using (var process = new Process()) {
-								process.StartInfo = processStartInfo;
-								process.Start();
-							}
-						}
-					} catch (Exception ex) {
+						ExplorerHelper.OpenInExplorer(path);
+					}
+					catch (Exception ex)
+					{
 						errorMessage = ex.Message;
 					}
 					// Added fallback for when the explorer can't be found
+					// TODO: Check if this makes sense
 					if (errorMessage != null) {
 						try {
 							string windowsPath = Environment.GetEnvironmentVariable("SYSTEMROOT");

@@ -1321,30 +1321,7 @@ namespace Greenshot {
 						}
 					}
 
-					if (path != null) {
-						try {
-							// Check if path is a directory
-							if (Directory.Exists(path))
-							{
-								using (Process.Start(path))
-								{
-								}
-							}
-							// Check if path is a file
-							else if (File.Exists(path))
-							{
-								// Start the explorer process and select the file
-								using (var explorer = Process.Start("explorer.exe", $"/select,\"{path}\""))
-								{
-									explorer?.WaitForInputIdle(500);
-								}
-							}
-						} catch (Exception ex) {
-							// Make sure we show what we tried to open in the exception
-							ex.Data.Add("path", path);
-							throw;
-						}
-					}
+					ExplorerHelper.OpenInExplorer(path);
 					break;
 				case ClickActions.OPEN_LAST_IN_EDITOR:
 					if (File.Exists(_conf.OutputFileAsFullpath)) {
@@ -1381,7 +1358,7 @@ namespace Greenshot {
 			}
 			LOG.Debug("DoubleClick was called! Starting: " + path);
 			try {
-				Process.Start(path);
+				ExplorerHelper.OpenInExplorer(path);
 			} catch (Exception ex) {
 				// Make sure we show what we tried to open in the exception
 				ex.Data.Add("path", path);
