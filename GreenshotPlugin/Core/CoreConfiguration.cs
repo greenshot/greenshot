@@ -263,6 +263,9 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("LastCapturedRegion", Description = "The last used region, for reuse in the capture last region")]
 		public Rectangle LastCapturedRegion { get; set; }
 
+		[IniProperty("Win10BorderCrop", Description = "The capture is cropped with these settings, e.g. when you don't want to color around it -1,-1"), DefaultValue("0,0")]
+		public Size Win10BorderCrop { get; set; }
+
 		private Size _iconSize;
 		[IniProperty("IconSize", Description = "Defines the size of the icons (e.g. for the buttons in the editor), default value 16,16 anything bigger will cause scaling", DefaultValue = "16,16")]
 		public Size IconSize {

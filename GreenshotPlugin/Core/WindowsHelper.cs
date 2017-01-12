@@ -770,7 +770,7 @@ namespace GreenshotPlugin.Core {
 							{
 								// Somehow DWM doesn't calculate it corectly, there is a 1 pixel border around the capture
 								// Remove this border, currently it's fixed but TODO: Make it depend on the OS?
-								windowRect.Inflate(-1, -1);
+								windowRect.Inflate(Conf.Win10BorderCrop);
 								_previousWindowRectangle = windowRect;
 								_lastWindowRectangleRetrieveTime = now;
 								return windowRect;
@@ -1001,7 +1001,7 @@ namespace GreenshotPlugin.Core {
 					// TODO: Also 8.x?
 					if (Environment.OSVersion.IsWindows10())
 					{
-						captureRectangle.Inflate(-1, -1);
+						captureRectangle.Inflate(Conf.Win10BorderCrop);
 					}
 
 					if (autoMode) {
