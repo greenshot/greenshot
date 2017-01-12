@@ -26,7 +26,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Jira;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 using GreenshotJiraPlugin.Hooking;
 
 namespace GreenshotJiraPlugin
@@ -45,6 +45,7 @@ namespace GreenshotJiraPlugin
 		private readonly IList<JiraApi> _jiraInstances = new List<JiraApi>();
 		private readonly IDictionary<string, JiraApi> _projectJiraApiMap = new Dictionary<string, JiraApi>();
 		private readonly int _maxEntries;
+		// TODO: Add issues from issueHistory (JQL -> Where.IssueKey.InIssueHistory())
 		private IDictionary<string, JiraDetails> _recentJiras = new Dictionary<string, JiraDetails>();
 
 		/// <summary>
@@ -144,7 +145,7 @@ namespace GreenshotJiraPlugin
 				JiraApi jiraApi;
 				if (_projectJiraApiMap.TryGetValue(jiraDetails.ProjectKey, out jiraApi))
 				{
-					var issue = await jiraApi.GetIssueAsync(jiraDetails.JiraKey).ConfigureAwait(false);
+					var issue = await jiraApi.Issue.GetAsync(jiraDetails.JiraKey).ConfigureAwait(false);
 					jiraDetails.JiraIssue = issue;
 				}
 				// Send event

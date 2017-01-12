@@ -24,12 +24,13 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.HttpExtensions;
+using Dapplo.HttpExtensions.Extensions;
 using Dapplo.Jira;
+using Dapplo.Jira.Converters;
 using Dapplo.Jira.Entities;
 using Greenshot.IniFile;
 using GreenshotPlugin.Core;
@@ -49,25 +50,17 @@ namespace GreenshotJiraPlugin {
 		private readonly int _timeout;
 		private JiraApi _jiraApi;
 		private IssueTypeBitmapCache _issueTypeBitmapCache;
-		private static readonly SvgBitmapHttpContentConverter SvgBitmapHttpContentConverterInstance = new SvgBitmapHttpContentConverter();
 
 		/// <summary>
 		/// Initialize some basic stuff, in the case the SVG to bitmap converter
 		/// </summary>
 		static JiraConnector()
 		{
-			if (HttpExtensionsGlobals.HttpContentConverters.All(x => x.GetType() != typeof(SvgBitmapHttpContentConverter)))
-			{
-				HttpExtensionsGlobals.HttpContentConverters.Add(SvgBitmapHttpContentConverterInstance);
-			}
-			SvgBitmapHttpContentConverterInstance.Width = CoreConfig.IconSize.Width;
-			SvgBitmapHttpContentConverterInstance.Height = CoreConfig.IconSize.Height;
 			CoreConfig.PropertyChanged += (sender, args) =>
 			{
 				if (args.PropertyName == nameof(CoreConfig.IconSize))
 				{
-					SvgBitmapHttpContentConverterInstance.Width = CoreConfig.IconSize.Width;
-					SvgBitmapHttpContentConverterInstance.Height = CoreConfig.IconSize.Height;
+					JiraPlugin.Instance.JiraConnector._jiraApi?.Behaviour.SetConfig(new SvgConfiguration { Width = CoreConfig.IconSize.Width, Height = CoreConfig.IconSize.Height });
 				}
 			};
 
@@ -111,6 +104,8 @@ namespace GreenshotJiraPlugin {
 				return false;
 			}
 			_jiraApi = new JiraApi(new Uri(JiraConfig.Url));
+			_jiraApi.Behaviour.SetConfig(new SvgConfiguration { Width = CoreConfig.IconSize.Width, Height = CoreConfig.IconSize.Height });
+
 			_issueTypeBitmapCache = new IssueTypeBitmapCache(_jiraApi);
 			LoginInfo loginInfo;
 			try
@@ -226,7 +221,7 @@ namespace GreenshotJiraPlugin {
 			await CheckCredentialsAsync();
 			try
 			{
-				return await _jiraApi.GetIssueAsync(issueKey).ConfigureAwait(false);
+				return await _jiraApi.Issue.GetAsync(issueKey).ConfigureAwait(false);
 			}
 			catch
 			{
@@ -248,7 +243,7 @@ namespace GreenshotJiraPlugin {
 			{
 				content.WriteToStream(memoryStream);
 				memoryStream.Seek(0, SeekOrigin.Begin);
-				await _jiraApi.AttachAsync(issueKey, memoryStream, content.Filename, content.ContentType, cancellationToken).ConfigureAwait(false);
+				await _jiraApi.Attachment.AttachAsync(issueKey, memoryStream, content.Filename, content.ContentType, cancellationToken).ConfigureAwait(false);
 			}
 		}
 
@@ -262,7 +257,7 @@ namespace GreenshotJiraPlugin {
 		public async Task AddCommentAsync(string issueKey, string body, string visibility = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			await CheckCredentialsAsync();
-			await _jiraApi.AddCommentAsync(issueKey, body, visibility, cancellationToken).ConfigureAwait(false);
+			await _jiraApi.Issue.AddCommentAsync(issueKey, body, visibility, cancellationToken).ConfigureAwait(false);
 		}
 
 		/// <summary>
@@ -274,7 +269,7 @@ namespace GreenshotJiraPlugin {
 		public async Task<IList<Issue>> SearchAsync(Filter filter, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			await CheckCredentialsAsync();
-			var searchResult = await _jiraApi.SearchAsync(filter.Jql, 20, new[] { "summary", "reporter", "assignee", "created", "issuetype" }, cancellationToken).ConfigureAwait(false);
+			var searchResult = await _jiraApi.Issue.SearchAsync(filter.Jql, 20, new[] { "summary", "reporter", "assignee", "created", "issuetype" }, cancellationToken).ConfigureAwait(false);
 			return searchResult.Issues;
 		}
 

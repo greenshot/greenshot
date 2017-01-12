@@ -24,7 +24,7 @@ using Greenshot.IniFile;
 using Greenshot.Plugin;
 using System;
 using System.Threading.Tasks;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 using GreenshotJiraPlugin.Forms;
 using GreenshotPlugin.Core;
 using log4net;
