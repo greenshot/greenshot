@@ -272,8 +272,11 @@ namespace Greenshot.Drawing
 				_parent.Controls.Add(_textBox);
 			}
 			EnsureTextBoxContrast();
-			_textBox.Show();
-			_textBox.Focus();
+			if (_textBox != null)
+			{
+				_textBox.Show();
+				_textBox.Focus();
+			}
 		}
 
 		/// <summary>
@@ -281,6 +284,10 @@ namespace Greenshot.Drawing
 		/// </summary>
 		private void EnsureTextBoxContrast()
 		{
+			if (_textBox == null)
+			{
+				return;
+			}
 			Color lc = GetFieldValueAsColor(FieldType.LINE_COLOR);
 			if (lc.R > 203 && lc.G > 203 && lc.B > 203)
 			{
@@ -295,7 +302,7 @@ namespace Greenshot.Drawing
 		private void HideTextBox()
 		{
 			_parent.Focus();
-			_textBox.Hide();
+			_textBox?.Hide();
 			_parent.KeysLocked = false;
 			_parent.Controls.Remove(_textBox);
 		}
@@ -424,6 +431,10 @@ namespace Greenshot.Drawing
 		/// </summary>
 		private void UpdateTextBoxPosition()
 		{
+			if (_textBox == null)
+			{
+				return;
+			}
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 
 			int lineWidth = (int)Math.Floor(lineThickness / 2d);
