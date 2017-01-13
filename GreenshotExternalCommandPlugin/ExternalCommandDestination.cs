@@ -43,32 +43,26 @@ namespace ExternalCommand {
 			_presetCommand = commando;
 		}
 
-		public override string Designation {
-			get {
-				return "External " + _presetCommand.Replace(',','_');
-			}
-		}
+		public override string Designation => "External " + _presetCommand.Replace(',','_');
 
-		public override string Description {
-			get {
-				return _presetCommand;
-			}
-		}
+		public override string Description => _presetCommand;
 
 		public override IEnumerable<IDestination> DynamicDestinations() {
 			yield break;
 		}
 
-		public override Image DisplayIcon {
-			get {
-				return IconCache.IconForCommand(_presetCommand);
-			}
-		}
+		public override Image DisplayIcon => IconCache.IconForCommand(_presetCommand);
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings();
 
+			// BUG-2056 reported a logical issue, using greenshot format as the default causes issues with the external commands.
+			// If OutputFormat is Greenshot, use PNG instead.
+			if (outputSettings.Format == OutputFormat.greenshot)
+			{
+				outputSettings.Format = OutputFormat.png;
+			}
 			
 			if (_presetCommand != null) {
 				if (!config.RunInbackground.ContainsKey(_presetCommand)) {
@@ -154,12 +148,12 @@ namespace ExternalCommand {
 		private int CallExternalCommand(string commando, string fullPath, out string output, out string error) {
 			try {
 				return CallExternalCommand(commando, fullPath, null, out output, out error);
-			} catch (Win32Exception w32ex) {
+			} catch (Win32Exception w32Ex) {
 				try {
 					return CallExternalCommand(commando, fullPath, "runas", out output, out error);
 				} catch {
-					w32ex.Data.Add("commandline", config.Commandline[_presetCommand]);
-					w32ex.Data.Add("arguments", config.Argument[_presetCommand]);
+					w32Ex.Data.Add("commandline", config.Commandline[_presetCommand]);
+					w32Ex.Data.Add("arguments", config.Argument[_presetCommand]);
 					throw;
 				}
 			} catch (Exception ex) {
