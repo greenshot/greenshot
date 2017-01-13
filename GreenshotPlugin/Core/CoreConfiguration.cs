@@ -342,9 +342,8 @@ namespace GreenshotPlugin.Core {
 				case "OutputFileAsFullpath":
 					if (IniConfig.IsPortable) {
 						return Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots\dummy.png");
-					} else {
-						return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),"dummy.png");
 					}
+					return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),"dummy.png");
 				case "OutputFilePath":
 					if (IniConfig.IsPortable) {
 						string pafOutputFilePath = Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots");
@@ -514,16 +513,6 @@ namespace GreenshotPlugin.Core {
 			}
 			if (WebRequestReadWriteTimeout < 1) {
 				WebRequestReadWriteTimeout = 100;
-			}
-
-			// Added for BUG-1992, reset the OutputFilePath / OutputFileAsFullpath if they don't exist (e.g. the configuration is used on a different PC)
-			if (!Directory.Exists(OutputFilePath))
-			{
-				OutputFilePath = GetDefault(nameof(OutputFilePath)) as string;
-			}
-			if (!File.Exists(OutputFileAsFullpath))
-			{
-				OutputFileAsFullpath = GetDefault(nameof(OutputFileAsFullpath)) as string;
 			}
 		}
 	}

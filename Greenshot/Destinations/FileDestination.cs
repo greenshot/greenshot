@@ -115,6 +115,11 @@ namespace Greenshot.Destinations {
 				pattern = "greenshot ${capturetime}";
 			}
 			string filename = FilenameHelper.GetFilenameFromPattern(pattern, CoreConfig.OutputFileFormat, captureDetails);
+			// Added for BUG-1992, reset the OutputFilePath / OutputFileAsFullpath if they don't exist (e.g. the configuration is used on a different PC)
+			if (!File.Exists(CoreConfig.OutputFilePath))
+			{
+				CoreConfig.OutputFilePath = CoreConfig.GetDefault(nameof(CoreConfig.OutputFilePath)) as string;
+			}
 			string filepath = FilenameHelper.FillVariables(CoreConfig.OutputFilePath, false);
 			try {
 				fullPath = Path.Combine(filepath, filename);

@@ -68,6 +68,12 @@ namespace GreenshotPlugin.Controls {
 			ApplyFilterOptions();
 			string initialDirectory = null;
 			try {
+				// Added for BUG-1992, reset the OutputFilePath / OutputFileAsFullpath if they don't exist (e.g. the configuration is used on a different PC)
+				if (!File.Exists(conf.OutputFileAsFullpath))
+				{
+					conf.OutputFileAsFullpath = conf.GetDefault(nameof(conf.OutputFileAsFullpath)) as string;
+				}
+
 				initialDirectory = Path.GetDirectoryName(conf.OutputFileAsFullpath);
 			} catch {
 				LOG.WarnFormat("OutputFileAsFullpath was set to {0}, ignoring due to problem in path.", conf.OutputFileAsFullpath);
@@ -90,12 +96,12 @@ namespace GreenshotPlugin.Controls {
 			PrepareFilterOptions();
 			string fdf = "";
 			int preselect = 0;
-            var outputFileFormatAsString = Enum.GetName(typeof(OutputFormat), conf.OutputFileFormat);
+			var outputFileFormatAsString = Enum.GetName(typeof(OutputFormat), conf.OutputFileFormat);
 			for(int i=0; i<_filterOptions.Length; i++){
 				FilterOption fo = _filterOptions[i];
 				fdf +=  fo.Label + "|*." + fo.Extension + "|";
-                if(outputFileFormatAsString == fo.Extension)
-				    preselect = i;
+				if(outputFileFormatAsString == fo.Extension)
+					preselect = i;
 			}
 			fdf = fdf.Substring(0, fdf.Length-1);
 			SaveFileDialog.Filter = fdf;

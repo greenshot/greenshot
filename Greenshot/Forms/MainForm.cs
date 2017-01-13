@@ -1307,6 +1307,11 @@ namespace Greenshot {
 		private void NotifyIconClick(ClickActions clickAction) {
 			switch (clickAction) {
 				case ClickActions.OPEN_LAST_IN_EXPLORER:
+					// Added for BUG-1992, reset the OutputFilePath / OutputFileAsFullpath if they don't exist (e.g. the configuration is used on a different PC)
+					if (!File.Exists(_conf.OutputFileAsFullpath))
+					{
+						_conf.OutputFileAsFullpath = _conf.GetDefault(nameof(_conf.OutputFileAsFullpath)) as string;
+					}
 					string path = _conf.OutputFileAsFullpath;
 					if (!File.Exists(path)) {
 						string lastFilePath = Path.GetDirectoryName(_conf.OutputFileAsFullpath);
@@ -1315,15 +1320,25 @@ namespace Greenshot {
 						}
 					}
 					if (path == null) {
+						// Added for BUG-1992, reset the OutputFilePath / OutputFileAsFullpath if they don't exist (e.g. the configuration is used on a different PC)
+						if (!File.Exists(_conf.OutputFilePath))
+						{
+							_conf.OutputFilePath = _conf.GetDefault(nameof(_conf.OutputFilePath)) as string;
+						}
 						string configPath = FilenameHelper.FillVariables(_conf.OutputFilePath, false);
 						if (Directory.Exists(configPath)) {
 							path = configPath;
 						}
 					}
-
 					ExplorerHelper.OpenInExplorer(path);
 					break;
 				case ClickActions.OPEN_LAST_IN_EDITOR:
+					// Added for BUG-1992, reset the OutputFilePath / OutputFileAsFullpath if they don't exist (e.g. the configuration is used on a different PC)
+					if (!File.Exists(_conf.OutputFileAsFullpath))
+					{
+						_conf.OutputFileAsFullpath = _conf.GetDefault(nameof(_conf.OutputFileAsFullpath)) as string;
+					}
+
 					if (File.Exists(_conf.OutputFileAsFullpath)) {
 						CaptureHelper.CaptureFile(_conf.OutputFileAsFullpath, DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
 					}
@@ -1342,9 +1357,21 @@ namespace Greenshot {
 		/// The Contextmenu_OpenRecent currently opens the last know save location
 		/// </summary>
 		private void Contextmenu_OpenRecent(object sender, EventArgs eventArgs) {
+			// Added for BUG-1992, reset the OutputFilePath / OutputFileAsFullpath if they don't exist (e.g. the configuration is used on a different PC)
+			if (!File.Exists(_conf.OutputFilePath))
+			{
+				_conf.OutputFilePath = _conf.GetDefault(nameof(_conf.OutputFilePath)) as string;
+			}
+
 			string path = FilenameHelper.FillVariables(_conf.OutputFilePath, false);
 			// Fix for #1470, problems with a drive which is no longer available
 			try {
+				// Added for BUG-1992, reset the OutputFilePath / OutputFileAsFullpath if they don't exist (e.g. the configuration is used on a different PC)
+				if (!File.Exists(_conf.OutputFileAsFullpath))
+				{
+					_conf.OutputFileAsFullpath = _conf.GetDefault(nameof(_conf.OutputFileAsFullpath)) as string;
+				}
+
 				string lastFilePath = Path.GetDirectoryName(_conf.OutputFileAsFullpath);
 
 				if (lastFilePath != null && Directory.Exists(lastFilePath)) {
