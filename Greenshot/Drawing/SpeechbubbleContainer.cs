@@ -56,9 +56,10 @@ namespace Greenshot.Drawing
 		/// <summary>
 		/// Restore the target gripper
 		/// </summary>
-		/// <param name="context"></param>
-		protected override void OnDeserialized(StreamingContext context)
+		/// <param name="streamingContext">StreamingContext</param>
+		protected override void OnDeserialized(StreamingContext streamingContext)
 		{
+			base.OnDeserialized(streamingContext);
 			InitAdorner(Color.Green, _storedTargetGripperLocation);
 		}
 		#endregion
@@ -303,7 +304,6 @@ namespace Greenshot.Drawing
 			tail.Dispose();
 
 			// Draw the text
-			UpdateFormat();
 			DrawText(graphics, rect, lineThickness, lineColor, shadow, StringFormat, Text, Font);
 		}
 
