@@ -69,7 +69,8 @@ namespace GreenshotPlugin.Controls {
 			string initialDirectory = null;
 			try {
 				// Added for BUG-1992, reset the OutputFilePath / OutputFileAsFullpath if they don't exist (e.g. the configuration is used on a different PC)
-				if (!File.Exists(conf.OutputFileAsFullpath))
+				var outputFilePath = Path.GetDirectoryName(conf.OutputFileAsFullpath);
+				if (outputFilePath == null || (!File.Exists(conf.OutputFileAsFullpath) && !Directory.Exists(outputFilePath)))
 				{
 					conf.OutputFileAsFullpath = conf.GetDefault(nameof(conf.OutputFileAsFullpath)) as string;
 				}

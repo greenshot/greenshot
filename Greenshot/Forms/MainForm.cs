@@ -1308,7 +1308,8 @@ namespace Greenshot {
 			switch (clickAction) {
 				case ClickActions.OPEN_LAST_IN_EXPLORER:
 					// Added for BUG-1992, reset the OutputFilePath / OutputFileAsFullpath if they don't exist (e.g. the configuration is used on a different PC)
-					if (!File.Exists(_conf.OutputFileAsFullpath))
+					var outputFilePath = Path.GetDirectoryName(_conf.OutputFileAsFullpath);
+					if (outputFilePath == null || (!File.Exists(_conf.OutputFileAsFullpath) && !Directory.Exists(Path.GetDirectoryName(outputFilePath))))
 					{
 						_conf.OutputFileAsFullpath = _conf.GetDefault(nameof(_conf.OutputFileAsFullpath)) as string;
 					}
@@ -1367,7 +1368,8 @@ namespace Greenshot {
 			// Fix for #1470, problems with a drive which is no longer available
 			try {
 				// Added for BUG-1992, reset the OutputFilePath / OutputFileAsFullpath if they don't exist (e.g. the configuration is used on a different PC)
-				if (!File.Exists(_conf.OutputFileAsFullpath))
+				var outputFilePath = Path.GetDirectoryName(_conf.OutputFileAsFullpath);
+				if (outputFilePath == null || (!File.Exists(_conf.OutputFileAsFullpath) && !Directory.Exists(Path.GetDirectoryName(outputFilePath))))
 				{
 					_conf.OutputFileAsFullpath = _conf.GetDefault(nameof(_conf.OutputFileAsFullpath)) as string;
 				}
