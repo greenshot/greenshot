@@ -70,7 +70,8 @@ namespace Greenshot.Destinations {
 			// Bug #2918756 don't overwrite path if SaveWithDialog returns null!
 			var savedTo = ImageOutput.SaveWithDialog(surface, captureDetails);
 			if (savedTo != null) {
-				exportInformation.ExportMade = true;
+                base.SetDefaults(surface);
+                exportInformation.ExportMade = true;
 				exportInformation.Filepath = savedTo;
 				captureDetails.Filename = savedTo;
 				conf.OutputFileAsFullpath = savedTo;

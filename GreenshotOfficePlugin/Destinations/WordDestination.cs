@@ -73,7 +73,8 @@ namespace GreenshotOfficePlugin {
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            base.SetDefaults(surface);
+            ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			string tmpFile = captureDetails.Filename;
 			if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$")) {
 				tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());

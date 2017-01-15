@@ -113,7 +113,8 @@ namespace GreenshotOfficePlugin {
 		/// <param name="captureDetails"></param>
 		/// <returns></returns>
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            base.SetDefaults(surface);
+            ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			// Outlook logic
 			string tmpFile = captureDetails.Filename;
 			if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$")) {

@@ -89,6 +89,19 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
+        /// <summary>
+        /// set defaults infomation when export capture.
+        /// </summary>
+        public virtual void SetDefaults(ISurface surface)
+        {
+            if (null == surface)
+            {
+                return;
+            }
+            //set default border effect.
+            surface.ApplyBitmapEffect(new Effects.BorderEffect());
+        }
+
 		public abstract ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails);
 
 		/// <summary>
