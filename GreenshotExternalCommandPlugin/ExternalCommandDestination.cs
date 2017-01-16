@@ -56,14 +56,8 @@ namespace ExternalCommand {
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings();
+			outputSettings.PreventGreenshotFormat();
 
-			// BUG-2056 reported a logical issue, using greenshot format as the default causes issues with the external commands.
-			// If OutputFormat is Greenshot, use PNG instead.
-			if (outputSettings.Format == OutputFormat.greenshot)
-			{
-				outputSettings.Format = OutputFormat.png;
-			}
-			
 			if (_presetCommand != null) {
 				if (!config.RunInbackground.ContainsKey(_presetCommand)) {
 					config.RunInbackground.Add(_presetCommand, true);
