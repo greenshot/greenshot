@@ -50,6 +50,7 @@
     <Compile Include="Core\EventDelay.cs" />
     <Compile Include="Core\FastBitmap.cs" />
     <Compile Include="Core\Func.cs" />
+    <Compile Include="Effects\DefaultEffect.cs" />
     <Compile Include="Effects\GrayscaleEffect.cs" />
     <Compile Include="Effects\IEffect.cs" />
     <Compile Include="Core\IImage.cs" />

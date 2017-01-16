@@ -99,7 +99,11 @@ namespace GreenshotPlugin.Core {
                 return;
             }
             //set default border effect.
-            surface.ApplyBitmapEffect(new Effects.BorderEffect());
+            if (!surface.HasDefaultEffect)
+            {
+                surface.ApplyBitmapEffect(new Effects.DefaultEffect());
+                surface.HasDefaultEffect = true;
+            }
         }
 
 		public abstract ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails);

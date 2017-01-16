@@ -2045,10 +2045,12 @@ namespace Greenshot.Drawing
 		/// </summary>
 		public IDrawableContainerList Elements => _elements;
 
-		/// <summary>
-		/// pulls selected elements up one level in hierarchy
-		/// </summary>
-		public void PullElementsUp()
+        public bool HasDefaultEffect { get; set; } = false;
+
+        /// <summary>
+        /// pulls selected elements up one level in hierarchy
+        /// </summary>
+        public void PullElementsUp()
 		{
 			_elements.PullElementsUp(selectedElements);
 			_elements.Invalidate();
