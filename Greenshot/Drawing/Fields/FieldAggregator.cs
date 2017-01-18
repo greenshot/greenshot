@@ -27,6 +27,7 @@ using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Interfaces.Drawing;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 
 namespace Greenshot.Drawing.Fields
 {
@@ -203,7 +204,7 @@ namespace Greenshot.Drawing.Fields
 			{
 				return;
 			}
-			foreach (var drawableContainer1 in _boundContainers)
+			foreach (var drawableContainer1 in _boundContainers.ToList())
 			{
 				var drawableContainer = (DrawableContainer) drawableContainer1;
 				if (!drawableContainer.HasField(field.FieldType))
