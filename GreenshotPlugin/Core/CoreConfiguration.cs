@@ -515,5 +515,29 @@ namespace GreenshotPlugin.Core {
 				WebRequestReadWriteTimeout = 100;
 			}
 		}
+
+		/// <summary>
+		/// Validate the OutputFilePath, and if this is not correct it will be set to the default
+		/// Added for BUG-1992, reset the OutputFilePath / OutputFileAsFullpath if they don't exist (e.g. the configuration is used on a different PC)
+		/// </summary>
+		public void ValidateAndCorrectOutputFilePath()
+		{
+			if (!Directory.Exists(OutputFilePath))
+			{
+				OutputFilePath = GetDefault(nameof(OutputFilePath)) as string;
+			}
+		}
+		/// <summary>
+		/// Validate the OutputFileAsFullpath, and if this is not correct it will be set to the default
+		/// Added for BUG-1992, reset the OutputFilePath / OutputFileAsFullpath if they don't exist (e.g. the configuration is used on a different PC)
+		/// </summary>
+		public void ValidateAndCorrectOutputFileAsFullpath()
+		{
+			var outputFilePath = Path.GetDirectoryName(OutputFileAsFullpath);
+			if (outputFilePath == null || (!File.Exists(OutputFileAsFullpath) && !Directory.Exists(outputFilePath)))
+			{
+				OutputFileAsFullpath = GetDefault(nameof(OutputFileAsFullpath)) as string;
+			}
+		}
 	}
 }
