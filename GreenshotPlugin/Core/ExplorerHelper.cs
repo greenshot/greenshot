@@ -15,11 +15,11 @@ namespace GreenshotPlugin.Core
 		/// If the path is a file, the explorer is opened with the directory and the file is selected.
 		/// </summary>
 		/// <param name="path">Path to file or directory</param>
-		public static void OpenInExplorer(string path)
+		public static bool OpenInExplorer(string path)
 		{
 			if (path == null)
 			{
-				return;
+				return false;
 			}
 			try
 			{
@@ -28,6 +28,7 @@ namespace GreenshotPlugin.Core
 				{
 					using (Process.Start(path))
 					{
+						return true;
 					}
 				}
 				// Check if path is a file
@@ -37,6 +38,7 @@ namespace GreenshotPlugin.Core
 					using (var explorer = Process.Start("explorer.exe", $"/select,\"{path}\""))
 					{
 						explorer?.WaitForInputIdle(500);
+						return true;
 					}
 				}
 			}
@@ -46,6 +48,7 @@ namespace GreenshotPlugin.Core
 				ex.Data.Add("path", path);
 				throw;
 			}
+			return false;
 		}
 	}
 }

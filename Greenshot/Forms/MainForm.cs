@@ -1307,38 +1307,10 @@ namespace Greenshot {
 		private void NotifyIconClick(ClickActions clickAction) {
 			switch (clickAction) {
 				case ClickActions.OPEN_LAST_IN_EXPLORER:
-					// Added for BUG-1992, reset the OutputFilePath / OutputFileAsFullpath if they don't exist (e.g. the configuration is used on a different PC)
-					var outputFilePath = Path.GetDirectoryName(_conf.OutputFileAsFullpath);
-					if (outputFilePath == null || (!File.Exists(_conf.OutputFileAsFullpath) && !Directory.Exists(Path.GetDirectoryName(outputFilePath))))
-					{
-						_conf.OutputFileAsFullpath = _conf.GetDefault(nameof(_conf.OutputFileAsFullpath)) as string;
-					}
-					string path = _conf.OutputFileAsFullpath;
-					if (!File.Exists(path)) {
-						string lastFilePath = Path.GetDirectoryName(_conf.OutputFileAsFullpath);
-						if (!string.IsNullOrEmpty(lastFilePath) && Directory.Exists(lastFilePath)) {
-							path = lastFilePath;
-						}
-					}
-					if (path == null) {
-						// Added for BUG-1992, reset the OutputFilePath / OutputFileAsFullpath if they don't exist (e.g. the configuration is used on a different PC)
-						if (!File.Exists(_conf.OutputFilePath))
-						{
-							_conf.OutputFilePath = _conf.GetDefault(nameof(_conf.OutputFilePath)) as string;
-						}
-						string configPath = FilenameHelper.FillVariables(_conf.OutputFilePath, false);
-						if (Directory.Exists(configPath)) {
-							path = configPath;
-						}
-					}
-					ExplorerHelper.OpenInExplorer(path);
+					Contextmenu_OpenRecent(this, null);
 					break;
 				case ClickActions.OPEN_LAST_IN_EDITOR:
-					// Added for BUG-1992, reset the OutputFilePath / OutputFileAsFullpath if they don't exist (e.g. the configuration is used on a different PC)
-					if (!File.Exists(_conf.OutputFileAsFullpath))
-					{
-						_conf.OutputFileAsFullpath = _conf.GetDefault(nameof(_conf.OutputFileAsFullpath)) as string;
-					}
+					_conf.ValidateAndCorrectOutputFileAsFullpath();
 
 					if (File.Exists(_conf.OutputFileAsFullpath)) {
 						CaptureHelper.CaptureFile(_conf.OutputFileAsFullpath, DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
@@ -1357,38 +1329,40 @@ namespace Greenshot {
 		/// <summary>
 		/// The Contextmenu_OpenRecent currently opens the last know save location
 		/// </summary>
-		private void Contextmenu_OpenRecent(object sender, EventArgs eventArgs) {
-			// Added for BUG-1992, reset the OutputFilePath / OutputFileAsFullpath if they don't exist (e.g. the configuration is used on a different PC)
-			if (!File.Exists(_conf.OutputFilePath))
+		private void Contextmenu_OpenRecent(object sender, EventArgs eventArgs)
+		{
+			_conf.ValidateAndCorrectOutputFilePath();
+			_conf.ValidateAndCorrectOutputFileAsFullpath();
+			string path = _conf.OutputFileAsFullpath;
+			if (!File.Exists(path))
 			{
-				_conf.OutputFilePath = _conf.GetDefault(nameof(_conf.OutputFilePath)) as string;
-			}
-
-			string path = FilenameHelper.FillVariables(_conf.OutputFilePath, false);
-			// Fix for #1470, problems with a drive which is no longer available
-			try {
-				// Added for BUG-1992, reset the OutputFilePath / OutputFileAsFullpath if they don't exist (e.g. the configuration is used on a different PC)
-				var outputFilePath = Path.GetDirectoryName(_conf.OutputFileAsFullpath);
-				if (outputFilePath == null || (!File.Exists(_conf.OutputFileAsFullpath) && !Directory.Exists(Path.GetDirectoryName(outputFilePath))))
+				path = FilenameHelper.FillVariables(_conf.OutputFilePath, false);
+				// Fix for #1470, problems with a drive which is no longer available
+				try
 				{
-					_conf.OutputFileAsFullpath = _conf.GetDefault(nameof(_conf.OutputFileAsFullpath)) as string;
-				}
+					string lastFilePath = Path.GetDirectoryName(_conf.OutputFileAsFullpath);
 
-				string lastFilePath = Path.GetDirectoryName(_conf.OutputFileAsFullpath);
-
-				if (lastFilePath != null && Directory.Exists(lastFilePath)) {
-					path = lastFilePath;
-				} else if (!Directory.Exists(path)) {
-					// What do I open when nothing can be found? Right, nothing...
-					return;
+					if (lastFilePath != null && Directory.Exists(lastFilePath))
+					{
+						path = lastFilePath;
+					}
+					else if (!Directory.Exists(path))
+					{
+						// What do I open when nothing can be found? Right, nothing...
+						return;
+					}
 				}
-			} catch (Exception ex) {
-				LOG.Warn("Couldn't open the path to the last exported file, taking default.", ex);
+				catch (Exception ex)
+				{
+					LOG.Warn("Couldn't open the path to the last exported file, taking default.", ex);
+				}
 			}
-			LOG.Debug("DoubleClick was called! Starting: " + path);
-			try {
+			try
+			{
 				ExplorerHelper.OpenInExplorer(path);
-			} catch (Exception ex) {
+			}
+			catch (Exception ex)
+			{
 				// Make sure we show what we tried to open in the exception
 				ex.Data.Add("path", path);
 				LOG.Warn("Couldn't open the path to the last exported file", ex);
