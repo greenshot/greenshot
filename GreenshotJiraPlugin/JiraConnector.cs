@@ -97,7 +97,7 @@ namespace GreenshotJiraPlugin {
 		/// Internal login which catches the exceptions
 		/// </summary>
 		/// <returns>true if login was done sucessfully</returns>
-		private async Task<bool> DoLoginAsync(string user, string password)
+		private async Task<bool> DoLoginAsync(string user, string password, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(password))
 			{
@@ -110,14 +110,14 @@ namespace GreenshotJiraPlugin {
 			LoginInfo loginInfo;
 			try
 			{
-				loginInfo = await _jiraApi.StartSessionAsync(user, password);
+				loginInfo = await _jiraApi.Session.StartAsync(user, password, cancellationToken);
 				Monitor = new JiraMonitor();
-				await Monitor.AddJiraInstanceAsync(_jiraApi);
+				await Monitor.AddJiraInstanceAsync(_jiraApi, cancellationToken);
 
 				var favIconUri = _jiraApi.JiraBaseUri.AppendSegments("favicon.ico");
 				try
 				{
-					FavIcon = await _jiraApi.GetUriContentAsync<Bitmap>(favIconUri);
+					FavIcon = await _jiraApi.GetUriContentAsync<Bitmap>(favIconUri, cancellationToken);
 				}
 				catch (Exception ex)
 				{
@@ -137,8 +137,8 @@ namespace GreenshotJiraPlugin {
 		/// If there are credentials, call the real login.
 		/// </summary>
 		/// <returns>Task</returns>
-		public async Task LoginAsync() {
-			await LogoutAsync();
+		public async Task LoginAsync(CancellationToken cancellationToken = default(CancellationToken)) {
+			await LogoutAsync(cancellationToken);
 			try {
 				// Get the system name, so the user knows where to login to
 				var credentialsDialog = new CredentialsDialog(JiraConfig.Url)
@@ -146,7 +146,7 @@ namespace GreenshotJiraPlugin {
 					Name = null
 				};
 				while (credentialsDialog.Show(credentialsDialog.Name) == DialogResult.OK) {
-					if (await DoLoginAsync(credentialsDialog.Name, credentialsDialog.Password)) {
+					if (await DoLoginAsync(credentialsDialog.Name, credentialsDialog.Password, cancellationToken)) {
 						if (credentialsDialog.SaveChecked) {
 							credentialsDialog.Confirm(true);
 						}
@@ -176,11 +176,11 @@ namespace GreenshotJiraPlugin {
 		/// <summary>
 		/// End the session, if there was one
 		/// </summary>
-		public async Task LogoutAsync() {
+		public async Task LogoutAsync(CancellationToken cancellationToken = default(CancellationToken)) {
 			if (_jiraApi != null && _loggedIn)
 			{
 				Monitor.Dispose();
-				await _jiraApi.EndSessionAsync();
+				await _jiraApi.Session.EndAsync(cancellationToken);
 				_loggedIn = false;
 			}
 		}
@@ -190,14 +190,14 @@ namespace GreenshotJiraPlugin {
 		/// Do not use ConfigureAwait to call this, as it will move await from the UI thread.
 		/// </summary>
 		/// <returns></returns>
-		private async Task CheckCredentialsAsync() {
+		private async Task CheckCredentialsAsync(CancellationToken cancellationToken = default(CancellationToken)) {
 			if (_loggedIn) {
 				if (_loggedInTime.AddMinutes(_timeout-1).CompareTo(DateTime.Now) < 0) {
-					await LogoutAsync();
-					await LoginAsync();
+					await LogoutAsync(cancellationToken);
+					await LoginAsync(cancellationToken);
 				}
 			} else {
-				await LoginAsync();
+				await LoginAsync(cancellationToken);
 			}
 		}
 
@@ -205,23 +205,24 @@ namespace GreenshotJiraPlugin {
 		/// Get the favourite filters 
 		/// </summary>
 		/// <returns>List with filters</returns>
-		public async Task<IList<Filter>> GetFavoriteFiltersAsync()
+		public async Task<IList<Filter>> GetFavoriteFiltersAsync(CancellationToken cancellationToken = default(CancellationToken))
 		{
-			await CheckCredentialsAsync();
-			return await _jiraApi.GetFavoriteFiltersAsync().ConfigureAwait(false);
+			await CheckCredentialsAsync(cancellationToken);
+			return await _jiraApi.Filter.GetFavoritesAsync(cancellationToken).ConfigureAwait(false);
 		}
 
 		/// <summary>
 		/// Get the issue for a key
 		/// </summary>
 		/// <param name="issueKey">Jira issue key</param>
+		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Issue</returns>
-		public async Task<Issue> GetIssueAsync(string issueKey)
+		public async Task<Issue> GetIssueAsync(string issueKey, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			await CheckCredentialsAsync();
+			await CheckCredentialsAsync(cancellationToken);
 			try
 			{
-				return await _jiraApi.Issue.GetAsync(issueKey).ConfigureAwait(false);
+				return await _jiraApi.Issue.GetAsync(issueKey, cancellationToken).ConfigureAwait(false);
 			}
 			catch
 			{
@@ -238,7 +239,7 @@ namespace GreenshotJiraPlugin {
 		/// <returns></returns>
 		public async Task AttachAsync(string issueKey, IBinaryContainer content, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			await CheckCredentialsAsync();
+			await CheckCredentialsAsync(cancellationToken);
 			using (var memoryStream = new MemoryStream())
 			{
 				content.WriteToStream(memoryStream);
@@ -256,7 +257,7 @@ namespace GreenshotJiraPlugin {
 		/// <param name="cancellationToken">CancellationToken</param>
 		public async Task AddCommentAsync(string issueKey, string body, string visibility = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			await CheckCredentialsAsync();
+			await CheckCredentialsAsync(cancellationToken);
 			await _jiraApi.Issue.AddCommentAsync(issueKey, body, visibility, cancellationToken).ConfigureAwait(false);
 		}
 
@@ -268,7 +269,7 @@ namespace GreenshotJiraPlugin {
 		/// <returns></returns>
 		public async Task<IList<Issue>> SearchAsync(Filter filter, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			await CheckCredentialsAsync();
+			await CheckCredentialsAsync(cancellationToken);
 			var searchResult = await _jiraApi.Issue.SearchAsync(filter.Jql, 20, new[] { "summary", "reporter", "assignee", "created", "issuetype" }, cancellationToken).ConfigureAwait(false);
 			return searchResult.Issues;
 		}

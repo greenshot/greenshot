@@ -120,7 +120,7 @@ namespace GreenshotJiraPlugin
 		public async Task AddJiraInstanceAsync(JiraApi jiraInstance, CancellationToken token = default(CancellationToken))
 		{
 			_jiraInstances.Add(jiraInstance);
-			var projects = await jiraInstance.GetProjectsAsync(token).ConfigureAwait(false);
+			var projects = await jiraInstance.Project.GetAllAsync(cancellationToken: token).ConfigureAwait(false);
 			if (projects != null)
 			{
 				foreach (var project in projects)
@@ -208,8 +208,7 @@ namespace GreenshotJiraPlugin
 				if (_recentJiras.Count > _maxEntries)
 				{
 					// Add it to the list of recent Jiras
-					IList<JiraDetails> clonedList = new List<JiraDetails>(_recentJiras.Values);
-					_recentJiras = (from jiraDetails in clonedList
+					_recentJiras = (from jiraDetails in _recentJiras.Values.ToList()
 									orderby jiraDetails.SeenAt descending
 									select jiraDetails).Take(_maxEntries).ToDictionary(jd => jd.JiraKey, jd => jd);
 				}
