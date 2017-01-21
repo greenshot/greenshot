@@ -101,8 +101,12 @@ namespace GreenshotPlugin.Core {
             //set default border effect.
             if (!surface.HasDefaultEffect)
             {
-                surface.ApplyBitmapEffect(new Effects.DefaultEffect());
-                surface.HasDefaultEffect = true;
+                var defaultEffect = new Effects.DefaultEffect();
+                if (defaultEffect.Width > 0)
+                {
+                    surface.ApplyBitmapEffect(defaultEffect);
+                    surface.HasDefaultEffect = true;
+                }
             }
         }
 

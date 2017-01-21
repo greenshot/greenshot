@@ -217,6 +217,10 @@
 		<resource name="settings_destination_fileas">另存到（显示对话框）</resource>
 		<resource name="settings_destination_picker">动态选择保存位置</resource>
 		<resource name="settings_destination_printer">打印图片</resource>
+    <resource name="settings_destination_groupDefaultEffects">默认特效</resource>
+    <resource name="settings_destination_defaultEffects_imageBorder">图片边框：</resource>
+    <resource name="settings_destination_defaultEffects_imageBorder_width">宽度</resource>
+    <resource name="settings_destination_defaultEffects_imageBorder_color">颜色</resource>
 		<resource name="settings_editor">编辑器</resource>
 		<resource name="settings_filenamepattern">文件名格式</resource>
 		<resource name="settings_general">常规</resource>

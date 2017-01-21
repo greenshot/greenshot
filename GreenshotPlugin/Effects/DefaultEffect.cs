@@ -1,4 +1,5 @@
-﻿using GreenshotPlugin.Core;
+﻿using Greenshot.IniFile;
+using GreenshotPlugin.Core;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 
@@ -33,8 +34,18 @@ namespace GreenshotPlugin.Effects
 
         public void Reset()
         {
-            this.Width = 2;
-            this.Color = Color.Gray;
+            var coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
+            if (null == coreConfiguration || string.IsNullOrEmpty(coreConfiguration.DestinationDefaultBorderEffect?.Trim()))
+            {
+                return;
+            }
+            var defaultBorderEffect = Newtonsoft.Json.JsonConvert.DeserializeObject<DefaultBorderEffect>(coreConfiguration.DestinationDefaultBorderEffect);
+            if (null == defaultBorderEffect)
+            {
+                return;
+            }
+            this.Color = defaultBorderEffect.Color;
+            this.Width = defaultBorderEffect.Width;
         }
     }
 }
