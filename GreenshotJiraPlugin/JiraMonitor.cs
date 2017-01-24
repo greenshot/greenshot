@@ -42,8 +42,8 @@ namespace GreenshotJiraPlugin
 		private static readonly LogSource Log = new LogSource();
 		private readonly Regex _jiraKeyPattern = new Regex(@"[A-Z][A-Z0-9]+\-[0-9]+");
 		private readonly WindowsTitleMonitor _monitor;
-		private readonly IList<JiraApi> _jiraInstances = new List<JiraApi>();
-		private readonly IDictionary<string, JiraApi> _projectJiraApiMap = new Dictionary<string, JiraApi>();
+		private readonly IList<IJiraClient> _jiraInstances = new List<IJiraClient>();
+		private readonly IDictionary<string, IJiraClient> _projectJiraClientMap = new Dictionary<string, IJiraClient>();
 		private readonly int _maxEntries;
 		// TODO: Add issues from issueHistory (JQL -> Where.IssueKey.InIssueHistory())
 		private IDictionary<string, JiraDetails> _recentJiras = new Dictionary<string, JiraDetails>();
@@ -93,10 +93,10 @@ namespace GreenshotJiraPlugin
 		/// Retrieve the API belonging to a JiraDetails
 		/// </summary>
 		/// <param name="jiraDetails"></param>
-		/// <returns>JiraAPI</returns>
-		public JiraApi GetJiraApiForKey(JiraDetails jiraDetails)
+		/// <returns>IJiraClient</returns>
+		public IJiraClient GetJiraClientForKey(JiraDetails jiraDetails)
 		{
-			return _projectJiraApiMap[jiraDetails.ProjectKey];
+			return _projectJiraClientMap[jiraDetails.ProjectKey];
 		}
 
 		/// <summary>
@@ -117,7 +117,7 @@ namespace GreenshotJiraPlugin
 		/// </summary>
 		/// <param name="jiraInstance"></param>
 		/// <param name="token"></param>
-		public async Task AddJiraInstanceAsync(JiraApi jiraInstance, CancellationToken token = default(CancellationToken))
+		public async Task AddJiraInstanceAsync(IJiraClient jiraInstance, CancellationToken token = default(CancellationToken))
 		{
 			_jiraInstances.Add(jiraInstance);
 			var projects = await jiraInstance.Project.GetAllAsync(cancellationToken: token).ConfigureAwait(false);
@@ -125,9 +125,9 @@ namespace GreenshotJiraPlugin
 			{
 				foreach (var project in projects)
 				{
-					if (!_projectJiraApiMap.ContainsKey(project.Key))
+					if (!_projectJiraClientMap.ContainsKey(project.Key))
 					{
-						_projectJiraApiMap.Add(project.Key, jiraInstance);
+						_projectJiraClientMap.Add(project.Key, jiraInstance);
 					}
 				}
 			}
@@ -142,10 +142,10 @@ namespace GreenshotJiraPlugin
 		{
 			try
 			{
-				JiraApi jiraApi;
-				if (_projectJiraApiMap.TryGetValue(jiraDetails.ProjectKey, out jiraApi))
+				IJiraClient jiraClient;
+				if (_projectJiraClientMap.TryGetValue(jiraDetails.ProjectKey, out jiraClient))
 				{
-					var issue = await jiraApi.Issue.GetAsync(jiraDetails.JiraKey).ConfigureAwait(false);
+					var issue = await jiraClient.Issue.GetAsync(jiraDetails.JiraKey).ConfigureAwait(false);
 					jiraDetails.JiraIssue = issue;
 				}
 				// Send event
@@ -179,9 +179,9 @@ namespace GreenshotJiraPlugin
 			var projectKey = jiraKeyParts[0];
 			var jiraId = jiraKeyParts[1];
 
-			JiraApi jiraApi;
+			IJiraClient jiraClient;
 			// Check if we have a JIRA instance with a project for this key
-			if (_projectJiraApiMap.TryGetValue(projectKey, out jiraApi))
+			if (_projectJiraClientMap.TryGetValue(projectKey, out jiraClient))
 			{
 				// We have found a project for this _jira key, so it must be a valid & known JIRA
 				JiraDetails currentJiraDetails;

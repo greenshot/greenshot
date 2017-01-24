@@ -34,16 +34,16 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>
-    <Reference Include="Dapplo.HttpExtensions, Version=0.6.10.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.HttpExtensions.0.6.10\lib\net45\Dapplo.HttpExtensions.dll</HintPath>
+    <Reference Include="Dapplo.HttpExtensions, Version=0.6.17.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.HttpExtensions.0.6.17\lib\net45\Dapplo.HttpExtensions.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Jira, Version=0.3.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Jira.0.3.4\lib\net45\Dapplo.Jira.dll</HintPath>
+    <Reference Include="Dapplo.Jira, Version=0.5.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Jira.0.5.8\lib\net45\Dapplo.Jira.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Log, Version=1.0.22.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Log.1.0.22\lib\net45\Dapplo.Log.dll</HintPath>
+    <Reference Include="Dapplo.Log, Version=1.0.23.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Log.1.0.23\lib\net45\Dapplo.Log.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="log4net">
