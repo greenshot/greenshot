@@ -25,6 +25,8 @@ using Greenshot.Plugin;
 using System;
 using System.Threading.Tasks;
 using Dapplo.Log;
+using Greenshot.Forms;
+using Greenshot.Helpers;
 using GreenshotJiraPlugin.Forms;
 using GreenshotPlugin.Core;
 using log4net;
@@ -57,6 +59,22 @@ namespace GreenshotJiraPlugin {
 
 		public JiraPlugin() {
 			_instance = this;
+			// Added to prevent Greenshot from shutting down when there was an exception in a Task
+			TaskScheduler.UnobservedTaskException += (sender, args) =>
+			{
+				try
+				{
+					Exception exceptionToLog = args.Exception;
+					string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
+					Log.Error("Exception caught in the UnobservedTaskException handler.");
+					Log.Error(exceptionText);
+					new BugReportForm(exceptionText).ShowDialog();
+				}
+				finally 
+				{
+					args.SetObserved();
+				}
+			};
 		}
 
 		public IEnumerable<IDestination> Destinations() {
