@@ -42,7 +42,7 @@ namespace GreenshotFlickrPlugin {
 		private const string FLICKR_ACCESS_TOKEN_URL = FLICKR_OAUTH_BASE_URL + "access_token";
 		private const string FLICKR_AUTHORIZE_URL = FLICKR_OAUTH_BASE_URL + "authorize";
 		private const string FLICKR_REQUEST_TOKEN_URL = FLICKR_OAUTH_BASE_URL + "request_token";
-		private const string FLICKR_FARM_URL = "https://farm{0}.staticflickr.com/{1}/{2}_{3}.jpg";
+		private const string FLICKR_FARM_URL = "https://farm{0}.staticflickr.com/{1}/{2}_{3}_o.{4}";
 		// REST
 		private const string FLICKR_REST_URL = FLICKR_API_BASE_URL + "rest/";
 		private const string FLICKR_GET_INFO_URL = FLICKR_REST_URL + "?method=flickr.photos.getInfo";
@@ -131,8 +131,9 @@ namespace GreenshotFlickrPlugin {
 							string farmId = item.Attributes["farm"].Value;
 							string serverId = item.Attributes["server"].Value;
 							string photoId = item.Attributes["id"].Value;
-							string secret = item.Attributes["secret"].Value;
-							return string.Format(FLICKR_FARM_URL, farmId, serverId, photoId, secret);
+							string originalsecret = item.Attributes["originalsecret"].Value;
+							string originalFormat = item.Attributes["originalformat"].Value;
+							return string.Format(FLICKR_FARM_URL, farmId, serverId, photoId, originalsecret, originalFormat);
 						}
 					}
 				}

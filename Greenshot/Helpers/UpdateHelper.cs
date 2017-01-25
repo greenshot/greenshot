@@ -36,8 +36,8 @@ namespace Greenshot.Experimental {
 	public static class UpdateHelper {
 		private static readonly ILog Log = LogManager.GetLogger(typeof(UpdateHelper));
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
-		private const string StableDownloadLink = "http://getgreenshot.org/downloads/";
-		private const string VersionHistoryLink = "http://getgreenshot.org/version-history/";
+		private const string StableDownloadLink = "https://getgreenshot.org/downloads/";
+		private const string VersionHistoryLink = "https://getgreenshot.org/version-history/";
 		private static readonly object LockObject = new object();
 		private static RssFile _latestGreenshot;
 		private static string _downloadLink = StableDownloadLink;

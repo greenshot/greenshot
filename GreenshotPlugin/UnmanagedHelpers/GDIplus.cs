@@ -171,11 +171,16 @@ namespace GreenshotPlugin.UnmanagedHelpers {
 		/// </summary>
 		/// <param name="radius"></param>
 		/// <returns>false if blur is not possible</returns>
-		public static bool IsBlurPossible(int radius) {
+		public static bool IsBlurPossible(int radius)
+		{
 			if (!_isBlurEnabled) {
 				return false;
 			}
-			return Environment.OSVersion.Version.Minor < 2 || radius >= 20;
+			if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor < 2)
+			{
+				return true;
+			}
+			return Environment.OSVersion.Version.Major > 6 && radius >= 20;
 		}
 
 		/// <summary>

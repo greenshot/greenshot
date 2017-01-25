@@ -860,13 +860,15 @@ namespace Greenshot {
 					case Keys.Oemcomma:	// Rotate CCW Ctrl + ,
 						RotateCcwToolstripButtonClick(sender, e);
 						break;
-					case Keys.OemPeriod:	// Rotate CW Ctrl + .
+					case Keys.OemPeriod:    // Rotate CW Ctrl + .
 						RotateCwToolstripButtonClick(sender, e);
 						break;
 					case Keys.Add:    // Ctrl + +
+					case Keys.Oemplus:    // Ctrl + +
 						EnlargeCanvasToolStripMenuItemClick(sender, e);
 						break;
 					case Keys.Subtract:    // Ctrl + -
+					case Keys.OemMinus:    // Ctrl + -
 						ShrinkCanvasToolStripMenuItemClick(sender, e);
 						break;
 				}

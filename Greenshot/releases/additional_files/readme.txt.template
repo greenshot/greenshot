@@ -9,6 +9,36 @@ All details to our tickets can be found here: https://greenshot.atlassian.net
 
 @DETAILVERSION@
 
+This is Greenshot 1.2.9BF2, the second bugfix release for Greenshot 1.2.9
+
+The following tickets are on the list for the bugfix release, the current state is not represented in UNSTABLE builds:
+* BUG-2051 Scroll-lock button not usable as hotkey
+* BUG-2055 Cannot paste Greenshot capture to Skype
+* BUG-2056 Cannot export to external command Paint.NET if .greenshot format is used
+* BUG-2068 Export to Confluence caused System.NullReferenceException
+* BUG-2081 Canvas resize (Ctrl + / Ctrl -) only works via numpad keys
+* BUG-2093 Shadow effects not renderingWindows 10 window border frame is not capture correctly on Windows 10
+* BUG-2095 'Save as' doesn't remember last saved directory (after restart)
+* BUG-2097 Window border is not captured on Windows 10
+* BUG-2098 Greenshot opens Explorer when clicking tray while notification is still showing
+* BUG-2100 ArgumentException when changing the icon size from 16 to 32
+* BUG-2101 Update to version 1.2.9.112 release -> Error 5 Access is denied
+* BUG-2102 InvalidOperationException when selecting a color
+* BUG-2103 ArgumentException when changing the icon size from 16 to 32
+* BUG-2104 Speechbubble can't be used after copy/paste
+* BUG-2105 Window border is not captured on Windows 10
+* BUG-2108 Capture last region doesn't work
+* BUG-2109 Double-click on textbox causes NullReferenceException
+* BUG-2110 Missing annotations when opening .greenshot files
+* BUG-2111 Drag and Drop image file on editor doesn't work
+* BUG-2114 Storage location reset to default if not available during start
+* BUG-2115 Error while trying to upload screenshot to Jira
+* FEATURE-998 The feature "Opening last capture in explorer should select/jump to the file" wasn't available everywhere
+
+
+1.2.9.112-9bc62ac RELEASE
+
+
 This is a bugfix release for the Greenshot 1.2.9.104-3721c10 RELEASE
 
 Bugs fixed:

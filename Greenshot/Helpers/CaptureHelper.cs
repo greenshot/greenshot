@@ -512,22 +512,14 @@ namespace Greenshot.Helpers {
 					string errorMessage = null;
 					var path = Path.GetDirectoryName(surface.LastSaveFullPath);
 					try {
-						if (path != null)
-						{
-							var processStartInfo = new ProcessStartInfo("explorer.exe")
-							{
-								Arguments = path,
-								UseShellExecute = false
-							};
-							using (var process = new Process()) {
-								process.StartInfo = processStartInfo;
-								process.Start();
-							}
-						}
-					} catch (Exception ex) {
+						ExplorerHelper.OpenInExplorer(path);
+					}
+					catch (Exception ex)
+					{
 						errorMessage = ex.Message;
 					}
 					// Added fallback for when the explorer can't be found
+					// TODO: Check if this makes sense
 					if (errorMessage != null) {
 						try {
 							string windowsPath = Environment.GetEnvironmentVariable("SYSTEMROOT");
@@ -852,7 +844,7 @@ namespace Greenshot.Helpers {
 									// Restore the window making sure it's visible!
 									windowToCapture.Restore();
 								} else {
-									windowToCapture.ToForeground();
+									windowToCapture.ToForeground(false);
 								}
 								tmpCapture = windowToCapture.CaptureGdiWindow(captureForWindow);
 								if (tmpCapture != null) {
@@ -954,7 +946,7 @@ namespace Greenshot.Helpers {
 				_capture.CaptureDetails.DpiY = graphics.DpiY;
 			}
 			// Set previouslyActiveWindow as foreground window
-			previouslyActiveWindow?.ToForeground();
+			previouslyActiveWindow?.ToForeground(false);
 			if (_capture.CaptureDetails != null) {
 				((Bitmap) _capture.Image)?.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
 			}

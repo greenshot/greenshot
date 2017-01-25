@@ -24,19 +24,20 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.HttpExtensions;
+using Dapplo.HttpExtensions.Extensions;
 using Dapplo.Jira;
+using Dapplo.Jira.Converters;
 using Dapplo.Jira.Entities;
 using Greenshot.IniFile;
 using GreenshotPlugin.Core;
 
 namespace GreenshotJiraPlugin {
 	/// <summary>
-	/// This encapsulates the JiraApi to make it possible to change as less old Greenshot code as needed
+	/// This encapsulates the JiraClient to make it possible to change as less old Greenshot code as needed
 	/// </summary>
 	public class JiraConnector : IDisposable {
 		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraConnector));
@@ -47,27 +48,19 @@ namespace GreenshotJiraPlugin {
 		private DateTimeOffset _loggedInTime = DateTimeOffset.MinValue;
 		private bool _loggedIn;
 		private readonly int _timeout;
-		private JiraApi _jiraApi;
+		private IJiraClient _jiraClient;
 		private IssueTypeBitmapCache _issueTypeBitmapCache;
-		private static readonly SvgBitmapHttpContentConverter SvgBitmapHttpContentConverterInstance = new SvgBitmapHttpContentConverter();
 
 		/// <summary>
 		/// Initialize some basic stuff, in the case the SVG to bitmap converter
 		/// </summary>
 		static JiraConnector()
 		{
-			if (HttpExtensionsGlobals.HttpContentConverters.All(x => x.GetType() != typeof(SvgBitmapHttpContentConverter)))
-			{
-				HttpExtensionsGlobals.HttpContentConverters.Add(SvgBitmapHttpContentConverterInstance);
-			}
-			SvgBitmapHttpContentConverterInstance.Width = CoreConfig.IconSize.Width;
-			SvgBitmapHttpContentConverterInstance.Height = CoreConfig.IconSize.Height;
 			CoreConfig.PropertyChanged += (sender, args) =>
 			{
 				if (args.PropertyName == nameof(CoreConfig.IconSize))
 				{
-					SvgBitmapHttpContentConverterInstance.Width = CoreConfig.IconSize.Width;
-					SvgBitmapHttpContentConverterInstance.Height = CoreConfig.IconSize.Height;
+					JiraPlugin.Instance.JiraConnector._jiraClient?.Behaviour.SetConfig(new SvgConfiguration { Width = CoreConfig.IconSize.Width, Height = CoreConfig.IconSize.Height });
 				}
 			};
 
@@ -77,7 +70,7 @@ namespace GreenshotJiraPlugin {
 		/// Dispose, logout the users
 		/// </summary>
 		public void Dispose() {
-			if (_jiraApi != null)
+			if (_jiraClient != null)
 			{
 				Task.Run(async () => await LogoutAsync()).Wait();
 			}
@@ -104,25 +97,27 @@ namespace GreenshotJiraPlugin {
 		/// Internal login which catches the exceptions
 		/// </summary>
 		/// <returns>true if login was done sucessfully</returns>
-		private async Task<bool> DoLoginAsync(string user, string password)
+		private async Task<bool> DoLoginAsync(string user, string password, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(password))
 			{
 				return false;
 			}
-			_jiraApi = new JiraApi(new Uri(JiraConfig.Url));
-			_issueTypeBitmapCache = new IssueTypeBitmapCache(_jiraApi);
+			_jiraClient = JiraClient.Create(new Uri(JiraConfig.Url));
+			_jiraClient.Behaviour.SetConfig(new SvgConfiguration { Width = CoreConfig.IconSize.Width, Height = CoreConfig.IconSize.Height });
+
+			_issueTypeBitmapCache = new IssueTypeBitmapCache(_jiraClient);
 			LoginInfo loginInfo;
 			try
 			{
-				loginInfo = await _jiraApi.StartSessionAsync(user, password);
+				loginInfo = await _jiraClient.Session.StartAsync(user, password, cancellationToken);
 				Monitor = new JiraMonitor();
-				await Monitor.AddJiraInstanceAsync(_jiraApi);
+				await Monitor.AddJiraInstanceAsync(_jiraClient, cancellationToken);
 
-				var favIconUri = _jiraApi.JiraBaseUri.AppendSegments("favicon.ico");
+				var favIconUri = _jiraClient.JiraBaseUri.AppendSegments("favicon.ico");
 				try
 				{
-					FavIcon = await _jiraApi.GetUriContentAsync<Bitmap>(favIconUri);
+					FavIcon = await _jiraClient.Server.GetUriContentAsync<Bitmap>(favIconUri, cancellationToken);
 				}
 				catch (Exception ex)
 				{
@@ -142,8 +137,8 @@ namespace GreenshotJiraPlugin {
 		/// If there are credentials, call the real login.
 		/// </summary>
 		/// <returns>Task</returns>
-		public async Task LoginAsync() {
-			await LogoutAsync();
+		public async Task LoginAsync(CancellationToken cancellationToken = default(CancellationToken)) {
+			await LogoutAsync(cancellationToken);
 			try {
 				// Get the system name, so the user knows where to login to
 				var credentialsDialog = new CredentialsDialog(JiraConfig.Url)
@@ -151,7 +146,7 @@ namespace GreenshotJiraPlugin {
 					Name = null
 				};
 				while (credentialsDialog.Show(credentialsDialog.Name) == DialogResult.OK) {
-					if (await DoLoginAsync(credentialsDialog.Name, credentialsDialog.Password)) {
+					if (await DoLoginAsync(credentialsDialog.Name, credentialsDialog.Password, cancellationToken)) {
 						if (credentialsDialog.SaveChecked) {
 							credentialsDialog.Confirm(true);
 						}
@@ -181,11 +176,11 @@ namespace GreenshotJiraPlugin {
 		/// <summary>
 		/// End the session, if there was one
 		/// </summary>
-		public async Task LogoutAsync() {
-			if (_jiraApi != null && _loggedIn)
+		public async Task LogoutAsync(CancellationToken cancellationToken = default(CancellationToken)) {
+			if (_jiraClient != null && _loggedIn)
 			{
 				Monitor.Dispose();
-				await _jiraApi.EndSessionAsync();
+				await _jiraClient.Session.EndAsync(cancellationToken);
 				_loggedIn = false;
 			}
 		}
@@ -195,14 +190,14 @@ namespace GreenshotJiraPlugin {
 		/// Do not use ConfigureAwait to call this, as it will move await from the UI thread.
 		/// </summary>
 		/// <returns></returns>
-		private async Task CheckCredentialsAsync() {
+		private async Task CheckCredentialsAsync(CancellationToken cancellationToken = default(CancellationToken)) {
 			if (_loggedIn) {
 				if (_loggedInTime.AddMinutes(_timeout-1).CompareTo(DateTime.Now) < 0) {
-					await LogoutAsync();
-					await LoginAsync();
+					await LogoutAsync(cancellationToken);
+					await LoginAsync(cancellationToken);
 				}
 			} else {
-				await LoginAsync();
+				await LoginAsync(cancellationToken);
 			}
 		}
 
@@ -210,23 +205,24 @@ namespace GreenshotJiraPlugin {
 		/// Get the favourite filters 
 		/// </summary>
 		/// <returns>List with filters</returns>
-		public async Task<IList<Filter>> GetFavoriteFiltersAsync()
+		public async Task<IList<Filter>> GetFavoriteFiltersAsync(CancellationToken cancellationToken = default(CancellationToken))
 		{
-			await CheckCredentialsAsync();
-			return await _jiraApi.GetFavoriteFiltersAsync().ConfigureAwait(false);
+			await CheckCredentialsAsync(cancellationToken);
+			return await _jiraClient.Filter.GetFavoritesAsync(cancellationToken).ConfigureAwait(false);
 		}
 
 		/// <summary>
 		/// Get the issue for a key
 		/// </summary>
 		/// <param name="issueKey">Jira issue key</param>
+		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Issue</returns>
-		public async Task<Issue> GetIssueAsync(string issueKey)
+		public async Task<Issue> GetIssueAsync(string issueKey, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			await CheckCredentialsAsync();
+			await CheckCredentialsAsync(cancellationToken);
 			try
 			{
-				return await _jiraApi.GetIssueAsync(issueKey).ConfigureAwait(false);
+				return await _jiraClient.Issue.GetAsync(issueKey, cancellationToken).ConfigureAwait(false);
 			}
 			catch
 			{
@@ -243,12 +239,12 @@ namespace GreenshotJiraPlugin {
 		/// <returns></returns>
 		public async Task AttachAsync(string issueKey, IBinaryContainer content, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			await CheckCredentialsAsync();
+			await CheckCredentialsAsync(cancellationToken);
 			using (var memoryStream = new MemoryStream())
 			{
 				content.WriteToStream(memoryStream);
 				memoryStream.Seek(0, SeekOrigin.Begin);
-				await _jiraApi.AttachAsync(issueKey, memoryStream, content.Filename, content.ContentType, cancellationToken).ConfigureAwait(false);
+				await _jiraClient.Attachment.AttachAsync(issueKey, memoryStream, content.Filename, content.ContentType, cancellationToken).ConfigureAwait(false);
 			}
 		}
 
@@ -261,8 +257,8 @@ namespace GreenshotJiraPlugin {
 		/// <param name="cancellationToken">CancellationToken</param>
 		public async Task AddCommentAsync(string issueKey, string body, string visibility = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			await CheckCredentialsAsync();
-			await _jiraApi.AddCommentAsync(issueKey, body, visibility, cancellationToken).ConfigureAwait(false);
+			await CheckCredentialsAsync(cancellationToken);
+			await _jiraClient.Issue.AddCommentAsync(issueKey, body, visibility, cancellationToken).ConfigureAwait(false);
 		}
 
 		/// <summary>
@@ -273,8 +269,8 @@ namespace GreenshotJiraPlugin {
 		/// <returns></returns>
 		public async Task<IList<Issue>> SearchAsync(Filter filter, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			await CheckCredentialsAsync();
-			var searchResult = await _jiraApi.SearchAsync(filter.Jql, 20, new[] { "summary", "reporter", "assignee", "created", "issuetype" }, cancellationToken).ConfigureAwait(false);
+			await CheckCredentialsAsync(cancellationToken);
+			var searchResult = await _jiraClient.Issue.SearchAsync(filter.Jql, 20, new[] { "summary", "reporter", "assignee", "created", "issuetype" }, cancellationToken).ConfigureAwait(false);
 			return searchResult.Issues;
 		}
 
@@ -292,7 +288,7 @@ namespace GreenshotJiraPlugin {
 		/// <summary>
 		/// Get the base uri
 		/// </summary>
-		public Uri JiraBaseUri => _jiraApi.JiraBaseUri;
+		public Uri JiraBaseUri => _jiraClient.JiraBaseUri;
 
 		/// <summary>
 		/// Is the user "logged in?

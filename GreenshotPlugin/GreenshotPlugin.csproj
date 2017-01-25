@@ -47,6 +47,7 @@
     <Compile Include="Controls\GreenshotRadioButton.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Core\ExplorerHelper.cs" />
     <Compile Include="Effects\AdjustEffect.cs" />
     <Compile Include="Effects\BorderEffect.cs" />
     <Compile Include="Core\CaptureHandler.cs" />
