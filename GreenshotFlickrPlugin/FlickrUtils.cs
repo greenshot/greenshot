@@ -131,9 +131,9 @@ namespace GreenshotFlickrPlugin {
 							string farmId = item.Attributes["farm"].Value;
 							string serverId = item.Attributes["server"].Value;
 							string photoId = item.Attributes["id"].Value;
-							string secret = item.Attributes["secret"].Value;
+							string originalsecret = item.Attributes["originalsecret"].Value;
 							string originalFormat = item.Attributes["originalformat"].Value;
-							return string.Format(FLICKR_FARM_URL, farmId, serverId, photoId, secret, originalFormat);
+							return string.Format(FLICKR_FARM_URL, farmId, serverId, photoId, originalsecret, originalFormat);
 						}
 					}
 				}
