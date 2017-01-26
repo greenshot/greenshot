@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Taqbaylit" ietf="kab-DZ" version="1.0.0" languagegroup="">
+	<resources>
+		<resource name="communication_wait">Taɣwaylt tetteddu akked umeẓlu n usekles s srid. Ṛǧu ma ulac aɣilif...</resource>
+		<resource name="Configure">Swel Box</resource>
+		<resource name="label_AfterUpload">Deffir n usider/asali</resource>
+		<resource name="label_AfterUploadLinkToClipBoard">Nɣel aseɣwen ɣef afus</resource>
+		<resource name="label_upload_format">Amasal tugna</resource>
+		<resource name="settings_title">Iɣewwaṛen n usekles s srid</resource>
+		<resource name="upload_failure">Teḍra-d tuccḍa deg usali ɣer usekles s srid :</resource>
+		<resource name="upload_menu_item">Sali ɣer usekles s srid</resource>
+		<resource name="upload_success">Tugna tuli ɣer usekles srid !</resource>
+	</resources>
+</language>
