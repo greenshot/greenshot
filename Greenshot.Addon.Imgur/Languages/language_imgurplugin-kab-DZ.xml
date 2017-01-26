@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Taqbaylit" ietf="kab-DZ" version="1.0.0" languagegroup="">
+	<resources>
+		<resource name="CANCEL">Sefsex</resource>
+		<resource name="clear_question">Êtes-vous sûr(e) de vouloir supprimer l'historique local de Imgur ?</resource>
+		<resource name="communication_wait">Communication en cours avec Imgur. Veuillez patienter...</resource>
+		<resource name="configure">Swel</resource>
+		<resource name="delete_question">Êtes-vous sûr(e) de vouloir supprimer l'image {0} de Imgur ?</resource>
+		<resource name="delete_title">Kkes Imgur {0}</resource>
+		<resource name="history">Amazray</resource>
+		<resource name="label_upload_format">Amsal n tugna</resource>
+		<resource name="label_url">Tansa Url</resource>
+		<resource name="OK">IH</resource>
+		<resource name="settings_title">Iɣewwaṛen Imgur</resource>
+		<resource name="upload_failure">Teḍra-d tuccḍa deg usali ar Imgur :</resource>
+		<resource name="upload_menu_item">Sali ar Imgur</resource>
+		<resource name="upload_success">Tugna tuli akken iwata ar Imgur !</resource>
+		<resource name="use_page_link">Utiliser le lien de la page au lieu du lien de l'image dans le presse-papier</resource>
+	</resources>
+</language>
