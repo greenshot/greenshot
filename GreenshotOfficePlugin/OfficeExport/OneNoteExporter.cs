@@ -45,7 +45,8 @@ namespace Greenshot.Interop.Office {
 				OneNotePage newPage = new OneNotePage();
 				string unfiledNotesSectionId = GetSectionId(oneNoteApplication, SpecialLocation.slUnfiledNotesSection);
 				if(unfiledNotesSectionId != null) {
-					string pageId;
+					// ReSharper disable once RedundantAssignment
+					string pageId = "";
 					oneNoteApplication.CreateNewPage(unfiledNotesSectionId, out pageId, NewPageStyle.npsDefault);
 					newPage.ID = pageId;
 					// Set the new name, this is automatically done in the export to page
