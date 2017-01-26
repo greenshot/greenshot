@@ -31,6 +31,7 @@ BUG-2109	Double-click on textbox causes NullReferenceException
 BUG-2114	Storage location reset to default if not available during start
 BUG-2116	Sorry, Unexpectd error message display and application crash
 BUG-2125	Send to OneNote does not work
+FEATURE-992 When reusing the editor, it is not brought to the front (second try)
 
 Added Taqbaylit as a new language.
 
