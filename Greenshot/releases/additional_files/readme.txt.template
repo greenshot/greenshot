@@ -32,6 +32,8 @@ BUG-2114	Storage location reset to default if not available during start
 BUG-2116	Sorry, Unexpectd error message display and application crash
 BUG-2125	Send to OneNote does not work
 
+Added Taqbaylit as a new language.
+
 
 1.2.9.112-9bc62ac RELEASE
 
