@@ -507,55 +507,17 @@ namespace Greenshot.Helpers {
 				return;
 			}
 			ISurface surface = eventArgs.Surface;
-			if (surface != null && eventArgs.MessageType == SurfaceMessageTyp.FileSaved) {
-				if (!string.IsNullOrEmpty(surface.LastSaveFullPath)) {
-					string errorMessage = null;
-					var path = Path.GetDirectoryName(surface.LastSaveFullPath);
-					try {
-						ExplorerHelper.OpenInExplorer(path);
-					}
-					catch (Exception ex)
-					{
-						errorMessage = ex.Message;
-					}
-					// Added fallback for when the explorer can't be found
-					// TODO: Check if this makes sense
-					if (errorMessage != null) {
-						try {
-							string windowsPath = Environment.GetEnvironmentVariable("SYSTEMROOT");
-							if (windowsPath != null)
-							{
-								string explorerPath = Path.Combine(windowsPath, "explorer.exe");
-								if (File.Exists(explorerPath))
-								{
-									var lastSaveDirectory = Path.GetDirectoryName(surface.LastSaveFullPath);
-									if (lastSaveDirectory != null)
-									{
-										var processStartInfo = new ProcessStartInfo(explorerPath)
-										{
-											Arguments = lastSaveDirectory,
-											UseShellExecute = false
-										};
-										using (var process = new Process()) {
-											process.StartInfo = processStartInfo;
-											process.Start();
-										}
-									}
-									errorMessage = null;
-								}
-							}
-						}
-						catch
-						{
-							// ignored
-						}
-					}
-					if (errorMessage != null) {
-						MessageBox.Show($"{errorMessage}\r\nexplorer.exe {surface.LastSaveFullPath}", "explorer.exe", MessageBoxButtons.OK, MessageBoxIcon.Error);
-					}
+			if (surface != null)
+			{
+				switch (eventArgs.MessageType)
+				{
+					case SurfaceMessageTyp.FileSaved:
+						ExplorerHelper.OpenInExplorer(surface.LastSaveFullPath);
+						break;
+					case SurfaceMessageTyp.UploadedUri:
+						Process.Start(surface.UploadUrl);
+						break;
 				}
-			} else if (!string.IsNullOrEmpty(surface?.UploadUrl)) {
-				Process.Start(surface.UploadUrl);
 			}
 			Log.DebugFormat("Deregistering the BalloonTipClicked");
 			RemoveEventHandler(sender, e);
