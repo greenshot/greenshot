@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Taqbaylit" ietf="kab-DZ" version="1.2.0.58" languagegroup="1">
+	<resources>
+		<resource name="about_bugs">Azen ibugen ar</resource>
+		<resource name="about_donations">Ma tḥemled Greenshot, Mudd-aɣ-d afus :</resource>
+		<resource name="about_host">Greenshot yezdeɣ di sourceforge.net di</resource>
+		<resource name="about_icons">Tignitin i d-yekkan seg uqettun n tignitin Fugue n Kamiyamane Yuusuke (Creative Commons Attribution 3.0 license)</resource>
+		<resource name="about_license">Copyright © 2007-2015 Thomas Braun, Jens Klingen, Robin Krom
+Greenshot yettunefk-d S WAR ṬMANA. d aseɣẓan ilelli i tzemreḍ ad tezuzreḍ s kra n tewtilin.
+Talqayt ɣef GNU General Public License :</resource>
+		<resource name="about_title">Ɣef Greenshot</resource>
+		<resource name="application_title">Greenshot - afecku ifazen n tuṭṭfa n ugdil</resource>
+		<resource name="bugreport_cancel">Mdel</resource>
+		<resource name="bugreport_info">Suref-aɣ, teḍra-d tuccḍa.
+
+Isali yelhan, tzemreḍ ad tmuddeḍ afus akken ad nefru uguren ma yella tuzned-d aneqqis n ibugen.
+Rzu ma ulac aɣilif ar tensa URL daw-a, rnu aneqqis amaynur sakin senteḍ agbur-agi di temnaṭ-agi n uḍris.
+
+Rnu agzul yettwagzan akked telɣut i twalad tlaq akken ad nwali ugur.
+Rnu ɣur-s, nḥemmel aṭas ma yella tesneqdeḍ aneqqis igebren ugur-agi. (Tzemreḍ ad tesqedceḍ afecku n unadi akken ad id-tafeḍ s zreb.) Tanemmirt :)</resource>
+		<resource name="bugreport_title">Tuccḍa</resource>
+		<resource name="CANCEL">Sefsex</resource>
+		<resource name="clipboard_error">Teḍra-d tuccḍa di tira n ɣef afus.</resource>
+		<resource name="clipboard_inuse">Greenshot ur izmir ara ad yeru ɣef afus acku akala {0} isewḥel anekcum.</resource>
+		<resource name="clipboard_noimage">Ur izmir ara ad d-yaf tugna ɣef afus.</resource>
+		<resource name="ClipboardFormat.BITMAP">Windows Bitmap</resource>
+		<resource name="ClipboardFormat.DIB">Amasal n tugna amunan ɣef yibenk (DIB)</resource>
+		<resource name="ClipboardFormat.HTML">HTML</resource>
+		<resource name="ClipboardFormat.HTMLDATAURL">HTML s tugniwin s srid</resource>
+		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="colorpicker_alpha">Alpha</resource>
+		<resource name="colorpicker_apply">Snes</resource>
+		<resource name="colorpicker_blue">Amidadi</resource>
+		<resource name="colorpicker_green">Azegzaw</resource>
+		<resource name="colorpicker_htmlcolor">Ini HTML</resource>
+		<resource name="colorpicker_recentcolors">Initen ineggura</resource>
+		<resource name="colorpicker_red">Azeggaɣ</resource>
+		<resource name="colorpicker_title">Fren ini</resource>
+		<resource name="colorpicker_transparent">Afrawan</resource>
+		<resource name="com_rejected">Taniɣert {0} tugi anekcum n Greenshot, tasfaylu n udiwenni ahat yeldi. Mdel asfaylu n udewenni sakin ɛreḍ tikelt-nniḍen.</resource>
+		<resource name="com_rejected_title">Anekcum n Greenshot yettwagdel</resource>
+		<resource name="config_unauthorizedaccess_write">Ur izmir ara ad isekles afaylu n twila n Greenshot. Ma ulac aɣilif senqed izerfan n '{0}'.</resource>
+		<resource name="contextmenu_about">Ɣef Greenshot</resource>
+		<resource name="contextmenu_capturearea">Ṭṭef tamnaṭ</resource>
+		<resource name="contextmenu_captureclipboard">Ldi Tugna yellan Ɣef afus</resource>
+		<resource name="contextmenu_capturefullscreen">Ṭṭef akk agdil</resource>
+		<resource name="contextmenu_capturefullscreen_all">Akk</resource>
+		<resource name="contextmenu_capturefullscreen_bottom">akesser</resource>
+		<resource name="contextmenu_capturefullscreen_left">azelmaḍ</resource>
+		<resource name="contextmenu_capturefullscreen_right">ayeffus</resource>
+		<resource name="contextmenu_capturefullscreen_top">awriran</resource>
+		<resource name="contextmenu_captureie">Ṭṭef Internet Explorer</resource>
+		<resource name="contextmenu_captureiefromlist">Ṭṭef Internet Explorer si tebdart agi</resource>
+		<resource name="contextmenu_capturelastregion">Ṭṭef tamnaṭ taneggarut</resource>
+		<resource name="contextmenu_capturewindow">Ṭṭef asfaylu urmid</resource>
+		<resource name="contextmenu_capturewindowfromlist">Ṭṭef asfaylu urmid si tebdart agi</resource>
+		<resource name="contextmenu_donate">Mudd afus i Greenshot</resource>
+		<resource name="contextmenu_exit">Ffeɣ</resource>
+		<resource name="contextmenu_help">Tallelt</resource>
+		<resource name="contextmenu_openfile">Ldi tugna seg ufaylu</resource>
+		<resource name="contextmenu_openrecentcapture">Ldi adig n usekles aneggaru</resource>
+		<resource name="contextmenu_quicksettings">Ismenyifen iruraden</resource>
+		<resource name="contextmenu_settings">Ismenyifen...</resource>
+		<resource name="destination_exportfailed">Tuccḍa deg usnirem ɣer {0}.Ma ulac aɣilif  ɛreḍ tikelt nniḍen.</resource>
+		<resource name="editor_align_bottom">D akesser</resource>
+		<resource name="editor_align_center">Di tlemmast</resource>
+		<resource name="editor_align_horizontal">Areyyec aglawan</resource>
+		<resource name="editor_align_left">Reyyec s azelmaḍ</resource>
+		<resource name="editor_align_middle">Di tlemmast</resource>
+		<resource name="editor_align_right">Reyyec s ayeffus</resource>
+		<resource name="editor_align_top">D asawen</resource>
+		<resource name="editor_align_vertical">Areyyec ubdid</resource>
+		<resource name="editor_arrange">Suddes</resource>
+		<resource name="editor_arrowheads">Iqeṛṛa n ineccaben</resource>
+		<resource name="editor_arrowheads_both">I sin</resource>
+		<resource name="editor_arrowheads_end">Taneqqiṭ n tagara</resource>
+		<resource name="editor_arrowheads_none">Ula yiwen</resource>
+		<resource name="editor_arrowheads_start">Taneqqiṭ n tazwara</resource>
+		<resource name="editor_autocrop">Aseggem awurman</resource>
+		<resource name="editor_backcolor">Ini n taččart</resource>
+		<resource name="editor_blur_radius">Aqqaṛ n udaɛmec</resource>
+		<resource name="editor_bold">Zur</resource>
+		<resource name="editor_border">Rnu leryuf</resource>
+		<resource name="editor_brightness">Tafat</resource>
+		<resource name="editor_cancel">Sefsex</resource>
+		<resource name="editor_clipboardfailed">Teḍra-d tuccḍa deg unekcum ɣef afus. Ɛreḍ tikelt -nniḍen.</resource>
+		<resource name="editor_close">Mdel</resource>
+		<resource name="editor_close_on_save">Tebɣiḍ ad teselkseḍ tuṭṭfa n ugdil?</resource>
+		<resource name="editor_close_on_save_title">Sekles tugna?</resource>
+		<resource name="editor_confirm">Sentem</resource>
+		<resource name="editor_copyimagetoclipboard">Nɣel tugna ɣef afus</resource>
+		<resource name="editor_copypathtoclipboard">Nɣel abrid ɣef afus</resource>
+		<resource name="editor_copytoclipboard">Nɣel</resource>
+		<resource name="editor_counter">Rnu Amesmiḍan</resource>
+		<resource name="editor_crop">Seggem (C)</resource>
+		<resource name="editor_cursortool">Afecku n ufran (ESC)</resource>
+		<resource name="editor_cuttoclipboard">Gzem</resource>
+		<resource name="editor_deleteelement">Kkes</resource>
+		<resource name="editor_downonelevel">Ṣub</resource>
+		<resource name="editor_downtobottom">Deg ugilal</resource>
+		<resource name="editor_drawarrow">Suneɣ aneccab (A)</resource>
+		<resource name="editor_drawellipse">Suneɣ taglayt (E)</resource>
+		<resource name="editor_drawfreehand">Suneɣ s ufus (F)</resource>
+		<resource name="editor_drawhighlighter">Derrer (H)</resource>
+		<resource name="editor_drawline">Suneɣ izirig (L)</resource>
+		<resource name="editor_drawrectangle">Suneɣ asrem(R)</resource>
+		<resource name="editor_drawtextbox">Rnu asfaylu n uḍris (T)</resource>
+		<resource name="editor_dropshadow_darkness">Tebrek n tili</resource>
+		<resource name="editor_dropshadow_offset">Asiẓi</resource>
+		<resource name="editor_dropshadow_settings">Iɣewwaṛen n tili</resource>
+		<resource name="editor_dropshadow_thickness">Tuzert n tili</resource>
+		<resource name="editor_duplicate">Sleg aferdis yettwafernen</resource>
+		<resource name="editor_edit">Taẓrigt</resource>
+		<resource name="editor_effects">Isemda</resource>
+		<resource name="editor_email">Imayl</resource>
+		<resource name="editor_file">Afaylu</resource>
+		<resource name="editor_fontsize">Teɣzi</resource>
+		<resource name="editor_forecolor">Ini n izirig</resource>
+		<resource name="editor_grayscale">Tifesniwin n umumed</resource>
+		<resource name="editor_highlight_area">Jerreḍ tamnaṭ</resource>
+		<resource name="editor_highlight_grayscale">Tifesniwin n umumed</resource>
+		<resource name="editor_highlight_magnify">Semɣeṛ</resource>
+		<resource name="editor_highlight_mode">Askar n ujerreḍ</resource>
+		<resource name="editor_highlight_text">Sebrureq aḍris</resource>
+		<resource name="editor_image_shadow">Tili yettwarfden</resource>
+		<resource name="editor_imagesaved">Tugna tettwasekles ara {0}.</resource>
+		<resource name="editor_insertwindow">Ger asfaylu</resource>
+		<resource name="editor_invert">Tti initen</resource>
+		<resource name="editor_italic">Uknan</resource>
+		<resource name="editor_load_objects">Sali-d tiɣawsiwin seg ufaylu</resource>
+		<resource name="editor_magnification_factor">Amesker n usuzer</resource>
+		<resource name="editor_match_capture_size">Seggem amasal n tuṭṭfa n ugdil</resource>
+		<resource name="editor_obfuscate">Sdaɛmumec (O)</resource>
+		<resource name="editor_obfuscate_blur">Sdeɛmumec</resource>
+		<resource name="editor_obfuscate_mode">Askar n usdaɛmumec</resource>
+		<resource name="editor_obfuscate_pixelize">Piksilizi</resource>
+		<resource name="editor_object">Taɣawsa</resource>
+		<resource name="editor_opendirinexplorer">Ldi akaram n unaram Windows</resource>
+		<resource name="editor_pastefromclipboard">Sented</resource>
+		<resource name="editor_pixel_size">Teɣzu n upiksil</resource>
+		<resource name="editor_preview_quality">Taɣara n teskant</resource>
+		<resource name="editor_print">Siggez</resource>
+		<resource name="editor_redo">Err-d {0}</resource>
+		<resource name="editor_resetsize">Wennez teɣzi</resource>
+		<resource name="editor_resize">Snifel tahri/teɣzi</resource>
+		<resource name="editor_resize_aspectratio">Eǧǧ afmiḍi Teɣ / Teh</resource>
+		<resource name="editor_resize_height">Awrir</resource>
+		<resource name="editor_resize_percent">Afmiḍi</resource>
+		<resource name="editor_resize_pixel">Ipiksilen</resource>
+		<resource name="editor_resize_settings">Iqewwaṛen n usnufel n Tehri/Teɣzi</resource>
+		<resource name="editor_resize_width">Tehri</resource>
+		<resource name="editor_rotateccw">Zzi s azelmaḍ</resource>
+		<resource name="editor_rotatecw">Zzi s ayeffus</resource>
+		<resource name="editor_save">Sekles</resource>
+		<resource name="editor_save_objects">Sekles tiɣawsiwin deg ufaylu</resource>
+		<resource name="editor_saveas">Sekles s yisem...</resource>
+		<resource name="editor_selectall">Fren akk</resource>
+		<resource name="editor_senttoprinter">Tamhelt n usiggez tettwazen ɣer '{0}'.</resource>
+		<resource name="editor_shadow">Tili tettwarfed</resource>
+		<resource name="editor_speechbubble">tačuffiṭ n uḍris</resource>
+		<resource name="editor_storedtoclipboard">Tugna tetwasers ɣef afus.</resource>
+		<resource name="editor_thickness">Tuzert n izirig</resource>
+		<resource name="editor_title">Greenshot Amaẓrag n tugniwin</resource>
+		<resource name="editor_torn_edge">Leryuf qqeṛsen</resource>
+		<resource name="editor_tornedge_all">Seɣres akk idisan</resource>
+		<resource name="editor_tornedge_bottom">Snes aseɣres ukesser</resource>
+		<resource name="editor_tornedge_horizontaltoothrange">Aglawan : azilal n tuɣmas</resource>
+		<resource name="editor_tornedge_left">Snes aseɣres deg uzelmaḍ</resource>
+		<resource name="editor_tornedge_right">Snes aseɣres deg uyeffus</resource>
+		<resource name="editor_tornedge_settings">Aswel n leryuf</resource>
+		<resource name="editor_tornedge_shadow">Sefek tili</resource>
+		<resource name="editor_tornedge_toothsize">Teɣzi n tuɣmas</resource>
+		<resource name="editor_tornedge_top">Snes acerrig d asawen</resource>
+		<resource name="editor_tornedge_verticaltoothrange">Ubdid : Azilal n tuɣmas</resource>
+		<resource name="editor_undo">Sefsex {0}</resource>
+		<resource name="editor_uponelevel">Rfed</resource>
+		<resource name="editor_uptotop">Deg uɣawas amenzu</resource>
+		<resource name="EmailFormat.MAPI">Amsaɣ MAPI</resource>
+		<resource name="EmailFormat.OUTLOOK_HTML">Outlook s HTML</resource>
+		<resource name="EmailFormat.OUTLOOK_TXT">Outlook s uḍris</resource>
+		<resource name="error">Tuccḍa</resource>
+		<resource name="error_multipleinstances">Tummant n Greenshot tettuselkam yakan.</resource>
+		<resource name="error_nowriteaccess">Ur izmir ara ad isekles afaylu ara {0}.
+Ma ulac aɣilif senqed tuffart n ukaram n usekles.</resource>
+		<resource name="error_openfile">afaylu "{0}" ur izmir ara ad yettwaldi.</resource>
+		<resource name="error_openlink">Ur izmir ara ad d-yelid aseɣwen '{0}'.</resource>
+		<resource name="error_save">Ur izmir ara ad isekles tuṭṭfa n ugdil. Ma ulac aɣilif, aff-d akaram ilaqen !</resource>
+		<resource name="error_save_invalid_chars">Isem n ukaram neɣ isem n ufaylu yettusirwen mačči d ameɣtu. Seɣti taneɣruft n yisem n ufaylu, sakin ɛreḍ tikelt-nniḍen.</resource>
+		<resource name="expertsettings">Amazzag</resource>
+		<resource name="expertsettings_autoreducecolors">Tugna s 8 s ibiten ma yella amḍan n initen &lt; 256 i tugna n &gt; 8 n ibiten</resource>
+		<resource name="expertsettings_checkunstableupdates">Senqed ileqman urkiden</resource>
+		<resource name="expertsettings_clipboardformats">Imasalen n ɣef afus</resource>
+		<resource name="expertsettings_counter">Amḍan i $(NUM) di tneɣruft n ufaylu</resource>
+		<resource name="expertsettings_enableexpert">Ẓriɣ d acu xeddmeɣ!</resource>
+		<resource name="expertsettings_footerpattern">Taneɣruft n uḍar n usebter</resource>
+		<resource name="expertsettings_minimizememoryfootprint">Adsil n tkatut yettusemẓi, acukan timellit tuder (ur lhi ara).</resource>
+		<resource name="expertsettings_optimizeforrdp">Asesfer i useqdec s tnarit tanmeggagt</resource>
+		<resource name="expertsettings_reuseeditorifpossible">Seqdec amaẓrag ma tzemreḍ</resource>
+		<resource name="expertsettings_suppresssavedialogatclose">Kkes asfaylu n udiwenni n usekles deg umdal n umazrag</resource>
+		<resource name="expertsettings_thumbnailpreview">Asfaylu aqmamaḍ deg umuɣ asatal (i Windows Vista akked Windows 7)</resource>
+		<resource name="exported_to">Yettusifeḍ ar : {0}</resource>
+		<resource name="exported_to_error">Teḍra-d tuccḍa deg usifeḍ n {0} :</resource>
+		<resource name="help_title">Tallalt n Greenshot</resource>
+		<resource name="hotkeys">Inegzumen n unasiw</resource>
+		<resource name="jpegqualitydialog_choosejpegquality">Ma ulac aɣilif, fren taɣara n tugna JPEG.</resource>
+		<resource name="OK">Ih</resource>
+		<resource name="print_error">Teḍra-d tuccḍa deeg usiggez.</resource>
+		<resource name="printoptions_allowcenter">Slemmes ɣef usebter</resource>
+		<resource name="printoptions_allowenlarge">Sehrew ar tisektiwin n usebter</resource>
+		<resource name="printoptions_allowrotate">Zzi tasaggazt akken tella tnila n usebter</resource>
+		<resource name="printoptions_allowshrink">Senɣes ar tsektiwin n usebter</resource>
+		<resource name="printoptions_colors">Iɣewwaṛen n usiggez s yiniten</resource>
+		<resource name="printoptions_dontaskagain">Sekles iɣewwaṛen amzun d azalen imezwar, ur d-sutur ara tikelt nniḍen.</resource>
+		<resource name="printoptions_inverted">Siggez s tuttya n yiniten</resource>
+		<resource name="printoptions_layout">Iɣewwaṛen n trusi n usebter</resource>
+		<resource name="printoptions_printcolor">Asiggez s initen</resource>
+		<resource name="printoptions_printgrayscale">Sekmer asiggez s uswir n tfesniwin n umumad</resource>
+		<resource name="printoptions_printmonochrome">Sekmer asiggez s aberkan/amellal</resource>
+		<resource name="printoptions_timestamp">Siggez azemz d wakud deg uḍaṛ n usebter</resource>
+		<resource name="printoptions_title">Greenshot - Iɣewwaṛen n tsaggazt</resource>
+		<resource name="qualitydialog_dontaskagain">Sekles am tɣara tamezwert udiɣ ur d(sutur ara tikelt-nniḍen</resource>
+		<resource name="qualitydialog_title">Greenshot - Taɣara</resource>
+		<resource name="quicksettings_destination_file">Sekles srid (seqdec iɣewwaṛen n tuffɣa)</resource>
+		<resource name="settings_alwaysshowprintoptionsdialog">Sken srid asfaylu n udiwenni n usiggez.</resource>
+		<resource name="settings_alwaysshowqualitydialog">Sken asfaylu n udiwenni n tɣaṛa n yal asekles</resource>
+		<resource name="settings_applicationsettings">Iɣewwaṛen n usnas</resource>
+		<resource name="settings_autostartshortcut">Senker Greenshot di tnekra n Windows</resource>
+		<resource name="settings_capture">Tuṭṭfa</resource>
+		<resource name="settings_capture_mousepointer">Ṭṭef taḥnaccaṭ n tɣerdayt</resource>
+		<resource name="settings_capture_windows_interactive">Seqdec askar amyigawan n tuṭṭfa n usfaylu</resource>
+		<resource name="settings_checkperiod">Azilal n usenqed n ileqman s wussan (0=ulac usenqed)</resource>
+		<resource name="settings_configureplugin">Swel</resource>
+		<resource name="settings_copypathtoclipboard">Nɣel abrid ar ufaylu ɣef afus di yal asekles</resource>
+		<resource name="settings_destination">Taniɣert n tuṭṭfa n ugdil</resource>
+		<resource name="settings_destination_clipboard">Ɣef afus</resource>
+		<resource name="settings_destination_editor">Ldi deg umaẓrag n tugniwin</resource>
+		<resource name="settings_destination_email">Imayl</resource>
+		<resource name="settings_destination_file">Sekles s srid (s useqdec n iɣewwaṛen daw-a)</resource>
+		<resource name="settings_destination_fileas">Sekles s yisem (sken asfaylu n udiwenni)</resource>
+		<resource name="settings_destination_picker">Fren taniɣert tamussant</resource>
+		<resource name="settings_destination_printer">Ar tsaggazt</resource>
+		<resource name="settings_editor">Amaẓrag</resource>
+		<resource name="settings_filenamepattern">Taneɣruft n ufaylu</resource>
+		<resource name="settings_general">Amatu</resource>
+		<resource name="settings_iconsize">Teɣzi n tignitin</resource>
+		<resource name="settings_iecapture">Tuṭṭfa n Internet Explorer</resource>
+		<resource name="settings_jpegquality">Taɣara JPEG</resource>
+		<resource name="settings_language">Tutlayt</resource>
+		<resource name="settings_message_filenamepattern">Imuttiyen-agi ad ttwasemselsin s wudem awurman di tneqruft inek:
+${YYYY} aseggass s 4
+${MM} aggur s 2 n izwilen
+${DD} jass s 2 n izwilen
+${hh} asrag s n 2 izwilen
+${mm} tisdatin s 2 n izwilen
+${ss} tasinin s 2 n izwilen
+${NUM} Incrément sur 6 n izwilen
+${title} Azwel n usfaylu
+${user} isem n useqdac Windows
+${domain} Taɣult Windows
+${hostname} Isem n usenneftaɣ n uselkim
+
+Tzemreḍ daɣen ad teǧǧeḍ Greenshot ad yernu ikaramen s wudem amussan, s useqdec n uslac(\) akken ad tfeṛqeḍ gar ikaramen aekked ifuyla.
+Amedya: taneqruft ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+ad yernu akaram i wass amiran deg adig n usekles amezwer, amedya 2008-06-29, isem n ufaylu igebren tuṭṭfa n ugdil ad tettwabnu qef usrag
+amiran, amedya 11_58_32 (akked usiɣzef yettwamlen deg iɣewwaṛen)</resource>
+		<resource name="settings_network">Aẓeṭṭa akked ileqman</resource>
+		<resource name="settings_output">Tuffɣa</resource>
+		<resource name="settings_playsound">Urar imesli n usagu n tewlafin</resource>
+		<resource name="settings_plugins">Isiɣzaf</resource>
+		<resource name="settings_plugins_createdby">Yerna-t</resource>
+		<resource name="settings_plugins_dllpath">Abrid DLL</resource>
+		<resource name="settings_plugins_name">Isem</resource>
+		<resource name="settings_plugins_version">Lqem</resource>
+		<resource name="settings_preferredfilesettings">Ismenyifen n usekles</resource>
+		<resource name="settings_primaryimageformat">Amasal n tugna</resource>
+		<resource name="settings_printer">Tasaggazt</resource>
+		<resource name="settings_printoptions">Iɣewwaṛen n usiggez</resource>
+		<resource name="settings_qualitysettings">Iɣewwaṛen n tɣara</resource>
+		<resource name="settings_reducecolors">Senɣes amḍan n yiniten ar 256 ma yela aṭas</resource>
+		<resource name="settings_registerhotkeys">Sekles inegzumen n unasiw</resource>
+		<resource name="settings_showflashlight">Zlem agdil</resource>
+		<resource name="settings_shownotify">Sken alɣu</resource>
+		<resource name="settings_storagelocation">Sniles asekles</resource>
+		<resource name="settings_title">Iɣewwaṛen</resource>
+		<resource name="settings_tooltip_filenamepattern">Taneɣruft yettwasqedcen i usirew n yesmawen n ifuyla deg usekles n tuṭṭfiwin n ugdil</resource>
+		<resource name="settings_tooltip_language">Tutlayt tamezwert n ugrudem n useqdac n Greenshot</resource>
+		<resource name="settings_tooltip_primaryimageformat">Amasal n tugna tamezwert</resource>
+		<resource name="settings_tooltip_registerhotkeys">Ad d-yemmel ma yellai negzumen n unasiw Sigg. agd, Ctrl+Sigg. agdil, Alt+Sigg. agdil ttwaḥerren i Greenshot ticki yettuselkam.</resource>
+		<resource name="settings_tooltip_storagelocation">Akaram anida ttwakelsent tuṭṭfiwin inek n ugdil. (Eǧǧ-it d ilem akken ad tseklseḍ ɣef tnarit)</resource>
+		<resource name="settings_usedefaultproxy">Seqdec apṛuksi n unagraw amezwer</resource>
+		<resource name="settings_visualization">Isemda</resource>
+		<resource name="settings_waittime">Millitasinin n uraǧu send tuṭṭfa</resource>
+		<resource name="settings_window_capture_mode">Aska n tuṭṭfa n usfaylu (aɣanib Aero)</resource>
+		<resource name="settings_windowscapture">Ṭṭef asfaylu urmid</resource>
+		<resource name="settings_zoom">Sken tasemɣart</resource>
+		<resource name="tooltip_firststart">Sit s tqeffalt n uyeffus dagi sakin senned ɣef tqeffalt {0}.</resource>
+		<resource name="update_found">Yella lqem-nniḍen n Greenshot! Tebɣid ad tsidreḍ Greenshot {0} ?</resource>
+		<resource name="wait_ie_capture">Ma ulac aɣilif, rǧu arama tfuk tuṭṭfa n ugdil n usebter Internet Explorer...</resource>
+		<resource name="warning">Ɣur-k</resource>
+		<resource name="warning_hotkeys">Anegzum n unasiw "{0}" ur yettwakles ara. Ugur-agi ahat yekka-d seg ufecku-nniḍen iseqdacen yiwen n unegzum n unasiw. Tzemreḍ ahat ad tesnifleḍ inegzumen inek n unasiw neɣ ad tsenseḍ/ad tesnifleḍ aseɣẓan iseqdacen anegzum.
+
+Akk timahilin n Greenshot sttenkarent daɣen s srid seg umuɣ umniḍ n tignit n temnaṭ n ulɣu n unagraw.</resource>
+		<resource name="WindowCaptureMode.Aero">Seqdec ini udmawan</resource>
+		<resource name="WindowCaptureMode.AeroTransparent">Ḥrez tafrawant</resource>
+		<resource name="WindowCaptureMode.Auto">Awurman</resource>
+		<resource name="WindowCaptureMode.GDI">Seqdec ini amezwer</resource>
+		<resource name="WindowCaptureMode.Screen">Akken i d-yettban</resource>
+	</resources>
+</language>
