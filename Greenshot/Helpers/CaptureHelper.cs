@@ -507,63 +507,17 @@ namespace Greenshot.Helpers {
 				return;
 			}
 			ISurface surface = eventArgs.Surface;
-			if (surface != null && eventArgs.MessageType == SurfaceMessageTyp.FileSaved) {
-				if (!string.IsNullOrEmpty(surface.LastSaveFullPath)) {
-					string errorMessage = null;
-					var path = Path.GetDirectoryName(surface.LastSaveFullPath);
-					try {
-						if (path != null)
-						{
-							var processStartInfo = new ProcessStartInfo("explorer.exe")
-							{
-								Arguments = path,
-								UseShellExecute = false
-							};
-							using (var process = new Process()) {
-								process.StartInfo = processStartInfo;
-								process.Start();
-							}
-						}
-					} catch (Exception ex) {
-						errorMessage = ex.Message;
-					}
-					// Added fallback for when the explorer can't be found
-					if (errorMessage != null) {
-						try {
-							string windowsPath = Environment.GetEnvironmentVariable("SYSTEMROOT");
-							if (windowsPath != null)
-							{
-								string explorerPath = Path.Combine(windowsPath, "explorer.exe");
-								if (File.Exists(explorerPath))
-								{
-									var lastSaveDirectory = Path.GetDirectoryName(surface.LastSaveFullPath);
-									if (lastSaveDirectory != null)
-									{
-										var processStartInfo = new ProcessStartInfo(explorerPath)
-										{
-											Arguments = lastSaveDirectory,
-											UseShellExecute = false
-										};
-										using (var process = new Process()) {
-											process.StartInfo = processStartInfo;
-											process.Start();
-										}
-									}
-									errorMessage = null;
-								}
-							}
-						}
-						catch
-						{
-							// ignored
-						}
-					}
-					if (errorMessage != null) {
-						MessageBox.Show($"{errorMessage}\r\nexplorer.exe {surface.LastSaveFullPath}", "explorer.exe", MessageBoxButtons.OK, MessageBoxIcon.Error);
-					}
+			if (surface != null)
+			{
+				switch (eventArgs.MessageType)
+				{
+					case SurfaceMessageTyp.FileSaved:
+						ExplorerHelper.OpenInExplorer(surface.LastSaveFullPath);
+						break;
+					case SurfaceMessageTyp.UploadedUri:
+						Process.Start(surface.UploadUrl);
+						break;
 				}
-			} else if (!string.IsNullOrEmpty(surface?.UploadUrl)) {
-				Process.Start(surface.UploadUrl);
 			}
 			Log.DebugFormat("Deregistering the BalloonTipClicked");
 			RemoveEventHandler(sender, e);
@@ -852,7 +806,7 @@ namespace Greenshot.Helpers {
 									// Restore the window making sure it's visible!
 									windowToCapture.Restore();
 								} else {
-									windowToCapture.ToForeground();
+									windowToCapture.ToForeground(false);
 								}
 								tmpCapture = windowToCapture.CaptureGdiWindow(captureForWindow);
 								if (tmpCapture != null) {
@@ -954,7 +908,7 @@ namespace Greenshot.Helpers {
 				_capture.CaptureDetails.DpiY = graphics.DpiY;
 			}
 			// Set previouslyActiveWindow as foreground window
-			previouslyActiveWindow?.ToForeground();
+			previouslyActiveWindow?.ToForeground(false);
 			if (_capture.CaptureDetails != null) {
 				((Bitmap) _capture.Image)?.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
 			}

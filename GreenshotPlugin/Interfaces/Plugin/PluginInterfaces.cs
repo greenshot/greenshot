@@ -98,8 +98,15 @@ namespace Greenshot.Plugin {
 			ReduceColors = reduceColors;
 		}
 
-		public SurfaceOutputSettings PreventGreenshotFormat() {
-			if (Format == OutputFormat.greenshot) {
+		/// <summary>
+		/// BUG-2056 reported a logical issue, using greenshot format as the default causes issues with the external commands.
+		/// </summary>
+		/// <returns>this for fluent API usage</returns>
+		public SurfaceOutputSettings PreventGreenshotFormat()
+		{
+			// If OutputFormat is Greenshot, use PNG instead.
+			if (Format == OutputFormat.greenshot)
+			{
 				Format = OutputFormat.png;
 			}
 			return this;

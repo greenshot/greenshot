@@ -50,6 +50,7 @@ Source: ..\..\Languages\*id-ID*; Excludes: "*installer*,*website*"; DestDir: {ap
 Source: ..\..\Languages\*it-IT*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\itIT; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*ja-JP*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\jaJP; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*ko-KR*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\koKR; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: ..\..\Languages\*kab-DZ*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\kabDZ; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*lt-LT*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\ltLT; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*lv-LV*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\lvLV; Flags: overwritereadonly ignoreversion replacesameversion;
 Source: ..\..\Languages\*nn-NO*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\nnNO; Flags: overwritereadonly ignoreversion replacesameversion;
@@ -391,6 +392,7 @@ Name: "languages\idID"; Description: "Bahasa Indonesia"; Types: full custom; Fla
 Name: "languages\itIT"; Description: "Italiano"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\jaJP"; Description: "日本語"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('7')
 Name: "languages\koKR"; Description: "한국의"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('8')
+Name: "languages\kabDZ"; Description: "Taqbaylit"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('8')
 Name: "languages\ltLT"; Description: "Lietuvių"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('3')
 Name: "languages\lvLV"; Description: "Latviski"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('3')
 Name: "languages\nnNO"; Description: "Nynorsk"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')

@@ -1307,46 +1307,11 @@ namespace Greenshot {
 		private void NotifyIconClick(ClickActions clickAction) {
 			switch (clickAction) {
 				case ClickActions.OPEN_LAST_IN_EXPLORER:
-					string path = _conf.OutputFileAsFullpath;
-					if (!File.Exists(path)) {
-						string lastFilePath = Path.GetDirectoryName(_conf.OutputFileAsFullpath);
-						if (!string.IsNullOrEmpty(lastFilePath) && Directory.Exists(lastFilePath)) {
-							path = lastFilePath;
-						}
-					}
-					if (path == null) {
-						string configPath = FilenameHelper.FillVariables(_conf.OutputFilePath, false);
-						if (Directory.Exists(configPath)) {
-							path = configPath;
-						}
-					}
-
-					if (path != null) {
-						try {
-							// Check if path is a directory
-							if (Directory.Exists(path))
-							{
-								using (Process.Start(path))
-								{
-								}
-							}
-							// Check if path is a file
-							else if (File.Exists(path))
-							{
-								// Start the explorer process and select the file
-								using (var explorer = Process.Start("explorer.exe", $"/select,\"{path}\""))
-								{
-									explorer?.WaitForInputIdle(500);
-								}
-							}
-						} catch (Exception ex) {
-							// Make sure we show what we tried to open in the exception
-							ex.Data.Add("path", path);
-							throw;
-						}
-					}
+					Contextmenu_OpenRecent(this, null);
 					break;
 				case ClickActions.OPEN_LAST_IN_EDITOR:
+					_conf.ValidateAndCorrectOutputFileAsFullpath();
+
 					if (File.Exists(_conf.OutputFileAsFullpath)) {
 						CaptureHelper.CaptureFile(_conf.OutputFileAsFullpath, DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
 					}
@@ -1364,25 +1329,40 @@ namespace Greenshot {
 		/// <summary>
 		/// The Contextmenu_OpenRecent currently opens the last know save location
 		/// </summary>
-		private void Contextmenu_OpenRecent(object sender, EventArgs eventArgs) {
-			string path = FilenameHelper.FillVariables(_conf.OutputFilePath, false);
-			// Fix for #1470, problems with a drive which is no longer available
-			try {
-				string lastFilePath = Path.GetDirectoryName(_conf.OutputFileAsFullpath);
+		private void Contextmenu_OpenRecent(object sender, EventArgs eventArgs)
+		{
+			_conf.ValidateAndCorrectOutputFilePath();
+			_conf.ValidateAndCorrectOutputFileAsFullpath();
+			string path = _conf.OutputFileAsFullpath;
+			if (!File.Exists(path))
+			{
+				path = FilenameHelper.FillVariables(_conf.OutputFilePath, false);
+				// Fix for #1470, problems with a drive which is no longer available
+				try
+				{
+					string lastFilePath = Path.GetDirectoryName(_conf.OutputFileAsFullpath);
 
-				if (lastFilePath != null && Directory.Exists(lastFilePath)) {
-					path = lastFilePath;
-				} else if (!Directory.Exists(path)) {
-					// What do I open when nothing can be found? Right, nothing...
-					return;
+					if (lastFilePath != null && Directory.Exists(lastFilePath))
+					{
+						path = lastFilePath;
+					}
+					else if (!Directory.Exists(path))
+					{
+						// What do I open when nothing can be found? Right, nothing...
+						return;
+					}
 				}
-			} catch (Exception ex) {
-				LOG.Warn("Couldn't open the path to the last exported file, taking default.", ex);
+				catch (Exception ex)
+				{
+					LOG.Warn("Couldn't open the path to the last exported file, taking default.", ex);
+				}
 			}
-			LOG.Debug("DoubleClick was called! Starting: " + path);
-			try {
-				Process.Start(path);
-			} catch (Exception ex) {
+			try
+			{
+				ExplorerHelper.OpenInExplorer(path);
+			}
+			catch (Exception ex)
+			{
 				// Make sure we show what we tried to open in the exception
 				ex.Data.Add("path", path);
 				LOG.Warn("Couldn't open the path to the last exported file", ex);

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Taqbaylit" ietf="kab-DZ" version="1.0.0" languagegroup="">
+	<resources>
+		<resource name="CANCEL">Sefsex</resource>
+		<resource name="column_assignee">Bénéficiaire</resource>
+		<resource name="column_created">Yettwarna</resource>
+		<resource name="column_id">Asulay</resource>
+		<resource name="column_reporter">Azen</resource>
+		<resource name="column_summary">Agzul</resource>
+		<resource name="communication_wait">Asiweḍ n isefka ɣer JIRA, ṛǧu ma ulac aɣilif...</resource>
+		<resource name="label_comment">Awennit</resource>
+		<resource name="label_filename">Afaylu</resource>
+		<resource name="label_jira">JIRA</resource>
+		<resource name="label_jirafilter">Imzizdeg JIRA</resource>
+		<resource name="label_upload_format">Amasal tugna</resource>
+		<resource name="label_url">Tansa Url</resource>
+		<resource name="login_error">Teḍra-d tucḍa deg usesteb : {0}</resource>
+		<resource name="login_title">Ma ulac aɣilif sekcem isulayen Jira</resource>
+		<resource name="OK">IH</resource>
+		<resource name="settings_title">Iɣewwaṛen Jira</resource>
+		<resource name="upload_failure">Teḍra-d tuccḍa deg usal ɣer Jira :</resource>
+		<resource name="upload_menu_item">Sali ɣer Jira</resource>
+		<resource name="upload_success">Tugna tuli ɣer Jira akken iwata !</resource>
+	</resources>
+</language>

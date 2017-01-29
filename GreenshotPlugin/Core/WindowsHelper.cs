@@ -770,7 +770,7 @@ namespace GreenshotPlugin.Core {
 							{
 								// Somehow DWM doesn't calculate it corectly, there is a 1 pixel border around the capture
 								// Remove this border, currently it's fixed but TODO: Make it depend on the OS?
-								windowRect.Inflate(-1, -1);
+								windowRect.Inflate(Conf.Win10BorderCrop);
 								_previousWindowRectangle = windowRect;
 								_lastWindowRectangleRetrieveTime = now;
 								return windowRect;
@@ -1001,7 +1001,7 @@ namespace GreenshotPlugin.Core {
 					// TODO: Also 8.x?
 					if (Environment.OSVersion.IsWindows10())
 					{
-						captureRectangle.Inflate(-1, -1);
+						captureRectangle.Inflate(Conf.Win10BorderCrop);
 					}
 
 					if (autoMode) {
@@ -1250,36 +1250,50 @@ namespace GreenshotPlugin.Core {
 			size = result ? new Size((int)windowInfo.cxWindowBorders, (int)windowInfo.cyWindowBorders) : Size.Empty;
 			return result;
 		}
-		
+
 		/// <summary>
 		/// Set the window as foreground window
 		/// </summary>
-		public static void ToForeground(IntPtr handle)
+		/// <param name="handle">hWnd of the window to bring to the foreground</param>
+		/// <param name="workaround">bool with true to use a trick to really bring the window to the foreground</param>
+		public static void ToForeground(IntPtr handle, bool workaround = true)
 		{
-			// Do nothing if the window is already in the foreground
-			if (User32.GetForegroundWindow() == handle)
+			var window = new WindowDetails(handle);
+			// Nothing we can do if it's not visible!
+			if (!window.Visible)
 			{
 				return;
 			}
-
-			const byte ALT = 0xA4;
-			const int EXTENDEDKEY = 0x1;
-			const int KEYUP = 0x2;
-
-			// Simulate an "ALT" key press.
-			User32.keybd_event(ALT, 0x45, EXTENDEDKEY | 0, 0);
-			// Simulate an "ALT" key release.
-			User32.keybd_event(ALT, 0x45, EXTENDEDKEY | KEYUP, 0);
-
+			if (window.Iconic)
+			{
+				window.Iconic = false;
+				while (window.Iconic)
+				{
+					Application.DoEvents();
+				}
+			}
+			// See https://msdn.microsoft.com/en-us/library/windows/desktop/ms633539(v=vs.85).aspx
+			if (workaround)
+			{
+				const byte alt = 0xA4;
+				const int extendedkey = 0x1;
+				const int keyup = 0x2;
+				// Simulate an "ALT" key press.
+				User32.keybd_event(alt, 0x45, extendedkey | 0, 0);
+				// Simulate an "ALT" key release.
+				User32.keybd_event(alt, 0x45, extendedkey | keyup, 0);
+			}
 			// Show window in forground.
+			User32.BringWindowToTop(handle);
 			User32.SetForegroundWindow(handle);
 		}
 
 		/// <summary>
 		/// Set the window as foreground window
 		/// </summary>
-		public void ToForeground() {
-			ToForeground(Handle);
+		/// <param name="workaround">true to use a workaround, otherwise the window might only flash</param>
+		public void ToForeground(bool workaround = true) {
+			ToForeground(Handle, workaround);
 		}
 		
 		/// <summary>

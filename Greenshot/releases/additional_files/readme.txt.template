@@ -9,6 +9,38 @@ All details to our tickets can be found here: https://greenshot.atlassian.net
 
 @DETAILVERSION@
 
+Bugs fixed:
+* [BUG-2051] - Scroll-lock button not usable as hotkey
+* [BUG-2056] - Cannot export to external command Paint.NET if .greenshot format is used
+* [BUG-2081] - Canvas resize (Ctrl + / Ctrl -) only works via numpad keys
+* [BUG-2093] - Shadow effects not rendering correctly on Windows 10
+* [BUG-2095] - 'Save as' doesn't remember last saved directory (after restart)
+* [BUG-2097] - Window border is not captured on Windows 10
+* [BUG-2102] - InvalidOperationException when selecting a color
+* [BUG-2104] - Speechbubble can't be used after copy/paste
+* [BUG-2105] - Window border is not captured on Windows 10
+* [BUG-2108] - Capture last region doesn't work
+* [BUG-2109] - Double-click on textbox causes NullReferenceException
+* [BUG-2111] - Drag and Drop image file on editor doesn't work
+* [BUG-2114] - Storage location reset to default if not available during start
+* [BUG-2115] - Error while trying to upload screen shot to Jira
+* [BUG-2116] - MemberAccessException when opening the color dialog
+* [BUG-2119] - crash on editing (dragged line)
+* [BUG-2120] - Greenshot Editor Canvas Changed to White Screen
+* [BUG-2121] - NullReferenceException when moving text
+* [BUG-2122] - Jira Plugin: Crash when uploading to Jira 
+* [BUG-2124] - Flickr plugin generates wrong image link
+* [BUG-2125] - Send to OneNote does not work
+* [BUG-2126] - MemberAccessException during un-DropShadow of Ellipse
+* [FEATURE-998] - Opening last capture in explorer should select/jump to the file
+* [FEATURE-992] - When reusing the editor, it is not brought to the front (second try)
+
+Added Taqbaylit as a new language.
+
+
+1.2.9.112-9bc62ac RELEASE
+
+
 This is a bugfix release for the Greenshot 1.2.9.104-3721c10 RELEASE
 
 Bugs fixed:

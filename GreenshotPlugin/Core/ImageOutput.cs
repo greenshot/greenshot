@@ -105,7 +105,7 @@ namespace GreenshotPlugin.Core {
 			bool useMemoryStream = false;
 			MemoryStream memoryStream = null;
 			if (outputSettings.Format == OutputFormat.greenshot && surface == null) {
-				throw new ArgumentException("Surface needs to be se when using OutputFormat.Greenshot");
+				throw new ArgumentException("Surface needs to be set when using OutputFormat.Greenshot");
 			}
 
 			try {

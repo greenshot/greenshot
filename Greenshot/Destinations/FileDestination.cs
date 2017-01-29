@@ -115,6 +115,7 @@ namespace Greenshot.Destinations {
 				pattern = "greenshot ${capturetime}";
 			}
 			string filename = FilenameHelper.GetFilenameFromPattern(pattern, CoreConfig.OutputFileFormat, captureDetails);
+			CoreConfig.ValidateAndCorrectOutputFilePath();
 			string filepath = FilenameHelper.FillVariables(CoreConfig.OutputFilePath, false);
 			try {
 				fullPath = Path.Combine(filepath, filename);

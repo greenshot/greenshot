@@ -813,10 +813,10 @@ EndSelection:<<<<<<<4
 			string[] dropFileNames = (string[]) dataObject.GetData(DataFormats.FileDrop);
 			if (dropFileNames != null && dropFileNames.Length > 0)
 			{
-				return dropFileNames.Where(filename => !string.IsNullOrEmpty(filename))
+				return dropFileNames
+					.Where(filename => !string.IsNullOrEmpty(filename))
 					.Where(Path.HasExtension)
-					.Select(filename => Path.GetExtension(filename).ToLowerInvariant())
-					.Where(ext => ImageHelper.StreamConverters.Keys.Contains(ext));
+					.Where(filename => ImageHelper.StreamConverters.Keys.Contains(Path.GetExtension(filename).ToLowerInvariant().Substring(1)));
 			}
 			return Enumerable.Empty<string>();
 		}

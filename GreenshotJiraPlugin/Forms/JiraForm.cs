@@ -36,7 +36,6 @@ namespace GreenshotJiraPlugin.Forms {
 		private readonly JiraConnector _jiraConnector;
 		private Issue _selectedIssue;
 		private readonly GreenshotColumnSorter _columnSorter;
-		private static readonly JiraConfiguration JiraConfig = IniConfig.GetIniSection<JiraConfiguration>();
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 
 		public JiraForm(JiraConnector jiraConnector) {
@@ -161,14 +160,21 @@ namespace GreenshotJiraPlugin.Forms {
 					jiraListView.LargeImageList = imageList;
 
 					foreach (var issue in issues) {
-						var issueIcon = await _jiraConnector.GetIssueTypeBitmapAsync(issue);
-						imageList.Images.Add(issueIcon);
-
 						var item = new ListViewItem
 						{
-							Tag = issue,
-							ImageIndex = imageList.Images.Count - 1
+							Tag = issue
 						};
+						try
+						{
+							var issueIcon = await _jiraConnector.GetIssueTypeBitmapAsync(issue);
+							imageList.Images.Add(issueIcon);
+							item.ImageIndex = imageList.Images.Count - 1;
+						}
+						catch (Exception ex)
+						{
+							Log.Warn("Problem loading issue type, ignoring", ex);
+						}
+
 						item.SubItems.Add(issue.Key);
 						item.SubItems.Add(issue.Fields.Created.ToString("d", DateTimeFormatInfo.InvariantInfo));
 						item.SubItems.Add(issue.Fields.Assignee?.DisplayName);

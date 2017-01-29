@@ -20,7 +20,6 @@
  */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
@@ -48,15 +47,6 @@ namespace GreenshotPlugin.Controls {
 		private static int _hotKeyCounter = 1;
 		private const uint WM_HOTKEY = 0x312;
 		private static IntPtr _hotkeyHwnd;
-		
-//		static HotkeyControl() {
-//			StringBuilder keyName = new StringBuilder();
-//			for(uint sc = 0; sc < 500; sc++) {
-//				if (GetKeyNameText(sc << 16, keyName, 100) != 0) {
-//					LOG.DebugFormat("SC {0} = {1}", sc, keyName);
-//				}
-//			}
-//		}
 
 		[SuppressMessage("ReSharper", "InconsistentNaming")]
 		public enum Modifiers : uint {
@@ -96,8 +86,8 @@ namespace GreenshotPlugin.Controls {
 
 		// ArrayLists used to enforce the use of proper modifiers.
 		// Shift+A isn't a valid hotkey, for instance, as it would screw up when the user is typing.
-		private readonly ArrayList _needNonShiftModifier;
-		private readonly ArrayList _needNonAltGrModifier;
+		private readonly IList<int> _needNonShiftModifier = new List<int>();
+		private readonly IList<int> _needNonAltGrModifier = new List<int>();
 
 		private readonly ContextMenu _dummy = new ContextMenu();
 
@@ -138,9 +128,6 @@ namespace GreenshotPlugin.Controls {
 			KeyUp += HotkeyControl_KeyUp;
 			KeyDown += HotkeyControl_KeyDown;
 
-			// Fill the ArrayLists that contain all invalid hotkey combinations
-			_needNonShiftModifier = new ArrayList();
-			_needNonAltGrModifier = new ArrayList();
 			PopulateModifierLists();
 		}
 
@@ -180,8 +167,6 @@ namespace GreenshotPlugin.Controls {
 			_needNonShiftModifier.Add((int)Keys.Return);
 			_needNonShiftModifier.Add((int)Keys.Escape);
 			_needNonShiftModifier.Add((int)Keys.NumLock);
-			_needNonShiftModifier.Add((int)Keys.Scroll);
-			_needNonShiftModifier.Add((int)Keys.Pause);
 
 			// Ctrl+Alt + 0 - 9
 			for (Keys k = Keys.D0; k <= Keys.D9; k++) {

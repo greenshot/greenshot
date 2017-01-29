@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Taqbaylit" ietf="kab-DZ" version="1.2.0.58" languagegroup="1">
+	<resources prefix="Imgur">
+		<resource name="upload_menu_item">
+			Sali ar Imgur
+		</resource>
+		<resource name="settings_title">
+			Iɣewwaṛen n Imgur
+		</resource>
+		<resource name="label_url">
+			Tansa Url
+		</resource>
+		<resource name="OK">
+			IH
+		</resource>
+		<resource name="CANCEL">
+			Sefsex
+		</resource>
+		<resource name="upload_success">
+			Tugna tuli akken i wata ar Imgur!
+		</resource>
+		<resource name="upload_failure">
+			Teḍra-d tuccḍa deg usali ar Imgur:
+		</resource>
+		<resource name="label_upload_format">
+			Amasal n tugna
+		</resource>
+		<resource name="communication_wait">
+			Taɣwalt tetteddu akked Imgur. Ma ulac aɣilif, ṛǧu...
+		</resource>
+		<resource name="delete_question">
+			Tebɣiḍ ad tekksed tugna {0} si Imgur?
+		</resource>
+		<resource name="clear_question">
+			Tebɣiḍ ad tekkseḍ Are you sure you want to delete the local Imgur history?
+		</resource>
+		<resource name="delete_title">
+			Kkes Imgur {0}
+		</resource>
+		<resource name="anonymous_access">
+			Seqdec anekcum udrig
+		</resource>
+		<resource name="use_page_link">
+			Seqdec aseɣwen n usebter deg umḍiq n useɣwenn tuggna ɣef afus
+		</resource>
+		<resource name="history">
+			Amazray
+		</resource>
+		<resource name="configure">
+			Swel
+</resource>
+	</resources>
+</language>

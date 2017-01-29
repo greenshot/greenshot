@@ -78,9 +78,17 @@ namespace GreenshotJiraPlugin {
 				{
 					if (_jiraIssue != null)
 					{
-						displayIcon = jiraConnector.GetIssueTypeBitmapAsync(_jiraIssue).Result;
+						// Try to get the issue type as icon
+						try
+						{
+							displayIcon = jiraConnector.GetIssueTypeBitmapAsync(_jiraIssue).Result;
+						}
+						catch (Exception ex)
+						{
+							Log.Warn($"Problem loading issue type for {_jiraIssue.Key}, ignoring", ex);
+						}
 					}
-					else
+					if (displayIcon == null)
 					{
 						displayIcon = jiraConnector.FavIcon;
 					}
