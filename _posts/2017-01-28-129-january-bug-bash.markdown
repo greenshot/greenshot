@@ -25,8 +25,10 @@ Some special notes for people coming from Greenshot 1.2.8 (or older):
   * As Atlassian dropped the SOAP API, the Jira plug-in now uses the REST API. This was introduced with Jira 5.x, but the oldest version we were able to test against is 6.1.3 so we can't garantee it works for anything older
   * To make it possible to keep using the Jira plug-in we used code which was due in Greenshot 2.0, this is why **the Jira plug-in now needs .NET 4.5**
 * We changed the behavior of the effect buttons: left mouse click directly applies and the right mouse click brings up the settings first.
+* .greenshot files saved with 1.2.8 (or earlier) cannot be read with 1.2.9, currently there is no workaround for this except to keep with 1.2.8
 
-And last but not least, we reached a total of 37 languages with our latest addition: [Taqbaylit](https://en.wikipedia.org/wiki/Kabyle_language)
+
+With this version we added another translation, and reached a total of 37 languages with our latest addition: [Taqbaylit](https://en.wikipedia.org/wiki/Kabyle_language)
 
 P.S.
 In case you missed it, we now also have an [OSX version of Greenshot](/2017/01/10/mac-os-launch/).
