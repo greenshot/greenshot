@@ -2,7 +2,7 @@
 layout: faq
 status: publish
 published: true
-title: What is the best way to control Greenshot's configuration at install time?
+title: How can I control Greenshot's configuration during installation and beyond
 # override permalink for to keep old URLs intact
 permalink: /faq/what-is-the-best-way-to-control-greenshots-configuration-at-install-time/
 tags: []
@@ -12,7 +12,7 @@ tags: []
 This documentation will help you if want to have more control over Greenshots configuration, for instance to pre-set a language or specifiy settings for your companies JIRA/Confluence server.
 
 Except for the functionality that Greenshot is started when Windows starts, all it's settings are stored in [.ini files](https://en.wikipedia.org/wiki/INI_file).
-Every added plug-in will has it's own section in the configuration, making sure that developers of plug-in don't need to concern themselves with how the configuration is written.
+Every added plug-in will have its own section in the configuration, making sure that plug-in developers don't need to concern themselves with how the configuration is written.
 
 Greenshot has an intelligent configuration system, and it is readable and even changeable by humans!
 To support manual editing the greenshot.ini automatically adds comments to every setting when this is written by Greenshot.
@@ -22,11 +22,11 @@ If a setting or even a configuration file is missing Greenshot will either take 
 This has the nice advantage that if things no longer work, a setting or the complete configuration can simply be removed.
 
 With our system it's possible to supply specific settings as default, or even make them non changeable.
-To understand the possibilities, you first need to know where, how and in what order Greenshot reads it's configuration.
+To understand the possibilities, you first need to know where, how and in which order Greenshot reads its configuration.
 
 Greenshot knows of 3 different files, which are loaded in the following order:
 
-1. greenshot-defaults.ini: this specifies the defaults which are used if no other setting are available. (At first start)
+1. greenshot-defaults.ini: this specifies the defaults which are used if no other settings are available. (At first start)
 2. greenshot.ini: this is the normal file, with all the settings of the user, which is written by Greenshot. This overrules the settings in the greenshot-defaults.ini file.
 3. greenshot-fixed.ini: has settings which will overrule all settings in the files above.
 
