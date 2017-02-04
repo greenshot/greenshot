@@ -12,7 +12,7 @@ tags:
 Good news everyone!
 
 Today we present you the result of our January Greenshot [Bug Bash](https://en.wikipedia.org/wiki/Bug_bash).
-During this bug bash we fixed 24 bugs, to make this possible we worked around 18 after work evenings and three weekends (in 28 days).
+During this bug bash we fixed 24 bugs, to make this possible we worked around 18 "after work evenings" and three weekends (in 28 days).
 We would like to thank all people for taking time to report bugs, without we wouldn't be able to know about them.
 Especially the people who reported bugs and were available for questions & testing have
 our utmost gratitude, without them we would not haven been able to fix this amount of bugs in such a short time.
