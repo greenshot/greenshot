@@ -26,7 +26,10 @@ Some special notes for people coming from Greenshot 1.2.8 (or older):
   * To make it possible to keep using the Jira plug-in we used code which was due in Greenshot 2.0, this is why **the Jira plug-in now needs .NET 4.5**
 * We changed the behavior of the effect buttons: left mouse click directly applies and the right mouse click brings up the settings first.
 * .greenshot files saved with 1.2.8 (or earlier) cannot be read with 1.2.9, currently there is no workaround for this except to keep with 1.2.8
-* With 1.2.9 we changed the windows capture to remove the border, which not everybody likes. This is rolled back with this version, and we need to see how to make this functionality available via a setting.
+
+A special note for people coming from Greenshot 1.2.9.104 or 1.2.9.112:
+
+* With 1.2.9.104 we changed the windows capture to remove the border, which not everybody likes. This is rolled back with this version (1.2.9.129), and we need to see how to make this functionality available via a setting.
 
 
 With this version we added another translation, and reached a total of 37 languages with our latest addition: [Taqbaylit](https://en.wikipedia.org/wiki/Kabyle_language)
@@ -35,7 +38,7 @@ P.S.
 In case you missed it, we now also have an [OSX version of Greenshot](/2017/01/10/mac-os-launch/).
 
 
-Happy ~~sc~~greenshotting,<BR/>
+Happy ~~screenshotting~~greenshotting,<BR/>
 Your Greenshot team
 
 
