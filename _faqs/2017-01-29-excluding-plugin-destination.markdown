@@ -84,4 +84,4 @@ The names of the destinations are a bit harder to find, here is the currently kn
 
 [Where does Greenshot store its configuration settings?](/faq/where-does-greenshot-store-its-configuration-settings/)
 
-[How can I control Greenshot's configuration during installation and beyond?](/faq/how-can-i-control-greenshots-configuration/)
+[What is the best way to control Greenshot's configuration at install time?](/faq/what-is-the-best-way-to-control-greenshots-configuration-at-install-time/)

@@ -8,21 +8,50 @@ permalink: /faq/what-is-the-best-way-to-control-greenshots-configuration-at-inst
 tags: []
 
 ---
-<p>Greenshot offers several mechanisms for better control over its configuration, especially useful when deploying Greenshot to several computers, e.g. roll-out in a company.</p>
-<p>Greenshot looks for config files in the following locations (and accepts the first location it finds a config file in):</p>
-<ol>
-<li>installation directory (where Greenshot.exe is located)</li>
-<li>the executing user's roaming application data directory (e.g. <code>C:\Users\USERNAME\AppData\Roaming\Greenshot\</code>)</li>
-</ol>
-<p>There may be three files to control the configuration, each one of them may have all or a subset of the configuration parameters Greenshot offers. The files are loaded in the following order, each one overwriting the configuration parameters of the previous (if set):</p>
-<ol>
-<li>greenshot-defaults.ini</li>
-<li>greenshot.ini</li>
-<li>greenshot-fixed.ini</li>
-</ol>
-<p>Use <strong>greenshot-defaults.ini</strong> to provide your users with a common default configuration, e.g. where files should be stored or whether Greenshot should check for newer versions.<br />
-<strong>greenshot.ini</strong> is used by Greenshot to store any settings changed by the user.<br />
-Use<strong>greenshot-fixed.ini</strong> to force a set of configuration settings whenever Greenshot starts up. E.g. you might want to ensure that all users use the grayscale option for printing. This file is loaded last, so specifying a setting in here will overwrite the same setting (if present) from the previous files. In most cases fixed settings can also not be changed in Greenshot's settings dialog. If a user succeeds in changing the configuration manually, it will be overwritten again when Greenshot is started next time.</p>
-<p>Greenshot will not modify greenshot-defaults.ini or greenshot-fixed.ini. If greenshot.ini is not found in both locations, it will be created automatically in the roaming application data directory, the configuration will then be aggregated from Greenshot's default configuration and greenshot-defaults.ini/greenshot-fixed.ini (if present).</p>
-<p><strong>See also:</strong><br />
-<a href="/faq/where-does-greenshot-store-its-configuration-settings/" title="Where does Greenshot store its configuration settings?">Where does Greenshot store its configuration settings?</a></p>
+
+This documentation will help you if want to have more control over Greenshots configuration, for instance to pre-set a language or specifiy settings for your companies JIRA/Confluence server.
+
+Except for the functionality that Greenshot is started when Windows starts, all it's settings are stored in [.ini files](https://en.wikipedia.org/wiki/INI_file).
+Every added plug-in will has it's own section in the configuration, making sure that developers of plug-in don't need to concern themselves with how the configuration is written.
+
+Greenshot has an intelligent configuration system, and it is readable and even changeable by humans!
+To support manual editing the greenshot.ini automatically adds comments to every setting when this is written by Greenshot.
+*But if you plan to change something manually, we advice you to stop Greenshot first!!*
+
+If a setting or even a configuration file is missing Greenshot will either take default settings supplied by the developer or a system administrator.
+This has the nice advantage that if things no longer work, a setting or the complete configuration can simply be removed.
+
+With our system it's possible to supply specific settings as default, or even make them non changeable.
+To understand the possibilities, you first need to know where, how and in what order Greenshot reads it's configuration.
+
+Greenshot knows of 3 different files, which are loaded in the following order:
+
+1. greenshot-defaults.ini: this specifies the defaults which are used if no other setting are available. (At first start)
+2. greenshot.ini: this is the normal file, with all the settings of the user, which is written by Greenshot. This overrules the settings in the greenshot-defaults.ini file.
+3. greenshot-fixed.ini: has settings which will overrule all settings in the files above.
+
+Greenshot will look for every mentioned file, in the described order, first in the same location as the executable (e.g. installation directory) and if there is not there than in %APPDATA%\Greenshot (e.g. ```C:\Users\USERNAME\AppData\Roaming\Greenshot\```).
+
+The configuration is build from zero, setting for setting, by using the following 4 steps:
+
+1. Take the default set by the developer
+2. If a greenshot-defaults.ini was found, and the setting can be found in there, the value from 1 is overwritten.
+3. If a greenshot.ini was found, and the setting can be found in there, the value from 2 is overwritten.
+4. If a greenshot-fixed.ini was found, and the setting can be found in there, the value from 3 is overwritten.
+
+Greenshot will use the resulting setting, and when every single setting in the complete configuration is processed it will write the complete configuration to it's greenshot.ini file (and only there).
+
+Let's look at a use-case which was asked for a lot of times:
+For instance you want to rollout Greenshot in your company and you want to make sure the user doesn't need to select the language (which is asked if nothing was set)?
+You can **either** copy a greenshot-defaults.ini, if you want the user to be able to change it, or a greenshot-fixed.ini in the same directory as Greenshot was installed.
+
+To set the default language to Dutch, this file will need to have the following content:
+
+```
+[Core]
+Language=nl-NL
+```
+
+**See also:**
+
+[Where does Greenshot store its configuration settings?](/faq/where-does-greenshot-store-its-configuration-settings/)

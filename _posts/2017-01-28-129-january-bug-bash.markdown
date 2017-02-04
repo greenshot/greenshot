@@ -12,7 +12,7 @@ tags:
 Good news everyone!
 
 Today we present you the result of our January Greenshot [Bug Bash](https://en.wikipedia.org/wiki/Bug_bash).
-In 28 days we fixed 24 bugs, to make this possible we invested around 60 hours of development time.
+During this bug bash we fixed 24 bugs, to make this possible we worked around 18 after work evenings and three weekends (in 28 days).
 We would like to thank all people for taking time to report bugs, without we wouldn't be able to know about them.
 Especially the people who reported bugs and were available for questions & testing have
 our utmost gratitude, without them we would not haven been able to fix this amount of bugs in such a short time.
@@ -26,6 +26,7 @@ Some special notes for people coming from Greenshot 1.2.8 (or older):
   * To make it possible to keep using the Jira plug-in we used code which was due in Greenshot 2.0, this is why **the Jira plug-in now needs .NET 4.5**
 * We changed the behavior of the effect buttons: left mouse click directly applies and the right mouse click brings up the settings first.
 * .greenshot files saved with 1.2.8 (or earlier) cannot be read with 1.2.9, currently there is no workaround for this except to keep with 1.2.8
+* With 1.2.9 we changed the windows capture to remove the border, which not everybody likes. This is rolled back with this version, and we need to see how to make this functionality available via a setting.
 
 
 With this version we added another translation, and reached a total of 37 languages with our latest addition: [Taqbaylit](https://en.wikipedia.org/wiki/Kabyle_language)
