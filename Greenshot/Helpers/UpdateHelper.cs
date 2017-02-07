@@ -138,7 +138,7 @@ namespace Greenshot.Experimental {
 
 					// if the file is unstable, we will skip it when:
 					// the current version is a release or release candidate AND check unstable is turned off.
-					if (rssFile.IsUnstable) {
+					if (rssFile.IsAlpha) {
 						// Skip if we shouldn't check unstables
 						if ((CoreConfig.BuildState == BuildStates.RELEASE) && !CoreConfig.CheckForUnstable) {
 							continue;
@@ -159,7 +159,7 @@ namespace Greenshot.Experimental {
 						Log.DebugFormat("Found newer Greenshot '{0}' with version {1} published at {2} : {3}", rssFile.File, rssFile.Version, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
 						if (_latestGreenshot == null || rssFile.Version.CompareTo(_latestGreenshot.Version) > 0) {
 							_latestGreenshot = rssFile;
-							if (rssFile.IsReleaseCandidate || rssFile.IsUnstable) {
+							if (rssFile.IsReleaseCandidate || rssFile.IsAlpha) {
 								_downloadLink = VersionHistoryLink;
 							} else {
 								_downloadLink = StableDownloadLink;

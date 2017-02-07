@@ -75,12 +75,12 @@ namespace GreenshotConfluencePlugin {
 		}
 
 		public override string Description {
-			get {
+			get
+			{
 				if (_page == null) {
 					return Language.GetString("confluence", LangKey.upload_menu_item);
-				} else {
-					return Language.GetString("confluence", LangKey.upload_menu_item) + ": \"" + _page.Title + "\"";
 				}
+				return Language.GetString("confluence", LangKey.upload_menu_item) + ": \"" + _page.Title + "\"";
 			}
 		}
 

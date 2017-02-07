@@ -11,14 +11,13 @@
 #include "scripts\products\msi20.iss"
 #include "scripts\products\msi31.iss"
 #include "scripts\products\dotnetfxversion.iss"
-#include "scripts\products\dotnetfx35sp1.iss"
+#include "scripts\products\dotnetfx45.iss"
 
 [Files]
 Source: ..\..\bin\Release\Greenshot.exe; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 Source: ..\..\bin\Release\GreenshotPlugin.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 Source: ..\..\bin\Release\Greenshot.exe.config; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 Source: ..\..\bin\Release\log4net.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
-Source: ..\..\bin\Release\LinqBridge.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion 
 Source: ..\..\log4net.xml; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion 
 Source: ..\..\bin\Release\checksum.MD5; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 ;Source: ..\greenshot-defaults.ini; DestDir: {app}; Flags: overwritereadonly ignoreversion replacesameversion
@@ -362,12 +361,12 @@ Name: "custom"; Description: "{code:CustomInstall}"; Flags: iscustom
 Name: "greenshot"; Description: "Greenshot"; Types: default full compact custom; Flags: fixed
 Name: "plugins\office"; Description: {cm:office}; Types: default full custom; Flags: disablenouninstallwarning 
 Name: "plugins\ocr"; Description: {cm:ocr}; Types: default full custom; Flags: disablenouninstallwarning 
-Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disablenouninstallwarning; Check: hasDotNet45OrHigher()
+Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\imgur"; Description: {cm:imgur}; Types: default full custom; Flags: disablenouninstallwarning 
-Name: "plugins\confluence"; Description: {cm:confluence}; Types: full custom; Flags: disablenouninstallwarning; Check: hasDotNet35FullOrHigher()
+Name: "plugins\confluence"; Description: {cm:confluence}; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\externalcommand"; Description: {cm:externalcommand}; Types: default full custom; Flags: disablenouninstallwarning 
 ;Name: "plugins\networkimport"; Description: "Network Import Plugin"; Types: full
-Name: "plugins\box"; Description: "Box Plugin"; Types: full custom; Flags: disablenouninstallwarning; Check: hasDotNet35FullOrHigher()
+Name: "plugins\box"; Description: "Box Plugin"; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\dropbox"; Description: "Dropbox Plugin"; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\flickr"; Description: "Flickr Plugin"; Types: full custom; Flags: disablenouninstallwarning 
 Name: "plugins\picasa"; Description: "Picasa Plugin"; Types: full custom; Flags: disablenouninstallwarning 
@@ -591,17 +590,7 @@ end;
 function hasDotNet() : boolean;
 begin
 	// .NET 4.5 = 4.0 full (with a "Release" key, but this is not interresting!)
-	Result := netfxinstalled(NetFX20, '') or netfxinstalled(NetFX30, '') or netfxinstalled(NetFX35, '') or netfxinstalled(NetFX40Client, '') or netfxinstalled(NetFX40Full, '');
-end;
-
-function hasDotNet35FullOrHigher() : boolean;
-begin
-	Result := netfxinstalled(NetFX35, '') or netfxinstalled(NetFX40Full, '');
-end;
-
-function hasDotNet45OrHigher() : boolean;
-begin
-	Result := netfxinstalled(NetFX4x, '');
+	Result := netfxinstalled(NetFx45, '');
 end;
 
 function getNGENPath(argument: String) : String;
@@ -620,15 +609,15 @@ end;
 // Initialize the setup
 function InitializeSetup(): Boolean;
 begin
-	// Check for .NET and install 3.5 if we don't have it
+	// Check for .NET and install 4.5 if we don't have it
 	if not hasDotNet() then
 	begin
 		// Enhance installer, if needed, otherwise .NET installations won't work
 		msi20('2.0');
 		msi31('3.0');
 		
-		//install .net 3.5
-		dotnetfx35sp1();
+		//install .net 4.5
+		dotnetfx45();
 	end;
 	Result := true;
 end;

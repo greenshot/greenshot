@@ -41,7 +41,8 @@ namespace GreenshotPlugin.Core {
 	}
 
 	public enum BuildStates {
-		UNSTABLE,
+		ALPHA,
+		BETA,
 		RELEASE_CANDIDATE,
 		RELEASE
 	}
@@ -310,8 +311,12 @@ namespace GreenshotPlugin.Core {
 					if (informationalVersion.ToLowerInvariant().Contains("-rc")) {
 						return BuildStates.RELEASE_CANDIDATE;
 					}
-					if (informationalVersion.ToLowerInvariant().Contains("-unstable")) {
-						return BuildStates.UNSTABLE;
+					if (informationalVersion.ToLowerInvariant().Contains("-alpha")) {
+						return BuildStates.ALPHA;
+					}
+					if (informationalVersion.ToLowerInvariant().Contains("-beta"))
+					{
+						return BuildStates.BETA;
 					}
 				}
 				return BuildStates.RELEASE;

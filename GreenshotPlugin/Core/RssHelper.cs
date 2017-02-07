@@ -47,14 +47,9 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		public bool IsUnstable {
-			get {
-				if (File != null) {
-					return File.ToLower().Contains("unstable");
-				}
-				return false;
-			}
-		}
+		public bool IsAlpha => File?.ToLowerInvariant().Contains("alpha") == true;
+
+		public bool IsBeta => File?.ToLowerInvariant().Contains("beta") == true;
 
 		public bool IsReleaseCandidate {
 			get {
