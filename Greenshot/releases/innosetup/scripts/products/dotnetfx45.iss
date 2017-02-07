@@ -16,9 +16,9 @@ de.dotnetfx45_lcid=/lcid 1031
 const
 	dotnetfx45_url = 'http://download.microsoft.com/download/B/4/1/B4119C11-0423-477B-80EE-7A474314B347/NDP452-KB2901954-Web.exe';
 
-procedure dotnetfx45(MinVersion: integer);
+procedure dotnetfx45();
 begin
-	if (not netfxinstalled(NetFx45, '') or (netfxspversion(NetFx45, '') < MinVersion)) then
+	if (not netfxinstalled(NetFx45, '')) then
 		AddProduct('dotnetfx45.exe',
 			CustomMessage('dotnetfx45_lcid') + ' /q /passive /norestart',
 			CustomMessage('dotnetfx45_title'),
