@@ -1,6 +1,6 @@
 [Code]
 type
-	NetFXType = (NetFx10, NetFx11, NetFx20, NetFx30, NetFx35, NetFx40Client, NetFx40Full, NetFx4x);
+	NetFXType = (NetFx10, NetFx11, NetFx20, NetFx30, NetFx35, NetFx40Client, NetFx40Full, NetFx45, NetFx4x);
 
 const
 	netfx11plus_reg = 'Software\Microsoft\NET Framework Setup\NDP\';
@@ -30,6 +30,8 @@ begin
 				RegQueryDWordValue(HKLM, netfx11plus_reg + 'v4\Client' + lcid, 'Install', regVersion);
 			NetFx40Full:
 				RegQueryDWordValue(HKLM, netfx11plus_reg + 'v4\Full' + lcid, 'Install', regVersion);
+			NetFx45:
+				RegQueryDWordValue(HKLM, netfx11plus_reg + 'v4\Full' + lcid, 'Release', regVersion);
 			NetFx4x:
 			begin
 				RegQueryDWordValue(HKLM, netfx11plus_reg + 'v4\Full' + lcid, 'Release', regVersion);
@@ -70,6 +72,9 @@ begin
 		NetFx40Full:
 			if (not RegQueryDWordValue(HKLM, netfx11plus_reg + 'v4\Full' + lcid, 'Servicing', regVersion)) then
 				regVersion := -1;
+		NetFx45:
+			if (RegQueryDWordValue(HKLM, netfx11plus_reg + 'v4\Full' + lcid, 'Release', regVersion)) then
+					regVersion := -1;
 		NetFx4x:
 			if (RegQueryDWordValue(HKLM, netfx11plus_reg + 'v4\Full' + lcid, 'Release', regVersion)) then begin
 				if (regVersion >= 394747) then
