@@ -15,7 +15,7 @@
 			OK
 		</resource>
 		<resource name="CANCEL">
-			Cancel
+			Abbrechen
 		</resource>
 		<resource name="upload_success">
 			Das Hochladen zu Imgur war erfolgreich.
@@ -30,16 +30,16 @@
 			Übermittle Daten zu Imgur. Bitte warten...
 		</resource>
 		<resource name="delete_question">
-			Sind Sie sicher das sie das Bild {0} von Imgur löschen möchte?
+			Sind Sie sicher, dass sie das Bild {0} von Imgur löschen möchten?
 		</resource>
 		<resource name="clear_question">
-			Sind Sie sicher das sie den lokalen Imgur Verlauf löschen möchte?
+			Sind Sie sicher, dass sie den lokalen Imgur Verlauf löschen möchten?
 		</resource>
 		<resource name="delete_title">
 			Imgur {0} löschen
 		</resource>
 		<resource name="use_page_link">
-			Benutze der Seite-URL statt Bild-URL im Zwischenablage
+			Kopieren der Seiten-URL statt Bild-URL in die Zwischenablage
 		</resource>
 		<resource name="history">
 			Verlauf
