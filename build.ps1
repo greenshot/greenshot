@@ -67,7 +67,8 @@ Function SignBinaryFilesBeforeBuildingInstaller() {
 	$sourcebase = "$(get-location)\Greenshot\bin\Release"
 
 	$INCLUDE=@("*.exe", "*.gsp", "*.dll")
-	Get-ChildItem -Path "$sourcebase" -Recurse -Include $INCLUDE -Exclude "log4net.dll" | foreach {
+	$EXCLUDE=@("log4net.dll", "svg.dll", "dapplo*.dll")
+	Get-ChildItem -Path "$sourcebase" -Recurse -Include $INCLUDE -Exclude $EXCLUDE | foreach {
 		SignWithCertificate($_)
 	}
 }
@@ -139,6 +140,8 @@ Function PackagePortable {
 	@( "$sourcebase\checksum.MD5",
 		"$sourcebase\Greenshot.exe.config",
 		"$sourcebase\GreenshotPlugin.dll",
+		"$sourcebase\Dapplo.Log.dll",
+		"$sourcebase\Svg.dll",
 		"$sourcebase\log4net.dll",
 		"$sourcebase\log4net-portable.xml",
 		"$destbase\additional_files\*.txt" ) | foreach { Copy-Item $_ "$destbase\portabletmp\App\Greenshot\" }
@@ -212,6 +215,8 @@ Function PackageZip {
 		"$sourcebase\Greenshot.exe",
 		"$sourcebase\Greenshot.exe.config",
 		"$sourcebase\GreenshotPlugin.dll",
+		"$sourcebase\Dapplo.Log.dll",
+		"$sourcebase\Svg.dll",
 		"$sourcebase\log4net.dll",
 		"$(get-location)\Greenshot\log4net-zip.xml"
 		"$destbase\additional_files\*.txt" ) | foreach { Copy-Item $_ "$destzip\" }

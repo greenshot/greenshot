@@ -29,6 +29,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using Greenshot.Configuration;
@@ -69,6 +70,7 @@ namespace Greenshot {
 
 			Application.ThreadException += Application_ThreadException;
 			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+			TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
 
 			// Initialize the IniConfig
 			IniConfig.Init();
@@ -1242,7 +1244,22 @@ namespace Greenshot {
 			}
 			new BugReportForm(exceptionText).ShowDialog();
 		}
-		
+
+		private static void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
+		{
+			Exception exceptionToLog = e.Exception;
+			string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
+			LOG.Error("Exception caught in the UnobservedTaskException handler.");
+			LOG.Error(exceptionText);
+			e.SetObserved();
+			if (exceptionText != null && exceptionText.Contains("InputLanguageChangedEventArgs"))
+			{
+				// Ignore for BUG-1809
+				return;
+			}
+			new BugReportForm(exceptionText).ShowDialog();
+		}
+
 		private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e) {
 			Exception exceptionToLog = e.Exception;
 			string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
