@@ -281,16 +281,16 @@ lt.startup=Palaist {#ExeName} uzsākot darbus
 lt.win10=Windows 10 spraudnis
 
 nl.confluence=Confluence plug-in
-nl.default=Default installation
+nl.default=Standaardinstallatie
 nl.office=Microsoft Office plug-in
-nl.externalcommand=Open met externes commando plug-in
-nl.imgur=Imgur plug-in (Zie: http://imgur.com)
+nl.externalcommand=Openen met extern commando plug-in
+nl.imgur=Imgur plug-in (zie: http://imgur.com)
 nl.jira=Jira plug-in
 nl.language=Extra talen
-nl.ocr=OCR plug-in (heeft Microsoft Office Document Imaging (MODI) nodig)
-nl.optimize=Prestaties verbeteren, kan even duren.
-nl.startgreenshot=Start {#ExeName}
-nl.startup=Start {#ExeName} wanneer Windows opstart
+nl.ocr=OCR plug-in (vereist Microsoft Office Document Imaging (MODI))
+nl.optimize=Prestaties verbeteren, even geduld.
+nl.startgreenshot={#ExeName} starten
+nl.startup={#ExeName} automatisch starten met Windows
 nl.win10=Windows 10 plug-in
 
 nn.confluence=Confluence-tillegg
