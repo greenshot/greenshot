@@ -28,6 +28,7 @@ using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using GreenshotOfficePlugin.OfficeExport;
 
 namespace GreenshotOfficePlugin {
 	/// <summary>

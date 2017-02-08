@@ -77,12 +77,26 @@ namespace GreenshotPlugin.Core {
 
 			// Fallback
 			StreamConverters[""] = defaultConverter;
+
 			StreamConverters["gif"] = defaultConverter;
 			StreamConverters["bmp"] = defaultConverter;
 			StreamConverters["jpg"] = defaultConverter;
 			StreamConverters["jpeg"] = defaultConverter;
 			StreamConverters["png"] = defaultConverter;
 			StreamConverters["wmf"] = defaultConverter;
+			StreamConverters["svg"] = (stream, s) =>
+			{
+				stream.Position = 0;
+				try
+				{
+					return SvgImage.FromStream(stream).Image;
+				}
+				catch (Exception ex)
+				{
+					Log.Error("Can't load SVG", ex);
+				}
+				return null;
+			};
 
 			StreamConverters["ico"] = (stream, extension) =>
 			{

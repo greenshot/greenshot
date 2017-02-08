@@ -1,0 +1,73 @@
+﻿<?xml version="1.0"?>
+
+<one:Notebooks xmlns:one="http://schemas.microsoft.com/office/onenote/2010/onenote">
+	<one:Notebook name="Persönlich" nickname="Persönlich" ID="{8A064146-CC4D-4495-8886-26F1E3EA9786}{1}{B0}"
+				path="\\userdatanue\homes$\05018085\Daten\OneNote-Notizbücher\Persönlich"
+				lastModifiedTime="2017-01-26T14:04:58.000Z" color="#FFD869">
+		<one:Section name="Allgemein" ID="{D7CE083A-99E4-07E5-33BD-A773264D5531}{1}{B0}"
+					path="\\userdatanue\homes$\05018085\Daten\OneNote-Notizbücher\Persönlich\Allgemein.one"
+					lastModifiedTime="2017-01-26T14:04:58.000Z" color="#B49EDE">
+			<one:Page ID="{60DB02F4-7ECD-4DC8-A216-1C194A6441E8}{1}{B0}" name="Testje!" dateTime="2014-07-29T11:46:37.000Z"
+					lastModifiedTime="2014-07-29T11:46:49.000Z" pageLevel="1" />
+			<one:Page ID="{C913B426-36C6-4898-B521-FBFDB5961545}{1}{B0}" name="Blub" dateTime="2014-07-29T11:56:24.000Z"
+					lastModifiedTime="2014-07-29T11:56:37.000Z" pageLevel="1" />
+			<one:Page ID="{DEF9D830-15D2-4CA0-B51E-0DDE95A976D3}{1}{B0}" name="Seite ohne Titel"
+					dateTime="2015-02-10T09:38:43.000Z" lastModifiedTime="2017-01-26T14:04:58.000Z" pageLevel="1" />
+		</one:Section>
+		<one:SectionGroup name="OneNote_RecycleBin" ID="{5CDC0962-6C78-4D61-AFE6-0753AB00CA8F}{1}{B0}"
+						path="\\userdatanue\homes$\05018085\Daten\OneNote-Notizbücher\Persönlich\OneNote_RecycleBin"
+						lastModifiedTime="2017-01-26T13:14:09.000Z" isRecycleBin="true">
+			<one:Section name="Gelöschte Seiten" ID="{80BDF89D-77C4-088A-032C-B10C8EF21C6B}{1}{B0}"
+						path="\\userdatanue\homes$\05018085\Daten\OneNote-Notizbücher\Persönlich\OneNote_RecycleBin\OneNote_DeletedPages.one"
+						lastModifiedTime="2017-01-26T13:14:09.000Z" color="#E1E1E1" isInRecycleBin="true" isDeletedPages="true" />
+		</one:SectionGroup>
+	</one:Notebook>
+	<one:Notebook name="Handbuch zu OneNote 2010" nickname="Handbuch zu OneNote 2010"
+				ID="{29414AEC-1E0F-41B9-8C46-5F6205073471}{1}{B0}"
+				path="\\userdatanue\homes$\05018085\Daten\OneNote-Notizbücher\Handbuch zu OneNote 2010"
+				lastModifiedTime="2014-11-11T11:59:10.000Z" color="#FFD869">
+		<one:Section name="OneNote-Handbuch" ID="{1C330CCF-9E90-0C3A-096E-B6212A54028E}{1}{B0}"
+					path="\\userdatanue\homes$\05018085\Daten\OneNote-Notizbücher\Handbuch zu OneNote 2010\OneNote-Handbuch.one"
+					lastModifiedTime="2014-07-29T14:29:31.000Z" color="#B49EDE">
+			<one:Page ID="{364D706D-76A2-4AC3-B975-233837AF3F98}{1}{B0}"
+					name="OneNote  verfolgt geschäftliche, private oder schulische Vorgänge nach." dateTime="2009-12-15T02:18:20.000Z"
+					lastModifiedTime="2014-07-29T10:41:58.000Z" pageLevel="1">
+				<one:Meta name="PageLocID" content="0001" /><one:Meta name="LocVer" content="1" />
+				<one:Meta name="PageVerComment" content="" /><one:Meta name="PageOveride" content="0" />
+			</one:Page>
+			<one:Page ID="{9977BA7E-ECCC-40B9-8E22-DB5AACA6ACC9}{1}{B0}"
+					name="Handbuch zu OneNote 2010 / OneNote-Handbuch / OneNote - Grundlagen" dateTime="2009-12-15T02:18:20.000Z"
+					lastModifiedTime="2014-07-29T14:29:31.000Z" pageLevel="1">
+				<one:Meta name="PageLocID" content="0002" /><one:Meta name="LocVer" content="1" />
+				<one:Meta name="PageVerComment" content="" /><one:Meta name="PageOveride" content="0" />
+			</one:Page>
+			<one:Page ID="{49A6F13C-2882-46F1-A378-5F5A70E4D223}{1}{B0}" name="Häufigste Verwendungen"
+					dateTime="2009-12-15T02:18:20.000Z" lastModifiedTime="2014-07-29T10:26:37.000Z" pageLevel="1">
+				<one:Meta name="PageLocID" content="0003" /><one:Meta name="LocVer" content="1" />
+				<one:Meta name="PageVerComment" content="" /><one:Meta name="PageOveride" content="0" />
+			</one:Page>
+			<one:Page ID="{95F2B952-EEE9-4B1F-857E-77F73B806D6A}{1}{B0}"
+					name="Handbuch zu OneNote 2010 / OneNote-Handbuch / Neuigkeiten" dateTime="2009-12-15T02:18:21.000Z"
+					lastModifiedTime="2014-07-29T11:45:54.000Z" pageLevel="1">
+				<one:Meta name="PageLocID" content="0004" /><one:Meta name="LocVer" content="1" />
+				<one:Meta name="PageVerComment" content="" /><one:Meta name="PageOveride" content="0" />
+			</one:Page>
+			<one:Page ID="{7167B1B9-5AD1-4A4A-BE13-E8226BDDCF59}{1}{B0}" name="Seite ohne Titel"
+					dateTime="2013-09-12T13:08:47.000Z" lastModifiedTime="2014-07-23T08:29:32.000Z" pageLevel="1" />
+		</one:Section>
+		<one:Section name="Neuer Abschnitt 1" ID="{3B09C879-4A81-4016-B752-656F5BDABEBA}{1}{B0}"
+					path="\\userdatanue\homes$\05018085\Daten\OneNote-Notizbücher\Handbuch zu OneNote 2010\Neuer Abschnitt 1.one"
+					lastModifiedTime="2014-11-11T11:59:10.000Z" color="#B49EDE">
+			<one:Page ID="{7D02A767-B0B8-4F74-9250-1912E44DF447}{1}{B0}" name="Seite ohne Titel"
+					dateTime="2014-11-11T11:59:08.000Z" lastModifiedTime="2014-11-11T11:59:08.000Z" pageLevel="1" />
+		</one:Section>
+	</one:Notebook>
+	<one:UnfiledNotes ID="{041F7E1C-CD71-4545-9D71-96ACB3A989BC}{1}{B0}">
+		<one:Section name="Nicht abgelegte Notizen" ID="{E3AFAB67-E4E8-0F90-1237-DBC4172895EE}{1}{B0}"
+					path="\\userdatanue\homes$\05018085\Daten\OneNote-Notizbücher\Nicht abgelegte Notizen.one"
+					lastModifiedTime="2017-01-26T16:08:34.000Z" color="#B7C997">
+			<one:Page ID="{44B14C2D-7560-4FE4-87A3-2118A2989422}{1}{B0}" name="Seite ohne Titel - Microsoft OneNote"
+					dateTime="2017-01-26T16:08:32.000Z" lastModifiedTime="2017-01-26T16:08:33.000Z" pageLevel="1" />
+		</one:Section>
+	</one:UnfiledNotes>
+</one:Notebooks>

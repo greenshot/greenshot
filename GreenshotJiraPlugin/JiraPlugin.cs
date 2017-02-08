@@ -24,7 +24,6 @@ using Greenshot.IniFile;
 using Greenshot.Plugin;
 using System;
 using System.Threading.Tasks;
-using Dapplo.Log;
 using Greenshot.Forms;
 using Greenshot.Helpers;
 using GreenshotJiraPlugin.Forms;
@@ -113,32 +112,6 @@ namespace GreenshotJiraPlugin {
 		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
 			// Register configuration (don't need the configuration itself)
 			_config = IniConfig.GetIniSection<JiraConfiguration>();
-
-			// Make sure the loggin is enable for the corect level.
-			if (Log.IsDebugEnabled)
-			{
-				LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Verbose);
-			}
-			else if (Log.IsInfoEnabled)
-			{
-				LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Info);
-			}
-			else if (Log.IsWarnEnabled)
-			{
-				LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Warn);
-			}
-			else if (Log.IsErrorEnabled)
-			{
-				LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Error);
-			}
-			else if (Log.IsErrorEnabled)
-			{
-				LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Error);
-			}
-			else
-			{
-				LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Fatal);
-			}
 
 			// Add a SVG converter, although it doesn't fit to the Jira plugin there is currently no other way
 			ImageHelper.StreamConverters["svg"] = (stream, s) =>

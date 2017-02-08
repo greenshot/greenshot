@@ -26,21 +26,24 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using GreenshotOfficePlugin.OfficeExport;
 
 namespace GreenshotOfficePlugin {
 	public class OneNoteDestination : AbstractDestination {
 		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordDestination));
-		private const int ICON_APPLICATION = 0;
+		private const int IconApplication = 0;
 		public const string DESIGNATION = "OneNote";
-		private static readonly string exePath;
-		private readonly OneNotePage page;
+		private static readonly string ExePath;
+		private readonly OneNotePage _page;
 
 		static OneNoteDestination() {
-			exePath = PluginUtils.GetExePath("ONENOTE.EXE");
-			if (exePath != null && File.Exists(exePath)) {
+			ExePath = PluginUtils.GetExePath("ONENOTE.EXE");
+			if (ExePath != null && File.Exists(ExePath)) {
 				WindowDetails.AddProcessToExcludeFromFreeze("onenote");
 			} else {
-				exePath = null;
+				ExePath = null;
 			}
 		}
 		
@@ -49,7 +52,7 @@ namespace GreenshotOfficePlugin {
 		}
 
 		public OneNoteDestination(OneNotePage page) {
-			this.page = page;
+			_page = page;
 		}
 
 		public override string Designation {
@@ -59,49 +62,47 @@ namespace GreenshotOfficePlugin {
 		}
 
 		public override string Description {
-			get {
-				if (page == null) {
+			get
+			{
+				if (_page == null) {
 					return "Microsoft OneNote";
-				} else {
-					return page.DisplayName;
 				}
+				return _page.DisplayName;
 			}
 		}
 
-		public override int Priority {
-			get {
-				return 4;
-			}
-		}
-		
-		public override bool IsDynamic {
-			get {
-				return true;
-			}
-		}
+		public override int Priority => 4;
 
-		public override bool IsActive {
-			get {
-				return base.IsActive && exePath != null;
-			}
-		}
+		public override bool IsDynamic => true;
 
-		public override Image DisplayIcon {
-			get {
-				return PluginUtils.GetCachedExeIcon(exePath, ICON_APPLICATION);
-			}
-		}
+		public override bool IsActive => base.IsActive && ExePath != null;
+
+		public override Image DisplayIcon => PluginUtils.GetCachedExeIcon(ExePath, IconApplication);
 
 		public override IEnumerable<IDestination> DynamicDestinations() {
-			foreach (OneNotePage page in OneNoteExporter.GetPages()) {
-				yield return new OneNoteDestination(page);
+			try
+			{
+				return OneNoteExporter.GetPages().Where(currentPage => currentPage.IsCurrentlyViewed).Select(currentPage => new OneNoteDestination(currentPage)).Cast<IDestination>();
 			}
+			catch (COMException cEx)
+			{
+				if (cEx.ErrorCode == unchecked((int)0x8002801D))
+				{
+					LOG.Warn("Wrong registry keys, to solve this remove the OneNote key as described here: http://microsoftmercenary.com/wp/outlook-excel-interop-calls-breaking-solved/");
+				}
+				LOG.Warn("Problem retrieving onenote destinations, ignoring: ", cEx);
+			}
+			catch (Exception ex)
+			{
+				LOG.Warn("Problem retrieving onenote destinations, ignoring: ", ex);
+			}
+			return Enumerable.Empty<IDestination>();
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
 
-			if (page == null) {
+			if (_page == null) {
 				try {
 					exportInformation.ExportMade = OneNoteExporter.ExportToNewPage(surface);
 				} catch(Exception ex) {
@@ -110,7 +111,7 @@ namespace GreenshotOfficePlugin {
 				}
 			} else {
 				try {
-					exportInformation.ExportMade = OneNoteExporter.ExportToPage(surface, page);
+					exportInformation.ExportMade = OneNoteExporter.ExportToPage(surface, _page);
 				} catch(Exception ex) {
 					exportInformation.ErrorMessage = ex.Message;
 					LOG.Error(ex);

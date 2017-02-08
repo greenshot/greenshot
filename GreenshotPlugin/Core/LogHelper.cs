@@ -29,6 +29,7 @@ using log4net.Appender;
 using log4net.Config;
 using log4net.Repository.Hierarchy;
 using System;
+using Dapplo.Log;
 using log4net.Util;
 
 namespace GreenshotPlugin.Core {
@@ -74,7 +75,12 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 
-			if (_isLog4NetConfigured) {
+			if (_isLog4NetConfigured)
+			{
+				var logger = LogManager.GetLogger(typeof(LogHelper));
+				// Make sure the loggin is enable for the corect level.
+				LogSettings.RegisterDefaultLogger<Log4NetLogger>(Log4NetLogger.MapLogLevel(logger));
+
 				// Get the logfile name
 				try {
 					if (((Hierarchy)LogManager.GetRepository()).Root.Appenders.Count > 0) {

@@ -26,6 +26,7 @@ using GreenshotPlugin.Core;
 using Greenshot.Plugin;
 using Greenshot.Interop.Office;
 using System.Text.RegularExpressions;
+using GreenshotOfficePlugin.OfficeExport;
 
 namespace GreenshotOfficePlugin {
 	/// <summary>

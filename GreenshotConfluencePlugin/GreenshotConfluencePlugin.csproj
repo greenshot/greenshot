@@ -36,6 +36,10 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>
+    <Reference Include="Dapplo.Log, Version=1.0.23.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Log.1.0.23\lib\net45\Dapplo.Log.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="log4net">
       <HintPath>..\Greenshot\Lib\log4net.dll</HintPath>
       <Private>False</Private>
@@ -113,6 +117,7 @@
     <None Include="Languages\language_confluenceplugin-nl-NL.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
+    <None Include="packages.config" />
     <None Include="Web References\confluence\confluenceservice-v1.wsdl" />
     <None Include="Web References\confluence\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>

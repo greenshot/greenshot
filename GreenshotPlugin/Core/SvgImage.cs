@@ -22,10 +22,9 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using GreenshotPlugin.Core;
 using Svg;
 
-namespace GreenshotJiraPlugin
+namespace GreenshotPlugin.Core
 {
 	/// <summary>
 	/// Create an image look like of the SVG

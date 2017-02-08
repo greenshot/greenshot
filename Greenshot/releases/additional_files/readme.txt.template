@@ -9,6 +9,15 @@ All details to our tickets can be found here: https://greenshot.atlassian.net
 
 @DETAILVERSION@
 
+Version 1.3 is currently nothing more than making Greenshot work with .NET 4.5 and fixing some issues with it.
+
+Changes so far:
+* SVG support (was already there when the JIRA plugin was installed)
+* IE Capture should now work more than once again
+
+
+1.2.9.129-569de71 RELEASE
+
 Bugs fixed:
 * [BUG-2051] - Scroll-lock button not usable as hotkey
 * [BUG-2056] - Cannot export to external command Paint.NET if .greenshot format is used

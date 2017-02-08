@@ -19,15 +19,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Runtime.InteropServices;
-using Greenshot.Plugin;
-using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
+using Greenshot.Interop;
+using Greenshot.Interop.Office;
+using Greenshot.Plugin;
+using GreenshotPlugin.Core;
 
-namespace Greenshot.Interop.Office {
+namespace GreenshotOfficePlugin.OfficeExport {
 
 	public class OneNoteExporter {
 		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(OneNoteExporter));
@@ -142,86 +143,70 @@ namespace Greenshot.Interop.Office {
 		/// Get the captions of all the open word documents
 		/// </summary>
 		/// <returns></returns>
-		public static List<OneNotePage> GetPages() {
-			List<OneNotePage> pages = new List<OneNotePage>();
-			try {
-				using (IOneNoteApplication oneNoteApplication = COMWrapper.GetOrCreateInstance<IOneNoteApplication>()) {
-					if (oneNoteApplication != null) {
-						// ReSharper disable once RedundantAssignment
-						string notebookXml = "";
-						oneNoteApplication.GetHierarchy("", HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
-						if (!string.IsNullOrEmpty(notebookXml)) {
-							Log.Debug(notebookXml);
-							StringReader reader = null;
-							try {
-								reader = new StringReader(notebookXml);
-								using (XmlTextReader xmlReader = new XmlTextReader(reader)) {
-									reader = null;
-									OneNoteSection currentSection = null;
-									OneNoteNotebook currentNotebook = null;
-									while (xmlReader.Read()) {
-										if ("one:Notebook".Equals(xmlReader.Name)) {
-											string id = xmlReader.GetAttribute("ID");
-											if (id != null && (currentNotebook == null || !id.Equals(currentNotebook.ID))) {
-												currentNotebook = new OneNoteNotebook
-												{
-													ID = xmlReader.GetAttribute("ID"),
-													Name = xmlReader.GetAttribute("name")
-												};
-											}
-										}
-										if ("one:Section".Equals(xmlReader.Name)) {
-											string id = xmlReader.GetAttribute("ID");
-											if (id != null && (currentSection == null || !id.Equals(currentSection.ID))) {
-												currentSection = new OneNoteSection
-												{
-													ID = xmlReader.GetAttribute("ID"),
-													Name = xmlReader.GetAttribute("name"),
-													Parent = currentNotebook
-												};
-											}
-										}
-										if ("one:Page".Equals(xmlReader.Name)) {
-											// Skip deleted items
-											if ("true".Equals(xmlReader.GetAttribute("isInRecycleBin"))) {
-												continue;
-											}
-											OneNotePage page = new OneNotePage
-											{
-												Parent = currentSection,
-												Name = xmlReader.GetAttribute("name"),
-												ID = xmlReader.GetAttribute("ID")
-											};
-											if (page.ID == null || page.Name == null) {
-												continue;
-											}
-											page.IsCurrentlyViewed = "true".Equals(xmlReader.GetAttribute("isCurrentlyViewed"));
-											pages.Add(page);
-										}
+		public static IEnumerable<OneNotePage> GetPages() {
+			using (IOneNoteApplication oneNoteApplication = COMWrapper.GetOrCreateInstance<IOneNoteApplication>()) {
+				if (oneNoteApplication != null) {
+					// ReSharper disable once RedundantAssignment
+					string notebookXml = "";
+					oneNoteApplication.GetHierarchy("", HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
+					if (!string.IsNullOrEmpty(notebookXml)) {
+						using (StringReader reader = new StringReader(notebookXml))
+						using (XmlTextReader xmlReader = new XmlTextReader(reader))
+						{
+							OneNoteSection currentSection = null;
+							OneNoteNotebook currentNotebook = null;
+							while (xmlReader.Read())
+							{
+								if ("one:Notebook".Equals(xmlReader.Name))
+								{
+									string id = xmlReader.GetAttribute("ID");
+									if (id != null && (currentNotebook == null || !id.Equals(currentNotebook.ID)))
+									{
+										currentNotebook = new OneNoteNotebook
+										{
+											ID = xmlReader.GetAttribute("ID"),
+											Name = xmlReader.GetAttribute("name")
+										};
 									}
 								}
-							} finally
-							{
-								reader?.Dispose();
+								if ("one:Section".Equals(xmlReader.Name))
+								{
+									string id = xmlReader.GetAttribute("ID");
+									if (id != null && (currentSection == null || !id.Equals(currentSection.ID)))
+									{
+										currentSection = new OneNoteSection
+										{
+											ID = xmlReader.GetAttribute("ID"),
+											Name = xmlReader.GetAttribute("name"),
+											Parent = currentNotebook
+										};
+									}
+								}
+								if ("one:Page".Equals(xmlReader.Name))
+								{
+									// Skip deleted items
+									if ("true".Equals(xmlReader.GetAttribute("isInRecycleBin")))
+									{
+										continue;
+									}
+									OneNotePage page = new OneNotePage
+									{
+										Parent = currentSection,
+										Name = xmlReader.GetAttribute("name"),
+										ID = xmlReader.GetAttribute("ID")
+									};
+									if (page.ID == null || page.Name == null)
+									{
+										continue;
+									}
+									page.IsCurrentlyViewed = "true".Equals(xmlReader.GetAttribute("isCurrentlyViewed"));
+									yield return page;
+								}
 							}
 						}
 					}
 				}
-			} catch (COMException cEx) {
-				if (cEx.ErrorCode == unchecked((int)0x8002801D)) {
-					Log.Warn("Wrong registry keys, to solve this remove the OneNote key as described here: http://microsoftmercenary.com/wp/outlook-excel-interop-calls-breaking-solved/");
-				}
-				Log.Warn("Problem retrieving onenote destinations, ignoring: ", cEx);
-			} catch (Exception ex) {
-					Log.Warn("Problem retrieving onenote destinations, ignoring: ", ex);
 			}
-			pages.Sort(delegate(OneNotePage p1, OneNotePage p2) {
-				if(p1.IsCurrentlyViewed || p2.IsCurrentlyViewed) {
-					return p2.IsCurrentlyViewed.CompareTo(p1.IsCurrentlyViewed);
-				}
-				return string.Compare(p1.DisplayName, p2.DisplayName, StringComparison.Ordinal);
-			});
-			return pages;
 		}
 	}
 }

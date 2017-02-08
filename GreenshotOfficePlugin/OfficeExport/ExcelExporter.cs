@@ -18,13 +18,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Drawing;
+using System.Reflection;
+using Greenshot.Interop;
+using Greenshot.Interop.Office;
 using GreenshotPlugin.Core;
 
-namespace Greenshot.Interop.Office {
+namespace GreenshotOfficePlugin.OfficeExport {
 	public class ExcelExporter {
 		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ExcelExporter));
 		private static Version _excelVersion;

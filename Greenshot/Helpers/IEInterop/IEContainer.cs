@@ -25,8 +25,8 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 
 using GreenshotPlugin.Core;
-using Greenshot.Interop.IE;
 using log4net;
+using mshtml;
 using IServiceProvider = Greenshot.Interop.IServiceProvider;
 
 namespace Greenshot.Helpers.IEInterop {

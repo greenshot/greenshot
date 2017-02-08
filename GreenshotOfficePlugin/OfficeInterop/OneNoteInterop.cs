@@ -24,7 +24,7 @@ using System;
 namespace Greenshot.Interop.Office {
 	// More details about OneNote: http://msdn.microsoft.com/en-us/magazine/ff796230.aspx
 
-	// See http://msdn.microsoft.com/de-de/library/microsoft.office.interop.word.applicationclass_members%28v=Office.11%29.aspx
+	// See http://msdn.microsoft.com/en-US/library/microsoft.office.interop.word.applicationclass_members%28v=Office.11%29.aspx
 	[ComProgId("OneNote.Application")]
 	public interface IOneNoteApplication : ICommon {
 		/// <summary>

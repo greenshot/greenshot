@@ -27,13 +27,13 @@ using System.Runtime.InteropServices;
 using Greenshot.Configuration;
 using Greenshot.Helpers.IEInterop;
 using Greenshot.Interop;
-using Greenshot.Interop.IE;
 using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using log4net;
+using mshtml;
 
 namespace Greenshot.Helpers {
 	/// <summary>

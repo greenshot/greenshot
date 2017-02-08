@@ -22,7 +22,6 @@
 using Greenshot.Plugin;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Security;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
@@ -42,10 +41,7 @@ using System.Security;
 // If you need to expose a type to COM, use [ComVisible(true)] on that type.
 [assembly: ComVisible(false)]
 
-// Solve Link-Demand issues
-[assembly: SecurityTransparent]
-
 // The assembly version, replaced by build scripts
-[assembly: AssemblyVersion("1.2.0.0")]
-[assembly: AssemblyInformationalVersion("1.2.0.0")]
-[assembly: AssemblyFileVersion("1.2.0.0")]
+[assembly: AssemblyVersion("1.3.0.0")]
+[assembly: AssemblyInformationalVersion("1.3.0.0")]
+[assembly: AssemblyFileVersion("1.3.0.0")]
