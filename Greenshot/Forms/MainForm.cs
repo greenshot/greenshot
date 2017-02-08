@@ -203,40 +203,7 @@ namespace Greenshot {
 					if (filesToOpen.Count > 0) {
 						SendData(transport);
 					} else {
-						StringBuilder instanceInfo = new StringBuilder();
-						bool matchedThisProcess = false;
-						int index = 1;
-						int currentProcessId;
-						using (Process currentProcess = Process.GetCurrentProcess()) {
-							currentProcessId = currentProcess.Id;
-						}
-						foreach (Process greenshotProcess in Process.GetProcessesByName("greenshot")) {
-							try {
-								instanceInfo.Append(index++ + ": ").AppendLine(Kernel32.GetProcessPath(greenshotProcess.Id));
-								if (currentProcessId == greenshotProcess.Id) {
-									matchedThisProcess = true;
-								}
-							} catch (Exception ex) {
-								LOG.Debug(ex);
-							}
-							greenshotProcess.Dispose();
-						}
-						if (!matchedThisProcess) {
-							using (Process currentProcess = Process.GetCurrentProcess()) {
-								instanceInfo.Append(index + ": ").AppendLine(Kernel32.GetProcessPath(currentProcess.Id));
-							}
-						}
-
-						// A dirty fix to make sure the messagebox is visible as a Greenshot window on the taskbar
-						using (Form dummyForm = new Form()) {
-							dummyForm.Icon = GreenshotResources.getGreenshotIcon();
-							dummyForm.ShowInTaskbar = true;
-							dummyForm.FormBorderStyle = FormBorderStyle.None;
-							dummyForm.Location = new Point(int.MinValue, int.MinValue);
-							dummyForm.Load += delegate { dummyForm.Size = Size.Empty; };
-							dummyForm.Show();
-							MessageBox.Show(dummyForm, Language.GetString(LangKey.error_multipleinstances) + "\r\n" + instanceInfo, Language.GetString(LangKey.error), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-						}
+						ShowInstances();
 					}
 					FreeMutex();
 					Application.Exit();
@@ -271,6 +238,90 @@ namespace Greenshot {
 			} catch(Exception ex) {
 				LOG.Error("Exception in startup.", ex);
 				Application_ThreadException(ActiveForm, new ThreadExceptionEventArgs(ex));
+			}
+		}
+
+		/// <summary>
+		/// Show all the running instances
+		/// </summary>
+		private static void ShowInstances()
+		{
+			StringBuilder instanceInfo = new StringBuilder();
+			int index = 1;
+			foreach (var process in Process.GetProcesses())
+			{
+				try
+				{
+					if (process.ProcessName.ToLowerInvariant().Contains("greenshot"))
+					{
+						instanceInfo.AppendFormat("{0} : {1} (pid {2})", index++, Kernel32.GetProcessPath(process.Id), process.Id);
+						instanceInfo.Append(Environment.NewLine);
+					}
+				}
+				catch (Exception ex)
+				{
+					LOG.Debug(ex);
+				}
+				process.Dispose();
+			}
+
+			// A dirty fix to make sure the messagebox is visible as a Greenshot window on the taskbar
+			using (var multiInstanceForm = new Form
+			{
+				Icon = GreenshotResources.getGreenshotIcon(),
+				ShowInTaskbar = true,
+				MaximizeBox = false,
+				MinimizeBox = false,
+				FormBorderStyle = FormBorderStyle.FixedDialog,
+				Location = new Point(int.MinValue, int.MinValue),
+				Text = Language.GetString(LangKey.error),
+				AutoSize = true,
+				AutoSizeMode = AutoSizeMode.GrowAndShrink,
+				StartPosition = FormStartPosition.CenterScreen
+			})
+			{
+				var flowLayoutPanel = new FlowLayoutPanel
+				{
+					AutoScroll = true,
+					FlowDirection = FlowDirection.TopDown,
+					WrapContents = false,
+					AutoSize = true,
+					AutoSizeMode = AutoSizeMode.GrowAndShrink
+				};
+				var internalFlowLayoutPanel = new FlowLayoutPanel
+				{
+					AutoScroll = true,
+					FlowDirection = FlowDirection.LeftToRight,
+					WrapContents = false,
+					AutoSize = true,
+					AutoSizeMode = AutoSizeMode.GrowAndShrink
+				};
+				var pictureBox = new PictureBox
+				{
+					Dock = DockStyle.Left,
+					Image = SystemIcons.Error.ToBitmap(),
+					SizeMode = PictureBoxSizeMode.AutoSize,
+				};
+				internalFlowLayoutPanel.Controls.Add(pictureBox);
+				var textbox = new Label
+				{
+					Text = Language.GetString(LangKey.error_multipleinstances) + Environment.NewLine + instanceInfo,
+					AutoSize = true
+				};
+				internalFlowLayoutPanel.Controls.Add(textbox);
+				flowLayoutPanel.Controls.Add(internalFlowLayoutPanel);
+				var cancelButton = new Button
+				{
+					Text = Language.GetString(LangKey.bugreport_cancel),
+					Dock = DockStyle.Bottom,
+					Height = 20
+				};
+				flowLayoutPanel.Controls.Add(cancelButton);
+				multiInstanceForm.Controls.Add(flowLayoutPanel);
+
+				multiInstanceForm.CancelButton = cancelButton;
+
+				multiInstanceForm.ShowDialog();
 			}
 		}
 
