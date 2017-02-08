@@ -41,6 +41,7 @@ using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using Timer = System.Timers.Timer;
@@ -1178,8 +1179,8 @@ namespace Greenshot.Forms {
 				{
 					Text = Language.GetString(LangKey.settings_window_capture_mode)
 				};
-				string enumTypeName = typeof(WindowCaptureMode).Name;
-				foreach (WindowCaptureMode captureMode in Enum.GetValues(typeof(WindowCaptureMode))) {
+				string enumTypeName = typeof(WindowCaptureModes).Name;
+				foreach (WindowCaptureModes captureMode in Enum.GetValues(typeof(WindowCaptureModes))) {
 					selectList.AddItem(Language.GetString(enumTypeName + "." + captureMode), captureMode, _conf.WindowCaptureMode == captureMode);
 				}
 				selectList.CheckedChanged += QuickSettingCaptureModeChanged;
@@ -1228,7 +1229,7 @@ namespace Greenshot.Forms {
 
 		private void QuickSettingCaptureModeChanged(object sender, EventArgs e) {
 			ToolStripMenuSelectListItem item = ((ItemCheckedChangedEventArgs)e).Item;
-			WindowCaptureMode windowsCaptureMode = (WindowCaptureMode)item.Data;
+			WindowCaptureModes windowsCaptureMode = (WindowCaptureModes)item.Data;
 			if (item.Checked) {
 				_conf.WindowCaptureMode = windowsCaptureMode;
 			}

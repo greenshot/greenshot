@@ -22,10 +22,10 @@ Ayrıca bu hata için bir izleyici kaydının açılmış olup olmadığını da
 		<resource name="CANCEL">İptal</resource>
 		<resource name="clipboard_error">Panoya yazılırken beklenmedik bir hata oluştu.</resource>
 		<resource name="clipboard_inuse">{0} işlemi erişimi engellediğinden Greenshot panoya yazamadı.</resource>
-		<resource name="ClipboardFormat.DIB">Cihazdan Bağımsız Bit Eşlem (DIB)</resource>
-		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">Satıriçi görüntülerle HTML</resource>
-		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="ClipboardFormats.DIB">Cihazdan Bağımsız Bit Eşlem (DIB)</resource>
+		<resource name="ClipboardFormats.HTML">HTML</resource>
+		<resource name="ClipboardFormats.HTMLDATAURL">Satıriçi görüntülerle HTML</resource>
+		<resource name="ClipboardFormats.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">Alfa</resource>
 		<resource name="colorpicker_apply">Uygula</resource>
 		<resource name="colorpicker_blue">Mavi</resource>
@@ -252,10 +252,10 @@ Klasör ve dosya adı arasında (\) karakterini kullanarak Greenshot'un istediğ
 		<resource name="warning_hotkeys">Bir veya bir kaç kısayol tuşu kaydedilemedi. Bu nedenle Greenshot kısayollarını kullanamayabilirsiniz. 
 Bu sorun muhtemelen aynı kısa yolları kullanan başka bir programın çalışmasından kaynaklanıyor
 Kısayolları kullanmak için söz konusu yazılımı kapatın. Kısayollar yerine tüm Greenshot özelliklerini sistem tepsisi simgesine sağ tıklayarak da kullanabilirsiniz.</resource>
-		<resource name="WindowCaptureMode.Aero">Özel renk kullan</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">Saydamlığı koru</resource>
-		<resource name="WindowCaptureMode.Auto">Otomatik</resource>
-		<resource name="WindowCaptureMode.GDI">Standart renk kullan</resource>
-		<resource name="WindowCaptureMode.Screen">Göründüğü gibi</resource>
+		<resource name="WindowCaptureModes.Aero">Özel renk kullan</resource>
+		<resource name="WindowCaptureModes.AeroTransparent">Saydamlığı koru</resource>
+		<resource name="WindowCaptureModes.Auto">Otomatik</resource>
+		<resource name="WindowCaptureModes.GDI">Standart renk kullan</resource>
+		<resource name="WindowCaptureModes.Screen">Göründüğü gibi</resource>
 	</resources>
 </language>

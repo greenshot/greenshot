@@ -22,6 +22,7 @@ using System;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
+using GreenshotPlugin.Core.Enums;
 
 namespace GreenshotPlugin.Controls {
 	/// <summary>
@@ -42,9 +43,9 @@ namespace GreenshotPlugin.Controls {
 			InitializeComponent();
 
 			checkBox_reduceColors.Checked = Settings.ReduceColors;
-			trackBarJpegQuality.Enabled = OutputFormat.jpg.Equals(outputSettings.Format);
+			trackBarJpegQuality.Enabled = OutputFormats.jpg.Equals(outputSettings.Format);
 			trackBarJpegQuality.Value = Settings.JPGQuality;
-			textBoxJpegQuality.Enabled = OutputFormat.jpg.Equals(outputSettings.Format);
+			textBoxJpegQuality.Enabled = OutputFormats.jpg.Equals(outputSettings.Format);
 			textBoxJpegQuality.Text = Settings.JPGQuality.ToString();
 			ToFront = true;
 		}

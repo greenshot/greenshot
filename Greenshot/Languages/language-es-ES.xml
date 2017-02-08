@@ -22,10 +22,10 @@ Antes de crear un nuevo informe de error, te agradeceríamos que comprobaras que
 		<resource name="CANCEL">Cancelar</resource>
 		<resource name="clipboard_error">Error inesperado escribiendo en el portapapeles.</resource>
 		<resource name="clipboard_inuse">Greenshot no puede escribir en el portapapeles porque el proceso {0} bloquea el acceso.</resource>
-		<resource name="ClipboardFormat.DIB">Mapa de bits independiente de dispositivo (DIB)</resource>
-		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">HTML con imágenes en línea</resource>
-		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="ClipboardFormats.DIB">Mapa de bits independiente de dispositivo (DIB)</resource>
+		<resource name="ClipboardFormats.HTML">HTML</resource>
+		<resource name="ClipboardFormats.HTMLDATAURL">HTML con imágenes en línea</resource>
+		<resource name="ClipboardFormats.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">Alpha</resource>
 		<resource name="colorpicker_apply">Aplicar</resource>
 		<resource name="colorpicker_blue">Azul</resource>
@@ -258,10 +258,10 @@ presente, ejemplo: 11_58_32 (más la extension definida en la configuración)</r
 		<resource name="warning_hotkeys">No se ha podido registrar la tecla rápida "{0}". Probablemente el problema es que alguna otra aplicación{1} también quiere hacerse con esa combinación de teclas. Hay dos posibles soluciones: cambiar la tecla rápida en Greenshot, o desactivar/cambiar la configuración del otro programa que usa esta tecla rápida.
 
 A pesar de esto, se sigue pudiendo utilizar todas las características de Greenshot directamente desde el menú contextual del icono en la bandeja del sistema.</resource>
-		<resource name="WindowCaptureMode.Aero">Usar color personalizado</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">Conservar transparencia</resource>
-		<resource name="WindowCaptureMode.Auto">Automáticamente</resource>
-		<resource name="WindowCaptureMode.GDI">Usar color por defecto</resource>
-		<resource name="WindowCaptureMode.Screen">Como se muestra</resource>
+		<resource name="WindowCaptureModes.Aero">Usar color personalizado</resource>
+		<resource name="WindowCaptureModes.AeroTransparent">Conservar transparencia</resource>
+		<resource name="WindowCaptureModes.Auto">Automáticamente</resource>
+		<resource name="WindowCaptureModes.GDI">Usar color por defecto</resource>
+		<resource name="WindowCaptureModes.Screen">Como se muestra</resource>
 	</resources>
 </language>

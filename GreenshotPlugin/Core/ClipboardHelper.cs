@@ -33,6 +33,7 @@ using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.UnmanagedHelpers;
 using System.Runtime.InteropServices;
+using GreenshotPlugin.Core.Enums;
 using log4net;
 
 namespace GreenshotPlugin.Core {
@@ -542,15 +543,15 @@ EndSelection:<<<<<<<4
 			Image imageToSave = null;
 			bool disposeImage = false;
 			try {
-				SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
+				SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(OutputFormats.png, 100, false);
 				// Create the image which is going to be saved so we don't create it multiple times
 				disposeImage = ImageOutput.CreateImageFromSurface(surface, outputSettings, out imageToSave);
 				try {
 					// Create PNG stream
-					if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.PNG)) {
+					if (CoreConfig.ClipboardFormats.Contains(ClipboardFormats.PNG)) {
 						pngStream = new MemoryStream();
 						// PNG works for e.g. Powerpoint
-						SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
+						SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormats.png, 100, false);
 						ImageOutput.SaveToStream(imageToSave, null, pngStream, pngOutputSettings);
 						pngStream.Seek(0, SeekOrigin.Begin);
 						// Set the PNG stream
@@ -561,10 +562,10 @@ EndSelection:<<<<<<<4
 				}
 
 				try {
-					if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.DIB)) {
+					if (CoreConfig.ClipboardFormats.Contains(ClipboardFormats.DIB)) {
 						using (MemoryStream tmpBmpStream = new MemoryStream()) {
 							// Save image as BMP
-							SurfaceOutputSettings bmpOutputSettings = new SurfaceOutputSettings(OutputFormat.bmp, 100, false);
+							SurfaceOutputSettings bmpOutputSettings = new SurfaceOutputSettings(OutputFormats.bmp, 100, false);
 							ImageOutput.SaveToStream(imageToSave, null, tmpBmpStream, bmpOutputSettings);
 
 							dibStream = new MemoryStream();
@@ -581,7 +582,7 @@ EndSelection:<<<<<<<4
 
 				// CF_DibV5
 				try {
-					if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.DIBV5)) {
+					if (CoreConfig.ClipboardFormats.Contains(ClipboardFormats.DIBV5)) {
 						// Create the stream for the clipboard
 						dibV5Stream = new MemoryStream();
 
@@ -619,14 +620,14 @@ EndSelection:<<<<<<<4
 				}
 				
 				// Set the HTML
-				if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.HTML)) {
-					string tmpFile = ImageOutput.SaveToTmpFile(surface, new SurfaceOutputSettings(OutputFormat.png, 100, false), null);
+				if (CoreConfig.ClipboardFormats.Contains(ClipboardFormats.HTML)) {
+					string tmpFile = ImageOutput.SaveToTmpFile(surface, new SurfaceOutputSettings(OutputFormats.png, 100, false), null);
 					string html = GetHtmlString(surface, tmpFile);
 					dataObject.SetText(html, TextDataFormat.Html);
-				} else if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.HTMLDATAURL)) {
+				} else if (CoreConfig.ClipboardFormats.Contains(ClipboardFormats.HTMLDATAURL)) {
 					string html;
 					using (MemoryStream tmpPngStream = new MemoryStream()) {
-						SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false)
+						SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormats.png, 100, false)
 						{
 							// Do not allow to reduce the colors, some applications dislike 256 color images
 							// reported with bug #3594681
@@ -645,7 +646,7 @@ EndSelection:<<<<<<<4
 			} finally {
 				// we need to use the SetDataOject before the streams are closed otherwise the buffer will be gone!
 				// Check if Bitmap is wanted
-				if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.BITMAP)) {
+				if (CoreConfig.ClipboardFormats.Contains(ClipboardFormats.BITMAP)) {
 					dataObject.SetImage(imageToSave);
 					// Place the DataObject to the clipboard
 					SetDataObject(dataObject, true);

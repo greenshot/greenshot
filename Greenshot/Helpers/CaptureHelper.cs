@@ -35,6 +35,7 @@ using System.Drawing;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
+using GreenshotPlugin.Core.Enums;
 
 namespace Greenshot.Helpers {
 	/// <summary>
@@ -352,7 +353,7 @@ namespace Greenshot.Helpers {
 
 					if (!string.IsNullOrEmpty(filename)) {
 						try {
-							if (filename.ToLower().EndsWith("." + OutputFormat.greenshot)) {
+							if (filename.ToLower().EndsWith("." + OutputFormats.greenshot)) {
 								ISurface surface = new Surface();
 								surface = ImageOutput.LoadGreenshotSurface(filename, surface);
 								surface.CaptureDetails = _capture.CaptureDetails;
@@ -731,9 +732,9 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <param name="windowToCapture">Window to capture</param>
 		/// <param name="captureForWindow">The capture to store the details</param>
-		/// <param name="windowCaptureMode">What WindowCaptureMode to use</param>
+		/// <param name="windowCaptureMode">What WindowCaptureModes to use</param>
 		/// <returns></returns>
-		public static ICapture CaptureWindow(WindowDetails windowToCapture, ICapture captureForWindow, WindowCaptureMode windowCaptureMode) {
+		public static ICapture CaptureWindow(WindowDetails windowToCapture, ICapture captureForWindow, WindowCaptureModes windowCaptureMode) {
 			if (captureForWindow == null) {
 				captureForWindow = new Capture();
 			}
@@ -743,8 +744,8 @@ namespace Greenshot.Helpers {
 			bool dwmEnabled = DWM.IsDwmEnabled();
 			// get process name to be able to exclude certain processes from certain capture modes
 			using (Process process = windowToCapture.Process) {
-				bool isAutoMode = windowCaptureMode == WindowCaptureMode.Auto;
-				// For WindowCaptureMode.Auto we check:
+				bool isAutoMode = windowCaptureMode == WindowCaptureModes.Auto;
+				// For WindowCaptureModes.Auto we check:
 				// 1) Is window IE, use IE Capture
 				// 2) Is Windows >= Vista & DWM enabled: use DWM
 				// 3) Otherwise use GDI (Screen might be also okay but might lose content)
@@ -761,7 +762,7 @@ namespace Greenshot.Helpers {
 					}
 
 					// Take default screen
-					windowCaptureMode = WindowCaptureMode.Screen;
+					windowCaptureMode = WindowCaptureModes.Screen;
 
 					// Change to GDI, if allowed
 					if (!windowToCapture.IsMetroApp && WindowCapture.IsGdiAllowed(process)) {
@@ -769,28 +770,28 @@ namespace Greenshot.Helpers {
 							// do not use GDI, as DWM is not enabled and the application uses PresentationFramework.dll -> isWPF
 							Log.InfoFormat("Not using GDI for windows of process {0}, as the process uses WPF", process.ProcessName);
 						} else {
-							windowCaptureMode = WindowCaptureMode.GDI;
+							windowCaptureMode = WindowCaptureModes.GDI;
 						}
 					}
 
 					// Change to DWM, if enabled and allowed
 					if (dwmEnabled) {
 						if (windowToCapture.IsMetroApp || WindowCapture.IsDwmAllowed(process)) {
-							windowCaptureMode = WindowCaptureMode.Aero;
+							windowCaptureMode = WindowCaptureModes.Aero;
 						}
 					}
-				} else if (windowCaptureMode == WindowCaptureMode.Aero || windowCaptureMode == WindowCaptureMode.AeroTransparent) {
+				} else if (windowCaptureMode == WindowCaptureModes.Aero || windowCaptureMode == WindowCaptureModes.AeroTransparent) {
 					if (!dwmEnabled || (!windowToCapture.IsMetroApp && !WindowCapture.IsDwmAllowed(process))) {
 						// Take default screen
-						windowCaptureMode = WindowCaptureMode.Screen;
+						windowCaptureMode = WindowCaptureModes.Screen;
 						// Change to GDI, if allowed
 						if (WindowCapture.IsGdiAllowed(process)) {
-							windowCaptureMode = WindowCaptureMode.GDI;
+							windowCaptureMode = WindowCaptureModes.GDI;
 						}
 					}
-				} else if (windowCaptureMode == WindowCaptureMode.GDI && !WindowCapture.IsGdiAllowed(process)) {
+				} else if (windowCaptureMode == WindowCaptureModes.GDI && !WindowCapture.IsGdiAllowed(process)) {
 					// GDI not allowed, take screen
-					windowCaptureMode = WindowCaptureMode.Screen;
+					windowCaptureMode = WindowCaptureModes.Screen;
 				}
 
 				Log.InfoFormat("Capturing window with mode {0}", windowCaptureMode);
@@ -800,7 +801,7 @@ namespace Greenshot.Helpers {
 				while (!captureTaken) {
 					ICapture tmpCapture = null;
 					switch (windowCaptureMode) {
-						case WindowCaptureMode.GDI:
+						case WindowCaptureModes.GDI:
 							if (WindowCapture.IsGdiAllowed(process)) {
 								if (windowToCapture.Iconic) {
 									// Restore the window making sure it's visible!
@@ -854,11 +855,11 @@ namespace Greenshot.Helpers {
 								captureTaken = true;
 							} else {
 								// A problem, try Screen
-								windowCaptureMode = WindowCaptureMode.Screen;
+								windowCaptureMode = WindowCaptureModes.Screen;
 							}
 							break;
-						case WindowCaptureMode.Aero:
-						case WindowCaptureMode.AeroTransparent:
+						case WindowCaptureModes.Aero:
+						case WindowCaptureModes.AeroTransparent:
 							if (windowToCapture.IsMetroApp || WindowCapture.IsDwmAllowed(process)) {
 								tmpCapture = windowToCapture.CaptureDwmWindow(captureForWindow, windowCaptureMode, isAutoMode);
 							}
@@ -867,7 +868,7 @@ namespace Greenshot.Helpers {
 								captureTaken = true;
 							} else {
 								// A problem, try GDI
-								windowCaptureMode = WindowCaptureMode.GDI;
+								windowCaptureMode = WindowCaptureModes.GDI;
 							}
 							break;
 						default:

@@ -23,11 +23,11 @@ Greenshot 不對這個程式做任何擔保。 這個程式是自由軟體，您
 		<resource name="clipboard_error">寫入到剪貼簿時發生未預期的錯誤。</resource>
 		<resource name="clipboard_inuse">Greenshot 無法將資料寫入剪貼簿，因為 {0} 已將剪貼簿鎖定。</resource>
 		<resource name="clipboard_noimage">找不到剪貼簿圖片。</resource>
-		<resource name="ClipboardFormat.BITMAP">Windows 點陣圖</resource>
-		<resource name="ClipboardFormat.DIB">Device Independend Bitmap (DIB)</resource>
-		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">HTML 含內嵌圖像</resource>
-		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="ClipboardFormats.BITMAP">Windows 點陣圖</resource>
+		<resource name="ClipboardFormats.DIB">Device Independend Bitmap (DIB)</resource>
+		<resource name="ClipboardFormats.HTML">HTML</resource>
+		<resource name="ClipboardFormats.HTMLDATAURL">HTML 含內嵌圖像</resource>
+		<resource name="ClipboardFormats.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">透明度</resource>
 		<resource name="colorpicker_apply">套用</resource>
 		<resource name="colorpicker_blue">藍</resource>
@@ -284,10 +284,10 @@ ${hostname}   電腦名稱
 		<resource name="warning_hotkeys">無法註冊熱鍵「{0}」。 這個問題可能是另一個工具要求使用相同的熱鍵。 您可以變更熱鍵設定或停用/變更軟體使用熱鍵。
 
 Greenshot 所有功能仍然可以直接從通知區圖示的內容功能表動作而不需熱鍵。</resource>
-		<resource name="WindowCaptureMode.Aero">使用自訂色彩</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">保持透明度</resource>
-		<resource name="WindowCaptureMode.Auto">自動</resource>
-		<resource name="WindowCaptureMode.GDI">使用預設色彩</resource>
-		<resource name="WindowCaptureMode.Screen">如顯示</resource>
+		<resource name="WindowCaptureModes.Aero">使用自訂色彩</resource>
+		<resource name="WindowCaptureModes.AeroTransparent">保持透明度</resource>
+		<resource name="WindowCaptureModes.Auto">自動</resource>
+		<resource name="WindowCaptureModes.GDI">使用預設色彩</resource>
+		<resource name="WindowCaptureModes.Screen">如顯示</resource>
 	</resources>
 </language>

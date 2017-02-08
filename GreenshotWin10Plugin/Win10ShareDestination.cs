@@ -30,6 +30,7 @@ using Windows.Storage;
 using Color = Windows.UI.Color;
 using System.Collections.Generic;
 using System.Drawing;
+using GreenshotPlugin.Core.Enums;
 
 namespace GreenshotWin10Plugin
 {
@@ -110,7 +111,7 @@ namespace GreenshotWin10Plugin
 							Log.InfoFormat("Trying to share with {0}", args.ApplicationName);
 							applicationName = args.ApplicationName;
 						};
-						var filename = FilenameHelper.GetFilename(OutputFormat.png, captureDetails);
+						var filename = FilenameHelper.GetFilename(OutputFormats.png, captureDetails);
 						var storageFile = await StorageFile.CreateStreamedFileAsync(filename, async streamedFileDataRequest =>
 						{
 							// Information on how was found here: https://socialeboladev.wordpress.com/2013/03/15/how-to-use-createstreamedfileasync/

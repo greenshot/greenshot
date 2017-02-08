@@ -24,11 +24,11 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="clipboard_error">Произошла непредвиденная ошибка при записи в буфер обмена.</resource>
 		<resource name="clipboard_inuse">Greenshot не смог записать в буфер обмена, доступ заблокирован процессом {0}.</resource>
 		<resource name="clipboard_noimage">Изображение в буфере обмена не найдено.</resource>
-		<resource name="ClipboardFormat.BITMAP">Windows Bitmap</resource>
-		<resource name="ClipboardFormat.DIB">Устройство Independend Bitmap (DIB)</resource>
-		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">HTML со встроенными изображениями</resource>
-		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="ClipboardFormats.BITMAP">Windows Bitmap</resource>
+		<resource name="ClipboardFormats.DIB">Устройство Independend Bitmap (DIB)</resource>
+		<resource name="ClipboardFormats.HTML">HTML</resource>
+		<resource name="ClipboardFormats.HTMLDATAURL">HTML со встроенными изображениями</resource>
+		<resource name="ClipboardFormats.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">Alpha</resource>
 		<resource name="colorpicker_apply">Применить</resource>
 		<resource name="colorpicker_blue">Синий</resource>
@@ -286,10 +286,10 @@ ${hostname} Имя ПК
 		<resource name="warning_hotkeys">Горячие клавиши "{0}" не могут быть зарегистрированы. Эта проблема может быть связана с ещё одним инструментом, использующим те же клавиши! Нужно либо изменить настройки клавиш или деактивировать/изменить программное обеспечение, использующее горячие клавиши.
 
 Все функции Greenshot по-прежнему работают прямо из контекстного меню через значок  в трее.</resource>
-		<resource name="WindowCaptureMode.Aero">Использовать другой цвет</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">Сохранить прозрачность</resource>
-		<resource name="WindowCaptureMode.Auto">Автоматически</resource>
-		<resource name="WindowCaptureMode.GDI">Использ. цвет по умолчанию</resource>
-		<resource name="WindowCaptureMode.Screen">Как отображается</resource>
+		<resource name="WindowCaptureModes.Aero">Использовать другой цвет</resource>
+		<resource name="WindowCaptureModes.AeroTransparent">Сохранить прозрачность</resource>
+		<resource name="WindowCaptureModes.Auto">Автоматически</resource>
+		<resource name="WindowCaptureModes.GDI">Использ. цвет по умолчанию</resource>
+		<resource name="WindowCaptureModes.Screen">Как отображается</resource>
 	</resources>
 </language>

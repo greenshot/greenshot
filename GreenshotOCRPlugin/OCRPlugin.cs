@@ -26,6 +26,7 @@ using System.Windows.Forms;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.Effects;
 
 //using Microsoft.Win32;
@@ -149,7 +150,7 @@ namespace GreenshotOCR {
 		/// </summary>
 		/// <param name="surface">Has the Image and the capture details</param>
 		public string DoOcr(ISurface surface) {
-			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(OutputFormat.bmp, 0, true)
+			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(OutputFormats.bmp, 0, true)
 			{
 				ReduceColors = true,
 				SaveBackgroundOnly = true

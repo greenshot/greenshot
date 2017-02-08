@@ -23,11 +23,11 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. �
 		<resource name="clipboard_error">При записі в буфер обміну відбулась несподівана помилка.</resource>
 		<resource name="clipboard_inuse">Greenshot не зміг записати дані у буфер обміну, доступ до якого заблокований процесом {0}.</resource>
 		<resource name="clipboard_noimage">Неможливо знайти зображення у буфері обміну.</resource>
-		<resource name="ClipboardFormat.BITMAP">Растрове зображення Windows</resource>
-		<resource name="ClipboardFormat.DIB">Растрове зображення (DIB)</resource>
-		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">HTML з вбудованими зображеннями</resource>
-		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="ClipboardFormats.BITMAP">Растрове зображення Windows</resource>
+		<resource name="ClipboardFormats.DIB">Растрове зображення (DIB)</resource>
+		<resource name="ClipboardFormats.HTML">HTML</resource>
+		<resource name="ClipboardFormats.HTMLDATAURL">HTML з вбудованими зображеннями</resource>
+		<resource name="ClipboardFormats.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">Альфа</resource>
 		<resource name="colorpicker_apply">Застосувати</resource>
 		<resource name="colorpicker_blue">Синій</resource>
@@ -276,11 +276,11 @@ ${hostname} назва комп’ютера
 		<resource name="warning_hotkeys">Неможливо зареєструвати гарячі клавіші „{0}“. Можливо, вони вже використовуються іншою програмою! Ви можете змінити гарячі клавіші або вимкнути/змінити програму, що використовує такі ж комбінації клавіш.
 
 Всі функції Greenshot досі працюють безпосередньо з контекстного меню іконки у лотку без застосування гарячих клавіш.</resource>
-		<resource name="WindowCaptureMode.Aero">Використовувати користувацький колір</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">Зберігати прозорість</resource>
-		<resource name="WindowCaptureMode.Auto">Автоматично</resource>
-		<resource name="WindowCaptureMode.GDI">Використовувати стандартний колір</resource>
-		<resource name="WindowCaptureMode.Screen">Як відображається</resource>
+		<resource name="WindowCaptureModes.Aero">Використовувати користувацький колір</resource>
+		<resource name="WindowCaptureModes.AeroTransparent">Зберігати прозорість</resource>
+		<resource name="WindowCaptureModes.Auto">Автоматично</resource>
+		<resource name="WindowCaptureModes.GDI">Використовувати стандартний колір</resource>
+		<resource name="WindowCaptureModes.Screen">Як відображається</resource>
 
     <!-- 1.2 -->
     <resource name="editor_dropshadow_darkness">Тьмяність тіні</resource>

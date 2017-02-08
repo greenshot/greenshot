@@ -22,9 +22,9 @@ Pred objavo preverite tudi ali je napaka že prijavlja s strani kakšnega drugeg
 		<resource name="CANCEL">Prekliči</resource>
 		<resource name="clipboard_error">Prišlo je do nepričakovane napake pri dostopu do odložišča.</resource>
 		<resource name="clipboard_inuse">Greenshot ni mogel pisati v odložišče, ker ga je zaklenil drug proces {0}</resource>
-		<resource name="ClipboardFormat.DIB">Bitna slika neodvisna od naprave {DIB}</resource>
-		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">HTML skupaj s slikami</resource>
+		<resource name="ClipboardFormats.DIB">Bitna slika neodvisna od naprave {DIB}</resource>
+		<resource name="ClipboardFormats.HTML">HTML</resource>
+		<resource name="ClipboardFormats.HTMLDATAURL">HTML skupaj s slikami</resource>
 		<resource name="colorpicker_apply">Uporabi</resource>
 		<resource name="colorpicker_blue">Modra</resource>
 		<resource name="colorpicker_green">Zelena</resource>
@@ -238,10 +238,10 @@ Prosim preverite pravice pisanja v ta direktorij.</resource>
 		<resource name="warning_hotkeys">Bližnjica "{0}" ne more biti registrirana. Težava je verjetno v tem, da nek drug program uporablja isto bližnjico ! Nastavite si drugo bližnjično tipko ali deaktivirajte bližnjice za ta program.
 
 Vse funkcije Greenshota še vedno delujejo preko ikone za hitri zagon.</resource>
-		<resource name="WindowCaptureMode.Aero">Uporabi lastne barve</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">Ohrani prosojnost</resource>
-		<resource name="WindowCaptureMode.Auto">Samodejno</resource>
-		<resource name="WindowCaptureMode.GDI">Uporabi privzete barve</resource>
-		<resource name="WindowCaptureMode.Screen">Kot prikazano</resource>
+		<resource name="WindowCaptureModes.Aero">Uporabi lastne barve</resource>
+		<resource name="WindowCaptureModes.AeroTransparent">Ohrani prosojnost</resource>
+		<resource name="WindowCaptureModes.Auto">Samodejno</resource>
+		<resource name="WindowCaptureModes.GDI">Uporabi privzete barve</resource>
+		<resource name="WindowCaptureModes.Screen">Kot prikazano</resource>
 	</resources>
 </language>

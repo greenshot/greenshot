@@ -59,9 +59,14 @@
     <Compile Include="Controls\GreenshotRadioButton.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Core\Enums\BuildStates.cs" />
+    <Compile Include="Core\Enums\ClickActions.cs" />
+    <Compile Include="Core\Enums\ClipboardFormats.cs" />
     <Compile Include="Core\ExplorerHelper.cs" />
     <Compile Include="Core\Log4NetLogger.cs" />
+    <Compile Include="Core\Enums\OutputFormats.cs" />
     <Compile Include="Core\SvgImage.cs" />
+    <Compile Include="Core\Enums\WindowCaptureModes.cs" />
     <Compile Include="Effects\AdjustEffect.cs" />
     <Compile Include="Effects\BorderEffect.cs" />
     <Compile Include="Core\CaptureHandler.cs" />

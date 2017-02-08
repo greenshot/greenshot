@@ -28,33 +28,9 @@ using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
+using GreenshotPlugin.Core.Enums;
 
 namespace GreenshotPlugin.Core {
-	public enum ClipboardFormat {
-		PNG, DIB, HTML, HTMLDATAURL, BITMAP, DIBV5
-	}
-	public enum OutputFormat {
-		bmp, gif, jpg, png, tiff, greenshot, ico
-	}
-	public enum WindowCaptureMode {
-		Screen, GDI, Aero, AeroTransparent, Auto
-	}
-
-	public enum BuildStates {
-		ALPHA,
-		BETA,
-		RELEASE_CANDIDATE,
-		RELEASE
-	}
-	
-	public enum ClickActions {
-		DO_NOTHING,
-		OPEN_LAST_IN_EXPLORER,
-		OPEN_LAST_IN_EDITOR,
-		OPEN_SETTINGS,
-		SHOW_CONTEXT_MENU
-	}
-
 	/// <summary>
 	/// Description of CoreConfiguration.
 	/// </summary>
@@ -81,7 +57,7 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("Destinations", Separator=",", Description="Which destinations? Possible options (more might be added by plugins) are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail, Picker", DefaultValue="Picker")]
 		public List<string> OutputDestinations { get; set; } = new List<string>();
 		[IniProperty("ClipboardFormats", Separator=",", Description="Specify which formats we copy on the clipboard? Options are: PNG, HTML, HTMLDATAURL and DIB", DefaultValue="PNG,DIB")]
-		public List<ClipboardFormat> ClipboardFormats { get; set; } = new List<ClipboardFormat>();
+		public List<ClipboardFormats> ClipboardFormats { get; set; } = new List<ClipboardFormats>();
 
 		[IniProperty("CaptureMousepointer", Description="Should the mouse be captured?", DefaultValue="true")]
 		public bool CaptureMousepointer { get; set; }
@@ -94,7 +70,7 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("ScreenToCapture", Description = "The screen number to capture when using ScreenCaptureMode Fixed.", DefaultValue = "1")]
 		public int ScreenToCapture { get; set; }
 		[IniProperty("WindowCaptureMode", Description = "The capture mode used to capture a Window (Screen, GDI, Aero, AeroTransparent, Auto).", DefaultValue = "Auto")]
-		public WindowCaptureMode WindowCaptureMode { get; set; }
+		public WindowCaptureModes WindowCaptureMode { get; set; }
 		[IniProperty("WindowCaptureAllChildLocations", Description="Enable/disable capture all children, very slow but will make it possible to use this information in the editor.", DefaultValue="False")]
 		public bool WindowCaptureAllChildLocations { get; set; }
 
@@ -113,7 +89,7 @@ namespace GreenshotPlugin.Core {
 		[IniProperty("OutputFileFilenamePattern", Description = "Filename pattern for screenshot.", DefaultValue = "${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}-${title}")]
 		public string OutputFileFilenamePattern { get; set; }
 		[IniProperty("OutputFileFormat", Description="Default file type for writing screenshots. (bmp, gif, jpg, png, tiff)", DefaultValue="png")]
-		public OutputFormat OutputFileFormat { get; set; } = OutputFormat.png;
+		public OutputFormats OutputFileFormat { get; set; } = OutputFormats.png;
 		[IniProperty("OutputFileReduceColors", Description="If set to true, than the colors of the output file are reduced to 256 (8-bit) colors", DefaultValue="false")]
 		public bool OutputFileReduceColors { get; set; }
 		[IniProperty("OutputFileAutoReduceColors", Description = "If set to true the amount of colors is counted and if smaller than 256 the color reduction is automatically used.", DefaultValue = "false")]
@@ -469,7 +445,7 @@ namespace GreenshotPlugin.Core {
 
 			// Make sure we have clipboard formats, otherwise a paste doesn't make sense!
 			if (ClipboardFormats == null || ClipboardFormats.Count == 0) {
-				ClipboardFormats = new List<ClipboardFormat> {ClipboardFormat.PNG, ClipboardFormat.HTML, ClipboardFormat.DIB};
+				ClipboardFormats = new List<ClipboardFormats> {Enums.ClipboardFormats.PNG, Enums.ClipboardFormats.HTML, Enums.ClipboardFormats.DIB};
 			}
 
 			// Make sure the lists are lowercase, to speedup the check

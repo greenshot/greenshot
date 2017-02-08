@@ -23,11 +23,11 @@ Také bychom velmi ocenili, kdybyste zkontrolovali, zda tato chyba již není ev
 		<resource name="clipboard_error">Neočekávaná chyba při zápisu do schránky.</resource>
 		<resource name="clipboard_inuse">Greenshot nemohl zapsat data do schránky, je {0} blokován přístup.</resource>
 		<resource name="clipboard_noimage">Obrázek ve schránce nebyl nalezen.</resource>
-		<resource name="ClipboardFormat.BITMAP">Windows Bitmap</resource>
-		<resource name="ClipboardFormat.DIB">Zařízení Independent Bitmap (DIB)</resource>
-		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">HTML s vloženými obrázky</resource>
-		<resource name="ClipboardFormat.PNG">PNG</resource>	
+		<resource name="ClipboardFormats.BITMAP">Windows Bitmap</resource>
+		<resource name="ClipboardFormats.DIB">Zařízení Independent Bitmap (DIB)</resource>
+		<resource name="ClipboardFormats.HTML">HTML</resource>
+		<resource name="ClipboardFormats.HTMLDATAURL">HTML s vloženými obrázky</resource>
+		<resource name="ClipboardFormats.PNG">PNG</resource>	
 		<resource name="colorpicker_alpha">Alfa</resource>
 		<resource name="colorpicker_apply">Použít</resource>
 		<resource name="colorpicker_blue">Modrá</resource>
@@ -276,11 +276,11 @@ Například: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} vytvoří ve výchozím úlo�
 		<resource name="warning_hotkeys">Klávesovou(é) zkratku(y) "{0}" nelze použít. Tento problém je pravděpodobně způsoben jiným programem používajícím tytéž klávesové zkratky! Můžete změnit nastavení klávesových zkratek, deaktivovat je nebo změnit nastavení softwaru využívajícího shodné klávesové zkratky.
 
 Všechny funkce Greenshotu jsou stále dostupné přímo z místní nabídky bez použití klávesové zkratky.</resource>
-		<resource name="WindowCaptureMode.Aero">Použít vlastní barvu</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">Zachovat průhlednost</resource>
-		<resource name="WindowCaptureMode.Auto">Automaticky</resource>
-		<resource name="WindowCaptureMode.GDI">Použít výchozí barvu</resource>
-		<resource name="WindowCaptureMode.Screen">Jak je zobrazeno</resource>
+		<resource name="WindowCaptureModes.Aero">Použít vlastní barvu</resource>
+		<resource name="WindowCaptureModes.AeroTransparent">Zachovat průhlednost</resource>
+		<resource name="WindowCaptureModes.Auto">Automaticky</resource>
+		<resource name="WindowCaptureModes.GDI">Použít výchozí barvu</resource>
+		<resource name="WindowCaptureModes.Screen">Jak je zobrazeno</resource>
 		
 		<!-- 1.2 -->
 		<resource name="editor_dropshadow_darkness">Intenzita stínu</resource>

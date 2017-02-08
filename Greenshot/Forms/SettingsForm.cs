@@ -37,6 +37,7 @@ using Greenshot.Plugin;
 using Greenshot.IniFile;
 using System.Text.RegularExpressions;
 using Greenshot.Forms;
+using GreenshotPlugin.Core.Enums;
 using log4net;
 
 namespace Greenshot {
@@ -177,16 +178,16 @@ namespace Greenshot {
 			return returnValue;
 		}
 		
-		private void SetWindowCaptureMode(WindowCaptureMode selectedWindowCaptureMode) {
-			WindowCaptureMode[] availableModes;
+		private void SetWindowCaptureMode(WindowCaptureModes selectedWindowCaptureMode) {
+			WindowCaptureModes[] availableModes;
 			if (!DWM.IsDwmEnabled()) {
 				// Remove DWM from configuration, as DWM is disabled!
-				if (coreConfiguration.WindowCaptureMode == WindowCaptureMode.Aero || coreConfiguration.WindowCaptureMode == WindowCaptureMode.AeroTransparent) {
-					coreConfiguration.WindowCaptureMode = WindowCaptureMode.GDI;
+				if (coreConfiguration.WindowCaptureMode == WindowCaptureModes.Aero || coreConfiguration.WindowCaptureMode == WindowCaptureModes.AeroTransparent) {
+					coreConfiguration.WindowCaptureMode = WindowCaptureModes.GDI;
 				}
-				availableModes = new[]{WindowCaptureMode.Auto, WindowCaptureMode.Screen, WindowCaptureMode.GDI};
+				availableModes = new[]{WindowCaptureModes.Auto, WindowCaptureModes.Screen, WindowCaptureModes.GDI};
 			} else {
-				availableModes = new[]{WindowCaptureMode.Auto, WindowCaptureMode.Screen, WindowCaptureMode.GDI, WindowCaptureMode.Aero, WindowCaptureMode.AeroTransparent};
+				availableModes = new[]{WindowCaptureModes.Auto, WindowCaptureModes.Screen, WindowCaptureModes.GDI, WindowCaptureModes.Aero, WindowCaptureModes.AeroTransparent};
 			}
 			PopulateComboBox(combobox_window_capture_mode, availableModes, selectedWindowCaptureMode);
 		}
@@ -318,7 +319,7 @@ namespace Greenshot {
 		/// </summary>
 		private void UpdateClipboardFormatDescriptions() {
 			foreach(ListViewItem item in listview_clipboardformats.Items) {
-				ClipboardFormat cf = (ClipboardFormat) item.Tag;
+				ClipboardFormats cf = (ClipboardFormats) item.Tag;
 				item.Text = Language.Translate(cf);
 			}
 		}
@@ -373,7 +374,7 @@ namespace Greenshot {
 			colorButton_window_background.SelectedColor = coreConfiguration.DWMBackgroundColor;
 
 			// Expert mode, the clipboard formats
-			foreach (ClipboardFormat clipboardFormat in Enum.GetValues(typeof(ClipboardFormat))) {
+			foreach (ClipboardFormats clipboardFormat in Enum.GetValues(typeof(ClipboardFormats))) {
 				ListViewItem item = listview_clipboardformats.Items.Add(Language.Translate(clipboardFormat));
 				item.Tag = clipboardFormat;
 				item.Checked = coreConfiguration.ClipboardFormats.Contains(clipboardFormat);
@@ -437,16 +438,16 @@ namespace Greenshot {
 			}
 
 			// retrieve the set clipboard formats
-			List<ClipboardFormat> clipboardFormats = new List<ClipboardFormat>();
+			List<ClipboardFormats> clipboardFormats = new List<ClipboardFormats>();
 			foreach (int index in listview_clipboardformats.CheckedIndices) {
 				ListViewItem item = listview_clipboardformats.Items[index];
 				if (item.Checked) {
-					clipboardFormats.Add((ClipboardFormat)item.Tag);
+					clipboardFormats.Add((ClipboardFormats)item.Tag);
 				}
 			}
 			coreConfiguration.ClipboardFormats = clipboardFormats;
 
-			coreConfiguration.WindowCaptureMode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
+			coreConfiguration.WindowCaptureMode = GetSelected<WindowCaptureModes>(combobox_window_capture_mode);
 			if (!FilenameHelper.FillVariables(coreConfiguration.OutputFilePath, false).Equals(textbox_storagelocation.Text)) {
 				coreConfiguration.OutputFilePath = textbox_storagelocation.Text;
 			}
@@ -545,7 +546,7 @@ namespace Greenshot {
 		private void Combobox_languageSelectedIndexChanged(object sender, EventArgs e) {
 			// Get the combobox values BEFORE changing the language
 			//EmailFormat selectedEmailFormat = GetSelected<EmailFormat>(combobox_emailformat);
-			WindowCaptureMode selectedWindowCaptureMode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
+			WindowCaptureModes selectedWindowCaptureMode = GetSelected<WindowCaptureModes>(combobox_window_capture_mode);
 			if (combobox_language.SelectedItem != null) {
 				Log.Debug("Setting language to: " + (string)combobox_language.SelectedValue);
 				Language.CurrentLanguage = (string)combobox_language.SelectedValue;
@@ -563,10 +564,10 @@ namespace Greenshot {
 
 		private void Combobox_window_capture_modeSelectedIndexChanged(object sender, EventArgs e) {
 			int windowsVersion = Environment.OSVersion.Version.Major;
-			WindowCaptureMode mode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
+			WindowCaptureModes mode = GetSelected<WindowCaptureModes>(combobox_window_capture_mode);
 			if (windowsVersion >= 6) {
 				switch (mode) {
-					case WindowCaptureMode.Aero:
+					case WindowCaptureModes.Aero:
 						colorButton_window_background.Visible = true;
 						return;
 				}

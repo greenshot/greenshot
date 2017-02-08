@@ -22,6 +22,7 @@ using System.Windows.Forms;
 using Greenshot.IniFile;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Core.Enums;
 
 namespace GreenshotPhotobucketPlugin {
 	/// <summary>
@@ -30,7 +31,7 @@ namespace GreenshotPhotobucketPlugin {
 	[IniSection("Photobucket", Description="Greenshot Photobucket Plugin configuration")]
 	public class PhotobucketConfiguration : IniSection {
 		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
-		public OutputFormat UploadFormat { get; set; }
+		public OutputFormats UploadFormat { get; set; }
 		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
 		public int UploadJpegQuality { get; set; }
 		[IniProperty("UploadReduceColors", Description="Reduce color amount of the uploaded image to 256", DefaultValue="False")]

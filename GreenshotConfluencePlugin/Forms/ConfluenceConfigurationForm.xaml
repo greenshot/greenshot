@@ -4,9 +4,10 @@
     xmlns:gscp="clr-namespace:GreenshotConfluencePlugin"
     xmlns:l="clr-namespace:TranslationByMarkupExtension"
     xmlns:gsc="clr-namespace:GreenshotPlugin.Core;assembly=GreenshotPlugin"
-	Title="{l:Translate plugin_settings}" SizeToContent="WidthAndHeight" ResizeMode="NoResize" Icon="/GreenshotConfluencePlugin;component/Images/Confluence.ico">
+    xmlns:enums="clr-namespace:GreenshotPlugin.Core.Enums;assembly=GreenshotPlugin"
+    Title="{l:Translate plugin_settings}" SizeToContent="WidthAndHeight" ResizeMode="NoResize" Icon="/GreenshotConfluencePlugin;component/Images/Confluence.ico">
 	<Window.Resources>
-        <gscp:EnumDisplayer Type="{x:Type gsc:OutputFormat}" x:Key="outputFormats"/>
+        <gscp:EnumDisplayer Type="{x:Type enums:OutputFormats}" x:Key="outputFormats"/>
 	</Window.Resources>
 
 	<StackPanel>

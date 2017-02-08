@@ -23,11 +23,11 @@ Me oleksime väga tänulik, kui te enne kontrolliksite, ega sellest veast pole j
 		<resource name="clipboard_error">Lõikelauale kirjutamisel ilmnes ootamatu viga.</resource>
 		<resource name="clipboard_inuse">Greenshot ei suutnud lõikelauale kirjutada, sest {0} protsess blokeeris ligipääsu.</resource>
 		<resource name="clipboard_noimage">Lõikelaua pilti ei leitud.</resource>
-		<resource name="ClipboardFormat.BITMAP">Windowsi pisipilt</resource>
-		<resource name="ClipboardFormat.DIB">Seadme isesesev pisipilt (DIB)</resource>
-		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">HTML koos tekstisisese pildiga</resource>
-		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="ClipboardFormats.BITMAP">Windowsi pisipilt</resource>
+		<resource name="ClipboardFormats.DIB">Seadme isesesev pisipilt (DIB)</resource>
+		<resource name="ClipboardFormats.HTML">HTML</resource>
+		<resource name="ClipboardFormats.HTMLDATAURL">HTML koos tekstisisese pildiga</resource>
+		<resource name="ClipboardFormats.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">Alpha</resource>
 		<resource name="colorpicker_apply">Kinnita</resource>
 		<resource name="colorpicker_blue">Sinine</resource>
@@ -285,10 +285,10 @@ kellaajast, nt 11_58_32 (lisaks seadetes määratud laiend)</resource>
 		<resource name="warning_hotkeys">Kiirklahv(e) "{0}" ei suudetud registreerida. Teine tööriist väidab kasutavat sama(u) kiirklahvi(e)! Muutke või deaktiviseerige kiirklahv(id).
 
 Kõik Greenshoti lisad töötavad süsteemisalvest ilma kiirklahvide olemasoluta.</resource>
-		<resource name="WindowCaptureMode.Aero">Kasutage kohandatud värvi</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">Säilitage läbipaistvus</resource>
-		<resource name="WindowCaptureMode.Auto">Automaatselt</resource>
-		<resource name="WindowCaptureMode.GDI">Kasutage tavalist värvi</resource>
-		<resource name="WindowCaptureMode.Screen">Nagu kuvatud</resource>
+		<resource name="WindowCaptureModes.Aero">Kasutage kohandatud värvi</resource>
+		<resource name="WindowCaptureModes.AeroTransparent">Säilitage läbipaistvus</resource>
+		<resource name="WindowCaptureModes.Auto">Automaatselt</resource>
+		<resource name="WindowCaptureModes.GDI">Kasutage tavalist värvi</resource>
+		<resource name="WindowCaptureModes.Screen">Nagu kuvatud</resource>
 	</resources>
 </language>

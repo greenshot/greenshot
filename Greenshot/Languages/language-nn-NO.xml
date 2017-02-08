@@ -22,10 +22,10 @@ Me sett òg pris på om du ved hjelp av søkefunksjonen på sida kan sjekke om d
 		<resource name="CANCEL">Avbryt</resource>
 		<resource name="clipboard_error">Ein ukjend feil oppstod med skriving til utklyppstavla!</resource>
 		<resource name="clipboard_inuse">Greenshot kunne ikkje bruke utklyppstavla! Prosessen {0} sperrar tilgangen.</resource>
-		<resource name="ClipboardFormat.DIB">Device Independent Bitmap (DIB)</resource>
-		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">HTML med bilde</resource>
-		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="ClipboardFormats.DIB">Device Independent Bitmap (DIB)</resource>
+		<resource name="ClipboardFormats.HTML">HTML</resource>
+		<resource name="ClipboardFormats.HTMLDATAURL">HTML med bilde</resource>
+		<resource name="ClipboardFormats.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">Alpha</resource>
 		<resource name="colorpicker_apply">Bruk</resource>
 		<resource name="colorpicker_blue">Blå</resource>
@@ -251,10 +251,10 @@ vil lage ei mappe med dagens dato (f.eks. 2012-09-11) der fila blir lagra med ti
 		<resource name="warning_hotkeys">Snøggtasten/-ane "{0}" kunne ikkje brukast. Sannsynlegvis er den/dei alt i bruk av eit anna program{1}. Du kan anten endre snøggtasten/-ane eller deaktivere/endre dei i det andre verktøyet.
 
 Alle Greenshot-funksjonar er likevel tilgjengeleg via høgreklikkmenyen i varslingsfeltet nedst til høgre på skjermen.</resource>
-		<resource name="WindowCaptureMode.Aero">Bruk eigendefinert farge</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">Hald på gjennomsynlegheit</resource>
-		<resource name="WindowCaptureMode.Auto">Automatisk</resource>
-		<resource name="WindowCaptureMode.GDI">Bruk standardfarge</resource>
-		<resource name="WindowCaptureMode.Screen">Som synt</resource>
+		<resource name="WindowCaptureModes.Aero">Bruk eigendefinert farge</resource>
+		<resource name="WindowCaptureModes.AeroTransparent">Hald på gjennomsynlegheit</resource>
+		<resource name="WindowCaptureModes.Auto">Automatisk</resource>
+		<resource name="WindowCaptureModes.GDI">Bruk standardfarge</resource>
+		<resource name="WindowCaptureModes.Screen">Som synt</resource>
 	</resources>
 </language>

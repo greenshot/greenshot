@@ -23,11 +23,11 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="clipboard_error">Ein unerwarteter Fehler beim Schreiben in die Zwischenablage ist aufgetreten.</resource>
 		<resource name="clipboard_inuse">Greenshot kann nicht in die Zwischenablage schreiben, da sie vom Prozess {0} blockiert ist.</resource>
 		<resource name="clipboard_noimage">Kein Bild in der Zwischenablage gefunden.</resource>
-		<resource name="ClipboardFormat.BITMAP">Windows Bitmap</resource>
-		<resource name="ClipboardFormat.DIB">Geräteunabhängiges Bitmap (DIB)</resource>
-		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">HTML (mit Bildern)</resource>
-		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="ClipboardFormats.BITMAP">Windows Bitmap</resource>
+		<resource name="ClipboardFormats.DIB">Geräteunabhängiges Bitmap (DIB)</resource>
+		<resource name="ClipboardFormats.HTML">HTML</resource>
+		<resource name="ClipboardFormats.HTMLDATAURL">HTML (mit Bildern)</resource>
+		<resource name="ClipboardFormats.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">Alpha</resource>
 		<resource name="colorpicker_apply">Übernehmen</resource>
 		<resource name="colorpicker_blue">Blau</resource>
@@ -282,11 +282,11 @@ Vermutlich wurde dieselbe Tastenkombination bereits von einem anderen Programm{1
 Sie können die Tastenkombinationen für Greenshot ändern, oder das Programm, das die Tastenkombination verwendet, deaktivieren.
 
 Sie können aber auch alle Greenshot-Funktionen über das Kontextmenü des Greenshot-Icons im Infobereich verwenden.</resource>
-		<resource name="WindowCaptureMode.Aero">Benutzerdefinierte Farbe verwenden</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">Transparenz erhalten</resource>
-		<resource name="WindowCaptureMode.Auto">Automatisch</resource>
-		<resource name="WindowCaptureMode.GDI">Standardfarbe verwenden</resource>
-		<resource name="WindowCaptureMode.Screen">Wie angezeigt</resource>
+		<resource name="WindowCaptureModes.Aero">Benutzerdefinierte Farbe verwenden</resource>
+		<resource name="WindowCaptureModes.AeroTransparent">Transparenz erhalten</resource>
+		<resource name="WindowCaptureModes.Auto">Automatisch</resource>
+		<resource name="WindowCaptureModes.GDI">Standardfarbe verwenden</resource>
+		<resource name="WindowCaptureModes.Screen">Wie angezeigt</resource>
 
 		<!-- 1.2 -->
 		<resource name="editor_dropshadow_darkness">Schatten-Intensität</resource>

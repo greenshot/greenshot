@@ -23,11 +23,11 @@ Também apreciaremos muito se puder verificar se não existe já um relatório d
 		<resource name="clipboard_error">Ocorreu um erro inesperado ao tentar escrever na área de transferência.</resource>
 		<resource name="clipboard_inuse">O Greenshot não conseguiu escrever na área de transferência porque o processo {0} bloqueou o acesso.</resource>
 		<resource name="clipboard_noimage">Não foi possível encontrar uma imagem na Área de transferência.</resource>
-		<resource name="ClipboardFormat.BITMAP">Bitmap do Windows </resource>
-		<resource name="ClipboardFormat.DIB">Device Independend Bitmap (DIB)</resource>
-		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">HTML com imagens embutidas</resource>
-		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="ClipboardFormats.BITMAP">Bitmap do Windows </resource>
+		<resource name="ClipboardFormats.DIB">Device Independend Bitmap (DIB)</resource>
+		<resource name="ClipboardFormats.HTML">HTML</resource>
+		<resource name="ClipboardFormats.HTMLDATAURL">HTML com imagens embutidas</resource>
+		<resource name="ClipboardFormats.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">Alfa</resource>
 		<resource name="colorpicker_apply">Aplicar</resource>
 		<resource name="colorpicker_blue">Azul</resource>
@@ -277,11 +277,11 @@ hora actual, exemplo: 11_58_32 (mais a extensão definida nas definições)</res
 		<resource name="warning_hotkeys">A(s) tecla(s) de Atalho "{0}" não pode(m) ser registada(s). Este problema é provavelmente provocado por outra ferramenta que que utiliza a(s) mesma(s) tecla(s) de atalho! Pode alterar as suas definições de teclas de atalho ou desactivar/alterar o programa que está a usar a(s) mesma(s) tecla(s) de atalho.
 		
 Todas as funcionalidades do Greenshot funcionam directamente através do menu de contexto do ícone da bandeja, sem teclas de atalho.</resource>
-		<resource name="WindowCaptureMode.Aero">Usar cor personalizada</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">Manter transparência</resource>
-		<resource name="WindowCaptureMode.Auto">Automaticamente</resource>
-		<resource name="WindowCaptureMode.GDI">Usar cor padrão</resource>
-		<resource name="WindowCaptureMode.Screen">Tal como exibido</resource>
+		<resource name="WindowCaptureModes.Aero">Usar cor personalizada</resource>
+		<resource name="WindowCaptureModes.AeroTransparent">Manter transparência</resource>
+		<resource name="WindowCaptureModes.Auto">Automaticamente</resource>
+		<resource name="WindowCaptureModes.GDI">Usar cor padrão</resource>
+		<resource name="WindowCaptureModes.Screen">Tal como exibido</resource>
 
     <!-- 1.2 -->
     <resource name="editor_dropshadow_darkness">Escuridão da sombra</resource>

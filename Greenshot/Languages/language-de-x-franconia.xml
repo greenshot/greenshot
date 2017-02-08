@@ -22,10 +22,10 @@ Dangschee, wassd scho :)</resource>
 		<resource name="CANCEL">Legg mich</resource>
 		<resource name="clipboard_error">Scheiße, etz hat des mid der Zwischnablach ned glabbd.</resource>
 		<resource name="clipboard_inuse">Sachamal, ich kann nix in däi Zwischnablach schreim. Der do hoggd draff: {0}</resource>
-		<resource name="ClipboardFormat.DIB">Gerädeunabhängiches Bidmäb (DIB)</resource>
-		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">HTML (mit Bildla)</resource>
-		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="ClipboardFormats.DIB">Gerädeunabhängiches Bidmäb (DIB)</resource>
+		<resource name="ClipboardFormats.HTML">HTML</resource>
+		<resource name="ClipboardFormats.HTMLDATAURL">HTML (mit Bildla)</resource>
+		<resource name="ClipboardFormats.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">Alpha</resource>
 		<resource name="colorpicker_apply">Mach mer</resource>
 		<resource name="colorpicker_blue">Blau</resource>
@@ -269,10 +269,10 @@ Warscheinli hoggd irgend so a andrer Debb draff.
 Endweder ändersd die Dasdnkombi für Greenshot, oder du bisd a Mann und findsd die Sau!
 
 Wennsd mogsd, kannsd nadürlich a einfach es Gondexdmenü nehmen (des grüne G rechds undn).</resource>
-		<resource name="WindowCaptureMode.Aero">Selber a Farm aussuchn</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">Dransbarens erhaldn</resource>
-		<resource name="WindowCaptureMode.Auto">Audomadisch</resource>
-		<resource name="WindowCaptureMode.GDI">Schdandardfarm benudzn</resource>
-		<resource name="WindowCaptureMode.Screen">Wäisd es siggsd</resource>
+		<resource name="WindowCaptureModes.Aero">Selber a Farm aussuchn</resource>
+		<resource name="WindowCaptureModes.AeroTransparent">Dransbarens erhaldn</resource>
+		<resource name="WindowCaptureModes.Auto">Audomadisch</resource>
+		<resource name="WindowCaptureModes.GDI">Schdandardfarm benudzn</resource>
+		<resource name="WindowCaptureModes.Screen">Wäisd es siggsd</resource>
 	</resources>
 </language>

@@ -23,11 +23,11 @@ Mēs būtu Tev pateicīgi, ja Tu vispirms pārbaudītu, vai kāds cits jau nav z
 		<resource name="clipboard_error">Rakstot starpliktuvē radās neparedzēta kļūda.</resource>
 		<resource name="clipboard_inuse">„Greenshot” nespēja ierakstīt starpliktuvē, jo process {0} piekļuvi tai liedza piekļuvi.</resource>
 		<resource name="clipboard_noimage">Starpliktuvē attēls nav atrodams.</resource>
-		<resource name="ClipboardFormat.BITMAP">Windows Bitmap</resource>
-		<resource name="ClipboardFormat.DIB">Device Independend Bitmap (DIB)</resource>
-		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">HTML ar iekļautiem attēliem</resource>
-		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="ClipboardFormats.BITMAP">Windows Bitmap</resource>
+		<resource name="ClipboardFormats.DIB">Device Independend Bitmap (DIB)</resource>
+		<resource name="ClipboardFormats.HTML">HTML</resource>
+		<resource name="ClipboardFormats.HTMLDATAURL">HTML ar iekļautiem attēliem</resource>
+		<resource name="ClipboardFormats.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">Blīvums</resource>
 		<resource name="colorpicker_apply">Pielietot</resource>
 		<resource name="colorpicker_blue">Zils</resource>
@@ -278,11 +278,11 @@ piemēram, 06_16_31 ar paplašinājumu, kas noteikts iestatījumos (Attēla veid
 		<resource name="warning_hotkeys">Neizdevās pievienot karsto taustiņu "{0}". Iespējams, ka kāda cita lietotne to jau izmanto! Vai nu izmanto citu karsto taustiņu, vai arī nomai tā lietojumu citur.
 
 Arī bez karstiem taustiņiem visas darbības iespējams veikt izmantojot „Greenshot” ikonjoslas izvēlni.</resource>
-		<resource name="WindowCaptureMode.Aero">Izmantot pielāgotu krāsu</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">Saglabāt caurspīdīgumu</resource>
-		<resource name="WindowCaptureMode.Auto">Automātiski</resource>
-		<resource name="WindowCaptureMode.GDI">Lietot piedāvāto krāsu</resource>
-		<resource name="WindowCaptureMode.Screen">Kā redzams</resource>
+		<resource name="WindowCaptureModes.Aero">Izmantot pielāgotu krāsu</resource>
+		<resource name="WindowCaptureModes.AeroTransparent">Saglabāt caurspīdīgumu</resource>
+		<resource name="WindowCaptureModes.Auto">Automātiski</resource>
+		<resource name="WindowCaptureModes.GDI">Lietot piedāvāto krāsu</resource>
+		<resource name="WindowCaptureModes.Screen">Kā redzams</resource>
 
     <!-- 1.2 -->
     <resource name="editor_dropshadow_darkness">Ēnas tumšums</resource>

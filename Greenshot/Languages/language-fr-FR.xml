@@ -23,11 +23,11 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="clipboard_error">Une erreur inattendue a eu lieu lors de l'écriture vers le presse-papier.</resource>
 		<resource name="clipboard_inuse">Greenshot n'a pu écrire dans le presse-papier car le processus {0} en a bloqué l'accès.</resource>
 		<resource name="clipboard_noimage">Impossible de trouver une image dans le presse-papier.</resource>
-		<resource name="ClipboardFormat.BITMAP">Windows Bitmap</resource>
-		<resource name="ClipboardFormat.DIB">Format d'image indépendante du périphérique (DIB)</resource>
-		<resource name="ClipboardFormat.HTML">HTML</resource>
+		<resource name="ClipboardFormats.BITMAP">Windows Bitmap</resource>
+		<resource name="ClipboardFormats.DIB">Format d'image indépendante du périphérique (DIB)</resource>
+		<resource name="ClipboardFormats.HTML">HTML</resource>
 		<resource name="ClipboardFormat.HTMLDATAURL">HTML avec images en ligne</resource>
-		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="ClipboardFormats.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">Alpha</resource>
 		<resource name="colorpicker_apply">Appliquer</resource>
 		<resource name="colorpicker_blue">Bleu</resource>
@@ -300,10 +300,10 @@ en cours, par exemple 11_58_32 (plus l'extension définie dans les paramètres)<
 		<resource name="warning_hotkeys">Le(s) raccourci(s) clavier "{0}" n'a pu être enregistré. Ce problème est probablement dû à un autre outil{1} qui utilise le(s) même(s) raccourci(s) clavier. Vous pouvez soit modifier vos raccourcis clavier soit désactiver/modifier le logiciel utilisant le(s) raccourci(s).
 
 Toutes les fonctionnalités de Greenshot se lancent aussi directement depuis le menu contextuel de l'icône de la zone de notifications système.</resource>
-		<resource name="WindowCaptureMode.Aero">Utiliser une couleur personnalisée</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">Préserver la transparence</resource>
-		<resource name="WindowCaptureMode.Auto">Automatique</resource>
-		<resource name="WindowCaptureMode.GDI">Utiliser la couleur par défaut</resource>
-		<resource name="WindowCaptureMode.Screen">Tel qu'il apparaît</resource>
+		<resource name="WindowCaptureModes.Aero">Utiliser une couleur personnalisée</resource>
+		<resource name="WindowCaptureModes.AeroTransparent">Préserver la transparence</resource>
+		<resource name="WindowCaptureModes.Auto">Automatique</resource>
+		<resource name="WindowCaptureModes.GDI">Utiliser la couleur par défaut</resource>
+		<resource name="WindowCaptureModes.Screen">Tel qu'il apparaît</resource>
 	</resources>
 </language>

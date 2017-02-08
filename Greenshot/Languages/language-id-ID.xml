@@ -23,11 +23,11 @@ Juga, kami sangat terbantu apabila anda mengecek laporan lain yang sama dengan k
 		<resource name="clipboard_error">Sebuah kesalahan terjadi ketika sedang menulis di papan klip.</resource>
 		<resource name="clipboard_inuse">Greenshot tidak dapat menulis di papan kip saat proses {0} memblokir akses.</resource>
 		<resource name="clipboard_noimage">Tidak dapat menemukan gambar papan klip apapun.</resource>
-		<resource name="ClipboardFormat.BITMAP">Windows Bitmap</resource>
-		<resource name="ClipboardFormat.DIB">Device Independend Bitmap (DIB)</resource>
-		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">HTML dengan gambar inline</resource>
-		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="ClipboardFormats.BITMAP">Windows Bitmap</resource>
+		<resource name="ClipboardFormats.DIB">Device Independend Bitmap (DIB)</resource>
+		<resource name="ClipboardFormats.HTML">HTML</resource>
+		<resource name="ClipboardFormats.HTMLDATAURL">HTML dengan gambar inline</resource>
+		<resource name="ClipboardFormats.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">Alfa</resource>
 		<resource name="colorpicker_apply">Lakukan</resource>
 		<resource name="colorpicker_blue">Biru</resource>
@@ -299,10 +299,10 @@ cont, 11_58_32 (ditambah ekstensi yang ditetapkan pada pengaturan)</resource>
 		<resource name="warning_hotkeys">hotkey {0} tak dapat terdaftar, kemungkinan akibat alat lain telah mengklaim penggunaan hotkey, anda dapat mengganti hotkey yang lain atau menonaktifkannya.
 
  Semua fitur Greenshot masih bekerja dengan baik dari ikon tray menu konteks tanpa hotkey.</resource>
-		<resource name="WindowCaptureMode.Aero">Gunakan warna kesukaan</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">Pertahankan kebeningan</resource>
-		<resource name="WindowCaptureMode.Auto">Otomatis</resource>
-		<resource name="WindowCaptureMode.GDI">Gunakan warna kesukaan</resource>
-		<resource name="WindowCaptureMode.Screen">Tampakkan</resource>
+		<resource name="WindowCaptureModes.Aero">Gunakan warna kesukaan</resource>
+		<resource name="WindowCaptureModes.AeroTransparent">Pertahankan kebeningan</resource>
+		<resource name="WindowCaptureModes.Auto">Otomatis</resource>
+		<resource name="WindowCaptureModes.GDI">Gunakan warna kesukaan</resource>
+		<resource name="WindowCaptureModes.Screen">Tampakkan</resource>
 	</resources>
 </language>

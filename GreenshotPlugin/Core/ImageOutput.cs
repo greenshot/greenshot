@@ -35,6 +35,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using GreenshotPlugin.Core.Enums;
 using Encoder = System.Drawing.Imaging.Encoder;
 
 namespace GreenshotPlugin.Core {
@@ -104,26 +105,26 @@ namespace GreenshotPlugin.Core {
 		public static void SaveToStream(Image imageToSave, ISurface surface, Stream stream, SurfaceOutputSettings outputSettings) {
 			bool useMemoryStream = false;
 			MemoryStream memoryStream = null;
-			if (outputSettings.Format == OutputFormat.greenshot && surface == null) {
-				throw new ArgumentException("Surface needs to be set when using OutputFormat.Greenshot");
+			if (outputSettings.Format == OutputFormats.greenshot && surface == null) {
+				throw new ArgumentException("Surface needs to be set when using OutputFormats.Greenshot");
 			}
 
 			try {
 				ImageFormat imageFormat;
 				switch (outputSettings.Format) {
-					case OutputFormat.bmp:
+					case OutputFormats.bmp:
 						imageFormat = ImageFormat.Bmp;
 						break;
-					case OutputFormat.gif:
+					case OutputFormats.gif:
 						imageFormat = ImageFormat.Gif;
 						break;
-					case OutputFormat.jpg:
+					case OutputFormats.jpg:
 						imageFormat = ImageFormat.Jpeg;
 						break;
-					case OutputFormat.tiff:
+					case OutputFormats.tiff:
 						imageFormat = ImageFormat.Tiff;
 						break;
-					case OutputFormat.ico:
+					case OutputFormats.ico:
 						imageFormat = ImageFormat.Icon;
 						break;
 					default:
@@ -213,7 +214,7 @@ namespace GreenshotPlugin.Core {
 				}
 
 				// Output the surface elements, size and marker to the stream
-				if (outputSettings.Format == OutputFormat.greenshot) {
+				if (outputSettings.Format == OutputFormats.greenshot) {
 					using (MemoryStream tmpStream = new MemoryStream()) {
 						long bytesWritten = surface.SaveElementsToStream(tmpStream);
 						using (BinaryWriter writer = new BinaryWriter(tmpStream)) {
@@ -305,7 +306,7 @@ namespace GreenshotPlugin.Core {
 		public static bool CreateImageFromSurface(ISurface surface, SurfaceOutputSettings outputSettings, out Image imageToSave) {
 			bool disposeImage = false;
 
-			if (outputSettings.Format == OutputFormat.greenshot || outputSettings.SaveBackgroundOnly) {
+			if (outputSettings.Format == OutputFormats.greenshot || outputSettings.SaveBackgroundOnly) {
 				// We save the image of the surface, this should not be disposed
 				imageToSave = surface.Image;
 			} else {
@@ -315,7 +316,7 @@ namespace GreenshotPlugin.Core {
 			}
 
 			// The following block of modifications should be skipped when saving the greenshot format, no effects or otherwise!
-			if (outputSettings.Format == OutputFormat.greenshot) {
+			if (outputSettings.Format == OutputFormats.greenshot) {
 				return disposeImage;
 			}
 			Image tmpImage;
@@ -433,16 +434,16 @@ namespace GreenshotPlugin.Core {
 		}
 
 		/// <summary>
-		/// Get the OutputFormat for a filename
+		/// Get the OutputFormats for a filename
 		/// </summary>
 		/// <param name="fullPath">filename (can be a complete path)</param>
-		/// <returns>OutputFormat</returns>
-		public static OutputFormat FormatForFilename(string fullPath) {
+		/// <returns>OutputFormats</returns>
+		public static OutputFormats FormatForFilename(string fullPath) {
 			// Fix for bug 2912959
 			string extension = fullPath.Substring(fullPath.LastIndexOf(".", StringComparison.Ordinal) + 1);
-			OutputFormat format = OutputFormat.png;
+			OutputFormats format = OutputFormats.png;
 			try {
-				format = (OutputFormat)Enum.Parse(typeof(OutputFormat), extension.ToLower());
+				format = (OutputFormats)Enum.Parse(typeof(OutputFormats), extension.ToLower());
 			} catch (ArgumentException ae) {
 				Log.Warn("Couldn't parse extension: " + extension, ae);
 			}

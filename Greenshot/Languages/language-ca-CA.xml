@@ -23,11 +23,11 @@ Abans de crear un nou informe d'error, us agrairem que comproveu que l'error no 
 		<resource name="clipboard_error">Error inesperat copiant al porta-retalls.</resource>
 		<resource name="clipboard_inuse">Greenshot no ho pot copiar al porta-retalls perquè el procés {0} en bloqueja l'accés.</resource>
 		<resource name="clipboard_noimage">No hi ha cap imatge al porta-retalls.</resource>
-		<resource name="ClipboardFormat.BITMAP">Windows Bitmap</resource>
-		<resource name="ClipboardFormat.DIB">Mapa de bits independent del dispositiu (DIB)</resource>
-		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">HTML amb imatges en línea</resource>
-		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="ClipboardFormats.BITMAP">Windows Bitmap</resource>
+		<resource name="ClipboardFormats.DIB">Mapa de bits independent del dispositiu (DIB)</resource>
+		<resource name="ClipboardFormats.HTML">HTML</resource>
+		<resource name="ClipboardFormats.HTMLDATAURL">HTML amb imatges en línea</resource>
+		<resource name="ClipboardFormats.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">Alfa</resource>
 		<resource name="colorpicker_apply">Aplica</resource>
 		<resource name="colorpicker_blue">Blau</resource>
@@ -278,11 +278,11 @@ actual, per exemple: 11_58_32 (més l'extensió definida a la configuració)</re
 		<resource name="warning_hotkeys">No s'ha pogut registrar la drecera "{0}". Probablement el problema és que alguna altra aplicació també vol fer-se amb aquesta combinació de tecles. Hi ha dues possibles solucions: canviar la drecera a Greenshot, o desactivar/canviar la configuració de l'altre programa que fa servir aquesta drecera.
 
 Malgrat això, encara es poden utilitzar totes les característiques de Greenshot directament des del menú contextual de la icona a la zona de notificacions del sistema.</resource>
-		<resource name="WindowCaptureMode.Aero">Utilitza el color personalitzat</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">Conserva transparència</resource>
-		<resource name="WindowCaptureMode.Auto">Automàticament</resource>
-		<resource name="WindowCaptureMode.GDI">Utilitza el color per defecte</resource>
-		<resource name="WindowCaptureMode.Screen">Com es mostra</resource>
+		<resource name="WindowCaptureModes.Aero">Utilitza el color personalitzat</resource>
+		<resource name="WindowCaptureModes.AeroTransparent">Conserva transparència</resource>
+		<resource name="WindowCaptureModes.Auto">Automàticament</resource>
+		<resource name="WindowCaptureModes.GDI">Utilitza el color per defecte</resource>
+		<resource name="WindowCaptureModes.Screen">Com es mostra</resource>
 		<!-- 1.2 -->
 		<resource name="editor_dropshadow_darkness">Foscor de l'ombra</resource>
 		<resource name="editor_dropshadow_offset">Desplaçament</resource>

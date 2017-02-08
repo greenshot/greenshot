@@ -20,10 +20,10 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="CANCEL">Annuler</resource>
 		<resource name="clipboard_error">Une erreur inattendue a eu lieu lors de l'écriture vers le presse-papier.</resource>
 		<resource name="clipboard_inuse">Greenshot n'a pu écrire dans le presse-papier car le processus {0} en a bloqué l'accès.</resource>
-		<resource name="ClipboardFormat.DIB">Device Independend Bitmap (DIB)</resource>
-		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">HTML avec images en ligne</resource>
-		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="ClipboardFormats.DIB">Device Independend Bitmap (DIB)</resource>
+		<resource name="ClipboardFormats.HTML">HTML</resource>
+		<resource name="ClipboardFormats.HTMLDATAURL">HTML avec images en ligne</resource>
+		<resource name="ClipboardFormats.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">Alpha</resource>
 		<resource name="colorpicker_apply">Appliquer</resource>
 		<resource name="colorpicker_blue">Bleu</resource>
@@ -253,10 +253,10 @@ ${hostname} Nom d'hôte du PC</resource>
 		<resource name="warning_hotkeys">Un ou plusieurs raccourcis clavier n'ont pu êtres enregistrés. Il n'est donc pas possible d'utiliser les raccourcis clavier de Greenshot.
 Ce problème est probablement dû à un autre outil{1} qui utilise les mêmes raccourcis clavier.
 Veuillez désactiver ce(s) logiciel(s) utilisant le bouton Impr.écran. Vous pouvez également utiliser Greenshot au moyen de son menu contextuel.</resource>
-		<resource name="WindowCaptureMode.Aero">Utiliser les couleurs personnalisées</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">Conserver la transparence</resource>
-		<resource name="WindowCaptureMode.Auto">Automatiquement</resource>
-		<resource name="WindowCaptureMode.GDI">Utiliser les couleurs par défaut</resource>
-		<resource name="WindowCaptureMode.Screen">Tel qu'affiché</resource>
+		<resource name="WindowCaptureModes.Aero">Utiliser les couleurs personnalisées</resource>
+		<resource name="WindowCaptureModes.AeroTransparent">Conserver la transparence</resource>
+		<resource name="WindowCaptureModes.Auto">Automatiquement</resource>
+		<resource name="WindowCaptureModes.GDI">Utiliser les couleurs par défaut</resource>
+		<resource name="WindowCaptureModes.Screen">Tel qu'affiché</resource>
 	</resources>
 </language>

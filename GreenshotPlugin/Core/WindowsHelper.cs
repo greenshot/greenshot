@@ -33,6 +33,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using GreenshotPlugin.Core.Enums;
 
 namespace GreenshotPlugin.Core {
 	#region EnumWindows
@@ -925,10 +926,10 @@ namespace GreenshotPlugin.Core {
 		/// Capture DWM Window
 		/// </summary>
 		/// <param name="capture">Capture to fill</param>
-		/// <param name="windowCaptureMode">Wanted WindowCaptureMode</param>
+		/// <param name="windowCaptureMode">Wanted WindowCaptureModes</param>
 		/// <param name="autoMode">True if auto modus is used</param>
 		/// <returns>ICapture with the capture</returns>
-		public ICapture CaptureDwmWindow(ICapture capture, WindowCaptureMode windowCaptureMode, bool autoMode) {
+		public ICapture CaptureDwmWindow(ICapture capture, WindowCaptureModes windowCaptureMode, bool autoMode) {
 			IntPtr thumbnailHandle = IntPtr.Zero;
 			Form tempForm = null;
 			bool tempFormShown = false;
@@ -1036,7 +1037,7 @@ namespace GreenshotPlugin.Core {
 				bool frozen = false;
 				try {
 					// Check if we make a transparent capture
-					if (windowCaptureMode == WindowCaptureMode.AeroTransparent) {
+					if (windowCaptureMode == WindowCaptureModes.AeroTransparent) {
 						frozen = FreezeWindow();
 						// Use white, later black to capture transparent
 						tempForm.BackColor = Color.White;

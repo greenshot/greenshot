@@ -28,6 +28,7 @@ using Greenshot.Configuration;
 using Greenshot.Forms;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using GreenshotPlugin.Core.Enums;
 using log4net;
 
 namespace Greenshot.Experimental {

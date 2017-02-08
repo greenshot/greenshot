@@ -27,6 +27,7 @@ using Greenshot.IniFile;
 using Greenshot.Plugin;
 using log4net;
 using System.Collections.Generic;
+using GreenshotPlugin.Core.Enums;
 
 namespace GreenshotPlugin.Core {
 	public static class FilenameHelper {
@@ -95,11 +96,11 @@ namespace GreenshotPlugin.Core {
 			return FillPattern(pattern, captureDetails, true);
 		}
 
-		public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat) {
+		public static string GetFilenameFromPattern(string pattern, OutputFormats imageFormat) {
 			return GetFilenameFromPattern(pattern, imageFormat, null);
 		}
 
-		public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat, ICaptureDetails captureDetails) {
+		public static string GetFilenameFromPattern(string pattern, OutputFormats imageFormat, ICaptureDetails captureDetails) {
 			return FillPattern(pattern, captureDetails, true) + "." + imageFormat.ToString().ToLower();
 		}
 
@@ -110,7 +111,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="format">A string with the format</param>
 		/// <param name="captureDetails"></param>
 		/// <returns>The filename which should be used to save the image</returns>
-		public static string GetFilename(OutputFormat format, ICaptureDetails captureDetails) {
+		public static string GetFilename(OutputFormats format, ICaptureDetails captureDetails) {
 			string pattern = CoreConfig.OutputFileFilenamePattern;
 			if (string.IsNullOrEmpty(pattern?.Trim())) {
 				pattern = "greenshot ${capturetime}";

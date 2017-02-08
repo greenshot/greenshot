@@ -24,11 +24,11 @@ Controleer ook even of dit probleem mogelijk al gemeld is! Gebruik de zoekfuncti
 		<resource name="clipboard_error">Een onverwachte fout is opgetreden bij het kopiëren naar het klembord.</resource>
 		<resource name="clipboard_inuse">Greenshot kon niet naar het klembord kopiëren vanwege een blokkade door het proces {0}.</resource>
 		<resource name="clipboard_noimage">Geen klembord-afbeelding gevonden.</resource>
-		<resource name="ClipboardFormat.BITMAP">Windows Bitmap</resource>
-		<resource name="ClipboardFormat.DIB">Device Independent Bitmap (DIB)</resource>
-		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">HTML met ingebedde afbeeldingen</resource>
-		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="ClipboardFormats.BITMAP">Windows Bitmap</resource>
+		<resource name="ClipboardFormats.DIB">Device Independent Bitmap (DIB)</resource>
+		<resource name="ClipboardFormats.HTML">HTML</resource>
+		<resource name="ClipboardFormats.HTMLDATAURL">HTML met ingebedde afbeeldingen</resource>
+		<resource name="ClipboardFormats.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">Alpha</resource>
 		<resource name="colorpicker_apply">Toepassen</resource>
 		<resource name="colorpicker_blue">Blauw</resource>
@@ -279,11 +279,11 @@ genereert een map voor de huidige dag in uw standaard opslaglocatie, b.v. 2008-0
 		<resource name="warning_hotkeys">De sneltoetsen "{0}" kunnen worden aangemeld. Dit probleem komt waarschijnlijk doordat een ander programma deze al gebruikt. U kunt de sneltoetsinstellingen van Greenshot aanpassen of het andere programma stoppen/aanpassen.
 
 Alle Greenshot functies werken ook zonder sneltoetsen via het context menu.</resource>
-		<resource name="WindowCaptureMode.Aero">Aangepaste kleur</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">Transparantie behouden</resource>
-		<resource name="WindowCaptureMode.Auto">Automatisch</resource>
-		<resource name="WindowCaptureMode.GDI">Standaardkleur gebruiken</resource>
-		<resource name="WindowCaptureMode.Screen">Zoals weergegeven</resource>
+		<resource name="WindowCaptureModes.Aero">Aangepaste kleur</resource>
+		<resource name="WindowCaptureModes.AeroTransparent">Transparantie behouden</resource>
+		<resource name="WindowCaptureModes.Auto">Automatisch</resource>
+		<resource name="WindowCaptureModes.GDI">Standaardkleur gebruiken</resource>
+		<resource name="WindowCaptureModes.Screen">Zoals weergegeven</resource>
 
 		<!-- 1.2 -->
 		<resource name="editor_dropshadow_darkness">Schaduw-intensiteit</resource>

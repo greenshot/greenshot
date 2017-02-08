@@ -22,11 +22,11 @@ Greenshot には一切の保障がありません。GNU General Public License �
 		<resource name="clipboard_error">クリップボードへの書き込み中に予期しないエラーが発生しました。</resource>
 		<resource name="clipboard_inuse">クリップボードへの書き込みに失敗しました。プロセス {0} によってアクセスがブロックされています。</resource>
 		<resource name="clipboard_noimage">クリップボードに保存されたイメージはありません。</resource>
-		<resource name="ClipboardFormat.BITMAP">Windows ビットマップ</resource>
-		<resource name="ClipboardFormat.DIB">デバイス非依存ビットマップ (DIB)</resource>
-		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">インラインイメージを含むHTML</resource>
-		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="ClipboardFormats.BITMAP">Windows ビットマップ</resource>
+		<resource name="ClipboardFormats.DIB">デバイス非依存ビットマップ (DIB)</resource>
+		<resource name="ClipboardFormats.HTML">HTML</resource>
+		<resource name="ClipboardFormats.HTMLDATAURL">インラインイメージを含むHTML</resource>
+		<resource name="ClipboardFormats.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">不透明度</resource>
 		<resource name="colorpicker_apply">適用</resource>
 		<resource name="colorpicker_blue">青</resource>
@@ -304,10 +304,10 @@ ${hostname} PC の名称
 		<resource name="warning_hotkeys">ホットキー"{0}"が登録できませんでした。他のソフトウェアが同じホットキーをすでに使用している可能性があります。
 別のホットキーを設定するか、現在このホットキーを使用しているソフトウェアを無効化/変更してください。
 なお、タスクトレイにあるGreenshot アイコンを右クリックすることで、すべての操作を行うことができます。</resource>
-		<resource name="WindowCaptureMode.Aero">カスタムカラーを使用する</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">透明度を保存する</resource>
-		<resource name="WindowCaptureMode.Auto">自動</resource>
-		<resource name="WindowCaptureMode.GDI">デフォルトのカラーを使用する</resource>
-		<resource name="WindowCaptureMode.Screen">表示通りにキャプチャーする</resource>
+		<resource name="WindowCaptureModes.Aero">カスタムカラーを使用する</resource>
+		<resource name="WindowCaptureModes.AeroTransparent">透明度を保存する</resource>
+		<resource name="WindowCaptureModes.Auto">自動</resource>
+		<resource name="WindowCaptureModes.GDI">デフォルトのカラーを使用する</resource>
+		<resource name="WindowCaptureModes.Screen">表示通りにキャプチャーする</resource>
 	</resources>
 </language>

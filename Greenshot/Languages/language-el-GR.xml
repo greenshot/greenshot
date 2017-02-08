@@ -24,11 +24,11 @@
 		<resource name="clipboard_error">Παρουσιάστηκε ένα απροσδόκητο σφάλμα κατά την εγγραφή στο πρόχειρο.</resource>
 		<resource name="clipboard_inuse">Το Greenshot δεν ήταν σε θέση να εγγράψει στο πρόχειρο καθώς η διαδικασία {0} παρεμποδίζει την πρόσβαση.</resource>
 		<resource name="clipboard_noimage">Δεν ήταν δυνατή η εύρεση εικόνας στο πρόχειρο.</resource>
-		<resource name="ClipboardFormat.BITMAP">Windows Bitmap (Ψηφιογραφικό)</resource>
-		<resource name="ClipboardFormat.DIB">Device Independent Bitmap (DIB)</resource>
-		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">HTML με ενσωματωμένες εικόνες</resource>
-		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="ClipboardFormats.BITMAP">Windows Bitmap (Ψηφιογραφικό)</resource>
+		<resource name="ClipboardFormats.DIB">Device Independent Bitmap (DIB)</resource>
+		<resource name="ClipboardFormats.HTML">HTML</resource>
+		<resource name="ClipboardFormats.HTMLDATAURL">HTML με ενσωματωμένες εικόνες</resource>
+		<resource name="ClipboardFormats.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">Διαφάνεια/Αδιαφάνεια</resource>
 		<resource name="colorpicker_apply">Εφαρμογή</resource>
 		<resource name="colorpicker_blue">Μπλε</resource>
@@ -284,10 +284,10 @@ ${hostname} Όνομα Υπολογιστή
 		<resource name="warning_hotkeys">Το/τα πλήκτρο/α ταχείας πρόσβασης "{0}" δεν μπορεί/ούν να καταχωριστεί/ούν. Αυτό το πρόβλημα πιθανόν να προκλήθηκε επειδή ένα άλλο πρόγραμμα χρησιμοποιεί τον ίδιο συνδυασμό πλήκτρων. Θα μπορούσατε να αλλάξετε τις ρυθμίσεις των πλήκτρων ταχείας πρόσβασης ή να απενεργοποιήσετε/αλλάξετε τις ρυθμίσεις του προγράμματος που κάνει χρήση του/των πλήκτρου/ων.
 
 Μπορείτε επίσης απλά να χρησιμοποιήσετε όλα τα χαρακτηριστικά του Greenshot από το σχετικό μενού επιλογών κάνοντας δεξί κλικ στο εικονίδιο του προγράμματος στη γραμμή εργασιών.</resource>
-		<resource name="WindowCaptureMode.Aero">Χρήση προσαρμοσμένου χρώματος</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">Διατήρηση της διαφάνειας</resource>
-		<resource name="WindowCaptureMode.Auto">Αυτόματα</resource>
-		<resource name="WindowCaptureMode.GDI">Χρήση προκαθορισμένου χρώματος</resource>
-		<resource name="WindowCaptureMode.Screen">Όπως εμφανίζεται</resource>
+		<resource name="WindowCaptureModes.Aero">Χρήση προσαρμοσμένου χρώματος</resource>
+		<resource name="WindowCaptureModes.AeroTransparent">Διατήρηση της διαφάνειας</resource>
+		<resource name="WindowCaptureModes.Auto">Αυτόματα</resource>
+		<resource name="WindowCaptureModes.GDI">Χρήση προκαθορισμένου χρώματος</resource>
+		<resource name="WindowCaptureModes.Screen">Όπως εμφανίζεται</resource>
 	</resources>
 </language>

@@ -23,10 +23,10 @@ Rnu ɣur-s, nḥemmel aṭas ma yella tesneqdeḍ aneqqis igebren ugur-agi. (Tze
 		<resource name="clipboard_error">Teḍra-d tuccḍa di tira n ɣef afus.</resource>
 		<resource name="clipboard_inuse">Greenshot ur izmir ara ad yeru ɣef afus acku akala {0} isewḥel anekcum.</resource>
 		<resource name="clipboard_noimage">Ur izmir ara ad d-yaf tugna ɣef afus.</resource>
-		<resource name="ClipboardFormat.BITMAP">Windows Bitmap</resource>
-		<resource name="ClipboardFormat.DIB">Amasal n tugna amunan ɣef yibenk (DIB)</resource>
-		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">HTML s tugniwin s srid</resource>
+		<resource name="ClipboardFormats.BITMAP">Windows Bitmap</resource>
+		<resource name="ClipboardFormats.DIB">Amasal n tugna amunan ɣef yibenk (DIB)</resource>
+		<resource name="ClipboardFormats.HTML">HTML</resource>
+		<resource name="ClipboardFormats.HTMLDATAURL">HTML s tugniwin s srid</resource>
 		<resource name="ClipboardFormat.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">Alpha</resource>
 		<resource name="colorpicker_apply">Snes</resource>
@@ -300,10 +300,10 @@ amiran, amedya 11_58_32 (akked usiɣzef yettwamlen deg iɣewwaṛen)</resource>
 		<resource name="warning_hotkeys">Anegzum n unasiw "{0}" ur yettwakles ara. Ugur-agi ahat yekka-d seg ufecku-nniḍen iseqdacen yiwen n unegzum n unasiw. Tzemreḍ ahat ad tesnifleḍ inegzumen inek n unasiw neɣ ad tsenseḍ/ad tesnifleḍ aseɣẓan iseqdacen anegzum.
 
 Akk timahilin n Greenshot sttenkarent daɣen s srid seg umuɣ umniḍ n tignit n temnaṭ n ulɣu n unagraw.</resource>
-		<resource name="WindowCaptureMode.Aero">Seqdec ini udmawan</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">Ḥrez tafrawant</resource>
-		<resource name="WindowCaptureMode.Auto">Awurman</resource>
-		<resource name="WindowCaptureMode.GDI">Seqdec ini amezwer</resource>
-		<resource name="WindowCaptureMode.Screen">Akken i d-yettban</resource>
+		<resource name="WindowCaptureModes.Aero">Seqdec ini udmawan</resource>
+		<resource name="WindowCaptureModes.AeroTransparent">Ḥrez tafrawant</resource>
+		<resource name="WindowCaptureModes.Auto">Awurman</resource>
+		<resource name="WindowCaptureModes.GDI">Seqdec ini amezwer</resource>
+		<resource name="WindowCaptureModes.Screen">Akken i d-yettban</resource>
 	</resources>
 </language>

@@ -27,6 +27,7 @@ using Greenshot.Interop;
 using Greenshot.Interop.Office;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Core.Enums;
 
 namespace GreenshotOfficePlugin.OfficeExport {
 
@@ -82,7 +83,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 				return false;
 			}
 			using (MemoryStream pngStream = new MemoryStream()) {
-				SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
+				SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormats.png, 100, false);
 				ImageOutput.SaveToStream(surfaceToUpload, pngStream, pngOutputSettings);
 				string base64String = Convert.ToBase64String(pngStream.GetBuffer());
 				string imageXmlStr = string.Format(XmlImageContent, base64String, surfaceToUpload.Image.Width, surfaceToUpload.Image.Height);

@@ -25,6 +25,7 @@ using System.Windows.Forms;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using GreenshotPlugin.Core.Enums;
 using log4net;
 
 namespace GreenshotPlugin.Controls {
@@ -91,7 +92,7 @@ namespace GreenshotPlugin.Controls {
 			PrepareFilterOptions();
 			string fdf = "";
 			int preselect = 0;
-			var outputFileFormatAsString = Enum.GetName(typeof(OutputFormat), conf.OutputFileFormat);
+			var outputFileFormatAsString = Enum.GetName(typeof(OutputFormats), conf.OutputFileFormat);
 			for(int i=0; i<_filterOptions.Length; i++){
 				FilterOption fo = _filterOptions[i];
 				fdf +=  fo.Label + "|*." + fo.Extension + "|";
@@ -104,7 +105,7 @@ namespace GreenshotPlugin.Controls {
 		}
 		
 		private void PrepareFilterOptions() {
-			OutputFormat[] supportedImageFormats = (OutputFormat[])Enum.GetValues(typeof(OutputFormat));
+			OutputFormats[] supportedImageFormats = (OutputFormats[])Enum.GetValues(typeof(OutputFormats));
 			_filterOptions = new FilterOption[supportedImageFormats.Length];
 			for(int i=0; i<_filterOptions.Length; i++){
 				string ifo = supportedImageFormats[i].ToString();

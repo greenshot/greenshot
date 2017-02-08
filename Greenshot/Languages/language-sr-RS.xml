@@ -20,10 +20,10 @@
 		<resource name="CANCEL">Откажи</resource>
 		<resource name="clipboard_error">Дошло је до неочекиване грешке при уписивању у оставу.</resource>
 		<resource name="clipboard_inuse">Не могу да пишем у оставу јер је процес {0} забранио приступ.</resource>
-		<resource name="ClipboardFormat.DIB">Device-Independent Bitmap (DIB)</resource>
-		<resource name="ClipboardFormat.HTML">HTML</resource>
+		<resource name="ClipboardFormats.DIB">Device-Independent Bitmap (DIB)</resource>
+		<resource name="ClipboardFormats.HTML">HTML</resource>
 		<resource name="ClipboardFormat.HTMLDATAURL">HTML (са сликама)</resource>
-		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="ClipboardFormats.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">Алфа:</resource>
 		<resource name="colorpicker_apply">Примени</resource>
 		<resource name="colorpicker_blue">Плава:</resource>
@@ -256,10 +256,10 @@ ${hostname} назив рачунара
 		<resource name="warning_hotkeys">Не могу да доделим пречицу „{0}“. Узрок томе је вероватно други програм који користи исту пречицу.
 
 Све могућности програма још увек раде директно из приручног менија у системској траци.</resource>
-		<resource name="WindowCaptureMode.Aero">користи прилагођену боју</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">задржи провидност</resource>
-		<resource name="WindowCaptureMode.Auto">аутоматски</resource>
-		<resource name="WindowCaptureMode.GDI">подразумевана боја</resource>
-		<resource name="WindowCaptureMode.Screen">као што је приказано</resource>
+		<resource name="WindowCaptureModes.Aero">користи прилагођену боју</resource>
+		<resource name="WindowCaptureModes.AeroTransparent">задржи провидност</resource>
+		<resource name="WindowCaptureModes.Auto">аутоматски</resource>
+		<resource name="WindowCaptureModes.GDI">подразумевана боја</resource>
+		<resource name="WindowCaptureModes.Screen">као што је приказано</resource>
 	</resources>
 </language>

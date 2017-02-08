@@ -24,11 +24,11 @@ Inoltre, apprezzeremo molto se prima di inserire, tu controllassi se esiste già
 	<resource name="clipboard_error">Si è verificato un errore inaspettato durante la scrittura sugli appunti.</resource>
 	<resource name="clipboard_noimage">Nessuna immagine sugli Appunti.</resource>
 	<resource name="clipboard_inuse">Greenshot non è riuscito a scrivere sugli appunti poichè il processo {0} teneva l'accesso bloccato.</resource>
-	<resource name="ClipboardFormat.BITMAP">Windows Bitmap</resource>
-	<resource name="ClipboardFormat.DIB">Device Independend Bitmap (DIB)</resource>
-	<resource name="ClipboardFormat.HTML">HTML</resource>
-	<resource name="ClipboardFormat.HTMLDATAURL">HTML con immagini in linea</resource>
-	<resource name="ClipboardFormat.PNG">PNG</resource>
+	<resource name="ClipboardFormats.BITMAP">Windows Bitmap</resource>
+	<resource name="ClipboardFormats.DIB">Device Independend Bitmap (DIB)</resource>
+	<resource name="ClipboardFormats.HTML">HTML</resource>
+	<resource name="ClipboardFormats.HTMLDATAURL">HTML con immagini in linea</resource>
+	<resource name="ClipboardFormats.PNG">PNG</resource>
 	<resource name="colorpicker_alpha">Alfa</resource>
 	<resource name="colorpicker_apply">Applica</resource>
 	<resource name="colorpicker_blue">Blu</resource>
@@ -282,11 +282,11 @@ corrente, es: 11_58_32 (più l'estensione definita nelle impostazioni)</resource
 	<resource name="warning_hotkeys">La registrazione della/e scorciatoie di tastiera "{0}" non è andata a buon fine. Questo problema è causato probabilmente da un altro software{1} che richiede l'uso delle stesse scorciatoie di tastiera. E' possibile però variare le impostazioni delle scorciatoie, oppure disattivare il software. 
 
 In alternativa alle scorciatoie di tastiera, tutte le funzioni di Greenshot sono comunque disponibili dal menù visualizzabile con tasto destro del mouse sull'icona G nella barra.</resource>
-	<resource name="WindowCaptureMode.Aero">Usa colori personalizzati</resource>
-	<resource name="WindowCaptureMode.AeroTransparent">Conserva la trasparenza</resource>
-	<resource name="WindowCaptureMode.Auto">Automaticamente</resource>
-	<resource name="WindowCaptureMode.GDI">Usa i colori di default</resource>
-	<resource name="WindowCaptureMode.Screen">Come visualizzata</resource>
+	<resource name="WindowCaptureModes.Aero">Usa colori personalizzati</resource>
+	<resource name="WindowCaptureModes.AeroTransparent">Conserva la trasparenza</resource>
+	<resource name="WindowCaptureModes.Auto">Automaticamente</resource>
+	<resource name="WindowCaptureModes.GDI">Usa i colori di default</resource>
+	<resource name="WindowCaptureModes.Screen">Come visualizzata</resource>
 
     <resource name="editor_counter">Aggiungi conteggio</resource>
     <resource name="editor_speechbubble">Aggiungi nuvoletta</resource>

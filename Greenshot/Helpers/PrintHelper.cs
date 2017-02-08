@@ -28,6 +28,7 @@ using Greenshot.Forms;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
+using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.Effects;
 using log4net;
 
@@ -155,7 +156,7 @@ namespace Greenshot.Helpers {
 			
 
 			// Create the output settins
-			SurfaceOutputSettings printOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
+			SurfaceOutputSettings printOutputSettings = new SurfaceOutputSettings(OutputFormats.png, 100, false);
 
 			ApplyEffects(printOutputSettings);
 

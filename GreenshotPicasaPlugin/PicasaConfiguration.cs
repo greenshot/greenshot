@@ -21,6 +21,7 @@ using System.Windows.Forms;
 using Greenshot.IniFile;
 using GreenshotPlugin.Core;
 using System;
+using GreenshotPlugin.Core.Enums;
 
 namespace GreenshotPicasaPlugin {
 	/// <summary>
@@ -29,7 +30,7 @@ namespace GreenshotPicasaPlugin {
 	[IniSection("Picasa", Description = "Greenshot Picasa Plugin configuration")]
 	public class PicasaConfiguration : IniSection {
 		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
-		public OutputFormat UploadFormat { get; set; }
+		public OutputFormats UploadFormat { get; set; }
 
 		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
 		public int UploadJpegQuality { get; set; }

@@ -23,6 +23,7 @@ using System.Windows.Forms;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using System.Drawing;
+using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.UnmanagedHelpers;
 
 namespace GreenshotPlugin.Controls {
@@ -40,7 +41,7 @@ namespace GreenshotPlugin.Controls {
 			FormBorderStyle = FormBorderStyle.None;
 			TopMost = false;
 			Enabled = false;
-			if (conf.WindowCaptureMode == WindowCaptureMode.Auto || conf.WindowCaptureMode == WindowCaptureMode.Aero) {
+			if (conf.WindowCaptureMode == WindowCaptureModes.Auto || conf.WindowCaptureMode == WindowCaptureModes.Aero) {
 				BackColor = Color.FromArgb(255, conf.DWMBackgroundColor.R, conf.DWMBackgroundColor.G, conf.DWMBackgroundColor.B);
 			} else {
 				BackColor = Color.White;

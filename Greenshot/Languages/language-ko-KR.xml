@@ -23,11 +23,11 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="clipboard_error">클립보드에 쓰는 동안 예상치 못한 오류가 발생하였습니다.</resource>
 		<resource name="clipboard_inuse">Greenshot이 프로세스 {0} 으로 인해 클립보드에 저장할 수 없습니다.</resource>
 		<resource name="clipboard_noimage">클립보드 이미지를 찾을 수 없습니다.</resource>
-		<resource name="ClipboardFormat.BITMAP">윈도우 비트맵</resource>
+		<resource name="ClipboardFormats.BITMAP">윈도우 비트맵</resource>
 		<resource name="ClipboardFormat.DIB">기기 독립 비트맵 (DIB)</resource>
-		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">인라인 이미지를 가진 HTML</resource>
-		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="ClipboardFormats.HTML">HTML</resource>
+		<resource name="ClipboardFormats.HTMLDATAURL">인라인 이미지를 가진 HTML</resource>
+		<resource name="ClipboardFormats.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">알파값</resource>
 		<resource name="colorpicker_apply">적용</resource>
 		<resource name="colorpicker_blue">청색</resource>
@@ -276,11 +276,11 @@ ${hostname} PC명
 		<resource name="warning_hotkeys">단축키 "{0}를 등록할 수 없습니다. 아마 다른 어플이 동일한 단축키를 사용 중인 것 같습니다! 단축키 설정을 변경하거나 다른 어플의 단축키를 비활성화하거나 변경하세요.
 
 전체 Greenshot은 단축키없이 트레이 아이콘 메뉴에서 직접 작동합니다.</resource>
-		<resource name="WindowCaptureMode.Aero">사용자 색상 사용</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">투명도 유지</resource>
-		<resource name="WindowCaptureMode.Auto">자동</resource>
-		<resource name="WindowCaptureMode.GDI">기본 색상 사용</resource>
-		<resource name="WindowCaptureMode.Screen">시간 지연</resource>
+		<resource name="WindowCaptureModes.Aero">사용자 색상 사용</resource>
+		<resource name="WindowCaptureModes.AeroTransparent">투명도 유지</resource>
+		<resource name="WindowCaptureModes.Auto">자동</resource>
+		<resource name="WindowCaptureModes.GDI">기본 색상 사용</resource>
+		<resource name="WindowCaptureModes.Screen">시간 지연</resource>
 
     <!-- 1.2 -->
     <resource name="editor_dropshadow_darkness">음영 정도</resource>

@@ -21,6 +21,7 @@
 using System.Windows.Forms;
 using Greenshot.IniFile;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Core.Enums;
 
 namespace GreenshotFlickrPlugin {
 	public enum SafetyLevel {
@@ -49,7 +50,7 @@ namespace GreenshotFlickrPlugin {
 		public bool HiddenFromSearch { get; set; }
 
 		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
-		public OutputFormat UploadFormat { get; set; }
+		public OutputFormats UploadFormat { get; set; }
 
 		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
 		public int UploadJpegQuality { get; set; }

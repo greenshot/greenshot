@@ -21,6 +21,7 @@
 using System;
 using Greenshot.IniFile;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Core.Enums;
 
 namespace GreenshotConfluencePlugin {
 	/// <summary>
@@ -46,7 +47,7 @@ namespace GreenshotConfluencePlugin {
 		}
 
 		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
-		public OutputFormat UploadFormat {
+		public OutputFormats UploadFormat {
 			get;
 			set;
 		}
