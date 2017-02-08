@@ -39,7 +39,7 @@
 			Imgur {0} löschen
 		</resource>
 		<resource name="use_page_link">
-			Kopieren der Seiten-URL statt Bild-URL in Zwischenablage
+			Kopieren der Seiten-URL statt Bild-URL in die Zwischenablage
 		</resource>
 		<resource name="history">
 			Verlauf
