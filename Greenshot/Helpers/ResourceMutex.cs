@@ -95,7 +95,7 @@ namespace Greenshot.Helpers
 				// 1) Create Mutex
 				_applicationMutex = new Mutex(true, _mutexId, out createdNew, mutexsecurity);
 				// 2) if the mutex wasn't created new get the right to it, this returns false if it's already locked
-				if (!createdNew && !_applicationMutex.WaitOne(100, false))
+				if (!createdNew && !_applicationMutex.WaitOne(1000, false))
 				{
 					Log.InfoFormat("{0} is already in use, mutex {1} is NOT locked for the caller", _resourceName, _mutexId);
 					IsLocked = false;

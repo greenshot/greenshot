@@ -20,6 +20,7 @@
  */
 using System;
 using System.Reflection;
+using Greenshot.Forms;
 
 // Remove AppendPrivatePath warning:
 #pragma warning disable 0618

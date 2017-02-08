@@ -36,6 +36,7 @@ using GreenshotPlugin.UnmanagedHelpers;
 using Greenshot.Plugin;
 using Greenshot.IniFile;
 using System.Text.RegularExpressions;
+using Greenshot.Forms;
 using log4net;
 
 namespace Greenshot {

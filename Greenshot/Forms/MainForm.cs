@@ -31,23 +31,21 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
 using Greenshot.Configuration;
-using Greenshot.Experimental;
-using Greenshot.Forms;
-using Greenshot.Help;
-using Greenshot.Helpers;
-using Greenshot.Plugin;
-using GreenshotPlugin.UnmanagedHelpers;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
-using Greenshot.IniFile;
 using Greenshot.Destinations;
 using Greenshot.Drawing;
+using Greenshot.Experimental;
+using Greenshot.Help;
+using Greenshot.Helpers;
+using Greenshot.IniFile;
+using Greenshot.Plugin;
+using GreenshotPlugin.Controls;
+using GreenshotPlugin.Core;
+using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using Timer = System.Timers.Timer;
 
-namespace Greenshot {
+namespace Greenshot.Forms {
 	/// <summary>
 	/// Description of MainForm.
 	/// </summary>
@@ -109,28 +107,22 @@ namespace Greenshot {
 						var helpOutput = new StringBuilder();
 						helpOutput.AppendLine();
 						helpOutput.AppendLine("Greenshot commandline options:");
-						helpOutput.AppendLine();
-						helpOutput.AppendLine();
+						helpOutput.AppendLine().AppendLine();
 						helpOutput.AppendLine("\t/help");
 						helpOutput.AppendLine("\t\tThis help.");
-						helpOutput.AppendLine();
-						helpOutput.AppendLine();
+						helpOutput.AppendLine().AppendLine();
 						helpOutput.AppendLine("\t/exit");
 						helpOutput.AppendLine("\t\tTries to close all running instances.");
-						helpOutput.AppendLine();
-						helpOutput.AppendLine();
+						helpOutput.AppendLine().AppendLine();
 						helpOutput.AppendLine("\t/reload");
 						helpOutput.AppendLine("\t\tReload the configuration of Greenshot.");
-						helpOutput.AppendLine();
-						helpOutput.AppendLine();
+						helpOutput.AppendLine().AppendLine();
 						helpOutput.AppendLine("\t/language [language code]");
 						helpOutput.AppendLine("\t\tSet the language of Greenshot, e.g. greenshot /language en-US.");
-						helpOutput.AppendLine();
-						helpOutput.AppendLine();
+						helpOutput.AppendLine().AppendLine();
 						helpOutput.AppendLine("\t/inidirectory [directory]");
 						helpOutput.AppendLine("\t\tSet the directory where the greenshot.ini should be stored & read.");
-						helpOutput.AppendLine();
-						helpOutput.AppendLine();
+						helpOutput.AppendLine().AppendLine();
 						helpOutput.AppendLine("\t[filename]");
 						helpOutput.AppendLine("\t\tOpen the bitmap files in the running Greenshot instance or start a new instance");
 						Console.WriteLine(helpOutput.ToString());

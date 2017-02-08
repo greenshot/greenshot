@@ -34,6 +34,7 @@ using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using System.Security.Permissions;
+using Greenshot.Forms;
 using log4net;
 
 namespace Greenshot {
