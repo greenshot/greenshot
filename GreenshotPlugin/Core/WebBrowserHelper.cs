@@ -33,14 +33,15 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		/// Get the highest possible version for the embedded browser
 		/// </summary>
+		/// <param name="ignoreDoctype">true to ignore the doctype when loading a page</param>
 		/// <returns>IE Feature</returns>
-		public static int GetEmbVersion()
+		public static int GetEmbVersion(bool ignoreDoctype = true)
 		{
 			int ieVersion = GetBrowserVersion();
 
 			if (ieVersion > 9)
 			{
-				return ieVersion * 1000 + 1;
+				return ieVersion * 1000 + (ignoreDoctype ? 1 : 0);
 			}
 
 			if (ieVersion > 7)
@@ -54,19 +55,21 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		/// Fix browser version to the highest possible
 		/// </summary>
-		public static void FixBrowserVersion()
+		/// <param name="ignoreDoctype">true to ignore the doctype when loading a page</param>
+		public static void FixBrowserVersion(bool ignoreDoctype = true)
 		{
-			string appName = System.IO.Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location);
-			FixBrowserVersion(appName);
+			string applicationName = System.IO.Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location);
+			FixBrowserVersion(applicationName, ignoreDoctype);
 		}
 
 		/// <summary>
 		/// Fix the browser version for the specified application
 		/// </summary>
 		/// <param name="applicationName">Name of the process</param>
-		public static void FixBrowserVersion(string applicationName)
+		/// <param name="ignoreDoctype">true to ignore the doctype when loading a page</param>
+		public static void FixBrowserVersion(string applicationName, bool ignoreDoctype = true)
 		{
-			FixBrowserVersion(applicationName, GetEmbVersion());
+			FixBrowserVersion(applicationName, GetEmbVersion(ignoreDoctype));
 		}
 
 		/// <summary>
