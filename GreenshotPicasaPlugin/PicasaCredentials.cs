@@ -25,7 +25,7 @@ namespace GreenshotPicasaPlugin {
 	/// You can set your own values here
 	/// </summary>
 	public static class PicasaCredentials {
-		public static string ClientId = "488999805833.apps.googleusercontent.com";
-		public static string ClientSecret = "t8m9BeuoEFsEl22TsqfRQt8w";
+		public static string ClientId = "@credentials_picasa_consumer_key@";
+		public static string ClientSecret = "@credentials_picasa_consumer_secret@";
 	}
 }
