@@ -22,7 +22,8 @@ using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
-using System.Xml;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace GreenshotPicasaPlugin {
 	/// <summary>
@@ -91,24 +92,11 @@ namespace GreenshotPicasaPlugin {
 			if (response == null) {
 				return null;
 			}
-			try {
-				XmlDocument doc = new XmlDocument();
-				doc.LoadXml(response);
-				XmlNodeList nodes = doc.GetElementsByTagName("link", "*");
-				if(nodes.Count > 0) {
-					string url = null;
-					foreach(XmlNode node in nodes) {
-						if (node.Attributes != null) {
-							url = node.Attributes["href"].Value;
-							string rel = node.Attributes["rel"].Value;
-							// Pictures with rel="http://schemas.google.com/photos/2007#canonical" are the direct link
-							if (rel != null && rel.EndsWith("canonical")) {
-								break;
-							}
-						}
-					}
-					return url;
-				}
+			try
+			{
+				return XElement.Parse(response).Elements()
+					.Where(element => element.Name.LocalName == "content" && element.Attribute("src") != null)
+					.Select(element => (string)element.Attribute("src")).FirstOrDefault();
 			} catch(Exception e) {
 				Log.ErrorFormat("Could not parse Picasa response due to error {0}, response was: {1}", e.Message, response);
 			}
