@@ -62,6 +62,7 @@
     <Compile Include="Core\ExplorerHelper.cs" />
     <Compile Include="Core\Log4NetLogger.cs" />
     <Compile Include="Core\SvgImage.cs" />
+    <Compile Include="Core\WebBrowserHelper.cs" />
     <Compile Include="Effects\AdjustEffect.cs" />
     <Compile Include="Effects\BorderEffect.cs" />
     <Compile Include="Core\CaptureHandler.cs" />
