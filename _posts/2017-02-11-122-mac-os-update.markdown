@@ -1,0 +1,32 @@
+---
+layout: post
+status: publish
+published: true
+release_version: 1.2.2 (18)
+title: Greenshot for MAC 1.2.2
+tags:
+- 1.2
+- bugfix
+- release
+---
+
+We just released our third build of Greenshot for Mac OS, version 1.2.2.
+
+Thanks to all of our users, you're awesome! We got a lot of great feedback and as it seems, there are just a few minor flaws at the moment. That's a great start.
+
+Please keep writing those nice AppStore reviews. We're reading every single one of them!
+
+When you want to report an error or have a feature request, please file it in our [bug tracker](https://greenshot.atlassian.net/projects/MAC). That way you can be sure the issue will be taken care of and also you'll get noticed when we work on it.
+
+Some of you guys already had a few feature requests and we're doing them one by one.
+
+In the current version we added some of them and also fixed some bugs:
+
+* The most requested feature was the tool to add the number badges. Here it is.
+* When drawing very short arrows, the arrowhead now shrinks a bit. In the future you will most probably be able to adjust the size of the arrows to your liking.
+* You can now turn off the hints about editing text in the preferences window.
+* The default filename prefix is now configurable.
+* We redesigned the app icon.
+* Some minor issues not worth mentioning ;-)
+
+
