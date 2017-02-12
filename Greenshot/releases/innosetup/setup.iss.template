@@ -19,6 +19,7 @@ Source: ..\..\bin\Release\GreenshotPlugin.dll; DestDir: {app}; Components: green
 Source: ..\..\bin\Release\Greenshot.exe.config; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 Source: ..\..\bin\Release\log4net.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 Source: ..\..\bin\Release\Dapplo.Log.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
+Source: ..\..\bin\Release\Dapplo.Windows.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 Source: ..\..\bin\Release\Svg.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 Source: ..\..\log4net.xml; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion 
 Source: ..\..\bin\Release\checksum.MD5; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion

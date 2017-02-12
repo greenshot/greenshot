@@ -141,6 +141,7 @@ Function PackagePortable {
 		"$sourcebase\Greenshot.exe.config",
 		"$sourcebase\GreenshotPlugin.dll",
 		"$sourcebase\Dapplo.Log.dll",
+		"$sourcebase\Dapplo.Windows.dll",
 		"$sourcebase\Svg.dll",
 		"$sourcebase\log4net.dll",
 		"$sourcebase\log4net-portable.xml",
@@ -216,6 +217,7 @@ Function PackageZip {
 		"$sourcebase\Greenshot.exe.config",
 		"$sourcebase\GreenshotPlugin.dll",
 		"$sourcebase\Dapplo.Log.dll",
+		"$sourcebase\Dapplo.Windows.dll",
 		"$sourcebase\Svg.dll",
 		"$sourcebase\log4net.dll",
 		"$(get-location)\Greenshot\log4net-zip.xml"
