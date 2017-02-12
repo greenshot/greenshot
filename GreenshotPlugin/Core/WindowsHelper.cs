@@ -22,7 +22,6 @@
 using Greenshot.IniFile;
 using Greenshot.Interop;
 using Greenshot.Plugin;
-using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -33,105 +32,14 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Dapplo.Windows;
+using Dapplo.Windows.Enums;
+using Dapplo.Windows.Native;
+using Dapplo.Windows.SafeHandles;
+using Dapplo.Windows.Structs;
 using GreenshotPlugin.Core.Enums;
 
 namespace GreenshotPlugin.Core {
-	#region EnumWindows
-	/// <summary>
-	/// EnumWindows wrapper for .NET
-	/// </summary>
-	public class WindowsEnumerator {
-		/// <summary>
-		/// Returns the collection of windows returned by GetWindows
-		/// </summary>
-		public IList<WindowDetails> Items { get; private set; }
-
-		/// <summary>
-		/// Gets all top level windows on the system.
-		/// </summary>
-		public WindowsEnumerator GetWindows() {
-			GetWindows(IntPtr.Zero, null);
-			return this;
-		}
-
-		/// <summary>
-		/// Gets all child windows of the specified window
-		/// </summary>
-		/// <param name="parent">Window Handle to get children for</param>
-		public WindowsEnumerator GetWindows(WindowDetails parent)
-		{
-			GetWindows(parent?.Handle ?? IntPtr.Zero, null);
-			return this;
-		}
-
-		/// <summary>
-		/// Gets all child windows of the specified window
-		/// </summary>
-		/// <param name="hWndParent">Window Handle to get children for</param>
-		/// <param name="classname">Window Classname to copy, use null to copy all</param>
-		public WindowsEnumerator GetWindows(IntPtr hWndParent, string classname) {
-			Items = new List<WindowDetails>();
-			IList<WindowDetails> windows = new List<WindowDetails>();
-			User32.EnumChildWindows(hWndParent, WindowEnum, IntPtr.Zero);
-
-			bool hasParent = !IntPtr.Zero.Equals(hWndParent);
-			string parentText = null;
-			if (hasParent) {
-				var title = new StringBuilder(260, 260);
-				User32.GetWindowText(hWndParent, title, title.Capacity);
-				parentText = title.ToString();
-			}
-
-			foreach (var window in Items) {
-				if (hasParent) {
-					window.Text = parentText;
-					window.ParentHandle = hWndParent;
-				}
-				if (classname == null || window.ClassName.Equals(classname)) {
-					windows.Add(window);
-				}
-			}
-			Items = windows;
-			return this;
-		}
-
-		#region EnumWindows callback
-		/// <summary>
-		/// The enum Windows callback.
-		/// </summary>
-		/// <param name="hWnd">Window Handle</param>
-		/// <param name="lParam">Application defined value</param>
-		/// <returns>1 to continue enumeration, 0 to stop</returns>
-		private int WindowEnum(IntPtr hWnd, int lParam)
-		{
-			if (OnWindowEnum(hWnd)) {
-				return 1;
-			}
-			return 0;
-		}
-
-		#endregion
-
-		/// <summary>
-		/// Called whenever a new window is about to be added
-		/// by the Window enumeration called from GetWindows.
-		/// If overriding this function, return true to continue
-		/// enumeration or false to stop.  If you do not call
-		/// the base implementation the Items collection will
-		/// be empty.
-		/// </summary>
-		/// <param name="hWnd">Window handle to add</param>
-		/// <returns>True to continue enumeration, False to stop</returns>
-		protected virtual bool OnWindowEnum(IntPtr hWnd) {
-			if (!WindowDetails.IsIgnoreHandle(hWnd)) {
-				Items.Add(new WindowDetails(hWnd));
-			}
-			return true;
-		}
-	}
-	#endregion EnumWindows
-
-	#region WindowDetails
 	/// <summary>
 	/// Code for handling with "windows"
 	/// Main code is taken from vbAccelerator, location:
@@ -321,24 +229,24 @@ namespace GreenshotPlugin.Core {
 
 			IntPtr iconHandle;
 			if (Conf.UseLargeIcons) {
-				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, iconBig, IntPtr.Zero);
+				iconHandle = User32.SendMessage(hwnd, WindowsMessages.WM_GETICON, iconBig, IntPtr.Zero);
 				if (iconHandle == IntPtr.Zero) {
-					iconHandle = User32.GetClassLongWrapper(hwnd, (int)ClassLongIndex.GCL_HICON);
+					iconHandle = User32.GetClassLongWrapper(hwnd, ClassLongIndex.GCL_HICON);
 				}
 			} else {
-				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, iconSmall2, IntPtr.Zero);
+				iconHandle = User32.SendMessage(hwnd, WindowsMessages.WM_GETICON, iconSmall2, IntPtr.Zero);
 			}
 			if (iconHandle == IntPtr.Zero) {
-				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, iconSmall, IntPtr.Zero);
+				iconHandle = User32.SendMessage(hwnd, WindowsMessages.WM_GETICON, iconSmall, IntPtr.Zero);
 			}
 			if (iconHandle == IntPtr.Zero) {
-				iconHandle = User32.GetClassLongWrapper(hwnd, (int)ClassLongIndex.GCL_HICONSM);
+				iconHandle = User32.GetClassLongWrapper(hwnd, ClassLongIndex.GCL_HICONSM);
 			}
 			if (iconHandle == IntPtr.Zero) {
-				iconHandle = User32.SendMessage(hwnd, (int)WindowsMessages.WM_GETICON, iconBig, IntPtr.Zero);
+				iconHandle = User32.SendMessage(hwnd, WindowsMessages.WM_GETICON, iconBig, IntPtr.Zero);
 			}
 			if (iconHandle == IntPtr.Zero) {
-				iconHandle = User32.GetClassLongWrapper(hwnd, (int)ClassLongIndex.GCL_HICON);
+				iconHandle = User32.GetClassLongWrapper(hwnd, ClassLongIndex.GCL_HICON);
 			}
 
 			if (iconHandle == IntPtr.Zero) {
@@ -569,7 +477,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		/// <param name="gwCommand">The GetWindowCommand to use</param>
 		/// <returns>null if nothing found, otherwise the WindowDetails instance of the "child"</returns>
-		public WindowDetails GetWindow(GetWindowCommand gwCommand) {
+		public WindowDetails GetWindow(GetWindowCommands gwCommand) {
 			var tmphWnd = User32.GetWindow(Handle, gwCommand);
 			if (IntPtr.Zero == tmphWnd) {
 				return null;
@@ -622,9 +530,9 @@ namespace GreenshotPlugin.Core {
 			}
 			set {
 				if (value) {
-					User32.SendMessage(Handle,  (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_MINIMIZE, IntPtr.Zero);
+					User32.SendMessage(Handle, WindowsMessages.WM_SYSCOMMAND, SysCommands.SC_MINIMIZE, IntPtr.Zero);
 				} else {
-					User32.SendMessage(Handle,  (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_RESTORE, IntPtr.Zero);
+					User32.SendMessage(Handle, WindowsMessages.WM_SYSCOMMAND, SysCommands.SC_RESTORE, IntPtr.Zero);
 				}
 			}
 		}
@@ -636,6 +544,7 @@ namespace GreenshotPlugin.Core {
 			get {
 				if (IsApp)
 				{
+					Log.InfoFormat("Class {0}, title {1}", ClassName, Text);
 					if (Visible) {
 						Rectangle windowRectangle = WindowRectangle;
 						foreach (var screen in Screen.AllScreens) {
@@ -652,9 +561,9 @@ namespace GreenshotPlugin.Core {
 			}
 			set {
 				if (value) {
-					User32.SendMessage(Handle, (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_MAXIMIZE, IntPtr.Zero);
+					User32.SendMessage(Handle, WindowsMessages.WM_SYSCOMMAND, SysCommands.SC_MAXIMIZE, IntPtr.Zero);
 				} else {
-					User32.SendMessage(Handle, (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_MINIMIZE, IntPtr.Zero);
+					User32.SendMessage(Handle, WindowsMessages.WM_SYSCOMMAND, SysCommands.SC_MINIMIZE, IntPtr.Zero);
 				}
 			}
 		}
@@ -663,7 +572,7 @@ namespace GreenshotPlugin.Core {
 		/// This doesn't work as good as is should, but does move the App out of the way...
 		/// </summary>
 		public void HideApp() {
-			User32.ShowWindow(Handle, ShowWindowCommand.Hide);
+			User32.ShowWindow(Handle, ShowWindowCommands.Hide);
 		}
 		
 		/// <summary>
@@ -679,7 +588,7 @@ namespace GreenshotPlugin.Core {
 								// Fullscreen, it's "visible" when AppVisibilityOnMonitor says yes
 								// Although it might be the other App, this is not "very" important
 								RECT rect = new RECT(screen.Bounds);
-								IntPtr monitor = User32.MonitorFromRect(ref rect, User32.MONITOR_DEFAULTTONULL);
+								IntPtr monitor = User32.MonitorFromRect(ref rect, MonitorFromRectFlags.DefaultToNull);
 								if (monitor != IntPtr.Zero) {
 									MONITOR_APP_VISIBILITY? monitorAppVisibility = AppVisibility?.GetAppVisibilityOnMonitor(monitor);
 									//LOG.DebugFormat("App {0} visible: {1} on {2}", Text, monitorAppVisibility, screen.Bounds);
@@ -755,9 +664,10 @@ namespace GreenshotPlugin.Core {
 				if (_previousWindowRectangle.IsEmpty || !_frozen) {
 					if (_previousWindowRectangle.IsEmpty || now - _lastWindowRectangleRetrieveTime > CacheTime) {
 						Rectangle windowRect = Rectangle.Empty;
-						if (DWM.IsDwmEnabled())
+						if (Dwm.IsDwmEnabled)
 						{
-							bool gotFrameBounds = GetExtendedFrameBounds(out windowRect);
+							RECT frameBounds;
+							bool gotFrameBounds = Dwm.GetExtendedFrameBounds(Handle, out frameBounds);
 							if (IsApp)
 							{
 								// Pre-Cache for Maximised call, this is only on Windows 8 apps (full screen)
@@ -769,6 +679,7 @@ namespace GreenshotPlugin.Core {
 							}
 							if (gotFrameBounds && Environment.OSVersion.IsWindows10() && !Maximised)
 							{
+								windowRect = frameBounds;
 								// Somehow DWM doesn't calculate it corectly, there is a 1 pixel border around the capture
 								// Remove this border, currently it's fixed but TODO: Make it depend on the OS?
 								windowRect.Inflate(Conf.Win10BorderCrop);
@@ -858,7 +769,7 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		public void Restore() {
 			if (Iconic) {
-				User32.SendMessage(Handle, (int)WindowsMessages.WM_SYSCOMMAND, (IntPtr)User32.SC_RESTORE, IntPtr.Zero);
+				User32.SendMessage(Handle, WindowsMessages.WM_SYSCOMMAND, SysCommands.SC_RESTORE, IntPtr.Zero);
 			}
 			User32.BringWindowToTop(Handle);
 			User32.SetForegroundWindow(Handle);
@@ -874,10 +785,10 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		public WindowStyleFlags WindowStyle {
 			get {
-				return (WindowStyleFlags)User32.GetWindowLongWrapper(Handle, (int)WindowLongIndex.GWL_STYLE);
+				return (WindowStyleFlags)User32.GetWindowLongWrapper(Handle, WindowLongIndex.GWL_STYLE);
 			}
 			set {
-				User32.SetWindowLongWrapper(Handle, (int)WindowLongIndex.GWL_STYLE, new IntPtr((long)value));
+				User32.SetWindowLongWrapper(Handle, WindowLongIndex.GWL_STYLE, new IntPtr((long)value));
 			}
 		}
 
@@ -900,10 +811,10 @@ namespace GreenshotPlugin.Core {
 		/// </summary>
 		public ExtendedWindowStyleFlags ExtendedWindowStyle {
 			get {
-				return (ExtendedWindowStyleFlags)User32.GetWindowLongWrapper(Handle, (int)WindowLongIndex.GWL_EXSTYLE);
+				return (ExtendedWindowStyleFlags)User32.GetWindowLongWrapper(Handle, WindowLongIndex.GWL_EXSTYLE);
 			}
 			set {
-				User32.SetWindowLongWrapper(Handle, (int)WindowLongIndex.GWL_EXSTYLE, new IntPtr((uint)value));
+				User32.SetWindowLongWrapper(Handle, WindowLongIndex.GWL_EXSTYLE, new IntPtr((uint)value));
 			}
 		}
 
@@ -942,11 +853,11 @@ namespace GreenshotPlugin.Core {
 				};
 
 				// Register the Thumbnail
-				DWM.DwmRegisterThumbnail(tempForm.Handle, Handle, out thumbnailHandle);
+				Dwm.DwmRegisterThumbnail(tempForm.Handle, Handle, out thumbnailHandle);
 
 				// Get the original size
 				SIZE sourceSize;
-				DWM.DwmQueryThumbnailSourceSize(thumbnailHandle, out sourceSize);
+				Dwm.DwmQueryThumbnailSourceSize(thumbnailHandle, out sourceSize);
 
 				if (sourceSize.Width <= 0 || sourceSize.Height <= 0) {
 					return null;
@@ -990,7 +901,7 @@ namespace GreenshotPlugin.Core {
 				}
 
 				tempForm.Location = formLocation;
-				tempForm.Size = sourceSize.ToSize();
+				tempForm.Size = sourceSize;
 
 				// Prepare rectangle to capture from the screen.
 				Rectangle captureRectangle = new Rectangle(formLocation.X, formLocation.Y, sourceSize.Width, sourceSize.Height);
@@ -1019,13 +930,13 @@ namespace GreenshotPlugin.Core {
 					}
 				}
 				// Prepare the displaying of the Thumbnail
-				DWM_THUMBNAIL_PROPERTIES props = new DWM_THUMBNAIL_PROPERTIES
+				var props = new DwmThumbnailProperties
 				{
 					Opacity = 255,
 					Visible = true,
 					Destination = new RECT(0, 0, sourceSize.Width, sourceSize.Height)
 				};
-				DWM.DwmUpdateThumbnailProperties(thumbnailHandle, ref props);
+				Dwm.DwmUpdateThumbnailProperties(thumbnailHandle, ref props);
 				tempForm.Show();
 				tempFormShown = true;
 
@@ -1076,7 +987,7 @@ namespace GreenshotPlugin.Core {
 						if (!autoMode) {
 							tempForm.BackColor = Color.FromArgb(255, Conf.DWMBackgroundColor.R, Conf.DWMBackgroundColor.G, Conf.DWMBackgroundColor.B);
 						} else {
-							Color colorizationColor = DWM.ColorizationColor;
+							Color colorizationColor = Dwm.ColorizationSystemDrawingColor;
 							// Modify by losing the transparency and increasing the intensity (as if the background color is white)
 							colorizationColor = Color.FromArgb(255, (colorizationColor.R + 255) >> 1, (colorizationColor.G + 255) >> 1, (colorizationColor.B + 255) >> 1);
 							tempForm.BackColor = colorizationColor; 
@@ -1121,7 +1032,7 @@ namespace GreenshotPlugin.Core {
 			} finally {
 				if (thumbnailHandle != IntPtr.Zero) {
 					// Unregister (cleanup), as we are finished we don't need the form or the thumbnail anymore
-					DWM.DwmUnregisterThumbnail(thumbnailHandle);
+					Dwm.DwmUnregisterThumbnail(thumbnailHandle);
 				}
 				if (tempForm != null) {
 					if (tempFormShown) {
@@ -1204,9 +1115,9 @@ namespace GreenshotPlugin.Core {
 		/// <returns>bool true if it worked</returns>
 		private bool GetExtendedFrameBounds(out Rectangle rectangle) {
 			RECT rect;
-			int result = DWM.DwmGetWindowAttribute(Handle, (int)DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS, out rect, Marshal.SizeOf(typeof(RECT)));
+			int result = Dwm.DwmGetWindowAttribute(Handle, DwmWindowAttributes.DWMWA_EXTENDED_FRAME_BOUNDS, out rect, Marshal.SizeOf(typeof(RECT)));
 			if (result >= 0) {
-				rectangle = rect.ToRectangle();
+				rectangle = rect;
 				return true;
 			}
 			rectangle = Rectangle.Empty;
@@ -1219,10 +1130,17 @@ namespace GreenshotPlugin.Core {
 		/// <param name="rectangle">out Rectangle</param>
 		/// <returns>bool true if it worked</returns>		
 		private bool GetClientRect(out Rectangle rectangle) {
-			var windowInfo = new WindowInfo();
+			var windowInfo = new WINDOWINFO();
 			// Get the Window Info for this window
 			bool result = User32.GetWindowInfo(Handle, ref windowInfo);
-			rectangle = result ? windowInfo.rcClient.ToRectangle() : Rectangle.Empty;
+			if (result)
+			{
+				rectangle = windowInfo.rcClient;
+			}
+			else
+			{
+				rectangle = Rectangle.Empty;
+			}
 			return result;
 		}
 		
@@ -1232,10 +1150,17 @@ namespace GreenshotPlugin.Core {
 		/// <param name="rectangle">out Rectangle</param>
 		/// <returns>bool true if it worked</returns>		
 		private bool GetWindowRect(out Rectangle rectangle) {
-			var windowInfo = new WindowInfo();
+			var windowInfo = new WINDOWINFO();
 			// Get the Window Info for this window
 			bool result = User32.GetWindowInfo(Handle, ref windowInfo);
-			rectangle = result ? windowInfo.rcWindow.ToRectangle() : Rectangle.Empty;
+			if (result)
+			{
+				rectangle = windowInfo.rcClient;
+			}
+			else
+			{
+				rectangle = Rectangle.Empty;
+			}
 			return result;
 		}
 
@@ -1245,7 +1170,7 @@ namespace GreenshotPlugin.Core {
 		/// <param name="size">out Size</param>
 		/// <returns>bool true if it worked</returns>	
 		private bool GetBorderSize(out Size size) {
-			var windowInfo = new WindowInfo();
+			var windowInfo = new WINDOWINFO();
 			// Get the Window Info for this window
 			bool result = User32.GetWindowInfo(Handle, ref windowInfo);
 			size = result ? new Size((int)windowInfo.cxWindowBorders, (int)windowInfo.cyWindowBorders) : Size.Empty;
@@ -1276,13 +1201,8 @@ namespace GreenshotPlugin.Core {
 			// See https://msdn.microsoft.com/en-us/library/windows/desktop/ms633539(v=vs.85).aspx
 			if (workaround)
 			{
-				const byte alt = 0xA4;
-				const int extendedkey = 0x1;
-				const int keyup = 0x2;
 				// Simulate an "ALT" key press.
-				User32.keybd_event(alt, 0x45, extendedkey | 0, 0);
-				// Simulate an "ALT" key release.
-				User32.keybd_event(alt, 0x45, extendedkey | keyup, 0);
+				InputGenerator.Press(VirtualKeyCodes.MENU);
 			}
 			// Show window in forground.
 			User32.BringWindowToTop(handle);
@@ -1301,10 +1221,10 @@ namespace GreenshotPlugin.Core {
 		/// Get the region for a window
 		/// </summary>
 		private Region GetRegion() {
-			using (SafeRegionHandle region = GDI32.CreateRectRgn(0, 0, 0, 0)) {
+			using (SafeRegionHandle region = Gdi32.CreateRectRgn(0, 0, 0, 0)) {
 				if (!region.IsInvalid) {
-					RegionResult result = User32.GetWindowRgn(Handle, region);
-					if (result != RegionResult.REGION_ERROR && result != RegionResult.REGION_NULLREGION) {
+					var result = User32.GetWindowRgn(Handle, region);
+					if (result != RegionResults.REGION_ERROR && result != RegionResults.REGION_NULLREGION) {
 						return Region.FromHrgn(region.DangerousGetHandle());
 					}
 				}
@@ -1715,7 +1635,7 @@ namespace GreenshotPlugin.Core {
 		/// Find a window belonging to the same process as the supplied window.
 		/// </summary>
 		/// <param name="windowToLinkTo"></param>
-		/// <returns></returns>
+		/// <returns>WindowDetails</returns>
 		public static WindowDetails GetLinkedWindow(WindowDetails windowToLinkTo) {
 			int processIdSelectedWindow = windowToLinkTo.ProcessId;
 			foreach(var window in GetAllWindows()) {
@@ -1792,5 +1712,4 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 	}
-	#endregion
 }

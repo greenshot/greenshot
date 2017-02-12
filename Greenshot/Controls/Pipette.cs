@@ -22,8 +22,11 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using Dapplo.Windows.Enums;
+using Dapplo.Windows.Native;
+using Dapplo.Windows.SafeHandles;
+using Dapplo.Windows.Structs;
 using Greenshot.Forms;
-using GreenshotPlugin.UnmanagedHelpers;
 
 namespace Greenshot.Controls {
 	/// <summary>
@@ -57,7 +60,7 @@ namespace Greenshot.Controls {
 		/// <param name="hotspotY">Hotspot Y coordinate</param>
 		/// <returns>Cursor</returns>
 		private static Cursor CreateCursor(Bitmap bitmap, int hotspotX, int hotspotY) {
-			using (SafeIconHandle iconHandle = new SafeIconHandle( bitmap.GetHicon())) {
+			using (var iconHandle = new SafeIconHandle( bitmap.GetHicon())) {
 				IconInfo iconInfo;
 				User32.GetIconInfo(iconHandle, out iconInfo);
 				iconInfo.xHotspot = hotspotX;

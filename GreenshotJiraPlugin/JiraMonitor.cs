@@ -22,12 +22,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Jira;
 using Dapplo.Log;
-using GreenshotJiraPlugin.Hooking;
+using Dapplo.Windows.Native;
+using Dapplo.Windows.Reactive;
 
 namespace GreenshotJiraPlugin
 {
@@ -41,23 +43,21 @@ namespace GreenshotJiraPlugin
 	{
 		private static readonly LogSource Log = new LogSource();
 		private readonly Regex _jiraKeyPattern = new Regex(@"[A-Z][A-Z0-9]+\-[0-9]+");
-		private readonly WindowsTitleMonitor _monitor;
 		private readonly IList<IJiraClient> _jiraInstances = new List<IJiraClient>();
 		private readonly IDictionary<string, IJiraClient> _projectJiraClientMap = new Dictionary<string, IJiraClient>();
 		private readonly int _maxEntries;
+		private readonly IDisposable _winEventObservable;
 		// TODO: Add issues from issueHistory (JQL -> Where.IssueKey.InIssueHistory())
 		private IDictionary<string, JiraDetails> _recentJiras = new Dictionary<string, JiraDetails>();
-
-		/// <summary>
-		/// Register to this event to get events when new jira issues are detected
-		/// </summary>
-		public event EventHandler<JiraEventArgs> JiraEvent;
 
 		public JiraMonitor(int maxEntries = 40)
 		{
 			_maxEntries = maxEntries;
-			_monitor = new WindowsTitleMonitor();
-			_monitor.TitleChangeEvent += MonitorTitleChangeEvent;
+
+			_winEventObservable = WinEventHook.WindowTileChangeObservable()
+				.Select(info => User32.GetText(info.Handle))
+				.Where(title => !string.IsNullOrEmpty(title))
+				.Subscribe(MonitorTitleChangeEvent);
 		}
 
 		#region Dispose
@@ -75,15 +75,14 @@ namespace GreenshotJiraPlugin
 		/// Dispose all managed resources
 		/// </summary>
 		/// <param name="disposing">when true is passed all managed resources are disposed.</param>
-		protected void Dispose(bool disposing)
+		private void Dispose(bool disposing)
 		{
 			if (!disposing)
 			{
 				return;
 			}
 			// free managed resources
-			_monitor.TitleChangeEvent -= MonitorTitleChangeEvent;
-			_monitor.Dispose();
+			_winEventObservable.Dispose();
 			// free native resources if there are any.
 		}
 
@@ -148,8 +147,6 @@ namespace GreenshotJiraPlugin
 					var issue = await jiraClient.Issue.GetAsync(jiraDetails.JiraKey).ConfigureAwait(false);
 					jiraDetails.JiraIssue = issue;
 				}
-				// Send event
-				JiraEvent?.Invoke(this, new JiraEventArgs { Details = jiraDetails, EventType = JiraEventTypes.DetectedNewJiraIssue });
 			}
 			catch (Exception ex)
 			{
@@ -160,14 +157,9 @@ namespace GreenshotJiraPlugin
 		/// <summary>
 		/// Handle title changes, check for JIRA
 		/// </summary>
-		/// <param name="eventArgs"></param>
-		private void MonitorTitleChangeEvent(TitleChangeEventArgs eventArgs)
+		/// <param name="windowTitle">string with title</param>
+		private void MonitorTitleChangeEvent(string windowTitle)
 		{
-			string windowTitle = eventArgs.Title;
-			if (string.IsNullOrEmpty(windowTitle))
-			{
-				return;
-			}
 			var jiraKeyMatch = _jiraKeyPattern.Match(windowTitle);
 			if (!jiraKeyMatch.Success)
 			{
@@ -189,11 +181,6 @@ namespace GreenshotJiraPlugin
 				{
 					// update 
 					currentJiraDetails.SeenAt = DateTimeOffset.Now;
-
-					// Notify the order change
-					JiraEvent?.Invoke(this, new JiraEventArgs { Details = currentJiraDetails, EventType = JiraEventTypes.OrderChanged });
-					// Nothing else to do
-
 					return;
 				}
 				// We detected an unknown JIRA, so add it to our list

@@ -19,9 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.UnmanagedHelpers;
 using System.Windows.Forms;
 using log4net;
+using Dapplo.Windows.Enums;
 
 namespace GreenshotPlugin.Core
 {
@@ -31,7 +31,7 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public class WmInputLangChangeRequestFilter : IMessageFilter
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(WmInputLangChangeRequestFilter));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(WmInputLangChangeRequestFilter));
 
 		/// <summary>
 		/// This will do some filtering
@@ -41,7 +41,7 @@ namespace GreenshotPlugin.Core
 		public bool PreFilterMessage(ref Message m)
 		{
 			return PreFilterMessageExternal(ref m);
-        }
+		}
 
 		/// <summary>
 		/// Also used in the MainForm WndProc
@@ -53,7 +53,7 @@ namespace GreenshotPlugin.Core
 			WindowsMessages message = (WindowsMessages)m.Msg;
 			if (message == WindowsMessages.WM_INPUTLANGCHANGEREQUEST || message == WindowsMessages.WM_INPUTLANGCHANGE)
 			{
-				LOG.WarnFormat("Filtering: {0}, {1:X} - {2:X} - {3:X}", message, m.LParam.ToInt64(), m.WParam.ToInt64(), m.HWnd.ToInt64());
+				Log.WarnFormat("Filtering: {0}, {1:X} - {2:X} - {3:X}", message, m.LParam.ToInt64(), m.WParam.ToInt64(), m.HWnd.ToInt64());
 				// For now we always return true
 				return true;
 				// But it could look something like this:
@@ -61,5 +61,5 @@ namespace GreenshotPlugin.Core
 			}
 			return false;
 		}
-    }
+	}
 }

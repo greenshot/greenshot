@@ -23,11 +23,11 @@ using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
 
-using GreenshotPlugin.UnmanagedHelpers;
 using GreenshotPlugin.Core;
 using Greenshot.IniFile;
 using System.IO;
-
+using Dapplo.Windows.Enums;
+using Dapplo.Windows.Native;
 using log4net;
 
 namespace Greenshot.Helpers {
@@ -65,18 +65,15 @@ namespace Greenshot.Helpers {
 		}
 		
 		public static void Play() {
-			if (_soundBuffer != null) {
-				//Thread playSoundThread = new Thread(delegate() {
-				SoundFlags flags = SoundFlags.SND_ASYNC | SoundFlags.SND_MEMORY | SoundFlags.SND_NOWAIT | SoundFlags.SND_NOSTOP;
-				try {
-					if (_gcHandle != null) WinMM.PlaySound(_gcHandle.Value.AddrOfPinnedObject(), (UIntPtr)0, (uint)flags);
-				} catch (Exception e) {
-					Log.Error("Error in play.", e);
-				}
-				//});
-				//playSoundThread.Name = "Play camera sound";
-				//playSoundThread.IsBackground = true;
-				//playSoundThread.Start();
+			if (_soundBuffer == null)
+			{
+				return;
+			}
+			SoundFlags soundFlags = SoundFlags.SND_ASYNC | SoundFlags.SND_MEMORY | SoundFlags.SND_NOWAIT | SoundFlags.SND_NOSTOP;
+			try {
+				if (_gcHandle != null) WinMM.PlaySound(_gcHandle.Value.AddrOfPinnedObject(), UIntPtr.Zero, soundFlags);
+			} catch (Exception e) {
+				Log.Error("Error in play.", e);
 			}
 		}
 

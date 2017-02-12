@@ -25,8 +25,8 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using Dapplo.Windows.Native;
 using Greenshot.IniFile;
-using GreenshotPlugin.UnmanagedHelpers;
 using Greenshot.Plugin;
 using GreenshotPlugin.Effects;
 using log4net;
@@ -993,7 +993,7 @@ namespace GreenshotPlugin.Core {
 			{
 				shadowSize++;
 			}
-			bool useGdiBlur = GDIplus.IsBlurPossible(shadowSize);
+			bool useGdiBlur = GdiPlus.IsBlurPossible(shadowSize);
 			// Create "mask" for the shadow
 			ColorMatrix maskMatrix = new ColorMatrix
 			{
@@ -1017,9 +1017,9 @@ namespace GreenshotPlugin.Core {
 			{
 				// Use GDI Blur
 				Rectangle newImageRectangle = new Rectangle(0, 0, returnImage.Width, returnImage.Height);
-				GDIplus.ApplyBlur(returnImage, newImageRectangle, shadowSize + 1, false);
+				useGdiBlur = GdiPlus.ApplyBlur(returnImage, newImageRectangle, shadowSize + 1, false);
 			}
-			else
+			if (!useGdiBlur)
 			{
 				// try normal software blur
 				//returnImage = CreateBlur(returnImage, newImageRectangle, true, shadowSize, 1d, false, newImageRectangle);

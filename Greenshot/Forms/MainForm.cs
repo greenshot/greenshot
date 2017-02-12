@@ -31,6 +31,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Windows.Native;
 using Greenshot.Configuration;
 using Greenshot.Destinations;
 using Greenshot.Drawing;
@@ -42,7 +43,6 @@ using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
-using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using Timer = System.Timers.Timer;
 
@@ -953,7 +953,7 @@ namespace Greenshot.Forms {
 		public void AddCaptureWindowMenuItems(ToolStripMenuItem menuItem, EventHandler eventHandler) {
 			menuItem.DropDownItems.Clear();
 			// check if thumbnailPreview is enabled and DWM is enabled
-			bool thumbnailPreview = _conf.ThumnailPreview && DWM.IsDwmEnabled();
+			bool thumbnailPreview = _conf.ThumnailPreview && Dwm.IsDwmEnabled;
 
 			foreach(WindowDetails window in WindowDetails.GetTopLevelWindows()) {
 

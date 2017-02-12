@@ -21,7 +21,6 @@
 
 using Greenshot.IniFile;
 using Greenshot.Plugin;
-using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using Microsoft.Win32;
 using System;
@@ -30,6 +29,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using Dapplo.Windows.Native;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>

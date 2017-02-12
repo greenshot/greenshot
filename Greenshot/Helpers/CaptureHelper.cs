@@ -26,7 +26,6 @@ using Greenshot.Forms;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -35,6 +34,7 @@ using System.Drawing;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Windows.Native;
 using GreenshotPlugin.Core.Enums;
 
 namespace Greenshot.Helpers {
@@ -741,7 +741,7 @@ namespace Greenshot.Helpers {
 			Rectangle windowRectangle = windowToCapture.WindowRectangle;
 
 			// When Vista & DWM (Aero) enabled
-			bool dwmEnabled = DWM.IsDwmEnabled();
+			bool dwmEnabled = Dwm.IsDwmEnabled;
 			// get process name to be able to exclude certain processes from certain capture modes
 			using (Process process = windowToCapture.Process) {
 				bool isAutoMode = windowCaptureMode == WindowCaptureModes.Auto;

@@ -25,7 +25,6 @@ using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -35,6 +34,7 @@ using System.Drawing.Imaging;
 using System.Globalization;
 using System.Security.Permissions;
 using System.Windows.Forms;
+using Dapplo.Windows.Native;
 
 namespace Greenshot.Forms {
 	/// <summary>

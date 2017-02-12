@@ -21,9 +21,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-
+using Dapplo.Windows.Enums;
+using Dapplo.Windows.Structs;
 using Greenshot.Drawing.Fields;
-using GreenshotPlugin.UnmanagedHelpers;
 using Greenshot.IniFile;
 using GreenshotPlugin.Effects;
 using GreenshotPlugin.Interfaces.Drawing;
@@ -45,7 +45,7 @@ namespace Greenshot.Configuration {
 		[IniProperty("WindowPlacementFlags", Description="Placement flags", DefaultValue="0")]
 		public WindowPlacementFlags WindowPlacementFlags { get; set; }
 		[IniProperty("WindowShowCommand", Description="Show command", DefaultValue="Normal")]
-		public ShowWindowCommand ShowWindowCommand { get; set; }
+		public ShowWindowCommands ShowWindowCommand { get; set; }
 		[IniProperty("WindowMinPosition", Description="Position of minimized window", DefaultValue="-1,-1")]
 		public Point WindowMinPosition { get; set; }
 		[IniProperty("WindowMaxPosition", Description="Position of maximized window", DefaultValue="-1,-1")]
@@ -126,23 +126,23 @@ namespace Greenshot.Configuration {
 			WindowMaxPosition = new Point(-1,-1);
 			WindowMinPosition = new Point(-1, -1);
 			WindowPlacementFlags = 0;
-			ShowWindowCommand = ShowWindowCommand.Normal;
+			ShowWindowCommand = ShowWindowCommands.Normal;
 		}
 
 		public WindowPlacement GetEditorPlacement() {
 			WindowPlacement placement = WindowPlacement.Default;
-			placement.NormalPosition = new RECT(WindowNormalPosition);
-			placement.MaxPosition = new POINT(WindowMaxPosition);
-			placement.MinPosition = new POINT(WindowMinPosition);
+			placement.NormalPosition = WindowNormalPosition;
+			placement.MaxPosition = WindowMaxPosition;
+			placement.MinPosition = WindowMinPosition;
 			placement.ShowCmd = ShowWindowCommand;
 			placement.Flags = WindowPlacementFlags;
 			return placement;
 		}
 
 		public void SetEditorPlacement(WindowPlacement placement) {
-			WindowNormalPosition = placement.NormalPosition.ToRectangle();
-			WindowMaxPosition = placement.MaxPosition.ToPoint();
-			WindowMinPosition = placement.MinPosition.ToPoint();
+			WindowNormalPosition = placement.NormalPosition;
+			WindowMaxPosition = placement.MaxPosition;
+			WindowMinPosition = placement.MinPosition;
 			ShowWindowCommand = placement.ShowCmd;
 			WindowPlacementFlags = placement.Flags;
 		}

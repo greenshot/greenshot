@@ -32,10 +32,10 @@ using Greenshot.Destinations;
 using Greenshot.Helpers;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.UnmanagedHelpers;
 using Greenshot.Plugin;
 using Greenshot.IniFile;
 using System.Text.RegularExpressions;
+using Dapplo.Windows.Native;
 using Greenshot.Forms;
 using GreenshotPlugin.Core.Enums;
 using log4net;
@@ -180,7 +180,7 @@ namespace Greenshot {
 		
 		private void SetWindowCaptureMode(WindowCaptureModes selectedWindowCaptureMode) {
 			WindowCaptureModes[] availableModes;
-			if (!DWM.IsDwmEnabled()) {
+			if (!Dwm.IsDwmEnabled) {
 				// Remove DWM from configuration, as DWM is disabled!
 				if (coreConfiguration.WindowCaptureMode == WindowCaptureModes.Aero || coreConfiguration.WindowCaptureMode == WindowCaptureModes.AeroTransparent) {
 					coreConfiguration.WindowCaptureMode = WindowCaptureModes.GDI;

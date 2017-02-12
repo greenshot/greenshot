@@ -23,9 +23,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Windows.Native;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
-using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 
 namespace GreenshotPlugin.Core {

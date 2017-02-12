@@ -24,8 +24,8 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
+using Dapplo.Windows.Native;
 using Greenshot.IniFile;
-using GreenshotPlugin.UnmanagedHelpers;
 
 namespace Greenshot.Helpers
 {
@@ -108,7 +108,7 @@ namespace Greenshot.Helpers
 					environment.Append(", ");
 				}
 				// Get some important information for fixing GDI related Problems
-				environment.AppendFormat("GDI object count: {0}", User32.GetGuiResourcesGDICount());
+				environment.AppendFormat("GDI object count: {0}", User32.GetGuiResourcesGdiCount());
 				if (newline)
 				{
 					environment.AppendLine();

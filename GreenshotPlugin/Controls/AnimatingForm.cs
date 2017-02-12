@@ -21,8 +21,10 @@
 
 using System;
 using System.Windows.Forms;
-using GreenshotPlugin.UnmanagedHelpers;
+using Dapplo.Windows.Enums;
+using Dapplo.Windows.Native;
 using log4net;
+using Dapplo.Windows.SafeHandles;
 
 namespace GreenshotPlugin.Controls {
 	/// <summary>
@@ -50,7 +52,7 @@ namespace GreenshotPlugin.Controls {
 				if (_vRefresh == 0) {
 					// get te hDC of the desktop to get the VREFRESH
 					using (SafeWindowDcHandle desktopHandle = SafeWindowDcHandle.FromDesktop()) {
-						_vRefresh = GDI32.GetDeviceCaps(desktopHandle, DeviceCaps.VREFRESH);
+						_vRefresh = Gdi32.GetDeviceCaps(desktopHandle, DeviceCaps.VREFRESH);
 					}
 				}
 				// A vertical refresh rate value of 0 or 1 represents the display hardware's default refresh rate.

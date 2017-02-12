@@ -21,7 +21,8 @@
 using System;
 using System.Windows.Forms;
 using System.Drawing;
-using GreenshotPlugin.UnmanagedHelpers;
+using Dapplo.Windows.Native;
+using Dapplo.Windows.SafeHandles;
 
 namespace Greenshot.Forms {
 	/// <summary>
@@ -86,9 +87,9 @@ namespace Greenshot.Forms {
 		/// <param name="screenCoordinates">Point with the coordinates</param>
 		/// <returns>Color at the specified screenCoordinates</returns>
 		private static Color GetPixelColor(Point screenCoordinates) {
-			using (SafeWindowDcHandle screenDC = SafeWindowDcHandle.FromDesktop()) {
+			using (var screenDc = SafeWindowDcHandle.FromDesktop()) {
 				try {
-					uint pixel = GDI32.GetPixel(screenDC, screenCoordinates.X, screenCoordinates.Y);
+					uint pixel = Gdi32.GetPixel(screenDc, screenCoordinates.X, screenCoordinates.Y);
 					Color color = Color.FromArgb(255, (int)(pixel & 0xFF), (int)(pixel & 0xFF00) >> 8, (int)(pixel & 0xFF0000) >> 16);
 					return color;
 				} catch (Exception) {

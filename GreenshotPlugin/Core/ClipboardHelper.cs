@@ -31,8 +31,10 @@ using System.Threading;
 using System.Windows.Forms;
 using Greenshot.IniFile;
 using Greenshot.Plugin;
-using GreenshotPlugin.UnmanagedHelpers;
 using System.Runtime.InteropServices;
+using Dapplo.Windows.Enums;
+using Dapplo.Windows.Native;
+using Dapplo.Windows.Structs;
 using GreenshotPlugin.Core.Enums;
 using log4net;
 
@@ -390,16 +392,16 @@ EndSelection:<<<<<<<4
 						{
 							byte[] dibBuffer = new byte[imageStream.Length];
 							imageStream.Read(dibBuffer, 0, dibBuffer.Length);
-							BITMAPINFOHEADER infoHeader = BinaryStructHelper.FromByteArray<BITMAPINFOHEADER>(dibBuffer);
+							var infoHeader = BinaryStructHelper.FromByteArray<BitmapInfoHeader>(dibBuffer);
 							if (!infoHeader.IsDibV5) {
 								Log.InfoFormat("Using special DIB <v5 format reader with biCompression {0}", infoHeader.biCompression);
-								int fileHeaderSize = Marshal.SizeOf(typeof(BITMAPFILEHEADER));
+								int fileHeaderSize = Marshal.SizeOf(typeof(BitmapFileHeader));
 								uint infoHeaderSize = infoHeader.biSize;
 								int fileSize = (int)(fileHeaderSize + infoHeader.biSize + infoHeader.biSizeImage);
 
-								BITMAPFILEHEADER fileHeader = new BITMAPFILEHEADER
+								var fileHeader = new BitmapFileHeader
 								{
-									bfType = BITMAPFILEHEADER.BM,
+									bfType = BitmapFileHeader.BM,
 									bfSize = fileSize,
 									bfReserved1 = 0,
 									bfReserved2 = 0,
@@ -587,10 +589,10 @@ EndSelection:<<<<<<<4
 						dibV5Stream = new MemoryStream();
 
 						// Create the BITMAPINFOHEADER
-						BITMAPINFOHEADER header = new BITMAPINFOHEADER(imageToSave.Width, imageToSave.Height, 32)
+						var header = new BitmapInfoHeader(imageToSave.Width, imageToSave.Height, 32)
 						{
 							// Make sure we have BI_BITFIELDS, this seems to be normal for Format17?
-							biCompression = BI_COMPRESSION.BI_BITFIELDS
+							biCompression = BitmapCompressionMethods.BI_BITFIELDS
 						};
 						// Create a byte[] to write
 						byte[] headerBytes = BinaryStructHelper.ToByteArray(header);

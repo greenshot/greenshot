@@ -21,7 +21,6 @@
 
 using Greenshot.IniFile;
 using Greenshot.Plugin;
-using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -30,6 +29,10 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using Dapplo.Windows.Enums;
+using Dapplo.Windows.Native;
+using Dapplo.Windows.SafeHandles;
+using Dapplo.Windows.Structs;
 
 namespace GreenshotPlugin.Core {
 	/// <summary>
@@ -456,12 +459,12 @@ namespace GreenshotPlugin.Core {
 			CursorInfo cursorInfo = new CursorInfo();
 			cursorInfo.cbSize = Marshal.SizeOf(cursorInfo);
 			if (User32.GetCursorInfo(out cursorInfo)) {
-				if (cursorInfo.flags == User32.CURSOR_SHOWING) { 
+				if (cursorInfo.flags == CursorInfoFlags.CURSOR_SHOWING) { 
 					using (SafeIconHandle safeIcon = User32.CopyIcon(cursorInfo.hCursor))
 					{
 						IconInfo iconInfo;
 						if (User32.GetIconInfo(safeIcon, out iconInfo)) {
-							Point cursorLocation = User32.GetCursorLocation();
+							var cursorLocation = User32.GetCursorLocation();
 							// Allign cursor location to Bitmap coordinates (instead of Screen coordinates)
 							var x = cursorLocation.X - iconInfo.xHotspot - capture.ScreenBounds.X;
 							var y = cursorLocation.Y - iconInfo.yHotspot - capture.ScreenBounds.Y;
@@ -629,7 +632,7 @@ namespace GreenshotPlugin.Core {
 				}
 
 				// create a device context we can copy to
-				using (SafeCompatibleDCHandle safeCompatibleDcHandle = GDI32.CreateCompatibleDC(desktopDcHandle)) {
+				using (SafeCompatibleDcHandle safeCompatibleDcHandle = Gdi32.CreateCompatibleDC(desktopDcHandle)) {
 					// Check if the device context is there, if not throw an error with as much info as possible!
 					if (safeCompatibleDcHandle.IsInvalid) {
 						// Get Exception before the error is lost
@@ -638,14 +641,15 @@ namespace GreenshotPlugin.Core {
 						throw exceptionToThrow;
 					}
 					// Create BITMAPINFOHEADER for CreateDIBSection
-					BITMAPINFOHEADER bmi = new BITMAPINFOHEADER(captureBounds.Width, captureBounds.Height, 24);
+					var bmi = new BitmapInfoHeader(captureBounds.Width, captureBounds.Height, 24);
 
 					// Make sure the last error is set to 0
 					Win32.SetLastError(0);
 
 					// create a bitmap we can copy it to, using GetDeviceCaps to get the width/height
 					IntPtr bits0; // not used for our purposes. It returns a pointer to the raw bits that make up the bitmap.
-					using (SafeDibSectionHandle safeDibSectionHandle = GDI32.CreateDIBSection(desktopDcHandle, ref bmi, BITMAPINFOHEADER.DIB_RGB_COLORS, out bits0, IntPtr.Zero, 0)) {
+					// TODO: Change the usage to an enum?
+					using (SafeDibSectionHandle safeDibSectionHandle = Gdi32.CreateDIBSection(desktopDcHandle, ref bmi, BitmapInfoHeader.DIB_RGB_COLORS, out bits0, IntPtr.Zero, 0)) {
 						if (safeDibSectionHandle.IsInvalid) {
 							// Get Exception before the error is lost
 							Exception exceptionToThrow = CreateCaptureException("CreateDIBSection", captureBounds);
@@ -659,7 +663,7 @@ namespace GreenshotPlugin.Core {
 						using (safeCompatibleDcHandle.SelectObject(safeDibSectionHandle)) {
 							// bitblt over (make copy)
 							// ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
-							GDI32.BitBlt(safeCompatibleDcHandle, 0, 0, captureBounds.Width, captureBounds.Height, desktopDcHandle, captureBounds.X, captureBounds.Y, CopyPixelOperation.SourceCopy | CopyPixelOperation.CaptureBlt);
+							Gdi32.BitBlt(safeCompatibleDcHandle, 0, 0, captureBounds.Width, captureBounds.Height, desktopDcHandle, captureBounds.X, captureBounds.Y, CopyPixelOperation.SourceCopy | CopyPixelOperation.CaptureBlt);
 						}
 
 						// get a .NET image object for it

@@ -26,6 +26,8 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Windows.Native;
+using Dapplo.Windows.Structs;
 using Greenshot.Configuration;
 using Greenshot.Destinations;
 using Greenshot.Drawing;
@@ -41,7 +43,6 @@ using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Effects;
 using GreenshotPlugin.Interfaces.Drawing;
-using GreenshotPlugin.UnmanagedHelpers;
 using log4net;
 
 namespace Greenshot {
