@@ -545,18 +545,17 @@ namespace GreenshotPlugin.Core {
 				if (IsApp)
 				{
 					Log.InfoFormat("Class {0}, title {1}", ClassName, Text);
-					if (Visible) {
-						Rectangle windowRectangle = WindowRectangle;
-						foreach (var screen in Screen.AllScreens) {
-							if (screen.Bounds.Contains(windowRectangle)) {
-								if (windowRectangle.Equals(screen.Bounds)) {
-									return true;
-								}
+					Rectangle windowRectangle = WindowRectangle;
+					foreach (var screen in Screen.AllScreens) {
+						if (screen.Bounds.Contains(windowRectangle)) {
+							if (windowRectangle.Equals(screen.Bounds)) {
+								return true;
 							}
 						}
 					}
 					return false;
 				}
+				Log.InfoFormat("Class {0}, title {1}", ClassName, Text);
 				return User32.IsZoomed(Handle);
 			}
 			set {
@@ -673,11 +672,12 @@ namespace GreenshotPlugin.Core {
 								// Pre-Cache for Maximised call, this is only on Windows 8 apps (full screen)
 								if (gotFrameBounds)
 								{
+									windowRect = frameBounds;
 									_previousWindowRectangle = windowRect;
 									_lastWindowRectangleRetrieveTime = now;
 								}
 							}
-							if (gotFrameBounds && Environment.OSVersion.IsWindows10() && !Maximised)
+							if (gotFrameBounds && Environment.OSVersion.IsWindows10() && !User32.IsZoomed(Handle))
 							{
 								windowRect = frameBounds;
 								// Somehow DWM doesn't calculate it corectly, there is a 1 pixel border around the capture
@@ -698,7 +698,7 @@ namespace GreenshotPlugin.Core {
 						}
 	
 						// Correction for maximized windows, only if it's not an app
-						if (!HasParent && !IsApp && Maximised) {
+						if (!HasParent && !IsApp && User32.IsZoomed(Handle)) {
 							Size size;
 							// Only if the border size can be retrieved
 							if (GetBorderSize(out size))
