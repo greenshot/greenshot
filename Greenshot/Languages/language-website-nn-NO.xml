@@ -13,7 +13,7 @@
 		<resource name="home_whatis_edit">Enkel notering, markering og sensurering i knipsfiksaren.</resource>
 		<resource name="home_whatis_intro">Greenshot er eit lite og nett Windows-verktøy med dei fylgjande eigenskapane:</resource>
 		<resource name="home_whatis_more">...og endå meir som forenklar arbeidet med skjermbilde - kvar dag!</resource>
-		<resource name="home_whatis_send">Eksporter skjermbildet til fil, skrivar, utklyppstavle, e-post, Office-program eller skytenester som til dømes Flickr og Picasa.</resource>
+		<resource name="home_whatis_send">Eksporter skjermbildet til fil, skrivar, utklyppstavle, e-post, Office-program eller skytenester som til dømes Flickr og Google Photos.</resource>
 		<resource name="home_whatis_usage">Med det enkle, konfigurerbare grensesnittet er Greenshot eit effektivt verktøy for prosjektleiarar, programvareutviklararar, tekniske skribentar, testarar og alle andre som har nytte av å ta skjermbilde.</resource>
 	</resources>
 </language>

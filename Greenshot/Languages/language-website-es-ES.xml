@@ -13,7 +13,7 @@
 		<resource name="home_whatis_edit">Anotación, resalte y ocultación de partes de la captura de pantalla fácilmente.</resource>
 		<resource name="home_whatis_intro">Greenshot es una herramienta ligera de captura de pantalla para Windows con las características esenciales:</resource>
 		<resource name="home_whatis_more">... y muchas más opciones para simplificar el día a día en la creación y el trabajo con capturas de pantalla.</resource>
-		<resource name="home_whatis_send">Exportar la captura de pantalla de diversas maneras: guardar en archivo, imprimir, copiar al portapapeles, adjuntar a un correo electrónico, enviar a programa de Office o subir a sitios de fotos como Flickr o Picasa, entre otros.</resource>
+		<resource name="home_whatis_send">Exportar la captura de pantalla de diversas maneras: guardar en archivo, imprimir, copiar al portapapeles, adjuntar a un correo electrónico, enviar a programa de Office o subir a sitios de fotos como Flickr o Google Photos, entre otros.</resource>
 		<resource name="home_whatis_usage">Al ser fácil de entender y configurar, Greenshot es una herramienta eficaz para gestores de proyecto, desarrolladores de software, escritores técnicos, evaluadores y cualquier persona que necesite capturas de pantalla.</resource>
 	</resources>
 </language>

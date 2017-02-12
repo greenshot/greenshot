@@ -13,7 +13,7 @@
 		<resource name="home_whatis_edit">Du kan enkelt kommentera, framhäva eller censurera delar av skärmdumpen.</resource>
 		<resource name="home_whatis_intro">Greenshot är ett litet skärmdumpsverktyg för Windows med följande huvudfunktioner:</resource>
 		<resource name="home_whatis_more">...och många fler möjligheter som förenklar sättet att skapa och ändra skärmdumpar varje dag.</resource>
-		<resource name="home_whatis_send">Exportera skärmdumpen på olika sätt: spara till fil, skicka till skrivare, kopiera till urklippet, bifoga i e-post, skicka till Office-program eller ladda upp till fotosidor som Flickr, Picasa m.m.</resource>
+		<resource name="home_whatis_send">Exportera skärmdumpen på olika sätt: spara till fil, skicka till skrivare, kopiera till urklippet, bifoga i e-post, skicka till Office-program eller ladda upp till fotosidor som Flickr, Google Photos m.m.</resource>
 		<resource name="home_whatis_usage">Genom att vara lätt att förstå och konfigurera, är Greenshot ett effektivt verktyg för projektledare, mjukvaruutvecklare, tekniska skribenter, testare och alla andra som skapar skärmdumpar.</resource>
 	</resources>
 </language>

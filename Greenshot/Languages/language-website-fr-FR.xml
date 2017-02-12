@@ -13,7 +13,7 @@
 		<resource name="home_whatis_edit">Annoter, surligner, assombrir ou brouiller facilement des parties de la capture.</resource>
 		<resource name="home_whatis_intro">Greenshot est un logiciel de capture d’écran léger pour Windows avec les fonctionnalités majeures suivantes:</resource>
 		<resource name="home_whatis_more">...et bien d'autres options qui permettent de simplifier le travail de création ou de gestion journaliers des captures d’écran.</resource>
-		<resource name="home_whatis_send">Exporter la capture de multiples façons: sauvegarde vers un fichier, impression, copie dans le presse-papier, joindre à un courriel, envoi vers des programmes Office ou envoi vers des sites de photos comme Flickr ou Picasa, et d’autres encore.</resource>
+		<resource name="home_whatis_send">Exporter la capture de multiples façons: sauvegarde vers un fichier, impression, copie dans le presse-papier, joindre à un courriel, envoi vers des programmes Office ou envoi vers des sites de photos comme Flickr ou Google Photos, et d’autres encore.</resource>
 		<resource name="home_whatis_usage">Simple et facile à configurer, Greenshot est un outil efficace pour des responsables de projet, développeurs de logiciel, Concepteurs de manuels techniques, testeurs ou autres personnes créant des captures d’écran.</resource>
 	</resources>
 </language>
