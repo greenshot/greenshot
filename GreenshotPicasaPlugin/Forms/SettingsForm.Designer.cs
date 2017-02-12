@@ -1,5 +1,5 @@
 ﻿/*
- * A Picasa Plugin for Greenshot
+ * A Google Photos Plugin for Greenshot
  * Copyright (C) 2011  Francis Noel
  * 
  * For more information see: http://getgreenshot.org/
@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace GreenshotPicasaPlugin {
+namespace GreenshotGooglePhotosPlugin {
 	partial class SettingsForm {
 		/// <summary>
 		/// Designer variable used to keep track of non-visual components.
@@ -84,13 +84,13 @@ namespace GreenshotPicasaPlugin {
 			this.combobox_uploadimageformat.Location = new System.Drawing.Point(197, 12);
 			this.combobox_uploadimageformat.Name = "combobox_uploadimageformat";
 			this.combobox_uploadimageformat.PropertyName = "UploadFormat";
-			this.combobox_uploadimageformat.SectionName = "Picasa";
+			this.combobox_uploadimageformat.SectionName = "GooglePhotos";
 			this.combobox_uploadimageformat.Size = new System.Drawing.Size(225, 21);
 			this.combobox_uploadimageformat.TabIndex = 1;
 			// 
 			// label_upload_format
 			// 
-			this.label_upload_format.LanguageKey = "picasa.label_upload_format";
+			this.label_upload_format.LanguageKey = "googlephotos.label_upload_format";
 			this.label_upload_format.Location = new System.Drawing.Point(10, 18);
 			this.label_upload_format.Name = "label_upload_format";
 			this.label_upload_format.Size = new System.Drawing.Size(181, 33);
@@ -99,7 +99,7 @@ namespace GreenshotPicasaPlugin {
 			// label_AfterUpload
 			// 
 			this.label_AfterUpload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.label_AfterUpload.LanguageKey = "picasa.label_AfterUpload";
+			this.label_AfterUpload.LanguageKey = "googlephotos.label_AfterUpload";
 			this.label_AfterUpload.Location = new System.Drawing.Point(10, 51);
 			this.label_AfterUpload.Name = "label_AfterUpload";
 			this.label_AfterUpload.Size = new System.Drawing.Size(181, 29);
@@ -109,11 +109,11 @@ namespace GreenshotPicasaPlugin {
 			// 
 			this.checkboxAfterUploadLinkToClipBoard.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.checkboxAfterUploadLinkToClipBoard.AutoSize = true;
-			this.checkboxAfterUploadLinkToClipBoard.LanguageKey = "picasa.label_AfterUploadLinkToClipBoard";
+			this.checkboxAfterUploadLinkToClipBoard.LanguageKey = "googlephotos.label_AfterUploadLinkToClipBoard";
 			this.checkboxAfterUploadLinkToClipBoard.Location = new System.Drawing.Point(197, 50);
 			this.checkboxAfterUploadLinkToClipBoard.Name = "checkboxAfterUploadLinkToClipBoard";
 			this.checkboxAfterUploadLinkToClipBoard.PropertyName = "AfterUploadLinkToClipBoard";
-			this.checkboxAfterUploadLinkToClipBoard.SectionName = "Picasa";
+			this.checkboxAfterUploadLinkToClipBoard.SectionName = "GooglePhotos";
 			this.checkboxAfterUploadLinkToClipBoard.Size = new System.Drawing.Size(104, 17);
 			this.checkboxAfterUploadLinkToClipBoard.TabIndex = 2;
 			this.checkboxAfterUploadLinkToClipBoard.UseVisualStyleBackColor = true;
@@ -130,7 +130,7 @@ namespace GreenshotPicasaPlugin {
 			this.Controls.Add(this.buttonCancel);
 			this.Controls.Add(this.buttonOK);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-			this.LanguageKey = "picasa.settings_title";
+			this.LanguageKey = "googlephotos.settings_title";
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "SettingsForm";

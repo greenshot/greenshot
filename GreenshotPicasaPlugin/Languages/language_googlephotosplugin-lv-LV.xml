@@ -1,32 +1,33 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Portuguese (Portugal)" ietf="pt-PT" version="1.0.0">
+<!-- Translated by Kārlis Kalviškis (eko@lanet.lv) 2014.12.17. -->
+<language description="Latviski" ietf="lv-LV" version="0.1.0" languagegroup="1">
   <resources>
 	<resource name="label_AfterUploadLinkToClipBoard">
-	  Link para área de transferência
+	  Saistīt ar starpliktuvi
 	</resource>
 	<resource name="label_AfterUpload">
-	  Após enviar
+	  Pēc augšupielādes
 	</resource>
 	<resource name="Configure">
-	  Configurar o Picasa
+	  Google Photos iestatījumi
 	</resource>
 	<resource name="upload_menu_item">
-	  enviar para o Picasa
+	  Augšupieladēt uz Google Photos
 	</resource>
 	<resource name="settings_title">
-	  Definições Picasa
+	  Google Photos iestatījumi
 	</resource>
 	<resource name="upload_success">
-	  Imagem enviada com êxito para o Picasa!
+	  Attēls veiksmīgi augšupielādēts uz Google Photos!
 	</resource>
 	<resource name="upload_failure">
-	  Ocorreu um erro ao enviar para o Picasa:
+	  Kļūda augšuplādējot uz Google Photos:
 	</resource>
 	<resource name="label_upload_format">
-	  Formato da imagem
+	  Attēla formāts
 	</resource>
 	<resource name="communication_wait">
-	  A comunicar com o Picasa. Por favor aguarde...
+	  Savienojos ar Google Photos. Lūdzu uzgaidiet...
 	</resource>
   </resources>
 </language>

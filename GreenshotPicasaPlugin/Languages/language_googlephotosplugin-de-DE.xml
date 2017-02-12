@@ -8,25 +8,25 @@
 	  Anschliessend
 	</resource>
 	<resource name="Configure">
-	  Picasa konfigurieren
+	  Google Photos konfigurieren
 	</resource>
 	<resource name="upload_menu_item">
-	  Hochladen zu Picasa
+	  Hochladen zu Google Photos
 	</resource>
 	<resource name="settings_title">
-	  Picasa Einstellungen
+	  Google Photos Einstellungen
 	</resource>
 	<resource name="upload_success">
-	  Hochladen zu Picasa war erfolgreich !
+	  Hochladen zu Google Photos war erfolgreich !
 	</resource>
 	<resource name="upload_failure">
-	 Fehler beim Hochladen zu Picasa:
+	 Fehler beim Hochladen zu Google Photos:
 	</resource>
 	<resource name="label_upload_format">
 	  Grafikformat
 	</resource>
 	<resource name="communication_wait">
-	 Übermittle Daten zu Picasa. Bitte warten...
+	 Übermittle Daten zu Google Photos. Bitte warten...
 	</resource>
   </resources>
 </language>

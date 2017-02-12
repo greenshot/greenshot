@@ -1,33 +1,32 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!-- Translated by Kārlis Kalviškis (eko@lanet.lv) 2014.12.17. -->
-<language description="Latviski" ietf="lv-LV" version="0.1.0" languagegroup="1">
+<language description="korean" ietf="ko-KR" version="1.0.0">
   <resources>
 	<resource name="label_AfterUploadLinkToClipBoard">
-	  Saistīt ar starpliktuvi
+	  클립보드로 연결
 	</resource>
 	<resource name="label_AfterUpload">
-	  Pēc augšupielādes
+	  얼로드 후
 	</resource>
 	<resource name="Configure">
-	  Picasa iestatījumi
+	  Google Photos 설정
 	</resource>
 	<resource name="upload_menu_item">
-	  Augšupieladēt uz Picasa
+	  Google Photos로 업로드
 	</resource>
 	<resource name="settings_title">
-	  Picasa iestatījumi
+	  Google Photos 설정
 	</resource>
 	<resource name="upload_success">
-	  Attēls veiksmīgi augšupielādēts uz Picasa!
+	  Google Photos로 이미지 업로드 성공!
 	</resource>
 	<resource name="upload_failure">
-	  Kļūda augšuplādējot uz Picasa:
+	  Google Photos로 업로드시 오류 발생:
 	</resource>
 	<resource name="label_upload_format">
-	  Attēla formāts
+	  이미지 형식
 	</resource>
 	<resource name="communication_wait">
-	  Savienojos ar Picasa. Lūdzu uzgaidiet...
+	  Google Photos와 연결 중 잠시 기다리세요...
 	</resource>
   </resources>
 </language>

@@ -1,6 +1,6 @@
 ﻿/*
- * A Picasa Plugin for Greenshot
- * Copyright (C) 2011  Francis Noel
+ * A Google Photos Plugin for Greenshot
+ * Copyright (C) 2011 Francis Noel
  * 
  * For more information see: http://getgreenshot.org/
  * 
@@ -18,11 +18,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotPicasaPlugin {
+namespace GreenshotGooglePhotosPlugin {
 	/// <summary>
 	/// Description of PasswordRequestForm.
 	/// </summary>
-	public partial class SettingsForm : PicasaForm {
+	public partial class SettingsForm : GooglePhotosForm {
 
 		public SettingsForm()
 		{

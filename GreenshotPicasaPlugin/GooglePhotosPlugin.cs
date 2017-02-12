@@ -1,5 +1,5 @@
 /*
- * A Picasa Plugin for Greenshot
+ * A Google Photos Plugin for Greenshot
  * Copyright (C) 2011  Francis Noel
  * 
  * For more information see: http://getgreenshot.org/
@@ -28,13 +28,13 @@ using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 
-namespace GreenshotPicasaPlugin {
+namespace GreenshotGooglePhotosPlugin {
 	/// <summary>
-	/// This is the Picasa base code
+	/// This is the Google Photos base code
 	/// </summary>
-	public class PicasaPlugin : IGreenshotPlugin {
-		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(PicasaPlugin));
-		private static PicasaConfiguration _config;
+	public class GooglePhotosPlugin : IGreenshotPlugin {
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(GooglePhotosPlugin));
+		private static GooglePhotosConfiguration _config;
 		public static PluginAttribute Attributes;
 		private IGreenshotHost _host;
 		private ComponentResourceManager _resources;
@@ -55,7 +55,7 @@ namespace GreenshotPicasaPlugin {
 		}
 
 		public IEnumerable<IDestination> Destinations() {
-			yield return new PicasaDestination(this);
+			yield return new GooglePhotosDestination(this);
 		}
 
 
@@ -73,14 +73,14 @@ namespace GreenshotPicasaPlugin {
 			Attributes = myAttributes;
 
 			// Get configuration
-			_config = IniConfig.GetIniSection<PicasaConfiguration>();
-			_resources = new ComponentResourceManager(typeof(PicasaPlugin));
+			_config = IniConfig.GetIniSection<GooglePhotosConfiguration>();
+			_resources = new ComponentResourceManager(typeof(GooglePhotosPlugin));
 
 			_itemPlugInRoot = new ToolStripMenuItem
 			{
-				Text = Language.GetString("picasa", LangKey.Configure),
+				Text = Language.GetString("googlephotos", LangKey.Configure),
 				Tag = _host,
-				Image = (Image) _resources.GetObject("Picasa")
+				Image = (Image) _resources.GetObject("GooglePhotos")
 			};
 			_itemPlugInRoot.Click += ConfigMenuClick;
 			PluginUtils.AddToContextMenu(_host, _itemPlugInRoot);
@@ -90,12 +90,12 @@ namespace GreenshotPicasaPlugin {
 
 		public void OnLanguageChanged(object sender, EventArgs e) {
 			if (_itemPlugInRoot != null) {
-				_itemPlugInRoot.Text = Language.GetString("picasa", LangKey.Configure);
+				_itemPlugInRoot.Text = Language.GetString("googlePhotos", LangKey.Configure);
 			}
 		}
 
 		public virtual void Shutdown() {
-			Log.Debug("Picasa Plugin shutdown.");
+			Log.Debug("GooglePhotos Plugin shutdown.");
 			Language.LanguageChanged -= OnLanguageChanged;
 			//host.OnImageEditorOpen -= new OnImageEditorOpenHandler(ImageEditorOpened);
 		}
@@ -115,11 +115,11 @@ namespace GreenshotPicasaPlugin {
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality);
 			try {
 				string url = null;
-				new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("picasa", LangKey.communication_wait), 
+				new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("googlephotos", LangKey.communication_wait), 
 					delegate
 					{
 						string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
-						url = PicasaUtils.UploadToPicasa(surfaceToUpload, outputSettings, captureDetails.Title, filename);
+						url = GooglePhotosUtils.UploadToGooglePhotos(surfaceToUpload, outputSettings, captureDetails.Title, filename);
 					}
 				);
 				uploadUrl = url;
@@ -130,7 +130,7 @@ namespace GreenshotPicasaPlugin {
 				return true;
 			} catch (Exception e) {
 				Log.Error("Error uploading.", e);
-				MessageBox.Show(Language.GetString("picasa", LangKey.upload_failure) + " " + e.Message);
+				MessageBox.Show(Language.GetString("googlephotos", LangKey.upload_failure) + " " + e.Message);
 			}
 			uploadUrl = null;
 			return false;

@@ -1,8 +1,9 @@
-/*
- * A Google Photos Plugin for Greenshot
- * Copyright (C) 2011  Francis Noel
+﻿/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,16 +20,12 @@
  */
 
 namespace GreenshotGooglePhotosPlugin {
-	public enum LangKey
-	{
-		upload_menu_item,
-		settings_title,
-		label_upload_format,
-		upload_success,
-		upload_failure,
-		communication_wait,
-		Configure,
-		label_AfterUpload,
-		label_AfterUploadLinkToClipBoard
+	/// <summary>
+	/// This class is merely a placeholder for the file keeping the API key and secret for dropbox integration.
+	/// You can set your own values here
+	/// </summary>
+	public static class GooglePhotosCredentials {
+		public static string ClientId = "@credentials_picasa_consumer_key@";
+		public static string ClientSecret = "@credentials_picasa_consumer_secret@";
 	}
 }

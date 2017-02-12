@@ -4,8 +4,8 @@
   <PropertyGroup>
     <ProjectGuid>{1893A2E4-A78A-4713-A8E7-E70058DABEE0}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>GreenshotPicasaPlugin</RootNamespace>
-    <AssemblyName>GreenshotPicasaPlugin</AssemblyName>
+    <RootNamespace>GreenshotGooglePhotosPlugin</RootNamespace>
+    <AssemblyName>GreenshotGooglePhotosPlugin</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
@@ -49,8 +49,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PicasaCredentials.cs" />
-    <Compile Include="Forms\PicasaForm.cs">
+    <Compile Include="GooglePhotosCredentials.cs" />
+    <Compile Include="Forms\GooglePhotosForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\SettingsForm.cs">
@@ -60,18 +60,30 @@
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="LanguageKeys.cs" />
-    <Compile Include="PicasaConfiguration.cs" />
-    <Compile Include="PicasaDestination.cs" />
-    <Compile Include="PicasaPlugin.cs" />
-    <Compile Include="PicasaUtils.cs" />
+    <Compile Include="GooglePhotosConfiguration.cs" />
+    <Compile Include="GooglePhotosDestination.cs" />
+    <Compile Include="GooglePhotosPlugin.cs" />
+    <Compile Include="GooglePhotosUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="PicasaPlugin.resx">
-      <DependentUpon>PicasaPlugin.cs</DependentUpon>
+    <EmbeddedResource Include="GooglePhotosPlugin.resx">
+      <DependentUpon>GooglePhotosPlugin.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Languages\language_picasaplugin-en-US.xml" />
+    <None Include="GooglePhotos.png" />
+    <Content Include="Languages\language_googlephotosplugin-en-US.xml" />
+    <None Include="Languages\language_googlephotosplugin-cs-CZ.xml" />
+    <None Include="Languages\language_googlephotosplugin-de-DE.xml" />
+    <None Include="Languages\language_googlephotosplugin-id-ID.xml" />
+    <None Include="Languages\language_googlephotosplugin-kab-DZ.xml" />
+    <None Include="Languages\language_googlephotosplugin-ko-KR.xml" />
+    <None Include="Languages\language_googlephotosplugin-lv-LV.xml" />
+    <None Include="Languages\language_googlephotosplugin-pl-PL.xml" />
+    <None Include="Languages\language_googlephotosplugin-pt-PT.xml" />
+    <None Include="Languages\language_googlephotosplugin-sr-RS.xml" />
+    <None Include="Languages\language_googlephotosplugin-sv-SE.xml" />
+    <None Include="Languages\language_googlephotosplugin-zh-TW.xml" />
     <Content Include="Picasa.png" />
   </ItemGroup>
   <ItemGroup>
@@ -81,11 +93,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Languages\language_picasaplugin-fr-FR.xml" />
-    <None Include="Languages\language_picasaplugin-it-IT.xml" />
-    <None Include="Languages\language_picasaplugin-ru-RU.xml" />
-    <None Include="Languages\language_picasaplugin-uk-UA.xml" />
-    <None Include="Languages\language_picasaplugin-zh-CN.xml" />
+    <None Include="Languages\language_googlephotosplugin-fr-FR.xml" />
+    <None Include="Languages\language_googlephotosplugin-it-IT.xml" />
+    <None Include="Languages\language_googlephotosplugin-ru-RU.xml" />
+    <None Include="Languages\language_googlephotosplugin-uk-UA.xml" />
+    <None Include="Languages\language_googlephotosplugin-zh-CN.xml" />
     <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup>

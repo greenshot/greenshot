@@ -26,16 +26,16 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Greenshot-Picasa-Plugin")]
-[assembly: AssemblyDescription("A plugin to upload images to Picasa")]
+[assembly: AssemblyTitle("Greenshot-GooglePhotos-Plugin")]
+[assembly: AssemblyDescription("A plugin to upload images to Google Photos")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Greenshot & F. Noel")]
-[assembly: AssemblyProduct("Picasa-Web Plugin")]
+[assembly: AssemblyProduct("GooglePhotos Plugin")]
 [assembly: AssemblyCopyright("Copyright (C) 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 // The PluginAttribute describes the "entryType" and if the plugin is configurable
-[assembly: PluginAttribute("GreenshotPicasaPlugin.PicasaPlugin", true)]
+[assembly: PluginAttribute("GreenshotGooglePhotosPlugin.GooglePhotosPlugin", true)]
 
 // This sets the default COM visibility of types in the assembly to invisible.
 // If you need to expose a type to COM, use [ComVisible(true)] on that type.

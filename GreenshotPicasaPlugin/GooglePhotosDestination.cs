@@ -1,5 +1,5 @@
 ﻿/*
- * A Picasa Plugin for Greenshot
+ * A Google Photos Plugin for Greenshot
  * Copyright (C) 2011  Francis Noel
  * 
  * For more information see: http://getgreenshot.org/
@@ -22,21 +22,21 @@ using System.Drawing;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 
-namespace GreenshotPicasaPlugin {
-	public class PicasaDestination : AbstractDestination {
-		private readonly PicasaPlugin _plugin;
-		public PicasaDestination(PicasaPlugin plugin) {
+namespace GreenshotGooglePhotosPlugin {
+	public class GooglePhotosDestination : AbstractDestination {
+		private readonly GooglePhotosPlugin _plugin;
+		public GooglePhotosDestination(GooglePhotosPlugin plugin) {
 			_plugin = plugin;
 		}
 		
-		public override string Designation => "Picasa";
+		public override string Designation => "GooglePhotos";
 
-		public override string Description => Language.GetString("picasa", LangKey.upload_menu_item);
+		public override string Description => Language.GetString("googlephotos", LangKey.upload_menu_item);
 
 		public override Image DisplayIcon {
 			get {
-				ComponentResourceManager resources = new ComponentResourceManager(typeof(PicasaPlugin));
-				return (Image)resources.GetObject("Picasa");
+				ComponentResourceManager resources = new ComponentResourceManager(typeof(GooglePhotosPlugin));
+				return (Image)resources.GetObject("GooglePhotos");
 			}
 		}
 

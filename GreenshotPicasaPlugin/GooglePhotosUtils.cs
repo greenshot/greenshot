@@ -1,5 +1,5 @@
 ﻿/*
- * A Picasa Plugin for Greenshot
+ * A Google Photos Plugin for Greenshot
  * Copyright (C) 2011  Francis Noel
  * 
  * For more information see: http://getgreenshot.org/
@@ -25,35 +25,35 @@ using System;
 using System.Linq;
 using System.Xml.Linq;
 
-namespace GreenshotPicasaPlugin {
+namespace GreenshotGooglePhotosPlugin {
 	/// <summary>
-	/// Description of PicasaUtils.
+	/// Description of GooglePhotosUtils.
 	/// </summary>
-	public static class PicasaUtils {
+	public static class GooglePhotosUtils {
 		private const string PicasaScope = "https://picasaweb.google.com/data/";
-		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(PicasaUtils));
-		private static readonly PicasaConfiguration Config = IniConfig.GetIniSection<PicasaConfiguration>();
+		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(GooglePhotosUtils));
+		private static readonly GooglePhotosConfiguration Config = IniConfig.GetIniSection<GooglePhotosConfiguration>();
 		private const string AuthUrl = "https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={ClientId}&redirect_uri={RedirectUrl}&state={State}&scope=" + PicasaScope;
 		private const string TokenUrl = "https://www.googleapis.com/oauth2/v3/token";
 		private const string UploadUrl = "https://picasaweb.google.com/data/feed/api/user/{0}/albumid/{1}";
 
 		/// <summary>
-		/// Do the actual upload to Picasa
+		/// Do the actual upload to Google Photos
 		/// </summary>
 		/// <param name="surfaceToUpload">Image to upload</param>
 		/// <param name="outputSettings"></param>
 		/// <param name="title"></param>
 		/// <param name="filename"></param>
-		/// <returns>PicasaResponse</returns>
-		public static string UploadToPicasa(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename) {
+		/// <returns>GooglePhotos Response</returns>
+		public static string UploadToGooglePhotos(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename) {
 			// Fill the OAuth2Settings
 			var settings = new OAuth2Settings
 			{
 				AuthUrlPattern = AuthUrl,
 				TokenUrl = TokenUrl,
-				CloudServiceName = "Picasa",
-				ClientId = PicasaCredentials.ClientId,
-				ClientSecret = PicasaCredentials.ClientSecret,
+				CloudServiceName = "Google Photos",
+				ClientId = GooglePhotosCredentials.ClientId,
+				ClientSecret = GooglePhotosCredentials.ClientSecret,
 				AuthorizeMode = OAuth2AuthorizeMode.LocalServer,
 				RefreshToken = Config.RefreshToken,
 				AccessToken = Config.AccessToken,
@@ -98,7 +98,7 @@ namespace GreenshotPicasaPlugin {
 					.Where(element => element.Name.LocalName == "content" && element.Attribute("src") != null)
 					.Select(element => (string)element.Attribute("src")).FirstOrDefault();
 			} catch(Exception e) {
-				Log.ErrorFormat("Could not parse Picasa response due to error {0}, response was: {1}", e.Message, response);
+				Log.ErrorFormat("Could not parse Google Photos response due to error {0}, response was: {1}", e.Message, response);
 			}
 			return null;
 		}

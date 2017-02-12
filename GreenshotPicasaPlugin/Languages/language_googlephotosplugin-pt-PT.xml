@@ -1,32 +1,32 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Svenska" ietf="sv-SE" version="1.0.0">
+<language description="Portuguese (Portugal)" ietf="pt-PT" version="1.0.0">
   <resources>
 	<resource name="label_AfterUploadLinkToClipBoard">
-	  Länk till urklipp
+	  Link para área de transferência
 	</resource>
 	<resource name="label_AfterUpload">
-	  Vid uppladdning
+	  Após enviar
 	</resource>
 	<resource name="Configure">
-	  Konfigurera Picasa
+	  Configurar o Google Photos
 	</resource>
 	<resource name="upload_menu_item">
-	  Ladda upp till Picasa
+	  enviar para o Google Photos
 	</resource>
 	<resource name="settings_title">
-	  Picasa-inställningar
+	  Definições Google Photos
 	</resource>
 	<resource name="upload_success">
-	  Skärmdumpen laddades upp till Picasa!
+	  Imagem enviada com êxito para o Google Photos!
 	</resource>
 	<resource name="upload_failure">
-	  Ett fel uppstod vid uppladdning till Picasa:
+	  Ocorreu um erro ao enviar para o Google Photos:
 	</resource>
 	<resource name="label_upload_format">
-	  Bildformat
+	  Formato da imagem
 	</resource>
 	<resource name="communication_wait">
-	  Kommunicerar med Picasa. Vänta...
+	  A comunicar com o Google Photos. Por favor aguarde...
 	</resource>
   </resources>
 </language>

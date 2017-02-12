@@ -1,5 +1,5 @@
 ﻿/*
- * A Picasa Plugin for Greenshot
+ * A Google Photos Plugin for Greenshot
  * Copyright (C) 2011  Francis Noel
  * 
  * For more information see: http://getgreenshot.org/
@@ -19,43 +19,42 @@
  */
 using System.Windows.Forms;
 using Greenshot.IniFile;
-using GreenshotPlugin.Core;
 using System;
 using GreenshotPlugin.Core.Enums;
 
-namespace GreenshotPicasaPlugin {
+namespace GreenshotGooglePhotosPlugin {
 	/// <summary>
-	/// Description of PicasaConfiguration.
+	/// Description of GooglePhotosConfiguration.
 	/// </summary>
-	[IniSection("Picasa", Description = "Greenshot Picasa Plugin configuration")]
-	public class PicasaConfiguration : IniSection {
+	[IniSection("GooglePhotos", Description = "Greenshot Google Photos Plugin configuration")]
+	public class GooglePhotosConfiguration : IniSection {
 		[IniProperty("UploadFormat", Description="What file type to use for uploading", DefaultValue="png")]
 		public OutputFormats UploadFormat { get; set; }
 
 		[IniProperty("UploadJpegQuality", Description="JPEG file save quality in %.", DefaultValue="80")]
 		public int UploadJpegQuality { get; set; }
 
-		[IniProperty("AfterUploadLinkToClipBoard", Description = "After upload send Picasa link to clipboard.", DefaultValue = "true")]
+		[IniProperty("AfterUploadLinkToClipBoard", Description = "After upload send Google Photos link to clipboard.", DefaultValue = "true")]
 		public bool AfterUploadLinkToClipBoard { get; set; }
-		[IniProperty("AddFilename", Description = "Is the filename passed on to Picasa", DefaultValue = "False")]
+		[IniProperty("AddFilename", Description = "Is the filename passed on to Google Photos", DefaultValue = "False")]
 		public bool AddFilename {
 			get;
 			set;
 		}
 
-		[IniProperty("UploadUser", Description = "The picasa user to upload to", DefaultValue = "default")]
+		[IniProperty("UploadUser", Description = "The Google Photos user to upload to", DefaultValue = "default")]
 		public string UploadUser {
 			get;
 			set;
 		}
 
-		[IniProperty("UploadAlbum", Description = "The picasa album to upload to", DefaultValue = "default")]
+		[IniProperty("UploadAlbum", Description = "The Google Photos album to upload to", DefaultValue = "default")]
 		public string UploadAlbum {
 			get;
 			set;
 		}
 
-		[IniProperty("RefreshToken", Description = "Picasa authorization refresh Token", Encrypted = true)]
+		[IniProperty("RefreshToken", Description = "Google Photos authorization refresh Token", Encrypted = true)]
 		public string RefreshToken {
 			get;
 			set;
