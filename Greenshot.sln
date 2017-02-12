@@ -28,7 +28,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotDropboxPlugin", "G
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotFlickrPlugin", "GreenshotFlickrPlugin\GreenshotFlickrPlugin.csproj", "{7EC72A5A-D73A-4B4B-9CA1-2216C7D92D5E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotGooglePhotosPlugin", "GreenshotPicasaPlugin\GreenshotGooglePhotosPlugin.csproj", "{1893A2E4-A78A-4713-A8E7-E70058DABEE0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotGooglePhotosPlugin", "GreenshotGooglePhotosPlugin\GreenshotGooglePhotosPlugin.csproj", "{1893A2E4-A78A-4713-A8E7-E70058DABEE0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotOfficePlugin", "GreenshotOfficePlugin\GreenshotOfficePlugin.csproj", "{92599C09-FF29-4ABD-B6E6-C48ECD781BAB}"
 EndProject

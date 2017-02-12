@@ -84,7 +84,7 @@
     <None Include="Languages\language_googlephotosplugin-sr-RS.xml" />
     <None Include="Languages\language_googlephotosplugin-sv-SE.xml" />
     <None Include="Languages\language_googlephotosplugin-zh-TW.xml" />
-    <Content Include="Picasa.png" />
+    <Content Include="GooglePhotos.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">
@@ -101,9 +101,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup>
-    <PostBuildEvent>if exist "$(ProjectDir)PicasaCredentials.orig.cs" (
-   rename "$(ProjectDir)PicasaCredentials.cs" "PicasaCredentials.private.cs"
-   rename "$(ProjectDir)PicasaCredentials.orig.cs" "PicasaCredentials.cs"
+    <PostBuildEvent>if exist "$(ProjectDir)GooglePhotosCredentials.orig.cs" (
+   rename "$(ProjectDir)GooglePhotosCredentials.cs" "GooglePhotosCredentials.private.cs"
+   rename "$(ProjectDir)GooglePhotosCredentials.orig.cs" "GooglePhotosCredentials.cs"
 )
 
 mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"
@@ -113,9 +113,9 @@ mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\Plugins\$(ProjectN
 copy "$(ProjectDir)Languages\*.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\Plugins\$(ProjectName)\"
 </PostBuildEvent>
     <PreBuildEvent>
-if exist "$(ProjectDir)PicasaCredentials.private.cs" (
-   rename "$(ProjectDir)PicasaCredentials.cs" "PicasaCredentials.orig.cs"
-   rename "$(ProjectDir)PicasaCredentials.private.cs" "PicasaCredentials.cs"
+if exist "$(ProjectDir)GooglePhotosCredentials.private.cs" (
+   rename "$(ProjectDir)GooglePhotosCredentials.cs" "GooglePhotosCredentials.orig.cs"
+   rename "$(ProjectDir)GooglePhotosCredentials.private.cs" "GooglePhotosCredentials.cs"
 )</PreBuildEvent>
   </PropertyGroup>
 </Project>
