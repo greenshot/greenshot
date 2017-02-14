@@ -194,7 +194,7 @@ namespace GreenshotPlugin.Core {
 		public Image DisplayIcon {
 			get {
 				try {
-					using (var appIcon = GetAppIcon(Handle)) {
+					using (var appIcon = User32.GetIcon(Handle, Conf.UseLargeIcons)) {
 						if (appIcon != null) {
 							return appIcon.ToBitmap();
 						}
@@ -215,47 +215,6 @@ namespace GreenshotPlugin.Core {
 				}
 				return null;
 			}
-		}
-
-		/// <summary>
-		/// Get the icon for a hWnd
-		/// </summary>
-		/// <param name="hwnd"></param>
-		/// <returns></returns>
-		private static Icon GetAppIcon(IntPtr hwnd) {
-			IntPtr iconSmall = IntPtr.Zero;
-			IntPtr iconBig = new IntPtr(1);
-			IntPtr iconSmall2 = new IntPtr(2);
-
-			IntPtr iconHandle;
-			if (Conf.UseLargeIcons) {
-				iconHandle = User32.SendMessage(hwnd, WindowsMessages.WM_GETICON, iconBig, IntPtr.Zero);
-				if (iconHandle == IntPtr.Zero) {
-					iconHandle = User32.GetClassLongWrapper(hwnd, ClassLongIndex.GCL_HICON);
-				}
-			} else {
-				iconHandle = User32.SendMessage(hwnd, WindowsMessages.WM_GETICON, iconSmall2, IntPtr.Zero);
-			}
-			if (iconHandle == IntPtr.Zero) {
-				iconHandle = User32.SendMessage(hwnd, WindowsMessages.WM_GETICON, iconSmall, IntPtr.Zero);
-			}
-			if (iconHandle == IntPtr.Zero) {
-				iconHandle = User32.GetClassLongWrapper(hwnd, ClassLongIndex.GCL_HICONSM);
-			}
-			if (iconHandle == IntPtr.Zero) {
-				iconHandle = User32.SendMessage(hwnd, WindowsMessages.WM_GETICON, iconBig, IntPtr.Zero);
-			}
-			if (iconHandle == IntPtr.Zero) {
-				iconHandle = User32.GetClassLongWrapper(hwnd, ClassLongIndex.GCL_HICON);
-			}
-
-			if (iconHandle == IntPtr.Zero) {
-				return null;
-			}
-
-			Icon icon = Icon.FromHandle(iconHandle);
-
-			return icon;
 		}
 
 		/// <summary>
@@ -320,17 +279,6 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 			return null;
-		}
-
-		/// <summary>
-		/// Retrieve the children with matching classname
-		/// </summary>
-		public IEnumerable<WindowDetails> GetChilden(string childClassname) {
-			foreach (WindowDetails child in Children) {
-				if (childClassname.Equals(child.ClassName)) {
-					yield return child;
-				}
-			}
 		}
 
 		public IntPtr ParentHandle {
@@ -428,66 +376,6 @@ namespace GreenshotPlugin.Core {
 			return null;
 		}
 
-		/// <summary>
-		/// This method will find the child window according to a path of classnames.
-		/// Usually used for finding a certain "content" window like for the IE Browser
-		/// </summary>
-		/// <param name="classnames">List of string with classname "path"</param>
-		/// <param name="allowSkip">true allows the search to skip a classname of the path</param>
-		/// <returns>WindowDetails if found</returns>
-		public WindowDetails FindPath(IList<string> classnames, bool allowSkip) {
-			int index = 0;
-			var resultWindow = FindPath(classnames, index++);
-			if (resultWindow == null && allowSkip) {
-				while(resultWindow == null && index < classnames.Count) {
-					resultWindow = FindPath(classnames, index);
-				}
-			}
-			return resultWindow;
-		}
-
-		/// <summary>
-		/// Deep scan for a certain classname pattern
-		/// </summary>
-		/// <param name="windowDetails">Window to scan into</param>
-		/// <param name="classnamePattern">Classname regexp pattern</param>
-		/// <returns>The first WindowDetails found</returns>
-		public static WindowDetails DeepScan(WindowDetails windowDetails, Regex classnamePattern) {
-			if (classnamePattern.IsMatch(windowDetails.ClassName)) {
-				return windowDetails;
-			}
-			// First loop through this level
-			foreach(var child in windowDetails.Children) {
-				if (classnamePattern.IsMatch(child.ClassName)) {
-					return child;
-				}
-			}
-			// Go into all children
-			foreach(var child in windowDetails.Children) {
-				var deepWindow = DeepScan(child, classnamePattern);
-				if (deepWindow != null) {
-					return deepWindow;
-				}
-			}
-			return null;
-		}
-
-		/// <summary>
-		/// GetWindow
-		/// </summary>
-		/// <param name="gwCommand">The GetWindowCommand to use</param>
-		/// <returns>null if nothing found, otherwise the WindowDetails instance of the "child"</returns>
-		public WindowDetails GetWindow(GetWindowCommands gwCommand) {
-			var tmphWnd = User32.GetWindow(Handle, gwCommand);
-			if (IntPtr.Zero == tmphWnd) {
-				return null;
-			}
-			var windowDetails = new WindowDetails(tmphWnd)
-			{
-				_parent = this
-			};
-			return windowDetails;
-		}
 
 		/// <summary>
 		/// Gets the window's handle
@@ -558,21 +446,9 @@ namespace GreenshotPlugin.Core {
 				Log.InfoFormat("Class {0}, title {1}", ClassName, Text);
 				return User32.IsZoomed(Handle);
 			}
-			set {
-				if (value) {
-					User32.SendMessage(Handle, WindowsMessages.WM_SYSCOMMAND, SysCommands.SC_MAXIMIZE, IntPtr.Zero);
-				} else {
-					User32.SendMessage(Handle, WindowsMessages.WM_SYSCOMMAND, SysCommands.SC_MINIMIZE, IntPtr.Zero);
-				}
-			}
+
 		}
-		
-		/// <summary>
-		/// This doesn't work as good as is should, but does move the App out of the way...
-		/// </summary>
-		public void HideApp() {
-			User32.ShowWindow(Handle, ShowWindowCommands.Hide);
-		}
+
 		
 		/// <summary>
 		/// Gets whether the window is visible.
@@ -642,12 +518,6 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		/// <summary>
-		/// Make sure the next call of a cached value is guaranteed the real value
-		/// </summary>
-		public void Reset() {
-			_previousWindowRectangle = Rectangle.Empty;
-		}
 
 		private Rectangle _previousWindowRectangle = Rectangle.Empty;
 		private long _lastWindowRectangleRetrieveTime;
@@ -729,15 +599,6 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		/// <summary>
-		/// Gets the size of the window.
-		/// </summary>
-		public Size Size {
-			get {
-				Rectangle tmpRectangle = WindowRectangle;
-				return new Size(tmpRectangle.Right - tmpRectangle.Left, tmpRectangle.Bottom - tmpRectangle.Top);
-			}
-		}
 		
 		/// <summary>
 		/// Get the client rectangle, this is the part of the window inside the borders (drawable area)
@@ -787,9 +648,7 @@ namespace GreenshotPlugin.Core {
 			get {
 				return (WindowStyleFlags)User32.GetWindowLongWrapper(Handle, WindowLongIndex.GWL_STYLE);
 			}
-			set {
-				User32.SetWindowLongWrapper(Handle, WindowLongIndex.GWL_STYLE, new IntPtr((long)value));
-			}
+
 		}
 
 		/// <summary>

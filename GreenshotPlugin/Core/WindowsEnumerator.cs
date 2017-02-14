@@ -70,7 +70,7 @@ namespace GreenshotPlugin.Core
 		/// <param name="hWnd">Window Handle</param>
 		/// <param name="lParam">Application defined value</param>
 		/// <returns>1 to continue enumeration, 0 to stop</returns>
-		private bool WindowEnum(IntPtr hWnd, int lParam)
+		private bool WindowEnum(IntPtr hWnd, IntPtr lParam)
 		{
 			return OnWindowEnum(hWnd);
 		}

@@ -663,7 +663,7 @@ namespace GreenshotPlugin.Core {
 						using (safeCompatibleDcHandle.SelectObject(safeDibSectionHandle)) {
 							// bitblt over (make copy)
 							// ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
-							Gdi32.BitBlt(safeCompatibleDcHandle, 0, 0, captureBounds.Width, captureBounds.Height, desktopDcHandle, captureBounds.X, captureBounds.Y, CopyPixelOperation.SourceCopy | CopyPixelOperation.CaptureBlt);
+							Gdi32.BitBlt(safeCompatibleDcHandle, 0, 0, captureBounds.Width, captureBounds.Height, desktopDcHandle, captureBounds.X, captureBounds.Y, RasterOperations.SourceCopy | RasterOperations.CaptureBlt);
 						}
 
 						// get a .NET image object for it
