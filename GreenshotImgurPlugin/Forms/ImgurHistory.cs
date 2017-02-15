@@ -25,7 +25,7 @@ using System.Windows.Forms;
 
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
+using GreenshotPlugin.IniFile;
 
 namespace GreenshotImgurPlugin {
 	/// <summary>

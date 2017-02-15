@@ -21,10 +21,10 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using Greenshot.IniFile;
 using GreenshotConfluencePlugin;
 using GreenshotConfluencePlugin.confluence;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.IniFile;
 
 namespace Confluence {
 	#region transport classes

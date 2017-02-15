@@ -23,11 +23,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.Effects;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 //using Microsoft.Win32;
 

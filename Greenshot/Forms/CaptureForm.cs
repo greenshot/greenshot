@@ -21,20 +21,23 @@
 
 using Greenshot.Drawing;
 using Greenshot.Helpers;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using log4net;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Globalization;
+using System.Linq;
 using System.Security.Permissions;
 using System.Windows.Forms;
+using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Native;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
 
 namespace Greenshot.Forms {
 	/// <summary>
@@ -63,8 +66,8 @@ namespace Greenshot.Forms {
 		private Point _mouseMovePos = Point.Empty;
 		private Point _cursorPos;
 		private CaptureMode _captureMode;
-		private readonly List<WindowDetails> _windows;
-		private WindowDetails _selectedCaptureWindow;
+		private readonly IList<InteropWindow> _windows;
+		private InteropWindow _selectedCaptureWindow;
 		private bool _mouseDown;
 		private Rectangle _captureRect = Rectangle.Empty;
 		private readonly ICapture _capture;
@@ -89,7 +92,7 @@ namespace Greenshot.Forms {
 		/// <summary>
 		/// Get the selected window
 		/// </summary>
-		public WindowDetails SelectedCaptureWindow => _selectedCaptureWindow;
+		public InteropWindow SelectedCaptureWindow => _selectedCaptureWindow;
 
 		/// <summary>
 		/// This should prevent childs to draw backgrounds
@@ -118,7 +121,7 @@ namespace Greenshot.Forms {
 		/// </summary>
 		/// <param name="capture"></param>
 		/// <param name="windows"></param>
-		public CaptureForm(ICapture capture, List<WindowDetails> windows) {
+		public CaptureForm(ICapture capture, IList<InteropWindow> windows) {
 			if (_currentForm != null) {
 				Log.Warn("Found currentForm, Closing already opened CaptureForm");
 				_currentForm.Close();
@@ -416,7 +419,7 @@ namespace Greenshot.Forms {
 				return;
 			}
 
-			WindowDetails lastWindow = _selectedCaptureWindow;
+			InteropWindow lastWindow = _selectedCaptureWindow;
 			bool horizontalMove = false;
 			bool verticalMove = false;
 
@@ -436,12 +439,12 @@ namespace Greenshot.Forms {
 			_selectedCaptureWindow = null;
 			lock (_windows) {
 				foreach (var window in _windows) {
-					if (!window.Contains(cursorPosition))
+					if (!window.GetBounds().Contains(cursorPosition))
 					{
 						continue;
 					}
 					// Only go over the children if we are in window mode
-					_selectedCaptureWindow = CaptureMode.Window == _captureMode ? window.FindChildUnderPoint(cursorPosition) : window;
+					_selectedCaptureWindow = CaptureMode.Window == _captureMode ? window.GetChildren().FirstOrDefault(interopWindow => interopWindow.GetBounds().Contains(cursorPosition)) : window;
 					break;
 				}
 			}
@@ -451,7 +454,7 @@ namespace Greenshot.Forms {
 				_capture.CaptureDetails.AddMetaData("windowtitle", _selectedCaptureWindow.Text);
 				if (_captureMode == CaptureMode.Window) {
 					// Here we want to capture the window which is under the mouse
-					_captureRect = _selectedCaptureWindow.WindowRectangle;
+					_captureRect = _selectedCaptureWindow.GetBounds();
 					// As the ClientRectangle is not in Bitmap coordinates, we need to correct.
 					_captureRect.Offset(-_capture.ScreenBounds.Location.X, -_capture.ScreenBounds.Location.Y);
 				}
@@ -812,9 +815,12 @@ namespace Greenshot.Forms {
 
 							if (_showDebugInfo && _selectedCaptureWindow != null)
 							{
-								string title = $"#{_selectedCaptureWindow.Handle.ToInt64():X} - {(_selectedCaptureWindow.Text.Length > 0 ? _selectedCaptureWindow.Text : _selectedCaptureWindow.Process.ProcessName)}";
-								PointF debugLocation = new PointF(fixedRect.X, fixedRect.Y);
-								graphics.DrawString(title, sizeFont, Brushes.DarkOrange, debugLocation);
+								using (var process = Process.GetProcessById(_selectedCaptureWindow.GetProcessId()))
+								{
+									string title = $"#{_selectedCaptureWindow.Handle.ToInt64():X} - {(_selectedCaptureWindow.Text.Length > 0 ? _selectedCaptureWindow.Text : process.ProcessName)}";
+									PointF debugLocation = new PointF(fixedRect.X, fixedRect.Y);
+									graphics.DrawString(title, sizeFont, Brushes.DarkOrange, debugLocation);
+								}
 							}
 						}
 					}

@@ -19,13 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
 using GreenshotPlugin.Core;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using GreenshotPlugin.IniFile;
 
 namespace GreenshotBoxPlugin {
 

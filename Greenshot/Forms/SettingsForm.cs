@@ -32,12 +32,12 @@ using Greenshot.Destinations;
 using Greenshot.Helpers;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using Greenshot.Plugin;
-using Greenshot.IniFile;
 using System.Text.RegularExpressions;
 using Dapplo.Windows.Native;
 using Greenshot.Forms;
 using GreenshotPlugin.Core.Enums;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
 using log4net;
 
 namespace Greenshot {

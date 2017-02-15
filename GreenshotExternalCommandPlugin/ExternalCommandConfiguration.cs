@@ -21,8 +21,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Greenshot.IniFile;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.IniFile;
 
 namespace ExternalCommand {
 	/// <summary>

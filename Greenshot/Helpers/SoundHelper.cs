@@ -24,10 +24,10 @@ using System.Resources;
 using System.Runtime.InteropServices;
 
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
 using System.IO;
 using Dapplo.Windows.Enums;
 using Dapplo.Windows.Native;
+using GreenshotPlugin.IniFile;
 using log4net;
 
 namespace Greenshot.Helpers {

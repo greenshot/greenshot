@@ -26,6 +26,7 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Native;
 using Dapplo.Windows.Structs;
 using Greenshot.Configuration;
@@ -36,13 +37,13 @@ using Greenshot.Drawing.Fields.Binding;
 using Greenshot.Forms;
 using Greenshot.Help;
 using Greenshot.Helpers;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
-using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Effects;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Drawing;
+using GreenshotPlugin.Interfaces.Forms;
 using log4net;
 
 namespace Greenshot {
@@ -107,11 +108,7 @@ namespace Greenshot {
 			{
 				EditorConfiguration.ResetEditorPlacement();
 			}
-			// ReSharper disable once UnusedVariable
-			WindowDetails thisForm = new WindowDetails(Handle)
-			{
-				WindowPlacement = EditorConfiguration.GetEditorPlacement()
-			};
+			InteropWindowExtensions.SetPlacement(Handle, EditorConfiguration.GetEditorPlacement());
 
 			// init surface
 			Surface = iSurface;
@@ -177,7 +174,9 @@ namespace Greenshot {
 				}
 			}
 			Activate();
-			WindowDetails.ToForeground(Handle);
+			// TODO: Await?
+			InteropWindowExtensions.ToForegroundAsync(Handle);
+
 		}
 
 		private void UpdateUi() {
@@ -752,7 +751,8 @@ namespace Greenshot {
 		private void ImageEditorFormFormClosing(object sender, FormClosingEventArgs e) {
 			if (_surface.Modified && !EditorConfiguration.SuppressSaveDialogAtClose) {
 				// Make sure the editor is visible
-				WindowDetails.ToForeground(Handle);
+				// TODO: Await?
+				InteropWindowExtensions.ToForegroundAsync(Handle);
 
 				MessageBoxButtons buttons = MessageBoxButtons.YesNoCancel;
 				// Dissallow "CANCEL" if the application needs to shutdown
@@ -774,7 +774,8 @@ namespace Greenshot {
 				}
 			}
 			// persist our geometry string.
-			EditorConfiguration.SetEditorPlacement(new WindowDetails(Handle).WindowPlacement);
+
+			EditorConfiguration.SetEditorPlacement(InteropWindowExtensions.GetPlacement(Handle));
 			IniConfig.Save();
 			
 			// remove from the editor list
@@ -1295,7 +1296,7 @@ namespace Greenshot {
 		private void Contextmenu_window_Click(object sender, EventArgs e) {
 			ToolStripMenuItem clickedItem = (ToolStripMenuItem)sender;
 			try {
-				WindowDetails windowToCapture = (WindowDetails)clickedItem.Tag;
+				var windowToCapture = (InteropWindow)clickedItem.Tag;
 				ICapture capture = new Capture();
 				using (Graphics graphics = Graphics.FromHwnd(Handle)) {
 					capture.CaptureDetails.DpiX = graphics.DpiY;
@@ -1309,7 +1310,8 @@ namespace Greenshot {
 						_surface.AddImageContainer((Bitmap)capture.Image, 100, 100);
 					}
 					Activate();
-					WindowDetails.ToForeground(Handle);
+					// TODO: Await?
+					InteropWindowExtensions.ToForegroundAsync(Handle);
 				}
 
 				capture?.Dispose();
@@ -1350,7 +1352,7 @@ namespace Greenshot {
 			Rectangle cropRectangle;
 			using (Image tmpImage = GetImageForExport())
 			{
-				cropRectangle = ImageHelper.FindAutoCropRectangle(tmpImage, coreConfiguration.AutoCropDifference);
+				cropRectangle = tmpImage.FindAutoCropRectangle(coreConfiguration.AutoCropDifference);
 			}
 			if (_surface.IsCropPossible(ref cropRectangle))
 			{

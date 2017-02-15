@@ -19,6 +19,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using GreenshotPlugin.Interop;
+
 namespace Greenshot.Interop.Office {
 	// See http://msdn.microsoft.com/en-us/library/microsoft.office.interop.excel.application.aspx
 	[ComProgId("Excel.Application")]

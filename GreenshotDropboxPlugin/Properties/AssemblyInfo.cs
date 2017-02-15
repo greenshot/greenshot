@@ -19,9 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Plugin;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using GreenshotPlugin.Interfaces.Plugin;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
@@ -35,7 +35,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 // The PluginAttribute describes the "entryType" and if the plugin is configurable
-[assembly: PluginAttribute("GreenshotDropboxPlugin.DropboxPlugin", true)]
+[assembly: Plugin("GreenshotDropboxPlugin.DropboxPlugin", true)]
 
 // This sets the default COM visibility of types in the assembly to invisible.
 // If you need to expose a type to COM, use [ComVisible(true)] on that type.

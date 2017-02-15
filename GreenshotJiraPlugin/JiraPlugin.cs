@@ -20,14 +20,15 @@
  */
 using System.Collections.Generic;
 using System.Windows.Forms;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
 using System;
 using System.Threading.Tasks;
 using Greenshot.Forms;
 using Greenshot.Helpers;
 using GreenshotJiraPlugin.Forms;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 using log4net;
 
 namespace GreenshotJiraPlugin {

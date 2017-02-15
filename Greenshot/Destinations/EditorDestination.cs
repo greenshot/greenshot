@@ -23,8 +23,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using Greenshot.Configuration;
 using GreenshotPlugin.Core;
-using Greenshot.Plugin;
-using Greenshot.IniFile;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Forms;
 using log4net;
 
 namespace Greenshot.Destinations {

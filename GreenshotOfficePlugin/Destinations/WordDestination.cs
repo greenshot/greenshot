@@ -20,7 +20,6 @@
  */
 
 using Greenshot.Interop.Office;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
@@ -28,6 +27,8 @@ using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 using GreenshotOfficePlugin.OfficeExport;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotOfficePlugin {
 	/// <summary>

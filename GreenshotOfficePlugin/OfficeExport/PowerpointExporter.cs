@@ -22,9 +22,10 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Greenshot.IniFile;
 using Greenshot.Interop;
 using Greenshot.Interop.Office;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interop;
 
 namespace GreenshotOfficePlugin.OfficeExport {
 	public class PowerpointExporter {

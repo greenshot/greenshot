@@ -22,11 +22,7 @@
 using Greenshot.Configuration;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
-using Greenshot.IniFile;
 using Greenshot.Memento;
-using Greenshot.Plugin;
-using Greenshot.Plugin.Drawing;
-using Greenshot.Plugin.Drawing.Adorners;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces.Drawing;
@@ -41,6 +37,9 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 using GreenshotPlugin.Effects;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Drawing.Adorners;
 
 namespace Greenshot.Drawing
 {
@@ -944,7 +943,7 @@ namespace Greenshot.Drawing
 			Rectangle cropRectangle;
 			using (Image tmpImage = GetImageForExport())
 			{
-				cropRectangle = ImageHelper.FindAutoCropRectangle(tmpImage, conf.AutoCropDifference);
+				cropRectangle = tmpImage.FindAutoCropRectangle(conf.AutoCropDifference);
 			}
 			if (!IsCropPossible(ref cropRectangle))
 			{
@@ -973,7 +972,7 @@ namespace Greenshot.Drawing
 		public void Clear(Color newColor)
 		{
 			//create a blank bitmap the same size as original
-			Bitmap newBitmap = ImageHelper.CreateEmptyLike(Image, Color.Empty);
+			Bitmap newBitmap = Image.CreateEmptyLike(Color.Empty);
 			if (newBitmap != null)
 			{
 				// Make undoable
@@ -996,7 +995,7 @@ namespace Greenshot.Drawing
 			{
 				Rectangle imageRectangle = new Rectangle(Point.Empty, Image.Size);
 				Matrix matrix = new Matrix();
-				Image newImage = ImageHelper.ApplyEffect(Image, effect, matrix);
+				Image newImage = Image.ApplyEffect(effect, matrix);
 				if (newImage != null)
 				{
 					// Make sure the elements move according to the offset the effect made the bitmap move
@@ -1088,7 +1087,7 @@ namespace Greenshot.Drawing
 				// Make sure we have information, this this fails
 				try
 				{
-					tmpImage = ImageHelper.CloneArea(Image, cropRectangle, PixelFormat.DontCare);
+					tmpImage = Image.CloneImage(PixelFormat.DontCare, cropRectangle) as Bitmap;
 				}
 				catch (Exception ex)
 				{
@@ -1420,7 +1419,7 @@ namespace Greenshot.Drawing
 		private Image GetImage(RenderMode renderMode)
 		{
 			// Generate a copy of the original image with a dpi equal to the default...
-			Bitmap clone = ImageHelper.Clone(_image, PixelFormat.DontCare);
+			var clone = _image.CloneImage() as Bitmap;
 			// otherwise we would have a problem drawing the image to the surface... :(
 			using (Graphics graphics = Graphics.FromImage(clone))
 			{

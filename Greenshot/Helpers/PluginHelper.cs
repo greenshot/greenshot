@@ -25,9 +25,10 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 using Greenshot.Forms;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 using log4net;
 
 namespace Greenshot.Helpers {

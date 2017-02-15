@@ -25,11 +25,12 @@ using System.Windows.Forms;
 
 using Greenshot.Configuration;
 using Greenshot.Forms;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
-using Greenshot.IniFile;
 using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.Effects;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 using log4net;
 
 namespace Greenshot.Helpers {

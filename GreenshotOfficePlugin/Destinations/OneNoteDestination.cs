@@ -20,7 +20,6 @@
  */
 
 using Greenshot.Interop.Office;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System;
 using System.Collections.Generic;
@@ -29,6 +28,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using GreenshotOfficePlugin.OfficeExport;
+using GreenshotPlugin.Interfaces;
 
 namespace GreenshotOfficePlugin {
 	public class OneNoteDestination : AbstractDestination {
@@ -40,9 +40,7 @@ namespace GreenshotOfficePlugin {
 
 		static OneNoteDestination() {
 			ExePath = PluginUtils.GetExePath("ONENOTE.EXE");
-			if (ExePath != null && File.Exists(ExePath)) {
-				WindowDetails.AddProcessToExcludeFromFreeze("onenote");
-			} else {
+			if (ExePath != null && !File.Exists(ExePath)) {
 				ExePath = null;
 			}
 		}

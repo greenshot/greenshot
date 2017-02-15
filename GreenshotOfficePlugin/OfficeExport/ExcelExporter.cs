@@ -23,9 +23,11 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Reflection;
+using Dapplo.Windows.Desktop;
 using Greenshot.Interop;
 using Greenshot.Interop.Office;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Interop;
 
 namespace GreenshotOfficePlugin.OfficeExport {
 	public class ExcelExporter {
@@ -79,7 +81,8 @@ namespace GreenshotOfficePlugin.OfficeExport {
 				int hWnd = excelApplication.Hwnd;
 				if (hWnd > 0)
 				{
-					WindowDetails.ToForeground(new IntPtr(hWnd));
+					// TODO: Await
+					InteropWindowExtensions.ToForegroundAsync(new IntPtr(hWnd));
 				}
 			}
 		}

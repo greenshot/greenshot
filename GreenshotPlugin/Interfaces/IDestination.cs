@@ -1,95 +1,91 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿#region Dapplo 2017 - GNU Lesser General Public License
+
+// Dapplo - building blocks for .NET applications
+// Copyright (C) 2017 Dapplo
+// 
+// For more information see: http://dapplo.net/
+// Dapplo repositories are hosted on GitHub: https://github.com/dapplo
+// 
+// This file is part of Greenshot
+// 
+// Greenshot is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// Greenshot is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+// 
+// You should have a copy of the GNU Lesser General Public License
+// along with Greenshot. If not, see <http://www.gnu.org/licenses/lgpl.txt>.
+
+#endregion
+
+#region Usings
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Greenshot.Plugin {
-	public class ExportInformation {
-		public ExportInformation(string destinationDesignation, string destinationDescription) {
-			DestinationDesignation = destinationDesignation;
-			DestinationDescription = destinationDescription;
-		}
-		public ExportInformation(string destinationDesignation, string destinationDescription, bool exportMade): this(destinationDesignation, destinationDescription) {
-			ExportMade = exportMade;
-		}
+#endregion
 
-		public string DestinationDesignation { get; }
-
-		public string DestinationDescription { get; set; }
-
-		/// <summary>
-		/// Set to true to specify if the export worked.
-		/// </summary>
-		public bool ExportMade { get; set; }
-
-		public string Uri { get; set; }
-
-		public string ErrorMessage { get; set; }
-
-		public string Filepath { get; set; }
-	}
-
+namespace GreenshotPlugin.Interfaces
+{
 	/// <summary>
-	/// Description of IDestination.
+	///     Description of IDestination.
 	/// </summary>
-	public interface IDestination : IDisposable, IComparable {
+	public interface IDestination : IDisposable, IComparable
+	{
 		/// <summary>
-		/// Simple "designation" like "File", "Editor" etc, used to store the configuration
+		///     Simple "designation" like "File", "Editor" etc, used to store the configuration
 		/// </summary>
-		string Designation {
-			get;
-		}
+		string Designation { get; }
 
 		/// <summary>
-		/// Description which will be shown in the settings form, destination picker etc
+		///     Description which will be shown in the settings form, destination picker etc
 		/// </summary>
-		string Description {
-			get;
-		}
+		string Description { get; }
 
 		/// <summary>
-		/// Priority, used for sorting
+		///     Priority, used for sorting
 		/// </summary>
-		int Priority {
-			get;
-		}
+		int Priority { get; }
 
 		/// <summary>
-		/// Gets an icon for the destination
+		///     Gets an icon for the destination
 		/// </summary>
-		Image DisplayIcon {
-			get;
-		}
+		Image DisplayIcon { get; }
 
 		/// <summary>
-		/// Returns if the destination is active
+		///     Returns if the destination is active
 		/// </summary>
-		bool IsActive {
-			get;
-		}
+		bool IsActive { get; }
 
 		/// <summary>
-		/// Return a menu item
+		///     Gets the ShortcutKeys for the Editor
+		/// </summary>
+		Keys EditorShortcutKeys { get; }
+
+		/// <summary>
+		///     Returns true if this destination can be dynamic
+		/// </summary>
+		bool IsDynamic { get; }
+
+		/// <summary>
+		///     Returns if the destination is active
+		/// </summary>
+		bool UseDynamicsOnly { get; }
+
+		/// <summary>
+		///     Returns true if this destination returns a link
+		/// </summary>
+		bool IsLinkable { get; }
+
+		/// <summary>
+		///     Return a menu item
 		/// </summary>
 		/// <param name="addDynamics">Resolve the dynamic destinations too?</param>
 		/// <param name="menu">The menu for which the item is created</param>
@@ -98,42 +94,17 @@ namespace Greenshot.Plugin {
 		ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler);
 
 		/// <summary>
-		/// Gets the ShortcutKeys for the Editor
-		/// </summary>
-		Keys EditorShortcutKeys {
-			get;
-		}
-		
-		/// <summary>
-		/// Gets the dynamic destinations
+		///     Gets the dynamic destinations
 		/// </summary>
 		IEnumerable<IDestination> DynamicDestinations();
 
 		/// <summary>
-		/// Returns true if this destination can be dynamic
+		///     If a capture is made, and the destination is enabled, this method is called.
 		/// </summary>
-		bool IsDynamic {
-			get;
-		}
-
-		/// <summary>
-		/// Returns if the destination is active
-		/// </summary>
-		bool UseDynamicsOnly {
-			get;
-		}
-
-		/// <summary>
-		/// Returns true if this destination returns a link
-		/// </summary>
-		bool IsLinkable {
-			get;
-		}
-
-		/// <summary>
-		/// If a capture is made, and the destination is enabled, this method is called.
-		/// </summary>
-		/// <param name="manuallyInitiated">true if the user selected this destination from a GUI, false if it was called as part of a process</param>
+		/// <param name="manuallyInitiated">
+		///     true if the user selected this destination from a GUI, false if it was called as part
+		///     of a process
+		/// </param>
 		/// <param name="surface"></param>
 		/// <param name="captureDetails"></param>
 		/// <returns>DestinationExportInformation with information, like if the destination has "exported" the capture</returns>

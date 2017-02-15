@@ -25,9 +25,11 @@ using System.IO;
 using System.Xml;
 using Greenshot.Interop;
 using Greenshot.Interop.Office;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
+using GreenshotPlugin.Interop;
 
 namespace GreenshotOfficePlugin.OfficeExport {
 

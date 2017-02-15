@@ -19,8 +19,8 @@
  */
 using System.ComponentModel;
 using System.Drawing;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Interfaces;
 
 namespace GreenshotGooglePhotosPlugin {
 	public class GooglePhotosDestination : AbstractDestination {

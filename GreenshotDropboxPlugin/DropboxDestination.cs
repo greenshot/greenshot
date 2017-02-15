@@ -20,9 +20,9 @@
  */
 using System.ComponentModel;
 using System.Drawing;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
 
 namespace GreenshotDropboxPlugin {
 	internal class DropboxDestination : AbstractDestination {

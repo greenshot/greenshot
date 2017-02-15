@@ -24,8 +24,8 @@ using System.Drawing;
 using Dapplo.Windows.Enums;
 using Dapplo.Windows.Structs;
 using Greenshot.Drawing.Fields;
-using Greenshot.IniFile;
 using GreenshotPlugin.Effects;
+using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Configuration {

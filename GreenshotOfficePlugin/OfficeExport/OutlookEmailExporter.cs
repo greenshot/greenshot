@@ -23,9 +23,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Greenshot.IniFile;
 using Greenshot.Interop;
 using Greenshot.Interop.Office;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interop;
 using mshtml;
 using Microsoft.Win32;
 

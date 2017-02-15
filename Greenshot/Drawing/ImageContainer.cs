@@ -22,7 +22,6 @@ using System;
 using System.Drawing;
 using System.IO;
 using Greenshot.Drawing.Fields;
-using Greenshot.Plugin.Drawing;
 using GreenshotPlugin.Core;
 using System.Drawing.Drawing2D;
 using log4net;
@@ -109,7 +108,7 @@ namespace Greenshot.Drawing {
 				// Remove all current bitmaps
 				DisposeImage();
 				DisposeShadow();
-				image = ImageHelper.Clone(value);
+				image = value.CloneImage();
 				bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 				CheckShadow(shadow);
 				if (!shadow) {
@@ -163,7 +162,7 @@ namespace Greenshot.Drawing {
 				using (var tmpMatrix = new Matrix()) {
 					using (image)
 					{
-						image = ImageHelper.ApplyEffect(image, new RotateEffect(rotateAngle), tmpMatrix);
+						image = image.ApplyEffect(new RotateEffect(rotateAngle), tmpMatrix);
 					}
 				}
 			}
@@ -194,7 +193,7 @@ namespace Greenshot.Drawing {
 		private void CheckShadow(bool shadow) {
 			if (shadow && _shadowBitmap == null) {
 				using (var matrix = new Matrix()) {
-					_shadowBitmap = ImageHelper.ApplyEffect(image, new DropShadowEffect(), matrix);
+					_shadowBitmap = image.ApplyEffect(new DropShadowEffect(), matrix);
 				}
 			}
 		}

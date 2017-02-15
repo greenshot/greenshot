@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System.Collections;
+using GreenshotPlugin.Interop;
 
 namespace Greenshot.Interop.Office {
 	public enum OfficeVersion : int {

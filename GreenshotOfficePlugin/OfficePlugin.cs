@@ -20,7 +20,8 @@
  */
 using System;
 using System.Collections.Generic;
-using Greenshot.Plugin;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotOfficePlugin {
 	/// <summary>

@@ -40,8 +40,8 @@
       <HintPath>..\packages\Dapplo.Log.1.0.23\lib\net45\Dapplo.Log.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Windows, Version=0.2.16.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.0.2.16\lib\net45\Dapplo.Windows.dll</HintPath>
+    <Reference Include="Dapplo.Windows, Version=0.2.22.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.0.2.22\lib\net45\Dapplo.Windows.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="log4net">
@@ -77,16 +77,18 @@
     <Compile Include="Controls\GreenshotRadioButton.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Core\Capture.cs" />
+    <Compile Include="Core\CaptureDetails.cs" />
     <Compile Include="Core\Enums\BuildStates.cs" />
     <Compile Include="Core\Enums\ClickActions.cs" />
     <Compile Include="Core\Enums\ClipboardFormats.cs" />
+    <Compile Include="Core\Enums\ExifOrientations.cs" />
     <Compile Include="Core\ExplorerHelper.cs" />
     <Compile Include="Core\Log4NetLogger.cs" />
     <Compile Include="Core\Enums\OutputFormats.cs" />
     <Compile Include="Core\Enums\WindowCaptureModes.cs" />
+    <Compile Include="Core\InteropWindowCaptureExtensions.cs" />
     <Compile Include="Core\SvgImage.cs" />
-    <Compile Include="Core\WebBrowserHelper.cs" />
-    <Compile Include="Core\WindowsEnumerator.cs" />
     <Compile Include="Effects\AdjustEffect.cs" />
     <Compile Include="Effects\BorderEffect.cs" />
     <Compile Include="Core\CaptureHandler.cs" />
@@ -108,10 +110,41 @@
     <Compile Include="Effects\TornEdgeEffect.cs" />
     <Compile Include="Core\WmInputLangChangeRequestFilter.cs" />
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Interfaces\CaptureMode.cs" />
+    <Compile Include="Interfaces\DrawingModes.cs" />
     <Compile Include="Interfaces\Drawing\Adorners\IAdorner.cs" />
+    <Compile Include="Interfaces\Drawing\EditStatus.cs" />
+    <Compile Include="Interfaces\Drawing\FieldChangedEventArgs.cs" />
+    <Compile Include="Interfaces\Drawing\FieldChangedEventHandler.cs" />
+    <Compile Include="Interfaces\Drawing\FieldFlag.cs" />
+    <Compile Include="Interfaces\Drawing\ICursorContainer.cs" />
+    <Compile Include="Interfaces\Drawing\IDrawableContainerList.cs" />
     <Compile Include="Interfaces\Drawing\IField.cs" />
     <Compile Include="Interfaces\Drawing\IFieldHolder.cs" />
+    <Compile Include="Interfaces\Drawing\IFieldHolderWithChildren.cs" />
+    <Compile Include="Interfaces\Drawing\IFieldType.cs" />
+    <Compile Include="Interfaces\Drawing\IIconContainer.cs" />
+    <Compile Include="Interfaces\Drawing\IImageContainer.cs" />
     <Compile Include="Interfaces\Drawing\IMemento.cs" />
+    <Compile Include="Interfaces\Drawing\IMetafileContainer.cs" />
+    <Compile Include="Interfaces\Drawing\ITextContainer.cs" />
+    <Compile Include="Interfaces\Drawing\RenderMode.cs" />
+    <Compile Include="Interfaces\ExportInformation.cs" />
+    <Compile Include="Interfaces\ICapture.cs" />
+    <Compile Include="Interfaces\ISurface.cs" />
+    <Compile Include="Interfaces\Plugin\HotKeyHandler.cs" />
+    <Compile Include="Interfaces\Plugin\IGreenshotHost.cs" />
+    <Compile Include="Interfaces\Plugin\IGreenshotPlugin.cs" />
+    <Compile Include="Interfaces\Plugin\SurfaceOutputSettings.cs" />
+    <Compile Include="Interfaces\ScreenCaptureMode.cs" />
+    <Compile Include="Interfaces\SurfaceDrawingModeEventArgs.cs" />
+    <Compile Include="Interfaces\SurfaceDrawingModeEventHandler.cs" />
+    <Compile Include="Interfaces\SurfaceElementEventArgs.cs" />
+    <Compile Include="Interfaces\SurfaceElementEventHandler.cs" />
+    <Compile Include="Interfaces\SurfaceMessageEventHandler.cs" />
+    <Compile Include="Interfaces\SurfaceMessageTyp.cs" />
+    <Compile Include="Interfaces\SurfaceSizeChangeEventHandler.cs" />
+    <Compile Include="Interfaces\VerticalAlignment.cs" />
     <Compile Include="Interop\Base.cs" />
     <Compile Include="Interop\ComProgIdAttribute.cs" />
     <Compile Include="Interop\COMWrapper.cs" />
@@ -234,13 +267,13 @@
     <Compile Include="IniFile\IniReader.cs" />
     <Compile Include="IniFile\IniSection.cs" />
     <Compile Include="IniFile\IniValue.cs" />
-    <Compile Include="Interfaces\Capture.cs" />
-    <Compile Include="Interfaces\Drawing\Container.cs" />
-    <Compile Include="Interfaces\Forms\ImageEditor.cs" />
-    <Compile Include="Interfaces\Generic.cs" />
+    <Compile Include="Interfaces\ICaptureDetails.cs" />
+    <Compile Include="Interfaces\Drawing\IDrawableContainer.cs" />
+    <Compile Include="Interfaces\Forms\IImageEditor.cs" />
+    <Compile Include="Interfaces\SurfaceMessageEventArgs.cs" />
     <Compile Include="Interfaces\IDestination.cs" />
     <Compile Include="Interfaces\IProcessor.cs" />
-    <Compile Include="Interfaces\Plugin\PluginInterfaces.cs" />
+    <Compile Include="Interfaces\Plugin\PluginAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="log4net-embedded.xml" />
     <EmbeddedResource Include="Core\GreenshotResources.resx">

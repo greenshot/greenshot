@@ -31,6 +31,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Native;
 using Greenshot.Configuration;
 using Greenshot.Destinations;
@@ -38,11 +39,12 @@ using Greenshot.Drawing;
 using Greenshot.Experimental;
 using Greenshot.Help;
 using Greenshot.Helpers;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 using log4net;
 using Timer = System.Timers.Timer;
 
@@ -822,14 +824,14 @@ namespace Greenshot.Forms {
 				return;
 			}
 			try {
-				List<KeyValuePair<WindowDetails, string>> tabs = IeCaptureHelper.GetBrowserTabs();
+				var tabs = IeCaptureHelper.GetBrowserTabs();
 				contextmenu_captureiefromlist.DropDownItems.Clear();
 				if (tabs.Count > 0) {
 					contextmenu_captureie.Enabled = true;
 					contextmenu_captureiefromlist.Enabled = true;
-					Dictionary<WindowDetails, int> counter = new Dictionary<WindowDetails, int>();
+					var counter = new Dictionary<Dapplo.Windows.Desktop.InteropWindow, int>();
 					
-					foreach(KeyValuePair<WindowDetails, string> tabData in tabs) {
+					foreach(var tabData in tabs) {
 						string title = tabData.Value;
 						if (title == null) {
 							continue;
@@ -839,8 +841,8 @@ namespace Greenshot.Forms {
 						}
 						var captureIeTabItem = contextmenu_captureiefromlist.DropDownItems.Add(title);
 						int index = counter.ContainsKey(tabData.Key) ? counter[tabData.Key] : 0;
-						captureIeTabItem.Image = tabData.Key.DisplayIcon;
-						captureIeTabItem.Tag = new KeyValuePair<WindowDetails, int>(tabData.Key, index++);
+						captureIeTabItem.Image = tabData.Key.GetDisplayIcon();
+						captureIeTabItem.Tag = new KeyValuePair<Dapplo.Windows.Desktop.InteropWindow, int>(tabData.Key, index++);
 						captureIeTabItem.Click += Contextmenu_captureiefromlist_Click;
 						contextmenu_captureiefromlist.DropDownItems.Add(captureIeTabItem);
 						if (counter.ContainsKey(tabData.Key)) {
@@ -928,7 +930,7 @@ namespace Greenshot.Forms {
 		private void ShowThumbnailOnEnter(object sender, EventArgs e) {
 			ToolStripMenuItem captureWindowItem = sender as ToolStripMenuItem;
 			if (captureWindowItem != null) {
-				WindowDetails window = captureWindowItem.Tag as WindowDetails;
+				var window = captureWindowItem.Tag as InteropWindow;
 				if (_thumbnailForm == null) {
 					_thumbnailForm = new ThumbnailForm();
 				}
@@ -955,7 +957,7 @@ namespace Greenshot.Forms {
 			// check if thumbnailPreview is enabled and DWM is enabled
 			bool thumbnailPreview = _conf.ThumnailPreview && Dwm.IsDwmEnabled;
 
-			foreach(WindowDetails window in WindowDetails.GetTopLevelWindows()) {
+			foreach(var window in InteropWindowQuery.GetTopLevelWindows()) {
 
 				string title = window.Text;
 				if (title != null) {
@@ -964,7 +966,7 @@ namespace Greenshot.Forms {
 					}
 					ToolStripItem captureWindowItem = menuItem.DropDownItems.Add(title);
 					captureWindowItem.Tag = window;
-					captureWindowItem.Image = window.DisplayIcon;
+					captureWindowItem.Image = window.GetDisplayIcon();
 					captureWindowItem.Click += eventHandler;
 					// Only show preview when enabled
 					if (thumbnailPreview) {
@@ -1011,7 +1013,7 @@ namespace Greenshot.Forms {
 			ToolStripMenuItem clickedItem = (ToolStripMenuItem)sender;
 			BeginInvoke((MethodInvoker)delegate {
 				try {
-					WindowDetails windowToCapture = (WindowDetails)clickedItem.Tag;
+					var windowToCapture = (InteropWindow)clickedItem.Tag;
 					CaptureHelper.CaptureWindow(windowToCapture);
 				} catch (Exception exception) {
 					LOG.Error(exception);
@@ -1029,10 +1031,10 @@ namespace Greenshot.Forms {
 				return;
 			}
 			ToolStripMenuItem clickedItem = (ToolStripMenuItem)sender;
-			KeyValuePair<WindowDetails, int> tabData = (KeyValuePair<WindowDetails, int>)clickedItem.Tag;
+			var tabData = (KeyValuePair<Dapplo.Windows.Desktop.InteropWindow, int>)clickedItem.Tag;
 			BeginInvoke((MethodInvoker)delegate {
-				WindowDetails ieWindowToCapture = tabData.Key;
-				if (ieWindowToCapture != null && (!ieWindowToCapture.Visible || ieWindowToCapture.Iconic)) {
+				var ieWindowToCapture = tabData.Key;
+				if (ieWindowToCapture != null && ieWindowToCapture.IsMinimized()) {
 					ieWindowToCapture.Restore();
 				}
 				try {
@@ -1072,8 +1074,10 @@ namespace Greenshot.Forms {
 		/// This is called indirectly from the context menu "Preferences"
 		/// </summary>
 		public void ShowSetting() {
-			if (_settingsForm != null) {
-				WindowDetails.ToForeground(_settingsForm.Handle);
+			if (_settingsForm != null)
+			{
+				// TODO: Await?
+				InteropWindowExtensions.ToForegroundAsync(_settingsForm.Handle);
 			} else {
 				try {
 					using (_settingsForm = new SettingsForm()) {
@@ -1098,7 +1102,8 @@ namespace Greenshot.Forms {
 
 		public void ShowAbout() {
 			if (_aboutForm != null) {
-				WindowDetails.ToForeground(_aboutForm.Handle);
+				// TODO: Await?
+				InteropWindowExtensions.ToForegroundAsync(_aboutForm.Handle);
 			} else {
 				try {
 					using (_aboutForm = new AboutForm()) {

@@ -1,38 +1,50 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿#region Dapplo 2017 - GNU Lesser General Public License
+
+// Dapplo - building blocks for .NET applications
+// Copyright (C) 2017 Dapplo
+// 
+// For more information see: http://dapplo.net/
+// Dapplo repositories are hosted on GitHub: https://github.com/dapplo
+// 
+// This file is part of Greenshot
+// 
+// Greenshot is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// Greenshot is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+// 
+// You should have a copy of the GNU Lesser General Public License
+// along with Greenshot. If not, see <http://www.gnu.org/licenses/lgpl.txt>.
+
+#endregion
+
+#region Usings
 
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using GreenshotPlugin.Core;
 
+#endregion
+
 namespace GreenshotPlugin.Effects
 {
 	/// <summary>
-	/// GrayscaleEffect
+	///     GrayscaleEffect
 	/// </summary>
-	public class GrayscaleEffect : IEffect {
-		public Image Apply(Image sourceImage, Matrix matrix) {
-			return ImageHelper.CreateGrayscale(sourceImage);
+	public class GrayscaleEffect : IEffect
+	{
+		public Image Apply(Image sourceImage, Matrix matrix)
+		{
+			return sourceImage.CreateGrayscale();
 		}
-		public void Reset() {
+
+		public void Reset()
+		{
 			// No settings to reset
 		}
 	}

@@ -24,10 +24,11 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotImgurPlugin {
 	/// <summary>
@@ -178,7 +179,7 @@ namespace GreenshotImgurPlugin {
 				if (imgurInfo != null) {
 					// TODO: Optimize a second call for export
 					using (Image tmpImage = surfaceToUpload.GetImageForExport()) {
-						imgurInfo.Image = ImageHelper.CreateThumbnail(tmpImage, 90, 90);
+						imgurInfo.Image = tmpImage.CreateThumbnail(90, 90);
 					}
 					IniConfig.Save();
 

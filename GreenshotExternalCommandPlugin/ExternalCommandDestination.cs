@@ -23,11 +23,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace ExternalCommand {
 	/// <summary>

@@ -23,11 +23,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.Runtime.InteropServices;
-
-using GreenshotPlugin.Core;
+using Dapplo.Windows.Desktop;
 using log4net;
 using mshtml;
-using IServiceProvider = Greenshot.Interop.IServiceProvider;
+using IServiceProvider = GreenshotPlugin.Interop.IServiceProvider;
 
 namespace Greenshot.Helpers.IEInterop {
 	public class DocumentContainer {
@@ -44,15 +43,13 @@ namespace Greenshot.Helpers.IEInterop {
 		private Rectangle _viewportRectangle = Rectangle.Empty;
 		private bool _isDtd;
 		private DocumentContainer _parent;
-		private WindowDetails _contentWindow;
+		private InteropWindow _contentWindow;
 		private double _zoomLevelX = 1;
 		private double _zoomLevelY = 1;
 		private readonly IList<DocumentContainer> _frames = new List<DocumentContainer>();
 
-		private DocumentContainer(IHTMLWindow2 frameWindow, WindowDetails contentWindow, DocumentContainer parent) {
-			//IWebBrowser2 webBrowser2 = frame as IWebBrowser2;
-			//IHTMLDocument2 document2 = webBrowser2.Document as IHTMLDocument2;
-			IHTMLDocument2 document2 = GetDocumentFromWindow(frameWindow);
+		private DocumentContainer(IHTMLWindow2 frameWindow, InteropWindow contentWindow, DocumentContainer parent) {
+			var document2 = GetDocumentFromWindow(frameWindow);
 			try {
 				LOG.DebugFormat("frameWindow.name {0}", frameWindow.name);
 				Name = frameWindow.name;
@@ -74,7 +71,7 @@ namespace Greenshot.Helpers.IEInterop {
 			// Calculate startLocation for the frames
 			IHTMLWindow2 window2 = document2.parentWindow;
 			IHTMLWindow3 window3 = (IHTMLWindow3)window2;
-			Point contentWindowLocation = contentWindow.WindowRectangle.Location;
+			Point contentWindowLocation = contentWindow.GetBounds().Location;
 			int x = window3.screenLeft - contentWindowLocation.X;
 			int y = window3.screenTop - contentWindowLocation.Y;
 
@@ -86,7 +83,7 @@ namespace Greenshot.Helpers.IEInterop {
 			Init(document2, contentWindow);
 		}
 
-		public DocumentContainer(IHTMLDocument2 document2, WindowDetails contentWindow) {
+		public DocumentContainer(IHTMLDocument2 document2, InteropWindow contentWindow) {
 			Init(document2, contentWindow);
 			LOG.DebugFormat("Creating DocumentContainer for Document {0} found in window with rectangle {1}", Name, SourceRectangle);
 		}
@@ -105,8 +102,8 @@ namespace Greenshot.Helpers.IEInterop {
 		/// Private helper method for the constructors
 		/// </summary>
 		/// <param name="document2">IHTMLDocument2</param>
-		/// <param name="contentWindow">WindowDetails</param>
-		private void Init(IHTMLDocument2 document2, WindowDetails contentWindow) {
+		/// <param name="contentWindow">InteropWindow</param>
+		private void Init(IHTMLDocument2 document2, InteropWindow contentWindow) {
 			_document2 = document2;
 			_contentWindow = contentWindow;
 			_document3 = document2 as IHTMLDocument3;
@@ -126,7 +123,7 @@ namespace Greenshot.Helpers.IEInterop {
 			// Do not release IHTMLDocument5 com object, as this also gives problems with the document2!
 			//Marshal.ReleaseComObject(document5);
 
-			Rectangle clientRectangle = contentWindow.WindowRectangle;
+			Rectangle clientRectangle = contentWindow.GetBounds();
 			try {
 				IHTMLWindow2 window2 = document2.parentWindow;
 				//IHTMLWindow3 window3 = (IHTMLWindow3)document2.parentWindow;
@@ -192,11 +189,11 @@ namespace Greenshot.Helpers.IEInterop {
 				return;
 			}
 			try {
-				IHTMLFramesCollection2 frameCollection = (IHTMLFramesCollection2)document2.frames;
+				var frameCollection = (IHTMLFramesCollection2)document2.frames;
 				for (int frame = 0; frame < frameCollection.length; frame++) {
 					try {
 						IHTMLWindow2 frameWindow = frameCollection.item(frame);
-						DocumentContainer frameData = new DocumentContainer(frameWindow, contentWindow, this);
+						var frameData = new DocumentContainer(frameWindow, contentWindow, this);
 						// check if frame is hidden
 						if (!frameData.IsHidden) {
 							LOG.DebugFormat("Creating DocumentContainer for Frame {0} found in window with rectangle {1}", frameData.Name, frameData.SourceRectangle);
@@ -259,8 +256,8 @@ namespace Greenshot.Helpers.IEInterop {
 			// Release IHTMLRect
 			releaseCom(rec);
 			LOG.DebugFormat("Looking for iframe to correct at {0}", elementBoundingLocation);
-			foreach(DocumentContainer foundFrame in _frames) {
-				Point frameLocation = foundFrame.SourceLocation;
+			foreach(var foundFrame in _frames) {
+				var frameLocation = foundFrame.SourceLocation;
 				if (frameLocation.Equals(elementBoundingLocation)) {
 					// Match found, correcting location
 					LOG.DebugFormat("Correcting frame from {0} to {1}", frameLocation, elementLocation);
@@ -323,6 +320,9 @@ namespace Greenshot.Helpers.IEInterop {
 			return null;
 		}
 		
+		/// <summary>
+		/// The background colo
+		/// </summary>
 		public Color BackgroundColor {
 			get {
 				try {
@@ -340,7 +340,7 @@ namespace Greenshot.Helpers.IEInterop {
 
 		public Rectangle ViewportRectangle => _viewportRectangle;
 
-		public WindowDetails ContentWindow => _contentWindow;
+		public InteropWindow ContentWindow => _contentWindow;
 
 		public DocumentContainer Parent {
 			get {

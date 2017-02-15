@@ -20,6 +20,7 @@
  */
 
 using System;
+using GreenshotPlugin.Interop;
 
 namespace Greenshot.Interop.Office {
 	// More details about OneNote: http://msdn.microsoft.com/en-us/magazine/ff796230.aspx

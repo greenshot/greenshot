@@ -21,13 +21,13 @@
 
 using Greenshot.Configuration;
 using Greenshot.Controls;
-using Greenshot.IniFile;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.Threading;
 using System.Windows.Forms;
+using GreenshotPlugin.IniFile;
 
 namespace Greenshot {
 	/// <summary>

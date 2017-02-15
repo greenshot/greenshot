@@ -23,8 +23,6 @@ using Greenshot.Configuration;
 using Greenshot.Destinations;
 using Greenshot.Drawing;
 using Greenshot.Forms;
-using Greenshot.IniFile;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using log4net;
 using System;
@@ -32,10 +30,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Windows.App;
+using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Native;
 using GreenshotPlugin.Core.Enums;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
 
 namespace Greenshot.Helpers {
 	/// <summary>
@@ -46,8 +49,8 @@ namespace Greenshot.Helpers {
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 		// TODO: when we get the screen capture code working correctly, this needs to be enabled
 		//private static ScreenCaptureHelper screenCapture = null;
-		private List<WindowDetails> _windows = new List<WindowDetails>();
-		private WindowDetails _selectedCaptureWindow;
+		private List<InteropWindow> _windows = new List<InteropWindow>();
+		private InteropWindow _selectedCaptureWindow;
 		private Rectangle _captureRect = Rectangle.Empty;
 		private readonly bool _captureMouseCursor;
 		private ICapture _capture;
@@ -115,7 +118,7 @@ namespace Greenshot.Helpers {
 			}
 		}
 
-		public static void CaptureIe(bool captureMouse, WindowDetails windowToCapture) {
+		public static void CaptureIe(bool captureMouse, InteropWindow windowToCapture) {
 			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.IE, captureMouse)) {
 				captureHelper.SelectedCaptureWindow = windowToCapture;
 				captureHelper.MakeCapture();
@@ -128,7 +131,7 @@ namespace Greenshot.Helpers {
 			}
 		}
 
-		public static void CaptureWindow(WindowDetails windowToCapture) {
+		public static void CaptureWindow(InteropWindow windowToCapture) {
 			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.ActiveWindow)) {
 				captureHelper.SelectedCaptureWindow = windowToCapture;
 				captureHelper.MakeCapture();
@@ -183,7 +186,7 @@ namespace Greenshot.Helpers {
 			_capture.CaptureDetails.AddDestination(destination);
 		}
 		
-		public WindowDetails SelectedCaptureWindow {
+		public InteropWindow SelectedCaptureWindow {
 			get {
 				return _selectedCaptureWindow;
 			}
@@ -401,9 +404,9 @@ namespace Greenshot.Helpers {
 						//}
 
 						// Set capture title, fixing bug #3569703
-						foreach (WindowDetails window in WindowDetails.GetVisibleWindows()) {
+						foreach (InteropWindow window in InteropWindowQuery.GetTopWindows()) {
 							Point estimatedLocation = new Point(CoreConfig.LastCapturedRegion.X + CoreConfig.LastCapturedRegion.Width / 2, CoreConfig.LastCapturedRegion.Y + CoreConfig.LastCapturedRegion.Height / 2);
-							if (window.Contains(estimatedLocation)) {
+							if (window.GetBounds().Contains(estimatedLocation)) {
 								_selectedCaptureWindow = window;
 								_capture.CaptureDetails.Title = _selectedCaptureWindow.Text;
 								break;
@@ -448,16 +451,15 @@ namespace Greenshot.Helpers {
 		/// Pre-Initialization for CaptureWithFeedback, this will get all the windows before we change anything
 		/// </summary>
 		private Thread PrepareForCaptureWithFeedback() {
-			_windows = new List<WindowDetails>();
-			
+			_windows = new List<InteropWindow>();
+
 			// If the App Launcher is visisble, no other windows are active
-			WindowDetails appLauncherWindow = WindowDetails.GetAppLauncher();
-			if (appLauncherWindow != null && appLauncherWindow.Visible) {
-				_windows.Add(appLauncherWindow);
+			if (AppQuery.IsLauncherVisible) {
+				_windows.Add(AppQuery.GetAppLauncher());
 				return null;
 			}
 
-			Thread getWindowDetailsThread = new Thread(RetrieveWindowDetails)
+			var getWindowDetailsThread = new Thread(RetrieveWindowDetails)
 			{
 				Name = "Retrieve window details",
 				IsBackground = true
@@ -469,16 +471,13 @@ namespace Greenshot.Helpers {
 		private void RetrieveWindowDetails() {
 			Log.Debug("start RetrieveWindowDetails");
 			// Start Enumeration of "active" windows
-			foreach (var window in WindowDetails.GetVisibleWindows()) {
-				// Make sure the details are retrieved once
-				window.FreezeDetails();
-
+			foreach (var window in InteropWindowQuery.GetTopWindows()) {
 				// Force children retrieval, sometimes windows close on losing focus and this is solved by caching
 				int goLevelDeep = 3;
 				if (CoreConfig.WindowCaptureAllChildLocations) {
 					goLevelDeep = 20;
 				}
-				window.GetChildren(goLevelDeep);
+				window.GetChildren();
 				lock (_windows) {
 					_windows.Add(window);
 				}
@@ -653,20 +652,20 @@ namespace Greenshot.Helpers {
 				Log.Debug("Using supplied window");
 				presupplied = true;
 			} else {
-				_selectedCaptureWindow = WindowDetails.GetActiveWindow();
+				_selectedCaptureWindow = InteropWindowQuery.GetActiveWindow();
 				if (_selectedCaptureWindow != null) {
 					if (Log.IsDebugEnabled)
 					{
-						Log.DebugFormat("Capturing window: {0} with {1}", _selectedCaptureWindow.Text, _selectedCaptureWindow.WindowRectangle);
+						Log.DebugFormat("Capturing window: {0} with {1}", _selectedCaptureWindow.Text, _selectedCaptureWindow.GetBounds());
 					}
 				}
 			}
-			if (_selectedCaptureWindow == null || (!presupplied && _selectedCaptureWindow.Iconic)) {
+			if (_selectedCaptureWindow == null || !presupplied && _selectedCaptureWindow.IsMinimized()) {
 				Log.Warn("No window to capture!");
 				// Nothing to capture, code up in the stack will capture the full screen
 				return false;
 			}
-			if (!presupplied && _selectedCaptureWindow != null && _selectedCaptureWindow.Iconic) {
+			if (!presupplied && _selectedCaptureWindow != null && _selectedCaptureWindow.IsMinimized()) {
 				// Restore the window making sure it's visible!
 				// This is done mainly for a screen capture, but some applications like Excel and TOAD have weird behaviour!
 				_selectedCaptureWindow.Restore();
@@ -678,7 +677,7 @@ namespace Greenshot.Helpers {
 				return false;
 			}
 			// Fix for Bug #3430560 
-			CoreConfig.LastCapturedRegion = _selectedCaptureWindow.WindowRectangle;
+			CoreConfig.LastCapturedRegion = _selectedCaptureWindow.GetBounds();
 			bool returnValue = CaptureWindow(_selectedCaptureWindow, _capture, CoreConfig.WindowCaptureMode) != null;
 			return returnValue;
 		}
@@ -689,12 +688,12 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <param name="windowToCapture">WindowDetails with the target Window</param>
 		/// <returns>WindowDetails with the target Window OR a replacement</returns>
-		public static WindowDetails SelectCaptureWindow(WindowDetails windowToCapture) {
-			Rectangle windowRectangle = windowToCapture.WindowRectangle;
+		public static InteropWindow SelectCaptureWindow(InteropWindow windowToCapture) {
+			Rectangle windowRectangle = windowToCapture.GetBounds();
 			if (windowRectangle.Width == 0 || windowRectangle.Height == 0) {
 				Log.WarnFormat("Window {0} has nothing to capture, using workaround to find other window of same process.", windowToCapture.Text);
 				// Trying workaround, the size 0 arrises with e.g. Toad.exe, has a different Window when minimized
-				WindowDetails linkedWindow = WindowDetails.GetLinkedWindow(windowToCapture);
+				var linkedWindow = windowToCapture.GetLinkedWindows().FirstOrDefault();
 				if (linkedWindow != null) {
 					windowToCapture = linkedWindow;
 				} else {
@@ -734,16 +733,16 @@ namespace Greenshot.Helpers {
 		/// <param name="captureForWindow">The capture to store the details</param>
 		/// <param name="windowCaptureMode">What WindowCaptureModes to use</param>
 		/// <returns></returns>
-		public static ICapture CaptureWindow(WindowDetails windowToCapture, ICapture captureForWindow, WindowCaptureModes windowCaptureMode) {
+		public static ICapture CaptureWindow(InteropWindow windowToCapture, ICapture captureForWindow, WindowCaptureModes windowCaptureMode) {
 			if (captureForWindow == null) {
 				captureForWindow = new Capture();
 			}
-			Rectangle windowRectangle = windowToCapture.WindowRectangle;
+			Rectangle windowRectangle = windowToCapture.GetBounds();
 
 			// When Vista & DWM (Aero) enabled
 			bool dwmEnabled = Dwm.IsDwmEnabled;
 			// get process name to be able to exclude certain processes from certain capture modes
-			using (Process process = windowToCapture.Process) {
+			using (Process process = Process.GetProcessById(windowToCapture.GetProcessId())) {
 				bool isAutoMode = windowCaptureMode == WindowCaptureModes.Auto;
 				// For WindowCaptureModes.Auto we check:
 				// 1) Is window IE, use IE Capture
@@ -765,7 +764,7 @@ namespace Greenshot.Helpers {
 					windowCaptureMode = WindowCaptureModes.Screen;
 
 					// Change to GDI, if allowed
-					if (!windowToCapture.IsMetroApp && WindowCapture.IsGdiAllowed(process)) {
+					if (!windowToCapture.IsApp() && WindowCapture.IsGdiAllowed(process)) {
 						if (!dwmEnabled && IsWpf(process)) {
 							// do not use GDI, as DWM is not enabled and the application uses PresentationFramework.dll -> isWPF
 							Log.InfoFormat("Not using GDI for windows of process {0}, as the process uses WPF", process.ProcessName);
@@ -776,12 +775,12 @@ namespace Greenshot.Helpers {
 
 					// Change to DWM, if enabled and allowed
 					if (dwmEnabled) {
-						if (windowToCapture.IsMetroApp || WindowCapture.IsDwmAllowed(process)) {
+						if (windowToCapture.IsApp() || WindowCapture.IsDwmAllowed(process)) {
 							windowCaptureMode = WindowCaptureModes.Aero;
 						}
 					}
 				} else if (windowCaptureMode == WindowCaptureModes.Aero || windowCaptureMode == WindowCaptureModes.AeroTransparent) {
-					if (!dwmEnabled || (!windowToCapture.IsMetroApp && !WindowCapture.IsDwmAllowed(process))) {
+					if (!dwmEnabled || (!windowToCapture.IsApp() && !WindowCapture.IsDwmAllowed(process))) {
 						// Take default screen
 						windowCaptureMode = WindowCaptureModes.Screen;
 						// Change to GDI, if allowed
@@ -803,11 +802,12 @@ namespace Greenshot.Helpers {
 					switch (windowCaptureMode) {
 						case WindowCaptureModes.GDI:
 							if (WindowCapture.IsGdiAllowed(process)) {
-								if (windowToCapture.Iconic) {
+								if (windowToCapture.IsMinimized()) {
 									// Restore the window making sure it's visible!
 									windowToCapture.Restore();
 								} else {
-									windowToCapture.ToForeground(false);
+									// TODO: Await
+									windowToCapture.ToForegroundAsync(false);
 								}
 								tmpCapture = windowToCapture.CaptureGdiWindow(captureForWindow);
 								if (tmpCapture != null) {
@@ -860,7 +860,7 @@ namespace Greenshot.Helpers {
 							break;
 						case WindowCaptureModes.Aero:
 						case WindowCaptureModes.AeroTransparent:
-							if (windowToCapture.IsMetroApp || WindowCapture.IsDwmAllowed(process)) {
+							if (windowToCapture.IsApp() || WindowCapture.IsDwmAllowed(process)) {
 								tmpCapture = windowToCapture.CaptureDwmWindow(captureForWindow, windowCaptureMode, isAutoMode);
 							}
 							if (tmpCapture != null) {
@@ -873,11 +873,12 @@ namespace Greenshot.Helpers {
 							break;
 						default:
 							// Screen capture
-							if (windowToCapture.Iconic) {
+							if (windowToCapture.IsMinimized()) {
 								// Restore the window making sure it's visible!
 								windowToCapture.Restore();
 							} else {
-								windowToCapture.ToForeground();
+								// TODO: Await
+								windowToCapture.ToForegroundAsync();
 							}
 
 							try {
@@ -902,14 +903,14 @@ namespace Greenshot.Helpers {
 
 		private void SetDpi() {
 			// Workaround for proble with DPI retrieval, the FromHwnd activates the window...
-			WindowDetails previouslyActiveWindow = WindowDetails.GetActiveWindow();
+			var previouslyActiveWindow = InteropWindowQuery.GetActiveWindow();
 			// Workaround for changed DPI settings in Windows 7
 			using (Graphics graphics = Graphics.FromHwnd(MainForm.Instance.Handle)) {
 				_capture.CaptureDetails.DpiX = graphics.DpiX;
 				_capture.CaptureDetails.DpiY = graphics.DpiY;
 			}
 			// Set previouslyActiveWindow as foreground window
-			previouslyActiveWindow?.ToForeground(false);
+			previouslyActiveWindow?.ToForegroundAsync(false);
 			if (_capture.CaptureDetails != null) {
 				((Bitmap) _capture.Image)?.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
 			}

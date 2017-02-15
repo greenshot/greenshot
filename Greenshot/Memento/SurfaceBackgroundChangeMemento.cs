@@ -22,6 +22,7 @@
 using Greenshot.Drawing;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Memento {
 	/// <summary>

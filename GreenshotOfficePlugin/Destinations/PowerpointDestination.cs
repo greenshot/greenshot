@@ -23,10 +23,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using GreenshotPlugin.Core;
-using Greenshot.Plugin;
 using Greenshot.Interop.Office;
 using System.Text.RegularExpressions;
 using GreenshotOfficePlugin.OfficeExport;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotOfficePlugin {
 	/// <summary>
@@ -41,9 +42,7 @@ namespace GreenshotOfficePlugin {
 		
 		static PowerpointDestination() {
 			ExePath = PluginUtils.GetExePath("POWERPNT.EXE");
-			if (ExePath != null && File.Exists(ExePath)) {
-				WindowDetails.AddProcessToExcludeFromFreeze("powerpnt");
-			} else {
+			if (ExePath != null && !File.Exists(ExePath)) {
 				ExePath = null;
 			}
 		}

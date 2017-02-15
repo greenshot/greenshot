@@ -25,7 +25,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using Dapplo.Windows.Native;
-using Greenshot.IniFile;
+using GreenshotPlugin.IniFile;
 
 namespace Greenshot.Helpers
 {

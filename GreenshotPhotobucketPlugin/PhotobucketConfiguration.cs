@@ -19,10 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System.Windows.Forms;
-using Greenshot.IniFile;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
+using GreenshotPlugin.IniFile;
 
 namespace GreenshotPhotobucketPlugin {
 	/// <summary>

@@ -19,9 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Plugin;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using GreenshotPlugin.Interfaces.Plugin;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information

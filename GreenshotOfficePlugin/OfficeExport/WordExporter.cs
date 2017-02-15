@@ -21,10 +21,12 @@
 
 using System;
 using System.Collections.Generic;
-using Greenshot.IniFile;
+using Dapplo.Windows.Desktop;
 using Greenshot.Interop;
 using Greenshot.Interop.Office;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interop;
 
 namespace GreenshotOfficePlugin.OfficeExport {
 	public class WordExporter {
@@ -132,7 +134,8 @@ namespace GreenshotOfficePlugin.OfficeExport {
 						int hWnd = activeWindow.Hwnd;
 						if (hWnd > 0)
 						{
-							WindowDetails.ToForeground(new IntPtr(hWnd));
+							// TODO: Await?
+							InteropWindowExtensions.ToForegroundAsync(new IntPtr(hWnd));
 						}
 					}
 				}
@@ -209,7 +212,8 @@ namespace GreenshotOfficePlugin.OfficeExport {
 								int hWnd = activeWindow.Hwnd;
 								if (hWnd > 0)
 								{
-									WindowDetails.ToForeground(new IntPtr(hWnd));
+									// TODO: Await?
+									InteropWindowExtensions.ToForegroundAsync(new IntPtr(hWnd));
 								}
 							}
 						}

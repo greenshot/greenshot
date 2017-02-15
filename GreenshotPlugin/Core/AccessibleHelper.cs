@@ -1,77 +1,88 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿#region Dapplo 2017 - GNU Lesser General Public License
+
+// Dapplo - building blocks for .NET applications
+// Copyright (C) 2017 Dapplo
+// 
+// For more information see: http://dapplo.net/
+// Dapplo repositories are hosted on GitHub: https://github.com/dapplo
+// 
+// This file is part of Greenshot
+// 
+// Greenshot is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// Greenshot is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+// 
+// You should have a copy of the GNU Lesser General Public License
+// along with Greenshot. If not, see <http://www.gnu.org/licenses/lgpl.txt>.
+
+#endregion
+
+#region Usings
+
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-
 using Accessibility;
 using log4net;
 
-namespace GreenshotPlugin.Core {
+#endregion
 
+namespace GreenshotPlugin.Core
+{
 	/// <summary>
-	/// See: http://social.msdn.microsoft.com/Forums/en-US/ieextensiondevelopment/thread/03a8c835-e9e4-405b-8345-6c3d36bc8941
-	/// This should really be cleaned up, there is little OO behind this class!
-	/// Maybe move the basic Accessible functions to WindowDetails!?
+	///     See:
+	///     http://social.msdn.microsoft.com/Forums/en-US/ieextensiondevelopment/thread/03a8c835-e9e4-405b-8345-6c3d36bc8941
+	///     This should really be cleaned up, there is little OO behind this class!
+	///     Maybe move the basic Accessible functions to WindowDetails!?
 	/// </summary>
-	public class Accessible {
-		private static readonly ILog Log = LogManager.GetLogger(typeof(Accessible));
-
-		#region Interop
-		private static int AccessibleObjectFromWindow(IntPtr hWnd, OBJID idObject, ref IAccessible acc) {
-			var guid = new Guid("{618736e0-3c3d-11cf-810c-00aa00389b71}"); // IAccessible
-			object obj = null;
-			int num = AccessibleObjectFromWindow(hWnd, (uint)idObject, ref guid, ref obj);
-			acc = (IAccessible)obj;
-			return num;
-		}
-		[DllImport("oleacc.dll")]
-		private static extern int AccessibleObjectFromWindow(IntPtr hwnd, uint id, ref Guid iid, [In, Out, MarshalAs(UnmanagedType.IUnknown)] ref object ppvObject);
-		[DllImport("oleacc.dll")]
-		private static extern int AccessibleChildren(IAccessible paccContainer, int iChildStart, int cChildren, [In, Out, MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)] object[] rgvarChildren, out int pcObtained);
-		
-		[DllImport("oleacc.dll", PreserveSig=false)]
-		[return: MarshalAs(UnmanagedType.Interface)]
-		public static extern object ObjectFromLresult(UIntPtr lResult, [MarshalAs(UnmanagedType.LPStruct)] Guid refiid, IntPtr wParam);
-		#endregion
-
-		private enum OBJID : uint {
-			OBJID_WINDOW = 0x00000000,
-		}
-
+	public class Accessible
+	{
 		private const int IE_ACTIVE_TAB = 2097154;
 		private const int CHILDID_SELF = 0;
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Accessible));
 		private readonly IAccessible accessible;
-		private Accessible[] Children {
-			get {
+
+		public Accessible(IntPtr hWnd)
+		{
+			AccessibleObjectFromWindow(hWnd, OBJID.OBJID_WINDOW, ref accessible);
+			if (accessible == null)
+			{
+				throw new Exception();
+			}
+		}
+
+		private Accessible(IAccessible acc)
+		{
+			if (acc == null)
+			{
+				throw new Exception();
+			}
+			accessible = acc;
+		}
+
+		private Accessible[] Children
+		{
+			get
+			{
 				int num;
-				object[] res = GetAccessibleChildren(accessible, out num);
-				if (res == null) {
+				var res = GetAccessibleChildren(accessible, out num);
+				if (res == null)
+				{
 					return new Accessible[0];
 				}
 
-				List<Accessible> list = new List<Accessible>(res.Length);
-				foreach (object obj in res) {
-					IAccessible acc = obj as IAccessible;
-					if (acc != null) {
+				var list = new List<Accessible>(res.Length);
+				foreach (var obj in res)
+				{
+					var acc = obj as IAccessible;
+					if (acc != null)
+					{
 						list.Add(new Accessible(acc));
 					}
 				}
@@ -79,84 +90,36 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		private string Name {
-			get {
-				return accessible.get_accName(CHILDID_SELF);
-			}
+		private string Name
+		{
+			get { return accessible.get_accName(CHILDID_SELF); }
 		}
 
-		private int ChildCount {
-			get {
-				return accessible.accChildCount;
-			}
+		private int ChildCount
+		{
+			get { return accessible.accChildCount; }
 		}
 
-		public Accessible(IntPtr hWnd) {
-			AccessibleObjectFromWindow(hWnd, OBJID.OBJID_WINDOW, ref accessible);
-			if (accessible == null) {
-				throw new Exception();
-			}
-		}
+		public string IEActiveTabUrl
+		{
+			get
+			{
+				foreach (var accessor in Children)
+				{
+					foreach (var child in accessor.Children)
+					{
+						foreach (var tab in child.Children)
+						{
+							var tabIndex = tab.accessible.get_accState(CHILDID_SELF);
 
-		public void ActivateIETab(string tabCaptionToActivate) {
-			foreach (Accessible accessor in Children) {
-				foreach (var child in accessor.Children) {
-					foreach (var tab in child.Children) {
-						if (tab.Name == tabCaptionToActivate) {
-							tab.Activate();
-							return;
-						}
-					}
-				}
-			}
-		}
-
-		public void CloseIETab(string tabCaptionToClose) {
-			foreach (Accessible accessor in Children) {
-				foreach (var child in accessor.Children) {
-					foreach (var tab in child.Children) {
-						if (tab.Name == tabCaptionToClose) {
-							foreach (var  CloseTab in tab.Children) {
-								CloseTab.Activate();
-							}
-							return;
-						}
-					}
-				}
-			}
-		}
-		
-		public void ActivateIETab(int tabIndexToActivate) {
-			var index = 0;
-			foreach (Accessible accessor in Children) {
-				foreach (var child in accessor.Children) {
-					foreach (var tab in child.Children) {
-						if (tabIndexToActivate >= child.ChildCount -1) {
-							return;
-						}
-
-						if (index == tabIndexToActivate) {
-							tab.Activate();
-							return;
-						}
-						index++;
-					}
-				}
-			}
-		}
-
-		public string IEActiveTabUrl {
-			get {
-				foreach (Accessible accessor in Children) {
-					foreach (var child in accessor.Children) {
-						foreach (var tab in child.Children) {
-							object tabIndex = tab.accessible.get_accState(CHILDID_SELF);
-	
-							if ((int)tabIndex == IE_ACTIVE_TAB) {
+							if ((int) tabIndex == IE_ACTIVE_TAB)
+							{
 								var description = tab.accessible.get_accDescription(CHILDID_SELF);
-	
-								if (!string.IsNullOrEmpty(description)) {
-									if (description.Contains(Environment.NewLine)) {
+
+								if (!string.IsNullOrEmpty(description))
+								{
+									if (description.Contains(Environment.NewLine))
+									{
 										var url = description.Substring(description.IndexOf(Environment.NewLine)).Trim();
 										return url;
 									}
@@ -169,18 +132,24 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		public int IEActiveTabIndex {
-			get {
+		public int IEActiveTabIndex
+		{
+			get
+			{
 				var index = 0;
-				foreach (Accessible accessor in Children) {
-					foreach (var child in accessor.Children) {
-						foreach (var tab in child.Children) {
-							object tabIndex = tab.accessible.get_accState(0);
-	
-							if ((int)tabIndex == IE_ACTIVE_TAB) {
+				foreach (var accessor in Children)
+				{
+					foreach (var child in accessor.Children)
+					{
+						foreach (var tab in child.Children)
+						{
+							var tabIndex = tab.accessible.get_accState(0);
+
+							if ((int) tabIndex == IE_ACTIVE_TAB)
+							{
 								return index;
 							}
-							index++;				  
+							index++;
 						}
 					}
 				}
@@ -188,14 +157,20 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		public string IEActiveTabCaption {
-			get {
-				foreach (Accessible accessor in Children) {
-					foreach (var child in accessor.Children) {
-						foreach (var tab in child.Children) {
-							object tabIndex = tab.accessible.get_accState(0);
-	 
-							if ((int)tabIndex == IE_ACTIVE_TAB) {
+		public string IEActiveTabCaption
+		{
+			get
+			{
+				foreach (var accessor in Children)
+				{
+					foreach (var child in accessor.Children)
+					{
+						foreach (var tab in child.Children)
+						{
+							var tabIndex = tab.accessible.get_accState(0);
+
+							if ((int) tabIndex == IE_ACTIVE_TAB)
+							{
 								return tab.Name;
 							}
 						}
@@ -205,37 +180,50 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		public List<string> IETabCaptions {
-			get {
+		public List<string> IETabCaptions
+		{
+			get
+			{
 				var captionList = new List<string>();
-	
-				foreach (Accessible accessor in Children) {
-					foreach (var child in accessor.Children) {
-						foreach (var tab in child.Children) {
+
+				foreach (var accessor in Children)
+				{
+					foreach (var child in accessor.Children)
+					{
+						foreach (var tab in child.Children)
+						{
 							captionList.Add(tab.Name);
 						}
 					}
 				}
-	
+
 				// TODO: Why again?
-				if (captionList.Count > 0) {
+				if (captionList.Count > 0)
+				{
 					captionList.RemoveAt(captionList.Count - 1);
 				}
-	
+
 				return captionList;
 			}
 		}
-	
-		
-		public IEnumerable<string> IETabUrls {
-			get {
-				foreach (Accessible accessor in Children) {
-					foreach (var child in accessor.Children) {
-						foreach (var tab in child.Children) {
-							object tabIndex = tab.accessible.get_accState(CHILDID_SELF);
+
+
+		public IEnumerable<string> IETabUrls
+		{
+			get
+			{
+				foreach (var accessor in Children)
+				{
+					foreach (var child in accessor.Children)
+					{
+						foreach (var tab in child.Children)
+						{
+							var tabIndex = tab.accessible.get_accState(CHILDID_SELF);
 							var description = tab.accessible.get_accDescription(CHILDID_SELF);
-							if (!string.IsNullOrEmpty(description)) {
-								if (description.Contains(Environment.NewLine)) {
+							if (!string.IsNullOrEmpty(description))
+							{
+								if (description.Contains(Environment.NewLine))
+								{
 									var url = description.Substring(description.IndexOf(Environment.NewLine)).Trim();
 									yield return url;
 								}
@@ -245,12 +233,17 @@ namespace GreenshotPlugin.Core {
 				}
 			}
 		}
-		
-		public int IETabCount {
-			get {
-				foreach (Accessible accessor in Children) {
-					foreach (var child in accessor.Children) {
-						foreach (var tab in child.Children) {
+
+		public int IETabCount
+		{
+			get
+			{
+				foreach (var accessor in Children)
+				{
+					foreach (var child in accessor.Children)
+					{
+						foreach (var tab in child.Children)
+						{
 							return child.ChildCount - 1;
 						}
 					}
@@ -259,28 +252,116 @@ namespace GreenshotPlugin.Core {
 			}
 		}
 
-		private Accessible(IAccessible acc) {
-			if (acc == null) {
-				throw new Exception();
+		public void ActivateIETab(string tabCaptionToActivate)
+		{
+			foreach (var accessor in Children)
+			{
+				foreach (var child in accessor.Children)
+				{
+					foreach (var tab in child.Children)
+					{
+						if (tab.Name == tabCaptionToActivate)
+						{
+							tab.Activate();
+							return;
+						}
+					}
+				}
 			}
-			accessible = acc;
 		}
 
-		private void Activate() {
+		public void CloseIETab(string tabCaptionToClose)
+		{
+			foreach (var accessor in Children)
+			{
+				foreach (var child in accessor.Children)
+				{
+					foreach (var tab in child.Children)
+					{
+						if (tab.Name == tabCaptionToClose)
+						{
+							foreach (var  CloseTab in tab.Children)
+							{
+								CloseTab.Activate();
+							}
+							return;
+						}
+					}
+				}
+			}
+		}
+
+		public void ActivateIETab(int tabIndexToActivate)
+		{
+			var index = 0;
+			foreach (var accessor in Children)
+			{
+				foreach (var child in accessor.Children)
+				{
+					foreach (var tab in child.Children)
+					{
+						if (tabIndexToActivate >= child.ChildCount - 1)
+						{
+							return;
+						}
+
+						if (index == tabIndexToActivate)
+						{
+							tab.Activate();
+							return;
+						}
+						index++;
+					}
+				}
+			}
+		}
+
+		private void Activate()
+		{
 			accessible.accDoDefaultAction(CHILDID_SELF);
 		}
 
-		private static object[] GetAccessibleChildren(IAccessible ao, out int childs) {
+		private static object[] GetAccessibleChildren(IAccessible ao, out int childs)
+		{
 			childs = 0;
 			object[] ret = null;
-			int count = ao.accChildCount;
+			var count = ao.accChildCount;
 
-			if (count > 0) {
+			if (count > 0)
+			{
 				ret = new object[count];
 				AccessibleChildren(ao, 0, count, ret, out childs);
 			}
 			return ret;
 		}
+
+		private enum OBJID : uint
+		{
+			OBJID_WINDOW = 0x00000000
+		}
+
+		#region Interop
+
+		private static int AccessibleObjectFromWindow(IntPtr hWnd, OBJID idObject, ref IAccessible acc)
+		{
+			var guid = new Guid("{618736e0-3c3d-11cf-810c-00aa00389b71}"); // IAccessible
+			object obj = null;
+			var num = AccessibleObjectFromWindow(hWnd, (uint) idObject, ref guid, ref obj);
+			acc = (IAccessible) obj;
+			return num;
+		}
+
+		[DllImport("oleacc.dll")]
+		private static extern int AccessibleObjectFromWindow(IntPtr hwnd, uint id, ref Guid iid, [In] [Out] [MarshalAs(UnmanagedType.IUnknown)] ref object ppvObject);
+
+		[DllImport("oleacc.dll")]
+		private static extern int AccessibleChildren(IAccessible paccContainer, int iChildStart, int cChildren,
+			[In] [Out] [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)] object[] rgvarChildren, out int pcObtained);
+
+		[DllImport("oleacc.dll", PreserveSig = false)]
+		[return: MarshalAs(UnmanagedType.Interface)]
+		public static extern object ObjectFromLresult(UIntPtr lResult, [MarshalAs(UnmanagedType.LPStruct)] Guid refiid, IntPtr wParam);
+
+		#endregion
 	}
 }
-

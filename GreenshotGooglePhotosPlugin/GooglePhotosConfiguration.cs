@@ -18,9 +18,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 using System.Windows.Forms;
-using Greenshot.IniFile;
 using System;
 using GreenshotPlugin.Core.Enums;
+using GreenshotPlugin.IniFile;
 
 namespace GreenshotGooglePhotosPlugin {
 	/// <summary>

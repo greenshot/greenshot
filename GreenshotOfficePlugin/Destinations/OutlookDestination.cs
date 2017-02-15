@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Greenshot.IniFile;
 using Greenshot.Interop.Office;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using System.Collections.Generic;
 using System.Drawing;
@@ -29,6 +27,9 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using GreenshotOfficePlugin.OfficeExport;
+using GreenshotPlugin.IniFile;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotOfficePlugin {
 	/// <summary>
@@ -52,9 +53,7 @@ namespace GreenshotOfficePlugin {
 				IsActiveFlag = true;
 			}
 			ExePath = PluginUtils.GetExePath("OUTLOOK.EXE");
-			if (ExePath != null && File.Exists(ExePath)) {
-				WindowDetails.AddProcessToExcludeFromFreeze("outlook");
-			} else {
+			if (ExePath != null && !File.Exists(ExePath)) {
 				ExePath = null;
 			}
 			if (ExePath == null) {

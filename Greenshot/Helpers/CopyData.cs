@@ -26,7 +26,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
-
+using Dapplo.Windows.Desktop;
 using GreenshotPlugin.Core;
 
 namespace Greenshot.Helpers {
@@ -414,7 +414,7 @@ namespace Greenshot.Helpers {
 
 				// Send the data to each window identified on
 				// the channel:
-				foreach(WindowDetails window in WindowDetails.GetAllWindows()) {
+				foreach(InteropWindow window in InteropWindowQuery.GetTopLevelWindows()) {
 					if (!window.Handle.Equals(_owner.Handle)) {
 						if (GetProp(window.Handle, ChannelName) != IntPtr.Zero) {
 							COPYDATASTRUCT cds = new COPYDATASTRUCT

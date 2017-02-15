@@ -37,7 +37,7 @@ namespace GreenshotConfluencePlugin {
 			List<Confluence.Page> pages = new List<Confluence.Page>();
 			Regex pageIdRegex = new Regex(@"pageId=(\d+)");
 			Regex spacePageRegex = new Regex(@"\/display\/([^\/]+)\/([^#]+)");
-			foreach(string browserurl in GetBrowserUrls()) {
+			foreach(string browserurl in IEHelper.GetIeUrls().Distinct()) {
 				string url;
 				try {
 					url = Uri.UnescapeDataString(browserurl).Replace("+", " ");
@@ -105,47 +105,5 @@ namespace GreenshotConfluencePlugin {
 			}
 			return pages;
 		}		
-
-		private static IEnumerable<string> GetBrowserUrls() {
-			HashSet<string> urls = new HashSet<string>();
-
-			// FireFox
-			foreach (WindowDetails window in WindowDetails.GetAllWindows("MozillaWindowClass")) {
-				if (window.Text.Length == 0) {
-					continue;
-				}
-				AutomationElement currentElement = AutomationElement.FromHandle(window.Handle);
-				Condition conditionCustom = new AndCondition(new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Custom), new PropertyCondition(AutomationElement.IsOffscreenProperty, false));
-				for (int i = 5; i > 0 && currentElement != null; i--) {
-					currentElement = currentElement.FindFirst(TreeScope.Children, conditionCustom);
-				}
-				if (currentElement == null) {
-					continue;
-				}
-
-				Condition conditionDocument = new AndCondition(new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Document), new PropertyCondition(AutomationElement.IsOffscreenProperty, false));
-				AutomationElement docElement = currentElement.FindFirst(TreeScope.Children, conditionDocument);
-				if (docElement == null) {
-					continue;
-				}
-				foreach (AutomationPattern pattern in docElement.GetSupportedPatterns()) {
-					if (pattern.ProgrammaticName != "ValuePatternIdentifiers.Pattern") {
-						continue;
-					}
-					string url = (docElement.GetCurrentPattern(pattern) as ValuePattern).Current.Value;
-					if (!string.IsNullOrEmpty(url)) {
-						urls.Add(url);
-						break;
-					}
-				}
-			}
-
-			foreach(string url in IEHelper.GetIEUrls().Distinct()) {
-				urls.Add(url);
-			}
-
-			return urls;
-		}
-
 	}
 }

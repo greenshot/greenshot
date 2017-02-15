@@ -20,6 +20,7 @@
  */
 using System;
 using System.Collections;
+using GreenshotPlugin.Interop;
 
 namespace Greenshot.Interop.Office {
 	/// <summary>
