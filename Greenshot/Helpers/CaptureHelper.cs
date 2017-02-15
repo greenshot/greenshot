@@ -458,7 +458,8 @@ namespace Greenshot.Helpers {
 				_windows.Add(AppQuery.GetAppLauncher());
 				return null;
 			}
-			_windows.AddRange(InteropWindowQuery.GetTopWindows().Where(window => window.IsVisible() && window.Handle != MainForm.Instance.Handle));
+			// TODO: Get Popups
+			_windows.AddRange(InteropWindowQuery.GetTopWindows().Where(window => window.IsVisible() && window.Handle != MainForm.Instance.Handle && !window.GetBounds().IsEmpty));
 			return null;
 		}
 

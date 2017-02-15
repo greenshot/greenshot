@@ -434,6 +434,8 @@ namespace Greenshot.Forms {
 			// Iterate over the found windows and check if the current location is inside a window
 			Point cursorPosition = Cursor.Position;
 			_selectedCaptureWindow = null;
+			// Store the top window
+			InteropWindow selectedTopWindow = null;
 			foreach (var window in _windows) {
 				if (window.Handle == Handle)
 				{
@@ -445,6 +447,8 @@ namespace Greenshot.Forms {
 					Log.DebugFormat("Not in window {0}", window.GetText());
 					continue;
 				}
+
+				selectedTopWindow = window;
 				_selectedCaptureWindow = window;
 
 				// Only go over the children if we are in window mode
@@ -453,20 +457,42 @@ namespace Greenshot.Forms {
 					break;
 				}
 				// Find the child window which is under the mouse
-				var selectedChildWindow = InteropWindowQuery.GetTopWindows(window).FirstOrDefault(interopWindow => interopWindow.GetBounds().Contains(cursorPosition));
-				if (selectedChildWindow != null)
+				var selectedChildWindow = window;
+				// TODO: Limit the levels we go down?
+				do
 				{
-					_selectedCaptureWindow = selectedChildWindow;
-				}
+					var tmpChildWindow = selectedChildWindow
+						.GetZOrderedChildren()
+						.FirstOrDefault(interopWindow => interopWindow.GetBounds().Contains(cursorPosition));
+
+					if (tmpChildWindow == null)
+					{
+						break;
+					}
+					selectedChildWindow = tmpChildWindow;
+				} while (true);
+
+				// Assign the found child window
+				_selectedCaptureWindow = selectedChildWindow;
 				break;
 			}
 
 			if (_selectedCaptureWindow != null && !_selectedCaptureWindow.Equals(lastWindow)) {
-				_capture.CaptureDetails.Title = _selectedCaptureWindow.Text;
-				_capture.CaptureDetails.AddMetaData("windowtitle", _selectedCaptureWindow.Text);
+				_capture.CaptureDetails.Title = selectedTopWindow.Text;
+				_capture.CaptureDetails.AddMetaData("windowtitle", selectedTopWindow.Text);
 				if (_captureMode == CaptureMode.Window) {
 					// Here we want to capture the window which is under the mouse
 					_captureRect = _selectedCaptureWindow.GetBounds();
+
+					// Make sure the bounds fit to it's parent
+					var parent = _selectedCaptureWindow.GetParent();
+					while (parent != IntPtr.Zero)
+					{
+						var parentWindow = InteropWindow.CreateFor(parent);
+						_captureRect.Intersect(parentWindow.GetBounds());
+						parent = parentWindow.GetParent();
+					}
+
 					// As the ClientRectangle is not in Bitmap coordinates, we need to correct.
 					_captureRect.Offset(-_capture.ScreenBounds.Location.X, -_capture.ScreenBounds.Location.Y);
 				}
