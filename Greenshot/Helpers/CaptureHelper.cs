@@ -73,7 +73,7 @@ namespace Greenshot.Helpers {
 		/// When disposing==true all non-managed resources should be freed too!
 		/// </summary>
 		/// <param name="disposing"></param>
-		protected virtual void Dispose(bool disposing) {
+		protected void Dispose(bool disposing) {
 			if (disposing) {
 				// Cleanup
 			}
@@ -458,31 +458,8 @@ namespace Greenshot.Helpers {
 				_windows.Add(AppQuery.GetAppLauncher());
 				return null;
 			}
-
-			var getWindowDetailsThread = new Thread(RetrieveWindowDetails)
-			{
-				Name = "Retrieve window details",
-				IsBackground = true
-			};
-			getWindowDetailsThread.Start();
-			return getWindowDetailsThread;
-		}
-
-		private void RetrieveWindowDetails() {
-			Log.Debug("start RetrieveWindowDetails");
-			// Start Enumeration of "active" windows
-			foreach (var window in InteropWindowQuery.GetTopWindows()) {
-				// Force children retrieval, sometimes windows close on losing focus and this is solved by caching
-				int goLevelDeep = 3;
-				if (CoreConfig.WindowCaptureAllChildLocations) {
-					goLevelDeep = 20;
-				}
-				window.GetChildren();
-				lock (_windows) {
-					_windows.Add(window);
-				}
-			}
-			Log.Debug("end RetrieveWindowDetails");
+			_windows.AddRange(InteropWindowQuery.GetTopWindows().Where(window => window.IsVisible() && window.Handle != MainForm.Instance.Handle));
+			return null;
 		}
 
 		private void AddConfiguredDestination() {

@@ -113,7 +113,6 @@ namespace Greenshot.Forms {
 
 		private void ClosingHandler(object sender, EventArgs e) {
 			Log.Debug("Closing captureform");
-			WindowDetails.UnregisterIgnoreHandle(Handle);
 		}
 
 		/// <summary>
@@ -148,8 +147,6 @@ namespace Greenshot.Forms {
 			DoubleBuffered = !IsTerminalServerSession;
 			Text = "Greenshot capture form";
 
-			// Make sure we never capture the captureform
-			WindowDetails.RegisterIgnoreHandle(Handle);
 			// Unregister at close
 			FormClosing += ClosingHandler;
 
@@ -437,16 +434,31 @@ namespace Greenshot.Forms {
 			// Iterate over the found windows and check if the current location is inside a window
 			Point cursorPosition = Cursor.Position;
 			_selectedCaptureWindow = null;
-			lock (_windows) {
-				foreach (var window in _windows) {
-					if (!window.GetBounds().Contains(cursorPosition))
-					{
-						continue;
-					}
-					// Only go over the children if we are in window mode
-					_selectedCaptureWindow = CaptureMode.Window == _captureMode ? window.GetChildren().FirstOrDefault(interopWindow => interopWindow.GetBounds().Contains(cursorPosition)) : window;
+			foreach (var window in _windows) {
+				if (window.Handle == Handle)
+				{
+					// Ignore us
+					continue;
+				}
+				if (!window.GetBounds().Contains(cursorPosition))
+				{
+					Log.DebugFormat("Not in window {0}", window.GetText());
+					continue;
+				}
+				_selectedCaptureWindow = window;
+
+				// Only go over the children if we are in window mode
+				if (CaptureMode.Window != _captureMode)
+				{
 					break;
 				}
+				// Find the child window which is under the mouse
+				var selectedChildWindow = InteropWindowQuery.GetTopWindows(window).FirstOrDefault(interopWindow => interopWindow.GetBounds().Contains(cursorPosition));
+				if (selectedChildWindow != null)
+				{
+					_selectedCaptureWindow = selectedChildWindow;
+				}
+				break;
 			}
 
 			if (_selectedCaptureWindow != null && !_selectedCaptureWindow.Equals(lastWindow)) {
@@ -491,25 +503,23 @@ namespace Greenshot.Forms {
 				invalidateRectangle = new Rectangle(x1,y1, x2-x1, y2-y1);
 				Invalidate(invalidateRectangle);
 			} else if (_captureMode != CaptureMode.Window) {
-				if (!IsTerminalServerSession) {
-					Rectangle allScreenBounds = WindowCapture.GetScreenBounds();
-					allScreenBounds.Location = WindowCapture.GetLocationRelativeToScreenBounds(allScreenBounds.Location);
-					if (verticalMove) {
-						// Before
-						invalidateRectangle = GuiRectangle.GetGuiRectangle(allScreenBounds.Left, lastPos.Y - 2, Width + 2, 45);
-						Invalidate(invalidateRectangle);
-						// After
-						invalidateRectangle = GuiRectangle.GetGuiRectangle(allScreenBounds.Left, _cursorPos.Y - 2, Width + 2, 45);
-						Invalidate(invalidateRectangle);
-					}
-					if (horizontalMove) {
-						// Before
-						invalidateRectangle = GuiRectangle.GetGuiRectangle(lastPos.X - 2, allScreenBounds.Top, 75, Height + 2);
-						Invalidate(invalidateRectangle);
-						// After
-						invalidateRectangle = GuiRectangle.GetGuiRectangle(_cursorPos.X - 2, allScreenBounds.Top, 75, Height + 2);
-						Invalidate(invalidateRectangle);
-					}
+				Rectangle allScreenBounds = WindowCapture.GetScreenBounds();
+				allScreenBounds.Location = WindowCapture.GetLocationRelativeToScreenBounds(allScreenBounds.Location);
+				if (verticalMove) {
+					// Before
+					invalidateRectangle = GuiRectangle.GetGuiRectangle(allScreenBounds.Left, lastPos.Y - 2, Width + 2, 45);
+					Invalidate(invalidateRectangle);
+					// After
+					invalidateRectangle = GuiRectangle.GetGuiRectangle(allScreenBounds.Left, _cursorPos.Y - 2, Width + 2, 45);
+					Invalidate(invalidateRectangle);
+				}
+				if (horizontalMove) {
+					// Before
+					invalidateRectangle = GuiRectangle.GetGuiRectangle(lastPos.X - 2, allScreenBounds.Top, 75, Height + 2);
+					Invalidate(invalidateRectangle);
+					// After
+					invalidateRectangle = GuiRectangle.GetGuiRectangle(_cursorPos.X - 2, allScreenBounds.Top, 75, Height + 2);
+					Invalidate(invalidateRectangle);
 				}
 			} else {
 				if (_selectedCaptureWindow != null && !_selectedCaptureWindow.Equals(lastWindow)) {
@@ -826,26 +836,24 @@ namespace Greenshot.Forms {
 					}
 				}
 			} else {
-				if (!IsTerminalServerSession) {
-					using (Pen pen = new Pen(Color.LightSeaGreen)) {
-						pen.DashStyle = DashStyle.Dot;
-						Rectangle screenBounds = _capture.ScreenBounds;
-						graphics.DrawLine(pen, _cursorPos.X, screenBounds.Y, _cursorPos.X, screenBounds.Height);
-						graphics.DrawLine(pen, screenBounds.X, _cursorPos.Y, screenBounds.Width, _cursorPos.Y);
-					}
+				using (Pen pen = new Pen(Color.LightSeaGreen)) {
+					pen.DashStyle = DashStyle.Dot;
+					Rectangle screenBounds = _capture.ScreenBounds;
+					graphics.DrawLine(pen, _cursorPos.X, screenBounds.Y, _cursorPos.X, screenBounds.Height);
+					graphics.DrawLine(pen, screenBounds.X, _cursorPos.Y, screenBounds.Width, _cursorPos.Y);
+				}
 
-					string xy = _cursorPos.X + " x " + _cursorPos.Y;
-					using (Font f = new Font(FontFamily.GenericSansSerif, 8)) {
-						Size xySize = TextRenderer.MeasureText(xy, f);
-						using (GraphicsPath gp = RoundedRectangle.Create2(_cursorPos.X + 5, _cursorPos.Y + 5, xySize.Width - 3, xySize.Height, 3)) {
-							using (Brush bgBrush = new SolidBrush(Color.FromArgb(200, 217, 240, 227))) {
-								graphics.FillPath(bgBrush, gp);
-							}
-							using (Pen pen = new Pen(Color.SeaGreen)) {
-								graphics.DrawPath(pen, gp);
-								Point coordinatePosition = new Point(_cursorPos.X + 5, _cursorPos.Y + 5);
-								graphics.DrawString(xy, f, pen.Brush, coordinatePosition);
-							}
+				string xy = _cursorPos.X + " x " + _cursorPos.Y;
+				using (Font f = new Font(FontFamily.GenericSansSerif, 8)) {
+					Size xySize = TextRenderer.MeasureText(xy, f);
+					using (GraphicsPath gp = RoundedRectangle.Create2(_cursorPos.X + 5, _cursorPos.Y + 5, xySize.Width - 3, xySize.Height, 3)) {
+						using (Brush bgBrush = new SolidBrush(Color.FromArgb(200, 217, 240, 227))) {
+							graphics.FillPath(bgBrush, gp);
+						}
+						using (Pen pen = new Pen(Color.SeaGreen)) {
+							graphics.DrawPath(pen, gp);
+							Point coordinatePosition = new Point(_cursorPos.X + 5, _cursorPos.Y + 5);
+							graphics.DrawString(xy, f, pen.Brush, coordinatePosition);
 						}
 					}
 				}

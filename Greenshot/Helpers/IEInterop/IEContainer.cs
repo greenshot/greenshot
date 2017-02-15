@@ -321,7 +321,7 @@ namespace Greenshot.Helpers.IEInterop {
 		}
 		
 		/// <summary>
-		/// The background colo
+		/// The background color of the page
 		/// </summary>
 		public Color BackgroundColor {
 			get {

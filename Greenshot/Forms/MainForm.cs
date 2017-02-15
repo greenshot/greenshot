@@ -422,9 +422,6 @@ namespace Greenshot.Forms {
 			// Setting it to true this late prevents Problems with the context menu
 			notifyIcon.Visible = !_conf.HideTrayicon;
 
-			// Make sure we never capture the mainform
-			WindowDetails.RegisterIgnoreHandle(Handle);
-
 			// Create a new instance of the class: copyData = new CopyData();
 			_copyData = new CopyData();
 
