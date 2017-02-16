@@ -77,7 +77,7 @@ namespace GreenshotPlugin.Core
 			}
 			catch (Exception ex)
 			{
-				Log.Warn().WriteLine(ex, "Couldn't get icon for window {0} due to: {1}", nativeWindow.GetText(), ex.Message);
+				Log.Warn().WriteLine(ex, "Couldn't get icon for window {0} due to: {1}", nativeWindow.GetCaption(), ex.Message);
 			}
 			if (nativeWindow.IsApp())
 			{
@@ -90,7 +90,7 @@ namespace GreenshotPlugin.Core
 			}
 			catch (Exception ex)
 			{
-				Log.Warn().WriteLine(ex, "Couldn't get icon for window {0} due to: {1}", nativeWindow.GetText(), ex.Message);
+				Log.Warn().WriteLine(ex, "Couldn't get icon for window {0} due to: {1}", nativeWindow.GetCaption(), ex.Message);
 			}
 			return null;
 		}

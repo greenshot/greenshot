@@ -39,6 +39,7 @@ using Dapplo.Windows.Native;
 using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
+using Dapplo.Windows.Enums;
 
 namespace Greenshot.Helpers {
 	/// <summary>
@@ -224,8 +225,6 @@ namespace Greenshot.Helpers {
 		/// Make Capture with specified destinations
 		/// </summary>
 		private void MakeCapture() {
-			Thread retrieveWindowDetailsThread = null;
-
 			// This fixes a problem when a balloon is still visible and a capture needs to be taken
 			// forcefully removes the balloon!
 			if (!CoreConfig.HideTrayicon) {
@@ -241,11 +240,11 @@ namespace Greenshot.Helpers {
 				case CaptureMode.Region:
 					// Check if a region is pre-supplied!
 					if (Rectangle.Empty.Equals(_captureRect)) {
-						retrieveWindowDetailsThread = PrepareForCaptureWithFeedback();
+						PrepareForCaptureWithFeedback();
 					}
 					break;
 				case CaptureMode.Window:
-					retrieveWindowDetailsThread = PrepareForCaptureWithFeedback();
+					PrepareForCaptureWithFeedback();
 					break;
 			}
 
@@ -439,8 +438,6 @@ namespace Greenshot.Helpers {
 					Log.Warn("Unknown capture mode: " + _captureMode);
 					break;
 			}
-			// Wait for thread, otherwise we can't dipose the CaptureHelper
-			retrieveWindowDetailsThread?.Join();
 			if (_capture != null) {
 				Log.Debug("Disposing capture");
 				_capture.Dispose();
@@ -450,17 +447,16 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Pre-Initialization for CaptureWithFeedback, this will get all the windows before we change anything
 		/// </summary>
-		private Thread PrepareForCaptureWithFeedback() {
+		private void PrepareForCaptureWithFeedback() {
 			_windows = new List<InteropWindow>();
 
 			// If the App Launcher is visisble, no other windows are active
 			if (AppQuery.IsLauncherVisible) {
 				_windows.Add(AppQuery.GetAppLauncher());
-				return null;
+				return;
 			}
 			// TODO: Get Popups
 			_windows.AddRange(InteropWindowQuery.GetTopWindows().Where(window => window.IsVisible() && window.Handle != MainForm.Instance.Handle && !window.GetBounds().IsEmpty));
-			return null;
 		}
 
 		private void AddConfiguredDestination() {
@@ -913,6 +909,8 @@ namespace Greenshot.Helpers {
 					result = captureForm.ShowDialog(MainForm.Instance);
 				} finally {
 					captureForm.Hide();
+					// Make sure it's gone
+					Application.DoEvents();
 				}
 				if (result == DialogResult.OK) {
 					_selectedCaptureWindow = captureForm.SelectedCaptureWindow;
@@ -922,7 +920,48 @@ namespace Greenshot.Helpers {
 						_capture.CaptureDetails.Title = _selectedCaptureWindow.Text;
 					}
 
-					if (_captureRect.Height > 0 && _captureRect.Width > 0) {
+					// Scroll test:
+					var windowScroller = captureForm.WindowScroller;
+					if (windowScroller != null)
+					{
+						User32.SetForegroundWindow(windowScroller.ScrollingArea);
+						Application.DoEvents();
+						Thread.Sleep(100);
+						Application.DoEvents();
+						windowScroller.ScrollMode = ScrollModes.KeyboardPageUpDown;
+						// Move the window to the start
+						windowScroller.Start();
+
+						try
+						{
+							// A delay to make the window move
+							Application.DoEvents();
+							Thread.Sleep(100);
+							Application.DoEvents();
+							if (windowScroller.IsAtStart)
+							{
+								// Loop
+								do
+								{
+									// Next "page"
+									windowScroller.Next();
+									// Wait a bit, so the window can update
+									Application.DoEvents();
+									Thread.Sleep(100);
+									Application.DoEvents();
+									// Loop as long as we are not at the end yet
+								} while (!windowScroller.IsAtEnd);
+
+							}
+						}
+						catch
+						{
+							// Try to reset location
+							windowScroller.Reset();
+						}
+					}
+
+					if (_captureRect.Height * _captureRect.Width > 0) {
 						// Take the captureRect, this already is specified as bitmap coordinates
 						_capture.Crop(_captureRect);
 

@@ -338,8 +338,7 @@ namespace GreenshotPlugin.Core
 		[DefaultValue("0,0")]
 		public Size Win10BorderCrop { get; set; }
 
-		[IniProperty("IconSize", Description = "Defines the size of the icons (e.g. for the buttons in the editor), default value 16,16 anything bigger will cause scaling",
-			DefaultValue = "16,16")]
+		[IniProperty("IconSize", Description = "Defines the size of the icons (e.g. for the buttons in the editor), default value 16,16 anything bigger will cause scaling", DefaultValue = "16,16")]
 		public Size IconSize
 		{
 			get { return _iconSize; }
@@ -380,6 +379,9 @@ namespace GreenshotPlugin.Core
 
 		[IniProperty("WebRequestReadWriteTimeout", Description = "The read/write timeout value for webrequets, these are seconds", DefaultValue = "100")]
 		public int WebRequestReadWriteTimeout { get; set; }
+
+		[IniProperty("IsScrollingCaptureEnabled", Description = "True to enable scrolling capture, this is done whenever a scrolling window is selected", DefaultValue = "true")]
+		public bool IsScrollingCaptureEnabled { get; set; }
 
 		/// <summary>
 		///     Specifies what THIS build is

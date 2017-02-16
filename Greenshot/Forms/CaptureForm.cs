@@ -34,6 +34,7 @@ using System.Globalization;
 using System.Linq;
 using System.Security.Permissions;
 using System.Windows.Forms;
+using Dapplo.Windows;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Native;
 using GreenshotPlugin.IniFile;
@@ -49,6 +50,7 @@ namespace Greenshot.Forms {
 		private static readonly ILog Log = LogManager.GetLogger(typeof(CaptureForm));
 		private static readonly CoreConfiguration Conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private static readonly Brush GreenOverlayBrush = new SolidBrush(Color.FromArgb(50, Color.MediumSeaGreen));
+		private static readonly Brush ScrollingOverlayBrush = new SolidBrush(Color.FromArgb(50, Color.GreenYellow));
 		private static readonly Pen OverlayPen = new Pen(Color.FromArgb(50, Color.Black));
 		private static CaptureForm _currentForm;
 		private static readonly Brush BackgroundBrush;
@@ -67,7 +69,9 @@ namespace Greenshot.Forms {
 		private Point _cursorPos;
 		private CaptureMode _captureMode;
 		private readonly IList<InteropWindow> _windows;
+		// the window which is selected
 		private InteropWindow _selectedCaptureWindow;
+		private WindowScroller _windowScroller;
 		private bool _mouseDown;
 		private Rectangle _captureRect = Rectangle.Empty;
 		private readonly ICapture _capture;
@@ -95,6 +99,11 @@ namespace Greenshot.Forms {
 		public InteropWindow SelectedCaptureWindow => _selectedCaptureWindow;
 
 		/// <summary>
+		/// Get the WindowScroller
+		/// </summary>
+		public WindowScroller WindowScroller => _windowScroller;
+
+		/// <summary>
 		/// This should prevent childs to draw backgrounds
 		/// </summary>
 		protected override CreateParams CreateParams {
@@ -107,8 +116,8 @@ namespace Greenshot.Forms {
 		}
 
 		private void ClosedHandler(object sender, EventArgs e) {
-			_currentForm = null;
 			Log.Debug("Remove CaptureForm from currentForm");
+			_currentForm = null;
 		}
 
 		private void ClosingHandler(object sender, EventArgs e) {
@@ -187,8 +196,13 @@ namespace Greenshot.Forms {
 
 		#region key handling		
 
-		private void CaptureFormKeyUp(object sender, KeyEventArgs e) {
-			switch(e.KeyCode) {
+		/// <summary>
+		/// Handle the key up event
+		/// </summary>
+		/// <param name="sender">object</param>
+		/// <param name="keyEventArgs">KeyEventArgs</param>
+		private void CaptureFormKeyUp(object sender, KeyEventArgs keyEventArgs) {
+			switch(keyEventArgs.KeyCode) {
 				case Keys.ShiftKey:
 					_fixMode = FixMode.None;
 					break;
@@ -295,9 +309,9 @@ namespace Greenshot.Forms {
 					if (_captureMode == CaptureMode.Window) {
 						DialogResult = DialogResult.OK;
 					} else if (!_mouseDown) {
-						HandleMouseDown();
+						StartSelecting();
 					} else if (_mouseDown) {
-						HandleMouseUp();
+						FinishSelecting();
 					}
 					break;
 				case Keys.F:
@@ -316,11 +330,14 @@ namespace Greenshot.Forms {
 		/// <param name="e"></param>
 		private void OnMouseDown(object sender, MouseEventArgs e) {
 			if (e.Button == MouseButtons.Left) {
-				HandleMouseDown();
+				StartSelecting();
 			}
 		}
 
-		private void HandleMouseDown() {
+		/// <summary>
+		/// This is called when we start selecting a region
+		/// </summary>
+		private void StartSelecting() {
 			Point tmpCursorLocation = WindowCapture.GetCursorLocationRelativeToScreenBounds();
 			_mX = tmpCursorLocation.X;
 			_mY = tmpCursorLocation.Y;
@@ -329,14 +346,19 @@ namespace Greenshot.Forms {
 			Invalidate();
 		}
 
-		private void HandleMouseUp() {
+		/// <summary>
+		/// This is called when we are finished selecting a region
+		/// It is possible, that when nothing is selected (empty rectangle), this only invalidates the screen
+		/// </summary>
+		private void FinishSelecting() {
 			// If the mouse goes up we set down to false (nice logic!)
 			_mouseDown = false;
+
 			// Check if anything is selected
 			if (_captureMode == CaptureMode.Window && _selectedCaptureWindow != null) {
 				// Go and process the capture
 				DialogResult = DialogResult.OK;
-			} else if (_captureRect.Height > 0 && _captureRect.Width > 0) {
+			} else if (_captureRect.Size.Width * _captureRect.Size.Height > 0) {
 				// correct the GUI width to real width if Region mode
 				if (_captureMode == CaptureMode.Region) {
 					_captureRect.Width += 1;
@@ -347,20 +369,21 @@ namespace Greenshot.Forms {
 			} else {
 				Invalidate();
 			}
-
 		}
-		
+
 		/// <summary>
 		/// The mouse up handler of the capture form
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void OnMouseUp(object sender, MouseEventArgs e) {
-			if (_mouseDown) {
-				HandleMouseUp();
+		/// <param name="sender">object</param>
+		/// <param name="mouseEventArgs">MouseEventArgs</param>
+		private void OnMouseUp(object sender, MouseEventArgs mouseEventArgs) {
+			if (!_mouseDown)
+			{
+				return;
 			}
+			FinishSelecting();
 		}
-		
+
 		/// <summary>
 		/// This method is used to "fix" the mouse coordinates when keeping shift/ctrl pressed
 		/// </summary>
@@ -434,6 +457,8 @@ namespace Greenshot.Forms {
 			// Iterate over the found windows and check if the current location is inside a window
 			Point cursorPosition = Cursor.Position;
 			_selectedCaptureWindow = null;
+
+
 			// Store the top window
 			InteropWindow selectedTopWindow = null;
 			foreach (var window in _windows) {
@@ -456,11 +481,14 @@ namespace Greenshot.Forms {
 				{
 					break;
 				}
+
 				// Find the child window which is under the mouse
+				// Start with the parent, drill down
 				var selectedChildWindow = window;
 				// TODO: Limit the levels we go down?
 				do
 				{
+					// Drill down, via the ZOrder
 					var tmpChildWindow = selectedChildWindow
 						.GetZOrderedChildren()
 						.FirstOrDefault(interopWindow => interopWindow.GetBounds().Contains(cursorPosition));
@@ -474,17 +502,27 @@ namespace Greenshot.Forms {
 
 				// Assign the found child window
 				_selectedCaptureWindow = selectedChildWindow;
+
 				break;
 			}
 
+			// Test if something changed
 			if (_selectedCaptureWindow != null && !_selectedCaptureWindow.Equals(lastWindow)) {
 				_capture.CaptureDetails.Title = selectedTopWindow.Text;
 				_capture.CaptureDetails.AddMetaData("windowtitle", selectedTopWindow.Text);
 				if (_captureMode == CaptureMode.Window) {
-					// Here we want to capture the window which is under the mouse
+
+
+					// Recreate the WindowScroller, if this is enabled, so we can detect if we can scroll
+					if (Conf.IsScrollingCaptureEnabled)
+					{
+						_windowScroller = WindowScroller.Create(_selectedCaptureWindow);
+					}
+
+					// We store the bound of the selected (child) window
 					_captureRect = _selectedCaptureWindow.GetBounds();
 
-					// Make sure the bounds fit to it's parent
+					// Make sure the bounds fit to it's parent, some windows are bigger than their parent
 					var parent = _selectedCaptureWindow.GetParent();
 					while (parent != IntPtr.Zero)
 					{
@@ -493,45 +531,50 @@ namespace Greenshot.Forms {
 						parent = parentWindow.GetParent();
 					}
 
-					// As the ClientRectangle is not in Bitmap coordinates, we need to correct.
+					// As the ClientRectangle is in screen coordinates and not in bitmap coordinates, we need to correct.
 					_captureRect.Offset(-_capture.ScreenBounds.Location.X, -_capture.ScreenBounds.Location.Y);
 				}
 			}
 
 			Rectangle invalidateRectangle;
-			if (_mouseDown && (_captureMode != CaptureMode.Window)) {
+			if (_mouseDown && _captureMode != CaptureMode.Window)
+			{
 				int x1 = Math.Min(_mX, lastPos.X);
 				int x2 = Math.Max(_mX, lastPos.X);
 				int y1 = Math.Min(_mY, lastPos.Y);
 				int y2 = Math.Max(_mY, lastPos.Y);
-				x1= Math.Min(x1, _cursorPos.X);
-				x2= Math.Max(x2, _cursorPos.X);
-				y1= Math.Min(y1, _cursorPos.Y);
-				y2= Math.Max(y2, _cursorPos.Y);
+				x1 = Math.Min(x1, _cursorPos.X);
+				x2 = Math.Max(x2, _cursorPos.X);
+				y1 = Math.Min(y1, _cursorPos.Y);
+				y2 = Math.Max(y2, _cursorPos.Y);
 
 				// Safety correction
 				x2 += 2;
 				y2 += 2;
 
 				// Here we correct for text-size
-				
+
 				// Calculate the size
 				int textForWidth = Math.Max(Math.Abs(_mX - _cursorPos.X), Math.Abs(_mX - lastPos.X));
 				int textForHeight = Math.Max(Math.Abs(_mY - _cursorPos.Y), Math.Abs(_mY - lastPos.Y));
 
-				using (Font rulerFont = new Font(FontFamily.GenericSansSerif, 8)) {
-					Size measureWidth = TextRenderer.MeasureText(textForWidth.ToString(CultureInfo.InvariantCulture), rulerFont);
-					x1 -= measureWidth.Width + 15;
+				using (var rulerFont = new Font(FontFamily.GenericSansSerif, 8))
+				{
+					var textWidth = TextRenderer.MeasureText(textForWidth.ToString(CultureInfo.InvariantCulture), rulerFont);
+					x1 -= textWidth.Width + 15;
 
-					Size measureHeight = TextRenderer.MeasureText(textForHeight.ToString(CultureInfo.InvariantCulture), rulerFont);
-					y1 -= measureHeight.Height + 10;
+					var textHeight = TextRenderer.MeasureText(textForHeight.ToString(CultureInfo.InvariantCulture), rulerFont);
+					y1 -= textHeight.Height + 10;
 				}
-				invalidateRectangle = new Rectangle(x1,y1, x2-x1, y2-y1);
+				invalidateRectangle = new Rectangle(x1, y1, x2 - x1, y2 - y1);
 				Invalidate(invalidateRectangle);
-			} else if (_captureMode != CaptureMode.Window) {
+			}
+			else if (_captureMode != CaptureMode.Window)
+			{
 				Rectangle allScreenBounds = WindowCapture.GetScreenBounds();
 				allScreenBounds.Location = WindowCapture.GetLocationRelativeToScreenBounds(allScreenBounds.Location);
-				if (verticalMove) {
+				if (verticalMove)
+				{
 					// Before
 					invalidateRectangle = GuiRectangle.GetGuiRectangle(allScreenBounds.Left, lastPos.Y - 2, Width + 2, 45);
 					Invalidate(invalidateRectangle);
@@ -539,7 +582,8 @@ namespace Greenshot.Forms {
 					invalidateRectangle = GuiRectangle.GetGuiRectangle(allScreenBounds.Left, _cursorPos.Y - 2, Width + 2, 45);
 					Invalidate(invalidateRectangle);
 				}
-				if (horizontalMove) {
+				if (horizontalMove)
+				{
 					// Before
 					invalidateRectangle = GuiRectangle.GetGuiRectangle(lastPos.X - 2, allScreenBounds.Top, 75, Height + 2);
 					Invalidate(invalidateRectangle);
@@ -547,11 +591,11 @@ namespace Greenshot.Forms {
 					invalidateRectangle = GuiRectangle.GetGuiRectangle(_cursorPos.X - 2, allScreenBounds.Top, 75, Height + 2);
 					Invalidate(invalidateRectangle);
 				}
-			} else {
-				if (_selectedCaptureWindow != null && !_selectedCaptureWindow.Equals(lastWindow)) {
-					// Window changes, make new animation from current to target
-					_windowAnimator.ChangeDestination(_captureRect, FramesForMillis(700));
-				}
+			}
+			else if (_selectedCaptureWindow != null && !_selectedCaptureWindow.Equals(lastWindow))
+			{
+				// Window changed, animate from current to newly selected window
+				_windowAnimator.ChangeDestination(_captureRect, FramesForMillis(700));
 			}
 			// always animate the Window area through to the last frame, so we see the fade-in/out untill the end
 			// Using a safety "offset" to make sure the text is invalidated too
@@ -751,12 +795,15 @@ namespace Greenshot.Forms {
 
 				var fixedRect = IsAnimating(_windowAnimator) ? _windowAnimator.Current : _captureRect;
 
-				// TODO: enable when the screen capture code works reliable
-				//if (capture.CaptureDetails.CaptureMode == CaptureMode.Video) {
-				//	graphics.FillRectangle(RedOverlayBrush, fixedRect);
-				//} else {
-				graphics.FillRectangle(GreenOverlayBrush, fixedRect);
-				//}
+				// If the _windowScroller != null, we can (most likely) capture the window with a scrolling technique
+				if (_windowScroller != null)
+				{
+					graphics.FillRectangle(ScrollingOverlayBrush, fixedRect);
+				}
+				else
+				{
+					graphics.FillRectangle(GreenOverlayBrush, fixedRect);
+				}
 				graphics.DrawRectangle(OverlayPen, fixedRect);
 				
 				// rulers

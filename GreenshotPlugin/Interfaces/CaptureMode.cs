@@ -39,6 +39,7 @@ namespace GreenshotPlugin.Interfaces
 		Clipboard,
 		File,
 		IE,
+		Scroll,
 		Import
 	}
 }
