@@ -36,6 +36,7 @@ using System.Security.Permissions;
 using System.Windows.Forms;
 using Dapplo.Windows;
 using Dapplo.Windows.Desktop;
+using Dapplo.Windows.Enums;
 using Dapplo.Windows.Native;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
@@ -469,7 +470,7 @@ namespace Greenshot.Forms {
 				}
 				if (!window.GetBounds().Contains(cursorPosition))
 				{
-					Log.DebugFormat("Not in window {0}", window.GetText());
+					Log.DebugFormat("Not in window {0}", window.GetCaption());
 					continue;
 				}
 
@@ -523,12 +524,16 @@ namespace Greenshot.Forms {
 					_captureRect = _selectedCaptureWindow.GetBounds();
 
 					// Make sure the bounds fit to it's parent, some windows are bigger than their parent
-					var parent = _selectedCaptureWindow.GetParent();
-					while (parent != IntPtr.Zero)
+					// But only for non popups
+					if (!_selectedCaptureWindow.GetStyle().HasFlag(WindowStyleFlags.WS_POPUP))
 					{
-						var parentWindow = InteropWindow.CreateFor(parent);
-						_captureRect.Intersect(parentWindow.GetBounds());
-						parent = parentWindow.GetParent();
+						var parent = _selectedCaptureWindow.GetParent();
+						while (parent != IntPtr.Zero)
+						{
+							var parentWindow = InteropWindow.CreateFor(parent);
+							_captureRect.Intersect(parentWindow.GetBounds());
+							parent = parentWindow.GetParent();
+						}
 					}
 
 					// As the ClientRectangle is in screen coordinates and not in bitmap coordinates, we need to correct.

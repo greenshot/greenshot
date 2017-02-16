@@ -22,7 +22,6 @@
 using System;
 using System.IO;
 using Windows.Storage.Streams;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 using GreenshotWin10Plugin.Native;
 using System.Threading.Tasks;
@@ -31,6 +30,8 @@ using Color = Windows.UI.Color;
 using System.Collections.Generic;
 using System.Drawing;
 using GreenshotPlugin.Core.Enums;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotWin10Plugin
 {

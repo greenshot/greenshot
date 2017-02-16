@@ -25,8 +25,9 @@ using System.IO;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotWin10Plugin
 {

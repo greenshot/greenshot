@@ -455,8 +455,13 @@ namespace Greenshot.Helpers {
 				_windows.Add(AppQuery.GetAppLauncher());
 				return;
 			}
-			// TODO: Get Popups
 			_windows.AddRange(InteropWindowQuery.GetTopWindows().Where(window => window.IsVisible() && window.Handle != MainForm.Instance.Handle && !window.GetBounds().IsEmpty));
+
+			// Get all the values for Popups, they disappear otherwise
+			foreach (var popup in _windows.Where(window => window.GetStyle().HasFlag(WindowStyleFlags.WS_POPUP)))
+			{
+				popup.Fill();
+			}
 		}
 
 		private void AddConfiguredDestination() {

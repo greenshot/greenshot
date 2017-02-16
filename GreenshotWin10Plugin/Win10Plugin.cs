@@ -21,8 +21,9 @@
 
 using System;
 using System.Collections.Generic;
-using Greenshot.Plugin;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotWin10Plugin
 {
