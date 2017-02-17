@@ -116,6 +116,7 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		///     Return an Image representing the Window!
 		///     As GDI+ draws it, it will be without Aero borders!
+		/// TODO: If there is a parent, this could be removed with SetParent, and set back afterwards.
 		/// </summary>
 		public static Image PrintWindow(this InteropWindow nativeWindow)
 		{

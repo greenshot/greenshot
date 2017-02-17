@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -457,10 +458,12 @@ namespace Greenshot.Helpers {
 			}
 			_windows.AddRange(InteropWindowQuery.GetTopWindows().Where(window => window.IsVisible() && window.Handle != MainForm.Instance.Handle && !window.GetBounds().IsEmpty));
 
-			// Get all the values for Popups, they disappear otherwise
+			// Get all the values for Popups, they disappear as soon as focus is lost so now is the right moment
 			foreach (var popup in _windows.Where(window => window.GetStyle().HasFlag(WindowStyleFlags.WS_POPUP)))
 			{
 				popup.Fill();
+				// TODO: Capture all popups to make them available like the mouse cursor.
+				// Than change focus, to remove the popups, and take the real capture
 			}
 		}
 
@@ -933,7 +936,7 @@ namespace Greenshot.Helpers {
 						Application.DoEvents();
 						Thread.Sleep(100);
 						Application.DoEvents();
-						windowScroller.ScrollMode = ScrollModes.KeyboardPageUpDown;
+						windowScroller.ScrollMode = ScrollModes.MouseWheel;
 						// Move the window to the start
 						windowScroller.Start();
 
@@ -943,8 +946,14 @@ namespace Greenshot.Helpers {
 							Application.DoEvents();
 							Thread.Sleep(100);
 							Application.DoEvents();
+							int capture = 0;
 							if (windowScroller.IsAtStart)
 							{
+								using (var image = WindowCapture.CaptureRectangle(windowScroller.ScrollingArea.GetBounds()))
+								{
+									image.Save($@"scroll-{capture++}.png", ImageFormat.Png);
+								}
+
 								// Loop
 								do
 								{
@@ -954,12 +963,20 @@ namespace Greenshot.Helpers {
 									Application.DoEvents();
 									Thread.Sleep(100);
 									Application.DoEvents();
+									using (var image = WindowCapture.CaptureRectangle(windowScroller.ScrollingArea.GetBounds()))
+									{
+										image.Save($@"scroll-{capture++}.png", ImageFormat.Png);
+									}
 									// Loop as long as we are not at the end yet
 								} while (!windowScroller.IsAtEnd);
 
 							}
 						}
-						catch
+						catch (Exception ex)
+						{
+							Log.Error(ex);
+						}
+						finally
 						{
 							// Try to reset location
 							windowScroller.Reset();
