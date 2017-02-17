@@ -54,20 +54,20 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		///     Get the file path to the exe for the process which owns this window
 		/// </summary>
-		public static string GetProcessPath(this InteropWindow nativeWindow)
+		public static string GetProcessPath(this InteropWindow interopWindow)
 		{
-			int processid = nativeWindow.GetProcessId();
+			int processid = interopWindow.GetProcessId();
 			return Kernel32.GetProcessPath(processid);
 		}
 
 		/// <summary>
 		///     Get the icon belonging to the process
 		/// </summary>
-		public static Image GetDisplayIcon(this InteropWindow nativeWindow)
+		public static Image GetDisplayIcon(this InteropWindow interopWindow)
 		{
 			try
 			{
-				using (var appIcon = User32.GetIcon(nativeWindow, CoreConfiguration.UseLargeIcons))
+				using (var appIcon = User32.GetIcon(interopWindow, CoreConfiguration.UseLargeIcons))
 				{
 					if (appIcon != null)
 					{
@@ -77,37 +77,49 @@ namespace GreenshotPlugin.Core
 			}
 			catch (Exception ex)
 			{
-				Log.Warn().WriteLine(ex, "Couldn't get icon for window {0} due to: {1}", nativeWindow.GetCaption(), ex.Message);
+				Log.Warn().WriteLine(ex, "Couldn't get icon for window {0} due to: {1}", interopWindow.GetCaption(), ex.Message);
 			}
-			if (nativeWindow.IsApp())
+			if (interopWindow.IsApp())
 			{
 				// No method yet to get the metro icon
 				return null;
 			}
 			try
 			{
-				return PluginUtils.GetCachedExeIcon(nativeWindow.GetProcessPath(), 0);
+				return PluginUtils.GetCachedExeIcon(interopWindow.GetProcessPath(), 0);
 			}
 			catch (Exception ex)
 			{
-				Log.Warn().WriteLine(ex, "Couldn't get icon for window {0} due to: {1}", nativeWindow.GetCaption(), ex.Message);
+				Log.Warn().WriteLine(ex, "Couldn't get icon for window {0} due to: {1}", interopWindow.GetCaption(), ex.Message);
 			}
 			return null;
 		}
 
 		/// <summary>
+		/// Extension method to capture a bitmap of the screen area where the InteropWindow is located
+		/// </summary>
+		/// <param name="interopWindow">InteropWindow</param>
+		/// <param name="clientBounds">true to use the client bounds</param>
+		/// <returns>Bitmap</returns>
+		public static Bitmap CaptureFromScreen(this InteropWindow interopWindow, bool clientBounds = false)
+		{
+			var bounds = clientBounds ? interopWindow.GetClientBounds() : interopWindow.GetBounds();
+			return WindowCapture.CaptureRectangle(bounds);
+		}
+
+		/// <summary>
 		///     Capture Window with GDI+
 		/// </summary>
-		/// <param name="nativeWindow">InteropWindow</param>
+		/// <param name="interopWindow">InteropWindow</param>
 		/// <param name="capture">The capture to fill</param>
 		/// <returns>ICapture</returns>
-		public static ICapture CaptureGdiWindow(this InteropWindow nativeWindow, ICapture capture)
+		public static ICapture CaptureGdiWindow(this InteropWindow interopWindow, ICapture capture)
 		{
-			var capturedImage = nativeWindow.PrintWindow();
+			var capturedImage = interopWindow.PrintWindow();
 			if (capturedImage != null)
 			{
 				capture.Image = capturedImage;
-				capture.Location = nativeWindow.GetClientBounds().Location;
+				capture.Location = interopWindow.GetClientBounds().Location;
 				return capture;
 			}
 			return null;

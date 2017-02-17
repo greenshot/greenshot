@@ -949,9 +949,21 @@ namespace Greenshot.Helpers {
 							int capture = 0;
 							if (windowScroller.IsAtStart)
 							{
-								using (var image = WindowCapture.CaptureRectangle(windowScroller.ScrollingArea.GetBounds()))
+								// First capture
+								using (var bitmap = windowScroller.ScrollingArea.CaptureFromScreen(true))
 								{
-									image.Save($@"scroll-{capture++}.png", ImageFormat.Png);
+									// Cover the scrollbar
+									if (windowScroller.ScrollBarInfo.HasValue)
+									{
+										Rectangle scrollbarRect = windowScroller.ScrollBarInfo.Value.rcScrollBar;
+										var location = windowScroller.ScrollingArea.GetBounds().Location;
+										scrollbarRect.Offset(-location.X, -location.Y);
+										using (var graphics = Graphics.FromImage(bitmap))
+										{
+											graphics.FillRectangle(Brushes.Black, scrollbarRect);
+										}
+									}
+									bitmap.Save($@"scroll-{capture++}.png", ImageFormat.Png);
 								}
 
 								// Loop
@@ -963,9 +975,20 @@ namespace Greenshot.Helpers {
 									Application.DoEvents();
 									Thread.Sleep(100);
 									Application.DoEvents();
-									using (var image = WindowCapture.CaptureRectangle(windowScroller.ScrollingArea.GetBounds()))
+									using (var bitmap = windowScroller.ScrollingArea.CaptureFromScreen(true))
 									{
-										image.Save($@"scroll-{capture++}.png", ImageFormat.Png);
+										// Cover the scrollbar
+										if (windowScroller.ScrollBarInfo.HasValue)
+										{
+											Rectangle scrollbarRect = windowScroller.ScrollBarInfo.Value.rcScrollBar;
+											var location = windowScroller.ScrollingArea.GetBounds().Location;
+											scrollbarRect.Offset(-location.X, -location.Y);
+											using (var graphics = Graphics.FromImage(bitmap))
+											{
+												graphics.FillRectangle(Brushes.Black, scrollbarRect);
+											}
+										}
+										bitmap.Save($@"scroll-{capture++}.png", ImageFormat.Png);
 									}
 									// Loop as long as we are not at the end yet
 								} while (!windowScroller.IsAtEnd);
