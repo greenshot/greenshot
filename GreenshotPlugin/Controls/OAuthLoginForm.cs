@@ -77,11 +77,10 @@ namespace GreenshotPlugin.Controls
 		///     Make sure the form is visible
 		/// </summary>
 		/// <param name="e">EventArgs</param>
-		protected override void OnShown(EventArgs e)
+		protected override async void OnShown(EventArgs e)
 		{
 			base.OnShown(e);
-			// TODO: Await?
-			InteropWindowExtensions.ToForegroundAsync(Handle);
+			await InteropWindowFactory.CreateFor(Handle).ToForegroundAsync();
 		}
 
 		private void Browser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)

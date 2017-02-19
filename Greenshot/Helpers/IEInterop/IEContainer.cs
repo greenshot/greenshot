@@ -43,12 +43,12 @@ namespace Greenshot.Helpers.IEInterop {
 		private Rectangle _viewportRectangle = Rectangle.Empty;
 		private bool _isDtd;
 		private DocumentContainer _parent;
-		private InteropWindow _contentWindow;
+		private IInteropWindow _contentWindow;
 		private double _zoomLevelX = 1;
 		private double _zoomLevelY = 1;
 		private readonly IList<DocumentContainer> _frames = new List<DocumentContainer>();
 
-		private DocumentContainer(IHTMLWindow2 frameWindow, InteropWindow contentWindow, DocumentContainer parent) {
+		private DocumentContainer(IHTMLWindow2 frameWindow, IInteropWindow contentWindow, DocumentContainer parent) {
 			var document2 = GetDocumentFromWindow(frameWindow);
 			try {
 				LOG.DebugFormat("frameWindow.name {0}", frameWindow.name);
@@ -83,7 +83,7 @@ namespace Greenshot.Helpers.IEInterop {
 			Init(document2, contentWindow);
 		}
 
-		public DocumentContainer(IHTMLDocument2 document2, InteropWindow contentWindow) {
+		public DocumentContainer(IHTMLDocument2 document2, IInteropWindow contentWindow) {
 			Init(document2, contentWindow);
 			LOG.DebugFormat("Creating DocumentContainer for Document {0} found in window with rectangle {1}", Name, SourceRectangle);
 		}
@@ -102,8 +102,8 @@ namespace Greenshot.Helpers.IEInterop {
 		/// Private helper method for the constructors
 		/// </summary>
 		/// <param name="document2">IHTMLDocument2</param>
-		/// <param name="contentWindow">InteropWindow</param>
-		private void Init(IHTMLDocument2 document2, InteropWindow contentWindow) {
+		/// <param name="contentWindow">IInteropWindow</param>
+		private void Init(IHTMLDocument2 document2, IInteropWindow contentWindow) {
 			_document2 = document2;
 			_contentWindow = contentWindow;
 			_document3 = document2 as IHTMLDocument3;
@@ -340,7 +340,7 @@ namespace Greenshot.Helpers.IEInterop {
 
 		public Rectangle ViewportRectangle => _viewportRectangle;
 
-		public InteropWindow ContentWindow => _contentWindow;
+		public IInteropWindow ContentWindow => _contentWindow;
 
 		public DocumentContainer Parent {
 			get {

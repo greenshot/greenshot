@@ -69,9 +69,9 @@ namespace Greenshot.Forms {
 		private Point _mouseMovePos = Point.Empty;
 		private Point _cursorPos;
 		private CaptureMode _captureMode;
-		private readonly IList<InteropWindow> _windows;
+		private readonly IList<IInteropWindow> _windows;
 		// the window which is selected
-		private InteropWindow _selectedCaptureWindow;
+		private IInteropWindow _selectedCaptureWindow;
 		private WindowScroller _windowScroller;
 		private bool _mouseDown;
 		private Rectangle _captureRect = Rectangle.Empty;
@@ -97,7 +97,7 @@ namespace Greenshot.Forms {
 		/// <summary>
 		/// Get the selected window
 		/// </summary>
-		public InteropWindow SelectedCaptureWindow => _selectedCaptureWindow;
+		public IInteropWindow SelectedCaptureWindow => _selectedCaptureWindow;
 
 		/// <summary>
 		/// Get the WindowScroller
@@ -130,7 +130,7 @@ namespace Greenshot.Forms {
 		/// </summary>
 		/// <param name="capture"></param>
 		/// <param name="windows"></param>
-		public CaptureForm(ICapture capture, IList<InteropWindow> windows) {
+		public CaptureForm(ICapture capture, IList<IInteropWindow> windows) {
 			if (_currentForm != null) {
 				Log.Warn("Found currentForm, Closing already opened CaptureForm");
 				_currentForm.Close();
@@ -440,7 +440,7 @@ namespace Greenshot.Forms {
 				return;
 			}
 
-			InteropWindow lastWindow = _selectedCaptureWindow;
+			var lastWindow = _selectedCaptureWindow;
 			bool horizontalMove = false;
 			bool verticalMove = false;
 
@@ -461,7 +461,7 @@ namespace Greenshot.Forms {
 
 
 			// Store the top window
-			InteropWindow selectedTopWindow = null;
+			IInteropWindow selectedTopWindow = null;
 			foreach (var window in _windows) {
 				if (window.Handle == Handle)
 				{
@@ -517,7 +517,11 @@ namespace Greenshot.Forms {
 					// Recreate the WindowScroller, if this is enabled, so we can detect if we can scroll
 					if (Conf.IsScrollingCaptureEnabled)
 					{
-						_windowScroller = WindowScroller.Create(_selectedCaptureWindow);
+						_windowScroller = _selectedCaptureWindow.GetWindowScroller(ScrollBarTypes.Vertical);
+						if (_windowScroller == null)
+						{
+							_windowScroller = _selectedCaptureWindow.GetChildren().Select(child => child.GetWindowScroller(ScrollBarTypes.Vertical)).FirstOrDefault(scroller => scroller != null);
+						}
 					}
 
 					// We store the bound of the selected (child) window
@@ -530,7 +534,7 @@ namespace Greenshot.Forms {
 						var parent = _selectedCaptureWindow.GetParent();
 						while (parent != IntPtr.Zero)
 						{
-							var parentWindow = InteropWindow.CreateFor(parent);
+							var parentWindow = InteropWindowFactory.CreateFor(parent);
 							_captureRect.Intersect(parentWindow.GetBounds());
 							parent = parentWindow.GetParent();
 						}

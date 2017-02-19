@@ -826,7 +826,7 @@ namespace Greenshot.Forms {
 				if (tabs.Count > 0) {
 					contextmenu_captureie.Enabled = true;
 					contextmenu_captureiefromlist.Enabled = true;
-					var counter = new Dictionary<Dapplo.Windows.Desktop.InteropWindow, int>();
+					var counter = new Dictionary<IInteropWindow, int>();
 					
 					foreach(var tabData in tabs) {
 						string title = tabData.Value;
@@ -839,7 +839,7 @@ namespace Greenshot.Forms {
 						var captureIeTabItem = contextmenu_captureiefromlist.DropDownItems.Add(title);
 						int index = counter.ContainsKey(tabData.Key) ? counter[tabData.Key] : 0;
 						captureIeTabItem.Image = tabData.Key.GetDisplayIcon();
-						captureIeTabItem.Tag = new KeyValuePair<Dapplo.Windows.Desktop.InteropWindow, int>(tabData.Key, index++);
+						captureIeTabItem.Tag = new KeyValuePair<IInteropWindow, int>(tabData.Key, index++);
 						captureIeTabItem.Click += Contextmenu_captureiefromlist_Click;
 						contextmenu_captureiefromlist.DropDownItems.Add(captureIeTabItem);
 						if (counter.ContainsKey(tabData.Key)) {
@@ -927,7 +927,7 @@ namespace Greenshot.Forms {
 		private void ShowThumbnailOnEnter(object sender, EventArgs e) {
 			ToolStripMenuItem captureWindowItem = sender as ToolStripMenuItem;
 			if (captureWindowItem != null) {
-				var window = captureWindowItem.Tag as InteropWindow;
+				var window = captureWindowItem.Tag as IInteropWindow;
 				if (_thumbnailForm == null) {
 					_thumbnailForm = new ThumbnailForm();
 				}
@@ -1028,7 +1028,7 @@ namespace Greenshot.Forms {
 				return;
 			}
 			ToolStripMenuItem clickedItem = (ToolStripMenuItem)sender;
-			var tabData = (KeyValuePair<Dapplo.Windows.Desktop.InteropWindow, int>)clickedItem.Tag;
+			var tabData = (KeyValuePair<IInteropWindow, int>)clickedItem.Tag;
 			BeginInvoke((MethodInvoker)delegate {
 				var ieWindowToCapture = tabData.Key;
 				if (ieWindowToCapture != null && ieWindowToCapture.IsMinimized()) {
@@ -1074,7 +1074,7 @@ namespace Greenshot.Forms {
 			if (_settingsForm != null)
 			{
 				// TODO: Await?
-				InteropWindowExtensions.ToForegroundAsync(_settingsForm.Handle);
+				InteropWindowFactory.CreateFor(_settingsForm.Handle).ToForegroundAsync();
 			} else {
 				try {
 					using (_settingsForm = new SettingsForm()) {
@@ -1100,8 +1100,9 @@ namespace Greenshot.Forms {
 		public void ShowAbout() {
 			if (_aboutForm != null) {
 				// TODO: Await?
-				InteropWindowExtensions.ToForegroundAsync(_aboutForm.Handle);
-			} else {
+				InteropWindowFactory.CreateFor(_aboutForm.Handle).ToForegroundAsync();
+			}
+			else {
 				try {
 					using (_aboutForm = new AboutForm()) {
 						_aboutForm.ShowDialog(this);

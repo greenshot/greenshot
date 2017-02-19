@@ -353,7 +353,7 @@ namespace GreenshotPlugin.Core
 					// create a bitmap we can copy it to, using GetDeviceCaps to get the width/height
 					IntPtr bits0; // not used for our purposes. It returns a pointer to the raw bits that make up the bitmap.
 					// TODO: Change the usage to an enum?
-					using (var safeDibSectionHandle = Gdi32.CreateDIBSection(desktopDcHandle, ref bmi, BitmapInfoHeader.DIB_RGB_COLORS, out bits0, IntPtr.Zero, 0))
+					using (var safeDibSectionHandle = Gdi32.CreateDIBSection(desktopDcHandle, ref bmi, 0, out bits0, IntPtr.Zero, 0))
 					{
 						if (safeDibSectionHandle.IsInvalid)
 						{
@@ -412,8 +412,7 @@ namespace GreenshotPlugin.Core
 									using (var tmpBitmap = Image.FromHbitmap(safeDibSectionHandle.DangerousGetHandle()))
 									{
 										// Create a new bitmap which has a transparent background
-										returnBitmap = ImageHelper.CreateEmpty(tmpBitmap.Width, tmpBitmap.Height, PixelFormat.Format32bppArgb, Color.Transparent, tmpBitmap.HorizontalResolution,
-											tmpBitmap.VerticalResolution);
+										returnBitmap = ImageHelper.CreateEmpty(tmpBitmap.Width, tmpBitmap.Height, PixelFormat.Format32bppArgb, Color.Transparent, tmpBitmap.HorizontalResolution, tmpBitmap.VerticalResolution);
 										// Content will be copied here
 										using (var graphics = Graphics.FromImage(returnBitmap))
 										{

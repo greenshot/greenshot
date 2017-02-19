@@ -165,7 +165,7 @@ namespace GreenshotPlugin.Core
 		/// </summary>
 		/// <param name="browserWindowDetails">The browser WindowDetails</param>
 		/// <returns>WindowDetails for the DirectUI window</returns>
-		public static InteropWindow GetDirectUi(InteropWindow browserWindowDetails)
+		public static IInteropWindow GetDirectUi(IInteropWindow browserWindowDetails)
 		{
 			if (browserWindowDetails == null)
 			{

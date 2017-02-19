@@ -54,7 +54,7 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		///     Get the file path to the exe for the process which owns this window
 		/// </summary>
-		public static string GetProcessPath(this InteropWindow interopWindow)
+		public static string GetProcessPath(this IInteropWindow interopWindow)
 		{
 			int processid = interopWindow.GetProcessId();
 			return Kernel32.GetProcessPath(processid);
@@ -63,11 +63,11 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		///     Get the icon belonging to the process
 		/// </summary>
-		public static Image GetDisplayIcon(this InteropWindow interopWindow)
+		public static Image GetDisplayIcon(this IInteropWindow interopWindow)
 		{
 			try
 			{
-				using (var appIcon = User32.GetIcon(interopWindow, CoreConfiguration.UseLargeIcons))
+				using (var appIcon = User32.GetIcon(interopWindow.Handle, CoreConfiguration.UseLargeIcons))
 				{
 					if (appIcon != null)
 					{
@@ -101,7 +101,7 @@ namespace GreenshotPlugin.Core
 		/// <param name="interopWindow">InteropWindow</param>
 		/// <param name="clientBounds">true to use the client bounds</param>
 		/// <returns>Bitmap</returns>
-		public static Bitmap CaptureFromScreen(this InteropWindow interopWindow, bool clientBounds = false)
+		public static Bitmap CaptureFromScreen(this IInteropWindow interopWindow, bool clientBounds = false)
 		{
 			var bounds = clientBounds ? interopWindow.GetClientBounds() : interopWindow.GetBounds();
 			return WindowCapture.CaptureRectangle(bounds);
@@ -110,10 +110,10 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		///     Capture Window with GDI+
 		/// </summary>
-		/// <param name="interopWindow">InteropWindow</param>
+		/// <param name="interopWindow">IInteropWindow</param>
 		/// <param name="capture">The capture to fill</param>
 		/// <returns>ICapture</returns>
-		public static ICapture CaptureGdiWindow(this InteropWindow interopWindow, ICapture capture)
+		public static ICapture CaptureGdiWindow(this IInteropWindow interopWindow, ICapture capture)
 		{
 			var capturedImage = interopWindow.PrintWindow();
 			if (capturedImage != null)
@@ -130,7 +130,7 @@ namespace GreenshotPlugin.Core
 		///     As GDI+ draws it, it will be without Aero borders!
 		/// TODO: If there is a parent, this could be removed with SetParent, and set back afterwards.
 		/// </summary>
-		public static Image PrintWindow(this InteropWindow nativeWindow)
+		public static Image PrintWindow(this IInteropWindow nativeWindow)
 		{
 			var bounds = nativeWindow.GetBounds();
 			// Start the capture
@@ -188,11 +188,12 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		///     Capture DWM Window
 		/// </summary>
+		/// <param name="interopWindow">IInteropWindow</param>
 		/// <param name="capture">Capture to fill</param>
 		/// <param name="windowCaptureMode">Wanted WindowCaptureModes</param>
 		/// <param name="autoMode">True if auto modus is used</param>
 		/// <returns>ICapture with the capture</returns>
-		public static ICapture CaptureDwmWindow(this InteropWindow interopWindow, ICapture capture, WindowCaptureModes windowCaptureMode, bool autoMode)
+		public static ICapture CaptureDwmWindow(this IInteropWindow interopWindow, ICapture capture, WindowCaptureModes windowCaptureMode, bool autoMode)
 		{
 			var thumbnailHandle = IntPtr.Zero;
 			Form tempForm = null;

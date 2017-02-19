@@ -34,6 +34,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Windows;
 using Dapplo.Windows.App;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Native;
@@ -41,6 +42,7 @@ using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using Dapplo.Windows.Enums;
+using Dapplo.Windows.Structs;
 
 namespace Greenshot.Helpers {
 	/// <summary>
@@ -51,8 +53,8 @@ namespace Greenshot.Helpers {
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 		// TODO: when we get the screen capture code working correctly, this needs to be enabled
 		//private static ScreenCaptureHelper screenCapture = null;
-		private List<InteropWindow> _windows = new List<InteropWindow>();
-		private InteropWindow _selectedCaptureWindow;
+		private List<IInteropWindow> _windows = new List<IInteropWindow>();
+		private IInteropWindow _selectedCaptureWindow;
 		private Rectangle _captureRect = Rectangle.Empty;
 		private readonly bool _captureMouseCursor;
 		private ICapture _capture;
@@ -120,7 +122,7 @@ namespace Greenshot.Helpers {
 			}
 		}
 
-		public static void CaptureIe(bool captureMouse, InteropWindow windowToCapture) {
+		public static void CaptureIe(bool captureMouse, IInteropWindow windowToCapture) {
 			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.IE, captureMouse)) {
 				captureHelper.SelectedCaptureWindow = windowToCapture;
 				captureHelper.MakeCapture();
@@ -133,7 +135,7 @@ namespace Greenshot.Helpers {
 			}
 		}
 
-		public static void CaptureWindow(InteropWindow windowToCapture) {
+		public static void CaptureWindow(IInteropWindow windowToCapture) {
 			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.ActiveWindow)) {
 				captureHelper.SelectedCaptureWindow = windowToCapture;
 				captureHelper.MakeCapture();
@@ -188,7 +190,7 @@ namespace Greenshot.Helpers {
 			_capture.CaptureDetails.AddDestination(destination);
 		}
 		
-		public InteropWindow SelectedCaptureWindow {
+		public IInteropWindow SelectedCaptureWindow {
 			get {
 				return _selectedCaptureWindow;
 			}
@@ -404,7 +406,7 @@ namespace Greenshot.Helpers {
 						//}
 
 						// Set capture title, fixing bug #3569703
-						foreach (InteropWindow window in InteropWindowQuery.GetTopWindows()) {
+						foreach (var window in InteropWindowQuery.GetTopWindows()) {
 							Point estimatedLocation = new Point(CoreConfig.LastCapturedRegion.X + CoreConfig.LastCapturedRegion.Width / 2, CoreConfig.LastCapturedRegion.Y + CoreConfig.LastCapturedRegion.Height / 2);
 							if (window.GetBounds().Contains(estimatedLocation)) {
 								_selectedCaptureWindow = window;
@@ -449,7 +451,7 @@ namespace Greenshot.Helpers {
 		/// Pre-Initialization for CaptureWithFeedback, this will get all the windows before we change anything
 		/// </summary>
 		private void PrepareForCaptureWithFeedback() {
-			_windows = new List<InteropWindow>();
+			_windows = new List<IInteropWindow>();
 
 			// If the App Launcher is visisble, no other windows are active
 			if (AppQuery.IsLauncherVisible) {
@@ -670,7 +672,7 @@ namespace Greenshot.Helpers {
 		/// </summary>
 		/// <param name="windowToCapture">WindowDetails with the target Window</param>
 		/// <returns>WindowDetails with the target Window OR a replacement</returns>
-		public static InteropWindow SelectCaptureWindow(InteropWindow windowToCapture) {
+		public static IInteropWindow SelectCaptureWindow(IInteropWindow windowToCapture) {
 			Rectangle windowRectangle = windowToCapture.GetBounds();
 			if (windowRectangle.Width == 0 || windowRectangle.Height == 0) {
 				Log.WarnFormat("Window {0} has nothing to capture, using workaround to find other window of same process.", windowToCapture.Text);
@@ -711,11 +713,11 @@ namespace Greenshot.Helpers {
 		/// <summary>
 		/// Capture the supplied Window
 		/// </summary>
-		/// <param name="windowToCapture">Window to capture</param>
+		/// <param name="windowToCapture">IInteropWindow to capture</param>
 		/// <param name="captureForWindow">The capture to store the details</param>
 		/// <param name="windowCaptureMode">What WindowCaptureModes to use</param>
-		/// <returns></returns>
-		public static ICapture CaptureWindow(InteropWindow windowToCapture, ICapture captureForWindow, WindowCaptureModes windowCaptureMode) {
+		/// <returns>ICapture</returns>
+		public static ICapture CaptureWindow(IInteropWindow windowToCapture, ICapture captureForWindow, WindowCaptureModes windowCaptureMode) {
 			if (captureForWindow == null) {
 				captureForWindow = new Capture();
 			}
@@ -932,11 +934,31 @@ namespace Greenshot.Helpers {
 					var windowScroller = captureForm.WindowScroller;
 					if (windowScroller != null)
 					{
-						User32.SetForegroundWindow(windowScroller.ScrollingArea);
+						User32.SetForegroundWindow(windowScroller.ScrollingArea.Handle);
 						Application.DoEvents();
 						Thread.Sleep(100);
 						Application.DoEvents();
-						windowScroller.ScrollMode = ScrollModes.MouseWheel;
+						windowScroller.ScrollMode = ScrollModes.WindowsMessage;
+
+						var clientBounds = windowScroller.ScrollingArea.GetClientBounds();
+						int clientHeight = clientBounds.Height;
+						// Correct when we have scrollbar info
+						if (windowScroller.ScrollBarInfo.HasValue)
+						{
+							Rectangle scrollbarRect = windowScroller.ScrollBarInfo.Value.rcScrollBar;
+							clientHeight = Math.Abs(scrollbarRect.Height);
+						}
+						var scrollInfo = windowScroller.InitialScrollInfo;
+						// Get the number of lines
+						var lines = 1+ (scrollInfo.nMax - scrollInfo.nMin);
+						// Calculate the height of a single line
+						var lineHeight = (double)clientHeight / (scrollInfo.nPage+1);
+						// Calculate the total height
+						var height = lineHeight * lines;
+						var totalSize = new Size(clientBounds.Width, (int)height);
+						Log.InfoFormat("Size should be: {0}, a single n = {1} pixels", totalSize, lineHeight);
+						var resultImage = ImageHelper.CreateEmpty(clientBounds.Width, (int) height, PixelFormat.Format32bppArgb, Color.Transparent, _capture.Image.HorizontalResolution, _capture.Image.VerticalResolution);
+
 						// Move the window to the start
 						windowScroller.Start();
 
@@ -946,25 +968,10 @@ namespace Greenshot.Helpers {
 							Application.DoEvents();
 							Thread.Sleep(100);
 							Application.DoEvents();
-							int capture = 0;
 							if (windowScroller.IsAtStart)
 							{
 								// First capture
-								using (var bitmap = windowScroller.ScrollingArea.CaptureFromScreen(true))
-								{
-									// Cover the scrollbar
-									if (windowScroller.ScrollBarInfo.HasValue)
-									{
-										Rectangle scrollbarRect = windowScroller.ScrollBarInfo.Value.rcScrollBar;
-										var location = windowScroller.ScrollingArea.GetBounds().Location;
-										scrollbarRect.Offset(-location.X, -location.Y);
-										using (var graphics = Graphics.FromImage(bitmap))
-										{
-											graphics.FillRectangle(Brushes.Black, scrollbarRect);
-										}
-									}
-									bitmap.Save($@"scroll-{capture++}.png", ImageFormat.Png);
-								}
+								ScrollingCapture(windowScroller, lineHeight, resultImage);
 
 								// Loop
 								do
@@ -975,21 +982,7 @@ namespace Greenshot.Helpers {
 									Application.DoEvents();
 									Thread.Sleep(100);
 									Application.DoEvents();
-									using (var bitmap = windowScroller.ScrollingArea.CaptureFromScreen(true))
-									{
-										// Cover the scrollbar
-										if (windowScroller.ScrollBarInfo.HasValue)
-										{
-											Rectangle scrollbarRect = windowScroller.ScrollBarInfo.Value.rcScrollBar;
-											var location = windowScroller.ScrollingArea.GetBounds().Location;
-											scrollbarRect.Offset(-location.X, -location.Y);
-											using (var graphics = Graphics.FromImage(bitmap))
-											{
-												graphics.FillRectangle(Brushes.Black, scrollbarRect);
-											}
-										}
-										bitmap.Save($@"scroll-{capture++}.png", ImageFormat.Png);
-									}
+									ScrollingCapture(windowScroller, lineHeight, resultImage);
 									// Loop as long as we are not at the end yet
 								} while (!windowScroller.IsAtEnd);
 
@@ -1004,6 +997,13 @@ namespace Greenshot.Helpers {
 							// Try to reset location
 							windowScroller.Reset();
 						}
+
+						_capture = new Capture(resultImage)
+						{
+							CaptureDetails = _capture.CaptureDetails
+						};
+						HandleCapture();
+						return;
 					}
 
 					if (_captureRect.Height * _captureRect.Width > 0) {
@@ -1020,7 +1020,42 @@ namespace Greenshot.Helpers {
 				}
 			}
 		}
-		
+
+		/// <summary>
+		/// Helper method for the scrolling capture
+		/// </summary>
+		/// <param name="windowScroller"></param>
+		/// <param name="lineHeight">the height of an "n"</param>
+		/// <param name="target"></param>
+		private void ScrollingCapture(WindowScroller windowScroller, double lineHeight, Bitmap target)
+		{
+			using (var bitmap = windowScroller.ScrollingArea.CaptureFromScreen(true))
+			{
+				// Cover the scrollbar
+				if (windowScroller.ScrollBarInfo.HasValue)
+				{
+					Rectangle scrollbarRect = windowScroller.ScrollBarInfo.Value.rcScrollBar;
+					if (scrollbarRect.IntersectsWith(windowScroller.ScrollingArea.GetBounds()))
+					{
+						var location = windowScroller.ScrollingArea.GetBounds().Location;
+						scrollbarRect.Offset(-location.X, -location.Y);
+						using (var graphics = Graphics.FromImage(bitmap))
+						{
+							graphics.FillRectangle(Brushes.Black, scrollbarRect);
+						}
+					}
+				}
+				ScrollInfo scrollInfo;
+				windowScroller.GetPosition(out scrollInfo);
+				double absoluteNPos = scrollInfo.nPos - scrollInfo.nMin;
+				Log.DebugFormat("Scrollinfo: {0}, taking position {1}", scrollInfo, absoluteNPos);
+				using (var graphics = Graphics.FromImage(target))
+				{
+					graphics.DrawImageUnscaled(bitmap, 0, (int) (lineHeight * absoluteNPos));
+				}
+			}
+		}
+
 		#endregion
 	}
 }

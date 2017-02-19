@@ -202,13 +202,12 @@ namespace GreenshotPlugin.Controls
 		///     Make sure the form is visible, if this is wanted
 		/// </summary>
 		/// <param name="e">EventArgs</param>
-		protected override void OnShown(EventArgs e)
+		protected override async void OnShown(EventArgs e)
 		{
 			base.OnShown(e);
 			if (ToFront)
 			{
-				// TODO: await?
-				InteropWindowExtensions.ToForegroundAsync(Handle);
+				await InteropWindowFactory.CreateFor(Handle).ToForegroundAsync();
 			}
 		}
 

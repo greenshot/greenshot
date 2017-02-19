@@ -90,7 +90,7 @@ namespace GreenshotPlugin.Controls
 		/// </summary>
 		/// <param name="window">WindowDetails</param>
 		/// <param name="parentControl">Control</param>
-		public void ShowThumbnail(InteropWindow window, Control parentControl)
+		public void ShowThumbnail(IInteropWindow window, Control parentControl)
 		{
 			UnregisterThumbnail();
 

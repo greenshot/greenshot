@@ -108,7 +108,8 @@ namespace Greenshot {
 			{
 				EditorConfiguration.ResetEditorPlacement();
 			}
-			InteropWindowExtensions.SetPlacement(Handle, EditorConfiguration.GetEditorPlacement());
+			var placement = EditorConfiguration.GetEditorPlacement();
+			User32.SetWindowPlacement(Handle, ref placement);
 
 			// init surface
 			Surface = iSurface;
@@ -175,7 +176,7 @@ namespace Greenshot {
 			}
 			Activate();
 			// TODO: Await?
-			InteropWindowExtensions.ToForegroundAsync(Handle);
+			InteropWindowFactory.CreateFor(Handle).ToForegroundAsync();
 
 		}
 
@@ -748,11 +749,13 @@ namespace Greenshot {
 			UpdateUndoRedoSurfaceDependencies();
 		}
 
-		private void ImageEditorFormFormClosing(object sender, FormClosingEventArgs e) {
+		private void ImageEditorFormFormClosing(object sender, FormClosingEventArgs e)
+		{
+			var interopWindow = InteropWindowFactory.CreateFor(Handle);
 			if (_surface.Modified && !EditorConfiguration.SuppressSaveDialogAtClose) {
 				// Make sure the editor is visible
 				// TODO: Await?
-				InteropWindowExtensions.ToForegroundAsync(Handle);
+				interopWindow.ToForegroundAsync();
 
 				MessageBoxButtons buttons = MessageBoxButtons.YesNoCancel;
 				// Dissallow "CANCEL" if the application needs to shutdown
@@ -774,8 +777,7 @@ namespace Greenshot {
 				}
 			}
 			// persist our geometry string.
-
-			EditorConfiguration.SetEditorPlacement(InteropWindowExtensions.GetPlacement(Handle));
+			EditorConfiguration.SetEditorPlacement(interopWindow.GetPlacement());
 			IniConfig.Save();
 			
 			// remove from the editor list
@@ -1296,7 +1298,7 @@ namespace Greenshot {
 		private void Contextmenu_window_Click(object sender, EventArgs e) {
 			ToolStripMenuItem clickedItem = (ToolStripMenuItem)sender;
 			try {
-				var windowToCapture = (InteropWindow)clickedItem.Tag;
+				var windowToCapture = (IInteropWindow)clickedItem.Tag;
 				ICapture capture = new Capture();
 				using (Graphics graphics = Graphics.FromHwnd(Handle)) {
 					capture.CaptureDetails.DpiX = graphics.DpiY;
@@ -1311,7 +1313,7 @@ namespace Greenshot {
 					}
 					Activate();
 					// TODO: Await?
-					InteropWindowExtensions.ToForegroundAsync(Handle);
+					InteropWindowFactory.CreateFor(Handle).ToForegroundAsync();
 				}
 
 				capture?.Dispose();

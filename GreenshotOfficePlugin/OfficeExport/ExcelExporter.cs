@@ -82,7 +82,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 				if (hWnd > 0)
 				{
 					// TODO: Await
-					InteropWindowExtensions.ToForegroundAsync(new IntPtr(hWnd));
+					InteropWindowFactory.CreateFor(new IntPtr(hWnd)).ToForegroundAsync();
 				}
 			}
 		}
