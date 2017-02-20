@@ -21,7 +21,7 @@
 
 using System.Reflection;
 
-namespace Greenshot {
+namespace Greenshot.Forms {
 	partial class AboutForm {
 		/// <summary>
 		/// Designer variable used to keep track of non-visual components.
@@ -160,7 +160,7 @@ namespace Greenshot {
 			this.lblIcons.LanguageKey = "about_icons";
 			this.lblIcons.Location = new System.Drawing.Point(12, 224);
 			this.lblIcons.Name = "lblIcons";
-            this.lblIcons.Size = new System.Drawing.Size(530, 23);
+			this.lblIcons.Size = new System.Drawing.Size(530, 23);
 			this.lblIcons.TabIndex = 11;
 			// 
 			// linkLabel1

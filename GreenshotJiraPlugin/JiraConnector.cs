@@ -33,6 +33,7 @@ using Dapplo.Jira;
 using Dapplo.Jira.Converters;
 using Dapplo.Jira.Entities;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Core.Credentials;
 using GreenshotPlugin.IniFile;
 
 namespace GreenshotJiraPlugin {

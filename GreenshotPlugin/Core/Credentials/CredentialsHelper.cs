@@ -34,7 +34,7 @@ using System.Windows.Forms;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace GreenshotPlugin.Core.Credentials
 {
 	/// <summary>
 	///     The following code comes from: http://www.developerfusion.com/code/4693/using-the-credential-management-api/
@@ -375,9 +375,9 @@ namespace GreenshotPlugin.Core
 			var confirmResult = CredUi.CredUIConfirmCredentials(Target, value);
 			switch (confirmResult)
 			{
-				case CredUi.ReturnCodes.NO_ERROR:
+				case CredUIReturnCodes.NO_ERROR:
 					break;
-				case CredUi.ReturnCodes.ERROR_INVALID_PARAMETER:
+				case CredUIReturnCodes.ERROR_INVALID_PARAMETER:
 					// for some reason, this is encountered when credentials are overwritten
 					break;
 				default:
@@ -431,9 +431,9 @@ namespace GreenshotPlugin.Core
 
 		/// <summary>Returns the info structure for dialog display settings.</summary>
 		/// <param name="owner">The System.Windows.Forms.IWin32Window the dialog will display in front of.</param>
-		private CredUi.INFO GetInfo(IWin32Window owner)
+		private CredUiInfo GetInfo(IWin32Window owner)
 		{
-			var info = new CredUi.INFO();
+			var info = new CredUiInfo();
 			if (owner != null)
 			{
 				info.hwndParent = owner.Handle;
@@ -449,45 +449,45 @@ namespace GreenshotPlugin.Core
 		}
 
 		/// <summary>Returns the flags for dialog display options.</summary>
-		private CredUi.CredFlags GetFlags()
+		private CredFlags GetFlags()
 		{
-			var credFlags = CredUi.CredFlags.GENERIC_CREDENTIALS;
+			var credFlags = CredFlags.GENERIC_CREDENTIALS;
 
 			if (IncorrectPassword)
 			{
-				credFlags = credFlags | CredUi.CredFlags.INCORRECT_PASSWORD;
+				credFlags = credFlags | CredFlags.INCORRECT_PASSWORD;
 			}
 
 			if (AlwaysDisplay)
 			{
-				credFlags = credFlags | CredUi.CredFlags.ALWAYS_SHOW_UI;
+				credFlags = credFlags | CredFlags.ALWAYS_SHOW_UI;
 			}
 
 			if (ExcludeCertificates)
 			{
-				credFlags = credFlags | CredUi.CredFlags.EXCLUDE_CERTIFICATES;
+				credFlags = credFlags | CredFlags.EXCLUDE_CERTIFICATES;
 			}
 
 			if (Persist)
 			{
-				credFlags = credFlags | CredUi.CredFlags.EXPECT_CONFIRMATION;
+				credFlags = credFlags | CredFlags.EXPECT_CONFIRMATION;
 				if (SaveDisplayed)
 				{
-					credFlags = credFlags | CredUi.CredFlags.SHOW_SAVE_CHECK_BOX;
+					credFlags = credFlags | CredFlags.SHOW_SAVE_CHECK_BOX;
 				}
 				else
 				{
-					credFlags = credFlags | CredUi.CredFlags.PERSIST;
+					credFlags = credFlags | CredFlags.PERSIST;
 				}
 			}
 			else
 			{
-				credFlags = credFlags | CredUi.CredFlags.DO_NOT_PERSIST;
+				credFlags = credFlags | CredFlags.DO_NOT_PERSIST;
 			}
 
 			if (KeepName)
 			{
-				credFlags = credFlags | CredUi.CredFlags.KEEP_USERNAME;
+				credFlags = credFlags | CredFlags.KEEP_USERNAME;
 			}
 
 			return credFlags;
@@ -495,123 +495,33 @@ namespace GreenshotPlugin.Core
 
 		/// <summary>Returns a DialogResult from the specified code.</summary>
 		/// <param name="code">The credential return code.</param>
-		private DialogResult GetDialogResult(CredUi.ReturnCodes code)
+		private DialogResult GetDialogResult(CredUIReturnCodes code)
 		{
 			DialogResult result;
 			switch (code)
 			{
-				case CredUi.ReturnCodes.NO_ERROR:
+				case CredUIReturnCodes.NO_ERROR:
 					result = DialogResult.OK;
 					break;
-				case CredUi.ReturnCodes.ERROR_CANCELLED:
+				case CredUIReturnCodes.ERROR_CANCELLED:
 					result = DialogResult.Cancel;
 					break;
-				case CredUi.ReturnCodes.ERROR_NO_SUCH_LOGON_SESSION:
+				case CredUIReturnCodes.ERROR_NO_SUCH_LOGON_SESSION:
 					throw new ApplicationException("No such logon session.");
-				case CredUi.ReturnCodes.ERROR_NOT_FOUND:
+				case CredUIReturnCodes.ERROR_NOT_FOUND:
 					throw new ApplicationException("Not found.");
-				case CredUi.ReturnCodes.ERROR_INVALID_ACCOUNT_NAME:
+				case CredUIReturnCodes.ERROR_INVALID_ACCOUNT_NAME:
 					throw new ApplicationException("Invalid account name.");
-				case CredUi.ReturnCodes.ERROR_INSUFFICIENT_BUFFER:
+				case CredUIReturnCodes.ERROR_INSUFFICIENT_BUFFER:
 					throw new ApplicationException("Insufficient buffer.");
-				case CredUi.ReturnCodes.ERROR_INVALID_PARAMETER:
+				case CredUIReturnCodes.ERROR_INVALID_PARAMETER:
 					throw new ApplicationException("Invalid parameter.");
-				case CredUi.ReturnCodes.ERROR_INVALID_FLAGS:
+				case CredUIReturnCodes.ERROR_INVALID_FLAGS:
 					throw new ApplicationException("Invalid flags.");
 				default:
 					throw new ApplicationException("Unknown credential result encountered.");
 			}
 			return result;
-		}
-	}
-
-	internal static class CredUi
-	{
-		/// <summary>
-		///     http://www.pinvoke.net/default.aspx/Enums.CREDUI_FLAGS
-		///     http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnnetsec/html/dpapiusercredentials.asp
-		///     http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/creduipromptforcredentials.asp
-		/// </summary>
-		[Flags]
-		public enum CredFlags
-		{
-			INCORRECT_PASSWORD = 0x1,
-			DO_NOT_PERSIST = 0x2,
-			REQUEST_ADMINISTRATOR = 0x4,
-			EXCLUDE_CERTIFICATES = 0x8,
-			REQUIRE_CERTIFICATE = 0x10,
-			SHOW_SAVE_CHECK_BOX = 0x40,
-			ALWAYS_SHOW_UI = 0x80,
-			REQUIRE_SMARTCARD = 0x100,
-			PASSWORD_ONLY_OK = 0x200,
-			VALIDATE_USERNAME = 0x400,
-			COMPLETE_USERNAME = 0x800,
-			PERSIST = 0x1000,
-			SERVER_CREDENTIAL = 0x4000,
-			EXPECT_CONFIRMATION = 0x20000,
-			GENERIC_CREDENTIALS = 0x40000,
-			USERNAME_TARGET_CREDENTIALS = 0x80000,
-			KEEP_USERNAME = 0x100000
-		}
-
-		/// <summary>http://www.pinvoke.net/default.aspx/Enums.CredUIReturnCodes</summary>
-		public enum ReturnCodes
-		{
-			NO_ERROR = 0,
-			ERROR_INVALID_PARAMETER = 87,
-			ERROR_INSUFFICIENT_BUFFER = 122,
-			ERROR_INVALID_FLAGS = 1004,
-			ERROR_NOT_FOUND = 1168,
-			ERROR_CANCELLED = 1223,
-			ERROR_NO_SUCH_LOGON_SESSION = 1312,
-			ERROR_INVALID_ACCOUNT_NAME = 1315
-		}
-
-		/// <summary>http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/authentication_constants.asp</summary>
-		public const int MAX_MESSAGE_LENGTH = 100;
-
-		public const int MAX_CAPTION_LENGTH = 100;
-		public const int MAX_GENERIC_TARGET_LENGTH = 100;
-		public const int MAX_DOMAIN_TARGET_LENGTH = 100;
-		public const int MAX_USERNAME_LENGTH = 100;
-		public const int MAX_PASSWORD_LENGTH = 100;
-
-		/// <summary>
-		///     http://www.pinvoke.net/default.aspx/credui.CredUIPromptForCredentialsW
-		///     http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/creduipromptforcredentials.asp
-		/// </summary>
-		[DllImport("credui", CharSet = CharSet.Unicode)]
-		public static extern ReturnCodes CredUIPromptForCredentials(
-			ref INFO creditUR,
-			string targetName,
-			IntPtr reserved1,
-			int iError,
-			StringBuilder userName,
-			int maxUserName,
-			StringBuilder password,
-			int maxPassword,
-			ref int iSave,
-			CredFlags credFlags
-		);
-
-		/// <summary>
-		///     http://www.pinvoke.net/default.aspx/credui.CredUIConfirmCredentials
-		///     http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/creduiconfirmcredentials.asp
-		/// </summary>
-		[DllImport("credui.dll", CharSet = CharSet.Unicode)]
-		public static extern ReturnCodes CredUIConfirmCredentials(string targetName, [MarshalAs(UnmanagedType.Bool)] bool confirm);
-
-		/// <summary>
-		///     http://www.pinvoke.net/default.aspx/Structures.CREDUI_INFO
-		///     http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/credui_info.asp
-		/// </summary>
-		public struct INFO
-		{
-			public int cbSize;
-			public IntPtr hwndParent;
-			[MarshalAs(UnmanagedType.LPWStr)] public string pszMessageText;
-			[MarshalAs(UnmanagedType.LPWStr)] public string pszCaptionText;
-			public IntPtr hbmBanner;
 		}
 	}
 }

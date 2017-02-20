@@ -24,6 +24,7 @@ using System.Windows.Forms;
 using GreenshotConfluencePlugin;
 using GreenshotConfluencePlugin.confluence;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Core.Credentials;
 using GreenshotPlugin.IniFile;
 
 namespace Confluence {

@@ -20,28 +20,26 @@
 */
 
 using System;
-using System.Diagnostics;
-using System.Reflection;
-using System.Windows.Forms;
-using System.IO;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
 using System.Drawing.Drawing2D;
-
-using Greenshot.Helpers;
-using Greenshot.Configuration;
-using GreenshotPlugin.Core;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Reflection;
 using System.Security.Permissions;
-using Greenshot.Forms;
+using System.Windows.Forms;
+using Greenshot.Configuration;
+using Greenshot.Helpers;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using log4net;
 
-namespace Greenshot {
+namespace Greenshot.Forms {
 	/// <summary>
 	/// The about form
 	/// </summary>
-	public partial class AboutForm : AnimatingBaseForm {
+	public sealed partial class AboutForm : AnimatingBaseForm {
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(AboutForm));
 		private Bitmap _bitmap;
 		private readonly ColorAnimator _backgroundAnimation;
@@ -71,43 +69,43 @@ namespace Greenshot {
 		/// <summary>
 		/// The location of every dot in the "G"
 		/// </summary>
-		private readonly List<Point> gSpots = new List<Point>() {
-             	// Top row
-             	new Point(p2, p1),	// 0
-             	new Point(p3, p1),  // 1
-             	new Point(p4, p1),  // 2
-             	new Point(p5, p1),	// 3
-             	new Point(p6, p1),	// 4
+		private readonly IList<Point> _gSpots = new List<Point>() {
+				// Top row
+				new Point(p2, p1),	// 0
+				new Point(p3, p1),  // 1
+				new Point(p4, p1),  // 2
+				new Point(p5, p1),	// 3
+				new Point(p6, p1),	// 4
 
-             	// Second row
-             	new Point(p1, p2),	// 5
-             	new Point(p2, p2),	// 6
+				// Second row
+				new Point(p1, p2),	// 5
+				new Point(p2, p2),	// 6
 
-             	// Third row
-             	new Point(p1, p3),	// 7
-             	new Point(p2, p3),	// 8
+				// Third row
+				new Point(p1, p3),	// 7
+				new Point(p2, p3),	// 8
 
-             	// Fourth row
-             	new Point(p1, p4),	// 9
-             	new Point(p2, p4),	// 10
-             	new Point(p5, p4),	// 11
-             	new Point(p6, p4),	// 12
-             	new Point(p7, p4),	// 13
+				// Fourth row
+				new Point(p1, p4),	// 9
+				new Point(p2, p4),	// 10
+				new Point(p5, p4),	// 11
+				new Point(p6, p4),	// 12
+				new Point(p7, p4),	// 13
 
-             	// Fifth row
-             	new Point(p1, p5),	// 14
-             	new Point(p2, p5),	// 15
-             	new Point(p6, p5),	// 16
-             	new Point(p7, p5),	// 17
+				// Fifth row
+				new Point(p1, p5),	// 14
+				new Point(p2, p5),	// 15
+				new Point(p6, p5),	// 16
+				new Point(p7, p5),	// 17
 
-             	// Sixth row
-             	new Point(p1, p6),	// 18
-             	new Point(p2, p6),	// 19
-             	new Point(p3, p6),	// 20
-             	new Point(p4, p6),	// 21
-             	new Point(p5, p6),	// 22
-             	new Point(p6, p6)	// 23
-             };
+				// Sixth row
+				new Point(p1, p6),	// 18
+				new Point(p2, p6),	// 19
+				new Point(p3, p6),	// 20
+				new Point(p4, p6),	// 21
+				new Point(p5, p6),	// 22
+				new Point(p6, p6)	// 23
+			 };
 
 		//     0  1  2  3  4
 		//  5  6
@@ -117,7 +115,7 @@ namespace Greenshot {
 		// 18 19 20 21 22 23
 
 		// The order in which we draw the dots & flow the collors.
-		private readonly List<int> flowOrder = new List<int>() { 4, 3, 2, 1, 0, 5, 6, 7, 8, 9, 10, 14, 15, 18, 19, 20, 21, 22, 23, 16, 17, 13, 12, 11 };
+		private readonly IList<int> _flowOrder = new List<int>() { 4, 3, 2, 1, 0, 5, 6, 7, 8, 9, 10, 14, 15, 18, 19, 20, 21, 22, 23, 16, 17, 13, 12, 11 };
 
 		/// <summary>
 		/// Cleanup all the allocated resources
@@ -165,9 +163,9 @@ namespace Greenshot {
 			// Every pixel is created after pixelWaitFrames frames, which is increased in the loop.
 			int pixelWaitFrames = FramesForMillis(2000);
 			// Create pixels
-			for (int index = 0; index < gSpots.Count; index++) {
+			for (int index = 0; index < _gSpots.Count; index++) {
 				// Read the pixels in the order of the flow
-				Point gSpot = gSpots[flowOrder[index]];
+				Point gSpot = _gSpots[_flowOrder[index]];
 				// Create the animation, first we do nothing (on the final destination)
 				RectangleAnimator pixelAnimation;
 
@@ -333,7 +331,7 @@ namespace Greenshot {
 						return base.ProcessCmdKey(ref msg, keyData);
 				}
 			} catch (Exception ex) {
-				LOG.Error(string.Format("Error handling key '{0}'", keyData), ex);
+				LOG.Error($"Error handling key '{keyData}'", ex);
 			}
 			return true;
 		}

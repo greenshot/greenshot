@@ -40,8 +40,8 @@
       <HintPath>..\packages\Dapplo.Log.1.0.23\lib\net45\Dapplo.Log.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Windows, Version=0.2.44.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.0.2.44\lib\net45\Dapplo.Windows.dll</HintPath>
+    <Reference Include="Dapplo.Windows, Version=0.2.47.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.0.2.47\lib\net45\Dapplo.Windows.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="log4net">
@@ -79,6 +79,10 @@
     </Compile>
     <Compile Include="Core\Capture.cs" />
     <Compile Include="Core\CaptureDetails.cs" />
+    <Compile Include="Core\Credentials\CredFlags.cs" />
+    <Compile Include="Core\Credentials\CredUi.cs" />
+    <Compile Include="Core\Credentials\CredUiInfo.cs" />
+    <Compile Include="Core\Credentials\CredUIReturnCodes.cs" />
     <Compile Include="Core\Enums\BuildStates.cs" />
     <Compile Include="Core\Enums\ClickActions.cs" />
     <Compile Include="Core\Enums\ClipboardFormats.cs" />
@@ -238,7 +242,7 @@
     <Compile Include="Core\Cache.cs" />
     <Compile Include="Core\ClipboardHelper.cs" />
     <Compile Include="Core\CoreConfiguration.cs" />
-    <Compile Include="Core\CredentialsHelper.cs" />
+    <Compile Include="Core\Credentials\CredentialsHelper.cs" />
     <Compile Include="Effects\DropShadowEffect.cs" />
     <Compile Include="Core\StringExtensions.cs" />
     <Compile Include="Core\FilenameHelper.cs" />
