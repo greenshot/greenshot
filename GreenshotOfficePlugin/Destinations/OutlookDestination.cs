@@ -31,7 +31,7 @@ using System.Windows.Forms;
 using GreenshotOfficePlugin.OfficeExport;
 using GreenshotOfficePlugin.OfficeInterop;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Core.Gfx;
+using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;

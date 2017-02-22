@@ -30,7 +30,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Dapplo.Windows.Native;
-using GreenshotPlugin.Core.Gfx;
+using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces.Forms;
 using GreenshotPlugin.Interfaces.Plugin;

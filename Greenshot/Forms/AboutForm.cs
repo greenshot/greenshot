@@ -36,7 +36,7 @@ using System.Windows.Forms;
 using Greenshot.Configuration;
 using Greenshot.Helpers;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Core.Gfx;
+using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using log4net;
 

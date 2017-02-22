@@ -36,7 +36,7 @@ using Greenshot.Configuration;
 using Greenshot.Helpers.IEInterop;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Core.Gfx;
+using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interop;

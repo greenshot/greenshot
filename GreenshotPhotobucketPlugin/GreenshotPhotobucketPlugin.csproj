@@ -89,6 +89,9 @@
       <Name>GreenshotPlugin</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\photobucket-logo.png" />
+  </ItemGroup>
   <PropertyGroup>
     <PreBuildEvent>
 if exist "$(ProjectDir)PhotobucketCredentials.private.cs" (

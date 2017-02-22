@@ -30,6 +30,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using Dapplo.Windows.Native;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.Effects;
 using GreenshotPlugin.IniFile;
@@ -38,7 +39,7 @@ using log4net;
 
 #endregion
 
-namespace GreenshotPlugin.Core.Gfx
+namespace GreenshotPlugin.Gfx
 {
 	/// <summary>
 	///     Description of ImageHelper.
@@ -57,7 +58,7 @@ namespace GreenshotPlugin.Core.Gfx
 				return surface.GetImageForExport();
 			};
 
-			Func<Stream, string, Image> defaultConverter = (stream, s) =>
+			Core.Func<Stream, string, Image> defaultConverter = (stream, s) =>
 			{
 				stream.Position = 0;
 				using (var tmpImage = Image.FromStream(stream, true, true))
@@ -133,9 +134,9 @@ namespace GreenshotPlugin.Core.Gfx
 		/// <summary>
 		///     This is a factory method to create a surface, set from the Greenshot main project
 		/// </summary>
-		public static Func<ISurface> SurfaceFactory { get; set; }
+		public static Core.Func<ISurface> SurfaceFactory { get; set; }
 
-		public static IDictionary<string, Func<Stream, string, Image>> StreamConverters { get; } = new Dictionary<string, Func<Stream, string, Image>>();
+		public static IDictionary<string, Core.Func<Stream, string, Image>> StreamConverters { get; } = new Dictionary<string, Core.Func<Stream, string, Image>>();
 
 		/// <summary>
 		///     Make sure the image is orientated correctly
@@ -1568,10 +1569,11 @@ namespace GreenshotPlugin.Core.Gfx
 		/// <param name="newWidth">int</param>
 		/// <param name="newHeight">int</param>
 		/// <param name="matrix">Matrix</param>
+		/// <param name="interpolationMode">InterpolationMode</param>
 		/// <returns>Image</returns>
-		public static Image ResizeImage(this Image sourceImage, bool maintainAspectRatio, int newWidth, int newHeight, Matrix matrix = null)
+		public static Image ResizeImage(this Image sourceImage, bool maintainAspectRatio, int newWidth, int newHeight, Matrix matrix = null, InterpolationMode interpolationMode = InterpolationMode.HighQualityBicubic)
 		{
-			return ResizeImage(sourceImage, maintainAspectRatio, false, Color.Empty, newWidth, newHeight, matrix);
+			return ResizeImage(sourceImage, maintainAspectRatio, false, Color.Empty, newWidth, newHeight, matrix, interpolationMode);
 		}
 
 		/// <summary>
@@ -1620,8 +1622,9 @@ namespace GreenshotPlugin.Core.Gfx
 		/// <param name="newWidth">new width</param>
 		/// <param name="newHeight">new height</param>
 		/// <param name="matrix"></param>
+		/// <param name="interpolationMode">InterpolationMode</param>
 		/// <returns>a new bitmap with the specified size, the source-Image scaled to fit with aspect ratio locked</returns>
-		public static Image ResizeImage(Image sourceImage, bool maintainAspectRatio, bool canvasUseNewSize, Color backgroundColor, int newWidth, int newHeight, Matrix matrix)
+		public static Image ResizeImage(Image sourceImage, bool maintainAspectRatio, bool canvasUseNewSize, Color backgroundColor, int newWidth, int newHeight, Matrix matrix, InterpolationMode interpolationMode = InterpolationMode.HighQualityBicubic)
 		{
 			var destX = 0;
 			var destY = 0;
@@ -1688,7 +1691,7 @@ namespace GreenshotPlugin.Core.Gfx
 
 			using (var graphics = Graphics.FromImage(newImage))
 			{
-				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+				graphics.InterpolationMode = interpolationMode;
 				using (var wrapMode = new ImageAttributes())
 				{
 					wrapMode.SetWrapMode(WrapMode.TileFlipXY);
@@ -1772,7 +1775,7 @@ namespace GreenshotPlugin.Core.Gfx
 			}
 
 			Image returnImage = null;
-			Func<Stream, string, Image> converter;
+			Core.Func<Stream, string, Image> converter;
 			if (StreamConverters.TryGetValue(extension ?? "", out converter))
 			{
 				returnImage = converter(stream, extension);
@@ -1795,39 +1798,32 @@ namespace GreenshotPlugin.Core.Gfx
 		///     Prepare an "icon" to be displayed correctly scaled
 		/// </summary>
 		/// <param name="original">original icon Bitmap</param>
-		/// <param name="dispose">true if the Bitmap needs to be disposed</param>
+		/// <param name="isNew">bool specifying if the returned image is new and thus needs disposing</param>
 		/// <returns>Image</returns>
-		public static Image ScaleIconForDisplaying(this Image original, bool dispose = false)
+		public static Image ScaleIconForDisplaying(this Image original, out bool isNew)
 		{
 			if (original.Size == CoreConfig.IconSize)
 			{
+				isNew = false;
 				return original;
 			}
-			try
+			isNew = true;
+
+			// TODO: Maybe use Hqx or Hqxz here?
+			if (CoreConfig.IconSize.Width == original.Width * 2)
 			{
-				// TODO: Maybe use Hqx or Hqxz here?
-				if (CoreConfig.IconSize.Width == original.Width * 2)
-				{
-					var scale2X = ((Bitmap) original).Scale2X();
-					return scale2X;
-				}
-				if (CoreConfig.IconSize.Width == original.Width * 4)
-				{
-					// Call scale2x 2x for 4x
-					using (var scale2X = ((Bitmap) original).Scale2X())
-					{
-						return scale2X.Scale2X();
-					}
-				}
-				return (Bitmap) original.ResizeImage(true, CoreConfig.IconSize.Width, CoreConfig.IconSize.Height);
+				var scale2X = ((Bitmap) original).Scale2X();
+				return scale2X;
 			}
-			finally
+			if (CoreConfig.IconSize.Width == original.Width * 4)
 			{
-				if (dispose)
+				// Call scale2x 2x for 4x
+				using (var scale2X = ((Bitmap) original).Scale2X())
 				{
-					original.Dispose();
+					return scale2X.Scale2X();
 				}
 			}
+			return (Bitmap) original.ResizeImage(true, CoreConfig.IconSize.Width, CoreConfig.IconSize.Height, interpolationMode: InterpolationMode.NearestNeighbor);
 		}
 
 		/// <summary>
@@ -1836,7 +1832,7 @@ namespace GreenshotPlugin.Core.Gfx
 		/// <param name="original">Bitmap to scale 2x</param>
 		public static Bitmap Scale2X(this Image original)
 		{
-			using (var source = FastBitmap.Create(original))
+			using (var source = (IFastBitmapWithClip)FastBitmap.Create(original))
 			using (var destination = FastBitmap.CreateEmpty(new Size(original.Width * 2, original.Height * 2), original.PixelFormat))
 			{
 				// Every pixel from input texture produces 4 output pixels, for more details check out http://scale2x.sourceforge.net/algorithm.html

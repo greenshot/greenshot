@@ -29,8 +29,8 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Runtime.Serialization;
 using Greenshot.Drawing.Fields;
-using GreenshotPlugin.Core.Gfx;
 using GreenshotPlugin.Effects;
+using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces.Drawing;
 using log4net;
 

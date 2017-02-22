@@ -25,7 +25,7 @@
 
 #endregion
 
-namespace GreenshotPlugin.Core.Gfx
+namespace GreenshotPlugin.Gfx
 {
 	internal class WuColorCube
 	{

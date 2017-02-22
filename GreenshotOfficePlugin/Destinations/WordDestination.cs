@@ -30,7 +30,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using GreenshotOfficePlugin.OfficeExport;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Core.Gfx;
+using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using log4net;

@@ -27,7 +27,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using Greenshot.Drawing.Fields;
-using GreenshotPlugin.Core.Gfx;
+using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces.Drawing;
 
 #endregion

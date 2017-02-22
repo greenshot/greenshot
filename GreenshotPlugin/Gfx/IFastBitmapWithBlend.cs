@@ -27,15 +27,24 @@ using System.Drawing;
 
 #endregion
 
-namespace GreenshotPlugin.Core.Gfx
+namespace GreenshotPlugin.Gfx
 {
 	/// <summary>
 	///     This interface is implemented when there is a alpha-blending possibility
 	/// </summary>
 	public interface IFastBitmapWithBlend : IFastBitmap
 	{
+		/// <summary>
+		/// Color to blend with
+		/// </summary>
 		Color BackgroundBlendColor { get; set; }
 
+		/// <summary>
+		/// Get the color at location x,y and blend
+		/// </summary>
+		/// <param name="x">int</param>
+		/// <param name="y">int</param>
+		/// <returns>Color</returns>
 		Color GetBlendedColorAt(int x, int y);
 	}
 }

@@ -32,8 +32,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Jira;
 using Dapplo.Log;
+using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Native;
-using Dapplo.Windows.Reactive;
 
 #endregion
 

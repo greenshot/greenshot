@@ -30,6 +30,7 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Native;
 using Greenshot.Configuration;
@@ -42,8 +43,8 @@ using Greenshot.Help;
 using Greenshot.Helpers;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Core.Gfx;
 using GreenshotPlugin.Effects;
+using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Drawing;
@@ -74,6 +75,8 @@ namespace Greenshot
 
 		private Surface _surface;
 		private GreenshotToolStripButton[] _toolbarButtons;
+
+		private IDisposable _clipboardSubscription;
 
 		public ImageEditorForm(ISurface iSurface, bool outputMade)
 		{
@@ -114,6 +117,12 @@ namespace Greenshot
 
 			// Workaround: As the cursor is (mostly) selected on the surface a funny artifact is visible, this fixes it.
 			HideToolstripItems();
+
+			// Make the clipboard buttons update
+			_clipboardSubscription = ClipboardMonitor.ClipboardUpdateEvents.Subscribe(args =>
+			{
+				UpdateClipboardSurfaceDependencies();
+			});
 		}
 
 		public static List<IImageEditor> Editors
@@ -307,20 +316,36 @@ namespace Greenshot
 		{
 			if (toolstripDestination.IsDynamic)
 			{
+				bool newImage;
 				var destinationButton = new ToolStripSplitButton
 				{
 					DisplayStyle = ToolStripItemDisplayStyle.Image,
 					Size = new Size(23, 22),
 					Text = toolstripDestination.Description,
-					Image = toolstripDestination.DisplayIcon.ScaleIconForDisplaying()
+					Image = toolstripDestination.DisplayIcon.ScaleIconForDisplaying(out newImage)
 				};
+				if (newImage)
+				{
+					destinationButton.Disposed += (sender, args) =>
+					{
+						destinationButton.Image.Dispose();
+					};
+				}
+
 				//ToolStripDropDownButton destinationButton = new ToolStripDropDownButton();
 
 				var defaultItem = new ToolStripMenuItem(toolstripDestination.Description)
 				{
 					Tag = toolstripDestination,
-					Image = toolstripDestination.DisplayIcon.ScaleIconForDisplaying()
+					Image = toolstripDestination.DisplayIcon.ScaleIconForDisplaying(out newImage)
 				};
+				if (newImage)
+				{
+					defaultItem.Disposed += (sender, args) =>
+					{
+						defaultItem.Image.Dispose();
+					};
+				}
 				defaultItem.Click += delegate { toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails); };
 
 				// The ButtonClick, this is for the icon, gets the current default item
@@ -343,8 +368,17 @@ namespace Greenshot
 							var destinationMenuItem = new ToolStripMenuItem(closureFixedDestination.Description)
 							{
 								Tag = closureFixedDestination,
-								Image = closureFixedDestination.DisplayIcon.ScaleIconForDisplaying()
+								Image = closureFixedDestination.DisplayIcon.ScaleIconForDisplaying(out newImage)
 							};
+							if (newImage)
+							{
+								// Dispose of the newly generated icon
+								destinationMenuItem.Disposed += (sender, args) =>
+								{
+									destinationMenuItem.Image.Dispose();
+								};
+							}
+
 							destinationMenuItem.Click += delegate { closureFixedDestination.ExportCapture(true, _surface, _surface.CaptureDetails); };
 							destinationButton.DropDownItems.Add(destinationMenuItem);
 						}
@@ -355,13 +389,24 @@ namespace Greenshot
 			}
 			else
 			{
-				var destinationButton = new ToolStripButton();
-				destinationsToolStrip.Items.Insert(destinationsToolStrip.Items.IndexOf(toolStripSeparator16), destinationButton);
-				destinationButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
-				destinationButton.Size = new Size(23, 22);
-				destinationButton.Text = toolstripDestination.Description;
-				destinationButton.Image = toolstripDestination.DisplayIcon.ScaleIconForDisplaying();
+				bool newImage;
+				var destinationButton = new ToolStripButton
+				{
+					DisplayStyle = ToolStripItemDisplayStyle.Image,
+					Size = new Size(23, 22),
+					Text = toolstripDestination.Description,
+					Image = toolstripDestination.DisplayIcon.ScaleIconForDisplaying(out newImage)
+				};
 				destinationButton.Click += delegate { toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails); };
+				if (newImage)
+				{
+					destinationButton.Disposed += (sender, args) =>
+					{
+						destinationButton.Image.Dispose();
+					};
+				}
+				destinationsToolStrip.Items.Insert(destinationsToolStrip.Items.IndexOf(toolStripSeparator16), destinationButton);
+
 			}
 		}
 
@@ -615,14 +660,14 @@ namespace Greenshot
 			Image icon;
 			if (stepLabels <= 20)
 			{
-				icon = (Image) resources.GetObject($"btnStepLabel{stepLabels:00}.Image");
+				icon = resources.GetIcon($"btnStepLabel{stepLabels:00}.Image");
 			}
 			else
 			{
-				icon = (Image) resources.GetObject("btnStepLabel20+.Image");
+				icon = resources.GetIcon("btnStepLabel20+.Image");
 			}
-			btnStepLabel.Image = icon.ScaleIconForDisplaying();
-			addCounterToolStripMenuItem.Image = icon.ScaleIconForDisplaying();
+			btnStepLabel.Image = icon;
+			addCounterToolStripMenuItem.Image = icon;
 
 			var props = _surface.FieldAggregator;
 			// if a confirmable element is selected, we must disable most of the controls
@@ -1285,7 +1330,6 @@ namespace Greenshot
 		private void CutToolStripMenuItemClick(object sender, EventArgs e)
 		{
 			_surface.CutSelectedElements();
-			UpdateClipboardSurfaceDependencies();
 		}
 
 		private void BtnCutClick(object sender, EventArgs e)
@@ -1296,7 +1340,6 @@ namespace Greenshot
 		private void CopyToolStripMenuItemClick(object sender, EventArgs e)
 		{
 			_surface.CopySelectedElements();
-			UpdateClipboardSurfaceDependencies();
 		}
 
 		private void BtnCopyClick(object sender, EventArgs e)
@@ -1646,6 +1689,9 @@ namespace Greenshot
 			redoToolStripMenuItem.Text = redoText;
 		}
 
+		/// <summary>
+		/// Take care of updating copy/paste/cut buttons or menu entries
+		/// </summary>
 		private void UpdateClipboardSurfaceDependencies()
 		{
 			if (_surface == null)

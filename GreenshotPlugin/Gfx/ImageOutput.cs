@@ -36,6 +36,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using GreenshotPlugin.Controls;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
@@ -45,7 +46,7 @@ using Encoder = System.Drawing.Imaging.Encoder;
 
 #endregion
 
-namespace GreenshotPlugin.Core.Gfx
+namespace GreenshotPlugin.Gfx
 {
 	/// <summary>
 	///     Description of ImageOutput.

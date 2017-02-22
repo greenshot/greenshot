@@ -29,7 +29,7 @@ using System.Drawing.Imaging;
 
 #endregion
 
-namespace GreenshotPlugin.Core.Gfx
+namespace GreenshotPlugin.Gfx
 {
 	/// <summary>
 	///     The base class for the fast bitmap implementation
@@ -439,6 +439,79 @@ namespace GreenshotPlugin.Core.Gfx
 
 		/// <summary>
 		///     Get the color at the specified location, if it's not clipped
+		/// </summary>
+		/// <param name="x">int x</param>
+		/// <param name="y">int y</param>
+		/// <param name="color">byte array with the color information</param>
+		void IFastBitmapWithClip.GetColorAt(int x, int y, byte[] color)
+		{
+			var contains = Clip.Contains(x, y);
+			if (InvertClip && contains)
+			{
+				// TODO: Implement nearest
+				return;
+			}
+			if (!InvertClip && !contains)
+			{
+				if (y < Clip.Top)
+				{
+					y = Clip.Top;
+				}
+				if (y > Clip.Bottom)
+				{
+					y = Clip.Bottom;
+				}
+				if (x < Clip.Left)
+				{
+					x = Clip.Left;
+				}
+				if (x > Clip.Right)
+				{
+					x = Clip.Right;
+				}
+			}
+			GetColorAt(x, y, color);
+		}
+
+		/// <summary>
+		///     Get the color at the specified location, if it's not clipped
+		/// </summary>
+		/// <param name="x">int x</param>
+		/// <param name="y">int y</param>
+		/// <returns>Color</returns>
+		Color IFastBitmapWithClip.GetColorAt(int x, int y)
+		{
+			var contains = Clip.Contains(x, y);
+			if (InvertClip && contains)
+			{
+				// TODO: Implement nearest
+				return Color.Transparent;
+			}
+			if (!InvertClip && !contains)
+			{
+				if (y < Clip.Top)
+				{
+					y = Clip.Top;
+				}
+				if (y > Clip.Bottom)
+				{
+					y = Clip.Bottom;
+				}
+				if (x < Clip.Left)
+				{
+					x = Clip.Left;
+				}
+				if (x > Clip.Right)
+				{
+					x = Clip.Right;
+				}
+			}
+			return GetColorAt(x, y);
+		}
+
+
+		/// <summary>
+		///     Set the color at the specified location, if it's not clipped
 		/// </summary>
 		/// <param name="x">int x</param>
 		/// <param name="y">int y</param>

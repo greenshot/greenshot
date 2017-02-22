@@ -29,7 +29,7 @@ using System.Drawing;
 
 #endregion
 
-namespace GreenshotPlugin.Core.Gfx
+namespace GreenshotPlugin.Gfx
 {
 	/// <summary>
 	///     This is the implementation of the FastBitmat for the 8BPP pixelformat

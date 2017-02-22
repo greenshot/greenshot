@@ -25,7 +25,7 @@
 
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using GreenshotPlugin.Core.Gfx;
+using GreenshotPlugin.Gfx;
 
 #endregion
 

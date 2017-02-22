@@ -36,6 +36,7 @@ using System.Windows.Forms;
 using Dapplo.Windows;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Enums;
+using Dapplo.Windows.Extensions;
 using Dapplo.Windows.Native;
 using Greenshot.Drawing;
 using Greenshot.Helpers;
@@ -911,7 +912,7 @@ namespace Greenshot.Forms
 				var fixedRect = IsAnimating(_windowAnimator) ? _windowAnimator.Current : _captureRect;
 
 				// If the _windowScroller != null, we can (most likely) capture the window with a scrolling technique
-				if (WindowScroller != null && Equals(WindowScroller.ScrollingArea, SelectedCaptureWindow))
+				if (WindowScroller != null && Equals(WindowScroller.ScrollBarWindow, SelectedCaptureWindow))
 				{
 					graphics.FillRectangle(ScrollingOverlayBrush, fixedRect);
 				}

@@ -33,12 +33,13 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using Dapplo.Windows;
 using Dapplo.Windows.App;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Enums;
+using Dapplo.Windows.Extensions;
+using Dapplo.Windows.Keyboard;
+using Dapplo.Windows.Keyboard.Native;
 using Dapplo.Windows.Native;
-using Dapplo.Windows.Reactive;
 using Dapplo.Windows.Structs;
 using Greenshot.Configuration;
 using Greenshot.Destinations;
@@ -46,7 +47,7 @@ using Greenshot.Drawing;
 using Greenshot.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
-using GreenshotPlugin.Core.Gfx;
+using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using log4net;
@@ -1143,7 +1144,7 @@ namespace Greenshot.Helpers
 
 						if (windowScroller.NeedsFocus())
 						{
-							User32.SetForegroundWindow(windowScroller.ScrollingArea.Handle);
+							User32.SetForegroundWindow(windowScroller.ScrollBarWindow.Handle);
 							Application.DoEvents();
 							Thread.Sleep(100);
 							Application.DoEvents();
@@ -1152,13 +1153,13 @@ namespace Greenshot.Helpers
 						// Find the area which is scrolling
 
 						// 1. Take the client bounds
-						Rectangle clientBounds = windowScroller.ScrollingArea.GetClientBounds();
+						Rectangle clientBounds = windowScroller.ScrollBarWindow.GetClientBounds();
 
 						// Use a region for steps 2 and 3
 						using (var region = new Region(clientBounds))
 						{
 							// 2. exclude the children, if any
-							foreach (var interopWindow in windowScroller.ScrollingArea.GetChildren())
+							foreach (var interopWindow in windowScroller.ScrollBarWindow.GetChildren())
 							{
 								region.Exclude(interopWindow.GetBounds());
 							}

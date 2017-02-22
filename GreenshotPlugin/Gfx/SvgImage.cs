@@ -26,11 +26,12 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using GreenshotPlugin.Core;
 using Svg;
 
 #endregion
 
-namespace GreenshotPlugin.Core.Gfx
+namespace GreenshotPlugin.Gfx
 {
 	/// <summary>
 	///     Create an image look like of the SVG

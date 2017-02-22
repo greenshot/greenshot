@@ -27,7 +27,7 @@ using System.Drawing;
 
 #endregion
 
-namespace GreenshotPlugin.Core.Gfx
+namespace GreenshotPlugin.Gfx
 {
 	/// <summary>
 	///     This interface can be used for when offsetting is needed

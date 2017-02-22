@@ -29,7 +29,7 @@ using System.IO;
 using System.Xml;
 using GreenshotOfficePlugin.OfficeInterop;
 using GreenshotPlugin.Core.Enums;
-using GreenshotPlugin.Core.Gfx;
+using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using GreenshotPlugin.Interop;

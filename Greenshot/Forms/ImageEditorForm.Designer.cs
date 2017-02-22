@@ -20,6 +20,7 @@
  */
 
 using Greenshot.Controls;
+using GreenshotPlugin.Controls;
 
 namespace Greenshot {
 	partial class ImageEditorForm {
@@ -27,7 +28,7 @@ namespace Greenshot {
 		/// Designer variable used to keep track of non-visual components.
 		/// </summary>
 		private System.ComponentModel.IContainer components = null;
-		private System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ImageEditorForm));
+		private ResourceImageManager resources = new ResourceImageManager(typeof(ImageEditorForm));
 
 		/// <summary>
 		/// Disposes resources used by the form.
@@ -40,6 +41,9 @@ namespace Greenshot {
 					components.Dispose();
 				}
 			}
+			// Make sure that clipboard changes are not longer processed.
+			_clipboardSubscription?.Dispose();
+			resources.Dispose();
 			base.Dispose(disposing);
 		}
 		
@@ -329,7 +333,7 @@ namespace Greenshot {
 			this.btnCursor.CheckOnClick = true;
 			this.btnCursor.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.btnCursor.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnCursor.Image = ((System.Drawing.Image)(resources.GetObject("btnCursor.Image")));
+			this.btnCursor.Image = resources.GetIcon("btnCursor.Image");
 			this.btnCursor.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnCursor.LanguageKey = "editor_cursortool";
 			this.btnCursor.Name = "btnCursor";
@@ -343,7 +347,7 @@ namespace Greenshot {
 			// 
 			this.btnRect.CheckOnClick = true;
 			this.btnRect.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnRect.Image = ((System.Drawing.Image)(resources.GetObject("btnRect.Image")));
+			this.btnRect.Image = resources.GetIcon("btnRect.Image");
 			this.btnRect.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnRect.LanguageKey = "editor_drawrectangle";
 			this.btnRect.Name = "btnRect";
@@ -353,7 +357,7 @@ namespace Greenshot {
 			// 
 			this.btnEllipse.CheckOnClick = true;
 			this.btnEllipse.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnEllipse.Image = ((System.Drawing.Image)(resources.GetObject("btnEllipse.Image")));
+			this.btnEllipse.Image = resources.GetIcon("btnEllipse.Image");
 			this.btnEllipse.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnEllipse.LanguageKey = "editor_drawellipse";
 			this.btnEllipse.Name = "btnEllipse";
@@ -363,7 +367,7 @@ namespace Greenshot {
 			// 
 			this.btnLine.CheckOnClick = true;
 			this.btnLine.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnLine.Image = ((System.Drawing.Image)(resources.GetObject("btnLine.Image")));
+			this.btnLine.Image = resources.GetIcon("btnLine.Image");
 			this.btnLine.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnLine.LanguageKey = "editor_drawline";
 			this.btnLine.Name = "btnLine";
@@ -373,7 +377,7 @@ namespace Greenshot {
 			// 
 			this.btnArrow.CheckOnClick = true;
 			this.btnArrow.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnArrow.Image = ((System.Drawing.Image)(resources.GetObject("btnArrow.Image")));
+			this.btnArrow.Image = resources.GetIcon("btnArrow.Image");
 			this.btnArrow.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnArrow.LanguageKey = "editor_drawarrow";
 			this.btnArrow.Name = "btnArrow";
@@ -382,7 +386,7 @@ namespace Greenshot {
 			// btnFreehand
 			// 
 			this.btnFreehand.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnFreehand.Image = ((System.Drawing.Image)(resources.GetObject("btnFreehand.Image")));
+			this.btnFreehand.Image = resources.GetIcon("btnFreehand.Image");
 			this.btnFreehand.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnFreehand.LanguageKey = "editor_drawfreehand";
 			this.btnFreehand.Name = "btnFreehand";
@@ -392,7 +396,7 @@ namespace Greenshot {
 			// 
 			this.btnText.CheckOnClick = true;
 			this.btnText.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnText.Image = ((System.Drawing.Image)(resources.GetObject("btnText.Image")));
+			this.btnText.Image = resources.GetIcon("btnText.Image");
 			this.btnText.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnText.LanguageKey = "editor_drawtextbox";
 			this.btnText.Name = "btnText";
@@ -402,7 +406,7 @@ namespace Greenshot {
 			// 
 			this.btnSpeechBubble.CheckOnClick = true;
 			this.btnSpeechBubble.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnSpeechBubble.Image = ((System.Drawing.Image)(resources.GetObject("btnSpeechBubble.Image")));
+			this.btnSpeechBubble.Image = resources.GetIcon("btnSpeechBubble.Image");
 			this.btnSpeechBubble.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnSpeechBubble.LanguageKey = "editor_speechbubble";
 			this.btnSpeechBubble.Name = "btnSpeechBubble";
@@ -412,7 +416,7 @@ namespace Greenshot {
 			// 
 			this.btnStepLabel.CheckOnClick = true;
 			this.btnStepLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnStepLabel.Image = ((System.Drawing.Image)(resources.GetObject("btnStepLabel01.Image")));
+			this.btnStepLabel.Image = resources.GetIcon("btnStepLabel01.Image");
 			this.btnStepLabel.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnStepLabel.LanguageKey = "editor_counter";
 			this.btnStepLabel.Name = "btnStepLabel";
@@ -425,7 +429,7 @@ namespace Greenshot {
 			// btnHighlight
 			// 
 			this.btnHighlight.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnHighlight.Image = ((System.Drawing.Image)(resources.GetObject("btnHighlight.Image")));
+			this.btnHighlight.Image = resources.GetIcon("btnHighlight.Image");
 			this.btnHighlight.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnHighlight.LanguageKey = "editor_drawhighlighter";
 			this.btnHighlight.Name = "btnHighlight";
@@ -434,7 +438,7 @@ namespace Greenshot {
 			// btnObfuscate
 			// 
 			this.btnObfuscate.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnObfuscate.Image = ((System.Drawing.Image)(resources.GetObject("btnObfuscate.Image")));
+			this.btnObfuscate.Image = resources.GetIcon("btnObfuscate.Image");
 			this.btnObfuscate.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnObfuscate.LanguageKey = "editor_obfuscate";
 			this.btnObfuscate.Name = "btnObfuscate";
@@ -449,7 +453,7 @@ namespace Greenshot {
 									this.tornEdgesToolStripMenuItem,
 									this.grayscaleToolStripMenuItem,
 									this.invertToolStripMenuItem});
-			this.toolStripSplitButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripSplitButton1.Image")));
+			this.toolStripSplitButton1.Image = resources.GetIcon("toolStripSplitButton1.Image");
 			this.toolStripSplitButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripSplitButton1.LanguageKey = "editor_effects";
 			this.toolStripSplitButton1.Name = "toolStripSplitButton1";
@@ -491,7 +495,7 @@ namespace Greenshot {
 			this.btnResize.Name = "btnResize";
 			this.btnResize.Click += new System.EventHandler(this.BtnResizeClick);
 			this.btnResize.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnResize.Image = ((System.Drawing.Image)(resources.GetObject("btnResize.Image")));
+			this.btnResize.Image = resources.GetIcon("btnResize.Image");
 			this.btnResize.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnResize.LanguageKey = "editor_resize";
 			// 
@@ -502,7 +506,7 @@ namespace Greenshot {
 			// btnCrop
 			// 
 			this.btnCrop.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnCrop.Image = ((System.Drawing.Image)(resources.GetObject("btnCrop.Image")));
+			this.btnCrop.Image = resources.GetIcon("btnCrop.Image");
 			this.btnCrop.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnCrop.LanguageKey = "editor_crop";
 			this.btnCrop.Name = "btnCrop";
@@ -511,7 +515,7 @@ namespace Greenshot {
 			// rotateCwToolstripButton
 			// 
 			this.rotateCwToolstripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.rotateCwToolstripButton.Image = ((System.Drawing.Image)(resources.GetObject("rotateCwToolstripButton.Image")));
+			this.rotateCwToolstripButton.Image = resources.GetIcon("rotateCwToolstripButton.Image");
 			this.rotateCwToolstripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.rotateCwToolstripButton.LanguageKey = "editor_rotatecw";
 			this.rotateCwToolstripButton.Name = "rotateCwToolstripButton";
@@ -520,7 +524,7 @@ namespace Greenshot {
 			// rotateCcwToolstripButton
 			// 
 			this.rotateCcwToolstripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.rotateCcwToolstripButton.Image = ((System.Drawing.Image)(resources.GetObject("rotateCcwToolstripButton.Image")));
+			this.rotateCcwToolstripButton.Image = resources.GetIcon("rotateCcwToolstripButton.Image");
 			this.rotateCcwToolstripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.rotateCcwToolstripButton.LanguageKey = "editor_rotateccw";
 			this.rotateCcwToolstripButton.Name = "rotateCcwToolstripButton";
@@ -578,7 +582,7 @@ namespace Greenshot {
 			// undoToolStripMenuItem
 			// 
 			this.undoToolStripMenuItem.Enabled = false;
-			this.undoToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("undoToolStripMenuItem.Image")));
+			this.undoToolStripMenuItem.Image = resources.GetIcon("undoToolStripMenuItem.Image");
 			this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
 			this.undoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
 			this.undoToolStripMenuItem.Text = "Undo";
@@ -587,7 +591,7 @@ namespace Greenshot {
 			// redoToolStripMenuItem
 			// 
 			this.redoToolStripMenuItem.Enabled = false;
-			this.redoToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("redoToolStripMenuItem.Image")));
+			this.redoToolStripMenuItem.Image = resources.GetIcon("redoToolStripMenuItem.Image");
 			this.redoToolStripMenuItem.Name = "redoToolStripMenuItem";
 			this.redoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Y)));
 			this.redoToolStripMenuItem.Text = "Redo";
@@ -600,7 +604,7 @@ namespace Greenshot {
 			// cutToolStripMenuItem
 			// 
 			this.cutToolStripMenuItem.Enabled = false;
-			this.cutToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("cutToolStripMenuItem.Image")));
+			this.cutToolStripMenuItem.Image = resources.GetIcon("cutToolStripMenuItem.Image");
 			this.cutToolStripMenuItem.LanguageKey = "editor_cuttoclipboard";
 			this.cutToolStripMenuItem.Name = "cutToolStripMenuItem";
 			this.cutToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
@@ -609,7 +613,7 @@ namespace Greenshot {
 			// copyToolStripMenuItem
 			// 
 			this.copyToolStripMenuItem.Enabled = false;
-			this.copyToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("copyToolStripMenuItem.Image")));
+			this.copyToolStripMenuItem.Image = resources.GetIcon("copyToolStripMenuItem.Image");
 			this.copyToolStripMenuItem.LanguageKey = "editor_copytoclipboard";
 			this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
 			this.copyToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
@@ -618,7 +622,7 @@ namespace Greenshot {
 			// pasteToolStripMenuItem
 			// 
 			this.pasteToolStripMenuItem.Enabled = false;
-			this.pasteToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("pasteToolStripMenuItem.Image")));
+			this.pasteToolStripMenuItem.Image = resources.GetIcon("pasteToolStripMenuItem.Image");
 			this.pasteToolStripMenuItem.LanguageKey = "editor_pastefromclipboard";
 			this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
 			this.pasteToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
@@ -642,7 +646,7 @@ namespace Greenshot {
 			// 
 			// preferencesToolStripMenuItem
 			// 
-			this.preferencesToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("preferencesToolStripMenuItem.Image")));
+			this.preferencesToolStripMenuItem.Image = resources.GetIcon("preferencesToolStripMenuItem.Image");
 			this.preferencesToolStripMenuItem.LanguageKey = "contextmenu_settings";
 			this.preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
 			this.preferencesToolStripMenuItem.Click += new System.EventHandler(this.PreferencesToolStripMenuItemClick);
@@ -692,56 +696,56 @@ namespace Greenshot {
 			// 
 			// addRectangleToolStripMenuItem
 			// 
-			this.addRectangleToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("addRectangleToolStripMenuItem.Image")));
+			this.addRectangleToolStripMenuItem.Image = resources.GetIcon("addRectangleToolStripMenuItem.Image");
 			this.addRectangleToolStripMenuItem.LanguageKey = "editor_drawrectangle";
 			this.addRectangleToolStripMenuItem.Name = "addRectangleToolStripMenuItem";
 			this.addRectangleToolStripMenuItem.Click += new System.EventHandler(this.AddRectangleToolStripMenuItemClick);
 			// 
 			// addEllipseToolStripMenuItem
 			// 
-			this.addEllipseToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("addEllipseToolStripMenuItem.Image")));
+			this.addEllipseToolStripMenuItem.Image = resources.GetIcon("addEllipseToolStripMenuItem.Image");
 			this.addEllipseToolStripMenuItem.LanguageKey = "editor_drawellipse";
 			this.addEllipseToolStripMenuItem.Name = "addEllipseToolStripMenuItem";
 			this.addEllipseToolStripMenuItem.Click += new System.EventHandler(this.AddEllipseToolStripMenuItemClick);
 			// 
 			// drawLineToolStripMenuItem
 			// 
-			this.drawLineToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("drawLineToolStripMenuItem.Image")));
+			this.drawLineToolStripMenuItem.Image = resources.GetIcon("drawLineToolStripMenuItem.Image");
 			this.drawLineToolStripMenuItem.LanguageKey = "editor_drawline";
 			this.drawLineToolStripMenuItem.Name = "drawLineToolStripMenuItem";
 			this.drawLineToolStripMenuItem.Click += new System.EventHandler(this.DrawLineToolStripMenuItemClick);
 			// 
 			// drawArrowToolStripMenuItem
 			// 
-			this.drawArrowToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("drawArrowToolStripMenuItem.Image")));
+			this.drawArrowToolStripMenuItem.Image = resources.GetIcon("drawArrowToolStripMenuItem.Image");
 			this.drawArrowToolStripMenuItem.LanguageKey = "editor_drawarrow";
 			this.drawArrowToolStripMenuItem.Name = "drawArrowToolStripMenuItem";
 			this.drawArrowToolStripMenuItem.Click += new System.EventHandler(this.DrawArrowToolStripMenuItemClick);
 			// 
 			// drawFreehandToolStripMenuItem
 			// 
-			this.drawFreehandToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("drawFreehandToolStripMenuItem.Image")));
+			this.drawFreehandToolStripMenuItem.Image = resources.GetIcon("drawFreehandToolStripMenuItem.Image");
 			this.drawFreehandToolStripMenuItem.LanguageKey = "editor_drawfreehand";
 			this.drawFreehandToolStripMenuItem.Name = "drawFreehandToolStripMenuItem";
 			this.drawFreehandToolStripMenuItem.Click += new System.EventHandler(this.DrawFreehandToolStripMenuItemClick);
 			// 
 			// addTextBoxToolStripMenuItem
 			// 
-			this.addTextBoxToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("addTextBoxToolStripMenuItem.Image")));
+			this.addTextBoxToolStripMenuItem.Image = resources.GetIcon("addTextBoxToolStripMenuItem.Image");
 			this.addTextBoxToolStripMenuItem.LanguageKey = "editor_drawtextbox";
 			this.addTextBoxToolStripMenuItem.Name = "addTextBoxToolStripMenuItem";
 			this.addTextBoxToolStripMenuItem.Click += new System.EventHandler(this.AddTextBoxToolStripMenuItemClick);
 			// 
 			// addSpeechBubbleToolStripMenuItem
 			// 
-			this.addSpeechBubbleToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnSpeechBubble.Image")));
+			this.addSpeechBubbleToolStripMenuItem.Image = resources.GetIcon("btnSpeechBubble.Image");
 			this.addSpeechBubbleToolStripMenuItem.LanguageKey = "editor_speechbubble";
 			this.addSpeechBubbleToolStripMenuItem.Name = "addSpeechBubbleToolStripMenuItem";
 			this.addSpeechBubbleToolStripMenuItem.Click += new System.EventHandler(this.AddSpeechBubbleToolStripMenuItemClick);
 			// 
 			// addCounterToolStripMenuItem
 			// 
-			this.addCounterToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnStepLabel01.Image")));
+			this.addCounterToolStripMenuItem.Image = resources.GetIcon("btnStepLabel01.Image");
 			this.addCounterToolStripMenuItem.LanguageKey = "editor_counter";
 			this.addCounterToolStripMenuItem.Name = "addCounterToolStripMenuItem";
 			this.addCounterToolStripMenuItem.Click += new System.EventHandler(this.AddCounterToolStripMenuItemClick);
@@ -760,7 +764,7 @@ namespace Greenshot {
 			// removeObjectToolStripMenuItem
 			// 
 			this.removeObjectToolStripMenuItem.Enabled = false;
-			this.removeObjectToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("removeObjectToolStripMenuItem.Image")));
+			this.removeObjectToolStripMenuItem.Image = resources.GetIcon("removeObjectToolStripMenuItem.Image");
 			this.removeObjectToolStripMenuItem.LanguageKey = "editor_deleteelement";
 			this.removeObjectToolStripMenuItem.Name = "removeObjectToolStripMenuItem";
 			this.removeObjectToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.Delete;
@@ -843,7 +847,7 @@ namespace Greenshot {
 			// 
 			// helpToolStripMenuItem1
 			// 
-			this.helpToolStripMenuItem1.Image = ((System.Drawing.Image)(resources.GetObject("helpToolStripMenuItem1.Image")));
+			this.helpToolStripMenuItem1.Image = resources.GetIcon("helpToolStripMenuItem1.Image");
 			this.helpToolStripMenuItem1.LanguageKey = "contextmenu_help";
 			this.helpToolStripMenuItem1.Name = "helpToolStripMenuItem1";
 			this.helpToolStripMenuItem1.ShortcutKeys = System.Windows.Forms.Keys.F1;
@@ -888,7 +892,7 @@ namespace Greenshot {
 			// btnSave
 			// 
 			this.btnSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnSave.Image = ((System.Drawing.Image)(resources.GetObject("btnSave.Image")));
+			this.btnSave.Image = resources.GetIcon("btnSave.Image");
 			this.btnSave.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnSave.LanguageKey = "editor_save";
 			this.btnSave.Name = "btnSave";
@@ -897,7 +901,7 @@ namespace Greenshot {
 			// btnClipboard
 			// 
 			this.btnClipboard.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnClipboard.Image = ((System.Drawing.Image)(resources.GetObject("btnClipboard.Image")));
+			this.btnClipboard.Image = resources.GetIcon("btnClipboard.Image");
 			this.btnClipboard.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnClipboard.LanguageKey = "editor_copyimagetoclipboard";
 			this.btnClipboard.Name = "btnClipboard";
@@ -906,7 +910,7 @@ namespace Greenshot {
 			// btnPrint
 			// 
 			this.btnPrint.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnPrint.Image = ((System.Drawing.Image)(resources.GetObject("btnPrint.Image")));
+			this.btnPrint.Image = resources.GetIcon("btnPrint.Image");
 			this.btnPrint.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnPrint.LanguageKey = "editor_print";
 			this.btnPrint.Name = "btnPrint";
@@ -921,7 +925,7 @@ namespace Greenshot {
 			// 
 			this.btnDelete.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnDelete.Enabled = false;
-			this.btnDelete.Image = ((System.Drawing.Image)(resources.GetObject("btnDelete.Image")));
+			this.btnDelete.Image = resources.GetIcon("btnDelete.Image");
 			this.btnDelete.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnDelete.LanguageKey = "editor_deleteelement";
 			this.btnDelete.Name = "btnDelete";
@@ -935,7 +939,7 @@ namespace Greenshot {
 			// 
 			this.btnCut.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnCut.Enabled = false;
-			this.btnCut.Image = ((System.Drawing.Image)(resources.GetObject("btnCut.Image")));
+			this.btnCut.Image = resources.GetIcon("btnCut.Image");
 			this.btnCut.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnCut.LanguageKey = "editor_cuttoclipboard";
 			this.btnCut.Name = "btnCut";
@@ -945,7 +949,7 @@ namespace Greenshot {
 			// 
 			this.btnCopy.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnCopy.Enabled = false;
-			this.btnCopy.Image = ((System.Drawing.Image)(resources.GetObject("btnCopy.Image")));
+			this.btnCopy.Image = resources.GetIcon("btnCopy.Image");
 			this.btnCopy.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnCopy.LanguageKey = "editor_copytoclipboard";
 			this.btnCopy.Name = "btnCopy";
@@ -955,7 +959,7 @@ namespace Greenshot {
 			// 
 			this.btnPaste.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnPaste.Enabled = false;
-			this.btnPaste.Image = ((System.Drawing.Image)(resources.GetObject("btnPaste.Image")));
+			this.btnPaste.Image = resources.GetIcon("btnPaste.Image");
 			this.btnPaste.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnPaste.LanguageKey = "editor_pastefromclipboard";
 			this.btnPaste.Name = "btnPaste";
@@ -965,7 +969,7 @@ namespace Greenshot {
 			// 
 			this.btnUndo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnUndo.Enabled = false;
-			this.btnUndo.Image = ((System.Drawing.Image)(resources.GetObject("btnUndo.Image")));
+			this.btnUndo.Image = resources.GetIcon("btnUndo.Image");
 			this.btnUndo.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnUndo.Name = "btnUndo";
 			this.btnUndo.Click += new System.EventHandler(this.BtnUndoClick);
@@ -974,7 +978,7 @@ namespace Greenshot {
 			// 
 			this.btnRedo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnRedo.Enabled = false;
-			this.btnRedo.Image = ((System.Drawing.Image)(resources.GetObject("btnRedo.Image")));
+			this.btnRedo.Image = resources.GetIcon("btnRedo.Image");
 			this.btnRedo.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnRedo.Name = "btnRedo";
 			this.btnRedo.Click += new System.EventHandler(this.BtnRedoClick);
@@ -986,7 +990,7 @@ namespace Greenshot {
 			// btnSettings
 			// 
 			this.btnSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnSettings.Image = ((System.Drawing.Image)(resources.GetObject("btnSettings.Image")));
+			this.btnSettings.Image = resources.GetIcon("btnSettings.Image");
 			this.btnSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnSettings.LanguageKey = "contextmenu_settings";
 			this.btnSettings.Name = "btnSettings";
@@ -1003,7 +1007,7 @@ namespace Greenshot {
 			// btnHelp
 			// 
 			this.btnHelp.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnHelp.Image = ((System.Drawing.Image)(resources.GetObject("btnHelp.Image")));
+			this.btnHelp.Image = resources.GetIcon("btnHelp.Image");
 			this.btnHelp.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnHelp.LanguageKey = "contextmenu_help";
 			this.btnHelp.Name = "btnHelp";
@@ -1065,7 +1069,7 @@ namespace Greenshot {
 			this.obfuscateModeButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.pixelizeToolStripMenuItem,
 									this.blurToolStripMenuItem});
-			this.obfuscateModeButton.Image = ((System.Drawing.Image)(resources.GetObject("obfuscateModeButton.Image")));
+			this.obfuscateModeButton.Image = resources.GetIcon("obfuscateModeButton.Image");
 			this.obfuscateModeButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.obfuscateModeButton.LanguageKey = "editor_obfuscate_mode";
 			this.obfuscateModeButton.Name = "obfuscateModeButton";
@@ -1074,14 +1078,14 @@ namespace Greenshot {
 			// 
 			// pixelizeToolStripMenuItem
 			// 
-			this.pixelizeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("pixelizeToolStripMenuItem.Image")));
+			this.pixelizeToolStripMenuItem.Image = resources.GetIcon("pixelizeToolStripMenuItem.Image");
 			this.pixelizeToolStripMenuItem.LanguageKey = "editor_obfuscate_pixelize";
 			this.pixelizeToolStripMenuItem.Name = "pixelizeToolStripMenuItem";
 			this.pixelizeToolStripMenuItem.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.PIXELIZE;
 			// 
 			// blurToolStripMenuItem
 			// 
-			this.blurToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("blurToolStripMenuItem.Image")));
+			this.blurToolStripMenuItem.Image = resources.GetIcon("blurToolStripMenuItem.Image");
 			this.blurToolStripMenuItem.LanguageKey = "editor_obfuscate_blur";
 			this.blurToolStripMenuItem.Name = "blurToolStripMenuItem";
 			this.blurToolStripMenuItem.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.BLUR;
@@ -1094,7 +1098,7 @@ namespace Greenshot {
 									this.areaHighlightMenuItem,
 									this.grayscaleHighlightMenuItem,
 									this.magnifyMenuItem});
-			this.highlightModeButton.Image = ((System.Drawing.Image)(resources.GetObject("highlightModeButton.Image")));
+			this.highlightModeButton.Image = resources.GetIcon("highlightModeButton.Image");
 			this.highlightModeButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.highlightModeButton.LanguageKey = "editor_highlight_mode";
 			this.highlightModeButton.Name = "highlightModeButton";
@@ -1103,28 +1107,28 @@ namespace Greenshot {
 			// 
 			// textHighlightMenuItem
 			// 
-			this.textHighlightMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("textHighlightMenuItem.Image")));
+			this.textHighlightMenuItem.Image = resources.GetIcon("textHighlightMenuItem.Image");
 			this.textHighlightMenuItem.LanguageKey = "editor_highlight_text";
 			this.textHighlightMenuItem.Name = "textHighlightMenuItem";
 			this.textHighlightMenuItem.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT;
 			// 
 			// areaHighlightMenuItem
 			// 
-			this.areaHighlightMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("areaHighlightMenuItem.Image")));
+			this.areaHighlightMenuItem.Image = resources.GetIcon("areaHighlightMenuItem.Image");
 			this.areaHighlightMenuItem.LanguageKey = "editor_highlight_area";
 			this.areaHighlightMenuItem.Name = "areaHighlightMenuItem";
 			this.areaHighlightMenuItem.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.AREA_HIGHLIGHT;
 			// 
 			// grayscaleHighlightMenuItem
 			// 
-			this.grayscaleHighlightMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("grayscaleHighlightMenuItem.Image")));
+			this.grayscaleHighlightMenuItem.Image = resources.GetIcon("grayscaleHighlightMenuItem.Image");
 			this.grayscaleHighlightMenuItem.LanguageKey = "editor_highlight_grayscale";
 			this.grayscaleHighlightMenuItem.Name = "grayscaleHighlightMenuItem";
 			this.grayscaleHighlightMenuItem.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.GRAYSCALE;
 			// 
 			// magnifyMenuItem
 			// 
-			this.magnifyMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("magnifyMenuItem.Image")));
+			this.magnifyMenuItem.Image = resources.GetIcon("magnifyMenuItem.Image");
 			this.magnifyMenuItem.LanguageKey = "editor_highlight_magnify";
 			this.magnifyMenuItem.Name = "magnifyMenuItem";
 			this.magnifyMenuItem.Tag = Greenshot.Drawing.FilterContainer.PreparedFilter.MAGNIFICATION;
@@ -1133,7 +1137,7 @@ namespace Greenshot {
 			// 
 			this.btnFillColor.BackColor = System.Drawing.Color.Transparent;
 			this.btnFillColor.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnFillColor.Image = ((System.Drawing.Image)(resources.GetObject("btnFillColor.Image")));
+			this.btnFillColor.Image = resources.GetIcon("btnFillColor.Image");
 			this.btnFillColor.LanguageKey = "editor_backcolor";
 			this.btnFillColor.Name = "btnFillColor";
 			this.btnFillColor.SelectedColor = System.Drawing.Color.Transparent;
@@ -1142,7 +1146,7 @@ namespace Greenshot {
 			// 
 			this.btnLineColor.BackColor = System.Drawing.Color.Transparent;
 			this.btnLineColor.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnLineColor.Image = ((System.Drawing.Image)(resources.GetObject("btnLineColor.Image")));
+			this.btnLineColor.Image = resources.GetIcon("btnLineColor.Image");
 			this.btnLineColor.LanguageKey = "editor_forecolor";
 			this.btnLineColor.Name = "btnLineColor";
 			this.btnLineColor.SelectedColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(222)))), ((int)(((byte)(250)))));
@@ -1246,7 +1250,7 @@ namespace Greenshot {
 			// 
 			this.fontBoldButton.CheckOnClick = true;
 			this.fontBoldButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.fontBoldButton.Image = ((System.Drawing.Image)(resources.GetObject("fontBoldButton.Image")));
+			this.fontBoldButton.Image = resources.GetIcon("fontBoldButton.Image");
 			this.fontBoldButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.fontBoldButton.LanguageKey = "editor_bold";
 			this.fontBoldButton.Name = "fontBoldButton";
@@ -1257,7 +1261,7 @@ namespace Greenshot {
 			// 
 			this.fontItalicButton.CheckOnClick = true;
 			this.fontItalicButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.fontItalicButton.Image = ((System.Drawing.Image)(resources.GetObject("fontItalicButton.Image")));
+			this.fontItalicButton.Image = resources.GetIcon("fontItalicButton.Image");
 			this.fontItalicButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.fontItalicButton.LanguageKey = "editor_italic";
 			this.fontItalicButton.Name = "fontItalicButton";
@@ -1271,7 +1275,7 @@ namespace Greenshot {
 									this.alignMiddleToolStripMenuItem,
 									this.alignBottomToolStripMenuItem});
 			this.textVerticalAlignmentButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.textVerticalAlignmentButton.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignMiddle.Image")));
+			this.textVerticalAlignmentButton.Image = resources.GetIcon("btnAlignMiddle.Image");
 			this.textVerticalAlignmentButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.textVerticalAlignmentButton.LanguageKey = "editor_align_vertical";
 			this.textVerticalAlignmentButton.Name = "textVerticalAlignmentButton";
@@ -1281,7 +1285,7 @@ namespace Greenshot {
 			// alignTopToolStripMenuItem
 			// 
 			this.alignTopToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
-			this.alignTopToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignTop.Image")));
+			this.alignTopToolStripMenuItem.Image = resources.GetIcon("btnAlignTop.Image");
 			this.alignTopToolStripMenuItem.LanguageKey = "editor_align_top";
 			this.alignTopToolStripMenuItem.Name = "alignTopToolStripMenuItem";
 			this.alignTopToolStripMenuItem.Tag = System.Drawing.StringAlignment.Near;
@@ -1289,7 +1293,7 @@ namespace Greenshot {
 			// alignMiddleToolStripMenuItem
 			// 
 			this.alignMiddleToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
-			this.alignMiddleToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignMiddle.Image")));
+			this.alignMiddleToolStripMenuItem.Image = resources.GetIcon("btnAlignMiddle.Image");
 			this.alignMiddleToolStripMenuItem.LanguageKey = "editor_align_middle";
 			this.alignMiddleToolStripMenuItem.Name = "alignMiddleToolStripMenuItem";
 			this.alignMiddleToolStripMenuItem.Tag = System.Drawing.StringAlignment.Center;
@@ -1297,7 +1301,7 @@ namespace Greenshot {
 			// alignBottomToolStripMenuItem
 			// 
 			this.alignBottomToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
-			this.alignBottomToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignBottom.Image")));
+			this.alignBottomToolStripMenuItem.Image = resources.GetIcon("btnAlignBottom.Image");
 			this.alignBottomToolStripMenuItem.LanguageKey = "editor_align_bottom";
 			this.alignBottomToolStripMenuItem.Name = "alignBottomToolStripMenuItem";
 			this.alignBottomToolStripMenuItem.Tag = System.Drawing.StringAlignment.Far;
@@ -1484,7 +1488,7 @@ namespace Greenshot {
 									this.arrowHeadEndMenuItem,
 									this.arrowHeadBothMenuItem,
 									this.arrowHeadNoneMenuItem});
-			this.arrowHeadsDropDownButton.Image = ((System.Drawing.Image)(resources.GetObject("arrowHeadsDropDownButton.Image")));
+			this.arrowHeadsDropDownButton.Image = resources.GetIcon("arrowHeadsDropDownButton.Image");
 			this.arrowHeadsDropDownButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.arrowHeadsDropDownButton.LanguageKey = "editor_arrowheads";
 			this.arrowHeadsDropDownButton.Name = "arrowHeadsDropDownButton";
@@ -1521,7 +1525,7 @@ namespace Greenshot {
 			// 
 			this.shadowButton.CheckOnClick = true;
 			this.shadowButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.shadowButton.Image = ((System.Drawing.Image)(resources.GetObject("shadowButton.Image")));
+			this.shadowButton.Image = resources.GetIcon("shadowButton.Image");
 			this.shadowButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.shadowButton.LanguageKey = "editor_shadow";
 			this.shadowButton.Name = "shadowButton";
@@ -1537,7 +1541,7 @@ namespace Greenshot {
 			// btnConfirm
 			// 
 			this.btnConfirm.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnConfirm.Image = ((System.Drawing.Image)(resources.GetObject("btnConfirm.Image")));
+			this.btnConfirm.Image = resources.GetIcon("btnConfirm.Image");
 			this.btnConfirm.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnConfirm.LanguageKey = "editor_confirm";
 			this.btnConfirm.Name = "btnConfirm";
@@ -1547,7 +1551,7 @@ namespace Greenshot {
 			// btnCancel
 			// 
 			this.btnCancel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnCancel.Image = ((System.Drawing.Image)(resources.GetObject("btnCancel.Image")));
+			this.btnCancel.Image = resources.GetIcon("btnCancel.Image");
 			this.btnCancel.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnCancel.LanguageKey = "editor_cancel";
 			this.btnCancel.Name = "btnCancel";
@@ -1560,7 +1564,7 @@ namespace Greenshot {
 			// 
 			// closeToolStripMenuItem
 			// 
-			this.closeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("closeToolStripMenuItem.Image")));
+			this.closeToolStripMenuItem.Image = resources.GetIcon("closeToolStripMenuItem.Image");
 			this.closeToolStripMenuItem.LanguageKey = "editor_close";
 			this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
 			this.closeToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
@@ -1592,7 +1596,7 @@ namespace Greenshot {
 									this.alignCenterToolStripMenuItem,
 									this.alignRightToolStripMenuItem});
 			this.textHorizontalAlignmentButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.textHorizontalAlignmentButton.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignCenter.Image")));
+			this.textHorizontalAlignmentButton.Image = resources.GetIcon("btnAlignCenter.Image");
 			this.textHorizontalAlignmentButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.textHorizontalAlignmentButton.LanguageKey = "editor_align_horizontal";
 			this.textHorizontalAlignmentButton.Name = "textHorizontalAlignmentButton";
@@ -1602,7 +1606,7 @@ namespace Greenshot {
 			// alignLeftToolStripMenuItem
 			// 
 			this.alignLeftToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
-			this.alignLeftToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignLeft.Image")));
+			this.alignLeftToolStripMenuItem.Image = resources.GetIcon("btnAlignLeft.Image");
 			this.alignLeftToolStripMenuItem.LanguageKey = "editor_align_left";
 			this.alignLeftToolStripMenuItem.Name = "alignLeftToolStripMenuItem";
 			this.alignLeftToolStripMenuItem.Tag = System.Drawing.StringAlignment.Near;
@@ -1610,7 +1614,7 @@ namespace Greenshot {
 			// alignCenterToolStripMenuItem
 			// 
 			this.alignCenterToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
-			this.alignCenterToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignCenter.Image")));
+			this.alignCenterToolStripMenuItem.Image = resources.GetIcon("btnAlignCenter.Image");
 			this.alignCenterToolStripMenuItem.LanguageKey = "editor_align_center";
 			this.alignCenterToolStripMenuItem.Name = "alignCenterToolStripMenuItem";
 			this.alignCenterToolStripMenuItem.Tag = System.Drawing.StringAlignment.Center;
@@ -1618,7 +1622,7 @@ namespace Greenshot {
 			// alignRightToolStripMenuItem
 			// 
 			this.alignRightToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
-			this.alignRightToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignRight.Image")));
+			this.alignRightToolStripMenuItem.Image = resources.GetIcon("btnAlignRight.Image");
 			this.alignRightToolStripMenuItem.LanguageKey = "editor_align_right";
 			this.alignRightToolStripMenuItem.Name = "alignRightToolStripMenuItem";
 			this.alignRightToolStripMenuItem.Tag = System.Drawing.StringAlignment.Far;

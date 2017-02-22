@@ -28,7 +28,7 @@ using System.Drawing;
 
 #endregion
 
-namespace GreenshotPlugin.Core.Gfx
+namespace GreenshotPlugin.Gfx
 {
 	/// <summary>
 	///     The interface for the FastBitmap

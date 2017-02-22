@@ -27,7 +27,7 @@ using System.Drawing;
 
 #endregion
 
-namespace GreenshotPlugin.Core.Gfx
+namespace GreenshotPlugin.Gfx
 {
 	/// <summary>
 	///     This is the implementation of the IFastBitmap for 32 bit images (no Alpha)

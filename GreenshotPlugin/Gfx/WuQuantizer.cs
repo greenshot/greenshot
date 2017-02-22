@@ -32,7 +32,7 @@ using log4net;
 
 #endregion
 
-namespace GreenshotPlugin.Core.Gfx
+namespace GreenshotPlugin.Gfx
 {
 	/// <summary>
 	///     Implementation of the WuQuantizer algorithm

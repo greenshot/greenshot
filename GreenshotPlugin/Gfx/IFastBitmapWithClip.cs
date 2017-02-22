@@ -27,16 +27,39 @@ using System.Drawing;
 
 #endregion
 
-namespace GreenshotPlugin.Core.Gfx
+namespace GreenshotPlugin.Gfx
 {
 	/// <summary>
 	///     This interface can be used for when clipping is needed
 	/// </summary>
 	public interface IFastBitmapWithClip : IFastBitmap
 	{
+		/// <summary>
+		/// The rectangle to clip to
+		/// </summary>
 		Rectangle Clip { get; set; }
 
+		/// <summary>
+		/// A boolean specifying that the Clip area is the negative
+		/// </summary>
 		bool InvertClip { get; set; }
+
+		/// <summary>
+		///     Get the color at the specified location, this doesn't do anything if the location is excluded due to clipping
+		/// </summary>
+		/// <param name="x">int x</param>
+		/// <param name="y">int y</param>
+		/// <returns>Color color</returns>
+		new Color GetColorAt(int x, int y);
+
+		/// <summary>
+		///     Get the color at x,y
+		///     The returned byte[] color depends on the underlying pixel format
+		/// </summary>
+		/// <param name="x">int x</param>
+		/// <param name="y">int y</param>
+		/// <param name="color">byte array</param>
+		new void GetColorAt(int x, int y, byte[] color);
 
 		/// <summary>
 		///     Set the color at the specified location, this doesn't do anything if the location is excluded due to clipping

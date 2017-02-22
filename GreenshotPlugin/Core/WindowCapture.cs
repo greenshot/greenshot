@@ -34,7 +34,7 @@ using Dapplo.Windows.Enums;
 using Dapplo.Windows.Native;
 using Dapplo.Windows.SafeHandles;
 using Dapplo.Windows.Structs;
-using GreenshotPlugin.Core.Gfx;
+using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using log4net;

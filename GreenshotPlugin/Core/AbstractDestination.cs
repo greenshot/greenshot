@@ -29,6 +29,7 @@ using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Windows.Native;
+using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using log4net;
@@ -109,12 +110,20 @@ namespace GreenshotPlugin.Core
 		/// <returns>ToolStripMenuItem</returns>
 		public virtual ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler)
 		{
+			bool newImage;
 			var basisMenuItem = new ToolStripMenuItem(Description)
 			{
-				Image = DisplayIcon,
+				Image = DisplayIcon.ScaleIconForDisplaying(out newImage),
 				Tag = this,
 				Text = Description
 			};
+			if (newImage)
+			{
+				basisMenuItem.Disposed += (sender, args) =>
+				{
+					basisMenuItem.Image.Dispose();
+				};
+			}
 			AddTagEvents(basisMenuItem, menu, Description);
 			basisMenuItem.Click -= destinationClickHandler;
 			basisMenuItem.Click += destinationClickHandler;
@@ -151,8 +160,15 @@ namespace GreenshotPlugin.Core
 									var destinationMenuItem = new ToolStripMenuItem(subDestination.Description)
 									{
 										Tag = subDestination,
-										Image = subDestination.DisplayIcon
+										Image = subDestination.DisplayIcon.ScaleIconForDisplaying(out newImage)
 									};
+									if (newImage)
+									{
+										destinationMenuItem.Disposed += (sender, args) =>
+										{
+											destinationMenuItem.Image.Dispose();
+										};
+									}
 									destinationMenuItem.Click += destinationClickHandler;
 									AddTagEvents(destinationMenuItem, menu, subDestination.Description);
 									basisMenuItem.DropDownItems.Add(destinationMenuItem);
@@ -218,12 +234,12 @@ namespace GreenshotPlugin.Core
 		{
 			if (menuItem != null && menu != null)
 			{
-				menuItem.MouseDown += delegate
+				menuItem.MouseDown += (sender, args) =>
 				{
 					Log.DebugFormat("Setting tag to '{0}'", tagValue);
 					menu.Tag = tagValue;
 				};
-				menuItem.MouseUp += delegate
+				menuItem.MouseUp += (sender, args) =>
 				{
 					Log.Debug("Deleting tag");
 					menu.Tag = null;
@@ -250,7 +266,7 @@ namespace GreenshotPlugin.Core
 				TopLevel = true
 			};
 
-			menu.Closing += delegate(object source, ToolStripDropDownClosingEventArgs eventArgs)
+			menu.Closing += (source, eventArgs) =>
 			{
 				Log.DebugFormat("Close reason: {0}", eventArgs.CloseReason);
 				switch (eventArgs.CloseReason)
@@ -283,7 +299,7 @@ namespace GreenshotPlugin.Core
 						break;
 				}
 			};
-			menu.MouseEnter += delegate
+			menu.MouseEnter += (sender, args) =>
 			{
 				// in case the menu has been unfocused, focus again so that dropdown menus will still open on mouseenter
 				if (!menu.ContainsFocus)

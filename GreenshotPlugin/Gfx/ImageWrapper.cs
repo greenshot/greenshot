@@ -25,10 +25,11 @@
 
 using System.Drawing;
 using System.Drawing.Imaging;
+using GreenshotPlugin.Core;
 
 #endregion
 
-namespace GreenshotPlugin.Core.Gfx
+namespace GreenshotPlugin.Gfx
 {
 	/// <summary>
 	///     Wrap an image, make it resizeable

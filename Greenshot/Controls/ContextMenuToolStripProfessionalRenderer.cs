@@ -26,7 +26,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Core.Gfx;
+using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 
 #endregion
@@ -39,14 +39,15 @@ namespace Greenshot.Controls
 	public class ContextMenuToolStripProfessionalRenderer : ToolStripProfessionalRenderer
 	{
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
-		private static Image _scaledCheckbox;
+		private Image _scaledCheckbox;
 
 		protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs e)
 		{
 			if (_scaledCheckbox == null || _scaledCheckbox.Size != CoreConfig.IconSize)
 			{
 				_scaledCheckbox?.Dispose();
-				_scaledCheckbox = ((Bitmap) e.Image).ScaleIconForDisplaying();
+				bool newImage;
+				_scaledCheckbox = ((Bitmap) e.Image).ScaleIconForDisplaying(out newImage);
 			}
 			var old = e.ImageRectangle;
 			var clone = new ToolStripItemImageRenderEventArgs(e.Graphics, e.Item, _scaledCheckbox, new Rectangle(old.X, 0, old.Width, old.Height));
