@@ -1,29 +1,59 @@
-﻿using GreenshotPlugin.Core;
+﻿#region Greenshot GNU General Public License
 
-namespace TranslationByMarkupExtension {
+// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+// For more information see: http://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 1 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#endregion
+
+#region Usings
+
+using GreenshotPlugin.Core;
+
+#endregion
+
+namespace TranslationByMarkupExtension
+{
 	/// <summary>
-	/// 
 	/// </summary>
-	public class LanguageXMLTranslationProvider : ITranslationProvider {
+	public class LanguageXMLTranslationProvider : ITranslationProvider
+	{
+		#region ITranslationProvider Members
+
+		/// <summary>
+		///     See <see cref="ITranslationProvider.Translate" />
+		/// </summary>
+		public object Translate(string key)
+		{
+			if (Language.HasKey("confluence", key))
+			{
+				return Language.GetString("confluence", key);
+			}
+			return key;
+		}
+
+		#endregion
+
 		#region Private Members
 
 		#endregion
 
 		#region Construction
-
-		#endregion
-
-		#region ITranslationProvider Members
-
-		/// <summary>
-		/// See <see cref="ITranslationProvider.Translate" />
-		/// </summary>
-		public object Translate(string key) {
-			if (Language.HasKey("confluence", key)) {
-				return Language.GetString("confluence", key);
-			}
-			return key;
-		}
 
 		#endregion
 	}

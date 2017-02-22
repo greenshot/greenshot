@@ -272,8 +272,8 @@ namespace Greenshot.Forms
 			// 
 			// PrintOptionsDialog
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13.5F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.AutoSize = true;
 			this.ClientSize = new System.Drawing.Size(355, 390);
 			this.Controls.Add(this.groupBoxColors);

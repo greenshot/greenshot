@@ -209,8 +209,8 @@ namespace Greenshot {
 			// 
 			// topToolStripContainer
 			// 
-			this.topToolStripContainer.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-			this.topToolStripContainer.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+			this.topToolStripContainer.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13.5F);
+			this.topToolStripContainer.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			// 
 			// topToolStripContainer.BottomToolStripPanel
 			// 
@@ -731,20 +731,20 @@ namespace Greenshot {
 			this.addTextBoxToolStripMenuItem.LanguageKey = "editor_drawtextbox";
 			this.addTextBoxToolStripMenuItem.Name = "addTextBoxToolStripMenuItem";
 			this.addTextBoxToolStripMenuItem.Click += new System.EventHandler(this.AddTextBoxToolStripMenuItemClick);
-            // 
-            // addSpeechBubbleToolStripMenuItem
-            // 
-            this.addSpeechBubbleToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnSpeechBubble.Image")));
-            this.addSpeechBubbleToolStripMenuItem.LanguageKey = "editor_speechbubble";
-            this.addSpeechBubbleToolStripMenuItem.Name = "addSpeechBubbleToolStripMenuItem";
-            this.addSpeechBubbleToolStripMenuItem.Click += new System.EventHandler(this.AddSpeechBubbleToolStripMenuItemClick);
-            // 
-            // addCounterToolStripMenuItem
-            // 
-            this.addCounterToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnStepLabel01.Image")));
-            this.addCounterToolStripMenuItem.LanguageKey = "editor_counter";
-            this.addCounterToolStripMenuItem.Name = "addCounterToolStripMenuItem";
-            this.addCounterToolStripMenuItem.Click += new System.EventHandler(this.AddCounterToolStripMenuItemClick);
+			// 
+			// addSpeechBubbleToolStripMenuItem
+			// 
+			this.addSpeechBubbleToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnSpeechBubble.Image")));
+			this.addSpeechBubbleToolStripMenuItem.LanguageKey = "editor_speechbubble";
+			this.addSpeechBubbleToolStripMenuItem.Name = "addSpeechBubbleToolStripMenuItem";
+			this.addSpeechBubbleToolStripMenuItem.Click += new System.EventHandler(this.AddSpeechBubbleToolStripMenuItemClick);
+			// 
+			// addCounterToolStripMenuItem
+			// 
+			this.addCounterToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnStepLabel01.Image")));
+			this.addCounterToolStripMenuItem.LanguageKey = "editor_counter";
+			this.addCounterToolStripMenuItem.Name = "addCounterToolStripMenuItem";
+			this.addCounterToolStripMenuItem.Click += new System.EventHandler(this.AddCounterToolStripMenuItemClick);
 			// 
 			// toolStripSeparator8
 			// 
@@ -1625,8 +1625,8 @@ namespace Greenshot {
 			// 
 			// ImageEditorForm
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13.5F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(785, 485);
 			this.Controls.Add(this.topToolStripContainer);
 			this.KeyPreview = true;

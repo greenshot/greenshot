@@ -1,53 +1,67 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿#region Greenshot GNU General Public License
+
+// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+// For more information see: http://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 1 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#endregion
+
+#region Usings
 
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Reflection;
 using Dapplo.Windows.Desktop;
-using Greenshot.Interop;
-using Greenshot.Interop.Office;
-using GreenshotPlugin.Core;
+using GreenshotOfficePlugin.OfficeInterop;
 using GreenshotPlugin.Interop;
+using log4net;
 
-namespace GreenshotOfficePlugin.OfficeExport {
-	public class ExcelExporter {
-		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ExcelExporter));
+#endregion
+
+namespace GreenshotOfficePlugin.OfficeExport
+{
+	public class ExcelExporter
+	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ExcelExporter));
 		private static Version _excelVersion;
 
 		/// <summary>
-		/// Get all currently opened workbooks
+		///     Get all currently opened workbooks
 		/// </summary>
 		/// <returns>List of string with names of the workbooks</returns>
-		public static List<string> GetWorkbooks() {
-			List<string> currentWorkbooks = new List<string>();
-			using (IExcelApplication excelApplication = GetExcelApplication()) {
-				if (excelApplication == null) {
+		public static List<string> GetWorkbooks()
+		{
+			var currentWorkbooks = new List<string>();
+			using (var excelApplication = GetExcelApplication())
+			{
+				if (excelApplication == null)
+				{
 					return currentWorkbooks;
 				}
-				using (IWorkbooks workbooks = excelApplication.Workbooks) {
-					for (int i = 1; i <= workbooks.Count; i++) {
-						using (IWorkbook workbook = workbooks[i]) {
-							if (workbook != null) {
+				using (var workbooks = excelApplication.Workbooks)
+				{
+					for (var i = 1; i <= workbooks.Count; i++)
+					{
+						using (var workbook = workbooks[i])
+						{
+							if (workbook != null)
+							{
 								currentWorkbooks.Add(workbook.Name);
 							}
 						}
@@ -59,26 +73,33 @@ namespace GreenshotOfficePlugin.OfficeExport {
 		}
 
 		/// <summary>
-		/// Insert image from supplied tmp file into the give excel workbook
+		///     Insert image from supplied tmp file into the give excel workbook
 		/// </summary>
 		/// <param name="workbookName"></param>
 		/// <param name="tmpFile"></param>
 		/// <param name="imageSize"></param>
-		public static void InsertIntoExistingWorkbook(string workbookName, string tmpFile, Size imageSize) {
-			using (IExcelApplication excelApplication = GetExcelApplication()) {
-				if (excelApplication == null) {
+		public static void InsertIntoExistingWorkbook(string workbookName, string tmpFile, Size imageSize)
+		{
+			using (var excelApplication = GetExcelApplication())
+			{
+				if (excelApplication == null)
+				{
 					return;
 				}
-				using (IWorkbooks workbooks = excelApplication.Workbooks) {
-					for (int i = 1; i <= workbooks.Count; i++) {
-						using (IWorkbook workbook = workbooks[i]) {
-							if (workbook != null && workbook.Name.StartsWith(workbookName)) {
+				using (var workbooks = excelApplication.Workbooks)
+				{
+					for (var i = 1; i <= workbooks.Count; i++)
+					{
+						using (var workbook = workbooks[i])
+						{
+							if (workbook != null && workbook.Name.StartsWith(workbookName))
+							{
 								InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
 							}
 						}
 					}
 				}
-				int hWnd = excelApplication.Hwnd;
+				var hWnd = excelApplication.Hwnd;
 				if (hWnd > 0)
 				{
 					// TODO: Await
@@ -88,20 +109,26 @@ namespace GreenshotOfficePlugin.OfficeExport {
 		}
 
 		/// <summary>
-		/// Insert a file into an already created workbook
+		///     Insert a file into an already created workbook
 		/// </summary>
 		/// <param name="workbook"></param>
 		/// <param name="tmpFile"></param>
 		/// <param name="imageSize"></param>
-		private static void InsertIntoExistingWorkbook(IWorkbook workbook, string tmpFile, Size imageSize) {
-			IWorksheet workSheet = workbook.ActiveSheet;
-			if (workSheet == null) {
+		private static void InsertIntoExistingWorkbook(IWorkbook workbook, string tmpFile, Size imageSize)
+		{
+			var workSheet = workbook.ActiveSheet;
+			if (workSheet == null)
+			{
 				return;
 			}
-			using (IShapes shapes = workSheet.Shapes) {
-				if (shapes != null) {
-					using (IShape shape = shapes.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, imageSize.Width, imageSize.Height)) {
-						if (shape != null) {
+			using (var shapes = workSheet.Shapes)
+			{
+				if (shapes != null)
+				{
+					using (var shape = shapes.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, imageSize.Width, imageSize.Height))
+					{
+						if (shape != null)
+						{
 							shape.Top = 40;
 							shape.Left = 40;
 							shape.LockAspectRatio = MsoTriState.msoTrue;
@@ -114,17 +141,21 @@ namespace GreenshotOfficePlugin.OfficeExport {
 		}
 
 		/// <summary>
-		/// Add an image-file to a newly created workbook
+		///     Add an image-file to a newly created workbook
 		/// </summary>
 		/// <param name="tmpFile"></param>
 		/// <param name="imageSize"></param>
-		public static void InsertIntoNewWorkbook(string tmpFile, Size imageSize) {
-			using (IExcelApplication excelApplication = GetOrCreateExcelApplication()) {
-				if (excelApplication != null) {
+		public static void InsertIntoNewWorkbook(string tmpFile, Size imageSize)
+		{
+			using (var excelApplication = GetOrCreateExcelApplication())
+			{
+				if (excelApplication != null)
+				{
 					excelApplication.Visible = true;
 					object template = Missing.Value;
-					using (IWorkbooks workbooks = excelApplication.Workbooks) {
-						IWorkbook workbook = workbooks.Add(template);
+					using (var workbooks = excelApplication.Workbooks)
+					{
+						var workbook = workbooks.Add(template);
 						InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
 					}
 				}
@@ -133,40 +164,47 @@ namespace GreenshotOfficePlugin.OfficeExport {
 
 
 		/// <summary>
-		/// Call this to get the running Excel application, returns null if there isn't any.
+		///     Call this to get the running Excel application, returns null if there isn't any.
 		/// </summary>
 		/// <returns>IExcelApplication or null</returns>
-		private static IExcelApplication GetExcelApplication() {
-			IExcelApplication excelApplication = COMWrapper.GetInstance<IExcelApplication>();
+		private static IExcelApplication GetExcelApplication()
+		{
+			var excelApplication = COMWrapper.GetInstance<IExcelApplication>();
 			InitializeVariables(excelApplication);
 			return excelApplication;
 		}
 
 		/// <summary>
-		/// Call this to get the running Excel application, or create a new instance
+		///     Call this to get the running Excel application, or create a new instance
 		/// </summary>
 		/// <returns>IExcelApplication</returns>
-		private static IExcelApplication GetOrCreateExcelApplication() {
-			IExcelApplication excelApplication = COMWrapper.GetOrCreateInstance<IExcelApplication>();
+		private static IExcelApplication GetOrCreateExcelApplication()
+		{
+			var excelApplication = COMWrapper.GetOrCreateInstance<IExcelApplication>();
 			InitializeVariables(excelApplication);
 			return excelApplication;
 		}
 
 		/// <summary>
-		/// Initialize static outlook variables like version and currentuser
+		///     Initialize static outlook variables like version and currentuser
 		/// </summary>
 		/// <param name="excelApplication"></param>
-		private static void InitializeVariables(IExcelApplication excelApplication) {
-			if (excelApplication == null || _excelVersion != null) {
+		private static void InitializeVariables(IExcelApplication excelApplication)
+		{
+			if (excelApplication == null || _excelVersion != null)
+			{
 				return;
 			}
-			try {
+			try
+			{
 				_excelVersion = new Version(excelApplication.Version);
 				Log.InfoFormat("Using Excel {0}", _excelVersion);
-			} catch (Exception exVersion) {
+			}
+			catch (Exception exVersion)
+			{
 				Log.Error(exVersion);
 				Log.Warn("Assuming Excel version 1997.");
-				_excelVersion = new Version((int)OfficeVersion.OFFICE_97, 0, 0, 0);
+				_excelVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
 			}
 		}
 	}

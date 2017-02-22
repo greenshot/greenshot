@@ -88,22 +88,31 @@
     <Compile Include="Core\Enums\ClipboardFormats.cs" />
     <Compile Include="Core\Enums\ExifOrientations.cs" />
     <Compile Include="Core\ExplorerHelper.cs" />
+    <Compile Include="Gfx\Fast24RgbBitmap.cs" />
+    <Compile Include="Gfx\Fast32ArgbBitmap.cs" />
+    <Compile Include="Gfx\Fast32RgbBitmap.cs" />
+    <Compile Include="Gfx\FastChunkyBitmap.cs" />
+    <Compile Include="Gfx\IFastBitmap.cs" />
+    <Compile Include="Gfx\IFastBitmapWithBlend.cs" />
+    <Compile Include="Gfx\IFastBitmapWithClip.cs" />
+    <Compile Include="Gfx\IFastBitmapWithOffset.cs" />
+    <Compile Include="Gfx\WuQuantizer.cs" />
     <Compile Include="Core\Log4NetLogger.cs" />
     <Compile Include="Core\Enums\OutputFormats.cs" />
     <Compile Include="Core\Enums\WindowCaptureModes.cs" />
     <Compile Include="Core\InteropWindowCaptureExtensions.cs" />
-    <Compile Include="Core\SvgImage.cs" />
+    <Compile Include="Gfx\SvgImage.cs" />
     <Compile Include="Effects\AdjustEffect.cs" />
     <Compile Include="Effects\BorderEffect.cs" />
     <Compile Include="Core\CaptureHandler.cs" />
     <Compile Include="Core\EffectConverter.cs" />
     <Compile Include="Core\EventDelay.cs" />
-    <Compile Include="Core\FastBitmap.cs" />
+    <Compile Include="Gfx\FastBitmap.cs" />
     <Compile Include="Core\Func.cs" />
     <Compile Include="Effects\GrayscaleEffect.cs" />
     <Compile Include="Effects\IEffect.cs" />
     <Compile Include="Core\IImage.cs" />
-    <Compile Include="Core\ImageWrapper.cs" />
+    <Compile Include="Gfx\ImageWrapper.cs" />
     <Compile Include="Effects\InvertEffect.cs" />
     <Compile Include="Effects\MonochromeEffect.cs" />
     <Compile Include="Core\OperatingSystemExtensions.cs" />
@@ -111,6 +120,7 @@
     <Compile Include="Effects\ResizeCanvasEffect.cs" />
     <Compile Include="Effects\ResizeEffect.cs" />
     <Compile Include="Effects\RotateEffect.cs" />
+    <Compile Include="Effects\Scale2xEffect.cs" />
     <Compile Include="Effects\TornEdgeEffect.cs" />
     <Compile Include="Core\WmInputLangChangeRequestFilter.cs" />
     <Compile Include="GlobalSuppressions.cs" />
@@ -149,10 +159,8 @@
     <Compile Include="Interfaces\SurfaceMessageTyp.cs" />
     <Compile Include="Interfaces\SurfaceSizeChangeEventHandler.cs" />
     <Compile Include="Interfaces\VerticalAlignment.cs" />
-    <Compile Include="Interop\Base.cs" />
     <Compile Include="Interop\ComProgIdAttribute.cs" />
     <Compile Include="Interop\COMWrapper.cs" />
-    <Compile Include="Interop\IAppVisibility.cs" />
     <Compile Include="Interop\IUnknown.cs" />
     <Compile Include="Interop\IDispatch.cs" />
     <Compile Include="Interop\IOleWindow.cs" />
@@ -246,7 +254,7 @@
     <Compile Include="Effects\DropShadowEffect.cs" />
     <Compile Include="Core\StringExtensions.cs" />
     <Compile Include="Core\FilenameHelper.cs" />
-    <Compile Include="Core\ImageOutput.cs" />
+    <Compile Include="Gfx\ImageOutput.cs" />
     <Compile Include="Core\InterfaceUtils.cs" />
     <Compile Include="Core\DisplayKeyAttribute.cs" />
     <Compile Include="Core\EmailConfigHelper.cs" />
@@ -254,7 +262,7 @@
     <Compile Include="Core\ExtensionAttribute.cs" />
     <Compile Include="Core\GreenshotResources.cs" />
     <Compile Include="Core\IEHelper.cs" />
-    <Compile Include="Core\ImageHelper.cs" />
+    <Compile Include="Gfx\ImageHelper.cs" />
     <Compile Include="Core\JSONHelper.cs" />
     <Compile Include="Core\Language.cs" />
     <Compile Include="Core\LogHelper.cs" />
@@ -262,7 +270,7 @@
     <Compile Include="Core\OAuthHelper.cs" />
     <Compile Include="Core\ObjectExtensions.cs" />
     <Compile Include="Core\PluginUtils.cs" />
-    <Compile Include="Core\QuantizerHelper.cs" />
+    <Compile Include="Gfx\WuColorCube.cs" />
     <Compile Include="Core\RssHelper.cs" />
     <Compile Include="Core\WindowCapture.cs" />
     <Compile Include="IniFile\IniAttributes.cs" />
@@ -286,7 +294,5 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="IEInterop\" />
-  </ItemGroup>
+  <ItemGroup />
 </Project>

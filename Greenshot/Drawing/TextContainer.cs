@@ -1,28 +1,28 @@
-/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+#region Greenshot GNU General Public License
 
-using Greenshot.Drawing.Fields;
-using Greenshot.Helpers;
-using Greenshot.Memento;
-using GreenshotPlugin.Interfaces.Drawing;
+// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+// For more information see: http://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 1 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#endregion
+
+#region Usings
+
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -31,51 +31,111 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
+using Greenshot.Drawing.Fields;
+using Greenshot.Helpers;
+using Greenshot.Memento;
+using GreenshotPlugin.Interfaces.Drawing;
+
+#endregion
 
 namespace Greenshot.Drawing
 {
 	/// <summary>
-	/// Represents a textbox (extends RectangleContainer for border/background support
+	///     Represents a textbox (extends RectangleContainer for border/background support
 	/// </summary>
 	[Serializable]
 	public class TextContainer : RectangleContainer, ITextContainer
 	{
+		[NonSerialized] private Font _font;
+
+		/// <summary>
+		///     The StringFormat object is not serializable!!
+		/// </summary>
+		[NonSerialized] private StringFormat _stringFormat = new StringFormat();
+
+		[NonSerialized] private TextBox _textBox;
+
 		// If makeUndoable is true the next text-change will make the change undoable.
 		// This is set to true AFTER the first change is made, as there is already a "add element" on the undo stack
 		// Although the name is wrong, we can't change it due to file serialization
 		// ReSharper disable once InconsistentNaming
 		private bool makeUndoable;
-		[NonSerialized]
-		private Font _font;
-		public Font Font => _font;
-
-		[NonSerialized]
-		private TextBox _textBox;
-
-		/// <summary>
-		/// The StringFormat object is not serializable!!
-		/// </summary>
-		[NonSerialized]
-		private StringFormat _stringFormat = new StringFormat();
-
-		public StringFormat StringFormat => _stringFormat;
 
 		// Although the name is wrong, we can't change it due to file serialization
 		// ReSharper disable once InconsistentNaming
 		private string text;
+
+		public TextContainer(Surface parent) : base(parent)
+		{
+			Init();
+		}
+
+		public Font Font => _font;
+
+		public StringFormat StringFormat => _stringFormat;
 		// there is a binding on the following property!
 		public string Text
 		{
 			get { return text; }
-			set
+			set { ChangeText(value, true); }
+		}
+
+
+		public override void Invalidate()
+		{
+			base.Invalidate();
+			if (_textBox != null && _textBox.Visible)
 			{
-				ChangeText(value, true);
+				_textBox.Invalidate();
 			}
+		}
+
+		public void FitToText()
+		{
+			var textSize = TextRenderer.MeasureText(text, _font);
+			var lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
+			Width = textSize.Width + lineThickness;
+			Height = textSize.Height + lineThickness;
+		}
+
+		/// <summary>
+		///     Make sure the size of the font is scaled
+		/// </summary>
+		/// <param name="matrix"></param>
+		public override void Transform(Matrix matrix)
+		{
+			var rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+			var pixelsBefore = rect.Width * rect.Height;
+
+			// Transform this container
+			base.Transform(matrix);
+			rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+
+			var pixelsAfter = rect.Width * rect.Height;
+			var factor = pixelsAfter / (float) pixelsBefore;
+
+			var fontSize = GetFieldValueAsFloat(FieldType.FONT_SIZE);
+			fontSize *= factor;
+			SetFieldValue(FieldType.FONT_SIZE, fontSize);
+			UpdateFormat();
+		}
+
+		public override void ApplyBounds(RectangleF newBounds)
+		{
+			base.ApplyBounds(newBounds);
+			UpdateTextBoxPosition();
+		}
+
+		public override bool ClickableAt(int x, int y)
+		{
+			var r = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+			r.Inflate(5, 5);
+			return r.Contains(x, y);
 		}
 
 		internal void ChangeText(string newText, bool allowUndoable)
 		{
-			if ((text == null && newText != null) || !string.Equals(text, newText))
+			if (text == null && newText != null || !string.Equals(text, newText))
 			{
 				if (makeUndoable && allowUndoable)
 				{
@@ -85,11 +145,6 @@ namespace Greenshot.Drawing
 				text = newText;
 				OnPropertyChanged("Text");
 			}
-		}
-
-		public TextContainer(Surface parent) : base(parent)
-		{
-			Init();
 		}
 
 		protected override void InitializeFields()
@@ -107,7 +162,7 @@ namespace Greenshot.Drawing
 		}
 
 		/// <summary>
-		/// Do some logic to make sure all field are initiated correctly
+		///     Do some logic to make sure all field are initiated correctly
 		/// </summary>
 		/// <param name="streamingContext">StreamingContext</param>
 		protected override void OnDeserialized(StreamingContext streamingContext)
@@ -153,24 +208,6 @@ namespace Greenshot.Drawing
 
 			PropertyChanged += TextContainer_PropertyChanged;
 			FieldChanged += TextContainer_FieldChanged;
-		}
-
-
-		public override void Invalidate()
-		{
-			base.Invalidate();
-			if (_textBox != null && _textBox.Visible)
-			{
-				_textBox.Invalidate();
-			}
-		}
-
-		public void FitToText()
-		{
-			Size textSize = TextRenderer.MeasureText(text, _font);
-			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-			Width = textSize.Width + lineThickness;
-			Height = textSize.Height + lineThickness;
 		}
 
 		private void TextContainer_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -279,7 +316,7 @@ namespace Greenshot.Drawing
 		}
 
 		/// <summary>
-		/// Makes textbox background dark if text color is very bright
+		///     Makes textbox background dark if text color is very bright
 		/// </summary>
 		private void EnsureTextBoxContrast()
 		{
@@ -287,7 +324,7 @@ namespace Greenshot.Drawing
 			{
 				return;
 			}
-			Color lc = GetFieldValueAsColor(FieldType.LINE_COLOR);
+			var lc = GetFieldValueAsColor(FieldType.LINE_COLOR);
 			if (lc.R > 203 && lc.G > 203 && lc.B > 203)
 			{
 				_textBox.BackColor = Color.FromArgb(51, 51, 51);
@@ -306,43 +343,21 @@ namespace Greenshot.Drawing
 			_parent.Controls.Remove(_textBox);
 		}
 
-		/// <summary>
-		/// Make sure the size of the font is scaled
-		/// </summary>
-		/// <param name="matrix"></param>
-		public override void Transform(Matrix matrix)
-		{
-			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-			int pixelsBefore = rect.Width * rect.Height;
-
-			// Transform this container
-			base.Transform(matrix);
-			rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-
-			int pixelsAfter = rect.Width * rect.Height;
-			float factor = pixelsAfter / (float)pixelsBefore;
-
-			float fontSize = GetFieldValueAsFloat(FieldType.FONT_SIZE);
-			fontSize *= factor;
-			SetFieldValue(FieldType.FONT_SIZE, fontSize);
-			UpdateFormat();
-		}
-
 		private Font CreateFont(string fontFamilyName, bool fontBold, bool fontItalic, float fontSize)
 		{
-			FontStyle fontStyle = FontStyle.Regular;
+			var fontStyle = FontStyle.Regular;
 
-			bool hasStyle = false;
+			var hasStyle = false;
 			using (var fontFamily = new FontFamily(fontFamilyName))
 			{
-				bool boldAvailable = fontFamily.IsStyleAvailable(FontStyle.Bold);
+				var boldAvailable = fontFamily.IsStyleAvailable(FontStyle.Bold);
 				if (fontBold && boldAvailable)
 				{
 					fontStyle |= FontStyle.Bold;
 					hasStyle = true;
 				}
 
-				bool italicAvailable = fontFamily.IsStyleAvailable(FontStyle.Italic);
+				var italicAvailable = fontFamily.IsStyleAvailable(FontStyle.Italic);
 				if (fontItalic && italicAvailable)
 				{
 					fontStyle |= FontStyle.Italic;
@@ -351,7 +366,7 @@ namespace Greenshot.Drawing
 
 				if (!hasStyle)
 				{
-					bool regularAvailable = fontFamily.IsStyleAvailable(FontStyle.Regular);
+					var regularAvailable = fontFamily.IsStyleAvailable(FontStyle.Regular);
 					if (regularAvailable)
 					{
 						fontStyle = FontStyle.Regular;
@@ -373,7 +388,7 @@ namespace Greenshot.Drawing
 		}
 
 		/// <summary>
-		/// Generate the Font-Formal so we can draw correctly
+		///     Generate the Font-Formal so we can draw correctly
 		/// </summary>
 		protected void UpdateFormat()
 		{
@@ -381,10 +396,10 @@ namespace Greenshot.Drawing
 			{
 				return;
 			}
-			string fontFamily = GetFieldValueAsString(FieldType.FONT_FAMILY);
-			bool fontBold = GetFieldValueAsBool(FieldType.FONT_BOLD);
-			bool fontItalic = GetFieldValueAsBool(FieldType.FONT_ITALIC);
-			float fontSize = GetFieldValueAsFloat(FieldType.FONT_SIZE);
+			var fontFamily = GetFieldValueAsString(FieldType.FONT_FAMILY);
+			var fontBold = GetFieldValueAsBool(FieldType.FONT_BOLD);
+			var fontItalic = GetFieldValueAsBool(FieldType.FONT_ITALIC);
+			var fontSize = GetFieldValueAsFloat(FieldType.FONT_SIZE);
 			try
 			{
 				var newFont = CreateFont(fontFamily, fontBold, fontItalic, fontSize);
@@ -420,13 +435,13 @@ namespace Greenshot.Drawing
 
 		private void UpdateAlignment()
 		{
-			_stringFormat.Alignment = (StringAlignment)GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
-			_stringFormat.LineAlignment = (StringAlignment)GetFieldValue(FieldType.TEXT_VERTICAL_ALIGNMENT);
+			_stringFormat.Alignment = (StringAlignment) GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
+			_stringFormat.LineAlignment = (StringAlignment) GetFieldValue(FieldType.TEXT_VERTICAL_ALIGNMENT);
 		}
 
 		/// <summary>
-		/// This will create the textbox exactly to the inner size of the element
-		/// is a bit of a hack, but for now it seems to work...
+		///     This will create the textbox exactly to the inner size of the element
+		///     is a bit of a hack, but for now it seems to work...
 		/// </summary>
 		private void UpdateTextBoxPosition()
 		{
@@ -434,16 +449,16 @@ namespace Greenshot.Drawing
 			{
 				return;
 			}
-			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
+			var lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 
-			int lineWidth = (int)Math.Floor(lineThickness / 2d);
-			int correction = (lineThickness + 1) % 2;
+			var lineWidth = (int) Math.Floor(lineThickness / 2d);
+			var correction = (lineThickness + 1) % 2;
 			if (lineThickness <= 1)
 			{
 				lineWidth = 1;
 				correction = -1;
 			}
-			Rectangle absRectangle = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+			var absRectangle = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 			_textBox.Left = absRectangle.Left + lineWidth;
 			_textBox.Top = absRectangle.Top + lineWidth;
 			if (lineThickness <= 1)
@@ -454,19 +469,13 @@ namespace Greenshot.Drawing
 			_textBox.Height = absRectangle.Height - 2 * lineWidth + correction;
 		}
 
-		public override void ApplyBounds(RectangleF newBounds)
-		{
-			base.ApplyBounds(newBounds);
-			UpdateTextBoxPosition();
-		}
-
 		private void UpdateTextBoxFormat()
 		{
 			if (_textBox == null)
 			{
 				return;
 			}
-			var alignment = (StringAlignment)GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
+			var alignment = (StringAlignment) GetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
 			switch (alignment)
 			{
 				case StringAlignment.Near:
@@ -487,7 +496,7 @@ namespace Greenshot.Drawing
 		private void textBox_KeyDown(object sender, KeyEventArgs e)
 		{
 			// ESC and Enter/Return (w/o Shift) hide text editor
-			if (e.KeyCode == Keys.Escape || ((e.KeyCode == Keys.Return || e.KeyCode == Keys.Enter) && e.Modifiers == Keys.None))
+			if (e.KeyCode == Keys.Escape || (e.KeyCode == Keys.Return || e.KeyCode == Keys.Enter) && e.Modifiers == Keys.None)
 			{
 				HideTextBox();
 				e.SuppressKeyPress = true;
@@ -511,7 +520,7 @@ namespace Greenshot.Drawing
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
 			graphics.TextRenderingHint = TextRenderingHint.SystemDefault;
 
-			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+			var rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 			if (Selected && rm == RenderMode.EDIT)
 			{
 				DrawSelectionBorder(graphics, rect);
@@ -523,17 +532,17 @@ namespace Greenshot.Drawing
 			}
 
 			// we only draw the shadow if there is no background
-			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
-			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-			bool drawShadow = shadow && (fillColor == Color.Transparent || fillColor == Color.Empty);
+			var shadow = GetFieldValueAsBool(FieldType.SHADOW);
+			var fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
+			var lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
+			var lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
+			var drawShadow = shadow && (fillColor == Color.Transparent || fillColor == Color.Empty);
 
 			DrawText(graphics, rect, lineThickness, lineColor, drawShadow, _stringFormat, text, _font);
 		}
 
 		/// <summary>
-		/// This method can be used from other containers
+		///     This method can be used from other containers
 		/// </summary>
 		/// <param name="graphics"></param>
 		/// <param name="drawingRectange"></param>
@@ -543,7 +552,8 @@ namespace Greenshot.Drawing
 		/// <param name="stringFormat"></param>
 		/// <param name="text"></param>
 		/// <param name="font"></param>
-		public static void DrawText(Graphics graphics, Rectangle drawingRectange, int lineThickness, Color fontColor, bool drawShadow, StringFormat stringFormat, string text, Font font)
+		public static void DrawText(Graphics graphics, Rectangle drawingRectange, int lineThickness, Color fontColor, bool drawShadow, StringFormat stringFormat, string text,
+			Font font)
 		{
 #if DEBUG
 			Debug.Assert(font != null);
@@ -553,18 +563,18 @@ namespace Greenshot.Drawing
 				return;
 			}
 #endif
-			int textOffset = lineThickness > 0 ? (int)Math.Ceiling(lineThickness / 2d) : 0;
+			var textOffset = lineThickness > 0 ? (int) Math.Ceiling(lineThickness / 2d) : 0;
 			// draw shadow before anything else
 			if (drawShadow)
 			{
-				int basealpha = 100;
-				int alpha = basealpha;
-				int steps = 5;
-				int currentStep = 1;
+				var basealpha = 100;
+				var alpha = basealpha;
+				var steps = 5;
+				var currentStep = 1;
 				while (currentStep <= steps)
 				{
-					int offset = currentStep;
-					Rectangle shadowRect = GuiRectangle.GetGuiRectangle(drawingRectange.Left + offset, drawingRectange.Top + offset, drawingRectange.Width, drawingRectange.Height);
+					var offset = currentStep;
+					var shadowRect = GuiRectangle.GetGuiRectangle(drawingRectange.Left + offset, drawingRectange.Top + offset, drawingRectange.Width, drawingRectange.Height);
 					if (lineThickness > 0)
 					{
 						shadowRect.Inflate(-textOffset, -textOffset);
@@ -593,13 +603,6 @@ namespace Greenshot.Drawing
 					graphics.DrawString(text, font, fontBrush, drawingRectange);
 				}
 			}
-		}
-
-		public override bool ClickableAt(int x, int y)
-		{
-			Rectangle r = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-			r.Inflate(5, 5);
-			return r.Contains(x, y);
 		}
 	}
 }

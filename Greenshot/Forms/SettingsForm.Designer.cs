@@ -310,7 +310,7 @@ namespace Greenshot {
 			this.checkbox_copypathtoclipboard.TabIndex = 6;
 			this.checkbox_copypathtoclipboard.UseVisualStyleBackColor = true;
 			// 
-            // groupbox_applicationsettings
+			// groupbox_applicationsettings
 			// 
 			this.groupbox_applicationsettings.Controls.Add(this.label_language);
 			this.groupbox_applicationsettings.Controls.Add(this.combobox_language);
@@ -441,7 +441,7 @@ namespace Greenshot {
 			this.listview_destinations.AutoArrange = false;
 			this.listview_destinations.CheckBoxes = true;
 			this.listview_destinations.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.destination});
+			this.destination});
 			this.listview_destinations.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
 			this.listview_destinations.LabelWrap = false;
 			this.listview_destinations.Location = new System.Drawing.Point(6, 38);
@@ -764,17 +764,17 @@ namespace Greenshot {
 			this.groupbox_capture.TabIndex = 0;
 			this.groupbox_capture.TabStop = false;
 			// 
-            // checkbox_zoomer
-            // 
-            this.checkbox_zoomer.LanguageKey = "settings_zoom";
-            this.checkbox_zoomer.Location = new System.Drawing.Point(11, 79);
-            this.checkbox_zoomer.Name = "checkbox_zoomer";
-            this.checkbox_zoomer.PropertyName = "ZoomerEnabled";
-            this.checkbox_zoomer.Size = new System.Drawing.Size(399, 24);
-            this.checkbox_zoomer.TabIndex = 4;
-            this.checkbox_zoomer.UseVisualStyleBackColor = true;
-            // 
-            // checkbox_notifications
+			// checkbox_zoomer
+			// 
+			this.checkbox_zoomer.LanguageKey = "settings_zoom";
+			this.checkbox_zoomer.Location = new System.Drawing.Point(11, 79);
+			this.checkbox_zoomer.Name = "checkbox_zoomer";
+			this.checkbox_zoomer.PropertyName = "ZoomerEnabled";
+			this.checkbox_zoomer.Size = new System.Drawing.Size(399, 24);
+			this.checkbox_zoomer.TabIndex = 4;
+			this.checkbox_zoomer.UseVisualStyleBackColor = true;
+			// 
+			// checkbox_notifications
 			// 
 			this.checkbox_notifications.LanguageKey = "settings_shownotify";
 			this.checkbox_notifications.Location = new System.Drawing.Point(11, 59);
@@ -807,16 +807,16 @@ namespace Greenshot {
 			// numericUpDownWaitTime
 			// 
 			this.numericUpDownWaitTime.Increment = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
+			100,
+			0,
+			0,
+			0});
 			this.numericUpDownWaitTime.Location = new System.Drawing.Point(9, 103);
 			this.numericUpDownWaitTime.Maximum = new decimal(new int[] {
-            10000,
-            0,
-            0,
-            0});
+			10000,
+			0,
+			0,
+			0});
 			this.numericUpDownWaitTime.Name = "numericUpDownWaitTime";
 			this.numericUpDownWaitTime.Size = new System.Drawing.Size(57, 20);
 			this.numericUpDownWaitTime.TabIndex = 5;
@@ -1046,8 +1046,8 @@ namespace Greenshot {
 			// groupbox_plugins
 			// 
 			this.groupbox_plugins.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Left) 
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.groupbox_plugins.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
 			this.groupbox_plugins.Controls.Add(this.listview_plugins);
 			this.groupbox_plugins.Controls.Add(this.button_pluginconfigure);
@@ -1252,7 +1252,7 @@ namespace Greenshot {
 			this.listview_clipboardformats.AutoArrange = false;
 			this.listview_clipboardformats.CheckBoxes = true;
 			this.listview_clipboardformats.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1});
+			this.columnHeader1});
 			this.listview_clipboardformats.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
 			this.listview_clipboardformats.LabelWrap = false;
 			this.listview_clipboardformats.Location = new System.Drawing.Point(170, 38);
@@ -1271,8 +1271,8 @@ namespace Greenshot {
 			// 
 			// SettingsForm
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13.5F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.AutoSize = true;
 			this.ClientSize = new System.Drawing.Size(451, 431);
 			this.Controls.Add(this.tabcontrol);
@@ -1404,19 +1404,19 @@ namespace Greenshot {
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_reducecolors;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_suppresssavedialogatclose;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_checkunstableupdates;
-        private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_reuseeditor;
-        private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_alwaysshowprintoptionsdialog;
-        private GreenshotPlugin.Controls.GreenshotGroupBox groupBoxColors;
-        private GreenshotPlugin.Controls.GreenshotCheckBox checkboxPrintInverted;
-        private GreenshotPlugin.Controls.GreenshotRadioButton radioBtnColorPrint;
-        private GreenshotPlugin.Controls.GreenshotRadioButton radioBtnGrayScale;
-        private GreenshotPlugin.Controls.GreenshotRadioButton radioBtnMonochrome;
-        private GreenshotPlugin.Controls.GreenshotGroupBox groupBoxPrintLayout;
-        private GreenshotPlugin.Controls.GreenshotCheckBox checkboxDateTime;
-        private GreenshotPlugin.Controls.GreenshotCheckBox checkboxAllowShrink;
-        private GreenshotPlugin.Controls.GreenshotCheckBox checkboxAllowEnlarge;
-        private GreenshotPlugin.Controls.GreenshotCheckBox checkboxAllowRotate;
-        private GreenshotPlugin.Controls.GreenshotCheckBox checkboxAllowCenter;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_reuseeditor;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_alwaysshowprintoptionsdialog;
+		private GreenshotPlugin.Controls.GreenshotGroupBox groupBoxColors;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkboxPrintInverted;
+		private GreenshotPlugin.Controls.GreenshotRadioButton radioBtnColorPrint;
+		private GreenshotPlugin.Controls.GreenshotRadioButton radioBtnGrayScale;
+		private GreenshotPlugin.Controls.GreenshotRadioButton radioBtnMonochrome;
+		private GreenshotPlugin.Controls.GreenshotGroupBox groupBoxPrintLayout;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkboxDateTime;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkboxAllowShrink;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkboxAllowEnlarge;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkboxAllowRotate;
+		private GreenshotPlugin.Controls.GreenshotCheckBox checkboxAllowCenter;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_zoomer;
 		private GreenshotPlugin.Controls.GreenshotLabel label_icon_size;
 		private System.Windows.Forms.NumericUpDown numericUpdownIconSize;

@@ -1,44 +1,54 @@
-/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+#region Greenshot GNU General Public License
+
+// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+// For more information see: http://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 1 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#endregion
+
+#region Usings
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Jira.Entities;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using GreenshotPlugin.IniFile;
+using log4net;
 
-namespace GreenshotJiraPlugin.Forms {
-	public partial class JiraForm : Form {
-		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraForm));
+#endregion
+
+namespace GreenshotJiraPlugin.Forms
+{
+	public partial class JiraForm : Form
+	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof(JiraForm));
+		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+		private readonly GreenshotColumnSorter _columnSorter;
 		private readonly JiraConnector _jiraConnector;
 		private Issue _selectedIssue;
-		private readonly GreenshotColumnSorter _columnSorter;
-		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 
-		public JiraForm(JiraConnector jiraConnector) {
+		public JiraForm(JiraConnector jiraConnector)
+		{
 			InitializeComponent();
 			Icon = GreenshotResources.getGreenshotIcon();
 			AcceptButton = uploadButton;
@@ -91,42 +101,50 @@ namespace GreenshotJiraPlugin.Forms {
 			}
 		}
 
-		private void InitializeComponentText() {
+		private void InitializeComponentText()
+		{
 			label_jirafilter.Text = Language.GetString("jira", LangKey.label_jirafilter);
 			label_comment.Text = Language.GetString("jira", LangKey.label_comment);
 			label_filename.Text = Language.GetString("jira", LangKey.label_filename);
 		}
 
-		private void ChangeModus(bool enabled) {
+		private void ChangeModus(bool enabled)
+		{
 			jiraFilterBox.Enabled = enabled;
 			jiraListView.Enabled = enabled;
 			jiraFilenameBox.Enabled = enabled;
 			jiraCommentBox.Enabled = enabled;
 		}
 
-		public void SetFilename(string filename) {
+		public void SetFilename(string filename)
+		{
 			jiraFilenameBox.Text = filename;
 		}
 
-		public Issue GetJiraIssue() {
+		public Issue GetJiraIssue()
+		{
 			return _selectedIssue;
 		}
 
-		public async Task UploadAsync(IBinaryContainer attachment) {
+		public async Task UploadAsync(IBinaryContainer attachment)
+		{
 			attachment.Filename = jiraFilenameBox.Text;
 			await _jiraConnector.AttachAsync(_selectedIssue.Key, attachment);
-			
-			if (!string.IsNullOrEmpty(jiraCommentBox.Text)) {
+
+			if (!string.IsNullOrEmpty(jiraCommentBox.Text))
+			{
 				await _jiraConnector.AddCommentAsync(_selectedIssue.Key, jiraCommentBox.Text);
 			}
 		}
 
-		private async void JiraFilterBox_SelectedIndexChanged(object sender, EventArgs e) {
-			if (_jiraConnector.IsLoggedIn) {
-
+		private async void JiraFilterBox_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			if (_jiraConnector.IsLoggedIn)
+			{
 				uploadButton.Enabled = false;
-				var filter = (Filter)jiraFilterBox.SelectedItem;
-				if (filter == null) {
+				var filter = (Filter) jiraFilterBox.SelectedItem;
+				if (filter == null)
+				{
 					return;
 				}
 				IList<Issue> issues = null;
@@ -141,10 +159,11 @@ namespace GreenshotJiraPlugin.Forms {
 				}
 
 				jiraListView.Items.Clear();
-				if (issues?.Count > 0) {
+				if (issues?.Count > 0)
+				{
 					jiraListView.Columns.Clear();
-					LangKey[] columns = { LangKey.column_issueType, LangKey.column_id, LangKey.column_created, LangKey.column_assignee, LangKey.column_reporter, LangKey.column_summary };
-					foreach (LangKey column in columns)
+					LangKey[] columns = {LangKey.column_issueType, LangKey.column_id, LangKey.column_created, LangKey.column_assignee, LangKey.column_reporter, LangKey.column_summary};
+					foreach (var column in columns)
 					{
 						string translation;
 						if (!Language.TryGetString("jira", column, out translation))
@@ -153,13 +172,15 @@ namespace GreenshotJiraPlugin.Forms {
 						}
 						jiraListView.Columns.Add(translation);
 					}
-					var imageList = new ImageList {
+					var imageList = new ImageList
+					{
 						ImageSize = CoreConfig.IconSize
 					};
 					jiraListView.SmallImageList = imageList;
 					jiraListView.LargeImageList = imageList;
 
-					foreach (var issue in issues) {
+					foreach (var issue in issues)
+					{
 						var item = new ListViewItem
 						{
 							Tag = issue
@@ -181,7 +202,7 @@ namespace GreenshotJiraPlugin.Forms {
 						item.SubItems.Add(issue.Fields.Reporter?.DisplayName);
 						item.SubItems.Add(issue.Fields.Summary);
 						jiraListView.Items.Add(item);
-						for (int i = 0; i < columns.Length; i++)
+						for (var i = 0; i < columns.Length; i++)
 						{
 							jiraListView.AutoResizeColumn(i, ColumnHeaderAutoResizeStyle.ColumnContent);
 						}
@@ -194,22 +215,30 @@ namespace GreenshotJiraPlugin.Forms {
 			}
 		}
 
-		private void JiraListView_SelectedIndexChanged(object sender, EventArgs e) {
-			if (jiraListView.SelectedItems.Count > 0) {
-				_selectedIssue = (Issue)jiraListView.SelectedItems[0].Tag;
+		private void JiraListView_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			if (jiraListView.SelectedItems.Count > 0)
+			{
+				_selectedIssue = (Issue) jiraListView.SelectedItems[0].Tag;
 				jiraKey.Text = _selectedIssue.Key;
 				uploadButton.Enabled = true;
-			} else {
+			}
+			else
+			{
 				uploadButton.Enabled = false;
 			}
 		}
 
-		private void JiraListView_ColumnClick(object sender, ColumnClickEventArgs e) {
+		private void JiraListView_ColumnClick(object sender, ColumnClickEventArgs e)
+		{
 			// Determine if clicked column is already the column that is being sorted.
-			if (e.Column == _columnSorter.SortColumn) {
+			if (e.Column == _columnSorter.SortColumn)
+			{
 				// Reverse the current sort direction for this column.
 				_columnSorter.Order = _columnSorter.Order == SortOrder.Ascending ? SortOrder.Descending : SortOrder.Ascending;
-			} else {
+			}
+			else
+			{
 				// Set the column number that is to be sorted; default to ascending.
 				_columnSorter.SortColumn = e.Column;
 				_columnSorter.Order = SortOrder.Ascending;
@@ -219,13 +248,16 @@ namespace GreenshotJiraPlugin.Forms {
 			jiraListView.Sort();
 		}
 
-		private async void JiraKeyTextChanged(object sender, EventArgs e) {
-			string jiranumber = jiraKey.Text;
+		private async void JiraKeyTextChanged(object sender, EventArgs e)
+		{
+			var jiranumber = jiraKey.Text;
 			uploadButton.Enabled = false;
-			int dashIndex = jiranumber.IndexOf('-');
-			if (dashIndex > 0 && jiranumber.Length > dashIndex+1) {
+			var dashIndex = jiranumber.IndexOf('-');
+			if (dashIndex > 0 && jiranumber.Length > dashIndex + 1)
+			{
 				_selectedIssue = await _jiraConnector.GetIssueAsync(jiraKey.Text);
-				if (_selectedIssue != null) {
+				if (_selectedIssue != null)
+				{
 					uploadButton.Enabled = true;
 				}
 			}

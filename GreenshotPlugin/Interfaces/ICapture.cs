@@ -1,25 +1,23 @@
-#region Dapplo 2017 - GNU Lesser General Public License
+#region Greenshot GNU General Public License
 
-// Dapplo - building blocks for .NET applications
-// Copyright (C) 2017 Dapplo
+// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
 // 
-// For more information see: http://dapplo.net/
-// Dapplo repositories are hosted on GitHub: https://github.com/dapplo
+// For more information see: http://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
 // 
-// This file is part of Greenshot
-// 
-// Greenshot is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 1 of the License, or
 // (at your option) any later version.
 // 
-// Greenshot is distributed in the hope that it will be useful,
+// This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
+// GNU General Public License for more details.
 // 
-// You should have a copy of the GNU Lesser General Public License
-// along with Greenshot. If not, see <http://www.gnu.org/licenses/lgpl.txt>.
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #endregion
 
@@ -69,18 +67,18 @@ namespace GreenshotPlugin.Interfaces
 		/// <param name="y">y coordinates to move the mouse</param>
 		void MoveMouseLocation(int x, int y);
 
+		// / TODO: Enable when the elements are usable again.
+		///// <summary>
+		///// Apply a translate to the elements e.g. needed for crop
 		///// </summary>
+		///// <param name="x">x coordinates to move the elements</param>
+		///// <param name="y">y coordinates to move the elements</param>
+		//void MoveElements(int x, int y);
+
+		///// <summary>
 		///// Add a new element to the capture
 
-		///// <summary>
-		//void MoveElements(int x, int y);
-		///// <param name="y">y coordinates to move the elements</param>
-		///// <param name="x">x coordinates to move the elements</param>
 		///// </summary>
-		///// Apply a translate to the elements e.g. needed for crop
-		///// <summary>
-
-		// / TODO: Enable when the elements are usable again.
 		///// <param name="element">Rectangle</param>
 		//void AddElement(ICaptureElement element);
 

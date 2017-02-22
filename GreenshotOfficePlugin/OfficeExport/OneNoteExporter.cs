@@ -1,56 +1,70 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿#region Greenshot GNU General Public License
+
+// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+// For more information see: http://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 1 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#endregion
+
+#region Usings
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using Greenshot.Interop;
-using Greenshot.Interop.Office;
-using GreenshotPlugin.Core;
+using GreenshotOfficePlugin.OfficeInterop;
 using GreenshotPlugin.Core.Enums;
+using GreenshotPlugin.Core.Gfx;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using GreenshotPlugin.Interop;
+using log4net;
 
-namespace GreenshotOfficePlugin.OfficeExport {
+#endregion
 
-	public class OneNoteExporter {
-		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(OneNoteExporter));
-		private const string XmlImageContent = "<one:Image format=\"png\"><one:Size width=\"{1}.0\" height=\"{2}.0\" isSetByUser=\"true\" /><one:Data>{0}</one:Data></one:Image>";
-		private const string XmlOutline = "<?xml version=\"1.0\"?><one:Page xmlns:one=\"{2}\" ID=\"{1}\"><one:Title><one:OE><one:T><![CDATA[{3}]]></one:T></one:OE></one:Title>{0}</one:Page>";
+namespace GreenshotOfficePlugin.OfficeExport
+{
+	public class OneNoteExporter
+	{
+		private const string XmlImageContent =
+			"<one:Image format=\"png\"><one:Size width=\"{1}.0\" height=\"{2}.0\" isSetByUser=\"true\" /><one:Data>{0}</one:Data></one:Image>";
+
+		private const string XmlOutline =
+			"<?xml version=\"1.0\"?><one:Page xmlns:one=\"{2}\" ID=\"{1}\"><one:Title><one:OE><one:T><![CDATA[{3}]]></one:T></one:OE></one:Title>{0}</one:Page>";
+
 		private const string OnenoteNamespace2010 = "http://schemas.microsoft.com/office/onenote/2010/onenote";
+		private static readonly ILog Log = LogManager.GetLogger(typeof(OneNoteExporter));
 
 		/// <summary>
-		/// Create a new page in the "unfiled notes section", with the title of the capture, and export the capture there.
+		///     Create a new page in the "unfiled notes section", with the title of the capture, and export the capture there.
 		/// </summary>
 		/// <param name="surfaceToUpload">ISurface</param>
 		/// <returns>bool true if export worked</returns>
-		public static bool ExportToNewPage(ISurface surfaceToUpload) {
-			using(IOneNoteApplication oneNoteApplication = COMWrapper.GetOrCreateInstance<IOneNoteApplication>()) {
-				OneNotePage newPage = new OneNotePage();
-				string unfiledNotesSectionId = GetSectionId(oneNoteApplication, SpecialLocation.slUnfiledNotesSection);
-				if(unfiledNotesSectionId != null) {
+		public static bool ExportToNewPage(ISurface surfaceToUpload)
+		{
+			using (var oneNoteApplication = COMWrapper.GetOrCreateInstance<IOneNoteApplication>())
+			{
+				var newPage = new OneNotePage();
+				var unfiledNotesSectionId = GetSectionId(oneNoteApplication, SpecialLocation.slUnfiledNotesSection);
+				if (unfiledNotesSectionId != null)
+				{
 					// ReSharper disable once RedundantAssignment
-					string pageId = "";
+					var pageId = "";
 					oneNoteApplication.CreateNewPage(unfiledNotesSectionId, out pageId, NewPageStyle.npsDefault);
 					newPage.ID = pageId;
 					// Set the new name, this is automatically done in the export to page
@@ -62,39 +76,47 @@ namespace GreenshotOfficePlugin.OfficeExport {
 		}
 
 		/// <summary>
-		/// Export the capture to the specified page
+		///     Export the capture to the specified page
 		/// </summary>
 		/// <param name="surfaceToUpload">ISurface</param>
 		/// <param name="page">OneNotePage</param>
 		/// <returns>bool true if everything worked</returns>
-		public static bool ExportToPage(ISurface surfaceToUpload, OneNotePage page) {
-			using(IOneNoteApplication oneNoteApplication = COMWrapper.GetOrCreateInstance<IOneNoteApplication>()) {
+		public static bool ExportToPage(ISurface surfaceToUpload, OneNotePage page)
+		{
+			using (var oneNoteApplication = COMWrapper.GetOrCreateInstance<IOneNoteApplication>())
+			{
 				return ExportToPage(oneNoteApplication, surfaceToUpload, page);
 			}
 		}
 
 		/// <summary>
-		/// Export the capture to the specified page
+		///     Export the capture to the specified page
 		/// </summary>
 		/// <param name="oneNoteApplication">IOneNoteApplication</param>
 		/// <param name="surfaceToUpload">ISurface</param>
 		/// <param name="page">OneNotePage</param>
 		/// <returns>bool true if everything worked</returns>
-		private static bool ExportToPage(IOneNoteApplication oneNoteApplication, ISurface surfaceToUpload, OneNotePage page) {
-			if(oneNoteApplication == null) {
+		private static bool ExportToPage(IOneNoteApplication oneNoteApplication, ISurface surfaceToUpload, OneNotePage page)
+		{
+			if (oneNoteApplication == null)
+			{
 				return false;
 			}
-			using (MemoryStream pngStream = new MemoryStream()) {
-				SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormats.png, 100, false);
+			using (var pngStream = new MemoryStream())
+			{
+				var pngOutputSettings = new SurfaceOutputSettings(OutputFormats.png, 100, false);
 				ImageOutput.SaveToStream(surfaceToUpload, pngStream, pngOutputSettings);
-				string base64String = Convert.ToBase64String(pngStream.GetBuffer());
-				string imageXmlStr = string.Format(XmlImageContent, base64String, surfaceToUpload.Image.Width, surfaceToUpload.Image.Height);
-				string pageChangesXml = string.Format(XmlOutline, imageXmlStr, page.ID, OnenoteNamespace2010, page.Name);
+				var base64String = Convert.ToBase64String(pngStream.GetBuffer());
+				var imageXmlStr = string.Format(XmlImageContent, base64String, surfaceToUpload.Image.Width, surfaceToUpload.Image.Height);
+				var pageChangesXml = string.Format(XmlOutline, imageXmlStr, page.ID, OnenoteNamespace2010, page.Name);
 				Log.InfoFormat("Sending XML: {0}", pageChangesXml);
 				oneNoteApplication.UpdatePageContent(pageChangesXml, DateTime.MinValue, XMLSchema.xs2010, false);
-				try {
+				try
+				{
 					oneNoteApplication.NavigateTo(page.ID, null, false);
-				} catch(Exception ex) {
+				}
+				catch (Exception ex)
+				{
 					Log.Warn("Unable to navigate to the target page", ex);
 				}
 				return true;
@@ -102,39 +124,48 @@ namespace GreenshotOfficePlugin.OfficeExport {
 		}
 
 		/// <summary>
-		/// Retrieve the Section ID for the specified special location
+		///     Retrieve the Section ID for the specified special location
 		/// </summary>
 		/// <param name="oneNoteApplication"></param>
 		/// <param name="specialLocation">SpecialLocation</param>
 		/// <returns>string with section ID</returns>
-		private static string GetSectionId(IOneNoteApplication oneNoteApplication, SpecialLocation specialLocation) {
-			if(oneNoteApplication == null) {
+		private static string GetSectionId(IOneNoteApplication oneNoteApplication, SpecialLocation specialLocation)
+		{
+			if (oneNoteApplication == null)
+			{
 				return null;
 			}
 			// ReSharper disable once RedundantAssignment
-			string unfiledNotesPath = "";
+			var unfiledNotesPath = "";
 			oneNoteApplication.GetSpecialLocation(specialLocation, out unfiledNotesPath);
 
 			// ReSharper disable once RedundantAssignment
-			string notebookXml = "";
+			var notebookXml = "";
 			oneNoteApplication.GetHierarchy("", HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
-			if(!string.IsNullOrEmpty(notebookXml)) {
+			if (!string.IsNullOrEmpty(notebookXml))
+			{
 				Log.Debug(notebookXml);
 				StringReader reader = null;
-				try {
+				try
+				{
 					reader = new StringReader(notebookXml);
-					using(XmlTextReader xmlReader = new XmlTextReader(reader)) {
-						while(xmlReader.Read()) {
-							if("one:Section".Equals(xmlReader.Name)) {
-								string id = xmlReader.GetAttribute("ID");
-								string path = xmlReader.GetAttribute("path");
-								if(unfiledNotesPath.Equals(path)) {
+					using (var xmlReader = new XmlTextReader(reader))
+					{
+						while (xmlReader.Read())
+						{
+							if ("one:Section".Equals(xmlReader.Name))
+							{
+								var id = xmlReader.GetAttribute("ID");
+								var path = xmlReader.GetAttribute("path");
+								if (unfiledNotesPath.Equals(path))
+								{
 									return id;
 								}
 							}
 						}
 					}
-				} finally
+				}
+				finally
 				{
 					reader?.Dispose();
 				}
@@ -143,18 +174,22 @@ namespace GreenshotOfficePlugin.OfficeExport {
 		}
 
 		/// <summary>
-		/// Get the captions of all the open word documents
+		///     Get the captions of all the open word documents
 		/// </summary>
 		/// <returns></returns>
-		public static IEnumerable<OneNotePage> GetPages() {
-			using (IOneNoteApplication oneNoteApplication = COMWrapper.GetOrCreateInstance<IOneNoteApplication>()) {
-				if (oneNoteApplication != null) {
+		public static IEnumerable<OneNotePage> GetPages()
+		{
+			using (var oneNoteApplication = COMWrapper.GetOrCreateInstance<IOneNoteApplication>())
+			{
+				if (oneNoteApplication != null)
+				{
 					// ReSharper disable once RedundantAssignment
-					string notebookXml = "";
+					var notebookXml = "";
 					oneNoteApplication.GetHierarchy("", HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
-					if (!string.IsNullOrEmpty(notebookXml)) {
-						using (StringReader reader = new StringReader(notebookXml))
-						using (XmlTextReader xmlReader = new XmlTextReader(reader))
+					if (!string.IsNullOrEmpty(notebookXml))
+					{
+						using (var reader = new StringReader(notebookXml))
+						using (var xmlReader = new XmlTextReader(reader))
 						{
 							OneNoteSection currentSection = null;
 							OneNoteNotebook currentNotebook = null;
@@ -162,7 +197,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 							{
 								if ("one:Notebook".Equals(xmlReader.Name))
 								{
-									string id = xmlReader.GetAttribute("ID");
+									var id = xmlReader.GetAttribute("ID");
 									if (id != null && (currentNotebook == null || !id.Equals(currentNotebook.ID)))
 									{
 										currentNotebook = new OneNoteNotebook
@@ -174,7 +209,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 								}
 								if ("one:Section".Equals(xmlReader.Name))
 								{
-									string id = xmlReader.GetAttribute("ID");
+									var id = xmlReader.GetAttribute("ID");
 									if (id != null && (currentSection == null || !id.Equals(currentSection.ID)))
 									{
 										currentSection = new OneNoteSection
@@ -192,7 +227,7 @@ namespace GreenshotOfficePlugin.OfficeExport {
 									{
 										continue;
 									}
-									OneNotePage page = new OneNotePage
+									var page = new OneNotePage
 									{
 										Parent = currentSection,
 										Name = xmlReader.GetAttribute("name"),

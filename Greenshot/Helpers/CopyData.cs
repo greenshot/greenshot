@@ -1,23 +1,27 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿#region Greenshot GNU General Public License
+
+// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+// For more information see: http://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 1 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#endregion
+
+#region Usings
 
 using System;
 using System.Collections;
@@ -27,106 +31,138 @@ using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 using Dapplo.Windows.Desktop;
-using GreenshotPlugin.Core;
 
-namespace Greenshot.Helpers {
-	public enum CommandEnum { OpenFile, Exit, FirstLaunch, ReloadConfig };
+#endregion
+
+namespace Greenshot.Helpers
+{
+	public enum CommandEnum
+	{
+		OpenFile,
+		Exit,
+		FirstLaunch,
+		ReloadConfig
+	}
 
 	/// <summary>
-	/// Code from vbAccelerator, location:
-	/// http://www.vbaccelerator.com/home/NET/Code/Libraries/Windows_Messages/Simple_Interprocess_Communication/WM_COPYDATA_Demo_zip_SimpleInterprocessCommunicationsCS_CopyData_cs.asp
+	///     Code from vbAccelerator, location:
+	///     http://www.vbaccelerator.com/home/NET/Code/Libraries/Windows_Messages/Simple_Interprocess_Communication/WM_COPYDATA_Demo_zip_SimpleInterprocessCommunicationsCS_CopyData_cs.asp
 	/// </summary>
-	[Serializable()]
-	public class CopyDataTransport {
-		private readonly List<KeyValuePair<CommandEnum, string>> _commands;
-		public List<KeyValuePair<CommandEnum, string>> Commands => _commands;
-
-		public CopyDataTransport() {
-			_commands = new List<KeyValuePair<CommandEnum, string>>();
+	[Serializable]
+	public class CopyDataTransport
+	{
+		public CopyDataTransport()
+		{
+			Commands = new List<KeyValuePair<CommandEnum, string>>();
 		}
-		
-		public CopyDataTransport(CommandEnum command) : this() {
+
+		public CopyDataTransport(CommandEnum command) : this()
+		{
 			AddCommand(command, null);
 		}
 
-		public CopyDataTransport(CommandEnum command, string commandData) : this() {
+		public CopyDataTransport(CommandEnum command, string commandData) : this()
+		{
 			AddCommand(command, commandData);
 		}
-		public void AddCommand(CommandEnum command) {
-			_commands.Add(new KeyValuePair<CommandEnum, string>(command, null));
+
+		public List<KeyValuePair<CommandEnum, string>> Commands { get; }
+
+		public void AddCommand(CommandEnum command)
+		{
+			Commands.Add(new KeyValuePair<CommandEnum, string>(command, null));
 		}
-		public void AddCommand(CommandEnum command, string commandData) {
-			_commands.Add(new KeyValuePair<CommandEnum, string>(command, commandData));
+
+		public void AddCommand(CommandEnum command, string commandData)
+		{
+			Commands.Add(new KeyValuePair<CommandEnum, string>(command, commandData));
 		}
-		
 	}
 
 	public delegate void CopyDataReceivedEventHandler(object sender, CopyDataReceivedEventArgs e);
-	
-	/// <summary>
-	/// A class which wraps using Windows native WM_COPYDATA
-	/// message to send interprocess data between applications.
-	/// This is a simple technique for interprocess data sends
-	/// using Windows.  The alternative to this is to use
-	/// Remoting, which requires a network card and a way
-	/// to register the Remoting name of an object so it
-	/// can be read by other applications.
-	/// </summary>
-	public class CopyData : NativeWindow, IDisposable {	
-		/// <summary>
-		/// Event raised when data is received on any of the channels 
-		/// this class is subscribed to.
-		/// </summary>
-		public event CopyDataReceivedEventHandler CopyDataReceived;
 
-		[StructLayout(LayoutKind.Sequential)]
-		private struct COPYDATASTRUCT {
-			public readonly IntPtr dwData;
-			public readonly int cbData;
-			public readonly IntPtr lpData;
-		}
-		
+	/// <summary>
+	///     A class which wraps using Windows native WM_COPYDATA
+	///     message to send interprocess data between applications.
+	///     This is a simple technique for interprocess data sends
+	///     using Windows.  The alternative to this is to use
+	///     Remoting, which requires a network card and a way
+	///     to register the Remoting name of an object so it
+	///     can be read by other applications.
+	/// </summary>
+	public class CopyData : NativeWindow, IDisposable
+	{
 		private const int WM_COPYDATA = 0x4A;
 		private const int WM_DESTROY = 0x2;
 
 		#region Member Variables
-		private CopyDataChannels _channels;
+
 		#endregion
 
 		/// <summary>
-		/// Override for a form's Window Procedure to handle WM_COPYDATA
-		/// messages sent by other instances of this class.
+		///     Constructs a new instance of the CopyData class
+		/// </summary>
+		public CopyData()
+		{
+			Channels = new CopyDataChannels(this);
+		}
+
+		/// <summary>
+		///     Gets the collection of channels.
+		/// </summary>
+		public CopyDataChannels Channels { get; private set; }
+
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		/// <summary>
+		///     Event raised when data is received on any of the channels
+		///     this class is subscribed to.
+		/// </summary>
+		public event CopyDataReceivedEventHandler CopyDataReceived;
+
+		/// <summary>
+		///     Override for a form's Window Procedure to handle WM_COPYDATA
+		///     messages sent by other instances of this class.
 		/// </summary>
 		/// <param name="m">The Windows Message information.</param>
-		protected override void WndProc (ref Message m ) {
+		protected override void WndProc(ref Message m)
+		{
 			if (m.Msg == WM_COPYDATA)
 			{
 				var cds = (COPYDATASTRUCT) Marshal.PtrToStructure(m.LParam, typeof(COPYDATASTRUCT));
-				if (cds.cbData > 0) {
-					byte[] data = new byte[cds.cbData];				
+				if (cds.cbData > 0)
+				{
+					var data = new byte[cds.cbData];
 					Marshal.Copy(cds.lpData, data, 0, cds.cbData);
-					MemoryStream stream = new MemoryStream(data);
-					BinaryFormatter b = new BinaryFormatter();
-					CopyDataObjectData cdo = (CopyDataObjectData) b.Deserialize(stream);
-					
-					if (_channels != null && _channels.Contains(cdo.Channel)) {
-						CopyDataReceivedEventArgs d = new CopyDataReceivedEventArgs(cdo.Channel, cdo.Data, cdo.Sent);
+					var stream = new MemoryStream(data);
+					var b = new BinaryFormatter();
+					var cdo = (CopyDataObjectData) b.Deserialize(stream);
+
+					if (Channels != null && Channels.Contains(cdo.Channel))
+					{
+						var d = new CopyDataReceivedEventArgs(cdo.Channel, cdo.Data, cdo.Sent);
 						OnCopyDataReceived(d);
 						m.Result = (IntPtr) 1;
-					}				
+					}
 				}
-			} else if (m.Msg == WM_DESTROY) {
+			}
+			else if (m.Msg == WM_DESTROY)
+			{
 				// WM_DESTROY fires before OnHandleChanged and is
 				// a better place to ensure that we've cleared 
 				// everything up.
-				_channels?.OnHandleChange();
+				Channels?.OnHandleChange();
 				base.OnHandleChange();
 			}
 			base.WndProc(ref m);
 		}
 
 		/// <summary>
-		/// Raises the DataReceived event from this class.
+		///     Raises the DataReceived event from this class.
 		/// </summary>
 		/// <param name="e">The data which has been received.</param>
 		protected void OnCopyDataReceived(CopyDataReceivedEventArgs e)
@@ -135,123 +171,128 @@ namespace Greenshot.Helpers {
 		}
 
 		/// <summary>
-		/// If the form's handle changes, the properties associated
-		/// with the window need to be cleared up. This override ensures
-		/// that it is done.  Note that the CopyData class will then
-		/// stop responding to events and it should be recreated once
-		/// the new handle has been assigned.
+		///     If the form's handle changes, the properties associated
+		///     with the window need to be cleared up. This override ensures
+		///     that it is done.  Note that the CopyData class will then
+		///     stop responding to events and it should be recreated once
+		///     the new handle has been assigned.
 		/// </summary>
-		protected override void OnHandleChange () {
+		protected override void OnHandleChange()
+		{
 			// need to clear up everything we had set.
-			_channels?.OnHandleChange();
+			Channels?.OnHandleChange();
 			base.OnHandleChange();
 		}
 
 		/// <summary>
-		/// Gets the collection of channels.
+		///     Clears up any resources associated with this object.
 		/// </summary>
-		public CopyDataChannels Channels => _channels;
-
-		public void Dispose() {
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		/// <summary>
-		/// Clears up any resources associated with this object.
-		/// </summary>
-		protected virtual void Dispose(bool disposing) {
-			if (disposing && _channels != null) {
-				_channels.Clear();
-				_channels = null;
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing && Channels != null)
+			{
+				Channels.Clear();
+				Channels = null;
 			}
 		}
 
 		/// <summary>
-		/// Constructs a new instance of the CopyData class
+		///     Finalises a CopyData class which has not been disposed.
+		///     There may be a minor resource leak if this class is finalised
+		///     after the form it is associated with.
 		/// </summary>
-		public CopyData() {
-			_channels = new CopyDataChannels(this);
+		~CopyData()
+		{
+			Dispose(false);
 		}
 
-		/// <summary>
-		/// Finalises a CopyData class which has not been disposed.
-		/// There may be a minor resource leak if this class is finalised
-		/// after the form it is associated with.
-		/// </summary>
-		~CopyData() {
-			Dispose(false);
+		[StructLayout(LayoutKind.Sequential)]
+		private struct COPYDATASTRUCT
+		{
+			public readonly IntPtr dwData;
+			public readonly int cbData;
+			public readonly IntPtr lpData;
 		}
 	}
 
 	/// <summary>
-	/// Contains data and other information associated with data
-	/// which has been sent from another application.
+	///     Contains data and other information associated with data
+	///     which has been sent from another application.
 	/// </summary>
-	public class CopyDataReceivedEventArgs : EventArgs {
+	public class CopyDataReceivedEventArgs : EventArgs
+	{
 		/// <summary>
-		/// Gets the channel name that this data was sent on.
-		/// </summary>
-		public string ChannelName { get; }
-
-		/// <summary>
-		/// Gets the data object which was sent.
-		/// </summary>
-		public object Data { get; }
-
-		/// <summary>
-		/// Gets the date and time which at the data was sent
-		/// by the sending application.
-		/// </summary>
-		public DateTime Sent { get; }
-
-		/// <summary>
-		/// Gets the date and time which this data item as
-		/// received.
-		/// </summary>
-		public DateTime Received { get; }
-
-		/// <summary>
-		/// Constructs an instance of this class.
+		///     Constructs an instance of this class.
 		/// </summary>
 		/// <param name="channelName">The channel that the data was received from</param>
 		/// <param name="data">The data which was sent</param>
 		/// <param name="sent">The date and time the data was sent</param>
-		internal CopyDataReceivedEventArgs(string channelName, object data, DateTime sent) {
+		internal CopyDataReceivedEventArgs(string channelName, object data, DateTime sent)
+		{
 			ChannelName = channelName;
 			Data = data;
 			Sent = sent;
 			Received = DateTime.Now;
 		}
+
+		/// <summary>
+		///     Gets the channel name that this data was sent on.
+		/// </summary>
+		public string ChannelName { get; }
+
+		/// <summary>
+		///     Gets the data object which was sent.
+		/// </summary>
+		public object Data { get; }
+
+		/// <summary>
+		///     Gets the date and time which at the data was sent
+		///     by the sending application.
+		/// </summary>
+		public DateTime Sent { get; }
+
+		/// <summary>
+		///     Gets the date and time which this data item as
+		///     received.
+		/// </summary>
+		public DateTime Received { get; }
 	}
 
 	/// <summary>
-	/// A strongly-typed collection of channels associated with the CopyData
-	/// class.
+	///     A strongly-typed collection of channels associated with the CopyData
+	///     class.
 	/// </summary>
-	public class CopyDataChannels : DictionaryBase {
+	public class CopyDataChannels : DictionaryBase
+	{
 		private readonly NativeWindow _owner;
 
 		/// <summary>
-		/// Returns an enumerator for each of the CopyDataChannel objects
-		/// within this collection.
+		///     Constructs a new instance of the CopyDataChannels collection.
+		///     Automatically managed by the CopyData class.
 		/// </summary>
-		/// <returns>An enumerator for each of the CopyDataChannel objects
-		/// within this collection.</returns>
-		public new IEnumerator GetEnumerator (  ) {
-			return Dictionary.Values.GetEnumerator();
+		/// <param name="owner">
+		///     The NativeWindow this collection
+		///     will be associated with
+		/// </param>
+		internal CopyDataChannels(NativeWindow owner)
+		{
+			_owner = owner;
 		}
 
 		/// <summary>
-		/// Returns the CopyDataChannel at the specified 0-based index.
+		///     Returns the CopyDataChannel at the specified 0-based index.
 		/// </summary>
-		public CopyDataChannel this[int index] {
-			get {
+		public CopyDataChannel this[int index]
+		{
+			get
+			{
 				CopyDataChannel ret = null;
-				int i = 0;
-				foreach (CopyDataChannel cdc in Dictionary.Values) {
+				var i = 0;
+				foreach (CopyDataChannel cdc in Dictionary.Values)
+				{
 					i++;
-					if (i == index) {
+					if (i == index)
+					{
 						ret = cdc;
 						break;
 					}
@@ -259,165 +300,183 @@ namespace Greenshot.Helpers {
 				return ret;
 			}
 		}
+
 		/// <summary>
-		/// Returns the CopyDataChannel for the specified channelName
+		///     Returns the CopyDataChannel for the specified channelName
 		/// </summary>
 		public CopyDataChannel this[string channelName] => (CopyDataChannel) Dictionary[channelName];
 
 		/// <summary>
-		/// Adds a new channel on which this application can send and
-		/// receive messages.
+		///     Returns an enumerator for each of the CopyDataChannel objects
+		///     within this collection.
 		/// </summary>
-		public void Add(string channelName) {
-			CopyDataChannel cdc = new CopyDataChannel(_owner, channelName);
-			Dictionary.Add(channelName , cdc);
+		/// <returns>
+		///     An enumerator for each of the CopyDataChannel objects
+		///     within this collection.
+		/// </returns>
+		public new IEnumerator GetEnumerator()
+		{
+			return Dictionary.Values.GetEnumerator();
 		}
+
 		/// <summary>
-		/// Removes an existing channel.
+		///     Adds a new channel on which this application can send and
+		///     receive messages.
+		/// </summary>
+		public void Add(string channelName)
+		{
+			var cdc = new CopyDataChannel(_owner, channelName);
+			Dictionary.Add(channelName, cdc);
+		}
+
+		/// <summary>
+		///     Removes an existing channel.
 		/// </summary>
 		/// <param name="channelName">The channel to remove</param>
-		public void Remove(string channelName) {
+		public void Remove(string channelName)
+		{
 			Dictionary.Remove(channelName);
 		}
+
 		/// <summary>
-		/// Gets/sets whether this channel contains a CopyDataChannel
-		/// for the specified channelName.
+		///     Gets/sets whether this channel contains a CopyDataChannel
+		///     for the specified channelName.
 		/// </summary>
-		public bool Contains(string channelName) {
+		public bool Contains(string channelName)
+		{
 			return Dictionary.Contains(channelName);
 		}
 
 		/// <summary>
-		/// Ensures the resources associated with a CopyDataChannel
-		/// object collected by this class are cleared up.
+		///     Ensures the resources associated with a CopyDataChannel
+		///     object collected by this class are cleared up.
 		/// </summary>
-		protected override void OnClear() {
-			foreach (CopyDataChannel cdc in Dictionary.Values) {
+		protected override void OnClear()
+		{
+			foreach (CopyDataChannel cdc in Dictionary.Values)
+			{
 				cdc.Dispose();
 			}
 			base.OnClear();
 		}
 
 		/// <summary>
-		/// Ensures any resoures associated with the CopyDataChannel object
-		/// which has been removed are cleared up.
+		///     Ensures any resoures associated with the CopyDataChannel object
+		///     which has been removed are cleared up.
 		/// </summary>
 		/// <param name="key">The channelName</param>
-		/// <param name="data">The CopyDataChannel object which has
-		/// just been removed</param>
-		protected override void OnRemoveComplete ( object key , object data ) {
-			( (CopyDataChannel) data).Dispose();
+		/// <param name="data">
+		///     The CopyDataChannel object which has
+		///     just been removed
+		/// </param>
+		protected override void OnRemoveComplete(object key, object data)
+		{
+			((CopyDataChannel) data).Dispose();
 			OnRemove(key, data);
 		}
 
 		/// <summary>
-		/// If the form's handle changes, the properties associated
-		/// with the window need to be cleared up. This override ensures
-		/// that it is done.  Note that the CopyData class will then
-		/// stop responding to events and it should be recreated once
-		/// the new handle has been assigned.
+		///     If the form's handle changes, the properties associated
+		///     with the window need to be cleared up. This override ensures
+		///     that it is done.  Note that the CopyData class will then
+		///     stop responding to events and it should be recreated once
+		///     the new handle has been assigned.
 		/// </summary>
-		public void OnHandleChange() {
-			foreach (CopyDataChannel cdc in Dictionary.Values) {
+		public void OnHandleChange()
+		{
+			foreach (CopyDataChannel cdc in Dictionary.Values)
+			{
 				cdc.OnHandleChange();
 			}
-		}
-		
-		/// <summary>
-		/// Constructs a new instance of the CopyDataChannels collection.
-		/// Automatically managed by the CopyData class.
-		/// </summary>
-		/// <param name="owner">The NativeWindow this collection
-		/// will be associated with</param>
-		internal CopyDataChannels(NativeWindow owner) {
-			_owner = owner;
 		}
 	}
 
 	/// <summary>
-	/// A channel on which messages can be sent.
+	///     A channel on which messages can be sent.
 	/// </summary>
-	public class CopyDataChannel : IDisposable {
-		#region Unmanaged Code
-		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
-		private static extern IntPtr GetProp(IntPtr hwnd, string lpString);
-		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
-		private static extern bool SetProp(IntPtr hwnd, string lpString, IntPtr hData);
-		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
-		private static extern IntPtr RemoveProp(IntPtr hwnd, string lpString);
-
-		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
-		private static extern IntPtr SendMessage(IntPtr hwnd, int wMsg, IntPtr wParam, ref COPYDATASTRUCT lParam);
-
-		[StructLayout(LayoutKind.Sequential)]
-		private struct COPYDATASTRUCT {
-			public IntPtr dwData;
-			public int cbData;
-			public IntPtr lpData;
+	public class CopyDataChannel : IDisposable
+	{
+		/// <summary>
+		///     Constructs a new instance of a CopyData channel.  Called
+		///     automatically by the CopyDataChannels collection.
+		/// </summary>
+		/// <param name="owner">The owning native window</param>
+		/// <param name="channelName">
+		///     The name of the channel to
+		///     send messages on
+		/// </param>
+		internal CopyDataChannel(NativeWindow owner, string channelName)
+		{
+			_owner = owner;
+			ChannelName = channelName;
+			AddChannel();
 		}
-		
-		private const int WM_COPYDATA = 0x4A;
-		#endregion
-
-		#region Member Variables
-
-		private readonly NativeWindow _owner;
-		private bool _recreateChannel;
-		#endregion
 
 		/// <summary>
-		/// Gets the name associated with this channel.
+		///     Gets the name associated with this channel.
 		/// </summary>
 		public string ChannelName { get; private set; }
 
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
 		/// <summary>
-		/// Sends the specified object on this channel to any other
-		/// applications which are listening.  The object must have the
-		/// SerializableAttribute set, or must implement ISerializable.
+		///     Sends the specified object on this channel to any other
+		///     applications which are listening.  The object must have the
+		///     SerializableAttribute set, or must implement ISerializable.
 		/// </summary>
 		/// <param name="obj">The object to send</param>
 		/// <returns>The number of recipients</returns>
-		public int Send(object obj) {
-			int recipients = 0;
+		public int Send(object obj)
+		{
+			var recipients = 0;
 
-			if (_recreateChannel) {
+			if (_recreateChannel)
+			{
 				// handle has changed 
 				AddChannel();
 			}
 
-			CopyDataObjectData cdo = new CopyDataObjectData(obj, ChannelName);	 
-				  
+			var cdo = new CopyDataObjectData(obj, ChannelName);
+
 
 			// Try to do a binary serialization on obj.
 			// This will throw and exception if the object to
 			// be passed isn't serializable.
-			BinaryFormatter b = new BinaryFormatter();
-			MemoryStream stream = new MemoryStream();
+			var b = new BinaryFormatter();
+			var stream = new MemoryStream();
 			b.Serialize(stream, cdo);
 			stream.Flush();
 
 			// Now move the data into a pointer so we can send
 			// it using WM_COPYDATA:
 			// Get the length of the data:
-			int dataSize = (int)stream.Length;
-			if (dataSize > 0) {
+			var dataSize = (int) stream.Length;
+			if (dataSize > 0)
+			{
 				// This isn't very efficient if your data is very large.
 				// First we copy to a byte array, then copy to a CoTask 
 				// Mem object... And when we use WM_COPYDATA windows will
 				// make yet another copy!  But if you're talking about 4K
 				// or less of data then it doesn't really matter.
-				byte[] data = new byte[dataSize];
+				var data = new byte[dataSize];
 				stream.Seek(0, SeekOrigin.Begin);
 				stream.Read(data, 0, dataSize);
-				IntPtr ptrData = Marshal.AllocCoTaskMem(dataSize);
+				var ptrData = Marshal.AllocCoTaskMem(dataSize);
 				Marshal.Copy(data, 0, ptrData, dataSize);
 
 				// Send the data to each window identified on
 				// the channel:
-				foreach(InteropWindow window in InteropWindowQuery.GetTopLevelWindows()) {
-					if (!window.Handle.Equals(_owner.Handle)) {
-						if (GetProp(window.Handle, ChannelName) != IntPtr.Zero) {
-							COPYDATASTRUCT cds = new COPYDATASTRUCT
+				foreach (InteropWindow window in InteropWindowQuery.GetTopLevelWindows())
+				{
+					if (!window.Handle.Equals(_owner.Handle))
+					{
+						if (GetProp(window.Handle, ChannelName) != IntPtr.Zero)
+						{
+							var cds = new COPYDATASTRUCT
 							{
 								cbData = dataSize,
 								dwData = IntPtr.Zero,
@@ -437,93 +496,120 @@ namespace Greenshot.Helpers {
 			return recipients;
 		}
 
-		private void AddChannel() {
+		private void AddChannel()
+		{
 			// Tag this window with property "channelName"
 			SetProp(_owner.Handle, ChannelName, _owner.Handle);
 		}
 
-		private void RemoveChannel() {
+		private void RemoveChannel()
+		{
 			// Remove the "channelName" property from this window
 			RemoveProp(_owner.Handle, ChannelName);
 		}
 
 		/// <summary>
-		/// If the form's handle changes, the properties associated
-		/// with the window need to be cleared up. This method ensures
-		/// that it is done.  Note that the CopyData class will then
-		/// stop responding to events and it should be recreated once
-		/// the new handle has been assigned.
+		///     If the form's handle changes, the properties associated
+		///     with the window need to be cleared up. This method ensures
+		///     that it is done.  Note that the CopyData class will then
+		///     stop responding to events and it should be recreated once
+		///     the new handle has been assigned.
 		/// </summary>
-		public void OnHandleChange() {
+		public void OnHandleChange()
+		{
 			RemoveChannel();
 			_recreateChannel = true;
 		}
 
-		public void Dispose() {
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
 		/// <summary>
-		/// Clears up any resources associated with this channel.
+		///     Clears up any resources associated with this channel.
 		/// </summary>
-		protected virtual void Dispose(bool disposing) {
-			if (disposing) {
-				if (ChannelName.Length > 0) {
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				if (ChannelName.Length > 0)
+				{
 					RemoveChannel();
 				}
 				ChannelName = "";
 			}
 		}
 
-		/// <summary>
-		/// Constructs a new instance of a CopyData channel.  Called
-		/// automatically by the CopyDataChannels collection.
-		/// </summary>
-		/// <param name="owner">The owning native window</param>
-		/// <param name="channelName">The name of the channel to
-		/// send messages on</param>
-		internal CopyDataChannel(NativeWindow owner, string channelName) {
-			_owner = owner;
-			ChannelName = channelName;
-			AddChannel();
-		}
-
-		~CopyDataChannel() {
+		~CopyDataChannel()
+		{
 			Dispose(false);
 		}
+
+		#region Unmanaged Code
+
+		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
+		private static extern IntPtr GetProp(IntPtr hwnd, string lpString);
+
+		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
+		private static extern bool SetProp(IntPtr hwnd, string lpString, IntPtr hData);
+
+		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
+		private static extern IntPtr RemoveProp(IntPtr hwnd, string lpString);
+
+		[DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
+		private static extern IntPtr SendMessage(IntPtr hwnd, int wMsg, IntPtr wParam, ref COPYDATASTRUCT lParam);
+
+		[StructLayout(LayoutKind.Sequential)]
+		private struct COPYDATASTRUCT
+		{
+			public IntPtr dwData;
+			public int cbData;
+			public IntPtr lpData;
+		}
+
+		private const int WM_COPYDATA = 0x4A;
+
+		#endregion
+
+		#region Member Variables
+
+		private readonly NativeWindow _owner;
+		private bool _recreateChannel;
+
+		#endregion
 	}
 
 	/// <summary>
-	/// A class which wraps the data being copied, used
-	/// internally within the CopyData class objects.
+	///     A class which wraps the data being copied, used
+	///     internally within the CopyData class objects.
 	/// </summary>
-	[Serializable()]
-	internal class CopyDataObjectData {
+	[Serializable]
+	internal class CopyDataObjectData
+	{
 		/// <summary>
-		/// The Object to copy.  Must be Serializable.
-		/// </summary>
-		public object Data;
-		/// <summary>
-		/// The date and time this object was sent.
-		/// </summary>
-		public DateTime Sent;
-		/// <summary>
-		/// The name of the channel this object is being sent on
+		///     The name of the channel this object is being sent on
 		/// </summary>
 		public string Channel;
 
 		/// <summary>
-		/// Constructs a new instance of this object
+		///     The Object to copy.  Must be Serializable.
+		/// </summary>
+		public object Data;
+
+		/// <summary>
+		///     The date and time this object was sent.
+		/// </summary>
+		public DateTime Sent;
+
+		/// <summary>
+		///     Constructs a new instance of this object
 		/// </summary>
 		/// <param name="data">The data to copy</param>
 		/// <param name="channel">The channel name to send on</param>
 		/// <exception cref="ArgumentException">If data is not serializable.</exception>
-		public CopyDataObjectData(object data, string channel) {
+		public CopyDataObjectData(object data, string channel)
+		{
 			Data = data;
-			if (!data.GetType().IsSerializable) {
+			if (!data.GetType().IsSerializable)
+			{
 				throw new ArgumentException("Data object must be serializable.",
-				 nameof(data));
+					nameof(data));
 			}
 			Channel = channel;
 			Sent = DateTime.Now;

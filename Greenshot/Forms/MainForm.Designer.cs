@@ -263,8 +263,8 @@ namespace Greenshot.Forms {
 			// 
 			// MainForm
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13.5F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(0, 0);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
 			this.LanguageKey = "application_title";

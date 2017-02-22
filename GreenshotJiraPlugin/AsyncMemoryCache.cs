@@ -1,25 +1,23 @@
-﻿#region Dapplo 2016 - GNU Lesser General Public License
+﻿#region Greenshot GNU General Public License
 
-// Dapplo - building blocks for .NET applications
-// Copyright (C) 2016 Dapplo
+// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
 // 
-// For more information see: http://dapplo.net/
-// Dapplo repositories are hosted on GitHub: https://github.com/dapplo
+// For more information see: http://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
 // 
-// This file is part of Dapplo.Utils
-// 
-// Dapplo.Utils is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 1 of the License, or
 // (at your option) any later version.
 // 
-// Dapplo.Utils is distributed in the hope that it will be useful,
+// This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
+// GNU General Public License for more details.
 // 
-// You should have a copy of the GNU Lesser General Public License
-// along with Dapplo.Utils. If not, see <http://www.gnu.org/licenses/lgpl.txt>.
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #endregion
 
@@ -33,7 +31,6 @@ using Dapplo.Log;
 
 #endregion
 
-
 namespace GreenshotJiraPlugin
 {
 	/// <summary>
@@ -44,9 +41,9 @@ namespace GreenshotJiraPlugin
 	public abstract class AsyncMemoryCache<TKey, TResult> where TResult : class
 	{
 		private static readonly Task<TResult> EmptyValueTask = Task.FromResult<TResult>(null);
-		private readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
 		private readonly MemoryCache _cache = new MemoryCache(Guid.NewGuid().ToString());
 		private readonly LogSource _log = new LogSource();
+		private readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
 
 		/// <summary>
 		///     Set the timespan for items to expire.
@@ -71,7 +68,7 @@ namespace GreenshotJiraPlugin
 		protected bool ActivateUpdateCallback { get; set; } = false;
 
 		/// <summary>
-		/// Implement this method, it should create an instance of TResult via the supplied TKey.
+		///     Implement this method, it should create an instance of TResult via the supplied TKey.
 		/// </summary>
 		/// <param name="key">TKey</param>
 		/// <param name="cancellationToken">CancellationToken</param>
@@ -152,7 +149,8 @@ namespace GreenshotJiraPlugin
 		/// <param name="cacheItemPolicy">CacheItemPolicy for when you want more control over the item</param>
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>TResult</returns>
-		private async Task<TResult> GetOrCreateInternalAsync(TKey keyObject, CacheItemPolicy cacheItemPolicy = null, CancellationToken cancellationToken = default(CancellationToken))
+		private async Task<TResult> GetOrCreateInternalAsync(TKey keyObject, CacheItemPolicy cacheItemPolicy = null,
+			CancellationToken cancellationToken = default(CancellationToken))
 		{
 			var key = CreateKey(keyObject);
 			var completionSource = new TaskCompletionSource<TResult>();

@@ -1,54 +1,59 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿#region Greenshot GNU General Public License
+
+// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+// For more information see: http://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 1 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#endregion
+
+#region Usings
 
 using System;
-using Greenshot.Configuration;
-using GreenshotPlugin.Interfaces.Drawing;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Greenshot.Configuration;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Drawing;
+
+#endregion
 
 namespace Greenshot.Drawing.Fields
 {
 	/// <summary>
-	/// Represents the current set of properties for the editor.
-	/// When one of EditorProperties' properties is updated, the change will be promoted
-	/// to all bound elements.
-	///  * If an element is selected:
-	///    This class represents the element's properties
-	///  * I n>1 elements are selected:
-	///    This class represents the properties of all elements.
-	///    Properties that do not apply for ALL selected elements are null (or 0 respectively)
-	///    If the property values of the selected elements differ, the value of the last bound element wins.
+	///     Represents the current set of properties for the editor.
+	///     When one of EditorProperties' properties is updated, the change will be promoted
+	///     to all bound elements.
+	///     * If an element is selected:
+	///     This class represents the element's properties
+	///     * I n>1 elements are selected:
+	///     This class represents the properties of all elements.
+	///     Properties that do not apply for ALL selected elements are null (or 0 respectively)
+	///     If the property values of the selected elements differ, the value of the last bound element wins.
 	/// </summary>
 	[Serializable]
 	public sealed class FieldAggregator : AbstractFieldHolder
 	{
+		private static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
 
 		private readonly IDrawableContainerList _boundContainers;
 		private bool _internalUpdateRunning;
-
-		private static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
 
 		public FieldAggregator(ISurface parent)
 		{
@@ -79,15 +84,13 @@ namespace Greenshot.Drawing.Fields
 
 		public void BindElement(IDrawableContainer dc)
 		{
-			DrawableContainer container = dc as DrawableContainer;
+			var container = dc as DrawableContainer;
 			if (container == null || _boundContainers.Contains(container))
 			{
 				return;
 			}
 			_boundContainers.Add(container);
-			container.ChildrenChanged += delegate {
-				UpdateFromBoundElements();
-			};
+			container.ChildrenChanged += delegate { UpdateFromBoundElements(); };
 			UpdateFromBoundElements();
 		}
 
@@ -99,7 +102,7 @@ namespace Greenshot.Drawing.Fields
 
 		public void UpdateElement(IDrawableContainer dc)
 		{
-			DrawableContainer container = dc as DrawableContainer;
+			var container = dc as DrawableContainer;
 			if (container == null)
 			{
 				return;
@@ -133,7 +136,7 @@ namespace Greenshot.Drawing.Fields
 		}
 
 		/// <summary>
-		/// sets all field values to null, however does not remove fields
+		///     sets all field values to null, however does not remove fields
 		/// </summary>
 		private void ClearFields()
 		{
@@ -146,9 +149,9 @@ namespace Greenshot.Drawing.Fields
 		}
 
 		/// <summary>
-		/// Updates this instance using the respective fields from the bound elements.
-		/// Fields that do not apply to every bound element are set to null, or 0 respectively.
-		/// All other fields will be set to the field value of the least bound element.
+		///     Updates this instance using the respective fields from the bound elements.
+		///     Fields that do not apply to every bound element are set to null, or 0 respectively.
+		///     All other fields will be set to the field value of the least bound element.
 		/// </summary>
 		private void UpdateFromBoundElements()
 		{
@@ -167,17 +170,17 @@ namespace Greenshot.Drawing.Fields
 			if (_boundContainers.Count > 0)
 			{
 				// take all fields from the least selected container...
-				DrawableContainer leastSelectedContainer = _boundContainers[_boundContainers.Count - 1] as DrawableContainer;
+				var leastSelectedContainer = _boundContainers[_boundContainers.Count - 1] as DrawableContainer;
 				if (leastSelectedContainer != null)
 				{
 					returnFields = leastSelectedContainer.GetFields();
-					for (int i = 0; i < _boundContainers.Count - 1; i++)
+					for (var i = 0; i < _boundContainers.Count - 1; i++)
 					{
-						DrawableContainer dc = _boundContainers[i] as DrawableContainer;
+						var dc = _boundContainers[i] as DrawableContainer;
 						if (dc != null)
 						{
 							IList<IField> fieldsToRemove = new List<IField>();
-							foreach (IField field in returnFields)
+							foreach (var field in returnFields)
 							{
 								// ... throw out those that do not apply to one of the other containers
 								if (!dc.HasField(field.FieldType))
@@ -198,7 +201,7 @@ namespace Greenshot.Drawing.Fields
 
 		public void OwnPropertyChanged(object sender, PropertyChangedEventArgs ea)
 		{
-			IField field = (IField)sender;
+			var field = (IField) sender;
 			if (_internalUpdateRunning || field.Value == null)
 			{
 				return;
@@ -210,7 +213,7 @@ namespace Greenshot.Drawing.Fields
 				{
 					continue;
 				}
-				IField drawableContainerField = drawableContainer.GetField(field.FieldType);
+				var drawableContainerField = drawableContainer.GetField(field.FieldType);
 				// Notify before change, so we can e.g. invalidate the area
 				drawableContainer.BeforeFieldChange(drawableContainerField, field.Value);
 
@@ -219,6 +222,5 @@ namespace Greenshot.Drawing.Fields
 				EditorConfig.UpdateLastFieldValue(drawableContainerField);
 			}
 		}
-
 	}
 }

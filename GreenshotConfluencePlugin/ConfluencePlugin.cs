@@ -1,142 +1,175 @@
-/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+#region Greenshot GNU General Public License
 
-using Confluence;
-using GreenshotPlugin.Core;
+// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+// For more information see: http://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 1 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#endregion
+
+#region Usings
+
 using System;
 using System.Collections.Generic;
 using System.Windows;
+using Confluence;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
+using log4net;
 using TranslationByMarkupExtension;
 
-namespace GreenshotConfluencePlugin {
+#endregion
+
+namespace GreenshotConfluencePlugin
+{
 	/// <summary>
-	/// This is the ConfluencePlugin base code
+	///     This is the ConfluencePlugin base code
 	/// </summary>
-	public class ConfluencePlugin : IGreenshotPlugin {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluencePlugin));
-		private static ConfluenceConnector _confluenceConnector;
+	public class ConfluencePlugin : IGreenshotPlugin
+	{
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(ConfluencePlugin));
 		private static ConfluenceConfiguration _config;
 
-		public void Dispose() {
+		public static ConfluenceConnector ConfluenceConnectorNoLogin { get; private set; }
+
+		public static ConfluenceConnector ConfluenceConnector
+		{
+			get
+			{
+				if (ConfluenceConnectorNoLogin == null)
+				{
+					CreateConfluenceConntector();
+				}
+				try
+				{
+					if (ConfluenceConnectorNoLogin != null && !ConfluenceConnectorNoLogin.IsLoggedIn)
+					{
+						ConfluenceConnectorNoLogin.Login();
+					}
+				}
+				catch (Exception e)
+				{
+					MessageBox.Show(Language.GetFormattedString("confluence", LangKey.login_error, e.Message));
+				}
+				return ConfluenceConnectorNoLogin;
+			}
+		}
+
+		public void Dispose()
+		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing) {
-			//if (disposing) {}
-		}
-
-		private static void CreateConfluenceConntector() {
-			if (_confluenceConnector == null) {
-				if (_config.Url.Contains("soap-axis")) {
-					_confluenceConnector = new ConfluenceConnector(_config.Url, _config.Timeout);
-				} else {
-					_confluenceConnector = new ConfluenceConnector(_config.Url + ConfluenceConfiguration.DEFAULT_POSTFIX2, _config.Timeout);
-				}
-			}
-		}
-
-		public static ConfluenceConnector ConfluenceConnectorNoLogin {
-			get {
-				return _confluenceConnector;
-			}
-		}
-
-		public static ConfluenceConnector ConfluenceConnector {
-			get {
-				if (_confluenceConnector == null) {
-					CreateConfluenceConntector();
-				}
-				try {
-					if (_confluenceConnector != null && !_confluenceConnector.IsLoggedIn) {
-						_confluenceConnector.Login();
-					}
-				} catch (Exception e) {
-					MessageBox.Show(Language.GetFormattedString("confluence", LangKey.login_error, e.Message));
-				}
-				return _confluenceConnector;
-			}
-		}
-
-		public IEnumerable<IDestination> Destinations() {
-			if (ConfluenceDestination.IsInitialized) {
+		public IEnumerable<IDestination> Destinations()
+		{
+			if (ConfluenceDestination.IsInitialized)
+			{
 				yield return new ConfluenceDestination();
 			}
 		}
 
-		public IEnumerable<IProcessor> Processors() {
+		public IEnumerable<IProcessor> Processors()
+		{
 			yield break;
 		}
 
 		/// <summary>
-		/// Implementation of the IGreenshotPlugin.Initialize
+		///     Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="myAttributes">My own attributes</param>
-		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
+		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes)
+		{
 			// Register configuration (don't need the configuration itself)
 			_config = IniConfig.GetIniSection<ConfluenceConfiguration>();
-			if(_config.IsDirty) {
+			if (_config.IsDirty)
+			{
 				IniConfig.Save();
 			}
-			try {
+			try
+			{
 				TranslationManager.Instance.TranslationProvider = new LanguageXMLTranslationProvider();
 				//resources = new ComponentResourceManager(typeof(ConfluencePlugin));
-			} catch (Exception ex) {
+			}
+			catch (Exception ex)
+			{
 				LOG.ErrorFormat("Problem in ConfluencePlugin.Initialize: {0}", ex.Message);
 				return false;
 			}
 			return true;
 		}
 
-		public virtual void Shutdown() {
+		public virtual void Shutdown()
+		{
 			LOG.Debug("Confluence Plugin shutdown.");
-			if (_confluenceConnector != null) {
-				_confluenceConnector.Logout();
-				_confluenceConnector = null;
+			if (ConfluenceConnectorNoLogin != null)
+			{
+				ConfluenceConnectorNoLogin.Logout();
+				ConfluenceConnectorNoLogin = null;
 			}
 		}
 
 		/// <summary>
-		/// Implementation of the IPlugin.Configure
+		///     Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure() {
-			ConfluenceConfiguration clonedConfig = _config.Clone();
-			ConfluenceConfigurationForm configForm = new ConfluenceConfigurationForm(clonedConfig);
-			string url = _config.Url;
-			bool? dialogResult = configForm.ShowDialog();
-			if (dialogResult.HasValue && dialogResult.Value) {
+		public virtual void Configure()
+		{
+			var clonedConfig = _config.Clone();
+			var configForm = new ConfluenceConfigurationForm(clonedConfig);
+			var url = _config.Url;
+			var dialogResult = configForm.ShowDialog();
+			if (dialogResult.HasValue && dialogResult.Value)
+			{
 				// copy the new object to the old...
 				clonedConfig.CloneTo(_config);
 				IniConfig.Save();
-				if (_confluenceConnector != null) {
-					if (!url.Equals(_config.Url)) {
-						if (_confluenceConnector.IsLoggedIn) {
-							_confluenceConnector.Logout();
+				if (ConfluenceConnectorNoLogin != null)
+				{
+					if (!url.Equals(_config.Url))
+					{
+						if (ConfluenceConnectorNoLogin.IsLoggedIn)
+						{
+							ConfluenceConnectorNoLogin.Logout();
 						}
-						_confluenceConnector = null;
+						ConfluenceConnectorNoLogin = null;
 					}
+				}
+			}
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			//if (disposing) {}
+		}
+
+		private static void CreateConfluenceConntector()
+		{
+			if (ConfluenceConnectorNoLogin == null)
+			{
+				if (_config.Url.Contains("soap-axis"))
+				{
+					ConfluenceConnectorNoLogin = new ConfluenceConnector(_config.Url, _config.Timeout);
+				}
+				else
+				{
+					ConfluenceConnectorNoLogin = new ConfluenceConnector(_config.Url + ConfluenceConfiguration.DEFAULT_POSTFIX2, _config.Timeout);
 				}
 			}
 		}

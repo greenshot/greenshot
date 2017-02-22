@@ -1,43 +1,50 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿#region Greenshot GNU General Public License
+
+// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+// For more information see: http://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 1 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#endregion
+
+#region Usings
+
 using System;
 using System.Drawing;
 using System.Xml;
+using log4net;
+
+#endregion
 
 namespace GreenshotImgurPlugin
 {
 	/// <summary>
-	/// Description of ImgurInfo.
+	///     Description of ImgurInfo.
 	/// </summary>
 	public class ImgurInfo : IDisposable
 	{
-		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ImgurInfo));
-
-		public string Hash
-		{
-			get;
-			set;
-		}
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ImgurInfo));
 
 		private string _deleteHash;
+
+		private Image _image;
+
+		public string Hash { get; set; }
+
 		public string DeleteHash
 		{
 			get { return _deleteHash; }
@@ -48,55 +55,22 @@ namespace GreenshotImgurPlugin
 			}
 		}
 
-		public string Title
-		{
-			get;
-			set;
-		}
+		public string Title { get; set; }
 
-		public string ImageType
-		{
-			get;
-			set;
-		}
+		public string ImageType { get; set; }
 
-		public DateTime Timestamp
-		{
-			get;
-			set;
-		}
+		public DateTime Timestamp { get; set; }
 
-		public string Original
-		{
-			get;
-			set;
-		}
+		public string Original { get; set; }
 
-		public string Page
-		{
-			get;
-			set;
-		}
+		public string Page { get; set; }
 
-		public string SmallSquare
-		{
-			get;
-			set;
-		}
+		public string SmallSquare { get; set; }
 
-		public string LargeThumbnail
-		{
-			get;
-			set;
-		}
+		public string LargeThumbnail { get; set; }
 
-		public string DeletePage
-		{
-			get;
-			set;
-		}
+		public string DeletePage { get; set; }
 
-		private Image _image;
 		public Image Image
 		{
 			get { return _image; }
@@ -108,8 +82,8 @@ namespace GreenshotImgurPlugin
 		}
 
 		/// <summary>
-		/// The public accessible Dispose
-		/// Will call the GarbageCollector to SuppressFinalize, preventing being cleaned twice
+		///     The public accessible Dispose
+		///     Will call the GarbageCollector to SuppressFinalize, preventing being cleaned twice
 		/// </summary>
 		public void Dispose()
 		{
@@ -118,8 +92,8 @@ namespace GreenshotImgurPlugin
 		}
 
 		/// <summary>
-		/// This Dispose is called from the Dispose and the Destructor.
-		/// When disposing==true all non-managed resources should be freed too!
+		///     This Dispose is called from the Dispose and the Destructor.
+		///     When disposing==true all non-managed resources should be freed too!
 		/// </summary>
 		/// <param name="disposing"></param>
 		protected virtual void Dispose(bool disposing)
@@ -130,6 +104,7 @@ namespace GreenshotImgurPlugin
 			}
 			_image = null;
 		}
+
 		public static ImgurInfo ParseResponse(string response)
 		{
 			Log.Debug(response);
@@ -143,12 +118,12 @@ namespace GreenshotImgurPlugin
 			response = response.Replace("&copy;", "&#169;");
 			response = response.Replace("&reg;", "&#174;");
 
-			ImgurInfo imgurInfo = new ImgurInfo();
+			var imgurInfo = new ImgurInfo();
 			try
 			{
-				XmlDocument doc = new XmlDocument();
+				var doc = new XmlDocument();
 				doc.LoadXml(response);
-				XmlNodeList nodes = doc.GetElementsByTagName("id");
+				var nodes = doc.GetElementsByTagName("id");
 				if (nodes.Count > 0)
 				{
 					imgurInfo.Hash = nodes.Item(0)?.InnerText;

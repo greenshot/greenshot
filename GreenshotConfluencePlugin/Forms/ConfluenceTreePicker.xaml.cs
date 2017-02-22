@@ -1,23 +1,27 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿#region Greenshot GNU General Public License
+
+// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+// For more information see: http://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 1 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#endregion
+
+#region Usings
 
 using System;
 using System.Linq;
@@ -26,31 +30,38 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
-
 using Confluence;
+using log4net;
+using Page = Confluence.Page;
 
-namespace GreenshotConfluencePlugin {
+#endregion
+
+namespace GreenshotConfluencePlugin
+{
 	/// <summary>
-	/// Interaction logic for ConfluenceTreePicker.xaml
+	///     Interaction logic for ConfluenceTreePicker.xaml
 	/// </summary>
 	public partial class ConfluenceTreePicker
 	{
-		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ConfluenceTreePicker));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ConfluenceTreePicker));
 		private readonly ConfluenceConnector _confluenceConnector;
 		private readonly ConfluenceUpload _confluenceUpload;
 		private bool _isInitDone;
-		
-		public ConfluenceTreePicker(ConfluenceUpload confluenceUpload) {
+
+		public ConfluenceTreePicker(ConfluenceUpload confluenceUpload)
+		{
 			_confluenceConnector = ConfluencePlugin.ConfluenceConnector;
 			_confluenceUpload = confluenceUpload;
 			InitializeComponent();
 		}
 
-		private void pageTreeViewItem_DoubleClick(object sender, MouseButtonEventArgs eventArgs) {
+		private void pageTreeViewItem_DoubleClick(object sender, MouseButtonEventArgs eventArgs)
+		{
 			Log.Debug("spaceTreeViewItem_MouseLeftButtonDown is called!");
-			TreeViewItem clickedItem = eventArgs.Source as TreeViewItem;
-			Confluence.Page page = clickedItem?.Tag as Confluence.Page;
-			if (page == null) {
+			var clickedItem = eventArgs.Source as TreeViewItem;
+			var page = clickedItem?.Tag as Page;
+			if (page == null)
+			{
 				return;
 			}
 			if (clickedItem.HasItems)
@@ -58,11 +69,14 @@ namespace GreenshotConfluencePlugin {
 				return;
 			}
 			Log.Debug("Loading pages for page: " + page.Title);
-			new Thread(() => {
-				Dispatcher.BeginInvoke(DispatcherPriority.Normal, (ThreadStart)(() => {ShowBusy.Visibility = Visibility.Visible;}));
+			new Thread(() =>
+			{
+				Dispatcher.BeginInvoke(DispatcherPriority.Normal, (ThreadStart) (() => { ShowBusy.Visibility = Visibility.Visible; }));
 				var pages = _confluenceConnector.GetPageChildren(page).OrderBy(p => p.Title);
-				Dispatcher.BeginInvoke(DispatcherPriority.Normal, (ThreadStart)(() => {
-					foreach(var childPage in pages) {
+				Dispatcher.BeginInvoke(DispatcherPriority.Normal, (ThreadStart) (() =>
+				{
+					foreach (var childPage in pages)
+					{
 						Log.Debug("Adding page: " + childPage.Title);
 						var pageTreeViewItem = new TreeViewItem
 						{
@@ -75,41 +89,50 @@ namespace GreenshotConfluencePlugin {
 					}
 					ShowBusy.Visibility = Visibility.Collapsed;
 				}));
-			}) { Name = "Loading childpages for confluence page " + page.Title }.Start();
+			}) {Name = "Loading childpages for confluence page " + page.Title}.Start();
 		}
 
-		private void pageTreeViewItem_Click(object sender, MouseButtonEventArgs eventArgs) {
+		private void pageTreeViewItem_Click(object sender, MouseButtonEventArgs eventArgs)
+		{
 			Log.Debug("pageTreeViewItem_PreviewMouseDoubleClick is called!");
-			TreeViewItem clickedItem = eventArgs.Source as TreeViewItem;
-			if (clickedItem ==null) {
+			var clickedItem = eventArgs.Source as TreeViewItem;
+			if (clickedItem == null)
+			{
 				return;
 			}
-			Confluence.Page page = clickedItem.Tag as Confluence.Page;
+			var page = clickedItem.Tag as Page;
 			_confluenceUpload.SelectedPage = page;
-			if (page != null) {
+			if (page != null)
+			{
 				Log.Debug("Page selected: " + page.Title);
 			}
 		}
 
-		private void Page_Loaded(object sender, RoutedEventArgs e) {
+		private void Page_Loaded(object sender, RoutedEventArgs e)
+		{
 			_confluenceUpload.SelectedPage = null;
-			if (_isInitDone) {
+			if (_isInitDone)
+			{
 				return;
 			}
 			ShowBusy.Visibility = Visibility.Visible;
-			new Thread(() => {
-				Dispatcher.BeginInvoke(DispatcherPriority.Normal, (ThreadStart)(() => {
-					foreach (Space space in _confluenceUpload.Spaces) {
-						TreeViewItem spaceTreeViewItem = new TreeViewItem
+			new Thread(() =>
+			{
+				Dispatcher.BeginInvoke(DispatcherPriority.Normal, (ThreadStart) (() =>
+				{
+					foreach (var space in _confluenceUpload.Spaces)
+					{
+						var spaceTreeViewItem = new TreeViewItem
 						{
 							Header = space.Name,
 							Tag = space
 						};
 
 						// Get homepage
-						try {
-							Confluence.Page page = _confluenceConnector.GetSpaceHomepage(space);
-							TreeViewItem pageTreeViewItem = new TreeViewItem
+						try
+						{
+							var page = _confluenceConnector.GetSpaceHomepage(space);
+							var pageTreeViewItem = new TreeViewItem
 							{
 								Header = page.Title,
 								Tag = page
@@ -118,14 +141,16 @@ namespace GreenshotConfluencePlugin {
 							pageTreeViewItem.PreviewMouseLeftButtonDown += pageTreeViewItem_Click;
 							spaceTreeViewItem.Items.Add(pageTreeViewItem);
 							ConfluenceTreeView.Items.Add(spaceTreeViewItem);
-						} catch (Exception ex) {
+						}
+						catch (Exception ex)
+						{
 							Log.Error("Can't get homepage for space : " + space.Name + " (" + ex.Message + ")");
 						}
 					}
 					ShowBusy.Visibility = Visibility.Collapsed;
 					_isInitDone = true;
 				}));
-			}) { Name = "Loading spaces for confluence"}.Start();
+			}) {Name = "Loading spaces for confluence"}.Start();
 		}
 	}
 }

@@ -1,36 +1,42 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-using GreenshotPlugin.Interfaces.Drawing;
+﻿#region Greenshot GNU General Public License
+
+// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+// For more information see: http://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 1 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#endregion
+
+#region Usings
+
 using System;
+using GreenshotPlugin.Interfaces.Drawing;
+
+#endregion
 
 namespace Greenshot.Drawing.Fields
 {
 	/// <summary>
-	/// Defines all FieldTypes + their default value.
-	/// (The additional value is why this is not an enum)
+	///     Defines all FieldTypes + their default value.
+	///     (The additional value is why this is not an enum)
 	/// </summary>
 	[Serializable]
 	public class FieldType : IFieldType
 	{
-
 		public static readonly IFieldType ARROWHEADS = new FieldType("ARROWHEADS");
 		public static readonly IFieldType BLUR_RADIUS = new FieldType("BLUR_RADIUS");
 		public static readonly IFieldType BRIGHTNESS = new FieldType("BRIGHTNESS");
@@ -51,8 +57,9 @@ namespace Greenshot.Drawing.Fields
 		public static readonly IFieldType PREPARED_FILTER_OBFUSCATE = new FieldType("PREPARED_FILTER_OBFUSCATE");
 		public static readonly IFieldType PREPARED_FILTER_HIGHLIGHT = new FieldType("PREPARED_FILTER_HIGHLIGHT");
 		public static readonly IFieldType FLAGS = new FieldType("FLAGS");
-		
-		public static IFieldType[] Values = {
+
+		public static IFieldType[] Values =
+		{
 			ARROWHEADS,
 			BLUR_RADIUS,
 			BRIGHTNESS,
@@ -75,34 +82,34 @@ namespace Greenshot.Drawing.Fields
 			FLAGS
 		};
 
-		public string Name
-		{
-			get;
-			set;
-		}
-
 		private FieldType(string name)
 		{
 			Name = name;
 		}
+
+		public string Name { get; set; }
+
 		public override string ToString()
 		{
 			return Name;
 		}
+
 		public override int GetHashCode()
 		{
-			int hashCode = 0;
+			var hashCode = 0;
 			unchecked
 			{
 				if (Name != null)
+				{
 					hashCode += 1000000009 * Name.GetHashCode();
+				}
 			}
 			return hashCode;
 		}
 
 		public override bool Equals(object obj)
 		{
-			FieldType other = obj as FieldType;
+			var other = obj as FieldType;
 			if (other == null)
 			{
 				return false;

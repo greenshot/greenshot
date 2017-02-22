@@ -118,8 +118,8 @@ namespace GreenshotPlugin.Controls {
 			// 
             // QualityDialog
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13.5F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(299, 184);
 			this.ControlBox = false;
 			this.Controls.Add(this.checkBox_reduceColors);

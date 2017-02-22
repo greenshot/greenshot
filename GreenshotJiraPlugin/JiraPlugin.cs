@@ -1,89 +1,75 @@
-/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-using System.Collections.Generic;
-using System.Windows.Forms;
+#region Greenshot GNU General Public License
+
+// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+// For more information see: http://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 1 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#endregion
+
+#region Usings
+
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Greenshot.Forms;
 using Greenshot.Helpers;
 using GreenshotJiraPlugin.Forms;
-using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using log4net;
 
-namespace GreenshotJiraPlugin {
+#endregion
+
+namespace GreenshotJiraPlugin
+{
 	/// <summary>
-	/// This is the JiraPlugin base code
+	///     This is the JiraPlugin base code
 	/// </summary>
-	public class JiraPlugin : IGreenshotPlugin {
+	public class JiraPlugin : IGreenshotPlugin
+	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(JiraPlugin));
 		private JiraConfiguration _config;
-		private static JiraPlugin _instance;
 		private JiraConnector _jiraConnector;
 
-		public void Dispose() {
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected void Dispose(bool disposing) {
-			if (disposing) {
-				if (JiraConnector != null) {
-					JiraConnector.Dispose();
-					JiraConnector = null;
-				}
-			}
-		}
-
-		public static JiraPlugin Instance => _instance;
-
-		public JiraPlugin() {
-			_instance = this;
+		public JiraPlugin()
+		{
+			Instance = this;
 			// Added to prevent Greenshot from shutting down when there was an exception in a Task
 			TaskScheduler.UnobservedTaskException += (sender, args) =>
 			{
 				try
 				{
 					Exception exceptionToLog = args.Exception;
-					string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
+					var exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
 					Log.Error("Exception caught in the UnobservedTaskException handler.");
 					Log.Error(exceptionText);
 					new BugReportForm(exceptionText).ShowDialog();
 				}
-				finally 
+				finally
 				{
 					args.SetObserved();
 				}
 			};
 		}
 
-		public IEnumerable<IDestination> Destinations() {
-			yield return new JiraDestination(this);
-		}
-
-		public IEnumerable<IProcessor> Processors() {
-			yield break;
-		}
+		public static JiraPlugin Instance { get; private set; }
 
 		//Needed for a fail-fast
 		public JiraConnector CurrentJiraConnector => JiraConnector;
@@ -92,7 +78,7 @@ namespace GreenshotJiraPlugin {
 		{
 			get
 			{
-				lock (_instance)
+				lock (Instance)
 				{
 					if (_jiraConnector == null)
 					{
@@ -104,19 +90,37 @@ namespace GreenshotJiraPlugin {
 			private set { _jiraConnector = value; }
 		}
 
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		public IEnumerable<IDestination> Destinations()
+		{
+			yield return new JiraDestination(this);
+		}
+
+		public IEnumerable<IProcessor> Processors()
+		{
+			yield break;
+		}
+
 		/// <summary>
-		/// Implementation of the IGreenshotPlugin.Initialize
+		///     Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="myAttributes">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
+		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes)
+		{
 			// Register configuration (don't need the configuration itself)
 			_config = IniConfig.GetIniSection<JiraConfiguration>();
 			return true;
 		}
 
-		public void Shutdown() {
+		public void Shutdown()
+		{
 			Log.Debug("Jira Plugin shutdown.");
 			if (JiraConnector != null)
 			{
@@ -125,14 +129,18 @@ namespace GreenshotJiraPlugin {
 		}
 
 		/// <summary>
-		/// Implementation of the IPlugin.Configure
+		///     Implementation of the IPlugin.Configure
 		/// </summary>
-		public void Configure() {
-			string url = _config.Url;
-			if (ShowConfigDialog()) {
+		public void Configure()
+		{
+			var url = _config.Url;
+			if (ShowConfigDialog())
+			{
 				// check for re-login
-				if (JiraConnector != null && JiraConnector.IsLoggedIn && !string.IsNullOrEmpty(url)) {
-					if (!url.Equals(_config.Url)) {
+				if (JiraConnector != null && JiraConnector.IsLoggedIn && !string.IsNullOrEmpty(url))
+				{
+					if (!url.Equals(_config.Url))
+					{
 						Task.Run(async () =>
 						{
 							await JiraConnector.LogoutAsync();
@@ -143,8 +151,20 @@ namespace GreenshotJiraPlugin {
 			}
 		}
 
+		protected void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				if (JiraConnector != null)
+				{
+					JiraConnector.Dispose();
+					JiraConnector = null;
+				}
+			}
+		}
+
 		/// <summary>
-		/// A form for username/password
+		///     A form for username/password
 		/// </summary>
 		/// <returns>bool true if OK was pressed, false if cancel</returns>
 		private bool ShowConfigDialog()

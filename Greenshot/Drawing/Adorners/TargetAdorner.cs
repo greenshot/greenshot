@@ -1,44 +1,49 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on Sourceforge: http://sourceforge.net/projects/greenshot/
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿#region Greenshot GNU General Public License
+
+// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+// For more information see: http://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 1 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#endregion
+
+#region Usings
 
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using GreenshotPlugin.Interfaces.Drawing;
 
+#endregion
+
 namespace Greenshot.Drawing.Adorners
 {
 	/// <summary>
-	/// This implements the special "gripper" for the Speech-Bubble tail
+	///     This implements the special "gripper" for the Speech-Bubble tail
 	/// </summary>
 	public class TargetAdorner : AbstractAdorner
 	{
-
 		public TargetAdorner(IDrawableContainer owner, Point location) : base(owner)
 		{
 			Location = location;
 		}
 
 		/// <summary>
-		/// Handle the mouse down
+		///     Handle the mouse down
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="mouseEventArgs"></param>
@@ -48,7 +53,7 @@ namespace Greenshot.Drawing.Adorners
 		}
 
 		/// <summary>
-		/// Handle the mouse move
+		///     Handle the mouse move
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="mouseEventArgs"></param>
@@ -60,8 +65,8 @@ namespace Greenshot.Drawing.Adorners
 			}
 
 			Owner.Invalidate();
-			Point newGripperLocation = new Point(mouseEventArgs.X, mouseEventArgs.Y);
-			Rectangle surfaceBounds = new Rectangle(0, 0, Owner.Parent.Width, Owner.Parent.Height);
+			var newGripperLocation = new Point(mouseEventArgs.X, mouseEventArgs.Y);
+			var surfaceBounds = new Rectangle(0, 0, Owner.Parent.Width, Owner.Parent.Height);
 			// Check if gripper inside the parent (surface), if not we need to move it inside
 			// This was made for BUG-1682
 			if (!surfaceBounds.Contains(newGripperLocation))
@@ -89,19 +94,19 @@ namespace Greenshot.Drawing.Adorners
 		}
 
 		/// <summary>
-		/// Draw the adorner
+		///     Draw the adorner
 		/// </summary>
 		/// <param name="paintEventArgs">PaintEventArgs</param>
 		public override void Paint(PaintEventArgs paintEventArgs)
 		{
-			Graphics targetGraphics = paintEventArgs.Graphics;
+			var targetGraphics = paintEventArgs.Graphics;
 
 			var bounds = Bounds;
 			targetGraphics.FillRectangle(Brushes.Green, bounds.X, bounds.Y, bounds.Width, bounds.Height);
 		}
 
 		/// <summary>
-		/// Made sure this adorner is transformed
+		///     Made sure this adorner is transformed
 		/// </summary>
 		/// <param name="matrix">Matrix</param>
 		public override void Transform(Matrix matrix)
@@ -110,7 +115,7 @@ namespace Greenshot.Drawing.Adorners
 			{
 				return;
 			}
-			Point[] points = new[] { Location };
+			Point[] points = {Location};
 			matrix.TransformPoints(points);
 			Location = points[0];
 		}

@@ -1,23 +1,27 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub: https://github.com/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿#region Greenshot GNU General Public License
+
+// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+// For more information see: http://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 1 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#endregion
+
+#region Usings
 
 using System;
 using System.Collections.Generic;
@@ -31,21 +35,22 @@ using Dapplo.Log;
 using Dapplo.Windows.Native;
 using Dapplo.Windows.Reactive;
 
+#endregion
+
 namespace GreenshotJiraPlugin
 {
-
 	/// <summary>
-	/// This class will monitor all _jira activity by registering for title changes
-	/// It keeps a list of the last "accessed" jiras, and makes it easy to upload to one.
-	/// Make sure this is instanciated on the UI thread!
+	///     This class will monitor all _jira activity by registering for title changes
+	///     It keeps a list of the last "accessed" jiras, and makes it easy to upload to one.
+	///     Make sure this is instanciated on the UI thread!
 	/// </summary>
 	public class JiraMonitor : IDisposable
 	{
 		private static readonly LogSource Log = new LogSource();
-		private readonly Regex _jiraKeyPattern = new Regex(@"[A-Z][A-Z0-9]+\-[0-9]+");
 		private readonly IList<IJiraClient> _jiraInstances = new List<IJiraClient>();
-		private readonly IDictionary<string, IJiraClient> _projectJiraClientMap = new Dictionary<string, IJiraClient>();
+		private readonly Regex _jiraKeyPattern = new Regex(@"[A-Z][A-Z0-9]+\-[0-9]+");
 		private readonly int _maxEntries;
+		private readonly IDictionary<string, IJiraClient> _projectJiraClientMap = new Dictionary<string, IJiraClient>();
 		private readonly IDisposable _winEventObservable;
 		// TODO: Add issues from issueHistory (JQL -> Where.IssueKey.InIssueHistory())
 		private IDictionary<string, JiraDetails> _recentJiras = new Dictionary<string, JiraDetails>();
@@ -60,36 +65,21 @@ namespace GreenshotJiraPlugin
 				.Subscribe(MonitorTitleChangeEvent);
 		}
 
-		#region Dispose
-
 		/// <summary>
-		/// Dispose
+		///     Get the "list" of recently seen Jiras
 		/// </summary>
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+		public IEnumerable<JiraDetails> RecentJiras =>
+			from jiraDetails in _recentJiras.Values
+			orderby jiraDetails.SeenAt descending
+			select jiraDetails;
 
 		/// <summary>
-		/// Dispose all managed resources
+		///     Check if this monitor has active instances
 		/// </summary>
-		/// <param name="disposing">when true is passed all managed resources are disposed.</param>
-		private void Dispose(bool disposing)
-		{
-			if (!disposing)
-			{
-				return;
-			}
-			// free managed resources
-			_winEventObservable.Dispose();
-			// free native resources if there are any.
-		}
-
-		#endregion
+		public bool HasJiraInstances => _jiraInstances.Count > 0;
 
 		/// <summary>
-		/// Retrieve the API belonging to a JiraDetails
+		///     Retrieve the API belonging to a JiraDetails
 		/// </summary>
 		/// <param name="jiraDetails"></param>
 		/// <returns>IJiraClient</returns>
@@ -99,20 +89,7 @@ namespace GreenshotJiraPlugin
 		}
 
 		/// <summary>
-		/// Get the "list" of recently seen Jiras
-		/// </summary>
-		public IEnumerable<JiraDetails> RecentJiras =>
-			(from jiraDetails in _recentJiras.Values
-			 orderby jiraDetails.SeenAt descending
-			 select jiraDetails);
-
-		/// <summary>
-		/// Check if this monitor has active instances
-		/// </summary>
-		public bool HasJiraInstances => _jiraInstances.Count > 0;
-
-		/// <summary>
-		/// Add an instance of a JIRA system
+		///     Add an instance of a JIRA system
 		/// </summary>
 		/// <param name="jiraInstance"></param>
 		/// <param name="token"></param>
@@ -133,7 +110,7 @@ namespace GreenshotJiraPlugin
 		}
 
 		/// <summary>
-		/// This method will update details, like the title, and send an event to registed listeners of the JiraEvent
+		///     This method will update details, like the title, and send an event to registed listeners of the JiraEvent
 		/// </summary>
 		/// <param name="jiraDetails">Contains the jira key to retrieve the title (XYZ-1234)</param>
 		/// <returns>Task</returns>
@@ -155,7 +132,7 @@ namespace GreenshotJiraPlugin
 		}
 
 		/// <summary>
-		/// Handle title changes, check for JIRA
+		///     Handle title changes, check for JIRA
 		/// </summary>
 		/// <param name="windowTitle">string with title</param>
 		private void MonitorTitleChangeEvent(string windowTitle)
@@ -196,8 +173,8 @@ namespace GreenshotJiraPlugin
 				{
 					// Add it to the list of recent Jiras
 					_recentJiras = (from jiraDetails in _recentJiras.Values.ToList()
-									orderby jiraDetails.SeenAt descending
-									select jiraDetails).Take(_maxEntries).ToDictionary(jd => jd.JiraKey, jd => jd);
+						orderby jiraDetails.SeenAt descending
+						select jiraDetails).Take(_maxEntries).ToDictionary(jd => jd.JiraKey, jd => jd);
 				}
 				// Now we can get the title from JIRA itself
 				// ReSharper disable once UnusedVariable
@@ -208,5 +185,33 @@ namespace GreenshotJiraPlugin
 				Log.Info().WriteLine("Couldn't match possible JIRA key {0} to projects in a configured JIRA instance, ignoring", projectKey);
 			}
 		}
+
+		#region Dispose
+
+		/// <summary>
+		///     Dispose
+		/// </summary>
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		/// <summary>
+		///     Dispose all managed resources
+		/// </summary>
+		/// <param name="disposing">when true is passed all managed resources are disposed.</param>
+		private void Dispose(bool disposing)
+		{
+			if (!disposing)
+			{
+				return;
+			}
+			// free managed resources
+			_winEventObservable.Dispose();
+			// free native resources if there are any.
+		}
+
+		#endregion
 	}
 }

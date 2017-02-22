@@ -1,26 +1,28 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿#region Greenshot GNU General Public License
 
-using Greenshot.Interop.Office;
-using GreenshotPlugin.Core;
+// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+// For more information see: http://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 1 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#endregion
+
+#region Usings
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -28,41 +30,52 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using GreenshotOfficePlugin.OfficeExport;
+using GreenshotOfficePlugin.OfficeInterop;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
+using log4net;
 
-namespace GreenshotOfficePlugin {
-	public class OneNoteDestination : AbstractDestination {
-		private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordDestination));
+#endregion
+
+namespace GreenshotOfficePlugin
+{
+	public class OneNoteDestination : AbstractDestination
+	{
 		private const int IconApplication = 0;
 		public const string DESIGNATION = "OneNote";
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(WordDestination));
 		private static readonly string ExePath;
 		private readonly OneNotePage _page;
 
-		static OneNoteDestination() {
+		static OneNoteDestination()
+		{
 			ExePath = PluginUtils.GetExePath("ONENOTE.EXE");
-			if (ExePath != null && !File.Exists(ExePath)) {
+			if (ExePath != null && !File.Exists(ExePath))
+			{
 				ExePath = null;
 			}
 		}
-		
-		public OneNoteDestination() {
-			
+
+		public OneNoteDestination()
+		{
 		}
 
-		public OneNoteDestination(OneNotePage page) {
+		public OneNoteDestination(OneNotePage page)
+		{
 			_page = page;
 		}
 
-		public override string Designation {
-			get {
-				return DESIGNATION;
-			}
+		public override string Designation
+		{
+			get { return DESIGNATION; }
 		}
 
-		public override string Description {
+		public override string Description
+		{
 			get
 			{
-				if (_page == null) {
+				if (_page == null)
+				{
 					return "Microsoft OneNote";
 				}
 				return _page.DisplayName;
@@ -77,14 +90,15 @@ namespace GreenshotOfficePlugin {
 
 		public override Image DisplayIcon => PluginUtils.GetCachedExeIcon(ExePath, IconApplication);
 
-		public override IEnumerable<IDestination> DynamicDestinations() {
+		public override IEnumerable<IDestination> DynamicDestinations()
+		{
 			try
 			{
 				return OneNoteExporter.GetPages().Where(currentPage => currentPage.IsCurrentlyViewed).Select(currentPage => new OneNoteDestination(currentPage)).Cast<IDestination>();
 			}
 			catch (COMException cEx)
 			{
-				if (cEx.ErrorCode == unchecked((int)0x8002801D))
+				if (cEx.ErrorCode == unchecked((int) 0x8002801D))
 				{
 					LOG.Warn("Wrong registry keys, to solve this remove the OneNote key as described here: http://microsoftmercenary.com/wp/outlook-excel-interop-calls-breaking-solved/");
 				}
@@ -97,20 +111,30 @@ namespace GreenshotOfficePlugin {
 			return Enumerable.Empty<IDestination>();
 		}
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
-			ExportInformation exportInformation = new ExportInformation(Designation, Description);
+		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+		{
+			var exportInformation = new ExportInformation(Designation, Description);
 
-			if (_page == null) {
-				try {
+			if (_page == null)
+			{
+				try
+				{
 					exportInformation.ExportMade = OneNoteExporter.ExportToNewPage(surface);
-				} catch(Exception ex) {
+				}
+				catch (Exception ex)
+				{
 					exportInformation.ErrorMessage = ex.Message;
 					LOG.Error(ex);
 				}
-			} else {
-				try {
+			}
+			else
+			{
+				try
+				{
 					exportInformation.ExportMade = OneNoteExporter.ExportToPage(surface, _page);
-				} catch(Exception ex) {
+				}
+				catch (Exception ex)
+				{
 					exportInformation.ErrorMessage = ex.Message;
 					LOG.Error(ex);
 				}

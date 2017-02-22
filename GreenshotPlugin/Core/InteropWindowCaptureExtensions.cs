@@ -1,25 +1,23 @@
-﻿#region Dapplo 2017 - GNU Lesser General Public License
+﻿#region Greenshot GNU General Public License
 
-// Dapplo - building blocks for .NET applications
-// Copyright (C) 2017 Dapplo
+// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
 // 
-// For more information see: http://dapplo.net/
-// Dapplo repositories are hosted on GitHub: https://github.com/dapplo
+// For more information see: http://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
 // 
-// This file is part of Greenshot
-// 
-// Greenshot is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 1 of the License, or
 // (at your option) any later version.
 // 
-// Greenshot is distributed in the hope that it will be useful,
+// This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
+// GNU General Public License for more details.
 // 
-// You should have a copy of the GNU Lesser General Public License
-// along with Greenshot. If not, see <http://www.gnu.org/licenses/lgpl.txt>.
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #endregion
 
@@ -37,6 +35,7 @@ using Dapplo.Windows.Enums;
 using Dapplo.Windows.Native;
 using Dapplo.Windows.Structs;
 using GreenshotPlugin.Core.Enums;
+using GreenshotPlugin.Core.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 
@@ -51,12 +50,13 @@ namespace GreenshotPlugin.Core
 	{
 		private static readonly LogSource Log = new LogSource();
 		private static readonly CoreConfiguration CoreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
+
 		/// <summary>
 		///     Get the file path to the exe for the process which owns this window
 		/// </summary>
 		public static string GetProcessPath(this IInteropWindow interopWindow)
 		{
-			int processid = interopWindow.GetProcessId();
+			var processid = interopWindow.GetProcessId();
 			return Kernel32.GetProcessPath(processid);
 		}
 
@@ -96,7 +96,7 @@ namespace GreenshotPlugin.Core
 		}
 
 		/// <summary>
-		/// Extension method to capture a bitmap of the screen area where the InteropWindow is located
+		///     Extension method to capture a bitmap of the screen area where the InteropWindow is located
 		/// </summary>
 		/// <param name="interopWindow">InteropWindow</param>
 		/// <param name="clientBounds">true to use the client bounds</param>
@@ -128,7 +128,7 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		///     Return an Image representing the Window!
 		///     As GDI+ draws it, it will be without Aero borders!
-		/// TODO: If there is a parent, this could be removed with SetParent, and set back afterwards.
+		///     TODO: If there is a parent, this could be removed with SetParent, and set back afterwards.
 		/// </summary>
 		public static Image PrintWindow(this IInteropWindow nativeWindow)
 		{
@@ -394,7 +394,8 @@ namespace GreenshotPlugin.Core
 					if (!Environment.OSVersion.IsWindows8OrLater())
 					{
 						// Only if the Inivalue is set, not maximized and it's not a tool window.
-						if (CoreConfiguration.WindowCaptureRemoveCorners && !interopWindow.IsMaximized() && (interopWindow.GetExtendedStyle() & ExtendedWindowStyleFlags.WS_EX_TOOLWINDOW) == 0)
+						if (CoreConfiguration.WindowCaptureRemoveCorners && !interopWindow.IsMaximized() &&
+						    (interopWindow.GetExtendedStyle() & ExtendedWindowStyleFlags.WS_EX_TOOLWINDOW) == 0)
 						{
 							// Remove corners
 							if (!Image.IsAlphaPixelFormat(capturedBitmap.PixelFormat))
@@ -493,12 +494,12 @@ namespace GreenshotPlugin.Core
 								else
 								{
 									// Calculate original color
-									var originalAlpha = (byte)Math.Min(255, alpha);
+									var originalAlpha = (byte) Math.Min(255, alpha);
 									var alphaFactor = alpha / 255d;
 									//LOG.DebugFormat("Alpha {0} & c0 {1} & c1 {2}", alpha, c0, c1);
-									var originalRed = (byte)Math.Min(255, c0.R / alphaFactor);
-									var originalGreen = (byte)Math.Min(255, c0.G / alphaFactor);
-									var originalBlue = (byte)Math.Min(255, c0.B / alphaFactor);
+									var originalRed = (byte) Math.Min(255, c0.R / alphaFactor);
+									var originalGreen = (byte) Math.Min(255, c0.G / alphaFactor);
+									var originalBlue = (byte) Math.Min(255, c0.B / alphaFactor);
 									var originalColor = Color.FromArgb(originalAlpha, originalRed, originalGreen, originalBlue);
 									//Color originalColor = Color.FromArgb(originalAlpha, originalRed, c0.G, c0.B);
 									targetBuffer.SetColorAt(x, y, originalColor);
