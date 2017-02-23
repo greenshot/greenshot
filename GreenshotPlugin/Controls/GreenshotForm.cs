@@ -64,7 +64,7 @@ namespace GreenshotPlugin.Controls
 		}
 
 		/// <summary>
-		/// Default constructor, for default functionality
+		/// Default constructor, for default functionality like DPI awareness
 		/// </summary>
 		protected GreenshotForm()
 		{

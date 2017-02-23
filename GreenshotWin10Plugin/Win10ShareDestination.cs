@@ -30,6 +30,7 @@ using Color = Windows.UI.Color;
 using System.Collections.Generic;
 using System.Drawing;
 using GreenshotPlugin.Core.Enums;
+using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 

@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
+using Dapplo.Windows;
 
 namespace GreenshotWin10Plugin
 {
