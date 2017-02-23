@@ -33,7 +33,7 @@ using log4net;
 
 #endregion
 
-namespace ExternalCommand
+namespace GreenshotExternalCommandPlugin
 {
 	/// <summary>
 	///     Description of SettingsFormDetail.

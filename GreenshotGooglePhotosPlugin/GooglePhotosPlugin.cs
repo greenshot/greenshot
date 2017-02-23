@@ -43,7 +43,7 @@ namespace GreenshotGooglePhotosPlugin
 	/// <summary>
 	///     This is the Google Photos base code
 	/// </summary>
-	public class GooglePhotosPlugin : IGreenshotPlugin
+	public sealed class GooglePhotosPlugin : IGreenshotPlugin
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(GooglePhotosPlugin));
 		private static GooglePhotosConfiguration _config;
@@ -55,7 +55,6 @@ namespace GreenshotGooglePhotosPlugin
 		public void Dispose()
 		{
 			Dispose(true);
-			GC.SuppressFinalize(this);
 		}
 
 		public IEnumerable<IDestination> Destinations()
@@ -74,7 +73,7 @@ namespace GreenshotGooglePhotosPlugin
 		/// </summary>
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="myAttributes">My own attributes</param>
-		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes)
+		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes)
 		{
 			_host = pluginHost;
 			Attributes = myAttributes;
@@ -95,7 +94,7 @@ namespace GreenshotGooglePhotosPlugin
 			return true;
 		}
 
-		public virtual void Shutdown()
+		public void Shutdown()
 		{
 			Log.Debug("GooglePhotos Plugin shutdown.");
 			Language.LanguageChanged -= OnLanguageChanged;
@@ -105,12 +104,12 @@ namespace GreenshotGooglePhotosPlugin
 		/// <summary>
 		///     Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure()
+		public void Configure()
 		{
 			_config.ShowConfigDialog();
 		}
 
-		protected virtual void Dispose(bool disposing)
+		private void Dispose(bool disposing)
 		{
 			if (disposing)
 			{

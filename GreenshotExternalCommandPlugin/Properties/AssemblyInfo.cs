@@ -43,7 +43,7 @@ using GreenshotPlugin.Interfaces.Plugin;
 [assembly: AssemblyCulture("")]
 // The PluginAttribute describes the "entryType" and if the plugin is configurable
 
-[assembly: Plugin("ExternalCommand.ExternalCommandPlugin", true)]
+[assembly: Plugin("GreenshotExternalCommandPlugin.ExternalCommandPlugin", true)]
 
 // This sets the default COM visibility of types in the assembly to invisible.
 // If you need to expose a type to COM, use [ComVisible(true)] on that type.

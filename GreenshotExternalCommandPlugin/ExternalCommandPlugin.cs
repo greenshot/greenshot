@@ -29,6 +29,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
@@ -36,12 +37,12 @@ using log4net;
 
 #endregion
 
-namespace ExternalCommand
+namespace GreenshotExternalCommandPlugin
 {
 	/// <summary>
 	///     An Plugin to run commands after an image was written
 	/// </summary>
-	public class ExternalCommandPlugin : IGreenshotPlugin
+	public sealed class ExternalCommandPlugin : IGreenshotPlugin
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ExternalCommandPlugin));
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
@@ -53,7 +54,6 @@ namespace ExternalCommand
 		public void Dispose()
 		{
 			Dispose(true);
-			GC.SuppressFinalize(this);
 		}
 
 		public IEnumerable<IDestination> Destinations()
@@ -74,7 +74,7 @@ namespace ExternalCommand
 		/// </summary>
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="myAttributes">My own attributes</param>
-		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes)
+		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes)
 		{
 			Log.DebugFormat("Initialize called of {0}", myAttributes.Name);
 
@@ -109,7 +109,7 @@ namespace ExternalCommand
 			return true;
 		}
 
-		public virtual void Shutdown()
+		public void Shutdown()
 		{
 			Log.Debug("Shutdown of " + _myAttributes.Name);
 		}
@@ -117,13 +117,13 @@ namespace ExternalCommand
 		/// <summary>
 		///     Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure()
+		public void Configure()
 		{
 			Log.Debug("Configure called");
 			new SettingsForm().ShowDialog();
 		}
 
-		protected virtual void Dispose(bool disposing)
+		private void Dispose(bool disposing)
 		{
 			if (disposing)
 			{
@@ -140,7 +140,7 @@ namespace ExternalCommand
 		/// </summary>
 		/// <param name="command"></param>
 		/// <returns>false if the command is not correctly configured</returns>
-		private bool IsCommandValid(string command)
+		private static bool IsCommandValid(string command)
 		{
 			if (!ExternalCommandConfig.RunInbackground.ContainsKey(command))
 			{
@@ -162,12 +162,12 @@ namespace ExternalCommand
 			var commandline = FilenameHelper.FillVariables(ExternalCommandConfig.Commandline[command], true);
 			commandline = FilenameHelper.FillCmdVariables(commandline, true);
 
-			if (!File.Exists(commandline))
+			if (File.Exists(commandline))
 			{
-				Log.WarnFormat("Found 'invalid' commandline {0} for command {1}", ExternalCommandConfig.Commandline[command], command);
-				return false;
+				return true;
 			}
-			return true;
+			Log.WarnFormat("Found 'invalid' commandline {0} for command {1}", ExternalCommandConfig.Commandline[command], command);
+			return false;
 		}
 
 		/// <summary>
@@ -177,20 +177,31 @@ namespace ExternalCommand
 		/// <param name="e"></param>
 		private void OnIconSizeChanged(object sender, PropertyChangedEventArgs e)
 		{
-			if (e.PropertyName == "IconSize")
+			if (e.PropertyName != "IconSize")
 			{
-				try
+				return;
+			}
+			try
+			{
+				var exePath = PluginUtils.GetExePath("cmd.exe");
+				if (exePath == null || !File.Exists(exePath))
 				{
-					var exePath = PluginUtils.GetExePath("cmd.exe");
-					if (exePath != null && File.Exists(exePath))
-					{
-						_itemPlugInRoot.Image = PluginUtils.GetCachedExeIcon(exePath, 0);
-					}
+					return;
 				}
-				catch (Exception ex)
+				bool newImage;
+				if (_itemPlugInRoot.Tag == (object) true)
 				{
-					Log.Warn("Couldn't get the cmd.exe image", ex);
+					_itemPlugInRoot.Image?.Dispose();
 				}
+				_itemPlugInRoot.Image = PluginUtils.GetCachedExeIcon(exePath, 0).ScaleIconForDisplaying(out newImage);
+				if (newImage)
+				{
+					_itemPlugInRoot.Tag = true;
+				}
+			}
+			catch (Exception ex)
+			{
+				Log.Warn("Couldn't get the cmd.exe image", ex);
 			}
 		}
 

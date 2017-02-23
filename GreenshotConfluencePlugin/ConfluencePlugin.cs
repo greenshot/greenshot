@@ -41,9 +41,9 @@ namespace GreenshotConfluencePlugin
 	/// <summary>
 	///     This is the ConfluencePlugin base code
 	/// </summary>
-	public class ConfluencePlugin : IGreenshotPlugin
+	public sealed class ConfluencePlugin : IGreenshotPlugin
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(ConfluencePlugin));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ConfluencePlugin));
 		private static ConfluenceConfiguration _config;
 
 		public static ConfluenceConnector ConfluenceConnectorNoLogin { get; private set; }
@@ -74,7 +74,6 @@ namespace GreenshotConfluencePlugin
 		public void Dispose()
 		{
 			Dispose(true);
-			GC.SuppressFinalize(this);
 		}
 
 		public IEnumerable<IDestination> Destinations()
@@ -95,7 +94,7 @@ namespace GreenshotConfluencePlugin
 		/// </summary>
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="myAttributes">My own attributes</param>
-		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes)
+		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes)
 		{
 			// Register configuration (don't need the configuration itself)
 			_config = IniConfig.GetIniSection<ConfluenceConfiguration>();
@@ -110,15 +109,15 @@ namespace GreenshotConfluencePlugin
 			}
 			catch (Exception ex)
 			{
-				LOG.ErrorFormat("Problem in ConfluencePlugin.Initialize: {0}", ex.Message);
+				Log.ErrorFormat("Problem in ConfluencePlugin.Initialize: {0}", ex.Message);
 				return false;
 			}
 			return true;
 		}
 
-		public virtual void Shutdown()
+		public void Shutdown()
 		{
-			LOG.Debug("Confluence Plugin shutdown.");
+			Log.Debug("Confluence Plugin shutdown.");
 			if (ConfluenceConnectorNoLogin != null)
 			{
 				ConfluenceConnectorNoLogin.Logout();
@@ -129,7 +128,7 @@ namespace GreenshotConfluencePlugin
 		/// <summary>
 		///     Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure()
+		public void Configure()
 		{
 			var clonedConfig = _config.Clone();
 			var configForm = new ConfluenceConfigurationForm(clonedConfig);
@@ -154,7 +153,7 @@ namespace GreenshotConfluencePlugin
 			}
 		}
 
-		protected virtual void Dispose(bool disposing)
+		private void Dispose(bool disposing)
 		{
 			//if (disposing) {}
 		}

@@ -36,14 +36,13 @@ namespace GreenshotOfficePlugin
 	/// <summary>
 	///     This is the OfficePlugin base code
 	/// </summary>
-	public class OfficePlugin : IGreenshotPlugin
+	public sealed class OfficePlugin : IGreenshotPlugin
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(OfficePlugin));
 
 		public void Dispose()
 		{
 			Dispose(true);
-			GC.SuppressFinalize(this);
 		}
 
 		public IEnumerable<IDestination> Destinations()
@@ -126,12 +125,12 @@ namespace GreenshotOfficePlugin
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="myAttributes">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes)
+		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes)
 		{
 			return true;
 		}
 
-		public virtual void Shutdown()
+		public void Shutdown()
 		{
 			LOG.Debug("Office Plugin shutdown.");
 		}
@@ -139,11 +138,11 @@ namespace GreenshotOfficePlugin
 		/// <summary>
 		///     Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure()
+		public void Configure()
 		{
 		}
 
-		protected void Dispose(bool disposing)
+		private void Dispose(bool disposing)
 		{
 			// Do nothing
 		}

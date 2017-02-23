@@ -39,20 +39,19 @@ using log4net;
 
 #endregion
 
-namespace ExternalCommand
+namespace GreenshotExternalCommandPlugin
 {
 	/// <summary>
 	///     Description of OCRDestination.
 	/// </summary>
 	public class ExternalCommandDestination : AbstractDestination
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(ExternalCommandDestination));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ExternalCommandDestination));
 
-		private static readonly Regex URI_REGEXP =
-			new Regex(
-				@"((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)");
+		private static readonly Regex UriRegexp = new Regex(
+				@"((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)", RegexOptions.Compiled);
 
-		private static readonly ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
+		private static readonly ExternalCommandConfiguration Config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
 		private readonly string _presetCommand;
 
 		public ExternalCommandDestination(string commando)
@@ -79,11 +78,11 @@ namespace ExternalCommand
 
 			if (_presetCommand != null)
 			{
-				if (!config.RunInbackground.ContainsKey(_presetCommand))
+				if (!Config.RunInbackground.ContainsKey(_presetCommand))
 				{
-					config.RunInbackground.Add(_presetCommand, true);
+					Config.RunInbackground.Add(_presetCommand, true);
 				}
-				var runInBackground = config.RunInbackground[_presetCommand];
+				var runInBackground = Config.RunInbackground[_presetCommand];
 				var fullPath = captureDetails.Filename;
 				if (fullPath == null)
 				{
@@ -135,17 +134,17 @@ namespace ExternalCommand
 					exportInformation.ExportMade = true;
 					if (!string.IsNullOrEmpty(output))
 					{
-						var uriMatches = URI_REGEXP.Matches(output);
+						var uriMatches = UriRegexp.Matches(output);
 						// Place output on the clipboard before the URI, so if one is found this overwrites
-						if (config.OutputToClipboard)
+						if (Config.OutputToClipboard)
 						{
 							ClipboardHelper.SetClipboardData(output);
 						}
 						if (uriMatches.Count > 0)
 						{
 							exportInformation.Uri = uriMatches[0].Groups[1].Value;
-							LOG.InfoFormat("Got URI : {0} ", exportInformation.Uri);
-							if (config.UriToClipboard)
+							Log.InfoFormat("Got URI : {0} ", exportInformation.Uri);
+							if (Config.UriToClipboard)
 							{
 								ClipboardHelper.SetClipboardData(exportInformation.Uri);
 							}
@@ -154,7 +153,7 @@ namespace ExternalCommand
 				}
 				else
 				{
-					LOG.WarnFormat("Error calling external command: {0} ", output);
+					Log.WarnFormat("Error calling external command: {0} ", output);
 					exportInformation.ExportMade = false;
 					exportInformation.ErrorMessage = error;
 				}
@@ -163,7 +162,7 @@ namespace ExternalCommand
 			{
 				exportInformation.ExportMade = false;
 				exportInformation.ErrorMessage = ex.Message;
-				LOG.WarnFormat("Error calling external command: {0} ", exportInformation.ErrorMessage);
+				Log.WarnFormat("Error calling external command: {0} ", exportInformation.ErrorMessage);
 			}
 		}
 
@@ -189,15 +188,15 @@ namespace ExternalCommand
 				}
 				catch
 				{
-					w32Ex.Data.Add("commandline", config.Commandline[_presetCommand]);
-					w32Ex.Data.Add("arguments", config.Argument[_presetCommand]);
+					w32Ex.Data.Add("commandline", Config.Commandline[_presetCommand]);
+					w32Ex.Data.Add("arguments", Config.Argument[_presetCommand]);
 					throw;
 				}
 			}
 			catch (Exception ex)
 			{
-				ex.Data.Add("commandline", config.Commandline[_presetCommand]);
-				ex.Data.Add("arguments", config.Argument[_presetCommand]);
+				ex.Data.Add("commandline", Config.Commandline[_presetCommand]);
+				ex.Data.Add("arguments", Config.Argument[_presetCommand]);
 				throw;
 			}
 		}
@@ -211,10 +210,10 @@ namespace ExternalCommand
 		/// <param name="output"></param>
 		/// <param name="error"></param>
 		/// <returns></returns>
-		private int CallExternalCommand(string commando, string fullPath, string verb, out string output, out string error)
+		private static int CallExternalCommand(string commando, string fullPath, string verb, out string output, out string error)
 		{
-			var commandline = config.Commandline[commando];
-			var arguments = config.Argument[commando];
+			var commandline = Config.Commandline[commando];
+			var arguments = Config.Argument[commando];
 			output = null;
 			error = null;
 			if (!string.IsNullOrEmpty(commandline))
@@ -231,11 +230,11 @@ namespace ExternalCommand
 					process.StartInfo.FileName = FilenameHelper.FillCmdVariables(commandline, true);
 					process.StartInfo.Arguments = FormatArguments(arguments, fullPath);
 					process.StartInfo.UseShellExecute = false;
-					if (config.RedirectStandardOutput)
+					if (Config.RedirectStandardOutput)
 					{
 						process.StartInfo.RedirectStandardOutput = true;
 					}
-					if (config.RedirectStandardError)
+					if (Config.RedirectStandardError)
 					{
 						process.StartInfo.RedirectStandardError = true;
 					}
@@ -243,26 +242,26 @@ namespace ExternalCommand
 					{
 						process.StartInfo.Verb = verb;
 					}
-					LOG.InfoFormat("Starting : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
+					Log.InfoFormat("Starting : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
 					process.Start();
 					process.WaitForExit();
-					if (config.RedirectStandardOutput)
+					if (Config.RedirectStandardOutput)
 					{
 						output = process.StandardOutput.ReadToEnd();
-						if (config.ShowStandardOutputInLog && output.Trim().Length > 0)
+						if (Config.ShowStandardOutputInLog && output.Trim().Length > 0)
 						{
-							LOG.InfoFormat("Output:\n{0}", output);
+							Log.InfoFormat("Output:\n{0}", output);
 						}
 					}
-					if (config.RedirectStandardError)
+					if (Config.RedirectStandardError)
 					{
 						error = process.StandardError.ReadToEnd();
 						if (error.Trim().Length > 0)
 						{
-							LOG.WarnFormat("Error:\n{0}", error);
+							Log.WarnFormat("Error:\n{0}", error);
 						}
 					}
-					LOG.InfoFormat("Finished : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
+					Log.InfoFormat("Finished : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
 					return process.ExitCode;
 				}
 			}

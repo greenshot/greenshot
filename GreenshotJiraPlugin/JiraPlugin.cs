@@ -42,7 +42,7 @@ namespace GreenshotJiraPlugin
 	/// <summary>
 	///     This is the JiraPlugin base code
 	/// </summary>
-	public class JiraPlugin : IGreenshotPlugin
+	public sealed class JiraPlugin : IGreenshotPlugin
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(JiraPlugin));
 		private JiraConfiguration _config;
@@ -93,7 +93,6 @@ namespace GreenshotJiraPlugin
 		public void Dispose()
 		{
 			Dispose(true);
-			GC.SuppressFinalize(this);
 		}
 
 		public IEnumerable<IDestination> Destinations()
@@ -134,33 +133,37 @@ namespace GreenshotJiraPlugin
 		public void Configure()
 		{
 			var url = _config.Url;
-			if (ShowConfigDialog())
+			if (!ShowConfigDialog())
 			{
-				// check for re-login
-				if (JiraConnector != null && JiraConnector.IsLoggedIn && !string.IsNullOrEmpty(url))
+				return;
+			}
+			// check for re-login
+			if (JiraConnector == null || !JiraConnector.IsLoggedIn || string.IsNullOrEmpty(url))
+			{
+				return;
+			}
+			if (!url.Equals(_config.Url))
+			{
+				Task.Run(async () =>
 				{
-					if (!url.Equals(_config.Url))
-					{
-						Task.Run(async () =>
-						{
-							await JiraConnector.LogoutAsync();
-							await JiraConnector.LoginAsync();
-						});
-					}
-				}
+					await JiraConnector.LogoutAsync();
+					await JiraConnector.LoginAsync();
+				});
 			}
 		}
 
-		protected void Dispose(bool disposing)
+		private void Dispose(bool disposing)
 		{
-			if (disposing)
+			if (!disposing)
 			{
-				if (JiraConnector != null)
-				{
-					JiraConnector.Dispose();
-					JiraConnector = null;
-				}
+				return;
 			}
+			if (JiraConnector == null)
+			{
+				return;
+			}
+			JiraConnector.Dispose();
+			JiraConnector = null;
 		}
 
 		/// <summary>

@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace ExternalCommand {
+namespace GreenshotExternalCommandPlugin {
 	partial class SettingsForm {
 		/// <summary>
 		/// Designer variable used to keep track of non-visual components.
@@ -36,6 +36,7 @@ namespace ExternalCommand {
 					components.Dispose();
 				}
 			}
+			DisposeImages();
 			base.Dispose(disposing);
 		}
 		
@@ -47,7 +48,7 @@ namespace ExternalCommand {
 		private void InitializeComponent() {
 			this.buttonCancel = new GreenshotPlugin.Controls.GreenshotButton();
 			this.buttonOk = new GreenshotPlugin.Controls.GreenshotButton();
-			this.listView1 = new System.Windows.Forms.ListView();
+			this.listView = new System.Windows.Forms.ListView();
 			this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.button_new = new GreenshotPlugin.Controls.GreenshotButton();
 			this.button_delete = new GreenshotPlugin.Controls.GreenshotButton();
@@ -77,19 +78,18 @@ namespace ExternalCommand {
 			// 
 			// listView1
 			// 
-			this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1});
-			this.listView1.FullRowSelect = true;
-			this.listView1.Location = new System.Drawing.Point(13, 13);
-			this.listView1.MultiSelect = false;
-			this.listView1.Name = "listView1";
-			this.listView1.Size = new System.Drawing.Size(255, 183);
-			this.listView1.Sorting = System.Windows.Forms.SortOrder.Ascending;
-			this.listView1.TabIndex = 5;
-			this.listView1.UseCompatibleStateImageBehavior = false;
-			this.listView1.View = System.Windows.Forms.View.Details;
-			this.listView1.SelectedIndexChanged += new System.EventHandler(this.ListView1ItemSelectionChanged);
-			this.listView1.DoubleClick += new System.EventHandler(this.ListView1DoubleClick);
+			this.listView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { this.columnHeader1});
+			this.listView.FullRowSelect = true;
+			this.listView.Location = new System.Drawing.Point(13, 13);
+			this.listView.MultiSelect = false;
+			this.listView.Name = "listView";
+			this.listView.Size = new System.Drawing.Size(255, 183);
+			this.listView.Sorting = System.Windows.Forms.SortOrder.Ascending;
+			this.listView.TabIndex = 5;
+			this.listView.UseCompatibleStateImageBehavior = false;
+			this.listView.View = System.Windows.Forms.View.Details;
+			this.listView.SelectedIndexChanged += new System.EventHandler(this.ListView1ItemSelectionChanged);
+			this.listView.DoubleClick += new System.EventHandler(this.ListView1DoubleClick);
 			// 
 			// columnHeader1
 			// 
@@ -137,7 +137,7 @@ namespace ExternalCommand {
 			this.Controls.Add(this.button_edit);
 			this.Controls.Add(this.button_delete);
 			this.Controls.Add(this.button_new);
-			this.Controls.Add(this.listView1);
+			this.Controls.Add(this.listView);
 			this.Controls.Add(this.buttonOk);
 			this.Controls.Add(this.buttonCancel);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
@@ -150,7 +150,7 @@ namespace ExternalCommand {
 		private GreenshotPlugin.Controls.GreenshotButton button_delete;
 		private GreenshotPlugin.Controls.GreenshotButton button_new;
 		private System.Windows.Forms.ColumnHeader columnHeader1;
-		private System.Windows.Forms.ListView listView1;
+		private System.Windows.Forms.ListView listView;
 		private GreenshotPlugin.Controls.GreenshotButton buttonOk;
 		private GreenshotPlugin.Controls.GreenshotButton buttonCancel;
 		

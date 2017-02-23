@@ -24,21 +24,23 @@
 #region Usings
 
 using System;
-using System.Collections;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
+using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 
 #endregion
 
-namespace ExternalCommand
+namespace GreenshotExternalCommandPlugin
 {
 	/// <summary>
-	///     Description of SettingsForm.
+	///     External Command settings form
 	/// </summary>
 	public partial class SettingsForm : ExternalCommandForm
 	{
 		private static readonly ExternalCommandConfiguration ExternalCommandConfig = IniConfig.GetIniSection<ExternalCommandConfiguration>();
-
+		private readonly IList<Image> _images = new List<Image>();
 		public SettingsForm()
 		{
 			//
@@ -65,7 +67,7 @@ namespace ExternalCommand
 
 		private void ButtonDeleteClick(object sender, EventArgs e)
 		{
-			foreach (ListViewItem item in listView1.SelectedItems)
+			foreach (ListViewItem item in listView.SelectedItems)
 			{
 				var commando = item.Tag as string;
 
@@ -74,14 +76,25 @@ namespace ExternalCommand
 			UpdateView();
 		}
 
+		private void DisposeImages()
+		{
+			// Dispose all images
+			foreach (var image in _images)
+			{
+				image.Dispose();
+			}
+			_images.Clear();
+		}
+
 		private void UpdateView()
 		{
-			listView1.Items.Clear();
+			listView.Items.Clear();
+			DisposeImages();
 			if (ExternalCommandConfig.Commands != null)
 			{
-				listView1.ListViewItemSorter = new ListviewComparer();
+				listView.ListViewItemSorter = new ListviewComparer();
 				var imageList = new ImageList();
-				listView1.SmallImageList = imageList;
+				listView.SmallImageList = imageList;
 				var imageNr = 0;
 				foreach (var commando in ExternalCommandConfig.Commands)
 				{
@@ -89,7 +102,13 @@ namespace ExternalCommand
 					var iconForExe = IconCache.IconForCommand(commando);
 					if (iconForExe != null)
 					{
-						imageList.Images.Add(iconForExe);
+						bool newImage;
+						var image = iconForExe.ScaleIconForDisplaying(out newImage);
+						if (newImage)
+						{
+							_images.Add(image);
+						}
+						imageList.Images.Add(image);
 						item = new ListViewItem(commando, imageNr++);
 					}
 					else
@@ -97,16 +116,16 @@ namespace ExternalCommand
 						item = new ListViewItem(commando);
 					}
 					item.Tag = commando;
-					listView1.Items.Add(item);
+					listView.Items.Add(item);
 				}
 			}
 			// Fix for bug #1484, getting an ArgumentOutOfRangeException as there is nothing selected but the edit button was still active.
-			button_edit.Enabled = listView1.SelectedItems.Count > 0;
+			button_edit.Enabled = listView.SelectedItems.Count > 0;
 		}
 
 		private void ListView1ItemSelectionChanged(object sender, EventArgs e)
 		{
-			button_edit.Enabled = listView1.SelectedItems.Count > 0;
+			button_edit.Enabled = listView.SelectedItems.Count > 0;
 		}
 
 		private void ButtonEditClick(object sender, EventArgs e)
@@ -117,37 +136,18 @@ namespace ExternalCommand
 		private void ListView1DoubleClick(object sender, EventArgs e)
 		{
 			// Safety check for bug #1484
-			var selectionActive = listView1.SelectedItems.Count > 0;
+			var selectionActive = listView.SelectedItems.Count > 0;
 			if (!selectionActive)
 			{
 				button_edit.Enabled = false;
 				return;
 			}
-			var commando = listView1.SelectedItems[0].Tag as string;
+			var commando = listView.SelectedItems[0].Tag as string;
 
 			var form = new SettingsFormDetail(commando);
 			form.ShowDialog();
 
 			UpdateView();
-		}
-	}
-
-	public class ListviewComparer : IComparer
-	{
-		public int Compare(object x, object y)
-		{
-			if (!(x is ListViewItem))
-			{
-				return 0;
-			}
-			if (!(y is ListViewItem))
-			{
-				return 0;
-			}
-
-			var l1 = (ListViewItem) x;
-			var l2 = (ListViewItem) y;
-			return string.Compare(l1.Text, l2.Text, StringComparison.Ordinal);
 		}
 	}
 }

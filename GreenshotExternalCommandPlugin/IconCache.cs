@@ -32,29 +32,39 @@ using log4net;
 
 #endregion
 
-namespace ExternalCommand
+namespace GreenshotExternalCommandPlugin
 {
+	/// <summary>
+	/// A cache for icons
+	/// </summary>
 	public static class IconCache
 	{
-		private static readonly ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(IconCache));
+		private static readonly ExternalCommandConfiguration Config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
+		private static readonly ILog Log = LogManager.GetLogger(typeof(IconCache));
 
+		/// <summary>
+		/// Retrieve the icon for a command
+		/// </summary>
+		/// <param name="commandName">string</param>
+		/// <returns>Image</returns>
 		public static Image IconForCommand(string commandName)
 		{
 			Image icon = null;
-			if (commandName != null)
+			if (commandName == null)
 			{
-				if (config.Commandline.ContainsKey(commandName) && File.Exists(config.Commandline[commandName]))
-				{
-					try
-					{
-						icon = PluginUtils.GetCachedExeIcon(config.Commandline[commandName], 0);
-					}
-					catch (Exception ex)
-					{
-						LOG.Warn("Problem loading icon for " + config.Commandline[commandName], ex);
-					}
-				}
+				return null;
+			}
+			if (!Config.Commandline.ContainsKey(commandName) || !File.Exists(Config.Commandline[commandName]))
+			{
+				return null;
+			}
+			try
+			{
+				icon = PluginUtils.GetCachedExeIcon(Config.Commandline[commandName], 0);
+			}
+			catch (Exception ex)
+			{
+				Log.Warn("Problem loading icon for " + Config.Commandline[commandName], ex);
 			}
 			return icon;
 		}

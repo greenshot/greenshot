@@ -43,7 +43,7 @@ namespace GreenshotDropboxPlugin
 	/// <summary>
 	///     This is the Dropbox base code
 	/// </summary>
-	public class DropboxPlugin : IGreenshotPlugin
+	public sealed class DropboxPlugin : IGreenshotPlugin
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(DropboxPlugin));
 		private static DropboxPluginConfiguration _config;
@@ -55,7 +55,6 @@ namespace GreenshotDropboxPlugin
 		public void Dispose()
 		{
 			Dispose(true);
-			GC.SuppressFinalize(this);
 		}
 
 		public IEnumerable<IDestination> Destinations()
@@ -74,7 +73,7 @@ namespace GreenshotDropboxPlugin
 		/// </summary>
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="myAttributes">My own attributes</param>
-		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes)
+		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes)
 		{
 			_host = pluginHost;
 			Attributes = myAttributes;
@@ -96,7 +95,7 @@ namespace GreenshotDropboxPlugin
 			return true;
 		}
 
-		public virtual void Shutdown()
+		public void Shutdown()
 		{
 			Log.Debug("Dropbox Plugin shutdown.");
 		}
@@ -104,12 +103,12 @@ namespace GreenshotDropboxPlugin
 		/// <summary>
 		///     Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure()
+		public void Configure()
 		{
 			_config.ShowConfigDialog();
 		}
 
-		protected virtual void Dispose(bool disposing)
+		private void Dispose(bool disposing)
 		{
 			if (disposing)
 			{

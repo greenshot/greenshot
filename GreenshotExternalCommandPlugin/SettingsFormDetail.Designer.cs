@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace ExternalCommand {
+namespace GreenshotExternalCommandPlugin {
 	partial class SettingsFormDetail {
 		/// <summary>
 		/// Designer variable used to keep track of non-visual components.
@@ -147,7 +147,7 @@ namespace ExternalCommand {
 			this.textBox_arguments.Name = "textBox_arguments";
 			this.textBox_arguments.Size = new System.Drawing.Size(225, 20);
 			this.textBox_arguments.TabIndex = 4;
-            this.textBox_arguments.TextChanged += new System.EventHandler(this.textBox_arguments_TextChanged);
+			this.textBox_arguments.TextChanged += new System.EventHandler(this.textBox_arguments_TextChanged);
 			// 
 			// label1
 			// 

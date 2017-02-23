@@ -44,7 +44,7 @@ namespace GreenshotImgurPlugin
 	/// <summary>
 	///     This is the ImgurPlugin code
 	/// </summary>
-	public class ImgurPlugin : IGreenshotPlugin
+	public sealed class ImgurPlugin : IGreenshotPlugin
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ImgurPlugin));
 		private static ImgurConfiguration _config;
@@ -57,7 +57,6 @@ namespace GreenshotImgurPlugin
 		public void Dispose()
 		{
 			Dispose(true);
-			GC.SuppressFinalize(this);
 		}
 
 		public IEnumerable<IDestination> Destinations()
@@ -112,7 +111,7 @@ namespace GreenshotImgurPlugin
 			return true;
 		}
 
-		public virtual void Shutdown()
+		public void Shutdown()
 		{
 			Log.Debug("Imgur Plugin shutdown.");
 			Language.LanguageChanged -= OnLanguageChanged;
@@ -121,12 +120,12 @@ namespace GreenshotImgurPlugin
 		/// <summary>
 		///     Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure()
+		public void Configure()
 		{
 			_config.ShowConfigDialog();
 		}
 
-		protected virtual void Dispose(bool disposing)
+		private void Dispose(bool disposing)
 		{
 			if (disposing)
 			{

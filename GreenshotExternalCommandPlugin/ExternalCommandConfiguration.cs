@@ -31,7 +31,7 @@ using GreenshotPlugin.IniFile;
 
 #endregion
 
-namespace ExternalCommand
+namespace GreenshotExternalCommandPlugin
 {
 	/// <summary>
 	///     Description of FlickrConfiguration.

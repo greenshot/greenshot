@@ -43,7 +43,7 @@ namespace GreenshotFlickrPlugin
 	/// <summary>
 	///     This is the Flickr base code
 	/// </summary>
-	public class FlickrPlugin : IGreenshotPlugin
+	public sealed class FlickrPlugin : IGreenshotPlugin
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(FlickrPlugin));
 		private static FlickrConfiguration _config;
@@ -55,7 +55,6 @@ namespace GreenshotFlickrPlugin
 		public void Dispose()
 		{
 			Dispose(true);
-			GC.SuppressFinalize(this);
 		}
 
 		public IEnumerable<IDestination> Destinations()
@@ -74,7 +73,7 @@ namespace GreenshotFlickrPlugin
 		/// </summary>
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="pluginAttribute">My own attributes</param>
-		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute pluginAttribute)
+		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute pluginAttribute)
 		{
 			_host = pluginHost;
 			Attributes = pluginAttribute;
@@ -97,7 +96,7 @@ namespace GreenshotFlickrPlugin
 			return true;
 		}
 
-		public virtual void Shutdown()
+		public void Shutdown()
 		{
 			Log.Debug("Flickr Plugin shutdown.");
 		}
@@ -105,12 +104,12 @@ namespace GreenshotFlickrPlugin
 		/// <summary>
 		///     Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure()
+		public void Configure()
 		{
 			_config.ShowConfigDialog();
 		}
 
-		protected virtual void Dispose(bool disposing)
+		private void Dispose(bool disposing)
 		{
 			if (!disposing)
 			{

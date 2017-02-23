@@ -42,37 +42,10 @@ using log4net;
 
 namespace GreenshotOCR
 {
-	// Needed for the drop down, available languages for OCR
-	public enum ModiLanguage
-	{
-		CHINESE_SIMPLIFIED = 2052,
-		CHINESE_TRADITIONAL = 1028,
-		CZECH = 5,
-		DANISH = 6,
-		DUTCH = 19,
-		ENGLISH = 9,
-		FINNISH = 11,
-		FRENCH = 12,
-		GERMAN = 7,
-		GREEK = 8,
-		HUNGARIAN = 14,
-		ITALIAN = 16,
-		JAPANESE = 17,
-		KOREAN = 18,
-		NORWEGIAN = 20,
-		POLISH = 21,
-		PORTUGUESE = 22,
-		RUSSIAN = 25,
-		SPANISH = 10,
-		SWEDISH = 29,
-		TURKISH = 31,
-		SYSDEFAULT = 2048
-	}
-
 	/// <summary>
 	///     OCR Plugin Greenshot
 	/// </summary>
-	public class OcrPlugin : IGreenshotPlugin
+	public sealed class OcrPlugin : IGreenshotPlugin
 	{
 		private const int MinWidth = 130;
 		private const int MinHeight = 130;
@@ -85,7 +58,6 @@ namespace GreenshotOCR
 		public void Dispose()
 		{
 			Dispose(true);
-			GC.SuppressFinalize(this);
 		}
 
 		public IEnumerable<IDestination> Destinations()
@@ -104,7 +76,7 @@ namespace GreenshotOCR
 		/// <param name="greenshotHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="myAttributes">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public virtual bool Initialize(IGreenshotHost greenshotHost, PluginAttribute myAttributes)
+		public bool Initialize(IGreenshotHost greenshotHost, PluginAttribute myAttributes)
 		{
 			Log.Debug("Initialize called of " + myAttributes.Name);
 			_myAttributes = myAttributes;
@@ -142,7 +114,7 @@ namespace GreenshotOCR
 		/// <summary>
 		///     Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure()
+		public void Configure()
 		{
 			if (!HasModi())
 			{
@@ -158,7 +130,7 @@ namespace GreenshotOCR
 			}
 		}
 
-		protected virtual void Dispose(bool disposing)
+		private void Dispose(bool disposing)
 		{
 			if (disposing)
 			{

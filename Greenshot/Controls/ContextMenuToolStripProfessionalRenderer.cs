@@ -40,14 +40,16 @@ namespace Greenshot.Controls
 	{
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 		private Image _scaledCheckbox;
-
+		private bool _newImage;
 		protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs e)
 		{
 			if (_scaledCheckbox == null || _scaledCheckbox.Size != CoreConfig.IconSize)
 			{
-				_scaledCheckbox?.Dispose();
-				bool newImage;
-				_scaledCheckbox = ((Bitmap) e.Image).ScaleIconForDisplaying(out newImage);
+				if (_newImage)
+				{
+					_scaledCheckbox?.Dispose();
+				}
+				_scaledCheckbox = ((Bitmap) e.Image).ScaleIconForDisplaying(out _newImage);
 			}
 			var old = e.ImageRectangle;
 			var clone = new ToolStripItemImageRenderEventArgs(e.Graphics, e.Item, _scaledCheckbox, new Rectangle(old.X, 0, old.Width, old.Height));

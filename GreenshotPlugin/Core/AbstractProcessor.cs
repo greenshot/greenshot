@@ -61,7 +61,6 @@ namespace GreenshotPlugin.Core
 		public void Dispose()
 		{
 			Dispose(true);
-			GC.SuppressFinalize(this);
 		}
 
 		public virtual bool isActive

@@ -63,6 +63,7 @@ namespace GreenshotPlugin.Core
 
 		/// <summary>
 		///     Get the icon belonging to the process
+		/// TODO: Check when the icon is disposed!
 		/// </summary>
 		public static Image GetDisplayIcon(this IInteropWindow interopWindow)
 		{

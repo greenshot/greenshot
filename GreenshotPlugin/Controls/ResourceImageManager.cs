@@ -48,7 +48,6 @@ namespace GreenshotPlugin.Controls
 		public void Dispose()
 		{
 			ReleaseUnmanagedResources();
-			GC.SuppressFinalize(this);
 		}
 
 		~ResourceImageManager()

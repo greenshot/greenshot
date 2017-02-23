@@ -43,7 +43,7 @@ namespace GreenshotBoxPlugin
 	/// <summary>
 	///     This is the Box base code
 	/// </summary>
-	public class BoxPlugin : IGreenshotPlugin
+	public sealed class BoxPlugin : IGreenshotPlugin
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(BoxPlugin));
 		private static BoxConfiguration _config;
@@ -55,7 +55,6 @@ namespace GreenshotBoxPlugin
 		public void Dispose()
 		{
 			Dispose(true);
-			GC.SuppressFinalize(this);
 		}
 
 		public IEnumerable<IDestination> Destinations()
@@ -74,7 +73,7 @@ namespace GreenshotBoxPlugin
 		/// </summary>
 		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
 		/// <param name="pluginAttribute">My own attributes</param>
-		public virtual bool Initialize(IGreenshotHost pluginHost, PluginAttribute pluginAttribute)
+		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute pluginAttribute)
 		{
 			_host = pluginHost;
 			Attributes = pluginAttribute;
@@ -95,7 +94,7 @@ namespace GreenshotBoxPlugin
 			return true;
 		}
 
-		public virtual void Shutdown()
+		public void Shutdown()
 		{
 			LOG.Debug("Box Plugin shutdown.");
 		}
@@ -103,12 +102,12 @@ namespace GreenshotBoxPlugin
 		/// <summary>
 		///     Implementation of the IPlugin.Configure
 		/// </summary>
-		public virtual void Configure()
+		public void Configure()
 		{
 			_config.ShowConfigDialog();
 		}
 
-		protected virtual void Dispose(bool disposing)
+		private void Dispose(bool disposing)
 		{
 			if (disposing)
 			{

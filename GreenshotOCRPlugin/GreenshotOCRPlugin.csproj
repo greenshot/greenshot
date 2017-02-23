@@ -46,6 +46,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ModiLanguage.cs" />
     <Compile Include="OCRConfiguration.cs" />
     <Compile Include="OCRDestination.cs" />
     <Compile Include="OCRForm.cs">

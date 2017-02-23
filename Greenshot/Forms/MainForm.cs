@@ -969,18 +969,30 @@ namespace Greenshot.Forms
 		/// <summary>
 		///     Fix icon reference
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
+		/// <param name="sender">object</param>
+		/// <param name="e">PropertyChangedEventArgs</param>
 		private void OnIconSizeChanged(object sender, PropertyChangedEventArgs e)
 		{
-			if (e.PropertyName == nameof(CoreConfiguration.IconSize))
+			if (e.PropertyName != nameof(CoreConfiguration.IconSize))
 			{
-				contextMenu.ImageScalingSize = coreConfiguration.IconSize;
-				var ieExePath = PluginUtils.GetExePath("iexplore.exe");
-				if (!string.IsNullOrEmpty(ieExePath))
-				{
-					contextmenu_captureie.Image = PluginUtils.GetCachedExeIcon(ieExePath, 0);
-				}
+				return;
+			}
+			contextMenu.ImageScalingSize = coreConfiguration.IconSize;
+			var ieExePath = PluginUtils.GetExePath("iexplore.exe");
+			if (string.IsNullOrEmpty(ieExePath))
+			{
+				return;
+			}
+			bool newImage;
+			bool needDispose = contextmenu_captureie.Tag as bool? ?? false;
+			if (needDispose)
+			{
+				contextmenu_captureie.Image?.Dispose();
+			}
+			contextmenu_captureie.Image = PluginUtils.GetCachedExeIcon(ieExePath, 0).ScaleIconForDisplaying(out newImage);
+			if (newImage)
+			{
+				contextmenu_captureie.Tag = true;
 			}
 		}
 
