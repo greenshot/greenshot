@@ -126,7 +126,7 @@ namespace GreenshotPlugin.Core
 			cursorInfo.cbSize = Marshal.SizeOf(cursorInfo);
 			if (User32.GetCursorInfo(out cursorInfo))
 			{
-				if (cursorInfo.flags == CursorInfoFlags.CURSOR_SHOWING)
+				if (cursorInfo.flags == CursorInfoFlags.Showing)
 				{
 					using (var safeIcon = User32.CopyIcon(cursorInfo.hCursor))
 					{

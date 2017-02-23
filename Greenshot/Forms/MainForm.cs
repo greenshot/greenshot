@@ -52,6 +52,7 @@ using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using log4net;
 using Timer = System.Timers.Timer;
+using Dapplo.Windows;
 
 #endregion
 
@@ -1074,7 +1075,7 @@ namespace Greenshot.Forms
 				return false;
 			}
 			var oneDriveSettingsFile = Directory.GetFiles(oneDriveSettingsPath, "*_screenshot.dat").FirstOrDefault();
-			if (!File.Exists(oneDriveSettingsFile))
+			if (oneDriveSettingsFile == null || !File.Exists(oneDriveSettingsFile))
 			{
 				return false;
 			}

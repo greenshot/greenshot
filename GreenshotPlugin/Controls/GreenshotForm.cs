@@ -31,6 +31,7 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 using Dapplo.Windows.Desktop;
+using Dapplo.Windows.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using log4net;
@@ -46,11 +47,13 @@ namespace GreenshotPlugin.Controls
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(GreenshotForm));
 		protected static CoreConfiguration coreConfiguration;
-		private static readonly IDictionary<Type, FieldInfo[]> reflectionCache = new Dictionary<Type, FieldInfo[]>();
+		private static readonly IDictionary<Type, FieldInfo[]> ReflectionCache = new Dictionary<Type, FieldInfo[]>();
 		private IDictionary<string, Control> _designTimeControls;
 		private IDictionary<string, ToolStripItem> _designTimeToolStripItems;
 		private bool _isDesignModeLanguageSet;
-		private IComponentChangeService m_changeService;
+		private IComponentChangeService _componentChangeService;
+
+		protected readonly DpiHandler DpiHandler;
 
 		static GreenshotForm()
 		{
@@ -58,6 +61,15 @@ namespace GreenshotPlugin.Controls
 			{
 				coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
 			}
+		}
+
+		/// <summary>
+		/// Default constructor, for default functionality
+		/// </summary>
+		protected GreenshotForm()
+		{
+			// Add the Dapplo.Windows DPI change handler
+			DpiHandler = this.HandleDpiChanges();
 		}
 
 		/// <summary>
@@ -98,7 +110,7 @@ namespace GreenshotPlugin.Controls
 				// Set the new Site value.
 				base.Site = value;
 
-				m_changeService = (IComponentChangeService) GetService(typeof(IComponentChangeService));
+				_componentChangeService = (IComponentChangeService) GetService(typeof(IComponentChangeService));
 
 				// Register event handlers for component change events.
 				RegisterChangeNotifications();
@@ -230,23 +242,23 @@ namespace GreenshotPlugin.Controls
 		{
 			// The m_changeService value is null when not in design mode, 
 			// as the IComponentChangeService is only available at design time.	
-			m_changeService = (IComponentChangeService) GetService(typeof(IComponentChangeService));
+			_componentChangeService = (IComponentChangeService) GetService(typeof(IComponentChangeService));
 
 			// Clear our the component change events to prepare for re-siting.				
-			if (m_changeService != null)
+			if (_componentChangeService != null)
 			{
-				m_changeService.ComponentChanged -= OnComponentChanged;
-				m_changeService.ComponentAdded -= OnComponentAdded;
+				_componentChangeService.ComponentChanged -= OnComponentChanged;
+				_componentChangeService.ComponentAdded -= OnComponentAdded;
 			}
 		}
 
 		private void RegisterChangeNotifications()
 		{
 			// Register the event handlers for the IComponentChangeService events
-			if (m_changeService != null)
+			if (_componentChangeService != null)
 			{
-				m_changeService.ComponentChanged += OnComponentChanged;
-				m_changeService.ComponentAdded += OnComponentAdded;
+				_componentChangeService.ComponentChanged += OnComponentChanged;
+				_componentChangeService.ComponentAdded += OnComponentAdded;
 			}
 		}
 
@@ -413,10 +425,10 @@ namespace GreenshotPlugin.Controls
 		private static FieldInfo[] GetCachedFields(Type typeToGetFieldsFor)
 		{
 			FieldInfo[] fields;
-			if (!reflectionCache.TryGetValue(typeToGetFieldsFor, out fields))
+			if (!ReflectionCache.TryGetValue(typeToGetFieldsFor, out fields))
 			{
 				fields = typeToGetFieldsFor.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-				reflectionCache.Add(typeToGetFieldsFor, fields);
+				ReflectionCache.Add(typeToGetFieldsFor, fields);
 			}
 			return fields;
 		}

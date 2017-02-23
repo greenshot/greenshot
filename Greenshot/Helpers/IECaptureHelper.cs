@@ -232,7 +232,7 @@ namespace Greenshot.Helpers
 
 			Log.DebugFormat("Trying WM_HTML_GETOBJECT on {0}", ieServer.Classname);
 			UIntPtr response;
-			User32.SendMessageTimeout(ieServer.Handle, windowMessage, IntPtr.Zero, IntPtr.Zero, SendMessageTimeoutFlags.SMTO_NORMAL, 5000, out response);
+			User32.SendMessageTimeout(ieServer.Handle, windowMessage, IntPtr.Zero, IntPtr.Zero, SendMessageTimeoutFlags.Normal, 5000, out response);
 			IHTMLDocument2 document2;
 			if (response != UIntPtr.Zero)
 			{

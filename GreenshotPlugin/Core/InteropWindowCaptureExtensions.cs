@@ -29,6 +29,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
 using Dapplo.Log;
+using Dapplo.Windows;
 using Dapplo.Windows.App;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Enums;

@@ -32,6 +32,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Desktop;
+using Dapplo.Windows.Forms;
 using Dapplo.Windows.Native;
 using Greenshot.Configuration;
 using Greenshot.Destinations;

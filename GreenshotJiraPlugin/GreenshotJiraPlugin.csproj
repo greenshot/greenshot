@@ -40,16 +40,16 @@
       <HintPath>..\packages\Dapplo.HttpExtensions.0.6.18\lib\net45\Dapplo.HttpExtensions.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Jira, Version=0.5.27.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Jira.0.5.27\lib\net45\Dapplo.Jira.dll</HintPath>
+    <Reference Include="Dapplo.Jira, Version=0.5.35.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Jira.0.5.35\lib\net45\Dapplo.Jira.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapplo.Log, Version=1.0.23.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Log.1.0.23\lib\net45\Dapplo.Log.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Dapplo.Windows, Version=0.3.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.0.3.1\lib\net45\Dapplo.Windows.dll</HintPath>
+    <Reference Include="Dapplo.Windows, Version=0.3.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.0.3.6\lib\net45\Dapplo.Windows.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="log4net">
