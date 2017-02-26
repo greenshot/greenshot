@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using Dapplo.Windows.Dpi;
 
 #endregion
 
@@ -88,8 +89,9 @@ namespace GreenshotPlugin.Interfaces
 		/// <param name="addDynamics">Resolve the dynamic destinations too?</param>
 		/// <param name="menu">The menu for which the item is created</param>
 		/// <param name="destinationClickHandler">Handler which is called when clicked</param>
+		/// <param name="bitmapScaleHandler">BitmapScaleHandler can be used for scaling icons</param>
 		/// <returns>ToolStripMenuItem</returns>
-		ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler);
+		ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler, BitmapScaleHandler<IDestination> bitmapScaleHandler);
 
 		/// <summary>
 		///     Gets the dynamic destinations

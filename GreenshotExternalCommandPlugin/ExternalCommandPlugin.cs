@@ -193,11 +193,9 @@ namespace GreenshotExternalCommandPlugin
 				{
 					_itemPlugInRoot.Image?.Dispose();
 				}
-				_itemPlugInRoot.Image = PluginUtils.GetCachedExeIcon(exePath, 0).ScaleIconForDisplaying(out newImage);
-				if (newImage)
-				{
-					_itemPlugInRoot.Tag = true;
-				}
+				var exeIcon = PluginUtils.GetCachedExeIcon(exePath, 0);
+				_itemPlugInRoot.Image = exeIcon.ScaleIconForDisplaying(96);
+				_itemPlugInRoot.Tag = !Equals(exeIcon, _itemPlugInRoot.Image);
 			}
 			catch (Exception ex)
 			{

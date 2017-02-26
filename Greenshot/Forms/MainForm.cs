@@ -53,6 +53,7 @@ using GreenshotPlugin.Interfaces.Plugin;
 using log4net;
 using Timer = System.Timers.Timer;
 using Dapplo.Windows;
+using Dapplo.Windows.Dpi;
 
 #endregion
 
@@ -92,6 +93,7 @@ namespace Greenshot.Forms
 			try
 			{
 				InitializeComponent();
+				SetupBitmapScaleHandler();
 			}
 			catch (ArgumentException ex)
 			{
@@ -144,9 +146,6 @@ namespace Greenshot.Forms
 				InitializeQuickSettingsMenu();
 			}
 			SoundHelper.Initialize();
-
-			coreConfiguration.PropertyChanged += OnIconSizeChanged;
-			OnIconSizeChanged(this, new PropertyChangedEventArgs("IconSize"));
 
 			// Set the Greenshot icon visibility depending on the configuration. (Added for feature #3521446)
 			// Setting it to true this late prevents Problems with the context menu
@@ -967,33 +966,38 @@ namespace Greenshot.Forms
 		}
 
 		/// <summary>
-		///     Fix icon reference
+		/// Setup the Bitmap scaling (for icons)
 		/// </summary>
-		/// <param name="sender">object</param>
-		/// <param name="e">PropertyChangedEventArgs</param>
-		private void OnIconSizeChanged(object sender, PropertyChangedEventArgs e)
+		private void SetupBitmapScaleHandler()
 		{
-			if (e.PropertyName != nameof(CoreConfiguration.IconSize))
+
+			// This takes care or setting the size of the images in the context menu
+			FormDpiHandler.OnDpiChanged.Subscribe(dpi =>
 			{
-				return;
-			}
-			contextMenu.ImageScalingSize = coreConfiguration.IconSize;
-			var ieExePath = PluginUtils.GetExePath("iexplore.exe");
-			if (string.IsNullOrEmpty(ieExePath))
-			{
-				return;
-			}
-			bool newImage;
-			bool needDispose = contextmenu_captureie.Tag as bool? ?? false;
-			if (needDispose)
-			{
-				contextmenu_captureie.Image?.Dispose();
-			}
-			contextmenu_captureie.Image = PluginUtils.GetCachedExeIcon(ieExePath, 0).ScaleIconForDisplaying(out newImage);
-			if (newImage)
-			{
-				contextmenu_captureie.Tag = true;
-			}
+				var width = DpiHandler.ScaleWithDpi(16, dpi);
+				var size = new Size(width, width);
+				contextMenu.ImageScalingSize = size;
+			});
+
+			ScaleHandler.AddTarget(contextmenu_capturearea, "contextmenu_capturearea.Image");
+
+			ScaleHandler.AddTarget(contextmenu_capturelastregion, "contextmenu_capturelastregion.Image");
+			ScaleHandler.AddTarget(contextmenu_capturewindow, "contextmenu_capturewindow.Image");
+			ScaleHandler.AddTarget(contextmenu_capturefullscreen, "contextmenu_capturefullscreen.Image");
+
+			ScaleHandler.AddTarget(contextmenu_captureclipboard, "contextmenu_captureclipboard.Image");
+			ScaleHandler.AddTarget(contextmenu_openfile, "contextmenu_openfile.Image");
+			ScaleHandler.AddTarget(contextmenu_settings, "contextmenu_settings.Image");
+			ScaleHandler.AddTarget(contextmenu_help, "contextmenu_help.Image");
+			ScaleHandler.AddTarget(contextmenu_donate, "contextmenu_donate.Image");
+			ScaleHandler.AddTarget(contextmenu_exit, "contextmenu_exit.Image");
+
+			// this is special handling, for the icons which come from the executables
+			var exeBitmapScaleHandler = BitmapScaleHandler
+				.Create<string>(FormDpiHandler,
+				(path, dpi) => (Bitmap)PluginUtils.GetCachedExeIcon(path, 0),
+				(bitmap, dpi) => (Bitmap)bitmap.ScaleIconForDisplaying(dpi));
+			exeBitmapScaleHandler.AddTarget(contextmenu_captureie, PluginUtils.GetExePath("iexplore.exe"));
 		}
 
 		/// <summary>

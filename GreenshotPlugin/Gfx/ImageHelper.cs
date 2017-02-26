@@ -29,6 +29,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Native;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
@@ -1798,24 +1799,25 @@ namespace GreenshotPlugin.Gfx
 		///     Prepare an "icon" to be displayed correctly scaled
 		/// </summary>
 		/// <param name="original">original icon Bitmap</param>
-		/// <param name="isNew">bool specifying if the returned image is new and thus needs disposing</param>
+		/// <param name="dpi">double with the dpi value</param>
 		/// <returns>Image</returns>
-		public static Image ScaleIconForDisplaying(this Image original, out bool isNew)
+		public static Image ScaleIconForDisplaying(this Image original, double dpi)
 		{
-			if (original.Size == CoreConfig.IconSize)
+			var width = DpiHandler.ScaleWithDpi(16, dpi);
+			if (original.Width == width)
 			{
-				isNew = false;
 				return original;
 			}
-			isNew = true;
-
 			// TODO: Maybe use Hqx or Hqxz here?
-			if (CoreConfig.IconSize.Width == original.Width * 2)
+			if (width == original.Width * 2)
 			{
-				var scale2X = ((Bitmap) original).Scale2X();
-				return scale2X;
+				return ((Bitmap) original).Scale2X();
 			}
-			if (CoreConfig.IconSize.Width == original.Width * 4)
+			if (width == original.Width * 3)
+			{
+				return ((Bitmap)original).Scale3X();
+			}
+			if (width == original.Width * 4)
 			{
 				// Call scale2x 2x for 4x
 				using (var scale2X = ((Bitmap) original).Scale2X())
@@ -1823,7 +1825,7 @@ namespace GreenshotPlugin.Gfx
 					return scale2X.Scale2X();
 				}
 			}
-			return (Bitmap) original.ResizeImage(true, CoreConfig.IconSize.Width, CoreConfig.IconSize.Height, interpolationMode: InterpolationMode.NearestNeighbor);
+			return (Bitmap) original.ResizeImage(true, width, width, interpolationMode: InterpolationMode.NearestNeighbor);
 		}
 
 		/// <summary>
@@ -1878,6 +1880,84 @@ namespace GreenshotPlugin.Gfx
 				return destination.UnlockAndReturnBitmap();
 			}
 		}
+
+		/// <summary>
+		///     Use "Scale3x" algorithm to produce bitmap from the original.
+		/// </summary>
+		/// <param name="original">Bitmap to scale 3x</param>
+		public static Bitmap Scale3X(this Image original)
+		{
+			using (var source = (IFastBitmapWithClip)FastBitmap.Create(original))
+			using (var destination = FastBitmap.CreateEmpty(new Size(original.Width * 3, original.Height * 3), original.PixelFormat))
+			{
+				// Every pixel from input texture produces 6 output pixels, for more details check out http://scale2x.sourceforge.net/algorithm.html
+				var y = 0;
+				while (y < source.Height)
+				{
+					var x = 0;
+					while (x < source.Width)
+					{
+						var colorA = source.GetColorAt(x - 1, y - 1);
+						var colorB = source.GetColorAt(x, y - 1);
+						var colorC = source.GetColorAt(x + 1, y - 1);
+
+						var colorD = source.GetColorAt(x - 1, y);
+						var colorE = source.GetColorAt(x, y);
+						var colorF = source.GetColorAt(x + 1, y);
+
+						var colorG = source.GetColorAt(x -1, y + 1);
+						var colorH = source.GetColorAt(x, y + 1);
+						var colorI = source.GetColorAt(x + 1, y + 1);
+
+						Color colorE0, colorE1, colorE2;
+						Color colorE3, colorE4, colorE5;
+						Color colorE6, colorE7, colorE8;
+
+						if (!AreColorsSame(colorB, colorH) && !AreColorsSame(colorD, colorF))
+						{
+							colorE0 = AreColorsSame(colorD, colorB) ? colorD : colorE;
+							colorE1 = (AreColorsSame(colorD, colorB) && !AreColorsSame(colorE, colorC)) || (AreColorsSame(colorB, colorF) && !AreColorsSame(colorE, colorA)) ? colorB : colorE;
+							colorE2 = AreColorsSame(colorB, colorF) ? colorF : colorE;
+							colorE3 = (AreColorsSame(colorD, colorB) && !AreColorsSame(colorE, colorG)) || (AreColorsSame(colorD, colorH) && !AreColorsSame(colorE, colorA)) ? colorD : colorE;
+
+							colorE4 = colorE;
+							colorE5 = (AreColorsSame(colorB, colorF) && !AreColorsSame(colorE, colorI)) || (AreColorsSame(colorH, colorF) && !AreColorsSame(colorE, colorC)) ? colorF : colorE;
+							colorE6 = AreColorsSame(colorD, colorH) ? colorD : colorE;
+							colorE7 = (AreColorsSame(colorD, colorH) && !AreColorsSame(colorE, colorI)) || (AreColorsSame(colorH, colorF) && !AreColorsSame(colorE, colorG)) ? colorH : colorE;
+							colorE8 = AreColorsSame(colorH, colorF) ? colorF : colorE;
+						}
+						else
+						{
+							colorE0 = colorE;
+							colorE1 = colorE;
+							colorE2 = colorE;
+							colorE3 = colorE;
+							colorE4 = colorE;
+							colorE5 = colorE;
+							colorE6 = colorE;
+							colorE7 = colorE;
+							colorE8 = colorE;
+						}
+						destination.SetColorAt(3 * x - 1, 3 * y - 1, colorE0);
+						destination.SetColorAt(3 * x, 3 * y - 1, colorE1);
+						destination.SetColorAt(3 * x + 1, 3 * y - 1, colorE2);
+
+						destination.SetColorAt(3 * x - 1, 3 * y, colorE3);
+						destination.SetColorAt(3 * x, 3 * y, colorE4);
+						destination.SetColorAt(3 * x + 1, 3 * y, colorE5);
+
+						destination.SetColorAt(3 * x + 1, 3 * y + 1, colorE6);
+						destination.SetColorAt(3 * x, 3 * y + 1, colorE7);
+						destination.SetColorAt(3 * x + 1, 3 * y + 1, colorE8);
+
+						x++;
+					}
+					y++;
+				}
+				return destination.UnlockAndReturnBitmap();
+			}
+		}
+
 
 		/// <summary>
 		///     Checks if the colors are the same.

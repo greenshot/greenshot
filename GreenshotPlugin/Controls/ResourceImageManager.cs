@@ -26,9 +26,8 @@ namespace GreenshotPlugin.Controls
 		public Bitmap GetIcon(string imageName)
 		{
 			var image = (Bitmap)_resources.GetObject(imageName);
-			bool newImage;
-			var result = (Bitmap)image.ScaleIconForDisplaying(out newImage);
-			if (!newImage)
+			var result = (Bitmap)image.ScaleIconForDisplaying(96);
+			if (Equals(image, result))
 			{
 				return image;
 			}

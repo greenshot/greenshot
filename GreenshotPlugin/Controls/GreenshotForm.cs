@@ -27,12 +27,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Design;
+using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 using Dapplo.Windows.Desktop;
-using Dapplo.Windows.Forms;
+using Dapplo.Windows.Dpi;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using log4net;
 
@@ -53,7 +55,8 @@ namespace GreenshotPlugin.Controls
 		private bool _isDesignModeLanguageSet;
 		private IComponentChangeService _componentChangeService;
 
-		protected readonly DpiHandler DpiHandler;
+		protected readonly DpiHandler FormDpiHandler;
+		protected readonly BitmapScaleHandler<string> ScaleHandler;
 
 		static GreenshotForm()
 		{
@@ -69,7 +72,8 @@ namespace GreenshotPlugin.Controls
 		protected GreenshotForm()
 		{
 			// Add the Dapplo.Windows DPI change handler
-			DpiHandler = this.HandleDpiChanges();
+			FormDpiHandler = this.HandleDpiChanges();
+			ScaleHandler = BitmapScaleHandler.WithComponentResourceManager(FormDpiHandler, GetType(), (bitmap, dpi) => (Bitmap)bitmap.ScaleIconForDisplaying(dpi));
 		}
 
 		/// <summary>
@@ -338,6 +342,7 @@ namespace GreenshotPlugin.Controls
 			{
 				ClearChangeNotifications();
 			}
+			ScaleHandler.Dispose();
 			base.Dispose(disposing);
 		}
 

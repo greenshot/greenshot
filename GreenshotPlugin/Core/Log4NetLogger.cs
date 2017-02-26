@@ -38,8 +38,8 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		///     Map the log level of the supplied logger to a Dapplo LogLevels
 		/// </summary>
-		/// <param name="logger"></param>
-		/// <returns></returns>
+		/// <param name="logger">ILog</param>
+		/// <returns>LogLevels</returns>
 		public static LogLevels MapLogLevel(ILog logger)
 		{
 			if (logger.IsDebugEnabled)

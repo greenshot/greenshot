@@ -49,7 +49,9 @@ namespace Greenshot.Controls
 				{
 					_scaledCheckbox?.Dispose();
 				}
-				_scaledCheckbox = ((Bitmap) e.Image).ScaleIconForDisplaying(out _newImage);
+				var checkbox = ((Bitmap) e.Image);
+				_scaledCheckbox = checkbox.ScaleIconForDisplaying(96);
+				_newImage = !Equals(checkbox, _scaledCheckbox);
 			}
 			var old = e.ImageRectangle;
 			var clone = new ToolStripItemImageRenderEventArgs(e.Graphics, e.Item, _scaledCheckbox, new Rectangle(old.X, 0, old.Width, old.Height));

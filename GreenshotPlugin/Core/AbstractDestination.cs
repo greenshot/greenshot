@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Native;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
@@ -107,22 +108,16 @@ namespace GreenshotPlugin.Core
 		/// <param name="addDynamics"></param>
 		/// <param name="destinationClickHandler"></param>
 		/// <returns>ToolStripMenuItem</returns>
-		public virtual ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler)
+		public virtual ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler, BitmapScaleHandler<IDestination> scaleHandler)
 		{
-			bool newImage;
 			var basisMenuItem = new ToolStripMenuItem(Description)
 			{
-				Image = DisplayIcon.ScaleIconForDisplaying(out newImage),
 				Tag = this,
 				Text = Description
 			};
-			if (newImage)
-			{
-				basisMenuItem.Disposed += (sender, args) =>
-				{
-					basisMenuItem.Image.Dispose();
-				};
-			}
+
+			scaleHandler.AddTarget(basisMenuItem, this);
+
 			AddTagEvents(basisMenuItem, menu, Description);
 			basisMenuItem.Click -= destinationClickHandler;
 			basisMenuItem.Click += destinationClickHandler;
@@ -159,15 +154,9 @@ namespace GreenshotPlugin.Core
 									var destinationMenuItem = new ToolStripMenuItem(subDestination.Description)
 									{
 										Tag = subDestination,
-										Image = subDestination.DisplayIcon.ScaleIconForDisplaying(out newImage)
 									};
-									if (newImage)
-									{
-										destinationMenuItem.Disposed += (sender, args) =>
-										{
-											destinationMenuItem.Image.Dispose();
-										};
-									}
+									scaleHandler.AddTarget(destinationMenuItem, subDestination);
+
 									destinationMenuItem.Click += destinationClickHandler;
 									AddTagEvents(destinationMenuItem, menu, subDestination.Description);
 									basisMenuItem.DropDownItems.Add(destinationMenuItem);
@@ -256,15 +245,23 @@ namespace GreenshotPlugin.Core
 		/// <returns></returns>
 		public ExportInformation ShowPickerMenu(bool addDynamics, ISurface surface, ICaptureDetails captureDetails, IEnumerable<IDestination> destinations)
 		{
-			// Generate an empty ExportInformation object, for when nothing was selected.
-			var exportInformation = new ExportInformation(Designation, Language.GetString("settings_destination_picker"));
 			var menu = new ContextMenuStrip
 			{
-				ImageScalingSize = CoreConfig.IconSize,
 				Tag = null,
 				TopLevel = true
 			};
+			var dpiHandler = menu.HandleDpiChanges();
+			var bitmapScaleHandler = BitmapScaleHandler.Create<IDestination>(dpiHandler, (destination, dpi) => (Bitmap)destination.DisplayIcon, (bitmap, d) => (Bitmap)bitmap.ScaleIconForDisplaying(d));
 
+			dpiHandler.OnDpiChanged.Subscribe(dpi =>
+			{
+				var width = DpiHandler.ScaleWithDpi(16, dpi);
+				var size = new Size(width, width);
+				menu.ImageScalingSize = size;
+			});
+
+			// Generate an empty ExportInformation object, for when nothing was selected.
+			var exportInformation = new ExportInformation(Designation, Language.GetString("settings_destination_picker"));
 			menu.Closing += (source, eventArgs) =>
 			{
 				Log.DebugFormat("Close reason: {0}", eventArgs.CloseReason);
@@ -344,7 +341,7 @@ namespace GreenshotPlugin.Core
 							// This prevents the problem that the context menu shows in the task-bar
 							ShowMenuAtCursor(menu);
 						}
-					}
+					} , bitmapScaleHandler
 				);
 				if (item != null)
 				{

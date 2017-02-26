@@ -102,9 +102,8 @@ namespace GreenshotExternalCommandPlugin
 					var iconForExe = IconCache.IconForCommand(commando);
 					if (iconForExe != null)
 					{
-						bool newImage;
-						var image = iconForExe.ScaleIconForDisplaying(out newImage);
-						if (newImage)
+						var image = iconForExe.ScaleIconForDisplaying(96);
+						if (!Equals(image, iconForExe))
 						{
 							_images.Add(image);
 						}

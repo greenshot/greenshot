@@ -32,7 +32,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Desktop;
-using Dapplo.Windows.Forms;
+using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Native;
 using Greenshot.Configuration;
 using Greenshot.Destinations;
@@ -76,11 +76,100 @@ namespace Greenshot
 
 		private Surface _surface;
 		private GreenshotToolStripButton[] _toolbarButtons;
-
+		private BitmapScaleHandler<IDestination> _destinationScaleHandler;
 		private IDisposable _clipboardSubscription;
 
+		private void SetupBitmapScaleHandler()
+		{
+			_destinationScaleHandler = BitmapScaleHandler.Create<IDestination>(FormDpiHandler, (destination, pid) => (Bitmap) destination.DisplayIcon, (bitmap, dpi) => (Bitmap)bitmap.ScaleIconForDisplaying(dpi));
+
+			FormDpiHandler.OnDpiChanged.Subscribe(dpi =>
+			{
+				var width = DpiHandler.ScaleWithDpi(16, dpi);
+				var size = new Size(width, width);
+				toolsToolStrip.ImageScalingSize = size;
+				menuStrip1.ImageScalingSize = size;
+				destinationsToolStrip.ImageScalingSize = size;
+				propertiesToolStrip.ImageScalingSize = size;
+			});
+
+			ScaleHandler.AddTarget(btnCursor, "btnCursor.Image");
+			ScaleHandler.AddTarget(btnRect, "btnRect.Image");
+			ScaleHandler.AddTarget(btnEllipse, "btnEllipse.Image");
+			ScaleHandler.AddTarget(btnLine, "btnLine.Image");
+			ScaleHandler.AddTarget(btnArrow, "btnArrow.Image");
+
+			ScaleHandler.AddTarget(btnFreehand, "btnFreehand.Image");
+			ScaleHandler.AddTarget(btnText, "btnText.Image");
+			ScaleHandler.AddTarget(btnSpeechBubble, "btnSpeechBubble.Image");
+			ScaleHandler.AddTarget(btnStepLabel, "btnStepLabel.Image");
+			ScaleHandler.AddTarget(btnHighlight, "btnHighlight.Image");
+			ScaleHandler.AddTarget(btnObfuscate, "btnObfuscate.Image");
+
+			ScaleHandler.AddTarget(toolStripSplitButton1, "toolStripSplitButton1.Image");
+			ScaleHandler.AddTarget(btnResize, "btnResize.Image");
+			ScaleHandler.AddTarget(btnCrop, "btnCrop.Image");
+			ScaleHandler.AddTarget(rotateCwToolstripButton, "rotateCwToolstripButton.Image");
+			ScaleHandler.AddTarget(rotateCcwToolstripButton, "rotateCcwToolstripButton.Image");
+			ScaleHandler.AddTarget(undoToolStripMenuItem, "undoToolStripMenuItem.Image");
+
+			ScaleHandler.AddTarget(redoToolStripMenuItem, "redoToolStripMenuItem.Image");
+			ScaleHandler.AddTarget(cutToolStripMenuItem, "cutToolStripMenuItem.Image");
+			ScaleHandler.AddTarget(copyToolStripMenuItem, "copyToolStripMenuItem.Image");
+			ScaleHandler.AddTarget(pasteToolStripMenuItem, "pasteToolStripMenuItem.Image");
+			ScaleHandler.AddTarget(preferencesToolStripMenuItem, "preferencesToolStripMenuItem.Image");
+			ScaleHandler.AddTarget(addRectangleToolStripMenuItem, "addRectangleToolStripMenuItem.Image");
+			ScaleHandler.AddTarget(addEllipseToolStripMenuItem, "addEllipseToolStripMenuItem.Image");
+
+			ScaleHandler.AddTarget(drawLineToolStripMenuItem, "drawLineToolStripMenuItem.Image");
+			ScaleHandler.AddTarget(drawArrowToolStripMenuItem, "drawArrowToolStripMenuItem.Image");
+			ScaleHandler.AddTarget(drawFreehandToolStripMenuItem, "drawFreehandToolStripMenuItem.Image");
+			ScaleHandler.AddTarget(addTextBoxToolStripMenuItem, "addTextBoxToolStripMenuItem.Image");
+			ScaleHandler.AddTarget(addSpeechBubbleToolStripMenuItem, "addSpeechBubbleToolStripMenuItem.Image");
+			ScaleHandler.AddTarget(addCounterToolStripMenuItem, "addCounterToolStripMenuItem.Image");
+			ScaleHandler.AddTarget(removeObjectToolStripMenuItem, "removeObjectToolStripMenuItem.Image");
+			ScaleHandler.AddTarget(helpToolStripMenuItem1, "helpToolStripMenuItem1.Image");
+			ScaleHandler.AddTarget(btnSave, "btnSave.Image");
+			ScaleHandler.AddTarget(btnClipboard, "btnClipboard.Image");
+			ScaleHandler.AddTarget(btnPrint, "btnPrint.Image");
+			ScaleHandler.AddTarget(btnDelete, "btnDelete.Image");
+			ScaleHandler.AddTarget(btnCut, "btnCut.Image");
+			ScaleHandler.AddTarget(btnCopy, "btnCopy.Image");
+			ScaleHandler.AddTarget(btnPaste, "btnPaste.Image");
+			ScaleHandler.AddTarget(btnUndo, "btnUndo.Image");
+			ScaleHandler.AddTarget(btnRedo, "btnRedo.Image");
+			ScaleHandler.AddTarget(btnSettings, "btnSettings.Image");
+			ScaleHandler.AddTarget(btnHelp, "btnHelp.Image");
+			ScaleHandler.AddTarget(obfuscateModeButton, "obfuscateModeButton.Image");
+			ScaleHandler.AddTarget(pixelizeToolStripMenuItem, "pixelizeToolStripMenuItem.Image");
+			ScaleHandler.AddTarget(blurToolStripMenuItem, "blurToolStripMenuItem.Image");
+			ScaleHandler.AddTarget(highlightModeButton, "highlightModeButton.Image");
+			ScaleHandler.AddTarget(textHighlightMenuItem, "textHighlightMenuItem.Image");
+			ScaleHandler.AddTarget(areaHighlightMenuItem, "areaHighlightMenuItem.Image");
+			ScaleHandler.AddTarget(grayscaleHighlightMenuItem, "grayscaleHighlightMenuItem.Image");
+			ScaleHandler.AddTarget(magnifyMenuItem, "magnifyMenuItem.Image");
+			ScaleHandler.AddTarget(btnFillColor, "btnFillColor.Image");
+			ScaleHandler.AddTarget(btnLineColor, "btnLineColor.Image");
+			ScaleHandler.AddTarget(fontBoldButton, "fontBoldButton.Image");
+			ScaleHandler.AddTarget(fontItalicButton, "fontItalicButton.Image");
+			ScaleHandler.AddTarget(textVerticalAlignmentButton, "textVerticalAlignmentButton.Image");
+			ScaleHandler.AddTarget(alignTopToolStripMenuItem, "alignTopToolStripMenuItem.Image");
+			ScaleHandler.AddTarget(alignMiddleToolStripMenuItem, "alignMiddleToolStripMenuItem.Image");
+			ScaleHandler.AddTarget(alignBottomToolStripMenuItem, "alignBottomToolStripMenuItem.Image");
+			ScaleHandler.AddTarget(arrowHeadsDropDownButton, "arrowHeadsDropDownButton.Image");
+			ScaleHandler.AddTarget(shadowButton, "shadowButton.Image");
+			ScaleHandler.AddTarget(btnConfirm, "btnConfirm.Image");
+			ScaleHandler.AddTarget(btnCancel, "btnCancel.Image");
+			ScaleHandler.AddTarget(closeToolStripMenuItem, "closeToolStripMenuItem.Image");
+			ScaleHandler.AddTarget(textHorizontalAlignmentButton, "textHorizontalAlignmentButton.Image");
+			ScaleHandler.AddTarget(alignLeftToolStripMenuItem, "alignLeftToolStripMenuItem.Image");
+			ScaleHandler.AddTarget(alignCenterToolStripMenuItem, "alignCenterToolStripMenuItem.Image");
+			ScaleHandler.AddTarget(alignRightToolStripMenuItem, "alignRightToolStripMenuItem.Image");
+
+		}
 		public ImageEditorForm(ISurface iSurface, bool outputMade)
 		{
+
 			EditorList.Add(this);
 
 			//
@@ -88,6 +177,8 @@ namespace Greenshot
 			//
 			ManualLanguageApply = true;
 			InitializeComponent();
+
+			SetupBitmapScaleHandler();
 
 			Load += delegate
 			{
@@ -317,15 +408,15 @@ namespace Greenshot
 		{
 			if (toolstripDestination.IsDynamic)
 			{
-				bool newImage;
+				var icon = toolstripDestination.DisplayIcon;
 				var destinationButton = new ToolStripSplitButton
 				{
 					DisplayStyle = ToolStripItemDisplayStyle.Image,
 					Size = new Size(23, 22),
 					Text = toolstripDestination.Description,
-					Image = toolstripDestination.DisplayIcon.ScaleIconForDisplaying(out newImage)
+					Image = icon.ScaleIconForDisplaying(96)
 				};
-				if (newImage)
+				if (!Equals(icon, destinationButton.Image))
 				{
 					destinationButton.Disposed += (sender, args) =>
 					{
@@ -335,17 +426,15 @@ namespace Greenshot
 
 				//ToolStripDropDownButton destinationButton = new ToolStripDropDownButton();
 
+				icon = toolstripDestination.DisplayIcon;
 				var defaultItem = new ToolStripMenuItem(toolstripDestination.Description)
 				{
 					Tag = toolstripDestination,
-					Image = toolstripDestination.DisplayIcon.ScaleIconForDisplaying(out newImage)
+					Image = icon.ScaleIconForDisplaying(96)
 				};
-				if (newImage)
+				if (!Equals(icon, defaultItem.Image))
 				{
-					defaultItem.Disposed += (sender, args) =>
-					{
-						defaultItem.Image.Dispose();
-					};
+					defaultItem.Disposed += (sender, args) => defaultItem.Image.Dispose();
 				}
 				defaultItem.Click += delegate { toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails); };
 
@@ -366,12 +455,13 @@ namespace Greenshot
 						foreach (var subDestination in subDestinations)
 						{
 							var closureFixedDestination = subDestination;
+							icon = closureFixedDestination.DisplayIcon;
 							var destinationMenuItem = new ToolStripMenuItem(closureFixedDestination.Description)
 							{
 								Tag = closureFixedDestination,
-								Image = closureFixedDestination.DisplayIcon.ScaleIconForDisplaying(out newImage)
+								Image = icon.ScaleIconForDisplaying(96)
 							};
-							if (newImage)
+							if (!Equals(icon, destinationMenuItem.Image))
 							{
 								// Dispose of the newly generated icon
 								destinationMenuItem.Disposed += (sender, args) =>
@@ -390,16 +480,16 @@ namespace Greenshot
 			}
 			else
 			{
-				bool newImage;
+				var icon = toolstripDestination.DisplayIcon;
 				var destinationButton = new ToolStripButton
 				{
 					DisplayStyle = ToolStripItemDisplayStyle.Image,
 					Size = new Size(23, 22),
 					Text = toolstripDestination.Description,
-					Image = toolstripDestination.DisplayIcon.ScaleIconForDisplaying(out newImage)
+					Image = icon.ScaleIconForDisplaying(96)
 				};
 				destinationButton.Click += delegate { toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails); };
-				if (newImage)
+				if (!Equals(icon, destinationButton.Image))
 				{
 					destinationButton.Disposed += (sender, args) =>
 					{
@@ -445,7 +535,7 @@ namespace Greenshot
 					continue;
 				}
 
-				var item = destination.GetMenuItem(true, null, DestinationToolStripMenuItemClick);
+				var item = destination.GetMenuItem(true, null, DestinationToolStripMenuItemClick, _destinationScaleHandler);
 				if (item != null)
 				{
 					item.ShortcutKeys = destination.EditorShortcutKeys;
@@ -658,17 +748,16 @@ namespace Greenshot
 		private void RefreshEditorControls()
 		{
 			var stepLabels = _surface.CountStepLabels(null);
-			Image icon;
 			if (stepLabels <= 20)
 			{
-				icon = resources.GetIcon($"btnStepLabel{stepLabels:00}.Image");
+				ScaleHandler.AddTarget(btnStepLabel, $"btnStepLabel{stepLabels:00}.Image", true);
+				ScaleHandler.AddTarget(addCounterToolStripMenuItem, $"btnStepLabel20+.Image", true);
 			}
 			else
 			{
-				icon = resources.GetIcon("btnStepLabel20+.Image");
+				ScaleHandler.AddTarget(btnStepLabel, $"btnStepLabel20+.Image", true);
+				ScaleHandler.AddTarget(addCounterToolStripMenuItem, $"btnStepLabel20+.Image", true);
 			}
-			btnStepLabel.Image = icon;
-			addCounterToolStripMenuItem.Image = icon;
 
 			var props = _surface.FieldAggregator;
 			// if a confirmable element is selected, we must disable most of the controls
