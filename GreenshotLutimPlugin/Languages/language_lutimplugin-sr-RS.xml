@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Српски" ietf="sr-RS" version="1.0.0" languagegroup="">
+	<resources>
+		<resource name="anonymous_access">Анонимни приступ</resource>
+		<resource name="CANCEL">Откажи</resource>
+		<resource name="clear_question">Желите ли да обришете локалну историју Имиџера?</resource>
+		<resource name="communication_wait">Комуницирам с Имиџером. Сачекајте…</resource>
+		<resource name="configure">Поставке</resource>
+		<resource name="delete_question">Желите ли да обришете слику {0} са Имиџера?</resource>
+		<resource name="delete_title">Обриши Имиџер {0}</resource>
+		<resource name="history">Историја</resource>
+		<resource name="label_upload_format">Формат слике:</resource>
+		<resource name="label_url">Адреса</resource>
+		<resource name="OK">У реду</resource>
+		<resource name="settings_title">Поставке Имиџера</resource>
+		<resource name="upload_failure">Дошло је до грешке при отпремању на Имиџер:</resource>
+		<resource name="upload_menu_item">Отпреми на Имиџер</resource>
+		<resource name="upload_success">Слика је успешно отпремљена на Имиџер.</resource>
+		<resource name="use_page_link">Веза ка страници уместо везе ка слици у остави</resource>
+	</resources>
+</language>
