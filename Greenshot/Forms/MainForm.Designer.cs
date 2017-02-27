@@ -199,7 +199,6 @@ namespace Greenshot.Forms {
 			// contextmenu_quicksettings
 			// 
 			this.contextmenu_quicksettings.Name = "contextmenu_quicksettings";
-			this.contextmenu_quicksettings.Size = new System.Drawing.Size(170, coreConfiguration.IconSize.Height + 8);
 			// 
 			// contextmenu_settings
 			// 

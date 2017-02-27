@@ -91,6 +91,7 @@ namespace Greenshot
 				menuStrip1.ImageScalingSize = size;
 				destinationsToolStrip.ImageScalingSize = size;
 				propertiesToolStrip.ImageScalingSize = size;
+				propertiesToolStrip.MinimumSize = new Size(150, width + 10);
 			});
 
 			ScaleHandler.AddTarget(btnCursor, "btnCursor.Image");
@@ -102,7 +103,6 @@ namespace Greenshot
 			ScaleHandler.AddTarget(btnFreehand, "btnFreehand.Image");
 			ScaleHandler.AddTarget(btnText, "btnText.Image");
 			ScaleHandler.AddTarget(btnSpeechBubble, "btnSpeechBubble.Image");
-			ScaleHandler.AddTarget(btnStepLabel, "btnStepLabel.Image");
 			ScaleHandler.AddTarget(btnHighlight, "btnHighlight.Image");
 			ScaleHandler.AddTarget(btnObfuscate, "btnObfuscate.Image");
 
@@ -750,13 +750,13 @@ namespace Greenshot
 			var stepLabels = _surface.CountStepLabels(null);
 			if (stepLabels <= 20)
 			{
-				ScaleHandler.AddTarget(btnStepLabel, $"btnStepLabel{stepLabels:00}.Image", true);
-				ScaleHandler.AddTarget(addCounterToolStripMenuItem, $"btnStepLabel20+.Image", true);
+				ScaleHandler.AddTarget(btnStepLabel, $"btnStepLabel{stepLabels:00}.Image", FormDpiHandler.Dpi > 0);
+				ScaleHandler.AddTarget(addCounterToolStripMenuItem, $"btnStepLabel{stepLabels:00}.Image", FormDpiHandler.Dpi > 0);
 			}
 			else
 			{
-				ScaleHandler.AddTarget(btnStepLabel, $"btnStepLabel20+.Image", true);
-				ScaleHandler.AddTarget(addCounterToolStripMenuItem, $"btnStepLabel20+.Image", true);
+				ScaleHandler.AddTarget(btnStepLabel, $"btnStepLabel20+.Image", FormDpiHandler.Dpi > 0);
+				ScaleHandler.AddTarget(addCounterToolStripMenuItem, $"btnStepLabel20+.Image", FormDpiHandler.Dpi > 0);
 			}
 
 			var props = _surface.FieldAggregator;

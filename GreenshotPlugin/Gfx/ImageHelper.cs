@@ -465,9 +465,9 @@ namespace GreenshotPlugin.Gfx
 		/// </summary>
 		/// <param name="location">The file (EXE or DLL) to get the icon from</param>
 		/// <param name="index">Index of the icon</param>
-		/// <param name="takeLarge">true if the large icon is wanted</param>
+		/// <param name="useLargeIcon">true if the large icon is wanted</param>
 		/// <returns>Icon</returns>
-		public static Icon ExtractAssociatedIcon(string location, int index, bool takeLarge)
+		public static Icon ExtractAssociatedIcon(string location, int index, bool useLargeIcon = true)
 		{
 			IntPtr large;
 			IntPtr small;
@@ -477,7 +477,7 @@ namespace GreenshotPlugin.Gfx
 			var isSmall = false;
 			try
 			{
-				if (takeLarge && !IntPtr.Zero.Equals(large))
+				if (useLargeIcon && !IntPtr.Zero.Equals(large))
 				{
 					returnIcon = Icon.FromHandle(large);
 					isLarge = true;

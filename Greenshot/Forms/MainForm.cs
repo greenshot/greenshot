@@ -80,6 +80,8 @@ namespace Greenshot.Forms
 		// Thumbnail preview
 		private ThumbnailForm _thumbnailForm;
 
+		private DpiHandler _contextMenuDpiHandler;
+
 		public MainForm(CopyDataTransport dataTransport)
 		{
 			Instance = this;
@@ -971,31 +973,30 @@ namespace Greenshot.Forms
 		private void SetupBitmapScaleHandler()
 		{
 
+			_contextMenuDpiHandler = contextMenu.HandleDpiChanges();
 			// This takes care or setting the size of the images in the context menu
-			FormDpiHandler.OnDpiChanged.Subscribe(dpi =>
+			_contextMenuDpiHandler.OnDpiChanged.Subscribe(dpi =>
 			{
 				var width = DpiHandler.ScaleWithDpi(16, dpi);
 				var size = new Size(width, width);
 				contextMenu.ImageScalingSize = size;
+				contextmenu_quicksettings.Size = new Size(170, width + 8);
 			});
-
-			ScaleHandler.AddTarget(contextmenu_capturearea, "contextmenu_capturearea.Image");
-
-			ScaleHandler.AddTarget(contextmenu_capturelastregion, "contextmenu_capturelastregion.Image");
-			ScaleHandler.AddTarget(contextmenu_capturewindow, "contextmenu_capturewindow.Image");
-			ScaleHandler.AddTarget(contextmenu_capturefullscreen, "contextmenu_capturefullscreen.Image");
-
-			ScaleHandler.AddTarget(contextmenu_captureclipboard, "contextmenu_captureclipboard.Image");
-			ScaleHandler.AddTarget(contextmenu_openfile, "contextmenu_openfile.Image");
-			ScaleHandler.AddTarget(contextmenu_settings, "contextmenu_settings.Image");
-			ScaleHandler.AddTarget(contextmenu_help, "contextmenu_help.Image");
-			ScaleHandler.AddTarget(contextmenu_donate, "contextmenu_donate.Image");
-			ScaleHandler.AddTarget(contextmenu_exit, "contextmenu_exit.Image");
+			var contextMenuResourceScaleHandler = BitmapScaleHandler.WithComponentResourceManager(_contextMenuDpiHandler, GetType(), (bitmap, dpi) => (Bitmap)bitmap.ScaleIconForDisplaying(dpi));
+			contextMenuResourceScaleHandler.AddTarget(contextmenu_capturearea, "contextmenu_capturearea.Image");
+			contextMenuResourceScaleHandler.AddTarget(contextmenu_capturelastregion, "contextmenu_capturelastregion.Image");
+			contextMenuResourceScaleHandler.AddTarget(contextmenu_capturewindow, "contextmenu_capturewindow.Image");
+			contextMenuResourceScaleHandler.AddTarget(contextmenu_capturefullscreen, "contextmenu_capturefullscreen.Image");
+			contextMenuResourceScaleHandler.AddTarget(contextmenu_captureclipboard, "contextmenu_captureclipboard.Image");
+			contextMenuResourceScaleHandler.AddTarget(contextmenu_openfile, "contextmenu_openfile.Image");
+			contextMenuResourceScaleHandler.AddTarget(contextmenu_settings, "contextmenu_settings.Image");
+			contextMenuResourceScaleHandler.AddTarget(contextmenu_help, "contextmenu_help.Image");
+			contextMenuResourceScaleHandler.AddTarget(contextmenu_donate, "contextmenu_donate.Image");
+			contextMenuResourceScaleHandler.AddTarget(contextmenu_exit, "contextmenu_exit.Image");
 
 			// this is special handling, for the icons which come from the executables
-			var exeBitmapScaleHandler = BitmapScaleHandler
-				.Create<string>(FormDpiHandler,
-				(path, dpi) => (Bitmap)PluginUtils.GetCachedExeIcon(path, 0),
+			var exeBitmapScaleHandler = BitmapScaleHandler.Create<string>(_contextMenuDpiHandler,
+				(path, dpi) => (Bitmap)PluginUtils.GetCachedExeIcon(path, 0, dpi >= 120),
 				(bitmap, dpi) => (Bitmap)bitmap.ScaleIconForDisplaying(dpi));
 			exeBitmapScaleHandler.AddTarget(contextmenu_captureie, PluginUtils.GetExePath("iexplore.exe"));
 		}
@@ -1425,23 +1426,24 @@ namespace Greenshot.Forms
 
 			foreach (var window in InteropWindowQuery.GetTopLevelWindows())
 			{
-				var title = window.Text;
-				if (title != null)
+				var title = window.GetCaption();
+				if (title == null)
 				{
-					if (title.Length > _conf.MaxMenuItemLength)
-					{
-						title = title.Substring(0, Math.Min(title.Length, _conf.MaxMenuItemLength));
-					}
-					var captureWindowItem = menuItem.DropDownItems.Add(title);
-					captureWindowItem.Tag = window;
-					captureWindowItem.Image = window.GetDisplayIcon();
-					captureWindowItem.Click += eventHandler;
-					// Only show preview when enabled
-					if (thumbnailPreview)
-					{
-						captureWindowItem.MouseEnter += ShowThumbnailOnEnter;
-						captureWindowItem.MouseLeave += HideThumbnailOnLeave;
-					}
+					continue;
+				}
+				if (title.Length > _conf.MaxMenuItemLength)
+				{
+					title = title.Substring(0, Math.Min(title.Length, _conf.MaxMenuItemLength));
+				}
+				var captureWindowItem = menuItem.DropDownItems.Add(title);
+				captureWindowItem.Tag = window;
+				captureWindowItem.Image = window.GetDisplayIcon(_contextMenuDpiHandler.Dpi > DpiHandler.DefaultScreenDpi);
+				captureWindowItem.Click += eventHandler;
+				// Only show preview when enabled
+				if (thumbnailPreview)
+				{
+					captureWindowItem.MouseEnter += ShowThumbnailOnEnter;
+					captureWindowItem.MouseLeave += HideThumbnailOnLeave;
 				}
 			}
 		}

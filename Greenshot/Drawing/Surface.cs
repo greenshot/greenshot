@@ -56,7 +56,11 @@ namespace Greenshot.Drawing
 	public sealed class Surface : Control, ISurface, INotifyPropertyChanged
 	{
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(Surface));
-		public static int Count;
+
+		/// <summary>
+		/// The number of Surfaces in existance
+		/// </summary>
+		public static int Count { get; private set; }
 		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
 
 		/// <summary>

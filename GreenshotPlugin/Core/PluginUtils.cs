@@ -126,8 +126,9 @@ namespace GreenshotPlugin.Core
 		/// </summary>
 		/// <param name="path">path to the exe or dll</param>
 		/// <param name="index">index of the icon</param>
+		/// <param name="useLargeIcon">true to use the large icon</param>
 		/// <returns>Bitmap with the icon or null if something happended. you are responsible for copying this icon</returns>
-		public static Image GetCachedExeIcon(string path, int index)
+		public static Image GetCachedExeIcon(string path, int index, bool useLargeIcon = true)
 		{
 			string cacheKey = $"{path}:{index}";
 			Image returnValue;
@@ -143,7 +144,7 @@ namespace GreenshotPlugin.Core
 					{
 						return returnValue;
 					}
-					returnValue = GetExeIcon(path, index);
+					returnValue = GetExeIcon(path, index, useLargeIcon);
 					if (returnValue != null)
 					{
 						ExeIconCache.Add(cacheKey, returnValue);
@@ -158,8 +159,9 @@ namespace GreenshotPlugin.Core
 		/// </summary>
 		/// <param name="path">path to the exe or dll</param>
 		/// <param name="index">index of the icon</param>
+		/// <param name="useLargeIcon">true to use the large icon, if available</param>
 		/// <returns>Bitmap with the icon or null if something happended</returns>
-		private static Bitmap GetExeIcon(string path, int index)
+		private static Bitmap GetExeIcon(string path, int index, bool useLargeIcon = true)
 		{
 			if (!File.Exists(path))
 			{
@@ -167,14 +169,14 @@ namespace GreenshotPlugin.Core
 			}
 			try
 			{
-				using (var appIcon = ImageHelper.ExtractAssociatedIcon(path, index, CoreConfig.UseLargeIcons))
+				using (var appIcon = ImageHelper.ExtractAssociatedIcon(path, index, useLargeIcon))
 				{
 					if (appIcon != null)
 					{
 						return appIcon.ToBitmap();
 					}
 				}
-				using (var appIcon = Shell32.GetFileIcon(path, CoreConfig.UseLargeIcons ? Shell32.IconSize.Large : Shell32.IconSize.Small, false))
+				using (var appIcon = Shell32.GetFileIcon(path, useLargeIcon ? Shell32.IconSize.Large : Shell32.IconSize.Small, false))
 				{
 					if (appIcon != null)
 					{

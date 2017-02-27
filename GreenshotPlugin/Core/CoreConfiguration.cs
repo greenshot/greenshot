@@ -410,7 +410,6 @@ namespace GreenshotPlugin.Core
 			}
 		}
 
-		public bool UseLargeIcons => IconSize.Width >= 32 || IconSize.Height >= 32;
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		/// <summary>

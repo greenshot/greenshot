@@ -65,11 +65,13 @@ namespace GreenshotPlugin.Core
 		///     Get the icon belonging to the process
 		/// TODO: Check when the icon is disposed!
 		/// </summary>
-		public static Image GetDisplayIcon(this IInteropWindow interopWindow)
+		/// <param name="interopWindow">IInteropWindow</param>
+		/// <param name="useLargeIcon">true to use the large icon</param>
+		public static Image GetDisplayIcon(this IInteropWindow interopWindow, bool useLargeIcon = true)
 		{
 			try
 			{
-				using (var appIcon = User32.GetIcon(interopWindow.Handle, CoreConfiguration.UseLargeIcons))
+				using (var appIcon = User32.GetIcon(interopWindow.Handle, useLargeIcon))
 				{
 					if (appIcon != null)
 					{
