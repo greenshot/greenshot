@@ -102,6 +102,21 @@
       <Name>GreenshotPlugin</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Languages\language_lutimplugin-cs-CZ.xml" />
+    <Content Include="Languages\language_lutimplugin-id-ID.xml" />
+    <Content Include="Languages\language_lutimplugin-it-IT.xml" />
+    <Content Include="Languages\language_lutimplugin-ko-KR.xml" />
+    <Content Include="Languages\language_lutimplugin-lv-LV.xml" />
+    <Content Include="Languages\language_lutimplugin-pl-PL.xml" />
+    <Content Include="Languages\language_lutimplugin-pt-PT.xml" />
+    <Content Include="Languages\language_lutimplugin-ru-RU.xml" />
+    <Content Include="Languages\language_lutimplugin-sk-SK.xml" />
+    <Content Include="Languages\language_lutimplugin-sr-RS.xml" />
+    <Content Include="Languages\language_lutimplugin-sv-SE.xml" />
+    <Content Include="Languages\language_lutimplugin-uk-UA.xml" />
+    <Content Include="Languages\language_lutimplugin-zh-TW.xml" />
+  </ItemGroup>
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>

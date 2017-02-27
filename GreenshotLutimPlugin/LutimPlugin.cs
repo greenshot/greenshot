@@ -27,6 +27,7 @@ using System.Windows.Forms;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
@@ -159,8 +160,8 @@ namespace GreenshotLutimPlugin {
 		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl) {
 			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, _config.UploadReduceColors);
 			try {
-                string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(_config.FilenamePattern, _config.UploadFormat, captureDetails));
-                LutimInfo lutimInfo = null;
+				string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(_config.FilenamePattern, _config.UploadFormat, captureDetails));
+				LutimInfo lutimInfo = null;
 
 				// Run upload in the background
 				new PleaseWaitForm().ShowAndWait("Lutim plug-in", Language.GetString("lutim", LangKey.communication_wait),
@@ -170,35 +171,35 @@ namespace GreenshotLutimPlugin {
 						if (lutimInfo != null) {
 							Log.InfoFormat("Storing lutim upload for hash {0} and delete hash {1}", lutimInfo.Short, lutimInfo.Token);
 							_config.LutimUploadHistory.Add(lutimInfo.Short, lutimInfo.ToIniString());
-							_config.runtimeLutimHistory.Add(lutimInfo.Short, lutimInfo);
+							_config.RuntimeLutimHistory.Add(lutimInfo.Short, lutimInfo);
 							UpdateHistoryMenuItem();
 						}
 					}
 				);
 
 				if (lutimInfo != null)
-			    {
-			        // TODO: Optimize a second call for export
-			        using (Image tmpImage = surfaceToUpload.GetImageForExport())
-			        {
-			            lutimInfo.Thumb = ImageHelper.CreateThumbnail(tmpImage, 90, 90);
-			        }
-			        IniConfig.Save();
-			        uploadUrl = lutimInfo.Uri.AbsoluteUri;
-			        if (!string.IsNullOrEmpty(uploadUrl) && _config.CopyLinkToClipboard)
-			        {
-			            try
-			            {
-			                ClipboardHelper.SetClipboardData(uploadUrl);
-			            }
-			            catch (Exception ex)
-			            {
-			                Log.Error("Can't write to clipboard: ", ex);
-			                uploadUrl = null;
-			            }
-			        }
-			        return true;
-			    }
+				{
+					// TODO: Optimize a second call for export
+					using (Image tmpImage = surfaceToUpload.GetImageForExport())
+					{
+						lutimInfo.Thumb = tmpImage.CreateThumbnail(90, 90);
+					}
+					IniConfig.Save();
+					uploadUrl = lutimInfo.Uri.AbsoluteUri;
+					if (!string.IsNullOrEmpty(uploadUrl) && _config.CopyLinkToClipboard)
+					{
+						try
+						{
+							ClipboardHelper.SetClipboardData(uploadUrl);
+						}
+						catch (Exception ex)
+						{
+							Log.Error("Can't write to clipboard: ", ex);
+							uploadUrl = null;
+						}
+					}
+					return true;
+				}
 			} catch (Exception e) {
 				Log.Error("Error uploading.", e);
 				MessageBox.Show(Language.GetString("lutim", LangKey.upload_failure) + " " + e.Message);

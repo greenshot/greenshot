@@ -20,13 +20,12 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
@@ -46,8 +45,8 @@ namespace GreenshotLutimPlugin
         /// <returns></returns>
         public static bool IsHistoryLoadingNeeded()
         {
-            Log.InfoFormat("Checking if lutim cache loading needed, configuration has {0} lutim hashes, loaded are {1} hashes.", Config.LutimUploadHistory.Count, Config.runtimeLutimHistory.Count);
-            return Config.runtimeLutimHistory.Count != Config.LutimUploadHistory.Count;
+            Log.InfoFormat("Checking if lutim cache loading needed, configuration has {0} lutim hashes, loaded are {1} hashes.", Config.LutimUploadHistory.Count, Config.RuntimeLutimHistory.Count);
+            return Config.RuntimeLutimHistory.Count != Config.LutimUploadHistory.Count;
         }
 
         /// <summary>
@@ -63,9 +62,9 @@ namespace GreenshotLutimPlugin
             bool saveNeeded = false;
 
             // Load the ImUr history
-            foreach (string @short in Config.LutimUploadHistory.Keys.ToList())
+            foreach (string key in Config.LutimUploadHistory.Keys.ToList())
             {
-                if (Config.runtimeLutimHistory.ContainsKey(@short))
+                if (Config.RuntimeLutimHistory.ContainsKey(key))
                 {
                     // Already loaded
                     continue;
@@ -73,20 +72,20 @@ namespace GreenshotLutimPlugin
 
                 try
                 {
-                    var value = Config.LutimUploadHistory[@short];
-                    LutimInfo lutimInfo = LutimInfo.FromIniString(@short, value);
-                    Config.runtimeLutimHistory[@short] = lutimInfo;
+                    var value = Config.LutimUploadHistory[key];
+                    LutimInfo lutimInfo = LutimInfo.FromIniString(key, value);
+                    Config.RuntimeLutimHistory[key] = lutimInfo;
                 }
-                catch (ArgumentException ae)
+                catch (ArgumentException)
                 {
-                    Log.InfoFormat("Bad format of lutim history item for short {0}", @short);
-                    Config.LutimUploadHistory.Remove(@short);
-                    Config.runtimeLutimHistory.Remove(@short);
+                    Log.InfoFormat("Bad format of lutim history item for short {0}", key);
+                    Config.LutimUploadHistory.Remove(key);
+                    Config.RuntimeLutimHistory.Remove(key);
                     saveNeeded = true;
                 }
                 catch (Exception e)
                 {
-                    Log.Error("Problem loading lutim history for short " + @short, e);
+                    Log.Error("Problem loading lutim history for short " + key, e);
                 }
             }
             if (saveNeeded)
@@ -110,8 +109,7 @@ namespace GreenshotLutimPlugin
             byte[] boundarybytes = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
 
             string responseString = null;
-            HttpWebRequest webRequest =
-                NetworkHelper.CreateWebRequest(Config.LutimUrl, HTTPMethod.POST);
+            var webRequest = NetworkHelper.CreateWebRequest(Config.LutimUrl, HTTPMethod.POST);
 
             webRequest.ContentType = "multipart/form-data; boundary=" + boundary;
             webRequest.ServicePoint.Expect100Continue = false;
@@ -120,15 +118,15 @@ namespace GreenshotLutimPlugin
             {
                 using (var requestStream = webRequest.GetRequestStream())
                 {
-                    WriteFormData(requestStream, boundarybytes, @"format", @"json");
-                    WriteFormData(requestStream, boundarybytes, @"first-view", @"0");
-                    WriteFormData(requestStream, boundarybytes, @"delete-day", @"0");
-                    WriteFormData(requestStream, boundarybytes, @"keep-exif", @"0");
+                    WriteFormData(requestStream, boundarybytes, "format", "json");
+                    WriteFormData(requestStream, boundarybytes, "first-view", "0");
+                    WriteFormData(requestStream, boundarybytes, "delete-day", "0");
+                    WriteFormData(requestStream, boundarybytes, "keep-exif", "0");
 
                     requestStream.Write(boundarybytes, 0, boundarybytes.Length);
 
                     const string headerTemplate = "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: {2}\r\n\r\n";
-                    string header = string.Format(headerTemplate, @"file", filename, @"image/" + outputSettings.Format);
+                    string header = string.Format(headerTemplate, "file", filename, "image/" + outputSettings.Format);
                     byte[] headerbytes = System.Text.Encoding.UTF8.GetBytes(header);
                     requestStream.Write(headerbytes, 0, headerbytes.Length);
 
@@ -214,7 +212,7 @@ namespace GreenshotLutimPlugin
                 }
             }
             // Make sure we remove it from the history, if no error occured
-            Config.runtimeLutimHistory.Remove(lutimInfo.Short);
+            Config.RuntimeLutimHistory.Remove(lutimInfo.Short);
             Config.LutimUploadHistory.Remove(lutimInfo.Short);
             lutimInfo.Thumb = null;
         }

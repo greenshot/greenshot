@@ -46,13 +46,13 @@ namespace GreenshotLutimPlugin {
 		[IniProperty("LutimUploadHistory", Description= "Lutim upload history (LutimUploadHistory.Short=CreatedAt;DelAtView;Ext;Filename;Limit;RealShort;Token;LutimBaseUri;Thumb(base64))")]
 		public Dictionary<string, string> LutimUploadHistory { get; set; }
 
-        [IniProperty("FilenamePattern", Description = "Filename for the Lutim upload", DefaultValue = "${capturetime:d\"yyyyMMdd-HHmm\"}")]
-        public string FilenamePattern { get; set; }
+		[IniProperty("FilenamePattern", Description = "Filename for the Lutim upload", DefaultValue = "${capturetime:d\"yyyyMMdd-HHmm\"}")]
+		public string FilenamePattern { get; set; }
 
-        // Not stored, only run-time!
-        public Dictionary<string, LutimInfo> runtimeLutimHistory = new Dictionary<string, LutimInfo>();
+		// Not stored, only run-time!
+		public readonly Dictionary<string, LutimInfo> RuntimeLutimHistory = new Dictionary<string, LutimInfo>();
 		
-        /// <summary>
+		/// <summary>
 		/// Supply values we can't put as defaults
 		/// </summary>
 		/// <param name="property">The property to return a default for</param>

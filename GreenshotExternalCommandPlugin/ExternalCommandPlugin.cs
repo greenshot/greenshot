@@ -188,7 +188,6 @@ namespace GreenshotExternalCommandPlugin
 				{
 					return;
 				}
-				bool newImage;
 				if (_itemPlugInRoot.Tag == (object) true)
 				{
 					_itemPlugInRoot.Image?.Dispose();

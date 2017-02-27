@@ -92,7 +92,7 @@ namespace GreenshotLutimPlugin {
 			foreach (string column in columns) {
 				listview_lutim_uploads.Columns.Add(column);
 			}
-			foreach (LutimInfo lutimInfo in Config.runtimeLutimHistory.Values) {
+			foreach (LutimInfo lutimInfo in Config.RuntimeLutimHistory.Values) {
 				var item = new ListViewItem(lutimInfo.Short)
 				{
 					Tag = lutimInfo
@@ -173,7 +173,7 @@ namespace GreenshotLutimPlugin {
 		private void ClearHistoryButtonClick(object sender, EventArgs e) {
 			DialogResult result = MessageBox.Show(Language.GetString("lutim", LangKey.clear_question), "Lutim", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 			if (result == DialogResult.Yes) {
-				Config.runtimeLutimHistory.Clear();
+				Config.RuntimeLutimHistory.Clear();
 				Config.LutimUploadHistory.Clear();
 				IniConfig.Save();
 				Redraw();
