@@ -25,6 +25,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
@@ -53,28 +54,29 @@ namespace Greenshot.Helpers
 				{
 					continue;
 				}
-				if (!destinationType.IsAbstract)
+				if (destinationType.IsAbstract)
 				{
-					IDestination destination;
-					try
-					{
-						destination = (IDestination) Activator.CreateInstance(destinationType);
-					}
-					catch (Exception e)
-					{
-						Log.ErrorFormat("Can't create instance of {0}", destinationType);
-						Log.Error(e);
-						continue;
-					}
-					if (destination.IsActive)
-					{
-						Log.DebugFormat("Found destination {0} with designation {1}", destinationType.Name, destination.Designation);
-						RegisterDestination(destination);
-					}
-					else
-					{
-						Log.DebugFormat("Ignoring destination {0} with designation {1}", destinationType.Name, destination.Designation);
-					}
+					continue;
+				}
+				IDestination destination;
+				try
+				{
+					destination = (IDestination) Activator.CreateInstance(destinationType);
+				}
+				catch (Exception e)
+				{
+					Log.ErrorFormat("Can't create instance of {0}", destinationType);
+					Log.Error(e);
+					continue;
+				}
+				if (destination.IsActive)
+				{
+					Log.DebugFormat("Found destination {0} with designation {1}", destinationType.Name, destination.Designation);
+					RegisterDestination(destination);
+				}
+				else
+				{
+					Log.DebugFormat("Ignoring destination {0} with designation {1}", destinationType.Name, destination.Designation);
 				}
 			}
 		}
@@ -96,7 +98,7 @@ namespace Greenshot.Helpers
 		///     Method to get all the destinations from the plugins
 		/// </summary>
 		/// <returns>List of IDestination</returns>
-		private static List<IDestination> GetPluginDestinations()
+		private static IEnumerable<IDestination> GetPluginDestinations()
 		{
 			var destinations = new List<IDestination>();
 			foreach (var pluginAttribute in PluginHelper.Instance.Plugins.Keys)
@@ -104,13 +106,9 @@ namespace Greenshot.Helpers
 				var plugin = PluginHelper.Instance.Plugins[pluginAttribute];
 				try
 				{
-					foreach (var destination in plugin.Destinations())
-					{
-						if (CoreConfig.ExcludeDestinations == null || !CoreConfig.ExcludeDestinations.Contains(destination.Designation))
-						{
-							destinations.Add(destination);
-						}
-					}
+					destinations
+						.AddRange(plugin.Destinations()
+						.Where(destination => CoreConfig.ExcludeDestinations == null || !CoreConfig.ExcludeDestinations.Contains(destination.Designation)));
 				}
 				catch (Exception ex)
 				{

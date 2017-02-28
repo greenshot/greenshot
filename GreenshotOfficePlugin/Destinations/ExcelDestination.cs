@@ -35,7 +35,7 @@ using GreenshotPlugin.Interfaces.Plugin;
 
 #endregion
 
-namespace GreenshotOfficePlugin
+namespace GreenshotOfficePlugin.Destinations
 {
 	/// <summary>
 	///     Description of PowerpointDestination.
@@ -75,7 +75,10 @@ namespace GreenshotOfficePlugin
 
 		public override bool IsActive => base.IsActive && ExePath != null;
 
-		public override Image DisplayIcon => PluginUtils.GetCachedExeIcon(ExePath, !string.IsNullOrEmpty(_workbookName) ? IconWorkbook : IconApplication);
+		public override Image GetDisplayIcon(double dpi)
+		{
+			return PluginUtils.GetCachedExeIcon(ExePath, !string.IsNullOrEmpty(_workbookName) ? IconWorkbook : IconApplication, dpi > 100);
+		}
 
 		public override IEnumerable<IDestination> DynamicDestinations()
 		{

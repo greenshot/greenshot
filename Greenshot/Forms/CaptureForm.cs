@@ -535,7 +535,6 @@ namespace Greenshot.Forms
 				}
 				if (!window.GetBounds().Contains(cursorPosition))
 				{
-					Log.DebugFormat("Not in window {0}", window.GetCaption());
 					continue;
 				}
 

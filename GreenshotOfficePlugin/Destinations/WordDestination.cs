@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using GreenshotOfficePlugin.OfficeExport;
 using GreenshotPlugin.Core;
@@ -37,7 +38,7 @@ using log4net;
 
 #endregion
 
-namespace GreenshotOfficePlugin
+namespace GreenshotOfficePlugin.Destinations
 {
 	/// <summary>
 	///     Description of EmailDestination.
@@ -78,14 +79,14 @@ namespace GreenshotOfficePlugin
 
 		public override bool IsActive => base.IsActive && ExePath != null;
 
-		public override Image DisplayIcon => PluginUtils.GetCachedExeIcon(ExePath, !string.IsNullOrEmpty(_documentCaption) ? IconDocument : IconApplication);
+		public override Image GetDisplayIcon(double dpi)
+		{
+			return PluginUtils.GetCachedExeIcon(ExePath, !string.IsNullOrEmpty(_documentCaption) ? IconDocument : IconApplication, dpi > 0);
+		} 
 
 		public override IEnumerable<IDestination> DynamicDestinations()
 		{
-			foreach (var wordCaption in WordExporter.GetWordDocuments())
-			{
-				yield return new WordDestination(wordCaption);
-			}
+			return WordExporter.GetWordDocuments().Select(wordCaption => new WordDestination(wordCaption));
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)

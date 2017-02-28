@@ -48,17 +48,14 @@ namespace GreenshotOCR
 
 		public override string Description => "OCR";
 
-		public override Image DisplayIcon
+		public override Image GetDisplayIcon(double dpi)
 		{
-			get
+			var exePath = PluginUtils.GetExePath("MSPVIEW.EXE");
+			if (exePath != null && File.Exists(exePath))
 			{
-				var exePath = PluginUtils.GetExePath("MSPVIEW.EXE");
-				if (exePath != null && File.Exists(exePath))
-				{
-					return PluginUtils.GetCachedExeIcon(exePath, 0);
-				}
-				return null;
+				return PluginUtils.GetCachedExeIcon(exePath, 0, dpi > 100);
 			}
+			return null;
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)

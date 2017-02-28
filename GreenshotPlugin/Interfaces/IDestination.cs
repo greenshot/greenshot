@@ -59,6 +59,16 @@ namespace GreenshotPlugin.Interfaces
 		Image DisplayIcon { get; }
 
 		/// <summary>
+		///     Gets an icon for the destination, optionally it's already scaled
+		/// </summary>
+		Image GetDisplayIcon(double dpi);
+
+		/// <summary>
+		/// Returns if there is a displayIcon
+		/// </summary>
+		bool HasDisplayIcon { get; }
+
+		/// <summary>
 		///     Returns if the destination is active
 		/// </summary>
 		bool IsActive { get; }

@@ -975,10 +975,11 @@ namespace Greenshot.Forms
 		private void SetupBitmapScaleHandler()
 		{
 			ContextMenuDpiHandler = contextMenu.HandleDpiChanges();
+
 			// This takes care or setting the size of the images in the context menu
 			ContextMenuDpiHandler.OnDpiChanged.Subscribe(dpi =>
 			{
-				var width = DpiHandler.ScaleWithDpi(16, dpi);
+				var width = DpiHandler.ScaleWithDpi(coreConfiguration.IconSize.Width, dpi);
 				var size = new Size(width, width);
 				contextMenu.ImageScalingSize = size;
 				contextmenu_quicksettings.Size = new Size(170, width + 8);
@@ -987,7 +988,6 @@ namespace Greenshot.Forms
 			{
 				return (Bitmap)bitmap.ScaleIconForDisplaying(dpi);
 			});
-
 
 			contextMenuResourceScaleHandler.AddTarget(contextmenu_capturewindow, "contextmenu_capturewindow.Image");
 			contextMenuResourceScaleHandler.AddTarget(contextmenu_capturearea, "contextmenu_capturearea.Image");

@@ -28,7 +28,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Desktop;
@@ -77,15 +79,15 @@ namespace Greenshot
 		private Surface _surface;
 		private GreenshotToolStripButton[] _toolbarButtons;
 		private BitmapScaleHandler<IDestination> _destinationScaleHandler;
-		private IDisposable _clipboardSubscription;
+		private readonly IDisposable _clipboardSubscription;
 
 		private void SetupBitmapScaleHandler()
 		{
-			_destinationScaleHandler = BitmapScaleHandler.Create<IDestination>(FormDpiHandler, (destination, pid) => (Bitmap) destination.DisplayIcon, (bitmap, dpi) => (Bitmap)bitmap.ScaleIconForDisplaying(dpi));
+			_destinationScaleHandler = BitmapScaleHandler.Create<IDestination>(FormDpiHandler, (destination, dpi) => (Bitmap) destination.GetDisplayIcon(dpi), (bitmap, dpi) => (Bitmap)bitmap.ScaleIconForDisplaying(dpi));
 
 			FormDpiHandler.OnDpiChanged.Subscribe(dpi =>
 			{
-				var width = DpiHandler.ScaleWithDpi(16, dpi);
+				var width = DpiHandler.ScaleWithDpi(coreConfiguration.IconSize.Width, dpi);
 				var size = new Size(width, width);
 				toolsToolStrip.ImageScalingSize = size;
 				menuStrip1.ImageScalingSize = size;
@@ -180,13 +182,10 @@ namespace Greenshot
 
 			SetupBitmapScaleHandler();
 
-			Load += delegate
+			Load += async (sender, args) =>
 			{
-				var thread = new Thread(AddDestinations)
-				{
-					Name = "add destinations"
-				};
-				thread.Start();
+				await AddDestinationsAsync();
+				await InteropWindowFactory.CreateFor(Handle).ToForegroundAsync();
 			};
 
 			// Make sure the editor is placed on the same location as the last editor was on close
@@ -217,21 +216,7 @@ namespace Greenshot
 			});
 		}
 
-		public static List<IImageEditor> Editors
-		{
-			get
-			{
-				try
-				{
-					EditorList.Sort((e1, e2) => string.Compare(e1.Surface.CaptureDetails.Title, e2.Surface.CaptureDetails.Title, StringComparison.Ordinal));
-				}
-				catch (Exception ex)
-				{
-					Log.Warn("Sorting of editors failed.", ex);
-				}
-				return EditorList;
-			}
-		}
+		public static IEnumerable<IImageEditor> Editors => EditorList.OrderBy(editor => editor?.CaptureDetails?.Title);
 
 		/// <summary>
 		///     An Implementation for the IImageEditor, this way Plugins have access to the HWND handles wich can be used with
@@ -372,9 +357,9 @@ namespace Greenshot
 		/// <summary>
 		///     Get all the destinations and display them in the file menu and the buttons
 		/// </summary>
-		private void AddDestinations()
+		private async Task AddDestinationsAsync()
 		{
-			Invoke((MethodInvoker) delegate
+			await Task.Run(() =>
 			{
 				// Create export buttons 
 				foreach (var destination in DestinationHelper.GetAllDestinations())
@@ -387,13 +372,16 @@ namespace Greenshot
 					{
 						continue;
 					}
-					if (destination.DisplayIcon == null)
-					{
-						continue;
-					}
 					try
 					{
-						AddDestinationButton(destination);
+						if (InvokeRequired)
+						{
+							Invoke((Action<IDestination>) AddDestinationButton, destination);
+						}
+						else
+						{
+							AddDestinationButton(destination);
+						}
 					}
 					catch (Exception addingException)
 					{
@@ -406,15 +394,18 @@ namespace Greenshot
 
 		private void AddDestinationButton(IDestination toolstripDestination)
 		{
+			if (!toolstripDestination.HasDisplayIcon)
+			{
+				return;
+			}
 			if (toolstripDestination.IsDynamic)
 			{
-				var icon = toolstripDestination.DisplayIcon;
+				var icon = toolstripDestination.GetDisplayIcon(FormDpiHandler.Dpi);
 				var destinationButton = new ToolStripSplitButton
 				{
 					DisplayStyle = ToolStripItemDisplayStyle.Image,
-					Size = new Size(23, 22),
 					Text = toolstripDestination.Description,
-					Image = icon.ScaleIconForDisplaying(96)
+					Image = icon.ScaleIconForDisplaying(FormDpiHandler.Dpi)
 				};
 				if (!Equals(icon, destinationButton.Image))
 				{
@@ -426,53 +417,47 @@ namespace Greenshot
 
 				//ToolStripDropDownButton destinationButton = new ToolStripDropDownButton();
 
-				icon = toolstripDestination.DisplayIcon;
+				icon = toolstripDestination.GetDisplayIcon(FormDpiHandler.Dpi);
 				var defaultItem = new ToolStripMenuItem(toolstripDestination.Description)
 				{
+					DisplayStyle = ToolStripItemDisplayStyle.Image,
 					Tag = toolstripDestination,
-					Image = icon.ScaleIconForDisplaying(96)
+					Image = icon.ScaleIconForDisplaying(FormDpiHandler.Dpi)
 				};
 				if (!Equals(icon, defaultItem.Image))
 				{
 					defaultItem.Disposed += (sender, args) => defaultItem.Image.Dispose();
 				}
-				defaultItem.Click += delegate { toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails); };
+				defaultItem.Click += (sender, args) => toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails);
 
 				// The ButtonClick, this is for the icon, gets the current default item
-				destinationButton.ButtonClick += delegate { toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails); };
+				destinationButton.ButtonClick += (sender, args) => toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails);
 
 				// Generate the entries for the drop down
-				destinationButton.DropDownOpening += delegate
+				destinationButton.DropDownOpening += (sender, args) =>
 				{
 					ClearItems(destinationButton.DropDownItems);
 					destinationButton.DropDownItems.Add(defaultItem);
 
-					var subDestinations = new List<IDestination>();
-					subDestinations.AddRange(toolstripDestination.DynamicDestinations());
-					if (subDestinations.Count > 0)
+					foreach (var subDestination in toolstripDestination.DynamicDestinations().OrderBy(destination => destination.Description))
 					{
-						subDestinations.Sort();
-						foreach (var subDestination in subDestinations)
+						icon = subDestination.GetDisplayIcon(FormDpiHandler.Dpi);
+						var destinationMenuItem = new ToolStripMenuItem(subDestination.Description)
 						{
-							var closureFixedDestination = subDestination;
-							icon = closureFixedDestination.DisplayIcon;
-							var destinationMenuItem = new ToolStripMenuItem(closureFixedDestination.Description)
+							Tag = subDestination,
+							Image = icon.ScaleIconForDisplaying(96)
+						};
+						if (!Equals(icon, destinationMenuItem.Image))
+						{
+							// Dispose of the newly generated icon
+							destinationMenuItem.Disposed += (o, a) =>
 							{
-								Tag = closureFixedDestination,
-								Image = icon.ScaleIconForDisplaying(96)
+								destinationMenuItem.Image.Dispose();
 							};
-							if (!Equals(icon, destinationMenuItem.Image))
-							{
-								// Dispose of the newly generated icon
-								destinationMenuItem.Disposed += (sender, args) =>
-								{
-									destinationMenuItem.Image.Dispose();
-								};
-							}
-
-							destinationMenuItem.Click += delegate { closureFixedDestination.ExportCapture(true, _surface, _surface.CaptureDetails); };
-							destinationButton.DropDownItems.Add(destinationMenuItem);
 						}
+
+						destinationMenuItem.Click += (o, a) => subDestination.ExportCapture(true, _surface, _surface.CaptureDetails);
+						destinationButton.DropDownItems.Add(destinationMenuItem);
 					}
 				};
 
@@ -480,15 +465,14 @@ namespace Greenshot
 			}
 			else
 			{
-				var icon = toolstripDestination.DisplayIcon;
+				var icon = toolstripDestination.GetDisplayIcon(FormDpiHandler.Dpi);
 				var destinationButton = new ToolStripButton
 				{
 					DisplayStyle = ToolStripItemDisplayStyle.Image,
-					Size = new Size(23, 22),
 					Text = toolstripDestination.Description,
-					Image = icon.ScaleIconForDisplaying(96)
+					Image = icon.ScaleIconForDisplaying(FormDpiHandler.Dpi)
 				};
-				destinationButton.Click += delegate { toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails); };
+				destinationButton.Click += (sender, args) => toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails);
 				if (!Equals(icon, destinationButton.Image))
 				{
 					destinationButton.Disposed += (sender, args) =>
@@ -497,7 +481,6 @@ namespace Greenshot
 					};
 				}
 				destinationsToolStrip.Items.Insert(destinationsToolStrip.Items.IndexOf(toolStripSeparator16), destinationButton);
-
 			}
 		}
 
@@ -506,7 +489,7 @@ namespace Greenshot
 		///     This helper method takes care of this.
 		/// </summary>
 		/// <param name="items"></param>
-		private void ClearItems(ToolStripItemCollection items)
+		private static void ClearItems(ToolStripItemCollection items)
 		{
 			foreach (var item in items)
 			{
@@ -536,11 +519,12 @@ namespace Greenshot
 				}
 
 				var item = destination.GetMenuItem(true, null, DestinationToolStripMenuItemClick, _destinationScaleHandler);
-				if (item != null)
+				if (item == null)
 				{
-					item.ShortcutKeys = destination.EditorShortcutKeys;
-					fileStripMenuItem.DropDownItems.Add(item);
+					continue;
 				}
+				item.ShortcutKeys = destination.EditorShortcutKeys;
+				fileStripMenuItem.DropDownItems.Add(item);
 			}
 			// add the elements after the destinations
 			fileStripMenuItem.DropDownItems.Add(toolStripSeparator9);

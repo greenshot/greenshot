@@ -336,8 +336,7 @@ namespace GreenshotPlugin.Core
 		[DefaultValue("0,0")]
 		public Size Win10BorderCrop { get; set; }
 
-		[IniProperty("IconSize", Description = "Defines the size of the icons (e.g. for the buttons in the editor), default value 16,16 anything bigger will cause scaling",
-			DefaultValue = "16,16")]
+		[IniProperty("IconSize", Description = "Defines the base size of the icons (e.g. for the buttons in the editor), default value 16,16 anything bigger will cause scaling", DefaultValue = "16,16")]
 		public Size IconSize
 		{
 			get { return _iconSize; }

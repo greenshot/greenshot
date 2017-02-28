@@ -69,6 +69,14 @@ namespace GreenshotPlugin.Core
 
 		public virtual Image DisplayIcon { get; set; }
 
+		public virtual Image GetDisplayIcon(double dpi)
+		{
+			return DisplayIcon;
+		}
+
+		public virtual bool HasDisplayIcon => true;
+
+
 		public virtual Keys EditorShortcutKeys => Keys.None;
 
 		public virtual IEnumerable<IDestination> DynamicDestinations()
@@ -116,7 +124,7 @@ namespace GreenshotPlugin.Core
 				Text = Description
 			};
 
-			scaleHandler.AddTarget(basisMenuItem, this);
+			scaleHandler.AddTarget(basisMenuItem, this, true);
 
 			AddTagEvents(basisMenuItem, menu, Description);
 			basisMenuItem.Click -= destinationClickHandler;
@@ -251,11 +259,14 @@ namespace GreenshotPlugin.Core
 				TopLevel = true
 			};
 			var dpiHandler = menu.HandleDpiChanges();
-			var bitmapScaleHandler = BitmapScaleHandler.Create<IDestination>(dpiHandler, (destination, dpi) => (Bitmap)destination.DisplayIcon, (bitmap, d) => (Bitmap)bitmap.ScaleIconForDisplaying(d));
+			var bitmapScaleHandler = BitmapScaleHandler.Create<IDestination>(
+				dpiHandler,
+				(destination, dpi) => (Bitmap)destination.GetDisplayIcon(dpi),
+				(bitmap, d) => (Bitmap)bitmap.ScaleIconForDisplaying(d));
 
 			dpiHandler.OnDpiChanged.Subscribe(dpi =>
 			{
-				var width = DpiHandler.ScaleWithDpi(16, dpi);
+				var width = DpiHandler.ScaleWithDpi(CoreConfig.IconSize.Width, dpi);
 				var size = new Size(width, width);
 				menu.ImageScalingSize = size;
 			});

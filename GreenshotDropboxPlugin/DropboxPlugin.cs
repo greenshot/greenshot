@@ -92,7 +92,6 @@ namespace GreenshotDropboxPlugin
 
 			var dropboxResourceScaler = BitmapScaleHandler.WithComponentResourceManager(pluginHost.ContextMenuDpiHandler, GetType(), (bitmap, dpi) => (Bitmap)bitmap.ScaleIconForDisplaying(dpi));
 			dropboxResourceScaler.AddTarget(_itemPlugInConfig, "Dropbox");
-			dropboxResourceScaler.AddApplyAction(bitmap => _destination.DisplayIcon = bitmap, "Dropbox");
 
 			_itemPlugInConfig.Click += ConfigMenuClick;
 

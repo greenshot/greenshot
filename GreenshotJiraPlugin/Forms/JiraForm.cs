@@ -55,7 +55,7 @@ namespace GreenshotJiraPlugin.Forms
 			InitializeComponent();
 			FormDpiHandler.OnDpiChanged.Subscribe(dpi =>
 			{
-				var size = DpiHandler.ScaleWithDpi(16, dpi);
+				var size = DpiHandler.ScaleWithDpi(CoreConfig.IconSize.Width, dpi);
 				_iconSize = new Size(size, size);
 			});
 			Icon = GreenshotResources.getGreenshotIcon();

@@ -37,7 +37,7 @@ using log4net;
 
 #endregion
 
-namespace GreenshotOfficePlugin
+namespace GreenshotOfficePlugin.Destinations
 {
 	public class OneNoteDestination : AbstractDestination
 	{
@@ -88,13 +88,16 @@ namespace GreenshotOfficePlugin
 
 		public override bool IsActive => base.IsActive && ExePath != null;
 
-		public override Image DisplayIcon => PluginUtils.GetCachedExeIcon(ExePath, IconApplication);
+		public override Image GetDisplayIcon(double dpi)
+		{
+			return PluginUtils.GetCachedExeIcon(ExePath, IconApplication, dpi > 100);
+		}
 
 		public override IEnumerable<IDestination> DynamicDestinations()
 		{
 			try
 			{
-				return OneNoteExporter.GetPages().Where(currentPage => currentPage.IsCurrentlyViewed).Select(currentPage => new OneNoteDestination(currentPage)).Cast<IDestination>();
+				return OneNoteExporter.GetPages().Where(currentPage => currentPage.IsCurrentlyViewed).Select(currentPage => new OneNoteDestination(currentPage));
 			}
 			catch (COMException cEx)
 			{

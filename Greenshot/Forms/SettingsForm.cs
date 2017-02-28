@@ -396,10 +396,10 @@ namespace Greenshot
 			var imageNr = -1;
 			foreach (var currentDestination in DestinationHelper.GetAllDestinations())
 			{
-				var destinationImage = currentDestination.DisplayIcon;
+				var destinationImage = currentDestination.GetDisplayIcon(FormDpiHandler.Dpi);
 				if (destinationImage != null)
 				{
-					imageList.Images.Add(currentDestination.DisplayIcon);
+					imageList.Images.Add(destinationImage);
 					imageNr++;
 				}
 				if (PickerDestination.DESIGNATION.Equals(currentDestination.Designation))

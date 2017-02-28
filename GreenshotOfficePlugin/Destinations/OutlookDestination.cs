@@ -39,7 +39,7 @@ using log4net;
 
 #endregion
 
-namespace GreenshotOfficePlugin
+namespace GreenshotOfficePlugin.Destinations
 {
 	/// <summary>
 	///     Description of OutlookDestination.
@@ -97,32 +97,30 @@ namespace GreenshotOfficePlugin
 
 		public override Keys EditorShortcutKeys => Keys.Control | Keys.E;
 
-		public override Image DisplayIcon
+		public override Image GetDisplayIcon(double dpi)
 		{
-			get
+			if (_outlookInspectorCaption == null)
 			{
-				if (_outlookInspectorCaption == null)
-				{
-					return PluginUtils.GetCachedExeIcon(ExePath, IconApplication);
-				}
-				if (OlObjectClass.olAppointment.Equals(_outlookInspectorType))
-				{
-					// Make sure we loaded the icon, maybe the configuration has been changed!
-					return PluginUtils.GetCachedExeIcon(ExePath, IconMeeting);
-				}
-				return MailIcon;
+				return PluginUtils.GetCachedExeIcon(ExePath, IconApplication, dpi > 100);
 			}
+			if (OlObjectClass.olAppointment.Equals(_outlookInspectorType))
+			{
+				// Make sure we loaded the icon, maybe the configuration has been changed!
+				return PluginUtils.GetCachedExeIcon(ExePath, IconMeeting, dpi > 100);
+			}
+			return MailIcon;
 		}
 
 		public override IEnumerable<IDestination> DynamicDestinations()
 		{
 			var inspectorCaptions = OutlookEmailExporter.RetrievePossibleTargets();
-			if (inspectorCaptions != null)
+			if (inspectorCaptions == null)
 			{
-				foreach (var inspectorCaption in inspectorCaptions.Keys)
-				{
-					yield return new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption]);
-				}
+				yield break;
+			}
+			foreach (var inspectorCaption in inspectorCaptions.Keys)
+			{
+				yield return new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption]);
 			}
 		}
 

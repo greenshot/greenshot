@@ -1693,6 +1693,9 @@ namespace GreenshotPlugin.Gfx
 
 			using (var graphics = Graphics.FromImage(newImage))
 			{
+				graphics.CompositingQuality = CompositingQuality.HighQuality;
+				graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+				graphics.SmoothingMode = SmoothingMode.HighQuality;
 				graphics.InterpolationMode = interpolationMode;
 				using (var wrapMode = new ImageAttributes())
 				{
@@ -1801,6 +1804,7 @@ namespace GreenshotPlugin.Gfx
 		/// </summary>
 		/// <param name="original">original icon Bitmap</param>
 		/// <param name="dpi">double with the dpi value</param>
+		/// <param name="useHqx">true to use the HQX filter, false uses Scale2X</param>
 		/// <returns>Image</returns>
 		public static Image ScaleIconForDisplaying(this Image original, double dpi, bool useHqx = true)
 		{
@@ -1808,7 +1812,11 @@ namespace GreenshotPlugin.Gfx
 			{
 				return null;
 			}
-			var width = DpiHandler.ScaleWithDpi(16, dpi);
+			if (dpi < DpiHandler.DefaultScreenDpi)
+			{
+				dpi = DpiHandler.DefaultScreenDpi;
+			}
+			var width = DpiHandler.ScaleWithDpi(CoreConfig.IconSize.Width, dpi);
 			if (original.Width == width)
 			{
 				return original;

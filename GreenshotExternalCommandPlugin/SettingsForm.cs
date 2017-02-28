@@ -99,10 +99,10 @@ namespace GreenshotExternalCommandPlugin
 				foreach (var commando in ExternalCommandConfig.Commands)
 				{
 					ListViewItem item;
-					var iconForExe = IconCache.IconForCommand(commando);
+					var iconForExe = IconCache.IconForCommand(commando, FormDpiHandler.Dpi > 100);
 					if (iconForExe != null)
 					{
-						var image = iconForExe.ScaleIconForDisplaying(96);
+						var image = iconForExe.ScaleIconForDisplaying(FormDpiHandler.Dpi);
 						if (!Equals(image, iconForExe))
 						{
 							_images.Add(image);

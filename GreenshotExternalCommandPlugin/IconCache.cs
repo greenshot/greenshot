@@ -46,8 +46,9 @@ namespace GreenshotExternalCommandPlugin
 		/// Retrieve the icon for a command
 		/// </summary>
 		/// <param name="commandName">string</param>
+		/// <param name="useLargeIcons">true to use the large icon</param>
 		/// <returns>Image</returns>
-		public static Image IconForCommand(string commandName)
+		public static Image IconForCommand(string commandName, bool useLargeIcons)
 		{
 			Image icon = null;
 			if (commandName == null)
@@ -60,7 +61,7 @@ namespace GreenshotExternalCommandPlugin
 			}
 			try
 			{
-				icon = PluginUtils.GetCachedExeIcon(Config.Commandline[commandName], 0);
+				icon = PluginUtils.GetCachedExeIcon(Config.Commandline[commandName], 0, useLargeIcons);
 			}
 			catch (Exception ex)
 			{

@@ -26,6 +26,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using GreenshotOfficePlugin.OfficeExport;
 using GreenshotPlugin.Core;
@@ -35,7 +36,7 @@ using GreenshotPlugin.Interfaces.Plugin;
 
 #endregion
 
-namespace GreenshotOfficePlugin
+namespace GreenshotOfficePlugin.Destinations
 {
 	/// <summary>
 	///     Description of PowerpointDestination.
@@ -86,25 +87,19 @@ namespace GreenshotOfficePlugin
 
 		public override bool IsActive => base.IsActive && ExePath != null;
 
-		public override Image DisplayIcon
+		public override Image GetDisplayIcon(double dpi)
 		{
-			get
+			if (!string.IsNullOrEmpty(_presentationName))
 			{
-				if (!string.IsNullOrEmpty(_presentationName))
-				{
-					return PluginUtils.GetCachedExeIcon(ExePath, IconPresentation);
-				}
-
-				return PluginUtils.GetCachedExeIcon(ExePath, IconApplication);
+				return PluginUtils.GetCachedExeIcon(ExePath, IconPresentation, dpi > 100);
 			}
+
+			return PluginUtils.GetCachedExeIcon(ExePath, IconApplication, dpi > 100);
 		}
 
 		public override IEnumerable<IDestination> DynamicDestinations()
 		{
-			foreach (var presentationName in PowerpointExporter.GetPowerpointPresentations())
-			{
-				yield return new PowerpointDestination(presentationName);
-			}
+			return PowerpointExporter.GetPowerpointPresentations().Select(presentationName => new PowerpointDestination(presentationName)).Cast<IDestination>();
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)

@@ -31,6 +31,7 @@ using Dapplo.Windows.Dpi;
 using Greenshot.Forms;
 using Greenshot.Helpers;
 using GreenshotJiraPlugin.Forms;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
@@ -46,6 +47,8 @@ namespace GreenshotJiraPlugin
 	public sealed class JiraPlugin : IGreenshotPlugin
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(JiraPlugin));
+		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+
 		private JiraConfiguration _config;
 		private JiraConnector _jiraConnector;
 
@@ -119,7 +122,7 @@ namespace GreenshotJiraPlugin
 
 			pluginHost.ContextMenuDpiHandler.OnDpiChanged.Subscribe(dpi =>
 			{
-				var size = DpiHandler.ScaleWithDpi(16, dpi);
+				var size = DpiHandler.ScaleWithDpi(CoreConfig.IconSize.Width, dpi);
 
 				JiraConnector.UpdateSvgSize(size);
 			});
