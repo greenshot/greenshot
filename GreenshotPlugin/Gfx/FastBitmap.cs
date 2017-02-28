@@ -457,17 +457,17 @@ namespace GreenshotPlugin.Gfx
 				{
 					y = Clip.Top;
 				}
-				if (y > Clip.Bottom)
+				if (y >= Clip.Bottom)
 				{
-					y = Clip.Bottom;
+					y = Clip.Bottom-1;
 				}
 				if (x < Clip.Left)
 				{
 					x = Clip.Left;
 				}
-				if (x > Clip.Right)
+				if (x >= Clip.Right)
 				{
-					x = Clip.Right;
+					x = Clip.Right-1;
 				}
 			}
 			GetColorAt(x, y, color);
@@ -485,7 +485,11 @@ namespace GreenshotPlugin.Gfx
 			if (InvertClip && contains)
 			{
 				// TODO: Implement nearest
-				return Color.Transparent;
+				if (HasAlphaChannel)
+				{
+					return Color.Transparent;
+				}
+				return Color.Black;
 			}
 			if (!InvertClip && !contains)
 			{
@@ -493,17 +497,17 @@ namespace GreenshotPlugin.Gfx
 				{
 					y = Clip.Top;
 				}
-				if (y > Clip.Bottom)
+				if (y >= Clip.Bottom)
 				{
-					y = Clip.Bottom;
+					y = Clip.Bottom-1;
 				}
 				if (x < Clip.Left)
 				{
 					x = Clip.Left;
 				}
-				if (x > Clip.Right)
+				if (x >= Clip.Right)
 				{
-					x = Clip.Right;
+					x = Clip.Right-1;
 				}
 			}
 			return GetColorAt(x, y);

@@ -1821,6 +1821,15 @@ namespace GreenshotPlugin.Gfx
 			{
 				return original;
 			}
+
+			using (var s1 = original.Scale2X())
+			using (var s2 = s1.Scale2X())
+			using (var s3 = s2.Scale2X())
+			using (var s4 = s3.Scale2X())
+			{
+				original = s4.Scale2X();
+			}
+
 			if (width == original.Width * 2)
 			{
 				if (useHqx)
@@ -1858,7 +1867,7 @@ namespace GreenshotPlugin.Gfx
 		public static Bitmap Scale2X(this Image original)
 		{
 			using (var source = (IFastBitmapWithClip)FastBitmap.Create(original))
-			using (var destination = FastBitmap.CreateEmpty(new Size(original.Width * 2, original.Height * 2), original.PixelFormat))
+			using (var destination = (IFastBitmapWithClip)FastBitmap.CreateEmpty(new Size(original.Width * 2, original.Height * 2), original.PixelFormat))
 			{
 				// Every pixel from input texture produces 4 output pixels, for more details check out http://scale2x.sourceforge.net/algorithm.html
 				var y = 0;

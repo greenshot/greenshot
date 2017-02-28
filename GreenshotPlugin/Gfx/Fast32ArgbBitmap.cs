@@ -52,7 +52,10 @@ namespace GreenshotPlugin.Gfx
 		public override Color GetColorAt(int x, int y)
 		{
 			var offset = x * 4 + y * Stride;
-			return Color.FromArgb(Pointer[PixelformatIndexA + offset], Pointer[PixelformatIndexR + offset], Pointer[PixelformatIndexG + offset],
+			return Color.FromArgb(
+				Pointer[PixelformatIndexA + offset],
+				Pointer[PixelformatIndexR + offset],
+				Pointer[PixelformatIndexG + offset],
 				Pointer[PixelformatIndexB + offset]);
 		}
 
