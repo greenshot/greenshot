@@ -35,6 +35,8 @@ using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using log4net;
+using Dapplo.Windows.Dpi;
+using GreenshotPlugin.Gfx;
 
 #endregion
 
@@ -50,7 +52,7 @@ namespace GreenshotDropboxPlugin
 		public static PluginAttribute Attributes;
 		private IGreenshotHost _host;
 		private ToolStripMenuItem _itemPlugInConfig;
-		private ComponentResourceManager _resources;
+		private DropboxDestination _destination;
 
 		public void Dispose()
 		{
@@ -59,7 +61,7 @@ namespace GreenshotDropboxPlugin
 
 		public IEnumerable<IDestination> Destinations()
 		{
-			yield return new DropboxDestination(this);
+			yield return _destination;
 		}
 
 
@@ -77,17 +79,21 @@ namespace GreenshotDropboxPlugin
 		{
 			_host = pluginHost;
 			Attributes = myAttributes;
+			_destination = new DropboxDestination(this);
 
 			// Register configuration (don't need the configuration itself)
 			_config = IniConfig.GetIniSection<DropboxPluginConfiguration>();
-			_resources = new ComponentResourceManager(typeof(DropboxPlugin));
 
 			_itemPlugInConfig = new ToolStripMenuItem
 			{
 				Text = Language.GetString("dropbox", LangKey.Configure),
 				Tag = _host,
-				Image = (Image) _resources.GetObject("Dropbox")
 			};
+
+			var dropboxResourceScaler = BitmapScaleHandler.WithComponentResourceManager(pluginHost.ContextMenuDpiHandler, GetType(), (bitmap, dpi) => (Bitmap)bitmap.ScaleIconForDisplaying(dpi));
+			dropboxResourceScaler.AddTarget(_itemPlugInConfig, "Dropbox");
+			dropboxResourceScaler.AddApplyAction(bitmap => _destination.DisplayIcon = bitmap, "Dropbox");
+
 			_itemPlugInConfig.Click += ConfigMenuClick;
 
 			PluginUtils.AddToContextMenu(_host, _itemPlugInConfig);

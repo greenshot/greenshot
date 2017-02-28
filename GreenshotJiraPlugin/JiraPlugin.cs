@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Windows.Dpi;
 using Greenshot.Forms;
 using Greenshot.Helpers;
 using GreenshotJiraPlugin.Forms;
@@ -115,6 +116,14 @@ namespace GreenshotJiraPlugin
 		{
 			// Register configuration (don't need the configuration itself)
 			_config = IniConfig.GetIniSection<JiraConfiguration>();
+
+			pluginHost.ContextMenuDpiHandler.OnDpiChanged.Subscribe(dpi =>
+			{
+				var size = DpiHandler.ScaleWithDpi(16, dpi);
+
+				JiraConnector.UpdateSvgSize(size);
+			});
+
 			return true;
 		}
 

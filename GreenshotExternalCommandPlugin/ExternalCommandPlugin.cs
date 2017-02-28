@@ -25,7 +25,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
@@ -99,13 +98,12 @@ namespace GreenshotExternalCommandPlugin
 
 
 			_itemPlugInRoot = new ToolStripMenuItem {Tag = _host};
-			OnIconSizeChanged(this, new PropertyChangedEventArgs("IconSize"));
+			pluginHost.ContextMenuDpiHandler.OnDpiChanged.Subscribe(dpi => OnIconSizeChanged(dpi));
 			OnLanguageChanged(this, null);
 			_itemPlugInRoot.Click += ConfigMenuClick;
 
 			PluginUtils.AddToContextMenu(_host, _itemPlugInRoot);
 			Language.LanguageChanged += OnLanguageChanged;
-			CoreConfig.PropertyChanged += OnIconSizeChanged;
 			return true;
 		}
 
@@ -173,14 +171,9 @@ namespace GreenshotExternalCommandPlugin
 		/// <summary>
 		///     Fix icon reference
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void OnIconSizeChanged(object sender, PropertyChangedEventArgs e)
+		/// <param name="dpi">double with DPI</param>
+		private void OnIconSizeChanged(double dpi)
 		{
-			if (e.PropertyName != "IconSize")
-			{
-				return;
-			}
 			try
 			{
 				var exePath = PluginUtils.GetExePath("cmd.exe");
@@ -188,12 +181,12 @@ namespace GreenshotExternalCommandPlugin
 				{
 					return;
 				}
-				if (_itemPlugInRoot.Tag == (object) true)
+				if (true.Equals(_itemPlugInRoot.Tag))
 				{
 					_itemPlugInRoot.Image?.Dispose();
 				}
-				var exeIcon = PluginUtils.GetCachedExeIcon(exePath, 0);
-				_itemPlugInRoot.Image = exeIcon.ScaleIconForDisplaying(96);
+				var exeIcon = PluginUtils.GetCachedExeIcon(exePath, 0, dpi > 100);
+				_itemPlugInRoot.Image = exeIcon.ScaleIconForDisplaying(dpi);
 				_itemPlugInRoot.Tag = !Equals(exeIcon, _itemPlugInRoot.Image);
 			}
 			catch (Exception ex)

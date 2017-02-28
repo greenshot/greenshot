@@ -40,8 +40,8 @@
       <HintPath>..\packages\Dapplo.Log.1.0.23\lib\net45\Dapplo.Log.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Windows, Version=0.3.20.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.0.3.20\lib\net45\Dapplo.Windows.dll</HintPath>
+    <Reference Include="Dapplo.Windows, Version=0.3.21.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.0.3.21\lib\net45\Dapplo.Windows.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="log4net">
@@ -94,6 +94,12 @@
     <Compile Include="Gfx\Fast32ArgbBitmap.cs" />
     <Compile Include="Gfx\Fast32RgbBitmap.cs" />
     <Compile Include="Gfx\FastChunkyBitmap.cs" />
+    <Compile Include="Gfx\Hqx\Hqx2X.cs" />
+    <Compile Include="Gfx\Hqx\Hqx3X.cs" />
+    <Compile Include="Gfx\Hqx\Hqx4X.cs" />
+    <Compile Include="Gfx\Hqx\HqxSharp.cs" />
+    <Compile Include="Gfx\Hqx\Interpolation.cs" />
+    <Compile Include="Gfx\Hqx\RgbYuv.cs" />
     <Compile Include="Gfx\IFastBitmap.cs" />
     <Compile Include="Gfx\IFastBitmapWithBlend.cs" />
     <Compile Include="Gfx\IFastBitmapWithClip.cs" />

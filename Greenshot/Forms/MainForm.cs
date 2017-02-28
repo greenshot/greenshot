@@ -28,6 +28,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -80,7 +82,7 @@ namespace Greenshot.Forms
 		// Thumbnail preview
 		private ThumbnailForm _thumbnailForm;
 
-		private DpiHandler _contextMenuDpiHandler;
+		public DpiHandler ContextMenuDpiHandler { get; private set; }
 
 		public MainForm(CopyDataTransport dataTransport)
 		{
@@ -972,20 +974,24 @@ namespace Greenshot.Forms
 		/// </summary>
 		private void SetupBitmapScaleHandler()
 		{
-
-			_contextMenuDpiHandler = contextMenu.HandleDpiChanges();
+			ContextMenuDpiHandler = contextMenu.HandleDpiChanges();
 			// This takes care or setting the size of the images in the context menu
-			_contextMenuDpiHandler.OnDpiChanged.Subscribe(dpi =>
+			ContextMenuDpiHandler.OnDpiChanged.Subscribe(dpi =>
 			{
 				var width = DpiHandler.ScaleWithDpi(16, dpi);
 				var size = new Size(width, width);
 				contextMenu.ImageScalingSize = size;
 				contextmenu_quicksettings.Size = new Size(170, width + 8);
 			});
-			var contextMenuResourceScaleHandler = BitmapScaleHandler.WithComponentResourceManager(_contextMenuDpiHandler, GetType(), (bitmap, dpi) => (Bitmap)bitmap.ScaleIconForDisplaying(dpi));
+			var contextMenuResourceScaleHandler = BitmapScaleHandler.WithComponentResourceManager(ContextMenuDpiHandler, GetType(), (bitmap, dpi) =>
+			{
+				return (Bitmap)bitmap.ScaleIconForDisplaying(dpi);
+			});
+
+
+			contextMenuResourceScaleHandler.AddTarget(contextmenu_capturewindow, "contextmenu_capturewindow.Image");
 			contextMenuResourceScaleHandler.AddTarget(contextmenu_capturearea, "contextmenu_capturearea.Image");
 			contextMenuResourceScaleHandler.AddTarget(contextmenu_capturelastregion, "contextmenu_capturelastregion.Image");
-			contextMenuResourceScaleHandler.AddTarget(contextmenu_capturewindow, "contextmenu_capturewindow.Image");
 			contextMenuResourceScaleHandler.AddTarget(contextmenu_capturefullscreen, "contextmenu_capturefullscreen.Image");
 			contextMenuResourceScaleHandler.AddTarget(contextmenu_captureclipboard, "contextmenu_captureclipboard.Image");
 			contextMenuResourceScaleHandler.AddTarget(contextmenu_openfile, "contextmenu_openfile.Image");
@@ -995,10 +1001,18 @@ namespace Greenshot.Forms
 			contextMenuResourceScaleHandler.AddTarget(contextmenu_exit, "contextmenu_exit.Image");
 
 			// this is special handling, for the icons which come from the executables
-			var exeBitmapScaleHandler = BitmapScaleHandler.Create<string>(_contextMenuDpiHandler,
+			var exeBitmapScaleHandler = BitmapScaleHandler.Create<string>(ContextMenuDpiHandler,
 				(path, dpi) => (Bitmap)PluginUtils.GetCachedExeIcon(path, 0, dpi >= 120),
 				(bitmap, dpi) => (Bitmap)bitmap.ScaleIconForDisplaying(dpi));
 			exeBitmapScaleHandler.AddTarget(contextmenu_captureie, PluginUtils.GetExePath("iexplore.exe"));
+
+			// Add cleanup
+			Application.ApplicationExit += (sender, args) =>
+			{
+				ContextMenuDpiHandler.Dispose();
+				contextMenuResourceScaleHandler.Dispose();
+				exeBitmapScaleHandler.Dispose();
+			};
 		}
 
 		/// <summary>
@@ -1437,7 +1451,7 @@ namespace Greenshot.Forms
 				}
 				var captureWindowItem = menuItem.DropDownItems.Add(title);
 				captureWindowItem.Tag = window;
-				captureWindowItem.Image = window.GetDisplayIcon(_contextMenuDpiHandler.Dpi > DpiHandler.DefaultScreenDpi);
+				captureWindowItem.Image = window.GetDisplayIcon(ContextMenuDpiHandler.Dpi > DpiHandler.DefaultScreenDpi);
 				captureWindowItem.Click += eventHandler;
 				// Only show preview when enabled
 				if (thumbnailPreview)

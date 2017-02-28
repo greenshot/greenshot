@@ -36,6 +36,7 @@ using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.Effects;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
+using hqx;
 using log4net;
 
 #endregion
@@ -1801,26 +1802,40 @@ namespace GreenshotPlugin.Gfx
 		/// <param name="original">original icon Bitmap</param>
 		/// <param name="dpi">double with the dpi value</param>
 		/// <returns>Image</returns>
-		public static Image ScaleIconForDisplaying(this Image original, double dpi)
+		public static Image ScaleIconForDisplaying(this Image original, double dpi, bool useHqx = true)
 		{
+			if (original == null)
+			{
+				return null;
+			}
 			var width = DpiHandler.ScaleWithDpi(16, dpi);
 			if (original.Width == width)
 			{
 				return original;
 			}
-			// TODO: Maybe use Hqx or Hqxz here?
 			if (width == original.Width * 2)
 			{
-				return ((Bitmap) original).Scale2X();
+				if (useHqx)
+				{
+					return HqxSharp.Scale2((Bitmap)original);
+				}
+				return original.Scale2X();
 			}
 			if (width == original.Width * 3)
 			{
-				return ((Bitmap)original).Scale3X();
+				if (useHqx)
+				{
+					return HqxSharp.Scale3((Bitmap)original);
+				}
+				return original.Scale3X();
 			}
 			if (width == original.Width * 4)
 			{
-				// Call scale2x 2x for 4x
-				using (var scale2X = ((Bitmap) original).Scale2X())
+				if (useHqx)
+				{
+					return HqxSharp.Scale4((Bitmap) original);
+				}
+				using (var scale2X = original.Scale2X())
 				{
 					return scale2X.Scale2X();
 				}
@@ -1888,7 +1903,7 @@ namespace GreenshotPlugin.Gfx
 		public static Bitmap Scale3X(this Image original)
 		{
 			using (var source = (IFastBitmapWithClip)FastBitmap.Create(original))
-			using (var destination = FastBitmap.CreateEmpty(new Size(original.Width * 3, original.Height * 3), original.PixelFormat))
+			using (var destination = (IFastBitmapWithClip)FastBitmap.CreateEmpty(new Size(original.Width * 3, original.Height * 3), original.PixelFormat))
 			{
 				// Every pixel from input texture produces 6 output pixels, for more details check out http://scale2x.sourceforge.net/algorithm.html
 				var y = 0;
@@ -1916,14 +1931,14 @@ namespace GreenshotPlugin.Gfx
 						if (!AreColorsSame(colorB, colorH) && !AreColorsSame(colorD, colorF))
 						{
 							colorE0 = AreColorsSame(colorD, colorB) ? colorD : colorE;
-							colorE1 = (AreColorsSame(colorD, colorB) && !AreColorsSame(colorE, colorC)) || (AreColorsSame(colorB, colorF) && !AreColorsSame(colorE, colorA)) ? colorB : colorE;
+							colorE1 = AreColorsSame(colorD, colorB) && !AreColorsSame(colorE, colorC) || AreColorsSame(colorB, colorF) && !AreColorsSame(colorE, colorA) ? colorB : colorE;
 							colorE2 = AreColorsSame(colorB, colorF) ? colorF : colorE;
-							colorE3 = (AreColorsSame(colorD, colorB) && !AreColorsSame(colorE, colorG)) || (AreColorsSame(colorD, colorH) && !AreColorsSame(colorE, colorA)) ? colorD : colorE;
+							colorE3 = AreColorsSame(colorD, colorB) && !AreColorsSame(colorE, colorG) || AreColorsSame(colorD, colorH) && !AreColorsSame(colorE, colorA) ? colorD : colorE;
 
 							colorE4 = colorE;
-							colorE5 = (AreColorsSame(colorB, colorF) && !AreColorsSame(colorE, colorI)) || (AreColorsSame(colorH, colorF) && !AreColorsSame(colorE, colorC)) ? colorF : colorE;
+							colorE5 = AreColorsSame(colorB, colorF) && !AreColorsSame(colorE, colorI) || AreColorsSame(colorH, colorF) && !AreColorsSame(colorE, colorC) ? colorF : colorE;
 							colorE6 = AreColorsSame(colorD, colorH) ? colorD : colorE;
-							colorE7 = (AreColorsSame(colorD, colorH) && !AreColorsSame(colorE, colorI)) || (AreColorsSame(colorH, colorF) && !AreColorsSame(colorE, colorG)) ? colorH : colorE;
+							colorE7 = AreColorsSame(colorD, colorH) && !AreColorsSame(colorE, colorI) || AreColorsSame(colorH, colorF) && !AreColorsSame(colorE, colorG) ? colorH : colorE;
 							colorE8 = AreColorsSame(colorH, colorF) ? colorF : colorE;
 						}
 						else
@@ -1938,17 +1953,20 @@ namespace GreenshotPlugin.Gfx
 							colorE7 = colorE;
 							colorE8 = colorE;
 						}
-						destination.SetColorAt(3 * x - 1, 3 * y - 1, colorE0);
-						destination.SetColorAt(3 * x, 3 * y - 1, colorE1);
-						destination.SetColorAt(3 * x + 1, 3 * y - 1, colorE2);
+						int multipliedX = 3 * x;
+						int multipliedY = 3 * y;
 
-						destination.SetColorAt(3 * x - 1, 3 * y, colorE3);
-						destination.SetColorAt(3 * x, 3 * y, colorE4);
-						destination.SetColorAt(3 * x + 1, 3 * y, colorE5);
+						destination.SetColorAt(multipliedX - 1, multipliedY - 1, colorE0);
+						destination.SetColorAt(multipliedX, multipliedY - 1, colorE1);
+						destination.SetColorAt(multipliedX + 1, multipliedY - 1, colorE2);
 
-						destination.SetColorAt(3 * x + 1, 3 * y + 1, colorE6);
-						destination.SetColorAt(3 * x, 3 * y + 1, colorE7);
-						destination.SetColorAt(3 * x + 1, 3 * y + 1, colorE8);
+						destination.SetColorAt(multipliedX - 1, multipliedY, colorE3);
+						destination.SetColorAt(multipliedX, multipliedY, colorE4);
+						destination.SetColorAt(multipliedX + 1, multipliedY, colorE5);
+
+						destination.SetColorAt(multipliedX - 1, multipliedY + 1, colorE6);
+						destination.SetColorAt(multipliedX, multipliedY + 1, colorE7);
+						destination.SetColorAt(multipliedX + 1, multipliedY + 1, colorE8);
 
 						x++;
 					}

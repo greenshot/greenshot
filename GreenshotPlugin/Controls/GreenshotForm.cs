@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
@@ -71,9 +72,16 @@ namespace GreenshotPlugin.Controls
 		/// </summary>
 		protected GreenshotForm()
 		{
+			int i = 0;
 			// Add the Dapplo.Windows DPI change handler
 			FormDpiHandler = this.HandleDpiChanges();
-			ScaleHandler = BitmapScaleHandler.WithComponentResourceManager(FormDpiHandler, GetType(), (bitmap, dpi) => (Bitmap)bitmap.ScaleIconForDisplaying(dpi));
+			ScaleHandler = BitmapScaleHandler.WithComponentResourceManager(FormDpiHandler, GetType(), (bitmap, dpi) =>
+			{
+				var scaled = (Bitmap) bitmap.ScaleIconForDisplaying(dpi);
+				bitmap.Save($@"original-{i}.png", ImageFormat.Png);
+				bitmap.Save($@"scaled{i++}.png", ImageFormat.Png);
+				return scaled;
+			});
 		}
 
 		/// <summary>

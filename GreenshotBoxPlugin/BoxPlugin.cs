@@ -29,8 +29,10 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using Dapplo.Windows.Dpi;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
@@ -50,7 +52,6 @@ namespace GreenshotBoxPlugin
 		public static PluginAttribute Attributes;
 		private IGreenshotHost _host;
 		private ToolStripMenuItem _itemPlugInConfig;
-		private ComponentResourceManager _resources;
 
 		public void Dispose()
 		{
@@ -80,13 +81,15 @@ namespace GreenshotBoxPlugin
 
 			// Register configuration (don't need the configuration itself)
 			_config = IniConfig.GetIniSection<BoxConfiguration>();
-			_resources = new ComponentResourceManager(typeof(BoxPlugin));
 
 			_itemPlugInConfig = new ToolStripMenuItem
 			{
-				Image = (Image) _resources.GetObject("Box"),
 				Text = Language.GetString("box", LangKey.Configure)
 			};
+
+			var boxResourceScaler = BitmapScaleHandler.WithComponentResourceManager(pluginHost.ContextMenuDpiHandler, GetType(), (bitmap, dpi) => (Bitmap)bitmap.ScaleIconForDisplaying(dpi));
+			boxResourceScaler.AddTarget(_itemPlugInConfig, "Box");
+
 			_itemPlugInConfig.Click += ConfigMenuClick;
 
 			PluginUtils.AddToContextMenu(_host, _itemPlugInConfig);

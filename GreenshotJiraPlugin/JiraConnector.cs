@@ -53,25 +53,10 @@ namespace GreenshotJiraPlugin
 		public const string DefaultPostfix = "/rpc/soap/jirasoapservice-v2?wsdl";
 		private static readonly ILog Log = LogManager.GetLogger(typeof(JiraConnector));
 		private static readonly JiraConfiguration JiraConfig = IniConfig.GetIniSection<JiraConfiguration>();
-		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 		private readonly int _timeout;
 		private IssueTypeBitmapCache _issueTypeBitmapCache;
-		private IJiraClient _jiraClient;
+		private readonly IJiraClient _jiraClient;
 		private DateTimeOffset _loggedInTime = DateTimeOffset.MinValue;
-
-		/// <summary>
-		///     Initialize some basic stuff, in the case the SVG to bitmap converter
-		/// </summary>
-		static JiraConnector()
-		{
-			CoreConfig.PropertyChanged += (sender, args) =>
-			{
-				if (args.PropertyName == nameof(CoreConfig.IconSize))
-				{
-					JiraPlugin.Instance.JiraConnector._jiraClient?.Behaviour.SetConfig(new SvgConfiguration {Width = CoreConfig.IconSize.Width, Height = CoreConfig.IconSize.Height});
-				}
-			};
-		}
 
 		/// <summary>
 		///     Constructor
@@ -80,6 +65,7 @@ namespace GreenshotJiraPlugin
 		{
 			JiraConfig.Url = JiraConfig.Url.Replace(DefaultPostfix, "");
 			_timeout = JiraConfig.Timeout;
+			_jiraClient = JiraClient.Create(new Uri(JiraConfig.Url));
 		}
 
 		/// <summary>
@@ -111,6 +97,11 @@ namespace GreenshotJiraPlugin
 			FavIcon?.Dispose();
 		}
 
+		public void UpdateSvgSize(int size)
+		{
+			_jiraClient.Behaviour.SetConfig(new SvgConfiguration { Width = size, Height = size });
+		}
+
 		/// <summary>
 		///     Internal login which catches the exceptions
 		/// </summary>
@@ -121,8 +112,6 @@ namespace GreenshotJiraPlugin
 			{
 				return false;
 			}
-			_jiraClient = JiraClient.Create(new Uri(JiraConfig.Url));
-			_jiraClient.Behaviour.SetConfig(new SvgConfiguration {Width = CoreConfig.IconSize.Width, Height = CoreConfig.IconSize.Height});
 
 			_issueTypeBitmapCache = new IssueTypeBitmapCache(_jiraClient);
 			LoginInfo loginInfo;

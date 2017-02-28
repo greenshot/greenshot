@@ -18,6 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using GreenshotPlugin.Controls;
+
 namespace GreenshotJiraPlugin.Forms {
 	partial class JiraForm {
 		/// <summary>
@@ -44,13 +47,13 @@ namespace GreenshotJiraPlugin.Forms {
 		/// </summary>
 		private void InitializeComponent() {
 			this.jiraFilterBox = new System.Windows.Forms.ComboBox();
-			this.label_jirafilter = new System.Windows.Forms.Label();
-			this.label_jira = new System.Windows.Forms.Label();
+			this.label_jirafilter = new GreenshotLabel();
+			this.label_jira = new GreenshotLabel();
 			this.uploadButton = new System.Windows.Forms.Button();
 			this.jiraListView = new System.Windows.Forms.ListView();
 			this.jiraFilenameBox = new System.Windows.Forms.TextBox();
-			this.label_filename = new System.Windows.Forms.Label();
-			this.label_comment = new System.Windows.Forms.Label();
+			this.label_filename = new GreenshotLabel();
+			this.label_comment = new GreenshotLabel();
 			this.jiraCommentBox = new System.Windows.Forms.TextBox();
 			this.cancelButton = new System.Windows.Forms.Button();
 			this.label1 = new System.Windows.Forms.Label();
@@ -60,7 +63,7 @@ namespace GreenshotJiraPlugin.Forms {
 			// jiraFilterBox
 			// 
 			this.jiraFilterBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.jiraFilterBox.DisplayMember = "name";
 			this.jiraFilterBox.FormattingEnabled = true;
 			this.jiraFilterBox.Location = new System.Drawing.Point(102, 11);
@@ -74,6 +77,7 @@ namespace GreenshotJiraPlugin.Forms {
 			this.label_jirafilter.AutoSize = true;
 			this.label_jirafilter.Location = new System.Drawing.Point(14, 14);
 			this.label_jirafilter.Name = "label_jirafilter";
+			this.label_jirafilter.LanguageKey = "jira.label_jirafilter";
 			this.label_jirafilter.Size = new System.Drawing.Size(52, 13);
 			this.label_jirafilter.TabIndex = 24;
 			this.label_jirafilter.Text = "JIRA filter";
@@ -102,8 +106,8 @@ namespace GreenshotJiraPlugin.Forms {
 			// jiraListView
 			// 
 			this.jiraListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Left) 
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.jiraListView.FullRowSelect = true;
 			this.jiraListView.Location = new System.Drawing.Point(102, 41);
 			this.jiraListView.MultiSelect = false;
@@ -118,7 +122,7 @@ namespace GreenshotJiraPlugin.Forms {
 			// jiraFilenameBox
 			// 
 			this.jiraFilenameBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.jiraFilenameBox.Location = new System.Drawing.Point(102, 219);
 			this.jiraFilenameBox.Name = "jiraFilenameBox";
 			this.jiraFilenameBox.Size = new System.Drawing.Size(604, 20);
@@ -130,6 +134,7 @@ namespace GreenshotJiraPlugin.Forms {
 			this.label_filename.AutoSize = true;
 			this.label_filename.Location = new System.Drawing.Point(14, 222);
 			this.label_filename.Name = "label_filename";
+			this.label_comment.LanguageKey = "jira.label_filename";
 			this.label_filename.Size = new System.Drawing.Size(49, 13);
 			this.label_filename.TabIndex = 35;
 			this.label_filename.Text = "Filename";
@@ -140,6 +145,7 @@ namespace GreenshotJiraPlugin.Forms {
 			this.label_comment.AutoSize = true;
 			this.label_comment.Location = new System.Drawing.Point(14, 248);
 			this.label_comment.Name = "label_comment";
+			this.label_comment.LanguageKey = "jira.label_comment";
 			this.label_comment.Size = new System.Drawing.Size(51, 13);
 			this.label_comment.TabIndex = 36;
 			this.label_comment.Text = "Comment";
@@ -147,7 +153,7 @@ namespace GreenshotJiraPlugin.Forms {
 			// jiraCommentBox
 			// 
 			this.jiraCommentBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.jiraCommentBox.Location = new System.Drawing.Point(102, 245);
 			this.jiraCommentBox.Name = "jiraCommentBox";
 			this.jiraCommentBox.Size = new System.Drawing.Size(604, 20);
@@ -177,7 +183,7 @@ namespace GreenshotJiraPlugin.Forms {
 			// jiraKey
 			// 
 			this.jiraKey.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.jiraKey.Location = new System.Drawing.Point(102, 271);
 			this.jiraKey.Name = "jiraKey";
 			this.jiraKey.Size = new System.Drawing.Size(158, 20);
@@ -214,13 +220,13 @@ namespace GreenshotJiraPlugin.Forms {
 		#endregion
 
 		private System.Windows.Forms.ComboBox jiraFilterBox;
-		private System.Windows.Forms.Label label_jirafilter;
-		private System.Windows.Forms.Label label_jira;
+		private GreenshotLabel label_jirafilter;
+		private GreenshotLabel label_jira;
 		private System.Windows.Forms.Button uploadButton;
 		private System.Windows.Forms.ListView jiraListView;
 		private System.Windows.Forms.TextBox jiraFilenameBox;
-		private System.Windows.Forms.Label label_filename;
-		private System.Windows.Forms.Label label_comment;
+		private GreenshotLabel label_filename;
+		private GreenshotLabel label_comment;
 		private System.Windows.Forms.TextBox jiraCommentBox;
 		private System.Windows.Forms.Button cancelButton;
 	}

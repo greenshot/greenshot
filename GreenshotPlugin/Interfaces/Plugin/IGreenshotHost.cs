@@ -26,6 +26,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using Dapplo.Windows.Dpi;
 
 #endregion
 
@@ -43,6 +44,11 @@ namespace GreenshotPlugin.Interfaces.Plugin
 		Form GreenshotForm { get; }
 
 		NotifyIcon NotifyIcon { get; }
+
+		/// <summary>
+		/// The DPI handler for the context menu, which should be used for the plugins too
+		/// </summary>
+		DpiHandler ContextMenuDpiHandler { get; }
 
 		/// <summary>
 		///     List of available plugins with their PluginAttributes

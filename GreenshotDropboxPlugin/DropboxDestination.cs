@@ -48,15 +48,6 @@ namespace GreenshotDropboxPlugin
 
 		public override string Description => Language.GetString("dropbox", LangKey.upload_menu_item);
 
-		public override Image DisplayIcon
-		{
-			get
-			{
-				var resources = new ComponentResourceManager(typeof(DropboxPlugin));
-				return (Image) resources.GetObject("Dropbox");
-			}
-		}
-
 		public override ExportInformation ExportCapture(bool manually, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);

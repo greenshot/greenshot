@@ -25,11 +25,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Jira.Entities;
+using Dapplo.Windows.Dpi;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
@@ -39,22 +41,26 @@ using log4net;
 
 namespace GreenshotJiraPlugin.Forms
 {
-	public partial class JiraForm : Form
+	public partial class JiraForm : GreenshotForm
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(JiraForm));
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 		private readonly GreenshotColumnSorter _columnSorter;
 		private readonly JiraConnector _jiraConnector;
 		private Issue _selectedIssue;
+		private Size _iconSize;
 
 		public JiraForm(JiraConnector jiraConnector)
 		{
 			InitializeComponent();
+			FormDpiHandler.OnDpiChanged.Subscribe(dpi =>
+			{
+				var size = DpiHandler.ScaleWithDpi(16, dpi);
+				_iconSize = new Size(size, size);
+			});
 			Icon = GreenshotResources.getGreenshotIcon();
 			AcceptButton = uploadButton;
 			CancelButton = cancelButton;
-
-			InitializeComponentText();
 
 			_columnSorter = new GreenshotColumnSorter();
 			jiraListView.ListViewItemSorter = _columnSorter;
@@ -99,13 +105,6 @@ namespace GreenshotJiraPlugin.Forms
 					uploadButton.Enabled = true;
 				}
 			}
-		}
-
-		private void InitializeComponentText()
-		{
-			label_jirafilter.Text = Language.GetString("jira", LangKey.label_jirafilter);
-			label_comment.Text = Language.GetString("jira", LangKey.label_comment);
-			label_filename.Text = Language.GetString("jira", LangKey.label_filename);
 		}
 
 		private void ChangeModus(bool enabled)
@@ -174,7 +173,7 @@ namespace GreenshotJiraPlugin.Forms
 					}
 					var imageList = new ImageList
 					{
-						ImageSize = CoreConfig.IconSize
+						ImageSize = _iconSize
 					};
 					jiraListView.SmallImageList = imageList;
 					jiraListView.LargeImageList = imageList;

@@ -67,7 +67,7 @@ namespace GreenshotPlugin.Core
 
 		public virtual int Priority => 10;
 
-		public virtual Image DisplayIcon => null;
+		public virtual Image DisplayIcon { get; set; }
 
 		public virtual Keys EditorShortcutKeys => Keys.None;
 

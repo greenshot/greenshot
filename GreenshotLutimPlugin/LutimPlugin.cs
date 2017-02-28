@@ -24,6 +24,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using Dapplo.Windows.Dpi;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
@@ -84,10 +85,10 @@ namespace GreenshotLutimPlugin {
 			_config = IniConfig.GetIniSection<LutimConfiguration>();
 			_resources = new ComponentResourceManager(typeof(LutimPlugin));
 
-			ToolStripMenuItem itemPlugInRoot = new ToolStripMenuItem("Lutim")
-			{
-				Image = (Image) _resources.GetObject("Lutim")
-			};
+			var lutimResourceScaleHandler = BitmapScaleHandler.WithComponentResourceManager(pluginHost.ContextMenuDpiHandler, GetType(), (bitmap, dpi) => (Bitmap) bitmap.ScaleIconForDisplaying(dpi));
+
+			var itemPlugInRoot = new ToolStripMenuItem("Lutim");
+			lutimResourceScaleHandler.AddTarget(itemPlugInRoot, "Lutim");
 
 			_historyMenuItem = new ToolStripMenuItem(Language.GetString("lutim", LangKey.history))
 			{

@@ -29,6 +29,7 @@ using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
+using Dapplo.Windows.Dpi;
 using Greenshot.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
@@ -145,6 +146,11 @@ namespace Greenshot.Helpers
 		}
 
 		public ContextMenuStrip MainMenu => MainForm.Instance.MainMenu;
+
+		/// <summary>
+		/// Make the DpiHandler available for plugins
+		/// </summary>
+		public DpiHandler ContextMenuDpiHandler => MainForm.Instance.ContextMenuDpiHandler;
 
 		public IDictionary<PluginAttribute, IGreenshotPlugin> Plugins => plugins;
 
