@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Xml;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -91,7 +91,7 @@ namespace GreenshotPlugin.Core
 	public class RssHelper
 	{
 		private const string Rssfeed = "http://getgreenshot.org/project-feed/";
-		private static readonly ILog Log = LogManager.GetLogger(typeof(RssHelper));
+		private static readonly LogSource Log = new LogSource();
 
 		/// <summary>
 		///     This is using the HTTP HEAD Method to check if the RSS Feed is modified after the supplied date
@@ -127,8 +127,8 @@ namespace GreenshotPlugin.Core
 			}
 			catch (Exception wE)
 			{
-				Log.WarnFormat("Problem reading RSS from {0}", Rssfeed);
-				Log.Warn(wE.Message);
+				Log.Warn().WriteLine("Problem reading RSS from {0}", Rssfeed);
+				Log.Warn().WriteLine(wE.Message);
 				return null;
 			}
 
@@ -146,7 +146,7 @@ namespace GreenshotPlugin.Core
 
 			if (nodeRss == null)
 			{
-				Log.Debug("No RSS Feed!");
+				Log.Debug().WriteLine("No RSS Feed!");
 				return null;
 			}
 
@@ -164,7 +164,7 @@ namespace GreenshotPlugin.Core
 
 			if (nodeChannel == null)
 			{
-				Log.Debug("No channel in RSS feed!");
+				Log.Debug().WriteLine("No channel in RSS feed!");
 				return null;
 			}
 
@@ -216,7 +216,7 @@ namespace GreenshotPlugin.Core
 							}
 							catch (Exception)
 							{
-								Log.DebugFormat("Found invalid version {0} in file {1}", version, file);
+								Log.Debug().WriteLine("Found invalid version {0} in file {1}", version, file);
 							}
 						}
 						rssFiles.Add(rssFile);
@@ -224,8 +224,8 @@ namespace GreenshotPlugin.Core
 				}
 				catch (Exception ex)
 				{
-					Log.WarnFormat("Couldn't read RSS entry for: {0}", nodeChannel["title"]?.InnerText);
-					Log.Warn("Reason: ", ex);
+					Log.Warn().WriteLine("Couldn't read RSS entry for: {0}", nodeChannel["title"]?.InnerText);
+					Log.Warn().WriteLine(ex, "Reason: ");
 				}
 			}
 

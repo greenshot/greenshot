@@ -29,7 +29,8 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Runtime.Serialization;
 using GreenshotPlugin.Interfaces.Drawing;
-using log4net;
+using Dapplo.Log;
+using GreenshotPlugin.Core;
 
 #endregion
 
@@ -41,7 +42,7 @@ namespace Greenshot.Drawing
 	[Serializable]
 	public class IconContainer : DrawableContainer, IIconContainer
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(IconContainer));
+		private static readonly LogSource Log = new LogSource();
 
 		protected Icon icon;
 
@@ -73,13 +74,14 @@ namespace Greenshot.Drawing
 
 		public void Load(string filename)
 		{
-			if (File.Exists(filename))
+			if (!File.Exists(filename))
 			{
-				using (var fileIcon = new Icon(filename))
-				{
-					Icon = fileIcon;
-					Log.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
-				}
+				return;
+			}
+			using (var fileIcon = new Icon(filename))
+			{
+				Icon = fileIcon;
+				Log.Debug().WriteLine("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
 			}
 		}
 

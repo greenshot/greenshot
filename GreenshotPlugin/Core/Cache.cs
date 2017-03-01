@@ -26,7 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.Timers;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -41,7 +41,7 @@ namespace GreenshotPlugin.Core
 	{
 		public delegate void CacheObjectExpired(TK key, TV cacheValue);
 
-		private static readonly ILog Log = LogManager.GetLogger(typeof(Cache<TK, TV>));
+		private static readonly LogSource Log = new LogSource();
 		private readonly CacheObjectExpired _expiredCallback;
 		private readonly IDictionary<TK, TV> _internalCache = new Dictionary<TK, TV>();
 		private readonly object _lockObject = new object();
@@ -164,25 +164,25 @@ namespace GreenshotPlugin.Core
 				{
 					if (_internalCache.ContainsKey(cacheKey))
 					{
-						Log.DebugFormat("Expiring object with Key: {0}", cacheKey);
+						Log.Debug().WriteLine("Expiring object with Key: {0}", cacheKey);
 						_expiredCallback?.Invoke(cacheKey, cacheValue);
 						Remove(cacheKey);
 					}
 					else
 					{
-						Log.DebugFormat("Expired old object with Key: {0}", cacheKey);
+						Log.Debug().WriteLine("Expired old object with Key: {0}", cacheKey);
 					}
 				};
 
 				if (_internalCache.ContainsKey(key))
 				{
 					_internalCache[key] = value;
-					Log.DebugFormat("Updated item with Key: {0}", key);
+					Log.Debug().WriteLine("Updated item with Key: {0}", key);
 				}
 				else
 				{
 					_internalCache.Add(key, cachedItem);
-					Log.DebugFormat("Added item with Key: {0}", key);
+					Log.Debug().WriteLine("Added item with Key: {0}", key);
 				}
 			}
 		}
@@ -200,7 +200,7 @@ namespace GreenshotPlugin.Core
 					throw new ApplicationException($"An object with key ‘{key}’ does not exists in cache");
 				}
 				_internalCache.Remove(key);
-				Log.DebugFormat("Removed item with Key: {0}", key);
+				Log.Debug().WriteLine("Removed item with Key: {0}", key);
 			}
 		}
 

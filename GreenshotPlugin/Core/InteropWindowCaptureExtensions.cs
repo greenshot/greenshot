@@ -500,7 +500,7 @@ namespace GreenshotPlugin.Core
 									// Calculate original color
 									var originalAlpha = (byte) Math.Min(255, alpha);
 									var alphaFactor = alpha / 255d;
-									//LOG.DebugFormat("Alpha {0} & c0 {1} & c1 {2}", alpha, c0, c1);
+									//Log.Debug().WriteLine("Alpha {0} & c0 {1} & c1 {2}", alpha, c0, c1);
 									var originalRed = (byte) Math.Min(255, c0.R / alphaFactor);
 									var originalGreen = (byte) Math.Min(255, c0.G / alphaFactor);
 									var originalBlue = (byte) Math.Min(255, c0.B / alphaFactor);

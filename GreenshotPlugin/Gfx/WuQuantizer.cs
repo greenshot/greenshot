@@ -28,7 +28,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using log4net;
+using Dapplo.Log;
+using GreenshotPlugin.Core;
 
 #endregion
 
@@ -46,7 +47,7 @@ namespace GreenshotPlugin.Gfx
 		private const int Sidesize = 33;
 		private const int Maxsideindex = 32;
 		private const int Maxvolume = Sidesize * Sidesize * Sidesize;
-		private static readonly ILog Log = LogManager.GetLogger(typeof(WuQuantizer));
+		private static readonly LogSource Log = new LogSource();
 
 		// To count the colors
 		private readonly int _colorCount;
@@ -263,12 +264,12 @@ namespace GreenshotPlugin.Gfx
 			if (_colorCount < allowedColorCount)
 			{
 				// Simple logic to reduce to 8 bit
-				Log.Info("Colors in the image are already less as whished for, using simple copy to indexed image, no quantizing needed!");
+				Log.Info().WriteLine("Colors in the image are already less as whished for, using simple copy to indexed image, no quantizing needed!");
 				return SimpleReindex();
 			}
 			// preprocess the colors
 			CalculateMoments();
-			Log.Info("Calculated the moments...");
+			Log.Info().WriteLine("Calculated the moments...");
 			var next = 0;
 			var volumeVariance = new float[Maxcolor];
 
@@ -341,7 +342,7 @@ namespace GreenshotPlugin.Gfx
 			_blues = new int[allowedColorCount + 1];
 			_sums = new int[allowedColorCount + 1];
 
-			Log.Info("Starting bitmap reconstruction...");
+			Log.Info().WriteLine("Starting bitmap reconstruction...");
 
 			using (var dest = FastBitmap.Create(_resultBitmap) as FastChunkyBitmap)
 			{

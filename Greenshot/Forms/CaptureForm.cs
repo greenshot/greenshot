@@ -44,7 +44,7 @@ using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -55,7 +55,7 @@ namespace Greenshot.Forms
 	/// </summary>
 	public sealed partial class CaptureForm : AnimatingForm
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(CaptureForm));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly CoreConfiguration Conf = IniConfig.GetIniSection<CoreConfiguration>();
 		private static readonly Brush GreenOverlayBrush = new SolidBrush(Color.FromArgb(50, Color.MediumSeaGreen));
 		private static readonly Brush ScrollingOverlayBrush = new SolidBrush(Color.FromArgb(50, Color.GreenYellow));
@@ -98,7 +98,7 @@ namespace Greenshot.Forms
 		{
 			if (_currentForm != null)
 			{
-				Log.Warn("Found currentForm, Closing already opened CaptureForm");
+				Log.Warn().WriteLine("Found currentForm, Closing already opened CaptureForm");
 				_currentForm.Close();
 				_currentForm = null;
 				Application.DoEvents();
@@ -183,13 +183,13 @@ namespace Greenshot.Forms
 
 		private void ClosedHandler(object sender, EventArgs e)
 		{
-			Log.Debug("Remove CaptureForm from currentForm");
+			Log.Debug().WriteLine("Remove CaptureForm from currentForm");
 			_currentForm = null;
 		}
 
 		private void ClosingHandler(object sender, EventArgs e)
 		{
-			Log.Debug("Closing captureform");
+			Log.Debug().WriteLine("Closing captureform");
 		}
 
 		/// <summary>

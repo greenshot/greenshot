@@ -26,7 +26,8 @@
 using System;
 using System.Drawing;
 using System.Xml;
-using log4net;
+using Dapplo.Log;
+using GreenshotPlugin.Core;
 
 #endregion
 
@@ -37,7 +38,7 @@ namespace GreenshotImgurPlugin
 	/// </summary>
 	public class ImgurInfo : IDisposable
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(ImgurInfo));
+		private static readonly LogSource Log = new LogSource();
 
 		private string _deleteHash;
 
@@ -106,7 +107,7 @@ namespace GreenshotImgurPlugin
 
 		public static ImgurInfo ParseResponse(string response)
 		{
-			Log.Debug(response);
+			Log.Debug().WriteLine(response);
 			// This is actually a hack for BUG-1695
 			// The problem is the (C) sign, we send it HTML encoded "&reg;" to Imgur and get it HTML encoded in the XML back 
 			// Added all the encodings I found quickly, I guess these are not all... but it should fix the issue for now.
@@ -184,7 +185,7 @@ namespace GreenshotImgurPlugin
 			}
 			catch (Exception e)
 			{
-				Log.ErrorFormat("Could not parse Imgur response due to error {0}, response was: {1}", e.Message, response);
+				Log.Error().WriteLine("Could not parse Imgur response due to error {0}, response was: {1}", e.Message, response);
 			}
 			return imgurInfo;
 		}

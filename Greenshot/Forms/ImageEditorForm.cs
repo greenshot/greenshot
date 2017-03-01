@@ -52,7 +52,7 @@ using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Drawing;
 using GreenshotPlugin.Interfaces.Forms;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -63,7 +63,7 @@ namespace Greenshot
 	/// </summary>
 	public partial class ImageEditorForm : BaseForm, IImageEditor
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(ImageEditorForm));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly EditorConfiguration EditorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
 		private static readonly List<string> IgnoreDestinations = new List<string> {PickerDestination.DESIGNATION, EditorDestination.DESIGNATION};
 		private static readonly List<IImageEditor> EditorList = new List<IImageEditor>();
@@ -385,8 +385,8 @@ namespace Greenshot
 					}
 					catch (Exception addingException)
 					{
-						Log.WarnFormat("Problem adding destination {0}", destination.Designation);
-						Log.Warn("Exception: ", addingException);
+						Log.Warn().WriteLine("Problem adding destination {0}", destination.Designation);
+						Log.Warn().WriteLine(addingException, "Exception: ");
 					}
 				}
 			});
@@ -1012,7 +1012,7 @@ namespace Greenshot
 			}
 			catch (Exception exception)
 			{
-				Log.Error(exception);
+				Log.Error().WriteLine(exception);
 			}
 		}
 
@@ -1574,7 +1574,7 @@ namespace Greenshot
 
 		private void ImageEditorFormKeyDown(object sender, KeyEventArgs e)
 		{
-			// LOG.Debug("Got key event "+e.KeyCode + ", " + e.Modifiers);
+			// Log.Debug().WriteLine("Got key event "+e.KeyCode + ", " + e.Modifiers);
 			// avoid conflict with other shortcuts and
 			// make sure there's no selected element claiming input focus
 			if (e.Modifiers.Equals(Keys.None) && !_surface.KeysLocked)

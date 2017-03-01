@@ -27,7 +27,7 @@ using System;
 using System.Threading;
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -43,7 +43,7 @@ namespace GreenshotPlugin.Controls
 		/// </summary>
 		private const int CP_NOCLOSE_BUTTON = 0x200;
 
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(PleaseWaitForm));
+		private static readonly LogSource Log = new LogSource();
 		private string _title;
 		private Thread _waitFor;
 
@@ -97,7 +97,7 @@ namespace GreenshotPlugin.Controls
 						}
 						catch (Exception ex)
 						{
-							LOG.Error("invoke error:", ex);
+							Log.Error().WriteLine(ex, "invoke error:");
 							threadException = ex;
 						}
 					})
@@ -114,11 +114,11 @@ namespace GreenshotPlugin.Controls
 				{
 					Application.DoEvents();
 				}
-				LOG.DebugFormat("Finished {0}", title);
+				Log.Debug().WriteLine("Finished {0}", title);
 			}
 			catch (Exception ex)
 			{
-				LOG.Error(ex);
+				Log.Error().WriteLine(ex);
 				throw;
 			}
 			finally
@@ -139,7 +139,7 @@ namespace GreenshotPlugin.Controls
 		/// <param name="e"></param>
 		private void CancelButtonClick(object sender, EventArgs e)
 		{
-			LOG.DebugFormat("Cancel clicked on {0}", _title);
+			Log.Debug().WriteLine("Cancel clicked on {0}", _title);
 			cancelButton.Enabled = false;
 			_waitFor.Abort();
 		}

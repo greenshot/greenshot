@@ -26,7 +26,8 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
-using log4net;
+using Dapplo.Log;
+using GreenshotPlugin.Core;
 
 #endregion
 
@@ -453,7 +454,7 @@ namespace GreenshotOfficePlugin.OfficeInterop
 		private const uint KEEP_OPEN_READONLY = 0x00000001;
 		private const uint KEEP_OPEN_READWRITE = 0x00000002;
 		private const uint FORCE_SAVE = 0x00000004;
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(OutlookUtils));
+		private static readonly LogSource Log = new LogSource();
 
 		/// <summary>
 		///     Tries to save the changes we just made
@@ -492,7 +493,7 @@ namespace GreenshotOfficePlugin.OfficeInterop
 			}
 			catch (Exception ex)
 			{
-				LOG.Error(ex);
+				Log.Error().WriteLine(ex);
 				return false;
 			}
 			finally
@@ -565,7 +566,7 @@ namespace GreenshotOfficePlugin.OfficeInterop
 			}
 			catch (Exception ex)
 			{
-				LOG.Error(ex);
+				Log.Error().WriteLine(ex);
 			}
 			finally
 			{
@@ -655,7 +656,7 @@ namespace GreenshotOfficePlugin.OfficeInterop
 			}
 			catch (Exception ex)
 			{
-				LOG.Error(ex);
+				Log.Error().WriteLine(ex);
 				return false;
 			}
 			finally

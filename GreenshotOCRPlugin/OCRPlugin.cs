@@ -34,7 +34,8 @@ using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
+using GreenshotPlugin.Core;
 
 #endregion
 
@@ -49,7 +50,7 @@ namespace GreenshotOCR
 	{
 		private const int MinWidth = 130;
 		private const int MinHeight = 130;
-		private static readonly ILog Log = LogManager.GetLogger(typeof(OcrPlugin));
+		private static readonly LogSource Log = new LogSource();
 		private static OCRConfiguration config;
 		private PluginAttribute _myAttributes;
 		private string _ocrCommand;
@@ -78,7 +79,7 @@ namespace GreenshotOCR
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
 		public bool Initialize(IGreenshotHost greenshotHost, PluginAttribute myAttributes)
 		{
-			Log.Debug("Initialize called of " + myAttributes.Name);
+			Log.Debug().WriteLine("Initialize called of " + myAttributes.Name);
 			_myAttributes = myAttributes;
 
 			var ocrDirectory = Path.GetDirectoryName(myAttributes.DllFile);
@@ -90,7 +91,7 @@ namespace GreenshotOCR
 
 			if (!HasModi())
 			{
-				Log.Warn("No MODI found!");
+				Log.Warn().WriteLine("No MODI found!");
 				return false;
 			}
 			// Load configuration
@@ -108,7 +109,7 @@ namespace GreenshotOCR
 		/// </summary>
 		public void Shutdown()
 		{
-			Log.Debug("Shutdown of " + _myAttributes.Name);
+			Log.Debug().WriteLine("Shutdown of " + _myAttributes.Name);
 		}
 
 		/// <summary>
@@ -176,7 +177,7 @@ namespace GreenshotOCR
 			}
 			var filePath = ImageOutput.SaveToTmpFile(surface, outputSettings, null);
 
-			Log.Debug("Saved tmp file to: " + filePath);
+			Log.Debug().WriteLine("Saved tmp file to: " + filePath);
 
 			var text = "";
 			try
@@ -201,20 +202,20 @@ namespace GreenshotOCR
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error while calling Microsoft Office Document Imaging (MODI) to OCR: ", e);
+				Log.Error().WriteLine(e, "Error while calling Microsoft Office Document Imaging (MODI) to OCR: ");
 			}
 			finally
 			{
 				if (File.Exists(filePath))
 				{
-					Log.Debug("Cleaning up tmp file: " + filePath);
+					Log.Debug().WriteLine("Cleaning up tmp file: " + filePath);
 					File.Delete(filePath);
 				}
 			}
 
 			if (string.IsNullOrEmpty(text))
 			{
-				Log.Info("No text returned");
+				Log.Info().WriteLine("No text returned");
 				return null;
 			}
 
@@ -223,7 +224,7 @@ namespace GreenshotOCR
 
 			try
 			{
-				Log.DebugFormat("Pasting OCR Text to Clipboard: {0}", text);
+				Log.Debug().WriteLine("Pasting OCR Text to Clipboard: {0}", text);
 				// Paste to Clipboard (the Plugin currently doesn't have access to the ClipboardHelper from Greenshot
 				IDataObject ido = new DataObject();
 				ido.SetData(DataFormats.Text, true, text);
@@ -231,7 +232,7 @@ namespace GreenshotOCR
 			}
 			catch (Exception e)
 			{
-				Log.Error("Problem pasting text to clipboard: ", e);
+				Log.Error().WriteLine(e, "Problem pasting text to clipboard: ");
 			}
 			return text;
 		}
@@ -251,9 +252,9 @@ namespace GreenshotOCR
 			}
 			catch (Exception e)
 			{
-				Log.DebugFormat("Error trying to initiate MODI: {0}", e.Message);
+				Log.Debug().WriteLine("Error trying to initiate MODI: {0}", e.Message);
 			}
-			Log.InfoFormat("No Microsoft Office Document Imaging (MODI) found, disabling OCR");
+			Log.Info().WriteLine("No Microsoft Office Document Imaging (MODI) found, disabling OCR");
 			return false;
 		}
 	}

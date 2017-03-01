@@ -35,7 +35,7 @@ using Dapplo.Windows.Dpi;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -43,7 +43,7 @@ namespace GreenshotJiraPlugin.Forms
 {
 	public partial class JiraForm : GreenshotForm
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(JiraForm));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 		private readonly GreenshotColumnSorter _columnSorter;
 		private readonly JiraConnector _jiraConnector;
@@ -153,7 +153,7 @@ namespace GreenshotJiraPlugin.Forms
 				}
 				catch (Exception ex)
 				{
-					Log.Error(ex);
+					Log.Error().WriteLine(ex);
 					MessageBox.Show(this, ex.Message, "Error in filter", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				}
 
@@ -192,7 +192,7 @@ namespace GreenshotJiraPlugin.Forms
 						}
 						catch (Exception ex)
 						{
-							Log.Warn("Problem loading issue type, ignoring", ex);
+							Log.Warn().WriteLine(ex, "Problem loading issue type, ignoring");
 						}
 
 						item.SubItems.Add(issue.Key);

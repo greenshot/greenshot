@@ -32,7 +32,8 @@ using Greenshot.Drawing.Fields;
 using GreenshotPlugin.Effects;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces.Drawing;
-using log4net;
+using Dapplo.Log;
+using GreenshotPlugin.Core;
 
 #endregion
 
@@ -44,7 +45,7 @@ namespace Greenshot.Drawing
 	[Serializable]
 	public class ImageContainer : DrawableContainer, IImageContainer
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(ImageContainer));
+		private static readonly LogSource Log = new LogSource();
 
 		/// <summary>
 		///     This is the shadow version of the bitmap, rendered once to save performance
@@ -112,7 +113,7 @@ namespace Greenshot.Drawing
 			// we currently assume only one transformation has been made.
 			if (rotateAngle != 0)
 			{
-				Log.DebugFormat("Rotating element with {0} degrees.", rotateAngle);
+				Log.Debug().WriteLine("Rotating element with {0} degrees.", rotateAngle);
 				DisposeShadow();
 				using (var tmpMatrix = new Matrix())
 				{
@@ -140,7 +141,7 @@ namespace Greenshot.Drawing
 			{
 				Image = tmpImage;
 			}
-			Log.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
+			Log.Debug().WriteLine("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
 		}
 
 		protected override void OnDeserialized(StreamingContext streamingContext)

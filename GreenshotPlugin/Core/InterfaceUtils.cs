@@ -27,7 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using GreenshotPlugin.Interfaces;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -38,7 +38,7 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public static class InterfaceUtils
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(InterfaceUtils));
+		private static readonly LogSource Log = new LogSource();
 
 		public static List<Type> GetSubclassesOf(Type type, bool excludeSystemTypes)
 		{
@@ -68,7 +68,7 @@ namespace GreenshotPlugin.Core
 				}
 				catch (Exception ex)
 				{
-					LOG.WarnFormat("Problem getting subclasses of type: {0}, message: {1}", type.FullName, ex.Message);
+					Log.Warn().WriteLine("Problem getting subclasses of type: {0}, message: {1}", type.FullName, ex.Message);
 				}
 			}
 			return list;
@@ -84,12 +84,12 @@ namespace GreenshotPlugin.Core
 					var processor = (IProcessor) Activator.CreateInstance(processorType);
 					if (processor.isActive)
 					{
-						LOG.DebugFormat("Found processor {0} with designation {1}", processorType.Name, processor.Designation);
+						Log.Debug().WriteLine("Found processor {0} with designation {1}", processorType.Name, processor.Designation);
 						processors.Add(processor);
 					}
 					else
 					{
-						LOG.DebugFormat("Ignoring processor {0} with designation {1}", processorType.Name, processor.Designation);
+						Log.Debug().WriteLine("Ignoring processor {0} with designation {1}", processorType.Name, processor.Designation);
 					}
 				}
 			}

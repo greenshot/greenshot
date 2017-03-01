@@ -33,7 +33,8 @@ using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using GreenshotPlugin.Interop;
-using log4net;
+using Dapplo.Log;
+using GreenshotPlugin.Core;
 
 #endregion
 
@@ -48,7 +49,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 			"<?xml version=\"1.0\"?><one:Page xmlns:one=\"{2}\" ID=\"{1}\"><one:Title><one:OE><one:T><![CDATA[{3}]]></one:T></one:OE></one:Title>{0}</one:Page>";
 
 		private const string OnenoteNamespace2010 = "http://schemas.microsoft.com/office/onenote/2010/onenote";
-		private static readonly ILog Log = LogManager.GetLogger(typeof(OneNoteExporter));
+		private static readonly LogSource Log = new LogSource();
 
 		/// <summary>
 		///     Create a new page in the "unfiled notes section", with the title of the capture, and export the capture there.
@@ -109,7 +110,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 				var base64String = Convert.ToBase64String(pngStream.GetBuffer());
 				var imageXmlStr = string.Format(XmlImageContent, base64String, surfaceToUpload.Image.Width, surfaceToUpload.Image.Height);
 				var pageChangesXml = string.Format(XmlOutline, imageXmlStr, page.ID, OnenoteNamespace2010, page.Name);
-				Log.InfoFormat("Sending XML: {0}", pageChangesXml);
+				Log.Info().WriteLine("Sending XML: {0}", pageChangesXml);
 				oneNoteApplication.UpdatePageContent(pageChangesXml, DateTime.MinValue, XMLSchema.xs2010, false);
 				try
 				{
@@ -117,7 +118,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 				}
 				catch (Exception ex)
 				{
-					Log.Warn("Unable to navigate to the target page", ex);
+					Log.Warn().WriteLine(ex, "Unable to navigate to the target page");
 				}
 				return true;
 			}
@@ -144,7 +145,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 			oneNoteApplication.GetHierarchy("", HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
 			if (!string.IsNullOrEmpty(notebookXml))
 			{
-				Log.Debug(notebookXml);
+				Log.Debug().WriteLine(notebookXml);
 				StringReader reader = null;
 				try
 				{

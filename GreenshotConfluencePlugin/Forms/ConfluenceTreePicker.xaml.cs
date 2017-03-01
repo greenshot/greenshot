@@ -31,8 +31,9 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using Confluence;
-using log4net;
+using Dapplo.Log;
 using Page = Confluence.Page;
+using GreenshotPlugin.Core;
 
 #endregion
 
@@ -43,7 +44,7 @@ namespace GreenshotConfluencePlugin
 	/// </summary>
 	public partial class ConfluenceTreePicker
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(ConfluenceTreePicker));
+		private static readonly LogSource Log = new LogSource();
 		private readonly ConfluenceConnector _confluenceConnector;
 		private readonly ConfluenceUpload _confluenceUpload;
 		private bool _isInitDone;
@@ -57,7 +58,7 @@ namespace GreenshotConfluencePlugin
 
 		private void pageTreeViewItem_DoubleClick(object sender, MouseButtonEventArgs eventArgs)
 		{
-			Log.Debug("spaceTreeViewItem_MouseLeftButtonDown is called!");
+			Log.Debug().WriteLine("spaceTreeViewItem_MouseLeftButtonDown is called!");
 			var clickedItem = eventArgs.Source as TreeViewItem;
 			var page = clickedItem?.Tag as Page;
 			if (page == null)
@@ -68,7 +69,7 @@ namespace GreenshotConfluencePlugin
 			{
 				return;
 			}
-			Log.Debug("Loading pages for page: " + page.Title);
+			Log.Debug().WriteLine("Loading pages for page: " + page.Title);
 			new Thread(() =>
 			{
 				Dispatcher.BeginInvoke(DispatcherPriority.Normal, (ThreadStart) (() => { ShowBusy.Visibility = Visibility.Visible; }));
@@ -77,7 +78,7 @@ namespace GreenshotConfluencePlugin
 				{
 					foreach (var childPage in pages)
 					{
-						Log.Debug("Adding page: " + childPage.Title);
+						Log.Debug().WriteLine("Adding page: " + childPage.Title);
 						var pageTreeViewItem = new TreeViewItem
 						{
 							Header = childPage.Title,
@@ -94,7 +95,7 @@ namespace GreenshotConfluencePlugin
 
 		private void pageTreeViewItem_Click(object sender, MouseButtonEventArgs eventArgs)
 		{
-			Log.Debug("pageTreeViewItem_PreviewMouseDoubleClick is called!");
+			Log.Debug().WriteLine("pageTreeViewItem_PreviewMouseDoubleClick is called!");
 			var clickedItem = eventArgs.Source as TreeViewItem;
 			if (clickedItem == null)
 			{
@@ -104,7 +105,7 @@ namespace GreenshotConfluencePlugin
 			_confluenceUpload.SelectedPage = page;
 			if (page != null)
 			{
-				Log.Debug("Page selected: " + page.Title);
+				Log.Debug().WriteLine("Page selected: " + page.Title);
 			}
 		}
 
@@ -144,7 +145,7 @@ namespace GreenshotConfluencePlugin
 						}
 						catch (Exception ex)
 						{
-							Log.Error("Can't get homepage for space : " + space.Name + " (" + ex.Message + ")");
+							Log.Error().WriteLine(null, "Can't get homepage for space : " + space.Name + " (" + ex.Message + ")");
 						}
 					}
 					ShowBusy.Visibility = Visibility.Collapsed;

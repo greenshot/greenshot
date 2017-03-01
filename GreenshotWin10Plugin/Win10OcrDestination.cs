@@ -25,6 +25,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
+using Dapplo.Log;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
@@ -37,7 +38,7 @@ namespace GreenshotWin10Plugin
 	/// </summary>
 	public class Win10OcrDestination : AbstractDestination
 	{
-		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(Win10OcrDestination));
+		private static readonly LogSource Log = new LogSource();
 
 		public override string Designation { get; } = "WIN10OCR";
 		public override string Description { get; } = "Windows 10 OCR";
@@ -55,7 +56,7 @@ namespace GreenshotWin10Plugin
 			var languages = OcrEngine.AvailableRecognizerLanguages;
 			foreach (var language in languages)
 			{
-				Log.DebugFormat("Found language {0} {1}", language.NativeName, language.LanguageTag);
+				Log.Debug().WriteLine("Found language {0} {1}", language.NativeName, language.LanguageTag);
 			}
 		}
 

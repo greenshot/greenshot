@@ -29,6 +29,7 @@ using Windows.Storage;
 using Color = Windows.UI.Color;
 using System.Collections.Generic;
 using System.Drawing;
+using Dapplo.Log;
 using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
@@ -41,7 +42,7 @@ namespace GreenshotWin10Plugin
 	/// </summary>
 	public class Win10ShareDestination : AbstractDestination
 	{
-		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(Win10ShareDestination));
+		private static readonly LogSource Log = new LogSource();
 
 		public override string Designation { get; } = "WIN10Share";
 		public override string Description { get; } = "Windows 10 share";
@@ -79,7 +80,7 @@ namespace GreenshotWin10Plugin
 						// Create capture for export
 						ImageOutput.SaveToStream(surface, imageStream, outputSettings);
 						imageStream.Position = 0;
-						Log.Info("Created RandomAccessStreamReference for the image");
+						Log.Info().WriteLine("Created RandomAccessStreamReference for the image");
 						var imageRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(imageStream);
 						RandomAccessStreamReference thumbnailRandomAccessStreamReference;
 						RandomAccessStreamReference logoRandomAccessStreamReference;
@@ -92,7 +93,7 @@ namespace GreenshotWin10Plugin
 								ImageOutput.SaveToStream(thumbnail, null, thumbnailStream, outputSettings);
 								thumbnailStream.Position = 0;
 								thumbnailRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(thumbnailStream);
-								Log.Info("Created RandomAccessStreamReference for the thumbnail");
+								Log.Info().WriteLine("Created RandomAccessStreamReference for the thumbnail");
 							}
 						}
 						// Create logo
@@ -103,21 +104,21 @@ namespace GreenshotWin10Plugin
 								ImageOutput.SaveToStream(logoThumbnail, null, logoStream, outputSettings);
 								logoStream.Position = 0;
 								logoRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(logoStream);
-								Log.Info("Created RandomAccessStreamReference for the logo");
+								Log.Info().WriteLine("Created RandomAccessStreamReference for the logo");
 							}
 						}
 						string applicationName = null;
 						var dataTransferManagerHelper = new DataTransferManagerHelper(handle);
 						dataTransferManagerHelper.DataTransferManager.TargetApplicationChosen += (dtm, args) =>
 						{
-							Log.InfoFormat("Trying to share with {0}", args.ApplicationName);
+							Log.Info().WriteLine("Trying to share with {0}", args.ApplicationName);
 							applicationName = args.ApplicationName;
 						};
 						var filename = FilenameHelper.GetFilename(OutputFormats.png, captureDetails);
 						var storageFile = await StorageFile.CreateStreamedFileAsync(filename, async streamedFileDataRequest =>
 						{
 							// Information on how was found here: https://socialeboladev.wordpress.com/2013/03/15/how-to-use-createstreamedfileasync/
-							Log.DebugFormat("Creating deferred file {0}", filename);
+							Log.Debug().WriteLine("Creating deferred file {0}", filename);
 							try
 							{
 								using (var deferredStream = streamedFileDataRequest.AsStreamForWrite())
@@ -141,7 +142,7 @@ namespace GreenshotWin10Plugin
 							var deferral = args.Request.GetDeferral();
 							args.Request.Data.OperationCompleted += (dp, eventArgs) =>
 							{
-								Log.DebugFormat("OperationCompleted: {0}, shared with", eventArgs.Operation);
+								Log.Debug().WriteLine("OperationCompleted: {0}, shared with", eventArgs.Operation);
 								taskCompletionSource.TrySetResult(applicationName);
 							};
 							var dataPackage = args.Request.Data;
@@ -155,7 +156,7 @@ namespace GreenshotWin10Plugin
 							dataPackage.SetBitmap(imageRandomAccessStreamReference);
 							dataPackage.Destroyed += (dp, o) =>
 							{
-								Log.Debug("Destroyed.");
+								Log.Debug().WriteLine("Destroyed.");
 							};
 							deferral.Complete();
 						};

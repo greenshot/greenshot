@@ -67,7 +67,7 @@ Function SignBinaryFilesBeforeBuildingInstaller() {
 	$sourcebase = "$(get-location)\Greenshot\bin\Release"
 
 	$INCLUDE=@("*.exe", "*.gsp", "*.dll")
-	$EXCLUDE=@("log4net.dll", "svg.dll", "dapplo*.dll")
+	$EXCLUDE=@("svg.dll", "dapplo*.dll")
 	Get-ChildItem -Path "$sourcebase" -Recurse -Include $INCLUDE -Exclude $EXCLUDE | foreach {
 		SignWithCertificate($_)
 	}
@@ -143,8 +143,6 @@ Function PackagePortable {
 		"$sourcebase\Dapplo.*.dll",
 		"$sourcebase\System.Reactive.*.dll",
 		"$sourcebase\Svg.dll",
-		"$sourcebase\log4net.dll",
-		"$sourcebase\log4net-portable.xml",
 		"$destbase\additional_files\*.txt" ) | foreach { Copy-Item $_ "$destbase\portabletmp\App\Greenshot\" }
 
 	Copy-Item -Path "$sourcebase\Languages\help-en-US.html" -Destination "$destbase\portabletmp\help.html"
@@ -219,11 +217,7 @@ Function PackageZip {
 		"$sourcebase\Dapplo.*.dll",
 		"$sourcebase\System.Reactive.*.dll",
 		"$sourcebase\Svg.dll",
-		"$sourcebase\log4net.dll",
-		"$(get-location)\Greenshot\log4net-zip.xml"
 		"$destbase\additional_files\*.txt" ) | foreach { Copy-Item $_ "$destzip\" }
-
-	Rename-Item "$destzip\log4net-zip.xml" "$destzip\log4net.xml"
 		
 	$zipOutput = "$(get-location)\zip"
 	$zip7 = "$(get-location)\greenshot\tools\7zip\7za.exe"

@@ -22,6 +22,7 @@
 using System;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel.DataTransfer;
+using Dapplo.Log;
 
 namespace GreenshotWin10Plugin.Native
 {
@@ -30,7 +31,7 @@ namespace GreenshotWin10Plugin.Native
 	/// </summary>
 	public class DataTransferManagerHelper
 	{
-		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(DataTransferManagerHelper));
+		private static readonly LogSource Log = new LogSource();
 
 		private const string DataTransferManagerId = "a5caee9b-8708-49d1-8d36-67d25a8da00c";
 		private readonly IDataTransferManagerInterOp _dataTransferManagerInterOp;
@@ -56,7 +57,7 @@ namespace GreenshotWin10Plugin.Native
 			var hresult = _dataTransferManagerInterOp.GetForWindow(_windowHandle, riid, out dataTransferManager);
 			if (hresult != 0)
 			{
-				Log.WarnFormat("HResult for GetForWindow: {0}", hresult);
+				Log.Warn().WriteLine("HResult for GetForWindow: {0}", hresult);
 			}
 			DataTransferManager = dataTransferManager;
 		}
@@ -69,11 +70,11 @@ namespace GreenshotWin10Plugin.Native
 			var hresult = _dataTransferManagerInterOp.ShowShareUIForWindow(_windowHandle);
 			if (hresult != 0)
 			{
-				Log.WarnFormat("HResult for ShowShareUIForWindow: {0}", hresult);
+				Log.Warn().WriteLine("HResult for ShowShareUIForWindow: {0}", hresult);
 			}
 			else
 			{
-				Log.Debug("ShowShareUIForWindow called");
+				Log.Debug().WriteLine("ShowShareUIForWindow called");
 			}
 		}
 	}

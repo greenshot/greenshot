@@ -44,9 +44,6 @@
       <HintPath>..\packages\Dapplo.Windows.0.3.21\lib\net45\Dapplo.Windows.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="log4net">
-      <HintPath>..\Greenshot\Lib\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="Svg, Version=2.2.1.39233, Culture=neutral, PublicKeyToken=12a0bac221edeae2, processorArchitecture=MSIL">
@@ -94,18 +91,11 @@
     <Compile Include="Gfx\Fast32ArgbBitmap.cs" />
     <Compile Include="Gfx\Fast32RgbBitmap.cs" />
     <Compile Include="Gfx\FastChunkyBitmap.cs" />
-    <Compile Include="Gfx\Hqx\Hqx2X.cs" />
-    <Compile Include="Gfx\Hqx\Hqx3X.cs" />
-    <Compile Include="Gfx\Hqx\Hqx4X.cs" />
-    <Compile Include="Gfx\Hqx\HqxSharp.cs" />
-    <Compile Include="Gfx\Hqx\Interpolation.cs" />
-    <Compile Include="Gfx\Hqx\RgbYuv.cs" />
     <Compile Include="Gfx\IFastBitmap.cs" />
     <Compile Include="Gfx\IFastBitmapWithBlend.cs" />
     <Compile Include="Gfx\IFastBitmapWithClip.cs" />
     <Compile Include="Gfx\IFastBitmapWithOffset.cs" />
     <Compile Include="Gfx\WuQuantizer.cs" />
-    <Compile Include="Core\Log4NetLogger.cs" />
     <Compile Include="Core\Enums\OutputFormats.cs" />
     <Compile Include="Core\Enums\WindowCaptureModes.cs" />
     <Compile Include="Core\InteropWindowCaptureExtensions.cs" />
@@ -272,7 +262,6 @@
     <Compile Include="Gfx\ImageHelper.cs" />
     <Compile Include="Core\JSONHelper.cs" />
     <Compile Include="Core\Language.cs" />
-    <Compile Include="Core\LogHelper.cs" />
     <Compile Include="Core\NetworkHelper.cs" />
     <Compile Include="Core\OAuthHelper.cs" />
     <Compile Include="Core\ObjectExtensions.cs" />

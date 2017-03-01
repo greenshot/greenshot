@@ -31,7 +31,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -53,7 +53,7 @@ namespace GreenshotFlickrPlugin
 		// REST
 		private const string FLICKR_REST_URL = FLICKR_API_BASE_URL + "rest/";
 		private const string FLICKR_GET_INFO_URL = FLICKR_REST_URL + "?method=flickr.photos.getInfo";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(FlickrUtils));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly FlickrConfiguration config = IniConfig.GetIniSection<FlickrConfiguration>();
 
 		/// <summary>
@@ -116,7 +116,7 @@ namespace GreenshotFlickrPlugin
 			}
 			catch (Exception ex)
 			{
-				LOG.Error("Upload error: ", ex);
+				Log.Error().WriteLine(ex, "Upload error: ");
 				throw;
 			}
 			finally
@@ -170,7 +170,7 @@ namespace GreenshotFlickrPlugin
 			}
 			catch (Exception ex)
 			{
-				LOG.Error("Error parsing Flickr Response.", ex);
+				Log.Error().WriteLine(ex, "Error parsing Flickr Response.");
 			}
 			return null;
 		}
@@ -193,7 +193,7 @@ namespace GreenshotFlickrPlugin
 			}
 			catch (Exception ex)
 			{
-				LOG.Error("Error parsing Flickr Response.", ex);
+				Log.Error().WriteLine(ex, "Error parsing Flickr Response.");
 			}
 			return null;
 		}

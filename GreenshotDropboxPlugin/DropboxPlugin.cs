@@ -34,7 +34,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
 using Dapplo.Windows.Dpi;
 using GreenshotPlugin.Gfx;
 
@@ -47,7 +47,7 @@ namespace GreenshotDropboxPlugin
 	/// </summary>
 	public sealed class DropboxPlugin : IGreenshotPlugin
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(DropboxPlugin));
+		private static readonly LogSource Log = new LogSource();
 		private static DropboxPluginConfiguration _config;
 		public static PluginAttribute Attributes;
 		private IGreenshotHost _host;
@@ -102,7 +102,7 @@ namespace GreenshotDropboxPlugin
 
 		public void Shutdown()
 		{
-			Log.Debug("Dropbox Plugin shutdown.");
+			Log.Debug().WriteLine("Dropbox Plugin shutdown.");
 		}
 
 		/// <summary>
@@ -164,7 +164,7 @@ namespace GreenshotDropboxPlugin
 			}
 			catch (Exception e)
 			{
-				Log.Error(e);
+				Log.Error().WriteLine(e);
 				MessageBox.Show(Language.GetString("dropbox", LangKey.upload_failure) + " " + e.Message);
 				return false;
 			}

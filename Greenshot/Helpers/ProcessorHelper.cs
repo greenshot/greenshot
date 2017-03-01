@@ -27,7 +27,7 @@ using System;
 using System.Collections.Generic;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -38,7 +38,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public static class ProcessorHelper
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(ProcessorHelper));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly Dictionary<string, IProcessor> RegisteredProcessors = new Dictionary<string, IProcessor>();
 
 		/// Initialize the Processors
@@ -62,24 +62,24 @@ namespace Greenshot.Helpers
 						}
 						catch (Exception e)
 						{
-							LOG.ErrorFormat("Can't create instance of {0}", ProcessorType);
-							LOG.Error(e);
+							Log.Error().WriteLine("Can't create instance of {0}", ProcessorType);
+							Log.Error().WriteLine(e);
 							continue;
 						}
 						if (Processor.isActive)
 						{
-							LOG.DebugFormat("Found Processor {0} with designation {1}", ProcessorType.Name, Processor.Designation);
+							Log.Debug().WriteLine("Found Processor {0} with designation {1}", ProcessorType.Name, Processor.Designation);
 							RegisterProcessor(Processor);
 						}
 						else
 						{
-							LOG.DebugFormat("Ignoring Processor {0} with designation {1}", ProcessorType.Name, Processor.Designation);
+							Log.Debug().WriteLine("Ignoring Processor {0} with designation {1}", ProcessorType.Name, Processor.Designation);
 						}
 					}
 				}
 				catch (Exception ex)
 				{
-					LOG.ErrorFormat("Error loading processor {0}, message: ", ProcessorType.FullName, ex.Message);
+					Log.Error().WriteLine("Error loading processor {0}, message: ", ProcessorType.FullName, ex.Message);
 				}
 			}
 		}
@@ -110,8 +110,8 @@ namespace Greenshot.Helpers
 				}
 				catch (Exception ex)
 				{
-					LOG.ErrorFormat("Couldn't get processors from the plugin {0}", pluginAttribute.Name);
-					LOG.Error(ex);
+					Log.Error().WriteLine("Couldn't get processors from the plugin {0}", pluginAttribute.Name);
+					Log.Error().WriteLine(ex);
 				}
 			}
 			processors.Sort();

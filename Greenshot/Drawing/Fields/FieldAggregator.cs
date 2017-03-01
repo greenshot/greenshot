@@ -112,7 +112,7 @@ namespace Greenshot.Drawing.Fields
 			{
 				if (container.HasField(field.FieldType) && field.HasValue)
 				{
-					//if(LOG.IsDebugEnabled) LOG.Debug("   "+field+ ": "+field.Value);
+					//if(LOG.IsDebugEnabled) Log.Debug().WriteLine("   "+field+ ": "+field.Value);
 					container.SetFieldValue(field.FieldType, field.Value);
 				}
 			}

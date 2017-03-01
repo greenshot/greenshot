@@ -26,7 +26,7 @@
 using System.Diagnostics;
 using System.Net;
 using GreenshotPlugin.Core;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -38,7 +38,7 @@ namespace Greenshot.Help
 	public static class HelpFileLoader
 	{
 		private const string ExtHelpUrl = @"http://getgreenshot.org/help/";
-		private static readonly ILog Log = LogManager.GetLogger(typeof(HelpFileLoader));
+		private static readonly LogSource Log = new LogSource();
 
 		public static void LoadHelp()
 		{
@@ -68,7 +68,7 @@ namespace Greenshot.Help
 			}
 			else if (httpStatusCode != null && !extHelpUrlForCurrrentIETF.Equals(ExtHelpUrl))
 			{
-				Log.DebugFormat("Localized online help not found at {0}, will try {1} as fallback", extHelpUrlForCurrrentIETF, ExtHelpUrl);
+				Log.Debug().WriteLine("Localized online help not found at {0}, will try {1} as fallback", extHelpUrlForCurrrentIETF, ExtHelpUrl);
 				httpStatusCode = GetHttpStatus(ExtHelpUrl);
 				if (httpStatusCode == HttpStatusCode.OK)
 				{
@@ -76,12 +76,12 @@ namespace Greenshot.Help
 				}
 				else
 				{
-					Log.WarnFormat("{0} returned status {1}", ExtHelpUrl, httpStatusCode);
+					Log.Warn().WriteLine("{0} returned status {1}", ExtHelpUrl, httpStatusCode);
 				}
 			}
 			else if (httpStatusCode == null)
 			{
-				Log.Info("Internet connection does not seem to be available, will load help from file system.");
+				Log.Info().WriteLine("Internet connection does not seem to be available, will load help from file system.");
 			}
 
 			return ret;

@@ -35,7 +35,7 @@ using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -46,7 +46,7 @@ namespace GreenshotImgurPlugin
 	/// </summary>
 	public sealed class ImgurPlugin : IGreenshotPlugin
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(ImgurPlugin));
+		private static readonly LogSource Log = new LogSource();
 		private static ImgurConfiguration _config;
 		public static PluginAttribute Attributes;
 		private ToolStripMenuItem _historyMenuItem;
@@ -113,7 +113,7 @@ namespace GreenshotImgurPlugin
 
 		public void Shutdown()
 		{
-			Log.Debug("Imgur Plugin shutdown.");
+			Log.Debug().WriteLine("Imgur Plugin shutdown.");
 			Language.LanguageChanged -= OnLanguageChanged;
 		}
 
@@ -172,7 +172,7 @@ namespace GreenshotImgurPlugin
 			}
 			catch (Exception ex)
 			{
-				Log.Error("Error loading history", ex);
+				Log.Error().WriteLine(ex, "Error loading history");
 			}
 		}
 
@@ -198,7 +198,7 @@ namespace GreenshotImgurPlugin
 						imgurInfo = ImgurUtils.UploadToImgur(surfaceToUpload, outputSettings, captureDetails.Title, filename);
 						if (imgurInfo != null && _config.AnonymousAccess)
 						{
-							Log.InfoFormat("Storing imgur upload for hash {0} and delete hash {1}", imgurInfo.Hash, imgurInfo.DeleteHash);
+							Log.Info().WriteLine("Storing imgur upload for hash {0} and delete hash {1}", imgurInfo.Hash, imgurInfo.DeleteHash);
 							_config.ImgurUploadHistory.Add(imgurInfo.Hash, imgurInfo.DeleteHash);
 							_config.runtimeImgurHistory.Add(imgurInfo.Hash, imgurInfo);
 							UpdateHistoryMenuItem();
@@ -231,7 +231,7 @@ namespace GreenshotImgurPlugin
 						}
 						catch (Exception ex)
 						{
-							Log.Error("Can't write to clipboard: ", ex);
+							Log.Error().WriteLine(ex, "Can't write to clipboard: ");
 							uploadUrl = null;
 						}
 					}
@@ -240,7 +240,7 @@ namespace GreenshotImgurPlugin
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error uploading.", e);
+				Log.Error().WriteLine(e, "Error uploading.");
 				MessageBox.Show(Language.GetString("imgur", LangKey.upload_failure) + " " + e.Message);
 			}
 			uploadUrl = null;

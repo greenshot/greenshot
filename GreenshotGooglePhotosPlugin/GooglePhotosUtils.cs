@@ -30,7 +30,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -48,7 +48,7 @@ namespace GreenshotGooglePhotosPlugin
 
 		private const string TokenUrl = "https://www.googleapis.com/oauth2/v3/token";
 		private const string UploadUrl = "https://picasaweb.google.com/data/feed/api/user/{0}/albumid/{1}";
-		private static readonly ILog Log = LogManager.GetLogger(typeof(GooglePhotosUtils));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly GooglePhotosConfiguration Config = IniConfig.GetIniSection<GooglePhotosConfiguration>();
 
 		/// <summary>
@@ -121,7 +121,7 @@ namespace GreenshotGooglePhotosPlugin
 			}
 			catch (Exception e)
 			{
-				Log.ErrorFormat("Could not parse Google Photos response due to error {0}, response was: {1}", e.Message, response);
+				Log.Error().WriteLine("Could not parse Google Photos response due to error {0}, response was: {1}", e.Message, response);
 			}
 			return null;
 		}

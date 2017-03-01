@@ -30,15 +30,15 @@ using System.Reflection;
 using Dapplo.Windows.Desktop;
 using GreenshotOfficePlugin.OfficeInterop;
 using GreenshotPlugin.Interop;
-using log4net;
-
+using Dapplo.Log;
+using GreenshotPlugin.Core;
 #endregion
 
 namespace GreenshotOfficePlugin.OfficeExport
 {
 	public class ExcelExporter
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(ExcelExporter));
+		private static readonly LogSource Log = new LogSource();
 		private static Version _excelVersion;
 
 		/// <summary>
@@ -198,12 +198,12 @@ namespace GreenshotOfficePlugin.OfficeExport
 			try
 			{
 				_excelVersion = new Version(excelApplication.Version);
-				Log.InfoFormat("Using Excel {0}", _excelVersion);
+				Log.Info().WriteLine("Using Excel {0}", _excelVersion);
 			}
 			catch (Exception exVersion)
 			{
-				Log.Error(exVersion);
-				Log.Warn("Assuming Excel version 1997.");
+				Log.Error().WriteLine(exVersion);
+				Log.Warn().WriteLine("Assuming Excel version 1997.");
 				_excelVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
 			}
 		}

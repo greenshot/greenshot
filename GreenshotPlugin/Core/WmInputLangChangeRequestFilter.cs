@@ -25,7 +25,7 @@
 
 using System.Windows.Forms;
 using Dapplo.Windows.Enums;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -37,7 +37,7 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public class WmInputLangChangeRequestFilter : IMessageFilter
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(WmInputLangChangeRequestFilter));
+		private static readonly LogSource Log = new LogSource();
 
 		/// <summary>
 		///     This will do some filtering
@@ -59,7 +59,7 @@ namespace GreenshotPlugin.Core
 			var message = (WindowsMessages) m.Msg;
 			if (message == WindowsMessages.WM_INPUTLANGCHANGEREQUEST || message == WindowsMessages.WM_INPUTLANGCHANGE)
 			{
-				Log.WarnFormat("Filtering: {0}, {1:X} - {2:X} - {3:X}", message, m.LParam.ToInt64(), m.WParam.ToInt64(), m.HWnd.ToInt64());
+				Log.Warn().WriteLine("Filtering: {0}, {1:X} - {2:X} - {3:X}", message, m.LParam.ToInt64(), m.WParam.ToInt64(), m.HWnd.ToInt64());
 				// For now we always return true
 				return true;
 				// But it could look something like this:

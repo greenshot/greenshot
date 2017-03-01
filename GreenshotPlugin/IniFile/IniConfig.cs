@@ -29,7 +29,8 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using log4net;
+using Dapplo.Log;
+using GreenshotPlugin.Core;
 
 #endregion
 
@@ -40,7 +41,7 @@ namespace GreenshotPlugin.IniFile
 		private const string IniExtension = ".ini";
 		private const string DefaultsPostfix = "-defaults";
 		private const string FixedPostfix = "-fixed";
-		private static readonly ILog Log = LogManager.GetLogger(typeof(IniConfig));
+		private static readonly LogSource Log = new LogSource();
 
 		/// <summary>
 		///     A lock object for the ini file saving
@@ -168,7 +169,7 @@ namespace GreenshotPlugin.IniFile
 			if (assemblyProductAttributes != null && assemblyProductAttributes.Length > 0)
 			{
 				var productName = assemblyProductAttributes[0].Product;
-				Log.InfoFormat("Using ProductName {0}", productName);
+				Log.Info().WriteLine("Using ProductName {0}", productName);
 				Init(productName, productName);
 			}
 			else
@@ -208,7 +209,7 @@ namespace GreenshotPlugin.IniFile
 			}
 			catch (Exception exception)
 			{
-				Log.WarnFormat("The ini-directory {0} can't be used due to: {1}", IniDirectory, exception.Message);
+				Log.Warn().WriteLine("The ini-directory {0} can't be used due to: {1}", IniDirectory, exception.Message);
 			}
 
 			string applicationStartupPath;
@@ -218,7 +219,7 @@ namespace GreenshotPlugin.IniFile
 			}
 			catch (Exception exception)
 			{
-				Log.WarnFormat("Problem retrieving the AssemblyLocation: {0} (Designer mode?)", exception.Message);
+				Log.Warn().WriteLine("Problem retrieving the AssemblyLocation: {0} (Designer mode?)", exception.Message);
 				applicationStartupPath = @".";
 			}
 			if (applicationStartupPath != null)
@@ -229,12 +230,12 @@ namespace GreenshotPlugin.IniFile
 				{
 					if (!IsPortable)
 					{
-						Log.Info("Checking for portable mode.");
+						Log.Info().WriteLine("Checking for portable mode.");
 						_portableCheckMade = true;
 						if (Directory.Exists(pafPath))
 						{
 							IsPortable = true;
-							Log.Info("Portable mode active!");
+							Log.Info().WriteLine("Portable mode active!");
 						}
 					}
 					if (IsPortable)
@@ -250,7 +251,7 @@ namespace GreenshotPlugin.IniFile
 						}
 						catch (Exception e)
 						{
-							Log.InfoFormat("Portable mode NOT possible, couldn't create directory '{0}'! Reason: {1}", pafConfigPath, e.Message);
+							Log.Info().WriteLine("Portable mode NOT possible, couldn't create directory '{0}'! Reason: {1}", pafConfigPath, e.Message);
 						}
 					}
 				}
@@ -274,7 +275,7 @@ namespace GreenshotPlugin.IniFile
 					iniFilePath = Path.Combine(iniDirectory, configFilename);
 				}
 			}
-			Log.InfoFormat("Using ini file {0}", iniFilePath);
+			Log.Info().WriteLine("Using ini file {0}", iniFilePath);
 			return iniFilePath;
 		}
 
@@ -306,8 +307,8 @@ namespace GreenshotPlugin.IniFile
 					{
 						sectionName = section.IniSectionAttribute.Name;
 					}
-					Log.WarnFormat("Problem reading the ini section {0}", sectionName);
-					Log.Warn("Exception", ex);
+					Log.Warn().WriteLine("Problem reading the ini section {0}", sectionName);
+					Log.Warn().WriteLine(ex, "Exception");
 				}
 			}
 		}
@@ -345,11 +346,11 @@ namespace GreenshotPlugin.IniFile
 		{
 			if (!File.Exists(iniLocation))
 			{
-				Log.Info("Can't find file: " + iniLocation);
+				Log.Info().WriteLine("Can't find file: " + iniLocation);
 				return null;
 			}
-			Log.InfoFormat("Loading ini-file: {0}", iniLocation);
-			//LOG.Info("Reading ini-properties from file: " + iniLocation);
+			Log.Info().WriteLine("Loading ini-file: {0}", iniLocation);
+			//Log.Info().WriteLine("Reading ini-properties from file: " + iniLocation);
 			var newSections = IniReader.Read(iniLocation, Encoding.UTF8);
 			// Merge the newly loaded properties to the already available
 			foreach (var section in newSections.Keys)
@@ -418,7 +419,7 @@ namespace GreenshotPlugin.IniFile
 			var sectionName = IniSection.GetIniSectionAttribute(iniSectionType).Name;
 			if (SectionMap.ContainsKey(sectionName))
 			{
-				//LOG.Debug("Returning pre-mapped section " + sectionName);
+				//Log.Debug().WriteLine("Returning pre-mapped section " + sectionName);
 				section = (T) SectionMap[sectionName];
 			}
 			else
@@ -433,7 +434,7 @@ namespace GreenshotPlugin.IniFile
 			}
 			if (allowSave && section.IsDirty)
 			{
-				Log.DebugFormat("Section {0} is marked dirty, saving!", sectionName);
+				Log.Debug().WriteLine("Section {0} is marked dirty, saving!", sectionName);
 				Save();
 			}
 			return section;
@@ -480,14 +481,14 @@ namespace GreenshotPlugin.IniFile
 					}
 					catch (Exception ex)
 					{
-						Log.Error("A problem occured while writing the configuration file to: " + iniLocation);
-						Log.Error(ex);
+						Log.Error().WriteLine(null, "A problem occured while writing the configuration file to: " + iniLocation);
+						Log.Error().WriteLine(ex);
 					}
 				}
 				else
 				{
 					// Code to deal with the fact that the lock was not acquired.
-					Log.Warn("A second thread tried to save the ini-file, we blocked as the first took too long.");
+					Log.Warn().WriteLine("A second thread tried to save the ini-file, we blocked as the first took too long.");
 				}
 			}
 			finally
@@ -505,7 +506,7 @@ namespace GreenshotPlugin.IniFile
 		/// <param name="iniLocation"></param>
 		private static void SaveInternally(string iniLocation)
 		{
-			Log.Info("Saving configuration to: " + iniLocation);
+			Log.Info().WriteLine("Saving configuration to: " + iniLocation);
 			var iniPath = Path.GetDirectoryName(iniLocation);
 			if (iniPath != null && !Directory.Exists(iniPath))
 			{

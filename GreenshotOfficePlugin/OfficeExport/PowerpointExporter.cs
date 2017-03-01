@@ -29,7 +29,8 @@ using System.Drawing;
 using GreenshotOfficePlugin.OfficeInterop;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interop;
-using log4net;
+using Dapplo.Log;
+using GreenshotPlugin.Core;
 
 #endregion
 
@@ -37,7 +38,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 {
 	public class PowerpointExporter
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(PowerpointExporter));
+		private static readonly LogSource Log = new LogSource();
 		private static Version _powerpointVersion;
 		private static readonly OfficeConfiguration officeConfiguration = IniConfig.GetIniSection<OfficeConfiguration>();
 
@@ -64,7 +65,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 
 					using (var presentations = powerpointApplication.Presentations)
 					{
-						LOG.DebugFormat("Open Presentations: {0}", presentations.Count);
+						Log.Debug().WriteLine("Open Presentations: {0}", presentations.Count);
 						for (var i = 1; i <= presentations.Count; i++)
 						{
 							using (var presentation = presentations.item(i))
@@ -92,7 +93,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 			}
 			catch (Exception ex)
 			{
-				LOG.Warn("Problem retrieving word destinations, ignoring: ", ex);
+				Log.Warn().WriteLine(ex, "Problem retrieving word destinations, ignoring: ");
 			}
 			foundPresentations.Sort();
 			return foundPresentations;
@@ -116,7 +117,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 				}
 				using (var presentations = powerpointApplication.Presentations)
 				{
-					LOG.DebugFormat("Open Presentations: {0}", presentations.Count);
+					Log.Debug().WriteLine("Open Presentations: {0}", presentations.Count);
 					for (var i = 1; i <= presentations.Count; i++)
 					{
 						using (var presentation = presentations.item(i))
@@ -136,7 +137,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 							}
 							catch (Exception e)
 							{
-								LOG.Error(e);
+								Log.Error().WriteLine(e);
 							}
 						}
 					}
@@ -198,7 +199,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 				}
 				catch (Exception e)
 				{
-					LOG.Error(e);
+					Log.Error().WriteLine(e);
 					slide = presentation.Slides.Add(presentation.Slides.Count + 1, (int) PPSlideLayout.ppLayoutBlank);
 				}
 				var shape = slide.Shapes.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, width, height);
@@ -233,7 +234,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 					}
 					catch (Exception ex)
 					{
-						LOG.Warn("Problem setting the title to a text-range", ex);
+						Log.Warn().WriteLine(ex, "Problem setting the title to a text-range");
 					}
 				}
 				presentation.Application.ActiveWindow.View.GotoSlide(slide.SlideNumber);
@@ -267,7 +268,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 							}
 							catch (Exception e)
 							{
-								LOG.Error(e);
+								Log.Error().WriteLine(e);
 							}
 						}
 					}
@@ -311,12 +312,12 @@ namespace GreenshotOfficePlugin.OfficeExport
 			try
 			{
 				_powerpointVersion = new Version(powerpointApplication.Version);
-				LOG.InfoFormat("Using Powerpoint {0}", _powerpointVersion);
+				Log.Info().WriteLine("Using Powerpoint {0}", _powerpointVersion);
 			}
 			catch (Exception exVersion)
 			{
-				LOG.Error(exVersion);
-				LOG.Warn("Assuming Powerpoint version 1997.");
+				Log.Error().WriteLine(exVersion);
+				Log.Warn().WriteLine("Assuming Powerpoint version 1997.");
 				_powerpointVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
 			}
 		}

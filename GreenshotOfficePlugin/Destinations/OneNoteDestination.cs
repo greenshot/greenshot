@@ -33,7 +33,7 @@ using GreenshotOfficePlugin.OfficeExport;
 using GreenshotOfficePlugin.OfficeInterop;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -43,7 +43,7 @@ namespace GreenshotOfficePlugin.Destinations
 	{
 		private const int IconApplication = 0;
 		public const string DESIGNATION = "OneNote";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(WordDestination));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly string ExePath;
 		private readonly OneNotePage _page;
 
@@ -103,13 +103,13 @@ namespace GreenshotOfficePlugin.Destinations
 			{
 				if (cEx.ErrorCode == unchecked((int) 0x8002801D))
 				{
-					LOG.Warn("Wrong registry keys, to solve this remove the OneNote key as described here: http://microsoftmercenary.com/wp/outlook-excel-interop-calls-breaking-solved/");
+					Log.Warn().WriteLine("Wrong registry keys, to solve this remove the OneNote key as described here: http://microsoftmercenary.com/wp/outlook-excel-interop-calls-breaking-solved/");
 				}
-				LOG.Warn("Problem retrieving onenote destinations, ignoring: ", cEx);
+				Log.Warn().WriteLine(cEx, "Problem retrieving onenote destinations, ignoring: ");
 			}
 			catch (Exception ex)
 			{
-				LOG.Warn("Problem retrieving onenote destinations, ignoring: ", ex);
+				Log.Warn().WriteLine(ex, "Problem retrieving onenote destinations, ignoring: ");
 			}
 			return Enumerable.Empty<IDestination>();
 		}
@@ -127,7 +127,7 @@ namespace GreenshotOfficePlugin.Destinations
 				catch (Exception ex)
 				{
 					exportInformation.ErrorMessage = ex.Message;
-					LOG.Error(ex);
+					Log.Error().WriteLine(ex);
 				}
 			}
 			else
@@ -139,7 +139,7 @@ namespace GreenshotOfficePlugin.Destinations
 				catch (Exception ex)
 				{
 					exportInformation.ErrorMessage = ex.Message;
-					LOG.Error(ex);
+					Log.Error().WriteLine(ex);
 				}
 			}
 			return exportInformation;

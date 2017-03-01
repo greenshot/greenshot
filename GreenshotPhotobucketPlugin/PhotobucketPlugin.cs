@@ -34,7 +34,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -45,7 +45,7 @@ namespace GreenshotPhotobucketPlugin
 	/// </summary>
 	public class PhotobucketPlugin : IGreenshotPlugin
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(PhotobucketPlugin));
+		private static readonly LogSource Log = new LogSource();
 		private static PhotobucketConfiguration _config;
 		public static PluginAttribute Attributes;
 		private IGreenshotHost _host;
@@ -97,7 +97,7 @@ namespace GreenshotPhotobucketPlugin
 
 		public virtual void Shutdown()
 		{
-			Log.Debug("Photobucket Plugin shutdown.");
+			Log.Debug().WriteLine("Photobucket Plugin shutdown.");
 			Language.LanguageChanged -= OnLanguageChanged;
 		}
 
@@ -150,7 +150,7 @@ namespace GreenshotPhotobucketPlugin
 					delegate { photobucketInfo = PhotobucketUtils.UploadToPhotobucket(surfaceToUpload, outputSettings, albumPath, captureDetails.Title, filename); }
 				);
 				// This causes an exeption if the upload failed :)
-				Log.DebugFormat("Uploaded to Photobucket page: " + photobucketInfo.Page);
+				Log.Debug().WriteLine("Uploaded to Photobucket page: " + photobucketInfo.Page);
 				uploadUrl = null;
 				try
 				{
@@ -167,13 +167,13 @@ namespace GreenshotPhotobucketPlugin
 				}
 				catch (Exception ex)
 				{
-					Log.Error("Can't write to clipboard: ", ex);
+					Log.Error().WriteLine(ex, "Can't write to clipboard: ");
 				}
 				return true;
 			}
 			catch (Exception e)
 			{
-				Log.Error(e);
+				Log.Error().WriteLine(e);
 				MessageBox.Show(Language.GetString("photobucket", LangKey.upload_failure) + " " + e.Message);
 			}
 			uploadUrl = null;

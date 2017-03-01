@@ -29,7 +29,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Confluence;
 using GreenshotPlugin.Core;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -40,7 +40,7 @@ namespace GreenshotConfluencePlugin
 	/// </summary>
 	public class ConfluenceUtils
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(ConfluenceUtils));
+		private static readonly LogSource Log = new LogSource();
 
 		public static List<Page> GetCurrentPages()
 		{
@@ -56,7 +56,7 @@ namespace GreenshotConfluencePlugin
 				}
 				catch
 				{
-					LOG.WarnFormat("Error processing URL: {0}", browserurl);
+					Log.Warn().WriteLine("Error processing URL: {0}", browserurl);
 					continue;
 				}
 				var pageIdMatch = pageIdRegex.Matches(url);
@@ -71,14 +71,14 @@ namespace GreenshotConfluencePlugin
 							if (page.Id == pageId)
 							{
 								pageDouble = true;
-								LOG.DebugFormat("Skipping double page with ID {0}", pageId);
+								Log.Debug().WriteLine("Skipping double page with ID {0}", pageId);
 								break;
 							}
 						}
 						if (!pageDouble)
 						{
 							var page = ConfluencePlugin.ConfluenceConnector.GetPage(pageId);
-							LOG.DebugFormat("Adding page {0}", page.Title);
+							Log.Debug().WriteLine("Adding page {0}", page.Title);
 							pages.Add(page);
 						}
 						continue;
@@ -86,8 +86,8 @@ namespace GreenshotConfluencePlugin
 					catch (Exception ex)
 					{
 						// Preventing security problems
-						LOG.DebugFormat("Couldn't get page details for PageID {0}", pageId);
-						LOG.Warn(ex);
+						Log.Debug().WriteLine("Couldn't get page details for PageID {0}", pageId);
+						Log.Warn().WriteLine(ex);
 					}
 				}
 				var spacePageMatch = spacePageRegex.Matches(url);
@@ -112,7 +112,7 @@ namespace GreenshotConfluencePlugin
 							{
 								if (page.Title.Equals(title))
 								{
-									LOG.DebugFormat("Skipping double page with title {0}", title);
+									Log.Debug().WriteLine("Skipping double page with title {0}", title);
 									pageDouble = true;
 									break;
 								}
@@ -120,15 +120,15 @@ namespace GreenshotConfluencePlugin
 							if (!pageDouble)
 							{
 								var page = ConfluencePlugin.ConfluenceConnector.GetPage(space, title);
-								LOG.DebugFormat("Adding page {0}", page.Title);
+								Log.Debug().WriteLine("Adding page {0}", page.Title);
 								pages.Add(page);
 							}
 						}
 						catch (Exception ex)
 						{
 							// Preventing security problems
-							LOG.DebugFormat("Couldn't get page details for space {0} / title {1}", space, title);
-							LOG.Warn(ex);
+							Log.Debug().WriteLine("Couldn't get page details for space {0} / title {1}", space, title);
+							Log.Warn().WriteLine(ex);
 						}
 					}
 				}

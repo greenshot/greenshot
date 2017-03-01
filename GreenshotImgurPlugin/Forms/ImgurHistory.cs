@@ -31,7 +31,7 @@ using System.Windows.Forms;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -42,7 +42,7 @@ namespace GreenshotImgurPlugin
 	/// </summary>
 	public sealed partial class ImgurHistory : ImgurForm
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(ImgurHistory));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly object Lock = new object();
 		private static readonly ImgurConfiguration Config = IniConfig.GetIniSection<ImgurConfiguration>();
 		private static ImgurHistory _instance;
@@ -180,7 +180,7 @@ namespace GreenshotImgurPlugin
 					}
 					catch (Exception ex)
 					{
-						Log.Warn("Problem communicating with Imgur: ", ex);
+						Log.Warn().WriteLine(ex, "Problem communicating with Imgur: ");
 					}
 
 					imgurInfo.Dispose();

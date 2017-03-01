@@ -29,6 +29,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using Dapplo.Log;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Native;
 using GreenshotPlugin.Core;
@@ -36,8 +37,6 @@ using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.Effects;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
-using hqx;
-using log4net;
 
 #endregion
 
@@ -49,7 +48,7 @@ namespace GreenshotPlugin.Gfx
 	public static class ImageHelper
 	{
 		private const int ExifOrientationId = 0x0112;
-		private static readonly ILog Log = LogManager.GetLogger(typeof(ImageHelper));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 
 		static ImageHelper()
@@ -65,7 +64,7 @@ namespace GreenshotPlugin.Gfx
 				stream.Position = 0;
 				using (var tmpImage = Image.FromStream(stream, true, true))
 				{
-					Log.DebugFormat("Loaded bitmap with Size {0}x{1} and PixelFormat {2}", tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
+					Log.Debug().WriteLine("Loaded bitmap with Size {0}x{1} and PixelFormat {2}", tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
 					return tmpImage.CloneImage(PixelFormat.Format32bppArgb);
 				}
 			};
@@ -88,7 +87,7 @@ namespace GreenshotPlugin.Gfx
 				}
 				catch (Exception ex)
 				{
-					Log.Error("Can't load SVG", ex);
+					Log.Error().WriteLine(ex, "Can't load SVG");
 				}
 				return null;
 			};
@@ -108,7 +107,7 @@ namespace GreenshotPlugin.Gfx
 				}
 				catch (Exception vistaIconException)
 				{
-					Log.Warn("Can't read icon", vistaIconException);
+					Log.Warn().WriteLine(vistaIconException, "Can't read icon");
 				}
 				try
 				{
@@ -125,7 +124,7 @@ namespace GreenshotPlugin.Gfx
 				}
 				catch (Exception iconException)
 				{
-					Log.Warn("Can't read icon", iconException);
+					Log.Warn().WriteLine(iconException, "Can't read icon");
 				}
 
 				stream.Position = 0;
@@ -196,7 +195,7 @@ namespace GreenshotPlugin.Gfx
 			}
 			catch (Exception orientEx)
 			{
-				Log.Warn("Problem orientating the image: ", orientEx);
+				Log.Warn().WriteLine(orientEx, "Problem orientating the image: ");
 			}
 		}
 
@@ -263,7 +262,7 @@ namespace GreenshotPlugin.Gfx
 					return true;
 				}
 			}
-			Log.Warn("Can't crop a null/zero size image!");
+			Log.Warn().WriteLine("Can't crop a null/zero size image!");
 			return false;
 		}
 
@@ -406,7 +405,7 @@ namespace GreenshotPlugin.Gfx
 				return null;
 			}
 			Image fileImage;
-			Log.InfoFormat("Loading image from file {0}", filename);
+			Log.Info().WriteLine("Loading image from file {0}", filename);
 			// Fixed lock problem Bug #3431881
 			using (Stream imageFileStream = File.OpenRead(filename))
 			{
@@ -414,7 +413,7 @@ namespace GreenshotPlugin.Gfx
 			}
 			if (fileImage != null)
 			{
-				Log.InfoFormat("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", filename, fileImage.Width, fileImage.Height, fileImage.PixelFormat,
+				Log.Info().WriteLine("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", filename, fileImage.Width, fileImage.Height, fileImage.PixelFormat,
 					fileImage.HorizontalResolution, fileImage.VerticalResolution);
 			}
 			return fileImage;
@@ -1443,7 +1442,7 @@ namespace GreenshotPlugin.Gfx
 				}
 				catch (Exception ex)
 				{
-					Log.Warn("Problem cloning a propertyItem.", ex);
+					Log.Warn().WriteLine(ex, "Problem cloning a propertyItem.");
 				}
 			}
 			return newImage;
@@ -1722,7 +1721,7 @@ namespace GreenshotPlugin.Gfx
 			surfaceFileStream.Position = 0;
 			using (var tmpImage = Image.FromStream(surfaceFileStream, true, true))
 			{
-				Log.DebugFormat("Loaded .greenshot file with Size {0}x{1} and PixelFormat {2}", tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
+				Log.Debug().WriteLine("Loaded .greenshot file with Size {0}x{1} and PixelFormat {2}", tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
 				fileImage = tmpImage.CloneImage();
 			}
 			// Start at -14 read "GreenshotXX.YY" (XX=Major, YY=Minor)
@@ -1735,7 +1734,7 @@ namespace GreenshotPlugin.Gfx
 				{
 					throw new ArgumentException("Stream is not a Greenshot file!");
 				}
-				Log.InfoFormat("Greenshot file format: {0}", greenshotMarker);
+				Log.Info().WriteLine("Greenshot file format: {0}", greenshotMarker);
 				const int filesizeLocation = 8 + markerSize;
 				surfaceFileStream.Seek(-filesizeLocation, SeekOrigin.End);
 				using (var reader = new BinaryReader(surfaceFileStream))
@@ -1748,7 +1747,7 @@ namespace GreenshotPlugin.Gfx
 			if (fileImage != null)
 			{
 				returnSurface.Image = fileImage;
-				Log.InfoFormat("Information about .greenshot file: {0}x{1}-{2} Resolution {3}x{4}", fileImage.Width, fileImage.Height, fileImage.PixelFormat,
+				Log.Info().WriteLine("Information about .greenshot file: {0}x{1}-{2} Resolution {3}x{4}", fileImage.Width, fileImage.Height, fileImage.PixelFormat,
 					fileImage.HorizontalResolution, fileImage.VerticalResolution);
 			}
 			return returnSurface;
@@ -1792,7 +1791,7 @@ namespace GreenshotPlugin.Gfx
 				stream.Position = 0;
 				using (var tmpImage = Image.FromStream(stream, true, true))
 				{
-					Log.DebugFormat("Loaded bitmap with Size {0}x{1} and PixelFormat {2}", tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
+					Log.Debug().WriteLine("Loaded bitmap with Size {0}x{1} and PixelFormat {2}", tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
 					returnImage = CloneImage(tmpImage, PixelFormat.Format32bppArgb);
 				}
 			}
@@ -1804,9 +1803,8 @@ namespace GreenshotPlugin.Gfx
 		/// </summary>
 		/// <param name="original">original icon Bitmap</param>
 		/// <param name="dpi">double with the dpi value</param>
-		/// <param name="useHqx">true to use the HQX filter, false uses Scale2X</param>
 		/// <returns>Image</returns>
-		public static Image ScaleIconForDisplaying(this Image original, double dpi, bool useHqx = true)
+		public static Image ScaleIconForDisplaying(this Image original, double dpi)
 		{
 			if (original == null)
 			{
@@ -1822,36 +1820,16 @@ namespace GreenshotPlugin.Gfx
 				return original;
 			}
 
-			using (var s1 = original.Scale2X())
-			using (var s2 = s1.Scale2X())
-			using (var s3 = s2.Scale2X())
-			using (var s4 = s3.Scale2X())
-			{
-				original = s4.Scale2X();
-			}
-
 			if (width == original.Width * 2)
 			{
-				if (useHqx)
-				{
-					return HqxSharp.Scale2((Bitmap)original);
-				}
 				return original.Scale2X();
 			}
 			if (width == original.Width * 3)
 			{
-				if (useHqx)
-				{
-					return HqxSharp.Scale3((Bitmap)original);
-				}
 				return original.Scale3X();
 			}
 			if (width == original.Width * 4)
 			{
-				if (useHqx)
-				{
-					return HqxSharp.Scale4((Bitmap) original);
-				}
 				using (var scale2X = original.Scale2X())
 				{
 					return scale2X.Scale2X();

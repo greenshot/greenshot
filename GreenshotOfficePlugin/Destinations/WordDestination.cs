@@ -34,7 +34,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -47,7 +47,7 @@ namespace GreenshotOfficePlugin.Destinations
 	{
 		private const int IconApplication = 0;
 		private const int IconDocument = 1;
-		private static readonly ILog Log = LogManager.GetLogger(typeof(WordDestination));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly string ExePath;
 		private readonly string _documentCaption;
 
@@ -81,7 +81,7 @@ namespace GreenshotOfficePlugin.Destinations
 
 		public override Image GetDisplayIcon(double dpi)
 		{
-			return PluginUtils.GetCachedExeIcon(ExePath, !string.IsNullOrEmpty(_documentCaption) ? IconDocument : IconApplication, dpi > 0);
+			return PluginUtils.GetCachedExeIcon(ExePath, !string.IsNullOrEmpty(_documentCaption) ? IconDocument : IconApplication, dpi > 100);
 		} 
 
 		public override IEnumerable<IDestination> DynamicDestinations()
@@ -113,7 +113,7 @@ namespace GreenshotOfficePlugin.Destinations
 					}
 					catch (Exception ex)
 					{
-						Log.Error(ex);
+						Log.Error().WriteLine(ex);
 						// TODO: Change to general logic in ProcessExport
 						surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetFormattedString("destination_exportfailed", Description));
 					}
@@ -153,7 +153,7 @@ namespace GreenshotOfficePlugin.Destinations
 					}
 					catch (Exception ex)
 					{
-						Log.Error(ex);
+						Log.Error().WriteLine(ex);
 						// TODO: Change to general logic in ProcessExport
 						surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetFormattedString("destination_exportfailed", Description));
 					}

@@ -32,7 +32,7 @@ using Dapplo.Windows.Enums;
 using Dapplo.Windows.Native;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -44,7 +44,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public static class SoundHelper
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(SoundHelper));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 		private static GCHandle? _gcHandle;
 		private static byte[] _soundBuffer;
@@ -69,7 +69,7 @@ namespace Greenshot.Helpers
 						}
 						catch (Exception ex)
 						{
-							Log.WarnFormat("couldn't load {0}: {1}", CoreConfig.NotificationSound, ex.Message);
+							Log.Warn().WriteLine("couldn't load {0}: {1}", CoreConfig.NotificationSound, ex.Message);
 						}
 					}
 					// Pin sound so it can't be moved by the Garbage Collector, this was the cause for the bad sound
@@ -77,7 +77,7 @@ namespace Greenshot.Helpers
 				}
 				catch (Exception e)
 				{
-					Log.Error("Error initializing.", e);
+					Log.Error().WriteLine(e, "Error initializing.");
 				}
 			}
 		}
@@ -98,7 +98,7 @@ namespace Greenshot.Helpers
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error in play.", e);
+				Log.Error().WriteLine(e, "Error in play.");
 			}
 		}
 
@@ -115,7 +115,7 @@ namespace Greenshot.Helpers
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error in deinitialize.", e);
+				Log.Error().WriteLine(e, "Error in deinitialize.");
 			}
 		}
 	}

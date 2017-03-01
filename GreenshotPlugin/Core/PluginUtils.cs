@@ -34,7 +34,7 @@ using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces.Forms;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
 using Microsoft.Win32;
 
 #endregion
@@ -47,7 +47,7 @@ namespace GreenshotPlugin.Core
 	public static class PluginUtils
 	{
 		private const string PathKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
-		private static readonly ILog Log = LogManager.GetLogger(typeof(PluginUtils));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 		private static readonly IDictionary<string, Image> ExeIconCache = new Dictionary<string, Image>();
 
@@ -114,7 +114,7 @@ namespace GreenshotPlugin.Core
 				}
 				catch (Exception)
 				{
-					Log.WarnFormat("Problem with path entry '{0}'.", pathEntry);
+					Log.Warn().WriteLine("Problem with path entry '{0}'.", pathEntry);
 				}
 			}
 			return null;
@@ -186,7 +186,7 @@ namespace GreenshotPlugin.Core
 			}
 			catch (Exception exIcon)
 			{
-				Log.Error("error retrieving icon: ", exIcon);
+				Log.Error().WriteLine(exIcon, "error retrieving icon: ");
 			}
 			return null;
 		}

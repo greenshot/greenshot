@@ -34,7 +34,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -45,7 +45,7 @@ namespace GreenshotFlickrPlugin
 	/// </summary>
 	public sealed class FlickrPlugin : IGreenshotPlugin
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(FlickrPlugin));
+		private static readonly LogSource Log = new LogSource();
 		private static FlickrConfiguration _config;
 		public static PluginAttribute Attributes;
 		private IGreenshotHost _host;
@@ -98,7 +98,7 @@ namespace GreenshotFlickrPlugin
 
 		public void Shutdown()
 		{
-			Log.Debug("Flickr Plugin shutdown.");
+			Log.Debug().WriteLine("Flickr Plugin shutdown.");
 		}
 
 		/// <summary>
@@ -165,7 +165,7 @@ namespace GreenshotFlickrPlugin
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error uploading.", e);
+				Log.Error().WriteLine(e, "Error uploading.");
 				MessageBox.Show(Language.GetString("flickr", LangKey.upload_failure) + " " + e.Message);
 			}
 			return false;

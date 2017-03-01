@@ -25,6 +25,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Text;
 using System.Xml;
+using Dapplo.Log;
 using GreenshotPlugin.Core;
 
 namespace GreenshotLutimPlugin
@@ -34,9 +35,9 @@ namespace GreenshotLutimPlugin
     /// </summary>
     public class LutimInfo : IDisposable
     {
-        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(LutimInfo));
+		private static readonly LogSource Log = new LogSource();
 
-        public DateTime CreatedAt { get; set; }
+		public DateTime CreatedAt { get; set; }
 
         public bool DelAtView { get; set; }
 
@@ -94,7 +95,7 @@ namespace GreenshotLutimPlugin
         }
         public static LutimInfo ParseResponse(string lutimBaseUri, string response)
         {
-            Log.Debug(response);
+            Log.Debug().WriteLine(response);
 
             LutimInfo lutimInfo = new LutimInfo();
             try
@@ -124,7 +125,7 @@ namespace GreenshotLutimPlugin
             }
             catch (Exception e)
             {
-                Log.ErrorFormat("Could not parse Lutim response due to error {0}, response was: {1}", e.Message, response);
+                Log.Error().WriteLine("Could not parse Lutim response due to error {0}, response was: {1}", e.Message, response);
             }
             return lutimInfo;
         }

@@ -38,7 +38,7 @@ using Dapplo.Jira.Entities;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Credentials;
 using GreenshotPlugin.IniFile;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -51,7 +51,7 @@ namespace GreenshotJiraPlugin
 	{
 		// Used to remove the wsdl information from the old SOAP Uri
 		public const string DefaultPostfix = "/rpc/soap/jirasoapservice-v2?wsdl";
-		private static readonly ILog Log = LogManager.GetLogger(typeof(JiraConnector));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly JiraConfiguration JiraConfig = IniConfig.GetIniSection<JiraConfiguration>();
 		private readonly int _timeout;
 		private IssueTypeBitmapCache _issueTypeBitmapCache;
@@ -128,8 +128,8 @@ namespace GreenshotJiraPlugin
 				}
 				catch (Exception ex)
 				{
-					Log.WarnFormat("Couldn't load favicon from {0}", favIconUri);
-					Log.Warn("Exception details: ", ex);
+					Log.Warn().WriteLine("Couldn't load favicon from {0}", favIconUri);
+					Log.Warn().WriteLine(ex, "Exception details: ");
 				}
 			}
 			catch (Exception)
@@ -174,7 +174,7 @@ namespace GreenshotJiraPlugin
 					catch (ApplicationException e)
 					{
 						// exception handling ...
-						Log.Error("Problem using the credentials dialog", e);
+						Log.Error().WriteLine(e, "Problem using the credentials dialog");
 					}
 					// For every windows version after XP show an incorrect password baloon
 					credentialsDialog.IncorrectPassword = true;
@@ -185,7 +185,7 @@ namespace GreenshotJiraPlugin
 			catch (ApplicationException e)
 			{
 				// exception handling ...
-				Log.Error("Problem using the credentials dialog", e);
+				Log.Error().WriteLine(e, "Problem using the credentials dialog");
 			}
 		}
 

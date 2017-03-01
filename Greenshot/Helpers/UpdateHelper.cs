@@ -32,7 +32,7 @@ using Greenshot.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.IniFile;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -45,7 +45,7 @@ namespace Greenshot.Experimental
 	{
 		private const string StableDownloadLink = "https://getgreenshot.org/downloads/";
 		private const string VersionHistoryLink = "https://getgreenshot.org/version-history/";
-		private static readonly ILog Log = LogManager.GetLogger(typeof(UpdateHelper));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 		private static readonly object LockObject = new object();
 		private static RssFile _latestGreenshot;
@@ -67,14 +67,14 @@ namespace Greenshot.Experimental
 				checkTime = checkTime.AddDays(CoreConfig.UpdateCheckInterval);
 				if (DateTime.Now.CompareTo(checkTime) < 0)
 				{
-					Log.DebugFormat("No need to check RSS feed for updates, feed check will be after {0}", checkTime);
+					Log.Debug().WriteLine("No need to check RSS feed for updates, feed check will be after {0}", checkTime);
 					return false;
 				}
-				Log.DebugFormat("Update check is due, last check was {0} check needs to be made after {1} (which is one {2} later)", CoreConfig.LastUpdateCheck, checkTime,
+				Log.Debug().WriteLine("Update check is due, last check was {0} check needs to be made after {1} (which is one {2} later)", CoreConfig.LastUpdateCheck, checkTime,
 					CoreConfig.UpdateCheckInterval);
 				if (!RssHelper.IsRssModifiedAfter(CoreConfig.LastUpdateCheck))
 				{
-					Log.DebugFormat("RSS feed has not been updated since after {0}", CoreConfig.LastUpdateCheck);
+					Log.Debug().WriteLine("RSS feed has not been updated since after {0}", CoreConfig.LastUpdateCheck);
 					return false;
 				}
 			}
@@ -107,7 +107,7 @@ namespace Greenshot.Experimental
 				}
 				catch (Exception e)
 				{
-					Log.Error("An error occured while checking for updates, the error will be ignored: ", e);
+					Log.Error().WriteLine(e, "An error occured while checking for updates, the error will be ignored: ");
 				}
 			}
 		}
@@ -164,7 +164,7 @@ namespace Greenshot.Experimental
 					// do we have a version?
 					if (rssFile.Version == null)
 					{
-						Log.DebugFormat("Skipping unversioned exe {0} which is published at {1} : {2}", rssFile.File, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
+						Log.Debug().WriteLine("Skipping unversioned exe {0} which is published at {1} : {2}", rssFile.File, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
 						continue;
 					}
 
@@ -193,7 +193,7 @@ namespace Greenshot.Experimental
 					var versionCompare = rssFile.Version.CompareTo(currentVersion);
 					if (versionCompare > 0)
 					{
-						Log.DebugFormat("Found newer Greenshot '{0}' with version {1} published at {2} : {3}", rssFile.File, rssFile.Version, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
+						Log.Debug().WriteLine("Found newer Greenshot '{0}' with version {1} published at {2} : {3}", rssFile.File, rssFile.Version, rssFile.Pubdate.ToLocalTime(), rssFile.Link);
 						if (_latestGreenshot == null || rssFile.Version.CompareTo(_latestGreenshot.Version) > 0)
 						{
 							_latestGreenshot = rssFile;
@@ -209,11 +209,11 @@ namespace Greenshot.Experimental
 					}
 					else if (versionCompare < 0)
 					{
-						Log.DebugFormat("Skipping older greenshot with version {0}", rssFile.Version);
+						Log.Debug().WriteLine("Skipping older greenshot with version {0}", rssFile.Version);
 					}
 					else if (versionCompare == 0)
 					{
-						Log.DebugFormat("Found current version as exe {0} with version {1} published at {2} : {3}", rssFile.File, rssFile.Version, rssFile.Pubdate.ToLocalTime(),
+						Log.Debug().WriteLine("Found current version as exe {0} with version {1} published at {2} : {3}", rssFile.File, rssFile.Version, rssFile.Pubdate.ToLocalTime(),
 							rssFile.Link);
 					}
 				}

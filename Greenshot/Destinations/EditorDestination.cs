@@ -31,7 +31,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Forms;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -43,7 +43,7 @@ namespace Greenshot.Destinations
 	public class EditorDestination : AbstractDestination
 	{
 		public const string DESIGNATION = "Editor";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(EditorDestination));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
 		private static readonly Image greenshotIcon = GreenshotResources.getGreenshotIcon().ToBitmap();
 		private readonly IImageEditor editor;
@@ -131,12 +131,12 @@ namespace Greenshot.Destinations
 						}
 						editorForm.Show();
 						editorForm.Activate();
-						LOG.Debug("Finished opening Editor");
+						Log.Debug().WriteLine("Finished opening Editor");
 						exportInformation.ExportMade = true;
 					}
 					catch (Exception e)
 					{
-						LOG.Error(e);
+						Log.Error().WriteLine(e);
 						exportInformation.ErrorMessage = e.Message;
 					}
 				}
@@ -153,7 +153,7 @@ namespace Greenshot.Destinations
 				}
 				catch (Exception e)
 				{
-					LOG.Error(e);
+					Log.Error().WriteLine(e);
 					exportInformation.ErrorMessage = e.Message;
 				}
 			}

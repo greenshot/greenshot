@@ -30,7 +30,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -43,7 +43,7 @@ namespace GreenshotBoxPlugin
 	{
 		private const string UploadFileUri = "https://upload.box.com/api/2.0/files/content";
 		private const string FilesUri = "https://www.box.com/api/2.0/files/{0}";
-		private static readonly ILog Log = LogManager.GetLogger(typeof(BoxUtils));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly BoxConfiguration Config = IniConfig.GetIniSection<BoxConfiguration>();
 
 		/// <summary>
@@ -106,7 +106,7 @@ namespace GreenshotBoxPlugin
 
 				var response = NetworkHelper.GetResponseAsString(webRequest);
 
-				Log.DebugFormat("Box response: {0}", response);
+				Log.Debug().WriteLine("Box response: {0}", response);
 
 				var upload = JsonSerializer.Deserialize<Upload>(response);
 				if (upload?.Entries == null || upload.Entries.Count == 0)

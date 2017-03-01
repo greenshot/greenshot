@@ -36,7 +36,7 @@ using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -47,7 +47,7 @@ namespace GreenshotBoxPlugin
 	/// </summary>
 	public sealed class BoxPlugin : IGreenshotPlugin
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(BoxPlugin));
+		private static readonly LogSource Log = new LogSource();
 		private static BoxConfiguration _config;
 		public static PluginAttribute Attributes;
 		private IGreenshotHost _host;
@@ -99,7 +99,7 @@ namespace GreenshotBoxPlugin
 
 		public void Shutdown()
 		{
-			LOG.Debug("Box Plugin shutdown.");
+			Log.Debug().WriteLine("Box Plugin shutdown.");
 		}
 
 		/// <summary>
@@ -160,7 +160,7 @@ namespace GreenshotBoxPlugin
 			}
 			catch (Exception ex)
 			{
-				LOG.Error("Error uploading.", ex);
+				Log.Error().WriteLine(ex, "Error uploading.");
 				MessageBox.Show(Language.GetString("box", LangKey.upload_failure) + " " + ex.Message);
 				return null;
 			}

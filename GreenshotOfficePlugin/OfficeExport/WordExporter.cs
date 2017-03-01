@@ -29,7 +29,8 @@ using Dapplo.Windows.Desktop;
 using GreenshotOfficePlugin.OfficeInterop;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interop;
-using log4net;
+using Dapplo.Log;
+using GreenshotPlugin.Core;
 
 #endregion
 
@@ -40,7 +41,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 	/// </summary>
 	public static class WordExporter
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(WordExporter));
+		private static readonly LogSource Log = new LogSource();
 		private static Version _wordVersion;
 		private static readonly OfficeConfiguration OfficeConfig = IniConfig.GetIniSection<OfficeConfiguration>();
 
@@ -112,7 +113,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 			{
 				if (selection == null)
 				{
-					Log.InfoFormat("No selection to insert {0} into found.", tmpFile);
+					Log.Info().WriteLine("No selection to insert {0} into found.", tmpFile);
 					return false;
 				}
 				// Add Picture
@@ -134,7 +135,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 						}
 						catch (Exception e)
 						{
-							Log.WarnFormat("Couldn't add hyperlink for image: {0}", e.Message);
+							Log.Warn().WriteLine("Couldn't add hyperlink for image: {0}", e.Message);
 						}
 					}
 				}
@@ -154,7 +155,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 				}
 				catch (Exception e)
 				{
-					Log.WarnFormat("Couldn't set zoom to 100, error: {0}", e.InnerException?.Message ?? e.Message);
+					Log.Warn().WriteLine("Couldn't set zoom to 100, error: {0}", e.InnerException?.Message ?? e.Message);
 				}
 				try
 				{
@@ -247,7 +248,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 									}
 									catch (Exception e)
 									{
-										Log.WarnFormat("Couldn't add hyperlink for image: {0}", e.Message);
+										Log.Warn().WriteLine("Couldn't add hyperlink for image: {0}", e.Message);
 									}
 								}
 							}
@@ -325,7 +326,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 			}
 			catch (Exception ex)
 			{
-				Log.Warn("Problem retrieving word destinations, ignoring: ", ex);
+				Log.Warn().WriteLine(ex, "Problem retrieving word destinations, ignoring: ");
 			}
 			openDocuments.Sort();
 			return openDocuments;
@@ -366,12 +367,12 @@ namespace GreenshotOfficePlugin.OfficeExport
 			try
 			{
 				_wordVersion = new Version(wordApplication.Version);
-				Log.InfoFormat("Using Word {0}", _wordVersion);
+				Log.Info().WriteLine("Using Word {0}", _wordVersion);
 			}
 			catch (Exception exVersion)
 			{
-				Log.Error(exVersion);
-				Log.Warn("Assuming Word version 1997.");
+				Log.Error().WriteLine(exVersion);
+				Log.Warn().WriteLine("Assuming Word version 1997.");
 				_wordVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
 			}
 		}

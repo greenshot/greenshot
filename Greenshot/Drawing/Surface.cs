@@ -44,7 +44,7 @@ using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Drawing;
 using GreenshotPlugin.Interfaces.Drawing.Adorners;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -55,7 +55,7 @@ namespace Greenshot.Drawing
 	/// </summary>
 	public sealed class Surface : Control, ISurface, INotifyPropertyChanged
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(Surface));
+		private static readonly LogSource Log = new LogSource();
 
 		/// <summary>
 		/// The number of Surfaces in existance
@@ -206,7 +206,7 @@ namespace Greenshot.Drawing
 			Count++;
 			_elements = new DrawableContainerList(ID);
 			selectedElements = new DrawableContainerList(ID);
-			LOG.Debug("Creating surface!");
+			Log.Debug().WriteLine("Creating surface!");
 			MouseDown += SurfaceMouseDown;
 			MouseUp += SurfaceMouseUp;
 			MouseMove += SurfaceMouseMove;
@@ -234,7 +234,7 @@ namespace Greenshot.Drawing
 		/// <param name="newImage"></param>
 		public Surface(Image newImage) : this()
 		{
-			LOG.DebugFormat("Got image with dimensions {0} and format {1}", newImage.Size, newImage.PixelFormat);
+			Log.Debug().WriteLine("Got image with dimensions {0} and format {1}", newImage.Size, newImage.PixelFormat);
 			SetImage(newImage, true);
 		}
 
@@ -492,7 +492,7 @@ namespace Greenshot.Drawing
 			}
 			catch (Exception e)
 			{
-				LOG.Error("Error serializing elements to stream.", e);
+				Log.Error().WriteLine(e, "Error serializing elements to stream.");
 			}
 			return bytesWritten;
 		}
@@ -517,7 +517,7 @@ namespace Greenshot.Drawing
 			}
 			catch (Exception e)
 			{
-				LOG.Error("Error serializing elements from stream.", e);
+				Log.Error().WriteLine(e, "Error serializing elements from stream.");
 			}
 		}
 
@@ -767,12 +767,12 @@ namespace Greenshot.Drawing
 			{
 				return;
 			}
-			if (LOG.IsDebugEnabled)
+			if (Log.IsDebugEnabled())
 			{
-				LOG.Debug("List of clipboard formats available for pasting:");
+				Log.Debug().WriteLine("List of clipboard formats available for pasting:");
 				foreach (var format in formats)
 				{
-					LOG.Debug("\tgot format: " + format);
+					Log.Debug().WriteLine("\tgot format: " + format);
 				}
 			}
 
@@ -895,7 +895,7 @@ namespace Greenshot.Drawing
 		/// </summary>
 		public void DuplicateSelectedElements()
 		{
-			LOG.DebugFormat("Duplicating {0} selected elements", selectedElements.Count);
+			Log.Debug().WriteLine("Duplicating {0} selected elements", selectedElements.Count);
 			var dcs = selectedElements.Clone();
 			dcs.Parent = this;
 			dcs.MoveBy(10, 10);
@@ -1048,7 +1048,7 @@ namespace Greenshot.Drawing
 			if (disposing)
 			{
 				Count--;
-				LOG.Debug("Disposing surface!");
+				Log.Debug().WriteLine("Disposing surface!");
 				if (_buffer != null)
 				{
 					_buffer.Dispose();
@@ -1624,7 +1624,7 @@ namespace Greenshot.Drawing
 			var clipRectangle = paintEventArgs.ClipRectangle;
 			if (Rectangle.Empty.Equals(clipRectangle))
 			{
-				LOG.Debug("Empty cliprectangle??");
+				Log.Debug().WriteLine("Empty cliprectangle??");
 				return;
 			}
 
@@ -1641,7 +1641,7 @@ namespace Greenshot.Drawing
 				if (_buffer == null)
 				{
 					_buffer = ImageHelper.CreateEmpty(Image.Width, Image.Height, Image.PixelFormat, Color.Empty, Image.HorizontalResolution, Image.VerticalResolution);
-					LOG.DebugFormat("Created buffer with size: {0}x{1}", Image.Width, Image.Height);
+					Log.Debug().WriteLine("Created buffer with size: {0}x{1}", Image.Width, Image.Height);
 				}
 				// Elements might need the bitmap, so we copy the part we need
 				using (var graphics = Graphics.FromImage(_buffer))
@@ -1979,12 +1979,12 @@ namespace Greenshot.Drawing
 
 		private void OnDragEnter(object sender, DragEventArgs e)
 		{
-			if (LOG.IsDebugEnabled)
+			if (Log.IsDebugEnabled())
 			{
-				LOG.Debug("DragEnter got following formats: ");
+				Log.Debug().WriteLine("DragEnter got following formats: ");
 				foreach (var format in ClipboardHelper.GetFormats(e.Data))
 				{
-					LOG.Debug(format);
+					Log.Debug().WriteLine(format);
 				}
 			}
 			if ((e.AllowedEffect & DragDropEffects.Copy) != DragDropEffects.Copy)

@@ -31,7 +31,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
 using TranslationByMarkupExtension;
 
 #endregion
@@ -43,7 +43,7 @@ namespace GreenshotConfluencePlugin
 	/// </summary>
 	public sealed class ConfluencePlugin : IGreenshotPlugin
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(ConfluencePlugin));
+		private static readonly LogSource Log = new LogSource();
 		private static ConfluenceConfiguration _config;
 
 		public static ConfluenceConnector ConfluenceConnectorNoLogin { get; private set; }
@@ -109,7 +109,7 @@ namespace GreenshotConfluencePlugin
 			}
 			catch (Exception ex)
 			{
-				Log.ErrorFormat("Problem in ConfluencePlugin.Initialize: {0}", ex.Message);
+				Log.Error().WriteLine("Problem in ConfluencePlugin.Initialize: {0}", ex.Message);
 				return false;
 			}
 			return true;
@@ -117,7 +117,7 @@ namespace GreenshotConfluencePlugin
 
 		public void Shutdown()
 		{
-			Log.Debug("Confluence Plugin shutdown.");
+			Log.Debug().WriteLine("Confluence Plugin shutdown.");
 			if (ConfluenceConnectorNoLogin != null)
 			{
 				ConfluenceConnectorNoLogin.Logout();

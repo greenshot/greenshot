@@ -36,7 +36,7 @@ using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -47,7 +47,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public class PrintHelper : IDisposable
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(PrintHelper));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 		private readonly ICaptureDetails _captureDetails;
 		private PrintDialog _printDialog = new PrintDialog();
@@ -126,7 +126,7 @@ namespace Greenshot.Helpers
 			}
 			catch (Exception e)
 			{
-				Log.Error("An error ocurred while trying to print", e);
+				Log.Error().WriteLine(e, "An error ocurred while trying to print");
 				MessageBox.Show(Language.GetString(LangKey.print_error), Language.GetString(LangKey.error));
 			}
 			return returnPrinterSettings;
@@ -157,7 +157,7 @@ namespace Greenshot.Helpers
 				}
 				catch (Exception e)
 				{
-					Log.Error("An error ocurred while trying to print", e);
+					Log.Error().WriteLine(e, "An error ocurred while trying to print");
 					MessageBox.Show(Language.GetString(LangKey.print_error), Language.GetString(LangKey.error));
 				}
 			}

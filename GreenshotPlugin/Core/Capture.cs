@@ -28,7 +28,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -40,7 +40,7 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public class Capture : ICapture
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(Capture));
+		private static readonly LogSource Log = new LogSource();
 
 		private CaptureDetails _captureDetails;
 
@@ -102,7 +102,7 @@ namespace GreenshotPlugin.Core
 					if (value.PixelFormat.Equals(PixelFormat.Format8bppIndexed) || value.PixelFormat.Equals(PixelFormat.Format1bppIndexed) ||
 					    value.PixelFormat.Equals(PixelFormat.Format4bppIndexed))
 					{
-						Log.Debug("Converting Bitmap to PixelFormat.Format32bppArgb as we don't support: " + value.PixelFormat);
+						Log.Debug().WriteLine("Converting Bitmap to PixelFormat.Format32bppArgb as we don't support: " + value.PixelFormat);
 						try
 						{
 							// Default Bitmap PixelFormat is Format32bppArgb
@@ -114,11 +114,11 @@ namespace GreenshotPlugin.Core
 							value.Dispose();
 						}
 					}
-					Log.DebugFormat("Image is set with the following specifications: {0} - {1}", _image.Size, _image.PixelFormat);
+					Log.Debug().WriteLine("Image is set with the following specifications: {0} - {1}", _image.Size, _image.PixelFormat);
 				}
 				else
 				{
-					Log.Debug("Image is removed.");
+					Log.Debug().WriteLine("Image is removed.");
 				}
 			}
 		}
@@ -185,7 +185,7 @@ namespace GreenshotPlugin.Core
 		/// <param name="cropRectangle">Rectangle with bitmap coordinates</param>
 		public bool Crop(Rectangle cropRectangle)
 		{
-			Log.Debug("Cropping to: " + cropRectangle);
+			Log.Debug().WriteLine("Cropping to: " + cropRectangle);
 			if (!ImageHelper.Crop(ref _image, ref cropRectangle))
 			{
 				return false;

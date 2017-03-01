@@ -28,12 +28,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Log;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Native;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -44,7 +45,7 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public abstract class AbstractDestination : IDestination
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(AbstractDestination));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 
 		public virtual int CompareTo(object obj)
@@ -124,7 +125,7 @@ namespace GreenshotPlugin.Core
 				Text = Description
 			};
 
-			scaleHandler.AddTarget(basisMenuItem, this, true);
+			scaleHandler.AddTarget(basisMenuItem, this);
 
 			AddTagEvents(basisMenuItem, menu, Description);
 			basisMenuItem.Click -= destinationClickHandler;
@@ -144,7 +145,7 @@ namespace GreenshotPlugin.Core
 						}
 						catch (Exception ex)
 						{
-							Log.ErrorFormat("Skipping {0}, due to the following error: {1}", Description, ex.Message);
+							Log.Error().WriteLine("Skipping {0}, due to the following error: {1}", Description, ex.Message);
 						}
 						if (subDestinations.Count > 0)
 						{
@@ -232,12 +233,12 @@ namespace GreenshotPlugin.Core
 			{
 				menuItem.MouseDown += (sender, args) =>
 				{
-					Log.DebugFormat("Setting tag to '{0}'", tagValue);
+					Log.Debug().WriteLine("Setting tag to '{0}'", tagValue);
 					menu.Tag = tagValue;
 				};
 				menuItem.MouseUp += (sender, args) =>
 				{
-					Log.Debug("Deleting tag");
+					Log.Debug().WriteLine("Deleting tag");
 					menu.Tag = null;
 				};
 			}
@@ -275,7 +276,7 @@ namespace GreenshotPlugin.Core
 			var exportInformation = new ExportInformation(Designation, Language.GetString("settings_destination_picker"));
 			menu.Closing += (source, eventArgs) =>
 			{
-				Log.DebugFormat("Close reason: {0}", eventArgs.CloseReason);
+				Log.Debug().WriteLine("Close reason: {0}", eventArgs.CloseReason);
 				switch (eventArgs.CloseReason)
 				{
 					case ToolStripDropDownCloseReason.AppFocusChange:
@@ -286,7 +287,7 @@ namespace GreenshotPlugin.Core
 						}
 						else
 						{
-							Log.DebugFormat("Letting the menu 'close' as the tag is set to '{0}'", menu.Tag);
+							Log.Debug().WriteLine("Letting the menu 'close' as the tag is set to '{0}'", menu.Tag);
 						}
 						break;
 					case ToolStripDropDownCloseReason.ItemClicked:
@@ -331,7 +332,7 @@ namespace GreenshotPlugin.Core
 						exportInformation = clickedDestination.ExportCapture(true, surface, captureDetails);
 						if (exportInformation != null && exportInformation.ExportMade)
 						{
-							Log.InfoFormat("Export to {0} success, closing menu", exportInformation.DestinationDescription);
+							Log.Info().WriteLine("Export to {0} success, closing menu", exportInformation.DestinationDescription);
 							// close menu if the destination wasn't the editor
 							menu.Close();
 
@@ -344,7 +345,7 @@ namespace GreenshotPlugin.Core
 						}
 						else
 						{
-							Log.Info("Export cancelled or failed, showing menu again");
+							Log.Info().WriteLine("Export cancelled or failed, showing menu again");
 
 							// Make sure a click besides the menu don't close it.
 							menu.Tag = null;

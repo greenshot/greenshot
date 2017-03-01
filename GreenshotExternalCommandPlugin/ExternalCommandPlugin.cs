@@ -32,7 +32,7 @@ using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -43,7 +43,7 @@ namespace GreenshotExternalCommandPlugin
 	/// </summary>
 	public sealed class ExternalCommandPlugin : IGreenshotPlugin
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(ExternalCommandPlugin));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 		private static readonly ExternalCommandConfiguration ExternalCommandConfig = IniConfig.GetIniSection<ExternalCommandConfiguration>();
 		private IGreenshotHost _host;
@@ -75,7 +75,7 @@ namespace GreenshotExternalCommandPlugin
 		/// <param name="myAttributes">My own attributes</param>
 		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes)
 		{
-			Log.DebugFormat("Initialize called of {0}", myAttributes.Name);
+			Log.Debug().WriteLine("Initialize called of {0}", myAttributes.Name);
 
 			var commandsToDelete = new List<string>();
 			// Check configuration
@@ -109,7 +109,7 @@ namespace GreenshotExternalCommandPlugin
 
 		public void Shutdown()
 		{
-			Log.Debug("Shutdown of " + _myAttributes.Name);
+			Log.Debug().WriteLine("Shutdown of " + _myAttributes.Name);
 		}
 
 		/// <summary>
@@ -117,7 +117,7 @@ namespace GreenshotExternalCommandPlugin
 		/// </summary>
 		public void Configure()
 		{
-			Log.Debug("Configure called");
+			Log.Debug().WriteLine("Configure called");
 			new SettingsForm().ShowDialog();
 		}
 
@@ -142,19 +142,19 @@ namespace GreenshotExternalCommandPlugin
 		{
 			if (!ExternalCommandConfig.RunInbackground.ContainsKey(command))
 			{
-				Log.WarnFormat("Found missing runInbackground for {0}", command);
+				Log.Warn().WriteLine("Found missing runInbackground for {0}", command);
 				// Fix it
 				ExternalCommandConfig.RunInbackground.Add(command, true);
 			}
 			if (!ExternalCommandConfig.Argument.ContainsKey(command))
 			{
-				Log.WarnFormat("Found missing argument for {0}", command);
+				Log.Warn().WriteLine("Found missing argument for {0}", command);
 				// Fix it
 				ExternalCommandConfig.Argument.Add(command, "{0}");
 			}
 			if (!ExternalCommandConfig.Commandline.ContainsKey(command))
 			{
-				Log.WarnFormat("Found missing commandline for {0}", command);
+				Log.Warn().WriteLine("Found missing commandline for {0}", command);
 				return false;
 			}
 			var commandline = FilenameHelper.FillVariables(ExternalCommandConfig.Commandline[command], true);
@@ -164,7 +164,7 @@ namespace GreenshotExternalCommandPlugin
 			{
 				return true;
 			}
-			Log.WarnFormat("Found 'invalid' commandline {0} for command {1}", ExternalCommandConfig.Commandline[command], command);
+			Log.Warn().WriteLine("Found 'invalid' commandline {0} for command {1}", ExternalCommandConfig.Commandline[command], command);
 			return false;
 		}
 
@@ -191,7 +191,7 @@ namespace GreenshotExternalCommandPlugin
 			}
 			catch (Exception ex)
 			{
-				Log.Warn("Couldn't get the cmd.exe image", ex);
+				Log.Warn().WriteLine(ex, "Couldn't get the cmd.exe image");
 			}
 		}
 

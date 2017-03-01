@@ -28,7 +28,7 @@ using System.Drawing;
 using System.IO;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -40,7 +40,7 @@ namespace GreenshotExternalCommandPlugin
 	public static class IconCache
 	{
 		private static readonly ExternalCommandConfiguration Config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
-		private static readonly ILog Log = LogManager.GetLogger(typeof(IconCache));
+		private static readonly LogSource Log = new LogSource();
 
 		/// <summary>
 		/// Retrieve the icon for a command
@@ -65,7 +65,7 @@ namespace GreenshotExternalCommandPlugin
 			}
 			catch (Exception ex)
 			{
-				Log.Warn("Problem loading icon for " + Config.Commandline[commandName], ex);
+				Log.Warn().WriteLine(ex, "Problem loading icon for " + Config.Commandline[commandName]);
 			}
 			return icon;
 		}

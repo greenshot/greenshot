@@ -30,6 +30,7 @@ using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
+using Dapplo.Log;
 using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
@@ -452,7 +453,7 @@ namespace GreenshotPlugin.Core
 							}
 							catch (Exception ex)
 							{
-								LOG.Warn(ex);
+								Log.Warn().WriteLine(ex);
 								// Problem creating directory, fallback to Desktop
 							}
 						}

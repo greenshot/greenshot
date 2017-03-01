@@ -35,7 +35,7 @@ using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -46,7 +46,7 @@ namespace GreenshotExternalCommandPlugin
 	/// </summary>
 	public class ExternalCommandDestination : AbstractDestination
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(ExternalCommandDestination));
+		private static readonly LogSource Log = new LogSource();
 
 		private static readonly Regex UriRegexp = new Regex(
 				@"((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)", RegexOptions.Compiled);
@@ -146,7 +146,7 @@ namespace GreenshotExternalCommandPlugin
 						if (uriMatches.Count > 0)
 						{
 							exportInformation.Uri = uriMatches[0].Groups[1].Value;
-							Log.InfoFormat("Got URI : {0} ", exportInformation.Uri);
+							Log.Info().WriteLine("Got URI : {0} ", exportInformation.Uri);
 							if (Config.UriToClipboard)
 							{
 								ClipboardHelper.SetClipboardData(exportInformation.Uri);
@@ -156,7 +156,7 @@ namespace GreenshotExternalCommandPlugin
 				}
 				else
 				{
-					Log.WarnFormat("Error calling external command: {0} ", output);
+					Log.Warn().WriteLine("Error calling external command: {0} ", output);
 					exportInformation.ExportMade = false;
 					exportInformation.ErrorMessage = error;
 				}
@@ -165,7 +165,7 @@ namespace GreenshotExternalCommandPlugin
 			{
 				exportInformation.ExportMade = false;
 				exportInformation.ErrorMessage = ex.Message;
-				Log.WarnFormat("Error calling external command: {0} ", exportInformation.ErrorMessage);
+				Log.Warn().WriteLine("Error calling external command: {0} ", exportInformation.ErrorMessage);
 			}
 		}
 
@@ -245,7 +245,7 @@ namespace GreenshotExternalCommandPlugin
 					{
 						process.StartInfo.Verb = verb;
 					}
-					Log.InfoFormat("Starting : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
+					Log.Info().WriteLine("Starting : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
 					process.Start();
 					process.WaitForExit();
 					if (Config.RedirectStandardOutput)
@@ -253,7 +253,7 @@ namespace GreenshotExternalCommandPlugin
 						output = process.StandardOutput.ReadToEnd();
 						if (Config.ShowStandardOutputInLog && output.Trim().Length > 0)
 						{
-							Log.InfoFormat("Output:\n{0}", output);
+							Log.Info().WriteLine("Output:\n{0}", output);
 						}
 					}
 					if (Config.RedirectStandardError)
@@ -261,10 +261,10 @@ namespace GreenshotExternalCommandPlugin
 						error = process.StandardError.ReadToEnd();
 						if (error.Trim().Length > 0)
 						{
-							Log.WarnFormat("Error:\n{0}", error);
+							Log.Warn().WriteLine("Error:\n{0}", error);
 						}
 					}
-					Log.InfoFormat("Finished : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
+					Log.Info().WriteLine("Finished : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
 					return process.ExitCode;
 				}
 			}

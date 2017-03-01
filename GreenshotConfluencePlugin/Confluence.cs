@@ -31,7 +31,7 @@ using GreenshotConfluencePlugin.confluence;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Credentials;
 using GreenshotPlugin.IniFile;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -102,7 +102,7 @@ namespace Confluence
 	{
 		private const string AuthFailedExceptionName = "com.atlassian.confluence.rpc.AuthenticationFailedException";
 		private const string V2Failed = "AXIS";
-		private static readonly ILog Log = LogManager.GetLogger(typeof(ConfluenceConnector));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly ConfluenceConfiguration Config = IniConfig.GetIniSection<ConfluenceConfiguration>();
 		private readonly Cache<string, RemotePage> _pageCache = new Cache<string, RemotePage>(60 * Config.Timeout);
 		private readonly int _timeout;
@@ -220,7 +220,7 @@ namespace Confluence
 					catch (ApplicationException e)
 					{
 						// exception handling ...
-						Log.Error("Problem using the credentials dialog", e);
+						Log.Error().WriteLine(e, "Problem using the credentials dialog");
 					}
 					// For every windows version after XP show an incorrect password baloon
 					dialog.IncorrectPassword = true;
@@ -231,7 +231,7 @@ namespace Confluence
 			catch (ApplicationException e)
 			{
 				// exception handling ...
-				Log.Error("Problem using the credentials dialog", e);
+				Log.Error().WriteLine(e, "Problem using the credentials dialog");
 			}
 		}
 
@@ -352,7 +352,7 @@ namespace Confluence
 			CheckCredentials();
 			foreach (var searchResult in _confluence.search(_credentials, query, 20))
 			{
-				Log.DebugFormat("Got result of type {0}", searchResult.type);
+				Log.Debug().WriteLine("Got result of type {0}", searchResult.type);
 				if ("page".Equals(searchResult.type))
 				{
 					yield return new Page(searchResult, space);

@@ -24,6 +24,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using Dapplo.Log;
 using Dapplo.Windows.Dpi;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Controls;
@@ -37,7 +38,7 @@ namespace GreenshotLutimPlugin {
 	/// This is the LutimPlugin code
 	/// </summary>
 	public class LutimPlugin : IGreenshotPlugin {
-		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(LutimPlugin));
+		private static readonly LogSource Log = new LogSource();
 		private static LutimConfiguration _config;
 		public static PluginAttribute Attributes;
 		private IGreenshotHost _host;
@@ -135,12 +136,12 @@ namespace GreenshotLutimPlugin {
 					}
 				});
 			} catch (Exception ex) {
-				Log.Error("Error loading history", ex);
+				Log.Error().WriteLine(ex, "Error loading history");
 			}
 		}
 
 		public virtual void Shutdown() {
-			Log.Debug("Lutim Plugin shutdown.");
+			Log.Debug().WriteLine("Lutim Plugin shutdown.");
 			Language.LanguageChanged -= OnLanguageChanged;
 		}
 
@@ -170,7 +171,7 @@ namespace GreenshotLutimPlugin {
 					{
 						lutimInfo = LutimUtils.UploadToLutim(surfaceToUpload, outputSettings, filename);
 						if (lutimInfo != null) {
-							Log.InfoFormat("Storing lutim upload for hash {0} and delete hash {1}", lutimInfo.Short, lutimInfo.Token);
+							Log.Info().WriteLine("Storing lutim upload for hash {0} and delete hash {1}", lutimInfo.Short, lutimInfo.Token);
 							_config.LutimUploadHistory.Add(lutimInfo.Short, lutimInfo.ToIniString());
 							_config.RuntimeLutimHistory.Add(lutimInfo.Short, lutimInfo);
 							UpdateHistoryMenuItem();
@@ -195,14 +196,14 @@ namespace GreenshotLutimPlugin {
 						}
 						catch (Exception ex)
 						{
-							Log.Error("Can't write to clipboard: ", ex);
+							Log.Error().WriteLine(ex, "Can't write to clipboard: ");
 							uploadUrl = null;
 						}
 					}
 					return true;
 				}
 			} catch (Exception e) {
-				Log.Error("Error uploading.", e);
+				Log.Error().WriteLine(e, "Error uploading.");
 				MessageBox.Show(Language.GetString("lutim", LangKey.upload_failure) + " " + e.Message);
 			}
 			uploadUrl = null;

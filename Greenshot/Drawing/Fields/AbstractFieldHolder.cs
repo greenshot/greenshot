@@ -31,7 +31,8 @@ using System.Runtime.Serialization;
 using Greenshot.Configuration;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces.Drawing;
-using log4net;
+using Dapplo.Log;
+using GreenshotPlugin.Core;
 
 #endregion
 
@@ -43,7 +44,7 @@ namespace Greenshot.Drawing.Fields
 	[Serializable]
 	public abstract class AbstractFieldHolder : IFieldHolder
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(AbstractFieldHolder));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
 
 		[NonSerialized] private readonly IDictionary<IField, PropertyChangedEventHandler> _handlers = new Dictionary<IField, PropertyChangedEventHandler>();
@@ -75,9 +76,9 @@ namespace Greenshot.Drawing.Fields
 
 			if (_fieldsByType.ContainsKey(field.FieldType))
 			{
-				if (LOG.IsDebugEnabled)
+				if (Log.IsDebugEnabled())
 				{
-					LOG.DebugFormat("A field with of type '{0}' already exists in this {1}, will overwrite.", field.FieldType, GetType());
+					Log.Debug().WriteLine("A field with of type '{0}' already exists in this {1}, will overwrite.", field.FieldType, GetType());
 				}
 			}
 

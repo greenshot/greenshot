@@ -25,7 +25,8 @@
 
 using System;
 using System.Xml;
-using log4net;
+using Dapplo.Log;
+using GreenshotPlugin.Core;
 
 #endregion
 
@@ -36,7 +37,7 @@ namespace GreenshotPhotobucketPlugin
 	/// </summary>
 	public class PhotobucketInfo
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(PhotobucketInfo));
+		private static readonly LogSource Log = new LogSource();
 
 		public string Original { get; set; }
 
@@ -51,7 +52,7 @@ namespace GreenshotPhotobucketPlugin
 		/// <returns>PhotobucketInfo object</returns>
 		public static PhotobucketInfo FromUploadResponse(string response)
 		{
-			Log.Debug(response);
+			Log.Debug().WriteLine(response);
 			var photobucketInfo = new PhotobucketInfo();
 			try
 			{
@@ -75,7 +76,7 @@ namespace GreenshotPhotobucketPlugin
 			}
 			catch (Exception e)
 			{
-				Log.ErrorFormat("Could not parse Photobucket response due to error {0}, response was: {1}", e.Message, response);
+				Log.Error().WriteLine("Could not parse Photobucket response due to error {0}, response was: {1}", e.Message, response);
 			}
 			return photobucketInfo;
 		}

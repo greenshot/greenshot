@@ -29,7 +29,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Windows.Desktop;
 using GreenshotPlugin.Core;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -40,7 +40,7 @@ namespace GreenshotPlugin.Controls
 	/// </summary>
 	public sealed partial class OAuthLoginForm : Form
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(OAuthLoginForm));
+		private static readonly LogSource Log = new LogSource();
 		private readonly string _callbackUrl;
 
 		public OAuthLoginForm(string browserTitle, Size size, string authorizationLink, string callbackUrl)
@@ -83,19 +83,19 @@ namespace GreenshotPlugin.Controls
 
 		private void Browser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
 		{
-			LOG.DebugFormat("document completed with url: {0}", _browser.Url);
+			Log.Debug().WriteLine("document completed with url: {0}", _browser.Url);
 			CheckUrl();
 		}
 
 		private void Browser_Navigating(object sender, WebBrowserNavigatingEventArgs e)
 		{
-			LOG.DebugFormat("Navigating to url: {0}", _browser.Url);
+			Log.Debug().WriteLine("Navigating to url: {0}", _browser.Url);
 			_addressTextBox.Text = e.Url.ToString();
 		}
 
 		private void Browser_Navigated(object sender, WebBrowserNavigatedEventArgs e)
 		{
-			LOG.DebugFormat("Navigated to url: {0}", _browser.Url);
+			Log.Debug().WriteLine("Navigated to url: {0}", _browser.Url);
 			CheckUrl();
 		}
 

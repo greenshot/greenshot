@@ -27,7 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using GreenshotPlugin.Core;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -39,7 +39,7 @@ namespace GreenshotPlugin.IniFile
 	[Serializable]
 	public abstract class IniSection
 	{
-		protected static ILog LOG = LogManager.GetLogger(typeof(IniSection));
+		protected static readonly LogSource Log = new LogSource();
 
 		[NonSerialized] private readonly IDictionary<string, IniValue> values = new Dictionary<string, IniValue>();
 
@@ -181,7 +181,7 @@ namespace GreenshotPlugin.IniFile
 				}
 				catch (Exception ex)
 				{
-					LOG.Error(ex);
+					Log.Error().WriteLine(ex);
 				}
 			}
 			AfterLoad();

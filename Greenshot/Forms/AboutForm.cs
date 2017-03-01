@@ -38,7 +38,7 @@ using Greenshot.Helpers;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -58,7 +58,7 @@ namespace Greenshot.Forms
 		private const int p5 = p4 + w;
 		private const int p6 = p5 + w;
 		private const int p7 = p6 + w;
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(AboutForm));
+		private static readonly LogSource Log = new LogSource();
 		private readonly Color _backColor = Color.FromArgb(61, 61, 61);
 		private readonly ColorAnimator _backgroundAnimation;
 		private readonly IList<Color> _colorFlow = new List<Color>();
@@ -391,7 +391,7 @@ namespace Greenshot.Forms
 			}
 			catch (Exception ex)
 			{
-				LOG.Error($"Error handling key '{keyData}'", ex);
+				Log.Error().WriteLine(ex, $"Error handling key '{keyData}'");
 			}
 			return true;
 		}

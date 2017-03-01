@@ -32,7 +32,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -43,7 +43,7 @@ namespace GreenshotPhotobucketPlugin
 	/// </summary>
 	public static class PhotobucketUtils
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(PhotobucketUtils));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly PhotobucketConfiguration PhotobucketConfig = IniConfig.GetIniSection<PhotobucketConfiguration>();
 		private static List<string> _albumsCache;
 
@@ -94,7 +94,7 @@ namespace GreenshotPhotobucketPlugin
 			}
 			catch (Exception ex)
 			{
-				Log.Error("Error uploading to Photobucket.", ex);
+				Log.Error().WriteLine(ex, "Error uploading to Photobucket.");
 				throw;
 			}
 			finally
@@ -112,9 +112,9 @@ namespace GreenshotPhotobucketPlugin
 			{
 				return null;
 			}
-			Log.Info(responseString);
+			Log.Info().WriteLine(responseString);
 			var photobucketInfo = PhotobucketInfo.FromUploadResponse(responseString);
-			Log.Debug("Upload to Photobucket was finished");
+			Log.Debug().WriteLine("Upload to Photobucket was finished");
 			return photobucketInfo;
 		}
 
@@ -198,7 +198,7 @@ namespace GreenshotPhotobucketPlugin
 			}
 			catch (Exception ex)
 			{
-				Log.Error("Error uploading to Photobucket.", ex);
+				Log.Error().WriteLine(ex, "Error uploading to Photobucket.");
 				throw;
 			}
 			finally
@@ -226,16 +226,16 @@ namespace GreenshotPhotobucketPlugin
 				{
 					RecurseAlbums(albums, null, xmlNode.ChildNodes);
 				}
-				Log.DebugFormat("Albums: {0}", string.Join(",", albums.ToArray()));
+				Log.Debug().WriteLine("Albums: {0}", string.Join(",", albums.ToArray()));
 				_albumsCache = albums;
 				return albums;
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error while Reading albums: ", e);
+				Log.Error().WriteLine(e, "Error while Reading albums: ");
 			}
 
-			Log.Debug("Upload to Photobucket was finished");
+			Log.Debug().WriteLine("Upload to Photobucket was finished");
 			return null;
 		}
 

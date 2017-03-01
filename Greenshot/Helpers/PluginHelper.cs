@@ -35,7 +35,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -47,7 +47,7 @@ namespace Greenshot.Helpers
 	[Serializable]
 	public class PluginHelper : IGreenshotHost
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(PluginHelper));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 
 		private static readonly string PluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
@@ -266,7 +266,7 @@ namespace Greenshot.Helpers
 				}
 				catch (Exception ex)
 				{
-					Log.Error("Error loading plugin: ", ex);
+					Log.Error().WriteLine(ex, "Error loading plugin: ");
 				}
 			}
 		}
@@ -293,7 +293,7 @@ namespace Greenshot.Helpers
 			// Loop over the list of available files and get the Plugin Attributes
 			foreach (var pluginFile in pluginFiles)
 			{
-				//LOG.DebugFormat("Checking the following file for plugins: {0}", pluginFile);
+				//Log.Debug().WriteLine("Checking the following file for plugins: {0}", pluginFile);
 				try
 				{
 					var assembly = Assembly.LoadFrom(pluginFile);
@@ -338,46 +338,46 @@ namespace Greenshot.Helpers
 
 						if (checkPluginAttribute != null)
 						{
-							Log.WarnFormat("Duplicate plugin {0} found", pluginAttribute.Name);
+							Log.Warn().WriteLine("Duplicate plugin {0} found", pluginAttribute.Name);
 							if (isNewer(pluginAttribute.Version, checkPluginAttribute.Version))
 							{
 								// Found is newer
 								tmpAttributes[pluginAttribute.Name] = pluginAttribute;
 								tmpAssemblies[pluginAttribute.Name] = assembly;
-								Log.InfoFormat("Loading the newer plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
+								Log.Info().WriteLine("Loading the newer plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
 							}
 							else
 							{
-								Log.InfoFormat("Skipping (as the duplicate is newer or same version) the plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version,
+								Log.Info().WriteLine("Skipping (as the duplicate is newer or same version) the plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version,
 									pluginAttribute.DllFile);
 							}
 							continue;
 						}
 						if (CoreConfig.ExcludePlugins != null && CoreConfig.ExcludePlugins.Contains(pluginAttribute.Name))
 						{
-							Log.WarnFormat("Exclude list: {0}", CoreConfig.ExcludePlugins.ToArray());
-							Log.WarnFormat("Skipping the excluded plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
+							Log.Warn().WriteLine("Exclude list: {0}", CoreConfig.ExcludePlugins.ToArray());
+							Log.Warn().WriteLine("Skipping the excluded plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
 							continue;
 						}
 						if (CoreConfig.IncludePlugins != null && CoreConfig.IncludePlugins.Count > 0 && !CoreConfig.IncludePlugins.Contains(pluginAttribute.Name))
 						{
 							// Whitelist is set
-							Log.WarnFormat("Include list: {0}", CoreConfig.IncludePlugins.ToArray());
-							Log.WarnFormat("Skipping the not included plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
+							Log.Warn().WriteLine("Include list: {0}", CoreConfig.IncludePlugins.ToArray());
+							Log.Warn().WriteLine("Skipping the not included plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
 							continue;
 						}
-						Log.InfoFormat("Loading the plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
+						Log.Info().WriteLine("Loading the plugin {0} with version {1} from {2}", pluginAttribute.Name, pluginAttribute.Version, pluginAttribute.DllFile);
 						tmpAttributes[pluginAttribute.Name] = pluginAttribute;
 						tmpAssemblies[pluginAttribute.Name] = assembly;
 					}
 					else
 					{
-						Log.ErrorFormat("Can't find the needed Plugin Attribute ({0}) in the assembly of the file \"{1}\", skipping this file.", typeof(PluginAttribute), pluginFile);
+						Log.Error().WriteLine("Can't find the needed Plugin Attribute ({0}) in the assembly of the file \"{1}\", skipping this file.", typeof(PluginAttribute), pluginFile);
 					}
 				}
 				catch (Exception e)
 				{
-					Log.Warn("Can't load file: " + pluginFile, e);
+					Log.Warn().WriteLine(e, "Can't load file: " + pluginFile);
 				}
 			}
 			foreach (var pluginName in tmpAttributes.Keys)
@@ -389,7 +389,7 @@ namespace Greenshot.Helpers
 					var entryType = assembly.GetType(pluginAttribute.EntryType);
 					if (entryType == null)
 					{
-						Log.ErrorFormat("Can't find the in the PluginAttribute referenced type {0} in \"{1}\"", pluginAttribute.EntryType, pluginAttribute.DllFile);
+						Log.Error().WriteLine("Can't find the in the PluginAttribute referenced type {0} in \"{1}\"", pluginAttribute.EntryType, pluginAttribute.DllFile);
 						continue;
 					}
 					try
@@ -403,22 +403,22 @@ namespace Greenshot.Helpers
 							}
 							else
 							{
-								Log.InfoFormat("Plugin {0} not initialized!", pluginAttribute.Name);
+								Log.Info().WriteLine("Plugin {0} not initialized!", pluginAttribute.Name);
 							}
 						}
 						else
 						{
-							Log.ErrorFormat("Can't create an instance of the in the PluginAttribute referenced type {0} from \"{1}\"", pluginAttribute.EntryType, pluginAttribute.DllFile);
+							Log.Error().WriteLine("Can't create an instance of the in the PluginAttribute referenced type {0} from \"{1}\"", pluginAttribute.EntryType, pluginAttribute.DllFile);
 						}
 					}
 					catch (Exception e)
 					{
-						Log.Error("Can't load Plugin: " + pluginAttribute.Name, e);
+						Log.Error().WriteLine(e, "Can't load Plugin: " + pluginAttribute.Name);
 					}
 				}
 				catch (Exception e)
 				{
-					Log.Error("Can't load Plugin: " + pluginName, e);
+					Log.Error().WriteLine(e, "Can't load Plugin: " + pluginName);
 				}
 			}
 		}

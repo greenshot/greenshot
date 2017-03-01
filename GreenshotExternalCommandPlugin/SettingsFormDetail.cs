@@ -29,7 +29,7 @@ using System.IO;
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -40,7 +40,7 @@ namespace GreenshotExternalCommandPlugin
 	/// </summary>
 	public partial class SettingsFormDetail : ExternalCommandForm
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(SettingsFormDetail));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly ExternalCommandConfiguration ExternalCommandConfig = IniConfig.GetIniSection<ExternalCommandConfiguration>();
 		private readonly int _commandIndex;
 
@@ -104,8 +104,8 @@ namespace GreenshotExternalCommandPlugin
 			}
 			catch (Exception ex)
 			{
-				Log.WarnFormat("Can't get the initial path via {0}", textBox_commandline.Text);
-				Log.Warn("Exception: ", ex);
+				Log.Warn().WriteLine("Can't get the initial path via {0}", textBox_commandline.Text);
+				Log.Warn().WriteLine(ex, "Exception: ");
 			}
 			if (initialPath != null && Directory.Exists(initialPath))
 			{
@@ -116,7 +116,7 @@ namespace GreenshotExternalCommandPlugin
 				initialPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
 				openFileDialog.InitialDirectory = initialPath;
 			}
-			Log.DebugFormat("Starting OpenFileDialog at {0}", initialPath);
+			Log.Debug().WriteLine("Starting OpenFileDialog at {0}", initialPath);
 			if (openFileDialog.ShowDialog() == DialogResult.OK)
 			{
 				textBox_commandline.Text = openFileDialog.FileName;

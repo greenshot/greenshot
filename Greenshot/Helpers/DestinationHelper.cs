@@ -29,7 +29,7 @@ using System.Linq;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -40,7 +40,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public static class DestinationHelper
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(DestinationHelper));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly Dictionary<string, IDestination> RegisteredDestinations = new Dictionary<string, IDestination>();
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 
@@ -65,18 +65,18 @@ namespace Greenshot.Helpers
 				}
 				catch (Exception e)
 				{
-					Log.ErrorFormat("Can't create instance of {0}", destinationType);
-					Log.Error(e);
+					Log.Error().WriteLine("Can't create instance of {0}", destinationType);
+					Log.Error().WriteLine(e);
 					continue;
 				}
 				if (destination.IsActive)
 				{
-					Log.DebugFormat("Found destination {0} with designation {1}", destinationType.Name, destination.Designation);
+					Log.Debug().WriteLine("Found destination {0} with designation {1}", destinationType.Name, destination.Designation);
 					RegisterDestination(destination);
 				}
 				else
 				{
-					Log.DebugFormat("Ignoring destination {0} with designation {1}", destinationType.Name, destination.Designation);
+					Log.Debug().WriteLine("Ignoring destination {0} with designation {1}", destinationType.Name, destination.Designation);
 				}
 			}
 		}
@@ -112,8 +112,8 @@ namespace Greenshot.Helpers
 				}
 				catch (Exception ex)
 				{
-					Log.ErrorFormat("Couldn't get destinations from the plugin {0}", pluginAttribute.Name);
-					Log.Error(ex);
+					Log.Error().WriteLine("Couldn't get destinations from the plugin {0}", pluginAttribute.Name);
+					Log.Error().WriteLine(ex);
 				}
 			}
 			destinations.Sort();

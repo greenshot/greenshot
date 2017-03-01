@@ -34,7 +34,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -45,7 +45,7 @@ namespace GreenshotGooglePhotosPlugin
 	/// </summary>
 	public sealed class GooglePhotosPlugin : IGreenshotPlugin
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(GooglePhotosPlugin));
+		private static readonly LogSource Log = new LogSource();
 		private static GooglePhotosConfiguration _config;
 		public static PluginAttribute Attributes;
 		private IGreenshotHost _host;
@@ -96,7 +96,7 @@ namespace GreenshotGooglePhotosPlugin
 
 		public void Shutdown()
 		{
-			Log.Debug("GooglePhotos Plugin shutdown.");
+			Log.Debug().WriteLine("GooglePhotos Plugin shutdown.");
 			Language.LanguageChanged -= OnLanguageChanged;
 			//host.OnImageEditorOpen -= new OnImageEditorOpenHandler(ImageEditorOpened);
 		}
@@ -157,7 +157,7 @@ namespace GreenshotGooglePhotosPlugin
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error uploading.", e);
+				Log.Error().WriteLine(e, "Error uploading.");
 				MessageBox.Show(Language.GetString("googlephotos", LangKey.upload_failure) + " " + e.Message);
 			}
 			uploadUrl = null;

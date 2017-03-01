@@ -22,7 +22,7 @@ using System;
 using System.Globalization;
 using System.Text;
 using System.Windows.Forms;
-
+using Dapplo.Log;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
@@ -32,7 +32,7 @@ namespace GreenshotLutimPlugin {
 	/// Lutim history form
 	/// </summary>
 	public sealed partial class LutimHistory : LutimForm {
-		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(LutimHistory));
+		private static readonly LogSource Log = new LogSource();
 		private readonly GreenshotColumnSorter _columnSorter;
 		private static readonly object Lock = new object();
 		private static readonly LutimConfiguration Config = IniConfig.GetIniSection<LutimConfiguration>();
@@ -149,7 +149,7 @@ namespace GreenshotLutimPlugin {
 							}
 						);
 					} catch (Exception ex) {
-						Log.Warn("Problem communicating with Lutim: ", ex);
+						Log.Warn().WriteLine(ex, "Problem communicating with Lutim: ");
 					}
 
 					lutimInfo.Dispose();

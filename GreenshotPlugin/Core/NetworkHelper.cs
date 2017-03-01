@@ -35,7 +35,7 @@ using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -58,7 +58,7 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public static class NetworkHelper
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(NetworkHelper));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly CoreConfiguration Config = IniConfig.GetIniSection<CoreConfiguration>();
 
 		static NetworkHelper()
@@ -70,7 +70,7 @@ namespace GreenshotPlugin.Core
 			}
 			catch (Exception ex)
 			{
-				Log.Warn("An error has occured while allowing self-signed certificates:", ex);
+				Log.Warn().WriteLine(ex, "An error has occured while allowing self-signed certificates:");
 			}
 		}
 
@@ -114,7 +114,7 @@ namespace GreenshotPlugin.Core
 			}
 			catch (Exception e)
 			{
-				Log.Error("Problem downloading the FavIcon from: " + baseUri, e);
+				Log.Error().WriteLine(e, "Problem downloading the FavIcon from: " + baseUri);
 			}
 			return null;
 		}
@@ -194,7 +194,7 @@ namespace GreenshotPlugin.Core
 			}
 			catch (Exception e)
 			{
-				Log.Error("Problem downloading the image from: " + url, e);
+				Log.Error().WriteLine(e, "Problem downloading the image from: " + url);
 			}
 			return null;
 		}
@@ -270,7 +270,7 @@ namespace GreenshotPlugin.Core
 				if (proxyToUse != null)
 				{
 					proxyToUse.Credentials = CredentialCache.DefaultCredentials;
-					if (Log.IsDebugEnabled)
+					if (Log.IsDebugEnabled())
 					{
 						// check the proxy for the Uri
 						if (!proxyToUse.IsBypassed(uri))
@@ -278,22 +278,22 @@ namespace GreenshotPlugin.Core
 							var proxyUri = proxyToUse.GetProxy(uri);
 							if (proxyUri != null)
 							{
-								Log.Debug("Using proxy: " + proxyUri + " for " + uri);
+								Log.Debug().WriteLine("Using proxy: " + proxyUri + " for " + uri);
 							}
 							else
 							{
-								Log.Debug("No proxy found!");
+								Log.Debug().WriteLine("No proxy found!");
 							}
 						}
 						else
 						{
-							Log.Debug("Proxy bypass for: " + uri);
+							Log.Debug().WriteLine("Proxy bypass for: " + uri);
 						}
 					}
 				}
 				else
 				{
-					Log.Debug("No proxy found!");
+					Log.Debug().WriteLine("No proxy found!");
 				}
 			}
 			return proxyToUse;
@@ -491,14 +491,14 @@ namespace GreenshotPlugin.Core
 		/// <param name="response">WebResponse</param>
 		private static void DebugHeaders(WebResponse response)
 		{
-			if (!Log.IsDebugEnabled)
+			if (!Log.IsDebugEnabled())
 			{
 				return;
 			}
-			Log.DebugFormat("Debug information on the response from {0} :", response.ResponseUri);
+			Log.Debug().WriteLine("Debug information on the response from {0} :", response.ResponseUri);
 			foreach (var key in response.Headers.AllKeys)
 			{
-				Log.DebugFormat("Reponse-header: {0}={1}", key, response.Headers[key]);
+				Log.Debug().WriteLine("Reponse-header: {0}={1}", key, response.Headers[key]);
 			}
 		}
 
@@ -552,17 +552,17 @@ namespace GreenshotPlugin.Core
 			try
 			{
 				response = (HttpWebResponse) webRequest.GetResponse();
-				Log.InfoFormat("Response status: {0}", response.StatusCode);
+				Log.Info().WriteLine("Response status: {0}", response.StatusCode);
 				isHttpError = (int) response.StatusCode >= 300;
 				if (isHttpError)
 				{
-					Log.ErrorFormat("HTTP error {0}", response.StatusCode);
+					Log.Error().WriteLine("HTTP error {0}", response.StatusCode);
 				}
 				DebugHeaders(response);
 				responseData = GetResponseAsString(response);
 				if (isHttpError)
 				{
-					Log.ErrorFormat("HTTP response {0}", responseData);
+					Log.Error().WriteLine("HTTP response {0}", responseData);
 				}
 			}
 			catch (WebException e)
@@ -572,15 +572,15 @@ namespace GreenshotPlugin.Core
 				if (response != null)
 				{
 					statusCode = response.StatusCode;
-					Log.ErrorFormat("HTTP error {0}", statusCode);
+					Log.Error().WriteLine("HTTP error {0}", statusCode);
 					var errorContent = GetResponseAsString(response);
 					if (alsoReturnContentOnError)
 					{
 						return errorContent;
 					}
-					Log.ErrorFormat("Content: {0}", errorContent);
+					Log.Error().WriteLine("Content: {0}", errorContent);
 				}
-				Log.Error("WebException: ", e);
+				Log.Error().WriteLine(e, "WebException: ");
 				if (statusCode == HttpStatusCode.Unauthorized)
 				{
 					throw new UnauthorizedAccessException(e.Message);
@@ -593,7 +593,7 @@ namespace GreenshotPlugin.Core
 				{
 					if (isHttpError)
 					{
-						Log.ErrorFormat("HTTP error {0} with content: {1}", response.StatusCode, responseData);
+						Log.Error().WriteLine("HTTP error {0} with content: {1}", response.StatusCode, responseData);
 					}
 					response.Close();
 				}
@@ -614,14 +614,14 @@ namespace GreenshotPlugin.Core
 				webRequest.Method = HTTPMethod.HEAD.ToString();
 				using (var webResponse = (HttpWebResponse) webRequest.GetResponse())
 				{
-					Log.DebugFormat("RSS feed was updated at {0}", webResponse.LastModified);
+					Log.Debug().WriteLine("RSS feed was updated at {0}", webResponse.LastModified);
 					return webResponse.LastModified;
 				}
 			}
 			catch (Exception wE)
 			{
-				Log.WarnFormat("Problem requesting HTTP - HEAD on uri {0}", uri);
-				Log.Warn(wE.Message);
+				Log.Warn().WriteLine("Problem requesting HTTP - HEAD on uri {0}", uri);
+				Log.Warn().WriteLine(wE.Message);
 				// Pretend it is old
 				return DateTime.MinValue;
 			}

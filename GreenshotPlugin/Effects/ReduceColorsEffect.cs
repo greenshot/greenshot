@@ -27,7 +27,8 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using GreenshotPlugin.Gfx;
-using log4net;
+using Dapplo.Log;
+using GreenshotPlugin.Core;
 
 #endregion
 
@@ -38,7 +39,7 @@ namespace GreenshotPlugin.Effects
 	/// </summary>
 	public class ReduceColorsEffect : IEffect
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(ReduceColorsEffect));
+		private static readonly LogSource Log = new LogSource();
 
 		public ReduceColorsEffect()
 		{
@@ -65,7 +66,7 @@ namespace GreenshotPlugin.Effects
 					}
 					catch (Exception e)
 					{
-						Log.Warn("Error occurred while Quantizing the image, ignoring and using original. Error: ", e);
+						Log.Warn().WriteLine(e, "Error occurred while Quantizing the image, ignoring and using original. Error: ");
 					}
 				}
 			}

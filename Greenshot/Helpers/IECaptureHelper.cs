@@ -40,7 +40,7 @@ using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interop;
-using log4net;
+using Dapplo.Log;
 using mshtml;
 
 #endregion
@@ -55,7 +55,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public static class IeCaptureHelper
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(IeCaptureHelper));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 
 		// Helper method to activate a certain IE Tab
@@ -87,7 +87,7 @@ namespace Greenshot.Helpers
 				Rectangle wholeClient = someWindow.GetClientBounds();
 				Rectangle partClient = ieWindow.GetClientBounds();
 				var percentage = (int) (100 * (float) (partClient.Width * partClient.Height) / (wholeClient.Width * wholeClient.Height));
-				Log.InfoFormat("Window {0}, ie part {1}, percentage {2}", wholeClient, partClient, percentage);
+				Log.Info().WriteLine("Window {0}, ie part {1}, percentage {2}", wholeClient, partClient, percentage);
 				if (percentage > minimumPercentage)
 				{
 					return true;
@@ -192,7 +192,7 @@ namespace Greenshot.Helpers
 				}
 				catch (Exception)
 				{
-					Log.Warn("Can't get Info from " + ieWindow.Classname);
+					Log.Warn().WriteLine("Can't get Info from " + ieWindow.Classname);
 				}
 			}
 
@@ -219,18 +219,18 @@ namespace Greenshot.Helpers
 				: mainWindow.GetChildren().FirstOrDefault(window => window.GetClassname() == "Internet Explorer_Server");
 			if (ieServer == null)
 			{
-				Log.WarnFormat("No Internet Explorer_Server for {0}", mainWindow.Text);
+				Log.Warn().WriteLine("No Internet Explorer_Server for {0}", mainWindow.Text);
 				return null;
 			}
 
 			var windowMessage = User32.RegisterWindowMessage("WM_HTML_GETOBJECT");
 			if (windowMessage == 0)
 			{
-				Log.WarnFormat("Couldn't register WM_HTML_GETOBJECT");
+				Log.Warn().WriteLine("Couldn't register WM_HTML_GETOBJECT");
 				return null;
 			}
 
-			Log.DebugFormat("Trying WM_HTML_GETOBJECT on {0}", ieServer.Classname);
+			Log.Debug().WriteLine("Trying WM_HTML_GETOBJECT on {0}", ieServer.Classname);
 			UIntPtr response;
 			User32.SendMessageTimeout(ieServer.Handle, windowMessage, IntPtr.Zero, IntPtr.Zero, SendMessageTimeoutFlags.Normal, 5000, out response);
 			IHTMLDocument2 document2;
@@ -239,13 +239,13 @@ namespace Greenshot.Helpers
 				document2 = (IHTMLDocument2) Accessible.ObjectFromLresult(response, typeof(IHTMLDocument).GUID, IntPtr.Zero);
 				if (document2 == null)
 				{
-					Log.Error("No IHTMLDocument2 found");
+					Log.Error().WriteLine(null, "No IHTMLDocument2 found");
 					return null;
 				}
 			}
 			else
 			{
-				Log.Error("No answer on WM_HTML_GETOBJECT.");
+				Log.Error().WriteLine(null, "No answer on WM_HTML_GETOBJECT.");
 				return null;
 			}
 			return document2;
@@ -269,7 +269,7 @@ namespace Greenshot.Helpers
 			// Find the IE windows
 			foreach (var ieWindow in GetIeWindows())
 			{
-				Log.DebugFormat("Processing {0} - {1}", ieWindow.Classname, ieWindow.Text);
+				Log.Debug().WriteLine("Processing {0} - {1}", ieWindow.Classname, ieWindow.Text);
 
 				Accessible ieAccessible = null;
 				var directUiwd = IEHelper.GetDirectUi(ieWindow);
@@ -281,14 +281,14 @@ namespace Greenshot.Helpers
 				{
 					if (browserWindow != null)
 					{
-						Log.InfoFormat("Active Window is {0}", browserWindow.Text);
+						Log.Info().WriteLine("Active Window is {0}", browserWindow.Text);
 					}
 					if (!ieWindow.Equals(browserWindow))
 					{
-						Log.WarnFormat("No ieAccessible for {0}", ieWindow.Text);
+						Log.Warn().WriteLine("No ieAccessible for {0}", ieWindow.Text);
 						continue;
 					}
-					Log.DebugFormat("No ieAccessible, but the active window is an IE window: {0}, ", ieWindow.Text);
+					Log.Debug().WriteLine("No ieAccessible, but the active window is an IE window: {0}, ", ieWindow.Text);
 				}
 
 				try
@@ -313,7 +313,7 @@ namespace Greenshot.Helpers
 
 						if (document4.hasFocus())
 						{
-							Log.DebugFormat("Matched focused document: {0}", document2.title);
+							Log.Debug().WriteLine("Matched focused document: {0}", document2.title);
 							// Look no further, we got what we wanted!
 							returnDocument2 = document2;
 							returnWindow = InteropWindowFactory.CreateFor(contentWindowHandle);
@@ -329,7 +329,7 @@ namespace Greenshot.Helpers
 							}
 							if (ieAccessible != null && returnWindow == null && document2.title.Equals(ieAccessible.IEActiveTabCaption))
 							{
-								Log.DebugFormat("Title: {0}", document2.title);
+								Log.Debug().WriteLine("Title: {0}", document2.title);
 								returnDocument2 = document2;
 								returnWindow = InteropWindowFactory.CreateFor(contentWindowHandle);
 							}
@@ -348,8 +348,8 @@ namespace Greenshot.Helpers
 				}
 				catch (Exception e)
 				{
-					Log.ErrorFormat("Major problem: Problem retrieving Document from {0}", ieWindow.Text);
-					Log.Error(e);
+					Log.Error().WriteLine("Major problem: Problem retrieving Document from {0}", ieWindow.Text);
+					Log.Error().WriteLine(e);
 				}
 			}
 
@@ -367,8 +367,8 @@ namespace Greenshot.Helpers
 				}
 				catch (Exception e)
 				{
-					Log.Error("Major problem: Problem retrieving Document.");
-					Log.Error(e);
+					Log.Error().WriteLine(null, "Major problem: Problem retrieving Document.");
+					Log.Error().WriteLine(e);
 				}
 			}
 
@@ -384,8 +384,8 @@ namespace Greenshot.Helpers
 				}
 				catch (Exception e)
 				{
-					Log.Error("Major problem: Problem retrieving Document.");
-					Log.Error(e);
+					Log.Error().WriteLine(null, "Major problem: Problem retrieving Document.");
+					Log.Error().WriteLine(e);
 				}
 			}
 			return returnDocumentContainer;
@@ -415,18 +415,18 @@ namespace Greenshot.Helpers
 				// Nothing found
 				if (documentContainer == null)
 				{
-					Log.Debug("Nothing to capture found");
+					Log.Debug().WriteLine("Nothing to capture found");
 					return null;
 				}
 
 				try
 				{
-					Log.DebugFormat("Window class {0}", documentContainer.ContentWindow.GetClassname());
-					Log.DebugFormat("Window location {0}", documentContainer.ContentWindow.GetBounds().Location);
+					Log.Debug().WriteLine("Window class {0}", documentContainer.ContentWindow.GetClassname());
+					Log.Debug().WriteLine("Window location {0}", documentContainer.ContentWindow.GetBounds().Location);
 				}
 				catch (Exception ex)
 				{
-					Log.Warn("Error while logging information.", ex);
+					Log.Warn().WriteLine(ex, "Error while logging information.");
 				}
 
 				// bitmap to return
@@ -438,7 +438,7 @@ namespace Greenshot.Helpers
 				}
 				catch (Exception captureException)
 				{
-					Log.Error("Exception found, ignoring and returning nothing! Error was: ", captureException);
+					Log.Error().WriteLine(captureException, "Exception found, ignoring and returning nothing! Error was: ");
 				}
 				// TODO: Enable when the elements are usable again.
 				// Capture the element on the page
@@ -454,7 +454,7 @@ namespace Greenshot.Helpers
 				//                    documentCaptureElement.Children.Add(frameCaptureElement);
 				//                }
 				//            } catch (Exception ex) {
-				//                LOG.Warn("An error occurred while creating the capture elements: ", ex);
+				//                Log.Warn().WriteLine("An error occurred while creating the capture elements: ", ex);
 				//            }
 				//        }
 				//        capture.AddElement(documentCaptureElement);
@@ -463,7 +463,7 @@ namespace Greenshot.Helpers
 				//        capture.MoveElements(-(capture.ScreenBounds.Location.X-windowLocation.X), -(capture.ScreenBounds.Location.Y-windowLocation.Y));
 				//    }
 				//} catch (Exception elementsException) {
-				//    LOG.Warn("An error occurred while creating the capture elements: ", elementsException);
+				//    Log.Warn().WriteLine("An error occurred while creating the capture elements: ", elementsException);
 				//}
 
 
@@ -486,7 +486,7 @@ namespace Greenshot.Helpers
 				}
 				catch (Exception ex)
 				{
-					Log.Warn("Problems getting some attributes...", ex);
+					Log.Warn().WriteLine(ex, "Problems getting some attributes...");
 				}
 
 				// Store the URL of the page
@@ -521,7 +521,7 @@ namespace Greenshot.Helpers
 					}
 					catch (Exception e)
 					{
-						Log.Warn("Exception when trying to use url in metadata " + documentContainer.Url, e);
+						Log.Warn().WriteLine(e, "Exception when trying to use url in metadata " + documentContainer.Url);
 					}
 				}
 				try
@@ -532,7 +532,7 @@ namespace Greenshot.Helpers
 				}
 				catch (Exception ex)
 				{
-					Log.Warn("Error while correcting the mouse offset.", ex);
+					Log.Warn().WriteLine(ex, "Error while correcting the mouse offset.");
 				}
 			}
 			finally
@@ -581,20 +581,20 @@ namespace Greenshot.Helpers
 							if ((horizalResize || horizalMove) && leftOf)
 							{
 								// Current frame resized horizontally, so move other horizontally
-								Log.DebugFormat("Moving Frame {0} horizontally to the right of {1}", otherFrame.Name, currentFrame.Name);
+								Log.Debug().WriteLine("Moving Frame {0} horizontally to the right of {1}", otherFrame.Name, currentFrame.Name);
 								otherFrame.DestinationLeft = currentFrame.DestinationRight;
 								movedFrame = true;
 							}
 							else if ((verticalResize || verticalMove) && belowOf)
 							{
 								// Current frame resized vertically, so move other vertically
-								Log.DebugFormat("Moving Frame {0} vertically to the bottom of {1}", otherFrame.Name, currentFrame.Name);
+								Log.Debug().WriteLine("Moving Frame {0} vertically to the bottom of {1}", otherFrame.Name, currentFrame.Name);
 								otherFrame.DestinationTop = currentFrame.DestinationBottom;
 								movedFrame = true;
 							}
 							else
 							{
-								Log.DebugFormat("Frame {0} intersects with {1}", otherFrame.Name, currentFrame.Name);
+								Log.Debug().WriteLine("Frame {0} intersects with {1}", otherFrame.Name, currentFrame.Name);
 							}
 						}
 					}
@@ -634,12 +634,12 @@ namespace Greenshot.Helpers
 			// Limit the size as the editor currently can't work with sizes > short.MaxValue
 			if (pageWidth > short.MaxValue)
 			{
-				Log.WarnFormat("Capture has a width of {0} which bigger than the maximum supported {1}, cutting width to the maxium.", pageWidth, short.MaxValue);
+				Log.Warn().WriteLine("Capture has a width of {0} which bigger than the maximum supported {1}, cutting width to the maxium.", pageWidth, short.MaxValue);
 				pageWidth = Math.Min(pageWidth, short.MaxValue);
 			}
 			if (pageHeight > short.MaxValue)
 			{
-				Log.WarnFormat("Capture has a height of {0} which bigger than the maximum supported {1}, cutting height to the maxium", pageHeight, short.MaxValue);
+				Log.Warn().WriteLine("Capture has a height of {0} which bigger than the maximum supported {1}, cutting height to the maxium", pageHeight, short.MaxValue);
 				pageHeight = Math.Min(pageHeight, short.MaxValue);
 			}
 			return new Size(pageWidth, pageHeight);
@@ -661,7 +661,7 @@ namespace Greenshot.Helpers
 			{
 				// Clear the target with the backgroundcolor
 				var clearColor = documentContainer.BackgroundColor;
-				Log.DebugFormat("Clear color: {0}", clearColor);
+				Log.Debug().WriteLine("Clear color: {0}", clearColor);
 				graphicsTarget.Clear(clearColor);
 
 				// Get the base document & draw it
@@ -700,7 +700,7 @@ namespace Greenshot.Helpers
 			var pageHeight = documentContainer.ScrollHeight;
 			if (pageWidth * pageHeight == 0)
 			{
-				Log.WarnFormat("Empty page for DocumentContainer {0}: {1}", documentContainer.Name, documentContainer.Url);
+				Log.Warn().WriteLine("Empty page for DocumentContainer {0}: {1}", documentContainer.Name, documentContainer.Url);
 				return;
 			}
 
@@ -709,7 +709,7 @@ namespace Greenshot.Helpers
 			var viewportHeight = documentContainer.ClientHeight;
 			if (viewportWidth * viewportHeight == 0)
 			{
-				Log.WarnFormat("Empty viewport for DocumentContainer {0}: {1}", documentContainer.Name, documentContainer.Url);
+				Log.Warn().WriteLine("Empty viewport for DocumentContainer {0}: {1}", documentContainer.Name, documentContainer.Url);
 				return;
 			}
 
@@ -717,7 +717,7 @@ namespace Greenshot.Helpers
 			var startLeft = documentContainer.ScrollLeft;
 			var startTop = documentContainer.ScrollTop;
 
-			Log.DebugFormat("Capturing {4} with total size {0},{1} displayed with size {2},{3}", pageWidth, pageHeight, viewportWidth, viewportHeight, documentContainer.Name);
+			Log.Debug().WriteLine("Capturing {4} with total size {0},{1} displayed with size {2},{3}", pageWidth, pageHeight, viewportWidth, viewportHeight, documentContainer.Name);
 
 			// Variable used for looping horizontally
 			var horizontalPage = 0;
@@ -747,32 +747,32 @@ namespace Greenshot.Helpers
 					var fragment = contentWindowDetails.PrintWindow();
 					if (fragment != null)
 					{
-						Log.DebugFormat("Captured fragment size: {0}x{1}", fragment.Width, fragment.Height);
+						Log.Debug().WriteLine("Captured fragment size: {0}x{1}", fragment.Width, fragment.Height);
 						try
 						{
 							// cut all junk, due to IE "border" we need to remove some parts
 							var viewportRect = documentContainer.ViewportRectangle;
 							if (!viewportRect.IsEmpty)
 							{
-								Log.DebugFormat("Cropping to viewport: {0}", viewportRect);
+								Log.Debug().WriteLine("Cropping to viewport: {0}", viewportRect);
 								ImageHelper.Crop(ref fragment, ref viewportRect);
 							}
-							Log.DebugFormat("Cropping to clientRectangle: {0}", clientRectangle);
+							Log.Debug().WriteLine("Cropping to clientRectangle: {0}", clientRectangle);
 							// Crop to clientRectangle
 							if (ImageHelper.Crop(ref fragment, ref clientRectangle))
 							{
 								var targetLocation = new Point(documentContainer.DestinationLocation.X, documentContainer.DestinationLocation.Y);
-								Log.DebugFormat("Fragment targetLocation is {0}", targetLocation);
+								Log.Debug().WriteLine("Fragment targetLocation is {0}", targetLocation);
 								targetLocation.Offset(targetOffset);
-								Log.DebugFormat("After offsetting the fragment targetLocation is {0}", targetLocation);
-								Log.DebugFormat("Drawing fragment of size {0} to {1}", fragment.Size, targetLocation);
+								Log.Debug().WriteLine("After offsetting the fragment targetLocation is {0}", targetLocation);
+								Log.Debug().WriteLine("Drawing fragment of size {0} to {1}", fragment.Size, targetLocation);
 								graphicsTarget.DrawImage(fragment, targetLocation);
 								graphicsTarget.Flush();
 							}
 							else
 							{
 								// somehow we are capturing nothing!?
-								Log.WarnFormat("Crop of {0} failed?", documentContainer.Name);
+								Log.Warn().WriteLine("Crop of {0} failed?", documentContainer.Name);
 								break;
 							}
 						}
@@ -783,7 +783,7 @@ namespace Greenshot.Helpers
 					}
 					else
 					{
-						Log.WarnFormat("Capture of {0} failed!", documentContainer.Name);
+						Log.Warn().WriteLine("Capture of {0} failed!", documentContainer.Name);
 					}
 					verticalPage++;
 				}

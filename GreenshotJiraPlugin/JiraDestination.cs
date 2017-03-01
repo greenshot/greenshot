@@ -37,7 +37,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -48,7 +48,7 @@ namespace GreenshotJiraPlugin
 	/// </summary>
 	public class JiraDestination : AbstractDestination
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(JiraDestination));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly JiraConfiguration Config = IniConfig.GetIniSection<JiraConfiguration>();
 		private readonly Issue _jiraIssue;
 		private readonly JiraPlugin _jiraPlugin;
@@ -100,7 +100,7 @@ namespace GreenshotJiraPlugin
 						}
 						catch (Exception ex)
 						{
-							Log.Warn($"Problem loading issue type for {_jiraIssue.Key}, ignoring", ex);
+							Log.Warn().WriteLine(ex, $"Problem loading issue type for {_jiraIssue.Key}, ignoring");
 						}
 					}
 					if (displayIcon == null)
@@ -148,7 +148,7 @@ namespace GreenshotJiraPlugin
 							surfaceToUpload.UploadUrl = _jiraPlugin.JiraConnector.JiraBaseUri.AppendSegments("browse", _jiraIssue.Key).AbsoluteUri;
 						}
 					);
-					Log.DebugFormat("Uploaded to Jira {0}", _jiraIssue.Key);
+					Log.Debug().WriteLine("Uploaded to Jira {0}", _jiraIssue.Key);
 					exportInformation.ExportMade = true;
 					exportInformation.Uri = surfaceToUpload.UploadUrl;
 				}
@@ -171,7 +171,7 @@ namespace GreenshotJiraPlugin
 						new PleaseWaitForm().ShowAndWait(Description, Language.GetString("jira", LangKey.communication_wait),
 							async () => { await jiraForm.UploadAsync(new SurfaceContainer(surfaceToUpload, outputSettings, filename)); }
 						);
-						Log.DebugFormat("Uploaded to Jira {0}", jiraForm.GetJiraIssue().Key);
+						Log.Debug().WriteLine("Uploaded to Jira {0}", jiraForm.GetJiraIssue().Key);
 						exportInformation.ExportMade = true;
 						exportInformation.Uri = surfaceToUpload.UploadUrl;
 					}

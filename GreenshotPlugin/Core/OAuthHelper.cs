@@ -34,7 +34,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using GreenshotPlugin.Controls;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -202,7 +202,7 @@ namespace GreenshotPlugin.Core
 		protected const string PlainTextSignatureType = "PLAINTEXT";
 
 		protected const string UnreservedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.~";
-		private static readonly ILog Log = LogManager.GetLogger(typeof(OAuthSession));
+		private static readonly LogSource Log = new LogSource();
 
 		protected static Random random = new Random();
 
@@ -368,7 +368,7 @@ namespace GreenshotPlugin.Core
 			if (!string.IsNullOrEmpty(response))
 			{
 				response = NetworkHelper.UrlDecode(response);
-				Log.DebugFormat("Request token response: {0}", response);
+				Log.Debug().WriteLine("Request token response: {0}", response);
 				RequestTokenResponseParameters = NetworkHelper.ParseQueryString(response);
 				string value;
 				if (RequestTokenResponseParameters.TryGetValue(OAUTH_TOKEN_KEY, out value))
@@ -395,7 +395,7 @@ namespace GreenshotPlugin.Core
 				var e = new Exception("The request token is not set, service responded with: " + requestTokenResponse);
 				throw e;
 			}
-			Log.DebugFormat("Opening AuthorizationLink: {0}", AuthorizationLink);
+			Log.Debug().WriteLine("Opening AuthorizationLink: {0}", AuthorizationLink);
 			var oAuthLoginForm = new OAuthLoginForm(LoginTitle, BrowserSize, AuthorizationLink, CallbackUrl);
 			oAuthLoginForm.ShowDialog();
 			if (oAuthLoginForm.IsOk)
@@ -443,7 +443,7 @@ namespace GreenshotPlugin.Core
 			if (!string.IsNullOrEmpty(response))
 			{
 				response = NetworkHelper.UrlDecode(response);
-				Log.DebugFormat("Access token response: {0}", response);
+				Log.Debug().WriteLine("Access token response: {0}", response);
 				AccessTokenResponseParameters = NetworkHelper.ParseQueryString(response);
 				string tokenValue;
 				if (AccessTokenResponseParameters.TryGetValue(OAUTH_TOKEN_KEY, out tokenValue) && tokenValue != null)
@@ -469,7 +469,7 @@ namespace GreenshotPlugin.Core
 			Token = null;
 			TokenSecret = null;
 			Verifier = null;
-			Log.Debug("Creating Token");
+			Log.Debug().WriteLine("Creating Token");
 			string requestTokenResponse;
 			try
 			{
@@ -477,12 +477,12 @@ namespace GreenshotPlugin.Core
 			}
 			catch (Exception ex)
 			{
-				Log.Error(ex);
+				Log.Error().WriteLine(ex);
 				throw new NotSupportedException("Service is not available: " + ex.Message);
 			}
 			if (string.IsNullOrEmpty(GetAuthorizeToken(requestTokenResponse)))
 			{
-				Log.Debug("User didn't authenticate!");
+				Log.Debug().WriteLine("User didn't authenticate!");
 				return false;
 			}
 			try
@@ -492,7 +492,7 @@ namespace GreenshotPlugin.Core
 			}
 			catch (Exception ex)
 			{
-				Log.Error(ex);
+				Log.Error().WriteLine(ex);
 				throw;
 			}
 		}
@@ -676,7 +676,7 @@ namespace GreenshotPlugin.Core
 				parameters.Add(OAUTH_TOKEN_KEY, Token);
 			}
 			signatureBase.Append(UrlEncode3986(GenerateNormalizedParametersString(parameters)));
-			Log.DebugFormat("Signature base: {0}", signatureBase);
+			Log.Debug().WriteLine("Signature base: {0}", signatureBase);
 			var key = string.Format(CultureInfo.InvariantCulture, "{0}&{1}", UrlEncode3986(_consumerSecret),
 				string.IsNullOrEmpty(TokenSecret) ? string.Empty : UrlEncode3986(TokenSecret));
 			switch (SignatureType)
@@ -754,7 +754,7 @@ namespace GreenshotPlugin.Core
 
 			if (UseHttpHeadersForAuthorization && authHeader != null)
 			{
-				Log.DebugFormat("Authorization: OAuth {0}", authHeader);
+				Log.Debug().WriteLine("Authorization: OAuth {0}", authHeader);
 				webRequest.Headers.Add("Authorization: OAuth " + authHeader);
 			}
 
@@ -807,11 +807,11 @@ namespace GreenshotPlugin.Core
 			try
 			{
 				responseData = NetworkHelper.GetResponseAsString(webRequest);
-				Log.DebugFormat("Response: {0}", responseData);
+				Log.Debug().WriteLine("Response: {0}", responseData);
 			}
 			catch (Exception ex)
 			{
-				Log.Error("Couldn't retrieve response: ", ex);
+				Log.Error().WriteLine(ex, "Couldn't retrieve response: ");
 				throw;
 			}
 
@@ -865,7 +865,7 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public class LocalServerCodeReceiver
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(LocalServerCodeReceiver));
+		private static readonly LogSource Log = new LogSource();
 		private readonly ManualResetEvent _ready = new ManualResetEvent(true);
 
 		private readonly IDictionary<string, string> _returnValues = new Dictionary<string, string>();
@@ -936,7 +936,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 
 					// Get the formatted FormattedAuthUrl
 					var authorizationUrl = oauth2Settings.FormattedAuthUrl;
-					Log.DebugFormat("Open a browser with: {0}", authorizationUrl);
+					Log.Debug().WriteLine("Open a browser with: {0}", authorizationUrl);
 					Process.Start(authorizationUrl);
 
 					// Wait to get the authorization code response.
@@ -945,7 +945,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 
 					while (!context.AsyncWaitHandle.WaitOne(1000, true))
 					{
-						Log.Debug("Waiting for response");
+						Log.Debug().WriteLine("Waiting for response");
 					}
 				}
 				catch (Exception)

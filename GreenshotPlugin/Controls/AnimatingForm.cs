@@ -28,7 +28,8 @@ using System.Windows.Forms;
 using Dapplo.Windows.Enums;
 using Dapplo.Windows.Native;
 using Dapplo.Windows.SafeHandles;
-using log4net;
+using Dapplo.Log;
+using GreenshotPlugin.Core;
 
 #endregion
 
@@ -40,7 +41,7 @@ namespace GreenshotPlugin.Controls
 	public class AnimatingForm : GreenshotForm
 	{
 		private const int DEFAULT_VREFRESH = 60;
-		private static readonly ILog Log = LogManager.GetLogger(typeof(AnimatingForm));
+		private static readonly LogSource Log = new LogSource();
 		private Timer _timer;
 		private int _vRefresh;
 
@@ -130,7 +131,7 @@ namespace GreenshotPlugin.Controls
 			}
 			catch (Exception ex)
 			{
-				Log.Warn("An exception occured while animating:", ex);
+				Log.Warn().WriteLine(ex, "An exception occured while animating:");
 			}
 		}
 

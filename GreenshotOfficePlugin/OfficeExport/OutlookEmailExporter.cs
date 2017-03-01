@@ -30,9 +30,10 @@ using System.Text;
 using GreenshotOfficePlugin.OfficeInterop;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interop;
-using log4net;
+using Dapplo.Log;
 using mshtml;
 using Microsoft.Win32;
+using GreenshotPlugin.Core;
 
 #endregion
 
@@ -49,7 +50,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 		private const string AccountKey = "9375CFF0413111d3B88A00104B2A6676";
 		private const string NewSignatureValue = "New Signature";
 		private const string DefaultProfileValue = "DefaultProfile";
-		private static readonly ILog Log = LogManager.GetLogger(typeof(OutlookEmailExporter));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly OfficeConfiguration OfficeConfig = IniConfig.GetIniSection<OfficeConfiguration>();
 		private static readonly string SignaturePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Microsoft\Signatures");
 		private static Version _outlookVersion;
@@ -114,7 +115,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 			}
 			catch (Exception ex)
 			{
-				Log.Warn("Problem retrieving word destinations, ignoring: ", ex);
+				Log.Warn().WriteLine(ex, "Problem retrieving word destinations, ignoring: ");
 			}
 			return inspectorCaptions;
 		}
@@ -135,7 +136,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 					{
 						var mailItem = (IMailItem) currentItem;
 						//MailItem mailItem = COMWrapper.Cast<MailItem>(currentItem);
-						Log.DebugFormat("Mail sent: {0}", mailItem.Sent);
+						Log.Debug().WriteLine("Mail sent: {0}", mailItem.Sent);
 						if (!mailItem.Sent)
 						{
 							return true;
@@ -149,13 +150,13 @@ namespace GreenshotOfficePlugin.OfficeExport
 						{
 							return true;
 						}
-						Log.DebugFormat("Not exporting, as organizer is {0} and currentuser {1}", appointmentItem.Organizer, _currentUser);
+						Log.Debug().WriteLine("Not exporting, as organizer is {0} and currentuser {1}", appointmentItem.Organizer, _currentUser);
 					}
 				}
 			}
 			catch (Exception ex)
 			{
-				Log.WarnFormat("Couldn't process item due to: {0}", ex.Message);
+				Log.Warn().WriteLine("Couldn't process item due to: {0}", ex.Message);
 			}
 			return false;
 		}
@@ -200,7 +201,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 										}
 										catch (Exception exExport)
 										{
-											Log.Error("Export to " + currentCaption + " failed.", exExport);
+											Log.Error().WriteLine(exExport, "Export to " + currentCaption + " failed.");
 										}
 									}
 								}
@@ -215,7 +216,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 					{
 						return false;
 					}
-					Log.DebugFormat("Got {0} inspectors to check", inspectors.Count);
+					Log.Debug().WriteLine("Got {0} inspectors to check", inspectors.Count);
 					for (var i = 1; i <= inspectors.Count; i++)
 					{
 						using (var inspector = outlookApplication.Inspectors[i])
@@ -233,7 +234,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 										}
 										catch (Exception exExport)
 										{
-											Log.Error("Export to " + currentCaption + " failed.", exExport);
+											Log.Error().WriteLine(exExport, "Export to " + currentCaption + " failed.");
 										}
 									}
 								}
@@ -257,7 +258,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 		{
 			if (currentItem == null)
 			{
-				Log.Warn("No current item.");
+				Log.Warn().WriteLine("No current item.");
 				return false;
 			}
 			var itemClass = currentItem.Class;
@@ -265,7 +266,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 			var isAppointment = OlObjectClass.olAppointment.Equals(itemClass);
 			if (!isMail && !isAppointment)
 			{
-				Log.Warn("Item is no mail or appointment.");
+				Log.Warn().WriteLine("Item is no mail or appointment.");
 				return false;
 			}
 			IMailItem mailItem = null;
@@ -277,7 +278,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 					mailItem = (IMailItem) currentItem;
 					if (mailItem.Sent)
 					{
-						Log.WarnFormat("Item already sent, can't export to {0}", currentItem.Subject);
+						Log.Warn().WriteLine("Item already sent, can't export to {0}", currentItem.Subject);
 						return false;
 					}
 				}
@@ -319,28 +320,28 @@ namespace GreenshotOfficePlugin.OfficeExport
 						{
 							if (WordExporter.InsertIntoExistingDocument(wordDocument.Application, wordDocument, tmpFile, null, null))
 							{
-								Log.Info("Inserted into Wordmail");
+								Log.Info().WriteLine("Inserted into Wordmail");
 								wordDocument.Dispose();
 								return true;
 							}
 						}
 						catch (Exception exportException)
 						{
-							Log.Error("Error exporting to the word editor, trying to do it via another method", exportException);
+							Log.Error().WriteLine(exportException, "Error exporting to the word editor, trying to do it via another method");
 						}
 					}
 					else if (isAppointment)
 					{
-						Log.Info("Can't export to an appointment if no word editor is used");
+						Log.Info().WriteLine("Can't export to an appointment if no word editor is used");
 						return false;
 					}
 					else
 					{
-						Log.Info("Trying export for outlook < 2007.");
+						Log.Info().WriteLine("Trying export for outlook < 2007.");
 					}
 				}
 				// Only use mailitem as it should be filled!!
-				Log.InfoFormat("Item '{0}' has format: {1}", mailItem?.Subject, mailItem?.BodyFormat);
+				Log.Info().WriteLine("Item '{0}' has format: {1}", mailItem?.Subject, mailItem?.BodyFormat);
 
 				string contentId;
 				if (_outlookVersion.Major >= (int) OfficeVersions.Office2007)
@@ -349,13 +350,13 @@ namespace GreenshotOfficePlugin.OfficeExport
 				}
 				else
 				{
-					Log.Info("Older Outlook (<2007) found, using filename as contentid.");
+					Log.Info().WriteLine("Older Outlook (<2007) found, using filename as contentid.");
 					contentId = Path.GetFileName(tmpFile);
 				}
 
 				// Use this to change the format, it will probably lose the current selection.
 				//if (!OlBodyFormat.olFormatHTML.Equals(currentMail.BodyFormat)) {
-				//	LOG.Info("Changing format to HTML.");
+				//	Log.Info().WriteLine("Changing format to HTML.");
 				//	currentMail.BodyFormat = OlBodyFormat.olFormatHTML;
 				//}
 
@@ -381,23 +382,23 @@ namespace GreenshotOfficePlugin.OfficeExport
 								}
 								else
 								{
-									Log.DebugFormat("No range for '{0}'", inspectorOrExplorer.Caption);
+									Log.Debug().WriteLine("No range for '{0}'", inspectorOrExplorer.Caption);
 								}
 							}
 							else
 							{
-								Log.DebugFormat("No selection for '{0}'", inspectorOrExplorer.Caption);
+								Log.Debug().WriteLine("No selection for '{0}'", inspectorOrExplorer.Caption);
 							}
 						}
 						else
 						{
-							Log.DebugFormat("No HTML editor for '{0}'", inspectorOrExplorer.Caption);
+							Log.Debug().WriteLine("No HTML editor for '{0}'", inspectorOrExplorer.Caption);
 						}
 					}
 					catch (Exception e)
 					{
 						// Continue with non inline image
-						Log.Warn("Error pasting HTML, most likely due to an ACCESS_DENIED as the user clicked no.", e);
+						Log.Warn().WriteLine(e, "Error pasting HTML, most likely due to an ACCESS_DENIED as the user clicked no.");
 					}
 				}
 
@@ -421,7 +422,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 			}
 			catch (Exception ex)
 			{
-				Log.WarnFormat("Problem while trying to add attachment to Item '{0}' : {1}", inspectorOrExplorer.Caption, ex);
+				Log.Warn().WriteLine("Problem while trying to add attachment to Item '{0}' : {1}", inspectorOrExplorer.Caption, ex);
 				return false;
 			}
 			try
@@ -430,10 +431,10 @@ namespace GreenshotOfficePlugin.OfficeExport
 			}
 			catch (Exception ex)
 			{
-				Log.Warn("Problem activating inspector/explorer: ", ex);
+				Log.Warn().WriteLine(ex, "Problem activating inspector/explorer: ");
 				return false;
 			}
-			Log.Debug("Finished!");
+			Log.Debug().WriteLine("Finished!");
 			return true;
 		}
 
@@ -482,7 +483,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 				}
 				catch (Exception e)
 				{
-					Log.Error("Problem reading signature!", e);
+					Log.Error().WriteLine(e, "Problem reading signature!");
 				}
 				switch (format)
 				{
@@ -514,7 +515,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 								}
 								catch
 								{
-									Log.Info("Error working with the PropertyAccessor, using filename as contentid");
+									Log.Info().WriteLine("Error working with the PropertyAccessor, using filename as contentid");
 									contentId = Path.GetFileName(tmpFile);
 								}
 							}
@@ -600,7 +601,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error while creating an outlook mail item: ", e);
+				Log.Error().WriteLine(e, "Error while creating an outlook mail item: ");
 			}
 			return exported;
 		}
@@ -618,7 +619,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 					return null;
 				}
 				var defaultProfile = (string) profilesKey.GetValue(DefaultProfileValue);
-				Log.DebugFormat("defaultProfile={0}", defaultProfile);
+				Log.Debug().WriteLine("defaultProfile={0}", defaultProfile);
 				using (var profileKey = profilesKey.OpenSubKey(defaultProfile + @"\" + AccountKey, false))
 				{
 					if (profileKey != null)
@@ -626,7 +627,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 						var numbers = profileKey.GetSubKeyNames();
 						foreach (var number in numbers)
 						{
-							Log.DebugFormat("Found subkey {0}", number);
+							Log.Debug().WriteLine("Found subkey {0}", number);
 							using (var numberKey = profileKey.OpenSubKey(number, false))
 							{
 								if (numberKey == null)
@@ -646,7 +647,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 										signatureName += (char) b;
 									}
 								}
-								Log.DebugFormat("Found email signature: {0}", signatureName);
+								Log.Debug().WriteLine("Found email signature: {0}", signatureName);
 								string extension;
 								switch (format)
 								{
@@ -660,7 +661,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 								var signatureFile = Path.Combine(SignaturePath, signatureName + extension);
 								if (File.Exists(signatureFile))
 								{
-									Log.DebugFormat("Found email signature file: {0}", signatureFile);
+									Log.Debug().WriteLine("Found email signature file: {0}", signatureFile);
 									return File.ReadAllText(signatureFile, Encoding.Default);
 								}
 							}
@@ -684,12 +685,12 @@ namespace GreenshotOfficePlugin.OfficeExport
 			try
 			{
 				_outlookVersion = new Version(outlookApplication.Version);
-				Log.InfoFormat("Using Outlook {0}", _outlookVersion);
+				Log.Info().WriteLine("Using Outlook {0}", _outlookVersion);
 			}
 			catch (Exception exVersion)
 			{
-				Log.Error(exVersion);
-				Log.Warn("Assuming outlook version 1997.");
+				Log.Error().WriteLine(exVersion);
+				Log.Warn().WriteLine("Assuming outlook version 1997.");
 				_outlookVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
 			}
 			// Preventing retrieval of currentUser if Outlook is older than 2007
@@ -699,11 +700,11 @@ namespace GreenshotOfficePlugin.OfficeExport
 				{
 					var mapiNamespace = outlookApplication.GetNameSpace("MAPI");
 					_currentUser = mapiNamespace.CurrentUser.Name;
-					Log.InfoFormat("Current user: {0}", _currentUser);
+					Log.Info().WriteLine("Current user: {0}", _currentUser);
 				}
 				catch (Exception exNs)
 				{
-					Log.Error(exNs);
+					Log.Error().WriteLine(exNs);
 				}
 			}
 		}

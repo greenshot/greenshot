@@ -29,7 +29,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -40,7 +40,7 @@ namespace GreenshotDropboxPlugin
 	/// </summary>
 	public class DropboxUtils
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(DropboxUtils));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly DropboxPluginConfiguration DropboxConfig = IniConfig.GetIniSection<DropboxPluginConfiguration>();
 
 		private DropboxUtils()
@@ -66,11 +66,11 @@ namespace GreenshotDropboxPlugin
 				var imageToUpload = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
 				var uploadResponse = oAuth.MakeOAuthRequest(HTTPMethod.POST, "https://api-content.dropbox.com/1/files_put/sandbox/" + OAuthSession.UrlEncode3986(filename), null, null,
 					imageToUpload);
-				Log.DebugFormat("Upload response: {0}", uploadResponse);
+				Log.Debug().WriteLine("Upload response: {0}", uploadResponse);
 			}
 			catch (Exception ex)
 			{
-				Log.Error("Upload error: ", ex);
+				Log.Error().WriteLine(ex, "Upload error: ");
 				throw;
 			}
 			finally
@@ -91,7 +91,7 @@ namespace GreenshotDropboxPlugin
 				var responseString = oAuth.MakeOAuthRequest(HTTPMethod.GET, "https://api.dropbox.com/1/shares/sandbox/" + OAuthSession.UrlEncode3986(filename), null, null, null);
 				if (responseString != null)
 				{
-					Log.DebugFormat("Parsing output: {0}", responseString);
+					Log.Debug().WriteLine("Parsing output: {0}", responseString);
 					var returnValues = JSONHelper.JsonDecode(responseString);
 					if (returnValues.ContainsKey("url"))
 					{
@@ -101,7 +101,7 @@ namespace GreenshotDropboxPlugin
 			}
 			catch (Exception ex)
 			{
-				Log.Error("Can't parse response.", ex);
+				Log.Error().WriteLine(ex, "Can't parse response.");
 			}
 			return null;
 		}

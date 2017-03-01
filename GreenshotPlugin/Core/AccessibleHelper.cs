@@ -27,7 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Accessibility;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -43,7 +43,7 @@ namespace GreenshotPlugin.Core
 	{
 		private const int IE_ACTIVE_TAB = 2097154;
 		private const int CHILDID_SELF = 0;
-		private static readonly ILog Log = LogManager.GetLogger(typeof(Accessible));
+		private static readonly LogSource Log = new LogSource();
 		private readonly IAccessible accessible;
 
 		public Accessible(IntPtr hWnd)

@@ -35,7 +35,7 @@ using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -49,7 +49,7 @@ namespace GreenshotOfficePlugin.Destinations
 		private const int IconApplication = 0;
 		private const int IconMeeting = 2;
 		private const string MapiClient = "Microsoft Outlook";
-		private static readonly ILog Log = LogManager.GetLogger(typeof(OutlookDestination));
+		private static readonly LogSource Log = new LogSource();
 
 		private static readonly Image MailIcon = GreenshotResources.getImage("Email.Image");
 		private static readonly OfficeConfiguration OfficeConfig = IniConfig.GetIniSection<OfficeConfiguration>();
@@ -142,7 +142,7 @@ namespace GreenshotOfficePlugin.Destinations
 			}
 			else
 			{
-				Log.InfoFormat("Using already available file: {0}", tmpFile);
+				Log.Info().WriteLine("Using already available file: {0}", tmpFile);
 			}
 
 			// Create a attachment name for the image

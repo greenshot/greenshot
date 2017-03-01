@@ -35,7 +35,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -46,7 +46,7 @@ namespace GreenshotJiraPlugin
 	/// </summary>
 	public sealed class JiraPlugin : IGreenshotPlugin
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(JiraPlugin));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 
 		private JiraConfiguration _config;
@@ -62,8 +62,8 @@ namespace GreenshotJiraPlugin
 				{
 					Exception exceptionToLog = args.Exception;
 					var exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
-					Log.Error("Exception caught in the UnobservedTaskException handler.");
-					Log.Error(exceptionText);
+					Log.Error().WriteLine(null, "Exception caught in the UnobservedTaskException handler.");
+					Log.Error().WriteLine(null, exceptionText);
 					new BugReportForm(exceptionText).ShowDialog();
 				}
 				finally
@@ -132,7 +132,7 @@ namespace GreenshotJiraPlugin
 
 		public void Shutdown()
 		{
-			Log.Debug("Jira Plugin shutdown.");
+			Log.Debug().WriteLine("Jira Plugin shutdown.");
 			if (JiraConnector != null)
 			{
 				Task.Run(async () => await JiraConnector.LogoutAsync());

@@ -41,7 +41,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -52,7 +52,7 @@ namespace Greenshot
 	/// </summary>
 	public partial class SettingsForm : BaseForm
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(SettingsForm));
+		private static readonly LogSource Log = new LogSource();
 		private readonly ToolTip _toolTip = new ToolTip();
 		private int _daysbetweencheckPreviousValue;
 		private bool _inHotkey;
@@ -583,7 +583,7 @@ namespace Greenshot
 			}
 			catch (Exception e)
 			{
-				Log.Warn("Problem checking registry, ignoring for now: ", e);
+				Log.Warn().WriteLine(e, "Problem checking registry, ignoring for now: ");
 			}
 		}
 
@@ -656,7 +656,7 @@ namespace Greenshot
 			var selectedWindowCaptureMode = GetSelected<WindowCaptureModes>(combobox_window_capture_mode);
 			if (combobox_language.SelectedItem != null)
 			{
-				Log.Debug("Setting language to: " + (string) combobox_language.SelectedValue);
+				Log.Debug().WriteLine("Setting language to: " + (string) combobox_language.SelectedValue);
 				Language.CurrentLanguage = (string) combobox_language.SelectedValue;
 			}
 			// Reflect language changes to the settings form

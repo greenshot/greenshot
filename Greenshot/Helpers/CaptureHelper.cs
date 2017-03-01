@@ -50,7 +50,7 @@ using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -61,7 +61,7 @@ namespace Greenshot.Helpers
 	/// </summary>
 	public class CaptureHelper : IDisposable
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(CaptureHelper));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 		private readonly bool _captureMouseCursor;
 		private ICapture _capture;
@@ -285,7 +285,7 @@ namespace Greenshot.Helpers
 				MainForm.Instance.NotifyIcon.Visible = false;
 				MainForm.Instance.NotifyIcon.Visible = true;
 			}
-			Log.Debug($"Capturing with mode {_captureMode} and using Cursor {_captureMouseCursor}");
+			Log.Debug().WriteLine($"Capturing with mode {_captureMode} and using Cursor {_captureMouseCursor}");
 			_capture.CaptureDetails.CaptureMode = _captureMode;
 
 			// Get the windows details in a seperate thread, only for those captures that have a Feedback
@@ -447,7 +447,7 @@ namespace Greenshot.Helpers
 						}
 						catch (Exception e)
 						{
-							Log.Error(e.Message, e);
+							Log.Error().WriteLine(e, e.Message);
 							MessageBox.Show(Language.GetFormattedString(LangKey.error_openfile, filename));
 						}
 						try
@@ -456,7 +456,7 @@ namespace Greenshot.Helpers
 						}
 						catch (Exception e)
 						{
-							Log.Error(e.Message, e);
+							Log.Error().WriteLine(e, e.Message);
 							MessageBox.Show(Language.GetFormattedString(LangKey.error_openfile, filename));
 						}
 					}
@@ -536,12 +536,12 @@ namespace Greenshot.Helpers
 					}
 					break;
 				default:
-					Log.Warn("Unknown capture mode: " + _captureMode);
+					Log.Warn().WriteLine("Unknown capture mode: " + _captureMode);
 					break;
 			}
 			if (_capture != null)
 			{
-				Log.Debug("Disposing capture");
+				Log.Debug().WriteLine("Disposing capture");
 				_capture.Dispose();
 			}
 		}
@@ -592,7 +592,7 @@ namespace Greenshot.Helpers
 			var eventArgs = MainForm.Instance.NotifyIcon.Tag as SurfaceMessageEventArgs;
 			if (eventArgs == null)
 			{
-				Log.Warn("OpenCaptureOnClick called without SurfaceMessageEventArgs");
+				Log.Warn().WriteLine("OpenCaptureOnClick called without SurfaceMessageEventArgs");
 				RemoveEventHandler(sender, e);
 				return;
 			}
@@ -609,7 +609,7 @@ namespace Greenshot.Helpers
 						break;
 				}
 			}
-			Log.DebugFormat("Deregistering the BalloonTipClicked");
+			Log.Debug().WriteLine("Deregistering the BalloonTipClicked");
 			RemoveEventHandler(sender, e);
 		}
 
@@ -678,7 +678,7 @@ namespace Greenshot.Helpers
 				DoCaptureFeedback();
 			}
 
-			Log.Debug("A capture of: " + _capture.CaptureDetails.Title);
+			Log.Debug().WriteLine("A capture of: " + _capture.CaptureDetails.Title);
 
 			// check if someone has passed a destination
 			if (_capture.CaptureDetails.CaptureDestinations == null || _capture.CaptureDetails.CaptureDestinations.Count == 0)
@@ -702,7 +702,7 @@ namespace Greenshot.Helpers
 			{
 				if (processor.isActive)
 				{
-					Log.InfoFormat("Calling processor {0}", processor.Description);
+					Log.Info().WriteLine("Calling processor {0}", processor.Description);
 					processor.ProcessCapture(surface, _capture.CaptureDetails);
 				}
 			}
@@ -738,7 +738,7 @@ namespace Greenshot.Helpers
 					{
 						continue;
 					}
-					Log.InfoFormat("Calling destination {0}", destination.Description);
+					Log.Info().WriteLine("Calling destination {0}", destination.Description);
 
 					var exportInformation = destination.ExportCapture(false, surface, captureDetails);
 					if (EditorDestination.DESIGNATION.Equals(destination.Designation) && exportInformation.ExportMade)
@@ -756,10 +756,10 @@ namespace Greenshot.Helpers
 		private bool CaptureActiveWindow()
 		{
 			var presupplied = false;
-			Log.Debug("CaptureActiveWindow");
+			Log.Debug().WriteLine("CaptureActiveWindow");
 			if (SelectedCaptureWindow != null)
 			{
-				Log.Debug("Using supplied window");
+				Log.Debug().WriteLine("Using supplied window");
 				presupplied = true;
 			}
 			else
@@ -767,15 +767,15 @@ namespace Greenshot.Helpers
 				SelectedCaptureWindow = InteropWindowQuery.GetActiveWindow();
 				if (SelectedCaptureWindow != null)
 				{
-					if (Log.IsDebugEnabled)
+					if (Log.IsDebugEnabled())
 					{
-						Log.DebugFormat("Capturing window: {0} with {1}", SelectedCaptureWindow.Text, SelectedCaptureWindow.GetBounds());
+						Log.Debug().WriteLine("Capturing window: {0} with {1}", SelectedCaptureWindow.Text, SelectedCaptureWindow.GetBounds());
 					}
 				}
 			}
 			if (SelectedCaptureWindow == null || !presupplied && SelectedCaptureWindow.IsMinimized())
 			{
-				Log.Warn("No window to capture!");
+				Log.Warn().WriteLine("No window to capture!");
 				// Nothing to capture, code up in the stack will capture the full screen
 				return false;
 			}
@@ -788,7 +788,7 @@ namespace Greenshot.Helpers
 			SelectedCaptureWindow = SelectCaptureWindow(SelectedCaptureWindow);
 			if (SelectedCaptureWindow == null)
 			{
-				Log.Warn("No window to capture, after SelectCaptureWindow!");
+				Log.Warn().WriteLine("No window to capture, after SelectCaptureWindow!");
 				// Nothing to capture, code up in the stack will capture the full screen
 				return false;
 			}
@@ -809,7 +809,7 @@ namespace Greenshot.Helpers
 			Rectangle windowRectangle = windowToCapture.GetBounds();
 			if (windowRectangle.Width == 0 || windowRectangle.Height == 0)
 			{
-				Log.WarnFormat("Window {0} has nothing to capture, using workaround to find other window of same process.", windowToCapture.Text);
+				Log.Warn().WriteLine("Window {0} has nothing to capture, using workaround to find other window of same process.", windowToCapture.Text);
 				// Trying workaround, the size 0 arrises with e.g. Toad.exe, has a different Window when minimized
 				var linkedWindow = windowToCapture.GetLinkedWindows().FirstOrDefault();
 				if (linkedWindow != null)
@@ -839,7 +839,7 @@ namespace Greenshot.Helpers
 					{
 						if (module.ModuleName.StartsWith("PresentationFramework"))
 						{
-							Log.InfoFormat("Found that Process {0} uses {1}, assuming it's using WPF", process.ProcessName, module.FileName);
+							Log.Info().WriteLine("Found that Process {0} uses {1}, assuming it's using WPF", process.ProcessName, module.FileName);
 							return true;
 						}
 					}
@@ -847,7 +847,7 @@ namespace Greenshot.Helpers
 				catch (Exception)
 				{
 					// Access denied on the modules
-					Log.WarnFormat("No access on the modules from process {0}, assuming WPF is used.", process.ProcessName);
+					Log.Warn().WriteLine("No access on the modules from process {0}, assuming WPF is used.", process.ProcessName);
 					return true;
 				}
 			}
@@ -893,7 +893,7 @@ namespace Greenshot.Helpers
 						}
 						catch (Exception ex)
 						{
-							Log.WarnFormat("Problem capturing IE, skipping to normal capture. Exception message was: {0}", ex.Message);
+							Log.Warn().WriteLine("Problem capturing IE, skipping to normal capture. Exception message was: {0}", ex.Message);
 						}
 					}
 
@@ -906,7 +906,7 @@ namespace Greenshot.Helpers
 						if (!dwmEnabled && IsWpf(process))
 						{
 							// do not use GDI, as DWM is not enabled and the application uses PresentationFramework.dll -> isWPF
-							Log.InfoFormat("Not using GDI for windows of process {0}, as the process uses WPF", process.ProcessName);
+							Log.Info().WriteLine("Not using GDI for windows of process {0}, as the process uses WPF", process.ProcessName);
 						}
 						else
 						{
@@ -942,7 +942,7 @@ namespace Greenshot.Helpers
 					windowCaptureMode = WindowCaptureModes.Screen;
 				}
 
-				Log.InfoFormat("Capturing window with mode {0}", windowCaptureMode);
+				Log.Info().WriteLine("Capturing window with mode {0}", windowCaptureMode);
 				var captureTaken = false;
 				windowRectangle.Intersect(captureForWindow.ScreenBounds);
 				// Try to capture
@@ -987,7 +987,7 @@ namespace Greenshot.Helpers
 													// If GDI has more black, use the screen capture.
 													if (blackPercentageGdi > blackPercentageScreen)
 													{
-														Log.Debug("Using screen capture, as GDI had additional black.");
+														Log.Debug().WriteLine("Using screen capture, as GDI had additional black.");
 														// changeing the image will automatically dispose the previous
 														tmpCapture.Image = screenCapture.Image;
 														// Make sure it's not disposed, else the picture is gone!
@@ -999,7 +999,7 @@ namespace Greenshot.Helpers
 													// Screen capture is cropped, window is outside of screen
 													if (blackPercentageGdi > 50 && blackPercentageGdi > blackPercentageScreen)
 													{
-														Log.Debug("Using screen capture, as GDI had additional black.");
+														Log.Debug().WriteLine("Using screen capture, as GDI had additional black.");
 														// changeing the image will automatically dispose the previous
 														tmpCapture.Image = screenCapture.Image;
 														// Make sure it's not disposed, else the picture is gone!
@@ -1009,7 +1009,7 @@ namespace Greenshot.Helpers
 												else
 												{
 													// Use the GDI capture by doing nothing
-													Log.Debug("This should not happen, how can there be more screen as GDI pixels?");
+													Log.Debug().WriteLine("This should not happen, how can there be more screen as GDI pixels?");
 												}
 											}
 										}
@@ -1064,7 +1064,7 @@ namespace Greenshot.Helpers
 							}
 							catch (Exception e)
 							{
-								Log.Error("Problem capturing", e);
+								Log.Error().WriteLine(e, "Problem capturing");
 								return null;
 							}
 							break;
@@ -1187,7 +1187,7 @@ namespace Greenshot.Helpers
 							// Calculate the total height
 							var totalHeight = lineHeight * lines;
 							var totalSize = new Size(clientBounds.Width, (int) totalHeight);
-							Log.InfoFormat("Size should be: {0}, a single n = {1} pixels", totalSize, lineHeight);
+							Log.Info().WriteLine("Size should be: {0}, a single n = {1} pixels", totalSize, lineHeight);
 
 							// Create the resulting image, every capture will be drawn to this
 							var resultImage = ImageHelper.CreateEmpty(clientBounds.Width, (int) totalHeight, PixelFormat.Format32bppArgb, Color.Transparent,
@@ -1232,7 +1232,7 @@ namespace Greenshot.Helpers
 							}
 							catch (Exception ex)
 							{
-								Log.Error(ex);
+								Log.Error().WriteLine(ex);
 							}
 							finally
 							{
@@ -1281,7 +1281,7 @@ namespace Greenshot.Helpers
 				ScrollInfo scrollInfo;
 				windowScroller.GetPosition(out scrollInfo);
 				double absoluteNPos = scrollInfo.nPos - scrollInfo.nMin;
-				Log.DebugFormat("Scrollinfo: {0}, taking position {1}", scrollInfo, absoluteNPos);
+				Log.Debug().WriteLine("Scrollinfo: {0}, taking position {1}", scrollInfo, absoluteNPos);
 				using (var graphics = Graphics.FromImage(target))
 				{
 					graphics.DrawImageUnscaled(bitmap, 0, (int) (lineHeight * absoluteNPos));

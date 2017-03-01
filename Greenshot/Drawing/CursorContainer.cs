@@ -30,7 +30,8 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
 using GreenshotPlugin.Interfaces.Drawing;
-using log4net;
+using Dapplo.Log;
+using GreenshotPlugin.Core;
 
 #endregion
 
@@ -42,7 +43,7 @@ namespace Greenshot.Drawing
 	[Serializable]
 	public class CursorContainer : DrawableContainer, ICursorContainer
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(CursorContainer));
+		private static readonly LogSource Log = new LogSource();
 
 		protected Cursor cursor;
 
@@ -86,7 +87,7 @@ namespace Greenshot.Drawing
 			using (var fileCursor = new Cursor(filename))
 			{
 				Cursor = fileCursor;
-				LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
+				Log.Debug().WriteLine("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
 			}
 		}
 

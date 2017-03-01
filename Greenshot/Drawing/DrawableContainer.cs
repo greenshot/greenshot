@@ -40,7 +40,8 @@ using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Drawing;
 using GreenshotPlugin.Interfaces.Drawing.Adorners;
-using log4net;
+using Dapplo.Log;
+using GreenshotPlugin.Core;
 
 #endregion
 
@@ -57,7 +58,7 @@ namespace Greenshot.Drawing
 	{
 		private const int M11 = 0;
 		private const int M22 = 3;
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(DrawableContainer));
+		private static readonly LogSource Log = new LogSource();
 		protected static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
 
 		/// <summary>
@@ -526,7 +527,7 @@ namespace Greenshot.Drawing
 		{
 			if (Adorners.Count > 0)
 			{
-				LOG.Warn("Adorners are already defined!");
+				Log.Warn().WriteLine("Adorners are already defined!");
 			}
 			// Create the GripperAdorners
 			Adorners.Add(new ResizeAdorner(this, Positions.TopLeft));
@@ -647,7 +648,7 @@ namespace Greenshot.Drawing
 		/// <param name="e"></param>
 		public void HandleFieldChanged(object sender, FieldChangedEventArgs e)
 		{
-			LOG.DebugFormat("Field {0} changed", e.Field.FieldType);
+			Log.Debug().WriteLine("Field {0} changed", e.Field.FieldType);
 			if (Equals(e.Field.FieldType, FieldType.SHADOW))
 			{
 				accountForShadowChange = true;

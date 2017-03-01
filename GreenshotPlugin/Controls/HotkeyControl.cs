@@ -31,7 +31,7 @@ using System.Text;
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -56,7 +56,7 @@ namespace GreenshotPlugin.Controls
 		}
 
 		private const uint WM_HOTKEY = 0x312;
-		private static readonly ILog Log = LogManager.GetLogger(typeof(HotkeyControl));
+		private static readonly LogSource Log = new LogSource();
 
 		private static readonly EventDelay EventDelay = new EventDelay(TimeSpan.FromMilliseconds(600).Ticks);
 		private static readonly bool IsWindows7OrOlder = Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 1;
@@ -500,7 +500,7 @@ namespace GreenshotPlugin.Controls
 		{
 			if (virtualKeyCode == Keys.None)
 			{
-				Log.Warn("Trying to register a Keys.none hotkey, ignoring");
+				Log.Warn().WriteLine("Trying to register a Keys.none hotkey, ignoring");
 				return 0;
 			}
 			// Convert Modifiers to fit HKM_SETHOTKEY
@@ -531,7 +531,7 @@ namespace GreenshotPlugin.Controls
 				KeyHandlers.Add(_hotKeyCounter, handler);
 				return _hotKeyCounter++;
 			}
-			Log.Warn($"Couldn't register hotkey modifier {modifierKeyCode} virtualKeyCode {virtualKeyCode}");
+			Log.Warn().WriteLine($"Couldn't register hotkey modifier {modifierKeyCode} virtualKeyCode {virtualKeyCode}");
 			return -1;
 		}
 
@@ -641,7 +641,7 @@ namespace GreenshotPlugin.Controls
 				case Keys.Insert:
 				case Keys.Delete:
 				case Keys.NumLock:
-					Log.Debug("Modifying Extended bit");
+					Log.Debug().WriteLine("Modifying Extended bit");
 					scanCode |= 0x100; // set extended bit
 					break;
 				case Keys.PrintScreen: // PrintScreen

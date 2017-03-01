@@ -36,7 +36,7 @@ using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -47,7 +47,7 @@ namespace GreenshotConfluencePlugin
 	/// </summary>
 	public class ConfluenceDestination : AbstractDestination
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(ConfluenceDestination));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly ConfluenceConfiguration ConfluenceConfig = IniConfig.GetIniSection<ConfluenceConfiguration>();
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 		private static readonly Image ConfluenceIcon;
@@ -68,7 +68,7 @@ namespace GreenshotConfluencePlugin
 			}
 			catch (Exception ex)
 			{
-				Log.ErrorFormat("Problem in the confluence static initializer: {0}", ex.Message);
+				Log.Error().WriteLine("Problem in the confluence static initializer: {0}", ex.Message);
 			}
 		}
 
@@ -205,7 +205,7 @@ namespace GreenshotConfluencePlugin
 							new SurfaceContainer(surfaceToUpload, outputSettings, filename));
 					}
 				);
-				Log.Debug("Uploaded to Confluence.");
+				Log.Debug().WriteLine("Uploaded to Confluence.");
 				if (!ConfluenceConfig.CopyWikiMarkupForImageToClipboard)
 				{
 					return true;
@@ -222,7 +222,7 @@ namespace GreenshotConfluencePlugin
 					{
 						if (retryCount == 0)
 						{
-							Log.Error(ee);
+							Log.Error().WriteLine(ee);
 						}
 						else
 						{

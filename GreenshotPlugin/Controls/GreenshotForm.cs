@@ -37,7 +37,7 @@ using Dapplo.Windows.Dpi;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -48,7 +48,7 @@ namespace GreenshotPlugin.Controls
 	/// </summary>
 	public class GreenshotForm : Form, IGreenshotLanguageBindable
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(GreenshotForm));
+		private static readonly LogSource Log = new LogSource();
 		protected static CoreConfiguration coreConfiguration;
 		private static readonly IDictionary<Type, FieldInfo[]> ReflectionCache = new Dictionary<Type, FieldInfo[]>();
 		private IDictionary<string, Control> _designTimeControls;
@@ -213,7 +213,7 @@ namespace GreenshotPlugin.Controls
 			}
 			else
 			{
-				LOG.Info("OnLoad called from designer.");
+				Log.Info().WriteLine("OnLoad called from designer.");
 				InitializeForDesigner();
 				base.OnLoad(e);
 				ApplyLanguage();
@@ -243,7 +243,7 @@ namespace GreenshotPlugin.Controls
 			{
 				if (DialogResult == DialogResult.OK)
 				{
-					LOG.Info("Form was closed with OK: storing field values.");
+					Log.Info().WriteLine("Form was closed with OK: storing field values.");
 					StoreFields();
 				}
 			}
@@ -288,7 +288,7 @@ namespace GreenshotPlugin.Controls
 					var control = ce.Component as Control;
 					if (control != null)
 					{
-						LOG.InfoFormat("Changing LanguageKey for {0} to {1}", control.Name, ce.NewValue);
+						Log.Info().WriteLine("Changing LanguageKey for {0} to {1}", control.Name, ce.NewValue);
 						ApplyLanguage(control, (string) ce.NewValue);
 					}
 					else
@@ -296,12 +296,12 @@ namespace GreenshotPlugin.Controls
 						var item = ce.Component as ToolStripItem;
 						if (item != null)
 						{
-							LOG.InfoFormat("Changing LanguageKey for {0} to {1}", item.Name, ce.NewValue);
+							Log.Info().WriteLine("Changing LanguageKey for {0} to {1}", item.Name, ce.NewValue);
 							ApplyLanguage(item, (string) ce.NewValue);
 						}
 						else
 						{
-							LOG.InfoFormat("Not possible to changing LanguageKey for {0} to {1}", ce.Component.GetType(), ce.NewValue);
+							Log.Info().WriteLine("Not possible to changing LanguageKey for {0} to {1}", ce.Component.GetType(), ce.NewValue);
 						}
 					}
 				}
@@ -361,7 +361,7 @@ namespace GreenshotPlugin.Controls
 			{
 				if (!Language.TryGetString(languageKey, out langString))
 				{
-					LOG.WarnFormat("Unknown language key '{0}' configured for control '{1}', this might be okay.", languageKey, applyTo.Name);
+					Log.Warn().WriteLine("Unknown language key '{0}' configured for control '{1}', this might be okay.", languageKey, applyTo.Name);
 					return;
 				}
 				applyTo.Text = langString;
@@ -376,7 +376,7 @@ namespace GreenshotPlugin.Controls
 				}
 				if (!DesignMode)
 				{
-					LOG.DebugFormat("Greenshot control without language key: {0}", applyTo.Name);
+					Log.Debug().WriteLine("Greenshot control without language key: {0}", applyTo.Name);
 				}
 			}
 		}
@@ -467,7 +467,7 @@ namespace GreenshotPlugin.Controls
 					var controlObject = field.GetValue(this);
 					if (controlObject == null)
 					{
-						LOG.DebugFormat("No value: {0}", field.Name);
+						Log.Debug().WriteLine("No value: {0}", field.Name);
 						continue;
 					}
 					var applyToControl = controlObject as Control;
@@ -476,7 +476,7 @@ namespace GreenshotPlugin.Controls
 						var applyToItem = controlObject as ToolStripItem;
 						if (applyToItem == null)
 						{
-							LOG.DebugFormat("No Control or ToolStripItem: {0}", field.Name);
+							Log.Debug().WriteLine("No Control or ToolStripItem: {0}", field.Name);
 							continue;
 						}
 						ApplyLanguage(applyToItem);
@@ -515,7 +515,7 @@ namespace GreenshotPlugin.Controls
 			{
 				if (!Language.TryGetString(languageKey, out langString))
 				{
-					LOG.WarnFormat("Wrong language key '{0}' configured for control '{1}'", languageKey, applyTo.Name);
+					Log.Warn().WriteLine("Wrong language key '{0}' configured for control '{1}'", languageKey, applyTo.Name);
 					return;
 				}
 				applyTo.Text = langString;
@@ -530,7 +530,7 @@ namespace GreenshotPlugin.Controls
 				}
 				if (!DesignMode)
 				{
-					LOG.DebugFormat("Greenshot control without language key: {0}", applyTo.Name);
+					Log.Debug().WriteLine("Greenshot control without language key: {0}", applyTo.Name);
 				}
 			}
 		}
@@ -552,7 +552,7 @@ namespace GreenshotPlugin.Controls
 						IniValue iniValue;
 						if (!section.Values.TryGetValue(configBindable.PropertyName, out iniValue))
 						{
-							LOG.DebugFormat("Wrong property '{0}' configured for field '{1}'", configBindable.PropertyName, field.Name);
+							Log.Debug().WriteLine("Wrong property '{0}' configured for field '{1}'", configBindable.PropertyName, field.Name);
 							continue;
 						}
 

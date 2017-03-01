@@ -28,7 +28,8 @@ using System.Collections.Generic;
 using GreenshotOfficePlugin.Destinations;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
+using GreenshotPlugin.Core;
 
 #endregion
 
@@ -39,7 +40,7 @@ namespace GreenshotOfficePlugin
 	/// </summary>
 	public sealed class OfficePlugin : IGreenshotPlugin
 	{
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(OfficePlugin));
+		private static readonly LogSource Log = new LogSource();
 
 		public void Dispose()
 		{
@@ -133,7 +134,7 @@ namespace GreenshotOfficePlugin
 
 		public void Shutdown()
 		{
-			LOG.Debug("Office Plugin shutdown.");
+			Log.Debug().WriteLine("Office Plugin shutdown.");
 		}
 
 		/// <summary>

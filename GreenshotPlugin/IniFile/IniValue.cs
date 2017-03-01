@@ -29,7 +29,8 @@ using System.ComponentModel;
 using System.IO;
 using System.Reflection;
 using System.Text;
-using log4net;
+using Dapplo.Log;
+using GreenshotPlugin.Core;
 
 #endregion
 
@@ -40,7 +41,7 @@ namespace GreenshotPlugin.IniFile
 	/// </summary>
 	public class IniValue
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(IniValue));
+		private static readonly LogSource Log = new LogSource();
 		private readonly FieldInfo _fieldInfo;
 		private readonly PropertyInfo _propertyInfo;
 
@@ -291,7 +292,7 @@ namespace GreenshotPlugin.IniFile
 				}
 				else if (defaultValueFromConfig != null)
 				{
-					Log.DebugFormat("Default for Property {0} implemented!", propertyName);
+					Log.Debug().WriteLine("Default for Property {0} implemented!", propertyName);
 				}
 				else
 				{
@@ -300,7 +301,7 @@ namespace GreenshotPlugin.IniFile
 						Value = null;
 						return;
 					}
-					Log.DebugFormat("Property {0} has no value or default value!", propertyName);
+					Log.Debug().WriteLine("Property {0} has no value or default value!", propertyName);
 				}
 			}
 			// Now set the value
@@ -309,7 +310,7 @@ namespace GreenshotPlugin.IniFile
 				// Logic for Dictionary<,>
 				var type1 = valueType.GetGenericArguments()[0];
 				var type2 = valueType.GetGenericArguments()[1];
-				//LOG.Info(String.Format("Found Dictionary<{0},{1}>", type1.Name, type2.Name));
+				//Log.Info().WriteLine(String.Format("Found Dictionary<{0},{1}>", type1.Name, type2.Name));
 				var dictionary = Activator.CreateInstance(valueType);
 				var addMethodInfo = valueType.GetMethod("Add");
 				var addedElements = false;
@@ -329,8 +330,8 @@ namespace GreenshotPlugin.IniFile
 						}
 						catch (Exception ex)
 						{
-							Log.Warn(ex);
-							//LOG.Error("Problem converting " + subPropertyName + " to type " + type1.FullName, e);
+							Log.Warn().WriteLine(ex);
+							//Log.Error().WriteLine("Problem converting " + subPropertyName + " to type " + type1.FullName, e);
 						}
 						try
 						{
@@ -338,8 +339,8 @@ namespace GreenshotPlugin.IniFile
 						}
 						catch (Exception ex)
 						{
-							Log.Warn(ex);
-							//LOG.Error("Problem converting " + stringValue + " to type " + type2.FullName, e);
+							Log.Warn().WriteLine(ex);
+							//Log.Error().WriteLine("Problem converting " + stringValue + " to type " + type2.FullName, e);
 						}
 						addMethodInfo.Invoke(dictionary, new[] {newValue1, newValue2});
 						addedElements = true;
@@ -376,19 +377,19 @@ namespace GreenshotPlugin.IniFile
 					{
 						try
 						{
-							Log.WarnFormat("Problem '{0}' while converting {1} to type {2} trying fallback...", ex1.Message, propertyValue, valueType.FullName);
+							Log.Warn().WriteLine("Problem '{0}' while converting {1} to type {2} trying fallback...", ex1.Message, propertyValue, valueType.FullName);
 							newValue = ConvertStringToValueType(valueType, defaultValue, Attributes.Separator);
 							ContainingIniSection.IsDirty = true;
-							Log.InfoFormat("Used default value {0} for property {1}", defaultValue, propertyName);
+							Log.Info().WriteLine("Used default value {0} for property {1}", defaultValue, propertyName);
 						}
 						catch (Exception ex2)
 						{
-							Log.Warn("Problem converting fallback value " + defaultValue + " to type " + valueType.FullName, ex2);
+							Log.Warn().WriteLine(ex2, "Problem converting fallback value " + defaultValue + " to type " + valueType.FullName);
 						}
 					}
 					else
 					{
-						Log.Warn("Problem converting " + propertyValue + " to type " + valueType.FullName, ex1);
+						Log.Warn().WriteLine(ex1, "Problem converting " + propertyValue + " to type " + valueType.FullName);
 					}
 				}
 				Value = newValue;
@@ -409,7 +410,7 @@ namespace GreenshotPlugin.IniFile
 				}
 				catch (Exception)
 				{
-					Log.WarnFormat("Couldn't create instance of {0} for {1}, using default value.", ValueType.FullName, Attributes.Name);
+					Log.Warn().WriteLine("Couldn't create instance of {0} for {1}, using default value.", ValueType.FullName, Attributes.Name);
 					Value = default(ValueType);
 				}
 			}
@@ -478,7 +479,7 @@ namespace GreenshotPlugin.IniFile
 						}
 						catch (Exception ex)
 						{
-							Log.Warn("Problem converting " + arrayValue + " to type " + valueType.FullName, ex);
+							Log.Warn().WriteLine(ex, "Problem converting " + arrayValue + " to type " + valueType.FullName);
 						}
 						if (newValue != null)
 						{
@@ -488,15 +489,15 @@ namespace GreenshotPlugin.IniFile
 				}
 				return list;
 			}
-			//LOG.Debug("No convertor for " + fieldType.ToString());
+			//Log.Debug().WriteLine("No convertor for " + fieldType.ToString());
 			if (valueType == typeof(object) && valueString.Length > 0)
 			{
-				//LOG.Debug("Parsing: " + valueString);
+				//Log.Debug().WriteLine("Parsing: " + valueString);
 				var values = valueString.Split(':');
-				//LOG.Debug("Type: " + values[0]);
-				//LOG.Debug("Value: " + values[1]);
+				//Log.Debug().WriteLine("Type: " + values[0]);
+				//Log.Debug().WriteLine("Value: " + values[1]);
 				var fieldTypeForValue = Type.GetType(values[0], true);
-				//LOG.Debug("Type after GetType: " + fieldTypeForValue);
+				//Log.Debug().WriteLine("Type after GetType: " + fieldTypeForValue);
 				return ConvertStringToValueType(fieldTypeForValue, values[1], separator);
 			}
 			var converter = TypeDescriptor.GetConverter(valueType);

@@ -29,7 +29,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -39,7 +39,7 @@ namespace GreenshotPlugin.Core
 	{
 		private const string RGBIV = "dlgjowejgogkklwj";
 		private const string KEY = "lsjvkwhvwujkagfauguwcsjgu2wueuff";
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(StringExtensions));
+		private static readonly LogSource Log = new LogSource();
 
 		/// <summary>
 		///     Format a string with the specified object
@@ -137,7 +137,7 @@ namespace GreenshotPlugin.Core
 			}
 			catch (Exception ex)
 			{
-				LOG.ErrorFormat("Error encrypting, error: {0}", ex.Message);
+				Log.Error().WriteLine("Error encrypting, error: {0}", ex.Message);
 			}
 			return returnValue;
 		}
@@ -171,7 +171,7 @@ namespace GreenshotPlugin.Core
 			}
 			catch (Exception ex)
 			{
-				LOG.ErrorFormat("Error decrypting {0}, error: {1}", encryptedText, ex.Message);
+				Log.Error().WriteLine("Error decrypting {0}, error: {1}", encryptedText, ex.Message);
 			}
 
 			return returnValue;

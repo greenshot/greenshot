@@ -31,7 +31,7 @@ using System.Runtime.Remoting.Messaging;
 using System.Runtime.Remoting.Proxies;
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -46,7 +46,7 @@ namespace GreenshotPlugin.Interop
 		private const int CO_E_CLASSSTRING = -2147221005;
 		public const int RPC_E_CALL_REJECTED = unchecked((int) 0x80010001);
 		public const int RPC_E_FAIL = unchecked((int) 0x80004005);
-		private static readonly ILog Log = LogManager.GetLogger(typeof(COMWrapper));
+		private static readonly LogSource Log = new LogSource();
 
 		/// <summary>
 		///     Implementation for the interface IRemotingTypeInfo
@@ -91,14 +91,14 @@ namespace GreenshotPlugin.Interop
 			var callMessage = myMessage as IMethodCallMessage;
 			if (null == callMessage)
 			{
-				Log.DebugFormat("Message type not implemented: {0}", myMessage.GetType());
+				Log.Debug().WriteLine("Message type not implemented: {0}", myMessage.GetType());
 				return null;
 			}
 
 			var method = callMessage.MethodBase as MethodInfo;
 			if (null == method)
 			{
-				Log.DebugFormat("Unrecognized Invoke call: {0}", callMessage.MethodBase);
+				Log.Debug().WriteLine("Unrecognized Invoke call: {0}", callMessage.MethodBase);
 				return null;
 			}
 
@@ -250,7 +250,7 @@ namespace GreenshotPlugin.Interop
 					catch (InvalidComObjectException icoEx)
 					{
 						// Should assist BUG-1616 and others
-						Log.WarnFormat(
+						Log.Warn().WriteLine(
 							"COM object {0} has been separated from its underlying RCW cannot be used. The COM object was released while it was still in use on another thread.",
 							_interceptType.FullName);
 						return new ReturnMessage(icoEx, callMessage);
@@ -432,16 +432,16 @@ namespace GreenshotPlugin.Interop
 					}
 					catch (Exception)
 					{
-						Log.WarnFormat("Error {0} getting instance for class id {1}", result, progIdAttribute.Value);
+						Log.Warn().WriteLine("Error {0} getting instance for class id {1}", result, progIdAttribute.Value);
 					}
 					if (comObject == null)
 					{
-						Log.WarnFormat("Error {0} getting progId {1}", result, progIdAttribute.Value);
+						Log.Warn().WriteLine("Error {0} getting progId {1}", result, progIdAttribute.Value);
 					}
 				}
 				else
 				{
-					Log.InfoFormat("Mapped {0} to progId {1}", progIdAttribute.Value, progId);
+					Log.Info().WriteLine("Mapped {0} to progId {1}", progIdAttribute.Value, progId);
 				}
 			}
 
@@ -455,20 +455,20 @@ namespace GreenshotPlugin.Interop
 				{
 					if (comE.ErrorCode == MK_E_UNAVAILABLE)
 					{
-						Log.DebugFormat("No current instance of {0} object available.", progId);
+						Log.Debug().WriteLine("No current instance of {0} object available.", progId);
 					}
 					else if (comE.ErrorCode == CO_E_CLASSSTRING)
 					{
-						Log.WarnFormat("Unknown progId {0}", progId);
+						Log.Warn().WriteLine("Unknown progId {0}", progId);
 					}
 					else
 					{
-						Log.Warn("Error getting active object for " + progIdAttribute.Value, comE);
+						Log.Warn().WriteLine(comE, "Error getting active object for " + progIdAttribute.Value);
 					}
 				}
 				catch (Exception e)
 				{
-					Log.Warn("Error getting active object for " + progIdAttribute.Value, e);
+					Log.Warn().WriteLine(e, "Error getting active object for " + progIdAttribute.Value);
 				}
 			}
 
@@ -516,7 +516,7 @@ namespace GreenshotPlugin.Interop
 				}
 				catch (Exception ex)
 				{
-					Log.WarnFormat("Error {1} type for {0}", progId, ex.Message);
+					Log.Warn().WriteLine("Error {1} type for {0}", progId, ex.Message);
 				}
 			}
 			else
@@ -527,7 +527,7 @@ namespace GreenshotPlugin.Interop
 				}
 				catch (Exception ex)
 				{
-					Log.WarnFormat("Error {1} type for {0}", progId, ex.Message);
+					Log.Warn().WriteLine("Error {1} type for {0}", progId, ex.Message);
 				}
 			}
 			object comObject = null;
@@ -538,12 +538,12 @@ namespace GreenshotPlugin.Interop
 					comObject = Activator.CreateInstance(comType);
 					if (comObject != null)
 					{
-						Log.DebugFormat("Created new instance of {0} object.", progId);
+						Log.Debug().WriteLine("Created new instance of {0} object.", progId);
 					}
 				}
 				catch (Exception e)
 				{
-					Log.WarnFormat("Error {1} creating object for {0}", progId, e.Message);
+					Log.Warn().WriteLine("Error {1} creating object for {0}", progId, e.Message);
 					throw;
 				}
 			}
@@ -599,16 +599,16 @@ namespace GreenshotPlugin.Interop
 					}
 					catch (Exception)
 					{
-						Log.WarnFormat("Error {0} getting instance for class id {1}", result, progIdAttribute.Value);
+						Log.Warn().WriteLine("Error {0} getting instance for class id {1}", result, progIdAttribute.Value);
 					}
 					if (comObject == null)
 					{
-						Log.WarnFormat("Error {0} getting progId {1}", result, progIdAttribute.Value);
+						Log.Warn().WriteLine("Error {0} getting progId {1}", result, progIdAttribute.Value);
 					}
 				}
 				else
 				{
-					Log.InfoFormat("Mapped {0} to progId {1}", progIdAttribute.Value, progId);
+					Log.Info().WriteLine("Mapped {0} to progId {1}", progIdAttribute.Value, progId);
 				}
 			}
 
@@ -624,21 +624,21 @@ namespace GreenshotPlugin.Interop
 					{
 						if (comE.ErrorCode == MK_E_UNAVAILABLE)
 						{
-							Log.DebugFormat("No current instance of {0} object available.", progId);
+							Log.Debug().WriteLine("No current instance of {0} object available.", progId);
 						}
 						else if (comE.ErrorCode == CO_E_CLASSSTRING)
 						{
-							Log.WarnFormat("Unknown progId {0} (application not installed)", progId);
+							Log.Warn().WriteLine("Unknown progId {0} (application not installed)", progId);
 							return default(T);
 						}
 						else
 						{
-							Log.Warn("Error getting active object for " + progId, comE);
+							Log.Warn().WriteLine(comE, "Error getting active object for " + progId);
 						}
 					}
 					catch (Exception e)
 					{
-						Log.Warn("Error getting active object for " + progId, e);
+						Log.Warn().WriteLine(e, "Error getting active object for " + progId);
 					}
 				}
 			}
@@ -658,7 +658,7 @@ namespace GreenshotPlugin.Interop
 					}
 					else
 					{
-						Log.Warn("Error type for " + progId, ex);
+						Log.Warn().WriteLine(ex, "Error type for " + progId);
 					}
 				}
 
@@ -669,12 +669,12 @@ namespace GreenshotPlugin.Interop
 						comObject = Activator.CreateInstance(comType);
 						if (comObject != null)
 						{
-							Log.DebugFormat("Created new instance of {0} object.", progId);
+							Log.Debug().WriteLine("Created new instance of {0} object.", progId);
 						}
 					}
 					catch (Exception e)
 					{
-						Log.Warn("Error creating object for " + progId, e);
+						Log.Warn().WriteLine(e, "Error creating object for " + progId);
 					}
 				}
 			}
@@ -762,7 +762,7 @@ namespace GreenshotPlugin.Interop
 		/// </summary>
 		~COMWrapper()
 		{
-			Log.DebugFormat("Finalize {0}", _interceptType);
+			Log.Debug().WriteLine("Finalize {0}", _interceptType);
 			Dispose(false);
 		}
 
@@ -786,7 +786,7 @@ namespace GreenshotPlugin.Interop
 		{
 			if (null != _comObject)
 			{
-				Log.DebugFormat("Disposing {0}", _interceptType);
+				Log.Debug().WriteLine("Disposing {0}", _interceptType);
 				if (Marshal.IsComObject(_comObject))
 				{
 					try
@@ -795,18 +795,18 @@ namespace GreenshotPlugin.Interop
 						do
 						{
 							count = Marshal.ReleaseComObject(_comObject);
-							Log.DebugFormat("RCW count for {0} now is {1}", _interceptType, count);
+							Log.Debug().WriteLine("RCW count for {0} now is {1}", _interceptType, count);
 						} while (count > 0);
 					}
 					catch (Exception ex)
 					{
-						Log.WarnFormat("Problem releasing COM object {0}", _comType);
-						Log.Warn("Error: ", ex);
+						Log.Warn().WriteLine("Problem releasing COM object {0}", _comType);
+						Log.Warn().WriteLine(ex, "Error: ");
 					}
 				}
 				else
 				{
-					Log.WarnFormat("{0} is not a COM object", _comType);
+					Log.Warn().WriteLine("{0} is not a COM object", _comType);
 				}
 			}
 		}

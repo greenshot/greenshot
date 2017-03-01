@@ -35,7 +35,7 @@ using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using log4net;
+using Dapplo.Log;
 
 #endregion
 
@@ -76,7 +76,7 @@ namespace Greenshot.Helpers
 
 		#endregion Enums
 
-		private static readonly ILog Log = LogManager.GetLogger(typeof(MapiMailMessage));
+		private static readonly LogSource Log = new LogSource();
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 
 		#region Member Variables
@@ -346,7 +346,7 @@ namespace Greenshot.Helpers
 					return;
 				}
 				var errorText = GetMapiError(errorCode);
-				Log.Error("Error sending MAPI Email. Error: " + errorText + " (code = " + errorCode + ").");
+				Log.Error().WriteLine(null, "Error sending MAPI Email. Error: " + errorText + " (code = " + errorCode + ").");
 				MessageBox.Show(errorText, "Mail (MAPI) destination", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				// Recover from bad settings, show again
 				if (errorCode != MAPI_CODES.INVALID_RECIPS)
