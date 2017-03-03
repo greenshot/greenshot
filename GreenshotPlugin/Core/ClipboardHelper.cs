@@ -480,18 +480,7 @@ EndSelection:<<<<<<<4
 							{
 								Log.Info().WriteLine("Using special DIB <v5 format reader with biCompression {0}", infoHeader.biCompression);
 								var fileHeaderSize = Marshal.SizeOf(typeof(BitmapFileHeader));
-								var infoHeaderSize = infoHeader.biSize;
-								var fileSize = (int) (fileHeaderSize + infoHeader.biSize + infoHeader.biSizeImage);
-
-								var fileHeader = new BitmapFileHeader
-								{
-									bfType = BitmapFileHeader.BM,
-									bfSize = fileSize,
-									bfReserved1 = 0,
-									bfReserved2 = 0,
-									bfOffBits = (int) (fileHeaderSize + infoHeaderSize + infoHeader.biClrUsed * 4)
-								};
-
+								var fileHeader = BitmapFileHeader.Create(infoHeader);
 								var fileHeaderBytes = BinaryStructHelper.ToByteArray(fileHeader);
 
 								using (var bitmapStream = new MemoryStream())
@@ -708,20 +697,16 @@ EndSelection:<<<<<<<4
 						dibV5Stream = new MemoryStream();
 
 						// Create the BITMAPINFOHEADER
-						var header = new BitmapInfoHeader(imageToSave.Width, imageToSave.Height, 32)
-						{
-							// Make sure we have BI_BITFIELDS, this seems to be normal for Format17?
-							biCompression = BitmapCompressionMethods.BI_BITFIELDS
-						};
-						// Create a byte[] to write
+						var header = BitmapInfoHeader.Create(imageToSave.Width, imageToSave.Height, 32);
+						// Make sure we have BI_BITFIELDS, this seems to be normal for Format17?
+						header.biCompression = BitmapCompressionMethods.BI_BITFIELDS;
+
 						var headerBytes = BinaryStructHelper.ToByteArray(header);
 						// Write the BITMAPINFOHEADER to the stream
 						dibV5Stream.Write(headerBytes, 0, headerBytes.Length);
 
 						// As we have specified BI_COMPRESSION.BI_BITFIELDS, the BitfieldColorMask needs to be added
-						var colorMask = new BitfieldColorMask();
-						// Make sure the values are set
-						colorMask.InitValues();
+						var colorMask = BitfieldColorMask.Create();
 						// Create the byte[] from the struct
 						var colorMaskBytes = BinaryStructHelper.ToByteArray(colorMask);
 						Array.Reverse(colorMaskBytes);

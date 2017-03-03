@@ -240,15 +240,11 @@ namespace Greenshot.Helpers
 			get
 			{
 				var servicePack = string.Empty;
-				var osVersionInfo = new OsVersionInfoEx
-				{
-					dwOSVersionInfoSize = Marshal.SizeOf(typeof(OsVersionInfoEx))
-				};
-
+				var osVersionInfo = OsVersionInfoEx.Create();
 
 				if (Kernel32.GetVersionEx(ref osVersionInfo))
 				{
-					servicePack = osVersionInfo.szCSDVersion;
+					servicePack = osVersionInfo.ServicePackVersion;
 				}
 
 				return servicePack;
@@ -276,10 +272,7 @@ namespace Greenshot.Helpers
 				var edition = string.Empty;
 
 				var osVersion = Environment.OSVersion;
-				var osVersionInfo = new OsVersionInfoEx
-				{
-					dwOSVersionInfoSize = Marshal.SizeOf(typeof(OsVersionInfoEx))
-				};
+				var osVersionInfo = OsVersionInfoEx.Create();
 				if (!Kernel32.GetVersionEx(ref osVersionInfo))
 				{
 					_sEdition = edition;
@@ -288,8 +281,8 @@ namespace Greenshot.Helpers
 
 				var majorVersion = osVersion.Version.Major;
 				var minorVersion = osVersion.Version.Minor;
-				var productType = osVersionInfo.wProductType;
-				var suiteMask = osVersionInfo.wSuiteMask;
+				var productType = osVersionInfo.ProductType;
+				var suiteMask = osVersionInfo.SuiteMask;
 
 				#region VERSION 4
 
@@ -376,7 +369,7 @@ namespace Greenshot.Helpers
 				else if (majorVersion == 6)
 				{
 					WindowsProducts ed;
-					if (Kernel32.GetProductInfo(majorVersion, minorVersion, osVersionInfo.wServicePackMajor, osVersionInfo.wServicePackMinor, out ed))
+					if (Kernel32.GetProductInfo(majorVersion, minorVersion, osVersionInfo.ServicePackMajor, osVersionInfo.ServicePackMinor, out ed))
 					{
 						var memberInfo = ed.GetType().GetMember(ed.ToString()).FirstOrDefault();
 
@@ -416,12 +409,7 @@ namespace Greenshot.Helpers
 				var name = "unknown";
 
 				var osVersion = Environment.OSVersion;
-				var osVersionInfo = new OsVersionInfoEx
-				{
-					dwOSVersionInfoSize = Marshal.SizeOf(typeof(OsVersionInfoEx))
-				};
-
-
+				var osVersionInfo = OsVersionInfoEx.Create();
 				if (!Kernel32.GetVersionEx(ref osVersionInfo))
 				{
 					_name = name;
@@ -430,14 +418,14 @@ namespace Greenshot.Helpers
 
 				var majorVersion = osVersion.Version.Major;
 				var minorVersion = osVersion.Version.Minor;
-				var productType = osVersionInfo.wProductType;
-				var suiteMask = osVersionInfo.wSuiteMask;
+				var productType = osVersionInfo.ProductType;
+				var suiteMask = osVersionInfo.SuiteMask;
 				switch (osVersion.Platform)
 				{
 					case PlatformID.Win32Windows:
 						if (majorVersion == 4)
 						{
-							var csdVersion = osVersionInfo.szCSDVersion;
+							var csdVersion = osVersionInfo.ServicePackVersion;
 							switch (minorVersion)
 							{
 								case 0:

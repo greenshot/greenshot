@@ -1164,9 +1164,9 @@ namespace Greenshot.Helpers
 								region.Exclude(interopWindow.GetBounds());
 							}
 							// 3. exclude the scrollbar, if it can be found
-							if (windowScroller.ScrollBarInfo.HasValue)
+							if (windowScroller.ScrollBar.HasValue)
 							{
-								region.Exclude(windowScroller.ScrollBarInfo.Value.rcScrollBar);
+								region.Exclude(windowScroller.ScrollBar.Value.Bounds);
 							}
 							// Get the bounds of the region
 							using (var screenGraphics = Graphics.FromHwnd(User32.GetDesktopWindow()))
@@ -1181,9 +1181,9 @@ namespace Greenshot.Helpers
 							// Now calculate things like how much a line is, the total height etc...
 							var scrollInfo = windowScroller.InitialScrollInfo;
 							// Get the number of lines
-							var lines = 1 + (scrollInfo.nMax - scrollInfo.nMin);
+							var lines = 1 + (scrollInfo.Maximum - scrollInfo.Minimum);
 							// Calculate the height of a single line
-							var lineHeight = Math.Ceiling((double) clientBounds.Height / (scrollInfo.nPage + 1));
+							var lineHeight = Math.Ceiling((double) clientBounds.Height / (scrollInfo.PageSize + 1));
 							// Calculate the total height
 							var totalHeight = lineHeight * lines;
 							var totalSize = new Size(clientBounds.Width, (int) totalHeight);
@@ -1280,7 +1280,7 @@ namespace Greenshot.Helpers
 			{
 				ScrollInfo scrollInfo;
 				windowScroller.GetPosition(out scrollInfo);
-				double absoluteNPos = scrollInfo.nPos - scrollInfo.nMin;
+				double absoluteNPos = scrollInfo.Position - scrollInfo.Minimum;
 				Log.Debug().WriteLine("Scrollinfo: {0}, taking position {1}", scrollInfo, absoluteNPos);
 				using (var graphics = Graphics.FromImage(target))
 				{

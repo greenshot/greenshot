@@ -164,7 +164,7 @@ namespace Greenshot.Configuration
 
 		public WindowPlacement GetEditorPlacement()
 		{
-			var placement = WindowPlacement.Default;
+			var placement = WindowPlacement.Create();
 			placement.NormalPosition = WindowNormalPosition;
 			placement.MaxPosition = WindowMaxPosition;
 			placement.MinPosition = WindowMinPosition;

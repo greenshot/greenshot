@@ -122,21 +122,20 @@ namespace GreenshotPlugin.Core
 			{
 				capture = new Capture();
 			}
-			var cursorInfo = new CursorInfo();
-			cursorInfo.cbSize = Marshal.SizeOf(cursorInfo);
+			var cursorInfo = CursorInfo.Create();
 			if (User32.GetCursorInfo(out cursorInfo))
 			{
-				if (cursorInfo.flags == CursorInfoFlags.Showing)
+				if (cursorInfo.Flags == CursorInfoFlags.Showing)
 				{
-					using (var safeIcon = User32.CopyIcon(cursorInfo.hCursor))
+					using (var safeIcon = User32.CopyIcon(cursorInfo.CursorHandle))
 					{
 						IconInfo iconInfo;
 						if (User32.GetIconInfo(safeIcon, out iconInfo))
 						{
 							var cursorLocation = User32.GetCursorLocation();
 							// Allign cursor location to Bitmap coordinates (instead of Screen coordinates)
-							var x = cursorLocation.X - iconInfo.xHotspot - capture.ScreenBounds.X;
-							var y = cursorLocation.Y - iconInfo.yHotspot - capture.ScreenBounds.Y;
+							var x = cursorLocation.X - iconInfo.Hotspot.X - capture.ScreenBounds.X;
+							var y = cursorLocation.Y - iconInfo.Hotspot.Y - capture.ScreenBounds.Y;
 							// Set the location
 							capture.CursorLocation = new Point(x, y);
 
@@ -145,13 +144,13 @@ namespace GreenshotPlugin.Core
 								capture.Cursor = icon;
 							}
 
-							if (iconInfo.hbmMask != IntPtr.Zero)
+							if (iconInfo.BitmaskBitmapHandle != IntPtr.Zero)
 							{
-								DeleteObject(iconInfo.hbmMask);
+								DeleteObject(iconInfo.BitmaskBitmapHandle);
 							}
-							if (iconInfo.hbmColor != IntPtr.Zero)
+							if (iconInfo.ColorBitmapHandle != IntPtr.Zero)
 							{
-								DeleteObject(iconInfo.hbmColor);
+								DeleteObject(iconInfo.ColorBitmapHandle);
 							}
 						}
 					}
@@ -344,7 +343,7 @@ namespace GreenshotPlugin.Core
 						throw exceptionToThrow;
 					}
 					// Create BITMAPINFOHEADER for CreateDIBSection
-					var bmi = new BitmapInfoHeader(captureBounds.Width, captureBounds.Height, 24);
+					var bmi = BitmapInfoHeader.Create(captureBounds.Width, captureBounds.Height, 24);
 
 					// Make sure the last error is set to 0
 					Win32.SetLastError(0);
