@@ -1,14 +1,14 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 
 <language>
 	<resources prefix="Core">
 		<resource name="about_bugs">Про помилки повідомляйте на</resource>
-		<resource name="about_donations">Якщо Вам подобається Greenshot, то можете підтримати нас:</resource>
-		<resource name="about_host">Greenshot is розташовується на sourceforge.net</resource>
-		<resource name="about_icons">Набір іконок Fugue від Yusuke Kamiyamane (ліцензія Creative Commons Attribution 3.0)</resource>
+		<resource name="about_donations">Якщо Вам подобається Greenshot, можете підтримати нас:</resource>
+		<resource name="about_host">Greenshot знаходиться на sourceforge.net</resource>
+		<resource name="about_icons">Набір піктограм Fugue від Yusuke Kamiyamane (ліцензія Creative Commons Attribution 3.0)</resource>
 		<resource name="about_license">
 			Авторство © 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
-			Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. Це вільне програмне забезпечення, Ви можете розповсюджувати його за певних умов.
+			Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. Це вільне програмне забезпечення, Ви можете розповсюджувати його за певних умов.
 			Подробиці Загальної Публічної Ліцензії GNU:
 		</resource>
 		<resource name="about_title">Про Greenshot</resource>
@@ -42,12 +42,12 @@
 		<resource name="colorpicker_red">Червоний</resource>
 		<resource name="colorpicker_title">Вибір кольору</resource>
 		<resource name="colorpicker_transparent">Прозорий</resource>
-		<resource name="com_rejected">Призначення {0} відхилило доступ Greenshot, можливо через відкрите діалогове вікно. Зайкрийте діалогове вікно та спробуйте знову.</resource>
+		<resource name="com_rejected">Призначення {0} відхилило доступ Greenshot, можливо через відкрите діалогове вікно. Закрийте діалогове вікно та спробуйте знову.</resource>
 		<resource name="com_rejected_title">Доступ Greenshot відхилено</resource>
 		<resource name="config_unauthorizedaccess_write">Неможливо зберегти файл налаштувань Greenshot. Будь ласка, перевірте доступ до „{0}“.</resource>
 		<resource name="contextmenu_about">Про Greenshot</resource>
-		<resource name="contextmenu_capturearea">Захоплення області</resource>
-		<resource name="contextmenu_captureclipboard">Відкрити зображення з буферу обміну</resource>
+		<resource name="contextmenu_capturearea">Захопити область</resource>
+		<resource name="contextmenu_captureclipboard">Відкрити зображення з буфера обміну</resource>
 		<resource name="contextmenu_capturefullscreen">Захопити весь екран</resource>
 		<resource name="contextmenu_capturefullscreen_all">все</resource>
 		<resource name="contextmenu_capturefullscreen_bottom">знизу</resource>
@@ -56,8 +56,8 @@
 		<resource name="contextmenu_capturefullscreen_top">згори</resource>
 		<resource name="contextmenu_captureie">Захопити Internet Explorer</resource>
 		<resource name="contextmenu_captureiefromlist">Захопити Internet Explorer зі списку</resource>
-		<resource name="contextmenu_capturelastregion">Захоплення останньої області</resource>
-		<resource name="contextmenu_capturewindow">Захоплення вікна</resource>
+		<resource name="contextmenu_capturelastregion">Захопити останню область</resource>
+		<resource name="contextmenu_capturewindow">Захопити вікно</resource>
 		<resource name="contextmenu_capturewindowfromlist">Захопити вікно зі списку</resource>
 		<resource name="contextmenu_donate">Підтримати Greenshot</resource>
 		<resource name="contextmenu_exit">Вихід</resource>
@@ -66,36 +66,37 @@
 		<resource name="contextmenu_openrecentcapture">Відкрити місце збереження останнього знімку</resource>
 		<resource name="contextmenu_quicksettings">Швидкі параметри</resource>
 		<resource name="contextmenu_settings">Параметри...</resource>
-		<resource name="destination_exportfailed">Помилка експорту {0}. Будь ласка, спробуйте ще.</resource>
+		<resource name="destination_exportfailed">Помилка експорту до {0}. Спробуйте знову.</resource>
 		<resource name="EmailFormat.MAPI">Клієнт MAPI</resource>
 		<resource name="EmailFormat.OUTLOOK_HTML">Outlook з HTML</resource>
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook з текстом</resource>
 		<resource name="error">Помилка</resource>
-		<resource name="error_multipleinstances">Вже запущено примірник Greenshot.</resource>
+		<resource name="error_multipleinstances">Greenshot вже виконується.</resource>
 		<resource name="error_nowriteaccess">
 			Неможливо зберегти файл в {0}.
-			Будь ласка, перевірте доступність вибраної теки.
+			Перевірте можливість запису до вибраного розташування.
 		</resource>
-		<resource name="error_openfile">Неможливо відкрити файл „{0}“.</resource>
-		<resource name="error_openlink">Неможливо відкрити посилання „{0}“.</resource>
-		<resource name="error_save">Неможливо зберегти знімок. Будь ласка, знайдіть відповідне місце.</resource>
+		<resource name="error_openfile">Не вдалося відкрити файл „{0}“.</resource>
+		<resource name="error_openlink">Не вдалося відкрити посилання „{0}“.</resource>
+		<resource name="error_save">Не вдалося зберегти знімок. Знайдіть відповідне розташування.</resource>
+		<resource name="error_save_invalid_chars">Згенерована назва файла чи теки неприпустима. Виправте шаблон назви файла і спробуйте знову.</resource>
 		<resource name="expertsettings">Експертні</resource>
 		<resource name="expertsettings_autoreducecolors">Створити 8-бітне зображення, якщо більш ніж 8-бітне має менше 256 кольорів</resource>
 		<resource name="expertsettings_checkunstableupdates">Перевірити наявність нестабільних оновлень</resource>
 		<resource name="expertsettings_clipboardformats">Формати буферу обміну</resource>
 		<resource name="expertsettings_counter">Номер для ${NUM} у шаблон назви файла</resource>
-		<resource name="expertsettings_enableexpert">Я знаю що я роблю!</resource>
+		<resource name="expertsettings_enableexpert">Я знаю що роблю!</resource>
 		<resource name="expertsettings_footerpattern">Нижній колонтитул</resource>
 		<resource name="expertsettings_minimizememoryfootprint">Зменшити споживання пам’яті, з погіршенням продуктивності (не рекомендовано).</resource>
-		<resource name="expertsettings_optimizeforrdp">Зробити кілька оптимізацій для використання з віддалених стільниць</resource>
+		<resource name="expertsettings_optimizeforrdp">Зробити деякі оптимізації для використання з віддаленим комп'ютером</resource>
 		<resource name="expertsettings_reuseeditorifpossible">За можливості повторно використовувати редактор</resource>
 		<resource name="expertsettings_suppresssavedialogatclose">Заборонити діалог збереження при закритті редактора</resource>
 		<resource name="expertsettings_thumbnailpreview">Показувати вікно ескізів у контекстному меню (для Vista та Windows 7)</resource>
-		<resource name="exported_to">Експортовано: {0}</resource>
+		<resource name="exported_to">Експортовано до: {0}</resource>
 		<resource name="exported_to_error">Відбулась помилка під час експорту до {0}:</resource>
 		<resource name="help_title">Довідка Greenshot</resource>
 		<resource name="hotkeys">Гарячі клавіши</resource>
-		<resource name="jpegqualitydialog_choosejpegquality">Будь ласка, виберіть JPEG-якість зображення.</resource>
+		<resource name="jpegqualitydialog_choosejpegquality">Оберіть якість JPEG для вашого зображення.</resource>
 		<resource name="OK">Гаразд</resource>
 		<resource name="print_error">Під час друку виникла помилка.</resource>
 		<resource name="printoptions_allowcenter">Центрувати на сторінці</resource>
@@ -109,7 +110,7 @@
 		<resource name="printoptions_printcolor">Повноколірний друк</resource>
 		<resource name="printoptions_printgrayscale">Примусовий друк у відтінках сірого</resource>
 		<resource name="printoptions_printmonochrome">Примусовий чорно-білий друк</resource>
-		<resource name="printoptions_timestamp">Друкувати дату та час внизу сторінки</resource>
+		<resource name="printoptions_timestamp">Друкувати дату й час внизу сторінки</resource>
 		<resource name="printoptions_title">Параметри друку Greenshot</resource>
 		<resource name="qualitydialog_dontaskagain">Зберегти як стандартну якість і не запитувати знову</resource>
 		<resource name="qualitydialog_title">Якість Greenshot</resource>
@@ -154,7 +155,8 @@
 
 			Ви також можете примусити Greenshot створювати динамічні каталоги, просто використовуючи символ похилої риски (\) як роздільник між теками та назвою файла.
 			Наприклад, шаблон ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-			створюватиме у стандартній теці теку для поточного дня (наприклад, 2012-01-27), в якій будуть знімки з назвою файла, що базуватиметься на поточному часі (наприклад, 11_58_32) (плюс зазначене у параметрах розширення).
+			створюватиме у стандартній теці теку для поточного дня (наприклад, 2012-01-27), в якій будуть знімки з назвою файла, що базуватиметься на поточному
+часі (наприклад, 11_58_32) (плюс зазначене у параметрах розширення).
 		</resource>
 		<resource name="settings_network">Мережа та оновлення</resource>
 		<resource name="settings_output">Виведення</resource>
@@ -195,14 +197,11 @@
 
 			Всі функції Greenshot досі працюють безпосередньо з контекстного меню іконки у лотку без застосування гарячих клавіш.
 		</resource>
-		<resource name="WindowCaptureMode.Aero">Використовувати користувацький колір</resource>
+		<resource name="WindowCaptureMode.Aero">Використовувати власний колір</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Зберігати прозорість</resource>
 		<resource name="WindowCaptureMode.Auto">Автоматично</resource>
 		<resource name="WindowCaptureMode.GDI">Використовувати стандартний колір</resource>
 		<resource name="WindowCaptureMode.Screen">Як відображається</resource>
-
-		<!-- 1.2 -->
-		<resource name="settings_iconsize">Розмір іконки</resource>
-
+		<resource name="settings_iconsize">Розмір піктограми</resource>
 	</resources>
 </language>
