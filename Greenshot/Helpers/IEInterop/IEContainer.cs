@@ -86,7 +86,7 @@ namespace Greenshot.Helpers.IEInterop
 			// Calculate startLocation for the frames
 			var window2 = document2.parentWindow;
 			var window3 = (IHTMLWindow3) window2;
-			Point contentWindowLocation = contentWindow.GetBounds().Location;
+			Point contentWindowLocation = contentWindow.GetInfo().Bounds.Location;
 			var x = window3.screenLeft - contentWindowLocation.X;
 			var y = window3.screenTop - contentWindowLocation.Y;
 
@@ -246,7 +246,7 @@ namespace Greenshot.Helpers.IEInterop
 			// Do not release IHTMLDocument5 com object, as this also gives problems with the document2!
 			//Marshal.ReleaseComObject(document5);
 
-			Rectangle clientRectangle = contentWindow.GetBounds();
+			Rectangle clientRectangle = contentWindow.GetInfo().Bounds;
 			try
 			{
 				var window2 = document2.parentWindow;

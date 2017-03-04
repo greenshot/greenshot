@@ -502,7 +502,7 @@ namespace Greenshot.Helpers
 						{
 							var estimatedLocation = new Point(CoreConfig.LastCapturedRegion.X + CoreConfig.LastCapturedRegion.Width / 2,
 								CoreConfig.LastCapturedRegion.Y + CoreConfig.LastCapturedRegion.Height / 2);
-							if (window.GetBounds().Contains(estimatedLocation))
+							if (window.GetInfo().Bounds.Contains(estimatedLocation))
 							{
 								SelectedCaptureWindow = window;
 								_capture.CaptureDetails.Title = SelectedCaptureWindow.Text;
@@ -559,10 +559,10 @@ namespace Greenshot.Helpers
 				_windows.Add(AppQuery.GetAppLauncher());
 				return;
 			}
-			_windows.AddRange(InteropWindowQuery.GetTopWindows().Where(window => window.IsVisible() && window.Handle != MainForm.Instance.Handle && !window.GetBounds().IsEmpty));
+			_windows.AddRange(InteropWindowQuery.GetTopWindows().Where(window => window.IsVisible() && window.Handle != MainForm.Instance.Handle && !window.GetInfo().Bounds.IsEmpty));
 
 			// Get all the values for Popups, they disappear as soon as focus is lost so now is the right moment
-			foreach (var popup in _windows.Where(window => window.GetStyle().HasFlag(WindowStyleFlags.WS_POPUP)))
+			foreach (var popup in _windows.Where(window => window.GetInfo().Style.HasFlag(WindowStyleFlags.WS_POPUP)))
 			{
 				popup.Fill();
 				// TODO: Capture all popups to make them available like the mouse cursor.
@@ -769,7 +769,7 @@ namespace Greenshot.Helpers
 				{
 					if (Log.IsDebugEnabled())
 					{
-						Log.Debug().WriteLine("Capturing window: {0} with {1}", SelectedCaptureWindow.Text, SelectedCaptureWindow.GetBounds());
+						Log.Debug().WriteLine("Capturing window: {0} with {1}", SelectedCaptureWindow.Text, SelectedCaptureWindow.GetInfo().Bounds);
 					}
 				}
 			}
@@ -793,7 +793,7 @@ namespace Greenshot.Helpers
 				return false;
 			}
 			// Fix for Bug #3430560 
-			CoreConfig.LastCapturedRegion = SelectedCaptureWindow.GetBounds();
+			CoreConfig.LastCapturedRegion = SelectedCaptureWindow.GetInfo().Bounds;
 			var returnValue = CaptureWindow(SelectedCaptureWindow, _capture, CoreConfig.WindowCaptureMode) != null;
 			return returnValue;
 		}
@@ -806,7 +806,7 @@ namespace Greenshot.Helpers
 		/// <returns>WindowDetails with the target Window OR a replacement</returns>
 		public static IInteropWindow SelectCaptureWindow(IInteropWindow windowToCapture)
 		{
-			Rectangle windowRectangle = windowToCapture.GetBounds();
+			Rectangle windowRectangle = windowToCapture.GetInfo().Bounds;
 			if (windowRectangle.Width == 0 || windowRectangle.Height == 0)
 			{
 				Log.Warn().WriteLine("Window {0} has nothing to capture, using workaround to find other window of same process.", windowToCapture.Text);
@@ -867,7 +867,7 @@ namespace Greenshot.Helpers
 			{
 				captureForWindow = new Capture();
 			}
-			Rectangle windowRectangle = windowToCapture.GetBounds();
+			Rectangle windowRectangle = windowToCapture.GetInfo().Bounds;
 
 			// When Vista & DWM (Aero) enabled
 			var dwmEnabled = Dwm.IsDwmEnabled;
@@ -1153,7 +1153,7 @@ namespace Greenshot.Helpers
 						// Find the area which is scrolling
 
 						// 1. Take the client bounds
-						Rectangle clientBounds = windowScroller.ScrollBarWindow.GetClientBounds();
+						Rectangle clientBounds = windowScroller.ScrollBarWindow.GetInfo().ClientBounds;
 
 						// Use a region for steps 2 and 3
 						using (var region = new Region(clientBounds))
@@ -1161,7 +1161,7 @@ namespace Greenshot.Helpers
 							// 2. exclude the children, if any
 							foreach (var interopWindow in windowScroller.ScrollBarWindow.GetChildren())
 							{
-								region.Exclude(interopWindow.GetBounds());
+								region.Exclude(interopWindow.GetInfo().Bounds);
 							}
 							// 3. exclude the scrollbar, if it can be found
 							if (windowScroller.ScrollBar.HasValue)

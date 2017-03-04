@@ -107,7 +107,7 @@ namespace GreenshotPlugin.Core
 		/// <returns>Bitmap</returns>
 		public static Bitmap CaptureFromScreen(this IInteropWindow interopWindow, bool clientBounds = false)
 		{
-			var bounds = clientBounds ? interopWindow.GetClientBounds() : interopWindow.GetBounds();
+			var bounds = clientBounds ? interopWindow.GetInfo().ClientBounds: interopWindow.GetInfo().Bounds;
 			return WindowCapture.CaptureRectangle(bounds);
 		}
 
@@ -123,7 +123,7 @@ namespace GreenshotPlugin.Core
 			if (capturedImage != null)
 			{
 				capture.Image = capturedImage;
-				capture.Location = interopWindow.GetClientBounds().Location;
+				capture.Location = interopWindow.GetInfo().Bounds.Location;
 				return capture;
 			}
 			return null;
@@ -136,7 +136,7 @@ namespace GreenshotPlugin.Core
 		/// </summary>
 		public static Image PrintWindow(this IInteropWindow nativeWindow)
 		{
-			var bounds = nativeWindow.GetBounds();
+			var bounds = nativeWindow.GetInfo().Bounds;
 			// Start the capture
 			Exception exceptionOccured = null;
 			Image returnImage;
@@ -182,7 +182,7 @@ namespace GreenshotPlugin.Core
 			if (!nativeWindow.HasParent && nativeWindow.IsMaximized())
 			{
 				Log.Debug().WriteLine("Correcting for maximalization");
-				Size borderSize = nativeWindow.GetBorderSize();
+				Size borderSize = nativeWindow.GetInfo().BorderSize;
 				var borderRectangle = new Rectangle(borderSize.Width, borderSize.Height, bounds.Width - 2 * borderSize.Width, bounds.Height - 2 * borderSize.Height);
 				ImageHelper.Crop(ref returnImage, ref borderRectangle);
 			}
@@ -224,7 +224,7 @@ namespace GreenshotPlugin.Core
 				}
 
 				// Calculate the location of the temp form
-				var windowRectangle = interopWindow.GetBounds();
+				var windowRectangle = interopWindow.GetInfo().Bounds;
 				var formLocation = windowRectangle.Location;
 				var borderSize = new Size();
 				var doesCaptureFit = false;
@@ -267,7 +267,7 @@ namespace GreenshotPlugin.Core
 				else if (!Environment.OSVersion.IsWindows8OrLater())
 				{
 					//GetClientRect(out windowRectangle);
-					borderSize = interopWindow.GetBorderSize();
+					borderSize = interopWindow.GetInfo().BorderSize;
 					formLocation = new Point(windowRectangle.X - borderSize.Width, windowRectangle.Y - borderSize.Height);
 				}
 
@@ -399,7 +399,7 @@ namespace GreenshotPlugin.Core
 					{
 						// Only if the Inivalue is set, not maximized and it's not a tool window.
 						if (CoreConfiguration.WindowCaptureRemoveCorners && !interopWindow.IsMaximized() &&
-						    (interopWindow.GetExtendedStyle() & ExtendedWindowStyleFlags.WS_EX_TOOLWINDOW) == 0)
+						    !interopWindow.GetInfo().ExtendedStyle.HasFlag(ExtendedWindowStyleFlags.WS_EX_TOOLWINDOW))
 						{
 							// Remove corners
 							if (!Image.IsAlphaPixelFormat(capturedBitmap.PixelFormat))
@@ -416,7 +416,7 @@ namespace GreenshotPlugin.Core
 
 				capture.Image = capturedBitmap;
 				// Make sure the capture location is the location of the window, not the copy
-				capture.Location = interopWindow.GetBounds().Location;
+				capture.Location = interopWindow.GetInfo().Bounds.Location;
 			}
 			finally
 			{

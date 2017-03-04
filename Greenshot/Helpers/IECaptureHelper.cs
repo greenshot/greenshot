@@ -84,8 +84,8 @@ namespace Greenshot.Helpers
 			var ieWindow = someWindow.GetChildren().FirstOrDefault(window => window.GetClassname() == "Internet Explorer_Server");
 			if (ieWindow != null)
 			{
-				Rectangle wholeClient = someWindow.GetClientBounds();
-				Rectangle partClient = ieWindow.GetClientBounds();
+				Rectangle wholeClient = someWindow.GetInfo().ClientBounds;
+				Rectangle partClient = ieWindow.GetInfo().ClientBounds;
 				var percentage = (int) (100 * (float) (partClient.Width * partClient.Height) / (wholeClient.Width * wholeClient.Height));
 				Log.Info().WriteLine("Window {0}, ie part {1}, percentage {2}", wholeClient, partClient, percentage);
 				if (percentage > minimumPercentage)
@@ -422,7 +422,7 @@ namespace Greenshot.Helpers
 				try
 				{
 					Log.Debug().WriteLine("Window class {0}", documentContainer.ContentWindow.GetClassname());
-					Log.Debug().WriteLine("Window location {0}", documentContainer.ContentWindow.GetBounds().Location);
+					Log.Debug().WriteLine("Window location {0}", documentContainer.ContentWindow.GetInfo().Bounds.Location);
 				}
 				catch (Exception ex)
 				{
@@ -477,7 +477,7 @@ namespace Greenshot.Helpers
 				try
 				{
 					// Store the location of the window
-					capture.Location = documentContainer.ContentWindow.GetBounds().Location;
+					capture.Location = documentContainer.ContentWindow.GetInfo().Bounds.Location;
 
 					// The URL is available unter "document2.url" and can be used to enhance the meta-data etc.
 					capture.CaptureDetails.AddMetaData("url", documentContainer.Url);
@@ -603,7 +603,8 @@ namespace Greenshot.Helpers
 
 			var movedMouse = false;
 			// Correct cursor location to be inside the window
-			capture.MoveMouseLocation(-documentContainer.ContentWindow.GetBounds().Location.X, -documentContainer.ContentWindow.GetBounds().Location.Y);
+			var location = documentContainer.ContentWindow.GetInfo().Bounds.Location;
+			capture.MoveMouseLocation(-location.X, -location.Y);
 			// See if the page has the correct size, as we capture the full frame content AND might have moved them
 			// the normal pagesize will no longer be enough
 			foreach (var frameData in documentContainer.Frames)

@@ -533,7 +533,7 @@ namespace Greenshot.Forms
 					// Ignore us
 					continue;
 				}
-				if (!window.GetBounds().Contains(cursorPosition))
+				if (!window.GetInfo().Bounds.Contains(cursorPosition))
 				{
 					continue;
 				}
@@ -556,7 +556,7 @@ namespace Greenshot.Forms
 					// Drill down, via the ZOrder
 					var tmpChildWindow = selectedChildWindow
 						.GetZOrderedChildren()
-						.FirstOrDefault(interopWindow => interopWindow.GetBounds().Contains(cursorPosition));
+						.FirstOrDefault(interopWindow => interopWindow.GetInfo().Bounds.Contains(cursorPosition));
 
 					if (tmpChildWindow == null)
 					{
@@ -595,17 +595,17 @@ namespace Greenshot.Forms
 					}
 
 					// We store the bound of the selected (child) window
-					_captureRect = SelectedCaptureWindow.GetBounds();
+					_captureRect = SelectedCaptureWindow.GetInfo().Bounds;
 
 					// Make sure the bounds fit to it's parent, some windows are bigger than their parent
 					// But only for non popups
-					if (!SelectedCaptureWindow.GetStyle().HasFlag(WindowStyleFlags.WS_POPUP))
+					if (!SelectedCaptureWindow.GetInfo().Style.HasFlag(WindowStyleFlags.WS_POPUP))
 					{
 						var parent = SelectedCaptureWindow.GetParent();
 						while (parent != IntPtr.Zero)
 						{
 							var parentWindow = InteropWindowFactory.CreateFor(parent);
-							_captureRect.Intersect(parentWindow.GetBounds());
+							_captureRect.Intersect(parentWindow.GetInfo().Bounds);
 							parent = parentWindow.GetParent();
 						}
 					}
