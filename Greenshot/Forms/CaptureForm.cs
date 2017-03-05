@@ -589,7 +589,6 @@ namespace Greenshot.Forms
 								interopWindow.Dump();
 							}
 
-
 							WindowScroller = SelectedCaptureWindow.GetChildren().Select(child => child.GetWindowScroller(ScrollBarTypes.Vertical)).FirstOrDefault(scroller => scroller != null);
 						}
 					}

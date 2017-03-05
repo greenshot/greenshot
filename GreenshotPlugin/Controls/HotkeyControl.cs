@@ -32,6 +32,7 @@ using System.Windows.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
+using Dapplo.Windows;
 
 #endregion
 
@@ -59,7 +60,6 @@ namespace GreenshotPlugin.Controls
 		private static readonly LogSource Log = new LogSource();
 
 		private static readonly EventDelay EventDelay = new EventDelay(TimeSpan.FromMilliseconds(600).Ticks);
-		private static readonly bool IsWindows7OrOlder = Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 1;
 
 		// Holds the list of hotkeys
 		private static readonly IDictionary<int, HotKeyHandler> KeyHandlers = new Dictionary<int, HotKeyHandler>();
@@ -522,7 +522,7 @@ namespace GreenshotPlugin.Controls
 				modifiers |= (uint) Modifiers.WIN;
 			}
 			// Disable repeating hotkey for Windows 7 and beyond, as described in #1559
-			if (IsWindows7OrOlder)
+			if (!WindowsVersion.IsWindows7OrLater)
 			{
 				modifiers |= (uint) Modifiers.NO_REPEAT;
 			}
@@ -575,7 +575,7 @@ namespace GreenshotPlugin.Controls
 				return false;
 			}
 			// Call handler
-			if (!IsWindows7OrOlder && !EventDelay.Check())
+			if (WindowsVersion.IsWindows7OrLater&& !EventDelay.Check())
 			{
 				return true;
 			}

@@ -149,9 +149,7 @@ EndSelection:<<<<<<<4
 					catch (Exception e)
 					{
 						Log.Warn().WriteLine(e, "Non critical error: Couldn't get clipboard process, trying to use the title.");
-						var title = new StringBuilder(260, 260);
-						User32.GetWindowText(hWnd, title, title.Capacity);
-						owner = title.ToString();
+						owner = User32.GetText(hWnd);
 					}
 				}
 			}

@@ -264,7 +264,7 @@ namespace GreenshotPlugin.Core
 						}
 					}
 				}
-				else if (!Environment.OSVersion.IsWindows8OrLater())
+				else if (!WindowsVersion.IsWindows8OrLater)
 				{
 					//GetClientRect(out windowRectangle);
 					borderSize = interopWindow.GetInfo().BorderSize;
@@ -285,7 +285,7 @@ namespace GreenshotPlugin.Core
 				else
 				{
 					// TODO: Also 8.x?
-					if (Environment.OSVersion.IsWindows10())
+					if (WindowsVersion.IsWindows10)
 					{
 						captureRectangle.Inflate(CoreConfiguration.Win10BorderCrop);
 					}
@@ -395,7 +395,7 @@ namespace GreenshotPlugin.Core
 				if (capturedBitmap != null)
 				{
 					// Not needed for Windows 8
-					if (!Environment.OSVersion.IsWindows8OrLater())
+					if (!WindowsVersion.IsWindows8OrLater)
 					{
 						// Only if the Inivalue is set, not maximized and it's not a tool window.
 						if (CoreConfiguration.WindowCaptureRemoveCorners && !interopWindow.IsMaximized() &&

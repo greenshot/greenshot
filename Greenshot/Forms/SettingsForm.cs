@@ -42,6 +42,7 @@ using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using Dapplo.Log;
+using Dapplo.Windows;
 
 #endregion
 
@@ -70,7 +71,7 @@ namespace Greenshot
 			base.OnLoad(e);
 
 			// Fix for Vista/XP differences
-			trackBarJpegQuality.BackColor = Environment.OSVersion.Version.Major >= 6 ? SystemColors.Window : SystemColors.Control;
+			trackBarJpegQuality.BackColor = WindowsVersion.IsWindowsVistaOrLater ? SystemColors.Window : SystemColors.Control;
 
 			// This makes it possible to still capture the settings screen
 			fullscreen_hotkeyControl.Enter += EnterHotkeyControl;
@@ -332,7 +333,7 @@ namespace Greenshot
 			if (valid)
 			{
 				// "Added" feature #3547158
-				textbox.BackColor = Environment.OSVersion.Version.Major >= 6 ? SystemColors.Window : SystemColors.Control;
+				textbox.BackColor = WindowsVersion.IsWindowsVistaOrLater ? SystemColors.Window : SystemColors.Control;
 			}
 			else
 			{
@@ -672,9 +673,8 @@ namespace Greenshot
 
 		private void Combobox_window_capture_modeSelectedIndexChanged(object sender, EventArgs e)
 		{
-			var windowsVersion = Environment.OSVersion.Version.Major;
 			var mode = GetSelected<WindowCaptureModes>(combobox_window_capture_mode);
-			if (windowsVersion >= 6)
+			if (WindowsVersion.IsWindowsVistaOrLater)
 			{
 				switch (mode)
 				{

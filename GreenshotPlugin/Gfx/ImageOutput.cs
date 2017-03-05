@@ -420,7 +420,7 @@ namespace GreenshotPlugin.Gfx
 						// http://stackoverflow.com/questions/8349260/generic-gdi-error-on-one-machine-but-not-the-other
 						if (!stream.CanSeek)
 						{
-							if (!Environment.OSVersion.IsWindows7OrLater())
+							if (!WindowsVersion.IsWindows7OrLater)
 							{
 								useMemoryStream = true;
 								Log.Warn().WriteLine("Using memorystream prevent an issue with saving to a non seekable stream.");

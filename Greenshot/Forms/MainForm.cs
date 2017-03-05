@@ -1099,7 +1099,7 @@ namespace Greenshot.Forms
 		/// <returns>true if onedrive has hotkeys turned on</returns>
 		private static bool IsOneDriveBlockingHotkey()
 		{
-			if (!Environment.OSVersion.IsWindows10())
+			if (!WindowsVersion.IsWindows10)
 			{
 				return false;
 			}
