@@ -34,7 +34,6 @@ using Dapplo.Windows.Native;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
-using Dapplo.Log;
 
 #endregion
 

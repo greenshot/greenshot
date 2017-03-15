@@ -1,0 +1,65 @@
+﻿syntax = "proto3";
+package greenshot;
+
+option csharp_namespace = "Greenshot.FileFormat";
+
+message Layer {
+}
+
+message GUID {
+	string value = 1;
+}
+
+message Resource {
+	// Unique GUID
+	GUID id = 1;
+
+	// Different types for the resource, which is stored as a stream
+	enum ResourceTypes {
+		PNG = 0;
+		GIF = 1;
+		ICO = 2;
+		TIFF = 3;
+		BMP = 4;
+		JPG = 5;
+		SVG = 6;
+		XAML = 7;
+	}
+	ResourceTypes resourceType = 2;
+	bytes Data = 3;
+}
+
+message Point {
+	int32 x = 1;
+	int32 y = 2;
+}
+
+message Size {
+	int32 width = 1;
+	int32 height = 2;
+}
+
+message Rectangle {
+	Point location = 1;
+	Size size = 2;
+}
+
+message Drawable {
+	Rectangle bounds = 1;
+	Resource resource = 2; // Optional
+	repeated Point target = 3;
+
+	enum DrawableTypes {
+		Line = 0;
+		Arrow = 1;
+		Rectangle = 2;
+		Ellipse = 3;
+	}
+	DrawableTypes drawableType = 4;
+}
+
+message GreenshotFile {
+	string title = 1;
+	repeated Resource resources = 2;
+	repeated Layer layers = 3;
+}
