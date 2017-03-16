@@ -1,0 +1,86 @@
+﻿/// Greenshot - a free and open source screenshot tool
+/// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+/// 
+/// For more information see: http://getgreenshot.org/
+/// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+/// 
+/// This program is free software: you can redistribute it and/or modify
+/// it under the terms of the GNU General Public License as published by
+/// the Free Software Foundation, either version 1 of the License, or
+/// (at your option) any later version.
+/// 
+/// This program is distributed in the hope that it will be useful,
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+/// GNU General Public License for more details.
+/// 
+/// You should have received a copy of the GNU General Public License
+/// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/// 
+/// This file is part of the definition of the Greenshot file format
+
+syntax = "proto3";
+import "BaseTypes.proto";
+import "Style.proto";
+package greenshot.fileformat;
+
+option csharp_namespace = "Greenshot.FileFormat";
+
+
+message Filter {
+	enum Filters {
+		Shadow = 0;
+	}
+}
+
+message LineShape {
+	Point p1 = 1;
+	Point p2 = 2;
+}
+
+message ArrowShape {
+	Point p1 = 1;
+	Point p2 = 2;
+}
+
+/// An image shape
+message ImageShape {
+	Bounds bounds = 1;
+	string resourceId = 2;
+}
+
+/// Basic style information for every shape
+message ShapeStyle {
+	Color stroke = 1;
+	float strokeThickness = 2;
+	/// Used to specify the dash and space values for the stroke being drawed.
+	repeated float strokeDashArray = 3;
+
+	/// Possible caps for the line
+	enum LineCaps {
+		Flat = 0;
+		Round = 1;
+		Square = 2;
+		Triangle = 3;
+	}
+}
+
+
+/// Enum with all possible shapes
+enum Shapes {
+	Line = 0;
+	Arrow = 1;
+	Ellipse = 2;
+}
+
+message Shape {
+	// GUID of the style for the shape, can be found in the styles map
+	string shapeStyleId = 1;
+	Matrix matrix = 2;
+	/// Used to specify which filters are used when drawing
+	repeated Filter filters = 3;
+	oneof shape {
+		LineShape line = 10;
+		ArrowShape arrow = 11;
+	}
+}

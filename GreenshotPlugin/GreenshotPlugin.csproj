@@ -89,7 +89,10 @@
     <Compile Include="Core\Enums\ClipboardFormats.cs" />
     <Compile Include="Core\Enums\ExifOrientations.cs" />
     <Compile Include="Core\ExplorerHelper.cs" />
-    <Compile Include="FileFormat\GreenshotFileFormat.cs" />
+    <Compile Include="FileFormat\BaseTypes.cs" />
+    <Compile Include="FileFormat\FileFormat.cs" />
+    <Compile Include="FileFormat\Shapes.cs" />
+    <Compile Include="FileFormat\Style.cs" />
     <Compile Include="Gfx\Fast24RgbBitmap.cs" />
     <Compile Include="Gfx\Fast32ArgbBitmap.cs" />
     <Compile Include="Gfx\Fast32RgbBitmap.cs" />
@@ -291,7 +294,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="FileFormat\GreenshotFileFormat.proto" />
+    <None Include="FileFormat\Shapes.proto" />
+    <None Include="FileFormat\Style.proto" />
+    <None Include="FileFormat\BaseTypes.proto" />
+    <None Include="FileFormat\FileFormat.proto" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />

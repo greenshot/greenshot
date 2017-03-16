@@ -1,0 +1,65 @@
+﻿/// Greenshot - a free and open source screenshot tool
+/// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+/// 
+/// For more information see: http://getgreenshot.org/
+/// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+/// 
+/// This program is free software: you can redistribute it and/or modify
+/// it under the terms of the GNU General Public License as published by
+/// the Free Software Foundation, either version 1 of the License, or
+/// (at your option) any later version.
+/// 
+/// This program is distributed in the hope that it will be useful,
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+/// GNU General Public License for more details.
+/// 
+/// You should have received a copy of the GNU General Public License
+/// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/// 
+/// This file is part of the definition of the Greenshot file format
+
+syntax = "proto3";
+package greenshot.fileformat;
+
+option csharp_namespace = "Greenshot.FileFormat";
+
+/// Globally unique indentifier, used to identify resources and styles in the file
+message GUID {
+	string value = 1;
+}
+
+/// The resource is used whereever binairy content is needed.
+message Resource {
+	// Different types for the resource, which is stored as a stream
+	enum ResourceTypes {
+		PNG = 0;
+		GIF = 1;
+		ICO = 2;
+		TIFF = 3;
+		BMP = 4;
+		JPG = 5;
+		SVG = 6;
+		XAML = 7;
+	}
+	ResourceTypes resourceType = 1;
+	bytes Data = 2;
+}
+
+/// The Point describes a location with x,y
+message Point {
+	float x = 1;
+	float y = 2;
+}
+
+/// The Size describes a width and height
+message Size {
+	float width = 1;
+	float height = 2;
+}
+
+/// Bounds is a rectangle at point x,y with size width,height
+message Bounds {
+	Point location = 1;
+	Size size = 2;
+}
