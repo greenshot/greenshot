@@ -22,39 +22,19 @@
 syntax = "proto3";
 import "BaseTypes.proto";
 import "Style.proto";
+import "Effects.proto";
 package greenshot.fileformat;
 
 option csharp_namespace = "Greenshot.FileFormat";
 
-
-message Filter {
-	enum Filters {
-		Shadow = 0;
-	}
-}
-
-message LineShape {
-	Point p1 = 1;
-	Point p2 = 2;
-}
-
-message ArrowShape {
-	Point p1 = 1;
-	Point p2 = 2;
-}
-
-/// An image shape
-message ImageShape {
-	Bounds bounds = 1;
-	string resourceId = 2;
-}
-
 /// Basic style information for every shape
 message ShapeStyle {
-	Color stroke = 1;
-	float strokeThickness = 2;
+    Color fillColor = 1;
+	Color stroke = 2;
+	float strokeThickness = 3;
+    bool shadow = 4;
 	/// Used to specify the dash and space values for the stroke being drawed.
-	repeated float strokeDashArray = 3;
+	repeated float strokeDashArray = 5;
 
 	/// Possible caps for the line
 	enum LineCaps {
@@ -63,24 +43,77 @@ message ShapeStyle {
 		Square = 2;
 		Triangle = 3;
 	}
+    LineCaps lineCaps = 6;
+    FontInfo font = 7;
+    Color fontColor = 8;
+}
+
+// Line or arrow
+message LineShape {
+	Point p1 = 1;
+	Point p2 = 2;
+    enum ArrowHeads {
+        None = 0;
+        Start = 1;
+        End = 2;
+        Both = 3;
+    }
+    ArrowHeads arrowHeads = 3;
+}
+
+message EllipseShape {
+	Bounds bounds = 1;
+}
+
+message RectangleShape {
+	Bounds bounds = 1;
+}
+
+/// An image shape
+message ImageShape {
+	Bounds bounds = 1;
+	string resourceId = 2;
+}
+
+/// A text shape
+message TextShape {
+	Bounds bounds = 1;
+    Alignment horizontalAlignment = 2;
+    Alignment verticalAlignment = 3;
+	string text = 4;
+}
+
+/// An empty shape, just to contain effects
+message EmptyShape {
+	Bounds bounds = 1;
 }
 
 
 /// Enum with all possible shapes
-enum Shapes {
+enum ShapeTypes {
 	Line = 0;
-	Arrow = 1;
-	Ellipse = 2;
+	Ellipse = 1;
+    Rectangle = 2;
+    Image = 3;
+    Text = 4;
+    Empty = 5;
 }
 
 message Shape {
 	// GUID of the style for the shape, can be found in the styles map
 	string shapeStyleId = 1;
+    // a matrix for transformations
 	Matrix matrix = 2;
-	/// Used to specify which filters are used when drawing
-	repeated Filter filters = 3;
+    // Type of shape
+    ShapeTypes shapeTypes = 3;
 	oneof shape {
-		LineShape line = 10;
-		ArrowShape arrow = 11;
+		LineShape line = 11;
+        EllipseShape ellipse = 12;
+        RectangleShape rectangle = 13;
+        ImageShape image = 14;
+        TextShape text = 15;
+        EmptyShape empty = 16;
 	}
+    // All effects that this shape uses.
+    repeated Effect effects = 17;
 }

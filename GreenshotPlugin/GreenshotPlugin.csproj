@@ -41,8 +41,8 @@
       <HintPath>..\packages\Dapplo.Log.1.0.23\lib\net45\Dapplo.Log.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Windows, Version=0.3.28.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.0.3.28\lib\net45\Dapplo.Windows.dll</HintPath>
+    <Reference Include="Dapplo.Windows, Version=0.3.29.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.0.3.29\lib\net45\Dapplo.Windows.dll</HintPath>
     </Reference>
     <Reference Include="Google.Protobuf, Version=3.2.0.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.Protobuf.3.2.0\lib\net45\Google.Protobuf.dll</HintPath>
@@ -101,6 +101,7 @@
     <Compile Include="Core\Enums\ExifOrientations.cs" />
     <Compile Include="Core\ExplorerHelper.cs" />
     <Compile Include="FileFormat\BaseTypes.cs" />
+    <Compile Include="FileFormat\Effects.cs" />
     <Compile Include="FileFormat\FileFormat.cs" />
     <Compile Include="FileFormat\Shapes.cs" />
     <Compile Include="FileFormat\Style.cs" />
@@ -304,6 +305,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="FileFormat\Effects.proto" />
     <None Include="FileFormat\Shapes.proto" />
     <None Include="FileFormat\Style.proto" />
     <None Include="FileFormat\BaseTypes.proto" />

@@ -31,11 +31,12 @@ namespace Greenshot.FileFormat {
             "GAEgASgNEgwKBGNvbHMYAiABKA0SEAoEZGF0YRgDIAMoAUICEAEqTQoKRm9u",
             "dFN0eWxlcxILCgdSZWd1bGFyEAASCAoEQm9sZBABEgoKBkl0YWxpYxACEg0K",
             "CVVuZGVybGluZRAEEg0KCVN0cmlrZW91dBAIKjAKDUZvbnRTaXplVW5pdHMS",
-            "CgoGUGl4ZWxzEAASCgoGUG9pbnRzEAISBwoDRW1zEAFCF6oCFEdyZWVuc2hv",
+            "CgoGUGl4ZWxzEAASCgoGUG9pbnRzEAISBwoDRW1zEAEqKwoJQWxpZ25tZW50",
+            "EgkKBVN0YXJ0EAASCgoGTWlkZGxlEAESBwoDRW5kEAJCF6oCFEdyZWVuc2hv",
             "dC5GaWxlRm9ybWF0YgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
-          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Greenshot.FileFormat.FontStyles), typeof(global::Greenshot.FileFormat.FontSizeUnits), }, new pbr::GeneratedClrTypeInfo[] {
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Greenshot.FileFormat.FontStyles), typeof(global::Greenshot.FileFormat.FontSizeUnits), typeof(global::Greenshot.FileFormat.Alignment), }, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Greenshot.FileFormat.Color), global::Greenshot.FileFormat.Color.Parser, new[]{ "Red", "Green", "Blue", "Alpha" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Greenshot.FileFormat.FontInfo), global::Greenshot.FileFormat.FontInfo.Parser, new[]{ "Family", "FontStyle", "Size", "SizeUnit" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Greenshot.FileFormat.Matrix), global::Greenshot.FileFormat.Matrix.Parser, new[]{ "Rows", "Cols", "Data" }, null, null, null)
@@ -63,6 +64,15 @@ namespace Greenshot.FileFormat {
     [pbr::OriginalName("Pixels")] Pixels = 0,
     [pbr::OriginalName("Points")] Points = 2,
     [pbr::OriginalName("Ems")] Ems = 1,
+  }
+
+  /// <summary>
+  /// Alignment, without horizontal or vertical
+  /// </summary>
+  public enum Alignment {
+    [pbr::OriginalName("Start")] Start = 0,
+    [pbr::OriginalName("Middle")] Middle = 1,
+    [pbr::OriginalName("End")] End = 2,
   }
 
   #endregion

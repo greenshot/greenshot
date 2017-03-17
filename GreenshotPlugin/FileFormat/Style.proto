@@ -58,6 +58,13 @@ message FontInfo {
 	FontSizeUnits sizeUnit = 4;
 }
 
+// Alignment, without horizontal or vertical
+enum Alignment {
+    Start = 0;
+    Middle = 1;
+    End = 2;
+}
+
 /// A matrix for transformations
 message Matrix {
   uint32 rows = 1;

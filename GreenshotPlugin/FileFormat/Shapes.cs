@@ -23,33 +23,56 @@ namespace Greenshot.FileFormat {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CgxTaGFwZXMucHJvdG8SFGdyZWVuc2hvdC5maWxlZm9ybWF0Gg9CYXNlVHlw",
-            "ZXMucHJvdG8aC1N0eWxlLnByb3RvIh8KBkZpbHRlciIVCgdGaWx0ZXJzEgoK",
-            "BlNoYWRvdxAAIl0KCUxpbmVTaGFwZRInCgJwMRgBIAEoCzIbLmdyZWVuc2hv",
-            "dC5maWxlZm9ybWF0LlBvaW50EicKAnAyGAIgASgLMhsuZ3JlZW5zaG90LmZp",
-            "bGVmb3JtYXQuUG9pbnQiXgoKQXJyb3dTaGFwZRInCgJwMRgBIAEoCzIbLmdy",
-            "ZWVuc2hvdC5maWxlZm9ybWF0LlBvaW50EicKAnAyGAIgASgLMhsuZ3JlZW5z",
-            "aG90LmZpbGVmb3JtYXQuUG9pbnQiTgoKSW1hZ2VTaGFwZRIsCgZib3VuZHMY",
-            "ASABKAsyHC5ncmVlbnNob3QuZmlsZWZvcm1hdC5Cb3VuZHMSEgoKcmVzb3Vy",
-            "Y2VJZBgCIAEoCSKmAQoKU2hhcGVTdHlsZRIrCgZzdHJva2UYASABKAsyGy5n",
-            "cmVlbnNob3QuZmlsZWZvcm1hdC5Db2xvchIXCg9zdHJva2VUaGlja25lc3MY",
-            "AiABKAISFwoPc3Ryb2tlRGFzaEFycmF5GAMgAygCIjkKCExpbmVDYXBzEggK",
-            "BEZsYXQQABIJCgVSb3VuZBABEgoKBlNxdWFyZRACEgwKCFRyaWFuZ2xlEAMi",
-            "5wEKBVNoYXBlEhQKDHNoYXBlU3R5bGVJZBgBIAEoCRIsCgZtYXRyaXgYAiAB",
-            "KAsyHC5ncmVlbnNob3QuZmlsZWZvcm1hdC5NYXRyaXgSLQoHZmlsdGVycxgD",
-            "IAMoCzIcLmdyZWVuc2hvdC5maWxlZm9ybWF0LkZpbHRlchIvCgRsaW5lGAog",
-            "ASgLMh8uZ3JlZW5zaG90LmZpbGVmb3JtYXQuTGluZVNoYXBlSAASMQoFYXJy",
-            "b3cYCyABKAsyIC5ncmVlbnNob3QuZmlsZWZvcm1hdC5BcnJvd1NoYXBlSABC",
-            "BwoFc2hhcGUqKgoGU2hhcGVzEggKBExpbmUQABIJCgVBcnJvdxABEgsKB0Vs",
-            "bGlwc2UQAkIXqgIUR3JlZW5zaG90LkZpbGVGb3JtYXRiBnByb3RvMw=="));
+            "ZXMucHJvdG8aC1N0eWxlLnByb3RvGg1FZmZlY3RzLnByb3RvIoEDCgpTaGFw",
+            "ZVN0eWxlEi4KCWZpbGxDb2xvchgBIAEoCzIbLmdyZWVuc2hvdC5maWxlZm9y",
+            "bWF0LkNvbG9yEisKBnN0cm9rZRgCIAEoCzIbLmdyZWVuc2hvdC5maWxlZm9y",
+            "bWF0LkNvbG9yEhcKD3N0cm9rZVRoaWNrbmVzcxgDIAEoAhIOCgZzaGFkb3cY",
+            "BCABKAgSFwoPc3Ryb2tlRGFzaEFycmF5GAUgAygCEjsKCGxpbmVDYXBzGAYg",
+            "ASgOMikuZ3JlZW5zaG90LmZpbGVmb3JtYXQuU2hhcGVTdHlsZS5MaW5lQ2Fw",
+            "cxIsCgRmb250GAcgASgLMh4uZ3JlZW5zaG90LmZpbGVmb3JtYXQuRm9udElu",
+            "Zm8SLgoJZm9udENvbG9yGAggASgLMhsuZ3JlZW5zaG90LmZpbGVmb3JtYXQu",
+            "Q29sb3IiOQoITGluZUNhcHMSCAoERmxhdBAAEgkKBVJvdW5kEAESCgoGU3F1",
+            "YXJlEAISDAoIVHJpYW5nbGUQAyLTAQoJTGluZVNoYXBlEicKAnAxGAEgASgL",
+            "MhsuZ3JlZW5zaG90LmZpbGVmb3JtYXQuUG9pbnQSJwoCcDIYAiABKAsyGy5n",
+            "cmVlbnNob3QuZmlsZWZvcm1hdC5Qb2ludBI+CgphcnJvd0hlYWRzGAMgASgO",
+            "MiouZ3JlZW5zaG90LmZpbGVmb3JtYXQuTGluZVNoYXBlLkFycm93SGVhZHMi",
+            "NAoKQXJyb3dIZWFkcxIICgROb25lEAASCQoFU3RhcnQQARIHCgNFbmQQAhII",
+            "CgRCb3RoEAMiPAoMRWxsaXBzZVNoYXBlEiwKBmJvdW5kcxgBIAEoCzIcLmdy",
+            "ZWVuc2hvdC5maWxlZm9ybWF0LkJvdW5kcyI+Cg5SZWN0YW5nbGVTaGFwZRIs",
+            "CgZib3VuZHMYASABKAsyHC5ncmVlbnNob3QuZmlsZWZvcm1hdC5Cb3VuZHMi",
+            "TgoKSW1hZ2VTaGFwZRIsCgZib3VuZHMYASABKAsyHC5ncmVlbnNob3QuZmls",
+            "ZWZvcm1hdC5Cb3VuZHMSEgoKcmVzb3VyY2VJZBgCIAEoCSLBAQoJVGV4dFNo",
+            "YXBlEiwKBmJvdW5kcxgBIAEoCzIcLmdyZWVuc2hvdC5maWxlZm9ybWF0LkJv",
+            "dW5kcxI8ChNob3Jpem9udGFsQWxpZ25tZW50GAIgASgOMh8uZ3JlZW5zaG90",
+            "LmZpbGVmb3JtYXQuQWxpZ25tZW50EjoKEXZlcnRpY2FsQWxpZ25tZW50GAMg",
+            "ASgOMh8uZ3JlZW5zaG90LmZpbGVmb3JtYXQuQWxpZ25tZW50EgwKBHRleHQY",
+            "BCABKAkiOgoKRW1wdHlTaGFwZRIsCgZib3VuZHMYASABKAsyHC5ncmVlbnNo",
+            "b3QuZmlsZWZvcm1hdC5Cb3VuZHMi8wMKBVNoYXBlEhQKDHNoYXBlU3R5bGVJ",
+            "ZBgBIAEoCRIsCgZtYXRyaXgYAiABKAsyHC5ncmVlbnNob3QuZmlsZWZvcm1h",
+            "dC5NYXRyaXgSNAoKc2hhcGVUeXBlcxgDIAEoDjIgLmdyZWVuc2hvdC5maWxl",
+            "Zm9ybWF0LlNoYXBlVHlwZXMSLwoEbGluZRgLIAEoCzIfLmdyZWVuc2hvdC5m",
+            "aWxlZm9ybWF0LkxpbmVTaGFwZUgAEjUKB2VsbGlwc2UYDCABKAsyIi5ncmVl",
+            "bnNob3QuZmlsZWZvcm1hdC5FbGxpcHNlU2hhcGVIABI5CglyZWN0YW5nbGUY",
+            "DSABKAsyJC5ncmVlbnNob3QuZmlsZWZvcm1hdC5SZWN0YW5nbGVTaGFwZUgA",
+            "EjEKBWltYWdlGA4gASgLMiAuZ3JlZW5zaG90LmZpbGVmb3JtYXQuSW1hZ2VT",
+            "aGFwZUgAEi8KBHRleHQYDyABKAsyHy5ncmVlbnNob3QuZmlsZWZvcm1hdC5U",
+            "ZXh0U2hhcGVIABIxCgVlbXB0eRgQIAEoCzIgLmdyZWVuc2hvdC5maWxlZm9y",
+            "bWF0LkVtcHR5U2hhcGVIABItCgdlZmZlY3RzGBEgAygLMhwuZ3JlZW5zaG90",
+            "LmZpbGVmb3JtYXQuRWZmZWN0QgcKBXNoYXBlKlIKClNoYXBlVHlwZXMSCAoE",
+            "TGluZRAAEgsKB0VsbGlwc2UQARINCglSZWN0YW5nbGUQAhIJCgVJbWFnZRAD",
+            "EggKBFRleHQQBBIJCgVFbXB0eRAFQheqAhRHcmVlbnNob3QuRmlsZUZvcm1h",
+            "dGIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::Greenshot.FileFormat.BaseTypesReflection.Descriptor, global::Greenshot.FileFormat.StyleReflection.Descriptor, },
-          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Greenshot.FileFormat.Shapes), }, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Greenshot.FileFormat.Filter), global::Greenshot.FileFormat.Filter.Parser, null, null, new[]{ typeof(global::Greenshot.FileFormat.Filter.Types.Filters) }, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Greenshot.FileFormat.LineShape), global::Greenshot.FileFormat.LineShape.Parser, new[]{ "P1", "P2" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Greenshot.FileFormat.ArrowShape), global::Greenshot.FileFormat.ArrowShape.Parser, new[]{ "P1", "P2" }, null, null, null),
+          new pbr::FileDescriptor[] { global::Greenshot.FileFormat.BaseTypesReflection.Descriptor, global::Greenshot.FileFormat.StyleReflection.Descriptor, global::Greenshot.FileFormat.EffectsReflection.Descriptor, },
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Greenshot.FileFormat.ShapeTypes), }, new pbr::GeneratedClrTypeInfo[] {
+            new pbr::GeneratedClrTypeInfo(typeof(global::Greenshot.FileFormat.ShapeStyle), global::Greenshot.FileFormat.ShapeStyle.Parser, new[]{ "FillColor", "Stroke", "StrokeThickness", "Shadow", "StrokeDashArray", "LineCaps", "Font", "FontColor" }, null, new[]{ typeof(global::Greenshot.FileFormat.ShapeStyle.Types.LineCaps) }, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Greenshot.FileFormat.LineShape), global::Greenshot.FileFormat.LineShape.Parser, new[]{ "P1", "P2", "ArrowHeads" }, null, new[]{ typeof(global::Greenshot.FileFormat.LineShape.Types.ArrowHeads) }, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Greenshot.FileFormat.EllipseShape), global::Greenshot.FileFormat.EllipseShape.Parser, new[]{ "Bounds" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Greenshot.FileFormat.RectangleShape), global::Greenshot.FileFormat.RectangleShape.Parser, new[]{ "Bounds" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Greenshot.FileFormat.ImageShape), global::Greenshot.FileFormat.ImageShape.Parser, new[]{ "Bounds", "ResourceId" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Greenshot.FileFormat.ShapeStyle), global::Greenshot.FileFormat.ShapeStyle.Parser, new[]{ "Stroke", "StrokeThickness", "StrokeDashArray" }, null, new[]{ typeof(global::Greenshot.FileFormat.ShapeStyle.Types.LineCaps) }, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Greenshot.FileFormat.Shape), global::Greenshot.FileFormat.Shape.Parser, new[]{ "ShapeStyleId", "Matrix", "Filters", "Line", "Arrow" }, new[]{ "Shape" }, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Greenshot.FileFormat.TextShape), global::Greenshot.FileFormat.TextShape.Parser, new[]{ "Bounds", "HorizontalAlignment", "VerticalAlignment", "Text" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Greenshot.FileFormat.EmptyShape), global::Greenshot.FileFormat.EmptyShape.Parser, new[]{ "Bounds" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Greenshot.FileFormat.Shape), global::Greenshot.FileFormat.Shape.Parser, new[]{ "ShapeStyleId", "Matrix", "ShapeTypes", "Line", "Ellipse", "Rectangle", "Image", "Text", "Empty", "Effects" }, new[]{ "Shape" }, null, null)
           }));
     }
     #endregion
@@ -59,19 +82,25 @@ namespace Greenshot.FileFormat {
   /// <summary>
   //// Enum with all possible shapes
   /// </summary>
-  public enum Shapes {
+  public enum ShapeTypes {
     [pbr::OriginalName("Line")] Line = 0,
-    [pbr::OriginalName("Arrow")] Arrow = 1,
-    [pbr::OriginalName("Ellipse")] Ellipse = 2,
+    [pbr::OriginalName("Ellipse")] Ellipse = 1,
+    [pbr::OriginalName("Rectangle")] Rectangle = 2,
+    [pbr::OriginalName("Image")] Image = 3,
+    [pbr::OriginalName("Text")] Text = 4,
+    [pbr::OriginalName("Empty")] Empty = 5,
   }
 
   #endregion
 
   #region Messages
-  public sealed partial class Filter : pb::IMessage<Filter> {
-    private static readonly pb::MessageParser<Filter> _parser = new pb::MessageParser<Filter>(() => new Filter());
+  /// <summary>
+  //// Basic style information for every shape
+  /// </summary>
+  public sealed partial class ShapeStyle : pb::IMessage<ShapeStyle> {
+    private static readonly pb::MessageParser<ShapeStyle> _parser = new pb::MessageParser<ShapeStyle>(() => new ShapeStyle());
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<Filter> Parser { get { return _parser; } }
+    public static pb::MessageParser<ShapeStyle> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
@@ -84,40 +113,154 @@ namespace Greenshot.FileFormat {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public Filter() {
+    public ShapeStyle() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public Filter(Filter other) : this() {
+    public ShapeStyle(ShapeStyle other) : this() {
+      FillColor = other.fillColor_ != null ? other.FillColor.Clone() : null;
+      Stroke = other.stroke_ != null ? other.Stroke.Clone() : null;
+      strokeThickness_ = other.strokeThickness_;
+      shadow_ = other.shadow_;
+      strokeDashArray_ = other.strokeDashArray_.Clone();
+      lineCaps_ = other.lineCaps_;
+      Font = other.font_ != null ? other.Font.Clone() : null;
+      FontColor = other.fontColor_ != null ? other.FontColor.Clone() : null;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public Filter Clone() {
-      return new Filter(this);
+    public ShapeStyle Clone() {
+      return new ShapeStyle(this);
+    }
+
+    /// <summary>Field number for the "fillColor" field.</summary>
+    public const int FillColorFieldNumber = 1;
+    private global::Greenshot.FileFormat.Color fillColor_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Greenshot.FileFormat.Color FillColor {
+      get { return fillColor_; }
+      set {
+        fillColor_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "stroke" field.</summary>
+    public const int StrokeFieldNumber = 2;
+    private global::Greenshot.FileFormat.Color stroke_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Greenshot.FileFormat.Color Stroke {
+      get { return stroke_; }
+      set {
+        stroke_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "strokeThickness" field.</summary>
+    public const int StrokeThicknessFieldNumber = 3;
+    private float strokeThickness_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public float StrokeThickness {
+      get { return strokeThickness_; }
+      set {
+        strokeThickness_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "shadow" field.</summary>
+    public const int ShadowFieldNumber = 4;
+    private bool shadow_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Shadow {
+      get { return shadow_; }
+      set {
+        shadow_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "strokeDashArray" field.</summary>
+    public const int StrokeDashArrayFieldNumber = 5;
+    private static readonly pb::FieldCodec<float> _repeated_strokeDashArray_codec
+        = pb::FieldCodec.ForFloat(42);
+    private readonly pbc::RepeatedField<float> strokeDashArray_ = new pbc::RepeatedField<float>();
+    /// <summary>
+    //// Used to specify the dash and space values for the stroke being drawed.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::RepeatedField<float> StrokeDashArray {
+      get { return strokeDashArray_; }
+    }
+
+    /// <summary>Field number for the "lineCaps" field.</summary>
+    public const int LineCapsFieldNumber = 6;
+    private global::Greenshot.FileFormat.ShapeStyle.Types.LineCaps lineCaps_ = 0;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Greenshot.FileFormat.ShapeStyle.Types.LineCaps LineCaps {
+      get { return lineCaps_; }
+      set {
+        lineCaps_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "font" field.</summary>
+    public const int FontFieldNumber = 7;
+    private global::Greenshot.FileFormat.FontInfo font_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Greenshot.FileFormat.FontInfo Font {
+      get { return font_; }
+      set {
+        font_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "fontColor" field.</summary>
+    public const int FontColorFieldNumber = 8;
+    private global::Greenshot.FileFormat.Color fontColor_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Greenshot.FileFormat.Color FontColor {
+      get { return fontColor_; }
+      set {
+        fontColor_ = value;
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
-      return Equals(other as Filter);
+      return Equals(other as ShapeStyle);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(Filter other) {
+    public bool Equals(ShapeStyle other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
       if (ReferenceEquals(other, this)) {
         return true;
       }
+      if (!object.Equals(FillColor, other.FillColor)) return false;
+      if (!object.Equals(Stroke, other.Stroke)) return false;
+      if (StrokeThickness != other.StrokeThickness) return false;
+      if (Shadow != other.Shadow) return false;
+      if(!strokeDashArray_.Equals(other.strokeDashArray_)) return false;
+      if (LineCaps != other.LineCaps) return false;
+      if (!object.Equals(Font, other.Font)) return false;
+      if (!object.Equals(FontColor, other.FontColor)) return false;
       return true;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
+      if (fillColor_ != null) hash ^= FillColor.GetHashCode();
+      if (stroke_ != null) hash ^= Stroke.GetHashCode();
+      if (StrokeThickness != 0F) hash ^= StrokeThickness.GetHashCode();
+      if (Shadow != false) hash ^= Shadow.GetHashCode();
+      hash ^= strokeDashArray_.GetHashCode();
+      if (LineCaps != 0) hash ^= LineCaps.GetHashCode();
+      if (font_ != null) hash ^= Font.GetHashCode();
+      if (fontColor_ != null) hash ^= FontColor.GetHashCode();
       return hash;
     }
 
@@ -128,18 +271,103 @@ namespace Greenshot.FileFormat {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
+      if (fillColor_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(FillColor);
+      }
+      if (stroke_ != null) {
+        output.WriteRawTag(18);
+        output.WriteMessage(Stroke);
+      }
+      if (StrokeThickness != 0F) {
+        output.WriteRawTag(29);
+        output.WriteFloat(StrokeThickness);
+      }
+      if (Shadow != false) {
+        output.WriteRawTag(32);
+        output.WriteBool(Shadow);
+      }
+      strokeDashArray_.WriteTo(output, _repeated_strokeDashArray_codec);
+      if (LineCaps != 0) {
+        output.WriteRawTag(48);
+        output.WriteEnum((int) LineCaps);
+      }
+      if (font_ != null) {
+        output.WriteRawTag(58);
+        output.WriteMessage(Font);
+      }
+      if (fontColor_ != null) {
+        output.WriteRawTag(66);
+        output.WriteMessage(FontColor);
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
+      if (fillColor_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(FillColor);
+      }
+      if (stroke_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Stroke);
+      }
+      if (StrokeThickness != 0F) {
+        size += 1 + 4;
+      }
+      if (Shadow != false) {
+        size += 1 + 1;
+      }
+      size += strokeDashArray_.CalculateSize(_repeated_strokeDashArray_codec);
+      if (LineCaps != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) LineCaps);
+      }
+      if (font_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Font);
+      }
+      if (fontColor_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(FontColor);
+      }
       return size;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(Filter other) {
+    public void MergeFrom(ShapeStyle other) {
       if (other == null) {
         return;
+      }
+      if (other.fillColor_ != null) {
+        if (fillColor_ == null) {
+          fillColor_ = new global::Greenshot.FileFormat.Color();
+        }
+        FillColor.MergeFrom(other.FillColor);
+      }
+      if (other.stroke_ != null) {
+        if (stroke_ == null) {
+          stroke_ = new global::Greenshot.FileFormat.Color();
+        }
+        Stroke.MergeFrom(other.Stroke);
+      }
+      if (other.StrokeThickness != 0F) {
+        StrokeThickness = other.StrokeThickness;
+      }
+      if (other.Shadow != false) {
+        Shadow = other.Shadow;
+      }
+      strokeDashArray_.Add(other.strokeDashArray_);
+      if (other.LineCaps != 0) {
+        LineCaps = other.LineCaps;
+      }
+      if (other.font_ != null) {
+        if (font_ == null) {
+          font_ = new global::Greenshot.FileFormat.FontInfo();
+        }
+        Font.MergeFrom(other.Font);
+      }
+      if (other.fontColor_ != null) {
+        if (fontColor_ == null) {
+          fontColor_ = new global::Greenshot.FileFormat.Color();
+        }
+        FontColor.MergeFrom(other.FontColor);
       }
     }
 
@@ -151,16 +379,67 @@ namespace Greenshot.FileFormat {
           default:
             input.SkipLastField();
             break;
+          case 10: {
+            if (fillColor_ == null) {
+              fillColor_ = new global::Greenshot.FileFormat.Color();
+            }
+            input.ReadMessage(fillColor_);
+            break;
+          }
+          case 18: {
+            if (stroke_ == null) {
+              stroke_ = new global::Greenshot.FileFormat.Color();
+            }
+            input.ReadMessage(stroke_);
+            break;
+          }
+          case 29: {
+            StrokeThickness = input.ReadFloat();
+            break;
+          }
+          case 32: {
+            Shadow = input.ReadBool();
+            break;
+          }
+          case 42:
+          case 45: {
+            strokeDashArray_.AddEntriesFrom(input, _repeated_strokeDashArray_codec);
+            break;
+          }
+          case 48: {
+            lineCaps_ = (global::Greenshot.FileFormat.ShapeStyle.Types.LineCaps) input.ReadEnum();
+            break;
+          }
+          case 58: {
+            if (font_ == null) {
+              font_ = new global::Greenshot.FileFormat.FontInfo();
+            }
+            input.ReadMessage(font_);
+            break;
+          }
+          case 66: {
+            if (fontColor_ == null) {
+              fontColor_ = new global::Greenshot.FileFormat.Color();
+            }
+            input.ReadMessage(fontColor_);
+            break;
+          }
         }
       }
     }
 
     #region Nested types
-    /// <summary>Container for nested types declared in the Filter message type.</summary>
+    /// <summary>Container for nested types declared in the ShapeStyle message type.</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static partial class Types {
-      public enum Filters {
-        [pbr::OriginalName("Shadow")] Shadow = 0,
+      /// <summary>
+      //// Possible caps for the line
+      /// </summary>
+      public enum LineCaps {
+        [pbr::OriginalName("Flat")] Flat = 0,
+        [pbr::OriginalName("Round")] Round = 1,
+        [pbr::OriginalName("Square")] Square = 2,
+        [pbr::OriginalName("Triangle")] Triangle = 3,
       }
 
     }
@@ -168,6 +447,9 @@ namespace Greenshot.FileFormat {
 
   }
 
+  /// <summary>
+  /// Line or arrow
+  /// </summary>
   public sealed partial class LineShape : pb::IMessage<LineShape> {
     private static readonly pb::MessageParser<LineShape> _parser = new pb::MessageParser<LineShape>(() => new LineShape());
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -194,6 +476,7 @@ namespace Greenshot.FileFormat {
     public LineShape(LineShape other) : this() {
       P1 = other.p1_ != null ? other.P1.Clone() : null;
       P2 = other.p2_ != null ? other.P2.Clone() : null;
+      arrowHeads_ = other.arrowHeads_;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -223,6 +506,17 @@ namespace Greenshot.FileFormat {
       }
     }
 
+    /// <summary>Field number for the "arrowHeads" field.</summary>
+    public const int ArrowHeadsFieldNumber = 3;
+    private global::Greenshot.FileFormat.LineShape.Types.ArrowHeads arrowHeads_ = 0;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Greenshot.FileFormat.LineShape.Types.ArrowHeads ArrowHeads {
+      get { return arrowHeads_; }
+      set {
+        arrowHeads_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as LineShape);
@@ -238,6 +532,7 @@ namespace Greenshot.FileFormat {
       }
       if (!object.Equals(P1, other.P1)) return false;
       if (!object.Equals(P2, other.P2)) return false;
+      if (ArrowHeads != other.ArrowHeads) return false;
       return true;
     }
 
@@ -246,6 +541,7 @@ namespace Greenshot.FileFormat {
       int hash = 1;
       if (p1_ != null) hash ^= P1.GetHashCode();
       if (p2_ != null) hash ^= P2.GetHashCode();
+      if (ArrowHeads != 0) hash ^= ArrowHeads.GetHashCode();
       return hash;
     }
 
@@ -264,6 +560,10 @@ namespace Greenshot.FileFormat {
         output.WriteRawTag(18);
         output.WriteMessage(P2);
       }
+      if (ArrowHeads != 0) {
+        output.WriteRawTag(24);
+        output.WriteEnum((int) ArrowHeads);
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -274,6 +574,9 @@ namespace Greenshot.FileFormat {
       }
       if (p2_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(P2);
+      }
+      if (ArrowHeads != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) ArrowHeads);
       }
       return size;
     }
@@ -295,6 +598,9 @@ namespace Greenshot.FileFormat {
         }
         P2.MergeFrom(other.P2);
       }
+      if (other.ArrowHeads != 0) {
+        ArrowHeads = other.ArrowHeads;
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -319,16 +625,34 @@ namespace Greenshot.FileFormat {
             input.ReadMessage(p2_);
             break;
           }
+          case 24: {
+            arrowHeads_ = (global::Greenshot.FileFormat.LineShape.Types.ArrowHeads) input.ReadEnum();
+            break;
+          }
         }
       }
     }
 
+    #region Nested types
+    /// <summary>Container for nested types declared in the LineShape message type.</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static partial class Types {
+      public enum ArrowHeads {
+        [pbr::OriginalName("None")] None = 0,
+        [pbr::OriginalName("Start")] Start = 1,
+        [pbr::OriginalName("End")] End = 2,
+        [pbr::OriginalName("Both")] Both = 3,
+      }
+
+    }
+    #endregion
+
   }
 
-  public sealed partial class ArrowShape : pb::IMessage<ArrowShape> {
-    private static readonly pb::MessageParser<ArrowShape> _parser = new pb::MessageParser<ArrowShape>(() => new ArrowShape());
+  public sealed partial class EllipseShape : pb::IMessage<EllipseShape> {
+    private static readonly pb::MessageParser<EllipseShape> _parser = new pb::MessageParser<EllipseShape>(() => new EllipseShape());
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<ArrowShape> Parser { get { return _parser; } }
+    public static pb::MessageParser<EllipseShape> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
@@ -341,68 +665,54 @@ namespace Greenshot.FileFormat {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public ArrowShape() {
+    public EllipseShape() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public ArrowShape(ArrowShape other) : this() {
-      P1 = other.p1_ != null ? other.P1.Clone() : null;
-      P2 = other.p2_ != null ? other.P2.Clone() : null;
+    public EllipseShape(EllipseShape other) : this() {
+      Bounds = other.bounds_ != null ? other.Bounds.Clone() : null;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public ArrowShape Clone() {
-      return new ArrowShape(this);
+    public EllipseShape Clone() {
+      return new EllipseShape(this);
     }
 
-    /// <summary>Field number for the "p1" field.</summary>
-    public const int P1FieldNumber = 1;
-    private global::Greenshot.FileFormat.Point p1_;
+    /// <summary>Field number for the "bounds" field.</summary>
+    public const int BoundsFieldNumber = 1;
+    private global::Greenshot.FileFormat.Bounds bounds_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Greenshot.FileFormat.Point P1 {
-      get { return p1_; }
+    public global::Greenshot.FileFormat.Bounds Bounds {
+      get { return bounds_; }
       set {
-        p1_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "p2" field.</summary>
-    public const int P2FieldNumber = 2;
-    private global::Greenshot.FileFormat.Point p2_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Greenshot.FileFormat.Point P2 {
-      get { return p2_; }
-      set {
-        p2_ = value;
+        bounds_ = value;
       }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
-      return Equals(other as ArrowShape);
+      return Equals(other as EllipseShape);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(ArrowShape other) {
+    public bool Equals(EllipseShape other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (!object.Equals(P1, other.P1)) return false;
-      if (!object.Equals(P2, other.P2)) return false;
+      if (!object.Equals(Bounds, other.Bounds)) return false;
       return true;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (p1_ != null) hash ^= P1.GetHashCode();
-      if (p2_ != null) hash ^= P2.GetHashCode();
+      if (bounds_ != null) hash ^= Bounds.GetHashCode();
       return hash;
     }
 
@@ -413,44 +723,31 @@ namespace Greenshot.FileFormat {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (p1_ != null) {
+      if (bounds_ != null) {
         output.WriteRawTag(10);
-        output.WriteMessage(P1);
-      }
-      if (p2_ != null) {
-        output.WriteRawTag(18);
-        output.WriteMessage(P2);
+        output.WriteMessage(Bounds);
       }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (p1_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(P1);
-      }
-      if (p2_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(P2);
+      if (bounds_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Bounds);
       }
       return size;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(ArrowShape other) {
+    public void MergeFrom(EllipseShape other) {
       if (other == null) {
         return;
       }
-      if (other.p1_ != null) {
-        if (p1_ == null) {
-          p1_ = new global::Greenshot.FileFormat.Point();
+      if (other.bounds_ != null) {
+        if (bounds_ == null) {
+          bounds_ = new global::Greenshot.FileFormat.Bounds();
         }
-        P1.MergeFrom(other.P1);
-      }
-      if (other.p2_ != null) {
-        if (p2_ == null) {
-          p2_ = new global::Greenshot.FileFormat.Point();
-        }
-        P2.MergeFrom(other.P2);
+        Bounds.MergeFrom(other.Bounds);
       }
     }
 
@@ -463,17 +760,133 @@ namespace Greenshot.FileFormat {
             input.SkipLastField();
             break;
           case 10: {
-            if (p1_ == null) {
-              p1_ = new global::Greenshot.FileFormat.Point();
+            if (bounds_ == null) {
+              bounds_ = new global::Greenshot.FileFormat.Bounds();
             }
-            input.ReadMessage(p1_);
+            input.ReadMessage(bounds_);
             break;
           }
-          case 18: {
-            if (p2_ == null) {
-              p2_ = new global::Greenshot.FileFormat.Point();
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class RectangleShape : pb::IMessage<RectangleShape> {
+    private static readonly pb::MessageParser<RectangleShape> _parser = new pb::MessageParser<RectangleShape>(() => new RectangleShape());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<RectangleShape> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Greenshot.FileFormat.ShapesReflection.Descriptor.MessageTypes[3]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public RectangleShape() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public RectangleShape(RectangleShape other) : this() {
+      Bounds = other.bounds_ != null ? other.Bounds.Clone() : null;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public RectangleShape Clone() {
+      return new RectangleShape(this);
+    }
+
+    /// <summary>Field number for the "bounds" field.</summary>
+    public const int BoundsFieldNumber = 1;
+    private global::Greenshot.FileFormat.Bounds bounds_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Greenshot.FileFormat.Bounds Bounds {
+      get { return bounds_; }
+      set {
+        bounds_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as RectangleShape);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(RectangleShape other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (!object.Equals(Bounds, other.Bounds)) return false;
+      return true;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (bounds_ != null) hash ^= Bounds.GetHashCode();
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (bounds_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(Bounds);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (bounds_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Bounds);
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(RectangleShape other) {
+      if (other == null) {
+        return;
+      }
+      if (other.bounds_ != null) {
+        if (bounds_ == null) {
+          bounds_ = new global::Greenshot.FileFormat.Bounds();
+        }
+        Bounds.MergeFrom(other.Bounds);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            input.SkipLastField();
+            break;
+          case 10: {
+            if (bounds_ == null) {
+              bounds_ = new global::Greenshot.FileFormat.Bounds();
             }
-            input.ReadMessage(p2_);
+            input.ReadMessage(bounds_);
             break;
           }
         }
@@ -492,7 +905,7 @@ namespace Greenshot.FileFormat {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Greenshot.FileFormat.ShapesReflection.Descriptor.MessageTypes[3]; }
+      get { return global::Greenshot.FileFormat.ShapesReflection.Descriptor.MessageTypes[4]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -637,16 +1050,16 @@ namespace Greenshot.FileFormat {
   }
 
   /// <summary>
-  //// Basic style information for every shape
+  //// A text shape
   /// </summary>
-  public sealed partial class ShapeStyle : pb::IMessage<ShapeStyle> {
-    private static readonly pb::MessageParser<ShapeStyle> _parser = new pb::MessageParser<ShapeStyle>(() => new ShapeStyle());
+  public sealed partial class TextShape : pb::IMessage<TextShape> {
+    private static readonly pb::MessageParser<TextShape> _parser = new pb::MessageParser<TextShape>(() => new TextShape());
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<ShapeStyle> Parser { get { return _parser; } }
+    public static pb::MessageParser<TextShape> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Greenshot.FileFormat.ShapesReflection.Descriptor.MessageTypes[4]; }
+      get { return global::Greenshot.FileFormat.ShapesReflection.Descriptor.MessageTypes[5]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -655,84 +1068,96 @@ namespace Greenshot.FileFormat {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public ShapeStyle() {
+    public TextShape() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public ShapeStyle(ShapeStyle other) : this() {
-      Stroke = other.stroke_ != null ? other.Stroke.Clone() : null;
-      strokeThickness_ = other.strokeThickness_;
-      strokeDashArray_ = other.strokeDashArray_.Clone();
+    public TextShape(TextShape other) : this() {
+      Bounds = other.bounds_ != null ? other.Bounds.Clone() : null;
+      horizontalAlignment_ = other.horizontalAlignment_;
+      verticalAlignment_ = other.verticalAlignment_;
+      text_ = other.text_;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public ShapeStyle Clone() {
-      return new ShapeStyle(this);
+    public TextShape Clone() {
+      return new TextShape(this);
     }
 
-    /// <summary>Field number for the "stroke" field.</summary>
-    public const int StrokeFieldNumber = 1;
-    private global::Greenshot.FileFormat.Color stroke_;
+    /// <summary>Field number for the "bounds" field.</summary>
+    public const int BoundsFieldNumber = 1;
+    private global::Greenshot.FileFormat.Bounds bounds_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Greenshot.FileFormat.Color Stroke {
-      get { return stroke_; }
+    public global::Greenshot.FileFormat.Bounds Bounds {
+      get { return bounds_; }
       set {
-        stroke_ = value;
+        bounds_ = value;
       }
     }
 
-    /// <summary>Field number for the "strokeThickness" field.</summary>
-    public const int StrokeThicknessFieldNumber = 2;
-    private float strokeThickness_;
+    /// <summary>Field number for the "horizontalAlignment" field.</summary>
+    public const int HorizontalAlignmentFieldNumber = 2;
+    private global::Greenshot.FileFormat.Alignment horizontalAlignment_ = 0;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public float StrokeThickness {
-      get { return strokeThickness_; }
+    public global::Greenshot.FileFormat.Alignment HorizontalAlignment {
+      get { return horizontalAlignment_; }
       set {
-        strokeThickness_ = value;
+        horizontalAlignment_ = value;
       }
     }
 
-    /// <summary>Field number for the "strokeDashArray" field.</summary>
-    public const int StrokeDashArrayFieldNumber = 3;
-    private static readonly pb::FieldCodec<float> _repeated_strokeDashArray_codec
-        = pb::FieldCodec.ForFloat(26);
-    private readonly pbc::RepeatedField<float> strokeDashArray_ = new pbc::RepeatedField<float>();
-    /// <summary>
-    //// Used to specify the dash and space values for the stroke being drawed.
-    /// </summary>
+    /// <summary>Field number for the "verticalAlignment" field.</summary>
+    public const int VerticalAlignmentFieldNumber = 3;
+    private global::Greenshot.FileFormat.Alignment verticalAlignment_ = 0;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pbc::RepeatedField<float> StrokeDashArray {
-      get { return strokeDashArray_; }
+    public global::Greenshot.FileFormat.Alignment VerticalAlignment {
+      get { return verticalAlignment_; }
+      set {
+        verticalAlignment_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "text" field.</summary>
+    public const int TextFieldNumber = 4;
+    private string text_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string Text {
+      get { return text_; }
+      set {
+        text_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
-      return Equals(other as ShapeStyle);
+      return Equals(other as TextShape);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(ShapeStyle other) {
+    public bool Equals(TextShape other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (!object.Equals(Stroke, other.Stroke)) return false;
-      if (StrokeThickness != other.StrokeThickness) return false;
-      if(!strokeDashArray_.Equals(other.strokeDashArray_)) return false;
+      if (!object.Equals(Bounds, other.Bounds)) return false;
+      if (HorizontalAlignment != other.HorizontalAlignment) return false;
+      if (VerticalAlignment != other.VerticalAlignment) return false;
+      if (Text != other.Text) return false;
       return true;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (stroke_ != null) hash ^= Stroke.GetHashCode();
-      if (StrokeThickness != 0F) hash ^= StrokeThickness.GetHashCode();
-      hash ^= strokeDashArray_.GetHashCode();
+      if (bounds_ != null) hash ^= Bounds.GetHashCode();
+      if (HorizontalAlignment != 0) hash ^= HorizontalAlignment.GetHashCode();
+      if (VerticalAlignment != 0) hash ^= VerticalAlignment.GetHashCode();
+      if (Text.Length != 0) hash ^= Text.GetHashCode();
       return hash;
     }
 
@@ -743,45 +1168,62 @@ namespace Greenshot.FileFormat {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (stroke_ != null) {
+      if (bounds_ != null) {
         output.WriteRawTag(10);
-        output.WriteMessage(Stroke);
+        output.WriteMessage(Bounds);
       }
-      if (StrokeThickness != 0F) {
-        output.WriteRawTag(21);
-        output.WriteFloat(StrokeThickness);
+      if (HorizontalAlignment != 0) {
+        output.WriteRawTag(16);
+        output.WriteEnum((int) HorizontalAlignment);
       }
-      strokeDashArray_.WriteTo(output, _repeated_strokeDashArray_codec);
+      if (VerticalAlignment != 0) {
+        output.WriteRawTag(24);
+        output.WriteEnum((int) VerticalAlignment);
+      }
+      if (Text.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(Text);
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (stroke_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Stroke);
+      if (bounds_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Bounds);
       }
-      if (StrokeThickness != 0F) {
-        size += 1 + 4;
+      if (HorizontalAlignment != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) HorizontalAlignment);
       }
-      size += strokeDashArray_.CalculateSize(_repeated_strokeDashArray_codec);
+      if (VerticalAlignment != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) VerticalAlignment);
+      }
+      if (Text.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Text);
+      }
       return size;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(ShapeStyle other) {
+    public void MergeFrom(TextShape other) {
       if (other == null) {
         return;
       }
-      if (other.stroke_ != null) {
-        if (stroke_ == null) {
-          stroke_ = new global::Greenshot.FileFormat.Color();
+      if (other.bounds_ != null) {
+        if (bounds_ == null) {
+          bounds_ = new global::Greenshot.FileFormat.Bounds();
         }
-        Stroke.MergeFrom(other.Stroke);
+        Bounds.MergeFrom(other.Bounds);
       }
-      if (other.StrokeThickness != 0F) {
-        StrokeThickness = other.StrokeThickness;
+      if (other.HorizontalAlignment != 0) {
+        HorizontalAlignment = other.HorizontalAlignment;
       }
-      strokeDashArray_.Add(other.strokeDashArray_);
+      if (other.VerticalAlignment != 0) {
+        VerticalAlignment = other.VerticalAlignment;
+      }
+      if (other.Text.Length != 0) {
+        Text = other.Text;
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -793,41 +1235,153 @@ namespace Greenshot.FileFormat {
             input.SkipLastField();
             break;
           case 10: {
-            if (stroke_ == null) {
-              stroke_ = new global::Greenshot.FileFormat.Color();
+            if (bounds_ == null) {
+              bounds_ = new global::Greenshot.FileFormat.Bounds();
             }
-            input.ReadMessage(stroke_);
+            input.ReadMessage(bounds_);
             break;
           }
-          case 21: {
-            StrokeThickness = input.ReadFloat();
+          case 16: {
+            horizontalAlignment_ = (global::Greenshot.FileFormat.Alignment) input.ReadEnum();
             break;
           }
-          case 26:
-          case 29: {
-            strokeDashArray_.AddEntriesFrom(input, _repeated_strokeDashArray_codec);
+          case 24: {
+            verticalAlignment_ = (global::Greenshot.FileFormat.Alignment) input.ReadEnum();
+            break;
+          }
+          case 34: {
+            Text = input.ReadString();
             break;
           }
         }
       }
     }
 
-    #region Nested types
-    /// <summary>Container for nested types declared in the ShapeStyle message type.</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static partial class Types {
-      /// <summary>
-      //// Possible caps for the line
-      /// </summary>
-      public enum LineCaps {
-        [pbr::OriginalName("Flat")] Flat = 0,
-        [pbr::OriginalName("Round")] Round = 1,
-        [pbr::OriginalName("Square")] Square = 2,
-        [pbr::OriginalName("Triangle")] Triangle = 3,
-      }
+  }
 
+  /// <summary>
+  //// An empty shape, just to contain effects
+  /// </summary>
+  public sealed partial class EmptyShape : pb::IMessage<EmptyShape> {
+    private static readonly pb::MessageParser<EmptyShape> _parser = new pb::MessageParser<EmptyShape>(() => new EmptyShape());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<EmptyShape> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Greenshot.FileFormat.ShapesReflection.Descriptor.MessageTypes[6]; }
     }
-    #endregion
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public EmptyShape() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public EmptyShape(EmptyShape other) : this() {
+      Bounds = other.bounds_ != null ? other.Bounds.Clone() : null;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public EmptyShape Clone() {
+      return new EmptyShape(this);
+    }
+
+    /// <summary>Field number for the "bounds" field.</summary>
+    public const int BoundsFieldNumber = 1;
+    private global::Greenshot.FileFormat.Bounds bounds_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Greenshot.FileFormat.Bounds Bounds {
+      get { return bounds_; }
+      set {
+        bounds_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as EmptyShape);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(EmptyShape other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (!object.Equals(Bounds, other.Bounds)) return false;
+      return true;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (bounds_ != null) hash ^= Bounds.GetHashCode();
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (bounds_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(Bounds);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (bounds_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Bounds);
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(EmptyShape other) {
+      if (other == null) {
+        return;
+      }
+      if (other.bounds_ != null) {
+        if (bounds_ == null) {
+          bounds_ = new global::Greenshot.FileFormat.Bounds();
+        }
+        Bounds.MergeFrom(other.Bounds);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            input.SkipLastField();
+            break;
+          case 10: {
+            if (bounds_ == null) {
+              bounds_ = new global::Greenshot.FileFormat.Bounds();
+            }
+            input.ReadMessage(bounds_);
+            break;
+          }
+        }
+      }
+    }
 
   }
 
@@ -838,7 +1392,7 @@ namespace Greenshot.FileFormat {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Greenshot.FileFormat.ShapesReflection.Descriptor.MessageTypes[5]; }
+      get { return global::Greenshot.FileFormat.ShapesReflection.Descriptor.MessageTypes[7]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -857,13 +1411,26 @@ namespace Greenshot.FileFormat {
     public Shape(Shape other) : this() {
       shapeStyleId_ = other.shapeStyleId_;
       Matrix = other.matrix_ != null ? other.Matrix.Clone() : null;
-      filters_ = other.filters_.Clone();
+      shapeTypes_ = other.shapeTypes_;
+      effects_ = other.effects_.Clone();
       switch (other.ShapeCase) {
         case ShapeOneofCase.Line:
           Line = other.Line.Clone();
           break;
-        case ShapeOneofCase.Arrow:
-          Arrow = other.Arrow.Clone();
+        case ShapeOneofCase.Ellipse:
+          Ellipse = other.Ellipse.Clone();
+          break;
+        case ShapeOneofCase.Rectangle:
+          Rectangle = other.Rectangle.Clone();
+          break;
+        case ShapeOneofCase.Image:
+          Image = other.Image.Clone();
+          break;
+        case ShapeOneofCase.Text:
+          Text = other.Text.Clone();
+          break;
+        case ShapeOneofCase.Empty:
+          Empty = other.Empty.Clone();
           break;
       }
 
@@ -891,6 +1458,9 @@ namespace Greenshot.FileFormat {
     /// <summary>Field number for the "matrix" field.</summary>
     public const int MatrixFieldNumber = 2;
     private global::Greenshot.FileFormat.Matrix matrix_;
+    /// <summary>
+    /// a matrix for transformations
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Greenshot.FileFormat.Matrix Matrix {
       get { return matrix_; }
@@ -899,21 +1469,22 @@ namespace Greenshot.FileFormat {
       }
     }
 
-    /// <summary>Field number for the "filters" field.</summary>
-    public const int FiltersFieldNumber = 3;
-    private static readonly pb::FieldCodec<global::Greenshot.FileFormat.Filter> _repeated_filters_codec
-        = pb::FieldCodec.ForMessage(26, global::Greenshot.FileFormat.Filter.Parser);
-    private readonly pbc::RepeatedField<global::Greenshot.FileFormat.Filter> filters_ = new pbc::RepeatedField<global::Greenshot.FileFormat.Filter>();
+    /// <summary>Field number for the "shapeTypes" field.</summary>
+    public const int ShapeTypesFieldNumber = 3;
+    private global::Greenshot.FileFormat.ShapeTypes shapeTypes_ = 0;
     /// <summary>
-    //// Used to specify which filters are used when drawing
+    /// Type of shape
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pbc::RepeatedField<global::Greenshot.FileFormat.Filter> Filters {
-      get { return filters_; }
+    public global::Greenshot.FileFormat.ShapeTypes ShapeTypes {
+      get { return shapeTypes_; }
+      set {
+        shapeTypes_ = value;
+      }
     }
 
     /// <summary>Field number for the "line" field.</summary>
-    public const int LineFieldNumber = 10;
+    public const int LineFieldNumber = 11;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Greenshot.FileFormat.LineShape Line {
       get { return shapeCase_ == ShapeOneofCase.Line ? (global::Greenshot.FileFormat.LineShape) shape_ : null; }
@@ -923,23 +1494,84 @@ namespace Greenshot.FileFormat {
       }
     }
 
-    /// <summary>Field number for the "arrow" field.</summary>
-    public const int ArrowFieldNumber = 11;
+    /// <summary>Field number for the "ellipse" field.</summary>
+    public const int EllipseFieldNumber = 12;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Greenshot.FileFormat.ArrowShape Arrow {
-      get { return shapeCase_ == ShapeOneofCase.Arrow ? (global::Greenshot.FileFormat.ArrowShape) shape_ : null; }
+    public global::Greenshot.FileFormat.EllipseShape Ellipse {
+      get { return shapeCase_ == ShapeOneofCase.Ellipse ? (global::Greenshot.FileFormat.EllipseShape) shape_ : null; }
       set {
         shape_ = value;
-        shapeCase_ = value == null ? ShapeOneofCase.None : ShapeOneofCase.Arrow;
+        shapeCase_ = value == null ? ShapeOneofCase.None : ShapeOneofCase.Ellipse;
       }
+    }
+
+    /// <summary>Field number for the "rectangle" field.</summary>
+    public const int RectangleFieldNumber = 13;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Greenshot.FileFormat.RectangleShape Rectangle {
+      get { return shapeCase_ == ShapeOneofCase.Rectangle ? (global::Greenshot.FileFormat.RectangleShape) shape_ : null; }
+      set {
+        shape_ = value;
+        shapeCase_ = value == null ? ShapeOneofCase.None : ShapeOneofCase.Rectangle;
+      }
+    }
+
+    /// <summary>Field number for the "image" field.</summary>
+    public const int ImageFieldNumber = 14;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Greenshot.FileFormat.ImageShape Image {
+      get { return shapeCase_ == ShapeOneofCase.Image ? (global::Greenshot.FileFormat.ImageShape) shape_ : null; }
+      set {
+        shape_ = value;
+        shapeCase_ = value == null ? ShapeOneofCase.None : ShapeOneofCase.Image;
+      }
+    }
+
+    /// <summary>Field number for the "text" field.</summary>
+    public const int TextFieldNumber = 15;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Greenshot.FileFormat.TextShape Text {
+      get { return shapeCase_ == ShapeOneofCase.Text ? (global::Greenshot.FileFormat.TextShape) shape_ : null; }
+      set {
+        shape_ = value;
+        shapeCase_ = value == null ? ShapeOneofCase.None : ShapeOneofCase.Text;
+      }
+    }
+
+    /// <summary>Field number for the "empty" field.</summary>
+    public const int EmptyFieldNumber = 16;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Greenshot.FileFormat.EmptyShape Empty {
+      get { return shapeCase_ == ShapeOneofCase.Empty ? (global::Greenshot.FileFormat.EmptyShape) shape_ : null; }
+      set {
+        shape_ = value;
+        shapeCase_ = value == null ? ShapeOneofCase.None : ShapeOneofCase.Empty;
+      }
+    }
+
+    /// <summary>Field number for the "effects" field.</summary>
+    public const int EffectsFieldNumber = 17;
+    private static readonly pb::FieldCodec<global::Greenshot.FileFormat.Effect> _repeated_effects_codec
+        = pb::FieldCodec.ForMessage(138, global::Greenshot.FileFormat.Effect.Parser);
+    private readonly pbc::RepeatedField<global::Greenshot.FileFormat.Effect> effects_ = new pbc::RepeatedField<global::Greenshot.FileFormat.Effect>();
+    /// <summary>
+    /// All effects that this shape uses.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::RepeatedField<global::Greenshot.FileFormat.Effect> Effects {
+      get { return effects_; }
     }
 
     private object shape_;
     /// <summary>Enum of possible cases for the "shape" oneof.</summary>
     public enum ShapeOneofCase {
       None = 0,
-      Line = 10,
-      Arrow = 11,
+      Line = 11,
+      Ellipse = 12,
+      Rectangle = 13,
+      Image = 14,
+      Text = 15,
+      Empty = 16,
     }
     private ShapeOneofCase shapeCase_ = ShapeOneofCase.None;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -968,9 +1600,14 @@ namespace Greenshot.FileFormat {
       }
       if (ShapeStyleId != other.ShapeStyleId) return false;
       if (!object.Equals(Matrix, other.Matrix)) return false;
-      if(!filters_.Equals(other.filters_)) return false;
+      if (ShapeTypes != other.ShapeTypes) return false;
       if (!object.Equals(Line, other.Line)) return false;
-      if (!object.Equals(Arrow, other.Arrow)) return false;
+      if (!object.Equals(Ellipse, other.Ellipse)) return false;
+      if (!object.Equals(Rectangle, other.Rectangle)) return false;
+      if (!object.Equals(Image, other.Image)) return false;
+      if (!object.Equals(Text, other.Text)) return false;
+      if (!object.Equals(Empty, other.Empty)) return false;
+      if(!effects_.Equals(other.effects_)) return false;
       if (ShapeCase != other.ShapeCase) return false;
       return true;
     }
@@ -980,9 +1617,14 @@ namespace Greenshot.FileFormat {
       int hash = 1;
       if (ShapeStyleId.Length != 0) hash ^= ShapeStyleId.GetHashCode();
       if (matrix_ != null) hash ^= Matrix.GetHashCode();
-      hash ^= filters_.GetHashCode();
+      if (ShapeTypes != 0) hash ^= ShapeTypes.GetHashCode();
       if (shapeCase_ == ShapeOneofCase.Line) hash ^= Line.GetHashCode();
-      if (shapeCase_ == ShapeOneofCase.Arrow) hash ^= Arrow.GetHashCode();
+      if (shapeCase_ == ShapeOneofCase.Ellipse) hash ^= Ellipse.GetHashCode();
+      if (shapeCase_ == ShapeOneofCase.Rectangle) hash ^= Rectangle.GetHashCode();
+      if (shapeCase_ == ShapeOneofCase.Image) hash ^= Image.GetHashCode();
+      if (shapeCase_ == ShapeOneofCase.Text) hash ^= Text.GetHashCode();
+      if (shapeCase_ == ShapeOneofCase.Empty) hash ^= Empty.GetHashCode();
+      hash ^= effects_.GetHashCode();
       hash ^= (int) shapeCase_;
       return hash;
     }
@@ -1002,15 +1644,35 @@ namespace Greenshot.FileFormat {
         output.WriteRawTag(18);
         output.WriteMessage(Matrix);
       }
-      filters_.WriteTo(output, _repeated_filters_codec);
+      if (ShapeTypes != 0) {
+        output.WriteRawTag(24);
+        output.WriteEnum((int) ShapeTypes);
+      }
       if (shapeCase_ == ShapeOneofCase.Line) {
-        output.WriteRawTag(82);
+        output.WriteRawTag(90);
         output.WriteMessage(Line);
       }
-      if (shapeCase_ == ShapeOneofCase.Arrow) {
-        output.WriteRawTag(90);
-        output.WriteMessage(Arrow);
+      if (shapeCase_ == ShapeOneofCase.Ellipse) {
+        output.WriteRawTag(98);
+        output.WriteMessage(Ellipse);
       }
+      if (shapeCase_ == ShapeOneofCase.Rectangle) {
+        output.WriteRawTag(106);
+        output.WriteMessage(Rectangle);
+      }
+      if (shapeCase_ == ShapeOneofCase.Image) {
+        output.WriteRawTag(114);
+        output.WriteMessage(Image);
+      }
+      if (shapeCase_ == ShapeOneofCase.Text) {
+        output.WriteRawTag(122);
+        output.WriteMessage(Text);
+      }
+      if (shapeCase_ == ShapeOneofCase.Empty) {
+        output.WriteRawTag(130, 1);
+        output.WriteMessage(Empty);
+      }
+      effects_.WriteTo(output, _repeated_effects_codec);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1022,13 +1684,28 @@ namespace Greenshot.FileFormat {
       if (matrix_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Matrix);
       }
-      size += filters_.CalculateSize(_repeated_filters_codec);
+      if (ShapeTypes != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) ShapeTypes);
+      }
       if (shapeCase_ == ShapeOneofCase.Line) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Line);
       }
-      if (shapeCase_ == ShapeOneofCase.Arrow) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Arrow);
+      if (shapeCase_ == ShapeOneofCase.Ellipse) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Ellipse);
       }
+      if (shapeCase_ == ShapeOneofCase.Rectangle) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Rectangle);
+      }
+      if (shapeCase_ == ShapeOneofCase.Image) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Image);
+      }
+      if (shapeCase_ == ShapeOneofCase.Text) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Text);
+      }
+      if (shapeCase_ == ShapeOneofCase.Empty) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(Empty);
+      }
+      size += effects_.CalculateSize(_repeated_effects_codec);
       return size;
     }
 
@@ -1046,13 +1723,28 @@ namespace Greenshot.FileFormat {
         }
         Matrix.MergeFrom(other.Matrix);
       }
-      filters_.Add(other.filters_);
+      if (other.ShapeTypes != 0) {
+        ShapeTypes = other.ShapeTypes;
+      }
+      effects_.Add(other.effects_);
       switch (other.ShapeCase) {
         case ShapeOneofCase.Line:
           Line = other.Line;
           break;
-        case ShapeOneofCase.Arrow:
-          Arrow = other.Arrow;
+        case ShapeOneofCase.Ellipse:
+          Ellipse = other.Ellipse;
+          break;
+        case ShapeOneofCase.Rectangle:
+          Rectangle = other.Rectangle;
+          break;
+        case ShapeOneofCase.Image:
+          Image = other.Image;
+          break;
+        case ShapeOneofCase.Text:
+          Text = other.Text;
+          break;
+        case ShapeOneofCase.Empty:
+          Empty = other.Empty;
           break;
       }
 
@@ -1077,11 +1769,11 @@ namespace Greenshot.FileFormat {
             input.ReadMessage(matrix_);
             break;
           }
-          case 26: {
-            filters_.AddEntriesFrom(input, _repeated_filters_codec);
+          case 24: {
+            shapeTypes_ = (global::Greenshot.FileFormat.ShapeTypes) input.ReadEnum();
             break;
           }
-          case 82: {
+          case 90: {
             global::Greenshot.FileFormat.LineShape subBuilder = new global::Greenshot.FileFormat.LineShape();
             if (shapeCase_ == ShapeOneofCase.Line) {
               subBuilder.MergeFrom(Line);
@@ -1090,13 +1782,53 @@ namespace Greenshot.FileFormat {
             Line = subBuilder;
             break;
           }
-          case 90: {
-            global::Greenshot.FileFormat.ArrowShape subBuilder = new global::Greenshot.FileFormat.ArrowShape();
-            if (shapeCase_ == ShapeOneofCase.Arrow) {
-              subBuilder.MergeFrom(Arrow);
+          case 98: {
+            global::Greenshot.FileFormat.EllipseShape subBuilder = new global::Greenshot.FileFormat.EllipseShape();
+            if (shapeCase_ == ShapeOneofCase.Ellipse) {
+              subBuilder.MergeFrom(Ellipse);
             }
             input.ReadMessage(subBuilder);
-            Arrow = subBuilder;
+            Ellipse = subBuilder;
+            break;
+          }
+          case 106: {
+            global::Greenshot.FileFormat.RectangleShape subBuilder = new global::Greenshot.FileFormat.RectangleShape();
+            if (shapeCase_ == ShapeOneofCase.Rectangle) {
+              subBuilder.MergeFrom(Rectangle);
+            }
+            input.ReadMessage(subBuilder);
+            Rectangle = subBuilder;
+            break;
+          }
+          case 114: {
+            global::Greenshot.FileFormat.ImageShape subBuilder = new global::Greenshot.FileFormat.ImageShape();
+            if (shapeCase_ == ShapeOneofCase.Image) {
+              subBuilder.MergeFrom(Image);
+            }
+            input.ReadMessage(subBuilder);
+            Image = subBuilder;
+            break;
+          }
+          case 122: {
+            global::Greenshot.FileFormat.TextShape subBuilder = new global::Greenshot.FileFormat.TextShape();
+            if (shapeCase_ == ShapeOneofCase.Text) {
+              subBuilder.MergeFrom(Text);
+            }
+            input.ReadMessage(subBuilder);
+            Text = subBuilder;
+            break;
+          }
+          case 130: {
+            global::Greenshot.FileFormat.EmptyShape subBuilder = new global::Greenshot.FileFormat.EmptyShape();
+            if (shapeCase_ == ShapeOneofCase.Empty) {
+              subBuilder.MergeFrom(Empty);
+            }
+            input.ReadMessage(subBuilder);
+            Empty = subBuilder;
+            break;
+          }
+          case 138: {
+            effects_.AddEntriesFrom(input, _repeated_effects_codec);
             break;
           }
         }

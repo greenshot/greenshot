@@ -59,7 +59,7 @@ namespace GreenshotPlugin.Gfx
 				return surface.GetImageForExport();
 			};
 
-			Core.Func<Stream, string, Image> defaultConverter = (stream, s) =>
+			Func<Stream, string, Image> defaultConverter = (stream, s) =>
 			{
 				stream.Position = 0;
 				using (var tmpImage = Image.FromStream(stream, true, true))
@@ -135,9 +135,9 @@ namespace GreenshotPlugin.Gfx
 		/// <summary>
 		///     This is a factory method to create a surface, set from the Greenshot main project
 		/// </summary>
-		public static Core.Func<ISurface> SurfaceFactory { get; set; }
+		public static Func<ISurface> SurfaceFactory { get; set; }
 
-		public static IDictionary<string, Core.Func<Stream, string, Image>> StreamConverters { get; } = new Dictionary<string, Core.Func<Stream, string, Image>>();
+		public static IDictionary<string, Func<Stream, string, Image>> StreamConverters { get; } = new Dictionary<string, Func<Stream, string, Image>>();
 
 		/// <summary>
 		///     Make sure the image is orientated correctly
@@ -1779,7 +1779,7 @@ namespace GreenshotPlugin.Gfx
 			}
 
 			Image returnImage = null;
-			Core.Func<Stream, string, Image> converter;
+			Func<Stream, string, Image> converter;
 			if (StreamConverters.TryGetValue(extension ?? "", out converter))
 			{
 				returnImage = converter(stream, extension);

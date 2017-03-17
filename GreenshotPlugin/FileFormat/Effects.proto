@@ -1,0 +1,120 @@
+﻿/// Greenshot - a free and open source screenshot tool
+/// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+/// 
+/// For more information see: http://getgreenshot.org/
+/// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+/// 
+/// This program is free software: you can redistribute it and/or modify
+/// it under the terms of the GNU General Public License as published by
+/// the Free Software Foundation, either version 1 of the License, or
+/// (at your option) any later version.
+/// 
+/// This program is distributed in the hope that it will be useful,
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+/// GNU General Public License for more details.
+/// 
+/// You should have received a copy of the GNU General Public License
+/// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/// 
+/// This file is part of the definition of the Greenshot file format
+
+syntax = "proto3";
+import "BaseTypes.proto";
+import "Style.proto";
+package greenshot.fileformat;
+
+option csharp_namespace = "Greenshot.FileFormat";
+
+// Possible effects
+enum Effects {
+    Blur = 0;
+    DropShadow = 1;
+    Pixelate = 2;
+    Highlight = 3;
+    Border = 4;
+    Magnify = 5;
+    Grayscale = 6;
+    Adjust = 7;
+    TornEdge = 8;
+    Clone = 9;
+}
+
+// Settings for the blur effect
+message BlurEffect {
+    uint32 radius = 1;
+    // Use inverted bounds
+    bool invertBounds = 2;
+}
+
+// Settings for the drop shadow effect
+message DropShadowEffect {
+    uint32 shadowSize = 1;
+    float darkness = 2;
+    Point offset = 3;
+}
+
+// Settings for the pixelate effect
+message PixelateEffect {
+    uint32 pixelSize = 1;
+    bool invertBounds = 2;
+}
+
+// Settings for the highlight effect
+message HighlightEffect {
+    Color color = 1;
+    bool invertBounds = 2;
+}
+
+// Settings for the grayscale effect
+message GrayscaleEffect {
+    bool invertBounds = 1;
+}
+
+message BorderEffect {
+    Color color = 1;
+    uint32 width = 2;
+}
+
+message AdjustEffect {
+    float brightness = 1;
+    float contrast = 2;
+    float gamma = 3;
+    bool invertBounds = 4;
+}
+
+message MagnifyEffect {
+    float factor = 1;
+}
+
+// Settings for the torn edge effect
+message TornEdgeEffect {
+    uint32 toothHeight = 1;
+    uint32 horizontalToothRange = 2;
+    uint32 verticalToothRange = 3;
+    bool left = 4;
+    bool right = 5;
+    bool bottom = 6;
+    bool top = 7;
+}
+
+// Settings for the clone effect
+message CloneEffect {
+    Bounds sourceBounds = 1;
+}
+
+message Effect {
+    Effects effectType = 1;
+    oneof effect {
+        BlurEffect blurEffect = 10;
+        DropShadowEffect dropShadowEffect = 11;
+        TornEdgeEffect tornEdgeEffect = 12;
+        MagnifyEffect magnifyEffect = 13;
+        AdjustEffect adjustEffect = 14;
+        BorderEffect borderEffect = 15;
+        GrayscaleEffect grayscaleEffect = 16;
+        HighlightEffect highlightEffect = 17;
+        PixelateEffect pixelateEffect = 18;
+        CloneEffect cloneEffect = 19;
+    }
+}
