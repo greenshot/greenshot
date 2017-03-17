@@ -598,8 +598,10 @@ namespace Greenshot.Drawing
 			menu.Items.Add(item);
 
 			// Delete
-			item = new ToolStripMenuItem(Language.GetString(LangKey.editor_deleteelement));
-			item.Image = (Image) EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image");
+			item = new ToolStripMenuItem(Language.GetString(LangKey.editor_deleteelement))
+			{
+				Image = (Image) EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image")
+			};
 			item.Click += delegate { surface.RemoveElements(this); };
 			menu.Items.Add(item);
 

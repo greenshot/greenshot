@@ -1,4 +1,4 @@
-﻿#region Greenshot GNU General Public License
+#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
@@ -21,40 +21,26 @@
 
 #endregion
 
-#region Usings
-
-using System.ComponentModel;
-using System.Drawing;
-
-#endregion
-
-namespace GreenshotPlugin.Core
+namespace GreenshotPlugin.Animation
 {
 	/// <summary>
-	///     Centralized storage of the icons & bitmaps
+	///     Helper interface for passing base type
 	/// </summary>
-	public static class GreenshotResources
+	public interface IAnimator
 	{
-		private static readonly ComponentResourceManager greenshotResources = new ComponentResourceManager(typeof(GreenshotResources));
+		/// <summary>
+		///     Current frame number
+		/// </summary>
+		int CurrentFrameNr { get; }
 
-		public static Image GetImage(string imageName)
-		{
-			return (Image) greenshotResources.GetObject(imageName);
-		}
+		/// <summary>
+		///     The amount of frames
+		/// </summary>
+		int Frames { get; }
 
-		public static Icon GetIcon(string imageName)
-		{
-			return (Icon) greenshotResources.GetObject(imageName);
-		}
-
-		public static Icon GetGreenshotIcon()
-		{
-			return GetIcon("Greenshot.Icon");
-		}
-
-		public static Image GetGreenshotImage()
-		{
-			return GetImage("Greenshot.Image");
-		}
+		/// <summary>
+		///     Is there a next frame?
+		/// </summary>
+		bool HasNext { get; }
 	}
 }

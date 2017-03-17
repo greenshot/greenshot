@@ -45,7 +45,7 @@ namespace Greenshot.Destinations
 		public const string DESIGNATION = "Editor";
 		private static readonly LogSource Log = new LogSource();
 		private static readonly EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
-		private static readonly Image greenshotIcon = GreenshotResources.getGreenshotIcon().ToBitmap();
+		private static readonly Image greenshotIcon = GreenshotResources.GetGreenshotIcon().ToBitmap();
 		private readonly IImageEditor editor;
 
 		public EditorDestination()

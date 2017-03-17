@@ -1,4 +1,4 @@
-﻿#region Greenshot GNU General Public License
+#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
@@ -21,40 +21,41 @@
 
 #endregion
 
-#region Usings
+#region using
 
-using System.ComponentModel;
 using System.Drawing;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace GreenshotPlugin.Animation
 {
 	/// <summary>
-	///     Centralized storage of the icons & bitmaps
+	///     Implementation of the SizeAnimator
 	/// </summary>
-	public static class GreenshotResources
+	public class SizeAnimator : AnimatorBase<Size>
 	{
-		private static readonly ComponentResourceManager greenshotResources = new ComponentResourceManager(typeof(GreenshotResources));
-
-		public static Image GetImage(string imageName)
+		public SizeAnimator(Size first, Size last, int frames, EasingTypes easingType = EasingTypes.Linear, EasingModes easingMode = EasingModes.EaseIn)
+			: base(first, last, frames, easingType, easingMode)
 		{
-			return (Image) greenshotResources.GetObject(imageName);
 		}
 
-		public static Icon GetIcon(string imageName)
+		/// <summary>
+		///     Calculate the next frame values
+		/// </summary>
+		/// <returns>Size</returns>
+		public override Size Next()
 		{
-			return (Icon) greenshotResources.GetObject(imageName);
-		}
-
-		public static Icon GetGreenshotIcon()
-		{
-			return GetIcon("Greenshot.Icon");
-		}
-
-		public static Image GetGreenshotImage()
-		{
-			return GetImage("Greenshot.Image");
+			if (!NextFrame)
+			{
+				return Current;
+			}
+			var easingValue = EasingValue;
+			double dw = Last.Width - First.Width;
+			double dh = Last.Height - First.Height;
+			var width = First.Width + (int) (easingValue * dw);
+			var height = First.Height + (int) (easingValue * dh);
+			Current = new Size(width, height);
+			return Current;
 		}
 	}
 }

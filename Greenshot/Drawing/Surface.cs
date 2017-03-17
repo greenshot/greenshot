@@ -602,7 +602,7 @@ namespace Greenshot.Drawing
 			var container = element as DrawableContainer;
 			if (container != null)
 			{
-				container.FieldChanged += element_FieldChanged;
+				container.FieldChanged += Element_FieldChanged;
 			}
 			element.Parent = this;
 			if (element.Status == EditStatus.UNDRAWN)
@@ -667,7 +667,7 @@ namespace Greenshot.Drawing
 			var element = elementToRemove as DrawableContainer;
 			if (element != null)
 			{
-				element.FieldChanged -= element_FieldChanged;
+				element.FieldChanged -= Element_FieldChanged;
 			}
 			if (elementToRemove != null)
 			{
@@ -1878,7 +1878,7 @@ namespace Greenshot.Drawing
 			return _elements.CanPushDown(selectedElements);
 		}
 
-		public void element_FieldChanged(object sender, FieldChangedEventArgs e)
+		public void Element_FieldChanged(object sender, FieldChangedEventArgs e)
 		{
 			selectedElements.HandleFieldChangedEvent(sender, e);
 		}

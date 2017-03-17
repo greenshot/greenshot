@@ -224,7 +224,7 @@ namespace Greenshot.Helpers
 			return null;
 		}
 
-		private bool isNewer(string version1, string version2)
+		private bool IsNewer(string version1, string version2)
 		{
 			var version1Parts = version1.Split('.');
 			var version2Parts = version2.Split('.');
@@ -250,7 +250,7 @@ namespace Greenshot.Helpers
 		/// </summary>
 		/// <param name="pluginFiles"></param>
 		/// <param name="path"></param>
-		private void findPluginsOnPath(List<string> pluginFiles, string path)
+		private void FindPluginsOnPath(List<string> pluginFiles, string path)
 		{
 			if (Directory.Exists(path))
 			{
@@ -280,12 +280,12 @@ namespace Greenshot.Helpers
 
 			if (IniConfig.IsPortable)
 			{
-				findPluginsOnPath(pluginFiles, PafPath);
+				FindPluginsOnPath(pluginFiles, PafPath);
 			}
 			else
 			{
-				findPluginsOnPath(pluginFiles, PluginPath);
-				findPluginsOnPath(pluginFiles, ApplicationPath);
+				FindPluginsOnPath(pluginFiles, PluginPath);
+				FindPluginsOnPath(pluginFiles, ApplicationPath);
 			}
 
 			var tmpAttributes = new Dictionary<string, PluginAttribute>();
@@ -339,7 +339,7 @@ namespace Greenshot.Helpers
 						if (checkPluginAttribute != null)
 						{
 							Log.Warn().WriteLine("Duplicate plugin {0} found", pluginAttribute.Name);
-							if (isNewer(pluginAttribute.Version, checkPluginAttribute.Version))
+							if (IsNewer(pluginAttribute.Version, checkPluginAttribute.Version))
 							{
 								// Found is newer
 								tmpAttributes[pluginAttribute.Name] = pluginAttribute;

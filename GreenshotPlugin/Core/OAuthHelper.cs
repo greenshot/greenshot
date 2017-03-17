@@ -181,30 +181,30 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	public class OAuthSession
 	{
-		protected const string OAUTH_VERSION = "1.0";
-		protected const string OAUTH_PARAMETER_PREFIX = "oauth_";
+		private const string OAUTH_VERSION = "1.0";
+		private const string OAUTH_PARAMETER_PREFIX = "oauth_";
 
 		//
 		// List of know and used oauth parameters' names
 		//		
-		protected const string OAUTH_CONSUMER_KEY_KEY = "oauth_consumer_key";
-		protected const string OAUTH_CALLBACK_KEY = "oauth_callback";
-		protected const string OAUTH_VERSION_KEY = "oauth_version";
-		protected const string OAUTH_SIGNATURE_METHOD_KEY = "oauth_signature_method";
-		protected const string OAUTH_TIMESTAMP_KEY = "oauth_timestamp";
-		protected const string OAUTH_NONCE_KEY = "oauth_nonce";
-		protected const string OAUTH_TOKEN_KEY = "oauth_token";
-		protected const string OAUTH_VERIFIER_KEY = "oauth_verifier";
-		protected const string OAUTH_TOKEN_SECRET_KEY = "oauth_token_secret";
-		protected const string OAUTH_SIGNATURE_KEY = "oauth_signature";
+		private const string OAUTH_CONSUMER_KEY_KEY = "oauth_consumer_key";
+		private const string OAUTH_CALLBACK_KEY = "oauth_callback";
+		private const string OAUTH_VERSION_KEY = "oauth_version";
+		private const string OAUTH_SIGNATURE_METHOD_KEY = "oauth_signature_method";
+		private const string OAUTH_TIMESTAMP_KEY = "oauth_timestamp";
+		private const string OAUTH_NONCE_KEY = "oauth_nonce";
+		private const string OAUTH_TOKEN_KEY = "oauth_token";
+		private const string OAUTH_VERIFIER_KEY = "oauth_verifier";
+		private const string OAUTH_TOKEN_SECRET_KEY = "oauth_token_secret";
+		private const string OAUTH_SIGNATURE_KEY = "oauth_signature";
 
-		protected const string HMACSHA1SignatureType = "HMAC-SHA1";
-		protected const string PlainTextSignatureType = "PLAINTEXT";
+		private const string HMACSHA1SignatureType = "HMAC-SHA1";
+		private const string PlainTextSignatureType = "PLAINTEXT";
 
-		protected const string UnreservedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.~";
+		private const string UnreservedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.~";
 		private static readonly LogSource Log = new LogSource();
 
-		protected static Random random = new Random();
+		private static Random random = new Random();
 
 		private readonly string _consumerKey;
 		private readonly string _consumerSecret;
@@ -957,7 +957,6 @@ Greenshot received information from CloudServiceName. You can close this browser
 				finally
 				{
 					_ready.WaitOne();
-					listener.Close();
 				}
 			}
 			return _returnValues;

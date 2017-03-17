@@ -41,7 +41,7 @@ namespace Greenshot.Destinations
 	public class EmailDestination : AbstractDestination
 	{
 		public const string DESIGNATION = "EMail";
-		private static readonly Image MailIcon = GreenshotResources.getImage("Email.Image");
+		private static readonly Image MailIcon = GreenshotResources.GetImage("Email.Image");
 		private static bool _isActiveFlag;
 		private static string _mapiClient;
 

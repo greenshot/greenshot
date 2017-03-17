@@ -1,4 +1,4 @@
-﻿#region Greenshot GNU General Public License
+#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
@@ -21,40 +21,45 @@
 
 #endregion
 
-#region Usings
+#region using
 
-using System.ComponentModel;
 using System.Drawing;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace GreenshotPlugin.Animation
 {
 	/// <summary>
-	///     Centralized storage of the icons & bitmaps
+	///     Implementation of the ColorAnimator
 	/// </summary>
-	public static class GreenshotResources
+	public class ColorAnimator : AnimatorBase<Color>
 	{
-		private static readonly ComponentResourceManager greenshotResources = new ComponentResourceManager(typeof(GreenshotResources));
-
-		public static Image GetImage(string imageName)
+		public ColorAnimator(Color first, Color last, int frames, EasingTypes easingType = EasingTypes.Linear, EasingModes easingMode = EasingModes.EaseIn)
+			: base(first, last, frames, easingType, easingMode)
 		{
-			return (Image) greenshotResources.GetObject(imageName);
 		}
 
-		public static Icon GetIcon(string imageName)
+		/// <summary>
+		///     Calculate the next frame values
+		/// </summary>
+		/// <returns>Color</returns>
+		public override Color Next()
 		{
-			return (Icon) greenshotResources.GetObject(imageName);
-		}
-
-		public static Icon GetGreenshotIcon()
-		{
-			return GetIcon("Greenshot.Icon");
-		}
-
-		public static Image GetGreenshotImage()
-		{
-			return GetImage("Greenshot.Image");
+			if (!NextFrame)
+			{
+				return Current;
+			}
+			var easingValue = EasingValue;
+			double da = Last.A - First.A;
+			double dr = Last.R - First.R;
+			double dg = Last.G - First.G;
+			double db = Last.B - First.B;
+			var a = First.A + (int) (easingValue * da);
+			var r = First.R + (int) (easingValue * dr);
+			var g = First.G + (int) (easingValue * dg);
+			var b = First.B + (int) (easingValue * db);
+			Current = Color.FromArgb(a, r, g, b);
+			return Current;
 		}
 	}
 }

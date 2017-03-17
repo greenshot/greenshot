@@ -1,4 +1,4 @@
-﻿#region Greenshot GNU General Public License
+#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
@@ -21,40 +21,42 @@
 
 #endregion
 
-#region Usings
+#region using
 
-using System.ComponentModel;
 using System.Drawing;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace GreenshotPlugin.Animation
 {
 	/// <summary>
-	///     Centralized storage of the icons & bitmaps
+	///     Implementation of the PointAnimator
 	/// </summary>
-	public static class GreenshotResources
+	public class PointAnimator : AnimatorBase<Point>
 	{
-		private static readonly ComponentResourceManager greenshotResources = new ComponentResourceManager(typeof(GreenshotResources));
-
-		public static Image GetImage(string imageName)
+		public PointAnimator(Point first, Point last, int frames, EasingTypes easingType = EasingTypes.Linear, EasingModes easingMode = EasingModes.EaseIn)
+			: base(first, last, frames, easingType, easingMode)
 		{
-			return (Image) greenshotResources.GetObject(imageName);
 		}
 
-		public static Icon GetIcon(string imageName)
+		/// <summary>
+		///     Calculate the next frame value
+		/// </summary>
+		/// <returns>Point</returns>
+		public override Point Next()
 		{
-			return (Icon) greenshotResources.GetObject(imageName);
-		}
+			if (!NextFrame)
+			{
+				return Current;
+			}
+			var easingValue = EasingValue;
+			double dx = Last.X - First.X;
+			double dy = Last.Y - First.Y;
 
-		public static Icon GetGreenshotIcon()
-		{
-			return GetIcon("Greenshot.Icon");
-		}
-
-		public static Image GetGreenshotImage()
-		{
-			return GetImage("Greenshot.Image");
+			var x = First.X + (int) (easingValue * dx);
+			var y = First.Y + (int) (easingValue * dy);
+			Current = new Point(x, y);
+			return Current;
 		}
 	}
 }

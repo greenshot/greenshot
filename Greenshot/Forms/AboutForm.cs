@@ -39,6 +39,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using Dapplo.Log;
+using GreenshotPlugin.Animation;
 
 #endregion
 
@@ -179,14 +180,14 @@ namespace Greenshot.Forms
 				if (IsTerminalServerSession)
 				{
 					// No animation
-					pixelAnimation = new RectangleAnimator(new Rectangle(gSpot.X, gSpot.Y, w - 2, w - 2), new Rectangle(gSpot.X, gSpot.Y, w - 2, w - 2), 1, EasingType.Cubic,
-						EasingMode.EaseIn);
+					pixelAnimation = new RectangleAnimator(new Rectangle(gSpot.X, gSpot.Y, w - 2, w - 2), new Rectangle(gSpot.X, gSpot.Y, w - 2, w - 2), 1, EasingTypes.Cubic,
+						EasingModes.EaseIn);
 				}
 				else
 				{
 					// Create the animation, first we do nothing (on the final destination)
 					var standingStill = new Rectangle(gSpot.X + offset, gSpot.Y + offset, 0, 0);
-					pixelAnimation = new RectangleAnimator(standingStill, standingStill, pixelWaitFrames, EasingType.Quintic, EasingMode.EaseIn);
+					pixelAnimation = new RectangleAnimator(standingStill, standingStill, pixelWaitFrames, EasingTypes.Quintic, EasingModes.EaseIn);
 					// And than we size to the wanted size.
 					pixelAnimation.QueueDestinationLeg(new Rectangle(gSpot.X, gSpot.Y, w - 2, w - 2), frames);
 				}
@@ -201,8 +202,8 @@ namespace Greenshot.Forms
 			_hasAnimationsLeft = true;
 
 			// Pixel Color cycle colors, here we use a pre-animated loop which stores the values.
-			var pixelColorAnimator = new ColorAnimator(_pixelColor, Color.FromArgb(255, 255, 255), 6, EasingType.Quadratic, EasingMode.EaseIn);
-			pixelColorAnimator.QueueDestinationLeg(_pixelColor, 6, EasingType.Quadratic, EasingMode.EaseOut);
+			var pixelColorAnimator = new ColorAnimator(_pixelColor, Color.FromArgb(255, 255, 255), 6, EasingTypes.Quadratic, EasingModes.EaseIn);
+			pixelColorAnimator.QueueDestinationLeg(_pixelColor, 6, EasingTypes.Quadratic, EasingModes.EaseOut);
 			do
 			{
 				_colorFlow.Add(pixelColorAnimator.Current);
@@ -210,7 +211,7 @@ namespace Greenshot.Forms
 			} while (pixelColorAnimator.HasNext);
 
 			// color animation for the background
-			_backgroundAnimation = new ColorAnimator(BackColor, _backColor, FramesForMillis(5000), EasingType.Linear, EasingMode.EaseIn);
+			_backgroundAnimation = new ColorAnimator(BackColor, _backColor, FramesForMillis(5000), EasingTypes.Linear, EasingModes.EaseIn);
 		}
 
 		/// <summary>

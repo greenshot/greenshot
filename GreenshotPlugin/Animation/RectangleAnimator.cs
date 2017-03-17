@@ -21,40 +21,46 @@
 
 #endregion
 
-#region Usings
+#region using
 
-using System.ComponentModel;
 using System.Drawing;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace GreenshotPlugin.Animation
 {
 	/// <summary>
-	///     Centralized storage of the icons & bitmaps
+	///     Implementation of the RectangleAnimator
 	/// </summary>
-	public static class GreenshotResources
+	public class RectangleAnimator : AnimatorBase<Rectangle>
 	{
-		private static readonly ComponentResourceManager greenshotResources = new ComponentResourceManager(typeof(GreenshotResources));
-
-		public static Image GetImage(string imageName)
+		public RectangleAnimator(Rectangle first, Rectangle last, int frames, EasingTypes easingType = EasingTypes.Linear, EasingModes easingMode = EasingModes.EaseIn)
+			: base(first, last, frames, easingType, easingMode)
 		{
-			return (Image) greenshotResources.GetObject(imageName);
 		}
 
-		public static Icon GetIcon(string imageName)
+		/// <summary>
+		///     Calculate the next frame object
+		/// </summary>
+		/// <returns>Rectangle</returns>
+		public override Rectangle Next()
 		{
-			return (Icon) greenshotResources.GetObject(imageName);
-		}
+			if (!NextFrame)
+			{
+				return Current;
+			}
+			var easingValue = EasingValue;
+			double dx = Last.X - First.X;
+			double dy = Last.Y - First.Y;
 
-		public static Icon GetGreenshotIcon()
-		{
-			return GetIcon("Greenshot.Icon");
-		}
-
-		public static Image GetGreenshotImage()
-		{
-			return GetImage("Greenshot.Image");
+			var x = First.X + (int) (easingValue * dx);
+			var y = First.Y + (int) (easingValue * dy);
+			double dw = Last.Width - First.Width;
+			double dh = Last.Height - First.Height;
+			var width = First.Width + (int) (easingValue * dw);
+			var height = First.Height + (int) (easingValue * dh);
+			Current = new Rectangle(x, y, width, height);
+			return Current;
 		}
 	}
 }

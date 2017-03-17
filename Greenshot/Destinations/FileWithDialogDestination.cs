@@ -65,7 +65,7 @@ namespace Greenshot.Destinations
 
 		public override Image DisplayIcon
 		{
-			get { return GreenshotResources.getImage("Save.Image"); }
+			get { return GreenshotResources.GetImage("Save.Image"); }
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)

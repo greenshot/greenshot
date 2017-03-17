@@ -106,7 +106,7 @@ namespace Greenshot.Forms
 				ex.Data.Add("more information here", "http://support.microsoft.com/kb/943140");
 				throw;
 			}
-			notifyIcon.Icon = GreenshotResources.getGreenshotIcon();
+			notifyIcon.Icon = GreenshotResources.GetGreenshotIcon();
 
 			// Disable access to the settings, for feature #3521446
 			contextmenu_settings.Visible = !_conf.DisableSettings;
@@ -419,7 +419,7 @@ namespace Greenshot.Forms
 			// A dirty fix to make sure the messagebox is visible as a Greenshot window on the taskbar
 			using (var multiInstanceForm = new Form
 			{
-				Icon = GreenshotResources.getGreenshotIcon(),
+				Icon = GreenshotResources.GetGreenshotIcon(),
 				ShowInTaskbar = true,
 				MaximizeBox = false,
 				MinimizeBox = false,

@@ -181,7 +181,7 @@ namespace Greenshot.Helpers
 
 			if ((options & ScaleOptions.Rational) == ScaleOptions.Rational)
 			{
-				adjustCoordsForRationalScale(originalRectangle, resizeHandlePosition, ref resizeHandleCoords);
+				AdjustCoordsForRationalScale(originalRectangle, resizeHandlePosition, ref resizeHandleCoords);
 			}
 
 			if ((options & ScaleOptions.Centered) == ScaleOptions.Centered)
@@ -190,17 +190,17 @@ namespace Greenshot.Helpers
 				var rectCenterX = originalRectangle.Left + originalRectangle.Width / 2;
 				var rectCenterY = originalRectangle.Top + originalRectangle.Height / 2;
 				// scale rectangle using handle coordinates
-				scale(ref originalRectangle, resizeHandlePosition, resizeHandleCoords);
+				ScaleInternal(ref originalRectangle, resizeHandlePosition, resizeHandleCoords);
 				// mirror handle coordinates via rectangle center coordinates
 				resizeHandleCoords.X -= 2 * (resizeHandleCoords.X - rectCenterX);
 				resizeHandleCoords.Y -= 2 * (resizeHandleCoords.Y - rectCenterY);
 				// scale again with opposing handle and mirrored coordinates
 				resizeHandlePosition = (Positions) (((int) resizeHandlePosition + 4) % 8);
-				scale(ref originalRectangle, resizeHandlePosition, resizeHandleCoords);
+				ScaleInternal(ref originalRectangle, resizeHandlePosition, resizeHandleCoords);
 			}
 			else
 			{
-				scale(ref originalRectangle, resizeHandlePosition, resizeHandleCoords);
+				ScaleInternal(ref originalRectangle, resizeHandlePosition, resizeHandleCoords);
 			}
 		}
 
@@ -213,7 +213,7 @@ namespace Greenshot.Helpers
 		///     e.g. Gripper.POSITION_TOP_LEFT
 		/// </param>
 		/// <param name="resizeHandleCoords">coordinates of the used handle/gripper</param>
-		private static void scale(ref RectangleF originalRectangle, Positions resizeHandlePosition, PointF resizeHandleCoords)
+		private static void ScaleInternal(ref RectangleF originalRectangle, Positions resizeHandlePosition, PointF resizeHandleCoords)
 		{
 			switch (resizeHandlePosition)
 			{
@@ -273,7 +273,7 @@ namespace Greenshot.Helpers
 		///     coordinates of the used handle/gripper, adjusted coordinates will be written to this
 		///     reference
 		/// </param>
-		private static void adjustCoordsForRationalScale(RectangleF originalRectangle, Positions resizeHandlePosition, ref PointF resizeHandleCoords)
+		private static void AdjustCoordsForRationalScale(RectangleF originalRectangle, Positions resizeHandlePosition, ref PointF resizeHandleCoords)
 		{
 			var originalRatio = originalRectangle.Width / originalRectangle.Height;
 			float newWidth, newHeight, newRatio;

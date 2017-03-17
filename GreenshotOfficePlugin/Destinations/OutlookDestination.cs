@@ -51,7 +51,7 @@ namespace GreenshotOfficePlugin.Destinations
 		private const string MapiClient = "Microsoft Outlook";
 		private static readonly LogSource Log = new LogSource();
 
-		private static readonly Image MailIcon = GreenshotResources.getImage("Email.Image");
+		private static readonly Image MailIcon = GreenshotResources.GetImage("Email.Image");
 		private static readonly OfficeConfiguration OfficeConfig = IniConfig.GetIniSection<OfficeConfiguration>();
 		private static readonly string ExePath;
 		private static readonly bool IsActiveFlag;

@@ -97,7 +97,7 @@ namespace GreenshotWin10Plugin
 							}
 						}
 						// Create logo
-						using (var logo = GreenshotResources.getGreenshotIcon().ToBitmap())
+						using (var logo = GreenshotResources.GetGreenshotIcon().ToBitmap())
 						{
 							using (var logoThumbnail = ImageHelper.CreateThumbnail(logo, 30, 30))
 							{

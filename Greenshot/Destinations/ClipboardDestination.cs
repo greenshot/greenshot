@@ -63,7 +63,7 @@ namespace Greenshot.Destinations
 
 		public override Image DisplayIcon
 		{
-			get { return GreenshotResources.getImage("Clipboard.Image"); }
+			get { return GreenshotResources.GetImage("Clipboard.Image"); }
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)

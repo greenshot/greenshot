@@ -264,7 +264,7 @@ namespace Greenshot
 			{
 				panel1.Controls.Add(_surface);
 			}
-			var backgroundForTransparency = GreenshotResources.getImage("Checkerboard.Image");
+			var backgroundForTransparency = GreenshotResources.GetImage("Checkerboard.Image");
 			if (_surface != null)
 			{
 				_surface.TransparencyBackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);

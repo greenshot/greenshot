@@ -55,13 +55,13 @@ namespace GreenshotPlugin.Core
 			}
 		}
 
-		private Accessible(IAccessible acc)
+		private Accessible(IAccessible accessible)
 		{
-			if (acc == null)
+			if (accessible == null)
 			{
-				throw new Exception();
+				throw new ArgumentNullException(nameof(accessible));
 			}
-			accessible = acc;
+			this.accessible = accessible;
 		}
 
 		private Accessible[] Children
@@ -78,10 +78,10 @@ namespace GreenshotPlugin.Core
 				var list = new List<Accessible>(res.Length);
 				foreach (var obj in res)
 				{
-					var acc = obj as IAccessible;
-					if (acc != null)
+					var accessible = obj as IAccessible;
+					if (accessible != null)
 					{
-						list.Add(new Accessible(acc));
+						list.Add(new Accessible(accessible));
 					}
 				}
 				return list.ToArray();

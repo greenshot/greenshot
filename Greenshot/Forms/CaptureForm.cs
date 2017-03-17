@@ -45,6 +45,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using Dapplo.Log;
+using GreenshotPlugin.Animation;
 
 #endregion
 
@@ -85,7 +86,7 @@ namespace Greenshot.Forms
 		/// </summary>
 		static CaptureForm()
 		{
-			var backgroundForTransparency = GreenshotResources.getImage("Checkerboard.Image");
+			var backgroundForTransparency = GreenshotResources.GetImage("Checkerboard.Image");
 			BackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
 		}
 
@@ -132,7 +133,7 @@ namespace Greenshot.Forms
 			// Initialize the animations, the window capture zooms out from the cursor to the window under the cursor 
 			if (UsedCaptureMode == CaptureMode.Window)
 			{
-				_windowAnimator = new RectangleAnimator(new Rectangle(_cursorPos, Size.Empty), _captureRect, FramesForMillis(700), EasingType.Quintic, EasingMode.EaseOut);
+				_windowAnimator = new RectangleAnimator(new Rectangle(_cursorPos, Size.Empty), _captureRect, FramesForMillis(700), EasingTypes.Quintic, EasingModes.EaseOut);
 			}
 
 			// Set the zoomer animation
@@ -200,7 +201,7 @@ namespace Greenshot.Forms
 			if (isOn)
 			{
 				// Initialize the zoom with a invalid position
-				_zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(int.MaxValue, int.MaxValue, 0, 0), FramesForMillis(1000), EasingType.Quintic, EasingMode.EaseOut);
+				_zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(int.MaxValue, int.MaxValue, 0, 0), FramesForMillis(1000), EasingTypes.Quintic, EasingModes.EaseOut);
 				VerifyZoomAnimation(_cursorPos, false);
 			}
 			else
@@ -316,7 +317,7 @@ namespace Greenshot.Forms
 							// "Fade out" Zoom
 							InitializeZoomer(false);
 							// "Fade in" window
-							_windowAnimator = new RectangleAnimator(new Rectangle(_cursorPos, Size.Empty), _captureRect, FramesForMillis(700), EasingType.Quintic, EasingMode.EaseOut);
+							_windowAnimator = new RectangleAnimator(new Rectangle(_cursorPos, Size.Empty), _captureRect, FramesForMillis(700), EasingTypes.Quintic, EasingModes.EaseOut);
 							_captureRect = Rectangle.Empty;
 							Invalidate();
 							break;

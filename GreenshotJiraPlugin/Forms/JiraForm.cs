@@ -58,7 +58,7 @@ namespace GreenshotJiraPlugin.Forms
 				var size = DpiHandler.ScaleWithDpi(CoreConfig.IconSize.Width, dpi);
 				_iconSize = new Size(size, size);
 			});
-			Icon = GreenshotResources.getGreenshotIcon();
+			Icon = GreenshotResources.GetGreenshotIcon();
 			AcceptButton = uploadButton;
 			CancelButton = cancelButton;
 

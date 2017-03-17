@@ -122,16 +122,16 @@ namespace GreenshotPlugin.Core
 				var clearTextBytes = Encoding.ASCII.GetBytes(clearText);
 				var rijn = SymmetricAlgorithm.Create();
 
-				using (var ms = new MemoryStream())
+				using (var memoryStream = new MemoryStream())
 				{
 					var rgbIV = Encoding.ASCII.GetBytes(RGBIV);
 					var key = Encoding.ASCII.GetBytes(KEY);
-					using (var cs = new CryptoStream(ms, rijn.CreateEncryptor(key, rgbIV), CryptoStreamMode.Write))
+					using (var cs = new CryptoStream(memoryStream, rijn.CreateEncryptor(key, rgbIV), CryptoStreamMode.Write))
 					{
 						cs.Write(clearTextBytes, 0, clearTextBytes.Length);
 						cs.FlushFinalBlock();
 
-						returnValue = Convert.ToBase64String(ms.ToArray());
+						returnValue = Convert.ToBase64String(memoryStream.ToArray());
 					}
 				}
 			}
@@ -153,7 +153,7 @@ namespace GreenshotPlugin.Core
 			try
 			{
 				var encryptedTextBytes = Convert.FromBase64String(encryptedText);
-				using (var ms = new MemoryStream())
+				using (var memoryStream = new MemoryStream())
 				{
 					var rijn = SymmetricAlgorithm.Create();
 
@@ -161,11 +161,11 @@ namespace GreenshotPlugin.Core
 					var rgbIV = Encoding.ASCII.GetBytes(RGBIV);
 					var key = Encoding.ASCII.GetBytes(KEY);
 
-					using (var cs = new CryptoStream(ms, rijn.CreateDecryptor(key, rgbIV), CryptoStreamMode.Write))
+					using (var cs = new CryptoStream(memoryStream, rijn.CreateDecryptor(key, rgbIV), CryptoStreamMode.Write))
 					{
 						cs.Write(encryptedTextBytes, 0, encryptedTextBytes.Length);
 						cs.FlushFinalBlock();
-						returnValue = Encoding.ASCII.GetString(ms.ToArray());
+						returnValue = Encoding.ASCII.GetString(memoryStream.ToArray());
 					}
 				}
 			}

@@ -1,4 +1,4 @@
-﻿#region Greenshot GNU General Public License
+#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
@@ -21,15 +21,32 @@
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace GreenshotPlugin.Animation
 {
-	public delegate TResult Func<out TResult>();
+	/// <summary>
+	///     Implementation of the IntAnimator
+	/// </summary>
+	public class IntAnimator : AnimatorBase<int>
+	{
+		public IntAnimator(int first, int last, int frames, EasingTypes easingType = EasingTypes.Linear, EasingModes easingMode = EasingModes.EaseIn)
+			: base(first, last, frames, easingType, easingMode)
+		{
+		}
 
-	public delegate TResult Func<in T, out TResult>(T arg);
-
-	public delegate TResult Func<in T1, in T2, out TResult>(T1 arg1, T2 arg2);
-
-	public delegate TResult Func<in T1, in T2, in T3, out TResult>(T1 arg1, T2 arg2, T3 arg3);
-
-	public delegate TResult Func<in T1, in T2, in T3, in T4, out TResult>(T1 arg1, T2 arg2, T3 arg3, T4 arg4);
+		/// <summary>
+		///     Calculate the next frame values
+		/// </summary>
+		/// <returns>int</returns>
+		public override int Next()
+		{
+			if (!NextFrame)
+			{
+				return Current;
+			}
+			var easingValue = EasingValue;
+			double delta = Last - First;
+			Current = First + (int) (easingValue * delta);
+			return Current;
+		}
+	}
 }

@@ -23,38 +23,21 @@
 
 #region Usings
 
-using System.ComponentModel;
-using System.Drawing;
-
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace GreenshotPlugin.Animation
 {
 	/// <summary>
-	///     Centralized storage of the icons & bitmaps
+	///     This class is used to store a animation leg
 	/// </summary>
-	public static class GreenshotResources
+	internal class AnimationLeg<T>
 	{
-		private static readonly ComponentResourceManager greenshotResources = new ComponentResourceManager(typeof(GreenshotResources));
+		public T Destination { get; set; }
 
-		public static Image GetImage(string imageName)
-		{
-			return (Image) greenshotResources.GetObject(imageName);
-		}
+		public EasingModes EasingMode { get; set; }
 
-		public static Icon GetIcon(string imageName)
-		{
-			return (Icon) greenshotResources.GetObject(imageName);
-		}
+		public EasingTypes EasingType { get; set; }
 
-		public static Icon GetGreenshotIcon()
-		{
-			return GetIcon("Greenshot.Icon");
-		}
-
-		public static Image GetGreenshotImage()
-		{
-			return GetImage("Greenshot.Image");
-		}
+		public int Frames { get; set; }
 	}
 }

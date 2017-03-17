@@ -144,18 +144,8 @@ namespace GreenshotPlugin.Core
 		/// </summary>
 		/// <param name="key"></param>
 		/// <param name="value"></param>
-		public void Add(TK key, TV value)
-		{
-			Add(key, value, null);
-		}
-
-		/// <summary>
-		///     Add a value to the cache
-		/// </summary>
-		/// <param name="key"></param>
-		/// <param name="value"></param>
 		/// <param name="secondsToExpire">optional value for the seconds to expire</param>
-		public void Add(TK key, TV value, int? secondsToExpire)
+		public void Add(TK key, TV value, int? secondsToExpire = null)
 		{
 			lock (_lockObject)
 			{
@@ -226,7 +216,7 @@ namespace GreenshotPlugin.Core
 					return;
 				}
 				_timerEvent = new Timer(secondsToExpire * 1000) {AutoReset = false};
-				_timerEvent.Elapsed += timerEvent_Elapsed;
+				_timerEvent.Elapsed += TimerEvent_Elapsed;
 				_timerEvent.Start();
 			}
 
@@ -243,7 +233,7 @@ namespace GreenshotPlugin.Core
 				}
 			}
 
-			private void timerEvent_Elapsed(object sender, ElapsedEventArgs e)
+			private void TimerEvent_Elapsed(object sender, ElapsedEventArgs e)
 			{
 				ExpireNow();
 			}

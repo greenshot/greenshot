@@ -91,8 +91,8 @@ namespace Greenshot.Helpers.IEInterop
 			var y = window3.screenTop - contentWindowLocation.Y;
 
 			// Release IHTMLWindow 2+3 com objects
-			releaseCom(window2);
-			releaseCom(window3);
+			ReleaseCom(window2);
+			ReleaseCom(window3);
 
 			_startLocation = new Point(x, y);
 			Init(document2, contentWindow);
@@ -208,7 +208,7 @@ namespace Greenshot.Helpers.IEInterop
 		///     Helper method to release com objects
 		/// </summary>
 		/// <param name="comObject"></param>
-		private void releaseCom(object comObject)
+		private void ReleaseCom(object comObject)
 		{
 			if (comObject != null)
 			{
@@ -288,9 +288,9 @@ namespace Greenshot.Helpers.IEInterop
 				}
 				Log.Debug().WriteLine("Zoomlevel {0}, {1}", _zoomLevelX, _zoomLevelY);
 				// Release com objects
-				releaseCom(window2);
-				releaseCom(screen);
-				releaseCom(screen2);
+				ReleaseCom(window2);
+				ReleaseCom(screen);
+				ReleaseCom(screen2);
 			}
 			catch (Exception e)
 			{
@@ -346,7 +346,7 @@ namespace Greenshot.Helpers.IEInterop
 							Log.Debug().WriteLine("Skipping frame {0}", frameData.Name);
 						}
 						// Clean up frameWindow
-						releaseCom(frameWindow);
+						ReleaseCom(frameWindow);
 					}
 					catch (Exception e)
 					{
@@ -354,7 +354,7 @@ namespace Greenshot.Helpers.IEInterop
 					}
 				}
 				// Clean up collection
-				releaseCom(frameCollection);
+				ReleaseCom(frameCollection);
 			}
 			catch (Exception ex)
 			{
@@ -370,7 +370,7 @@ namespace Greenshot.Helpers.IEInterop
 					{
 						CorrectFrameLocations(frameElement);
 						// Clean up frameElement
-						releaseCom(frameElement);
+						ReleaseCom(frameElement);
 					}
 					catch (Exception e)
 					{
@@ -402,7 +402,7 @@ namespace Greenshot.Helpers.IEInterop
 				// Release element, but prevent the frameElement to be released
 				if (oldElement != null)
 				{
-					releaseCom(oldElement);
+					ReleaseCom(oldElement);
 				}
 				oldElement = element;
 			} while (element != null);
@@ -412,7 +412,7 @@ namespace Greenshot.Helpers.IEInterop
 			var rec = element2.getBoundingClientRect();
 			var elementBoundingLocation = new Point(rec.left, rec.top);
 			// Release IHTMLRect
-			releaseCom(rec);
+			ReleaseCom(rec);
 			Log.Debug().WriteLine("Looking for iframe to correct at {0}", elementBoundingLocation);
 			foreach (var foundFrame in Frames)
 			{
@@ -533,7 +533,7 @@ namespace Greenshot.Helpers.IEInterop
 			var element = !_isDtd ? _document2.body : _document3.documentElement;
 			element.setAttribute(attribute, value, 1);
 			// Release IHTMLElement com object
-			releaseCom(element);
+			ReleaseCom(element);
 		}
 
 		/// <summary>
@@ -546,7 +546,7 @@ namespace Greenshot.Helpers.IEInterop
 			var element = !_isDtd ? _document2.body : _document3.documentElement;
 			var retVal = element.getAttribute(attribute, 1);
 			// Release IHTMLElement com object
-			releaseCom(element);
+			ReleaseCom(element);
 			return retVal;
 		}
 
