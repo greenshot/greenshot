@@ -30,7 +30,7 @@ using System.Windows.Forms;
 using GreenshotPlugin.Core;
 
 namespace Greenshot.Helpers {
-	public enum CommandEnum { OpenFile, Exit, FirstLaunch, ReloadConfig };
+	public enum CommandEnum { OpenFile, Exit, FirstLaunch, ReloadConfig, Capture };
 
 	/// <summary>
 	/// Code from vbAccelerator, location:
