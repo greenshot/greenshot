@@ -36,12 +36,7 @@ namespace GreenshotQiniuPlugin
         public int UploadJpegQuality { get; set; }
         [IniProperty("UploadReduceColors", Description = "Reduce color amount of the uploaded image to 256", DefaultValue = "False")]
         public bool UploadReduceColors { get; set; }
-        [IniProperty("UsePageLink", Description = "Use pagelink instead of direct link on the clipboard", DefaultValue = "False")]
-        public bool UsePageLink { get; set; }
 
-
-        [IniProperty("ImgQiniuUrl", Description = "Url to Qiniu cloud.", DefaultValue = "")]
-        public string ImgQiniuUrl { get; set; }
 
         [IniProperty("AccessKey", Description = "access key used for uploading", DefaultValue = "")]
         public string AccessKey { get; set; }
@@ -51,8 +46,14 @@ namespace GreenshotQiniuPlugin
 
         [IniProperty("Scope", Description = "scope key used for uploading", DefaultValue = "")]
         public string Scope { get; set; }
-      
-   
+
+        [IniProperty("DefaultDomain", Description = "default domain name of qiniu for specified scope", DefaultValue = "www.qiniu.com")]
+        public string DefaultDomain { get; set; }
+
+        [IniProperty("ImageNamePrefix", Description = "set Image Name Prefix ", DefaultValue = "prefix_")]
+        public string ImageNamePrefix { get; set; }
+
+
         /// <summary>
         /// A form for username/password
         /// </summary>

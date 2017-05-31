@@ -87,7 +87,7 @@ namespace GreenshotQiniuPlugin
             // Get configuration
             _config = IniConfig.GetIniSection<QiniuConfiguration>();
             _resources = new ComponentResourceManager(typeof(QiniuPlugin));
-            string text = Language.GetString("Qiniu", LangKey.configure);
+            string text = Language.GetString("qiniu", LangKey.configure);
             _itemPlugInConfig = new ToolStripMenuItem(text)
             {
                 Tag = _host,
@@ -138,10 +138,9 @@ namespace GreenshotQiniuPlugin
             SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, _config.UploadReduceColors);
             try
             {
-                string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
-                QiniuInfo qiniuInfo = null;
-             
-
+                string filename = _config.ImageNamePrefix + DateTime.Now.ToString("yyyyMMddHHmmss") + "." + _config.UploadFormat.ToString().ToLower();
+                Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
+              
                 string path = Directory.GetCurrentDirectory();
 
                 string fullPath = Path.Combine(path, filename);
@@ -149,39 +148,29 @@ namespace GreenshotQiniuPlugin
                 // public static void Save(ISurface surface, string fullPath, bool allowOverwrite, SurfaceOutputSettings outputSettings, bool copyPathToClipboard)
                 // Run upload in the background
                 ImageOutput.Save(surfaceToUpload,fullPath,true,outputSettings,true);
-                //new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("Qiniu", LangKey.communication_wait),
-                //    delegate
-                //    {
+                new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("qiniu", LangKey.communication_wait),
+                    delegate
+                    {
                 HttpResult result = QiniuUtils.UploadFile(fullPath,filename);
                
-                    //}
-                //);
+                    }
+                );
                 // This causes an exeption if the upload failed :)
-                Log.DebugFormat("Uploaded to qiniu page: " + qiniuInfo.Page);
-                uploadUrl = null;
-                try
-                {
-                    if (_config.UsePageLink)
-                    {
-                        uploadUrl = qiniuInfo.Page;
-                        Clipboard.SetText(qiniuInfo.Page);
-                    }
-                    else
-                    {
-                        uploadUrl = qiniuInfo.Original;
-                        Clipboard.SetText(qiniuInfo.Original);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Error("Can't write to clipboard: ", ex);
-                }
+                //Log.DebugFormat("Uploaded to qiniu page: " + qiniuInfo.Page);
+
+                uploadUrl = _config.DefaultDomain + filename;
+
+
+               Clipboard.SetText(uploadUrl);
+               
+                 
+             
                 return true;
             }
             catch (Exception e)
             {
                 Log.Error(e);
-                MessageBox.Show(Language.GetString("Qiniu", LangKey.upload_failure) + " " + e.Message);
+                MessageBox.Show(Language.GetString("qiniu", LangKey.upload_failure) + " " + e.Message);
             }
             uploadUrl = null;
             return false;

@@ -37,15 +37,18 @@
             this.gslblScope = new GreenshotPlugin.Controls.GreenshotLabel();
             this.buttonCancel = new GreenshotPlugin.Controls.GreenshotButton();
             this.buttonOK = new GreenshotPlugin.Controls.GreenshotButton();
-            this.checkbox_usepagelink = new GreenshotPlugin.Controls.GreenshotCheckBox();
             this.label_upload_format = new GreenshotPlugin.Controls.GreenshotLabel();
             this.combobox_uploadimageformat = new GreenshotPlugin.Controls.GreenshotComboBox();
+            this.gstbDefaultDomain = new GreenshotPlugin.Controls.GreenshotTextBox();
+            this.gslblDefaultDomain = new GreenshotPlugin.Controls.GreenshotLabel();
+            this.gstbImageNamePrefix = new GreenshotPlugin.Controls.GreenshotTextBox();
+            this.gslblImageNamePrefix = new GreenshotPlugin.Controls.GreenshotLabel();
             this.SuspendLayout();
             // 
             // gslblAccessKey
             // 
             this.gslblAccessKey.AutoSize = true;
-            this.gslblAccessKey.Location = new System.Drawing.Point(18, 85);
+            this.gslblAccessKey.Location = new System.Drawing.Point(18, 48);
             this.gslblAccessKey.Name = "gslblAccessKey";
             this.gslblAccessKey.Size = new System.Drawing.Size(65, 12);
             this.gslblAccessKey.TabIndex = 0;
@@ -53,26 +56,26 @@
             // 
             // gstbAccessKey
             // 
-            this.gstbAccessKey.Location = new System.Drawing.Point(107, 85);
+            this.gstbAccessKey.Location = new System.Drawing.Point(137, 48);
             this.gstbAccessKey.Name = "gstbAccessKey";
             this.gstbAccessKey.PropertyName = "AccessKey";
             this.gstbAccessKey.SectionName = "Qiniu";
-            this.gstbAccessKey.Size = new System.Drawing.Size(261, 21);
+            this.gstbAccessKey.Size = new System.Drawing.Size(241, 21);
             this.gstbAccessKey.TabIndex = 1;
             // 
             // gstbSecretKey
             // 
-            this.gstbSecretKey.Location = new System.Drawing.Point(107, 116);
+            this.gstbSecretKey.Location = new System.Drawing.Point(137, 79);
             this.gstbSecretKey.Name = "gstbSecretKey";
             this.gstbSecretKey.PropertyName = "SecretKey";
             this.gstbSecretKey.SectionName = "Qiniu";
-            this.gstbSecretKey.Size = new System.Drawing.Size(261, 21);
+            this.gstbSecretKey.Size = new System.Drawing.Size(241, 21);
             this.gstbSecretKey.TabIndex = 3;
             // 
             // gslblSecretKey
             // 
             this.gslblSecretKey.AutoSize = true;
-            this.gslblSecretKey.Location = new System.Drawing.Point(18, 119);
+            this.gslblSecretKey.Location = new System.Drawing.Point(18, 82);
             this.gslblSecretKey.Name = "gslblSecretKey";
             this.gslblSecretKey.Size = new System.Drawing.Size(65, 12);
             this.gslblSecretKey.TabIndex = 2;
@@ -80,17 +83,17 @@
             // 
             // gstbScope
             // 
-            this.gstbScope.Location = new System.Drawing.Point(107, 148);
+            this.gstbScope.Location = new System.Drawing.Point(137, 111);
             this.gstbScope.Name = "gstbScope";
             this.gstbScope.PropertyName = "Scope";
             this.gstbScope.SectionName = "Qiniu";
-            this.gstbScope.Size = new System.Drawing.Size(261, 21);
+            this.gstbScope.Size = new System.Drawing.Size(241, 21);
             this.gstbScope.TabIndex = 5;
             // 
             // gslblScope
             // 
             this.gslblScope.AutoSize = true;
-            this.gslblScope.Location = new System.Drawing.Point(18, 151);
+            this.gslblScope.Location = new System.Drawing.Point(18, 114);
             this.gslblScope.Name = "gslblScope";
             this.gslblScope.Size = new System.Drawing.Size(35, 12);
             this.gslblScope.TabIndex = 4;
@@ -120,19 +123,6 @@
             this.buttonOK.Text = "Ok";
             this.buttonOK.UseVisualStyleBackColor = true;
             // 
-            // checkbox_usepagelink
-            // 
-            this.checkbox_usepagelink.AutoSize = true;
-            this.checkbox_usepagelink.LanguageKey = "Qiniu.use_page_link";
-            this.checkbox_usepagelink.Location = new System.Drawing.Point(20, 48);
-            this.checkbox_usepagelink.Name = "checkbox_usepagelink";
-            this.checkbox_usepagelink.PropertyName = "UsePageLink";
-            this.checkbox_usepagelink.SectionName = "Qiniu";
-            this.checkbox_usepagelink.Size = new System.Drawing.Size(312, 16);
-            this.checkbox_usepagelink.TabIndex = 14;
-            this.checkbox_usepagelink.Text = "Use page link instead of image link on clipboard";
-            this.checkbox_usepagelink.UseVisualStyleBackColor = true;
-            // 
             // label_upload_format
             // 
             this.label_upload_format.LanguageKey = "Qiniu.label_upload_format";
@@ -146,19 +136,58 @@
             // 
             this.combobox_uploadimageformat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.combobox_uploadimageformat.FormattingEnabled = true;
-            this.combobox_uploadimageformat.Location = new System.Drawing.Point(107, 12);
+            this.combobox_uploadimageformat.Location = new System.Drawing.Point(137, 12);
             this.combobox_uploadimageformat.Name = "combobox_uploadimageformat";
             this.combobox_uploadimageformat.PropertyName = "UploadFormat";
             this.combobox_uploadimageformat.SectionName = "Qiniu";
-            this.combobox_uploadimageformat.Size = new System.Drawing.Size(261, 20);
+            this.combobox_uploadimageformat.Size = new System.Drawing.Size(241, 20);
             this.combobox_uploadimageformat.TabIndex = 13;
+            // 
+            // gstbDefaultDomain
+            // 
+            this.gstbDefaultDomain.Location = new System.Drawing.Point(137, 144);
+            this.gstbDefaultDomain.Name = "gstbDefaultDomain";
+            this.gstbDefaultDomain.PropertyName = "DefaultDomain";
+            this.gstbDefaultDomain.SectionName = "Qiniu";
+            this.gstbDefaultDomain.Size = new System.Drawing.Size(241, 21);
+            this.gstbDefaultDomain.TabIndex = 17;
+            // 
+            // gslblDefaultDomain
+            // 
+            this.gslblDefaultDomain.AutoSize = true;
+            this.gslblDefaultDomain.Location = new System.Drawing.Point(18, 147);
+            this.gslblDefaultDomain.Name = "gslblDefaultDomain";
+            this.gslblDefaultDomain.Size = new System.Drawing.Size(89, 12);
+            this.gslblDefaultDomain.TabIndex = 16;
+            this.gslblDefaultDomain.Text = "Default Domain";
+            // 
+            // gstbImageNamePrefix
+            // 
+            this.gstbImageNamePrefix.Location = new System.Drawing.Point(137, 178);
+            this.gstbImageNamePrefix.Name = "gstbImageNamePrefix";
+            this.gstbImageNamePrefix.PropertyName = "ImageNamePrefix";
+            this.gstbImageNamePrefix.SectionName = "Qiniu";
+            this.gstbImageNamePrefix.Size = new System.Drawing.Size(241, 21);
+            this.gstbImageNamePrefix.TabIndex = 19;
+            // 
+            // gslblImageNamePrefix
+            // 
+            this.gslblImageNamePrefix.AutoSize = true;
+            this.gslblImageNamePrefix.Location = new System.Drawing.Point(18, 181);
+            this.gslblImageNamePrefix.Name = "gslblImageNamePrefix";
+            this.gslblImageNamePrefix.Size = new System.Drawing.Size(107, 12);
+            this.gslblImageNamePrefix.TabIndex = 18;
+            this.gslblImageNamePrefix.Text = "Image Name Prefix";
             // 
             // SettingsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(396, 243);
-            this.Controls.Add(this.checkbox_usepagelink);
+            this.Controls.Add(this.gstbImageNamePrefix);
+            this.Controls.Add(this.gslblImageNamePrefix);
+            this.Controls.Add(this.gstbDefaultDomain);
+            this.Controls.Add(this.gslblDefaultDomain);
             this.Controls.Add(this.label_upload_format);
             this.Controls.Add(this.combobox_uploadimageformat);
             this.Controls.Add(this.buttonCancel);
@@ -173,6 +202,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "SettingsForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Qiniu image upload settings";
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -189,8 +219,11 @@
         private GreenshotPlugin.Controls.GreenshotLabel gslblScope;
         private GreenshotPlugin.Controls.GreenshotButton buttonCancel;
         private GreenshotPlugin.Controls.GreenshotButton buttonOK;
-        private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_usepagelink;
         private GreenshotPlugin.Controls.GreenshotLabel label_upload_format;
         private GreenshotPlugin.Controls.GreenshotComboBox combobox_uploadimageformat;
+        private GreenshotPlugin.Controls.GreenshotTextBox gstbDefaultDomain;
+        private GreenshotPlugin.Controls.GreenshotLabel gslblDefaultDomain;
+        private GreenshotPlugin.Controls.GreenshotTextBox gstbImageNamePrefix;
+        private GreenshotPlugin.Controls.GreenshotLabel gslblImageNamePrefix;
     }
 }

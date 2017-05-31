@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="简体中文" ietf="zh-CN" version="1.0.2" languagegroup="a" prefix="Qiniu">
+<language description="简体中文" ietf="zh-CN" version="1.0.2" languagegroup="a" prefix="qiniu">
 	<resources>
 		<resource name="anonymous_access">使用匿名连接</resource>
 		<resource name="CANCEL">取消</resource>
