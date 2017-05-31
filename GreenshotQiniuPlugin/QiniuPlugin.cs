@@ -158,7 +158,7 @@ namespace GreenshotQiniuPlugin
                 // This causes an exeption if the upload failed :)
                 //Log.DebugFormat("Uploaded to qiniu page: " + qiniuInfo.Page);
 
-                uploadUrl = _config.DefaultDomain + filename;
+                uploadUrl = "![]("+_config.DefaultDomain + filename+")";
 
 
                Clipboard.SetText(uploadUrl);
