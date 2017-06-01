@@ -25,7 +25,7 @@
 
 using System;
 using System.Drawing;
-using Dapplo.Windows.Native;
+using Dapplo.Windows.Gdi32;
 using Greenshot.Drawing.Fields;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces.Drawing;
@@ -69,7 +69,7 @@ namespace Greenshot.Drawing.Filters
 				graphics.SetClip(applyRect);
 				graphics.ExcludeClip(rect);
 			}
-			if (!GdiPlus.IsBlurPossible(blurRadius) || !GdiPlus.DrawWithBlur(graphics, applyBitmap, applyRect, null, null, blurRadius, false))
+			if (!GdiPlusApi.IsBlurPossible(blurRadius) || !GdiPlusApi.DrawWithBlur(graphics, applyBitmap, applyRect, null, null, blurRadius, false))
 			{
 				using (var fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, area: applyRect))
 				{

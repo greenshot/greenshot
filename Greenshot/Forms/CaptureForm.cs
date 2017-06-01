@@ -33,11 +33,7 @@ using System.Globalization;
 using System.Linq;
 using System.Security.Permissions;
 using System.Windows.Forms;
-using Dapplo.Windows;
 using Dapplo.Windows.Desktop;
-using Dapplo.Windows.Enums;
-using Dapplo.Windows.Extensions;
-using Dapplo.Windows.Native;
 using Greenshot.Drawing;
 using Greenshot.Helpers;
 using GreenshotPlugin.Controls;
@@ -45,6 +41,9 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using Dapplo.Log;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.User32;
+using Dapplo.Windows.User32.Enums;
 using GreenshotPlugin.Animation;
 
 #endregion
@@ -471,7 +470,7 @@ namespace Greenshot.Forms
 		private void OnMouseMove(object sender, MouseEventArgs e)
 		{
 			// Make sure the mouse coordinates are fixed, when pressing shift
-			_mouseMovePos = FixMouseCoordinates(User32.GetCursorLocation());
+			_mouseMovePos = FixMouseCoordinates(User32Api.GetCursorLocation());
 			_mouseMovePos = WindowCapture.GetLocationRelativeToScreenBounds(_mouseMovePos);
 		}
 

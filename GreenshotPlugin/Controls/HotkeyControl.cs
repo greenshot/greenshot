@@ -32,7 +32,7 @@ using System.Windows.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
-using Dapplo.Windows;
+using Dapplo.Windows.Common;
 
 #endregion
 

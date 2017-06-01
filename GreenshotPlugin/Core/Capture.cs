@@ -225,7 +225,7 @@ namespace GreenshotPlugin.Core
 		{
 			if (disposing)
 			{
-				_image.Dispose();
+				_image?.Dispose();
 				_cursor?.Dispose();
 			}
 			_image = null;

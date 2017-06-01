@@ -33,7 +33,7 @@ using System.Threading.Tasks;
 using Dapplo.Jira;
 using Dapplo.Log;
 using Dapplo.Windows.Desktop;
-using Dapplo.Windows.Native;
+using Dapplo.Windows.User32;
 
 #endregion
 
@@ -60,7 +60,7 @@ namespace GreenshotJiraPlugin
 			_maxEntries = maxEntries;
 
 			_winEventObservable = WinEventHook.WindowTileChangeObservable()
-				.Select(info => User32.GetText(info.Handle))
+				.Select(info => User32Api.GetText(info.Handle))
 				.Where(title => !string.IsNullOrEmpty(title))
 				.Subscribe(MonitorTitleChangeEvent);
 		}

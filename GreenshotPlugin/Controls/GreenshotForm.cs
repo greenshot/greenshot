@@ -38,6 +38,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using Dapplo.Log;
+using Dapplo.Windows.Dpi.Forms;
 
 #endregion
 
@@ -74,7 +75,7 @@ namespace GreenshotPlugin.Controls
 		{
 			int i = 0;
 			// Add the Dapplo.Windows DPI change handler
-			FormDpiHandler = this.HandleDpiChanges();
+			FormDpiHandler = this.AttachFormDpiHandler();
 			ScaleHandler = BitmapScaleHandler.WithComponentResourceManager(FormDpiHandler, GetType(), (bitmap, dpi) =>
 			{
 				var scaled = (Bitmap) bitmap.ScaleIconForDisplaying(dpi);

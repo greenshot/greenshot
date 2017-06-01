@@ -30,7 +30,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using Dapplo.Log;
-using GreenshotPlugin.Core;
 
 #endregion
 

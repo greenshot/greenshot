@@ -27,10 +27,11 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using Dapplo.Windows.Enums;
-using Dapplo.Windows.Native;
-using Dapplo.Windows.SafeHandles;
-using Dapplo.Windows.Structs;
+using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Messages;
+using Dapplo.Windows.User32;
+using Dapplo.Windows.User32.SafeHandles;
+using Dapplo.Windows.User32.Structs;
 using Greenshot.Forms;
 
 #endregion
@@ -78,7 +79,7 @@ namespace Greenshot.Controls
 				{
 					if ((int) m.WParam == VkEsc)
 					{
-						User32.ReleaseCapture();
+						User32Api.ReleaseCapture();
 					}
 				}
 			}
@@ -101,10 +102,10 @@ namespace Greenshot.Controls
 			using (var iconHandle = new SafeIconHandle(bitmap.GetHicon()))
 			{
 				IconInfo iconInfo;
-				User32.GetIconInfo(iconHandle, out iconInfo);
+				User32Api.GetIconInfo(iconHandle, out iconInfo);
 				iconInfo.Hotspot = new POINT(hotspotX, hotspotY);
 				iconInfo.IsIcon = false;
-				var icon = User32.CreateIconIndirect(ref iconInfo);
+				var icon = User32Api.CreateIconIndirect(ref iconInfo);
 				return new Cursor(icon);
 			}
 		}
@@ -136,7 +137,7 @@ namespace Greenshot.Controls
 		{
 			if (e.Button == MouseButtons.Left)
 			{
-				User32.SetCapture(Handle);
+				User32Api.SetCapture(Handle);
 				_movableShowColorForm.MoveTo(PointToScreen(new Point(e.X, e.Y)));
 			}
 			base.OnMouseDown(e);
@@ -151,7 +152,7 @@ namespace Greenshot.Controls
 			if (e.Button == MouseButtons.Left)
 			{
 				//Release Capture should consume MouseUp when canceled with the escape key 
-				User32.ReleaseCapture();
+				User32Api.ReleaseCapture();
 				PipetteUsed?.Invoke(this, new PipetteUsedArgs(_movableShowColorForm.color));
 			}
 			base.OnMouseUp(e);

@@ -28,11 +28,10 @@ using System.IO;
 using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
-using Dapplo.Windows.Enums;
-using Dapplo.Windows.Native;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using Dapplo.Log;
+using Dapplo.Windows.Multimedia;
 
 #endregion
 
@@ -88,12 +87,12 @@ namespace Greenshot.Helpers
 			{
 				return;
 			}
-			var soundFlags = SoundFlags.SND_ASYNC | SoundFlags.SND_MEMORY | SoundFlags.SND_NOWAIT | SoundFlags.SND_NOSTOP;
+			var soundFlags = SoundSettings.Async | SoundSettings.Memory | SoundSettings.NoWait | SoundSettings.NoStop;
 			try
 			{
 				if (_gcHandle != null)
 				{
-					WinMM.PlaySound(_gcHandle.Value.AddrOfPinnedObject(), UIntPtr.Zero, soundFlags);
+					WinMm.Play(_gcHandle.Value.AddrOfPinnedObject(), soundFlags);
 				}
 			}
 			catch (Exception e)
@@ -106,12 +105,13 @@ namespace Greenshot.Helpers
 		{
 			try
 			{
-				if (_gcHandle != null)
-				{
-					WinMM.PlaySound(null, (UIntPtr) 0, 0);
-					_gcHandle.Value.Free();
-					_gcHandle = null;
-				}
+			    if (_gcHandle == null)
+			    {
+			        return;
+			    }
+			    WinMm.StopPlaying();
+			    _gcHandle.Value.Free();
+			    _gcHandle = null;
 			}
 			catch (Exception e)
 			{

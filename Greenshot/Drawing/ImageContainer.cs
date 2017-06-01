@@ -33,7 +33,6 @@ using GreenshotPlugin.Effects;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces.Drawing;
 using Dapplo.Log;
-using GreenshotPlugin.Core;
 
 #endregion
 

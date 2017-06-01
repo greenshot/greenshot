@@ -26,8 +26,8 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Dapplo.Windows.Native;
-using Dapplo.Windows.SafeHandles;
+using Dapplo.Windows.Gdi32;
+using Dapplo.Windows.Gdi32.SafeHandles;
 
 #endregion
 
@@ -110,7 +110,7 @@ namespace Greenshot.Forms
 			{
 				try
 				{
-					var pixel = Gdi32.GetPixel(screenDc, screenCoordinates.X, screenCoordinates.Y);
+					var pixel = Gdi32Api.GetPixel(screenDc, screenCoordinates.X, screenCoordinates.Y);
 					var color = Color.FromArgb(255, (int) (pixel & 0xFF), (int) (pixel & 0xFF00) >> 8, (int) (pixel & 0xFF0000) >> 16);
 					return color;
 				}

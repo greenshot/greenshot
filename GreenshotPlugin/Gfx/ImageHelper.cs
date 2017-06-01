@@ -31,7 +31,9 @@ using System.Drawing.Imaging;
 using System.IO;
 using Dapplo.Log;
 using Dapplo.Windows.Dpi;
+using Dapplo.Windows.Gdi32;
 using Dapplo.Windows.Native;
+using Dapplo.Windows.User32;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.Effects;
@@ -497,11 +499,11 @@ namespace GreenshotPlugin.Gfx
 			{
 				if (isLarge && !IntPtr.Zero.Equals(small))
 				{
-					User32.DestroyIcon(small);
+				    User32Api.DestroyIcon(small);
 				}
 				if (isSmall && !IntPtr.Zero.Equals(large))
 				{
-					User32.DestroyIcon(large);
+					User32Api.DestroyIcon(large);
 				}
 			}
 			return returnIcon;
@@ -1026,7 +1028,7 @@ namespace GreenshotPlugin.Gfx
 			{
 				shadowSize++;
 			}
-			var useGdiBlur = GdiPlus.IsBlurPossible(shadowSize);
+			var useGdiBlur = GdiPlusApi.IsBlurPossible(shadowSize);
 			// Create "mask" for the shadow
 			var maskMatrix = new ColorMatrix
 			{
@@ -1050,7 +1052,7 @@ namespace GreenshotPlugin.Gfx
 			{
 				// Use GDI Blur
 				var newImageRectangle = new Rectangle(0, 0, returnImage.Width, returnImage.Height);
-				useGdiBlur = GdiPlus.ApplyBlur(returnImage, newImageRectangle, shadowSize + 1, false);
+				useGdiBlur = GdiPlusApi.ApplyBlur(returnImage, newImageRectangle, shadowSize + 1, false);
 			}
 			if (!useGdiBlur)
 			{

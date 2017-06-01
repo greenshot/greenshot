@@ -28,7 +28,6 @@ using System.IO;
 using System.Windows.Forms;
 using Dapplo.Log;
 using Microsoft.Win32;
-using GreenshotPlugin.Core;
 
 #endregion
 

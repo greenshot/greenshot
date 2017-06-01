@@ -30,7 +30,6 @@ using System.IO;
 using System.Runtime.Serialization;
 using GreenshotPlugin.Interfaces.Drawing;
 using Dapplo.Log;
-using GreenshotPlugin.Core;
 
 #endregion
 

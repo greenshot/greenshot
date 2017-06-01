@@ -30,9 +30,10 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-using Dapplo.Windows.Enums;
-using Dapplo.Windows.Native;
-using Dapplo.Windows.Structs;
+using Dapplo.Windows.Kernel32;
+using Dapplo.Windows.Kernel32.Enums;
+using Dapplo.Windows.Kernel32.Structs;
+using Dapplo.Windows.User32;
 using GreenshotPlugin.IniFile;
 
 #endregion
@@ -118,7 +119,7 @@ namespace Greenshot.Helpers
 					environment.Append(", ");
 				}
 				// Get some important information for fixing GDI related Problems
-				environment.AppendFormat("GDI object count: {0}", User32.GetGuiResourcesGdiCount());
+				environment.AppendFormat("GDI object count: {0}", User32Api.GetGuiResourcesGdiCount());
 				if (newline)
 				{
 					environment.AppendLine();
@@ -127,7 +128,7 @@ namespace Greenshot.Helpers
 				{
 					environment.Append(", ");
 				}
-				environment.AppendFormat("User object count: {0}", User32.GetGuiResourcesUserCount());
+				environment.AppendFormat("User object count: {0}", User32Api.GetGuiResourcesUserCount());
 			}
 			else
 			{
@@ -242,7 +243,7 @@ namespace Greenshot.Helpers
 				var servicePack = string.Empty;
 				var osVersionInfo = OsVersionInfoEx.Create();
 
-				if (Kernel32.GetVersionEx(ref osVersionInfo))
+				if (Kernel32Api.GetVersionEx(ref osVersionInfo))
 				{
 					servicePack = osVersionInfo.ServicePackVersion;
 				}
@@ -273,7 +274,7 @@ namespace Greenshot.Helpers
 
 				var osVersion = Environment.OSVersion;
 				var osVersionInfo = OsVersionInfoEx.Create();
-				if (!Kernel32.GetVersionEx(ref osVersionInfo))
+				if (!Kernel32Api.GetVersionEx(ref osVersionInfo))
 				{
 					_sEdition = edition;
 					return edition;
@@ -369,7 +370,7 @@ namespace Greenshot.Helpers
 				else if (majorVersion == 6)
 				{
 					WindowsProducts ed;
-					if (Kernel32.GetProductInfo(majorVersion, minorVersion, osVersionInfo.ServicePackMajor, osVersionInfo.ServicePackMinor, out ed))
+					if (Kernel32Api.GetProductInfo(majorVersion, minorVersion, osVersionInfo.ServicePackMajor, osVersionInfo.ServicePackMinor, out ed))
 					{
 						var memberInfo = ed.GetType().GetMember(ed.ToString()).FirstOrDefault();
 
@@ -410,7 +411,7 @@ namespace Greenshot.Helpers
 
 				var osVersion = Environment.OSVersion;
 				var osVersionInfo = OsVersionInfoEx.Create();
-				if (!Kernel32.GetVersionEx(ref osVersionInfo))
+				if (!Kernel32Api.GetVersionEx(ref osVersionInfo))
 				{
 					_name = name;
 					return name;

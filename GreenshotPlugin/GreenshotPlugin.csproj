@@ -37,15 +37,49 @@
   <ItemGroup>
     <Reference Include="Accessibility" />
     <Reference Include="CustomMarshalers" />
-    <Reference Include="Dapplo.Log, Version=1.0.23.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Log.1.0.23\lib\net45\Dapplo.Log.dll</HintPath>
+    <Reference Include="Dapplo.Log, Version=1.0.29.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Log.1.0.29\lib\net45\Dapplo.Log.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Windows, Version=0.3.29.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.0.3.29\lib\net45\Dapplo.Windows.dll</HintPath>
+    <Reference Include="Dapplo.Windows, Version=0.4.33.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.0.4.33\lib\net45\Dapplo.Windows.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Google.Protobuf, Version=3.2.0.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
-      <HintPath>..\packages\Google.Protobuf.3.2.0\lib\net45\Google.Protobuf.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Common, Version=0.4.33.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Common.0.4.33\lib\net45\Dapplo.Windows.Common.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Dapplo.Windows.DesktopWindowsManager, Version=0.4.33.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.DesktopWindowsManager.0.4.33\lib\net45\Dapplo.Windows.DesktopWindowsManager.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Dapplo.Windows.Dpi, Version=0.4.33.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Dpi.0.4.33\lib\net45\Dapplo.Windows.Dpi.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Dapplo.Windows.Gdi32, Version=0.4.33.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Gdi32.0.4.33\lib\net45\Dapplo.Windows.Gdi32.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Dapplo.Windows.Input, Version=0.4.33.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Input.0.4.33\lib\net45\Dapplo.Windows.Input.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Dapplo.Windows.Kernel32, Version=0.4.33.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Kernel32.0.4.33\lib\net45\Dapplo.Windows.Kernel32.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Dapplo.Windows.Messages, Version=0.4.33.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Messages.0.4.33\lib\net45\Dapplo.Windows.Messages.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Dapplo.Windows.User32, Version=0.4.33.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.User32.0.4.33\lib\net45\Dapplo.Windows.User32.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Google.Protobuf, Version=3.3.0.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Protobuf.3.3.0\lib\net45\Google.Protobuf.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -315,7 +349,7 @@
   <ItemGroup />
   <PropertyGroup>
     <PreBuildEvent>cd $(SolutionDir)$(ProjectName)\FileFormat
-for %25%25P in (*.proto) do $(SolutionDir)packages\Google.Protobuf.Tools.3.2.0\tools\windows_x64\protoc.exe -I=. --csharp_out=. %25%25P
+for %25%25P in (*.proto) do $(SolutionDir)packages\Google.Protobuf.Tools.3.3.0\tools\windows_x64\protoc.exe -I=. --csharp_out=. %25%25P
 </PreBuildEvent>
   </PropertyGroup>
 </Project>

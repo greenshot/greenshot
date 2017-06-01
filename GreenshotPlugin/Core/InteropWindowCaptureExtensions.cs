@@ -29,12 +29,15 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
 using Dapplo.Log;
-using Dapplo.Windows;
 using Dapplo.Windows.App;
+using Dapplo.Windows.Common;
+using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
-using Dapplo.Windows.Enums;
-using Dapplo.Windows.Native;
-using Dapplo.Windows.Structs;
+using Dapplo.Windows.DesktopWindowsManager;
+using Dapplo.Windows.Gdi32;
+using Dapplo.Windows.Kernel32;
+using Dapplo.Windows.User32;
+using Dapplo.Windows.User32.Enums;
 using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
@@ -58,7 +61,7 @@ namespace GreenshotPlugin.Core
 		public static string GetProcessPath(this IInteropWindow interopWindow)
 		{
 			var processid = interopWindow.GetProcessId();
-			return Kernel32.GetProcessPath(processid);
+			return Kernel32Api.GetProcessPath(processid);
 		}
 
 		/// <summary>
@@ -71,7 +74,7 @@ namespace GreenshotPlugin.Core
 		{
 			try
 			{
-				using (var appIcon = User32.GetIcon(interopWindow.Handle, useLargeIcon))
+				using (var appIcon = User32Api.GetIcon(interopWindow.Handle, useLargeIcon))
 				{
 					if (appIcon != null)
 					{
@@ -153,11 +156,11 @@ namespace GreenshotPlugin.Core
 				{
 					using (var safeDeviceContext = graphics.GetSafeDeviceContext())
 					{
-						var printSucceeded = User32.PrintWindow(nativeWindow.Handle, safeDeviceContext.DangerousGetHandle(), 0x0);
+						var printSucceeded = User32Api.PrintWindow(nativeWindow.Handle, safeDeviceContext.DangerousGetHandle(), 0x0);
 						if (!printSucceeded)
 						{
 							// something went wrong, most likely a "0x80004005" (Acess Denied) when using UAC
-							exceptionOccured = User32.CreateWin32Exception("PrintWindow");
+							exceptionOccured = User32Api.CreateWin32Exception("PrintWindow");
 						}
 					}
 

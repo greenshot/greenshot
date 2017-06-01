@@ -30,7 +30,6 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using Dapplo.Windows.Desktop;
 using Dapplo.Log;
-using GreenshotPlugin.Core;
 using mshtml;
 using IServiceProvider = GreenshotPlugin.Interop.IServiceProvider;
 

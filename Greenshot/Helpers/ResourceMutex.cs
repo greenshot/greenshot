@@ -28,7 +28,6 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Threading;
 using Dapplo.Log;
-using GreenshotPlugin.Core;
 
 #endregion
 

@@ -31,7 +31,6 @@ using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using Dapplo.Windows.Native;
 using Greenshot.Configuration;
 using Greenshot.Destinations;
 using Greenshot.Forms;
@@ -42,7 +41,8 @@ using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using Dapplo.Log;
-using Dapplo.Windows;
+using Dapplo.Windows.Common;
+using Dapplo.Windows.DesktopWindowsManager;
 
 #endregion
 

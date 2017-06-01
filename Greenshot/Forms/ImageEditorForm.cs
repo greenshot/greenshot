@@ -29,13 +29,11 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Dpi;
-using Dapplo.Windows.Native;
 using Greenshot.Configuration;
 using Greenshot.Destinations;
 using Greenshot.Drawing;
@@ -53,6 +51,8 @@ using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Drawing;
 using GreenshotPlugin.Interfaces.Forms;
 using Dapplo.Log;
+using Dapplo.Windows.Kernel32;
+using Dapplo.Windows.User32;
 
 #endregion
 
@@ -197,7 +197,7 @@ namespace Greenshot
 				EditorConfiguration.ResetEditorPlacement();
 			}
 			var placement = EditorConfiguration.GetEditorPlacement();
-			User32.SetWindowPlacement(Handle, ref placement);
+			User32Api.SetWindowPlacement(Handle, ref placement);
 
 			// init surface
 			Surface = iSurface;
@@ -210,7 +210,7 @@ namespace Greenshot
 			HideToolstripItems();
 
 			// Make the clipboard buttons update
-			_clipboardSubscription = ClipboardMonitor.ClipboardUpdateEvents.Subscribe(args =>
+			_clipboardSubscription = ClipboardMonitor.OnUpdate.Subscribe(args =>
 			{
 				UpdateClipboardSurfaceDependencies();
 			});
@@ -1568,7 +1568,7 @@ namespace Greenshot
 			GC.Collect();
 			if (coreConfiguration.MinimizeWorkingSetSize)
 			{
-				PsAPI.EmptyWorkingSet();
+				PsApi.EmptyWorkingSet();
 			}
 		}
 

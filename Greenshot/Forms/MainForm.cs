@@ -28,8 +28,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -38,7 +36,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Windows.Desktop;
-using Dapplo.Windows.Native;
 using Greenshot.Configuration;
 using Greenshot.Destinations;
 using Greenshot.Drawing;
@@ -54,9 +51,12 @@ using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
 using Timer = System.Timers.Timer;
-using Dapplo.Windows;
 using Dapplo.Windows.Dpi;
 using Dapplo.Log.Loggers;
+using Dapplo.Windows.Common;
+using Dapplo.Windows.DesktopWindowsManager;
+using Dapplo.Windows.Dpi.Forms;
+using Dapplo.Windows.Kernel32;
 
 #endregion
 
@@ -173,7 +173,7 @@ namespace Greenshot.Forms
 			// Make Greenshot use less memory after startup
 			if (_conf.MinimizeWorkingSetSize)
 			{
-				PsAPI.EmptyWorkingSet();
+				PsApi.EmptyWorkingSet();
 			}
 		}
 
@@ -238,11 +238,11 @@ namespace Greenshot.Forms
 					if (argument.ToLower().Equals("/help") || argument.ToLower().Equals("/h") || argument.ToLower().Equals("/?"))
 					{
 						// Try to attach to the console
-						var attachedToConsole = Kernel32.AttachConsole(Kernel32.ATTACHCONSOLE_ATTACHPARENTPROCESS);
+						var attachedToConsole = Kernel32Api.AttachConsole(Kernel32Api.ATTACHCONSOLE_ATTACHPARENTPROCESS);
 						// If attach didn't work, open a console
 						if (!attachedToConsole)
 						{
-							Kernel32.AllocConsole();
+							Kernel32Api.AllocConsole();
 						}
 						var helpOutput = new StringBuilder();
 						helpOutput.AppendLine();
@@ -405,7 +405,7 @@ namespace Greenshot.Forms
 				{
 					if (process.ProcessName.ToLowerInvariant().Contains("greenshot"))
 					{
-						instanceInfo.AppendFormat("{0} : {1} (pid {2})", index++, Kernel32.GetProcessPath(process.Id), process.Id);
+						instanceInfo.AppendFormat("{0} : {1} (pid {2})", index++, Kernel32Api.GetProcessPath(process.Id), process.Id);
 						instanceInfo.Append(Environment.NewLine);
 					}
 				}
@@ -897,7 +897,7 @@ namespace Greenshot.Forms
 		{
 			if (_conf.MinimizeWorkingSetSize)
 			{
-				PsAPI.EmptyWorkingSet();
+				PsApi.EmptyWorkingSet();
 			}
 			if (UpdateHelper.IsUpdateCheckNeeded())
 			{
@@ -978,7 +978,7 @@ namespace Greenshot.Forms
 		/// </summary>
 		private void SetupBitmapScaleHandler()
 		{
-			ContextMenuDpiHandler = contextMenu.HandleDpiChanges();
+			ContextMenuDpiHandler = contextMenu.AttachFormDpiHandler();
 
 			// This takes care or setting the size of the images in the context menu
 			ContextMenuDpiHandler.OnDpiChanged.Subscribe(dpi =>
@@ -988,10 +988,7 @@ namespace Greenshot.Forms
 				contextMenu.ImageScalingSize = size;
 				contextmenu_quicksettings.Size = new Size(170, width + 8);
 			});
-			var contextMenuResourceScaleHandler = BitmapScaleHandler.WithComponentResourceManager(ContextMenuDpiHandler, GetType(), (bitmap, dpi) =>
-			{
-				return (Bitmap)bitmap.ScaleIconForDisplaying(dpi);
-			});
+			var contextMenuResourceScaleHandler = BitmapScaleHandler.WithComponentResourceManager(ContextMenuDpiHandler, GetType(), (bitmap, dpi) => (Bitmap)bitmap.ScaleIconForDisplaying(dpi));
 
 			contextMenuResourceScaleHandler.AddTarget(contextmenu_capturewindow, "contextmenu_capturewindow.Image");
 			contextMenuResourceScaleHandler.AddTarget(contextmenu_capturearea, "contextmenu_capturearea.Image");

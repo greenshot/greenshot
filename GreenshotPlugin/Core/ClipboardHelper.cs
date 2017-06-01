@@ -34,16 +34,15 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using Dapplo.Windows.Enums;
-using Dapplo.Windows.Native;
-using Dapplo.Windows.Structs;
 using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
-using GreenshotPlugin.Core;
+using Dapplo.Windows.Gdi32.Enums;
+using Dapplo.Windows.Gdi32.Structs;
+using Dapplo.Windows.User32;
 
 #endregion
 
@@ -119,13 +118,13 @@ EndSelection:<<<<<<<4
 			string owner = null;
 			try
 			{
-				var hWnd = User32.GetClipboardOwner();
+				var hWnd = User32Api.GetClipboardOwner();
 				if (hWnd != IntPtr.Zero)
 				{
 					try
 					{
 						int pid;
-						User32.GetWindowThreadProcessId(hWnd, out pid);
+					    User32Api.GetWindowThreadProcessId(hWnd, out pid);
 						using (var me = Process.GetCurrentProcess())
 						using (var ownerProcess = Process.GetProcessById(pid))
 						{
@@ -149,7 +148,7 @@ EndSelection:<<<<<<<4
 					catch (Exception e)
 					{
 						Log.Warn().WriteLine(e, "Non critical error: Couldn't get clipboard process, trying to use the title.");
-						owner = User32.GetText(hWnd);
+						owner = User32Api.GetText(hWnd);
 					}
 				}
 			}
@@ -476,7 +475,7 @@ EndSelection:<<<<<<<4
 							var infoHeader = BinaryStructHelper.FromByteArray<BitmapInfoHeader>(dibBuffer);
 							if (!infoHeader.IsDibV5)
 							{
-								Log.Info().WriteLine("Using special DIB <v5 format reader with biCompression {0}", infoHeader.biCompression);
+								Log.Info().WriteLine("Using special DIB <v5 format reader with biCompression {0}", infoHeader.Compression);
 								var fileHeaderSize = Marshal.SizeOf(typeof(BitmapFileHeader));
 								var fileHeader = BitmapFileHeader.Create(infoHeader);
 								var fileHeaderBytes = BinaryStructHelper.ToByteArray(fileHeader);
@@ -503,10 +502,10 @@ EndSelection:<<<<<<<4
 									var handle = GCHandle.Alloc(dibBuffer, GCHandleType.Pinned);
 									gcHandle = GCHandle.ToIntPtr(handle);
 									return
-										new Bitmap(infoHeader.biWidth, infoHeader.biHeight,
-											-(int) (infoHeader.biSizeImage / infoHeader.biHeight),
-											infoHeader.biBitCount == 32 ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb,
-											new IntPtr(handle.AddrOfPinnedObject().ToInt32() + infoHeader.OffsetToPixels + (infoHeader.biHeight - 1) * (int) (infoHeader.biSizeImage / infoHeader.biHeight))
+										new Bitmap(infoHeader.Width, infoHeader.Height,
+											-(int) (infoHeader.SizeImage / infoHeader.Height),
+											infoHeader.BitCount == 32 ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb,
+											new IntPtr(handle.AddrOfPinnedObject().ToInt32() + infoHeader.OffsetToPixels + (infoHeader.Height - 1) * (int) (infoHeader.SizeImage / infoHeader.Height))
 										);
 								}
 								catch (Exception ex)
@@ -697,7 +696,7 @@ EndSelection:<<<<<<<4
 						// Create the BITMAPINFOHEADER
 						var header = BitmapInfoHeader.Create(imageToSave.Width, imageToSave.Height, 32);
 						// Make sure we have BI_BITFIELDS, this seems to be normal for Format17?
-						header.biCompression = BitmapCompressionMethods.BI_BITFIELDS;
+						header.Compression = BitmapCompressionMethods.BI_BITFIELDS;
 
 						var headerBytes = BinaryStructHelper.ToByteArray(header);
 						// Write the BITMAPINFOHEADER to the stream

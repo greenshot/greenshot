@@ -41,7 +41,6 @@ using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Drawing;
 using GreenshotPlugin.Interfaces.Drawing.Adorners;
 using Dapplo.Log;
-using GreenshotPlugin.Core;
 
 #endregion
 

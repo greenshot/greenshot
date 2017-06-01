@@ -30,8 +30,6 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Dapplo.Windows.Desktop;
-using Dapplo.Windows.Enums;
-using Dapplo.Windows.Native;
 using Greenshot.Configuration;
 using Greenshot.Helpers.IEInterop;
 using GreenshotPlugin.Controls;
@@ -41,6 +39,9 @@ using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interop;
 using Dapplo.Log;
+using Dapplo.Windows.Messages;
+using Dapplo.Windows.User32;
+using Dapplo.Windows.User32.Enums;
 using mshtml;
 
 #endregion
@@ -223,7 +224,7 @@ namespace Greenshot.Helpers
 				return null;
 			}
 
-			var windowMessage = User32.RegisterWindowMessage("WM_HTML_GETOBJECT");
+			var windowMessage = WindowsMessage.RegisterWindowsMessage("WM_HTML_GETOBJECT");
 			if (windowMessage == 0)
 			{
 				Log.Warn().WriteLine("Couldn't register WM_HTML_GETOBJECT");
@@ -232,7 +233,7 @@ namespace Greenshot.Helpers
 
 			Log.Debug().WriteLine("Trying WM_HTML_GETOBJECT on {0}", ieServer.Classname);
 			UIntPtr response;
-			User32.SendMessageTimeout(ieServer.Handle, windowMessage, IntPtr.Zero, IntPtr.Zero, SendMessageTimeoutFlags.Normal, 5000, out response);
+			User32Api.SendMessageTimeout(ieServer.Handle, windowMessage, IntPtr.Zero, IntPtr.Zero, SendMessageTimeoutFlags.Normal, 5000, out response);
 			IHTMLDocument2 document2;
 			if (response != UIntPtr.Zero)
 			{

@@ -26,10 +26,11 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
-using Dapplo.Windows.Enums;
-using Dapplo.Windows.Native;
-using Dapplo.Windows.Structs;
+using Dapplo.Windows.DesktopWindowsManager;
+using Dapplo.Windows.User32;
+using Dapplo.Windows.User32.Enums;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.IniFile;
@@ -127,7 +128,7 @@ namespace GreenshotPlugin.Controls
 				// Make sure it's on "top"!
 				if (parentControl != null)
 				{
-					User32.SetWindowPos(Handle, parentControl.Handle, 0, 0, 0, 0, WindowPos.SWP_NOMOVE | WindowPos.SWP_NOSIZE | WindowPos.SWP_NOACTIVATE);
+					User32Api.SetWindowPos(Handle, parentControl.Handle, 0, 0, 0, 0, WindowPos.SWP_NOMOVE | WindowPos.SWP_NOSIZE | WindowPos.SWP_NOACTIVATE);
 				}
 			}
 		}

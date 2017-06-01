@@ -196,7 +196,7 @@ namespace GreenshotJiraPlugin.Forms
 						}
 
 						item.SubItems.Add(issue.Key);
-						item.SubItems.Add(issue.Fields.Created.ToString("d", DateTimeFormatInfo.InvariantInfo));
+						item.SubItems.Add(issue.Fields.Created?.ToString("d", DateTimeFormatInfo.InvariantInfo));
 						item.SubItems.Add(issue.Fields.Assignee?.DisplayName);
 						item.SubItems.Add(issue.Fields.Reporter?.DisplayName);
 						item.SubItems.Add(issue.Fields.Summary);

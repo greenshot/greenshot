@@ -35,12 +35,6 @@ using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Windows.App;
 using Dapplo.Windows.Desktop;
-using Dapplo.Windows.Enums;
-using Dapplo.Windows.Extensions;
-using Dapplo.Windows.Keyboard;
-using Dapplo.Windows.Keyboard.Native;
-using Dapplo.Windows.Native;
-using Dapplo.Windows.Structs;
 using Greenshot.Configuration;
 using Greenshot.Destinations;
 using Greenshot.Drawing;
@@ -51,6 +45,14 @@ using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using Dapplo.Log;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.DesktopWindowsManager;
+using Dapplo.Windows.Input;
+using Dapplo.Windows.Input.Enums;
+using Dapplo.Windows.Kernel32;
+using Dapplo.Windows.User32;
+using Dapplo.Windows.User32.Enums;
+using Dapplo.Windows.User32.Structs;
 
 #endregion
 
@@ -126,7 +128,7 @@ namespace Greenshot.Helpers
 			// Empty working set after capturing
 			if (CoreConfig.MinimizeWorkingSetSize)
 			{
-				PsAPI.EmptyWorkingSet();
+				PsApi.EmptyWorkingSet();
 			}
 		}
 
@@ -366,7 +368,7 @@ namespace Greenshot.Helpers
 					switch (_screenCaptureMode)
 					{
 						case ScreenCaptureMode.Auto:
-							Point mouseLocation = User32.GetCursorLocation();
+							Point mouseLocation = User32Api.GetCursorLocation();
 							foreach (var screen in Screen.AllScreens)
 							{
 								if (screen.Bounds.Contains(mouseLocation))
@@ -1144,7 +1146,7 @@ namespace Greenshot.Helpers
 
 						if (windowScroller.NeedsFocus())
 						{
-							User32.SetForegroundWindow(windowScroller.ScrollBarWindow.Handle);
+						    User32Api.SetForegroundWindow(windowScroller.ScrollBarWindow.Handle);
 							Application.DoEvents();
 							Thread.Sleep(100);
 							Application.DoEvents();
@@ -1169,7 +1171,7 @@ namespace Greenshot.Helpers
 								region.Exclude(windowScroller.ScrollBar.Value.Bounds);
 							}
 							// Get the bounds of the region
-							using (var screenGraphics = Graphics.FromHwnd(User32.GetDesktopWindow()))
+							using (var screenGraphics = Graphics.FromHwnd(User32Api.GetDesktopWindow()))
 							{
 								var rectangleF = region.GetBounds(screenGraphics);
 								clientBounds = new Rectangle((int) rectangleF.X, (int) rectangleF.Y, (int) rectangleF.Width, (int) rectangleF.Height);

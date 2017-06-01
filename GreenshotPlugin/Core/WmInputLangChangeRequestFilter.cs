@@ -24,8 +24,8 @@
 #region Usings
 
 using System.Windows.Forms;
-using Dapplo.Windows.Enums;
 using Dapplo.Log;
+using Dapplo.Windows.Messages;
 
 #endregion
 
