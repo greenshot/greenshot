@@ -978,7 +978,7 @@ namespace Greenshot.Forms
 		/// </summary>
 		private void SetupBitmapScaleHandler()
 		{
-			ContextMenuDpiHandler = contextMenu.AttachFormDpiHandler();
+			ContextMenuDpiHandler = contextMenu.AttachDpiHandler();
 
 			// This takes care or setting the size of the images in the context menu
 			ContextMenuDpiHandler.OnDpiChanged.Subscribe(dpi =>

@@ -260,7 +260,7 @@ namespace GreenshotPlugin.Core
                 Tag = null,
                 TopLevel = true
             };
-            var dpiHandler = menu.AttachFormDpiHandler();
+            var dpiHandler = menu.AttachDpiHandler();
             var bitmapScaleHandler = BitmapScaleHandler.Create<IDestination>(
                 dpiHandler,
                 (destination, dpi) => (Bitmap)destination.GetDisplayIcon(dpi),

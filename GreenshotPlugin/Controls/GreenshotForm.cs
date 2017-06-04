@@ -75,7 +75,7 @@ namespace GreenshotPlugin.Controls
 		{
 			int i = 0;
 			// Add the Dapplo.Windows DPI change handler
-			FormDpiHandler = this.AttachFormDpiHandler();
+			FormDpiHandler = this.AttachDpiHandler();
 			ScaleHandler = BitmapScaleHandler.WithComponentResourceManager(FormDpiHandler, GetType(), (bitmap, dpi) =>
 			{
 				var scaled = (Bitmap) bitmap.ScaleIconForDisplaying(dpi);
