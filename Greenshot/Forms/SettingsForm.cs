@@ -397,7 +397,7 @@ namespace Greenshot
 			var imageNr = -1;
 			foreach (var currentDestination in DestinationHelper.GetAllDestinations())
 			{
-				var destinationImage = currentDestination.GetDisplayIcon(FormDpiHandler.Dpi);
+				var destinationImage = currentDestination.GetDisplayIcon(DpiHandler.Dpi);
 				if (destinationImage != null)
 				{
 					imageList.Images.Add(destinationImage);

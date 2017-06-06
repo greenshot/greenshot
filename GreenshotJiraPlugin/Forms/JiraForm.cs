@@ -53,7 +53,7 @@ namespace GreenshotJiraPlugin.Forms
 		public JiraForm(JiraConnector jiraConnector)
 		{
 			InitializeComponent();
-			FormDpiHandler.OnDpiChanged.Subscribe(dpi =>
+			DpiHandler.OnDpiChanged.Subscribe(dpi =>
 			{
 				var size = DpiHandler.ScaleWithDpi(CoreConfig.IconSize.Width, dpi);
 				_iconSize = new Size(size, size);

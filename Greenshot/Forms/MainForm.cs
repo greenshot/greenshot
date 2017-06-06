@@ -53,6 +53,7 @@ using Dapplo.Log;
 using Timer = System.Timers.Timer;
 using Dapplo.Windows.Dpi;
 using Dapplo.Log.Loggers;
+using Dapplo.Windows.App;
 using Dapplo.Windows.Common;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Dpi.Forms;
@@ -1342,38 +1343,39 @@ namespace Greenshot.Forms
 		{
 			var captureScreenMenuItem = (ToolStripMenuItem) sender;
 			captureScreenMenuItem.DropDownItems.Clear();
-			if (Screen.AllScreens.Length > 1)
-			{
-				var allScreensBounds = WindowCapture.GetScreenBounds();
+		    if (Screen.AllScreens.Length <= 1)
+		    {
+		        return;
+		    }
+		    var allScreensBounds = WindowCapture.GetScreenBounds();
 
-				var captureScreenItem = new ToolStripMenuItem(Language.GetString(LangKey.contextmenu_capturefullscreen_all));
-				captureScreenItem.Click += delegate { BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen); }); };
-				captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
-				foreach (var screen in Screen.AllScreens)
-				{
-					var screenToCapture = screen;
-					var deviceAlignment = "";
-					if (screen.Bounds.Top == allScreensBounds.Top && screen.Bounds.Bottom != allScreensBounds.Bottom)
-					{
-						deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_top);
-					}
-					else if (screen.Bounds.Top != allScreensBounds.Top && screen.Bounds.Bottom == allScreensBounds.Bottom)
-					{
-						deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_bottom);
-					}
-					if (screen.Bounds.Left == allScreensBounds.Left && screen.Bounds.Right != allScreensBounds.Right)
-					{
-						deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_left);
-					}
-					else if (screen.Bounds.Left != allScreensBounds.Left && screen.Bounds.Right == allScreensBounds.Right)
-					{
-						deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_right);
-					}
-					captureScreenItem = new ToolStripMenuItem(deviceAlignment);
-					captureScreenItem.Click += delegate { BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureRegion(false, screenToCapture.Bounds); }); };
-					captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
-				}
-			}
+		    var captureScreenItem = new ToolStripMenuItem(Language.GetString(LangKey.contextmenu_capturefullscreen_all));
+		    captureScreenItem.Click += delegate { BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen); }); };
+		    captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
+		    foreach (var screen in Screen.AllScreens)
+		    {
+		        var screenToCapture = screen;
+		        var deviceAlignment = "";
+		        if (screen.Bounds.Top == allScreensBounds.Top && screen.Bounds.Bottom != allScreensBounds.Bottom)
+		        {
+		            deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_top);
+		        }
+		        else if (screen.Bounds.Top != allScreensBounds.Top && screen.Bounds.Bottom == allScreensBounds.Bottom)
+		        {
+		            deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_bottom);
+		        }
+		        if (screen.Bounds.Left == allScreensBounds.Left && screen.Bounds.Right != allScreensBounds.Right)
+		        {
+		            deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_left);
+		        }
+		        else if (screen.Bounds.Left != allScreensBounds.Left && screen.Bounds.Right == allScreensBounds.Right)
+		        {
+		            deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_right);
+		        }
+		        captureScreenItem = new ToolStripMenuItem(deviceAlignment);
+		        captureScreenItem.Click += delegate { BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureRegion(false, screenToCapture.Bounds); }); };
+		        captureScreenMenuItem.DropDownItems.Add(captureScreenItem);
+		    }
 		}
 
 		/// <summary>
@@ -1439,7 +1441,7 @@ namespace Greenshot.Forms
 			// check if thumbnailPreview is enabled and DWM is enabled
 			var thumbnailPreview = _conf.ThumnailPreview && Dwm.IsDwmEnabled;
 
-			foreach (var window in InteropWindowQuery.GetTopLevelWindows())
+			foreach (var window in InteropWindowQuery.GetTopLevelWindows().Concat(AppQuery.WindowsStoreApps))
 			{
 				var title = window.GetCaption();
 				if (title == null)

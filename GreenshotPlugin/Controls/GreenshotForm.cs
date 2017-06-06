@@ -47,17 +47,16 @@ namespace GreenshotPlugin.Controls
 	/// <summary>
 	///     This form is used for automatically binding the elements of the form to the language
 	/// </summary>
-	public class GreenshotForm : Form, IGreenshotLanguageBindable
+	public class GreenshotForm : DpiAwareForm, IGreenshotLanguageBindable
 	{
 		private static readonly LogSource Log = new LogSource();
-		protected static CoreConfiguration coreConfiguration;
+		protected static readonly CoreConfiguration coreConfiguration;
 		private static readonly IDictionary<Type, FieldInfo[]> ReflectionCache = new Dictionary<Type, FieldInfo[]>();
 		private IDictionary<string, Control> _designTimeControls;
 		private IDictionary<string, ToolStripItem> _designTimeToolStripItems;
 		private bool _isDesignModeLanguageSet;
 		private IComponentChangeService _componentChangeService;
 
-		protected readonly DpiHandler FormDpiHandler;
 		protected readonly BitmapScaleHandler<string> ScaleHandler;
 
 		static GreenshotForm()
@@ -75,8 +74,7 @@ namespace GreenshotPlugin.Controls
 		{
 			int i = 0;
 			// Add the Dapplo.Windows DPI change handler
-			FormDpiHandler = this.AttachDpiHandler();
-			ScaleHandler = BitmapScaleHandler.WithComponentResourceManager(FormDpiHandler, GetType(), (bitmap, dpi) =>
+			ScaleHandler = BitmapScaleHandler.WithComponentResourceManager(DpiHandler, GetType(), (bitmap, dpi) =>
 			{
 				var scaled = (Bitmap) bitmap.ScaleIconForDisplaying(dpi);
 				bitmap.Save($@"original-{i}.png", ImageFormat.Png);
