@@ -73,7 +73,9 @@ namespace GreenshotPlugin.Core
 
 			try
 			{
-				var applicationFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+			    var location = string.IsNullOrEmpty(Assembly.GetExecutingAssembly().Location) ? new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath : Assembly.GetExecutingAssembly().Location;
+
+                var applicationFolder = Path.GetDirectoryName(location);
 
 				// PAF Path
 				if (applicationFolder != null)

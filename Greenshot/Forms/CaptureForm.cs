@@ -594,7 +594,15 @@ namespace Greenshot.Forms
                     }
 
                     // We store the bound of the selected (child) window
-                    _captureRect = SelectedCaptureWindow.GetInfo().Bounds;
+                    // If it's maximized we take the client-bounds, otherwise we have parts we should not copy.
+                    if (SelectedCaptureWindow.IsMaximized())
+                    {
+                        _captureRect = SelectedCaptureWindow.GetInfo().ClientBounds;
+                    }
+                    else
+                    {
+                        _captureRect = SelectedCaptureWindow.GetInfo().Bounds;
+                    }
 
                     // Make sure the bounds fit to it's parent, some windows are bigger than their parent
                     // But only for non popups
