@@ -56,24 +56,24 @@
       <HintPath>..\packages\Dapplo.Log.1.0.29\lib\net45\Dapplo.Log.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Windows.Common, Version=0.4.44.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Common.0.4.44\lib\net45\Dapplo.Windows.Common.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Common, Version=0.4.52.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Common.0.4.52\lib\net45\Dapplo.Windows.Common.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Windows.Dpi, Version=0.4.44.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Dpi.0.4.44\lib\net45\Dapplo.Windows.Dpi.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Dpi, Version=0.4.52.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Dpi.0.4.52\lib\net45\Dapplo.Windows.Dpi.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Windows.Gdi32, Version=0.4.44.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Gdi32.0.4.44\lib\net45\Dapplo.Windows.Gdi32.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Gdi32, Version=0.4.52.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Gdi32.0.4.52\lib\net45\Dapplo.Windows.Gdi32.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Windows.Messages, Version=0.4.44.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Messages.0.4.44\lib\net45\Dapplo.Windows.Messages.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Messages, Version=0.4.52.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Messages.0.4.52\lib\net45\Dapplo.Windows.Messages.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dapplo.Windows.User32, Version=0.4.44.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.User32.0.4.44\lib\net45\Dapplo.Windows.User32.dll</HintPath>
+    <Reference Include="Dapplo.Windows.User32, Version=0.4.52.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.User32.0.4.52\lib\net45\Dapplo.Windows.User32.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />

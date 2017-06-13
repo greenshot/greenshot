@@ -29,12 +29,12 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using Dapplo.Windows.Native;
-using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces.Forms;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
+using Dapplo.Windows.Icons;
+using Dapplo.Windows.Icons.Enums;
 using Microsoft.Win32;
 
 #endregion
@@ -169,20 +169,12 @@ namespace GreenshotPlugin.Core
 			}
 			try
 			{
-				using (var appIcon = ImageHelper.ExtractAssociatedIcon(path, index, useLargeIcon))
+			    var appIcon = IconHelper.ExtractAssociatedIcon<Bitmap>(path, index, useLargeIcon);
+				if (appIcon != null)
 				{
-					if (appIcon != null)
-					{
-						return appIcon.ToBitmap();
-					}
+					return appIcon;
 				}
-				using (var appIcon = Shell32.GetFileIcon(path, useLargeIcon ? Shell32.IconSize.Large : Shell32.IconSize.Small, false))
-				{
-					if (appIcon != null)
-					{
-						return appIcon.ToBitmap();
-					}
-				}
+			    return Shell32.GetFileExtensionIcon<Bitmap>(path, useLargeIcon ? IconSize.Large : IconSize.Small, false);
 			}
 			catch (Exception exIcon)
 			{

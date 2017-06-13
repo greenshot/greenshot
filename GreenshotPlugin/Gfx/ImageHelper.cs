@@ -32,8 +32,6 @@ using System.IO;
 using Dapplo.Log;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Gdi32;
-using Dapplo.Windows.Native;
-using Dapplo.Windows.User32;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.Effects;
@@ -460,65 +458,6 @@ namespace GreenshotPlugin.Gfx
 				return null;
 			}
 			return bmpPngExtracted;
-		}
-
-		/// <summary>
-		///     See: http://msdn.microsoft.com/en-us/library/windows/desktop/ms648069%28v=vs.85%29.aspx
-		/// </summary>
-		/// <param name="location">The file (EXE or DLL) to get the icon from</param>
-		/// <param name="index">Index of the icon</param>
-		/// <param name="useLargeIcon">true if the large icon is wanted</param>
-		/// <returns>Icon</returns>
-		public static Icon ExtractAssociatedIcon(string location, int index, bool useLargeIcon = true)
-		{
-			IntPtr large;
-			IntPtr small;
-			Shell32.ExtractIconEx(location, index, out large, out small, 1);
-			Icon returnIcon = null;
-			var isLarge = false;
-			var isSmall = false;
-			try
-			{
-				if (useLargeIcon && !IntPtr.Zero.Equals(large))
-				{
-					returnIcon = Icon.FromHandle(large);
-					isLarge = true;
-				}
-				else if (!IntPtr.Zero.Equals(small))
-				{
-					returnIcon = Icon.FromHandle(small);
-					isSmall = true;
-				}
-				else if (!IntPtr.Zero.Equals(large))
-				{
-					returnIcon = Icon.FromHandle(large);
-					isLarge = true;
-				}
-			}
-			finally
-			{
-				if (isLarge && !IntPtr.Zero.Equals(small))
-				{
-				    User32Api.DestroyIcon(small);
-				}
-				if (isSmall && !IntPtr.Zero.Equals(large))
-				{
-					User32Api.DestroyIcon(large);
-				}
-			}
-			return returnIcon;
-		}
-
-		/// <summary>
-		///     Get the number of icon in the file
-		/// </summary>
-		/// <param name="location">Location of the EXE or DLL</param>
-		/// <returns></returns>
-		public static int CountAssociatedIcons(string location)
-		{
-			IntPtr large;
-			IntPtr small;
-			return Shell32.ExtractIconEx(location, -1, out large, out small, 0);
 		}
 
 		/// <summary>
