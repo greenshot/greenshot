@@ -32,7 +32,7 @@ namespace GreenshotPlugin.Core
 					}
 				}
 				// Check if path is a file
-				else if (File.Exists(path))
+				if (File.Exists(path))
 				{
 					// Start the explorer process and select the file
 					using (var explorer = Process.Start("explorer.exe", $"/select,\"{path}\""))

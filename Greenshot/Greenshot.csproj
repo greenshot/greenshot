@@ -279,7 +279,9 @@
     <None Include="Languages\help-nl-NL.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Languages\help-nn-NO.html" />
+    <None Include="Languages\help-nn-NO.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Languages\help-pl-PL.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -307,9 +309,9 @@
     <None Include="Languages\language-el-GR.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <EmbeddedResource Include="Languages\language-en-US.xml">
+    <None Include="Languages\language-en-US.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
+    </None>
     <None Include="Languages\language-es-ES.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -322,7 +324,9 @@
     <None Include="Languages\language-fr-FR.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Languages\language-fr-QC.xml" />
+    <None Include="Languages\language-fr-QC.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Languages\language-he-IL.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -344,7 +348,9 @@
     <None Include="Languages\language-nl-NL.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Languages\language-nn-NO.xml" />
+    <None Include="Languages\language-nn-NO.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Languages\language-pl-PL.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -405,6 +411,40 @@
       <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
       <Name>GreenshotPlugin</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Languages\language-kab-DZ.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Languages\help-ko-KR.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\help-pt-PT.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-ca-CA.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-da-DK.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-de-x-franconia.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-et-EE.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-id-ID.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-lv-LV.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\language-sl-SI.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <PropertyGroup>

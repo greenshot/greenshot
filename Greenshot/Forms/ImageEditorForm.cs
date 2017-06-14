@@ -21,7 +21,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
@@ -1003,24 +1002,12 @@ namespace Greenshot {
 		}
 
 		private void OpenDirectoryMenuItemClick(object sender, EventArgs e) {
-			var path = Path.GetDirectoryName(_surface.LastSaveFullPath);
-			if (path == null)
-			{
-				return;
-			}
-			var processStartInfo = new ProcessStartInfo("explorer")
-			{
-				Arguments = path,
-				UseShellExecute = false
-			};
-			using (var process = new Process()) {
-				process.StartInfo = processStartInfo;
-				process.Start();
-			}
+			ExplorerHelper.OpenInExplorer(_surface.LastSaveFullPath);
 		}
 		#endregion
 		
 		private void BindFieldControls() {
+			// TODO: This is actually risky, if there are no references than the objects may be garbage collected
 			new BidirectionalBinding(btnFillColor, "SelectedColor", _surface.FieldAggregator.GetField(FieldType.FILL_COLOR), "Value", NotNullValidator.GetInstance());
 			new BidirectionalBinding(btnLineColor, "SelectedColor", _surface.FieldAggregator.GetField(FieldType.LINE_COLOR), "Value", NotNullValidator.GetInstance());
 			new BidirectionalBinding(lineThicknessUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.LINE_THICKNESS), "Value", DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance());

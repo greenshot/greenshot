@@ -1258,26 +1258,33 @@ namespace GreenshotPlugin.Core {
 		/// <param name="workaround">bool with true to use a trick to really bring the window to the foreground</param>
 		public static void ToForeground(IntPtr handle, bool workaround = true)
 		{
-			// Do nothing if the window is already in the foreground
-			if (User32.GetForegroundWindow() == handle)
+			var window = new WindowDetails(handle);
+			// Nothing we can do if it's not visible!
+			if (!window.Visible)
 			{
 				return;
 			}
-
-			const byte ALT = 0xA4;
-			const int EXTENDEDKEY = 0x1;
-			const int KEYUP = 0x2;
-
+			if (window.Iconic)
+			{
+				window.Iconic = false;
+				while (window.Iconic)
+				{
+					Application.DoEvents();
+				}
+			}
 			// See https://msdn.microsoft.com/en-us/library/windows/desktop/ms633539(v=vs.85).aspx
 			if (workaround)
 			{
+				const byte alt = 0xA4;
+				const int extendedkey = 0x1;
+				const int keyup = 0x2;
 				// Simulate an "ALT" key press.
-				User32.keybd_event(ALT, 0x45, EXTENDEDKEY | 0, 0);
+				User32.keybd_event(alt, 0x45, extendedkey | 0, 0);
 				// Simulate an "ALT" key release.
-				User32.keybd_event(ALT, 0x45, EXTENDEDKEY | KEYUP, 0);
+				User32.keybd_event(alt, 0x45, extendedkey | keyup, 0);
 			}
-
 			// Show window in forground.
+			User32.BringWindowToTop(handle);
 			User32.SetForegroundWindow(handle);
 		}
 

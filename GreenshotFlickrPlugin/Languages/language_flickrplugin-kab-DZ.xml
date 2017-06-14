@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Taqbaylit" ietf="kab-DZ" version="1.2.0.58" languagegroup="1">
+	<resources prefix="Flickr">
+		<resource name="label_HiddenFromSearch">
+			Yettwaffer seg unadi
+		</resource>
+		<resource name="label_SafetyLevel">
+			Aswir aɣelsan
+		</resource>
+		<resource name="label_AfterUploadLinkToClipBoard">
+			Cudd ɣef afus
+		</resource>
+		<resource name="label_AfterUpload">
+			Seld asali
+		</resource>
+		<resource name="Configure">
+			Swel Flickr
+		</resource>
+		<resource name="upload_menu_item">
+			Sali ar Flickr
+		</resource>
+		<resource name="settings_title">
+			Iɣewwaṛen n Flickr
+		</resource>
+		<resource name="upload_success">
+			Tugna tuli akken iwata ar Flickr!
+		</resource>
+		<resource name="upload_failure">
+			Teḍra-d tuccḍa deg usali ar Flickr:
+		</resource>
+		<resource name="label_upload_format">
+			Amasal n tugna
+		</resource>
+		<resource name="communication_wait">
+			Taɣwalt tetteddu akked Flickr. Rǧu ma ulac aɣilif...
+		</resource>
+		<resource name="public">
+			Azayez
+		</resource>
+		<resource name="family">
+			Tawacult
+		</resource>
+		<resource name="friend">
+			Amdakkel
+		</resource>
+	</resources>
+</language>

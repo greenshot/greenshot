@@ -34,10 +34,9 @@ namespace Greenshot {
 	/// Description of ColorDialog.
 	/// </summary>
 	public partial class ColorDialog : BaseForm {
-		private static ColorDialog _uniqueInstance;
 		private static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
 
-		private ColorDialog() {
+		public ColorDialog() {
 			SuspendLayout();
 			InitializeComponent();
 			SuspendLayout();
@@ -45,11 +44,6 @@ namespace Greenshot {
 			CreateLastUsedColorButtonRow(5, 190, 15, 15);
 			ResumeLayout();
 			UpdateRecentColorsButtonRow();
-		}
-
-		public static ColorDialog GetInstance()
-		{
-			return _uniqueInstance ?? (_uniqueInstance = new ColorDialog());
 		}
 
 		private readonly List<Button> _colorButtons = new List<Button>();

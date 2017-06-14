@@ -45,7 +45,8 @@ namespace Greenshot.Interop.Office {
 				OneNotePage newPage = new OneNotePage();
 				string unfiledNotesSectionId = GetSectionId(oneNoteApplication, SpecialLocation.slUnfiledNotesSection);
 				if(unfiledNotesSectionId != null) {
-					string pageId;
+					// ReSharper disable once RedundantAssignment
+					string pageId = "";
 					oneNoteApplication.CreateNewPage(unfiledNotesSectionId, out pageId, NewPageStyle.npsDefault);
 					newPage.ID = pageId;
 					// Set the new name, this is automatically done in the export to page
@@ -106,10 +107,12 @@ namespace Greenshot.Interop.Office {
 			if(oneNoteApplication == null) {
 				return null;
 			}
-			string unfiledNotesPath;
+			// ReSharper disable once RedundantAssignment
+			string unfiledNotesPath = "";
 			oneNoteApplication.GetSpecialLocation(specialLocation, out unfiledNotesPath);
 
-			string notebookXml;
+			// ReSharper disable once RedundantAssignment
+			string notebookXml = "";
 			oneNoteApplication.GetHierarchy("", HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
 			if(!string.IsNullOrEmpty(notebookXml)) {
 				Log.Debug(notebookXml);
@@ -144,7 +147,8 @@ namespace Greenshot.Interop.Office {
 			try {
 				using (IOneNoteApplication oneNoteApplication = COMWrapper.GetOrCreateInstance<IOneNoteApplication>()) {
 					if (oneNoteApplication != null) {
-						string notebookXml;
+						// ReSharper disable once RedundantAssignment
+						string notebookXml = "";
 						oneNoteApplication.GetHierarchy("", HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
 						if (!string.IsNullOrEmpty(notebookXml)) {
 							Log.Debug(notebookXml);
@@ -215,7 +219,7 @@ namespace Greenshot.Interop.Office {
 				if(p1.IsCurrentlyViewed || p2.IsCurrentlyViewed) {
 					return p2.IsCurrentlyViewed.CompareTo(p1.IsCurrentlyViewed);
 				}
-				return String.Compare(p1.DisplayName, p2.DisplayName, StringComparison.Ordinal);
+				return string.Compare(p1.DisplayName, p2.DisplayName, StringComparison.Ordinal);
 			});
 			return pages;
 		}
