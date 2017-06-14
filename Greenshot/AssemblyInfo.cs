@@ -25,8 +25,8 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Greenshot 屏幕截图软件——XCL修改版")]
-[assembly: AssemblyDescription("Greenshot 屏幕截图软件——XCL修改版")]
+[assembly: AssemblyTitle("Greenshot 屏幕截图软件——XCL修改版（80213876@qq.com）")]
+[assembly: AssemblyDescription("Greenshot 屏幕截图软件——XCL修改版（80213876@qq.com）")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Greenshot")]
 [assembly: AssemblyProduct("Greenshot")]
@@ -39,5 +39,5 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The assembly version, replaced by build scripts
-[assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyInformationalVersion("1.0")]
+[assembly: AssemblyVersion("1.1.*")]
+[assembly: AssemblyInformationalVersion("1.1")]
