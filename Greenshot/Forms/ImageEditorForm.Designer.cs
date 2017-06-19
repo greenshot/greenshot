@@ -823,10 +823,11 @@ namespace Greenshot {
 			this.aboutToolStripMenuItem.LanguageKey = "contextmenu_about";
 			this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
 			this.aboutToolStripMenuItem.Click += new System.EventHandler(this.AboutToolStripMenuItemClick);
-			// 
-			// destinationsToolStrip
-			// 
-			this.destinationsToolStrip.ClickThrough = true;
+            // 
+            // destinationsToolStrip
+		    // 
+		    this.destinationsToolStrip.AutoSize = false;
+            this.destinationsToolStrip.ClickThrough = true;
 			this.destinationsToolStrip.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.destinationsToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.destinationsToolStrip.Name = "toolStrip1";

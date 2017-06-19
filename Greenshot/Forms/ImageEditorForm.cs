@@ -90,13 +90,15 @@ namespace Greenshot
             {
                 var width = DpiHandler.ScaleWithDpi(coreConfiguration.IconSize.Width, dpi);
                 var size = new Size(width, width);
+                SuspendLayout();
                 toolsToolStrip.ImageScalingSize = size;
                 menuStrip1.ImageScalingSize = size;
                 destinationsToolStrip.ImageScalingSize = size;
                 propertiesToolStrip.ImageScalingSize = size;
                 propertiesToolStrip.MinimumSize = new Size(150, width + 10);
+                ResumeLayout(true);
+                Refresh();
             });
-
 
             // Use the GreenshotForm ScaleHandler to locate the icons and get them scaled
             ScaleHandler.AddTarget(btnCursor, "btnCursor.Image");
@@ -718,7 +720,7 @@ namespace Greenshot
             {
                 HideToolstripItems();
             }
-            propertiesToolStrip.ResumeLayout();
+            propertiesToolStrip.ResumeLayout(true);
         }
 
         private void HideToolstripItems()
