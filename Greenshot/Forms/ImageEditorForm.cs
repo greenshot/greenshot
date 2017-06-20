@@ -29,6 +29,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Windows.Clipboard;
@@ -51,6 +52,7 @@ using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Drawing;
 using GreenshotPlugin.Interfaces.Forms;
 using Dapplo.Log;
+using Dapplo.Windows.Dpi.Enums;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
 
@@ -86,18 +88,27 @@ namespace Greenshot
             // Create a BitmapScaleHandler which knows how to locate the icons for the destinations
             _destinationScaleHandler = BitmapScaleHandler.Create<IDestination>(DpiHandler, (destination, dpi) => (Bitmap) destination.GetDisplayIcon(dpi), (bitmap, dpi) => (Bitmap)bitmap.ScaleIconForDisplaying(dpi));
 
-            DpiHandler.OnDpiChanged.Subscribe(dpi =>
+            DpiHandler.OnDpiChangeInfo.Subscribe(info =>
             {
-                var width = DpiHandler.ScaleWithDpi(coreConfiguration.IconSize.Width, dpi);
-                var size = new Size(width, width);
-                SuspendLayout();
-                toolsToolStrip.ImageScalingSize = size;
-                menuStrip1.ImageScalingSize = size;
-                destinationsToolStrip.ImageScalingSize = size;
-                propertiesToolStrip.ImageScalingSize = size;
-                propertiesToolStrip.MinimumSize = new Size(150, width + 10);
-                ResumeLayout(true);
-                Refresh();
+                switch (info.DpiChangeEventType)
+                {
+                    case DpiChangeEventTypes.Before:
+                        // Change the ImageScalingSize before setting the bitmaps
+                        var width = DpiHandler.ScaleWithDpi(coreConfiguration.IconSize.Width, info.NewDpi);
+                        var size = new Size(width, width);
+                        SuspendLayout();
+                        toolsToolStrip.ImageScalingSize = size;
+                        menuStrip1.ImageScalingSize = size;
+                        destinationsToolStrip.ImageScalingSize = size;
+                        propertiesToolStrip.ImageScalingSize = size;
+                        propertiesToolStrip.MinimumSize = new Size(150, width + 10);
+                        break;
+                    case DpiChangeEventTypes.After:
+                        // Redraw the form
+                        ResumeLayout(true);
+                        Refresh();
+                        break;
+                }
             });
 
             // Use the GreenshotForm ScaleHandler to locate the icons and get them scaled
