@@ -235,14 +235,22 @@ namespace Greenshot.Drawing {
 		}
 
 		public override int GetHashCode() {
+		    if (freehandPath == null)
+		    {
+		        return 0;
+		    }
 			return freehandPath.GetHashCode();
 		}
 
 		public override bool ClickableAt(int x, int y) {
 			bool returnValue = base.ClickableAt(x, y);
 			if (returnValue) {
+			    if (freehandPath == null)
+			    {
+			        return false;
+			    }
 				int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-				using (Pen pen = new Pen(Color.White)) {
+				using (var pen = new Pen(Color.White)) {
 					pen.Width = lineThickness + 10;
 					returnValue = freehandPath.IsOutlineVisible(x-Left,y-Top, pen);
 				}
