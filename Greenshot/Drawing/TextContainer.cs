@@ -494,6 +494,10 @@ namespace Greenshot.Drawing
                 e.SuppressKeyPress = true;
             }
 
+            if (e.Control && e.KeyCode == Keys.A)
+            {
+                _textBox.SelectAll();
+            }
             // Added for FEATURE-1064
             if (e.KeyCode == Keys.Back && e.Control)
             {
