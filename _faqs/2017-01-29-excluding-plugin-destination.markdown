@@ -39,8 +39,8 @@ For completeness we describe the plugins here (do not include the quotes!):
 
 * "Box Plugin"
 * "Confluence Plugin"
-* "DropBox Plugin"
-* "ExternalCommand Plugin"
+* "Dropbox Plugin"
+* "External command Plugin"
 * "Flickr Plugin"
 * "Imgur Plugin"
 * "Jira Plugin"
