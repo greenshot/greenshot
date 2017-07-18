@@ -20,7 +20,7 @@ This might solve the adding of additional plugins when new releases bring new pl
 
 Here is an example on how to exclude plugins by adding the plugins you don't want to the greenshot.ini:
 
-1. Find the greenshot.ini by reading [this](http://getgreenshot.org/faq/where-does-greenshot-store-its-configuration-settings/) or modify/create the greenshot-fixed.ini as described [here](/faq/how-can-i-control-greenshots-configuration/)
+1. Find the greenshot.ini by reading [this](http://getgreenshot.org/faq/where-does-greenshot-store-its-configuration-settings/) or modify/create the greenshot-fixed.ini as described [here](/faq/what-is-the-best-way-to-control-greenshots-configuration-at-install-time/)
 2. Stop Greenshot
 3. Open file in an editor
 4. Modify the line which should be under the "[Core]" section of the ini starting with "ExcludePlugins" (or add it, if not available), you can add all the plugin names with a comma in between.
