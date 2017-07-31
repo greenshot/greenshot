@@ -1002,12 +1002,21 @@ Greenshot received information from CloudServiceName. You can close this browser
 			//	"expires_in":3920,
 			//	"token_type":"Bearer",
 			//	"refresh_token":"1/xEoDL4iW3cxlI7yDbSRFYNG01kVKM2C-259HOF2aQbI"
-			settings.AccessToken = (string)refreshTokenResult[AccessToken];
-			settings.RefreshToken = (string)refreshTokenResult[RefreshToken];
-
-			object seconds = refreshTokenResult[ExpiresIn];
-			if (seconds != null) {
-				settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds((double)seconds);
+			if (refreshTokenResult.ContainsKey(AccessToken))
+			{
+				settings.AccessToken = (string)refreshTokenResult[AccessToken];
+			}
+			if (refreshTokenResult.ContainsKey(RefreshToken))
+			{
+				settings.RefreshToken = (string)refreshTokenResult[RefreshToken];
+			}
+			if (refreshTokenResult.ContainsKey(ExpiresIn))
+			{
+				object seconds = refreshTokenResult[ExpiresIn];
+				if (seconds != null)
+				{
+					settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds((double)seconds);
+				}
 			}
 			settings.Code = null;
 		}
@@ -1029,14 +1038,17 @@ Greenshot received information from CloudServiceName. You can close this browser
 				// Refresh the refresh token :)
 				settings.RefreshToken = callbackParameters[RefreshToken];
 			}
-			var expiresIn = callbackParameters[ExpiresIn];
-			settings.AccessTokenExpires = DateTimeOffset.MaxValue;
-			if (expiresIn != null)
+			if (callbackParameters.ContainsKey(ExpiresIn))
 			{
-				double seconds;
-				if (double.TryParse(expiresIn, out seconds))
+				var expiresIn = callbackParameters[ExpiresIn];
+				settings.AccessTokenExpires = DateTimeOffset.MaxValue;
+				if (expiresIn != null)
 				{
-					settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds(seconds);
+					double seconds;
+					if (double.TryParse(expiresIn, out seconds))
+					{
+						settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds(seconds);
+					}
 				}
 			}
 			settings.AccessToken = callbackParameters[AccessToken];
@@ -1085,16 +1097,22 @@ Greenshot received information from CloudServiceName. You can close this browser
 				}
 			}
 
-			settings.AccessToken = (string)accessTokenResult[AccessToken];
+			if (accessTokenResult.ContainsKey(AccessToken))
+			{
+				settings.AccessToken = (string) accessTokenResult[AccessToken];
+				settings.AccessTokenExpires = DateTimeOffset.MaxValue;
+			}
 			if (accessTokenResult.ContainsKey(RefreshToken)) {
 				// Refresh the refresh token :)
 				settings.RefreshToken = (string)accessTokenResult[RefreshToken];
 			}
-			object seconds = accessTokenResult[ExpiresIn];
-			if (seconds != null) {
-				settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds((double)seconds);
-			} else {
-				settings.AccessTokenExpires = DateTimeOffset.MaxValue;
+			if (accessTokenResult.ContainsKey(ExpiresIn))
+			{
+				object seconds = accessTokenResult[ExpiresIn];
+				if (seconds != null)
+				{
+					settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds((double) seconds);
+				}
 			}
 		}
 

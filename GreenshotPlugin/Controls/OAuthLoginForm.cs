@@ -39,6 +39,9 @@ namespace GreenshotPlugin.Controls {
 		public bool IsOk => DialogResult == DialogResult.OK;
 
 		public OAuthLoginForm(string browserTitle, Size size, string authorizationLink, string callbackUrl) {
+			// Make sure Greenshot uses the correct browser version
+			IEHelper.FixBrowserVersion(false);
+
 			_callbackUrl = callbackUrl;
 			// Fix for BUG-2071
 			if (callbackUrl.EndsWith("/"))
