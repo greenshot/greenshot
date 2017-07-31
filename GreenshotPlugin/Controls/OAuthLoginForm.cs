@@ -85,7 +85,9 @@ namespace GreenshotPlugin.Controls {
 
 		private void CheckUrl() {
 			if (_browser.Url.ToString().StartsWith(_callbackUrl)) {
-				string queryParams = _browser.Url.Query;
+				var correctedUri = new Uri(_browser.Url.AbsoluteUri.Replace("#", "&"));
+
+				string queryParams = correctedUri.Query;
 				if (queryParams.Length > 0) {
 					queryParams = NetworkHelper.UrlDecode(queryParams);
 					//Store the Token and Token Secret

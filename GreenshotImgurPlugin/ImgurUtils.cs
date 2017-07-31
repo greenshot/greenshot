@@ -36,7 +36,7 @@ namespace GreenshotImgurPlugin {
 		private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ImgurUtils));
 		private const string SmallUrlPattern = "http://i.imgur.com/{0}s.jpg";
 		private static readonly ImgurConfiguration Config = IniConfig.GetIniSection<ImgurConfiguration>();
-		private const string AuthUrlPattern = "https://api.imgur.com/oauth2/authorize?response_type=code&client_id={ClientId}&redirect_uri={RedirectUrl}&state={State}";
+		private const string AuthUrlPattern = "https://api.imgur.com/oauth2/authorize?response_type=token&client_id={ClientId}&state={State}";
 		private const string TokenUrl = "https://api.imgur.com/oauth2/token";
 
 		/// <summary>

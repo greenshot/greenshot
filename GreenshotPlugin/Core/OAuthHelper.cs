@@ -1013,6 +1013,37 @@ Greenshot received information from CloudServiceName. You can close this browser
 		}
 
 		/// <summary>
+		/// Used to update the settings with the callback information
+		/// </summary>
+		/// <param name="settings">OAuth2Settings</param>
+		/// <param name="callbackParameters">IDictionary</param>
+		/// <returns>true if the access token is already in the callback</returns>
+		private static bool UpdateFromCallback(OAuth2Settings settings, IDictionary<string, string> callbackParameters)
+		{
+			if (!callbackParameters.ContainsKey(AccessToken))
+			{
+				return false;
+			}
+			if (callbackParameters.ContainsKey(RefreshToken))
+			{
+				// Refresh the refresh token :)
+				settings.RefreshToken = callbackParameters[RefreshToken];
+			}
+			var expiresIn = callbackParameters[ExpiresIn];
+			settings.AccessTokenExpires = DateTimeOffset.MaxValue;
+			if (expiresIn != null)
+			{
+				double seconds;
+				if (double.TryParse(expiresIn, out seconds))
+				{
+					settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds(seconds);
+				}
+			}
+			settings.AccessToken = callbackParameters[AccessToken];
+			return true;
+		}
+
+		/// <summary>
 		/// Go out and retrieve a new access token via refresh-token with the TokenUrl in the settings
 		/// Will upate the access token, refresh token, expire date
 		/// </summary>
@@ -1109,6 +1140,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 					GenerateRefreshToken(settings);
 					return true;
 				}
+				return UpdateFromCallback(settings, loginForm.CallbackParameters);
 			}
 			return false;
 		}
