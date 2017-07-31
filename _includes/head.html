@@ -9,6 +9,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" href="{{ '/css/main.css?v=6' | prepend: site.baseurl }}">
+	<link href="/feed&type=rss" rel="alternate" type="application/rss+xml" title="RSS 2.0" />
+	<link href="/feed&type=atom" rel="alternate" type="application/atom+xml" title="Atom 1.0" />
 
     {% if page.tags contains "uses_alerts" %}
     <link rel="stylesheet" href="{{ '/css/alerts.css' | prepend: site.baseurl }}">
