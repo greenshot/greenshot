@@ -69,24 +69,24 @@ namespace Greenshot.Drawing {
 		/// <param name="shadow"></param>
 		public static void DrawEllipse(Rectangle rect, Graphics graphics, RenderMode renderMode, int lineThickness, Color lineColor, Color fillColor, bool shadow) {
 			bool lineVisible = lineThickness > 0 && Colors.IsVisible(lineColor);
-            // draw shadow before anything else
-            if (shadow && (lineVisible || Colors.IsVisible(fillColor))) {
-                int basealpha = 150;
-                int alpha = basealpha;
-                int steps = 2 + lineThickness - (int)Math.Round(lineThickness / 2.0, MidpointRounding.ToEven);
-                int currentStep = lineVisible ? 1 : 0;
-                while (currentStep <= steps) {
-                    using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 0, 0, 0))) {
-                        shadowPen.Width = lineVisible ? lineThickness : 1;
-                        Rectangle shadowRect = GuiRectangle.GetGuiRectangle(rect.Left + currentStep, rect.Top + currentStep, rect.Width, rect.Height);
-                        graphics.DrawEllipse(shadowPen, shadowRect);
-                        currentStep++;
-                        alpha = alpha - basealpha / steps;
-                    }
-                }
-            }
-            //draw the original shape
-            if (Colors.IsVisible(fillColor)) {
+			// draw shadow before anything else
+			if (shadow && (lineVisible || Colors.IsVisible(fillColor))) {
+				int basealpha = 150;
+				int alpha = basealpha;
+				int steps = 2 + lineThickness - (int)Math.Round(lineThickness / 2.0, MidpointRounding.ToEven);
+				int currentStep = lineVisible ? 1 : 0;
+				while (currentStep <= steps) {
+					using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 0, 0, 0))) {
+						shadowPen.Width = lineVisible ? lineThickness : 1;
+						Rectangle shadowRect = GuiRectangle.GetGuiRectangle(rect.Left + currentStep, rect.Top + currentStep, rect.Width, rect.Height);
+						graphics.DrawEllipse(shadowPen, shadowRect);
+						currentStep++;
+						alpha = alpha - basealpha / steps;
+					}
+				}
+			}
+			//draw the original shape
+			if (Colors.IsVisible(fillColor)) {
 				using (Brush brush = new SolidBrush(fillColor)) {
 					graphics.FillEllipse(brush, rect);
 				}
