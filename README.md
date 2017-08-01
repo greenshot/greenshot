@@ -21,4 +21,4 @@ Being easy to understand and configurable, Greenshot is an efficient tool for pr
 
 About this repository
 ---------------------
-This repository is for Greenshot 1.2.9, which is a bugfix of 1.2.8
+This repository is for Greenshot 1.2.10, which is a bugfix of 1.2.9.129

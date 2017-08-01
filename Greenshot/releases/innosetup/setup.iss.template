@@ -280,16 +280,16 @@ lt.startup=Palaist {#ExeName} uzsākot darbus
 lt.win10=Windows 10 spraudnis
 
 nl.confluence=Confluence plug-in
-nl.default=Default installation
+nl.default=Standaardinstallatie
 nl.office=Microsoft Office plug-in
-nl.externalcommand=Open met externes commando plug-in
-nl.imgur=Imgur plug-in (Zie: http://imgur.com)
+nl.externalcommand=Openen met extern commando plug-in
+nl.imgur=Imgur plug-in (zie: http://imgur.com)
 nl.jira=Jira plug-in
 nl.language=Extra talen
-nl.ocr=OCR plug-in (heeft Microsoft Office Document Imaging (MODI) nodig)
-nl.optimize=Prestaties verbeteren, kan even duren.
-nl.startgreenshot=Start {#ExeName}
-nl.startup=Start {#ExeName} wanneer Windows opstart
+nl.ocr=OCR plug-in (vereist Microsoft Office Document Imaging (MODI))
+nl.optimize=Prestaties verbeteren, even geduld.
+nl.startgreenshot={#ExeName} starten
+nl.startup={#ExeName} automatisch starten met Windows
 nl.win10=Windows 10 plug-in
 
 nn.confluence=Confluence-tillegg
@@ -391,7 +391,7 @@ Name: "languages\huHU"; Description: "Magyar"; Types: full custom; Flags: disabl
 Name: "languages\idID"; Description: "Bahasa Indonesia"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\itIT"; Description: "Italiano"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\jaJP"; Description: "日本語"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('7')
-Name: "languages\koKR"; Description: "한국의"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('8')
+Name: "languages\koKR"; Description: "한국어"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('8')
 Name: "languages\kabDZ"; Description: "Taqbaylit"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('8')
 Name: "languages\ltLT"; Description: "Lietuvių"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('3')
 Name: "languages\lvLV"; Description: "Latviski"; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('3')
