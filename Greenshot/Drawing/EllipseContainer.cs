@@ -71,17 +71,24 @@ namespace Greenshot.Drawing {
 			bool lineVisible = lineThickness > 0 && Colors.IsVisible(lineColor);
 			// draw shadow before anything else
 			if (shadow && (lineVisible || Colors.IsVisible(fillColor))) {
-				int basealpha = 150;
-				int alpha = basealpha;
-				int steps = 2 + lineThickness - (int)Math.Round(lineThickness / 2.0, MidpointRounding.ToEven);
-				int currentStep = lineVisible ? 1 : 0;
-				while (currentStep <= steps) {
-					using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 0, 0, 0))) {
-						shadowPen.Width = lineVisible ? lineThickness : 1;
-						Rectangle shadowRect = GuiRectangle.GetGuiRectangle(rect.Left + currentStep, rect.Top + currentStep, rect.Width, rect.Height);
+				double alpha = 240.0 - (lineThickness * 1.5); // soften larger shadows
+				double stepsCount = 3.0 + (double)lineThickness / 11.0; // increase shadow width according to thickness 
+				double alphaStep = alpha / stepsCount;
+				using (
+					Pen shadowPen = new Pen(Color.FromArgb((int)alpha, Color.Black), lineThickness))
+				{
+					int currentStep = 0; // shadow halo on thin lines
+					while (alpha >= 1.0)
+					{
+						Rectangle shadowRect = GuiRectangle.GetGuiRectangle(
+							rect.Left + currentStep, rect.Top + currentStep,
+							rect.Width, rect.Height
+							);
+
+						shadowPen.Color = Color.FromArgb((int)Math.Round(alpha), Color.Black);
 						graphics.DrawEllipse(shadowPen, shadowRect);
+						alpha -= alphaStep;
 						currentStep++;
-						alpha = alpha - basealpha / steps;
 					}
 				}
 			}
