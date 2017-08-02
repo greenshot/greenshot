@@ -204,7 +204,6 @@ namespace Greenshot.Drawing {
 			graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
 			string text = ((Surface)Parent).CountStepLabels(this).ToString();
 			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-
 			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
 			if (_drawAsRectangle) {

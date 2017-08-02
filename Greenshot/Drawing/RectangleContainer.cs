@@ -85,15 +85,51 @@ namespace Greenshot.Drawing {
 			graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 			graphics.CompositingQuality = CompositingQuality.HighQuality;
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
-
 			bool lineVisible = lineThickness > 0 && Colors.IsVisible(lineColor);
 			if (shadow && (lineVisible || Colors.IsVisible(fillColor)))
 			{
-				DrawShadow(lineThickness, (alpha, currentStep, shadowPen, nil) =>
+				using (GraphicsPath bubble = new GraphicsPath())
 				{
-					var shadowRect = GuiRectangle.GetGuiRectangle(rect.Left + currentStep, rect.Top + currentStep, rect.Width, rect.Height);
-					graphics.DrawRectangle(shadowPen, shadowRect);
-				});
+
+				Rectangle rect1 = GuiRectangle.GetGuiRectangle(rect.Left, rect.Top, rect.Width, rect.Height);
+				Rectangle bubbleRect = GuiRectangle.GetGuiRectangle(0, 0, rect1.Width, rect1.Height);
+
+				int smallerSideLength = Math.Min(Math.Abs(bubbleRect.Width), Math.Abs(bubbleRect.Height));
+				int cornerRadius = Math.Min(3, smallerSideLength / 2 - lineThickness);
+
+					if (cornerRadius > 0)
+					{
+						bubble.AddArc(bubbleRect.X, bubbleRect.Y, cornerRadius, cornerRadius, 180, 90);
+						bubble.AddArc(bubbleRect.X + bubbleRect.Width - cornerRadius, bubbleRect.Y, cornerRadius, cornerRadius, 270, 90);
+						bubble.AddArc(bubbleRect.X + bubbleRect.Width - cornerRadius, bubbleRect.Y + bubbleRect.Height - cornerRadius, cornerRadius, cornerRadius, 0, 90);
+						bubble.AddArc(bubbleRect.X, bubbleRect.Y + bubbleRect.Height - cornerRadius, cornerRadius, cornerRadius, 90, 90);
+						bubble.CloseAllFigures();
+						using (Matrix bubbleMatrix = new Matrix())
+						{
+							bubbleMatrix.Translate(rect.Left, rect.Top);
+							bubble.Transform(bubbleMatrix);
+						}
+
+						//GraphicsPath bubble = CreateBubble(lineThickness);
+
+						using (Matrix shadowMatrix = new Matrix())
+						//using (GraphicsPath bubbleClone = (GraphicsPath)bubble.Clone())
+						{
+							shadowMatrix.Translate(1, 1);
+							DrawShadow(lineThickness, (alpha, currentStep, shadowPen, nil) =>
+							{
+								bubble.Transform(shadowMatrix);
+								graphics.DrawPath(shadowPen, bubble);
+							});
+						}
+					} else
+						DrawShadow(lineThickness, (alpha, currentStep, shadowPen, nil) =>
+						{
+							var shadowRect = GuiRectangle.GetGuiRectangle(rect.Left + currentStep, rect.Top + currentStep, rect.Width, rect.Height);
+							graphics.DrawRectangle(shadowPen, shadowRect);
+						});
+
+				}
 			}
 
 			if (Colors.IsVisible(fillColor)) {
