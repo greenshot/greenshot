@@ -235,26 +235,21 @@ namespace Greenshot.Drawing
 
 			//draw shadow first
 			if (shadow && (lineVisible || Colors.IsVisible(fillColor))) {
-				const int basealpha = 100;
-				int alpha = basealpha;
-				const int steps = 5;
-				int currentStep = lineVisible ? 1 : 0;
 				using (Matrix shadowMatrix = new Matrix())
 				using (GraphicsPath bubbleClone = (GraphicsPath)bubble.Clone())
 				using (GraphicsPath tailClone = (GraphicsPath)tail.Clone()) {
 					shadowMatrix.Translate(1, 1);
-					while (currentStep <= steps) {
-						using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100))) {
-							shadowPen.Width = lineVisible ? lineThickness : 1;
-							tailClone.Transform(shadowMatrix);
-							graphics.DrawPath(shadowPen, tailClone);
-							bubbleClone.Transform(shadowMatrix);
-							graphics.DrawPath(shadowPen, bubbleClone);
-						}
-						currentStep++;
-						alpha = alpha - basealpha / steps;
-					}
+					DrawShadow(lineThickness, (alpha, currentStep, shadowPen, nil) =>
+					{
+						tailClone.Transform(shadowMatrix);
+						graphics.DrawPath(shadowPen, tailClone);
+						bubbleClone.Transform(shadowMatrix);
+						graphics.DrawPath(shadowPen, bubbleClone);
+
+					});
+
 				}
+
 			}
 
 			GraphicsState state = graphics.Save();
