@@ -580,28 +580,16 @@ namespace Greenshot.Drawing
             // draw shadow before anything else
             if (drawShadow)
             {
-				double alpha = 240.0 - (lineThickness * 1.5); // soften larger shadows
-				double stepsCount = 3.0 + (double)lineThickness / 11.0; // increase shadow width according to thickness 
-				double alphaStep = alpha / stepsCount;
-				using (
-					SolidBrush fontBrush = new SolidBrush(Color.FromArgb((int)alpha, 100, 100, 100)))
+				DrawShadow(lineThickness, (alpha, currentStep, nil, fontBrush) =>
 				{
-					int currentStep = 0; // shadow halo on thin lines
-					while (alpha >= 1.0)
+					int offset = currentStep;
+					Rectangle shadowRect = GuiRectangle.GetGuiRectangle(drawingRectange.Left + offset, drawingRectange.Top + offset, drawingRectange.Width, drawingRectange.Height);
+					if (lineThickness > 0)
 					{
-						int offset = currentStep;
-						Rectangle shadowRect = GuiRectangle.GetGuiRectangle(drawingRectange.Left + offset, drawingRectange.Top + offset, drawingRectange.Width, drawingRectange.Height);
-						if (lineThickness > 0)
-						{
-							shadowRect.Inflate(-textOffset, -textOffset);
-						}
-
-						fontBrush.Color = Color.FromArgb((int)Math.Round(alpha), Color.Black);
-						graphics.DrawString(text, font, fontBrush, shadowRect, stringFormat);
-						alpha -= alphaStep;
-						currentStep++;
+						shadowRect.Inflate(-textOffset, -textOffset);
 					}
-				}
+					graphics.DrawString(text, font, fontBrush, shadowRect, stringFormat);
+				});
 			}
 
             if (lineThickness > 0)
