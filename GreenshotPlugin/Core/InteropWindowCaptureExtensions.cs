@@ -213,7 +213,7 @@ namespace GreenshotPlugin.Core
                 Dwm.DwmRegisterThumbnail(tempForm.Handle, interopWindow.Handle, out thumbnailHandle);
 
                 // Get the original size
-                SIZE sourceSize;
+                NativeSize  sourceSize;
                 Dwm.DwmQueryThumbnailSourceSize(thumbnailHandle, out sourceSize);
 
                 if (sourceSize.Width <= 0 || sourceSize.Height <= 0)
@@ -310,7 +310,7 @@ namespace GreenshotPlugin.Core
                 {
                     Opacity = 255,
                     Visible = true,
-                    Destination = new RECT(0, 0, sourceSize.Width, sourceSize.Height)
+                    Destination = new NativeRect(0, 0, sourceSize.Width, sourceSize.Height)
                 };
                 Dwm.DwmUpdateThumbnailProperties(thumbnailHandle, ref props);
                 tempForm.Show();

@@ -293,7 +293,9 @@ namespace GreenshotJiraPlugin
 		{
 			await CheckCredentialsAsync(cancellationToken);
 			var searchResult =
-				await _jiraClient.Issue.SearchAsync(filter.Jql, 20, new[] {"summary", "reporter", "assignee", "created", "issuetype"}, cancellationToken).ConfigureAwait(false);
+				await _jiraClient.Issue.SearchAsync(filter.Jql,
+                new Page { MaxResults = 20},
+                new[] {"summary", "reporter", "assignee", "created", "issuetype"}, cancellationToken).ConfigureAwait(false);
 			return searchResult.Issues;
 		}
 

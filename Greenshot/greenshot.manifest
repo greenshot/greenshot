@@ -3,10 +3,13 @@
   <!-- Make sure windows Vista and above treat Greenshot as "DPI Aware"
     See: http://msdn.microsoft.com/en-us/library/ms633543.aspx -->
   <asmv3:application>
-    <asmv3:windowsSettings>
-      <winset:dpiAware>True/PM</winset:dpiAware>
-    </asmv3:windowsSettings>
-  </asmv3:application>
+	  <asmv3:windowsSettings>
+		  <winset:dpiAware>True/PM</winset:dpiAware>
+	  </asmv3:windowsSettings>
+	  <asmv3:windowsSettings xmlns="http://schemas.microsoft.com/SMI/2011/WindowsSettings">
+		  <disableWindowFiltering>true</disableWindowFiltering>
+	  </asmv3:windowsSettings>
+	</asmv3:application>
   <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
     <application>
       <!-- Windows 10 -->

@@ -96,7 +96,7 @@ namespace GreenshotPlugin.Controls
 			Dwm.DwmRegisterThumbnail(Handle, window.Handle, out _thumbnailHandle);
 			if (_thumbnailHandle != IntPtr.Zero)
 			{
-				SIZE sourceSize;
+				NativeSize  sourceSize;
 				Dwm.DwmQueryThumbnailSourceSize(_thumbnailHandle, out sourceSize);
 				var thumbnailHeight = 200;
 				var thumbnailWidth = (int) (thumbnailHeight * (sourceSize.Width / (float) sourceSize.Height));
@@ -113,7 +113,7 @@ namespace GreenshotPlugin.Controls
 					Opacity = 255,
 					Visible = true,
 					SourceClientAreaOnly = false,
-					Destination = new RECT(0, 0, thumbnailWidth, thumbnailHeight)
+					Destination = new NativeRect(0, 0, thumbnailWidth, thumbnailHeight)
 				};
 				Dwm.DwmUpdateThumbnailProperties(_thumbnailHandle, ref props);
 				if (parentControl != null)

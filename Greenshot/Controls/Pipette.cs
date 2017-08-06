@@ -103,7 +103,7 @@ namespace Greenshot.Controls
 			{
 				IconInfo iconInfo;
 				User32Api.GetIconInfo(iconHandle, out iconInfo);
-				iconInfo.Hotspot = new POINT(hotspotX, hotspotY);
+				iconInfo.Hotspot = new NativePoint(hotspotX, hotspotY);
 				iconInfo.IsIcon = false;
 				var icon = User32Api.CreateIconIndirect(ref iconInfo);
 				return new Cursor(icon);
