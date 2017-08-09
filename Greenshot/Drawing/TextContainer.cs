@@ -580,26 +580,17 @@ namespace Greenshot.Drawing
             // draw shadow before anything else
             if (drawShadow)
             {
-                int basealpha = 100;
-                int alpha = basealpha;
-                int steps = 5;
-                int currentStep = 1;
-                while (currentStep <= steps)
-                {
-                    int offset = currentStep;
-                    Rectangle shadowRect = GuiRectangle.GetGuiRectangle(drawingRectange.Left + offset, drawingRectange.Top + offset, drawingRectange.Width, drawingRectange.Height);
-                    if (lineThickness > 0)
-                    {
-                        shadowRect.Inflate(-textOffset, -textOffset);
-                    }
-                    using (Brush fontBrush = new SolidBrush(Color.FromArgb(alpha, 100, 100, 100)))
-                    {
-                        graphics.DrawString(text, font, fontBrush, shadowRect, stringFormat);
-                        currentStep++;
-                        alpha = alpha - basealpha / steps;
-                    }
-                }
-            }
+				DrawShadow(lineThickness, (alpha, currentStep, nil, fontBrush) =>
+				{
+					int offset = currentStep;
+					Rectangle shadowRect = GuiRectangle.GetGuiRectangle(drawingRectange.Left + offset, drawingRectange.Top + offset, drawingRectange.Width, drawingRectange.Height);
+					if (lineThickness > 0)
+					{
+						shadowRect.Inflate(-textOffset, -textOffset);
+					}
+					graphics.DrawString(text, font, fontBrush, shadowRect, stringFormat);
+				});
+			}
 
             if (lineThickness > 0)
             {

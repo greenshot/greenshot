@@ -209,7 +209,8 @@ namespace Greenshot.Drawing {
 			if (_drawAsRectangle) {
 				RectangleContainer.DrawRectangle(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
 			} else {
-				EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
+				rect.Inflate(-4,-4);
+				EllipseContainer.DrawEllipse(rect, graphics, rm, 2, fillColor, fillColor, true);
 			}
 			using (FontFamily fam = new FontFamily(FontFamily.GenericSansSerif.Name)) {
 				using (Font font = new Font(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel)) {

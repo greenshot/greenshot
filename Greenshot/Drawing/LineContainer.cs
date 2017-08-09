@@ -69,22 +69,14 @@ namespace Greenshot.Drawing {
 			if (lineThickness > 0) {
 				if (shadow) {
 					//draw shadow first
-					int basealpha = 100;
-					int alpha = basealpha;
-					int steps = 5;
-					int currentStep = 1;
-					while (currentStep <= steps) {
-						using (Pen shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness)) {
-							graphics.DrawLine(shadowCapPen,
-								Left + currentStep,
-								Top + currentStep,
-								Left + currentStep + Width,
-								Top + currentStep + Height);
-
-							currentStep++;
-							alpha = alpha - basealpha / steps;
-						}
-					}
+					DrawShadow(lineThickness, (alpha, currentStep, shadowPen, nil) =>
+					{
+						graphics.DrawLine(shadowPen,
+							Left + currentStep,
+							Top + currentStep,
+							Left + currentStep + Width,
+							Top + currentStep + Height);
+					});
 				}
 
 				using (Pen pen = new Pen(lineColor, lineThickness)) {

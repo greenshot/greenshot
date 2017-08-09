@@ -71,19 +71,11 @@ namespace Greenshot.Drawing {
 			bool lineVisible = lineThickness > 0 && Colors.IsVisible(lineColor);
 			// draw shadow before anything else
 			if (shadow && (lineVisible || Colors.IsVisible(fillColor))) {
-				int basealpha = 100;
-				int alpha = basealpha;
-				int steps = 5;
-				int currentStep = lineVisible ? 1 : 0;
-				while (currentStep <= steps) {
-					using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100))) {
-						shadowPen.Width = lineVisible ? lineThickness : 1;
-						Rectangle shadowRect = GuiRectangle.GetGuiRectangle(rect.Left + currentStep, rect.Top + currentStep, rect.Width, rect.Height);
-						graphics.DrawEllipse(shadowPen, shadowRect);
-						currentStep++;
-						alpha = alpha - basealpha / steps;
-					}
-				}
+				DrawShadow(lineThickness, (alpha, currentStep, shadowPen, nil) =>
+				{
+					var shadowRect = GuiRectangle.GetGuiRectangle(rect.Left + currentStep, rect.Top + currentStep, rect.Width, rect.Height);
+					graphics.DrawEllipse(shadowPen, shadowRect);
+				});
 			}
 			//draw the original shape
 			if (Colors.IsVisible(fillColor)) {
