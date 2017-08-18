@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="日本語" ietf="ja-JP" version="1.0.0">
+	<resources>
+		<resource name="upload_menu_item">JIRA にアップロード</resource>
+		<resource name="column_assignee">担当者</resource>
+		<resource name="column_created">作成者</resource>
+		<resource name="column_id">ID</resource>
+		<resource name="column_reporter">報告者</resource>
+		<resource name="column_summary">概要</resource>
+		<resource name="label_comment">コメント</resource>
+		<resource name="label_filename">ファイル名</resource>
+		<resource name="label_jira">JIRA</resource>
+		<resource name="label_jirafilter">JIRA フィルター</resource>
+		<resource name="login_error">ログイン中に問題が発生しました: {0}</resource>
+		<resource name="label_url">URL</resource>
+		<resource name="login_title">JIRA のログイン情報を入力してください</resource>
+		<resource name="settings_title">JIRA の設定</resource>
+		<resource name="OK">OK</resource>
+		<resource name="CANCEL">キャンセル</resource>
+		<resource name="upload_success">JIRA へのアップロードに成功しました！</resource>
+		<resource name="upload_failure">JIRA へのアップロード中にエラーが発生しました:</resource>
+		<resource name="label_upload_format">画像フォーマット</resource>
+		<resource name="communication_wait">JIRA にデータを転送中です。しばらくお待ち下さい...</resource>
+	</resources>
+</language>
