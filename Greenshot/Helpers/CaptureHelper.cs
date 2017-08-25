@@ -52,7 +52,6 @@ using Dapplo.Windows.Input.Enums;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
-using Dapplo.Windows.User32.Structs;
 
 #endregion
 
@@ -553,27 +552,19 @@ namespace Greenshot.Helpers
         /// </summary>
         private void PrepareForCaptureWithFeedback()
         {
-            _windows = InteropWindowQuery
-                .GetTopWindows()
-                .Where(window => !InteropWindowQuery.IgnoreClasses.Contains(window.GetClassname()))
-                .Where(window => !window.GetInfo().ClientBounds.Size.IsEmpty)
+            // TODO: Capture all popups, from the initial capture, to make them available like the mouse cursor.
+            // Than change focus, to remove the popups, and take the real capture
+
+            _windows = InteropWindowQuery.GetTopWindows()
                 .Concat(AppQuery.WindowsStoreApps)
-                .Where(window => window.IsVisible() && window.Handle != MainForm.Instance.Handle)
+                .Where(window => (window.IsTopLevel() || window.IsPopup()) && window.Handle != MainForm.Instance.Handle)
                 .ToList();
 
-            // If the App Launcher is visisble, no other windows are active
+            // If the App Launcher is visisble, on Windows 8 no other windows are active.. for Win 10 this is no longer true
             if (AppQuery.IsLauncherVisible)
             {
                 _windows.Add(AppQuery.GetAppLauncher());
-                return;
-            }
-            // Get all the values for Popups, they disappear as soon as focus is lost so now is the right moment
-            foreach (var popup in _windows.Where(window => window.GetInfo().Style.HasFlag(WindowStyleFlags.WS_POPUP)))
-            {
-                popup.Fill();
-                // TODO: Capture all popups to make them available like the mouse cursor.
-                // Than change focus, to remove the popups, and take the real capture
-            }
+            }     
         }
 
         private void AddConfiguredDestination()
@@ -1131,145 +1122,147 @@ namespace Greenshot.Helpers
                     // Make sure it's gone
                     Application.DoEvents();
                 }
-                if (result == DialogResult.OK)
+                if (result != DialogResult.OK)
                 {
-                    SelectedCaptureWindow = captureForm.SelectedCaptureWindow;
-                    _captureRect = captureForm.CaptureRectangle;
-                    // Get title
-                    if (SelectedCaptureWindow != null)
+                    return;
+                }
+                SelectedCaptureWindow = captureForm.SelectedCaptureWindow;
+                _captureRect = captureForm.CaptureRectangle;
+                // Get title
+                if (SelectedCaptureWindow != null)
+                {
+                    _capture.CaptureDetails.Title = SelectedCaptureWindow.Text;
+                }
+
+                // Scroll test:
+                var windowScroller = captureForm.WindowScroller;
+                if (windowScroller != null)
+                {
+                    // Set scrollmode to windows message, which is the default but still...
+                    windowScroller.ScrollMode = ScrollModes.WindowsMessage;
+
+                    if (windowScroller.NeedsFocus())
                     {
-                        _capture.CaptureDetails.Title = SelectedCaptureWindow.Text;
+                        User32Api.SetForegroundWindow(windowScroller.ScrollBarWindow.Handle);
+                        Application.DoEvents();
+                        Thread.Sleep(100);
+                        Application.DoEvents();
                     }
 
-                    // Scroll test:
-                    var windowScroller = captureForm.WindowScroller;
-                    if (windowScroller != null)
-                    {
-                        // Set scrollmode to windows message, which is the default but still...
-                        windowScroller.ScrollMode = ScrollModes.WindowsMessage;
+                    // Find the area which is scrolling
 
-                        if (windowScroller.NeedsFocus())
+                    // 1. Take the client bounds
+                    Rectangle clientBounds = windowScroller.ScrollBarWindow.GetInfo().ClientBounds;
+
+                    // Use a region for steps 2 and 3
+                    using (var region = new Region(clientBounds))
+                    {
+                        // 2. exclude the children, if any
+                        foreach (var interopWindow in windowScroller.ScrollBarWindow.GetChildren())
                         {
-                            User32Api.SetForegroundWindow(windowScroller.ScrollBarWindow.Handle);
+                            region.Exclude(interopWindow.GetInfo().Bounds);
+                        }
+                        // 3. exclude the scrollbar, if it can be found
+                        if (windowScroller.ScrollBar.HasValue)
+                        {
+                            region.Exclude(windowScroller.ScrollBar.Value.Bounds);
+                        }
+                        // Get the bounds of the region
+                        using (var screenGraphics = Graphics.FromHwnd(User32Api.GetDesktopWindow()))
+                        {
+                            var rectangleF = region.GetBounds(screenGraphics);
+                            clientBounds = new Rectangle((int) rectangleF.X, (int) rectangleF.Y, (int) rectangleF.Width, (int) rectangleF.Height);
+                        }
+                    }
+
+                    if (clientBounds.Width * clientBounds.Height > 0)
+                    {
+                        // Now calculate things like how much a line is, the total height etc...
+                        var scrollInfo = windowScroller.InitialScrollInfo;
+                        // Get the number of lines
+                        var lines = 1 + (scrollInfo.Maximum - scrollInfo.Minimum);
+                        // Calculate the height of a single line
+                        var lineHeight = Math.Ceiling((double) clientBounds.Height / (scrollInfo.PageSize + 1));
+                        // Calculate the total height
+                        var totalHeight = lineHeight * lines;
+                        var totalSize = new Size(clientBounds.Width, (int) totalHeight);
+                        Log.Info().WriteLine("Size should be: {0}, a single n = {1} pixels", totalSize, lineHeight);
+
+                        // Create the resulting image, every capture will be drawn to this
+                        var resultImage = ImageHelper.CreateEmpty(clientBounds.Width, (int) totalHeight, PixelFormat.Format32bppArgb, Color.Transparent,
+                            _capture.Image.HorizontalResolution, _capture.Image.VerticalResolution);
+
+                        // Move the window to the start
+                        windowScroller.Start();
+
+                        // Register a keyboard hook to make it possible to ESC the capturing
+                        var breakScroll = false;
+                        var keyboardHook = KeyboardHook.KeyboardEvents
+                            .Where(args => args.Key == VirtualKeyCodes.ESCAPE)
+                            .Subscribe(args =>
+                            {
+                                args.Handled = true;
+                                breakScroll = true;
+                            });
+                        try
+                        {
+                            // A delay to make the window move
                             Application.DoEvents();
                             Thread.Sleep(100);
                             Application.DoEvents();
-                        }
-
-                        // Find the area which is scrolling
-
-                        // 1. Take the client bounds
-                        Rectangle clientBounds = windowScroller.ScrollBarWindow.GetInfo().ClientBounds;
-
-                        // Use a region for steps 2 and 3
-                        using (var region = new Region(clientBounds))
-                        {
-                            // 2. exclude the children, if any
-                            foreach (var interopWindow in windowScroller.ScrollBarWindow.GetChildren())
+                            if (windowScroller.IsAtStart)
                             {
-                                region.Exclude(interopWindow.GetInfo().Bounds);
-                            }
-                            // 3. exclude the scrollbar, if it can be found
-                            if (windowScroller.ScrollBar.HasValue)
-                            {
-                                region.Exclude(windowScroller.ScrollBar.Value.Bounds);
-                            }
-                            // Get the bounds of the region
-                            using (var screenGraphics = Graphics.FromHwnd(User32Api.GetDesktopWindow()))
-                            {
-                                var rectangleF = region.GetBounds(screenGraphics);
-                                clientBounds = new Rectangle((int) rectangleF.X, (int) rectangleF.Y, (int) rectangleF.Width, (int) rectangleF.Height);
-                            }
-                        }
+                                // First capture
+                                ScrollingCapture(clientBounds, windowScroller, lineHeight, resultImage);
 
-                        if (clientBounds.Width * clientBounds.Height > 0)
-                        {
-                            // Now calculate things like how much a line is, the total height etc...
-                            var scrollInfo = windowScroller.InitialScrollInfo;
-                            // Get the number of lines
-                            var lines = 1 + (scrollInfo.Maximum - scrollInfo.Minimum);
-                            // Calculate the height of a single line
-                            var lineHeight = Math.Ceiling((double) clientBounds.Height / (scrollInfo.PageSize + 1));
-                            // Calculate the total height
-                            var totalHeight = lineHeight * lines;
-                            var totalSize = new Size(clientBounds.Width, (int) totalHeight);
-                            Log.Info().WriteLine("Size should be: {0}, a single n = {1} pixels", totalSize, lineHeight);
-
-                            // Create the resulting image, every capture will be drawn to this
-                            var resultImage = ImageHelper.CreateEmpty(clientBounds.Width, (int) totalHeight, PixelFormat.Format32bppArgb, Color.Transparent,
-                                _capture.Image.HorizontalResolution, _capture.Image.VerticalResolution);
-
-                            // Move the window to the start
-                            windowScroller.Start();
-
-                            // Register a keyboard hook to make it possible to ESC the capturing
-                            var breakScroll = false;
-                            var keyboardHook = KeyboardHook.KeyboardEvents
-                                .Where(args => args.Key == VirtualKeyCodes.ESCAPE)
-                                .Subscribe(args =>
+                                // Loop as long as we are not at the end yet
+                                while (!windowScroller.IsAtEnd && !breakScroll)
                                 {
-                                    args.Handled = true;
-                                    breakScroll = true;
-                                });
-                            try
-                            {
-                                // A delay to make the window move
-                                Application.DoEvents();
-                                Thread.Sleep(100);
-                                Application.DoEvents();
-                                if (windowScroller.IsAtStart)
-                                {
-                                    // First capture
+                                    // Next "page"
+                                    windowScroller.Next();
+                                    // Wait a bit, so the window can update
+                                    Application.DoEvents();
+                                    Thread.Sleep(100);
+                                    Application.DoEvents();
+                                    // Capture inside loop
                                     ScrollingCapture(clientBounds, windowScroller, lineHeight, resultImage);
-
-                                    // Loop as long as we are not at the end yet
-                                    while (!windowScroller.IsAtEnd && !breakScroll)
-                                    {
-                                        // Next "page"
-                                        windowScroller.Next();
-                                        // Wait a bit, so the window can update
-                                        Application.DoEvents();
-                                        Thread.Sleep(100);
-                                        Application.DoEvents();
-                                        // Capture inside loop
-                                        ScrollingCapture(clientBounds, windowScroller, lineHeight, resultImage);
-                                    }
                                 }
                             }
-                            catch (Exception ex)
-                            {
-                                Log.Error().WriteLine(ex);
-                            }
-                            finally
-                            {
-                                // Remove hook for escape
-                                keyboardHook.Dispose();
-                                // Try to reset location
-                                windowScroller.Reset();
-                            }
-
-                            _capture = new Capture(resultImage)
-                            {
-                                CaptureDetails = _capture.CaptureDetails
-                            };
-                            HandleCapture();
-                            return;
                         }
-                    }
+                        catch (Exception ex)
+                        {
+                            Log.Error().WriteLine(ex);
+                        }
+                        finally
+                        {
+                            // Remove hook for escape
+                            keyboardHook.Dispose();
+                            // Try to reset location
+                            windowScroller.Reset();
+                        }
 
-                    if (_captureRect.Height * _captureRect.Width > 0)
-                    {
-                        // Take the captureRect, this already is specified as bitmap coordinates
-                        _capture.Crop(_captureRect);
-
-                        // save for re-capturing later and show recapture context menu option
-                        // Important here is that the location needs to be offsetted back to screen coordinates!
-                        var tmpRectangle = _captureRect;
-                        tmpRectangle.Offset(_capture.ScreenBounds.Location.X, _capture.ScreenBounds.Location.Y);
-                        CoreConfig.LastCapturedRegion = tmpRectangle;
+                        _capture = new Capture(resultImage)
+                        {
+                            CaptureDetails = _capture.CaptureDetails
+                        };
                         HandleCapture();
+                        return;
                     }
                 }
+
+                if (_captureRect.Height * _captureRect.Width <= 0)
+                {
+                    return;
+                }
+                // Take the captureRect, this already is specified as bitmap coordinates
+                _capture.Crop(_captureRect);
+
+                // save for re-capturing later and show recapture context menu option
+                // Important here is that the location needs to be offsetted back to screen coordinates!
+                var tmpRectangle = _captureRect;
+                tmpRectangle.Offset(_capture.ScreenBounds.Location.X, _capture.ScreenBounds.Location.Y);
+                CoreConfig.LastCapturedRegion = tmpRectangle;
+                HandleCapture();
             }
         }
 
@@ -1279,18 +1272,18 @@ namespace Greenshot.Helpers
         /// <param name="bounds">Bounds of the onscreen area to capture</param>
         /// <param name="windowScroller">WindowScroller helps the scrolling</param>
         /// <param name="lineHeight">the height of an "n"</param>
-        /// <param name="target"></param>
-        private void ScrollingCapture(Rectangle bounds, WindowScroller windowScroller, double lineHeight, Bitmap target)
+        /// <param name="target">Bitmap</param>
+        private static void ScrollingCapture(Rectangle bounds, WindowScroller windowScroller, double lineHeight, Bitmap target)
         {
             using (var bitmap = WindowCapture.CaptureRectangle(bounds))
             {
-                ScrollInfo scrollInfo;
-                windowScroller.GetPosition(out scrollInfo);
+                windowScroller.GetPosition(out var scrollInfo);
                 double absoluteNPos = scrollInfo.Position - scrollInfo.Minimum;
-                Log.Debug().WriteLine("Scrollinfo: {0}, taking position {1}", scrollInfo, absoluteNPos);
+                int yPos = (int) (lineHeight * absoluteNPos);
+                Log.Debug().WriteLine("Scrollinfo: {0}, taking position {1}, drawing to {2}", scrollInfo, absoluteNPos, yPos);
                 using (var graphics = Graphics.FromImage(target))
                 {
-                    graphics.DrawImageUnscaled(bitmap, 0, (int) (lineHeight * absoluteNPos));
+                    graphics.DrawImageUnscaled(bitmap, 0, yPos);
                 }
             }
         }

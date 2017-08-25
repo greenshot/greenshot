@@ -379,8 +379,7 @@ namespace GreenshotPlugin.Core
 		[IniProperty("WebRequestReadWriteTimeout", Description = "The read/write timeout value for webrequets, these are seconds", DefaultValue = "100")]
 		public int WebRequestReadWriteTimeout { get; set; }
 
-		[IniProperty("IsScrollingCaptureEnabled", Description = "True to enable scrolling capture, this is done whenever a scrolling window is selected", DefaultValue = "true")
-		]
+		[IniProperty("IsScrollingCaptureEnabled", Description = "True to enable scrolling capture, this is done whenever a scrolling window is selected", DefaultValue = "true")]
 		public bool IsScrollingCaptureEnabled { get; set; }
 
 		/// <summary>
