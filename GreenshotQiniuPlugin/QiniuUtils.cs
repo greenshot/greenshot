@@ -202,7 +202,7 @@ namespace GreenshotQiniuPlugin
             PutPolicy putPolicy = new PutPolicy();
             putPolicy.Scope = _config.Scope;
             putPolicy.SetExpires(3600);
-            putPolicy.DeleteAfterDays = 1;
+            //putPolicy.DeleteAfterDays = 1;
             string token = Auth.CreateUploadToken(mac, putPolicy.ToJsonString());
      
             ResumableUploader target = new ResumableUploader();
