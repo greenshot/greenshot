@@ -1,53 +1,45 @@
-#region Greenshot GNU General Public License
-
-// Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
-// 
-// For more information see: http://getgreenshot.org/
-// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 1 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-#endregion
-
-#region Usings
+/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * 
+ * For more information see: http://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Runtime.Serialization;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
+using System.Runtime.Serialization;
 using GreenshotPlugin.Interfaces.Drawing;
 
-#endregion
-
-namespace Greenshot.Drawing
-{
+namespace Greenshot.Drawing {
 	/// <summary>
-	///     Represents a rectangular shape on the Surface
+	/// Represents a rectangular shape on the Surface
 	/// </summary>
-	[Serializable]
-	public class RectangleContainer : DrawableContainer
-	{
-		public RectangleContainer(Surface parent) : base(parent)
-		{
+	[Serializable] 
+	public class RectangleContainer : DrawableContainer {
+
+		public RectangleContainer(Surface parent) : base(parent) {
 			Init();
 		}
 
 		/// <summary>
-		///     Do some logic to make sure all field are initiated correctly
+		/// Do some logic to make sure all field are initiated correctly
 		/// </summary>
 		/// <param name="streamingContext">StreamingContext</param>
 		protected override void OnDeserialized(StreamingContext streamingContext)
@@ -61,27 +53,25 @@ namespace Greenshot.Drawing
 			CreateDefaultAdorners();
 		}
 
-		protected override void InitializeFields()
-		{
+		protected override void InitializeFields() {
 			AddField(GetType(), FieldType.LINE_THICKNESS, 2);
 			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
 			AddField(GetType(), FieldType.FILL_COLOR, Color.Transparent);
 			AddField(GetType(), FieldType.SHADOW, true);
 		}
-
-		public override void Draw(Graphics graphics, RenderMode rm)
-		{
-			var lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-			var lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-			var fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-			var shadow = GetFieldValueAsBool(FieldType.SHADOW);
-			var rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+		
+		public override void Draw(Graphics graphics, RenderMode rm) {
+			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
+			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR, Color.Red);
+			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR, Color.Transparent);
+			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
+			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 
 			DrawRectangle(rect, graphics, rm, lineThickness, lineColor, fillColor, shadow);
 		}
 
 		/// <summary>
-		///     This method can also be used from other containers, if the right values are passed!
+		/// This method can also be used from other containers, if the right values are passed!
 		/// </summary>
 		/// <param name="rect"></param>
 		/// <param name="graphics"></param>
@@ -90,27 +80,23 @@ namespace Greenshot.Drawing
 		/// <param name="lineColor"></param>
 		/// <param name="fillColor"></param>
 		/// <param name="shadow"></param>
-		public static void DrawRectangle(Rectangle rect, Graphics graphics, RenderMode rm, int lineThickness, Color lineColor, Color fillColor, bool shadow)
-		{
+		public static void DrawRectangle(Rectangle rect, Graphics graphics, RenderMode rm, int lineThickness, Color lineColor, Color fillColor, bool shadow) {
 			graphics.SmoothingMode = SmoothingMode.HighQuality;
 			graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 			graphics.CompositingQuality = CompositingQuality.HighQuality;
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
 
-			var lineVisible = lineThickness > 0 && Colors.IsVisible(lineColor);
-			if (shadow && (lineVisible || Colors.IsVisible(fillColor)))
-			{
+			bool lineVisible = lineThickness > 0 && Colors.IsVisible(lineColor);
+			if (shadow && (lineVisible || Colors.IsVisible(fillColor))) {
 				//draw shadow first
-				var basealpha = 100;
-				var alpha = basealpha;
-				var steps = 5;
-				var currentStep = lineVisible ? 1 : 0;
-				while (currentStep <= steps)
-				{
-					using (var shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100)))
-					{
+				int basealpha = 100;
+				int alpha = basealpha;
+				int steps = 5;
+				int currentStep = lineVisible ? 1 : 0;
+				while (currentStep <= steps) {
+					using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100))) {
 						shadowPen.Width = lineVisible ? lineThickness : 1;
-						var shadowRect = GuiRectangle.GetGuiRectangle(
+						Rectangle shadowRect = GuiRectangle.GetGuiRectangle(
 							rect.Left + currentStep,
 							rect.Top + currentStep,
 							rect.Width,
@@ -123,52 +109,42 @@ namespace Greenshot.Drawing
 			}
 
 
-			if (Colors.IsVisible(fillColor))
-			{
-				using (Brush brush = new SolidBrush(fillColor))
-				{
+			if (Colors.IsVisible(fillColor)) {
+				using (Brush brush = new SolidBrush(fillColor)) {
 					graphics.FillRectangle(brush, rect);
 				}
 			}
 
 			graphics.SmoothingMode = SmoothingMode.HighSpeed;
-			if (lineVisible)
-			{
-				using (var pen = new Pen(lineColor, lineThickness))
-				{
+			if (lineVisible) {
+				using (Pen pen = new Pen(lineColor, lineThickness)) {
 					graphics.DrawRectangle(pen, rect);
 				}
 			}
-		}
 
-		public override bool ClickableAt(int x, int y)
-		{
-			var rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-			var lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) + 10;
-			var fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
+		}
+		public override bool ClickableAt(int x, int y) {
+			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) + 10;
+			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
 
 			return RectangleClickableAt(rect, lineThickness, fillColor, x, y);
 		}
 
 
-		public static bool RectangleClickableAt(Rectangle rect, int lineThickness, Color fillColor, int x, int y)
-		{
+		public static bool RectangleClickableAt(Rectangle rect, int lineThickness, Color fillColor, int x, int y) {
+
 			// If we clicked inside the rectangle and it's visible we are clickable at.
-			if (!Color.Transparent.Equals(fillColor))
-			{
-				if (rect.Contains(x, y))
-				{
+			if (!Color.Transparent.Equals(fillColor)) {
+				if (rect.Contains(x,y)) {
 					return true;
 				}
 			}
 
 			// check the rest of the lines
-			if (lineThickness > 0)
-			{
-				using (var pen = new Pen(Color.White, lineThickness))
-				{
-					using (var path = new GraphicsPath())
-					{
+			if (lineThickness > 0) {
+				using (Pen pen = new Pen(Color.White, lineThickness)) {
+					using (GraphicsPath path = new GraphicsPath()) {
 						path.AddRectangle(rect);
 						return path.IsOutlineVisible(x, y, pen);
 					}

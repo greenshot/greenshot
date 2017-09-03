@@ -47,7 +47,7 @@ namespace GreenshotConfluencePlugin
 			var pages = new List<Page>();
 			var pageIdRegex = new Regex(@"pageId=(\d+)");
 			var spacePageRegex = new Regex(@"\/display\/([^\/]+)\/([^#]+)");
-			foreach (var browserurl in IEHelper.GetIeUrls().Distinct())
+			foreach (var browserurl in IEHelper.GetIEUrls().Distinct())
 			{
 				string url;
 				try
