@@ -55,7 +55,7 @@ namespace GreenshotPlugin.Core
         private static readonly IDictionary<string, string> HelpFiles = new Dictionary<string, string>();
         private static readonly Regex PrefixRegexp = new Regex(@"language_([a-zA-Z0-9]+).*");
         private static readonly Regex IetfCleanRegexp = new Regex(@"[^a-zA-Z]+");
-        private static readonly Regex IetfRegexp = new Regex(@"^.*([a-zA-Z]{2,3}-[a-zA-Z]{2})\.xml$");
+        private static readonly Regex IetfRegexp = new Regex(@"^.*([a-zA-Z]{2,3}-[a-zA-Z]{1,2})\.xml$");
         private static readonly IList<string> UnsupportedLanguageGroups = new List<string>();
         private static readonly IDictionary<string, string> Resources = new Dictionary<string, string>();
         private static string _currentLanguage;
