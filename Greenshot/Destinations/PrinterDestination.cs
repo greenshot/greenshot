@@ -80,9 +80,9 @@ namespace Greenshot.Destinations
 			get { return Keys.Control | Keys.P; }
 		}
 
-		public override Image DisplayIcon
+		public override Bitmap DisplayIcon
 		{
-			get { return GreenshotResources.GetImage("Printer.Image"); }
+			get { return GreenshotResources.GetBitmap("Printer.Image"); }
 		}
 
 		public override bool IsDynamic

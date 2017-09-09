@@ -48,12 +48,12 @@ namespace GreenshotImgurPlugin
 
 		public override string Description => Language.GetString("imgur", LangKey.upload_menu_item);
 
-		public override Image DisplayIcon
+		public override Bitmap DisplayIcon
 		{
 			get
 			{
 				var resources = new ComponentResourceManager(typeof(ImgurPlugin));
-				return (Image) resources.GetObject("Imgur");
+				return (Bitmap) resources.GetObject("Imgur");
 			}
 		}
 

@@ -26,6 +26,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Structs;
 
 #endregion
 
@@ -57,9 +58,9 @@ namespace GreenshotPlugin.Interfaces.Drawing.Adorners
 		///     Is the current point "over" the Adorner?
 		///     If this is the case, the
 		/// </summary>
-		/// <param name="point">Point to test</param>
+		/// <param name="point">NativePoint to test</param>
 		/// <returns>true if so</returns>
-		bool HitTest(Point point);
+		bool HitTest(NativePoint point);
 
 		/// <summary>
 		///     Handle the MouseDown event

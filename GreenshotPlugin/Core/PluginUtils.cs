@@ -49,7 +49,7 @@ namespace GreenshotPlugin.Core
 		private const string PathKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
 		private static readonly LogSource Log = new LogSource();
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
-		private static readonly IDictionary<string, Image> ExeIconCache = new Dictionary<string, Image>();
+		private static readonly IDictionary<string, Bitmap> ExeIconCache = new Dictionary<string, Bitmap>();
 
 		static PluginUtils()
 		{
@@ -128,10 +128,10 @@ namespace GreenshotPlugin.Core
 		/// <param name="index">index of the icon</param>
 		/// <param name="useLargeIcon">true to use the large icon</param>
 		/// <returns>Bitmap with the icon or null if something happended. you are responsible for copying this icon</returns>
-		public static Image GetCachedExeIcon(string path, int index, bool useLargeIcon = true)
+		public static Bitmap GetCachedExeIcon(string path, int index, bool useLargeIcon = true)
 		{
 			string cacheKey = $"{path}:{index}";
-			Image returnValue;
+		    Bitmap returnValue;
 			lock (ExeIconCache)
 			{
 				if (ExeIconCache.TryGetValue(cacheKey, out returnValue))

@@ -48,7 +48,7 @@ namespace GreenshotOCR
 
 		public override string Description => "OCR";
 
-		public override Image GetDisplayIcon(double dpi)
+		public override Bitmap GetDisplayIcon(double dpi)
 		{
 			var exePath = PluginUtils.GetExePath("MSPVIEW.EXE");
 			if (exePath != null && File.Exists(exePath))

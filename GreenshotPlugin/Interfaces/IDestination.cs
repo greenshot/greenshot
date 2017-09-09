@@ -56,12 +56,12 @@ namespace GreenshotPlugin.Interfaces
 		/// <summary>
 		///     Gets an icon for the destination
 		/// </summary>
-		Image DisplayIcon { get; }
+		Bitmap DisplayIcon { get; }
 
-		/// <summary>
-		///     Gets an icon for the destination, optionally it's already scaled
-		/// </summary>
-		Image GetDisplayIcon(double dpi);
+        /// <summary>
+        ///     Gets an icon for the destination, optionally it's already scaled
+        /// </summary>
+        Bitmap GetDisplayIcon(double dpi);
 
 		/// <summary>
 		/// Returns if there is a displayIcon

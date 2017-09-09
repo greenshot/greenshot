@@ -28,8 +28,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
+using Greenshot.Gfx;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 
 #endregion
@@ -54,7 +54,7 @@ namespace Greenshot.Forms
 			if (_defaultImage == null || _defaultImage.Size != CoreConfig.IconSize)
 			{
 				_defaultImage?.Dispose();
-				_defaultImage = ImageHelper.CreateEmpty(CoreConfig.IconSize.Width, CoreConfig.IconSize.Height, PixelFormat.Format32bppArgb, Color.Transparent, 96f, 96f);
+				_defaultImage = BitmapFactory.CreateEmpty(CoreConfig.IconSize.Width, CoreConfig.IconSize.Height, PixelFormat.Format32bppArgb, Color.Transparent, 96f, 96f);
 			}
 			Image = _defaultImage;
 		}

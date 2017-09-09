@@ -25,6 +25,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using Dapplo.Log;
+using Greenshot.Gfx;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
@@ -236,7 +237,7 @@ namespace GreenshotImgurPlugin {
 				Stream responseStream = response.GetResponseStream();
 				if (responseStream != null)
 				{
-					imgurInfo.Image = ImageHelper.FromStream(responseStream);
+					imgurInfo.Image = BitmapHelper.FromStream(responseStream);
 				}
 			}
 		}

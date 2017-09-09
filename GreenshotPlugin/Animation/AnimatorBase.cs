@@ -32,7 +32,7 @@ namespace GreenshotPlugin.Animation
 	/// <summary>
 	///     Base class for the animation logic, this only implements Properties and a constructor
 	/// </summary>
-	/// <typeparam name="T">Type for the animation, like Point/Rectangle/Size</typeparam>
+	/// <typeparam name="T">Type for the animation, like NativePoint/NativeRect/Size</typeparam>
 	public abstract class AnimatorBase<T> : IAnimator
 	{
 		private readonly Queue<AnimationLeg<T>> _queue = new Queue<AnimationLeg<T>>();
@@ -82,7 +82,8 @@ namespace GreenshotPlugin.Animation
 					case EasingModes.EaseOut:
 						return Easing.EaseOut(CurrentFrameNr / (double) Frames, EasingType);
 					case EasingModes.EaseInOut:
-						return Easing.EaseInOut(CurrentFrameNr / (double) Frames, EasingType);					default:
+						return Easing.EaseInOut(CurrentFrameNr / (double) Frames, EasingType);
+					default:
 						return Easing.EaseIn(CurrentFrameNr / (double) Frames, EasingType);
 				}
 			}
@@ -120,8 +121,13 @@ namespace GreenshotPlugin.Animation
 		{
 			get
 			{
-				if (CurrentFrameNr < Frames)				{					CurrentFrameNr++;					return true;				}
-				if (_queue.Count <= 0)
+				if (CurrentFrameNr < Frames)
+				{
+					CurrentFrameNr++;
+					return true;
+				}
+
+				if (_queue.Count <= 0)
 				{
 					return false;
 				}
@@ -132,7 +138,8 @@ namespace GreenshotPlugin.Animation
 				Frames = nextLeg.Frames;
 				EasingType = nextLeg.EasingType;
 				EasingMode = nextLeg.EasingMode;
-				return true;			}
+				return true;
+			}
 		}
 
 		/// <summary>

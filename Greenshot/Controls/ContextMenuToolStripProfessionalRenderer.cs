@@ -25,8 +25,8 @@
 
 using System.Drawing;
 using System.Windows.Forms;
+using Greenshot.Gfx;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 
 #endregion

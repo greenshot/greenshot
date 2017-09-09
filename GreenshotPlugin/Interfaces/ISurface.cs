@@ -27,7 +27,8 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using GreenshotPlugin.Effects;
+using Dapplo.Windows.Common.Structs;
+using Greenshot.Gfx.Effects;
 using GreenshotPlugin.Interfaces.Drawing;
 
 #endregion
@@ -59,7 +60,7 @@ namespace GreenshotPlugin.Interfaces
 		///     The setter will clone the passed bitmap and dispose it when the Surface is disposed
 		///     This means that the supplied image needs to be disposed by the calling code (if needed!)
 		/// </summary>
-		Image Image { get; set; }
+		Bitmap Screenshot { get; set; }
 
 		bool HasSelectedElements { get; }
 
@@ -80,12 +81,12 @@ namespace GreenshotPlugin.Interfaces
 		event SurfaceDrawingModeEventHandler DrawingModeChanged;
 		event SurfaceElementEventHandler MovingElementChanged;
 
-		/// <summary>
-		///     Get the current Image from the Editor for Exporting (save/upload etc)
-		///     Don't forget to call image.Dispose() when finished!!!
-		/// </summary>
-		/// <returns>Bitmap</returns>
-		Image GetImageForExport();
+        /// <summary>
+        ///     Get the current Bitmap from the Editor for Exporting (save/upload etc)
+        ///     Don't forget to call image.Dispose() when finished!!!
+        /// </summary>
+        /// <returns>Bitmap</returns>
+        Bitmap GetBitmapForExport();
 
 		/// <summary>
 		///     Add a TextContainer, at the given location, to the Surface.
@@ -105,10 +106,10 @@ namespace GreenshotPlugin.Interfaces
 		ITextContainer AddTextContainer(string text, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment, FontFamily family, float size, bool italic,
 			bool bold, bool shadow, int borderSize, Color color, Color fillColor);
 
-		IImageContainer AddImageContainer(Image image, int x, int y);
+		IBitmapContainer AddImageContainer(Bitmap bitmap, int x, int y);
 		ICursorContainer AddCursorContainer(Cursor cursor, int x, int y);
 		IIconContainer AddIconContainer(Icon icon, int x, int y);
-		IImageContainer AddImageContainer(string filename, int x, int y);
+		IBitmapContainer AddImageContainer(string filename, int x, int y);
 		ICursorContainer AddCursorContainer(string filename, int x, int y);
 		IIconContainer AddIconContainer(string filename, int x, int y);
 		long SaveElementsToStream(Stream stream);

@@ -28,6 +28,8 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Runtime.Serialization;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using GreenshotPlugin.Interfaces.Drawing;
@@ -42,7 +44,7 @@ namespace Greenshot.Drawing
 	[Serializable]
 	public class SpeechbubbleContainer : TextContainer
 	{
-		private Point _initialGripperPoint;
+		private NativePoint _initialGripperPoint;
 
 		public SpeechbubbleContainer(Surface parent)
 			: base(parent)
@@ -52,7 +54,7 @@ namespace Greenshot.Drawing
 		/// <summary>
 		///     The DrawingBound should be so close as possible to the shape, so we don't invalidate to much.
 		/// </summary>
-		public override Rectangle DrawingBounds
+		public override NativeRect DrawingBounds
 		{
 			get
 			{
@@ -66,12 +68,14 @@ namespace Greenshot.Drawing
 						var inflateValue = lineThickness + 2 + (shadow ? 6 : 0);
 						using (var tailPath = CreateTail())
 						{
-							return Rectangle.Inflate(Rectangle.Union(Rectangle.Round(tailPath.GetBounds(new Matrix(), pen)), GuiRectangle.GetGuiRectangle(Left, Top, Width, Height)),
-								inflateValue, inflateValue);
+                            NativeRectFloat tailBounds = tailPath.GetBounds(new Matrix(), pen);
+                            var bounds = new NativeRect(Left, Top, Width, Height).Normalize();
+
+                            return tailBounds.Round().Union(bounds).Inflate(inflateValue, inflateValue);
 						}
 					}
 				}
-				return Rectangle.Empty;
+				return NativeRect.Empty;
 			}
 		}
 
@@ -100,8 +104,8 @@ namespace Greenshot.Drawing
 		{
 			if (TargetAdorner == null)
 			{
-				_initialGripperPoint = new Point(mouseX, mouseY);
-				InitAdorner(Color.Green, new Point(mouseX, mouseY));
+				_initialGripperPoint = new NativePoint(mouseX, mouseY);
+				InitAdorner(Color.Green, new NativePoint(mouseX, mouseY));
 			}
 			return base.HandleMouseDown(mouseX, mouseY);
 		}
@@ -123,8 +127,7 @@ namespace Greenshot.Drawing
 			var xOffset = leftAligned ? -20 : 20;
 			var yOffset = topAligned ? -20 : 20;
 
-			var newGripperLocation = _initialGripperPoint;
-			newGripperLocation.Offset(xOffset, yOffset);
+			var newGripperLocation = _initialGripperPoint.Offset(xOffset, yOffset);
 
 			if (TargetAdorner.Location != newGripperLocation)
 			{
@@ -143,9 +146,9 @@ namespace Greenshot.Drawing
 		private GraphicsPath CreateBubble(int lineThickness)
 		{
 			var bubble = new GraphicsPath();
-			var rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+			var rect = new NativeRect(Left, Top, Width, Height).Normalize();
 
-			var bubbleRect = GuiRectangle.GetGuiRectangle(0, 0, rect.Width, rect.Height);
+			var bubbleRect = new NativeRect(0, 0, rect.Width, rect.Height).Normalize();
 			// adapt corner radius to small rectangle dimensions
 			var smallerSideLength = Math.Min(bubbleRect.Width, bubbleRect.Height);
 			var cornerRadius = Math.Min(30, smallerSideLength / 2 - lineThickness);
@@ -175,7 +178,7 @@ namespace Greenshot.Drawing
 		/// <returns></returns>
 		private GraphicsPath CreateTail()
 		{
-			var rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+			var rect = new NativeRect(Left, Top, Width, Height).Normalize();
 
 			var tailLength = GeometryHelper.Distance2D(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2, TargetAdorner.Location.X, TargetAdorner.Location.Y);
 			var tailWidth = (Math.Abs(rect.Width) + Math.Abs(rect.Height)) / 20;
@@ -224,9 +227,9 @@ namespace Greenshot.Drawing
 			var lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 
 			var lineVisible = lineThickness > 0 && Colors.IsVisible(lineColor);
-			var rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+			var rect = new NativeRect(Left, Top, Width, Height).Normalize();
 
-			if (Selected && renderMode == RenderMode.EDIT)
+            if (Selected && renderMode == RenderMode.EDIT)
 			{
 				DrawSelectionBorder(graphics, rect);
 			}
@@ -328,7 +331,7 @@ namespace Greenshot.Drawing
 			{
 				return true;
 			}
-			var clickedPoint = new Point(x, y);
+			var clickedPoint = new NativePoint(x, y);
 			if (Status != EditStatus.UNDRAWN)
 			{
 				var lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
@@ -365,7 +368,7 @@ namespace Greenshot.Drawing
 		#region TargetGripper serializing code
 
 		// Only used for serializing the TargetGripper location
-		private Point _storedTargetGripperLocation;
+		private NativePoint _storedTargetGripperLocation;
 
 		/// <summary>
 		///     Store the current location of the target gripper

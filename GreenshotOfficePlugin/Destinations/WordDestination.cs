@@ -79,7 +79,7 @@ namespace GreenshotOfficePlugin.Destinations
 
 		public override bool IsActive => base.IsActive && ExePath != null;
 
-		public override Image GetDisplayIcon(double dpi)
+		public override Bitmap GetDisplayIcon(double dpi)
 		{
 			return PluginUtils.GetCachedExeIcon(ExePath, !string.IsNullOrEmpty(_documentCaption) ? IconDocument : IconApplication, dpi > 100);
 		} 

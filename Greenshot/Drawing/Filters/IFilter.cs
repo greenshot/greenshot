@@ -25,6 +25,7 @@
 
 using System.ComponentModel;
 using System.Drawing;
+using Dapplo.Windows.Common.Structs;
 using GreenshotPlugin.Interfaces.Drawing;
 
 #endregion
@@ -35,7 +36,7 @@ namespace Greenshot.Drawing.Filters
 	{
 		DrawableContainer Parent { get; set; }
 		bool Invert { get; set; }
-		void Apply(Graphics graphics, Bitmap bmp, Rectangle rect, RenderMode renderMode);
+		void Apply(Graphics graphics, Bitmap bmp, NativeRect rect, RenderMode renderMode);
 		DrawableContainer GetParent();
 	}
 }

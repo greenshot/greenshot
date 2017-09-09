@@ -46,7 +46,7 @@ namespace GreenshotWin10Plugin
 		/// <summary>
 		/// Icon for the OCR function, the icon was found via: http://help4windows.com/windows_8_imageres_dll.shtml
 		/// </summary>
-		public override Image DisplayIcon=> PluginUtils.GetCachedExeIcon(FilenameHelper.FillCmdVariables(@"%windir%\system32\imageres.dll"), 97);
+		public override Bitmap DisplayIcon=> PluginUtils.GetCachedExeIcon(FilenameHelper.FillCmdVariables(@"%windir%\system32\imageres.dll"), 97);
 
 		/// <summary>
 		/// Constructor, this is only debug information

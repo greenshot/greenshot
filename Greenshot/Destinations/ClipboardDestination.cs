@@ -61,9 +61,9 @@ namespace Greenshot.Destinations
 			get { return Keys.Control | Keys.Shift | Keys.C; }
 		}
 
-		public override Image DisplayIcon
+		public override Bitmap DisplayIcon
 		{
-			get { return GreenshotResources.GetImage("Clipboard.Image"); }
+			get { return GreenshotResources.GetBitmap("Clipboard.Image"); }
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)

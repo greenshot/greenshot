@@ -25,7 +25,10 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 using System.Runtime.Serialization;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing {
@@ -38,9 +41,9 @@ namespace Greenshot.Drawing {
 
 		[NonSerialized]
 		private readonly object _freehandPathLock = new object();
-		private Rectangle myBounds = Rectangle.Empty;
-		private Point lastMouse = Point.Empty;
-		private readonly List<Point> capturePoints = new List<Point>();
+		private NativeRect myBounds = NativeRect.Empty;
+		private NativePoint lastMouse = NativePoint.Empty;
+		private readonly List<NativePointFloat> capturePoints = new List<NativePointFloat>();
 		[NonSerialized] private GraphicsPath freehandPath = new GraphicsPath();
 		private bool isRecalculated;
 		
@@ -59,12 +62,12 @@ namespace Greenshot.Drawing {
 			AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
 		}
 
-		public override void Transform(Matrix matrix) {
-			Point[] points = capturePoints.ToArray();
-
-			matrix.TransformPoints(points);
+		public override void Transform(Matrix matrix)
+		{
+		    var newPoints = capturePoints.Cast<PointF>().ToArray();
+            matrix.TransformPoints(newPoints);
 			capturePoints.Clear();
-			capturePoints.AddRange(points);
+			capturePoints.AddRange(newPoints.Cast<NativePointFloat>());
 			RecalculatePath();
 		}
 		
@@ -90,7 +93,7 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <returns>true if the surface doesn't need to handle the event</returns>
 		public override bool HandleMouseDown(int mouseX, int mouseY) {
-			lastMouse = new Point(mouseX, mouseY);
+			lastMouse = new NativePoint(mouseX, mouseY);
 			capturePoints.Add(lastMouse);
 			return true;
 		}
@@ -100,22 +103,23 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <returns>true if the surface doesn't need to handle the event</returns>
 		public override bool HandleMouseMove(int mouseX, int mouseY) {
-			Point previousPoint = capturePoints[capturePoints.Count-1];
+			NativePoint previousPoint = capturePoints[capturePoints.Count-1];
 
 			if (GeometryHelper.Distance2D(previousPoint.X, previousPoint.Y, mouseX, mouseY) >= 2*EditorConfig.FreehandSensitivity) {
-				capturePoints.Add(new Point(mouseX, mouseY));
+				capturePoints.Add(new NativePoint(mouseX, mouseY));
 			}
 		    if (GeometryHelper.Distance2D(lastMouse.X, lastMouse.Y, mouseX, mouseY) < EditorConfig.FreehandSensitivity)
 		    {
 		        return true;
 		    }
-		    //path.AddCurve(new Point[]{lastMouse, new Point(mouseX, mouseY)});
-		    lastMouse = new Point(mouseX, mouseY);
+		    //path.AddCurve(new NativePoint[]{lastMouse, new NativePoint(mouseX, mouseY)});
+		    lastMouse = new NativePoint(mouseX, mouseY);
 		    lock (_freehandPathLock)
 		    {
-		        freehandPath.AddLine(lastMouse, new Point(mouseX, mouseY));
-		        // Only re-calculate the bounds & redraw when we added something to the path
-		        myBounds = Rectangle.Round(freehandPath.GetBounds());
+		        freehandPath.AddLine(lastMouse, new NativePoint(mouseX, mouseY));
+                // Only re-calculate the bounds & redraw when we added something to the path
+		        NativeRectFloat rect = freehandPath.GetBounds();
+                myBounds = rect.Round();
 		    }
 
 		    Invalidate();
@@ -128,7 +132,7 @@ namespace Greenshot.Drawing {
 		public override void HandleMouseUp(int mouseX, int mouseY) {
 			// Make sure we don't loose the ending point
 			if (GeometryHelper.Distance2D(lastMouse.X, lastMouse.Y, mouseX, mouseY) >= EditorConfig.FreehandSensitivity) {
-				capturePoints.Add(new Point(mouseX, mouseY));
+				capturePoints.Add(new NativePoint(mouseX, mouseY));
 			}
 			RecalculatePath();
 		}
@@ -153,7 +157,7 @@ namespace Greenshot.Drawing {
 		                // duplicate points, first at 50% than 25% than 75%
 		                capturePoints.Insert((int)(capturePoints.Count * PointOffset[index]), capturePoints[(int)(capturePoints.Count * PointOffset[index++])]);
 		            }
-		            freehandPath.AddBeziers(capturePoints.ToArray());
+		            freehandPath.AddBeziers(capturePoints.Cast<PointF>().ToArray());
 		        }
 		        else if (capturePoints.Count == 2)
 		        {
@@ -161,7 +165,8 @@ namespace Greenshot.Drawing {
 		        }
 
 		        // Recalculate the bounds
-		        myBounds = Rectangle.Round(freehandPath.GetBounds());
+		        NativeRectFloat rect = freehandPath.GetBounds();
+                myBounds = rect.Round();
 
             }
 
@@ -230,14 +235,14 @@ namespace Greenshot.Drawing {
 		/// <summary>
 		/// Get the bounds in which we have something drawn, plus safety margin, these are not the normal bounds...
 		/// </summary>
-		public override Rectangle DrawingBounds {
+		public override NativeRect DrawingBounds {
 			get {
 				if (!myBounds.IsEmpty) {
 					int lineThickness = Math.Max(10, GetFieldValueAsInt(FieldType.LINE_THICKNESS));
 					int safetymargin = 10;
-					return new Rectangle(myBounds.Left + Left - (safetymargin+lineThickness), myBounds.Top + Top - (safetymargin+lineThickness), myBounds.Width + 2*(lineThickness+safetymargin), myBounds.Height + 2*(lineThickness+safetymargin));
+					return new NativeRect(myBounds.Left + Left - (safetymargin+lineThickness), myBounds.Top + Top - (safetymargin+lineThickness), myBounds.Width + 2*(lineThickness+safetymargin), myBounds.Height + 2*(lineThickness+safetymargin));
 				}
-				return new Rectangle(0, 0, _parent?.Width??0, _parent?.Height?? 0);
+				return new NativeRect(0, 0, _parent?.Width??0, _parent?.Height?? 0);
 			}
 		}
 

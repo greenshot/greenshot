@@ -39,9 +39,12 @@ using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interop;
 using Dapplo.Log;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Messages;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
+using Greenshot.Gfx;
 using mshtml;
 
 #endregion
@@ -85,8 +88,8 @@ namespace Greenshot.Helpers
 			var ieWindow = someWindow.GetChildren().FirstOrDefault(window => window.GetClassname() == "Internet Explorer_Server");
 			if (ieWindow != null)
 			{
-				Rectangle wholeClient = someWindow.GetInfo().ClientBounds;
-				Rectangle partClient = ieWindow.GetInfo().ClientBounds;
+				NativeRect wholeClient = someWindow.GetInfo().ClientBounds;
+				NativeRect partClient = ieWindow.GetInfo().ClientBounds;
 				var percentage = (int) (100 * (float) (partClient.Width * partClient.Height) / (wholeClient.Width * wholeClient.Height));
 				Log.Info().WriteLine("Window {0}, ie part {1}, percentage {2}", wholeClient, partClient, percentage);
 				if (percentage > minimumPercentage)
@@ -460,7 +463,7 @@ namespace Greenshot.Helpers
 				//        }
 				//        capture.AddElement(documentCaptureElement);
 				//        // Offset the elements, as they are "back offseted" later...
-				//        Point windowLocation = documentContainer.ContentWindow.WindowRectangle.Location;
+				//        NativePoint windowLocation = documentContainer.ContentWindow.WindowRectangle.Location;
 				//        capture.MoveElements(-(capture.ScreenBounds.Location.X-windowLocation.X), -(capture.ScreenBounds.Location.Y-windowLocation.Y));
 				//    }
 				//} catch (Exception elementsException) {
@@ -474,7 +477,7 @@ namespace Greenshot.Helpers
 				}
 
 				// Store the bitmap for further processing
-				capture.Image = returnBitmap;
+				capture.Bitmap = returnBitmap;
 				try
 				{
 					// Store the location of the window
@@ -725,14 +728,14 @@ namespace Greenshot.Helpers
 			var horizontalPage = 0;
 
 			// The location of the browser, used as the destination into the bitmap target
-			var targetOffset = new Point();
+			var targetOffset = new NativePoint();
 
 			// Loop of the pages and make a copy of the visible viewport
 			while (horizontalPage * viewportWidth < pageWidth)
 			{
 				// Scroll to location
 				documentContainer.ScrollLeft = viewportWidth * horizontalPage;
-				targetOffset.X = documentContainer.ScrollLeft;
+				targetOffset = targetOffset.ChangeX(documentContainer.ScrollLeft);
 
 				// Variable used for looping vertically
 				var verticalPage = 0;
@@ -740,12 +743,12 @@ namespace Greenshot.Helpers
 				{
 					// Scroll to location
 					documentContainer.ScrollTop = viewportHeight * verticalPage;
-					//Shoot visible window
-					targetOffset.Y = documentContainer.ScrollTop;
+                    //Shoot visible window
+                    targetOffset = targetOffset.ChangeY(documentContainer.ScrollTop);
 
 					// Draw the captured fragment to the target, but "crop" the scrollbars etc while capturing 
 					var viewPortSize = new Size(viewportWidth, viewportHeight);
-					var clientRectangle = new Rectangle(documentContainer.SourceLocation, viewPortSize);
+					var clientRectangle = new NativeRect(documentContainer.SourceLocation, viewPortSize);
 					var fragment = contentWindowDetails.PrintWindow();
 					if (fragment != null)
 					{
@@ -757,15 +760,15 @@ namespace Greenshot.Helpers
 							if (!viewportRect.IsEmpty)
 							{
 								Log.Debug().WriteLine("Cropping to viewport: {0}", viewportRect);
-								ImageHelper.Crop(ref fragment, ref viewportRect);
+								BitmapHelper.Crop(ref fragment, ref viewportRect);
 							}
 							Log.Debug().WriteLine("Cropping to clientRectangle: {0}", clientRectangle);
 							// Crop to clientRectangle
-							if (ImageHelper.Crop(ref fragment, ref clientRectangle))
+							if (BitmapHelper.Crop(ref fragment, ref clientRectangle))
 							{
-								var targetLocation = new Point(documentContainer.DestinationLocation.X, documentContainer.DestinationLocation.Y);
+								var targetLocation = new NativePoint(documentContainer.DestinationLocation.X, documentContainer.DestinationLocation.Y);
 								Log.Debug().WriteLine("Fragment targetLocation is {0}", targetLocation);
-								targetLocation.Offset(targetOffset);
+							    targetLocation = targetLocation.Offset(targetOffset);
 								Log.Debug().WriteLine("After offsetting the fragment targetLocation is {0}", targetLocation);
 								Log.Debug().WriteLine("Drawing fragment of size {0} to {1}", fragment.Size, targetLocation);
 								graphicsTarget.DrawImage(fragment, targetLocation);

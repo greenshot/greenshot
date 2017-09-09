@@ -25,6 +25,7 @@
 
 using System;
 using System.Drawing;
+using Dapplo.Windows.Common.Structs;
 
 #endregion
 
@@ -38,27 +39,27 @@ namespace GreenshotPlugin.Interfaces
 		// The Capture Details
 		ICaptureDetails CaptureDetails { get; set; }
 
-		// The captured Image
-		Image Image { get; set; }
+        // The captured Image
+	    Bitmap Bitmap { get; set; }
 
-		Rectangle ScreenBounds { get; set; }
+		NativeRect ScreenBounds { get; set; }
 
 		Icon Cursor { get; set; }
 
 		// Boolean to specify if the cursor is available
 		bool CursorVisible { get; set; }
 
-		Point CursorLocation { get; set; }
+	    NativePoint CursorLocation { get; set; }
 
-		Point Location { get; set; }
+	    NativePoint Location { get; set; }
 
-		void NullImage();
+		void NullBitmap();
 
-		/// <summary>
-		///     Crops the capture to the specified rectangle (with Bitmap coordinates!)
-		/// </summary>
-		/// <param name="cropRectangle">Rectangle with bitmap coordinates</param>
-		bool Crop(Rectangle cropRectangle);
+        /// <summary>
+        ///     Crops the capture to the specified NativeRect (with Bitmap coordinates!)
+        /// </summary>
+        /// <param name="cropRectangle">NativeRect with bitmap coordinates</param>
+        bool Crop(NativeRect cropRectangle);
 
 		/// <summary>
 		///     Apply a translate to the mouse location. e.g. needed for crop
@@ -66,28 +67,5 @@ namespace GreenshotPlugin.Interfaces
 		/// <param name="x">x coordinates to move the mouse</param>
 		/// <param name="y">y coordinates to move the mouse</param>
 		void MoveMouseLocation(int x, int y);
-
-		// / TODO: Enable when the elements are usable again.
-		///// <summary>
-		///// Apply a translate to the elements e.g. needed for crop
-		///// </summary>
-		///// <param name="x">x coordinates to move the elements</param>
-		///// <param name="y">y coordinates to move the elements</param>
-		//void MoveElements(int x, int y);
-
-		///// <summary>
-		///// Add a new element to the capture
-
-		///// </summary>
-		///// <param name="element">Rectangle</param>
-		//void AddElement(ICaptureElement element);
-
-		///// <summary>
-		///// Returns a list of rectangles which represent objects that are "on" the capture
-		///// </summary>
-		//List<ICaptureElement> Elements {
-		//    get;
-		//    set;
-		//}
 	}
 }

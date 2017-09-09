@@ -30,6 +30,8 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using GreenshotPlugin.Interfaces;
 
 namespace Greenshot.Drawing {
@@ -212,7 +214,7 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="clipRectangle"></param>
 		/// <returns>true if an filter intersects</returns>
-		public bool HasIntersectingFilters(Rectangle clipRectangle) {
+		public bool HasIntersectingFilters(NativeRect clipRectangle) {
 			foreach(var dc in this) {
 				if (dc.DrawingBounds.IntersectsWith(clipRectangle) && dc.hasFilters && dc.Status == EditStatus.IDLE) {
 					return true;
@@ -226,7 +228,7 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		/// <param name="clipRectangle"></param>
 		/// <returns></returns>
-		public bool IntersectsWith(Rectangle clipRectangle) {
+		public bool IntersectsWith(NativeRect clipRectangle) {
 			foreach(var dc in this) {
 				if (dc.DrawingBounds.IntersectsWith(clipRectangle)) {
 					return true;
@@ -242,7 +244,7 @@ namespace Greenshot.Drawing {
 		/// <param name="bitmap">Bitmap to draw</param>
 		/// <param name="renderMode">the rendermode in which the element is to be drawn</param>
 		/// <param name="clipRectangle"></param>
-		public void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode, Rectangle clipRectangle) {
+		public void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode, NativeRect clipRectangle) {
 			if (Parent == null)
 			{
 				return;
@@ -281,10 +283,10 @@ namespace Greenshot.Drawing {
 			{
 				return;
 			}
-			Rectangle region = Rectangle.Empty;
+			NativeRect region = NativeRect.Empty;
 			foreach (var dc in this)
 			{
-				region = Rectangle.Union(region, dc.DrawingBounds);
+				region = region.Union(dc.DrawingBounds);
 			}
 			Parent.Invalidate(region);
 		}

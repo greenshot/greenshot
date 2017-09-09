@@ -45,12 +45,12 @@ namespace GreenshotGooglePhotosPlugin
 
 		public override string Description => Language.GetString("googlephotos", LangKey.upload_menu_item);
 
-		public override Image DisplayIcon
+		public override Bitmap DisplayIcon
 		{
 			get
 			{
 				var resources = new ComponentResourceManager(typeof(GooglePhotosPlugin));
-				return (Image) resources.GetObject("GooglePhotos");
+				return (Bitmap) resources.GetObject("GooglePhotos");
 			}
 		}
 

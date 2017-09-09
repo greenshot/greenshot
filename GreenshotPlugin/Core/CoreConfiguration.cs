@@ -31,6 +31,7 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 using Dapplo.Log;
+using Dapplo.Windows.Common.Structs;
 using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
@@ -331,7 +332,7 @@ namespace GreenshotPlugin.Core
 		public bool ProcessEXIFOrientation { get; set; }
 
 		[IniProperty("LastCapturedRegion", Description = "The last used region, for reuse in the capture last region")]
-		public Rectangle LastCapturedRegion { get; set; }
+		public NativeRect LastCapturedRegion { get; set; }
 
 		[IniProperty("Win10BorderCrop", Description = "The capture is cropped with these settings, e.g. when you don't want to color around it -1,-1")]
 		[DefaultValue("0,0")]
@@ -344,7 +345,7 @@ namespace GreenshotPlugin.Core
 			set
 			{
 				var newSize = value;
-				if (newSize != Size.Empty)
+				if (!newSize.IsEmpty)
 				{
 					if (newSize.Width < 16)
 					{

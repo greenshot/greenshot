@@ -36,6 +36,7 @@ using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
 using Dapplo.Windows.Dpi;
+using Greenshot.Gfx;
 using GreenshotPlugin.Gfx;
 
 #endregion

@@ -23,7 +23,7 @@
 
 #region using
 
-using System.Drawing;
+using Dapplo.Windows.Common.Structs;
 
 #endregion
 
@@ -32,9 +32,9 @@ namespace GreenshotPlugin.Animation
 	/// <summary>
 	///     Implementation of the PointAnimator
 	/// </summary>
-	public class PointAnimator : AnimatorBase<Point>
+	public class PointAnimator : AnimatorBase<NativePoint>
 	{
-		public PointAnimator(Point first, Point last, int frames, EasingTypes easingType = EasingTypes.Linear, EasingModes easingMode = EasingModes.EaseIn)
+		public PointAnimator(NativePoint first, NativePoint last, int frames, EasingTypes easingType = EasingTypes.Linear, EasingModes easingMode = EasingModes.EaseIn)
 			: base(first, last, frames, easingType, easingMode)
 		{
 		}
@@ -42,8 +42,8 @@ namespace GreenshotPlugin.Animation
 		/// <summary>
 		///     Calculate the next frame value
 		/// </summary>
-		/// <returns>Point</returns>
-		public override Point Next()
+		/// <returns>NativePoint</returns>
+		public override NativePoint Next()
 		{
 			if (!NextFrame)
 			{
@@ -55,7 +55,7 @@ namespace GreenshotPlugin.Animation
 
 			var x = First.X + (int) (easingValue * dx);
 			var y = First.Y + (int) (easingValue * dy);
-			Current = new Point(x, y);
+			Current = new NativePoint(x, y);
 			return Current;
 		}
 	}

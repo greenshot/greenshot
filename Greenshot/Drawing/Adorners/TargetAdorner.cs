@@ -26,6 +26,8 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using GreenshotPlugin.Interfaces.Drawing;
 
 #endregion
@@ -37,7 +39,7 @@ namespace Greenshot.Drawing.Adorners
 	/// </summary>
 	public class TargetAdorner : AbstractAdorner
 	{
-		public TargetAdorner(IDrawableContainer owner, Point location) : base(owner)
+		public TargetAdorner(IDrawableContainer owner, NativePoint location) : base(owner)
 		{
 			Location = location;
 		}
@@ -65,27 +67,27 @@ namespace Greenshot.Drawing.Adorners
 			}
 
 			Owner.Invalidate();
-			var newGripperLocation = new Point(mouseEventArgs.X, mouseEventArgs.Y);
-			var surfaceBounds = new Rectangle(0, 0, Owner.Parent.Width, Owner.Parent.Height);
+			var newGripperLocation = new NativePoint(mouseEventArgs.X, mouseEventArgs.Y);
+			var surfaceBounds = new NativeRect(0, 0, Owner.Parent.Width, Owner.Parent.Height);
 			// Check if gripper inside the parent (surface), if not we need to move it inside
 			// This was made for BUG-1682
 			if (!surfaceBounds.Contains(newGripperLocation))
 			{
 				if (newGripperLocation.X > surfaceBounds.Right)
 				{
-					newGripperLocation.X = surfaceBounds.Right - 5;
+					newGripperLocation = newGripperLocation.ChangeX(surfaceBounds.Right - 5);
 				}
 				if (newGripperLocation.X < surfaceBounds.Left)
 				{
-					newGripperLocation.X = surfaceBounds.Left;
+                    newGripperLocation = newGripperLocation.ChangeX(surfaceBounds.Left);
 				}
 				if (newGripperLocation.Y > surfaceBounds.Bottom)
 				{
-					newGripperLocation.Y = surfaceBounds.Bottom - 5;
+                    newGripperLocation = newGripperLocation.ChangeY(surfaceBounds.Bottom - 5);
 				}
 				if (newGripperLocation.Y < surfaceBounds.Top)
 				{
-					newGripperLocation.Y = surfaceBounds.Top;
+                    newGripperLocation = newGripperLocation.ChangeY(surfaceBounds.Top);
 				}
 			}
 

@@ -1,8 +1,31 @@
-﻿using System;
+﻿#region Greenshot GNU General Public License
+
+// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+// For more information see: http://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 1 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using GreenshotPlugin.Gfx;
+using Greenshot.Gfx;
 
 namespace GreenshotPlugin.Controls
 {
@@ -25,11 +48,11 @@ namespace GreenshotPlugin.Controls
 		/// <returns>Bitmap</returns>
 		public Bitmap GetIcon(string imageName)
 		{
-			var image = (Bitmap)_resources.GetObject(imageName);
-			var result = (Bitmap)image.ScaleIconForDisplaying(96);
-			if (Equals(image, result))
+			var bitmap = (Bitmap)_resources.GetObject(imageName);
+			var result = bitmap.ScaleIconForDisplaying(96);
+			if (Equals(bitmap, result))
 			{
-				return image;
+				return bitmap;
 			}
 			_images.Add(result);
 			return result;

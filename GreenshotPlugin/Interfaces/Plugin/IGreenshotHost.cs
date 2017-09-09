@@ -56,14 +56,14 @@ namespace GreenshotPlugin.Interfaces.Plugin
 		/// </summary>
 		IDictionary<PluginAttribute, IGreenshotPlugin> Plugins { get; }
 
-		/// <summary>
-		///     Create a Thumbnail
-		/// </summary>
-		/// <param name="image">Image of which we need a Thumbnail</param>
-		/// <param name="width"></param>
-		/// <param name="height"></param>
-		/// <returns>Image with Thumbnail</returns>
-		Image GetThumbnail(Image image, int width, int height);
+        /// <summary>
+        ///     Create a Thumbnail
+        /// </summary>
+        /// <param name="bitmap">Bitmap of which we need a Thumbnail</param>
+        /// <param name="width">int</param>
+        /// <param name="height">int</param>
+        /// <returns>Bitmap with Thumbnail</returns>
+        Bitmap GetThumbnail(Bitmap bitmap, int width, int height);
 
 		/// <summary>
 		///     Get a destination by it's designation
@@ -103,11 +103,11 @@ namespace GreenshotPlugin.Interfaces.Plugin
 		/// <param name="captureToImport">ICapture to import</param>
 		void ImportCapture(ICapture captureToImport);
 
-		/// <summary>
-		///     Use the supplied image, and ICapture a capture object for it
-		/// </summary>
-		/// <param name="imageToCapture">Image to create capture for</param>
-		/// <returns>ICapture</returns>
-		ICapture GetCapture(Image imageToCapture);
+        /// <summary>
+        ///     Use the supplied image, and ICapture a capture object for it
+        /// </summary>
+        /// <param name="bitmapToCapture">Bitmap to create capture for</param>
+        /// <returns>ICapture</returns>
+        ICapture GetCapture(Bitmap bitmapToCapture);
 	}
 }

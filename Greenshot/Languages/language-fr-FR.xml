@@ -73,9 +73,9 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_arrange">Organiser</resource>
 		<resource name="editor_arrowheads">Pointes de flèche</resource>
 		<resource name="editor_arrowheads_both">Les deux</resource>
-		<resource name="editor_arrowheads_end">Point final</resource>
+		<resource name="editor_arrowheads_end">NativePoint final</resource>
 		<resource name="editor_arrowheads_none">Aucun</resource>
-		<resource name="editor_arrowheads_start">Point d'origine</resource>
+		<resource name="editor_arrowheads_start">NativePoint d'origine</resource>
 		<resource name="editor_autocrop">Cadrage automatique</resource>
 		<resource name="editor_backcolor">Couleur de remplissage</resource>
 		<resource name="editor_blur_radius">Rayon du floutage</resource>

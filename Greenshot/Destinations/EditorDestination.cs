@@ -45,7 +45,7 @@ namespace Greenshot.Destinations
 		public const string DESIGNATION = "Editor";
 		private static readonly LogSource Log = new LogSource();
 		private static readonly EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
-		private static readonly Image greenshotIcon = GreenshotResources.GetGreenshotIcon().ToBitmap();
+		private static readonly Bitmap greenshotIcon = GreenshotResources.GetGreenshotIcon().ToBitmap();
 		private readonly IImageEditor editor;
 
 		public EditorDestination()
@@ -84,7 +84,7 @@ namespace Greenshot.Destinations
 			get { return true; }
 		}
 
-		public override Image DisplayIcon
+		public override Bitmap DisplayIcon
 		{
 			get { return greenshotIcon; }
 		}
@@ -145,7 +145,7 @@ namespace Greenshot.Destinations
 			{
 				try
 				{
-					using (var image = surface.GetImageForExport())
+					using (var image = surface.GetBitmapForExport())
 					{
 						editor.Surface.AddImageContainer(image, 10, 10);
 					}

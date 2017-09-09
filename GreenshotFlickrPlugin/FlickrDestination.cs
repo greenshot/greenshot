@@ -45,12 +45,12 @@ namespace GreenshotFlickrPlugin
 
 		public override string Description => Language.GetString("flickr", LangKey.upload_menu_item);
 
-		public override Image DisplayIcon
+		public override Bitmap DisplayIcon
 		{
 			get
 			{
 				var resources = new ComponentResourceManager(typeof(FlickrPlugin));
-				return (Image) resources.GetObject("flickr");
+				return (Bitmap) resources.GetObject("flickr");
 			}
 		}
 

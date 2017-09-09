@@ -25,8 +25,10 @@
 
 using System;
 using System.Drawing;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Drawing.Fields;
-using GreenshotPlugin.Gfx;
+using Greenshot.Gfx;
+using Greenshot.Gfx.Effects;
 using GreenshotPlugin.Interfaces.Drawing;
 
 #endregion
@@ -48,9 +50,9 @@ namespace Greenshot.Drawing.Filters
 		/// <param name="applyBitmap"></param>
 		/// <param name="rect"></param>
 		/// <param name="renderMode"></param>
-		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode)
+		public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
 		{
-			var applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
+			var applyRect = BitmapHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
 
 			if (applyRect.Width == 0 || applyRect.Height == 0)
 			{
@@ -65,7 +67,7 @@ namespace Greenshot.Drawing.Filters
 				graphics.ExcludeClip(rect);
 			}
 			var brightness = GetFieldValueAsFloat(FieldType.BRIGHTNESS);
-			using (var ia = ImageHelper.CreateAdjustAttributes(brightness, 1f, 1f))
+			using (var ia = AdjustEffect.CreateAdjustAttributes(brightness, 1f, 1f))
 			{
 				graphics.DrawImage(applyBitmap, applyRect, applyRect.X, applyRect.Y, applyRect.Width, applyRect.Height, GraphicsUnit.Pixel, ia);
 			}

@@ -36,9 +36,9 @@ using System.Windows.Forms;
 using Greenshot.Configuration;
 using Greenshot.Helpers;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using Dapplo.Log;
+using Greenshot.Gfx;
 using GreenshotPlugin.Animation;
 
 #endregion
@@ -148,7 +148,7 @@ namespace Greenshot.Forms
 			DoubleBuffered = !IsTerminalServerSession;
 
 			// Use the self drawn image, first we create the background to be the backcolor (as we animate from this)
-			_bitmap = ImageHelper.CreateEmpty(90, 90, PixelFormat.Format24bppRgb, BackColor, 96, 96);
+			_bitmap = BitmapFactory.CreateEmpty(90, 90, PixelFormat.Format24bppRgb, BackColor, 96, 96);
 			pictureBox1.Image = _bitmap;
 			var v = Assembly.GetExecutingAssembly().GetName().Version;
 

@@ -25,6 +25,7 @@
 
 using System.Collections.Generic;
 using System.Drawing;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Drawing;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces.Drawing;
@@ -38,7 +39,7 @@ namespace Greenshot.Memento
 	/// </summary>
 	public class DrawableContainerBoundsChangeMemento : IMemento
 	{
-		private readonly List<Point> _points = new List<Point>();
+		private readonly List<NativePoint> _points = new List<NativePoint>();
 		private readonly List<Size> _sizes = new List<Size>();
 		private IDrawableContainerList _listOfdrawableContainer;
 

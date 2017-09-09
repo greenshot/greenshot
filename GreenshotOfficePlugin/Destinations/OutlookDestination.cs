@@ -51,7 +51,7 @@ namespace GreenshotOfficePlugin.Destinations
 		private const string MapiClient = "Microsoft Outlook";
 		private static readonly LogSource Log = new LogSource();
 
-		private static readonly Image MailIcon = GreenshotResources.GetImage("Email.Image");
+		private static readonly Bitmap MailIcon = GreenshotResources.GetBitmap("Email.Image");
 		private static readonly OfficeConfiguration OfficeConfig = IniConfig.GetIniSection<OfficeConfiguration>();
 		private static readonly string ExePath;
 		private static readonly bool IsActiveFlag;
@@ -97,7 +97,7 @@ namespace GreenshotOfficePlugin.Destinations
 
 		public override Keys EditorShortcutKeys => Keys.Control | Keys.E;
 
-		public override Image GetDisplayIcon(double dpi)
+		public override Bitmap GetDisplayIcon(double dpi)
 		{
 			if (_outlookInspectorCaption == null)
 			{

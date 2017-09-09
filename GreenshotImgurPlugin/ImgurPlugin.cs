@@ -27,6 +27,7 @@ using System.Windows.Forms;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using Dapplo.Log;
+using Greenshot.Gfx;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
@@ -185,7 +186,7 @@ namespace GreenshotImgurPlugin {
 
 				if (imgurInfo != null) {
 					// TODO: Optimize a second call for export
-					using (var tmpImage = surfaceToUpload.GetImageForExport())
+					using (var tmpImage = surfaceToUpload.GetBitmapForExport())
 					{
 						imgurInfo.Image = tmpImage.CreateThumbnail(90, 90);
 					}

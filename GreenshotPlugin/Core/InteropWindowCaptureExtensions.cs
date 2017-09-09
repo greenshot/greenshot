@@ -31,16 +31,17 @@ using System.Windows.Forms;
 using Dapplo.Log;
 using Dapplo.Windows.App;
 using Dapplo.Windows.Common;
+using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Gdi32;
 using Dapplo.Windows.Icons;
 using Dapplo.Windows.Kernel32;
-using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
+using Greenshot.Gfx;
+using Greenshot.Gfx.FastBitmap;
 using GreenshotPlugin.Core.Enums;
-using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 
@@ -120,7 +121,7 @@ namespace GreenshotPlugin.Core
             var capturedImage = interopWindow.PrintWindow();
             if (capturedImage != null)
             {
-                capture.Image = capturedImage;
+                capture.Bitmap = capturedImage;
                 capture.Location = interopWindow.GetInfo().Bounds.Location;
                 return capture;
             }
@@ -132,59 +133,19 @@ namespace GreenshotPlugin.Core
         ///     As GDI+ draws it, it will be without Aero borders!
         ///     TODO: If there is a parent, this could be removed with SetParent, and set back afterwards.
         /// </summary>
-        public static Image PrintWindow(this IInteropWindow nativeWindow)
+        public static Bitmap PrintWindow(this IInteropWindow nativeWindow)
         {
+            var returnBitmap = nativeWindow.PrintWindow<Bitmap>();
+            if (nativeWindow.HasParent || !nativeWindow.IsMaximized())
+            {
+                return returnBitmap;
+            }
+            Log.Debug().WriteLine("Correcting for maximalization");
+            Size borderSize = nativeWindow.GetInfo().BorderSize;
             var bounds = nativeWindow.GetInfo().Bounds;
-            // Start the capture
-            Exception exceptionOccured = null;
-            Image returnImage;
-            using (var region = nativeWindow.GetRegion())
-            {
-                var pixelFormat = PixelFormat.Format24bppRgb;
-                // Only use 32 bpp ARGB when the window has a region
-                if (region != null)
-                {
-                    pixelFormat = PixelFormat.Format32bppArgb;
-                }
-                returnImage = new Bitmap(bounds.Width, bounds.Height, pixelFormat);
-                using (var graphics = Graphics.FromImage(returnImage))
-                {
-                    using (var safeDeviceContext = graphics.GetSafeDeviceContext())
-                    {
-                        var printSucceeded = User32Api.PrintWindow(nativeWindow.Handle, safeDeviceContext.DangerousGetHandle(), 0x0);
-                        if (!printSucceeded)
-                        {
-                            // something went wrong, most likely a "0x80004005" (Acess Denied) when using UAC
-                            exceptionOccured = User32Api.CreateWin32Exception("PrintWindow");
-                        }
-                    }
-
-                    // Apply the region "transparency"
-                    if (region != null && !region.IsEmpty(graphics))
-                    {
-                        graphics.ExcludeClip(region);
-                        graphics.Clear(Color.Transparent);
-                    }
-
-                    graphics.Flush();
-                }
-            }
-
-            // Return null if error
-            if (exceptionOccured != null)
-            {
-                Log.Error().WriteLine("Error calling print window: {0}", exceptionOccured.Message);
-                returnImage.Dispose();
-                return null;
-            }
-            if (!nativeWindow.HasParent && nativeWindow.IsMaximized())
-            {
-                Log.Debug().WriteLine("Correcting for maximalization");
-                Size borderSize = nativeWindow.GetInfo().BorderSize;
-                var borderRectangle = new Rectangle(borderSize.Width, borderSize.Height, bounds.Width - 2 * borderSize.Width, bounds.Height - 2 * borderSize.Height);
-                ImageHelper.Crop(ref returnImage, ref borderRectangle);
-            }
-            return returnImage;
+            var borderRectangle = new NativeRect(borderSize.Width, borderSize.Height, bounds.Width - 2 * borderSize.Width, bounds.Height - 2 * borderSize.Height);
+            BitmapHelper.Crop(ref returnBitmap, ref borderRectangle);
+            return returnBitmap;
         }
 
         /// <summary>
@@ -247,7 +208,7 @@ namespace GreenshotPlugin.Core
                             // If none found we find the biggest screen
                             foreach (var screen in Screen.AllScreens)
                             {
-                                var newWindowRectangle = new Rectangle(screen.WorkingArea.Location, windowRectangle.Size);
+                                var newWindowRectangle = new NativeRect(screen.WorkingArea.Location, windowRectangle.Size);
                                 if (workingArea.AreRectangleCornersVisisble(newWindowRectangle))
                                 {
                                     formLocation = screen.Bounds.Location;
@@ -266,26 +227,26 @@ namespace GreenshotPlugin.Core
                 {
                     //GetClientRect(out windowRectangle);
                     borderSize = interopWindow.GetInfo().BorderSize;
-                    formLocation = new Point(windowRectangle.X - borderSize.Width, windowRectangle.Y - borderSize.Height);
+                    formLocation = new NativePoint(windowRectangle.X - borderSize.Width, windowRectangle.Y - borderSize.Height);
                 }
 
                 tempForm.Location = formLocation;
                 tempForm.Size = sourceSize;
 
                 // Prepare rectangle to capture from the screen.
-                var captureRectangle = new Rectangle(formLocation.X, formLocation.Y, sourceSize.Width, sourceSize.Height);
+                var captureRectangle = new NativeRect(formLocation.X, formLocation.Y, sourceSize.Width, sourceSize.Height);
                 if (interopWindow.IsMaximized())
                 {
                     // Correct capture size for maximized window by offsetting the X,Y with the border size
                     // and subtracting the border from the size (2 times, as we move right/down for the capture without resizing)
-                    captureRectangle.Inflate(borderSize.Width, borderSize.Height);
+                    captureRectangle = captureRectangle.Inflate(borderSize.Width, borderSize.Height);
                 }
                 else
                 {
                     // TODO: Also 8.x?
                     if (WindowsVersion.IsWindows10)
                     {
-                        captureRectangle.Inflate(CoreConfiguration.Win10BorderCrop);
+                        captureRectangle = captureRectangle.Inflate(CoreConfiguration.Win10BorderCrop.Width, CoreConfiguration.Win10BorderCrop.Height);
                     }
 
                     if (autoMode)
@@ -317,7 +278,7 @@ namespace GreenshotPlugin.Core
                 tempFormShown = true;
 
                 // Intersect with screen
-                captureRectangle.Intersect(capture.ScreenBounds);
+                captureRectangle = captureRectangle.Intersect(capture.ScreenBounds);
 
                 // Destination bitmap for the capture
                 Bitmap capturedBitmap = null;
@@ -403,7 +364,7 @@ namespace GreenshotPlugin.Core
                             if (!Image.IsAlphaPixelFormat(capturedBitmap.PixelFormat))
                             {
                                 Log.Debug().WriteLine("Changing pixelformat to Alpha for the RemoveCorners");
-                                var tmpBitmap = capturedBitmap.CloneImage(PixelFormat.Format32bppArgb) as Bitmap;
+                                var tmpBitmap = capturedBitmap.CloneBitmap(PixelFormat.Format32bppArgb) as Bitmap;
                                 capturedBitmap.Dispose();
                                 capturedBitmap = tmpBitmap;
                             }
@@ -412,7 +373,7 @@ namespace GreenshotPlugin.Core
                     }
                 }
 
-                capture.Image = capturedBitmap;
+                capture.Bitmap = capturedBitmap;
                 // Make sure the capture location is the location of the window, not the copy
                 capture.Location = interopWindow.GetInfo().Bounds.Location;
             }
@@ -443,7 +404,7 @@ namespace GreenshotPlugin.Core
         /// <param name="image">The bitmap to remove the corners from.</param>
         private static void RemoveCorners(Bitmap image)
         {
-            using (var fastBitmap = FastBitmap.Create(image))
+            using (var fastBitmap = FastBitmapBase.Create(image))
             {
                 for (var y = 0; y < CoreConfiguration.WindowCornerCutShape.Count; y++)
                 {
@@ -468,12 +429,12 @@ namespace GreenshotPlugin.Core
         /// <returns>Bitmap with transparency</returns>
         private static Bitmap ApplyTransparency(Bitmap blackBitmap, Bitmap whiteBitmap)
         {
-            using (var targetBuffer = FastBitmap.CreateEmpty(blackBitmap.Size, PixelFormat.Format32bppArgb, Color.Transparent))
+            using (var targetBuffer = FastBitmapBase.CreateEmpty(blackBitmap.Size, PixelFormat.Format32bppArgb, Color.Transparent))
             {
                 targetBuffer.SetResolution(blackBitmap.HorizontalResolution, blackBitmap.VerticalResolution);
-                using (var blackBuffer = FastBitmap.Create(blackBitmap))
+                using (var blackBuffer = FastBitmapBase.Create(blackBitmap))
                 {
-                    using (var whiteBuffer = FastBitmap.Create(whiteBitmap))
+                    using (var whiteBuffer = FastBitmapBase.Create(whiteBitmap))
                     {
                         for (var y = 0; y < blackBuffer.Height; y++)
                         {

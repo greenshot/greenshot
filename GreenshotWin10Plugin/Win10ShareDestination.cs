@@ -30,6 +30,7 @@ using Color = Windows.UI.Color;
 using System.Collections.Generic;
 using System.Drawing;
 using Dapplo.Log;
+using Greenshot.Gfx;
 using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
@@ -50,7 +51,7 @@ namespace GreenshotWin10Plugin
 		/// <summary>
 		/// Icon for the App-share, the icon was found via: http://help4windows.com/windows_8_shell32_dll.shtml
 		/// </summary>
-		public override Image DisplayIcon => PluginUtils.GetCachedExeIcon(FilenameHelper.FillCmdVariables(@"%windir%\system32\shell32.dll"), 238);
+		public override Bitmap DisplayIcon => PluginUtils.GetCachedExeIcon(FilenameHelper.FillCmdVariables(@"%windir%\system32\shell32.dll"), 238);
 
 		/// <summary>
 		/// Share the screenshot with a windows app
@@ -86,9 +87,9 @@ namespace GreenshotWin10Plugin
 						RandomAccessStreamReference logoRandomAccessStreamReference;
 
 						// Create thumbnail
-						using (var tmpImageForThumbnail = surface.GetImageForExport())
+						using (var tmpImageForThumbnail = surface.GetBitmapForExport())
 						{
-							using (var thumbnail = ImageHelper.CreateThumbnail(tmpImageForThumbnail, 240, 160))
+							using (var thumbnail = BitmapHelper.CreateThumbnail(tmpImageForThumbnail, 240, 160))
 							{
 								ImageOutput.SaveToStream(thumbnail, null, thumbnailStream, outputSettings);
 								thumbnailStream.Position = 0;
@@ -99,7 +100,7 @@ namespace GreenshotWin10Plugin
 						// Create logo
 						using (var logo = GreenshotResources.GetGreenshotIcon().ToBitmap())
 						{
-							using (var logoThumbnail = ImageHelper.CreateThumbnail(logo, 30, 30))
+							using (var logoThumbnail = BitmapHelper.CreateThumbnail(logo, 30, 30))
 							{
 								ImageOutput.SaveToStream(logoThumbnail, null, logoStream, outputSettings);
 								logoStream.Position = 0;

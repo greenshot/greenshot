@@ -44,35 +44,35 @@
     <Reference Include="Dapplo.Utils, Version=1.0.150.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Utils.1.0.150\lib\net45\Dapplo.Utils.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows, Version=0.5.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.0.5.8\lib\net45\Dapplo.Windows.dll</HintPath>
+    <Reference Include="Dapplo.Windows, Version=0.5.27.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.0.5.27\lib\net45\Dapplo.Windows.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.Common, Version=0.5.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Common.0.5.8\lib\net45\Dapplo.Windows.Common.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Common, Version=0.5.27.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Common.0.5.27\lib\net45\Dapplo.Windows.Common.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.DesktopWindowsManager, Version=0.5.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.DesktopWindowsManager.0.5.8\lib\net45\Dapplo.Windows.DesktopWindowsManager.dll</HintPath>
+    <Reference Include="Dapplo.Windows.DesktopWindowsManager, Version=0.5.27.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.DesktopWindowsManager.0.5.27\lib\net45\Dapplo.Windows.DesktopWindowsManager.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.Dpi, Version=0.5.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Dpi.0.5.8\lib\net45\Dapplo.Windows.Dpi.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Dpi, Version=0.5.27.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Dpi.0.5.27\lib\net45\Dapplo.Windows.Dpi.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.Gdi32, Version=0.5.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Gdi32.0.5.8\lib\net45\Dapplo.Windows.Gdi32.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Gdi32, Version=0.5.27.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Gdi32.0.5.27\lib\net45\Dapplo.Windows.Gdi32.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.Icons, Version=0.5.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Icons.0.5.8\lib\net45\Dapplo.Windows.Icons.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Icons, Version=0.5.27.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Icons.0.5.27\lib\net45\Dapplo.Windows.Icons.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.Input, Version=0.5.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Input.0.5.8\lib\net45\Dapplo.Windows.Input.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Input, Version=0.5.27.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Input.0.5.27\lib\net45\Dapplo.Windows.Input.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.Kernel32, Version=0.5.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Kernel32.0.5.8\lib\net45\Dapplo.Windows.Kernel32.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Kernel32, Version=0.5.27.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Kernel32.0.5.27\lib\net45\Dapplo.Windows.Kernel32.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.Messages, Version=0.5.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Messages.0.5.8\lib\net45\Dapplo.Windows.Messages.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Messages, Version=0.5.27.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Messages.0.5.27\lib\net45\Dapplo.Windows.Messages.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.User32, Version=0.5.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.User32.0.5.8\lib\net45\Dapplo.Windows.User32.dll</HintPath>
+    <Reference Include="Dapplo.Windows.User32, Version=0.5.27.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.User32.0.5.27\lib\net45\Dapplo.Windows.User32.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="PresentationCore" />
@@ -128,39 +128,13 @@
     <Compile Include="Core\Enums\BuildStates.cs" />
     <Compile Include="Core\Enums\ClickActions.cs" />
     <Compile Include="Core\Enums\ClipboardFormats.cs" />
-    <Compile Include="Core\Enums\ExifOrientations.cs" />
     <Compile Include="Core\ExplorerHelper.cs" />
-    <Compile Include="Gfx\Fast24RgbBitmap.cs" />
-    <Compile Include="Gfx\Fast32ArgbBitmap.cs" />
-    <Compile Include="Gfx\Fast32RgbBitmap.cs" />
-    <Compile Include="Gfx\FastChunkyBitmap.cs" />
-    <Compile Include="Gfx\IFastBitmap.cs" />
-    <Compile Include="Gfx\IFastBitmapWithBlend.cs" />
-    <Compile Include="Gfx\IFastBitmapWithClip.cs" />
-    <Compile Include="Gfx\IFastBitmapWithOffset.cs" />
-    <Compile Include="Gfx\WuQuantizer.cs" />
     <Compile Include="Core\Enums\OutputFormats.cs" />
     <Compile Include="Core\Enums\WindowCaptureModes.cs" />
+    <Compile Include="Core\ImageOutput.cs" />
     <Compile Include="Core\InteropWindowCaptureExtensions.cs" />
-    <Compile Include="Gfx\SvgImage.cs" />
-    <Compile Include="Effects\AdjustEffect.cs" />
-    <Compile Include="Effects\BorderEffect.cs" />
     <Compile Include="Core\CaptureHandler.cs" />
-    <Compile Include="Core\EffectConverter.cs" />
     <Compile Include="Core\EventDelay.cs" />
-    <Compile Include="Gfx\FastBitmap.cs" />
-    <Compile Include="Effects\GrayscaleEffect.cs" />
-    <Compile Include="Effects\IEffect.cs" />
-    <Compile Include="Core\IImage.cs" />
-    <Compile Include="Gfx\ImageWrapper.cs" />
-    <Compile Include="Effects\InvertEffect.cs" />
-    <Compile Include="Effects\MonochromeEffect.cs" />
-    <Compile Include="Effects\ReduceColorsEffect.cs" />
-    <Compile Include="Effects\ResizeCanvasEffect.cs" />
-    <Compile Include="Effects\ResizeEffect.cs" />
-    <Compile Include="Effects\RotateEffect.cs" />
-    <Compile Include="Effects\Scale2xEffect.cs" />
-    <Compile Include="Effects\TornEdgeEffect.cs" />
     <Compile Include="Core\WmInputLangChangeRequestFilter.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Interfaces\CaptureMode.cs" />
@@ -177,7 +151,7 @@
     <Compile Include="Interfaces\Drawing\IFieldHolderWithChildren.cs" />
     <Compile Include="Interfaces\Drawing\IFieldType.cs" />
     <Compile Include="Interfaces\Drawing\IIconContainer.cs" />
-    <Compile Include="Interfaces\Drawing\IImageContainer.cs" />
+    <Compile Include="Interfaces\Drawing\IBitmapContainer.cs" />
     <Compile Include="Interfaces\Drawing\IMemento.cs" />
     <Compile Include="Interfaces\Drawing\IMetafileContainer.cs" />
     <Compile Include="Interfaces\Drawing\ITextContainer.cs" />
@@ -290,10 +264,8 @@
     <Compile Include="Core\ClipboardHelper.cs" />
     <Compile Include="Core\CoreConfiguration.cs" />
     <Compile Include="Core\Credentials\CredentialsHelper.cs" />
-    <Compile Include="Effects\DropShadowEffect.cs" />
     <Compile Include="Core\StringExtensions.cs" />
     <Compile Include="Core\FilenameHelper.cs" />
-    <Compile Include="Gfx\ImageOutput.cs" />
     <Compile Include="Core\InterfaceUtils.cs" />
     <Compile Include="Core\DisplayKeyAttribute.cs" />
     <Compile Include="Core\EmailConfigHelper.cs" />
@@ -301,14 +273,12 @@
     <Compile Include="Core\ExtensionAttribute.cs" />
     <Compile Include="Core\GreenshotResources.cs" />
     <Compile Include="Core\IEHelper.cs" />
-    <Compile Include="Gfx\ImageHelper.cs" />
     <Compile Include="Core\JSONHelper.cs" />
     <Compile Include="Core\Language.cs" />
     <Compile Include="Core\NetworkHelper.cs" />
     <Compile Include="Core\OAuthHelper.cs" />
     <Compile Include="Core\ObjectExtensions.cs" />
     <Compile Include="Core\PluginUtils.cs" />
-    <Compile Include="Gfx\WuColorCube.cs" />
     <Compile Include="Core\RssHelper.cs" />
     <Compile Include="Core\WindowCapture.cs" />
     <Compile Include="IniFile\IniAttributes.cs" />
@@ -332,7 +302,12 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj">
+      <Project>{f041c685-eb96-4ed1-9ace-0f5bd836610f}</Project>
+      <Name>Greenshot.Gfx</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>

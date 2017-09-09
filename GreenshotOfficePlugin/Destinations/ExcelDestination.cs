@@ -75,7 +75,7 @@ namespace GreenshotOfficePlugin.Destinations
 
 		public override bool IsActive => base.IsActive && ExePath != null;
 
-		public override Image GetDisplayIcon(double dpi)
+		public override Bitmap GetDisplayIcon(double dpi)
 		{
 			return PluginUtils.GetCachedExeIcon(ExePath, !string.IsNullOrEmpty(_workbookName) ? IconWorkbook : IconApplication, dpi > 100);
 		}
@@ -100,11 +100,11 @@ namespace GreenshotOfficePlugin.Destinations
 			}
 			if (_workbookName != null)
 			{
-				ExcelExporter.InsertIntoExistingWorkbook(_workbookName, imageFile, surface.Image.Size);
+				ExcelExporter.InsertIntoExistingWorkbook(_workbookName, imageFile, surface.Screenshot.Size);
 			}
 			else
 			{
-				ExcelExporter.InsertIntoNewWorkbook(imageFile, surface.Image.Size);
+				ExcelExporter.InsertIntoNewWorkbook(imageFile, surface.Screenshot.Size);
 			}
 			exportInformation.ExportMade = true;
 			ProcessExport(exportInformation, surface);

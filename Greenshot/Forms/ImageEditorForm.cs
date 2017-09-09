@@ -29,7 +29,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Windows.Clipboard;
@@ -45,16 +44,18 @@ using Greenshot.Help;
 using Greenshot.Helpers;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Effects;
-using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Drawing;
 using GreenshotPlugin.Interfaces.Forms;
 using Dapplo.Log;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Dpi.Enums;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
+using Greenshot.Gfx;
+using Greenshot.Gfx.Effects;
 
 #endregion
 
@@ -280,7 +281,7 @@ namespace Greenshot
             {
                 panel1.Controls.Add(_surface);
             }
-            var backgroundForTransparency = GreenshotResources.GetImage("Checkerboard.Image");
+            var backgroundForTransparency = GreenshotResources.GetBitmap("Checkerboard.Image");
             if (_surface != null)
             {
                 _surface.TransparencyBackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
@@ -589,7 +590,7 @@ namespace Greenshot
             if (EditorConfiguration.MatchSizeToCapture)
             {
                 // Set editor's initial size to the size of the surface plus the size of the chrome
-                var imageSize = Surface.Image.Size;
+                var imageSize = Surface.Screenshot.Size;
                 var currentFormSize = Size;
                 var currentImageClientSize = panel1.ClientSize;
                 var minimumFormWidth = 650;
@@ -598,7 +599,7 @@ namespace Greenshot
                 var newHeight = Math.Max(minimumFormHeight, currentFormSize.Height - currentImageClientSize.Height + imageSize.Height);
                 Size = new Size(newWidth, newHeight);
             }
-            dimensionsLabel.Text = Surface.Image.Width + "x" + Surface.Image.Height;
+            dimensionsLabel.Text = Surface.Screenshot.Width + "x" + Surface.Screenshot.Height;
             ImageEditorFormResize(sender, new EventArgs());
         }
 
@@ -1014,10 +1015,10 @@ namespace Greenshot
                 if (windowToCapture != null)
                 {
                     capture = CaptureHelper.CaptureWindow(windowToCapture, capture, coreConfiguration.WindowCaptureMode);
-                    if (capture?.CaptureDetails != null && capture.Image != null)
+                    if (capture?.CaptureDetails != null && capture.Bitmap != null)
                     {
-                        ((Bitmap) capture.Image).SetResolution(capture.CaptureDetails.DpiX, capture.CaptureDetails.DpiY);
-                        _surface.AddImageContainer((Bitmap) capture.Image, 100, 100);
+                        capture.Bitmap.SetResolution(capture.CaptureDetails.DpiX, capture.CaptureDetails.DpiY);
+                        _surface.AddImageContainer(capture.Bitmap, 100, 100);
                     }
                     Activate();
                     // TODO: Await?
@@ -1064,16 +1065,17 @@ namespace Greenshot
         /// <param name="e"></param>
         private void ShrinkCanvasToolStripMenuItemClick(object sender, EventArgs e)
         {
-            Rectangle cropRectangle;
+            NativeRect cropRectangle;
             using (var tmpImage = GetImageForExport())
             {
                 cropRectangle = tmpImage.FindAutoCropRectangle(coreConfiguration.AutoCropDifference);
             }
-            if (_surface.IsCropPossible(ref cropRectangle))
+            if (!_surface.IsCropPossible(ref cropRectangle))
             {
-                _surface.ApplyCrop(cropRectangle);
-                UpdateUndoRedoSurfaceDependencies();
+                return;
             }
+            _surface.ApplyCrop(cropRectangle);
+            UpdateUndoRedoSurfaceDependencies();
         }
 
         /// <summary>
@@ -1113,7 +1115,7 @@ namespace Greenshot
         /// <param name="e"></param>
         private void BtnResizeClick(object sender, EventArgs e)
         {
-            var resizeEffect = new ResizeEffect(_surface.Image.Width, _surface.Image.Height, true);
+            var resizeEffect = new ResizeEffect(_surface.Screenshot.Width, _surface.Screenshot.Height, true);
             var result = new ResizeSettingsForm(resizeEffect).ShowDialog(this);
             if (result == DialogResult.OK)
             {
@@ -1183,11 +1185,11 @@ namespace Greenshot
 
         private void ImageEditorFormResize(object sender, EventArgs e)
         {
-            if (Surface?.Image == null || panel1 == null)
+            if (Surface?.Screenshot == null || panel1 == null)
             {
                 return;
             }
-            var imageSize = Surface.Image.Size;
+            var imageSize = Surface.Screenshot.Size;
             var currentClientSize = panel1.ClientSize;
             var canvas = Surface as Control;
             var panel = (Panel) canvas?.Parent;
@@ -1225,7 +1227,7 @@ namespace Greenshot
 
         public Image GetImageForExport()
         {
-            return _surface.GetImageForExport();
+            return _surface.GetBitmapForExport();
         }
 
         public ICaptureDetails CaptureDetails => _surface.CaptureDetails;

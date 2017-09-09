@@ -46,12 +46,14 @@ using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Input;
 using Dapplo.Windows.Input.Enums;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
+using Greenshot.Gfx;
 
 #endregion
 
@@ -67,7 +69,7 @@ namespace Greenshot.Helpers
         private readonly bool _captureMouseCursor;
         private ICapture _capture;
         private CaptureMode _captureMode;
-        private Rectangle _captureRect = Rectangle.Empty;
+        private NativeRect _captureRect = NativeRect.Empty;
         private ScreenCaptureMode _screenCaptureMode = ScreenCaptureMode.Auto;
         // TODO: when we get the screen capture code working correctly, this needs to be enabled
         //private static ScreenCaptureHelper screenCapture = null;
@@ -155,7 +157,7 @@ namespace Greenshot.Helpers
             }
         }
 
-        public static void CaptureRegion(bool captureMouse, Rectangle region)
+        public static void CaptureRegion(bool captureMouse, NativeRect region)
         {
             using (var captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse))
             {
@@ -266,8 +268,8 @@ namespace Greenshot.Helpers
         /// <summary>
         ///     Make Capture for region
         /// </summary>
-        /// <param name="region">Rectangle</param>
-        private void MakeCapture(Rectangle region)
+        /// <param name="region">NativeRect</param>
+        private void MakeCapture(NativeRect region)
         {
             _captureRect = region;
             MakeCapture();
@@ -295,7 +297,7 @@ namespace Greenshot.Helpers
             {
                 case CaptureMode.Region:
                     // Check if a region is pre-supplied!
-                    if (Rectangle.Empty.Equals(_captureRect))
+                    if (_captureRect.IsEmpty)
                     {
                         PrepareForCaptureWithFeedback();
                     }
@@ -367,7 +369,7 @@ namespace Greenshot.Helpers
                     switch (_screenCaptureMode)
                     {
                         case ScreenCaptureMode.Auto:
-                            Point mouseLocation = User32Api.GetCursorLocation();
+                            var mouseLocation = User32Api.GetCursorLocation();
                             foreach (var screen in Screen.AllScreens)
                             {
                                 if (screen.Bounds.Contains(mouseLocation))
@@ -397,12 +399,12 @@ namespace Greenshot.Helpers
                     HandleCapture();
                     break;
                 case CaptureMode.Clipboard:
-                    var clipboardImage = ClipboardHelper.GetImage();
+                    var clipboardImage = ClipboardHelper.GetBitmap();
                     if (clipboardImage != null)
                     {
                         if (_capture != null)
                         {
-                            _capture.Image = clipboardImage;
+                            _capture.Bitmap = clipboardImage;
                         }
                         else
                         {
@@ -430,7 +432,7 @@ namespace Greenshot.Helpers
                     }
                     break;
                 case CaptureMode.File:
-                    Image fileImage = null;
+                    Bitmap fileImage = null;
                     var filename = _capture.CaptureDetails.Filename;
 
                     if (!string.IsNullOrEmpty(filename))
@@ -453,7 +455,7 @@ namespace Greenshot.Helpers
                         }
                         try
                         {
-                            fileImage = ImageHelper.LoadImage(filename);
+                            fileImage = BitmapHelper.LoadBitmap(filename);
                         }
                         catch (Exception e)
                         {
@@ -468,7 +470,7 @@ namespace Greenshot.Helpers
                         _capture.CaptureDetails.AddMetaData("source", "file");
                         if (_capture != null)
                         {
-                            _capture.Image = fileImage;
+                            _capture.Bitmap = fileImage;
                         }
                         else
                         {
@@ -501,7 +503,7 @@ namespace Greenshot.Helpers
                         // Set capture title, fixing bug #3569703
                         foreach (var window in InteropWindowQuery.GetTopWindows())
                         {
-                            var estimatedLocation = new Point(CoreConfig.LastCapturedRegion.X + CoreConfig.LastCapturedRegion.Width / 2,
+                            var estimatedLocation = new NativePoint(CoreConfig.LastCapturedRegion.X + CoreConfig.LastCapturedRegion.Width / 2,
                                 CoreConfig.LastCapturedRegion.Y + CoreConfig.LastCapturedRegion.Height / 2);
                             if (window.GetInfo().Bounds.Contains(estimatedLocation))
                             {
@@ -521,7 +523,7 @@ namespace Greenshot.Helpers
                     break;
                 case CaptureMode.Region:
                     // Check if a region is pre-supplied!
-                    if (Rectangle.Empty.Equals(_captureRect))
+                    if (NativeRect.Empty.Equals(_captureRect))
                     {
                         _capture = WindowCapture.CaptureScreen(_capture);
                         _capture.CaptureDetails.AddMetaData("source", "screen");
@@ -670,7 +672,7 @@ namespace Greenshot.Helpers
                 // Make sure the resolution is set correctly!
                 if (_capture.CaptureDetails != null)
                 {
-                    ((Bitmap) _capture.Image)?.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
+                    ((Bitmap) _capture.Bitmap)?.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
                 }
                 DoCaptureFeedback();
             }
@@ -705,7 +707,7 @@ namespace Greenshot.Helpers
             }
 
             // As the surfaces copies the reference to the image, make sure the image is not being disposed (a trick to save memory)
-            _capture.Image = null;
+            _capture.Bitmap = null;
 
             // Get CaptureDetails as we need it even after the capture is disposed
             var captureDetails = _capture.CaptureDetails;
@@ -803,7 +805,7 @@ namespace Greenshot.Helpers
         /// <returns>WindowDetails with the target Window OR a replacement</returns>
         public static IInteropWindow SelectCaptureWindow(IInteropWindow windowToCapture)
         {
-            Rectangle windowRectangle = windowToCapture.GetInfo().Bounds;
+            NativeRect windowRectangle = windowToCapture.GetInfo().Bounds;
             if (windowRectangle.Width == 0 || windowRectangle.Height == 0)
             {
                 Log.Warn().WriteLine("Window {0} has nothing to capture, using workaround to find other window of same process.", windowToCapture.Text);
@@ -864,7 +866,7 @@ namespace Greenshot.Helpers
             {
                 captureForWindow = new Capture();
             }
-            Rectangle windowRectangle = windowToCapture.GetInfo().Bounds;
+            NativeRect windowRectangle = windowToCapture.GetInfo().Bounds;
 
             // When Vista & DWM (Aero) enabled
             var dwmEnabled = Dwm.IsDwmEnabled;
@@ -941,7 +943,7 @@ namespace Greenshot.Helpers
 
                 Log.Info().WriteLine("Capturing window with mode {0}", windowCaptureMode);
                 var captureTaken = false;
-                windowRectangle.Intersect(captureForWindow.ScreenBounds);
+                windowRectangle = windowRectangle.Intersect(captureForWindow.ScreenBounds);
                 // Try to capture
                 while (!captureTaken)
                 {
@@ -965,8 +967,8 @@ namespace Greenshot.Helpers
                                 if (tmpCapture != null)
                                 {
                                     // check if GDI capture any good, by comparing it with the screen content
-                                    var blackCountGdi = ImageHelper.CountColor(tmpCapture.Image, Color.Black, false);
-                                    var gdiPixels = tmpCapture.Image.Width * tmpCapture.Image.Height;
+                                    var blackCountGdi = BitmapHelper.CountColors(tmpCapture.Bitmap, Color.Black, false);
+                                    var gdiPixels = tmpCapture.Bitmap.Width * tmpCapture.Bitmap.Height;
                                     var blackPercentageGdi = blackCountGdi * 100 / gdiPixels;
                                     if (blackPercentageGdi >= 1)
                                     {
@@ -976,7 +978,7 @@ namespace Greenshot.Helpers
                                             screenCapture.CaptureDetails = captureForWindow.CaptureDetails;
                                             if (WindowCapture.CaptureRectangleFromDesktopScreen(screenCapture, windowRectangle) != null)
                                             {
-                                                var blackCountScreen = ImageHelper.CountColor(screenCapture.Image, Color.Black, false);
+                                                var blackCountScreen = BitmapHelper.CountColors(screenCapture.Bitmap, Color.Black, false);
                                                 var blackPercentageScreen = blackCountScreen * 100 / screenPixels;
                                                 if (screenPixels == gdiPixels)
                                                 {
@@ -986,9 +988,9 @@ namespace Greenshot.Helpers
                                                     {
                                                         Log.Debug().WriteLine("Using screen capture, as GDI had additional black.");
                                                         // changeing the image will automatically dispose the previous
-                                                        tmpCapture.Image = screenCapture.Image;
+                                                        tmpCapture.Bitmap = screenCapture.Bitmap;
                                                         // Make sure it's not disposed, else the picture is gone!
-                                                        screenCapture.NullImage();
+                                                        screenCapture.NullBitmap();
                                                     }
                                                 }
                                                 else if (screenPixels < gdiPixels)
@@ -998,9 +1000,9 @@ namespace Greenshot.Helpers
                                                     {
                                                         Log.Debug().WriteLine("Using screen capture, as GDI had additional black.");
                                                         // changeing the image will automatically dispose the previous
-                                                        tmpCapture.Image = screenCapture.Image;
+                                                        tmpCapture.Bitmap = screenCapture.Bitmap;
                                                         // Make sure it's not disposed, else the picture is gone!
-                                                        screenCapture.NullImage();
+                                                        screenCapture.NullBitmap();
                                                     }
                                                 }
                                                 else
@@ -1091,7 +1093,7 @@ namespace Greenshot.Helpers
             previouslyActiveWindow?.ToForegroundAsync(false);
             if (_capture.CaptureDetails != null)
             {
-                ((Bitmap) _capture.Image)?.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
+                ((Bitmap) _capture.Bitmap)?.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
             }
         }
 
@@ -1152,7 +1154,7 @@ namespace Greenshot.Helpers
                     // Find the area which is scrolling
 
                     // 1. Take the client bounds
-                    Rectangle clientBounds = windowScroller.ScrollBarWindow.GetInfo().ClientBounds;
+                    NativeRect clientBounds = windowScroller.ScrollBarWindow.GetInfo().ClientBounds;
 
                     // Use a region for steps 2 and 3
                     using (var region = new Region(clientBounds))
@@ -1171,7 +1173,7 @@ namespace Greenshot.Helpers
                         using (var screenGraphics = Graphics.FromHwnd(User32Api.GetDesktopWindow()))
                         {
                             var rectangleF = region.GetBounds(screenGraphics);
-                            clientBounds = new Rectangle((int) rectangleF.X, (int) rectangleF.Y, (int) rectangleF.Width, (int) rectangleF.Height);
+                            clientBounds = new NativeRect((int) rectangleF.X, (int) rectangleF.Y, (int) rectangleF.Width, (int) rectangleF.Height);
                         }
                     }
 
@@ -1189,8 +1191,8 @@ namespace Greenshot.Helpers
                         Log.Info().WriteLine("Size should be: {0}, a single n = {1} pixels", totalSize, lineHeight);
 
                         // Create the resulting image, every capture will be drawn to this
-                        var resultImage = ImageHelper.CreateEmpty(clientBounds.Width, (int) totalHeight, PixelFormat.Format32bppArgb, Color.Transparent,
-                            _capture.Image.HorizontalResolution, _capture.Image.VerticalResolution);
+                        var resultImage = BitmapFactory.CreateEmpty(clientBounds.Width, (int) totalHeight, PixelFormat.Format32bppArgb, Color.Transparent,
+                            _capture.Bitmap.HorizontalResolution, _capture.Bitmap.VerticalResolution);
 
                         // Move the window to the start
                         windowScroller.Start();
@@ -1259,8 +1261,7 @@ namespace Greenshot.Helpers
 
                 // save for re-capturing later and show recapture context menu option
                 // Important here is that the location needs to be offsetted back to screen coordinates!
-                var tmpRectangle = _captureRect;
-                tmpRectangle.Offset(_capture.ScreenBounds.Location.X, _capture.ScreenBounds.Location.Y);
+                var tmpRectangle = _captureRect.Offset(_capture.ScreenBounds.Location.X, _capture.ScreenBounds.Location.Y);
                 CoreConfig.LastCapturedRegion = tmpRectangle;
                 HandleCapture();
             }
@@ -1273,7 +1274,7 @@ namespace Greenshot.Helpers
         /// <param name="windowScroller">WindowScroller helps the scrolling</param>
         /// <param name="lineHeight">the height of an "n"</param>
         /// <param name="target">Bitmap</param>
-        private static void ScrollingCapture(Rectangle bounds, WindowScroller windowScroller, double lineHeight, Bitmap target)
+        private static void ScrollingCapture(NativeRect bounds, WindowScroller windowScroller, double lineHeight, Bitmap target)
         {
             using (var bitmap = WindowCapture.CaptureRectangle(bounds))
             {

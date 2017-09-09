@@ -37,9 +37,9 @@ namespace GreenshotPlugin.Core
 	{
 		private static readonly ComponentResourceManager greenshotResources = new ComponentResourceManager(typeof(GreenshotResources));
 
-		public static Image GetImage(string imageName)
+		public static Bitmap GetBitmap(string imageName)
 		{
-			return (Image) greenshotResources.GetObject(imageName);
+			return (Bitmap) greenshotResources.GetObject(imageName);
 		}
 
 		public static Icon GetIcon(string imageName)
@@ -54,7 +54,7 @@ namespace GreenshotPlugin.Core
 
 		public static Image GetGreenshotImage()
 		{
-			return GetImage("Greenshot.Image");
+			return GetBitmap("Greenshot.Image");
 		}
 	}
 }

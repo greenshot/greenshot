@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Structs;
 
 #endregion
 
@@ -49,9 +50,9 @@ namespace GreenshotPlugin.Interfaces.Drawing
 		bool ClickableAt(int x, int y);
 		IDrawableContainer ClickableElementAt(int x, int y);
 		void OnDoubleClick();
-		bool HasIntersectingFilters(Rectangle clipRectangle);
-		bool IntersectsWith(Rectangle clipRectangle);
-		void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode, Rectangle clipRectangle);
+		bool HasIntersectingFilters(NativeRect clipRectangle);
+		bool IntersectsWith(NativeRect clipRectangle);
+		void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode, NativeRect clipRectangle);
 		void Invalidate();
 		void PullElementsToTop(IDrawableContainerList elements);
 		bool CanPushDown(IDrawableContainerList elements);

@@ -29,10 +29,12 @@ using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Log;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Dpi.Forms;
 using Dapplo.Windows.User32;
-using GreenshotPlugin.Gfx;
+using Greenshot.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 
@@ -68,9 +70,9 @@ namespace GreenshotPlugin.Core
 
         public virtual int Priority => 10;
 
-        public virtual Image DisplayIcon { get; set; }
+        public virtual Bitmap DisplayIcon { get; set; }
 
-        public virtual Image GetDisplayIcon(double dpi)
+        public virtual Bitmap GetDisplayIcon(double dpi)
         {
             return DisplayIcon;
         }
@@ -365,7 +367,7 @@ namespace GreenshotPlugin.Core
             menu.Items.Add(new ToolStripSeparator());
             var closeItem = new ToolStripMenuItem(Language.GetString("editor_close"))
             {
-                Image = GreenshotResources.GetImage("Close.Image")
+                Image = GreenshotResources.GetBitmap("Close.Image")
             };
             closeItem.Click += delegate
             {
@@ -392,9 +394,7 @@ namespace GreenshotPlugin.Core
         {
             // find a suitable location
             var location = Cursor.Position;
-            var menuRectangle = new Rectangle(location, menu.Size);
-
-            menuRectangle.Intersect(WindowCapture.GetScreenBounds());
+            var menuRectangle = new NativeRect(location, menu.Size).Intersect(WindowCapture.GetScreenBounds());
             if (menuRectangle.Height < menu.Height)
             {
                 location.Offset(-40, -(menuRectangle.Height - menu.Height));

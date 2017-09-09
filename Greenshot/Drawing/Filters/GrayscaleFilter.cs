@@ -26,6 +26,8 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using Dapplo.Windows.Common.Structs;
+using Greenshot.Gfx;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces.Drawing;
 
@@ -43,9 +45,9 @@ namespace Greenshot.Drawing.Filters
 		{
 		}
 
-		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode)
+		public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
 		{
-			var applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
+			var applyRect = BitmapHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
 
 			if (applyRect.Width == 0 || applyRect.Height == 0)
 			{

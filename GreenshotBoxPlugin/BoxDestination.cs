@@ -51,12 +51,12 @@ namespace GreenshotBoxPlugin
 			get { return Language.GetString("box", LangKey.upload_menu_item); }
 		}
 
-		public override Image DisplayIcon
+		public override Bitmap DisplayIcon
 		{
 			get
 			{
 				var resources = new ComponentResourceManager(typeof(BoxPlugin));
-				return (Image) resources.GetObject("Box");
+				return (Bitmap) resources.GetObject("Box");
 			}
 		}
 

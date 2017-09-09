@@ -27,6 +27,8 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using GreenshotPlugin.Interfaces.Drawing;
@@ -108,14 +110,14 @@ namespace Greenshot.Drawing
 					{
 						using (var shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness))
 						{
-							var shadowRect = GuiRectangle.GetGuiRectangle(Left + currentStep, Top + currentStep, Width, Height);
+							var shadowRect = new NativeRect(Left + currentStep, Top + currentStep, Width, Height).Normalize();
 							graphics.DrawRectangle(shadowPen, shadowRect);
 							currentStep++;
 							alpha = alpha - basealpha / steps;
 						}
 					}
 				}
-				var rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+				var rect = new NativeRect(Left, Top, Width, Height).Normalize();
 				if (lineThickness > 0)
 				{
 					using (var pen = new Pen(lineColor, lineThickness))

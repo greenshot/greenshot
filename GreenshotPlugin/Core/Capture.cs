@@ -26,9 +26,11 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
 using Dapplo.Log;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
+using Greenshot.Gfx;
 
 #endregion
 
@@ -46,11 +48,11 @@ namespace GreenshotPlugin.Core
 
 		private Icon _cursor;
 
-		private Point _cursorLocation = Point.Empty;
+		private NativePoint _cursorLocation = NativePoint.Empty;
 
-		private Image _image;
+		private Bitmap _bitmap;
 
-		private Rectangle _screenBounds;
+		private NativeRect _screenBounds;
 
 		/// <summary>
 		///     Default Constructor
@@ -61,24 +63,24 @@ namespace GreenshotPlugin.Core
 			_captureDetails = new CaptureDetails();
 		}
 
-		/// <summary>
-		///     Constructor with Image
-		///     Note: the supplied bitmap can be disposed immediately or when constructor is called.
-		/// </summary>
-		/// <param name="newImage">Image</param>
-		public Capture(Image newImage) : this()
+        /// <summary>
+        ///     Constructor with Bitmap
+        ///     Note: the supplied bitmap can be disposed immediately or when constructor is called.
+        /// </summary>
+        /// <param name="newBitmap">Bitmap</param>
+        public Capture(Bitmap newBitmap) : this()
 		{
-			Image = newImage;
+			Bitmap = newBitmap;
 		}
 
 		/// <summary>
 		///     Get/Set the Screenbounds
 		/// </summary>
-		public Rectangle ScreenBounds
+		public NativeRect ScreenBounds
 		{
 			get
 			{
-				if (_screenBounds == Rectangle.Empty)
+				if (_screenBounds == NativeRect.Empty)
 				{
 					_screenBounds = WindowCapture.GetScreenBounds();
 				}
@@ -88,15 +90,15 @@ namespace GreenshotPlugin.Core
 		}
 
 		/// <summary>
-		///     Get/Set the Image
+		///     Get/Set the Bitmap
 		/// </summary>
-		public Image Image
+		public Bitmap Bitmap
 		{
-			get { return _image; }
-			set
+			get => _bitmap;
+		    set
 			{
-				_image?.Dispose();
-				_image = value;
+				_bitmap?.Dispose();
+				_bitmap = value;
 				if (value != null)
 				{
 					if (value.PixelFormat.Equals(PixelFormat.Format8bppIndexed) || value.PixelFormat.Equals(PixelFormat.Format1bppIndexed) ||
@@ -106,7 +108,7 @@ namespace GreenshotPlugin.Core
 						try
 						{
 							// Default Bitmap PixelFormat is Format32bppArgb
-							_image = new Bitmap(value);
+							_bitmap = new Bitmap(value);
 						}
 						finally
 						{
@@ -114,18 +116,18 @@ namespace GreenshotPlugin.Core
 							value.Dispose();
 						}
 					}
-					Log.Debug().WriteLine("Image is set with the following specifications: {0} - {1}", _image.Size, _image.PixelFormat);
+					Log.Debug().WriteLine("Bitmap is set with the following specifications: {0} - {1}", _bitmap.Size, _bitmap.PixelFormat);
 				}
 				else
 				{
-					Log.Debug().WriteLine("Image is removed.");
+					Log.Debug().WriteLine("Bitmap is removed.");
 				}
 			}
 		}
 
-		public void NullImage()
+		public void NullBitmap()
 		{
-			_image = null;
+			_bitmap = null;
 		}
 
 		/// <summary>
@@ -149,7 +151,7 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		///     Get/Set the CursorLocation
 		/// </summary>
-		public Point CursorLocation
+		public NativePoint CursorLocation
 		{
 			get { return _cursorLocation; }
 			set { _cursorLocation = value; }
@@ -158,7 +160,7 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		///     Get/set the Location
 		/// </summary>
-		public Point Location { get; set; } = Point.Empty;
+		public NativePoint Location { get; set; } = NativePoint.Empty;
 
 		/// <summary>
 		///     Get/set the CaptureDetails
@@ -182,11 +184,11 @@ namespace GreenshotPlugin.Core
 		/// <summary>
 		///     Crops the capture to the specified rectangle (with Bitmap coordinates!)
 		/// </summary>
-		/// <param name="cropRectangle">Rectangle with bitmap coordinates</param>
-		public bool Crop(Rectangle cropRectangle)
+		/// <param name="cropRectangle">NativeRect with bitmap coordinates</param>
+		public bool Crop(NativeRect cropRectangle)
 		{
 			Log.Debug().WriteLine("Cropping to: " + cropRectangle);
-			if (!ImageHelper.Crop(ref _image, ref cropRectangle))
+			if (!BitmapHelper.Crop(ref _bitmap, ref cropRectangle))
 			{
 				return false;
 			}
@@ -205,7 +207,7 @@ namespace GreenshotPlugin.Core
 		/// <param name="y">y coordinates to move the mouse</param>
 		public void MoveMouseLocation(int x, int y)
 		{
-			_cursorLocation.Offset(x, y);
+		    _cursorLocation = _cursorLocation.Offset(x, y);
 		}
 
 		/// <summary>
@@ -225,10 +227,10 @@ namespace GreenshotPlugin.Core
 		{
 			if (disposing)
 			{
-				_image?.Dispose();
+				_bitmap?.Dispose();
 				_cursor?.Dispose();
 			}
-			_image = null;
+			_bitmap = null;
 			_cursor = null;
 		}
 	}

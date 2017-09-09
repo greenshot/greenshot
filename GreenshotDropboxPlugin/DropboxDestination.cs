@@ -43,12 +43,12 @@ namespace GreenshotDropboxPlugin
 		{
 			_plugin = plugin;
 		}
-		public override Image DisplayIcon
+		public override Bitmap DisplayIcon
 		{
 			get
 			{
 				var resources = new ComponentResourceManager(typeof(DropboxPlugin));
-				return (Image)resources.GetObject("Dropbox");
+				return (Bitmap)resources.GetObject("Dropbox");
 			}
 		}
 

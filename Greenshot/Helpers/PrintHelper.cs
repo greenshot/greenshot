@@ -31,12 +31,14 @@ using Greenshot.Configuration;
 using Greenshot.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
-using GreenshotPlugin.Effects;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
+using Greenshot.Gfx.Effects;
 
 #endregion
 
@@ -193,8 +195,8 @@ namespace Greenshot.Helpers
 
 			ApplyEffects(printOutputSettings);
 
-			Image image;
-			var disposeImage = ImageOutput.CreateImageFromSurface(_surface, printOutputSettings, out image);
+			Bitmap bitmap;
+			var disposeImage = ImageOutput.CreateBitmapFromSurface(_surface, printOutputSettings, out bitmap);
 			try
 			{
 				var alignment = CoreConfig.OutputPrintCenter ? ContentAlignment.MiddleCenter : ContentAlignment.TopLeft;
@@ -226,49 +228,49 @@ namespace Greenshot.Helpers
 				pageRect.Height -= footerStringHeight;
 
 				var gu = GraphicsUnit.Pixel;
-				var imageRect = image.GetBounds(ref gu);
+				var imageRect = bitmap.GetBounds(ref gu);
 				// rotate the image if it fits the page better
 				if (CoreConfig.OutputPrintAllowRotate)
 				{
 					if (pageRect.Width > pageRect.Height && imageRect.Width < imageRect.Height || pageRect.Width < pageRect.Height && imageRect.Width > imageRect.Height)
 					{
-						image.RotateFlip(RotateFlipType.Rotate270FlipNone);
-						imageRect = image.GetBounds(ref gu);
+						bitmap.RotateFlip(RotateFlipType.Rotate270FlipNone);
+						imageRect = bitmap.GetBounds(ref gu);
 						if (alignment.Equals(ContentAlignment.TopLeft))
 						{
 							alignment = ContentAlignment.TopRight;
 						}
 					}
 				}
-
-				var printRect = new RectangleF(0, 0, imageRect.Width, imageRect.Height);
+			    NativeSizeFloat size = imageRect.Size;
+				var printRect = new NativeRect(0, 0, size.Round());
 				// scale the image to fit the page better
 				if (CoreConfig.OutputPrintAllowEnlarge || CoreConfig.OutputPrintAllowShrink)
 				{
 					var resizedRect = ScaleHelper.GetScaledSize(imageRect.Size, pageRect.Size, false);
 					if (CoreConfig.OutputPrintAllowShrink && resizedRect.Width < printRect.Width || CoreConfig.OutputPrintAllowEnlarge && resizedRect.Width > printRect.Width)
 					{
-						printRect.Size = resizedRect;
+					    printRect = printRect.Resize(resizedRect.Round());
 					}
 				}
 
 				// align the image
-				printRect = ScaleHelper.GetAlignedRectangle(printRect, new RectangleF(0, 0, pageRect.Width, pageRect.Height), alignment);
+				printRect = ScaleHelper.GetAlignedRectangle(printRect, new NativeRect(0, 0, new NativeSizeFloat(pageRect.Width, pageRect.Height).Round()), alignment).Round();
 				if (CoreConfig.OutputPrintFooter)
 				{
-					//printRect = new RectangleF(0, 0, printRect.Width, printRect.Height - (dateStringHeight * 2));
+					//printRect = new NativeRect(0, 0, printRect.Width, printRect.Height - (dateStringHeight * 2));
 					using (var f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular))
 					{
 						e.Graphics.DrawString(footerString, f, Brushes.Black, pageRect.Width / 2 - footerStringWidth / 2, pageRect.Height);
 					}
 				}
-				e.Graphics.DrawImage(image, printRect, imageRect, GraphicsUnit.Pixel);
+				e.Graphics.DrawImage(bitmap, printRect, imageRect, GraphicsUnit.Pixel);
 			}
 			finally
 			{
 				if (disposeImage)
 				{
-					image?.Dispose();
+					bitmap?.Dispose();
 				}
 			}
 		}

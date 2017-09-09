@@ -49,7 +49,7 @@ namespace GreenshotPlugin.Interfaces.Forms
 
 		/// <summary>
 		///     Get the current Image from the Editor for Exporting (save/upload etc)
-		///     This is actually a wrapper which calls Surface.GetImageForExport().
+		///     This is actually a wrapper which calls Surface.GetBitmapForExport().
 		///     Don't forget to call image.Dispose() when finished!!!
 		/// </summary>
 		/// <returns>Bitmap</returns>

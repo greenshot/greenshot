@@ -29,6 +29,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Structs;
 using GreenshotPlugin.Interfaces.Drawing.Adorners;
 
 #endregion
@@ -49,13 +50,13 @@ namespace GreenshotPlugin.Interfaces.Drawing
 
 		int Height { get; set; }
 
-		Point Location { get; }
+		NativePoint Location { get; }
 
 		Size Size { get; }
 
-		Rectangle Bounds { get; }
+		NativeRect Bounds { get; }
 
-		Rectangle DrawingBounds { get; }
+		NativeRect DrawingBounds { get; }
 
 		bool hasFilters { get; }
 
@@ -68,7 +69,7 @@ namespace GreenshotPlugin.Interfaces.Drawing
 		/// </summary>
 		IList<IAdorner> Adorners { get; }
 
-		void ApplyBounds(RectangleF newBounds);
+		void ApplyBounds(NativeRect newBounds);
 		void AlignToParent(HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment);
 		void Invalidate();
 		bool ClickableAt(int x, int y);

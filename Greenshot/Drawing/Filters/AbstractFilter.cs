@@ -26,6 +26,7 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Drawing.Fields;
 using GreenshotPlugin.Interfaces.Drawing;
 
@@ -79,7 +80,7 @@ namespace Greenshot.Drawing.Filters
 			return parent;
 		}
 
-		public abstract void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode);
+		public abstract void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode);
 
 		protected void OnPropertyChanged(string propertyName)
 		{

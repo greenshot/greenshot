@@ -26,10 +26,11 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.User32.Enums;
 using Dapplo.Windows.User32.Structs;
 using Greenshot.Drawing.Fields;
-using GreenshotPlugin.Effects;
+using Greenshot.Gfx.Effects;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces.Drawing;
 
@@ -59,13 +60,13 @@ namespace Greenshot.Configuration
 		public ShowWindowCommands ShowWindowCommand { get; set; }
 
 		[IniProperty("WindowMinPosition", Description = "Position of minimized window", DefaultValue = "-1,-1")]
-		public Point WindowMinPosition { get; set; }
+		public NativePoint WindowMinPosition { get; set; }
 
 		[IniProperty("WindowMaxPosition", Description = "Position of maximized window", DefaultValue = "-1,-1")]
-		public Point WindowMaxPosition { get; set; }
+		public NativePoint WindowMaxPosition { get; set; }
 
 		[IniProperty("WindowNormalPosition", Description = "Position of normal window", DefaultValue = "100,100,400,400")]
-		public Rectangle WindowNormalPosition { get; set; }
+		public NativeRect WindowNormalPosition { get; set; }
 
 		[IniProperty("ReuseEditor", Description = "Reuse already open editor", DefaultValue = "false")]
 		public bool ReuseEditor { get; set; }
@@ -155,9 +156,9 @@ namespace Greenshot.Configuration
 
 		public void ResetEditorPlacement()
 		{
-			WindowNormalPosition = new Rectangle(100, 100, 400, 400);
-			WindowMaxPosition = new Point(-1, -1);
-			WindowMinPosition = new Point(-1, -1);
+			WindowNormalPosition = new NativeRect(100, 100, new NativeSize(400, 400));
+			WindowMaxPosition = new NativePoint(-1, -1);
+			WindowMinPosition = new NativePoint(-1, -1);
 			WindowPlacementFlags = 0;
 			ShowWindowCommand = ShowWindowCommands.Normal;
 		}

@@ -38,13 +38,16 @@ using Greenshot.Helpers;
 using Greenshot.Memento;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Effects;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Drawing;
 using GreenshotPlugin.Interfaces.Drawing.Adorners;
 using Dapplo.Log;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
+using Greenshot.Gfx;
+using Greenshot.Gfx.Effects;
 
 #endregion
 
@@ -129,7 +132,7 @@ namespace Greenshot.Drawing
 		/// <summary>
 		///     The image is the actual captured image, needed with serialization
 		/// </summary>
-		private Image _image;
+		private Bitmap _screenshot;
 
 		/// <summary>
 		///     inUndoRedo makes sure we don't undo/redo while in a undo/redo action
@@ -172,7 +175,7 @@ namespace Greenshot.Drawing
 		/// <summary>
 		///     Location of the mouse-down (it "starts" here), do not serialize
 		/// </summary>
-		[NonSerialized] private Point _mouseStart = Point.Empty;
+		[NonSerialized] private NativePoint _mouseStart = NativePoint.Empty;
 
 		[NonSerialized] private SurfaceElementEventHandler _movingElementChanged;
 
@@ -228,27 +231,27 @@ namespace Greenshot.Drawing
 				ControlStyles.SupportsTransparentBackColor, true);
 		}
 
-		/// <summary>
-		///     Surface constructor with an image
-		/// </summary>
-		/// <param name="newImage"></param>
-		public Surface(Image newImage) : this()
+        /// <summary>
+        ///     Surface constructor with an image
+        /// </summary>
+        /// <param name="newBitmap">Bitmap</param>
+        public Surface(Bitmap newBitmap) : this()
 		{
-			Log.Debug().WriteLine("Got image with dimensions {0} and format {1}", newImage.Size, newImage.PixelFormat);
-			SetImage(newImage, true);
+			Log.Debug().WriteLine("Got Bitmap with dimensions {0} and format {1}", newBitmap.Size, newBitmap.PixelFormat);
+			SetBitmap(newBitmap, true);
 		}
 
 		/// <summary>
 		///     Surface contructor with a capture
 		/// </summary>
 		/// <param name="capture"></param>
-		public Surface(ICapture capture) : this(capture.Image)
+		public Surface(ICapture capture) : this(capture.Bitmap)
 		{
 			// check if cursor is captured, and visible
 			if (capture.Cursor != null && capture.CursorVisible)
 			{
-				var cursorRect = new Rectangle(capture.CursorLocation, capture.Cursor.Size);
-				var captureRect = new Rectangle(Point.Empty, capture.Image.Size);
+				var cursorRect = new NativeRect(capture.CursorLocation, capture.Cursor.Size);
+				var captureRect = new NativeRect(NativePoint.Empty, capture.Bitmap.Size);
 				// check if cursor is on the capture, otherwise we leave it out.
 				if (cursorRect.IntersectsWith(captureRect))
 				{
@@ -257,7 +260,7 @@ namespace Greenshot.Drawing
 				}
 			}
 			// Make sure the image is NOT disposed, we took the reference directly into ourselves
-			((Capture) capture).NullImage();
+			((Capture) capture).NullBitmap();
 
 			CaptureDetails = capture.CaptureDetails;
 		}
@@ -391,13 +394,13 @@ namespace Greenshot.Drawing
 			}
 		}
 
-		public Image Image
+		public Bitmap Screenshot
 		{
-			get { return _image; }
+			get { return _screenshot; }
 			set
 			{
-				_image = value;
-				Size = _image.Size;
+				_screenshot = value;
+				Size = _screenshot.Size;
 			}
 		}
 
@@ -532,18 +535,18 @@ namespace Greenshot.Drawing
 			Application.DoEvents();
 			try
 			{
-				var imageRectangle = new Rectangle(Point.Empty, Image.Size);
+				var imageRectangle = new NativeRect(NativePoint.Empty, Screenshot.Size);
 				var matrix = new Matrix();
-				var newImage = Image.ApplyEffect(effect, matrix);
+				var newImage = Screenshot.ApplyEffect(effect, matrix);
 				if (newImage != null)
 				{
 					// Make sure the elements move according to the offset the effect made the bitmap move
 					_elements.Transform(matrix);
 					// Make undoable
 					MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
-					SetImage(newImage, false);
+					SetBitmap(newImage, false);
 					Invalidate();
-					if (_surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, newImage.Size)))
+					if (_surfaceSizeChanged != null && !imageRectangle.Equals(new NativeRect(NativePoint.Empty, newImage.Size)))
 					{
 						_surfaceSizeChanged(this, null);
 					}
@@ -585,9 +588,9 @@ namespace Greenshot.Drawing
 		///     This returns the image "result" of this surface, with all the elements rendered on it.
 		/// </summary>
 		/// <returns></returns>
-		public Image GetImageForExport()
+		public Bitmap GetBitmapForExport()
 		{
-			return GetImage(RenderMode.EXPORT);
+			return GetBitmap(RenderMode.EXPORT);
 		}
 
 		/// <summary>
@@ -784,38 +787,36 @@ namespace Greenshot.Drawing
 					// Make element(s) only move 10,10 if the surface is the same
 					var isSameSurface = dcs.ParentID == ID;
 					dcs.Parent = this;
-					var moveOffset = isSameSurface ? new Point(10, 10) : Point.Empty;
+					var moveOffset = isSameSurface ? new NativePoint(10, 10) : NativePoint.Empty;
 					// Here a fix for bug #1475, first calculate the bounds of the complete IDrawableContainerList
-					var drawableContainerListBounds = Rectangle.Empty;
+					var drawableContainerListBounds = NativeRect.Empty;
 					foreach (var element in dcs)
 					{
-						drawableContainerListBounds = drawableContainerListBounds == Rectangle.Empty
+						drawableContainerListBounds = drawableContainerListBounds == NativeRect.Empty
 							? element.DrawingBounds
-							: Rectangle.Union(drawableContainerListBounds, element.DrawingBounds);
+							: drawableContainerListBounds.Union(element.DrawingBounds);
 					}
 					// And find a location inside the target surface to paste to
 					var containersCanFit = drawableContainerListBounds.Width < Bounds.Width && drawableContainerListBounds.Height < Bounds.Height;
 					if (!containersCanFit)
 					{
-						var containersLocation = drawableContainerListBounds.Location;
-						containersLocation.Offset(moveOffset);
+						var containersLocation = drawableContainerListBounds.Location.Offset(moveOffset);
 						if (!Bounds.Contains(containersLocation))
 						{
 							// Easy fix for same surface
-							moveOffset = isSameSurface ? new Point(-10, -10) : new Point(-drawableContainerListBounds.Location.X + 10, -drawableContainerListBounds.Location.Y + 10);
+							moveOffset = isSameSurface ? new NativePoint(-10, -10) : new NativePoint(-drawableContainerListBounds.Location.X + 10, -drawableContainerListBounds.Location.Y + 10);
 						}
 					}
 					else
 					{
-						var moveContainerListBounds = drawableContainerListBounds;
-						moveContainerListBounds.Offset(moveOffset);
+						var moveContainerListBounds = drawableContainerListBounds.Offset(moveOffset);
 						// check if the element is inside
 						if (!Bounds.Contains(moveContainerListBounds))
 						{
 							// Easy fix for same surface
 							if (isSameSurface)
 							{
-								moveOffset = new Point(-10, -10);
+								moveOffset = new NativePoint(-10, -10);
 							}
 							else
 							{
@@ -840,7 +841,7 @@ namespace Greenshot.Drawing
 										offsetY += Math.Abs(drawableContainerListBounds.Top + offsetY);
 									}
 								}
-								moveOffset = new Point(offsetX, offsetY);
+								moveOffset = new NativePoint(offsetX, offsetY);
 							}
 						}
 					}
@@ -864,7 +865,7 @@ namespace Greenshot.Drawing
 					y = mousePositionOnControl.Y;
 				}
 
-				foreach (var clipboardImage in ClipboardHelper.GetImages(clipboard))
+				foreach (var clipboardImage in ClipboardHelper.GetBitmaps(clipboard))
 				{
 					if (clipboardImage != null)
 					{
@@ -1023,22 +1024,22 @@ namespace Greenshot.Drawing
 			return number;
 		}
 
-		/// <summary>
-		///     Private method, the current image is disposed the new one will stay.
-		/// </summary>
-		/// <param name="newImage">The new image</param>
-		/// <param name="dispose">true if the old image needs to be disposed, when using undo this should not be true!!</param>
-		private void SetImage(Image newImage, bool dispose)
+        /// <summary>
+        ///     Private method, the current bitmap is disposed the new one will stay.
+        /// </summary>
+        /// <param name="newBitmap">The new bitmap</param>
+        /// <param name="dispose">true if the old bbitmap needs to be disposed, when using undo this should not be true!!</param>
+        private void SetBitmap(Bitmap newBitmap, bool dispose)
 		{
 			// Dispose
-			if (_image != null && dispose)
+			if (_screenshot != null && dispose)
 			{
-				_image.Dispose();
+				_screenshot.Dispose();
 			}
 
 			// Set new values
-			Image = newImage;
-			Size = newImage.Size;
+			Screenshot = newBitmap;
+			Size = newBitmap.Size;
 
 			_modified = true;
 		}
@@ -1160,7 +1161,7 @@ namespace Greenshot.Drawing
 					_undrawnElement = _cropContainer;
 					break;
 				case DrawingModes.Bitmap:
-					_undrawnElement = new ImageContainer(this);
+					_undrawnElement = new BitmapContainer(this);
 					break;
 				case DrawingModes.Path:
 					_undrawnElement = new FreehandContainer(this);
@@ -1181,8 +1182,8 @@ namespace Greenshot.Drawing
 		/// <returns>true if cropped</returns>
 		public bool AutoCrop()
 		{
-			Rectangle cropRectangle;
-			using (var tmpImage = GetImageForExport())
+			NativeRect cropRectangle;
+			using (var tmpImage = GetBitmapForExport())
 			{
 				cropRectangle = tmpImage.FindAutoCropRectangle(conf.AutoCropDifference);
 			}
@@ -1213,12 +1214,12 @@ namespace Greenshot.Drawing
 		public void Clear(Color newColor)
 		{
 			//create a blank bitmap the same size as original
-			var newBitmap = Image.CreateEmptyLike(Color.Empty);
+			var newBitmap = Screenshot.CreateEmptyLike(Color.Empty);
 			if (newBitmap != null)
 			{
 				// Make undoable
 				MakeUndoable(new SurfaceBackgroundChangeMemento(this, null), false);
-				SetImage(newBitmap, false);
+				SetBitmap(newBitmap, false);
 				Invalidate();
 			}
 		}
@@ -1228,24 +1229,24 @@ namespace Greenshot.Drawing
 		/// </summary>
 		/// <param name="cropRectangle"></param>
 		/// <returns>true if this is possible</returns>
-		public bool IsCropPossible(ref Rectangle cropRectangle)
+		public bool IsCropPossible(ref NativeRect cropRectangle)
 		{
-			cropRectangle = GuiRectangle.GetGuiRectangle(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, cropRectangle.Height);
+			cropRectangle = new NativeRect(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, cropRectangle.Height).Normalize();
 			if (cropRectangle.Left < 0)
 			{
-				cropRectangle = new Rectangle(0, cropRectangle.Top, cropRectangle.Width + cropRectangle.Left, cropRectangle.Height);
+				cropRectangle = new NativeRect(0, cropRectangle.Top, cropRectangle.Width + cropRectangle.Left, cropRectangle.Height);
 			}
 			if (cropRectangle.Top < 0)
 			{
-				cropRectangle = new Rectangle(cropRectangle.Left, 0, cropRectangle.Width, cropRectangle.Height + cropRectangle.Top);
+				cropRectangle = new NativeRect(cropRectangle.Left, 0, cropRectangle.Width, cropRectangle.Height + cropRectangle.Top);
 			}
 			if (cropRectangle.Left + cropRectangle.Width > Width)
 			{
-				cropRectangle = new Rectangle(cropRectangle.Left, cropRectangle.Top, Width - cropRectangle.Left, cropRectangle.Height);
+				cropRectangle = new NativeRect(cropRectangle.Left, cropRectangle.Top, Width - cropRectangle.Left, cropRectangle.Height);
 			}
 			if (cropRectangle.Top + cropRectangle.Height > Height)
 			{
-				cropRectangle = new Rectangle(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, Height - cropRectangle.Top);
+				cropRectangle = new NativeRect(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, Height - cropRectangle.Top);
 			}
 			if (cropRectangle.Height > 0 && cropRectangle.Width > 0)
 			{
@@ -1259,23 +1260,23 @@ namespace Greenshot.Drawing
 		/// </summary>
 		/// <param name="cropRectangle"></param>
 		/// <returns></returns>
-		public bool ApplyCrop(Rectangle cropRectangle)
+		public bool ApplyCrop(NativeRect cropRectangle)
 		{
 			if (IsCropPossible(ref cropRectangle))
 			{
-				var imageRectangle = new Rectangle(Point.Empty, Image.Size);
+				var imageRectangle = new NativeRect(NativePoint.Empty, Screenshot.Size);
 				Bitmap tmpImage;
 				// Make sure we have information, this this fails
 				try
 				{
-					tmpImage = Image.CloneImage(PixelFormat.DontCare, cropRectangle) as Bitmap;
+					tmpImage = Screenshot.CloneBitmap(PixelFormat.DontCare, cropRectangle) as Bitmap;
 				}
 				catch (Exception ex)
 				{
 					ex.Data.Add("CropRectangle", cropRectangle);
-					ex.Data.Add("Width", Image.Width);
-					ex.Data.Add("Height", Image.Height);
-					ex.Data.Add("Pixelformat", Image.PixelFormat);
+					ex.Data.Add("Width", Screenshot.Width);
+					ex.Data.Add("Height", Screenshot.Height);
+					ex.Data.Add("Pixelformat", Screenshot.PixelFormat);
 					throw;
 				}
 
@@ -1285,9 +1286,9 @@ namespace Greenshot.Drawing
 				MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
 
 				// Do not dispose otherwise we can't undo the image!
-				SetImage(tmpImage, false);
+				SetBitmap(tmpImage, false);
 				_elements.Transform(matrix);
-				if (_surfaceSizeChanged != null && !imageRectangle.Equals(new Rectangle(Point.Empty, tmpImage.Size)))
+				if (_surfaceSizeChanged != null && !imageRectangle.Equals(new NativeRect(NativePoint.Empty, tmpImage.Size)))
 				{
 					_surfaceSizeChanged(this, null);
 				}
@@ -1303,9 +1304,9 @@ namespace Greenshot.Drawing
 		/// </summary>
 		/// <param name="previous"></param>
 		/// <param name="matrix"></param>
-		public void UndoBackgroundChange(Image previous, Matrix matrix)
+		public void UndoBackgroundChange(Bitmap previous, Matrix matrix)
 		{
-			SetImage(previous, false);
+			SetBitmap(previous, false);
 			if (matrix != null)
 			{
 				_elements.Transform(matrix);
@@ -1446,7 +1447,7 @@ namespace Greenshot.Drawing
 				return;
 			}
 
-			var currentMouse = new Point(e.X, e.Y);
+			var currentMouse = new NativePoint(e.X, e.Y);
 
 			_elements.Status = EditStatus.IDLE;
 			if (_mouseDownElement != null)
@@ -1596,10 +1597,10 @@ namespace Greenshot.Drawing
 		/// </summary>
 		/// <param name="renderMode"></param>
 		/// <returns></returns>
-		private Image GetImage(RenderMode renderMode)
+		private Bitmap GetBitmap(RenderMode renderMode)
 		{
 			// Generate a copy of the original image with a dpi equal to the default...
-			var clone = _image.CloneImage() as Bitmap;
+			var clone = _screenshot.CloneBitmap();
 			// otherwise we would have a problem drawing the image to the surface... :(
 			using (var graphics = Graphics.FromImage(clone))
 			{
@@ -1608,7 +1609,7 @@ namespace Greenshot.Drawing
 				//graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 				//graphics.CompositingQuality = CompositingQuality.HighQuality;
 				//graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-				_elements.Draw(graphics, clone, renderMode, new Rectangle(Point.Empty, clone.Size));
+				_elements.Draw(graphics, clone, renderMode, new NativeRect(NativePoint.Empty, clone.Size));
 			}
 			return clone;
 		}
@@ -1622,7 +1623,7 @@ namespace Greenshot.Drawing
 		{
 			var targetGraphics = paintEventArgs.Graphics;
 			var clipRectangle = paintEventArgs.ClipRectangle;
-			if (Rectangle.Empty.Equals(clipRectangle))
+			if (NativeRect.Empty.Equals(clipRectangle))
 			{
 				Log.Debug().WriteLine("Empty cliprectangle??");
 				return;
@@ -1632,7 +1633,7 @@ namespace Greenshot.Drawing
 			{
 				if (_buffer != null)
 				{
-					if (_buffer.Width != Image.Width || _buffer.Height != Image.Height || _buffer.PixelFormat != Image.PixelFormat)
+					if (_buffer.Width != Screenshot.Width || _buffer.Height != Screenshot.Height || _buffer.PixelFormat != Screenshot.PixelFormat)
 					{
 						_buffer.Dispose();
 						_buffer = null;
@@ -1640,8 +1641,8 @@ namespace Greenshot.Drawing
 				}
 				if (_buffer == null)
 				{
-					_buffer = ImageHelper.CreateEmpty(Image.Width, Image.Height, Image.PixelFormat, Color.Empty, Image.HorizontalResolution, Image.VerticalResolution);
-					Log.Debug().WriteLine("Created buffer with size: {0}x{1}", Image.Width, Image.Height);
+					_buffer = BitmapFactory.CreateEmpty(Screenshot.Width, Screenshot.Height, Screenshot.PixelFormat, Color.Empty, Screenshot.HorizontalResolution, Screenshot.VerticalResolution);
+					Log.Debug().WriteLine("Created buffer with size: {0}x{1}", Screenshot.Width, Screenshot.Height);
 				}
 				// Elements might need the bitmap, so we copy the part we need
 				using (var graphics = Graphics.FromImage(_buffer))
@@ -1652,7 +1653,7 @@ namespace Greenshot.Drawing
 					//graphics.CompositingQuality = CompositingQuality.HighQuality;
 					//graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 					DrawBackground(graphics, clipRectangle);
-					graphics.DrawImage(Image, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
+					graphics.DrawImage(Screenshot, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
 					graphics.SetClip(targetGraphics);
 					_elements.Draw(graphics, _buffer, RenderMode.EDIT, clipRectangle);
 				}
@@ -1661,7 +1662,7 @@ namespace Greenshot.Drawing
 			else
 			{
 				DrawBackground(targetGraphics, clipRectangle);
-				targetGraphics.DrawImage(Image, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
+				targetGraphics.DrawImage(Screenshot, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
 				_elements.Draw(targetGraphics, null, RenderMode.EDIT, clipRectangle);
 			}
 
@@ -1677,10 +1678,10 @@ namespace Greenshot.Drawing
 			}
 		}
 
-		private void DrawBackground(Graphics targetGraphics, Rectangle clipRectangle)
+		private void DrawBackground(Graphics targetGraphics, NativeRect clipRectangle)
 		{
 			// check if we need to draw the checkerboard
-			if (Image.IsAlphaPixelFormat(Image.PixelFormat) && _transparencyBackgroundBrush != null)
+			if (Image.IsAlphaPixelFormat(Screenshot.PixelFormat) && _transparencyBackgroundBrush != null)
 			{
 				targetGraphics.FillRectangle(_transparencyBackgroundBrush, clipRectangle);
 			}
@@ -1770,25 +1771,25 @@ namespace Greenshot.Drawing
 			{
 				var shiftModifier = (ModifierKeys & Keys.Shift) == Keys.Shift;
 				var px = shiftModifier ? 10 : 1;
-				var moveBy = Point.Empty;
+				var moveBy = NativePoint.Empty;
 
 				switch (k)
 				{
 					case Keys.Left:
 					case Keys.Left | Keys.Shift:
-						moveBy = new Point(-px, 0);
+						moveBy = new NativePoint(-px, 0);
 						break;
 					case Keys.Up:
 					case Keys.Up | Keys.Shift:
-						moveBy = new Point(0, -px);
+						moveBy = new NativePoint(0, -px);
 						break;
 					case Keys.Right:
 					case Keys.Right | Keys.Shift:
-						moveBy = new Point(px, 0);
+						moveBy = new NativePoint(px, 0);
 						break;
 					case Keys.Down:
 					case Keys.Down | Keys.Shift:
-						moveBy = new Point(0, px);
+						moveBy = new NativePoint(0, px);
 						break;
 					case Keys.PageUp:
 						PullElementsUp();
@@ -1814,7 +1815,7 @@ namespace Greenshot.Drawing
 					default:
 						return false;
 				}
-				if (!Point.Empty.Equals(moveBy))
+				if (!NativePoint.Empty.Equals(moveBy))
 				{
 					selectedElements.MakeBoundsChangeUndoable(true);
 					selectedElements.MoveBy(moveBy.X, moveBy.Y);
@@ -1885,11 +1886,11 @@ namespace Greenshot.Drawing
 
 		#region Plugin interface implementations
 
-		public IImageContainer AddImageContainer(Image image, int x, int y)
+		public IBitmapContainer AddImageContainer(Bitmap bitmap, int x, int y)
 		{
-			var bitmapContainer = new ImageContainer(this)
+			var bitmapContainer = new BitmapContainer(this)
 			{
-				Image = image,
+				Bitmap = bitmap,
 				Left = x,
 				Top = y
 			};
@@ -1897,9 +1898,9 @@ namespace Greenshot.Drawing
 			return bitmapContainer;
 		}
 
-		public IImageContainer AddImageContainer(string filename, int x, int y)
+		public IBitmapContainer AddImageContainer(string filename, int x, int y)
 		{
-			var bitmapContainer = new ImageContainer(this);
+			var bitmapContainer = new BitmapContainer(this);
 			bitmapContainer.Load(filename);
 			bitmapContainer.Left = x;
 			bitmapContainer.Top = y;
@@ -2011,14 +2012,14 @@ namespace Greenshot.Drawing
 		/// <param name="e"></param>
 		private void OnDragDrop(object sender, DragEventArgs e)
 		{
-			var mouse = PointToClient(new Point(e.X, e.Y));
+			var mouse = PointToClient(new NativePoint(e.X, e.Y));
 			if (e.Data.GetDataPresent("Text"))
 			{
 				var possibleUrl = ClipboardHelper.GetText(e.Data);
 				// Test if it's an url and try to download the image so we have it in the original form
 				if (possibleUrl != null && possibleUrl.StartsWith("http"))
 				{
-					using (var image = NetworkHelper.DownloadImage(possibleUrl))
+					using (var image = NetworkHelper.DownloadBitmap(possibleUrl))
 					{
 						if (image != null)
 						{
@@ -2029,7 +2030,7 @@ namespace Greenshot.Drawing
 				}
 			}
 
-			foreach (var image in ClipboardHelper.GetImages(e.Data))
+			foreach (var image in ClipboardHelper.GetBitmaps(e.Data))
 			{
 				AddImageContainer(image, mouse.X, mouse.Y);
 				mouse.Offset(10, 10);

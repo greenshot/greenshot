@@ -83,11 +83,11 @@ namespace GreenshotJiraPlugin
 
 		public override bool IsDynamic => true;
 
-		public override Image DisplayIcon
+		public override Bitmap DisplayIcon
 		{
 			get
 			{
-				Image displayIcon = null;
+			    Bitmap displayIcon = null;
 				var jiraConnector = JiraPlugin.Instance.CurrentJiraConnector;
 				if (jiraConnector != null)
 				{
@@ -111,7 +111,7 @@ namespace GreenshotJiraPlugin
 				if (displayIcon == null)
 				{
 					var resources = new ComponentResourceManager(typeof(JiraPlugin));
-					displayIcon = (Image) resources.GetObject("Jira");
+					displayIcon = (Bitmap) resources.GetObject("Jira");
 				}
 				return displayIcon;
 			}

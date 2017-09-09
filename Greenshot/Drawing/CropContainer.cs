@@ -25,8 +25,9 @@
 
 using System.Drawing;
 using System.Runtime.Serialization;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Drawing.Fields;
-using Greenshot.Helpers;
 using GreenshotPlugin.Interfaces.Drawing;
 
 #endregion
@@ -48,7 +49,7 @@ namespace Greenshot.Drawing
 		///     always draw
 		///     (we create a transparent brown over the complete picture)
 		/// </summary>
-		public override Rectangle DrawingBounds => new Rectangle(0, 0, _parent?.Width ?? 0, _parent?.Height ?? 0);
+		public override NativeRect DrawingBounds => new NativeRect(0, 0, _parent?.Width ?? 0, _parent?.Height ?? 0);
 
 		public override bool HasContextMenu
 		{
@@ -88,20 +89,20 @@ namespace Greenshot.Drawing
 			}
 			using (Brush cropBrush = new SolidBrush(Color.FromArgb(100, 150, 150, 100)))
 			{
-				var cropRectangle = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-				var selectionRect = new Rectangle(cropRectangle.Left - 1, cropRectangle.Top - 1, cropRectangle.Width + 1, cropRectangle.Height + 1);
+				var cropRectangle = new NativeRect(Left, Top, Width, Height).Normalize();
+				var selectionRect = new NativeRect(cropRectangle.Left - 1, cropRectangle.Top - 1, cropRectangle.Width + 1, cropRectangle.Height + 1);
 
 				DrawSelectionBorder(g, selectionRect);
 
 				// top
-				g.FillRectangle(cropBrush, new Rectangle(0, 0, _parent.Width, cropRectangle.Top));
+				g.FillRectangle(cropBrush, new NativeRect(0, 0, _parent.Width, cropRectangle.Top));
 				// left
-				g.FillRectangle(cropBrush, new Rectangle(0, cropRectangle.Top, cropRectangle.Left, cropRectangle.Height));
+				g.FillRectangle(cropBrush, new NativeRect(0, cropRectangle.Top, cropRectangle.Left, cropRectangle.Height));
 				// right
 				g.FillRectangle(cropBrush,
-					new Rectangle(cropRectangle.Left + cropRectangle.Width, cropRectangle.Top, _parent.Width - (cropRectangle.Left + cropRectangle.Width), cropRectangle.Height));
+					new NativeRect(cropRectangle.Left + cropRectangle.Width, cropRectangle.Top, _parent.Width - (cropRectangle.Left + cropRectangle.Width), cropRectangle.Height));
 				// bottom
-				g.FillRectangle(cropBrush, new Rectangle(0, cropRectangle.Top + cropRectangle.Height, _parent.Width, _parent.Height - (cropRectangle.Top + cropRectangle.Height)));
+				g.FillRectangle(cropBrush, new NativeRect(0, cropRectangle.Top + cropRectangle.Height, _parent.Width, _parent.Height - (cropRectangle.Top + cropRectangle.Height)));
 			}
 		}
 	}

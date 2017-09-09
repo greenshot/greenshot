@@ -26,6 +26,8 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using GreenshotPlugin.Interfaces.Drawing;
@@ -64,7 +66,7 @@ namespace Greenshot.Drawing
 			var lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
 			var fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
 			var shadow = GetFieldValueAsBool(FieldType.SHADOW);
-			var rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+			var rect = new NativeRect(Left, Top, Width, Height).Normalize();
 			DrawEllipse(rect, graphics, renderMode, lineThickness, lineColor, fillColor, shadow);
 		}
 
@@ -78,7 +80,7 @@ namespace Greenshot.Drawing
 		/// <param name="lineColor"></param>
 		/// <param name="fillColor"></param>
 		/// <param name="shadow"></param>
-		public static void DrawEllipse(Rectangle rect, Graphics graphics, RenderMode renderMode, int lineThickness, Color lineColor, Color fillColor, bool shadow)
+		public static void DrawEllipse(NativeRect rect, Graphics graphics, RenderMode renderMode, int lineThickness, Color lineColor, Color fillColor, bool shadow)
 		{
 			var lineVisible = lineThickness > 0 && Colors.IsVisible(lineColor);
 			// draw shadow before anything else
@@ -93,7 +95,7 @@ namespace Greenshot.Drawing
 					using (var shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100)))
 					{
 						shadowPen.Width = lineVisible ? lineThickness : 1;
-						var shadowRect = GuiRectangle.GetGuiRectangle(rect.Left + currentStep, rect.Top + currentStep, rect.Width, rect.Height);
+						var shadowRect = new NativeRect(rect.Left + currentStep, rect.Top + currentStep, rect.Width, rect.Height).Normalize();
 						graphics.DrawEllipse(shadowPen, shadowRect);
 						currentStep++;
 						alpha = alpha - basealpha / steps;
@@ -141,11 +143,11 @@ namespace Greenshot.Drawing
 		{
 			var lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) + 10;
 			var fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-			var rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+			var rect = new NativeRect(Left, Top, Width, Height).Normalize();
 			return EllipseClickableAt(rect, lineThickness, fillColor, x, y);
 		}
 
-		public static bool EllipseClickableAt(Rectangle rect, int lineThickness, Color fillColor, int x, int y)
+		public static bool EllipseClickableAt(NativeRect rect, int lineThickness, Color fillColor, int x, int y)
 		{
 			// If we clicked inside the rectangle and it's visible we are clickable at.
 			if (!Color.Transparent.Equals(fillColor))

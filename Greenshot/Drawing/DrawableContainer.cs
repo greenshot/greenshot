@@ -41,6 +41,8 @@ using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Drawing;
 using GreenshotPlugin.Interfaces.Drawing.Adorners;
 using Dapplo.Log;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 
 #endregion
 
@@ -67,11 +69,11 @@ namespace Greenshot.Drawing
 
 		[NonSerialized]
 		// "workbench" rectangle - used for calculating bounds during resizing (to be applied to this DrawableContainer afterwards)
-		protected RectangleF _boundsAfterResize = RectangleF.Empty;
+		protected NativeRectFloat _boundsAfterResize = NativeRectFloat.Empty;
 
 		[NonSerialized]
 		// will store current bounds of this DrawableContainer before starting a resize
-		protected Rectangle _boundsBeforeResize = Rectangle.Empty;
+		protected NativeRect _boundsBeforeResize = NativeRect.Empty;
 
 		protected EditStatus _defaultEditMode = EditStatus.DRAWING;
 
@@ -233,9 +235,9 @@ namespace Greenshot.Drawing
 			}
 		}
 
-		public Point Location
+		public NativePoint Location
 		{
-			get { return new Point(left, top); }
+			get { return new NativePoint(left, top); }
 			set
 			{
 				left = value.X;
@@ -258,19 +260,19 @@ namespace Greenshot.Drawing
 			get { return _adorners; }
 		}
 
-		public Rectangle Bounds
+		public NativeRect Bounds
 		{
-			get { return GuiRectangle.GetGuiRectangle(Left, Top, Width, Height); }
+			get { return new NativeRect(Left, Top, Width, Height).Normalize(); }
 			set
 			{
-				Left = Round(value.Left);
-				Top = Round(value.Top);
-				Width = Round(value.Width);
-				Height = Round(value.Height);
+				Left = value.Left;
+				Top = value.Top;
+				Width = value.Width;
+				Height = value.Height;
 			}
 		}
 
-		public virtual void ApplyBounds(RectangleF newBounds)
+		public virtual void ApplyBounds(NativeRect newBounds)
 		{
 			Left = Round(newBounds.Left);
 			Top = Round(newBounds.Top);
@@ -278,7 +280,7 @@ namespace Greenshot.Drawing
 			Height = Round(newBounds.Height);
 		}
 
-		public virtual Rectangle DrawingBounds
+		public virtual NativeRect DrawingBounds
 		{
 			get
 			{
@@ -286,7 +288,7 @@ namespace Greenshot.Drawing
 				{
 					if (filter.Invert)
 					{
-						return new Rectangle(Point.Empty, _parent.Image.Size);
+						return new NativeRect(NativePoint.Empty, _parent.Screenshot.Size);
 					}
 				}
 				// Take a base safetymargin
@@ -303,7 +305,7 @@ namespace Greenshot.Drawing
 					accountForShadowChange = false;
 					shadow += 10;
 				}
-				return new Rectangle(Bounds.Left - offset, Bounds.Top - offset, Bounds.Width + lineThickness + shadow, Bounds.Height + lineThickness + shadow);
+				return new NativeRect(Bounds.Left - offset, Bounds.Top - offset, Bounds.Width + lineThickness + shadow, Bounds.Height + lineThickness + shadow);
 			}
 		}
 
@@ -361,9 +363,7 @@ namespace Greenshot.Drawing
 
 		public virtual bool ClickableAt(int x, int y)
 		{
-			var r = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-			r.Inflate(5, 5);
-			return r.Contains(x, y);
+			return new NativeRect(Left, Top, new NativeSize(Width, Height)).Normalize().Inflate(5, 5).Contains(x, y);
 		}
 
 		/// <summary>
@@ -389,8 +389,9 @@ namespace Greenshot.Drawing
 		/// <returns>true if the event is handled, false if the surface needs to handle it</returns>
 		public virtual bool HandleMouseDown(int x, int y)
 		{
-			Left = _boundsBeforeResize.X = x;
-			Top = _boundsBeforeResize.Y = y;
+		    _boundsBeforeResize = _boundsBeforeResize.MoveTo(x, y);
+            Left = x;
+			Top = y;
 			return true;
 		}
 
@@ -404,16 +405,12 @@ namespace Greenshot.Drawing
 		{
 			Invalidate();
 
-			// reset "workrbench" rectangle to current bounds
-			_boundsAfterResize.X = _boundsBeforeResize.Left;
-			_boundsAfterResize.Y = _boundsBeforeResize.Top;
-			_boundsAfterResize.Width = x - _boundsAfterResize.Left;
-			_boundsAfterResize.Height = y - _boundsAfterResize.Top;
-
+            // reset "workrbench" rectangle to current bounds
+		    _boundsAfterResize = _boundsBeforeResize;
 			ScaleHelper.Scale(_boundsBeforeResize, x, y, ref _boundsAfterResize, GetAngleRoundProcessor());
 
 			// apply scaled bounds to this DrawableContainer
-			ApplyBounds(_boundsAfterResize);
+			ApplyBounds(_boundsAfterResize.Round());
 
 			Invalidate();
 			return true;
@@ -443,8 +440,8 @@ namespace Greenshot.Drawing
 			{
 				return;
 			}
-			var topLeft = new Point(Left, Top);
-			var bottomRight = new Point(Left + Width, Top + Height);
+			var topLeft = new NativePoint(Left, Top);
+			var bottomRight = new NativePoint(Left + Width, Top + Height);
 			Point[] points = {topLeft, bottomRight};
 			matrix.TransformPoints(points);
 
@@ -513,7 +510,7 @@ namespace Greenshot.Drawing
 		/// <summary>
 		///     Initialize a target gripper
 		/// </summary>
-		protected void InitAdorner(Color gripperColor, Point location)
+		protected void InitAdorner(Color gripperColor, NativePoint location)
 		{
 			_targetAdorner = new TargetAdorner(this, location);
 			Adorners.Add(_targetAdorner);
@@ -541,7 +538,7 @@ namespace Greenshot.Drawing
 
 		public abstract void Draw(Graphics graphics, RenderMode renderMode);
 
-		public virtual void DrawContent(Graphics graphics, Bitmap bmp, RenderMode renderMode, Rectangle clipRectangle)
+		public virtual void DrawContent(Graphics graphics, Bitmap bmp, RenderMode renderMode, NativeRect clipRectangle)
 		{
 			if (Children.Count > 0)
 			{
@@ -561,8 +558,8 @@ namespace Greenshot.Drawing
 							}
 							else
 							{
-								var drawingRect = new Rectangle(Bounds.Location, Bounds.Size);
-								drawingRect.Intersect(clipRectangle);
+								var drawingRect = new NativeRect(Bounds.Location, Bounds.Size);
+							    drawingRect = drawingRect.Intersect(clipRectangle);
 								if (filter is MagnifierFilter)
 								{
 									// quick&dirty bugfix, because MagnifierFilter behaves differently when drawn only partially
@@ -586,7 +583,7 @@ namespace Greenshot.Drawing
 			return Bounds.Contains(x, y);
 		}
 
-		protected void DrawSelectionBorder(Graphics g, Rectangle rect)
+		protected void DrawSelectionBorder(Graphics g, NativeRect rect)
 		{
 			using (var pen = new Pen(Color.MediumSeaGreen))
 			{

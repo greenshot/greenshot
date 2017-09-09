@@ -27,8 +27,8 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using Greenshot.Gfx.Effects;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Effects;
 
 #endregion
 

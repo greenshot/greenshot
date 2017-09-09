@@ -35,15 +35,16 @@ using System.Security.Permissions;
 using System.Windows.Forms;
 using Dapplo.Windows.Desktop;
 using Greenshot.Drawing;
-using Greenshot.Helpers;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
+using Dapplo.Windows.User32.Structs;
 using GreenshotPlugin.Animation;
 
 #endregion
@@ -65,12 +66,12 @@ namespace Greenshot.Forms
         private readonly ICapture _capture;
         private readonly bool _isZoomerTransparent = Conf.ZoomerOpacity < 1;
         private readonly IList<IInteropWindow> _windows;
-        private Rectangle _captureRect = Rectangle.Empty;
-        private Point _cursorPos;
+        private NativeRect _captureRect = NativeRect.Empty;
+        private NativePoint _cursorPos;
         private FixMode _fixMode = FixMode.None;
         private bool _isCtrlPressed;
         private bool _mouseDown;
-        private Point _mouseMovePos = Point.Empty;
+        private NativePoint _mouseMovePos = NativePoint.Empty;
 
         private int _mX;
         private int _mY;
@@ -85,15 +86,15 @@ namespace Greenshot.Forms
         /// </summary>
         static CaptureForm()
         {
-            var backgroundForTransparency = GreenshotResources.GetImage("Checkerboard.Image");
+            var backgroundForTransparency = GreenshotResources.GetBitmap("Checkerboard.Image");
             BackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
         }
 
         /// <summary>
         ///     This creates the capture form
         /// </summary>
-        /// <param name="capture"></param>
-        /// <param name="windows"></param>
+        /// <param name="capture">ICapture</param>
+        /// <param name="windows">IList of IInteropWindow</param>
         public CaptureForm(ICapture capture, IList<IInteropWindow> windows)
         {
             if (_currentForm != null)
@@ -132,7 +133,7 @@ namespace Greenshot.Forms
             // Initialize the animations, the window capture zooms out from the cursor to the window under the cursor 
             if (UsedCaptureMode == CaptureMode.Window)
             {
-                _windowAnimator = new RectangleAnimator(new Rectangle(_cursorPos, Size.Empty), _captureRect, FramesForMillis(700), EasingTypes.Quintic, EasingModes.EaseOut);
+                _windowAnimator = new RectangleAnimator(new NativeRect(_cursorPos, NativeSize.Empty), _captureRect, FramesForMillis(700), EasingTypes.Quintic, EasingModes.EaseOut);
             }
 
             // Set the zoomer animation
@@ -200,12 +201,12 @@ namespace Greenshot.Forms
             if (isOn)
             {
                 // Initialize the zoom with a invalid position
-                _zoomAnimator = new RectangleAnimator(Rectangle.Empty, new Rectangle(int.MaxValue, int.MaxValue, 0, 0), FramesForMillis(1000), EasingTypes.Quintic, EasingModes.EaseOut);
+                _zoomAnimator = new RectangleAnimator(NativeRect.Empty, new NativeRect(int.MaxValue, int.MaxValue, NativeSize.Empty), FramesForMillis(1000), EasingTypes.Quintic, EasingModes.EaseOut);
                 VerifyZoomAnimation(_cursorPos, false);
             }
             else
             {
-                _zoomAnimator?.ChangeDestination(new Rectangle(Point.Empty, Size.Empty), FramesForMillis(1000));
+                _zoomAnimator?.ChangeDestination(new NativeRect(NativePoint.Empty, NativeSize.Empty), FramesForMillis(1000));
             }
         }
 
@@ -316,7 +317,7 @@ namespace Greenshot.Forms
                             // "Fade out" Zoom
                             InitializeZoomer(false);
                             // "Fade in" window
-                            _windowAnimator = new RectangleAnimator(new Rectangle(_cursorPos, Size.Empty), _captureRect, FramesForMillis(700), EasingTypes.Quintic, EasingModes.EaseOut);
+                            _windowAnimator = new RectangleAnimator(new NativeRect(_cursorPos, NativeSize.Empty), _captureRect, FramesForMillis(700), EasingTypes.Quintic, EasingModes.EaseOut);
                             _captureRect = Rectangle.Empty;
                             Invalidate();
                             break;
@@ -324,7 +325,7 @@ namespace Greenshot.Forms
                             // Set the region capture mode
                             UsedCaptureMode = CaptureMode.Region;
                             // "Fade out" window
-                            _windowAnimator.ChangeDestination(new Rectangle(_cursorPos, Size.Empty), FramesForMillis(700));
+                            _windowAnimator.ChangeDestination(new NativeRect(_cursorPos, NativeSize.Empty), FramesForMillis(700));
                             // Fade in zoom
                             InitializeZoomer(Conf.ZoomerEnabled);
                             _captureRect = Rectangle.Empty;
@@ -406,8 +407,7 @@ namespace Greenshot.Forms
                 // correct the GUI width to real width if Region mode
                 if (UsedCaptureMode == CaptureMode.Region)
                 {
-                    _captureRect.Width += 1;
-                    _captureRect.Height += 1;
+                    _captureRect = _captureRect.Resize(_captureRect.Width + 1, _captureRect.Height + 1);
                 }
                 // Go and process the capture
                 DialogResult = DialogResult.OK;
@@ -439,24 +439,24 @@ namespace Greenshot.Forms
         /// <returns></returns>
         private Point FixMouseCoordinates(Point currentMouse)
         {
-            if (_fixMode == FixMode.Initiated)
+            switch (_fixMode)
             {
-                if (_previousMousePos.X != currentMouse.X)
-                {
-                    _fixMode = FixMode.Vertical;
-                }
-                else if (_previousMousePos.Y != currentMouse.Y)
-                {
-                    _fixMode = FixMode.Horizontal;
-                }
-            }
-            else if (_fixMode == FixMode.Vertical)
-            {
-                currentMouse = new Point(currentMouse.X, _previousMousePos.Y);
-            }
-            else if (_fixMode == FixMode.Horizontal)
-            {
-                currentMouse = new Point(_previousMousePos.X, currentMouse.Y);
+                case FixMode.Initiated:
+                    if (_previousMousePos.X != currentMouse.X)
+                    {
+                        _fixMode = FixMode.Vertical;
+                    }
+                    else if (_previousMousePos.Y != currentMouse.Y)
+                    {
+                        _fixMode = FixMode.Horizontal;
+                    }
+                    break;
+                case FixMode.Vertical:
+                    currentMouse = new Point(currentMouse.X, _previousMousePos.Y);
+                    break;
+                case FixMode.Horizontal:
+                    currentMouse = new Point(_previousMousePos.X, currentMouse.Y);
+                    break;
             }
             _previousMousePos = currentMouse;
             return currentMouse;
@@ -481,11 +481,7 @@ namespace Greenshot.Forms
         /// <returns></returns>
         private bool IsAnimating(IAnimator animator)
         {
-            if (animator == null)
-            {
-                return false;
-            }
-            return animator.HasNext;
+            return animator != null && animator.HasNext;
         }
 
         /// <summary>
@@ -516,7 +512,7 @@ namespace Greenshot.Forms
 
             if (UsedCaptureMode == CaptureMode.Region && _mouseDown)
             {
-                _captureRect = GuiRectangle.GetGuiRectangle(_cursorPos.X, _cursorPos.Y, _mX - _cursorPos.X, _mY - _cursorPos.Y);
+                _captureRect = new NativeRect(_cursorPos.X, _cursorPos.Y, _mX - _cursorPos.X, _mY - _cursorPos.Y).Normalize();
             }
 
             // Iterate over the found windows and check if the current location is inside a window
@@ -612,17 +608,17 @@ namespace Greenshot.Forms
                         while (parent != IntPtr.Zero)
                         {
                             var parentWindow = InteropWindowFactory.CreateFor(parent);
-                            _captureRect.Intersect(parentWindow.GetInfo().Bounds);
+                            _captureRect = _captureRect.Intersect(parentWindow.GetInfo().Bounds);
                             parent = parentWindow.GetParent();
                         }
                     }
 
                     // As the ClientRectangle is in screen coordinates and not in bitmap coordinates, we need to correct.
-                    _captureRect.Offset(-_capture.ScreenBounds.Location.X, -_capture.ScreenBounds.Location.Y);
+                    _captureRect = _captureRect.Offset(-_capture.ScreenBounds.Location.X, -_capture.ScreenBounds.Location.Y);
                 }
             }
 
-            Rectangle invalidateRectangle;
+            NativeRectFloat invalidateRectangle;
             if (_mouseDown && UsedCaptureMode != CaptureMode.Window)
             {
                 var x1 = Math.Min(_mX, lastPos.X);
@@ -658,23 +654,24 @@ namespace Greenshot.Forms
             else if (UsedCaptureMode != CaptureMode.Window)
             {
                 var allScreenBounds = WindowCapture.GetScreenBounds();
-                allScreenBounds.Location = WindowCapture.GetLocationRelativeToScreenBounds(allScreenBounds.Location);
+
+                allScreenBounds = allScreenBounds.MoveTo(WindowCapture.GetLocationRelativeToScreenBounds(allScreenBounds.Location));
                 if (verticalMove)
                 {
                     // Before
-                    invalidateRectangle = GuiRectangle.GetGuiRectangle(allScreenBounds.Left, lastPos.Y - 2, Width + 2, 45);
+                    invalidateRectangle = new NativeRect(allScreenBounds.Left, lastPos.Y - 2, Width + 2, 45).Normalize();
                     Invalidate(invalidateRectangle);
                     // After
-                    invalidateRectangle = GuiRectangle.GetGuiRectangle(allScreenBounds.Left, _cursorPos.Y - 2, Width + 2, 45);
+                    invalidateRectangle = new NativeRect(allScreenBounds.Left, _cursorPos.Y - 2, Width + 2, 45).Normalize();
                     Invalidate(invalidateRectangle);
                 }
                 if (horizontalMove)
                 {
                     // Before
-                    invalidateRectangle = GuiRectangle.GetGuiRectangle(lastPos.X - 2, allScreenBounds.Top, 75, Height + 2);
+                    invalidateRectangle = new NativeRect(lastPos.X - 2, allScreenBounds.Top, 75, Height + 2).Normalize();
                     Invalidate(invalidateRectangle);
                     // After
-                    invalidateRectangle = GuiRectangle.GetGuiRectangle(_cursorPos.X - 2, allScreenBounds.Top, 75, Height + 2);
+                    invalidateRectangle = new NativeRect(_cursorPos.X - 2, allScreenBounds.Top, 75, Height + 2).Normalize();
                     Invalidate(invalidateRectangle);
                 }
             }
@@ -689,11 +686,9 @@ namespace Greenshot.Forms
             // Check if the animation needs to be drawn
             if (IsAnimating(_windowAnimator))
             {
-                invalidateRectangle = _windowAnimator.Current;
-                invalidateRectangle.Inflate(safetySize, safetySize);
+                invalidateRectangle = _windowAnimator.Current.Inflate(safetySize, safetySize);
                 Invalidate(invalidateRectangle);
-                invalidateRectangle = _windowAnimator.Next();
-                invalidateRectangle.Inflate(safetySize, safetySize);
+                invalidateRectangle = _windowAnimator.Next().Inflate(safetySize, safetySize);
                 Invalidate(invalidateRectangle);
                 // Check if this was the last of the windows animations in the normal region capture.
                 if (UsedCaptureMode != CaptureMode.Window && !IsAnimating(_windowAnimator))
@@ -705,8 +700,7 @@ namespace Greenshot.Forms
             if (_zoomAnimator != null && (IsAnimating(_zoomAnimator) || UsedCaptureMode != CaptureMode.Window))
             {
                 // Make sure we invalidate the old zoom area
-                invalidateRectangle = _zoomAnimator.Current;
-                invalidateRectangle.Offset(lastPos);
+                invalidateRectangle = _zoomAnimator.Current.Offset(lastPos);
                 Invalidate(invalidateRectangle);
                 // Only verify if we are really showing the zoom, not the outgoing animation
                 if (Conf.ZoomerEnabled && UsedCaptureMode != CaptureMode.Window)
@@ -716,8 +710,7 @@ namespace Greenshot.Forms
                 // The following logic is not needed, next always returns the current if there are no frames left
                 // but it makes more sense if we want to change something in the logic
                 invalidateRectangle = IsAnimating(_zoomAnimator) ? _zoomAnimator.Next() : _zoomAnimator.Current;
-                invalidateRectangle.Offset(_cursorPos);
-                Invalidate(invalidateRectangle);
+                Invalidate(invalidateRectangle.Offset(_cursorPos));
             }
             // Force update "now"
             Update();
@@ -740,62 +733,62 @@ namespace Greenshot.Forms
         ///     false to try to find a location which is neither out of screen bounds nor
         ///     intersects with the selected rectangle
         /// </param>
-        private void VerifyZoomAnimation(Point pos, bool allowZoomOverCaptureRect)
+        private void VerifyZoomAnimation(NativePoint pos, bool allowZoomOverCaptureRect)
         {
-            var screenBounds = Screen.GetBounds(MousePosition);
+            var screenBounds = DisplayInfo.GetBounds(MousePosition);
             // convert to be relative to top left corner of all screen bounds
-            screenBounds.Location = WindowCapture.GetLocationRelativeToScreenBounds(screenBounds.Location);
+            screenBounds = screenBounds.MoveTo(WindowCapture.GetLocationRelativeToScreenBounds(screenBounds.Location));
             var relativeZoomSize = Math.Min(screenBounds.Width, screenBounds.Height) / 5;
             // Make sure the final size is a plural of 4, this makes it look better
             relativeZoomSize = relativeZoomSize - relativeZoomSize % 4;
-            var zoomSize = new Size(relativeZoomSize, relativeZoomSize);
-            var zoomOffset = new Point(20, 20);
+            var zoomSize = new NativeSize(relativeZoomSize, relativeZoomSize);
+            var zoomOffset = new NativePoint(20, 20);
 
-            var targetRectangle = _zoomAnimator.Final;
-            targetRectangle.Offset(pos);
-            if (!screenBounds.Contains(targetRectangle) || !allowZoomOverCaptureRect && _captureRect.IntersectsWith(targetRectangle))
+            var targetRectangle = _zoomAnimator.Final.Offset(pos);
+            if (screenBounds.Contains(targetRectangle) && (allowZoomOverCaptureRect || !_captureRect.IntersectsWith(targetRectangle)))
             {
-                var destinationLocation = Point.Empty;
-                var tl = new Rectangle(pos.X - (zoomOffset.X + zoomSize.Width), pos.Y - (zoomOffset.Y + zoomSize.Height), zoomSize.Width, zoomSize.Height);
-                var tr = new Rectangle(pos.X + zoomOffset.X, pos.Y - (zoomOffset.Y + zoomSize.Height), zoomSize.Width, zoomSize.Height);
-                var bl = new Rectangle(pos.X - (zoomOffset.X + zoomSize.Width), pos.Y + zoomOffset.Y, zoomSize.Width, zoomSize.Height);
-                var br = new Rectangle(pos.X + zoomOffset.X, pos.Y + zoomOffset.Y, zoomSize.Width, zoomSize.Height);
-                if (screenBounds.Contains(br) && (allowZoomOverCaptureRect || !_captureRect.IntersectsWith(br)))
-                {
-                    destinationLocation = new Point(zoomOffset.X, zoomOffset.Y);
-                }
-                else if (screenBounds.Contains(bl) && (allowZoomOverCaptureRect || !_captureRect.IntersectsWith(bl)))
-                {
-                    destinationLocation = new Point(-zoomOffset.X - zoomSize.Width, zoomOffset.Y);
-                }
-                else if (screenBounds.Contains(tr) && (allowZoomOverCaptureRect || !_captureRect.IntersectsWith(tr)))
-                {
-                    destinationLocation = new Point(zoomOffset.X, -zoomOffset.Y - zoomSize.Width);
-                }
-                else if (screenBounds.Contains(tl) && (allowZoomOverCaptureRect || !_captureRect.IntersectsWith(tl)))
-                {
-                    destinationLocation = new Point(-zoomOffset.X - zoomSize.Width, -zoomOffset.Y - zoomSize.Width);
-                }
-                if (destinationLocation == Point.Empty && !allowZoomOverCaptureRect)
-                {
-                    VerifyZoomAnimation(pos, true);
-                }
-                else
-                {
-                    _zoomAnimator.ChangeDestination(new Rectangle(destinationLocation, zoomSize));
-                }
+                return;
+            }
+            var destinationLocation = NativePoint.Empty;
+            var tl = new NativeRect(pos.X - (zoomOffset.X + zoomSize.Width), pos.Y - (zoomOffset.Y + zoomSize.Height), zoomSize.Width, zoomSize.Height);
+            var tr = new NativeRect(pos.X + zoomOffset.X, pos.Y - (zoomOffset.Y + zoomSize.Height), zoomSize.Width, zoomSize.Height);
+            var bl = new NativeRect(pos.X - (zoomOffset.X + zoomSize.Width), pos.Y + zoomOffset.Y, zoomSize.Width, zoomSize.Height);
+            var br = new NativeRect(pos.X + zoomOffset.X, pos.Y + zoomOffset.Y, zoomSize.Width, zoomSize.Height);
+            if (screenBounds.Contains(br) && (allowZoomOverCaptureRect || !_captureRect.IntersectsWith(br)))
+            {
+                destinationLocation = new NativePoint(zoomOffset.X, zoomOffset.Y);
+            }
+            else if (screenBounds.Contains(bl) && (allowZoomOverCaptureRect || !_captureRect.IntersectsWith(bl)))
+            {
+                destinationLocation = new NativePoint(-zoomOffset.X - zoomSize.Width, zoomOffset.Y);
+            }
+            else if (screenBounds.Contains(tr) && (allowZoomOverCaptureRect || !_captureRect.IntersectsWith(tr)))
+            {
+                destinationLocation = new NativePoint(zoomOffset.X, -zoomOffset.Y - zoomSize.Width);
+            }
+            else if (screenBounds.Contains(tl) && (allowZoomOverCaptureRect || !_captureRect.IntersectsWith(tl)))
+            {
+                destinationLocation = new NativePoint(-zoomOffset.X - zoomSize.Width, -zoomOffset.Y - zoomSize.Width);
+            }
+            if (destinationLocation == NativePoint.Empty && !allowZoomOverCaptureRect)
+            {
+                VerifyZoomAnimation(pos, true);
+            }
+            else
+            {
+                _zoomAnimator.ChangeDestination(new NativeRect(destinationLocation, zoomSize));
             }
         }
 
         /// <summary>
         ///     Draw the zoomed area
         /// </summary>
-        /// <param name="graphics"></param>
-        /// <param name="sourceRectangle"></param>
-        /// <param name="destinationRectangle"></param>
-        private void DrawZoom(Graphics graphics, Rectangle sourceRectangle, Rectangle destinationRectangle)
+        /// <param name="graphics">Graphics</param>
+        /// <param name="sourceRectangle">NativeRect</param>
+        /// <param name="destinationRectangle">NativeRect</param>
+        private void DrawZoom(Graphics graphics, NativeRect sourceRectangle, NativeRect destinationRectangle)
         {
-            if (_capture.Image == null)
+            if (_capture.Bitmap == null)
             {
                 return;
             }
@@ -828,11 +821,11 @@ namespace Greenshot.Forms
                 if (!_isZoomerTransparent)
                 {
                     graphics.FillRectangle(BackgroundBrush, destinationRectangle);
-                    graphics.DrawImage(_capture.Image, destinationRectangle, sourceRectangle, GraphicsUnit.Pixel);
+                    graphics.DrawImage(_capture.Bitmap, destinationRectangle, sourceRectangle, GraphicsUnit.Pixel);
                 }
                 else
                 {
-                    graphics.DrawImage(_capture.Image, destinationRectangle, sourceRectangle.X, sourceRectangle.Y, sourceRectangle.Width, sourceRectangle.Height, GraphicsUnit.Pixel,
+                    graphics.DrawImage(_capture.Bitmap, destinationRectangle, sourceRectangle.X, sourceRectangle.Y, sourceRectangle.Width, sourceRectangle.Height, GraphicsUnit.Pixel,
                         attributes);
                 }
             }
@@ -904,7 +897,7 @@ namespace Greenshot.Forms
             var graphics = e.Graphics;
             var clipRectangle = e.ClipRectangle;
             //graphics.BitBlt((Bitmap)buffer, Point.Empty);
-            graphics.DrawImageUnscaled(_capture.Image, Point.Empty);
+            graphics.DrawImageUnscaled(_capture.Bitmap, Point.Empty);
             // Only draw Cursor if it's (partly) visible
             if (_capture.Cursor != null && _capture.CursorVisible && clipRectangle.IntersectsWith(new Rectangle(_capture.CursorLocation, _capture.Cursor.Size)))
             {
@@ -913,7 +906,7 @@ namespace Greenshot.Forms
 
             if (_mouseDown || UsedCaptureMode == CaptureMode.Window || IsAnimating(_windowAnimator))
             {
-                _captureRect.Intersect(new Rectangle(Point.Empty, _capture.ScreenBounds.Size)); // crop what is outside the screen
+                _captureRect = _captureRect.Intersect(new Rectangle(Point.Empty, _capture.ScreenBounds.Size)); // crop what is outside the screen
 
                 var fixedRect = IsAnimating(_windowAnimator) ? _windowAnimator.Current : _captureRect;
 
@@ -1077,17 +1070,17 @@ namespace Greenshot.Forms
             }
 
             // Zoom
-            if (_zoomAnimator != null && (IsAnimating(_zoomAnimator) || UsedCaptureMode != CaptureMode.Window))
+            if (_zoomAnimator == null || (!IsAnimating(_zoomAnimator) && UsedCaptureMode == CaptureMode.Window))
             {
-                const int zoomSourceWidth = 25;
-                const int zoomSourceHeight = 25;
-
-                var sourceRectangle = new Rectangle(_cursorPos.X - zoomSourceWidth / 2, _cursorPos.Y - zoomSourceHeight / 2, zoomSourceWidth, zoomSourceHeight);
-
-                var destinationRectangle = _zoomAnimator.Current;
-                destinationRectangle.Offset(_cursorPos);
-                DrawZoom(graphics, sourceRectangle, destinationRectangle);
+                return;
             }
+            const int zoomSourceWidth = 25;
+            const int zoomSourceHeight = 25;
+
+            var sourceRectangle = new NativeRect(_cursorPos.X - zoomSourceWidth / 2, _cursorPos.Y - zoomSourceHeight / 2, zoomSourceWidth, zoomSourceHeight);
+
+            var destinationRectangle = _zoomAnimator.Current.Offset(_cursorPos);
+            DrawZoom(graphics, sourceRectangle, destinationRectangle);
         }
 
         #endregion

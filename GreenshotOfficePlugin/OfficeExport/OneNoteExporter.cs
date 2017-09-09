@@ -108,7 +108,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 				var pngOutputSettings = new SurfaceOutputSettings(OutputFormats.png, 100, false);
 				ImageOutput.SaveToStream(surfaceToUpload, pngStream, pngOutputSettings);
 				var base64String = Convert.ToBase64String(pngStream.GetBuffer());
-				var imageXmlStr = string.Format(XmlImageContent, base64String, surfaceToUpload.Image.Width, surfaceToUpload.Image.Height);
+				var imageXmlStr = string.Format(XmlImageContent, base64String, surfaceToUpload.Screenshot.Width, surfaceToUpload.Screenshot.Height);
 				var pageChangesXml = string.Format(XmlOutline, imageXmlStr, page.ID, OnenoteNamespace2010, page.Name);
 				Log.Info().WriteLine("Sending XML: {0}", pageChangesXml);
 				oneNoteApplication.UpdatePageContent(pageChangesXml, DateTime.MinValue, XMLSchema.xs2010, false);

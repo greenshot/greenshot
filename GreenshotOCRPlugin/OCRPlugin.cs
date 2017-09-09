@@ -29,13 +29,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
 using GreenshotPlugin.Core.Enums;
-using GreenshotPlugin.Effects;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
-using GreenshotPlugin.Core;
+using Greenshot.Gfx.Effects;
 
 #endregion
 
@@ -160,14 +159,14 @@ namespace GreenshotOCR
 			outputSettings.Effects.Add(new GrayscaleEffect());
 
 			// Also we need to check the size, resize if needed to 130x130 this is the minimum
-			if (surface.Image.Width < MinWidth || surface.Image.Height < MinHeight)
+			if (surface.Screenshot.Width < MinWidth || surface.Screenshot.Height < MinHeight)
 			{
-				var addedWidth = MinWidth - surface.Image.Width;
+				var addedWidth = MinWidth - surface.Screenshot.Width;
 				if (addedWidth < 0)
 				{
 					addedWidth = 0;
 				}
-				var addedHeight = MinHeight - surface.Image.Height;
+				var addedHeight = MinHeight - surface.Screenshot.Height;
 				if (addedHeight < 0)
 				{
 					addedHeight = 0;

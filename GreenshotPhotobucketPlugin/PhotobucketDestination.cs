@@ -66,12 +66,12 @@ namespace GreenshotPhotobucketPlugin
 			}
 		}
 
-		public override Image DisplayIcon
+		public override Bitmap DisplayIcon
 		{
 			get
 			{
 				var resources = new ComponentResourceManager(typeof(PhotobucketPlugin));
-				return (Image) resources.GetObject("Photobucket");
+				return (Bitmap) resources.GetObject("Photobucket");
 			}
 		}
 

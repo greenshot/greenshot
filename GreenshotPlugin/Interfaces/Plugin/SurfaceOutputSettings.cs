@@ -24,9 +24,9 @@
 #region Usings
 
 using System.Collections.Generic;
+using Greenshot.Gfx.Effects;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
-using GreenshotPlugin.Effects;
 using GreenshotPlugin.IniFile;
 
 #endregion

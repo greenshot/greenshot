@@ -38,10 +38,10 @@ namespace GreenshotLutimPlugin  {
 
 		public override string Description => Language.GetString("lutim", LangKey.upload_menu_item);
 
-		public override Image DisplayIcon {
+		public override Bitmap DisplayIcon {
 			get {
 				ComponentResourceManager resources = new ComponentResourceManager(typeof(LutimPlugin));
-				return (Image)resources.GetObject("Lutim");
+				return (Bitmap)resources.GetObject("Lutim");
 			}
 		}
 

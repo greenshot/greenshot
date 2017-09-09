@@ -36,6 +36,7 @@ using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
+using Greenshot.Gfx;
 
 #endregion
 
@@ -103,7 +104,7 @@ namespace GreenshotPlugin.Core
 						{
 							if (responseStream != null)
 							{
-								using (var image = ImageHelper.FromStream(responseStream))
+								using (var image = BitmapHelper.FromStream(responseStream))
 								{
 									return image.Height > 16 && image.Width > 16 ? new Bitmap(image, 16, 16) : new Bitmap(image);
 								}
@@ -145,10 +146,10 @@ namespace GreenshotPlugin.Core
 		/// </summary>
 		/// <param name="url">Of an image</param>
 		/// <returns>Bitmap</returns>
-		public static Image DownloadImage(string url)
+		public static Bitmap DownloadBitmap(string url)
 		{
 			var extensions = new StringBuilder();
-			foreach (var extension in ImageHelper.StreamConverters.Keys)
+			foreach (var extension in BitmapHelper.StreamConverters.Keys)
 			{
 				if (string.IsNullOrEmpty(extension))
 				{
@@ -166,7 +167,7 @@ namespace GreenshotPlugin.Core
 				{
 					try
 					{
-						return ImageHelper.FromStream(memoryStream, match.Success ? match.Groups["extension"]?.Value : null);
+						return BitmapHelper.FromStream(memoryStream, match.Success ? match.Groups["extension"]?.Value : null);
 					}
 					catch (Exception)
 					{
@@ -187,7 +188,7 @@ namespace GreenshotPlugin.Core
 						}
 						using (var memoryStream2 = GetAsMemoryStream(match.Value))
 						{
-							return ImageHelper.FromStream(memoryStream2, match.Groups["extension"]?.Value);
+							return BitmapHelper.FromStream(memoryStream2, match.Groups["extension"]?.Value);
 						}
 					}
 				}

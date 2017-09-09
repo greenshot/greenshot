@@ -40,9 +40,11 @@ using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
+using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Gdi32.Enums;
 using Dapplo.Windows.Gdi32.Structs;
 using Dapplo.Windows.User32;
+using Greenshot.Gfx;
 
 #endregion
 
@@ -313,7 +315,7 @@ EndSelection:<<<<<<<4
 						var imageStream = dataObject.GetData(FORMAT_FILECONTENTS) as MemoryStream;
 						if (IsValidStream(imageStream))
 						{
-							using (ImageHelper.FromStream(imageStream))
+							using (BitmapHelper.FromStream(imageStream))
 							{
 								// If we get here, there is an image
 								return true;
@@ -339,31 +341,27 @@ EndSelection:<<<<<<<4
 			return memoryStream != null && memoryStream.Length > 0;
 		}
 
-		/// <summary>
-		///     Wrapper for Clipboard.GetImage, Created for Bug #3432313
-		/// </summary>
-		/// <returns>Image if there is an image on the clipboard</returns>
-		public static Image GetImage()
+        /// <summary>
+        ///     Wrapper for Clipboard.GetBitmap, Created for Bug #3432313
+        /// </summary>
+        /// <returns>Bitmap if there is an bitmap on the clipboard</returns>
+        public static Bitmap GetBitmap()
 		{
 			var clipboardData = GetDataObject();
 			// Return the first image
-			foreach (var clipboardImage in GetImages(clipboardData))
-			{
-				return clipboardImage;
-			}
-			return null;
+		    return GetBitmaps(clipboardData).FirstOrDefault();
 		}
 
-		/// <summary>
-		///     Get all images (multiple if filenames are available) from the dataObject
-		///     Returned images must be disposed by the calling code!
-		/// </summary>
-		/// <param name="dataObject"></param>
-		/// <returns>IEnumerable of Image</returns>
-		public static IEnumerable<Image> GetImages(IDataObject dataObject)
+        /// <summary>
+        ///     Get all Bitmaps (multiple if filenames are available) from the dataObject
+        ///     Returned bitmap must be disposed by the calling code!
+        /// </summary>
+        /// <param name="dataObject"></param>
+        /// <returns>IEnumerable of Bitmap</returns>
+        public static IEnumerable<Bitmap> GetBitmaps(IDataObject dataObject)
 		{
 			// Get single image, this takes the "best" match
-			var singleImage = GetImage(dataObject);
+			var singleImage = GetBitmap(dataObject);
 			if (singleImage != null)
 			{
 				Log.Info().WriteLine("Got image from clipboard with size {0} and format {1}", singleImage.Size, singleImage.PixelFormat);
@@ -374,74 +372,76 @@ EndSelection:<<<<<<<4
 				// check if files are supplied
 				foreach (var imageFile in GetImageFilenames(dataObject))
 				{
-					Image returnImage = null;
+				    Bitmap returnBitmap = null;
 					try
 					{
-						returnImage = ImageHelper.LoadImage(imageFile);
+						returnBitmap = BitmapHelper.LoadBitmap(imageFile);
 					}
 					catch (Exception streamImageEx)
 					{
-						Log.Error().WriteLine(streamImageEx, "Problem retrieving Image from clipboard.");
+						Log.Error().WriteLine(streamImageEx, "Problem retrieving Bitmap from clipboard.");
 					}
-					if (returnImage != null)
-					{
-						Log.Info().WriteLine("Got image from clipboard with size {0} and format {1}", returnImage.Size, returnImage.PixelFormat);
-						yield return returnImage;
-					}
+				    if (returnBitmap == null)
+				    {
+				        continue;
+				    }
+				    Log.Info().WriteLine("Got bitmap from clipboard with size {0} and format {1}", returnBitmap.Size, returnBitmap.PixelFormat);
+				    yield return returnBitmap;
 				}
 			}
 		}
 
-		/// <summary>
-		///     Get an Image from the IDataObject, don't check for FileDrop
-		/// </summary>
-		/// <param name="dataObject"></param>
-		/// <returns>Image or null</returns>
-		private static Image GetImage(IDataObject dataObject)
+        /// <summary>
+        ///     Get a Bitmap from the IDataObject, don't check for FileDrop
+        /// </summary>
+        /// <param name="dataObject"></param>
+        /// <returns>Bitmap or null</returns>
+        private static Bitmap GetBitmap(IDataObject dataObject)
 		{
-			Image returnImage = null;
-			if (dataObject != null)
-			{
-				IList<string> formats = GetFormats(dataObject);
-				string[] retrieveFormats;
+			Bitmap returnBitmap = null;
+		    if (dataObject == null)
+		    {
+		        return null;
+		    }
+		    IList<string> formats = GetFormats(dataObject);
+		    string[] retrieveFormats;
 
-				// Found a weird bug, where PNG's from Outlook 2010 are clipped
-				// So I build some special logik to get the best format:
-				if (formats != null && formats.Contains(FORMAT_PNG_OFFICEART) && formats.Contains(DataFormats.Dib))
-				{
-					// Outlook ??
-					Log.Info().WriteLine("Most likely the current clipboard contents come from Outlook, as this has a problem with PNG and others we place the DIB format to the front...");
-					retrieveFormats = new[]
-					{
-						DataFormats.Dib, FORMAT_BITMAP, FORMAT_FILECONTENTS, FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JFIF, DataFormats.Tiff, FORMAT_GIF
-					};
-				}
-				else
-				{
-					retrieveFormats = new[]
-					{
-						FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_17, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JFIF, DataFormats.Tiff, DataFormats.Dib, FORMAT_BITMAP, FORMAT_FILECONTENTS,
-						FORMAT_GIF
-					};
-				}
-				foreach (var currentFormat in retrieveFormats)
-				{
-					if (formats != null && formats.Contains(currentFormat))
-					{
-						Log.Info().WriteLine("Found {0}, trying to retrieve.", currentFormat);
-						returnImage = GetImageForFormat(currentFormat, dataObject);
-					}
-					else
-					{
-						Log.Debug().WriteLine("Couldn't find format {0}.", currentFormat);
-					}
-					if (returnImage != null)
-					{
-						return returnImage;
-					}
-				}
-			}
-			return null;
+		    // Found a weird bug, where PNG's from Outlook 2010 are clipped
+		    // So I build some special logik to get the best format:
+		    if (formats != null && formats.Contains(FORMAT_PNG_OFFICEART) && formats.Contains(DataFormats.Dib))
+		    {
+		        // Outlook ??
+		        Log.Info().WriteLine("Most likely the current clipboard contents come from Outlook, as this has a problem with PNG and others we place the DIB format to the front...");
+		        retrieveFormats = new[]
+		        {
+		            DataFormats.Dib, FORMAT_BITMAP, FORMAT_FILECONTENTS, FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JFIF, DataFormats.Tiff, FORMAT_GIF
+		        };
+		    }
+		    else
+		    {
+		        retrieveFormats = new[]
+		        {
+		            FORMAT_PNG_OFFICEART, FORMAT_PNG, FORMAT_17, FORMAT_JFIF_OFFICEART, FORMAT_JPG, FORMAT_JFIF, DataFormats.Tiff, DataFormats.Dib, FORMAT_BITMAP, FORMAT_FILECONTENTS,
+		            FORMAT_GIF
+		        };
+		    }
+		    foreach (var currentFormat in retrieveFormats)
+		    {
+		        if (formats != null && formats.Contains(currentFormat))
+		        {
+		            Log.Info().WriteLine("Found {0}, trying to retrieve.", currentFormat);
+		            returnBitmap = GetBitmapForFormat(currentFormat, dataObject);
+		        }
+		        else
+		        {
+		            Log.Debug().WriteLine("Couldn't find format {0}.", currentFormat);
+		        }
+		        if (returnBitmap != null)
+		        {
+		            return returnBitmap;
+		        }
+		    }
+		    return null;
 		}
 
 		/// <summary>
@@ -451,15 +451,15 @@ EndSelection:<<<<<<<4
 		/// </summary>
 		/// <param name="format">string with the format</param>
 		/// <param name="dataObject">IDataObject</param>
-		/// <returns>Image or null</returns>
-		private static Image GetImageForFormat(string format, IDataObject dataObject)
+		/// <returns>Bitmap or null</returns>
+		private static Bitmap GetBitmapForFormat(string format, IDataObject dataObject)
 		{
 			var clipboardObject = GetFromDataObject(dataObject, format);
 			var imageStream = clipboardObject as MemoryStream;
 			if (!IsValidStream(imageStream))
 			{
 				// TODO: add "HTML Format" support here...
-				return clipboardObject as Image;
+				return clipboardObject as Bitmap;
 			}
 			if (CoreConfig.EnableSpecialDIBClipboardReader)
 			{
@@ -485,7 +485,7 @@ EndSelection:<<<<<<<4
 									bitmapStream.Write(fileHeaderBytes, 0, fileHeaderSize);
 									bitmapStream.Write(dibBuffer, 0, dibBuffer.Length);
 									bitmapStream.Seek(0, SeekOrigin.Begin);
-									var image = ImageHelper.FromStream(bitmapStream);
+									var image = BitmapHelper.FromStream(bitmapStream);
 									if (image != null)
 									{
 										return image;
@@ -537,7 +537,7 @@ EndSelection:<<<<<<<4
 				if (imageStream != null)
 				{
 					imageStream.Seek(0, SeekOrigin.Begin);
-					var tmpImage = ImageHelper.FromStream(imageStream);
+					var tmpImage = BitmapHelper.FromStream(imageStream);
 					if (tmpImage != null)
 					{
 						Log.Info().WriteLine("Got image with clipboard format {0} from the clipboard.", format);
@@ -588,8 +588,8 @@ EndSelection:<<<<<<<4
 		private static string GetHtmlString(ISurface surface, string filename)
 		{
 			var utf8EncodedHtmlString = Encoding.GetEncoding(0).GetString(Encoding.UTF8.GetBytes(HtmlClipboardString));
-			utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${width}", surface.Image.Width.ToString());
-			utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${height}", surface.Image.Height.ToString());
+			utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${width}", surface.Screenshot.Width.ToString());
+			utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${height}", surface.Screenshot.Height.ToString());
 			utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${file}", filename.Replace("\\", "/"));
 			var sb = new StringBuilder();
 			sb.Append(utf8EncodedHtmlString);
@@ -603,8 +603,8 @@ EndSelection:<<<<<<<4
 		private static string GetHtmlDataUrlString(ISurface surface, MemoryStream pngStream)
 		{
 			var utf8EncodedHtmlString = Encoding.GetEncoding(0).GetString(Encoding.UTF8.GetBytes(HtmlClipboardBase64String));
-			utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${width}", surface.Image.Width.ToString());
-			utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${height}", surface.Image.Height.ToString());
+			utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${width}", surface.Screenshot.Width.ToString());
+			utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${height}", surface.Screenshot.Height.ToString());
 			utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${format}", "png");
 			utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${data}", Convert.ToBase64String(pngStream.GetBuffer(), 0, (int) pngStream.Length));
 			var sb = new StringBuilder();
@@ -635,13 +635,13 @@ EndSelection:<<<<<<<4
 			MemoryStream dibStream = null;
 			MemoryStream dibV5Stream = null;
 			MemoryStream pngStream = null;
-			Image imageToSave = null;
+			Bitmap bitmapToSave = null;
 			var disposeImage = false;
 			try
 			{
 				var outputSettings = new SurfaceOutputSettings(OutputFormats.png, 100, false);
 				// Create the image which is going to be saved so we don't create it multiple times
-				disposeImage = ImageOutput.CreateImageFromSurface(surface, outputSettings, out imageToSave);
+				disposeImage = ImageOutput.CreateBitmapFromSurface(surface, outputSettings, out bitmapToSave);
 				try
 				{
 					// Create PNG stream
@@ -650,7 +650,7 @@ EndSelection:<<<<<<<4
 						pngStream = new MemoryStream();
 						// PNG works for e.g. Powerpoint
 						var pngOutputSettings = new SurfaceOutputSettings(OutputFormats.png, 100, false);
-						ImageOutput.SaveToStream(imageToSave, null, pngStream, pngOutputSettings);
+						ImageOutput.SaveToStream(bitmapToSave, null, pngStream, pngOutputSettings);
 						pngStream.Seek(0, SeekOrigin.Begin);
 						// Set the PNG stream
 						dataObject.SetData(FORMAT_PNG, false, pngStream);
@@ -669,7 +669,7 @@ EndSelection:<<<<<<<4
 						{
 							// Save image as BMP
 							var bmpOutputSettings = new SurfaceOutputSettings(OutputFormats.bmp, 100, false);
-							ImageOutput.SaveToStream(imageToSave, null, tmpBmpStream, bmpOutputSettings);
+							ImageOutput.SaveToStream(bitmapToSave, null, tmpBmpStream, bmpOutputSettings);
 
 							dibStream = new MemoryStream();
 							// Copy the source, but skip the "BITMAPFILEHEADER" which has a size of 14
@@ -694,7 +694,7 @@ EndSelection:<<<<<<<4
 						dibV5Stream = new MemoryStream();
 
 						// Create the BITMAPINFOHEADER
-						var header = BitmapInfoHeader.Create(imageToSave.Width, imageToSave.Height, 32);
+						var header = BitmapInfoHeader.Create(bitmapToSave.Width, bitmapToSave.Height, 32);
 						// Make sure we have BI_BITFIELDS, this seems to be normal for Format17?
 						header.Compression = BitmapCompressionMethods.BI_BITFIELDS;
 
@@ -711,7 +711,7 @@ EndSelection:<<<<<<<4
 						dibV5Stream.Write(colorMaskBytes, 0, colorMaskBytes.Length);
 
 						// Create the raw bytes for the pixels only
-						var bitmapBytes = BitmapToByteArray((Bitmap) imageToSave);
+						var bitmapBytes = BitmapToByteArray((Bitmap) bitmapToSave);
 						// Write to the stream
 						dibV5Stream.Write(bitmapBytes, 0, bitmapBytes.Length);
 
@@ -743,9 +743,9 @@ EndSelection:<<<<<<<4
 							DisableReduceColors = true
 						};
 						// Check if we can use the previously used image
-						if (imageToSave.PixelFormat != PixelFormat.Format8bppIndexed)
+						if (bitmapToSave.PixelFormat != PixelFormat.Format8bppIndexed)
 						{
-							ImageOutput.SaveToStream(imageToSave, surface, tmpPngStream, pngOutputSettings);
+							ImageOutput.SaveToStream(bitmapToSave, surface, tmpPngStream, pngOutputSettings);
 						}
 						else
 						{
@@ -762,7 +762,7 @@ EndSelection:<<<<<<<4
 				// Check if Bitmap is wanted
 				if (CoreConfig.ClipboardFormats.Contains(ClipboardFormats.BITMAP))
 				{
-					dataObject.SetImage(imageToSave);
+					dataObject.SetImage(bitmapToSave);
 					// Place the DataObject to the clipboard
 					SetDataObject(dataObject, true);
 				}
@@ -778,7 +778,7 @@ EndSelection:<<<<<<<4
 				// cleanup if needed
 				if (disposeImage)
 				{
-					imageToSave?.Dispose();
+					bitmapToSave?.Dispose();
 				}
 			}
 		}
@@ -792,7 +792,7 @@ EndSelection:<<<<<<<4
 		private static byte[] BitmapToByteArray(Bitmap bitmap)
 		{
 			// Lock the bitmap's bits.  
-			var rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
+			var rect = new NativeRect(0, 0, bitmap.Width, bitmap.Height);
 			var bmpData = bitmap.LockBits(rect, ImageLockMode.ReadOnly, bitmap.PixelFormat);
 
 			var absStride = Math.Abs(bmpData.Stride);
@@ -953,7 +953,7 @@ EndSelection:<<<<<<<4
 				return dropFileNames
 					.Where(filename => !string.IsNullOrEmpty(filename))
 					.Where(Path.HasExtension)
-					.Where(filename => ImageHelper.StreamConverters.Keys.Contains(Path.GetExtension(filename).ToLowerInvariant().Substring(1)));
+					.Where(filename => BitmapHelper.StreamConverters.Keys.Contains(Path.GetExtension(filename).ToLowerInvariant().Substring(1)));
 			}
 			return Enumerable.Empty<string>();
 		}

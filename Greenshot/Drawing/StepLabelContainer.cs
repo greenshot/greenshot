@@ -28,8 +28,9 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Runtime.Serialization;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Drawing.Fields;
-using Greenshot.Helpers;
 using GreenshotPlugin.Interfaces.Drawing;
 
 #endregion
@@ -163,15 +164,15 @@ namespace Greenshot.Drawing
 		/// <param name="matrix"></param>
 		public override void Transform(Matrix matrix)
 		{
-			var rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-			var widthBefore = rect.Width;
+			var rect = new NativeRect(Left, Top, Width, Height).Normalize();
+            var widthBefore = rect.Width;
 			var heightBefore = rect.Height;
 
 			// Transform this container
 			base.Transform(matrix);
-			rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+			rect = new NativeRect(Left, Top, Width, Height).Normalize();
 
-			var widthAfter = rect.Width;
+            var widthAfter = rect.Width;
 			var heightAfter = rect.Height;
 			var factor = ((float) widthAfter / widthBefore + (float) heightAfter / heightBefore) / 2;
 
@@ -191,8 +192,8 @@ namespace Greenshot.Drawing
 			graphics.PixelOffsetMode = PixelOffsetMode.None;
 			graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
 			var text = ((Surface) Parent).CountStepLabels(this).ToString();
-			var rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-			var fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
+			var rect = new NativeRect(Left, Top, Width, Height).Normalize();
+            var fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
 			var lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
 			if (_drawAsRectangle)
 			{
@@ -213,8 +214,8 @@ namespace Greenshot.Drawing
 
 		public override bool ClickableAt(int x, int y)
 		{
-			var rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
-			var fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
+			var rect = new NativeRect(Left, Top, Width, Height).Normalize();
+            var fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
 			if (_drawAsRectangle)
 			{
 				return RectangleContainer.RectangleClickableAt(rect, 0, fillColor, x, y);

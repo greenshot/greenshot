@@ -55,10 +55,12 @@ using Dapplo.Windows.Dpi;
 using Dapplo.Log.Loggers;
 using Dapplo.Windows.App;
 using Dapplo.Windows.Common;
+using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Dpi.Enums;
 using Dapplo.Windows.Dpi.Forms;
 using Dapplo.Windows.Kernel32;
+using Greenshot.Gfx;
 
 #endregion
 
@@ -92,7 +94,7 @@ namespace Greenshot.Forms
             Instance = this;
 
             // Factory for surface objects
-            ImageHelper.SurfaceFactory = () => new Surface();
+            ImageOutput.SurfaceFactory = () => new Surface();
 
             //
             // The InitializeComponent() call is required for Windows Forms designer support.
@@ -1003,7 +1005,7 @@ namespace Greenshot.Forms
                 }
             });
 
-            var contextMenuResourceScaleHandler = BitmapScaleHandler.WithComponentResourceManager(ContextMenuDpiHandler, GetType(), (bitmap, dpi) => (Bitmap)bitmap.ScaleIconForDisplaying(dpi));
+            var contextMenuResourceScaleHandler = BitmapScaleHandler.WithComponentResourceManager(ContextMenuDpiHandler, GetType(), (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));
 
             contextMenuResourceScaleHandler.AddTarget(contextmenu_capturewindow, "contextmenu_capturewindow.Image");
             contextMenuResourceScaleHandler.AddTarget(contextmenu_capturearea, "contextmenu_capturearea.Image");
@@ -1239,7 +1241,7 @@ namespace Greenshot.Forms
         private void ContextMenuOpening(object sender, CancelEventArgs e)
         {
             contextmenu_captureclipboard.Enabled = ClipboardHelper.ContainsImage();
-            contextmenu_capturelastregion.Enabled = coreConfiguration.LastCapturedRegion != Rectangle.Empty;
+            contextmenu_capturelastregion.Enabled = coreConfiguration.LastCapturedRegion != NativeRect.Empty;
 
             // IE context menu code
             try

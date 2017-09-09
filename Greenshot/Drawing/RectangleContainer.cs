@@ -25,6 +25,8 @@ using System.Drawing.Drawing2D;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
 using System.Runtime.Serialization;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing {
@@ -65,7 +67,7 @@ namespace Greenshot.Drawing {
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR, Color.Red);
 			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR, Color.Transparent);
 			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
-			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+			var rect = new NativeRect(Left, Top, Width, Height).Normalize();
 
 			DrawRectangle(rect, graphics, rm, lineThickness, lineColor, fillColor, shadow);
 		}
@@ -80,7 +82,7 @@ namespace Greenshot.Drawing {
 		/// <param name="lineColor"></param>
 		/// <param name="fillColor"></param>
 		/// <param name="shadow"></param>
-		public static void DrawRectangle(Rectangle rect, Graphics graphics, RenderMode rm, int lineThickness, Color lineColor, Color fillColor, bool shadow) {
+		public static void DrawRectangle(NativeRect rect, Graphics graphics, RenderMode rm, int lineThickness, Color lineColor, Color fillColor, bool shadow) {
 			graphics.SmoothingMode = SmoothingMode.HighQuality;
 			graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 			graphics.CompositingQuality = CompositingQuality.HighQuality;
@@ -96,11 +98,11 @@ namespace Greenshot.Drawing {
 				while (currentStep <= steps) {
 					using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100))) {
 						shadowPen.Width = lineVisible ? lineThickness : 1;
-						Rectangle shadowRect = GuiRectangle.GetGuiRectangle(
+						var shadowRect = new NativeRect(
 							rect.Left + currentStep,
 							rect.Top + currentStep,
-							rect.Width,
-							rect.Height);
+                            rect.Width,
+                            rect.Height).Normalize();
 						graphics.DrawRectangle(shadowPen, shadowRect);
 						currentStep++;
 						alpha = alpha - basealpha / steps;
@@ -124,7 +126,7 @@ namespace Greenshot.Drawing {
 
 		}
 		public override bool ClickableAt(int x, int y) {
-			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
+			var rect = new NativeRect(Left, Top, Width, Height).Normalize();
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) + 10;
 			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
 
@@ -132,7 +134,7 @@ namespace Greenshot.Drawing {
 		}
 
 
-		public static bool RectangleClickableAt(Rectangle rect, int lineThickness, Color fillColor, int x, int y) {
+		public static bool RectangleClickableAt(NativeRect rect, int lineThickness, Color fillColor, int x, int y) {
 
 			// If we clicked inside the rectangle and it's visible we are clickable at.
 			if (!Color.Transparent.Equals(fillColor)) {

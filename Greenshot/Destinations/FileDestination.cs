@@ -57,7 +57,7 @@ namespace Greenshot.Destinations
 
 		public override Keys EditorShortcutKeys => Keys.Control | Keys.S;
 
-		public override Image DisplayIcon => GreenshotResources.GetImage("Save.Image");
+		public override Bitmap DisplayIcon => GreenshotResources.GetBitmap("Save.Image");
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{

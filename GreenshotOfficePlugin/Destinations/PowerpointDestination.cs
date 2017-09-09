@@ -87,7 +87,7 @@ namespace GreenshotOfficePlugin.Destinations
 
 		public override bool IsActive => base.IsActive && ExePath != null;
 
-		public override Image GetDisplayIcon(double dpi)
+		public override Bitmap GetDisplayIcon(double dpi)
 		{
 			if (!string.IsNullOrEmpty(_presentationName))
 			{
@@ -110,7 +110,7 @@ namespace GreenshotOfficePlugin.Destinations
 			if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
 			{
 				tmpFile = ImageOutput.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
-				imageSize = surface.Image.Size;
+				imageSize = surface.Screenshot.Size;
 			}
 			if (_presentationName != null)
 			{

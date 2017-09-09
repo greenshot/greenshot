@@ -37,6 +37,7 @@ using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
+using Greenshot.Gfx;
 
 #endregion
 
@@ -50,7 +51,7 @@ namespace GreenshotConfluencePlugin
 		private static readonly LogSource Log = new LogSource();
 		private static readonly ConfluenceConfiguration ConfluenceConfig = IniConfig.GetIniSection<ConfluenceConfiguration>();
 		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
-		private static readonly Image ConfluenceIcon;
+		private static readonly Bitmap ConfluenceIcon;
 		private readonly Page _page;
 
 		static ConfluenceDestination()
@@ -61,8 +62,8 @@ namespace GreenshotConfluencePlugin
 				var confluenceIconUri = new Uri("/GreenshotConfluencePlugin;component/Images/Confluence.ico", UriKind.Relative);
 				using (var iconStream = Application.GetResourceStream(confluenceIconUri)?.Stream)
 				{
-					// TODO: Check what to do with the IImage
-					ConfluenceIcon = ImageHelper.FromStream(iconStream);
+					// TODO: Check what to do with the IBitmap
+					ConfluenceIcon = BitmapHelper.FromStream(iconStream);
 				}
 				IsInitialized = true;
 			}
@@ -110,7 +111,7 @@ namespace GreenshotConfluencePlugin
 			get { return base.IsActive && !string.IsNullOrEmpty(ConfluenceConfig.Url); }
 		}
 
-		public override Image DisplayIcon
+		public override Bitmap DisplayIcon
 		{
 			get { return ConfluenceIcon; }
 		}

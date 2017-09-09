@@ -24,6 +24,7 @@
 #region Usings
 
 using System.Drawing;
+using Dapplo.Windows.Common.Structs;
 
 #endregion
 
@@ -34,7 +35,7 @@ namespace GreenshotPlugin.Core
 	/// </summary>
 	/// <param name="captureBounds"></param>
 	/// <returns>Captured Bitmap</returns>
-	public delegate Bitmap CaptureScreenRectangleHandler(Rectangle captureBounds);
+	public delegate Bitmap CaptureScreenRectangleHandler(NativeRect captureBounds);
 
 	/// <summary>
 	///     This is a hack to experiment with different screen capture routines

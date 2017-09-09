@@ -30,6 +30,8 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using Dapplo.Windows.Desktop;
 using Dapplo.Log;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using mshtml;
 using IServiceProvider = GreenshotPlugin.Interop.IServiceProvider;
 
@@ -44,11 +46,11 @@ namespace Greenshot.Helpers.IEInterop
 		private static readonly Guid IID_IWebBrowserApp = new Guid("0002DF05-0000-0000-C000-000000000046");
 		private static readonly Guid IID_IWebBrowser2 = new Guid("D30C1661-CDAF-11D0-8A3E-00C04FC9E26E");
 		private static int _counter;
-		private Point _destinationLocation;
+		private NativePoint _destinationLocation;
 		private IHTMLDocument2 _document2;
 		private IHTMLDocument3 _document3;
 		private bool _isDtd;
-		private Point _startLocation = Point.Empty;
+		private NativePoint _startLocation = NativePoint.Empty;
 		private double _zoomLevelX = 1;
 		private double _zoomLevelY = 1;
 
@@ -85,7 +87,7 @@ namespace Greenshot.Helpers.IEInterop
 			// Calculate startLocation for the frames
 			var window2 = document2.parentWindow;
 			var window3 = (IHTMLWindow3) window2;
-			Point contentWindowLocation = contentWindow.GetInfo().Bounds.Location;
+			NativePoint contentWindowLocation = contentWindow.GetInfo().Bounds.Location;
 			var x = window3.screenLeft - contentWindowLocation.X;
 			var y = window3.screenTop - contentWindowLocation.Y;
 
@@ -93,7 +95,7 @@ namespace Greenshot.Helpers.IEInterop
 			ReleaseCom(window2);
 			ReleaseCom(window3);
 
-			_startLocation = new Point(x, y);
+			_startLocation = new NativePoint(x, y);
 			Init(document2, contentWindow);
 		}
 
@@ -127,7 +129,7 @@ namespace Greenshot.Helpers.IEInterop
 			}
 		}
 
-		public Rectangle ViewportRectangle { get; private set; } = Rectangle.Empty;
+		public NativeRect ViewportRectangle { get; private set; } = NativeRect.Empty;
 
 		public IInteropWindow ContentWindow { get; private set; }
 
@@ -149,11 +151,11 @@ namespace Greenshot.Helpers.IEInterop
 
 		public int ScrollHeight => ScaleY(GetAttributeAsInt("scrollHeight"));
 
-		public Point SourceLocation { get; set; }
+		public NativePoint SourceLocation { get; set; }
 
 		public Size SourceSize => new Size(ClientWidth, ClientHeight);
 
-		public Rectangle SourceRectangle => new Rectangle(SourceLocation, SourceSize);
+		public NativeRect SourceRectangle => new NativeRect(SourceLocation, SourceSize);
 
 		public int SourceLeft => SourceLocation.X;
 
@@ -163,7 +165,7 @@ namespace Greenshot.Helpers.IEInterop
 
 		public int SourceBottom => SourceLocation.Y + ClientHeight;
 
-		public Point DestinationLocation
+		public NativePoint DestinationLocation
 		{
 			get { return _destinationLocation; }
 			set { _destinationLocation = value; }
@@ -171,18 +173,18 @@ namespace Greenshot.Helpers.IEInterop
 
 		public Size DestinationSize => new Size(ScrollWidth, ScrollHeight);
 
-		public Rectangle DestinationRectangle => new Rectangle(DestinationLocation, DestinationSize);
+		public NativeRect DestinationRectangle => new NativeRect(DestinationLocation, DestinationSize);
 
 		public int DestinationLeft
 		{
 			get { return _destinationLocation.X; }
-			set { _destinationLocation.X = value; }
+			set { _destinationLocation = _destinationLocation.ChangeX(value); }
 		}
 
 		public int DestinationTop
 		{
 			get { return _destinationLocation.Y; }
-			set { _destinationLocation.Y = value; }
+			set { _destinationLocation = _destinationLocation.ChangeY(value); }
 		}
 
 		public int DestinationRight => _destinationLocation.X + ScrollWidth;
@@ -245,7 +247,7 @@ namespace Greenshot.Helpers.IEInterop
 			// Do not release IHTMLDocument5 com object, as this also gives problems with the document2!
 			//Marshal.ReleaseComObject(document5);
 
-			Rectangle clientRectangle = contentWindow.GetInfo().Bounds;
+			NativeRect clientRectangle = contentWindow.GetInfo().Bounds;
 			try
 			{
 				var window2 = document2.parentWindow;
@@ -279,9 +281,9 @@ namespace Greenshot.Helpers.IEInterop
 					// If there is a border AND a scrollbar the diff == 20
 					if ((diffX == 4 || diffX >= 20) && (diffY == 4 || diffY >= 20))
 					{
-						var viewportOffset = new Point(2, 2);
+						var viewportOffset = new NativePoint(2, 2);
 						var viewportSize = new Size(ClientWidth, ClientHeight);
-						ViewportRectangle = new Rectangle(viewportOffset, viewportSize);
+						ViewportRectangle = new NativeRect(viewportOffset, viewportSize);
 						Log.Debug().WriteLine("viewportRect {0}", ViewportRectangle);
 					}
 				}
@@ -318,8 +320,8 @@ namespace Greenshot.Helpers.IEInterop
 			{
 				Log.Warn().WriteLine(e, "Problem while trying to get document url!");
 			}
-			SourceLocation = new Point(ScaleX(_startLocation.X), ScaleY(_startLocation.Y));
-			_destinationLocation = new Point(ScaleX(_startLocation.X), ScaleY(_startLocation.Y));
+			SourceLocation = new NativePoint(ScaleX(_startLocation.X), ScaleY(_startLocation.Y));
+			_destinationLocation = new NativePoint(ScaleX(_startLocation.X), ScaleY(_startLocation.Y));
 
 			if (Parent != null)
 			{
@@ -406,10 +408,10 @@ namespace Greenshot.Helpers.IEInterop
 				oldElement = element;
 			} while (element != null);
 
-			var elementLocation = new Point((int) x, (int) y);
+			var elementLocation = new NativePoint((int) x, (int) y);
 			var element2 = (IHTMLElement2) frameElement;
 			var rec = element2.getBoundingClientRect();
-			var elementBoundingLocation = new Point(rec.left, rec.top);
+			var elementBoundingLocation = new NativePoint(rec.left, rec.top);
 			// Release IHTMLRect
 			ReleaseCom(rec);
 			Log.Debug().WriteLine("Looking for iframe to correct at {0}", elementBoundingLocation);

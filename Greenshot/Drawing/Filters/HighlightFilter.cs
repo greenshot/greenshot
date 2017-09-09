@@ -25,7 +25,10 @@
 
 using System;
 using System.Drawing;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Drawing.Fields;
+using Greenshot.Gfx;
+using Greenshot.Gfx.FastBitmap;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces.Drawing;
 
@@ -48,9 +51,9 @@ namespace Greenshot.Drawing.Filters
 		/// <param name="applyBitmap"></param>
 		/// <param name="rect"></param>
 		/// <param name="renderMode"></param>
-		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode)
+		public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
 		{
-			var applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
+			var applyRect = BitmapHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
 
 			if (applyRect.Width == 0 || applyRect.Height == 0)
 			{
@@ -63,7 +66,7 @@ namespace Greenshot.Drawing.Filters
 				graphics.SetClip(applyRect);
 				graphics.ExcludeClip(rect);
 			}
-			using (var fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, area: applyRect))
+			using (var fastBitmap = FastBitmapBase.CreateCloneOf(applyBitmap, area: applyRect))
 			{
 				var highlightColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
 				for (var y = fastBitmap.Top; y < fastBitmap.Bottom; y++)

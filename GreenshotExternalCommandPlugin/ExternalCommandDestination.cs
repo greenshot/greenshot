@@ -63,7 +63,7 @@ namespace GreenshotExternalCommandPlugin
 
 		public override string Description => _presetCommand;
 
-		public override Image GetDisplayIcon(double dpi)
+		public override Bitmap GetDisplayIcon(double dpi)
 		{
 			return IconCache.IconForCommand(_presetCommand, dpi > 100);
 		}

@@ -24,6 +24,7 @@
 #region using
 
 using System.Drawing;
+using Dapplo.Windows.Common.Structs;
 
 #endregion
 
@@ -32,9 +33,9 @@ namespace GreenshotPlugin.Animation
 	/// <summary>
 	///     Implementation of the RectangleAnimator
 	/// </summary>
-	public class RectangleAnimator : AnimatorBase<Rectangle>
+	public class RectangleAnimator : AnimatorBase<NativeRect>
 	{
-		public RectangleAnimator(Rectangle first, Rectangle last, int frames, EasingTypes easingType = EasingTypes.Linear, EasingModes easingMode = EasingModes.EaseIn)
+		public RectangleAnimator(NativeRect first, NativeRect last, int frames, EasingTypes easingType = EasingTypes.Linear, EasingModes easingMode = EasingModes.EaseIn)
 			: base(first, last, frames, easingType, easingMode)
 		{
 		}
@@ -42,8 +43,8 @@ namespace GreenshotPlugin.Animation
 		/// <summary>
 		///     Calculate the next frame object
 		/// </summary>
-		/// <returns>Rectangle</returns>
-		public override Rectangle Next()
+		/// <returns>NativeRect</returns>
+		public override NativeRect Next()
 		{
 			if (!NextFrame)
 			{
@@ -59,7 +60,7 @@ namespace GreenshotPlugin.Animation
 			double dh = Last.Height - First.Height;
 			var width = First.Width + (int) (easingValue * dw);
 			var height = First.Height + (int) (easingValue * dh);
-			Current = new Rectangle(x, y, width, height);
+			Current = new NativeRect(x, y, width, height);
 			return Current;
 		}
 	}

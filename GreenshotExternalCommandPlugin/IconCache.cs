@@ -42,15 +42,15 @@ namespace GreenshotExternalCommandPlugin
 		private static readonly ExternalCommandConfiguration Config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
 		private static readonly LogSource Log = new LogSource();
 
-		/// <summary>
-		/// Retrieve the icon for a command
-		/// </summary>
-		/// <param name="commandName">string</param>
-		/// <param name="useLargeIcons">true to use the large icon</param>
-		/// <returns>Image</returns>
-		public static Image IconForCommand(string commandName, bool useLargeIcons)
+        /// <summary>
+        /// Retrieve the icon for a command
+        /// </summary>
+        /// <param name="commandName">string</param>
+        /// <param name="useLargeIcons">true to use the large icon</param>
+        /// <returns>Bitmap</returns>
+        public static Bitmap IconForCommand(string commandName, bool useLargeIcons)
 		{
-			Image icon = null;
+		    Bitmap icon = null;
 			if (commandName == null)
 			{
 				return null;

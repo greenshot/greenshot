@@ -18,18 +18,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Dapplo.Log;
 using Dapplo.Windows.Dpi;
+using Greenshot.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
@@ -42,7 +41,6 @@ namespace GreenshotLutimPlugin {
 		private static LutimConfiguration _config;
 		public static PluginAttribute Attributes;
 		private IGreenshotHost _host;
-		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _historyMenuItem;
 		private ToolStripMenuItem _itemPlugInConfig;
 
@@ -84,9 +82,8 @@ namespace GreenshotLutimPlugin {
 
 			// Get configuration
 			_config = IniConfig.GetIniSection<LutimConfiguration>();
-			_resources = new ComponentResourceManager(typeof(LutimPlugin));
 
-			var lutimResourceScaleHandler = BitmapScaleHandler.WithComponentResourceManager(pluginHost.ContextMenuDpiHandler, GetType(), (bitmap, dpi) => (Bitmap) bitmap.ScaleIconForDisplaying(dpi));
+			var lutimResourceScaleHandler = BitmapScaleHandler.WithComponentResourceManager(pluginHost.ContextMenuDpiHandler, GetType(), (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));
 
 			var itemPlugInRoot = new ToolStripMenuItem("Lutim");
 			lutimResourceScaleHandler.AddTarget(itemPlugInRoot, "Lutim");
@@ -182,25 +179,26 @@ namespace GreenshotLutimPlugin {
 				if (lutimInfo != null)
 				{
 					// TODO: Optimize a second call for export
-					using (Image tmpImage = surfaceToUpload.GetImageForExport())
+					using (var tmpBitmap = surfaceToUpload.GetBitmapForExport())
 					{
-						lutimInfo.Thumb = tmpImage.CreateThumbnail(90, 90);
+						lutimInfo.Thumb = tmpBitmap.CreateThumbnail(90, 90);
 					}
 					IniConfig.Save();
 					uploadUrl = lutimInfo.Uri.AbsoluteUri;
-					if (!string.IsNullOrEmpty(uploadUrl) && _config.CopyLinkToClipboard)
-					{
-						try
-						{
-							ClipboardHelper.SetClipboardData(uploadUrl);
-						}
-						catch (Exception ex)
-						{
-							Log.Error().WriteLine(ex, "Can't write to clipboard: ");
-							uploadUrl = null;
-						}
-					}
-					return true;
+				    if (string.IsNullOrEmpty(uploadUrl) || !_config.CopyLinkToClipboard)
+				    {
+				        return true;
+				    }
+				    try
+				    {
+				        ClipboardHelper.SetClipboardData(uploadUrl);
+				    }
+				    catch (Exception ex)
+				    {
+				        Log.Error().WriteLine(ex, "Can't write to clipboard: ");
+				        uploadUrl = null;
+				    }
+				    return true;
 				}
 			} catch (Exception e) {
 				Log.Error().WriteLine(e, "Error uploading.");

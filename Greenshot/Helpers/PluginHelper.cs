@@ -122,18 +122,18 @@ namespace Greenshot.Helpers
 			plugin.Configure();
 		}
 
-		#region Implementation of IGreenshotPluginHost
+        #region Implementation of IGreenshotPluginHost
 
-		/// <summary>
-		///     Create a Thumbnail
-		/// </summary>
-		/// <param name="image">Image of which we need a Thumbnail</param>
-		/// <param name="width">Thumbnail width</param>
-		/// <param name="height">Thumbnail height</param>
-		/// <returns>Image with Thumbnail</returns>
-		public Image GetThumbnail(Image image, int width, int height)
+        /// <summary>
+        ///     Create a Thumbnail
+        /// </summary>
+        /// <param name="bitmap">Bitmap of which we need a Thumbnail</param>
+        /// <param name="width">Thumbnail width</param>
+        /// <param name="height">Thumbnail height</param>
+        /// <returns>Image with Thumbnail</returns>
+        public Bitmap GetThumbnail(Bitmap bitmap, int width, int height)
 		{
-			return image.GetThumbnailImage(width, height, ThumbnailCallback, IntPtr.Zero);
+			return bitmap.GetThumbnailImage(width, height, ThumbnailCallback, IntPtr.Zero) as Bitmap;
 		}
 
 		/// <summary>
@@ -195,9 +195,9 @@ namespace Greenshot.Helpers
 		///     Get an ICapture object, so the plugin can modify this
 		/// </summary>
 		/// <returns></returns>
-		public ICapture GetCapture(Image imageToCapture)
+		public ICapture GetCapture(Bitmap bitmapToCapture)
 		{
-			var capture = new Capture(imageToCapture)
+			var capture = new Capture(bitmapToCapture)
 			{
 				CaptureDetails = new CaptureDetails
 				{

@@ -26,7 +26,10 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Drawing.Fields;
+using Greenshot.Gfx;
+using Greenshot.Gfx.FastBitmap;
 using Greenshot.Helpers;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces.Drawing;
@@ -43,10 +46,10 @@ namespace Greenshot.Drawing.Filters
 			AddField(GetType(), FieldType.PIXEL_SIZE, 5);
 		}
 
-		public override void Apply(Graphics graphics, Bitmap applyBitmap, Rectangle rect, RenderMode renderMode)
+		public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
 		{
 			var pixelSize = GetFieldValueAsInt(FieldType.PIXEL_SIZE);
-			ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
+			BitmapHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
 			if (pixelSize <= 1 || rect.Width == 0 || rect.Height == 0)
 			{
 				// Nothing to do
@@ -60,9 +63,9 @@ namespace Greenshot.Drawing.Filters
 			{
 				pixelSize = rect.Height;
 			}
-			using (var dest = FastBitmap.CreateCloneOf(applyBitmap, area: rect))
+			using (var dest = FastBitmapBase.CreateCloneOf(applyBitmap, area: rect))
 			{
-				using (var src = FastBitmap.Create(applyBitmap, rect))
+				using (var src = FastBitmapBase.Create(applyBitmap, rect))
 				{
 					var colors = new List<Color>();
 					var halbPixelSize = pixelSize / 2;
