@@ -363,7 +363,7 @@ namespace Greenshot.Drawing
 
 		public virtual bool ClickableAt(int x, int y)
 		{
-			return new NativeRect(Left, Top, new NativeSize(Width, Height)).Normalize().Inflate(5, 5).Contains(x, y);
+			return new NativeRect(Left, Top, Width, Height).Normalize().Inflate(5, 5).Contains(x, y);
 		}
 
 		/// <summary>

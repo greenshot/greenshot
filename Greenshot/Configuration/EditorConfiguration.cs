@@ -156,7 +156,7 @@ namespace Greenshot.Configuration
 
 		public void ResetEditorPlacement()
 		{
-			WindowNormalPosition = new NativeRect(100, 100, new NativeSize(400, 400));
+			WindowNormalPosition = new NativeRect(100, 100, 400, 400);
 			WindowMaxPosition = new NativePoint(-1, -1);
 			WindowMinPosition = new NativePoint(-1, -1);
 			WindowPlacementFlags = 0;
