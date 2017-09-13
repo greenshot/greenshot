@@ -47,3 +47,6 @@ List of changes:
 |[BUG-2172](https://greenshot.atlassian.net/browse/BUG-2172)|NullReferenceException when using the speech bubble|
 |[BUG-2246](https://greenshot.atlassian.net/browse/BUG-2246)|Login issues with the Atlassian Jira Cloud|
 |[FEATURE-1064](https://greenshot.atlassian.net/browse/FEATURE-1064)|Added CTRL+Backspace & CTRL+A to the text tool|
+
+
+Published on:
