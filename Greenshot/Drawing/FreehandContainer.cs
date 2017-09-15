@@ -36,7 +36,10 @@ namespace Greenshot.Drawing {
 	public class FreehandContainer : DrawableContainer {
 		private static readonly float [] PointOffset = {0.5f, 0.25f, 0.75f};
 
-		[NonSerialized]
+        [NonSerialized]
+        private readonly object _freehandPathLock = new object();
+
+        [NonSerialized]
 		private GraphicsPath freehandPath = new GraphicsPath();
 		private Rectangle myBounds = Rectangle.Empty;
 		private Point lastMouse = Point.Empty;
@@ -104,15 +107,21 @@ namespace Greenshot.Drawing {
 			if (GeometryHelper.Distance2D(previousPoint.X, previousPoint.Y, mouseX, mouseY) >= 2*EditorConfig.FreehandSensitivity) {
 				capturePoints.Add(new Point(mouseX, mouseY));
 			}
-			if (GeometryHelper.Distance2D(lastMouse.X, lastMouse.Y, mouseX, mouseY) >= EditorConfig.FreehandSensitivity) {
-				//path.AddCurve(new Point[]{lastMouse, new Point(mouseX, mouseY)});
-				freehandPath.AddLine(lastMouse, new Point(mouseX, mouseY));
-				lastMouse = new Point(mouseX, mouseY);
-				// Only re-calculate the bounds & redraw when we added something to the path
-				myBounds = Rectangle.Round(freehandPath.GetBounds());
-				Invalidate();
-			}
-			return true;
+		    if (GeometryHelper.Distance2D(lastMouse.X, lastMouse.Y, mouseX, mouseY) < EditorConfig.FreehandSensitivity)
+		    {
+		        return true;
+		    }
+		    //path.AddCurve(new Point[]{lastMouse, new Point(mouseX, mouseY)});
+		    lastMouse = new Point(mouseX, mouseY);
+		    lock (_freehandPathLock)
+		    {
+		        freehandPath.AddLine(lastMouse, new Point(mouseX, mouseY));
+		        // Only re-calculate the bounds & redraw when we added something to the path
+		        myBounds = Rectangle.Round(freehandPath.GetBounds());
+		    }
+
+		    Invalidate();
+		    return true;
 		}
 
 		/// <summary>
@@ -130,25 +139,34 @@ namespace Greenshot.Drawing {
 		/// Here we recalculate the freehand path by smoothing out the lines with Beziers.
 		/// </summary>
 		private void RecalculatePath() {
-			isRecalculated = true;
-			// Dispose the previous path, if we have one
-			freehandPath?.Dispose();
-			freehandPath = new GraphicsPath();
+		    lock (_freehandPathLock)
+		    {
+		        isRecalculated = true;
+		        // Dispose the previous path, if we have one
+		        freehandPath?.Dispose();
+		        freehandPath = new GraphicsPath();
 
-			// Here we can put some cleanup... like losing all the uninteresting  points.
-			if (capturePoints.Count >= 3) {
-				int index = 0;
-				while ((capturePoints.Count - 1) % 3 != 0) {
-					// duplicate points, first at 50% than 25% than 75%
-					capturePoints.Insert((int)(capturePoints.Count*PointOffset[index]), capturePoints[(int)(capturePoints.Count*PointOffset[index++])]);
-				}
-				freehandPath.AddBeziers(capturePoints.ToArray());
-			} else if (capturePoints.Count == 2) {
-				freehandPath.AddLine(capturePoints[0], capturePoints[1]);
-			}
+		        // Here we can put some cleanup... like losing all the uninteresting  points.
+		        if (capturePoints.Count >= 3)
+		        {
+		            int index = 0;
+		            while ((capturePoints.Count - 1) % 3 != 0)
+		            {
+		                // duplicate points, first at 50% than 25% than 75%
+		                capturePoints.Insert((int)(capturePoints.Count * PointOffset[index]), capturePoints[(int)(capturePoints.Count * PointOffset[index++])]);
+		            }
+		            freehandPath.AddBeziers(capturePoints.ToArray());
+		        }
+		        else if (capturePoints.Count == 2)
+		        {
+		            freehandPath.AddLine(capturePoints[0], capturePoints[1]);
+		        }
 
-			// Recalculate the bounds
-			myBounds = Rectangle.Round(freehandPath.GetBounds());
+		        // Recalculate the bounds
+		        myBounds = Rectangle.Round(freehandPath.GetBounds());
+
+            }
+
 		}
 
 		/// <summary>
@@ -157,41 +175,48 @@ namespace Greenshot.Drawing {
 		/// <param name="graphics"></param>
 		/// <param name="renderMode"></param>
 		public override void Draw(Graphics graphics, RenderMode renderMode) {
-			graphics.SmoothingMode = SmoothingMode.HighQuality;
+		    graphics.SmoothingMode = SmoothingMode.HighQuality;
 			graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 			graphics.CompositingQuality = CompositingQuality.HighQuality;
 			graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 			
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-			using (Pen pen = new Pen(lineColor)) {
+			using (var pen = new Pen(lineColor)) {
 				pen.Width = lineThickness;
-				if (pen.Width > 0) {
-					// Make sure the lines are nicely rounded
-					pen.EndCap = LineCap.Round;
-					pen.StartCap = LineCap.Round;
-					pen.LineJoin = LineJoin.Round;
+			    if (!(pen.Width > 0))
+			    {
+			        return;
+			    }
+			    // Make sure the lines are nicely rounded
+			    pen.EndCap = LineCap.Round;
+			    pen.StartCap = LineCap.Round;
+			    pen.LineJoin = LineJoin.Round;
+			    // Move to where we need to draw
+			    graphics.TranslateTransform(Left, Top);
+			    lock (_freehandPathLock)
+			    {
+			        if (isRecalculated && Selected && renderMode == RenderMode.EDIT)
+			        {
+			            DrawSelectionBorder(graphics, pen, freehandPath);
+			        }
+			        graphics.DrawPath(pen, freehandPath);
+			    }
 
-					// Move to where we need to draw
-					graphics.TranslateTransform(Left,Top);
-					if (isRecalculated && Selected && renderMode == RenderMode.EDIT) {
-						DrawSelectionBorder(graphics, pen);
-					}
-					graphics.DrawPath(pen, freehandPath);
-					// Move back, otherwise everything is shifted
-					graphics.TranslateTransform(-Left,-Top);
-				}
+                // Move back, otherwise everything is shifted
+                graphics.TranslateTransform(-Left,-Top);
 			}
 		}
-		
-		/// <summary>
-		/// Draw a selectionborder around the freehand path
-		/// </summary>
-		/// <param name="graphics"></param>
-		/// <param name="linePen"></param>
-		protected void DrawSelectionBorder(Graphics graphics, Pen linePen) {
-			using (Pen selectionPen = (Pen) linePen.Clone()) {
-				using (GraphicsPath selectionPath = (GraphicsPath) freehandPath.Clone()) {
+
+        /// <summary>
+        /// Draw a selectionborder around the freehand path
+        /// </summary>
+        /// <param name="graphics">Graphics</param>
+        /// <param name="linePen">Pen</param>
+        /// <param name="path">GraphicsPath</param>
+        protected static void DrawSelectionBorder(Graphics graphics, Pen linePen, GraphicsPath path) {
+			using (var selectionPen = (Pen) linePen.Clone()) {
+				using (var selectionPath = (GraphicsPath)path.Clone()) {
 					selectionPen.Width += 5;
 					selectionPen.Color = Color.FromArgb(120, Color.LightSeaGreen);
 					graphics.DrawPath(selectionPen, selectionPath);
@@ -218,34 +243,42 @@ namespace Greenshot.Drawing {
 			}
 		}
 
-		/// <summary>
-		/// FreehandContainer are regarded equal if they are of the same type and their paths are equal.
-		/// </summary>
-		/// <param name="obj"></param>
-		/// <returns></returns>
-		public override bool Equals(object obj) {
+        /// <summary>
+        /// FreehandContainer are regarded equal if they are of the same type and their paths are equal.
+        /// </summary>
+        /// <param name="obj">object</param>
+        /// <returns>bool</returns>
+        public override bool Equals(object obj) {
 			bool ret = false;
-			if(obj != null && GetType() == obj.GetType()) {
-				FreehandContainer other = obj as FreehandContainer;
-				if(other != null && freehandPath.Equals(other.freehandPath)) {
-					ret = true;
-				}
-			}
-			return ret;
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+            var other = obj as FreehandContainer;
+            if (other != null && Equals(freehandPath, other.freehandPath)) {
+                ret = true;
+            }
+            return ret;
 		}
 
 		public override int GetHashCode() {
-			return freehandPath.GetHashCode();
+		    lock (_freehandPathLock)
+		    {
+		        return freehandPath?.GetHashCode() ?? 0;
+		    }
 		}
 
 		public override bool ClickableAt(int x, int y) {
 			bool returnValue = base.ClickableAt(x, y);
 			if (returnValue) {
 				int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-				using (Pen pen = new Pen(Color.White)) {
+				using (var pen = new Pen(Color.White)) {
 					pen.Width = lineThickness + 10;
-					returnValue = freehandPath.IsOutlineVisible(x-Left,y-Top, pen);
-				}
+				    lock (_freehandPathLock)
+				    {
+				        returnValue = freehandPath.IsOutlineVisible(x - Left, y - Top, pen);
+                    }
+                }
 			}
 			return returnValue;
 		}

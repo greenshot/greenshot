@@ -62,8 +62,8 @@ namespace Greenshot.Drawing {
 		
 		public override void Draw(Graphics graphics, RenderMode rm) {
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
+			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR, Color.Red);
+			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR, Color.Transparent);
 			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 

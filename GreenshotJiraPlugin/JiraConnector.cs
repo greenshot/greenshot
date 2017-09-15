@@ -107,10 +107,9 @@ namespace GreenshotJiraPlugin {
 			_jiraClient.Behaviour.SetConfig(new SvgConfiguration { Width = CoreConfig.IconSize.Width, Height = CoreConfig.IconSize.Height });
 
 			_issueTypeBitmapCache = new IssueTypeBitmapCache(_jiraClient);
-			LoginInfo loginInfo;
 			try
 			{
-				loginInfo = await _jiraClient.Session.StartAsync(user, password, cancellationToken);
+				await _jiraClient.Session.StartAsync(user, password, cancellationToken);
 				Monitor = new JiraMonitor();
 				await Monitor.AddJiraInstanceAsync(_jiraClient, cancellationToken);
 
@@ -129,7 +128,7 @@ namespace GreenshotJiraPlugin {
 			{
 				return false;
 			}
-			return loginInfo != null;
+			return true;
 		}
 		
 		/// <summary>
