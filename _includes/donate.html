@@ -58,7 +58,6 @@ jQuery('ul.tabs-nav a:first').click();
 var lang = (navigator.language || navigator.userLanguage).toLowerCase();
 console.log(lang);
 if(lang.indexOf('de') == 0) {
-jQuery('#amazon2').insertBefore(jQuery('#amazon1'));
 jQuery('#tabs-moneytransfer #germany').insertBefore(jQuery('#tabs-moneytransfer #international'));
 }
 });
@@ -68,7 +67,7 @@ jQuery('#tabs-moneytransfer #germany').insertBefore(jQuery('#tabs-moneytransfer 
 <li class="active"><a href="#tabs-paypal"><img src="/assets/wp-content/uploads/2012/11/logo_paypal.gif" title="Paypal" /></a></li>
 <li class="active"><a href="#tabs-moneytransfer">Transfer</a></li>
 <!--<li><a href="#tabs-bitcoin"><img src="/assets/wp-content/uploads/2012/11/logo_bitcoin.png" title="Bitcoin" /></a></li>-->
-<li><a href="#tabs-amazon"><img src="/assets/wp-content/uploads/2012/11/logo_amazon.gif" title="Amazon" /></a></li>
+<li><a href="#tabs-amazon"><img src="/assets/wp-content/uploads/2012/11/logo_amazon.gif" title="Amazon" />.de</a></li>
 <li><a href="#tabs-flattr"><img src="/assets/wp-content/uploads/2012/11/logo_flattr.gif" title="Flattr" /></a></li>
 </ul>
 <div class="clearer"></div>
@@ -110,20 +109,9 @@ You can send us donations directly via money transfer. Please use the account de
 </table>
 </div>
 <div id="tabs-amazon" class="tabs-content">
-<div id="amazon1">
-<p>We are taking part in the amazon affiliate program, support us by clicking the advertising links below before your next shopping tour at Amazon. Greenshot will be rewarded a few percent for everything you buy within 24 hours after clicking one of the Amazon ads on this website. Of course, this is anonymous - Amazon does not tell us who has ordered something after clicking one of the links.<br/>
-The best thing is: there are no additional costs for you :)</p>
-<p>Please choose your amazon store:<br/>
-<em>[Advertisement]</em></p>
-<p><a rel="nofollow" href="http://www.amazon.com/gp/redirect.html?ie=UTF8&amp;location=http%3A%2F%2Fwww.amazon.com%2F&amp;tag=greenshot-20&amp;linkCode=ur2&amp;camp=1789&amp;creative=9325" class="icon amazon"><img width="16" height="11" title="us" alt="us" src="/assets/flags/us.gif"> amazon.com</a><img width="1" border="0" height="1" alt="" src="http://www.assoc-amazon.com/e/ir?t=greenshot-20&amp;l=ur2&amp;o=1" style="border: medium none ! important; margin: 0px ! important;"/><br>
-<a rel="nofollow" href="http://www.amazon.co.uk/?_encoding=UTF8&tag=greenshot-21&linkCode=ur2&camp=1634&creative=6738" class="icon amazon"><img width="16" height="11" title="uk" alt="uk" src="/assets/flags/gb.gif"> amazon.co.uk</a><img width="1" border="0" height="1" alt="" src="http://www.assoc-amazon.co.uk/e/ir?t=greenshot-21&amp;l=ur2&amp;o=2" style="border: medium none ! important; margin: 0px ! important;"/><br>
-<a rel="nofollow" href="http://www.amazon.de/gp/redirect.html?ie=UTF8&amp;location=http%3A%2F%2Fwww.amazon.de%2F&amp;site-redirect=de&amp;tag=greenshot2-21&amp;linkCode=ur2&amp;camp=1638&amp;creative=6742" class="icon amazon"><img width="16" height="11" title="de" alt="de" src="/assets/flags/de.gif"> amazon.de</a><img width="1" border="0" height="1" alt="" src="http://www.assoc-amazon.de/e/ir?t=greenshot2-21&amp;l=ur2&amp;o=3" style="border: medium none ! important; margin: 0px ! important;"/></p>
-</div>
-<div id="amazon2">
 <p><strong>
 <span lang="de"><img width="16" height="11" title="de" alt="de" src="/assets/flags/de.gif"> Kunden von Amazon.de können uns gerne unterstützem, indem Sie uns etwas von unserer <a href="http://www.amazon.de/registry/wishlist/14V0E5HW3WQ9Z" target="_blank">Wunschliste</a> kaufen (Gutscheine sind immer willkommen :) bitte verwenden Sie getgreenshot@gmail.com als Empfängeradresse).</span><br>
 (Amazon.de customers may support us by buying us something from our <a href="http://www.amazon.de/registry/wishlist/14V0E5HW3WQ9Z" target="_blank">wish list</a> (gift coupons are always welcome :) please use getgreenshot@gmail.com as recipient address).)</strong></p>
-</div>
 </div>
 
 <div id="tabs-flattr" class="tabs-content">
