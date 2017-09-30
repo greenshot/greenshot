@@ -1480,5 +1480,12 @@ namespace Greenshot {
 				canvas.Top = offsetY + 0;
 			}
 		}
+
+		private void titleToolStripMenuItem_Click(object sender, EventArgs e) {
+			var dialog = new TitleDialog {Title = Text};
+			if (dialog.ShowDialog() == DialogResult.OK) {
+				Text = dialog.Title;
+			}
+		}
 	}
 }
