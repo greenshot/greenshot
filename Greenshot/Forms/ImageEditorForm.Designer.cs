@@ -119,6 +119,7 @@ namespace Greenshot {
 			this.saveElementsToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.loadElementsToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.pluginToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
+			this.titleToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.helpToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.helpToolStripMenuItem1 = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.aboutToolStripMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
@@ -537,6 +538,7 @@ namespace Greenshot {
 									this.editToolStripMenuItem,
 									this.objectToolStripMenuItem,
 									this.pluginToolStripMenuItem,
+									this.titleToolStripMenuItem,
 									this.helpToolStripMenuItem});
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.BackColor = System.Drawing.SystemColors.Control;
@@ -831,6 +833,13 @@ namespace Greenshot {
 			this.pluginToolStripMenuItem.Name = "pluginToolStripMenuItem";
 			this.pluginToolStripMenuItem.Text = "Plugins";
 			this.pluginToolStripMenuItem.Visible = false;
+			// 
+			// titleToolStripMenuItem
+			// 
+			this.titleToolStripMenuItem.Name = "titleToolStripMenuItem";
+			this.titleToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
+			this.titleToolStripMenuItem.Text = "Title";
+			this.titleToolStripMenuItem.Click += new System.EventHandler(this.titleToolStripMenuItem_Click);
 			// 
 			// helpToolStripMenuItem
 			// 
@@ -1743,6 +1752,7 @@ namespace Greenshot {
 		private GreenshotPlugin.Controls.GreenshotToolStripButton btnHelp;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator11;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem aboutToolStripMenuItem;
+		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem titleToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem helpToolStripMenuItem1;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem helpToolStripMenuItem;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem preferencesToolStripMenuItem;
