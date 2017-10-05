@@ -31,7 +31,7 @@ using Dapplo.Windows.Desktop;
 using GreenshotOfficePlugin.OfficeInterop;
 using GreenshotPlugin.Interop;
 using Dapplo.Log;
-using GreenshotPlugin.Core;
+
 #endregion
 
 namespace GreenshotOfficePlugin.OfficeExport

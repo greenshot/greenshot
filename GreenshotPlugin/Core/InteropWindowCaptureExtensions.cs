@@ -56,6 +56,7 @@ namespace GreenshotPlugin.Core
     {
         private static readonly LogSource Log = new LogSource();
         private static readonly CoreConfiguration CoreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
+        private static Color _transparentColor = Color.Transparent;
 
         /// <summary>
         ///     Get the file path to the exe for the process which owns this window
@@ -119,13 +120,13 @@ namespace GreenshotPlugin.Core
         public static ICapture CaptureGdiWindow(this IInteropWindow interopWindow, ICapture capture)
         {
             var capturedImage = interopWindow.PrintWindow();
-            if (capturedImage != null)
+            if (capturedImage == null)
             {
-                capture.Bitmap = capturedImage;
-                capture.Location = interopWindow.GetInfo().Bounds.Location;
-                return capture;
+                return null;
             }
-            return null;
+            capture.Bitmap = capturedImage;
+            capture.Location = interopWindow.GetInfo().Bounds.Location;
+            return capture;
         }
 
         /// <summary>
@@ -410,10 +411,10 @@ namespace GreenshotPlugin.Core
                 {
                     for (var x = 0; x < CoreConfiguration.WindowCornerCutShape[y]; x++)
                     {
-                        fastBitmap.SetColorAt(x, y, Color.Transparent);
-                        fastBitmap.SetColorAt(image.Width - 1 - x, y, Color.Transparent);
-                        fastBitmap.SetColorAt(image.Width - 1 - x, image.Height - 1 - y, Color.Transparent);
-                        fastBitmap.SetColorAt(x, image.Height - 1 - y, Color.Transparent);
+                        fastBitmap.SetColorAt(x, y, ref _transparentColor);
+                        fastBitmap.SetColorAt(image.Width - 1 - x, y, ref _transparentColor);
+                        fastBitmap.SetColorAt(image.Width - 1 - x, image.Height - 1 - y, ref _transparentColor);
+                        fastBitmap.SetColorAt(x, image.Height - 1 - y, ref _transparentColor);
                     }
                 }
             }
@@ -447,12 +448,12 @@ namespace GreenshotPlugin.Core
                                 if (alpha == 255)
                                 {
                                     // Alpha == 255 means no change!
-                                    targetBuffer.SetColorAt(x, y, c0);
+                                    targetBuffer.SetColorAt(x, y, ref c0);
                                 }
                                 else if (alpha == 0)
                                 {
                                     // Complete transparency, use transparent pixel
-                                    targetBuffer.SetColorAt(x, y, Color.Transparent);
+                                    targetBuffer.SetColorAt(x, y, ref _transparentColor);
                                 }
                                 else
                                 {
@@ -465,7 +466,7 @@ namespace GreenshotPlugin.Core
                                     var originalBlue = (byte) Math.Min(255, c0.B / alphaFactor);
                                     var originalColor = Color.FromArgb(originalAlpha, originalRed, originalGreen, originalBlue);
                                     //Color originalColor = Color.FromArgb(originalAlpha, originalRed, c0.G, c0.B);
-                                    targetBuffer.SetColorAt(x, y, originalColor);
+                                    targetBuffer.SetColorAt(x, y, ref originalColor);
                                 }
                             }
                         }

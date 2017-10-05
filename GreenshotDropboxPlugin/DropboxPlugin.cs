@@ -25,7 +25,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -37,7 +36,6 @@ using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
 using Dapplo.Windows.Dpi;
 using Greenshot.Gfx;
-using GreenshotPlugin.Gfx;
 
 #endregion
 

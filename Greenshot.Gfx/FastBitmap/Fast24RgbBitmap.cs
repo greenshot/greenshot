@@ -59,7 +59,7 @@ namespace Greenshot.Gfx.FastBitmap
 		/// <param name="x"></param>
 		/// <param name="y"></param>
 		/// <param name="color"></param>
-		public override void SetColorAt(int x, int y, Color color)
+		public override void SetColorAt(int x, int y, ref Color color)
 		{
 			var offset = x * 3 + y * Stride;
 			Pointer[PixelformatIndexR + offset] = color.R;

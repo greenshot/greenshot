@@ -25,14 +25,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Dapplo.Windows.Dpi;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;

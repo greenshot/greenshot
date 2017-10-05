@@ -26,7 +26,6 @@
 using System;
 using System.Xml;
 using Dapplo.Log;
-using GreenshotPlugin.Core;
 
 #endregion
 

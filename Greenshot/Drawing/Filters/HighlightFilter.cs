@@ -29,7 +29,6 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Drawing.Fields;
 using Greenshot.Gfx;
 using Greenshot.Gfx.FastBitmap;
-using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces.Drawing;
 
 #endregion
@@ -75,7 +74,7 @@ namespace Greenshot.Drawing.Filters
 					{
 						var color = fastBitmap.GetColorAt(x, y);
 						color = Color.FromArgb(color.A, Math.Min(highlightColor.R, color.R), Math.Min(highlightColor.G, color.G), Math.Min(highlightColor.B, color.B));
-						fastBitmap.SetColorAt(x, y, color);
+						fastBitmap.SetColorAt(x, y, ref color);
 					}
 				}
 				fastBitmap.DrawTo(graphics, applyRect.Location);

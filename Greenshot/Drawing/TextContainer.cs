@@ -20,7 +20,6 @@
  */
 
 using Greenshot.Drawing.Fields;
-using Greenshot.Helpers;
 using Greenshot.Memento;
 using GreenshotPlugin.Interfaces.Drawing;
 using System;

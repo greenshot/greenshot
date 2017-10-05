@@ -23,7 +23,6 @@
 
 #region using
 
-using System.Drawing;
 using Dapplo.Windows.Common.Structs;
 
 #endregion

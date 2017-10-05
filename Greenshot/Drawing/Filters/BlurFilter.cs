@@ -30,7 +30,6 @@ using Dapplo.Windows.Gdi32;
 using Greenshot.Drawing.Fields;
 using Greenshot.Gfx;
 using Greenshot.Gfx.FastBitmap;
-using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces.Drawing;
 
 #endregion

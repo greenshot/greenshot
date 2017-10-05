@@ -1017,10 +1017,10 @@ namespace Greenshot.Gfx
 							colorE2 = colorE;
 							colorE3 = colorE;
 						}
-						destination.SetColorAt(2 * x, 2 * y, colorE0);
-						destination.SetColorAt(2 * x + 1, 2 * y, colorE1);
-						destination.SetColorAt(2 * x, 2 * y + 1, colorE2);
-						destination.SetColorAt(2 * x + 1, 2 * y + 1, colorE3);
+						destination.SetColorAt(2 * x, 2 * y, ref colorE0);
+						destination.SetColorAt(2 * x + 1, 2 * y, ref colorE1);
+						destination.SetColorAt(2 * x, 2 * y + 1, ref colorE2);
+						destination.SetColorAt(2 * x + 1, 2 * y + 1, ref colorE3);
 
 						x++;
 					}
@@ -1090,17 +1090,17 @@ namespace Greenshot.Gfx
 						int multipliedX = 3 * x;
 						int multipliedY = 3 * y;
 
-						destination.SetColorAt(multipliedX - 1, multipliedY - 1, colorE0);
-						destination.SetColorAt(multipliedX, multipliedY - 1, colorE1);
-						destination.SetColorAt(multipliedX + 1, multipliedY - 1, colorE2);
+						destination.SetColorAt(multipliedX - 1, multipliedY - 1, ref colorE0);
+						destination.SetColorAt(multipliedX, multipliedY - 1, ref colorE1);
+						destination.SetColorAt(multipliedX + 1, multipliedY - 1, ref colorE2);
 
-						destination.SetColorAt(multipliedX - 1, multipliedY, colorE3);
-						destination.SetColorAt(multipliedX, multipliedY, colorE4);
-						destination.SetColorAt(multipliedX + 1, multipliedY, colorE5);
+						destination.SetColorAt(multipliedX - 1, multipliedY, ref colorE3);
+						destination.SetColorAt(multipliedX, multipliedY, ref colorE4);
+						destination.SetColorAt(multipliedX + 1, multipliedY, ref colorE5);
 
-						destination.SetColorAt(multipliedX - 1, multipliedY + 1, colorE6);
-						destination.SetColorAt(multipliedX, multipliedY + 1, colorE7);
-						destination.SetColorAt(multipliedX + 1, multipliedY + 1, colorE8);
+						destination.SetColorAt(multipliedX - 1, multipliedY + 1, ref colorE6);
+						destination.SetColorAt(multipliedX, multipliedY + 1, ref colorE7);
+						destination.SetColorAt(multipliedX + 1, multipliedY + 1, ref colorE8);
 
 						x++;
 					}

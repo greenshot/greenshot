@@ -34,7 +34,6 @@ using Greenshot.Configuration;
 using Greenshot.Helpers.IEInterop;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interop;
@@ -43,7 +42,6 @@ using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Messages;
 using Dapplo.Windows.User32;
-using Dapplo.Windows.User32.Enums;
 using Greenshot.Gfx;
 using mshtml;
 
@@ -86,18 +84,15 @@ namespace Greenshot.Helpers
 		public static bool IsMostlyIeWindow(IInteropWindow someWindow, int minimumPercentage)
 		{
 			var ieWindow = someWindow.GetChildren().FirstOrDefault(window => window.GetClassname() == "Internet Explorer_Server");
-			if (ieWindow != null)
-			{
-				NativeRect wholeClient = someWindow.GetInfo().ClientBounds;
-				NativeRect partClient = ieWindow.GetInfo().ClientBounds;
-				var percentage = (int) (100 * (float) (partClient.Width * partClient.Height) / (wholeClient.Width * wholeClient.Height));
-				Log.Info().WriteLine("Window {0}, ie part {1}, percentage {2}", wholeClient, partClient, percentage);
-				if (percentage > minimumPercentage)
-				{
-					return true;
-				}
-			}
-			return false;
+		    if (ieWindow == null)
+		    {
+		        return false;
+		    }
+		    var wholeClient = someWindow.GetInfo().ClientBounds;
+		    var partClient = ieWindow.GetInfo().ClientBounds;
+		    var percentage = (int) (100 * (float) (partClient.Width * partClient.Height) / (wholeClient.Width * wholeClient.Height));
+		    Log.Info().WriteLine("Window {0}, ie part {1}, percentage {2}", wholeClient, partClient, percentage);
+		    return percentage > minimumPercentage;
 		}
 
 		/// <summary>
@@ -234,25 +229,19 @@ namespace Greenshot.Helpers
 				return null;
 			}
 
-			Log.Debug().WriteLine("Trying WM_HTML_GETOBJECT on {0}", ieServer.Classname);
-			UIntPtr response;
-			User32Api.SendMessageTimeout(ieServer.Handle, windowMessage, IntPtr.Zero, IntPtr.Zero, SendMessageTimeoutFlags.Normal, 5000, out response);
-			IHTMLDocument2 document2;
-			if (response != UIntPtr.Zero)
-			{
-				document2 = (IHTMLDocument2) Accessible.ObjectFromLresult(response, typeof(IHTMLDocument).GUID, IntPtr.Zero);
-				if (document2 == null)
-				{
-					Log.Error().WriteLine(null, "No IHTMLDocument2 found");
-					return null;
-				}
-			}
-			else
-			{
-				Log.Error().WriteLine(null, "No answer on WM_HTML_GETOBJECT.");
-				return null;
-			}
-			return document2;
+		    Log.Debug().WriteLine("Trying WM_HTML_GETOBJECT on {0}", ieServer.Classname);
+		    if (User32Api.TrySendMessage(ieServer.Handle, windowMessage, IntPtr.Zero, out UIntPtr response))
+		    {
+		        var document2 = (IHTMLDocument2)Accessible.ObjectFromLresult(response, typeof(IHTMLDocument).GUID, IntPtr.Zero);
+		        if (document2 != null)
+		        {
+		            return document2;
+		        }
+		        Log.Error().WriteLine(null, "No IHTMLDocument2 found");
+		        return null;
+		    }
+		    Log.Error().WriteLine(null, "No answer on WM_HTML_GETOBJECT.");
+		    return null;
 		}
 
 		/// <summary>

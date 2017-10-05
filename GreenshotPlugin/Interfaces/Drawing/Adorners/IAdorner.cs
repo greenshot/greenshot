@@ -23,7 +23,6 @@
 
 #region Usings
 
-using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;

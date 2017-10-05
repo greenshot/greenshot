@@ -24,7 +24,6 @@
 #region Usings
 
 using System;
-using System.Drawing;
 using System.Drawing.Drawing2D;
 using Dapplo.Windows.Common.Structs;
 

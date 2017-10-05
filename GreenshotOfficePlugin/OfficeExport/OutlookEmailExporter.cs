@@ -33,7 +33,6 @@ using GreenshotPlugin.Interop;
 using Dapplo.Log;
 using mshtml;
 using Microsoft.Win32;
-using GreenshotPlugin.Core;
 
 #endregion
 

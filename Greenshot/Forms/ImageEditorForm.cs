@@ -216,12 +216,12 @@ namespace Greenshot
             var placement = EditorConfiguration.GetEditorPlacement();
             User32Api.SetWindowPlacement(Handle, ref placement);
 
+            UpdateUi();
+
             // init surface
             Surface = iSurface;
             // Intial "saved" flag for asking if the image needs to be save
             _surface.Modified = !outputMade;
-
-            UpdateUi();
 
             // Workaround: As the cursor is (mostly) selected on the surface a funny artifact is visible, this fixes it.
             HideToolstripItems();
@@ -298,9 +298,12 @@ namespace Greenshot
                 // Fix title
                 if (_surface?.CaptureDetails?.Title != null)
                 {
-                    Text = _surface.CaptureDetails.Title + " - " + Language.GetString(LangKey.editor_title);
+                    Text = $"{_surface.CaptureDetails.Title} - {Language.GetString(LangKey.editor_title)}";
                 }
             }
+            // Make sure the value is set correctly when starting
+            counterUpDown.Value = newSurface.CounterStart;
+
             Activate();
             // TODO: Await?
             InteropWindowFactory.CreateFor(Handle).ToForegroundAsync();
@@ -334,9 +337,6 @@ namespace Greenshot
 
             // Workaround: for the MouseWheel event which doesn't get to the panel
             MouseWheel += PanelMouseWheel;
-
-            // Make sure the value is set correctly when starting
-            counterUpDown.Value = Surface.CounterStart;
             ApplyLanguage();
         }
 

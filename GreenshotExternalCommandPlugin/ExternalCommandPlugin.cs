@@ -28,7 +28,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;

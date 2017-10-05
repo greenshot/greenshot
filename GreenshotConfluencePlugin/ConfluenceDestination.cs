@@ -32,7 +32,6 @@ using System.Windows;
 using Confluence;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;

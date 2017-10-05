@@ -101,8 +101,7 @@ namespace Greenshot.Controls
 		{
 			using (var iconHandle = new SafeIconHandle(bitmap.GetHicon()))
 			{
-				IconInfo iconInfo;
-				User32Api.GetIconInfo(iconHandle, out iconInfo);
+			    User32Api.GetIconInfo(iconHandle, out var iconInfo);
 				iconInfo.Hotspot = new NativePoint(hotspotX, hotspotY);
 				iconInfo.IsIcon = false;
 				var icon = User32Api.CreateIconIndirect(ref iconInfo);

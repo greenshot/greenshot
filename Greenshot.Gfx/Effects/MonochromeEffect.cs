@@ -67,7 +67,7 @@ namespace Greenshot.Gfx.Effects
 	                    var color = fastBitmap.GetColorAt(x, y);
 	                    var colorBrightness = (color.R + color.G + color.B) / 3 > threshold ? 255 : 0;
 	                    var monoColor = Color.FromArgb(color.A, colorBrightness, colorBrightness, colorBrightness);
-	                    fastBitmap.SetColorAt(x, y, monoColor);
+	                    fastBitmap.SetColorAt(x, y, ref monoColor);
 	                }
 	            }
 	            return fastBitmap.UnlockAndReturnBitmap();

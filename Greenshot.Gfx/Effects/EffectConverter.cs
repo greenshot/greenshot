@@ -25,7 +25,6 @@
 
 using System;
 using System.ComponentModel;
-using System.Drawing;
 using System.Globalization;
 using System.Text;
 using Dapplo.Windows.Common.Extensions;

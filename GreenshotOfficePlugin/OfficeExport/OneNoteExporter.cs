@@ -34,7 +34,6 @@ using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using GreenshotPlugin.Interop;
 using Dapplo.Log;
-using GreenshotPlugin.Core;
 
 #endregion
 

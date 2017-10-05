@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.12
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot", "Greenshot\Greenshot.csproj", "{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}"
 EndProject
@@ -39,6 +39,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenshotLutimPlugin", "GreenshotLutimPlugin\GreenshotLutimPlugin.csproj", "{D106F86C-CD3D-44FF-B151-2A5D47268B5C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Gfx", "Greenshot.Gfx\Greenshot.Gfx.csproj", "{F041C685-EB96-4ED1-9ACE-0F5BD836610F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.PerformanceTests", "Greenshot.PerformanceTests\Greenshot.PerformanceTests.csproj", "{5D594C8A-2137-46E1-8D01-B83662825C7B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -171,6 +173,14 @@ Global
 		{F041C685-EB96-4ED1-9ACE-0F5BD836610F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F041C685-EB96-4ED1-9ACE-0F5BD836610F}.Release|x86.ActiveCfg = Release|Any CPU
 		{F041C685-EB96-4ED1-9ACE-0F5BD836610F}.Release|x86.Build.0 = Release|Any CPU
+		{5D594C8A-2137-46E1-8D01-B83662825C7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D594C8A-2137-46E1-8D01-B83662825C7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D594C8A-2137-46E1-8D01-B83662825C7B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5D594C8A-2137-46E1-8D01-B83662825C7B}.Debug|x86.Build.0 = Debug|Any CPU
+		{5D594C8A-2137-46E1-8D01-B83662825C7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D594C8A-2137-46E1-8D01-B83662825C7B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D594C8A-2137-46E1-8D01-B83662825C7B}.Release|x86.ActiveCfg = Release|Any CPU
+		{5D594C8A-2137-46E1-8D01-B83662825C7B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -28,7 +28,6 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Gfx;
-using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces.Drawing;
 
 #endregion

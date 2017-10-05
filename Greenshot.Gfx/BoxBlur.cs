@@ -108,7 +108,7 @@ namespace Greenshot.Gfx
                 }
                 for (var x = targetFastBitmap.Left; x < targetFastBitmap.Right; x++)
                 {
-                    targetFastBitmap.SetColorAt(x, y, newColors[x - targetFastBitmap.Left]);
+                    targetFastBitmap.SetColorAt(x, y, ref newColors[x - targetFastBitmap.Left]);
                 }
             }
         }
@@ -165,7 +165,7 @@ namespace Greenshot.Gfx
                 }
                 for (var x = targetFastBitmap.Left; x < targetFastBitmap.Right; x++)
                 {
-                    targetFastBitmap.SetColorAt(x, y, newColors[x - targetFastBitmap.Left]);
+                    targetFastBitmap.SetColorAt(x, y, ref newColors[x - targetFastBitmap.Left]);
                 }
             }
         }
@@ -220,7 +220,7 @@ namespace Greenshot.Gfx
 
                 for (var y = targetFastBitmap.Top; y < targetFastBitmap.Bottom; y++)
                 {
-                    targetFastBitmap.SetColorAt(x, y, newColors[y - targetFastBitmap.Top]);
+                    targetFastBitmap.SetColorAt(x, y, ref newColors[y - targetFastBitmap.Top]);
                 }
             }
         }
@@ -280,7 +280,7 @@ namespace Greenshot.Gfx
 
                 for (var y = targetFastBitmap.Top; y < targetFastBitmap.Bottom; y++)
                 {
-                    targetFastBitmap.SetColorAt(x, y, newColors[y - targetFastBitmap.Top]);
+                    targetFastBitmap.SetColorAt(x, y, ref newColors[y - targetFastBitmap.Top]);
                 }
             }
         }

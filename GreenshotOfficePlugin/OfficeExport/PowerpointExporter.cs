@@ -30,7 +30,6 @@ using GreenshotOfficePlugin.OfficeInterop;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interop;
 using Dapplo.Log;
-using GreenshotPlugin.Core;
 
 #endregion
 

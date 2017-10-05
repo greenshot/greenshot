@@ -96,7 +96,7 @@ namespace Greenshot.Gfx.FastBitmap
 		/// <param name="x">int x</param>
 		/// <param name="y">int y</param>
 		/// <param name="color">Color</param>
-		void SetColorAt(int x, int y, Color color);
+		void SetColorAt(int x, int y, ref Color color);
 
 		/// <summary>
 		///     Get the color at x,y

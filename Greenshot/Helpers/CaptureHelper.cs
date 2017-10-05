@@ -495,23 +495,7 @@ namespace Greenshot.Helpers
                     if (!CoreConfig.LastCapturedRegion.IsEmpty)
                     {
                         _capture = WindowCapture.CaptureRectangle(_capture, CoreConfig.LastCapturedRegion);
-                        // TODO: Reactive / check if the elements code is activated
-                        //if (windowDetailsThread != null) {
-                        //	windowDetailsThread.Join();
-                        //}
 
-                        // Set capture title, fixing bug #3569703
-                        foreach (var window in InteropWindowQuery.GetTopWindows())
-                        {
-                            var estimatedLocation = new NativePoint(CoreConfig.LastCapturedRegion.X + CoreConfig.LastCapturedRegion.Width / 2,
-                                CoreConfig.LastCapturedRegion.Y + CoreConfig.LastCapturedRegion.Height / 2);
-                            if (window.GetInfo().Bounds.Contains(estimatedLocation))
-                            {
-                                SelectedCaptureWindow = window;
-                                _capture.CaptureDetails.Title = SelectedCaptureWindow.Text;
-                                break;
-                            }
-                        }
                         // Move cursor, fixing bug #3569703
                         _capture.MoveMouseLocation(_capture.ScreenBounds.Location.X - _capture.Location.X, _capture.ScreenBounds.Location.Y - _capture.Location.Y);
                         //capture.MoveElements(capture.ScreenBounds.Location.X - capture.Location.X, capture.ScreenBounds.Location.Y - capture.Location.Y);
@@ -654,7 +638,9 @@ namespace Greenshot.Helpers
             }
         }
 
-
+        /// <summary>
+        /// Process the actuall capture
+        /// </summary>
         private void HandleCapture()
         {
             // Flag to see if the image was "exported" so the FileEditor doesn't
@@ -672,8 +658,17 @@ namespace Greenshot.Helpers
                 // Make sure the resolution is set correctly!
                 if (_capture.CaptureDetails != null)
                 {
-                    ((Bitmap) _capture.Bitmap)?.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
+                    _capture.Bitmap?.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
+                    // Generate a title
+                    if (_capture.CaptureDetails.Title == null)
+                    {
+                        var windows = InteropWindowQuery.GetTopLevelWindows().OrderByDescending(window => window.Intersection(_captureRect).Pixels()).ToList();
+                        var windowWithLargestIntersection = windows.FirstOrDefault();
+                        _capture.CaptureDetails.Title = windowWithLargestIntersection?.GetCaption();
+                    }
                 }
+
+
                 DoCaptureFeedback();
             }
 
@@ -699,11 +694,12 @@ namespace Greenshot.Helpers
             // Let the processors do their job
             foreach (var processor in ProcessorHelper.GetAllProcessors())
             {
-                if (processor.isActive)
+                if (!processor.isActive)
                 {
-                    Log.Info().WriteLine("Calling processor {0}", processor.Description);
-                    processor.ProcessCapture(surface, _capture.CaptureDetails);
+                    continue;
                 }
+                Log.Info().WriteLine("Calling processor {0}", processor.Description);
+                processor.ProcessCapture(surface, _capture.CaptureDetails);
             }
 
             // As the surfaces copies the reference to the image, make sure the image is not being disposed (a trick to save memory)

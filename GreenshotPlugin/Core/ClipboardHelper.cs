@@ -40,6 +40,7 @@ using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
+using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Gdi32.Enums;
 using Dapplo.Windows.Gdi32.Structs;
@@ -120,7 +121,7 @@ EndSelection:<<<<<<<4
 			string owner = null;
 			try
 			{
-				var hWnd = User32Api.GetClipboardOwner();
+				var hWnd = ClipboardNative.CurrentOwner;
 				if (hWnd != IntPtr.Zero)
 				{
 					try

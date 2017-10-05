@@ -27,7 +27,6 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using Dapplo.Windows.Common.Structs;
 using Greenshot.Gfx.Effects;
 using GreenshotPlugin.Interfaces.Drawing;
 

@@ -33,7 +33,6 @@ using System.Windows.Threading;
 using Confluence;
 using Dapplo.Log;
 using Page = Confluence.Page;
-using GreenshotPlugin.Core;
 
 #endregion
 

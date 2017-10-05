@@ -23,13 +23,11 @@
 
 #region Usings
 
-using System;
 using System.Collections.Generic;
 using GreenshotOfficePlugin.Destinations;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
-using GreenshotPlugin.Core;
 
 #endregion
 

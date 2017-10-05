@@ -57,11 +57,7 @@ namespace GreenshotPlugin.Core
 
 		private Accessible(IAccessible accessible)
 		{
-			if (accessible == null)
-			{
-				throw new ArgumentNullException(nameof(accessible));
-			}
-			this.accessible = accessible;
+		    this.accessible = accessible ?? throw new ArgumentNullException(nameof(accessible));
 		}
 
 		private Accessible[] Children

@@ -28,7 +28,6 @@ using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using Dapplo.Log;
 using Greenshot.Gfx;
-using GreenshotPlugin.Gfx;
 using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;

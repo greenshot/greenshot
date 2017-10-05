@@ -279,7 +279,7 @@ namespace Greenshot.Gfx.FastBitmap
 		/// <param name="x">int x</param>
 		/// <param name="y">int y</param>
 		/// <param name="color">Color</param>
-		public abstract void SetColorAt(int x, int y, Color color);
+		public abstract void SetColorAt(int x, int y, ref Color color);
 
 		/// <summary>
 		///     Retrieve the color at x,y as byte[]
@@ -530,14 +530,14 @@ namespace Greenshot.Gfx.FastBitmap
 		/// <param name="x">int x</param>
 		/// <param name="y">int y</param>
 		/// <param name="color">byte array with the color information</param>
-		void IFastBitmapWithClip.SetColorAt(int x, int y, Color color)
+		void IFastBitmapWithClip.SetColorAt(int x, int y, ref Color color)
 		{
 			var contains = Clip.Contains(x, y);
 			if (InvertClip && contains || !InvertClip && !contains)
 			{
 				return;
 			}
-			SetColorAt(x, y, color);
+			SetColorAt(x, y, ref color);
 		}
 
 		#endregion
@@ -600,11 +600,11 @@ namespace Greenshot.Gfx.FastBitmap
 		/// <param name="x">int x</param>
 		/// <param name="y">int y</param>
 		/// <param name="color">Color</param>
-		void IFastBitmapWithOffset.SetColorAt(int x, int y, Color color)
+		void IFastBitmapWithOffset.SetColorAt(int x, int y, ref Color color)
 		{
 			x -= _left;
 			y -= _top;
-			SetColorAt(x, y, color);
+			SetColorAt(x, y, ref color);
 		}
 
 		#endregion
