@@ -126,8 +126,7 @@ EndSelection:<<<<<<<4
 				{
 					try
 					{
-						int pid;
-					    User32Api.GetWindowThreadProcessId(hWnd, out pid);
+					    User32Api.GetWindowThreadProcessId(hWnd, out var pid);
 						using (var me = Process.GetCurrentProcess())
 						using (var ownerProcess = Process.GetProcessById(pid))
 						{
@@ -712,7 +711,7 @@ EndSelection:<<<<<<<4
 						dibV5Stream.Write(colorMaskBytes, 0, colorMaskBytes.Length);
 
 						// Create the raw bytes for the pixels only
-						var bitmapBytes = BitmapToByteArray((Bitmap) bitmapToSave);
+						var bitmapBytes = BitmapToByteArray(bitmapToSave);
 						// Write to the stream
 						dibV5Stream.Write(bitmapBytes, 0, bitmapBytes.Length);
 
@@ -851,12 +850,12 @@ EndSelection:<<<<<<<4
 			{
 				formats = dataObj.GetFormats();
 			}
-			if (formats != null)
-			{
-				Log.Debug().WriteLine("Got clipboard formats: {0}", string.Join(",", formats));
-				return new List<string>(formats);
-			}
-			return new List<string>();
+		    if (formats == null)
+		    {
+		        return new List<string>();
+		    }
+		    Log.Debug().WriteLine("Got clipboard formats: {0}", string.Join(",", formats));
+		    return new List<string>(formats);
 		}
 
 		/// <summary>
@@ -898,21 +897,12 @@ EndSelection:<<<<<<<4
 		/// <returns>true if one of the formats was found</returns>
 		public static bool ContainsFormat(IDataObject dataObject, string[] formats)
 		{
-			var formatFound = false;
-			var currentFormats = GetFormats(dataObject);
+		    var currentFormats = GetFormats(dataObject);
 			if (currentFormats == null || currentFormats.Count == 0 || formats == null || formats.Length == 0)
 			{
 				return false;
 			}
-			foreach (var format in formats)
-			{
-				if (currentFormats.Contains(format))
-				{
-					formatFound = true;
-					break;
-				}
-			}
-			return formatFound;
+		    return formats.Any(format => currentFormats.Contains(format));
 		}
 
 		/// <summary>
@@ -934,11 +924,7 @@ EndSelection:<<<<<<<4
 		/// <returns>object from IDataObject</returns>
 		public static object GetFromDataObject(IDataObject dataObj, Type type)
 		{
-			if (type != null)
-			{
-				return GetFromDataObject(dataObj, type.FullName);
-			}
-			return null;
+		    return type != null ? GetFromDataObject(dataObj, type.FullName) : null;
 		}
 
 		/// <summary>
@@ -967,18 +953,19 @@ EndSelection:<<<<<<<4
 		/// <returns>object from IDataObject</returns>
 		public static object GetFromDataObject(IDataObject dataObj, string format)
 		{
-			if (dataObj != null)
-			{
-				try
-				{
-					return dataObj.GetData(format);
-				}
-				catch (Exception e)
-				{
-					Log.Error().WriteLine(e, "Error in GetClipboardData.");
-				}
-			}
-			return null;
+		    if (dataObj == null)
+		    {
+		        return null;
+		    }
+		    try
+		    {
+		        return dataObj.GetData(format);
+		    }
+		    catch (Exception e)
+		    {
+		        Log.Error().WriteLine(e, "Error in GetClipboardData.");
+		    }
+		    return null;
 		}
 
 		/// <summary>

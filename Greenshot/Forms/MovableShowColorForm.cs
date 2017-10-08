@@ -44,24 +44,21 @@ namespace Greenshot.Forms
 			InitializeComponent();
 		}
 
-		public Color color
-		{
-			get { return preview.BackColor; }
-		}
+		public Color ColorUnderCursor => preview.BackColor;
 
-		/// <summary>
+	    /// <summary>
 		///     Move the MovableShowColorForm to the specified location and display the color under the (current mouse) coordinates
 		/// </summary>
 		/// <param name="screenCoordinates">Coordinates</param>
 		public void MoveTo(Point screenCoordinates)
 		{
-			var c = GetPixelColor(screenCoordinates);
-			preview.BackColor = c;
-			html.Text = "#" + c.Name.Substring(2).ToUpper();
-			red.Text = "" + c.R;
-			blue.Text = "" + c.B;
-			green.Text = "" + c.G;
-			alpha.Text = "" + c.A;
+			var currentColor = GetPixelColor(screenCoordinates);
+			preview.BackColor = currentColor;
+			html.Text = "#" + currentColor.Name.Substring(2).ToUpper();
+			red.Text = "" + currentColor.R;
+			blue.Text = "" + currentColor.B;
+			green.Text = "" + currentColor.G;
+			alpha.Text = "" + currentColor.A;
 
 			var cursorSize = Cursor.Current.Size;
 			var hotspot = Cursor.Current.HotSpot;
@@ -73,27 +70,28 @@ namespace Greenshot.Forms
 			foreach (var screen in Screen.AllScreens)
 			{
 				var screenRectangle = screen.Bounds;
-				if (screen.Bounds.Contains(screenCoordinates))
-				{
-					if (zoomerLocation.X < screenRectangle.X)
-					{
-						zoomerLocation.X = screenRectangle.X;
-					}
-					else if (zoomerLocation.X + Width > screenRectangle.X + screenRectangle.Width)
-					{
-						zoomerLocation.X = screenCoordinates.X - Width - 5 - hotspot.X;
-					}
+			    if (!screen.Bounds.Contains(screenCoordinates))
+			    {
+			        continue;
+			    }
+			    if (zoomerLocation.X < screenRectangle.X)
+			    {
+			        zoomerLocation.X = screenRectangle.X;
+			    }
+			    else if (zoomerLocation.X + Width > screenRectangle.X + screenRectangle.Width)
+			    {
+			        zoomerLocation.X = screenCoordinates.X - Width - 5 - hotspot.X;
+			    }
 
-					if (zoomerLocation.Y < screenRectangle.Y)
-					{
-						zoomerLocation.Y = screenRectangle.Y;
-					}
-					else if (zoomerLocation.Y + Height > screenRectangle.Y + screenRectangle.Height)
-					{
-						zoomerLocation.Y = screenCoordinates.Y - Height - 5 - hotspot.Y;
-					}
-					break;
-				}
+			    if (zoomerLocation.Y < screenRectangle.Y)
+			    {
+			        zoomerLocation.Y = screenRectangle.Y;
+			    }
+			    else if (zoomerLocation.Y + Height > screenRectangle.Y + screenRectangle.Height)
+			    {
+			        zoomerLocation.Y = screenCoordinates.Y - Height - 5 - hotspot.Y;
+			    }
+			    break;
 			}
 			Location = zoomerLocation;
 			Update();

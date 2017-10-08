@@ -42,7 +42,6 @@ using Dapplo.Windows.Gdi32.SafeHandles;
 using Dapplo.Windows.Gdi32.Structs;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
-using Dapplo.Windows.User32.Structs;
 using Greenshot.Gfx;
 
 #endregion
@@ -52,14 +51,10 @@ namespace GreenshotPlugin.Core
     /// <summary>
     ///     The Window Capture code
     /// </summary>
-    public class WindowCapture
+    public static class WindowCapture
     {
         private static readonly LogSource Log = new LogSource();
         private static readonly CoreConfiguration Configuration = IniConfig.GetIniSection<CoreConfiguration>();
-
-        private WindowCapture()
-        {
-        }
 
         /// <summary>
         ///     Used to cleanup the unmanged resource in the iconInfo for the CaptureCursor method
@@ -126,8 +121,7 @@ namespace GreenshotPlugin.Core
             {
                 capture = new Capture();
             }
-            CursorInfo cursorInfo;
-            if (!User32Api.GetCursorInfo(out cursorInfo))
+            if (!User32Api.GetCursorInfo(out var cursorInfo))
             {
                 return capture;
             }
@@ -137,8 +131,7 @@ namespace GreenshotPlugin.Core
             }
             using (var safeIcon = User32Api.CopyIcon(cursorInfo.CursorHandle))
             {
-                IconInfo iconInfo;
-                if (!User32Api.GetIconInfo(safeIcon, out iconInfo))
+                if (!User32Api.GetIconInfo(safeIcon, out var iconInfo))
                 {
                     return capture;
                 }

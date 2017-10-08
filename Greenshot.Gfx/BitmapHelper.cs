@@ -34,7 +34,6 @@ using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Dpi;
-using Dapplo.Windows.Gdi32;
 using Greenshot.Gfx.Effects;
 using Greenshot.Gfx.FastBitmap;
 

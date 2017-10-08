@@ -23,27 +23,9 @@
 
 #region Usings
 
-using System;
-using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Windows.Forms;
-using Dapplo.Log;
-using Dapplo.Windows.App;
-using Dapplo.Windows.Common;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
-using Dapplo.Windows.DesktopWindowsManager;
-using Dapplo.Windows.Gdi32;
-using Dapplo.Windows.Icons;
-using Dapplo.Windows.Kernel32;
-using Dapplo.Windows.User32.Enums;
-using Greenshot.Gfx;
-using Greenshot.Gfx.FastBitmap;
-using GreenshotPlugin.Core.Enums;
-using GreenshotPlugin.IniFile;
-using GreenshotPlugin.Interfaces;
 
 #endregion
 
