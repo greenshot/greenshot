@@ -60,7 +60,7 @@ namespace Greenshot.Gfx.Effects
 	    /// <returns>b/w bitmap</returns>
 	    public static Bitmap CreateMonochrome(Bitmap sourceBitmap, byte threshold)
 	    {
-	        using (var fastBitmap = FastBitmapBase.CreateCloneOf(sourceBitmap, sourceBitmap.PixelFormat))
+	        using (var fastBitmap = FastBitmapFactory.CreateCloneOf(sourceBitmap, sourceBitmap.PixelFormat))
 	        {
 	            Parallel.For(0, fastBitmap.Height, DefaultParallelOptions, y =>
 	            {

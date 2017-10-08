@@ -94,6 +94,7 @@
     <Compile Include="FastBitmap\Fast24RgbBitmap.cs" />
     <Compile Include="FastBitmap\Fast32ArgbBitmap.cs" />
     <Compile Include="FastBitmap\Fast32RgbBitmap.cs" />
+    <Compile Include="FastBitmap\FastBitmapFactory.cs" />
     <Compile Include="FastBitmap\FastBitmapBase.cs" />
     <Compile Include="FastBitmap\FastChunkyBitmap.cs" />
     <Compile Include="FastBitmap\IFastBitmap.cs" />

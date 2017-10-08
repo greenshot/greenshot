@@ -367,7 +367,7 @@ namespace Greenshot.Gfx
 			// Bottom Left
 			// Top Right
 			// Bottom Right
-			using (var fastBitmap = FastBitmapBase.Create((Bitmap) image))
+			using (var fastBitmap = FastBitmapFactory.Create((Bitmap) image))
 			{
 				// find biggest area
 				foreach (var checkPoint in checkPoints)
@@ -862,7 +862,7 @@ namespace Greenshot.Gfx
 	        {
 	            toCount = toCount & 0xffffff;
 	        }
-	        using (var bb = FastBitmapBase.Create((Bitmap)sourceImage))
+	        using (var bb = FastBitmapFactory.Create((Bitmap)sourceImage))
 	        {
 	            for (var y = 0; y < bb.Height; y++)
 	            {
@@ -970,8 +970,8 @@ namespace Greenshot.Gfx
 		/// <param name="original">Bitmap to scale 2x</param>
 		public static Bitmap Scale2X(this Image original)
 		{
-			using (var source = (IFastBitmapWithClip)FastBitmapBase.Create(original))
-			using (var destination = (IFastBitmapWithClip)FastBitmapBase.CreateEmpty(new Size(original.Width * 2, original.Height * 2), original.PixelFormat))
+			using (var source = (IFastBitmapWithClip)FastBitmapFactory.Create(original))
+			using (var destination = (IFastBitmapWithClip)FastBitmapFactory.CreateEmpty(new Size(original.Width * 2, original.Height * 2), original.PixelFormat))
 			{
 				// Every pixel from input texture produces 4 output pixels, for more details check out http://scale2x.sourceforge.net/algorithm.html
 			    Parallel.For(0, source.Height, DefaultParallelOptions, y =>
@@ -1021,8 +1021,8 @@ namespace Greenshot.Gfx
 		/// <param name="original">Bitmap to scale 3x</param>
 		public static Bitmap Scale3X(this Image original)
 		{
-			using (var source = (IFastBitmapWithClip)FastBitmapBase.Create(original))
-			using (var destination = (IFastBitmapWithClip)FastBitmapBase.CreateEmpty(new Size(original.Width * 3, original.Height * 3), original.PixelFormat))
+			using (var source = (IFastBitmapWithClip)FastBitmapFactory.Create(original))
+			using (var destination = (IFastBitmapWithClip)FastBitmapFactory.CreateEmpty(new Size(original.Width * 3, original.Height * 3), original.PixelFormat))
 			{
                 // Every pixel from input texture produces 6 output pixels, for more details check out http://scale2x.sourceforge.net/algorithm.html
 			    Parallel.For(0, source.Height, DefaultParallelOptions, y =>

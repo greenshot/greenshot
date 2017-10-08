@@ -68,7 +68,7 @@ namespace Greenshot.Drawing.Filters
 				graphics.SetClip(applyRect);
 				graphics.ExcludeClip(rect);
 			}
-			using (var fastBitmap = FastBitmapBase.CreateCloneOf(applyBitmap, area: applyRect))
+			using (var fastBitmap = FastBitmapFactory.CreateCloneOf(applyBitmap, area: applyRect))
 			{
 				var highlightColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
 			    Parallel.For(fastBitmap.Top, fastBitmap.Bottom, DefaultParallelOptions, y =>

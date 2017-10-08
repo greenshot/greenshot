@@ -44,7 +44,7 @@ namespace Greenshot.Gfx.Effects
 
 		public virtual Bitmap Apply(Bitmap sourceBitmap, Matrix matrix)
 		{
-		    var result = FastBitmapBase.CreateCloneOf(sourceBitmap);
+		    var result = FastBitmapFactory.CreateCloneOf(sourceBitmap);
 		    result.ApplyBoxBlur(Range);
 		    return result.UnlockAndReturnBitmap();
 		}

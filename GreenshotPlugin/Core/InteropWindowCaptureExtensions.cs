@@ -405,7 +405,7 @@ namespace GreenshotPlugin.Core
         /// <param name="image">The bitmap to remove the corners from.</param>
         private static void RemoveCorners(Bitmap image)
         {
-            using (var fastBitmap = FastBitmapBase.Create(image))
+            using (var fastBitmap = FastBitmapFactory.Create(image))
             {
                 for (var y = 0; y < CoreConfiguration.WindowCornerCutShape.Count; y++)
                 {
@@ -430,12 +430,12 @@ namespace GreenshotPlugin.Core
         /// <returns>Bitmap with transparency</returns>
         private static Bitmap ApplyTransparency(Bitmap blackBitmap, Bitmap whiteBitmap)
         {
-            using (var targetBuffer = FastBitmapBase.CreateEmpty(blackBitmap.Size, PixelFormat.Format32bppArgb, Color.Transparent))
+            using (var targetBuffer = FastBitmapFactory.CreateEmpty(blackBitmap.Size, PixelFormat.Format32bppArgb, Color.Transparent))
             {
                 targetBuffer.SetResolution(blackBitmap.HorizontalResolution, blackBitmap.VerticalResolution);
-                using (var blackBuffer = FastBitmapBase.Create(blackBitmap))
+                using (var blackBuffer = FastBitmapFactory.Create(blackBitmap))
                 {
-                    using (var whiteBuffer = FastBitmapBase.Create(whiteBitmap))
+                    using (var whiteBuffer = FastBitmapFactory.Create(whiteBitmap))
                     {
                         for (var y = 0; y < blackBuffer.Height; y++)
                         {

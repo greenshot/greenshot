@@ -109,11 +109,11 @@ namespace Greenshot.Gfx.Quantizer
 			}
 
 			// Use a bitmap to store the initial match, which is just as good as an array and saves us 2x the storage
-			using (var sourceFastBitmap = FastBitmapBase.Create(sourceBitmap))
+			using (var sourceFastBitmap = FastBitmapFactory.Create(sourceBitmap))
 			{
 				var sourceFastBitmapWithBlend = sourceFastBitmap as IFastBitmapWithBlend;
 				sourceFastBitmap.Lock();
-				using (var destinationFastBitmap = FastBitmapBase.CreateEmpty(sourceBitmap.Size, PixelFormat.Format8bppIndexed, Color.White) as FastChunkyBitmap)
+				using (var destinationFastBitmap = FastBitmapFactory.CreateEmpty(sourceBitmap.Size, PixelFormat.Format8bppIndexed, Color.White) as FastChunkyBitmap)
 				{
 					destinationFastBitmap.Lock();
 					for (var y = 0; y < sourceFastBitmap.Height; y++)
@@ -192,10 +192,10 @@ namespace Greenshot.Gfx.Quantizer
 		{
 			var colors = new List<Color>();
 			var lookup = new Dictionary<Color, byte>();
-			using (var bbbDest = FastBitmapBase.Create(_resultBitmap) as FastChunkyBitmap)
+			using (var bbbDest = FastBitmapFactory.Create(_resultBitmap) as FastChunkyBitmap)
 			{
 				bbbDest.Lock();
-				using (var bbbSrc = FastBitmapBase.Create(_sourceBitmap))
+				using (var bbbSrc = FastBitmapFactory.Create(_sourceBitmap))
 				{
 					var bbbSrcBlend = bbbSrc as IFastBitmapWithBlend;
 
@@ -344,9 +344,9 @@ namespace Greenshot.Gfx.Quantizer
 
 			Log.Info().WriteLine("Starting bitmap reconstruction...");
 
-			using (var dest = FastBitmapBase.Create(_resultBitmap) as FastChunkyBitmap)
+			using (var dest = FastBitmapFactory.Create(_resultBitmap) as FastChunkyBitmap)
 			{
-				using (var src = FastBitmapBase.Create(_sourceBitmap))
+				using (var src = FastBitmapFactory.Create(_sourceBitmap))
 				{
 					var srcBlend = src as IFastBitmapWithBlend;
 					var lookup = new Dictionary<Color, byte>();

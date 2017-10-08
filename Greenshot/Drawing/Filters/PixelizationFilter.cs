@@ -26,7 +26,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Drawing.Fields;
@@ -69,9 +68,9 @@ namespace Greenshot.Drawing.Filters
             {
                 pixelSize = rect.Height;
             }
-            using (var dest = FastBitmapBase.CreateCloneOf(applyBitmap, area: rect))
+            using (var dest = FastBitmapFactory.CreateCloneOf(applyBitmap, area: rect))
             {
-                using (var src = FastBitmapBase.Create(applyBitmap, rect))
+                using (var src = FastBitmapFactory.Create(applyBitmap, rect))
                 {
                     var halbPixelSize = pixelSize / 2;
                     // Create a list of x values

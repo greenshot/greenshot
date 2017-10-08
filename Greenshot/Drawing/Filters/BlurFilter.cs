@@ -70,7 +70,7 @@ namespace Greenshot.Drawing.Filters
 				graphics.SetClip(applyRect);
 				graphics.ExcludeClip(rect);
 			}
-			using (var fastBitmap = FastBitmapBase.CreateCloneOf(applyBitmap, area: applyRect))
+			using (var fastBitmap = FastBitmapFactory.CreateCloneOf(applyBitmap, area: applyRect))
 			{
 				fastBitmap.ApplyBoxBlur(blurRadius);
 				fastBitmap.DrawTo(graphics, applyRect);
