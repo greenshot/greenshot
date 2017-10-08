@@ -26,6 +26,8 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Drawing.Fields;
 using Greenshot.Gfx;
@@ -37,9 +39,14 @@ using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing.Filters
 {
+    /// <summary>
+    /// This implements the pixelization filter
+    /// </summary>
     [Serializable]
     public class PixelizationFilter : AbstractFilter
     {
+        private static readonly ParallelOptions DefaultParallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 4 };
+
         public PixelizationFilter(DrawableContainer parent) : base(parent)
         {
             AddField(GetType(), FieldType.PIXEL_SIZE, 5);
@@ -66,13 +73,18 @@ namespace Greenshot.Drawing.Filters
             {
                 using (var src = FastBitmapBase.Create(applyBitmap, rect))
                 {
-                    var colors = new List<Color>();
                     var halbPixelSize = pixelSize / 2;
+                    // Create a list of x values
+                    var xValues = new List<int>();
+                    for (var x = src.Left - halbPixelSize; x <= src.Right + halbPixelSize; x = x + pixelSize)
+                    {
+                        xValues.Add(x);
+                    }
                     for (var y = src.Top - halbPixelSize; y < src.Bottom + halbPixelSize; y = y + pixelSize)
                     {
-                        for (var x = src.Left - halbPixelSize; x <= src.Right + halbPixelSize; x = x + pixelSize)
+                        Parallel.ForEach(xValues, DefaultParallelOptions, x =>
                         {
-                            colors.Clear();
+                            var colors = new List<Color>();
                             for (var yy = y; yy < y + pixelSize; yy++)
                             {
                                 if (yy < src.Top || yy >= src.Bottom)
@@ -104,7 +116,7 @@ namespace Greenshot.Drawing.Filters
                                     dest.SetColorAt(xx, yy, ref currentAvgColor);
                                 }
                             }
-                        }
+                        });
                     }
                 }
                 dest.DrawTo(graphics, rect.Location);
