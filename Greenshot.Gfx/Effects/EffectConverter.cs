@@ -56,19 +56,7 @@ namespace Greenshot.Gfx.Effects
 
 		public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
 		{
-			if (destinationType == typeof(string))
-			{
-				return true;
-			}
-			if (destinationType == typeof(DropShadowEffect))
-			{
-				return true;
-			}
-			if (destinationType == typeof(TornEdgeEffect))
-			{
-				return true;
-			}
-			return base.CanConvertTo(context, destinationType);
+			return destinationType == typeof(string) || destinationType == typeof(DropShadowEffect) || destinationType == typeof(TornEdgeEffect) || base.CanConvertTo(context, destinationType);
 		}
 
 		public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
@@ -77,54 +65,47 @@ namespace Greenshot.Gfx.Effects
 			if (destinationType == typeof(string))
 			{
 				var sb = new StringBuilder();
-				if (value.GetType() == typeof(DropShadowEffect))
+			    if (value is TornEdgeEffect tornEdgeEffect)
+			    {
+			        RetrieveDropShadowEffectValues(tornEdgeEffect, sb);
+			        sb.Append("|");
+			        RetrieveTornEdgeEffectValues(tornEdgeEffect, sb);
+			        return sb.ToString();
+			    }
+				if (value is DropShadowEffect dropShadowEffect)
 				{
-					var effect = value as DropShadowEffect;
-					RetrieveDropShadowEffectValues(effect, sb);
-					return sb.ToString();
-				}
-				if (value.GetType() == typeof(TornEdgeEffect))
-				{
-					var effect = value as TornEdgeEffect;
-					RetrieveDropShadowEffectValues(effect, sb);
-					sb.Append("|");
-					RetrieveTornEdgeEffectValues(effect, sb);
+					RetrieveDropShadowEffectValues(dropShadowEffect, sb);
 					return sb.ToString();
 				}
 			}
 			// from string
-			if (value is string)
-			{
-				var settings = value as string;
-				if (destinationType == typeof(DropShadowEffect))
-				{
-					var effect = new DropShadowEffect();
-					ApplyDropShadowEffectValues(settings, effect);
-					return effect;
-				}
-				if (destinationType == typeof(TornEdgeEffect))
-				{
-					var effect = new TornEdgeEffect();
-					ApplyDropShadowEffectValues(settings, effect);
-					ApplyTornEdgeEffectValues(settings, effect);
-					return effect;
-				}
-			}
-			return base.ConvertTo(context, culture, value, destinationType);
+		    if (!(value is string settings))
+		    {
+		        return base.ConvertTo(context, culture, value, destinationType);
+		    }
+		    if (destinationType == typeof(DropShadowEffect))
+		    {
+		        var effect = new DropShadowEffect();
+		        ApplyDropShadowEffectValues(settings, effect);
+		        return effect;
+		    }
+		    if (destinationType == typeof(TornEdgeEffect))
+		    {
+		        var effect = new TornEdgeEffect();
+		        ApplyDropShadowEffectValues(settings, effect);
+		        ApplyTornEdgeEffectValues(settings, effect);
+		        return effect;
+		    }
+		    return base.ConvertTo(context, culture, value, destinationType);
 		}
 
 		public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
 		{
-			var settings = value as string;
-			if (settings != null)
-			{
-				if (settings.Contains("ToothHeight"))
-				{
-					return ConvertTo(context, culture, settings, typeof(TornEdgeEffect));
-				}
-				return ConvertTo(context, culture, settings, typeof(DropShadowEffect));
-			}
-			return base.ConvertFrom(context, culture, value);
+		    if (!(value is string settings))
+		    {
+		        return base.ConvertFrom(context, culture, value);
+		    }
+		    return ConvertTo(context, culture, settings, settings.Contains("ToothHeight") ? typeof(TornEdgeEffect) : typeof(DropShadowEffect));
 		}
 
 		private void ApplyDropShadowEffectValues(string valuesString, DropShadowEffect effect)
@@ -136,9 +117,8 @@ namespace Greenshot.Gfx.Effects
 				switch (pair[0])
 				{
 					case "Darkness":
-						float darkness;
-						// Fix to prevent BUG-1753
-						if (pair[1] != null && float.TryParse(pair[1], NumberStyles.Float, _numberFormatInfo, out darkness))
+					    // Fix to prevent BUG-1753
+						if (pair[1] != null && float.TryParse(pair[1], NumberStyles.Float, _numberFormatInfo, out var darkness))
 						{
 							if (darkness <= 1.0)
 							{
@@ -155,14 +135,12 @@ namespace Greenshot.Gfx.Effects
 						break;
 					case "ShadowOffset":
 						var shadowOffset = new NativePoint();
-						int shadowOffsetX;
-						int shadowOffsetY;
-						var coordinates = pair[1].Split(',');
-						if (int.TryParse(coordinates[0], out shadowOffsetX))
+					    var coordinates = pair[1].Split(',');
+						if (int.TryParse(coordinates[0], out var shadowOffsetX))
 						{
 						    shadowOffset = shadowOffset.ChangeX(shadowOffsetX);
 						}
-						if (int.TryParse(coordinates[1], out shadowOffsetY))
+						if (int.TryParse(coordinates[1], out var shadowOffsetY))
 						{
 							shadowOffset = shadowOffset.ChangeY(shadowOffsetY);
 						}
@@ -181,37 +159,32 @@ namespace Greenshot.Gfx.Effects
 				switch (pair[0])
 				{
 					case "GenerateShadow":
-						bool generateShadow;
-						if (bool.TryParse(pair[1], out generateShadow))
+					    if (bool.TryParse(pair[1], out var generateShadow))
 						{
 							effect.GenerateShadow = generateShadow;
 						}
 						break;
 					case "ToothHeight":
-						int toothHeight;
-						if (int.TryParse(pair[1], out toothHeight))
+					    if (int.TryParse(pair[1], out var toothHeight))
 						{
 							effect.ToothHeight = toothHeight;
 						}
 						break;
 					case "HorizontalToothRange":
-						int horizontalToothRange;
-						if (int.TryParse(pair[1], out horizontalToothRange))
+					    if (int.TryParse(pair[1], out var horizontalToothRange))
 						{
 							effect.HorizontalToothRange = horizontalToothRange;
 						}
 						break;
 					case "VerticalToothRange":
-						int verticalToothRange;
-						if (int.TryParse(pair[1], out verticalToothRange))
+					    if (int.TryParse(pair[1], out var verticalToothRange))
 						{
 							effect.VerticalToothRange = verticalToothRange;
 						}
 						break;
 					case "Edges":
 						var edges = pair[1].Split(',');
-						bool edge;
-						if (bool.TryParse(edges[0], out edge))
+					    if (bool.TryParse(edges[0], out var edge))
 						{
 							effect.Edges[0] = edge;
 						}

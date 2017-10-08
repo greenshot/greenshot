@@ -25,6 +25,7 @@
 
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Threading.Tasks;
 using Greenshot.Gfx.FastBitmap;
 
 #endregion
@@ -37,9 +38,10 @@ namespace Greenshot.Gfx.Effects
 	public class MonochromeEffect : IEffect
 	{
 		private readonly byte _threshold;
+	    private static readonly ParallelOptions DefaultParallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 4 };
 
-		/// <param name="threshold">Threshold for monochrome filter (0 - 255), lower value means less black</param>
-		public MonochromeEffect(byte threshold)
+        /// <param name="threshold">Threshold for monochrome filter (0 - 255), lower value means less black</param>
+        public MonochromeEffect(byte threshold)
 		{
 			_threshold = threshold;
 		}
@@ -60,7 +62,7 @@ namespace Greenshot.Gfx.Effects
 	    {
 	        using (var fastBitmap = FastBitmapBase.CreateCloneOf(sourceBitmap, sourceBitmap.PixelFormat))
 	        {
-	            for (var y = 0; y < fastBitmap.Height; y++)
+	            Parallel.For(0, fastBitmap.Height, DefaultParallelOptions, y =>
 	            {
 	                for (var x = 0; x < fastBitmap.Width; x++)
 	                {
@@ -69,7 +71,7 @@ namespace Greenshot.Gfx.Effects
 	                    var monoColor = Color.FromArgb(color.A, colorBrightness, colorBrightness, colorBrightness);
 	                    fastBitmap.SetColorAt(x, y, ref monoColor);
 	                }
-	            }
+	            });
 	            return fastBitmap.UnlockAndReturnBitmap();
 	        }
 	    }

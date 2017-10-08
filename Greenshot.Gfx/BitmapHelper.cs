@@ -29,6 +29,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Threading.Tasks;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
@@ -48,11 +49,12 @@ namespace Greenshot.Gfx
 	{
 		private const int ExifOrientationId = 0x0112;
 		private static readonly LogSource Log = new LogSource();
+	    private static readonly ParallelOptions DefaultParallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 4 };
 
-	    /// <summary>
-	    /// A function which usage image.fromstream
-	    /// </summary>
-	    public static readonly Func<Stream, string, Bitmap> FromStreamReader = (stream, s) =>
+        /// <summary>
+        /// A function which usage image.fromstream
+        /// </summary>
+        public static readonly Func<Stream, string, Bitmap> FromStreamReader = (stream, s) =>
 	    {
 	        using (var tmpImage = Image.FromStream(stream, true, true))
 	        {
@@ -430,18 +432,19 @@ namespace Greenshot.Gfx
 				{
 					int iWidth = srcBuf[sizeIconDir + sizeIconDirEntry * iIndex];
 					int iHeight = srcBuf[sizeIconDir + sizeIconDirEntry * iIndex + 1];
-					if (iWidth == 0 && iHeight == 0)
-					{
-						var iImageSize = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 8);
-						var iImageOffset = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 12);
-						using (var destStream = new MemoryStream())
-						{
-							destStream.Write(srcBuf, iImageOffset, iImageSize);
-							destStream.Seek(0, SeekOrigin.Begin);
-							bmpPngExtracted = new Bitmap(destStream); // This is PNG! :)
-						}
-						break;
-					}
+				    if (iWidth != 0 || iHeight != 0)
+				    {
+				        continue;
+				    }
+				    var iImageSize = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 8);
+				    var iImageOffset = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 12);
+				    using (var destStream = new MemoryStream())
+				    {
+				        destStream.Write(srcBuf, iImageOffset, iImageSize);
+				        destStream.Seek(0, SeekOrigin.Begin);
+				        bmpPngExtracted = new Bitmap(destStream); // This is PNG! :)
+				    }
+				    break;
 				}
 			}
 			catch
@@ -542,38 +545,23 @@ namespace Greenshot.Gfx
 			{
 				shadowSize++;
 			}
-			var useGdiBlur = GdiPlusApi.IsBlurPossible(shadowSize);
 			// Create "mask" for the shadow
 			var maskMatrix = new ColorMatrix
 			{
 				Matrix00 = 0,
 				Matrix11 = 0,
-				Matrix22 = 0
+				Matrix22 = 0,
+                Matrix33 = darkness
 			};
-			if (useGdiBlur)
-			{
-				maskMatrix.Matrix33 = darkness + 0.1f;
-			}
-			else
-			{
-				maskMatrix.Matrix33 = darkness;
-			}
+			
 			var shadowRectangle = new NativeRect(new NativePoint(shadowSize, shadowSize), sourceBitmap.Size);
 			ApplyColorMatrix((Bitmap) sourceBitmap, NativeRect.Empty, returnImage, shadowRectangle, maskMatrix);
 
 			// blur "shadow", apply to whole new image
-			if (useGdiBlur)
-			{
-				// Use GDI Blur
-				var newImageRectangle = new NativeRect(0, 0, returnImage.Width, returnImage.Height);
-				useGdiBlur = GdiPlusApi.ApplyBlur(returnImage, newImageRectangle, shadowSize + 1, false);
-			}
-			if (!useGdiBlur)
-			{
-				// try normal software blur
-				//returnImage = CreateBlur(returnImage, newImageRectangle, true, shadowSize, 1d, false, newImageRectangle);
-				returnImage.ApplyBoxBlur(shadowSize);
-			}
+
+			// try normal software blur
+			//returnImage = CreateBlur(returnImage, newImageRectangle, true, shadowSize, 1d, false, newImageRectangle);
+			returnImage.ApplyBoxBlur(shadowSize);
 
 			// Draw the original image over the shadow
 			using (var graphics = Graphics.FromImage(returnImage))
@@ -921,8 +909,7 @@ namespace Greenshot.Gfx
 			}
 
 			Bitmap returnBitmap = null;
-			Func<Stream, string, Bitmap> converter;
-			if (StreamConverters.TryGetValue(extension ?? "", out converter))
+		    if (StreamConverters.TryGetValue(extension ?? "", out var converter))
 			{
 				returnBitmap = converter(stream, extension);
 			}
@@ -987,9 +974,8 @@ namespace Greenshot.Gfx
 			using (var destination = (IFastBitmapWithClip)FastBitmapBase.CreateEmpty(new Size(original.Width * 2, original.Height * 2), original.PixelFormat))
 			{
 				// Every pixel from input texture produces 4 output pixels, for more details check out http://scale2x.sourceforge.net/algorithm.html
-				var y = 0;
-				while (y < source.Height)
-				{
+			    Parallel.For(0, source.Height, DefaultParallelOptions, y =>
+			    {        
 					var x = 0;
 					while (x < source.Width)
 					{
@@ -1024,8 +1010,7 @@ namespace Greenshot.Gfx
 
 						x++;
 					}
-					y++;
-				}
+			    });
 				return destination.UnlockAndReturnBitmap();
 			}
 		}
@@ -1039,73 +1024,71 @@ namespace Greenshot.Gfx
 			using (var source = (IFastBitmapWithClip)FastBitmapBase.Create(original))
 			using (var destination = (IFastBitmapWithClip)FastBitmapBase.CreateEmpty(new Size(original.Width * 3, original.Height * 3), original.PixelFormat))
 			{
-				// Every pixel from input texture produces 6 output pixels, for more details check out http://scale2x.sourceforge.net/algorithm.html
-				var y = 0;
-				while (y < source.Height)
-				{
-					var x = 0;
-					while (x < source.Width)
-					{
-						var colorA = source.GetColorAt(x - 1, y - 1);
-						var colorB = source.GetColorAt(x, y - 1);
-						var colorC = source.GetColorAt(x + 1, y - 1);
+                // Every pixel from input texture produces 6 output pixels, for more details check out http://scale2x.sourceforge.net/algorithm.html
+			    Parallel.For(0, source.Height, DefaultParallelOptions, y =>
+			    {
+			        var x = 0;
+			        while (x < source.Width)
+			        {
+			            var colorA = source.GetColorAt(x - 1, y - 1);
+			            var colorB = source.GetColorAt(x, y - 1);
+			            var colorC = source.GetColorAt(x + 1, y - 1);
 
-						var colorD = source.GetColorAt(x - 1, y);
-						var colorE = source.GetColorAt(x, y);
-						var colorF = source.GetColorAt(x + 1, y);
+			            var colorD = source.GetColorAt(x - 1, y);
+			            var colorE = source.GetColorAt(x, y);
+			            var colorF = source.GetColorAt(x + 1, y);
 
-						var colorG = source.GetColorAt(x -1, y + 1);
-						var colorH = source.GetColorAt(x, y + 1);
-						var colorI = source.GetColorAt(x + 1, y + 1);
+			            var colorG = source.GetColorAt(x - 1, y + 1);
+			            var colorH = source.GetColorAt(x, y + 1);
+			            var colorI = source.GetColorAt(x + 1, y + 1);
 
-						Color colorE0, colorE1, colorE2;
-						Color colorE3, colorE4, colorE5;
-						Color colorE6, colorE7, colorE8;
+			            Color colorE0, colorE1, colorE2;
+			            Color colorE3, colorE4, colorE5;
+			            Color colorE6, colorE7, colorE8;
 
-						if (!AreColorsSame(colorB, colorH) && !AreColorsSame(colorD, colorF))
-						{
-							colorE0 = AreColorsSame(colorD, colorB) ? colorD : colorE;
-							colorE1 = AreColorsSame(colorD, colorB) && !AreColorsSame(colorE, colorC) || AreColorsSame(colorB, colorF) && !AreColorsSame(colorE, colorA) ? colorB : colorE;
-							colorE2 = AreColorsSame(colorB, colorF) ? colorF : colorE;
-							colorE3 = AreColorsSame(colorD, colorB) && !AreColorsSame(colorE, colorG) || AreColorsSame(colorD, colorH) && !AreColorsSame(colorE, colorA) ? colorD : colorE;
+			            if (!AreColorsSame(colorB, colorH) && !AreColorsSame(colorD, colorF))
+			            {
+			                colorE0 = AreColorsSame(colorD, colorB) ? colorD : colorE;
+			                colorE1 = AreColorsSame(colorD, colorB) && !AreColorsSame(colorE, colorC) || AreColorsSame(colorB, colorF) && !AreColorsSame(colorE, colorA) ? colorB : colorE;
+			                colorE2 = AreColorsSame(colorB, colorF) ? colorF : colorE;
+			                colorE3 = AreColorsSame(colorD, colorB) && !AreColorsSame(colorE, colorG) || AreColorsSame(colorD, colorH) && !AreColorsSame(colorE, colorA) ? colorD : colorE;
 
-							colorE4 = colorE;
-							colorE5 = AreColorsSame(colorB, colorF) && !AreColorsSame(colorE, colorI) || AreColorsSame(colorH, colorF) && !AreColorsSame(colorE, colorC) ? colorF : colorE;
-							colorE6 = AreColorsSame(colorD, colorH) ? colorD : colorE;
-							colorE7 = AreColorsSame(colorD, colorH) && !AreColorsSame(colorE, colorI) || AreColorsSame(colorH, colorF) && !AreColorsSame(colorE, colorG) ? colorH : colorE;
-							colorE8 = AreColorsSame(colorH, colorF) ? colorF : colorE;
-						}
-						else
-						{
-							colorE0 = colorE;
-							colorE1 = colorE;
-							colorE2 = colorE;
-							colorE3 = colorE;
-							colorE4 = colorE;
-							colorE5 = colorE;
-							colorE6 = colorE;
-							colorE7 = colorE;
-							colorE8 = colorE;
-						}
-						int multipliedX = 3 * x;
-						int multipliedY = 3 * y;
+			                colorE4 = colorE;
+			                colorE5 = AreColorsSame(colorB, colorF) && !AreColorsSame(colorE, colorI) || AreColorsSame(colorH, colorF) && !AreColorsSame(colorE, colorC) ? colorF : colorE;
+			                colorE6 = AreColorsSame(colorD, colorH) ? colorD : colorE;
+			                colorE7 = AreColorsSame(colorD, colorH) && !AreColorsSame(colorE, colorI) || AreColorsSame(colorH, colorF) && !AreColorsSame(colorE, colorG) ? colorH : colorE;
+			                colorE8 = AreColorsSame(colorH, colorF) ? colorF : colorE;
+			            }
+			            else
+			            {
+			                colorE0 = colorE;
+			                colorE1 = colorE;
+			                colorE2 = colorE;
+			                colorE3 = colorE;
+			                colorE4 = colorE;
+			                colorE5 = colorE;
+			                colorE6 = colorE;
+			                colorE7 = colorE;
+			                colorE8 = colorE;
+			            }
+			            int multipliedX = 3 * x;
+			            int multipliedY = 3 * y;
 
-						destination.SetColorAt(multipliedX - 1, multipliedY - 1, ref colorE0);
-						destination.SetColorAt(multipliedX, multipliedY - 1, ref colorE1);
-						destination.SetColorAt(multipliedX + 1, multipliedY - 1, ref colorE2);
+			            destination.SetColorAt(multipliedX - 1, multipliedY - 1, ref colorE0);
+			            destination.SetColorAt(multipliedX, multipliedY - 1, ref colorE1);
+			            destination.SetColorAt(multipliedX + 1, multipliedY - 1, ref colorE2);
 
-						destination.SetColorAt(multipliedX - 1, multipliedY, ref colorE3);
-						destination.SetColorAt(multipliedX, multipliedY, ref colorE4);
-						destination.SetColorAt(multipliedX + 1, multipliedY, ref colorE5);
+			            destination.SetColorAt(multipliedX - 1, multipliedY, ref colorE3);
+			            destination.SetColorAt(multipliedX, multipliedY, ref colorE4);
+			            destination.SetColorAt(multipliedX + 1, multipliedY, ref colorE5);
 
-						destination.SetColorAt(multipliedX - 1, multipliedY + 1, ref colorE6);
-						destination.SetColorAt(multipliedX, multipliedY + 1, ref colorE7);
-						destination.SetColorAt(multipliedX + 1, multipliedY + 1, ref colorE8);
+			            destination.SetColorAt(multipliedX - 1, multipliedY + 1, ref colorE6);
+			            destination.SetColorAt(multipliedX, multipliedY + 1, ref colorE7);
+			            destination.SetColorAt(multipliedX + 1, multipliedY + 1, ref colorE8);
 
-						x++;
-					}
-					y++;
-				}
+			            x++;
+			        }
+			    });
 				return destination.UnlockAndReturnBitmap();
 			}
 		}

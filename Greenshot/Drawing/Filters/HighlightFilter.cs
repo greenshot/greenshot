@@ -25,6 +25,7 @@
 
 using System;
 using System.Drawing;
+using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Drawing.Fields;
 using Greenshot.Gfx;
@@ -38,7 +39,9 @@ namespace Greenshot.Drawing.Filters
 	[Serializable]
 	public class HighlightFilter : AbstractFilter
 	{
-		public HighlightFilter(DrawableContainer parent) : base(parent)
+	    private static readonly ParallelOptions DefaultParallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 4 };
+
+        public HighlightFilter(DrawableContainer parent) : base(parent)
 		{
 			AddField(GetType(), FieldType.FILL_COLOR, Color.Yellow);
 		}
@@ -68,15 +71,15 @@ namespace Greenshot.Drawing.Filters
 			using (var fastBitmap = FastBitmapBase.CreateCloneOf(applyBitmap, area: applyRect))
 			{
 				var highlightColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-				for (var y = fastBitmap.Top; y < fastBitmap.Bottom; y++)
-				{
-					for (var x = fastBitmap.Left; x < fastBitmap.Right; x++)
-					{
-						var color = fastBitmap.GetColorAt(x, y);
-						color = Color.FromArgb(color.A, Math.Min(highlightColor.R, color.R), Math.Min(highlightColor.G, color.G), Math.Min(highlightColor.B, color.B));
-						fastBitmap.SetColorAt(x, y, ref color);
-					}
-				}
+			    Parallel.For(fastBitmap.Top, fastBitmap.Bottom, DefaultParallelOptions, y =>
+			    {
+			        for (var x = fastBitmap.Left; x < fastBitmap.Right; x++)
+			        {
+			            var color = fastBitmap.GetColorAt(x, y);
+			            color = Color.FromArgb(color.A, Math.Min(highlightColor.R, color.R), Math.Min(highlightColor.G, color.G), Math.Min(highlightColor.B, color.B));
+			            fastBitmap.SetColorAt(x, y, ref color);
+			        }
+			    });
 				fastBitmap.DrawTo(graphics, applyRect.Location);
 			}
 			graphics.Restore(graphicsState);
