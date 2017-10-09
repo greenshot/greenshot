@@ -44,12 +44,7 @@ namespace Greenshot.Gfx.FastBitmap
 
 		public Color BackgroundBlendColor { get; set; }
 
-		/// <summary>
-		///     Retrieve the color at location x,y
-		/// </summary>
-		/// <param name="x">X coordinate</param>
-		/// <param name="y">Y Coordinate</param>
-		/// <returns>Color</returns>
+		/// <inheritdoc />
 		public override Color GetColorAt(int x, int y)
 		{
 			var offset = x * 4 + y * Stride;
@@ -60,13 +55,7 @@ namespace Greenshot.Gfx.FastBitmap
 				Pointer[PixelformatIndexB + offset]);
 		}
 
-		/// <summary>
-		///     Set the color at location x,y
-		///     Before the first time this is called the Lock() should be called once!
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <param name="color"></param>
+		/// <inheritdoc />
 		public override void SetColorAt(int x, int y, ref Color color)
 		{
 			var offset = x * 4 + y * Stride;
@@ -76,44 +65,48 @@ namespace Greenshot.Gfx.FastBitmap
 			Pointer[PixelformatIndexB + offset] = color.B;
 		}
 
-		/// <summary>
-		///     Get the color from the specified location into the specified array
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <param name="color">byte[4] as reference (r,g,b,a)</param>
-		public override void GetColorAt(int x, int y, byte[] color)
+		/// <inheritdoc />
+        public override void GetColorAt(int x, int y, byte[] color, int colorIndex = 0)
 		{
 			var offset = x * 4 + y * Stride;
-			color[ColorIndexR] = Pointer[PixelformatIndexR + offset];
-			color[ColorIndexG] = Pointer[PixelformatIndexG + offset];
-			color[ColorIndexB] = Pointer[PixelformatIndexB + offset];
-			color[ColorIndexA] = Pointer[PixelformatIndexA + offset];
+			color[colorIndex++] = Pointer[PixelformatIndexR + offset];
+			color[colorIndex++] = Pointer[PixelformatIndexG + offset];
+			color[colorIndex++] = Pointer[PixelformatIndexB + offset];
+			color[colorIndex] = Pointer[PixelformatIndexA + offset];
 		}
 
-		/// <summary>
-		///     Set the color at the specified location from the specified array
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <param name="color">byte[4] as reference (r,g,b,a)</param>
-		public override void SetColorAt(int x, int y, byte[] color)
+		/// <inheritdoc />
+	    public override void GetColorAt(int x, int y, byte* color, int colorIndex = 0)
+	    {
+	        var offset = x * 4 + y * Stride;
+	        color[colorIndex++] = Pointer[PixelformatIndexR + offset];
+	        color[colorIndex++] = Pointer[PixelformatIndexG + offset];
+	        color[colorIndex++] = Pointer[PixelformatIndexB + offset];
+	        color[colorIndex] = Pointer[PixelformatIndexA + offset];
+	    }
+
+		/// <inheritdoc />
+		public override void SetColorAt(int x, int y, byte[] color, int colorIndex = 0)
 		{
 			var offset = x * 4 + y * Stride;
-			Pointer[PixelformatIndexR + offset] = color[ColorIndexR]; // R
-			Pointer[PixelformatIndexG + offset] = color[ColorIndexG];
-			Pointer[PixelformatIndexB + offset] = color[ColorIndexB];
-			Pointer[PixelformatIndexA + offset] = color[ColorIndexA];
+			Pointer[PixelformatIndexR + offset] = color[colorIndex++]; // R
+			Pointer[PixelformatIndexG + offset] = color[colorIndex++];
+			Pointer[PixelformatIndexB + offset] = color[colorIndex++];
+			Pointer[PixelformatIndexA + offset] = color[colorIndex];
 		}
 
-		/// <summary>
-		///     Retrieve the color, without alpha (is blended), at location x,y
-		///     Before the first time this is called the Lock() should be called once!
-		/// </summary>
-		/// <param name="x">X coordinate</param>
-		/// <param name="y">Y Coordinate</param>
-		/// <returns>Color</returns>
-		public Color GetBlendedColorAt(int x, int y)
+		/// <inheritdoc />
+	    public override void SetColorAt(int x, int y, byte* color, int colorIndex = 0)
+	    {
+	        var offset = x * 4 + y * Stride;
+	        Pointer[PixelformatIndexR + offset] = color[colorIndex++]; // R
+	        Pointer[PixelformatIndexG + offset] = color[colorIndex++];
+	        Pointer[PixelformatIndexB + offset] = color[colorIndex++];
+	        Pointer[PixelformatIndexA + offset] = color[colorIndex];
+	    }
+
+		/// <inheritdoc />
+        public Color GetBlendedColorAt(int x, int y)
 		{
 			var offset = x * 4 + y * Stride;
 			int a = Pointer[PixelformatIndexA + offset];

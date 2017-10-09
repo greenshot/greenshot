@@ -59,35 +59,37 @@ namespace Greenshot.Gfx.FastBitmap
 			return _colorEntries[colorIndex];
 		}
 
-		/// <summary>
-		///     Get the color from the specified location into the specified array
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <param name="color">byte[4] as reference</param>
-		public override void GetColorAt(int x, int y, byte[] color)
+	    /// <inheritdoc />
+        public override void GetColorAt(int x, int y, byte[] color, int colorIndex = 0)
 		{
 			throw new NotImplementedException("No performance gain!");
 		}
 
-		/// <summary>
-		///     Set the color at the specified location from the specified array
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <param name="color">byte[4] as reference</param>
-		public override void SetColorAt(int x, int y, byte[] color)
+	    /// <inheritdoc />
+	    public override void GetColorAt(int x, int y, byte* color, int colorIndex = 0)
+	    {
+	        throw new NotImplementedException("No performance gain!");
+	    }
+
+        /// <inheritdoc />
+        public override void SetColorAt(int x, int y, byte[] color, int colorIndex = 0)
 		{
 			throw new NotImplementedException("No performance gain!");
 		}
 
-		/// <summary>
-		///     Get the color-index from the specified location
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <returns>byte with index</returns>
-		public byte GetColorIndexAt(int x, int y)
+	    /// <inheritdoc />
+	    public override void SetColorAt(int x, int y, byte* color, int colorIndex = 0)
+	    {
+	        throw new NotImplementedException("No performance gain!");
+	    }
+
+        /// <summary>
+        ///     Get the color-index from the specified location
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns>byte with index</returns>
+        public byte GetColorIndexAt(int x, int y)
 		{
 			var offset = x + y * Stride;
 			return Pointer[offset];

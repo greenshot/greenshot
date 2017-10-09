@@ -71,46 +71,47 @@ namespace Greenshot.Controls
 			// same as calling e.Graphics.FillRectangle ( SystemBrushes.Highlight, e.Bounds );
 			e.DrawBackground();
 
-			if (e.Index > -1)
-			{
-				var fontFamily = Items[e.Index] as FontFamily;
-				var fontStyle = FontStyle.Regular;
-				if (fontFamily != null && !fontFamily.IsStyleAvailable(FontStyle.Regular))
-				{
-					if (fontFamily.IsStyleAvailable(FontStyle.Bold))
-					{
-						fontStyle = FontStyle.Bold;
-					}
-					else if (fontFamily.IsStyleAvailable(FontStyle.Italic))
-					{
-						fontStyle = FontStyle.Italic;
-					}
-					else if (fontFamily.IsStyleAvailable(FontStyle.Strikeout))
-					{
-						fontStyle = FontStyle.Strikeout;
-					}
-					else if (fontFamily.IsStyleAvailable(FontStyle.Underline))
-					{
-						fontStyle = FontStyle.Underline;
-					}
-				}
-				try
-				{
-					if (fontFamily != null)
-					{
-						DrawText(e.Graphics, fontFamily, fontStyle, e.Bounds, fontFamily.Name);
-					}
-				}
-				catch
-				{
-					// If the drawing failed, BUG-1770 seems to have a weird case that causes: Font 'Lucida Sans Typewriter' does not support style 'Regular' 
-					if (fontFamily != null)
-					{
-						DrawText(e.Graphics, FontFamily.GenericSansSerif, FontStyle.Regular, e.Bounds, fontFamily.Name);
-					}
-				}
-			}
-			// Uncomment this if you actually like the way the focus rectangle looks
+		    if (e.Index <= -1)
+		    {
+		        return;
+		    }
+		    var fontFamily = Items[e.Index] as FontFamily;
+		    var fontStyle = FontStyle.Regular;
+		    if (fontFamily != null && !fontFamily.IsStyleAvailable(FontStyle.Regular))
+		    {
+		        if (fontFamily.IsStyleAvailable(FontStyle.Bold))
+		        {
+		            fontStyle = FontStyle.Bold;
+		        }
+		        else if (fontFamily.IsStyleAvailable(FontStyle.Italic))
+		        {
+		            fontStyle = FontStyle.Italic;
+		        }
+		        else if (fontFamily.IsStyleAvailable(FontStyle.Strikeout))
+		        {
+		            fontStyle = FontStyle.Strikeout;
+		        }
+		        else if (fontFamily.IsStyleAvailable(FontStyle.Underline))
+		        {
+		            fontStyle = FontStyle.Underline;
+		        }
+		    }
+		    try
+		    {
+		        if (fontFamily != null)
+		        {
+		            DrawText(e.Graphics, fontFamily, fontStyle, e.Bounds, fontFamily.Name);
+		        }
+		    }
+		    catch
+		    {
+		        // If the drawing failed, BUG-1770 seems to have a weird case that causes: Font 'Lucida Sans Typewriter' does not support style 'Regular' 
+		        if (fontFamily != null)
+		        {
+		            DrawText(e.Graphics, FontFamily.GenericSansSerif, FontStyle.Regular, e.Bounds, fontFamily.Name);
+		        }
+		    }
+		    // Uncomment this if you actually like the way the focus rectangle looks
 			//e.DrawFocusRectangle ();
 		}
 
@@ -137,13 +138,10 @@ namespace Greenshot.Controls
 
 		private void BindableToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			if (PropertyChanged != null)
-			{
-				PropertyChanged(this, new PropertyChangedEventArgs("Text"));
-				PropertyChanged(this, new PropertyChangedEventArgs("FontFamily"));
-				PropertyChanged(this, new PropertyChangedEventArgs("SelectedIndex"));
-				PropertyChanged(this, new PropertyChangedEventArgs("SelectedItem"));
-			}
+		    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Text"));
+		    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("FontFamily"));
+		    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedIndex"));
+		    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedItem"));
 		}
 	}
 }

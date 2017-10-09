@@ -39,8 +39,6 @@ namespace Greenshot.Drawing.Filters
 	[Serializable]
 	public class HighlightFilter : AbstractFilter
 	{
-	    private static readonly ParallelOptions DefaultParallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 4 };
-
         public HighlightFilter(DrawableContainer parent) : base(parent)
 		{
 			AddField(GetType(), FieldType.FILL_COLOR, Color.Yellow);
@@ -71,15 +69,22 @@ namespace Greenshot.Drawing.Filters
 			using (var fastBitmap = FastBitmapFactory.CreateCloneOf(applyBitmap, area: applyRect))
 			{
 				var highlightColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-			    Parallel.For(fastBitmap.Top, fastBitmap.Bottom, DefaultParallelOptions, y =>
+			    Parallel.For(fastBitmap.Top, fastBitmap.Bottom, y =>
 			    {
-			        for (var x = fastBitmap.Left; x < fastBitmap.Right; x++)
+			        unsafe
 			        {
-			            var color = fastBitmap.GetColorAt(x, y);
-			            color = Color.FromArgb(color.A, Math.Min(highlightColor.R, color.R), Math.Min(highlightColor.G, color.G), Math.Min(highlightColor.B, color.B));
-			            fastBitmap.SetColorAt(x, y, ref color);
-			        }
-			    });
+			            var tmpColor = stackalloc byte[4];
+			            for (var x = fastBitmap.Left; x < fastBitmap.Right; x++)
+			            {
+			                fastBitmap.GetColorAt(x, y, tmpColor);
+			                tmpColor[FastBitmapBase.ColorIndexR] = Math.Min(highlightColor.R, tmpColor[FastBitmapBase.ColorIndexR]);
+			                tmpColor[FastBitmapBase.ColorIndexG] = Math.Min(highlightColor.G, tmpColor[FastBitmapBase.ColorIndexG]);
+			                tmpColor[FastBitmapBase.ColorIndexB] = Math.Min(highlightColor.B, tmpColor[FastBitmapBase.ColorIndexB]);
+			                fastBitmap.SetColorAt(x, y, tmpColor);
+			            }
+
+                    }
+                });
 				fastBitmap.DrawTo(graphics, applyRect.Location);
 			}
 			graphics.Restore(graphicsState);

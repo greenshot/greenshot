@@ -32,7 +32,7 @@ namespace Greenshot.Gfx.FastBitmap
 	/// <summary>
 	///     This interface can be used for when offsetting is needed
 	/// </summary>
-	public interface IFastBitmapWithOffset : IFastBitmap
+	public unsafe interface IFastBitmapWithOffset : IFastBitmap
 	{
 		new int Left { get; set; }
 
@@ -60,24 +60,44 @@ namespace Greenshot.Gfx.FastBitmap
 		/// <param name="x">int x</param>
 		/// <param name="y">int y</param>
 		/// <param name="color">byte[] color</param>
-		new void SetColorAt(int x, int y, byte[] color);
+		new void SetColorAt(int x, int y, byte[] color, int colorIndex);
 
-		/// <summary>
-		///     Get the color at x,y
-		///     The returned Color object depends on the underlying pixel format
-		/// </summary>
-		/// <param name="x">int x</param>
-		/// <param name="y">int y</param>
-		/// <returns>Color</returns>
-		new Color GetColorAt(int x, int y);
+        /// <summary>
+        ///     Set the color at the specified location, using offsetting so the original coordinates can be used
+        /// </summary>
+        /// <param name="x">int x</param>
+        /// <param name="y">int y</param>
+        /// <param name="color">byte[] color</param>
+        /// <param name="colorIndex">int with offset in the byte pointer</param>
+        new void SetColorAt(int x, int y, byte* color, int colorIndex);
 
-		/// <summary>
-		///     Get the color at x,y, using offsetting so the original coordinates can be used
-		///     The returned byte[] color depends on the underlying pixel format
-		/// </summary>
-		/// <param name="x">int x</param>
-		/// <param name="y">int y</param>
-		/// <param name="color">byte array</param>
-		new void GetColorAt(int x, int y, byte[] color);
-	}
+        /// <summary>
+        ///     Get the color at x,y
+        ///     The returned Color object depends on the underlying pixel format
+        /// </summary>
+        /// <param name="x">int x</param>
+        /// <param name="y">int y</param>
+        /// <returns>Color</returns>
+        new Color GetColorAt(int x, int y);
+
+        /// <summary>
+        ///     Get the color at x,y, using offsetting so the original coordinates can be used
+        ///     The returned byte[] color depends on the underlying pixel format
+        /// </summary>
+        /// <param name="x">int x</param>
+        /// <param name="y">int y</param>
+        /// <param name="color">byte array</param>
+        /// <param name="colorIndex">int with offset in the byte array</param>
+        new void GetColorAt(int x, int y, byte[] color, int colorIndex);
+
+	    /// <summary>
+	    ///     Get the color at x,y, using offsetting so the original coordinates can be used
+	    ///     The color is placed to the byte* and depends on the underlying pixel format
+	    /// </summary>
+	    /// <param name="x">int x</param>
+	    /// <param name="y">int y</param>
+	    /// <param name="color">byte pojter</param>
+	    /// <param name="colorIndex">int with offset in the byte pointer</param>
+	    new void GetColorAt(int x, int y, byte* color, int colorIndex);
+    }
 }

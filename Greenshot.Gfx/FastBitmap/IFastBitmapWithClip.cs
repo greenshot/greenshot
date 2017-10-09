@@ -33,7 +33,7 @@ namespace Greenshot.Gfx.FastBitmap
 	/// <summary>
 	///     This interface can be used for when clipping is needed
 	/// </summary>
-	public interface IFastBitmapWithClip : IFastBitmap
+	public unsafe interface IFastBitmapWithClip : IFastBitmap
 	{
 		/// <summary>
 		/// The rectangle to clip to
@@ -53,37 +53,59 @@ namespace Greenshot.Gfx.FastBitmap
 		/// <returns>Color color</returns>
 		new Color GetColorAt(int x, int y);
 
-		/// <summary>
-		///     Get the color at x,y
-		///     The returned byte[] color depends on the underlying pixel format
-		/// </summary>
-		/// <param name="x">int x</param>
-		/// <param name="y">int y</param>
-		/// <param name="color">byte array</param>
-		new void GetColorAt(int x, int y, byte[] color);
+        /// <summary>
+        ///     Get the color at x,y
+        ///     The returned byte[] color depends on the underlying pixel format
+        /// </summary>
+        /// <param name="x">int x</param>
+        /// <param name="y">int y</param>
+        /// <param name="color">byte array</param>
+        /// <param name="colorIndex">offset into the byte[]</param>
+        new void GetColorAt(int x, int y, byte[] color, int colorIndex);
 
-		/// <summary>
-		///     Set the color at the specified location, this doesn't do anything if the location is excluded due to clipping
-		/// </summary>
-		/// <param name="x">int x</param>
-		/// <param name="y">int y</param>
-		/// <param name="color">Color color</param>
-		new void SetColorAt(int x, int y, ref Color color);
 
-		/// <summary>
-		///     Set the color at the specified location, this doesn't do anything if the location is excluded due to clipping
-		/// </summary>
-		/// <param name="x">int x</param>
-		/// <param name="y">int y</param>
-		/// <param name="color">byte[] color</param>
-		new void SetColorAt(int x, int y, byte[] color);
+        /// <summary>
+        ///     Get the color at x,y and place it on the specified location of the byte*
+        ///     The placed color depends on the underlying pixel format
+        /// </summary>
+        /// <param name="x">int x</param>
+        /// <param name="y">int y</param>
+        /// <param name="color">byte pointer</param>
+        /// <param name="colorIndex">offset into the byte pointer</param>
+        new void GetColorAt(int x, int y, byte* color, int colorIndex);
 
-		/// <summary>
-		///     Return true if the coordinates are inside the FastBitmap and not clipped
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <returns></returns>
-		new bool Contains(int x, int y);
+        /// <summary>
+        ///     Set the color at the specified location, this doesn't do anything if the location is excluded due to clipping
+        /// </summary>
+        /// <param name="x">int x</param>
+        /// <param name="y">int y</param>
+        /// <param name="color">Color color</param>
+        new void SetColorAt(int x, int y, ref Color color);
+
+        /// <summary>
+        ///     Set the color at the specified location, this doesn't do anything if the location is excluded due to clipping
+        /// </summary>
+        /// <param name="x">int x</param>
+        /// <param name="y">int y</param>
+        /// <param name="color">byte[] color</param>
+        /// <param name="colorIndex">int with offset in the byte array</param>
+        new void SetColorAt(int x, int y, byte[] color, int colorIndex);
+
+        /// <summary>
+        ///     Set the color at the specified location, this doesn't do anything if the location is excluded due to clipping
+        /// </summary>
+        /// <param name="x">int x</param>
+        /// <param name="y">int y</param>
+        /// <param name="color">byte* colors</param>
+        /// <param name="colorIndex">int with offset in the byte pointer</param>
+	    new void SetColorAt(int x, int y, byte* color, int colorIndex);
+
+        /// <summary>
+        ///     Return true if the coordinates are inside the FastBitmap and not clipped
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        new bool Contains(int x, int y);
 	}
 }

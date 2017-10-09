@@ -44,19 +44,19 @@ namespace Greenshot.Gfx.FastBitmap
 		/// <param name="source">Bitmap to access</param>
 		/// <param name="area">NativeRect which specifies the area to have access to, can be NativeRect.Empty for the whole image</param>
 		/// <returns>IFastBitmap</returns>
-		public static IFastBitmap Create(Image source, NativeRect? area = null)
+		public static IFastBitmap Create(Bitmap source, NativeRect? area = null)
 		{
 			switch (source.PixelFormat)
 			{
 				case PixelFormat.Format8bppIndexed:
-					return new FastChunkyBitmap((Bitmap) source, area);
+					return new FastChunkyBitmap(source, area);
 				case PixelFormat.Format24bppRgb:
-					return new Fast24RgbBitmap((Bitmap) source, area);
+					return new Fast24RgbBitmap(source, area);
 				case PixelFormat.Format32bppRgb:
-					return new Fast32RgbBitmap((Bitmap) source, area);
+					return new Fast32RgbBitmap(source, area);
 				case PixelFormat.Format32bppArgb:
 				case PixelFormat.Format32bppPArgb:
-					return new Fast32ArgbBitmap((Bitmap) source, area);
+					return new Fast32ArgbBitmap(source, area);
 				default:
 					throw new NotSupportedException($"Not supported Pixelformat {source.PixelFormat}");
 			}
@@ -71,9 +71,8 @@ namespace Greenshot.Gfx.FastBitmap
 		/// <returns>IFastBitmap</returns>
 		public static IFastBitmap CreateCloneOf(Bitmap source, PixelFormat pixelFormat = PixelFormat.DontCare, NativeRect? area = null)
 		{
-			var destination = source.CloneBitmap(pixelFormat, area) as Bitmap;
-			var fastBitmap = Create(destination) as FastBitmapBase;
-			if (fastBitmap == null)
+			var destination = source.CloneBitmap(pixelFormat, area);
+		    if (!(Create(destination) is FastBitmapBase fastBitmap))
 			{
 				return null;
 			}

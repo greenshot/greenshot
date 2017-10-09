@@ -488,15 +488,10 @@ namespace GreenshotPlugin.IniFile
 				}
 				return list;
 			}
-			//Log.Debug().WriteLine("No convertor for " + fieldType.ToString());
 			if (valueType == typeof(object) && valueString.Length > 0)
 			{
-				//Log.Debug().WriteLine("Parsing: " + valueString);
 				var values = valueString.Split(':');
-				//Log.Debug().WriteLine("Type: " + values[0]);
-				//Log.Debug().WriteLine("Value: " + values[1]);
 				var fieldTypeForValue = Type.GetType(values[0], true);
-				//Log.Debug().WriteLine("Type after GetType: " + fieldTypeForValue);
 				return ConvertStringToValueType(fieldTypeForValue, values[1], separator);
 			}
 			var converter = TypeDescriptor.GetConverter(valueType);

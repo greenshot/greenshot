@@ -25,6 +25,7 @@
 
 using System;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using Dapplo.Windows.Common.Structs;
 
 #endregion
@@ -34,7 +35,7 @@ namespace Greenshot.Gfx.FastBitmap
 	/// <summary>
 	///     The interface for the FastBitmap
 	/// </summary>
-	public interface IFastBitmap : IDisposable
+	public unsafe interface IFastBitmap : IDisposable
 	{
 		/// <summary>
 		///     Size of the underlying image
@@ -98,22 +99,43 @@ namespace Greenshot.Gfx.FastBitmap
 		/// <param name="color">Color</param>
 		void SetColorAt(int x, int y, ref Color color);
 
-		/// <summary>
-		///     Get the color at x,y
-		///     The returned byte[] color depends on the underlying pixel format
-		/// </summary>
-		/// <param name="x">int x</param>
-		/// <param name="y">int y</param>
-		/// <param name="color">byte array</param>
-		void GetColorAt(int x, int y, byte[] color);
+	    /// <summary>
+	    ///     Get the color at x,y
+	    ///     The returned byte[] color depends on the underlying pixel format
+	    /// </summary>
+	    /// <param name="x">int x</param>
+	    /// <param name="y">int y</param>
+	    /// <param name="color">byte array to place the color in</param>
+	    /// <param name="colorIndex">int with offset in the byte array</param>
+	    void GetColorAt(int x, int y, byte[] color, int colorIndex = 0);
 
-		/// <summary>
-		///     Set the color at the specified location
-		/// </summary>
-		/// <param name="x">int x</param>
-		/// <param name="y">int y</param>
-		/// <param name="color">byte[] color</param>
-		void SetColorAt(int x, int y, byte[] color);
+	    /// <summary>
+	    ///     Get the color at x,y
+	    ///     The returned byte[] color depends on the underlying pixel format
+	    /// </summary>
+	    /// <param name="x">int x</param>
+	    /// <param name="y">int y</param>
+	    /// <param name="color">byte point to place the color in</param>
+	    /// <param name="colorIndex">int with offset in the byte point</param>
+	    void GetColorAt(int x, int y, byte* color, int colorIndex = 0);
+
+        /// <summary>
+        ///     Set the color at the specified location
+        /// </summary>
+        /// <param name="x">int x</param>
+        /// <param name="y">int y</param>
+        /// <param name="color">byte[] color</param>
+        /// <param name="colorIndex">int with offset in the byte array</param>
+	    void SetColorAt(int x, int y, byte[] color, int colorIndex = 0);
+
+        /// <summary>
+	    ///     Set the color at the specified location
+	    /// </summary>
+	    /// <param name="x">int x</param>
+	    /// <param name="y">int y</param>
+	    /// <param name="color">byte[] color</param>
+	    /// <param name="colorIndex">int with offset in the byte array</param>
+	    void SetColorAt(int x, int y, byte* color, int colorIndex = 0);
 
 		/// <summary>
 		///     Lock the bitmap

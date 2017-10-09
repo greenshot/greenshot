@@ -67,32 +67,40 @@ namespace Greenshot.Gfx.FastBitmap
 			Pointer[PixelformatIndexB + offset] = color.B;
 		}
 
-		/// <summary>
-		///     Get the color from the specified location into the specified array
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <param name="color">byte[4] as reference (a,r,g,b)</param>
-		public override void GetColorAt(int x, int y, byte[] color)
+		/// <inheritdoc />
+		public override void GetColorAt(int x, int y, byte[] color, int colorIndex = 0)
 		{
 			var offset = x * 4 + y * Stride;
-			color[ColorIndexR] = Pointer[PixelformatIndexR + offset];
-			color[ColorIndexG] = Pointer[PixelformatIndexG + offset];
-			color[ColorIndexB] = Pointer[PixelformatIndexB + offset];
+			color[colorIndex++] = Pointer[PixelformatIndexR + offset];
+			color[colorIndex++] = Pointer[PixelformatIndexG + offset];
+			color[colorIndex] = Pointer[PixelformatIndexB + offset];
 		}
 
-		/// <summary>
-		///     Set the color at the specified location from the specified array
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <param name="color">byte[4] as reference (r,g,b)</param>
-		public override void SetColorAt(int x, int y, byte[] color)
-		{
+	    /// <inheritdoc />
+	    public override void GetColorAt(int x, int y, byte* color, int colorIndex = 0)
+	    {
+	        var offset = x * 4 + y * Stride;
+	        color[colorIndex++] = Pointer[PixelformatIndexR + offset];
+	        color[colorIndex++] = Pointer[PixelformatIndexG + offset];
+	        color[colorIndex] = Pointer[PixelformatIndexB + offset];
+	    }
+
+        /// <inheritdoc />
+        public override void SetColorAt(int x, int y, byte[] color, int colorIndex = 0)
+        {
 			var offset = x * 4 + y * Stride;
-			Pointer[PixelformatIndexR + offset] = color[ColorIndexR]; // R
-			Pointer[PixelformatIndexG + offset] = color[ColorIndexG];
-			Pointer[PixelformatIndexB + offset] = color[ColorIndexB];
+			Pointer[PixelformatIndexR + offset] = color[colorIndex++]; // R
+			Pointer[PixelformatIndexG + offset] = color[colorIndex++];
+			Pointer[PixelformatIndexB + offset] = color[colorIndex];
 		}
-	}
+
+	    /// <inheritdoc />
+	    public override void SetColorAt(int x, int y, byte* color, int colorIndex = 0)
+	    {
+	        var offset = x * 4 + y * Stride;
+	        Pointer[PixelformatIndexR + offset] = color[colorIndex++]; // R
+	        Pointer[PixelformatIndexG + offset] = color[colorIndex++];
+	        Pointer[PixelformatIndexB + offset] = color[colorIndex];
+	    }
+    }
 }

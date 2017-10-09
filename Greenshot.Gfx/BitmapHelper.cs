@@ -195,13 +195,13 @@ namespace Greenshot.Gfx
         /// <summary>
         ///     Create a Thumbnail
         /// </summary>
-        /// <param name="image">Bitmap</param>
+        /// <param name="image">Image</param>
         /// <param name="thumbWidth">int</param>
         /// <param name="thumbHeight">int</param>
         /// <param name="maxWidth">int</param>
         /// <param name="maxHeight">int</param>
         /// <returns></returns>
-        public static Bitmap CreateThumbnail(this Bitmap image, int thumbWidth, int thumbHeight, int maxWidth = -1, int maxHeight = -1)
+        public static Bitmap CreateThumbnail(this Image image, int thumbWidth, int thumbHeight, int maxWidth = -1, int maxHeight = -1)
 		{
 			var srcWidth = image.Width;
 			var srcHeight = image.Height;
@@ -695,23 +695,23 @@ namespace Greenshot.Gfx
         /// <summary>
         ///     Get a scaled version of the sourceBitmap
         /// </summary>
-        /// <param name="sourceBitmap">Bitmap</param>
+        /// <param name="sourceImage">Image</param>
         /// <param name="percent">1-99 to make smaller, use 101 and more to make the picture bigger</param>
         /// <returns>Bitmap</returns>
-        public static Bitmap ScaleByPercent(this Bitmap sourceBitmap, int percent)
+        public static Bitmap ScaleByPercent(this Image sourceImage, int percent)
 		{
 			var nPercent = (float) percent / 100;
 
-			var sourceWidth = sourceBitmap.Width;
-			var sourceHeight = sourceBitmap.Height;
+			var sourceWidth = sourceImage.Width;
+			var sourceHeight = sourceImage.Height;
 			var destWidth = (int) (sourceWidth * nPercent);
 			var destHeight = (int) (sourceHeight * nPercent);
 
-			var scaledBitmap = BitmapFactory.CreateEmpty(destWidth, destHeight, sourceBitmap.PixelFormat, Color.Empty, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+			var scaledBitmap = BitmapFactory.CreateEmpty(destWidth, destHeight, sourceImage.PixelFormat, Color.Empty, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
 			using (var graphics = Graphics.FromImage(scaledBitmap))
 			{
 				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-				graphics.DrawImage(sourceBitmap, new NativeRect(0, 0, destWidth, destHeight), new NativeRect(0, 0, sourceWidth, sourceHeight), GraphicsUnit.Pixel);
+				graphics.DrawImage(sourceImage, new NativeRect(0, 0, destWidth, destHeight), new NativeRect(0, 0, sourceWidth, sourceHeight), GraphicsUnit.Pixel);
 			}
 			return scaledBitmap;
 		}
@@ -757,7 +757,7 @@ namespace Greenshot.Gfx
         /// <summary>
         ///     Scale the bitmap, keeping aspect ratio, but the canvas will always have the specified size.
         /// </summary>
-        /// <param name="sourceBitmap">Bitmap to scale</param>
+        /// <param name="sourceImage">Image to scale</param>
         /// <param name="maintainAspectRatio">true to maintain the aspect ratio</param>
         /// <param name="canvasUseNewSize">Makes the image maintain aspect ratio, but the canvas get's the specified size</param>
         /// <param name="backgroundColor">The color to fill with, or Color.Empty to take the default depending on the pixel format</param>
@@ -766,13 +766,13 @@ namespace Greenshot.Gfx
         /// <param name="matrix">Matrix</param>
         /// <param name="interpolationMode">InterpolationMode</param>
         /// <returns>a new bitmap with the specified size, the source-Image scaled to fit with aspect ratio locked</returns>
-        public static Bitmap Resize(this Bitmap sourceBitmap, bool maintainAspectRatio, bool canvasUseNewSize, Color backgroundColor, int newWidth, int newHeight, Matrix matrix, InterpolationMode interpolationMode = InterpolationMode.HighQualityBicubic)
+        public static Bitmap Resize(this Image sourceImage, bool maintainAspectRatio, bool canvasUseNewSize, Color backgroundColor, int newWidth, int newHeight, Matrix matrix, InterpolationMode interpolationMode = InterpolationMode.HighQualityBicubic)
 		{
 			var destX = 0;
 			var destY = 0;
 
-			var nPercentW = newWidth / (float) sourceBitmap.Width;
-			var nPercentH = newHeight / (float) sourceBitmap.Height;
+			var nPercentW = newWidth / (float) sourceImage.Width;
+			var nPercentH = newHeight / (float) sourceImage.Height;
 			if (maintainAspectRatio)
 			{
 				if ((int) nPercentW == 1)
@@ -780,7 +780,7 @@ namespace Greenshot.Gfx
 					nPercentW = nPercentH;
 					if (canvasUseNewSize)
 					{
-						destX = Math.Max(0, Convert.ToInt32((newWidth - sourceBitmap.Width * nPercentW) / 2));
+						destX = Math.Max(0, Convert.ToInt32((newWidth - sourceImage.Width * nPercentW) / 2));
 					}
 				}
 				else if ((int) nPercentH == 1)
@@ -788,7 +788,7 @@ namespace Greenshot.Gfx
 					nPercentH = nPercentW;
 					if (canvasUseNewSize)
 					{
-						destY = Math.Max(0, Convert.ToInt32((newHeight - sourceBitmap.Height * nPercentH) / 2));
+						destY = Math.Max(0, Convert.ToInt32((newHeight - sourceImage.Height * nPercentH) / 2));
 					}
 				}
 				else if ((int) nPercentH != 0 && nPercentH < nPercentW)
@@ -796,7 +796,7 @@ namespace Greenshot.Gfx
 					nPercentW = nPercentH;
 					if (canvasUseNewSize)
 					{
-						destX = Math.Max(0, Convert.ToInt32((newWidth - sourceBitmap.Width * nPercentW) / 2));
+						destX = Math.Max(0, Convert.ToInt32((newWidth - sourceImage.Width * nPercentW) / 2));
 					}
 				}
 				else
@@ -804,13 +804,13 @@ namespace Greenshot.Gfx
 					nPercentH = nPercentW;
 					if (canvasUseNewSize)
 					{
-						destY = Math.Max(0, Convert.ToInt32((newHeight - sourceBitmap.Height * nPercentH) / 2));
+						destY = Math.Max(0, Convert.ToInt32((newHeight - sourceImage.Height * nPercentH) / 2));
 					}
 				}
 			}
 
-			var destWidth = (int) (sourceBitmap.Width * nPercentW);
-			var destHeight = (int) (sourceBitmap.Height * nPercentH);
+			var destWidth = (int) (sourceImage.Width * nPercentW);
+			var destHeight = (int) (sourceImage.Height * nPercentH);
 			if (newWidth == 0)
 			{
 				newWidth = destWidth;
@@ -822,13 +822,13 @@ namespace Greenshot.Gfx
 		    Bitmap newBitmap;
 			if (maintainAspectRatio && canvasUseNewSize)
 			{
-				newBitmap = BitmapFactory.CreateEmpty(newWidth, newHeight, sourceBitmap.PixelFormat, backgroundColor, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
-				matrix?.Scale((float) newWidth / sourceBitmap.Width, (float) newHeight / sourceBitmap.Height, MatrixOrder.Append);
+				newBitmap = BitmapFactory.CreateEmpty(newWidth, newHeight, sourceImage.PixelFormat, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
+				matrix?.Scale((float) newWidth / sourceImage.Width, (float) newHeight / sourceImage.Height, MatrixOrder.Append);
 			}
 			else
 			{
-				newBitmap = BitmapFactory.CreateEmpty(destWidth, destHeight, sourceBitmap.PixelFormat, backgroundColor, sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
-				matrix?.Scale((float) destWidth / sourceBitmap.Width, (float) destHeight / sourceBitmap.Height, MatrixOrder.Append);
+				newBitmap = BitmapFactory.CreateEmpty(destWidth, destHeight, sourceImage.PixelFormat, backgroundColor, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
+				matrix?.Scale((float) destWidth / sourceImage.Width, (float) destHeight / sourceImage.Height, MatrixOrder.Append);
 			}
 
 			using (var graphics = Graphics.FromImage(newBitmap))
@@ -840,7 +840,7 @@ namespace Greenshot.Gfx
 				using (var wrapMode = new ImageAttributes())
 				{
 					wrapMode.SetWrapMode(WrapMode.TileFlipXY);
-					graphics.DrawImage(sourceBitmap, new NativeRect(destX, destY, destWidth, destHeight), 0, 0, sourceBitmap.Width, sourceBitmap.Height, GraphicsUnit.Pixel, wrapMode);
+					graphics.DrawImage(sourceImage, new NativeRect(destX, destY, destWidth, destHeight), 0, 0, sourceImage.Width, sourceImage.Height, GraphicsUnit.Pixel, wrapMode);
 				}
 			}
 			return newBitmap;
@@ -967,7 +967,7 @@ namespace Greenshot.Gfx
 		///     Use "Scale2x" algorithm to produce bitmap from the original.
 		/// </summary>
 		/// <param name="original">Bitmap to scale 2x</param>
-		public static Bitmap Scale2X(this Image original)
+		public static Bitmap Scale2X(this Bitmap original)
 		{
 			using (var source = (IFastBitmapWithClip)FastBitmapFactory.Create(original))
 			using (var destination = (IFastBitmapWithClip)FastBitmapFactory.CreateEmpty(new Size(original.Width * 2, original.Height * 2), original.PixelFormat))
@@ -1018,7 +1018,7 @@ namespace Greenshot.Gfx
 		///     Use "Scale3x" algorithm to produce bitmap from the original.
 		/// </summary>
 		/// <param name="original">Bitmap to scale 3x</param>
-		public static Bitmap Scale3X(this Image original)
+		public static Bitmap Scale3X(this Bitmap original)
 		{
 			using (var source = (IFastBitmapWithClip)FastBitmapFactory.Create(original))
 			using (var destination = (IFastBitmapWithClip)FastBitmapFactory.CreateEmpty(new Size(original.Width * 3, original.Height * 3), original.PixelFormat))

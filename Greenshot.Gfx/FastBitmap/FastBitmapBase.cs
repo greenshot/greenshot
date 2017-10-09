@@ -281,26 +281,46 @@ namespace Greenshot.Gfx.FastBitmap
 		/// <param name="color">Color</param>
 		public abstract void SetColorAt(int x, int y, ref Color color);
 
-		/// <summary>
-		///     Retrieve the color at x,y as byte[]
-		/// </summary>
-		/// <param name="x">int x</param>
-		/// <param name="y">int y</param>
-		/// <param name="color">byte[] for the rgb values color</param>
-		public abstract void GetColorAt(int x, int y, byte[] color);
+        /// <summary>
+        ///     Retrieve the color at x,y as byte[]
+        /// </summary>
+        /// <param name="x">int x</param>
+        /// <param name="y">int y</param>
+        /// <param name="color">byte[] for the rgb values color</param>
+        /// <param name="colorIndex">Index offset in the array</param>
+        public abstract void GetColorAt(int x, int y, byte[] color, int colorIndex = 0);
 
-		/// <summary>
-		///     Sets the color at x,y as byte[]
-		/// </summary>
-		/// <param name="x">int x</param>
-		/// <param name="y">int y</param>
-		/// <param name="color">byte[] for the rgb values color</param>
-		public abstract void SetColorAt(int x, int y, byte[] color);
+	    /// <summary>
+	    ///     Retrieve the color at x,y into the byte*
+	    /// </summary>
+	    /// <param name="x">int x</param>
+	    /// <param name="y">int y</param>
+	    /// <param name="color">byte* for the rgb values color</param>
+	    /// <param name="colorIndex">Index offset in the pointer</param>
+	    public abstract void GetColorAt(int x, int y, byte* color, int colorIndex = 0);
 
-		/// <summary>
-		///     Return the left of the fastbitmap, this is also used as an offset
-		/// </summary>
-		int IFastBitmapWithOffset.Left
+        /// <summary>
+        ///     Sets the color at x,y as byte[]
+        /// </summary>
+        /// <param name="x">int x</param>
+        /// <param name="y">int y</param>
+        /// <param name="color">byte[] for the rgb values color</param>
+        /// <param name="colorIndex">Index offset in the array</param>
+		public abstract void SetColorAt(int x, int y, byte[] color, int colorIndex = 0);
+
+	    /// <summary>
+	    ///     Sets the color at x,y as byte*
+	    /// </summary>
+	    /// <param name="x">int x</param>
+	    /// <param name="y">int y</param>
+	    /// <param name="color">byte* for the rgb values color</param>
+	    /// <param name="colorIndex">Index offset in the array</param>
+	    public abstract void SetColorAt(int x, int y, byte* color, int colorIndex = 0);
+
+        /// <summary>
+        ///     Return the left of the fastbitmap, this is also used as an offset
+        /// </summary>
+        int IFastBitmapWithOffset.Left
 		{
 			get { return _left; }
 			set { _left = value; }
@@ -363,13 +383,8 @@ namespace Greenshot.Gfx.FastBitmap
 			return contains;
 		}
 
-		/// <summary>
-		///     Get the color at the specified location, if it's not clipped
-		/// </summary>
-		/// <param name="x">int x</param>
-		/// <param name="y">int y</param>
-		/// <param name="color">byte array with the color information</param>
-		void IFastBitmapWithClip.GetColorAt(int x, int y, byte[] color)
+		/// <inheritdoc />
+		void IFastBitmapWithClip.GetColorAt(int x, int y, byte[] color, int colorIndex)
 		{
 			var contains = Clip.Contains(x, y);
 			if (InvertClip && contains)
@@ -396,7 +411,7 @@ namespace Greenshot.Gfx.FastBitmap
 					x = Clip.Right-1;
 				}
 			}
-			GetColorAt(x, y, color);
+			GetColorAt(x, y, color, colorIndex);
 		}
 
 		/// <summary>
@@ -410,12 +425,8 @@ namespace Greenshot.Gfx.FastBitmap
 			var contains = Clip.Contains(x, y);
 			if (InvertClip && contains)
 			{
-				// TODO: Implement nearest
-				if (HasAlphaChannel)
-				{
-					return Color.Transparent;
-				}
-				return Color.Black;
+			    // TODO: Implement nearest
+			    return HasAlphaChannel ? Color.Transparent : Color.Black;
 			}
 			if (!InvertClip && !contains)
 			{
@@ -440,20 +451,15 @@ namespace Greenshot.Gfx.FastBitmap
 		}
 
 
-		/// <summary>
-		///     Set the color at the specified location, if it's not clipped
-		/// </summary>
-		/// <param name="x">int x</param>
-		/// <param name="y">int y</param>
-		/// <param name="color">byte array with the color information</param>
-		void IFastBitmapWithClip.SetColorAt(int x, int y, byte[] color)
+		/// <inheritdoc />
+		void IFastBitmapWithClip.SetColorAt(int x, int y, byte[] color, int colorIndex)
 		{
 			var contains = Clip.Contains(x, y);
 			if (InvertClip && contains || !InvertClip && !contains)
 			{
 				return;
 			}
-			SetColorAt(x, y, color);
+			SetColorAt(x, y, color, colorIndex);
 		}
 
 		/// <summary>
@@ -500,39 +506,33 @@ namespace Greenshot.Gfx.FastBitmap
 			return GetColorAt(x, y);
 		}
 
-		/// <summary>
-		///     Get the color at the specified location
-		/// </summary>
-		/// <param name="x">int x</param>
-		/// <param name="y">int y</param>
-		/// <param name="color">byte array with the color information</param>
-		void IFastBitmapWithOffset.GetColorAt(int x, int y, byte[] color)
+	    /// <inheritdoc />
+        void IFastBitmapWithOffset.GetColorAt(int x, int y, byte[] color, int colorIndex)
 		{
 			x -= _left;
 			y -= _top;
-			GetColorAt(x, y, color);
+			GetColorAt(x, y, color, colorIndex);
 		}
 
-		/// <summary>
-		///     Set the color at the specified location
-		/// </summary>
-		/// <param name="x">int x</param>
-		/// <param name="y">int y</param>
-		/// <param name="color">byte array with the color information</param>
-		void IFastBitmapWithOffset.SetColorAt(int x, int y, byte[] color)
+
+	    /// <inheritdoc />
+	    void IFastBitmapWithOffset.GetColorAt(int x, int y, byte* color, int colorIndex)
+	    {
+	        x -= _left;
+	        y -= _top;
+	        GetColorAt(x, y, color, colorIndex);
+	    }
+
+        /// <inheritdoc />
+        void IFastBitmapWithOffset.SetColorAt(int x, int y, byte* color, int colorIndex)
 		{
 			x -= _left;
 			y -= _top;
-			SetColorAt(x, y, color);
+			SetColorAt(x, y, color, colorIndex);
 		}
 
-		/// <summary>
-		///     Set the color at the specified location
-		/// </summary>
-		/// <param name="x">int x</param>
-		/// <param name="y">int y</param>
-		/// <param name="color">Color</param>
-		void IFastBitmapWithOffset.SetColorAt(int x, int y, ref Color color)
+	    /// <inheritdoc />
+        void IFastBitmapWithOffset.SetColorAt(int x, int y, ref Color color)
 		{
 			x -= _left;
 			y -= _top;
