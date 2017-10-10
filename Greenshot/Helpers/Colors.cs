@@ -34,10 +34,10 @@ namespace Greenshot.Helpers
 	{
 		public static bool IsVisible(Color c)
 		{
-			return c != null && !c.Equals(Color.Empty) && !c.Equals(Color.Transparent) && c.A > 0;
+			return !c.Equals(Color.Empty) && !c.Equals(Color.Transparent) && c.A > 0;
 		}
 
-		public static Color Mix(List<Color> colors)
+		public static Color Mix(IEnumerable<Color> colors)
 		{
 			var a = 0;
 			var r = 0;
@@ -46,20 +46,17 @@ namespace Greenshot.Helpers
 			var count = 0;
 			foreach (var color in colors)
 			{
-				if (!color.Equals(Color.Empty))
-				{
-					a += color.A;
-					r += color.R;
-					g += color.G;
-					b += color.B;
-					count++;
-				}
+			    if (color.Equals(Color.Empty))
+			    {
+			        continue;
+			    }
+			    a += color.A;
+			    r += color.R;
+			    g += color.G;
+			    b += color.B;
+			    count++;
 			}
-			if (count == 0)
-			{
-				return Color.Empty;
-			}
-			return Color.FromArgb(a / count, r / count, g / count, b / count);
+			return count == 0 ? Color.Empty : Color.FromArgb(a / count, r / count, g / count, b / count);
 		}
 	}
 }

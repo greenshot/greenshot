@@ -63,7 +63,6 @@ namespace Greenshot.Gfx.FastBitmap
         /// <param name="colorIndex">offset into the byte[]</param>
         new void GetColorAt(int x, int y, byte[] color, int colorIndex = 0);
 
-
         /// <summary>
         ///     Get the color at x,y and place it on the specified location of the byte*
         ///     The placed color depends on the underlying pixel format

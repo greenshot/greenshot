@@ -49,7 +49,6 @@ namespace Greenshot.Gfx
 	{
 		private const int ExifOrientationId = 0x0112;
 		private static readonly LogSource Log = new LogSource();
-	    private static readonly ParallelOptions DefaultParallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 4 };
 
         /// <summary>
         /// A function which usage image.fromstream
@@ -955,43 +954,49 @@ namespace Greenshot.Gfx
 			using (var destination = (IFastBitmapWithClip)FastBitmapFactory.CreateEmpty(new Size(original.Width * 2, original.Height * 2), original.PixelFormat))
 			{
 				// Every pixel from input texture produces 4 output pixels, for more details check out http://scale2x.sourceforge.net/algorithm.html
-			    Parallel.For(0, source.Height, DefaultParallelOptions, y =>
-			    {        
-					var x = 0;
-					while (x < source.Width)
-					{
-						var colorB = source.GetColorAt(x, y - 1);
-						var colorH = source.GetColorAt(x, y + 1);
-						var colorD = source.GetColorAt(x - 1, y);
-						var colorF = source.GetColorAt(x + 1, y);
-						var colorE = source.GetColorAt(x, y);
+			    Parallel.For(0, source.Height, y =>
+			    {
+			        unsafe
+			        {
+			            var colorB = stackalloc byte[4];
+			            var colorD = stackalloc byte[4];
+			            var colorE = stackalloc byte[4];
+                        var colorF = stackalloc byte[4];
+			            var colorH = stackalloc byte[4];
+                        var x = 0;
+			            while (x < source.Width)
+			            {
+			                source.GetColorAt(x, y - 1, colorB);
+			                source.GetColorAt(x, y + 1, colorH);
+			                source.GetColorAt(x - 1, y, colorD);
+			                source.GetColorAt(x + 1, y, colorF);
+			                source.GetColorAt(x, y, colorE);
 
-						Color colorE0;
-						Color colorE1;
-						Color colorE2;
-						Color colorE3;
-						if (!AreColorsSame(colorB, colorH) && !AreColorsSame(colorD, colorF))
-						{
-							colorE0 = AreColorsSame(colorD, colorB) ? colorD : colorE;
-							colorE1 = AreColorsSame(colorB, colorF) ? colorF : colorE;
-							colorE2 = AreColorsSame(colorD, colorH) ? colorD : colorE;
-							colorE3 = AreColorsSame(colorH, colorF) ? colorF : colorE;
-						}
-						else
-						{
-							colorE0 = colorE;
-							colorE1 = colorE;
-							colorE2 = colorE;
-							colorE3 = colorE;
-						}
-						destination.SetColorAt(2 * x, 2 * y, ref colorE0);
-						destination.SetColorAt(2 * x + 1, 2 * y, ref colorE1);
-						destination.SetColorAt(2 * x, 2 * y + 1, ref colorE2);
-						destination.SetColorAt(2 * x + 1, 2 * y + 1, ref colorE3);
+			                byte* colorE0, colorE1, colorE2, colorE3;
+                            if (!AreColorsSame(colorB, colorH) && !AreColorsSame(colorD, colorF))
+			                {
+			                    colorE0 = AreColorsSame(colorD, colorB) ? colorD : colorE;
+			                    colorE1 = AreColorsSame(colorB, colorF) ? colorF : colorE;
+			                    colorE2 = AreColorsSame(colorD, colorH) ? colorD : colorE;
+			                    colorE3 = AreColorsSame(colorH, colorF) ? colorF : colorE;
+			                }
+			                else
+			                {
+			                    colorE0 = colorE;
+			                    colorE1 = colorE;
+			                    colorE2 = colorE;
+			                    colorE3 = colorE;
+			                }
+			                destination.SetColorAt(x << 1, y << 1, colorE0);
+			                destination.SetColorAt((x << 1) + 1, y << 1, colorE1);
+			                destination.SetColorAt(x << 1, (y << 1) + 1, colorE2);
+			                destination.SetColorAt(x << 1 + 1, (y << 1) + 1, colorE3);
 
-						x++;
-					}
-			    });
+			                x++;
+			            }
+
+                    }
+                });
 				return destination.UnlockAndReturnBitmap();
 			}
 		}
@@ -1007,70 +1012,81 @@ namespace Greenshot.Gfx
 			using (var destination = (IFastBitmapWithClip)FastBitmapFactory.CreateEmpty(new Size(original.Width * 3, original.Height * 3), original.PixelFormat))
 			{
                 // Every pixel from input texture produces 6 output pixels, for more details check out http://scale2x.sourceforge.net/algorithm.html
-			    Parallel.For(0, source.Height, DefaultParallelOptions, y =>
+			    Parallel.For(0, source.Height, y =>
 			    {
-			        var x = 0;
-			        while (x < source.Width)
+			        unsafe
 			        {
-			            var colorA = source.GetColorAt(x - 1, y - 1);
-			            var colorB = source.GetColorAt(x, y - 1);
-			            var colorC = source.GetColorAt(x + 1, y - 1);
+                        var x = 0;
+                        var colorA = stackalloc byte[4];
+                        var colorB = stackalloc byte[4];
+                        var colorC = stackalloc byte[4];
+                        var colorD = stackalloc byte[4];
+                        var colorE = stackalloc byte[4];
+                        var colorF = stackalloc byte[4];
+                        var colorG = stackalloc byte[4];
+                        var colorH = stackalloc byte[4];
+                        var colorI = stackalloc byte[4];
+                        while (x < source.Width)
+                        {
+                            source.GetColorAt(x - 1, y - 1, colorA);
+                            source.GetColorAt(x, y - 1, colorB);
+                            source.GetColorAt(x + 1, y - 1, colorC);
 
-			            var colorD = source.GetColorAt(x - 1, y);
-			            var colorE = source.GetColorAt(x, y);
-			            var colorF = source.GetColorAt(x + 1, y);
+                            source.GetColorAt(x - 1, y, colorD);
+                            source.GetColorAt(x, y, colorE);
+                            source.GetColorAt(x + 1, y, colorF);
 
-			            var colorG = source.GetColorAt(x - 1, y + 1);
-			            var colorH = source.GetColorAt(x, y + 1);
-			            var colorI = source.GetColorAt(x + 1, y + 1);
+                            source.GetColorAt(x - 1, y + 1, colorG);
+                            source.GetColorAt(x, y + 1, colorH);
+                            source.GetColorAt(x + 1, y + 1, colorI);
 
-			            Color colorE0, colorE1, colorE2;
-			            Color colorE3, colorE4, colorE5;
-			            Color colorE6, colorE7, colorE8;
+                            byte* colorE0, colorE1, colorE2, colorE3, colorE4, colorE5, colorE6, colorE7, colorE8;
 
-			            if (!AreColorsSame(colorB, colorH) && !AreColorsSame(colorD, colorF))
-			            {
-			                colorE0 = AreColorsSame(colorD, colorB) ? colorD : colorE;
-			                colorE1 = AreColorsSame(colorD, colorB) && !AreColorsSame(colorE, colorC) || AreColorsSame(colorB, colorF) && !AreColorsSame(colorE, colorA) ? colorB : colorE;
-			                colorE2 = AreColorsSame(colorB, colorF) ? colorF : colorE;
-			                colorE3 = AreColorsSame(colorD, colorB) && !AreColorsSame(colorE, colorG) || AreColorsSame(colorD, colorH) && !AreColorsSame(colorE, colorA) ? colorD : colorE;
+                            if (!AreColorsSame(colorB, colorH) && !AreColorsSame(colorD, colorF))
+                            {
+                                colorE0 = AreColorsSame(colorD, colorB) ? colorD : colorE;
+                                colorE1 = AreColorsSame(colorD, colorB) && !AreColorsSame(colorE, colorC) || AreColorsSame(colorB, colorF) && !AreColorsSame(colorE, colorA) ? colorB : colorE;
+                                colorE2 = AreColorsSame(colorB, colorF) ? colorF : colorE;
+                                colorE3 = AreColorsSame(colorD, colorB) && !AreColorsSame(colorE, colorG) || AreColorsSame(colorD, colorH) && !AreColorsSame(colorE, colorA) ? colorD : colorE;
 
-			                colorE4 = colorE;
-			                colorE5 = AreColorsSame(colorB, colorF) && !AreColorsSame(colorE, colorI) || AreColorsSame(colorH, colorF) && !AreColorsSame(colorE, colorC) ? colorF : colorE;
-			                colorE6 = AreColorsSame(colorD, colorH) ? colorD : colorE;
-			                colorE7 = AreColorsSame(colorD, colorH) && !AreColorsSame(colorE, colorI) || AreColorsSame(colorH, colorF) && !AreColorsSame(colorE, colorG) ? colorH : colorE;
-			                colorE8 = AreColorsSame(colorH, colorF) ? colorF : colorE;
-			            }
-			            else
-			            {
-			                colorE0 = colorE;
-			                colorE1 = colorE;
-			                colorE2 = colorE;
-			                colorE3 = colorE;
-			                colorE4 = colorE;
-			                colorE5 = colorE;
-			                colorE6 = colorE;
-			                colorE7 = colorE;
-			                colorE8 = colorE;
-			            }
-			            var multipliedX = 3 * x;
-			            var multipliedY = 3 * y;
+                                colorE4 = colorE;
+                                colorE5 = AreColorsSame(colorB, colorF) && !AreColorsSame(colorE, colorI) || AreColorsSame(colorH, colorF) && !AreColorsSame(colorE, colorC) ? colorF : colorE;
+                                colorE6 = AreColorsSame(colorD, colorH) ? colorD : colorE;
+                                colorE7 = AreColorsSame(colorD, colorH) && !AreColorsSame(colorE, colorI) || AreColorsSame(colorH, colorF) && !AreColorsSame(colorE, colorG) ? colorH : colorE;
+                                colorE8 = AreColorsSame(colorH, colorF) ? colorF : colorE;
+                            }
+                            else
+                            {
+                                colorE0 = colorE;
+                                colorE1 = colorE;
+                                colorE2 = colorE;
+                                colorE3 = colorE;
+                                colorE4 = colorE;
+                                colorE5 = colorE;
+                                colorE6 = colorE;
+                                colorE7 = colorE;
+                                colorE8 = colorE;
+                            }
+                            var multipliedX = 3 * x;
+                            var multipliedY = 3 * y;
 
-			            destination.SetColorAt(multipliedX - 1, multipliedY - 1, ref colorE0);
-			            destination.SetColorAt(multipliedX, multipliedY - 1, ref colorE1);
-			            destination.SetColorAt(multipliedX + 1, multipliedY - 1, ref colorE2);
+                            destination.SetColorAt(multipliedX - 1, multipliedY - 1, colorE0);
+                            destination.SetColorAt(multipliedX, multipliedY - 1, colorE1);
+                            destination.SetColorAt(multipliedX + 1, multipliedY - 1, colorE2);
 
-			            destination.SetColorAt(multipliedX - 1, multipliedY, ref colorE3);
-			            destination.SetColorAt(multipliedX, multipliedY, ref colorE4);
-			            destination.SetColorAt(multipliedX + 1, multipliedY, ref colorE5);
+                            destination.SetColorAt(multipliedX - 1, multipliedY, colorE3);
+                            destination.SetColorAt(multipliedX, multipliedY, colorE4);
+                            destination.SetColorAt(multipliedX + 1, multipliedY, colorE5);
 
-			            destination.SetColorAt(multipliedX - 1, multipliedY + 1, ref colorE6);
-			            destination.SetColorAt(multipliedX, multipliedY + 1, ref colorE7);
-			            destination.SetColorAt(multipliedX + 1, multipliedY + 1, ref colorE8);
+                            destination.SetColorAt(multipliedX - 1, multipliedY + 1, colorE6);
+                            destination.SetColorAt(multipliedX, multipliedY + 1, colorE7);
+                            destination.SetColorAt(multipliedX + 1, multipliedY + 1, colorE8);
 
-			            x++;
-			        }
-			    });
+                            x++;
+                        }
+
+                    }
+                });
 				return destination.UnlockAndReturnBitmap();
 			}
 		}
@@ -1084,9 +1100,9 @@ namespace Greenshot.Gfx
 		/// <returns>
 		///     True if they are; otherwise false
 		/// </returns>
-		private static bool AreColorsSame(Color aColor, Color bColor)
+		private unsafe static bool AreColorsSame(byte* aColor, byte* bColor)
 		{
-			return aColor.R == bColor.R && aColor.G == bColor.G && aColor.B == bColor.B && aColor.A == bColor.A;
+			return aColor[0] == bColor[0] && aColor[1] == bColor[1] && aColor[2] == bColor[2] && aColor[3] == bColor[3];
 		}
 	}
 }

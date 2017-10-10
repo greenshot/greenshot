@@ -38,7 +38,6 @@ namespace Greenshot.Gfx.Effects
 	public class MonochromeEffect : IEffect
 	{
 		private readonly byte _threshold;
-	    private static readonly ParallelOptions DefaultParallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 4 };
 
         /// <param name="threshold">Threshold for monochrome filter (0 - 255), lower value means less black</param>
         public MonochromeEffect(byte threshold)
@@ -51,7 +50,6 @@ namespace Greenshot.Gfx.Effects
 			return CreateMonochrome(sourceBitmap, _threshold);
 		}
 
-
 	    /// <summary>
 	    ///     Returns a b/w of Bitmap
 	    /// </summary>
@@ -62,8 +60,9 @@ namespace Greenshot.Gfx.Effects
 	    {
 	        using (var fastBitmap = FastBitmapFactory.CreateCloneOf(sourceBitmap, sourceBitmap.PixelFormat))
 	        {
-	            Parallel.For(0, fastBitmap.Height, DefaultParallelOptions, y =>
+	            Parallel.For(0, fastBitmap.Height, y =>
 	            {
+                    // TODO: use stackalloc / unsafe
 	                for (var x = 0; x < fastBitmap.Width; x++)
 	                {
 	                    var color = fastBitmap.GetColorAt(x, y);

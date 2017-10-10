@@ -115,7 +115,6 @@ namespace Greenshot.Gfx.Quantizer
 				sourceFastBitmap.Lock();
 				using (var destinationFastBitmap = FastBitmapFactory.CreateEmpty(sourceBitmap.Size, PixelFormat.Format8bppIndexed, Color.White) as FastChunkyBitmap)
 				{
-					destinationFastBitmap.Lock();
 					for (var y = 0; y < sourceFastBitmap.Height; y++)
 					{
 						for (var x = 0; x < sourceFastBitmap.Width; x++)
@@ -255,7 +254,7 @@ namespace Greenshot.Gfx.Quantizer
 		/// <summary>
 		///     Get the image
 		/// </summary>
-		public Bitmap GetQuantizedImage(int allowedColorCount)
+		public Bitmap GetQuantizedImage(int allowedColorCount = 256)
 		{
 			if (allowedColorCount > 256)
 			{

@@ -215,30 +215,31 @@ namespace Greenshot.Gfx.FastBitmap
 		/// </summary>
 		public void Unlock()
 		{
-			if (BitsLocked)
-			{
-				Bitmap.UnlockBits(BmData);
-				BitsLocked = false;
-			}
+		    if (!BitsLocked)
+		    {
+		        return;
+		    }
+		    Bitmap.UnlockBits(BmData);
+		    BitsLocked = false;
 		}
 
-		/// <summary>
-		///     Draw the stored bitmap to the destionation bitmap at the supplied point
-		/// </summary>
-		/// <param name="graphics"></param>
-		/// <param name="destination"></param>
-		public void DrawTo(Graphics graphics, NativePoint destination)
+        /// <summary>
+        ///     Draw the stored bitmap to the destionation bitmap at the supplied point
+        /// </summary>
+        /// <param name="graphics">Graphics</param>
+        /// <param name="destination">destinationRect</param>
+        public void DrawTo(Graphics graphics, NativePoint destination)
 		{
 			DrawTo(graphics, new NativeRect(destination, Area.Size));
 		}
 
-		/// <summary>
-		///     Draw the stored Bitmap on the Destination bitmap with the specified rectangle
-		///     Be aware that the stored bitmap will be resized to the specified rectangle!!
-		/// </summary>
-		/// <param name="graphics"></param>
-		/// <param name="destinationRect"></param>
-		public void DrawTo(Graphics graphics, NativeRect destinationRect)
+        /// <summary>
+        ///     Draw the stored Bitmap on the Destination bitmap with the specified rectangle
+        ///     Be aware that the stored bitmap will be resized to the specified rectangle!!
+        /// </summary>
+        /// <param name="graphics">Graphics</param>
+        /// <param name="destinationRect">destinationRect</param>
+        public void DrawTo(Graphics graphics, NativeRect destinationRect)
 		{
 			// Make sure this.bitmap is unlocked, if it was locked
 			var isLocked = BitsLocked;
@@ -250,68 +251,29 @@ namespace Greenshot.Gfx.FastBitmap
 			graphics.DrawImage(Bitmap, destinationRect, Area, GraphicsUnit.Pixel);
 		}
 
-		/// <summary>
-		///     returns true if x & y are inside the FastBitmap
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <returns>true if x & y are inside the FastBitmap</returns>
-		public bool Contains(int x, int y)
+	    /// <inheritdoc />
+        public bool Contains(int x, int y)
 		{
 			return Area.Contains(x - Left, y - Top);
 		}
 
-		/// <summary>
-		///     Retrieve the color at x,y
-		/// </summary>
-		/// <param name="x">int x</param>
-		/// <param name="y">int y</param>
-		/// <returns>Color</returns>
-		public abstract Color GetColorAt(int x, int y);
+	    /// <inheritdoc />
+        public abstract Color GetColorAt(int x, int y);
 
-		/// <summary>
-		///     Set the color at x,y
-		/// </summary>
-		/// <param name="x">int x</param>
-		/// <param name="y">int y</param>
-		/// <param name="color">Color</param>
-		public abstract void SetColorAt(int x, int y, ref Color color);
+	    /// <inheritdoc />
+        public abstract void SetColorAt(int x, int y, ref Color color);
 
-        /// <summary>
-        ///     Retrieve the color at x,y as byte[]
-        /// </summary>
-        /// <param name="x">int x</param>
-        /// <param name="y">int y</param>
-        /// <param name="color">byte[] for the rgb values color</param>
-        /// <param name="colorIndex">Index offset in the array</param>
+	    /// <inheritdoc />
         public abstract void GetColorAt(int x, int y, byte[] color, int colorIndex = 0);
 
-	    /// <summary>
-	    ///     Retrieve the color at x,y into the byte*
-	    /// </summary>
-	    /// <param name="x">int x</param>
-	    /// <param name="y">int y</param>
-	    /// <param name="color">byte* for the rgb values color</param>
-	    /// <param name="colorIndex">Index offset in the pointer</param>
-	    public abstract void GetColorAt(int x, int y, byte* color, int colorIndex = 0);
+	    /// <inheritdoc />
+        public abstract void GetColorAt(int x, int y, byte* color, int colorIndex = 0);
 
-        /// <summary>
-        ///     Sets the color at x,y as byte[]
-        /// </summary>
-        /// <param name="x">int x</param>
-        /// <param name="y">int y</param>
-        /// <param name="color">byte[] for the rgb values color</param>
-        /// <param name="colorIndex">Index offset in the array</param>
+	    /// <inheritdoc />
 		public abstract void SetColorAt(int x, int y, byte[] color, int colorIndex = 0);
 
-	    /// <summary>
-	    ///     Sets the color at x,y as byte*
-	    /// </summary>
-	    /// <param name="x">int x</param>
-	    /// <param name="y">int y</param>
-	    /// <param name="color">byte* for the rgb values color</param>
-	    /// <param name="colorIndex">Index offset in the array</param>
-	    public abstract void SetColorAt(int x, int y, byte* color, int colorIndex = 0);
+	    /// <inheritdoc />
+        public abstract void SetColorAt(int x, int y, byte* color, int colorIndex = 0);
 
         /// <summary>
         ///     Return the left of the fastbitmap, this is also used as an offset
@@ -399,13 +361,39 @@ namespace Greenshot.Gfx.FastBitmap
 			GetColorAt(x, y, color, colorIndex);
 		}
 
-		/// <summary>
-		///     Get the color at the specified location, if it's not clipped
-		/// </summary>
-		/// <param name="x">int x</param>
-		/// <param name="y">int y</param>
-		/// <returns>Color</returns>
-		Color IFastBitmapWithClip.GetColorAt(int x, int y)
+	    /// <inheritdoc />
+	    void IFastBitmapWithClip.GetColorAt(int x, int y, byte* color, int colorIndex)
+	    {
+	        var contains = Clip.Contains(x, y);
+	        if (InvertClip && contains)
+	        {
+	            // TODO: Implement nearest
+	            return;
+	        }
+	        if (!InvertClip && !contains)
+	        {
+	            if (y < Clip.Top)
+	            {
+	                y = Clip.Top;
+	            }
+	            if (y >= Clip.Bottom)
+	            {
+	                y = Clip.Bottom - 1;
+	            }
+	            if (x < Clip.Left)
+	            {
+	                x = Clip.Left;
+	            }
+	            if (x >= Clip.Right)
+	            {
+	                x = Clip.Right - 1;
+	            }
+	        }
+	        GetColorAt(x, y, color, colorIndex);
+	    }
+
+        /// <inheritdoc />
+        Color IFastBitmapWithClip.GetColorAt(int x, int y)
 		{
 			var contains = Clip.Contains(x, y);
 			if (InvertClip && contains)
@@ -447,13 +435,8 @@ namespace Greenshot.Gfx.FastBitmap
 			SetColorAt(x, y, color, colorIndex);
 		}
 
-		/// <summary>
-		///     Set the color at the specified location, if it's not clipped
-		/// </summary>
-		/// <param name="x">int x</param>
-		/// <param name="y">int y</param>
-		/// <param name="color">byte array with the color information</param>
-		void IFastBitmapWithClip.SetColorAt(int x, int y, ref Color color)
+	    /// <inheritdoc />
+        void IFastBitmapWithClip.SetColorAt(int x, int y, ref Color color)
 		{
 			var contains = Clip.Contains(x, y);
 			if (InvertClip && contains || !InvertClip && !contains)
@@ -463,17 +446,28 @@ namespace Greenshot.Gfx.FastBitmap
 			SetColorAt(x, y, ref color);
 		}
 
-		#endregion
+	    /// <inheritdoc />
+        void IFastBitmapWithClip.SetColorAt(int x, int y, byte* color, int colorIndex)
+	    {
+	        var contains = Clip.Contains(x, y);
+	        if (InvertClip && contains || !InvertClip && !contains)
+	        {
+	            return;
+	        }
+	        SetColorAt(x, y, color, colorIndex);
+	    }
 
-		#region IFastBitmapWithOffset
+        #endregion
 
-		/// <summary>
-		///     returns true if x & y are inside the FastBitmap
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <returns>true if x & y are inside the FastBitmap</returns>
-		bool IFastBitmapWithOffset.Contains(int x, int y)
+        #region IFastBitmapWithOffset
+
+        /// <summary>
+        ///     returns true if x & y are inside the FastBitmap
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns>true if x & y are inside the FastBitmap</returns>
+        bool IFastBitmapWithOffset.Contains(int x, int y)
 		{
 			return Area.Contains(x - Left, y - Top);
 		}
@@ -516,7 +510,16 @@ namespace Greenshot.Gfx.FastBitmap
 			SetColorAt(x, y, color, colorIndex);
 		}
 
+
 	    /// <inheritdoc />
+	    void IFastBitmapWithOffset.SetColorAt(int x, int y, byte[] color, int colorIndex)
+	    {
+	        x -= ((IFastBitmapWithOffset)this).Left;
+	        y -= ((IFastBitmapWithOffset)this).Top;
+	        SetColorAt(x, y, color, colorIndex);
+	    }
+
+        /// <inheritdoc />
         void IFastBitmapWithOffset.SetColorAt(int x, int y, ref Color color)
 		{
 			x -= ((IFastBitmapWithOffset) this).Left;

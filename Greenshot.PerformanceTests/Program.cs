@@ -7,7 +7,7 @@ namespace Greenshot.PerformanceTests
     {
         static void Main(string[] args)
         {
-            var summary = BenchmarkRunner.Run<GfxPerformance>();
+            BenchmarkRunner.Run<GfxPerformance>();
             Console.ReadLine();
         }
     }

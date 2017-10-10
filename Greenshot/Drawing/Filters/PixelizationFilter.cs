@@ -44,8 +44,6 @@ namespace Greenshot.Drawing.Filters
     [Serializable]
     public class PixelizationFilter : AbstractFilter
     {
-        private static readonly ParallelOptions DefaultParallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 4 };
-
         public PixelizationFilter(DrawableContainer parent) : base(parent)
         {
             AddField(GetType(), FieldType.PIXEL_SIZE, 5);
@@ -81,8 +79,9 @@ namespace Greenshot.Drawing.Filters
                     }
                     for (var y = src.Top - halbPixelSize; y < src.Bottom + halbPixelSize; y = y + pixelSize)
                     {
-                        Parallel.ForEach(xValues, DefaultParallelOptions, x =>
+                        Parallel.ForEach(xValues, x =>
                         {
+                            // TODO: Use stackalloc, or byte[]?
                             var colors = new List<Color>();
                             for (var yy = y; yy < y + pixelSize; yy++)
                             {
