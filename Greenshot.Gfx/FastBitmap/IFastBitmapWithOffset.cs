@@ -54,13 +54,14 @@ namespace Greenshot.Gfx.FastBitmap
 		/// <param name="color">Color color</param>
 		new void SetColorAt(int x, int y, ref Color color);
 
-		/// <summary>
-		///     Set the color at the specified location, using offsetting so the original coordinates can be used
-		/// </summary>
-		/// <param name="x">int x</param>
-		/// <param name="y">int y</param>
-		/// <param name="color">byte[] color</param>
-		new void SetColorAt(int x, int y, byte[] color, int colorIndex);
+        /// <summary>
+        ///     Set the color at the specified location, using offsetting so the original coordinates can be used
+        /// </summary>
+        /// <param name="x">int x</param>
+        /// <param name="y">int y</param>
+        /// <param name="color">byte[] color</param>
+        /// <param name="colorIndex">int with index in the byte array</param>
+		new void SetColorAt(int x, int y, byte[] color, int colorIndex = 0);
 
         /// <summary>
         ///     Set the color at the specified location, using offsetting so the original coordinates can be used
@@ -69,7 +70,7 @@ namespace Greenshot.Gfx.FastBitmap
         /// <param name="y">int y</param>
         /// <param name="color">byte[] color</param>
         /// <param name="colorIndex">int with offset in the byte pointer</param>
-        new void SetColorAt(int x, int y, byte* color, int colorIndex);
+        new void SetColorAt(int x, int y, byte* color, int colorIndex = 0);
 
         /// <summary>
         ///     Get the color at x,y
@@ -88,7 +89,7 @@ namespace Greenshot.Gfx.FastBitmap
         /// <param name="y">int y</param>
         /// <param name="color">byte array</param>
         /// <param name="colorIndex">int with offset in the byte array</param>
-        new void GetColorAt(int x, int y, byte[] color, int colorIndex);
+        new void GetColorAt(int x, int y, byte[] color, int colorIndex = 0);
 
 	    /// <summary>
 	    ///     Get the color at x,y, using offsetting so the original coordinates can be used
@@ -98,6 +99,6 @@ namespace Greenshot.Gfx.FastBitmap
 	    /// <param name="y">int y</param>
 	    /// <param name="color">byte pojter</param>
 	    /// <param name="colorIndex">int with offset in the byte pointer</param>
-	    new void GetColorAt(int x, int y, byte* color, int colorIndex);
+	    new void GetColorAt(int x, int y, byte* color, int colorIndex = 0);
     }
 }

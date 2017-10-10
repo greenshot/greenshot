@@ -1,6 +1,10 @@
 ﻿using System.Drawing;
 using System.Drawing.Imaging;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Attributes.Columns;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Environments;
+using BenchmarkDotNet.Jobs;
 using Greenshot.Gfx;
 
 namespace Greenshot.PerformanceTests
@@ -8,8 +12,10 @@ namespace Greenshot.PerformanceTests
     /// <summary>
     /// This defines the benchmarks which can be done
     /// </summary>
+    [MinColumn, MaxColumn, MemoryDiagnoser]
     public class GfxPerformance
     {
+
         [Benchmark]
         public void Blur()
         {
@@ -24,7 +30,7 @@ namespace Greenshot.PerformanceTests
             }
         }
 
-        //[Benchmark]
+        [Benchmark]
         public void Scale()
         {
             using (var bitmap = BitmapFactory.CreateEmpty(400, 400, PixelFormat.Format24bppRgb, Color.White))

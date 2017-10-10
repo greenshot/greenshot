@@ -25,7 +25,6 @@
 
 using System;
 using System.Drawing;
-using System.Runtime.CompilerServices;
 using Dapplo.Windows.Common.Structs;
 
 #endregion

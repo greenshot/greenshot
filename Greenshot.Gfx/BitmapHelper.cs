@@ -25,6 +25,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -336,14 +337,12 @@ namespace Greenshot.Gfx
 				}
 			}
 
-			if (!(NativePoint.Empty.Equals(min) && max.Equals(new NativePoint(fastBitmap.Width - 1, fastBitmap.Height - 1))))
-			{
-				if (!(min.X == int.MaxValue || min.Y == int.MaxValue || max.X == int.MinValue || min.X == int.MinValue))
-				{
-					cropRectangle = new NativeRect(min.X, min.Y, max.X - min.X + 1, max.Y - min.Y + 1);
-				}
-			}
-			return cropRectangle;
+		    if (!(NativePoint.Empty.Equals(min) && max.Equals(new NativePoint(fastBitmap.Width - 1, fastBitmap.Height - 1))) &&
+		        !(min.X == int.MaxValue || min.Y == int.MaxValue || max.X == int.MinValue || min.X == int.MinValue))
+		    {
+		        cropRectangle = new NativeRect(min.X, min.Y, max.X - min.X + 1, max.Y - min.Y + 1);
+		    }
+		    return cropRectangle;
 		}
 
 		/// <summary>
@@ -559,7 +558,6 @@ namespace Greenshot.Gfx
 			// blur "shadow", apply to whole new image
 
 			// try normal software blur
-			//returnImage = CreateBlur(returnImage, newImageRectangle, true, shadowSize, 1d, false, newImageRectangle);
 			returnImage.ApplyBoxBlur(shadowSize);
 
 			// Draw the original image over the shadow
@@ -719,7 +717,7 @@ namespace Greenshot.Gfx
         /// <summary>
         ///     Resize canvas with pixel to the left, right, top and bottom
         /// </summary>
-        /// <param name="sourceBitmap">Bitmap</param>
+        /// <param name="sourceImage">Image</param>
         /// <param name="backgroundColor">The color to fill with, or Color.Empty to take the default depending on the pixel format</param>
         /// <param name="left">int</param>
         /// <param name="right">int</param>
@@ -727,14 +725,14 @@ namespace Greenshot.Gfx
         /// <param name="bottom">int</param>
         /// <param name="matrix">Matrix</param>
         /// <returns>a new bitmap with the source copied on it</returns>
-        public static Bitmap ResizeCanvas(this Bitmap sourceBitmap, Color backgroundColor, int left, int right, int top, int bottom, Matrix matrix)
+        public static Bitmap ResizeCanvas(this Image sourceImage, Color backgroundColor, int left, int right, int top, int bottom, Matrix matrix)
 		{
 			matrix.Translate(left, top, MatrixOrder.Append);
-			var newBitmap = BitmapFactory.CreateEmpty(sourceBitmap.Width + left + right, sourceBitmap.Height + top + bottom, sourceBitmap.PixelFormat, backgroundColor,
-				sourceBitmap.HorizontalResolution, sourceBitmap.VerticalResolution);
+			var newBitmap = BitmapFactory.CreateEmpty(sourceImage.Width + left + right, sourceImage.Height + top + bottom, sourceImage.PixelFormat, backgroundColor,
+				sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
 			using (var graphics = Graphics.FromImage(newBitmap))
 			{
-				graphics.DrawImageUnscaled(sourceBitmap, left, top);
+				graphics.DrawImageUnscaled(sourceImage, left, top);
 			}
 			return newBitmap;
 		}
@@ -742,16 +740,16 @@ namespace Greenshot.Gfx
         /// <summary>
         ///     Wrapper for the more complex Resize, this resize could be used for e.g. Thumbnails
         /// </summary>
-        /// <param name="sourceBitmap">Bitmap</param>
+        /// <param name="sourceImage">Image</param>
         /// <param name="maintainAspectRatio">true to maintain the aspect ratio</param>
         /// <param name="newWidth">int</param>
         /// <param name="newHeight">int</param>
         /// <param name="matrix">Matrix</param>
         /// <param name="interpolationMode">InterpolationMode</param>
         /// <returns>Image</returns>
-        public static Bitmap Resize(this Bitmap sourceBitmap, bool maintainAspectRatio, int newWidth, int newHeight, Matrix matrix = null, InterpolationMode interpolationMode = InterpolationMode.HighQualityBicubic)
+        public static Bitmap Resize(this Image sourceImage, bool maintainAspectRatio, int newWidth, int newHeight, Matrix matrix = null, InterpolationMode interpolationMode = InterpolationMode.HighQualityBicubic)
 		{
-			return Resize(sourceBitmap, maintainAspectRatio, false, Color.Empty, newWidth, newHeight, matrix, interpolationMode);
+			return Resize(sourceImage, maintainAspectRatio, false, Color.Empty, newWidth, newHeight, matrix, interpolationMode);
 		}
 
         /// <summary>
@@ -775,23 +773,7 @@ namespace Greenshot.Gfx
 			var nPercentH = newHeight / (float) sourceImage.Height;
 			if (maintainAspectRatio)
 			{
-				if ((int) nPercentW == 1)
-				{
-					nPercentW = nPercentH;
-					if (canvasUseNewSize)
-					{
-						destX = Math.Max(0, Convert.ToInt32((newWidth - sourceImage.Width * nPercentW) / 2));
-					}
-				}
-				else if ((int) nPercentH == 1)
-				{
-					nPercentH = nPercentW;
-					if (canvasUseNewSize)
-					{
-						destY = Math.Max(0, Convert.ToInt32((newHeight - sourceImage.Height * nPercentH) / 2));
-					}
-				}
-				else if ((int) nPercentH != 0 && nPercentH < nPercentW)
+				if ((int) nPercentW == 1 || (int)nPercentH != 0 && nPercentH < nPercentW)
 				{
 					nPercentW = nPercentH;
 					if (canvasUseNewSize)
@@ -1018,6 +1000,7 @@ namespace Greenshot.Gfx
 		///     Use "Scale3x" algorithm to produce bitmap from the original.
 		/// </summary>
 		/// <param name="original">Bitmap to scale 3x</param>
+		[SuppressMessage("ReSharper", "AccessToDisposedClosure")]
 		public static Bitmap Scale3X(this Bitmap original)
 		{
 			using (var source = (IFastBitmapWithClip)FastBitmapFactory.Create(original))
@@ -1070,8 +1053,8 @@ namespace Greenshot.Gfx
 			                colorE7 = colorE;
 			                colorE8 = colorE;
 			            }
-			            int multipliedX = 3 * x;
-			            int multipliedY = 3 * y;
+			            var multipliedX = 3 * x;
+			            var multipliedY = 3 * y;
 
 			            destination.SetColorAt(multipliedX - 1, multipliedY - 1, ref colorE0);
 			            destination.SetColorAt(multipliedX, multipliedY - 1, ref colorE1);

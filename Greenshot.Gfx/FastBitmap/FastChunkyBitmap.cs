@@ -117,18 +117,18 @@ namespace Greenshot.Gfx.FastBitmap
 		public override void SetColorAt(int x, int y, ref Color color)
 		{
 			var offset = x + y * Stride;
-			byte colorIndex;
-			if (!_colorCache.TryGetValue(color, out colorIndex))
+		    if (!_colorCache.TryGetValue(color, out var colorIndex))
 			{
 				var foundColor = false;
 				for (colorIndex = 0; colorIndex < _colorEntries.Length; colorIndex++)
 				{
-					if (color == _colorEntries[colorIndex])
-					{
-						_colorCache.Add(color, colorIndex);
-						foundColor = true;
-						break;
-					}
+				    if (color != _colorEntries[colorIndex])
+				    {
+				        continue;
+				    }
+				    _colorCache.Add(color, colorIndex);
+				    foundColor = true;
+				    break;
 				}
 				if (!foundColor)
 				{

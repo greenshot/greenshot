@@ -48,11 +48,7 @@ namespace Greenshot.Gfx.FastBitmap
 		public const int ColorIndexB = 2;
 		public const int ColorIndexA = 3;
 
-		private int _left;
-
-		private int _top;
-
-		protected NativeRect Area;
+	    protected NativeRect Area;
 
 		/// <summary>
 		///     The bitmap for which the FastBitmap is creating access
@@ -150,7 +146,7 @@ namespace Greenshot.Gfx.FastBitmap
 		public int Left
 		{
 			get { return 0; }
-			set { _left = value; }
+			set { ((IFastBitmapWithOffset) this).Left = value; }
 		}
 
 		/// <summary>
@@ -159,7 +155,7 @@ namespace Greenshot.Gfx.FastBitmap
 		public int Top
 		{
 			get { return 0; }
-			set { _top = value; }
+			set { ((IFastBitmapWithOffset) this).Top = value; }
 		}
 
 		/// <summary>
@@ -320,22 +316,14 @@ namespace Greenshot.Gfx.FastBitmap
         /// <summary>
         ///     Return the left of the fastbitmap, this is also used as an offset
         /// </summary>
-        int IFastBitmapWithOffset.Left
-		{
-			get { return _left; }
-			set { _left = value; }
-		}
+        int IFastBitmapWithOffset.Left { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		///     Return the top of the fastbitmap, this is also used as an offset
 		/// </summary>
-		int IFastBitmapWithOffset.Top
-		{
-			get { return _top; }
-			set { _top = value; }
-		}
+		int IFastBitmapWithOffset.Top { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		///     Destructor
 		/// </summary>
 		~FastBitmapBase()
@@ -353,14 +341,11 @@ namespace Greenshot.Gfx.FastBitmap
 		protected virtual void Dispose(bool disposing)
 		{
 			Unlock();
-			if (disposing)
-			{
-				if (Bitmap != null && NeedsDispose)
-				{
-					Bitmap.Dispose();
-				}
-			}
-			Bitmap = null;
+		    if (disposing && (Bitmap != null && NeedsDispose))
+		    {
+		        Bitmap.Dispose();
+		    }
+		    Bitmap = null;
 			BmData = null;
 			Pointer = null;
 		}
@@ -501,16 +486,16 @@ namespace Greenshot.Gfx.FastBitmap
 		/// <returns>Color</returns>
 		Color IFastBitmapWithOffset.GetColorAt(int x, int y)
 		{
-			x -= _left;
-			y -= _top;
+			x -= ((IFastBitmapWithOffset) this).Left;
+			y -= ((IFastBitmapWithOffset) this).Top;
 			return GetColorAt(x, y);
 		}
 
 	    /// <inheritdoc />
         void IFastBitmapWithOffset.GetColorAt(int x, int y, byte[] color, int colorIndex)
 		{
-			x -= _left;
-			y -= _top;
+			x -= ((IFastBitmapWithOffset) this).Left;
+			y -= ((IFastBitmapWithOffset) this).Top;
 			GetColorAt(x, y, color, colorIndex);
 		}
 
@@ -518,24 +503,24 @@ namespace Greenshot.Gfx.FastBitmap
 	    /// <inheritdoc />
 	    void IFastBitmapWithOffset.GetColorAt(int x, int y, byte* color, int colorIndex)
 	    {
-	        x -= _left;
-	        y -= _top;
+	        x -= ((IFastBitmapWithOffset) this).Left;
+	        y -= ((IFastBitmapWithOffset) this).Top;
 	        GetColorAt(x, y, color, colorIndex);
 	    }
 
         /// <inheritdoc />
         void IFastBitmapWithOffset.SetColorAt(int x, int y, byte* color, int colorIndex)
 		{
-			x -= _left;
-			y -= _top;
+			x -= ((IFastBitmapWithOffset) this).Left;
+			y -= ((IFastBitmapWithOffset) this).Top;
 			SetColorAt(x, y, color, colorIndex);
 		}
 
 	    /// <inheritdoc />
         void IFastBitmapWithOffset.SetColorAt(int x, int y, ref Color color)
 		{
-			x -= _left;
-			y -= _top;
+			x -= ((IFastBitmapWithOffset) this).Left;
+			y -= ((IFastBitmapWithOffset) this).Top;
 			SetColorAt(x, y, ref color);
 		}
 
