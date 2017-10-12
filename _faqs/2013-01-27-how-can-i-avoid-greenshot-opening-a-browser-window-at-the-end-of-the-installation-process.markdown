@@ -19,3 +19,4 @@ For Greenshot it's crucial that people know (and visit) [getgreenshot.org](https
 **See also**
 
 [What can I do to support the development of Greenshot?](/faq/what-can-i-do-to-support-the-development-of-greenshot)
+[In which cases should I use the zip package instead of the installer](/faq/in-which-cases-should-i-use-the-zip-package-instead-of-the-installer)
