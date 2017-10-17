@@ -364,6 +364,7 @@ namespace Greenshot {
 				}
 			}
 			// add the elements after the destinations
+			fileStripMenuItem.DropDownItems.Add(clipboardAndCloseToolStripMenuItem);
 			fileStripMenuItem.DropDownItems.Add(toolStripSeparator9);
 			fileStripMenuItem.DropDownItems.Add(closeToolStripMenuItem);
 		}
@@ -516,11 +517,21 @@ namespace Greenshot {
 			DestinationHelper.ExportCapture(true, ClipboardDestination.DESIGNATION, _surface, _surface.CaptureDetails);
 		}
 
+		private void BtnClipboardClickAndClose(object sender, EventArgs e) {
+			DestinationHelper.ExportCapture(true, ClipboardDestination.DESIGNATION, _surface, _surface.CaptureDetails);
+			Close();
+		}
+
 		private void BtnPrintClick(object sender, EventArgs e) {
 			// The BeginInvoke is a solution for the printdialog not having focus
 			BeginInvoke((MethodInvoker) delegate {
 				DestinationHelper.ExportCapture(true, PrinterDestination.DESIGNATION, _surface, _surface.CaptureDetails);
 			});
+		}
+
+		private void ClipboardAndCloseToolStripMenuItemClick(object sender, EventArgs e) {
+			DestinationHelper.ExportCapture(true, ClipboardDestination.DESIGNATION, _surface, _surface.CaptureDetails);
+			Close();
 		}
 
 		private void CloseToolStripMenuItemClick(object sender, EventArgs e) {

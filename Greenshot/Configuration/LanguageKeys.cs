@@ -92,6 +92,7 @@ namespace Greenshot.Configuration {
 		editor_close_on_save_title,
 		editor_confirm,
 		editor_copyimagetoclipboard,
+		editor_copyimagetoclipboardandcloseeditor,
 		editor_copypathtoclipboard,
 		editor_copytoclipboard,
 		editor_crop,

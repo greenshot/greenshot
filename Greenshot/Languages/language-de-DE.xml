@@ -83,6 +83,7 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="editor_border">Rand</resource>
 		<resource name="editor_brightness">Helligkeit</resource>
 		<resource name="editor_cancel">Abbrechen</resource>
+		<resource name="editor_clipboardandclose">In Zwischenablage kopieren und schließen</resource>
 		<resource name="editor_clipboardfailed">Fehler beim Zugriff auf die Zwischenablage. Bitte wiederholen Sie den Vorgang.</resource>
 		<resource name="editor_close">Schließen</resource>
 		<resource name="editor_close_on_save">Möchten Sie den Screenshot speichern?</resource>

@@ -83,6 +83,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_border">Border</resource>
 		<resource name="editor_brightness">Brightness</resource>
 		<resource name="editor_cancel">Cancel</resource>
+		<resource name="editor_clipboardandclose">Copy to clipboard and close</resource>
 		<resource name="editor_clipboardfailed">Error while accessing the clipboard. Please try again.</resource>
 		<resource name="editor_close">Close</resource>
 		<resource name="editor_close_on_save">Do you want to save the screenshot?</resource>
