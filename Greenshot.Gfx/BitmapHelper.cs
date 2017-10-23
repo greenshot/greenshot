@@ -1091,8 +1091,56 @@ namespace Greenshot.Gfx
 			}
 		}
 
+	    /// <summary>
+	    /// Check if the bitmaps are equal
+	    /// </summary>
+	    /// <param name="bitmap1">Bitmap</param>
+	    /// <param name="bitmap2">Bitmap</param>
+	    /// <returns>bool true if they are equal</returns>
+	    public static bool IsEqualTo(this Bitmap bitmap1, Bitmap bitmap2)
+	    {
+	        if (bitmap1.Width != bitmap2.Width || bitmap1.Height != bitmap2.Height)
+	        {
+                Log.Debug().WriteLine("Different sizes 1={0}, 2={1}", bitmap1.Size, bitmap2.Size);
+	            // Different sizes
+	            return false;
+	        }
 
-		/// <summary>
+	        if (bitmap1.PixelFormat != bitmap2.PixelFormat)
+	        {
+                // Different pixel formats
+	            Log.Debug().WriteLine("Different pixel formats 1={0}, 2={1}", bitmap1.PixelFormat, bitmap2.PixelFormat);
+	            return false;
+	        }
+	        bool result = true;
+	        using (var fastBitmap1 = FastBitmapFactory.Create(bitmap1))
+	        using (var fastBitmap2 = FastBitmapFactory.Create(bitmap2))
+	        {
+	            Parallel.For(0, fastBitmap1.Height, (y, state) =>
+	            {
+	                unsafe
+	                {
+	                    var tmpColor1 = stackalloc byte[4];
+	                    var tmpColor2 = stackalloc byte[4];
+	                    for (int x = 0; x < fastBitmap1.Width; x++)
+	                    {
+	                        fastBitmap1.GetColorAt(x, y, tmpColor1);
+	                        fastBitmap2.GetColorAt(x, y, tmpColor2);
+	                        if (AreColorsSame(tmpColor1, tmpColor2))
+	                        {
+	                            continue;
+	                        }
+	                        Log.Debug().WriteLine("Different colors at {0},{1}", x, y);
+                            result = false;
+	                        state.Break();
+	                    }
+	                }
+	            });
+	        }
+	        return result;
+	    }
+
+	    /// <summary>
 		///     Checks if the colors are the same.
 		/// </summary>
 		/// <param name="aColor">Color first</param>

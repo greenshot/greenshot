@@ -1,16 +1,15 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Greenshot.Testss")]
+[assembly: AssemblyTitle("Greenshot.Tests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Greenshot.Testss")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyCompany("Greenshot")]
+[assembly: AssemblyProduct("Greenshot.Tests")]
+[assembly: AssemblyCopyright("Copyright © Greenshot 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("9b162e60-12d8-44fd-8093-7d40392f23fa")]
+[assembly: Guid("caf7bfe8-d080-43cf-aed3-7bae768cad7c")]
 
 // Version information for an assembly consists of the following four values:
 //

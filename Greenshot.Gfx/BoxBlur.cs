@@ -68,10 +68,10 @@ namespace Greenshot.Gfx
             // By the central limit theorem, if applied 3 times on the same image, a box blur approximates the Gaussian kernel to within about 3%, yielding the same result as a quadratic convolution kernel.
             // This might be true, but the GDI+ BlurEffect doesn't look the same, a 2x blur is more simular and we only make 2x Box-Blur.
             // (Might also be a mistake in our blur, but for now it looks great)
-            BoxBlurHorizontalAlpha(fastBitmap, range);
-            BoxBlurVerticalAlpha(fastBitmap, range);
-            BoxBlurHorizontalAlpha(fastBitmap, range);
-            BoxBlurVerticalAlpha(fastBitmap, range);
+            BoxBlurHorizontal(fastBitmap, range);
+            BoxBlurVertical(fastBitmap, range);
+            BoxBlurHorizontal(fastBitmap, range);
+            BoxBlurVertical(fastBitmap, range);
         }
 
         /// <summary>
@@ -80,48 +80,54 @@ namespace Greenshot.Gfx
         /// <param name="targetFastBitmap">Target BitmapBuffer</param>
         /// <param name="range">Range must be odd!</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void BoxBlurHorizontalAlpha(IFastBitmap targetFastBitmap, int range)
+        private static void BoxBlurHorizontal(IFastBitmap targetFastBitmap, int range)
         {
             var halfRange = range / 2;
             Parallel.For(targetFastBitmap.Top, targetFastBitmap.Bottom, y =>
             {
                 unsafe
                 {
-                    var tmpColor = stackalloc byte[4];
-                    var hits = 0;
+                    var readColor = stackalloc byte[4];
                     var a = 0;
                     var r = 0;
                     var g = 0;
                     var b = 0;
-                    for (var x = targetFastBitmap.Left; x < targetFastBitmap.Right + halfRange; x++)
+                    var hits = halfRange;
+                    for (var x = targetFastBitmap.Left; x < targetFastBitmap.Left + halfRange; x++)
                     {
-                        if (x < targetFastBitmap.Right)
-                        {
-                            targetFastBitmap.GetColorAt(x, y, tmpColor);
-                            a += tmpColor[FastBitmapBase.ColorIndexA];
-                            r += tmpColor[FastBitmapBase.ColorIndexR];
-                            g += tmpColor[FastBitmapBase.ColorIndexG];
-                            b += tmpColor[FastBitmapBase.ColorIndexB];
-                            hits++;
-                        }
+                        targetFastBitmap.GetColorAt(x, y, readColor);
+                        a += readColor[FastBitmapBase.ColorIndexA];
+                        r += readColor[FastBitmapBase.ColorIndexR];
+                        g += readColor[FastBitmapBase.ColorIndexG];
+                        b += readColor[FastBitmapBase.ColorIndexB];
+                    }
+                    var calculatedColor = stackalloc byte[4];
+                    for (var x = targetFastBitmap.Left; x < targetFastBitmap.Right; x++)
+                    {
+                        targetFastBitmap.GetColorAt(x, y, readColor);
+                        calculatedColor[FastBitmapBase.ColorIndexA] = (byte)(a / hits);
+                        calculatedColor[FastBitmapBase.ColorIndexR] = (byte)(r / hits);
+                        calculatedColor[FastBitmapBase.ColorIndexG] = (byte)(g / hits);
+                        calculatedColor[FastBitmapBase.ColorIndexB] = (byte)(b / hits);
+                        targetFastBitmap.SetColorAt(x, y, calculatedColor);
 
-                        var oldPixel = x - halfRange - 1;
-                        if (oldPixel < targetFastBitmap.Left)
+                        a -= readColor[FastBitmapBase.ColorIndexA];
+                        r -= readColor[FastBitmapBase.ColorIndexR];
+                        g -= readColor[FastBitmapBase.ColorIndexG];
+                        b -= readColor[FastBitmapBase.ColorIndexB];
+                        hits--;
+
+                        var rightPixel = x + halfRange;
+                        if (rightPixel >= targetFastBitmap.Right)
                         {
                             continue;
                         }
-                        targetFastBitmap.GetColorAt(oldPixel, y, tmpColor);
-                        a -= tmpColor[FastBitmapBase.ColorIndexA];
-                        r -= tmpColor[FastBitmapBase.ColorIndexR];
-                        g -= tmpColor[FastBitmapBase.ColorIndexG];
-                        b -= tmpColor[FastBitmapBase.ColorIndexB];
-                        hits--;
-
-                        tmpColor[FastBitmapBase.ColorIndexA] = (byte)(a / hits);
-                        tmpColor[FastBitmapBase.ColorIndexR] = (byte)(r / hits);
-                        tmpColor[FastBitmapBase.ColorIndexG] = (byte)(g / hits);
-                        tmpColor[FastBitmapBase.ColorIndexB] = (byte)(b / hits);
-                        targetFastBitmap.SetColorAt(oldPixel + 1, y, tmpColor);
+                        targetFastBitmap.GetColorAt(rightPixel, y, readColor);
+                        a += readColor[FastBitmapBase.ColorIndexA];
+                        r += readColor[FastBitmapBase.ColorIndexR];
+                        g += readColor[FastBitmapBase.ColorIndexG];
+                        b += readColor[FastBitmapBase.ColorIndexB];
+                        hits++;
                     }
                 }
             });
@@ -133,48 +139,55 @@ namespace Greenshot.Gfx
         /// <param name="targetFastBitmap">BitmapBuffer which previously was created with BoxBlurHorizontal</param>
         /// <param name="range">Range must be odd!</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void BoxBlurVerticalAlpha(IFastBitmap targetFastBitmap, int range)
+        private static void BoxBlurVertical(IFastBitmap targetFastBitmap, int range)
         {
             var halfRange = range / 2;
             Parallel.For(targetFastBitmap.Left, targetFastBitmap.Right, x =>
             {
                 unsafe
                 {
-                    var tmpColor = stackalloc byte[4];
+                    var readColor = stackalloc byte[4];
+                    var calculatedColor = stackalloc byte[4];
                     var hits = 0;
                     var a = 0;
                     var r = 0;
                     var g = 0;
                     var b = 0;
-                    for (var y = targetFastBitmap.Top; y < targetFastBitmap.Bottom + halfRange; y++)
+                    for (var y = targetFastBitmap.Top; y < targetFastBitmap.Top + halfRange; y++)
                     {
-                        if (y < targetFastBitmap.Bottom)
-                        {
-                            targetFastBitmap.GetColorAt(x, y, tmpColor);
-                            a += tmpColor[FastBitmapBase.ColorIndexA];
-                            r += tmpColor[FastBitmapBase.ColorIndexR];
-                            g += tmpColor[FastBitmapBase.ColorIndexG];
-                            b += tmpColor[FastBitmapBase.ColorIndexB];
-                            hits++;
-                        }
+                        targetFastBitmap.GetColorAt(x, y, readColor);
+                        a += readColor[FastBitmapBase.ColorIndexA];
+                        r += readColor[FastBitmapBase.ColorIndexR];
+                        g += readColor[FastBitmapBase.ColorIndexG];
+                        b += readColor[FastBitmapBase.ColorIndexB];
+                        hits++;
+                    }
+                    for (var y = targetFastBitmap.Top; y < targetFastBitmap.Bottom; y++)
+                    {
+                        targetFastBitmap.GetColorAt(x, y, readColor);
+                        calculatedColor[FastBitmapBase.ColorIndexA] = (byte)(a / hits);
+                        calculatedColor[FastBitmapBase.ColorIndexR] = (byte)(r / hits);
+                        calculatedColor[FastBitmapBase.ColorIndexG] = (byte)(g / hits);
+                        calculatedColor[FastBitmapBase.ColorIndexB] = (byte)(b / hits);
+                        targetFastBitmap.SetColorAt(x, y, calculatedColor);
 
-                        var oldPixel = y - halfRange - 1;
-                        if (oldPixel < targetFastBitmap.Top)
+                        a -= readColor[FastBitmapBase.ColorIndexA];
+                        r -= readColor[FastBitmapBase.ColorIndexR];
+                        g -= readColor[FastBitmapBase.ColorIndexG];
+                        b -= readColor[FastBitmapBase.ColorIndexB];
+                        hits--;
+
+                        var bottomPixel = y + halfRange;
+                        if (bottomPixel >= targetFastBitmap.Bottom)
                         {
                             continue;
                         }
-                        targetFastBitmap.GetColorAt(x, oldPixel, tmpColor);
-                        a -= tmpColor[FastBitmapBase.ColorIndexA];
-                        r -= tmpColor[FastBitmapBase.ColorIndexR];
-                        g -= tmpColor[FastBitmapBase.ColorIndexG];
-                        b -= tmpColor[FastBitmapBase.ColorIndexB];
-                        hits--;
-
-                        tmpColor[FastBitmapBase.ColorIndexA] = (byte)(a / hits);
-                        tmpColor[FastBitmapBase.ColorIndexR] = (byte)(r / hits);
-                        tmpColor[FastBitmapBase.ColorIndexG] = (byte)(g / hits);
-                        tmpColor[FastBitmapBase.ColorIndexB] = (byte)(b / hits);
-                        targetFastBitmap.SetColorAt(x, oldPixel +1, tmpColor);
+                        targetFastBitmap.GetColorAt(x, bottomPixel, readColor);
+                        a += readColor[FastBitmapBase.ColorIndexA];
+                        r += readColor[FastBitmapBase.ColorIndexR];
+                        g += readColor[FastBitmapBase.ColorIndexG];
+                        b += readColor[FastBitmapBase.ColorIndexB];
+                        hits++;
                     }
                 }
             });

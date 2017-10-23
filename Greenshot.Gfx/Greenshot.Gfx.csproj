@@ -75,6 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BoxBlur.cs" />
+    <Compile Include="BoxBlurOld.cs" />
     <Compile Include="Effects\BlurEffect.cs" />
     <Compile Include="Effects\EffectConverter.cs" />
     <Compile Include="Effects\AdjustEffect.cs" />
