@@ -39,7 +39,7 @@ namespace GreenshotPlugin.Controls
 	/// </summary>
 	public class AnimatingForm : GreenshotForm
 	{
-		private const int DEFAULT_VREFRESH = 60;
+		private const int DefaultVerticalRefresh = 60;
 		private static readonly LogSource Log = new LogSource();
 		private Timer _timer;
 		private int _vRefresh;
@@ -49,9 +49,10 @@ namespace GreenshotPlugin.Controls
 		/// </summary>
 		protected AnimatingForm()
 		{
-			Load += delegate
+            Load += delegate
 			{
-				if (!EnableAnimation)
+			    DoubleBuffered = true;
+                if (!EnableAnimation)
 				{
 					return;
 				}
@@ -59,7 +60,7 @@ namespace GreenshotPlugin.Controls
 				{
 					Interval = 1000 / VRefresh
 				};
-				_timer.Tick += timer_Tick;
+				_timer.Tick += TimerTick;
 				_timer.Start();
 			};
 
@@ -91,7 +92,7 @@ namespace GreenshotPlugin.Controls
 				// As there is currently no know way to get the default, we guess it.
 				if (_vRefresh <= 1)
 				{
-					_vRefresh = DEFAULT_VREFRESH;
+					_vRefresh = DefaultVerticalRefresh;
 				}
 				return _vRefresh;
 			}
@@ -122,7 +123,7 @@ namespace GreenshotPlugin.Controls
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void timer_Tick(object sender, EventArgs e)
+		private void TimerTick(object sender, EventArgs e)
 		{
 			try
 			{

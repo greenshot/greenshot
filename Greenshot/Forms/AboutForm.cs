@@ -144,19 +144,13 @@ namespace Greenshot.Forms
 			//
 			InitializeComponent();
 
-			// Only use double-buffering when we are NOT in a Terminal Server session
-			DoubleBuffered = !IsTerminalServerSession;
-
 			// Use the self drawn image, first we create the background to be the backcolor (as we animate from this)
 			_bitmap = BitmapFactory.CreateEmpty(90, 90, PixelFormat.Format24bppRgb, BackColor, 96, 96);
 			pictureBox1.Image = _bitmap;
 			var v = Assembly.GetExecutingAssembly().GetName().Version;
 
 			// Format is like this:  AssemblyVersion("Major.Minor.Build.Revision")]
-			lblTitle.Text = "Greenshot " + v.Major + "." + v.Minor + "." + v.Build + " Build " + v.Revision + (IniConfig.IsPortable ? " Portable" : "") + (" (" + OsInfo.Bits) +
-			                " bit)";
-
-			//Random rand = new Random();
+			lblTitle.Text = $"Greenshot {v.Major}.{v.Minor}.{v.Build} Build {v.Revision}{(IniConfig.IsPortable ? " Portable" : "")} ({OsInfo.Bits}) bit)";
 
 			// Number of frames the pixel animation takes
 			var frames = FramesForMillis(2000);
@@ -233,19 +227,19 @@ namespace Greenshot.Forms
 		/// <param name="e"></param>
 		private void LinkLabelClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			var linkLabel = sender as LinkLabel;
-			if (linkLabel != null)
-			{
-				try
-				{
-					linkLabel.LinkVisited = true;
-					Process.Start(linkLabel.Text);
-				}
-				catch (Exception)
-				{
-					MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, linkLabel.Text), Language.GetString(LangKey.error));
-				}
-			}
+		    if (!(sender is LinkLabel linkLabel))
+		    {
+		        return;
+		    }
+		    try
+		    {
+		        linkLabel.LinkVisited = true;
+		        Process.Start(linkLabel.Text);
+		    }
+		    catch (Exception)
+		    {
+		        MessageBox.Show(Language.GetFormattedString(LangKey.error_openlink, linkLabel.Text), Language.GetString(LangKey.error));
+		    }
 		}
 
 		/// <summary>
@@ -325,7 +319,7 @@ namespace Greenshot.Forms
 						brush.Color = _pixelColors[index++];
 						graphics.FillEllipse(brush, pixel.Current);
 						// If a pixel still has frames left, the hasAnimationsLeft will be true
-						_hasAnimationsLeft = _hasAnimationsLeft | pixel.HasNext;
+						_hasAnimationsLeft = _hasAnimationsLeft || pixel.HasNext;
 						pixel.Next();
 					}
 				}
@@ -378,6 +372,7 @@ namespace Greenshot.Forms
 						{
 							using (Process.Start("\"" + IniConfig.ConfigLocation + "\""))
 							{
+                                // Ignore
 							}
 						}
 						catch (Exception)
