@@ -120,8 +120,7 @@ namespace Greenshot.Forms
             // The InitializeComponent() call is required for Windows Forms designer support.
             //
             InitializeComponent();
-            // Only double-buffer when we are not in a TerminalServerSession
-            DoubleBuffered = !IsTerminalServerSession;
+
             Text = "Greenshot capture form";
 
             // Unregister at close
@@ -345,7 +344,7 @@ namespace Greenshot.Forms
                     {
                         StartSelecting();
                     }
-                    else if (_mouseDown)
+                    else
                     {
                         FinishSelecting();
                     }
@@ -720,9 +719,10 @@ namespace Greenshot.Forms
         ///     This makes sure there is no background painted, as we have complete "paint" control it doesn't make sense to do
         ///     otherwise.
         /// </summary>
-        /// <param name="pevent"></param>
-        protected override void OnPaintBackground(PaintEventArgs pevent)
+        /// <param name="paintEventArgs">PaintEventArgs</param>
+        protected override void OnPaintBackground(PaintEventArgs paintEventArgs)
         {
+            // Ignore the event, to reduct painting
         }
 
         /// <summary>
@@ -896,7 +896,6 @@ namespace Greenshot.Forms
         {
             var graphics = e.Graphics;
             var clipRectangle = e.ClipRectangle;
-            //graphics.BitBlt((Bitmap)buffer, Point.Empty);
             graphics.DrawImageUnscaled(_capture.Bitmap, Point.Empty);
             // Only draw Cursor if it's (partly) visible
             if (_capture.Cursor != null && _capture.CursorVisible && clipRectangle.IntersectsWith(new Rectangle(_capture.CursorLocation, _capture.Cursor.Size)))

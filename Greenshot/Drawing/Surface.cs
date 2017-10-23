@@ -600,8 +600,7 @@ namespace Greenshot.Drawing
 		public void AddElement(IDrawableContainer element, bool makeUndoable = true, bool invalidate = true)
 		{
 			_elements.Add(element);
-			var container = element as DrawableContainer;
-			if (container != null)
+		    if (element is DrawableContainer container)
 			{
 				container.FieldChanged += Element_FieldChanged;
 			}
@@ -665,8 +664,7 @@ namespace Greenshot.Drawing
 		{
 			DeselectElement(elementToRemove, generateEvents);
 			_elements.Remove(elementToRemove);
-			var element = elementToRemove as DrawableContainer;
-			if (element != null)
+		    if (elementToRemove is DrawableContainer element)
 			{
 				element.FieldChanged -= Element_FieldChanged;
 			}
@@ -674,7 +672,7 @@ namespace Greenshot.Drawing
 			{
 				elementToRemove.Parent = null;
 			}
-			// Do not dispose, the memento should!! element.Dispose();
+			// Do not dispose, the memento should!!
 			if (invalidate)
 			{
 				Invalidate();
@@ -1402,10 +1400,7 @@ namespace Greenshot.Drawing
 				// if a new element has been drawn, set location and register it
 				if (_drawingElement != null)
 				{
-					if (_undrawnElement != null)
-					{
-						_drawingElement.Status = _undrawnElement.DefaultEditMode;
-					}
+					_drawingElement.Status = _undrawnElement.DefaultEditMode;
 					if (!_drawingElement.HandleMouseDown(_mouseStart.X, _mouseStart.Y))
 					{
 						_drawingElement.Left = _mouseStart.X;
@@ -1602,12 +1597,8 @@ namespace Greenshot.Drawing
 			// otherwise we would have a problem drawing the image to the surface... :(
 			using (var graphics = Graphics.FromImage(clone))
 			{
-				// Do not set the following, the containers need to decide themselves
-				//graphics.SmoothingMode = SmoothingMode.HighQuality;
-				//graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-				//graphics.CompositingQuality = CompositingQuality.HighQuality;
-				//graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-				_elements.Draw(graphics, clone, renderMode, new NativeRect(NativePoint.Empty, clone.Size));
+			    // do not set SmoothingMode, PixelOffsetMode, CompositingQuality and InterpolationMode the containers need to decide this themselves!
+                _elements.Draw(graphics, clone, renderMode, new NativeRect(NativePoint.Empty, clone.Size));
 			}
 			return clone;
 		}
@@ -1629,15 +1620,12 @@ namespace Greenshot.Drawing
 
 			if (_elements.HasIntersectingFilters(clipRectangle))
 			{
-				if (_buffer != null)
-				{
-					if (_buffer.Width != Screenshot.Width || _buffer.Height != Screenshot.Height || _buffer.PixelFormat != Screenshot.PixelFormat)
-					{
-						_buffer.Dispose();
-						_buffer = null;
-					}
-				}
-				if (_buffer == null)
+			    if (_buffer != null && (_buffer.Width != Screenshot.Width || _buffer.Height != Screenshot.Height || _buffer.PixelFormat != Screenshot.PixelFormat))
+			    {
+			        _buffer.Dispose();
+			        _buffer = null;
+			    }
+			    if (_buffer == null)
 				{
 					_buffer = BitmapFactory.CreateEmpty(Screenshot.Width, Screenshot.Height, Screenshot.PixelFormat, Color.Empty, Screenshot.HorizontalResolution, Screenshot.VerticalResolution);
 					Log.Debug().WriteLine("Created buffer with size: {0}x{1}", Screenshot.Width, Screenshot.Height);
@@ -1645,12 +1633,8 @@ namespace Greenshot.Drawing
 				// Elements might need the bitmap, so we copy the part we need
 				using (var graphics = Graphics.FromImage(_buffer))
 				{
-					// do not set the following, the containers need to decide this themselves!
-					//graphics.SmoothingMode = SmoothingMode.HighQuality;
-					//graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-					//graphics.CompositingQuality = CompositingQuality.HighQuality;
-					//graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-					DrawBackground(graphics, clipRectangle);
+                    // do not set SmoothingMode, PixelOffsetMode, CompositingQuality and InterpolationMode the containers need to decide this themselves!
+                    DrawBackground(graphics, clipRectangle);
 					graphics.DrawImage(Screenshot, clipRectangle, clipRectangle, GraphicsUnit.Pixel);
 					graphics.SetClip(targetGraphics);
 					_elements.Draw(graphics, _buffer, RenderMode.EDIT, clipRectangle);
@@ -1695,14 +1679,15 @@ namespace Greenshot.Drawing
 		/// <param name="e">PaintEventArgs</param>
 		protected override void OnPaintBackground(PaintEventArgs e)
 		{
-		}
+            // We do not need an OnPaintBackground
+        }
 
-		/// <summary>
-		///     This method is called to confirm/cancel "confirmable" elements, like the crop-container.
-		///     Called when pressing enter or using the "check" in the editor.
-		/// </summary>
-		/// <param name="confirm"></param>
-		public void ConfirmSelectedConfirmableElements(bool confirm)
+        /// <summary>
+        ///     This method is called to confirm/cancel "confirmable" elements, like the crop-container.
+        ///     Called when pressing enter or using the "check" in the editor.
+        /// </summary>
+        /// <param name="confirm"></param>
+        public void ConfirmSelectedConfirmableElements(bool confirm)
 		{
 			// create new collection so that we can iterate safely (selectedElements might change due with confirm/cancel)
 			var selectedDCs = new List<IDrawableContainer>(selectedElements);
@@ -1967,7 +1952,6 @@ namespace Greenshot.Drawing
 			// Align to Surface
 			textContainer.AlignToParent(horizontalAlignment, verticalAlignment);
 
-			//AggregatedProperties.UpdateElement(textContainer);
 			AddElement(textContainer);
 			return textContainer;
 		}
