@@ -2,7 +2,7 @@
 using BenchmarkDotNet.Running;
 using Xunit;
 
-namespace Greenshot.Testss
+namespace Greenshot.Tests
 {
     public class GfxPerformanceTests
     {

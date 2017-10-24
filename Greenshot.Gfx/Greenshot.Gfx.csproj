@@ -105,6 +105,7 @@
     <Compile Include="BitmapFactory.cs" />
     <Compile Include="BitmapHelper.cs" />
     <Compile Include="BitmapWrapper.cs" />
+    <Compile Include="Murmur3.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SvgBitmap.cs" />
     <Compile Include="Quantizer\WuColorCube.cs" />
