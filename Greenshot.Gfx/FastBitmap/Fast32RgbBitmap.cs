@@ -39,14 +39,17 @@ namespace Greenshot.Gfx.FastBitmap
 		{
 		}
 
-		/// <summary>
-		///     Retrieve the color at location x,y
-		///     Before the first time this is called the Lock() should be called once!
-		/// </summary>
-		/// <param name="x">X coordinate</param>
-		/// <param name="y">Y Coordinate</param>
-		/// <returns>Color</returns>
-		public override Color GetColorAt(int x, int y)
+	    /// <inheritdoc />
+	    public override int BytesPerPixel { get; } = 4;
+
+        /// <summary>
+        ///     Retrieve the color at location x,y
+        ///     Before the first time this is called the Lock() should be called once!
+        /// </summary>
+        /// <param name="x">X coordinate</param>
+        /// <param name="y">Y Coordinate</param>
+        /// <returns>Color</returns>
+        public override Color GetColorAt(int x, int y)
 		{
 			var offset = x * 4 + y * Stride;
 			return Color.FromArgb(255, Pointer[PixelformatIndexR + offset], Pointer[PixelformatIndexG + offset], Pointer[PixelformatIndexB + offset]);

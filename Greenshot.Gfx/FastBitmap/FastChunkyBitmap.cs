@@ -46,12 +46,7 @@ namespace Greenshot.Gfx.FastBitmap
 			_colorEntries = Bitmap.Palette.Entries;
 		}
 
-		/// <summary>
-		///     Get the color from the specified location
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <returns>Color</returns>
+		/// <inheritdoc/>
 		public override Color GetColorAt(int x, int y)
 		{
 			var offset = x + y * Stride;
@@ -83,7 +78,10 @@ namespace Greenshot.Gfx.FastBitmap
 	        throw new NotImplementedException("No performance gain!");
 	    }
 
-        /// <summary>
+	    /// <inheritdoc />
+	    public override int BytesPerPixel { get; } = 1;
+
+	    /// <summary>
         ///     Get the color-index from the specified location
         /// </summary>
         /// <param name="x"></param>
@@ -107,13 +105,7 @@ namespace Greenshot.Gfx.FastBitmap
 			Pointer[offset] = colorIndex;
 		}
 
-		/// <summary>
-		///     Set the supplied color at the specified location.
-		///     Throws an ArgumentException if the color is not in the palette
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <param name="color">Color to set</param>
+	    /// <inheritdoc/>
 		public override void SetColorAt(int x, int y, ref Color color)
 		{
 			var offset = x + y * Stride;

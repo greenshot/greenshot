@@ -40,7 +40,9 @@ namespace Greenshot.Gfx.FastBitmap
 			BackgroundBlendColor = Color.White;
 		}
 
-		public override bool HasAlphaChannel => true;
+	    public override int BytesPerPixel { get; } = 4;
+
+        public override bool HasAlphaChannel => true;
 
 		public Color BackgroundBlendColor { get; set; }
 

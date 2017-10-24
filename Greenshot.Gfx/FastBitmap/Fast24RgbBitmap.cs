@@ -39,8 +39,11 @@ namespace Greenshot.Gfx.FastBitmap
 		{
 		}
 
-		/// <inheritdoc />
-		public override Color GetColorAt(int x, int y)
+	    /// <inheritdoc />
+	    public override int BytesPerPixel { get; } = 3;
+
+        /// <inheritdoc />
+        public override Color GetColorAt(int x, int y)
 		{
 			var offset = x * 3 + y * Stride;
 			return Color.FromArgb(255, Pointer[PixelformatIndexR + offset], Pointer[PixelformatIndexG + offset], Pointer[PixelformatIndexB + offset]);

@@ -48,7 +48,9 @@ namespace Greenshot.Gfx.FastBitmap
 		public const int ColorIndexB = 2;
 		public const int ColorIndexA = 3;
 
-	    protected NativeRect Area;
+	    private const uint Seed = 0x9747b28c;
+
+        protected NativeRect Area;
 
 		/// <summary>
 		///     The bitmap for which the FastBitmap is creating access
@@ -102,7 +104,7 @@ namespace Greenshot.Gfx.FastBitmap
 		{
 			get
 			{
-				if (Area == NativeRect.Empty)
+				if (Area.IsEmpty)
 				{
 					return Bitmap.Size;
 				}
@@ -117,11 +119,7 @@ namespace Greenshot.Gfx.FastBitmap
 		{
 			get
 			{
-				if (Area == NativeRect.Empty)
-				{
-					return Bitmap.Width;
-				}
-				return Area.Width;
+			    return Area.IsEmpty ? Bitmap.Width : Area.Width;
 			}
 		}
 
@@ -132,11 +130,7 @@ namespace Greenshot.Gfx.FastBitmap
 		{
 			get
 			{
-				if (Area == NativeRect.Empty)
-				{
-					return Bitmap.Height;
-				}
-				return Area.Height;
+			    return Area.IsEmpty ? Bitmap.Height : Area.Height;
 			}
 		}
 
@@ -275,6 +269,9 @@ namespace Greenshot.Gfx.FastBitmap
 	    /// <inheritdoc />
         public abstract void SetColorAt(int x, int y, byte* color, int colorIndex = 0);
 
+	    /// <inheritdoc />
+        public abstract int BytesPerPixel { get; }
+
         /// <summary>
         ///     Return the left of the fastbitmap, this is also used as an offset
         /// </summary>
@@ -312,15 +309,47 @@ namespace Greenshot.Gfx.FastBitmap
 			Pointer = null;
 		}
 
-		#region IFastBitmapWithClip
 
-		/// <summary>
-		///     Test if the bitmap containt the specified coordinates
-		/// </summary>
-		/// <param name="x">int x</param>
-		/// <param name="y">int y</param>
-		/// <returns>true if the specified coordinates are within</returns>
-		bool IFastBitmapWithClip.Contains(int x, int y)
+	    /// <summary>
+	    /// Calculate the the hash-code for a horizontal line
+	    /// </summary>
+	    /// <param name="y">int with y coordinate</param>
+	    /// <returns>uint with the hash</returns>
+	    public uint HorizontalHash(int y)
+	    {
+	        var offset = Left * BytesPerPixel + y * Stride;
+	        var length = (Right - Left) * BytesPerPixel;
+            var hash = new Murmur3(Seed, (uint) length);
+
+	        while (length >= 4)
+	        {
+                hash.AddBytes(Pointer[offset++], Pointer[offset++], Pointer[offset++], Pointer[offset++]);
+	            length -= 4;
+	        }
+	        switch (length)
+	        {
+	            case 3:
+	                hash.AddTrailingBytes(Pointer[offset++], Pointer[offset++], Pointer[offset]);
+	                break;
+	            case 2:
+	                hash.AddTrailingBytes(Pointer[offset++], Pointer[offset]);
+	                break;
+	            case 1:
+	                hash.AddTrailingBytes(Pointer[offset]);
+	                break;
+	        }
+            return hash.CalculatedHash;
+	    }
+
+        #region IFastBitmapWithClip
+
+        /// <summary>
+        ///     Test if the bitmap containt the specified coordinates
+        /// </summary>
+        /// <param name="x">int x</param>
+        /// <param name="y">int y</param>
+        /// <returns>true if the specified coordinates are within</returns>
+        bool IFastBitmapWithClip.Contains(int x, int y)
 		{
 			var contains = Clip.Contains(x, y);
 			if (InvertClip)

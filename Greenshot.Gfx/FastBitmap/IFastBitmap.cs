@@ -81,14 +81,26 @@ namespace Greenshot.Gfx.FastBitmap
 		/// </summary>
 		bool HasAlphaChannel { get; }
 
-		/// <summary>
-		///     Get the color at x,y
-		///     The returned Color object depends on the underlying pixel format
-		/// </summary>
-		/// <param name="x">int x</param>
-		/// <param name="y">int y</param>
-		/// <returns>Color</returns>
-		Color GetColorAt(int x, int y);
+        /// <summary>
+        /// The number of bytes per pixel
+        /// </summary>
+        int BytesPerPixel { get; }
+
+        /// <summary>
+        /// Get a hash code for the specified y-coordinate line
+        /// </summary>
+        /// <param name="y">int</param>
+        /// <returns>uint</returns>
+	    uint HorizontalHash(int y);
+
+        /// <summary>
+        ///     Get the color at x,y
+        ///     The returned Color object depends on the underlying pixel format
+        /// </summary>
+        /// <param name="x">int x</param>
+        /// <param name="y">int y</param>
+        /// <returns>Color</returns>
+        Color GetColorAt(int x, int y);
 
 		/// <summary>
 		///     Set the color at the specified location
