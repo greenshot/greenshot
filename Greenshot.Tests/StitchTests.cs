@@ -34,19 +34,50 @@ namespace Greenshot.Tests
 
             int totalHeight = images.First().Height;
             // The header on the first bitmap is kept
-            IList<int> headerLines = new List<int> {0};
-            foreach (var hashes in bitmapHashes.Skip(1))
+            IList<int> startLines = new List<int> {0};
+            foreach (var hashIndex in Enumerable.Range(1, bitmapHashes.Count-1))
             {
-                int y = 0;
+                var hashes = bitmapHashes[hashIndex];
+                int firstLineAfterHeader = 0;
 
                 // Find header
-                while (bitmapHashes[0].Count > y && bitmapHashes[0][y] == hashes[y])
+                while (bitmapHashes[0].Count > firstLineAfterHeader && bitmapHashes[0][firstLineAfterHeader] == hashes[firstLineAfterHeader])
                 {
-                    y++;
+                    firstLineAfterHeader++;
                 }
-                headerLines.Add(y);
 
-                totalHeight += hashes.Count - y;
+                int startLine = firstLineAfterHeader;
+                int currentImageHeight = bitmapHashes[hashIndex].Count - firstLineAfterHeader;
+                // Find location
+                for (int location = startLines[hashIndex - 1]; location < bitmapHashes[hashIndex-1].Count; location++)
+                {
+                    // Do not try to match until the size makes sense
+                    if (images[hashIndex - 1].Height - location > currentImageHeight)
+                    {
+                        continue;
+                    }
+
+                    bool isMatch = true;
+                    int y = 0;
+                    while (location + y < bitmapHashes[hashIndex - 1].Count && startLine + y < bitmapHashes[hashIndex].Count)
+                    {
+                        if (bitmapHashes[hashIndex - 1][location + y] != bitmapHashes[hashIndex][startLine + y])
+                        {
+                            isMatch = false;
+                            break;
+                        }
+                        y++;
+                    }
+
+                    if (!isMatch)
+                    {
+                        continue;
+                    }
+                    startLine += y;
+                    break;
+                }
+                startLines.Add(startLine);
+                totalHeight += hashes.Count - startLine;
             }
 
             using (var completedBitmap = BitmapFactory.CreateEmpty(images[0].Width, totalHeight, images[0].PixelFormat))
@@ -56,7 +87,7 @@ namespace Greenshot.Tests
                 foreach (var bitmapNr in Enumerable.Range(0, images.Count))
                 {
                     var bitmap = images[bitmapNr];
-                    var offset = headerLines[bitmapNr];
+                    var offset = startLines[bitmapNr];
                     graphics.DrawImage(bitmap, new Rectangle(0, currentPosition, bitmap.Width, bitmap.Height - offset), new Rectangle(0, offset, bitmap.Width, bitmap.Height - offset), GraphicsUnit.Pixel);
                     currentPosition += bitmap.Height - offset;
                 }
