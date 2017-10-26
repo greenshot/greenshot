@@ -108,6 +108,8 @@
     <Compile Include="BitmapWrapper.cs" />
     <Compile Include="Murmur3.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Stitching\BitmapStitcher.cs" />
+    <Compile Include="Stitching\StitchInfo.cs" />
     <Compile Include="SvgBitmap.cs" />
     <Compile Include="Quantizer\WuColorCube.cs" />
     <Compile Include="Quantizer\WuQuantizer.cs" />
