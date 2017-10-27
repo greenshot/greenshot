@@ -61,22 +61,54 @@ namespace Greenshot.Gfx.Stitching
         public NativeRect SourceRect => _sourceRect;
 
         /// <summary>
-        /// Scans the header, and changes the SourceRect
+        /// Scans the header, and changes the SourceRect if something is found
         /// </summary>
         /// <param name="primaryImage">StitchInfo for the first image</param>
-        public StitchInfo ScanForHeader(StitchInfo primaryImage)
+        public StitchInfo RemoveHeader(StitchInfo primaryImage)
         {
-            int firstLineAfterHeader = 0;
+            int headerLines = 0;
 
-            var primaryHashes = primaryImage._hashes;
+            var primaryImageHashes = primaryImage._hashes;
 
             // Find header
-            while (primaryHashes.Count > firstLineAfterHeader && primaryHashes[firstLineAfterHeader] == _hashes[firstLineAfterHeader])
+            while (headerLines < primaryImageHashes.Count && primaryImageHashes[headerLines] == _hashes[headerLines])
             {
-                firstLineAfterHeader++;
+                headerLines++;
             }
+            // Not interested in 1 line
+            if (headerLines > 1)
+            {
+                // Remove the lines, by moving the top down (and reducing the height)
+                _sourceRect = new NativeRect(_sourceRect.X, headerLines, _sourceRect.Width, _sourceRect.Height - headerLines);
+            }
+            return this;
+        }
 
-            _sourceRect = new NativeRect(_sourceRect.X, firstLineAfterHeader, _sourceRect.Width, _sourceRect.Height - firstLineAfterHeader);
+        /// <summary>
+        /// Scans the footer, and changes the SourceRect if something is found
+        /// </summary>
+        /// <param name="primaryImage">StitchInfo for the first image</param>
+        public StitchInfo RemoveFooter(StitchInfo primaryImage)
+        {
+            var primaryHashes = primaryImage._hashes;
+
+            int footerLines = -1;
+            int primaryLocation, footerLocation;
+
+            // Find footer
+            do
+            {
+                footerLines++;
+                primaryLocation = primaryImage.SourceRect.Bottom - footerLines;
+                footerLocation = _sourceRect.Bottom - footerLines;
+            } while (footerLocation > _sourceRect.Top && primaryLocation > primaryImage.SourceRect.Top && primaryHashes[primaryLocation] == _hashes[footerLocation]);
+
+            // Not interested in 1 line
+            if (footerLines > 1)
+            {
+                // Remove the lines by removing the height
+                _sourceRect = new NativeRect(_sourceRect.X, _sourceRect.Y, _sourceRect.Width, _sourceRect.Height - footerLines);
+            }
             return this;
         }
 
@@ -120,15 +152,14 @@ namespace Greenshot.Gfx.Stitching
         }
 
         /// <summary>
-        /// Remove all the trailing double lines
+        /// Remove all the trailing repeating lines
         /// </summary>
         /// <returns>StitchInfo for fluent usage</returns>
-        public StitchInfo RemoveTrailingLines()
+        public StitchInfo Trim()
         {
-            var lastHash = _hashes.Last();
-            // Keep at least one line
-            var linesToRemove = -1;
-            for (int y = _sourceRect.Bottom-1; y > 0; y--)
+            var lastHash = _hashes[_sourceRect.Bottom-1];
+            var linesToRemove = 0;
+            for (int y = _sourceRect.Bottom-1; y >= _sourceRect.Top; y--)
             {
                 if (_hashes[y] != lastHash)
                 {
@@ -136,13 +167,15 @@ namespace Greenshot.Gfx.Stitching
                 }
                 linesToRemove++;
             }
-            if (linesToRemove > 0)
+            // TODO: Check if we need to keep at least one line
+            if (linesToRemove > 1)
             {
                 _sourceRect = _sourceRect.ChangeHeight(_sourceRect.Height - linesToRemove);
             }
             return this;
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             _bitmap?.Dispose();

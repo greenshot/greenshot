@@ -21,6 +21,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -31,24 +32,25 @@ namespace Greenshot.Gfx.Stitching
     /// <summary>
     /// This class helps to stitch bitmaps together
     /// </summary>
-    public class BitmapStitcher
+    public class BitmapStitcher : IDisposable
     {
-        private PixelFormat _resultPixelFormat;
+        private PixelFormat? _resultPixelFormat;
         private readonly IList<StitchInfo> _stitchInfos = new List<StitchInfo>();
         /// <summary>
-        /// Defines if the header is found and removed
+        ///  If set to true, the BitmapStitcher will try to detect a header and remove this
         /// </summary>
         public bool RemoveHeader { get; set; } = true;
 
         /// <summary>
-        /// Defines if a footer is found and removed
+        /// If set to true, the BitmapStitcher will try to detect a footer and remove this.
+        /// Default is false, as this doesn't work well with empty locations
         /// </summary>
-        public bool RemoveFooter { get; set; } = true;
+        public bool RemoveFooter { get; set; } = false;
         
         /// <summary>
-        /// Remove trailing lines
+        /// Trim trailing lines
         /// </summary>
-        public bool RemoveEnd { get; set; } = true;
+        public bool Trim { get; set; } = true;
 
         /// <summary>
         /// Adds a bitmap to be stitched
@@ -57,19 +59,11 @@ namespace Greenshot.Gfx.Stitching
         /// <returns>BitmapStitcher for fluent calling</returns>
         public BitmapStitcher AddBitmap(Bitmap bitmap)
         {
-            var stitchInfo = new StitchInfo(bitmap);
-            if (_stitchInfos.Count >= 1)
-            {
-                if (RemoveHeader)
-                {
-                    stitchInfo.ScanForHeader(_stitchInfos[0]);
-                }
-                stitchInfo.FindTargetLocation(_stitchInfos.Last());
-            }
-            else
+            if (!_resultPixelFormat.HasValue)
             {
                 _resultPixelFormat = bitmap.PixelFormat;
             }
+            var stitchInfo = new StitchInfo(bitmap);
             _stitchInfos.Add(stitchInfo);
             return this;
         }
@@ -80,14 +74,50 @@ namespace Greenshot.Gfx.Stitching
         /// <returns>Bitmap</returns>
         public Bitmap Result()
         {
-            if (RemoveEnd)
+            if (RemoveHeader)
             {
-                _stitchInfos.Last().RemoveTrailingLines();
+                var first = _stitchInfos[0];
+                foreach (var stitchInfo in _stitchInfos.Skip(1))
+                {
+                    stitchInfo.RemoveHeader(first);
+                }
             }
+
+            if (RemoveFooter)
+            {
+                var first = _stitchInfos[0];
+                foreach (var stitchInfo in _stitchInfos.Skip(1))
+                {
+                    stitchInfo.RemoveFooter(first);
+                }
+            }
+
+            if (Trim)
+            {
+                // Remove from the last to first, untill something is left
+                foreach (var stitchInfo in _stitchInfos.Reverse())
+                {
+                    if (stitchInfo.Trim().SourceRect.Height > 0)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            var previous = _stitchInfos[0];
+            // Find target locations
+            foreach (var stitchInfo in _stitchInfos.Skip(1))
+            {
+                stitchInfo.FindTargetLocation(previous);
+                previous = stitchInfo;
+            }
+
+            // Calculate the total hight of the result bitmap
             var totalHeight = _stitchInfos.Sum(info => info.SourceRect.Height);
+            // Create the resulting bitmap
+            var resultBitmap = BitmapFactory.CreateEmpty(_stitchInfos[0].SourceRect.Width, totalHeight, _resultPixelFormat ?? PixelFormat.Format32bppArgb);
 
-            var resultBitmap = BitmapFactory.CreateEmpty(_stitchInfos[0].SourceRect.Width, totalHeight, _resultPixelFormat);
-
+            // Now stitch the captures together by copying them onto the result bitmap
             using (var graphics = Graphics.FromImage(resultBitmap))
             {
                 var currentPosition = 0;
@@ -98,6 +128,15 @@ namespace Greenshot.Gfx.Stitching
                 }
             }
             return resultBitmap;
+        }
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            foreach (var stitchInfo in _stitchInfos)
+            {
+                stitchInfo.Dispose();
+            }
         }
     }
 }

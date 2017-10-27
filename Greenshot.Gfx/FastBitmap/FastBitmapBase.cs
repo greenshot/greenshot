@@ -290,8 +290,6 @@ namespace Greenshot.Gfx.FastBitmap
 			Dispose(false);
 		}
 
-		// The bulk of the clean-up code is implemented in Dispose(bool)
-
 		/// <summary>
 		///     This Dispose is called from the Dispose and the Destructor.
 		///     When disposing==true all non-managed resources should be freed too!
@@ -309,16 +307,17 @@ namespace Greenshot.Gfx.FastBitmap
 			Pointer = null;
 		}
 
-
-	    /// <summary>
-	    /// Calculate the the hash-code for a horizontal line
-	    /// </summary>
-	    /// <param name="y">int with y coordinate</param>
+        /// <summary>
+        /// Calculate the the hash-code for a horizontal line
+        /// </summary>
+        /// <param name="y">int with y coordinate</param>
+        /// <param name="right">optional x starting coordinate of the hash calculation</param>
+        /// <param name="left">optional x ending coordinate of the hash calculation</param>
 	    /// <returns>uint with the hash</returns>
-	    public uint HorizontalHash(int y)
+        public uint HorizontalHash(int y, int? right = null, int? left = null)
 	    {
-	        var offset = Left * BytesPerPixel + y * Stride;
-	        var length = (Right - Left) * BytesPerPixel;
+	        var offset = (left ?? Left) * BytesPerPixel + y * Stride;
+	        var length = (right ?? Right) - (left ?? Left) * BytesPerPixel;
             var hash = new Murmur3(Seed, (uint) length);
 
 	        while (length >= 4)

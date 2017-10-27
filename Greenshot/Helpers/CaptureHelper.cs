@@ -27,7 +27,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -54,6 +53,7 @@ using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
 using Greenshot.Gfx;
+using Greenshot.Gfx.Stitching;
 
 #endregion
 
@@ -1175,21 +1175,6 @@ namespace Greenshot.Helpers
 
                     if (clientBounds.Width * clientBounds.Height > 0)
                     {
-                        // Now calculate things like how much a line is, the total height etc...
-                        var scrollInfo = windowScroller.InitialScrollInfo;
-                        // Get the number of lines
-                        var lines = 1 + (scrollInfo.Maximum - scrollInfo.Minimum);
-                        // Calculate the height of a single line
-                        var lineHeight = Math.Ceiling((double) clientBounds.Height / (scrollInfo.PageSize + 1));
-                        // Calculate the total height
-                        var totalHeight = lineHeight * lines;
-                        var totalSize = new Size(clientBounds.Width, (int) totalHeight);
-                        Log.Info().WriteLine("Size should be: {0}, a single n = {1} pixels", totalSize, lineHeight);
-
-                        // Create the resulting image, every capture will be drawn to this
-                        var resultImage = BitmapFactory.CreateEmpty(clientBounds.Width, (int) totalHeight, PixelFormat.Format32bppArgb, Color.Transparent,
-                            _capture.Bitmap.HorizontalResolution, _capture.Bitmap.VerticalResolution);
-
                         // Move the window to the start
                         windowScroller.Start();
 
@@ -1202,29 +1187,39 @@ namespace Greenshot.Helpers
                                 args.Handled = true;
                                 breakScroll = true;
                             });
+                        Bitmap resultImage = null;
                         try
                         {
                             // A delay to make the window move
                             Application.DoEvents();
                             Thread.Sleep(100);
                             Application.DoEvents();
+
                             if (windowScroller.IsAtStart)
                             {
-                                // First capture
-                                ScrollingCapture(clientBounds, windowScroller, lineHeight, resultImage);
-
-                                // Loop as long as we are not at the end yet
-                                while (!windowScroller.IsAtEnd && !breakScroll)
+                                using (var bitmapStitcher = new BitmapStitcher())
                                 {
-                                    // Next "page"
-                                    windowScroller.Next();
-                                    // Wait a bit, so the window can update
-                                    Application.DoEvents();
-                                    Thread.Sleep(100);
-                                    Application.DoEvents();
-                                    // Capture inside loop
-                                    ScrollingCapture(clientBounds, windowScroller, lineHeight, resultImage);
+                                    bitmapStitcher.AddBitmap(WindowCapture.CaptureRectangle(clientBounds));
+
+                                    // Loop as long as we are not at the end yet
+                                    while (!windowScroller.IsAtEnd && !breakScroll)
+                                    {
+                                        // Next "page"
+                                        windowScroller.Next();
+                                        // Wait a bit, so the window can update
+                                        Application.DoEvents();
+                                        Thread.Sleep(100);
+                                        Application.DoEvents();
+                                        // Capture inside loop
+                                        bitmapStitcher.AddBitmap(WindowCapture.CaptureRectangle(clientBounds));
+                                    }
+                                    resultImage = bitmapStitcher.Result();
                                 }
+
+                            }
+                            else
+                            {
+                                resultImage = WindowCapture.CaptureRectangle(clientBounds);
                             }
                         }
                         catch (Exception ex)
@@ -1260,28 +1255,6 @@ namespace Greenshot.Helpers
                 var tmpRectangle = _captureRect.Offset(_capture.ScreenBounds.Location.X, _capture.ScreenBounds.Location.Y);
                 CoreConfig.LastCapturedRegion = tmpRectangle;
                 HandleCapture();
-            }
-        }
-
-        /// <summary>
-        ///     Helper method for the scrolling capture
-        /// </summary>
-        /// <param name="bounds">Bounds of the onscreen area to capture</param>
-        /// <param name="windowScroller">WindowScroller helps the scrolling</param>
-        /// <param name="lineHeight">the height of an "n"</param>
-        /// <param name="target">Bitmap</param>
-        private static void ScrollingCapture(NativeRect bounds, WindowScroller windowScroller, double lineHeight, Bitmap target)
-        {
-            using (var bitmap = WindowCapture.CaptureRectangle(bounds))
-            {
-                windowScroller.GetPosition(out var scrollInfo);
-                double absoluteNPos = scrollInfo.Position - scrollInfo.Minimum;
-                int yPos = (int) (lineHeight * absoluteNPos);
-                Log.Debug().WriteLine("Scrollinfo: {0}, taking position {1}, drawing to {2}", scrollInfo, absoluteNPos, yPos);
-                using (var graphics = Graphics.FromImage(target))
-                {
-                    graphics.DrawImageUnscaled(bitmap, 0, yPos);
-                }
             }
         }
 

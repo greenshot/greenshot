@@ -86,12 +86,14 @@ namespace Greenshot.Gfx.FastBitmap
         /// </summary>
         int BytesPerPixel { get; }
 
-        /// <summary>
-        /// Get a hash code for the specified y-coordinate line
-        /// </summary>
-        /// <param name="y">int</param>
-        /// <returns>uint</returns>
-	    uint HorizontalHash(int y);
+	    /// <summary>
+	    /// Calculate the the hash-code for a horizontal line
+	    /// </summary>
+	    /// <param name="y">int with y coordinate</param>
+	    /// <param name="right">optional x starting coordinate of the hash calculation</param>
+	    /// <param name="left">optional x ending coordinate of the hash calculation</param>
+	    /// <returns>uint with the hash</returns>
+        uint HorizontalHash(int y, int? right = null, int? left = null);
 
         /// <summary>
         ///     Get the color at x,y
