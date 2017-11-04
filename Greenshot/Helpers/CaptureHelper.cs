@@ -1136,104 +1136,11 @@ namespace Greenshot.Helpers
                 var windowScroller = captureForm.WindowScroller;
                 if (windowScroller != null)
                 {
-                    // Set scrollmode to windows message, which is the default but still...
-                    windowScroller.ScrollMode = ScrollModes.WindowsMessage;
+                    var scrollingCapture = new ScrollingCapture(windowScroller);
 
-                    if (windowScroller.NeedsFocus())
+                    var resultImage = scrollingCapture.Capture();
+                    if (resultImage != null)
                     {
-                        User32Api.SetForegroundWindow(windowScroller.ScrollBarWindow.Handle);
-                        Application.DoEvents();
-                        Thread.Sleep(100);
-                        Application.DoEvents();
-                    }
-
-                    // Find the area which is scrolling
-
-                    // 1. Take the client bounds
-                    NativeRect clientBounds = windowScroller.ScrollBarWindow.GetInfo().ClientBounds;
-
-                    // Use a region for steps 2 and 3
-                    using (var region = new Region(clientBounds))
-                    {
-                        // 2. exclude the children, if any
-                        foreach (var interopWindow in windowScroller.ScrollBarWindow.GetChildren())
-                        {
-                            region.Exclude(interopWindow.GetInfo().Bounds);
-                        }
-                        // 3. exclude the scrollbar, if it can be found
-                        if (windowScroller.ScrollBar.HasValue)
-                        {
-                            region.Exclude(windowScroller.ScrollBar.Value.Bounds);
-                        }
-                        // Get the bounds of the region
-                        using (var screenGraphics = Graphics.FromHwnd(User32Api.GetDesktopWindow()))
-                        {
-                            var rectangleF = region.GetBounds(screenGraphics);
-                            clientBounds = new NativeRect((int) rectangleF.X, (int) rectangleF.Y, (int) rectangleF.Width, (int) rectangleF.Height);
-                        }
-                    }
-
-                    if (clientBounds.Width * clientBounds.Height > 0)
-                    {
-                        // Move the window to the start
-                        windowScroller.Start();
-
-                        // Register a keyboard hook to make it possible to ESC the capturing
-                        var breakScroll = false;
-                        var keyboardHook = KeyboardHook.KeyboardEvents
-                            .Where(args => args.Key == VirtualKeyCodes.ESCAPE)
-                            .Subscribe(args =>
-                            {
-                                args.Handled = true;
-                                breakScroll = true;
-                            });
-                        Bitmap resultImage = null;
-                        try
-                        {
-                            // A delay to make the window move
-                            Application.DoEvents();
-                            Thread.Sleep(100);
-                            Application.DoEvents();
-
-                            if (windowScroller.IsAtStart)
-                            {
-                                using (var bitmapStitcher = new BitmapStitcher())
-                                {
-                                    bitmapStitcher.AddBitmap(WindowCapture.CaptureRectangle(clientBounds));
-
-                                    // Loop as long as we are not at the end yet
-                                    while (!windowScroller.IsAtEnd && !breakScroll)
-                                    {
-                                        // Next "page"
-                                        windowScroller.Next();
-                                        // Wait a bit, so the window can update
-                                        Application.DoEvents();
-                                        Thread.Sleep(100);
-                                        Application.DoEvents();
-                                        // Capture inside loop
-                                        bitmapStitcher.AddBitmap(WindowCapture.CaptureRectangle(clientBounds));
-                                    }
-                                    resultImage = bitmapStitcher.Result();
-                                }
-
-                            }
-                            else
-                            {
-                                resultImage = WindowCapture.CaptureRectangle(clientBounds);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Error().WriteLine(ex);
-                        }
-                        finally
-                        {
-                            // Remove hook for escape
-                            keyboardHook.Dispose();
-                            // Try to reset location
-                            windowScroller.Reset();
-                        }
-
                         _capture = new Capture(resultImage)
                         {
                             CaptureDetails = _capture.CaptureDetails

@@ -46,6 +46,15 @@ namespace Greenshot.Helpers
         private static readonly LogSource Log = new LogSource();
         private readonly WindowScroller _windowScroller;
 
+        /// <summary>
+        /// The delay between captures
+        /// </summary>
+        public int Delay { get; set; } = 150;
+
+        /// <summary>
+        /// Constructor, this needs a WindowScroller
+        /// </summary>
+        /// <param name="windowScroller">WindowScroller</param>
         public ScrollingCapture(WindowScroller windowScroller)
         {
             _windowScroller = windowScroller;
@@ -64,7 +73,7 @@ namespace Greenshot.Helpers
             {
                 User32Api.SetForegroundWindow(_windowScroller.ScrollBarWindow.Handle);
                 Application.DoEvents();
-                Thread.Sleep(100);
+                Thread.Sleep(Delay);
                 Application.DoEvents();
             }
 
@@ -113,7 +122,7 @@ namespace Greenshot.Helpers
                 {
                     // A delay to make the window move
                     Application.DoEvents();
-                    Thread.Sleep(100);
+                    Thread.Sleep(Delay);
                     Application.DoEvents();
 
                     if (_windowScroller.IsAtStart)
@@ -129,7 +138,7 @@ namespace Greenshot.Helpers
                                 _windowScroller.Next();
                                 // Wait a bit, so the window can update
                                 Application.DoEvents();
-                                Thread.Sleep(100);
+                                Thread.Sleep(Delay);
                                 Application.DoEvents();
                                 // Capture inside loop
                                 bitmapStitcher.AddBitmap(WindowCapture.CaptureRectangle(clientBounds));
