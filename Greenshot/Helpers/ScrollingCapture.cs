@@ -103,70 +103,70 @@ namespace Greenshot.Helpers
                 }
             }
 
-            if (clientBounds.Width * clientBounds.Height > 0)
+            if (clientBounds.Width * clientBounds.Height <= 0)
             {
-                // Move the window to the start
-                _windowScroller.Start();
-
-                // Register a keyboard hook to make it possible to ESC the capturing
-                var breakScroll = false;
-                var keyboardHook = KeyboardHook.KeyboardEvents
-                    .Where(args => args.Key == VirtualKeyCodes.ESCAPE)
-                    .Subscribe(args =>
-                    {
-                        args.Handled = true;
-                        breakScroll = true;
-                    });
-                Bitmap resultImage = null;
-                try
-                {
-                    // A delay to make the window move
-                    Application.DoEvents();
-                    Thread.Sleep(Delay);
-                    Application.DoEvents();
-
-                    if (_windowScroller.IsAtStart)
-                    {
-                        using (var bitmapStitcher = new BitmapStitcher())
-                        {
-                            bitmapStitcher.AddBitmap(WindowCapture.CaptureRectangle(clientBounds));
-
-                            // Loop as long as we are not at the end yet
-                            while (!_windowScroller.IsAtEnd && !breakScroll)
-                            {
-                                // Next "page"
-                                _windowScroller.Next();
-                                // Wait a bit, so the window can update
-                                Application.DoEvents();
-                                Thread.Sleep(Delay);
-                                Application.DoEvents();
-                                // Capture inside loop
-                                bitmapStitcher.AddBitmap(WindowCapture.CaptureRectangle(clientBounds));
-                            }
-                            resultImage = bitmapStitcher.Result();
-                        }
-
-                    }
-                    else
-                    {
-                        resultImage = WindowCapture.CaptureRectangle(clientBounds);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Error().WriteLine(ex);
-                }
-                finally
-                {
-                    // Remove hook for escape
-                    keyboardHook.Dispose();
-                    // Try to reset location
-                    _windowScroller.Reset();
-                }
-                
-                return resultImage;
+                return null;
             }
-            return null;
+            // Move the window to the start
+            _windowScroller.Start();
+
+            // Register a keyboard hook to make it possible to ESC the capturing
+            var breakScroll = false;
+            var keyboardHook = KeyboardHook.KeyboardEvents
+                .Where(args => args.Key == VirtualKeyCodes.ESCAPE)
+                .Subscribe(args =>
+                {
+                    args.Handled = true;
+                    breakScroll = true;
+                });
+            Bitmap resultImage = null;
+            try
+            {
+                // A delay to make the window move
+                Application.DoEvents();
+                Thread.Sleep(Delay);
+                Application.DoEvents();
+
+                if (_windowScroller.IsAtStart)
+                {
+                    using (var bitmapStitcher = new BitmapStitcher())
+                    {
+                        bitmapStitcher.AddBitmap(WindowCapture.CaptureRectangle(clientBounds));
+
+                        // Loop as long as we are not at the end yet
+                        while (!_windowScroller.IsAtEnd && !breakScroll)
+                        {
+                            // Next "page"
+                            _windowScroller.Next();
+                            // Wait a bit, so the window can update
+                            Application.DoEvents();
+                            Thread.Sleep(Delay);
+                            Application.DoEvents();
+                            // Capture inside loop
+                            bitmapStitcher.AddBitmap(WindowCapture.CaptureRectangle(clientBounds));
+                        }
+                        resultImage = bitmapStitcher.Result();
+                    }
+
+                }
+                else
+                {
+                    resultImage = WindowCapture.CaptureRectangle(clientBounds);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error().WriteLine(ex);
+            }
+            finally
+            {
+                // Remove hook for escape
+                keyboardHook.Dispose();
+                // Try to reset location
+                _windowScroller.Reset();
+            }
+                
+            return resultImage;
         }
     }
 }

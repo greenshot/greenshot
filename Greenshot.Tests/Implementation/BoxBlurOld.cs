@@ -2,7 +2,7 @@
 using System.Drawing;
 using Greenshot.Gfx.FastBitmap;
 
-namespace Greenshot.Gfx
+namespace Greenshot.Tests.Implementation
 {
     /// <summary>
     /// Code to apply a box blur

@@ -834,8 +834,9 @@ namespace Greenshot.Gfx
 	    /// <param name="colorToCount">Color to count</param>
 	    /// <param name="includeAlpha">true if Alpha needs to be checked</param>
 	    /// <returns>int with the number of pixels which have colorToCount</returns>
-	    public static int CountColors(this Image sourceImage, Color colorToCount, bool includeAlpha)
+	    public static int CountColor(this Image sourceImage, Color colorToCount, bool includeAlpha = true)
 	    {
+            var lockObject = new object();
 	        var colors = 0;
 	        var toCount = colorToCount.ToArgb();
 	        if (!includeAlpha)
@@ -844,8 +845,9 @@ namespace Greenshot.Gfx
 	        }
 	        using (var bb = FastBitmapFactory.Create((Bitmap)sourceImage))
 	        {
-	            for (var y = 0; y < bb.Height; y++)
+	            Parallel.For(0, bb.Height, () => 0, (y, state, initialColorCount) =>
 	            {
+	                var currentColors = initialColorCount;
 	                for (var x = 0; x < bb.Width; x++)
 	                {
 	                    var bitmapcolor = bb.GetColorAt(x, y).ToArgb();
@@ -855,10 +857,18 @@ namespace Greenshot.Gfx
 	                    }
 	                    if (bitmapcolor == toCount)
 	                    {
-	                        colors++;
+	                        currentColors++;
 	                    }
 	                }
-	            }
+                    return currentColors;
+	            }, lineColorCount =>
+	            {
+	                lock (lockObject)
+	                {
+	                    colors += lineColorCount;
+	                }
+	            });
+                
 	            return colors;
 	        }
 	    }

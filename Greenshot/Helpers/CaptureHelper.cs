@@ -963,7 +963,7 @@ namespace Greenshot.Helpers
                                 if (tmpCapture != null)
                                 {
                                     // check if GDI capture any good, by comparing it with the screen content
-                                    var blackCountGdi = BitmapHelper.CountColors(tmpCapture.Bitmap, Color.Black, false);
+                                    var blackCountGdi = BitmapHelper.CountColor(tmpCapture.Bitmap, Color.Black, false);
                                     var gdiPixels = tmpCapture.Bitmap.Width * tmpCapture.Bitmap.Height;
                                     var blackPercentageGdi = blackCountGdi * 100 / gdiPixels;
                                     if (blackPercentageGdi >= 1)
@@ -974,7 +974,7 @@ namespace Greenshot.Helpers
                                             screenCapture.CaptureDetails = captureForWindow.CaptureDetails;
                                             if (WindowCapture.CaptureRectangleFromDesktopScreen(screenCapture, windowRectangle) != null)
                                             {
-                                                var blackCountScreen = BitmapHelper.CountColors(screenCapture.Bitmap, Color.Black, false);
+                                                var blackCountScreen = BitmapHelper.CountColor(screenCapture.Bitmap, Color.Black, false);
                                                 var blackPercentageScreen = blackCountScreen * 100 / screenPixels;
                                                 if (screenPixels == gdiPixels)
                                                 {

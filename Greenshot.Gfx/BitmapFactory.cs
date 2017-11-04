@@ -62,7 +62,7 @@ namespace Greenshot.Gfx
         /// <param name="horizontalResolution">float</param>
         /// <param name="verticalResolution">float</param>
         /// <returns>Bitmap</returns>
-        public static Bitmap CreateEmpty(int width, int height, PixelFormat format = PixelFormat.DontCare, Color? backgroundColor = null, float horizontalResolution = 96f, float verticalResolution = 96f)
+        public static Bitmap CreateEmpty(int width, int height, PixelFormat format = PixelFormat.Format32bppArgb, Color? backgroundColor = null, float horizontalResolution = 96f, float verticalResolution = 96f)
         {
             // Create a new "clean" image
             var newImage = new Bitmap(width, height, format);

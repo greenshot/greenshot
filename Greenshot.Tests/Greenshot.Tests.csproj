@@ -155,8 +155,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\ByteArrayExtensions.cs" />
-    <Compile Include="GfxPerformance.cs" />
-    <Compile Include="GfxPerformanceTests.cs" />
+    <Compile Include="BlurTests.cs" />
+    <Compile Include="Implementation\BoxBlurOld.cs" />
     <Compile Include="Murmur3Tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StitchTests.cs" />
