@@ -1,6 +1,5 @@
 ﻿using System.Drawing;
 using System.Drawing.Imaging;
-using BenchmarkDotNet.Attributes;
 using Greenshot.Gfx;
 using Greenshot.Tests.Implementation;
 using Xunit;
@@ -33,7 +32,7 @@ namespace Greenshot.Tests
                 bitmapOld.Save(@"old.png", ImageFormat.Png);
                 bitmapNew.Save(@"new.png", ImageFormat.Png);
 
-                Assert.True(bitmapOld.IsEqualTo(bitmapNew));
+                Assert.True(bitmapOld.IsEqualTo(bitmapNew), "New blur doesn't compare to old.");
             }
         }
     }

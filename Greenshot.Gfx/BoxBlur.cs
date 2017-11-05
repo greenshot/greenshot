@@ -87,6 +87,7 @@ namespace Greenshot.Gfx
             {
                 unsafe
                 {
+                    var averages = stackalloc byte[range << 2];
                     var readColor = stackalloc byte[4];
                     var a = 0;
                     var r = 0;
@@ -101,34 +102,43 @@ namespace Greenshot.Gfx
                         g += readColor[FastBitmapBase.ColorIndexG];
                         b += readColor[FastBitmapBase.ColorIndexB];
                     }
-                    var calculatedColor = stackalloc byte[4];
                     for (var x = targetFastBitmap.Left; x < targetFastBitmap.Right; x++)
                     {
-                        targetFastBitmap.GetColorAt(x, y, readColor);
-                        calculatedColor[FastBitmapBase.ColorIndexA] = (byte)(a / hits);
-                        calculatedColor[FastBitmapBase.ColorIndexR] = (byte)(r / hits);
-                        calculatedColor[FastBitmapBase.ColorIndexG] = (byte)(g / hits);
-                        calculatedColor[FastBitmapBase.ColorIndexB] = (byte)(b / hits);
-                        targetFastBitmap.SetColorAt(x, y, calculatedColor);
-
-                        a -= readColor[FastBitmapBase.ColorIndexA];
-                        r -= readColor[FastBitmapBase.ColorIndexR];
-                        g -= readColor[FastBitmapBase.ColorIndexG];
-                        b -= readColor[FastBitmapBase.ColorIndexB];
-                        hits--;
-
-                        var rightPixel = x + halfRange;
-                        if (rightPixel >= targetFastBitmap.Right)
+                        var leftSide = x - halfRange - 1;
+                        if (leftSide >= targetFastBitmap.Left)
                         {
-                            continue;
+                            // Get value at the left side of range
+                            targetFastBitmap.GetColorAt(leftSide, y, readColor);
+                            a -= readColor[FastBitmapBase.ColorIndexA];
+                            r -= readColor[FastBitmapBase.ColorIndexR];
+                            g -= readColor[FastBitmapBase.ColorIndexG];
+                            b -= readColor[FastBitmapBase.ColorIndexB];
+                            hits--;
                         }
-                        targetFastBitmap.GetColorAt(rightPixel, y, readColor);
-                        a += readColor[FastBitmapBase.ColorIndexA];
-                        r += readColor[FastBitmapBase.ColorIndexR];
-                        g += readColor[FastBitmapBase.ColorIndexG];
-                        b += readColor[FastBitmapBase.ColorIndexB];
-                        hits++;
-                    }
+
+                        var rightSide = x + halfRange;
+                        if (rightSide < targetFastBitmap.Right)
+                        {
+                            targetFastBitmap.GetColorAt(rightSide, y, readColor);
+                            a += readColor[FastBitmapBase.ColorIndexA];
+                            r += readColor[FastBitmapBase.ColorIndexR];
+                            g += readColor[FastBitmapBase.ColorIndexG];
+                            b += readColor[FastBitmapBase.ColorIndexB];
+                            hits++;
+                        }
+
+                        var writeLocation = (x % range) << 2;
+                        averages[writeLocation + FastBitmapBase.ColorIndexA] = (byte) (a / hits);
+                        averages[writeLocation + FastBitmapBase.ColorIndexR] = (byte) (r / hits);
+                        averages[writeLocation + FastBitmapBase.ColorIndexG] = (byte) (g / hits);
+                        averages[writeLocation + FastBitmapBase.ColorIndexB] = (byte) (b / hits);
+
+                        if (leftSide >= targetFastBitmap.Left) {
+                            // Now we can write the value from the calculated avarages
+                            var readLocation = (leftSide % range) << 2;
+                            targetFastBitmap.SetColorAt(leftSide, y, averages, readLocation);
+                        }
+                }
                 }
             });
         }
@@ -147,7 +157,7 @@ namespace Greenshot.Gfx
                 unsafe
                 {
                     var readColor = stackalloc byte[4];
-                    var calculatedColor = stackalloc byte[4];
+                    var averages = stackalloc byte[range << 2];
                     var hits = 0;
                     var a = 0;
                     var r = 0;
@@ -164,30 +174,42 @@ namespace Greenshot.Gfx
                     }
                     for (var y = targetFastBitmap.Top; y < targetFastBitmap.Bottom; y++)
                     {
-                        targetFastBitmap.GetColorAt(x, y, readColor);
-                        calculatedColor[FastBitmapBase.ColorIndexA] = (byte)(a / hits);
-                        calculatedColor[FastBitmapBase.ColorIndexR] = (byte)(r / hits);
-                        calculatedColor[FastBitmapBase.ColorIndexG] = (byte)(g / hits);
-                        calculatedColor[FastBitmapBase.ColorIndexB] = (byte)(b / hits);
-                        targetFastBitmap.SetColorAt(x, y, calculatedColor);
-
-                        a -= readColor[FastBitmapBase.ColorIndexA];
-                        r -= readColor[FastBitmapBase.ColorIndexR];
-                        g -= readColor[FastBitmapBase.ColorIndexG];
-                        b -= readColor[FastBitmapBase.ColorIndexB];
-                        hits--;
-
-                        var bottomPixel = y + halfRange;
-                        if (bottomPixel >= targetFastBitmap.Bottom)
+                        var topSide = y - halfRange - 1;
+                        if (topSide >= targetFastBitmap.Top)
                         {
-                            continue;
+                            // Get value at the top side of range
+                            targetFastBitmap.GetColorAt(x, topSide, readColor);
+                            a -= readColor[FastBitmapBase.ColorIndexA];
+                            r -= readColor[FastBitmapBase.ColorIndexR];
+                            g -= readColor[FastBitmapBase.ColorIndexG];
+                            b -= readColor[FastBitmapBase.ColorIndexB];
+                            hits--;
                         }
-                        targetFastBitmap.GetColorAt(x, bottomPixel, readColor);
-                        a += readColor[FastBitmapBase.ColorIndexA];
-                        r += readColor[FastBitmapBase.ColorIndexR];
-                        g += readColor[FastBitmapBase.ColorIndexG];
-                        b += readColor[FastBitmapBase.ColorIndexB];
-                        hits++;
+
+                        var bottomSide = y + halfRange;
+                        if (bottomSide < targetFastBitmap.Bottom)
+                        {
+                            targetFastBitmap.GetColorAt(x, bottomSide, readColor);
+                            a += readColor[FastBitmapBase.ColorIndexA];
+                            r += readColor[FastBitmapBase.ColorIndexR];
+                            g += readColor[FastBitmapBase.ColorIndexG];
+                            b += readColor[FastBitmapBase.ColorIndexB];
+                            hits++;
+                        }
+
+                        var writeLocation = (y % range) << 2;
+                        averages[writeLocation + FastBitmapBase.ColorIndexA] = (byte)(a / hits);
+                        averages[writeLocation + FastBitmapBase.ColorIndexR] = (byte)(r / hits);
+                        averages[writeLocation + FastBitmapBase.ColorIndexG] = (byte)(g / hits);
+                        averages[writeLocation + FastBitmapBase.ColorIndexB] = (byte)(b / hits);
+
+                        if (topSide >= targetFastBitmap.Top)
+                        {
+                            // Write the value from the calculated avarages
+                            var readLocation = (topSide % range) << 2;
+                            targetFastBitmap.SetColorAt(x, topSide, averages, readLocation);
+                        }
+
                     }
                 }
             });

@@ -29,7 +29,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Windows.App;
@@ -47,13 +46,9 @@ using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
-using Dapplo.Windows.Input;
-using Dapplo.Windows.Input.Enums;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
-using Dapplo.Windows.User32.Enums;
 using Greenshot.Gfx;
-using Greenshot.Gfx.Stitching;
 
 #endregion
 
@@ -963,7 +958,7 @@ namespace Greenshot.Helpers
                                 if (tmpCapture != null)
                                 {
                                     // check if GDI capture any good, by comparing it with the screen content
-                                    var blackCountGdi = BitmapHelper.CountColor(tmpCapture.Bitmap, Color.Black, false);
+                                    var blackCountGdi = tmpCapture.Bitmap.CountColor(Color.Black, false);
                                     var gdiPixels = tmpCapture.Bitmap.Width * tmpCapture.Bitmap.Height;
                                     var blackPercentageGdi = blackCountGdi * 100 / gdiPixels;
                                     if (blackPercentageGdi >= 1)
@@ -974,7 +969,7 @@ namespace Greenshot.Helpers
                                             screenCapture.CaptureDetails = captureForWindow.CaptureDetails;
                                             if (WindowCapture.CaptureRectangleFromDesktopScreen(screenCapture, windowRectangle) != null)
                                             {
-                                                var blackCountScreen = BitmapHelper.CountColor(screenCapture.Bitmap, Color.Black, false);
+                                                var blackCountScreen = screenCapture.Bitmap.CountColor(Color.Black, false);
                                                 var blackPercentageScreen = blackCountScreen * 100 / screenPixels;
                                                 if (screenPixels == gdiPixels)
                                                 {

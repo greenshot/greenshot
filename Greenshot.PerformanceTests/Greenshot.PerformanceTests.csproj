@@ -154,6 +154,10 @@
       <Project>{F041C685-EB96-4ED1-9ACE-0F5BD836610F}</Project>
       <Name>Greenshot.Gfx</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Greenshot.Tests\Greenshot.Tests.csproj">
+      <Project>{9B162E60-12D8-44FD-8093-7D40392F23FA}</Project>
+      <Name>Greenshot.Tests</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

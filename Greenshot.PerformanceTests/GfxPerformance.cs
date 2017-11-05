@@ -4,6 +4,7 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Attributes.Columns;
 using Greenshot.Gfx;
 using Greenshot.Gfx.Quantizer;
+using Greenshot.Tests.Implementation;
 
 namespace Greenshot.PerformanceTests
 {
