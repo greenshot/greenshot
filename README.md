@@ -16,9 +16,9 @@ and a lot more options simplyfying creation of and work with screenshots every d
 Being easy to understand and configurable, Greenshot is an efficient tool for project managers, software developers, technical writers, testers and anyone else creating screenshots.
 
 
-[If you find that Greenshot saves you a lot of time and/or money, you are very welcome to support the development of this screenshot software.](http://getgreenshot.org/support-greenshot/)
+[If you find that Greenshot saves you a lot of time and/or money, you are very welcome to support the development of this screenshot software.](http://getgreenshot.org/support/)
 
 
 About this repository
 ---------------------
-This repository is for Greenshot 1.2.9, which is a bugfix of 1.2.8
+This repository is for Greenshot 1.2.10, which is a bugfix of 1.2.9.129

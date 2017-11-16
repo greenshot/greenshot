@@ -132,7 +132,7 @@ namespace Greenshot.Drawing.Fields
 
 		public object GetFieldValue(IFieldType fieldType)
 		{
-			return GetField(fieldType).Value;
+			return GetField(fieldType)?.Value;
 		}
 
 		#region convenience methods to save us some casts outside
@@ -166,9 +166,9 @@ namespace Greenshot.Drawing.Fields
 			return Convert.ToBoolean(GetFieldValue(fieldType));
 		}
 
-		public Color GetFieldValueAsColor(IFieldType fieldType)
+		public Color GetFieldValueAsColor(IFieldType fieldType, Color defaultColor = default(Color))
 		{
-			return (Color)GetFieldValue(fieldType);
+			return (Color)(GetFieldValue(fieldType) ?? defaultColor);
 		}
 		#endregion
 

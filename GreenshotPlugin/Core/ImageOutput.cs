@@ -127,26 +127,20 @@ namespace GreenshotPlugin.Core {
 						imageFormat = ImageFormat.Icon;
 						break;
 					default:
-						// Problem with non-seekable streams most likely doesn't happen with Windows 7 (OS Version 6.1 and later)
-						// http://stackoverflow.com/questions/8349260/generic-gdi-error-on-one-machine-but-not-the-other
-						if (!stream.CanSeek) {
-							if (!Environment.OSVersion.IsWindows7OrLater())
-							{
-								useMemoryStream = true;
-								Log.Warn("Using memorystream prevent an issue with saving to a non seekable stream.");
-							}
-						}
 						imageFormat = ImageFormat.Png;
 						break;
 				}
 				Log.DebugFormat("Saving image to stream with Format {0} and PixelFormat {1}", imageFormat, imageToSave.PixelFormat);
 
-				// Check if we want to use a memory stream, to prevent a issue which happens with Windows before "7".
+				// Check if we want to use a memory stream, to prevent issues with non seakable streams
 				// The save is made to the targetStream, this is directed to either the MemoryStream or the original
 				Stream targetStream = stream;
-				if (useMemoryStream) {
-					memoryStream = new MemoryStream();
-					targetStream = memoryStream;
+				if (!stream.CanSeek)
+				{
+					useMemoryStream = true;
+					Log.Warn("Using memorystream prevent an issue with saving to a non seekable stream.");
+				    memoryStream = new MemoryStream();
+				    targetStream = memoryStream;
 				}
 
 				if (Equals(imageFormat, ImageFormat.Jpeg))
@@ -213,18 +207,20 @@ namespace GreenshotPlugin.Core {
 				}
 
 				// Output the surface elements, size and marker to the stream
-				if (outputSettings.Format == OutputFormat.greenshot) {
-					using (MemoryStream tmpStream = new MemoryStream()) {
-						long bytesWritten = surface.SaveElementsToStream(tmpStream);
-						using (BinaryWriter writer = new BinaryWriter(tmpStream)) {
-							writer.Write(bytesWritten);
-							Version v = Assembly.GetExecutingAssembly().GetName().Version;
-							byte[] marker = Encoding.ASCII.GetBytes($"Greenshot{v.Major:00}.{v.Minor:00}");
-							writer.Write(marker);
-							tmpStream.WriteTo(stream);
-						}
-					}
-				}
+			    if (outputSettings.Format != OutputFormat.greenshot)
+			    {
+			        return;
+			    }
+			    using (MemoryStream tmpStream = new MemoryStream()) {
+			        long bytesWritten = surface.SaveElementsToStream(tmpStream);
+			        using (BinaryWriter writer = new BinaryWriter(tmpStream)) {
+			            writer.Write(bytesWritten);
+			            Version v = Assembly.GetExecutingAssembly().GetName().Version;
+			            byte[] marker = Encoding.ASCII.GetBytes($"Greenshot{v.Major:00}.{v.Minor:00}");
+			            writer.Write(marker);
+			            tmpStream.WriteTo(stream);
+			        }
+			    }
 			}
 			finally
 			{

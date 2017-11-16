@@ -1002,14 +1002,57 @@ Greenshot received information from CloudServiceName. You can close this browser
 			//	"expires_in":3920,
 			//	"token_type":"Bearer",
 			//	"refresh_token":"1/xEoDL4iW3cxlI7yDbSRFYNG01kVKM2C-259HOF2aQbI"
-			settings.AccessToken = (string)refreshTokenResult[AccessToken];
-			settings.RefreshToken = (string)refreshTokenResult[RefreshToken];
-
-			object seconds = refreshTokenResult[ExpiresIn];
-			if (seconds != null) {
-				settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds((double)seconds);
+			if (refreshTokenResult.ContainsKey(AccessToken))
+			{
+				settings.AccessToken = (string)refreshTokenResult[AccessToken];
+			}
+			if (refreshTokenResult.ContainsKey(RefreshToken))
+			{
+				settings.RefreshToken = (string)refreshTokenResult[RefreshToken];
+			}
+			if (refreshTokenResult.ContainsKey(ExpiresIn))
+			{
+				object seconds = refreshTokenResult[ExpiresIn];
+				if (seconds != null)
+				{
+					settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds((double)seconds);
+				}
 			}
 			settings.Code = null;
+		}
+
+		/// <summary>
+		/// Used to update the settings with the callback information
+		/// </summary>
+		/// <param name="settings">OAuth2Settings</param>
+		/// <param name="callbackParameters">IDictionary</param>
+		/// <returns>true if the access token is already in the callback</returns>
+		private static bool UpdateFromCallback(OAuth2Settings settings, IDictionary<string, string> callbackParameters)
+		{
+			if (!callbackParameters.ContainsKey(AccessToken))
+			{
+				return false;
+			}
+			if (callbackParameters.ContainsKey(RefreshToken))
+			{
+				// Refresh the refresh token :)
+				settings.RefreshToken = callbackParameters[RefreshToken];
+			}
+			if (callbackParameters.ContainsKey(ExpiresIn))
+			{
+				var expiresIn = callbackParameters[ExpiresIn];
+				settings.AccessTokenExpires = DateTimeOffset.MaxValue;
+				if (expiresIn != null)
+				{
+					double seconds;
+					if (double.TryParse(expiresIn, out seconds))
+					{
+						settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds(seconds);
+					}
+				}
+			}
+			settings.AccessToken = callbackParameters[AccessToken];
+			return true;
 		}
 
 		/// <summary>
@@ -1054,16 +1097,22 @@ Greenshot received information from CloudServiceName. You can close this browser
 				}
 			}
 
-			settings.AccessToken = (string)accessTokenResult[AccessToken];
+			if (accessTokenResult.ContainsKey(AccessToken))
+			{
+				settings.AccessToken = (string) accessTokenResult[AccessToken];
+				settings.AccessTokenExpires = DateTimeOffset.MaxValue;
+			}
 			if (accessTokenResult.ContainsKey(RefreshToken)) {
 				// Refresh the refresh token :)
 				settings.RefreshToken = (string)accessTokenResult[RefreshToken];
 			}
-			object seconds = accessTokenResult[ExpiresIn];
-			if (seconds != null) {
-				settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds((double)seconds);
-			} else {
-				settings.AccessTokenExpires = DateTimeOffset.MaxValue;
+			if (accessTokenResult.ContainsKey(ExpiresIn))
+			{
+				object seconds = accessTokenResult[ExpiresIn];
+				if (seconds != null)
+				{
+					settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds((double) seconds);
+				}
 			}
 		}
 
@@ -1109,6 +1158,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 					GenerateRefreshToken(settings);
 					return true;
 				}
+				return UpdateFromCallback(settings, loginForm.CallbackParameters);
 			}
 			return false;
 		}
