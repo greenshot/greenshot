@@ -7,8 +7,8 @@ date: !binary |-
   MjAxMi0xMC0zMCAyMTowMTowMCArMDEwMA==
 date_gmt: !binary |-
   MjAxMi0xMC0zMCAxOTowMTowMCArMDEwMA==
-
 tags:
+- windows
 - release
 - '1.0'
 comments: []

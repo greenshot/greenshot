@@ -3,13 +3,12 @@ layout: post
 status: publish
 published: true
 title: ! 'Getting Closer: Third Release Candidate for Greenshot 1.1 + Indonesian Translation'
-
 tags:
+- windows
 - translation
 - release candidate
 - '1.1'
 - indonesian
-
 ---
 <p>Today we have uploaded the third release candidate for version 1.1. We are very optimistic that this is the last release candidate and that we will release the final version of Greenshot 1.1 very soon.</p>
 <p>The current release candidate fixes a bug when using the "Highlight Area" feature of the image editor. Furthermore, we are happy to announce a new language in the family of Greenshot translations: Indonesian is included from now on, you can download it for existing installations of previous versions from our <a href="/downloads/">downloads page</a>.<br />

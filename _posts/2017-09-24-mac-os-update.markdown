@@ -5,6 +5,7 @@ published: true
 release_version: 1.2.6
 title: Greenshot 1.2.6 Mac OS update
 tags:
+- osx
 - 1.2
 - bugfix
 - release

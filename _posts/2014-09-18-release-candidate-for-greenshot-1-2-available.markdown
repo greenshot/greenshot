@@ -3,11 +3,10 @@ layout: post
 status: publish
 published: true
 title: Release candidate for Greenshot 1.2 available
-
 tags:
+- windows
 - release candidate
 - '1.2'
-
 ---
 <p>We have just uploaded the first release candidate for Greenshot 1.2. It fixes some bugs of the prior version, but, far more important, adds some features that have been requested very often... most notably, the Greenshot 1.2 editor will finally draw speech bubbles / callouts, auto-incrementing labels and offer the possibility to resize the screenshot.</p>
 <p>As usual, the disclaimer: "release candidate" means that this version has not gone through extensive testing yet. It might be buggy, so if you do not like surprises, we suggest to stick with version 1.1 until we have ironed out all issues and publish the stable release of version 1.2. In case you encounter any problems with the release candidate, please <a href="/tickets/">file a bug report</a> - thanks a lot.</p>

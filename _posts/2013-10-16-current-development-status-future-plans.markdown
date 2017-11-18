@@ -3,13 +3,11 @@ layout: post
 status: publish
 published: true
 title: Current Development Status and Plans for the Future
-
 tags:
+- windows
 - '1.1'
 - '2.0'
-- windows
 - .net
-
 ---
 <p>So what have we been up to? You might have heard little of us, but this doesn't mean we were sleeping!</p>
 <p>Of course we were working on Greenshot 1.1.6, we fixed some mean bugs and even managed to squeeze in a few small features! We will release the new version within the next few days, so stay tuned :)</p>

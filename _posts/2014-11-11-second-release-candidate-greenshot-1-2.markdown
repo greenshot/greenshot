@@ -3,8 +3,8 @@ layout: post
 status: publish
 published: true
 title: Second release candidate for Greenshot 1.2
-
 tags:
+- windows
 - release candidate
 - '1.2'
 

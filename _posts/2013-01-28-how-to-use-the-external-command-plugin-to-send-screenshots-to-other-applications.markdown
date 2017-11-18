@@ -3,10 +3,10 @@ layout: post
 status: publish
 published: true
 title: How to use the External Command Plugin to send screenshots to other applications
-
 tags:
+- windows
 - plugin
-
+- howto
 ---
 <p><a href="/assets/wp-content/uploads/2013/01/1-configure-external-commands.png"><img src="/assets/wp-content/uploads/2013/01/1-configure-external-commands.png" alt="Configuring external commands" width="245" height="300" class="alignright size-medium wp-image-756" /></a>
 <p> Ever wondered what is the quickest way to have Greenshot output images to other applications on your PC, e.g. your favorite image manipulation software, upload application or instant messenger?</p>

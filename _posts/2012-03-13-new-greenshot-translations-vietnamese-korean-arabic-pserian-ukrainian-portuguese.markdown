@@ -8,8 +8,8 @@ date: !binary |-
   MjAxMi0wMy0xMyAxODoyMDozMSArMDEwMA==
 date_gmt: !binary |-
   MjAxMi0wMy0xMyAxNjoyMDozMSArMDEwMA==
-
 tags:
+- windows
 - translation
 - internationalization
 - vietnamese

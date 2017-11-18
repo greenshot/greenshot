@@ -3,11 +3,10 @@ layout: post
 status: publish
 published: true
 title: 5th Release Candidate for Greenshot 1.0 is ready for Download
-
 tags:
+- windows
 - release candidate
 - '1.0'
-
 ---
 <p>We have just uploaded the fifth release candidate for Greenshot 1.0 - the new version contains a few bugfixes, for details have a look at the changelog at the end of this entry.</p>
 <p>As always, please give us feedback if you have any problems. We are confident that (unless a serious bug is found in this release candidate) we will be ready for the final release of Greenshot 1.0 within the next few days. We are looking forward to this :)</p>

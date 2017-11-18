@@ -3,12 +3,11 @@ layout: post
 status: publish
 published: true
 title: ! 'Release Candidate #4 is available'
-
 tags:
+- windows
 - bugfix
 - release candidate
 - '1.0'
-
 ---
 <p>Well, that one was short-lived ;-)<br />
 The <a href="/2012/10/19/getting-closer-third-release-candidate-for-greenshot-1-0-published-today/" title="Getting closer… third release candidate for Greenshot 1.0 published today">third release candidate</a> (released only yesterday) introduced two annoying bugs regarding several upload plugins (OAuth authentication process was broken) and the external command plugin (not working).<br />

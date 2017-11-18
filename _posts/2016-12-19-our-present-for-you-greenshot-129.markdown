@@ -5,6 +5,7 @@ published: true
 release_version: 1.2.9.103
 title: ! 'Our present for you: Greenshot 1.2.9 brings a lot of improvements and fixes'
 tags:
+- windows
 - 1.2
 - bugfix
 - release

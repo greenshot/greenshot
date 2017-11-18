@@ -5,6 +5,7 @@ published: true
 release_version: 1.2.9.112
 title: ! 'Happy new year: Greenshot 1.2.9 bugfix release'
 tags:
+- windows
 - 1.2
 - bugfix
 - release

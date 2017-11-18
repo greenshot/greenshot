@@ -3,8 +3,8 @@ layout: post
 status: publish
 published: true
 title: ! 'Release candidate #2 for Greenshot 1.1 is ready for download'
-
 tags:
+- windows
 - release candidate
 - '1.1'
 

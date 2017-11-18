@@ -3,8 +3,8 @@ layout: post
 status: publish
 published: true
 title: Greenshot in Japanese, Dutch, Spanish or Simplified Chinese
-
 tags:
+- windows
 - translation
 - internationalization
 - japanese

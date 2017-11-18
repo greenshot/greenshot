@@ -5,6 +5,7 @@ published: true
 release_version: 1.2.9.129
 title: Greenshot 1.2.9 January Bug Bash
 tags:
+- windows
 - 1.2
 - bugfix
 - release

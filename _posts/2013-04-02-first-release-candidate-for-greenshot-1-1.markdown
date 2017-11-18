@@ -3,11 +3,10 @@ layout: post
 status: publish
 published: true
 title: First release candidate for Greenshot 1.1
-
 tags:
+- windows
 - release candidate
 - '1.1'
-
 ---
 <p>It has been a few months since we have released Greenshot 1.0, finally leaving beta status. This was a huge step for us and we are happy to see that the number of downloads is still rising. Greenshot 1.0 has pushed downloads past the 2 million downloads mark last year and it is still downloaded far more than 100.000 times each month.</p>
 <p>Time to take it to the next level: today we have published the first release candidate for version 1.1 - we decided to keep the interval short, so that you can can benefit from the improvements and new features as early as possible. However, the list of changes and bug fixes is still fairly impressive. Most notable, the region capture mode now comes with a small zoom window, enabling pixel exact selection of the rectangle to capture. But there is a lot more, have a look at the change log below for details.</p>

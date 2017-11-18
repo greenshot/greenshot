@@ -3,8 +3,8 @@ layout: post
 status: publish
 published: true
 title: 300K Downloads – thank you :)
-
 tags:
+- windows
 - downloads
 - stats
 ---

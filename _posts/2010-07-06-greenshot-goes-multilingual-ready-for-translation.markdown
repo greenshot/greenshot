@@ -3,8 +3,8 @@ layout: post
 status: publish
 published: true
 title: Greenshot goes multilingual – ready for translation
-
 tags:
+- windows
 - '0.8'
 - translation
 - interface

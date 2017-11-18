@@ -3,8 +3,8 @@ layout: post
 status: publish
 published: true
 title: New Bugfix Release with Important Change for Box.com Users
-
 tags:
+- windows
 - release
 - bugfix
 - '1.1'

@@ -3,13 +3,12 @@ layout: post
 status: publish
 published: true
 title: ! 'A few words on memory usage or: working set vs. private working set'
-
 tags:
+- windows
 - memory
 - ram
 - working set
 - performance
-
 ---
 <p>Every once in a while, we read statements like "Woah, the task manager says my Greenshot installation takes x MB of RAM when it is idle! Why does Greenshot need so much memory?"</p>
 <p>Actually, it does not. Please do not judge any software by what the task manager says. Of course, the task manager is not lying to you; but its presentation of facts is rather misleading.</p>

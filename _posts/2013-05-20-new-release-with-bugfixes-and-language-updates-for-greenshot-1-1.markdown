@@ -3,8 +3,8 @@ layout: post
 status: publish
 published: true
 title: New release with bugfixes and language updates for Greenshot 1.1
-
 tags:
+- windows
 - release
 - translation
 - bugfix

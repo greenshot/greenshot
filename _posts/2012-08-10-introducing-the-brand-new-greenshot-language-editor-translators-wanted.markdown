@@ -8,6 +8,7 @@ date: !binary |-
 date_gmt: !binary |-
   MjAxMi0wOC0xMCAwNzozNTowOCArMDIwMA==
 tags:
+- windows
 - translation
 - internationalization
 - release candidate

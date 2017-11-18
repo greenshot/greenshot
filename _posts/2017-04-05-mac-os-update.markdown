@@ -5,6 +5,7 @@ published: true
 release_version: 1.2.5
 title: Greenshot for MAC 1.2.5
 tags:
+- osx
 - 1.2
 - bugfix
 - release

@@ -5,6 +5,7 @@ published: true
 release_version: 1.2.10.6
 title: Greenshot 1.2.10 September fixes
 tags:
+- windows
 - 1.2
 - bugfix
 - release

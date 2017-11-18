@@ -3,8 +3,8 @@ layout: post
 status: publish
 published: true
 title: Small bugfix release today
-
 tags:
+- windows
 - '0.8'
 - release
 - bugfix

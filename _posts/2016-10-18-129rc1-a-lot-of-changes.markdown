@@ -4,6 +4,7 @@ status: publish
 published: true
 title: ! 'Release candidate 1 for 1.2.9'
 tags:
+- windows
 - 1.2
 - bugfix
 - release

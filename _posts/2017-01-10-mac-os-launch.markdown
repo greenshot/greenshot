@@ -5,6 +5,7 @@ published: true
 release_version: 1.2
 title: ! 'Greenshot for Mac OS X is out now!'
 tags:
+- osx
 - mac os
 - launch
 - release
