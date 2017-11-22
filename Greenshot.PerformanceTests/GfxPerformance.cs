@@ -5,6 +5,7 @@ using BenchmarkDotNet.Attributes.Columns;
 using Greenshot.Gfx;
 using Greenshot.Gfx.Quantizer;
 using Greenshot.Tests.Implementation;
+using JeremyAnsel.ColorQuant;
 
 namespace Greenshot.PerformanceTests
 {
@@ -25,7 +26,10 @@ namespace Greenshot.PerformanceTests
                     graphics.FillRectangle(pen, new Rectangle(30, 30, 340, 340));
                 }
                 var quantizer = new WuQuantizer(bitmap);
-                quantizer.GetQuantizedImage().Dispose();
+                using (var quantizedImage = quantizer.GetQuantizedImage())
+                {
+                    quantizedImage.Save(@"quantized.png", ImageFormat.Png);
+                }
             }
         }
 

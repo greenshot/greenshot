@@ -28,8 +28,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Windows.Dpi;
-using Greenshot.Forms;
-using Greenshot.Helpers;
 using GreenshotJiraPlugin.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.IniFile;
@@ -54,23 +52,7 @@ namespace GreenshotJiraPlugin
 
 		public JiraPlugin()
 		{
-			Instance = this;
-			// Added to prevent Greenshot from shutting down when there was an exception in a Task
-			TaskScheduler.UnobservedTaskException += (sender, args) =>
-			{
-				try
-				{
-					Exception exceptionToLog = args.Exception;
-					var exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
-					Log.Error().WriteLine(null, "Exception caught in the UnobservedTaskException handler.");
-					Log.Error().WriteLine(null, exceptionText);
-					new BugReportForm(exceptionText).ShowDialog();
-				}
-				finally
-				{
-					args.SetObserved();
-				}
-			};
+			Instance = this;		
 		}
 
 		public static JiraPlugin Instance { get; private set; }

@@ -55,41 +55,41 @@
     <Reference Include="Dapplo.Utils, Version=1.0.150.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Utils.1.0.150\lib\net45\Dapplo.Utils.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows, Version=0.5.33.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.0.5.33\lib\net45\Dapplo.Windows.dll</HintPath>
+    <Reference Include="Dapplo.Windows, Version=0.5.34.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.0.5.34\lib\net45\Dapplo.Windows.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.Clipboard, Version=0.5.33.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Clipboard.0.5.33\lib\net45\Dapplo.Windows.Clipboard.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Clipboard, Version=0.5.34.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Clipboard.0.5.34\lib\net45\Dapplo.Windows.Clipboard.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.Common, Version=0.5.33.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Common.0.5.33\lib\net45\Dapplo.Windows.Common.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Common, Version=0.5.34.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Common.0.5.34\lib\net45\Dapplo.Windows.Common.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.DesktopWindowsManager, Version=0.5.33.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.DesktopWindowsManager.0.5.33\lib\net45\Dapplo.Windows.DesktopWindowsManager.dll</HintPath>
+    <Reference Include="Dapplo.Windows.DesktopWindowsManager, Version=0.5.34.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.DesktopWindowsManager.0.5.34\lib\net45\Dapplo.Windows.DesktopWindowsManager.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.Dpi, Version=0.5.33.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Dpi.0.5.33\lib\net45\Dapplo.Windows.Dpi.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Dpi, Version=0.5.34.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Dpi.0.5.34\lib\net45\Dapplo.Windows.Dpi.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.Gdi32, Version=0.5.33.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Gdi32.0.5.33\lib\net45\Dapplo.Windows.Gdi32.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Gdi32, Version=0.5.34.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Gdi32.0.5.34\lib\net45\Dapplo.Windows.Gdi32.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.Icons, Version=0.5.33.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Icons.0.5.33\lib\net45\Dapplo.Windows.Icons.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Icons, Version=0.5.34.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Icons.0.5.34\lib\net45\Dapplo.Windows.Icons.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.Input, Version=0.5.33.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Input.0.5.33\lib\net45\Dapplo.Windows.Input.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Input, Version=0.5.34.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Input.0.5.34\lib\net45\Dapplo.Windows.Input.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.Kernel32, Version=0.5.33.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Kernel32.0.5.33\lib\net45\Dapplo.Windows.Kernel32.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Kernel32, Version=0.5.34.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Kernel32.0.5.34\lib\net45\Dapplo.Windows.Kernel32.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.Messages, Version=0.5.33.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Messages.0.5.33\lib\net45\Dapplo.Windows.Messages.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Messages, Version=0.5.34.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Messages.0.5.34\lib\net45\Dapplo.Windows.Messages.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.Multimedia, Version=0.5.33.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.Multimedia.0.5.33\lib\net45\Dapplo.Windows.Multimedia.dll</HintPath>
+    <Reference Include="Dapplo.Windows.Multimedia, Version=0.5.34.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.Multimedia.0.5.34\lib\net45\Dapplo.Windows.Multimedia.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Windows.User32, Version=0.5.33.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Windows.User32.0.5.33\lib\net45\Dapplo.Windows.User32.dll</HintPath>
+    <Reference Include="Dapplo.Windows.User32, Version=0.5.34.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Windows.User32.0.5.34\lib\net45\Dapplo.Windows.User32.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.mshtml, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
@@ -487,6 +487,54 @@
       <Project>{f041c685-eb96-4ed1-9ace-0f5bd836610f}</Project>
       <Name>Greenshot.Gfx</Name>
     </ProjectReference>
+    <ProjectReference Include="..\GreenshotBoxPlugin\GreenshotBoxPlugin.csproj">
+      <Project>{697cf066-9077-4f22-99d9-d989cce7282b}</Project>
+      <Name>GreenshotBoxPlugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GreenshotConfluencePlugin\GreenshotConfluencePlugin.csproj">
+      <Project>{c3052651-598a-44e2-aab3-2e41311d50f9}</Project>
+      <Name>GreenshotConfluencePlugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GreenshotDropboxPlugin\GreenshotDropboxPlugin.csproj">
+      <Project>{ad7cffe2-40e7-46cf-a172-d48cf7ae9a12}</Project>
+      <Name>GreenshotDropboxPlugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GreenshotExternalCommandPlugin\GreenshotExternalCommandPlugin.csproj">
+      <Project>{47f23c86-604e-4cc3-8767-b3d4088f30bb}</Project>
+      <Name>GreenshotExternalCommandPlugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GreenshotFlickrPlugin\GreenshotFlickrPlugin.csproj">
+      <Project>{7ec72a5a-d73a-4b4b-9ca1-2216c7d92d5e}</Project>
+      <Name>GreenshotFlickrPlugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GreenshotGooglePhotosPlugin\GreenshotGooglePhotosPlugin.csproj">
+      <Project>{1893a2e4-a78a-4713-a8e7-e70058dabee0}</Project>
+      <Name>GreenshotGooglePhotosPlugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GreenshotImgurPlugin\GreenshotImgurPlugin.csproj">
+      <Project>{80d8deb9-94e3-4876-8cca-2df1ed5f2c50}</Project>
+      <Name>GreenshotImgurPlugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GreenshotJiraPlugin\GreenshotJiraPlugin.csproj">
+      <Project>{19feef09-313f-43c7-819d-f1bca782b08b}</Project>
+      <Name>GreenshotJiraPlugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GreenshotLutimPlugin\GreenshotLutimPlugin.csproj">
+      <Project>{d106f86c-cd3d-44ff-b151-2a5d47268b5c}</Project>
+      <Name>GreenshotLutimPlugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GreenshotOCRPlugin\GreenshotOCRPlugin.csproj">
+      <Project>{c6988ee8-2fee-4349-9f09-f9628a0d8965}</Project>
+      <Name>GreenshotOCRPlugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GreenshotOfficePlugin\GreenshotOfficePlugin.csproj">
+      <Project>{92599c09-ff29-4abd-b6e6-c48ecd781bab}</Project>
+      <Name>GreenshotOfficePlugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GreenshotPhotobucketPlugin\GreenshotPhotobucketPlugin.csproj">
+      <Project>{9c0ecc4c-7807-4111-916a-4f57bb29788a}</Project>
+      <Name>GreenshotPhotobucketPlugin</Name>
+    </ProjectReference>
     <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">
       <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
       <Name>GreenshotPlugin</Name>
@@ -539,8 +587,8 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Costura.Fody.1.6.2\build\dotnet\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.1.6.2\build\dotnet\Costura.Fody.targets'))" />
-    <Error Condition="!Exists('..\packages\Fody.2.2.0\build\portable-net+sl+win+wpa+wp\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.2.2.0\build\portable-net+sl+win+wpa+wp\Fody.targets'))" />
+    <Error Condition="!Exists('..\packages\Fody.2.2.1.0\build\portable-net+sl+win+wpa+wp\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.2.2.1.0\build\portable-net+sl+win+wpa+wp\Fody.targets'))" />
   </Target>
   <Import Project="..\packages\Costura.Fody.1.6.2\build\dotnet\Costura.Fody.targets" Condition="Exists('..\packages\Costura.Fody.1.6.2\build\dotnet\Costura.Fody.targets')" />
-  <Import Project="..\packages\Fody.2.2.0\build\portable-net+sl+win+wpa+wp\Fody.targets" Condition="Exists('..\packages\Fody.2.2.0\build\portable-net+sl+win+wpa+wp\Fody.targets')" />
+  <Import Project="..\packages\Fody.2.2.1.0\build\portable-net+sl+win+wpa+wp\Fody.targets" Condition="Exists('..\packages\Fody.2.2.1.0\build\portable-net+sl+win+wpa+wp\Fody.targets')" />
 </Project>

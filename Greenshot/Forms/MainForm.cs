@@ -91,6 +91,22 @@ namespace Greenshot.Forms
 
         public MainForm(CopyDataTransport dataTransport)
         {
+            // Added to prevent Greenshot from shutting down when there was an exception in a Task
+            TaskScheduler.UnobservedTaskException += (sender, args) =>
+            {
+                try
+                {
+                    Exception exceptionToLog = args.Exception;
+                    var exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
+                    Log.Error().WriteLine(null, "Exception caught in the UnobservedTaskException handler.");
+                    Log.Error().WriteLine(null, exceptionText);
+                    new BugReportForm(exceptionText).ShowDialog();
+                }
+                finally
+                {
+                    args.SetObserved();
+                }
+            };
             Instance = this;
 
             // Factory for surface objects

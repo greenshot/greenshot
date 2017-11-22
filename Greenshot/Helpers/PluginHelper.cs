@@ -36,6 +36,7 @@ using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
+using Dapplo.Windows.Kernel32;
 
 #endregion
 
@@ -252,23 +253,25 @@ namespace Greenshot.Helpers
 		/// <param name="path"></param>
 		private void FindPluginsOnPath(List<string> pluginFiles, string path)
 		{
-			if (Directory.Exists(path))
-			{
-				try
-				{
-					foreach (var pluginFile in Directory.GetFiles(path, "*.gsp", SearchOption.AllDirectories))
-					{
-						pluginFiles.Add(pluginFile);
-					}
-				}
-				catch (UnauthorizedAccessException)
-				{
-				}
-				catch (Exception ex)
-				{
-					Log.Error().WriteLine(ex, "Error loading plugin: ");
-				}
-			}
+		    if (!Directory.Exists(path))
+		    {
+		        return;
+		    }
+		    try
+		    {
+		        if (PackageInfo.IsRunningOnUwp)
+		        {
+		            pluginFiles.AddRange(Directory.GetFiles(path, "*Plugin.dll", SearchOption.AllDirectories));
+		        }
+		        else
+		        {
+		            pluginFiles.AddRange(Directory.GetFiles(path, "*.gsp", SearchOption.AllDirectories));
+                }
+		    }
+		    catch (Exception ex)
+		    {
+		        Log.Error().WriteLine(ex, "Error loading plugin: ");
+		    }
 		}
 
 		/// <summary>
