@@ -420,10 +420,12 @@ namespace Greenshot
                 var icon = toolstripDestination.GetDisplayIcon(DpiHandler.Dpi);
                 var destinationButton = new ToolStripSplitButton
                 {
+                    DropDownButtonWidth = DpiHandler.ScaleWithDpi(8, DpiHandler.Dpi),
                     DisplayStyle = ToolStripItemDisplayStyle.Image,
                     Text = toolstripDestination.Description,
                     Image = icon.ScaleIconForDisplaying(DpiHandler.Dpi)
                 };
+
                 if (!Equals(icon, destinationButton.Image))
                 {
                     destinationButton.Disposed += (sender, args) =>
@@ -914,12 +916,13 @@ namespace Greenshot
                 FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(coreConfiguration.OutputFileFilenamePattern, _surface.CaptureDetails)
             };
             var dialogResult = saveFileDialog.ShowDialog();
-            if (dialogResult.Equals(DialogResult.OK))
+            if (!dialogResult.Equals(DialogResult.OK))
             {
-                using (Stream streamWrite = File.OpenWrite(saveFileDialog.FileName))
-                {
-                    _surface.SaveElementsToStream(streamWrite);
-                }
+                return;
+            }
+            using (Stream streamWrite = File.OpenWrite(saveFileDialog.FileName))
+            {
+                _surface.SaveElementsToStream(streamWrite);
             }
         }
 
@@ -929,14 +932,15 @@ namespace Greenshot
             {
                 Filter = "Greenshot templates (*.gst)|*.gst"
             };
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            if (openFileDialog.ShowDialog() != DialogResult.OK)
             {
-                using (Stream streamRead = File.OpenRead(openFileDialog.FileName))
-                {
-                    _surface.LoadElementsFromStream(streamRead);
-                }
-                _surface.Refresh();
+                return;
             }
+            using (Stream streamRead = File.OpenRead(openFileDialog.FileName))
+            {
+                _surface.LoadElementsFromStream(streamRead);
+            }
+            _surface.Refresh();
         }
 
         private void DestinationToolStripMenuItemClick(object sender, EventArgs e)

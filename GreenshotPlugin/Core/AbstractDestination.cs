@@ -52,8 +52,7 @@ namespace GreenshotPlugin.Core
 
         public virtual int CompareTo(object obj)
         {
-            var other = obj as IDestination;
-            if (other == null)
+            if (!(obj is IDestination other))
             {
                 return 1;
             }
@@ -138,42 +137,44 @@ namespace GreenshotPlugin.Core
             {
                 basisMenuItem.DropDownOpening += delegate
                 {
-                    if (basisMenuItem.DropDownItems.Count == 0)
+                    if (basisMenuItem.DropDownItems.Count != 0)
                     {
-                        var subDestinations = new List<IDestination>();
-                        // Fixing Bug #3536968 by catching the COMException (every exception) and not displaying the "subDestinations"
-                        try
+                        return;
+                    }
+                    var subDestinations = new List<IDestination>();
+                    // Fixing Bug #3536968 by catching the COMException (every exception) and not displaying the "subDestinations"
+                    try
+                    {
+                        subDestinations.AddRange(DynamicDestinations());
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error().WriteLine("Skipping {0}, due to the following error: {1}", Description, ex.Message);
+                    }
+                    if (subDestinations.Count <= 0)
+                    {
+                        return;
+                    }
+                    if (UseDynamicsOnly && subDestinations.Count == 1)
+                    {
+                        basisMenuItem.Tag = subDestinations[0];
+                        basisMenuItem.Text = subDestinations[0].Description;
+                        basisMenuItem.Click -= destinationClickHandler;
+                        basisMenuItem.Click += destinationClickHandler;
+                    }
+                    else
+                    {
+                        foreach (var subDestination in subDestinations)
                         {
-                            subDestinations.AddRange(DynamicDestinations());
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Error().WriteLine("Skipping {0}, due to the following error: {1}", Description, ex.Message);
-                        }
-                        if (subDestinations.Count > 0)
-                        {
-                            if (UseDynamicsOnly && subDestinations.Count == 1)
+                            var destinationMenuItem = new ToolStripMenuItem(subDestination.Description)
                             {
-                                basisMenuItem.Tag = subDestinations[0];
-                                basisMenuItem.Text = subDestinations[0].Description;
-                                basisMenuItem.Click -= destinationClickHandler;
-                                basisMenuItem.Click += destinationClickHandler;
-                            }
-                            else
-                            {
-                                foreach (var subDestination in subDestinations)
-                                {
-                                    var destinationMenuItem = new ToolStripMenuItem(subDestination.Description)
-                                    {
-                                        Tag = subDestination,
-                                    };
-                                    scaleHandler.AddTarget(destinationMenuItem, subDestination);
+                                Tag = subDestination,
+                            };
+                            scaleHandler.AddTarget(destinationMenuItem, subDestination);
 
-                                    destinationMenuItem.Click += destinationClickHandler;
-                                    AddTagEvents(destinationMenuItem, menu, subDestination.Description);
-                                    basisMenuItem.DropDownItems.Add(destinationMenuItem);
-                                }
-                            }
+                            destinationMenuItem.Click += destinationClickHandler;
+                            AddTagEvents(destinationMenuItem, menu, subDestination.Description);
+                            basisMenuItem.DropDownItems.Add(destinationMenuItem);
                         }
                     }
                 };
@@ -265,8 +266,8 @@ namespace GreenshotPlugin.Core
             var dpiHandler = menu.AttachDpiHandler();
             var bitmapScaleHandler = BitmapScaleHandler.Create<IDestination>(
                 dpiHandler,
-                (destination, dpi) => (Bitmap)destination.GetDisplayIcon(dpi),
-                (bitmap, d) => (Bitmap)bitmap.ScaleIconForDisplaying(d));
+                (destination, dpi) => destination.GetDisplayIcon(dpi),
+                (bitmap, d) => bitmap.ScaleIconForDisplaying(d));
 
             dpiHandler.OnDpiChanged.Subscribe(dpi =>
             {

@@ -30,49 +30,12 @@ using System.Windows.Forms;
 
 namespace Greenshot.Controls
 {
-	/// <summary>
-	///     Prevent having a gradient background in the toolstrip, and the overflow button
-	///     See: http://stackoverflow.com/a/16926979
-	/// </summary>
-	internal class CustomProfessionalColorTable : ProfessionalColorTable
-	{
-		public override Color ToolStripGradientBegin
-		{
-			get { return SystemColors.Control; }
-		}
-
-		public override Color ToolStripGradientMiddle
-		{
-			get { return SystemColors.Control; }
-		}
-
-		public override Color ToolStripGradientEnd
-		{
-			get { return SystemColors.Control; }
-		}
-
-		public override Color OverflowButtonGradientBegin
-		{
-			get { return SystemColors.Control; }
-		}
-
-		public override Color OverflowButtonGradientMiddle
-		{
-			get { return SystemColors.Control; }
-		}
-
-		public override Color OverflowButtonGradientEnd
-		{
-			get { return SystemColors.Control; }
-		}
-	}
-
-	/// <summary>
+    /// <summary>
 	///     ToolStripProfessionalRenderer without having a visual artifact
 	///     See: http://stackoverflow.com/a/16926979 and http://stackoverflow.com/a/13418840
 	/// </summary>
 	public class CustomToolStripProfessionalRenderer : ToolStripProfessionalRenderer
-	{
+    {
 		public CustomToolStripProfessionalRenderer() : base(new CustomProfessionalColorTable())
 		{
 			RoundedEdges = false;
@@ -86,5 +49,62 @@ namespace Greenshot.Controls
 		{
 			// Don't draw a border
 		}
-	}
+
+        protected override void OnRenderArrow(ToolStripArrowRenderEventArgs e)
+        {
+            if (e.Item.GetType() != typeof(ToolStripSplitButton))
+            {
+                base.OnRenderArrow(e);
+                return;
+            }
+            var graphics = e.Graphics;
+            var dropDownRect = e.ArrowRectangle;
+            using (var brush = new SolidBrush(e.ArrowColor))
+            {
+                int halfHeight = e.ArrowRectangle.Height / 2;
+                int halfWidth = e.ArrowRectangle.Width / 2;
+                Point middle = new Point(dropDownRect.Left + halfWidth, dropDownRect.Top + halfHeight);
+
+                Point[] arrow;
+
+                int verticalArrowStart = middle.Y - halfHeight / 3;
+                int verticalArrowEnd = middle.Y + halfHeight / 3;
+                int horizontalArrowStart = middle.X - halfWidth;
+                int horizontalArrowEnd = middle.X + halfWidth;
+
+                switch (e.Direction)
+                {
+                    case ArrowDirection.Up:
+
+                        arrow = new[] {
+                                     new Point(horizontalArrowStart, verticalArrowEnd),
+                                     new Point(horizontalArrowEnd, verticalArrowEnd),
+                                     new Point(middle.X, verticalArrowStart)};
+
+                        break;
+                    case ArrowDirection.Left:
+                        arrow = new[] {
+                                     new Point(horizontalArrowEnd, verticalArrowStart),
+                                     new Point(horizontalArrowEnd, verticalArrowEnd),
+                                     new Point(horizontalArrowStart, middle.Y)};
+
+                        break;
+                    case ArrowDirection.Right:
+                        arrow = new[] {
+                                     new Point(horizontalArrowStart, verticalArrowStart),
+                                     new Point(horizontalArrowStart, verticalArrowEnd),
+                                     new Point(horizontalArrowEnd, middle.Y)};
+
+                        break;
+                    default:
+                        arrow = new[] {
+                                 new Point(horizontalArrowStart, verticalArrowStart),
+                                 new Point(horizontalArrowEnd, verticalArrowStart),
+                                 new Point(middle.X, verticalArrowEnd) };
+                        break;
+                }
+                graphics.FillPolygon(brush, arrow);
+            }
+        }
+    }
 }
