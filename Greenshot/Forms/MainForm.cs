@@ -762,7 +762,7 @@ namespace Greenshot.Forms
                     break;
                 case ClickActions.SHOW_CONTEXT_MENU:
                     var oMethodInfo = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
-                    oMethodInfo.Invoke(notifyIcon, null);
+                    oMethodInfo?.Invoke(notifyIcon, null);
                     break;
             }
         }
@@ -808,7 +808,7 @@ namespace Greenshot.Forms
                 ex.Data.Add("path", path);
                 Log.Warn().WriteLine(ex, "Couldn't open the path to the last exported file");
                 // No reason to create a bug-form, we just display the error.
-                MessageBox.Show(this, ex.Message, "Opening " + path, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, ex.Message, $"Opening {path}", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
