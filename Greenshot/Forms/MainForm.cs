@@ -131,6 +131,10 @@ namespace Greenshot {
 						helpOutput.AppendLine();
 						helpOutput.AppendLine("\t[filename]");
 						helpOutput.AppendLine("\t\tOpen the bitmap files in the running Greenshot instance or start a new instance");
+						helpOutput.AppendLine();
+                        			helpOutput.AppendLine();
+                        			helpOutput.AppendLine("\t/capture <region|window|fullscreen>[,Destination]");
+                        			helpOutput.AppendLine("\t\tStart capture from command line. Use /capture without arguments for more info. Greenshot must be running");
 						Console.WriteLine(helpOutput.ToString());
 
 						// If attach didn't work, wait for key otherwise the console will close to quickly
@@ -183,6 +187,70 @@ namespace Greenshot {
 						IniConfig.IniDirectory = arguments[++argumentNr];
 						continue;
 					}
+					
+					// Capture from command line, only accept as first argument
+                    			if (arguments.Length > 0 && arguments[0].ToLower().Equals("/capture")) {
+                        			// Try to attach to the console
+                        			bool attachedToConsole = Kernel32.AttachConsole(Kernel32.ATTACHCONSOLE_ATTACHPARENTPROCESS);
+                        			// If attach didn't work, open a console
+                        			if (!attachedToConsole) {
+                            				Kernel32.AllocConsole();
+                        			}
+                        			// Display help for /capture command if not enough arguments
+                        			if (arguments.Length < 2) {
+                            				PluginHelper.Instance.LoadPlugins(); // list plugins when using GetAllDestinations
+                            				var helpOutput = new StringBuilder();
+
+                            				helpOutput.AppendLine();
+                            				helpOutput.AppendLine();
+                            				helpOutput.AppendLine("Usage for /capture:");
+                            				helpOutput.AppendLine("\t/capture <region|window|fullscreen>[,Destination]");
+                            				helpOutput.AppendLine();
+                            				helpOutput.AppendLine("\tDestinations: (CaseSensitive!)");
+                            				helpOutput.AppendFormat(
+                                				"\t\t{0,-16}\t==>\t{1}{2}", 
+                                				"\"External CmdName\"",
+                                				"External Command like MS Paint",
+                                				Environment.NewLine
+                                				);
+                            				foreach (var destination in DestinationHelper.GetAllDestinations()) {
+                                				helpOutput.AppendFormat(
+                                    					"\t\t{0,-16}\t==>\t{1}{2}",
+                                    					destination.Designation,
+                                    					destination.Description,
+                                    					Environment.NewLine
+                                    					);
+                            				}
+                            				helpOutput.AppendLine();
+                            				helpOutput.AppendLine();
+                            				helpOutput.AppendLine("\tUsage examples:");
+                            				helpOutput.AppendLine("\t\t/capture window,FileNoDialog\t\t(capture window, save in default screenshot folder)");
+                            				helpOutput.AppendLine("\t\t/capture fullscreen\t\t\t(capture fullscreen, use destination from settings)");
+                            				helpOutput.AppendLine("\t\t/capture region,Clipboard\t\t(capture region directly to clipboard)");
+                            				helpOutput.AppendLine("\t\t/capture fullscreen,Picker\t\t(capture fullscreen, ask what to do)");
+                            				helpOutput.AppendLine("\t\t/capture region,\"External MS Paint\"\t(capture region and send to external command 'MS Paint')");
+                            				helpOutput.AppendLine();
+                            				helpOutput.AppendLine("\tShortcut path examples for Windows:");
+                            				helpOutput.AppendLine("\t\t\"C:\\Program Files\\Greenshot\\Greenshot.exe\" /capture region,\"External MS Paint\"");
+                            				helpOutput.AppendLine("\t\tD:\\Programme\\Greenshot\\Greenshot.exe /capture fullscreen,FileNoDialog");
+                            				helpOutput.AppendLine();
+                            				Console.WriteLine(helpOutput.ToString());
+                            				// If attach didn't work, wait for key otherwise the console will close to quickly
+                            				if (!attachedToConsole) {
+                                				Console.ReadKey();
+                            				}
+                        			} else if(!isAlreadyRunning) {
+                            				Console.WriteLine("{0}{0}Please start Greenshot first", Environment.NewLine);
+                            				// If attach didn't work, wait for key otherwise the console will close to quickly
+                            				if (!attachedToConsole) {
+                                				Console.ReadKey();
+                            				}
+                        			} else {
+                            				SendData(new CopyDataTransport(CommandEnum.Capture, arguments[1]));
+                        			}
+                        			FreeMutex();
+                        			return;
+                    			}
 
 					// Files to open
 					filesToOpen.Add(argument);
@@ -465,6 +533,38 @@ namespace Greenshot {
 							LOG.Warn("No such file: " + filename);
 						}
 						break;
+					// Capture from command line
+                    			case CommandEnum.Capture:
+                        			string parameters = command.Value;
+                        			LOG.InfoFormat("Capture requested: {0}", parameters);
+
+                        			string[] optionsArray = parameters.Split(',');
+                        			string captureMode = optionsArray[0];
+                        			// Fallback-Destination
+                        			IDestination destination = DestinationHelper.GetDestination(_conf.OutputDestinations.FirstOrDefault());
+
+                        			if (optionsArray.Length > 1 
+                            				&& DestinationHelper.GetDestination(optionsArray[1]) != null 
+                            				&& DestinationHelper.GetDestination(optionsArray[1]).IsActive) {
+
+                            				destination = DestinationHelper.GetDestination(optionsArray[1]);
+                        			}
+
+                        			switch (captureMode.ToLower()) {
+                            				case "region":
+                                				CaptureHelper.CaptureRegion(destination);
+                                				break;
+                            				case "window":
+                                				CaptureHelper.CaptureWindow(destination);
+                                				break;
+                            				case "fullscreen":
+                                				CaptureHelper.CaptureFullscreen(destination);
+                                				break;
+                            				default:
+                                				LOG.Warn("Unknown capture option");
+                                				break;
+                         			}                        
+                        			break;
 					default:
 						LOG.Error("Unknown command!");
 						break;

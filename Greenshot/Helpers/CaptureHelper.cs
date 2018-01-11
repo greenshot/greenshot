@@ -87,6 +87,12 @@ namespace Greenshot.Helpers {
 				captureHelper.MakeCapture();
 			}
 		}
+		public static void CaptureClipboard(IDestination destination){
+            		using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Clipboard)) {
+                		captureHelper.AddDestination(destination);
+                		captureHelper.MakeCapture();
+            		}
+        	}
 		public static void CaptureRegion(bool captureMouse) {
 			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse)) {
 				captureHelper.MakeCapture();
@@ -102,12 +108,24 @@ namespace Greenshot.Helpers {
 				captureHelper.MakeCapture(region);
 			}
 		}
+		public static void CaptureRegion(IDestination destination) {
+            		using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Region)) {
+                		captureHelper.AddDestination(destination);
+                		captureHelper.MakeCapture();
+            		}
+        	}
 		public static void CaptureFullscreen(bool captureMouse, ScreenCaptureMode screenCaptureMode) {
 			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.FullScreen, captureMouse)) {
 				captureHelper._screenCaptureMode = screenCaptureMode;
 				captureHelper.MakeCapture();
 			}
 		}
+		public static void CaptureFullscreen(IDestination destination) {
+            		using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.FullScreen)) {
+                		captureHelper.AddDestination(destination);
+                		captureHelper.MakeCapture();
+            		}
+        	}
 		public static void CaptureLastRegion(bool captureMouse) {
 			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.LastRegion, captureMouse)) {
 				captureHelper.MakeCapture();
@@ -133,7 +151,12 @@ namespace Greenshot.Helpers {
 				captureHelper.MakeCapture();
 			}
 		}
-
+        	public static void CaptureWindow(IDestination destination) {
+            		using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Window)) {
+                		captureHelper.AddDestination(destination);
+                		captureHelper.MakeCapture();
+            		}
+        	}
 		public static void CaptureWindowInteractive(bool captureMouse) {
 			using (CaptureHelper captureHelper = new CaptureHelper(CaptureMode.Window)) {
 				captureHelper.MakeCapture();
