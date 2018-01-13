@@ -87,18 +87,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Forms\LutimForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\LutimHistory.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Forms\LutimForm.cs" />
+    <Compile Include="Forms\LutimHistory.cs" />
     <Compile Include="Forms\LutimHistory.Designer.cs">
       <DependentUpon>LutimHistory.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\SettingsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Forms\SettingsForm.cs" />
     <Compile Include="Forms\SettingsForm.Designer.cs">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>

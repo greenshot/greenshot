@@ -41,8 +41,9 @@ namespace Greenshot.Helpers
 		OpenFile,
 		Exit,
 		FirstLaunch,
-		ReloadConfig
-	}
+		ReloadConfig,
+	    Capture
+    }
 
 	/// <summary>
 	///     Code from vbAccelerator, location:

@@ -89,7 +89,10 @@ namespace Greenshot.Helpers
 
         public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor, IDestination destination) : this(captureMode, captureMouseCursor)
         {
-            _capture.CaptureDetails.AddDestination(destination);
+            if (destination != null)
+            {
+                _capture.CaptureDetails.AddDestination(destination);
+            }
         }
 
         public IInteropWindow SelectedCaptureWindow { get; set; }
@@ -128,23 +131,15 @@ namespace Greenshot.Helpers
             }
         }
 
-        public static void CaptureClipboard()
+        public static void CaptureClipboard(IDestination destination = null)
         {
-            using (var captureHelper = new CaptureHelper(CaptureMode.Clipboard))
+            using (var captureHelper = new CaptureHelper(CaptureMode.Clipboard, false, destination))
             {
                 captureHelper.MakeCapture();
             }
         }
 
-        public static void CaptureRegion(bool captureMouse)
-        {
-            using (var captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse))
-            {
-                captureHelper.MakeCapture();
-            }
-        }
-
-        public static void CaptureRegion(bool captureMouse, IDestination destination)
+        public static void CaptureRegion(bool captureMouse, IDestination destination = null)
         {
             using (var captureHelper = new CaptureHelper(CaptureMode.Region, captureMouse, destination))
             {
@@ -160,9 +155,9 @@ namespace Greenshot.Helpers
             }
         }
 
-        public static void CaptureFullscreen(bool captureMouse, ScreenCaptureMode screenCaptureMode)
+        public static void CaptureFullscreen(bool captureMouse, ScreenCaptureMode screenCaptureMode, IDestination destination = null)
         {
-            using (var captureHelper = new CaptureHelper(CaptureMode.FullScreen, captureMouse))
+            using (var captureHelper = new CaptureHelper(CaptureMode.FullScreen, captureMouse, destination))
             {
                 captureHelper._screenCaptureMode = screenCaptureMode;
                 captureHelper.MakeCapture();
@@ -186,9 +181,9 @@ namespace Greenshot.Helpers
             }
         }
 
-        public static void CaptureWindow(bool captureMouse)
+        public static void CaptureWindow(bool captureMouse, IDestination destination = null)
         {
-            using (var captureHelper = new CaptureHelper(CaptureMode.ActiveWindow, captureMouse))
+            using (var captureHelper = new CaptureHelper(CaptureMode.ActiveWindow, captureMouse, destination))
             {
                 captureHelper.MakeCapture();
             }

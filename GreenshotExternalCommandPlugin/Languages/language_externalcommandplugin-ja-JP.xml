@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="日本語" ietf="ja-JP" version="1.0.0">
+	<resources>
+		<resource name="contextmenu_configure">外部コマンドの設定</resource>
+		<resource name="settings_title">外部コマンド設定</resource>
+		<resource name="settings_detail_title">コマンド設定</resource>
+		<resource name="settings_new">新規作成</resource>
+		<resource name="settings_delete">削除</resource>
+		<resource name="settings_edit">編集</resource>
+		<resource name="label_name">名前</resource>
+		<resource name="label_command">コマンド</resource>
+		<resource name="label_argument">引数</resource>
+		<resource name="label_information">{0} はスクリーンショットのファイルパスです</resource>
+	</resources>
+</language>
