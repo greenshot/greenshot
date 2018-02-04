@@ -75,8 +75,8 @@ namespace Greenshot.Forms
         private static ResourceMutex _applicationMutex;
         private static CoreConfiguration _conf;
         public static string LogFileLocation;
+        private static GreenshotServerAction _server;
 
-        private readonly CopyData _copyData;
         // Timer for the double click test
         private readonly Timer _doubleClickTimer = new Timer();
         // Make sure we have only one about form
@@ -89,7 +89,7 @@ namespace Greenshot.Forms
 
         public DpiHandler ContextMenuDpiHandler { get; private set; }
 
-        public MainForm(CopyDataTransport dataTransport)
+        public MainForm()
         {
             // Added to prevent Greenshot from shutting down when there was an exception in a Task
             TaskScheduler.UnobservedTaskException += (sender, args) =>
@@ -176,20 +176,25 @@ namespace Greenshot.Forms
             // Setting it to true this late prevents Problems with the context menu
             notifyIcon.Visible = !_conf.HideTrayicon;
 
-            // Create a new instance of the class: copyData = new CopyData();
-            _copyData = new CopyData();
-
-            // Assign the handle:
-            _copyData.AssignHandle(Handle);
-            // Create the channel to send on:
-            _copyData.Channels.Add("Greenshot");
-            // Hook up received event:
-            _copyData.CopyDataReceived += CopyDataDataReceived;
-
-            if (dataTransport != null)
+            // Check if it's the first time launch?
+            if (_conf.IsFirstLaunch)
             {
-                HandleDataTransport(dataTransport);
+                _conf.IsFirstLaunch = false;
+                IniConfig.Save();
+                Log.Info().WriteLine("FirstLaunch: Created new configuration, showing balloon.");
+                try
+                {
+                    notifyIcon.BalloonTipClicked += BalloonTipClicked;
+                    notifyIcon.BalloonTipClosed += BalloonTipClosed;
+                    notifyIcon.ShowBalloonTip(2000, "Greenshot",
+                        Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.RegionHotkey)), ToolTipIcon.Info);
+                }
+                catch (Exception ex)
+                {
+                    Log.Warn().WriteLine(ex, "Exception while showing first launch: ");
+                }
             }
+            
             // Make Greenshot use less memory after startup
             if (_conf.MinimizeWorkingSetSize)
             {
@@ -241,6 +246,11 @@ namespace Greenshot.Forms
 
                 var isAlreadyRunning = !_applicationMutex.IsLocked;
 
+                if (!isAlreadyRunning)
+                {
+                    _server = new GreenshotServerAction();
+                    _server.StartAsync();
+                }
                 if (arguments.Length > 0 && Log.IsDebugEnabled())
                 {
                     var argumentString = new StringBuilder();
@@ -307,7 +317,7 @@ namespace Greenshot.Forms
                         {
                             Log.Info().WriteLine("Sending all instances the exit command.");
                             // Pass Exit to running instance, if any
-                            SendData(new CopyDataTransport(CommandEnum.Exit));
+                            GreenshotClient.Exit();
                         }
                         catch (Exception e)
                         {
@@ -322,9 +332,19 @@ namespace Greenshot.Forms
                     {
                         // Modify configuration
                         Log.Info().WriteLine("Reloading configuration!");
-                        // Update running instances
-                        SendData(new CopyDataTransport(CommandEnum.ReloadConfig));
-                        FreeMutex();
+                        try
+                        {
+                            // Update running instances
+                            GreenshotClient.ReloadConfig();
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error().WriteLine(ex, "Couldn't reload configuration.");
+                        }
+                        finally
+                        {
+                            FreeMutex();
+                        }
                         return;
                     }
 
@@ -419,7 +439,7 @@ namespace Greenshot.Forms
                         }
                         else
                         {
-                            SendData(new CopyDataTransport(CommandEnum.Capture, arguments[1]));
+                            GreenshotClient.Capture(arguments[1]);
                         }
                         FreeMutex();
                         return;
@@ -429,22 +449,12 @@ namespace Greenshot.Forms
                     filesToOpen.Add(argument);
                 }
 
-                // Finished parsing the command line arguments, see if we need to do anything
-                var transport = new CopyDataTransport();
-                if (filesToOpen.Count > 0)
-                {
-                    foreach (var fileToOpen in filesToOpen)
-                    {
-                        transport.AddCommand(CommandEnum.OpenFile, fileToOpen);
-                    }
-                }
-
                 if (isAlreadyRunning)
                 {
                     // We didn't initialize the language yet, do it here just for the message box
                     if (filesToOpen.Count > 0)
                     {
-                        SendData(transport);
+                        GreenshotClient.OpenFiles(filesToOpen);
                     }
                     else
                     {
@@ -471,16 +481,9 @@ namespace Greenshot.Forms
                     IniConfig.Save();
                 }
 
-                // Check if it's the first time launch?
-                if (_conf.IsFirstLaunch)
-                {
-                    _conf.IsFirstLaunch = false;
-                    IniConfig.Save();
-                    transport.AddCommand(CommandEnum.FirstLaunch);
-                }
                 // Should fix BUG-1633
                 Application.DoEvents();
-                Instance = new MainForm(transport);
+                Instance = new MainForm();
                 Application.Run();
             }
             catch (Exception ex)
@@ -574,18 +577,6 @@ namespace Greenshot.Forms
             }
         }
 
-        /// <summary>
-        ///     Send DataTransport Object via Window-messages
-        /// </summary>
-        /// <param name="dataTransport">DataTransport with data for a running instance</param>
-        private static void SendData(CopyDataTransport dataTransport)
-        {
-            var appName = Application.ProductName;
-            var copyData = new CopyData();
-            copyData.Channels.Add(appName);
-            copyData.Channels[appName].Send(dataTransport);
-        }
-
         private static void FreeMutex()
         {
             // Remove the application mutex
@@ -601,18 +592,6 @@ namespace Greenshot.Forms
                     Log.Error().WriteLine(ex, "Error releasing Mutex!");
                 }
             }
-        }
-
-        /// <summary>
-        ///     DataReceivedEventHandler
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="copyDataReceivedEventArgs"></param>
-        private void CopyDataDataReceived(object sender, CopyDataReceivedEventArgs copyDataReceivedEventArgs)
-        {
-            // Cast the data to the type of object we sent:
-            var dataTransport = (CopyDataTransport) copyDataReceivedEventArgs.Data;
-            HandleDataTransport(dataTransport);
         }
 
         private void BalloonTipClicked(object sender, EventArgs e)
@@ -631,104 +610,6 @@ namespace Greenshot.Forms
         {
             notifyIcon.BalloonTipClicked -= BalloonTipClicked;
             notifyIcon.BalloonTipClosed -= BalloonTipClosed;
-        }
-
-        private void HandleDataTransport(CopyDataTransport dataTransport)
-        {
-            foreach (var command in dataTransport.Commands)
-            {
-                Log.Debug().WriteLine("Data received, Command = " + command.Key + ", Data: " + command.Value);
-                switch (command.Key)
-                {
-                    case CommandEnum.Exit:
-                        Log.Info().WriteLine("Exit requested");
-                        Exit();
-                        break;
-                    case CommandEnum.FirstLaunch:
-                        Log.Info().WriteLine("FirstLaunch: Created new configuration, showing balloon.");
-                        try
-                        {
-                            notifyIcon.BalloonTipClicked += BalloonTipClicked;
-                            notifyIcon.BalloonTipClosed += BalloonTipClosed;
-                            notifyIcon.ShowBalloonTip(2000, "Greenshot",
-                                Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.RegionHotkey)), ToolTipIcon.Info);
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Warn().WriteLine(ex, "Exception while showing first launch: ");
-                        }
-                        break;
-                    case CommandEnum.ReloadConfig:
-                        Log.Info().WriteLine("Reload requested");
-                        try
-                        {
-                            IniConfig.Reload();
-                            Invoke((MethodInvoker) delegate
-                            {
-                                // Even update language when needed
-                                UpdateUi();
-                                // Update the hotkey
-                                // Make sure the current hotkeys are disabled
-                                HotkeyControl.UnregisterHotkeys();
-                                RegisterHotkeys();
-                            });
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Warn().WriteLine(ex, "Exception while reloading configuration: ");
-                        }
-                        break;
-                    case CommandEnum.OpenFile:
-                        var filename = command.Value;
-                        Log.Info().WriteLine("Open file requested: {0}", filename);
-                        if (File.Exists(filename))
-                        {
-                            BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureFile(filename); });
-                        }
-                        else
-                        {
-                            Log.Warn().WriteLine("No such file: " + filename);
-                        }
-                        break;
-                    // Capture from command line
-                    case CommandEnum.Capture:
-                        string parameters = command.Value;
-                        Log.Info().WriteLine("Capture requested: {0}", parameters);
-
-                        string[] optionsArray = parameters.Split(',');
-                        string captureMode = optionsArray[0];
-                        // Fallback-Destination
-                        IDestination destination = DestinationHelper.GetDestination(_conf.OutputDestinations.FirstOrDefault());
-
-                        if (optionsArray.Length > 1
-                            && DestinationHelper.GetDestination(optionsArray[1]) != null
-                            && DestinationHelper.GetDestination(optionsArray[1]).IsActive)
-                        {
-
-                            destination = DestinationHelper.GetDestination(optionsArray[1]);
-                        }
-
-                        switch (captureMode.ToLower())
-                        {
-                            case "region":
-                                CaptureHelper.CaptureRegion(false, destination);
-                                break;
-                            case "window":
-                                CaptureHelper.CaptureWindow(false, destination);
-                                break;
-                            case "fullscreen":
-                                CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen, destination);
-                                break;
-                            default:
-                                Log.Warn().WriteLine("Unknown capture option");
-                                break;
-                        }
-                        break;
-                    default:
-                        Log.Error().WriteLine(null, "Unknown command!");
-                        break;
-                }
-            }
         }
 
         protected override void WndProc(ref Message m)
@@ -929,6 +810,8 @@ namespace Greenshot.Forms
         /// </summary>
         public void Exit()
         {
+            _server?.ShutdownAsync();
+
             Log.Info().WriteLine("Exit: " + EnvironmentInfo.EnvironmentToString(false));
 
             // Close all open forms (except this), use a separate List to make sure we don't get a "InvalidOperationException: Collection was modified"

@@ -100,6 +100,7 @@
     </Reference>
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
@@ -162,6 +163,7 @@
     <Compile Include="Interfaces\Drawing\RenderMode.cs" />
     <Compile Include="Interfaces\ExportInformation.cs" />
     <Compile Include="Interfaces\ICapture.cs" />
+    <Compile Include="Interfaces\IGreenshotContract.cs" />
     <Compile Include="Interfaces\ISurface.cs" />
     <Compile Include="Interfaces\Plugin\HotKeyHandler.cs" />
     <Compile Include="Interfaces\Plugin\IGreenshotHost.cs" />

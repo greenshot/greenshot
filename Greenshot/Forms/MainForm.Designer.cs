@@ -37,9 +37,6 @@ namespace Greenshot.Forms {
 				if (components != null) {
 					components.Dispose();
 				}
-				if (_copyData != null) {
-					_copyData.Dispose();
-				}
 			}
 			base.Dispose(disposing);
 		}
