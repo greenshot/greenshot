@@ -5,7 +5,7 @@
 		<resource name="about_donations">Wenn Sie Greenshot mögen, können Sie uns gerne unterstützen:</resource>
 		<resource name="about_host">Greenshot wird von GitHub gehostet unter</resource>
 		<resource name="about_icons">Icons aus Yusuke Kamiyamane's Fugue icon set (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 Für Greenshot besteht KEINERLEI GARANTIE. Greenshot ist freie Software, die Sie unter bestimmten Bedingungen weitergeben dürfen.
 Detaillierte Informationen zur GNU General Public License:</resource>
 		<resource name="about_title">Über Greenshot</resource>
@@ -237,9 +237,9 @@ ${user} Windows-Benutzername
 ${domain} Windows-Domäne
 ${hostname} Computername
 
-Greenshot kann auch Verzeichnisse dynamisch erstellen. 
+Greenshot kann auch Verzeichnisse dynamisch erstellen.
 Verwenden Sie das Backslash-Symbol \ um Verzeichnisse vom Dateinamen zu trennen.
-Zum Beispiel: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} 
+Zum Beispiel: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
 Dieses Muster legt ein Verzeichnis für den aktuellen Tag im Standard-Speicherort an und speichert die Bilddateien im Uhrzeit-Format, mit der vorgegebenen Dateiendung ab.
 z.B. C:\Users\MaxMustermann\Desktop\2012-08-13\12-58-32.png</resource>
 		<resource name="settings_network">Netzwerk und Aktualisierungen</resource>
@@ -278,7 +278,7 @@ Verwendung durch Greenshot reserviert werden, bis das Programm geschlossen wird.
 		<resource name="wait_ie_capture">Bitte warten Sie, während die Seite im Internet Explorer abfotografiert wird...</resource>
 		<resource name="warning">Hinweis</resource>
 		<resource name="warning_hotkeys">Die globale Tastenkombination "{0}" konnte nicht aktiviert werden.
-Vermutlich wurde dieselbe Tastenkombination bereits von einem anderen Programm{1} reserviert. 
+Vermutlich wurde dieselbe Tastenkombination bereits von einem anderen Programm{1} reserviert.
 Sie können die Tastenkombinationen für Greenshot ändern, oder das Programm, das die Tastenkombination verwendet, deaktivieren.
 
 Sie können aber auch alle Greenshot-Funktionen über das Kontextmenü des Greenshot-Icons im Infobereich verwenden.</resource>
