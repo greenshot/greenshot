@@ -24,7 +24,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="clipboard_inuse">Greenshot wasn't able to write to the clipboard as the process {0} blocked the access.</resource>
 		<resource name="clipboard_noimage">Couldn't find a clipboard image.</resource>
 		<resource name="ClipboardFormat.BITMAP">Windows Bitmap</resource>
-		<resource name="ClipboardFormat.DIB">Device Independend Bitmap (DIB)</resource>
+		<resource name="ClipboardFormat.DIB">Device Independent Bitmap (DIB)</resource>
 		<resource name="ClipboardFormat.HTML">HTML</resource>
 		<resource name="ClipboardFormat.HTMLDATAURL">HTML with inline images</resource>
 		<resource name="ClipboardFormat.PNG">PNG</resource>
