@@ -36,7 +36,19 @@ namespace GreenshotQiniuPlugin
         public int UploadJpegQuality { get; set; }
         [IniProperty("UploadReduceColors", Description = "Reduce color amount of the uploaded image to 256", DefaultValue = "False")]
         public bool UploadReduceColors { get; set; }
-
+        
+        /*public static Zone ZONE_CN_East;
+        public static Zone ZONE_CN_North;
+        public static Zone ZONE_CN_South;
+        public static Zone ZONE_US_North;
+         */
+        
+        public enum UploadZone
+        {
+            CN_North, CN_East, CN_South, US_North
+        }
+        [IniProperty("Zone", Description = "Zone used for uploading", DefaultValue = "CN_North")]
+        public UploadZone Zone { get; set; }
 
         [IniProperty("AccessKey", Description = "access key used for uploading", DefaultValue = "")]
         public string AccessKey { get; set; }

@@ -28,11 +28,9 @@ using Greenshot.IniFile;
 using Greenshot.Plugin;
 using GreenshotPlugin.Core;
 
-using Qiniu.Common;
-using Qiniu.IO;
-using Qiniu.IO.Model;
 using Qiniu.Http;
 using Qiniu.Util;
+using Qiniu.Storage;
 
 
 
@@ -196,7 +194,7 @@ namespace GreenshotQiniuPlugin
 
         }
 
-        public static HttpResult UploadFile(string fullPath,string fileName)
+        public static HttpResult UploadFile(Stream filestream,string fileName)
         {            
             Mac mac = new Mac(_config.AccessKey, _config.SecretKey);
             PutPolicy putPolicy = new PutPolicy();
@@ -204,16 +202,38 @@ namespace GreenshotQiniuPlugin
             putPolicy.SetExpires(3600);
             //putPolicy.DeleteAfterDays = 1;
             string token = Auth.CreateUploadToken(mac, putPolicy.ToJsonString());
-     
-            ResumableUploader target = new ResumableUploader();
-            HttpResult result = target.UploadFile(fullPath, fileName, token);
+
+            Config config = new Config();
+            // 设置上传区域
+            switch (_config.Zone)
+            {
+                case QiniuConfiguration.UploadZone.CN_East:
+                    config.Zone = Zone.ZONE_CN_East;
+                    break;
+                case QiniuConfiguration.UploadZone.CN_North:
+                    config.Zone = Zone.ZONE_CN_North;
+                    break;
+                case QiniuConfiguration.UploadZone.CN_South:
+                    config.Zone = Zone.ZONE_CN_South;
+                    break;
+                case QiniuConfiguration.UploadZone.US_North:
+                    config.Zone = Zone.ZONE_US_North;
+                    break;
+            }
+            // 设置 http 或者 https 上传
+            config.UseHttps = true;
+            config.UseCdnDomains = true;
+            config.ChunkSize = ChunkUnit.U512K;
+
+            ResumableUploader target = new ResumableUploader(config);
+            HttpResult result = target.UploadStream(filestream, fileName, token,null);
+          
             if (result.Code != (int)HttpCode.OK)
             {
-                File.Delete(fullPath);
                 Log.Error(result.Text);
                 throw new Exception(result.Text);
             }      
-            File.Delete(fullPath);            
+                  
             return result;
         }
 

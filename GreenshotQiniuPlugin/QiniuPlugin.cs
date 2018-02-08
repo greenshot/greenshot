@@ -28,9 +28,7 @@ using Greenshot.Plugin;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 
-using Qiniu.Common;
-using Qiniu.IO;
-using Qiniu.IO.Model;
+
 using Qiniu.Http;
 using Qiniu.Util;
 
@@ -147,21 +145,23 @@ namespace GreenshotQiniuPlugin
 
                 // public static void Save(ISurface surface, string fullPath, bool allowOverwrite, SurfaceOutputSettings outputSettings, bool copyPathToClipboard)
                 // Run upload in the background
-                ImageOutput.Save(surfaceToUpload,fullPath,true,outputSettings,true);
+                MemoryStream streamoutput = new MemoryStream();
+                ImageOutput.SaveToStream(surfaceToUpload, streamoutput, outputSettings);
                 new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("qiniu", LangKey.communication_wait),
                     delegate
                     {
-                HttpResult result = QiniuUtils.UploadFile(fullPath,filename);
-               
+                        HttpResult result = QiniuUtils.UploadFile(streamoutput, filename);
                     }
                 );
                 // This causes an exeption if the upload failed :)
                 //Log.DebugFormat("Uploaded to qiniu page: " + qiniuInfo.Page);
 
-                uploadUrl = "![]("+_config.DefaultDomain + filename+")";
+                uploadUrl =  _config.DefaultDomain + filename;
+
+                string markdownURL = "![]("+uploadUrl+")";
 
 
-               Clipboard.SetText(uploadUrl);
+                Clipboard.SetText(markdownURL);
                
                  
              

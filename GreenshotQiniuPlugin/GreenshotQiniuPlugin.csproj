@@ -28,6 +28,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Accessibility" />
@@ -37,12 +38,11 @@
     <Reference Include="log4net">
       <HintPath>..\Greenshot\Lib\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\csharp-sdk\src\packages\Newtonsoft.Json.10.0.2\lib\net20\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Qiniu">
-      <HintPath>..\..\csharp-sdk\bin\Qiniu.dll</HintPath>
+    <Reference Include="Qiniu, Version=7.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Qiniu.7.3.0\lib\Net40\Qiniu.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -92,28 +92,31 @@
   <ItemGroup>
     <Content Include="Languages\language_qiniuplugin-en-US.xml" />
     <Content Include="Languages\language_qiniuplugin-zh-CN.xml" />
+    <None Include="packages.config" />
     <None Include="Resources\Qiniu.bmp" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>
-if exist "$(ProjectDir)QiniuCredentials.private.cs" (
-   rename "$(ProjectDir)QiniuCredentials.cs" "QiniuCredentials.orig.cs"
-   rename "$(ProjectDir)QiniuCredentials.private.cs" "QiniuCredentials.cs"
-)
-	</PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>
-if exist "$(ProjectDir)QiniuCredentials.orig.cs" (
-   rename "$(ProjectDir)QiniuCredentials.cs" "QiniuCredentials.private.cs"
-   rename "$(ProjectDir)QiniuCredentials.orig.cs" "QiniuCredentials.cs"
+    <PostBuildEvent>mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"
+"$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)\*.gsp"
+del /q /s "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"\*
+
+if "$(ConfigurationName)" == "Release" (
+    ..\..\..\packages\LibZ.Tool.1.2.0.0\tools\libz.exe inject-dll --assembly $(ProjectDir)bin\$(Configuration)\$(TargetFileName) --include $(ProjectDir)bin\$(Configuration)\Qiniu.dll --include $(ProjectDir)bin\$(Configuration)\Newtonsoft.Json.dll --move
 )
-mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"
 copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName)" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)\*.gsp"
-copy "$(ProjectDir)bin\$(Configuration)\$(ProjectName).pdb" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)\"
+
+if "$(ConfigurationName)" == "Debug" (
+    copy "$(ProjectDir)bin\$(Configuration)\Qiniu.dll" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)\"
+    copy "$(ProjectDir)bin\$(Configuration)\Newtonsoft.Json.dll" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)\"
+    copy "$(ProjectDir)bin\$(Configuration)\$(ProjectName).pdb" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)\"
+)
+
 mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\Plugins\$(ProjectName)"
-copy "$(ProjectDir)\Languages\*.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\Plugins\$(ProjectName)\"
-	</PostBuildEvent>
+copy "$(ProjectDir)\Languages\*.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\Plugins\$(ProjectName)\"</PostBuildEvent>
   </PropertyGroup>
 </Project>
