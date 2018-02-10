@@ -31,7 +31,7 @@ namespace GreenshotWebDavPlugin
         upload_menu_item,
         settings_title,
         upload_success,
-		upload_failure,
+        upload_failure,
         label_upload_format,
         communication_wait
     }

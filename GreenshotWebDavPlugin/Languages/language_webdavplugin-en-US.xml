@@ -1,27 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="English" ietf="en-US" version="1.0.0">
-	<resource name="label_after_upload">
-	  After upload
-	</resource>
-	<resource name="configure">
+  <resource name="label_after_upload">
+    After upload
+  </resource>
+  <resource name="configure">
     Configure WebDAV
   </resource>
-	<resource name="upload_menu_item">
-		Upload via WebDAV
-	</resource>
-	<resource name="settings_title">
+  <resource name="upload_menu_item">
+    Upload via WebDAV
+  </resource>
+  <resource name="settings_title">
     WebDAV settings
   </resource>
-	<resource name="upload_success">
+  <resource name="upload_success">
     Successfully uploaded image to WebDAV!
   </resource>
-	<resource name="upload_failure">
+  <resource name="upload_failure">
     An error occured while uploading to WebDAV:
   </resource>
-	<resource name="label_upload_format">
-		Image format
-	</resource>
-	<resource name="communication_wait">
+  <resource name="label_upload_format">
+    Image format
+  </resource>
+  <resource name="communication_wait">
     Communicating with WebDAV. Please wait...
   </resource>
 </language>

@@ -95,7 +95,7 @@ namespace GreenshotWebDavPlugin
             this.combobox_uploadimageformat.PropertyName = "UploadFormat";
             this.combobox_uploadimageformat.SectionName = "WebDAV";
             this.combobox_uploadimageformat.Size = new System.Drawing.Size(251, 21);
-            this.combobox_uploadimageformat.TabIndex = 1;
+            this.combobox_uploadimageformat.TabIndex = 2;
             // 
             // label_upload_format
             // 
@@ -103,7 +103,7 @@ namespace GreenshotWebDavPlugin
             this.label_upload_format.Location = new System.Drawing.Point(11, 9);
             this.label_upload_format.Name = "label_upload_format";
             this.label_upload_format.Size = new System.Drawing.Size(157, 20);
-            this.label_upload_format.TabIndex = 3;
+            this.label_upload_format.TabIndex = 1;
             this.label_upload_format.Text = "Image format";
             // 
             // label_url
@@ -111,8 +111,8 @@ namespace GreenshotWebDavPlugin
             this.label_url.LanguageKey = "webdav.label_url";
             this.label_url.Location = new System.Drawing.Point(11, 36);
             this.label_url.Name = "label_url";
-            this.label_url.Size = new System.Drawing.Size(157, 21);
-            this.label_url.TabIndex = 7;
+            this.label_url.Size = new System.Drawing.Size(157, 20);
+            this.label_url.TabIndex = 3;
             this.label_url.Text = "URL";
             // 
             // textbox_username
@@ -122,7 +122,7 @@ namespace GreenshotWebDavPlugin
             this.textbox_username.PropertyName = "Username";
             this.textbox_username.SectionName = "WebDAV";
             this.textbox_username.Size = new System.Drawing.Size(251, 20);
-            this.textbox_username.TabIndex = 12;
+            this.textbox_username.TabIndex = 6;
             // 
             // textbox_url
             // 
@@ -131,7 +131,7 @@ namespace GreenshotWebDavPlugin
             this.textbox_url.PropertyName = "Url";
             this.textbox_url.SectionName = "WebDAV";
             this.textbox_url.Size = new System.Drawing.Size(251, 20);
-            this.textbox_url.TabIndex = 13;
+            this.textbox_url.TabIndex = 4;
             // 
             // textbox_password
             // 
@@ -140,7 +140,7 @@ namespace GreenshotWebDavPlugin
             this.textbox_password.PropertyName = "Password";
             this.textbox_password.SectionName = "WebDAV";
             this.textbox_password.Size = new System.Drawing.Size(251, 20);
-            this.textbox_password.TabIndex = 14;
+            this.textbox_password.TabIndex = 8;
             // 
             // label_username
             // 
@@ -148,18 +148,18 @@ namespace GreenshotWebDavPlugin
             this.label_username.LanguageKey = "webdav.label_username";
             this.label_username.Location = new System.Drawing.Point(11, 60);
             this.label_username.Name = "label_username";
-            this.label_username.Size = new System.Drawing.Size(55, 13);
-            this.label_username.TabIndex = 15;
+            this.label_username.Size = new System.Drawing.Size(157, 20);
+            this.label_username.TabIndex = 5;
             this.label_username.Text = "Username";
             // 
             // label_password
             // 
             this.label_password.AutoSize = true;
             this.label_password.LanguageKey = "webdav.label_password";
-            this.label_password.Location = new System.Drawing.Point(14, 87);
+            this.label_password.Location = new System.Drawing.Point(11, 87);
             this.label_password.Name = "label_password";
-            this.label_password.Size = new System.Drawing.Size(53, 13);
-            this.label_password.TabIndex = 16;
+            this.label_password.Size = new System.Drawing.Size(157, 20);
+            this.label_password.TabIndex = 7;
             this.label_password.Text = "Password";
             // 
             // SettingsForm

@@ -23,10 +23,10 @@ using GreenshotPlugin.Controls;
 
 namespace GreenshotWebDavPlugin
 {
-	/// <summary>
-	/// This class is needed for design-time resolving of the language files
-	/// </summary>
-	public class WebDavForm : GreenshotForm
+    /// <summary>
+    /// This class is needed for design-time resolving of the language files
+    /// </summary>
+    public class WebDavForm : GreenshotForm
     {
-	}
+    }
 }

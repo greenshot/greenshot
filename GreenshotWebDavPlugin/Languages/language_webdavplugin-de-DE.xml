@@ -1,27 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="English" ietf="en-US" version="1.0.0">
-	<resource name="label_after_upload">
-	  Nach dem Hochladen
-	</resource>
-	<resource name="configure">
+  <resource name="label_after_upload">
+    Nach dem Hochladen
+  </resource>
+  <resource name="configure">
     WebDAV Einstellungen
   </resource>
-	<resource name="upload_menu_item">
-		Per WebDAV hochladen
-	</resource>
-	<resource name="settings_title">
+  <resource name="upload_menu_item">
+    Per WebDAV hochladen
+  </resource>
+  <resource name="settings_title">
     WebDAV Einstellungen
   </resource>
-	<resource name="upload_success">
+  <resource name="upload_success">
     Das Bild wurde erfolgreich per WebDAV hochgeladen!
   </resource>
-	<resource name="upload_failure">
+  <resource name="upload_failure">
     Es trat ein Fehler beim Hochladens per WebDAV auf:
   </resource>
-	<resource name="label_upload_format">
-		Bildformat
-	</resource>
-	<resource name="communication_wait">
+  <resource name="label_upload_format">
+    Bildformat
+  </resource>
+  <resource name="communication_wait">
     Verbinde per WebDAV. Bitte warten...
   </resource>
   <resource name="label_username">

@@ -199,10 +199,10 @@ namespace GreenshotWebDavPlugin
             }
             catch (Exception e)
             {
-				Log.Error("Error uploading.", e);
+                Log.Error("Error uploading.", e);
                 MessageBox.Show(Language.GetString("webdav", LanguageKeys.upload_failure) + " " + e.Message);
             }
-			return false;
+            return false;
         }
     }
 }
