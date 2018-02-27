@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -25,10 +25,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Drawing;
 using Greenshot.Configuration;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Forms;
 using Dapplo.Log;
@@ -37,14 +38,15 @@ using Dapplo.Log;
 
 namespace Greenshot.Destinations
 {
-	/// <summary>
-	///     Description of EditorDestination.
-	/// </summary>
-	public class EditorDestination : AbstractDestination
+    /// <summary>
+    ///     Description of EditorDestination.
+    /// </summary> 
+    [Export(typeof(IDestination))]
+    public class EditorDestination : AbstractDestination
 	{
 		public const string DESIGNATION = "Editor";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+		private static readonly IEditorConfiguration editorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
 		private static readonly Bitmap greenshotIcon = GreenshotResources.GetGreenshotIcon().ToBitmap();
 		private readonly IImageEditor editor;
 

@@ -1,7 +1,7 @@
 #region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -23,8 +23,6 @@
 
 #region Usings
 
-using System.Collections.Generic;
-using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Windows.Dpi;
 
@@ -50,64 +48,9 @@ namespace GreenshotPlugin.Interfaces.Plugin
 		/// </summary>
 		DpiHandler ContextMenuDpiHandler { get; }
 
-		/// <summary>
-		///     List of available plugins with their PluginAttributes
-		///     This can be usefull for a plugin manager plugin...
-		/// </summary>
-		IDictionary<PluginAttribute, IGreenshotPlugin> Plugins { get; }
-
         /// <summary>
-        ///     Create a Thumbnail
+        /// Initialize the form
         /// </summary>
-        /// <param name="bitmap">Bitmap of which we need a Thumbnail</param>
-        /// <param name="width">int</param>
-        /// <param name="height">int</param>
-        /// <returns>Bitmap with Thumbnail</returns>
-        Bitmap GetThumbnail(Bitmap bitmap, int width, int height);
-
-		/// <summary>
-		///     Get a destination by it's designation
-		/// </summary>
-		/// <param name="designation"></param>
-		/// <returns>IDestination</returns>
-		IDestination GetDestination(string designation);
-
-		/// <summary>
-		///     Get a list of all available destinations
-		/// </summary>
-		/// <returns>List of IDestination</returns>
-		List<IDestination> GetAllDestinations();
-
-		/// <summary>
-		///     Export a surface to the destination with has the supplied designation
-		/// </summary>
-		/// <param name="manuallyInitiated"></param>
-		/// <param name="designation"></param>
-		/// <param name="surface"></param>
-		/// <param name="captureDetails"></param>
-		ExportInformation ExportCapture(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails);
-
-		/// <summary>
-		///     Make region capture with specified Handler
-		/// </summary>
-		/// <param name="captureMouseCursor">
-		///     bool false if the mouse should not be captured, true if the configuration should be
-		///     checked
-		/// </param>
-		/// <param name="destination">IDestination destination</param>
-		void CaptureRegion(bool captureMouseCursor, IDestination destination);
-
-		/// <summary>
-		///     Use the supplied capture, and handle it as if it's captured.
-		/// </summary>
-		/// <param name="captureToImport">ICapture to import</param>
-		void ImportCapture(ICapture captureToImport);
-
-        /// <summary>
-        ///     Use the supplied image, and ICapture a capture object for it
-        /// </summary>
-        /// <param name="bitmapToCapture">Bitmap to create capture for</param>
-        /// <returns>ICapture</returns>
-        ICapture GetCapture(Bitmap bitmapToCapture);
+	    void Initialize();
 	}
 }

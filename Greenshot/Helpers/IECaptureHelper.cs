@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -34,7 +34,7 @@ using Greenshot.Configuration;
 using Greenshot.Helpers.IEInterop;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interop;
 using Dapplo.Log;
@@ -58,7 +58,7 @@ namespace Greenshot.Helpers
 	public static class IeCaptureHelper
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
 
 		// Helper method to activate a certain IE Tab
 		public static void ActivateIeTab(IInteropWindow nativeIeWindow, int tabIndex)

@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Greenshot.Configuration;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Drawing;
 
@@ -50,7 +50,7 @@ namespace Greenshot.Drawing.Fields
 	[Serializable]
 	public sealed class FieldAggregator : AbstractFieldHolder
 	{
-		private static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
+		private static readonly IEditorConfiguration EditorConfig = IniConfig.Current.Get<IEditorConfiguration>();
 
 		private readonly IDrawableContainerList _boundContainers;
 		private bool _internalUpdateRunning;

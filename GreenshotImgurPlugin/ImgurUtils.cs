@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -28,7 +28,7 @@ using Dapplo.Log;
 using Greenshot.Gfx;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Gfx;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
@@ -39,7 +39,7 @@ namespace GreenshotImgurPlugin {
 	public static class ImgurUtils {
 		private static readonly LogSource Log = new LogSource();
 		private const string SmallUrlPattern = "http://i.imgur.com/{0}s.jpg";
-		private static readonly ImgurConfiguration Config = IniConfig.GetIniSection<ImgurConfiguration>();
+		private static readonly ImgurConfiguration Config = IniConfig.Current.Get<ImgurConfiguration>();
 		private const string AuthUrlPattern = "https://api.imgur.com/oauth2/authorize?response_type=token&client_id={ClientId}&state={State}";
 		private const string TokenUrl = "https://api.imgur.com/oauth2/token";
 
@@ -50,8 +50,8 @@ namespace GreenshotImgurPlugin {
 		public static bool IsHistoryLoadingNeeded()
 		{
 			Log.Info().WriteLine("Checking if imgur cache loading needed, configuration has {0} imgur hashes, loaded are {1} hashes.", Config.ImgurUploadHistory.Count,
-				Config.runtimeImgurHistory.Count);
-			return Config.runtimeImgurHistory.Count != Config.ImgurUploadHistory.Count;
+				Config.RuntimeImgurHistory.Count);
+			return Config.RuntimeImgurHistory.Count != Config.ImgurUploadHistory.Count;
 		}
 
 		/// <summary>
@@ -63,11 +63,9 @@ namespace GreenshotImgurPlugin {
 				return;
 			}
 
-			bool saveNeeded = false;
-
 			// Load the ImUr history
 			foreach (string hash in Config.ImgurUploadHistory.Keys.ToList()) {
-				if (Config.runtimeImgurHistory.ContainsKey(hash)) {
+				if (Config.RuntimeImgurHistory.ContainsKey(hash)) {
 					// Already loaded
 					continue;
 				}
@@ -78,12 +76,11 @@ namespace GreenshotImgurPlugin {
 					ImgurInfo imgurInfo = RetrieveImgurInfo(hash, deleteHash);
 					if (imgurInfo != null) {
 						RetrieveImgurThumbnail(imgurInfo);
-						Config.runtimeImgurHistory[hash] = imgurInfo;
+						Config.RuntimeImgurHistory[hash] = imgurInfo;
 					} else {
 						Log.Info().WriteLine("Deleting unknown ImgUr {0} from config, delete hash was {1}.", hash, deleteHash);
 						Config.ImgurUploadHistory.Remove(hash);
-						Config.runtimeImgurHistory.Remove(hash);
-						saveNeeded = true;
+						Config.RuntimeImgurHistory.Remove(hash);
 					}
 				} catch (WebException wE) {
 					bool redirected = false;
@@ -99,7 +96,7 @@ namespace GreenshotImgurPlugin {
 						if (response.StatusCode == HttpStatusCode.Redirect) {
 							Log.Info().WriteLine("ImgUr image for hash {0} is no longer available, removing it from the history", hash);
 							Config.ImgurUploadHistory.Remove(hash);
-							Config.runtimeImgurHistory.Remove(hash);
+							Config.RuntimeImgurHistory.Remove(hash);
 							redirected = true;
 						}
 					}
@@ -109,10 +106,6 @@ namespace GreenshotImgurPlugin {
 				} catch (Exception e) {
 					Log.Error().WriteLine(e, "Problem loading ImgUr history for hash {0}", hash);
 				}
-			}
-			if (saveNeeded) {
-				// Save needed changes
-				IniConfig.Save();
 			}
 		}
 
@@ -207,8 +200,6 @@ namespace GreenshotImgurPlugin {
 					Config.RefreshToken = oauth2Settings.RefreshToken;
 					Config.AccessToken = oauth2Settings.AccessToken;
 					Config.AccessTokenExpires = oauth2Settings.AccessTokenExpires;
-					Config.IsDirty = true;
-					IniConfig.Save();
 				}
 			}
 			if (string.IsNullOrEmpty(responseString))
@@ -319,7 +310,7 @@ namespace GreenshotImgurPlugin {
 				}
 			}
 			// Make sure we remove it from the history, if no error occured
-			Config.runtimeImgurHistory.Remove(imgurInfo.Hash);
+			Config.RuntimeImgurHistory.Remove(imgurInfo.Hash);
 			Config.ImgurUploadHistory.Remove(imgurInfo.Hash);
 			imgurInfo.Image = null;
 		}

@@ -1,7 +1,7 @@
 #region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -25,12 +25,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
@@ -41,15 +41,15 @@ using Greenshot.Gfx;
 
 namespace GreenshotDropboxPlugin
 {
-	/// <summary>
-	///     This is the Dropbox base code
-	/// </summary>
-	public sealed class DropboxPlugin : IGreenshotPlugin
+    /// <summary>
+    ///     This is the Dropbox base code
+    /// </summary>
+    [Export(typeof(IGreenshotPlugin))]
+    public sealed class DropboxPlugin : IGreenshotPlugin
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static DropboxPluginConfiguration _config;
-		public static PluginAttribute Attributes;
-		private IGreenshotHost _host;
+		private readonly IDropboxPluginConfiguration _dropboxPluginConfiguration;
+		private readonly IGreenshotHost _greenshotHost;
 		private ToolStripMenuItem _itemPlugInConfig;
 		private DropboxDestination _destination;
 
@@ -69,32 +69,32 @@ namespace GreenshotDropboxPlugin
 			yield break;
 		}
 
+        [ImportingConstructor]
+	    public DropboxPlugin(IGreenshotHost greenshotGreenshotHost, IDropboxPluginConfiguration dropboxPluginConfiguration)
+	    {
+	        _greenshotHost = greenshotGreenshotHost;
+	        _dropboxPluginConfiguration = dropboxPluginConfiguration;
+	    }
+
 		/// <summary>
 		///     Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="myAttributes">My own attributes</param>
-		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes)
+		public bool Initialize()
 		{
-			_host = pluginHost;
-			Attributes = myAttributes;
 			_destination = new DropboxDestination(this);
-
-			// Register configuration (don't need the configuration itself)
-			_config = IniConfig.GetIniSection<DropboxPluginConfiguration>();
 
 			_itemPlugInConfig = new ToolStripMenuItem
 			{
 				Text = Language.GetString("dropbox", LangKey.Configure),
-				Tag = _host,
+				Tag = _greenshotHost,
 			};
 
-			var dropboxResourceScaler = BitmapScaleHandler.WithComponentResourceManager(pluginHost.ContextMenuDpiHandler, GetType(), (bitmap, dpi) => (Bitmap)bitmap.ScaleIconForDisplaying(dpi));
+			var dropboxResourceScaler = BitmapScaleHandler.WithComponentResourceManager(_greenshotHost.ContextMenuDpiHandler, GetType(), (bitmap, dpi) => (Bitmap)bitmap.ScaleIconForDisplaying(dpi));
 			dropboxResourceScaler.AddTarget(_itemPlugInConfig, "Dropbox");
 
 			_itemPlugInConfig.Click += ConfigMenuClick;
 
-			PluginUtils.AddToContextMenu(_host, _itemPlugInConfig);
+			PluginUtils.AddToContextMenu(_greenshotHost, _itemPlugInConfig);
 			Language.LanguageChanged += OnLanguageChanged;
 			return true;
 		}
@@ -109,7 +109,7 @@ namespace GreenshotDropboxPlugin
 		/// </summary>
 		public void Configure()
 		{
-			_config.ShowConfigDialog();
+			//_config.ShowConfigDialog();
 		}
 
 		private void Dispose(bool disposing)
@@ -134,7 +134,7 @@ namespace GreenshotDropboxPlugin
 
 		public void ConfigMenuClick(object sender, EventArgs eventArgs)
 		{
-			_config.ShowConfigDialog();
+			//_config.ShowConfigDialog();
 		}
 
 		/// <summary>
@@ -143,14 +143,14 @@ namespace GreenshotDropboxPlugin
 		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl)
 		{
 			uploadUrl = null;
-			var outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
+			var outputSettings = new SurfaceOutputSettings(_dropboxPluginConfiguration.UploadFormat, _dropboxPluginConfiguration.UploadJpegQuality, false);
 			try
 			{
 				string dropboxUrl = null;
-				new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("dropbox", LangKey.communication_wait),
+				new PleaseWaitForm().ShowAndWait("Dropbox", Language.GetString("dropbox", LangKey.communication_wait),
 					delegate
 					{
-						var filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
+						var filename = Path.GetFileName(FilenameHelper.GetFilename(_dropboxPluginConfiguration.UploadFormat, captureDetails));
 						dropboxUrl = DropboxUtils.UploadToDropbox(surfaceToUpload, outputSettings, filename);
 					}
 				);

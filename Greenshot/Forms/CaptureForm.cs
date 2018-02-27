@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -37,7 +37,7 @@ using Dapplo.Windows.Desktop;
 using Greenshot.Drawing;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
@@ -57,7 +57,7 @@ namespace Greenshot.Forms
     public sealed partial class CaptureForm : AnimatingForm
     {
         private static readonly LogSource Log = new LogSource();
-        private static readonly CoreConfiguration Conf = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration Conf = IniConfig.Current.Get<ICoreConfiguration>();
         private static readonly Brush GreenOverlayBrush = new SolidBrush(Color.FromArgb(50, Color.MediumSeaGreen));
         private static readonly Brush ScrollingOverlayBrush = new SolidBrush(Color.FromArgb(50, Color.GreenYellow));
         private static readonly Pen OverlayPen = new Pen(Color.FromArgb(50, Color.Black));

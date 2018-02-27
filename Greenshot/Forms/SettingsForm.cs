@@ -1,7 +1,7 @@
 #region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -29,8 +29,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using CommonServiceLocator;
 using Greenshot.Configuration;
 using Greenshot.Destinations;
 using Greenshot.Forms;
@@ -38,11 +41,12 @@ using Greenshot.Helpers;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
-using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using Dapplo.Log;
 using Dapplo.Windows.Common;
 using Dapplo.Windows.DesktopWindowsManager;
+using Greenshot.Components;
+using GreenshotPlugin.Interfaces.Plugin;
 
 #endregion
 
@@ -135,7 +139,7 @@ namespace Greenshot
 
 		private void LeaveHotkeyControl(object sender, EventArgs e)
 		{
-			MainForm.RegisterHotkeys();
+		    HotkeyHandler.RegisterHotkeys();
 			_inHotkey = false;
 		}
 
@@ -221,7 +225,8 @@ namespace Greenshot
 
 		private void DisplayPluginTab()
 		{
-			if (!PluginHelper.Instance.HasPlugins())
+		    var plugins = ServiceLocator.Current.GetAllInstances<IGreenshotPlugin>().ToList();
+			if (!plugins.Any())
 			{
 				tabcontrol.TabPages.Remove(tab_plugins);
 			}
@@ -242,7 +247,7 @@ namespace Greenshot
 				{
 					listview_plugins.Columns.Add(column);
 				}
-				PluginHelper.Instance.FillListview(listview_plugins);
+				FillListview(plugins, listview_plugins);
 				// Maximize Column size!
 				for (var i = 0; i < listview_plugins.Columns.Count; i++)
 				{
@@ -262,10 +267,30 @@ namespace Greenshot
 			}
 		}
 
-		/// <summary>
-		///     Update the UI to reflect the language and other text settings
-		/// </summary>
-		private void UpdateUi()
+	    /// <summary>
+	    /// Add plugins to the Listview
+	    /// </summary>
+	    /// <param name="plugins"></param>
+	    /// <param name="listview"></param>
+	    private void FillListview(IEnumerable<IGreenshotPlugin> plugins, ListView listview)
+	    {
+	        foreach (var greenshotPlugin in plugins.Select(p => p.GetType().Assembly))
+	        {
+	            var item = new ListViewItem(greenshotPlugin.GetName().Name)
+	            {
+	                Tag = greenshotPlugin
+	            };
+	            item.SubItems.Add(greenshotPlugin.GetName().Version.ToString());
+	            item.SubItems.Add(greenshotPlugin.GetCustomAttributes(typeof(AssemblyCompanyAttribute), false).Cast<AssemblyCompanyAttribute>().FirstOrDefault()?.Company);
+	            item.SubItems.Add(greenshotPlugin.Location);
+	            listview.Items.Add(item);
+	        }
+	    }
+
+        /// <summary>
+        ///     Update the UI to reflect the language and other text settings
+        /// </summary>
+        private void UpdateUi()
 		{
 			if (coreConfiguration.HideExpertSettings)
 			{
@@ -358,8 +383,7 @@ namespace Greenshot
 		{
 			foreach (ListViewItem item in listview_destinations.Items)
 			{
-				var destinationFromTag = item.Tag as IDestination;
-				if (destinationFromTag != null)
+			    if (item.Tag is IDestination destinationFromTag)
 				{
 					item.Text = destinationFromTag.Description;
 				}
@@ -383,19 +407,15 @@ namespace Greenshot
 		/// </summary>
 		private void DisplayDestinations()
 		{
-			var destinationsEnabled = true;
-			if (coreConfiguration.Values.ContainsKey("Destinations"))
-			{
-				destinationsEnabled = !coreConfiguration.Values["Destinations"].IsFixed;
-			}
-			checkbox_picker.Checked = false;
+		    var destinationsEnabled = !coreConfiguration.IsWriteProtected("Destinations");
+            checkbox_picker.Checked = false;
 
 			listview_destinations.Items.Clear();
 			listview_destinations.ListViewItemSorter = new ListviewWithDestinationComparer();
 			var imageList = new ImageList();
 			listview_destinations.SmallImageList = imageList;
 			var imageNr = -1;
-			foreach (var currentDestination in DestinationHelper.GetAllDestinations())
+			foreach (var currentDestination in ServiceLocator.Current.GetAllInstances<IDestination>())
 			{
 				var destinationImage = currentDestination.GetDisplayIcon(DpiHandler.Dpi);
 				if (destinationImage != null)
@@ -452,27 +472,27 @@ namespace Greenshot
 			{
 				combobox_language.SelectedValue = Language.CurrentLanguage;
 			}
-			// Disable editing when the value is fixed
-			combobox_language.Enabled = !coreConfiguration.Values["Language"].IsFixed;
+            // Disable editing when the value is fixed
+            combobox_language.Enabled = !coreConfiguration.IsWriteProtected("Language");
 
-			textbox_storagelocation.Text = FilenameHelper.FillVariables(coreConfiguration.OutputFilePath, false);
+            textbox_storagelocation.Text = FilenameHelper.FillVariables(coreConfiguration.OutputFilePath, false);
 			// Disable editing when the value is fixed
-			textbox_storagelocation.Enabled = !coreConfiguration.Values["OutputFilePath"].IsFixed;
+			textbox_storagelocation.Enabled = !coreConfiguration.IsWriteProtected("OutputFilePath");
 
 			SetWindowCaptureMode(coreConfiguration.WindowCaptureMode);
 			// Disable editing when the value is fixed
-			combobox_window_capture_mode.Enabled = !coreConfiguration.CaptureWindowsInteractive && !coreConfiguration.Values["WindowCaptureMode"].IsFixed;
+			combobox_window_capture_mode.Enabled = !coreConfiguration.CaptureWindowsInteractive && !coreConfiguration.IsWriteProtected("WindowCaptureMode");
 			radiobuttonWindowCapture.Checked = !coreConfiguration.CaptureWindowsInteractive;
 
 			trackBarJpegQuality.Value = coreConfiguration.OutputFileJpegQuality;
-			trackBarJpegQuality.Enabled = !coreConfiguration.Values["OutputFileJpegQuality"].IsFixed;
+			trackBarJpegQuality.Enabled = !coreConfiguration.IsWriteProtected("OutputFileJpegQuality");
 			textBoxJpegQuality.Text = coreConfiguration.OutputFileJpegQuality + "%";
 
 			DisplayDestinations();
 
 			numericUpDownWaitTime.Value = coreConfiguration.CaptureDelay >= 0 ? coreConfiguration.CaptureDelay : 0;
-			numericUpDownWaitTime.Enabled = !coreConfiguration.Values["CaptureDelay"].IsFixed;
-			if (IniConfig.IsPortable)
+			numericUpDownWaitTime.Enabled = !coreConfiguration.IsWriteProtected("CaptureDelay");
+			if (coreConfiguration.IsPortable)
 			{
 				checkbox_autostartshortcut.Visible = false;
 				checkbox_autostartshortcut.Checked = false;
@@ -501,7 +521,7 @@ namespace Greenshot
 			}
 
 			numericUpDown_daysbetweencheck.Value = coreConfiguration.UpdateCheckInterval;
-			numericUpDown_daysbetweencheck.Enabled = !coreConfiguration.Values["UpdateCheckInterval"].IsFixed;
+			numericUpDown_daysbetweencheck.Enabled = !coreConfiguration.IsWriteProtected("UpdateCheckInterval");
 			numericUpdownIconSize.Value = coreConfiguration.IconSize.Width / 16 * 16;
 			CheckDestinationSettings();
 		}
@@ -600,7 +620,7 @@ namespace Greenshot
 				HotkeyControl.UnregisterHotkeys();
 				SaveSettings();
 				StoreFields();
-				MainForm.RegisterHotkeys();
+				HotkeyHandler.RegisterHotkeys();
 
 				// Make sure the current language & settings are reflected in the Main-context menu
 				MainForm.Instance.UpdateUi();
@@ -642,12 +662,14 @@ namespace Greenshot
 
 		private void Listview_pluginsSelectedIndexChanged(object sender, EventArgs e)
 		{
-			button_pluginconfigure.Enabled = PluginHelper.Instance.IsSelectedItemConfigurable(listview_plugins);
-		}
+		    // TODO: Configure
+		    //button_pluginconfigure.Enabled = PluginHelper.Instance.IsSelectedItemConfigurable(listview_plugins);
+        }
 
-		private void Button_pluginconfigureClick(object sender, EventArgs e)
+        private void Button_pluginconfigureClick(object sender, EventArgs e)
 		{
-			PluginHelper.Instance.ConfigureSelectedItem(listview_plugins);
+            // TODO: Configure
+			//PluginHelper.Instance.ConfigureSelectedItem(listview_plugins);
 		}
 
 		private void Combobox_languageSelectedIndexChanged(object sender, EventArgs e)
@@ -693,22 +715,20 @@ namespace Greenshot
 		{
 			var clipboardDestinationChecked = false;
 			var pickerSelected = checkbox_picker.Checked;
-			var destinationsEnabled = true;
-			if (coreConfiguration.Values.ContainsKey("Destinations"))
-			{
-				destinationsEnabled = !coreConfiguration.Values["Destinations"].IsFixed;
-			}
+			var destinationsEnabled = !coreConfiguration.IsWriteProtected("Destinations");
 			listview_destinations.Enabled = destinationsEnabled;
 
 			foreach (int index in listview_destinations.CheckedIndices)
 			{
 				var item = listview_destinations.Items[index];
-				var destinationFromTag = item.Tag as IDestination;
-				if (destinationFromTag != null && destinationFromTag.Designation.Equals(ClipboardDestination.DESIGNATION))
-				{
-					clipboardDestinationChecked = true;
-					break;
-				}
+			    if (!(item.Tag is IDestination destinationFromTag) ||
+			        !destinationFromTag.Designation.Equals(ClipboardDestination.DESIGNATION))
+			    {
+			        continue;
+			    }
+
+			    clipboardDestinationChecked = true;
+			    break;
 			}
 
 			if (pickerSelected)
@@ -772,16 +792,15 @@ namespace Greenshot
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void checkbox_enableexpert_CheckedChanged(object sender, EventArgs e)
+		private void CheckboxEnableExpertCheckedChanged(object sender, EventArgs e)
 		{
-			var checkBox = sender as CheckBox;
-			if (checkBox != null)
+		    if (sender is CheckBox checkBox)
 			{
 				ExpertSettingsEnableState(checkBox.Checked);
 			}
 		}
 
-		private void radiobutton_CheckedChanged(object sender, EventArgs e)
+		private void Radiobutton_CheckedChanged(object sender, EventArgs e)
 		{
 			combobox_window_capture_mode.Enabled = radiobuttonWindowCapture.Checked;
 		}

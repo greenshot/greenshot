@@ -1,48 +1,61 @@
-/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+#region Greenshot GNU General Public License
+
+// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
+// 
+// For more information see: http://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 1 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#endregion
+
+#region Usings
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.IO;
 using System.Windows.Forms;
 using Dapplo.Log;
 using Dapplo.Windows.Dpi;
 using Greenshot.Gfx;
-using GreenshotPlugin.IniFile;
+using GreenshotLutimPlugin.Forms;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
+#endregion
 
 namespace GreenshotLutimPlugin {
-	/// <summary>
-	/// This is the LutimPlugin code
-	/// </summary>
-	public class LutimPlugin : IGreenshotPlugin {
-		private static readonly LogSource Log = new LogSource();
-		private static LutimConfiguration _config;
-		public static PluginAttribute Attributes;
-		private IGreenshotHost _host;
+    /// <summary>
+    /// This is the LutimPlugin code
+    /// </summary>
+    [Export(typeof(IGreenshotPlugin))]
+    public class LutimPlugin : IGreenshotPlugin {
+        private static readonly LogSource Log = new LogSource();
+        private readonly IGreenshotHost _greenshotHost;
+        private readonly ILutimConfiguration _lutimConfiguration;
 		private ToolStripMenuItem _historyMenuItem;
 		private ToolStripMenuItem _itemPlugInConfig;
+
+        [ImportingConstructor]
+        public LutimPlugin(IGreenshotHost greenshotHost, ILutimConfiguration lutimConfiguration)
+        {
+            _greenshotHost = greenshotHost;
+            _lutimConfiguration = lutimConfiguration;
+        }
 
 		public void Dispose() {
 			Dispose(true);
@@ -73,25 +86,18 @@ namespace GreenshotLutimPlugin {
 		/// <summary>
 		/// Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="myAttributes">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes) {
-			_host = pluginHost;
-			Attributes = myAttributes;
+		public bool Initialize() {
 
-			// Get configuration
-			_config = IniConfig.GetIniSection<LutimConfiguration>();
-
-			var lutimResourceScaleHandler = BitmapScaleHandler.WithComponentResourceManager(pluginHost.ContextMenuDpiHandler, GetType(), (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));
+			var lutimResourceScaleHandler = BitmapScaleHandler.WithComponentResourceManager(_greenshotHost.ContextMenuDpiHandler, GetType(), (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));
 
 			var itemPlugInRoot = new ToolStripMenuItem("Lutim");
 			lutimResourceScaleHandler.AddTarget(itemPlugInRoot, "Lutim");
 
 			_historyMenuItem = new ToolStripMenuItem(Language.GetString("lutim", LangKey.history))
 			{
-				Tag = _host
-			};
+				Tag = _greenshotHost
+            };
 			_historyMenuItem.Click += delegate {
 				LutimHistory.ShowHistory();
 			};
@@ -99,14 +105,11 @@ namespace GreenshotLutimPlugin {
 
 			_itemPlugInConfig = new ToolStripMenuItem(Language.GetString("lutim", LangKey.configure))
 			{
-				Tag = _host
-			};
-			_itemPlugInConfig.Click += delegate {
-				_config.ShowConfigDialog();
-			};
+				Tag = _greenshotHost
+            };
 			itemPlugInRoot.DropDownItems.Add(_itemPlugInConfig);
 
-			PluginUtils.AddToContextMenu(_host, itemPlugInRoot);
+			PluginUtils.AddToContextMenu(_greenshotHost, itemPlugInRoot);
 			Language.LanguageChanged += OnLanguageChanged;
 
 			// Enable history if there are items available
@@ -125,13 +128,10 @@ namespace GreenshotLutimPlugin {
 
 		private void UpdateHistoryMenuItem() {
 			try {
-				_host.GreenshotForm.BeginInvoke((MethodInvoker)delegate {
-					if (_config.LutimUploadHistory.Count > 0) {
-						_historyMenuItem.Enabled = true;
-					} else {
-						_historyMenuItem.Enabled = false;
-					}
-				});
+			    _greenshotHost.GreenshotForm.BeginInvoke((MethodInvoker)delegate
+			    {
+			        _historyMenuItem.Enabled = _lutimConfiguration.LutimUploadHistory.Count > 0;
+			    });
 			} catch (Exception ex) {
 				Log.Error().WriteLine(ex, "Error loading history");
 			}
@@ -143,13 +143,6 @@ namespace GreenshotLutimPlugin {
 		}
 
 		/// <summary>
-		/// Implementation of the IPlugin.Configure
-		/// </summary>
-		public virtual void Configure() {
-			_config.ShowConfigDialog();
-		}
-
-		/// <summary>
 		/// Upload the capture to lutim
 		/// </summary>
 		/// <param name="captureDetails">ICaptureDetails</param>
@@ -157,9 +150,9 @@ namespace GreenshotLutimPlugin {
 		/// <param name="uploadUrl">out string for the url</param>
 		/// <returns>true if the upload succeeded</returns>
 		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl) {
-			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, _config.UploadReduceColors);
+			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_lutimConfiguration.UploadFormat, _lutimConfiguration.UploadJpegQuality, _lutimConfiguration.UploadReduceColors);
 			try {
-				string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(_config.FilenamePattern, _config.UploadFormat, captureDetails));
+				string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(_lutimConfiguration.FilenamePattern, _lutimConfiguration.UploadFormat, captureDetails));
 				LutimInfo lutimInfo = null;
 
 				// Run upload in the background
@@ -169,8 +162,8 @@ namespace GreenshotLutimPlugin {
 						lutimInfo = LutimUtils.UploadToLutim(surfaceToUpload, outputSettings, filename);
 						if (lutimInfo != null) {
 							Log.Info().WriteLine("Storing lutim upload for hash {0} and delete hash {1}", lutimInfo.Short, lutimInfo.Token);
-							_config.LutimUploadHistory.Add(lutimInfo.Short, lutimInfo.ToIniString());
-							_config.RuntimeLutimHistory.Add(lutimInfo.Short, lutimInfo);
+						    _lutimConfiguration.LutimUploadHistory.Add(lutimInfo.Short, lutimInfo.ToIniString());
+						    _lutimConfiguration.RuntimeLutimHistory.Add(lutimInfo.Short, lutimInfo);
 							UpdateHistoryMenuItem();
 						}
 					}
@@ -183,9 +176,8 @@ namespace GreenshotLutimPlugin {
 					{
 						lutimInfo.Thumb = tmpBitmap.CreateThumbnail(90, 90);
 					}
-					IniConfig.Save();
 					uploadUrl = lutimInfo.Uri.AbsoluteUri;
-				    if (string.IsNullOrEmpty(uploadUrl) || !_config.CopyLinkToClipboard)
+				    if (string.IsNullOrEmpty(uploadUrl) || !_lutimConfiguration.CopyLinkToClipboard)
 				    {
 				        return true;
 				    }

@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -27,21 +27,21 @@ using System.Windows;
 
 #endregion
 
-namespace GreenshotConfluencePlugin
+namespace GreenshotConfluencePlugin.Forms
 {
 	/// <summary>
 	///     Interaction logic for ConfluenceConfigurationForm.xaml
 	/// </summary>
 	public partial class ConfluenceConfigurationForm : Window
 	{
-		public ConfluenceConfigurationForm(ConfluenceConfiguration config)
+		public ConfluenceConfigurationForm(IConfluenceConfiguration config)
 		{
 			DataContext = config;
 			Config = config;
 			InitializeComponent();
 		}
 
-		public ConfluenceConfiguration Config { get; }
+		public IConfluenceConfiguration Config { get; }
 
 		private void Button_OK_Click(object sender, RoutedEventArgs e)
 		{

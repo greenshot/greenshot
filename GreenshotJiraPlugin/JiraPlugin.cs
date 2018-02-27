@@ -1,7 +1,7 @@
 #region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -25,12 +25,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Windows.Dpi;
 using GreenshotJiraPlugin.Forms;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
@@ -39,21 +39,27 @@ using Dapplo.Log;
 
 namespace GreenshotJiraPlugin
 {
-	/// <summary>
-	///     This is the JiraPlugin base code
-	/// </summary>
-	public sealed class JiraPlugin : IGreenshotPlugin
+    /// <summary>
+    ///     This is the JiraPlugin base code
+    /// </summary>
+    [Export(typeof(IGreenshotPlugin))]
+    public sealed class JiraPlugin : IGreenshotPlugin
 	{
-		private static readonly LogSource Log = new LogSource();
-		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+	    private readonly IGreenshotHost _greenshotHost;
+	    private readonly ICoreConfiguration _coreConfiguration;
+	    private readonly IJiraConfiguration _jiraConfiguration;
+	    private static readonly LogSource Log = new LogSource();
 
-		private JiraConfiguration _config;
 		private JiraConnector _jiraConnector;
 
-		public JiraPlugin()
-		{
-			Instance = this;		
-		}
+        [ImportingConstructor]
+		public JiraPlugin(IGreenshotHost greenshotHost, ICoreConfiguration coreConfiguration, IJiraConfiguration jiraConfiguration)
+        {
+            _greenshotHost = greenshotHost;
+            _coreConfiguration = coreConfiguration;
+            _jiraConfiguration = jiraConfiguration;
+            Instance = this;
+        }
 
 		public static JiraPlugin Instance { get; private set; }
 
@@ -94,17 +100,12 @@ namespace GreenshotJiraPlugin
 		/// <summary>
 		///     Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="myAttributes">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes)
+		public bool Initialize()
 		{
-			// Register configuration (don't need the configuration itself)
-			_config = IniConfig.GetIniSection<JiraConfiguration>();
-
-			pluginHost.ContextMenuDpiHandler.OnDpiChanged.Subscribe(dpi =>
+			_greenshotHost.ContextMenuDpiHandler.OnDpiChanged.Subscribe(dpi =>
 			{
-				var size = DpiHandler.ScaleWithDpi(CoreConfig.IconSize.Width, dpi);
+				var size = DpiHandler.ScaleWithDpi(_coreConfiguration.IconSize.Width, dpi);
 
 				JiraConnector.UpdateSvgSize(size);
 			});
@@ -126,7 +127,7 @@ namespace GreenshotJiraPlugin
 		/// </summary>
 		public void Configure()
 		{
-			var url = _config.Url;
+			var url = _jiraConfiguration.Url;
 			if (!ShowConfigDialog())
 			{
 				return;
@@ -136,7 +137,7 @@ namespace GreenshotJiraPlugin
 			{
 				return;
 			}
-			if (!url.Equals(_config.Url))
+			if (!url.Equals(_jiraConfiguration.Url))
 			{
 				Task.Run(async () =>
 				{

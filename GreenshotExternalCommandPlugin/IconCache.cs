@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -27,7 +27,7 @@ using System;
 using System.Drawing;
 using System.IO;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using Dapplo.Log;
 
 #endregion
@@ -39,7 +39,7 @@ namespace GreenshotExternalCommandPlugin
 	/// </summary>
 	public static class IconCache
 	{
-		private static readonly ExternalCommandConfiguration Config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
+		private static readonly IExternalCommandConfiguration Config = IniConfig.Current.Get<IExternalCommandConfiguration>();
 		private static readonly LogSource Log = new LogSource();
 
         /// <summary>

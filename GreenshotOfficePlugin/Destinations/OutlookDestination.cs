@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -32,7 +32,7 @@ using GreenshotOfficePlugin.OfficeExport;
 using GreenshotOfficePlugin.OfficeInterop;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Gfx;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
@@ -52,7 +52,7 @@ namespace GreenshotOfficePlugin.Destinations
 		private static readonly LogSource Log = new LogSource();
 
 		private static readonly Bitmap MailIcon = GreenshotResources.GetBitmap("Email.Image");
-		private static readonly OfficeConfiguration OfficeConfig = IniConfig.GetIniSection<OfficeConfiguration>();
+		private static readonly IOfficeConfiguration OfficeConfig = IniConfig.Current.Get<IOfficeConfiguration>();
 		private static readonly string ExePath;
 		private static readonly bool IsActiveFlag;
 		private readonly string _outlookInspectorCaption;

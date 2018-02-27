@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -31,6 +31,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using CommonServiceLocator;
+using Dapplo.Ini;
 using Dapplo.Windows.App;
 using Dapplo.Windows.Desktop;
 using Greenshot.Configuration;
@@ -40,7 +42,6 @@ using Greenshot.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.Gfx;
-using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
@@ -48,7 +49,9 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
+using Greenshot.Components;
 using Greenshot.Gfx;
+using GreenshotPlugin.Extensions;
 
 #endregion
 
@@ -60,7 +63,7 @@ namespace Greenshot.Helpers
     public class CaptureHelper : IDisposable
     {
         private static readonly LogSource Log = new LogSource();
-        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
         private readonly bool _captureMouseCursor;
         private ICapture _capture;
         private CaptureMode _captureMode;
@@ -69,11 +72,15 @@ namespace Greenshot.Helpers
         // TODO: when we get the screen capture code working correctly, this needs to be enabled
         //private static ScreenCaptureHelper screenCapture = null;
         private IList<IInteropWindow> _windows = new List<IInteropWindow>();
+        private readonly IEnumerable<IDestination> _destinations;
+        private readonly IEnumerable<IProcessor> _processors;
 
         public CaptureHelper(CaptureMode captureMode)
         {
             _captureMode = captureMode;
             _capture = new Capture();
+            _destinations = ServiceLocator.Current.GetAllInstances<IDestination>();
+            _processors = ServiceLocator.Current.GetAllInstances<IProcessor>();
         }
 
         public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor) : this(captureMode)
@@ -406,13 +413,13 @@ namespace Greenshot.Helpers
                         if (_capture.CaptureDetails.HasDestination(PickerDestination.DESIGNATION))
                         {
                             _capture.CaptureDetails.ClearDestinations();
-                            _capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
-                            _capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(PickerDestination.DESIGNATION));
+                            _capture.CaptureDetails.AddDestination(_destinations.Find(EditorDestination.DESIGNATION));
+                            _capture.CaptureDetails.AddDestination(_destinations.Find(PickerDestination.DESIGNATION));
                         }
                         else
                         {
                             _capture.CaptureDetails.ClearDestinations();
-                            _capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
+                            _capture.CaptureDetails.AddDestination(_destinations.Find(EditorDestination.DESIGNATION));
                         }
                         HandleCapture();
                     }
@@ -434,7 +441,7 @@ namespace Greenshot.Helpers
                                 ISurface surface = new Surface();
                                 surface = ImageOutput.LoadGreenshotSurface(filename, surface);
                                 surface.CaptureDetails = _capture.CaptureDetails;
-                                DestinationHelper.GetDestination(EditorDestination.DESIGNATION).ExportCapture(true, surface, _capture.CaptureDetails);
+                                _destinations.Find(EditorDestination.DESIGNATION)?.ExportCapture(true, surface, _capture.CaptureDetails);
                                 break;
                             }
                         }
@@ -470,13 +477,13 @@ namespace Greenshot.Helpers
                         if (_capture.CaptureDetails.HasDestination(PickerDestination.DESIGNATION))
                         {
                             _capture.CaptureDetails.ClearDestinations();
-                            _capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
-                            _capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(PickerDestination.DESIGNATION));
+                            _capture.CaptureDetails.AddDestination(_destinations.Find(EditorDestination.DESIGNATION));
+                            _capture.CaptureDetails.AddDestination(_destinations.Find(PickerDestination.DESIGNATION));
                         }
                         else
                         {
                             _capture.CaptureDetails.ClearDestinations();
-                            _capture.CaptureDetails.AddDestination(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
+                            _capture.CaptureDetails.AddDestination(_destinations.Find(EditorDestination.DESIGNATION));
                         }
                         HandleCapture();
                     }
@@ -547,7 +554,7 @@ namespace Greenshot.Helpers
         {
             foreach (var destinationDesignation in CoreConfig.OutputDestinations)
             {
-                var destination = DestinationHelper.GetDestination(destinationDesignation);
+                var destination = _destinations.Find(destinationDesignation);
                 if (destination != null)
                 {
                     _capture.CaptureDetails.AddDestination(destination);
@@ -682,9 +689,9 @@ namespace Greenshot.Helpers
                 surface.SurfaceMessage += SurfaceMessageReceived;
             }
             // Let the processors do their job
-            foreach (var processor in ProcessorHelper.GetAllProcessors())
+            foreach (var processor in _processors)
             {
-                if (!processor.isActive)
+                if (!processor.IsActive)
                 {
                     continue;
                 }
@@ -701,7 +708,7 @@ namespace Greenshot.Helpers
 
             if (captureDetails.HasDestination(PickerDestination.DESIGNATION))
             {
-                DestinationHelper.ExportCapture(false, PickerDestination.DESIGNATION, surface, captureDetails);
+                _destinations.Find(PickerDestination.DESIGNATION)?.ExportCapture(false, surface, captureDetails);
                 captureDetails.CaptureDestinations.Clear();
                 canDisposeSurface = false;
             }

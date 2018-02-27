@@ -1,7 +1,7 @@
 #region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -26,41 +26,38 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Ini;
 using Dapplo.Windows.Desktop;
 using Greenshot.Configuration;
 using Greenshot.Destinations;
 using Greenshot.Drawing;
-using Greenshot.Experimental;
 using Greenshot.Help;
 using Greenshot.Helpers;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.Gfx;
-using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
 using Timer = System.Timers.Timer;
 using Dapplo.Windows.Dpi;
-using Dapplo.Log.Loggers;
 using Dapplo.Windows.App;
-using Dapplo.Windows.Common;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Dpi.Enums;
 using Dapplo.Windows.Dpi.Forms;
 using Dapplo.Windows.Kernel32;
 using Greenshot.Gfx;
+using GreenshotPlugin.Extensions;
+using GreenshotPlugin.Interfaces.Plugin;
 
 #endregion
 
@@ -69,13 +66,14 @@ namespace Greenshot.Forms
     /// <summary>
     ///     Description of MainForm.
     /// </summary>
-    public partial class MainForm : BaseForm
+    [Export(typeof(IGreenshotHost))]
+    [Export]
+    public partial class MainForm : BaseForm, IGreenshotHost
     {
         private static readonly LogSource Log = new LogSource();
-        private static ResourceMutex _applicationMutex;
-        private static CoreConfiguration _conf;
+        private static ICoreConfiguration _coreConfiguration;
+        private readonly IEnumerable<IDestination> _destinations;
         public static string LogFileLocation;
-        private static GreenshotServerAction _server;
 
         // Timer for the double click test
         private readonly Timer _doubleClickTimer = new Timer();
@@ -89,26 +87,18 @@ namespace Greenshot.Forms
 
         public DpiHandler ContextMenuDpiHandler { get; private set; }
 
-        public MainForm()
+        [ImportingConstructor]
+        public MainForm(ICoreConfiguration coreConfiguration, [ImportMany] IEnumerable<IDestination> destinations)
         {
-            // Added to prevent Greenshot from shutting down when there was an exception in a Task
-            TaskScheduler.UnobservedTaskException += (sender, args) =>
-            {
-                try
-                {
-                    Exception exceptionToLog = args.Exception;
-                    var exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
-                    Log.Error().WriteLine(null, "Exception caught in the UnobservedTaskException handler.");
-                    Log.Error().WriteLine(null, exceptionText);
-                    new BugReportForm(exceptionText).ShowDialog();
-                }
-                finally
-                {
-                    args.SetObserved();
-                }
-            };
+            _coreConfiguration = coreConfiguration;
+            _destinations = destinations;
             Instance = this;
+            PluginUtils.Host = this;
+        }
 
+        public void Initialize()
+        {
+            Log.Debug().WriteLine("Initializing MainForm.");
             // Factory for surface objects
             ImageOutput.SurfaceFactory = () => new Surface();
 
@@ -129,39 +119,11 @@ namespace Greenshot.Forms
             notifyIcon.Icon = GreenshotResources.GetGreenshotIcon();
 
             // Disable access to the settings, for feature #3521446
-            contextmenu_settings.Visible = !_conf.DisableSettings;
-
-            // Make sure all hotkeys pass this window!
-            HotkeyControl.RegisterHotkeyHwnd(Handle);
-            RegisterHotkeys();
-
-            new ToolTip();
+            contextmenu_settings.Visible = !_coreConfiguration.DisableSettings;
 
             UpdateUi();
 
-            // This forces the registration of all destinations inside Greenshot itself.
-            DestinationHelper.GetAllDestinations();
-            // This forces the registration of all processors inside Greenshot itself.
-            ProcessorHelper.GetAllProcessors();
-
-            // Load all the plugins
-            PluginHelper.Instance.LoadPlugins();
-
-            // Check destinations, remove all that don't exist
-            foreach (var destination in _conf.OutputDestinations.ToArray())
-            {
-                if (DestinationHelper.GetDestination(destination) == null)
-                {
-                    _conf.OutputDestinations.Remove(destination);
-                }
-            }
-
-            // we should have at least one!
-            if (_conf.OutputDestinations.Count == 0)
-            {
-                _conf.OutputDestinations.Add(EditorDestination.DESIGNATION);
-            }
-            if (_conf.DisableQuickSettings)
+            if (_coreConfiguration.DisableQuickSettings)
             {
                 contextmenu_quicksettings.Visible = false;
             }
@@ -170,24 +132,22 @@ namespace Greenshot.Forms
                 // Do after all plugins & finding the destination, otherwise they are missing!
                 InitializeQuickSettingsMenu();
             }
-            SoundHelper.Initialize();
 
             // Set the Greenshot icon visibility depending on the configuration. (Added for feature #3521446)
             // Setting it to true this late prevents Problems with the context menu
-            notifyIcon.Visible = !_conf.HideTrayicon;
+            notifyIcon.Visible = !_coreConfiguration.HideTrayicon;
 
             // Check if it's the first time launch?
-            if (_conf.IsFirstLaunch)
+            if (_coreConfiguration.IsFirstLaunch)
             {
-                _conf.IsFirstLaunch = false;
-                IniConfig.Save();
+                _coreConfiguration.IsFirstLaunch = false;
                 Log.Info().WriteLine("FirstLaunch: Created new configuration, showing balloon.");
                 try
                 {
                     notifyIcon.BalloonTipClicked += BalloonTipClicked;
                     notifyIcon.BalloonTipClosed += BalloonTipClosed;
                     notifyIcon.ShowBalloonTip(2000, "Greenshot",
-                        Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.RegionHotkey)), ToolTipIcon.Info);
+                        Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyControl.GetLocalizedHotkeyStringFromString(_coreConfiguration.RegionHotkey)), ToolTipIcon.Info);
                 }
                 catch (Exception ex)
                 {
@@ -196,13 +156,15 @@ namespace Greenshot.Forms
             }
             
             // Make Greenshot use less memory after startup
-            if (_conf.MinimizeWorkingSetSize)
+            if (_coreConfiguration.MinimizeWorkingSetSize)
             {
                 PsApi.EmptyWorkingSet();
             }
         }
 
-        public static MainForm Instance { get; private set; }
+        public static MainForm Instance { get; set; }
+
+        public Form GreenshotForm => Instance;
 
         public NotifyIcon NotifyIcon => notifyIcon;
 
@@ -210,389 +172,6 @@ namespace Greenshot.Forms
         ///     Main context menu
         /// </summary>
         public ContextMenuStrip MainMenu => contextMenu;
-
-        public static void Start(string[] arguments)
-        {
-            var filesToOpen = new List<string>();
-
-            // Set the Thread name, is better than "1"
-            Thread.CurrentThread.Name = Application.ProductName;
-
-#if DEBUG
-            LogSettings.RegisterDefaultLogger<DebugLogger>(LogLevels.Verbose);
-#else
-            LogSettings.RegisterDefaultLogger<DebugLogger>(LogLevels.Verbose);
-#endif
-            // TODO: Locate file
-            // LogFileLocation = LogHelper.InitializeLog4Net();
-
-            Application.ThreadException += Application_ThreadException;
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-            TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
-
-            // Initialize the IniConfig
-            IniConfig.Init();
-
-            // Log the startup
-            Log.Info().WriteLine("Starting: " + EnvironmentInfo.EnvironmentToString(false));
-
-            // Read configuration
-            _conf = IniConfig.GetIniSection<CoreConfiguration>();
-            try
-            {
-                // Fix for Bug 2495900, Multi-user Environment
-                // check whether there's an local instance running already
-                _applicationMutex = ResourceMutex.Create("F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08", "Greenshot", false);
-
-                var isAlreadyRunning = !_applicationMutex.IsLocked;
-
-                if (!isAlreadyRunning)
-                {
-                    _server = new GreenshotServerAction();
-                    _server.StartAsync();
-                }
-                if (arguments.Length > 0 && Log.IsDebugEnabled())
-                {
-                    var argumentString = new StringBuilder();
-                    foreach (var argument in arguments)
-                    {
-                        argumentString.Append("[").Append(argument).Append("] ");
-                    }
-                    Log.Debug().WriteLine("Greenshot arguments: " + argumentString);
-                }
-
-                for (var argumentNr = 0; argumentNr < arguments.Length; argumentNr++)
-                {
-                    var argument = arguments[argumentNr];
-                    // Help
-                    if (argument.ToLower().Equals("/help") || argument.ToLower().Equals("/h") || argument.ToLower().Equals("/?"))
-                    {
-                        // Try to attach to the console
-                        var attachedToConsole = Kernel32Api.AttachConsole(Kernel32Api.ATTACHCONSOLE_ATTACHPARENTPROCESS);
-                        // If attach didn't work, open a console
-                        if (!attachedToConsole)
-                        {
-                            Kernel32Api.AllocConsole();
-                        }
-                        var helpOutput = new StringBuilder();
-                        helpOutput.AppendLine();
-                        helpOutput.AppendLine("Greenshot commandline options:");
-                        helpOutput.AppendLine().AppendLine();
-                        helpOutput.AppendLine("\t/help");
-                        helpOutput.AppendLine("\t\tThis help.");
-                        helpOutput.AppendLine().AppendLine();
-                        helpOutput.AppendLine("\t/exit");
-                        helpOutput.AppendLine("\t\tTries to close all running instances.");
-                        helpOutput.AppendLine().AppendLine();
-                        helpOutput.AppendLine("\t/reload");
-                        helpOutput.AppendLine("\t\tReload the configuration of Greenshot.");
-                        helpOutput.AppendLine().AppendLine();
-                        helpOutput.AppendLine("\t/language [language code]");
-                        helpOutput.AppendLine("\t\tSet the language of Greenshot, e.g. greenshot /language en-US.");
-                        helpOutput.AppendLine().AppendLine();
-                        helpOutput.AppendLine("\t/inidirectory [directory]");
-                        helpOutput.AppendLine("\t\tSet the directory where the greenshot.ini should be stored & read.");
-                        helpOutput.AppendLine().AppendLine();
-                        helpOutput.AppendLine("\t[filename]");
-                        helpOutput.AppendLine("\t\tOpen the bitmap files in the running Greenshot instance or start a new instance");
-                        helpOutput.AppendLine();
-                        helpOutput.AppendLine();
-                        helpOutput.AppendLine("\t/capture <region|window|fullscreen>[,Destination]");
-                        helpOutput.AppendLine("\t\tStart capture from command line. Use /capture without arguments for more info. Greenshot must be running");
-                        Console.WriteLine(helpOutput.ToString());
-
-                        // If attach didn't work, wait for key otherwise the console will close to quickly
-                        if (!attachedToConsole)
-                        {
-                            Console.ReadKey();
-                        }
-                        FreeMutex();
-                        return;
-                    }
-
-                    if (argument.ToLower().Equals("/exit"))
-                    {
-                        // unregister application on uninstall (allow uninstall)
-                        try
-                        {
-                            Log.Info().WriteLine("Sending all instances the exit command.");
-                            // Pass Exit to running instance, if any
-                            GreenshotClient.Exit();
-                        }
-                        catch (Exception e)
-                        {
-                            Log.Warn().WriteLine(e, "Exception by exit.");
-                        }
-                        FreeMutex();
-                        return;
-                    }
-
-                    // Reload the configuration
-                    if (argument.ToLower().Equals("/reload"))
-                    {
-                        // Modify configuration
-                        Log.Info().WriteLine("Reloading configuration!");
-                        try
-                        {
-                            // Update running instances
-                            GreenshotClient.ReloadConfig();
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Error().WriteLine(ex, "Couldn't reload configuration.");
-                        }
-                        finally
-                        {
-                            FreeMutex();
-                        }
-                        return;
-                    }
-
-                    // Stop running
-                    if (argument.ToLower().Equals("/norun"))
-                    {
-                        // Make an exit possible
-                        FreeMutex();
-                        return;
-                    }
-
-                    // Language
-                    if (argument.ToLower().Equals("/language"))
-                    {
-                        _conf.Language = arguments[++argumentNr];
-                        IniConfig.Save();
-                        continue;
-                    }
-
-                    // Setting the INI-directory
-                    if (argument.ToLower().Equals("/inidirectory"))
-                    {
-                        IniConfig.IniDirectory = arguments[++argumentNr];
-                        continue;
-                    }
-
-                    // Capture from command line, only accept as first argument
-                    if (arguments.Length > 0 && arguments[0].ToLower().Equals("/capture"))
-                    {
-                        // Try to attach to the console
-                        bool attachedToConsole = Kernel32Api.AttachConsole(Kernel32Api.ATTACHCONSOLE_ATTACHPARENTPROCESS);
-                        // If attach didn't work, open a console
-                        if (!attachedToConsole)
-                        {
-                            Kernel32Api.AllocConsole();
-                        }
-                        // Display help for /capture command if not enough arguments
-                        if (arguments.Length < 2)
-                        {
-                            PluginHelper.Instance.LoadPlugins(); // list plugins when using GetAllDestinations
-                            var helpOutput = new StringBuilder();
-
-                            helpOutput.AppendLine();
-                            helpOutput.AppendLine();
-                            helpOutput.AppendLine("Usage for /capture:");
-                            helpOutput.AppendLine("\t/capture <region|window|fullscreen>[,Destination]");
-                            helpOutput.AppendLine();
-                            helpOutput.AppendLine("\tDestinations: (CaseSensitive!)");
-                            helpOutput.AppendFormat(
-                                "\t\t{0,-16}\t==>\t{1}{2}",
-                                "\"External CmdName\"",
-                                "External Command like MS Paint",
-                                Environment.NewLine
-                                );
-                            foreach (var destination in DestinationHelper.GetAllDestinations())
-                            {
-                                helpOutput.AppendFormat(
-                                        "\t\t{0,-16}\t==>\t{1}{2}",
-                                        destination.Designation,
-                                        destination.Description,
-                                        Environment.NewLine
-                                        );
-                            }
-                            helpOutput.AppendLine();
-                            helpOutput.AppendLine();
-                            helpOutput.AppendLine("\tUsage examples:");
-                            helpOutput.AppendLine("\t\t/capture window,FileNoDialog\t\t(capture window, save in default screenshot folder)");
-                            helpOutput.AppendLine("\t\t/capture fullscreen\t\t\t(capture fullscreen, use destination from settings)");
-                            helpOutput.AppendLine("\t\t/capture region,Clipboard\t\t(capture region directly to clipboard)");
-                            helpOutput.AppendLine("\t\t/capture fullscreen,Picker\t\t(capture fullscreen, ask what to do)");
-                            helpOutput.AppendLine("\t\t/capture region,\"External MS Paint\"\t(capture region and send to external command 'MS Paint')");
-                            helpOutput.AppendLine();
-                            helpOutput.AppendLine("\tShortcut path examples for Windows:");
-                            helpOutput.AppendLine("\t\t\"C:\\Program Files\\Greenshot\\Greenshot.exe\" /capture region,\"External MS Paint\"");
-                            helpOutput.AppendLine("\t\tD:\\Programme\\Greenshot\\Greenshot.exe /capture fullscreen,FileNoDialog");
-                            helpOutput.AppendLine();
-                            Console.WriteLine(helpOutput.ToString());
-                            // If attach didn't work, wait for key otherwise the console will close to quickly
-                            if (!attachedToConsole)
-                            {
-                                Console.ReadKey();
-                            }
-                        }
-                        else if (!isAlreadyRunning)
-                        {
-                            Console.WriteLine("{0}{0}Please start Greenshot first", Environment.NewLine);
-                            // If attach didn't work, wait for key otherwise the console will close to quickly
-                            if (!attachedToConsole)
-                            {
-                                Console.ReadKey();
-                            }
-                        }
-                        else
-                        {
-                            GreenshotClient.Capture(arguments[1]);
-                        }
-                        FreeMutex();
-                        return;
-                    }
-
-                    // Files to open
-                    filesToOpen.Add(argument);
-                }
-
-                if (isAlreadyRunning)
-                {
-                    // We didn't initialize the language yet, do it here just for the message box
-                    if (filesToOpen.Count > 0)
-                    {
-                        GreenshotClient.OpenFiles(filesToOpen);
-                    }
-                    else
-                    {
-                        ShowInstances();
-                    }
-                    FreeMutex();
-                    Application.Exit();
-                    return;
-                }
-
-                // BUG-1809: Add message filter, to filter out all the InputLangChanged messages which go to a target control with a handle > 32 bit.
-                Application.AddMessageFilter(new WmInputLangChangeRequestFilter());
-
-                // From here on we continue starting Greenshot
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
-
-                // if language is not set, show language dialog
-                if (string.IsNullOrEmpty(_conf.Language))
-                {
-                    var languageDialog = LanguageDialog.GetInstance();
-                    languageDialog.ShowDialog();
-                    _conf.Language = languageDialog.SelectedLanguage;
-                    IniConfig.Save();
-                }
-
-                // Should fix BUG-1633
-                Application.DoEvents();
-                Instance = new MainForm();
-                Application.Run();
-            }
-            catch (Exception ex)
-            {
-                Log.Error().WriteLine(ex, "Exception in startup.");
-                Application_ThreadException(ActiveForm, new ThreadExceptionEventArgs(ex));
-            }
-        }
-
-        /// <summary>
-        ///     Show all the running instances
-        /// </summary>
-        private static void ShowInstances()
-        {
-            var instanceInfo = new StringBuilder();
-            var index = 1;
-            foreach (var process in Process.GetProcesses())
-            {
-                try
-                {
-                    if (process.ProcessName.ToLowerInvariant().Contains("greenshot"))
-                    {
-                        instanceInfo.AppendFormat("{0} : {1} (pid {2})", index++, Kernel32Api.GetProcessPath(process.Id), process.Id);
-                        instanceInfo.Append(Environment.NewLine);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Debug().WriteLine(ex);
-                }
-                process.Dispose();
-            }
-
-            // A dirty fix to make sure the messagebox is visible as a Greenshot window on the taskbar
-            using (var multiInstanceForm = new Form
-            {
-                Icon = GreenshotResources.GetGreenshotIcon(),
-                ShowInTaskbar = true,
-                MaximizeBox = false,
-                MinimizeBox = false,
-                FormBorderStyle = FormBorderStyle.FixedDialog,
-                Location = new Point(int.MinValue, int.MinValue),
-                Text = Language.GetString(LangKey.error),
-                AutoSize = true,
-                AutoSizeMode = AutoSizeMode.GrowAndShrink,
-                StartPosition = FormStartPosition.CenterScreen
-            })
-            {
-                var flowLayoutPanel = new FlowLayoutPanel
-                {
-                    AutoScroll = true,
-                    FlowDirection = FlowDirection.TopDown,
-                    WrapContents = false,
-                    AutoSize = true,
-                    AutoSizeMode = AutoSizeMode.GrowAndShrink
-                };
-                var internalFlowLayoutPanel = new FlowLayoutPanel
-                {
-                    AutoScroll = true,
-                    FlowDirection = FlowDirection.LeftToRight,
-                    WrapContents = false,
-                    AutoSize = true,
-                    AutoSizeMode = AutoSizeMode.GrowAndShrink
-                };
-                var pictureBox = new PictureBox
-                {
-                    Dock = DockStyle.Left,
-                    Image = SystemIcons.Error.ToBitmap(),
-                    SizeMode = PictureBoxSizeMode.AutoSize
-                };
-                internalFlowLayoutPanel.Controls.Add(pictureBox);
-                var textbox = new Label
-                {
-                    Text = Language.GetString(LangKey.error_multipleinstances) + Environment.NewLine + instanceInfo,
-                    AutoSize = true
-                };
-                internalFlowLayoutPanel.Controls.Add(textbox);
-                flowLayoutPanel.Controls.Add(internalFlowLayoutPanel);
-                var cancelButton = new Button
-                {
-                    Text = Language.GetString(LangKey.bugreport_cancel),
-                    Dock = DockStyle.Bottom,
-                    Height = 20
-                };
-                flowLayoutPanel.Controls.Add(cancelButton);
-                multiInstanceForm.Controls.Add(flowLayoutPanel);
-
-                multiInstanceForm.CancelButton = cancelButton;
-
-                multiInstanceForm.ShowDialog();
-            }
-        }
-
-        private static void FreeMutex()
-        {
-            // Remove the application mutex
-            if (_applicationMutex != null)
-            {
-                try
-                {
-                    _applicationMutex.Dispose();
-                    _applicationMutex = null;
-                }
-                catch (Exception ex)
-                {
-                    Log.Error().WriteLine(ex, "Error releasing Mutex!");
-                }
-            }
-        }
 
         private void BalloonTipClicked(object sender, EventArgs e)
         {
@@ -630,57 +209,13 @@ namespace Greenshot.Forms
         {
             // As the form is never loaded, call ApplyLanguage ourselves
             ApplyLanguage();
-
+            
             // Show hotkeys in Contextmenu
-            contextmenu_capturearea.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.RegionHotkey);
-            contextmenu_capturelastregion.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.LastregionHotkey);
-            contextmenu_capturewindow.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.WindowHotkey);
-            contextmenu_capturefullscreen.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.FullscreenHotkey);
-            contextmenu_captureie.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.IEHotkey);
-        }
-
-        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-        {
-            var exceptionToLog = e.ExceptionObject as Exception;
-            var exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
-            Log.Error().WriteLine(null, "Exception caught in the UnhandledException handler.");
-            Log.Error().WriteLine(null, exceptionText);
-            if (exceptionText != null && exceptionText.Contains("InputLanguageChangedEventArgs"))
-            {
-                // Ignore for BUG-1809
-                return;
-            }
-            new BugReportForm(exceptionText).ShowDialog();
-        }
-
-        private static void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
-        {
-            Exception exceptionToLog = e.Exception;
-            var exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
-            Log.Error().WriteLine(null, "Exception caught in the UnobservedTaskException handler.");
-            Log.Error().WriteLine(null, exceptionText);
-            e.SetObserved();
-            if (exceptionText != null && exceptionText.Contains("InputLanguageChangedEventArgs"))
-            {
-                // Ignore for BUG-1809
-                return;
-            }
-            new BugReportForm(exceptionText).ShowDialog();
-        }
-
-        private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
-        {
-            var exceptionToLog = e.Exception;
-            var exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
-            Log.Error().WriteLine(null, "Exception caught in the ThreadException handler.");
-            Log.Error().WriteLine(null, exceptionText);
-            if (exceptionText != null && exceptionText.Contains("InputLanguageChangedEventArgs"))
-            {
-                // Ignore for BUG-1809
-                return;
-            }
-
-            new BugReportForm(exceptionText).ShowDialog();
+            contextmenu_capturearea.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_coreConfiguration.RegionHotkey);
+            contextmenu_capturelastregion.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_coreConfiguration.LastregionHotkey);
+            contextmenu_capturewindow.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_coreConfiguration.WindowHotkey);
+            contextmenu_capturefullscreen.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_coreConfiguration.FullscreenHotkey);
+            contextmenu_captureie.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_coreConfiguration.IEHotkey);
         }
 
         /// <summary>
@@ -695,10 +230,10 @@ namespace Greenshot.Forms
                 return;
             }
             // The right button will automatically be handled with the context menu, here we only check the left.
-            if (_conf.DoubleClickAction == ClickActions.DO_NOTHING)
+            if (_coreConfiguration.DoubleClickAction == ClickActions.DO_NOTHING)
             {
                 // As there isn't a double-click we can start the Left click
-                NotifyIconClick(_conf.LeftClickAction);
+                NotifyIconClick(_coreConfiguration.LeftClickAction);
                 // ready with the test
                 return;
             }
@@ -708,7 +243,7 @@ namespace Greenshot.Forms
                 // User clicked a second time before the timer tick: Double-click!
                 _doubleClickTimer.Elapsed -= NotifyIconSingleClickTest;
                 _doubleClickTimer.Stop();
-                NotifyIconClick(_conf.DoubleClickAction);
+                NotifyIconClick(_coreConfiguration.DoubleClickAction);
             }
             else
             {
@@ -729,7 +264,7 @@ namespace Greenshot.Forms
         {
             _doubleClickTimer.Elapsed -= NotifyIconSingleClickTest;
             _doubleClickTimer.Stop();
-            BeginInvoke((MethodInvoker) delegate { NotifyIconClick(_conf.LeftClickAction); });
+            BeginInvoke((MethodInvoker) delegate { NotifyIconClick(_coreConfiguration.LeftClickAction); });
         }
 
         /// <summary>
@@ -743,11 +278,11 @@ namespace Greenshot.Forms
                     Contextmenu_OpenRecent(this, null);
                     break;
                 case ClickActions.OPEN_LAST_IN_EDITOR:
-                    _conf.ValidateAndCorrectOutputFileAsFullpath();
+                    _coreConfiguration.ValidateAndCorrectOutputFileAsFullpath();
 
-                    if (File.Exists(_conf.OutputFileAsFullpath))
+                    if (File.Exists(_coreConfiguration.OutputFileAsFullpath))
                     {
-                        CaptureHelper.CaptureFile(_conf.OutputFileAsFullpath, DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
+                        CaptureHelper.CaptureFile(_coreConfiguration.OutputFileAsFullpath, _destinations.Find(EditorDestination.DESIGNATION));
                     }
                     break;
                 case ClickActions.OPEN_SETTINGS:
@@ -765,16 +300,16 @@ namespace Greenshot.Forms
         /// </summary>
         private void Contextmenu_OpenRecent(object sender, EventArgs eventArgs)
         {
-            _conf.ValidateAndCorrectOutputFilePath();
-            _conf.ValidateAndCorrectOutputFileAsFullpath();
-            var path = _conf.OutputFileAsFullpath;
+            _coreConfiguration.ValidateAndCorrectOutputFilePath();
+            _coreConfiguration.ValidateAndCorrectOutputFileAsFullpath();
+            var path = _coreConfiguration.OutputFileAsFullpath;
             if (!File.Exists(path))
             {
-                path = FilenameHelper.FillVariables(_conf.OutputFilePath, false);
+                path = FilenameHelper.FillVariables(_coreConfiguration.OutputFilePath, false);
                 // Fix for #1470, problems with a drive which is no longer available
                 try
                 {
-                    var lastFilePath = Path.GetDirectoryName(_conf.OutputFileAsFullpath);
+                    var lastFilePath = Path.GetDirectoryName(_coreConfiguration.OutputFileAsFullpath);
 
                     if (lastFilePath != null && Directory.Exists(lastFilePath))
                     {
@@ -810,62 +345,7 @@ namespace Greenshot.Forms
         /// </summary>
         public void Exit()
         {
-            _server?.ShutdownAsync();
-
             Log.Info().WriteLine("Exit: " + EnvironmentInfo.EnvironmentToString(false));
-
-            // Close all open forms (except this), use a separate List to make sure we don't get a "InvalidOperationException: Collection was modified"
-            var formsToClose = new List<Form>();
-            foreach (Form form in Application.OpenForms)
-            {
-                if (form.Handle != Handle && form.GetType() != typeof(ImageEditorForm))
-                {
-                    formsToClose.Add(form);
-                }
-            }
-            foreach (var form in formsToClose)
-            {
-                try
-                {
-                    Log.Info().WriteLine("Closing form: {0}", form.Name);
-                    var formCapturedVariable = form;
-                    Invoke((MethodInvoker) delegate { formCapturedVariable.Close(); });
-                }
-                catch (Exception e)
-                {
-                    Log.Error().WriteLine(e, "Error closing form!");
-                }
-            }
-
-            // Make sure hotkeys are disabled
-            try
-            {
-                HotkeyControl.UnregisterHotkeys();
-            }
-            catch (Exception e)
-            {
-                Log.Error().WriteLine(e, "Error unregistering hotkeys!");
-            }
-
-            // Now the sound isn't needed anymore
-            try
-            {
-                SoundHelper.Deinitialize();
-            }
-            catch (Exception e)
-            {
-                Log.Error().WriteLine(e, "Error deinitializing sound!");
-            }
-
-            // Inform all registed plugins
-            try
-            {
-                PluginHelper.Instance.Shutdown();
-            }
-            catch (Exception e)
-            {
-                Log.Error().WriteLine(e, "Error shutting down plugins!");
-            }
 
             // Gracefull shutdown
             try
@@ -879,19 +359,6 @@ namespace Greenshot.Forms
             }
 
             ImageOutput.RemoveTmpFiles();
-
-            // Store any open configuration changes
-            try
-            {
-                IniConfig.Save();
-            }
-            catch (Exception e)
-            {
-                Log.Error().WriteLine(e, "Error storing configuration!");
-            }
-
-            // Remove the application mutex
-            FreeMutex();
 
             // make the icon invisible otherwise it stays even after exit!!
             if (notifyIcon != null)
@@ -910,7 +377,7 @@ namespace Greenshot.Forms
         /// <param name="e"></param>
         private void BackgroundWorkerTimerTick(object sender, EventArgs e)
         {
-            if (_conf.MinimizeWorkingSetSize)
+            if (_coreConfiguration.MinimizeWorkingSetSize)
             {
                 PsApi.EmptyWorkingSet();
             }
@@ -927,66 +394,6 @@ namespace Greenshot.Forms
             }
         }
 
-#region hotkeys
-
-        /// <summary>
-        ///     Helper method to cleanly register a hotkey
-        /// </summary>
-        /// <param name="failedKeys"></param>
-        /// <param name="functionName"></param>
-        /// <param name="hotkeyString"></param>
-        /// <param name="handler"></param>
-        /// <returns></returns>
-        private static bool RegisterHotkey(StringBuilder failedKeys, string functionName, string hotkeyString, HotKeyHandler handler)
-        {
-            var modifierKeyCode = HotkeyControl.HotkeyModifiersFromString(hotkeyString);
-            var virtualKeyCode = HotkeyControl.HotkeyFromString(hotkeyString);
-            if (!Keys.None.Equals(virtualKeyCode))
-            {
-                if (HotkeyControl.RegisterHotKey(modifierKeyCode, virtualKeyCode, handler) < 0)
-                {
-                    Log.Debug().WriteLine("Failed to register {0} to hotkey: {1}", functionName, hotkeyString);
-                    if (failedKeys.Length > 0)
-                    {
-                        failedKeys.Append(", ");
-                    }
-                    failedKeys.Append(hotkeyString);
-                    return false;
-                }
-                Log.Debug().WriteLine("Registered {0} to hotkey: {1}", functionName, hotkeyString);
-            }
-            else
-            {
-                Log.Info().WriteLine("Skipping hotkey registration for {0}, no hotkey set!", functionName);
-            }
-            return true;
-        }
-
-        private static bool RegisterWrapper(StringBuilder failedKeys, string functionName, string configurationKey, HotKeyHandler handler, bool ignoreFailedRegistration)
-        {
-            var hotkeyValue = _conf.Values[configurationKey];
-            try
-            {
-                var success = RegisterHotkey(failedKeys, functionName, hotkeyValue.Value.ToString(), handler);
-                if (!success && ignoreFailedRegistration)
-                {
-                    Log.Debug().WriteLine("Ignoring failed hotkey registration for {0}, with value '{1}', resetting to 'None'.", functionName, hotkeyValue);
-                    _conf.Values[configurationKey].Value = Keys.None.ToString();
-                    _conf.IsDirty = true;
-                }
-                return success;
-            }
-            catch (Exception ex)
-            {
-                Log.Warn().WriteLine(ex);
-                Log.Warn().WriteLine("Restoring default hotkey for {0}, stored under {1} from '{2}' to '{3}'", functionName, configurationKey, hotkeyValue.Value,
-                    hotkeyValue.Attributes.DefaultValue);
-                // when getting an exception the key wasn't found: reset the hotkey value
-                hotkeyValue.UseValueOrDefault(null);
-                hotkeyValue.ContainingIniSection.IsDirty = true;
-                return RegisterHotkey(failedKeys, functionName, hotkeyValue.Value.ToString(), handler);
-            }
-        }
 
         /// <summary>
         /// Setup the Bitmap scaling (for icons)
@@ -1045,137 +452,6 @@ namespace Greenshot.Forms
             };
         }
 
-        /// <summary>
-        ///     Registers all hotkeys as configured, displaying a dialog in case of hotkey conflicts with other tools.
-        /// </summary>
-        /// <returns>
-        ///     Whether the hotkeys could be registered to the users content. This also applies if conflicts arise and the
-        ///     user decides to ignore these (i.e. not to register the conflicting hotkey).
-        /// </returns>
-        public static bool RegisterHotkeys()
-        {
-            return RegisterHotkeys(false);
-        }
-
-        /// <summary>
-        ///     Registers all hotkeys as configured, displaying a dialog in case of hotkey conflicts with other tools.
-        /// </summary>
-        /// <param name="ignoreFailedRegistration">
-        ///     if true, a failed hotkey registration will not be reported to the user - the
-        ///     hotkey will simply not be registered
-        /// </param>
-        /// <returns>
-        ///     Whether the hotkeys could be registered to the users content. This also applies if conflicts arise and the
-        ///     user decides to ignore these (i.e. not to register the conflicting hotkey).
-        /// </returns>
-        private static bool RegisterHotkeys(bool ignoreFailedRegistration)
-        {
-            if (Instance == null)
-            {
-                return false;
-            }
-            var success = true;
-            var failedKeys = new StringBuilder();
-
-            if (!RegisterWrapper(failedKeys, "CaptureRegion", "RegionHotkey", Instance.CaptureRegion, ignoreFailedRegistration))
-            {
-                success = false;
-            }
-            if (!RegisterWrapper(failedKeys, "CaptureWindow", "WindowHotkey", Instance.CaptureWindow, ignoreFailedRegistration))
-            {
-                success = false;
-            }
-            if (!RegisterWrapper(failedKeys, "CaptureFullScreen", "FullscreenHotkey", Instance.CaptureFullScreen, ignoreFailedRegistration))
-            {
-                success = false;
-            }
-            if (!RegisterWrapper(failedKeys, "CaptureLastRegion", "LastregionHotkey", Instance.CaptureLastRegion, ignoreFailedRegistration))
-            {
-                success = false;
-            }
-            if (_conf.IECapture)
-            {
-                if (!RegisterWrapper(failedKeys, "CaptureIE", "IEHotkey", Instance.CaptureIE, ignoreFailedRegistration))
-                {
-                    success = false;
-                }
-            }
-
-            if (!success)
-            {
-                if (!ignoreFailedRegistration)
-                {
-                    success = HandleFailedHotkeyRegistration(failedKeys.ToString());
-                }
-                else
-                {
-                    // if failures have been ignored, the config has probably been updated
-                    if (_conf.IsDirty)
-                    {
-                        IniConfig.Save();
-                    }
-                }
-            }
-            return success || ignoreFailedRegistration;
-        }
-
-        /// <summary>
-        ///     Check if OneDrive is blocking hotkeys
-        /// </summary>
-        /// <returns>true if onedrive has hotkeys turned on</returns>
-        private static bool IsOneDriveBlockingHotkey()
-        {
-            if (!WindowsVersion.IsWindows10)
-            {
-                return false;
-            }
-            var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            var oneDriveSettingsPath = Path.Combine(localAppData, @"Microsoft\OneDrive\settings\Personal");
-            if (!Directory.Exists(oneDriveSettingsPath))
-            {
-                return false;
-            }
-            var oneDriveSettingsFile = Directory.GetFiles(oneDriveSettingsPath, "*_screenshot.dat").FirstOrDefault();
-            if (oneDriveSettingsFile == null || !File.Exists(oneDriveSettingsFile))
-            {
-                return false;
-            }
-            var screenshotSetting = File.ReadAllLines(oneDriveSettingsFile).Skip(1).Take(1).First();
-            return "2".Equals(screenshotSetting);
-        }
-
-        /// <summary>
-        ///     Displays a dialog for the user to choose how to handle hotkey registration failures:
-        ///     retry (allowing to shut down the conflicting application before),
-        ///     ignore (not registering the conflicting hotkey and resetting the respective config to "None", i.e. not trying to
-        ///     register it again on next startup)
-        ///     abort (do nothing about it)
-        /// </summary>
-        /// <param name="failedKeys">comma separated list of the hotkeys that could not be registered, for display in dialog text</param>
-        /// <returns></returns>
-        private static bool HandleFailedHotkeyRegistration(string failedKeys)
-        {
-            var success = false;
-            var warningTitle = Language.GetString(LangKey.warning);
-            var message = string.Format(Language.GetString(LangKey.warning_hotkeys), failedKeys, IsOneDriveBlockingHotkey() ? " (OneDrive)" : "");
-            var dr = MessageBox.Show(Instance, message, warningTitle, MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Exclamation);
-            if (dr == DialogResult.Retry)
-            {
-                Log.Debug().WriteLine("Re-trying to register hotkeys");
-                HotkeyControl.UnregisterHotkeys();
-                success = RegisterHotkeys(false);
-            }
-            else if (dr == DialogResult.Ignore)
-            {
-                Log.Debug().WriteLine("Ignoring failed hotkey registration");
-                HotkeyControl.UnregisterHotkeys();
-                success = RegisterHotkeys(true);
-            }
-            return success;
-        }
-
-#endregion
-
 #region mainform events
 
         private void MainFormFormClosing(object sender, FormClosingEventArgs e)
@@ -1195,53 +471,28 @@ namespace Greenshot.Forms
 
 #region key handlers
 
-        private void CaptureRegion()
-        {
-            CaptureHelper.CaptureRegion(true);
-        }
-
         private void CaptureFile()
         {
             var openFileDialog = new OpenFileDialog
             {
                 Filter = "Image files (*.greenshot, *.png, *.jpg, *.gif, *.bmp, *.ico, *.tiff, *.wmf)|*.greenshot; *.png; *.jpg; *.jpeg; *.gif; *.bmp; *.ico; *.tiff; *.tif; *.wmf"
             };
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            if (openFileDialog.ShowDialog() != DialogResult.OK)
             {
-                if (File.Exists(openFileDialog.FileName))
-                {
-                    CaptureHelper.CaptureFile(openFileDialog.FileName);
-                }
+                return;
+            }
+
+            if (File.Exists(openFileDialog.FileName))
+            {
+                CaptureHelper.CaptureFile(openFileDialog.FileName);
             }
         }
-
-        private void CaptureFullScreen()
-        {
-            CaptureHelper.CaptureFullscreen(true, _conf.ScreenCaptureMode);
-        }
-
-        private void CaptureLastRegion()
-        {
-            CaptureHelper.CaptureLastRegion(true);
-        }
-
+        
         private void CaptureIE()
         {
-            if (_conf.IECapture)
+            if (_coreConfiguration.IECapture)
             {
                 CaptureHelper.CaptureIe(true, null);
-            }
-        }
-
-        private void CaptureWindow()
-        {
-            if (_conf.CaptureWindowsInteractive)
-            {
-                CaptureHelper.CaptureWindowInteractive(true);
-            }
-            else
-            {
-                CaptureHelper.CaptureWindow(true);
             }
         }
 
@@ -1257,7 +508,7 @@ namespace Greenshot.Forms
             // IE context menu code
             try
             {
-                if (_conf.IECapture && IeCaptureHelper.IsIeRunning())
+                if (_coreConfiguration.IECapture && IeCaptureHelper.IsIeRunning())
                 {
                     contextmenu_captureie.Enabled = true;
                     contextmenu_captureiefromlist.Enabled = true;
@@ -1309,7 +560,7 @@ namespace Greenshot.Forms
         /// </summary>
         private void CaptureIeMenuDropDownOpening(object sender, EventArgs e)
         {
-            if (!_conf.IECapture)
+            if (!_coreConfiguration.IECapture)
             {
                 return;
             }
@@ -1330,9 +581,9 @@ namespace Greenshot.Forms
                         {
                             continue;
                         }
-                        if (title.Length > _conf.MaxMenuItemLength)
+                        if (title.Length > _coreConfiguration.MaxMenuItemLength)
                         {
-                            title = title.Substring(0, Math.Min(title.Length, _conf.MaxMenuItemLength));
+                            title = title.Substring(0, Math.Min(title.Length, _coreConfiguration.MaxMenuItemLength));
                         }
                         var captureIeTabItem = contextmenu_captureiefromlist.DropDownItems.Add(title);
                         var index = counter.ContainsKey(tabData.Key) ? counter[tabData.Key] : 0;
@@ -1436,16 +687,17 @@ namespace Greenshot.Forms
 
         private void ShowThumbnailOnEnter(object sender, EventArgs e)
         {
-            var captureWindowItem = sender as ToolStripMenuItem;
-            if (captureWindowItem != null)
+            if (!(sender is ToolStripMenuItem captureWindowItem))
             {
-                var window = captureWindowItem.Tag as IInteropWindow;
-                if (_thumbnailForm == null)
-                {
-                    _thumbnailForm = new ThumbnailForm();
-                }
-                _thumbnailForm.ShowThumbnail(window, captureWindowItem.GetCurrentParent().TopLevelControl);
+                return;
             }
+
+            var window = captureWindowItem.Tag as IInteropWindow;
+            if (_thumbnailForm == null)
+            {
+                _thumbnailForm = new ThumbnailForm();
+            }
+            _thumbnailForm.ShowThumbnail(window, captureWindowItem.GetCurrentParent().TopLevelControl);
         }
 
         private void HideThumbnailOnLeave(object sender, EventArgs e)
@@ -1467,7 +719,7 @@ namespace Greenshot.Forms
         {
             menuItem.DropDownItems.Clear();
             // check if thumbnailPreview is enabled and DWM is enabled
-            var thumbnailPreview = _conf.ThumnailPreview && Dwm.IsDwmEnabled;
+            var thumbnailPreview = _coreConfiguration.ThumnailPreview && Dwm.IsDwmEnabled;
 
             foreach (var window in InteropWindowQuery.GetTopLevelWindows().Concat(AppQuery.WindowsStoreApps))
             {
@@ -1476,9 +728,9 @@ namespace Greenshot.Forms
                 {
                     continue;
                 }
-                if (title.Length > _conf.MaxMenuItemLength)
+                if (title.Length > _coreConfiguration.MaxMenuItemLength)
                 {
-                    title = title.Substring(0, Math.Min(title.Length, _conf.MaxMenuItemLength));
+                    title = title.Substring(0, Math.Min(title.Length, _coreConfiguration.MaxMenuItemLength));
                 }
                 var captureWindowItem = menuItem.DropDownItems.Add(title);
                 captureWindowItem.Tag = window;
@@ -1510,7 +762,7 @@ namespace Greenshot.Forms
 
         private void CaptureFullScreenToolStripMenuItemClick(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureFullscreen(false, _conf.ScreenCaptureMode); });
+            BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureFullscreen(false, _coreConfiguration.ScreenCaptureMode); });
         }
 
         private void Contextmenu_capturelastregionClick(object sender, EventArgs e)
@@ -1547,7 +799,7 @@ namespace Greenshot.Forms
 
         private void Contextmenu_captureiefromlist_Click(object sender, EventArgs e)
         {
-            if (!_conf.IECapture)
+            if (!_coreConfiguration.IECapture)
             {
                 Log.Info().WriteLine("IE Capture is disabled.");
                 return;
@@ -1684,10 +936,9 @@ namespace Greenshot.Forms
 
         private void CheckStateChangedHandler(object sender, EventArgs e)
         {
-            var captureMouseItem = sender as ToolStripMenuSelectListItem;
-            if (captureMouseItem != null)
+            if (sender is ToolStripMenuSelectListItem captureMouseItem)
             {
-                _conf.CaptureMousepointer = captureMouseItem.Checked;
+                _coreConfiguration.CaptureMousepointer = captureMouseItem.Checked;
             }
         }
 
@@ -1698,19 +949,19 @@ namespace Greenshot.Forms
         {
             contextmenu_quicksettings.DropDownItems.Clear();
 
-            if (_conf.DisableQuickSettings)
+            if (_coreConfiguration.DisableQuickSettings)
             {
                 return;
             }
 
             // Only add if the value is not fixed
-            if (!_conf.Values["CaptureMousepointer"].IsFixed)
+            if (!_coreConfiguration.IsWriteProtected("CaptureMousepointer"))
             {
                 // For the capture mousecursor option
                 var captureMouseItem = new ToolStripMenuSelectListItem
                 {
                     Text = Language.GetString("settings_capture_mousepointer"),
-                    Checked = _conf.CaptureMousepointer,
+                    Checked = _coreConfiguration.CaptureMousepointer,
                     CheckOnClick = true
                 };
                 captureMouseItem.CheckStateChanged += CheckStateChangedHandler;
@@ -1718,7 +969,7 @@ namespace Greenshot.Forms
                 contextmenu_quicksettings.DropDownItems.Add(captureMouseItem);
             }
             ToolStripMenuSelectList selectList;
-            if (!_conf.Values["Destinations"].IsFixed)
+            if (!_coreConfiguration.IsWriteProtected("Destinations"))
             {
                 // screenshot destination
                 selectList = new ToolStripMenuSelectList("destinations", true)
@@ -1726,15 +977,15 @@ namespace Greenshot.Forms
                     Text = Language.GetString(LangKey.settings_destination)
                 };
                 // Working with IDestination:
-                foreach (var destination in DestinationHelper.GetAllDestinations())
+                foreach (var destination in _destinations)
                 {
-                    selectList.AddItem(destination.Description, destination, _conf.OutputDestinations.Contains(destination.Designation));
+                    selectList.AddItem(destination.Description, destination, _coreConfiguration.OutputDestinations.Contains(destination.Designation));
                 }
                 selectList.CheckedChanged += QuickSettingDestinationChanged;
                 contextmenu_quicksettings.DropDownItems.Add(selectList);
             }
 
-            if (!_conf.Values["WindowCaptureMode"].IsFixed)
+            if (!_coreConfiguration.IsWriteProtected("WindowCaptureMode"))
             {
                 // Capture Modes
                 selectList = new ToolStripMenuSelectList("capturemodes", false)
@@ -1744,7 +995,7 @@ namespace Greenshot.Forms
                 var enumTypeName = typeof(WindowCaptureModes).Name;
                 foreach (WindowCaptureModes captureMode in Enum.GetValues(typeof(WindowCaptureModes)))
                 {
-                    selectList.AddItem(Language.GetString(enumTypeName + "." + captureMode), captureMode, _conf.WindowCaptureMode == captureMode);
+                    selectList.AddItem(Language.GetString(enumTypeName + "." + captureMode), captureMode, _coreConfiguration.WindowCaptureMode == captureMode);
                 }
                 selectList.CheckedChanged += QuickSettingCaptureModeChanged;
                 contextmenu_quicksettings.DropDownItems.Add(selectList);
@@ -1756,16 +1007,11 @@ namespace Greenshot.Forms
                 Text = Language.GetString(LangKey.settings_printoptions)
             };
 
-            IniValue iniValue;
-            foreach (var propertyName in _conf.Values.Keys)
+            foreach (var outputPrintIniValue in _coreConfiguration.GetIniValues().Values.Where(value => value.PropertyName.StartsWith("OutputPrint")))
             {
-                if (propertyName.StartsWith("OutputPrint"))
+                if (!_coreConfiguration.IsWriteProtected(outputPrintIniValue.PropertyName))
                 {
-                    iniValue = _conf.Values[propertyName];
-                    if (iniValue.Attributes.LanguageKey != null && !iniValue.IsFixed)
-                    {
-                        selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool) iniValue.Value);
-                    }
+                    selectList.AddItem(Language.GetString(outputPrintIniValue.PropertyName), outputPrintIniValue, (bool) outputPrintIniValue.Value);
                 }
             }
             if (selectList.DropDownItems.Count > 0)
@@ -1780,15 +1026,18 @@ namespace Greenshot.Forms
                 Text = Language.GetString(LangKey.settings_visualization)
             };
 
-            iniValue = _conf.Values["PlayCameraSound"];
-            if (!iniValue.IsFixed)
+            var iniValue = _coreConfiguration["PlayCameraSound"];
+            var languageKey = _coreConfiguration.GetTagValue(iniValue.PropertyName, ConfigTags.LanguageKey) as string;
+
+            if (!_coreConfiguration.IsWriteProtected(iniValue.PropertyName))
             {
-                selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool) iniValue.Value);
+                selectList.AddItem(Language.GetString(languageKey), iniValue, (bool) iniValue.Value);
             }
-            iniValue = _conf.Values["ShowTrayNotification"];
-            if (!iniValue.IsFixed)
+            iniValue = _coreConfiguration["ShowTrayNotification"];
+            languageKey = _coreConfiguration.GetTagValue(iniValue.PropertyName, ConfigTags.LanguageKey) as string;
+            if (!_coreConfiguration.IsWriteProtected(iniValue.PropertyName))
             {
-                selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool) iniValue.Value);
+                selectList.AddItem(Language.GetString(languageKey), iniValue, (bool) iniValue.Value);
             }
             if (selectList.DropDownItems.Count > 0)
             {
@@ -1803,18 +1052,16 @@ namespace Greenshot.Forms
             var windowsCaptureMode = (WindowCaptureModes) item.Data;
             if (item.Checked)
             {
-                _conf.WindowCaptureMode = windowsCaptureMode;
+                _coreConfiguration.WindowCaptureMode = windowsCaptureMode;
             }
         }
 
         private void QuickSettingBoolItemChanged(object sender, EventArgs e)
         {
             var item = ((ItemCheckedChangedEventArgs) e).Item;
-            var iniValue = item.Data as IniValue;
-            if (iniValue != null)
+            if (item.Data is IniValue iniValue)
             {
                 iniValue.Value = item.Checked;
-                IniConfig.Save();
             }
         }
 
@@ -1827,33 +1074,32 @@ namespace Greenshot.Forms
                 if (selectedDestination.Designation.Equals(PickerDestination.DESIGNATION))
                 {
                     // If the item is the destination picker, remove all others
-                    _conf.OutputDestinations.Clear();
+                    _coreConfiguration.OutputDestinations.Clear();
                 }
                 else
                 {
                     // If the item is not the destination picker, remove the picker
-                    _conf.OutputDestinations.Remove(PickerDestination.DESIGNATION);
+                    _coreConfiguration.OutputDestinations.Remove(PickerDestination.DESIGNATION);
                 }
                 // Checked an item, add if the destination is not yet selected
-                if (!_conf.OutputDestinations.Contains(selectedDestination.Designation))
+                if (!_coreConfiguration.OutputDestinations.Contains(selectedDestination.Designation))
                 {
-                    _conf.OutputDestinations.Add(selectedDestination.Designation);
+                    _coreConfiguration.OutputDestinations.Add(selectedDestination.Designation);
                 }
             }
             else
             {
                 // deselected a destination, only remove if it was selected
-                if (_conf.OutputDestinations.Contains(selectedDestination.Designation))
+                if (_coreConfiguration.OutputDestinations.Contains(selectedDestination.Designation))
                 {
-                    _conf.OutputDestinations.Remove(selectedDestination.Designation);
+                    _coreConfiguration.OutputDestinations.Remove(selectedDestination.Designation);
                 }
             }
             // Check if something was selected, if not make the picker the default
-            if (_conf.OutputDestinations == null || _conf.OutputDestinations.Count == 0)
+            if (_coreConfiguration.OutputDestinations == null || _coreConfiguration.OutputDestinations.Count == 0)
             {
-                _conf.OutputDestinations.Add(PickerDestination.DESIGNATION);
+                _coreConfiguration.OutputDestinations.Add(PickerDestination.DESIGNATION);
             }
-            IniConfig.Save();
 
             // Rebuild the quick settings menu with the new settings.
             InitializeQuickSettingsMenu();

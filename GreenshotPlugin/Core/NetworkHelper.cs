@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -32,7 +32,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using GreenshotPlugin.Gfx;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
@@ -60,7 +60,7 @@ namespace GreenshotPlugin.Core
 	public static class NetworkHelper
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static readonly CoreConfiguration Config = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ICoreConfiguration Config = IniConfig.Current.Get<ICoreConfiguration>();
 
 		static NetworkHelper()
 		{

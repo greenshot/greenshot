@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -34,9 +34,9 @@ namespace GreenshotOCR
 	/// </summary>
 	public partial class SettingsForm : OcrForm
 	{
-		private readonly OCRConfiguration config;
+		private readonly IOCRConfiguration config;
 
-		public SettingsForm(string[] languages, OCRConfiguration config)
+		public SettingsForm(string[] languages, IOCRConfiguration config)
 		{
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.

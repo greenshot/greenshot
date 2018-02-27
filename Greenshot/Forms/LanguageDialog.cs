@@ -1,7 +1,7 @@
 #region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -39,8 +39,8 @@ namespace Greenshot.Forms
 	public partial class LanguageDialog : Form
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static LanguageDialog uniqueInstance;
-		private bool properOkPressed;
+		private static LanguageDialog _uniqueInstance;
+		private bool _properOkPressed;
 
 		private LanguageDialog()
 		{
@@ -53,14 +53,11 @@ namespace Greenshot.Forms
 			FormClosing += PreventFormClose;
 		}
 
-		public string SelectedLanguage
-		{
-			get { return comboBoxLanguage.SelectedValue.ToString(); }
-		}
+		public string SelectedLanguage => comboBoxLanguage?.SelectedValue?.ToString();
 
-		private void PreventFormClose(object sender, FormClosingEventArgs e)
+	    private void PreventFormClose(object sender, FormClosingEventArgs e)
 		{
-			if (!properOkPressed)
+			if (!_properOkPressed)
 			{
 				e.Cancel = true;
 			}
@@ -88,18 +85,20 @@ namespace Greenshot.Forms
 
 			// Close again when there is only one language, this shows the form briefly!
 			// But the use-case is not so interesting, only happens once, to invest a lot of time here.
-			if (Language.SupportedLanguages.Count == 1)
-			{
-				comboBoxLanguage.SelectedValue = Language.SupportedLanguages[0].Ietf;
-				Language.CurrentLanguage = SelectedLanguage;
-				properOkPressed = true;
-				Close();
-			}
+		    if (Language.SupportedLanguages.Count != 1)
+		    {
+		        return;
+		    }
+
+		    comboBoxLanguage.SelectedValue = Language.SupportedLanguages[0].Ietf;
+		    Language.CurrentLanguage = SelectedLanguage;
+		    _properOkPressed = true;
+		    Close();
 		}
 
 		private void BtnOKClick(object sender, EventArgs e)
 		{
-			properOkPressed = true;
+			_properOkPressed = true;
 			// Fix for Bug #3431100 
 			Language.CurrentLanguage = SelectedLanguage;
 			Close();
@@ -107,11 +106,11 @@ namespace Greenshot.Forms
 
 		public static LanguageDialog GetInstance()
 		{
-			if (uniqueInstance == null)
+			if (_uniqueInstance == null)
 			{
-				uniqueInstance = new LanguageDialog();
+				_uniqueInstance = new LanguageDialog();
 			}
-			return uniqueInstance;
+			return _uniqueInstance;
 		}
 	}
 }

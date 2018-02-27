@@ -1,7 +1,7 @@
 #region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -30,7 +30,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using Dapplo.Log;
 using Dapplo.Windows.Common;
@@ -54,7 +54,7 @@ namespace GreenshotPlugin.Core
     public static class WindowCapture
     {
         private static readonly LogSource Log = new LogSource();
-        private static readonly CoreConfiguration Configuration = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration Configuration = IniConfig.Current.Get<ICoreConfiguration>();
 
         /// <summary>
         ///     Used to cleanup the unmanged resource in the iconInfo for the CaptureCursor method

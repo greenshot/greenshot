@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -29,14 +29,14 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Windows;
-using Confluence;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
 using Greenshot.Gfx;
+using GreenshotConfluencePlugin.Forms;
 
 #endregion
 
@@ -47,9 +47,10 @@ namespace GreenshotConfluencePlugin
 	/// </summary>
 	public class ConfluenceDestination : AbstractDestination
 	{
-		private static readonly LogSource Log = new LogSource();
-		private static readonly ConfluenceConfiguration ConfluenceConfig = IniConfig.GetIniSection<ConfluenceConfiguration>();
-		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+	    private readonly ConfluenceConnector _confluenceConnector;
+	    private static readonly LogSource Log = new LogSource();
+		private static readonly IConfluenceConfiguration ConfluenceConfig = IniConfig.Current.Get<IConfluenceConfiguration>();
+		private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly Bitmap ConfluenceIcon;
 		private readonly Page _page;
 
@@ -72,11 +73,12 @@ namespace GreenshotConfluencePlugin
 			}
 		}
 
-		public ConfluenceDestination()
+		public ConfluenceDestination(ConfluenceConnector confluenceConnector)
 		{
+		    _confluenceConnector = confluenceConnector;
 		}
 
-		public ConfluenceDestination(Page page)
+		public ConfluenceDestination(ConfluenceConnector confluenceConnector, Page page) : this(confluenceConnector)
 		{
 			_page = page;
 		}
@@ -121,14 +123,14 @@ namespace GreenshotConfluencePlugin
 			{
 				yield break;
 			}
-			var currentPages = ConfluenceUtils.GetCurrentPages();
+			var currentPages = ConfluenceUtils.GetCurrentPages(_confluenceConnector);
 			if (currentPages == null || currentPages.Count == 0)
 			{
 				yield break;
 			}
 			foreach (var currentPage in currentPages)
 			{
-				yield return new ConfluenceDestination(currentPage);
+				yield return new ConfluenceDestination(_confluenceConnector, currentPage);
 			}
 		}
 
@@ -136,7 +138,7 @@ namespace GreenshotConfluencePlugin
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
 			// force password check to take place before the pages load
-			if (!ConfluencePlugin.ConfluenceConnector.IsLoggedIn)
+			if (!_confluenceConnector.IsLoggedIn)
 			{
 				return exportInformation;
 			}
@@ -146,7 +148,7 @@ namespace GreenshotConfluencePlugin
 			var filename = FilenameHelper.GetFilenameWithoutExtensionFromPattern(CoreConfig.OutputFileFilenamePattern, captureDetails);
 			if (selectedPage == null)
 			{
-				var confluenceUpload = new ConfluenceUpload(filename);
+				var confluenceUpload = new ConfluenceUpload(_confluenceConnector, filename);
 				var dialogResult = confluenceUpload.ShowDialog();
 				if (dialogResult.HasValue && dialogResult.Value)
 				{
@@ -201,7 +203,7 @@ namespace GreenshotConfluencePlugin
 				new PleaseWaitForm().ShowAndWait(Description, Language.GetString("confluence", LangKey.communication_wait),
 					delegate
 					{
-						ConfluencePlugin.ConfluenceConnector.AddAttachment(page.Id, "image/" + ConfluenceConfig.UploadFormat.ToString().ToLower(), null, filename,
+						_confluenceConnector.AddAttachment(page.Id, "image/" + ConfluenceConfig.UploadFormat.ToString().ToLower(), null, filename,
 							new SurfaceContainer(surfaceToUpload, outputSettings, filename));
 					}
 				);

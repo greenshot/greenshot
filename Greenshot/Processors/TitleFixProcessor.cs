@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -26,7 +26,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using Dapplo.Log;
 
@@ -40,7 +40,7 @@ namespace Greenshot.Processors
 	public class TitleFixProcessor : AbstractProcessor
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static readonly CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ICoreConfiguration config = IniConfig.Current.Get<ICoreConfiguration>();
 
 		public TitleFixProcessor()
 		{
@@ -67,7 +67,6 @@ namespace Greenshot.Processors
 				config.TitleFixMatcher.Remove(corruptKey);
 				config.TitleFixReplacer.Remove(corruptKey);
 			}
-			config.IsDirty = true;
 		}
 
 		public override string Designation => "TitleFix";

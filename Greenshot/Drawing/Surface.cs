@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -37,7 +37,7 @@ using Greenshot.Drawing.Fields;
 using Greenshot.Memento;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Drawing;
 using GreenshotPlugin.Interfaces.Drawing.Adorners;
@@ -62,7 +62,7 @@ namespace Greenshot.Drawing
 		/// The number of Surfaces in existance
 		/// </summary>
 		public static int Count { get; private set; }
-		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 
 		/// <summary>
 		///     all elements on the surface, needed with serialization

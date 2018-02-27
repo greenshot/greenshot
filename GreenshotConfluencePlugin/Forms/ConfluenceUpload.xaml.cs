@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -28,31 +28,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Windows;
-using Confluence;
-using Page = System.Windows.Controls.Page;
 
 #endregion
 
-namespace GreenshotConfluencePlugin
+namespace GreenshotConfluencePlugin.Forms
 {
 	/// <summary>
 	///     Interaction logic for ConfluenceUpload.xaml
 	/// </summary>
 	public partial class ConfluenceUpload : Window
 	{
-		private static DateTime _lastLoad = DateTime.Now;
+	    private readonly ConfluenceConnector _confluenceConnector;
+	    private static DateTime _lastLoad = DateTime.Now;
 		private static IList<Space> _spaces;
 
-		private Page _browsePage;
-		private Page _pickerPage;
+		private System.Windows.Controls.Page _browsePage;
+		private System.Windows.Controls.Page _pickerPage;
 
-		private Page _searchPage;
+		private System.Windows.Controls.Page _searchPage;
 
-		private Confluence.Page _selectedPage;
+		private Page _selectedPage;
 
-		public ConfluenceUpload(string filename)
+		public ConfluenceUpload(ConfluenceConnector confluenceConnector, string filename)
 		{
-			Filename = filename;
+		    _confluenceConnector = confluenceConnector;
+		    Filename = filename;
 			InitializeComponent();
 			DataContext = this;
 			UpdateSpaces();
@@ -63,13 +63,13 @@ namespace GreenshotConfluencePlugin
 			}
 		}
 
-		public Page PickerPage
+		public System.Windows.Controls.Page PickerPage
 		{
 			get
 			{
 				if (_pickerPage == null)
 				{
-					var pages = ConfluenceUtils.GetCurrentPages();
+					var pages = ConfluenceUtils.GetCurrentPages(_confluenceConnector);
 					if (pages != null && pages.Count > 0)
 					{
 						_pickerPage = new ConfluencePagePicker(this, pages);
@@ -79,31 +79,31 @@ namespace GreenshotConfluencePlugin
 			}
 		}
 
-		public Page SearchPage
+		public System.Windows.Controls.Page SearchPage
 		{
 			get
 			{
 				if (_searchPage == null)
 				{
-					_searchPage = new ConfluenceSearch(this);
+					_searchPage = new ConfluenceSearch(_confluenceConnector, this);
 				}
 				return _searchPage;
 			}
 		}
 
-		public Page BrowsePage
+		public System.Windows.Controls.Page BrowsePage
 		{
 			get
 			{
 				if (_browsePage == null)
 				{
-					_browsePage = new ConfluenceTreePicker(this);
+					_browsePage = new ConfluenceTreePicker(_confluenceConnector, this);
 				}
 				return _browsePage;
 			}
 		}
 
-		public Confluence.Page SelectedPage
+		public Page SelectedPage
 		{
 			get { return _selectedPage; }
 			set
@@ -150,7 +150,7 @@ namespace GreenshotConfluencePlugin
 			{
 				new Thread(() =>
 				{
-					_spaces = ConfluencePlugin.ConfluenceConnector.GetSpaceSummaries().OrderBy(s => s.Name).ToList();
+					_spaces = _confluenceConnector.GetSpaceSummaries().OrderBy(s => s.Name).ToList();
 					_lastLoad = DateTime.Now;
 				}) {Name = "Loading spaces for confluence"}.Start();
 			}

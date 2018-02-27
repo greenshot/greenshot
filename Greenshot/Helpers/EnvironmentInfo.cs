@@ -1,7 +1,7 @@
 #region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -34,7 +34,6 @@ using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.Kernel32.Enums;
 using Dapplo.Windows.Kernel32.Structs;
 using Dapplo.Windows.User32;
-using GreenshotPlugin.IniFile;
 
 #endregion
 
@@ -70,10 +69,6 @@ namespace Greenshot.Helpers
 		{
 			var environment = new StringBuilder();
 			environment.Append("Software version: " + Application.ProductVersion);
-			if (IniConfig.IsPortable)
-			{
-				environment.Append(" Portable");
-			}
 			environment.Append(" (" + OsInfo.Bits + " bit)");
 
 			if (newline)
@@ -369,8 +364,7 @@ namespace Greenshot.Helpers
 
 				else if (majorVersion == 6)
 				{
-					WindowsProducts ed;
-					if (Kernel32Api.GetProductInfo(majorVersion, minorVersion, osVersionInfo.ServicePackMajor, osVersionInfo.ServicePackMinor, out ed))
+				    if (Kernel32Api.GetProductInfo(majorVersion, minorVersion, osVersionInfo.ServicePackMajor, osVersionInfo.ServicePackMinor, out var ed))
 					{
 						var memberInfo = ed.GetType().GetMember(ed.ToString()).FirstOrDefault();
 

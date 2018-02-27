@@ -2,7 +2,6 @@
 using System.Drawing.Imaging;
 using Greenshot.Gfx;
 using Greenshot.Gfx.Quantizer;
-using Greenshot.Tests.Implementation;
 using Xunit;
 
 namespace Greenshot.Tests

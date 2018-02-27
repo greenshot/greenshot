@@ -1,7 +1,7 @@
 #region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -25,13 +25,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+using System.ComponentModel.Composition;
 using System.IO;
 using System.Windows.Forms;
 using Dapplo.Windows.Dpi;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
@@ -44,15 +43,22 @@ namespace GreenshotBoxPlugin
 	/// <summary>
 	///     This is the Box base code
 	/// </summary>
+	[Export(typeof(IGreenshotPlugin))]
 	public sealed class BoxPlugin : IGreenshotPlugin
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static BoxConfiguration _config;
-		public static PluginAttribute Attributes;
-		private IGreenshotHost _host;
+		private readonly IBoxConfiguration _boxConfiguration;
+		private readonly IGreenshotHost _greenshotHost;
 		private ToolStripMenuItem _itemPlugInConfig;
 
-		public void Dispose()
+        [ImportingConstructor]
+	    public BoxPlugin(IGreenshotHost greenshotHost, IBoxConfiguration boxConfiguration)
+        {
+            _greenshotHost = greenshotHost;
+            _boxConfiguration = boxConfiguration;
+        }
+
+	    public void Dispose()
 		{
 			Dispose(true);
 		}
@@ -71,27 +77,19 @@ namespace GreenshotBoxPlugin
 		/// <summary>
 		///     Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="pluginAttribute">My own attributes</param>
-		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute pluginAttribute)
+		public bool Initialize()
 		{
-			_host = pluginHost;
-			Attributes = pluginAttribute;
-
-			// Register configuration (don't need the configuration itself)
-			_config = IniConfig.GetIniSection<BoxConfiguration>();
-
 			_itemPlugInConfig = new ToolStripMenuItem
 			{
 				Text = Language.GetString("box", LangKey.Configure)
 			};
 
-			var boxResourceScaler = BitmapScaleHandler.WithComponentResourceManager(pluginHost.ContextMenuDpiHandler, GetType(), (bitmap, dpi) => (Bitmap)bitmap.ScaleIconForDisplaying(dpi));
+			var boxResourceScaler = BitmapScaleHandler.WithComponentResourceManager(_greenshotHost.ContextMenuDpiHandler, GetType(), (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));
 			boxResourceScaler.AddTarget(_itemPlugInConfig, "Box");
 
 			_itemPlugInConfig.Click += ConfigMenuClick;
 
-			PluginUtils.AddToContextMenu(_host, _itemPlugInConfig);
+			PluginUtils.AddToContextMenu(_greenshotHost, _itemPlugInConfig);
 			Language.LanguageChanged += OnLanguageChanged;
 			return true;
 		}
@@ -99,14 +97,6 @@ namespace GreenshotBoxPlugin
 		public void Shutdown()
 		{
 			Log.Debug().WriteLine("Box Plugin shutdown.");
-		}
-
-		/// <summary>
-		///     Implementation of the IPlugin.Configure
-		/// </summary>
-		public void Configure()
-		{
-			_config.ShowConfigDialog();
 		}
 
 		private void Dispose(bool disposing)
@@ -131,7 +121,7 @@ namespace GreenshotBoxPlugin
 
 		public void ConfigMenuClick(object sender, EventArgs eventArgs)
 		{
-			_config.ShowConfigDialog();
+			//_config.ShowConfigDialog();
 		}
 
 		/// <summary>
@@ -139,18 +129,18 @@ namespace GreenshotBoxPlugin
 		/// </summary>
 		public string Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload)
 		{
-			var outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
+			var outputSettings = new SurfaceOutputSettings(_boxConfiguration.UploadFormat, _boxConfiguration.UploadJpegQuality, false);
 			try
 			{
 				string url = null;
-				var filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
+				var filename = Path.GetFileName(FilenameHelper.GetFilename(_boxConfiguration.UploadFormat, captureDetails));
 				var imageToUpload = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
 
-				new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("box", LangKey.communication_wait),
+				new PleaseWaitForm().ShowAndWait("Box", Language.GetString("box", LangKey.communication_wait),
 					delegate { url = BoxUtils.UploadToBox(imageToUpload, captureDetails.Title, filename); }
 				);
 
-				if (url != null && _config.AfterUploadLinkToClipBoard)
+				if (url != null && _boxConfiguration.AfterUploadLinkToClipBoard)
 				{
 					ClipboardHelper.SetClipboardData(url);
 				}

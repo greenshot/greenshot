@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -24,8 +24,9 @@
 #region Usings
 
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
+using CommonServiceLocator;
 using Greenshot.Configuration;
-using Greenshot.Helpers;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 
@@ -36,6 +37,7 @@ namespace Greenshot.Destinations
 	/// <summary>
 	///     The PickerDestination shows a context menu with all possible destinations, so the user can "pick" one
 	/// </summary>
+	[Export(typeof(IDestination))]
 	public class PickerDestination : AbstractDestination
 	{
 		public const string DESIGNATION = "Picker";
@@ -57,7 +59,7 @@ namespace Greenshot.Destinations
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var destinations = new List<IDestination>();
-			foreach (var destination in DestinationHelper.GetAllDestinations())
+			foreach (var destination in ServiceLocator.Current.GetAllInstances<IDestination>())
 			{
 				if ("Picker".Equals(destination.Designation))
 				{

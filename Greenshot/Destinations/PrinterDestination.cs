@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -24,6 +24,7 @@
 #region Usings
 
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.Windows.Forms;
@@ -36,10 +37,11 @@ using GreenshotPlugin.Interfaces;
 
 namespace Greenshot.Destinations
 {
-	/// <summary>
-	///     Description of PrinterDestination.
-	/// </summary>
-	public class PrinterDestination : AbstractDestination
+    /// <summary>
+    ///     Description of PrinterDestination.
+    /// </summary>
+    [Export(typeof(IDestination))]
+    public class PrinterDestination : AbstractDestination
 	{
 		public const string DESIGNATION = "Printer";
 		public readonly string printerName;

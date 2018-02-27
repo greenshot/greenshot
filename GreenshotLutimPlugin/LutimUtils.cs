@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -24,7 +24,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using Dapplo.Log;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
@@ -38,7 +38,7 @@ namespace GreenshotLutimPlugin
 	public static class LutimUtils
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static readonly LutimConfiguration Config = IniConfig.GetIniSection<LutimConfiguration>();
+		private static readonly ILutimConfiguration Config = IniConfig.Current.Get<ILutimConfiguration>();
 
 		/// <summary>
 		/// Check if we need to load the history
@@ -60,8 +60,6 @@ namespace GreenshotLutimPlugin
 				return;
 			}
 
-			bool saveNeeded = false;
-
 			// Load the ImUr history
 			foreach (string key in Config.LutimUploadHistory.Keys.ToList())
 			{
@@ -82,17 +80,11 @@ namespace GreenshotLutimPlugin
 					Log.Info().WriteLine("Bad format of lutim history item for short {0}", key);
 					Config.LutimUploadHistory.Remove(key);
 					Config.RuntimeLutimHistory.Remove(key);
-					saveNeeded = true;
 				}
 				catch (Exception e)
 				{
 					Log.Error().WriteLine(e, "Problem loading lutim history for short " + key);
 				}
-			}
-			if (saveNeeded)
-			{
-				// Save needed changes
-				IniConfig.Save();
 			}
 		}
 

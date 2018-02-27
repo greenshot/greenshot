@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -27,7 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using GreenshotOfficePlugin.OfficeInterop;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using GreenshotPlugin.Interop;
 using Dapplo.Log;
 
@@ -39,7 +39,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 	{
 		private static readonly LogSource Log = new LogSource();
 		private static Version _powerpointVersion;
-		private static readonly OfficeConfiguration officeConfiguration = IniConfig.GetIniSection<OfficeConfiguration>();
+		private static readonly IOfficeConfiguration officeConfiguration = IniConfig.Current.Get<IOfficeConfiguration>();
 
 		private static bool IsAfter2003()
 		{

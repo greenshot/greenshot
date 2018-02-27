@@ -1,7 +1,7 @@
 #region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -32,7 +32,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Greenshot.Configuration;
 using Greenshot.Controls;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 
 #endregion
 
@@ -43,7 +43,7 @@ namespace Greenshot
 	/// </summary>
 	public partial class ColorDialog : BaseForm
 	{
-		private static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
+		private static readonly IEditorConfiguration EditorConfig = IniConfig.Current.Get<IEditorConfiguration>();
 
 		private readonly IList<Button> _colorButtons = new List<Button>();
 		private readonly IList<Button> _recentColorButtons = new List<Button>();
@@ -71,8 +71,7 @@ namespace Greenshot
 
 		private int GetColorPartIntFromString(string s)
 		{
-			int ret;
-			int.TryParse(s, out ret);
+		    int.TryParse(s, out var ret);
 			if (ret < 0)
 			{
 				ret = 0;
@@ -208,7 +207,7 @@ namespace Greenshot
 			EditorConfig.RecentColors.Insert(0, c);
 			if (EditorConfig.RecentColors.Count > 12)
 			{
-				EditorConfig.RecentColors.RemoveRange(12, EditorConfig.RecentColors.Count - 12);
+				EditorConfig.RecentColors = EditorConfig.RecentColors.Skip(EditorConfig.RecentColors.Count - 12).ToList();
 			}
 			UpdateRecentColorsButtonRow();
 		}
@@ -225,9 +224,8 @@ namespace Greenshot
 			}
 			var textBox = (TextBox) sender;
 			var text = textBox.Text.Replace("#", "");
-			int i;
-			Color c;
-			if (int.TryParse(text, NumberStyles.AllowHexSpecifier, Thread.CurrentThread.CurrentCulture, out i))
+		    Color c;
+			if (int.TryParse(text, NumberStyles.AllowHexSpecifier, Thread.CurrentThread.CurrentCulture, out var i))
 			{
 				c = Color.FromArgb(i);
 			}

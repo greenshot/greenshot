@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -29,7 +29,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Xml;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
@@ -44,7 +44,7 @@ namespace GreenshotPhotobucketPlugin
 	public static class PhotobucketUtils
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static readonly PhotobucketConfiguration PhotobucketConfig = IniConfig.GetIniSection<PhotobucketConfiguration>();
+		private static readonly IPhotobucketConfiguration PhotobucketConfig = IniConfig.Current.Get<IPhotobucketConfiguration>();
 		private static List<string> _albumsCache;
 
 		/// <summary>
@@ -83,10 +83,12 @@ namespace GreenshotPhotobucketPlugin
 			{
 				signedParameters.Add("filename", filename);
 			}
-			IDictionary<string, object> unsignedParameters = new Dictionary<string, object>();
-			// Add image
-			unsignedParameters.Add("uploadfile", new SurfaceContainer(surfaceToUpload, outputSettings, filename));
-			try
+            IDictionary<string, object> unsignedParameters = new Dictionary<string, object>
+            {
+                // Add image
+                { "uploadfile", new SurfaceContainer(surfaceToUpload, outputSettings, filename) }
+            };
+            try
 			{
 				var apiUrl = "http://api.photobucket.com/album/!/upload";
 				responseString = oAuth.MakeOAuthRequest(HTTPMethod.POST, apiUrl, apiUrl.Replace("api.photobucket.com", PhotobucketConfig.SubDomain), signedParameters,
@@ -166,7 +168,6 @@ namespace GreenshotPhotobucketPlugin
 				{
 					PhotobucketConfig.Username = oAuth.AccessTokenResponseParameters["username"];
 				}
-				IniConfig.Save();
 			}
 			oAuth.Token = PhotobucketConfig.Token;
 			oAuth.TokenSecret = PhotobucketConfig.TokenSecret;

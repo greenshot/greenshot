@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -35,7 +35,7 @@ using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Dpi.Forms;
 using Dapplo.Windows.User32;
 using Greenshot.Gfx;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 
 #endregion
@@ -48,7 +48,7 @@ namespace GreenshotPlugin.Core
     public abstract class AbstractDestination : IDestination
     {
         private static readonly LogSource Log = new LogSource();
-        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
 
         public virtual int CompareTo(object obj)
         {
@@ -233,19 +233,21 @@ namespace GreenshotPlugin.Core
         /// <param name="tagValue">Value for the tag</param>
         private void AddTagEvents(ToolStripMenuItem menuItem, ContextMenuStrip menu, string tagValue)
         {
-            if (menuItem != null && menu != null)
+            if (menuItem == null || menu == null)
             {
-                menuItem.MouseDown += (sender, args) =>
-                {
-                    Log.Debug().WriteLine("Setting tag to '{0}'", tagValue);
-                    menu.Tag = tagValue;
-                };
-                menuItem.MouseUp += (sender, args) =>
-                {
-                    Log.Debug().WriteLine("Deleting tag");
-                    menu.Tag = null;
-                };
+                return;
             }
+
+            menuItem.MouseDown += (sender, args) =>
+            {
+                Log.Debug().WriteLine("Setting tag to '{0}'", tagValue);
+                menu.Tag = tagValue;
+            };
+            menuItem.MouseUp += (sender, args) =>
+            {
+                Log.Debug().WriteLine("Deleting tag");
+                menu.Tag = null;
+            };
         }
 
         /// <summary>

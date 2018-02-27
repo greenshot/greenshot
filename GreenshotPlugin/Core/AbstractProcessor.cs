@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -62,7 +62,7 @@ namespace GreenshotPlugin.Core
 			Dispose(true);
 		}
 
-		public virtual bool isActive
+		public virtual bool IsActive
 		{
 			get { return true; }
 		}

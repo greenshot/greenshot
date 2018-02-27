@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -42,7 +42,7 @@ using Dapplo.Windows.User32.Enums;
 using Greenshot.Gfx;
 using Greenshot.Gfx.FastBitmap;
 using GreenshotPlugin.Core.Enums;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 
 #endregion
@@ -55,7 +55,7 @@ namespace GreenshotPlugin.Core
     public static class InteropWindowCaptureExtensions
     {
         private static readonly LogSource Log = new LogSource();
-        private static readonly CoreConfiguration CoreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfiguration = IniConfig.Current.Get<ICoreConfiguration>();
         private static Color _transparentColor = Color.Transparent;
 
         /// <summary>

@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -26,8 +26,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.RegularExpressions;
 using Dapplo.Log;
 
@@ -37,8 +35,6 @@ namespace GreenshotPlugin.Core
 {
 	public static class StringExtensions
 	{
-		private const string RGBIV = "dlgjowejgogkklwj";
-		private const string KEY = "lsjvkwhvwujkagfauguwcsjgu2wueuff";
 		private static readonly LogSource Log = new LogSource();
 
 		/// <summary>
@@ -107,74 +103,6 @@ namespace GreenshotPlugin.Core
 			});
 
 			return string.Format(provider, rewrittenFormat, values.ToArray());
-		}
-
-		/// <summary>
-		///     A simply rijndael aes encryption, can be used to store passwords
-		/// </summary>
-		/// <param name="clearText">the string to call upon</param>
-		/// <returns>an encryped string in base64 form</returns>
-		public static string Encrypt(this string clearText)
-		{
-			var returnValue = clearText;
-			try
-			{
-				var clearTextBytes = Encoding.ASCII.GetBytes(clearText);
-				var rijn = SymmetricAlgorithm.Create();
-
-				using (var memoryStream = new MemoryStream())
-				{
-					var rgbIV = Encoding.ASCII.GetBytes(RGBIV);
-					var key = Encoding.ASCII.GetBytes(KEY);
-					using (var cs = new CryptoStream(memoryStream, rijn.CreateEncryptor(key, rgbIV), CryptoStreamMode.Write))
-					{
-						cs.Write(clearTextBytes, 0, clearTextBytes.Length);
-						cs.FlushFinalBlock();
-
-						returnValue = Convert.ToBase64String(memoryStream.ToArray());
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				Log.Error().WriteLine("Error encrypting, error: {0}", ex.Message);
-			}
-			return returnValue;
-		}
-
-		/// <summary>
-		///     A simply rijndael aes decryption, can be used to store passwords
-		/// </summary>
-		/// <param name="encryptedText">a base64 encoded rijndael encrypted string</param>
-		/// <returns>Decrypeted text</returns>
-		public static string Decrypt(this string encryptedText)
-		{
-			var returnValue = encryptedText;
-			try
-			{
-				var encryptedTextBytes = Convert.FromBase64String(encryptedText);
-				using (var memoryStream = new MemoryStream())
-				{
-					var rijn = SymmetricAlgorithm.Create();
-
-
-					var rgbIV = Encoding.ASCII.GetBytes(RGBIV);
-					var key = Encoding.ASCII.GetBytes(KEY);
-
-					using (var cs = new CryptoStream(memoryStream, rijn.CreateDecryptor(key, rgbIV), CryptoStreamMode.Write))
-					{
-						cs.Write(encryptedTextBytes, 0, encryptedTextBytes.Length);
-						cs.FlushFinalBlock();
-						returnValue = Encoding.ASCII.GetString(memoryStream.ToArray());
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				Log.Error().WriteLine("Error decrypting {0}, error: {1}", encryptedText, ex.Message);
-			}
-
-			return returnValue;
 		}
 
 		/// <summary>

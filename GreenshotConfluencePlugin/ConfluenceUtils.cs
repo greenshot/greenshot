@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -27,7 +27,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Confluence;
 using GreenshotPlugin.Core;
 using Dapplo.Log;
 
@@ -42,7 +41,7 @@ namespace GreenshotConfluencePlugin
 	{
 		private static readonly LogSource Log = new LogSource();
 
-		public static List<Page> GetCurrentPages()
+		public static List<Page> GetCurrentPages(ConfluenceConnector confluenceConnector)
 		{
 			var pages = new List<Page>();
 			var pageIdRegex = new Regex(@"pageId=(\d+)");
@@ -77,7 +76,7 @@ namespace GreenshotConfluencePlugin
 						}
 						if (!pageDouble)
 						{
-							var page = ConfluencePlugin.ConfluenceConnector.GetPage(pageId);
+							var page = confluenceConnector.GetPage(pageId);
 							Log.Debug().WriteLine("Adding page {0}", page.Title);
 							pages.Add(page);
 						}
@@ -119,7 +118,7 @@ namespace GreenshotConfluencePlugin
 							}
 							if (!pageDouble)
 							{
-								var page = ConfluencePlugin.ConfluenceConnector.GetPage(space, title);
+								var page = confluenceConnector.GetPage(space, title);
 								Log.Debug().WriteLine("Adding page {0}", page.Title);
 								pages.Add(page);
 							}

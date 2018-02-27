@@ -1,7 +1,7 @@
 #region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -24,6 +24,7 @@
 #region Usings
 
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using GreenshotOfficePlugin.Destinations;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
@@ -33,10 +34,11 @@ using Dapplo.Log;
 
 namespace GreenshotOfficePlugin
 {
-	/// <summary>
-	///     This is the OfficePlugin base code
-	/// </summary>
-	public sealed class OfficePlugin : IGreenshotPlugin
+    /// <summary>
+    ///     This is the OfficePlugin base code
+    /// </summary>
+    [Export(typeof(IGreenshotPlugin))]
+    public sealed class OfficePlugin : IGreenshotPlugin
 	{
 		private static readonly LogSource Log = new LogSource();
 
@@ -122,10 +124,8 @@ namespace GreenshotOfficePlugin
 		/// <summary>
 		///     Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="myAttributes">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes)
+		public bool Initialize()
 		{
 			return true;
 		}
@@ -133,13 +133,6 @@ namespace GreenshotOfficePlugin
 		public void Shutdown()
 		{
 			Log.Debug().WriteLine("Office Plugin shutdown.");
-		}
-
-		/// <summary>
-		///     Implementation of the IPlugin.Configure
-		/// </summary>
-		public void Configure()
-		{
 		}
 
 		private void Dispose(bool disposing)

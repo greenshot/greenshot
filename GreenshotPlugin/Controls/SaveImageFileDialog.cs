@@ -1,7 +1,7 @@
 #region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -28,7 +28,7 @@ using System.IO;
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using Dapplo.Log;
 
@@ -43,7 +43,7 @@ namespace GreenshotPlugin.Controls
 	public class SaveImageFileDialog : IDisposable
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 		private readonly ICaptureDetails _captureDetails;
 		private DirectoryInfo _eagerlyCreatedDirectory;
 		private FilterOption[] _filterOptions;

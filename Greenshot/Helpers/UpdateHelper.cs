@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -27,16 +27,16 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Forms;
+using Dapplo.Ini;
+using Dapplo.Log;
 using Greenshot.Configuration;
 using Greenshot.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
-using GreenshotPlugin.IniFile;
-using Dapplo.Log;
 
 #endregion
 
-namespace Greenshot.Experimental
+namespace Greenshot.Helpers
 {
 	/// <summary>
 	///     Description of RssFeedHelper.
@@ -46,7 +46,7 @@ namespace Greenshot.Experimental
 		private const string StableDownloadLink = "https://getgreenshot.org/downloads/";
 		private const string VersionHistoryLink = "https://getgreenshot.org/version-history/";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly object LockObject = new object();
 		private static RssFile _latestGreenshot;
 		private static string _downloadLink = StableDownloadLink;
@@ -173,7 +173,7 @@ namespace Greenshot.Experimental
 					if (rssFile.IsAlpha)
 					{
 						// Skip if we shouldn't check unstables
-						if (CoreConfig.BuildState == BuildStates.RELEASE && !CoreConfig.CheckForUnstable)
+						if (CoreConfigurationExtensions.BuildState == BuildStates.RELEASE && !CoreConfig.CheckForUnstable)
 						{
 							continue;
 						}
@@ -183,7 +183,7 @@ namespace Greenshot.Experimental
 					// the current version is a release AND check unstable is turned off.
 					if (rssFile.IsReleaseCandidate)
 					{
-						if (CoreConfig.BuildState == BuildStates.RELEASE && !CoreConfig.CheckForUnstable)
+						if (CoreConfigurationExtensions.BuildState == BuildStates.RELEASE && !CoreConfig.CheckForUnstable)
 						{
 							continue;
 						}

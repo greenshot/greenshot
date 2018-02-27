@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -27,7 +27,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Gfx;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 
 #endregion
 
@@ -38,7 +38,7 @@ namespace Greenshot.Controls
 	/// </summary>
 	public class ContextMenuToolStripProfessionalRenderer : ToolStripProfessionalRenderer
 	{
-		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
 		private Image _scaledCheckbox;
 		private bool _newImage;
 		protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs e)

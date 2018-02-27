@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Greenshot")]
 [assembly: AssemblyProduct("Greenshot.Gfx")]
-[assembly: AssemblyCopyright("Copyright © Greenshot 2017")]
+[assembly: AssemblyCopyright("Copyright © Greenshot 2007-2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

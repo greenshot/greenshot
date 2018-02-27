@@ -5,7 +5,6 @@ using BenchmarkDotNet.Attributes.Columns;
 using Greenshot.Gfx;
 using Greenshot.Gfx.Quantizer;
 using Greenshot.Tests.Implementation;
-using JeremyAnsel.ColorQuant;
 
 namespace Greenshot.PerformanceTests
 {

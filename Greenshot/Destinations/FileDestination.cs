@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -24,6 +24,7 @@
 #region Usings
 
 using System;
+using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -31,7 +32,7 @@ using Greenshot.Configuration;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Gfx;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
@@ -40,14 +41,15 @@ using Dapplo.Log;
 
 namespace Greenshot.Destinations
 {
-	/// <summary>
-	///     Description of FileSaveAsDestination.
-	/// </summary>
-	public class FileDestination : AbstractDestination
+    /// <summary>
+    ///     Description of FileSaveAsDestination.
+    /// </summary>
+    [Export(typeof(IDestination))]
+    public class FileDestination : AbstractDestination
 	{
 		public const string DESIGNATION = "FileNoDialog";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
 
 		public override string Designation => DESIGNATION;
 

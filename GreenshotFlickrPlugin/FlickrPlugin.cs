@@ -1,7 +1,7 @@
 #region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -26,12 +26,12 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
@@ -40,19 +40,26 @@ using Dapplo.Log;
 
 namespace GreenshotFlickrPlugin
 {
-	/// <summary>
-	///     This is the Flickr base code
-	/// </summary>
-	public sealed class FlickrPlugin : IGreenshotPlugin
+    /// <summary>
+    ///     This is the Flickr base code
+    /// </summary>
+    [Export(typeof(IGreenshotPlugin))]
+    public sealed class FlickrPlugin : IGreenshotPlugin
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static FlickrConfiguration _config;
-		public static PluginAttribute Attributes;
-		private IGreenshotHost _host;
+		private readonly IFlickrConfiguration _flickrConfiguration;
+		private readonly IGreenshotHost _host;
 		private ToolStripMenuItem _itemPlugInConfig;
 		private ComponentResourceManager _resources;
 
-		public void Dispose()
+	    [ImportingConstructor]
+	    public FlickrPlugin(IGreenshotHost greenshotHost, IFlickrConfiguration flickrConfiguration)
+	    {
+	        _host = greenshotHost;
+            _flickrConfiguration = flickrConfiguration;
+	    }
+
+        public void Dispose()
 		{
 			Dispose(true);
 		}
@@ -71,16 +78,8 @@ namespace GreenshotFlickrPlugin
 		/// <summary>
 		///     Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="pluginAttribute">My own attributes</param>
-		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute pluginAttribute)
+		public bool Initialize()
 		{
-			_host = pluginHost;
-			Attributes = pluginAttribute;
-
-
-			// Register configuration (don't need the configuration itself)
-			_config = IniConfig.GetIniSection<FlickrConfiguration>();
 			_resources = new ComponentResourceManager(typeof(FlickrPlugin));
 
 			_itemPlugInConfig = new ToolStripMenuItem
@@ -89,7 +88,6 @@ namespace GreenshotFlickrPlugin
 				Tag = _host,
 				Image = (Image) _resources.GetObject("flickr")
 			};
-			_itemPlugInConfig.Click += ConfigMenuClick;
 
 			PluginUtils.AddToContextMenu(_host, _itemPlugInConfig);
 			Language.LanguageChanged += OnLanguageChanged;
@@ -99,14 +97,6 @@ namespace GreenshotFlickrPlugin
 		public void Shutdown()
 		{
 			Log.Debug().WriteLine("Flickr Plugin shutdown.");
-		}
-
-		/// <summary>
-		///     Implementation of the IPlugin.Configure
-		/// </summary>
-		public void Configure()
-		{
-			_config.ShowConfigDialog();
 		}
 
 		private void Dispose(bool disposing)
@@ -131,22 +121,17 @@ namespace GreenshotFlickrPlugin
 			}
 		}
 
-		public void ConfigMenuClick(object sender, EventArgs eventArgs)
-		{
-			_config.ShowConfigDialog();
-		}
-
 		public bool Upload(ICaptureDetails captureDetails, ISurface surface, out string uploadUrl)
 		{
-			var outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
+			var outputSettings = new SurfaceOutputSettings(_flickrConfiguration.UploadFormat, _flickrConfiguration.UploadJpegQuality, false);
 			uploadUrl = null;
 			try
 			{
 				string flickrUrl = null;
-				new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("flickr", LangKey.communication_wait),
+				new PleaseWaitForm().ShowAndWait("Flickr", Language.GetString("flickr", LangKey.communication_wait),
 					delegate
 					{
-						var filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
+						var filename = Path.GetFileName(FilenameHelper.GetFilename(_flickrConfiguration.UploadFormat, captureDetails));
 						flickrUrl = FlickrUtils.UploadToFlickr(surface, outputSettings, captureDetails.Title, filename);
 					}
 				);
@@ -157,7 +142,7 @@ namespace GreenshotFlickrPlugin
 				}
 				uploadUrl = flickrUrl;
 
-				if (_config.AfterUploadLinkToClipBoard)
+				if (_flickrConfiguration.AfterUploadLinkToClipBoard)
 				{
 					ClipboardHelper.SetClipboardData(flickrUrl);
 				}

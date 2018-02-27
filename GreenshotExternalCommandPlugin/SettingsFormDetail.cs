@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -26,9 +26,10 @@
 using System;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using Dapplo.Log;
 
 #endregion
@@ -41,7 +42,7 @@ namespace GreenshotExternalCommandPlugin
 	public partial class SettingsFormDetail : ExternalCommandForm
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static readonly ExternalCommandConfiguration ExternalCommandConfig = IniConfig.GetIniSection<ExternalCommandConfiguration>();
+		private static readonly IExternalCommandConfiguration ExternalCommandConfig = IniConfig.Current.Get<IExternalCommandConfiguration>();
 		private readonly int _commandIndex;
 
 		private readonly string _commando;
@@ -58,7 +59,7 @@ namespace GreenshotExternalCommandPlugin
 				textBox_name.Text = commando;
 				textBox_commandline.Text = ExternalCommandConfig.Commandline[commando];
 				textBox_arguments.Text = ExternalCommandConfig.Argument[commando];
-				_commandIndex = ExternalCommandConfig.Commands.FindIndex(s => s == commando);
+				_commandIndex = ExternalCommandConfig.Commands.ToList().FindIndex(s => s == commando);
 			}
 			else
 			{

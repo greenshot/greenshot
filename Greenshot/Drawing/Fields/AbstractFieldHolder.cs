@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -25,7 +25,7 @@ using System.Drawing;
 using System.Runtime.Serialization;
 using Dapplo.Log;
 using Greenshot.Configuration;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using GreenshotPlugin.Interfaces.Drawing;
 
 namespace Greenshot.Drawing.Fields
@@ -37,7 +37,7 @@ namespace Greenshot.Drawing.Fields
 	public abstract class AbstractFieldHolder : IFieldHolder
 	{
         private static readonly LogSource Log = new LogSource();
-		private static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
+		private static readonly IEditorConfiguration EditorConfig = IniConfig.Current.Get<IEditorConfiguration>();
 		[NonSerialized]
 		private readonly IDictionary<IField, PropertyChangedEventHandler> _handlers = new Dictionary<IField, PropertyChangedEventHandler>();
 

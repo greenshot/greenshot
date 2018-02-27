@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using GreenshotOfficePlugin.OfficeInterop;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using GreenshotPlugin.Interop;
 using Dapplo.Log;
 using mshtml;
@@ -50,7 +50,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 		private const string NewSignatureValue = "New Signature";
 		private const string DefaultProfileValue = "DefaultProfile";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly OfficeConfiguration OfficeConfig = IniConfig.GetIniSection<OfficeConfiguration>();
+		private static readonly IOfficeConfiguration OfficeConfig = IniConfig.Current.Get<IOfficeConfiguration>();
 		private static readonly string SignaturePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Microsoft\Signatures");
 		private static Version _outlookVersion;
 		private static string _currentUser;

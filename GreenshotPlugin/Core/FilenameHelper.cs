@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -30,7 +30,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using GreenshotPlugin.Core.Enums;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using Dapplo.Log;
 
@@ -53,7 +53,7 @@ namespace GreenshotPlugin.Core
 		private static readonly Regex CmdVarRegexp = new Regex(@"%(?<variable>[^%]+)%", RegexOptions.Compiled);
 
 		private static readonly Regex SplitRegexp = new Regex(";(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", RegexOptions.Compiled);
-		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
 
 		/// <summary>
 		///     Remove invalid characters from the fully qualified filename
@@ -395,7 +395,6 @@ namespace GreenshotPlugin.Core
 						break;
 					case "NUM":
 						CoreConfig.OutputFileIncrementingNumber++;
-						IniConfig.Save();
 						replaceValue = CoreConfig.OutputFileIncrementingNumber.ToString();
 						if (padWidth == 0)
 						{

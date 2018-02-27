@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -18,16 +18,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Globalization;
 using System.Text;
 using System.Windows.Forms;
+using Dapplo.Ini;
 using Dapplo.Log;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
 
-namespace GreenshotLutimPlugin {
+namespace GreenshotLutimPlugin.Forms {
 	/// <summary>
 	/// Lutim history form
 	/// </summary>
@@ -35,7 +36,7 @@ namespace GreenshotLutimPlugin {
 		private static readonly LogSource Log = new LogSource();
 		private readonly GreenshotColumnSorter _columnSorter;
 		private static readonly object Lock = new object();
-		private static readonly LutimConfiguration Config = IniConfig.GetIniSection<LutimConfiguration>();
+		private static readonly ILutimConfiguration Config = IniConfig.Current.Get<ILutimConfiguration>();
 		private static LutimHistory _instance;
 		
 		public static void ShowHistory() {
@@ -143,7 +144,7 @@ namespace GreenshotLutimPlugin {
 					// Should fix Bug #3378699 
 					pictureBox1.Image = pictureBox1.ErrorImage;
 					try {
-						new PleaseWaitForm().ShowAndWait(LutimPlugin.Attributes.Name, Language.GetString("lutim", LangKey.communication_wait), 
+						new PleaseWaitForm().ShowAndWait("Lutim", Language.GetString("lutim", LangKey.communication_wait), 
 							delegate {
 								LutimUtils.DeleteLutimImage(lutimInfo);
 							}
@@ -175,7 +176,6 @@ namespace GreenshotLutimPlugin {
 			if (result == DialogResult.Yes) {
 				Config.RuntimeLutimHistory.Clear();
 				Config.LutimUploadHistory.Clear();
-				IniConfig.Save();
 				Redraw();
 			}
 		}

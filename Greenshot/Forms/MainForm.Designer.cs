@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2016 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: http://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -75,6 +75,7 @@ namespace Greenshot.Forms {
 			this.backgroundWorkerTimer = new System.Windows.Forms.Timer(this.components);
 			this.contextMenu.SuspendLayout();
 			this.SuspendLayout();
+
 			// 
 			// contextMenu
 			// 
@@ -241,6 +242,7 @@ namespace Greenshot.Forms {
 			// 
 			this.notifyIcon.ContextMenuStrip = this.contextMenu;
 			this.notifyIcon.Text = "Greenshot";
+		    this.NotifyIcon.Visible = false;
 			this.notifyIcon.MouseUp += new System.Windows.Forms.MouseEventHandler(this.NotifyIconClickTest);
 			// 
 			// backgroundWorkerTimer

@@ -1,7 +1,7 @@
 #region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -34,7 +34,7 @@ using Dapplo.Jira.Entities;
 using Dapplo.Windows.Dpi;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using Dapplo.Log;
 
 #endregion
@@ -44,7 +44,7 @@ namespace GreenshotJiraPlugin.Forms
 	public partial class JiraForm : GreenshotForm
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
 		private readonly GreenshotColumnSorter _columnSorter;
 		private readonly JiraConnector _jiraConnector;
 		private Issue _selectedIssue;

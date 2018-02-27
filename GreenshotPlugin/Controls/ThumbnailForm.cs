@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -34,7 +34,7 @@ using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 
 #endregion
 
@@ -47,7 +47,7 @@ namespace GreenshotPlugin.Controls
 	/// </summary>
 	public class ThumbnailForm : FormWithoutActivation
 	{
-		private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 
 		private IntPtr _thumbnailHandle = IntPtr.Zero;
 

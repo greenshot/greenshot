@@ -1,7 +1,7 @@
 #region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -33,22 +33,15 @@ namespace GreenshotPlugin.Interfaces.Plugin
 	public interface IGreenshotPlugin : IDisposable
 	{
 		/// <summary>
-		///     Is called after the plugin is instanciated, the Plugin should keep a copy of the host and pluginAttribute.
+		///     Is called after the plugin is instanciated
 		/// </summary>
-		/// <param name="host">The IPluginHost that will be hosting the plugin</param>
-		/// <param name="pluginAttribute">The PluginAttribute for the actual plugin</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		bool Initialize(IGreenshotHost host, PluginAttribute pluginAttribute);
+		bool Initialize();
 
 		/// <summary>
 		///     Unload of the plugin
 		/// </summary>
 		void Shutdown();
-
-		/// <summary>
-		///     Open the Configuration Form, will/should not be called before handshaking is done
-		/// </summary>
-		void Configure();
 
 		/// <summary>
 		///     Return IDestination's, if the plugin wants to

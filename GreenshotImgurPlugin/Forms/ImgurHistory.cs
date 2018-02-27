@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -28,14 +28,14 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using System.Windows.Forms;
+using Dapplo.Ini;
+using Dapplo.Log;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
-using Dapplo.Log;
 
 #endregion
 
-namespace GreenshotImgurPlugin
+namespace GreenshotImgurPlugin.Forms
 {
 	/// <summary>
 	///     Imgur history form
@@ -44,7 +44,7 @@ namespace GreenshotImgurPlugin
 	{
 		private static readonly LogSource Log = new LogSource();
 		private static readonly object Lock = new object();
-		private static readonly ImgurConfiguration Config = IniConfig.GetIniSection<ImgurConfiguration>();
+		private static readonly ImgurConfiguration Config = IniConfig.Current.Get<ImgurConfiguration>();
 		private static ImgurHistory _instance;
 		private readonly GreenshotColumnSorter _columnSorter;
 
@@ -111,7 +111,7 @@ namespace GreenshotImgurPlugin
 			{
 				listview_imgur_uploads.Columns.Add(column);
 			}
-			foreach (var imgurInfo in Config.runtimeImgurHistory.Values)
+			foreach (var imgurInfo in Config.RuntimeImgurHistory.Values)
 			{
 				var item = new ListViewItem(imgurInfo.Hash)
 				{
@@ -174,7 +174,7 @@ namespace GreenshotImgurPlugin
 					pictureBox1.Image = pictureBox1.ErrorImage;
 					try
 					{
-						new PleaseWaitForm().ShowAndWait(ImgurPlugin.Attributes.Name, Language.GetString("imgur", LangKey.communication_wait),
+						new PleaseWaitForm().ShowAndWait("Imgur", Language.GetString("imgur", LangKey.communication_wait),
 							delegate { ImgurUtils.DeleteImgurImage(imgurInfo); }
 						);
 					}
@@ -208,9 +208,8 @@ namespace GreenshotImgurPlugin
 			var result = MessageBox.Show(Language.GetString("imgur", LangKey.clear_question), "Imgur", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 			if (result == DialogResult.Yes)
 			{
-				Config.runtimeImgurHistory.Clear();
+				Config.RuntimeImgurHistory.Clear();
 				Config.ImgurUploadHistory.Clear();
-				IniConfig.Save();
 				Redraw();
 			}
 		}

@@ -1,7 +1,7 @@
 #region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -36,7 +36,7 @@ using System.Windows.Forms;
 using Greenshot.Configuration;
 using Greenshot.Helpers;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using Dapplo.Log;
 using Greenshot.Gfx;
 using GreenshotPlugin.Animation;
@@ -150,7 +150,7 @@ namespace Greenshot.Forms
 			var v = Assembly.GetExecutingAssembly().GetName().Version;
 
 			// Format is like this:  AssemblyVersion("Major.Minor.Build.Revision")]
-			lblTitle.Text = $"Greenshot {v.Major}.{v.Minor}.{v.Build} Build {v.Revision}{(IniConfig.IsPortable ? " Portable" : "")} ({OsInfo.Bits}) bit)";
+			lblTitle.Text = $"Greenshot {v.Major}.{v.Minor}.{v.Build} Build {v.Revision}{(coreConfiguration.IsPortable ? " Portable" : "")} ({OsInfo.Bits}) bit)";
 
 			// Number of frames the pixel animation takes
 			var frames = FramesForMillis(2000);
@@ -370,14 +370,14 @@ namespace Greenshot.Forms
 					case Keys.I:
 						try
 						{
-							using (Process.Start("\"" + IniConfig.ConfigLocation + "\""))
+							using (Process.Start("\"" + IniConfig.Current.IniLocation + "\""))
 							{
                                 // Ignore
 							}
 						}
 						catch (Exception)
 						{
-							MessageBox.Show("Couldn't open the greenshot.ini, it's located here: " + IniConfig.ConfigLocation, "Error opening greeenshot.ini", MessageBoxButtons.OK,
+							MessageBox.Show("Couldn't open the greenshot.ini, it's located here: " + IniConfig.Current.IniLocation, "Error opening greeenshot.ini", MessageBoxButtons.OK,
 								MessageBoxIcon.Asterisk);
 						}
 						break;

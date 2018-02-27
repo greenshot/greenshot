@@ -36,7 +36,37 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>
     <Reference Include="Accessibility" />
+    <Reference Include="Caliburn.Micro, Version=3.2.0.0, Culture=neutral, PublicKeyToken=8e5891231f2ed21f, processorArchitecture=MSIL">
+      <HintPath>..\packages\Caliburn.Micro.Core.3.2.0\lib\net45\Caliburn.Micro.dll</HintPath>
+    </Reference>
+    <Reference Include="Caliburn.Micro.Platform, Version=3.2.0.0, Culture=neutral, PublicKeyToken=8e5891231f2ed21f, processorArchitecture=MSIL">
+      <HintPath>..\packages\Caliburn.Micro.3.2.0\lib\net45\Caliburn.Micro.Platform.dll</HintPath>
+    </Reference>
+    <Reference Include="Caliburn.Micro.Platform.Core, Version=3.2.0.0, Culture=neutral, PublicKeyToken=8e5891231f2ed21f, processorArchitecture=MSIL">
+      <HintPath>..\packages\Caliburn.Micro.3.2.0\lib\net45\Caliburn.Micro.Platform.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="CommonServiceLocator, Version=2.0.2.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
+      <HintPath>..\packages\CommonServiceLocator.2.0.2\lib\net45\CommonServiceLocator.dll</HintPath>
+    </Reference>
     <Reference Include="CustomMarshalers" />
+    <Reference Include="Dapplo.Addons, Version=0.5.45.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Addons.0.5.45\lib\net45\Dapplo.Addons.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapplo.CaliburnMicro, Version=0.5.25.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.CaliburnMicro.0.5.25\lib\net45\Dapplo.CaliburnMicro.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapplo.CaliburnMicro.Translations, Version=0.5.25.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.CaliburnMicro.Translations.0.5.25\lib\net45\Dapplo.CaliburnMicro.Translations.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapplo.Ini, Version=0.5.19.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Ini.0.5.19\lib\net45\Dapplo.Ini.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapplo.InterfaceImpl, Version=0.2.11.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.InterfaceImpl.0.2.11\lib\net45\Dapplo.InterfaceImpl.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapplo.Language, Version=0.5.19.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Language.0.5.19\lib\net45\Dapplo.Language.dll</HintPath>
+    </Reference>
     <Reference Include="Dapplo.Log, Version=1.0.29.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Log.1.0.29\lib\net45\Dapplo.Log.dll</HintPath>
       <Private>True</Private>
@@ -79,11 +109,13 @@
     </Reference>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="Svg, Version=2.2.1.39233, Culture=neutral, PublicKeyToken=12a0bac221edeae2, processorArchitecture=MSIL">
       <HintPath>..\packages\Svg.2.3.0\lib\net35\Svg.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Reactive.Core, Version=3.0.1000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
@@ -102,6 +134,10 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Caliburn.Micro.3.2.0\lib\net45\System.Windows.Interactivity.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
@@ -125,6 +161,8 @@
     <Compile Include="Animation\AnimatorBase.cs" />
     <Compile Include="Core\Capture.cs" />
     <Compile Include="Core\CaptureDetails.cs" />
+    <Compile Include="Core\ConfigTags.cs" />
+    <Compile Include="Core\CoreConfigurationExtensions.cs" />
     <Compile Include="Core\Credentials\CredFlags.cs" />
     <Compile Include="Core\Credentials\CredUi.cs" />
     <Compile Include="Core\Credentials\CredUiInfo.cs" />
@@ -141,6 +179,8 @@
     <Compile Include="Core\CaptureHandler.cs" />
     <Compile Include="Core\EventDelay.cs" />
     <Compile Include="Core\WmInputLangChangeRequestFilter.cs" />
+    <Compile Include="Extensions\DestinationExtensions.cs" />
+    <Compile Include="Extensions\ProcessorExtensions.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Interfaces\CaptureMode.cs" />
     <Compile Include="Interfaces\DrawingModes.cs" />
@@ -268,7 +308,7 @@
     <Compile Include="Core\BinaryStructHelper.cs" />
     <Compile Include="Core\Cache.cs" />
     <Compile Include="Core\ClipboardHelper.cs" />
-    <Compile Include="Core\CoreConfiguration.cs" />
+    <Compile Include="Core\ICoreConfiguration.cs" />
     <Compile Include="Core\Credentials\CredentialsHelper.cs" />
     <Compile Include="Core\StringExtensions.cs" />
     <Compile Include="Core\FilenameHelper.cs" />
@@ -287,18 +327,12 @@
     <Compile Include="Core\PluginUtils.cs" />
     <Compile Include="Core\RssHelper.cs" />
     <Compile Include="Core\WindowCapture.cs" />
-    <Compile Include="IniFile\IniAttributes.cs" />
-    <Compile Include="IniFile\IniConfig.cs" />
-    <Compile Include="IniFile\IniReader.cs" />
-    <Compile Include="IniFile\IniSection.cs" />
-    <Compile Include="IniFile\IniValue.cs" />
     <Compile Include="Interfaces\ICaptureDetails.cs" />
     <Compile Include="Interfaces\Drawing\IDrawableContainer.cs" />
     <Compile Include="Interfaces\Forms\IImageEditor.cs" />
     <Compile Include="Interfaces\SurfaceMessageEventArgs.cs" />
     <Compile Include="Interfaces\IDestination.cs" />
     <Compile Include="Interfaces\IProcessor.cs" />
-    <Compile Include="Interfaces\Plugin\PluginAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="log4net-embedded.xml" />
     <EmbeddedResource Include="Core\GreenshotResources.resx">

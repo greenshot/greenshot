@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -27,7 +27,7 @@ using System;
 using System.Linq;
 using System.Xml.Linq;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
@@ -49,7 +49,7 @@ namespace GreenshotGooglePhotosPlugin
 		private const string TokenUrl = "https://www.googleapis.com/oauth2/v3/token";
 		private const string UploadUrl = "https://picasaweb.google.com/data/feed/api/user/{0}/albumid/{1}";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly GooglePhotosConfiguration Config = IniConfig.GetIniSection<GooglePhotosConfiguration>();
+		private static readonly IGooglePhotosConfiguration Config = IniConfig.Current.Get<IGooglePhotosConfiguration>();
 
 		/// <summary>
 		///     Do the actual upload to Google Photos
@@ -97,8 +97,6 @@ namespace GreenshotGooglePhotosPlugin
 				Config.RefreshToken = settings.RefreshToken;
 				Config.AccessToken = settings.AccessToken;
 				Config.AccessTokenExpires = settings.AccessTokenExpires;
-				Config.IsDirty = true;
-				IniConfig.Save();
 			}
 		}
 

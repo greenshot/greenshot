@@ -1,7 +1,7 @@
 #region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -31,6 +31,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CommonServiceLocator;
 using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Dpi;
@@ -44,7 +45,7 @@ using Greenshot.Help;
 using Greenshot.Helpers;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Drawing;
 using GreenshotPlugin.Interfaces.Forms;
@@ -56,6 +57,7 @@ using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
 using Greenshot.Gfx;
 using Greenshot.Gfx.Effects;
+using GreenshotPlugin.Extensions;
 
 #endregion
 
@@ -67,7 +69,7 @@ namespace Greenshot
     public partial class ImageEditorForm : BaseForm, IImageEditor
     {
         private static readonly LogSource Log = new LogSource();
-        private static readonly EditorConfiguration EditorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+        private static readonly IEditorConfiguration EditorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
         private static readonly List<string> IgnoreDestinations = new List<string> {PickerDestination.DESIGNATION, EditorDestination.DESIGNATION};
         private static readonly List<IImageEditor> EditorList = new List<IImageEditor>();
 
@@ -83,6 +85,7 @@ namespace Greenshot
         private GreenshotToolStripButton[] _toolbarButtons;
         private BitmapScaleHandler<IDestination> _destinationScaleHandler;
         private readonly IDisposable _clipboardSubscription;
+        private readonly IEnumerable<IDestination> _destinations;
 
         private void SetupBitmapScaleHandler()
         {
@@ -188,7 +191,7 @@ namespace Greenshot
         }
         public ImageEditorForm(ISurface iSurface, bool outputMade)
         {
-
+            _destinations = ServiceLocator.Current.GetAllInstances<IDestination>();
             EditorList.Add(this);
 
             //
@@ -287,7 +290,7 @@ namespace Greenshot
                 _surface.TransparencyBackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
 
                 _surface.MovingElementChanged += delegate { RefreshEditorControls(); };
-                _surface.DrawingModeChanged += surface_DrawingModeChanged;
+                _surface.DrawingModeChanged += SurfaceDrawingModeChanged;
                 _surface.SurfaceSizeChanged += SurfaceSizeChanged;
                 _surface.SurfaceMessage += SurfaceMessageReceived;
                 _surface.FieldAggregator.FieldChanged += FieldAggregatorFieldChanged;
@@ -379,7 +382,7 @@ namespace Greenshot
             await Task.Run(() =>
             {
                 // Create export buttons 
-                foreach (var destination in DestinationHelper.GetAllDestinations())
+                foreach (var destination in _destinations)
                 {
                     if (destination.Priority <= 2)
                     {
@@ -512,8 +515,7 @@ namespace Greenshot
         {
             foreach (var item in items)
             {
-                var menuItem = item as ToolStripMenuItem;
-                if (menuItem != null && menuItem.ShortcutKeys != Keys.None)
+                if (item is ToolStripMenuItem menuItem && menuItem.ShortcutKeys != Keys.None)
                 {
                     menuItem.ShortcutKeys = Keys.None;
                 }
@@ -526,7 +528,7 @@ namespace Greenshot
             ClearItems(fileStripMenuItem.DropDownItems);
 
             // Add the destinations
-            foreach (var destination in DestinationHelper.GetAllDestinations())
+            foreach (var destination in _destinations)
             {
                 if (IgnoreDestinations.Contains(destination.Designation))
                 {
@@ -622,7 +624,7 @@ namespace Greenshot
             Text = Path.GetFileName(fullpath) + " - " + Language.GetString(LangKey.editor_title);
         }
 
-        private void surface_DrawingModeChanged(object source, SurfaceDrawingModeEventArgs eventArgs)
+        private void SurfaceDrawingModeChanged(object source, SurfaceDrawingModeEventArgs eventArgs)
         {
             switch (eventArgs.DrawingMode)
             {
@@ -946,8 +948,7 @@ namespace Greenshot
         private void DestinationToolStripMenuItemClick(object sender, EventArgs e)
         {
             IDestination clickedDestination = null;
-            var control = sender as Control;
-            if (control != null)
+            if (sender is Control control)
             {
                 var clickedControl = control;
                 if (clickedControl.ContextMenuStrip != null)
@@ -959,8 +960,7 @@ namespace Greenshot
             }
             else
             {
-                var item = sender as ToolStripMenuItem;
-                if (item != null)
+                if (sender is ToolStripMenuItem item)
                 {
                     var clickedMenuItem = item;
                     clickedDestination = (IDestination) clickedMenuItem.Tag;
@@ -1257,18 +1257,21 @@ namespace Greenshot
             {
                 destinationDesignation = FileWithDialogDestination.DESIGNATION;
             }
-            DestinationHelper.ExportCapture(true, destinationDesignation, _surface, _surface.CaptureDetails);
+            _destinations.Find(destinationDesignation)?.ExportCapture(true, _surface, _surface.CaptureDetails);
         }
 
         private void BtnClipboardClick(object sender, EventArgs e)
         {
-            DestinationHelper.ExportCapture(true, ClipboardDestination.DESIGNATION, _surface, _surface.CaptureDetails);
+            _destinations.Find(ClipboardDestination.DESIGNATION)?.ExportCapture(true, _surface, _surface.CaptureDetails);
         }
 
         private void BtnPrintClick(object sender, EventArgs e)
         {
             // The BeginInvoke is a solution for the printdialog not having focus
-            BeginInvoke((MethodInvoker) delegate { DestinationHelper.ExportCapture(true, PrinterDestination.DESIGNATION, _surface, _surface.CaptureDetails); });
+            BeginInvoke((MethodInvoker) delegate
+            {
+                _destinations.Find(PrinterDestination.DESIGNATION)?.ExportCapture(true, _surface, _surface.CaptureDetails);
+            });
         }
 
         private void CloseToolStripMenuItemClick(object sender, EventArgs e)
@@ -1580,8 +1583,6 @@ namespace Greenshot
             }
             // persist our geometry string.
             EditorConfiguration.SetEditorPlacement(interopWindow.GetPlacement());
-            IniConfig.Save();
-
             // remove from the editor list
             EditorList.Remove(this);
 
@@ -1719,7 +1720,7 @@ namespace Greenshot
                 // Go through the destinations to check the EditorShortcut Keys
                 // this way the menu entries don't need to be enabled.
                 // This also fixes bugs #3526974 & #3527020
-                foreach (var destination in DestinationHelper.GetAllDestinations())
+                foreach (var destination in _destinations)
                 {
                     if (IgnoreDestinations.Contains(destination.Designation))
                     {

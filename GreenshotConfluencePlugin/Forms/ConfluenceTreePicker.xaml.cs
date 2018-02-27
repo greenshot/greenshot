@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -30,13 +30,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
-using Confluence;
 using Dapplo.Log;
-using Page = Confluence.Page;
 
 #endregion
 
-namespace GreenshotConfluencePlugin
+namespace GreenshotConfluencePlugin.Forms
 {
 	/// <summary>
 	///     Interaction logic for ConfluenceTreePicker.xaml
@@ -48,9 +46,9 @@ namespace GreenshotConfluencePlugin
 		private readonly ConfluenceUpload _confluenceUpload;
 		private bool _isInitDone;
 
-		public ConfluenceTreePicker(ConfluenceUpload confluenceUpload)
+		public ConfluenceTreePicker(ConfluenceConnector confluenceConnector, ConfluenceUpload confluenceUpload)
 		{
-			_confluenceConnector = ConfluencePlugin.ConfluenceConnector;
+			_confluenceConnector = confluenceConnector;
 			_confluenceUpload = confluenceUpload;
 			InitializeComponent();
 		}
@@ -59,8 +57,7 @@ namespace GreenshotConfluencePlugin
 		{
 			Log.Debug().WriteLine("spaceTreeViewItem_MouseLeftButtonDown is called!");
 			var clickedItem = eventArgs.Source as TreeViewItem;
-			var page = clickedItem?.Tag as Page;
-			if (page == null)
+		    if (!(clickedItem?.Tag is Page page))
 			{
 				return;
 			}

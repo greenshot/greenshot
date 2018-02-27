@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -25,7 +25,6 @@
 
 using System.Reflection;
 using System.Runtime.InteropServices;
-using GreenshotPlugin.Interfaces.Plugin;
 
 #endregion
 
@@ -41,9 +40,6 @@ using GreenshotPlugin.Interfaces.Plugin;
 [assembly: AssemblyCopyright("Copyright (C) 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-// The PluginAttribute describes the "entryType" and if the plugin is configurable
-
-[assembly: Plugin("GreenshotFlickrPlugin.FlickrPlugin", true)]
 
 // This sets the default COM visibility of types in the assembly to invisible.
 // If you need to expose a type to COM, use [ComVisible(true)] on that type.

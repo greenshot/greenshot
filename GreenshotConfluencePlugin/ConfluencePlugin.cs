@@ -1,7 +1,7 @@
 #region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -25,30 +25,36 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Windows;
-using Confluence;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
-using TranslationByMarkupExtension;
+using GreenshotConfluencePlugin.Support;
 
 #endregion
 
 namespace GreenshotConfluencePlugin
 {
-	/// <summary>
-	///     This is the ConfluencePlugin base code
-	/// </summary>
-	public sealed class ConfluencePlugin : IGreenshotPlugin
+    /// <summary>
+    ///     This is the ConfluencePlugin base code
+    /// </summary>
+    [Export(typeof(IGreenshotPlugin))]
+    public sealed class ConfluencePlugin : IGreenshotPlugin
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static ConfluenceConfiguration _config;
+		private readonly IConfluenceConfiguration _confluenceConfiguration;
 
-		public static ConfluenceConnector ConfluenceConnectorNoLogin { get; private set; }
+        [ImportingConstructor]
+	    public ConfluencePlugin(IConfluenceConfiguration confluenceConfiguration)
+	    {
+	        _confluenceConfiguration = confluenceConfiguration;
+	    }
 
-		public static ConfluenceConnector ConfluenceConnector
+	    public static ConfluenceConnector ConfluenceConnectorNoLogin { get; private set; }
+
+		public ConfluenceConnector ConfluenceConnector
 		{
 			get
 			{
@@ -80,7 +86,7 @@ namespace GreenshotConfluencePlugin
 		{
 			if (ConfluenceDestination.IsInitialized)
 			{
-				yield return new ConfluenceDestination();
+				yield return new ConfluenceDestination(ConfluenceConnectorNoLogin);
 			}
 		}
 
@@ -92,16 +98,8 @@ namespace GreenshotConfluencePlugin
 		/// <summary>
 		///     Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="myAttributes">My own attributes</param>
-		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes)
+		public bool Initialize()
 		{
-			// Register configuration (don't need the configuration itself)
-			_config = IniConfig.GetIniSection<ConfluenceConfiguration>();
-			if (_config.IsDirty)
-			{
-				IniConfig.Save();
-			}
 			try
 			{
 				TranslationManager.Instance.TranslationProvider = new LanguageXMLTranslationProvider();
@@ -130,18 +128,17 @@ namespace GreenshotConfluencePlugin
 		/// </summary>
 		public void Configure()
 		{
-			var clonedConfig = _config.Clone();
-			var configForm = new ConfluenceConfigurationForm(clonedConfig);
-			var url = _config.Url;
+			var clonedConfig = _confluenceConfiguration.Clone();
+			var configForm = new Forms.ConfluenceConfigurationForm(clonedConfig);
+			var url = _confluenceConfiguration.Url;
 			var dialogResult = configForm.ShowDialog();
 			if (dialogResult.HasValue && dialogResult.Value)
 			{
 				// copy the new object to the old...
-				clonedConfig.CloneTo(_config);
-				IniConfig.Save();
+				clonedConfig.CloneTo(_confluenceConfiguration);
 				if (ConfluenceConnectorNoLogin != null)
 				{
-					if (!url.Equals(_config.Url))
+					if (!url.Equals(_confluenceConfiguration.Url))
 					{
 						if (ConfluenceConnectorNoLogin.IsLoggedIn)
 						{
@@ -158,19 +155,21 @@ namespace GreenshotConfluencePlugin
 			//if (disposing) {}
 		}
 
-		private static void CreateConfluenceConntector()
+		private void CreateConfluenceConntector()
 		{
-			if (ConfluenceConnectorNoLogin == null)
-			{
-				if (_config.Url.Contains("soap-axis"))
-				{
-					ConfluenceConnectorNoLogin = new ConfluenceConnector(_config.Url, _config.Timeout);
-				}
-				else
-				{
-					ConfluenceConnectorNoLogin = new ConfluenceConnector(_config.Url + ConfluenceConfiguration.DEFAULT_POSTFIX2, _config.Timeout);
-				}
-			}
+		    if (ConfluenceConnectorNoLogin != null)
+		    {
+		        return;
+		    }
+
+		    if (_confluenceConfiguration.Url.Contains("soap-axis"))
+		    {
+		        ConfluenceConnectorNoLogin = new ConfluenceConnector(_confluenceConfiguration.Url, _confluenceConfiguration.Timeout);
+		    }
+		    else
+		    {
+		        ConfluenceConnectorNoLogin = new ConfluenceConnector(_confluenceConfiguration.Url + ConfluenceConnector.DEFAULT_POSTFIX2, _confluenceConfiguration.Timeout);
+		    }
 		}
 	}
 }

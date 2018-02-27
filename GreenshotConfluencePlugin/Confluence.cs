@@ -1,7 +1,7 @@
 #region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -26,16 +26,15 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using GreenshotConfluencePlugin;
-using GreenshotConfluencePlugin.confluence;
+using Dapplo.Ini;
+using Dapplo.Log;
+using GreenshotConfluencePlugin.Web_References.confluence;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Credentials;
-using GreenshotPlugin.IniFile;
-using Dapplo.Log;
 
 #endregion
 
-namespace Confluence
+namespace GreenshotConfluencePlugin
 {
 
 	#region transport classes
@@ -103,7 +102,7 @@ namespace Confluence
 		private const string AuthFailedExceptionName = "com.atlassian.confluence.rpc.AuthenticationFailedException";
 		private const string V2Failed = "AXIS";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly ConfluenceConfiguration Config = IniConfig.GetIniSection<ConfluenceConfiguration>();
+		private static readonly IConfluenceConfiguration Config = IniConfig.Current.Get<IConfluenceConfiguration>();
 		private readonly Cache<string, RemotePage> _pageCache = new Cache<string, RemotePage>(60 * Config.Timeout);
 		private readonly int _timeout;
 		private ConfluenceSoapServiceService _confluence;
@@ -111,7 +110,13 @@ namespace Confluence
 		private DateTime _loggedInTime = DateTime.Now;
 		private string _url;
 
-		public ConfluenceConnector(string url, int timeout)
+	    public const string DEFAULT_POSTFIX1 = "/rpc/soap-axis/confluenceservice-v1?wsdl";
+	    public const string DEFAULT_POSTFIX2 = "/rpc/soap-axis/confluenceservice-v2?wsdl";
+	    public const string DEFAULT_PREFIX = "http://";
+	    private const string DEFAULT_URL = DEFAULT_PREFIX + "confluence";
+
+
+        public ConfluenceConnector(string url, int timeout)
 		{
 			_timeout = timeout;
 			Init(url);
@@ -197,8 +202,8 @@ namespace Confluence
 			try
 			{
 				// Get the system name, so the user knows where to login to
-				var systemName = _url.Replace(ConfluenceConfiguration.DEFAULT_POSTFIX1, "");
-				systemName = systemName.Replace(ConfluenceConfiguration.DEFAULT_POSTFIX2, "");
+				var systemName = _url.Replace(DEFAULT_POSTFIX1, "");
+				systemName = systemName.Replace(DEFAULT_POSTFIX2, "");
 				var dialog = new CredentialsDialog(systemName)
 				{
 					Name = null

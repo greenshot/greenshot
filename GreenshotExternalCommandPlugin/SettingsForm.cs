@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Gfx;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 
 #endregion
 
@@ -39,7 +39,7 @@ namespace GreenshotExternalCommandPlugin
 	/// </summary>
 	public partial class SettingsForm : ExternalCommandForm
 	{
-		private static readonly ExternalCommandConfiguration ExternalCommandConfig = IniConfig.GetIniSection<ExternalCommandConfiguration>();
+		private static readonly IExternalCommandConfiguration ExternalCommandConfig = IniConfig.Current.Get<IExternalCommandConfiguration>();
 		private readonly IList<Image> _images = new List<Image>();
 		public SettingsForm()
 		{
@@ -54,7 +54,7 @@ namespace GreenshotExternalCommandPlugin
 
 		private void ButtonOkClick(object sender, EventArgs e)
 		{
-			IniConfig.Save();
+			//IniConfig.Save();
 		}
 
 		private void ButtonAddClick(object sender, EventArgs e)

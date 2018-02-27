@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -25,12 +25,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Windows.Forms;
 using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.Gfx;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
@@ -42,20 +44,26 @@ using Greenshot.Gfx.Effects;
 
 namespace GreenshotOCR
 {
-	/// <summary>
-	///     OCR Plugin Greenshot
-	/// </summary>
-	public sealed class OcrPlugin : IGreenshotPlugin
+    /// <summary>
+    ///     OCR Plugin Greenshot
+    /// </summary>
+    [Export(typeof(IGreenshotPlugin))]
+    public sealed class OcrPlugin : IGreenshotPlugin
 	{
 		private const int MinWidth = 130;
 		private const int MinHeight = 130;
 		private static readonly LogSource Log = new LogSource();
-		private static OCRConfiguration config;
-		private PluginAttribute _myAttributes;
+	    private static IOCRConfiguration _ocrConfiguration;
 		private string _ocrCommand;
 		private ToolStripMenuItem _ocrMenuItem = new ToolStripMenuItem();
 
-		public void Dispose()
+	    [ImportingConstructor]
+	    public OcrPlugin(IOCRConfiguration ocrConfiguration)
+	    {
+	        _ocrConfiguration = ocrConfiguration;
+	    }
+
+        public void Dispose()
 		{
 			Dispose(true);
 		}
@@ -73,15 +81,12 @@ namespace GreenshotOCR
 		/// <summary>
 		///     Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="greenshotHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="myAttributes">My own attributes</param>
 		/// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-		public bool Initialize(IGreenshotHost greenshotHost, PluginAttribute myAttributes)
+		public bool Initialize()
 		{
-			Log.Debug().WriteLine("Initialize called of " + myAttributes.Name);
-			_myAttributes = myAttributes;
+			Log.Debug().WriteLine("Initialize called");
 
-			var ocrDirectory = Path.GetDirectoryName(myAttributes.DllFile);
+			var ocrDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 			if (ocrDirectory == null)
 			{
 				return false;
@@ -94,11 +99,11 @@ namespace GreenshotOCR
 				return false;
 			}
 			// Load configuration
-			config = IniConfig.GetIniSection<OCRConfiguration>();
+			_ocrConfiguration = IniConfig.Current.Get<IOCRConfiguration>();
 
-			if (config.Language != null)
+			if (_ocrConfiguration.Language != null)
 			{
-				config.Language = config.Language.Replace("miLANG_", "").Replace("_", " ");
+				_ocrConfiguration.Language = _ocrConfiguration.Language.Replace("miLANG_", "").Replace("_", " ");
 			}
 			return true;
 		}
@@ -108,7 +113,7 @@ namespace GreenshotOCR
 		/// </summary>
 		public void Shutdown()
 		{
-			Log.Debug().WriteLine("Shutdown of " + _myAttributes.Name);
+			Log.Debug().WriteLine("Shutdown");
 		}
 
 		/// <summary>
@@ -121,12 +126,12 @@ namespace GreenshotOCR
 				MessageBox.Show("Sorry, is seems that Microsoft Office Document Imaging (MODI) is not installed, therefor the OCR Plugin cannot work.");
 				return;
 			}
-			var settingsForm = new SettingsForm(Enum.GetNames(typeof(ModiLanguage)), config);
+			var settingsForm = new SettingsForm(Enum.GetNames(typeof(ModiLanguage)), _ocrConfiguration);
 			var result = settingsForm.ShowDialog();
 			if (result == DialogResult.OK)
 			{
 				// "Re"set hotkeys
-				IniConfig.Save();
+				//IniConfig.Save();
 			}
 		}
 
@@ -181,7 +186,7 @@ namespace GreenshotOCR
 			var text = "";
 			try
 			{
-				var processStartInfo = new ProcessStartInfo(_ocrCommand, "\"" + filePath + "\" " + config.Language + " " + config.Orientimage + " " + config.StraightenImage)
+				var processStartInfo = new ProcessStartInfo(_ocrCommand, "\"" + filePath + "\" " + _ocrConfiguration.Language + " " + _ocrConfiguration.Orientimage + " " + _ocrConfiguration.StraightenImage)
 				{
 					CreateNoWindow = true,
 					RedirectStandardOutput = true,

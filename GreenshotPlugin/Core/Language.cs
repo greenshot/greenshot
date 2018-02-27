@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -29,7 +29,7 @@ using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml;
-using GreenshotPlugin.IniFile;
+using Dapplo.Ini;
 using Dapplo.Log;
 using Microsoft.Win32;
 
@@ -65,12 +65,6 @@ namespace GreenshotPlugin.Core
         /// </summary>
         static Language()
         {
-            if (!IniConfig.IsInitialized)
-            {
-                Log.Warn().WriteLine("IniConfig hasn't been initialized yet! (Design mode?)");
-                IniConfig.Init("greenshot", "greenshot");
-            }
-
             try
             {
                 var location = string.IsNullOrEmpty(Assembly.GetExecutingAssembly().Location) ? new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath : Assembly.GetExecutingAssembly().Location;
@@ -121,7 +115,7 @@ namespace GreenshotPlugin.Core
                 Log.Warn().WriteLine(e, "Couldn't read the installed language groups.");
             }
 
-            var coreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+            var coreConfig = IniConfig.Current.Get<ICoreConfiguration>();
             ScanFiles();
             if (!string.IsNullOrEmpty(coreConfig.Language))
             {

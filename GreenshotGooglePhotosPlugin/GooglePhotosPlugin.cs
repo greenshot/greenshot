@@ -1,7 +1,7 @@
 #region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -26,12 +26,12 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.IniFile;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
@@ -40,19 +40,26 @@ using Dapplo.Log;
 
 namespace GreenshotGooglePhotosPlugin
 {
-	/// <summary>
-	///     This is the Google Photos base code
-	/// </summary>
-	public sealed class GooglePhotosPlugin : IGreenshotPlugin
+    /// <summary>
+    ///     This is the Google Photos base code
+    /// </summary>
+    [Export(typeof(IGreenshotPlugin))]
+    public sealed class GooglePhotosPlugin : IGreenshotPlugin
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static GooglePhotosConfiguration _config;
-		public static PluginAttribute Attributes;
-		private IGreenshotHost _host;
+		private readonly IGooglePhotosConfiguration _googlePhotosConfiguration;
+		private readonly IGreenshotHost _greenshotHost;
 		private ToolStripMenuItem _itemPlugInRoot;
 		private ComponentResourceManager _resources;
 
-		public void Dispose()
+	    [ImportingConstructor]
+	    public GooglePhotosPlugin(IGreenshotHost greenshotGreenshotHost, IGooglePhotosConfiguration googlePhotosConfiguration)
+	    {
+	        _greenshotHost = greenshotGreenshotHost;
+	        _googlePhotosConfiguration = googlePhotosConfiguration;
+	    }
+
+        public void Dispose()
 		{
 			Dispose(true);
 		}
@@ -71,25 +78,18 @@ namespace GreenshotGooglePhotosPlugin
 		/// <summary>
 		///     Implementation of the IGreenshotPlugin.Initialize
 		/// </summary>
-		/// <param name="pluginHost">Use the IGreenshotPluginHost interface to register events</param>
-		/// <param name="myAttributes">My own attributes</param>
-		public bool Initialize(IGreenshotHost pluginHost, PluginAttribute myAttributes)
+		public bool Initialize()
 		{
-			_host = pluginHost;
-			Attributes = myAttributes;
-
 			// Get configuration
-			_config = IniConfig.GetIniSection<GooglePhotosConfiguration>();
 			_resources = new ComponentResourceManager(typeof(GooglePhotosPlugin));
 
 			_itemPlugInRoot = new ToolStripMenuItem
 			{
 				Text = Language.GetString("googlephotos", LangKey.Configure),
-				Tag = _host,
+				Tag = _greenshotHost,
 				Image = (Image) _resources.GetObject("GooglePhotos")
 			};
-			_itemPlugInRoot.Click += ConfigMenuClick;
-			PluginUtils.AddToContextMenu(_host, _itemPlugInRoot);
+			PluginUtils.AddToContextMenu(_greenshotHost, _itemPlugInRoot);
 			Language.LanguageChanged += OnLanguageChanged;
 			return true;
 		}
@@ -99,14 +99,6 @@ namespace GreenshotGooglePhotosPlugin
 			Log.Debug().WriteLine("GooglePhotos Plugin shutdown.");
 			Language.LanguageChanged -= OnLanguageChanged;
 			//host.OnImageEditorOpen -= new OnImageEditorOpenHandler(ImageEditorOpened);
-		}
-
-		/// <summary>
-		///     Implementation of the IPlugin.Configure
-		/// </summary>
-		public void Configure()
-		{
-			_config.ShowConfigDialog();
 		}
 
 		private void Dispose(bool disposing)
@@ -129,27 +121,22 @@ namespace GreenshotGooglePhotosPlugin
 			}
 		}
 
-		public void ConfigMenuClick(object sender, EventArgs eventArgs)
-		{
-			Configure();
-		}
-
 		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl)
 		{
-			var outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality);
+			var outputSettings = new SurfaceOutputSettings(_googlePhotosConfiguration.UploadFormat, _googlePhotosConfiguration.UploadJpegQuality);
 			try
 			{
 				string url = null;
-				new PleaseWaitForm().ShowAndWait(Attributes.Name, Language.GetString("googlephotos", LangKey.communication_wait),
+				new PleaseWaitForm().ShowAndWait("Google Photos", Language.GetString("googlephotos", LangKey.communication_wait),
 					delegate
 					{
-						var filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
+						var filename = Path.GetFileName(FilenameHelper.GetFilename(_googlePhotosConfiguration.UploadFormat, captureDetails));
 						url = GooglePhotosUtils.UploadToGooglePhotos(surfaceToUpload, outputSettings, captureDetails.Title, filename);
 					}
 				);
 				uploadUrl = url;
 
-				if (uploadUrl != null && _config.AfterUploadLinkToClipBoard)
+				if (uploadUrl != null && _googlePhotosConfiguration.AfterUploadLinkToClipBoard)
 				{
 					ClipboardHelper.SetClipboardData(uploadUrl);
 				}

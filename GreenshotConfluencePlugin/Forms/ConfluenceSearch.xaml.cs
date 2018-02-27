@@ -1,7 +1,7 @@
 ﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: http://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -29,22 +29,22 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Confluence;
-using GreenshotPlugin.IniFile;
-using Page = Confluence.Page;
+using Dapplo.Ini;
 
 #endregion
 
-namespace GreenshotConfluencePlugin
+namespace GreenshotConfluencePlugin.Forms
 {
 	public partial class ConfluenceSearch
 	{
-		private static readonly ConfluenceConfiguration ConfluenceConfig = IniConfig.GetIniSection<ConfluenceConfiguration>();
-		private readonly ConfluenceUpload _confluenceUpload;
+		private static readonly IConfluenceConfiguration ConfluenceConfig = IniConfig.Current.Get<IConfluenceConfiguration>();
+	    private readonly ConfluenceConnector _confluenceConnector;
+	    private readonly ConfluenceUpload _confluenceUpload;
 
-		public ConfluenceSearch(ConfluenceUpload confluenceUpload)
+		public ConfluenceSearch(ConfluenceConnector confluenceConnector, ConfluenceUpload confluenceUpload)
 		{
-			_confluenceUpload = confluenceUpload;
+		    _confluenceConnector = confluenceConnector;
+		    _confluenceUpload = confluenceUpload;
 			DataContext = this;
 			InitializeComponent();
 			if (ConfluenceConfig.SearchSpaceKey == null)
@@ -94,7 +94,7 @@ namespace GreenshotConfluencePlugin
 			var spaceKey = (string) SpaceComboBox.SelectedValue;
 			ConfluenceConfig.SearchSpaceKey = spaceKey;
 			Pages.Clear();
-			foreach (var page in ConfluencePlugin.ConfluenceConnector.SearchPages(searchText.Text, spaceKey).OrderBy(p => p.Title))
+			foreach (var page in _confluenceConnector.SearchPages(searchText.Text, spaceKey).OrderBy(p => p.Title))
 			{
 				Pages.Add(page);
 			}
