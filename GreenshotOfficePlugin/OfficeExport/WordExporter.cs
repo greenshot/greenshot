@@ -28,8 +28,8 @@ using System.Collections.Generic;
 using Dapplo.Windows.Desktop;
 using GreenshotOfficePlugin.OfficeInterop;
 using Dapplo.Ini;
-using GreenshotPlugin.Interop;
 using Dapplo.Log;
+using Dapplo.Windows.Com;
 
 #endregion
 
@@ -307,14 +307,13 @@ namespace GreenshotOfficePlugin.OfficeExport
 								{
 									continue;
 								}
-								if (IsAfter2003())
-								{
-									if (document.Final)
-									{
-										continue;
-									}
-								}
-								using (var activeWindow = document.ActiveWindow)
+
+							    if (IsAfter2003() && document.Final)
+							    {
+							        continue;
+							    }
+
+							    using (var activeWindow = document.ActiveWindow)
 								{
 									openDocuments.Add(activeWindow.Caption);
 								}
@@ -337,7 +336,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 		/// <returns>IWordApplication or null</returns>
 		private static IWordApplication GetWordApplication()
 		{
-			var wordApplication = COMWrapper.GetInstance<IWordApplication>();
+			var wordApplication = ComWrapper.GetInstance<IWordApplication>();
 			InitializeVariables(wordApplication);
 			return wordApplication;
 		}
@@ -348,7 +347,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 		/// <returns>IWordApplication</returns>
 		private static IWordApplication GetOrCreateWordApplication()
 		{
-			var wordApplication = COMWrapper.GetOrCreateInstance<IWordApplication>();
+			var wordApplication = ComWrapper.GetOrCreateInstance<IWordApplication>();
 			InitializeVariables(wordApplication);
 			return wordApplication;
 		}

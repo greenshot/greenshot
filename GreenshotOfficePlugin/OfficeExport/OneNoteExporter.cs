@@ -32,14 +32,14 @@ using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using GreenshotPlugin.Interop;
 using Dapplo.Log;
+using Dapplo.Windows.Com;
 
 #endregion
 
 namespace GreenshotOfficePlugin.OfficeExport
 {
-	public class OneNoteExporter
+	public static class OneNoteExporter
 	{
 		private const string XmlImageContent =
 			"<one:Image format=\"png\"><one:Size width=\"{1}.0\" height=\"{2}.0\" isSetByUser=\"true\" /><one:Data>{0}</one:Data></one:Image>";
@@ -57,7 +57,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 		/// <returns>bool true if export worked</returns>
 		public static bool ExportToNewPage(ISurface surfaceToUpload)
 		{
-			using (var oneNoteApplication = COMWrapper.GetOrCreateInstance<IOneNoteApplication>())
+			using (var oneNoteApplication = ComWrapper.GetOrCreateInstance<IOneNoteApplication>())
 			{
 				var newPage = new OneNotePage();
 				var unfiledNotesSectionId = GetSectionId(oneNoteApplication, SpecialLocation.slUnfiledNotesSection);
@@ -83,7 +83,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 		/// <returns>bool true if everything worked</returns>
 		public static bool ExportToPage(ISurface surfaceToUpload, OneNotePage page)
 		{
-			using (var oneNoteApplication = COMWrapper.GetOrCreateInstance<IOneNoteApplication>())
+			using (var oneNoteApplication = ComWrapper.GetOrCreateInstance<IOneNoteApplication>())
 			{
 				return ExportToPage(oneNoteApplication, surfaceToUpload, page);
 			}
@@ -183,7 +183,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 		/// <returns></returns>
 		public static IEnumerable<OneNotePage> GetPages()
 		{
-			using (var oneNoteApplication = COMWrapper.GetOrCreateInstance<IOneNoteApplication>())
+			using (var oneNoteApplication = ComWrapper.GetOrCreateInstance<IOneNoteApplication>())
 			{
 			    if (oneNoteApplication == null)
 			    {

@@ -29,14 +29,14 @@ using System.Drawing;
 using System.Reflection;
 using Dapplo.Windows.Desktop;
 using GreenshotOfficePlugin.OfficeInterop;
-using GreenshotPlugin.Interop;
 using Dapplo.Log;
+using Dapplo.Windows.Com;
 
 #endregion
 
 namespace GreenshotOfficePlugin.OfficeExport
 {
-	public class ExcelExporter
+	public static class ExcelExporter
 	{
 		private static readonly LogSource Log = new LogSource();
 		private static Version _excelVersion;
@@ -169,7 +169,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 		/// <returns>IExcelApplication or null</returns>
 		private static IExcelApplication GetExcelApplication()
 		{
-			var excelApplication = COMWrapper.GetInstance<IExcelApplication>();
+			var excelApplication = ComWrapper.GetInstance<IExcelApplication>();
 			InitializeVariables(excelApplication);
 			return excelApplication;
 		}
@@ -180,7 +180,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 		/// <returns>IExcelApplication</returns>
 		private static IExcelApplication GetOrCreateExcelApplication()
 		{
-			var excelApplication = COMWrapper.GetOrCreateInstance<IExcelApplication>();
+			var excelApplication = ComWrapper.GetOrCreateInstance<IExcelApplication>();
 			InitializeVariables(excelApplication);
 			return excelApplication;
 		}

@@ -24,7 +24,7 @@
 #region Usings
 
 using System;
-using GreenshotPlugin.Interop;
+using Dapplo.Windows.Com;
 
 #endregion
 

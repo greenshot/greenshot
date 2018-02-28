@@ -23,12 +23,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <Prefer32Bit>false</Prefer32Bit>
     <RunCodeAnalysis>false</RunCodeAnalysis>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <Prefer32Bit>false</Prefer32Bit>
@@ -218,8 +220,6 @@
     <Compile Include="Interfaces\SurfaceMessageTyp.cs" />
     <Compile Include="Interfaces\SurfaceSizeChangeEventHandler.cs" />
     <Compile Include="Interfaces\VerticalAlignment.cs" />
-    <Compile Include="Interop\ComProgIdAttribute.cs" />
-    <Compile Include="Interop\COMWrapper.cs" />
     <Compile Include="Interop\IUnknown.cs" />
     <Compile Include="Interop\IDispatch.cs" />
     <Compile Include="Interop\IOleWindow.cs" />

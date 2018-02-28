@@ -30,7 +30,7 @@ namespace Greenshot.Components
     /// <summary>
     /// A simple helper to talk to an already running Greenshot instance
     /// </summary>
-    public class GreenshotClient
+    public static class GreenshotClient
     {
         private static ChannelFactory<IGreenshotContract> ChannelFactory => new ChannelFactory<IGreenshotContract>(new NetNamedPipeBinding(), new EndpointAddress(GreenshotServerAction.EndPoint));
 

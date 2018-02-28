@@ -39,7 +39,7 @@ namespace Greenshot.Components
     {
         private static readonly LogSource Log = new LogSource();
 
-        public Task StartAsync(CancellationToken token)
+        public Task StartAsync(CancellationToken cancellationToken = default)
         {
             Log.Debug().WriteLine("Starting Windows.Forms");
 

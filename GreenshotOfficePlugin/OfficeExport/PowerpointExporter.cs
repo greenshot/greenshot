@@ -28,14 +28,14 @@ using System.Collections.Generic;
 using System.Drawing;
 using GreenshotOfficePlugin.OfficeInterop;
 using Dapplo.Ini;
-using GreenshotPlugin.Interop;
 using Dapplo.Log;
+using Dapplo.Windows.Com;
 
 #endregion
 
 namespace GreenshotOfficePlugin.OfficeExport
 {
-	public class PowerpointExporter
+	public static class PowerpointExporter
 	{
 		private static readonly LogSource Log = new LogSource();
 		private static Version _powerpointVersion;
@@ -77,14 +77,13 @@ namespace GreenshotOfficePlugin.OfficeExport
 								{
 									continue;
 								}
-								if (IsAfter2003())
-								{
-									if (presentation.Final)
-									{
-										continue;
-									}
-								}
-								foundPresentations.Add(presentation.Name);
+
+							    if (IsAfter2003() && presentation.Final)
+							    {
+							        continue;
+							    }
+
+							    foundPresentations.Add(presentation.Name);
 							}
 						}
 					}
@@ -279,7 +278,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 		/// <returns>IPowerpointApplication or null</returns>
 		private static IPowerpointApplication GetPowerpointApplication()
 		{
-			var powerpointApplication = COMWrapper.GetInstance<IPowerpointApplication>();
+			var powerpointApplication = ComWrapper.GetInstance<IPowerpointApplication>();
 			InitializeVariables(powerpointApplication);
 			return powerpointApplication;
 		}
@@ -290,7 +289,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 		/// <returns>IPowerpointApplication</returns>
 		private static IPowerpointApplication GetOrCreatePowerpointApplication()
 		{
-			var powerpointApplication = COMWrapper.GetOrCreateInstance<IPowerpointApplication>();
+			var powerpointApplication = ComWrapper.GetOrCreateInstance<IPowerpointApplication>();
 			InitializeVariables(powerpointApplication);
 			return powerpointApplication;
 		}

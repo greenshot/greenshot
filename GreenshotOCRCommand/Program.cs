@@ -27,14 +27,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using Greenshot.Interop;
 using GreenshotOCRCommand.Modi;
 
 #endregion
 
 namespace GreenshotOCRCommand
 {
-	public class Program
+	public static class Program
 	{
 		private const string Usage = "<-c> | <path to image.bmp> [language] [orientimage] [straightenImage]";
 

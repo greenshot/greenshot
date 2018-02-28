@@ -29,8 +29,8 @@ using System.IO;
 using System.Text;
 using GreenshotOfficePlugin.OfficeInterop;
 using Dapplo.Ini;
-using GreenshotPlugin.Interop;
 using Dapplo.Log;
+using Dapplo.Windows.Com;
 using mshtml;
 using Microsoft.Win32;
 
@@ -41,7 +41,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 	/// <summary>
 	///     Outlook exporter has all the functionality to export to outlook
 	/// </summary>
-	public class OutlookEmailExporter
+	public static class OutlookEmailExporter
 	{
 		// The signature key can be found at:
 		// HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging Subsystem\Profiles\<DefaultProfile>\9375CFF0413111d3B88A00104B2A6676\<xxxx> [New Signature]
@@ -68,7 +68,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 				{
 					if (outlookApplication == null)
 					{
-						return null;
+						return inspectorCaptions;
 					}
 
 					if (_outlookVersion.Major >= (int) OfficeVersions.Office2013)
@@ -136,7 +136,6 @@ namespace GreenshotOfficePlugin.OfficeExport
 					if (OlObjectClass.olMail.Equals(currentItemClass))
 					{
 						var mailItem = (IMailItem) currentItem;
-						//MailItem mailItem = COMWrapper.Cast<MailItem>(currentItem);
 						Log.Debug().WriteLine("Mail sent: {0}", mailItem.Sent);
 						if (!mailItem.Sent)
 						{
@@ -145,7 +144,6 @@ namespace GreenshotOfficePlugin.OfficeExport
 					}
 					else if (_outlookVersion.Major >= (int) OfficeVersions.Office2010 && OfficeConfig.OutlookAllowExportInMeetings && OlObjectClass.olAppointment.Equals(currentItemClass))
 					{
-						//AppointmentItem appointmentItem = COMWrapper.Cast<AppointmentItem>(currentItem);
 						var appointmentItem = (IAppointmentItem) currentItem;
 						if (string.IsNullOrEmpty(appointmentItem.Organizer) || _currentUser != null && _currentUser.Equals(appointmentItem.Organizer))
 						{
@@ -279,7 +277,6 @@ namespace GreenshotOfficePlugin.OfficeExport
 			{
 				if (isMail)
 				{
-					//mailItem = COMWrapper.Cast<MailItem>(currentItem);
 					mailItem = (IMailItem) currentItem;
 					if (mailItem.Sent)
 					{
@@ -464,7 +461,6 @@ namespace GreenshotOfficePlugin.OfficeExport
 				{
 					return;
 				}
-				//MailItem newMail = COMWrapper.Cast<MailItem>(newItem);
 				var newMail = (IMailItem) newItem;
 				newMail.Subject = subject;
 				if (!string.IsNullOrEmpty(to))
@@ -720,7 +716,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 		/// <returns>IOutlookApplication or null</returns>
 		private static IOutlookApplication GetOutlookApplication()
 		{
-			var outlookApplication = COMWrapper.GetInstance<IOutlookApplication>();
+			var outlookApplication = ComWrapper.GetInstance<IOutlookApplication>();
 			InitializeVariables(outlookApplication);
 			return outlookApplication;
 		}
@@ -731,7 +727,7 @@ namespace GreenshotOfficePlugin.OfficeExport
 		/// <returns>IOutlookApplication</returns>
 		private static IOutlookApplication GetOrCreateOutlookApplication()
 		{
-			var outlookApplication = COMWrapper.GetOrCreateInstance<IOutlookApplication>();
+			var outlookApplication = ComWrapper.GetOrCreateInstance<IOutlookApplication>();
 			InitializeVariables(outlookApplication);
 			return outlookApplication;
 		}
