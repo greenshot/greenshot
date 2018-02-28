@@ -54,6 +54,8 @@ namespace Greenshot.Components
     {
         private static readonly LogSource Log = new LogSource();
         private readonly ICoreConfiguration _coreConfiguration;
+        private readonly MainForm _mainForm;
+        private readonly HotkeyHandler _hotkeyHandler;
         private readonly IEnumerable<IDestination> _destinations;
         private ServiceHost _host;
 
@@ -68,24 +70,26 @@ namespace Greenshot.Components
         public static string EndPoint => $"net.pipe://localhost/Greenshot/Greenshot_{Identity}";
 
         [ImportingConstructor]
-        public GreenshotServerAction(ICoreConfiguration coreConfiguration, [ImportMany] IEnumerable<IDestination> destinations)
+        public GreenshotServerAction(ICoreConfiguration coreConfiguration, MainForm mainForm, HotkeyHandler hotkeyHandler, [ImportMany] IEnumerable<IDestination> destinations)
         {
             _coreConfiguration = coreConfiguration;
+            _mainForm = mainForm;
+            _hotkeyHandler = hotkeyHandler;
             _destinations = destinations;
         }
 
-        public async Task StartAsync(CancellationToken token = default(CancellationToken))
+        public async Task StartAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             Log.Debug().WriteLine("Starting Greenshot server");
             await Task.Factory.StartNew(() => {
                 _host = new ServiceHost(this, new Uri("net.pipe://localhost/Greenshot"));
                 _host.AddServiceEndpoint(typeof(IGreenshotContract), new NetNamedPipeBinding(), "Greenshot_" + Identity);
                 _host.Open();
-            }, token);
+            }, cancellationToken);
             Log.Debug().WriteLine("Started Greenshot server");
         }
 
-        public Task ShutdownAsync(CancellationToken token = default(CancellationToken))
+        public Task ShutdownAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             Log.Debug().WriteLine("Stopping Greenshot server");
 
@@ -107,13 +111,15 @@ namespace Greenshot.Components
             try
             {
                 IniConfig.Current?.ReloadAsync().Wait();
-                MainForm.Instance.Invoke((MethodInvoker)(() =>
+                _mainForm.Invoke((MethodInvoker)(() =>
                 {
-                    // Even update language when needed
-                    MainForm.Instance.UpdateUi();
+                    // Even update language when needed, this should be done automatically :)
+                    _mainForm.UpdateUi();
+
                     // Make sure the current hotkeys are disabled
                     HotkeyControl.UnregisterHotkeys();
-                    HotkeyHandler.RegisterHotkeys();
+                    // and registered again (should be automated)
+                    _hotkeyHandler.RegisterHotkeys(true);
                 }));
             }
             catch (Exception ex)

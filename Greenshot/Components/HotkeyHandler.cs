@@ -44,6 +44,7 @@ namespace Greenshot.Components
     /// This startup action registers the hotkeys
     /// </summary>
     [UiStartupAction(StartupOrder = (int)GreenshotUiStartupOrder.Hotkeys), ShutdownAction(ShutdownOrder = int.MinValue)]
+    [Export]
     public class HotkeyHandler : IUiStartupAction, IUiShutdownAction
     {
         private readonly ICoreConfiguration _coreConfiguration;
@@ -166,7 +167,7 @@ namespace Greenshot.Components
         ///     Whether the hotkeys could be registered to the users content. This also applies if conflicts arise and the
         ///     user decides to ignore these (i.e. not to register the conflicting hotkey).
         /// </returns>
-        private bool RegisterHotkeys(bool ignoreFailedRegistration)
+        public bool RegisterHotkeys(bool ignoreFailedRegistration)
         {
             if (MainForm.Instance == null)
             {
