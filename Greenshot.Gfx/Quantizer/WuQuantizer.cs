@@ -165,19 +165,20 @@ namespace Greenshot.Gfx.Quantizer
 
 		protected virtual void Dispose(bool disposing)
 		{
-			if (disposing)
-			{
-				if (_resultBitmap != null)
-				{
-					_resultBitmap.Dispose();
-					_resultBitmap = null;
-				}
-			}
+		    if (!disposing)
+		    {
+		        return;
+		    }
+
+		    if (_resultBitmap == null)
+		    {
+		        return;
+		    }
+
+		    _resultBitmap.Dispose();
+		    _resultBitmap = null;
 		}
 
-		/// <summary>
-		///     See <see cref="IColorQuantizer.Prepare" /> for more details.
-		/// </summary>
 		public int GetColorCount()
 		{
 			return _colorCount;
@@ -293,7 +294,7 @@ namespace Greenshot.Gfx.Quantizer
 
 				for (var index = 1; index <= cubeIndex; ++index)
 				{
-					if (!(volumeVariance[index] > temp))
+					if (volumeVariance[index] <= temp)
 					{
 						continue;
 					}

@@ -372,7 +372,6 @@
     <Compile Include="Helpers\IECaptureHelper.cs" />
     <Compile Include="Helpers\IEInterop\IEContainer.cs" />
     <Compile Include="Helpers\IEInterop\IWebBrowser2.cs" />
-    <Compile Include="Helpers\ResourceMutex.cs" />
     <Compile Include="Helpers\ScrollingCapture.cs" />
     <Compile Include="Help\HelpFileLoader.cs" />
     <Compile Include="Memento\AddElementsMemento.cs" />

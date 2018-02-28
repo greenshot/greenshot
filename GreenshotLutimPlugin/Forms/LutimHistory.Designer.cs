@@ -70,7 +70,7 @@ namespace GreenshotLutimPlugin.Forms
 			this.listview_lutim_uploads.TabIndex = 1;
 			this.listview_lutim_uploads.UseCompatibleStateImageBehavior = false;
 			this.listview_lutim_uploads.View = System.Windows.Forms.View.Details;
-			this.listview_lutim_uploads.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.listview_lutim_uploads_ColumnClick);
+			this.listview_lutim_uploads.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.Listview_lutim_uploads_ColumnClick);
 			this.listview_lutim_uploads.SelectedIndexChanged += new System.EventHandler(this.Listview_lutim_uploadsSelectedIndexChanged);
 			// 
 			// pictureBox1

@@ -84,7 +84,6 @@ namespace GreenshotLutimPlugin.Forms {
 		}
 
 		private void Redraw() {
-			// Should fix Bug #3378699 
 			pictureBox1.Image = pictureBox1.ErrorImage;
 			listview_lutim_uploads.BeginUpdate();
 			listview_lutim_uploads.Items.Clear();
@@ -141,7 +140,6 @@ namespace GreenshotLutimPlugin.Forms {
 					{
 						continue;
 					}
-					// Should fix Bug #3378699 
 					pictureBox1.Image = pictureBox1.ErrorImage;
 					try {
 						new PleaseWaitForm().ShowAndWait("Lutim", Language.GetString("lutim", LangKey.communication_wait), 
@@ -173,11 +171,14 @@ namespace GreenshotLutimPlugin.Forms {
 
 		private void ClearHistoryButtonClick(object sender, EventArgs e) {
 			DialogResult result = MessageBox.Show(Language.GetString("lutim", LangKey.clear_question), "Lutim", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-			if (result == DialogResult.Yes) {
-				Config.RuntimeLutimHistory.Clear();
-				Config.LutimUploadHistory.Clear();
-				Redraw();
-			}
+		    if (result != DialogResult.Yes)
+		    {
+		        return;
+		    }
+
+		    Config.RuntimeLutimHistory.Clear();
+		    Config.LutimUploadHistory.Clear();
+		    Redraw();
 		}
 
 		private void FinishedButtonClick(object sender, EventArgs e)
@@ -185,16 +186,20 @@ namespace GreenshotLutimPlugin.Forms {
 			Hide();
 		}
 
-		private void OpenButtonClick(object sender, EventArgs e) {
-			if (listview_lutim_uploads.SelectedItems.Count > 0) {
-				for (int i = 0; i < listview_lutim_uploads.SelectedItems.Count; i++) {
-					LutimInfo lutimInfo = (LutimInfo)listview_lutim_uploads.SelectedItems[i].Tag;
-					System.Diagnostics.Process.Start(lutimInfo.Uri.AbsoluteUri);
-				}
-			}
+		private void OpenButtonClick(object sender, EventArgs e)
+		{
+		    if (listview_lutim_uploads.SelectedItems.Count <= 0)
+		    {
+		        return;
+		    }
+
+		    for (int i = 0; i < listview_lutim_uploads.SelectedItems.Count; i++) {
+		        LutimInfo lutimInfo = (LutimInfo)listview_lutim_uploads.SelectedItems[i].Tag;
+		        System.Diagnostics.Process.Start(lutimInfo.Uri.AbsoluteUri);
+		    }
 		}
 		
-		private void listview_lutim_uploads_ColumnClick(object sender, ColumnClickEventArgs e) {
+		private void Listview_lutim_uploads_ColumnClick(object sender, ColumnClickEventArgs e) {
 			// Determine if clicked column is already the column that is being sorted.
 			if (e.Column == _columnSorter.SortColumn) {
 				// Reverse the current sort direction for this column.
