@@ -736,8 +736,8 @@ namespace GreenshotPlugin.Core
             {
                 return null;
             }
-            string returnValue;
-            if (!Resources.TryGetValue(key, out returnValue))
+
+            if (!Resources.TryGetValue(key, out var returnValue))
             {
                 return "string ###" + key + "### not found";
             }
@@ -787,8 +787,7 @@ namespace GreenshotPlugin.Core
         /// <returns>formatted resource or a "string ###key### not found"</returns>
         public static string GetFormattedString(string key, object param)
         {
-            string returnValue;
-            if (!Resources.TryGetValue(key, out returnValue))
+            if (!Resources.TryGetValue(key, out var returnValue))
             {
                 return "string ###" + key + "### not found";
             }

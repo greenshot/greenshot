@@ -59,8 +59,7 @@ namespace GreenshotDropboxPlugin
 		public override ExportInformation ExportCapture(bool manually, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
-			string uploadUrl;
-			var uploaded = _plugin.Upload(captureDetails, surface, out uploadUrl);
+		    var uploaded = _plugin.Upload(captureDetails, surface, out var uploadUrl);
 			if (uploaded)
 			{
 				exportInformation.Uri = uploadUrl;

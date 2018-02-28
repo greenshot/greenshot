@@ -164,8 +164,7 @@ namespace GreenshotJiraPlugin.Forms
 					LangKey[] columns = {LangKey.column_issueType, LangKey.column_id, LangKey.column_created, LangKey.column_assignee, LangKey.column_reporter, LangKey.column_summary};
 					foreach (var column in columns)
 					{
-						string translation;
-						if (!Language.TryGetString("jira", column, out translation))
+					    if (!Language.TryGetString("jira", column, out var translation))
 						{
 							translation = "";
 						}

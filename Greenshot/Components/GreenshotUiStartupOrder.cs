@@ -21,8 +21,6 @@
 
 #endregion
 
-using Dapplo.CaliburnMicro;
-
 namespace Greenshot.Components
 {
     /// <summary>

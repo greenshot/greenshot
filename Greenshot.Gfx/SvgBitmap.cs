@@ -96,7 +96,7 @@ namespace Greenshot.Gfx
 				// Calculate new image clone
 				_imageClone?.Dispose();
 				_imageClone = BitmapFactory.CreateEmpty(Width, Height, PixelFormat.Format32bppArgb, Color.Transparent, 96, 96);
-				_svgDocument.Draw((Bitmap) _imageClone);
+				_svgDocument.Draw(_imageClone);
 				return _imageClone;
 			}
 		}

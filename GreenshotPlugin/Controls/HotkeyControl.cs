@@ -575,7 +575,7 @@ namespace GreenshotPlugin.Controls
 				return false;
 			}
 			// Call handler
-			if (WindowsVersion.IsWindows7OrLater&& !EventDelay.Check())
+			if (WindowsVersion.IsWindows7OrLater && !EventDelay.Check())
 			{
 				return true;
 			}

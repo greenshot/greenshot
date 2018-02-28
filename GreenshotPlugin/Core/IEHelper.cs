@@ -49,7 +49,11 @@ namespace GreenshotPlugin.Core {
 				var maxVer = 7;
 				using (var ieKey = Registry.LocalMachine.OpenSubKey(IeKey, false))
 				{
-					foreach (var value in new[] { "svcVersion", "svcUpdateVersion", "Version", "W2kVersion" })
+				    if (ieKey == null)
+				    {
+				        return maxVer;
+				    }
+                    foreach (var value in new[] { "svcVersion", "svcUpdateVersion", "Version", "W2kVersion" })
 					{
 						var objVal = ieKey.GetValue(value, "0");
 						var strVal = Convert.ToString(objVal);
@@ -60,8 +64,7 @@ namespace GreenshotPlugin.Core {
 							strVal = strVal.Substring(0, iPos);
 						}
 
-						int res;
-						if (int.TryParse(strVal, out res))
+					    if (int.TryParse(strVal, out var res))
 						{
 							maxVer = Math.Max(maxVer, res);
 						}

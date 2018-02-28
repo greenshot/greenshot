@@ -431,8 +431,7 @@ namespace GreenshotPlugin.Core {
 				response = NetworkHelper.UrlDecode(response);
 			    Log.Debug().WriteLine("Request token response: {0}", response);
 				_requestTokenResponseParameters = NetworkHelper.ParseQueryString(response);
-				string value;
-				if (_requestTokenResponseParameters.TryGetValue(OAUTH_TOKEN_KEY, out value)) {
+			    if (_requestTokenResponseParameters.TryGetValue(OAUTH_TOKEN_KEY, out var value)) {
 					Token = value;
 					TokenSecret = _requestTokenResponseParameters[OAUTH_TOKEN_SECRET_KEY];
 				}
@@ -455,12 +454,11 @@ namespace GreenshotPlugin.Core {
 			oAuthLoginForm.ShowDialog();
 			if (oAuthLoginForm.IsOk) {
 				if (oAuthLoginForm.CallbackParameters != null) {
-					string tokenValue;
-					if (oAuthLoginForm.CallbackParameters.TryGetValue(OAUTH_TOKEN_KEY, out tokenValue)) {
+				    if (oAuthLoginForm.CallbackParameters.TryGetValue(OAUTH_TOKEN_KEY, out var tokenValue)) {
 						Token = tokenValue;
 					}
-					string verifierValue;
-					if (oAuthLoginForm.CallbackParameters.TryGetValue(OAUTH_VERIFIER_KEY, out verifierValue)) {
+
+				    if (oAuthLoginForm.CallbackParameters.TryGetValue(OAUTH_VERIFIER_KEY, out var verifierValue)) {
 						Verifier = verifierValue;
 					}
 				}
@@ -491,12 +489,11 @@ namespace GreenshotPlugin.Core {
 				response = NetworkHelper.UrlDecode(response);
 			    Log.Debug().WriteLine("Access token response: {0}", response);
 				AccessTokenResponseParameters = NetworkHelper.ParseQueryString(response);
-				string tokenValue;
-				if (AccessTokenResponseParameters.TryGetValue(OAUTH_TOKEN_KEY, out tokenValue) && tokenValue != null) {
+			    if (AccessTokenResponseParameters.TryGetValue(OAUTH_TOKEN_KEY, out var tokenValue) && tokenValue != null) {
 					Token = tokenValue;
 				}
-				string secretValue;
-				if (AccessTokenResponseParameters.TryGetValue(OAUTH_TOKEN_SECRET_KEY, out secretValue) && secretValue != null) {
+
+			    if (AccessTokenResponseParameters.TryGetValue(OAUTH_TOKEN_SECRET_KEY, out var secretValue) && secretValue != null) {
 					TokenSecret = secretValue;
 				}
 			}
@@ -1044,8 +1041,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 				settings.AccessTokenExpires = DateTimeOffset.MaxValue;
 				if (expiresIn != null)
 				{
-					double seconds;
-					if (double.TryParse(expiresIn, out seconds))
+				    if (double.TryParse(expiresIn, out var seconds))
 					{
 						settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds(seconds);
 					}
@@ -1152,8 +1148,7 @@ Greenshot received information from CloudServiceName. You can close this browser
 			OAuthLoginForm loginForm = new OAuthLoginForm($"Authorize {settings.CloudServiceName}", settings.BrowserSize, settings.FormattedAuthUrl, settings.RedirectUrl);
 			loginForm.ShowDialog();
 			if (loginForm.IsOk) {
-				string code;
-				if (loginForm.CallbackParameters.TryGetValue(Code, out code) && !string.IsNullOrEmpty(code)) {
+			    if (loginForm.CallbackParameters.TryGetValue(Code, out var code) && !string.IsNullOrEmpty(code)) {
 					settings.Code = code;
 					GenerateRefreshToken(settings);
 					return true;
@@ -1173,16 +1168,14 @@ Greenshot received information from CloudServiceName. You can close this browser
 			var codeReceiver = new LocalServerCodeReceiver();
 			IDictionary<string, string> result = codeReceiver.ReceiveCode(settings);
 
-			string code;
-			if (result.TryGetValue(Code, out code) && !string.IsNullOrEmpty(code)) {
+		    if (result.TryGetValue(Code, out var code) && !string.IsNullOrEmpty(code)) {
 				settings.Code = code;
 				GenerateRefreshToken(settings);
 				return true;
 			}
-			string error;
-			if (result.TryGetValue("error", out error)) {
-				string errorDescription;
-				if (result.TryGetValue("error_description", out errorDescription)) {
+
+		    if (result.TryGetValue("error", out var error)) {
+		        if (result.TryGetValue("error_description", out var errorDescription)) {
 					throw new Exception(errorDescription);
 				}
 				if ("access_denied" == error) {

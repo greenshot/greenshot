@@ -167,8 +167,7 @@ namespace GreenshotConfluencePlugin
 			}
 			if (selectedPage != null)
 			{
-				string errorMessage;
-				var uploaded = Upload(surface, selectedPage, filename, out errorMessage);
+			    var uploaded = Upload(surface, selectedPage, filename, out var errorMessage);
 				if (uploaded)
 				{
 					if (openPage)

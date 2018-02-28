@@ -196,23 +196,27 @@ namespace GreenshotPlugin.Core
         /// <returns>true if it's allowed</returns>
         public static bool IsDwmAllowed(Process process)
         {
-            if (process != null)
+            if (process == null)
             {
-                if (Configuration.NoDWMCaptureForProduct != null && Configuration.NoDWMCaptureForProduct.Count > 0)
+                return true;
+            }
+
+            if (Configuration.NoDWMCaptureForProduct == null || Configuration.NoDWMCaptureForProduct.Count <= 0)
+            {
+                return true;
+            }
+
+            try
+            {
+                var productName = process.MainModule.FileVersionInfo.ProductName;
+                if (productName != null && Configuration.NoDWMCaptureForProduct.Contains(productName.ToLower()))
                 {
-                    try
-                    {
-                        var productName = process.MainModule.FileVersionInfo.ProductName;
-                        if (productName != null && Configuration.NoDWMCaptureForProduct.Contains(productName.ToLower()))
-                        {
-                            return false;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Warn().WriteLine(ex.Message);
-                    }
+                    return false;
                 }
+            }
+            catch (Exception ex)
+            {
+                Log.Warn().WriteLine(ex.Message);
             }
             return true;
         }
@@ -224,23 +228,27 @@ namespace GreenshotPlugin.Core
         /// <returns>true if it's allowed</returns>
         public static bool IsGdiAllowed(Process process)
         {
-            if (process != null)
+            if (process == null)
             {
-                if (Configuration.NoGDICaptureForProduct != null && Configuration.NoGDICaptureForProduct.Count > 0)
+                return true;
+            }
+
+            if (Configuration.NoGDICaptureForProduct == null || Configuration.NoGDICaptureForProduct.Count <= 0)
+            {
+                return true;
+            }
+
+            try
+            {
+                var productName = process.MainModule.FileVersionInfo.ProductName;
+                if (productName != null && Configuration.NoGDICaptureForProduct.Contains(productName.ToLower()))
                 {
-                    try
-                    {
-                        var productName = process.MainModule.FileVersionInfo.ProductName;
-                        if (productName != null && Configuration.NoGDICaptureForProduct.Contains(productName.ToLower()))
-                        {
-                            return false;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Warn().WriteLine(ex.Message);
-                    }
+                    return false;
                 }
+            }
+            catch (Exception ex)
+            {
+                Log.Warn().WriteLine(ex.Message);
             }
             return true;
         }

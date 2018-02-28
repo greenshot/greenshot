@@ -283,8 +283,7 @@ namespace GreenshotPlugin.Core
 						if (remainingLength >= 4)
 						{
 							// parse the 32 bit hex into an integer codepoint
-							uint codePoint;
-							if (!(success = uint.TryParse(new string(json, index, 4), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out codePoint)))
+						    if (!(success = uint.TryParse(new string(json, index, 4), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var codePoint)))
 							{
 								return "";
 							}
@@ -321,8 +320,7 @@ namespace GreenshotPlugin.Core
 			var lastIndex = GetLastIndexOfNumber(json, index);
 			var charLength = lastIndex - index + 1;
 
-			double number;
-			success = double.TryParse(new string(json, index, charLength), NumberStyles.Any, CultureInfo.InvariantCulture, out number);
+		    success = double.TryParse(new string(json, index, charLength), NumberStyles.Any, CultureInfo.InvariantCulture, out var number);
 
 			index = lastIndex + 1;
 			return number;

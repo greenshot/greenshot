@@ -175,8 +175,7 @@ namespace GreenshotPlugin.Core
                 Dwm.DwmRegisterThumbnail(tempForm.Handle, interopWindow.Handle, out thumbnailHandle);
 
                 // Get the original size
-                NativeSize  sourceSize;
-                Dwm.DwmQueryThumbnailSourceSize(thumbnailHandle, out sourceSize);
+                Dwm.DwmQueryThumbnailSourceSize(thumbnailHandle, out var sourceSize);
 
                 if (sourceSize.Width <= 0 || sourceSize.Height <= 0)
                 {

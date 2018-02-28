@@ -346,8 +346,7 @@ namespace GreenshotImgurPlugin {
 			LogHeader(nameValues, "X-RateLimit-ClientRemaining");
 
 			// Update the credits in the config, this is shown in a form
-			int credits;
-			if (nameValues.ContainsKey("X-RateLimit-Remaining") && int.TryParse(nameValues["X-RateLimit-Remaining"], out credits)) {
+		    if (nameValues.ContainsKey("X-RateLimit-Remaining") && int.TryParse(nameValues["X-RateLimit-Remaining"], out var credits)) {
 				Config.Credits = credits;
 			}
 		}

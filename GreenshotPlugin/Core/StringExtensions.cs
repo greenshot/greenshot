@@ -68,22 +68,24 @@ namespace GreenshotPlugin.Core
 			IDictionary<string, object> properties = new Dictionary<string, object>();
 			foreach (var propertyInfo in  source.GetType().GetProperties())
 			{
-				if (propertyInfo.CanRead && propertyInfo.CanWrite)
-				{
-					var value = propertyInfo.GetValue(source, null);
-					if (propertyInfo.PropertyType != typeof(IDictionary<string, string>))
-					{
-						properties.Add(propertyInfo.Name, value);
-					}
-					else
-					{
-						var dictionary = (IDictionary<string, string>) value;
-						foreach (var propertyKey in dictionary.Keys)
-						{
-							properties.Add(propertyKey, dictionary[propertyKey]);
-						}
-					}
-				}
+			    if (!propertyInfo.CanRead || !propertyInfo.CanWrite)
+			    {
+			        continue;
+			    }
+
+			    var value = propertyInfo.GetValue(source, null);
+			    if (propertyInfo.PropertyType != typeof(IDictionary<string, string>))
+			    {
+			        properties.Add(propertyInfo.Name, value);
+			    }
+			    else
+			    {
+			        var dictionary = (IDictionary<string, string>) value;
+			        foreach (var propertyKey in dictionary.Keys)
+			        {
+			            properties.Add(propertyKey, dictionary[propertyKey]);
+			        }
+			    }
 			}
 
 			var r = new Regex(@"(?<start>\{)+(?<property>[\w\.\[\]]+)(?<format>:[^}]+)?(?<end>\})+",
@@ -97,8 +99,7 @@ namespace GreenshotPlugin.Core
 				var formatGroup = m.Groups["format"];
 				var endGroup = m.Groups["end"];
 
-				object value;
-				values.Add(properties.TryGetValue(propertyGroup.Value, out value) ? value : source);
+			    values.Add(properties.TryGetValue(propertyGroup.Value, out var value) ? value : source);
 				return new string('{', startGroup.Captures.Count) + (values.Count - 1) + formatGroup.Value + new string('}', endGroup.Captures.Count);
 			});
 

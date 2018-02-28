@@ -26,7 +26,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using GreenshotPlugin.Controls;
@@ -89,7 +88,7 @@ namespace GreenshotDropboxPlugin
 				Tag = _greenshotHost,
 			};
 
-			var dropboxResourceScaler = BitmapScaleHandler.WithComponentResourceManager(_greenshotHost.ContextMenuDpiHandler, GetType(), (bitmap, dpi) => (Bitmap)bitmap.ScaleIconForDisplaying(dpi));
+			var dropboxResourceScaler = BitmapScaleHandler.WithComponentResourceManager(_greenshotHost.ContextMenuDpiHandler, GetType(), (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));
 			dropboxResourceScaler.AddTarget(_itemPlugInConfig, "Dropbox");
 
 			_itemPlugInConfig.Click += ConfigMenuClick;

@@ -47,8 +47,7 @@ namespace GreenshotLutimPlugin  {
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) {
 			ExportInformation exportInformation = new ExportInformation(Designation, Description);
-			string uploadUrl;
-			exportInformation.ExportMade = _plugin.Upload(captureDetails, surface, out uploadUrl);
+		    exportInformation.ExportMade = _plugin.Upload(captureDetails, surface, out var uploadUrl);
 			exportInformation.Uri = uploadUrl;
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

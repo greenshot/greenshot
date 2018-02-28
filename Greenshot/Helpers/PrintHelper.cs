@@ -195,8 +195,7 @@ namespace Greenshot.Helpers
 
 			ApplyEffects(printOutputSettings);
 
-			Bitmap bitmap;
-			var disposeImage = ImageOutput.CreateBitmapFromSurface(_surface, printOutputSettings, out bitmap);
+		    var disposeImage = ImageOutput.CreateBitmapFromSurface(_surface, printOutputSettings, out var bitmap);
 			try
 			{
 				var alignment = CoreConfig.OutputPrintCenter ? ContentAlignment.MiddleCenter : ContentAlignment.TopLeft;

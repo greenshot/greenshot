@@ -438,8 +438,8 @@ namespace Greenshot.Forms
 
             // this is special handling, for the icons which come from the executables
             var exeBitmapScaleHandler = BitmapScaleHandler.Create<string>(ContextMenuDpiHandler,
-                (path, dpi) => (Bitmap)PluginUtils.GetCachedExeIcon(path, 0, dpi >= 120),
-                (bitmap, dpi) => (Bitmap)bitmap.ScaleIconForDisplaying(dpi));
+                (path, dpi) => PluginUtils.GetCachedExeIcon(path, 0, dpi >= 120),
+                (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));
             exeBitmapScaleHandler.AddTarget(contextmenu_captureie, PluginUtils.GetExePath("iexplore.exe"));
 
             // Add cleanup

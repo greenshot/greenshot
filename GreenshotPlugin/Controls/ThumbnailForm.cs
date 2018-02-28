@@ -45,7 +45,7 @@ namespace GreenshotPlugin.Controls
 	///     capture.
 	///     Didn't make it completely "generic" yet, but at least most logic is in here so we don't have it in the mainform.
 	/// </summary>
-	public class ThumbnailForm : FormWithoutActivation
+	public sealed class ThumbnailForm : FormWithoutActivation
 	{
 		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
 
@@ -95,43 +95,44 @@ namespace GreenshotPlugin.Controls
 			UnregisterThumbnail();
 
 			Dwm.DwmRegisterThumbnail(Handle, window.Handle, out _thumbnailHandle);
-			if (_thumbnailHandle != IntPtr.Zero)
-			{
-				NativeSize  sourceSize;
-				Dwm.DwmQueryThumbnailSourceSize(_thumbnailHandle, out sourceSize);
-				var thumbnailHeight = 200;
-				var thumbnailWidth = (int) (thumbnailHeight * (sourceSize.Width / (float) sourceSize.Height));
-				if (parentControl != null && thumbnailWidth > parentControl.Width)
-				{
-					thumbnailWidth = parentControl.Width;
-					thumbnailHeight = (int) (thumbnailWidth * (sourceSize.Height / (float) sourceSize.Width));
-				}
-				Width = thumbnailWidth;
-				Height = thumbnailHeight;
-				// Prepare the displaying of the Thumbnail
-				var props = new DwmThumbnailProperties
-				{
-					Opacity = 255,
-					Visible = true,
-					SourceClientAreaOnly = false,
-					Destination = new NativeRect(0, 0, thumbnailWidth, thumbnailHeight)
-				};
-				Dwm.DwmUpdateThumbnailProperties(_thumbnailHandle, ref props);
-				if (parentControl != null)
-				{
-					AlignToControl(parentControl);
-				}
+		    if (_thumbnailHandle == IntPtr.Zero)
+		    {
+		        return;
+		    }
 
-				if (!Visible)
-				{
-					Show();
-				}
-				// Make sure it's on "top"!
-				if (parentControl != null)
-				{
-					User32Api.SetWindowPos(Handle, parentControl.Handle, 0, 0, 0, 0, WindowPos.SWP_NOMOVE | WindowPos.SWP_NOSIZE | WindowPos.SWP_NOACTIVATE);
-				}
-			}
+		    Dwm.DwmQueryThumbnailSourceSize(_thumbnailHandle, out var sourceSize);
+		    var thumbnailHeight = 200;
+		    var thumbnailWidth = (int) (thumbnailHeight * (sourceSize.Width / (float) sourceSize.Height));
+		    if (parentControl != null && thumbnailWidth > parentControl.Width)
+		    {
+		        thumbnailWidth = parentControl.Width;
+		        thumbnailHeight = (int) (thumbnailWidth * (sourceSize.Height / (float) sourceSize.Width));
+		    }
+		    Width = thumbnailWidth;
+		    Height = thumbnailHeight;
+		    // Prepare the displaying of the Thumbnail
+		    var props = new DwmThumbnailProperties
+		    {
+		        Opacity = 255,
+		        Visible = true,
+		        SourceClientAreaOnly = false,
+		        Destination = new NativeRect(0, 0, thumbnailWidth, thumbnailHeight)
+		    };
+		    Dwm.DwmUpdateThumbnailProperties(_thumbnailHandle, ref props);
+		    if (parentControl != null)
+		    {
+		        AlignToControl(parentControl);
+		    }
+
+		    if (!Visible)
+		    {
+		        Show();
+		    }
+		    // Make sure it's on "top"!
+		    if (parentControl != null)
+		    {
+		        User32Api.SetWindowPos(Handle, parentControl.Handle, 0, 0, 0, 0, WindowPos.SWP_NOMOVE | WindowPos.SWP_NOSIZE | WindowPos.SWP_NOACTIVATE);
+		    }
 		}
 
 		public void AlignToControl(Control alignTo)

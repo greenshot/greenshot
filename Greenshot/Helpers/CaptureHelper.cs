@@ -1086,7 +1086,7 @@ namespace Greenshot.Helpers
             previouslyActiveWindow?.ToForegroundAsync(false);
             if (_capture.CaptureDetails != null)
             {
-                ((Bitmap) _capture.Bitmap)?.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
+                _capture.Bitmap?.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
             }
         }
 

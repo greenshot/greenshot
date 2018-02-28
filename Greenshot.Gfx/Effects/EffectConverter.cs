@@ -127,8 +127,7 @@ namespace Greenshot.Gfx.Effects
 						}
 						break;
 					case "ShadowSize":
-						int shadowSize;
-						if (int.TryParse(pair[1], out shadowSize))
+					    if (int.TryParse(pair[1], out var shadowSize))
 						{
 							effect.ShadowSize = shadowSize;
 						}

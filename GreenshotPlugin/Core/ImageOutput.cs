@@ -91,6 +91,10 @@ namespace GreenshotPlugin.Gfx
 			try
 			{
 				var ci = typeof(PropertyItem).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public, null, new Type[] {}, null);
+			    if (ci == null)
+			    {
+			        return null;
+			    }
 				propertyItem = (PropertyItem) ci.Invoke(null);
 				// Make sure it's of type string
 				propertyItem.Type = 2;
@@ -270,12 +274,13 @@ namespace GreenshotPlugin.Gfx
 		/// <param name="filename"></param>
 		private static void RemoveExpiredTmpFile(string filekey, object filename)
 		{
-			var path = filename as string;
-			if (path != null && File.Exists(path))
-			{
-				Log.Debug().WriteLine("Removing expired file {0}", path);
-				File.Delete(path);
-			}
+		    if (!(filename is string path) || !File.Exists(path))
+		    {
+		        return;
+		    }
+
+		    Log.Debug().WriteLine("Removing expired file {0}", path);
+		    File.Delete(path);
 		}
 
 		#region Icon
@@ -326,7 +331,7 @@ namespace GreenshotPlugin.Gfx
 					// Resize to the specified size, first make sure the image is 32bpp
 					using (var clonedImage = bitmap.CloneBitmap(PixelFormat.Format32bppArgb))
 					{
-						using (var resizedImage = BitmapHelper.Resize(clonedImage, true, true, Color.Empty, size, size, null))
+						using (var resizedImage = clonedImage.Resize(true, true, Color.Empty, size, size, null))
 						{
 							resizedImage.Save(imageStream, ImageFormat.Png);
 							imageSizes.Add(resizedImage.Size);
@@ -382,13 +387,12 @@ namespace GreenshotPlugin.Gfx
 	    /// <returns>ISurface</returns>
 	    public static ISurface LoadGreenshotSurface(Stream surfaceFileStream, ISurface returnSurface)
 	    {
-	        Bitmap fileImage;
 	        // Fixed problem that the bitmap stream is disposed... by Cloning the image
 	        // This also ensures the bitmap is correctly created
 
 	        // We create a copy of the bitmap, so everything else can be disposed
 	        surfaceFileStream.Position = 0;
-	        fileImage = BitmapHelper.FromStreamReader(surfaceFileStream, ".greenshot"); 
+	        var fileImage = BitmapHelper.FromStreamReader(surfaceFileStream, ".greenshot"); 
 
 	        // Start at -14 read "GreenshotXX.YY" (XX=Major, YY=Minor)
 	        const int markerSize = 14;
@@ -430,8 +434,7 @@ namespace GreenshotPlugin.Gfx
         /// <param name="outputSettings">SurfaceOutputSettings</param>
         public static void SaveToStream(ISurface surface, Stream stream, SurfaceOutputSettings outputSettings)
 		{
-		    Bitmap bitmapToSave;
-			var disposeImage = CreateBitmapFromSurface(surface, outputSettings, out bitmapToSave);
+		    var disposeImage = CreateBitmapFromSurface(surface, outputSettings, out var bitmapToSave);
 			SaveToStream(bitmapToSave, surface, stream, outputSettings);
 			// cleanup if needed
 			if (disposeImage)
@@ -733,7 +736,7 @@ namespace GreenshotPlugin.Gfx
 			var isAlpha = Image.IsAlphaPixelFormat(bitmapToSave.PixelFormat);
 			if (outputSettings.ReduceColors || !isAlpha && CoreConfig.OutputFileAutoReduceColors)
 			{
-				using (var quantizer = new WuQuantizer((Bitmap) bitmapToSave))
+				using (var quantizer = new WuQuantizer(bitmapToSave))
 				{
 					var colorCount = quantizer.GetColorCount();
 					Log.Info().WriteLine("Image with format {0} has {1} colors", bitmapToSave.PixelFormat, colorCount);

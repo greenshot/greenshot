@@ -479,10 +479,9 @@ namespace Greenshot.Helpers.IEInterop
 				var sp = (IServiceProvider) htmlWindow;
 
 				// Use IServiceProvider.QueryService to get IWebBrowser2 object.
-				object brws;
-				var webBrowserApp = IID_IWebBrowserApp;
+			    var webBrowserApp = IID_IWebBrowserApp;
 				var webBrowser2 = IID_IWebBrowser2;
-				sp.QueryService(ref webBrowserApp, ref webBrowser2, out brws);
+				sp.QueryService(ref webBrowserApp, ref webBrowser2, out var brws);
 
 				// Get the document from IWebBrowser2.
 				var browser = (IWebBrowser2) brws;

@@ -118,8 +118,7 @@ namespace GreenshotJiraPlugin
 		{
 			try
 			{
-				IJiraClient jiraClient;
-				if (_projectJiraClientMap.TryGetValue(jiraDetails.ProjectKey, out jiraClient))
+			    if (_projectJiraClientMap.TryGetValue(jiraDetails.ProjectKey, out var jiraClient))
 				{
 					var issue = await jiraClient.Issue.GetAsync(jiraDetails.JiraKey).ConfigureAwait(false);
 					jiraDetails.JiraIssue = issue;
@@ -148,13 +147,11 @@ namespace GreenshotJiraPlugin
 			var projectKey = jiraKeyParts[0];
 			var jiraId = jiraKeyParts[1];
 
-			IJiraClient jiraClient;
-			// Check if we have a JIRA instance with a project for this key
-			if (_projectJiraClientMap.TryGetValue(projectKey, out jiraClient))
+		    // Check if we have a JIRA instance with a project for this key
+			if (_projectJiraClientMap.TryGetValue(projectKey, out var jiraClient))
 			{
 				// We have found a project for this _jira key, so it must be a valid & known JIRA
-				JiraDetails currentJiraDetails;
-				if (_recentJiras.TryGetValue(jiraKey, out currentJiraDetails))
+			    if (_recentJiras.TryGetValue(jiraKey, out var currentJiraDetails))
 				{
 					// update 
 					currentJiraDetails.SeenAt = DateTimeOffset.Now;

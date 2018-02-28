@@ -61,18 +61,18 @@ namespace GreenshotOfficePlugin.OfficeExport
 			{
 				var newPage = new OneNotePage();
 				var unfiledNotesSectionId = GetSectionId(oneNoteApplication, SpecialLocation.slUnfiledNotesSection);
-				if (unfiledNotesSectionId != null)
-				{
-					// ReSharper disable once RedundantAssignment
-					var pageId = "";
-					oneNoteApplication.CreateNewPage(unfiledNotesSectionId, out pageId, NewPageStyle.npsDefault);
-					newPage.ID = pageId;
-					// Set the new name, this is automatically done in the export to page
-					newPage.Name = surfaceToUpload.CaptureDetails.Title;
-					return ExportToPage(oneNoteApplication, surfaceToUpload, newPage);
-				}
+			    if (unfiledNotesSectionId == null)
+			    {
+			        return false;
+			    }
+
+			    // ReSharper disable once RedundantAssignment
+			    oneNoteApplication.CreateNewPage(unfiledNotesSectionId, out var pageId, NewPageStyle.npsDefault);
+			    newPage.ID = pageId;
+			    // Set the new name, this is automatically done in the export to page
+			    newPage.Name = surfaceToUpload.CaptureDetails.Title;
+			    return ExportToPage(oneNoteApplication, surfaceToUpload, newPage);
 			}
-			return false;
 		}
 
 		/// <summary>
@@ -142,35 +142,39 @@ namespace GreenshotOfficePlugin.OfficeExport
 			// ReSharper disable once RedundantAssignment
 			var notebookXml = "";
 			oneNoteApplication.GetHierarchy("", HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
-			if (!string.IsNullOrEmpty(notebookXml))
-			{
-				Log.Debug().WriteLine(notebookXml);
-				StringReader reader = null;
-				try
-				{
-					reader = new StringReader(notebookXml);
-					using (var xmlReader = new XmlTextReader(reader))
-					{
-						while (xmlReader.Read())
-						{
-							if ("one:Section".Equals(xmlReader.Name))
-							{
-								var id = xmlReader.GetAttribute("ID");
-								var path = xmlReader.GetAttribute("path");
-								if (unfiledNotesPath.Equals(path))
-								{
-									return id;
-								}
-							}
-						}
-					}
-				}
-				finally
-				{
-					reader?.Dispose();
-				}
-			}
-			return null;
+		    if (string.IsNullOrEmpty(notebookXml))
+		    {
+		        return null;
+		    }
+
+		    Log.Debug().WriteLine(notebookXml);
+		    StringReader reader = null;
+		    try
+		    {
+		        reader = new StringReader(notebookXml);
+		        using (var xmlReader = new XmlTextReader(reader))
+		        {
+		            while (xmlReader.Read())
+		            {
+		                if (!"one:Section".Equals(xmlReader.Name))
+		                {
+		                    continue;
+		                }
+
+		                var id = xmlReader.GetAttribute("ID");
+		                var path = xmlReader.GetAttribute("path");
+		                if (unfiledNotesPath.Equals(path))
+		                {
+		                    return id;
+		                }
+		            }
+		        }
+		    }
+		    finally
+		    {
+		        reader?.Dispose();
+		    }
+		    return null;
 		}
 
 		/// <summary>
@@ -181,69 +185,79 @@ namespace GreenshotOfficePlugin.OfficeExport
 		{
 			using (var oneNoteApplication = COMWrapper.GetOrCreateInstance<IOneNoteApplication>())
 			{
-				if (oneNoteApplication != null)
-				{
-					// ReSharper disable once RedundantAssignment
-					var notebookXml = "";
-					oneNoteApplication.GetHierarchy("", HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
-					if (!string.IsNullOrEmpty(notebookXml))
-					{
-						using (var reader = new StringReader(notebookXml))
-						using (var xmlReader = new XmlTextReader(reader))
-						{
-							OneNoteSection currentSection = null;
-							OneNoteNotebook currentNotebook = null;
-							while (xmlReader.Read())
-							{
-								if ("one:Notebook".Equals(xmlReader.Name))
-								{
-									var id = xmlReader.GetAttribute("ID");
-									if (id != null && (currentNotebook == null || !id.Equals(currentNotebook.ID)))
-									{
-										currentNotebook = new OneNoteNotebook
-										{
-											ID = xmlReader.GetAttribute("ID"),
-											Name = xmlReader.GetAttribute("name")
-										};
-									}
-								}
-								if ("one:Section".Equals(xmlReader.Name))
-								{
-									var id = xmlReader.GetAttribute("ID");
-									if (id != null && (currentSection == null || !id.Equals(currentSection.ID)))
-									{
-										currentSection = new OneNoteSection
-										{
-											ID = xmlReader.GetAttribute("ID"),
-											Name = xmlReader.GetAttribute("name"),
-											Parent = currentNotebook
-										};
-									}
-								}
-								if ("one:Page".Equals(xmlReader.Name))
-								{
-									// Skip deleted items
-									if ("true".Equals(xmlReader.GetAttribute("isInRecycleBin")))
-									{
-										continue;
-									}
-									var page = new OneNotePage
-									{
-										Parent = currentSection,
-										Name = xmlReader.GetAttribute("name"),
-										ID = xmlReader.GetAttribute("ID")
-									};
-									if (page.ID == null || page.Name == null)
-									{
-										continue;
-									}
-									page.IsCurrentlyViewed = "true".Equals(xmlReader.GetAttribute("isCurrentlyViewed"));
-									yield return page;
-								}
-							}
-						}
-					}
-				}
+			    if (oneNoteApplication == null)
+			    {
+			        yield break;
+			    }
+
+			    // ReSharper disable once RedundantAssignment
+			    var notebookXml = "";
+			    oneNoteApplication.GetHierarchy("", HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
+			    if (string.IsNullOrEmpty(notebookXml))
+			    {
+			        yield break;
+			    }
+
+			    using (var reader = new StringReader(notebookXml))
+			    using (var xmlReader = new XmlTextReader(reader))
+			    {
+			        OneNoteSection currentSection = null;
+			        OneNoteNotebook currentNotebook = null;
+			        while (xmlReader.Read())
+			        {
+			            switch (xmlReader.Name)
+			            {
+			                case "one:Notebook":
+			                {
+			                    var id = xmlReader.GetAttribute("ID");
+			                    if (id != null && (currentNotebook == null || !id.Equals(currentNotebook.ID)))
+			                    {
+			                        currentNotebook = new OneNoteNotebook
+			                        {
+			                            ID = xmlReader.GetAttribute("ID"),
+			                            Name = xmlReader.GetAttribute("name")
+			                        };
+			                    }
+
+			                    break;
+			                }
+			                case "one:Section":
+			                {
+			                    var id = xmlReader.GetAttribute("ID");
+			                    if (id != null && (currentSection == null || !id.Equals(currentSection.ID)))
+			                    {
+			                        currentSection = new OneNoteSection
+			                        {
+			                            ID = xmlReader.GetAttribute("ID"),
+			                            Name = xmlReader.GetAttribute("name"),
+			                            Parent = currentNotebook
+			                        };
+			                    }
+
+			                    break;
+			                }
+			                case "one:Page":
+			                    // Skip deleted items
+			                    if ("true".Equals(xmlReader.GetAttribute("isInRecycleBin")))
+			                    {
+			                        continue;
+			                    }
+			                    var page = new OneNotePage
+			                    {
+			                        Parent = currentSection,
+			                        Name = xmlReader.GetAttribute("name"),
+			                        ID = xmlReader.GetAttribute("ID")
+			                    };
+			                    if (page.ID == null || page.Name == null)
+			                    {
+			                        continue;
+			                    }
+			                    page.IsCurrentlyViewed = "true".Equals(xmlReader.GetAttribute("isCurrentlyViewed"));
+			                    yield return page;
+			                    break;
+			            }
+			        }
+			    }
 			}
 		}
 	}

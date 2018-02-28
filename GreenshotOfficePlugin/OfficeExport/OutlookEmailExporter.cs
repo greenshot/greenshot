@@ -100,11 +100,13 @@ namespace GreenshotOfficePlugin.OfficeExport
 								{
 									using (var currentItem = inspector.CurrentItem)
 									{
-										if (CanExportToInspector(currentItem))
-										{
-											var currentItemClass = currentItem.Class;
-											inspectorCaptions.Add(inspector.Caption, currentItemClass);
-										}
+									    if (!CanExportToInspector(currentItem))
+									    {
+									        continue;
+									    }
+
+									    var currentItemClass = currentItem.Class;
+									    inspectorCaptions.Add(inspector.Caption, currentItemClass);
 									}
 								}
 							}
@@ -221,23 +223,27 @@ namespace GreenshotOfficePlugin.OfficeExport
 						using (var inspector = outlookApplication.Inspectors[i])
 						{
 							var currentCaption = inspector.Caption;
-							if (currentCaption.StartsWith(inspectorCaption))
-							{
-								using (var currentItem = inspector.CurrentItem)
-								{
-									if (CanExportToInspector(currentItem))
-									{
-										try
-										{
-											return ExportToInspector(inspector, currentItem, tmpFile, attachmentName);
-										}
-										catch (Exception exExport)
-										{
-											Log.Error().WriteLine(exExport, "Export to " + currentCaption + " failed.");
-										}
-									}
-								}
-							}
+						    if (!currentCaption.StartsWith(inspectorCaption))
+						    {
+						        continue;
+						    }
+
+						    using (var currentItem = inspector.CurrentItem)
+						    {
+						        if (!CanExportToInspector(currentItem))
+						        {
+						            continue;
+						        }
+
+						        try
+						        {
+						            return ExportToInspector(inspector, currentItem, tmpFile, attachmentName);
+						        }
+						        catch (Exception exExport)
+						        {
+						            Log.Error().WriteLine(exExport, "Export to " + currentCaption + " failed.");
+						        }
+						    }
 						}
 					}
 				}
@@ -621,51 +627,49 @@ namespace GreenshotOfficePlugin.OfficeExport
 				Log.Debug().WriteLine("defaultProfile={0}", defaultProfile);
 				using (var profileKey = profilesKey.OpenSubKey(defaultProfile + @"\" + AccountKey, false))
 				{
-					if (profileKey != null)
-					{
-						var numbers = profileKey.GetSubKeyNames();
-						foreach (var number in numbers)
-						{
-							Log.Debug().WriteLine("Found subkey {0}", number);
-							using (var numberKey = profileKey.OpenSubKey(number, false))
-							{
-								if (numberKey == null)
-								{
-									continue;
-								}
-								var val = (byte[]) numberKey.GetValue(NewSignatureValue);
-								if (val == null)
-								{
-									continue;
-								}
-								var signatureName = "";
-								foreach (var b in val)
-								{
-									if (b != 0)
-									{
-										signatureName += (char) b;
-									}
-								}
-								Log.Debug().WriteLine("Found email signature: {0}", signatureName);
-								string extension;
-								switch (format)
-								{
-									case EmailFormat.Text:
-										extension = ".txt";
-										break;
-									default:
-										extension = ".htm";
-										break;
-								}
-								var signatureFile = Path.Combine(SignaturePath, signatureName + extension);
-								if (File.Exists(signatureFile))
-								{
-									Log.Debug().WriteLine("Found email signature file: {0}", signatureFile);
-									return File.ReadAllText(signatureFile, Encoding.Default);
-								}
-							}
-						}
-					}
+				    if (profileKey == null)
+				    {
+				        return null;
+				    }
+
+				    var numbers = profileKey.GetSubKeyNames();
+				    foreach (var number in numbers)
+				    {
+				        Log.Debug().WriteLine("Found subkey {0}", number);
+				        using (var numberKey = profileKey.OpenSubKey(number, false))
+				        {
+				            var val = (byte[]) numberKey?.GetValue(NewSignatureValue);
+				            if (val == null)
+				            {
+				                continue;
+				            }
+				            var signatureName = "";
+				            foreach (var b in val)
+				            {
+				                if (b != 0)
+				                {
+				                    signatureName += (char) b;
+				                }
+				            }
+				            Log.Debug().WriteLine("Found email signature: {0}", signatureName);
+				            string extension;
+				            switch (format)
+				            {
+				                case EmailFormat.Text:
+				                    extension = ".txt";
+				                    break;
+				                default:
+				                    extension = ".htm";
+				                    break;
+				            }
+				            var signatureFile = Path.Combine(SignaturePath, signatureName + extension);
+				            if (File.Exists(signatureFile))
+				            {
+				                Log.Debug().WriteLine("Found email signature file: {0}", signatureFile);
+				                return File.ReadAllText(signatureFile, Encoding.Default);
+				            }
+				        }
+				    }
 				}
 			}
 			return null;
@@ -693,19 +697,21 @@ namespace GreenshotOfficePlugin.OfficeExport
 				_outlookVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
 			}
 			// Preventing retrieval of currentUser if Outlook is older than 2007
-			if (_outlookVersion.Major >= (int) OfficeVersions.Office2007)
-			{
-				try
-				{
-					var mapiNamespace = outlookApplication.GetNameSpace("MAPI");
-					_currentUser = mapiNamespace.CurrentUser.Name;
-					Log.Info().WriteLine("Current user: {0}", _currentUser);
-				}
-				catch (Exception exNs)
-				{
-					Log.Error().WriteLine(exNs);
-				}
-			}
+		    if (_outlookVersion.Major < (int) OfficeVersions.Office2007)
+		    {
+		        return;
+		    }
+
+		    try
+		    {
+		        var mapiNamespace = outlookApplication.GetNameSpace("MAPI");
+		        _currentUser = mapiNamespace.CurrentUser.Name;
+		        Log.Info().WriteLine("Current user: {0}", _currentUser);
+		    }
+		    catch (Exception exNs)
+		    {
+		        Log.Error().WriteLine(exNs);
+		    }
 		}
 
 		/// <summary>

@@ -90,7 +90,7 @@ namespace Greenshot
         private void SetupBitmapScaleHandler()
         {
             // Create a BitmapScaleHandler which knows how to locate the icons for the destinations
-            _destinationScaleHandler = BitmapScaleHandler.Create<IDestination>(DpiHandler, (destination, dpi) => (Bitmap) destination.GetDisplayIcon(dpi), (bitmap, dpi) => (Bitmap)bitmap.ScaleIconForDisplaying(dpi));
+            _destinationScaleHandler = BitmapScaleHandler.Create<IDestination>(DpiHandler, (destination, dpi) => destination.GetDisplayIcon(dpi), (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));
 
             DpiHandler.OnDpiChangeInfo.Subscribe(info =>
             {

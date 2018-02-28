@@ -541,13 +541,15 @@ namespace GreenshotOfficePlugin.OfficeInterop
 				var mapiProp = (IMAPIProp) Marshal.GetTypedObjectForIUnknown(IUnknown, typeof(IMAPIProp));
 
 				// Create structure
-				propValue = new SPropValue();
-				propValue.propTag = (uint) PropTags.PR_ATTACH_CONTENT_ID;
-				//propValue.propTag = 0x3712001E;
-				// Create Ansi string
-				propValue.Value = Marshal.StringToHGlobalUni(contentId);
+			    propValue = new SPropValue
+			    {
+			        propTag = (uint) PropTags.PR_ATTACH_CONTENT_ID,
+			        Value = Marshal.StringToHGlobalUni(contentId)
+			    };
+			    //propValue.propTag = 0x3712001E;
+			    // Create Ansi string
 
-				// Create unmanaged memory for structure
+			    // Create unmanaged memory for structure
 				ptrPropValue = Marshal.AllocHGlobal(Marshal.SizeOf(propValue));
 				// Copy structure to unmanged memory
 				Marshal.StructureToPtr(propValue, ptrPropValue, false);
@@ -635,12 +637,14 @@ namespace GreenshotOfficePlugin.OfficeInterop
 				}
 
 				// Create structure
-				propValue = new SPropValue();
-				propValue.propTag = (uint) proptag;
-				// Create Ansi string
-				propValue.Value = Marshal.StringToHGlobalUni(propertyValue);
+			    propValue = new SPropValue
+			    {
+			        propTag = (uint) proptag,
+			        Value = Marshal.StringToHGlobalUni(propertyValue)
+			    };
+			    // Create Ansi string
 
-				// Create unmanaged memory for structure
+			    // Create unmanaged memory for structure
 				ptrPropValue = Marshal.AllocHGlobal(Marshal.SizeOf(propValue));
 				// Copy structure to unmanged memory
 				Marshal.StructureToPtr(propValue, ptrPropValue, false);

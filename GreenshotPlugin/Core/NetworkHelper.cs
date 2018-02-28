@@ -264,40 +264,43 @@ namespace GreenshotPlugin.Core
 		/// <returns>IWebProxy filled with all the proxy details or null if none is set/wanted</returns>
 		public static IWebProxy CreateProxy(Uri uri)
 		{
-			IWebProxy proxyToUse = null;
-			if (Config.UseProxy)
-			{
-				proxyToUse = WebRequest.DefaultWebProxy;
-				if (proxyToUse != null)
-				{
-					proxyToUse.Credentials = CredentialCache.DefaultCredentials;
-					if (Log.IsDebugEnabled())
-					{
-						// check the proxy for the Uri
-						if (!proxyToUse.IsBypassed(uri))
-						{
-							var proxyUri = proxyToUse.GetProxy(uri);
-							if (proxyUri != null)
-							{
-								Log.Debug().WriteLine("Using proxy: " + proxyUri + " for " + uri);
-							}
-							else
-							{
-								Log.Debug().WriteLine("No proxy found!");
-							}
-						}
-						else
-						{
-							Log.Debug().WriteLine("Proxy bypass for: " + uri);
-						}
-					}
-				}
-				else
-				{
-					Log.Debug().WriteLine("No proxy found!");
-				}
-			}
-			return proxyToUse;
+		    if (!Config.UseProxy)
+		    {
+		        return null;
+		    }
+
+		    IWebProxy proxyToUse = WebRequest.DefaultWebProxy;
+		    if (proxyToUse != null)
+		    {
+		        proxyToUse.Credentials = CredentialCache.DefaultCredentials;
+		        if (!Log.IsDebugEnabled())
+		        {
+		            return proxyToUse;
+		        }
+
+		        // check the proxy for the Uri
+		        if (!proxyToUse.IsBypassed(uri))
+		        {
+		            var proxyUri = proxyToUse.GetProxy(uri);
+		            if (proxyUri != null)
+		            {
+		                Log.Debug().WriteLine("Using proxy: " + proxyUri + " for " + uri);
+		            }
+		            else
+		            {
+		                Log.Debug().WriteLine("No proxy found!");
+		            }
+		        }
+		        else
+		        {
+		            Log.Debug().WriteLine("Proxy bypass for: " + uri);
+		        }
+		    }
+		    else
+		    {
+		        Log.Debug().WriteLine("No proxy found!");
+		    }
+		    return proxyToUse;
 		}
 
 		/// <summary>
@@ -308,12 +311,13 @@ namespace GreenshotPlugin.Core
 		// [Obsolete("Use System.Uri.EscapeDataString instead")]
 		public static string UrlEncode(string text)
 		{
-			if (!string.IsNullOrEmpty(text))
-			{
-				// Sytem.Uri provides reliable parsing, but doesn't encode spaces.
-				return Uri.EscapeDataString(text).Replace("%20", "+");
-			}
-			return null;
+		    if (string.IsNullOrEmpty(text))
+		    {
+		        return null;
+		    }
+
+		    // Sytem.Uri provides reliable parsing, but doesn't encode spaces.
+		    return Uri.EscapeDataString(text).Replace("%20", "+");
 		}
 
 		/// <summary>
@@ -324,19 +328,20 @@ namespace GreenshotPlugin.Core
 		/// <returns>escaped data string</returns>
 		public static string EscapeDataString(string text)
 		{
-			if (!string.IsNullOrEmpty(text))
-			{
-				var result = new StringBuilder();
-				var currentLocation = 0;
-				while (currentLocation < text.Length)
-				{
-					var process = text.Substring(currentLocation, Math.Min(16384, text.Length - currentLocation));
-					result.Append(Uri.EscapeDataString(process));
-					currentLocation = currentLocation + 16384;
-				}
-				return result.ToString();
-			}
-			return null;
+		    if (string.IsNullOrEmpty(text))
+		    {
+		        return null;
+		    }
+
+		    var result = new StringBuilder();
+		    var currentLocation = 0;
+		    while (currentLocation < text.Length)
+		    {
+		        var process = text.Substring(currentLocation, Math.Min(16384, text.Length - currentLocation));
+		        result.Append(Uri.EscapeDataString(process));
+		        currentLocation = currentLocation + 16384;
+		    }
+		    return result.ToString();
 		}
 
 		/// <summary>
@@ -521,7 +526,6 @@ namespace GreenshotPlugin.Core
 		/// <returns>string or null</returns>
 		private static string GetResponseAsString(HttpWebResponse response)
 		{
-			string responseData = null;
 			if (response == null)
 			{
 				return null;
@@ -529,15 +533,16 @@ namespace GreenshotPlugin.Core
 			using (response)
 			{
 				var responseStream = response.GetResponseStream();
-				if (responseStream != null)
-				{
-					using (var reader = new StreamReader(responseStream, true))
-					{
-						responseData = reader.ReadToEnd();
-					}
-				}
+			    if (responseStream == null)
+			    {
+			        return null;
+			    }
+
+			    using (var reader = new StreamReader(responseStream, true))
+			    {
+			        return reader.ReadToEnd();
+			    }
 			}
-			return responseData;
 		}
 
 		/// <summary>

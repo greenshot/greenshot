@@ -24,7 +24,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
-using Dapplo.Addons;
 using Dapplo.CaliburnMicro;
 using Dapplo.Log;
 using Greenshot.Destinations;
