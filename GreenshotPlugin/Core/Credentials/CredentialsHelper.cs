@@ -356,7 +356,7 @@ namespace GreenshotPlugin.Core.Credentials
 		/// <returns>Returns a DialogResult indicating the user action.</returns>
 		public DialogResult Show(IWin32Window owner, string name, string password, bool saveChecked)
 		{
-			if (WindowsVersion.IsWindowsXpOrLater)
+			if (!WindowsVersion.IsWindowsXpOrLater)
 			{
 				throw new ApplicationException("The Credential Management API requires Windows XP / Windows Server 2003 or later.");
 			}

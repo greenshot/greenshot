@@ -43,14 +43,14 @@ namespace GreenshotImgurPlugin {
     [Export(typeof(IGreenshotPlugin))]
     public class ImgurPlugin : IGreenshotPlugin {
 	    private static readonly LogSource Log = new LogSource();
-		private readonly ImgurConfiguration _imgurConfiguration;
+		private readonly IImgurConfiguration _imgurConfiguration;
 		private readonly IGreenshotHost _greenshotHost;
 		private ComponentResourceManager _resources;
 		private ToolStripMenuItem _historyMenuItem;
 		private ToolStripMenuItem _itemPlugInConfig;
 
         [ImportingConstructor]
-        public ImgurPlugin(IGreenshotHost greenshotGreenshotHost, ImgurConfiguration imgurConfiguration)
+        public ImgurPlugin(IGreenshotHost greenshotGreenshotHost, IImgurConfiguration imgurConfiguration)
         {
             _greenshotHost = greenshotGreenshotHost;
             _imgurConfiguration = imgurConfiguration;
@@ -61,7 +61,7 @@ namespace GreenshotImgurPlugin {
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing) {
+		protected void Dispose(bool disposing) {
 			if (disposing) {
 				if (_historyMenuItem != null) {
 					_historyMenuItem.Dispose();
@@ -75,8 +75,8 @@ namespace GreenshotImgurPlugin {
 		}
 
 		public IEnumerable<IDestination> Destinations() {
-			yield return new ImgurDestination(this);
-		}
+		    yield break;
+        }
 
 		public IEnumerable<IProcessor> Processors() {
 			yield break;
@@ -145,74 +145,9 @@ namespace GreenshotImgurPlugin {
 			}
 		}
 
-		public virtual void Shutdown() {
+		public void Shutdown() {
 			Log.Debug().WriteLine("Imgur Plugin shutdown.");
 			Language.LanguageChanged -= OnLanguageChanged;
-		}
-
-		/// <summary>
-		/// Upload the capture to imgur
-		/// </summary>
-		/// <param name="captureDetails">ICaptureDetails</param>
-		/// <param name="surfaceToUpload">ISurface</param>
-		/// <param name="uploadUrl">out string for the url</param>
-		/// <returns>true if the upload succeeded</returns>
-		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl) {
-			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_imgurConfiguration.UploadFormat, _imgurConfiguration.UploadJpegQuality, _imgurConfiguration.UploadReduceColors);
-			try {
-				string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(_imgurConfiguration.FilenamePattern, _imgurConfiguration.UploadFormat, captureDetails));
-				ImgurInfo imgurInfo = null;
-
-				// Run upload in the background
-				new PleaseWaitForm().ShowAndWait("Imgur plug-in", Language.GetString("imgur", LangKey.communication_wait),
-					delegate
-					{
-						imgurInfo = ImgurUtils.UploadToImgur(surfaceToUpload, outputSettings, captureDetails.Title, filename);
-						if (imgurInfo != null && _imgurConfiguration.AnonymousAccess) {
-							Log.Info().WriteLine("Storing imgur upload for hash {0} and delete hash {1}", imgurInfo.Hash, imgurInfo.DeleteHash);
-							_imgurConfiguration.ImgurUploadHistory.Add(imgurInfo.Hash, imgurInfo.DeleteHash);
-							_imgurConfiguration.RuntimeImgurHistory.Add(imgurInfo.Hash, imgurInfo);
-							UpdateHistoryMenuItem();
-						}
-					}
-				);
-
-				if (imgurInfo != null) {
-					// TODO: Optimize a second call for export
-					using (var tmpImage = surfaceToUpload.GetBitmapForExport())
-					{
-						imgurInfo.Image = tmpImage.CreateThumbnail(90, 90);
-					}
-
-					if (_imgurConfiguration.UsePageLink)
-					{
-						uploadUrl = imgurInfo.Page;
-					}
-					else
-					{
-						uploadUrl = imgurInfo.Original;
-					}
-					if (!string.IsNullOrEmpty(uploadUrl) && _imgurConfiguration.CopyLinkToClipboard)
-					{
-						try
-						{
-							ClipboardHelper.SetClipboardData(uploadUrl);
-
-						}
-						catch (Exception ex)
-						{
-							Log.Error().WriteLine(ex, "Can't write to clipboard: ");
-							uploadUrl = null;
-						}
-					}
-					return true;
-				}
-			} catch (Exception e) {
-				Log.Error().WriteLine(e, "Error uploading.");
-				MessageBox.Show(Language.GetString("imgur", LangKey.upload_failure) + " " + e.Message);
-			}
-			uploadUrl = null;
-			return false;
 		}
 	}
 }

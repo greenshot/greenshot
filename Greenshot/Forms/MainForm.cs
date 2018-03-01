@@ -71,9 +71,8 @@ namespace Greenshot.Forms
     public partial class MainForm : BaseForm, IGreenshotHost
     {
         private static readonly LogSource Log = new LogSource();
-        private static ICoreConfiguration _coreConfiguration;
+        private readonly ICoreConfiguration _coreConfiguration;
         private readonly IEnumerable<IDestination> _destinations;
-        public static string LogFileLocation;
 
         // Timer for the double click test
         private readonly Timer _doubleClickTimer = new Timer();
@@ -81,7 +80,6 @@ namespace Greenshot.Forms
         private AboutForm _aboutForm;
         // Make sure we have only one settings form
         private SettingsForm _settingsForm;
-
         // Thumbnail preview
         private ThumbnailForm _thumbnailForm;
 
@@ -93,7 +91,6 @@ namespace Greenshot.Forms
             _coreConfiguration = coreConfiguration;
             _destinations = destinations;
             Instance = this;
-            PluginUtils.Host = this;
         }
 
         public void Initialize()
@@ -1007,17 +1004,18 @@ namespace Greenshot.Forms
                 Text = Language.GetString(LangKey.settings_printoptions)
             };
 
-            foreach (var outputPrintIniValue in _coreConfiguration.GetIniValues().Values.Where(value => value.PropertyName.StartsWith("OutputPrint")))
+            foreach (var outputPrintIniValue in _coreConfiguration.GetIniValues().Values.Where(value => value.PropertyName.StartsWith("OutputPrint") && value.ValueType == typeof(bool) && !_coreConfiguration.IsWriteProtected(value.PropertyName)))
             {
-                if (!_coreConfiguration.IsWriteProtected(outputPrintIniValue.PropertyName))
-                {
-                    selectList.AddItem(Language.GetString(outputPrintIniValue.PropertyName), outputPrintIniValue, (bool) outputPrintIniValue.Value);
-                }
+                selectList.AddItem(Language.GetString(outputPrintIniValue.PropertyName), outputPrintIniValue, (bool) outputPrintIniValue.Value);
             }
             if (selectList.DropDownItems.Count > 0)
             {
                 selectList.CheckedChanged += QuickSettingBoolItemChanged;
                 contextmenu_quicksettings.DropDownItems.Add(selectList);
+            }
+            else
+            {
+                selectList.Dispose();
             }
 
             // effects
@@ -1043,6 +1041,10 @@ namespace Greenshot.Forms
             {
                 selectList.CheckedChanged += QuickSettingBoolItemChanged;
                 contextmenu_quicksettings.DropDownItems.Add(selectList);
+            }
+            else
+            {
+                selectList.Dispose();
             }
         }
 

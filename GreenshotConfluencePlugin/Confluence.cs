@@ -25,8 +25,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Windows.Forms;
-using Dapplo.Ini;
 using Dapplo.Log;
 using GreenshotConfluencePlugin.Web_References.confluence;
 using GreenshotPlugin.Core;
@@ -36,75 +36,18 @@ using GreenshotPlugin.Core.Credentials;
 
 namespace GreenshotConfluencePlugin
 {
-
-	#region transport classes
-
-	public class Page
-	{
-		public Page(RemotePage page)
-		{
-			Id = page.id;
-			Title = page.title;
-			SpaceKey = page.space;
-			Url = page.url;
-			Content = page.content;
-		}
-
-		public Page(RemoteSearchResult searchResult, string space)
-		{
-			Id = searchResult.id;
-			Title = searchResult.title;
-			SpaceKey = space;
-			Url = searchResult.url;
-			Content = searchResult.excerpt;
-		}
-
-		public Page(RemotePageSummary pageSummary)
-		{
-			Id = pageSummary.id;
-			Title = pageSummary.title;
-			SpaceKey = pageSummary.space;
-			Url = pageSummary.url;
-		}
-
-		public long Id { get; set; }
-
-		public string Title { get; set; }
-
-		public string Url { get; set; }
-
-		public string Content { get; set; }
-
-		public string SpaceKey { get; set; }
-	}
-
-	public class Space
-	{
-		public Space(RemoteSpaceSummary space)
-		{
-			Key = space.key;
-			Name = space.name;
-		}
-
-		public string Key { get; set; }
-
-		public string Name { get; set; }
-	}
-
-	#endregion
-
 	/// <summary>
 	///     For details see the Confluence API site
 	///     See: http://confluence.atlassian.com/display/CONFDEV/Remote+API+Specification
 	/// </summary>
+	[Export]
 	public class ConfluenceConnector : IDisposable
 	{
 		private const string AuthFailedExceptionName = "com.atlassian.confluence.rpc.AuthenticationFailedException";
 		private const string V2Failed = "AXIS";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly IConfluenceConfiguration Config = IniConfig.Current.Get<IConfluenceConfiguration>();
-		private readonly Cache<string, RemotePage> _pageCache = new Cache<string, RemotePage>(60 * Config.Timeout);
-		private readonly int _timeout;
+		private readonly IConfluenceConfiguration _confluenceConfig;
+		private readonly Cache<string, RemotePage> _pageCache;
 		private ConfluenceSoapServiceService _confluence;
 		private string _credentials;
 		private DateTime _loggedInTime = DateTime.Now;
@@ -115,12 +58,12 @@ namespace GreenshotConfluencePlugin
 	    public const string DEFAULT_PREFIX = "http://";
 	    private const string DEFAULT_URL = DEFAULT_PREFIX + "confluence";
 
-
-        public ConfluenceConnector(string url, int timeout)
-		{
-			_timeout = timeout;
-			Init(url);
-		}
+        [ImportingConstructor]
+        public ConfluenceConnector(IConfluenceConfiguration confluenceConfiguration)
+        {
+            _confluenceConfig = confluenceConfiguration;
+            _pageCache = new Cache<string, RemotePage>(60 * _confluenceConfig.Timeout);
+        }
 
 		public bool IsLoggedIn { get; private set; }
 
@@ -254,7 +197,7 @@ namespace GreenshotConfluencePlugin
 		{
 			if (IsLoggedIn)
 			{
-				if (_loggedInTime.AddMinutes(_timeout - 1).CompareTo(DateTime.Now) < 0)
+				if (_loggedInTime.AddMinutes(_confluenceConfig.Timeout - 1).CompareTo(DateTime.Now) < 0)
 				{
 					Logout();
 					Login();

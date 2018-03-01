@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -34,7 +35,6 @@ using Dapplo.Jira.Entities;
 using GreenshotJiraPlugin.Forms;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
@@ -43,24 +43,28 @@ using Dapplo.Log;
 
 namespace GreenshotJiraPlugin
 {
-	/// <summary>
-	///     Description of JiraDestination.
-	/// </summary>
-	public class JiraDestination : AbstractDestination
+    /// <summary>
+    ///     Description of JiraDestination.
+    /// </summary>
+    [Export(typeof(IDestination))]
+    public class JiraDestination : AbstractDestination
 	{
-		private static readonly LogSource Log = new LogSource();
-		private static readonly IJiraConfiguration Config = IniConfig.Current.Get<IJiraConfiguration>();
+	    private static readonly LogSource Log = new LogSource();
 		private readonly Issue _jiraIssue;
-		private readonly JiraPlugin _jiraPlugin;
+	    private readonly JiraConnector _jiraConnector;
+	    private readonly IJiraConfiguration _jiraConfiguration;
 
-		public JiraDestination(JiraPlugin jiraPlugin)
-		{
-			_jiraPlugin = jiraPlugin;
-		}
+        [ImportingConstructor]
+		public JiraDestination(IJiraConfiguration jiraConfiguration, JiraConnector jiraConnector)
+        {
+            _jiraConfiguration = jiraConfiguration;
+            _jiraConnector = jiraConnector;
+        }
 
-		public JiraDestination(JiraPlugin jiraPlugin, Issue jiraIssue)
+		public JiraDestination(IJiraConfiguration jiraConfiguration, JiraConnector jiraConnector, Issue jiraIssue)
 		{
-			_jiraPlugin = jiraPlugin;
+		    _jiraConfiguration = jiraConfiguration;
+		    _jiraConnector = jiraConnector;
 			_jiraIssue = jiraIssue;
 		}
 
@@ -79,7 +83,7 @@ namespace GreenshotJiraPlugin
 			}
 		}
 
-		public override bool IsActive => base.IsActive && !string.IsNullOrEmpty(Config.Url);
+		public override bool IsActive => base.IsActive && !string.IsNullOrEmpty(_jiraConfiguration.Url);
 
 		public override bool IsDynamic => true;
 
@@ -88,15 +92,14 @@ namespace GreenshotJiraPlugin
 			get
 			{
 			    Bitmap displayIcon = null;
-				var jiraConnector = JiraPlugin.Instance.CurrentJiraConnector;
-				if (jiraConnector != null)
+				if (_jiraConnector != null)
 				{
 					if (_jiraIssue != null)
 					{
 						// Try to get the issue type as icon
 						try
 						{
-							displayIcon = jiraConnector.GetIssueTypeBitmapAsync(_jiraIssue).Result;
+							displayIcon = _jiraConnector.GetIssueTypeBitmapAsync(_jiraIssue).Result;
 						}
 						catch (Exception ex)
 						{
@@ -105,7 +108,7 @@ namespace GreenshotJiraPlugin
 					}
 					if (displayIcon == null)
 					{
-						displayIcon = jiraConnector.FavIcon;
+						displayIcon = _jiraConnector.FavIcon;
 					}
 				}
 				if (displayIcon == null)
@@ -119,22 +122,21 @@ namespace GreenshotJiraPlugin
 
 		public override IEnumerable<IDestination> DynamicDestinations()
 		{
-			var jiraConnector = JiraPlugin.Instance.CurrentJiraConnector;
-			if (jiraConnector == null || !jiraConnector.IsLoggedIn)
+			if (_jiraConnector == null || !_jiraConnector.IsLoggedIn)
 			{
 				yield break;
 			}
-			foreach (var jiraDetails in jiraConnector.Monitor.RecentJiras)
+			foreach (var jiraDetails in _jiraConnector.Monitor.RecentJiras)
 			{
-				yield return new JiraDestination(_jiraPlugin, jiraDetails.JiraIssue);
+				yield return new JiraDestination(_jiraConfiguration, _jiraConnector, jiraDetails.JiraIssue);
 			}
 		}
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surfaceToUpload, ICaptureDetails captureDetails)
+		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
-			var filename = Path.GetFileName(FilenameHelper.GetFilename(Config.UploadFormat, captureDetails));
-			var outputSettings = new SurfaceOutputSettings(Config.UploadFormat, Config.UploadJpegQuality, Config.UploadReduceColors);
+			var filename = Path.GetFileName(FilenameHelper.GetFilename(_jiraConfiguration.UploadFormat, captureDetails));
+			var outputSettings = new SurfaceOutputSettings(_jiraConfiguration.UploadFormat, _jiraConfiguration.UploadJpegQuality, _jiraConfiguration.UploadReduceColors);
 			if (_jiraIssue != null)
 			{
 				try
@@ -143,14 +145,14 @@ namespace GreenshotJiraPlugin
 					new PleaseWaitForm().ShowAndWait(Description, Language.GetString("jira", LangKey.communication_wait),
 						async () =>
 						{
-							var surfaceContainer = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
-							await _jiraPlugin.JiraConnector.AttachAsync(_jiraIssue.Key, surfaceContainer);
-							surfaceToUpload.UploadUrl = _jiraPlugin.JiraConnector.JiraBaseUri.AppendSegments("browse", _jiraIssue.Key).AbsoluteUri;
+							var surfaceContainer = new SurfaceContainer(surface, outputSettings, filename);
+							await _jiraConnector.AttachAsync(_jiraIssue.Key, surfaceContainer);
+							surface.UploadUrl = _jiraConnector.JiraBaseUri.AppendSegments("browse", _jiraIssue.Key).AbsoluteUri;
 						}
 					);
 					Log.Debug().WriteLine("Uploaded to Jira {0}", _jiraIssue.Key);
 					exportInformation.ExportMade = true;
-					exportInformation.Uri = surfaceToUpload.UploadUrl;
+					exportInformation.Uri = surface.UploadUrl;
 				}
 				catch (Exception e)
 				{
@@ -159,21 +161,21 @@ namespace GreenshotJiraPlugin
 			}
 			else
 			{
-				var jiraForm = new JiraForm(_jiraPlugin.JiraConnector);
+				var jiraForm = new JiraForm(_jiraConnector);
 				jiraForm.SetFilename(filename);
 				var dialogResult = jiraForm.ShowDialog();
 				if (dialogResult == DialogResult.OK)
 				{
 					try
 					{
-						surfaceToUpload.UploadUrl = _jiraPlugin.JiraConnector.JiraBaseUri.AppendSegments("browse", jiraForm.GetJiraIssue().Key).AbsoluteUri;
+						surface.UploadUrl = _jiraConnector.JiraBaseUri.AppendSegments("browse", jiraForm.GetJiraIssue().Key).AbsoluteUri;
 						// Run upload in the background
 						new PleaseWaitForm().ShowAndWait(Description, Language.GetString("jira", LangKey.communication_wait),
-							async () => { await jiraForm.UploadAsync(new SurfaceContainer(surfaceToUpload, outputSettings, filename)); }
+							async () => { await jiraForm.UploadAsync(new SurfaceContainer(surface, outputSettings, filename)); }
 						);
 						Log.Debug().WriteLine("Uploaded to Jira {0}", jiraForm.GetJiraIssue().Key);
 						exportInformation.ExportMade = true;
-						exportInformation.Uri = surfaceToUpload.UploadUrl;
+						exportInformation.Uri = surface.UploadUrl;
 					}
 					catch (Exception e)
 					{
@@ -181,7 +183,7 @@ namespace GreenshotJiraPlugin
 					}
 				}
 			}
-			ProcessExport(exportInformation, surfaceToUpload);
+			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
 	}

@@ -57,11 +57,6 @@ namespace GreenshotPlugin.Core
 		}
 
 		/// <summary>
-		///     Simple global property to get the Greenshot host
-		/// </summary>
-		public static IGreenshotHost Host { get; set; }
-
-		/// <summary>
 		///     Clear icon cache
 		/// </summary>
 		/// <param name="sender"></param>

@@ -44,7 +44,7 @@ namespace Greenshot.Destinations
     public class PrinterDestination : AbstractDestination
 	{
 		public const string DESIGNATION = "Printer";
-		public readonly string printerName;
+		private readonly string _printerName;
 
 		public PrinterDestination()
 		{
@@ -52,47 +52,32 @@ namespace Greenshot.Destinations
 
 		public PrinterDestination(string printerName)
 		{
-			this.printerName = printerName;
+			_printerName = printerName;
 		}
 
-		public override string Designation
-		{
-			get { return DESIGNATION; }
-		}
+		public override string Designation => DESIGNATION;
 
-		public override string Description
+	    public override string Description
 		{
 			get
 			{
-				if (printerName != null)
+				if (_printerName != null)
 				{
-					return Language.GetString(LangKey.settings_destination_printer) + " - " + printerName;
+					return Language.GetString(LangKey.settings_destination_printer) + " - " + _printerName;
 				}
 				return Language.GetString(LangKey.settings_destination_printer);
 			}
 		}
 
-		public override int Priority
-		{
-			get { return 2; }
-		}
+		public override int Priority => 2;
 
-		public override Keys EditorShortcutKeys
-		{
-			get { return Keys.Control | Keys.P; }
-		}
+	    public override Keys EditorShortcutKeys => Keys.Control | Keys.P;
 
-		public override Bitmap DisplayIcon
-		{
-			get { return GreenshotResources.GetBitmap("Printer.Image"); }
-		}
+	    public override Bitmap DisplayIcon => GreenshotResources.GetBitmap("Printer.Image");
 
-		public override bool IsDynamic
-		{
-			get { return true; }
-		}
+	    public override bool IsDynamic => true;
 
-		/// <summary>
+	    /// <summary>
 		///     Create destinations for all the installed printers
 		/// </summary>
 		/// <returns>IEnumerable of IDestination</returns>
@@ -135,11 +120,11 @@ namespace Greenshot.Destinations
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
 			PrinterSettings printerSettings;
-			if (!string.IsNullOrEmpty(printerName))
+			if (!string.IsNullOrEmpty(_printerName))
 			{
 				using (var printHelper = new PrintHelper(surface, captureDetails))
 				{
-					printerSettings = printHelper.PrintTo(printerName);
+					printerSettings = printHelper.PrintTo(_printerName);
 				}
 			}
 			else if (!manuallyInitiated)

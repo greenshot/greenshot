@@ -19,11 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Windows.Dpi;
 using Greenshot.Controls;
-using GreenshotPlugin.Controls;
 
-namespace Greenshot {
+namespace Greenshot.Forms {
 	partial class ImageEditorForm {
 		/// <summary>
 		/// Designer variable used to keep track of non-visual components.

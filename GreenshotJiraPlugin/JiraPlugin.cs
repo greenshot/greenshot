@@ -45,42 +45,24 @@ namespace GreenshotJiraPlugin
     [Export(typeof(IGreenshotPlugin))]
     public sealed class JiraPlugin : IGreenshotPlugin
 	{
+	    private static readonly LogSource Log = new LogSource();
 	    private readonly IGreenshotHost _greenshotHost;
 	    private readonly ICoreConfiguration _coreConfiguration;
 	    private readonly IJiraConfiguration _jiraConfiguration;
-	    private static readonly LogSource Log = new LogSource();
+	    private readonly JiraConnector _jiraConnector;
 
-		private JiraConnector _jiraConnector;
 
         [ImportingConstructor]
-		public JiraPlugin(IGreenshotHost greenshotHost, ICoreConfiguration coreConfiguration, IJiraConfiguration jiraConfiguration)
+		public JiraPlugin(IGreenshotHost greenshotHost, ICoreConfiguration coreConfiguration, IJiraConfiguration jiraConfiguration, JiraConnector jiraConnector)
         {
             _greenshotHost = greenshotHost;
             _coreConfiguration = coreConfiguration;
             _jiraConfiguration = jiraConfiguration;
+            _jiraConnector = jiraConnector;
             Instance = this;
         }
 
 		public static JiraPlugin Instance { get; private set; }
-
-		//Needed for a fail-fast
-		public JiraConnector CurrentJiraConnector => JiraConnector;
-
-		public JiraConnector JiraConnector
-		{
-			get
-			{
-				lock (Instance)
-				{
-					if (_jiraConnector == null)
-					{
-						JiraConnector = new JiraConnector();
-					}
-				}
-				return _jiraConnector;
-			}
-			private set { _jiraConnector = value; }
-		}
 
 		public void Dispose()
 		{
@@ -89,8 +71,8 @@ namespace GreenshotJiraPlugin
 
 		public IEnumerable<IDestination> Destinations()
 		{
-			yield return new JiraDestination(this);
-		}
+		    yield break;
+        }
 
 		public IEnumerable<IProcessor> Processors()
 		{
@@ -107,7 +89,7 @@ namespace GreenshotJiraPlugin
 			{
 				var size = DpiHandler.ScaleWithDpi(_coreConfiguration.IconSize.Width, dpi);
 
-				JiraConnector.UpdateSvgSize(size);
+			    _jiraConnector.UpdateSvgSize(size);
 			});
 
 			return true;
@@ -116,9 +98,9 @@ namespace GreenshotJiraPlugin
 		public void Shutdown()
 		{
 			Log.Debug().WriteLine("Jira Plugin shutdown.");
-			if (JiraConnector != null)
+			if (_jiraConnector != null)
 			{
-				Task.Run(async () => await JiraConnector.LogoutAsync());
+				Task.Run(async () => await _jiraConnector.LogoutAsync());
 			}
 		}
 
@@ -133,7 +115,7 @@ namespace GreenshotJiraPlugin
 				return;
 			}
 			// check for re-login
-			if (JiraConnector == null || !JiraConnector.IsLoggedIn || string.IsNullOrEmpty(url))
+			if (_jiraConnector == null || !_jiraConnector.IsLoggedIn || string.IsNullOrEmpty(url))
 			{
 				return;
 			}
@@ -141,8 +123,8 @@ namespace GreenshotJiraPlugin
 			{
 				Task.Run(async () =>
 				{
-					await JiraConnector.LogoutAsync();
-					await JiraConnector.LoginAsync();
+					await _jiraConnector.LogoutAsync();
+					await _jiraConnector.LoginAsync();
 				});
 			}
 		}
@@ -153,12 +135,11 @@ namespace GreenshotJiraPlugin
 			{
 				return;
 			}
-			if (JiraConnector == null)
+			if (_jiraConnector == null)
 			{
 				return;
 			}
-			JiraConnector.Dispose();
-			JiraConnector = null;
+		    _jiraConnector.Dispose();
 		}
 
 		/// <summary>

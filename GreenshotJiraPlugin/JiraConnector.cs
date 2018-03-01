@@ -25,6 +25,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Threading;
@@ -47,25 +48,24 @@ namespace GreenshotJiraPlugin
 	/// <summary>
 	///     This encapsulates the JiraClient to make it possible to change as less old Greenshot code as needed
 	/// </summary>
+	[Export]
 	public class JiraConnector : IDisposable
 	{
-		// Used to remove the wsdl information from the old SOAP Uri
+	    private readonly IJiraConfiguration _jiraConfiguration;
+
+	    // Used to remove the wsdl information from the old SOAP Uri
 		public const string DefaultPostfix = "/rpc/soap/jirasoapservice-v2?wsdl";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly IJiraConfiguration JiraConfig = IniConfig.Current.Get<IJiraConfiguration>();
-		private readonly int _timeout;
 		private IssueTypeBitmapCache _issueTypeBitmapCache;
 		private readonly IJiraClient _jiraClient;
 		private DateTimeOffset _loggedInTime = DateTimeOffset.MinValue;
 
-		/// <summary>
-		///     Constructor
-		/// </summary>
-		public JiraConnector()
+		[ImportingConstructor]
+		public JiraConnector(IJiraConfiguration jiraConfiguration)
 		{
-			JiraConfig.Url = JiraConfig.Url.Replace(DefaultPostfix, "");
-			_timeout = JiraConfig.Timeout;
-			_jiraClient = JiraClient.Create(new Uri(JiraConfig.Url));
+		    jiraConfiguration.Url = jiraConfiguration.Url.Replace(DefaultPostfix, "");
+		    _jiraConfiguration = jiraConfiguration;
+			_jiraClient = JiraClient.Create(new Uri(jiraConfiguration.Url));
 		}
 
 		/// <summary>
@@ -149,7 +149,7 @@ namespace GreenshotJiraPlugin
 			try
 			{
 				// Get the system name, so the user knows where to login to
-				var credentialsDialog = new CredentialsDialog(JiraConfig.Url)
+				var credentialsDialog = new CredentialsDialog(_jiraConfiguration.Url)
 				{
 					Name = null
 				};
@@ -210,7 +210,7 @@ namespace GreenshotJiraPlugin
 		{
 			if (IsLoggedIn)
 			{
-				if (_loggedInTime.AddMinutes(_timeout - 1).CompareTo(DateTime.Now) < 0)
+				if (_loggedInTime.AddMinutes(_jiraConfiguration.Timeout - 1).CompareTo(DateTime.Now) < 0)
 				{
 					await LogoutAsync(cancellationToken);
 					await LoginAsync(cancellationToken);

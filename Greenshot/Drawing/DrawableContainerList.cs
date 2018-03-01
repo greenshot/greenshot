@@ -32,6 +32,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Forms;
 using GreenshotPlugin.Interfaces;
 
 namespace Greenshot.Drawing {

@@ -23,32 +23,51 @@
 
 #region Usings
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.Composition;
 using System.Drawing;
+using System.IO;
+using System.Windows.Forms;
+using Dapplo.Log;
+using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 #endregion
 
 namespace GreenshotPhotobucketPlugin
 {
-	/// <summary>
-	///     Description of PhotobucketDestination.
-	/// </summary>
-	public class PhotobucketDestination : AbstractDestination
+    /// <summary>
+    ///     Description of PhotobucketDestination.
+    /// </summary>
+    [Export(typeof(IDestination))]
+    public class PhotobucketDestination : AbstractDestination
 	{
-		private readonly string _albumPath;
-		private readonly PhotobucketPlugin _plugin;
+	    private static readonly LogSource Log = new LogSource();
+        private readonly string _albumPath;
+		private readonly IPhotobucketConfiguration _photobucketConfiguration;
 
-		/// <summary>
-		///     Create a Photobucket destination, which also has the path to the album in it
-		/// </summary>
-		/// <param name="plugin"></param>
-		/// <param name="albumPath">path to the album, null for default</param>
-		public PhotobucketDestination(PhotobucketPlugin plugin, string albumPath)
+        /// <summary>
+        ///     Create a Photobucket destination
+        /// </summary>
+        /// <param name="photobucketConfiguration">IPhotobucketConfiguration</param>
+        [ImportingConstructor]
+        public PhotobucketDestination(IPhotobucketConfiguration photobucketConfiguration)
+	    {
+	        _photobucketConfiguration = photobucketConfiguration;
+	    }
+
+        /// <summary>
+        ///     Create a Photobucket destination, which also has the path to the album in it
+        /// </summary>
+        /// <param name="photobucketConfiguration">IPhotobucketConfiguration</param>
+        /// <param name="albumPath">path to the album, null for default</param>
+        public PhotobucketDestination(IPhotobucketConfiguration photobucketConfiguration, string albumPath) : this (photobucketConfiguration)
 		{
-			_plugin = plugin;
+			_photobucketConfiguration = photobucketConfiguration;
 			_albumPath = albumPath;
 		}
 
@@ -95,7 +114,7 @@ namespace GreenshotPhotobucketPlugin
 			}
 			foreach (var album in albums)
 			{
-				yield return new PhotobucketDestination(_plugin, album);
+				yield return new PhotobucketDestination(_photobucketConfiguration, album);
 			}
 		}
 
@@ -109,7 +128,7 @@ namespace GreenshotPhotobucketPlugin
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
-		    var uploaded = _plugin.Upload(captureDetails, surface, _albumPath, out var uploadUrl);
+		    var uploaded = Upload(captureDetails, surface, _albumPath, out var uploadUrl);
 			if (uploaded)
 			{
 				exportInformation.ExportMade = true;
@@ -118,5 +137,57 @@ namespace GreenshotPhotobucketPlugin
 			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
-	}
+
+
+	    /// <summary>
+	    ///     Upload the capture to Photobucket
+	    /// </summary>
+	    /// <param name="captureDetails"></param>
+	    /// <param name="surfaceToUpload">ISurface</param>
+	    /// <param name="albumPath">Path to the album</param>
+	    /// <param name="uploadUrl">out string for the url</param>
+	    /// <returns>true if the upload succeeded</returns>
+	    public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, string albumPath, out string uploadUrl)
+	    {
+	        var outputSettings = new SurfaceOutputSettings(_photobucketConfiguration.UploadFormat, _photobucketConfiguration.UploadJpegQuality, _photobucketConfiguration.UploadReduceColors);
+	        try
+	        {
+	            var filename = Path.GetFileName(FilenameHelper.GetFilename(_photobucketConfiguration.UploadFormat, captureDetails));
+	            PhotobucketInfo photobucketInfo = null;
+
+	            // Run upload in the background
+	            new PleaseWaitForm().ShowAndWait("Photobucket", Language.GetString("photobucket", LangKey.communication_wait),
+	                delegate { photobucketInfo = PhotobucketUtils.UploadToPhotobucket(surfaceToUpload, outputSettings, albumPath, captureDetails.Title, filename); }
+	            );
+	            // This causes an exeption if the upload failed :)
+	            Log.Debug().WriteLine("Uploaded to Photobucket page: " + photobucketInfo.Page);
+	            uploadUrl = null;
+	            try
+	            {
+	                if (_photobucketConfiguration.UsePageLink)
+	                {
+	                    uploadUrl = photobucketInfo.Page;
+	                    Clipboard.SetText(photobucketInfo.Page);
+	                }
+	                else
+	                {
+	                    uploadUrl = photobucketInfo.Original;
+	                    Clipboard.SetText(photobucketInfo.Original);
+	                }
+	            }
+	            catch (Exception ex)
+	            {
+	                Log.Error().WriteLine(ex, "Can't write to clipboard: ");
+	            }
+	            return true;
+	        }
+	        catch (Exception e)
+	        {
+	            Log.Error().WriteLine(e);
+	            MessageBox.Show(Language.GetString("photobucket", LangKey.upload_failure) + " " + e.Message);
+	        }
+	        uploadUrl = null;
+	        return false;
+	    }
+    }
 }

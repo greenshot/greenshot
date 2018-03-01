@@ -50,7 +50,6 @@ namespace GreenshotDropboxPlugin
 		private readonly IDropboxPluginConfiguration _dropboxPluginConfiguration;
 		private readonly IGreenshotHost _greenshotHost;
 		private ToolStripMenuItem _itemPlugInConfig;
-		private DropboxDestination _destination;
 
 		public void Dispose()
 		{
@@ -59,8 +58,8 @@ namespace GreenshotDropboxPlugin
 
 		public IEnumerable<IDestination> Destinations()
 		{
-			yield return _destination;
-		}
+		    yield break;
+        }
 
 
 		public IEnumerable<IProcessor> Processors()
@@ -80,7 +79,6 @@ namespace GreenshotDropboxPlugin
 		/// </summary>
 		public bool Initialize()
 		{
-			_destination = new DropboxDestination(this);
 
 			_itemPlugInConfig = new ToolStripMenuItem
 			{
@@ -134,38 +132,6 @@ namespace GreenshotDropboxPlugin
 		public void ConfigMenuClick(object sender, EventArgs eventArgs)
 		{
 			//_config.ShowConfigDialog();
-		}
-
-		/// <summary>
-		///     This will be called when the menu item in the Editor is clicked
-		/// </summary>
-		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl)
-		{
-			uploadUrl = null;
-			var outputSettings = new SurfaceOutputSettings(_dropboxPluginConfiguration.UploadFormat, _dropboxPluginConfiguration.UploadJpegQuality, false);
-			try
-			{
-				string dropboxUrl = null;
-				new PleaseWaitForm().ShowAndWait("Dropbox", Language.GetString("dropbox", LangKey.communication_wait),
-					delegate
-					{
-						var filename = Path.GetFileName(FilenameHelper.GetFilename(_dropboxPluginConfiguration.UploadFormat, captureDetails));
-						dropboxUrl = DropboxUtils.UploadToDropbox(surfaceToUpload, outputSettings, filename);
-					}
-				);
-				if (dropboxUrl == null)
-				{
-					return false;
-				}
-				uploadUrl = dropboxUrl;
-				return true;
-			}
-			catch (Exception e)
-			{
-				Log.Error().WriteLine(e);
-				MessageBox.Show(Language.GetString("dropbox", LangKey.upload_failure) + " " + e.Message);
-				return false;
-			}
 		}
 	}
 }

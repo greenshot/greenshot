@@ -59,11 +59,11 @@
       <HintPath>..\packages\Costura.Fody.1.6.2\lib\dotnet\Costura.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Dapplo.Addons, Version=0.5.45.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Addons.0.5.45\lib\net45\Dapplo.Addons.dll</HintPath>
+    <Reference Include="Dapplo.Addons, Version=0.5.47.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Addons.0.5.47\lib\net45\Dapplo.Addons.dll</HintPath>
     </Reference>
-    <Reference Include="Dapplo.Addons.Bootstrapper, Version=0.5.45.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.Addons.Bootstrapper.0.5.45\lib\net45\Dapplo.Addons.Bootstrapper.dll</HintPath>
+    <Reference Include="Dapplo.Addons.Bootstrapper, Version=0.5.47.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Addons.Bootstrapper.0.5.47\lib\net45\Dapplo.Addons.Bootstrapper.dll</HintPath>
     </Reference>
     <Reference Include="Dapplo.CaliburnMicro, Version=0.5.25.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.CaliburnMicro.0.5.25\lib\net45\Dapplo.CaliburnMicro.dll</HintPath>
@@ -181,8 +181,9 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Components\CommandlineParser.cs" />
     <Compile Include="Components\GreenshotUiStartupOrder.cs" />
+    <Compile Include="Components\EditorFactory.cs" />
     <Compile Include="Components\MainFormStartup.cs" />
-    <Compile Include="Components\LegacyPluginLoader.cs" />
+    <Compile Include="Components\PluginLoader.cs" />
     <Compile Include="Components\GreenshotStartupOrder.cs" />
     <Compile Include="Components\HotkeyHandler.cs" />
     <Compile Include="Components\FormsStartup.cs" />
@@ -542,7 +543,6 @@
     <None Include="Languages\language-zh-tw.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Lib\log4net.dll" />
     <Compile Include="Forms\ColorDialog.Designer.cs">
       <DependentUpon>ColorDialog.cs</DependentUpon>
     </Compile>

@@ -23,23 +23,33 @@
 
 #region Usings
 
+using System;
 using System.ComponentModel;
+using System.ComponentModel.Composition;
 using System.Drawing;
+using System.IO;
+using System.Windows.Forms;
+using Dapplo.Log;
+using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 #endregion
 
 namespace GreenshotGooglePhotosPlugin
 {
-	public class GooglePhotosDestination : AbstractDestination
+    [Export(typeof(IDestination))]
+    public class GooglePhotosDestination : AbstractDestination
 	{
-		private readonly GooglePhotosPlugin _plugin;
+	    private static readonly LogSource Log = new LogSource();
+        private readonly IGooglePhotosConfiguration _googlePhotosConfiguration;
 
-		public GooglePhotosDestination(GooglePhotosPlugin plugin)
-		{
-			_plugin = plugin;
-		}
+	    [ImportingConstructor]
+        public GooglePhotosDestination(IGooglePhotosConfiguration googlePhotosConfiguration)
+	    {
+	        _googlePhotosConfiguration = googlePhotosConfiguration;
+	    }
 
 		public override string Designation => "GooglePhotos";
 
@@ -57,7 +67,7 @@ namespace GreenshotGooglePhotosPlugin
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
-		    var uploaded = _plugin.Upload(captureDetails, surface, out var uploadUrl);
+		    var uploaded = Upload(captureDetails, surface, out var uploadUrl);
 			if (uploaded)
 			{
 				exportInformation.ExportMade = true;
@@ -66,5 +76,35 @@ namespace GreenshotGooglePhotosPlugin
 			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
-	}
+
+	    public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl)
+	    {
+	        var outputSettings = new SurfaceOutputSettings(_googlePhotosConfiguration.UploadFormat, _googlePhotosConfiguration.UploadJpegQuality);
+	        try
+	        {
+	            string url = null;
+	            new PleaseWaitForm().ShowAndWait("Google Photos", Language.GetString("googlephotos", LangKey.communication_wait),
+	                delegate
+	                {
+	                    var filename = Path.GetFileName(FilenameHelper.GetFilename(_googlePhotosConfiguration.UploadFormat, captureDetails));
+	                    url = GooglePhotosUtils.UploadToGooglePhotos(surfaceToUpload, outputSettings, captureDetails.Title, filename);
+	                }
+	            );
+	            uploadUrl = url;
+
+	            if (uploadUrl != null && _googlePhotosConfiguration.AfterUploadLinkToClipBoard)
+	            {
+	                ClipboardHelper.SetClipboardData(uploadUrl);
+	            }
+	            return true;
+	        }
+	        catch (Exception e)
+	        {
+	            Log.Error().WriteLine(e, "Error uploading.");
+	            MessageBox.Show(Language.GetString("googlephotos", LangKey.upload_failure) + " " + e.Message);
+	        }
+	        uploadUrl = null;
+	        return false;
+	    }
+    }
 }

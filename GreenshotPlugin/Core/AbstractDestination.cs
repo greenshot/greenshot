@@ -407,7 +407,8 @@ namespace GreenshotPlugin.Core
                 location.Offset(-40, -10);
             }
             // This prevents the problem that the context menu shows in the task-bar
-            User32Api.SetForegroundWindow(PluginUtils.Host.NotifyIcon.ContextMenuStrip.Handle);
+            // TODO: Get a handle
+            // User32Api.SetForegroundWindow(PluginUtils.Host.NotifyIcon.ContextMenuStrip.Handle);
             menu.Show(location);
             menu.Focus();
 

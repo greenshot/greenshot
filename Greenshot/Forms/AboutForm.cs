@@ -347,26 +347,29 @@ namespace Greenshot.Forms
 						MessageBox.Show(EnvironmentInfo.EnvironmentToString(true));
 						break;
 					case Keys.L:
-						try
-						{
-							if (File.Exists(MainForm.LogFileLocation))
-							{
-								using (Process.Start("\"" + MainForm.LogFileLocation + "\""))
-								{
-									// nothing to do, just using dispose to cleanup
-								}
-							}
-							else
-							{
-								MessageBox.Show("Greenshot can't find the logfile, it should have been here: " + MainForm.LogFileLocation);
-							}
-						}
-						catch (Exception)
-						{
-							MessageBox.Show("Couldn't open the greenshot.log, it's located here: " + MainForm.LogFileLocation, "Error opening greeenshot.log", MessageBoxButtons.OK,
-								MessageBoxIcon.Asterisk);
-						}
-						break;
+                        // TODO: Open the log file
+/*
+					    try
+					    {
+					        if (File.Exists(MainForm.LogFileLocation))
+					        {
+					            using (Process.Start("\"" + MainForm.LogFileLocation + "\""))
+					            {
+					                // nothing to do, just using dispose to cleanup
+					            }
+					        }
+					        else
+					        {
+					            MessageBox.Show("Greenshot can't find the logfile, it should have been here: " + MainForm.LogFileLocation);
+					        }
+					    }
+
+					    catch (Exception)
+					    {
+					        MessageBox.Show("Couldn't open the greenshot.log, it's located here: " + MainForm.LogFileLocation, "Error opening greeenshot.log", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+					    }
+*/
+                        break;
 					case Keys.I:
 						try
 						{

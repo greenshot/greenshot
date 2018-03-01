@@ -34,10 +34,10 @@ using GreenshotPlugin.Interfaces.Plugin;
 namespace Greenshot.Components
 {
     /// <summary>
-    /// This startup action starts Windows.Forms
+    /// This startup loads / initialized all the plugins
     /// </summary>
     [UiStartupAction(StartupOrder = (int)GreenshotUiStartupOrder.Plugins), UiShutdownAction]
-    public class LegacyPluginLoader : IUiStartupAction, IUiShutdownAction
+    public class PluginLoader : IUiStartupAction, IUiShutdownAction
     {
         private readonly ICoreConfiguration _coreConfiguration;
         private readonly IEnumerable<IGreenshotPlugin> _plugins;
@@ -46,7 +46,7 @@ namespace Greenshot.Components
         private static readonly LogSource Log = new LogSource();
 
         [ImportingConstructor]
-        public LegacyPluginLoader(ICoreConfiguration coreConfiguration,
+        public PluginLoader(ICoreConfiguration coreConfiguration,
             [ImportMany] IEnumerable<IGreenshotPlugin> plugins,
             [ImportMany] IEnumerable<IDestination> destinations,
             [ImportMany] IEnumerable<IProcessor> processors)

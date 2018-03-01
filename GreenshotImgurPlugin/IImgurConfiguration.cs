@@ -40,7 +40,7 @@ namespace GreenshotImgurPlugin
 	/// </summary>
 	[IniSection("Imgur")]
 	[Description("Greenshot Imgur Plugin configuration")]
-	public interface ImgurConfiguration : IIniSection
+	public interface IImgurConfiguration : IIniSection
 	{
         // Not stored, only run-time!
 	    [IniPropertyBehavior(Read = false, Write = false)]

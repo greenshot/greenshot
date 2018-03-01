@@ -27,12 +27,13 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Drawing;
+using System.Linq;
 using Greenshot.Configuration;
 using GreenshotPlugin.Core;
-using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Forms;
 using Dapplo.Log;
+using Greenshot.Components;
 
 #endregion
 
@@ -46,57 +47,45 @@ namespace Greenshot.Destinations
 	{
 		public const string DESIGNATION = "Editor";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly IEditorConfiguration editorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
 		private static readonly Bitmap greenshotIcon = GreenshotResources.GetGreenshotIcon().ToBitmap();
-		private readonly IImageEditor editor;
+	    private readonly IImageEditor _editor;
 
-		public EditorDestination()
+	    [Import(AllowRecomposition = true, AllowDefault = true)]
+	    private EditorFactory _editorFactory;
+
+        public EditorDestination()
 		{
 		}
 
-		public EditorDestination(IImageEditor editor)
+		public EditorDestination(EditorFactory editorFactory, IImageEditor editor)
 		{
-			this.editor = editor;
+		    _editorFactory = editorFactory;
+		    _editor = editor;
 		}
 
-		public override string Designation
-		{
-			get { return DESIGNATION; }
-		}
+		public override string Designation => DESIGNATION;
 
-		public override string Description
+	    public override string Description
 		{
 			get
 			{
-				if (editor == null)
+				if (_editor == null)
 				{
 					return Language.GetString(LangKey.settings_destination_editor);
 				}
-				return Language.GetString(LangKey.settings_destination_editor) + " - " + editor.CaptureDetails.Title;
+				return Language.GetString(LangKey.settings_destination_editor) + " - " + _editor.CaptureDetails.Title;
 			}
 		}
 
-		public override int Priority
-		{
-			get { return 1; }
-		}
+		public override int Priority => 1;
 
-		public override bool IsDynamic
-		{
-			get { return true; }
-		}
+	    public override bool IsDynamic => true;
 
-		public override Bitmap DisplayIcon
-		{
-			get { return greenshotIcon; }
-		}
+	    public override Bitmap DisplayIcon => greenshotIcon;
 
-		public override IEnumerable<IDestination> DynamicDestinations()
+	    public override IEnumerable<IDestination> DynamicDestinations()
 		{
-			foreach (var someEditor in ImageEditorForm.Editors)
-			{
-				yield return new EditorDestination(someEditor);
-			}
+		    return _editorFactory.Editors.Select(someEditor => new EditorDestination(_editorFactory, someEditor));
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
@@ -107,58 +96,29 @@ namespace Greenshot.Destinations
 			GC.WaitForPendingFinalizers();
 
 			var modified = surface.Modified;
-			if (editor == null)
-			{
-				if (editorConfiguration.ReuseEditor)
-				{
-					foreach (var openedEditor in ImageEditorForm.Editors)
-					{
-						if (!openedEditor.Surface.Modified)
-						{
-							openedEditor.Surface = surface;
-							exportInformation.ExportMade = true;
-							break;
-						}
-					}
-				}
-				if (!exportInformation.ExportMade)
-				{
-					try
-					{
-						var editorForm = new ImageEditorForm(surface, !surface.Modified); // Output made??
 
-						if (!string.IsNullOrEmpty(captureDetails.Filename))
-						{
-							editorForm.SetImagePath(captureDetails.Filename);
-						}
-						editorForm.Show();
-						editorForm.Activate();
-						Log.Debug().WriteLine("Finished opening Editor");
-						exportInformation.ExportMade = true;
-					}
-					catch (Exception e)
-					{
-						Log.Error().WriteLine(e);
-						exportInformation.ErrorMessage = e.Message;
-					}
-				}
-			}
-			else
-			{
-				try
-				{
-					using (var image = surface.GetBitmapForExport())
-					{
-						editor.Surface.AddImageContainer(image, 10, 10);
-					}
-					exportInformation.ExportMade = true;
-				}
-				catch (Exception e)
-				{
-					Log.Error().WriteLine(e);
-					exportInformation.ErrorMessage = e.Message;
-				}
-			}
+		    if (_editor != null)
+		    {
+		        try
+		        {
+		            using (var image = surface.GetBitmapForExport())
+		            {
+		                _editor.Surface.AddImageContainer(image, 10, 10);
+		            }
+		            exportInformation.ExportMade = true;
+		        }
+		        catch (Exception e)
+		        {
+		            Log.Error().WriteLine(e);
+		            exportInformation.ErrorMessage = e.Message;
+		        }
+            }
+		    else
+		    {
+		        _editorFactory.CreateOrReuse(surface, captureDetails);
+		        exportInformation.ExportMade = true;
+            }
+			
 			ProcessExport(exportInformation, surface);
 			// Workaround for the modified flag when using the editor.
 			surface.Modified = modified;

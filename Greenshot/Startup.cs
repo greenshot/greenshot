@@ -52,7 +52,7 @@ namespace Greenshot
         [STAThread]
         public static void Main(string[] arguments)
         {
-
+            // TODO: Set via build
             StringEncryptionTypeConverter.RgbIv = "dlgjowejgogkklwj";
             StringEncryptionTypeConverter.RgbKey = "lsjvkwhvwujkagfauguwcsjgu2wueuff";
 

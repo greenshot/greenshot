@@ -25,6 +25,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
@@ -32,46 +33,46 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CommonServiceLocator;
+using Dapplo.Ini;
+using Dapplo.Log;
 using Dapplo.Windows.Clipboard;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Dpi;
+using Dapplo.Windows.Dpi.Enums;
+using Dapplo.Windows.Kernel32;
+using Dapplo.Windows.User32;
+using Greenshot.Components;
 using Greenshot.Configuration;
 using Greenshot.Destinations;
 using Greenshot.Drawing;
 using Greenshot.Drawing.Fields;
 using Greenshot.Drawing.Fields.Binding;
-using Greenshot.Forms;
+using Greenshot.Gfx;
+using Greenshot.Gfx.Effects;
 using Greenshot.Help;
 using Greenshot.Helpers;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using Dapplo.Ini;
+using GreenshotPlugin.Extensions;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Drawing;
 using GreenshotPlugin.Interfaces.Forms;
-using Dapplo.Log;
-using Dapplo.Windows.Common.Extensions;
-using Dapplo.Windows.Common.Structs;
-using Dapplo.Windows.Dpi.Enums;
-using Dapplo.Windows.Kernel32;
-using Dapplo.Windows.User32;
-using Greenshot.Gfx;
-using Greenshot.Gfx.Effects;
-using GreenshotPlugin.Extensions;
 
 #endregion
 
-namespace Greenshot
+namespace Greenshot.Forms
 {
     /// <summary>
     ///     Description of ImageEditorForm.
     /// </summary>
+    [Export]
     public partial class ImageEditorForm : BaseForm, IImageEditor
     {
         private static readonly LogSource Log = new LogSource();
-        private static readonly IEditorConfiguration EditorConfiguration = IniConfig.Current.Get<IEditorConfiguration>();
-        private static readonly List<string> IgnoreDestinations = new List<string> {PickerDestination.DESIGNATION, EditorDestination.DESIGNATION};
-        private static readonly List<IImageEditor> EditorList = new List<IImageEditor>();
+        private static readonly List<string> IgnoreDestinations = new List<string> { PickerDestination.DESIGNATION, EditorDestination.DESIGNATION };
+        private readonly IEditorConfiguration _editorConfiguration;
 
         private static readonly string[] SupportedClipboardFormats = {typeof(string).FullName, "Text", typeof(IDrawableContainerList).FullName};
 
@@ -86,6 +87,54 @@ namespace Greenshot
         private BitmapScaleHandler<IDestination> _destinationScaleHandler;
         private readonly IDisposable _clipboardSubscription;
         private readonly IEnumerable<IDestination> _destinations;
+        private readonly EditorFactory _editorFactory;
+
+        [ImportingConstructor]
+        public ImageEditorForm(
+            IEditorConfiguration editorConfiguration,
+            EditorFactory editorFactory,
+            [ImportMany] IEnumerable<IDestination> destinations)
+        {
+            _destinations = destinations;
+            _editorConfiguration = editorConfiguration;
+            _editorFactory = editorFactory;
+            //
+            // The InitializeComponent() call is required for Windows Forms designer support.
+            //
+            ManualLanguageApply = true;
+            InitializeComponent();
+
+            SetupBitmapScaleHandler();
+
+            Load += async (sender, args) =>
+            {
+                // Make sure the editor is placed on the same location as the last editor was on close
+                // But only if this still exists, else it will be reset (BUG-1812)
+                var editorWindowPlacement = _editorConfiguration.GetEditorPlacement();
+                var screenbounds = WindowCapture.GetScreenBounds();
+                if (!screenbounds.Contains(editorWindowPlacement.NormalPosition))
+                {
+                    _editorConfiguration.ResetEditorPlacement();
+                }
+                var placement = _editorConfiguration.GetEditorPlacement();
+                User32Api.SetWindowPlacement(Handle, ref placement);
+
+                await AddDestinationsAsync();
+                await InteropWindowFactory.CreateFor(Handle).ToForegroundAsync();
+            };
+
+
+            UpdateUi();
+
+            // Workaround: As the cursor is (mostly) selected on the surface a funny artifact is visible, this fixes it.
+            HideToolstripItems();
+
+            // Make the clipboard buttons update
+            _clipboardSubscription = ClipboardMonitor.OnUpdate.Subscribe(args =>
+            {
+                UpdateClipboardSurfaceDependencies();
+            });
+        }
 
         private void SetupBitmapScaleHandler()
         {
@@ -187,56 +236,7 @@ namespace Greenshot
             ScaleHandler.AddTarget(alignLeftToolStripMenuItem, "alignLeftToolStripMenuItem.Image");
             ScaleHandler.AddTarget(alignCenterToolStripMenuItem, "alignCenterToolStripMenuItem.Image");
             ScaleHandler.AddTarget(alignRightToolStripMenuItem, "alignRightToolStripMenuItem.Image");
-
         }
-        public ImageEditorForm(ISurface iSurface, bool outputMade)
-        {
-            _destinations = ServiceLocator.Current.GetAllInstances<IDestination>();
-            EditorList.Add(this);
-
-            //
-            // The InitializeComponent() call is required for Windows Forms designer support.
-            //
-            ManualLanguageApply = true;
-            InitializeComponent();
-
-            SetupBitmapScaleHandler();
-
-            Load += async (sender, args) =>
-            {
-                await AddDestinationsAsync();
-                await InteropWindowFactory.CreateFor(Handle).ToForegroundAsync();
-            };
-
-            // Make sure the editor is placed on the same location as the last editor was on close
-            // But only if this still exists, else it will be reset (BUG-1812)
-            var editorWindowPlacement = EditorConfiguration.GetEditorPlacement();
-            var screenbounds = WindowCapture.GetScreenBounds();
-            if (!screenbounds.Contains(editorWindowPlacement.NormalPosition))
-            {
-                EditorConfiguration.ResetEditorPlacement();
-            }
-            var placement = EditorConfiguration.GetEditorPlacement();
-            User32Api.SetWindowPlacement(Handle, ref placement);
-
-            UpdateUi();
-
-            // init surface
-            Surface = iSurface;
-            // Intial "saved" flag for asking if the image needs to be save
-            _surface.Modified = !outputMade;
-
-            // Workaround: As the cursor is (mostly) selected on the surface a funny artifact is visible, this fixes it.
-            HideToolstripItems();
-
-            // Make the clipboard buttons update
-            _clipboardSubscription = ClipboardMonitor.OnUpdate.Subscribe(args =>
-            {
-                UpdateClipboardSurfaceDependencies();
-            });
-        }
-
-        public static IEnumerable<IImageEditor> Editors => EditorList.OrderBy(editor => editor?.CaptureDetails?.Title);
 
         /// <summary>
         ///     An Implementation for the IImageEditor, this way Plugins have access to the HWND handles wich can be used with
@@ -591,7 +591,7 @@ namespace Greenshot
         /// <param name="e"></param>
         private void SurfaceSizeChanged(object sender, EventArgs e)
         {
-            if (EditorConfiguration.MatchSizeToCapture)
+            if (_editorConfiguration.MatchSizeToCapture)
             {
                 // Set editor's initial size to the size of the surface plus the size of the chrome
                 var imageSize = Surface.Screenshot.Size;
@@ -871,12 +871,9 @@ namespace Greenshot
                     fontBoldButton.Checked = true;
                 }
             }
-            else if (italicAvailable)
+            else if (italicAvailable && fontItalicButton != null)
             {
-                if (fontItalicButton != null)
-                {
-                    fontItalicButton.Checked = true;
-                }
+                fontItalicButton.Checked = true;
             }
         }
 
@@ -1089,7 +1086,7 @@ namespace Greenshot
         /// <param name="e">MouseEventArgs</param>
         private void AddDropshadowToolStripMenuItemMouseUp(object sender, MouseEventArgs e)
         {
-            var dropShadowEffect = EditorConfiguration.DropShadowEffectSettings;
+            var dropShadowEffect = _editorConfiguration.DropShadowEffectSettings;
             bool apply;
             switch (e.Button)
             {
@@ -1135,7 +1132,7 @@ namespace Greenshot
         /// <param name="e">MouseEventArgs</param>
         private void TornEdgesToolStripMenuItemMouseUp(object sender, MouseEventArgs e)
         {
-            var tornEdgeEffect = EditorConfiguration.TornEdgeEffectSettings;
+            var tornEdgeEffect = _editorConfiguration.TornEdgeEffectSettings;
             bool apply;
             switch (e.Button)
             {
@@ -1551,7 +1548,7 @@ namespace Greenshot
         private void ImageEditorFormFormClosing(object sender, FormClosingEventArgs e)
         {
             var interopWindow = InteropWindowFactory.CreateFor(Handle);
-            if (_surface.Modified && !EditorConfiguration.SuppressSaveDialogAtClose)
+            if (_surface.Modified && !_editorConfiguration.SuppressSaveDialogAtClose)
             {
                 // Make sure the editor is visible
                 // TODO: Await?
@@ -1582,9 +1579,9 @@ namespace Greenshot
                 }
             }
             // persist our geometry string.
-            EditorConfiguration.SetEditorPlacement(interopWindow.GetPlacement());
+            _editorConfiguration.SetEditorPlacement(interopWindow.GetPlacement());
             // remove from the editor list
-            EditorList.Remove(this);
+            _editorFactory.Remove(this);
 
             _surface.Dispose();
 
@@ -1705,44 +1702,51 @@ namespace Greenshot
         protected override bool ProcessKeyPreview(ref Message msg)
         {
             // disable default key handling if surface has requested a lock
-            if (!_surface.KeysLocked)
+            if (_surface.KeysLocked)
             {
-                return base.ProcessKeyPreview(ref msg);
+                return false;
             }
-            return false;
+
+            return base.ProcessKeyPreview(ref msg);
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keys)
         {
             // disable default key handling if surface has requested a lock
-            if (!_surface.KeysLocked)
+            if (_surface.KeysLocked)
             {
-                // Go through the destinations to check the EditorShortcut Keys
-                // this way the menu entries don't need to be enabled.
-                // This also fixes bugs #3526974 & #3527020
-                foreach (var destination in _destinations)
-                {
-                    if (IgnoreDestinations.Contains(destination.Designation))
-                    {
-                        continue;
-                    }
-                    if (!destination.IsActive)
-                    {
-                        continue;
-                    }
-
-                    if (destination.EditorShortcutKeys == keys)
-                    {
-                        destination.ExportCapture(true, _surface, _surface.CaptureDetails);
-                        return true;
-                    }
-                }
-                if (!_surface.ProcessCmdKey(keys))
-                {
-                    return base.ProcessCmdKey(ref msg, keys);
-                }
+                return false;
             }
-            return false;
+
+            // Go through the destinations to check the EditorShortcut Keys
+            // this way the menu entries don't need to be enabled.
+            // This also fixes bugs #3526974 & #3527020
+            foreach (var destination in _destinations)
+            {
+                if (IgnoreDestinations.Contains(destination.Designation))
+                {
+                    continue;
+                }
+                if (!destination.IsActive)
+                {
+                    continue;
+                }
+
+                if (destination.EditorShortcutKeys != keys)
+                {
+                    continue;
+                }
+
+                destination.ExportCapture(true, _surface, _surface.CaptureDetails);
+                return true;
+            }
+
+            if (_surface.ProcessCmdKey(keys))
+            {
+                return false;
+            }
+
+            return base.ProcessCmdKey(ref msg, keys);
         }
 
         #endregion

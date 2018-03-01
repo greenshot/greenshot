@@ -43,32 +43,17 @@ namespace Greenshot.Destinations
 	{
 		public const string DESIGNATION = "Clipboard";
 
-		public override string Designation
-		{
-			get { return DESIGNATION; }
-		}
+		public override string Designation => DESIGNATION;
 
-		public override string Description
-		{
-			get { return Language.GetString(LangKey.settings_destination_clipboard); }
-		}
+	    public override string Description => Language.GetString(LangKey.settings_destination_clipboard);
 
-		public override int Priority
-		{
-			get { return 2; }
-		}
+	    public override int Priority => 2;
 
-		public override Keys EditorShortcutKeys
-		{
-			get { return Keys.Control | Keys.Shift | Keys.C; }
-		}
+	    public override Keys EditorShortcutKeys => Keys.Control | Keys.Shift | Keys.C;
 
-		public override Bitmap DisplayIcon
-		{
-			get { return GreenshotResources.GetBitmap("Clipboard.Image"); }
-		}
+	    public override Bitmap DisplayIcon => GreenshotResources.GetBitmap("Clipboard.Image");
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+	    public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
 			try

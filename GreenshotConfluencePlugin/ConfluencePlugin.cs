@@ -26,7 +26,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Windows;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
@@ -45,50 +44,23 @@ namespace GreenshotConfluencePlugin
 	{
 		private static readonly LogSource Log = new LogSource();
 		private readonly IConfluenceConfiguration _confluenceConfiguration;
+	    private readonly ConfluenceConnector _confluenceConnector;
 
-        [ImportingConstructor]
-	    public ConfluencePlugin(IConfluenceConfiguration confluenceConfiguration)
+	    [ImportingConstructor]
+	    public ConfluencePlugin(IConfluenceConfiguration confluenceConfiguration, ConfluenceConnector confluenceConnector)
 	    {
 	        _confluenceConfiguration = confluenceConfiguration;
+	        _confluenceConnector = confluenceConnector;
 	    }
-
-	    public static ConfluenceConnector ConfluenceConnectorNoLogin { get; private set; }
-
-		public ConfluenceConnector ConfluenceConnector
-		{
-			get
-			{
-				if (ConfluenceConnectorNoLogin == null)
-				{
-					CreateConfluenceConntector();
-				}
-				try
-				{
-					if (ConfluenceConnectorNoLogin != null && !ConfluenceConnectorNoLogin.IsLoggedIn)
-					{
-						ConfluenceConnectorNoLogin.Login();
-					}
-				}
-				catch (Exception e)
-				{
-					MessageBox.Show(Language.GetFormattedString("confluence", LangKey.login_error, e.Message));
-				}
-				return ConfluenceConnectorNoLogin;
-			}
-		}
 
 		public void Dispose()
 		{
-			Dispose(true);
 		}
 
 		public IEnumerable<IDestination> Destinations()
 		{
-			if (ConfluenceDestination.IsInitialized)
-			{
-				yield return new ConfluenceDestination(ConfluenceConnectorNoLogin);
-			}
-		}
+		    yield break;
+        }
 
 		public IEnumerable<IProcessor> Processors()
 		{
@@ -116,10 +88,9 @@ namespace GreenshotConfluencePlugin
 		public void Shutdown()
 		{
 			Log.Debug().WriteLine("Confluence Plugin shutdown.");
-			if (ConfluenceConnectorNoLogin != null)
+			if (_confluenceConnector.IsLoggedIn)
 			{
-				ConfluenceConnectorNoLogin.Logout();
-				ConfluenceConnectorNoLogin = null;
+			    _confluenceConnector.Logout();
 			}
 		}
 
@@ -134,42 +105,14 @@ namespace GreenshotConfluencePlugin
 			var dialogResult = configForm.ShowDialog();
 			if (dialogResult.HasValue && dialogResult.Value)
 			{
-				// copy the new object to the old...
+			    // copy the new object to the old...
 				clonedConfig.CloneTo(_confluenceConfiguration);
-				if (ConfluenceConnectorNoLogin != null)
-				{
-					if (!url.Equals(_confluenceConfiguration.Url))
-					{
-						if (ConfluenceConnectorNoLogin.IsLoggedIn)
-						{
-							ConfluenceConnectorNoLogin.Logout();
-						}
-						ConfluenceConnectorNoLogin = null;
-					}
-				}
+			    if (_confluenceConnector.IsLoggedIn && !url.Equals(_confluenceConfiguration.Url))
+			    {
+			        _confluenceConnector.Logout();
+			    }
 			}
 		}
-
-		private void Dispose(bool disposing)
-		{
-			//if (disposing) {}
-		}
-
-		private void CreateConfluenceConntector()
-		{
-		    if (ConfluenceConnectorNoLogin != null)
-		    {
-		        return;
-		    }
-
-		    if (_confluenceConfiguration.Url.Contains("soap-axis"))
-		    {
-		        ConfluenceConnectorNoLogin = new ConfluenceConnector(_confluenceConfiguration.Url, _confluenceConfiguration.Timeout);
-		    }
-		    else
-		    {
-		        ConfluenceConnectorNoLogin = new ConfluenceConnector(_confluenceConfiguration.Url + ConfluenceConnector.DEFAULT_POSTFIX2, _confluenceConfiguration.Timeout);
-		    }
-		}
+		
 	}
 }

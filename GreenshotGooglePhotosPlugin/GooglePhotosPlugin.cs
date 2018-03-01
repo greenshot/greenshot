@@ -47,16 +47,14 @@ namespace GreenshotGooglePhotosPlugin
     public sealed class GooglePhotosPlugin : IGreenshotPlugin
 	{
 		private static readonly LogSource Log = new LogSource();
-		private readonly IGooglePhotosConfiguration _googlePhotosConfiguration;
 		private readonly IGreenshotHost _greenshotHost;
 		private ToolStripMenuItem _itemPlugInRoot;
 		private ComponentResourceManager _resources;
 
 	    [ImportingConstructor]
-	    public GooglePhotosPlugin(IGreenshotHost greenshotGreenshotHost, IGooglePhotosConfiguration googlePhotosConfiguration)
+	    public GooglePhotosPlugin(IGreenshotHost greenshotGreenshotHost)
 	    {
 	        _greenshotHost = greenshotGreenshotHost;
-	        _googlePhotosConfiguration = googlePhotosConfiguration;
 	    }
 
         public void Dispose()
@@ -66,8 +64,8 @@ namespace GreenshotGooglePhotosPlugin
 
 		public IEnumerable<IDestination> Destinations()
 		{
-			yield return new GooglePhotosDestination(this);
-		}
+		    yield break;
+        }
 
 
 		public IEnumerable<IProcessor> Processors()
@@ -121,34 +119,6 @@ namespace GreenshotGooglePhotosPlugin
 			}
 		}
 
-		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl)
-		{
-			var outputSettings = new SurfaceOutputSettings(_googlePhotosConfiguration.UploadFormat, _googlePhotosConfiguration.UploadJpegQuality);
-			try
-			{
-				string url = null;
-				new PleaseWaitForm().ShowAndWait("Google Photos", Language.GetString("googlephotos", LangKey.communication_wait),
-					delegate
-					{
-						var filename = Path.GetFileName(FilenameHelper.GetFilename(_googlePhotosConfiguration.UploadFormat, captureDetails));
-						url = GooglePhotosUtils.UploadToGooglePhotos(surfaceToUpload, outputSettings, captureDetails.Title, filename);
-					}
-				);
-				uploadUrl = url;
-
-				if (uploadUrl != null && _googlePhotosConfiguration.AfterUploadLinkToClipBoard)
-				{
-					ClipboardHelper.SetClipboardData(uploadUrl);
-				}
-				return true;
-			}
-			catch (Exception e)
-			{
-				Log.Error().WriteLine(e, "Error uploading.");
-				MessageBox.Show(Language.GetString("googlephotos", LangKey.upload_failure) + " " + e.Message);
-			}
-			uploadUrl = null;
-			return false;
-		}
+		
 	}
 }

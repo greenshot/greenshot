@@ -29,7 +29,6 @@ using System.Windows.Forms;
 using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Gfx;
-using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 
 #endregion
@@ -43,34 +42,25 @@ namespace Greenshot.Destinations
     public class FileWithDialogDestination : AbstractDestination
 	{
 		public const string DESIGNATION = "FileDialog";
-		private static readonly ICoreConfiguration conf = IniConfig.Current.Get<ICoreConfiguration>();
+	    private readonly ICoreConfiguration _coreConfiguration;
 
-		public override string Designation
-		{
-			get { return DESIGNATION; }
-		}
+	    [ImportingConstructor]
+	    public FileWithDialogDestination(ICoreConfiguration coreConfiguration)
+	    {
+	        _coreConfiguration = coreConfiguration;
+	    }
 
-		public override string Description
-		{
-			get { return Language.GetString(LangKey.settings_destination_fileas); }
-		}
+        public override string Designation => DESIGNATION;
 
-		public override int Priority
-		{
-			get { return 0; }
-		}
+	    public override string Description => Language.GetString(LangKey.settings_destination_fileas);
 
-		public override Keys EditorShortcutKeys
-		{
-			get { return Keys.Control | Keys.Shift | Keys.S; }
-		}
+	    public override int Priority => 0;
 
-		public override Bitmap DisplayIcon
-		{
-			get { return GreenshotResources.GetBitmap("Save.Image"); }
-		}
+	    public override Keys EditorShortcutKeys => Keys.Control | Keys.Shift | Keys.S;
 
-		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+	    public override Bitmap DisplayIcon => GreenshotResources.GetBitmap("Save.Image");
+
+	    public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
 			// Bug #2918756 don't overwrite path if SaveWithDialog returns null!
@@ -80,7 +70,7 @@ namespace Greenshot.Destinations
 				exportInformation.ExportMade = true;
 				exportInformation.Filepath = savedTo;
 				captureDetails.Filename = savedTo;
-				conf.OutputFileAsFullpath = savedTo;
+			    _coreConfiguration.OutputFileAsFullpath = savedTo;
 			}
 			ProcessExport(exportInformation, surface);
 			return exportInformation;

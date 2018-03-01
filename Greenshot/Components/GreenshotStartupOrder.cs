@@ -31,7 +31,8 @@ namespace Greenshot.Components
     public enum GreenshotStartupOrder
     {
         Forms = CaliburnStartOrder.User,
-        Server = CaliburnStartOrder.User + 200,
-        Sound = CaliburnStartOrder.User + 500
+        Server = CaliburnStartOrder.User + 100,
+        Sound = CaliburnStartOrder.User + 200,
+        Editor = CaliburnStartOrder.User + 300
     }
 }

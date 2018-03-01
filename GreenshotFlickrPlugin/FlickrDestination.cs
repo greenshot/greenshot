@@ -23,22 +23,32 @@
 
 #region Usings
 
+using System;
 using System.ComponentModel;
+using System.ComponentModel.Composition;
 using System.Drawing;
+using System.IO;
+using System.Windows.Forms;
+using Dapplo.Log;
+using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 #endregion
 
 namespace GreenshotFlickrPlugin
 {
-	public class FlickrDestination : AbstractDestination
+    [Export(typeof(IDestination))]
+    public class FlickrDestination : AbstractDestination
 	{
-		private readonly FlickrPlugin _plugin;
+	    private static readonly LogSource Log = new LogSource();
+        private readonly IFlickrConfiguration _flickrConfiguration;
 
-		public FlickrDestination(FlickrPlugin plugin)
+	    [ImportingConstructor]
+        public FlickrDestination(IFlickrConfiguration flickrConfiguration)
 		{
-			_plugin = plugin;
+			_flickrConfiguration = flickrConfiguration;
 		}
 
 		public override string Designation => "Flickr";
@@ -57,7 +67,7 @@ namespace GreenshotFlickrPlugin
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
-		    var uploaded = _plugin.Upload(captureDetails, surface, out var uploadUrl);
+		    var uploaded = Upload(captureDetails, surface, out var uploadUrl);
 			if (uploaded)
 			{
 				exportInformation.ExportMade = true;
@@ -66,5 +76,41 @@ namespace GreenshotFlickrPlugin
 			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
-	}
+
+
+	    public bool Upload(ICaptureDetails captureDetails, ISurface surface, out string uploadUrl)
+	    {
+	        var outputSettings = new SurfaceOutputSettings(_flickrConfiguration.UploadFormat, _flickrConfiguration.UploadJpegQuality, false);
+	        uploadUrl = null;
+	        try
+	        {
+	            string flickrUrl = null;
+	            new PleaseWaitForm().ShowAndWait("Flickr", Language.GetString("flickr", LangKey.communication_wait),
+	                delegate
+	                {
+	                    var filename = Path.GetFileName(FilenameHelper.GetFilename(_flickrConfiguration.UploadFormat, captureDetails));
+	                    flickrUrl = FlickrUtils.UploadToFlickr(surface, outputSettings, captureDetails.Title, filename);
+	                }
+	            );
+
+	            if (flickrUrl == null)
+	            {
+	                return false;
+	            }
+	            uploadUrl = flickrUrl;
+
+	            if (_flickrConfiguration.AfterUploadLinkToClipBoard)
+	            {
+	                ClipboardHelper.SetClipboardData(flickrUrl);
+	            }
+	            return true;
+	        }
+	        catch (Exception e)
+	        {
+	            Log.Error().WriteLine(e, "Error uploading.");
+	            MessageBox.Show(Language.GetString("flickr", LangKey.upload_failure) + " " + e.Message);
+	        }
+	        return false;
+	    }
+    }
 }

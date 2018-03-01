@@ -26,10 +26,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.IO;
 using System.Windows.Forms;
 using Dapplo.Windows.Dpi;
-using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
@@ -65,8 +63,8 @@ namespace GreenshotBoxPlugin
 
 		public IEnumerable<IDestination> Destinations()
 		{
-			yield return new BoxDestination(this);
-		}
+		    yield break;
+        }
 
 
 		public IEnumerable<IProcessor> Processors()
@@ -122,37 +120,6 @@ namespace GreenshotBoxPlugin
 		public void ConfigMenuClick(object sender, EventArgs eventArgs)
 		{
 			//_config.ShowConfigDialog();
-		}
-
-		/// <summary>
-		///     This will be called when the menu item in the Editor is clicked
-		/// </summary>
-		public string Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload)
-		{
-			var outputSettings = new SurfaceOutputSettings(_boxConfiguration.UploadFormat, _boxConfiguration.UploadJpegQuality, false);
-			try
-			{
-				string url = null;
-				var filename = Path.GetFileName(FilenameHelper.GetFilename(_boxConfiguration.UploadFormat, captureDetails));
-				var imageToUpload = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
-
-				new PleaseWaitForm().ShowAndWait("Box", Language.GetString("box", LangKey.communication_wait),
-					delegate { url = BoxUtils.UploadToBox(imageToUpload, captureDetails.Title, filename); }
-				);
-
-				if (url != null && _boxConfiguration.AfterUploadLinkToClipBoard)
-				{
-					ClipboardHelper.SetClipboardData(url);
-				}
-
-				return url;
-			}
-			catch (Exception ex)
-			{
-				Log.Error().WriteLine(ex, "Error uploading.");
-				MessageBox.Show(Language.GetString("box", LangKey.upload_failure) + " " + ex.Message);
-				return null;
-			}
 		}
 	}
 }

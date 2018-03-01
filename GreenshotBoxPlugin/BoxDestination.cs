@@ -23,35 +23,39 @@
 
 #region Usings
 
+using System;
 using System.ComponentModel;
+using System.ComponentModel.Composition;
 using System.Drawing;
+using System.IO;
+using System.Windows.Forms;
+using Dapplo.Log;
+using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 #endregion
 
 namespace GreenshotBoxPlugin
 {
+    [Export(typeof(IDestination))]
 	public class BoxDestination : AbstractDestination
 	{
-		private readonly BoxPlugin _plugin;
+	    private static readonly LogSource Log = new LogSource();
+        private readonly IBoxConfiguration _boxConfiguration;
 
-		public BoxDestination(BoxPlugin plugin)
-		{
-			_plugin = plugin;
-		}
+	    [ImportingConstructor]
+		public BoxDestination(IBoxConfiguration boxConfiguration)
+	    {
+	        _boxConfiguration = boxConfiguration;
+	    }
 
-		public override string Designation
-		{
-			get { return "Box"; }
-		}
+		public override string Designation => "Box";
 
-		public override string Description
-		{
-			get { return Language.GetString("box", LangKey.upload_menu_item); }
-		}
+	    public override string Description => Language.GetString("box", LangKey.upload_menu_item);
 
-		public override Bitmap DisplayIcon
+	    public override Bitmap DisplayIcon
 		{
 			get
 			{
@@ -63,7 +67,7 @@ namespace GreenshotBoxPlugin
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			var exportInformation = new ExportInformation(Designation, Description);
-			var uploadUrl = _plugin.Upload(captureDetails, surface);
+			var uploadUrl = Upload(captureDetails, surface);
 			if (uploadUrl != null)
 			{
 				exportInformation.ExportMade = true;
@@ -72,5 +76,37 @@ namespace GreenshotBoxPlugin
 			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
-	}
+
+	    /// <summary>
+	    ///     This will be called when the menu item in the Editor is clicked
+	    /// </summary>
+	    private string Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload)
+	    {
+	        var outputSettings = new SurfaceOutputSettings(_boxConfiguration.UploadFormat, _boxConfiguration.UploadJpegQuality, false);
+	        try
+	        {
+	            string url = null;
+	            var filename = Path.GetFileName(FilenameHelper.GetFilename(_boxConfiguration.UploadFormat, captureDetails));
+	            var imageToUpload = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
+
+	            new PleaseWaitForm().ShowAndWait("Box", Language.GetString("box", LangKey.communication_wait),
+	                delegate { url = BoxUtils.UploadToBox(imageToUpload, captureDetails.Title, filename); }
+	            );
+
+	            if (url != null && _boxConfiguration.AfterUploadLinkToClipBoard)
+	            {
+	                ClipboardHelper.SetClipboardData(url);
+	            }
+
+	            return url;
+	        }
+	        catch (Exception ex)
+	        {
+	            Log.Error().WriteLine(ex, "Error uploading.");
+	            MessageBox.Show(Language.GetString("box", LangKey.upload_failure) + " " + ex.Message);
+	            return null;
+	        }
+	    }
+
+    }
 }

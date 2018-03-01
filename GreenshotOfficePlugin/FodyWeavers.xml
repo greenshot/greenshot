@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Weavers>
+    <Costura IncludeDebugSymbols='false'>
+        <IncludeAssemblies>
+            Dapplo.Windows.Com
+        </IncludeAssemblies>
+    </Costura>
+</Weavers>

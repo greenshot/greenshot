@@ -26,13 +26,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.IO;
 using System.Windows.Forms;
 using Dapplo.Log;
 using Dapplo.Windows.Dpi;
 using Greenshot.Gfx;
 using GreenshotLutimPlugin.Forms;
-using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
@@ -76,8 +74,8 @@ namespace GreenshotLutimPlugin {
 		}
 
 		public IEnumerable<IDestination> Destinations() {
-			yield return new LutimDestination(this);
-		}
+		    yield break;
+        }
 
 		public IEnumerable<IProcessor> Processors() {
 			yield break;
@@ -142,62 +140,5 @@ namespace GreenshotLutimPlugin {
 			Language.LanguageChanged -= OnLanguageChanged;
 		}
 
-		/// <summary>
-		/// Upload the capture to lutim
-		/// </summary>
-		/// <param name="captureDetails">ICaptureDetails</param>
-		/// <param name="surfaceToUpload">ISurface</param>
-		/// <param name="uploadUrl">out string for the url</param>
-		/// <returns>true if the upload succeeded</returns>
-		public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl) {
-			SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_lutimConfiguration.UploadFormat, _lutimConfiguration.UploadJpegQuality, _lutimConfiguration.UploadReduceColors);
-			try {
-				string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(_lutimConfiguration.FilenamePattern, _lutimConfiguration.UploadFormat, captureDetails));
-				LutimInfo lutimInfo = null;
-
-				// Run upload in the background
-				new PleaseWaitForm().ShowAndWait("Lutim plug-in", Language.GetString("lutim", LangKey.communication_wait),
-					delegate
-					{
-						lutimInfo = LutimUtils.UploadToLutim(surfaceToUpload, outputSettings, filename);
-						if (lutimInfo != null) {
-							Log.Info().WriteLine("Storing lutim upload for hash {0} and delete hash {1}", lutimInfo.Short, lutimInfo.Token);
-						    _lutimConfiguration.LutimUploadHistory.Add(lutimInfo.Short, lutimInfo.ToIniString());
-						    _lutimConfiguration.RuntimeLutimHistory.Add(lutimInfo.Short, lutimInfo);
-							UpdateHistoryMenuItem();
-						}
-					}
-				);
-
-				if (lutimInfo != null)
-				{
-					// TODO: Optimize a second call for export
-					using (var tmpBitmap = surfaceToUpload.GetBitmapForExport())
-					{
-						lutimInfo.Thumb = tmpBitmap.CreateThumbnail(90, 90);
-					}
-					uploadUrl = lutimInfo.Uri.AbsoluteUri;
-				    if (string.IsNullOrEmpty(uploadUrl) || !_lutimConfiguration.CopyLinkToClipboard)
-				    {
-				        return true;
-				    }
-				    try
-				    {
-				        ClipboardHelper.SetClipboardData(uploadUrl);
-				    }
-				    catch (Exception ex)
-				    {
-				        Log.Error().WriteLine(ex, "Can't write to clipboard: ");
-				        uploadUrl = null;
-				    }
-				    return true;
-				}
-			} catch (Exception e) {
-				Log.Error().WriteLine(e, "Error uploading.");
-				MessageBox.Show(Language.GetString("lutim", LangKey.upload_failure) + " " + e.Message);
-			}
-			uploadUrl = null;
-			return false;
-		}
 	}
 }

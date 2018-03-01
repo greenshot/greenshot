@@ -25,13 +25,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Windows;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
-using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
@@ -42,16 +42,17 @@ using GreenshotConfluencePlugin.Forms;
 
 namespace GreenshotConfluencePlugin
 {
-	/// <summary>
-	///     Description of ConfluenceDestination.
-	/// </summary>
-	public class ConfluenceDestination : AbstractDestination
+    /// <summary>
+    ///     Description of ConfluenceDestination.
+    /// </summary>
+    [Export(typeof(IDestination))]
+    public class ConfluenceDestination : AbstractDestination
 	{
-	    private readonly ConfluenceConnector _confluenceConnector;
 	    private static readonly LogSource Log = new LogSource();
-		private static readonly IConfluenceConfiguration ConfluenceConfig = IniConfig.Current.Get<IConfluenceConfiguration>();
-		private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
 		private static readonly Bitmap ConfluenceIcon;
+	    private readonly IConfluenceConfiguration _confluenceConfiguration;
+	    private readonly ICoreConfiguration _coreConfiguration;
+	    private readonly ConfluenceConnector _confluenceConnector;
 		private readonly Page _page;
 
 		static ConfluenceDestination()
@@ -73,24 +74,24 @@ namespace GreenshotConfluencePlugin
 			}
 		}
 
-		public ConfluenceDestination(ConfluenceConnector confluenceConnector)
-		{
-		    _confluenceConnector = confluenceConnector;
-		}
+        [ImportingConstructor]
+		public ConfluenceDestination(IConfluenceConfiguration confluenceConfiguration, ICoreConfiguration coreConfiguration, ConfluenceConnector confluenceConnector)
+        {
+            _confluenceConfiguration = confluenceConfiguration;
+            _coreConfiguration = coreConfiguration;
+            _confluenceConnector = confluenceConnector;
+        }
 
-		public ConfluenceDestination(ConfluenceConnector confluenceConnector, Page page) : this(confluenceConnector)
+		public ConfluenceDestination(IConfluenceConfiguration confluenceConfiguration, ICoreConfiguration coreConfiguration, ConfluenceConnector confluenceConnector, Page page) : this(confluenceConfiguration, coreConfiguration, confluenceConnector)
 		{
 			_page = page;
 		}
 
 		public static bool IsInitialized { get; private set; }
 
-		public override string Designation
-		{
-			get { return "Confluence"; }
-		}
+		public override string Designation => "Confluence";
 
-		public override string Description
+	    public override string Description
 		{
 			get
 			{
@@ -102,24 +103,15 @@ namespace GreenshotConfluencePlugin
 			}
 		}
 
-		public override bool IsDynamic
-		{
-			get { return true; }
-		}
+		public override bool IsDynamic => true;
 
-		public override bool IsActive
-		{
-			get { return base.IsActive && !string.IsNullOrEmpty(ConfluenceConfig.Url); }
-		}
+	    public override bool IsActive => base.IsActive && !string.IsNullOrEmpty(_confluenceConfiguration.Url);
 
-		public override Bitmap DisplayIcon
-		{
-			get { return ConfluenceIcon; }
-		}
+	    public override Bitmap DisplayIcon => ConfluenceIcon;
 
-		public override IEnumerable<IDestination> DynamicDestinations()
+	    public override IEnumerable<IDestination> DynamicDestinations()
 		{
-			if (ConfluencePlugin.ConfluenceConnectorNoLogin == null || !ConfluencePlugin.ConfluenceConnectorNoLogin.IsLoggedIn)
+			if (_confluenceConnector == null || !_confluenceConnector.IsLoggedIn)
 			{
 				yield break;
 			}
@@ -130,7 +122,7 @@ namespace GreenshotConfluencePlugin
 			}
 			foreach (var currentPage in currentPages)
 			{
-				yield return new ConfluenceDestination(_confluenceConnector, currentPage);
+				yield return new ConfluenceDestination(_confluenceConfiguration, _coreConfiguration, _confluenceConnector, currentPage);
 			}
 		}
 
@@ -144,8 +136,8 @@ namespace GreenshotConfluencePlugin
 			}
 
 			var selectedPage = _page;
-			var openPage = _page == null && ConfluenceConfig.OpenPageAfterUpload;
-			var filename = FilenameHelper.GetFilenameWithoutExtensionFromPattern(CoreConfig.OutputFileFilenamePattern, captureDetails);
+			var openPage = _page == null && _confluenceConfiguration.OpenPageAfterUpload;
+			var filename = FilenameHelper.GetFilenameWithoutExtensionFromPattern(_coreConfiguration.OutputFileFilenamePattern, captureDetails);
 			if (selectedPage == null)
 			{
 				var confluenceUpload = new ConfluenceUpload(_confluenceConnector, filename);
@@ -160,7 +152,7 @@ namespace GreenshotConfluencePlugin
 					filename = confluenceUpload.Filename;
 				}
 			}
-			var extension = "." + ConfluenceConfig.UploadFormat;
+			var extension = "." + _confluenceConfiguration.UploadFormat;
 			if (!filename.ToLower().EndsWith(extension))
 			{
 				filename = filename + extension;
@@ -195,19 +187,19 @@ namespace GreenshotConfluencePlugin
 
 		private bool Upload(ISurface surfaceToUpload, Page page, string filename, out string errorMessage)
 		{
-			var outputSettings = new SurfaceOutputSettings(ConfluenceConfig.UploadFormat, ConfluenceConfig.UploadJpegQuality, ConfluenceConfig.UploadReduceColors);
+			var outputSettings = new SurfaceOutputSettings(_confluenceConfiguration.UploadFormat, _confluenceConfiguration.UploadJpegQuality, _confluenceConfiguration.UploadReduceColors);
 			errorMessage = null;
 			try
 			{
 				new PleaseWaitForm().ShowAndWait(Description, Language.GetString("confluence", LangKey.communication_wait),
 					delegate
 					{
-						_confluenceConnector.AddAttachment(page.Id, "image/" + ConfluenceConfig.UploadFormat.ToString().ToLower(), null, filename,
+						_confluenceConnector.AddAttachment(page.Id, "image/" + _confluenceConfiguration.UploadFormat.ToString().ToLower(), null, filename,
 							new SurfaceContainer(surfaceToUpload, outputSettings, filename));
 					}
 				);
 				Log.Debug().WriteLine("Uploaded to Confluence.");
-				if (!ConfluenceConfig.CopyWikiMarkupForImageToClipboard)
+				if (!_confluenceConfiguration.CopyWikiMarkupForImageToClipboard)
 				{
 					return true;
 				}

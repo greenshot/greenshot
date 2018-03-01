@@ -32,7 +32,6 @@ using Greenshot.Configuration;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Gfx;
-using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
@@ -47,11 +46,17 @@ namespace Greenshot.Destinations
     [Export(typeof(IDestination))]
     public class FileDestination : AbstractDestination
 	{
-		public const string DESIGNATION = "FileNoDialog";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
+	    public const string DESIGNATION = "FileNoDialog";
+	    private readonly ICoreConfiguration _coreConfiguration;
 
-		public override string Designation => DESIGNATION;
+        [ImportingConstructor]
+	    public FileDestination(ICoreConfiguration coreConfiguration)
+	    {
+	        _coreConfiguration = coreConfiguration;
+	    }
+
+        public override string Designation => DESIGNATION;
 
 		public override string Description => Language.GetString(LangKey.quicksettings_destination_file);
 
@@ -82,9 +87,9 @@ namespace Greenshot.Destinations
 			{
 				fullPath = CreateNewFilename(captureDetails);
 				// As we generate a file, the configuration tells us if we allow to overwrite
-				overwrite = CoreConfig.OutputFileAllowOverwrite;
+				overwrite = _coreConfiguration.OutputFileAllowOverwrite;
 			}
-			if (CoreConfig.OutputFilePromptQuality)
+			if (_coreConfiguration.OutputFilePromptQuality)
 			{
 				var qualityDialog = new QualityDialog(outputSettings);
 				qualityDialog.ShowDialog();
@@ -94,7 +99,7 @@ namespace Greenshot.Destinations
 			// This is done for e.g. bugs #2974608, #2963943, #2816163, #2795317, #2789218, #3004642
 			try
 			{
-				ImageOutput.Save(surface, fullPath, overwrite, outputSettings, CoreConfig.OutputFileCopyPathToClipboard);
+				ImageOutput.Save(surface, fullPath, overwrite, outputSettings, _coreConfiguration.OutputFileCopyPathToClipboard);
 				outputMade = true;
 			}
 			catch (ArgumentException ex1)
@@ -123,25 +128,25 @@ namespace Greenshot.Destinations
 				{
 					captureDetails.Filename = fullPath;
 				}
-				CoreConfig.OutputFileAsFullpath = fullPath;
+			    _coreConfiguration.OutputFileAsFullpath = fullPath;
 			}
 
 			ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
 
-		private static string CreateNewFilename(ICaptureDetails captureDetails)
+		private string CreateNewFilename(ICaptureDetails captureDetails)
 		{
 			string fullPath;
 			Log.Info().WriteLine("Creating new filename");
-			var pattern = CoreConfig.OutputFileFilenamePattern;
+			var pattern = _coreConfiguration.OutputFileFilenamePattern;
 			if (string.IsNullOrEmpty(pattern))
 			{
 				pattern = "greenshot ${capturetime}";
 			}
-			var filename = FilenameHelper.GetFilenameFromPattern(pattern, CoreConfig.OutputFileFormat, captureDetails);
-			CoreConfig.ValidateAndCorrectOutputFilePath();
-			var filepath = FilenameHelper.FillVariables(CoreConfig.OutputFilePath, false);
+			var filename = FilenameHelper.GetFilenameFromPattern(pattern, _coreConfiguration.OutputFileFormat, captureDetails);
+		    _coreConfiguration.ValidateAndCorrectOutputFilePath();
+			var filepath = FilenameHelper.FillVariables(_coreConfiguration.OutputFilePath, false);
 			try
 			{
 				fullPath = Path.Combine(filepath, filename);

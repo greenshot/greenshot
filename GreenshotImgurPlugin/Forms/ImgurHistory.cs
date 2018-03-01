@@ -44,7 +44,7 @@ namespace GreenshotImgurPlugin.Forms
 	{
 		private static readonly LogSource Log = new LogSource();
 		private static readonly object Lock = new object();
-		private static readonly ImgurConfiguration Config = IniConfig.Current.Get<ImgurConfiguration>();
+		private static readonly IImgurConfiguration Config = IniConfig.Current.Get<IImgurConfiguration>();
 		private static ImgurHistory _instance;
 		private readonly GreenshotColumnSorter _columnSorter;
 

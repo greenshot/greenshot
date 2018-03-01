@@ -25,6 +25,7 @@
 
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Linq;
 using CommonServiceLocator;
 using Greenshot.Configuration;
 using GreenshotPlugin.Core;
@@ -40,7 +41,7 @@ namespace Greenshot.Destinations
 	[Export(typeof(IDestination))]
 	public class PickerDestination : AbstractDestination
 	{
-		public const string DESIGNATION = "Picker";
+	    public const string DESIGNATION = "Picker";
 
 		public override string Designation => DESIGNATION;
 
@@ -48,6 +49,8 @@ namespace Greenshot.Destinations
 
 		public override int Priority => 1;
 
+	    [ImportMany(AllowRecomposition = true)]
+	    private IEnumerable<IDestination> _destinations = null;
 
 		/// <summary>
 		///     Export the capture with the destination picker
@@ -58,22 +61,11 @@ namespace Greenshot.Destinations
 		/// <returns>true if export was made</returns>
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
-			var destinations = new List<IDestination>();
-			foreach (var destination in ServiceLocator.Current.GetAllInstances<IDestination>())
-			{
-				if ("Picker".Equals(destination.Designation))
-				{
-					continue;
-				}
-				if (!destination.IsActive)
-				{
-					continue;
-				}
-				destinations.Add(destination);
-			}
-
-			// No Processing, this is done in the selected destination (if anything was selected)
-			return ShowPickerMenu(true, surface, captureDetails, destinations);
+		    // No Processing, this is done in the selected destination (if anything was selected)
+			return ShowPickerMenu(true, surface, captureDetails,
+			    _destinations.Where(destination => !"Picker".Equals(destination.Designation))
+			        .Where(destination => destination.IsActive)
+			        .OrderBy(destination => destination.Priority).ThenBy(destination => destination.Description));
 		}
 	}
 }
