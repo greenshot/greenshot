@@ -344,17 +344,6 @@ namespace Greenshot.Forms
         {
             Log.Info().WriteLine("Exit: " + EnvironmentInfo.EnvironmentToString(false));
 
-            // Gracefull shutdown
-            try
-            {
-                Application.DoEvents();
-                Application.Exit();
-            }
-            catch (Exception e)
-            {
-                Log.Error().WriteLine(e, "Error closing application!");
-            }
-
             ImageOutput.RemoveTmpFiles();
 
             // make the icon invisible otherwise it stays even after exit!!
@@ -928,7 +917,8 @@ namespace Greenshot.Forms
         /// <param name="e"></param>
         private void Contextmenu_exitClick(object sender, EventArgs e)
         {
-            Exit();
+            // Gracefull shutdown
+            System.Windows.Application.Current.Shutdown(0);
         }
 
         private void CheckStateChangedHandler(object sender, EventArgs e)

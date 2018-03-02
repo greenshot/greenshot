@@ -162,7 +162,7 @@ namespace Greenshot.Drawing.Fields
 			return Convert.ToBoolean(GetFieldValue(fieldType));
 		}
 
-		public Color GetFieldValueAsColor(IFieldType fieldType, Color defaultColor = default(Color))
+		public Color GetFieldValueAsColor(IFieldType fieldType, Color defaultColor = default)
 		{
 			return (Color)(GetFieldValue(fieldType) ?? defaultColor);
 		}

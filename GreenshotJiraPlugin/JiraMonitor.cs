@@ -93,7 +93,7 @@ namespace GreenshotJiraPlugin
 		/// </summary>
 		/// <param name="jiraInstance"></param>
 		/// <param name="token"></param>
-		public async Task AddJiraInstanceAsync(IJiraClient jiraInstance, CancellationToken token = default(CancellationToken))
+		public async Task AddJiraInstanceAsync(IJiraClient jiraInstance, CancellationToken token = default)
 		{
 			_jiraInstances.Add(jiraInstance);
 			var projects = await jiraInstance.Project.GetAllAsync(cancellationToken: token).ConfigureAwait(false);

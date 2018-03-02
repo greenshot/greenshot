@@ -25,6 +25,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Timers;
 using Dapplo.Log;
 
@@ -82,25 +83,16 @@ namespace GreenshotPlugin.Core
 			_secondsToExpire = secondsToExpire;
 		}
 
-		/// <summary>
-		///     Enumerable for the values in the cache
-		/// </summary>
-		public IEnumerable<TV> Elements
+	    /// <summary>
+	    ///     Enumerable for the values in the cache
+	    /// </summary>
+	    public IEnumerable<TV> Elements
 		{
 			get
 			{
-				var elements = new List<TV>();
-
 				lock (_lockObject)
 				{
-					foreach (var element in _internalCache.Values)
-					{
-						elements.Add(element);
-					}
-				}
-				foreach (var element in elements)
-				{
-					yield return element;
+				    return _internalCache.Values.ToList();
 				}
 			}
 		}

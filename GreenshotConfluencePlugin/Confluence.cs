@@ -151,7 +151,7 @@ namespace GreenshotConfluencePlugin
 				{
 					Name = null
 				};
-				while (dialog.Show(dialog.Name) == DialogResult.OK)
+				while (dialog.Show(null, dialog.Name) == DialogResult.OK)
 				{
 					if (DoLogin(dialog.Name, dialog.Password))
 					{

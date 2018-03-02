@@ -78,7 +78,7 @@ namespace Greenshot.Components
             _destinations = destinations;
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task StartAsync(CancellationToken cancellationToken = default)
         {
             Log.Debug().WriteLine("Starting Greenshot server");
             await Task.Factory.StartNew(() => {
@@ -89,7 +89,7 @@ namespace Greenshot.Components
             Log.Debug().WriteLine("Started Greenshot server");
         }
 
-        public Task ShutdownAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task ShutdownAsync(CancellationToken cancellationToken = default)
         {
             Log.Debug().WriteLine("Stopping Greenshot server");
 

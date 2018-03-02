@@ -28,9 +28,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Drawing;
-using System.IO;
 using System.Windows.Forms;
-using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
@@ -101,14 +99,11 @@ namespace GreenshotGooglePhotosPlugin
 
 		private void Dispose(bool disposing)
 		{
-			if (disposing)
-			{
-				if (_itemPlugInRoot != null)
-				{
-					_itemPlugInRoot.Dispose();
-					_itemPlugInRoot = null;
-				}
-			}
+		    if (disposing && _itemPlugInRoot != null)
+		    {
+		        _itemPlugInRoot.Dispose();
+		        _itemPlugInRoot = null;
+		    }
 		}
 
 		public void OnLanguageChanged(object sender, EventArgs e)

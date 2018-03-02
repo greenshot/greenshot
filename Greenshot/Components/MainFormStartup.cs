@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Linq;
 using System.Windows.Forms;
 using Dapplo.CaliburnMicro;
 using Dapplo.Log;
@@ -74,22 +75,14 @@ namespace Greenshot.Components
         {
             Log.Debug().WriteLine("Stopping MainForm");
 
-            // Close all open forms (except this), use a separate List to make sure we don't get a "InvalidOperationException: Collection was modified"
-            var formsToClose = new List<Form>();
-            foreach (Form form in Application.OpenForms)
-            {
-                if (form.Handle != MainForm.Instance.Handle && form.GetType() != typeof(ImageEditorForm))
-                {
-                    formsToClose.Add(form);
-                }
-            }
-            foreach (var form in formsToClose)
+            // Close all open forms, use a separate List to make sure we don't get a "InvalidOperationException: Collection was modified"
+            foreach (var form in Application.OpenForms.Cast<Form>().ToList())
             {
                 try
                 {
                     Log.Info().WriteLine("Closing form: {0}", form.Name);
-                    var formCapturedVariable = form;
-                    formCapturedVariable.Close();
+                    form.Close();
+                    form.Dispose();
                 }
                 catch (Exception e)
                 {

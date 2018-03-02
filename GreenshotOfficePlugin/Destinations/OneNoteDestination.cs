@@ -25,6 +25,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -39,38 +40,32 @@ using Dapplo.Log;
 
 namespace GreenshotOfficePlugin.Destinations
 {
-	public class OneNoteDestination : AbstractDestination
+    [Export(typeof(IDestination))]
+    public class OneNoteDestination : AbstractDestination
 	{
 		private const int IconApplication = 0;
 		public const string DESIGNATION = "OneNote";
 		private static readonly LogSource Log = new LogSource();
-		private static readonly string ExePath;
+		private readonly string _exePath;
 		private readonly OneNotePage _page;
-
-		static OneNoteDestination()
-		{
-			ExePath = PluginUtils.GetExePath("ONENOTE.EXE");
-			if (ExePath != null && !File.Exists(ExePath))
-			{
-				ExePath = null;
-			}
-		}
 
 		public OneNoteDestination()
 		{
-		}
+		    _exePath = PluginUtils.GetExePath("ONENOTE.EXE");
+		    if (_exePath != null && !File.Exists(_exePath))
+		    {
+		        _exePath = null;
+		    }
+        }
 
-		public OneNoteDestination(OneNotePage page)
-		{
+		public OneNoteDestination(OneNotePage page) : this()
+        {
 			_page = page;
 		}
 
-		public override string Designation
-		{
-			get { return DESIGNATION; }
-		}
+		public override string Designation => DESIGNATION;
 
-		public override string Description
+	    public override string Description
 		{
 			get
 			{
@@ -86,11 +81,11 @@ namespace GreenshotOfficePlugin.Destinations
 
 		public override bool IsDynamic => true;
 
-		public override bool IsActive => base.IsActive && ExePath != null;
+		public override bool IsActive => base.IsActive && _exePath != null;
 
 		public override Bitmap GetDisplayIcon(double dpi)
 		{
-			return PluginUtils.GetCachedExeIcon(ExePath, IconApplication, dpi > 100);
+			return PluginUtils.GetCachedExeIcon(_exePath, IconApplication, dpi > 100);
 		}
 
 		public override IEnumerable<IDestination> DynamicDestinations()

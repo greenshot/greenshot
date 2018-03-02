@@ -32,6 +32,7 @@ using Dapplo.Windows.Messages;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.SafeHandles;
 using Greenshot.Forms;
+using ColorDialog = Greenshot.Forms.ColorDialog;
 
 #endregion
 

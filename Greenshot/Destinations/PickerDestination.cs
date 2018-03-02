@@ -26,7 +26,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
-using CommonServiceLocator;
 using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;

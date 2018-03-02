@@ -36,7 +36,7 @@ namespace Greenshot.Drawing.Fields.Binding
 	///     This implementation synchronizes null values, too. If you do not want this
 	///     behavior (e.g. when binding to a
 	/// </summary>
-	public class BidirectionalBinding
+	public sealed class BidirectionalBinding : IDisposable
 	{
 		private readonly INotifyPropertyChanged _controlObject;
 		private readonly string _controlPropertyName;
@@ -45,11 +45,6 @@ namespace Greenshot.Drawing.Fields.Binding
 		private readonly IBindingValidator _validator;
 		private bool _updatingControl;
 		private bool _updatingField;
-
-		/// <summary>
-		///     Whether or not null values are passed on to the other object.
-		/// </summary>
-		protected bool AllowSynchronizeNull = true;
 
 		/// <summary>
 		///     Bind properties of two objects bidirectionally
@@ -118,22 +113,26 @@ namespace Greenshot.Drawing.Fields.Binding
 
 		public void ControlPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			if (!_updatingControl && e.PropertyName.Equals(_controlPropertyName))
-			{
-				_updatingField = true;
-				Synchronize(_controlObject, _controlPropertyName, _fieldObject, _fieldPropertyName);
-				_updatingField = false;
-			}
+		    if (_updatingControl || !e.PropertyName.Equals(_controlPropertyName))
+		    {
+		        return;
+		    }
+
+		    _updatingField = true;
+		    Synchronize(_controlObject, _controlPropertyName, _fieldObject, _fieldPropertyName);
+		    _updatingField = false;
 		}
 
 		public void FieldPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			if (!_updatingField && e.PropertyName.Equals(_fieldPropertyName))
-			{
-				_updatingControl = true;
-				Synchronize(_fieldObject, _fieldPropertyName, _controlObject, _controlPropertyName);
-				_updatingControl = false;
-			}
+		    if (_updatingField || !e.PropertyName.Equals(_fieldPropertyName))
+		    {
+		        return;
+		    }
+
+		    _updatingControl = true;
+		    Synchronize(_fieldObject, _fieldPropertyName, _controlObject, _controlPropertyName);
+		    _updatingControl = false;
 		}
 
 		private void Synchronize(INotifyPropertyChanged sourceObject, string sourceProperty, INotifyPropertyChanged targetObject, string targetProperty)
@@ -141,27 +140,29 @@ namespace Greenshot.Drawing.Fields.Binding
 			var targetPropertyInfo = ResolvePropertyInfo(targetObject, targetProperty);
 			var sourcePropertyInfo = ResolvePropertyInfo(sourceObject, sourceProperty);
 
-			if (sourcePropertyInfo != null && targetPropertyInfo != null && targetPropertyInfo.CanWrite)
-			{
-				var bValue = sourcePropertyInfo.GetValue(sourceObject, null);
-				if (Converter != null && bValue != null)
-				{
-					bValue = Converter.convert(bValue);
-				}
-				try
-				{
-					if (_validator == null || _validator.validate(bValue))
-					{
-						targetPropertyInfo.SetValue(targetObject, bValue, null);
-					}
-				}
-				catch (Exception e)
-				{
-					throw new MemberAccessException(
-						"Could not set property '" + targetProperty + "' to '" + bValue + "' [" + (bValue?.GetType().Name ?? "") + "] on " + targetObject +
-						". Probably other type than expected, IBindingCoverter to the rescue.", e);
-				}
-			}
+		    if (sourcePropertyInfo == null || targetPropertyInfo == null || !targetPropertyInfo.CanWrite)
+		    {
+		        return;
+		    }
+
+		    var bValue = sourcePropertyInfo.GetValue(sourceObject, null);
+		    if (Converter != null && bValue != null)
+		    {
+		        bValue = Converter.convert(bValue);
+		    }
+		    try
+		    {
+		        if (_validator == null || _validator.validate(bValue))
+		        {
+		            targetPropertyInfo.SetValue(targetObject, bValue, null);
+		        }
+		    }
+		    catch (Exception e)
+		    {
+		        throw new MemberAccessException(
+		            "Could not set property '" + targetProperty + "' to '" + bValue + "' [" + (bValue?.GetType().Name ?? "") + "] on " + targetObject +
+		            ". Probably other type than expected, IBindingCoverter to the rescue.", e);
+		    }
 		}
 
 		private static PropertyInfo ResolvePropertyInfo(object obj, string property)
@@ -179,5 +180,11 @@ namespace Greenshot.Drawing.Fields.Binding
 			}
 			return ret;
 		}
+
+	    public void Dispose()
+	    {
+	        _controlObject.PropertyChanged -= ControlPropertyChanged;
+	        _fieldObject.PropertyChanged -= FieldPropertyChanged;
+        }
 	}
 }

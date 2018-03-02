@@ -73,7 +73,7 @@ namespace GreenshotJiraPlugin
 		/// <param name="key">TKey</param>
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>TResult</returns>
-		protected abstract Task<TResult> CreateAsync(TKey key, CancellationToken cancellationToken = default(CancellationToken));
+		protected abstract Task<TResult> CreateAsync(TKey key, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		///     Creates a key under which the object is stored or retrieved, default is a toString on the object.
@@ -91,7 +91,7 @@ namespace GreenshotJiraPlugin
 		/// <param name="keyObject">object for the key</param>
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>TResult</returns>
-		public async Task DeleteAsync(TKey keyObject, CancellationToken cancellationToken = default(CancellationToken))
+		public async Task DeleteAsync(TKey keyObject, CancellationToken cancellationToken = default)
 		{
 			var key = CreateKey(keyObject);
 			await _semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
@@ -123,7 +123,7 @@ namespace GreenshotJiraPlugin
 		/// <param name="keyObject">object for the key</param>
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Task with TResult</returns>
-		public Task<TResult> GetOrCreateAsync(TKey keyObject, CancellationToken cancellationToken = default(CancellationToken))
+		public Task<TResult> GetOrCreateAsync(TKey keyObject, CancellationToken cancellationToken = default)
 		{
 			var key = CreateKey(keyObject);
 			return _cache.Get(key) as Task<TResult> ?? GetOrCreateInternalAsync(keyObject, null, cancellationToken);
@@ -136,7 +136,7 @@ namespace GreenshotJiraPlugin
 		/// <param name="cacheItemPolicy">CacheItemPolicy for when you want more control over the item</param>
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Task with TResult</returns>
-		public Task<TResult> GetOrCreateAsync(TKey keyObject, CacheItemPolicy cacheItemPolicy, CancellationToken cancellationToken = default(CancellationToken))
+		public Task<TResult> GetOrCreateAsync(TKey keyObject, CacheItemPolicy cacheItemPolicy, CancellationToken cancellationToken = default)
 		{
 			var key = CreateKey(keyObject);
 			return _cache.Get(key) as Task<TResult> ?? GetOrCreateInternalAsync(keyObject, cacheItemPolicy, cancellationToken);
@@ -150,7 +150,7 @@ namespace GreenshotJiraPlugin
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>TResult</returns>
 		private async Task<TResult> GetOrCreateInternalAsync(TKey keyObject, CacheItemPolicy cacheItemPolicy = null,
-			CancellationToken cancellationToken = default(CancellationToken))
+			CancellationToken cancellationToken = default)
 		{
 			var key = CreateKey(keyObject);
 			var completionSource = new TaskCompletionSource<TResult>();

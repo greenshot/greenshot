@@ -24,6 +24,7 @@
 #region Usings
 
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -38,31 +39,29 @@ using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotOfficePlugin.Destinations
 {
-	/// <summary>
-	///     Description of PowerpointDestination.
-	/// </summary>
-	public class PowerpointDestination : AbstractDestination
+    /// <summary>
+    ///     Description of PowerpointDestination.
+    /// </summary>
+    [Export(typeof(IDestination))]
+    public class PowerpointDestination : AbstractDestination
 	{
 		private const int IconApplication = 0;
 		private const int IconPresentation = 1;
 
-		private static readonly string ExePath;
+		private readonly string _exePath;
 		private readonly string _presentationName;
 
-		static PowerpointDestination()
-		{
-			ExePath = PluginUtils.GetExePath("POWERPNT.EXE");
-			if (ExePath != null && !File.Exists(ExePath))
-			{
-				ExePath = null;
-			}
-		}
 
 		public PowerpointDestination()
 		{
-		}
+		    _exePath = PluginUtils.GetExePath("POWERPNT.EXE");
+		    if (_exePath != null && !File.Exists(_exePath))
+		    {
+		        _exePath = null;
+		    }
+        }
 
-		public PowerpointDestination(string presentationName)
+		public PowerpointDestination(string presentationName) : this()
 		{
 			_presentationName = presentationName;
 		}
@@ -85,21 +84,21 @@ namespace GreenshotOfficePlugin.Destinations
 
 		public override bool IsDynamic => true;
 
-		public override bool IsActive => base.IsActive && ExePath != null;
+		public override bool IsActive => base.IsActive && _exePath != null;
 
 		public override Bitmap GetDisplayIcon(double dpi)
 		{
 			if (!string.IsNullOrEmpty(_presentationName))
 			{
-				return PluginUtils.GetCachedExeIcon(ExePath, IconPresentation, dpi > 100);
+				return PluginUtils.GetCachedExeIcon(_exePath, IconPresentation, dpi > 100);
 			}
 
-			return PluginUtils.GetCachedExeIcon(ExePath, IconApplication, dpi > 100);
+			return PluginUtils.GetCachedExeIcon(_exePath, IconApplication, dpi > 100);
 		}
 
 		public override IEnumerable<IDestination> DynamicDestinations()
 		{
-			return PowerpointExporter.GetPowerpointPresentations().Select(presentationName => new PowerpointDestination(presentationName)).Cast<IDestination>();
+			return PowerpointExporter.GetPowerpointPresentations().Select(presentationName => new PowerpointDestination(presentationName));
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)

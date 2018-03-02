@@ -56,7 +56,7 @@ namespace GreenshotPlugin.Core
 			// Don't serialize a null object, simply return the default for that object
 			if (source == null)
 			{
-				return default(T);
+				return default;
 			}
 
 			IFormatter formatter = new BinaryFormatter();

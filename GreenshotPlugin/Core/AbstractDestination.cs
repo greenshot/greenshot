@@ -33,7 +33,6 @@ using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Dpi.Forms;
-using Dapplo.Windows.User32;
 using Greenshot.Gfx;
 using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;

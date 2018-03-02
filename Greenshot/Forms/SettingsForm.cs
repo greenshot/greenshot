@@ -34,23 +34,22 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using CommonServiceLocator;
+using Dapplo.Log;
+using Dapplo.Windows.Common;
+using Dapplo.Windows.DesktopWindowsManager;
+using Greenshot.Components;
 using Greenshot.Configuration;
 using Greenshot.Destinations;
-using Greenshot.Forms;
 using Greenshot.Helpers;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.Interfaces;
-using Dapplo.Log;
-using Dapplo.Windows.Common;
-using Dapplo.Windows.DesktopWindowsManager;
-using Greenshot.Components;
 using GreenshotPlugin.Interfaces.Plugin;
 
 #endregion
 
-namespace Greenshot
+namespace Greenshot.Forms
 {
 	/// <summary>
 	///     Description of SettingsForm.

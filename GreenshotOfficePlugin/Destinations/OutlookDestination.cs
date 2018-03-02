@@ -24,6 +24,7 @@
 #region Usings
 
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -41,10 +42,11 @@ using Dapplo.Log;
 
 namespace GreenshotOfficePlugin.Destinations
 {
-	/// <summary>
-	///     Description of OutlookDestination.
-	/// </summary>
-	public class OutlookDestination : AbstractDestination
+    /// <summary>
+    ///     Description of OutlookDestination.
+    /// </summary>
+    [Export(typeof(IDestination))]
+    public class OutlookDestination : AbstractDestination
 	{
 		private const int IconApplication = 0;
 		private const int IconMeeting = 2;
@@ -53,35 +55,31 @@ namespace GreenshotOfficePlugin.Destinations
 
 		private static readonly Bitmap MailIcon = GreenshotResources.GetBitmap("Email.Image");
 		private static readonly IOfficeConfiguration OfficeConfig = IniConfig.Current.Get<IOfficeConfiguration>();
-		private static readonly string ExePath;
-		private static readonly bool IsActiveFlag;
+		private readonly string _exePath;
+		private readonly bool _isActiveFlag;
 		private readonly string _outlookInspectorCaption;
 		private readonly OlObjectClass _outlookInspectorType;
 
-		static OutlookDestination()
-		{
-			if (EmailConfigHelper.HasOutlook())
-			{
-				IsActiveFlag = true;
-			}
-			ExePath = PluginUtils.GetExePath("OUTLOOK.EXE");
-			if (ExePath != null && !File.Exists(ExePath))
-			{
-				ExePath = null;
-			}
-			if (ExePath == null)
-			{
-				IsActiveFlag = false;
-			}
-		}
-
 		public OutlookDestination()
 		{
-		}
+		    if (EmailConfigHelper.HasOutlook())
+		    {
+		        _isActiveFlag = true;
+		    }
+		    _exePath = PluginUtils.GetExePath("OUTLOOK.EXE");
+		    if (_exePath != null && !File.Exists(_exePath))
+		    {
+		        _exePath = null;
+		    }
+		    if (_exePath == null)
+		    {
+		        _isActiveFlag = false;
+		    }
+        }
 
-		public OutlookDestination(string outlookInspectorCaption, OlObjectClass outlookInspectorType)
+	    public OutlookDestination(string outlookInspectorCaption, OlObjectClass outlookInspectorType) : this()
 		{
-			_outlookInspectorCaption = outlookInspectorCaption;
+            _outlookInspectorCaption = outlookInspectorCaption;
 			_outlookInspectorType = outlookInspectorType;
 		}
 
@@ -91,7 +89,7 @@ namespace GreenshotOfficePlugin.Destinations
 
 		public override int Priority => 3;
 
-		public override bool IsActive => base.IsActive && IsActiveFlag;
+		public override bool IsActive => base.IsActive && _isActiveFlag;
 
 		public override bool IsDynamic => true;
 
@@ -101,12 +99,12 @@ namespace GreenshotOfficePlugin.Destinations
 		{
 			if (_outlookInspectorCaption == null)
 			{
-				return PluginUtils.GetCachedExeIcon(ExePath, IconApplication, dpi > 100);
+				return PluginUtils.GetCachedExeIcon(_exePath, IconApplication, dpi > 100);
 			}
 			if (OlObjectClass.olAppointment.Equals(_outlookInspectorType))
 			{
 				// Make sure we loaded the icon, maybe the configuration has been changed!
-				return PluginUtils.GetCachedExeIcon(ExePath, IconMeeting, dpi > 100);
+				return PluginUtils.GetCachedExeIcon(_exePath, IconMeeting, dpi > 100);
 			}
 			return MailIcon;
 		}

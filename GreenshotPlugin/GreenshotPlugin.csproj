@@ -166,7 +166,6 @@
     <Compile Include="Core\ConfigTags.cs" />
     <Compile Include="Core\CoreConfigurationExtensions.cs" />
     <Compile Include="Core\Credentials\CredFlags.cs" />
-    <Compile Include="Core\Credentials\CredUi.cs" />
     <Compile Include="Core\Credentials\CredUiInfo.cs" />
     <Compile Include="Core\Credentials\CredUIReturnCodes.cs" />
     <Compile Include="Core\Enums\BuildStates.cs" />
@@ -309,7 +308,7 @@
     <Compile Include="Core\Cache.cs" />
     <Compile Include="Core\ClipboardHelper.cs" />
     <Compile Include="Core\ICoreConfiguration.cs" />
-    <Compile Include="Core\Credentials\CredentialsHelper.cs" />
+    <Compile Include="Core\Credentials\CredentialsDialog.cs" />
     <Compile Include="Core\StringExtensions.cs" />
     <Compile Include="Core\FilenameHelper.cs" />
     <Compile Include="Core\InterfaceUtils.cs" />

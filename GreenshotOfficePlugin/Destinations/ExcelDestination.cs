@@ -24,6 +24,7 @@
 #region Usings
 
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -37,30 +38,27 @@ using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotOfficePlugin.Destinations
 {
-	/// <summary>
-	///     Description of PowerpointDestination.
-	/// </summary>
-	public class ExcelDestination : AbstractDestination
+    /// <summary>
+    ///     Description of PowerpointDestination.
+    /// </summary>
+    [Export(typeof(IDestination))]
+    public class ExcelDestination : AbstractDestination
 	{
 		private const int IconApplication = 0;
 		private const int IconWorkbook = 1;
-		private static readonly string ExePath;
+		private readonly string _exePath;
 		private readonly string _workbookName;
-
-		static ExcelDestination()
-		{
-			ExePath = PluginUtils.GetExePath("EXCEL.EXE");
-			if (ExePath != null && !File.Exists(ExePath))
-			{
-				ExePath = null;
-			}
-		}
 
 		public ExcelDestination()
 		{
-		}
+		    _exePath = PluginUtils.GetExePath("EXCEL.EXE");
+		    if (_exePath != null && !File.Exists(_exePath))
+		    {
+		        _exePath = null;
+		    }
+        }
 
-		public ExcelDestination(string workbookName)
+		public ExcelDestination(string workbookName) : this()
 		{
 			_workbookName = workbookName;
 		}
@@ -73,11 +71,11 @@ namespace GreenshotOfficePlugin.Destinations
 
 		public override bool IsDynamic => true;
 
-		public override bool IsActive => base.IsActive && ExePath != null;
+		public override bool IsActive => base.IsActive && _exePath != null;
 
 		public override Bitmap GetDisplayIcon(double dpi)
 		{
-			return PluginUtils.GetCachedExeIcon(ExePath, !string.IsNullOrEmpty(_workbookName) ? IconWorkbook : IconApplication, dpi > 100);
+			return PluginUtils.GetCachedExeIcon(_exePath, !string.IsNullOrEmpty(_workbookName) ? IconWorkbook : IconApplication, dpi > 100);
 		}
 
 		public override IEnumerable<IDestination> DynamicDestinations()

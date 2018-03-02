@@ -30,13 +30,13 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Ini;
 using Greenshot.Configuration;
 using Greenshot.Controls;
-using Dapplo.Ini;
 
 #endregion
 
-namespace Greenshot
+namespace Greenshot.Forms
 {
 	/// <summary>
 	///     Description of ColorDialog.

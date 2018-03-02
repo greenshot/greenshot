@@ -331,7 +331,9 @@ namespace GreenshotPlugin.Controls
 		    }
 		}
 
-		// Clean up any resources being used.
+        /// <summary>
+        /// 	    Clean up any resources being used.
+        /// </summary>
 		protected override void Dispose(bool disposing)
 		{
 			if (disposing)

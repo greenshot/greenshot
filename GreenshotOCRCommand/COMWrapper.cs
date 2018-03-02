@@ -387,7 +387,7 @@ namespace GreenshotOCRCommand
 				var wrapper = new COMWrapper(comObject, type);
 				return (T) wrapper.GetTransparentProxy();
 			}
-			return default(T);
+			return default;
 		}
 
 		/// <summary>
@@ -470,7 +470,7 @@ namespace GreenshotOCRCommand
 				var wrapper = new COMWrapper(comObject, type);
 				return (T) wrapper.GetTransparentProxy();
 			}
-			return default(T);
+			return default;
 		}
 
 		/// <summary>

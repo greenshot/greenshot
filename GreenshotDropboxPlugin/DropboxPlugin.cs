@@ -26,9 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.IO;
 using System.Windows.Forms;
-using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
@@ -111,14 +109,11 @@ namespace GreenshotDropboxPlugin
 
 		private void Dispose(bool disposing)
 		{
-			if (disposing)
-			{
-				if (_itemPlugInConfig != null)
-				{
-					_itemPlugInConfig.Dispose();
-					_itemPlugInConfig = null;
-				}
-			}
+		    if (disposing && _itemPlugInConfig != null)
+		    {
+		        _itemPlugInConfig.Dispose();
+		        _itemPlugInConfig = null;
+		    }
 		}
 
 		public void OnLanguageChanged(object sender, EventArgs e)

@@ -41,6 +41,8 @@ namespace Greenshot.Forms {
 			}
 			// Make sure that clipboard changes are not longer processed.
 			_clipboardSubscription?.Dispose();
+			// Remove all other stuff
+			_disposables.Dispose();
 			base.Dispose(disposing);
 		}
 		
