@@ -524,7 +524,7 @@ namespace Greenshot.Forms
 
             // Add the destinations
             foreach (var destination in _destinations
-                .Where(destination => destination.Metadata.Priority > 2 && !IgnoreDestinations.Contains(destination.Metadata.Designation) && destination.Value.IsActive)
+                .Where(destination => !IgnoreDestinations.Contains(destination.Metadata.Designation) && destination.Value.IsActive)
                 .OrderBy(destination => destination.Metadata.Priority).ThenBy(destination => destination.Value.Description)
                 .Select(d => d.Value))
             {
@@ -533,6 +533,10 @@ namespace Greenshot.Forms
                 {
                     continue;
                 }
+
+                var icon = destination.GetDisplayIcon(DpiHandler.Dpi);
+                item.Text = destination.Description;
+                item.Image = icon.ScaleIconForDisplaying(DpiHandler.Dpi);
                 item.ShortcutKeys = destination.EditorShortcutKeys;
                 fileStripMenuItem.DropDownItems.Add(item);
             }
