@@ -38,6 +38,7 @@ using Dapplo.Ini;
 using Dapplo.Log;
 using Greenshot.Forms;
 using Greenshot.Helpers;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;

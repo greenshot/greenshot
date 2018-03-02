@@ -30,6 +30,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Dapplo.Log;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
@@ -39,7 +40,7 @@ using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotFlickrPlugin
 {
-    [Export(typeof(IDestination))]
+    [Destination("Flickr")]
     public class FlickrDestination : AbstractDestination
 	{
 	    private static readonly LogSource Log = new LogSource();
@@ -50,8 +51,6 @@ namespace GreenshotFlickrPlugin
 		{
 			_flickrConfiguration = flickrConfiguration;
 		}
-
-		public override string Designation => "Flickr";
 
 		public override string Description => Language.GetString("flickr", LangKey.upload_menu_item);
 

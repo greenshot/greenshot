@@ -31,6 +31,7 @@ using Dapplo.Log;
 using Dapplo.Windows.Dpi;
 using Greenshot.Gfx;
 using GreenshotLutimPlugin.Forms;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;

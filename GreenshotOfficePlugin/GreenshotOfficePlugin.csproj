@@ -168,7 +168,6 @@
     <Compile Include="Destinations\OneNoteDestination.cs" />
     <Compile Include="Destinations\PowerpointDestination.cs" />
     <Compile Include="Destinations\WordDestination.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="IOfficeConfiguration.cs" />
     <Compile Include="OfficeInterop\IAppointmentItem.cs" />
     <Compile Include="OfficeInterop\EmailFormat.cs" />
@@ -227,7 +226,6 @@
     <Compile Include="OfficeInterop\SpecialLocation.cs" />
     <Compile Include="OfficeInterop\WdUnits.cs" />
     <Compile Include="OfficeInterop\XMLSchema.cs" />
-    <Compile Include="OfficePlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="OfficeExport\ExcelExporter.cs" />
     <Compile Include="OfficeExport\OneNoteExporter.cs" />

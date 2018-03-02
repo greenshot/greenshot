@@ -24,7 +24,6 @@
 #region Usings
 
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -37,6 +36,7 @@ using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
+using GreenshotPlugin.Addons;
 
 #endregion
 
@@ -45,7 +45,7 @@ namespace GreenshotOfficePlugin.Destinations
     /// <summary>
     ///     Description of OutlookDestination.
     /// </summary>
-    [Export(typeof(IDestination))]
+    [Destination("Outlook", 3)]
     public class OutlookDestination : AbstractDestination
 	{
 		private const int IconApplication = 0;
@@ -83,13 +83,9 @@ namespace GreenshotOfficePlugin.Destinations
 			_outlookInspectorType = outlookInspectorType;
 		}
 
-		public override string Designation => "Outlook";
-
 		public override string Description => _outlookInspectorCaption ?? MapiClient;
 
-		public override int Priority => 3;
-
-		public override bool IsActive => base.IsActive && _isActiveFlag;
+        public override bool IsActive => base.IsActive && _isActiveFlag;
 
 		public override bool IsDynamic => true;
 

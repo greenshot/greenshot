@@ -31,6 +31,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Dapplo.Log;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
@@ -43,7 +44,7 @@ namespace GreenshotPhotobucketPlugin
     /// <summary>
     ///     Description of PhotobucketDestination.
     /// </summary>
-    [Export(typeof(IDestination))]
+    [Destination("Photobucket")]
     public class PhotobucketDestination : AbstractDestination
 	{
 	    private static readonly LogSource Log = new LogSource();
@@ -70,8 +71,6 @@ namespace GreenshotPhotobucketPlugin
 			_photobucketConfiguration = photobucketConfiguration;
 			_albumPath = albumPath;
 		}
-
-		public override string Designation => "Photobucket";
 
 		public override string Description
 		{

@@ -31,6 +31,7 @@ using System.IO;
 using System.Windows.Forms;
 using Dapplo.Log;
 using Greenshot.Gfx;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
@@ -43,7 +44,7 @@ namespace GreenshotImgurPlugin
     /// <summary>
     ///     Description of ImgurDestination.
     /// </summary>
-    [Export(typeof(IDestination))]
+    [Destination("Imgur")]
     public class ImgurDestination : AbstractDestination
 	{
 	    private static readonly LogSource Log = new LogSource();
@@ -54,8 +55,6 @@ namespace GreenshotImgurPlugin
 		{
 			_imgurConfiguration = imgurConfiguration;
 		}
-
-		public override string Designation => "Imgur";
 
 		public override string Description => Language.GetString("imgur", LangKey.upload_menu_item);
 

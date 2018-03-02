@@ -24,11 +24,11 @@
 #region Usings
 
 using System;
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Configuration;
 using Greenshot.Helpers;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 
@@ -39,10 +39,9 @@ namespace Greenshot.Destinations
     /// <summary>
     ///     Description of EmailDestination.
     /// </summary>
-    [Export(typeof(IDestination))]
+    [Destination("EMail", 3)]
     public class EmailDestination : AbstractDestination
 	{
-		public const string DESIGNATION = "EMail";
 		private static readonly Bitmap MailIcon = GreenshotResources.GetBitmap("Email.Image");
 		private static bool _isActiveFlag;
 		private static string _mapiClient;
@@ -62,8 +61,6 @@ namespace Greenshot.Destinations
 			}
 		}
 
-		public override string Designation => DESIGNATION;
-
 		public override string Description
 		{
 			get
@@ -76,8 +73,6 @@ namespace Greenshot.Destinations
 				return _mapiClient;
 			}
 		}
-
-		public override int Priority => 3;
 
 		public override bool IsActive
 		{

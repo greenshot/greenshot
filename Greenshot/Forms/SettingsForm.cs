@@ -24,8 +24,8 @@
 #region Usings
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -33,7 +33,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using CommonServiceLocator;
 using Dapplo.Log;
 using Dapplo.Windows.Common;
 using Dapplo.Windows.DesktopWindowsManager;
@@ -41,11 +40,11 @@ using Greenshot.Components;
 using Greenshot.Configuration;
 using Greenshot.Destinations;
 using Greenshot.Helpers;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
+using GreenshotPlugin.Extensions;
 
 #endregion
 
@@ -54,6 +53,7 @@ namespace Greenshot.Forms
 	/// <summary>
 	///     Description of SettingsForm.
 	/// </summary>
+	[Export]
 	public partial class SettingsForm : BaseForm
 	{
 		private static readonly LogSource Log = new LogSource();
@@ -61,15 +61,21 @@ namespace Greenshot.Forms
 		private int _daysbetweencheckPreviousValue;
 		private bool _inHotkey;
 
-		public SettingsForm()
-		{
-			InitializeComponent();
+	    [ImportMany(AllowRecomposition = true)]
+	    private IEnumerable<Lazy<IDestination, IDestinationMetadata>> _destinations = null;
 
+        public SettingsForm()
+		{
 			// Make sure the store isn't called to early, that's why we do it manually
 			ManualStoreFields = true;
 		}
 
-		protected override void OnLoad(EventArgs e)
+	    public void Initialize()
+	    {
+	        InitializeComponent();
+	    }
+
+        protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
 
@@ -224,7 +230,7 @@ namespace Greenshot.Forms
 
 		private void DisplayPluginTab()
 		{
-		    var plugins = ServiceLocator.Current.GetAllInstances<IGreenshotPlugin>().ToList();
+		    var plugins = _destinations.Select(d => d.Value.GetType().Assembly).Distinct().ToList();
 			if (!plugins.Any())
 			{
 				tabcontrol.TabPages.Remove(tab_plugins);
@@ -271,17 +277,17 @@ namespace Greenshot.Forms
 	    /// </summary>
 	    /// <param name="plugins"></param>
 	    /// <param name="listview"></param>
-	    private void FillListview(IEnumerable<IGreenshotPlugin> plugins, ListView listview)
+	    private void FillListview(IEnumerable<Assembly> plugins, ListView listview)
 	    {
-	        foreach (var greenshotPlugin in plugins.Select(p => p.GetType().Assembly))
+	        foreach (var pluginAssembly in plugins)
 	        {
-	            var item = new ListViewItem(greenshotPlugin.GetName().Name)
+	            var item = new ListViewItem(pluginAssembly.GetName().Name)
 	            {
-	                Tag = greenshotPlugin
+	                Tag = pluginAssembly
 	            };
-	            item.SubItems.Add(greenshotPlugin.GetName().Version.ToString());
-	            item.SubItems.Add(greenshotPlugin.GetCustomAttributes(typeof(AssemblyCompanyAttribute), false).Cast<AssemblyCompanyAttribute>().FirstOrDefault()?.Company);
-	            item.SubItems.Add(greenshotPlugin.Location);
+	            item.SubItems.Add(pluginAssembly.GetName().Version.ToString());
+	            item.SubItems.Add(pluginAssembly.GetCustomAttributes(typeof(AssemblyCompanyAttribute), false).Cast<AssemblyCompanyAttribute>().FirstOrDefault()?.Company);
+	            item.SubItems.Add(pluginAssembly.Location);
 	            listview.Items.Add(item);
 	        }
 	    }
@@ -410,11 +416,12 @@ namespace Greenshot.Forms
             checkbox_picker.Checked = false;
 
 			listview_destinations.Items.Clear();
-			listview_destinations.ListViewItemSorter = new ListviewWithDestinationComparer();
 			var imageList = new ImageList();
 			listview_destinations.SmallImageList = imageList;
 			var imageNr = -1;
-			foreach (var currentDestination in ServiceLocator.Current.GetAllInstances<IDestination>())
+			foreach (var currentDestination in _destinations.Where(d => d.Value.IsActive)
+			    .OrderBy(destination => destination.Metadata.Priority).ThenBy(d => d.Value.Description)
+			    .Select(d => d.Value))
 			{
 				var destinationImage = currentDestination.GetDisplayIcon(DpiHandler.Dpi);
 				if (destinationImage != null)
@@ -422,7 +429,7 @@ namespace Greenshot.Forms
 					imageList.Images.Add(destinationImage);
 					imageNr++;
 				}
-				if (PickerDestination.DESIGNATION.Equals(currentDestination.Designation))
+				if (typeof(PickerDestination).GetDesignation().Equals(currentDestination.Designation))
 				{
 					checkbox_picker.Checked = coreConfiguration.OutputDestinations.Contains(currentDestination.Designation);
 					checkbox_picker.Text = currentDestination.Description;
@@ -558,7 +565,7 @@ namespace Greenshot.Forms
 			var destinations = new List<string>();
 			if (checkbox_picker.Checked)
 			{
-				destinations.Add(PickerDestination.DESIGNATION);
+				destinations.Add(typeof(PickerDestination).GetDesignation());
 			}
 			foreach (int index in listview_destinations.CheckedIndices)
 			{
@@ -721,7 +728,7 @@ namespace Greenshot.Forms
 			{
 				var item = listview_destinations.Items[index];
 			    if (!(item.Tag is IDestination destinationFromTag) ||
-			        !destinationFromTag.Designation.Equals(ClipboardDestination.DESIGNATION))
+			        !destinationFromTag.Designation.Equals(typeof(ClipboardDestination).GetDesignation()))
 			    {
 			        continue;
 			    }
@@ -802,41 +809,6 @@ namespace Greenshot.Forms
 		private void Radiobutton_CheckedChanged(object sender, EventArgs e)
 		{
 			combobox_window_capture_mode.Enabled = radiobuttonWindowCapture.Checked;
-		}
-	}
-
-	public class ListviewWithDestinationComparer : IComparer
-	{
-		public int Compare(object x, object y)
-		{
-			if (!(x is ListViewItem))
-			{
-				return 0;
-			}
-			if (!(y is ListViewItem))
-			{
-				return 0;
-			}
-
-			var l1 = (ListViewItem) x;
-			var l2 = (ListViewItem) y;
-
-			var firstDestination = l1.Tag as IDestination;
-			var secondDestination = l2.Tag as IDestination;
-
-			if (secondDestination == null)
-			{
-				return 1;
-			}
-			if (firstDestination != null && firstDestination.Priority == secondDestination.Priority)
-			{
-				return string.Compare(firstDestination.Description, secondDestination.Description, StringComparison.Ordinal);
-			}
-			if (firstDestination != null)
-			{
-				return firstDestination.Priority - secondDestination.Priority;
-			}
-			return 0;
 		}
 	}
 }

@@ -30,6 +30,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Dapplo.Log;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
@@ -39,8 +40,8 @@ using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotBoxPlugin
 {
-    [Export(typeof(IDestination))]
-	public class BoxDestination : AbstractDestination
+    [Destination("Box")]
+    public class BoxDestination : AbstractDestination
 	{
 	    private static readonly LogSource Log = new LogSource();
         private readonly IBoxConfiguration _boxConfiguration;
@@ -50,8 +51,6 @@ namespace GreenshotBoxPlugin
 	    {
 	        _boxConfiguration = boxConfiguration;
 	    }
-
-		public override string Designation => "Box";
 
 	    public override string Description => Language.GetString("box", LangKey.upload_menu_item);
 

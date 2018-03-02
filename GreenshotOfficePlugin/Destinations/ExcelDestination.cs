@@ -24,11 +24,11 @@
 #region Usings
 
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 using GreenshotOfficePlugin.OfficeExport;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
@@ -41,7 +41,7 @@ namespace GreenshotOfficePlugin.Destinations
     /// <summary>
     ///     Description of PowerpointDestination.
     /// </summary>
-    [Export(typeof(IDestination))]
+    [Destination("Excel", 5)]
     public class ExcelDestination : AbstractDestination
 	{
 		private const int IconApplication = 0;
@@ -63,11 +63,7 @@ namespace GreenshotOfficePlugin.Destinations
 			_workbookName = workbookName;
 		}
 
-		public override string Designation => "Excel";
-
 		public override string Description => _workbookName ?? "Microsoft Excel";
-
-		public override int Priority => 5;
 
 		public override bool IsDynamic => true;
 

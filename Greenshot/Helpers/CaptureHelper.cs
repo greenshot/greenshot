@@ -51,6 +51,7 @@ using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
 using Greenshot.Components;
 using Greenshot.Gfx;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Extensions;
 
 #endregion
@@ -410,16 +411,16 @@ namespace Greenshot.Helpers
                         _capture.CaptureDetails.Title = "Clipboard";
                         _capture.CaptureDetails.AddMetaData("source", "Clipboard");
                         // Force Editor, keep picker
-                        if (_capture.CaptureDetails.HasDestination(PickerDestination.DESIGNATION))
+                        if (_capture.CaptureDetails.HasDestination(typeof(PickerDestination).GetDesignation()))
                         {
                             _capture.CaptureDetails.ClearDestinations();
-                            _capture.CaptureDetails.AddDestination(_destinations.Find(EditorDestination.DESIGNATION));
-                            _capture.CaptureDetails.AddDestination(_destinations.Find(PickerDestination.DESIGNATION));
+                            _capture.CaptureDetails.AddDestination(_destinations.Find(typeof(EditorDestination)));
+                            _capture.CaptureDetails.AddDestination(_destinations.Find(typeof(PickerDestination)));
                         }
                         else
                         {
                             _capture.CaptureDetails.ClearDestinations();
-                            _capture.CaptureDetails.AddDestination(_destinations.Find(EditorDestination.DESIGNATION));
+                            _capture.CaptureDetails.AddDestination(_destinations.Find(typeof(EditorDestination)));
                         }
                         HandleCapture();
                     }
@@ -441,7 +442,7 @@ namespace Greenshot.Helpers
                                 ISurface surface = new Surface();
                                 surface = ImageOutput.LoadGreenshotSurface(filename, surface);
                                 surface.CaptureDetails = _capture.CaptureDetails;
-                                _destinations.Find(EditorDestination.DESIGNATION)?.ExportCapture(true, surface, _capture.CaptureDetails);
+                                _destinations.Find(typeof(EditorDestination))?.ExportCapture(true, surface, _capture.CaptureDetails);
                                 break;
                             }
                         }
@@ -474,16 +475,16 @@ namespace Greenshot.Helpers
                             _capture = new Capture(fileImage);
                         }
                         // Force Editor, keep picker, this is currently the only usefull destination
-                        if (_capture.CaptureDetails.HasDestination(PickerDestination.DESIGNATION))
+                        if (_capture.CaptureDetails.HasDestination(typeof(PickerDestination).GetDesignation()))
                         {
                             _capture.CaptureDetails.ClearDestinations();
-                            _capture.CaptureDetails.AddDestination(_destinations.Find(EditorDestination.DESIGNATION));
-                            _capture.CaptureDetails.AddDestination(_destinations.Find(PickerDestination.DESIGNATION));
+                            _capture.CaptureDetails.AddDestination(_destinations.Find(typeof(EditorDestination)));
+                            _capture.CaptureDetails.AddDestination(_destinations.Find(typeof(PickerDestination)));
                         }
                         else
                         {
                             _capture.CaptureDetails.ClearDestinations();
-                            _capture.CaptureDetails.AddDestination(_destinations.Find(EditorDestination.DESIGNATION));
+                            _capture.CaptureDetails.AddDestination(_destinations.Find(typeof(EditorDestination)));
                         }
                         HandleCapture();
                     }
@@ -569,8 +570,7 @@ namespace Greenshot.Helpers
         /// <param name="e"></param>
         private void OpenCaptureOnClick(object sender, EventArgs e)
         {
-            var eventArgs = MainForm.Instance.NotifyIcon.Tag as SurfaceMessageEventArgs;
-            if (eventArgs == null)
+            if (!(MainForm.Instance.NotifyIcon.Tag is SurfaceMessageEventArgs eventArgs))
             {
                 Log.Warn().WriteLine("OpenCaptureOnClick called without SurfaceMessageEventArgs");
                 RemoveEventHandler(sender, e);
@@ -706,9 +706,9 @@ namespace Greenshot.Helpers
             var captureDetails = _capture.CaptureDetails;
             var canDisposeSurface = true;
 
-            if (captureDetails.HasDestination(PickerDestination.DESIGNATION))
+            if (captureDetails.HasDestination(typeof(PickerDestination).GetDesignation()))
             {
-                _destinations.Find(PickerDestination.DESIGNATION)?.ExportCapture(false, surface, captureDetails);
+                _destinations.Find(typeof(PickerDestination))?.ExportCapture(false, surface, captureDetails);
                 captureDetails.CaptureDestinations.Clear();
                 canDisposeSurface = false;
             }
@@ -726,14 +726,14 @@ namespace Greenshot.Helpers
                 // or use the file that was written
                 foreach (var destination in captureDetails.CaptureDestinations)
                 {
-                    if (PickerDestination.DESIGNATION.Equals(destination.Designation))
+                    if (typeof(PickerDestination).GetDesignation().Equals(destination.Designation))
                     {
                         continue;
                     }
                     Log.Info().WriteLine("Calling destination {0}", destination.Description);
 
                     var exportInformation = destination.ExportCapture(false, surface, captureDetails);
-                    if (EditorDestination.DESIGNATION.Equals(destination.Designation) && exportInformation.ExportMade)
+                    if (typeof(EditorDestination).GetDesignation().Equals(destination.Designation) && exportInformation.ExportMade)
                     {
                         canDisposeSurface = false;
                     }

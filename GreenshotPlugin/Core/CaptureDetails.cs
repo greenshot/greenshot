@@ -25,6 +25,7 @@
 
 using System;
 using System.Collections.Generic;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Interfaces;
 
 #endregion

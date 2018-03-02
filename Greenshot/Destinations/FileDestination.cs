@@ -36,6 +36,7 @@ using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
 using Greenshot.Forms;
+using GreenshotPlugin.Addons;
 
 #endregion
 
@@ -44,24 +45,21 @@ namespace Greenshot.Destinations
     /// <summary>
     ///     Description of FileSaveAsDestination.
     /// </summary>
-    [Export(typeof(IDestination))]
+    [Destination("FileNoDialog", 0)]
     public class FileDestination : AbstractDestination
 	{
 		private static readonly LogSource Log = new LogSource();
-	    public const string DESIGNATION = "FileNoDialog";
 	    private readonly ICoreConfiguration _coreConfiguration;
+	    private readonly SettingsForm _settingsForm;
 
-        [ImportingConstructor]
-	    public FileDestination(ICoreConfiguration coreConfiguration)
+	    [ImportingConstructor]
+	    public FileDestination(ICoreConfiguration coreConfiguration, SettingsForm settingsForm)
 	    {
 	        _coreConfiguration = coreConfiguration;
+	        _settingsForm = settingsForm;
 	    }
 
-        public override string Designation => DESIGNATION;
-
 		public override string Description => Language.GetString(LangKey.quicksettings_destination_file);
-
-		public override int Priority => 0;
 
 		public override Keys EditorShortcutKeys => Keys.Control | Keys.S;
 
@@ -159,7 +157,7 @@ namespace Greenshot.Destinations
 
 				MessageBox.Show(Language.GetString(LangKey.error_save_invalid_chars), Language.GetString(LangKey.error));
 				// ... lets get the pattern fixed....
-				var dialogResult = new SettingsForm().ShowDialog();
+				var dialogResult = _settingsForm.ShowDialog();
 				if (dialogResult == DialogResult.OK)
 				{
 					// ... OK -> then try again:

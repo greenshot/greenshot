@@ -38,6 +38,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
+using GreenshotPlugin.Addons;
 
 #endregion
 
@@ -46,7 +47,7 @@ namespace GreenshotJiraPlugin
     /// <summary>
     ///     Description of JiraDestination.
     /// </summary>
-    [Export(typeof(IDestination))]
+    [Destination("Jira")]
     public class JiraDestination : AbstractDestination
 	{
 	    private static readonly LogSource Log = new LogSource();
@@ -67,8 +68,6 @@ namespace GreenshotJiraPlugin
 		    _jiraConnector = jiraConnector;
 			_jiraIssue = jiraIssue;
 		}
-
-		public override string Designation => "Jira";
 
 		public override string Description
 		{

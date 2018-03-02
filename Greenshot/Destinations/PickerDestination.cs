@@ -23,33 +23,31 @@
 
 #region Usings
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using Greenshot.Configuration;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Extensions;
 using GreenshotPlugin.Interfaces;
 
 #endregion
 
 namespace Greenshot.Destinations
 {
-	/// <summary>
-	///     The PickerDestination shows a context menu with all possible destinations, so the user can "pick" one
-	/// </summary>
-	[Export(typeof(IDestination))]
-	public class PickerDestination : AbstractDestination
+    /// <summary>
+    ///     The PickerDestination shows a context menu with all possible destinations, so the user can "pick" one
+    /// </summary>
+    [Destination("Picker", 1)]
+    public class PickerDestination : AbstractDestination
 	{
-	    public const string DESIGNATION = "Picker";
-
-		public override string Designation => DESIGNATION;
-
 		public override string Description => Language.GetString(LangKey.settings_destination_picker);
+	    private readonly string _pickerDesignation = typeof(PickerDestination).GetDesignation();
 
-		public override int Priority => 1;
-
-	    [ImportMany(AllowRecomposition = true)]
-	    private IEnumerable<IDestination> _destinations = null;
+        [ImportMany(AllowRecomposition = true)]
+	    private IEnumerable<Lazy<IDestination, IDestinationMetadata>> _destinations = null;
 
 		/// <summary>
 		///     Export the capture with the destination picker
@@ -62,9 +60,11 @@ namespace Greenshot.Destinations
 		{
 		    // No Processing, this is done in the selected destination (if anything was selected)
 			return ShowPickerMenu(true, surface, captureDetails,
-			    _destinations.Where(destination => !"Picker".Equals(destination.Designation))
-			        .Where(destination => destination.IsActive)
-			        .OrderBy(destination => destination.Priority).ThenBy(destination => destination.Description));
+			    _destinations
+			        .Where(destination => !_pickerDesignation.Equals(destination.Metadata.Designation))
+			        .Where(destination => destination.Value.IsActive)
+			        .OrderBy(destination => destination.Metadata.Priority).ThenBy(destination => destination.Value.Description)
+			        .Select(d => d.Value));
 		}
 	}
 }

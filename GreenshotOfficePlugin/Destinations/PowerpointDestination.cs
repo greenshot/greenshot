@@ -24,12 +24,12 @@
 #region Usings
 
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using GreenshotOfficePlugin.OfficeExport;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
@@ -42,7 +42,7 @@ namespace GreenshotOfficePlugin.Destinations
     /// <summary>
     ///     Description of PowerpointDestination.
     /// </summary>
-    [Export(typeof(IDestination))]
+    [Destination("Powerpoint", 4)]
     public class PowerpointDestination : AbstractDestination
 	{
 		private const int IconApplication = 0;
@@ -66,9 +66,7 @@ namespace GreenshotOfficePlugin.Destinations
 			_presentationName = presentationName;
 		}
 
-		public override string Designation => "Powerpoint";
-
-		public override string Description
+	    public override string Description
 		{
 			get
 			{
@@ -79,8 +77,6 @@ namespace GreenshotOfficePlugin.Destinations
 				return _presentationName;
 			}
 		}
-
-		public override int Priority => 4;
 
 		public override bool IsDynamic => true;
 

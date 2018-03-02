@@ -28,6 +28,7 @@ using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Configuration;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 
@@ -38,16 +39,10 @@ namespace Greenshot.Destinations
     /// <summary>
     ///     Description of ClipboardDestination.
     /// </summary>
-    [Export(typeof(IDestination))]
+    [Destination("Clipboard",2)]
     public class ClipboardDestination : AbstractDestination
 	{
-		public const string DESIGNATION = "Clipboard";
-
-		public override string Designation => DESIGNATION;
-
 	    public override string Description => Language.GetString(LangKey.settings_destination_clipboard);
-
-	    public override int Priority => 2;
 
 	    public override Keys EditorShortcutKeys => Keys.Control | Keys.Shift | Keys.C;
 

@@ -52,6 +52,7 @@ using Greenshot.Gfx;
 using Greenshot.Gfx.Effects;
 using Greenshot.Help;
 using Greenshot.Helpers;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Extensions;
@@ -70,7 +71,7 @@ namespace Greenshot.Forms
     public partial class ImageEditorForm : BaseForm, IImageEditor
     {
         private static readonly LogSource Log = new LogSource();
-        private static readonly List<string> IgnoreDestinations = new List<string> { PickerDestination.DESIGNATION, EditorDestination.DESIGNATION };
+        private static readonly List<string> IgnoreDestinations = new List<string> { typeof(PickerDestination).GetDesignation(), typeof(EditorDestination).GetDesignation()};
         private readonly IEditorConfiguration _editorConfiguration;
 
         private static readonly string[] SupportedClipboardFormats = {typeof(string).FullName, "Text", typeof(IDrawableContainerList).FullName};
@@ -83,17 +84,17 @@ namespace Greenshot.Forms
         private GreenshotToolStripButton[] _toolbarButtons;
         private BitmapScaleHandler<IDestination> _destinationScaleHandler;
         private readonly IDisposable _clipboardSubscription;
-        private readonly IEnumerable<IDestination> _destinations;
         private readonly EditorFactory _editorFactory;
         private CompositeDisposable _disposables;
+
+        [ImportMany(AllowRecomposition = true)]
+        private IEnumerable<Lazy<IDestination, IDestinationMetadata>> _destinations;
 
         [ImportingConstructor]
         public ImageEditorForm(
             IEditorConfiguration editorConfiguration,
-            EditorFactory editorFactory,
-            [ImportMany] IEnumerable<IDestination> destinations)
+            EditorFactory editorFactory)
         {
-            _destinations = destinations;
             _editorConfiguration = editorConfiguration;
             _editorFactory = editorFactory;
             //
@@ -273,7 +274,7 @@ namespace Greenshot.Forms
                 throw new ApplicationException("Surface modified");
             }
 
-            _disposables.Dispose();
+            _disposables?.Dispose();
             RemoveSurface();
 
             panel1.Height = 10;
@@ -381,16 +382,11 @@ namespace Greenshot.Forms
             await Task.Run(() =>
             {
                 // Create export buttons 
-                foreach (var destination in _destinations)
+                foreach (var destination in _destinations
+                    .Where(destination => destination.Metadata.Priority > 2 && !IgnoreDestinations.Contains(destination.Metadata.Designation) && destination.Value.IsActive)
+                    .OrderBy(destination => destination.Metadata.Priority).ThenBy(destination => destination.Value.Description)
+                    .Select(d => d.Value))
                 {
-                    if (destination.Priority <= 2)
-                    {
-                        continue;
-                    }
-                    if (!destination.IsActive)
-                    {
-                        continue;
-                    }
                     try
                     {
                         if (InvokeRequired)
@@ -527,17 +523,11 @@ namespace Greenshot.Forms
             ClearItems(fileStripMenuItem.DropDownItems);
 
             // Add the destinations
-            foreach (var destination in _destinations)
+            foreach (var destination in _destinations
+                .Where(destination => destination.Metadata.Priority > 2 && !IgnoreDestinations.Contains(destination.Metadata.Designation) && destination.Value.IsActive)
+                .OrderBy(destination => destination.Metadata.Priority).ThenBy(destination => destination.Value.Description)
+                .Select(d => d.Value))
             {
-                if (IgnoreDestinations.Contains(destination.Designation))
-                {
-                    continue;
-                }
-                if (!destination.IsActive)
-                {
-                    continue;
-                }
-
                 var item = destination.GetMenuItem(true, null, DestinationToolStripMenuItemClick, _destinationScaleHandler);
                 if (item == null)
                 {
@@ -1241,17 +1231,17 @@ namespace Greenshot.Forms
 
         private void BtnSaveClick(object sender, EventArgs e)
         {
-            var destinationDesignation = FileDestination.DESIGNATION;
+            var destinationDesignation = typeof(FileDestination);
             if (_surface.LastSaveFullPath == null)
             {
-                destinationDesignation = FileWithDialogDestination.DESIGNATION;
+                destinationDesignation = typeof(FileWithDialogDestination);
             }
             _destinations.Find(destinationDesignation)?.ExportCapture(true, _surface, _surface.CaptureDetails);
         }
 
         private void BtnClipboardClick(object sender, EventArgs e)
         {
-            _destinations.Find(ClipboardDestination.DESIGNATION)?.ExportCapture(true, _surface, _surface.CaptureDetails);
+            _destinations.Find(typeof(ClipboardDestination))?.ExportCapture(true, _surface, _surface.CaptureDetails);
         }
 
         private void BtnPrintClick(object sender, EventArgs e)
@@ -1259,7 +1249,7 @@ namespace Greenshot.Forms
             // The BeginInvoke is a solution for the printdialog not having focus
             BeginInvoke((MethodInvoker) delegate
             {
-                _destinations.Find(PrinterDestination.DESIGNATION)?.ExportCapture(true, _surface, _surface.CaptureDetails);
+                _destinations.Find(typeof(PrinterDestination))?.ExportCapture(true, _surface, _surface.CaptureDetails);
             });
         }
 
@@ -1713,17 +1703,10 @@ namespace Greenshot.Forms
             // Go through the destinations to check the EditorShortcut Keys
             // this way the menu entries don't need to be enabled.
             // This also fixes bugs #3526974 & #3527020
-            foreach (var destination in _destinations)
+            foreach (var destination in _destinations.Where(destination => destination.Value.IsActive)
+                .OrderBy(destination => destination.Metadata.Priority).ThenBy(destination => destination.Value.Description)
+                .Select(d => d.Value))
             {
-                if (IgnoreDestinations.Contains(destination.Designation))
-                {
-                    continue;
-                }
-                if (!destination.IsActive)
-                {
-                    continue;
-                }
-
                 if (destination.EditorShortcutKeys != keys)
                 {
                     continue;

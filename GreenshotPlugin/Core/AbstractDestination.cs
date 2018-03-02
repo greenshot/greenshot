@@ -26,6 +26,8 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Log;
@@ -35,6 +37,8 @@ using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Dpi.Forms;
 using Greenshot.Gfx;
 using Dapplo.Ini;
+using GreenshotPlugin.Addons;
+using GreenshotPlugin.Extensions;
 using GreenshotPlugin.Interfaces;
 
 #endregion
@@ -49,24 +53,14 @@ namespace GreenshotPlugin.Core
         private static readonly LogSource Log = new LogSource();
         private static readonly ICoreConfiguration CoreConfig = IniConfig.Current.Get<ICoreConfiguration>();
 
-        public virtual int CompareTo(object obj)
+        protected AbstractDestination()
         {
-            if (!(obj is IDestination other))
-            {
-                return 1;
-            }
-            if (Priority == other.Priority)
-            {
-                return string.Compare(Description, other.Description, StringComparison.Ordinal);
-            }
-            return Priority - other.Priority;
+            Designation = GetType().GetDesignation();
         }
 
-        public abstract string Designation { get; }
+        public string Designation { get; }
 
         public abstract string Description { get; }
-
-        public virtual int Priority => 10;
 
         public virtual Bitmap DisplayIcon { get; set; }
 
@@ -96,18 +90,8 @@ namespace GreenshotPlugin.Core
 
         public virtual bool IsLinkable => false;
 
-        public virtual bool IsActive
-        {
-            get
-            {
-                if (CoreConfig.ExcludeDestinations != null && CoreConfig.ExcludeDestinations.Contains(Designation))
-                {
-                    return false;
-                }
-                return true;
-            }
-        }
-
+        public virtual bool IsActive => true;
+        
         public abstract ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails);
 
         /// <summary>
@@ -278,7 +262,7 @@ namespace GreenshotPlugin.Core
             });
 
             // Generate an empty ExportInformation object, for when nothing was selected.
-            var exportInformation = new ExportInformation(Designation, Language.GetString("settings_destination_picker"));
+            var exportInformation = new ExportInformation("", Language.GetString("settings_destination_picker"));
             menu.Closing += (source, eventArgs) =>
             {
                 Log.Debug().WriteLine("Close reason: {0}", eventArgs.CloseReason);

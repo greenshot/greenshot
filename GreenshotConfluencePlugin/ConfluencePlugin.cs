@@ -31,6 +31,7 @@ using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
 using GreenshotConfluencePlugin.Support;
+using GreenshotPlugin.Addons;
 
 #endregion
 

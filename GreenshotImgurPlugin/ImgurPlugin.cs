@@ -29,6 +29,7 @@ using System.Windows.Forms;
 using GreenshotPlugin.Core;
 using Dapplo.Log;
 using GreenshotImgurPlugin.Forms;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 #endregion

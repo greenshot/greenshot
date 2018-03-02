@@ -27,7 +27,9 @@ using System.Linq;
 using Dapplo.CaliburnMicro;
 using Dapplo.Log;
 using Greenshot.Destinations;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Core;
+using GreenshotPlugin.Extensions;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
@@ -78,7 +80,7 @@ namespace Greenshot.Components
             // we should have at least one!
             if (_coreConfiguration.OutputDestinations.Count == 0)
             {
-                _coreConfiguration.OutputDestinations.Add(EditorDestination.DESIGNATION);
+                _coreConfiguration.OutputDestinations.Add(typeof(EditorDestination).GetDesignation());
             }
 
             Log.Debug().WriteLine("Started plugins");

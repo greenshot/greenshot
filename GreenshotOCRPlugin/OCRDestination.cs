@@ -32,6 +32,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using Dapplo.Log;
 using Greenshot.Gfx.Effects;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.Gfx;
@@ -45,7 +46,7 @@ namespace GreenshotOCR
     /// <summary>
     ///     Description of OCRDestination.
     /// </summary>
-    [Export(typeof(IDestination))]
+    [Destination("OCR")]
     public class OcrDestination : AbstractDestination
 	{
 	    private static readonly LogSource Log = new LogSource();
@@ -72,9 +73,7 @@ namespace GreenshotOCR
 
 	    public override bool IsActive { get; }
 
-	    public override string Designation => "OCR";
-
-		public override string Description => "OCR";
+	    public override string Description => "OCR";
 
 		public override Bitmap GetDisplayIcon(double dpi)
 		{

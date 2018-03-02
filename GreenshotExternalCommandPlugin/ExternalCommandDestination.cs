@@ -36,6 +36,7 @@ using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
+using GreenshotPlugin.Addons;
 
 #endregion
 
@@ -59,7 +60,7 @@ namespace GreenshotExternalCommandPlugin
 			_presetCommand = commando;
 		}
 
-		public override string Designation => "External " + _presetCommand.Replace(',', '_');
+		public string Designation => "External " + _presetCommand.Replace(',', '_');
 
 		public override string Description => _presetCommand;
 
@@ -92,13 +93,11 @@ namespace GreenshotExternalCommandPlugin
 					fullPath = ImageOutput.SaveNamedTmpFile(surface, captureDetails, outputSettings);
 				}
 
-				string output;
-				string error;
-				if (runInBackground)
+			    if (runInBackground)
 				{
 					var commandThread = new Thread(delegate()
 					{
-						CallExternalCommand(exportInformation, fullPath, out output, out error);
+						CallExternalCommand(exportInformation, fullPath, out _, out _);
 						ProcessExport(exportInformation, surface);
 					})
 					{
@@ -111,7 +110,7 @@ namespace GreenshotExternalCommandPlugin
 				}
 				else
 				{
-					CallExternalCommand(exportInformation, fullPath, out output, out error);
+					CallExternalCommand(exportInformation, fullPath, out _, out _);
 					ProcessExport(exportInformation, surface);
 				}
 			}
@@ -225,12 +224,12 @@ namespace GreenshotExternalCommandPlugin
 				{
 					// Fix variables
 					commandline = FilenameHelper.FillVariables(commandline, true);
-					commandline = FilenameHelper.FillCmdVariables(commandline, true);
+					commandline = FilenameHelper.FillCmdVariables(commandline);
 
 					arguments = FilenameHelper.FillVariables(arguments, false);
 					arguments = FilenameHelper.FillCmdVariables(arguments, false);
 
-					process.StartInfo.FileName = FilenameHelper.FillCmdVariables(commandline, true);
+					process.StartInfo.FileName = FilenameHelper.FillCmdVariables(commandline);
 					process.StartInfo.Arguments = FormatArguments(arguments, fullPath);
 					process.StartInfo.UseShellExecute = false;
 					if (Config.RedirectStandardOutput)

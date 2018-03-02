@@ -23,47 +23,27 @@
 
 #region Usings
 
-using System;
-using System.Collections.Generic;
-using GreenshotPlugin.Addons;
+using System.ComponentModel;
 
 #endregion
 
-namespace GreenshotPlugin.Interfaces
+namespace GreenshotPlugin.Addons
 {
-	//, Video };
-
 	/// <summary>
-	///     Details for the capture, like the window title and date/time etc.
+	///     Metadata for the IDestination exports
 	/// </summary>
-	public interface ICaptureDetails
+	public interface IDestinationMetadata
 	{
-		string Filename { get; set; }
-
-		string Title { get; set; }
-
-		DateTime DateTime { get; set; }
-
-		List<IDestination> CaptureDestinations { get; set; }
-
-		Dictionary<string, string> MetaData { get; }
-
-		CaptureMode CaptureMode { get; set; }
-
-		float DpiX { get; set; }
-
-		float DpiY { get; set; }
+		/// <summary>
+		///     Simple "designation" like "File", "Editor" etc, used to store the configuration
+		/// </summary>
+		string Designation { get; }
 
 		/// <summary>
-		///     Helper method to prevent complex code which needs to check every key
+		///     Priority, used for sorting
 		/// </summary>
-		/// <param name="key">The key for the meta-data</param>
-		/// <param name="value">The value for the meta-data</param>
-		void AddMetaData(string key, string value);
-
-		void ClearDestinations();
-		void RemoveDestination(IDestination captureDestination);
-		void AddDestination(IDestination captureDestination);
-		bool HasDestination(string designation);
+		/// 
+		[DefaultValue(10)]
+		int Priority { get; }
 	}
 }

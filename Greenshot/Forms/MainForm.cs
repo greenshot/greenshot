@@ -56,6 +56,7 @@ using Dapplo.Windows.Dpi.Enums;
 using Dapplo.Windows.Dpi.Forms;
 using Dapplo.Windows.Kernel32;
 using Greenshot.Gfx;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Extensions;
 using GreenshotPlugin.Interfaces.Plugin;
 
@@ -76,19 +77,20 @@ namespace Greenshot.Forms
 
         // Timer for the double click test
         private readonly Timer _doubleClickTimer = new Timer();
+        // Make sure we have only one settings form
+        private readonly SettingsForm _settingsForm;
         // Make sure we have only one about form
         private AboutForm _aboutForm;
-        // Make sure we have only one settings form
-        private SettingsForm _settingsForm;
         // Thumbnail preview
         private ThumbnailForm _thumbnailForm;
 
         public DpiHandler ContextMenuDpiHandler { get; private set; }
 
         [ImportingConstructor]
-        public MainForm(ICoreConfiguration coreConfiguration, [ImportMany] IEnumerable<IDestination> destinations)
+        public MainForm(ICoreConfiguration coreConfiguration, SettingsForm settingsForm, [ImportMany] IEnumerable<IDestination> destinations)
         {
             _coreConfiguration = coreConfiguration;
+            _settingsForm = settingsForm;
             _destinations = destinations;
             Instance = this;
         }
@@ -104,6 +106,7 @@ namespace Greenshot.Forms
             //
             try
             {
+                _settingsForm.Initialize();
                 InitializeComponent();
                 SetupBitmapScaleHandler();
             }
@@ -279,7 +282,7 @@ namespace Greenshot.Forms
 
                     if (File.Exists(_coreConfiguration.OutputFileAsFullpath))
                     {
-                        CaptureHelper.CaptureFile(_coreConfiguration.OutputFileAsFullpath, _destinations.Find(EditorDestination.DESIGNATION));
+                        CaptureHelper.CaptureFile(_coreConfiguration.OutputFileAsFullpath, _destinations.Find(typeof(EditorDestination)));
                     }
                     break;
                 case ClickActions.OPEN_SETTINGS:
@@ -843,26 +846,17 @@ namespace Greenshot.Forms
         /// </summary>
         public void ShowSetting()
         {
-            if (_settingsForm != null)
+            
+            if (Application.OpenForms.OfType<SettingsForm>().Any())
             {
                 // TODO: Await?
                 InteropWindowFactory.CreateFor(_settingsForm.Handle).ToForegroundAsync();
             }
             else
             {
-                try
+                if (_settingsForm.ShowDialog() == DialogResult.OK)
                 {
-                    using (_settingsForm = new SettingsForm())
-                    {
-                        if (_settingsForm.ShowDialog() == DialogResult.OK)
-                        {
-                            InitializeQuickSettingsMenu();
-                        }
-                    }
-                }
-                finally
-                {
-                    _settingsForm = null;
+                    InitializeQuickSettingsMenu();
                 }
             }
         }
@@ -1063,7 +1057,7 @@ namespace Greenshot.Forms
             var selectedDestination = (IDestination) item.Data;
             if (item.Checked)
             {
-                if (selectedDestination.Designation.Equals(PickerDestination.DESIGNATION))
+                if (selectedDestination.Designation.Equals(typeof(PickerDestination).GetDesignation()))
                 {
                     // If the item is the destination picker, remove all others
                     _coreConfiguration.OutputDestinations.Clear();
@@ -1071,7 +1065,7 @@ namespace Greenshot.Forms
                 else
                 {
                     // If the item is not the destination picker, remove the picker
-                    _coreConfiguration.OutputDestinations.Remove(PickerDestination.DESIGNATION);
+                    _coreConfiguration.OutputDestinations.Remove(typeof(PickerDestination).GetDesignation());
                 }
                 // Checked an item, add if the destination is not yet selected
                 if (!_coreConfiguration.OutputDestinations.Contains(selectedDestination.Designation))
@@ -1090,7 +1084,7 @@ namespace Greenshot.Forms
             // Check if something was selected, if not make the picker the default
             if (_coreConfiguration.OutputDestinations == null || _coreConfiguration.OutputDestinations.Count == 0)
             {
-                _coreConfiguration.OutputDestinations.Add(PickerDestination.DESIGNATION);
+                _coreConfiguration.OutputDestinations.Add(typeof(PickerDestination).GetDesignation());
             }
 
             // Rebuild the quick settings menu with the new settings.

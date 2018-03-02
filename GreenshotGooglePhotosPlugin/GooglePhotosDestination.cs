@@ -30,6 +30,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Dapplo.Log;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
@@ -39,7 +40,7 @@ using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotGooglePhotosPlugin
 {
-    [Export(typeof(IDestination))]
+    [Destination("GooglePhotos")]
     public class GooglePhotosDestination : AbstractDestination
 	{
 	    private static readonly LogSource Log = new LogSource();
@@ -50,8 +51,6 @@ namespace GreenshotGooglePhotosPlugin
 	    {
 	        _googlePhotosConfiguration = googlePhotosConfiguration;
 	    }
-
-		public override string Designation => "GooglePhotos";
 
 		public override string Description => Language.GetString("googlephotos", LangKey.upload_menu_item);
 

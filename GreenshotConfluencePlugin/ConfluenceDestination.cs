@@ -37,6 +37,7 @@ using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
 using Greenshot.Gfx;
 using GreenshotConfluencePlugin.Forms;
+using GreenshotPlugin.Addons;
 
 #endregion
 
@@ -45,7 +46,7 @@ namespace GreenshotConfluencePlugin
     /// <summary>
     ///     Description of ConfluenceDestination.
     /// </summary>
-    [Export(typeof(IDestination))]
+    [Destination("Confluence")]
     public class ConfluenceDestination : AbstractDestination
 	{
 	    private static readonly LogSource Log = new LogSource();
@@ -88,8 +89,6 @@ namespace GreenshotConfluencePlugin
 		}
 
 		public static bool IsInitialized { get; private set; }
-
-		public override string Designation => "Confluence";
 
 	    public override string Description
 		{

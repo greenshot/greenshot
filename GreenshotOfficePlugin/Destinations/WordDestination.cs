@@ -25,7 +25,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -36,6 +35,7 @@ using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
+using GreenshotPlugin.Addons;
 
 #endregion
 
@@ -44,7 +44,7 @@ namespace GreenshotOfficePlugin.Destinations
     /// <summary>
     ///     Description of EmailDestination.
     /// </summary>
-    [Export(typeof(IDestination))]
+    [Destination("Word", 4)]
     public class WordDestination : AbstractDestination
 	{
 		private const int IconApplication = 0;
@@ -67,11 +67,7 @@ namespace GreenshotOfficePlugin.Destinations
 			_documentCaption = wordCaption;
 		}
 
-		public override string Designation => "Word";
-
 		public override string Description => _documentCaption ?? "Microsoft Word";
-
-		public override int Priority => 4;
 
 		public override bool IsDynamic => true;
 

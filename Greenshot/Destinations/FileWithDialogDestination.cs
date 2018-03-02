@@ -27,6 +27,7 @@ using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Configuration;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
@@ -38,10 +39,10 @@ namespace Greenshot.Destinations
     /// <summary>
     ///     Description of FileWithDialog.
     /// </summary>
-    [Export(typeof(IDestination))]
+    [Destination("FileDialog", 0)]
+
     public class FileWithDialogDestination : AbstractDestination
 	{
-		public const string DESIGNATION = "FileDialog";
 	    private readonly ICoreConfiguration _coreConfiguration;
 
 	    [ImportingConstructor]
@@ -50,11 +51,7 @@ namespace Greenshot.Destinations
 	        _coreConfiguration = coreConfiguration;
 	    }
 
-        public override string Designation => DESIGNATION;
-
 	    public override string Description => Language.GetString(LangKey.settings_destination_fileas);
-
-	    public override int Priority => 0;
 
 	    public override Keys EditorShortcutKeys => Keys.Control | Keys.Shift | Keys.S;
 

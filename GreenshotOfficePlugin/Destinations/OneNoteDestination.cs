@@ -35,16 +35,16 @@ using GreenshotOfficePlugin.OfficeInterop;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using Dapplo.Log;
+using GreenshotPlugin.Addons;
 
 #endregion
 
 namespace GreenshotOfficePlugin.Destinations
 {
-    [Export(typeof(IDestination))]
+    [Destination("OneNote", 4)]
     public class OneNoteDestination : AbstractDestination
 	{
 		private const int IconApplication = 0;
-		public const string DESIGNATION = "OneNote";
 		private static readonly LogSource Log = new LogSource();
 		private readonly string _exePath;
 		private readonly OneNotePage _page;
@@ -63,8 +63,6 @@ namespace GreenshotOfficePlugin.Destinations
 			_page = page;
 		}
 
-		public override string Designation => DESIGNATION;
-
 	    public override string Description
 		{
 			get
@@ -76,8 +74,6 @@ namespace GreenshotOfficePlugin.Destinations
 				return _page.DisplayName;
 			}
 		}
-
-		public override int Priority => 4;
 
 		public override bool IsDynamic => true;
 

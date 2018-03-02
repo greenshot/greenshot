@@ -27,6 +27,7 @@ using System.IO;
 using System.Windows.Forms;
 using Dapplo.Log;
 using Greenshot.Gfx;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
@@ -36,8 +37,9 @@ namespace GreenshotLutimPlugin  {
     /// <summary>
     /// Description of LutimDestination.
     /// </summary>
-    [Export(typeof(IDestination))]
-    public class LutimDestination : AbstractDestination {
+    [Destination("Lutim")]
+    public class LutimDestination : AbstractDestination
+    {
         private static readonly LogSource Log = new LogSource();
         private readonly ILutimConfiguration _lutimConfiguration;
 
@@ -45,8 +47,6 @@ namespace GreenshotLutimPlugin  {
         public LutimDestination(ILutimConfiguration lutimConfiguration) {
 			_lutimConfiguration = lutimConfiguration;
 		}
-		
-		public override string Designation => "Lutim";
 
 		public override string Description => Language.GetString("lutim", LangKey.upload_menu_item);
 

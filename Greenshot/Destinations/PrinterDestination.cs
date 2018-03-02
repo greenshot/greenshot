@@ -24,12 +24,12 @@
 #region Usings
 
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.Windows.Forms;
 using Greenshot.Configuration;
 using Greenshot.Helpers;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 
@@ -40,22 +40,19 @@ namespace Greenshot.Destinations
     /// <summary>
     ///     Description of PrinterDestination.
     /// </summary>
-    [Export(typeof(IDestination))]
+    [Destination("Printer", 2)]
     public class PrinterDestination : AbstractDestination
 	{
-		public const string DESIGNATION = "Printer";
 		private readonly string _printerName;
 
-		public PrinterDestination()
-		{
-		}
+	    public PrinterDestination()
+	    {
+	    }
 
-		public PrinterDestination(string printerName)
+        public PrinterDestination(string printerName)
 		{
 			_printerName = printerName;
 		}
-
-		public override string Designation => DESIGNATION;
 
 	    public override string Description
 		{
@@ -68,8 +65,6 @@ namespace Greenshot.Destinations
 				return Language.GetString(LangKey.settings_destination_printer);
 			}
 		}
-
-		public override int Priority => 2;
 
 	    public override Keys EditorShortcutKeys => Keys.Control | Keys.P;
 

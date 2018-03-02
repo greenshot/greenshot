@@ -31,6 +31,7 @@ using System.IO;
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
 using Dapplo.Log;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
@@ -39,7 +40,7 @@ using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotDropboxPlugin
 {
-    [Export(typeof(IDestination))]
+    [Destination("Dropbox")]
     public class DropboxDestination : AbstractDestination
 	{
 	    private static readonly LogSource Log = new LogSource();
@@ -59,8 +60,6 @@ namespace GreenshotDropboxPlugin
 				return (Bitmap)resources.GetObject("Dropbox");
 			}
 		}
-
-		public override string Designation => "Dropbox";
 
 		public override string Description => Language.GetString("dropbox", LangKey.upload_menu_item);
 

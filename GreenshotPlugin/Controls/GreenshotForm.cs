@@ -66,10 +66,10 @@ namespace GreenshotPlugin.Controls
 			}
 		}
 
-		/// <summary>
-		/// Default constructor, for default functionality like DPI awareness
-		/// </summary>
-		protected GreenshotForm()
+        /// <summary>
+        /// Default constructor, for default functionality like DPI awareness
+        /// </summary>
+        protected GreenshotForm()
 		{
 			// Add the Dapplo.Windows DPI change handler
 			ScaleHandler = BitmapScaleHandler.WithComponentResourceManager(DpiHandler, GetType(), (bitmap, dpi) => bitmap.ScaleIconForDisplaying(dpi));

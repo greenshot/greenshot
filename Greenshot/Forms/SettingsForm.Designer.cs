@@ -74,7 +74,7 @@ namespace Greenshot.Forms {
 			this.groupbox_destination = new GreenshotPlugin.Controls.GreenshotGroupBox();
 			this.checkbox_picker = new GreenshotPlugin.Controls.GreenshotCheckBox();
 			this.listview_destinations = new System.Windows.Forms.ListView();
-			this.destination = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.destinationHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.tabcontrol = new System.Windows.Forms.TabControl();
 			this.tab_general = new GreenshotPlugin.Controls.GreenshotTabPage();
 			this.groupbox_network = new GreenshotPlugin.Controls.GreenshotGroupBox();
@@ -441,7 +441,7 @@ namespace Greenshot.Forms {
 			this.listview_destinations.AutoArrange = false;
 			this.listview_destinations.CheckBoxes = true;
 			this.listview_destinations.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-			this.destination});
+			this.destinationHeader});
 			this.listview_destinations.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
 			this.listview_destinations.LabelWrap = false;
 			this.listview_destinations.Location = new System.Drawing.Point(6, 38);
@@ -455,8 +455,8 @@ namespace Greenshot.Forms {
 			// 
 			// destination
 			// 
-			this.destination.Text = "Destination";
-			this.destination.Width = 380;
+			this.destinationHeader.Text = "Destination";
+			this.destinationHeader.Width = 380;
 			// 
 			// tabcontrol
 			// 
@@ -1323,7 +1323,7 @@ namespace Greenshot.Forms {
 		}
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_notifications;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_minimizememoryfootprint;
-		private System.Windows.Forms.ColumnHeader destination;
+		private System.Windows.Forms.ColumnHeader destinationHeader;
 		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_picker;
 		private System.Windows.Forms.ListView listview_destinations;
 		private GreenshotPlugin.Controls.GreenshotGroupBox groupbox_editor;

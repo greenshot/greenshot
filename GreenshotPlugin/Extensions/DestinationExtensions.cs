@@ -21,9 +21,11 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using GreenshotPlugin.Interfaces;
+using System.Reflection;
+using GreenshotPlugin.Addons;
 
 namespace GreenshotPlugin.Extensions
 {
@@ -36,11 +38,54 @@ namespace GreenshotPlugin.Extensions
         /// Find the matching IDestination
         /// </summary>
         /// <param name="destinations">IEnumerable of IDestination</param>
-        /// <param name="designation">Name</param>
+        /// <param name="destinationType">Type of the destination</param>
         /// <returns>IDestination or null</returns>
-        public static IDestination Find(this IEnumerable<IDestination> destinations, string designation)
+        public static IDestination Find(this IEnumerable<IDestination> destinations, Type destinationType)
         {
-            return destinations.FirstOrDefault(p => p.Designation == designation && p.IsActive);
+            return destinations.FirstOrDefault(p => p.Designation == destinationType.GetDesignation() && p.IsActive);
+        }
+
+        /// <summary>
+        /// Find the matching IDestination
+        /// </summary>
+        /// <param name="destinations">IEnumerable of IDestination</param>
+        /// <param name="destination">strng with the destination</param>
+        /// <returns>IDestination or null</returns>
+        public static IDestination Find(this IEnumerable<IDestination> destinations, string destination)
+        {
+            return destinations.FirstOrDefault(p => p.IsActive && p.GetType().GetDesignation() == destination);
+        }
+
+        /// <summary>
+        /// Find the matching IDestination
+        /// </summary>
+        /// <param name="destinations">IEnumerable of IDestination</param>
+        /// <param name="destination">destination</param>
+        /// <returns>IDestination or null</returns>
+        public static IDestination Find(this IEnumerable<Lazy<IDestination, IDestinationMetadata>> destinations, string destination)
+        {
+            return destinations.FirstOrDefault(p => p.Metadata.Designation == destination && p.Value.IsActive)?.Value;
+        }
+
+        /// <summary>
+        /// Find the matching IDestination
+        /// </summary>
+        /// <param name="destinations">IEnumerable of IDestination</param>
+        /// <param name="destinationType">destination type</param>
+        /// <returns>IDestination or null</returns>
+        public static IDestination Find(this IEnumerable<Lazy<IDestination, IDestinationMetadata>> destinations, Type destinationType)
+        {
+            return destinations.FirstOrDefault(p => p.Metadata.Designation == destinationType.GetDesignation() && p.Value.IsActive)?.Value;
+        }
+
+        /// <summary>
+        /// Return the designation for a certain type
+        /// </summary>
+        /// <param name="destinationType">Type</param>
+        /// <returns>string</returns>
+        public static string GetDesignation(this Type destinationType)
+        {
+            return destinationType?.GetCustomAttributes().Where(a => a is DestinationAttribute).Cast<DestinationAttribute>().FirstOrDefault()?.Designation;
         }
     }
 }

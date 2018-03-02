@@ -144,6 +144,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Addons\DestinationAttribute.cs" />
     <Compile Include="Animation\ColorAnimator.cs" />
     <Compile Include="Animation\Easing.cs" />
     <Compile Include="Animation\EasingModes.cs" />
@@ -182,7 +183,6 @@
     <Compile Include="Core\WmInputLangChangeRequestFilter.cs" />
     <Compile Include="Extensions\DestinationExtensions.cs" />
     <Compile Include="Extensions\ProcessorExtensions.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Interfaces\CaptureMode.cs" />
     <Compile Include="Interfaces\DrawingModes.cs" />
     <Compile Include="Interfaces\Drawing\Adorners\IAdorner.cs" />
@@ -204,6 +204,7 @@
     <Compile Include="Interfaces\Drawing\RenderMode.cs" />
     <Compile Include="Interfaces\ExportInformation.cs" />
     <Compile Include="Interfaces\ICapture.cs" />
+    <Compile Include="Addons\IDestinationMetaData.cs" />
     <Compile Include="Interfaces\IGreenshotContract.cs" />
     <Compile Include="Interfaces\ISurface.cs" />
     <Compile Include="Interfaces\Plugin\HotKeyHandler.cs" />
@@ -330,7 +331,7 @@
     <Compile Include="Interfaces\Drawing\IDrawableContainer.cs" />
     <Compile Include="Interfaces\Forms\IImageEditor.cs" />
     <Compile Include="Interfaces\SurfaceMessageEventArgs.cs" />
-    <Compile Include="Interfaces\IDestination.cs" />
+    <Compile Include="Addons\IDestination.cs" />
     <Compile Include="Interfaces\IProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Core\GreenshotResources.resx">
@@ -346,6 +347,7 @@
       <Name>Greenshot.Gfx</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>

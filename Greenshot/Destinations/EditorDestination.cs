@@ -34,6 +34,7 @@ using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Forms;
 using Dapplo.Log;
 using Greenshot.Components;
+using GreenshotPlugin.Addons;
 
 #endregion
 
@@ -42,10 +43,9 @@ namespace Greenshot.Destinations
     /// <summary>
     ///     Description of EditorDestination.
     /// </summary> 
-    [Export(typeof(IDestination))]
+    [Destination("Editor", 1)]
     public class EditorDestination : AbstractDestination
 	{
-		public const string DESIGNATION = "Editor";
 		private static readonly LogSource Log = new LogSource();
 		private static readonly Bitmap greenshotIcon = GreenshotResources.GetGreenshotIcon().ToBitmap();
 	    private readonly IImageEditor _editor;
@@ -53,17 +53,19 @@ namespace Greenshot.Destinations
 	    [Import(AllowRecomposition = true, AllowDefault = true)]
 	    private EditorFactory _editorFactory;
 
-        public EditorDestination()
-		{
-		}
+        /// <summary>
+        /// Default constructor so we can initiate this from MEF
+        /// </summary>
+	    public EditorDestination()
+	    {
 
-		public EditorDestination(EditorFactory editorFactory, IImageEditor editor)
+	    }
+
+        public EditorDestination(EditorFactory editorFactory, IImageEditor editor)
 		{
 		    _editorFactory = editorFactory;
 		    _editor = editor;
 		}
-
-		public override string Designation => DESIGNATION;
 
 	    public override string Description
 		{
@@ -76,8 +78,6 @@ namespace Greenshot.Destinations
 				return Language.GetString(LangKey.settings_destination_editor) + " - " + _editor.CaptureDetails.Title;
 			}
 		}
-
-		public override int Priority => 1;
 
 	    public override bool IsDynamic => true;
 

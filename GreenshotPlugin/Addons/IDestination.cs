@@ -28,30 +28,26 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Windows.Dpi;
+using GreenshotPlugin.Interfaces;
 
 #endregion
 
-namespace GreenshotPlugin.Interfaces
+namespace GreenshotPlugin.Addons
 {
 	/// <summary>
 	///     Description of IDestination.
 	/// </summary>
-	public interface IDestination : IDisposable, IComparable
+	public interface IDestination : IDisposable
 	{
-		/// <summary>
-		///     Simple "designation" like "File", "Editor" etc, used to store the configuration
-		/// </summary>
-		string Designation { get; }
+	    /// <summary>
+	    ///     Designation to uniquely identify the destination
+	    /// </summary>
+	    string Designation { get; }
 
-		/// <summary>
-		///     Description which will be shown in the settings form, destination picker etc
-		/// </summary>
-		string Description { get; }
-
-		/// <summary>
-		///     Priority, used for sorting
-		/// </summary>
-		int Priority { get; }
+        /// <summary>
+        ///     Description which will be shown in the settings form, destination picker etc
+        /// </summary>
+        string Description { get; }
 
 		/// <summary>
 		///     Gets an icon for the destination
