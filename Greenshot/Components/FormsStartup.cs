@@ -21,8 +21,6 @@
 
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Addons;
 using Dapplo.Log;
@@ -35,11 +33,11 @@ namespace Greenshot.Components
     /// This startup action starts Windows.Forms
     /// </summary>
     [StartupAction(StartupOrder = (int)GreenshotStartupOrder.Forms)]
-    public class FormsStartup : IAsyncStartupAction
+    public class FormsStartup : IStartupAction
     {
         private static readonly LogSource Log = new LogSource();
 
-        public Task StartAsync(CancellationToken cancellationToken = default)
+        public void Start()
         {
             Log.Debug().WriteLine("Starting Windows.Forms");
 
@@ -51,7 +49,6 @@ namespace Greenshot.Components
 
             // BUG-1809: Add message filter, to filter out all the InputLangChanged messages which go to a target control with a handle > 32 bit.
             Application.AddMessageFilter(new WmInputLangChangeRequestFilter());
-            return Task.FromResult(true);
         }
     }
 }

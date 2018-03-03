@@ -28,9 +28,12 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Color = Windows.UI.Color;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Drawing;
 using Dapplo.Log;
 using Greenshot.Gfx;
+using GreenshotPlugin.Addons;
+using GreenshotPlugin.Components;
 using GreenshotPlugin.Core.Enums;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
@@ -38,14 +41,21 @@ using GreenshotPlugin.Interfaces.Plugin;
 
 namespace GreenshotWin10Plugin
 {
-	/// <summary>
-	/// This uses the Share from Windows 10 to make the capture available to apps.
-	/// </summary>
-	public class Win10ShareDestination : AbstractDestination
+    /// <summary>
+    /// This uses the Share from Windows 10 to make the capture available to apps.
+    /// </summary>
+    [Destination("WIN10Share")]
+    public class Win10ShareDestination : AbstractDestination
 	{
-		private static readonly LogSource Log = new LogSource();
+	    private static readonly LogSource Log = new LogSource();
+	    private readonly WindowHandle _windowHandle;
 
-		public override string Designation { get; } = "WIN10Share";
+        [ImportingConstructor]
+        public Win10ShareDestination(WindowHandle windowHandle)
+	    {
+	        _windowHandle = windowHandle;
+	    }
+
 		public override string Description { get; } = "Windows 10 share";
 
 		/// <summary>
@@ -65,8 +75,6 @@ namespace GreenshotWin10Plugin
 			var exportInformation = new ExportInformation(Designation, Description);
 			try
 			{
-				var handle = PluginUtils.Host.GreenshotForm.Handle;
-
 				var exportTarget = Task.Run(async () =>
 				{
 					var taskCompletionSource = new TaskCompletionSource<string>();
@@ -89,7 +97,7 @@ namespace GreenshotWin10Plugin
 						// Create thumbnail
 						using (var tmpImageForThumbnail = surface.GetBitmapForExport())
 						{
-							using (var thumbnail = BitmapHelper.CreateThumbnail(tmpImageForThumbnail, 240, 160))
+							using (var thumbnail = tmpImageForThumbnail.CreateThumbnail(240, 160))
 							{
 								ImageOutput.SaveToStream(thumbnail, null, thumbnailStream, outputSettings);
 								thumbnailStream.Position = 0;
@@ -100,7 +108,7 @@ namespace GreenshotWin10Plugin
 						// Create logo
 						using (var logo = GreenshotResources.GetGreenshotIcon().ToBitmap())
 						{
-							using (var logoThumbnail = BitmapHelper.CreateThumbnail(logo, 30, 30))
+							using (var logoThumbnail = logo.CreateThumbnail(30, 30))
 							{
 								ImageOutput.SaveToStream(logoThumbnail, null, logoStream, outputSettings);
 								logoStream.Position = 0;
@@ -109,7 +117,7 @@ namespace GreenshotWin10Plugin
 							}
 						}
 						string applicationName = null;
-						var dataTransferManagerHelper = new DataTransferManagerHelper(handle);
+						var dataTransferManagerHelper = new DataTransferManagerHelper(_windowHandle.Handle);
 						dataTransferManagerHelper.DataTransferManager.TargetApplicationChosen += (dtm, args) =>
 						{
 							Log.Info().WriteLine("Trying to share with {0}", args.ApplicationName);
@@ -141,12 +149,12 @@ namespace GreenshotWin10Plugin
 						dataTransferManagerHelper.DataTransferManager.DataRequested += (sender, args) =>
 						{
 							var deferral = args.Request.GetDeferral();
-							args.Request.Data.OperationCompleted += (dp, eventArgs) =>
+						    var dataPackage = args.Request.Data;
+						    dataPackage.OperationCompleted += (dp, eventArgs) =>
 							{
 								Log.Debug().WriteLine("OperationCompleted: {0}, shared with", eventArgs.Operation);
 								taskCompletionSource.TrySetResult(applicationName);
 							};
-							var dataPackage = args.Request.Data;
 							dataPackage.Properties.Title = captureDetails.Title;
 							dataPackage.Properties.ApplicationName = "Greenshot";
 							dataPackage.Properties.Description = "Share a screenshot";
@@ -159,7 +167,15 @@ namespace GreenshotWin10Plugin
 							{
 								Log.Debug().WriteLine("Destroyed.");
 							};
-							deferral.Complete();
+						    dataPackage.OperationCompleted += (dp, o) =>
+						    {
+						        Log.Debug().WriteLine("Completed.");
+						    };
+						    dataPackage.ShareCompleted += (dp, o) =>
+						    {
+						        Log.Debug().WriteLine("Share completed.");
+						    };
+                            deferral.Complete();
 						};
 						dataTransferManagerHelper.ShowShareUi();
 						return await taskCompletionSource.Task.ConfigureAwait(false);

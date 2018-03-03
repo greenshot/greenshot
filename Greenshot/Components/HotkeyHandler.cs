@@ -34,6 +34,7 @@ using Dapplo.Windows.Common;
 using Greenshot.Configuration;
 using Greenshot.Forms;
 using Greenshot.Helpers;
+using GreenshotPlugin.Components;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces.Plugin;
@@ -47,24 +48,26 @@ namespace Greenshot.Components
     [Export]
     public class HotkeyHandler : IUiStartupAction, IUiShutdownAction
     {
-        private readonly ICoreConfiguration _coreConfiguration;
         private static readonly LogSource Log = new LogSource();
+        private readonly ICoreConfiguration _coreConfiguration;
+        private readonly WindowHandle _windowHandle;
         private static HotkeyHandler _instance;
 
         [ImportingConstructor]
-        public HotkeyHandler(ICoreConfiguration coreConfiguration)
+        public HotkeyHandler(ICoreConfiguration coreConfiguration, WindowHandle windowHandle)
         {
             _instance = this;
             _coreConfiguration = coreConfiguration;
+            _windowHandle = windowHandle;
         }
 
         public void Start()
         {
             Log.Debug().WriteLine("Registering hotkeys");
             // Make sure all hotkeys pass this window!
-            HotkeyControl.RegisterHotkeyHwnd(MainForm.Instance.Handle);
+            HotkeyControl.RegisterHotkeyHwnd(_windowHandle.Handle);
             
-            RegisterHotkeys();
+            RegisterHotkeys(false);
 
             Log.Debug().WriteLine("Started hotkeys");
         }
@@ -169,10 +172,6 @@ namespace Greenshot.Components
         /// </returns>
         public bool RegisterHotkeys(bool ignoreFailedRegistration)
         {
-            if (MainForm.Instance == null)
-            {
-                return false;
-            }
             var success = true;
             var failedKeys = new StringBuilder();
 

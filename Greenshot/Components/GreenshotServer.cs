@@ -42,6 +42,8 @@ using GreenshotPlugin.Addons;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
+using Application = System.Windows.Application;
+
 #endregion
 
 namespace Greenshot.Components
@@ -102,7 +104,7 @@ namespace Greenshot.Components
         /// <inheritdoc />
         public void Exit()
         {
-            MainForm.Instance.Exit();
+            Application.Current.Shutdown();
         }
 
         /// <inheritdoc />
@@ -146,6 +148,7 @@ namespace Greenshot.Components
         /// <inheritdoc />
         public void Capture(string parameters)
         {
+
             if (MainForm.Instance.InvokeRequired)
             {
                 MainForm.Instance.Invoke((MethodInvoker)(() => Capture(parameters)));

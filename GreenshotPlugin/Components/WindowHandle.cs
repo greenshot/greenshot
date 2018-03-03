@@ -21,20 +21,20 @@
 
 #endregion
 
-using Dapplo.CaliburnMicro;
+using System;
+using System.ComponentModel.Composition;
 
-namespace Greenshot.Components
+namespace GreenshotPlugin.Components
 {
     /// <summary>
-    /// This defines the startup order of the basic components of Greenshot
+    /// This can be used to store the main handle
     /// </summary>
-    public enum GreenshotStartupOrder
+    [Export]
+    public class WindowHandle
     {
         /// <summary>
-        /// Start the forms initialization before the shell is initialized!
+        /// The main handle
         /// </summary>
-        Forms = CaliburnStartOrder.Shell-1,
-        Server = CaliburnStartOrder.User + 100,
-        Sound = CaliburnStartOrder.User + 200
+        public IntPtr Handle { get; set; }
     }
 }

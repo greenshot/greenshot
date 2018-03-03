@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
 using Dapplo.Log;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
@@ -36,11 +37,11 @@ namespace GreenshotWin10Plugin
 	/// <summary>
 	/// This uses the OcrEngine from Windows 10 to perform OCR on the captured image.
 	/// </summary>
+	[Destination("WIN10OCR")]
 	public class Win10OcrDestination : AbstractDestination
 	{
 		private static readonly LogSource Log = new LogSource();
 
-		public override string Designation { get; } = "WIN10OCR";
 		public override string Description { get; } = "Windows 10 OCR";
 
 		/// <summary>

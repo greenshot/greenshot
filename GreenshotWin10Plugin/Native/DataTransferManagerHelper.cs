@@ -23,6 +23,7 @@ using System;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel.DataTransfer;
 using Dapplo.Log;
+using Dapplo.Windows.Common.Extensions;
 
 namespace GreenshotWin10Plugin.Native
 {
@@ -53,9 +54,8 @@ namespace GreenshotWin10Plugin.Native
 
 			_windowHandle = handle;
 			var riid = new Guid(DataTransferManagerId);
-			DataTransferManager dataTransferManager;
-			var hresult = _dataTransferManagerInterOp.GetForWindow(_windowHandle, riid, out dataTransferManager);
-			if (hresult != 0)
+		    var hresult = _dataTransferManagerInterOp.GetForWindow(_windowHandle, riid, out var dataTransferManager);
+			if (hresult.Failed())
 			{
 				Log.Warn().WriteLine("HResult for GetForWindow: {0}", hresult);
 			}
@@ -68,9 +68,9 @@ namespace GreenshotWin10Plugin.Native
 		public void ShowShareUi()
 		{
 			var hresult = _dataTransferManagerInterOp.ShowShareUIForWindow(_windowHandle);
-			if (hresult != 0)
-			{
-				Log.Warn().WriteLine("HResult for ShowShareUIForWindow: {0}", hresult);
+		    if (hresult.Failed())
+		    {
+                Log.Warn().WriteLine("HResult for ShowShareUIForWindow: {0}", hresult);
 			}
 			else
 			{

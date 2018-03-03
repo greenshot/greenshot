@@ -22,6 +22,7 @@
 using System;
 using System.Runtime.InteropServices;
 using Windows.ApplicationModel.DataTransfer;
+using Dapplo.Windows.Common.Enums;
 
 namespace GreenshotWin10Plugin.Native
 {
@@ -43,7 +44,7 @@ namespace GreenshotWin10Plugin.Native
 		/// <param name="pDataTransferManager">The DataTransferManager instance for this window handle</param>
 		/// <returns>HRESULT</returns>
 		[PreserveSig]
-		uint GetForWindow([In] IntPtr appWindow, [In] ref Guid riid, [Out] out DataTransferManager pDataTransferManager);
+		HResult GetForWindow([In] IntPtr appWindow, [In] ref Guid riid, [Out] out DataTransferManager pDataTransferManager);
 
 		/// <summary>
 		/// Show the share flyout for the window identified by a window handle
@@ -51,7 +52,7 @@ namespace GreenshotWin10Plugin.Native
 		/// <param name="appWindow">The window handle</param>
 		/// <returns>HRESULT</returns>
 		[PreserveSig]
-		uint ShowShareUIForWindow(IntPtr appWindow);
+		HResult ShowShareUIForWindow(IntPtr appWindow);
 	}
 
 }

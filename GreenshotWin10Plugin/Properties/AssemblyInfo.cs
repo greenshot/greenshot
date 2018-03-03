@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
-using GreenshotPlugin.Interfaces.Plugin;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
@@ -10,12 +9,9 @@ using GreenshotPlugin.Interfaces.Plugin;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Greenshot")]
 [assembly: AssemblyProduct("Windown 10 Plug-in")]
-[assembly: AssemblyCopyright("Copyright © Greenshot 2007-2016")]
+[assembly: AssemblyCopyright("Copyright © Greenshot 2007-2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-
-// The PluginAttribute describes the "entryType" and if the plugin is configurable
-[assembly: Plugin("GreenshotWin10Plugin.Win10Plugin", false)]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 

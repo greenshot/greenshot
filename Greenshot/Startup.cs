@@ -83,7 +83,6 @@ namespace Greenshot
             application.Run();
         }
 
-
         /// <summary>
         ///     Show all the running instances
         /// </summary>

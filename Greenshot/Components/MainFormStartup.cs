@@ -23,13 +23,13 @@
 
 #region Usings
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Windows.Forms;
 using Dapplo.CaliburnMicro;
 using Dapplo.Log;
 using Greenshot.Forms;
+using GreenshotPlugin.Components;
 using GreenshotPlugin.Core;
 
 #endregion
@@ -45,12 +45,14 @@ namespace Greenshot.Components
         private static readonly LogSource Log = new LogSource();
         private readonly ICoreConfiguration _coreConfiguration;
         private readonly MainForm _mainForm;
- 
+        private readonly WindowHandle _windowHandle;
+
         [ImportingConstructor]
-        public MainFormStartup(ICoreConfiguration coreConfiguration, MainForm mainForm)
+        public MainFormStartup(ICoreConfiguration coreConfiguration, MainForm mainForm, WindowHandle windowHandle)
         {
             _coreConfiguration = coreConfiguration;
             _mainForm = mainForm;
+            _windowHandle = windowHandle;
         }
 
         public void Start()
@@ -68,7 +70,8 @@ namespace Greenshot.Components
             // This makes sure the MainForm can Initialze, calling show first would create the "Handle" and causing e.g. the DPI Handler to be to late.
             _mainForm.Initialize();
             _mainForm.Show();
-            Log.Debug().WriteLine("Started Windows.Forms");
+            _windowHandle.Handle = _mainForm.Handle;
+            Log.Debug().WriteLine("Started MainForm");
         }
 
         public void Shutdown()
