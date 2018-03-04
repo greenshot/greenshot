@@ -308,7 +308,7 @@ namespace GreenshotPlugin.Core
             {
                 // Fix foreach loop variable for the delegate
                 var item = destination.GetMenuItem(addDynamics, menu,
-                    delegate(object sender, EventArgs e)
+                    (sender, e) =>
                     {
                         var toolStripMenuItem = sender as ToolStripMenuItem;
                         var clickedDestination = (IDestination) toolStripMenuItem?.Tag;

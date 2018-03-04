@@ -27,11 +27,14 @@ using GreenshotWin10Plugin.Native;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Color = Windows.UI.Color;
-using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Interop;
+using Windows.ApplicationModel.DataTransfer;
 using Dapplo.Log;
+using Dapplo.Windows.Messages;
 using Greenshot.Gfx;
 using GreenshotPlugin.Addons;
 using GreenshotPlugin.Core.Enums;
@@ -56,6 +59,19 @@ namespace GreenshotWin10Plugin
 		/// </summary>
 		public override Bitmap DisplayIcon => PluginUtils.GetCachedExeIcon(FilenameHelper.FillCmdVariables(@"%windir%\system32\shell32.dll"), 238);
 
+	    private class ShareInfo
+	    {
+            public string ApplicationName { get; set; }
+            public bool AreShareProvidersRequested { get; set; }
+	        public bool IsDeferredFileCreated { get; set; }
+	        public DataPackageOperation CompletedWithOperation { get; set; }
+	        public string AcceptedFormat { get; set; }
+	        public bool IsDestroyed { get; set; }
+	        public bool IsShareCompleted { get; set; }
+
+            public TaskCompletionSource<bool> ShareTask { get; } = new TaskCompletionSource<bool>();
+	        public bool IsDataRequested { get; set; }
+	    }
 		/// <summary>
 		/// Share the screenshot with a windows app
 		/// </summary>
@@ -68,26 +84,45 @@ namespace GreenshotWin10Plugin
 			var exportInformation = new ExportInformation(Designation, Description);
 			try
 			{
-			    var triggerWindow = new Window
+                var triggerWindow = new Window
 			    {
-			        WindowState = WindowState.Maximized
+			        WindowState = WindowState.Normal,
+			        WindowStartupLocation = WindowStartupLocation.CenterScreen,
+			        Width = 400,
+			        Height = 400
 			    };
+			    
+                triggerWindow.Show();
+			    var shareInfo = new ShareInfo();
 
-			    triggerWindow.Show();
-			    IntPtr windowHandle = new WindowInteropHelper(triggerWindow).Handle;
+                // This is a bad trick, but don't know how else to do it.
+                // Wait for the focus to return, and depending on the state close the window!
+                triggerWindow.WindowMessages()
+			        .Where(m => m.Message == WindowsMessages.WM_SETFOCUS).Delay(TimeSpan.FromSeconds(1))
+			        .Subscribe(info =>
+                    {
+                        if (shareInfo.ApplicationName != null)
+                        {
+                            return;
+                        }
 
-                var exportTarget = Export(windowHandle, surface, captureDetails).Result;
-                triggerWindow.Close();
-				if (string.IsNullOrWhiteSpace(exportTarget))
-				{
-					exportInformation.ExportMade = false;
-				}
-				else
-				{
-					exportInformation.ExportMade = true;
-					exportInformation.DestinationDescription = exportTarget;
-				}
-			}
+                        shareInfo.ShareTask.TrySetResult(false);
+                    });
+                IntPtr windowHandle = new WindowInteropHelper(triggerWindow).Handle;
+
+			    Share(shareInfo, windowHandle, surface, captureDetails).Wait();
+			    Log.Debug().WriteLine("Sharing finished, closing window.");
+			    triggerWindow.Close();
+			    if (string.IsNullOrWhiteSpace(shareInfo.ApplicationName))
+			    {
+			        exportInformation.ExportMade = false;
+			    }
+			    else
+			    {
+			        exportInformation.ExportMade = true;
+			        exportInformation.DestinationDescription = shareInfo.ApplicationName;
+			    }
+            }
 			catch (Exception ex)
 			{
 				exportInformation.ExportMade = false;
@@ -99,9 +134,16 @@ namespace GreenshotWin10Plugin
 
 		}
 
-	    private async Task<string> Export(IntPtr handle, ISurface surface, ICaptureDetails captureDetails)
+	    /// <summary>
+	    /// Share the surface by using the Share-UI of Windows 10
+	    /// </summary>
+	    /// <param name="shareInfo">ShareInfo</param>
+	    /// <param name="handle">IntPtr with the handle for the hosting window</param>
+	    /// <param name="surface">ISurface with the bitmap to share</param>
+	    /// <param name="captureDetails">ICaptureDetails</param>
+	    /// <returns>Task with string, which describes the application which was used to share with</returns>
+	    private async Task Share(ShareInfo shareInfo, IntPtr handle, ISurface surface, ICaptureDetails captureDetails)
 	    {
-            var taskCompletionSource = new TaskCompletionSource<string>();
 
             using (var imageStream = new MemoryRandomAccessStream())
             using (var logoStream = new MemoryRandomAccessStream())
@@ -113,44 +155,47 @@ namespace GreenshotWin10Plugin
                 // Create capture for export
                 ImageOutput.SaveToStream(surface, imageStream, outputSettings);
                 imageStream.Position = 0;
-                Log.Info().WriteLine("Created RandomAccessStreamReference for the image");
+                Log.Debug().WriteLine("Created RandomAccessStreamReference for the image");
                 var imageRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(imageStream);
-                RandomAccessStreamReference thumbnailRandomAccessStreamReference;
-                RandomAccessStreamReference logoRandomAccessStreamReference;
 
                 // Create thumbnail
+                RandomAccessStreamReference thumbnailRandomAccessStreamReference;
                 using (var tmpImageForThumbnail = surface.GetBitmapForExport())
+                using (var thumbnail = tmpImageForThumbnail.CreateThumbnail(240, 160))
                 {
-                    using (var thumbnail = tmpImageForThumbnail.CreateThumbnail(240, 160))
-                    {
-                        ImageOutput.SaveToStream(thumbnail, null, thumbnailStream, outputSettings);
-                        thumbnailStream.Position = 0;
-                        thumbnailRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(thumbnailStream);
-                        Log.Info().WriteLine("Created RandomAccessStreamReference for the thumbnail");
-                    }
+                    ImageOutput.SaveToStream(thumbnail, null, thumbnailStream, outputSettings);
+                    thumbnailStream.Position = 0;
+                    thumbnailRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(thumbnailStream);
+                    Log.Debug().WriteLine("Created RandomAccessStreamReference for the thumbnail");
                 }
+
                 // Create logo
+                RandomAccessStreamReference logoRandomAccessStreamReference;
                 using (var logo = GreenshotResources.GetGreenshotIcon().ToBitmap())
+                using (var logoThumbnail = logo.CreateThumbnail(30, 30))
                 {
-                    using (var logoThumbnail = logo.CreateThumbnail(30, 30))
-                    {
-                        ImageOutput.SaveToStream(logoThumbnail, null, logoStream, outputSettings);
-                        logoStream.Position = 0;
-                        logoRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(logoStream);
-                        Log.Info().WriteLine("Created RandomAccessStreamReference for the logo");
-                    }
+                    ImageOutput.SaveToStream(logoThumbnail, null, logoStream, outputSettings);
+                    logoStream.Position = 0;
+                    logoRandomAccessStreamReference = RandomAccessStreamReference.CreateFromStream(logoStream);
+                    Log.Info().WriteLine("Created RandomAccessStreamReference for the logo");
                 }
-                string applicationName = null;
+
                 var dataTransferManagerHelper = new DataTransferManagerHelper(handle);
+                dataTransferManagerHelper.DataTransferManager.ShareProvidersRequested += (sender, args) =>
+                {
+                    shareInfo.AreShareProvidersRequested = true;
+                    Log.Debug().WriteLine("Share providers requested: {0}", string.Join(",", args.Providers.Select(p => p.Title)));
+                };
                 dataTransferManagerHelper.DataTransferManager.TargetApplicationChosen += (dtm, args) =>
                 {
-                    Log.Info().WriteLine("Trying to share with {0}", args.ApplicationName);
-                    applicationName = args.ApplicationName;
+                    shareInfo.ApplicationName = args.ApplicationName;
+                    Log.Debug().WriteLine("TargetApplicationChosen: {0}", args.ApplicationName);
                 };
                 var filename = FilenameHelper.GetFilename(OutputFormats.png, captureDetails);
                 var storageFile = await StorageFile.CreateStreamedFileAsync(filename, async streamedFileDataRequest =>
                 {
-                    // Information on how was found here: https://socialeboladev.wordpress.com/2013/03/15/how-to-use-createstreamedfileasync/
+                    shareInfo.IsDeferredFileCreated = true;
+                    // Information on the "how" was found here: https://socialeboladev.wordpress.com/2013/03/15/how-to-use-createstreamedfileasync/
                     Log.Debug().WriteLine("Creating deferred file {0}", filename);
                     try
                     {
@@ -166,42 +211,55 @@ namespace GreenshotWin10Plugin
                     {
                         streamedFileDataRequest.FailAndClose(StreamedFileFailureMode.Incomplete);
                     }
-                    // Signal transfer ready to the await down below
-                    taskCompletionSource.TrySetResult(applicationName);
                 }, imageRandomAccessStreamReference).AsTask().ConfigureAwait(false);
 
-                dataTransferManagerHelper.DataTransferManager.DataRequested += (sender, args) =>
+                dataTransferManagerHelper.DataTransferManager.DataRequested += (dataTransferManager, dataRequestedEventArgs) =>
                 {
-                    var deferral = args.Request.GetDeferral();
-                    var dataPackage = args.Request.Data;
-                    dataPackage.OperationCompleted += (dp, eventArgs) =>
+                    var deferral = dataRequestedEventArgs.Request.GetDeferral();
+                    try
                     {
-                        Log.Debug().WriteLine("OperationCompleted: {0}, shared with", eventArgs.Operation);
-                        taskCompletionSource.TrySetResult(applicationName);
-                    };
-                    dataPackage.Properties.Title = captureDetails.Title;
-                    dataPackage.Properties.ApplicationName = "Greenshot";
-                    dataPackage.Properties.Description = "Share a screenshot";
-                    dataPackage.Properties.Thumbnail = thumbnailRandomAccessStreamReference;
-                    dataPackage.Properties.Square30x30Logo = logoRandomAccessStreamReference;
-                    dataPackage.Properties.LogoBackgroundColor = Color.FromArgb(0xff, 0x3d, 0x3d, 0x3d);
-                    dataPackage.SetStorageItems(new List<IStorageItem> { storageFile });
-                    dataPackage.SetBitmap(imageRandomAccessStreamReference);
+                        shareInfo.IsDataRequested = true;
+                        Log.Debug().WriteLine("DataRequested with operation {0}", dataRequestedEventArgs.Request.Data.RequestedOperation);
+                        var dataPackage = dataRequestedEventArgs.Request.Data;
+                        dataPackage.OperationCompleted += (dp, eventArgs) =>
+                        {
+                            Log.Debug().WriteLine("OperationCompleted: {0}, shared with", eventArgs.Operation);
+                            shareInfo.CompletedWithOperation = eventArgs.Operation;
+                            shareInfo.AcceptedFormat = eventArgs.AcceptedFormatId;
 
-                    dataPackage.Destroyed += (dp, o) =>
+                            shareInfo.ShareTask.TrySetResult(true);
+                        };
+                        dataPackage.Destroyed += (dp, o) =>
+                        {
+                            shareInfo.IsDestroyed = true;
+                            Log.Debug().WriteLine("Destroyed");
+                            shareInfo.ShareTask.TrySetResult(true);
+                        };
+                        dataPackage.ShareCompleted += (dp, shareCompletedEventArgs) =>
+                        {
+                            shareInfo.IsShareCompleted = true;
+                            Log.Debug().WriteLine("ShareCompleted");
+                            shareInfo.ShareTask.TrySetResult(true);
+                        };
+                        dataPackage.Properties.Title = captureDetails.Title;
+                        dataPackage.Properties.ApplicationName = "Greenshot";
+                        dataPackage.Properties.Description = "Share a screenshot";
+                        dataPackage.Properties.Thumbnail = thumbnailRandomAccessStreamReference;
+                        dataPackage.Properties.Square30x30Logo = logoRandomAccessStreamReference;
+                        dataPackage.Properties.LogoBackgroundColor = Color.FromArgb(0xff, 0x3d, 0x3d, 0x3d);
+                        dataPackage.SetStorageItems(new[] {storageFile});
+                        dataPackage.SetBitmap(imageRandomAccessStreamReference);
+                    }
+                    finally
                     {
-                        Log.Debug().WriteLine("Destroyed");
-                    };
-                    dataPackage.ShareCompleted += (dp, o) =>
-                    {
-                        Log.Debug().WriteLine("ShareCompleted");
-                    };
-                    deferral.Complete();
+                        deferral.Complete();
+                        Log.Debug().WriteLine("Called deferral.Complete()");
+                    }
                 };
                 dataTransferManagerHelper.ShowShareUi();
-                return await taskCompletionSource.Task.ConfigureAwait(false);
+                Log.Debug().WriteLine("ShowShareUi finished.");
+                await shareInfo.ShareTask.Task.ConfigureAwait(false);
             }
-
         }
     }
 }
