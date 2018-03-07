@@ -149,7 +149,6 @@
     <Compile Include="LutimUtils.cs" />
     <Compile Include="LanguageKeys.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <None Include="app.config" />
     <None Include="Languages\language_lutimplugin-de-DE.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>

@@ -149,7 +149,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Dropbox.gif" />
-    <None Include="app.config" />
     <None Include="Languages\language_dropboxplugin-en-US.xml" />
     <None Include="packages.config" />
   </ItemGroup>

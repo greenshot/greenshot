@@ -140,7 +140,6 @@
     <Compile Include="SettingsForm.Designer.cs">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
-    <None Include="app.config" />
     <None Include="Languages\language_ocrplugin-de-DE.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

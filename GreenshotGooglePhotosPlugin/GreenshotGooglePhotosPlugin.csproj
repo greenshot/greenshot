@@ -150,7 +150,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="GooglePhotos.png" />
     <Content Include="Languages\language_googlephotosplugin-en-US.xml" />
     <None Include="Languages\language_googlephotosplugin-cs-CZ.xml" />

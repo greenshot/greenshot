@@ -144,7 +144,6 @@
     <Compile Include="PhotobucketUtils.cs" />
     <Compile Include="LanguageKeys.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <None Include="app.config" />
     <None Include="Languages\language_Photobucketplugin-de-DE.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>

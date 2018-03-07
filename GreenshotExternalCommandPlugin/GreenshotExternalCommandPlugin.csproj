@@ -149,7 +149,6 @@
     <Compile Include="SettingsFormDetail.Designer.cs">
       <DependentUpon>SettingsFormDetail.cs</DependentUpon>
     </Compile>
-    <None Include="app.config" />
     <None Include="Languages\language_externalcommandplugin-en-US.xml" />
     <None Include="packages.config" />
   </ItemGroup>

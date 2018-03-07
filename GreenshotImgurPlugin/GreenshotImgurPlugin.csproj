@@ -150,7 +150,6 @@
     <Compile Include="ImgurUtils.cs" />
     <Compile Include="LanguageKeys.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <None Include="app.config" />
     <None Include="Languages\language_imgurplugin-de-DE.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>

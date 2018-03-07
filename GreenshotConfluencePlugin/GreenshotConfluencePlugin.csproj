@@ -185,7 +185,6 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Compile>
     <Resource Include="Images\Confluence.ico" />
-    <None Include="app.config" />
     <None Include="Languages\language_confluenceplugin-de-DE.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>

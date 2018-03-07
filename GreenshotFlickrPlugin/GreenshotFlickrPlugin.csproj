@@ -143,7 +143,6 @@
     <Compile Include="FlickrUtils.cs" />
     <Compile Include="LanguageKeys.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <None Include="app.config" />
     <None Include="Languages\language_flickrplugin-en-US.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>

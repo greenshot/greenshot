@@ -154,7 +154,6 @@
     <Folder Include="Resources\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="box.png" />
     <Content Include="Languages\language_boxplugin-en-US.xml" />
     <None Include="packages.config" />
