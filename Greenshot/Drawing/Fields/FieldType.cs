@@ -35,7 +35,8 @@ namespace Greenshot.Drawing.Fields
 		public static readonly IFieldType BLUR_RADIUS = new FieldType("BLUR_RADIUS");
 		public static readonly IFieldType BRIGHTNESS = new FieldType("BRIGHTNESS");
 		public static readonly IFieldType FILL_COLOR = new FieldType("FILL_COLOR");
-		public static readonly IFieldType FONT_BOLD = new FieldType("FONT_BOLD");
+        public static readonly IFieldType TEXT_COLOR = new FieldType("TEXT_COLOR");
+        public static readonly IFieldType FONT_BOLD = new FieldType("FONT_BOLD");
 		public static readonly IFieldType FONT_FAMILY = new FieldType("FONT_FAMILY");
 		public static readonly IFieldType FONT_ITALIC = new FieldType("FONT_ITALIC");
 		public static readonly IFieldType FONT_SIZE = new FieldType("FONT_SIZE");
@@ -57,6 +58,7 @@ namespace Greenshot.Drawing.Fields
 			BLUR_RADIUS,
 			BRIGHTNESS,
 			FILL_COLOR,
+            TEXT_COLOR,
 			FONT_BOLD,
 			FONT_FAMILY,
 			FONT_ITALIC,

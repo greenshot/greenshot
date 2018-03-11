@@ -149,6 +149,7 @@ namespace Greenshot {
 			this.grayscaleHighlightMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.magnifyMenuItem = new GreenshotPlugin.Controls.GreenshotToolStripMenuItem();
 			this.btnFillColor = new Greenshot.Controls.ToolStripColorButton();
+            this.btnTextColor = new Greenshot.Controls.ToolStripColorButton();
 			this.btnLineColor = new Greenshot.Controls.ToolStripColorButton();
 			this.lineThicknessLabel = new GreenshotPlugin.Controls.GreenshotToolStripLabel();
 			this.lineThicknessUpDown = new Greenshot.Controls.ToolStripNumericUpDown();
@@ -1029,7 +1030,8 @@ namespace Greenshot {
 									this.obfuscateModeButton,
 									this.highlightModeButton,
 									this.btnFillColor,
-									this.btnLineColor,
+                                    this.btnTextColor,
+                                    this.btnLineColor,
 									this.lineThicknessLabel,
 									this.lineThicknessUpDown,
 									this.fontFamilyComboBox,
@@ -1051,13 +1053,13 @@ namespace Greenshot {
 									this.pixelSizeUpDown,
 									this.arrowHeadsLabel,
 									this.arrowHeadsDropDownButton,
+                                    this.counterLabel,
+                                    this.counterUpDown,
 									this.shadowButton,
 									this.toolStripSeparator,
 									this.toolStripSeparator10,
 									this.btnConfirm,
-									this.btnCancel,
-									this.counterLabel,
-									this.counterUpDown});
+									this.btnCancel});
 			// 
 			// obfuscateModeButton
 			// 
@@ -1137,10 +1139,19 @@ namespace Greenshot {
 			this.btnFillColor.LanguageKey = "editor_backcolor";
 			this.btnFillColor.Name = "btnFillColor";
 			this.btnFillColor.SelectedColor = System.Drawing.Color.Transparent;
-			// 
-			// btnLineColor
-			// 
-			this.btnLineColor.BackColor = System.Drawing.Color.Transparent;
+            // 
+            // btnTextColor
+            // 
+            this.btnTextColor.BackColor = System.Drawing.Color.Transparent;
+            this.btnTextColor.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnTextColor.Image = ((System.Drawing.Image)(resources.GetObject("btnTextColor.Image")));
+            this.btnTextColor.LanguageKey = "editor_textcolor";
+            this.btnTextColor.Name = "btnTextColor";
+            this.btnTextColor.SelectedColor = System.Drawing.Color.Black;
+            // 
+            // btnLineColor
+            // 
+            this.btnLineColor.BackColor = System.Drawing.Color.Transparent;
 			this.btnLineColor.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnLineColor.Image = ((System.Drawing.Image)(resources.GetObject("btnLineColor.Image")));
 			this.btnLineColor.LanguageKey = "editor_forecolor";
@@ -1790,7 +1801,8 @@ namespace Greenshot {
 		private Greenshot.Controls.ToolStripEx destinationsToolStrip;
 		private GreenshotPlugin.Controls.NonJumpingPanel panel1;
 		private Greenshot.Controls.ToolStripColorButton btnFillColor;
-		private Greenshot.Controls.ToolStripColorButton btnLineColor;
+        private Greenshot.Controls.ToolStripColorButton btnTextColor;
+        private Greenshot.Controls.ToolStripColorButton btnLineColor;
 		private GreenshotPlugin.Controls.GreenshotToolStripMenuItem autoCropToolStripMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator17;
 	}

@@ -142,9 +142,12 @@ namespace Greenshot.Drawing {
 		/// </summary>
 		protected override void InitializeFields() {
 			AddField(GetType(), FieldType.FILL_COLOR, Color.DarkRed);
-			AddField(GetType(), FieldType.LINE_COLOR, Color.White);
-			AddField(GetType(), FieldType.FLAGS, FieldFlag.COUNTER);
-		}
+            AddField(GetType(), FieldType.LINE_COLOR, Color.Yellow);
+            AddField(GetType(), FieldType.LINE_THICKNESS, 2);
+            AddField(GetType(), FieldType.TEXT_COLOR, Color.White);
+            AddField(GetType(), FieldType.FLAGS, FieldFlag.COUNTER);
+            AddField(GetType(), FieldType.SHADOW, false);
+        }
 
 		/// <summary>
 		/// Make sure this element is no longer referenced from the surface
@@ -206,14 +209,44 @@ namespace Greenshot.Drawing {
 			Rectangle rect = GuiRectangle.GetGuiRectangle(Left, Top, Width, Height);
 			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-			if (_drawAsRectangle) {
+            Color textColor = GetFieldValueAsColor(FieldType.TEXT_COLOR);
+            int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
+            bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
+
+            if (shadow)
+            {
+                const int basealpha = 100;
+                Rectangle dropShadowRect = rect;
+
+                // Draw glow around step label
+                dropShadowRect.Inflate(1, 1);
+                EllipseContainer.DrawEllipse(dropShadowRect, graphics, rm, 0, Color.Transparent, Color.FromArgb(basealpha, 100, 100, 100), false);
+
+                // Draw drop shadow
+                dropShadowRect = rect;
+                int steps = 4;
+                int alpha = basealpha;
+                for (int currentStep = 0; currentStep <= steps; currentStep++)
+                {
+                    dropShadowRect.Offset(1, 1);
+                    EllipseContainer.DrawEllipse(dropShadowRect, graphics, rm, 0, Color.Transparent, Color.FromArgb(alpha, 100, 100, 100), false);
+                    alpha = alpha - basealpha / steps;
+                }
+            }
+
+            if (_drawAsRectangle) {
 				RectangleContainer.DrawRectangle(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
 			} else {
-				EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
+                if (lineThickness > 0)
+                {
+                    EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, lineColor, false);
+                    rect.Inflate(lineThickness * -2, lineThickness * -2);
+                }
+                EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
 			}
 			using (FontFamily fam = new FontFamily(FontFamily.GenericSansSerif.Name)) {
 				using (Font font = new Font(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel)) {
-					TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, font);
+					TextContainer.DrawText(graphics, rect, 0, textColor, false, _stringFormat, text, font);
 				}
 			}
 		}

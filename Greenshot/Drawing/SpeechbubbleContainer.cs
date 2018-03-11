@@ -75,7 +75,8 @@ namespace Greenshot.Drawing
 			AddField(GetType(), FieldType.LINE_THICKNESS, 2);
 			AddField(GetType(), FieldType.LINE_COLOR, Color.Blue);
 			AddField(GetType(), FieldType.SHADOW, false);
-			AddField(GetType(), FieldType.FONT_ITALIC, false);
+            AddField(GetType(), FieldType.TEXT_COLOR, Color.Blue);
+            AddField(GetType(), FieldType.FONT_ITALIC, false);
 			AddField(GetType(), FieldType.FONT_BOLD, true);
 			AddField(GetType(), FieldType.FILL_COLOR, Color.White);
 			AddField(GetType(), FieldType.FONT_FAMILY, FontFamily.GenericSansSerif.Name);
@@ -219,7 +220,8 @@ namespace Greenshot.Drawing
 
 			Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
 			Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-			bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
+            Color textColor = GetFieldValueAsColor(FieldType.TEXT_COLOR);
+            bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 			int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
 
 			bool lineVisible = lineThickness > 0 && Colors.IsVisible(lineColor);
@@ -304,7 +306,7 @@ namespace Greenshot.Drawing
 			tail.Dispose();
 
 			// Draw the text
-			DrawText(graphics, rect, lineThickness, lineColor, shadow, StringFormat, Text, Font);
+			DrawText(graphics, rect, lineThickness, textColor, shadow, StringFormat, Text, Font);
 		}
 
 		public override bool Contains(int x, int y) {

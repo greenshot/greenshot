@@ -98,6 +98,7 @@ namespace Greenshot.Drawing
             AddField(GetType(), FieldType.LINE_THICKNESS, 2);
             AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
             AddField(GetType(), FieldType.SHADOW, true);
+            AddField(GetType(), FieldType.TEXT_COLOR, Color.Red);
             AddField(GetType(), FieldType.FONT_ITALIC, false);
             AddField(GetType(), FieldType.FONT_BOLD, false);
             AddField(GetType(), FieldType.FILL_COLOR, Color.Transparent);
@@ -288,8 +289,8 @@ namespace Greenshot.Drawing
             {
                 return;
             }
-            Color lc = GetFieldValueAsColor(FieldType.LINE_COLOR);
-            if (lc.R > 203 && lc.G > 203 && lc.B > 203)
+            Color tc = GetFieldValueAsColor(FieldType.TEXT_COLOR);
+            if (tc.R > 203 && tc.G > 203 && tc.B > 203)
             {
                 _textBox.BackColor = Color.FromArgb(51, 51, 51);
             }
@@ -481,8 +482,8 @@ namespace Greenshot.Drawing
                     break;
             }
 
-            var lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
-            _textBox.ForeColor = lineColor;
+            var textColor = GetFieldValueAsColor(FieldType.TEXT_COLOR);
+            _textBox.ForeColor = textColor;
         }
 
         private void textBox_KeyDown(object sender, KeyEventArgs e)
@@ -549,10 +550,10 @@ namespace Greenshot.Drawing
             bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
             Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
             int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-            Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
+            Color textColor = GetFieldValueAsColor(FieldType.TEXT_COLOR);
             bool drawShadow = shadow && (fillColor == Color.Transparent || fillColor == Color.Empty);
 
-            DrawText(graphics, rect, lineThickness, lineColor, drawShadow, _stringFormat, text, _font);
+            DrawText(graphics, rect, lineThickness, textColor, drawShadow, _stringFormat, text, _font);
         }
 
         /// <summary>

@@ -1009,7 +1009,8 @@ namespace Greenshot {
 		private void BindFieldControls() {
 			// TODO: This is actually risky, if there are no references than the objects may be garbage collected
 			new BidirectionalBinding(btnFillColor, "SelectedColor", _surface.FieldAggregator.GetField(FieldType.FILL_COLOR), "Value", NotNullValidator.GetInstance());
-			new BidirectionalBinding(btnLineColor, "SelectedColor", _surface.FieldAggregator.GetField(FieldType.LINE_COLOR), "Value", NotNullValidator.GetInstance());
+            new BidirectionalBinding(btnTextColor, "SelectedColor", _surface.FieldAggregator.GetField(FieldType.TEXT_COLOR), "Value", NotNullValidator.GetInstance());
+            new BidirectionalBinding(btnLineColor, "SelectedColor", _surface.FieldAggregator.GetField(FieldType.LINE_COLOR), "Value", NotNullValidator.GetInstance());
 			new BidirectionalBinding(lineThicknessUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.LINE_THICKNESS), "Value", DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance());
 			new BidirectionalBinding(blurRadiusUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.BLUR_RADIUS), "Value", DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance());
 			new BidirectionalBinding(magnificationFactorUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.MAGNIFICATION_FACTOR), "Value", DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance());
@@ -1036,7 +1037,8 @@ namespace Greenshot {
 			if(_surface.HasSelectedElements || _surface.DrawingMode != DrawingModes.None) {
 				FieldAggregator props = _surface.FieldAggregator;
 				btnFillColor.Visible = props.HasFieldValue(FieldType.FILL_COLOR);
-				btnLineColor.Visible = props.HasFieldValue(FieldType.LINE_COLOR);
+                btnTextColor.Visible = props.HasFieldValue(FieldType.TEXT_COLOR);
+                btnLineColor.Visible = props.HasFieldValue(FieldType.LINE_COLOR);
 				lineThicknessLabel.Visible = lineThicknessUpDown.Visible = props.HasFieldValue(FieldType.LINE_THICKNESS);
 				blurRadiusLabel.Visible = blurRadiusUpDown.Visible = props.HasFieldValue(FieldType.BLUR_RADIUS);
 				previewQualityLabel.Visible = previewQualityUpDown.Visible = props.HasFieldValue(FieldType.PREVIEW_QUALITY);
@@ -1050,10 +1052,10 @@ namespace Greenshot {
 				fontItalicButton.Visible = props.HasFieldValue(FieldType.FONT_ITALIC);
 				textHorizontalAlignmentButton.Visible = props.HasFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
 				textVerticalAlignmentButton.Visible = props.HasFieldValue(FieldType.TEXT_VERTICAL_ALIGNMENT);
-				shadowButton.Visible = props.HasFieldValue(FieldType.SHADOW);
-				counterLabel.Visible = counterUpDown.Visible = props.HasFieldValue(FieldType.FLAGS)
+                shadowButton.Visible = props.HasFieldValue(FieldType.SHADOW);
+                counterLabel.Visible = counterUpDown.Visible = props.HasFieldValue(FieldType.FLAGS)
 					&& ((FieldFlag)props.GetFieldValue(FieldType.FLAGS) & FieldFlag.COUNTER) == FieldFlag.COUNTER;
-				btnConfirm.Visible = btnCancel.Visible = props.HasFieldValue(FieldType.FLAGS)
+                btnConfirm.Visible = btnCancel.Visible = props.HasFieldValue(FieldType.FLAGS)
 					&& ((FieldFlag)props.GetFieldValue(FieldType.FLAGS) & FieldFlag.CONFIRMABLE) == FieldFlag.CONFIRMABLE;
 
 				obfuscateModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE);

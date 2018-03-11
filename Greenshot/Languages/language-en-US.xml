@@ -91,6 +91,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_copyimagetoclipboard">Copy image to clipboard</resource>
 		<resource name="editor_copypathtoclipboard">Copy path to clipboard</resource>
 		<resource name="editor_copytoclipboard">Copy</resource>
+    <resource name="editor_counter_startvalue">Start value</resource>
 		<resource name="editor_crop">Crop (C)</resource>
 		<resource name="editor_cursortool">Selection Tool (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Cut</resource>
@@ -148,6 +149,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_senttoprinter">Print job was sent to '{0}'.</resource>
 		<resource name="editor_shadow">Drop shadow</resource>
 		<resource name="editor_storedtoclipboard">Image stored to clipboard.</resource>
+    <resource name="editor_textcolor">Text color</resource>
 		<resource name="editor_thickness">Line thickness</resource>
 		<resource name="editor_title">Greenshot image editor</resource>
 		<resource name="editor_torn_edge">Torn edge</resource>
