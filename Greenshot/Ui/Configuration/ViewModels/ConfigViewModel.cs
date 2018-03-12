@@ -22,9 +22,14 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Reactive.Disposables;
+using System.Windows;
+using System.Windows.Controls;
+using Dapplo.CaliburnMicro;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
 using Greenshot.Configuration;
+using MahApps.Metro.IconPacks;
 
 namespace Greenshot.Ui.Configuration.ViewModels
 {
@@ -33,8 +38,23 @@ namespace Greenshot.Ui.Configuration.ViewModels
     ///     It is a conductor where only one item is active.
     /// </summary>
     [Export]
-    public sealed class ConfigViewModel : Config<IConfigScreen>
+    public sealed class ConfigViewModel : Config<IConfigScreen>, IHaveIcon
     {
+        /// <summary>
+        ///     Here all disposables are registered, so we can clean the up
+        /// </summary>
+        private CompositeDisposable _disposables;
+
+        /// <summary>
+        ///     Get all settings controls, these are the items that are displayed.
+        /// </summary>
+        public override IEnumerable<Lazy<IConfigScreen>> ConfigScreens { get; set; }
+
+        /// <summary>
+        /// The translations
+        /// </summary>
+        public IGreenshotLanguage GreenshotLanguage { get; }
+
         /// <summary>
         /// Is used from View
         /// </summary>
@@ -48,10 +68,12 @@ namespace Greenshot.Ui.Configuration.ViewModels
         [ImportingConstructor]
         public ConfigViewModel(
             [ImportMany] IEnumerable<Lazy<IConfigScreen>> configScreens,
+            IGreenshotLanguage greenshotLanguage,
             IConfigTranslations configTranslations,
             ICoreTranslations coreTranslations)
         {
             ConfigScreens = configScreens;
+            GreenshotLanguage = greenshotLanguage;
             ConfigTranslations = configTranslations;
             CoreTranslations = coreTranslations;
             
@@ -61,6 +83,36 @@ namespace Greenshot.Ui.Configuration.ViewModels
             // TODO: Check if we need to set the current language (this should update all registered OnPropertyChanged anyway, so it can run in the background
             //var lang = demoConfiguration.Language;
             //Task.Run(async () => await LanguageLoader.Current.ChangeLanguageAsync(lang).ConfigureAwait(false));
+        }
+
+        /// <summary>
+        ///     Set the default config icon for the view
+        /// </summary>
+        public Control Icon => new PackIconMaterial
+        {
+            Kind = PackIconMaterialKind.Settings,
+            Margin = new Thickness(10)
+        };
+
+        protected override void OnActivate()
+        {
+            // Prepare disposables
+            _disposables?.Dispose();
+            _disposables = new CompositeDisposable();
+
+            // automatically update the DisplayName
+            var greenshotLanguageBinding = GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.SettingsTitle));
+
+            // Make sure the greenshotLanguageBinding is disposed when this is no longer active
+            _disposables.Add(greenshotLanguageBinding);
+
+            base.OnActivate();
+        }
+
+        protected override void OnDeactivate(bool close)
+        {
+            base.OnDeactivate(close);
+            _disposables.Dispose();
         }
     }
 }

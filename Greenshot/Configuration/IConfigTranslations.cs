@@ -29,6 +29,7 @@ namespace Greenshot.Configuration
     [Language("Config")]
     public interface IConfigTranslations : Dapplo.CaliburnMicro.Translations.IConfigTranslations, ILanguage, INotifyPropertyChanged
     {
-       
+        [DefaultValue("Theme")]
+        string Theme { get; }
     }
 }

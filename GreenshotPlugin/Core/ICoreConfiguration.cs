@@ -42,7 +42,7 @@ namespace GreenshotPlugin.Core
     /// </summary>
     [IniSection("Core")]
     [Description("Greenshot core configuration")]
-    public interface ICoreConfiguration : IIniSection, INotifyPropertyChanged, IWriteProtectProperties, IDefaultValue, ITagging
+    public interface ICoreConfiguration : IIniSection, INotifyPropertyChanged, IWriteProtectProperties, IDefaultValue, ITagging, ITransactionalProperties
     {
         [Description("The language in IETF format (e.g. en-US)")]
         string Language { get; set; }

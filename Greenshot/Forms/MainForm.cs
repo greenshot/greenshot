@@ -858,7 +858,7 @@ namespace Greenshot.Forms
             // The new MVVM Configuration
             if (!_configViewModel.IsActive)
             {
-                _windowManager.ShowWindow(_configViewModel);
+                _windowManager.ShowDialog(_configViewModel);
             }
 
             if (Application.OpenForms.OfType<SettingsForm>().Any())

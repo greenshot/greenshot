@@ -30,7 +30,7 @@ using Dapplo.Language;
 namespace Greenshot.Configuration
 {
     [Language("Core")]
-    public interface IGreenshotLanguage : ILanguage
+    public interface IGreenshotLanguage : ILanguage, INotifyPropertyChanged
     {
         string None { get; }
         string AboutBugs { get; }
@@ -229,6 +229,7 @@ namespace Greenshot.Configuration
         string SettingsRegisterhotkeys { get; }
         string SettingsShowflashlight { get; }
         string SettingsStoragelocation { get; }
+        [DefaultValue("Preferences")]
         string SettingsTitle { get; }
         string SettingsTooltipFilenamepattern { get; }
         string SettingsTooltipLanguage { get; }

@@ -203,6 +203,7 @@
     <Compile Include="Configuration\EditorConfigurationExtensions.cs" />
     <Compile Include="Configuration\ICoreTranslations.cs" />
     <Compile Include="Configuration\IGreenshotLanguage.cs" />
+    <Compile Include="Configuration\IMetroConfiguration.cs" />
     <Compile Include="Configuration\LanguageKeys.cs" />
     <Compile Include="Controls\BindableToolStripComboBox.cs">
       <SubType>Component</SubType>
@@ -376,7 +377,9 @@
       <DependentUpon>MovableShowColorForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Startup.cs" />
+    <Compile Include="Ui\Configuration\ConfigIds.cs" />
     <Compile Include="Ui\Configuration\ViewModels\ConfigViewModel.cs" />
+    <Compile Include="Ui\Configuration\ViewModels\ThemeConfigViewModel.cs" />
     <Compile Include="Ui\ViewModels\SplashViewModel.cs" />
     <None Include="App.config" />
     <Compile Include="GlobalSuppressions.cs" />
@@ -612,6 +615,10 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="Ui\Configuration\Views\ConfigView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Ui\Configuration\Views\ThemeConfigView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
