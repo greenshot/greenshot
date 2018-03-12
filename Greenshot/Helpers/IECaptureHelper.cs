@@ -119,13 +119,7 @@ namespace Greenshot.Helpers
 		/// <returns>IEnumerable IInteropWindow</returns>
 		public static IEnumerable<IInteropWindow> GetIeWindows()
 		{
-			foreach (var possibleIeWindow in InteropWindowQuery.GetTopLevelWindows())
-			{
-				if (IsIeWindow(possibleIeWindow))
-				{
-					yield return possibleIeWindow;
-				}
-			}
+		    return WindowsEnumerator.EnumerateWindows().Where(IsIeWindow);
 		}
 
 		/// <summary>

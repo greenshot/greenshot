@@ -34,6 +34,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
+using Caliburn.Micro;
 using Dapplo.Ini;
 using Dapplo.Windows.Desktop;
 using Greenshot.Configuration;
@@ -56,9 +57,13 @@ using Dapplo.Windows.Dpi.Enums;
 using Dapplo.Windows.Dpi.Forms;
 using Dapplo.Windows.Kernel32;
 using Greenshot.Gfx;
+using Greenshot.Ui.Configuration.ViewModels;
 using GreenshotPlugin.Addons;
 using GreenshotPlugin.Extensions;
 using GreenshotPlugin.Interfaces.Plugin;
+using Action = System.Action;
+using Message = System.Windows.Forms.Message;
+using Screen = System.Windows.Forms.Screen;
 
 #endregion
 
@@ -73,6 +78,8 @@ namespace Greenshot.Forms
     {
         private static readonly LogSource Log = new LogSource();
         private readonly ICoreConfiguration _coreConfiguration;
+        private readonly IWindowManager _windowManager;
+        private readonly ConfigViewModel _configViewModel;
         private readonly IEnumerable<IDestination> _destinations;
 
         // Timer for the double click test
@@ -87,9 +94,11 @@ namespace Greenshot.Forms
         public DpiHandler ContextMenuDpiHandler { get; private set; }
 
         [ImportingConstructor]
-        public MainForm(ICoreConfiguration coreConfiguration, SettingsForm settingsForm, [ImportMany] IEnumerable<IDestination> destinations)
+        public MainForm(ICoreConfiguration coreConfiguration, IWindowManager windowManager, ConfigViewModel configViewModel, SettingsForm settingsForm, [ImportMany] IEnumerable<IDestination> destinations)
         {
             _coreConfiguration = coreConfiguration;
+            _windowManager = windowManager;
+            _configViewModel = configViewModel;
             _settingsForm = settingsForm;
             _destinations = destinations;
             Instance = this;
@@ -710,7 +719,7 @@ namespace Greenshot.Forms
             // check if thumbnailPreview is enabled and DWM is enabled
             var thumbnailPreview = _coreConfiguration.ThumnailPreview && Dwm.IsDwmEnabled;
 
-            foreach (var window in InteropWindowQuery.GetTopLevelWindows().Concat(AppQuery.WindowsStoreApps))
+            foreach (var window in InteropWindowQuery.GetTopLevelWindows().ToList().Concat(AppQuery.WindowsStoreApps.ToList()))
             {
                 var title = window.GetCaption();
                 if (title == null)
@@ -846,7 +855,12 @@ namespace Greenshot.Forms
         /// </summary>
         public void ShowSetting()
         {
-            
+            // The new MVVM Configuration
+            if (!_configViewModel.IsActive)
+            {
+                _windowManager.ShowWindow(_configViewModel);
+            }
+
             if (Application.OpenForms.OfType<SettingsForm>().Any())
             {
                 // TODO: Await?
@@ -859,6 +873,7 @@ namespace Greenshot.Forms
                     InitializeQuickSettingsMenu();
                 }
             }
+
         }
 
         /// <summary>
