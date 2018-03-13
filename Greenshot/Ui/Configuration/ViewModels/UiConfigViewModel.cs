@@ -22,6 +22,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
 using System.Linq;
@@ -30,13 +31,15 @@ using Caliburn.Micro;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.CaliburnMicro.Metro;
+using Dapplo.Language;
 using Dapplo.Utils.Extensions;
 using Greenshot.Configuration;
+using GreenshotPlugin.Core;
 
 namespace Greenshot.Ui.Configuration.ViewModels
 {
     [Export(typeof(IConfigScreen))]
-    public sealed class ThemeConfigViewModel : ConfigScreen
+    public sealed class UiConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
         ///     Here all disposables are registered, so we can clean the up
@@ -53,11 +56,26 @@ namespace Greenshot.Ui.Configuration.ViewModels
         /// </summary>
         public ObservableCollection<Tuple<Themes, string>> AvailableThemes { get; set; } = new ObservableCollection<Tuple<Themes, string>>();
 
+        /// <summary>
+        /// Used from the View
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public IDictionary<string, string> AvailableLanguages => LanguageLoader.Current.AvailableLanguages;
+
+        /// <summary>
+        ///     Can the login button be pressed?
+        /// </summary>
+        public bool CanChangeLanguage
+            => !string.IsNullOrWhiteSpace(CoreConfiguration.Language) && CoreConfiguration.Language != LanguageLoader.Current.CurrentLanguage;
+
         [Import]
         public IMetroConfiguration MetroConfiguration { get; set; }
 
         [Import]
         public IConfigTranslations ConfigTranslations { get; set; }
+
+        [Import]
+        public ICoreConfiguration CoreConfiguration { get; set; }
 
         [Import]
         public IGreenshotLanguage GreenshotLanguage { get; set; }
@@ -71,16 +89,10 @@ namespace Greenshot.Ui.Configuration.ViewModels
             MetroConfiguration.CommitTransaction();
             MetroWindowManager.ChangeTheme(MetroConfiguration.Theme);
             MetroWindowManager.ChangeThemeAccent(MetroConfiguration.ThemeAccent);
-        }
 
-        public override void Rollback()
-        {
-            
-        }
+            CoreConfiguration.CommitTransaction();
+            Execute.OnUIThread(async () => { await LanguageLoader.Current.ChangeLanguageAsync(CoreConfiguration.Language).ConfigureAwait(false); });
 
-        public override void Terminate()
-        {
-           
         }
 
         public override void Initialize(IConfig config)

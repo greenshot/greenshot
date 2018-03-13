@@ -4,36 +4,23 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:Greenshot.Ui.Configuration.ViewModels"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance viewModels:CaptureConfigViewModel,IsDesignTimeCreatable=False}"
              >
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
+    <StackPanel>
+        <GroupBox Header="{Binding GreenshotLanguage.SettingsCapture}">
+            <StackPanel>
+                <CheckBox Content="{Binding GreenshotLanguage.SettingsCaptureMousepointer}" IsChecked="{Binding CoreConfiguration.CaptureMousepointer}" />
+                <CheckBox Content="{Binding GreenshotLanguage.SettingsPlaysound}" IsChecked="{Binding CoreConfiguration.PlayCameraSound}" />
+                <CheckBox Content="{Binding GreenshotLanguage.SettingsShownotify}" IsChecked="{Binding CoreConfiguration.ShowTrayNotification}" />
+                <CheckBox Content="{Binding GreenshotLanguage.SettingsZoom}" IsChecked="{Binding CoreConfiguration.ZoomerEnabled}" />
 
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-
-        <Label Content="{Binding GreenshotLanguage.SettingsCapture}" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" />
-
-        <CheckBox Content="{Binding GreenshotLanguage.SettingsCaptureMousepointer}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-                  IsChecked="{Binding CoreConfiguration.CaptureMousepointer}" />
-
-        <CheckBox Content="{Binding GreenshotLanguage.SettingsPlaysound}" Grid.Row="2"
-                  Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding CoreConfiguration.PlayCameraSound}" />
-
-        <CheckBox Content="{Binding GreenshotLanguage.SettingsShownotify}" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
-                  IsChecked="{Binding CoreConfiguration.ShowTrayNotification}" />
-
-        <CheckBox Content="{Binding GreenshotLanguage.SettingsZoom}" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2"
-                  IsChecked="{Binding CoreConfiguration.ZoomerEnabled}" />
-    </Grid>
+                <DockPanel LastChildFill="True">
+                    <Label Content="{Binding GreenshotLanguage.SettingsCapture}" Width="100" />
+                    <mah:NumericUpDown Value="{Binding CoreConfiguration.CaptureDelay}" Maximum="1000" Minimum="0"></mah:NumericUpDown>
+                </DockPanel>
+            </StackPanel>
+        </GroupBox>
+    </StackPanel>
 </UserControl>

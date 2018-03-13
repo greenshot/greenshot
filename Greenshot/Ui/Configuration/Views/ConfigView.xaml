@@ -56,7 +56,10 @@
                 </TreeView.ItemTemplate>
             </TreeView>
         </StackPanel>
-        <ContentControl x:Name="ActiveItem" Grid.Column="1" Grid.Row="0" />
+        <StackPanel Grid.Column="1" Grid.Row="0" >
+            <Label Content="{Binding ActiveItem.DisplayName}" HorizontalAlignment="Center"/>
+            <ContentControl x:Name="ActiveItem" />
+        </StackPanel>
         <UniformGrid Grid.Column="1" Grid.Row="1" Rows="1" Columns="2">
             <Button x:Name="Cancel" Content="{Binding CoreTranslations.Cancel}" />
             <Button x:Name="Ok" Content="{Binding CoreTranslations.Ok}" />

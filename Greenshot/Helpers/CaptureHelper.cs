@@ -538,10 +538,9 @@ namespace Greenshot.Helpers
         {
             // TODO: Capture all popups, from the initial capture, to make them available like the mouse cursor.
             // Than change focus, to remove the popups, and take the real capture
-
-            _windows = InteropWindowQuery.GetTopWindows()
+            _windows = WindowsEnumerator.EnumerateWindows()
                 .Concat(AppQuery.WindowsStoreApps)
-                .Where(window => (window.IsTopLevel() || window.IsPopup()) && window.Handle != MainForm.Instance.Handle)
+                .Where(window => User32Api.IsWindow(window.Handle) && (window.IsTopLevel() || window.IsPopup()) && window.Handle != MainForm.Instance.Handle)
                 .ToList();
 
             // If the App Launcher is visisble, on Windows 8 no other windows are active.. for Win 10 this is no longer true

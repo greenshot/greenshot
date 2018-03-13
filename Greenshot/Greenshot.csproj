@@ -381,7 +381,7 @@
     <Compile Include="Ui\Configuration\ViewModels\CaptureConfigNodeViewModel.cs" />
     <Compile Include="Ui\Configuration\ViewModels\ConfigViewModel.cs" />
     <Compile Include="Ui\Configuration\ViewModels\CaptureConfigViewModel.cs" />
-    <Compile Include="Ui\Configuration\ViewModels\ThemeConfigViewModel.cs" />
+    <Compile Include="Ui\Configuration\ViewModels\UiConfigViewModel.cs" />
     <Compile Include="Ui\ViewModels\SplashViewModel.cs" />
     <None Include="App.config" />
     <Compile Include="GlobalSuppressions.cs" />
@@ -624,7 +624,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Ui\Configuration\Views\ThemeConfigView.xaml">
+    <Page Include="Ui\Configuration\Views\UiConfigView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

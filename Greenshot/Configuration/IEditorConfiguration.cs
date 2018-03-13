@@ -53,7 +53,7 @@ namespace Greenshot.Configuration
 		bool MatchSizeToCapture { get; set; }
 
 		[Description("Placement flags")]
-		[DefaultValue(0)]
+		[DefaultValue((uint)0)]
 		WindowPlacementFlags WindowPlacementFlags { get; set; }
 
 		[Description("Show command")]
