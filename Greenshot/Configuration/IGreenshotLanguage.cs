@@ -239,6 +239,9 @@ namespace Greenshot.Configuration
         string SettingsVisualization { get; }
         string SettingsShownotify { get; }
         string SettingsWaittime { get; }
+
+        string SettingsZoom { get; }
+
         string SettingsWindowscapture { get; }
         string SettingsWindowCaptureMode { get; }
         string SettingsNetwork { get; }

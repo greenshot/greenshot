@@ -378,7 +378,9 @@
     </Compile>
     <Compile Include="Startup.cs" />
     <Compile Include="Ui\Configuration\ConfigIds.cs" />
+    <Compile Include="Ui\Configuration\ViewModels\CaptureConfigNodeViewModel.cs" />
     <Compile Include="Ui\Configuration\ViewModels\ConfigViewModel.cs" />
+    <Compile Include="Ui\Configuration\ViewModels\CaptureConfigViewModel.cs" />
     <Compile Include="Ui\Configuration\ViewModels\ThemeConfigViewModel.cs" />
     <Compile Include="Ui\ViewModels\SplashViewModel.cs" />
     <None Include="App.config" />
@@ -617,6 +619,10 @@
     <Page Include="Ui\Configuration\Views\ConfigView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Ui\Configuration\Views\CaptureConfigView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Ui\Configuration\Views\ThemeConfigView.xaml">
       <SubType>Designer</SubType>

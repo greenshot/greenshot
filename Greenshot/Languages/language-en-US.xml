@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="English" ietf="en-US" version="1.0.4" languagegroup="1">
-	<resources>
+	<resources prefix="Core">
 		<resource name="about_bugs">Please report bugs to</resource>
 		<resource name="about_donations">If you like Greenshot, you are welcome to support us:</resource>
 		<resource name="about_host">Greenshot is hosted by GitHub at</resource>

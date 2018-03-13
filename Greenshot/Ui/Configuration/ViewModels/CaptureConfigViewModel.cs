@@ -21,22 +21,21 @@
 
 #endregion
 
+
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
-using System.Linq;
 using System.Reactive.Disposables;
-using Caliburn.Micro;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.CaliburnMicro.Metro;
-using Dapplo.Utils.Extensions;
 using Greenshot.Configuration;
+using GreenshotPlugin.Core;
 
 namespace Greenshot.Ui.Configuration.ViewModels
 {
     [Export(typeof(IConfigScreen))]
-    public sealed class ThemeConfigViewModel : ConfigScreen
+    public sealed class CaptureConfigViewModel : ConfigScreen
     {
         /// <summary>
         ///     Here all disposables are registered, so we can clean the up
@@ -54,7 +53,7 @@ namespace Greenshot.Ui.Configuration.ViewModels
         public ObservableCollection<Tuple<Themes, string>> AvailableThemes { get; set; } = new ObservableCollection<Tuple<Themes, string>>();
 
         [Import]
-        public IMetroConfiguration MetroConfiguration { get; set; }
+        public ICoreConfiguration CoreConfiguration { get; set; }
 
         [Import]
         public IConfigTranslations ConfigTranslations { get; set; }
@@ -62,15 +61,9 @@ namespace Greenshot.Ui.Configuration.ViewModels
         [Import]
         public IGreenshotLanguage GreenshotLanguage { get; set; }
 
-        [Import(typeof(IWindowManager))]
-        private MetroWindowManager MetroWindowManager { get; set; }
-
         public override void Commit()
         {
-            // Manually commit
-            MetroConfiguration.CommitTransaction();
-            MetroWindowManager.ChangeTheme(MetroConfiguration.Theme);
-            MetroWindowManager.ChangeThemeAccent(MetroConfiguration.ThemeAccent);
+          
         }
 
         public override void Rollback()
@@ -89,28 +82,14 @@ namespace Greenshot.Ui.Configuration.ViewModels
             _disposables?.Dispose();
             _disposables = new CompositeDisposable();
 
-            AvailableThemeAccents.Clear();
-            foreach (var themeAccent in Enum.GetValues(typeof(ThemeAccents)).Cast<ThemeAccents>())
-            {
-                var translation = themeAccent.EnumValueOf();
-                AvailableThemeAccents.Add(new Tuple<ThemeAccents, string>(themeAccent, translation));
-            }
-
-            AvailableThemes.Clear();
-            foreach (var theme in Enum.GetValues(typeof(Themes)).Cast<Themes>())
-            {
-                var translation = theme.EnumValueOf();
-                AvailableThemes.Add(new Tuple<Themes, string>(theme, translation));
-            }
-
             // Place this under the Ui parent
-            ParentId = nameof(ConfigIds.Ui);
+            ParentId = nameof(ConfigIds.Capture);
 
             // Make sure Commit/Rollback is called on the IUiConfiguration
-            config.Register(MetroConfiguration);
+            config.Register(CoreConfiguration);
 
             // automatically update the DisplayName
-            var greenshotLanguageBinding = GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.SettingsTitle));
+            var greenshotLanguageBinding = GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.SettingsCapture));
 
             // Make sure the greenshotLanguageBinding is disposed when this is no longer active
             _disposables.Add(greenshotLanguageBinding);

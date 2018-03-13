@@ -1,0 +1,39 @@
+﻿<UserControl x:Class="Greenshot.Ui.Configuration.Views.CaptureConfigView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Greenshot.Ui.Configuration.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance viewModels:CaptureConfigViewModel,IsDesignTimeCreatable=False}"
+             >
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Label Content="{Binding GreenshotLanguage.SettingsCapture}" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" />
+
+        <CheckBox Content="{Binding GreenshotLanguage.SettingsCaptureMousepointer}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                  IsChecked="{Binding CoreConfiguration.CaptureMousepointer}" />
+
+        <CheckBox Content="{Binding GreenshotLanguage.SettingsPlaysound}" Grid.Row="2"
+                  Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding CoreConfiguration.PlayCameraSound}" />
+
+        <CheckBox Content="{Binding GreenshotLanguage.SettingsShownotify}" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                  IsChecked="{Binding CoreConfiguration.ShowTrayNotification}" />
+
+        <CheckBox Content="{Binding GreenshotLanguage.SettingsZoom}" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2"
+                  IsChecked="{Binding CoreConfiguration.ZoomerEnabled}" />
+    </Grid>
+</UserControl>
