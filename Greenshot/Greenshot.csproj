@@ -378,6 +378,8 @@
     </Compile>
     <Compile Include="Startup.cs" />
     <Compile Include="Ui\Configuration\ConfigIds.cs" />
+    <Compile Include="Ui\Configuration\ViewModels\DestinationPickerConfigViewModel.cs" />
+    <Compile Include="Ui\Configuration\ViewModels\DestinationsConfigNodeViewModel.cs" />
     <Compile Include="Ui\Configuration\ViewModels\CaptureConfigNodeViewModel.cs" />
     <Compile Include="Ui\Configuration\ViewModels\ConfigViewModel.cs" />
     <Compile Include="Ui\Configuration\ViewModels\CaptureConfigViewModel.cs" />
@@ -616,6 +618,10 @@
     <None Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Ui\Configuration\Views\DestinationPickerConfigView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Ui\Configuration\Views\ConfigView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

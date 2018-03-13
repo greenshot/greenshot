@@ -1,0 +1,18 @@
+﻿<UserControl x:Class="Greenshot.Ui.Configuration.Views.DestinationPickerConfigView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Greenshot.Ui.Configuration.ViewModels"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance viewModels:DestinationPickerConfigViewModel,IsDesignTimeCreatable=False}"
+             >
+    <StackPanel>
+        <GroupBox Header="{Binding GreenshotLanguage.SettingsDestinationPicker}">
+            <StackPanel>
+                <Label Content="Place content here"></Label>
+            </StackPanel>
+        </GroupBox>
+    </StackPanel>
+</UserControl>

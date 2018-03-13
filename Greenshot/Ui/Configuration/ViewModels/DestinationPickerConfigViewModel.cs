@@ -21,35 +21,22 @@
 
 #endregion
 
-using System;
-using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
-using Dapplo.CaliburnMicro.Metro;
 using Greenshot.Configuration;
 using GreenshotPlugin.Core;
 
 namespace Greenshot.Ui.Configuration.ViewModels
 {
     [Export(typeof(IConfigScreen))]
-    public sealed class CaptureConfigViewModel : SimpleConfigScreen
+    public sealed class DestinationPickerConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
         ///     Here all disposables are registered, so we can clean the up
         /// </summary>
         private CompositeDisposable _disposables;
-
-        /// <summary>
-        ///     The avaible theme accents
-        /// </summary>
-        public ObservableCollection<Tuple<ThemeAccents, string>> AvailableThemeAccents { get; set; } = new ObservableCollection<Tuple<ThemeAccents, string>>();
-
-        /// <summary>
-        ///     The avaible themes
-        /// </summary>
-        public ObservableCollection<Tuple<Themes, string>> AvailableThemes { get; set; } = new ObservableCollection<Tuple<Themes, string>>();
 
         [Import]
         public ICoreConfiguration CoreConfiguration { get; set; }
@@ -67,13 +54,13 @@ namespace Greenshot.Ui.Configuration.ViewModels
             _disposables = new CompositeDisposable();
 
             // Place this under the Ui parent
-            ParentId = nameof(ConfigIds.Capture);
+            ParentId = nameof(ConfigIds.Destinations);
 
             // Make sure Commit/Rollback is called on the IUiConfiguration
             config.Register(CoreConfiguration);
 
             // automatically update the DisplayName
-            var greenshotLanguageBinding = GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.SettingsCapture));
+            var greenshotLanguageBinding = GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.SettingsDestinationPicker));
 
             // Make sure the greenshotLanguageBinding is disposed when this is no longer active
             _disposables.Add(greenshotLanguageBinding);
