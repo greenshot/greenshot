@@ -25,11 +25,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.CaliburnMicro;
 using Dapplo.Jira;
 using Dapplo.Log;
 using Dapplo.Windows.Desktop;
@@ -44,31 +46,42 @@ namespace GreenshotJiraPlugin
 	///     It keeps a list of the last "accessed" jiras, and makes it easy to upload to one.
 	///     Make sure this is instanciated on the UI thread!
 	/// </summary>
-	public class JiraMonitor : IDisposable
+	[UiStartupAction, Export, UiShutdownAction]
+	public class JiraMonitor : IUiStartupAction, IUiShutdownAction
 	{
-		private static readonly LogSource Log = new LogSource();
+	    private readonly IJiraConfiguration _jiraConfiguration;
+	    private static readonly LogSource Log = new LogSource();
 		private readonly IList<IJiraClient> _jiraInstances = new List<IJiraClient>();
 		private readonly Regex _jiraKeyPattern = new Regex(@"[A-Z][A-Z0-9]+\-[0-9]+");
-		private readonly int _maxEntries;
 		private readonly IDictionary<string, IJiraClient> _projectJiraClientMap = new Dictionary<string, IJiraClient>();
-		private readonly IDisposable _winEventObservable;
+		private IDisposable _winEventObservable;
 		// TODO: Add issues from issueHistory (JQL -> Where.IssueKey.InIssueHistory())
 		private IDictionary<string, JiraDetails> _recentJiras = new Dictionary<string, JiraDetails>();
 
-		public JiraMonitor(int maxEntries = 40)
+        [ImportingConstructor]
+		public JiraMonitor(IJiraConfiguration jiraConfiguration)
 		{
-			_maxEntries = maxEntries;
-
-			_winEventObservable = WinEventHook.WindowTileChangeObservable()
-				.Select(info => User32Api.GetText(info.Handle))
-				.Where(title => !string.IsNullOrEmpty(title))
-				.Subscribe(MonitorTitleChangeEvent);
+		    _jiraConfiguration = jiraConfiguration;
 		}
 
-		/// <summary>
-		///     Get the "list" of recently seen Jiras
-		/// </summary>
-		public IEnumerable<JiraDetails> RecentJiras =>
+	    public void Start()
+	    {
+            // Subscribe the windows events which tell us a title was changed
+	        _winEventObservable = WinEventHook.WindowTileChangeObservable()
+	            .Select(info => User32Api.GetText(info.Handle))
+	            .Where(title => !string.IsNullOrEmpty(title))
+	            .Subscribe(MonitorTitleChangeEvent);
+        }
+
+	    public void Shutdown()
+	    {
+	        _winEventObservable.Dispose();
+	    }
+
+        /// <summary>
+        ///     Get the "list" of recently seen Jiras
+        /// </summary>
+        public IEnumerable<JiraDetails> RecentJiras =>
 			from jiraDetails in _recentJiras.Values
 			orderby jiraDetails.SeenAt descending
 			select jiraDetails;
@@ -97,16 +110,19 @@ namespace GreenshotJiraPlugin
 		{
 			_jiraInstances.Add(jiraInstance);
 			var projects = await jiraInstance.Project.GetAllAsync(cancellationToken: token).ConfigureAwait(false);
-			if (projects != null)
-			{
-				foreach (var project in projects)
-				{
-					if (!_projectJiraClientMap.ContainsKey(project.Key))
-					{
-						_projectJiraClientMap.Add(project.Key, jiraInstance);
-					}
-				}
-			}
+		    if (projects == null)
+		    {
+		        return;
+		    }
+		    foreach (var project in projects)
+		    {
+		        if (_projectJiraClientMap.ContainsKey(project.Key))
+		        {
+		            continue;
+		        }
+
+		        _projectJiraClientMap.Add(project.Key, jiraInstance);
+		    }
 		}
 
 		/// <summary>
@@ -148,7 +164,7 @@ namespace GreenshotJiraPlugin
 			var jiraId = jiraKeyParts[1];
 
 		    // Check if we have a JIRA instance with a project for this key
-			if (_projectJiraClientMap.TryGetValue(projectKey, out var jiraClient))
+			if (_projectJiraClientMap.TryGetValue(projectKey, out var _))
 			{
 				// We have found a project for this _jira key, so it must be a valid & known JIRA
 			    if (_recentJiras.TryGetValue(jiraKey, out var currentJiraDetails))
@@ -166,12 +182,12 @@ namespace GreenshotJiraPlugin
 				_recentJiras.Add(currentJiraDetails.JiraKey, currentJiraDetails);
 
 				// Make sure we don't collect _jira's until the memory is full
-				if (_recentJiras.Count > _maxEntries)
+				if (_recentJiras.Count > _jiraConfiguration.MaxEntries)
 				{
 					// Add it to the list of recent Jiras
 					_recentJiras = (from jiraDetails in _recentJiras.Values.ToList()
 						orderby jiraDetails.SeenAt descending
-						select jiraDetails).Take(_maxEntries).ToDictionary(jd => jd.JiraKey, jd => jd);
+						select jiraDetails).Take(_jiraConfiguration.MaxEntries).ToDictionary(jd => jd.JiraKey, jd => jd);
 				}
 				// Now we can get the title from JIRA itself
 				// ReSharper disable once UnusedVariable
@@ -182,32 +198,5 @@ namespace GreenshotJiraPlugin
 				Log.Info().WriteLine("Couldn't match possible JIRA key {0} to projects in a configured JIRA instance, ignoring", projectKey);
 			}
 		}
-
-		#region Dispose
-
-		/// <summary>
-		///     Dispose
-		/// </summary>
-		public void Dispose()
-		{
-			Dispose(true);
-		}
-
-		/// <summary>
-		///     Dispose all managed resources
-		/// </summary>
-		/// <param name="disposing">when true is passed all managed resources are disposed.</param>
-		private void Dispose(bool disposing)
-		{
-			if (!disposing)
-			{
-				return;
-			}
-			// free managed resources
-			_winEventObservable.Dispose();
-			// free native resources if there are any.
-		}
-
-		#endregion
 	}
 }

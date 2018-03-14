@@ -31,6 +31,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Media.Imaging;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.Extensions;
 using Dapplo.Jira;
@@ -50,34 +51,32 @@ namespace GreenshotJiraPlugin
 	[Export]
 	public class JiraConnector : IDisposable
 	{
+	    private static readonly LogSource Log = new LogSource();
 	    private readonly IJiraConfiguration _jiraConfiguration;
+	    private readonly JiraMonitor _jiraMonitor;
 
 	    // Used to remove the wsdl information from the old SOAP Uri
 		public const string DefaultPostfix = "/rpc/soap/jirasoapservice-v2?wsdl";
-		private static readonly LogSource Log = new LogSource();
 		private IssueTypeBitmapCache _issueTypeBitmapCache;
 		private readonly IJiraClient _jiraClient;
 		private DateTimeOffset _loggedInTime = DateTimeOffset.MinValue;
 
 		[ImportingConstructor]
-		public JiraConnector(IJiraConfiguration jiraConfiguration)
+		public JiraConnector(IJiraConfiguration jiraConfiguration, JiraMonitor jiraMonitor)
 		{
 		    jiraConfiguration.Url = jiraConfiguration.Url.Replace(DefaultPostfix, "");
 		    _jiraConfiguration = jiraConfiguration;
-			_jiraClient = JiraClient.Create(new Uri(jiraConfiguration.Url));
+		    _jiraMonitor = jiraMonitor;
+		    _jiraClient = JiraClient.Create(new Uri(jiraConfiguration.Url));
 		}
-
-		/// <summary>
-		///     Access the jira monitor
-		/// </summary>
-		public JiraMonitor Monitor { get; private set; }
 
 		public Bitmap FavIcon { get; private set; }
 
-		/// <summary>
-		///     Get the base uri
-		/// </summary>
-		public Uri JiraBaseUri => _jiraClient.JiraBaseUri;
+	    public IEnumerable<JiraDetails> RecentJiras => _jiraMonitor.RecentJiras;
+        /// <summary>
+        ///     Get the base uri
+        /// </summary>
+        public Uri JiraBaseUri => _jiraClient.JiraBaseUri;
 
 		/// <summary>
 		///     Is the user "logged in?
@@ -116,8 +115,7 @@ namespace GreenshotJiraPlugin
 			try
 			{
 				await _jiraClient.Session.StartAsync(user, password, cancellationToken);
-				Monitor = new JiraMonitor();
-				await Monitor.AddJiraInstanceAsync(_jiraClient, cancellationToken);
+				await _jiraMonitor.AddJiraInstanceAsync(_jiraClient, cancellationToken);
 
 				var favIconUri = _jiraClient.JiraBaseUri.AppendSegments("favicon.ico");
 				try
@@ -194,7 +192,8 @@ namespace GreenshotJiraPlugin
 		{
 			if (_jiraClient != null && IsLoggedIn)
 			{
-				Monitor.Dispose();
+                // TODO: Remove Jira Client?
+			    //_jiraMonitor.Dispose();
 				await _jiraClient.Session.EndAsync(cancellationToken);
 				IsLoggedIn = false;
 			}
@@ -303,7 +302,7 @@ namespace GreenshotJiraPlugin
 		/// <param name="issue">Issue</param>
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Bitmap</returns>
-		public async Task<Bitmap> GetIssueTypeBitmapAsync(Issue issue, CancellationToken cancellationToken = default)
+		public async Task<BitmapSource> GetIssueTypeBitmapAsync(Issue issue, CancellationToken cancellationToken = default)
 		{
 			return await _issueTypeBitmapCache.GetOrCreateAsync(issue.Fields.IssueType, cancellationToken).ConfigureAwait(false);
 		}

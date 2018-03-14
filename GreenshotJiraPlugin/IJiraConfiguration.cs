@@ -58,5 +58,9 @@ namespace GreenshotJiraPlugin
 		[Description("Reduce color amount of the uploaded image to 256")]
 		[DefaultValue(false)]
 		bool UploadReduceColors { get; set; }
+
+	    [Description("The maximum number of entries to show in the list")]
+	    [DefaultValue(20)]
+        int MaxEntries { get; set; }
 	}
 }

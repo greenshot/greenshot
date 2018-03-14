@@ -25,7 +25,6 @@ using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
-using Dapplo.CaliburnMicro.Translations;
 using GreenshotPlugin.Core;
 
 namespace GreenshotJiraPlugin.ViewModels
@@ -57,10 +56,10 @@ namespace GreenshotJiraPlugin.ViewModels
             config.Register(JiraConfiguration);
 
             // automatically update the DisplayName
-            var greenshotLanguageBinding = JiraLanguage.CreateDisplayNameBinding(this, nameof(IJiraLanguage.LabelJira));
+            var jiraLanguageBinding = JiraLanguage.CreateDisplayNameBinding(this, nameof(IJiraLanguage.LabelJira));
 
             // Make sure the greenshotLanguageBinding is disposed when this is no longer active
-            _disposables.Add(greenshotLanguageBinding);
+            _disposables.Add(jiraLanguageBinding);
 
             base.Initialize(config);
         }

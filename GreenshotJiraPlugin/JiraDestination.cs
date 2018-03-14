@@ -30,14 +30,15 @@ using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using Caliburn.Micro;
 using Dapplo.HttpExtensions;
 using Dapplo.Jira.Entities;
-using GreenshotJiraPlugin.Forms;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
+using GreenshotJiraPlugin.ViewModels;
 using GreenshotPlugin.Addons;
 
 #endregion
@@ -53,20 +54,25 @@ namespace GreenshotJiraPlugin
 	    private static readonly LogSource Log = new LogSource();
 		private readonly Issue _jiraIssue;
 	    private readonly JiraConnector _jiraConnector;
+	    private readonly IWindowManager _windowManager;
+	    private readonly JiraViewModel _jiraViewModel;
 	    private readonly IJiraConfiguration _jiraConfiguration;
 
-        [ImportingConstructor]
-		public JiraDestination(IJiraConfiguration jiraConfiguration, JiraConnector jiraConnector)
+	    [ImportingConstructor]
+	    public JiraDestination(IJiraConfiguration jiraConfiguration, JiraConnector jiraConnector, IWindowManager windowManager, JiraViewModel jiraViewModel)
         {
             _jiraConfiguration = jiraConfiguration;
             _jiraConnector = jiraConnector;
+            _windowManager = windowManager;
+            _jiraViewModel = jiraViewModel;
         }
 
-		public JiraDestination(IJiraConfiguration jiraConfiguration, JiraConnector jiraConnector, Issue jiraIssue)
+		public JiraDestination(IJiraConfiguration jiraConfiguration, JiraConnector jiraConnector, Issue jiraIssue, IWindowManager windowManager)
 		{
 		    _jiraConfiguration = jiraConfiguration;
 		    _jiraConnector = jiraConnector;
 			_jiraIssue = jiraIssue;
+		    _windowManager = windowManager;
 		}
 
 		public override string Description
@@ -98,7 +104,7 @@ namespace GreenshotJiraPlugin
 						// Try to get the issue type as icon
 						try
 						{
-							displayIcon = _jiraConnector.GetIssueTypeBitmapAsync(_jiraIssue).Result;
+						    displayIcon = null; //_jiraConnector.GetIssueTypeBitmapAsync(_jiraIssue).Result;
 						}
 						catch (Exception ex)
 						{
@@ -125,9 +131,9 @@ namespace GreenshotJiraPlugin
 			{
 				yield break;
 			}
-			foreach (var jiraDetails in _jiraConnector.Monitor.RecentJiras)
+			foreach (var jiraDetails in _jiraConnector.RecentJiras)
 			{
-				yield return new JiraDestination(_jiraConfiguration, _jiraConnector, jiraDetails.JiraIssue);
+				yield return new JiraDestination(_jiraConfiguration, _jiraConnector, jiraDetails.JiraIssue, _windowManager);
 			}
 		}
 
@@ -160,19 +166,28 @@ namespace GreenshotJiraPlugin
 			}
 			else
 			{
-				var jiraForm = new JiraForm(_jiraConnector);
-				jiraForm.SetFilename(filename);
-				var dialogResult = jiraForm.ShowDialog();
-				if (dialogResult == DialogResult.OK)
-				{
+                // TODO: set filename
+			    // _jiraViewModel.SetFilename(filename);
+			    if (_windowManager.ShowDialog(_jiraViewModel) == true)
+			    {
 					try
 					{
-						surface.UploadUrl = _jiraConnector.JiraBaseUri.AppendSegments("browse", jiraForm.GetJiraIssue().Key).AbsoluteUri;
+						surface.UploadUrl = _jiraConnector.JiraBaseUri.AppendSegments("browse", _jiraViewModel.JiraIssue.Key).AbsoluteUri;
 						// Run upload in the background
 						new PleaseWaitForm().ShowAndWait(Description, Language.GetString("jira", LangKey.communication_wait),
-							async () => { await jiraForm.UploadAsync(new SurfaceContainer(surface, outputSettings, filename)); }
+						    async () =>
+						    {
+						        var attachment = new SurfaceContainer(surface, outputSettings, _jiraViewModel.Filename);
+                                
+						        await _jiraConnector.AttachAsync(_jiraViewModel.JiraIssue.Key, attachment);
+
+						        if (!string.IsNullOrEmpty(_jiraViewModel.Comment))
+						        {
+						            await _jiraConnector.AddCommentAsync(_jiraViewModel.JiraIssue.Key, _jiraViewModel.Comment);
+						        }
+						    }
 						);
-						Log.Debug().WriteLine("Uploaded to Jira {0}", jiraForm.GetJiraIssue().Key);
+						Log.Debug().WriteLine("Uploaded to Jira {0}", _jiraViewModel.JiraIssue.Key);
 						exportInformation.ExportMade = true;
 						exportInformation.Uri = surface.UploadUrl;
 					}

@@ -24,11 +24,12 @@
 #region Usings
 
 using System;
-using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 using Dapplo.Jira;
 using Dapplo.Jira.Entities;
+using Dapplo.Utils;
 
 #endregion
 
@@ -37,7 +38,7 @@ namespace GreenshotJiraPlugin
 	/// <summary>
 	///     This is the bach for the IssueType bitmaps
 	/// </summary>
-	public class IssueTypeBitmapCache : AsyncMemoryCache<IssueType, Bitmap>
+	public class IssueTypeBitmapCache : AsyncMemoryCache<IssueType, BitmapSource>
 	{
 		private readonly IJiraClient _jiraClient;
 
@@ -53,9 +54,9 @@ namespace GreenshotJiraPlugin
 			return keyObject.Name;
 		}
 
-		protected override async Task<Bitmap> CreateAsync(IssueType issueType, CancellationToken cancellationToken = new CancellationToken())
+		protected override async Task<BitmapSource> CreateAsync(IssueType issueType, CancellationToken cancellationToken = new CancellationToken())
 		{
-			return await _jiraClient.Server.GetUriContentAsync<Bitmap>(issueType.IconUri, cancellationToken).ConfigureAwait(false);
+			return await _jiraClient.Server.GetUriContentAsync<BitmapSource>(issueType.IconUri, cancellationToken).ConfigureAwait(false);
 		}
 	}
 }
