@@ -26,6 +26,7 @@
 using System.ComponentModel;
 using GreenshotPlugin.Core.Enums;
 using Dapplo.Ini;
+using Dapplo.InterfaceImpl.Extensions;
 
 #endregion
 
@@ -36,7 +37,7 @@ namespace GreenshotJiraPlugin
 	/// </summary>
 	[IniSection("Jira")]
     [Description("Greenshot Jira Plugin configuration")]
-	public interface IJiraConfiguration : IIniSection
+	public interface IJiraConfiguration : IIniSection, INotifyPropertyChanged, ITransactionalProperties
 	{
 		[Description("Base url to Jira system, without anything else")]
 		[DefaultValue("https://jira")]

@@ -1,0 +1,25 @@
+﻿<UserControl x:Class="GreenshotJiraPlugin.Views.JiraConfigView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:GreenshotJiraPlugin.ViewModels"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance viewModels:JiraConfigViewModel,IsDesignTimeCreatable=False}"
+             >
+    <StackPanel>
+        <GroupBox Header="{Binding JiraLanguage.LabelJira}">
+            <StackPanel>
+                <DockPanel LastChildFill="True">
+                    <Label Content="{Binding JiraLanguage.LabelUploadFormat}" Width="100" />
+                    <ComboBox  />
+                </DockPanel>
+                <DockPanel LastChildFill="True">
+                    <Label Content="{Binding JiraLanguage.LabelUrl}" Width="100" />
+                    <TextBox Text="{Binding JiraConfiguration.Url}" />
+                </DockPanel>
+            </StackPanel>
+        </GroupBox>
+    </StackPanel>
+</UserControl>

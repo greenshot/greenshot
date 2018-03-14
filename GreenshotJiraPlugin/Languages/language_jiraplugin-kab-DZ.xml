@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<language description="Taqbaylit" ietf="kab-DZ" version="1.0.0" languagegroup="">
-	<resources>
+<language>
+	<resources prefix="Jira">
 		<resource name="CANCEL">Sefsex</resource>
 		<resource name="column_assignee">Bénéficiaire</resource>
 		<resource name="column_created">Yettwarna</resource>

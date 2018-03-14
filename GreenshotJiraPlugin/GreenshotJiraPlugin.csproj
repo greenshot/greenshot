@@ -57,8 +57,23 @@
     <Reference Include="Dapplo.Addons, Version=0.5.50.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.Addons.0.5.50\lib\net45\Dapplo.Addons.dll</HintPath>
     </Reference>
+    <Reference Include="Dapplo.Addons.Bootstrapper, Version=0.5.50.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Addons.Bootstrapper.0.5.50\lib\net45\Dapplo.Addons.Bootstrapper.dll</HintPath>
+    </Reference>
     <Reference Include="Dapplo.CaliburnMicro, Version=0.5.27.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.CaliburnMicro.0.5.27\lib\net45\Dapplo.CaliburnMicro.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapplo.CaliburnMicro.Configuration, Version=0.5.27.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.CaliburnMicro.Configuration.0.5.27\lib\net45\Dapplo.CaliburnMicro.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapplo.CaliburnMicro.Dapp, Version=0.5.27.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.CaliburnMicro.Dapp.0.5.27\lib\net45\Dapplo.CaliburnMicro.Dapp.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapplo.CaliburnMicro.Menu, Version=0.5.27.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.CaliburnMicro.Menu.0.5.27\lib\net45\Dapplo.CaliburnMicro.Menu.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapplo.CaliburnMicro.Security, Version=0.5.27.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.CaliburnMicro.Security.0.5.27\lib\net45\Dapplo.CaliburnMicro.Security.dll</HintPath>
     </Reference>
     <Reference Include="Dapplo.CaliburnMicro.Translations, Version=0.5.27.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapplo.CaliburnMicro.Translations.0.5.27\lib\net45\Dapplo.CaliburnMicro.Translations.dll</HintPath>
@@ -167,12 +182,7 @@
     <Compile Include="Forms\JiraFormBase.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\SettingsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\SettingsForm.Designer.cs">
-      <DependentUpon>SettingsForm.cs</DependentUpon>
-    </Compile>
+    <Compile Include="IJiraLanguage.cs" />
     <Compile Include="IssueTypeBitmapCache.cs" />
     <Compile Include="JiraConnector.cs" />
     <Compile Include="IJiraConfiguration.cs" />
@@ -184,6 +194,7 @@
     <Compile Include="JiraPlugin.cs" />
     <Compile Include="LanguageKeys.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\JiraConfigViewModel.cs" />
     <None Include="app.config" />
     <None Include="Languages\language_jiraplugin-de-DE.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -212,6 +223,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="FodyWeavers.xml" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Page Include="Views\JiraConfigView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"

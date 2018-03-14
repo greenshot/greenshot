@@ -335,19 +335,20 @@ namespace GreenshotPlugin.Core
         ///     This helper method clears all non alpha characters from the IETF, and does a reformatting.
         ///     This prevents problems with multiple formats or typos.
         /// </summary>
-        /// <param name="inputIETF"></param>
+        /// <param name="inputIETF">string</param>
         /// <returns></returns>
         private static string ReformatIETF(string inputIETF)
         {
-            string returnIETF = null;
-            if (!string.IsNullOrEmpty(inputIETF))
+            if (string.IsNullOrEmpty(inputIETF))
             {
-                returnIETF = inputIETF.ToLower();
-                returnIETF = IetfCleanRegexp.Replace(returnIETF, "");
-                if (returnIETF.Length == 4)
-                {
-                    returnIETF = returnIETF.Substring(0, 2) + "-" + returnIETF.Substring(2, 2).ToUpper();
-                }
+                return null;
+            }
+
+            string returnIETF = inputIETF.ToLower();
+            returnIETF = IetfCleanRegexp.Replace(returnIETF, "");
+            if (returnIETF.Length == 4)
+            {
+                returnIETF = returnIETF.Substring(0, 2) + "-" + returnIETF.Substring(2, 2).ToUpper();
             }
             return returnIETF;
         }
@@ -404,37 +405,30 @@ namespace GreenshotPlugin.Core
                 var xmlDocument = new XmlDocument();
                 xmlDocument.Load(languageFilePath);
                 var nodes = xmlDocument.GetElementsByTagName("language");
-                if (nodes.Count > 0)
+                if (nodes.Count <= 0)
                 {
-                    var languageFile = new LanguageFile
-                    {
-                        Filepath = languageFilePath
-                    };
-                    var node = nodes.Item(0);
-                    if (node?.Attributes != null)
-                    {
-                        languageFile.Description = node.Attributes["description"].Value;
-                        if (node.Attributes["ietf"] != null)
-                        {
-                            languageFile.Ietf = ReformatIETF(node.Attributes["ietf"].Value);
-                        }
-                        if (node.Attributes["version"] != null)
-                        {
-                            languageFile.Version = new Version(node.Attributes["version"].Value);
-                        }
-                        if (node.Attributes["prefix"] != null)
-                        {
-                            languageFile.Prefix = node.Attributes["prefix"].Value.ToLower();
-                        }
-                        if (node.Attributes["languagegroup"] != null)
-                        {
-                            var languageGroup = node.Attributes["languagegroup"].Value;
-                            languageFile.LanguageGroup = languageGroup.ToLower();
-                        }
-                    }
+                    throw new XmlException("Root element <language> is missing");
+                }
+
+                var languageFile = new LanguageFile
+                {
+                    Filepath = languageFilePath
+                };
+                var node = nodes.Item(0);
+                if (node?.Attributes == null)
+                {
                     return languageFile;
                 }
-                throw new XmlException("Root element <language> is missing");
+
+                languageFile.Description = node.Attributes["description"]?.Value;
+                languageFile.Ietf = ReformatIETF(node.Attributes["ietf"]?.Value);
+                if (node.Attributes["version"]?.Value != null)
+                {
+                    languageFile.Version = new Version(node.Attributes["version"].Value);
+                }
+                languageFile.Prefix = node.Attributes["prefix"]?.Value.ToLower();
+                languageFile.LanguageGroup = node.Attributes["languagegroup"]?.Value.ToLower();
+                return languageFile;
             }
             catch (Exception e)
             {

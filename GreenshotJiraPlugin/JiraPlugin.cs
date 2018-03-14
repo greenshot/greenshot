@@ -27,9 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Dapplo.Windows.Dpi;
-using GreenshotJiraPlugin.Forms;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
@@ -49,16 +47,14 @@ namespace GreenshotJiraPlugin
 	    private static readonly LogSource Log = new LogSource();
 	    private readonly IGreenshotHost _greenshotHost;
 	    private readonly ICoreConfiguration _coreConfiguration;
-	    private readonly IJiraConfiguration _jiraConfiguration;
 	    private readonly JiraConnector _jiraConnector;
 
 
         [ImportingConstructor]
-		public JiraPlugin(IGreenshotHost greenshotHost, ICoreConfiguration coreConfiguration, IJiraConfiguration jiraConfiguration, JiraConnector jiraConnector)
+		public JiraPlugin(IGreenshotHost greenshotHost, ICoreConfiguration coreConfiguration, JiraConnector jiraConnector)
         {
             _greenshotHost = greenshotHost;
             _coreConfiguration = coreConfiguration;
-            _jiraConfiguration = jiraConfiguration;
             _jiraConnector = jiraConnector;
             Instance = this;
         }
@@ -105,57 +101,14 @@ namespace GreenshotJiraPlugin
 			}
 		}
 
-		/// <summary>
-		///     Implementation of the IPlugin.Configure
-		/// </summary>
-		public void Configure()
-		{
-			var url = _jiraConfiguration.Url;
-			if (!ShowConfigDialog())
-			{
-				return;
-			}
-			// check for re-login
-			if (_jiraConnector == null || !_jiraConnector.IsLoggedIn || string.IsNullOrEmpty(url))
-			{
-				return;
-			}
-			if (!url.Equals(_jiraConfiguration.Url))
-			{
-				Task.Run(async () =>
-				{
-					await _jiraConnector.LogoutAsync();
-					await _jiraConnector.LoginAsync();
-				});
-			}
-		}
-
 		private void Dispose(bool disposing)
 		{
 			if (!disposing)
 			{
 				return;
 			}
-			if (_jiraConnector == null)
-			{
-				return;
-			}
-		    _jiraConnector.Dispose();
-		}
 
-		/// <summary>
-		///     A form for username/password
-		/// </summary>
-		/// <returns>bool true if OK was pressed, false if cancel</returns>
-		private bool ShowConfigDialog()
-		{
-			var settingsForm = new SettingsForm();
-			var result = settingsForm.ShowDialog();
-			if (result == DialogResult.OK)
-			{
-				return true;
-			}
-			return false;
+		    _jiraConnector?.Dispose();
 		}
 	}
 }

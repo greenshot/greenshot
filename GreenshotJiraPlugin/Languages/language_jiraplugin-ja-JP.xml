@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="日本語" ietf="ja-JP" version="1.0.0">
-	<resources>
+<language>
+	<resources prefix="Jira">
 		<resource name="upload_menu_item">JIRA にアップロード</resource>
 		<resource name="column_assignee">担当者</resource>
 		<resource name="column_created">作成者</resource>

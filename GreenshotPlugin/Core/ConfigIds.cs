@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace Greenshot.Ui.Configuration
+namespace GreenshotPlugin.Core
 {
     public enum ConfigIds
     {

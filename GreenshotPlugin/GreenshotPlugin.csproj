@@ -165,6 +165,7 @@
     <Compile Include="Animation\AnimatorBase.cs" />
     <Compile Include="Core\Capture.cs" />
     <Compile Include="Core\CaptureDetails.cs" />
+    <Compile Include="Core\ConfigIds.cs" />
     <Compile Include="Core\ConfigTags.cs" />
     <Compile Include="Core\CoreConfigurationExtensions.cs" />
     <Compile Include="Core\Credentials\CredFlags.cs" />
