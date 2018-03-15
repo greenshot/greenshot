@@ -719,7 +719,7 @@ namespace Greenshot.Forms
             // check if thumbnailPreview is enabled and DWM is enabled
             var thumbnailPreview = _coreConfiguration.ThumnailPreview && Dwm.IsDwmEnabled;
 
-            foreach (var window in InteropWindowQuery.GetTopLevelWindows().ToList().Concat(AppQuery.WindowsStoreApps.ToList()))
+            foreach (var window in InteropWindowQuery.GetTopLevelWindows().Concat(AppQuery.WindowsStoreApps.ToList()))
             {
                 var title = window.GetCaption();
                 if (title == null)

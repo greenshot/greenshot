@@ -14,7 +14,13 @@
              d:DataContext="{d:DesignInstance viewModels:JiraViewModel,IsDesignTimeCreatable=False}"
              Width="500" Height="400">
     <StackPanel>
-        <ComboBox ItemsSource="{Binding Filters}" DisplayMemberPath="Name" SelectedItem="{Binding Filter}"></ComboBox>
-        <TextBox Text="{Binding Comment}"/>
+        <DockPanel LastChildFill="True">
+            <Label Content="{Binding JiraLanguage.LabelJirafilter}" Width="100" />
+            <ComboBox ItemsSource="{Binding Filters}" DisplayMemberPath="Name" SelectedItem="{Binding Filter}"></ComboBox>
+        </DockPanel>
+        <DockPanel LastChildFill="True">
+            <Label Content="{Binding JiraLanguage.LabelComment}" Width="100" />
+            <TextBox Text="{Binding Comment}"/>
+        </DockPanel>
     </StackPanel>
 </UserControl>

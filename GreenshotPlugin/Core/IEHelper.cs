@@ -185,14 +185,16 @@ namespace GreenshotPlugin.Core {
 			foreach (var ieWindow in InteropWindowQuery.GetTopWindows().Where(window => window.GetClassname() == "IEFrame"))
 			{
 				var directUiWd = GetDirectUi(ieWindow);
-				if (directUiWd != null)
-				{
-					var ieAccessible = new Accessible(directUiWd.Handle);
-					foreach (var url in ieAccessible.IETabUrls)
-					{
-						yield return url;
-					}
-				}
+			    if (directUiWd == null)
+			    {
+			        continue;
+			    }
+
+			    var ieAccessible = new Accessible(directUiWd.Handle);
+			    foreach (var url in ieAccessible.IETabUrls)
+			    {
+			        yield return url;
+			    }
 			}
 		}
 	}
