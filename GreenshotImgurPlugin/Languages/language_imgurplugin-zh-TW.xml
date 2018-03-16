@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="正體中文" ietf="zh-TW" version="1.0.0" languagegroup="9">
-	<resources>
+
+<language>
+	<resources prefix="Imgur">
 		<resource name="anonymous_access">使用匿名存取</resource>
 		<resource name="CANCEL">取消</resource>
 		<resource name="clear_question">您確定要刪除本機 Imgur 歷程記錄嗎?</resource>

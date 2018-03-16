@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="日本語" ietf="ja-JP" version="1.0.0">
-	<resources>
+<language>
+	<resources prefix="Confluence">
 		<resource name="plugin_settings">Confluence の設定</resource>
 		<resource name="login_error">ログイン中に問題が発生しました: {0}</resource>
 		<resource name="label_url">UrRL</resource>

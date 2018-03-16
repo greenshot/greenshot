@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Polski" ietf="pl-PL" version="1.1.4" languagegroup="2">
-	<resources>
+
+<language>
+	<resources prefix="Dropbox">
 		<resource name="communication_wait">Trwa komunikacja z Dropbox. Proszę czekać...</resource>
 		<resource name="Configure">Konfiguruj Dropbox</resource>
 		<resource name="label_AfterUpload">Po wysłaniu</resource>

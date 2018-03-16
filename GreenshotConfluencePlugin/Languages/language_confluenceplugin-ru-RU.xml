@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Русский" ietf="ru-RU" version="1.1.0.2515" languagegroup="5">
-	<resources>
+
+<language>
+	<resources prefix="Confluence">
 		<resource name="browse_pages">Обзор страниц</resource>
 		<resource name="CANCEL">Отмена</resource>
 		<resource name="communication_wait">Передача данных на Confluence, пожалуйста, подождите...</resource>

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="日本語" ietf="ja-JP" version="1.0.0">
-	<resources>
+<language>
+	<resources prefix="Photobucket">
 		<resource name="upload_menu_item">Photobucket にアップロード</resource>
 		<resource name="settings_title">Photobucket の設定</resource>
 		<resource name="OK">OK</resource>

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="日本語" ietf="ja-JP" version="1.0.0">
-	<resources>
+<language>
+	<resources prefix="Imgur">
 		<resource name="upload_menu_item">Imgur にアップロード</resource>
 		<resource name="settings_title">Imgur の設定</resource>
 		<resource name="label_url">URL</resource>

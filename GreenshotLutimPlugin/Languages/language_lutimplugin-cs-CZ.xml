@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Czech" ietf="cs-CZ" version="1.1.0.2411" languagegroup="">
-	<resources>
+<language>
+	<resources prefix="Lutim">
 		<resource name="anonymous_access">Použít anonymní přístup</resource>
 		<resource name="CANCEL">Zrušit</resource>
 		<resource name="clear_question">Jste si jisti, že chcete smazat místní historii Lutim?</resource>

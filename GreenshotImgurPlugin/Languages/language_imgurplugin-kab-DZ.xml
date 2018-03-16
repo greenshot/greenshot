@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<language description="Taqbaylit" ietf="kab-DZ" version="1.2.0.58" languagegroup="1">
+<language>
 	<resources prefix="Imgur">
 		<resource name="upload_menu_item">
 			Sali ar Imgur

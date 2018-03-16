@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<language description="Taqbaylit" ietf="kab-DZ" version="1.0.0" languagegroup="">
-	<resources>
+<language>
+	<resources prefix="Box">
 		<resource name="communication_wait">Taɣwaylt tetteddu akked umeẓlu n usekles s srid. Ṛǧu ma ulac aɣilif...</resource>
 		<resource name="Configure">Swel Box</resource>
 		<resource name="label_AfterUpload">Deffir n usider/asali</resource>

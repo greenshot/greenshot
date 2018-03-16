@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Polski" ietf="pl-PL" version="1.1.4" languagegroup="2">
-	<resources>
+<language>
+	<resources prefix="GooglePhotos">
 		<resource name="communication_wait">Trwa komunikacja z Google Photos. Proszę czekać...</resource>
 		<resource name="Configure">Konfiguruj Google Photos</resource>
 		<resource name="label_AfterUpload">Po wysłaniu</resource>

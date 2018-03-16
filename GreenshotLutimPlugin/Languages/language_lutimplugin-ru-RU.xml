@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Русский" ietf="ru-RU" version="1.1.4.2622" languagegroup="5">
-	<resources>
+<language>
+	<resources prefix="Lutim">
 		<resource name="anonymous_access">Использовать анонимный доступ</resource>
 		<resource name="CANCEL">Отмена</resource>
 		<resource name="clear_question">Вы действительно хотите удалить местную историю Lutim?</resource>

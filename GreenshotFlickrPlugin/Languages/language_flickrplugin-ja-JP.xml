@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="日本語" ietf="ja-JP" version="1.0.0">
-	<resources>
+
+<language>
+	<resources prefix="Flickr">
 		<resource name="label_HiddenFromSearch">検索から隠す</resource>
 		<resource name="label_SafetyLevel">セーフティレベル</resource>
 		<resource name="label_AfterUploadLinkToClipBoard">リンクをクリップボードへコピー</resource>

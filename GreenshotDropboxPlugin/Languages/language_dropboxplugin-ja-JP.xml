@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="日本語" ietf="ja-JP" version="1.0.0">
-	<resources>
+
+<language>
+	<resources prefix="Dropbox">
 		<resource name="label_AfterUploadLinkToClipBoard">リンクをクリップボードへコピー</resource>
 		<resource name="label_AfterUploadOpenHistory">履歴を開く</resource>
 		<resource name="label_AfterUpload">アップロード後</resource>

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="日本語" ietf="ja-JP" version="1.0.0">
-	<resources>
+<language>
+	<resources prefix="Box">
 		<resource name="label_AfterUploadLinkToClipBoard">リンクをクリップボードへコピー</resource>
 		<resource name="label_AfterUpload">アップロード後</resource>
 		<resource name="Configure">Box の設定</resource>

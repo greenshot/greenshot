@@ -1,54 +1,54 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- Translated by Kārlis Kalviškis (eko@lanet.lv) 2014.12.17. -->
-<language description="Latviski" ietf="lv-LV" version="0.1.0" languagegroup="1">
-  <resources>
-	<resource name="upload_menu_item">
-		Augšupieladēt uz Lutim
-	</resource>
-	<resource name="settings_title">
-		Lutim iestatījumi
-	</resource>
-	<resource name="label_url">
-		Url
-	</resource>
-	<resource name="OK">
-		Labi
-	</resource>
-	<resource name="CANCEL">
-		Atcelt
-	</resource>
-	<resource name="upload_success">
-		Attēls veiksmīgi augšupielādēts uz Lutim!
-	</resource>
-	<resource name="upload_failure">
-		Kļūda augšupielādējot uz Lutim:
-	</resource>
-	<resource name="label_upload_format">
-		Attēla formāts
-	</resource>
-	<resource name="communication_wait">
-		Savienojos ar Lutim. Lūdzu uzgaidiet...
-	</resource>
-	<resource name="delete_question">
-		Vai tiešām gribi izdzēst no Lutim šo attēlu: {0}?
-	</resource>
-	<resource name="clear_question">
-		Vai tiešām gribi izdzēst vietējo Lutim vēsturi?
-	</resource>
-	<resource name="delete_title">
-		Izdzēst Lutim {0}
-	</resource>
-	<resource name="anonymous_access">
-		Lieto anonīmo piek'ļuvi
-	</resource>
-	<resource name="use_page_link">
-		Starpliktuvē lieto atsauci uz lapu nevis attēlu
-	</resource>
-	<resource name="history">
-		Vēsture
-	</resource>
-	<resource name="configure">
-		Iestatījumi
-	</resource>
-  </resources>
+<language>
+	<resources prefix="Lutim">
+		<resource name="upload_menu_item">
+			Augšupieladēt uz Lutim
+		</resource>
+		<resource name="settings_title">
+			Lutim iestatījumi
+		</resource>
+		<resource name="label_url">
+			Url
+		</resource>
+		<resource name="OK">
+			Labi
+		</resource>
+		<resource name="CANCEL">
+			Atcelt
+		</resource>
+		<resource name="upload_success">
+			Attēls veiksmīgi augšupielādēts uz Lutim!
+		</resource>
+		<resource name="upload_failure">
+			Kļūda augšupielādējot uz Lutim:
+		</resource>
+		<resource name="label_upload_format">
+			Attēla formāts
+		</resource>
+		<resource name="communication_wait">
+			Savienojos ar Lutim. Lūdzu uzgaidiet...
+		</resource>
+		<resource name="delete_question">
+			Vai tiešām gribi izdzēst no Lutim šo attēlu: {0}?
+		</resource>
+		<resource name="clear_question">
+			Vai tiešām gribi izdzēst vietējo Lutim vēsturi?
+		</resource>
+		<resource name="delete_title">
+			Izdzēst Lutim {0}
+		</resource>
+		<resource name="anonymous_access">
+			Lieto anonīmo piek'ļuvi
+		</resource>
+		<resource name="use_page_link">
+			Starpliktuvē lieto atsauci uz lapu nevis attēlu
+		</resource>
+		<resource name="history">
+			Vēsture
+		</resource>
+		<resource name="configure">
+			Iestatījumi
+		</resource>
+	</resources>
 </language>
