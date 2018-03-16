@@ -32,7 +32,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("Greenshot-GooglePhotos-Plugin")]
+[assembly: AssemblyTitle("Greenshot.Addon.GooglePhotos")]
 [assembly: AssemblyDescription("A plugin to upload images to Google Photos")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Greenshot & F. Noel")]

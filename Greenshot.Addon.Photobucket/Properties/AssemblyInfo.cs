@@ -32,7 +32,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("Greenshot-Photobucket-Plugin")]
+[assembly: AssemblyTitle("Greenshot.Addon.Photobucket")]
 [assembly: AssemblyDescription("A plugin to upload images to Photobucket")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Greenshot")]

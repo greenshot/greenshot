@@ -32,7 +32,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("Greenshot-Dropbox-Plugin")]
+[assembly: AssemblyTitle("Greenshot.Addon.Dropbox")]
 [assembly: AssemblyDescription("A plugin to upload images to Dropbox")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Greenshot & F. Noel")]
