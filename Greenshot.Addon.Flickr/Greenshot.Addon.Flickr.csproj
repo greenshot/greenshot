@@ -4,8 +4,8 @@
   <PropertyGroup>
     <ProjectGuid>{7EC72A5A-D73A-4B4B-9CA1-2216C7D92D5E}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>GreenshotFlickrPlugin</RootNamespace>
-    <AssemblyName>GreenshotFlickrPlugin</AssemblyName>
+    <RootNamespace>Greenshot.Addon.Flickr</RootNamespace>
+    <AssemblyName>Greenshot.Addon.Flickr</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>

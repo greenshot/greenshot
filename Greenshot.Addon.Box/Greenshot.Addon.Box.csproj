@@ -4,8 +4,8 @@
   <PropertyGroup>
     <ProjectGuid>{697CF066-9077-4F22-99D9-D989CCE7282B}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>GreenshotBoxPlugin</RootNamespace>
-    <AssemblyName>GreenshotBoxPlugin</AssemblyName>
+    <RootNamespace>Greenshot.Addon.Box</RootNamespace>
+    <AssemblyName>Greenshot.Addon.Box</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>

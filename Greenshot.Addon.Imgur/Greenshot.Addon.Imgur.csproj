@@ -4,8 +4,8 @@
   <PropertyGroup>
     <ProjectGuid>{80D8DEB9-94E3-4876-8CCA-2DF1ED5F2C50}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>GreenshotImgurPlugin</RootNamespace>
-    <AssemblyName>GreenshotImgurPlugin</AssemblyName>
+    <RootNamespace>Greenshot.Addon.Imgur</RootNamespace>
+    <AssemblyName>Greenshot.Addon.Imgur</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>

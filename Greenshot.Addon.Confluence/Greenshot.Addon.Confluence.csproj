@@ -5,8 +5,8 @@
     <NoWarn>1685</NoWarn>
     <ProjectGuid>{C3052651-598A-44E2-AAB3-2E41311D50F9}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>GreenshotConfluencePlugin</RootNamespace>
-    <AssemblyName>GreenshotConfluencePlugin</AssemblyName>
+    <RootNamespace>Greenshot.Addon.Confluence</RootNamespace>
+    <AssemblyName>Greenshot.Addon.Confluence</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>

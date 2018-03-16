@@ -5,8 +5,8 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <OutputType>Library</OutputType>
-    <RootNamespace>GreenshotOfficePlugin</RootNamespace>
-    <AssemblyName>GreenshotOfficePlugin</AssemblyName>
+    <RootNamespace>Greenshot.Addon.Office</RootNamespace>
+    <AssemblyName>Greenshot.Addon.Office</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>

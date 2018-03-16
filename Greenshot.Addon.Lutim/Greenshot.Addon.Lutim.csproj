@@ -4,8 +4,8 @@
   <PropertyGroup>
     <ProjectGuid>{D106F86C-CD3D-44FF-B151-2A5D47268B5C}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>GreenshotLutimPlugin</RootNamespace>
-    <AssemblyName>GreenshotLutimPlugin</AssemblyName>
+    <RootNamespace>Greenshot.Addon.Lutim</RootNamespace>
+    <AssemblyName>Greenshot.Addon.Lutim</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>

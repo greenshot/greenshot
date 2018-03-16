@@ -4,8 +4,8 @@
   <PropertyGroup>
     <ProjectGuid>{AD7CFFE2-40E7-46CF-A172-D48CF7AE9A12}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>GreenshotDropboxPlugin</RootNamespace>
-    <AssemblyName>GreenshotDropboxPlugin</AssemblyName>
+    <RootNamespace>Greenshot.Addon.Dropbox</RootNamespace>
+    <AssemblyName>Greenshot.Addon.Dropbox</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>

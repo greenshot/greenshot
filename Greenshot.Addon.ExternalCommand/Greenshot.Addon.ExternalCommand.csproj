@@ -4,8 +4,8 @@
   <PropertyGroup>
     <ProjectGuid>{47F23C86-604E-4CC3-8767-B3D4088F30BB}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>GreenshotExternalCommandPlugin</RootNamespace>
-    <AssemblyName>GreenshotExternalCommandPlugin</AssemblyName>
+    <RootNamespace>Greenshot.Addon.ExternalCommand</RootNamespace>
+    <AssemblyName>Greenshot.Addon.ExternalCommand</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>

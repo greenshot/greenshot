@@ -4,8 +4,8 @@
   <PropertyGroup>
     <ProjectGuid>{9C0ECC4C-7807-4111-916A-4F57BB29788A}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>GreenshotPhotobucketPlugin</RootNamespace>
-    <AssemblyName>GreenshotPhotobucketPlugin</AssemblyName>
+    <RootNamespace>Greenshot.Addon.Photobucket</RootNamespace>
+    <AssemblyName>Greenshot.Addon.Photobucket</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
