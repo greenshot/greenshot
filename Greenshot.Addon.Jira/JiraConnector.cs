@@ -37,13 +37,13 @@ using Dapplo.HttpExtensions.Extensions;
 using Dapplo.Jira;
 using Dapplo.Jira.Converters;
 using Dapplo.Jira.Entities;
+using Dapplo.Log;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Credentials;
-using Dapplo.Log;
 
 #endregion
 
-namespace GreenshotJiraPlugin
+namespace Greenshot.Addon.Jira
 {
 	/// <summary>
 	///     This encapsulates the JiraClient to make it possible to change as less old Greenshot code as needed

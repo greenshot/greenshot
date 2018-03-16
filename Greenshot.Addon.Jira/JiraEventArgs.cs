@@ -27,7 +27,7 @@ using System;
 
 #endregion
 
-namespace GreenshotJiraPlugin
+namespace Greenshot.Addon.Jira
 {
 	public class JiraEventArgs : EventArgs
 	{

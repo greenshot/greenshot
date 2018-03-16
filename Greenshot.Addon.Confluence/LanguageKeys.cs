@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotConfluencePlugin
+namespace Greenshot.Addon.Confluence
 {
 	public enum LangKey
 	{

@@ -25,7 +25,7 @@ using System;
 using System.IO;
 using GreenshotPlugin.Core;
 
-namespace GreenshotExternalCommandPlugin
+namespace Greenshot.Addon.ExternalCommand
 {
     public static class ExternalCommandConfigurationExtensions
     {

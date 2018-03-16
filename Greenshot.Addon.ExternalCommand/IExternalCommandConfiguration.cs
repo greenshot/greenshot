@@ -29,7 +29,7 @@ using Dapplo.Ini;
 
 #endregion
 
-namespace GreenshotExternalCommandPlugin
+namespace Greenshot.Addon.ExternalCommand
 {
 	/// <summary>
 	///     Description of FlickrConfiguration.

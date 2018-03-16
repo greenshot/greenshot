@@ -29,7 +29,7 @@ using Dapplo.Log;
 
 #endregion
 
-namespace GreenshotPhotobucketPlugin
+namespace Greenshot.Addon.Photobucket
 {
 	/// <summary>
 	///     Description of PhotobucketInfo.

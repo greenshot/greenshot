@@ -24,7 +24,7 @@
 using System;
 using Dapplo.Windows.Messages;
 
-namespace GreenshotWin10Plugin.Native
+namespace Greenshot.Addon.Win10.Native
 {
     /// <summary>
     /// Container for the windows messages

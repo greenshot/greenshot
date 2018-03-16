@@ -26,13 +26,13 @@
 using System;
 using System.Drawing;
 using System.IO;
-using GreenshotPlugin.Core;
 using Dapplo.Ini;
 using Dapplo.Log;
+using GreenshotPlugin.Core;
 
 #endregion
 
-namespace GreenshotExternalCommandPlugin
+namespace Greenshot.Addon.ExternalCommand
 {
 	/// <summary>
 	/// A cache for icons

@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotDropboxPlugin
+namespace Greenshot.Addon.Dropbox
 {
 	/// <summary>
 	///     This class is merely a placeholder for the file keeping the API key and secret for dropbox integration.

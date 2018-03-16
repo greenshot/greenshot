@@ -26,16 +26,17 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using Dapplo.Log;
+using Greenshot.Addon.Confluence.Forms;
+using Greenshot.Addon.Confluence.Support;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using Dapplo.Log;
-using GreenshotConfluencePlugin.Support;
-using GreenshotPlugin.Addons;
 
 #endregion
 
-namespace GreenshotConfluencePlugin
+namespace Greenshot.Addon.Confluence
 {
     /// <summary>
     ///     This is the ConfluencePlugin base code
@@ -101,7 +102,7 @@ namespace GreenshotConfluencePlugin
 		public void Configure()
 		{
 			var clonedConfig = _confluenceConfiguration.Clone();
-			var configForm = new Forms.ConfluenceConfigurationForm(clonedConfig);
+			var configForm = new ConfluenceConfigurationForm(clonedConfig);
 			var url = _confluenceConfiguration.Url;
 			var dialogResult = configForm.ShowDialog();
 			if (dialogResult.HasValue && dialogResult.Value)

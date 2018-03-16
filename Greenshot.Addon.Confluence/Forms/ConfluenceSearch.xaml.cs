@@ -33,7 +33,7 @@ using Dapplo.Ini;
 
 #endregion
 
-namespace GreenshotConfluencePlugin.Forms
+namespace Greenshot.Addon.Confluence.Forms
 {
 	public partial class ConfluenceSearch
 	{

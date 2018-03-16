@@ -28,16 +28,15 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using GreenshotOfficePlugin.OfficeExport;
+using Greenshot.Addon.Office.OfficeExport;
 using GreenshotPlugin.Addons;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
 #endregion
 
-namespace GreenshotOfficePlugin.Destinations
+namespace Greenshot.Addon.Office.Destinations
 {
     /// <summary>
     ///     Description of PowerpointDestination.

@@ -27,12 +27,12 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using Greenshot.Gfx;
 using Dapplo.Ini;
+using Greenshot.Gfx;
 
 #endregion
 
-namespace GreenshotExternalCommandPlugin
+namespace Greenshot.Addon.ExternalCommand
 {
 	/// <summary>
 	///     External Command settings form

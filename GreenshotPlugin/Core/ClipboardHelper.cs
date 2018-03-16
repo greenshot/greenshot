@@ -35,7 +35,6 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using GreenshotPlugin.Core.Enums;
-using GreenshotPlugin.Gfx;
 using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;

@@ -28,19 +28,18 @@ using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using GreenshotOfficePlugin.OfficeExport;
-using GreenshotOfficePlugin.OfficeInterop;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Gfx;
 using Dapplo.Ini;
+using Dapplo.Log;
+using Greenshot.Addon.Office.OfficeExport;
+using Greenshot.Addon.Office.OfficeInterop;
+using GreenshotPlugin.Addons;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using Dapplo.Log;
-using GreenshotPlugin.Addons;
 
 #endregion
 
-namespace GreenshotOfficePlugin.Destinations
+namespace Greenshot.Addon.Office.Destinations
 {
     /// <summary>
     ///     Description of OutlookDestination.

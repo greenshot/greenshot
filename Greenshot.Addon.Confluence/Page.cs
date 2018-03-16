@@ -1,6 +1,6 @@
-using GreenshotConfluencePlugin.Web_References.confluence;
+using Greenshot.Addon.Confluence.Web_References.confluence;
 
-namespace GreenshotConfluencePlugin
+namespace Greenshot.Addon.Confluence
 {
     public class Page
     {

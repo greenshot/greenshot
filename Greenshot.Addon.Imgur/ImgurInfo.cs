@@ -30,7 +30,7 @@ using Dapplo.Log;
 
 #endregion
 
-namespace GreenshotImgurPlugin
+namespace Greenshot.Addon.Imgur
 {
 	/// <summary>
 	///     Description of ImgurInfo.

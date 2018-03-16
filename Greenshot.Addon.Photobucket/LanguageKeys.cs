@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotPhotobucketPlugin
+namespace Greenshot.Addon.Photobucket
 {
 	public enum LangKey
 	{

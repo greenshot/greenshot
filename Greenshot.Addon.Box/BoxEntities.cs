@@ -28,7 +28,7 @@ using System.Runtime.Serialization;
 
 #endregion
 
-namespace GreenshotBoxPlugin
+namespace Greenshot.Addon.Box
 {
 	[DataContract]
 	public class Authorization

@@ -24,13 +24,13 @@
 #region Usings
 
 using System.ComponentModel;
-using GreenshotPlugin.Core.Enums;
 using Dapplo.Ini;
 using Dapplo.InterfaceImpl.Extensions;
+using GreenshotPlugin.Core.Enums;
 
 #endregion
 
-namespace GreenshotJiraPlugin
+namespace Greenshot.Addon.Jira
 {
 	/// <summary>
 	///     Description of JiraConfiguration.

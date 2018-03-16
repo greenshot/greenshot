@@ -27,16 +27,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using GreenshotOfficePlugin.OfficeInterop;
 using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Com;
+using Greenshot.Addon.Office.OfficeInterop;
 using mshtml;
 using Microsoft.Win32;
 
 #endregion
 
-namespace GreenshotOfficePlugin.OfficeExport
+namespace Greenshot.Addon.Office.OfficeExport
 {
 	/// <summary>
 	///     Outlook exporter has all the functionality to export to outlook

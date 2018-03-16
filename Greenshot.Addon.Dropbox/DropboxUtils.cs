@@ -25,15 +25,15 @@
 
 using System;
 using System.Drawing;
-using GreenshotPlugin.Core;
 using Dapplo.Ini;
+using Dapplo.Log;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using Dapplo.Log;
 
 #endregion
 
-namespace GreenshotDropboxPlugin
+namespace Greenshot.Addon.Dropbox
 {
 	/// <summary>
 	///     Description of DropboxUtils.

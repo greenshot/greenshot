@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotOfficePlugin.OfficeInterop
+namespace Greenshot.Addon.Office.OfficeInterop
 {
 	/// <summary>
 	///     Since Outlook 2010, but since 2013 one can edit inside an explorer

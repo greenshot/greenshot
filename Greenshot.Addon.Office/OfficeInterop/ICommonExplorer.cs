@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotOfficePlugin.OfficeInterop
+namespace Greenshot.Addon.Office.OfficeInterop
 {
 	/// <summary>
 	///     Is a joined interface of the Explorer an Inspector

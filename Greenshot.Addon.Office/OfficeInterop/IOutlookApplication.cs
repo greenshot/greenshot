@@ -27,7 +27,7 @@ using Dapplo.Windows.Com;
 
 #endregion
 
-namespace GreenshotOfficePlugin.OfficeInterop
+namespace Greenshot.Addon.Office.OfficeInterop
 {
 	/// <summary>
 	///     Wrapper for Outlook.Application, see: http://msdn.microsoft.com/en-us/library/aa210897%28v=office.11%29.aspx

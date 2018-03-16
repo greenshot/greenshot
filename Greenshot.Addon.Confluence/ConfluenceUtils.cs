@@ -27,12 +27,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using GreenshotPlugin.Core;
 using Dapplo.Log;
+using GreenshotPlugin.Core;
 
 #endregion
 
-namespace GreenshotConfluencePlugin
+namespace Greenshot.Addon.Confluence
 {
 	/// <summary>
 	///     Description of ConfluenceUtils.

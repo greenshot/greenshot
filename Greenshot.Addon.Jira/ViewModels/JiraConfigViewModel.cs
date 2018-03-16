@@ -27,7 +27,7 @@ using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
 using GreenshotPlugin.Core;
 
-namespace GreenshotJiraPlugin.ViewModels
+namespace Greenshot.Addon.Jira.ViewModels
 {
     [Export(typeof(IConfigScreen))]
     public sealed class JiraConfigViewModel : SimpleConfigScreen

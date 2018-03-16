@@ -25,13 +25,13 @@
 
 using System.ComponentModel;
 using System.Runtime.Serialization;
+using Dapplo.Ini;
 using Dapplo.Ini.Converters;
 using GreenshotPlugin.Core.Enums;
-using Dapplo.Ini;
 
 #endregion
 
-namespace GreenshotPhotobucketPlugin
+namespace Greenshot.Addon.Photobucket
 {
 	/// <summary>
 	///     Description of PhotobucketConfiguration.

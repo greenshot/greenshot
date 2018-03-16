@@ -21,7 +21,7 @@
 
 using GreenshotPlugin.Controls;
 
-namespace GreenshotLutimPlugin.Forms {
+namespace Greenshot.Addon.Lutim.Forms {
 	/// <summary>
 	/// This class is needed for design-time resolving of the language files
 	/// </summary>

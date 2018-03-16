@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotDropboxPlugin
+namespace Greenshot.Addon.Dropbox
 {
 	public enum LangKey
 	{

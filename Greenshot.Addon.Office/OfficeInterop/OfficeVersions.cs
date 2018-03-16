@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotOfficePlugin.OfficeInterop
+namespace Greenshot.Addon.Office.OfficeInterop
 {
 	/// <summary>
 	///     A mapping between the version and a usable name

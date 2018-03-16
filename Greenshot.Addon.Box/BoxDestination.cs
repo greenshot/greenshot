@@ -38,7 +38,7 @@ using GreenshotPlugin.Interfaces.Plugin;
 
 #endregion
 
-namespace GreenshotBoxPlugin
+namespace Greenshot.Addon.Box
 {
     [Destination("Box")]
     public class BoxDestination : AbstractDestination

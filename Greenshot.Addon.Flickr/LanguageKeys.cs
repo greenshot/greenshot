@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotFlickrPlugin
+namespace Greenshot.Addon.Flickr
 {
 	public enum LangKey
 	{

@@ -27,7 +27,7 @@ using GreenshotPlugin.Controls;
 
 #endregion
 
-namespace GreenshotImgurPlugin.Forms
+namespace Greenshot.Addon.Imgur.Forms
 {
 	/// <summary>
 	///     This class is needed for design-time resolving of the language files

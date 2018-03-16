@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotOCR
+namespace GreenshotOCRCommand.Modi
 {
 	public enum FileFormat
 	{

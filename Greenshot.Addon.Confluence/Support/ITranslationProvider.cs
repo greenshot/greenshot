@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotConfluencePlugin.Support
+namespace Greenshot.Addon.Confluence.Support
 {
 	public interface ITranslationProvider
 	{

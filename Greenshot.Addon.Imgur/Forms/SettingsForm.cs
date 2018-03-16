@@ -27,7 +27,7 @@ using System;
 
 #endregion
 
-namespace GreenshotImgurPlugin.Forms
+namespace Greenshot.Addon.Imgur.Forms
 {
 	/// <summary>
 	///     Description of PasswordRequestForm.

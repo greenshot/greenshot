@@ -27,7 +27,7 @@ using GreenshotPlugin.Controls;
 
 #endregion
 
-namespace GreenshotGooglePhotosPlugin
+namespace Greenshot.Addon.GooglePhotos.Forms
 {
 	public class GooglePhotosForm : GreenshotForm
 	{

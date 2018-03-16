@@ -29,15 +29,15 @@ using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Windows.Forms;
+using Dapplo.Log;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using Dapplo.Log;
-using GreenshotPlugin.Addons;
 
 #endregion
 
-namespace GreenshotFlickrPlugin
+namespace Greenshot.Addon.Flickr
 {
     /// <summary>
     ///     This is the Flickr plugin

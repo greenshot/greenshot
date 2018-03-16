@@ -27,7 +27,7 @@ using System;
 
 #endregion
 
-namespace GreenshotOfficePlugin.OfficeInterop
+namespace Greenshot.Addon.Office.OfficeInterop
 {
 	/// <summary>
 	///     See: http://msdn.microsoft.com/en-us/library/microsoft.office.interop.outlook.mailitem.aspx

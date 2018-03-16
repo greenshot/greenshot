@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotBoxPlugin
+namespace Greenshot.Addon.Box
 {
 	public enum LangKey
 	{

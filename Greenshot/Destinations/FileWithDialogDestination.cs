@@ -29,7 +29,6 @@ using System.Windows.Forms;
 using Greenshot.Configuration;
 using GreenshotPlugin.Addons;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
 
 #endregion

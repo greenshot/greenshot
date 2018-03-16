@@ -27,7 +27,7 @@ using System;
 
 #endregion
 
-namespace GreenshotOCR
+namespace Greenshot.Addon.OCR
 {
 	/// <summary>
 	///     Description of SettingsForm.

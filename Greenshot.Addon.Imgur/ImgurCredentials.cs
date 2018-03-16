@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotImgurPlugin
+namespace Greenshot.Addon.Imgur
 {
 	/// <summary>
 	///     This class is merely a placeholder for the file keeping the API key and secret for imgur integration.

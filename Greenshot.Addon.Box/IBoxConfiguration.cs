@@ -26,13 +26,13 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
-using GreenshotPlugin.Core.Enums;
 using Dapplo.Ini;
 using Dapplo.Ini.Converters;
+using GreenshotPlugin.Core.Enums;
 
 #endregion
 
-namespace GreenshotBoxPlugin
+namespace Greenshot.Addon.Box
 {
 	/// <summary>
 	///     Description of ImgurConfiguration.

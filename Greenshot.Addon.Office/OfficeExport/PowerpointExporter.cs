@@ -26,14 +26,14 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using GreenshotOfficePlugin.OfficeInterop;
 using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Com;
+using Greenshot.Addon.Office.OfficeInterop;
 
 #endregion
 
-namespace GreenshotOfficePlugin.OfficeExport
+namespace Greenshot.Addon.Office.OfficeExport
 {
 	public static class PowerpointExporter
 	{

@@ -35,13 +35,12 @@ using Greenshot.Gfx.Effects;
 using GreenshotPlugin.Addons;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
-using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
 #endregion
 
-namespace GreenshotOCR
+namespace Greenshot.Addon.OCR
 {
     /// <summary>
     ///     Description of OCRDestination.

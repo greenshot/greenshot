@@ -33,7 +33,7 @@ using Dapplo.Utils;
 
 #endregion
 
-namespace GreenshotJiraPlugin
+namespace Greenshot.Addon.Jira
 {
 	/// <summary>
 	///     This is the bach for the IssueType bitmaps

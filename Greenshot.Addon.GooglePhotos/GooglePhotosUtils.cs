@@ -26,15 +26,15 @@
 using System;
 using System.Linq;
 using System.Xml.Linq;
-using GreenshotPlugin.Core;
 using Dapplo.Ini;
+using Dapplo.Log;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using Dapplo.Log;
 
 #endregion
 
-namespace GreenshotGooglePhotosPlugin
+namespace Greenshot.Addon.GooglePhotos
 {
 	/// <summary>
 	///     Description of GooglePhotosUtils.

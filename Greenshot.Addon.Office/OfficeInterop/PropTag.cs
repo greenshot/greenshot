@@ -25,7 +25,7 @@
 
 #endregion
 
-namespace GreenshotOfficePlugin.OfficeInterop
+namespace Greenshot.Addon.Office.OfficeInterop
 {
 	/// <summary>
 	/// Schema definitions for the MAPI properties

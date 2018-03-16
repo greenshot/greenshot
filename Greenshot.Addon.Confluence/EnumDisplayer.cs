@@ -34,7 +34,7 @@ using GreenshotPlugin.Core;
 
 #endregion
 
-namespace GreenshotConfluencePlugin
+namespace Greenshot.Addon.Confluence
 {
 	public class EnumDisplayer : IValueConverter
 	{

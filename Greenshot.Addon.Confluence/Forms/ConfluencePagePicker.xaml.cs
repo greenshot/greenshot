@@ -29,7 +29,7 @@ using System.Windows.Controls;
 
 #endregion
 
-namespace GreenshotConfluencePlugin.Forms
+namespace Greenshot.Addon.Confluence.Forms
 {
 	/// <summary>
 	///     Interaction logic for ConfluencePagePicker.xaml

@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotOfficePlugin.OfficeInterop
+namespace Greenshot.Addon.Office.OfficeInterop
 {
 	/// <summary>
 	///     Units: http://msdn.microsoft.com/en-us/library/office/bb214015(v=office.12).aspx

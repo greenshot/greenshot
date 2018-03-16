@@ -23,9 +23,6 @@
 
 #region Usings
 
-using Greenshot.Interop;
-using GreenshotOCR;
-
 #endregion
 
 namespace GreenshotOCRCommand.Modi

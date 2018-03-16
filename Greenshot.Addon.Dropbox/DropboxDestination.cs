@@ -29,16 +29,16 @@ using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using GreenshotPlugin.Core;
 using Dapplo.Log;
 using GreenshotPlugin.Addons;
 using GreenshotPlugin.Controls;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
 #endregion
 
-namespace GreenshotDropboxPlugin
+namespace Greenshot.Addon.Dropbox
 {
     [Destination("Dropbox")]
     public class DropboxDestination : AbstractDestination

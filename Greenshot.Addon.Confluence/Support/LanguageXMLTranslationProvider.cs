@@ -27,7 +27,7 @@ using GreenshotPlugin.Core;
 
 #endregion
 
-namespace GreenshotConfluencePlugin.Support
+namespace Greenshot.Addon.Confluence.Support
 {
 	/// <summary>
 	/// </summary>

@@ -31,7 +31,7 @@ using Caliburn.Micro;
 using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.Jira.Entities;
 
-namespace GreenshotJiraPlugin.ViewModels
+namespace Greenshot.Addon.Jira.ViewModels
 {
     [Export]
     public sealed class JiraViewModel : Screen

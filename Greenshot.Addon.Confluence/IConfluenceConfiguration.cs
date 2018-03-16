@@ -24,12 +24,12 @@
 #region Usings
 
 using System.ComponentModel;
-using GreenshotPlugin.Core.Enums;
 using Dapplo.Ini;
+using GreenshotPlugin.Core.Enums;
 
 #endregion
 
-namespace GreenshotConfluencePlugin
+namespace Greenshot.Addon.Confluence
 {
 	/// <summary>
 	///     Description of ConfluenceConfiguration.

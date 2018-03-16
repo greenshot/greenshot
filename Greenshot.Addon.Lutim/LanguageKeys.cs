@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace GreenshotLutimPlugin {
+namespace Greenshot.Addon.Lutim {
 	public enum LangKey {
 		upload_menu_item,
 		settings_title,

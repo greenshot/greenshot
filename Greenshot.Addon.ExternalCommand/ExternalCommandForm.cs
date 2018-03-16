@@ -27,7 +27,7 @@ using GreenshotPlugin.Controls;
 
 #endregion
 
-namespace GreenshotExternalCommandPlugin
+namespace Greenshot.Addon.ExternalCommand
 {
 	/// <summary>
 	///     This class is needed for design-time resolving of the language files

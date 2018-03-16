@@ -26,13 +26,13 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
+using Dapplo.Ini;
 using Dapplo.Ini.Converters;
 using GreenshotPlugin.Core.Enums;
-using Dapplo.Ini;
 
 #endregion
 
-namespace GreenshotGooglePhotosPlugin
+namespace Greenshot.Addon.GooglePhotos
 {
 	/// <summary>
 	///     Description of GooglePhotosConfiguration.

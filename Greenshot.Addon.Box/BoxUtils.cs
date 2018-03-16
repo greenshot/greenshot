@@ -28,13 +28,13 @@ using System.Drawing;
 using System.IO;
 using System.Runtime.Serialization.Json;
 using System.Text;
-using GreenshotPlugin.Core;
 using Dapplo.Ini;
 using Dapplo.Log;
+using GreenshotPlugin.Core;
 
 #endregion
 
-namespace GreenshotBoxPlugin
+namespace Greenshot.Addon.Box
 {
 	/// <summary>
 	///     Description of ImgurUtils.

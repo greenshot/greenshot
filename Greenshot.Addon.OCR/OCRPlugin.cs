@@ -27,14 +27,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Windows.Forms;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
 using GreenshotPlugin.Addons;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 #endregion
 
-namespace GreenshotOCR
+namespace Greenshot.Addon.OCR
 {
     /// <summary>
     ///     OCR Plugin Greenshot

@@ -28,7 +28,7 @@ using Dapplo.Jira.Entities;
 
 #endregion
 
-namespace GreenshotJiraPlugin
+namespace Greenshot.Addon.Jira
 {
 	public class JiraDetails : IComparable<JiraDetails>
 	{

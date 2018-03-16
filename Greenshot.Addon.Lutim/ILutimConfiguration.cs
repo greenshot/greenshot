@@ -24,7 +24,7 @@ using System.ComponentModel;
 using Dapplo.Ini;
 using GreenshotPlugin.Core.Enums;
 
-namespace GreenshotLutimPlugin {
+namespace Greenshot.Addon.Lutim {
 	/// <summary>
 	/// Description of LutimConfiguration.
 	/// </summary>

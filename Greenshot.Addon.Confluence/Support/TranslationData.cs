@@ -29,7 +29,7 @@ using System.Windows;
 
 #endregion
 
-namespace GreenshotConfluencePlugin.Support
+namespace Greenshot.Addon.Confluence.Support
 {
 	public class TranslationData : IWeakEventListener, INotifyPropertyChanged
 	{

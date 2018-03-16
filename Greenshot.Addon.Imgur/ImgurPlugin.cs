@@ -20,21 +20,23 @@
  */
 
 #region Usings
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Windows.Forms;
-using GreenshotPlugin.Core;
 using Dapplo.Log;
-using GreenshotImgurPlugin.Forms;
+using Greenshot.Addon.Imgur.Forms;
 using GreenshotPlugin.Addons;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
+
 #endregion
 
-namespace GreenshotImgurPlugin {
+namespace Greenshot.Addon.Imgur {
     /// <summary>
     /// This is the ImgurPlugin code
     /// </summary>

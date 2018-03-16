@@ -27,7 +27,7 @@ using System.Collections;
 
 #endregion
 
-namespace GreenshotOfficePlugin.OfficeInterop
+namespace Greenshot.Addon.Office.OfficeInterop
 {
 	/// <summary>
 	///     If the "type" this[object index] { get; } is implemented, use index + 1!!! (starts at 1)

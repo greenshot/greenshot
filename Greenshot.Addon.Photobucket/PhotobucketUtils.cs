@@ -28,15 +28,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Xml;
-using GreenshotPlugin.Core;
 using Dapplo.Ini;
+using Dapplo.Log;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using Dapplo.Log;
 
 #endregion
 
-namespace GreenshotPhotobucketPlugin
+namespace Greenshot.Addon.Photobucket
 {
 	/// <summary>
 	///     Description of PhotobucketUtils.

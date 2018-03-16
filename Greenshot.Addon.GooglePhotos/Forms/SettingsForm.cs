@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotGooglePhotosPlugin
+namespace Greenshot.Addon.GooglePhotos.Forms
 {
 	/// <summary>
 	///     Description of PasswordRequestForm.

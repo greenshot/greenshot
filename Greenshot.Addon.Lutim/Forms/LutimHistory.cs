@@ -28,7 +28,7 @@ using Dapplo.Log;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 
-namespace GreenshotLutimPlugin.Forms {
+namespace Greenshot.Addon.Lutim.Forms {
 	/// <summary>
 	/// Lutim history form
 	/// </summary>

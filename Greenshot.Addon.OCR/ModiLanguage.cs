@@ -1,4 +1,4 @@
-namespace GreenshotOCR
+namespace Greenshot.Addon.OCR
 {
 	/// <summary>
 	/// Needed for the drop down, available languages for OCR

@@ -21,7 +21,7 @@
 
 using System;
 
-namespace GreenshotLutimPlugin.Forms {
+namespace Greenshot.Addon.Lutim.Forms {
 	/// <summary>
 	/// Description of PasswordRequestForm.
 	/// </summary>

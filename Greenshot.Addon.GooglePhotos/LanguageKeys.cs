@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotGooglePhotosPlugin
+namespace Greenshot.Addon.GooglePhotos
 {
 	public enum LangKey
 	{

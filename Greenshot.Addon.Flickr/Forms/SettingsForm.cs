@@ -23,11 +23,9 @@
 
 #region Usings
 
-using GreenshotFlickrPlugin.Forms;
-
 #endregion
 
-namespace GreenshotFlickrPlugin
+namespace Greenshot.Addon.Flickr.Forms
 {
 	/// <summary>
 	///     Description of PasswordRequestForm.

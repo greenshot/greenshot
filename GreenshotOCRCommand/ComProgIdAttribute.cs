@@ -27,7 +27,7 @@ using System;
 
 #endregion
 
-namespace Greenshot.Interop
+namespace GreenshotOCRCommand
 {
 	/// <summary>
 	///     An attribute to specifiy the ProgID of the COM class to create. (As suggested by Kristen Wegner)

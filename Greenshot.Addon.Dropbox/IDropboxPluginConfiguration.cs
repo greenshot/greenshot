@@ -23,15 +23,15 @@
 
 #region Usings
 
-using GreenshotPlugin.Core.Enums;
-using Dapplo.Ini;
 using System.ComponentModel;
 using System.Runtime.Serialization;
+using Dapplo.Ini;
 using Dapplo.Ini.Converters;
+using GreenshotPlugin.Core.Enums;
 
 #endregion
 
-namespace GreenshotDropboxPlugin
+namespace Greenshot.Addon.Dropbox
 {
 	/// <summary>
 	///     Description of ImgurConfiguration.

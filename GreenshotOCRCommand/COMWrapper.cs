@@ -30,7 +30,6 @@ using System.Runtime.InteropServices;
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Messaging;
 using System.Runtime.Remoting.Proxies;
-using Greenshot.Interop;
 
 #endregion
 

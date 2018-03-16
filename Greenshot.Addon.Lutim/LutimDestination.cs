@@ -33,7 +33,7 @@ using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
-namespace GreenshotLutimPlugin  {
+namespace Greenshot.Addon.Lutim  {
     /// <summary>
     /// Description of LutimDestination.
     /// </summary>

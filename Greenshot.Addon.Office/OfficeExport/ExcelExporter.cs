@@ -27,14 +27,14 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Reflection;
-using Dapplo.Windows.Desktop;
-using GreenshotOfficePlugin.OfficeInterop;
 using Dapplo.Log;
 using Dapplo.Windows.Com;
+using Dapplo.Windows.Desktop;
+using Greenshot.Addon.Office.OfficeInterop;
 
 #endregion
 
-namespace GreenshotOfficePlugin.OfficeExport
+namespace Greenshot.Addon.Office.OfficeExport
 {
 	public static class ExcelExporter
 	{

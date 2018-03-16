@@ -33,17 +33,17 @@ using System.Windows.Forms;
 using Caliburn.Micro;
 using Dapplo.HttpExtensions;
 using Dapplo.Jira.Entities;
+using Dapplo.Log;
+using Greenshot.Addon.Jira.ViewModels;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using Dapplo.Log;
-using GreenshotJiraPlugin.ViewModels;
-using GreenshotPlugin.Addons;
 
 #endregion
 
-namespace GreenshotJiraPlugin
+namespace Greenshot.Addon.Jira
 {
     /// <summary>
     ///     Description of JiraDestination.

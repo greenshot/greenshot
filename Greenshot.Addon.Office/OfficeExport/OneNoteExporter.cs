@@ -27,17 +27,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using GreenshotOfficePlugin.OfficeInterop;
-using GreenshotPlugin.Core.Enums;
-using GreenshotPlugin.Gfx;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
 using Dapplo.Windows.Com;
+using Greenshot.Addon.Office.OfficeInterop;
+using GreenshotPlugin.Core;
+using GreenshotPlugin.Core.Enums;
+using GreenshotPlugin.Interfaces;
+using GreenshotPlugin.Interfaces.Plugin;
 
 #endregion
 
-namespace GreenshotOfficePlugin.OfficeExport
+namespace Greenshot.Addon.Office.OfficeExport
 {
 	public static class OneNoteExporter
 	{

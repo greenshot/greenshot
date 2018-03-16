@@ -39,7 +39,7 @@ using GreenshotPlugin.Interfaces.Plugin;
 
 #endregion
 
-namespace GreenshotPhotobucketPlugin
+namespace Greenshot.Addon.Photobucket
 {
     /// <summary>
     ///     Description of PhotobucketDestination.

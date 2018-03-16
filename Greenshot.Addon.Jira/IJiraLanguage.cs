@@ -24,7 +24,7 @@ using Dapplo.Language;
 
 #endregion
 
-namespace GreenshotJiraPlugin
+namespace Greenshot.Addon.Jira
 {
     [Language("Jira")]
     public interface IJiraLanguage : ILanguage, INotifyPropertyChanged

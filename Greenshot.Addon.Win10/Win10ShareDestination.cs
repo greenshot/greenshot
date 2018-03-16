@@ -20,29 +20,28 @@
  */
 
 using System;
-using System.IO;
-using Windows.Storage.Streams;
-using GreenshotPlugin.Core;
-using GreenshotWin10Plugin.Native;
-using System.Threading.Tasks;
-using Windows.Storage;
-using Color = Windows.UI.Color;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Storage;
+using Windows.Storage.Streams;
 using Dapplo.Log;
 using Dapplo.Windows.Messages;
+using Greenshot.Addon.Win10.Native;
 using Greenshot.Gfx;
 using GreenshotPlugin.Addons;
+using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
-using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
+using Color = Windows.UI.Color;
 
-namespace GreenshotWin10Plugin
+namespace Greenshot.Addon.Win10
 {
     /// <summary>
     /// This uses the Share from Windows 10 to make the capture available to apps.

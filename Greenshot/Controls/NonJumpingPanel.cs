@@ -28,7 +28,7 @@ using System.Windows.Forms;
 
 #endregion
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Controls
 {
 	/// <summary>
 	///     See: http://nickstips.wordpress.com/2010/03/03/c-panel-resets-scroll-position-after-focus-is-lost-and-regained/

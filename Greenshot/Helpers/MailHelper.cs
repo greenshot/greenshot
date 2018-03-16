@@ -31,7 +31,6 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Gfx;
 using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;

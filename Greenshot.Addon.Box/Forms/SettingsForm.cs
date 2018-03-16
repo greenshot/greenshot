@@ -23,11 +23,9 @@
 
 #region Usings
 
-using GreenshotBoxPlugin.Forms;
-
 #endregion
 
-namespace GreenshotBoxPlugin
+namespace Greenshot.Addon.Box.Forms
 {
 	/// <summary>
 	///     Description of PasswordRequestForm.

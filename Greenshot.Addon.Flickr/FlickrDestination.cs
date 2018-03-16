@@ -38,7 +38,7 @@ using GreenshotPlugin.Interfaces.Plugin;
 
 #endregion
 
-namespace GreenshotFlickrPlugin
+namespace Greenshot.Addon.Flickr
 {
     [Destination("Flickr")]
     public class FlickrDestination : AbstractDestination

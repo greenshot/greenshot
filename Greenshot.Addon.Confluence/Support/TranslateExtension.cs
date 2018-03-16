@@ -29,7 +29,7 @@ using System.Windows.Markup;
 
 #endregion
 
-namespace GreenshotConfluencePlugin.Support
+namespace Greenshot.Addon.Confluence.Support
 {
 	/// <summary>
 	///     The Translate Markup extension returns a binding to a TranslationData

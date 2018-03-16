@@ -28,7 +28,7 @@ using Dapplo.Ini;
 
 #endregion
 
-namespace GreenshotOCR
+namespace Greenshot.Addon.OCR
 {
     /// <summary>
     ///     OCR Configuration.

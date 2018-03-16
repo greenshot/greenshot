@@ -30,18 +30,18 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Windows;
+using Dapplo.Log;
+using Greenshot.Addon.Confluence.Forms;
+using Greenshot.Gfx;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using Dapplo.Log;
-using Greenshot.Gfx;
-using GreenshotConfluencePlugin.Forms;
-using GreenshotPlugin.Addons;
 
 #endregion
 
-namespace GreenshotConfluencePlugin
+namespace Greenshot.Addon.Confluence
 {
     /// <summary>
     ///     Description of ConfluenceDestination.

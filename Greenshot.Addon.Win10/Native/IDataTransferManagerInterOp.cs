@@ -24,7 +24,7 @@ using System.Runtime.InteropServices;
 using Windows.ApplicationModel.DataTransfer;
 using Dapplo.Windows.Common.Enums;
 
-namespace GreenshotWin10Plugin.Native
+namespace Greenshot.Addon.Win10.Native
 {
 	/// <summary>
 	/// The IDataTransferManagerInterOp is documented here: https://msdn.microsoft.com/en-us/library/windows/desktop/jj542488(v=vs.85).aspx.

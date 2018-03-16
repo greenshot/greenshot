@@ -39,7 +39,7 @@ using Dapplo.Windows.User32;
 
 #endregion
 
-namespace GreenshotJiraPlugin
+namespace Greenshot.Addon.Jira
 {
 	/// <summary>
 	///     This class will monitor all _jira activity by registering for title changes

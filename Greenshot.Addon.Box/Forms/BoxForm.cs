@@ -27,7 +27,7 @@ using GreenshotPlugin.Controls;
 
 #endregion
 
-namespace GreenshotBoxPlugin.Forms
+namespace Greenshot.Addon.Box.Forms
 {
 	public class BoxForm : GreenshotForm
 	{

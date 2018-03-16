@@ -27,7 +27,7 @@ using GreenshotPlugin.Controls;
 
 #endregion
 
-namespace GreenshotFlickrPlugin.Forms
+namespace Greenshot.Addon.Flickr.Forms
 {
 	public class FlickrForm : GreenshotForm
 	{

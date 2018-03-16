@@ -38,7 +38,7 @@ using GreenshotPlugin.Interfaces.Plugin;
 
 #endregion
 
-namespace GreenshotGooglePhotosPlugin
+namespace Greenshot.Addon.GooglePhotos
 {
     [Destination("GooglePhotos")]
     public class GooglePhotosDestination : AbstractDestination

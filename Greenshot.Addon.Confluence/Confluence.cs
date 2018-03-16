@@ -28,13 +28,13 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Windows.Forms;
 using Dapplo.Log;
-using GreenshotConfluencePlugin.Web_References.confluence;
+using Greenshot.Addon.Confluence.Web_References.confluence;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Credentials;
 
 #endregion
 
-namespace GreenshotConfluencePlugin
+namespace Greenshot.Addon.Confluence
 {
 	/// <summary>
 	///     For details see the Confluence API site

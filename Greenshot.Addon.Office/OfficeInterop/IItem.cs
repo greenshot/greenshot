@@ -27,7 +27,7 @@ using System;
 
 #endregion
 
-namespace GreenshotOfficePlugin.OfficeInterop
+namespace Greenshot.Addon.Office.OfficeInterop
 {
 	/// <summary>
 	///     Common attributes of all the Items (MailItem, AppointmentItem)

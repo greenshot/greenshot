@@ -27,7 +27,7 @@ using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Interop;
 
-namespace GreenshotWin10Plugin.Native
+namespace Greenshot.Addon.Win10.Native
 {
 
     /// <summary>

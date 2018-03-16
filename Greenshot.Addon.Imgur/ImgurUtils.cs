@@ -18,21 +18,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
+using Dapplo.Ini;
 using Dapplo.Log;
 using Greenshot.Gfx;
 using GreenshotPlugin.Core;
-using GreenshotPlugin.Gfx;
-using Dapplo.Ini;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
 
-namespace GreenshotImgurPlugin {
+namespace Greenshot.Addon.Imgur {
 	/// <summary>
 	/// A collection of Imgur helper methods
 	/// </summary>

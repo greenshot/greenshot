@@ -25,7 +25,7 @@ using Windows.ApplicationModel.DataTransfer;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 
-namespace GreenshotWin10Plugin.Native
+namespace Greenshot.Addon.Win10.Native
 {
 	/// <summary>
 	/// Wraps the interop for calling the ShareUI

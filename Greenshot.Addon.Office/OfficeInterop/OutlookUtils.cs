@@ -30,7 +30,7 @@ using Dapplo.Log;
 
 #endregion
 
-namespace GreenshotOfficePlugin.OfficeInterop
+namespace Greenshot.Addon.Office.OfficeInterop
 {
 	internal enum PT : uint
 	{

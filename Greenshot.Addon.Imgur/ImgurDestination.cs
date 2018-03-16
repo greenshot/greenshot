@@ -39,7 +39,7 @@ using GreenshotPlugin.Interfaces.Plugin;
 
 #endregion
 
-namespace GreenshotImgurPlugin
+namespace Greenshot.Addon.Imgur
 {
     /// <summary>
     ///     Description of ImgurDestination.

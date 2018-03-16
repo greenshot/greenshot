@@ -24,12 +24,12 @@
 #region Usings
 
 using System.ComponentModel;
-using GreenshotOfficePlugin.OfficeInterop;
 using Dapplo.Ini;
+using Greenshot.Addon.Office.OfficeInterop;
 
 #endregion
 
-namespace GreenshotOfficePlugin
+namespace Greenshot.Addon.Office
 {
     /// <summary>
     ///     Office configuration

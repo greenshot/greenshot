@@ -29,15 +29,16 @@ using System.ComponentModel.Composition;
 using System.Windows.Forms;
 using Dapplo.Log;
 using Dapplo.Windows.Dpi;
+using Greenshot.Addon.Lutim.Forms;
 using Greenshot.Gfx;
-using GreenshotLutimPlugin.Forms;
 using GreenshotPlugin.Addons;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
+
 #endregion
 
-namespace GreenshotLutimPlugin {
+namespace Greenshot.Addon.Lutim {
     /// <summary>
     /// This is the LutimPlugin code
     /// </summary>

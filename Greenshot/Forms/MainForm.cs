@@ -45,7 +45,6 @@ using Greenshot.Helpers;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Core.Enums;
-using GreenshotPlugin.Gfx;
 using GreenshotPlugin.Interfaces;
 using Dapplo.Log;
 using Timer = System.Timers.Timer;

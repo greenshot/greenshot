@@ -28,7 +28,7 @@ using Dapplo.Windows.Com;
 
 #endregion
 
-namespace GreenshotOfficePlugin.OfficeInterop
+namespace Greenshot.Addon.Office.OfficeInterop
 {
 	/// <summary>
 	///     More details about OneNote: http://msdn.microsoft.com/en-us/magazine/ff796230.aspx

@@ -27,17 +27,17 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Windows.Forms;
+using Dapplo.Log;
 using Dapplo.Windows.Dpi;
+using Greenshot.Gfx;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
 using GreenshotPlugin.Interfaces.Plugin;
-using Dapplo.Log;
-using Greenshot.Gfx;
-using GreenshotPlugin.Addons;
 
 #endregion
 
-namespace GreenshotBoxPlugin
+namespace Greenshot.Addon.Box
 {
 	/// <summary>
 	///     This is the Box base code

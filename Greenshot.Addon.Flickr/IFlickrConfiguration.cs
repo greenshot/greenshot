@@ -25,13 +25,13 @@
 
 using System.ComponentModel;
 using System.Runtime.Serialization;
+using Dapplo.Ini;
 using Dapplo.Ini.Converters;
 using GreenshotPlugin.Core.Enums;
-using Dapplo.Ini;
 
 #endregion
 
-namespace GreenshotFlickrPlugin
+namespace Greenshot.Addon.Flickr
 {
 	public enum SafetyLevel
 	{

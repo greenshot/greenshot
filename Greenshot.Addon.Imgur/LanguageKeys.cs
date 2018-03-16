@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotImgurPlugin
+namespace Greenshot.Addon.Imgur
 {
 	public enum LangKey
 	{

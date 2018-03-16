@@ -27,7 +27,7 @@ using System;
 
 #endregion
 
-namespace GreenshotOfficePlugin.OfficeInterop
+namespace Greenshot.Addon.Office.OfficeInterop
 {
 	/// <summary>
 	///     Common properties that has appreared in almost all objects

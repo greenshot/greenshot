@@ -23,11 +23,9 @@
 
 #region Usings
 
-using GreenshotDropboxPlugin.Forms;
-
 #endregion
 
-namespace GreenshotDropboxPlugin
+namespace Greenshot.Addon.Dropbox.Forms
 {
 	/// <summary>
 	///     Description of PasswordRequestForm.

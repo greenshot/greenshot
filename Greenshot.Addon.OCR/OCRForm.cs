@@ -27,7 +27,7 @@ using GreenshotPlugin.Controls;
 
 #endregion
 
-namespace GreenshotOCR
+namespace Greenshot.Addon.OCR
 {
 	/// <summary>
 	///     This class is needed for design-time resolving of the language files

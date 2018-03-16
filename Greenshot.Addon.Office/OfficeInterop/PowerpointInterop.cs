@@ -28,7 +28,7 @@ using Dapplo.Windows.Com;
 
 #endregion
 
-namespace GreenshotOfficePlugin.OfficeInterop
+namespace Greenshot.Addon.Office.OfficeInterop
 {
 	// See http://msdn.microsoft.com/en-us/library/microsoft.office.interop.powerpoint.application_members.aspx
 	[ComProgId("Powerpoint.Application")]

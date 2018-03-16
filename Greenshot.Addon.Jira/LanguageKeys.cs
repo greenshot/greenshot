@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotJiraPlugin
+namespace Greenshot.Addon.Jira
 {
 	public enum LangKey
 	{

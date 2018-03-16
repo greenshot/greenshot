@@ -27,7 +27,7 @@ using GreenshotPlugin.Controls;
 
 #endregion
 
-namespace GreenshotPhotobucketPlugin
+namespace Greenshot.Addon.Photobucket.Forms
 {
 	/// <summary>
 	///     This class is needed for design-time resolving of the language files

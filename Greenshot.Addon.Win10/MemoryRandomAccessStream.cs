@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using Windows.Storage.Streams;
 
-namespace GreenshotWin10Plugin
+namespace Greenshot.Addon.Win10
 {
 	public sealed class MemoryRandomAccessStream : MemoryStream, IRandomAccessStream
 	{

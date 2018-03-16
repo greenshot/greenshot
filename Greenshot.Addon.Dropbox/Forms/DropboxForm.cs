@@ -27,7 +27,7 @@ using GreenshotPlugin.Controls;
 
 #endregion
 
-namespace GreenshotDropboxPlugin.Forms
+namespace Greenshot.Addon.Dropbox.Forms
 {
 	public class DropboxForm : GreenshotForm
 	{

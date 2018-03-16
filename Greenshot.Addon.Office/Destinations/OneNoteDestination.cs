@@ -25,21 +25,20 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using GreenshotOfficePlugin.OfficeExport;
-using GreenshotOfficePlugin.OfficeInterop;
+using Dapplo.Log;
+using Greenshot.Addon.Office.OfficeExport;
+using Greenshot.Addon.Office.OfficeInterop;
+using GreenshotPlugin.Addons;
 using GreenshotPlugin.Core;
 using GreenshotPlugin.Interfaces;
-using Dapplo.Log;
-using GreenshotPlugin.Addons;
 
 #endregion
 
-namespace GreenshotOfficePlugin.Destinations
+namespace Greenshot.Addon.Office.Destinations
 {
     [Destination("OneNote", 4)]
     public class OneNoteDestination : AbstractDestination

@@ -35,7 +35,7 @@ using GreenshotPlugin.Core;
 
 #endregion
 
-namespace GreenshotImgurPlugin.Forms
+namespace Greenshot.Addon.Imgur.Forms
 {
 	/// <summary>
 	///     Imgur history form
