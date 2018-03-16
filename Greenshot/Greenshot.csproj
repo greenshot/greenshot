@@ -429,43 +429,49 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Sounds.resx" />
     <None Include="greenshot.manifest" />
-    <None Include="Languages\help-en-US.html">
+    <None Include="Languages\Help\help-en-US.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Languages\help-de-DE.html">
+    <None Include="Languages\Help\help-de-DE.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Languages\help-es-ES.html">
+    <None Include="Languages\Help\help-es-ES.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Languages\help-fr-FR.html">
+    <None Include="Languages\Help\help-fr-FR.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Languages\help-hu-HU.html">
+    <None Include="Languages\Help\help-hu-HU.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Languages\help-it-IT.html">
+    <None Include="Languages\Help\help-it-IT.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Languages\help-nl-NL.html">
+    <None Include="Languages\Help\help-nl-NL.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Languages\help-nn-NO.html">
+    <None Include="Languages\Help\help-nn-NO.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Languages\help-pl-PL.html">
+    <None Include="Languages\Help\help-pl-PL.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Languages\help-ru-RU.html">
+    <None Include="Languages\Help\help-ru-RU.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Languages\help-sv-SE.html">
+    <None Include="Languages\Help\help-sv-SE.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Languages\help-tr-TR.html">
+    <None Include="Languages\Help\help-tr-TR.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Languages\help-zh-CN.html">
+    <None Include="Languages\Help\help-zh-CN.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\Help\help-ko-KR.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Languages\Help\help-pt-PT.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Languages\language-ar-SY.xml">
@@ -585,12 +591,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Languages\help-ko-KR.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Languages\help-pt-PT.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Languages\language-ca-CA.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
