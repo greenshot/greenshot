@@ -28,6 +28,7 @@ using System.ComponentModel;
 using System.Runtime.Serialization;
 using Dapplo.Ini;
 using Dapplo.Ini.Converters;
+using Dapplo.InterfaceImpl.Extensions;
 using GreenshotPlugin.Core.Enums;
 
 #endregion
@@ -39,7 +40,7 @@ namespace Greenshot.Addon.Box
 	/// </summary>
 	[IniSection("Box")]
 	[Description("Greenshot Box Plugin configuration")]
-	public interface IBoxConfiguration : IIniSection
+	public interface IBoxConfiguration : IIniSection, INotifyPropertyChanged, ITransactionalProperties
 	{
 		[Description("What file type to use for uploading")]
 		[DefaultValue(OutputFormats.png)]

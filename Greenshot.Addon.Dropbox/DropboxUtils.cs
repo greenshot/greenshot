@@ -41,7 +41,7 @@ namespace Greenshot.Addon.Dropbox
 	public class DropboxUtils
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static readonly IDropboxPluginConfiguration DropboxConfig = IniConfig.Current.Get<IDropboxPluginConfiguration>();
+		private static readonly IDropboxConfiguration DropboxConfig = IniConfig.Current.Get<IDropboxConfiguration>();
 
 		private DropboxUtils()
 		{

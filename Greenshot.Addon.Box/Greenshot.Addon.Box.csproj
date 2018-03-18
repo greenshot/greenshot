@@ -150,30 +150,15 @@
     <Compile Include="BoxCredentials.cs" />
     <Compile Include="BoxDestination.cs" />
     <Compile Include="BoxEntities.cs" />
-    <Compile Include="BoxPlugin.cs" />
     <Compile Include="BoxUtils.cs" />
-    <Compile Include="Forms\BoxForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\SettingsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\SettingsForm.Designer.cs">
-      <DependentUpon>SettingsForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="LanguageKeys.cs" />
+    <Compile Include="IBoxLanguage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="BoxPlugin.resx">
-      <DependentUpon>BoxPlugin.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
+    <Compile Include="ViewModels\BoxConfigViewModel.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Resources\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="box.png" />
+    <EmbeddedResource Include="box.png" />
     <Content Include="Languages\language_boxplugin-en-US.xml" />
     <None Include="packages.config" />
   </ItemGroup>
@@ -186,6 +171,12 @@
       <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
       <Name>GreenshotPlugin</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Views\BoxConfigView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>if exist "$(ProjectDir)BoxCredentials.orig.cs" (

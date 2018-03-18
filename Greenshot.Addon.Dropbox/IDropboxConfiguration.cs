@@ -27,6 +27,7 @@ using System.ComponentModel;
 using System.Runtime.Serialization;
 using Dapplo.Ini;
 using Dapplo.Ini.Converters;
+using Dapplo.InterfaceImpl.Extensions;
 using GreenshotPlugin.Core.Enums;
 
 #endregion
@@ -38,7 +39,7 @@ namespace Greenshot.Addon.Dropbox
 	/// </summary>
 	[IniSection("Dropbox")]
 	[Description("Greenshot Dropbox Plugin configuration")]
-	public interface IDropboxPluginConfiguration : IIniSection
+	public interface IDropboxConfiguration : IIniSection, INotifyPropertyChanged, ITransactionalProperties
 	{
 		[Description("What file type to use for uploading")]
 	    [DefaultValue(OutputFormats.png)]

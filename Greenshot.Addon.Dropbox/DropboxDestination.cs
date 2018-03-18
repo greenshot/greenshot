@@ -24,12 +24,14 @@
 #region Usings
 
 using System;
-using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
+using Dapplo.Addons.Bootstrapper.Resolving;
 using Dapplo.Log;
+using Greenshot.Gfx;
 using GreenshotPlugin.Addons;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
@@ -44,24 +46,30 @@ namespace Greenshot.Addon.Dropbox
     public class DropboxDestination : AbstractDestination
 	{
 	    private static readonly LogSource Log = new LogSource();
-        private readonly IDropboxPluginConfiguration _dropboxPluginConfiguration;
+        private readonly IDropboxConfiguration _dropboxPluginConfiguration;
+	    private readonly IDropboxLanguage _dropboxLanguage;
 
-        [ImportingConstructor]
-	    public DropboxDestination(IDropboxPluginConfiguration dropboxPluginConfiguration)
+	    [ImportingConstructor]
+	    public DropboxDestination(IDropboxConfiguration dropboxPluginConfiguration, IDropboxLanguage dropboxLanguage)
 	    {
 	        _dropboxPluginConfiguration = dropboxPluginConfiguration;
+	        _dropboxLanguage = dropboxLanguage;
 	    }
 
 		public override Bitmap DisplayIcon
 		{
 			get
 			{
-				var resources = new ComponentResourceManager(typeof(DropboxPlugin));
-				return (Bitmap)resources.GetObject("Dropbox");
-			}
+			    // TODO: Optimize this
+			    var embeddedResource = GetType().Assembly.FindEmbeddedResources(@".*Dropbox\.gif").FirstOrDefault();
+			    using (var bitmapStream = GetType().Assembly.GetEmbeddedResourceAsStream(embeddedResource))
+			    {
+			        return BitmapHelper.FromStream(bitmapStream);
+			    }
+            }
 		}
 
-		public override string Description => Language.GetString("dropbox", LangKey.upload_menu_item);
+		public override string Description => _dropboxLanguage.UploadMenuItem;
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
@@ -90,7 +98,7 @@ namespace Greenshot.Addon.Dropbox
 	        try
 	        {
 	            string dropboxUrl = null;
-	            new PleaseWaitForm().ShowAndWait("Dropbox", Language.GetString("dropbox", LangKey.communication_wait),
+	            new PleaseWaitForm().ShowAndWait("Dropbox", _dropboxLanguage.CommunicationWait,
 	                delegate
 	                {
 	                    var filename = Path.GetFileName(FilenameHelper.GetFilename(_dropboxPluginConfiguration.UploadFormat, captureDetails));
@@ -107,7 +115,7 @@ namespace Greenshot.Addon.Dropbox
 	        catch (Exception e)
 	        {
 	            Log.Error().WriteLine(e);
-	            MessageBox.Show(Language.GetString("dropbox", LangKey.upload_failure) + " " + e.Message);
+	            MessageBox.Show(_dropboxLanguage.UploadFailure + " " + e.Message);
 	            return false;
 	        }
 	    }

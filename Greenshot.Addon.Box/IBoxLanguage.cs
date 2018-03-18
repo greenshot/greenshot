@@ -1,4 +1,4 @@
-#region Greenshot GNU General Public License
+﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
@@ -21,18 +21,30 @@
 
 #endregion
 
+using System.ComponentModel;
+using Dapplo.Language;
+
 namespace Greenshot.Addon.Box
 {
-	public enum LangKey
-	{
-		upload_menu_item,
-		settings_title,
-		label_upload_format,
-		upload_success,
-		upload_failure,
-		communication_wait,
-		Configure,
-		label_AfterUpload,
-		label_AfterUploadLinkToClipBoard
-	}
+    [Language("Box")]
+    public interface IBoxLanguage : ILanguage, INotifyPropertyChanged
+    {
+        string CommunicationWait { get; }
+
+        string Configure { get; }
+
+        string LabelAfterUpload { get; }
+
+        string LabelAfterUploadLinkToClipBoard { get; }
+
+        string LabelUploadFormat { get; }
+
+        string SettingsTitle { get; }
+
+        string UploadFailure { get; }
+
+        string UploadMenuItem { get; }
+
+        string UploadSuccess { get; }
+    }
 }

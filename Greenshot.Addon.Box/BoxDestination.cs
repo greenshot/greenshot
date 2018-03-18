@@ -24,12 +24,14 @@
 #region Usings
 
 using System;
-using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
+using Dapplo.Addons.Bootstrapper.Resolving;
 using Dapplo.Log;
+using Greenshot.Gfx;
 using GreenshotPlugin.Addons;
 using GreenshotPlugin.Controls;
 using GreenshotPlugin.Core;
@@ -45,21 +47,27 @@ namespace Greenshot.Addon.Box
 	{
 	    private static readonly LogSource Log = new LogSource();
         private readonly IBoxConfiguration _boxConfiguration;
+	    private readonly IBoxLanguage _boxLanguage;
 
 	    [ImportingConstructor]
-		public BoxDestination(IBoxConfiguration boxConfiguration)
+		public BoxDestination(IBoxConfiguration boxConfiguration, IBoxLanguage boxLanguage)
 	    {
 	        _boxConfiguration = boxConfiguration;
+	        _boxLanguage = boxLanguage;
 	    }
 
-	    public override string Description => Language.GetString("box", LangKey.upload_menu_item);
+	    public override string Description => _boxLanguage.UploadMenuItem;
 
 	    public override Bitmap DisplayIcon
 		{
 			get
 			{
-				var resources = new ComponentResourceManager(typeof(BoxPlugin));
-				return (Bitmap) resources.GetObject("Box");
+                // TODO: Optimize this
+			    var embeddedResource = GetType().Assembly.FindEmbeddedResources(@".*box\.png").FirstOrDefault();
+			    using (var bitmapStream = GetType().Assembly.GetEmbeddedResourceAsStream(embeddedResource))
+			    {
+			        return BitmapHelper.FromStream(bitmapStream);
+			    }
 			}
 		}
 
@@ -88,7 +96,7 @@ namespace Greenshot.Addon.Box
 	            var filename = Path.GetFileName(FilenameHelper.GetFilename(_boxConfiguration.UploadFormat, captureDetails));
 	            var imageToUpload = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
 
-	            new PleaseWaitForm().ShowAndWait("Box", Language.GetString("box", LangKey.communication_wait),
+	            new PleaseWaitForm().ShowAndWait("Box", _boxLanguage.CommunicationWait,
 	                delegate { url = BoxUtils.UploadToBox(imageToUpload, captureDetails.Title, filename); }
 	            );
 
@@ -102,7 +110,7 @@ namespace Greenshot.Addon.Box
 	        catch (Exception ex)
 	        {
 	            Log.Error().WriteLine(ex, "Error uploading.");
-	            MessageBox.Show(Language.GetString("box", LangKey.upload_failure) + " " + ex.Message);
+	            MessageBox.Show(_boxLanguage.UploadFailure + " " + ex.Message);
 	            return null;
 	        }
 	    }
