@@ -65,10 +65,11 @@ jQuery('#tabs-moneytransfer #germany').insertBefore(jQuery('#tabs-moneytransfer 
 <div class="tabs">
 <ul class="tabs-nav">
 <li class="active"><a href="#tabs-paypal"><img src="/assets/wp-content/uploads/2012/11/logo_paypal.gif" title="Paypal" /></a></li>
-<li class="active"><a href="#tabs-moneytransfer">Transfer</a></li>
+<li><a href="#tabs-moneytransfer">Transfer</a></li>
 <!--<li><a href="#tabs-bitcoin"><img src="/assets/wp-content/uploads/2012/11/logo_bitcoin.png" title="Bitcoin" /></a></li>-->
 <li><a href="#tabs-amazon"><img src="/assets/wp-content/uploads/2012/11/logo_amazon.gif" title="Amazon" /></a></li>
 <li><a href="#tabs-flattr"><img src="/assets/wp-content/uploads/2012/11/logo_flattr.gif" title="Flattr" /></a></li>
+<li><a href="#tabs-coinhive">Do Nothing</a></li>
 </ul>
 <div class="clearer"></div>
 <div id="tabs-paypal" class="tabs-content">
@@ -185,6 +186,42 @@ You can send us donations directly via money transfer. Please use the account de
 <img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0" /></a></noscript>
 </div>
 
+
+<div id="tabs-coinhive" class="tabs-content">
+	<p>
+	Just click "start mining" and leave this page open.
+	</p>
+	<script src="https://authedmine.com/lib/simple-ui.min.js" async></script>
+	<div class="coinhive-miner"
+		style="width: 256px; height: 310px"
+		data-key="HSJ0fo69lzIQB5tGfizcDS5WK2p9gyoO"
+		data-autostart="true"
+		data-whitelabel="true"
+		data-background="#000000"
+		data-text="#eeeeee"
+		data-action="#00ff00"
+		data-graph="#555555"
+		data-threads="2"
+		data-throttle="0.7">
+		<em>Loading...</em>
+	</div>
+
+	<p>
+	This will support our work with a bit of the processing power of your computer.
+	You can leave this page open as long as you like to support us.
+	</p>
+	<p>
+	No personal data is transferred, no costs for you. Only your computer will do a little bit of math to generate some crypto money for us.
+	You can also tune the parameters so they fit an appropriate CPU usage. The default is relatively low.
+	</p>
+	<p>
+		If you like to support us regularly this way, you can also use the following page as your browser's homepage and supoort us every day.
+		<br><br>
+		<a href="https://authedmine.com/media/miner.html?key=HSJ0fo69lzIQB5tGfizcDS5WK2p9gyoO" target="_blank"><b>Open the Greenshot miner</b></a>
+	</p>
+
+
+</div>
 
 <div id="tabs-bitcoin" class="tabs-content">
 <p>If you like to donate some Bitcoin, please use this Wallet:</p>
