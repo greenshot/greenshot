@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotPlugin.Core.Credentials
+namespace Greenshot.Addons.Core.Credentials
 {
 	/// <summary>http://www.pinvoke.net/default.aspx/Enums.CredUIReturnCodes</summary>
 	public enum CredUiReturnCodes

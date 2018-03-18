@@ -29,9 +29,9 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Runtime.Serialization;
 using Greenshot.Drawing.Fields;
-using GreenshotPlugin.Interfaces.Drawing;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Addons.Interfaces.Drawing;
 using Greenshot.Gfx;
 using Greenshot.Gfx.Effects;
 

@@ -25,9 +25,9 @@
 
 using System;
 using System.Runtime.Serialization;
+using Greenshot.Addons.Interfaces.Drawing;
 using Greenshot.Drawing.Fields;
 using Greenshot.Drawing.Filters;
-using GreenshotPlugin.Interfaces.Drawing;
 
 #endregion
 

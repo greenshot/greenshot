@@ -32,14 +32,14 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using Dapplo.Ini;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
+using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Gfx;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addons.Core
 {
 	/// <summary>
 	///     HTTP Method to make sure we have the correct method

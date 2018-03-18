@@ -27,7 +27,7 @@ using System.Drawing;
 
 #endregion
 
-namespace GreenshotPlugin.Interfaces.Drawing
+namespace Greenshot.Addons.Interfaces.Drawing
 {
     /// <summary>
     /// The interface for the Bitmap Container

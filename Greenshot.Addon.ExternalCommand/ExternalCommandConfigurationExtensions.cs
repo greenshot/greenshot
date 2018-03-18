@@ -23,7 +23,7 @@
 
 using System;
 using System.IO;
-using GreenshotPlugin.Core;
+using Greenshot.Addons.Core;
 
 namespace Greenshot.Addon.ExternalCommand
 {

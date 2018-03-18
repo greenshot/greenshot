@@ -18,15 +18,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Log;
 using Dapplo.Windows.Desktop;
-using GreenshotPlugin.Core;
+using Greenshot.Addons.Core;
 
-namespace GreenshotPlugin.Controls {
+namespace Greenshot.Addons.Controls {
 	/// <summary>
 	/// The OAuthLoginForm is used to allow the user to authorize Greenshot with an "Oauth" application
 	/// </summary>

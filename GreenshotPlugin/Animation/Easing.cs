@@ -27,7 +27,7 @@ using System;
 
 #endregion
 
-namespace GreenshotPlugin.Animation
+namespace Greenshot.Addons.Animation
 {
 	/// <summary>
 	///     Easing logic, to make the animations more "fluent"

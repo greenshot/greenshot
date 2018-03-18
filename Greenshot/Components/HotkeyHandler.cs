@@ -31,13 +31,13 @@ using Dapplo.Addons;
 using Dapplo.CaliburnMicro;
 using Dapplo.Log;
 using Dapplo.Windows.Common;
+using Greenshot.Addons.Components;
+using Greenshot.Addons.Controls;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Configuration;
 using Greenshot.Forms;
 using Greenshot.Helpers;
-using GreenshotPlugin.Components;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces.Plugin;
 
 namespace Greenshot.Components
 {

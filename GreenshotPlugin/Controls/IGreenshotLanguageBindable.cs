@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addons.Controls
 {
 	/// <summary>
 	///     This interface describes the designer fields that need to be implemented for Greenshot controls

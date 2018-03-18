@@ -27,7 +27,7 @@ using System.Collections.Generic;
 
 #endregion
 
-namespace GreenshotPlugin.Animation
+namespace Greenshot.Addons.Animation
 {
 	/// <summary>
 	///     Base class for the animation logic, this only implements Properties and a constructor

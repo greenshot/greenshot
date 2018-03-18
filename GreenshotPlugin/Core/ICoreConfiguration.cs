@@ -30,12 +30,12 @@ using System.Drawing;
 using Dapplo.Ini;
 using Dapplo.InterfaceImpl.Extensions;
 using Dapplo.Windows.Common.Structs;
-using GreenshotPlugin.Core.Enums;
-using GreenshotPlugin.Interfaces;
+using Greenshot.Addons.Core.Enums;
+using Greenshot.Addons.Interfaces;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addons.Core
 {
     /// <summary>
     ///     Core configuration.

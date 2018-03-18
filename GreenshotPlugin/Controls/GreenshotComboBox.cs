@@ -26,11 +26,11 @@
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
-using GreenshotPlugin.Core;
+using Greenshot.Addons.Core;
 
 #endregion
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addons.Controls
 {
 	public class GreenshotComboBox : ComboBox, IGreenshotConfigBindable
 	{

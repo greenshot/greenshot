@@ -27,7 +27,7 @@ using System;
 
 #endregion
 
-namespace GreenshotPlugin.Interfaces
+namespace Greenshot.Addons.Interfaces
 {
 	public delegate void SurfaceSizeChangeEventHandler(object sender, EventArgs e);
 }

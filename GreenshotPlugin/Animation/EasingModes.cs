@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotPlugin.Animation
+namespace Greenshot.Addons.Animation
 {
 	public enum EasingModes
 	{

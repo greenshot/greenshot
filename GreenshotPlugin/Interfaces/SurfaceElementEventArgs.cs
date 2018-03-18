@@ -24,11 +24,11 @@
 #region Usings
 
 using System;
-using GreenshotPlugin.Interfaces.Drawing;
+using Greenshot.Addons.Interfaces.Drawing;
 
 #endregion
 
-namespace GreenshotPlugin.Interfaces
+namespace Greenshot.Addons.Interfaces
 {
 	public class SurfaceElementEventArgs : EventArgs
 	{

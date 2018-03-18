@@ -26,15 +26,15 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-using GreenshotPlugin.Interfaces;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Addons.Interfaces;
 using Greenshot.Gfx;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addons.Core
 {
 	/// <summary>
 	///     This class is used to pass an instance of the "Capture" around

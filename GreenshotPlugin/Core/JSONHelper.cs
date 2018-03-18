@@ -29,7 +29,7 @@ using System.Text;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addons.Core
 {
 	/// <summary>
 	///     This parses a JSON response, a modified version of the code found at:

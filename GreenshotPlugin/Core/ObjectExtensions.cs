@@ -32,7 +32,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addons.Core
 {
 	/// <summary>
 	///     Extension methods which work for objects

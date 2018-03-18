@@ -29,8 +29,8 @@ using System.ComponentModel;
 using System.Linq;
 using Greenshot.Configuration;
 using Dapplo.Ini;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Drawing;
+using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Interfaces.Drawing;
 
 #endregion
 

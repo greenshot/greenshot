@@ -24,8 +24,8 @@
 using System.Windows.Forms;
 using Dapplo.Addons;
 using Dapplo.Log;
-using GreenshotPlugin.Core;
 using System.Windows.Forms.Integration;
+using Greenshot.Addons.Core;
 
 namespace Greenshot.Components
 {

@@ -30,18 +30,18 @@ using System.ComponentModel.Design;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
-using Dapplo.Windows.Desktop;
-using Dapplo.Windows.Dpi;
-using GreenshotPlugin.Core;
 using Dapplo.Ini;
 using Dapplo.InterfaceImpl.Extensions;
 using Dapplo.Log;
+using Dapplo.Windows.Desktop;
+using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Dpi.Forms;
+using Greenshot.Addons.Core;
 using Greenshot.Gfx;
 
 #endregion
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addons.Controls
 {
 	/// <summary>
 	///     This form is used for automatically binding the elements of the form to the language

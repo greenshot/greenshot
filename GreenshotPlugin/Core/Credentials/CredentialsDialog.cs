@@ -33,7 +33,7 @@ using Dapplo.Windows.Common;
 
 #endregion
 
-namespace GreenshotPlugin.Core.Credentials
+namespace Greenshot.Addons.Core.Credentials
 {
 	/// <summary>
 	///     The following code comes from: http://www.developerfusion.com/code/4693/using-the-credential-management-api/

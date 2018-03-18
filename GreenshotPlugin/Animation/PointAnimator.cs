@@ -27,7 +27,7 @@ using Dapplo.Windows.Common.Structs;
 
 #endregion
 
-namespace GreenshotPlugin.Animation
+namespace Greenshot.Addons.Animation
 {
 	/// <summary>
 	///     Implementation of the PointAnimator

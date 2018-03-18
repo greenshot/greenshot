@@ -25,12 +25,12 @@
 
 using System;
 using System.Collections.Generic;
-using GreenshotPlugin.Addons;
-using GreenshotPlugin.Interfaces;
+using Greenshot.Addons.Addons;
+using Greenshot.Addons.Interfaces;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addons.Core
 {
 	/// <summary>
 	///     This Class is used to pass details about the capture around.

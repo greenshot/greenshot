@@ -26,12 +26,12 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using Dapplo.CaliburnMicro;
 using Dapplo.Log;
+using Greenshot.Addons.Addons;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Extensions;
+using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Destinations;
-using GreenshotPlugin.Addons;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Extensions;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 
 namespace Greenshot.Components
 {

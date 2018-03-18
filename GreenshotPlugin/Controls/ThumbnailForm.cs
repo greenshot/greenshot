@@ -26,19 +26,19 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Dapplo.Ini;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Core.Enums;
-using Dapplo.Ini;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Core.Enums;
 
 #endregion
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addons.Controls
 {
 	/// <summary>
 	///     This form allows us to show a Thumbnail preview of a window near the context menu when selecting a window to

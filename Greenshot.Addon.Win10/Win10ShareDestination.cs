@@ -33,12 +33,12 @@ using Windows.Storage.Streams;
 using Dapplo.Log;
 using Dapplo.Windows.Messages;
 using Greenshot.Addon.Win10.Native;
+using Greenshot.Addons.Addons;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Core.Enums;
+using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Gfx;
-using GreenshotPlugin.Addons;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Core.Enums;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 using Color = Windows.UI.Color;
 
 namespace Greenshot.Addon.Win10

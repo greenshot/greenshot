@@ -39,19 +39,19 @@ using Greenshot.Configuration;
 using Greenshot.Destinations;
 using Greenshot.Drawing;
 using Greenshot.Forms;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Core.Enums;
-using GreenshotPlugin.Interfaces;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
+using Greenshot.Addons.Addons;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Core.Enums;
+using Greenshot.Addons.Extensions;
+using Greenshot.Addons.Interfaces;
 using Greenshot.Components;
 using Greenshot.Gfx;
-using GreenshotPlugin.Addons;
-using GreenshotPlugin.Extensions;
 
 #endregion
 

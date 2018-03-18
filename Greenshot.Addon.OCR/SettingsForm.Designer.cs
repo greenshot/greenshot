@@ -18,6 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.Addons.Controls;
+
 namespace Greenshot.Addon.OCR
 {
 	partial class SettingsForm
@@ -49,11 +52,11 @@ namespace Greenshot.Addon.OCR
 		private void InitializeComponent()
 		{
 			this.comboBox_languages = new System.Windows.Forms.ComboBox();
-			this.checkBox_orientImage = new GreenshotPlugin.Controls.GreenshotCheckBox();
-			this.checkBox_straightenImage = new GreenshotPlugin.Controls.GreenshotCheckBox();
-			this.label_language = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.buttonOK = new GreenshotPlugin.Controls.GreenshotButton();
-			this.buttonCancel = new GreenshotPlugin.Controls.GreenshotButton();
+			this.checkBox_orientImage = new GreenshotCheckBox();
+			this.checkBox_straightenImage = new GreenshotCheckBox();
+			this.label_language = new GreenshotLabel();
+			this.buttonOK = new GreenshotButton();
+			this.buttonCancel = new GreenshotButton();
 			this.SuspendLayout();
 			// 
 			// comboBox_languages
@@ -136,11 +139,11 @@ namespace Greenshot.Addon.OCR
 			this.ResumeLayout(false);
 
 		}
-		private GreenshotPlugin.Controls.GreenshotLabel label_language;
-		private GreenshotPlugin.Controls.GreenshotButton buttonCancel;
-		private GreenshotPlugin.Controls.GreenshotButton buttonOK;
-		private GreenshotPlugin.Controls.GreenshotCheckBox checkBox_orientImage;
-		private GreenshotPlugin.Controls.GreenshotCheckBox checkBox_straightenImage;
+		private GreenshotLabel label_language;
+		private GreenshotButton buttonCancel;
+		private GreenshotButton buttonOK;
+		private GreenshotCheckBox checkBox_orientImage;
+		private GreenshotCheckBox checkBox_straightenImage;
 		private System.Windows.Forms.ComboBox comboBox_languages;
 	}
 }

@@ -18,6 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.Addons.Controls;
+
 namespace Greenshot.Forms {
 	partial class ResizeSettingsForm {
 		/// <summary>
@@ -43,11 +46,11 @@ namespace Greenshot.Forms {
 		/// the contents of this method with the code editor.
 		/// </summary>
 		private void InitializeComponent() {
-			this.buttonOK = new GreenshotPlugin.Controls.GreenshotButton();
-			this.buttonCancel = new GreenshotPlugin.Controls.GreenshotButton();
-			this.checkbox_aspectratio = new GreenshotPlugin.Controls.GreenshotCheckBox();
-			this.label_width = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.label_height = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.buttonOK = new GreenshotButton();
+			this.buttonCancel = new GreenshotButton();
+			this.checkbox_aspectratio = new GreenshotCheckBox();
+			this.label_width = new GreenshotLabel();
+			this.label_height = new GreenshotLabel();
 			this.textbox_height = new System.Windows.Forms.TextBox();
 			this.textbox_width = new System.Windows.Forms.TextBox();
 			this.combobox_width = new System.Windows.Forms.ComboBox();
@@ -167,11 +170,11 @@ namespace Greenshot.Forms {
 
 		#endregion
 
-		private GreenshotPlugin.Controls.GreenshotButton buttonOK;
-		private GreenshotPlugin.Controls.GreenshotButton buttonCancel;
-		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_aspectratio;
-		private GreenshotPlugin.Controls.GreenshotLabel label_width;
-		private GreenshotPlugin.Controls.GreenshotLabel label_height;
+		private GreenshotButton buttonOK;
+		private GreenshotButton buttonCancel;
+		private GreenshotCheckBox checkbox_aspectratio;
+		private GreenshotLabel label_width;
+		private GreenshotLabel label_height;
 		private System.Windows.Forms.TextBox textbox_height;
 		private System.Windows.Forms.TextBox textbox_width;
 		private System.Windows.Forms.ComboBox combobox_width;

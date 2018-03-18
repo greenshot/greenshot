@@ -26,7 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using GreenshotPlugin.Interfaces.Drawing;
+using Greenshot.Addons.Interfaces.Drawing;
 
 #endregion
 

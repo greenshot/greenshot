@@ -29,14 +29,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using GreenshotPlugin.Core.Enums;
 using Dapplo.Ini;
-using GreenshotPlugin.Interfaces;
 using Dapplo.Log;
+using Greenshot.Addons.Core.Enums;
+using Greenshot.Addons.Interfaces;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addons.Core
 {
 	public static class FilenameHelper
 	{

@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotPlugin.Interfaces
+namespace Greenshot.Addons.Interfaces
 {
 	public delegate void SurfaceDrawingModeEventHandler(object sender, SurfaceDrawingModeEventArgs e);
 }

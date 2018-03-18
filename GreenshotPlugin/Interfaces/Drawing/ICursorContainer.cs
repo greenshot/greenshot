@@ -27,7 +27,7 @@ using System.Windows.Forms;
 
 #endregion
 
-namespace GreenshotPlugin.Interfaces.Drawing
+namespace Greenshot.Addons.Interfaces.Drawing
 {
 	public interface ICursorContainer : IDrawableContainer
 	{

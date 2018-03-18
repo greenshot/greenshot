@@ -27,7 +27,7 @@ using System;
 
 #endregion
 
-namespace GreenshotPlugin.Interfaces.Drawing
+namespace Greenshot.Addons.Interfaces.Drawing
 {
 	[Flags]
 	public enum FieldFlag

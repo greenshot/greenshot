@@ -28,9 +28,9 @@ using System.Linq;
 using System.Windows.Forms;
 using Dapplo.CaliburnMicro;
 using Dapplo.Log;
+using Greenshot.Addons.Components;
+using Greenshot.Addons.Core;
 using Greenshot.Forms;
-using GreenshotPlugin.Components;
-using GreenshotPlugin.Core;
 
 #endregion
 

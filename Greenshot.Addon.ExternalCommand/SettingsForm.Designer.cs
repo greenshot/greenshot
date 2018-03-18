@@ -18,6 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.Addons.Controls;
+
 namespace Greenshot.Addon.ExternalCommand {
 	partial class SettingsForm {
 		/// <summary>
@@ -46,13 +49,13 @@ namespace Greenshot.Addon.ExternalCommand {
 		/// not be able to load this method if it was changed manually.
 		/// </summary>
 		private void InitializeComponent() {
-			this.buttonCancel = new GreenshotPlugin.Controls.GreenshotButton();
-			this.buttonOk = new GreenshotPlugin.Controls.GreenshotButton();
+			this.buttonCancel = new GreenshotButton();
+			this.buttonOk = new GreenshotButton();
 			this.listView = new System.Windows.Forms.ListView();
 			this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.button_new = new GreenshotPlugin.Controls.GreenshotButton();
-			this.button_delete = new GreenshotPlugin.Controls.GreenshotButton();
-			this.button_edit = new GreenshotPlugin.Controls.GreenshotButton();
+			this.button_new = new GreenshotButton();
+			this.button_delete = new GreenshotButton();
+			this.button_edit = new GreenshotButton();
 			this.SuspendLayout();
 			// 
 			// buttonCancel
@@ -146,13 +149,13 @@ namespace Greenshot.Addon.ExternalCommand {
 			this.ResumeLayout(false);
 
 		}
-		private GreenshotPlugin.Controls.GreenshotButton button_edit;
-		private GreenshotPlugin.Controls.GreenshotButton button_delete;
-		private GreenshotPlugin.Controls.GreenshotButton button_new;
+		private GreenshotButton button_edit;
+		private GreenshotButton button_delete;
+		private GreenshotButton button_new;
 		private System.Windows.Forms.ColumnHeader columnHeader1;
 		private System.Windows.Forms.ListView listView;
-		private GreenshotPlugin.Controls.GreenshotButton buttonOk;
-		private GreenshotPlugin.Controls.GreenshotButton buttonCancel;
+		private GreenshotButton buttonOk;
+		private GreenshotButton buttonCancel;
 		
 	}
 }

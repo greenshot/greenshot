@@ -29,7 +29,7 @@ using System.IO;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addons.Core
 {
 	/// <summary>
 	///     Simple utility for the explorer

@@ -25,11 +25,11 @@
 
 using System;
 using System.Collections.Generic;
-using GreenshotPlugin.Addons;
+using Greenshot.Addons.Addons;
 
 #endregion
 
-namespace GreenshotPlugin.Interfaces.Plugin
+namespace Greenshot.Addons.Interfaces.Plugin
 {
 	public interface IGreenshotPlugin : IDisposable
 	{

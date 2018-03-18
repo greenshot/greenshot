@@ -28,7 +28,7 @@ using Dapplo.Log;
 using Dapplo.Windows.Desktop;
 using Microsoft.Win32;
 
-namespace GreenshotPlugin.Core {
+namespace Greenshot.Addons.Core {
 	/// <summary>
 	/// Description of IEHelper.
 	/// </summary>

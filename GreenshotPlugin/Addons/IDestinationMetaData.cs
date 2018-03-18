@@ -27,7 +27,7 @@ using System.ComponentModel;
 
 #endregion
 
-namespace GreenshotPlugin.Addons
+namespace Greenshot.Addons.Addons
 {
 	/// <summary>
 	///     Metadata for the IDestination exports

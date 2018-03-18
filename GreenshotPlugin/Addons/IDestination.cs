@@ -28,11 +28,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Windows.Dpi;
-using GreenshotPlugin.Interfaces;
+using Greenshot.Addons.Interfaces;
 
 #endregion
 
-namespace GreenshotPlugin.Addons
+namespace Greenshot.Addons.Addons
 {
 	/// <summary>
 	///     Description of IDestination.

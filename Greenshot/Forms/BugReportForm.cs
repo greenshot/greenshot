@@ -26,8 +26,8 @@
 using System;
 using System.Diagnostics;
 using System.Windows.Forms;
+using Greenshot.Addons.Core;
 using Greenshot.Configuration;
-using GreenshotPlugin.Core;
 
 #endregion
 

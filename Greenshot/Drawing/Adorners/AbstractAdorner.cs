@@ -28,8 +28,8 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
-using GreenshotPlugin.Interfaces.Drawing;
-using GreenshotPlugin.Interfaces.Drawing.Adorners;
+using Greenshot.Addons.Interfaces.Drawing;
+using Greenshot.Addons.Interfaces.Drawing.Adorners;
 
 #endregion
 

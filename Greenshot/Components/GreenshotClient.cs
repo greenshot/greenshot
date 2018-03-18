@@ -23,7 +23,7 @@
 
 using System.Collections.Generic;
 using System.ServiceModel;
-using GreenshotPlugin.Interfaces;
+using Greenshot.Addons.Interfaces;
 
 namespace Greenshot.Components
 {

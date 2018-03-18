@@ -26,7 +26,7 @@
 using System.ComponentModel;
 using Dapplo.Ini;
 using Dapplo.InterfaceImpl.Extensions;
-using GreenshotPlugin.Core.Enums;
+using Greenshot.Addons.Core.Enums;
 
 #endregion
 

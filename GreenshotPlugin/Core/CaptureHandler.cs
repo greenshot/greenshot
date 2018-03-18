@@ -28,7 +28,7 @@ using Dapplo.Windows.Common.Structs;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addons.Core
 {
 	/// <summary>
 	///     This is the method signature which is used to capture a rectangle from the screen.

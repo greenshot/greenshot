@@ -26,12 +26,12 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Dapplo.Log;
+using Greenshot.Addons.Addons;
+using Greenshot.Addons.Controls;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Gfx;
-using GreenshotPlugin.Addons;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 
 namespace Greenshot.Addon.Lutim  {
     /// <summary>

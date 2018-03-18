@@ -24,14 +24,14 @@
 #region Usings
 
 using System.Collections.Generic;
-using Greenshot.Gfx.Effects;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Core.Enums;
 using Dapplo.Ini;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Core.Enums;
+using Greenshot.Gfx.Effects;
 
 #endregion
 
-namespace GreenshotPlugin.Interfaces.Plugin
+namespace Greenshot.Addons.Interfaces.Plugin
 {
 	public class SurfaceOutputSettings
 	{

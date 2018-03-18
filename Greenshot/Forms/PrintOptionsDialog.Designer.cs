@@ -18,6 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.Addons.Controls;
+
 namespace Greenshot.Forms
 {
 	partial class PrintOptionsDialog
@@ -48,20 +51,20 @@ namespace Greenshot.Forms
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.checkbox_dontaskagain = new GreenshotPlugin.Controls.GreenshotCheckBox();
-			this.checkboxAllowShrink = new GreenshotPlugin.Controls.GreenshotCheckBox();
-			this.checkboxAllowEnlarge = new GreenshotPlugin.Controls.GreenshotCheckBox();
-			this.checkboxAllowCenter = new GreenshotPlugin.Controls.GreenshotCheckBox();
-			this.checkboxAllowRotate = new GreenshotPlugin.Controls.GreenshotCheckBox();
-			this.button_ok = new GreenshotPlugin.Controls.GreenshotButton();
-			this.checkboxDateTime = new GreenshotPlugin.Controls.GreenshotCheckBox();
-			this.button_cancel = new GreenshotPlugin.Controls.GreenshotButton();
-			this.checkboxPrintInverted = new GreenshotPlugin.Controls.GreenshotCheckBox();
-			this.radioBtnGrayScale = new GreenshotPlugin.Controls.GreenshotRadioButton();
-			this.radioBtnMonochrome = new GreenshotPlugin.Controls.GreenshotRadioButton();
-			this.groupBoxPrintLayout = new GreenshotPlugin.Controls.GreenshotGroupBox();
-			this.groupBoxColors = new GreenshotPlugin.Controls.GreenshotGroupBox();
-			this.radioBtnColorPrint = new GreenshotPlugin.Controls.GreenshotRadioButton();
+			this.checkbox_dontaskagain = new GreenshotCheckBox();
+			this.checkboxAllowShrink = new GreenshotCheckBox();
+			this.checkboxAllowEnlarge = new GreenshotCheckBox();
+			this.checkboxAllowCenter = new GreenshotCheckBox();
+			this.checkboxAllowRotate = new GreenshotCheckBox();
+			this.button_ok = new GreenshotButton();
+			this.checkboxDateTime = new GreenshotCheckBox();
+			this.button_cancel = new GreenshotButton();
+			this.checkboxPrintInverted = new GreenshotCheckBox();
+			this.radioBtnGrayScale = new GreenshotRadioButton();
+			this.radioBtnMonochrome = new GreenshotRadioButton();
+			this.groupBoxPrintLayout = new GreenshotGroupBox();
+			this.groupBoxColors = new GreenshotGroupBox();
+			this.radioBtnColorPrint = new GreenshotRadioButton();
 			this.groupBoxPrintLayout.SuspendLayout();
 			this.groupBoxColors.SuspendLayout();
 			this.SuspendLayout();
@@ -295,19 +298,19 @@ namespace Greenshot.Forms
 			this.PerformLayout();
 
 		}
-		private GreenshotPlugin.Controls.GreenshotRadioButton radioBtnGrayScale;
-		private GreenshotPlugin.Controls.GreenshotCheckBox checkboxPrintInverted;
-		private GreenshotPlugin.Controls.GreenshotButton button_cancel;
-		private GreenshotPlugin.Controls.GreenshotCheckBox checkboxDateTime;
-		private GreenshotPlugin.Controls.GreenshotButton button_ok;
-		private GreenshotPlugin.Controls.GreenshotCheckBox checkboxAllowRotate;
-		private GreenshotPlugin.Controls.GreenshotCheckBox checkboxAllowCenter;
-		private GreenshotPlugin.Controls.GreenshotCheckBox checkboxAllowEnlarge;
-		private GreenshotPlugin.Controls.GreenshotCheckBox checkboxAllowShrink;
-		private GreenshotPlugin.Controls.GreenshotCheckBox checkbox_dontaskagain;
-        private GreenshotPlugin.Controls.GreenshotRadioButton radioBtnMonochrome;
-        private GreenshotPlugin.Controls.GreenshotGroupBox groupBoxPrintLayout;
-        private GreenshotPlugin.Controls.GreenshotGroupBox groupBoxColors;
-        private GreenshotPlugin.Controls.GreenshotRadioButton radioBtnColorPrint;
+		private GreenshotRadioButton radioBtnGrayScale;
+		private GreenshotCheckBox checkboxPrintInverted;
+		private GreenshotButton button_cancel;
+		private GreenshotCheckBox checkboxDateTime;
+		private GreenshotButton button_ok;
+		private GreenshotCheckBox checkboxAllowRotate;
+		private GreenshotCheckBox checkboxAllowCenter;
+		private GreenshotCheckBox checkboxAllowEnlarge;
+		private GreenshotCheckBox checkboxAllowShrink;
+		private GreenshotCheckBox checkbox_dontaskagain;
+        private GreenshotRadioButton radioBtnMonochrome;
+        private GreenshotGroupBox groupBoxPrintLayout;
+        private GreenshotGroupBox groupBoxColors;
+        private GreenshotRadioButton radioBtnColorPrint;
 	}
 }

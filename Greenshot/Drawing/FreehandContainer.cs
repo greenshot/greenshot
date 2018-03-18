@@ -29,7 +29,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
-using GreenshotPlugin.Interfaces.Drawing;
+using Greenshot.Addons.Interfaces.Drawing;
 
 namespace Greenshot.Drawing {
 	/// <summary>

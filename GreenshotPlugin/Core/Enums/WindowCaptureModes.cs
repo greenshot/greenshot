@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotPlugin.Core.Enums
+namespace Greenshot.Addons.Core.Enums
 {
 	public enum WindowCaptureModes
 	{

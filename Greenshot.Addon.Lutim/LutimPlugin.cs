@@ -30,11 +30,11 @@ using System.Windows.Forms;
 using Dapplo.Log;
 using Dapplo.Windows.Dpi;
 using Greenshot.Addon.Lutim.Forms;
+using Greenshot.Addons.Addons;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Gfx;
-using GreenshotPlugin.Addons;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 
 #endregion
 

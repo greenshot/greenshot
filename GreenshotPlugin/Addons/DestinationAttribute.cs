@@ -25,7 +25,7 @@ using System;
 using System.ComponentModel.Composition;
 using Dapplo.Addons;
 
-namespace GreenshotPlugin.Addons
+namespace Greenshot.Addons.Addons
 {
     [MetadataAttribute]
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]

@@ -29,14 +29,14 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
 using Dapplo.Windows.Common;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Interfaces.Plugin;
 
 #endregion
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addons.Controls
 {
 	/// <summary>
 	///     A simple control that allows the user to select pretty much any valid hotkey combination

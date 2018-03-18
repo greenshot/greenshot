@@ -27,9 +27,9 @@ using System;
 using System.Drawing;
 using Dapplo.Ini;
 using Dapplo.Log;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Interfaces.Plugin;
 
 #endregion
 

@@ -23,7 +23,7 @@
 
 #region Usings
 
-using GreenshotPlugin.Interfaces.Drawing;
+using Greenshot.Addons.Interfaces.Drawing;
 
 #endregion
 

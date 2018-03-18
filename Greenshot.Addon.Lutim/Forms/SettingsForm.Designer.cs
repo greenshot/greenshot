@@ -18,6 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.Addons.Controls;
+
 namespace Greenshot.Addon.Lutim.Forms {
 	partial class SettingsForm {
 		/// <summary>
@@ -47,13 +50,13 @@ namespace Greenshot.Addon.Lutim.Forms {
 		private void InitializeComponent()
 		{
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsForm));
-            this.buttonOK = new GreenshotPlugin.Controls.GreenshotButton();
-            this.buttonCancel = new GreenshotPlugin.Controls.GreenshotButton();
-            this.combobox_uploadimageformat = new GreenshotPlugin.Controls.GreenshotComboBox();
-            this.label_upload_format = new GreenshotPlugin.Controls.GreenshotLabel();
-            this.historyButton = new GreenshotPlugin.Controls.GreenshotButton();
-            this.label_lutimurl = new GreenshotPlugin.Controls.GreenshotLabel();
-            this.textbox_lutimurl = new GreenshotPlugin.Controls.GreenshotTextBox();
+            this.buttonOK = new GreenshotButton();
+            this.buttonCancel = new GreenshotButton();
+            this.combobox_uploadimageformat = new GreenshotComboBox();
+            this.label_upload_format = new GreenshotLabel();
+            this.historyButton = new GreenshotButton();
+            this.label_lutimurl = new GreenshotLabel();
+            this.textbox_lutimurl = new GreenshotTextBox();
             this.SuspendLayout();
             // 
             // buttonOK
@@ -153,12 +156,12 @@ namespace Greenshot.Addon.Lutim.Forms {
             this.PerformLayout();
 
 		}
-		private GreenshotPlugin.Controls.GreenshotButton historyButton;
-		private GreenshotPlugin.Controls.GreenshotComboBox combobox_uploadimageformat;
-		private GreenshotPlugin.Controls.GreenshotLabel label_upload_format;
-		private GreenshotPlugin.Controls.GreenshotButton buttonCancel;
-		private GreenshotPlugin.Controls.GreenshotButton buttonOK;
-        private GreenshotPlugin.Controls.GreenshotLabel label_lutimurl;
-        private GreenshotPlugin.Controls.GreenshotTextBox textbox_lutimurl;
+		private GreenshotButton historyButton;
+		private GreenshotComboBox combobox_uploadimageformat;
+		private GreenshotLabel label_upload_format;
+		private GreenshotButton buttonCancel;
+		private GreenshotButton buttonOK;
+        private GreenshotLabel label_lutimurl;
+        private GreenshotTextBox textbox_lutimurl;
     }
 }

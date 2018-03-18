@@ -580,9 +580,9 @@
       <Project>{f041c685-eb96-4ed1-9ace-0f5bd836610f}</Project>
       <Name>Greenshot.Gfx</Name>
     </ProjectReference>
-    <ProjectReference Include="..\GreenshotPlugin\GreenshotPlugin.csproj">
+    <ProjectReference Include="..\GreenshotPlugin\Greenshot.Addons.csproj">
       <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
-      <Name>GreenshotPlugin</Name>
+      <Name>Greenshot.Addons</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

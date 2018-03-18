@@ -28,7 +28,7 @@ using Microsoft.Win32;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addons.Core
 {
 	/// <summary>
 	///     Description of EmailConfigHelper.

@@ -26,7 +26,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Text;
 using Dapplo.Log;
-using GreenshotPlugin.Core;
+using Greenshot.Addons.Core;
 
 namespace Greenshot.Addon.Lutim
 {

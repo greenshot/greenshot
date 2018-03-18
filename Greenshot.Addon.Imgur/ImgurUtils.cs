@@ -27,10 +27,10 @@ using System.Linq;
 using System.Net;
 using Dapplo.Ini;
 using Dapplo.Log;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Gfx;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 
 namespace Greenshot.Addon.Imgur {
 	/// <summary>

@@ -28,9 +28,8 @@ using System.Text;
 using CommonServiceLocator;
 using Dapplo.Log;
 using Dapplo.Windows.Kernel32;
-using GreenshotPlugin.Addons;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces;
+using Greenshot.Addons.Addons;
+using Greenshot.Addons.Core;
 
 namespace Greenshot.Components
 {

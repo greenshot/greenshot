@@ -28,7 +28,7 @@ using System.Windows.Forms;
 
 #endregion
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addons.Controls
 {
 	/// <summary>
 	///     This class is an implementation of the 'IComparer' interface.

@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotPlugin.Interfaces
+namespace Greenshot.Addons.Interfaces
 {
 	/// <summary>
 	///     Alignment Enums for possitioning

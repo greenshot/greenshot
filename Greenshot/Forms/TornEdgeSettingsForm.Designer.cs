@@ -20,6 +20,7 @@
  */
 
 using System.Windows.Forms;
+using Greenshot.Addons.Controls;
 
 namespace Greenshot.Forms {
 	partial class TornEdgeSettingsForm {
@@ -51,23 +52,23 @@ namespace Greenshot.Forms {
 			this.label3 = new System.Windows.Forms.Label();
 			this.offsetY = new System.Windows.Forms.NumericUpDown();
 			this.shadowDarkness = new System.Windows.Forms.TrackBar();
-			this.buttonOK = new GreenshotPlugin.Controls.GreenshotButton();
-			this.buttonCancel = new GreenshotPlugin.Controls.GreenshotButton();
-			this.labelDarkness = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.labelOffset = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.labelThickness = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.buttonOK = new GreenshotButton();
+			this.buttonCancel = new GreenshotButton();
+			this.labelDarkness = new GreenshotLabel();
+			this.labelOffset = new GreenshotLabel();
+			this.labelThickness = new GreenshotLabel();
 			this.toothsize = new System.Windows.Forms.NumericUpDown();
-			this.label_toothsize = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.label_horizontaltoothrange = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.label_toothsize = new GreenshotLabel();
+			this.label_horizontaltoothrange = new GreenshotLabel();
 			this.horizontaltoothrange = new System.Windows.Forms.NumericUpDown();
-			this.labelVerticaltoothrange = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.labelVerticaltoothrange = new GreenshotLabel();
 			this.verticaltoothrange = new System.Windows.Forms.NumericUpDown();
-			this.top = new GreenshotPlugin.Controls.GreenshotCheckBox();
-			this.right = new GreenshotPlugin.Controls.GreenshotCheckBox();
-			this.bottom = new GreenshotPlugin.Controls.GreenshotCheckBox();
-			this.left = new GreenshotPlugin.Controls.GreenshotCheckBox();
-			this.shadowCheckbox = new GreenshotPlugin.Controls.GreenshotCheckBox();
-			this.all = new GreenshotPlugin.Controls.GreenshotCheckBox();
+			this.top = new GreenshotCheckBox();
+			this.right = new GreenshotCheckBox();
+			this.bottom = new GreenshotCheckBox();
+			this.left = new GreenshotCheckBox();
+			this.shadowCheckbox = new GreenshotCheckBox();
+			this.all = new GreenshotCheckBox();
 			((System.ComponentModel.ISupportInitialize)(this.thickness)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.offsetX)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.offsetY)).BeginInit();
@@ -427,22 +428,22 @@ namespace Greenshot.Forms {
 		private System.Windows.Forms.Label label3;
 		private System.Windows.Forms.NumericUpDown offsetY;
 		private System.Windows.Forms.TrackBar shadowDarkness;
-		private GreenshotPlugin.Controls.GreenshotButton buttonOK;
-		private GreenshotPlugin.Controls.GreenshotButton buttonCancel;
-		private GreenshotPlugin.Controls.GreenshotLabel labelDarkness;
-		private GreenshotPlugin.Controls.GreenshotLabel labelOffset;
-		private GreenshotPlugin.Controls.GreenshotLabel labelThickness;
+		private GreenshotButton buttonOK;
+		private GreenshotButton buttonCancel;
+		private GreenshotLabel labelDarkness;
+		private GreenshotLabel labelOffset;
+		private GreenshotLabel labelThickness;
 		private System.Windows.Forms.NumericUpDown toothsize;
-		private GreenshotPlugin.Controls.GreenshotLabel label_toothsize;
-		private GreenshotPlugin.Controls.GreenshotLabel label_horizontaltoothrange;
+		private GreenshotLabel label_toothsize;
+		private GreenshotLabel label_horizontaltoothrange;
 		private System.Windows.Forms.NumericUpDown horizontaltoothrange;
-		private GreenshotPlugin.Controls.GreenshotLabel labelVerticaltoothrange;
+		private GreenshotLabel labelVerticaltoothrange;
 		private System.Windows.Forms.NumericUpDown verticaltoothrange;
-		private GreenshotPlugin.Controls.GreenshotCheckBox top;
-		private GreenshotPlugin.Controls.GreenshotCheckBox right;
-		private GreenshotPlugin.Controls.GreenshotCheckBox bottom;
-		private GreenshotPlugin.Controls.GreenshotCheckBox left;
-		private GreenshotPlugin.Controls.GreenshotCheckBox shadowCheckbox;
-        private GreenshotPlugin.Controls.GreenshotCheckBox all;
+		private GreenshotCheckBox top;
+		private GreenshotCheckBox right;
+		private GreenshotCheckBox bottom;
+		private GreenshotCheckBox left;
+		private GreenshotCheckBox shadowCheckbox;
+        private GreenshotCheckBox all;
 	}
 }

@@ -28,7 +28,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using GreenshotPlugin.Controls;
+using Greenshot.Addons.Controls;
 using ColorDialog = Greenshot.Forms.ColorDialog;
 
 #endregion

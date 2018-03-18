@@ -32,7 +32,7 @@ using Dapplo.Log;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addons.Core
 {
 	public class RssFile
 	{

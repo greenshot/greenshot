@@ -27,12 +27,12 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using Greenshot.Addons.Interfaces.Drawing;
 using Greenshot.Gfx.Effects;
-using GreenshotPlugin.Interfaces.Drawing;
 
 #endregion
 
-namespace GreenshotPlugin.Interfaces
+namespace Greenshot.Addons.Interfaces
 {
 	/// <summary>
 	///     The interface to the Surface object, so Plugins can use it.

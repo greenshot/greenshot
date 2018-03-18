@@ -29,10 +29,10 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Greenshot.Addon.Office.OfficeExport;
-using GreenshotPlugin.Addons;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
+using Greenshot.Addons.Addons;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Interfaces.Plugin;
 
 #endregion
 

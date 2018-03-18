@@ -27,7 +27,7 @@ using System.Drawing;
 using System.Linq;
 using Greenshot.Gfx;
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addons.Controls
 {
 	/// <summary>
 	/// Wrap a ComponentResourceManager for images

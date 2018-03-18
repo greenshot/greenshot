@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotPlugin.Interfaces.Drawing
+namespace Greenshot.Addons.Interfaces.Drawing
 {
 	/// <summary>
 	///     Extended fieldHolder which has fieldHolder children.

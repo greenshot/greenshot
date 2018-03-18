@@ -18,6 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.Addons.Controls;
+
 namespace Greenshot.Addon.Flickr.Forms {
 	partial class SettingsForm {
 		/// <summary>
@@ -46,18 +49,18 @@ namespace Greenshot.Addon.Flickr.Forms {
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.buttonOK = new GreenshotPlugin.Controls.GreenshotButton();
-			this.buttonCancel = new GreenshotPlugin.Controls.GreenshotButton();
-			this.combobox_uploadimageformat = new GreenshotPlugin.Controls.GreenshotComboBox();
-			this.label_upload_format = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.checkBoxPublic = new GreenshotPlugin.Controls.GreenshotCheckBox();
-			this.checkBoxFamily = new GreenshotPlugin.Controls.GreenshotCheckBox();
-			this.checkBoxFriend = new GreenshotPlugin.Controls.GreenshotCheckBox();
-			this.label_SafetyLevel = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.combobox_safetyLevel = new GreenshotPlugin.Controls.GreenshotComboBox();
-			this.label_AfterUpload = new GreenshotPlugin.Controls.GreenshotLabel();
-			this.checkboxAfterUploadLinkToClipBoard = new GreenshotPlugin.Controls.GreenshotCheckBox();
-			this.checkBox_hiddenfromsearch = new GreenshotPlugin.Controls.GreenshotCheckBox();
+			this.buttonOK = new GreenshotButton();
+			this.buttonCancel = new GreenshotButton();
+			this.combobox_uploadimageformat = new GreenshotComboBox();
+			this.label_upload_format = new GreenshotLabel();
+			this.checkBoxPublic = new GreenshotCheckBox();
+			this.checkBoxFamily = new GreenshotCheckBox();
+			this.checkBoxFriend = new GreenshotCheckBox();
+			this.label_SafetyLevel = new GreenshotLabel();
+			this.combobox_safetyLevel = new GreenshotComboBox();
+			this.label_AfterUpload = new GreenshotLabel();
+			this.checkboxAfterUploadLinkToClipBoard = new GreenshotCheckBox();
+			this.checkBox_hiddenfromsearch = new GreenshotCheckBox();
 			this.SuspendLayout();
 			// 
 			// buttonOK
@@ -218,17 +221,17 @@ namespace Greenshot.Addon.Flickr.Forms {
 			this.PerformLayout();
 
 		}
-		private GreenshotPlugin.Controls.GreenshotCheckBox checkBox_hiddenfromsearch;
-		private GreenshotPlugin.Controls.GreenshotComboBox combobox_uploadimageformat;
-		private GreenshotPlugin.Controls.GreenshotLabel label_upload_format;
-		private GreenshotPlugin.Controls.GreenshotButton buttonCancel;
-		private GreenshotPlugin.Controls.GreenshotButton buttonOK;
-        private GreenshotPlugin.Controls.GreenshotCheckBox checkBoxPublic;
-        private GreenshotPlugin.Controls.GreenshotCheckBox checkBoxFamily;
-        private GreenshotPlugin.Controls.GreenshotCheckBox checkBoxFriend;
-        private GreenshotPlugin.Controls.GreenshotLabel label_SafetyLevel;
-		private GreenshotPlugin.Controls.GreenshotComboBox combobox_safetyLevel;
-        private GreenshotPlugin.Controls.GreenshotLabel label_AfterUpload;
-        private GreenshotPlugin.Controls.GreenshotCheckBox checkboxAfterUploadLinkToClipBoard;
+		private GreenshotCheckBox checkBox_hiddenfromsearch;
+		private GreenshotComboBox combobox_uploadimageformat;
+		private GreenshotLabel label_upload_format;
+		private GreenshotButton buttonCancel;
+		private GreenshotButton buttonOK;
+        private GreenshotCheckBox checkBoxPublic;
+        private GreenshotCheckBox checkBoxFamily;
+        private GreenshotCheckBox checkBoxFriend;
+        private GreenshotLabel label_SafetyLevel;
+		private GreenshotComboBox combobox_safetyLevel;
+        private GreenshotLabel label_AfterUpload;
+        private GreenshotCheckBox checkboxAfterUploadLinkToClipBoard;
 	}
 }

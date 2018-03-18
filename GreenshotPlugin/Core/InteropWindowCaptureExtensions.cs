@@ -28,6 +28,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
+using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.App;
 using Dapplo.Windows.Common;
@@ -39,15 +40,14 @@ using Dapplo.Windows.Gdi32;
 using Dapplo.Windows.Icons;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32.Enums;
+using Greenshot.Addons.Core.Enums;
+using Greenshot.Addons.Interfaces;
 using Greenshot.Gfx;
 using Greenshot.Gfx.FastBitmap;
-using GreenshotPlugin.Core.Enums;
-using Dapplo.Ini;
-using GreenshotPlugin.Interfaces;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addons.Core
 {
     /// <summary>
     ///     Greenshot versions of the extension methods for the InteropWindow

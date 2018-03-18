@@ -29,14 +29,14 @@ using System.Drawing.Printing;
 using System.Windows.Forms;
 using Greenshot.Configuration;
 using Greenshot.Forms;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Core.Enums;
 using Dapplo.Ini;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Core.Enums;
+using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Gfx.Effects;
 
 #endregion

@@ -25,7 +25,7 @@
 
 using System;
 using System.ComponentModel;
-using GreenshotPlugin.Interfaces.Drawing;
+using Greenshot.Addons.Interfaces.Drawing;
 
 #endregion
 

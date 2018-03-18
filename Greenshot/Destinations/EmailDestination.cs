@@ -26,11 +26,11 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Greenshot.Addons.Addons;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Interfaces;
 using Greenshot.Configuration;
 using Greenshot.Helpers;
-using GreenshotPlugin.Addons;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces;
 
 #endregion
 

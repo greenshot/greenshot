@@ -29,7 +29,7 @@ using Dapplo.Windows.Desktop;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addons.Core
 {
     /// <summary>
     ///     Greenshot versions of the extension methods for the InteropWindow

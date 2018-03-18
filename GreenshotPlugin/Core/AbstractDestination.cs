@@ -26,24 +26,22 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Dpi.Forms;
+using Greenshot.Addons.Addons;
+using Greenshot.Addons.Extensions;
+using Greenshot.Addons.Interfaces;
 using Greenshot.Gfx;
-using Dapplo.Ini;
-using GreenshotPlugin.Addons;
-using GreenshotPlugin.Extensions;
-using GreenshotPlugin.Interfaces;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addons.Core
 {
     /// <summary>
     ///     Description of AbstractDestination.

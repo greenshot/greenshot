@@ -28,7 +28,7 @@ using System.Runtime.InteropServices;
 
 #endregion
 
-namespace GreenshotPlugin.Core.Credentials
+namespace Greenshot.Addons.Core.Credentials
 {
 	/// <summary>
 	///     http://www.pinvoke.net/default.aspx/Structures.CREDUI_INFO

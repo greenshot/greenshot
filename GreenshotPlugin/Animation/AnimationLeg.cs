@@ -25,7 +25,7 @@
 
 #endregion
 
-namespace GreenshotPlugin.Animation
+namespace Greenshot.Addons.Animation
 {
 	/// <summary>
 	///     This class is used to store a animation leg

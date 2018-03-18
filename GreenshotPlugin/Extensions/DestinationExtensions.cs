@@ -25,9 +25,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using GreenshotPlugin.Addons;
+using Greenshot.Addons.Addons;
 
-namespace GreenshotPlugin.Extensions
+namespace Greenshot.Addons.Extensions
 {
     /// <summary>
     /// Extensions for the IDestination

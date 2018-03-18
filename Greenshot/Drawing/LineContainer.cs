@@ -27,10 +27,10 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization;
+using Greenshot.Addons.Interfaces.Drawing;
 using Greenshot.Drawing.Adorners;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
-using GreenshotPlugin.Interfaces.Drawing;
 
 #endregion
 

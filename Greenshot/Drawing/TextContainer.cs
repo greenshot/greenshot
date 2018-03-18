@@ -21,7 +21,6 @@
 
 using Greenshot.Drawing.Fields;
 using Greenshot.Memento;
-using GreenshotPlugin.Interfaces.Drawing;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -32,6 +31,7 @@ using System.Runtime.Serialization;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Addons.Interfaces.Drawing;
 
 namespace Greenshot.Drawing
 {

@@ -21,8 +21,6 @@
 
 using Greenshot.Configuration;
 using Greenshot.Memento;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces.Drawing;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -32,8 +30,10 @@ using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Interfaces.Drawing;
 using Greenshot.Forms;
-using GreenshotPlugin.Interfaces;
 
 namespace Greenshot.Drawing {
 	/// <summary>

@@ -26,7 +26,7 @@ using System.Runtime.Serialization;
 using Dapplo.Log;
 using Greenshot.Configuration;
 using Dapplo.Ini;
-using GreenshotPlugin.Interfaces.Drawing;
+using Greenshot.Addons.Interfaces.Drawing;
 
 namespace Greenshot.Drawing.Fields
 {

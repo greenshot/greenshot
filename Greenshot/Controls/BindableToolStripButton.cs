@@ -26,7 +26,7 @@
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
-using GreenshotPlugin.Controls;
+using Greenshot.Addons.Controls;
 
 #endregion
 

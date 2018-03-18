@@ -28,8 +28,8 @@ using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.CaliburnMicro.Metro;
+using Greenshot.Addons.Core;
 using Greenshot.Configuration;
-using GreenshotPlugin.Core;
 
 namespace Greenshot.Ui.Configuration.ViewModels
 {

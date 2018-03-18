@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addons.Controls
 {
 	public interface IGreenshotConfigBindable
 	{

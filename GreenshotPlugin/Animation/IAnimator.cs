@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotPlugin.Animation
+namespace Greenshot.Addons.Animation
 {
 	/// <summary>
 	///     Helper interface for passing base type

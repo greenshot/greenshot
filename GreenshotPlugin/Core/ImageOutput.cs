@@ -38,17 +38,17 @@ using System.Windows.Forms;
 using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Common;
+using Greenshot.Addons.Controls;
+using Greenshot.Addons.Core.Enums;
+using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Gfx;
 using Greenshot.Gfx.Quantizer;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core.Enums;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 using Encoder = System.Drawing.Imaging.Encoder;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addons.Core
 {
 	/// <summary>
 	///     Description of ImageOutput.

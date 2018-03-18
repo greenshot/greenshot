@@ -28,7 +28,7 @@ using System.Runtime.InteropServices;
 
 #endregion
 
-namespace GreenshotPlugin.Interop
+namespace Greenshot.Addons.Interop
 {
 	[ComImport]
 	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]

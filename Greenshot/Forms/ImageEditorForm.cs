@@ -42,6 +42,13 @@ using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Dpi.Enums;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
+using Greenshot.Addons.Addons;
+using Greenshot.Addons.Controls;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Extensions;
+using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Interfaces.Drawing;
+using Greenshot.Addons.Interfaces.Forms;
 using Greenshot.Components;
 using Greenshot.Configuration;
 using Greenshot.Destinations;
@@ -52,13 +59,6 @@ using Greenshot.Gfx;
 using Greenshot.Gfx.Effects;
 using Greenshot.Help;
 using Greenshot.Helpers;
-using GreenshotPlugin.Addons;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Extensions;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Drawing;
-using GreenshotPlugin.Interfaces.Forms;
 
 #endregion
 

@@ -37,12 +37,12 @@ using Greenshot.Drawing.Filters;
 using Greenshot.Helpers;
 using Greenshot.Memento;
 using Dapplo.Ini;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Drawing;
-using GreenshotPlugin.Interfaces.Drawing.Adorners;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Interfaces.Drawing;
+using Greenshot.Addons.Interfaces.Drawing.Adorners;
 
 #endregion
 

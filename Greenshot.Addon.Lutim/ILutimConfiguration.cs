@@ -22,7 +22,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using Dapplo.Ini;
-using GreenshotPlugin.Core.Enums;
+using Greenshot.Addons.Core.Enums;
 
 namespace Greenshot.Addon.Lutim {
 	/// <summary>

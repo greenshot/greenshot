@@ -30,7 +30,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Dapplo.Ini;
 using Dapplo.Log;
-using GreenshotPlugin.Core;
+using Greenshot.Addons.Core;
 
 #endregion
 

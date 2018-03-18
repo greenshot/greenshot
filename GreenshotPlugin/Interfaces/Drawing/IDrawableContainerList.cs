@@ -32,7 +32,7 @@ using Dapplo.Windows.Common.Structs;
 
 #endregion
 
-namespace GreenshotPlugin.Interfaces.Drawing
+namespace Greenshot.Addons.Interfaces.Drawing
 {
 	public interface IDrawableContainerList : IList<IDrawableContainer>, IDisposable
 	{

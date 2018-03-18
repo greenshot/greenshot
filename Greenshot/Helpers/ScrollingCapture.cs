@@ -33,8 +33,8 @@ using Dapplo.Windows.Input;
 using Dapplo.Windows.Input.Enums;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
+using Greenshot.Addons.Core;
 using Greenshot.Gfx.Stitching;
-using GreenshotPlugin.Core;
 
 namespace Greenshot.Helpers
 {

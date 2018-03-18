@@ -30,16 +30,16 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Dapplo.Ini;
-using GreenshotPlugin.Interfaces.Forms;
-using GreenshotPlugin.Interfaces.Plugin;
 using Dapplo.Log;
 using Dapplo.Windows.Icons;
 using Dapplo.Windows.Icons.Enums;
+using Greenshot.Addons.Interfaces.Forms;
+using Greenshot.Addons.Interfaces.Plugin;
 using Microsoft.Win32;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addons.Core
 {
 	/// <summary>
 	///     Description of PluginUtils.

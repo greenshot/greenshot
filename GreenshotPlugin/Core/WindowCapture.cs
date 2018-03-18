@@ -31,7 +31,6 @@ using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Dapplo.Ini;
-using GreenshotPlugin.Interfaces;
 using Dapplo.Log;
 using Dapplo.Windows.Common;
 using Dapplo.Windows.Common.Extensions;
@@ -42,11 +41,12 @@ using Dapplo.Windows.Gdi32.SafeHandles;
 using Dapplo.Windows.Gdi32.Structs;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
+using Greenshot.Addons.Interfaces;
 using Greenshot.Gfx;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addons.Core
 {
     /// <summary>
     ///     The Window Capture code

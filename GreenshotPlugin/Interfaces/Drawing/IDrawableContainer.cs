@@ -30,11 +30,11 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
-using GreenshotPlugin.Interfaces.Drawing.Adorners;
+using Greenshot.Addons.Interfaces.Drawing.Adorners;
 
 #endregion
 
-namespace GreenshotPlugin.Interfaces.Drawing
+namespace Greenshot.Addons.Interfaces.Drawing
 {
 	public interface IDrawableContainer : INotifyPropertyChanged, IDisposable
 	{

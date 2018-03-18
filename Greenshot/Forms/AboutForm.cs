@@ -34,11 +34,11 @@ using System.Security.Permissions;
 using System.Windows.Forms;
 using Greenshot.Configuration;
 using Greenshot.Helpers;
-using GreenshotPlugin.Core;
 using Dapplo.Ini;
 using Dapplo.Log;
+using Greenshot.Addons.Animation;
+using Greenshot.Addons.Core;
 using Greenshot.Gfx;
-using GreenshotPlugin.Animation;
 
 #endregion
 

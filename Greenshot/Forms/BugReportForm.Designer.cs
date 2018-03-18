@@ -18,6 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+using Greenshot.Addons.Controls;
+
 namespace Greenshot.Forms {
 	partial class BugReportForm {
 		/// <summary>
@@ -46,9 +49,9 @@ namespace Greenshot.Forms {
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.labelBugReportInfo = new GreenshotPlugin.Controls.GreenshotLabel();
+			this.labelBugReportInfo = new GreenshotLabel();
 			this.textBoxDescription = new System.Windows.Forms.TextBox();
-			this.btnClose = new GreenshotPlugin.Controls.GreenshotButton();
+			this.btnClose = new GreenshotButton();
 			this.linkLblBugs = new System.Windows.Forms.LinkLabel();
 			this.SuspendLayout();
 			// 
@@ -112,8 +115,8 @@ namespace Greenshot.Forms {
 
 		}
 		private System.Windows.Forms.LinkLabel linkLblBugs;
-		private GreenshotPlugin.Controls.GreenshotButton btnClose;
+		private GreenshotButton btnClose;
 		private System.Windows.Forms.TextBox textBoxDescription;
-		private GreenshotPlugin.Controls.GreenshotLabel labelBugReportInfo;
+		private GreenshotLabel labelBugReportInfo;
 	}
 }

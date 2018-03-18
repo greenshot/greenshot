@@ -29,10 +29,10 @@ using System.Reflection;
 using System.Windows.Forms;
 using Dapplo.Ini;
 using Dapplo.Log;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Core.Enums;
 using Greenshot.Configuration;
 using Greenshot.Forms;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Core.Enums;
 
 #endregion
 

@@ -23,7 +23,7 @@
 
 using System.ServiceModel;
 
-namespace GreenshotPlugin.Interfaces
+namespace Greenshot.Addons.Interfaces
 {
     /// <summary>
     /// This interface specifies the functional interface that Greenshot provides

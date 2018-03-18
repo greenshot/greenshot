@@ -26,15 +26,15 @@
 using System;
 using System.IO;
 using System.Windows.Forms;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Core.Enums;
 using Dapplo.Ini;
-using GreenshotPlugin.Interfaces;
 using Dapplo.Log;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Core.Enums;
+using Greenshot.Addons.Interfaces;
 
 #endregion
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addons.Controls
 {
 	/// <summary>
 	///     Custom dialog for saving images, wraps SaveFileDialog.

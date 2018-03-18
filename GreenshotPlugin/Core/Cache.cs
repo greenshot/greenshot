@@ -31,7 +31,7 @@ using Dapplo.Log;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addons.Core
 {
 	/// <summary>
 	///     Cache class

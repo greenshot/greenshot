@@ -29,10 +29,10 @@ using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Log;
 using Greenshot.Addon.Imgur.Forms;
-using GreenshotPlugin.Addons;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
+using Greenshot.Addons.Addons;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Interfaces.Plugin;
 
 #endregion
 

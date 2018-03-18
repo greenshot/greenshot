@@ -27,7 +27,7 @@ using System;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addons.Core
 {
 	public class EventDelay
 	{

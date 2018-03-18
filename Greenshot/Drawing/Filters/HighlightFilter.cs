@@ -27,10 +27,10 @@ using System;
 using System.Drawing;
 using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Addons.Interfaces.Drawing;
 using Greenshot.Drawing.Fields;
 using Greenshot.Gfx;
 using Greenshot.Gfx.FastBitmap;
-using GreenshotPlugin.Interfaces.Drawing;
 
 #endregion
 

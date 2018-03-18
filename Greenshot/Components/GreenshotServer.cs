@@ -36,12 +36,12 @@ using System.Windows.Forms;
 using Dapplo.Addons;
 using Dapplo.Ini;
 using Dapplo.Log;
+using Greenshot.Addons.Addons;
+using Greenshot.Addons.Controls;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Interfaces;
 using Greenshot.Forms;
 using Greenshot.Helpers;
-using GreenshotPlugin.Addons;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces;
 using Application = System.Windows.Application;
 
 #endregion

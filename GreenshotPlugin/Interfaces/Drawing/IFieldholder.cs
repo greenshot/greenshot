@@ -27,7 +27,7 @@ using System.Collections.Generic;
 
 #endregion
 
-namespace GreenshotPlugin.Interfaces.Drawing
+namespace Greenshot.Addons.Interfaces.Drawing
 {
 	/// <summary>
 	///     Any element holding Fields must provide access to it.

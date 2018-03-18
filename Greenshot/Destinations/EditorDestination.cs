@@ -29,12 +29,12 @@ using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Linq;
 using Greenshot.Configuration;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Forms;
 using Dapplo.Log;
+using Greenshot.Addons.Addons;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Interfaces.Forms;
 using Greenshot.Components;
-using GreenshotPlugin.Addons;
 
 #endregion
 

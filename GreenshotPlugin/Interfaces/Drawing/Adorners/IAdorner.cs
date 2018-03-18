@@ -29,7 +29,7 @@ using Dapplo.Windows.Common.Structs;
 
 #endregion
 
-namespace GreenshotPlugin.Interfaces.Drawing.Adorners
+namespace Greenshot.Addons.Interfaces.Drawing.Adorners
 {
 	public interface IAdorner
 	{

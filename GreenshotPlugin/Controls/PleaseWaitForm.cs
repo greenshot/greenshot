@@ -26,12 +26,12 @@
 using System;
 using System.Threading;
 using System.Windows.Forms;
-using GreenshotPlugin.Core;
 using Dapplo.Log;
+using Greenshot.Addons.Core;
 
 #endregion
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addons.Controls
 {
 	/// <summary>
 	///     Description of PleaseWaitForm.

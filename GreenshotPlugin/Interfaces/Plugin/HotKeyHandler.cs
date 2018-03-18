@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace GreenshotPlugin.Interfaces.Plugin
+namespace Greenshot.Addons.Interfaces.Plugin
 {
 	public delegate void HotKeyHandler();
 }

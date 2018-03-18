@@ -35,17 +35,17 @@ using System.Security.Permissions;
 using System.Windows.Forms;
 using Dapplo.Windows.Desktop;
 using Greenshot.Drawing;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
 using Dapplo.Ini;
-using GreenshotPlugin.Interfaces;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
 using Dapplo.Windows.User32.Structs;
-using GreenshotPlugin.Animation;
+using Greenshot.Addons.Animation;
+using Greenshot.Addons.Controls;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Interfaces;
 
 #endregion
 

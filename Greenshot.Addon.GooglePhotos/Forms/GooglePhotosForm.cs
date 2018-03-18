@@ -23,7 +23,7 @@
 
 #region Usings
 
-using GreenshotPlugin.Controls;
+using Greenshot.Addons.Controls;
 
 #endregion
 

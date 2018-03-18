@@ -29,7 +29,7 @@ using Dapplo.Windows.Common.Structs;
 
 #endregion
 
-namespace GreenshotPlugin.Interfaces
+namespace Greenshot.Addons.Interfaces
 {
 	/// <summary>
 	///     The interface to the Capture object, so Plugins can use it.

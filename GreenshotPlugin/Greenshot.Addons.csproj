@@ -4,8 +4,8 @@
   <PropertyGroup>
     <ProjectGuid>{5B924697-4DCD-4F98-85F1-105CB84B7341}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>GreenshotPlugin</RootNamespace>
-    <AssemblyName>GreenshotPlugin</AssemblyName>
+    <RootNamespace>Greenshot.Addons</RootNamespace>
+    <AssemblyName>Greenshot.Addons</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>

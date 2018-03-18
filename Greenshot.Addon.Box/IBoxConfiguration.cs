@@ -29,7 +29,7 @@ using System.Runtime.Serialization;
 using Dapplo.Ini;
 using Dapplo.Ini.Converters;
 using Dapplo.InterfaceImpl.Extensions;
-using GreenshotPlugin.Core.Enums;
+using Greenshot.Addons.Core.Enums;
 
 #endregion
 

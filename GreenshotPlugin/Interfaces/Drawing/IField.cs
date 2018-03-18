@@ -27,7 +27,7 @@ using System.ComponentModel;
 
 #endregion
 
-namespace GreenshotPlugin.Interfaces.Drawing
+namespace Greenshot.Addons.Interfaces.Drawing
 {
 	public interface IField : INotifyPropertyChanged
 	{

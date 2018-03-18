@@ -32,12 +32,12 @@ using System.Threading;
 using System.Windows;
 using Dapplo.Log;
 using Greenshot.Addon.Confluence.Forms;
+using Greenshot.Addons.Addons;
+using Greenshot.Addons.Controls;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Gfx;
-using GreenshotPlugin.Addons;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
 
 #endregion
 

@@ -34,8 +34,8 @@ using Dapplo.Language;
 using Dapplo.Log;
 using Dapplo.Log.Loggers;
 using Dapplo.Windows.Kernel32;
+using Greenshot.Addons.Core;
 using Greenshot.Configuration;
-using GreenshotPlugin.Core;
 using Point = System.Drawing.Point;
 #endregion
 

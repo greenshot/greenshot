@@ -24,8 +24,8 @@
 #region Usings
 
 using System;
+using Greenshot.Addons.Interfaces.Drawing;
 using Greenshot.Drawing;
-using GreenshotPlugin.Interfaces.Drawing;
 
 #endregion
 

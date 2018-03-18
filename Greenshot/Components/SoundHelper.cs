@@ -32,7 +32,7 @@ using System.Runtime.InteropServices;
 using Dapplo.Addons;
 using Dapplo.Log;
 using Dapplo.Windows.Multimedia;
-using GreenshotPlugin.Core;
+using Greenshot.Addons.Core;
 
 #endregion
 

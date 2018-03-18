@@ -30,7 +30,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using Dapplo.Ini;
 using Dapplo.Log;
-using GreenshotPlugin.Core;
+using Greenshot.Addons.Core;
 
 #endregion
 

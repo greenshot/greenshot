@@ -27,7 +27,7 @@ using System.Drawing.Imaging;
 
 #endregion
 
-namespace GreenshotPlugin.Interfaces.Drawing
+namespace Greenshot.Addons.Interfaces.Drawing
 {
 	public interface IMetafileContainer : IDrawableContainer
 	{

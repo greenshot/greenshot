@@ -32,7 +32,7 @@ using Dapplo.Windows.Gdi32.SafeHandles;
 
 #endregion
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addons.Controls
 {
 	/// <summary>
 	///     Extend this Form to have the possibility for animations on your form

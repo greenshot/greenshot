@@ -29,10 +29,10 @@ using System.ComponentModel.Composition;
 using System.Threading.Tasks;
 using Dapplo.Log;
 using Dapplo.Windows.Dpi;
-using GreenshotPlugin.Addons;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
+using Greenshot.Addons.Addons;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Interfaces.Plugin;
 
 #endregion
 

@@ -28,7 +28,7 @@ using Dapplo.Windows.Dpi;
 
 #endregion
 
-namespace GreenshotPlugin.Interfaces.Plugin
+namespace Greenshot.Addons.Interfaces.Plugin
 {
 	/// <summary>
 	///     This interface is the GreenshotPluginHost, that which "Hosts" the plugin.

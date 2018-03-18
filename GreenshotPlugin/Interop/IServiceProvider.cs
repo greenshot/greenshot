@@ -28,7 +28,7 @@ using System.Runtime.InteropServices;
 
 #endregion
 
-namespace GreenshotPlugin.Interop
+namespace Greenshot.Addons.Interop
 {
 	// This is the COM IServiceProvider interface, not System.IServiceProvider .Net interface!
 	[ComImport]

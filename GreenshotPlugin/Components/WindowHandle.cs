@@ -24,7 +24,7 @@
 using System;
 using System.ComponentModel.Composition;
 
-namespace GreenshotPlugin.Components
+namespace Greenshot.Addons.Components
 {
     /// <summary>
     /// This can be used to store the main handle

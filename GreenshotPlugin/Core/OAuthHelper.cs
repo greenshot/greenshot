@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GreenshotPlugin.Controls;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -32,8 +31,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using Dapplo.Log;
+using Greenshot.Addons.Controls;
 
-namespace GreenshotPlugin.Core {
+namespace Greenshot.Addons.Core {
 	/// <summary>
 	/// Provides a predefined set of algorithms that are supported officially by the OAuth 1.x protocol
 	/// </summary>

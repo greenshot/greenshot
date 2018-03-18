@@ -29,13 +29,13 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using GreenshotPlugin.Core.Enums;
 using System.Windows.Forms;
 using Dapplo.Log;
+using Greenshot.Addons.Core.Enums;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addons.Core
 {
     /// <summary>
     ///     Extensions for the ICoreConfiguration.

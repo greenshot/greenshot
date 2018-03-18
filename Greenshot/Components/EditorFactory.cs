@@ -25,10 +25,10 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using Dapplo.Log;
+using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Interfaces.Forms;
 using Greenshot.Configuration;
 using Greenshot.Forms;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Forms;
 
 namespace Greenshot.Components
 {

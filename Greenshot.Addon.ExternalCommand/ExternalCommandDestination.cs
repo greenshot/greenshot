@@ -32,10 +32,10 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using Dapplo.Ini;
 using Dapplo.Log;
-using GreenshotPlugin.Addons;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
+using Greenshot.Addons.Addons;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Interfaces.Plugin;
 
 #endregion
 

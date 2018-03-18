@@ -26,12 +26,12 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using GreenshotPlugin.Interfaces;
 using Dapplo.Log;
+using Greenshot.Addons.Interfaces;
 
 #endregion
 
-namespace GreenshotPlugin.Core
+namespace Greenshot.Addons.Core
 {
 	/// <summary>
 	///     Description of InterfaceUtils.

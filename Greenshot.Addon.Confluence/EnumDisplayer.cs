@@ -30,7 +30,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Reflection;
 using System.Windows.Data;
-using GreenshotPlugin.Core;
+using Greenshot.Addons.Core;
 
 #endregion
 
@@ -53,8 +53,8 @@ namespace Greenshot.Addon.Confluence
 
 		public Type Type
 		{
-			get { return _type; }
-			set
+			get => _type;
+		    set
 			{
 				if (!value.IsEnum)
 				{

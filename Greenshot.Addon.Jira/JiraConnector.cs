@@ -38,8 +38,8 @@ using Dapplo.Jira;
 using Dapplo.Jira.Converters;
 using Dapplo.Jira.Entities;
 using Dapplo.Log;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Core.Credentials;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Core.Credentials;
 
 #endregion
 

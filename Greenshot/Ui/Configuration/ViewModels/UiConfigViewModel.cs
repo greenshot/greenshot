@@ -33,8 +33,8 @@ using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.CaliburnMicro.Metro;
 using Dapplo.Language;
 using Dapplo.Utils.Extensions;
+using Greenshot.Addons.Core;
 using Greenshot.Configuration;
-using GreenshotPlugin.Core;
 
 namespace Greenshot.Ui.Configuration.ViewModels
 {

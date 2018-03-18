@@ -25,10 +25,10 @@
 
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using GreenshotPlugin.Core;
 using Dapplo.Ini;
-using GreenshotPlugin.Interfaces;
 using Dapplo.Log;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Interfaces;
 
 #endregion
 

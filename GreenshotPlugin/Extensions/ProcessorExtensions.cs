@@ -23,9 +23,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using GreenshotPlugin.Interfaces;
+using Greenshot.Addons.Interfaces;
 
-namespace GreenshotPlugin.Extensions
+namespace Greenshot.Addons.Extensions
 {
     /// <summary>
     /// Extensions for the IProcessor

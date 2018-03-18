@@ -24,14 +24,14 @@
 #region Usings
 
 using System;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Core.Enums;
 using Dapplo.Ini;
-using GreenshotPlugin.Interfaces.Plugin;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Core.Enums;
+using Greenshot.Addons.Interfaces.Plugin;
 
 #endregion
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addons.Controls
 {
 	/// <summary>
 	///     Description of JpegQualityDialog.

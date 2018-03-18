@@ -30,8 +30,8 @@ using System.Text;
 using System.Windows.Forms;
 using Dapplo.Ini;
 using Dapplo.Log;
-using GreenshotPlugin.Controls;
-using GreenshotPlugin.Core;
+using Greenshot.Addons.Controls;
+using Greenshot.Addons.Core;
 
 #endregion
 

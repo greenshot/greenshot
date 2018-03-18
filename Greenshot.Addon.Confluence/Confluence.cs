@@ -29,8 +29,8 @@ using System.ComponentModel.Composition;
 using System.Windows.Forms;
 using Dapplo.Log;
 using Greenshot.Addon.Confluence.Web_References.confluence;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Core.Credentials;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Core.Credentials;
 
 #endregion
 

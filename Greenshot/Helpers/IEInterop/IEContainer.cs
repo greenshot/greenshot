@@ -33,7 +33,7 @@ using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using mshtml;
-using IServiceProvider = GreenshotPlugin.Interop.IServiceProvider;
+using IServiceProvider = Greenshot.Addons.Interop.IServiceProvider;
 
 #endregion
 

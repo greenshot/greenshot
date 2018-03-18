@@ -32,11 +32,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("GreenshotPlugin")]
+[assembly: AssemblyTitle("Greenshot.Addons")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Greenshot")]
-[assembly: AssemblyProduct("GreenshotPlugin")]
+[assembly: AssemblyProduct("Greenshot.Addons")]
 [assembly: AssemblyCopyright("Copyright (C) 2007-2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

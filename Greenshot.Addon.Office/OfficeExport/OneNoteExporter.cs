@@ -30,10 +30,10 @@ using System.Xml;
 using Dapplo.Log;
 using Dapplo.Windows.Com;
 using Greenshot.Addon.Office.OfficeInterop;
-using GreenshotPlugin.Core;
-using GreenshotPlugin.Core.Enums;
-using GreenshotPlugin.Interfaces;
-using GreenshotPlugin.Interfaces.Plugin;
+using Greenshot.Addons.Core;
+using Greenshot.Addons.Core.Enums;
+using Greenshot.Addons.Interfaces;
+using Greenshot.Addons.Interfaces.Plugin;
 
 #endregion
 

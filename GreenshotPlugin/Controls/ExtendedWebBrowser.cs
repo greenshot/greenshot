@@ -25,11 +25,11 @@
 
 using System;
 using System.Windows.Forms;
-using GreenshotPlugin.Interop;
+using Greenshot.Addons.Interop;
 
 #endregion
 
-namespace GreenshotPlugin.Controls
+namespace Greenshot.Addons.Controls
 {
 	public class ExtendedWebBrowser : WebBrowser
 	{

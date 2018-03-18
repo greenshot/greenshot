@@ -28,9 +28,9 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Addons.Interfaces.Drawing;
 using Greenshot.Drawing.Fields;
 using Greenshot.Helpers;
-using GreenshotPlugin.Interfaces.Drawing;
 
 #endregion
 
