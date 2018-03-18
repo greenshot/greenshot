@@ -2,6 +2,7 @@
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <PropertyGroup>
     <ProjectGuid>{92599C09-FF29-4ABD-B6E6-C48ECD781BAB}</ProjectGuid>
+	<ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <OutputType>Library</OutputType>
@@ -22,6 +23,8 @@
     <OldToolsVersion>3.5</OldToolsVersion>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <LangVersion>latest</LangVersion>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -45,20 +48,6 @@
     <Optimize>True</Optimize>
     <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
     <DefineConstants>TRACE</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Caliburn.Micro, Version=3.2.0.0, Culture=neutral, PublicKeyToken=8e5891231f2ed21f, processorArchitecture=MSIL">
@@ -258,7 +247,7 @@
     <Compile Include="OfficeInterop\IWordApplication.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GreenshotPlugin\Greenshot.Addons.csproj">
+    <ProjectReference Include="..\Greenshot.Addons\Greenshot.Addons.csproj">
       <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
       <Name>Greenshot.Addons</Name>
     </ProjectReference>

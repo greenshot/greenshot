@@ -3,6 +3,7 @@
   <Import Project="..\CommonProject.properties" />
   <PropertyGroup>
     <ProjectGuid>{80D8DEB9-94E3-4876-8CCA-2DF1ED5F2C50}</ProjectGuid>
+	<ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <RootNamespace>Greenshot.Addon.Imgur</RootNamespace>
     <AssemblyName>Greenshot.Addon.Imgur</AssemblyName>
@@ -192,7 +193,7 @@
       <Project>{f041c685-eb96-4ed1-9ace-0f5bd836610f}</Project>
       <Name>Greenshot.Gfx</Name>
     </ProjectReference>
-    <ProjectReference Include="..\GreenshotPlugin\Greenshot.Addons.csproj">
+    <ProjectReference Include="..\Greenshot.Addons\Greenshot.Addons.csproj">
       <Project>{5B924697-4DCD-4F98-85F1-105CB84B7341}</Project>
       <Name>Greenshot.Addons</Name>
     </ProjectReference>
