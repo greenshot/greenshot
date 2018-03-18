@@ -26,6 +26,7 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using Dapplo.CaliburnMicro;
 using Dapplo.Log;
+using Greenshot.Addon.LegacyEditor;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Extensions;

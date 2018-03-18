@@ -34,7 +34,7 @@ using System.Linq;
 using System.Security.Permissions;
 using System.Windows.Forms;
 using Dapplo.Windows.Desktop;
-using Greenshot.Drawing;
+using Greenshot.Addon.LegacyEditor.Drawing;
 using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;

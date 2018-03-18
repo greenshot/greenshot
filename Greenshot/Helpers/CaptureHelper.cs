@@ -35,9 +35,7 @@ using CommonServiceLocator;
 using Dapplo.Ini;
 using Dapplo.Windows.App;
 using Dapplo.Windows.Desktop;
-using Greenshot.Configuration;
 using Greenshot.Destinations;
-using Greenshot.Drawing;
 using Greenshot.Forms;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
@@ -45,6 +43,8 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
+using Greenshot.Addon.LegacyEditor;
+using Greenshot.Addon.LegacyEditor.Drawing;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
@@ -52,6 +52,7 @@ using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Components;
 using Greenshot.Gfx;
+using LangKey = Greenshot.Configuration.LangKey;
 
 #endregion
 
@@ -413,13 +414,13 @@ namespace Greenshot.Helpers
                         if (_capture.CaptureDetails.HasDestination(typeof(PickerDestination).GetDesignation()))
                         {
                             _capture.CaptureDetails.ClearDestinations();
-                            _capture.CaptureDetails.AddDestination(_destinations.Find(typeof(EditorDestination)));
+                            _capture.CaptureDetails.AddDestination(_destinations.Find("Editor"));
                             _capture.CaptureDetails.AddDestination(_destinations.Find(typeof(PickerDestination)));
                         }
                         else
                         {
                             _capture.CaptureDetails.ClearDestinations();
-                            _capture.CaptureDetails.AddDestination(_destinations.Find(typeof(EditorDestination)));
+                            _capture.CaptureDetails.AddDestination(_destinations.Find("Editor"));
                         }
                         HandleCapture();
                     }
@@ -477,13 +478,13 @@ namespace Greenshot.Helpers
                         if (_capture.CaptureDetails.HasDestination(typeof(PickerDestination).GetDesignation()))
                         {
                             _capture.CaptureDetails.ClearDestinations();
-                            _capture.CaptureDetails.AddDestination(_destinations.Find(typeof(EditorDestination)));
+                            _capture.CaptureDetails.AddDestination(_destinations.Find("Editor"));
                             _capture.CaptureDetails.AddDestination(_destinations.Find(typeof(PickerDestination)));
                         }
                         else
                         {
                             _capture.CaptureDetails.ClearDestinations();
-                            _capture.CaptureDetails.AddDestination(_destinations.Find(typeof(EditorDestination)));
+                            _capture.CaptureDetails.AddDestination(_destinations.Find("Editor"));
                         }
                         HandleCapture();
                     }
@@ -731,7 +732,7 @@ namespace Greenshot.Helpers
                     Log.Info().WriteLine("Calling destination {0}", destination.Description);
 
                     var exportInformation = destination.ExportCapture(false, surface, captureDetails);
-                    if (typeof(EditorDestination).GetDesignation().Equals(destination.Designation) && exportInformation.ExportMade)
+                    if ("Editor".Equals(destination.Designation) && exportInformation.ExportMade)
                     {
                         canDisposeSurface = false;
                     }

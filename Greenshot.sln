@@ -44,6 +44,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.PerformanceTests"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Tests", "Greenshot.Tests\Greenshot.Tests.csproj", "{9B162E60-12D8-44FD-8093-7D40392F23FA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Addon.LegacyEditor", "Greenshot.Addon.LegacyEditor\Greenshot.Addon.LegacyEditor.csproj", "{9F89C5A0-EB75-4F01-97EB-FBC0725733F2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -192,6 +194,14 @@ Global
 		{9B162E60-12D8-44FD-8093-7D40392F23FA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9B162E60-12D8-44FD-8093-7D40392F23FA}.Release|x86.ActiveCfg = Release|Any CPU
 		{9B162E60-12D8-44FD-8093-7D40392F23FA}.Release|x86.Build.0 = Release|Any CPU
+		{9F89C5A0-EB75-4F01-97EB-FBC0725733F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F89C5A0-EB75-4F01-97EB-FBC0725733F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F89C5A0-EB75-4F01-97EB-FBC0725733F2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9F89C5A0-EB75-4F01-97EB-FBC0725733F2}.Debug|x86.Build.0 = Debug|Any CPU
+		{9F89C5A0-EB75-4F01-97EB-FBC0725733F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F89C5A0-EB75-4F01-97EB-FBC0725733F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F89C5A0-EB75-4F01-97EB-FBC0725733F2}.Release|x86.ActiveCfg = Release|Any CPU
+		{9F89C5A0-EB75-4F01-97EB-FBC0725733F2}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

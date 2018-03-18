@@ -158,7 +158,29 @@
     <Compile Include="Controls\AnimatingForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Controls\BaseForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\ColorButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ColorDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\ColorDialog.Designer.cs">
+      <DependentUpon>ColorDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ContextMenuToolStripProfessionalRenderer.cs" />
     <Compile Include="Controls\GreenshotRadioButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\MovableShowColorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\MovableShowColorForm.Designer.cs">
+      <DependentUpon>MovableShowColorForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Pipette.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Controls\ResourceImageManager.cs" />
@@ -336,6 +358,9 @@
     <Compile Include="Addons\IDestination.cs" />
     <Compile Include="Interfaces\IProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Controls\ColorDialog.resx">
+      <DependentUpon>ColorDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Core\GreenshotResources.resx">
       <DependentUpon>GreenshotResources.cs</DependentUpon>
     </EmbeddedResource>

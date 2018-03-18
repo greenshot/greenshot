@@ -103,7 +103,7 @@ namespace Greenshot.Forms {
 			this.groupbox_iecapture = new GreenshotGroupBox();
 			this.checkbox_ie_capture = new GreenshotCheckBox();
 			this.groupbox_windowscapture = new GreenshotGroupBox();
-			this.colorButton_window_background = new Greenshot.Controls.ColorButton();
+			this.colorButton_window_background = new ColorButton();
 			this.radiobuttonWindowCapture = new GreenshotRadioButton();
 			this.radiobuttonInteractiveCapture = new GreenshotRadioButton();
 			this.combobox_window_capture_mode = new System.Windows.Forms.ComboBox();
@@ -1346,7 +1346,7 @@ namespace Greenshot.Forms {
 		private HotkeyControl lastregion_hotkeyControl;
 		private GreenshotLabel label_lastregion_hotkey;
 		private GreenshotGroupBox groupbox_hotkeys;
-		private Greenshot.Controls.ColorButton colorButton_window_background;
+		private ColorButton colorButton_window_background;
 		private GreenshotRadioButton radiobuttonWindowCapture;
 		private GreenshotCheckBox checkbox_ie_capture;
 		private GreenshotGroupBox groupbox_capture;

@@ -26,6 +26,7 @@
 using System;
 using System.Diagnostics;
 using System.Windows.Forms;
+using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Configuration;
 
@@ -51,10 +52,10 @@ namespace Greenshot.Forms
 
 		private void LinkLblBugsLinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			openLink((LinkLabel) sender);
+			OpenLink((LinkLabel) sender);
 		}
 
-		private void openLink(LinkLabel link)
+		private void OpenLink(LinkLabel link)
 		{
 			try
 			{

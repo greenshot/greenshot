@@ -190,7 +190,6 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Components\CommandlineParser.cs" />
     <Compile Include="Components\GreenshotUiStartupOrder.cs" />
-    <Compile Include="Components\EditorFactory.cs" />
     <Compile Include="Components\MainFormStartup.cs" />
     <Compile Include="Components\PluginLoader.cs" />
     <Compile Include="Components\GreenshotStartupOrder.cs" />
@@ -199,110 +198,21 @@
     <Compile Include="Configuration\CommandlineCaptureOptions.cs" />
     <Compile Include="Configuration\CommandlineOptions.cs" />
     <Compile Include="Configuration\IConfigTranslations.cs" />
-    <Compile Include="Configuration\IEditorConfiguration.cs" />
-    <Compile Include="Configuration\EditorConfigurationExtensions.cs" />
     <Compile Include="Configuration\ICoreTranslations.cs" />
     <Compile Include="Configuration\IGreenshotLanguage.cs" />
     <Compile Include="Configuration\IMetroConfiguration.cs" />
     <Compile Include="Configuration\LanguageKeys.cs" />
-    <Compile Include="Controls\BindableToolStripComboBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\BindableToolStripButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\BindableToolStripDropDownButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\ColorButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\ContextMenuToolStripProfessionalRenderer.cs" />
-    <Compile Include="Controls\CustomProfessionalColorTable.cs" />
-    <Compile Include="Controls\CustomToolStripProfessionalRenderer.cs" />
-    <Compile Include="Controls\NonJumpingPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\ToolStripColorButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\FontFamilyComboBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\ToolStripNumericUpDown.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\ToolStripEx.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\MenuStripEx.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\Pipette.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Destinations\ClipboardDestination.cs" />
-    <Compile Include="Destinations\EditorDestination.cs" />
     <Compile Include="Destinations\EmailDestination.cs" />
     <Compile Include="Destinations\FileDestination.cs" />
     <Compile Include="Destinations\FileWithDialogDestination.cs" />
     <Compile Include="Destinations\PickerDestination.cs" />
     <Compile Include="Destinations\PrinterDestination.cs" />
-    <Compile Include="Drawing\Adorners\AbstractAdorner.cs" />
-    <Compile Include="Drawing\Adorners\MoveAdorner.cs" />
-    <Compile Include="Drawing\Adorners\ResizeAdorner.cs" />
-    <Compile Include="Drawing\Adorners\TargetAdorner.cs" />
-    <Compile Include="Drawing\ArrowContainer.cs" />
-    <Compile Include="Drawing\Positions.cs" />
-    <Compile Include="Drawing\StepLabelContainer.cs" />
-    <Compile Include="Drawing\BitmapContainer.cs" />
-    <Compile Include="Drawing\CropContainer.cs" />
-    <Compile Include="Drawing\CursorContainer.cs" />
-    <Compile Include="Drawing\DrawableContainer.cs" />
-    <Compile Include="Drawing\DrawableContainerList.cs" />
-    <Compile Include="Drawing\EllipseContainer.cs" />
-    <Compile Include="Drawing\Fields\AbstractFieldHolderWithChildren.cs" />
-    <Compile Include="Drawing\Fields\Binding\AbstractBindingConverter.cs" />
-    <Compile Include="Drawing\Fields\Binding\BidirectionalBinding.cs" />
-    <Compile Include="Drawing\Fields\Binding\DecimalDoublePercentageConverter.cs" />
-    <Compile Include="Drawing\Fields\Binding\DecimalFloatConverter.cs" />
-    <Compile Include="Drawing\Fields\Binding\DecimalIntConverter.cs" />
-    <Compile Include="Drawing\Fields\Binding\IBindingConverter.cs" />
-    <Compile Include="Drawing\Fields\Binding\IBindingValidator.cs" />
-    <Compile Include="Drawing\Fields\Binding\NotNullValidator.cs" />
-    <Compile Include="Drawing\FilterContainer.cs" />
-    <Compile Include="Drawing\Filters\AbstractFilter.cs" />
-    <Compile Include="Drawing\Filters\BrightnessFilter.cs" />
-    <Compile Include="Drawing\Filters\GrayscaleFilter.cs" />
-    <Compile Include="Drawing\Filters\HighlightFilter.cs" />
-    <Compile Include="Drawing\Filters\IFilter.cs" />
-    <Compile Include="Drawing\Filters\MagnifierFilter.cs" />
-    <Compile Include="Drawing\Filters\PixelizationFilter.cs" />
-    <Compile Include="Drawing\Filters\BlurFilter.cs" />
-    <Compile Include="Drawing\HighlightContainer.cs" />
-    <Compile Include="Drawing\IconContainer.cs" />
-    <Compile Include="Drawing\LineContainer.cs" />
-    <Compile Include="Drawing\Fields\AbstractFieldHolder.cs" />
-    <Compile Include="Drawing\Fields\Field.cs" />
-    <Compile Include="Drawing\Fields\FieldType.cs" />
-    <Compile Include="Drawing\Fields\FieldAggregator.cs" />
-    <Compile Include="Drawing\ObfuscateContainer.cs" />
-    <Compile Include="Drawing\FreehandContainer.cs" />
-    <Compile Include="Drawing\RectangleContainer.cs" />
-    <Compile Include="Drawing\RoundedRectangle.cs" />
-    <Compile Include="Drawing\SpeechbubbleContainer.cs" />
-    <Compile Include="Drawing\Surface.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Drawing\TextContainer.cs" />
     <Compile Include="Forms\AboutForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\AboutForm.Designer.cs">
       <DependentUpon>AboutForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\BaseForm.cs">
-      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\CaptureForm.cs">
       <SubType>Form</SubType>
@@ -310,32 +220,8 @@
     <Compile Include="Forms\CaptureForm.Designer.cs">
       <DependentUpon>CaptureForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\DropShadowSettingsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\DropShadowSettingsForm.Designer.cs">
-      <DependentUpon>DropShadowSettingsForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\ImageEditorForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\ImageEditorForm.Designer.cs">
-      <DependentUpon>ImageEditorForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Forms\AnimatingBaseForm.cs">
       <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\ResizeSettingsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\ResizeSettingsForm.Designer.cs">
-      <DependentUpon>ResizeSettingsForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\TornEdgeSettingsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\TornEdgeSettingsForm.Designer.cs">
-      <DependentUpon>TornEdgeSettingsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\LanguageDialog.cs">
       <SubType>Form</SubType>
@@ -370,12 +256,6 @@
     <Compile Include="Forms\BugReportForm.Designer.cs">
       <DependentUpon>BugReportForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\MovableShowColorForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\MovableShowColorForm.Designer.cs">
-      <DependentUpon>MovableShowColorForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Startup.cs" />
     <Compile Include="Ui\Configuration\ViewModels\DestinationPickerConfigViewModel.cs" />
     <Compile Include="Ui\Configuration\ViewModels\DestinationsConfigNodeViewModel.cs" />
@@ -387,8 +267,6 @@
     <None Include="App.config" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Helpers\CaptureHelper.cs" />
-    <Compile Include="Helpers\Colors.cs" />
-    <Compile Include="Helpers\GeometryHelper.cs" />
     <Compile Include="Components\GreenshotClient.cs" />
     <Compile Include="Components\GreenshotServer.cs" />
     <Compile Include="Helpers\IECaptureHelper.cs" />
@@ -396,31 +274,14 @@
     <Compile Include="Helpers\IEInterop\IWebBrowser2.cs" />
     <Compile Include="Helpers\ScrollingCapture.cs" />
     <Compile Include="Help\HelpFileLoader.cs" />
-    <Compile Include="Memento\AddElementsMemento.cs" />
-    <Compile Include="Memento\DeleteElementsMemento.cs" />
     <Compile Include="Processors\TitleFixProcessor.cs" />
     <Compile Include="Helpers\WindowWrapper.cs" />
-    <Compile Include="Memento\AddElementMemento.cs" />
-    <Compile Include="Memento\ChangeFieldHolderMemento.cs" />
-    <Compile Include="Memento\DeleteElementMemento.cs" />
-    <Compile Include="Memento\TextChangeMemento.cs" />
-    <Compile Include="Memento\DrawableContainerBoundsChangeMemento.cs" />
-    <Compile Include="Memento\SurfaceBackgroundChangeMemento.cs" />
     <Compile Include="Helpers\UpdateHelper.cs" />
     <Compile Include="Helpers\EnvironmentInfo.cs" />
     <Compile Include="Helpers\MailHelper.cs" />
     <Compile Include="Helpers\PrintHelper.cs" />
-    <Compile Include="Helpers\ScaleHelper.cs" />
     <Compile Include="Components\SoundHelper.cs" />
     <Compile Include="Helpers\StartupHelper.cs" />
-    <Compile Include="Helpers\ToolStripItemEndisabler.cs" />
-    <EmbeddedResource Include="Forms\ColorDialog.resx">
-      <DependentUpon>ColorDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ImageEditorForm.resx">
-      <DependentUpon>ImageEditorForm.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -567,15 +428,13 @@
     <None Include="Languages\language-zh-tw.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <Compile Include="Forms\ColorDialog.Designer.cs">
-      <DependentUpon>ColorDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\ColorDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Greenshot.Addon.LegacyEditor\Greenshot.Addon.LegacyEditor.csproj">
+      <Project>{9f89c5a0-eb75-4f01-97eb-fbc0725733f2}</Project>
+      <Name>Greenshot.Addon.LegacyEditor</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj">
       <Project>{f041c685-eb96-4ed1-9ace-0f5bd836610f}</Project>
       <Name>Greenshot.Gfx</Name>

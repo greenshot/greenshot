@@ -27,17 +27,18 @@ using System;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.Windows.Forms;
-using Greenshot.Configuration;
 using Greenshot.Forms;
 using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Addon.LegacyEditor;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Gfx.Effects;
+using LangKey = Greenshot.Configuration.LangKey;
 
 #endregion
 
