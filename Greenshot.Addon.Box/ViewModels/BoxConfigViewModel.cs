@@ -21,11 +21,15 @@
 
 #endregion
 
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
+using Greenshot.Addons;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Core.Enums;
+using Greenshot.Addons.Extensions;
 
 namespace Greenshot.Addon.Box.ViewModels
 {
@@ -42,6 +46,9 @@ namespace Greenshot.Addon.Box.ViewModels
 
         [Import]
         public IBoxLanguage BoxLanguage { get; set; }
+
+        [Import]
+        public IGreenshotLanguage GreenshotLanguage { get; set; }
 
         public override void Initialize(IConfig config)
         {
@@ -69,5 +76,17 @@ namespace Greenshot.Addon.Box.ViewModels
             _disposables.Dispose();
             base.OnDeactivate(close);
         }
+
+        public OutputFormats SelectedUploadFormat
+        {
+            get => BoxConfiguration.UploadFormat;
+            set
+            {
+                BoxConfiguration.UploadFormat = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
+        public IDictionary<OutputFormats, string> UploadFormats => GreenshotLanguage.TranslationValuesForEnum<OutputFormats>();
     }
 }

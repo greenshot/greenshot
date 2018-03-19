@@ -12,12 +12,9 @@
             <StackPanel>
                 <DockPanel LastChildFill="True">
                     <Label Content="{Binding DropboxLanguage.LabelUploadFormat}" Width="100" />
-                    <ComboBox  />
+                    <ComboBox SelectedValue="{Binding SelectedUploadFormat}" ItemsSource="{Binding UploadFormats}" SelectedValuePath="Key" DisplayMemberPath="Value" />
                 </DockPanel>
-                <DockPanel LastChildFill="True">
-                    <Label Content="{Binding DropboxLanguage.LabelAfterUploadLinkToClipBoard}" Width="100" />
-                    <CheckBox Content="{Binding DropboxConfiguration.AfterUploadLinkToClipBoard}" />
-                </DockPanel>
+                <CheckBox IsChecked="{Binding DropboxConfiguration.AfterUploadLinkToClipBoard}" Content="{Binding DropboxLanguage.LabelAfterUploadLinkToClipBoard}"/>
             </StackPanel>
         </GroupBox>
     </StackPanel>

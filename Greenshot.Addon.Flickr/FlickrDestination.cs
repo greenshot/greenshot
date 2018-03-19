@@ -24,17 +24,19 @@
 #region Usings
 
 using System;
-using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
+using Dapplo.Addons.Bootstrapper.Resolving;
 using Dapplo.Log;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
+using Greenshot.Gfx;
 
 #endregion
 
@@ -45,22 +47,28 @@ namespace Greenshot.Addon.Flickr
 	{
 	    private static readonly LogSource Log = new LogSource();
         private readonly IFlickrConfiguration _flickrConfiguration;
+	    private readonly IFlickrLanguage _flickrLanguage;
 
 	    [ImportingConstructor]
-        public FlickrDestination(IFlickrConfiguration flickrConfiguration)
-		{
-			_flickrConfiguration = flickrConfiguration;
-		}
+        public FlickrDestination(IFlickrConfiguration flickrConfiguration, IFlickrLanguage flickrLanguage)
+	    {
+	        _flickrConfiguration = flickrConfiguration;
+	        _flickrLanguage = flickrLanguage;
+	    }
 
-		public override string Description => Language.GetString("flickr", LangKey.upload_menu_item);
+		public override string Description => _flickrLanguage.UploadMenuItem;
 
 		public override Bitmap DisplayIcon
 		{
 			get
 			{
-				var resources = new ComponentResourceManager(typeof(FlickrPlugin));
-				return (Bitmap) resources.GetObject("flickr");
-			}
+			    // TODO: Optimize this
+			    var embeddedResource = GetType().Assembly.FindEmbeddedResources(@".*flickr\.png").FirstOrDefault();
+			    using (var bitmapStream = GetType().Assembly.GetEmbeddedResourceAsStream(embeddedResource))
+			    {
+			        return BitmapHelper.FromStream(bitmapStream);
+			    }
+            }
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
@@ -84,7 +92,7 @@ namespace Greenshot.Addon.Flickr
 	        try
 	        {
 	            string flickrUrl = null;
-	            new PleaseWaitForm().ShowAndWait("Flickr", Language.GetString("flickr", LangKey.communication_wait),
+	            new PleaseWaitForm().ShowAndWait("Flickr", _flickrLanguage.CommunicationWait,
 	                delegate
 	                {
 	                    var filename = Path.GetFileName(FilenameHelper.GetFilename(_flickrConfiguration.UploadFormat, captureDetails));
@@ -107,7 +115,7 @@ namespace Greenshot.Addon.Flickr
 	        catch (Exception e)
 	        {
 	            Log.Error().WriteLine(e, "Error uploading.");
-	            MessageBox.Show(Language.GetString("flickr", LangKey.upload_failure) + " " + e.Message);
+	            MessageBox.Show(_flickrLanguage.UploadFailure + " " + e.Message);
 	        }
 	        return false;
 	    }

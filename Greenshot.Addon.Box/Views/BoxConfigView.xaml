@@ -13,7 +13,7 @@
             <StackPanel>
                 <DockPanel LastChildFill="True">
                     <Label Content="{Binding BoxLanguage.LabelUploadFormat}" Width="100" />
-                    <ComboBox />
+                    <ComboBox SelectedValue="{Binding SelectedUploadFormat}" ItemsSource="{Binding UploadFormats}" SelectedValuePath="Key" DisplayMemberPath="Value" />
                 </DockPanel>
                 <DockPanel LastChildFill="True">
                     <Label Content="{Binding BoxLanguage.LabelAfterUploadLinkToClipBoard}" Width="100" />

@@ -21,11 +21,15 @@
 
 #endregion
 
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
+using Greenshot.Addons;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Core.Enums;
+using Greenshot.Addons.Extensions;
 
 namespace Greenshot.Addon.Dropbox.ViewModels
 {
@@ -42,6 +46,9 @@ namespace Greenshot.Addon.Dropbox.ViewModels
 
         [Import]
         public IDropboxLanguage DropboxLanguage { get; set; }
+
+        [Import]
+        public IGreenshotLanguage GreenshotLanguage { get; set; }
 
         public override void Initialize(IConfig config)
         {
@@ -69,5 +76,19 @@ namespace Greenshot.Addon.Dropbox.ViewModels
             _disposables.Dispose();
             base.OnDeactivate(close);
         }
+
+
+        public OutputFormats SelectedUploadFormat
+        {
+            get => DropboxConfiguration.UploadFormat;
+            set
+            {
+                DropboxConfiguration.UploadFormat = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
+        public IDictionary<OutputFormats, string> UploadFormats => GreenshotLanguage.TranslationValuesForEnum<OutputFormats>();
+
     }
 }
