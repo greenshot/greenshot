@@ -1,23 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Português de Portugal" ietf="pt-PT" version="1.2.4.10" languagegroup="1">
-	<resources>
+
+<language>
+	<resources prefix="Core">
 		<resource name="about_bugs">Por favor envie erros para</resource>
 		<resource name="about_donations">Se gostou do Greenshot, por favor contribua:</resource>
 		<resource name="about_host">O Greenshot está armazenado no GitHub em</resource>
 		<resource name="about_icons">Ícones da colecção Fugue de Yusuke Kamiyamane (Licença "Creative Commons Attribution 3.0")</resource>
-		<resource name="about_license">Direitos de Autor (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
-O Greenshot não tem NENHUMA GARANTIA. Este software gratuito pode ser redistribuído sob algumas condições.
-Detalhes sobre a licença GNU:</resource>
+		<resource name="about_license">
+			Direitos de Autor (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
+			O Greenshot não tem NENHUMA GARANTIA. Este software gratuito pode ser redistribuído sob algumas condições.
+			Detalhes sobre a licença GNU:
+		</resource>
 		<resource name="about_title">Acerca do Greenshot</resource>
 		<resource name="application_title">Greenshot - O revolucionário utilitário de Captura de ecrã</resource>
 		<resource name="bugreport_cancel">Fechar</resource>
-		<resource name="bugreport_info">Lamentamos, ocorreu um erro inesperado.
+		<resource name="bugreport_info">
+			Lamentamos, ocorreu um erro inesperado.
 
-A boa notícia é: pode ajudar-nos a corrigir o problema enviando uma descrição do erro.
-Por favor visite a URL abaixo, crie um novo relatório de erro e cole o conteúdo da área de texto na descrição do erro.
+			A boa notícia é: pode ajudar-nos a corrigir o problema enviando uma descrição do erro.
+			Por favor visite a URL abaixo, crie um novo relatório de erro e cole o conteúdo da área de texto na descrição do erro.
 
-Por favor adicione um resumo significativo do erro e inclua toda a informação que considere útil para descrever o problema.
-Também apreciaremos muito se puder verificar se não existe já um relatório de erro para este problema. (Pode usar a opção de busca para encontrar rapidamente.) Obrigado :)</resource>
+			Por favor adicione um resumo significativo do erro e inclua toda a informação que considere útil para descrever o problema.
+			Também apreciaremos muito se puder verificar se não existe já um relatório de erro para este problema. (Pode usar a opção de busca para encontrar rapidamente.) Obrigado :)
+		</resource>
 		<resource name="bugreport_title">Erro</resource>
 		<resource name="CANCEL">Cancelar</resource>
 		<resource name="clipboard_error">Ocorreu um erro inesperado ao tentar escrever na área de transferência.</resource>
@@ -62,105 +67,14 @@ Também apreciaremos muito se puder verificar se não existe já um relatório d
 		<resource name="contextmenu_quicksettings">Preferências rápidas</resource>
 		<resource name="contextmenu_settings">Preferências...</resource>
 		<resource name="destination_exportfailed">Erro ao exportar para {0}. Por favor tente de novo.</resource>
-		<resource name="editor_align_bottom">Inferior</resource>
-		<resource name="editor_align_center">Centro</resource>
-		<resource name="editor_align_horizontal">Alinhamento horizontal</resource>
-		<resource name="editor_align_left">Esquerda</resource>
-		<resource name="editor_align_middle">Meio</resource>
-		<resource name="editor_align_right">Direita</resource>
-		<resource name="editor_align_top">Superior</resource>
-		<resource name="editor_align_vertical">Alinhamento vertical</resource>
-		<resource name="editor_arrange">Organizar</resource>
-		<resource name="editor_arrowheads">Ponta das setas</resource>
-		<resource name="editor_arrowheads_both">Em ambos</resource>
-		<resource name="editor_arrowheads_end">No fim</resource>
-		<resource name="editor_arrowheads_none">Nenhuma</resource>
-		<resource name="editor_arrowheads_start">No início</resource>
-		<resource name="editor_autocrop">Recortar auto</resource>
-		<resource name="editor_backcolor">Cor de preenchimento</resource>
-		<resource name="editor_blur_radius">Raio de desfoque</resource>
-		<resource name="editor_bold">Negrito</resource>
-		<resource name="editor_border">Borda</resource>
-		<resource name="editor_brightness">Brilho</resource>
-		<resource name="editor_cancel">Cancelar</resource>
-		<resource name="editor_clipboardfailed">Erro ao aceder à área de transferência. Por favor tente novamente.</resource>
-		<resource name="editor_close">Fechar</resource>
-		<resource name="editor_close_on_save">Deseja guardar a imagem capturada?</resource>
-		<resource name="editor_close_on_save_title">Guardar imagem?</resource>
-		<resource name="editor_confirm">Confirmar</resource>
-		<resource name="editor_copyimagetoclipboard">Copiar imagem para a Área de transferência</resource>
-		<resource name="editor_copypathtoclipboard">Copiar atalho para a Área de transferência</resource>
-		<resource name="editor_copytoclipboard">Copiar</resource>
-		<resource name="editor_crop">Recortar (C)</resource>
-		<resource name="editor_cursortool">Ferramenta de Selecção (ESC)</resource>
-		<resource name="editor_cuttoclipboard">Cortar</resource>
-		<resource name="editor_deleteelement">Eliminar</resource>
-		<resource name="editor_downonelevel">Descer um nível</resource>
-		<resource name="editor_downtobottom">Descer para a base</resource>
-		<resource name="editor_drawarrow">Desenhar Seta (A)</resource>
-		<resource name="editor_drawellipse">Desenhar Elipse (E)</resource>
-		<resource name="editor_drawfreehand">Desenho livre (F)</resource>
-		<resource name="editor_drawhighlighter">Realçar (H)</resource>
-		<resource name="editor_drawline">Desenhar Linha (L)</resource>
-		<resource name="editor_drawrectangle">Desenhar Rectángulo (R)</resource>
-		<resource name="editor_drawtextbox">Desenhar Caixa de Texto (T)</resource>
-		<resource name="editor_duplicate">Duplicar elemento seleccionado</resource>
-		<resource name="editor_edit">Editar</resource>
-		<resource name="editor_effects">Efeitos</resource>
-		<resource name="editor_email">Enviar por e-mail</resource>
-		<resource name="editor_file">Ficheiro</resource>
-		<resource name="editor_fontsize">Tamanho</resource>
-		<resource name="editor_forecolor">Cor da linha</resource>
-		<resource name="editor_grayscale">Escala cinza</resource>
-		<resource name="editor_highlight_area">Realçar área</resource>
-		<resource name="editor_highlight_grayscale">Escala de cinza</resource>
-		<resource name="editor_highlight_magnify">Ampliar</resource>
-		<resource name="editor_highlight_mode">Modo de realce</resource>
-		<resource name="editor_highlight_text">Realçar texto</resource>
-		<resource name="editor_image_shadow">Sombra projectada</resource>
-		<resource name="editor_imagesaved">Imagem guardada em {0}.</resource>
-		<resource name="editor_insertwindow">Inserir janela</resource>
-		<resource name="editor_invert">Inverter</resource>
-		<resource name="editor_italic">Itálico</resource>
-		<resource name="editor_load_objects">Carregar objectos de ficheiro...</resource>
-		<resource name="editor_magnification_factor">Factor de ampliação</resource>
-		<resource name="editor_match_capture_size">Ajustar ao tamanho da captura</resource>
-		<resource name="editor_obfuscate">Ofuscar (O)</resource>
-		<resource name="editor_obfuscate_blur">Desfocar</resource>
-		<resource name="editor_obfuscate_mode">Modo de obscurecimento</resource>
-		<resource name="editor_obfuscate_pixelize">Pixelização</resource>
-		<resource name="editor_object">Objecto</resource>
-		<resource name="editor_opendirinexplorer">Abrir a pasta no Explorador do Windows</resource>
-		<resource name="editor_pastefromclipboard">Colar</resource>
-		<resource name="editor_pixel_size">Tamanho de Pixel</resource>
-		<resource name="editor_preview_quality">Qualidade da pré-visualização</resource>
-		<resource name="editor_print">Imprimir</resource>
-		<resource name="editor_redo">Refazer {0}</resource>
-		<resource name="editor_resetsize">Repor tamanho</resource>
-		<resource name="editor_resize_percent">Percentagem</resource>
-		<resource name="editor_resize_pixel">Píxeis</resource>
-		<resource name="editor_rotateccw">Rodar à esquerda (Control + ,)</resource>
-		<resource name="editor_rotatecw">Rodar à direita (Control + .)</resource>
-		<resource name="editor_save">Guardar</resource>
-		<resource name="editor_save_objects">Guardar objectos para ficheiro...</resource>
-		<resource name="editor_saveas">Guardar como...</resource>
-		<resource name="editor_selectall">Seleccionar tudo</resource>
-		<resource name="editor_senttoprinter">A impressão foi enviada para '{0}'.</resource>
-		<resource name="editor_shadow">Sombra projectada</resource>
-		<resource name="editor_storedtoclipboard">Imagem enviada para a área de transferência.</resource>
-		<resource name="editor_thickness">Espessura da linha</resource>
-		<resource name="editor_title">Editor de Imagens do Greenshot</resource>
-		<resource name="editor_torn_edge">Borda rasgada</resource>
-		<resource name="editor_undo">Anular {0}</resource>
-		<resource name="editor_uponelevel">Subir um nível</resource>
-		<resource name="editor_uptotop">Subir para o topo</resource>
-		<resource name="EmailFormat.MAPI">Cliente MAPI</resource>
-		<resource name="EmailFormat.OUTLOOK_HTML">Outlook com HTML</resource>
-		<resource name="EmailFormat.OUTLOOK_TXT">Outlook com texto</resource>
+		<resource name="EmailFormats.Html">Outlook com HTML</resource>
+		<resource name="EmailFormats.Text">Outlook com texto</resource>
 		<resource name="error">Erro</resource>
 		<resource name="error_multipleinstances">Já está em execução uma instância do Greenshot.</resource>
-		<resource name="error_nowriteaccess">Não foi possível guardar o ficheiro para {0}.
-Por favor verifique as permissões de escrita do local seleccionado.</resource>
+		<resource name="error_nowriteaccess">
+			Não foi possível guardar o ficheiro para {0}.
+			Por favor verifique as permissões de escrita do local seleccionado.
+		</resource>
 		<resource name="error_openfile">Não foi possível abrir o ficheiro "{0}".</resource>
 		<resource name="error_openlink">Não foi possível abrir o link '{0}'.</resource>
 		<resource name="error_save">Não foi possível guardar a captura, por favor escolha um local adequado.</resource>
@@ -187,13 +101,13 @@ Por favor verifique as permissões de escrita do local seleccionado.</resource>
 		<resource name="printoptions_allowenlarge">Aumentar o tamanho da impressão para o tamanho do papel</resource>
 		<resource name="printoptions_allowrotate">Rodar a impressão de acordo com a orientação da página</resource>
 		<resource name="printoptions_allowshrink">Reduzir o tamanho da impressão para o tamanho do papel</resource>
-	<resource name="printoptions_colors">Definições de Cor</resource>
-    <resource name="printoptions_dontaskagain">Guardar opções como padrão e não perguntar de novo</resource>
+		<resource name="printoptions_colors">Definições de Cor</resource>
+		<resource name="printoptions_dontaskagain">Guardar opções como padrão e não perguntar de novo</resource>
 		<resource name="printoptions_inverted">Imprimir com cores invertidas</resource>
-    <resource name="printoptions_layout">Definições de Esquema de Página</resource>
-    <resource name="printoptions_printcolor">Impressão a cores</resource>
-    <resource name="printoptions_printgrayscale">Forçar impressão em escala cinza</resource>
-    <resource name="printoptions_printmonochrome">Forçar impressão a preto/branco</resource>
+		<resource name="printoptions_layout">Definições de Esquema de Página</resource>
+		<resource name="printoptions_printcolor">Impressão a cores</resource>
+		<resource name="printoptions_printgrayscale">Forçar impressão em escala cinza</resource>
+		<resource name="printoptions_printmonochrome">Forçar impressão a preto/branco</resource>
 		<resource name="printoptions_timestamp">Imprimir data / hora na parte inferior da página</resource>
 		<resource name="printoptions_title">Opçoes de impressão do Greenshot</resource>
 		<resource name="qualitydialog_dontaskagain">Guardar como qualidade padrão e não perguntar de novo</resource>
@@ -223,23 +137,25 @@ Por favor verifique as permissões de escrita do local seleccionado.</resource>
 		<resource name="settings_iecapture">Captura do Internet Explorer</resource>
 		<resource name="settings_jpegquality">Qualidade JPEG</resource>
 		<resource name="settings_language">Idioma</resource>
-		<resource name="settings_message_filenamepattern">Os seguientes marcadores de posição serão substituídos automaticamente no padrão definido:
-${YYYY} ano, 4 dígitos
-${MM} mês, 2 dígitos
-${DD} dia, 2 dígitos
-${hh} hora, 2 dígitos
-${mm} minuto, 2 dígitos
-${ss} segundo, 2 dígitos
-${NUM} Número incrementado, 6 dígitos
-${title} Título da janela
-${user} Utilizador do Windows
-${domain} Domínio do Windows
-${hostname} Nome do PC
+		<resource name="settings_message_filenamepattern">
+			Os seguientes marcadores de posição serão substituídos automaticamente no padrão definido:
+			${YYYY} ano, 4 dígitos
+			${MM} mês, 2 dígitos
+			${DD} dia, 2 dígitos
+			${hh} hora, 2 dígitos
+			${mm} minuto, 2 dígitos
+			${ss} segundo, 2 dígitos
+			${NUM} Número incrementado, 6 dígitos
+			${title} Título da janela
+			${user} Utilizador do Windows
+			${domain} Domínio do Windows
+			${hostname} Nome do PC
 
-Também pode fazer o Greenshot criar directórios dinamicamente, simplesmente usando o símbolo de barra invertida (\) para separar pastas e nome de ficheiro.
-Exemplo: o formato ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-irá gerar uma pasta para o dia actual dentro do local de armazenamento padrão, exemplo: 2008-06-29, os nomes dos ficheiros de captura serão baseados na
-hora actual, exemplo: 11_58_32 (mais a extensão definida nas definições)</resource>
+			Também pode fazer o Greenshot criar directórios dinamicamente, simplesmente usando o símbolo de barra invertida (\) para separar pastas e nome de ficheiro.
+			Exemplo: o formato ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+			irá gerar uma pasta para o dia actual dentro do local de armazenamento padrão, exemplo: 2008-06-29, os nomes dos ficheiros de captura serão baseados na
+			hora actual, exemplo: 11_58_32 (mais a extensão definida nas definições)
+		</resource>
 		<resource name="settings_network">Rede e actualizações</resource>
 		<resource name="settings_output">Saída</resource>
 		<resource name="settings_playsound">Emitir som de câmara</resource>
@@ -274,42 +190,16 @@ hora actual, exemplo: 11_58_32 (mais a extensão definida nas definições)</res
 		<resource name="update_found">Está disponível uma nova versão do Greenshot! Deseja transferir o Greenshot {0}?</resource>
 		<resource name="wait_ie_capture">Por favor aguarde enquanto a página do Internet Explorer é capturada...</resource>
 		<resource name="warning">Alerta</resource>
-		<resource name="warning_hotkeys">A(s) tecla(s) de Atalho "{0}" não pode(m) ser registada(s). Este problema é provavelmente provocado por outra ferramenta que que utiliza a(s) mesma(s) tecla(s) de atalho! Pode alterar as suas definições de teclas de atalho ou desactivar/alterar o programa que está a usar a(s) mesma(s) tecla(s) de atalho.
-		
-Todas as funcionalidades do Greenshot funcionam directamente através do menu de contexto do ícone da bandeja, sem teclas de atalho.</resource>
+		<resource name="warning_hotkeys">
+			A(s) tecla(s) de Atalho "{0}" não pode(m) ser registada(s). Este problema é provavelmente provocado por outra ferramenta que que utiliza a(s) mesma(s) tecla(s) de atalho! Pode alterar as suas definições de teclas de atalho ou desactivar/alterar o programa que está a usar a(s) mesma(s) tecla(s) de atalho.
+
+			Todas as funcionalidades do Greenshot funcionam directamente através do menu de contexto do ícone da bandeja, sem teclas de atalho.
+		</resource>
 		<resource name="WindowCaptureModes.Aero">Usar cor personalizada</resource>
 		<resource name="WindowCaptureModes.AeroTransparent">Manter transparência</resource>
 		<resource name="WindowCaptureModes.Auto">Automaticamente</resource>
 		<resource name="WindowCaptureModes.GDI">Usar cor padrão</resource>
 		<resource name="WindowCaptureModes.Screen">Tal como exibido</resource>
-
-    <!-- 1.2 -->
-    <resource name="editor_dropshadow_darkness">Escuridão da sombra</resource>
-    <resource name="editor_dropshadow_offset">Desvio da sombra</resource>
-    <resource name="editor_dropshadow_settings">Definições da sombra projectada</resource>
-    <resource name="editor_dropshadow_thickness">Espessura da sombra</resource>
-
-    <resource name="editor_tornedge_horizontaltoothrange">Intervalo horizontal do dente</resource>
-    <resource name="editor_tornedge_settings">Definições de bordos rasgados</resource>
-    <resource name="editor_tornedge_toothsize">Tamanho do dente</resource>
-    <resource name="editor_tornedge_verticaltoothrange">Intervalo vertical do dente</resource>
-    <resource name="editor_tornedge_all">Rasgar todos os lados</resource>
-    <resource name="editor_tornedge_left">Lado esquerdo</resource>
-    <resource name="editor_tornedge_right">Lado direito</resource>
-    <resource name="editor_tornedge_top">Lado superior</resource>
-    <resource name="editor_tornedge_bottom">Lado inferior</resource>
-    <resource name="editor_tornedge_shadow">Gerar sombra</resource>
-    
-    <resource name="editor_counter">Adicionar contador (I)</resource>
-    <resource name="editor_speechbubble">Adicionar balão de texto (S)</resource>
-
-    <resource name="editor_resize">Redimensionar</resource>
-    <resource name="editor_resize_settings">Definições de Redimensionamento</resource>
-    <resource name="editor_resize_aspectratio">Manter proporções</resource>
-    <resource name="editor_resize_width">Largura</resource>
-    <resource name="editor_resize_height">Altura</resource>
-	<resource name="settings_iconsize">Tamanho do ícone</resource>
-    
-  </resources>
+		<resource name="settings_iconsize">Tamanho do ícone</resource>
+	</resources>
 </language>
-	

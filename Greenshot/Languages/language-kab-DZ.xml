@@ -3,7 +3,7 @@
 	<resources>
 		<resource name="about_bugs">Azen ibugen ar</resource>
 		<resource name="about_donations">Ma tḥemled Greenshot, Mudd-aɣ-d afus :</resource>
-		<resource name="about_host">Greenshot yezdeɣ di sourceforge.net di</resource>
+		<resource name="about_host">Greenshot yezdeɣ di GitHub di</resource>
 		<resource name="about_icons">Tignitin i d-yekkan seg uqettun n tignitin Fugue n Kamiyamane Yuusuke (Creative Commons Attribution 3.0 license)</resource>
 		<resource name="about_license">Copyright © 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot yettunefk-d S WAR ṬMANA. d aseɣẓan ilelli i tzemreḍ ad tezuzreḍ s kra n tewtilin.
@@ -27,7 +27,7 @@ Rnu ɣur-s, nḥemmel aṭas ma yella tesneqdeḍ aneqqis igebren ugur-agi. (Tze
 		<resource name="ClipboardFormats.DIB">Amasal n tugna amunan ɣef yibenk (DIB)</resource>
 		<resource name="ClipboardFormats.HTML">HTML</resource>
 		<resource name="ClipboardFormats.HTMLDATAURL">HTML s tugniwin s srid</resource>
-		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="ClipboardFormats.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">Alpha</resource>
 		<resource name="colorpicker_apply">Snes</resource>
 		<resource name="colorpicker_blue">Amidadi</resource>
@@ -175,9 +175,8 @@ Rnu ɣur-s, nḥemmel aṭas ma yella tesneqdeḍ aneqqis igebren ugur-agi. (Tze
 		<resource name="editor_undo">Sefsex {0}</resource>
 		<resource name="editor_uponelevel">Rfed</resource>
 		<resource name="editor_uptotop">Deg uɣawas amenzu</resource>
-		<resource name="EmailFormat.MAPI">Amsaɣ MAPI</resource>
-		<resource name="EmailFormat.OUTLOOK_HTML">Outlook s HTML</resource>
-		<resource name="EmailFormat.OUTLOOK_TXT">Outlook s uḍris</resource>
+		<resource name="EmailFormats.Html">Outlook s HTML</resource>
+		<resource name="EmailFormats.Text">Outlook s uḍris</resource>
 		<resource name="error">Tuccḍa</resource>
 		<resource name="error_multipleinstances">Tummant n Greenshot tettuselkam yakan.</resource>
 		<resource name="error_nowriteaccess">Ur izmir ara ad isekles afaylu ara {0}.

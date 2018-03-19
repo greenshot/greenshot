@@ -2,7 +2,7 @@
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <PropertyGroup>
     <ProjectGuid>{92599C09-FF29-4ABD-B6E6-C48ECD781BAB}</ProjectGuid>
-	<ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <OutputType>Library</OutputType>
@@ -176,7 +176,7 @@
     <Compile Include="Destinations\WordDestination.cs" />
     <Compile Include="IOfficeConfiguration.cs" />
     <Compile Include="OfficeInterop\IAppointmentItem.cs" />
-    <Compile Include="OfficeInterop\EmailFormat.cs" />
+    <Compile Include="OfficeInterop\EmailFormats.cs" />
     <Compile Include="OfficeInterop\HierarchyScope.cs" />
     <Compile Include="OfficeInterop\IAttachment.cs" />
     <Compile Include="OfficeInterop\IAttachments.cs" />

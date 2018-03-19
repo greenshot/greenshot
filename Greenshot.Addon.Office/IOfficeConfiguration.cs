@@ -38,33 +38,40 @@ namespace Greenshot.Addon.Office
 	[Description("Greenshot Office configuration")]
 	public interface IOfficeConfiguration : IIniSection
 	{
-		[Description("Default type for emails. (Text, HTML)")]
-		[DefaultValue(EmailFormat.HTML)]
-		EmailFormat OutlookEmailFormat { get; set; }
+		[Description("Default type for emails. (Text, Html)")]
+		[DefaultValue(EmailFormats.Html)]
+		EmailFormats OutlookEmailFormat { get; set; }
 
-		[Description("Email subject pattern, works like the OutputFileFilenamePattern")][DefaultValue("${title}")]
+		[Description("Email subject pattern, works like the OutputFileFilenamePattern")]
+		[DefaultValue("${title}")]
 		string EmailSubjectPattern { get; set; }
 
-		[Description("Default value for the to in emails that are created")][DefaultValue("")]
+		[Description("Default value for the to in emails that are created")]
+		[DefaultValue("")]
 		string EmailTo { get; set; }
 
-		[Description("Default value for the CC in emails that are created")][DefaultValue("")]
+		[Description("Default value for the CC in emails that are created")]
+		[DefaultValue("")]
 		string EmailCC { get; set; }
 
-		[Description("Default value for the BCC in emails that are created")][DefaultValue("")]
+		[Description("Default value for the BCC in emails that are created")]
+		[DefaultValue("")]
 		string EmailBCC { get; set; }
 
-		[Description("For Outlook: Allow export in meeting items")][DefaultValue(false)]
+		[Description("For Outlook: Allow export in meeting items")]
+		[DefaultValue(false)]
 		bool OutlookAllowExportInMeetings { get; set; }
 
-		[Description("For Word: Lock the aspect ratio of the image")][DefaultValue(true)]
+		[Description("For Word: Lock the aspect ratio of the image")]
+		[DefaultValue(true)]
 		bool WordLockAspectRatio { get; set; }
 
-		[Description("For Powerpoint: Lock the aspect ratio of the image")][DefaultValue(true)]
+		[Description("For Powerpoint: Lock the aspect ratio of the image")]
+		[DefaultValue(true)]
 		bool PowerpointLockAspectRatio { get; set; }
 
 		[Description("For Powerpoint: Slide layout, changing this to a wrong value will fallback on ppLayoutBlank!!")]
-		[DefaultValue("ppLayoutPictureWithCaption")]
+		[DefaultValue(PPSlideLayout.ppLayoutPictureWithCaption)]
 		PPSlideLayout PowerpointSlideLayout { get; set; }
 	}
 }

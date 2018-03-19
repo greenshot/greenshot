@@ -34,6 +34,9 @@ using Dapplo.Windows.Common.Structs;
 
 namespace Greenshot.Gfx.Effects
 {
+    /// <summary>
+    /// This is the TypeConverter for the effects, taking care of serializing these to the .ini file
+    /// </summary>
 	public class EffectConverter : TypeConverter
 	{
 		// Fix to prevent BUG-1753
@@ -65,18 +68,17 @@ namespace Greenshot.Gfx.Effects
 			if (destinationType == typeof(string))
 			{
 				var sb = new StringBuilder();
-			    if (value is TornEdgeEffect tornEdgeEffect)
+			    switch (value)
 			    {
-			        RetrieveDropShadowEffectValues(tornEdgeEffect, sb);
-			        sb.Append("|");
-			        RetrieveTornEdgeEffectValues(tornEdgeEffect, sb);
-			        return sb.ToString();
+			        case TornEdgeEffect tornEdgeEffect:
+			            RetrieveDropShadowEffectValues(tornEdgeEffect, sb);
+			            sb.Append("|");
+			            RetrieveTornEdgeEffectValues(tornEdgeEffect, sb);
+			            return sb.ToString();
+			        case DropShadowEffect dropShadowEffect:
+			            RetrieveDropShadowEffectValues(dropShadowEffect, sb);
+			            return sb.ToString();
 			    }
-				if (value is DropShadowEffect dropShadowEffect)
-				{
-					RetrieveDropShadowEffectValues(dropShadowEffect, sb);
-					return sb.ToString();
-				}
 			}
 			// from string
 		    if (!(value is string settings))

@@ -1,23 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Eesti" ietf="et-EE" version="1.1.4" languagegroup="2">
-	<resources>
+
+<language>
+	<resources prefix="Core">
 		<resource name="about_bugs">Palun saatke veateated</resource>
 		<resource name="about_donations">Greenshoti kasutamismugavust ja arendust saate toetada siin:</resource>
 		<resource name="about_host">Greenshot asub portaalis GitHub</resource>
 		<resource name="about_icons">Yusuke Kamiyamane on ikoonide tegija Fugue ikooni paketist (Creative Commons Attribution 3.0 litsents)</resource>
-		<resource name="about_license">Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot ei paku GARANTIID. See on vabaravaline programm ja Te võite seda levitava vabalt teatud tingimuste alusel.
-Lisainfo GNU Põhilise Avaliku Litsentsi kohta:</resource>
+		<resource name="about_license">
+			Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
+			Greenshot ei paku GARANTIID. See on vabaravaline programm ja Te võite seda levitava vabalt teatud tingimuste alusel.
+			Lisainfo GNU Põhilise Avaliku Litsentsi kohta:
+		</resource>
 		<resource name="about_title">Info Greenshoti kohta</resource>
 		<resource name="application_title">Greenshot - revolutsiooniline kuvatõmmise tööriist</resource>
 		<resource name="bugreport_cancel">Sulge</resource>
-		<resource name="bugreport_info">Vabandust aga ilmnes tundmatu viga.
+		<resource name="bugreport_info">
+			Vabandust aga ilmnes tundmatu viga.
 
-Hea uudis on: saate meil aidata seda eemaldada saates meile veateate.
-Uue veateate  teavitamiseks, palun külastage kõrvalolevat URLi ja tekstialalt asetage sisu kirjeldusse. 
+			Hea uudis on: saate meil aidata seda eemaldada saates meile veateate.
+			Uue veateate  teavitamiseks, palun külastage kõrvalolevat URLi ja tekstialalt asetage sisu kirjeldusse.
 
-Vea paremaks parandamiseks lisage palun arusaadav kokkuvõte veast ja lisage ka pisidetailid.
-Me oleksime väga tänulik, kui te enne kontrolliksite, ega sellest veast pole juba teavitatud. (Postituse kiiresti leidmiseks kasutage otsingut.) Aitäh :)</resource>
+			Vea paremaks parandamiseks lisage palun arusaadav kokkuvõte veast ja lisage ka pisidetailid.
+			Me oleksime väga tänulik, kui te enne kontrolliksite, ega sellest veast pole juba teavitatud. (Postituse kiiresti leidmiseks kasutage otsingut.) Aitäh :)
+		</resource>
 		<resource name="bugreport_title">Viga</resource>
 		<resource name="CANCEL">Loobu</resource>
 		<resource name="clipboard_error">Lõikelauale kirjutamisel ilmnes ootamatu viga.</resource>
@@ -62,113 +67,14 @@ Me oleksime väga tänulik, kui te enne kontrolliksite, ega sellest veast pole j
 		<resource name="contextmenu_quicksettings">Kiirsätted</resource>
 		<resource name="contextmenu_settings">Eelistused...</resource>
 		<resource name="destination_exportfailed">{0}-le saatmisel ilmnes viga. Palun proovige uuesti.</resource>
-		<resource name="editor_align_bottom">All</resource>
-		<resource name="editor_align_center">Keskel</resource>
-		<resource name="editor_align_horizontal">Horisontaalne joondus</resource>
-		<resource name="editor_align_left">Vasak</resource>
-		<resource name="editor_align_middle">Keskel</resource>
-		<resource name="editor_align_right">Parem</resource>
-		<resource name="editor_align_top">Üleval</resource>
-		<resource name="editor_align_vertical">Vertikaaljoondus</resource>
-		<resource name="editor_arrange">Korrasta</resource>
-		<resource name="editor_arrowheads">Noolepead</resource>
-		<resource name="editor_arrowheads_both">Mõlemad</resource>
-		<resource name="editor_arrowheads_end">Lõpppunkt</resource>
-		<resource name="editor_arrowheads_none">Tühi</resource>
-		<resource name="editor_arrowheads_start">Alguspunkt</resource>
-		<resource name="editor_autocrop">Automaatne lõikus</resource>
-		<resource name="editor_backcolor">Täitke värviga</resource>
-		<resource name="editor_blur_radius">Uduse ala raadius</resource>
-		<resource name="editor_bold">Paks</resource>
-		<resource name="editor_border">Äär</resource>
-		<resource name="editor_brightness">Heledus</resource>
-		<resource name="editor_cancel">Loobu</resource>
-		<resource name="editor_clipboardfailed">Lõikelaua kasutamisel ilmnes viga. Palun proovi uuesti.</resource>
-		<resource name="editor_close">Sulge</resource>
-		<resource name="editor_close_on_save">Kas te tahate salvestada kuvatõmmist?</resource>
-		<resource name="editor_close_on_save_title">Salvestage pilt?</resource>
-		<resource name="editor_confirm">Kinnitan</resource>
-		<resource name="editor_copyimagetoclipboard">Kopeerige pilt lõikelauale</resource>
-		<resource name="editor_copypathtoclipboard">Kopeerige asukoht lõikelauale</resource>
-		<resource name="editor_copytoclipboard">Kopeeri</resource>
-		<resource name="editor_crop">Lõika (C)</resource>
-		<resource name="editor_cursortool">Valiku tööriist (ESC)</resource>
-		<resource name="editor_cuttoclipboard">Lõika</resource>
-		<resource name="editor_deleteelement">Kustuta</resource>
-		<resource name="editor_downonelevel">Samm allapoole</resource>
-		<resource name="editor_downtobottom">Samm lõppu</resource>
-		<resource name="editor_drawarrow">Joonista nool (A)</resource>
-		<resource name="editor_drawellipse">Joonistage ellip (E)</resource>
-		<resource name="editor_drawfreehand">Joonistage vaba käega (F)</resource>
-		<resource name="editor_drawhighlighter">Tooge esile (H)</resource>
-		<resource name="editor_drawline">Joonistage joon (L)</resource>
-		<resource name="editor_drawrectangle">Joonistage ristkülik (R)</resource>
-		<resource name="editor_drawtextbox">Lisage tekstikast (T)</resource>
-		<resource name="editor_dropshadow_darkness">Varjutav tugevus</resource>
-		<resource name="editor_dropshadow_offset">Varju tasakaalustamine</resource>
-		<resource name="editor_dropshadow_settings">Langeva varju seaded</resource>
-		<resource name="editor_dropshadow_thickness">Varju paksus</resource>
-		<resource name="editor_duplicate">Tehke valitud elemendist koopia</resource>
-		<resource name="editor_edit">Muutke</resource>
-		<resource name="editor_effects">Efektid</resource>
-		<resource name="editor_email">E-post</resource>
-		<resource name="editor_file">Fail</resource>
-		<resource name="editor_fontsize">Suurus</resource>
-		<resource name="editor_forecolor">Joone värv</resource>
-		<resource name="editor_grayscale">Halli skaala</resource>
-		<resource name="editor_highlight_area">Tooge esiplaanile</resource>
-		<resource name="editor_highlight_grayscale">Hall skaala</resource>
-		<resource name="editor_highlight_magnify">Suurendamine</resource>
-		<resource name="editor_highlight_mode">Tõstke esile</resource>
-		<resource name="editor_highlight_text">Tõstke esile teksti</resource>
-		<resource name="editor_image_shadow">Langev vari</resource>
-		<resource name="editor_imagesaved">Pilt salvestati {0}.</resource>
-		<resource name="editor_insertwindow">Sisestage aken</resource>
-		<resource name="editor_invert">Võtke tegevus tagasi</resource>
-		<resource name="editor_italic">Kaldkiri</resource>
-		<resource name="editor_load_objects">Laadige objektid failist</resource>
-		<resource name="editor_magnification_factor">Suurendusfaktor</resource>
-		<resource name="editor_match_capture_size">Katke haaratava ala suurus</resource>
-		<resource name="editor_obfuscate">Varjutage (O)</resource>
-		<resource name="editor_obfuscate_blur">Udune ala</resource>
-		<resource name="editor_obfuscate_mode">Varjus olev ala</resource>
-		<resource name="editor_obfuscate_pixelize">Mosaiik</resource>
-		<resource name="editor_object">Objekt</resource>
-		<resource name="editor_opendirinexplorer">Avage asukoht Windows Exploreriga</resource>
-		<resource name="editor_pastefromclipboard">Asetage</resource>
-		<resource name="editor_pixel_size">Piksli suurus</resource>
-		<resource name="editor_preview_quality">Eelvaate kvaliteet</resource>
-		<resource name="editor_print">Printige</resource>
-		<resource name="editor_redo">Tehke uuesti {0}</resource>
-		<resource name="editor_resetsize">Taastage normaalne suurus</resource>
-		<resource name="editor_resize_percent">Protsent</resource>
-		<resource name="editor_resize_pixel">Pikslid</resource>
-		<resource name="editor_rotateccw">Pöörake loendurit päripäeva (Control + ,)</resource>
-		<resource name="editor_rotatecw">Pöörake päripäeva (Control + .)</resource>
-		<resource name="editor_save">Salvesta</resource>
-		<resource name="editor_save_objects">Salvestage objektid faili</resource>
-		<resource name="editor_saveas">Salvestage nimega...</resource>
-		<resource name="editor_selectall">Valige kõik</resource>
-		<resource name="editor_senttoprinter">Printimiskäsklus saadeti '{0}'.</resource>
-		<resource name="editor_shadow">Langev vari</resource>
-		<resource name="editor_storedtoclipboard">Pilt taastati lõikelauale.</resource>
-		<resource name="editor_thickness">Joone paksus</resource>
-		<resource name="editor_title">Greenshoti pildihaldur</resource>
-		<resource name="editor_torn_edge">Rebenev äär</resource>
-		<resource name="editor_tornedge_horizontaltoothrange">Horisontaalne hammasvahemik</resource>
-		<resource name="editor_tornedge_settings">Rebeneva ääre seaded</resource>
-		<resource name="editor_tornedge_toothsize">Rebenemise suurus</resource>
-		<resource name="editor_tornedge_verticaltoothrange">Vertikaalne hambavahemik</resource>
-		<resource name="editor_undo">Võtke tagasi {0}</resource>
-		<resource name="editor_uponelevel">Aste ülespoole</resource>
-		<resource name="editor_uptotop">Kuni ülesse äärde</resource>
-		<resource name="EmailFormat.MAPI">MAPI klient</resource>
-		<resource name="EmailFormat.OUTLOOK_HTML">Outlook koos HTML-iga</resource>
-		<resource name="EmailFormat.OUTLOOK_TXT">Outlook koos tekstiga</resource>
+		<resource name="EmailFormats.Html">Outlook koos HTML-iga</resource>
+		<resource name="EmailFormats.Text">Outlook koos tekstiga</resource>
 		<resource name="error">Viga</resource>
 		<resource name="error_multipleinstances">Greenshot on juba käivitatud.</resource>
-		<resource name="error_nowriteaccess">Faili ei suudetud salvestada {0}.
-Palun kontrollige valitud hoiuala kirjutamisõigust.</resource>
+		<resource name="error_nowriteaccess">
+			Faili ei suudetud salvestada {0}.
+			Palun kontrollige valitud hoiuala kirjutamisõigust.
+		</resource>
 		<resource name="error_openfile">"{0}" ei suudetud avada.</resource>
 		<resource name="error_openlink">Ei suudetud avada '{0}'.</resource>
 		<resource name="error_save">Ei suudetud salvestada kuvatõmmist, palun valige sobivam asukoht.</resource>
@@ -231,23 +137,25 @@ Palun kontrollige valitud hoiuala kirjutamisõigust.</resource>
 		<resource name="settings_iecapture">Internet Exploreri haaramine</resource>
 		<resource name="settings_jpegquality">JPEG kvaliteet</resource>
 		<resource name="settings_language">Keel</resource>
-		<resource name="settings_message_filenamepattern">See kohatäitja täidetakse automaatselt defineeritud mustris:
-${YYYY} aasta, 4 numbrit
-${MM} kuu, 2 numbrit
-${DD} päev, 2 numbrit
-${hh} tund, 2 numbrit
-${mm} minut, 2 numbrit
-${ss} sekund, 2 numbrit
-${NUM} suurenev number, 6 numbrit
-${title} Akna pealkiri
-${user} Windowsi kasutaja
-${domain} Windowsi domeen
-${hostname} Arvuti nimi
+		<resource name="settings_message_filenamepattern">
+			See kohatäitja täidetakse automaatselt defineeritud mustris:
+			${YYYY} aasta, 4 numbrit
+			${MM} kuu, 2 numbrit
+			${DD} päev, 2 numbrit
+			${hh} tund, 2 numbrit
+			${mm} minut, 2 numbrit
+			${ss} sekund, 2 numbrit
+			${NUM} suurenev number, 6 numbrit
+			${title} Akna pealkiri
+			${user} Windowsi kasutaja
+			${domain} Windowsi domeen
+			${hostname} Arvuti nimi
 
-Greenshotiga on võimalik asukohti salvestada dünaamiliselt, selleks kasutage kaldkriipsu (\), et kaustad ja faili nimi oleks eraldatud.
-Näiteks: Kohatäitja ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-loob praeguse päeva jaoks kausta Teie sihtkausta, nt 2008-06-29, kuvatõmmise faili nimi on tuletatud praegusest
-kellaajast, nt 11_58_32 (lisaks seadetes määratud laiend)</resource>
+			Greenshotiga on võimalik asukohti salvestada dünaamiliselt, selleks kasutage kaldkriipsu (\), et kaustad ja faili nimi oleks eraldatud.
+			Näiteks: Kohatäitja ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+			loob praeguse päeva jaoks kausta Teie sihtkausta, nt 2008-06-29, kuvatõmmise faili nimi on tuletatud praegusest
+			kellaajast, nt 11_58_32 (lisaks seadetes määratud laiend)
+		</resource>
 		<resource name="settings_network">Võrk ja uuendused</resource>
 		<resource name="settings_output">Väljund</resource>
 		<resource name="settings_playsound">Esitage kaamera heli</resource>
@@ -282,9 +190,11 @@ kellaajast, nt 11_58_32 (lisaks seadetes määratud laiend)</resource>
 		<resource name="update_found">reenshoti uuem versioon on saadaval! Kas te soovite alla laadida Greenshot {0}?</resource>
 		<resource name="wait_ie_capture">Palun oodake, kui pilti Internet Exploreris tehakse...</resource>
 		<resource name="warning">Hoiatus</resource>
-		<resource name="warning_hotkeys">Kiirklahv(e) "{0}" ei suudetud registreerida. Teine tööriist väidab kasutavat sama(u) kiirklahvi(e)! Muutke või deaktiviseerige kiirklahv(id).
+		<resource name="warning_hotkeys">
+			Kiirklahv(e) "{0}" ei suudetud registreerida. Teine tööriist väidab kasutavat sama(u) kiirklahvi(e)! Muutke või deaktiviseerige kiirklahv(id).
 
-Kõik Greenshoti lisad töötavad süsteemisalvest ilma kiirklahvide olemasoluta.</resource>
+			Kõik Greenshoti lisad töötavad süsteemisalvest ilma kiirklahvide olemasoluta.
+		</resource>
 		<resource name="WindowCaptureModes.Aero">Kasutage kohandatud värvi</resource>
 		<resource name="WindowCaptureModes.AeroTransparent">Säilitage läbipaistvus</resource>
 		<resource name="WindowCaptureModes.Auto">Automaatselt</resource>

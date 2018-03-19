@@ -1,24 +1,29 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Polski" ietf="pl-PL" version="1.1.4" languagegroup="2">
-	<resources>
+
+<language>
+	<resources prefix="Core">
 		<resource name="about_bugs">Tutaj proszę zgłaszać błędy:</resource>
 		<resource name="about_donations">Jeśli podoba Ci się Greenshot, chętnie przyjmiemy Twoje wsparcie:</resource>
 		<resource name="about_host">Greenshot jest utrzymywany przez GitHub pod adresem:</resource>
 		<resource name="about_icons">Ikony z zestawu Fugue od Yusuke Kamiyamane (licencja Creative Commons Attribution 3.0):</resource>
-		<resource name="about_license">Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot nie jest objęty JAKĄKOLWIEK GWARANCJĄ. Jako wolne oprogramowanie może być rozpowszechniany na określonych warunkach.
-Szczegóły na temat Powszechnej Licencji Publicznej GNU:</resource>
+		<resource name="about_license">
+			Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
+			Greenshot nie jest objęty JAKĄKOLWIEK GWARANCJĄ. Jako wolne oprogramowanie może być rozpowszechniany na określonych warunkach.
+			Szczegóły na temat Powszechnej Licencji Publicznej GNU:
+		</resource>
 		<resource name="about_title">O Greenshot</resource>
 		<resource name="about_translation">Polskie tłumaczenie: Paweł Matyja, piotrex (https://github.com/piotrex)</resource>
 		<resource name="application_title">Greenshot - rewolucyjne narzędzie do zrzutów ekranu</resource>
 		<resource name="bugreport_cancel">Zamknij</resource>
-		<resource name="bugreport_info">Niestety, wystąpił nieoczekiwany błąd.
+		<resource name="bugreport_info">
+			Niestety, wystąpił nieoczekiwany błąd.
 
-Dobra wiadomość: możesz nam się go pozbyć wypełniając raport błędu.
-Odwiedź poniższy URL, utwórz nowy raport błędu i wstaw do pola opisu zawartość pola tekstowego z formularza.
+			Dobra wiadomość: możesz nam się go pozbyć wypełniając raport błędu.
+			Odwiedź poniższy URL, utwórz nowy raport błędu i wstaw do pola opisu zawartość pola tekstowego z formularza.
 
-Dodaj sensowne podsumowanie oraz wszelkie informacje, które uważasz za istotne do odtworzenia zaistniałej sytuacji.
-Będziemy wdzięczni, jeśli najpierw sprawdzisz, czy takie zdarzenie nie zostało już zarejestrowane. (Użyj wyszukiwarki, aby to zweryfikować.) Dziękujemy :)</resource>
+			Dodaj sensowne podsumowanie oraz wszelkie informacje, które uważasz za istotne do odtworzenia zaistniałej sytuacji.
+			Będziemy wdzięczni, jeśli najpierw sprawdzisz, czy takie zdarzenie nie zostało już zarejestrowane. (Użyj wyszukiwarki, aby to zweryfikować.) Dziękujemy :)
+		</resource>
 		<resource name="bugreport_title">Błąd</resource>
 		<resource name="CANCEL">Anuluj</resource>
 		<resource name="clipboard_error">Podczas zapisu do schowka wystąpił nieprzewidziany błąd.</resource>
@@ -63,113 +68,14 @@ Będziemy wdzięczni, jeśli najpierw sprawdzisz, czy takie zdarzenie nie zosta�
 		<resource name="contextmenu_quicksettings">Szybki dostęp do opcji</resource>
 		<resource name="contextmenu_settings">Preferencje...</resource>
 		<resource name="destination_exportfailed">Błąd podczas eksportowania do {0}. Proszę spróbować później.</resource>
-		<resource name="editor_align_bottom">Do dołu</resource>
-		<resource name="editor_align_center">Wyśrodkowane</resource>
-		<resource name="editor_align_horizontal">Wyrównanie w poziomie</resource>
-		<resource name="editor_align_left">Do lewej</resource>
-		<resource name="editor_align_middle">Do środka</resource>
-		<resource name="editor_align_right">Do prawej</resource>
-		<resource name="editor_align_top">Do góry</resource>
-		<resource name="editor_align_vertical">Wyrównanie w pionie</resource>
-		<resource name="editor_arrange">Zmień rozmieszczenie</resource>
-		<resource name="editor_arrowheads">Groty strzałki</resource>
-		<resource name="editor_arrowheads_both">Oba</resource>
-		<resource name="editor_arrowheads_end">Końcowy</resource>
-		<resource name="editor_arrowheads_none">Żaden</resource>
-		<resource name="editor_arrowheads_start">Początkowy</resource>
-		<resource name="editor_autocrop">Przytnij automatycznie</resource>
-		<resource name="editor_backcolor">Kolor wypełnienia</resource>
-		<resource name="editor_blur_radius">Promień rozmycia</resource>
-		<resource name="editor_bold">Pogrubienie</resource>
-		<resource name="editor_border">Obramowanie</resource>
-		<resource name="editor_brightness">Jaskrawość</resource>
-		<resource name="editor_cancel">Anuluj</resource>
-		<resource name="editor_clipboardfailed">Błąd przy próbie dostępu do schowka. Spróbuj ponownie.</resource>
-		<resource name="editor_close">Zamknij</resource>
-		<resource name="editor_close_on_save">Czy chcesz zapisać zrzut ekranu?</resource>
-		<resource name="editor_close_on_save_title">Zapisać obraz?</resource>
-		<resource name="editor_confirm">Zatwierdź</resource>
-		<resource name="editor_copyimagetoclipboard">Kopiuj obraz do schowka</resource>
-		<resource name="editor_copypathtoclipboard">Kopiuj ścieżkę do schowka</resource>
-		<resource name="editor_copytoclipboard">Kopiuj</resource>
-		<resource name="editor_crop">Przytnij (C)</resource>
-		<resource name="editor_cursortool">Narzędzie wyboru (ESC)</resource>
-		<resource name="editor_cuttoclipboard">Wytnij</resource>
-		<resource name="editor_deleteelement">Usuń</resource>
-		<resource name="editor_downonelevel">Jeden poziom w dół</resource>
-		<resource name="editor_downtobottom">Na sam dół</resource>
-		<resource name="editor_drawarrow">Rysuj strzałkę (A)</resource>
-		<resource name="editor_drawellipse">Rysuj elipsę (E)</resource>
-		<resource name="editor_drawfreehand">Rysuj odręcznie (F)</resource>
-		<resource name="editor_drawhighlighter">Uwydatnienie (H)</resource>
-		<resource name="editor_drawline">Rysuj linię (L)</resource>
-		<resource name="editor_drawrectangle">Rysuj prostokąt (R)</resource>
-		<resource name="editor_drawtextbox">Dodaj pole tekstowe (T)</resource>
-		<resource name="editor_dropshadow_darkness">Intensywność cienia</resource>
-		<resource name="editor_dropshadow_offset">Przesunięcie cienia</resource>
-		<resource name="editor_dropshadow_settings">Ustawienia cienia</resource>
-		<resource name="editor_dropshadow_thickness">Intensywność cienia</resource>
-		<resource name="editor_duplicate">Duplikuj wybrany element</resource>
-		<resource name="editor_edit">Edycja</resource>
-		<resource name="editor_effects">Efekty</resource>
-		<resource name="editor_email">Wyślij e-mailem</resource>
-		<resource name="editor_file">Plik</resource>
-		<resource name="editor_fontsize">Rozmiar</resource>
-		<resource name="editor_forecolor">Kolor linii</resource>
-		<resource name="editor_grayscale">Skala szarości</resource>
-		<resource name="editor_highlight_area">Uwydatnienie obszaru</resource>
-		<resource name="editor_highlight_grayscale">Wyszarzenie</resource>
-		<resource name="editor_highlight_magnify">Powiększenie</resource>
-		<resource name="editor_highlight_mode">Tryb uwydatnienia</resource>
-		<resource name="editor_highlight_text">Uwydatnienie tekstu</resource>
-		<resource name="editor_image_shadow">Rzuć cień</resource>
-		<resource name="editor_imagesaved">Obraz został zapisany w {0}.</resource>
-		<resource name="editor_insertwindow">Wklej okno</resource>
-		<resource name="editor_invert">Negatyw</resource>
-		<resource name="editor_italic">Pochylenie</resource>
-		<resource name="editor_load_objects">Załaduj obiekty z pliku</resource>
-		<resource name="editor_magnification_factor">Współczynnik powiększenia</resource>
-		<resource name="editor_match_capture_size">Dopasowuj wielkość zrzutów</resource>
-		<resource name="editor_obfuscate">Zamglenie (O)</resource>
-		<resource name="editor_obfuscate_blur">Rozmywanie</resource>
-		<resource name="editor_obfuscate_mode">Tryb zamglenia</resource>
-		<resource name="editor_obfuscate_pixelize">Pikselizacja</resource>
-		<resource name="editor_object">Obiekt</resource>
-		<resource name="editor_opendirinexplorer">Otwórz folder w Eksploratorze Windows</resource>
-		<resource name="editor_pastefromclipboard">Wstaw</resource>
-		<resource name="editor_pixel_size">Rozmiar piksela</resource>
-		<resource name="editor_preview_quality">Jakość podglądu</resource>
-		<resource name="editor_print">Drukuj</resource>
-		<resource name="editor_redo">Cofnij {0}</resource>
-		<resource name="editor_resetsize">Domyślny rozmiar</resource>
-		<resource name="editor_resize_percent">Procent</resource>
-		<resource name="editor_resize_pixel">Pikseli</resource>
-		<resource name="editor_rotateccw">Obróć w lewo (Ctrl + ,)</resource>
-		<resource name="editor_rotatecw">Obróć w prawo (Ctrl + .)</resource>
-		<resource name="editor_save">Zapisz</resource>
-		<resource name="editor_save_objects">Zapisz obiekty do pliku</resource>
-		<resource name="editor_saveas">Zapisz jako...</resource>
-		<resource name="editor_selectall">Zaznacz wszystko</resource>
-		<resource name="editor_senttoprinter">Zadanie drukowania zostało wysłane do '{0}'.</resource>
-		<resource name="editor_shadow">Cień</resource>
-		<resource name="editor_storedtoclipboard">Obraz został zapisany w schowku.</resource>
-		<resource name="editor_thickness">Grubość linii</resource>
-		<resource name="editor_title">Greenshot - edytor obrazów</resource>
-		<resource name="editor_torn_edge">Poszarpane krawędzie</resource>
-		<resource name="editor_tornedge_horizontaltoothrange">Poziomy zasięg poszarpania</resource>
-		<resource name="editor_tornedge_settings">Ustawienia poszarpanych krawędzi</resource>
-		<resource name="editor_tornedge_toothsize">Rozmiar poszarpania</resource>
-		<resource name="editor_tornedge_verticaltoothrange">Pionowy zasięg poszarpania</resource>
-		<resource name="editor_undo">Cofnij {0}</resource>
-		<resource name="editor_uponelevel">Jeden poziom w górę</resource>
-		<resource name="editor_uptotop">Na samą górę</resource>
-		<resource name="EmailFormat.MAPI">Klient MAPI</resource>
-		<resource name="EmailFormat.OUTLOOK_HTML">Outlook z HTML</resource>
-		<resource name="EmailFormat.OUTLOOK_TXT">Outlook z tekstem</resource>
+		<resource name="EmailFormats.Html">Outlook z HTML</resource>
+		<resource name="EmailFormats.Text">Outlook z tekstem</resource>
 		<resource name="error">Błąd</resource>
 		<resource name="error_multipleinstances">Instancja aplikacji Greenshot jest już uruchomiona.</resource>
-		<resource name="error_nowriteaccess">Nie można wykonać zapisu do {0}.
-Sprawdź możliwość zapisu w wybranej lokalizacji.</resource>
+		<resource name="error_nowriteaccess">
+			Nie można wykonać zapisu do {0}.
+			Sprawdź możliwość zapisu w wybranej lokalizacji.
+		</resource>
 		<resource name="error_openfile">Nie można otworzyć pliku {0}.</resource>
 		<resource name="error_openlink">Nie można otworzyć odsyłacza.</resource>
 		<resource name="error_save">Nie można zapisać zrzutu ekranu, proszę wskazać bardziej odpowiednią lokalizację.</resource>
@@ -232,23 +138,25 @@ Sprawdź możliwość zapisu w wybranej lokalizacji.</resource>
 		<resource name="settings_iecapture">Przechwytywanie Internet Explorera</resource>
 		<resource name="settings_jpegquality">Jakość JPEG</resource>
 		<resource name="settings_language">Język</resource>
-		<resource name="settings_message_filenamepattern">Wzorce symboliczne w zdefiniowanych szablonach zostaną zastąpione automatycznie:
-%YYYY% - rok, 4 cyfry
-%MM% - miesiąc, 2 cyfry
-%DD% - dzień, 2 cyfry
-%hh% - godzina, 2 cyfry
-%mm% - minuta, 2 cyfry
-%ss% - sekunda, 2 cyfry
-%NUM% - liczba zwiększana o 1 (autonumeracja), 6 cyfr
-%title% - tytuł okna
-%user% - zalogowany użytkownik
-%domain% - nazwa domeny
-%hostname% - nazwa komputera
+		<resource name="settings_message_filenamepattern">
+			Wzorce symboliczne w zdefiniowanych szablonach zostaną zastąpione automatycznie:
+			%YYYY% - rok, 4 cyfry
+			%MM% - miesiąc, 2 cyfry
+			%DD% - dzień, 2 cyfry
+			%hh% - godzina, 2 cyfry
+			%mm% - minuta, 2 cyfry
+			%ss% - sekunda, 2 cyfry
+			%NUM% - liczba zwiększana o 1 (autonumeracja), 6 cyfr
+			%title% - tytuł okna
+			%user% - zalogowany użytkownik
+			%domain% - nazwa domeny
+			%hostname% - nazwa komputera
 
-Możliwe jest także dynamiczne tworzenie folderów - wystarczy użyć znaku odwrotnego ukośnika (\) do rozdzielenia nazw folderów i plików.
-Przykład: szablon %YYYY%-%MM%-%DD%\%hh%-%mm%-%ss%
-utworzy w domyślnym miejscu zapisu folder dla bieżącego dnia, np. 2008-06-29, a nazwy plików ze zrzutami ekranu będą tworzone
-na podstawie bieżącego czasu, np. 11-58-32 (plus rozszerzenie zdefiniowane w ustawieniach).</resource>
+			Możliwe jest także dynamiczne tworzenie folderów - wystarczy użyć znaku odwrotnego ukośnika (\) do rozdzielenia nazw folderów i plików.
+			Przykład: szablon %YYYY%-%MM%-%DD%\%hh%-%mm%-%ss%
+			utworzy w domyślnym miejscu zapisu folder dla bieżącego dnia, np. 2008-06-29, a nazwy plików ze zrzutami ekranu będą tworzone
+			na podstawie bieżącego czasu, np. 11-58-32 (plus rozszerzenie zdefiniowane w ustawieniach).
+		</resource>
 		<resource name="settings_network">Śieć i aktualizacje</resource>
 		<resource name="settings_output">Plik wyjściowy</resource>
 		<resource name="settings_playsound">Odtwarzaj dźwięk migawki aparatu</resource>
@@ -283,9 +191,11 @@ na podstawie bieżącego czasu, np. 11-58-32 (plus rozszerzenie zdefiniowane w u
 		<resource name="update_found">Jest dostępna nowa wersja Greenshot! Chcesz pobrać Greenshot {0}?</resource>
 		<resource name="wait_ie_capture">Proszę czekać aż strona Internet Explorera zostanie przechwycona...</resource>
 		<resource name="warning">Ostrzeżenie</resource>
-		<resource name="warning_hotkeys">Nie udało się zarejestrować jednego lub kilku skrótów klawiaturowych. Z tego powodu używanie skrótów klawiaturowych Greenshota może nie być możliwe.
-Przyczyną problemu może być wykorzystywanie tych samych skrótów klawiaturowych przez inną aplikację{1}.
-Proszę wyłączyć oprogramowanie korzystające z klawisza Print. Możliwe jest również zwyczajne korzystanie ze wszystkich funkcji Greenshota za pomocą menu kontekstowego ikony w obszarze powiadomień na pasku zadań.</resource>
+		<resource name="warning_hotkeys">
+			Nie udało się zarejestrować jednego lub kilku skrótów klawiaturowych. Z tego powodu używanie skrótów klawiaturowych Greenshota może nie być możliwe.
+			Przyczyną problemu może być wykorzystywanie tych samych skrótów klawiaturowych przez inną aplikację.
+			Proszę wyłączyć oprogramowanie korzystające z klawisza Print. Możliwe jest również zwyczajne korzystanie ze wszystkich funkcji Greenshota za pomocą menu kontekstowego ikony w obszarze powiadomień na pasku zadań.
+		</resource>
 		<resource name="WindowCaptureModes.Aero">Używaj własnego koloru</resource>
 		<resource name="WindowCaptureModes.AeroTransparent">Bez przezroczystości</resource>
 		<resource name="WindowCaptureModes.Auto">Automatycznie</resource>

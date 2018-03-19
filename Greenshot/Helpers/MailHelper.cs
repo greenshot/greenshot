@@ -124,7 +124,7 @@ namespace Greenshot.Helpers
 			{
 				// Store the list of currently active windows, so we can make sure we show the email window later!
 				//bool isEmailSend = false;
-				//if (EmailConfigHelper.HasOutlook() && (CoreConfig.OutputEMailFormat == EmailFormat.OUTLOOK_HTML || CoreConfig.OutputEMailFormat == EmailFormat.OUTLOOK_TXT)) {
+				//if (EmailConfigHelper.HasOutlook() && (CoreConfig.OutputEMailFormat == EmailFormats.Html || CoreConfig.OutputEMailFormat == EmailFormats.Text)) {
 				//	isEmailSend = OutlookExporter.ExportToOutlook(tmpFile, captureDetails);
 				//}
 				if ( /*!isEmailSend &&*/ EmailConfigHelper.HasMapi())

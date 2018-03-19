@@ -1,24 +1,29 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Ελληνικά" ietf="el-GR" version="1.1.0" languagegroup="4">
-	<resources>
+
+<language>
+	<resources prefix="Core">
 		<resource name="about_bugs">Αναφορά προβλημάτων:</resource>
 		<resource name="about_donations">Αν σας αρέσει το Greenshot, είστε ευπρόσδεκτοι να μας υποστηρίξετε:</resource>
 		<resource name="about_host">Το Greenshot φιλοξενείται από τη GitHub:</resource>
 		<resource name="about_icons">Εικονίδια από Yusuke Kamiyamane's Fugue icon set (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
-Δεν παρέχεται ΚΑΜΙΑ ΕΓΓΥΗΣΗ για το Greenshot. Είναι ελεύθερο λογισμικό. Είστε ελεύθεροι να το αναδιανείμετε κάτω από ορισμένες συνθήκες.
-Λεπτομέρειες σχετικά με την GNU General Public License:</resource>
+		<resource name="about_license">
+			Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
+			Δεν παρέχεται ΚΑΜΙΑ ΕΓΓΥΗΣΗ για το Greenshot. Είναι ελεύθερο λογισμικό. Είστε ελεύθεροι να το αναδιανείμετε κάτω από ορισμένες συνθήκες.
+			Λεπτομέρειες σχετικά με την GNU General Public License:
+		</resource>
 		<resource name="about_title">Πληροφορίες για το Greenshot</resource>
 		<resource name="about_translation">Μετάφραση στα Ελληνικά από τον ΓΙΩΡΓΟ ΣΚΟΥΝΤΖΗ</resource>
 		<resource name="application_title">Greenshot - Το πρόγραμμα που φέρνει επανάσταση στη καταγραφή στιγμιότυπων οθόνης</resource>
 		<resource name="bugreport_cancel">Κλείσιμο</resource>
-		<resource name="bugreport_info">Λυπούμαστε, αλλά προέκυψε ένα μη αναμενόμενο σφάλμα.
+		<resource name="bugreport_info">
+			Λυπούμαστε, αλλά προέκυψε ένα μη αναμενόμενο σφάλμα.
 
-Τα καλά νέα είναι: ότι μπορείτε να μας βοηθήσετε να απαλλαγούμε από αυτό, υποβάλλοντας μια αναφορά σφάλματος.
-Παρακαλούμε επισκεφθείτε την ηλεκτρονική διεύθυνση παρακάτω, δημιουργήσετε μια νέα αναφορά σφάλματος και επικολλήστε το περιεχόμενο από την περιοχή του κειμένου στην περιγραφή.
+			Τα καλά νέα είναι: ότι μπορείτε να μας βοηθήσετε να απαλλαγούμε από αυτό, υποβάλλοντας μια αναφορά σφάλματος.
+			Παρακαλούμε επισκεφθείτε την ηλεκτρονική διεύθυνση παρακάτω, δημιουργήσετε μια νέα αναφορά σφάλματος και επικολλήστε το περιεχόμενο από την περιοχή του κειμένου στην περιγραφή.
 
-Παρακαλείσθε να προσθέσετε μια περιεκτική περίληψη και να συμπεριλάβετε τις σχετικές πληροφορίες που θεωρείτε χρήσιμες για την αναπαραγωγή του προβλήματος.
-Επίσης, θα ήταν ιδιαίτερα χρήσιμο να γίνει έλεγχος για το αν υπάρχει ήδη καταγραφή για αυτό το σφάλμα. (Μπορείτε να χρησιμοποιήσετε την αναζήτηση για να βρείτε την ανάλογη καταγραφή πιο γρήγορα.) Σας ευχαριστούμε:)</resource>
+			Παρακαλείσθε να προσθέσετε μια περιεκτική περίληψη και να συμπεριλάβετε τις σχετικές πληροφορίες που θεωρείτε χρήσιμες για την αναπαραγωγή του προβλήματος.
+			Επίσης, θα ήταν ιδιαίτερα χρήσιμο να γίνει έλεγχος για το αν υπάρχει ήδη καταγραφή για αυτό το σφάλμα. (Μπορείτε να χρησιμοποιήσετε την αναζήτηση για να βρείτε την ανάλογη καταγραφή πιο γρήγορα.) Σας ευχαριστούμε:)
+		</resource>
 		<resource name="bugreport_title">Σφάλμα</resource>
 		<resource name="CANCEL">Άκυρο</resource>
 		<resource name="clipboard_error">Παρουσιάστηκε ένα απροσδόκητο σφάλμα κατά την εγγραφή στο πρόχειρο.</resource>
@@ -63,113 +68,14 @@
 		<resource name="contextmenu_quicksettings">Γρήγορες Προτιμήσεις</resource>
 		<resource name="contextmenu_settings">Προτιμήσεις...</resource>
 		<resource name="destination_exportfailed">Σφάλμα κατά την εξαγωγή στο {0}. Παρακαλώ προσπαθήστε και πάλι.</resource>
-		<resource name="editor_align_bottom">Στοίχιση κάτω</resource>
-		<resource name="editor_align_center">Στοίχιση στο κέντρο</resource>
-		<resource name="editor_align_horizontal">Οριζόντια στοίχιση</resource>
-		<resource name="editor_align_left">Στοίχιση αριστερά</resource>
-		<resource name="editor_align_middle">Στοίχιση στο μέσο</resource>
-		<resource name="editor_align_right">Στοίχιση δεξιά</resource>
-		<resource name="editor_align_top">Στοίχιση επάνω</resource>
-		<resource name="editor_align_vertical">Κατακόρυφη στοίχιση</resource>
-		<resource name="editor_arrange">Διάταξη</resource>
-		<resource name="editor_arrowheads">Αιχμή Βέλους</resource>
-		<resource name="editor_arrowheads_both">Αμφότερα</resource>
-		<resource name="editor_arrowheads_end">Σημείο λήξης</resource>
-		<resource name="editor_arrowheads_none">Κανένα</resource>
-		<resource name="editor_arrowheads_start">Σημείο έναρξης</resource>
-		<resource name="editor_autocrop">Αυτόματη Περικοπή</resource>
-		<resource name="editor_backcolor">Γέμισμα</resource>
-		<resource name="editor_blur_radius">Θόλωμα</resource>
-		<resource name="editor_bold">Έντονα</resource>
-		<resource name="editor_border">Περίγραμμα</resource>
-		<resource name="editor_brightness">Φωτεινότητα</resource>
-		<resource name="editor_cancel">Άκυρο</resource>
-		<resource name="editor_clipboardfailed">Σφάλμα κατά την πρόσβαση στο πρόχειρο. Παρακαλώ προσπαθήστε και πάλι.</resource>
-		<resource name="editor_close">Κλείσιμο</resource>
-		<resource name="editor_close_on_save">Θέλετε να αποθηκεύσετε το στιγμιότυπο οθόνης;</resource>
-		<resource name="editor_close_on_save_title">Αποθήκευση εικόνας;</resource>
-		<resource name="editor_confirm">Επιβεβαίωση</resource>
-		<resource name="editor_copyimagetoclipboard">Αντιγραφή εικόνας στο πρόχειρο</resource>
-		<resource name="editor_copypathtoclipboard">Αντιγραφή της θέσης του αρχείου στο πρόχειρο</resource>
-		<resource name="editor_copytoclipboard">Αντιγραφή</resource>
-		<resource name="editor_crop">Περικοπή (C)</resource>
-		<resource name="editor_cursortool">Εργαλείο Επιλογής (ESC)</resource>
-		<resource name="editor_cuttoclipboard">Αποκοπή</resource>
-		<resource name="editor_deleteelement">Διαγραφή</resource>
-		<resource name="editor_downonelevel">Μεταφορά ένα επίπεδο πίσω</resource>
-		<resource name="editor_downtobottom">Μεταφορά στο φόντο</resource>
-		<resource name="editor_drawarrow">Δημιουργία βέλους (A)</resource>
-		<resource name="editor_drawellipse">Δημιουργία έλλειψης (E)</resource>
-		<resource name="editor_drawfreehand">Ελεύθερη σχεδίαση (F)</resource>
-		<resource name="editor_drawhighlighter">Επισήμανση (H)</resource>
-		<resource name="editor_drawline">Δημιουργία γραμμής (L)</resource>
-		<resource name="editor_drawrectangle">Δημιουργία ορθογωνίου (R)</resource>
-		<resource name="editor_drawtextbox">Προσθήκη πλαισίου κειμένου (T)</resource>
-		<resource name="editor_dropshadow_darkness">Διαφάνεια σκιάς</resource>
-		<resource name="editor_dropshadow_offset">Μετατόπιση σκιάς</resource>
-		<resource name="editor_dropshadow_settings">Ρυθμίσεις σκιάς</resource>
-		<resource name="editor_dropshadow_thickness">Πάχος σκιάς</resource>
-		<resource name="editor_duplicate">Διπλασιασμός επιλεγμένου στοιχείου</resource>
-		<resource name="editor_edit">Επεξεργασία</resource>
-		<resource name="editor_effects">Εφέ</resource>
-		<resource name="editor_email">E-Mail</resource>
-		<resource name="editor_file">Αρχείο</resource>
-		<resource name="editor_fontsize">Μέγεθος</resource>
-		<resource name="editor_forecolor">Χρώμα γραμμής</resource>
-		<resource name="editor_grayscale">Απόχρωση του γκρι</resource>
-		<resource name="editor_highlight_area">Επισήμανση περιοχής</resource>
-		<resource name="editor_highlight_grayscale">Απόχρωση του γκρι</resource>
-		<resource name="editor_highlight_magnify">Μεγέθυνση</resource>
-		<resource name="editor_highlight_mode">Λειτουργία επισήμανσης</resource>
-		<resource name="editor_highlight_text">Επισήμανση Κειμένου</resource>
-		<resource name="editor_image_shadow">Σκιά</resource>
-		<resource name="editor_imagesaved">Αποθήκευση εικόνας στη {0}.</resource>
-		<resource name="editor_insertwindow">Εισαγωγή παραθύρου</resource>
-		<resource name="editor_invert">Αναστροφή</resource>
-		<resource name="editor_italic">Πλάγια γραφή</resource>
-		<resource name="editor_load_objects">Φόρτωμα αντικειμένων από αρχείο</resource>
-		<resource name="editor_magnification_factor">Συντελεστής μεγέθυνσης</resource>
-		<resource name="editor_match_capture_size">Ταίριασμα μεγέθους καταγραφής</resource>
-		<resource name="editor_obfuscate">Απόκρυψη (O)</resource>
-		<resource name="editor_obfuscate_blur">Θόλωμα</resource>
-		<resource name="editor_obfuscate_mode">Λειτουργία απόκρυψης</resource>
-		<resource name="editor_obfuscate_pixelize">Παραμόρφωση με χρήση εικονοστοιχείων</resource>
-		<resource name="editor_object">Αντικείμενο</resource>
-		<resource name="editor_opendirinexplorer">Άνοιγμα καταλόγου στην Εξερεύνηση των Windows</resource>
-		<resource name="editor_pastefromclipboard">Επικόλληση</resource>
-		<resource name="editor_pixel_size">Μέγεθος εικονοστοιχείων</resource>
-		<resource name="editor_preview_quality">Ποιότητα προεπισκόπησης</resource>
-		<resource name="editor_print">Εκτύπωση</resource>
-		<resource name="editor_redo">Ακύρωση Αναίρεσης {0}</resource>
-		<resource name="editor_resetsize">Επαναφορά μεγέθους</resource>
-		<resource name="editor_resize_percent">Επί τοις εκατό</resource>
-		<resource name="editor_resize_pixel">Εικονοστοιχεία</resource>
-		<resource name="editor_rotateccw">Περιστροφή αριστερόστροφα</resource>
-		<resource name="editor_rotatecw">Περιστροφή δεξιόστροφα</resource>
-		<resource name="editor_save">Αποθήκευση</resource>
-		<resource name="editor_save_objects">Αποθήκευση αντικειμένων σε αρχείο</resource>
-		<resource name="editor_saveas">Αποθήκευση ως...</resource>
-		<resource name="editor_selectall">Επιλογή όλων</resource>
-		<resource name="editor_senttoprinter">Η εκτύπωση στάλθηκε στον '{0}'.</resource>
-		<resource name="editor_shadow">Σκιά</resource>
-		<resource name="editor_storedtoclipboard">Η εικόνα αποθηκεύτηκε στο πρόχειρο.</resource>
-		<resource name="editor_thickness">Πάχος γραμμής</resource>
-		<resource name="editor_title">Επεξεργαστής εικόνας του Greenshot</resource>
-		<resource name="editor_torn_edge">Ακανόνιστο ξάκρισμα</resource>
-		<resource name="editor_tornedge_horizontaltoothrange">Οριζόντιο εύρος ξακρίσματος</resource>
-		<resource name="editor_tornedge_settings">Ρυθμίσεις ακανόνιστου ξακρίσματος</resource>
-		<resource name="editor_tornedge_toothsize">Μέγεθος οδοντωτού ορίου ξακρίσματος</resource>
-		<resource name="editor_tornedge_verticaltoothrange">Κάθετο εύρος ξακρίσματος</resource>
-		<resource name="editor_undo">Αναίρεση {0}</resource>
-		<resource name="editor_uponelevel">Μεταφορά ένα επίπεδο εμπρός</resource>
-		<resource name="editor_uptotop">Μεταφορά σε πρώτο πλάνο</resource>
-		<resource name="EmailFormat.MAPI">MAPI client</resource>
-		<resource name="EmailFormat.OUTLOOK_HTML">Outlook με HTML</resource>
-		<resource name="EmailFormat.OUTLOOK_TXT">Outlook με κείμενο</resource>
+		<resource name="EmailFormats.Html">Outlook με HTML</resource>
+		<resource name="EmailFormats.Text">Outlook με κείμενο</resource>
 		<resource name="error">Σφάλμα</resource>
 		<resource name="error_multipleinstances">Ένα στιγμιότυπο του Greenshot εκτελείται ήδη.</resource>
-		<resource name="error_nowriteaccess">Το αρχείο δεν μπορεί να αποθηκευτεί στο {0}.
-Παρακαλώ ελέγξτε τη δυνατότητα εγγραφής - πρόσβασης στη συγκεκριμένη θέση αποθήκευσης.</resource>
+		<resource name="error_nowriteaccess">
+			Το αρχείο δεν μπορεί να αποθηκευτεί στο {0}.
+			Παρακαλώ ελέγξτε τη δυνατότητα εγγραφής - πρόσβασης στη συγκεκριμένη θέση αποθήκευσης.
+		</resource>
 		<resource name="error_openfile">Το αρχείο "{0}" δεν είναι δυνατό να προσπελαστεί.</resource>
 		<resource name="error_openlink">Η υπερσύνδεση δεν μπορεί να ανοίξει '{0}'.</resource>
 		<resource name="error_save">Δεν είναι δυνατή η αποθήκευση του στιγμιότυπου, παρακαλώ στην εύρεση κατάλληλης θέσης.</resource>
@@ -200,7 +106,7 @@
 		<resource name="printoptions_dontaskagain">Αποθήκευση των επιλογών ως προεπιλογή και να μην ξαναρωτηθώ</resource>
 		<resource name="printoptions_inverted">Εκτύπωση με ανεστραμμένα χρώματα</resource>
 		<resource name="printoptions_layout">Ρυθμίσεις διάταξης σελίδας</resource>
-        <resource name="printoptions_printcolor">Έγχρωμη εκτύπωση</resource>
+		<resource name="printoptions_printcolor">Έγχρωμη εκτύπωση</resource>
 		<resource name="printoptions_printgrayscale">Εκτύπωση σε κλίμακα του γκρι</resource>
 		<resource name="printoptions_printmonochrome">Ασπρόμαυρη εκτύπωση</resource>
 		<resource name="printoptions_timestamp">Εκτύπωση ημέρας / ώρας στο κάτω μέρος της σελίδας</resource>
@@ -232,22 +138,24 @@
 		<resource name="settings_iecapture">Καταγραφή καρτέλας Internet Explorer</resource>
 		<resource name="settings_jpegquality">Ποιότητα JPEG</resource>
 		<resource name="settings_language">Γλώσσα</resource>
-		<resource name="settings_message_filenamepattern">Τα ακόλουθα σύμβολα κράτησης θέσης θα αντικατασταθούν αυτόματα στο προκαθορισμένο πρότυπο:
-${YYYY} έτη, 4 ψηφία
-${MM} μήνες, 2 ψηφία
-${DD} ημέρες, 2 ψηφία
-${hh} ώρες, 2 ψηφία
-${mm} λεπτά, 2 ψηφία
-${ss} δευτερόλεπτα, 2 ψηφία
-${NUM} αυξανόμενος αριθμός, 6 ψηφία
-${title} Τίτλος Παραθύρου
-${user} Χρήστης Windows
-${domain} Κυριότητα Windows
-${hostname} Όνομα Υπολογιστή
+		<resource name="settings_message_filenamepattern">
+			Τα ακόλουθα σύμβολα κράτησης θέσης θα αντικατασταθούν αυτόματα στο προκαθορισμένο πρότυπο:
+			${YYYY} έτη, 4 ψηφία
+			${MM} μήνες, 2 ψηφία
+			${DD} ημέρες, 2 ψηφία
+			${hh} ώρες, 2 ψηφία
+			${mm} λεπτά, 2 ψηφία
+			${ss} δευτερόλεπτα, 2 ψηφία
+			${NUM} αυξανόμενος αριθμός, 6 ψηφία
+			${title} Τίτλος Παραθύρου
+			${user} Χρήστης Windows
+			${domain} Κυριότητα Windows
+			${hostname} Όνομα Υπολογιστή
 
-Μπορείτε επίσης να δημιουργήσετε με το Greenshot καταλόγους δυναμικά, χρησιμοποιώντας το σύμβολο backslash, ανάποδη κάθετο (\) για το διαχωρισμό του ονόματος φακέλων και του ονόματος των αρχείων.
-Παράδειγμα: το πρότυπο ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-θα δημιουργήσει ένα φάκελο, με όνομα την τρέχουσα ημέρα, στην προεπιλεγμένη θέση αποθήκευσης, π.χ. 2013-03-13, το δε όνομα του αρχείου θα βασίζεται στην τρέχουσα ώρα, π.χ. 11_58_32 (συν την επέκταση που έχει καθοριστεί στις ρυθμίσεις)</resource>
+			Μπορείτε επίσης να δημιουργήσετε με το Greenshot καταλόγους δυναμικά, χρησιμοποιώντας το σύμβολο backslash, ανάποδη κάθετο (\) για το διαχωρισμό του ονόματος φακέλων και του ονόματος των αρχείων.
+			Παράδειγμα: το πρότυπο ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+			θα δημιουργήσει ένα φάκελο, με όνομα την τρέχουσα ημέρα, στην προεπιλεγμένη θέση αποθήκευσης, π.χ. 2013-03-13, το δε όνομα του αρχείου θα βασίζεται στην τρέχουσα ώρα, π.χ. 11_58_32 (συν την επέκταση που έχει καθοριστεί στις ρυθμίσεις)
+		</resource>
 		<resource name="settings_network">Δίκτυο και ενημερώσεις</resource>
 		<resource name="settings_output">Αρχείο Εξόδου</resource>
 		<resource name="settings_playsound">Ήχος φωτογραφικής μηχανής</resource>
@@ -281,9 +189,11 @@ ${hostname} Όνομα Υπολογιστή
 		<resource name="update_found">Μια νεώτερη έκδοση του Greenshot είναι διαθέσιμη! Θέλετε να τη μεταφορτώσετε {0}?</resource>
 		<resource name="wait_ie_capture">Παρακαλώ περιμένετε μέχρι να καταγραφεί η σελίδα του Internet Explorer...</resource>
 		<resource name="warning">Προειδοποίηση</resource>
-		<resource name="warning_hotkeys">Το/τα πλήκτρο/α ταχείας πρόσβασης "{0}" δεν μπορεί/ούν να καταχωριστεί/ούν. Αυτό το πρόβλημα πιθανόν να προκλήθηκε επειδή ένα άλλο πρόγραμμα χρησιμοποιεί τον ίδιο συνδυασμό πλήκτρων. Θα μπορούσατε να αλλάξετε τις ρυθμίσεις των πλήκτρων ταχείας πρόσβασης ή να απενεργοποιήσετε/αλλάξετε τις ρυθμίσεις του προγράμματος που κάνει χρήση του/των πλήκτρου/ων.
+		<resource name="warning_hotkeys">
+			Το/τα πλήκτρο/α ταχείας πρόσβασης "{0}" δεν μπορεί/ούν να καταχωριστεί/ούν. Αυτό το πρόβλημα πιθανόν να προκλήθηκε επειδή ένα άλλο πρόγραμμα χρησιμοποιεί τον ίδιο συνδυασμό πλήκτρων. Θα μπορούσατε να αλλάξετε τις ρυθμίσεις των πλήκτρων ταχείας πρόσβασης ή να απενεργοποιήσετε/αλλάξετε τις ρυθμίσεις του προγράμματος που κάνει χρήση του/των πλήκτρου/ων.
 
-Μπορείτε επίσης απλά να χρησιμοποιήσετε όλα τα χαρακτηριστικά του Greenshot από το σχετικό μενού επιλογών κάνοντας δεξί κλικ στο εικονίδιο του προγράμματος στη γραμμή εργασιών.</resource>
+			Μπορείτε επίσης απλά να χρησιμοποιήσετε όλα τα χαρακτηριστικά του Greenshot από το σχετικό μενού επιλογών κάνοντας δεξί κλικ στο εικονίδιο του προγράμματος στη γραμμή εργασιών.
+		</resource>
 		<resource name="WindowCaptureModes.Aero">Χρήση προσαρμοσμένου χρώματος</resource>
 		<resource name="WindowCaptureModes.AeroTransparent">Διατήρηση της διαφάνειας</resource>
 		<resource name="WindowCaptureModes.Auto">Αυτόματα</resource>

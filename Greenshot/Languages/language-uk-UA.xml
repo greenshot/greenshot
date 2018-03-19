@@ -1,33 +1,38 @@
-<?xml version="1.0" encoding="utf-8"?>
-<language description="Українська" ietf="uk-UA" version="1.0.4" languagegroup="5">
-	<resources>
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<language>
+	<resources prefix="Core">
 		<resource name="about_bugs">Про помилки повідомляйте на</resource>
-		<resource name="about_donations">Якщо Вам подобається Greenshot, можете підтримати нас:</resource>
-		<resource name="about_host">Greenshot розташовується на GitHub</resource>
-		<resource name="about_icons">Набір піктограм Fugue від Yusuke Kamiyamane (ліцензія Creative Commons Attribution 3.0)</resource>
-		<resource name="about_license">Авторство © 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. Це вільне програмне забезпечення, Ви можете розповсюджувати його за певних умов.
-Подробиці Загальної Публічної Ліцензії GNU:</resource>
+		<resource name="about_donations">Якщо Вам подобається Greenshot, то можете підтримати нас:</resource>
+		<resource name="about_host">Greenshot is розташовується на GitHub</resource>
+		<resource name="about_icons">Набір іконок Fugue від Yusuke Kamiyamane (ліцензія Creative Commons Attribution 3.0)</resource>
+		<resource name="about_license">
+			Авторство © 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
+			Greenshot постачається АБСОЛЮТНО БЕЗ ҐАРАНТІЇ. Це вільне програмне забезпечення, Ви можете розповсюджувати його за певних умов.
+			Подробиці Загальної Публічної Ліцензії GNU:
+		</resource>
 		<resource name="about_title">Про Greenshot</resource>
 		<resource name="application_title">Greenshot – революційна утиліта для отримання знімків екрану</resource>
 		<resource name="bugreport_cancel">Закрити</resource>
-		<resource name="bugreport_info">Вибачте, виникла непередбачувана помилка.
+		<resource name="bugreport_info">
+			Вибачте, виникла непередбачувана помилка.
 
-Гарна новина: Ви можете допомогти нам виправити програму, надіславши звіт про помилку.
-Будь ласка, створіть за посиланням новий звіт про помилку та скопіюйте вміст текстової області в опис.
+			Гарна новина: Ви можете допомогти нам виправити програму, надіславши звіт про помилку.
+			Будь ласка, створіть за посиланням новий звіт про помилку та скопіюйте вміст текстової області в опис.
 
-Будь ласка, додайте короткий опис та будь-яку іншу інформацію, що допоможе нам відтворити помилку.
-Також ми будемо вдячні Вам за перевірку наявності цієї помилки на нашому трекері. (Радимо використовувати пошук.) Дякуємо Вам :)</resource>
+			Будь ласка, додайте короткий опис та будь-яку іншу інформацію, що допоможе нам відтворити помилку.
+			Також ми будемо вдячні Вам за перевірку наявності цієї помилки на нашому трекері. (Радимо використовувати пошук.) Дякуємо Вам :)
+		</resource>
 		<resource name="bugreport_title">Помилка</resource>
 		<resource name="CANCEL">Скасувати</resource>
 		<resource name="clipboard_error">При записі в буфер обміну відбулась несподівана помилка.</resource>
 		<resource name="clipboard_inuse">Greenshot не зміг записати дані у буфер обміну, доступ до якого заблокований процесом {0}.</resource>
 		<resource name="clipboard_noimage">Неможливо знайти зображення у буфері обміну.</resource>
-		<resource name="ClipboardFormat.BITMAP">Растрове зображення Windows</resource>
-		<resource name="ClipboardFormat.DIB">Растрове зображення (DIB)</resource>
-		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">HTML з вбудованими зображеннями</resource>
-		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="ClipboardFormats.BITMAP">Растрове зображення Windows</resource>
+		<resource name="ClipboardFormats.DIB">Растрове зображення (DIB)</resource>
+		<resource name="ClipboardFormats.HTML">HTML</resource>
+		<resource name="ClipboardFormats.HTMLDATAURL">HTML з вбудованими зображеннями</resource>
+		<resource name="ClipboardFormats.PNG">PNG</resource>
 		<resource name="colorpicker_alpha">Альфа</resource>
 		<resource name="colorpicker_apply">Застосувати</resource>
 		<resource name="colorpicker_blue">Синій</resource>
@@ -37,12 +42,12 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. �
 		<resource name="colorpicker_red">Червоний</resource>
 		<resource name="colorpicker_title">Вибір кольору</resource>
 		<resource name="colorpicker_transparent">Прозорий</resource>
-		<resource name="com_rejected">Призначення {0} відхилило доступ Greenshot, можливо через відкрите діалогове вікно. Закрийте діалогове вікно та спробуйте знову.</resource>
+		<resource name="com_rejected">Призначення {0} відхилило доступ Greenshot, можливо через відкрите діалогове вікно. Зайкрийте діалогове вікно та спробуйте знову.</resource>
 		<resource name="com_rejected_title">Доступ Greenshot відхилено</resource>
 		<resource name="config_unauthorizedaccess_write">Неможливо зберегти файл налаштувань Greenshot. Будь ласка, перевірте доступ до „{0}“.</resource>
 		<resource name="contextmenu_about">Про Greenshot</resource>
-		<resource name="contextmenu_capturearea">Захопити область</resource>
-		<resource name="contextmenu_captureclipboard">Відкрити зображення з буфера обміну</resource>
+		<resource name="contextmenu_capturearea">Захоплення області</resource>
+		<resource name="contextmenu_captureclipboard">Відкрити зображення з буферу обміну</resource>
 		<resource name="contextmenu_capturefullscreen">Захопити весь екран</resource>
 		<resource name="contextmenu_capturefullscreen_all">все</resource>
 		<resource name="contextmenu_capturefullscreen_bottom">знизу</resource>
@@ -51,8 +56,8 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. �
 		<resource name="contextmenu_capturefullscreen_top">згори</resource>
 		<resource name="contextmenu_captureie">Захопити Internet Explorer</resource>
 		<resource name="contextmenu_captureiefromlist">Захопити Internet Explorer зі списку</resource>
-		<resource name="contextmenu_capturelastregion">Захопити останню область</resource>
-		<resource name="contextmenu_capturewindow">Захопити вікно</resource>
+		<resource name="contextmenu_capturelastregion">Захоплення останньої області</resource>
+		<resource name="contextmenu_capturewindow">Захоплення вікна</resource>
 		<resource name="contextmenu_capturewindowfromlist">Захопити вікно зі списку</resource>
 		<resource name="contextmenu_donate">Підтримати Greenshot</resource>
 		<resource name="contextmenu_exit">Вихід</resource>
@@ -61,110 +66,18 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. �
 		<resource name="contextmenu_openrecentcapture">Відкрити місце збереження останнього знімку</resource>
 		<resource name="contextmenu_quicksettings">Швидкі параметри</resource>
 		<resource name="contextmenu_settings">Параметри...</resource>
-		<resource name="destination_exportfailed">Помилка експорту до {0}. Спробуйте знову.</resource>
-		<resource name="editor_align_bottom">Знизу</resource>
-		<resource name="editor_align_center">По центру</resource>
-		<resource name="editor_align_horizontal">Горизонтальне вирівнювання</resource>
-		<resource name="editor_align_left">По лівому краю</resource>
-		<resource name="editor_align_middle">По середині</resource>
-		<resource name="editor_align_right">По правому краю</resource>
-		<resource name="editor_align_top">Вгорі</resource>
-		<resource name="editor_align_vertical">Вертикальне вирівнювання</resource>
-		<resource name="editor_arrange">Впорядкувати</resource>
-		<resource name="editor_arrowheads">Кінці стрілки</resource>
-		<resource name="editor_arrowheads_both">З обох сторін</resource>
-		<resource name="editor_arrowheads_end">Наприкінці</resource>
-		<resource name="editor_arrowheads_none">Немає</resource>
-		<resource name="editor_arrowheads_start">На початку</resource>
-		<resource name="editor_autocrop">Автоматичне обрізання</resource>
-		<resource name="editor_backcolor">Колір заливки</resource>
-		<resource name="editor_blur_radius">Радіус розмиття</resource>
-		<resource name="editor_bold">Жирний</resource>
-		<resource name="editor_border">Межа</resource>
-		<resource name="editor_brightness">Яскравість</resource>
-		<resource name="editor_cancel">Скасувати</resource>
-		<resource name="editor_clipboardfailed">Помилка доступу до буферу обміну. Будь ласка, спробуйте ще.</resource>
-		<resource name="editor_close">Закрити</resource>
-		<resource name="editor_close_on_save">Зберегти знімок екрану?</resource>
-		<resource name="editor_close_on_save_title">Зберегти зображення?</resource>
-		<resource name="editor_confirm">Підтвердити</resource>
-		<resource name="editor_copyimagetoclipboard">Копіювати зображення у буфер обміну</resource>
-		<resource name="editor_copypathtoclipboard">Копіювати шлях у буфер обміну</resource>
-		<resource name="editor_copytoclipboard">Копіювати</resource>
-		<resource name="editor_crop">Обрізати (С)</resource>
-		<resource name="editor_cursortool">Інструмент вибору (Esc)</resource>
-		<resource name="editor_cuttoclipboard">Вирізати</resource>
-		<resource name="editor_deleteelement">Видалити</resource>
-		<resource name="editor_downonelevel">Вниз на один рівень</resource>
-		<resource name="editor_downtobottom">На задній план</resource>
-		<resource name="editor_drawarrow">Стрілка (Ф)</resource>
-		<resource name="editor_drawellipse">Еліпс (У)</resource>
-		<resource name="editor_drawfreehand">Від руки (А)</resource>
-		<resource name="editor_drawhighlighter">Підсвічування (Р)</resource>
-		<resource name="editor_drawline">Лінія (Д)</resource>
-		<resource name="editor_drawrectangle">Прямокутник (К)</resource>
-		<resource name="editor_drawtextbox">Додати текст (Е)</resource>
-		<resource name="editor_duplicate">Дублювати вибраний елемент</resource>
-		<resource name="editor_edit">Змінити</resource>
-		<resource name="editor_effects">Ефекти</resource>
-		<resource name="editor_email">Ел. пошта</resource>
-		<resource name="editor_file">Файл</resource>
-		<resource name="editor_fontsize">Розмір</resource>
-		<resource name="editor_forecolor">Колір лінії</resource>
-		<resource name="editor_grayscale">Відтінки сірого</resource>
-		<resource name="editor_highlight_area">Підсвічення області</resource>
-		<resource name="editor_highlight_grayscale">Відтінки сірого</resource>
-		<resource name="editor_highlight_magnify">Збільшення</resource>
-		<resource name="editor_highlight_mode">Режим підсвічування</resource>
-		<resource name="editor_highlight_text">Підсвічення тексту</resource>
-		<resource name="editor_image_shadow">Тінь</resource>
-		<resource name="editor_imagesaved">Зображення збережено в {0}.</resource>
-		<resource name="editor_insertwindow">Вставити вікно</resource>
-		<resource name="editor_invert">Інверсія</resource>
-		<resource name="editor_italic">Курсив</resource>
-		<resource name="editor_load_objects">Завантажити об’єкти з файла</resource>
-		<resource name="editor_magnification_factor">Коефіцієнт збільшення</resource>
-		<resource name="editor_match_capture_size">Відповідає розміру захоплення</resource>
-		<resource name="editor_obfuscate">Затемнення (Щ)</resource>
-		<resource name="editor_obfuscate_blur">Розмиття</resource>
-		<resource name="editor_obfuscate_mode">Режим затемнення</resource>
-		<resource name="editor_obfuscate_pixelize">Пікселізація</resource>
-		<resource name="editor_object">Об’єкт</resource>
-		<resource name="editor_opendirinexplorer">Відкрити каталог у Провіднику Windows</resource>
-		<resource name="editor_pastefromclipboard">Вставити</resource>
-		<resource name="editor_pixel_size">Розмір пікселя</resource>
-		<resource name="editor_preview_quality">Якість перегляду</resource>
-		<resource name="editor_print">Друк</resource>
-		<resource name="editor_redo">Повторити {0}</resource>
-		<resource name="editor_resetsize">Скинути розмір</resource>
-		<resource name="editor_resize_percent">відсотків</resource>
-		<resource name="editor_resize_pixel">пікселів</resource>
-		<resource name="editor_rotateccw">Оберт проти годинникової стрілки (Ctrl + Б)</resource>
-		<resource name="editor_rotatecw">Оберт за годинниковою стрілкою (Ctrl + Ю)</resource>
-		<resource name="editor_save">Зберегти</resource>
-		<resource name="editor_save_objects">Зберегти об’єкти в файл</resource>
-		<resource name="editor_saveas">Зберегти як...</resource>
-		<resource name="editor_selectall">Вибрати все</resource>
-		<resource name="editor_senttoprinter">Завдання друку надіслано на „{0}“.</resource>
-		<resource name="editor_shadow">Тінь</resource>
-		<resource name="editor_storedtoclipboard">Зображення надіслано в буфер обміну.</resource>
-		<resource name="editor_thickness">Товщина лінії</resource>
-		<resource name="editor_title">Редактор зображень Greenshot</resource>
-		<resource name="editor_torn_edge">Розірваний край</resource>
-		<resource name="editor_undo">Скасувати {0}</resource>
-		<resource name="editor_uponelevel">Вгору на один рівень</resource>
-		<resource name="editor_uptotop">На передній план</resource>
-		<resource name="EmailFormat.MAPI">Клієнт MAPI</resource>
-		<resource name="EmailFormat.OUTLOOK_HTML">Outlook з HTML</resource>
-		<resource name="EmailFormat.OUTLOOK_TXT">Outlook з текстом</resource>
+		<resource name="destination_exportfailed">Помилка експорту {0}. Будь ласка, спробуйте ще.</resource>
+		<resource name="EmailFormats.Html">Outlook з HTML</resource>
+		<resource name="EmailFormats.Text">Outlook з текстом</resource>
 		<resource name="error">Помилка</resource>
 		<resource name="error_multipleinstances">Вже запущено примірник Greenshot.</resource>
-		<resource name="error_nowriteaccess">Неможливо зберегти файл в {0}.
-Будь ласка, перевірте доступність вибраної теки.</resource>
+		<resource name="error_nowriteaccess">
+			Неможливо зберегти файл в {0}.
+			Будь ласка, перевірте доступність вибраної теки.
+		</resource>
 		<resource name="error_openfile">Неможливо відкрити файл „{0}“.</resource>
 		<resource name="error_openlink">Неможливо відкрити посилання „{0}“.</resource>
 		<resource name="error_save">Неможливо зберегти знімок. Будь ласка, знайдіть відповідне місце.</resource>
-    <resource name="error_save_invalid_chars">Згенерована назва файла чи теки неприпустима. Будь ласка, виправте шаблон назви файла та спробуйте ще.</resource>
 		<resource name="expertsettings">Експертні</resource>
 		<resource name="expertsettings_autoreducecolors">Створити 8-бітне зображення, якщо більш ніж 8-бітне має менше 256 кольорів</resource>
 		<resource name="expertsettings_checkunstableupdates">Перевірити наявність нестабільних оновлень</resource>
@@ -188,14 +101,14 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. �
 		<resource name="printoptions_allowenlarge">Збільшити до розмірів сторінки</resource>
 		<resource name="printoptions_allowrotate">Повернути відповідно до орієнтації сторінки</resource>
 		<resource name="printoptions_allowshrink">Зменшити до розмірів сторінки</resource>
-    <resource name="printoptions_colors">Параметри кольору</resource>
-    <resource name="printoptions_dontaskagain">Зберегти ці параметри і не запитувати знову</resource>
+		<resource name="printoptions_colors">Параметри кольору</resource>
+		<resource name="printoptions_dontaskagain">Зберегти ці параметри і не запитувати знову</resource>
 		<resource name="printoptions_inverted">Друк з інвертованими кольорами</resource>
-    <resource name="printoptions_layout">Параметри макета сторінки</resource>
-    <resource name="printoptions_printcolor">Повноколірний друк</resource>
-    <resource name="printoptions_printgrayscale">Примусовий друк у відтінках сірого</resource>
-    <resource name="printoptions_printmonochrome">Примусовий чорно-білий друк</resource>
-    <resource name="printoptions_timestamp">Друкувати дату та час внизу сторінки</resource>
+		<resource name="printoptions_layout">Параметри макета сторінки</resource>
+		<resource name="printoptions_printcolor">Повноколірний друк</resource>
+		<resource name="printoptions_printgrayscale">Примусовий друк у відтінках сірого</resource>
+		<resource name="printoptions_printmonochrome">Примусовий чорно-білий друк</resource>
+		<resource name="printoptions_timestamp">Друкувати дату та час внизу сторінки</resource>
 		<resource name="printoptions_title">Параметри друку Greenshot</resource>
 		<resource name="qualitydialog_dontaskagain">Зберегти як стандартну якість і не запитувати знову</resource>
 		<resource name="qualitydialog_title">Якість Greenshot</resource>
@@ -224,23 +137,24 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. �
 		<resource name="settings_iecapture">Захоплення Internet Explorer</resource>
 		<resource name="settings_jpegquality">Якість JPEG</resource>
 		<resource name="settings_language">Мова</resource>
-		<resource name="settings_message_filenamepattern">Наступні заповнювачі будуть автоматично замінені у визначеному шаблоні:
-${YYYY} рік, 4 цифри
-${MM} місяць, 2 цифри
-${DD} день, 2 цифри
-${hh} години, 2 цифри
-${mm} хвилини, 2 цифри
-${ss} секунди, 2 цифри
-${NUM} номер, що збільшується, 6 цифр
-${title} заголовок вікна
-${user} ім’я користувача Windows
-${domain} домен Windows
-${hostname} назва комп’ютера
+		<resource name="settings_message_filenamepattern">
+			Наступні заповнювачі будуть автоматично замінені у визначеному шаблоні:
+			${YYYY} рік, 4 цифри
+			${MM} місяць, 2 цифри
+			${DD} день, 2 цифри
+			${hh} години, 2 цифри
+			${mm} хвилини, 2 цифри
+			${ss} секунди, 2 цифри
+			${NUM} номер, що збільшується, 6 цифр
+			${title} заголовок вікна
+			${user} ім’я користувача Windows
+			${domain} домен Windows
+			${hostname} назва комп’ютера
 
-Ви також можете примусити Greenshot створювати динамічні каталоги, просто використовуючи символ похилої риски (\) як роздільник між теками та назвою файла.
-Наприклад, шаблон ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-створюватиме у стандартній теці теку для поточного дня (наприклад, 2012-01-27), в якій будуть знімки з назвою файла, що базуватиметься на поточному
-часі (наприклад, 11_58_32) (плюс зазначене у параметрах розширення).</resource>
+			Ви також можете примусити Greenshot створювати динамічні каталоги, просто використовуючи символ похилої риски (\) як роздільник між теками та назвою файла.
+			Наприклад, шаблон ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+			створюватиме у стандартній теці теку для поточного дня (наприклад, 2012-01-27), в якій будуть знімки з назвою файла, що базуватиметься на поточному часі (наприклад, 11_58_32) (плюс зазначене у параметрах розширення).
+		</resource>
 		<resource name="settings_network">Мережа та оновлення</resource>
 		<resource name="settings_output">Виведення</resource>
 		<resource name="settings_playsound">Відтворити звук камери</resource>
@@ -275,41 +189,19 @@ ${hostname} назва комп’ютера
 		<resource name="update_found">Доступна новіша версія Greenshot! Чи хочете Ви завантажити Greenshot {0}?</resource>
 		<resource name="wait_ie_capture">Будь ласка, зачекайте поки захоплюється сторінка в Internet Explorer...</resource>
 		<resource name="warning">Попередження</resource>
-		<resource name="warning_hotkeys">Неможливо зареєструвати гарячі клавіші „{0}“. Можливо, вони вже використовуються іншою програмою {1}! Ви можете змінити гарячі клавіші або вимкнути/змінити програму, що використовує такі ж комбінації клавіш.
+		<resource name="warning_hotkeys">
+			Неможливо зареєструвати гарячі клавіші „{0}“. Можливо, вони вже використовуються іншою програмою! Ви можете змінити гарячі клавіші або вимкнути/змінити програму, що використовує такі ж комбінації клавіш.
 
-Всі функції Greenshot досі працюють безпосередньо з контекстного меню піктограми в системні панелі без застосування гарячих клавіш.</resource>
-		<resource name="WindowCaptureMode.Aero">Використовувати користувацький колір</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">Зберігати прозорість</resource>
-		<resource name="WindowCaptureMode.Auto">Автоматично</resource>
-		<resource name="WindowCaptureMode.GDI">Використовувати стандартний колір</resource>
-		<resource name="WindowCaptureMode.Screen">Як відображається</resource>
+			Всі функції Greenshot досі працюють безпосередньо з контекстного меню іконки у лотку без застосування гарячих клавіш.
+		</resource>
+		<resource name="WindowCaptureModes.Aero">Використовувати користувацький колір</resource>
+		<resource name="WindowCaptureModes.AeroTransparent">Зберігати прозорість</resource>
+		<resource name="WindowCaptureModes.Auto">Автоматично</resource>
+		<resource name="WindowCaptureModes.GDI">Використовувати стандартний колір</resource>
+		<resource name="WindowCaptureModes.Screen">Як відображається</resource>
 
-    <!-- 1.2 -->
-    <resource name="editor_dropshadow_darkness">Тьмяність тіні</resource>
-    <resource name="editor_dropshadow_offset">Зсув тіні</resource>
-    <resource name="editor_dropshadow_settings">Параметри тіні</resource>
-    <resource name="editor_dropshadow_thickness">Товщина тіні</resource>
+		<!-- 1.2 -->
+		<resource name="settings_iconsize">Розмір іконки</resource>
 
-    <resource name="editor_tornedge_horizontaltoothrange">Горизонтальна частота зубців</resource>
-    <resource name="editor_tornedge_settings">Параметри розірваного краю</resource>
-    <resource name="editor_tornedge_toothsize">Розмір зубця</resource>
-    <resource name="editor_tornedge_verticaltoothrange">Вертикальна частота зубців</resource>
-    <resource name="editor_tornedge_all">Надірвати всі краї</resource>
-    <resource name="editor_tornedge_left">Лівий край</resource>
-    <resource name="editor_tornedge_right">Правий край</resource>
-    <resource name="editor_tornedge_top">Верхній край</resource>
-    <resource name="editor_tornedge_bottom">Нижній край</resource>
-    <resource name="editor_tornedge_shadow">Створити тінь</resource>
-    
-    <resource name="editor_counter">Додати лічильник (Ш)</resource>
-    <resource name="editor_speechbubble">Додати словесну бульбашку (І)</resource>
-
-    <resource name="editor_resize">Змінити розмір</resource>
-    <resource name="editor_resize_settings">Параметри зміни розміру</resource>
-    <resource name="editor_resize_aspectratio">Зберігати пропорції</resource>
-    <resource name="editor_resize_width">Ширина</resource>
-    <resource name="editor_resize_height">Висота</resource>
-	<resource name="settings_iconsize">Розмір піктограми</resource>
-    
-  </resources>
+	</resources>
 </language>

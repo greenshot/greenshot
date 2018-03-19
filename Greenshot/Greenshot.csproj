@@ -263,7 +263,6 @@
     <Compile Include="Ui\Configuration\ViewModels\UiConfigViewModel.cs" />
     <Compile Include="Ui\ViewModels\SplashViewModel.cs" />
     <None Include="App.config" />
-    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Helpers\CaptureHelper.cs" />
     <Compile Include="Components\GreenshotClient.cs" />
     <Compile Include="Components\GreenshotServer.cs" />

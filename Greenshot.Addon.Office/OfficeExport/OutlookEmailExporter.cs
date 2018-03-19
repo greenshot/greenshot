@@ -444,7 +444,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 		///     Export image to a new email
 		/// </summary>
 		/// <param name="outlookApplication"></param>
-		/// <param name="format"></param>
+		/// <param name="emailFormat"></param>
 		/// <param name="tmpFile"></param>
 		/// <param name="subject"></param>
 		/// <param name="attachmentName"></param>
@@ -452,7 +452,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 		/// <param name="cc"></param>
 		/// <param name="bcc"></param>
 		/// <param name="url"></param>
-		private static void ExportToNewEmail(IOutlookApplication outlookApplication, EmailFormat format, string tmpFile, string subject, string attachmentName, string to,
+		private static void ExportToNewEmail(IOutlookApplication outlookApplication, EmailFormats emailFormat, string tmpFile, string subject, string attachmentName, string to,
 			string cc, string bcc, string url)
 		{
 			using (var newItem = outlookApplication.CreateItem(OlItemType.olMailItem))
@@ -480,15 +480,15 @@ namespace Greenshot.Addon.Office.OfficeExport
 				// Read the default signature, if nothing found use empty email
 				try
 				{
-					bodyString = GetOutlookSignature(format);
+					bodyString = GetOutlookSignature(emailFormat);
 				}
 				catch (Exception e)
 				{
 					Log.Error().WriteLine(e, "Problem reading signature!");
 				}
-				switch (format)
+				switch (emailFormat)
 				{
-					case EmailFormat.Text:
+					case EmailFormats.Text:
 						// Create the attachment (and dispose the COM object after using)
 						using (newMail.Attachments.Add(tmpFile, OlAttachmentType.olByValue, 1, attachmentName))
 						{
@@ -576,7 +576,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 		/// <summary>
 		///     Helper method to create an outlook mail item with attachment
 		/// </summary>
-		/// <param name="format"></param>
+		/// <param name="emailFormat"></param>
 		/// <param name="tmpFile">The file to send, do not delete the file right away!</param>
 		/// <param name="subject"></param>
 		/// <param name="attachmentName"></param>
@@ -585,7 +585,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 		/// <param name="bcc"></param>
 		/// <param name="url"></param>
 		/// <returns>true if it worked, false if not</returns>
-		public static bool ExportToOutlook(EmailFormat format, string tmpFile, string subject, string attachmentName, string to, string cc, string bcc, string url)
+		public static bool ExportToOutlook(EmailFormats emailFormat, string tmpFile, string subject, string attachmentName, string to, string cc, string bcc, string url)
 		{
 			var exported = false;
 			try
@@ -594,7 +594,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 				{
 					if (outlookApplication != null)
 					{
-						ExportToNewEmail(outlookApplication, format, tmpFile, subject, attachmentName, to, cc, bcc, url);
+						ExportToNewEmail(outlookApplication, emailFormat, tmpFile, subject, attachmentName, to, cc, bcc, url);
 						exported = true;
 					}
 				}
@@ -611,7 +611,7 @@ namespace Greenshot.Addon.Office.OfficeExport
 		///     Helper method to get the Outlook signature
 		/// </summary>
 		/// <returns></returns>
-		private static string GetOutlookSignature(EmailFormat format)
+		private static string GetOutlookSignature(EmailFormats emailFormat)
 		{
 			using (var profilesKey = Registry.CurrentUser.OpenSubKey(ProfilesKey, false))
 			{
@@ -649,9 +649,9 @@ namespace Greenshot.Addon.Office.OfficeExport
 				            }
 				            Log.Debug().WriteLine("Found email signature: {0}", signatureName);
 				            string extension;
-				            switch (format)
+				            switch (emailFormat)
 				            {
-				                case EmailFormat.Text:
+				                case EmailFormats.Text:
 				                    extension = ".txt";
 				                    break;
 				                default:

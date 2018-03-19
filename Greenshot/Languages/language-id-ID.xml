@@ -1,23 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Bahasa Indonesia" ietf="id-ID" version="1.2" languagegroup="1">
-	<resources>
+
+<language>
+	<resources prefix="Core">
 		<resource name="about_bugs">Harap laporkan kesalahan ke</resource>
 		<resource name="about_donations">Jika anda menyukai Greenshot, anda dipersilahkan untuk mendukung kami:</resource>
 		<resource name="about_host">Greenshot dikelola oleh GitHub di</resource>
 		<resource name="about_icons">Ikon dari Yusuke Kamiyamane Fugue ikon set (lisensi Creative Commons Attribution 3.0)</resource>
-		<resource name="about_license">Hak Cipta milik Thomas Braun, Jens Klingen, Robin Krom 2007-2018
-Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
-Details about the GNU General Public License:</resource>
+		<resource name="about_license">
+			Hak Cipta milik Thomas Braun, Jens Klingen, Robin Krom 2007-2018
+			Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
+			Details about the GNU General Public License:
+		</resource>
 		<resource name="about_title">Tentang Greenshot</resource>
 		<resource name="application_title">Greenshot - utilitas penangkap layar yang revolusioner</resource>
 		<resource name="bugreport_cancel">Tutup</resource>
-		<resource name="bugreport_info">Maaf, kesalahan yang tak terduga terjadi.
+		<resource name="bugreport_info">
+			Maaf, kesalahan yang tak terduga terjadi.
 
-Kabar baiknya: anda dapat membantu kami memperbaikinya dengan mengisi laporan kesalahan.
-Harap kunjungi laman berikut, buat laporan kesalahan baru dan letakkan konten dari area teks ke wadah deskripsi.
+			Kabar baiknya: anda dapat membantu kami memperbaikinya dengan mengisi laporan kesalahan.
+			Harap kunjungi laman berikut, buat laporan kesalahan baru dan letakkan konten dari area teks ke wadah deskripsi.
 
-Harap tambah penjelasan yang berarti dan sertakan informasi lain yang penting untuk kami tiru kesalahannya.
-Juga, kami sangat terbantu apabila anda mengecek laporan lain yang sama dengan kepunyaan anda. (Anda dapat menggunakan pencarian untuk mencari dengan cepat.) Terima kasih :)</resource>
+			Harap tambah penjelasan yang berarti dan sertakan informasi lain yang penting untuk kami tiru kesalahannya.
+			Juga, kami sangat terbantu apabila anda mengecek laporan lain yang sama dengan kepunyaan anda. (Anda dapat menggunakan pencarian untuk mencari dengan cepat.) Terima kasih :)
+		</resource>
 		<resource name="bugreport_title">Kesalahan</resource>
 		<resource name="CANCEL">Batal</resource>
 		<resource name="clipboard_error">Sebuah kesalahan terjadi ketika sedang menulis di papan klip.</resource>
@@ -62,126 +67,14 @@ Juga, kami sangat terbantu apabila anda mengecek laporan lain yang sama dengan k
 		<resource name="contextmenu_quicksettings">Setelan cepat</resource>
 		<resource name="contextmenu_settings">Pengaturan...</resource>
 		<resource name="destination_exportfailed">Tidak bisa mengekspor ke {0}. Mohon ulangi lagi.</resource>
-		<resource name="editor_align_bottom">Bawah</resource>
-		<resource name="editor_align_center">Tengah</resource>
-		<resource name="editor_align_horizontal">Arah mendatar</resource>
-		<resource name="editor_align_left">Kiri</resource>
-		<resource name="editor_align_middle">Tengah</resource>
-		<resource name="editor_align_right">Kanan</resource>
-		<resource name="editor_align_top">Atas</resource>
-		<resource name="editor_align_vertical">Arah membujur</resource>
-		<resource name="editor_arrange">Susun</resource>
-		<resource name="editor_arrowheads">Anak Panah</resource>
-		<resource name="editor_arrowheads_both">Kesemuanya</resource>
-		<resource name="editor_arrowheads_end">Titik akhir</resource>
-		<resource name="editor_arrowheads_none">Nihil</resource>
-		<resource name="editor_arrowheads_start">Titik awal</resource>
-		<resource name="editor_autocrop">Auto potong</resource>
-		<resource name="editor_backcolor">Warna pengisi</resource>
-		<resource name="editor_blur_radius">Blur radius</resource>
-		<resource name="editor_bold">Tebal</resource>
-		<resource name="editor_border">Batas</resource>
-		<resource name="editor_brightness">Kecerahan</resource>
-		<resource name="editor_cancel">Batal</resource>
-		<resource name="editor_clipboardfailed">Tidak bisa mengakses papan klip. Dimohon ulangi lagi.</resource>
-		<resource name="editor_close">Tutup</resource>
-		<resource name="editor_close_on_save">Apakah anda ingin menyimpan layar yang tertangkap?</resource>
-		<resource name="editor_close_on_save_title">Simpan gambar?</resource>
-		<resource name="editor_confirm">Konfirmasi</resource>
-		<resource name="editor_copyimagetoclipboard">Kopi gambar ke papan klip</resource>
-		<resource name="editor_copypathtoclipboard">Kopi jalur ke papan klip</resource>
-		<resource name="editor_copytoclipboard">Kopi</resource>
-		<resource name="editor_counter">Buat penomor</resource>
-		<resource name="editor_crop">Potong (C)</resource>
-		<resource name="editor_cursortool">Alat seleksi (ESC)</resource>
-		<resource name="editor_cuttoclipboard">Gunting</resource>
-		<resource name="editor_deleteelement">Hapus</resource>
-		<resource name="editor_downonelevel">Turun setingkat</resource>
-		<resource name="editor_downtobottom">Turun ke bawah</resource>
-		<resource name="editor_drawarrow">Buat panah (A)</resource>
-		<resource name="editor_drawellipse">Buat lingkaran (E)</resource>
-		<resource name="editor_drawfreehand">Buat bebas (F)</resource>
-		<resource name="editor_drawhighlighter">Tandai (H)</resource>
-		<resource name="editor_drawline">Buat garis (L)</resource>
-		<resource name="editor_drawrectangle">Buat segi empat (R)</resource>
-		<resource name="editor_drawtextbox">Tambah kotak teks (T)</resource>
-		<resource name="editor_dropshadow_darkness">Kegelapan bayangan</resource>
-		<resource name="editor_dropshadow_offset">Ofset bayangan</resource>
-		<resource name="editor_dropshadow_settings">Pengaturan bayangan</resource>
-		<resource name="editor_dropshadow_thickness">Ketebalan bayangan</resource>
-		<resource name="editor_duplicate">Gandakan unsur terpilih</resource>
-		<resource name="editor_edit">Ubah</resource>
-		<resource name="editor_effects">Efek</resource>
-		<resource name="editor_email">E-Mail</resource>
-		<resource name="editor_file">Berkas</resource>
-		<resource name="editor_fontsize">Ukuran</resource>
-		<resource name="editor_forecolor">Warna garis</resource>
-		<resource name="editor_grayscale">Keabu-abuan</resource>
-		<resource name="editor_highlight_area">Tandai area</resource>
-		<resource name="editor_highlight_grayscale">Keabu-abuan</resource>
-		<resource name="editor_highlight_magnify">Perbesar</resource>
-		<resource name="editor_highlight_mode">Moda Tandai</resource>
-		<resource name="editor_highlight_text">Tandai teks</resource>
-		<resource name="editor_image_shadow">Bayangan</resource>
-		<resource name="editor_imagesaved">Gambar disimpan ke {0}.</resource>
-		<resource name="editor_insertwindow">Masukkan jendela</resource>
-		<resource name="editor_invert">Balik</resource>
-		<resource name="editor_italic">Miring</resource>
-		<resource name="editor_load_objects">Unggah objek dari berkas</resource>
-		<resource name="editor_magnification_factor">Faktor perbesaran</resource>
-		<resource name="editor_match_capture_size">Tepat ukuran tangkapan</resource>
-		<resource name="editor_obfuscate">Samar (O)</resource>
-		<resource name="editor_obfuscate_blur">Blur</resource>
-		<resource name="editor_obfuscate_mode">Moda Samar</resource>
-		<resource name="editor_obfuscate_pixelize">Pikselisasi</resource>
-		<resource name="editor_object">Objek</resource>
-		<resource name="editor_opendirinexplorer">Buka direktori di Windows Explorer</resource>
-		<resource name="editor_pastefromclipboard">Tempel</resource>
-		<resource name="editor_pixel_size">Ukuran piksel</resource>
-		<resource name="editor_preview_quality">Kualitas pratayang</resource>
-		<resource name="editor_print">Cetak</resource>
-		<resource name="editor_redo">Ulang {0}</resource>
-		<resource name="editor_resetsize">Reset ukuran</resource>
-		<resource name="editor_resize">Ubah ukuran</resource>
-		<resource name="editor_resize_aspectratio">Pertahankan aspek rasio</resource>
-		<resource name="editor_resize_height">Tinggi</resource>
-		<resource name="editor_resize_percent">Persen</resource>
-		<resource name="editor_resize_pixel">Piksel</resource>
-		<resource name="editor_resize_settings">Setelan ukuran</resource>
-		<resource name="editor_resize_width">Lebar</resource>
-		<resource name="editor_rotateccw">Putar melawan arah jarum jam (Control + ,)</resource>
-		<resource name="editor_rotatecw">Putar searah jarum jam (Control + .)</resource>
-		<resource name="editor_save">Simpan</resource>
-		<resource name="editor_save_objects">Simpan objek ke berkas</resource>
-		<resource name="editor_saveas">Simpan sebagai...</resource>
-		<resource name="editor_selectall">Pilih semua</resource>
-		<resource name="editor_senttoprinter">Cetakan dikirim ke '{0}'.</resource>
-		<resource name="editor_shadow">Bayangan</resource>
-		<resource name="editor_speechbubble">Buat kotak dialog</resource>
-		<resource name="editor_storedtoclipboard">Gambar tersimpan di papan klip.</resource>
-		<resource name="editor_thickness">Ketebalan garis</resource>
-		<resource name="editor_title">Editor gambar Greenshot</resource>
-		<resource name="editor_torn_edge">Sobek sisi</resource>
-		<resource name="editor_tornedge_all">Sobek setiap sisi</resource>
-		<resource name="editor_tornedge_bottom">Sisi bawah</resource>
-		<resource name="editor_tornedge_horizontaltoothrange">Wilayah tooth mendatar</resource>
-		<resource name="editor_tornedge_left">Sisi kiri</resource>
-		<resource name="editor_tornedge_right">Sisi kanan</resource>
-		<resource name="editor_tornedge_settings">Pengaturan penyobek sisi</resource>
-		<resource name="editor_tornedge_shadow">Buat bayangan </resource>
-		<resource name="editor_tornedge_toothsize">Ukuran tooth</resource>
-		<resource name="editor_tornedge_top">Sisi atas</resource>
-		<resource name="editor_tornedge_verticaltoothrange">Wilayah tooth membujur</resource>
-		<resource name="editor_undo">Batal</resource>
-		<resource name="editor_uponelevel">Naik setingkat</resource>
-		<resource name="editor_uptotop">Naik keatas</resource>
-		<resource name="EmailFormat.MAPI">Klien MAPI</resource>
-		<resource name="EmailFormat.OUTLOOK_HTML">Outlook dengan HTML</resource>
-		<resource name="EmailFormat.OUTLOOK_TXT">Outlook dengan teks</resource>
+		<resource name="EmailFormats.Html">Outlook dengan HTML</resource>
+		<resource name="EmailFormats.Text">Outlook dengan teks</resource>
 		<resource name="error">Kesalahan</resource>
 		<resource name="error_multipleinstances">Sesuatu dari Greenshot telah dijalankan.</resource>
-		<resource name="error_nowriteaccess">Tidak dapat berkas {0}.
-Harap cek aksesibilitas menuis pada lokasi penyimpanan yang dipilih.</resource>
+		<resource name="error_nowriteaccess">
+			Tidak dapat berkas {0}.
+			Harap cek aksesibilitas menuis pada lokasi penyimpanan yang dipilih.
+		</resource>
 		<resource name="error_openfile">Berkas "{0}" tidak dapat dibuka.</resource>
 		<resource name="error_openlink">Tidak dapat membuka link '{0}'.</resource>
 		<resource name="error_save">Tidak dapat menyimpan tangkapan, dimohon cari lokasi yang sesuai.</resource>
@@ -245,23 +138,25 @@ Harap cek aksesibilitas menuis pada lokasi penyimpanan yang dipilih.</resource>
 		<resource name="settings_iecapture">Tangkap Internet Explorer</resource>
 		<resource name="settings_jpegquality">Kualitas JPEG</resource>
 		<resource name="settings_language">Bahasa</resource>
-		<resource name="settings_message_filenamepattern">Pedoman berikut akan ditimpa otomatis dalam pola yang ditetapkan:
-${YYYY} tahun, 4 digit
-${MM} bulan, 2 digit
-${DD} hari, 2 digit
-${hh} jam, 2 digit
-${mm} menit, 2 digit
-${ss} detik, 2 digit
-${NUM} angka tambahan, 6 digit
-${title} judul jendela
-${user} pengguna Windows
-${domain} domain Windows
-${hostname} nama PC
+		<resource name="settings_message_filenamepattern">
+			Pedoman berikut akan ditimpa otomatis dalam pola yang ditetapkan:
+			${YYYY} tahun, 4 digit
+			${MM} bulan, 2 digit
+			${DD} hari, 2 digit
+			${hh} jam, 2 digit
+			${mm} menit, 2 digit
+			${ss} detik, 2 digit
+			${NUM} angka tambahan, 6 digit
+			${title} judul jendela
+			${user} pengguna Windows
+			${domain} domain Windows
+			${hostname} nama PC
 
-Anda juga dapat membuat direktori Greenshot secara dinamis, cukup gunakan simbol garis miring {\} untuk memisahkan folder dan nama berkas
-Contoh: pola ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-akan menbuat folder untuk hari terbaru di lokasi penyimpan default, cont. 2008-06-29, nama berkas didasarkan pada waktu terbaru
-cont, 11_58_32 (ditambah ekstensi yang ditetapkan pada pengaturan)</resource>
+			Anda juga dapat membuat direktori Greenshot secara dinamis, cukup gunakan simbol garis miring {\} untuk memisahkan folder dan nama berkas
+			Contoh: pola ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+			akan menbuat folder untuk hari terbaru di lokasi penyimpan default, cont. 2008-06-29, nama berkas didasarkan pada waktu terbaru
+			cont, 11_58_32 (ditambah ekstensi yang ditetapkan pada pengaturan)
+		</resource>
 		<resource name="settings_network">Jaringan dan pembaruan</resource>
 		<resource name="settings_output">Output</resource>
 		<resource name="settings_playsound">Mainkan suara kamera</resource>
@@ -296,9 +191,11 @@ cont, 11_58_32 (ditambah ekstensi yang ditetapkan pada pengaturan)</resource>
 		<resource name="update_found">Versi baru Greenshot telah tersedia! Apakah anda ingin mengunduh Greenshot {0}?</resource>
 		<resource name="wait_ie_capture">Harap tunggu ketika halaman Internet Explorer sedang ditangkap</resource>
 		<resource name="warning">Peringatan</resource>
-		<resource name="warning_hotkeys">hotkey {0} tak dapat terdaftar, kemungkinan akibat alat lain telah mengklaim penggunaan hotkey, anda dapat mengganti hotkey yang lain atau menonaktifkannya.
+		<resource name="warning_hotkeys">
+			hotkey {0} tak dapat terdaftar, kemungkinan akibat alat lain telah mengklaim penggunaan hotkey, anda dapat mengganti hotkey yang lain atau menonaktifkannya.
 
- Semua fitur Greenshot masih bekerja dengan baik dari ikon tray menu konteks tanpa hotkey.</resource>
+			Semua fitur Greenshot masih bekerja dengan baik dari ikon tray menu konteks tanpa hotkey.
+		</resource>
 		<resource name="WindowCaptureModes.Aero">Gunakan warna kesukaan</resource>
 		<resource name="WindowCaptureModes.AeroTransparent">Pertahankan kebeningan</resource>
 		<resource name="WindowCaptureModes.Auto">Otomatis</resource>
