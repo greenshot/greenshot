@@ -77,92 +77,6 @@ namespace Greenshot.Addons
         string ContextmenuSettings { get; }
         string ContextmenuCaptureie { get; }
         string ContextmenuOpenrecentcapture { get; }
-        string EditorAlignBottom { get; }
-        string EditorAlignCenter { get; }
-        string EditorAlignHorizontal { get; }
-        string EditorAlignMiddle { get; }
-        string EditorAlignLeft { get; }
-        string EditorAlignRight { get; }
-        string EditorAlignTop { get; }
-        string EditorAlignVertical { get; }
-        string EditorArrange { get; }
-        string EditorArrowheads { get; }
-        string EditorArrowheadsBoth { get; }
-        string EditorArrowheadsEnd { get; }
-        string EditorArrowheadsNone { get; }
-        string EditorArrowheadsStart { get; }
-        string EditorBackcolor { get; }
-        string EditorBlurRadius { get; }
-        string EditorBold { get; }
-        string EditorBrightness { get; }
-        string EditorCancel { get; }
-        string EditorClipboardfailed { get; }
-        string EditorClose { get; }
-        string EditorCloseOnSave { get; }
-        string EditorCloseOnSaveTitle { get; }
-        string EditorConfirm { get; }
-        string EditorCopyimagetoclipboard { get; }
-        string EditorCopypathtoclipboard { get; }
-        string EditorCopytoclipboard { get; }
-        string EditorCrop { get; }
-        string EditorCursortool { get; }
-        string EditorCuttoclipboard { get; }
-        string EditorDeleteelement { get; }
-        string EditorDownonelevel { get; }
-        string EditorDowntobottom { get; }
-        string EditorDrawarrow { get; }
-        string EditorDrawellipse { get; }
-        string EditorDrawhighlighter { get; }
-        string EditorDrawline { get; }
-        string EditorDrawfreehand { get; }
-        string EditorDrawrectangle { get; }
-        string EditorDrawtextbox { get; }
-        string EditorDuplicate { get; }
-        string EditorEdit { get; }
-        string EditorEmail { get; }
-        string EditorFile { get; }
-        string EditorFontsize { get; }
-        string EditorForecolor { get; }
-        string EditorHighlightArea { get; }
-        string EditorHighlightGrayscale { get; }
-        string EditorHighlightMode { get; }
-        string EditorHighlightText { get; }
-        string EditorHighlightMagnify { get; }
-        string EditorPixelSize { get; }
-        string EditorImagesaved { get; }
-        string EditorItalic { get; }
-        string EditorLoadObjects { get; }
-        string EditorMagnificationFactor { get; }
-        string EditorMatchCaptureSize { get; }
-        string EditorObfuscate { get; }
-        string EditorObfuscateBlur { get; }
-        string EditorObfuscateMode { get; }
-        string EditorObfuscatePixelize { get; }
-        string EditorObject { get; }
-        string EditorOpendirinexplorer { get; }
-        string EditorPastefromclipboard { get; }
-        string EditorPreviewQuality { get; }
-        string EditorPrint { get; }
-        string EditorSave { get; }
-        string EditorSaveObjects { get; }
-        string EditorSaveas { get; }
-        string EditorSelectall { get; }
-        string EditorSenttoprinter { get; }
-        string EditorShadow { get; }
-        string EditorTornEdge { get; }
-        string EditorBorder { get; }
-        string EditorGrayscale { get; }
-        string EditorEffects { get; }
-        string EditorStoredtoclipboard { get; }
-        string EditorThickness { get; }
-        string EditorTitle { get; }
-        string EditorUponelevel { get; }
-        string EditorUptotop { get; }
-        string EditorAutocrop { get; }
-        string EditorUndo { get; }
-        string EditorRedo { get; }
-        string EditorInsertwindow { get; }
-        string EditorResetsize { get; }
         [DefaultValue("Error")]
         string Error { get; }
         [DefaultValue("An instance of Greenshot is already running.")]
@@ -245,6 +159,8 @@ namespace Greenshot.Addons
 
         string SettingsWindowscapture { get; }
         string SettingsWindowCaptureMode { get; }
+        [DefaultValue("Screen capture mode")]
+        string SettingsScreenCaptureMode { get; }
         string SettingsNetwork { get; }
         string SettingsCheckperiod { get; }
         string SettingsUsedefaultproxy { get; }
@@ -255,6 +171,5 @@ namespace Greenshot.Addons
         string WaitIeCapture { get; }
         string UpdateFound { get; }
         string ExportedTo { get; }
-
     }
 }

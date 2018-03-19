@@ -5,9 +5,13 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:Greenshot.Ui.Configuration.ViewModels"
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:controls="clr-namespace:Greenshot.Addons.Controls;assembly=Greenshot.Addons"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance viewModels:CaptureConfigViewModel,IsDesignTimeCreatable=False}"
              >
+    <UserControl.Resources>
+        <controls:InvertedBoolenConverter x:Key="InvertedBoolenConverter" />
+    </UserControl.Resources>
     <StackPanel>
         <GroupBox Header="{Binding GreenshotLanguage.SettingsCapture}">
             <StackPanel>
@@ -15,10 +19,18 @@
                 <CheckBox Content="{Binding GreenshotLanguage.SettingsPlaysound}" IsChecked="{Binding CoreConfiguration.PlayCameraSound}" />
                 <CheckBox Content="{Binding GreenshotLanguage.SettingsShownotify}" IsChecked="{Binding CoreConfiguration.ShowTrayNotification}" />
                 <CheckBox Content="{Binding GreenshotLanguage.SettingsZoom}" IsChecked="{Binding CoreConfiguration.ZoomerEnabled}" />
-
                 <DockPanel LastChildFill="True">
                     <Label Content="{Binding GreenshotLanguage.SettingsCapture}" Width="100" />
                     <mah:NumericUpDown Value="{Binding CoreConfiguration.CaptureDelay}" Maximum="1000" Minimum="0"></mah:NumericUpDown>
+                </DockPanel>
+                <CheckBox Content="{Binding GreenshotLanguage.SettingsCaptureWindowsInteractive}" IsChecked="{Binding CoreConfiguration.CaptureWindowsInteractive}" />
+                <DockPanel LastChildFill="True" IsEnabled="{Binding CoreConfiguration.CaptureWindowsInteractive,Converter={StaticResource InvertedBoolenConverter}}">
+                    <Label Content="{Binding GreenshotLanguage.SettingsWindowCaptureMode}" Width="100" />
+                    <ComboBox SelectedValue="{Binding SelectedWindowCaptureMode}" ItemsSource="{Binding WindowCaptureModes}" SelectedValuePath="Key" DisplayMemberPath="Value" />
+                </DockPanel>
+                <DockPanel LastChildFill="True">
+                    <Label Content="{Binding GreenshotLanguage.SettingsScreenCaptureMode}" Width="100" />
+                    <ComboBox SelectedValue="{Binding SelectedScreenCaptureMode}" ItemsSource="{Binding ScreenCaptureModes}" SelectedValuePath="Key" DisplayMemberPath="Value" />
                 </DockPanel>
             </StackPanel>
         </GroupBox>

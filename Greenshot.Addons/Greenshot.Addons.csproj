@@ -161,6 +161,7 @@
     <Compile Include="Controls\BaseForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Controls\InvertedBoolenConverter.cs" />
     <Compile Include="Controls\ColorButton.cs">
       <SubType>Component</SubType>
     </Compile>

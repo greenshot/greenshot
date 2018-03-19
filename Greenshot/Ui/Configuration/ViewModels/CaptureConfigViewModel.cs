@@ -22,6 +22,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
@@ -30,6 +31,9 @@ using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.CaliburnMicro.Metro;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
+using Greenshot.Addons.Core.Enums;
+using Greenshot.Addons.Extensions;
+using Greenshot.Addons.Interfaces;
 using Greenshot.Configuration;
 
 namespace Greenshot.Ui.Configuration.ViewModels
@@ -87,5 +91,31 @@ namespace Greenshot.Ui.Configuration.ViewModels
             _disposables.Dispose();
             base.OnDeactivate(close);
         }
+
+
+        public WindowCaptureModes SelectedWindowCaptureMode
+        {
+            get => CoreConfiguration.WindowCaptureMode;
+            set
+            {
+                CoreConfiguration.WindowCaptureMode = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
+        public IDictionary<WindowCaptureModes, string> WindowCaptureModes => GreenshotLanguage.TranslationValuesForEnum<WindowCaptureModes>();
+
+
+        public ScreenCaptureMode SelectedScreenCaptureMode
+        {
+            get => CoreConfiguration.ScreenCaptureMode;
+            set
+            {
+                CoreConfiguration.ScreenCaptureMode = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
+        public IDictionary<ScreenCaptureMode, string> ScreenCaptureModes => GreenshotLanguage.TranslationValuesForEnum<ScreenCaptureMode>();
     }
 }

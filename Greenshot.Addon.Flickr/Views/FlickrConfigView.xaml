@@ -18,27 +18,12 @@
                     <Label Content="{Binding FlickrLanguage.LabelSafetyLevel}" Width="100" />
                     <ComboBox SelectedValue="{Binding SelectedSafetyLevel}" ItemsSource="{Binding SafetyLevels}" SelectedValuePath="Key" DisplayMemberPath="Value" />
                 </DockPanel>
-                <DockPanel LastChildFill="True">
-                    <Label Content="{Binding FlickrLanguage.LabelAfterUploadLinkToClipBoard}" Width="100" />
-                    <CheckBox Content="{Binding FlickrConfiguration.AfterUploadLinkToClipBoard}" />
-                </DockPanel>
-                <DockPanel LastChildFill="True">
-                    <Label Content="{Binding FlickrLanguage.LabelHiddenFromSearch}" Width="100" />
-                    <CheckBox Content="{Binding FlickrConfiguration.HiddenFromSearch}" />
-                </DockPanel>
+                <CheckBox IsChecked="{Binding FlickrConfiguration.AfterUploadLinkToClipBoard}" Content="{Binding FlickrLanguage.LabelAfterUploadLinkToClipBoard}"/>
+                <CheckBox IsChecked="{Binding FlickrConfiguration.HiddenFromSearch}" Content="{Binding FlickrLanguage.LabelHiddenFromSearch}"/>
                 <StackPanel Orientation="Horizontal">
-                    <DockPanel LastChildFill="True">
-                        <Label Content="{Binding FlickrLanguage.Public}" Width="100" />
-                        <CheckBox Content="{Binding FlickrConfiguration.IsPublic}" />
-                    </DockPanel>
-                    <DockPanel LastChildFill="True">
-                        <Label Content="{Binding FlickrLanguage.Family}" Width="100" />
-                        <CheckBox Content="{Binding FlickrConfiguration.IsFamily}" />
-                    </DockPanel>
-                    <DockPanel LastChildFill="True">
-                        <Label Content="{Binding FlickrLanguage.Friend}" Width="100" />
-                        <CheckBox Content="{Binding FlickrConfiguration.IsFriend}" />
-                    </DockPanel>
+                    <CheckBox IsChecked="{Binding FlickrConfiguration.IsPublic}" Content="{Binding FlickrLanguage.Public}"/>
+                    <CheckBox IsChecked="{Binding FlickrConfiguration.IsFamily}" Content="{Binding FlickrLanguage.Family}"/>
+                    <CheckBox IsChecked="{Binding FlickrConfiguration.IsFriend}" Content="{Binding FlickrLanguage.Friend}"/>
                 </StackPanel>
             </StackPanel>
         </GroupBox>
