@@ -27,6 +27,7 @@ using System.ComponentModel;
 using System.Runtime.Serialization;
 using Dapplo.Ini;
 using Dapplo.Ini.Converters;
+using Dapplo.InterfaceImpl.Extensions;
 using Greenshot.Addons.Core.Enums;
 
 #endregion
@@ -45,7 +46,7 @@ namespace Greenshot.Addon.Flickr
 	/// </summary>
 	[IniSection("Flickr")]
 	[Description("Greenshot Flickr Plugin configuration")]
-	public interface IFlickrConfiguration : IIniSection
+	public interface IFlickrConfiguration : IIniSection, INotifyPropertyChanged, ITransactionalProperties
 	{
 		[Description("IsPublic.")]
 		[DefaultValue(true)]

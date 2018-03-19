@@ -24,7 +24,6 @@
 #region Usings
 
 using System;
-using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Addons.Addons;

@@ -32,7 +32,6 @@ using Greenshot.Addons.Core;
 using Greenshot.Addons.Extensions;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
-using Greenshot.Destinations;
 
 namespace Greenshot.Components
 {

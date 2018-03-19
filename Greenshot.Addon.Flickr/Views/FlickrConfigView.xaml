@@ -1,0 +1,46 @@
+﻿<UserControl x:Class="Greenshot.Addon.Flickr.Views.FlickrConfigView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Greenshot.Addon.Flickr.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance viewModels:FlickrConfigViewModel,IsDesignTimeCreatable=False}"
+             >
+    <StackPanel>
+        <GroupBox Header="{Binding FlickrLanguage.SettingsTitle}">
+            <StackPanel>
+                <DockPanel LastChildFill="True">
+                    <Label Content="{Binding FlickrLanguage.LabelUploadFormat}" Width="100" />
+                    <ComboBox SelectedValue="{Binding SelectedUploadFormat}" ItemsSource="{Binding UploadFormats}" SelectedValuePath="Key" DisplayMemberPath="Value" />
+                </DockPanel>
+                <DockPanel LastChildFill="True">
+                    <Label Content="{Binding FlickrLanguage.LabelSafetyLevel}" Width="100" />
+                    <ComboBox SelectedValue="{Binding SelectedSafetyLevel}" ItemsSource="{Binding SafetyLevels}" SelectedValuePath="Key" DisplayMemberPath="Value" />
+                </DockPanel>
+                <DockPanel LastChildFill="True">
+                    <Label Content="{Binding FlickrLanguage.LabelAfterUploadLinkToClipBoard}" Width="100" />
+                    <CheckBox Content="{Binding FlickrConfiguration.AfterUploadLinkToClipBoard}" />
+                </DockPanel>
+                <DockPanel LastChildFill="True">
+                    <Label Content="{Binding FlickrLanguage.LabelHiddenFromSearch}" Width="100" />
+                    <CheckBox Content="{Binding FlickrConfiguration.HiddenFromSearch}" />
+                </DockPanel>
+                <StackPanel Orientation="Horizontal">
+                    <DockPanel LastChildFill="True">
+                        <Label Content="{Binding FlickrLanguage.Public}" Width="100" />
+                        <CheckBox Content="{Binding FlickrConfiguration.IsPublic}" />
+                    </DockPanel>
+                    <DockPanel LastChildFill="True">
+                        <Label Content="{Binding FlickrLanguage.Family}" Width="100" />
+                        <CheckBox Content="{Binding FlickrConfiguration.IsFamily}" />
+                    </DockPanel>
+                    <DockPanel LastChildFill="True">
+                        <Label Content="{Binding FlickrLanguage.Friend}" Width="100" />
+                        <CheckBox Content="{Binding FlickrConfiguration.IsFriend}" />
+                    </DockPanel>
+                </StackPanel>
+            </StackPanel>
+        </GroupBox>
+    </StackPanel>
+</UserControl>

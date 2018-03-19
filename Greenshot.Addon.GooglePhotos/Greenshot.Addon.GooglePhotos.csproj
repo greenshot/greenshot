@@ -3,7 +3,7 @@
   <Import Project="..\CommonProject.properties" />
   <PropertyGroup>
     <ProjectGuid>{1893A2E4-A78A-4713-A8E7-E70058DABEE0}</ProjectGuid>
-	<ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <RootNamespace>Greenshot.Addon.GooglePhotos</RootNamespace>
     <AssemblyName>Greenshot.Addon.GooglePhotos</AssemblyName>
@@ -180,7 +180,6 @@
     <None Include="Languages\language_googlephotosplugin-lv-LV.xml" />
     <None Include="Languages\language_googlephotosplugin-pl-PL.xml" />
     <None Include="Languages\language_googlephotosplugin-pt-PT.xml" />
-    <None Include="Languages\language_googlephotosplugin-sr-RS.xml" />
     <None Include="Languages\language_googlephotosplugin-sv-SE.xml" />
     <None Include="Languages\language_googlephotosplugin-zh-TW.xml" />
     <Content Include="GooglePhotos.png" />

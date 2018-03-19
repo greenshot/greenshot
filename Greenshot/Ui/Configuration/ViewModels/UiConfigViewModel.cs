@@ -33,6 +33,7 @@ using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.CaliburnMicro.Metro;
 using Dapplo.Language;
 using Dapplo.Utils.Extensions;
+using Greenshot.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Configuration;
 

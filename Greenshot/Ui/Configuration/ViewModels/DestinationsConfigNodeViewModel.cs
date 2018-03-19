@@ -24,8 +24,8 @@
 using System.ComponentModel.Composition;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
+using Greenshot.Addons;
 using Greenshot.Addons.Core;
-using Greenshot.Configuration;
 
 namespace Greenshot.Ui.Configuration.ViewModels
 {

@@ -30,6 +30,7 @@ using System.Windows.Controls;
 using Dapplo.CaliburnMicro;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
+using Greenshot.Addons;
 using Greenshot.Configuration;
 using MahApps.Metro.IconPacks;
 
@@ -62,25 +63,18 @@ namespace Greenshot.Ui.Configuration.ViewModels
         /// </summary>
         public IConfigTranslations ConfigTranslations { get; }
 
-        /// <summary>
-        /// Is used from View
-        /// </summary>
-        public ICoreTranslations CoreTranslations { get; }
-
         [ImportingConstructor]
         public ConfigViewModel(
             [ImportMany] IEnumerable<Lazy<IConfigScreen>> configScreens,
             IGreenshotLanguage greenshotLanguage,
-            IConfigTranslations configTranslations,
-            ICoreTranslations coreTranslations)
+            IConfigTranslations configTranslations)
         {
             ConfigScreens = configScreens;
             GreenshotLanguage = greenshotLanguage;
             ConfigTranslations = configTranslations;
-            CoreTranslations = coreTranslations;
-            
+
             // automatically update the DisplayName
-            CoreTranslations.CreateDisplayNameBinding(this, nameof(ICoreTranslations.SettingsTitle));
+            GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.SettingsTitle));
 
             // TODO: Check if we need to set the current language (this should update all registered OnPropertyChanged anyway, so it can run in the background
             //var lang = demoConfiguration.Language;

@@ -6,6 +6,11 @@
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              xmlns:security="clr-namespace:Dapplo.CaliburnMicro.Security.Behaviors;assembly=Dapplo.CaliburnMicro.Security"
              xmlns:converters="clr-namespace:Dapplo.CaliburnMicro.Security.Converters;assembly=Dapplo.CaliburnMicro.Security"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Greenshot.Ui.Configuration.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance viewModels:ConfigViewModel,IsDesignTimeCreatable=False}"
              Width="500" Height="400">
     <behaviors:FrameworkElementIcon.Value>
         <iconPacks:PackIconMaterial Kind="Settings" Margin="10" Visibility="Visible" />
@@ -61,8 +66,8 @@
             <ContentControl x:Name="ActiveItem" />
         </StackPanel>
         <UniformGrid Grid.Column="1" Grid.Row="1" Rows="1" Columns="2">
-            <Button x:Name="Cancel" Content="{Binding CoreTranslations.Cancel}" />
-            <Button x:Name="Ok" Content="{Binding CoreTranslations.Ok}" />
+            <Button x:Name="Cancel" Content="{Binding GreenshotLanguage.Cancel}" />
+            <Button x:Name="Ok" Content="{Binding GreenshotLanguage.Ok}" />
         </UniformGrid>
     </Grid>
 </UserControl>

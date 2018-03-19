@@ -198,8 +198,6 @@
     <Compile Include="Configuration\CommandlineCaptureOptions.cs" />
     <Compile Include="Configuration\CommandlineOptions.cs" />
     <Compile Include="Configuration\IConfigTranslations.cs" />
-    <Compile Include="Configuration\ICoreTranslations.cs" />
-    <Compile Include="Configuration\IGreenshotLanguage.cs" />
     <Compile Include="Configuration\IMetroConfiguration.cs" />
     <Compile Include="Configuration\LanguageKeys.cs" />
     <Compile Include="Destinations\ClipboardDestination.cs" />

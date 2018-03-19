@@ -25,14 +25,12 @@ using System.ComponentModel.Composition;
 using System.Reactive.Disposables;
 using Dapplo.CaliburnMicro.Configuration;
 using Dapplo.CaliburnMicro.Extensions;
-using Greenshot.Addons;
 using Greenshot.Addons.Core;
-using Greenshot.Configuration;
 
-namespace Greenshot.Ui.Configuration.ViewModels
+namespace Greenshot.Addon.LegacyEditor.ViewModels
 {
     [Export(typeof(IConfigScreen))]
-    public sealed class DestinationPickerConfigViewModel : SimpleConfigScreen
+    public sealed class EditorConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
         ///     Here all disposables are registered, so we can clean the up
@@ -40,13 +38,10 @@ namespace Greenshot.Ui.Configuration.ViewModels
         private CompositeDisposable _disposables;
 
         [Import]
-        public ICoreConfiguration CoreConfiguration { get; set; }
+        public IEditorConfiguration EditorConfiguration { get; set; }
 
         [Import]
-        public IConfigTranslations ConfigTranslations { get; set; }
-
-        [Import]
-        public IGreenshotLanguage GreenshotLanguage { get; set; }
+        public IEditorLanguage EditorLanguage { get; set; }
 
         public override void Initialize(IConfig config)
         {
@@ -58,13 +53,13 @@ namespace Greenshot.Ui.Configuration.ViewModels
             ParentId = nameof(ConfigIds.Destinations);
 
             // Make sure Commit/Rollback is called on the IUiConfiguration
-            config.Register(CoreConfiguration);
+            config.Register(EditorConfiguration);
 
             // automatically update the DisplayName
-            var greenshotLanguageBinding = GreenshotLanguage.CreateDisplayNameBinding(this, nameof(IGreenshotLanguage.SettingsDestinationPicker));
+            var boxLanguageBinding = EditorLanguage.CreateDisplayNameBinding(this, nameof(IEditorLanguage.EditorTitle));
 
             // Make sure the greenshotLanguageBinding is disposed when this is no longer active
-            _disposables.Add(greenshotLanguageBinding);
+            _disposables.Add(boxLanguageBinding);
 
             base.Initialize(config);
         }

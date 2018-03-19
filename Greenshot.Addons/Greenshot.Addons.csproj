@@ -206,7 +206,9 @@
     <Compile Include="Core\EventDelay.cs" />
     <Compile Include="Core\WmInputLangChangeRequestFilter.cs" />
     <Compile Include="Extensions\DestinationExtensions.cs" />
+    <Compile Include="Extensions\LanguageExtensions.cs" />
     <Compile Include="Extensions\ProcessorExtensions.cs" />
+    <Compile Include="IGreenshotLanguage.cs" />
     <Compile Include="Interfaces\CaptureMode.cs" />
     <Compile Include="Interfaces\DrawingModes.cs" />
     <Compile Include="Interfaces\Drawing\Adorners\IAdorner.cs" />

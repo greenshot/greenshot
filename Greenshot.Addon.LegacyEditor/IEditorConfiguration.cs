@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using Dapplo.Ini;
+using Dapplo.InterfaceImpl.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.User32.Enums;
 using Greenshot.Gfx.Effects;
@@ -40,7 +41,7 @@ namespace Greenshot.Addon.LegacyEditor
     /// </summary>
     [IniSection("Editor")]
 	[Description("Greenshot editor configuration")]
-	public interface IEditorConfiguration : IIniSection
+	public interface IEditorConfiguration : IIniSection, INotifyPropertyChanged, ITransactionalProperties
 	{
 		[Description("Last used colors")]
 		IList<Color> RecentColors { get; set; }
