@@ -425,10 +425,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Greenshot.Addon.LegacyEditor\Greenshot.Addon.LegacyEditor.csproj">
-      <Project>{9f89c5a0-eb75-4f01-97eb-fbc0725733f2}</Project>
-      <Name>Greenshot.Addon.LegacyEditor</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Greenshot.Gfx\Greenshot.Gfx.csproj">
       <Project>{f041c685-eb96-4ed1-9ace-0f5bd836610f}</Project>
       <Name>Greenshot.Gfx</Name>

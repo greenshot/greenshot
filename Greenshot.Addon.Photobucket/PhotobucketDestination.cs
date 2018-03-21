@@ -25,17 +25,19 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
+using Dapplo.Addons.Bootstrapper.Resolving;
 using Dapplo.Log;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
+using Greenshot.Gfx;
 
 #endregion
 
@@ -50,23 +52,27 @@ namespace Greenshot.Addon.Photobucket
 	    private static readonly LogSource Log = new LogSource();
         private readonly string _albumPath;
 		private readonly IPhotobucketConfiguration _photobucketConfiguration;
+	    private readonly IPhotobucketLanguage _photobucketLanguage;
 
         /// <summary>
         ///     Create a Photobucket destination
         /// </summary>
         /// <param name="photobucketConfiguration">IPhotobucketConfiguration</param>
+        /// <param name="photobucketLanguage">IPhotobucketLanguage</param>
         [ImportingConstructor]
-        public PhotobucketDestination(IPhotobucketConfiguration photobucketConfiguration)
+        public PhotobucketDestination(IPhotobucketConfiguration photobucketConfiguration, IPhotobucketLanguage photobucketLanguage)
 	    {
 	        _photobucketConfiguration = photobucketConfiguration;
+	        _photobucketLanguage = photobucketLanguage;
 	    }
 
         /// <summary>
         ///     Create a Photobucket destination, which also has the path to the album in it
         /// </summary>
         /// <param name="photobucketConfiguration">IPhotobucketConfiguration</param>
+        /// <param name="photobucketLanguage">IPhotobucketLanguage</param>
         /// <param name="albumPath">path to the album, null for default</param>
-        public PhotobucketDestination(IPhotobucketConfiguration photobucketConfiguration, string albumPath) : this (photobucketConfiguration)
+        public PhotobucketDestination(IPhotobucketConfiguration photobucketConfiguration, IPhotobucketLanguage photobucketLanguage, string albumPath) : this (photobucketConfiguration, photobucketLanguage)
 		{
 			_photobucketConfiguration = photobucketConfiguration;
 			_albumPath = albumPath;
@@ -80,7 +86,7 @@ namespace Greenshot.Addon.Photobucket
 				{
 					return _albumPath;
 				}
-				return Language.GetString("photobucket", LangKey.upload_menu_item);
+				return _photobucketLanguage.UploadMenuItem;
 			}
 		}
 
@@ -88,9 +94,13 @@ namespace Greenshot.Addon.Photobucket
 		{
 			get
 			{
-				var resources = new ComponentResourceManager(typeof(PhotobucketPlugin));
-				return (Bitmap) resources.GetObject("Photobucket");
-			}
+			    // TODO: Optimize this
+			    var embeddedResource = GetType().Assembly.FindEmbeddedResources(@".*photobucket-logo\.png").FirstOrDefault();
+			    using (var bitmapStream = GetType().Assembly.GetEmbeddedResourceAsStream(embeddedResource))
+			    {
+			        return BitmapHelper.FromStream(bitmapStream);
+			    }
+            }
 		}
 
 		public override bool IsDynamic => true;
@@ -113,7 +123,7 @@ namespace Greenshot.Addon.Photobucket
 			}
 			foreach (var album in albums)
 			{
-				yield return new PhotobucketDestination(_photobucketConfiguration, album);
+				yield return new PhotobucketDestination(_photobucketConfiguration, _photobucketLanguage, album);
 			}
 		}
 
@@ -155,7 +165,7 @@ namespace Greenshot.Addon.Photobucket
 	            PhotobucketInfo photobucketInfo = null;
 
 	            // Run upload in the background
-	            new PleaseWaitForm().ShowAndWait("Photobucket", Language.GetString("photobucket", LangKey.communication_wait),
+	            new PleaseWaitForm().ShowAndWait("Photobucket", _photobucketLanguage.CommunicationWait,
 	                delegate { photobucketInfo = PhotobucketUtils.UploadToPhotobucket(surfaceToUpload, outputSettings, albumPath, captureDetails.Title, filename); }
 	            );
 	            // This causes an exeption if the upload failed :)
@@ -183,7 +193,7 @@ namespace Greenshot.Addon.Photobucket
 	        catch (Exception e)
 	        {
 	            Log.Error().WriteLine(e);
-	            MessageBox.Show(Language.GetString("photobucket", LangKey.upload_failure) + " " + e.Message);
+	            MessageBox.Show(_photobucketLanguage.UploadFailure + " " + e.Message);
 	        }
 	        uploadUrl = null;
 	        return false;

@@ -38,7 +38,6 @@ using Caliburn.Micro;
 using Dapplo.Ini;
 using Dapplo.Windows.Desktop;
 using Greenshot.Destinations;
-using Greenshot.Addon.LegacyEditor.Drawing;
 using Greenshot.Help;
 using Greenshot.Helpers;
 using Dapplo.Log;
@@ -50,7 +49,6 @@ using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Dpi.Enums;
 using Dapplo.Windows.Dpi.Forms;
 using Dapplo.Windows.Kernel32;
-using Greenshot.Addon.LegacyEditor;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
@@ -107,9 +105,6 @@ namespace Greenshot.Forms
         public void Initialize()
         {
             Log.Debug().WriteLine("Initializing MainForm.");
-            // Factory for surface objects
-            ImageOutput.SurfaceFactory = () => new Surface();
-
             //
             // The InitializeComponent() call is required for Windows Forms designer support.
             //
@@ -291,7 +286,7 @@ namespace Greenshot.Forms
 
                     if (File.Exists(_coreConfiguration.OutputFileAsFullpath))
                     {
-                        CaptureHelper.CaptureFile(_coreConfiguration.OutputFileAsFullpath, _destinations.Find(typeof(EditorDestination)));
+                        CaptureHelper.CaptureFile(_coreConfiguration.OutputFileAsFullpath, _destinations.Find("Editor"));
                     }
                     break;
                 case ClickActions.OPEN_SETTINGS:

@@ -161,7 +161,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="flickr.png" />
+    <EmbeddedResource Include="flickr.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Addons\Greenshot.Addons.csproj">

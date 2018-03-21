@@ -29,6 +29,8 @@ using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Addons.Interfaces.Drawing;
+using Greenshot.Gfx;
+using Greenshot.Gfx.Legacy;
 
 #endregion
 

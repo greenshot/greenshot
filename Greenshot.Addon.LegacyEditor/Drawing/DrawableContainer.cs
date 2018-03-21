@@ -41,6 +41,8 @@ using Greenshot.Addon.LegacyEditor.Memento;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Drawing;
 using Greenshot.Addons.Interfaces.Drawing.Adorners;
+using Greenshot.Gfx;
+using Greenshot.Gfx.Legacy;
 
 #endregion
 

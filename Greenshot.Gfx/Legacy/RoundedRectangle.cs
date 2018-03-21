@@ -29,7 +29,7 @@ using Dapplo.Windows.Common.Structs;
 
 #endregion
 
-namespace Greenshot.Addon.LegacyEditor.Drawing
+namespace Greenshot.Gfx.Legacy
 {
 	/// <summary>
 	///     TODO: currently this is only used in the capture form, we might move this code directly to there!

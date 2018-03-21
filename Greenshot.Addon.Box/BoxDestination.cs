@@ -114,6 +114,5 @@ namespace Greenshot.Addon.Box
 	            return null;
 	        }
 	    }
-
     }
 }

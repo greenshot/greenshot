@@ -34,7 +34,6 @@ using System.Linq;
 using System.Security.Permissions;
 using System.Windows.Forms;
 using Dapplo.Windows.Desktop;
-using Greenshot.Addon.LegacyEditor.Drawing;
 using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
@@ -46,6 +45,8 @@ using Greenshot.Addons.Animation;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
+using Greenshot.Gfx;
+using Greenshot.Gfx.Legacy;
 
 #endregion
 

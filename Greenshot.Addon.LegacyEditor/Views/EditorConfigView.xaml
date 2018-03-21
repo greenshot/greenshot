@@ -11,11 +11,8 @@
     <StackPanel>
         <GroupBox Header="{Binding EditorLanguage.EditorTitle}">
             <StackPanel>
-                <DockPanel LastChildFill="True">
-                    <Label Content="{Binding EditorLanguage.EditorMatchCaptureSize}" Width="100" />
-                    <CheckBox Content="{Binding EditorConfiguration.MatchSizeToCapture}" />
-                </DockPanel>
-            </StackPanel>
+                <CheckBox IsChecked="{Binding EditorConfiguration.MatchSizeToCapture}" Content="{Binding EditorLanguage.EditorMatchCaptureSize}"/>
+           </StackPanel>
         </GroupBox>
     </StackPanel>
 </UserControl>

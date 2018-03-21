@@ -43,8 +43,6 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
-using Greenshot.Addon.LegacyEditor;
-using Greenshot.Addon.LegacyEditor.Drawing;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
@@ -439,10 +437,11 @@ namespace Greenshot.Helpers
                         {
                             if (filename.ToLower().EndsWith("." + OutputFormats.greenshot))
                             {
-                                ISurface surface = new Surface();
+
+                                ISurface surface = ImageOutput.SurfaceFactory();
                                 surface = ImageOutput.LoadGreenshotSurface(filename, surface);
                                 surface.CaptureDetails = _capture.CaptureDetails;
-                                _destinations.Find(typeof(EditorDestination))?.ExportCapture(true, surface, _capture.CaptureDetails);
+                                _destinations.Find("Editor")?.ExportCapture(true, surface, _capture.CaptureDetails);
                                 break;
                             }
                         }
@@ -677,10 +676,8 @@ namespace Greenshot.Helpers
             }
 
             // Create Surface with capture, this way elements can be added automatically (like the mouse cursor)
-            var surface = new Surface(_capture)
-            {
-                Modified = !outputMade
-            };
+            var surface = ImageOutput.SurfaceFactoryWithCapture(_capture);
+            surface.Modified = !outputMade;
 
             // Register notify events if this is wanted			
             if (CoreConfig.ShowTrayNotification && !CoreConfig.HideTrayicon)

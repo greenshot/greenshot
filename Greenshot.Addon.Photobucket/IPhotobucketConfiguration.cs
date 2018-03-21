@@ -27,6 +27,7 @@ using System.ComponentModel;
 using System.Runtime.Serialization;
 using Dapplo.Ini;
 using Dapplo.Ini.Converters;
+using Dapplo.InterfaceImpl.Extensions;
 using Greenshot.Addons.Core.Enums;
 
 #endregion
@@ -38,7 +39,7 @@ namespace Greenshot.Addon.Photobucket
 	/// </summary>
 	[IniSection("Photobucket")]
 	[Description("Greenshot Photobucket Plugin configuration")]
-	public interface IPhotobucketConfiguration : IIniSection
+	public interface IPhotobucketConfiguration : IIniSection, INotifyPropertyChanged, ITransactionalProperties
 	{
 		[Description("What file type to use for uploading")]
 	    [DefaultValue(OutputFormats.png)]

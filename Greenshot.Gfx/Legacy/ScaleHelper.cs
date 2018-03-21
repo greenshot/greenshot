@@ -28,11 +28,10 @@ using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
-using Greenshot.Addon.LegacyEditor.Drawing;
 
 #endregion
 
-namespace Greenshot.Addon.LegacyEditor
+namespace Greenshot.Gfx.Legacy
 {
 	/// <summary>
 	///     Offers a few helper functions for scaling/aligning an element with another element

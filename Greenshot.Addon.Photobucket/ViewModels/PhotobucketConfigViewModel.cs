@@ -31,10 +31,10 @@ using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Extensions;
 
-namespace Greenshot.Addon.Jira.ViewModels
+namespace Greenshot.Addon.Photobucket.ViewModels
 {
     [Export(typeof(IConfigScreen))]
-    public sealed class JiraConfigViewModel : SimpleConfigScreen
+    public sealed class PhotobucketConfigViewModel : SimpleConfigScreen
     {
         /// <summary>
         ///     Here all disposables are registered, so we can clean the up
@@ -42,10 +42,10 @@ namespace Greenshot.Addon.Jira.ViewModels
         private CompositeDisposable _disposables;
 
         [Import]
-        public IJiraConfiguration JiraConfiguration { get; set; }
+        public IPhotobucketConfiguration PhotobucketConfiguration { get; set; }
 
         [Import]
-        public IJiraLanguage JiraLanguage { get; set; }
+        public IPhotobucketLanguage PhotobucketLanguage { get; set; }
 
         [Import]
         public IGreenshotLanguage GreenshotLanguage { get; set; }
@@ -60,13 +60,13 @@ namespace Greenshot.Addon.Jira.ViewModels
             ParentId = nameof(ConfigIds.Destinations);
 
             // Make sure Commit/Rollback is called on the IUiConfiguration
-            config.Register(JiraConfiguration);
+            config.Register(PhotobucketConfiguration);
 
             // automatically update the DisplayName
-            var jiraLanguageBinding = JiraLanguage.CreateDisplayNameBinding(this, nameof(IJiraLanguage.LabelJira));
+            var boxLanguageBinding = PhotobucketLanguage.CreateDisplayNameBinding(this, nameof(IPhotobucketLanguage.SettingsTitle));
 
             // Make sure the greenshotLanguageBinding is disposed when this is no longer active
-            _disposables.Add(jiraLanguageBinding);
+            _disposables.Add(boxLanguageBinding);
 
             base.Initialize(config);
         }
@@ -77,13 +77,12 @@ namespace Greenshot.Addon.Jira.ViewModels
             base.OnDeactivate(close);
         }
 
-
         public OutputFormats SelectedUploadFormat
         {
-            get => JiraConfiguration.UploadFormat;
+            get => PhotobucketConfiguration.UploadFormat;
             set
             {
-                JiraConfiguration.UploadFormat = value;
+                PhotobucketConfiguration.UploadFormat = value;
                 NotifyOfPropertyChange();
             }
         }

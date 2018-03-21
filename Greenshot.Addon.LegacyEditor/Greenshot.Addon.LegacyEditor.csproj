@@ -213,9 +213,7 @@
     <Compile Include="Drawing\IconContainer.cs" />
     <Compile Include="Drawing\LineContainer.cs" />
     <Compile Include="Drawing\ObfuscateContainer.cs" />
-    <Compile Include="Drawing\Positions.cs" />
     <Compile Include="Drawing\RectangleContainer.cs" />
-    <Compile Include="Drawing\RoundedRectangle.cs" />
     <Compile Include="Drawing\SpeechbubbleContainer.cs" />
     <Compile Include="Drawing\StepLabelContainer.cs" />
     <Compile Include="Drawing\Surface.cs">
@@ -249,7 +247,6 @@
     <Compile Include="Forms\TornEdgeSettingsForm.Designer.cs">
       <DependentUpon>TornEdgeSettingsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="GeometryHelper.cs" />
     <Compile Include="IEditorConfiguration.cs" />
     <Compile Include="IEditorLanguage.cs" />
     <Compile Include="LanguageKeys.cs" />
@@ -262,7 +259,6 @@
     <Compile Include="Memento\SurfaceBackgroundChangeMemento.cs" />
     <Compile Include="Memento\TextChangeMemento.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ScaleHelper.cs" />
     <Compile Include="ViewModels\EditorConfigViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -291,4 +287,14 @@
     </Page>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"
+"$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)\*.gsp"
+del /q /s "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)"\*
+
+copy "$(ProjectDir)bin\$(Configuration)\$(TargetFileName)" "$(SolutionDir)Greenshot\bin\$(Configuration)\Plugins\$(ProjectName)\*.gsp"
+
+mkdir "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\Plugins\$(ProjectName)"
+copy "$(ProjectDir)\Languages\*.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\Languages\Plugins\$(ProjectName)\"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

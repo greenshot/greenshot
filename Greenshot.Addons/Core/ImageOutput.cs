@@ -73,6 +73,7 @@ namespace Greenshot.Addons.Core
 	    ///     This is a factory method to create a surface, set from the Greenshot main project
 	    /// </summary>
 	    public static Func<ISurface> SurfaceFactory { get; set; }
+	    public static Func<ICapture, ISurface> SurfaceFactoryWithCapture { get; set; }
 
         /// <summary>
         ///     Creates a PropertyItem (Metadata) to store with the image.

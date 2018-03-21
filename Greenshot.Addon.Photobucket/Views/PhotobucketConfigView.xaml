@@ -1,23 +1,21 @@
-﻿<UserControl x:Class="Greenshot.Addon.Jira.Views.JiraConfigView"
+﻿<UserControl x:Class="Greenshot.Addon.Photobucket.Views.PhotobucketConfigView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:viewModels="clr-namespace:Greenshot.Addon.Jira.ViewModels"
+             xmlns:viewModels="clr-namespace:Greenshot.Addon.Photobucket.ViewModels"
              mc:Ignorable="d"
-             d:DataContext="{d:DesignInstance viewModels:JiraConfigViewModel,IsDesignTimeCreatable=False}"
+             d:DataContext="{d:DesignInstance viewModels:PhotobucketConfigViewModel,IsDesignTimeCreatable=False}"
              >
+
     <StackPanel>
-        <GroupBox Header="{Binding JiraLanguage.LabelJira}">
+        <GroupBox Header="{Binding PhotobucketLanguage.SettingsTitle}">
             <StackPanel>
                 <DockPanel LastChildFill="True">
-                    <Label Content="{Binding JiraLanguage.LabelUploadFormat}" Width="100" />
+                    <Label Content="{Binding PhotobucketLanguage.LabelUploadFormat}" Width="100" />
                     <ComboBox SelectedValue="{Binding SelectedUploadFormat}" ItemsSource="{Binding UploadFormats}" SelectedValuePath="Key" DisplayMemberPath="Value" />
                 </DockPanel>
-                <DockPanel LastChildFill="True">
-                    <Label Content="{Binding JiraLanguage.LabelUrl}" Width="100" />
-                    <TextBox Text="{Binding JiraConfiguration.Url}" />
-                </DockPanel>
+                <CheckBox IsChecked="{Binding PhotobucketConfiguration.UsePageLink}" Content="{Binding PhotobucketLanguage.UsePageLink}"/>
             </StackPanel>
         </GroupBox>
     </StackPanel>

@@ -1,4 +1,4 @@
-#region Greenshot GNU General Public License
+﻿#region Greenshot GNU General Public License
 
 // Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
@@ -21,18 +21,20 @@
 
 #endregion
 
-namespace Greenshot.Addon.Photobucket
+namespace Greenshot.Gfx.Legacy
 {
-	public enum LangKey
+	/// <summary>
+	///     Position
+	/// </summary>
+	public enum Positions
 	{
-		upload_menu_item,
-		settings_title,
-		label_upload_format,
-		label_clear,
-		upload_success,
-		upload_failure,
-		communication_wait,
-		use_page_link,
-		configure
+		TopLeft = 0,
+		TopCenter = 1,
+		TopRight = 2,
+		MiddleRight = 3,
+		BottomRight = 4,
+		BottomCenter = 5,
+		BottomLeft = 6,
+		MiddleLeft = 7
 	}
 }

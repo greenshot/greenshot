@@ -27,7 +27,7 @@ using System;
 
 #endregion
 
-namespace Greenshot.Addon.LegacyEditor
+namespace Greenshot.Gfx.Legacy
 {
 	/// <summary>
 	///     Description of GeometryHelper.

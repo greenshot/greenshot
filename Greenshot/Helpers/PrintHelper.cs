@@ -32,12 +32,13 @@ using Dapplo.Ini;
 using Dapplo.Log;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
-using Greenshot.Addon.LegacyEditor;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
+using Greenshot.Gfx;
 using Greenshot.Gfx.Effects;
+using Greenshot.Gfx.Legacy;
 using LangKey = Greenshot.Configuration.LangKey;
 
 #endregion

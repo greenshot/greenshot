@@ -26,7 +26,6 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using Dapplo.CaliburnMicro;
 using Dapplo.Log;
-using Greenshot.Addon.LegacyEditor;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Extensions;
@@ -80,7 +79,7 @@ namespace Greenshot.Components
             // we should have at least one!
             if (_coreConfiguration.OutputDestinations.Count == 0)
             {
-                _coreConfiguration.OutputDestinations.Add(typeof(EditorDestination).GetDesignation());
+                _coreConfiguration.OutputDestinations.Add("Editor");
             }
 
             Log.Debug().WriteLine("Started plugins");

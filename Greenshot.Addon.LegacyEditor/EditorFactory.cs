@@ -25,7 +25,9 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using Dapplo.Log;
+using Greenshot.Addon.LegacyEditor.Drawing;
 using Greenshot.Addon.LegacyEditor.Forms;
+using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Forms;
 
@@ -49,6 +51,9 @@ namespace Greenshot.Addon.LegacyEditor
         {
             _editorConfiguration = editorConfiguration;
             _imageEditorExportFactory = imageEditorExportFactory;
+            // Factory for surface objects
+            ImageOutput.SurfaceFactory = () => new Surface();
+            ImageOutput.SurfaceFactoryWithCapture = capture => new Surface(capture);
         }
 
         /// <summary>
