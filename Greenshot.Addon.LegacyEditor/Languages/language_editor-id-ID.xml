@@ -2,6 +2,7 @@
 
 <language>
 	<resources prefix="Editor">
+		<resource name="settings_destination_editor">Buka di editor gambar</resource>
 		<resource name="editor_align_bottom">Bawah</resource>
 		<resource name="editor_align_center">Tengah</resource>
 		<resource name="editor_align_horizontal">Arah mendatar</resource>

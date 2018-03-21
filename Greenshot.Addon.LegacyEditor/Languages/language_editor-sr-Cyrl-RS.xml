@@ -2,6 +2,7 @@
 
 <language>
 	<resources prefix="Editor">
+		<resource name="settings_destination_editor">Отвори у уређивачу слика</resource>
 		<resource name="editor_arrange">Распореди</resource>
 		<resource name="editor_arrowheads">Врхови стрелице</resource>
 		<resource name="editor_arrowheads_both">Оба</resource>

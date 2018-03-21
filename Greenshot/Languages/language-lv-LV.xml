@@ -125,7 +125,6 @@
 		<resource name="settings_copypathtoclipboard">Ievietot atmiņā faila ceļu, kad vien attēls tiek saglabāts</resource>
 		<resource name="settings_destination">Ko darīt ar attēlu</resource>
 		<resource name="settings_destination_clipboard">Ievietot atmiņā</resource>
-		<resource name="settings_destination_editor">Atvērt attēla redaktorā</resource>
 		<resource name="settings_destination_email">E-pasts</resource>
 		<resource name="settings_destination_file">Saglabāt nejautājot (izmantojot zemākesošos iestatījumus)</resource>
 		<resource name="settings_destination_fileas">Saglabāt kā (tiks vaicāts)</resource>

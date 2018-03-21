@@ -47,13 +47,13 @@ namespace Greenshot.Addon.LegacyEditor
         [ImportingConstructor]
         public EditorFactory(
             IEditorConfiguration editorConfiguration,
-            ExportFactory<ImageEditorForm> imageEditorExportFactory)
+            ExportFactory<ImageEditorForm> imageEditorExportFactory,
+            ExportFactory<ISurface> surfaceExportFactory)
         {
             _editorConfiguration = editorConfiguration;
             _imageEditorExportFactory = imageEditorExportFactory;
             // Factory for surface objects
-            ImageOutput.SurfaceFactory = () => new Surface();
-            ImageOutput.SurfaceFactoryWithCapture = capture => new Surface(capture);
+            ImageOutput.SurfaceFactory = surfaceExportFactory;
         }
 
         /// <summary>

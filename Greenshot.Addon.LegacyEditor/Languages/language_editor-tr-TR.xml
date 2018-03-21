@@ -2,6 +2,7 @@
 
 <language>
 	<resources prefix="Editor">
+		<resource name="settings_destination_editor">Görüntü düzenleyicide aç</resource>
 		<resource name="editor_arrange">Düzenle</resource>
 		<resource name="editor_arrowheads">Ok başları</resource>
 		<resource name="editor_arrowheads_both">İki uçta da</resource>

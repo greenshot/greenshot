@@ -126,7 +126,6 @@
 		<resource name="settings_copypathtoclipboard">Αντιγραφή της θέσης του αρχείου στο πρόχειρο κατά την αποθήκευση</resource>
 		<resource name="settings_destination">Προορισμός Στιγμιότυπου Οθόνης</resource>
 		<resource name="settings_destination_clipboard">Αντιγραφή στο πρόχειρο</resource>
-		<resource name="settings_destination_editor">Άνοιγμα για επεξεργασία</resource>
 		<resource name="settings_destination_email">Αποστολή στιγμιότυπου με e-mail</resource>
 		<resource name="settings_destination_file">Άμεση αποθήκευση (με τις παρακάτω ρυθμίσεις)</resource>
 		<resource name="settings_destination_fileas">Αποθήκευση ως (εμφάνιση διαλόγου)</resource>

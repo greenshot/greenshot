@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -53,6 +54,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 	/// <summary>
 	///     Description of Surface.
 	/// </summary>
+	[Export(typeof(ISurface))]
 	public sealed class Surface : Control, ISurface, INotifyPropertyChanged
 	{
 		private static readonly LogSource Log = new LogSource();
@@ -242,25 +244,37 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		///     Surface contructor with a capture
 		/// </summary>
 		/// <param name="capture"></param>
-		public Surface(ICapture capture) : this(capture.Bitmap)
+		public Surface(ICapture capture) : this()
 		{
-			// check if cursor is captured, and visible
-			if (capture.Cursor != null && capture.CursorVisible)
-			{
-				var cursorRect = new NativeRect(capture.CursorLocation, capture.Cursor.Size);
-				var captureRect = new NativeRect(NativePoint.Empty, capture.Bitmap.Size);
-				// check if cursor is on the capture, otherwise we leave it out.
-				if (cursorRect.IntersectsWith(captureRect))
-				{
-					_cursorContainer = AddIconContainer(capture.Cursor, capture.CursorLocation.X, capture.CursorLocation.Y);
-					SelectElement(_cursorContainer);
-				}
-			}
-			// Make sure the image is NOT disposed, we took the reference directly into ourselves
-			((Capture) capture).NullBitmap();
-
-			CaptureDetails = capture.CaptureDetails;
+			SetCapture(capture);
 		}
+
+        /// <summary>
+        /// Use the supplied capture in the surface
+        /// </summary>
+        /// <param name="capture">ICapture</param>
+	    public void SetCapture(ICapture capture)
+	    {
+	        var newBitmap = capture.Bitmap;
+            Log.Debug().WriteLine("Got Bitmap with dimensions {0} and format {1}", newBitmap.Size, newBitmap.PixelFormat);
+	        SetBitmap(newBitmap, true);
+            // check if cursor is captured, and visible
+            if (capture.Cursor != null && capture.CursorVisible)
+	        {
+	            var cursorRect = new NativeRect(capture.CursorLocation, capture.Cursor.Size);
+	            var captureRect = new NativeRect(NativePoint.Empty, capture.Bitmap.Size);
+	            // check if cursor is on the capture, otherwise we leave it out.
+	            if (cursorRect.IntersectsWith(captureRect))
+	            {
+	                _cursorContainer = AddIconContainer(capture.Cursor, capture.CursorLocation.X, capture.CursorLocation.Y);
+	                SelectElement(_cursorContainer);
+	            }
+	        }
+	        // Make sure the image is NOT disposed, we took the reference directly into ourselves
+	        ((Capture)capture).NullBitmap();
+
+	        CaptureDetails = capture.CaptureDetails;
+        }
 
 		/// <summary>
 		///     The field aggregator is that which is used to have access to all the fields inside the currently selected elements.
@@ -326,16 +340,6 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
 		///     Returns if the surface can do a redo
 		/// </summary>
 		public bool CanRedo => _redoStack.Count > 0;
-
-		/// <summary>
-		///     Get the language key for the undo action
-		/// </summary>
-		public LangKey UndoActionLanguageKey => LangKey.none;
-
-		/// <summary>
-		///     Get the language key for redo action
-		/// </summary>
-		public LangKey RedoActionLanguageKey => LangKey.none;
 
 		public event PropertyChangedEventHandler PropertyChanged
 		{
@@ -1023,8 +1027,8 @@ namespace Greenshot.Addon.LegacyEditor.Drawing
         ///     Private method, the current bitmap is disposed the new one will stay.
         /// </summary>
         /// <param name="newBitmap">The new bitmap</param>
-        /// <param name="dispose">true if the old bbitmap needs to be disposed, when using undo this should not be true!!</param>
-        private void SetBitmap(Bitmap newBitmap, bool dispose)
+        /// <param name="dispose">true if the old bitmap needs to be disposed, when using undo this should not be true!!</param>
+        public void SetBitmap(Bitmap newBitmap, bool dispose = false)
 		{
 			// Dispose
 			if (_screenshot != null && dispose)

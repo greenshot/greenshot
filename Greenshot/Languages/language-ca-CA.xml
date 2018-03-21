@@ -119,7 +119,6 @@ Si us plau, verifiqueu el camí d'accés seleccionat.</resource>
 		<resource name="settings_copypathtoclipboard">Copia la ubicació al porta-retalls cada cop que es desa una imatge</resource>
 		<resource name="settings_destination">Destí de la captura de pantalla</resource>
 		<resource name="settings_destination_clipboard">Copia al porta-retalls</resource>
-		<resource name="settings_destination_editor">Obre la imatge a l'editor</resource>
 		<resource name="settings_destination_email">Correu electrònic</resource>
 		<resource name="settings_destination_file">Desa directament (utilitzant la configuració indicada a sota)</resource>
 		<resource name="settings_destination_fileas">Anomena i desa (es mostra el quadre de diàleg)</resource>

@@ -2,6 +2,7 @@
 
 <language>
 	<resources prefix="Editor">
+		<resource name="settings_destination_editor">Otvoriť v editore obrázkov</resource>
 		<resource name="editor_arrange">Usporiadať</resource>
 		<resource name="editor_arrowheads">Hlavička šípky</resource>
 		<resource name="editor_arrowheads_both">Oba</resource>

@@ -538,23 +538,30 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 				hasMenu = true;
 				break;
 			}
-			if (hasMenu) {
-				ContextMenuStrip menu = new ContextMenuStrip();
-				AddContextMenuItems(menu, surface);
-				if (menu.Items.Count > 0) {
-					// TODO: cast should be somehow avoided
-					menu.Show((Surface)surface, e.Location);
-					while (true) {
-						if (menu.Visible) {
-							Application.DoEvents();
-							Thread.Sleep(100);
-						} else {
-							menu.Dispose();
-							break;
-						}
-					}
-				}
-			}
+
+		    if (!hasMenu)
+		    {
+		        return;
+		    }
+
+		    ContextMenuStrip menu = new ContextMenuStrip();
+		    AddContextMenuItems(menu, surface);
+		    if (menu.Items.Count <= 0)
+		    {
+		        return;
+		    }
+
+		    // TODO: cast should be somehow avoided
+		    menu.Show((Surface)surface, e.Location);
+		    while (true) {
+		        if (menu.Visible) {
+		            Application.DoEvents();
+		            Thread.Sleep(100);
+		        } else {
+		            menu.Dispose();
+		            break;
+		        }
+		    }
 		}
 
 		#region IDisposable Support

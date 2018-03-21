@@ -334,7 +334,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			this.btnCursor.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.btnCursor.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnCursor.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnCursor.LanguageKey = "editor_cursortool";
+			this.btnCursor.LanguageKey = "editor.editor_cursortool";
 			this.btnCursor.Name = "btnCursor";
 			this.btnCursor.Click += new System.EventHandler(this.BtnCursorClick);
 			// 
@@ -347,7 +347,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			this.btnRect.CheckOnClick = true;
 			this.btnRect.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnRect.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnRect.LanguageKey = "editor_drawrectangle";
+			this.btnRect.LanguageKey = "editor.editor_drawrectangle";
 			this.btnRect.Name = "btnRect";
 			this.btnRect.Click += new System.EventHandler(this.BtnRectClick);
 			// 
@@ -356,7 +356,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			this.btnEllipse.CheckOnClick = true;
 			this.btnEllipse.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnEllipse.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnEllipse.LanguageKey = "editor_drawellipse";
+			this.btnEllipse.LanguageKey = "editor.editor_drawellipse";
 			this.btnEllipse.Name = "btnEllipse";
 			this.btnEllipse.Click += new System.EventHandler(this.BtnEllipseClick);
 			// 
@@ -365,7 +365,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			this.btnLine.CheckOnClick = true;
 			this.btnLine.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnLine.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnLine.LanguageKey = "editor_drawline";
+			this.btnLine.LanguageKey = "editor.editor_drawline";
 			this.btnLine.Name = "btnLine";
 			this.btnLine.Click += new System.EventHandler(this.BtnLineClick);
 			// 
@@ -374,7 +374,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			this.btnArrow.CheckOnClick = true;
 			this.btnArrow.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnArrow.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnArrow.LanguageKey = "editor_drawarrow";
+			this.btnArrow.LanguageKey = "editor.editor_drawarrow";
 			this.btnArrow.Name = "btnArrow";
 			this.btnArrow.Click += new System.EventHandler(this.BtnArrowClick);
 			// 
@@ -382,7 +382,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			this.btnFreehand.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnFreehand.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnFreehand.LanguageKey = "editor_drawfreehand";
+			this.btnFreehand.LanguageKey = "editor.editor_drawfreehand";
 			this.btnFreehand.Name = "btnFreehand";
 			this.btnFreehand.Click += new System.EventHandler(this.BtnFreehandClick);
 			// 
@@ -391,7 +391,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			this.btnText.CheckOnClick = true;
 			this.btnText.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnText.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnText.LanguageKey = "editor_drawtextbox";
+			this.btnText.LanguageKey = "editor.editor_drawtextbox";
 			this.btnText.Name = "btnText";
 			this.btnText.Click += new System.EventHandler(this.BtnTextClick);
 			// 
@@ -400,7 +400,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			this.btnSpeechBubble.CheckOnClick = true;
 			this.btnSpeechBubble.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnSpeechBubble.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnSpeechBubble.LanguageKey = "editor_speechbubble";
+			this.btnSpeechBubble.LanguageKey = "editor.editor_speechbubble";
 			this.btnSpeechBubble.Name = "btnSpeechBubble";
 			this.btnSpeechBubble.Click += new System.EventHandler(this.BtnSpeechBubbleClick);
 			// 
@@ -409,7 +409,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			this.btnStepLabel.CheckOnClick = true;
 			this.btnStepLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnStepLabel.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnStepLabel.LanguageKey = "editor_counter";
+			this.btnStepLabel.LanguageKey = "editor.editor_counter";
 			this.btnStepLabel.Name = "btnStepLabel";
 			this.btnStepLabel.Click += new System.EventHandler(this.BtnStepLabelClick);
 			// 
@@ -421,7 +421,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			this.btnHighlight.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnHighlight.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnHighlight.LanguageKey = "editor_drawhighlighter";
+			this.btnHighlight.LanguageKey = "editor.editor_drawhighlighter";
 			this.btnHighlight.Name = "btnHighlight";
 			this.btnHighlight.Click += new System.EventHandler(this.BtnHighlightClick);
 			// 
@@ -429,7 +429,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			this.btnObfuscate.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnObfuscate.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnObfuscate.LanguageKey = "editor_obfuscate";
+			this.btnObfuscate.LanguageKey = "editor.editor_obfuscate";
 			this.btnObfuscate.Name = "btnObfuscate";
 			this.btnObfuscate.Click += new System.EventHandler(this.BtnObfuscateClick);
 			// 
@@ -443,38 +443,38 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 									this.grayscaleToolStripMenuItem,
 									this.invertToolStripMenuItem});
 			this.toolStripSplitButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.toolStripSplitButton1.LanguageKey = "editor_effects";
+			this.toolStripSplitButton1.LanguageKey = "editor.editor_effects";
 			this.toolStripSplitButton1.Name = "toolStripSplitButton1";
 			this.toolStripSplitButton1.ShowDropDownArrow = false;
 			this.toolStripSplitButton1.Text = "toolStripSplitButton1";
 			// 
 			// addBorderToolStripMenuItem
 			// 
-			this.addBorderToolStripMenuItem.LanguageKey = "editor_border";
+			this.addBorderToolStripMenuItem.LanguageKey = "editor.editor_border";
 			this.addBorderToolStripMenuItem.Name = "addBorderToolStripMenuItem";
 			this.addBorderToolStripMenuItem.Click += new System.EventHandler(this.AddBorderToolStripMenuItemClick);
 			// 
 			// addDropshadowToolStripMenuItem
 			// 
-			this.addDropshadowToolStripMenuItem.LanguageKey = "editor_image_shadow";
+			this.addDropshadowToolStripMenuItem.LanguageKey = "editor.editor_image_shadow";
 			this.addDropshadowToolStripMenuItem.Name = "addDropshadowToolStripMenuItem";
 			this.addDropshadowToolStripMenuItem.MouseUp += AddDropshadowToolStripMenuItemMouseUp;
 			// 
 			// tornEdgesToolStripMenuItem
 			// 
-			this.tornEdgesToolStripMenuItem.LanguageKey = "editor_torn_edge";
+			this.tornEdgesToolStripMenuItem.LanguageKey = "editor.editor_torn_edge";
 			this.tornEdgesToolStripMenuItem.Name = "tornEdgesToolStripMenuItem";
 			this.tornEdgesToolStripMenuItem.MouseUp += TornEdgesToolStripMenuItemMouseUp;
 			// 
 			// grayscaleToolStripMenuItem
 			// 
-			this.grayscaleToolStripMenuItem.LanguageKey = "editor_grayscale";
+			this.grayscaleToolStripMenuItem.LanguageKey = "editor.editor_grayscale";
 			this.grayscaleToolStripMenuItem.Name = "grayscaleToolStripMenuItem";
 			this.grayscaleToolStripMenuItem.Click += new System.EventHandler(this.GrayscaleToolStripMenuItemClick);
 			// 
 			// invertToolStripMenuItem
 			// 
-			this.invertToolStripMenuItem.LanguageKey = "editor_invert";
+			this.invertToolStripMenuItem.LanguageKey = "editor.editor_invert";
 			this.invertToolStripMenuItem.Name = "invertToolStripMenuItem";
 			this.invertToolStripMenuItem.Click += new System.EventHandler(this.InvertToolStripMenuItemClick);
 			// 
@@ -484,7 +484,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			this.btnResize.Click += new System.EventHandler(this.BtnResizeClick);
 			this.btnResize.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnResize.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnResize.LanguageKey = "editor_resize";
+			this.btnResize.LanguageKey = "editor.editor_resize";
 			// 
 			// toolStripSeparator13
 			// 
@@ -494,7 +494,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			this.btnCrop.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnCrop.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnCrop.LanguageKey = "editor_crop";
+			this.btnCrop.LanguageKey = "editor.editor_crop";
 			this.btnCrop.Name = "btnCrop";
 			this.btnCrop.Click += new System.EventHandler(this.BtnCropClick);
 			// 
@@ -502,7 +502,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			this.rotateCwToolstripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.rotateCwToolstripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.rotateCwToolstripButton.LanguageKey = "editor_rotatecw";
+			this.rotateCwToolstripButton.LanguageKey = "editor.editor_rotatecw";
 			this.rotateCwToolstripButton.Name = "rotateCwToolstripButton";
 			this.rotateCwToolstripButton.Click += new System.EventHandler(this.RotateCwToolstripButtonClick);
 			// 
@@ -510,7 +510,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			this.rotateCcwToolstripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.rotateCcwToolstripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.rotateCcwToolstripButton.LanguageKey = "editor_rotateccw";
+			this.rotateCcwToolstripButton.LanguageKey = "editor.editor_rotateccw";
 			this.rotateCcwToolstripButton.Name = "rotateCcwToolstripButton";
 			this.rotateCcwToolstripButton.Click += new System.EventHandler(this.RotateCcwToolstripButtonClick);
 			// 
@@ -531,7 +531,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			// fileStripMenuItem
 			// 
-			this.fileStripMenuItem.LanguageKey = "editor_file";
+			this.fileStripMenuItem.LanguageKey = "editor.editor_file";
 			this.fileStripMenuItem.Name = "fileStripMenuItem";
 			this.fileStripMenuItem.Size = new System.Drawing.Size(37, 20);
 			this.fileStripMenuItem.Text = "File";
@@ -556,7 +556,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 									this.autoCropToolStripMenuItem,
 									this.toolStripSeparator17,
 									this.insert_window_toolstripmenuitem});
-			this.editToolStripMenuItem.LanguageKey = "editor_edit";
+			this.editToolStripMenuItem.LanguageKey = "editor.editor_edit";
 			this.editToolStripMenuItem.Name = "editToolStripMenuItem";
 			this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
 			this.editToolStripMenuItem.Text = "Edit";
@@ -585,7 +585,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// cutToolStripMenuItem
 			// 
 			this.cutToolStripMenuItem.Enabled = false;
-			this.cutToolStripMenuItem.LanguageKey = "editor_cuttoclipboard";
+			this.cutToolStripMenuItem.LanguageKey = "editor.editor_cuttoclipboard";
 			this.cutToolStripMenuItem.Name = "cutToolStripMenuItem";
 			this.cutToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
 			this.cutToolStripMenuItem.Click += new System.EventHandler(this.CutToolStripMenuItemClick);
@@ -593,7 +593,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// copyToolStripMenuItem
 			// 
 			this.copyToolStripMenuItem.Enabled = false;
-			this.copyToolStripMenuItem.LanguageKey = "editor_copytoclipboard";
+			this.copyToolStripMenuItem.LanguageKey = "editor.editor_copytoclipboard";
 			this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
 			this.copyToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
 			this.copyToolStripMenuItem.Click += new System.EventHandler(this.CopyToolStripMenuItemClick);
@@ -601,7 +601,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// pasteToolStripMenuItem
 			// 
 			this.pasteToolStripMenuItem.Enabled = false;
-			this.pasteToolStripMenuItem.LanguageKey = "editor_pastefromclipboard";
+			this.pasteToolStripMenuItem.LanguageKey = "editor.editor_pastefromclipboard";
 			this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
 			this.pasteToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
 			this.pasteToolStripMenuItem.Click += new System.EventHandler(this.PasteToolStripMenuItemClick);
@@ -613,7 +613,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// duplicateToolStripMenuItem
 			// 
 			this.duplicateToolStripMenuItem.Enabled = false;
-			this.duplicateToolStripMenuItem.LanguageKey = "editor_duplicate";
+			this.duplicateToolStripMenuItem.LanguageKey = "editor.editor_duplicate";
 			this.duplicateToolStripMenuItem.Name = "duplicateToolStripMenuItem";
 			this.duplicateToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.D)));
 			this.duplicateToolStripMenuItem.Click += new System.EventHandler(this.DuplicateToolStripMenuItemClick);
@@ -634,7 +634,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			// autoCropToolStripMenuItem
 			// 
-			this.autoCropToolStripMenuItem.LanguageKey = "editor_autocrop";
+			this.autoCropToolStripMenuItem.LanguageKey = "editor.editor_autocrop";
 			this.autoCropToolStripMenuItem.Name = "autoCropToolStripMenuItem";
 			this.autoCropToolStripMenuItem.Click += new System.EventHandler(this.AutoCropToolStripMenuItemClick);
 			// 
@@ -644,7 +644,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			// insert_window_toolstripmenuitem
 			// 
-			this.insert_window_toolstripmenuitem.LanguageKey = "editor_insertwindow";
+			this.insert_window_toolstripmenuitem.LanguageKey = "editor.editor_insertwindow";
 			this.insert_window_toolstripmenuitem.Name = "insert_window_toolstripmenuitem";
 			this.insert_window_toolstripmenuitem.MouseEnter += new System.EventHandler(this.Insert_window_toolstripmenuitemMouseEnter);
 			// 
@@ -666,56 +666,56 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 									this.arrangeToolStripMenuItem,
 									this.saveElementsToolStripMenuItem,
 									this.loadElementsToolStripMenuItem});
-			this.objectToolStripMenuItem.LanguageKey = "editor_object";
+			this.objectToolStripMenuItem.LanguageKey = "editor.editor_object";
 			this.objectToolStripMenuItem.Name = "objectToolStripMenuItem";
 			this.objectToolStripMenuItem.Size = new System.Drawing.Size(54, 20);
 			this.objectToolStripMenuItem.Text = "Object";
 			// 
 			// addRectangleToolStripMenuItem
 			// 
-			this.addRectangleToolStripMenuItem.LanguageKey = "editor_drawrectangle";
+			this.addRectangleToolStripMenuItem.LanguageKey = "editor.editor_drawrectangle";
 			this.addRectangleToolStripMenuItem.Name = "addRectangleToolStripMenuItem";
 			this.addRectangleToolStripMenuItem.Click += new System.EventHandler(this.AddRectangleToolStripMenuItemClick);
 			// 
 			// addEllipseToolStripMenuItem
 			// 
-			this.addEllipseToolStripMenuItem.LanguageKey = "editor_drawellipse";
+			this.addEllipseToolStripMenuItem.LanguageKey = "editor.editor_drawellipse";
 			this.addEllipseToolStripMenuItem.Name = "addEllipseToolStripMenuItem";
 			this.addEllipseToolStripMenuItem.Click += new System.EventHandler(this.AddEllipseToolStripMenuItemClick);
 			// 
 			// drawLineToolStripMenuItem
 			// 
-			this.drawLineToolStripMenuItem.LanguageKey = "editor_drawline";
+			this.drawLineToolStripMenuItem.LanguageKey = "editor.editor_drawline";
 			this.drawLineToolStripMenuItem.Name = "drawLineToolStripMenuItem";
 			this.drawLineToolStripMenuItem.Click += new System.EventHandler(this.DrawLineToolStripMenuItemClick);
 			// 
 			// drawArrowToolStripMenuItem
 			// 
-			this.drawArrowToolStripMenuItem.LanguageKey = "editor_drawarrow";
+			this.drawArrowToolStripMenuItem.LanguageKey = "editor.editor_drawarrow";
 			this.drawArrowToolStripMenuItem.Name = "drawArrowToolStripMenuItem";
 			this.drawArrowToolStripMenuItem.Click += new System.EventHandler(this.DrawArrowToolStripMenuItemClick);
 			// 
 			// drawFreehandToolStripMenuItem
 			// 
-			this.drawFreehandToolStripMenuItem.LanguageKey = "editor_drawfreehand";
+			this.drawFreehandToolStripMenuItem.LanguageKey = "editor.editor_drawfreehand";
 			this.drawFreehandToolStripMenuItem.Name = "drawFreehandToolStripMenuItem";
 			this.drawFreehandToolStripMenuItem.Click += new System.EventHandler(this.DrawFreehandToolStripMenuItemClick);
 			// 
 			// addTextBoxToolStripMenuItem
 			// 
-			this.addTextBoxToolStripMenuItem.LanguageKey = "editor_drawtextbox";
+			this.addTextBoxToolStripMenuItem.LanguageKey = "editor.editor_drawtextbox";
 			this.addTextBoxToolStripMenuItem.Name = "addTextBoxToolStripMenuItem";
 			this.addTextBoxToolStripMenuItem.Click += new System.EventHandler(this.AddTextBoxToolStripMenuItemClick);
 			// 
 			// addSpeechBubbleToolStripMenuItem
 			// 
-			this.addSpeechBubbleToolStripMenuItem.LanguageKey = "editor_speechbubble";
+			this.addSpeechBubbleToolStripMenuItem.LanguageKey = "editor.editor_speechbubble";
 			this.addSpeechBubbleToolStripMenuItem.Name = "addSpeechBubbleToolStripMenuItem";
 			this.addSpeechBubbleToolStripMenuItem.Click += new System.EventHandler(this.AddSpeechBubbleToolStripMenuItemClick);
 			// 
 			// addCounterToolStripMenuItem
 			// 
-			this.addCounterToolStripMenuItem.LanguageKey = "editor_counter";
+			this.addCounterToolStripMenuItem.LanguageKey = "editor.editor_counter";
 			this.addCounterToolStripMenuItem.Name = "addCounterToolStripMenuItem";
 			this.addCounterToolStripMenuItem.Click += new System.EventHandler(this.AddCounterToolStripMenuItemClick);
 			// 
@@ -725,7 +725,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			// selectAllToolStripMenuItem
 			// 
-			this.selectAllToolStripMenuItem.LanguageKey = "editor_selectall";
+			this.selectAllToolStripMenuItem.LanguageKey = "editor.editor_selectall";
 			this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
 			this.selectAllToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.A)));
 			this.selectAllToolStripMenuItem.Click += new System.EventHandler(this.SelectAllToolStripMenuItemClick);
@@ -733,7 +733,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// removeObjectToolStripMenuItem
 			// 
 			this.removeObjectToolStripMenuItem.Enabled = false;
-			this.removeObjectToolStripMenuItem.LanguageKey = "editor_deleteelement";
+			this.removeObjectToolStripMenuItem.LanguageKey = "editor.editor_deleteelement";
 			this.removeObjectToolStripMenuItem.Name = "removeObjectToolStripMenuItem";
 			this.removeObjectToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.Delete;
 			this.removeObjectToolStripMenuItem.Click += new System.EventHandler(this.RemoveObjectToolStripMenuItemClick);
@@ -750,13 +750,13 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 									this.downOneLevelToolStripMenuItem,
 									this.downToBottomToolStripMenuItem});
 			this.arrangeToolStripMenuItem.Enabled = false;
-			this.arrangeToolStripMenuItem.LanguageKey = "editor_arrange";
+			this.arrangeToolStripMenuItem.LanguageKey = "editor.editor_arrange";
 			this.arrangeToolStripMenuItem.Name = "arrangeToolStripMenuItem";
 			// 
 			// upToTopToolStripMenuItem
 			// 
 			this.upToTopToolStripMenuItem.Enabled = false;
-			this.upToTopToolStripMenuItem.LanguageKey = "editor_uptotop";
+			this.upToTopToolStripMenuItem.LanguageKey = "editor.editor_uptotop";
 			this.upToTopToolStripMenuItem.Name = "upToTopToolStripMenuItem";
 			this.upToTopToolStripMenuItem.ShortcutKeyDisplayString = "Home";
 			this.upToTopToolStripMenuItem.Click += new System.EventHandler(this.UpToTopToolStripMenuItemClick);
@@ -764,7 +764,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// upOneLevelToolStripMenuItem
 			// 
 			this.upOneLevelToolStripMenuItem.Enabled = false;
-			this.upOneLevelToolStripMenuItem.LanguageKey = "editor_uponelevel";
+			this.upOneLevelToolStripMenuItem.LanguageKey = "editor.editor_uponelevel";
 			this.upOneLevelToolStripMenuItem.Name = "upOneLevelToolStripMenuItem";
 			this.upOneLevelToolStripMenuItem.ShortcutKeyDisplayString = "PgUp";
 			this.upOneLevelToolStripMenuItem.Click += new System.EventHandler(this.UpOneLevelToolStripMenuItemClick);
@@ -772,7 +772,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// downOneLevelToolStripMenuItem
 			// 
 			this.downOneLevelToolStripMenuItem.Enabled = false;
-			this.downOneLevelToolStripMenuItem.LanguageKey = "editor_downonelevel";
+			this.downOneLevelToolStripMenuItem.LanguageKey = "editor.editor_downonelevel";
 			this.downOneLevelToolStripMenuItem.Name = "downOneLevelToolStripMenuItem";
 			this.downOneLevelToolStripMenuItem.ShortcutKeyDisplayString = "PgDn";
 			this.downOneLevelToolStripMenuItem.Click += new System.EventHandler(this.DownOneLevelToolStripMenuItemClick);
@@ -780,20 +780,20 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// downToBottomToolStripMenuItem
 			// 
 			this.downToBottomToolStripMenuItem.Enabled = false;
-			this.downToBottomToolStripMenuItem.LanguageKey = "editor_downtobottom";
+			this.downToBottomToolStripMenuItem.LanguageKey = "editor.editor_downtobottom";
 			this.downToBottomToolStripMenuItem.Name = "downToBottomToolStripMenuItem";
 			this.downToBottomToolStripMenuItem.ShortcutKeyDisplayString = "End";
 			this.downToBottomToolStripMenuItem.Click += new System.EventHandler(this.DownToBottomToolStripMenuItemClick);
 			// 
 			// saveElementsToolStripMenuItem
 			// 
-			this.saveElementsToolStripMenuItem.LanguageKey = "editor_save_objects";
+			this.saveElementsToolStripMenuItem.LanguageKey = "editor.editor_save_objects";
 			this.saveElementsToolStripMenuItem.Name = "saveElementsToolStripMenuItem";
 			this.saveElementsToolStripMenuItem.Click += new System.EventHandler(this.SaveElementsToolStripMenuItemClick);
 			// 
 			// loadElementsToolStripMenuItem
 			// 
-			this.loadElementsToolStripMenuItem.LanguageKey = "editor_load_objects";
+			this.loadElementsToolStripMenuItem.LanguageKey = "editor.editor_load_objects";
 			this.loadElementsToolStripMenuItem.Name = "loadElementsToolStripMenuItem";
 			this.loadElementsToolStripMenuItem.Click += new System.EventHandler(this.LoadElementsToolStripMenuItemClick);
 			// 
@@ -860,7 +860,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			this.btnSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnSave.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnSave.LanguageKey = "editor_save";
+			this.btnSave.LanguageKey = "editor.editor_save";
 			this.btnSave.Name = "btnSave";
 			this.btnSave.Click += new System.EventHandler(this.BtnSaveClick);
 			// 
@@ -868,7 +868,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			this.btnClipboard.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnClipboard.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnClipboard.LanguageKey = "editor_copyimagetoclipboard";
+			this.btnClipboard.LanguageKey = "editor.editor_copyimagetoclipboard";
 			this.btnClipboard.Name = "btnClipboard";
 			this.btnClipboard.Click += new System.EventHandler(this.BtnClipboardClick);
 			// 
@@ -876,7 +876,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			this.btnPrint.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnPrint.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnPrint.LanguageKey = "editor_print";
+			this.btnPrint.LanguageKey = "editor.editor_print";
 			this.btnPrint.Name = "btnPrint";
 			this.btnPrint.Text = "Print";
 			this.btnPrint.Click += new System.EventHandler(this.BtnPrintClick);
@@ -890,7 +890,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			this.btnDelete.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnDelete.Enabled = false;
 			this.btnDelete.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnDelete.LanguageKey = "editor_deleteelement";
+			this.btnDelete.LanguageKey = "editor.editor_deleteelement";
 			this.btnDelete.Name = "btnDelete";
 			this.btnDelete.Click += new System.EventHandler(this.BtnDeleteClick);
 			// 
@@ -903,7 +903,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			this.btnCut.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnCut.Enabled = false;
 			this.btnCut.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnCut.LanguageKey = "editor_cuttoclipboard";
+			this.btnCut.LanguageKey = "editor.editor_cuttoclipboard";
 			this.btnCut.Name = "btnCut";
 			this.btnCut.Click += new System.EventHandler(this.BtnCutClick);
 			// 
@@ -912,7 +912,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			this.btnCopy.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnCopy.Enabled = false;
 			this.btnCopy.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnCopy.LanguageKey = "editor_copytoclipboard";
+			this.btnCopy.LanguageKey = "editor.editor_copytoclipboard";
 			this.btnCopy.Name = "btnCopy";
 			this.btnCopy.Click += new System.EventHandler(this.BtnCopyClick);
 			// 
@@ -921,7 +921,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			this.btnPaste.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnPaste.Enabled = false;
 			this.btnPaste.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnPaste.LanguageKey = "editor_pastefromclipboard";
+			this.btnPaste.LanguageKey = "editor.editor_pastefromclipboard";
 			this.btnPaste.Name = "btnPaste";
 			this.btnPaste.Click += new System.EventHandler(this.BtnPasteClick);
 			// 
@@ -1024,20 +1024,20 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 									this.pixelizeToolStripMenuItem,
 									this.blurToolStripMenuItem});
 			this.obfuscateModeButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.obfuscateModeButton.LanguageKey = "editor_obfuscate_mode";
+			this.obfuscateModeButton.LanguageKey = "editor.editor_obfuscate_mode";
 			this.obfuscateModeButton.Name = "obfuscateModeButton";
 			this.obfuscateModeButton.SelectedTag = FilterContainer.PreparedFilter.BLUR;
 			this.obfuscateModeButton.Tag = FilterContainer.PreparedFilter.BLUR;
 			// 
 			// pixelizeToolStripMenuItem
 			// 
-			this.pixelizeToolStripMenuItem.LanguageKey = "editor_obfuscate_pixelize";
+			this.pixelizeToolStripMenuItem.LanguageKey = "editor.editor_obfuscate_pixelize";
 			this.pixelizeToolStripMenuItem.Name = "pixelizeToolStripMenuItem";
 			this.pixelizeToolStripMenuItem.Tag = FilterContainer.PreparedFilter.PIXELIZE;
 			// 
 			// blurToolStripMenuItem
 			// 
-			this.blurToolStripMenuItem.LanguageKey = "editor_obfuscate_blur";
+			this.blurToolStripMenuItem.LanguageKey = "editor.editor_obfuscate_blur";
 			this.blurToolStripMenuItem.Name = "blurToolStripMenuItem";
 			this.blurToolStripMenuItem.Tag = FilterContainer.PreparedFilter.BLUR;
 			// 
@@ -1050,38 +1050,38 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 									this.grayscaleHighlightMenuItem,
 									this.magnifyMenuItem});
 			this.highlightModeButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.highlightModeButton.LanguageKey = "editor_highlight_mode";
+			this.highlightModeButton.LanguageKey = "editor.editor_highlight_mode";
 			this.highlightModeButton.Name = "highlightModeButton";
 			this.highlightModeButton.SelectedTag = FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT;
 			this.highlightModeButton.Tag = FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT;
 			// 
 			// textHighlightMenuItem
 			// 
-			this.textHighlightMenuItem.LanguageKey = "editor_highlight_text";
+			this.textHighlightMenuItem.LanguageKey = "editor.editor_highlight_text";
 			this.textHighlightMenuItem.Name = "textHighlightMenuItem";
 			this.textHighlightMenuItem.Tag = FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT;
 			// 
 			// areaHighlightMenuItem
 			// 
-			this.areaHighlightMenuItem.LanguageKey = "editor_highlight_area";
+			this.areaHighlightMenuItem.LanguageKey = "editor.editor_highlight_area";
 			this.areaHighlightMenuItem.Name = "areaHighlightMenuItem";
 			this.areaHighlightMenuItem.Tag = FilterContainer.PreparedFilter.AREA_HIGHLIGHT;
 			// 
 			// grayscaleHighlightMenuItem
 			// 
-			this.grayscaleHighlightMenuItem.LanguageKey = "editor_highlight_grayscale";
+			this.grayscaleHighlightMenuItem.LanguageKey = "editor.editor_highlight_grayscale";
 			this.grayscaleHighlightMenuItem.Name = "grayscaleHighlightMenuItem";
 			this.grayscaleHighlightMenuItem.Tag = FilterContainer.PreparedFilter.GRAYSCALE;
 			// 
 			// magnifyMenuItem
 			// 
-			this.magnifyMenuItem.LanguageKey = "editor_highlight_magnify";
+			this.magnifyMenuItem.LanguageKey = "editor.editor_highlight_magnify";
 			this.magnifyMenuItem.Name = "magnifyMenuItem";
 			this.magnifyMenuItem.Tag = FilterContainer.PreparedFilter.MAGNIFICATION;
 			// 
 			// btnFillColor
 			// 
-			this.btnFillColor.LanguageKey = "editor_backcolor";
+			this.btnFillColor.LanguageKey = "editor.editor_backcolor";
 			this.btnFillColor.Name = "btnFillColor";
 			this.btnFillColor.SelectedColor = System.Drawing.Color.Transparent;
 			this.btnFillColor.BackColor = System.Drawing.Color.Transparent;
@@ -1091,13 +1091,13 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			this.btnLineColor.BackColor = System.Drawing.Color.Transparent;
 			this.btnLineColor.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnLineColor.LanguageKey = "editor_forecolor";
+			this.btnLineColor.LanguageKey = "editor.editor_forecolor";
 			this.btnLineColor.Name = "btnLineColor";
 			this.btnLineColor.SelectedColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(222)))), ((int)(((byte)(250)))));
 			// 
 			// counterLabel
 			// 
-			this.counterLabel.LanguageKey = "editor_counter_startvalue";
+			this.counterLabel.LanguageKey = "editor.editor_counter_startvalue";
 			this.counterLabel.Name = "counterLabel";
 			// 
 			// counterUpDown
@@ -1114,7 +1114,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			// lineThicknessLabel
 			// 
-			this.lineThicknessLabel.LanguageKey = "editor_thickness";
+			this.lineThicknessLabel.LanguageKey = "editor.editor_thickness";
 			this.lineThicknessLabel.Name = "lineThicknessLabel";
 			// 
 			// lineThicknessUpDown
@@ -1159,7 +1159,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			// fontSizeLabel
 			// 
-			this.fontSizeLabel.LanguageKey = "editor_fontsize";
+			this.fontSizeLabel.LanguageKey = "editor.editor_fontsize";
 			this.fontSizeLabel.Name = "fontSizeLabel";
 			// 
 			// fontSizeUpDown
@@ -1195,7 +1195,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			this.fontBoldButton.CheckOnClick = true;
 			this.fontBoldButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.fontBoldButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.fontBoldButton.LanguageKey = "editor_bold";
+			this.fontBoldButton.LanguageKey = "editor.editor_bold";
 			this.fontBoldButton.Name = "fontBoldButton";
 			this.fontBoldButton.Text = "Bold";
 			this.fontBoldButton.Click += new System.EventHandler(this.FontBoldButtonClick);
@@ -1205,7 +1205,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			this.fontItalicButton.CheckOnClick = true;
 			this.fontItalicButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.fontItalicButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.fontItalicButton.LanguageKey = "editor_italic";
+			this.fontItalicButton.LanguageKey = "editor.editor_italic";
 			this.fontItalicButton.Name = "fontItalicButton";
 			this.fontItalicButton.Text = "Italic";
 			this.fontItalicButton.Click += new System.EventHandler(this.FontItalicButtonClick);
@@ -1218,7 +1218,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 									this.alignBottomToolStripMenuItem});
 			this.textVerticalAlignmentButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.textVerticalAlignmentButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.textVerticalAlignmentButton.LanguageKey = "editor_align_vertical";
+			this.textVerticalAlignmentButton.LanguageKey = "editor.editor_align_vertical";
 			this.textVerticalAlignmentButton.Name = "textVerticalAlignmentButton";
 			this.textVerticalAlignmentButton.SelectedTag = System.Drawing.StringAlignment.Center;
 			this.textVerticalAlignmentButton.Tag = System.Drawing.StringAlignment.Center;
@@ -1226,27 +1226,27 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// alignTopToolStripMenuItem
 			// 
 			this.alignTopToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
-			this.alignTopToolStripMenuItem.LanguageKey = "editor_align_top";
+			this.alignTopToolStripMenuItem.LanguageKey = "editor.editor_align_top";
 			this.alignTopToolStripMenuItem.Name = "alignTopToolStripMenuItem";
 			this.alignTopToolStripMenuItem.Tag = System.Drawing.StringAlignment.Near;
 			// 
 			// alignMiddleToolStripMenuItem
 			// 
 			this.alignMiddleToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
-			this.alignMiddleToolStripMenuItem.LanguageKey = "editor_align_middle";
+			this.alignMiddleToolStripMenuItem.LanguageKey = "editor.editor_align_middle";
 			this.alignMiddleToolStripMenuItem.Name = "alignMiddleToolStripMenuItem";
 			this.alignMiddleToolStripMenuItem.Tag = System.Drawing.StringAlignment.Center;
 			// 
 			// alignBottomToolStripMenuItem
 			// 
 			this.alignBottomToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
-			this.alignBottomToolStripMenuItem.LanguageKey = "editor_align_bottom";
+			this.alignBottomToolStripMenuItem.LanguageKey = "editor.editor_align_bottom";
 			this.alignBottomToolStripMenuItem.Name = "alignBottomToolStripMenuItem";
 			this.alignBottomToolStripMenuItem.Tag = System.Drawing.StringAlignment.Far;
 			// 
 			// blurRadiusLabel
 			// 
-			this.blurRadiusLabel.LanguageKey = "editor_blur_radius";
+			this.blurRadiusLabel.LanguageKey = "editor.editor_blur_radius";
 			this.blurRadiusLabel.Name = "blurRadiusLabel";
 			this.blurRadiusLabel.Text = "Blur radius";
 			// 
@@ -1280,7 +1280,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			// brightnessLabel
 			// 
-			this.brightnessLabel.LanguageKey = "editor_brightness";
+			this.brightnessLabel.LanguageKey = "editor.editor_brightness";
 			this.brightnessLabel.Name = "brightnessLabel";
 			this.brightnessLabel.Text = "Brightness";
 			// 
@@ -1314,7 +1314,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			// previewQualityLabel
 			// 
-			this.previewQualityLabel.LanguageKey = "editor_preview_quality";
+			this.previewQualityLabel.LanguageKey = "editor.editor_preview_quality";
 			this.previewQualityLabel.Name = "previewQualityLabel";
 			this.previewQualityLabel.Text = "Preview quality";
 			// 
@@ -1348,7 +1348,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			// magnificationFactorLabel
 			// 
-			this.magnificationFactorLabel.LanguageKey = "editor_magnification_factor";
+			this.magnificationFactorLabel.LanguageKey = "editor.editor_magnification_factor";
 			this.magnificationFactorLabel.Name = "magnificationFactorLabel";
 			this.magnificationFactorLabel.Tag = FilterContainer.PreparedFilter.MAGNIFICATION;
 			// 
@@ -1382,7 +1382,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			// pixelSizeLabel
 			// 
-			this.pixelSizeLabel.LanguageKey = "editor_pixel_size";
+			this.pixelSizeLabel.LanguageKey = "editor.editor_pixel_size";
 			this.pixelSizeLabel.Name = "pixelSizeLabel";
 			// 
 			// pixelSizeUpDown
@@ -1415,7 +1415,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			// arrowHeadsLabel
 			// 
-			this.arrowHeadsLabel.LanguageKey = "editor_pixel_size";
+			this.arrowHeadsLabel.LanguageKey = "editor.editor_pixel_size";
 			this.arrowHeadsLabel.Name = "arrowHeadsLabel";
 			// 
 			// arrowHeadsDropDownButton
@@ -1427,33 +1427,33 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 									this.arrowHeadBothMenuItem,
 									this.arrowHeadNoneMenuItem});
 			this.arrowHeadsDropDownButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.arrowHeadsDropDownButton.LanguageKey = "editor_arrowheads";
+			this.arrowHeadsDropDownButton.LanguageKey = "editor.editor_arrowheads";
 			this.arrowHeadsDropDownButton.Name = "arrowHeadsDropDownButton";
 			// 
 			// arrowHeadStartMenuItem
 			// 
-			this.arrowHeadStartMenuItem.LanguageKey = "editor_arrowheads_start";
+			this.arrowHeadStartMenuItem.LanguageKey = "editor.editor_arrowheads_start";
 			this.arrowHeadStartMenuItem.Name = "arrowHeadStartMenuItem";
 			this.arrowHeadStartMenuItem.Tag = ArrowContainer.ArrowHeadCombination.START_POINT;
 			this.arrowHeadStartMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
 			// arrowHeadEndMenuItem
 			// 
-			this.arrowHeadEndMenuItem.LanguageKey = "editor_arrowheads_end";
+			this.arrowHeadEndMenuItem.LanguageKey = "editor.editor_arrowheads_end";
 			this.arrowHeadEndMenuItem.Name = "arrowHeadEndMenuItem";
 			this.arrowHeadEndMenuItem.Tag = ArrowContainer.ArrowHeadCombination.END_POINT;
 			this.arrowHeadEndMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
 			// arrowHeadBothMenuItem
 			// 
-			this.arrowHeadBothMenuItem.LanguageKey = "editor_arrowheads_both";
+			this.arrowHeadBothMenuItem.LanguageKey = "editor.editor_arrowheads_both";
 			this.arrowHeadBothMenuItem.Name = "arrowHeadBothMenuItem";
 			this.arrowHeadBothMenuItem.Tag = ArrowContainer.ArrowHeadCombination.BOTH;
 			this.arrowHeadBothMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
 			// arrowHeadNoneMenuItem
 			// 
-			this.arrowHeadNoneMenuItem.LanguageKey = "editor_arrowheads_none";
+			this.arrowHeadNoneMenuItem.LanguageKey = "editor.editor_arrowheads_none";
 			this.arrowHeadNoneMenuItem.Name = "arrowHeadNoneMenuItem";
 			this.arrowHeadNoneMenuItem.Tag = ArrowContainer.ArrowHeadCombination.NONE;
 			this.arrowHeadNoneMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
@@ -1463,7 +1463,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			this.shadowButton.CheckOnClick = true;
 			this.shadowButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.shadowButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.shadowButton.LanguageKey = "editor_shadow";
+			this.shadowButton.LanguageKey = "editor.editor_shadow";
 			this.shadowButton.Name = "shadowButton";
 			// 
 			// toolStripSeparator
@@ -1478,7 +1478,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			this.btnConfirm.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnConfirm.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnConfirm.LanguageKey = "editor_confirm";
+			this.btnConfirm.LanguageKey = "editor.editor_confirm";
 			this.btnConfirm.Name = "btnConfirm";
 			this.btnConfirm.Text = "Confirm";
 			this.btnConfirm.Click += new System.EventHandler(this.BtnConfirmClick);
@@ -1487,7 +1487,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			this.btnCancel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnCancel.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnCancel.LanguageKey = "editor_cancel";
+			this.btnCancel.LanguageKey = "editor.editor_cancel";
 			this.btnCancel.Name = "btnCancel";
 			this.btnCancel.Text = "Cancel";
 			this.btnCancel.Click += new System.EventHandler(this.BtnCancelClick);
@@ -1498,7 +1498,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			// closeToolStripMenuItem
 			// 
-			this.closeToolStripMenuItem.LanguageKey = "editor_close";
+			this.closeToolStripMenuItem.LanguageKey = "editor.editor_close";
 			this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
 			this.closeToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
 			this.closeToolStripMenuItem.Click += new System.EventHandler(this.CloseToolStripMenuItemClick);
@@ -1512,13 +1512,13 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// 
 			// copyPathMenuItem
 			// 
-			this.copyPathMenuItem.LanguageKey = "editor_copypathtoclipboard";
+			this.copyPathMenuItem.LanguageKey = "editor.editor_copypathtoclipboard";
 			this.copyPathMenuItem.Name = "copyPathMenuItem";
 			this.copyPathMenuItem.Click += new System.EventHandler(this.CopyPathMenuItemClick);
 			// 
 			// openDirectoryMenuItem
 			// 
-			this.openDirectoryMenuItem.LanguageKey = "editor_opendirinexplorer";
+			this.openDirectoryMenuItem.LanguageKey = "editor.editor_opendirinexplorer";
 			this.openDirectoryMenuItem.Name = "openDirectoryMenuItem";
 			this.openDirectoryMenuItem.Click += new System.EventHandler(this.OpenDirectoryMenuItemClick);
 			// 
@@ -1530,7 +1530,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 									this.alignRightToolStripMenuItem});
 			this.textHorizontalAlignmentButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.textHorizontalAlignmentButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.textHorizontalAlignmentButton.LanguageKey = "editor_align_horizontal";
+			this.textHorizontalAlignmentButton.LanguageKey = "editor.editor_align_horizontal";
 			this.textHorizontalAlignmentButton.Name = "textHorizontalAlignmentButton";
 			this.textHorizontalAlignmentButton.SelectedTag = System.Drawing.StringAlignment.Center;
 			this.textHorizontalAlignmentButton.Tag = System.Drawing.StringAlignment.Center;
@@ -1538,21 +1538,21 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// alignLeftToolStripMenuItem
 			// 
 			this.alignLeftToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
-			this.alignLeftToolStripMenuItem.LanguageKey = "editor_align_left";
+			this.alignLeftToolStripMenuItem.LanguageKey = "editor.editor_align_left";
 			this.alignLeftToolStripMenuItem.Name = "alignLeftToolStripMenuItem";
 			this.alignLeftToolStripMenuItem.Tag = System.Drawing.StringAlignment.Near;
 			// 
 			// alignCenterToolStripMenuItem
 			// 
 			this.alignCenterToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
-			this.alignCenterToolStripMenuItem.LanguageKey = "editor_align_center";
+			this.alignCenterToolStripMenuItem.LanguageKey = "editor.editor_align_center";
 			this.alignCenterToolStripMenuItem.Name = "alignCenterToolStripMenuItem";
 			this.alignCenterToolStripMenuItem.Tag = System.Drawing.StringAlignment.Center;
 			// 
 			// alignRightToolStripMenuItem
 			// 
 			this.alignRightToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
-			this.alignRightToolStripMenuItem.LanguageKey = "editor_align_right";
+			this.alignRightToolStripMenuItem.LanguageKey = "editor.editor_align_right";
 			this.alignRightToolStripMenuItem.Name = "alignRightToolStripMenuItem";
 			this.alignRightToolStripMenuItem.Tag = System.Drawing.StringAlignment.Far;
 			// 
@@ -1563,7 +1563,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			this.ClientSize = new System.Drawing.Size(785, 485);
 			this.Controls.Add(this.topToolStripContainer);
 			this.KeyPreview = true;
-			this.LanguageKey = "editor_title";
+			this.LanguageKey = "editor.editor_title";
 			this.Name = "ImageEditorForm";
 			this.Activated += new System.EventHandler(this.ImageEditorFormActivated);
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ImageEditorFormFormClosing);

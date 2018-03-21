@@ -85,7 +85,6 @@
 		<resource name="settings_copypathtoclipboard">ذخیره مسیر در حافظه موقت با هر ذخیره سازی تصویر</resource>
 		<resource name="settings_destination">مقصد</resource>
 		<resource name="settings_destination_clipboard">رونویس در حافظه موقت</resource>
-		<resource name="settings_destination_editor">باز کردن در ویرایشگر</resource>
 		<resource name="settings_destination_email">ایمیل</resource>
 		<resource name="settings_destination_file">بی درنگ با تنظیمات پایین ذخیره کن</resource>
 		<resource name="settings_destination_fileas">ذخیره سازی با</resource>

@@ -117,7 +117,6 @@
 		<resource name="settings_copypathtoclipboard">Beim schbeichern en Bfad in däi Zwischnablaach baggn.</resource>
 		<resource name="settings_destination">Ziele</resource>
 		<resource name="settings_destination_clipboard">In däi Zwischnablaach</resource>
-		<resource name="settings_destination_editor">Im Greenshot-Edidor aufmachn</resource>
 		<resource name="settings_destination_email">I-Mehl</resource>
 		<resource name="settings_destination_file">Sofodd schbeichern</resource>
 		<resource name="settings_destination_fileas">Schbeichern under (mit Dialooch)</resource>

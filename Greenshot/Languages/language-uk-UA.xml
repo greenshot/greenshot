@@ -125,7 +125,6 @@
 		<resource name="settings_copypathtoclipboard">Копіювати у буфер обміну шлях до файла при збереженні зображення</resource>
 		<resource name="settings_destination">Призначення</resource>
 		<resource name="settings_destination_clipboard">Копіювати у буфер обміну</resource>
-		<resource name="settings_destination_editor">Відкрити у редакторі зображень</resource>
 		<resource name="settings_destination_email">Ел. пошта</resource>
 		<resource name="settings_destination_file">Безпосереднє збереження (використовуючи параметри нижче)</resource>
 		<resource name="settings_destination_fileas">Зберегти як (відображення діалогу)</resource>

@@ -117,7 +117,6 @@
 		<resource name="settings_copypathtoclipboard">Copiar ubicación al portapapeles cada vez que se guarda una imagen</resource>
 		<resource name="settings_destination">Destino de la captura de pantalla</resource>
 		<resource name="settings_destination_clipboard">Copiar al portapapeles</resource>
-		<resource name="settings_destination_editor">Abrir imagen en el editor</resource>
 		<resource name="settings_destination_email">Correo electrónico</resource>
 		<resource name="settings_destination_file">Guardar directamente (usando la configuración indicada abajo)</resource>
 		<resource name="settings_destination_fileas">Guardar como (mostrando cuadro)</resource>

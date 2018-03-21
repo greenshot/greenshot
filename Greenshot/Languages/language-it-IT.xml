@@ -128,7 +128,6 @@
 		<resource name="settings_copypathtoclipboard">Copia percorso file sugli appunti, ogni volta che una immagine viene salvata</resource>
 		<resource name="settings_destination">Destinazione dell'immagine</resource>
 		<resource name="settings_destination_clipboard">Copia sugli appunti</resource>
-		<resource name="settings_destination_editor">Apri in Gest. Immagini</resource>
 		<resource name="settings_destination_email">E-Mail</resource>
 		<resource name="settings_destination_file">Salva direttamente (usando le impostazioni qui sotto esposte)</resource>
 		<resource name="settings_destination_fileas">Salva come (visualizzando le scelte)</resource>

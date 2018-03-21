@@ -115,7 +115,6 @@
 		<resource name="settings_copypathtoclipboard">Kopier filplasseringa til utklyppstavla kvar gong eit bilde blir lagra</resource>
 		<resource name="settings_destination">Mål</resource>
 		<resource name="settings_destination_clipboard">Kopier til utklyppstavla</resource>
-		<resource name="settings_destination_editor">Opne i knipsfiksaren</resource>
 		<resource name="settings_destination_email">Send med e-post</resource>
 		<resource name="settings_destination_file">Lagre (med instillingane under)</resource>
 		<resource name="settings_destination_fileas">Lagre som (med dialogboks)</resource>

@@ -69,6 +69,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
         private static readonly LogSource Log = new LogSource();
         private static readonly List<string> IgnoreDestinations = new List<string> { "Picker", "Editor"};
         private readonly IEditorConfiguration _editorConfiguration;
+        private readonly IEditorLanguage _editorLanguage;
 
         private static readonly string[] SupportedClipboardFormats = {typeof(string).FullName, "Text", typeof(IDrawableContainerList).FullName};
 
@@ -89,9 +90,11 @@ namespace Greenshot.Addon.LegacyEditor.Forms
         [ImportingConstructor]
         public ImageEditorForm(
             IEditorConfiguration editorConfiguration,
+            IEditorLanguage editorLanguage,
             EditorFactory editorFactory)
         {
             _editorConfiguration = editorConfiguration;
+            _editorLanguage = editorLanguage;
             _editorFactory = editorFactory;
             //
             // The InitializeComponent() call is required for Windows Forms designer support.
@@ -297,7 +300,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
                 // Fix title
                 if (_surface?.CaptureDetails?.Title != null)
                 {
-                    Text = $"{_surface.CaptureDetails.Title} - {Language.GetString(LangKey.editor_title)}";
+                    Text = $"{_surface.CaptureDetails.Title} - {_editorLanguage.EditorTitle}";
                 }
             }
             // Make sure the value is set correctly when starting
@@ -563,7 +566,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
                         // Put the event message on the status label and attach the context menu
                         UpdateStatusLabel(dateTime + " - " + eventArgs.Message, fileSavedStatusContextMenu);
                         // Change title
-                        Text = eventArgs.Surface.LastSaveFullPath + " - " + Language.GetString(LangKey.editor_title);
+                        Text = eventArgs.Surface.LastSaveFullPath + " - " + _editorLanguage.EditorTitle;
                         break;
                     default:
                         // Put the event message on the status label
@@ -609,8 +612,8 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             {
                 return;
             }
-            UpdateStatusLabel(Language.GetFormattedString(LangKey.editor_imagesaved, fullpath), fileSavedStatusContextMenu);
-            Text = Path.GetFileName(fullpath) + " - " + Language.GetString(LangKey.editor_title);
+            UpdateStatusLabel(string.Format(_editorLanguage.EditorImagesaved, fullpath), fileSavedStatusContextMenu);
+            Text = Path.GetFileName(fullpath) + " - " + _editorLanguage.EditorTitle;
         }
 
         private void SurfaceDrawingModeChanged(object source, SurfaceDrawingModeEventArgs eventArgs)
@@ -1548,8 +1551,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms
                 {
                     buttons = MessageBoxButtons.YesNo;
                 }
-                var result = MessageBox.Show(Language.GetString(LangKey.editor_close_on_save), Language.GetString(LangKey.editor_close_on_save_title), buttons,
-                    MessageBoxIcon.Question);
+                var result = MessageBox.Show(_editorLanguage.EditorCloseOnSave, _editorLanguage.EditorCloseOnSaveTitle, buttons, MessageBoxIcon.Question);
                 if (result.Equals(DialogResult.Cancel))
                 {
                     e.Cancel = true;
@@ -1743,30 +1745,14 @@ namespace Greenshot.Addon.LegacyEditor.Forms
             var canUndo = _surface.CanUndo;
             btnUndo.Enabled = canUndo;
             undoToolStripMenuItem.Enabled = canUndo;
-            var undoAction = "";
-            if (canUndo)
-            {
-                if (_surface.UndoActionLanguageKey != LangKey.none)
-                {
-                    undoAction = Language.GetString(_surface.UndoActionLanguageKey);
-                }
-            }
-            var undoText = Language.GetFormattedString(LangKey.editor_undo, undoAction);
+            var undoText = canUndo ? _editorLanguage.EditorUndo : "";
             btnUndo.Text = undoText;
             undoToolStripMenuItem.Text = undoText;
 
             var canRedo = _surface.CanRedo;
             btnRedo.Enabled = canRedo;
             redoToolStripMenuItem.Enabled = canRedo;
-            var redoAction = "";
-            if (canRedo)
-            {
-                if (_surface.RedoActionLanguageKey != LangKey.none)
-                {
-                    redoAction = Language.GetString(_surface.RedoActionLanguageKey);
-                }
-            }
-            var redoText = Language.GetFormattedString(LangKey.editor_redo, redoAction);
+            var redoText = canUndo ? _editorLanguage.EditorRedo : "";
             btnRedo.Text = redoText;
             redoToolStripMenuItem.Text = redoText;
         }

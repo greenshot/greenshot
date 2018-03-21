@@ -126,7 +126,6 @@
 		<resource name="settings_copypathtoclipboard">Dateipfad in die Zwischenablage kopieren, wenn ein Bild gespeichert wird</resource>
 		<resource name="settings_destination">Ziele</resource>
 		<resource name="settings_destination_clipboard">In Zwischenablage kopieren</resource>
-		<resource name="settings_destination_editor">Im Greenshot-Editor öffnen</resource>
 		<resource name="settings_destination_email">E-Mail</resource>
 		<resource name="settings_destination_file">Sofort speichern</resource>
 		<resource name="settings_destination_fileas">Speichern unter (mit Dialog)</resource>

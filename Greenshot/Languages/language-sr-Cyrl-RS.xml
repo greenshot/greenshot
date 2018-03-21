@@ -115,7 +115,6 @@
 		<resource name="settings_copypathtoclipboard">Умножи путању датотеке при сваком чувању</resource>
 		<resource name="settings_destination">Одредиште</resource>
 		<resource name="settings_destination_clipboard">Умножи</resource>
-		<resource name="settings_destination_editor">Отвори у уређивачу слика</resource>
 		<resource name="settings_destination_email">Е-пошта</resource>
 		<resource name="settings_destination_file">Сачувај директно (уз коришћење доњих поставки)</resource>
 		<resource name="settings_destination_fileas">Сачувај као (уз приказивање прозорчета)</resource>

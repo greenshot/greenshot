@@ -2,6 +2,7 @@
 
 <language>
 	<resources prefix="Editor">
+		<resource name="settings_destination_editor">Άνοιγμα για επεξεργασία</resource>
 		<resource name="editor_align_bottom">Στοίχιση κάτω</resource>
 		<resource name="editor_align_center">Στοίχιση στο κέντρο</resource>
 		<resource name="editor_align_horizontal">Οριζόντια στοίχιση</resource>

@@ -2,6 +2,7 @@
 
 <language>
 	<resources prefix="Editor">
+		<resource name="settings_destination_editor">이미지 편집기에서 열기</resource>
 		<resource name="editor_align_bottom">하단</resource>
 		<resource name="editor_align_center">중앙</resource>
 		<resource name="editor_align_horizontal">수평 정렬</resource>

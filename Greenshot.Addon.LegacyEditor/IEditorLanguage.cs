@@ -25,7 +25,9 @@ namespace Greenshot.Addon.LegacyEditor
 	[Language("Editor")]
 	public interface IEditorLanguage : ILanguage, INotifyPropertyChanged
 	{
-		string EditorAlignBottom { get; }
+	    string SettingsDestinationEditor { get; }
+
+	    string EditorAlignBottom { get; }
 
 		string EditorAlignCenter { get; }
 

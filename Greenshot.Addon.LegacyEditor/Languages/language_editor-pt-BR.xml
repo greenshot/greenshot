@@ -2,6 +2,7 @@
 
 <language>
 	<resources prefix="Editor">
+		<resource name="settings_destination_editor">Abrir imagem no editor</resource>
 		<resource name="editor_arrange">Organizar</resource>
 		<resource name="editor_arrowheads">Ponta das setas</resource>
 		<resource name="editor_arrowheads_both">Em ambos</resource>

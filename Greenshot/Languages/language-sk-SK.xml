@@ -120,7 +120,6 @@
 		<resource name="settings_copypathtoclipboard">Kopírovať cestu k súboru do schránky pri každom ukladaní obrázku.</resource>
 		<resource name="settings_destination">Cieľ screenshotu</resource>
 		<resource name="settings_destination_clipboard">Kopírovať do schránky</resource>
-		<resource name="settings_destination_editor">Otvoriť v editore obrázkov</resource>
 		<resource name="settings_destination_email">E-Mail</resource>
 		<resource name="settings_destination_file">Uložiť priamo (pomocou nastavení nižšie)</resource>
 		<resource name="settings_destination_fileas">Uložiť ako (zobraz dialóg)</resource>

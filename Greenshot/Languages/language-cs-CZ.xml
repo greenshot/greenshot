@@ -121,7 +121,6 @@ Zkontrolujte prosím dostupnost vybraného cíle.</resource>
 		<resource name="settings_copypathtoclipboard">Při uložení obrázku vždy kopírovat do schránky cestu k souboru</resource>
 		<resource name="settings_destination">Cíl snímku</resource>
 		<resource name="settings_destination_clipboard">Kopírovat do schránky</resource>
-		<resource name="settings_destination_editor">Otevřít v editoru obrázků</resource>
 		<resource name="settings_destination_email">E-Mail</resource>
 		<resource name="settings_destination_file">Uložit přímo (pomocí nastavení níže)</resource>
 		<resource name="settings_destination_fileas">Uložit jako (zobrazit dialog)</resource>

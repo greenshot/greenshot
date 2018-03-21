@@ -2,6 +2,7 @@
 
 <language>
 	<resources prefix="Editor">
+		<resource name="settings_destination_editor">Opne i knipsfiksaren</resource>
 		<resource name="editor_arrange">Arranger</resource>
 		<resource name="editor_arrowheads">Pilhovud</resource>
 		<resource name="editor_arrowheads_both">Båe</resource>

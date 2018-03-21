@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <language>
 	<resources prefix="Editor">
+		<resource name="settings_destination_editor">Åbn i billededitor</resource>
 		<resource name="editor_arrange">Arranger</resource>
 		<resource name="editor_arrowheads">Pilespidser</resource>
 		<resource name="editor_arrowheads_both">Begge</resource>

@@ -2,6 +2,7 @@
 
 <language>
 	<resources prefix="Editor">
+		<resource name="settings_destination_editor">Otwórz w edytorze obrazów</resource>
 		<resource name="editor_align_bottom">Do dołu</resource>
 		<resource name="editor_align_center">Wyśrodkowane</resource>
 		<resource name="editor_align_horizontal">Wyrównanie w poziomie</resource>

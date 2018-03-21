@@ -80,7 +80,6 @@
 		<resource name="settings_copypathtoclipboard">העתק נתיב אל הלוח בכל פעם שתמונה נשמרת</resource>
 		<resource name="settings_destination">יעד הלכידה</resource>
 		<resource name="settings_destination_clipboard">העתק אל הלוח</resource>
-		<resource name="settings_destination_editor">פתח בעורך התמונות של התוכנה</resource>
 		<resource name="settings_destination_email">דואר אלקטרוני</resource>
 		<resource name="settings_destination_file">שמור ישירות: תוך שימוש בהגדרות שלמטה</resource>
 		<resource name="settings_destination_fileas">שמירה בשם: פתח תיבת דו-שיח</resource>

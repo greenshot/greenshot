@@ -80,7 +80,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// checkbox_aspectratio
 			// 
 			this.checkbox_aspectratio.AutoSize = true;
-			this.checkbox_aspectratio.LanguageKey = "editor_resize_aspectratio";
+			this.checkbox_aspectratio.LanguageKey = "editor.editor_resize_aspectratio";
 			this.checkbox_aspectratio.Location = new System.Drawing.Point(22, 64);
 			this.checkbox_aspectratio.Name = "checkbox_aspectratio";
 			this.checkbox_aspectratio.Size = new System.Drawing.Size(124, 17);
@@ -90,7 +90,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// label_width
 			// 
 			this.label_width.AutoSize = true;
-			this.label_width.LanguageKey = "editor_resize_width";
+			this.label_width.LanguageKey = "editor.editor_resize_width";
 			this.label_width.Location = new System.Drawing.Point(19, 15);
 			this.label_width.Name = "label_width";
 			this.label_width.Size = new System.Drawing.Size(35, 13);
@@ -99,7 +99,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// label_height
 			// 
 			this.label_height.AutoSize = true;
-			this.label_height.LanguageKey = "editor_resize_height";
+			this.label_height.LanguageKey = "editor.editor_resize_height";
 			this.label_height.Location = new System.Drawing.Point(19, 38);
 			this.label_height.Name = "label_height";
 			this.label_height.Size = new System.Drawing.Size(38, 13);
@@ -158,7 +158,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			this.Controls.Add(this.buttonCancel);
 			this.Controls.Add(this.buttonOK);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-			this.LanguageKey = "editor_resize_settings";
+			this.LanguageKey = "editor.editor_resize_settings";
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "ResizeSettingsForm";

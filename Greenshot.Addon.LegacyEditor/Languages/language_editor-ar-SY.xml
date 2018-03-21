@@ -2,6 +2,7 @@
 
 <language>
 	<resources prefix="Editor">
+		<resource name="settings_destination_editor">افتح في محرر الصور</resource>
 		<resource name="editor_arrange">الترتيب</resource>
 		<resource name="editor_arrowheads">رؤوس السهم</resource>
 		<resource name="editor_arrowheads_both">كلاهما</resource>

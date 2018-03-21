@@ -126,7 +126,6 @@
 		<resource name="settings_copypathtoclipboard">Copier le chemin vers le fichier dans le presse-papier à chaque sauvegarde</resource>
 		<resource name="settings_destination">Destination de la capture d'écran</resource>
 		<resource name="settings_destination_clipboard">Vers le presse-papier</resource>
-		<resource name="settings_destination_editor">Ouvrir dans l'éditeur d'image</resource>
 		<resource name="settings_destination_email">Courriel</resource>
 		<resource name="settings_destination_file">Enregistrez directement (en utilisant les paramètres ci-dessous)</resource>
 		<resource name="settings_destination_fileas">Enregistrer sous (afficher la boîte de dialogue)</resource>

@@ -171,5 +171,18 @@ namespace Greenshot.Addons.Interfaces
 		void RemoveCursor();
 
 		void MakeUndoable(IMemento memento, bool allowMerge);
-	}
+
+	    /// <summary>
+	    /// Use the supplied capture in the surface
+	    /// </summary>
+	    /// <param name="capture">ICapture</param>
+	    void SetCapture(ICapture capture);
+
+	    /// <summary>
+	    /// Use the supplied bitmape in the surface
+	    /// </summary>
+	    /// <param name="bitmap">Bitmap</param>
+	    /// <param name="dispose">specify if the current bitmap must be disposed</param>
+	    void SetBitmap(Bitmap bitmap, bool dispose = false);
+    }
 }

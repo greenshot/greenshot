@@ -79,7 +79,6 @@
 		<resource name="settings_copypathtoclipboard">نسخ مسار الملف الى الذاكرة في كل مرة يتم حفظ صورة</resource>
 		<resource name="settings_destination">‫بعد التقاط الشاشة ..</resource>
 		<resource name="settings_destination_clipboard">انسخ للذاكرة</resource>
-		<resource name="settings_destination_editor">افتح في محرر الصور</resource>
 		<resource name="settings_destination_email">بريد الكتروني</resource>
 		<resource name="settings_destination_file">احفظ مباشرة (باستخدام الاعدادات بالأسفل)</resource>
 		<resource name="settings_destination_fileas">احفظ باسم..</resource>

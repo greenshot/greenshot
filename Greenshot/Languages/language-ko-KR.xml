@@ -125,7 +125,6 @@
 		<resource name="settings_configureplugin">설정</resource>
 		<resource name="settings_destination">파일 저장 방법</resource>
 		<resource name="settings_destination_clipboard">클립보드로 복사</resource>
-		<resource name="settings_destination_editor">이미지 편집기에서 열기</resource>
 		<resource name="settings_destination_email">이메일</resource>
 		<resource name="settings_destination_file">직접 저장 (아래 설정 사용)</resource>
 		<resource name="settings_destination_fileas">다른 이름으로 저장</resource>

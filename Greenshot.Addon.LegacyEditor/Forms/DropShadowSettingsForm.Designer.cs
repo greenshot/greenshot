@@ -170,7 +170,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// labelDarkness
 			// 
 			this.labelDarkness.AutoSize = true;
-			this.labelDarkness.LanguageKey = "editor_dropshadow_darkness";
+            this.labelDarkness.LanguageKey = "editor.editor_dropshadow_darkness";
 			this.labelDarkness.Location = new System.Drawing.Point(12, 73);
 			this.labelDarkness.Name = "labelDarkness";
 			this.labelDarkness.Size = new System.Drawing.Size(92, 13);
@@ -179,7 +179,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// labelOffset
 			// 
 			this.labelOffset.AutoSize = true;
-			this.labelOffset.LanguageKey = "editor_dropshadow_offset";
+			this.labelOffset.LanguageKey = "editor.editor_dropshadow_offset";
 			this.labelOffset.Location = new System.Drawing.Point(12, 35);
 			this.labelOffset.Name = "labelOffset";
 			this.labelOffset.Size = new System.Drawing.Size(75, 13);
@@ -188,7 +188,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// labelThickness
 			// 
 			this.labelThickness.AutoSize = true;
-			this.labelThickness.LanguageKey = "editor_dropshadow_thickness";
+			this.labelThickness.LanguageKey = "editor.editor_dropshadow_thickness";
 			this.labelThickness.Location = new System.Drawing.Point(12, 9);
 			this.labelThickness.Name = "labelThickness";
 			this.labelThickness.Size = new System.Drawing.Size(94, 13);
@@ -213,7 +213,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			this.Controls.Add(this.offsetX);
 			this.Controls.Add(this.thickness);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-			this.LanguageKey = "editor_dropshadow_settings";
+			this.LanguageKey = "editor.editor_dropshadow_settings";
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "DropShadowSettingsForm";

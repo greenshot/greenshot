@@ -2,6 +2,7 @@
 
 <language>
 	<resources prefix="Editor">
+		<resource name="settings_destination_editor">Megnyitás képszerkesztővel</resource>
 		<resource name="editor_arrange">Elrendezés</resource>
 		<resource name="editor_arrowheads">Nyíl végek</resource>
 		<resource name="editor_arrowheads_both">Mindkettő</resource>

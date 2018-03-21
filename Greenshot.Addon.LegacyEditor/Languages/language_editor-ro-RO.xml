@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language>
 	<resources prefix="Editor">
+		<resource name="settings_destination_editor">Deschide în editor imagini</resource>
 		<resource name="editor_arrange">Aranjează</resource>
 		<resource name="editor_arrowheads">Cap săgeată</resource>
 		<resource name="editor_arrowheads_both">Ambele</resource>

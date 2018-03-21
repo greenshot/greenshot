@@ -125,7 +125,6 @@
 		<resource name="settings_copypathtoclipboard">Kopi asal berkas ke papan klip setiap kali gambar disimpan</resource>
 		<resource name="settings_destination">Destinasi</resource>
 		<resource name="settings_destination_clipboard">Kopi ke papan klip</resource>
-		<resource name="settings_destination_editor">Buka di editor gambar</resource>
 		<resource name="settings_destination_email">E-Mail</resource>
 		<resource name="settings_destination_file">Simpan cepat (menggunakan pengaturan berikut)</resource>
 		<resource name="settings_destination_fileas">Simpan sebagai (tampilkan dialog)</resource>

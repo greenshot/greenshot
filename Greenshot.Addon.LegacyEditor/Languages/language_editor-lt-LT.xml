@@ -2,6 +2,7 @@
 
 <language>
 	<resources prefix="Editor">
+		<resource name="settings_destination_editor">Atidaryti redagtoriuje</resource>
 		<resource name="editor_arrange">Išlygiuotas</resource>
 		<resource name="editor_arrowheads">Rodyklė</resource>
 		<resource name="editor_arrowheads_both">Iš abiejų pusių</resource>

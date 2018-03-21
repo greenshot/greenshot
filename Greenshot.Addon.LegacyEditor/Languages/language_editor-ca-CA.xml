@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <language>
 	<resources prefix="Editor">
+		<resource name="settings_destination_editor">Obre la imatge a l'editor</resource>
 		<resource name="editor_align_bottom">Inferior</resource>
 		<resource name="editor_align_center">Centre</resource>
 		<resource name="editor_align_horizontal">Alineació horitzontal</resource>

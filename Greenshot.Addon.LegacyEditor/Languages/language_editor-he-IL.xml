@@ -2,6 +2,7 @@
 
 <language>
 	<resources prefix="Editor">
+		<resource name="settings_destination_editor">פתח בעורך התמונות של התוכנה</resource>
 		<resource name="editor_arrange">סדר</resource>
 		<resource name="editor_arrowheads">ראשי חץ</resource>
 		<resource name="editor_arrowheads_both">שניהם</resource>

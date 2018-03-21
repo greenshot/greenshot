@@ -127,7 +127,6 @@
 		<resource name="settings_copypathtoclipboard">画像の保存時は、つねにファイル パスをクリップボードへコピー</resource>
 		<resource name="settings_destination">撮影後の操作</resource>
 		<resource name="settings_destination_clipboard">クリップボードにコピー</resource>
-		<resource name="settings_destination_editor">イメージ エディターで開く</resource>
 		<resource name="settings_destination_email">Eメール</resource>
 		<resource name="settings_destination_file">保存 （下欄の設定を使用）</resource>
 		<resource name="settings_destination_fileas">名前を付けて保存 （ダイアログを表示）</resource>

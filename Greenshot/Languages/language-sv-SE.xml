@@ -126,7 +126,6 @@
 		<resource name="settings_copypathtoclipboard">Kopiera bildens sökväg till urklipp varje gång en bild sparas</resource>
 		<resource name="settings_destination">Destination</resource>
 		<resource name="settings_destination_clipboard">Kopiera till urklipp</resource>
-		<resource name="settings_destination_editor">Öppna i bildredigeraren</resource>
 		<resource name="settings_destination_email">E-mail</resource>
 		<resource name="settings_destination_file">Spara direkt (använd inställningarna nedanför)</resource>
 		<resource name="settings_destination_fileas">Spara som (visa dialogruta)</resource>

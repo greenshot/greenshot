@@ -79,7 +79,6 @@
 		<resource name="settings_copypathtoclipboard">Kopioi tiedostopolku leikepöydälle kun tiedosto tallennetaan.</resource>
 		<resource name="settings_destination">Kaapatun kuvan käsittely</resource>
 		<resource name="settings_destination_clipboard">Kopioi leikepöydälle</resource>
-		<resource name="settings_destination_editor">Avaa kuva muokkaimessa</resource>
 		<resource name="settings_destination_email">Sähköposti</resource>
 		<resource name="settings_destination_file">Tallenna heti (alla olevilla asetuksilla)</resource>
 		<resource name="settings_destination_fileas">Tallenna nimellä (valintaikkuna)</resource>

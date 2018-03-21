@@ -116,7 +116,6 @@
 		<resource name="settings_copypathtoclipboard">Her görüntü kaydedildiğinde görüntü yolunu panoya kopyala</resource>
 		<resource name="settings_destination">Yakalanan Ekran Görüntüsünün Hedefi</resource>
 		<resource name="settings_destination_clipboard">Panoya kopyala</resource>
-		<resource name="settings_destination_editor">Görüntü düzenleyicide aç</resource>
 		<resource name="settings_destination_email">E-Posta gönder</resource>
 		<resource name="settings_destination_file">Aşağıdaki ayarları kullanarak kaydet</resource>
 		<resource name="settings_destination_fileas">Farklı kaydet (ayar penceresini göster)</resource>

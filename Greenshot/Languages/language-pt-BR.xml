@@ -81,7 +81,6 @@
 		<resource name="settings_copypathtoclipboard">Copiar o caminho completo do arquivo para a Área de transferência</resource>
 		<resource name="settings_destination">Destino da tela capturada</resource>
 		<resource name="settings_destination_clipboard">Área de transferência</resource>
-		<resource name="settings_destination_editor">Abrir imagem no editor</resource>
 		<resource name="settings_destination_email">Enviar por e-mail</resource>
 		<resource name="settings_destination_file">Salvar em um arquivo</resource>
 		<resource name="settings_destination_fileas">Salvar como... (mostrar caixa de diálogo)</resource>

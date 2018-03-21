@@ -80,7 +80,6 @@
 		<resource name="settings_copypathtoclipboard">Másolja a fájl egy példányát a vágólapra minden alkalommal.</resource>
 		<resource name="settings_destination">Mit csináljak a képernyőképpel?</resource>
 		<resource name="settings_destination_clipboard">Másolás vágólapra</resource>
-		<resource name="settings_destination_editor">Megnyitás képszerkesztővel</resource>
 		<resource name="settings_destination_email">E-Mail</resource>
 		<resource name="settings_destination_file">Mentés közvetlenül (lentebb)</resource>
 		<resource name="settings_destination_fileas">Mentés másként(párbeszédablak)</resource>

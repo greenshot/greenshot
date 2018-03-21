@@ -185,7 +185,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// labelDarkness
 			// 
 			this.labelDarkness.AutoSize = true;
-			this.labelDarkness.LanguageKey = "editor_dropshadow_darkness";
+			this.labelDarkness.LanguageKey = "editor.editor_dropshadow_darkness";
 			this.labelDarkness.Location = new System.Drawing.Point(12, 97);
 			this.labelDarkness.Name = "labelDarkness";
 			this.labelDarkness.Size = new System.Drawing.Size(92, 13);
@@ -195,7 +195,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// labelOffset
 			// 
 			this.labelOffset.AutoSize = true;
-			this.labelOffset.LanguageKey = "editor_dropshadow_offset";
+			this.labelOffset.LanguageKey = "editor.editor_dropshadow_offset";
 			this.labelOffset.Location = new System.Drawing.Point(12, 63);
 			this.labelOffset.Name = "labelOffset";
 			this.labelOffset.Size = new System.Drawing.Size(75, 13);
@@ -204,7 +204,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// labelThickness
 			// 
 			this.labelThickness.AutoSize = true;
-			this.labelThickness.LanguageKey = "editor_dropshadow_thickness";
+			this.labelThickness.LanguageKey = "editor.editor_dropshadow_thickness";
 			this.labelThickness.Location = new System.Drawing.Point(12, 37);
 			this.labelThickness.Name = "labelThickness";
 			this.labelThickness.Size = new System.Drawing.Size(94, 13);
@@ -235,7 +235,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// label_toothsize
 			// 
 			this.label_toothsize.AutoSize = true;
-			this.label_toothsize.LanguageKey = "editor_tornedge_toothsize";
+			this.label_toothsize.LanguageKey = "editor.editor_tornedge_toothsize";
 			this.label_toothsize.Location = new System.Drawing.Point(12, 140);
 			this.label_toothsize.Name = "label_toothsize";
 			this.label_toothsize.Size = new System.Drawing.Size(56, 13);
@@ -244,7 +244,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// label_horizontaltoothrange
 			// 
 			this.label_horizontaltoothrange.AutoSize = true;
-			this.label_horizontaltoothrange.LanguageKey = "editor_tornedge_horizontaltoothrange";
+			this.label_horizontaltoothrange.LanguageKey = "editor.editor_tornedge_horizontaltoothrange";
 			this.label_horizontaltoothrange.Location = new System.Drawing.Point(12, 166);
 			this.label_horizontaltoothrange.Name = "label_horizontaltoothrange";
 			this.label_horizontaltoothrange.Size = new System.Drawing.Size(111, 13);
@@ -274,7 +274,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// labelVerticaltoothrange
 			// 
 			this.labelVerticaltoothrange.AutoSize = true;
-			this.labelVerticaltoothrange.LanguageKey = "editor_tornedge_verticaltoothrange";
+			this.labelVerticaltoothrange.LanguageKey = "editor.editor_tornedge_verticaltoothrange";
 			this.labelVerticaltoothrange.Location = new System.Drawing.Point(12, 192);
 			this.labelVerticaltoothrange.Name = "labelVerticaltoothrange";
 			this.labelVerticaltoothrange.Size = new System.Drawing.Size(99, 13);
@@ -305,7 +305,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// top
 			// 
 			this.top.CheckAlign = System.Drawing.ContentAlignment.BottomCenter;
-			this.top.LanguageKey = "editor_tornedge_top";
+			this.top.LanguageKey = "editor.editor_tornedge_top";
 			this.top.Location = new System.Drawing.Point(263, 35);
 			this.top.Name = "top";
 			this.top.Size = new System.Drawing.Size(228, 33);
@@ -317,7 +317,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// right
 			// 
 			this.right.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			this.right.LanguageKey = "editor_tornedge_right";
+			this.right.LanguageKey = "editor.editor_tornedge_right";
 			this.right.Location = new System.Drawing.Point(393, 60);
 			this.right.Name = "right";
 			this.right.Size = new System.Drawing.Size(98, 49);
@@ -328,7 +328,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// bottom
 			// 
 			this.bottom.CheckAlign = System.Drawing.ContentAlignment.TopCenter;
-			this.bottom.LanguageKey = "editor_tornedge_bottom";
+			this.bottom.LanguageKey = "editor.editor_tornedge_bottom";
 			this.bottom.Location = new System.Drawing.Point(263, 98);
 			this.bottom.Name = "bottom";
 			this.bottom.Size = new System.Drawing.Size(228, 31);
@@ -340,7 +340,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// left
 			// 
 			this.left.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-			this.left.LanguageKey = "editor_tornedge_left";
+			this.left.LanguageKey = "editor.editor_tornedge_left";
 			this.left.Location = new System.Drawing.Point(243, 60);
 			this.left.Name = "left";
 			this.left.Size = new System.Drawing.Size(118, 49);
@@ -352,7 +352,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// shadowCheckbox
 			// 
 			this.shadowCheckbox.AutoSize = true;
-			this.shadowCheckbox.LanguageKey = "editor_tornedge_shadow";
+			this.shadowCheckbox.LanguageKey = "editor.editor_tornedge_shadow";
 			this.shadowCheckbox.Location = new System.Drawing.Point(12, 12);
 			this.shadowCheckbox.Name = "shadowCheckbox";
 			this.shadowCheckbox.Size = new System.Drawing.Size(110, 17);
@@ -363,7 +363,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			// all
 			// 
 			this.all.AutoSize = true;
-			this.all.LanguageKey = "editor_tornedge_all";
+			this.all.LanguageKey = "editor.editor_tornedge_all";
 			this.all.Location = new System.Drawing.Point(251, 12);
 			this.all.Name = "all";
 			this.all.Size = new System.Drawing.Size(88, 17);
@@ -402,7 +402,7 @@ namespace Greenshot.Addon.LegacyEditor.Forms {
 			this.Controls.Add(this.offsetX);
 			this.Controls.Add(this.thickness);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-			this.LanguageKey = "editor_tornedge_settings";
+			this.LanguageKey = "editor.editor_tornedge_settings";
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "TornEdgeSettingsForm";

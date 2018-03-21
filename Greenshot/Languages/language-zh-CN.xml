@@ -125,7 +125,6 @@
 		<resource name="settings_copypathtoclipboard">每次保存图片时都将保存路径复制到剪贴板</resource>
 		<resource name="settings_destination">抓图后的动作</resource>
 		<resource name="settings_destination_clipboard">复制图片到剪贴板</resource>
-		<resource name="settings_destination_editor">用图片编辑器打开</resource>
 		<resource name="settings_destination_email">使用E-Mail发送</resource>
 		<resource name="settings_destination_file">直接保存而不询问 （使用以下设置）</resource>
 		<resource name="settings_destination_fileas">另存到（显示对话框）</resource>

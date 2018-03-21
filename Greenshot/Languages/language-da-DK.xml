@@ -67,7 +67,6 @@
 		<resource name="settings_copypathtoclipboard">Kopier filsti til udklipsholder hver gang et billede gemmes</resource>
 		<resource name="settings_destination">Skærmklipsdestination</resource>
 		<resource name="settings_destination_clipboard">Kopier til udklipsholder</resource>
-		<resource name="settings_destination_editor">Åbn i billededitor</resource>
 		<resource name="settings_destination_email">E-mail</resource>
 		<resource name="settings_destination_file">Gem direkte (ud fra nedenstående)</resource>
 		<resource name="settings_destination_fileas">Gem som (viser dialog)</resource>

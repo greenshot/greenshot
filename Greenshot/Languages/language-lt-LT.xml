@@ -78,7 +78,6 @@
 		<resource name="settings_copypathtoclipboard">Išsaugant kopijuoti pilną failo pavadinimą į apsikeitio podelį</resource>
 		<resource name="settings_destination">Padaryta nuotrauka...</resource>
 		<resource name="settings_destination_clipboard">Patalpinti į podelį</resource>
-		<resource name="settings_destination_editor">Atidaryti redagtoriuje</resource>
 		<resource name="settings_destination_email">Išsiųsti elektroniniu paštu</resource>
 		<resource name="settings_destination_file">Išsaugoti į failą</resource>
 		<resource name="settings_destination_fileas">Išsaugoti pagal numatytus nustatymus</resource>

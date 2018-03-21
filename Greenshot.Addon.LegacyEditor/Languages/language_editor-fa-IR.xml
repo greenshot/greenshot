@@ -2,6 +2,7 @@
 
 <language>
 	<resources prefix="Editor">
+		<resource name="settings_destination_editor">باز کردن در ویرایشگر</resource>
 		<resource name="editor_arrange">مرتب کردن</resource>
 		<resource name="editor_arrowheads">نوکهای پیکان</resource>
 		<resource name="editor_arrowheads_both">هردو</resource>

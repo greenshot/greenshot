@@ -67,7 +67,6 @@
 		<resource name="settings_copypathtoclipboard">Copie cale fișier în clipboard de fiecare dată când o imagine este salvată.</resource>
 		<resource name="settings_destination">Destinație captură</resource>
 		<resource name="settings_destination_clipboard">Copie în clipboard</resource>
-		<resource name="settings_destination_editor">Deschide în editor imagini</resource>
 		<resource name="settings_destination_email">E-Mail</resource>
 		<resource name="settings_destination_file">Salvează direct (folosind setările de mai jos)</resource>
 		<resource name="settings_destination_fileas">Salvează ca (afișează dialog)</resource>

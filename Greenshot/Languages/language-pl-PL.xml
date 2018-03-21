@@ -126,7 +126,6 @@
 		<resource name="settings_copypathtoclipboard">Kopiuj ścieżkę pliku do schowka przy każdym zapisie obrazu</resource>
 		<resource name="settings_destination">Miejsce zrzutu ekranu</resource>
 		<resource name="settings_destination_clipboard">Kopiuj do schowka</resource>
-		<resource name="settings_destination_editor">Otwórz w edytorze obrazów</resource>
 		<resource name="settings_destination_email">Wyślij e-mailem</resource>
 		<resource name="settings_destination_file">Zapisz bezpośrednio (wg ustawień poniżej)</resource>
 		<resource name="settings_destination_fileas">Zapisz jako (z oknem dialogowym)</resource>

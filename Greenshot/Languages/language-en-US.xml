@@ -126,7 +126,6 @@
 		<resource name="settings_copypathtoclipboard">Copy file path to clipboard every time an image is saved</resource>
 		<resource name="settings_destination">Destination</resource>
 		<resource name="settings_destination_clipboard">Copy to clipboard</resource>
-		<resource name="settings_destination_editor">Open in image editor</resource>
 		<resource name="settings_destination_email">E-Mail</resource>
 		<resource name="settings_destination_file">Save directly (using settings below)</resource>
 		<resource name="settings_destination_fileas">Save as (displaying dialog)</resource>

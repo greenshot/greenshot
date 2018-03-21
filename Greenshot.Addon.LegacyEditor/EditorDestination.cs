@@ -44,7 +44,8 @@ namespace Greenshot.Addon.LegacyEditor
     [Destination("Editor", 1)]
     public class EditorDestination : AbstractDestination
 	{
-		private static readonly LogSource Log = new LogSource();
+	    private readonly IEditorLanguage _editorLanguage;
+	    private static readonly LogSource Log = new LogSource();
 		private static readonly Bitmap greenshotIcon = GreenshotResources.GetGreenshotIcon().ToBitmap();
 	    private readonly IImageEditor _editor;
 
@@ -54,12 +55,13 @@ namespace Greenshot.Addon.LegacyEditor
         /// <summary>
         /// Default constructor so we can initiate this from MEF
         /// </summary>
-	    public EditorDestination()
-	    {
+        [ImportingConstructor]
+	    public EditorDestination(IEditorLanguage editorLanguage)
+        {
+            _editorLanguage = editorLanguage;
+        }
 
-	    }
-
-        public EditorDestination(EditorFactory editorFactory, IImageEditor editor)
+        public EditorDestination(EditorFactory editorFactory, IEditorLanguage editorLanguage, IImageEditor editor) : this(editorLanguage)
 		{
 		    _editorFactory = editorFactory;
 		    _editor = editor;
@@ -71,9 +73,9 @@ namespace Greenshot.Addon.LegacyEditor
 			{
 				if (_editor == null)
 				{
-					return Language.GetString(LangKey.settings_destination_editor);
+					return _editorLanguage.SettingsDestinationEditor;
 				}
-				return Language.GetString(LangKey.settings_destination_editor) + " - " + _editor.CaptureDetails.Title;
+				return _editorLanguage.SettingsDestinationEditor + " - " + _editor.CaptureDetails.Title;
 			}
 		}
 
@@ -83,7 +85,7 @@ namespace Greenshot.Addon.LegacyEditor
 
 	    public override IEnumerable<IDestination> DynamicDestinations()
 		{
-		    return _editorFactory.Editors.Select(someEditor => new EditorDestination(_editorFactory, someEditor));
+		    return _editorFactory.Editors.Select(someEditor => new EditorDestination(_editorFactory, _editorLanguage, someEditor));
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)

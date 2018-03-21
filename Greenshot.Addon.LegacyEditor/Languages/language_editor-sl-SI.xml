@@ -2,6 +2,7 @@
 
 <language>
 	<resources prefix="Editor">
+		<resource name="settings_destination_editor">Odpri v urejevalniku</resource>
 		<resource name="editor_arrange">Razporedi</resource>
 		<resource name="editor_arrowheads">Glave puščice</resource>
 		<resource name="editor_arrowheads_both">Oboje</resource>

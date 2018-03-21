@@ -2,6 +2,7 @@
 
 <language>
 	<resources prefix="Editor">
+		<resource name="settings_destination_editor">Ouvrir dans l'éditeur d'image</resource>
 		<resource name="editor_align_bottom">En bas</resource>
 		<resource name="editor_align_center">Centré</resource>
 		<resource name="editor_align_horizontal">Alignement horizontal</resource>

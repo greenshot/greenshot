@@ -2,6 +2,7 @@
 
 <language>
 	<resources prefix="Editor">
+		<resource name="settings_destination_editor">Apri in Gest. Immagini</resource>
 		<resource name="editor_align_bottom">In basso</resource>
 		<resource name="editor_align_center">Centro</resource>
 		<resource name="editor_align_horizontal">Allineamento orizzontale</resource>

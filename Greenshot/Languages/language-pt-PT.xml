@@ -125,7 +125,6 @@
 		<resource name="settings_copypathtoclipboard">Copiar atalho para Área de transferência ao ser guardada uma imagem</resource>
 		<resource name="settings_destination">Destino</resource>
 		<resource name="settings_destination_clipboard">Copiar para a área de transferência</resource>
-		<resource name="settings_destination_editor">Abrir no editor de imagem</resource>
 		<resource name="settings_destination_email">Enviar por e-mail</resource>
 		<resource name="settings_destination_file">Guardar directamente (usando definições abaixo)</resource>
 		<resource name="settings_destination_fileas">Guardar como (exibir caixa de diálogo)</resource>

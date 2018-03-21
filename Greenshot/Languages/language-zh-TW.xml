@@ -125,7 +125,6 @@
 		<resource name="settings_copypathtoclipboard">每次儲存圖片時都將路徑複製到剪貼簿</resource>
 		<resource name="settings_destination">目的地</resource>
 		<resource name="settings_destination_clipboard">複製到剪貼簿</resource>
-		<resource name="settings_destination_editor">在圖片編輯器開啟</resource>
 		<resource name="settings_destination_email">電子郵件</resource>
 		<resource name="settings_destination_file">直接儲存 (使用以下設定)</resource>
 		<resource name="settings_destination_fileas">另存新檔 (顯示對話方塊)</resource>

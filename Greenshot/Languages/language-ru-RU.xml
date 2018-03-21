@@ -126,7 +126,6 @@
 		<resource name="settings_copypathtoclipboard">Копировать путь файла в буфер обмена каждый раз при сохранении изображения</resource>
 		<resource name="settings_destination">Пункт назначения</resource>
 		<resource name="settings_destination_clipboard">Копировать в буфер</resource>
-		<resource name="settings_destination_editor">Открыть в редакторе изображений</resource>
 		<resource name="settings_destination_email">E-Mail</resource>
 		<resource name="settings_destination_file">Сохранить непосредственно (с помощью параметров ниже)</resource>
 		<resource name="settings_destination_fileas">Сохранить как (отображать диалоговое окно)</resource>

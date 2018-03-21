@@ -75,7 +75,6 @@
 		<resource name="settings_copypathtoclipboard">Khi lưu ảnh, luôn đường dẫn chép ảnh tới clipboard</resource>
 		<resource name="settings_destination">Thao tác sau khi chụp màn hình</resource>
 		<resource name="settings_destination_clipboard">Chép vào clipboard</resource>
-		<resource name="settings_destination_editor">Mở trình soạn thảo ảnh</resource>
 		<resource name="settings_destination_email">Email</resource>
 		<resource name="settings_destination_file">Lưu mặc định (Sử dụng thiết lập ở dưới)</resource>
 		<resource name="settings_destination_fileas">Lưu dưới dạng (hiện hộp thoại)</resource>
