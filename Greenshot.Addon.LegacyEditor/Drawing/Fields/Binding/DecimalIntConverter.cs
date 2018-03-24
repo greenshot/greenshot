@@ -40,14 +40,14 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields.Binding
 		{
 		}
 
-		protected override decimal convert(int o)
+		protected override decimal Convert(int o)
 		{
-			return Convert.ToDecimal(o);
+			return System.Convert.ToDecimal(o);
 		}
 
-		protected override int convert(decimal o)
+		protected override int Convert(decimal o)
 		{
-			return Convert.ToInt16(o);
+			return System.Convert.ToInt16(o);
 		}
 
 		public static DecimalIntConverter GetInstance()

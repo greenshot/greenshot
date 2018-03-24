@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
@@ -56,29 +57,21 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 		}
 		
 		public EditStatus Status {
-			get { 
-				return this[Count-1].Status; 
-			}
-			set {
+			get => this[Count-1].Status;
+		    set {
 				foreach (var dc in this) {
 					dc.Status = value;
 				}
 			}
 		}
 		
-		public List<IDrawableContainer> AsIDrawableContainerList() {
-			List<IDrawableContainer> interfaceList = new List<IDrawableContainer>();
-			foreach(IDrawableContainer container in this) {
-				interfaceList.Add(container);
-			}
-			return interfaceList;
-		}
-		
-		/// <summary>
-		/// Gets or sets the selection status of the elements.
-		/// If several elements are in the list, true is only returned when all elements are selected.
-		/// </summary>
-		public bool Selected {
+		public List<IDrawableContainer> AsIDrawableContainerList() => this.ToList();
+
+        /// <summary>
+        /// Gets or sets the selection status of the elements.
+        /// If several elements are in the list, true is only returned when all elements are selected.
+        /// </summary>
+        public bool Selected {
 			get { 
 				bool ret = true;
 				foreach(var dc in this) {
@@ -118,12 +111,14 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 		/// </summary>
 		/// <param name="allowMerge">true means allow the moves to be merged</param>
 		public void MakeBoundsChangeUndoable(bool allowMerge) {
-			if (Count > 0 && Parent != null)
-			{
-				var clone = new DrawableContainerList();
-				clone.AddRange(this);
-				Parent.MakeUndoable(new DrawableContainerBoundsChangeMemento(clone), allowMerge);
-			}
+		    if (Count <= 0 || Parent == null)
+		    {
+		        return;
+		    }
+
+		    var clone = new DrawableContainerList();
+		    clone.AddRange(this);
+		    Parent.MakeUndoable(new DrawableContainerBoundsChangeMemento(clone), allowMerge);
 		}
 
 		/// <summary>
@@ -283,7 +278,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			{
 				return;
 			}
-			NativeRect region = NativeRect.Empty;
+			var region = NativeRect.Empty;
 			foreach (var dc in this)
 			{
 				region = region.Union(dc.DrawingBounds);
@@ -418,17 +413,19 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			bool push = surface.Elements.CanPushDown(this);
 			bool pull = surface.Elements.CanPullUp(this);
 
+		    var editorLanguage = CommonServiceLocator.ServiceLocator.Current.GetInstance<IEditorLanguage>();
+
 			ToolStripMenuItem item;
 
 			// Pull "up"
 			if (pull) {
-				item = new ToolStripMenuItem(Language.GetString(LangKey.editor_uptotop));
+				item = new ToolStripMenuItem(editorLanguage.EditorUptotop);
 				item.Click += delegate {
 					surface.Elements.PullElementsToTop(this);
 					surface.Elements.Invalidate();
 				};
 				menu.Items.Add(item);
-				item = new ToolStripMenuItem(Language.GetString(LangKey.editor_uponelevel));
+				item = new ToolStripMenuItem(editorLanguage.EditorUponelevel);
 				item.Click += delegate {
 					surface.Elements.PullElementsUp(this);
 					surface.Elements.Invalidate();
@@ -437,13 +434,13 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			}
 			// Push "down"
 			if (push) {
-				item = new ToolStripMenuItem(Language.GetString(LangKey.editor_downtobottom));
+				item = new ToolStripMenuItem(editorLanguage.EditorDowntobottom);
 				item.Click += delegate {
 					surface.Elements.PushElementsToBottom(this);
 					surface.Elements.Invalidate();
 				};
 				menu.Items.Add(item);
-				item = new ToolStripMenuItem(Language.GetString(LangKey.editor_downonelevel));
+				item = new ToolStripMenuItem(editorLanguage.EditorDownonelevel);
 				item.Click += delegate {
 					surface.Elements.PushElementsDown(this);
 					surface.Elements.Invalidate();
@@ -452,7 +449,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			}
 
 			// Duplicate
-			item = new ToolStripMenuItem(Language.GetString(LangKey.editor_duplicate));
+			item = new ToolStripMenuItem(editorLanguage.EditorDuplicate);
 			item.Click += delegate {
 				IDrawableContainerList dcs = this.Clone();
 				dcs.Parent = surface;
@@ -464,7 +461,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			menu.Items.Add(item);
 
 			// Copy
-			item = new ToolStripMenuItem(Language.GetString(LangKey.editor_copytoclipboard))
+			item = new ToolStripMenuItem(editorLanguage.EditorCopytoclipboard)
 			{
 				Image = (Image) EditorFormResources.GetObject("copyToolStripMenuItem.Image")
 			};
@@ -474,7 +471,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			menu.Items.Add(item);
 
 			// Cut
-			item = new ToolStripMenuItem(Language.GetString(LangKey.editor_cuttoclipboard))
+			item = new ToolStripMenuItem(editorLanguage.EditorCuttoclipboard)
 			{
 				Image = (Image) EditorFormResources.GetObject("btnCut.Image")
 			};
@@ -485,9 +482,11 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 			menu.Items.Add(item);
 
 			// Delete
-			item = new ToolStripMenuItem(Language.GetString(LangKey.editor_deleteelement));
-			item.Image = (Image)EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image");
-			item.Click += delegate {
+		    item = new ToolStripMenuItem(editorLanguage.EditorDeleteelement)
+		    {
+		        Image = (Image) EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image")
+		    };
+		    item.Click += delegate {
 				surface.RemoveElements(this);
 			};
 			menu.Items.Add(item);
@@ -502,25 +501,29 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 					canReset = true;
 				}
 			}
-			if (canReset) {
-				item = new ToolStripMenuItem(Language.GetString(LangKey.editor_resetsize));
-				//item.Image = ((System.Drawing.Image)(editorFormResources.GetObject("removeObjectToolStripMenuItem.Image")));
-				item.Click += delegate {
-					MakeBoundsChangeUndoable(false);
-					foreach (var drawableContainer in this) {
-						var container = (DrawableContainer) drawableContainer;
-						if (!container.HasDefaultSize) {
-							continue;
-						}
-						Size defaultSize = container.DefaultSize;
-						container.MakeBoundsChangeUndoable(false);
-						container.Width = defaultSize.Width;
-						container.Height = defaultSize.Height;
-					}
-					surface.Invalidate();
-				};
-				menu.Items.Add(item);
-			}
+
+		    if (!canReset)
+		    {
+		        return;
+		    }
+
+		    item = new ToolStripMenuItem(editorLanguage.EditorResetsize);
+		    //item.Image = ((System.Drawing.Image)(editorFormResources.GetObject("removeObjectToolStripMenuItem.Image")));
+		    item.Click += delegate {
+		        MakeBoundsChangeUndoable(false);
+		        foreach (var drawableContainer in this) {
+		            var container = (DrawableContainer) drawableContainer;
+		            if (!container.HasDefaultSize) {
+		                continue;
+		            }
+		            Size defaultSize = container.DefaultSize;
+		            container.MakeBoundsChangeUndoable(false);
+		            container.Width = defaultSize.Width;
+		            container.Height = defaultSize.Height;
+		        }
+		        surface.Invalidate();
+		    };
+		    menu.Items.Add(item);
 		}
 
 		public virtual void ShowContextMenu(MouseEventArgs e, ISurface surface)
@@ -544,7 +547,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing {
 		        return;
 		    }
 
-		    ContextMenuStrip menu = new ContextMenuStrip();
+		    var menu = new ContextMenuStrip();
 		    AddContextMenuItems(menu, surface);
 		    if (menu.Items.Count <= 0)
 		    {

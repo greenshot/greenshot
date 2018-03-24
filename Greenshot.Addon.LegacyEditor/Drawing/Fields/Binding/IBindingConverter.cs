@@ -30,6 +30,6 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields.Binding
 	/// </summary>
 	public interface IBindingConverter
 	{
-		object convert(object o);
+		object Convert(object o);
 	}
 }

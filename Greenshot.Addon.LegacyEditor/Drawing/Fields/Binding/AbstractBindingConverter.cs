@@ -34,7 +34,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields.Binding
 	/// </summary>
 	public abstract class AbstractBindingConverter<T1, T2> : IBindingConverter
 	{
-		public object convert(object o)
+		public object Convert(object o)
 		{
 			if (o == null)
 			{
@@ -42,16 +42,16 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields.Binding
 			}
 			if (o is T1)
 			{
-				return convert((T1) o);
+				return Convert((T1) o);
 			}
 			if (o is T2)
 			{
-				return convert((T2) o);
+				return Convert((T2) o);
 			}
 			throw new ArgumentException("Cannot handle argument of type " + o.GetType());
 		}
 
-		protected abstract T2 convert(T1 o);
-		protected abstract T1 convert(T2 o);
+		protected abstract T2 Convert(T1 o);
+		protected abstract T1 Convert(T2 o);
 	}
 }

@@ -148,7 +148,7 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields.Binding
 		    var bValue = sourcePropertyInfo.GetValue(sourceObject, null);
 		    if (Converter != null && bValue != null)
 		    {
-		        bValue = Converter.convert(bValue);
+		        bValue = Converter.Convert(bValue);
 		    }
 		    try
 		    {

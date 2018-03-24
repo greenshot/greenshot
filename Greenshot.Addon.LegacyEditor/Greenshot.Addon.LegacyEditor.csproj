@@ -249,7 +249,6 @@
     </Compile>
     <Compile Include="IEditorConfiguration.cs" />
     <Compile Include="IEditorLanguage.cs" />
-    <Compile Include="LanguageKeys.cs" />
     <Compile Include="Memento\AddElementMemento.cs" />
     <Compile Include="Memento\AddElementsMemento.cs" />
     <Compile Include="Memento\ChangeFieldHolderMemento.cs" />

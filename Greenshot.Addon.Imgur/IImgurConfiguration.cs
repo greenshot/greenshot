@@ -29,6 +29,7 @@ using System.ComponentModel;
 using System.Runtime.Serialization;
 using Dapplo.Ini;
 using Dapplo.Ini.Converters;
+using Dapplo.InterfaceImpl.Extensions;
 using Greenshot.Addons.Core.Enums;
 
 #endregion
@@ -40,7 +41,7 @@ namespace Greenshot.Addon.Imgur
 	/// </summary>
 	[IniSection("Imgur")]
 	[Description("Greenshot Imgur Plugin configuration")]
-	public interface IImgurConfiguration : IIniSection
+	public interface IImgurConfiguration : IIniSection, ITransactionalProperties, INotifyPropertyChanged
 	{
         // Not stored, only run-time!
 	    [IniPropertyBehavior(Read = false, Write = false)]

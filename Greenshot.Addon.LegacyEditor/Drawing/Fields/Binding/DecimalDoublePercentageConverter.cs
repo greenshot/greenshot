@@ -40,14 +40,14 @@ namespace Greenshot.Addon.LegacyEditor.Drawing.Fields.Binding
 		{
 		}
 
-		protected override decimal convert(double o)
+		protected override decimal Convert(double o)
 		{
-			return Convert.ToDecimal(o) * 100;
+			return System.Convert.ToDecimal(o) * 100;
 		}
 
-		protected override double convert(decimal o)
+		protected override double Convert(decimal o)
 		{
-			return Convert.ToDouble(o) / 100;
+			return System.Convert.ToDouble(o) / 100;
 		}
 
 		public static DecimalDoublePercentageConverter GetInstance()

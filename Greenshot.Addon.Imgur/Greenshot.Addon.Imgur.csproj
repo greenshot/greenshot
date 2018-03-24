@@ -170,6 +170,7 @@
     <Compile Include="ImgurUtils.cs" />
     <Compile Include="LanguageKeys.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\ImgurConfigViewModel.cs" />
     <None Include="app.config" />
     <None Include="Languages\language_imgurplugin-de-DE.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
@@ -199,6 +200,13 @@
       <Name>Greenshot.Addons</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Page Include="Views\ImgurConfigView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <PreBuildEvent>
 if exist "$(ProjectDir)ImgurCredentials.private.cs" (
