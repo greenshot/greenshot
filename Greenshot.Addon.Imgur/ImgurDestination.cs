@@ -24,12 +24,17 @@
 #region Usings
 
 using System;
-using System.ComponentModel;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
+using Dapplo.Addons.Bootstrapper.Resolving;
+using Dapplo.HttpExtensions;
+using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
+using Dapplo.Windows.Extensions;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
@@ -49,22 +54,48 @@ namespace Greenshot.Addon.Imgur
 	{
 	    private static readonly LogSource Log = new LogSource();
         private readonly IImgurConfiguration _imgurConfiguration;
+	    private readonly IImgurLanguage _imgurLanguage;
+	    private readonly Dapplo.HttpExtensions.OAuth.OAuth2Settings _oauth2Settings;
 
-        [ImportingConstructor]
-		public ImgurDestination(IImgurConfiguration imgurConfiguration)
+	    [ImportingConstructor]
+		public ImgurDestination(IImgurConfiguration imgurConfiguration, IImgurLanguage imgurLanguage)
 		{
 			_imgurConfiguration = imgurConfiguration;
-		}
+		    _imgurLanguage = imgurLanguage;
+		    _oauth2Settings = new Dapplo.HttpExtensions.OAuth.OAuth2Settings
+            {
+                
+		        AuthorizationUri = new Uri("https://api.imgur.com").AppendSegments("oauth2", "authorize").
+		            ExtendQuery(new Dictionary<string, string>
+		            {
+		                {"response_type", "code"},
+		                {"client_id", "{ClientId}"},
+		                {"redirect_uri", "{RedirectUrl}"},
+		                {"state", "{State}"}
+		            }),
+		        TokenUrl = new Uri("https://api.imgur.com/oauth2/token"),
+		        CloudServiceName = "Imgur",
+		        ClientId = imgurConfiguration.ClientId,
+		        ClientSecret = imgurConfiguration.ClientSecret,
+		        RedirectUrl = "http://getgreenshot.org",
+		        AuthorizeMode = AuthorizeModes.EmbeddedBrowser,
+		        Token = imgurConfiguration
+            };
+        }
 
-		public override string Description => Language.GetString("imgur", LangKey.upload_menu_item);
+		public override string Description => _imgurLanguage.UploadMenuItem;
 
 		public override Bitmap DisplayIcon
 		{
 			get
 			{
-				var resources = new ComponentResourceManager(typeof(ImgurPlugin));
-				return (Bitmap) resources.GetObject("Imgur");
-			}
+			    // TODO: Optimize this
+			    var embeddedResource = GetType().Assembly.FindEmbeddedResources(@".*Imgur\.png").FirstOrDefault();
+			    using (var bitmapStream = GetType().Assembly.GetEmbeddedResourceAsStream(embeddedResource))
+			    {
+			        return BitmapHelper.FromStream(bitmapStream);
+			    }
+            }
 		}
 
 		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
@@ -72,7 +103,7 @@ namespace Greenshot.Addon.Imgur
 		    var exportInformation = new ExportInformation(Designation, Description)
 		    {
 		        ExportMade = Upload(captureDetails, surface, out var uploadUrl),
-		        Uri = uploadUrl
+		        Uri = uploadUrl.AbsoluteUri
 		    };
 		    ProcessExport(exportInformation, surface);
 			return exportInformation;
@@ -86,24 +117,24 @@ namespace Greenshot.Addon.Imgur
         /// <param name="surfaceToUpload">ISurface</param>
         /// <param name="uploadUrl">out string for the url</param>
         /// <returns>true if the upload succeeded</returns>
-        private bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl)
+        private bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out Uri uploadUrl)
         {
             SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_imgurConfiguration.UploadFormat, _imgurConfiguration.UploadJpegQuality, _imgurConfiguration.UploadReduceColors);
             try
             {
                 string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(_imgurConfiguration.FilenamePattern, _imgurConfiguration.UploadFormat, captureDetails));
-                ImgurInfo imgurInfo = null;
+                ImageInfo imgurInfo = null;
 
                 // Run upload in the background
-                new PleaseWaitForm().ShowAndWait("Imgur plug-in", Language.GetString("imgur", LangKey.communication_wait),
+                new PleaseWaitForm().ShowAndWait("Imgur plug-in", _imgurLanguage.CommunicationWait,
                     delegate
                     {
-                        imgurInfo = ImgurUtils.UploadToImgur(surfaceToUpload, outputSettings, captureDetails.Title, filename);
+                        imgurInfo = ImgurUtils.UploadToImgurAsync(_oauth2Settings, surfaceToUpload, outputSettings, captureDetails.Title, filename).Result;
                         if (imgurInfo != null && _imgurConfiguration.AnonymousAccess)
                         {
-                            Log.Info().WriteLine("Storing imgur upload for hash {0} and delete hash {1}", imgurInfo.Hash, imgurInfo.DeleteHash);
-                            _imgurConfiguration.ImgurUploadHistory.Add(imgurInfo.Hash, imgurInfo.DeleteHash);
-                            _imgurConfiguration.RuntimeImgurHistory.Add(imgurInfo.Hash, imgurInfo);
+                            Log.Info().WriteLine("Storing imgur upload for hash {0} and delete hash {1}", imgurInfo.Id, imgurInfo.DeleteHash);
+                            _imgurConfiguration.ImgurUploadHistory.Add(imgurInfo.Id, imgurInfo.DeleteHash);
+                            _imgurConfiguration.RuntimeImgurHistory.Add(imgurInfo.Id, imgurInfo);
                             // TODO: Update History!!!
                             // UpdateHistoryMenuItem();
                         }
@@ -114,30 +145,26 @@ namespace Greenshot.Addon.Imgur
                 {
                     // TODO: Optimize a second call for export
                     using (var tmpImage = surfaceToUpload.GetBitmapForExport())
+                    using(var thumbnail = tmpImage.CreateThumbnail(90, 90))
                     {
-                        imgurInfo.Image = tmpImage.CreateThumbnail(90, 90);
+                        imgurInfo.Image = thumbnail.ToBitmapSource();
                     }
 
-                    if (_imgurConfiguration.UsePageLink)
+                    uploadUrl = _imgurConfiguration.UsePageLink ? imgurInfo.Page : imgurInfo.Original;
+                    if (uploadUrl == null || !_imgurConfiguration.CopyLinkToClipboard)
                     {
-                        uploadUrl = imgurInfo.Page;
+                        return true;
                     }
-                    else
-                    {
-                        uploadUrl = imgurInfo.Original;
-                    }
-                    if (!string.IsNullOrEmpty(uploadUrl) && _imgurConfiguration.CopyLinkToClipboard)
-                    {
-                        try
-                        {
-                            ClipboardHelper.SetClipboardData(uploadUrl);
 
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Error().WriteLine(ex, "Can't write to clipboard: ");
-                            uploadUrl = null;
-                        }
+                    try
+                    {
+                        ClipboardHelper.SetClipboardData(uploadUrl.AbsoluteUri);
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error().WriteLine(ex, "Can't write to clipboard: ");
+                        uploadUrl = null;
                     }
                     return true;
                 }
@@ -145,7 +172,7 @@ namespace Greenshot.Addon.Imgur
             catch (Exception e)
             {
                 Log.Error().WriteLine(e, "Error uploading.");
-                MessageBox.Show(Language.GetString("imgur", LangKey.upload_failure) + " " + e.Message);
+                MessageBox.Show(_imgurLanguage.UploadFailure + " " + e.Message);
             }
             uploadUrl = null;
             return false;

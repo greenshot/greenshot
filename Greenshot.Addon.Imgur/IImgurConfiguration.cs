@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.Serialization;
+using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Ini;
 using Dapplo.Ini.Converters;
 using Dapplo.InterfaceImpl.Extensions;
@@ -41,12 +42,8 @@ namespace Greenshot.Addon.Imgur
 	/// </summary>
 	[IniSection("Imgur")]
 	[Description("Greenshot Imgur Plugin configuration")]
-	public interface IImgurConfiguration : IIniSection, ITransactionalProperties, INotifyPropertyChanged
+	public interface IImgurConfiguration : IIniSection, IOAuth2Token, ITransactionalProperties, INotifyPropertyChanged
 	{
-        // Not stored, only run-time!
-	    [IniPropertyBehavior(Read = false, Write = false)]
-	    IDictionary<string, ImgurInfo> RuntimeImgurHistory { get; set; }
-
 		[Description("Url to Imgur system.")]
 		[DefaultValue("https://api.imgur.com/3")]
 		string ImgurApi3Url { get; set; }
@@ -75,23 +72,23 @@ namespace Greenshot.Addon.Imgur
 		[DefaultValue(true)]
 		bool AnonymousAccess { get; set; }
 
-		[Description("Imgur refresh Token")]
-        [DefaultValue(true)]
-	    [TypeConverter(typeof(StringEncryptionTypeConverter))]
-	    [DataMember(EmitDefaultValue = false)]
-        string RefreshToken { get; set; }
+		/// <summary>
+		///     Not stored, but read so people could theoretically specify their own consumer key.
+		/// </summary>
+		[IniPropertyBehavior(Write = false)]
+		[DefaultValue("@credentials_imgur_consumer_key@")]
+		string ClientId { get; set; }
 
-        /// <summary>
-        ///     AccessToken, not stored
-        /// </summary>
-        [IniPropertyBehavior(Read = false, Write = false)]
-        string AccessToken { get; set; }
+		/// <summary>
+		///     Not stored, but read so people could theoretically specify their own consumer secret.
+		/// </summary>
+		[IniPropertyBehavior(Write = false)]
+		[DefaultValue("@credentials_imgur_consumer_secret@")]
+		string ClientSecret { get; set; }
 
-        /// <summary>
-        ///     AccessTokenExpires, not stored
-        /// </summary>
-        [IniPropertyBehavior(Read = false, Write = false)]
-        DateTimeOffset AccessTokenExpires { get; set; }
+		[Description("Url to Imgur API.")]
+		[DefaultValue("https://api.imgur.com/3")]
+		string ApiUrl { get; set; }
 
 		[Description("Is the title passed on to Imgur")]
 		[DefaultValue(false)]
@@ -105,11 +102,18 @@ namespace Greenshot.Addon.Imgur
 		[DefaultValue("${capturetime:d\"yyyyMMdd-HHmm\"}")]
 		string FilenamePattern { get; set; }
 
+		[Description("Track the upload history")]
+		[DefaultValue(true)]
+		bool TrackHistory { get; set; }
+
 		[Description("Imgur upload history (ImgurUploadHistory.hash=deleteHash)")]
 		IDictionary<string, string> ImgurUploadHistory { get; set; }
 
 	    [IniPropertyBehavior(Read = false, Write = false)]
 	    int Credits { get; set; }
 
+        // Not stored, only run-time!
+	    [IniPropertyBehavior(Read = false, Write = false)]
+	    IDictionary<string, ImageInfo> RuntimeImgurHistory { get; set; }
 	}
 }

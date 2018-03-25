@@ -63,10 +63,10 @@ namespace Greenshot.Addon.Imgur.ViewModels
             config.Register(ImgurConfiguration);
 
             // automatically update the DisplayName
-            var boxLanguageBinding = ImgurLanguage.CreateDisplayNameBinding(this, nameof(IImgurLanguage.SettingsTitle));
+            var imgurLanguageBinding = ImgurLanguage.CreateDisplayNameBinding(this, nameof(IImgurLanguage.SettingsTitle));
 
             // Make sure the greenshotLanguageBinding is disposed when this is no longer active
-            _disposables.Add(boxLanguageBinding);
+            _disposables.Add(imgurLanguageBinding);
 
             base.Initialize(config);
         }

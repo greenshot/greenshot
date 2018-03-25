@@ -1,354 +1,330 @@
-﻿/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2018 Thomas Braun, Jens Klingen, Robin Krom
- * 
- * For more information see: http://getgreenshot.org/
- * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿//  Greenshot - a free and open source screenshot tool
+//  Copyright (C) 2007-2017 Thomas Braun, Jens Klingen, Robin Krom
+// 
+//  For more information see: http://getgreenshot.org/
+//  The Greenshot project is hosted on GitHub: https://github.com/greenshot
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 1 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#region Usings
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 using Dapplo.Ini;
+using Dapplo.HttpExtensions;
+using Dapplo.HttpExtensions.Factory;
+using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
+using Dapplo.Utils;
+using Dapplo.Windows.Extensions;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
 using Greenshot.Gfx;
+using OAuth2Settings = Dapplo.HttpExtensions.OAuth.OAuth2Settings;
 
-namespace Greenshot.Addon.Imgur {
+#endregion
+
+namespace Greenshot.Addon.Imgur
+{
 	/// <summary>
-	/// A collection of Imgur helper methods
+	///     Description of ImgurUtils.
 	/// </summary>
-	public static class ImgurUtils {
+	public static class ImgurUtils
+	{
+		private const string PageUrlPattern = "http://imgur.com/{0}";
+		private const string SmallUrlPattern = "http://i.imgur.com/{0}s.png";
 		private static readonly LogSource Log = new LogSource();
-		private const string SmallUrlPattern = "http://i.imgur.com/{0}s.jpg";
 		private static readonly IImgurConfiguration Config = IniConfig.Current.Get<IImgurConfiguration>();
-		private const string AuthUrlPattern = "https://api.imgur.com/oauth2/authorize?response_type=token&client_id={ClientId}&state={State}";
-		private const string TokenUrl = "https://api.imgur.com/oauth2/token";
 
-		/// <summary>
-		/// Check if we need to load the history
-		/// </summary>
-		/// <returns></returns>
-		public static bool IsHistoryLoadingNeeded()
+		private static readonly HttpBehaviour Behaviour = new HttpBehaviour
 		{
-			Log.Info().WriteLine("Checking if imgur cache loading needed, configuration has {0} imgur hashes, loaded are {1} hashes.", Config.ImgurUploadHistory.Count,
-				Config.RuntimeImgurHistory.Count);
-			return Config.RuntimeImgurHistory.Count != Config.ImgurUploadHistory.Count;
+			OnHttpClientCreated = httpClient =>
+			{
+				httpClient.SetAuthorization("Client-ID", Config.ClientId);
+				httpClient.DefaultRequestHeaders.ExpectContinue = false;
+			}
+		};
+
+		private static async Task<ImageInfo> AnnonymousUploadToImgurAsync(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, IProgress<int> progress = null, CancellationToken token = default)
+		{
+			var uploadUri = new Uri(Config.ApiUrl).AppendSegments("upload.json").ExtendQuery(otherParameters);
+			dynamic imageJson;
+			var localBehaviour = Behaviour.ShallowClone();
+		    if (progress != null)
+		    {
+		        localBehaviour.UploadProgress = percent => { UiContext.RunOn(() => progress.Report((int)(percent * 100)), token); };
+            }
+
+            using (var imageStream = new MemoryStream())
+			{
+			    ImageOutput.SaveToStream(surfaceToUpload, imageStream, outputSettings);
+				imageStream.Position = 0;
+				using (var content = new StreamContent(imageStream))
+				{
+					content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
+					localBehaviour.MakeCurrent();
+					imageJson = await uploadUri.PostAsync<dynamic>(content, token).ConfigureAwait(false);
+				}
+			}
+			return CreateImageInfo(imageJson);
+		}
+
+        /// <summary>
+        ///     Do the actual upload to Picasa
+        /// </summary>
+        /// <param name="oAuth2Settings">OAuth2Settings</param>
+        /// <param name="surfaceToUpload">ICapture</param>
+        /// <param name="outputSettings">SurfaceOutputSettings</param>
+        /// <param name="otherParameters">IDictionary</param>
+        /// <param name="progress">IProgress</param>
+        /// <param name="token"></param>
+        /// <returns>PicasaResponse</returns>
+        public static async Task<ImageInfo> AuthenticatedUploadToImgurAsync(OAuth2Settings oAuth2Settings, ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, IDictionary<string, string> otherParameters, IProgress<int> progress = null, CancellationToken token = default)
+		{
+			dynamic imageJson;
+			var uploadUri = new Uri(Config.ApiUrl).AppendSegments("upload.json").ExtendQuery(otherParameters);
+			var localBehaviour = Behaviour.ShallowClone();
+		    if (progress != null)
+		    {
+		        localBehaviour.UploadProgress = percent => { UiContext.RunOn(() => progress.Report((int)(percent * 100)), token); };
+            }
+            var oauthHttpBehaviour = OAuth2HttpBehaviourFactory.Create(oAuth2Settings, localBehaviour);
+			using (var imageStream = new MemoryStream())
+			{
+			    ImageOutput.SaveToStream(surfaceToUpload, imageStream, outputSettings);
+				imageStream.Position = 0;
+				using (var content = new StreamContent(imageStream))
+				{
+					content.Headers.Add("Content-Type", "image/" + outputSettings.Format);
+					oauthHttpBehaviour.MakeCurrent();
+					imageJson = await uploadUri.PostAsync<dynamic>(content, token);
+				}
+			}
+			return CreateImageInfo(imageJson);
 		}
 
 		/// <summary>
-		/// Load the complete history of the imgur uploads, with the corresponding information
+		///     Helper method to parse the Json into a ImageInfo
 		/// </summary>
-		public static void LoadHistory() {
-			if (!IsHistoryLoadingNeeded())
+		/// <param name="imageJson"></param>
+		/// <param name="deleteHash"></param>
+		/// <returns>filled ImageInfo</returns>
+		private static ImageInfo CreateImageInfo(dynamic imageJson, string deleteHash = null)
+		{
+		    if (imageJson == null)
 			{
+				return null;
+			}
+
+		    if (!imageJson.ContainsKey("data"))
+		    {
+		        return null;
+		    }
+
+		    var data = imageJson.data;
+		    var imageInfo = new ImageInfo
+		    {
+		        Id = data.ContainsKey("id") ? data.id : null,
+		        DeleteHash = data.ContainsKey("deletehash") ? data.deletehash : null,
+		        Title = data.ContainsKey("title") ? data.title : null,
+		        Timestamp = data.ContainsKey("datetime") ? FromUnixTime(data.datetime) : default(DateTimeOffset),
+		        Original = data.ContainsKey("link") ? new Uri(data.link) : null,
+		        Page = data.ContainsKey("id") ? new Uri(string.Format(PageUrlPattern, data.id)) : null,
+		        SmallSquare = data.ContainsKey("id") ? new Uri(string.Format(SmallUrlPattern, data.id)) : null
+		    };
+		    if (string.IsNullOrEmpty(imageInfo.DeleteHash))
+		    {
+		        imageInfo.DeleteHash = deleteHash;
+		    }
+		    return imageInfo;
+		}
+
+		/// <summary>
+		///     Delete an imgur image, this is done by specifying the delete hash
+		/// </summary>
+		/// <param name="imgurInfo"></param>
+		/// <param name="token"></param>
+		public static async Task<string> DeleteImgurImageAsync(ImageInfo imgurInfo, CancellationToken token = default)
+		{
+			Log.Info().WriteLine("Deleting Imgur image for {0}", imgurInfo.DeleteHash);
+			var deleteUri = new Uri(string.Format(Config.ApiUrl + "/image/{0}", imgurInfo.DeleteHash));
+			string responseString;
+			Behaviour.MakeCurrent();
+			using (var client = HttpClientFactory.Create(deleteUri))
+			{
+				var response = await client.DeleteAsync(deleteUri, token).ConfigureAwait(false);
+				if ((response.StatusCode != HttpStatusCode.NotFound) && (response.StatusCode != HttpStatusCode.BadRequest))
+				{
+					await response.HandleErrorAsync().ConfigureAwait(false);
+				}
+				responseString = await response.GetAsAsync<string>(token).ConfigureAwait(false);
+				Log.Info().WriteLine("Delete result: {0}", responseString);
+			}
+			// Make sure we remove it from the history, if no error occured
+			Config.RuntimeImgurHistory.Remove(imgurInfo.Id);
+			Config.ImgurUploadHistory.Remove(imgurInfo.Id);
+
+			// dispose is called inside the imgurInfo object
+			imgurInfo.Image = null;
+			return responseString;
+		}
+
+		private static DateTimeOffset FromUnixTime(double secondsSince)
+		{
+			var epoch = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
+			return epoch.AddSeconds(secondsSince);
+		}
+
+		/// <summary>
+		///     Retrieve the thumbnail of an imgur image
+		/// </summary>
+		/// <param name="token"></param>
+		public static async Task RetrieveImgurCredits(CancellationToken token = default)
+		{
+			var creditsUri = new Uri($"{Config.ApiUrl}/credits.json");
+			Behaviour.MakeCurrent();
+			using (var client = HttpClientFactory.Create(creditsUri))
+			{
+				var response = await client.GetAsync(creditsUri, token).ConfigureAwait(false);
+				await response.HandleErrorAsync().ConfigureAwait(false);
+				var creditsJson = await response.GetAsAsync<dynamic>(token).ConfigureAwait(false);
+				if ((creditsJson != null) && creditsJson.ContainsKey("data"))
+				{
+					dynamic data = creditsJson.data;
+					int credits = 0;
+					if (data.ContainsKey("ClientRemaining"))
+					{
+						credits = (int) data.ClientRemaining;
+						Log.Info().WriteLine("{0}={1}", "ClientRemaining", (int) data.ClientRemaining);
+					}
+					if (data.ContainsKey("UserRemaining"))
+					{
+						credits = Math.Min(credits, (int) data.UserRemaining);
+						Log.Info().WriteLine("{0}={1}", "UserRemaining", (int) data.UserRemaining);
+					}
+					Config.Credits = credits;
+				}
+			}
+		}
+
+		/// <summary>
+		///     Retrieve information on an imgur image
+		/// </summary>
+		/// <param name="id"></param>
+		/// <param name="deleteHash"></param>
+		/// <param name="token"></param>
+		/// <returns>ImgurInfo</returns>
+		public static async Task<ImageInfo> RetrieveImgurInfoAsync(string id, string deleteHash, CancellationToken token = default)
+		{
+			var imageUri = new Uri(string.Format(Config.ApiUrl + "/image/{0}.json", id));
+			Log.Info().WriteLine("Retrieving Imgur info for {0} with url {1}", id, imageUri);
+
+			dynamic imageJson;
+			Behaviour.MakeCurrent();
+			using (var client = HttpClientFactory.Create(imageUri))
+			{
+				var response = await client.GetAsync(imageUri, token).ConfigureAwait(false);
+				// retrieving image data seems to throw a 403 (Unauthorized) if it has been deleted
+				if ((response.StatusCode == HttpStatusCode.NotFound) || (response.StatusCode == HttpStatusCode.Redirect) || (response.StatusCode == HttpStatusCode.Unauthorized))
+				{
+					return null;
+				}
+				await response.HandleErrorAsync().ConfigureAwait(false);
+				imageJson = await response.GetAsAsync<dynamic>(token).ConfigureAwait(false);
+			}
+
+			return CreateImageInfo(imageJson, deleteHash);
+		}
+
+		/// <summary>
+		///     Retrieve the thumbnail of an imgur image
+		/// </summary>
+		/// <param name="imgurInfo"></param>
+		/// <param name="token"></param>
+		public static async Task RetrieveImgurThumbnailAsync(ImageInfo imgurInfo, CancellationToken token = default)
+		{
+			if (imgurInfo.SmallSquare == null)
+			{
+				Log.Info().WriteLine("RetrieveImgurThumbnailAsync: Imgur URL was null, not retrieving thumbnail.");
 				return;
 			}
-
-			// Load the ImUr history
-			foreach (string hash in Config.ImgurUploadHistory.Keys.ToList()) {
-				if (Config.RuntimeImgurHistory.ContainsKey(hash)) {
-					// Already loaded
-					continue;
-				}
-
-				try
+			Log.Info().WriteLine("Retrieving Imgur image for {0} with url {1}", imgurInfo.Id, imgurInfo.SmallSquare);
+			Behaviour.MakeCurrent();
+			using (var client = HttpClientFactory.Create(imgurInfo.SmallSquare))
+			{
+				using (var response = await client.GetAsync(imgurInfo.SmallSquare, token).ConfigureAwait(false))
 				{
-					var deleteHash = Config.ImgurUploadHistory[hash];
-					ImgurInfo imgurInfo = RetrieveImgurInfo(hash, deleteHash);
-					if (imgurInfo != null) {
-						RetrieveImgurThumbnail(imgurInfo);
-						Config.RuntimeImgurHistory[hash] = imgurInfo;
-					} else {
-						Log.Info().WriteLine("Deleting unknown ImgUr {0} from config, delete hash was {1}.", hash, deleteHash);
-						Config.ImgurUploadHistory.Remove(hash);
-						Config.RuntimeImgurHistory.Remove(hash);
-					}
-				} catch (WebException wE) {
-					bool redirected = false;
-					if (wE.Status == WebExceptionStatus.ProtocolError) {
-						HttpWebResponse response = (HttpWebResponse)wE.Response;
-
-						if (response.StatusCode == HttpStatusCode.Forbidden)
-						{
-							Log.Error().WriteLine(wE, "Imgur loading forbidden");
-							break;
-						}
-						// Image no longer available?
-						if (response.StatusCode == HttpStatusCode.Redirect) {
-							Log.Info().WriteLine("ImgUr image for hash {0} is no longer available, removing it from the history", hash);
-							Config.ImgurUploadHistory.Remove(hash);
-							Config.RuntimeImgurHistory.Remove(hash);
-							redirected = true;
-						}
-					}
-					if (!redirected) {
-						Log.Error().WriteLine(wE, "Problem loading ImgUr history for hash {0}", hash);
-					}
-				} catch (Exception e) {
-					Log.Error().WriteLine(e, "Problem loading ImgUr history for hash {0}", hash);
+					await response.HandleErrorAsync().ConfigureAwait(false);
+				    imgurInfo.Image = await response.GetAsAsync<BitmapSource>(token).ConfigureAwait(false);
 				}
 			}
 		}
 
 		/// <summary>
-		/// Use this to make sure Imgur knows from where the upload comes.
+		///     Do the actual upload to Imgur
+		///     For more details on the available parameters, see: http://api.imgur.com/resources_anon
 		/// </summary>
-		/// <param name="webRequest"></param>
-		private static void SetClientId(HttpWebRequest webRequest) {
-			webRequest.Headers.Add("Authorization", "Client-ID " + ImgurCredentials.CONSUMER_KEY);
-		}
-
-		/// <summary>
-		/// Do the actual upload to Imgur
-		/// For more details on the available parameters, see: http://api.imgur.com/resources_anon
-		/// </summary>
+		/// <param name="oAuth2Settings"></param>
 		/// <param name="surfaceToUpload">ISurface to upload</param>
 		/// <param name="outputSettings">OutputSettings for the image file format</param>
 		/// <param name="title">Title</param>
 		/// <param name="filename">Filename</param>
+		/// <param name="progress"></param>
+		/// <param name="token"></param>
 		/// <returns>ImgurInfo with details</returns>
-		public static ImgurInfo UploadToImgur(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename) {
-			IDictionary<string, object> otherParameters = new Dictionary<string, object>();
+		public static async Task<ImageInfo> UploadToImgurAsync(OAuth2Settings oAuth2Settings, ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename, IProgress<int> progress = null, CancellationToken token = default)
+		{
+			IDictionary<string, string> otherParameters = new Dictionary<string, string>();
 			// add title
-			if (title != null && Config.AddTitle) {
-				otherParameters["title"]= title;
+			if ((title != null) && Config.AddTitle)
+			{
+				otherParameters.Add("title", title);
 			}
 			// add filename
-			if (filename != null && Config.AddFilename) {
-				otherParameters["name"] = filename;
-			}
-			string responseString = null;
-			if (Config.AnonymousAccess) {
-				// add key, we only use the other parameters for the AnonymousAccess
-				//otherParameters.Add("key", IMGUR_ANONYMOUS_API_KEY);
-				HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(Config.ImgurApi3Url + "/upload.xml?" + NetworkHelper.GenerateQueryParameters(otherParameters), HTTPMethod.POST);
-				webRequest.ContentType = "image/" + outputSettings.Format;
-				webRequest.ServicePoint.Expect100Continue = false;
-
-				SetClientId(webRequest);
-				try {
-					using (var requestStream = webRequest.GetRequestStream()) {
-						ImageOutput.SaveToStream(surfaceToUpload, requestStream, outputSettings);
-					}
-		
-					using (WebResponse response = webRequest.GetResponse())
-					{
-						LogRateLimitInfo(response);
-						var responseStream = response.GetResponseStream();
-						if (responseStream != null)
-						{
-							using (StreamReader reader = new StreamReader(responseStream, true))
-							{
-								responseString = reader.ReadToEnd();
-							}
-						}
-					}
-				} catch (Exception ex) {
-					Log.Error().WriteLine(ex, "Upload to imgur gave an exeption: ");
-					throw;
-				}
-			} else {
-
-				var oauth2Settings = new OAuth2Settings
-				{
-					AuthUrlPattern = AuthUrlPattern,
-					TokenUrl = TokenUrl,
-					RedirectUrl = "https://imgur.com",
-					CloudServiceName = "Imgur",
-					ClientId = ImgurCredentials.CONSUMER_KEY,
-					ClientSecret = ImgurCredentials.CONSUMER_SECRET,
-					AuthorizeMode = OAuth2AuthorizeMode.EmbeddedBrowser,
-					BrowserSize = new Size(680, 880),
-					RefreshToken = Config.RefreshToken,
-					AccessToken = Config.AccessToken,
-					AccessTokenExpires = Config.AccessTokenExpires
-				};
-
-				// Copy the settings from the config, which is kept in memory and on the disk
-
-				try
-				{
-					var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.POST, Config.ImgurApi3Url + "/upload.xml", oauth2Settings);
-					otherParameters["image"] = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
-
-					NetworkHelper.WriteMultipartFormData(webRequest, otherParameters);
-
-					responseString = NetworkHelper.GetResponseAsString(webRequest);
-				}
-				finally
-				{
-					// Copy the settings back to the config, so they are stored.
-					Config.RefreshToken = oauth2Settings.RefreshToken;
-					Config.AccessToken = oauth2Settings.AccessToken;
-					Config.AccessTokenExpires = oauth2Settings.AccessTokenExpires;
-				}
-			}
-			if (string.IsNullOrEmpty(responseString))
+			if ((filename != null) && Config.AddFilename)
 			{
-				return null;
+				otherParameters.Add("name", filename);
 			}
-			return ImgurInfo.ParseResponse(responseString);
-		}
-
-		/// <summary>
-		/// Retrieve the thumbnail of an imgur image
-		/// </summary>
-		/// <param name="imgurInfo"></param>
-		public static void RetrieveImgurThumbnail(ImgurInfo imgurInfo) {
-			if (imgurInfo.SmallSquare == null) {
-				Log.Warn().WriteLine("Imgur URL was null, not retrieving thumbnail.");
-				return;
-			}
-			Log.Info().WriteLine("Retrieving Imgur image for {0} with url {1}", imgurInfo.Hash, imgurInfo.SmallSquare);
-			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(string.Format(SmallUrlPattern, imgurInfo.Hash), HTTPMethod.GET);
-			webRequest.ServicePoint.Expect100Continue = false;
-			// Not for getting the thumbnail, in anonymous modus
-			//SetClientId(webRequest);
-			using (WebResponse response = webRequest.GetResponse()) {
-				LogRateLimitInfo(response);
-				Stream responseStream = response.GetResponseStream();
-				if (responseStream != null)
-				{
-					imgurInfo.Image = BitmapHelper.FromStream(responseStream);
-				}
-			}
-		}
-
-		/// <summary>
-		/// Retrieve information on an imgur image
-		/// </summary>
-		/// <param name="hash"></param>
-		/// <param name="deleteHash"></param>
-		/// <returns>ImgurInfo</returns>
-		public static ImgurInfo RetrieveImgurInfo(string hash, string deleteHash) {
-			string url = Config.ImgurApi3Url + "/image/" + hash + ".xml";
-			Log.Info().WriteLine("Retrieving Imgur info for {0} with url {1}", hash, url);
-			HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url, HTTPMethod.GET);
-			webRequest.ServicePoint.Expect100Continue = false;
-			SetClientId(webRequest);
-			string responseString = null;
-			try {
-				using (WebResponse response = webRequest.GetResponse()) {
-					LogRateLimitInfo(response);
-					var responseStream = response.GetResponseStream();
-					if (responseStream != null)
-					{
-						using (StreamReader reader = new StreamReader(responseStream, true))
-						{
-							responseString = reader.ReadToEnd();
-						}
-					}
-				}
-			} catch (WebException wE) {
-				if (wE.Status == WebExceptionStatus.ProtocolError) {
-					if (((HttpWebResponse)wE.Response).StatusCode == HttpStatusCode.NotFound) {
-						return null;
-					}
-				}
-				throw;
-			}
-			ImgurInfo imgurInfo = null;
-			if (responseString != null)
+			ImageInfo imageInfo;
+			if (Config.AnonymousAccess)
 			{
-				Log.Debug().WriteLine(responseString);
-				imgurInfo = ImgurInfo.ParseResponse(responseString);
-				imgurInfo.DeleteHash = deleteHash;
+				imageInfo = await AnnonymousUploadToImgurAsync(surfaceToUpload, outputSettings, otherParameters, progress, token).ConfigureAwait(false);
 			}
-			return imgurInfo;
-		}
+			else
+			{
+				imageInfo = await AuthenticatedUploadToImgurAsync(oAuth2Settings, surfaceToUpload, outputSettings, otherParameters, progress, token).ConfigureAwait(false);
+			}
 
-		/// <summary>
-		/// Delete an imgur image, this is done by specifying the delete hash
-		/// </summary>
-		/// <param name="imgurInfo"></param>
-		public static void DeleteImgurImage(ImgurInfo imgurInfo) {
-			Log.Info().WriteLine("Deleting Imgur image for {0}", imgurInfo.DeleteHash);
-			
-			try {
-				string url = Config.ImgurApi3Url + "/image/" + imgurInfo.DeleteHash + ".xml";
-				HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(url, HTTPMethod.DELETE);
-				webRequest.ServicePoint.Expect100Continue = false;
-				SetClientId(webRequest);
-				string responseString = null;
-				using (WebResponse response = webRequest.GetResponse()) {
-					LogRateLimitInfo(response);
-					var responseStream = response.GetResponseStream();
-					if (responseStream != null)
-					{
-						using (StreamReader reader = new StreamReader(responseStream, true))
-						{
-							responseString = reader.ReadToEnd();
-						}
-					}
-				}
-				Log.Info().WriteLine("Delete result: {0}", responseString);
-			} catch (WebException wE) {
-				// Allow "Bad request" this means we already deleted it
-				if (wE.Status == WebExceptionStatus.ProtocolError) {
-					if (((HttpWebResponse)wE.Response).StatusCode != HttpStatusCode.BadRequest) {
-						throw ;
-					}
-				}
+			if ((imageInfo != null) && Config.TrackHistory)
+			{
+				Config.ImgurUploadHistory.Add(imageInfo.Id, imageInfo.DeleteHash);
+				Config.RuntimeImgurHistory.Add(imageInfo.Id, imageInfo);
+                using (var tmpImage = surfaceToUpload.GetBitmapForExport())
+                using (var thumbnail = tmpImage.CreateThumbnail(90, 90))
+                {
+                    imageInfo.Image = thumbnail.ToBitmapSource();
+                }
 			}
-			// Make sure we remove it from the history, if no error occured
-			Config.RuntimeImgurHistory.Remove(imgurInfo.Hash);
-			Config.ImgurUploadHistory.Remove(imgurInfo.Hash);
-			imgurInfo.Image = null;
-		}
 
-		/// <summary>
-		/// Helper for logging
-		/// </summary>
-		/// <param name="nameValues"></param>
-		/// <param name="key"></param>
-		private static void LogHeader(IDictionary<string, string> nameValues, string key) {
-			if (nameValues.ContainsKey(key)) {
-				Log.Info().WriteLine("{0}={1}", key, nameValues[key]);
-			}
-		}
-
-		/// <summary>
-		/// Log the current rate-limit information
-		/// </summary>
-		/// <param name="response"></param>
-		private static void LogRateLimitInfo(WebResponse response) {
-			IDictionary<string, string> nameValues = new Dictionary<string, string>();
-			foreach (string key in response.Headers.AllKeys) {
-				if (!nameValues.ContainsKey(key)) {
-					nameValues.Add(key, response.Headers[key]);
-				}
-			}
-			LogHeader(nameValues, "X-RateLimit-Limit");
-			LogHeader(nameValues, "X-RateLimit-Remaining");
-			LogHeader(nameValues, "X-RateLimit-UserLimit");
-			LogHeader(nameValues, "X-RateLimit-UserRemaining");
-			LogHeader(nameValues, "X-RateLimit-UserReset");
-			LogHeader(nameValues, "X-RateLimit-ClientLimit");
-			LogHeader(nameValues, "X-RateLimit-ClientRemaining");
-
-			// Update the credits in the config, this is shown in a form
-		    if (nameValues.ContainsKey("X-RateLimit-Remaining") && int.TryParse(nameValues["X-RateLimit-Remaining"], out var credits)) {
-				Config.Credits = credits;
-			}
+			return imageInfo;
 		}
 	}
 }
