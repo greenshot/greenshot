@@ -45,7 +45,6 @@ using Greenshot.Addons.Animation;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;
-using Greenshot.Gfx;
 using Greenshot.Gfx.Legacy;
 
 #endregion

@@ -25,7 +25,6 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using Dapplo.Log;
-using Greenshot.Addon.LegacyEditor.Drawing;
 using Greenshot.Addon.LegacyEditor.Forms;
 using Greenshot.Addons.Core;
 using Greenshot.Addons.Interfaces;

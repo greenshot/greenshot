@@ -36,7 +36,6 @@ using Greenshot.Addons.Core;
 using Greenshot.Addons.Core.Enums;
 using Greenshot.Addons.Interfaces;
 using Greenshot.Addons.Interfaces.Plugin;
-using Greenshot.Gfx;
 using Greenshot.Gfx.Effects;
 using Greenshot.Gfx.Legacy;
 using LangKey = Greenshot.Configuration.LangKey;

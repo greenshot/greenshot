@@ -30,7 +30,6 @@ using System.Runtime.Serialization;
 using Greenshot.Addon.LegacyEditor.Drawing.Adorners;
 using Greenshot.Addon.LegacyEditor.Drawing.Fields;
 using Greenshot.Addons.Interfaces.Drawing;
-using Greenshot.Gfx;
 using Greenshot.Gfx.Legacy;
 
 #endregion

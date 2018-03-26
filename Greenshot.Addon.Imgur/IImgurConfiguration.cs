@@ -31,6 +31,7 @@ using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Ini;
 using Dapplo.Ini.Converters;
 using Dapplo.InterfaceImpl.Extensions;
+using Greenshot.Addon.Imgur.Entities;
 using Greenshot.Addons.Core.Enums;
 
 #endregion
@@ -114,6 +115,6 @@ namespace Greenshot.Addon.Imgur
 
         // Not stored, only run-time!
 	    [IniPropertyBehavior(Read = false, Write = false)]
-	    IDictionary<string, ImageInfo> RuntimeImgurHistory { get; set; }
+	    IDictionary<string, ImgurImage> RuntimeImgurHistory { get; set; }
 	}
 }

@@ -492,7 +492,7 @@ namespace Greenshot.Forms
 
 			trackBarJpegQuality.Value = coreConfiguration.OutputFileJpegQuality;
 			trackBarJpegQuality.Enabled = !coreConfiguration.IsWriteProtected("OutputFileJpegQuality");
-			textBoxJpegQuality.Text = coreConfiguration.OutputFileJpegQuality + "%";
+			textBoxJpegQuality.Text = $"{coreConfiguration.OutputFileJpegQuality}%";
 
 			DisplayDestinations();
 

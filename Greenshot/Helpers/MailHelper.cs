@@ -26,6 +26,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -337,10 +338,10 @@ namespace Greenshot.Helpers
 					// Deallocate the files
 					_DeallocFiles(message);
 				}
-				var errorCode = (MAPI_CODES) Enum.ToObject(typeof(MAPI_CODES), error);
+				var errorCode = (MapiCodes) Enum.ToObject(typeof(MapiCodes), error);
 
 				// Check for error
-				if (errorCode == MAPI_CODES.SUCCESS || errorCode == MAPI_CODES.USER_ABORT)
+				if (errorCode == MapiCodes.SUCCESS || errorCode == MapiCodes.USER_ABORT)
 				{
 					return;
 				}
@@ -348,7 +349,7 @@ namespace Greenshot.Helpers
 				Log.Error().WriteLine(null, "Error sending MAPI Email. Error: " + errorText + " (code = " + errorCode + ").");
 				MessageBox.Show(errorText, "Mail (MAPI) destination", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				// Recover from bad settings, show again
-				if (errorCode != MAPI_CODES.INVALID_RECIPS)
+				if (errorCode != MapiCodes.INVALID_RECIPS)
 				{
 					return;
 				}
@@ -419,7 +420,8 @@ namespace Greenshot.Helpers
 			return ptra;
 		}
 
-		private enum MAPI_CODES
+		[SuppressMessage("ReSharper", "InconsistentNaming")]
+		private enum MapiCodes
 		{
 			SUCCESS = 0,
 			USER_ABORT = 1,
@@ -454,91 +456,91 @@ namespace Greenshot.Helpers
 		/// <summary>
 		///     Logs any Mapi errors.
 		/// </summary>
-		private string GetMapiError(MAPI_CODES errorCode)
+		private string GetMapiError(MapiCodes errorCode)
 		{
 			var error = string.Empty;
 
 			switch (errorCode)
 			{
-				case MAPI_CODES.USER_ABORT:
+				case MapiCodes.USER_ABORT:
 					error = "User Aborted.";
 					break;
-				case MAPI_CODES.FAILURE:
+				case MapiCodes.FAILURE:
 					error = "MAPI Failure.";
 					break;
-				case MAPI_CODES.LOGIN_FAILURE:
+				case MapiCodes.LOGIN_FAILURE:
 					error = "Login Failure.";
 					break;
-				case MAPI_CODES.DISK_FULL:
+				case MapiCodes.DISK_FULL:
 					error = "MAPI Disk full.";
 					break;
-				case MAPI_CODES.INSUFFICIENT_MEMORY:
+				case MapiCodes.INSUFFICIENT_MEMORY:
 					error = "MAPI Insufficient memory.";
 					break;
-				case MAPI_CODES.BLK_TOO_SMALL:
+				case MapiCodes.BLK_TOO_SMALL:
 					error = "MAPI Block too small.";
 					break;
-				case MAPI_CODES.TOO_MANY_SESSIONS:
+				case MapiCodes.TOO_MANY_SESSIONS:
 					error = "MAPI Too many sessions.";
 					break;
-				case MAPI_CODES.TOO_MANY_FILES:
+				case MapiCodes.TOO_MANY_FILES:
 					error = "MAPI too many files.";
 					break;
-				case MAPI_CODES.TOO_MANY_RECIPIENTS:
+				case MapiCodes.TOO_MANY_RECIPIENTS:
 					error = "MAPI too many recipients.";
 					break;
-				case MAPI_CODES.ATTACHMENT_NOT_FOUND:
+				case MapiCodes.ATTACHMENT_NOT_FOUND:
 					error = "MAPI Attachment not found.";
 					break;
-				case MAPI_CODES.ATTACHMENT_OPEN_FAILURE:
+				case MapiCodes.ATTACHMENT_OPEN_FAILURE:
 					error = "MAPI Attachment open failure.";
 					break;
-				case MAPI_CODES.ATTACHMENT_WRITE_FAILURE:
+				case MapiCodes.ATTACHMENT_WRITE_FAILURE:
 					error = "MAPI Attachment Write Failure.";
 					break;
-				case MAPI_CODES.UNKNOWN_RECIPIENT:
+				case MapiCodes.UNKNOWN_RECIPIENT:
 					error = "MAPI Unknown recipient.";
 					break;
-				case MAPI_CODES.BAD_RECIPTYPE:
+				case MapiCodes.BAD_RECIPTYPE:
 					error = "MAPI Bad recipient type.";
 					break;
-				case MAPI_CODES.NO_MESSAGES:
+				case MapiCodes.NO_MESSAGES:
 					error = "MAPI No messages.";
 					break;
-				case MAPI_CODES.INVALID_MESSAGE:
+				case MapiCodes.INVALID_MESSAGE:
 					error = "MAPI Invalid message.";
 					break;
-				case MAPI_CODES.TEXT_TOO_LARGE:
+				case MapiCodes.TEXT_TOO_LARGE:
 					error = "MAPI Text too large.";
 					break;
-				case MAPI_CODES.INVALID_SESSION:
+				case MapiCodes.INVALID_SESSION:
 					error = "MAPI Invalid session.";
 					break;
-				case MAPI_CODES.TYPE_NOT_SUPPORTED:
+				case MapiCodes.TYPE_NOT_SUPPORTED:
 					error = "MAPI Type not supported.";
 					break;
-				case MAPI_CODES.AMBIGUOUS_RECIPIENT:
+				case MapiCodes.AMBIGUOUS_RECIPIENT:
 					error = "MAPI Ambiguous recipient.";
 					break;
-				case MAPI_CODES.MESSAGE_IN_USE:
+				case MapiCodes.MESSAGE_IN_USE:
 					error = "MAPI Message in use.";
 					break;
-				case MAPI_CODES.NETWORK_FAILURE:
+				case MapiCodes.NETWORK_FAILURE:
 					error = "MAPI Network failure.";
 					break;
-				case MAPI_CODES.INVALID_EDITFIELDS:
+				case MapiCodes.INVALID_EDITFIELDS:
 					error = "MAPI Invalid edit fields.";
 					break;
-				case MAPI_CODES.INVALID_RECIPS:
+				case MapiCodes.INVALID_RECIPS:
 					error = "MAPI Invalid Recipients.";
 					break;
-				case MAPI_CODES.NOT_SUPPORTED:
+				case MapiCodes.NOT_SUPPORTED:
 					error = "MAPI Not supported.";
 					break;
-				case MAPI_CODES.NO_LIBRARY:
+				case MapiCodes.NO_LIBRARY:
 					error = "MAPI No Library.";
 					break;
-				case MAPI_CODES.INVALID_PARAMETER:
+				case MapiCodes.INVALID_PARAMETER:
 					error = "MAPI Invalid parameter.";
 					break;
 			}

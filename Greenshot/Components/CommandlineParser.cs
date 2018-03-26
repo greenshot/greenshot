@@ -50,6 +50,7 @@ namespace Greenshot.Components
         /// <summary>
         /// Process the commandline arguments
         /// </summary>
+        /// <param name="isAlreadyRunning">bool which specifies if the application is already running</param>
         /// <param name="arguments">string array with the arguments</param>
         public void Process(bool isAlreadyRunning, string[] arguments)
         {
@@ -149,11 +150,13 @@ namespace Greenshot.Components
                     {
                         Log.Error().WriteLine(ex, "Couldn't reload configuration.");
                     }
+                    // TODO:
+/*
                     finally
                     {
-                        // TODO:
-                        //FreeMutex();
+                        FreeMutex();
                     }
+*/
                     return;
                 }
 

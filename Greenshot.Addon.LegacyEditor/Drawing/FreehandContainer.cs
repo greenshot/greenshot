@@ -29,7 +29,6 @@ using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Addon.LegacyEditor.Drawing.Fields;
 using Greenshot.Addons.Interfaces.Drawing;
-using Greenshot.Gfx;
 using Greenshot.Gfx.Legacy;
 
 namespace Greenshot.Addon.LegacyEditor.Drawing {

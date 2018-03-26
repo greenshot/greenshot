@@ -23,6 +23,7 @@
 
 #region Usings
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Printing;
@@ -96,7 +97,7 @@ namespace Greenshot.Destinations
 				{
 					return 1;
 				}
-				return p1.CompareTo(p2);
+				return string.Compare(p1, p2, StringComparison.Ordinal);
 			});
 			foreach (var printer in printers)
 			{

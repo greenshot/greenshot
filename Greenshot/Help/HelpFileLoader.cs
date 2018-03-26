@@ -50,15 +50,15 @@ namespace Greenshot.Help
 		///     URL of help file in selected ietf, or (if not present) default ietf, or null (if not present, too. probably
 		///     indicating that there is no internet connection)
 		/// </returns>
-		private static string FindOnlineHelpUrl(string currentIETF)
+		private static string FindOnlineHelpUrl(string currentIetf)
 		{
 			string ret = null;
 
 			var extHelpUrlForCurrrentIETF = ExtHelpUrl;
 
-			if (!currentIETF.Equals("en-US"))
+			if (!currentIetf.Equals("en-US"))
 			{
-				extHelpUrlForCurrrentIETF += currentIETF.ToLower() + "/";
+				extHelpUrlForCurrrentIETF += currentIetf.ToLower() + "/";
 			}
 
 			var httpStatusCode = GetHttpStatus(extHelpUrlForCurrrentIETF);

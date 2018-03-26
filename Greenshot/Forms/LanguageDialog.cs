@@ -106,11 +106,7 @@ namespace Greenshot.Forms
 
 		public static LanguageDialog GetInstance()
 		{
-			if (_uniqueInstance == null)
-			{
-				_uniqueInstance = new LanguageDialog();
-			}
-			return _uniqueInstance;
+		    return _uniqueInstance ?? (_uniqueInstance = new LanguageDialog());
 		}
 	}
 }

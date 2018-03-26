@@ -144,7 +144,7 @@ namespace Greenshot.Forms
 			InitializeComponent();
 
 			// Use the self drawn image, first we create the background to be the backcolor (as we animate from this)
-			_bitmap = BitmapFactory.CreateEmpty(90, 90, PixelFormat.Format24bppRgb, BackColor, 96, 96);
+			_bitmap = BitmapFactory.CreateEmpty(90, 90, PixelFormat.Format24bppRgb, BackColor);
 			pictureBox1.Image = _bitmap;
 			var v = Assembly.GetExecutingAssembly().GetName().Version;
 
@@ -173,14 +173,13 @@ namespace Greenshot.Forms
 				if (IsTerminalServerSession)
 				{
 					// No animation
-					pixelAnimation = new RectangleAnimator(new Rectangle(gSpot.X, gSpot.Y, w - 2, w - 2), new Rectangle(gSpot.X, gSpot.Y, w - 2, w - 2), 1, EasingTypes.Cubic,
-						EasingModes.EaseIn);
+					pixelAnimation = new RectangleAnimator(new Rectangle(gSpot.X, gSpot.Y, w - 2, w - 2), new Rectangle(gSpot.X, gSpot.Y, w - 2, w - 2), 1, EasingTypes.Cubic);
 				}
 				else
 				{
 					// Create the animation, first we do nothing (on the final destination)
 					var standingStill = new Rectangle(gSpot.X + offset, gSpot.Y + offset, 0, 0);
-					pixelAnimation = new RectangleAnimator(standingStill, standingStill, pixelWaitFrames, EasingTypes.Quintic, EasingModes.EaseIn);
+					pixelAnimation = new RectangleAnimator(standingStill, standingStill, pixelWaitFrames, EasingTypes.Quintic);
 					// And than we size to the wanted size.
 					pixelAnimation.QueueDestinationLeg(new Rectangle(gSpot.X, gSpot.Y, w - 2, w - 2), frames);
 				}
@@ -195,7 +194,7 @@ namespace Greenshot.Forms
 			_hasAnimationsLeft = true;
 
 			// Pixel Color cycle colors, here we use a pre-animated loop which stores the values.
-			var pixelColorAnimator = new ColorAnimator(_pixelColor, Color.FromArgb(255, 255, 255), 6, EasingTypes.Quadratic, EasingModes.EaseIn);
+			var pixelColorAnimator = new ColorAnimator(_pixelColor, Color.FromArgb(255, 255, 255), 6, EasingTypes.Quadratic);
 			pixelColorAnimator.QueueDestinationLeg(_pixelColor, 6, EasingTypes.Quadratic, EasingModes.EaseOut);
 			do
 			{
@@ -204,7 +203,7 @@ namespace Greenshot.Forms
 			} while (pixelColorAnimator.HasNext);
 
 			// color animation for the background
-			_backgroundAnimation = new ColorAnimator(BackColor, _backColor, FramesForMillis(5000), EasingTypes.Linear, EasingModes.EaseIn);
+			_backgroundAnimation = new ColorAnimator(BackColor, _backColor, FramesForMillis(5000));
 		}
 
 		/// <summary>

@@ -54,7 +54,7 @@ namespace Greenshot.Forms
 			if (_defaultImage == null || _defaultImage.Size != CoreConfig.IconSize)
 			{
 				_defaultImage?.Dispose();
-				_defaultImage = BitmapFactory.CreateEmpty(CoreConfig.IconSize.Width, CoreConfig.IconSize.Height, PixelFormat.Format32bppArgb, Color.Transparent, 96f, 96f);
+				_defaultImage = BitmapFactory.CreateEmpty(CoreConfig.IconSize.Width, CoreConfig.IconSize.Height, PixelFormat.Format32bppArgb, Color.Transparent);
 			}
 			Image = _defaultImage;
 		}
