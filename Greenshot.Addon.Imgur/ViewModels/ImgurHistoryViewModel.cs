@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using Caliburn.Micro;
 using Dapplo.CaliburnMicro.Extensions;
 using Dapplo.Log;
+using Greenshot.Addon.Imgur.Entities;
 using Greenshot.Addons;
 using Greenshot.Addons.Core;
 
@@ -58,7 +59,7 @@ namespace Greenshot.Addon.Imgur.ViewModels
         /// <summary>
         /// The list of imgur items
         /// </summary>
-        public IList<ImageInfo> ImgurHistory { get; } = new BindableCollection<ImageInfo>();
+        public IList<ImgurImage> ImgurHistory { get; } = new BindableCollection<ImgurImage>();
 
         protected override void OnActivate()
         {
@@ -124,7 +125,7 @@ namespace Greenshot.Addon.Imgur.ViewModels
             }
         }
 
-        public ImageInfo SelectedImgur { get; private set; }
+        public ImgurImage SelectedImgur { get; private set; }
 
         public bool CanDelete => true;
 
@@ -137,8 +138,7 @@ namespace Greenshot.Addon.Imgur.ViewModels
 
         public void CopyToClipboard()
         {
-            var uri = ImgurConfiguration.UsePageLink ? SelectedImgur.Page : SelectedImgur.Original;
-            ClipboardHelper.SetClipboardData(uri.AbsoluteUri);
+            ClipboardHelper.SetClipboardData(SelectedImgur.Data.Link?.AbsoluteUri);
         }
 
         public void ClearHistory()
@@ -150,7 +150,11 @@ namespace Greenshot.Addon.Imgur.ViewModels
 
         public void Show()
         {
-            Process.Start(SelectedImgur.Page.AbsoluteUri);
+            var link = SelectedImgur.Data.Link?.AbsoluteUri;
+            if (link != null)
+            {
+                Process.Start(link);
+            }
         }
     }
 }

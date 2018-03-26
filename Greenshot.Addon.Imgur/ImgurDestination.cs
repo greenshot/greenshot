@@ -35,6 +35,7 @@ using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.OAuth;
 using Dapplo.Log;
 using Dapplo.Windows.Extensions;
+using Greenshot.Addon.Imgur.Entities;
 using Greenshot.Addons.Addons;
 using Greenshot.Addons.Controls;
 using Greenshot.Addons.Core;
@@ -62,6 +63,7 @@ namespace Greenshot.Addon.Imgur
 		{
 			_imgurConfiguration = imgurConfiguration;
 		    _imgurLanguage = imgurLanguage;
+            // Configure the OAuth2 settings for Imgur communication
 		    _oauth2Settings = new Dapplo.HttpExtensions.OAuth.OAuth2Settings
             {
                 
@@ -103,12 +105,11 @@ namespace Greenshot.Addon.Imgur
 		    var exportInformation = new ExportInformation(Designation, Description)
 		    {
 		        ExportMade = Upload(captureDetails, surface, out var uploadUrl),
-		        Uri = uploadUrl.AbsoluteUri
+		        Uri = uploadUrl?.AbsoluteUri
 		    };
 		    ProcessExport(exportInformation, surface);
 			return exportInformation;
 		}
-
 
         /// <summary>
         /// Upload the capture to imgur
@@ -123,34 +124,39 @@ namespace Greenshot.Addon.Imgur
             try
             {
                 string filename = Path.GetFileName(FilenameHelper.GetFilenameFromPattern(_imgurConfiguration.FilenamePattern, _imgurConfiguration.UploadFormat, captureDetails));
-                ImageInfo imgurInfo = null;
+                ImgurImage imgurImage = null;
 
                 // Run upload in the background
                 new PleaseWaitForm().ShowAndWait("Imgur plug-in", _imgurLanguage.CommunicationWait,
                     delegate
                     {
-                        imgurInfo = ImgurUtils.UploadToImgurAsync(_oauth2Settings, surfaceToUpload, outputSettings, captureDetails.Title, filename).Result;
-                        if (imgurInfo != null && _imgurConfiguration.AnonymousAccess)
+                        imgurImage = ImgurUtils.UploadToImgurAsync(_oauth2Settings, surfaceToUpload, outputSettings, captureDetails.Title, filename).Result;
+                        if (imgurImage == null)
                         {
-                            Log.Info().WriteLine("Storing imgur upload for hash {0} and delete hash {1}", imgurInfo.Id, imgurInfo.DeleteHash);
-                            _imgurConfiguration.ImgurUploadHistory.Add(imgurInfo.Id, imgurInfo.DeleteHash);
-                            _imgurConfiguration.RuntimeImgurHistory.Add(imgurInfo.Id, imgurInfo);
-                            // TODO: Update History!!!
-                            // UpdateHistoryMenuItem();
+                            return;
                         }
+                        // Create thumbnail
+                        using (var tmpImage = surfaceToUpload.GetBitmapForExport())
+                        using (var thumbnail = tmpImage.CreateThumbnail(90, 90))
+                        {
+                            imgurImage.Image = thumbnail.ToBitmapSource();
+                        }
+                        if (!_imgurConfiguration.AnonymousAccess || !_imgurConfiguration.TrackHistory)
+                        {
+                            return;
+                        }
+
+                        Log.Info().WriteLine("Storing imgur upload for hash {0} and delete hash {1}", imgurImage.Data.Id, imgurImage.Data.Deletehash);
+                        _imgurConfiguration.ImgurUploadHistory.Add(imgurImage.Data.Id, imgurImage.Data.Deletehash);
+                        _imgurConfiguration.RuntimeImgurHistory.Add(imgurImage.Data.Id, imgurImage);
+                        // TODO: Update History - ViewModel!!!
+                        // UpdateHistoryMenuItem();
                     }
                 );
 
-                if (imgurInfo != null)
+                if (imgurImage != null)
                 {
-                    // TODO: Optimize a second call for export
-                    using (var tmpImage = surfaceToUpload.GetBitmapForExport())
-                    using(var thumbnail = tmpImage.CreateThumbnail(90, 90))
-                    {
-                        imgurInfo.Image = thumbnail.ToBitmapSource();
-                    }
-
-                    uploadUrl = _imgurConfiguration.UsePageLink ? imgurInfo.Page : imgurInfo.Original;
+                    uploadUrl = _imgurConfiguration.UsePageLink ? imgurImage.Data.LinkPage: imgurImage.Data.Link;
                     if (uploadUrl == null || !_imgurConfiguration.CopyLinkToClipboard)
                     {
                         return true;

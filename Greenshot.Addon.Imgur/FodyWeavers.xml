@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Weavers>
+    <Costura IncludeDebugSymbols='false'>
+        <IncludeAssemblies>
+            Dapplo.HttpExtensions
+            Dapplo.HttpExtensions.JsonNet
+            Dapplo.HttpExtensions.OAuth
+            Newtonsoft.Json
+        </IncludeAssemblies>
+    </Costura>
+</Weavers>
